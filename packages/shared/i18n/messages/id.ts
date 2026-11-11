@@ -163,6 +163,8 @@ export const id: Messages = {
       'Fewmail meminta izin untuk membaca, merapikan, dan mengirim Gmail untukmu. Tidak ada yang dikirim atau diarsipkan tanpa persetujuanmu, kecuali kamu membuat aturan yang mengizinkannya.',
     continue: 'Lanjutkan dengan Google',
     lead: 'Fewmail membaca kotak masukmu, membalas dengan gayamu, dan hanya menampilkan yang benar-benar butuh kamu.',
+    telegram:
+      'Juga di Telegram: terima ringkasan, setujui balasan, atau cukup kirim pesan suara.',
     title: 'Hanya yang penting.',
   },
   mail: {

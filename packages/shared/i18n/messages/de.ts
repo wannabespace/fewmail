@@ -160,6 +160,8 @@ export const de: Messages = {
       'Fewmail bittet darum, Gmail für dich zu lesen, zu ordnen und zu senden. Ohne dein Okay wird nichts gesendet und nichts archiviert, außer du legst eine Regel an, die es erlaubt.',
     continue: 'Weiter mit Google',
     lead: 'Fewmail liest deinen Posteingang für dich, antwortet in deinem Ton und zeigt dir nur, was dich wirklich braucht.',
+    telegram:
+      'Funktioniert auch in Telegram: Briefing lesen, Antworten freigeben oder einfach eine Sprachnachricht schicken.',
     title: 'Nur, was zählt.',
   },
   mail: {

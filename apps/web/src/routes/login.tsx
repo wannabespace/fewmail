@@ -1,12 +1,12 @@
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { Fragment, useState } from 'react'
 
 import { LanguageSelect } from '~/components/agent-fields'
+import { LoginStory, TelegramMark } from '~/components/login-story'
 import { Logo } from '~/components/logo'
 import { signInWithGoogle } from '~/lib/auth'
 import { localeStore, useLocale, useT } from '~/lib/i18n'
@@ -26,58 +26,6 @@ const GoogleMark = () => (
     />
   </svg>
 )
-
-const PREVIEW_ROWS = [
-  { isImportant: false, width: 'w-3/5' },
-  { isImportant: false, width: 'w-2/3' },
-  { isImportant: true, width: 'w-4/5' },
-  { isImportant: false, width: 'w-1/2' },
-  { isImportant: false, width: 'w-3/4' },
-]
-
-const InboxPreview = () => {
-  const isReduced = useReducedMotion()
-
-  return (
-    <div aria-hidden="true" className="flex w-full max-w-sm flex-col gap-3">
-      {PREVIEW_ROWS.map(({ isImportant, width }, index) => (
-        <motion.div
-          // oxlint-disable-next-line react/no-array-index-key -- static decoration, never reorders
-          key={index}
-          initial={isReduced ? false : { opacity: 0, y: 12 }}
-          animate={
-            isImportant
-              ? { opacity: 1, scale: 1.04, y: 0 }
-              : { opacity: 0.55, scale: 0.97, x: 20, y: 0 }
-          }
-          transition={{
-            delay: isReduced ? 0 : 0.15 + index * 0.06,
-            duration: 0.5,
-            ease: EASE,
-            opacity: { delay: isReduced ? 0 : 0.9 + index * 0.08 },
-            scale: { delay: isReduced ? 0 : 0.9 + index * 0.08 },
-            x: { delay: isReduced ? 0 : 0.9 + index * 0.08 },
-          }}
-          className={cn(
-            'bg-popover flex items-center gap-3 rounded-2xl p-4 ring',
-            isImportant ? 'ring-foreground/10 shadow-sm' : 'ring-foreground/6'
-          )}
-        >
-          <span
-            className={cn(
-              'size-2 shrink-0 rounded-full',
-              isImportant ? 'bg-primary' : 'ring-foreground/30 ring-1'
-            )}
-          />
-          <span className="flex flex-1 flex-col gap-2">
-            <span className="bg-foreground/15 h-2 w-1/3 rounded-full" />
-            <span className={cn('bg-foreground/8 h-2 rounded-full', width)} />
-          </span>
-        </motion.div>
-      ))}
-    </div>
-  )
-}
 
 const LoginPage = () => {
   const t = useT()
@@ -119,6 +67,15 @@ const LoginPage = () => {
               {t.login.lead}
             </p>
           </motion.div>
+          <motion.p
+            variants={rise}
+            className="text-muted-foreground flex items-center gap-3 text-sm text-pretty"
+          >
+            <span className="bg-secondary text-foreground flex size-8 shrink-0 items-center justify-center rounded-lg">
+              <TelegramMark className="size-4" />
+            </span>
+            {t.login.telegram}
+          </motion.p>
           <motion.div variants={rise} className="flex flex-col gap-4">
             <Button size="lg" disabled={isRedirecting} onClick={signIn}>
               <GoogleMark />
@@ -145,7 +102,7 @@ const LoginPage = () => {
       </section>
 
       <aside className="bg-background ring-foreground/6 m-3 hidden items-center justify-center overflow-hidden rounded-3xl px-12 ring lg:flex">
-        <InboxPreview />
+        <LoginStory />
       </aside>
     </main>
   )

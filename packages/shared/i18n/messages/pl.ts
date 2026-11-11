@@ -178,6 +178,8 @@ export const pl: Messages = {
       'Fewmail prosi o dostęp do czytania, porządkowania i wysyłania poczty Gmail w twoim imieniu. Nic nie zostanie wysłane ani zarchiwizowane bez twojej zgody, chyba że ustawisz regułę, która na to pozwala.',
     continue: 'Kontynuuj z Google',
     lead: 'Fewmail czyta twoją skrzynkę za ciebie, odpowiada twoim głosem i pokazuje tylko to, co naprawdę wymaga twojej uwagi.',
+    telegram:
+      'Działa też w Telegramie: odbieraj podsumowanie, zatwierdzaj odpowiedzi albo po prostu nagraj głosówkę.',
     title: 'Tylko to, co ważne.',
   },
   mail: {
