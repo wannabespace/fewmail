@@ -369,8 +369,17 @@ export const hi: Messages = {
     weekend: 'इस वीकेंड',
   },
   spam: {
+    reasonList: 'स्पैमर डोमेन की सार्वजनिक सूची में है',
+    reasonPattern: {
+      auth: 'भेजने वाले की पुष्टि विफल: पता नकली है',
+      infra: 'ऐसे नेटवर्क से भेजा गया जिसे कई Fewmail यूज़र्स ने स्पैम बताया',
+      link: 'ऐसी साइटों के लिंक जिन्हें कई Fewmail यूज़र्स ने स्पैम बताया',
+      signals: 'नया डोमेन, अजीब पता और कमज़ोर पुष्टि एक साथ',
+      template: 'वही टेक्स्ट जिसे कई Fewmail यूज़र्स ने स्पैम बताया',
+    },
     reasonCommunity: 'कई Fewmail यूज़र्स ने इसे स्पैम बताया',
     reasonYou: 'आपने इस भेजने वाले को स्पैम बताया',
+    suspect: 'स्पैम लगता है',
   },
   starterRules: {
     alwaysShow:
@@ -492,10 +501,14 @@ export const hi: Messages = {
       }),
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} सक्रिय फ़िशिंग साइटों की सार्वजनिक सूची में है। लिंक न खोलें, साइन इन न करें और भुगतान न करें।`,
     lookalike_domain: (domain: string) =>
       `यह ${domain} जैसा दिखता है, पर यह अलग पता है। लिंक पर क्लिक न करें और भुगतान न करें।`,
     new_sender_payment: (domain: string) =>
       `${domain} से पहला ईमेल है और इसमें पैसे माँगे गए हैं। किसी भरोसेमंद तरीके से पुष्टि करें।`,
+    spoofed_sender: (domain: string) =>
+      `${domain} से होने का दावा है, लेकिन ${domain} ने इसे नहीं भेजा। लिंक पर क्लिक न करें और भुगतान न करें।`,
     payment_change: (domain: string) =>
       `${domain} से नए भुगतान विवरण आए हैं। भुगतान से पहले फ़ोन पर पुष्टि करें।`,
     title: 'कुछ करने से पहले जाँच लें',

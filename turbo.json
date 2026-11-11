@@ -2,9 +2,23 @@
   "$schema": "./node_modules/turbo/schema.json",
   "envMode": "loose",
   "tasks": {
-    "dev": { "persistent": true, "cache": false },
-    "build": { "dependsOn": ["^build"], "cache": false },
-    "check-types": { "cache": false },
-    "test": { "cache": false }
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "check-types": {
+      "cache": false
+    },
+    "test": {
+      "cache": false
+    },
+    "dev:worker": {
+      "persistent": true,
+      "cache": false
+    }
   }
 }

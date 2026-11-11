@@ -367,8 +367,17 @@ export const ko: Messages = {
     weekend: '이번 주말',
   },
   spam: {
+    reasonList: '스팸 발신 도메인 공개 목록에 있어요',
+    reasonPattern: {
+      auth: '발신자 인증 실패: 주소가 위조됐어요',
+      infra: '여러 Fewmail 사용자가 스팸으로 신고한 네트워크에서 보냈어요',
+      link: '여러 Fewmail 사용자가 스팸으로 신고한 사이트로 연결돼요',
+      signals: '새 도메인, 이상한 주소, 약한 인증이 함께 나타나요',
+      template: '여러 Fewmail 사용자가 스팸으로 신고한 내용과 같아요',
+    },
     reasonCommunity: '여러 Fewmail 사용자가 스팸으로 신고했어요',
     reasonYou: '이 발신자를 스팸으로 신고했어요',
+    suspect: '스팸 같아요',
   },
   starterRules: {
     alwaysShow:
@@ -472,10 +481,14 @@ export const ko: Messages = {
     threads: (total: number) => `대화 ${total}개`,
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain}은(는) 활성 피싱 사이트 공개 목록에 있어요. 링크를 열거나 로그인하거나 결제하지 마세요.`,
     lookalike_domain: (domain: string) =>
       `${domain}처럼 보이지만 다른 주소예요. 링크를 누르거나 결제하지 마세요.`,
     new_sender_payment: (domain: string) =>
       `${domain}에서 온 첫 이메일인데 돈을 요청하고 있어요. 이미 신뢰하는 다른 경로로 확인하세요.`,
+    spoofed_sender: (domain: string) =>
+      `${domain}에서 보냈다고 하지만 ${domain}이 보낸 메일이 아니에요. 링크를 누르거나 결제하지 마세요.`,
     payment_change: (domain: string) =>
       `${domain}에서 새 결제 정보를 보냈어요. 결제하기 전에 전화로 확인하세요.`,
     title: '행동하기 전에 확인하세요',

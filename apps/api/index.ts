@@ -9,7 +9,6 @@ import { handleMcp } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
 import { startTelegram, telegramWebhook } from './telegram'
-import { startWorker } from './worker'
 
 const rpc = new RPCHandler(router)
 
@@ -32,7 +31,6 @@ const app = new Hono()
   .get('/health', (c) => c.text('ok'))
 
 await runMigrations()
-startWorker()
 void startTelegram()
 
 export default {

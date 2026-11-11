@@ -387,8 +387,20 @@ export const fr: Messages = {
     title: 'Réglages',
   },
   spam: {
+    reasonList: 'Sur une liste publique de domaines de spammeurs',
+    reasonPattern: {
+      auth: 'Échec de l’authentification de l’expéditeur : l’adresse est falsifiée',
+      infra:
+        'Envoyé depuis un réseau signalé comme spam par plusieurs utilisateurs de Fewmail',
+      link: 'Liens vers des sites signalés comme spam par plusieurs utilisateurs de Fewmail',
+      signals:
+        'Domaine récent, adresse étrange et authentification faible à la fois',
+      template:
+        'Même texte que celui signalé comme spam par plusieurs utilisateurs de Fewmail',
+    },
     reasonCommunity: 'Signalé comme spam par plusieurs utilisateurs de Fewmail',
     reasonYou: 'Tu as signalé cet expéditeur comme spam',
+    suspect: 'Ressemble à du spam',
   },
   starterRules: {
     alwaysShow:
@@ -521,10 +533,14 @@ export const fr: Messages = {
       }),
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} figure sur une liste publique de sites d’hameçonnage actifs. N’ouvrez aucun lien, ne vous connectez pas et ne payez pas.`,
     lookalike_domain: (domain: string) =>
       `Ressemble à ${domain}, mais c’est une autre adresse. Ne cliquez sur aucun lien et ne payez pas.`,
     new_sender_payment: (domain: string) =>
       `Premier e-mail de ${domain}, et il demande de l’argent. Vérifiez par un canal auquel vous faites déjà confiance.`,
+    spoofed_sender: (domain: string) =>
+      `Prétend venir de ${domain}, mais ${domain} ne l’a pas envoyé. Ne cliquez sur aucun lien et ne payez pas.`,
     payment_change: (domain: string) =>
       `Nouvelles coordonnées de paiement de ${domain}. Confirmez par téléphone avant de payer.`,
     title: 'Vérifiez avant d’agir',

@@ -56,7 +56,7 @@ const simhash = (words: string[]) => {
   return print
 }
 
-const hamming = (left: bigint, right: bigint) => {
+export const hamming = (left: bigint, right: bigint) => {
   let difference = left ^ right
   let count = 0
   while (difference) {
@@ -69,6 +69,28 @@ const hamming = (left: bigint, right: bigint) => {
 const bands = (print: bigint) =>
   [0n, 16n, 32n, 48n].map((shift) => Number((print >> shift) & BAND_MASK))
 
+export const isNear = (left: bigint, hex: string) =>
+  hamming(left, BigInt(`0x${hex}`)) <= MAX_HAMMING
+
+export const personalWords = async (userId: string) => {
+  const [user] = await db
+    .select({ name: users.name })
+    .from(users)
+    .where(eq(users.id, userId))
+  return (user?.name ?? '').toLowerCase().split(/\s+/u)
+}
+
+/** Null for texts too short to tell a template from a coincidence. */
+export const fingerprint = (body: string, personal: string[]) => {
+  const words = tokens(body, personal)
+  if (words.length < SHINGLE * 4) {
+    return null
+  }
+  const print = simhash(words)
+  const [band0 = 0, band1 = 0, band2 = 0, band3 = 0] = bands(print)
+  return { band0, band1, band2, band3, print }
+}
+
 /** Fingerprints fake-personal mail (no List-Unsubscribe) and counts how many Fewmail users got a near copy. */
 export const measureBulk = async (userId: string, incoming: Message[]) => {
   const candidates = incoming.filter(
@@ -80,21 +102,16 @@ export const measureBulk = async (userId: string, incoming: Message[]) => {
   if (candidates.length === 0) {
     return
   }
-  const [user] = await db
-    .select({ name: users.name })
-    .from(users)
-    .where(eq(users.id, userId))
-  const personal = (user?.name ?? '').toLowerCase().split(/\s+/u)
+  const personal = await personalWords(userId)
   const userHash = userHashOf(userId)
   const since = subDays(new Date(), WINDOW_DAYS)
 
   for (const message of candidates) {
-    const words = tokens(message.body, personal)
-    if (words.length < SHINGLE * 4) {
+    const printed = fingerprint(message.body, personal)
+    if (!printed) {
       continue
     }
-    const print = simhash(words)
-    const [band0 = 0, band1 = 0, band2 = 0, band3 = 0] = bands(print)
+    const { band0, band1, band2, band3, print } = printed
     // oxlint-disable-next-line eslint/no-await-in-loop -- each print must see the ones inserted before it
     const near = await db
       .select({ print: bulkPrints.print, userHash: bulkPrints.userHash })
@@ -111,11 +128,7 @@ export const measureBulk = async (userId: string, incoming: Message[]) => {
         )
       )
     const recipients = new Set(
-      near
-        .filter(
-          (row) => hamming(BigInt(`0x${row.print}`), print) <= MAX_HAMMING
-        )
-        .map((row) => row.userHash)
+      near.filter((row) => isNear(print, row.print)).map((row) => row.userHash)
     )
     if (!recipients.has(userHash)) {
       // oxlint-disable-next-line eslint/no-await-in-loop -- see above

@@ -385,8 +385,20 @@ export const de: Messages = {
     title: 'Einstellungen',
   },
   spam: {
+    reasonList: 'Auf einer öffentlichen Liste von Spammer-Domains',
+    reasonPattern: {
+      auth: 'Absender-Authentifizierung fehlgeschlagen: Die Adresse ist gefälscht',
+      infra:
+        'Aus einem Netzwerk gesendet, das mehrere Fewmail-Nutzer als Spam gemeldet haben',
+      link: 'Links zu Seiten, die mehrere Fewmail-Nutzer als Spam gemeldet haben',
+      signals:
+        'Neue Domain, seltsame Adresse und schwache Authentifizierung zugleich',
+      template:
+        'Derselbe Text, den mehrere Fewmail-Nutzer als Spam gemeldet haben',
+    },
     reasonCommunity: 'Von mehreren Fewmail-Nutzern als Spam gemeldet',
     reasonYou: 'Du hast diesen Absender als Spam gemeldet',
+    suspect: 'Wirkt wie Spam',
   },
   starterRules: {
     alwaysShow:
@@ -513,10 +525,14 @@ export const de: Messages = {
       }),
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} steht auf einer öffentlichen Liste aktiver Phishing-Seiten. Keine Links öffnen, nicht anmelden, nichts bezahlen.`,
     lookalike_domain: (domain: string) =>
       `Sieht aus wie ${domain}, ist aber eine andere Adresse. Klick keine Links an und zahl nichts.`,
     new_sender_payment: (domain: string) =>
       `Erste Mail von ${domain}, und es geht um Geld. Prüf das über einen Weg, dem du schon vertraust.`,
+    spoofed_sender: (domain: string) =>
+      `Gibt vor, von ${domain} zu sein, aber ${domain} hat sie nicht gesendet. Klicke auf keine Links und zahle nichts.`,
     payment_change: (domain: string) =>
       `Neue Zahlungsdaten von ${domain}. Bestätige sie telefonisch, bevor du zahlst.`,
     title: 'Erst prüfen, dann handeln',

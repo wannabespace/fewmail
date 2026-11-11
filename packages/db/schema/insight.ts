@@ -1,5 +1,8 @@
 import type {
   BillingPeriod,
+  DomainList,
+  PatternKind,
+  SpamVerdict,
   TaskAutonomy,
   TaskStatus,
   TransactionKind,
@@ -151,3 +154,61 @@ export const tasks = d.snakeCase.table(
   },
   (table) => [d.index('tasks_user_thread_idx').on(table.userId, table.threadId)]
 )
+
+export const knownDomains = d.snakeCase.table(
+  'known_domains',
+  {
+    domain: d.text().notNull(),
+    list: d.text().$type<DomainList>().notNull(),
+    rank: d.integer(),
+    updatedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    d.primaryKey({ columns: [table.list, table.domain] }),
+    d.index('known_domains_domain_idx').on(table.domain),
+  ]
+)
+
+/** Spam votes on a message's text fingerprint, so a template stays flagged whichever address sends it next. */
+export const templateReports = d.snakeCase.table(
+  'template_reports',
+  {
+    band0: d.integer().notNull(),
+    band1: d.integer().notNull(),
+    band2: d.integer().notNull(),
+    band3: d.integer().notNull(),
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    print: d.text().notNull(),
+    userHash: d.text().notNull(),
+    verdict: d.text().$type<SpamVerdict>().notNull(),
+  },
+  (table) => [
+    d.primaryKey({ columns: [table.userHash, table.print] }),
+    d.index('template_reports_band0_idx').on(table.band0),
+    d.index('template_reports_band1_idx').on(table.band1),
+    d.index('template_reports_band2_idx').on(table.band2),
+    d.index('template_reports_band3_idx').on(table.band3),
+  ]
+)
+
+export const patternReports = d.snakeCase.table(
+  'pattern_reports',
+  {
+    hash: d.text().notNull(),
+    kind: d.text().$type<PatternKind>().notNull(),
+    updatedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    userHash: d.text().notNull(),
+    verdict: d.text().$type<SpamVerdict>().notNull(),
+  },
+  (table) => [
+    d.primaryKey({ columns: [table.userHash, table.kind, table.hash] }),
+    d.index('pattern_reports_hash_idx').on(table.kind, table.hash),
+  ]
+)
+
+/** RDAP registration dates; `registeredAt` stays null when the registry does not say. */
+export const domainAges = d.snakeCase.table('domain_ages', {
+  checkedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+  domain: d.text().primaryKey(),
+  registeredAt: d.timestamp({ withTimezone: true }),
+})

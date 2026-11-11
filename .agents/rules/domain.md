@@ -18,12 +18,13 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Snooze** | Hide a thread until a time; it comes back to the inbox unread. Free. |
 | **Follow-up** | "Remind me if no reply in N days" on a sent email (Free: the thread resurfaces). The agent also sets follow-ups itself on sent mail that expects an answer (all plans); Pro adds a nudge in Today. |
 | **Knowledge** | Free-form facts the user gives the agent (prices, availability…), used in drafts and autocomplete. Pro. |
-| **Spam shield** | Community spam protection: "Report spam" (`!`) moves the thread to Gmail spam and votes; enough independent votes move that sender's mail to spam for everyone. "Not spam" votes the other way. Free. |
+| **Spam shield** | Community spam protection: "Report spam" (`!`) moves the thread to Gmail spam and votes; enough independent votes move that sender's mail to spam for everyone. Votes also count against the campaign's patterns — the same text, the sending network, the linked domains — so a spammer gains nothing by switching address. "Not spam" votes the other way. Free. |
+| **Maybe spam** | One weak signal (odd domain name, freshly registered domain, weak sender authentication): labelled "Looks like spam" and kept out of Important, never moved. Two or more → spam. Free. |
 | **Snippets** | Saved texts inserted with `;name` in the editor. Free. |
 | **Agent labels** | Optional `Fewmail/<Category>` Gmail labels so the sorting shows in any Gmail client. Free. |
 | **Zombie sender** | Mail that keeps coming more than 14 days after you unsubscribed; moved to spam. Free. |
 | **Bulk** | Mail sent near-identically to many people (`bulkCount`). Free. |
-| **Risk** | Lookalike sender domain or changed payment details; shown as a warning and a `security` action. Free. |
+| **Risk** | Known phishing domain (public list), lookalike sender domain or changed payment details; shown as a warning and a `security` action. Free. |
 | **Commitment** | A promise you made in sent mail; due ones come back as actions. Pro. |
 | **People** | Per-contact note the agent keeps, refreshed weekly. Pro. |
 | **Money** | Payments and subscriptions read from mail; price increases become `subscription` actions. Pro. |

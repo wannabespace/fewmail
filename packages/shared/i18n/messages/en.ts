@@ -307,10 +307,14 @@ export const en = {
     noReply: 'No reply yet',
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} is on a public list of live phishing sites. Do not click links, sign in or pay.`,
     lookalike_domain: (domain: string) =>
       `Looks like ${domain}, but it is a different address. Do not click links or pay.`,
     new_sender_payment: (domain: string) =>
       `First email from ${domain} and it asks for money. Verify through a channel you already trust.`,
+    spoofed_sender: (domain: string) =>
+      `Claims to be from ${domain}, but ${domain} did not send it. Do not click links or pay.`,
     payment_change: (domain: string) =>
       `New payment details from ${domain}. Confirm by phone before paying.`,
     title: 'Check before you act',
@@ -431,8 +435,17 @@ export const en = {
     weekend: 'This weekend',
   },
   spam: {
+    reasonList: 'On a public list of spammer domains',
+    reasonPattern: {
+      auth: 'Failed sender authentication: the address is forged',
+      infra: 'Sent from a network several Fewmail users reported for spam',
+      link: 'Links to sites several Fewmail users reported as spam',
+      signals: 'New domain, odd address and weak authentication together',
+      template: 'Same text that several Fewmail users reported as spam',
+    },
     reasonCommunity: 'Reported as spam by several Fewmail users',
     reasonYou: 'You reported this sender as spam',
+    suspect: 'Looks like spam',
   },
   starterRules: {
     alwaysShow:

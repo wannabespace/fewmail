@@ -1,3 +1,5 @@
+import process from 'node:process'
+
 import { db } from '@fewmail/db'
 import {
   actions,
@@ -13,6 +15,7 @@ import { and, eq, gte, isNull, lt, or } from 'drizzle-orm'
 import { generateBrief, isBriefDue } from './services/brief'
 import { offerCleanup } from './services/cleanup'
 import { chatIdForUser } from './services/integrations'
+import { refreshKnownDomains } from './services/known-domains'
 import { listQueue } from './services/mail'
 import { dispatchDueOutbox } from './services/outbox'
 import { getPlanInfo, hasAgent } from './services/plan'
@@ -135,13 +138,27 @@ const tick = async () => {
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),
       once('commitments', processDueCommitments),
+      once('known-domains', refreshKnownDomains),
     ])
   } catch (error) {
     console.error('worker tick', error)
   }
 }
 
-export const startWorker = () => {
-  void tick()
-  setInterval(tick, TICK_MS)
-}
+/** Railway sends SIGTERM on deploy and waits `drainingSeconds`: finish the jobs in flight, start no new ones. */
+const DRAIN_MS = 25_000
+
+const interval = setInterval(tick, TICK_MS)
+void tick()
+console.log('worker started')
+
+process.on('SIGTERM', async () => {
+  clearInterval(interval)
+  const deadline = Date.now() + DRAIN_MS
+  while (running.size > 0 && Date.now() < deadline) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- polling the in-flight jobs until they finish
+    await Bun.sleep(250)
+  }
+  console.log(`worker stopped, ${running.size} jobs left`)
+  process.exit(0)
+})

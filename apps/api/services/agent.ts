@@ -301,6 +301,14 @@ const withNetworkFacts = <
   if (message.risk) {
     return { ...output, importance: 3 }
   }
+  if (message.suspicion) {
+    return {
+      ...output,
+      importance: Math.min(output.importance, 1) as 0 | 1,
+      needsReply: false,
+      reason: t.spam.suspect,
+    }
+  }
   if (!isBulk(message)) {
     return output
   }

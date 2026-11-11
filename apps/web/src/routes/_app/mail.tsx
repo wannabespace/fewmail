@@ -126,8 +126,13 @@ const MailRow = ({
           {analysis?.summary ?? message.snippet}
         </span>
         {message.risk && (
-          <span className="text-destructive text-xs font-medium">
+          <span className="text-destructive pl-4 text-xs font-medium">
             {t.risk.title}
+          </span>
+        )}
+        {!message.risk && message.suspicion && (
+          <span className="text-muted-foreground pl-4 text-xs">
+            {t.spam.suspect}
           </span>
         )}
         <MailRowMeta insight={analysis} message={message} />

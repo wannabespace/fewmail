@@ -40,6 +40,7 @@ const MARK_READ = { remove: ['UNREAD'] }
 
 const messageSummary = {
   bulkCount: messages.bulkCount,
+  suspicion: messages.suspicion,
   risk: messages.risk,
   fromEmail: messages.fromEmail,
   fromName: messages.fromName,

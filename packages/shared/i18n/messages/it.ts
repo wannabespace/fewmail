@@ -384,8 +384,19 @@ export const it: Messages = {
     title: 'Impostazioni',
   },
   spam: {
+    reasonList: 'In un elenco pubblico di domini di spammer',
+    reasonPattern: {
+      auth: 'Autenticazione del mittente fallita: l’indirizzo è falso',
+      infra:
+        'Inviato da una rete segnalata come spam da diversi utenti Fewmail',
+      link: 'Link a siti segnalati come spam da diversi utenti Fewmail',
+      signals:
+        'Dominio nuovo, indirizzo strano e autenticazione debole insieme',
+      template: 'Stesso testo segnalato come spam da diversi utenti Fewmail',
+    },
     reasonCommunity: 'Segnalato come spam da diversi utenti Fewmail',
     reasonYou: 'Hai segnalato questo mittente come spam',
+    suspect: 'Sembra spam',
   },
   starterRules: {
     alwaysShow:
@@ -515,10 +526,14 @@ export const it: Messages = {
       }),
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} è in un elenco pubblico di siti di phishing attivi. Non aprire link, non accedere e non pagare.`,
     lookalike_domain: (domain: string) =>
       `Sembra ${domain}, ma è un indirizzo diverso. Non cliccare sui link e non pagare.`,
     new_sender_payment: (domain: string) =>
       `Prima email da ${domain} e chiede soldi. Verifica tramite un canale di cui già ti fidi.`,
+    spoofed_sender: (domain: string) =>
+      `Dice di venire da ${domain}, ma ${domain} non l’ha inviato. Non cliccare link e non pagare.`,
     payment_change: (domain: string) =>
       `Nuovi dati di pagamento da ${domain}. Conferma per telefono prima di pagare.`,
     title: 'Controlla prima di agire',

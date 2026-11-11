@@ -310,10 +310,14 @@ export const pt: Messages = {
     noReply: 'Ainda sem resposta',
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} está em uma lista pública de sites de phishing ativos. Não abra links, não faça login e não pague.`,
     lookalike_domain: (domain: string) =>
       `Parece ${domain}, mas é outro endereço. Não clique em links nem faça pagamentos.`,
     new_sender_payment: (domain: string) =>
       `Primeiro e-mail de ${domain} e já pede dinheiro. Confirme por um canal em que você já confia.`,
+    spoofed_sender: (domain: string) =>
+      `Diz ser de ${domain}, mas ${domain} não enviou. Não clique em links nem pague.`,
     payment_change: (domain: string) =>
       `Novos dados de pagamento de ${domain}. Confirme por telefone antes de pagar.`,
     title: 'Verifique antes de agir',
@@ -438,8 +442,20 @@ export const pt: Messages = {
     weekend: 'Neste fim de semana',
   },
   spam: {
+    reasonList: 'Em uma lista pública de domínios de spammers',
+    reasonPattern: {
+      auth: 'Falha na autenticação do remetente: o endereço é falso',
+      infra:
+        'Enviado de uma rede denunciada como spam por vários usuários do Fewmail',
+      link: 'Links para sites denunciados como spam por vários usuários do Fewmail',
+      signals:
+        'Domínio novo, endereço estranho e autenticação fraca ao mesmo tempo',
+      template:
+        'Mesmo texto denunciado como spam por vários usuários do Fewmail',
+    },
     reasonCommunity: 'Denunciado como spam por vários usuários do Fewmail',
     reasonYou: 'Você denunciou este remetente como spam',
+    suspect: 'Parece spam',
   },
   starterRules: {
     alwaysShow:

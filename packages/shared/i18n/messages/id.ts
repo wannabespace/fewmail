@@ -297,10 +297,14 @@ export const id: Messages = {
     noReply: 'Belum dibalas',
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} ada di daftar publik situs phishing aktif. Jangan klik tautan, masuk, atau membayar.`,
     lookalike_domain: (domain: string) =>
       `Terlihat seperti ${domain}, tapi alamatnya berbeda. Jangan klik tautan atau membayar.`,
     new_sender_payment: (domain: string) =>
       `Email pertama dari ${domain} dan langsung meminta uang. Pastikan lewat saluran yang sudah kamu percaya.`,
+    spoofed_sender: (domain: string) =>
+      `Mengaku dari ${domain}, tapi ${domain} tidak mengirimnya. Jangan klik tautan atau membayar.`,
     payment_change: (domain: string) =>
       `Detail pembayaran baru dari ${domain}. Konfirmasi lewat telepon sebelum membayar.`,
     title: 'Cek dulu sebelum bertindak',
@@ -424,8 +428,19 @@ export const id: Messages = {
     weekend: 'Akhir pekan ini',
   },
   spam: {
+    reasonList: 'Ada di daftar publik domain spammer',
+    reasonPattern: {
+      auth: 'Autentikasi pengirim gagal: alamatnya dipalsukan',
+      infra:
+        'Dikirim dari jaringan yang dilaporkan sebagai spam oleh beberapa pengguna Fewmail',
+      link: 'Tautan ke situs yang dilaporkan sebagai spam oleh beberapa pengguna Fewmail',
+      signals: 'Domain baru, alamat aneh, dan autentikasi lemah sekaligus',
+      template:
+        'Teks yang sama dengan yang dilaporkan sebagai spam oleh beberapa pengguna Fewmail',
+    },
     reasonCommunity: 'Dilaporkan sebagai spam oleh beberapa pengguna Fewmail',
     reasonYou: 'Kamu melaporkan pengirim ini sebagai spam',
+    suspect: 'Mirip spam',
   },
   starterRules: {
     alwaysShow:

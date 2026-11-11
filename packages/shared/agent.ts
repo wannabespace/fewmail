@@ -98,6 +98,8 @@ export const FOLLOWUP_DAYS = [1, 3, 7] as const
 export type SpamVerdict = 'spam' | 'not_spam'
 
 export type RiskKind =
+  | 'known_phishing'
+  | 'spoofed_sender'
   | 'lookalike_domain'
   | 'payment_change'
   | 'new_sender_payment'
@@ -126,3 +128,26 @@ export interface CleanupSender {
 
 /** "Personal" mail that this many different Fewmail users got is a mass send, whatever it pretends. */
 export const BULK_THRESHOLD = 5
+
+/** Seeded from public feeds, never from users: popular sites to imitate, live phishing, spammer domains, throwaway mailboxes. */
+export const DOMAIN_LISTS = [
+  'popular',
+  'phishing',
+  'spam',
+  'disposable',
+] as const
+export type DomainList = (typeof DOMAIN_LISTS)[number]
+
+/** Gmail's SPF / DKIM / DMARC results for one message: pass, fail, softfail, none, … */
+export interface MailAuth {
+  dkim: string
+  dmarc: string
+  spf: string
+}
+
+/** Votes on what a spammer cannot cheaply change: the sending network and the domains it links to. */
+export const PATTERN_KINDS = ['infra', 'link'] as const
+export type PatternKind = (typeof PATTERN_KINDS)[number]
+
+/** Weak signals add up: one makes mail "maybe spam", this many move it to spam. */
+export const SUSPICION_SPAM = 2

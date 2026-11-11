@@ -4,6 +4,6 @@
     "noEmit": true,
     "strictNullChecks": true
   },
-  "include": ["*.config.ts", "oxc.ignore.ts"],
+  "include": ["*.config.ts", "oxc.ignore.ts", ".railway/railway.ts"],
   "exclude": ["node_modules", "apps", "packages"]
 }

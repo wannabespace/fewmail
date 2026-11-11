@@ -324,10 +324,14 @@ export const pl: Messages = {
     noReply: 'Brak odpowiedzi',
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} jest na publicznej liście aktywnych stron phishingowych. Nie klikaj linków, nie loguj się i nie płać.`,
     lookalike_domain: (domain: string) =>
       `Wygląda jak ${domain}, ale to inny adres. Nie klikaj linków i nie płać.`,
     new_sender_payment: (domain: string) =>
       `Pierwszy e-mail od ${domain} i od razu prośba o pieniądze. Sprawdź to kanałem, któremu już ufasz.`,
+    spoofed_sender: (domain: string) =>
+      `Podaje się za ${domain}, ale ${domain} tego nie wysłał. Nie klikaj linków i nie płać.`,
     payment_change: (domain: string) =>
       `Nowe dane do płatności od ${domain}. Potwierdź telefonicznie przed zapłatą.`,
     title: 'Sprawdź, zanim zareagujesz',
@@ -456,8 +460,19 @@ export const pl: Messages = {
     weekend: 'W ten weekend',
   },
   spam: {
+    reasonList: 'Na publicznej liście domen spamerów',
+    reasonPattern: {
+      auth: 'Nieudane uwierzytelnienie nadawcy: adres jest podrobiony',
+      infra:
+        'Wysłane z sieci zgłoszonej jako spam przez kilku użytkowników Fewmail',
+      link: 'Linki do stron zgłoszonych jako spam przez kilku użytkowników Fewmail',
+      signals: 'Nowa domena, dziwny adres i słabe uwierzytelnienie naraz',
+      template:
+        'Ten sam tekst zgłoszony jako spam przez kilku użytkowników Fewmail',
+    },
     reasonCommunity: 'Zgłoszone jako spam przez kilku użytkowników Fewmail',
     reasonYou: 'Zgłosiłeś tego nadawcę jako spam',
+    suspect: 'Wygląda na spam',
   },
   starterRules: {
     alwaysShow:

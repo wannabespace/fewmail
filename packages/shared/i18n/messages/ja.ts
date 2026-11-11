@@ -370,8 +370,18 @@ export const ja: Messages = {
     weekend: '今週末',
   },
   spam: {
+    reasonList: 'スパム送信者ドメインの公開リストに載っています',
+    reasonPattern: {
+      auth: '送信者の認証に失敗：アドレスが偽装されています',
+      infra:
+        '複数の Fewmail ユーザーが迷惑メールとして報告したネットワークから送信',
+      link: '複数の Fewmail ユーザーが迷惑メールとして報告したサイトへのリンク',
+      signals: '新しいドメイン、不自然なアドレス、弱い認証が重なっています',
+      template: '複数の Fewmail ユーザーが迷惑メールとして報告した文面と同じ',
+    },
     reasonCommunity: '複数の Fewmail ユーザーが迷惑メールとして報告',
     reasonYou: 'この送信者を迷惑メールとして報告済み',
+    suspect: '迷惑メールの疑い',
   },
   starterRules: {
     alwaysShow:
@@ -478,10 +488,14 @@ export const ja: Messages = {
     threads: (total: number) => `${total}件の会話`,
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} は稼働中のフィッシングサイトの公開リストに載っています。リンクを開いたり、ログインや支払いをしたりしないでください。`,
     lookalike_domain: (domain: string) =>
       `${domain}に似ていますが、別のアドレスです。リンクを開いたり支払ったりしないでください。`,
     new_sender_payment: (domain: string) =>
       `${domain}からの初めてのメールで、支払いを求めています。信頼できる別の方法で確認してください。`,
+    spoofed_sender: (domain: string) =>
+      `${domain}を名乗っていますが、${domain}から送られたものではありません。リンクを開いたり支払ったりしないでください。`,
     payment_change: (domain: string) =>
       `${domain}から新しい支払い先の連絡です。支払う前に電話で確認してください。`,
     title: '対応する前に確認してください',

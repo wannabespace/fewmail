@@ -10,8 +10,11 @@ catalog:
   '@better-auth/core': ^1.7.18
   '@better-auth/drizzle-adapter': ^1.7.18
   '@blobatar/react': ^2.7.0
+  '@fontsource-variable/inter': ^5.3.0
+  '@fontsource-variable/newsreader': ^5.3.0
   '@hugeicons/core-free-icons': ^4.4.0
   '@hugeicons/react': ^1.1.10
+  '@mistralai/mistralai': ^3.5.0
   '@modelcontextprotocol/sdk': ^1.32.2
   '@number-flow/react': ^0.6.2
   '@openrouter/ai-sdk-provider': ^3.1.0
@@ -19,8 +22,8 @@ catalog:
   '@orpc/server': 2.0.0-beta.48
   '@orpc/tanstack-query': 2.0.0-beta.48
   '@rolldown/plugin-babel': ^0.2.4
-  '@shadcn/react': ^0.3.1
   '@shadcn/lint': 0.2.5
+  '@shadcn/react': ^0.3.1
   '@streamdown/code': ^2.0.0
   '@tailwindcss/typography': ^0.5.20
   '@tailwindcss/vite': ^4.3.4
@@ -37,58 +40,56 @@ catalog:
   '@tiptap/starter-kit': 3.32.2
   '@tiptap/suggestion': 3.32.2
   '@types/bun': ^1.4.4
+  '@types/node': ^24.13.3
+  '@types/pg': ^8.23.1
   '@types/react': ^19.3.0
   '@types/react-dom': ^19.3.0
-  '@types/pg': ^8.23.1
-  'typescript': ^7.0.2
+  '@typesafe-ai/sdk': ^0.7.0
   '@vitejs/plugin-react': ^6.2.1
   '@xyflow/react': ^12.12.1
+  ai-retry: ^2.8.0
   ai: ^7.0.163
   arktype: ^2.2.9
   babel-plugin-react-compiler: ^1.0.0
   better-auth: ^1.7.18
   blobatar: ^2.7.0
+  bun: ^1.4.4
   class-variance-authority: ^0.7.1
   cmdk: ^1.1.1
   cn: ^0.5.2
+  cross-env: ^10.1.0
   date-fns: ^4.4.0
   drizzle-kit: ^1.0.0-rc.5
   drizzle-orm: ^1.0.0-rc.5
+  grammy: ^1.46.0
   hono: ^4.13.16
   input-otp: ^1.5.0
-  motion: ^14.10.0
   motion-panels: ^0.7.0
+  motion: ^14.10.0
   nanoid: ^6.0.2
+  oxfmt: '^0.77.0'
+  oxlint-tailwindcss: ^1.17.1
+  oxlint: '^1.92.0'
   pg: ^8.23.1
-  react: ^19.3.1
+  portless: ^0.16.0
+  railway: ^3.16.0
   react-day-picker: ^10.0.2
   react-dom: ^19.3.1
+  react: ^19.3.1
   seitu: ^1.4.0
   shadcn: ^4.23.0
   sonner: ^2.0.8
   streamdown: ^2.7.1
+  stripe: ^23.1.0
   tailwind-scrollbar: ^4.0.2
   tailwindcss: ^4.3.4
   turbo: ^2.11.10
   tw-animate-css: ^1.4.0
+  'typescript': ^7.0.2
+  ultracite: ^8.1.1
   uuid: ^14.0.3
   vite: ^8.3.6
-  oxfmt: '^0.77.0'
-  oxlint: '^1.92.0'
-  oxlint-tailwindcss: ^1.17.1
-  ultracite: ^8.1.1
   zod: ^4.6.7
-  '@fontsource-variable/inter': ^5.3.0
-  '@fontsource-variable/newsreader': ^5.3.0
-  grammy: ^1.46.0
-  stripe: ^23.1.0
-  '@typesafe-ai/sdk': ^0.7.0
-  '@mistralai/mistralai': ^3.5.0
-  portless: ^0.16.0
-  cross-env: ^10.1.0
-  ai-retry: ^2.8.0
-  '@types/node': ^24.13.3
-  bun: ^1.4.4
 allowBuilds:
   bun: true
   esbuild: true

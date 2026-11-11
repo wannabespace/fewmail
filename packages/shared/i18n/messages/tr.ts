@@ -293,10 +293,14 @@ export const tr: Messages = {
     noReply: 'Henüz yanıt yok',
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} etkin oltalama sitelerinin herkese açık listesinde. Bağlantılara tıklama, giriş yapma ve ödeme yapma.`,
     lookalike_domain: (domain: string) =>
       `${domain} gibi görünüyor ama farklı bir adres. Bağlantılara tıklama ve ödeme yapma.`,
     new_sender_payment: (domain: string) =>
       `${domain} adresinden ilk e-posta ve para istiyor. Zaten güvendiğin bir kanaldan doğrula.`,
+    spoofed_sender: (domain: string) =>
+      `${domain} adına geldiğini söylüyor ama ${domain} göndermedi. Bağlantılara tıklama, ödeme yapma.`,
     payment_change: (domain: string) =>
       `${domain} adresinden yeni ödeme bilgileri. Ödemeden önce telefonla teyit et.`,
     title: 'Harekete geçmeden önce kontrol et',
@@ -419,8 +423,19 @@ export const tr: Messages = {
     weekend: 'Bu hafta sonu',
   },
   spam: {
+    reasonList: 'Herkese açık spam alan adı listesinde',
+    reasonPattern: {
+      auth: 'Gönderen doğrulaması başarısız: adres sahte',
+      infra:
+        'Birkaç Fewmail kullanıcısının spam olarak bildirdiği bir ağdan gönderildi',
+      link: 'Birkaç Fewmail kullanıcısının spam olarak bildirdiği sitelere bağlantılar',
+      signals: 'Yeni alan adı, tuhaf adres ve zayıf doğrulama bir arada',
+      template:
+        'Birkaç Fewmail kullanıcısının spam olarak bildirdiği metnin aynısı',
+    },
     reasonCommunity: 'Birkaç Fewmail kullanıcısı spam olarak bildirdi',
     reasonYou: 'Bu göndereni spam olarak bildirdin',
+    suspect: 'Spam gibi',
   },
   starterRules: {
     alwaysShow:

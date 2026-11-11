@@ -107,6 +107,7 @@ const MessageSection = ({
             {message.fromEmail}
           </span>
         )}
+        {message.suspicion && <Badge variant="outline">{t.spam.suspect}</Badge>}
         {(message.bulkCount ?? 0) >= BULK_THRESHOLD && (
           <Badge variant="outline">
             {t.bulk.badge(message.bulkCount ?? 0)}

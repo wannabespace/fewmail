@@ -310,10 +310,14 @@ export const nl: Messages = {
     noReply: 'Nog geen antwoord',
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} staat op een openbare lijst van actieve phishingsites. Klik geen links, log niet in en betaal niet.`,
     lookalike_domain: (domain: string) =>
       `Lijkt op ${domain}, maar het is een ander adres. Klik niet op links en betaal niet.`,
     new_sender_payment: (domain: string) =>
       `Eerste e-mail van ${domain} en er wordt om geld gevraagd. Controleer het via een kanaal dat je al vertrouwt.`,
+    spoofed_sender: (domain: string) =>
+      `Lijkt van ${domain} te komen, maar ${domain} heeft dit niet verstuurd. Klik niet op links en betaal niet.`,
     payment_change: (domain: string) =>
       `Nieuwe betaalgegevens van ${domain}. Bevestig telefonisch voordat je betaalt.`,
     title: 'Controleer voordat je iets doet',
@@ -439,8 +443,19 @@ export const nl: Messages = {
     weekend: 'Dit weekend',
   },
   spam: {
+    reasonList: 'Op een openbare lijst van spamdomeinen',
+    reasonPattern: {
+      auth: 'Afzenderverificatie mislukt: het adres is vervalst',
+      infra:
+        'Verstuurd vanaf een netwerk dat meerdere Fewmail-gebruikers als spam hebben gemeld',
+      link: 'Links naar sites die meerdere Fewmail-gebruikers als spam hebben gemeld',
+      signals: 'Nieuw domein, vreemd adres en zwakke verificatie tegelijk',
+      template:
+        'Dezelfde tekst die meerdere Fewmail-gebruikers als spam hebben gemeld',
+    },
     reasonCommunity: 'Door meerdere Fewmail-gebruikers als spam gemeld',
     reasonYou: 'Je hebt deze afzender als spam gemeld',
+    suspect: 'Lijkt op spam',
   },
   starterRules: {
     alwaysShow:

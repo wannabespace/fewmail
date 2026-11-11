@@ -356,8 +356,17 @@ export const zh: Messages = {
     weekend: '本周末',
   },
   spam: {
+    reasonList: '在公开的垃圾邮件发送者域名列表中',
+    reasonPattern: {
+      auth: '发件人身份验证失败：地址系伪造',
+      infra: '发自多位 Fewmail 用户举报为垃圾邮件的网络',
+      link: '链接到多位 Fewmail 用户举报为垃圾邮件的网站',
+      signals: '新域名、可疑地址和薄弱的身份验证同时出现',
+      template: '与多位 Fewmail 用户举报为垃圾邮件的内容相同',
+    },
     reasonCommunity: '多位 Fewmail 用户举报为垃圾邮件',
     reasonYou: '你已将此发件人举报为垃圾邮件',
+    suspect: '疑似垃圾邮件',
   },
   starterRules: {
     alwaysShow: '安全警报、到期账单，以及来自我的银行或政府机构的任何邮件',
@@ -455,10 +464,14 @@ export const zh: Messages = {
     threads: (total: number) => `${total} 个对话`,
   },
   risk: {
+    known_phishing: (domain: string) =>
+      `${domain} 在公开的活跃钓鱼网站列表中。请不要点击链接、登录或付款。`,
     lookalike_domain: (domain: string) =>
       `看起来像 ${domain}，但其实是另一个地址。请不要点击链接或付款。`,
     new_sender_payment: (domain: string) =>
       `这是 ${domain} 的第一封邮件，而且在要钱。请通过你已信任的渠道核实。`,
+    spoofed_sender: (domain: string) =>
+      `自称来自 ${domain}，但并非 ${domain} 发送。请勿点击链接或付款。`,
     payment_change: (domain: string) =>
       `${domain} 发来了新的付款信息。付款前请先电话确认。`,
     title: '操作前请先核实',

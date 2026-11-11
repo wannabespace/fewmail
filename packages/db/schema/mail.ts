@@ -1,4 +1,5 @@
 import type {
+  MailAuth,
   OutboxMode,
   OutboxStatus,
   ReminderKind,
@@ -44,6 +45,7 @@ export const messages = d.snakeCase.table(
     ...baseTable,
     body: encryptedText().notNull(),
     /** Distinct Fewmail users who got a near-identical body in the last 30 days (null until computed). */
+    auth: d.jsonb().$type<MailAuth>(),
     bulkCount: d.integer(),
     cc: d.text().array().notNull(),
     fromEmail: d.text().notNull(),
@@ -59,11 +61,13 @@ export const messages = d.snakeCase.table(
       .uuid()
       .notNull()
       .references(() => mailboxes.id, { onDelete: 'cascade' }),
+    infraHash: d.text(),
     messageIdHeader: d.text(),
     receivedAt: d.timestamp({ withTimezone: true }).notNull(),
     replyTo: d.text(),
     risk: d.jsonb().$type<MessageRisk>(),
     snippet: encryptedText().notNull(),
+    suspicion: d.smallint(),
     subject: encryptedText().notNull(),
     threadId: d.text().notNull(),
     to: d.text().array().notNull(),
