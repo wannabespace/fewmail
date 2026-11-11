@@ -1,5 +1,6 @@
 import { defineRelations } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
+import { migrate } from 'drizzle-orm/node-postgres/migrator'
 
 import { env } from './env'
 import * as schema from './schema'
@@ -11,3 +12,6 @@ export const relations = defineRelations(schema, (r) => ({
 }))
 
 export const db = drizzle(env.DATABASE_URL, { relations })
+
+export const runMigrations = () =>
+  migrate(db, { migrationsFolder: `${import.meta.dirname}/migrations` })

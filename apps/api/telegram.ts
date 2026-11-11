@@ -250,20 +250,26 @@ export const startTelegram = async () => {
   if (!bot) {
     return
   }
-  await Promise.all([
-    bot.api.setMyCommands(commandsFor(messages.en)),
-    ...LOCALES.map(({ code }) =>
-      bot.api.setMyCommands(commandsFor(messages[code]), {
-        language_code: code,
-      })
-    ),
-  ])
-  if (env.TELEGRAM_WEBHOOK_SECRET) {
-    await bot.api.setWebhook(`${env.API_URL}/telegram`, {
-      secret_token: env.TELEGRAM_WEBHOOK_SECRET,
-    })
-  } else {
-    void bot.start()
+  try {
+    await Promise.all([
+      bot.api.setMyCommands(commandsFor(messages.en)),
+      ...LOCALES.map(({ code }) =>
+        bot.api.setMyCommands(commandsFor(messages[code]), {
+          language_code: code,
+        })
+      ),
+    ])
+  } catch (error) {
+    console.error('telegram commands', error)
+  }
+  try {
+    await (env.TELEGRAM_WEBHOOK_SECRET
+      ? bot.api.setWebhook(`${env.API_URL}/telegram`, {
+          secret_token: env.TELEGRAM_WEBHOOK_SECRET,
+        })
+      : bot.start())
+  } catch (error) {
+    console.error('telegram start', error)
   }
 }
 

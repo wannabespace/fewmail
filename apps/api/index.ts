@@ -1,3 +1,4 @@
+import { runMigrations } from '@fewmail/db'
 import { RPCHandler } from '@orpc/server/fetch'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
@@ -30,6 +31,7 @@ const app = new Hono()
   .post('/stripe/webhook', (c) => handleStripeWebhook(c.req.raw))
   .get('/health', (c) => c.text('ok'))
 
+await runMigrations()
 startWorker()
 void startTelegram()
 
