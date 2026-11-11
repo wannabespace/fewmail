@@ -3,12 +3,17 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { createRoot } from 'react-dom/client'
 
 import { queryClient } from './lib/query-client'
+import { pageTitle } from './lib/seo'
 import { routeTree } from './routeTree.gen'
 
 const router = createRouter({
   context: { queryClient },
   defaultPreload: 'intent',
   routeTree,
+})
+
+router.subscribe('onResolved', ({ toLocation }) => {
+  document.title = pageTitle(toLocation.pathname)
 })
 
 declare module '@tanstack/react-router' {

@@ -15,5 +15,4 @@ const PrivacyPage = () => (
 
 export const Route = createFileRoute('/privacy')({
   component: PrivacyPage,
-  head: () => ({ meta: [{ title: 'Privacy Policy · Fewmail' }] }),
 })

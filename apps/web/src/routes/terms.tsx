@@ -15,5 +15,4 @@ const TermsPage = () => (
 
 export const Route = createFileRoute('/terms')({
   component: TermsPage,
-  head: () => ({ meta: [{ title: 'Terms of Service · Fewmail' }] }),
 })

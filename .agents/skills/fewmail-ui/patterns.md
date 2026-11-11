@@ -122,3 +122,7 @@ Suggestion order is JSX order (`shouldFilter={false}`) — the literal answer fi
 - One `ComposeForm` everywhere (thread inline reply/forward, `C` dialog, restored drafts): recipients parse pasted lists (`parseRecipients`), Cc on demand, subject hidden for replies, footer = Send ⌘⏎ · Send later ▾ · Remind me ▾ · Discard. Pro adds "Write it for me" with an optional instruction above the editor — never a separate AI composer.
 - Every send shows one toast with **Undo** for the undo window (`UNDO_SEND_SECONDS`); Undo reopens the exact draft. Never confirm-before-send dialogs.
 - Thread actions: primary row Reply (R), Archive (E), Snooze (H); everything else (Forward F, Unsubscribe, Open in Gmail, Trash #, Block) lives in "More" so the row never grows.
+
+## Share card
+
+- `apps/web/public/og.png` (1200×630) is the login screen as a postcard: cream canvas, logo top-left, the login headline in Newsreader at display size with the lead in Inter, and the login preview rows on a level-2 panel bleeding off the right edge, the one important row raised with the terracotta dot. One card for every page; per-page titles live in the meta, not the image. `apple-touch-icon.png` is the favicon tile at 180px.
