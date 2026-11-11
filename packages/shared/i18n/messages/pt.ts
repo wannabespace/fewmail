@@ -150,6 +150,21 @@ export const pt: Messages = {
           'Pagamentos, assinaturas, contas e reembolsos: pelo que pago, a quem e quanto.',
         name: 'Dinheiro',
       },
+      orders: {
+        description:
+          'Pedidos online e entregas: o que comprei, de quem e onde está.',
+        name: 'Pedidos',
+      },
+      subscriptions: {
+        description:
+          'Assinaturas e planos: o que renova, com que frequência e por quanto.',
+        name: 'Assinaturas',
+      },
+      trips: {
+        description:
+          'Voos, trens, hotéis e aluguéis: para onde vou, quando e quanto custa.',
+        name: 'Viagens',
+      },
     },
   },
   bulk: {
@@ -378,10 +393,13 @@ export const pt: Messages = {
       }),
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `Páginas que o agente preenche com seus e-mails, começando pelo último meio ano. Escolha até ${max}; você pode criar as suas depois.`,
+    boardsTitle: 'O que o agente deve juntar para você?',
     languageHint:
       'O app, os resumos e as explicações usam este idioma. As respostas sempre seguem o idioma do e-mail que você responde.',
     languageTitle: 'Em qual idioma o Fewmail deve falar?',
-    lead: 'Duas respostas rápidas. Você pode mudar tudo depois em Configurações.',
+    lead: 'Três respostas rápidas. Você pode mudar tudo depois nas Configurações.',
     personaTitle: 'Como você usa o e-mail?',
     reading: 'Lendo sua caixa de entrada…',
     start: 'Começar',

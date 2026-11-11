@@ -316,10 +316,13 @@ export const it: Messages = {
       }),
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `Pagine che l’agente riempie con la tua posta, a partire dagli ultimi sei mesi. Scegline fino a ${max}; le tue puoi aggiungerle dopo.`,
+    boardsTitle: 'Cosa deve raccogliere l’agente per te?',
     languageHint:
       'App, brief, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
     languageTitle: 'In che lingua deve parlare Fewmail?',
-    lead: 'Due risposte veloci. Puoi cambiarle tutte più tardi nelle Impostazioni.',
+    lead: 'Tre risposte veloci. Puoi cambiare tutto più tardi nelle Impostazioni.',
     personaTitle: 'Come usi l’email?',
     reading: 'Leggo la tua posta…',
     start: 'Inizia',
@@ -683,6 +686,21 @@ export const it: Messages = {
         description:
           'Pagamenti, abbonamenti, bollette e rimborsi: cosa pago, a chi e quanto.',
         name: 'Soldi',
+      },
+      orders: {
+        description:
+          'Ordini online e consegne: cosa ho comprato, da chi e dove si trova.',
+        name: 'Ordini',
+      },
+      subscriptions: {
+        description:
+          'Abbonamenti e iscrizioni: cosa si rinnova, ogni quanto e a che prezzo.',
+        name: 'Abbonamenti',
+      },
+      trips: {
+        description:
+          'Voli, treni, hotel e noleggi: dove vado, quando e quanto costa.',
+        name: 'Viaggi',
       },
     },
   },

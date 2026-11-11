@@ -1,6 +1,8 @@
-import type { Persona } from '@fewmail/shared/agent'
+import type { BoardPreset, Persona } from '@fewmail/shared/agent'
+import { BOARD_PRESETS, PLAN_LIMITS } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
@@ -24,11 +26,64 @@ const Step = ({
   </section>
 )
 
+const MAX_STARTER_BOARDS = PLAN_LIMITS.trial.boards
+
+const BoardPresetChoice = ({
+  onChange,
+  value,
+}: {
+  onChange: (presets: BoardPreset[]) => void
+  value: BoardPreset[]
+}) => {
+  const t = useT()
+  const isFull = value.length >= MAX_STARTER_BOARDS
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {BOARD_PRESETS.map((preset) => {
+        const isChecked = value.includes(preset)
+        return (
+          <button
+            key={preset}
+            type="button"
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled card acting as a checkbox
+            role="checkbox"
+            aria-checked={isChecked}
+            disabled={!isChecked && isFull}
+            onClick={() =>
+              onChange(
+                isChecked
+                  ? value.filter((item) => item !== preset)
+                  : [...value, preset]
+              )
+            }
+            className={cn(
+              'bg-popover focus-visible:focus-ring flex cursor-pointer flex-col gap-1.5 rounded-2xl p-4 text-left shadow-xs ring transition-[box-shadow,background-color,opacity] outline-none disabled:cursor-not-allowed disabled:opacity-50',
+              isChecked
+                ? 'ring-primary ring-2'
+                : 'ring-foreground/6 hover:enabled:ring-foreground/14'
+            )}
+          >
+            <span className="font-medium">{t.boards.starter[preset].name}</span>
+            <span className="text-muted-foreground text-sm">
+              {t.boards.starter[preset].description}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 const OnboardingPage = () => {
   const t = useT()
   const language = useLocale()
   const navigate = useNavigate()
   const [persona, setPersona] = useState<Persona>('reader')
+  const [starterBoards, setStarterBoards] = useState<BoardPreset[]>([
+    'money',
+    'subscriptions',
+  ])
 
   const save = useMutation(
     orpc.settings.save.mutationOptions({
@@ -39,6 +94,7 @@ const OnboardingPage = () => {
     save.mutate({
       language,
       persona,
+      starterBoards,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     })
 
@@ -71,6 +127,16 @@ const OnboardingPage = () => {
 
         <Step title={t.onboarding.personaTitle}>
           <PersonaChoice value={persona} onChange={setPersona} />
+        </Step>
+
+        <Step title={t.onboarding.boardsTitle}>
+          <p className="text-muted-foreground text-sm">
+            {t.onboarding.boardsHint(MAX_STARTER_BOARDS)}
+          </p>
+          <BoardPresetChoice
+            value={starterBoards}
+            onChange={setStarterBoards}
+          />
         </Step>
 
         <Button size="lg" disabled={save.isPending} onClick={submit}>

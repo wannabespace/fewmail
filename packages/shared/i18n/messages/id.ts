@@ -148,6 +148,21 @@ export const id: Messages = {
           'Pembayaran, langganan, tagihan, dan pengembalian dana: untuk apa saya membayar, kepada siapa, dan berapa.',
         name: 'Uang',
       },
+      orders: {
+        description:
+          'Pesanan online dan pengiriman: apa yang kubeli, dari siapa dan di mana sekarang.',
+        name: 'Pesanan',
+      },
+      subscriptions: {
+        description:
+          'Langganan dan keanggotaan: apa yang diperpanjang, seberapa sering dan berapa biayanya.',
+        name: 'Langganan',
+      },
+      trips: {
+        description:
+          'Penerbangan, kereta, hotel dan sewa: ke mana aku pergi, kapan dan berapa biayanya.',
+        name: 'Perjalanan',
+      },
     },
   },
   bulk: {
@@ -368,10 +383,13 @@ export const id: Messages = {
       }),
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `Halaman yang diisi agen dari email kamu, mulai dari setengah tahun terakhir. Pilih sampai ${max}; kamu bisa menambah sendiri nanti.`,
+    boardsTitle: 'Apa yang perlu dikumpulkan agen untukmu?',
     languageHint:
       'Aplikasi, ringkasan, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
     languageTitle: 'Fewmail harus berbicara dalam bahasa apa?',
-    lead: 'Dua jawaban singkat. Semuanya bisa diubah nanti di Pengaturan.',
+    lead: 'Tiga jawaban singkat. Semuanya bisa kamu ubah nanti di Pengaturan.',
     personaTitle: 'Bagaimana kamu memakai email?',
     reading: 'Membaca kotak masukmu…',
     start: 'Mulai',

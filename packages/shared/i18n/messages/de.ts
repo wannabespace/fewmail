@@ -314,10 +314,13 @@ export const de: Messages = {
       }),
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `Seiten, die der Agent aus deinen Mails füllt, beginnend mit dem letzten halben Jahr. Wähle bis zu ${max}; eigene kannst du später hinzufügen.`,
+    boardsTitle: 'Was soll der Agent für dich sammeln?',
     languageHint:
       'App, Briefings, Zusammenfassungen und Erklärungen nutzen diese Sprache. Antworten folgen immer der Sprache der Mail, auf die du antwortest.',
     languageTitle: 'Welche Sprache soll Fewmail sprechen?',
-    lead: 'Zwei kurze Antworten. Du kannst alles später in den Einstellungen ändern.',
+    lead: 'Drei kurze Antworten. Du kannst alles später in den Einstellungen ändern.',
     personaTitle: 'Wie nutzt du E-Mail?',
     reading: 'Lese deinen Posteingang…',
     start: 'Los geht’s',
@@ -685,6 +688,21 @@ export const de: Messages = {
         description:
           'Zahlungen, Abos, Rechnungen und Erstattungen: wofür ich zahle, an wen und wie viel.',
         name: 'Geld',
+      },
+      orders: {
+        description:
+          'Online-Bestellungen und Lieferungen: was ich gekauft habe, bei wem und wo es gerade ist.',
+        name: 'Bestellungen',
+      },
+      subscriptions: {
+        description:
+          'Abos und Mitgliedschaften: was sich verlängert, wie oft und zu welchem Preis.',
+        name: 'Abos',
+      },
+      trips: {
+        description:
+          'Flüge, Züge, Hotels und Mietwagen: wohin ich reise, wann und was es kostet.',
+        name: 'Reisen',
       },
     },
   },

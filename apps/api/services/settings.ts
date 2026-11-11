@@ -1,6 +1,6 @@
 import { db } from '@fewmail/db'
 import { rules, userSettings } from '@fewmail/db/schema'
-import type { Persona, RuleEffect } from '@fewmail/shared/agent'
+import type { BoardPreset, Persona, RuleEffect } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
@@ -17,21 +17,20 @@ export const getSettings = async (userId: string) => {
 const STARTER_RULES: Record<
   Persona,
   {
-    autonomous: boolean
     effect: RuleEffect
     instruction: keyof Messages['starterRules']
   }[]
 > = {
   reader: [
-    { autonomous: true, effect: 'archive', instruction: 'promotions' },
-    { autonomous: true, effect: 'mark_read', instruction: 'newsletters' },
-    { autonomous: true, effect: 'mark_read', instruction: 'receipts' },
-    { autonomous: false, effect: 'always_show', instruction: 'alwaysShow' },
+    { effect: 'archive', instruction: 'promotions' },
+    { effect: 'mark_read', instruction: 'newsletters' },
+    { effect: 'mark_read', instruction: 'receipts' },
+    { effect: 'always_show', instruction: 'alwaysShow' },
   ],
   responder: [
-    { autonomous: true, effect: 'archive', instruction: 'promotions' },
-    { autonomous: true, effect: 'mark_read', instruction: 'notifications' },
-    { autonomous: false, effect: 'draft_reply', instruction: 'people' },
+    { effect: 'archive', instruction: 'promotions' },
+    { effect: 'mark_read', instruction: 'notifications' },
+    { effect: 'draft_reply', instruction: 'people' },
   ],
 }
 
@@ -41,6 +40,7 @@ export const saveSettings = async (
     briefHour?: number
     language: Locale
     persona: Persona
+    starterBoards?: BoardPreset[]
     gmailLabels?: boolean
     knowledge?: string | null
     timezone: string

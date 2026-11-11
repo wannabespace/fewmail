@@ -170,15 +170,14 @@ export const agentTools = (userId: string) => ({
   list_rules: define({
     access: 'read',
     description:
-      'The rules the agent follows. Each has a plain-language instruction matched against incoming mail, an effect (archive, mark_read, unsubscribe, draft_reply, always_show) and autonomous: true when the agent applies it without asking.',
+      'The rules the agent follows. Each has a plain-language instruction matched against incoming mail, and an effect: archive, mark_read, unsubscribe and trash are applied on their own, draft_reply leaves a draft in Today, always_show puts the email in Today.',
     run: () => listRules(userId),
   }),
   create_rule: define({
     access: 'consent',
     description:
-      'Teach the agent a rule, e.g. instruction "Invoices from Hetzner", effect mark_read, autonomous true. Only set autonomous when the user said the agent may act without asking.',
+      'Teach the agent a rule, e.g. instruction "Invoices from Hetzner", effect mark_read. archive, mark_read, unsubscribe and trash are then applied to matching mail without asking.',
     input: {
-      autonomous: z.boolean(),
       effect: z.enum(RULE_EFFECTS),
       instruction: z.string().min(3),
     },

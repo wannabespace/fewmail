@@ -287,10 +287,13 @@ export const ja: Messages = {
     many: (n: number) => `Fewmail から ${n} 件のお知らせ`,
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `エージェントがメールから自動でまとめるページです。直近半年分から始めます。${max} 件まで選べます。自分のボードは後から追加できます。`,
+    boardsTitle: 'エージェントに何を集めてもらいますか？',
     languageHint:
       'アプリ、ブリーフ、要約、説明にこの言語を使います。返信は常に、返信するメールの言語に合わせます。',
     languageTitle: 'Fewmail は何語で話しましょうか？',
-    lead: '2つの簡単な質問です。あとから設定ですべて変更できます。',
+    lead: '3つの簡単な質問です。すべて後から設定で変更できます。',
     personaTitle: 'メールをどう使っていますか？',
     reading: '受信トレイを読んでいます…',
     start: '始める',
@@ -649,6 +652,19 @@ export const ja: Messages = {
         description:
           '支払い、サブスクリプション、請求書、返金：何に、誰に、いくら払っているか。',
         name: 'お金',
+      },
+      orders: {
+        description: 'オンライン注文と配送：何をどこで買い、今どこにあるか。',
+        name: '注文',
+      },
+      subscriptions: {
+        description: 'サブスクと会員契約：何が更新されるか、頻度と金額。',
+        name: 'サブスク',
+      },
+      trips: {
+        description:
+          'フライト、列車、ホテル、レンタル：どこへ、いつ、いくらかかるか。',
+        name: '旅行',
       },
     },
   },

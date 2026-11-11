@@ -156,6 +156,12 @@ const NavLink = ({
   )
 }
 
+const SettingsLine = ({ text }: { text: string }) => (
+  <Link to="/settings" className="text-muted-foreground truncate">
+    {text}
+  </Link>
+)
+
 /** One line: the footer shows only what matters most right now. */
 const FooterStatus = ({
   mailboxes,
@@ -170,26 +176,19 @@ const FooterStatus = ({
   const isSyncing =
     !mailboxes?.length || mailboxes.some(({ lastSyncedAt }) => !lastSyncedAt)
 
-  const toSettings = (text: string) => (
-    <Link to="/settings" className="text-muted-foreground truncate">
-      {text}
-    </Link>
-  )
   if (hasAgent && mailboxes?.some(({ syncError }) => syncError)) {
-    return toSettings(t.nav.syncFailed)
+    return <SettingsLine text={t.nav.syncFailed} />
   }
   if (hasAgent && isSyncing) {
     return <span className="truncate">{t.nav.syncing}</span>
   }
   if (percent >= USAGE_SHOWN_FROM) {
-    return toSettings(t.nav.usage(percent))
+    return <SettingsLine text={t.nav.usage(percent)} />
   }
   if (plan.trialDaysLeft) {
-    return toSettings(t.nav.trialLeft(plan.trialDaysLeft))
+    return <SettingsLine text={t.nav.trialLeft(plan.trialDaysLeft)} />
   }
-  return hasAgent ? (
-    <span className="truncate">{t.nav.watching}</span>
-  ) : null
+  return hasAgent ? <span className="truncate">{t.nav.watching}</span> : null
 }
 
 export const Sidebar = ({

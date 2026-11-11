@@ -287,10 +287,13 @@ export const ko: Messages = {
     many: (n: number) => `Fewmail 새 알림 ${n}개`,
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `에이전트가 메일에서 채워 주는 페이지예요. 최근 6개월부터 시작해요. 최대 ${max}개까지 고를 수 있고, 직접 만든 보드는 나중에 추가할 수 있어요.`,
+    boardsTitle: '에이전트가 무엇을 모아 둘까요?',
     languageHint:
       '앱, 브리핑, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
     languageTitle: 'Fewmail이 어떤 언어를 쓸까요?',
-    lead: '간단한 질문 두 가지예요. 나중에 설정에서 모두 바꿀 수 있어요.',
+    lead: '세 가지 간단한 질문이에요. 모두 나중에 설정에서 바꿀 수 있어요.',
     personaTitle: '이메일을 어떻게 사용하세요?',
     reading: '받은편지함을 읽는 중…',
     start: '시작',
@@ -642,6 +645,19 @@ export const ko: Messages = {
         description:
           '결제, 구독, 청구서, 환불: 무엇에, 누구에게, 얼마를 내는지.',
         name: '돈',
+      },
+      orders: {
+        description:
+          '온라인 주문과 배송: 무엇을 어디서 샀고 지금 어디에 있는지.',
+        name: '주문',
+      },
+      subscriptions: {
+        description: '구독과 멤버십: 무엇이 갱신되는지, 얼마나 자주, 얼마에.',
+        name: '구독',
+      },
+      trips: {
+        description: '항공, 기차, 호텔, 렌터카: 어디로, 언제, 비용은 얼마인지.',
+        name: '여행',
       },
     },
   },

@@ -152,6 +152,21 @@ export const pl: Messages = {
           'Płatności, subskrypcje, rachunki i zwroty: za co płacę, komu i ile.',
         name: 'Pieniądze',
       },
+      orders: {
+        description:
+          'Zamówienia online i dostawy: co kupiłem, u kogo i gdzie teraz jest.',
+        name: 'Zamówienia',
+      },
+      subscriptions: {
+        description:
+          'Subskrypcje i członkostwa: co się odnawia, jak często i za ile.',
+        name: 'Subskrypcje',
+      },
+      trips: {
+        description:
+          'Loty, pociągi, hotele i wynajem: dokąd jadę, kiedy i ile to kosztuje.',
+        name: 'Podróże',
+      },
     },
   },
   bulk: {
@@ -395,10 +410,13 @@ export const pl: Messages = {
       }),
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `Strony, które agent wypełnia z twojej poczty, zaczynając od ostatniego pół roku. Wybierz do ${max}; własne dodasz później.`,
+    boardsTitle: 'Co agent ma dla ciebie zbierać?',
     languageHint:
       'W tym języku działa aplikacja, podsumowania i wyjaśnienia. Odpowiedzi zawsze są w języku maila, na który odpowiadasz.',
     languageTitle: 'W jakim języku ma mówić Fewmail?',
-    lead: 'Dwie szybkie odpowiedzi. Wszystko zmienisz później w Ustawieniach.',
+    lead: 'Trzy szybkie odpowiedzi. Wszystko zmienisz później w Ustawieniach.',
     personaTitle: 'Jak korzystasz z poczty?',
     reading: 'Czytam twoją skrzynkę…',
     start: 'Zaczynamy',

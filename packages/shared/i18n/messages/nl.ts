@@ -150,6 +150,21 @@ export const nl: Messages = {
           'Betalingen, abonnementen, rekeningen en terugbetalingen: waarvoor ik betaal, aan wie en hoeveel.',
         name: 'Geld',
       },
+      orders: {
+        description:
+          'Online bestellingen en leveringen: wat ik kocht, bij wie en waar het nu is.',
+        name: 'Bestellingen',
+      },
+      subscriptions: {
+        description:
+          'Abonnementen en lidmaatschappen: wat verlengt, hoe vaak en voor hoeveel.',
+        name: 'Abonnementen',
+      },
+      trips: {
+        description:
+          'Vluchten, treinen, hotels en huur: waar ik heen ga, wanneer en wat het kost.',
+        name: 'Reizen',
+      },
     },
   },
   bulk: {
@@ -379,10 +394,13 @@ export const nl: Messages = {
       }),
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `Pagina’s die de agent uit je mail vult, te beginnen met het laatste halfjaar. Kies er tot ${max}; eigen pagina’s kun je later toevoegen.`,
+    boardsTitle: 'Wat moet de agent voor je verzamelen?',
     languageHint:
       'De app, overzichten, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
     languageTitle: 'Welke taal moet Fewmail spreken?',
-    lead: 'Twee snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
+    lead: 'Drie snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
     personaTitle: 'Hoe gebruik je e-mail?',
     reading: 'Je inbox wordt gelezen…',
     start: 'Starten',

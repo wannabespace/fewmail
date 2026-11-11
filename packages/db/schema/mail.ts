@@ -131,7 +131,6 @@ export interface Extracted {
 
 export const rules = d.snakeCase.table('rules', {
   ...baseTable,
-  autonomous: d.boolean().notNull(),
   effect: d.text().$type<RuleEffect>().notNull(),
   enabled: d.boolean().default(true).notNull(),
   /** Plain-language rule matched by the agent (Pro); null for a simple rule. */

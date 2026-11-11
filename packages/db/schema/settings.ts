@@ -1,4 +1,4 @@
-import type { DeviceKind, Persona } from '@fewmail/shared/agent'
+import type { BoardPreset, DeviceKind, Persona } from '@fewmail/shared/agent'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { sql } from 'drizzle-orm'
 import * as d from 'drizzle-orm/pg-core'
@@ -14,6 +14,12 @@ export const userSettings = d.snakeCase.table('user_settings', {
   language: d.text().$type<Locale>().notNull(),
   onboardedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   persona: d.text().$type<Persona>().notNull(),
+  starterBoards: d
+    .text()
+    .$type<BoardPreset>()
+    .array()
+    .default(['money'])
+    .notNull(),
   timezone: d.text().notNull(),
   trialEndsAt: d
     .timestamp({ withTimezone: true })

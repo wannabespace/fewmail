@@ -280,10 +280,13 @@ export const zh: Messages = {
     many: (n: number) => `Fewmail 有 ${n} 条新通知`,
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `助手会用你的邮件填充这些页面，从最近半年开始。最多选 ${max} 个；之后可以添加你自己的。`,
+    boardsTitle: '要让助手为你收集什么？',
     languageHint:
       '应用、简报、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
     languageTitle: 'Fewmail 应该说哪种语言？',
-    lead: '两个简单问题。之后都可以在设置中修改。',
+    lead: '三个简单的问题。之后都可以在设置里修改。',
     personaTitle: '你平时怎么用邮件？',
     reading: '正在读取收件箱…',
     start: '开始',
@@ -621,6 +624,18 @@ export const zh: Messages = {
       money: {
         description: '付款、订阅、账单和退款：我为什么付钱、付给谁、付多少。',
         name: '钱',
+      },
+      orders: {
+        description: '网购订单和快递：买了什么、在哪家买的、现在到哪了。',
+        name: '订单',
+      },
+      subscriptions: {
+        description: '订阅和会员：哪些会续费、多久一次、多少钱。',
+        name: '订阅',
+      },
+      trips: {
+        description: '机票、火车、酒店和租车：去哪里、什么时候、花多少钱。',
+        name: '出行',
       },
     },
   },

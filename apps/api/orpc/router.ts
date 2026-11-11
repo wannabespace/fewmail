@@ -5,6 +5,7 @@ import {
   BOARD_CHART_TYPES,
   BOARD_GROUPINGS,
   BOARD_MEASURES,
+  BOARD_PRESETS,
   DEVICE_KINDS,
   FOLLOWUP_DAYS,
   GMAIL_EFFECTS,
@@ -110,6 +111,7 @@ const settingsInput = type({
   'briefHour?': '0 <= number.integer <= 23',
   language: type.enumerated(...LOCALES.map(({ code }) => code)),
   persona: type.enumerated(...PERSONAS),
+  'starterBoards?': type.enumerated(...BOARD_PRESETS).array(),
   'gmailLabels?': 'boolean',
   'knowledge?': 'string | null',
   timezone: 'string',
@@ -131,7 +133,6 @@ const sendInput = type({
 })
 
 const ruleInput = type({
-  autonomous: 'boolean',
   effect: type.enumerated(...RULE_EFFECTS),
   instruction: 'string > 2',
 })

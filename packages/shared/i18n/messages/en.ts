@@ -147,6 +147,21 @@ export const en = {
           'Payments, subscriptions, bills and refunds: what I pay for, to whom and how much.',
         name: 'Money',
       },
+      orders: {
+        description:
+          'Online orders and deliveries: what I bought, from whom, and where it is.',
+        name: 'Orders',
+      },
+      subscriptions: {
+        description:
+          'Subscriptions and memberships: what renews, how often and for how much.',
+        name: 'Subscriptions',
+      },
+      trips: {
+        description:
+          'Flights, trains, hotels and rentals: where I go, when and what it costs.',
+        name: 'Trips',
+      },
     },
   },
   bulk: {
@@ -374,10 +389,13 @@ export const en = {
       }),
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `Pages the agent fills from your mail, starting with the last half year. Pick up to ${max}; you can add your own later.`,
+    boardsTitle: 'What should the agent collect for you?',
     languageHint:
       'The app, briefs, summaries and explanations use this language. Replies always match the language of the email you answer.',
     languageTitle: 'Which language should Fewmail speak?',
-    lead: 'Two quick answers. You can change all of them later in Settings.',
+    lead: 'Three quick answers. You can change all of them later in Settings.',
     personaTitle: 'How do you use email?',
     reading: 'Reading your inbox…',
     start: 'Start',

@@ -146,6 +146,21 @@ export const tr: Messages = {
           'Ödemeler, abonelikler, faturalar ve iadeler: neye, kime ve ne kadar ödediğim.',
         name: 'Para',
       },
+      orders: {
+        description:
+          'Online siparişler ve teslimatlar: ne aldım, kimden ve şu an nerede.',
+        name: 'Siparişler',
+      },
+      subscriptions: {
+        description:
+          'Abonelikler ve üyelikler: ne yenileniyor, ne sıklıkla ve kaça.',
+        name: 'Abonelikler',
+      },
+      trips: {
+        description:
+          'Uçuşlar, trenler, oteller ve kiralamalar: nereye, ne zaman ve kaça gidiyorum.',
+        name: 'Seyahatler',
+      },
     },
   },
   bulk: {
@@ -362,10 +377,13 @@ export const tr: Messages = {
       }),
   },
   onboarding: {
+    boardsHint: (max: number) =>
+      `Ajanın e-postalarından doldurduğu sayfalar; son altı aydan başlar. En fazla ${max} tane seç; kendi panolarını sonra ekleyebilirsin.`,
+    boardsTitle: 'Ajan senin için neleri toplasın?',
     languageHint:
       'Uygulama, özetler ve açıklamalar bu dili kullanır. Yanıtlar her zaman yanıtladığın e-postanın dilinde olur.',
     languageTitle: 'Fewmail hangi dili konuşsun?',
-    lead: 'İki kısa cevap. Hepsini daha sonra Ayarlar’dan değiştirebilirsin.',
+    lead: 'Üç kısa cevap. Hepsini daha sonra Ayarlar’dan değiştirebilirsin.',
     personaTitle: 'E-postayı nasıl kullanıyorsun?',
     reading: 'Gelen kutun okunuyor…',
     start: 'Başla',

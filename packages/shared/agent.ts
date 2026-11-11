@@ -97,6 +97,15 @@ export type DeviceKind = (typeof DEVICE_KINDS)[number]
 export const PERSONAS = ['reader', 'responder'] as const
 export type Persona = (typeof PERSONAS)[number]
 
+/** Ready-made boards offered at onboarding; names and descriptions come from `boards.starter`. */
+export const BOARD_PRESETS = [
+  'money',
+  'subscriptions',
+  'trips',
+  'orders',
+] as const
+export type BoardPreset = (typeof BOARD_PRESETS)[number]
+
 export const IMPORTANCE = {
   critical: 3,
   high: 2,

@@ -17,14 +17,14 @@ export const listRules = (userId: string) =>
 export const createRule = async (
   userId: string,
   input:
-    | { autonomous: boolean; effect: RuleEffect; instruction: string }
+    | { effect: RuleEffect; instruction: string }
     | { effect: RuleEffect; match: SimpleMatch }
 ) => {
   const [rule] = await db
     .insert(rules)
     .values(
       'match' in input
-        ? { autonomous: true, effect: input.effect, match: input.match, userId }
+        ? { effect: input.effect, match: input.match, userId }
         : { ...input, userId }
     )
     .returning()
@@ -35,7 +35,6 @@ export const updateRule = async (
   userId: string,
   id: string,
   input: Partial<{
-    autonomous: boolean
     effect: RuleEffect
     enabled: boolean
     instruction: string

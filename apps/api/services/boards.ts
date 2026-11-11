@@ -121,8 +121,12 @@ export const createBoard = async (
 }
 
 export const seedBoards = async (userId: string) => {
-  const t = dictionaries[await languageOf(userId)]
-  await createBoard(userId, t.boards.starter.money)
+  const settings = await getSettings(userId)
+  const t = dictionaries[settings?.language ?? 'en']
+  for (const preset of settings?.starterBoards ?? []) {
+    // oxlint-disable-next-line no-await-in-loop -- one at a time: createBoard counts boards against the plan, parallel calls would all pass the limit
+    await createBoard(userId, t.boards.starter[preset])
+  }
 }
 
 /** A new description is a new board: its entries are dropped and the history read again. Charts stay as the user left them. */
