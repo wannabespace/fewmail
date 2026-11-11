@@ -312,27 +312,27 @@ export const ja: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `毎月 ${emails} 通のメールと ${messages} 件のメッセージ。ボードと任せたスレッドは無制限。`,
-    messages: 'エージェントへのメッセージ',
-    messagesHint: 'チャット、Ask、Telegram、WhatsApp。',
-    of: (used: string, total: string) => `${used} / ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `毎月 ${emails} 通のメールと ${messages} 件のメッセージ。`,
     cancels: (plan: string, date: string) =>
       `${date} まで ${plan}、その後は Free になります。`,
     choose: (plan: string) => `${plan} を選ぶ`,
-    emails: 'エージェントが読んだメール',
-    emailsHint: '自動で仕分けたノイズは数えません。',
     proRenews: (date: string) => `${date} に更新されます。`,
     resets: (date: string) => `${date} にリセットされます。`,
     title: 'プラン',
     trial: 'Pro トライアル',
-    trialDescription: (date: string) =>
-      `${date} まで Pro のすべての機能を使えます。その後もシンプルなルールで Fewmail を無料で使い続けられます。カードは不要です。`,
     welcome: (plan: string) =>
       `${plan} へようこそ。エージェントが再び動き始めました。`,
     yearly: '年払いにする',
     yearlyHint: '2 か月分無料。',
+    emailsUsed: (used: string, total: string) => `メール ${used} / ${total}`,
+    messagesUsed: (used: string, total: string) =>
+      `メッセージ ${used} / ${total}`,
+    trialDescription: (date: string) =>
+      `${date}までProの全機能、その後は無料。カード不要。`,
+    upgrade: '他のプラン',
+    usage: '今月',
   },
   persona: {
     reader: {

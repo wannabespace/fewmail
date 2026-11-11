@@ -408,27 +408,27 @@ export const id: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} email dan ${messages} pesan per bulan; papan dan utas yang diserahkan tanpa batas.`,
-    messages: 'Pesan ke agen',
-    messagesHint: 'Chat, Ask, Telegram, dan WhatsApp.',
-    of: (used: string, total: string) => `${used} dari ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `${emails} email dan ${messages} pesan per bulan.`,
     cancels: (plan: string, date: string) =>
       `${plan} sampai ${date}, lalu Gratis.`,
     choose: (plan: string) => `Pilih ${plan}`,
-    emails: 'Email yang dibaca agen',
-    emailsHint: 'Gangguan yang dipilah otomatis tidak dihitung.',
     proRenews: (date: string) => `Diperpanjang pada ${date}.`,
     resets: (date: string) => `Diatur ulang pada ${date}.`,
     title: 'Paket',
     trial: 'Uji coba Pro',
-    trialDescription: (date: string) =>
-      `Semua fitur Pro sampai ${date}. Setelah itu Fewmail tetap gratis dengan aturan sederhana — tanpa kartu.`,
     welcome: (plan: string) =>
       `Selamat datang di ${plan}. Agen kembali bertugas.`,
     yearly: 'Bayar tahunan',
     yearlyHint: 'Gratis dua bulan.',
+    emailsUsed: (used: string, total: string) => `${used} dari ${total} email`,
+    messagesUsed: (used: string, total: string) =>
+      `${used} dari ${total} pesan`,
+    trialDescription: (date: string) =>
+      `Semua fitur Pro sampai ${date}, lalu gratis. Tanpa kartu.`,
+    upgrade: 'Paket lain',
+    usage: 'Bulan ini',
   },
   people: {
     firstContact: (date: string) => `Berkirim email sejak ${date}`,

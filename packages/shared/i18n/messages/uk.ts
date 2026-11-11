@@ -339,26 +339,26 @@ export const uk: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} листів і ${messages} повідомлень на місяць; борди й передані агенту треди без обмежень.`,
-    messages: 'Повідомлення агенту',
-    messagesHint: 'Чат, Ask, Telegram і WhatsApp.',
-    of: (used: string, total: string) => `${used} з ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `${emails} листів і ${messages} повідомлень на місяць.`,
     cancels: (plan: string, date: string) =>
       `${plan} до ${date}, далі — безкоштовний.`,
     choose: (plan: string) => `Обрати ${plan}`,
-    emails: 'Листи, які прочитав агент',
-    emailsHint: 'Шум, відсортований автоматично, не рахується.',
     proRenews: (date: string) => `Поновлюється ${date}.`,
     resets: (date: string) => `Оновиться ${date}.`,
     title: 'План',
     trial: 'Пробний Pro',
-    trialDescription: (date: string) =>
-      `Усі можливості Pro до ${date}. Потім Fewmail лишається безкоштовним із простими правилами — картка не потрібна.`,
     welcome: (plan: string) => `Вітаємо в ${plan}. Агент знову до роботи.`,
     yearly: 'Платити щороку',
     yearlyHint: 'Два місяці безкоштовно.',
+    emailsUsed: (used: string, total: string) => `${used} з ${total} листів`,
+    messagesUsed: (used: string, total: string) =>
+      `${used} з ${total} повідомлень`,
+    trialDescription: (date: string) =>
+      `Усе з Pro до ${date}, потім — безкоштовний. Картка не потрібна.`,
+    upgrade: 'Інші плани',
+    usage: 'Цього місяця',
   },
   persona: {
     reader: {

@@ -414,13 +414,20 @@ const planDescription = (
 
 const redirectTo = ({ url }: { url: string }) => location.assign(url)
 
-const UsageMeter = ({ total, used }: { total: number; used: number }) => {
-  const t = useT()
+const UsageMeter = ({
+  label,
+  total,
+  used,
+}: {
+  label: (used: string, total: string) => string
+  total: number
+  used: number
+}) => {
   const locale = useLocale()
   return (
-    <div className="flex w-28 flex-col items-end gap-1.5">
+    <div className="flex w-40 flex-col items-end gap-1.5">
       <span className="text-muted-foreground text-xs tabular-nums">
-        {t.plan.of(used.toLocaleString(locale), total.toLocaleString(locale))}
+        {label(used.toLocaleString(locale), total.toLocaleString(locale))}
       </span>
       <Progress
         value={Math.min(100, (used / total) * 100)}
@@ -432,7 +439,6 @@ const UsageMeter = ({ total, used }: { total: number; used: number }) => {
 
 const PlanSettings = () => {
   const t = useT()
-  const dates = useDates()
   const locale = useLocale()
   const { me } = Route.useRouteContext()
   const { plan, usage } = me
@@ -458,80 +464,97 @@ const PlanSettings = () => {
   }
 
   return (
-    <SettingsGroup title={t.plan.title}>
-      <SettingsRow
-        title={t.plan[plan.kind]}
-        description={planDescription(t, plan, (date) =>
-          dates.format(date, 'PPP')
-        )}
-      >
-        {isPaid(plan.kind) && (
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={portal.isPending}
-            onClick={() => portal.mutate()}
-          >
-            {t.plan.manage}
-          </Button>
-        )}
-      </SettingsRow>
-      {limits && (
-        <>
-          <SettingsRow title={t.plan.emails} description={t.plan.emailsHint}>
-            <UsageMeter used={usage.emails} total={limits.emails} />
-          </SettingsRow>
+    <>
+      <SettingsGroup title={t.plan.title}>
+        <SettingsRow
+          title={t.plan[plan.kind]}
+          description={planDescription(t, plan, (date) =>
+            formatResetDay(locale, date)
+          )}
+        >
+          {isPaid(plan.kind) && (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={portal.isPending}
+              onClick={() => portal.mutate()}
+            >
+              {t.plan.manage}
+            </Button>
+          )}
+        </SettingsRow>
+        {limits && (
           <SettingsRow
-            title={t.plan.messages}
-            description={t.plan.messagesHint}
+            title={t.plan.usage}
+            description={t.plan.resets(formatResetDay(locale, usage.resetsAt))}
           >
-            <UsageMeter used={usage.messages} total={limits.messages} />
+            <div className="flex flex-col gap-3">
+              <UsageMeter
+                label={t.plan.emailsUsed}
+                used={usage.emails}
+                total={limits.emails}
+              />
+              <UsageMeter
+                label={t.plan.messagesUsed}
+                used={usage.messages}
+                total={limits.messages}
+              />
+            </div>
           </SettingsRow>
-        </>
+        )}
+      </SettingsGroup>
+      {choices.length > 0 && (
+        <SettingsGroup title={t.plan.upgrade}>
+          {!isPaid(plan.kind) && (
+            <SettingsRow
+              title={t.plan.yearly}
+              description={t.plan.yearlyHint}
+              htmlFor="yearly-billing"
+            >
+              <Switch
+                id="yearly-billing"
+                checked={billingInterval === 'year'}
+                onCheckedChange={(yearly) =>
+                  setBillingInterval(yearly ? 'year' : 'month')
+                }
+              />
+            </SettingsRow>
+          )}
+          {choices.map((choice) => (
+            <SettingsRow
+              key={choice}
+              title={`${t.plan[choice]} · ${formatPrice(PRICE_USD[choice][billingInterval])}`}
+              description={limitsText(choice)}
+            >
+              <Button
+                size="sm"
+                variant={
+                  plan.kind === 'free' && choice === 'pro'
+                    ? 'default'
+                    : 'outline'
+                }
+                disabled={checkout.isPending || portal.isPending}
+                onClick={() =>
+                  isPaid(plan.kind)
+                    ? portal.mutate()
+                    : checkout.mutate({
+                        interval: billingInterval,
+                        plan: choice,
+                      })
+                }
+              >
+                {t.plan.choose(t.plan[choice])}
+              </Button>
+            </SettingsRow>
+          ))}
+          {plan.kind === 'free' && (
+            <p className="text-muted-foreground p-3.5 text-sm">
+              {t.plan.includes}
+            </p>
+          )}
+        </SettingsGroup>
       )}
-      {!isPaid(plan.kind) && (
-        <SettingsRow
-          title={t.plan.yearly}
-          description={t.plan.yearlyHint}
-          htmlFor="yearly-billing"
-        >
-          <Switch
-            id="yearly-billing"
-            checked={billingInterval === 'year'}
-            onCheckedChange={(yearly) =>
-              setBillingInterval(yearly ? 'year' : 'month')
-            }
-          />
-        </SettingsRow>
-      )}
-      {choices.map((choice) => (
-        <SettingsRow
-          key={choice}
-          title={`${t.plan[choice]} · ${formatPrice(PRICE_USD[choice][billingInterval])}`}
-          description={limitsText(choice)}
-        >
-          <Button
-            size="sm"
-            variant={
-              plan.kind === 'free' && choice === 'pro' ? 'default' : 'outline'
-            }
-            disabled={checkout.isPending || portal.isPending}
-            onClick={() =>
-              isPaid(plan.kind)
-                ? portal.mutate()
-                : checkout.mutate({ interval: billingInterval, plan: choice })
-            }
-          >
-            {t.plan.choose(t.plan[choice])}
-          </Button>
-        </SettingsRow>
-      ))}
-      <p className="text-muted-foreground p-3.5 text-sm">
-        {limits
-          ? t.plan.resets(formatResetDay(locale, usage.resetsAt))
-          : t.plan.includes}
-      </p>
-    </SettingsGroup>
+    </>
   )
 }
 

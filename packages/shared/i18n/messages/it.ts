@@ -341,27 +341,27 @@ export const it: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} email e ${messages} messaggi al mese; bacheche e thread affidati senza limiti.`,
-    messages: 'Messaggi all’agente',
-    messagesHint: 'Chat, Ask, Telegram e WhatsApp.',
-    of: (used: string, total: string) => `${used} di ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `${emails} email e ${messages} messaggi al mese.`,
     cancels: (plan: string, date: string) =>
       `${plan} fino al ${date}, poi Gratis.`,
     choose: (plan: string) => `Scegli ${plan}`,
-    emails: 'Email lette dall’agente',
-    emailsHint: 'Il rumore smistato in automatico non conta.',
     proRenews: (date: string) => `Si rinnova il ${date}.`,
     resets: (date: string) => `Si azzera il ${date}.`,
     title: 'Piano',
     trial: 'Prova Pro',
-    trialDescription: (date: string) =>
-      `Tutte le funzioni Pro fino al ${date}. Poi Fewmail resta gratis con regole semplici, senza carta.`,
     welcome: (plan: string) =>
       `Benvenuto in ${plan}. L’agente è di nuovo al lavoro.`,
     yearly: 'Paga annualmente',
     yearlyHint: 'Due mesi gratis.',
+    emailsUsed: (used: string, total: string) => `${used} di ${total} email`,
+    messagesUsed: (used: string, total: string) =>
+      `${used} di ${total} messaggi`,
+    trialDescription: (date: string) =>
+      `Tutto Pro fino al ${date}, poi gratis. Nessuna carta.`,
+    upgrade: 'Altri piani',
+    usage: 'Questo mese',
   },
   persona: {
     reader: {

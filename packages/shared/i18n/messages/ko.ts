@@ -312,27 +312,26 @@ export const ko: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `매달 메일 ${emails}통과 메시지 ${messages}개, 보드와 맡긴 스레드는 무제한이에요.`,
-    messages: '에이전트에게 보낸 메시지',
-    messagesHint: '채팅, Ask, Telegram, WhatsApp.',
-    of: (used: string, total: string) => `${total} 중 ${used}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `매달 메일 ${emails}통과 메시지 ${messages}개.`,
     cancels: (plan: string, date: string) =>
       `${date}까지 ${plan}, 그 후에는 Free로 바뀌어요.`,
     choose: (plan: string) => `${plan} 선택`,
-    emails: '에이전트가 읽은 메일',
-    emailsHint: '자동으로 분류한 소음은 세지 않아요.',
     proRenews: (date: string) => `${date}에 갱신돼요.`,
     resets: (date: string) => `${date}에 초기화돼요.`,
     title: '요금제',
     trial: 'Pro 체험',
-    trialDescription: (date: string) =>
-      `${date}까지 Pro의 모든 기능을 쓸 수 있어요. 그 후에도 Fewmail은 간단한 규칙과 함께 무료로 쓸 수 있어요. 카드는 필요 없어요.`,
     welcome: (plan: string) =>
       `${plan}에 오신 걸 환영해요. 에이전트가 다시 일을 시작했어요.`,
     yearly: '연간 결제',
     yearlyHint: '두 달 무료예요.',
+    emailsUsed: (used: string, total: string) => `메일 ${used} / ${total}`,
+    messagesUsed: (used: string, total: string) => `메시지 ${used} / ${total}`,
+    trialDescription: (date: string) =>
+      `${date}까지 Pro의 모든 기능, 이후 무료. 카드 필요 없음.`,
+    upgrade: '다른 요금제',
+    usage: '이번 달',
   },
   persona: {
     reader: {

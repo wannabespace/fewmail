@@ -342,27 +342,27 @@ export const fr: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} e-mails et ${messages} messages par mois ; tableaux et fils confiés sans limite.`,
-    messages: 'Messages à l’agent',
-    messagesHint: 'Chat, Ask, Telegram et WhatsApp.',
-    of: (used: string, total: string) => `${used} sur ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `${emails} e-mails et ${messages} messages par mois.`,
     cancels: (plan: string, date: string) =>
       `${plan} jusqu’au ${date}, puis Gratuit.`,
     choose: (plan: string) => `Choisir ${plan}`,
-    emails: 'E-mails lus par l’agent',
-    emailsHint: 'Le bruit trié automatiquement ne compte pas.',
     proRenews: (date: string) => `Renouvellement le ${date}.`,
     resets: (date: string) => `Remis à zéro le ${date}.`,
     title: 'Formule',
     trial: 'Essai Pro',
-    trialDescription: (date: string) =>
-      `Toutes les fonctions Pro jusqu’au ${date}. Ensuite, Fewmail reste gratuit avec des règles simples, sans carte bancaire.`,
     welcome: (plan: string) =>
       `Bienvenue dans ${plan}. L’agent reprend du service.`,
     yearly: 'Payer à l’année',
     yearlyHint: 'Deux mois offerts.',
+    emailsUsed: (used: string, total: string) => `${used} sur ${total} e-mails`,
+    messagesUsed: (used: string, total: string) =>
+      `${used} sur ${total} messages`,
+    trialDescription: (date: string) =>
+      `Tout Pro jusqu’au ${date}, puis gratuit. Sans carte.`,
+    upgrade: 'Autres formules',
+    usage: 'Ce mois-ci',
   },
   persona: {
     reader: {

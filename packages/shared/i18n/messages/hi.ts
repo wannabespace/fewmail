@@ -318,25 +318,24 @@ export const hi: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `हर महीने ${emails} ईमेल और ${messages} संदेश; बोर्ड और सौंपे गए थ्रेड बिना सीमा।`,
-    messages: 'एजेंट को संदेश',
-    messagesHint: 'चैट, Ask, Telegram और WhatsApp।',
-    of: (used: string, total: string) => `${total} में से ${used}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `हर महीने ${emails} ईमेल और ${messages} संदेश।`,
     cancels: (plan: string, date: string) => `${date} तक ${plan}, फिर Free।`,
     choose: (plan: string) => `${plan} चुनें`,
-    emails: 'एजेंट ने जो ईमेल पढ़े',
-    emailsHint: 'अपने-आप छांटा गया शोर नहीं गिना जाता।',
     proRenews: (date: string) => `${date} को रिन्यू होगा।`,
     resets: (date: string) => `${date} को फिर से शुरू होगा।`,
     title: 'प्लान',
     trial: 'Pro ट्रायल',
-    trialDescription: (date: string) =>
-      `${date} तक Pro की हर सुविधा। उसके बाद भी Fewmail आसान नियमों के साथ मुफ़्त रहता है — कार्ड की ज़रूरत नहीं।`,
     welcome: (plan: string) => `${plan} में आपका स्वागत है। एजेंट फिर से काम पर है।`,
     yearly: 'सालाना भुगतान करें',
     yearlyHint: 'दो महीने मुफ़्त।',
+    emailsUsed: (used: string, total: string) => `${total} में से ${used} ईमेल`,
+    messagesUsed: (used: string, total: string) => `${total} में से ${used} संदेश`,
+    trialDescription: (date: string) =>
+      `${date} तक Pro की हर सुविधा, फिर मुफ़्त। कार्ड की ज़रूरत नहीं।`,
+    upgrade: 'अन्य प्लान',
+    usage: 'इस महीने',
   },
   persona: {
     reader: {

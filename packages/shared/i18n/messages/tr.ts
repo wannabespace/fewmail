@@ -402,27 +402,26 @@ export const tr: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `Ayda ${emails} e-posta ve ${messages} mesaj; panolar ve devredilen yazışmalar sınırsız.`,
-    messages: 'Ajana mesajlar',
-    messagesHint: 'Sohbet, Ask, Telegram ve WhatsApp.',
-    of: (used: string, total: string) => `${used} / ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `Ayda ${emails} e-posta ve ${messages} mesaj.`,
     cancels: (plan: string, date: string) =>
       `${date} tarihine kadar ${plan}, sonra Ücretsiz.`,
     choose: (plan: string) => `${plan} seç`,
-    emails: 'Ajanın okuduğu e-postalar',
-    emailsHint: 'Kendiliğinden ayıklanan gürültü sayılmaz.',
     proRenews: (date: string) => `${date} tarihinde yenilenir.`,
     resets: (date: string) => `${date} tarihinde sıfırlanır.`,
     title: 'Plan',
     trial: 'Pro denemesi',
-    trialDescription: (date: string) =>
-      `${date} tarihine kadar tüm Pro özellikleri. Sonrasında Fewmail basit kurallarla ücretsiz kalır — kart gerekmez.`,
     welcome: (plan: string) =>
       `${plan} planına hoş geldin. Ajan yeniden görevde.`,
     yearly: 'Yıllık öde',
     yearlyHint: 'İki ay ücretsiz.',
+    emailsUsed: (used: string, total: string) => `${used} / ${total} e-posta`,
+    messagesUsed: (used: string, total: string) => `${used} / ${total} mesaj`,
+    trialDescription: (date: string) =>
+      `${date} tarihine kadar Pro’nun tamamı, sonra ücretsiz. Kart gerekmez.`,
+    upgrade: 'Diğer planlar',
+    usage: 'Bu ay',
   },
   people: {
     firstContact: (date: string) => `${date} tarihinden beri yazışıyorsunuz`,

@@ -304,26 +304,25 @@ export const zh: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `每月 ${emails} 封邮件和 ${messages} 条消息；看板和托付的会话不限。`,
-    messages: '发给代理的消息',
-    messagesHint: '聊天、Ask、Telegram 和 WhatsApp。',
-    of: (used: string, total: string) => `${used} / ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `每月 ${emails} 封邮件和 ${messages} 条消息。`,
     cancels: (plan: string, date: string) =>
       `${plan} 有效至 ${date}，之后转为 Free。`,
     choose: (plan: string) => `选择 ${plan}`,
-    emails: '代理读过的邮件',
-    emailsHint: '自动归类的杂讯不计入。',
     proRenews: (date: string) => `将于 ${date} 续订。`,
     resets: (date: string) => `将于 ${date} 重置。`,
     title: '方案',
     trial: 'Pro 试用',
-    trialDescription: (date: string) =>
-      `${date} 前可使用 Pro 的全部功能。之后 Fewmail 仍可免费使用简单规则，无需绑卡。`,
     welcome: (plan: string) => `欢迎使用 ${plan}，助手已重新开始工作。`,
     yearly: '按年付费',
     yearlyHint: '免费两个月。',
+    emailsUsed: (used: string, total: string) => `邮件 ${used} / ${total}`,
+    messagesUsed: (used: string, total: string) => `消息 ${used} / ${total}`,
+    trialDescription: (date: string) =>
+      `${date} 前可用 Pro 全部功能，之后免费。无需绑卡。`,
+    upgrade: '其他方案',
+    usage: '本月',
   },
   persona: {
     reader: {

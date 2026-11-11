@@ -418,27 +418,27 @@ export const pt: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} e-mails e ${messages} mensagens por mês; quadros e conversas entregues sem limite.`,
-    messages: 'Mensagens ao agente',
-    messagesHint: 'Chat, Ask, Telegram e WhatsApp.',
-    of: (used: string, total: string) => `${used} de ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `${emails} e-mails e ${messages} mensagens por mês.`,
     cancels: (plan: string, date: string) =>
       `${plan} até ${date}, depois Grátis.`,
     choose: (plan: string) => `Escolher ${plan}`,
-    emails: 'E-mails lidos pelo agente',
-    emailsHint: 'Ruído organizado automaticamente não conta.',
     proRenews: (date: string) => `Renova em ${date}.`,
     resets: (date: string) => `Reinicia em ${date}.`,
     title: 'Plano',
     trial: 'Teste do Pro',
-    trialDescription: (date: string) =>
-      `Todos os recursos do Pro até ${date}. Depois, o Fewmail continua grátis com regras simples — sem precisar de cartão.`,
     welcome: (plan: string) =>
       `Boas-vindas ao ${plan}. O agente está de volta ao trabalho.`,
     yearly: 'Pagar anualmente',
     yearlyHint: 'Dois meses grátis.',
+    emailsUsed: (used: string, total: string) => `${used} de ${total} e-mails`,
+    messagesUsed: (used: string, total: string) =>
+      `${used} de ${total} mensagens`,
+    trialDescription: (date: string) =>
+      `Tudo do Pro até ${date}, depois grátis. Sem cartão.`,
+    upgrade: 'Outros planos',
+    usage: 'Este mês',
   },
   people: {
     firstContact: (date: string) => `Trocando e-mails desde ${date}`,

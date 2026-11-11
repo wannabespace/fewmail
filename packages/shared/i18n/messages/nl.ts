@@ -419,27 +419,27 @@ export const nl: Messages = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} e-mails en ${messages} berichten per maand; borden en overgedragen threads zonder limiet.`,
-    messages: 'Berichten aan de agent',
-    messagesHint: 'Chat, Ask, Telegram en WhatsApp.',
-    of: (used: string, total: string) => `${used} van ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `${emails} e-mails en ${messages} berichten per maand.`,
     cancels: (plan: string, date: string) =>
       `${plan} tot ${date}, daarna Gratis.`,
     choose: (plan: string) => `Kies ${plan}`,
-    emails: 'E-mails die de agent las',
-    emailsHint: 'Automatisch gesorteerde ruis telt niet mee.',
     proRenews: (date: string) => `Wordt verlengd op ${date}.`,
     resets: (date: string) => `Begint opnieuw op ${date}.`,
     title: 'Abonnement',
     trial: 'Pro-proefperiode',
-    trialDescription: (date: string) =>
-      `Alle Pro-functies tot ${date}. Daarna blijft Fewmail gratis met eenvoudige regels — geen creditcard nodig.`,
     welcome: (plan: string) =>
       `Welkom bij ${plan}. De agent is weer aan het werk.`,
     yearly: 'Jaarlijks betalen',
     yearlyHint: 'Twee maanden gratis.',
+    emailsUsed: (used: string, total: string) => `${used} van ${total} e-mails`,
+    messagesUsed: (used: string, total: string) =>
+      `${used} van ${total} berichten`,
+    trialDescription: (date: string) =>
+      `Alles van Pro tot ${date}, daarna gratis. Geen kaart nodig.`,
+    upgrade: 'Andere abonnementen',
+    usage: 'Deze maand',
   },
   people: {
     firstContact: (date: string) => `Mailt sinds ${date}`,

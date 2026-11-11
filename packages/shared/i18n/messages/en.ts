@@ -414,26 +414,26 @@ export const en = {
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} emails and ${messages} messages a month; boards and handed-over threads without limit.`,
-    messages: 'Messages to the agent',
-    messagesHint: 'Chat, Ask, Telegram and WhatsApp.',
-    of: (used: string, total: string) => `${used} of ${total}`,
     pro: 'Pro',
     proLimits: (emails: string, messages: string) =>
       `${emails} emails and ${messages} messages a month.`,
     cancels: (plan: string, date: string) =>
       `${plan} until ${date}, then Free.`,
     choose: (plan: string) => `Choose ${plan}`,
-    emails: 'Emails the agent read',
-    emailsHint: 'Noise sorted on its own does not count.',
     proRenews: (date: string) => `Renews on ${date}.`,
     resets: (date: string) => `Resets on ${date}.`,
     title: 'Plan',
     trial: 'Pro trial',
-    trialDescription: (date: string) =>
-      `Every Pro feature until ${date}. Afterwards Fewmail stays free with simple rules — no card needed.`,
     welcome: (plan: string) => `Welcome to ${plan}. The agent is back on duty.`,
     yearly: 'Pay yearly',
     yearlyHint: 'Two months free.',
+    emailsUsed: (used: string, total: string) => `${used} of ${total} emails`,
+    messagesUsed: (used: string, total: string) =>
+      `${used} of ${total} messages`,
+    trialDescription: (date: string) =>
+      `Everything in Pro until ${date}, then Free. No card needed.`,
+    upgrade: 'Other plans',
+    usage: 'This month',
   },
   people: {
     firstContact: (date: string) => `Writing since ${date}`,
