@@ -43,7 +43,6 @@ export const id: Messages = {
     deleteChat: 'Hapus obrolan',
     failed: 'Agen tidak bisa menyelesaikannya. Coba lagi.',
     lead: 'Tanyakan soal email kamu atau bilang apa yang harus dilakukan. Semua yang mengirim atau mengubah Gmail menunggu persetujuanmu.',
-    leave: 'Keluar dari mode agen',
     newChat: 'Obrolan baru',
     noChats: 'Belum ada obrolan',
     placeholder:

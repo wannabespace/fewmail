@@ -26,6 +26,7 @@ import {
 } from '@fewmail/ui/components/message-scroller'
 import { Response } from '@fewmail/ui/components/response'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import { cn } from '@fewmail/ui/lib/utils'
 import {
   Alert02Icon,
   Cancel01Icon,
@@ -389,7 +390,7 @@ const EmptyChat = ({ onPick }: { onPick: (text: string) => void }) => {
   const t = useT()
 
   return (
-    <div className="flex flex-1 flex-col justify-end gap-4 pb-2">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-6 pb-4">
       <h1 className="text-display font-serif tracking-tight">
         {t.agent.title}
       </h1>
@@ -479,97 +480,105 @@ export const AgentChat = ({
   }, [])
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <MessageScrollerProvider autoScroll>
-        <MessageScroller>
-          <MessageScrollerViewport>
-            <MessageScrollerContent className="mx-auto w-full max-w-2xl px-6 pt-10 pb-6">
-              {messages.length === 0 && <EmptyChat onPick={send} />}
-              {messages.map((message) => (
-                <MessageScrollerItem key={message.id} messageId={message.id}>
-                  <Message align={message.role === 'user' ? 'end' : 'start'}>
-                    <MessageContent>
-                      {message.parts.map((part, index) => {
-                        const key = `${message.id}-${index}`
-                        if (part.type === 'text' && message.role === 'user') {
-                          return (
-                            <Bubble key={key} variant="secondary">
-                              <BubbleContent
-                                data-mask
-                                className="whitespace-pre-wrap"
-                              >
-                                {part.text}
-                              </BubbleContent>
-                            </Bubble>
-                          )
-                        }
-                        if (part.type === 'text') {
-                          return (
-                            <div key={key} data-mask>
-                              <Response
-                                variant="reading"
-                                components={RESPONSE_COMPONENTS}
-                              >
-                                {part.text}
-                              </Response>
-                            </div>
-                          )
-                        }
-                        if (isToolUIPart(part)) {
-                          return (
-                            <ToolStep
-                              key={key}
-                              part={part}
-                              messages={messages}
-                              isAnswerable={message.id === lastId && !isBusy}
-                              onAnswer={answer}
-                            />
-                          )
-                        }
-                        return null
-                      })}
-                    </MessageContent>
-                  </Message>
-                </MessageScrollerItem>
-              ))}
-              {status === 'submitted' && (
-                <MessageScrollerItem>
-                  <Marker render={<output />}>
-                    <MarkerIcon>
-                      <Spinner />
-                    </MarkerIcon>
-                    <MarkerContent>{t.agent.thinking}</MarkerContent>
-                  </Marker>
-                </MessageScrollerItem>
-              )}
-              {error && (
-                <MessageScrollerItem>
-                  <Marker role="alert">
-                    <MarkerIcon>
-                      <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
-                    </MarkerIcon>
-                    <MarkerContent>
-                      {limitText(error) ?? t.agent.failed}
-                    </MarkerContent>
-                    {!limitText(error) && (
-                      <Button
-                        size="xs"
-                        variant="ghost-muted"
-                        onClick={() => {
-                          void regenerate()
-                        }}
-                      >
-                        {t.agent.retry}
-                      </Button>
-                    )}
-                  </Marker>
-                </MessageScrollerItem>
-              )}
-            </MessageScrollerContent>
-          </MessageScrollerViewport>
-          <MessageScrollerButton />
-        </MessageScroller>
-      </MessageScrollerProvider>
+    <div
+      className={cn(
+        'flex min-h-0 flex-1 flex-col',
+        messages.length === 0 && 'justify-center pb-14'
+      )}
+    >
+      {messages.length === 0 ? (
+        <EmptyChat onPick={send} />
+      ) : (
+        <MessageScrollerProvider autoScroll>
+          <MessageScroller>
+            <MessageScrollerViewport>
+              <MessageScrollerContent className="mx-auto w-full max-w-2xl px-6 pt-10 pb-6">
+                {messages.map((message) => (
+                  <MessageScrollerItem key={message.id} messageId={message.id}>
+                    <Message align={message.role === 'user' ? 'end' : 'start'}>
+                      <MessageContent>
+                        {message.parts.map((part, index) => {
+                          const key = `${message.id}-${index}`
+                          if (part.type === 'text' && message.role === 'user') {
+                            return (
+                              <Bubble key={key} variant="secondary">
+                                <BubbleContent
+                                  data-mask
+                                  className="whitespace-pre-wrap"
+                                >
+                                  {part.text}
+                                </BubbleContent>
+                              </Bubble>
+                            )
+                          }
+                          if (part.type === 'text') {
+                            return (
+                              <div key={key} data-mask>
+                                <Response
+                                  variant="reading"
+                                  components={RESPONSE_COMPONENTS}
+                                >
+                                  {part.text}
+                                </Response>
+                              </div>
+                            )
+                          }
+                          if (isToolUIPart(part)) {
+                            return (
+                              <ToolStep
+                                key={key}
+                                part={part}
+                                messages={messages}
+                                isAnswerable={message.id === lastId && !isBusy}
+                                onAnswer={answer}
+                              />
+                            )
+                          }
+                          return null
+                        })}
+                      </MessageContent>
+                    </Message>
+                  </MessageScrollerItem>
+                ))}
+                {status === 'submitted' && (
+                  <MessageScrollerItem>
+                    <Marker render={<output />}>
+                      <MarkerIcon>
+                        <Spinner />
+                      </MarkerIcon>
+                      <MarkerContent>{t.agent.thinking}</MarkerContent>
+                    </Marker>
+                  </MessageScrollerItem>
+                )}
+                {error && (
+                  <MessageScrollerItem>
+                    <Marker role="alert">
+                      <MarkerIcon>
+                        <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
+                      </MarkerIcon>
+                      <MarkerContent>
+                        {limitText(error) ?? t.agent.failed}
+                      </MarkerContent>
+                      {!limitText(error) && (
+                        <Button
+                          size="xs"
+                          variant="ghost-muted"
+                          onClick={() => {
+                            void regenerate()
+                          }}
+                        >
+                          {t.agent.retry}
+                        </Button>
+                      )}
+                    </Marker>
+                  </MessageScrollerItem>
+                )}
+              </MessageScrollerContent>
+            </MessageScrollerViewport>
+            <MessageScrollerButton />
+          </MessageScroller>
+        </MessageScrollerProvider>
+      )}
       <form
         className="mx-auto w-full max-w-2xl px-6 pb-5"
         onSubmit={(event) => {

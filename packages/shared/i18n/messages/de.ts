@@ -20,7 +20,6 @@ export const de: Messages = {
     deleteChat: 'Chat löschen',
     failed: 'Der Agent konnte nicht fertig werden. Versuch es noch einmal.',
     lead: 'Frag nach deinen Mails oder sag, was zu tun ist. Alles, was sendet oder Gmail ändert, wartet auf dein Ja.',
-    leave: 'Agentenmodus verlassen',
     newChat: 'Neuer Chat',
     noChats: 'Noch keine Chats',
     placeholder: 'Frag nach deinen Mails oder sag, was zu tun ist…',

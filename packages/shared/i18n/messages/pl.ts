@@ -43,7 +43,6 @@ export const pl: Messages = {
     deleteChat: 'Usuń czat',
     failed: 'Agent nie dał rady dokończyć. Spróbuj ponownie.',
     lead: 'Pytaj o swoją pocztę albo powiedz, co zrobić. Wszystko, co wysyła lub zmienia Gmaila, czeka na twoje „tak”.',
-    leave: 'Wyjdź z trybu agenta',
     newChat: 'Nowy czat',
     noChats: 'Nie ma jeszcze czatów',
     placeholder: 'Zapytaj o pocztę albo powiedz, co zrobić…',

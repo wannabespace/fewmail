@@ -20,7 +20,6 @@ export const it: Messages = {
     deleteChat: 'Elimina chat',
     failed: 'L’agente non è riuscito a finire. Riprova.',
     lead: 'Chiedi della tua posta o di’ cosa fare. Tutto ciò che invia o modifica Gmail aspetta il tuo sì.',
-    leave: 'Esci dalla modalità agente',
     newChat: 'Nuova chat',
     noChats: 'Ancora nessuna chat',
     placeholder: 'Chiedi della tua posta o di’ cosa fare…',

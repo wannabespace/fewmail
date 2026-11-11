@@ -43,7 +43,6 @@ export const pt: Messages = {
     deleteChat: 'Excluir conversa',
     failed: 'O agente não conseguiu terminar. Tente de novo.',
     lead: 'Pergunte sobre seus e-mails ou diga o que fazer. Tudo o que envia ou altera o Gmail espera o seu sim.',
-    leave: 'Sair do modo agente',
     newChat: 'Nova conversa',
     noChats: 'Nenhuma conversa ainda',
     placeholder: 'Pergunte sobre seus e-mails ou diga o que fazer…',

@@ -43,7 +43,6 @@ export const tr: Messages = {
     deleteChat: 'Sohbeti sil',
     failed: 'Ajan işi bitiremedi. Tekrar dene.',
     lead: 'E-postaların hakkında sor ya da ne yapılacağını söyle. Gönderen ya da Gmail’i değiştiren her şey senin onayını bekler.',
-    leave: 'Ajan modundan çık',
     newChat: 'Yeni sohbet',
     noChats: 'Henüz sohbet yok',
     placeholder: 'E-postaların hakkında sor ya da ne yapılacağını söyle…',

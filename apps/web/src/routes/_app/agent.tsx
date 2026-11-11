@@ -23,7 +23,6 @@ import { createWebStorageValue } from 'seitu/web'
 
 import { AgentChat } from '~/components/agent-chat'
 import { KeyHints } from '~/components/key-hints'
-import { Logo } from '~/components/logo'
 import { ThreadView } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
@@ -82,7 +81,6 @@ const AgentPage = () => {
     <ResizableGroup className="flex-1">
       <ResizablePanel className="flex min-w-0 flex-col">
         <header className="flex h-14 shrink-0 items-center gap-4 px-5">
-          <Logo to="/agent" />
           <span
             data-mask
             className="text-muted-foreground min-w-0 truncate text-sm"
@@ -132,13 +130,6 @@ const AgentPage = () => {
             </DropdownMenu>
             <Button size="sm" variant="ghost-muted" onClick={startChat}>
               {t.agent.newChat} <Kbd>⇧⌘O</Kbd>
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost-muted"
-              onClick={() => navigate({ to: '/today' })}
-            >
-              {t.agent.leave} <Kbd>G T</Kbd>
             </Button>
           </div>
         </header>

@@ -43,7 +43,6 @@ export const nl: Messages = {
     deleteChat: 'Chat verwijderen',
     failed: 'De agent kon het niet afmaken. Probeer het opnieuw.',
     lead: 'Vraag iets over je mail of zeg wat er moet gebeuren. Alles wat verstuurt of Gmail wijzigt, wacht op jouw ja.',
-    leave: 'Agentmodus verlaten',
     newChat: 'Nieuwe chat',
     noChats: 'Nog geen chats',
     placeholder: 'Vraag iets over je mail of zeg wat er moet gebeuren…',

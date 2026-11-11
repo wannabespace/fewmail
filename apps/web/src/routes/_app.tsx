@@ -64,8 +64,6 @@ const AppLayout = () => {
         <ResizableGroup className="flex-1">
           <ResizablePanel
             className="flex"
-            collapsed={isAgentMode}
-            keepMounted
             size={sidebarWidth}
             minSize={SIDEBAR_WIDTH.min}
             maxSize={SIDEBAR_WIDTH.max}

@@ -43,7 +43,6 @@ export const ko: Messages = {
     deleteChat: '채팅 삭제',
     failed: '에이전트가 끝내지 못했어요. 다시 시도해 주세요.',
     lead: '메일에 대해 묻거나 할 일을 말해 주세요. 보내거나 Gmail을 바꾸는 일은 모두 당신의 확인을 기다려요.',
-    leave: '에이전트 모드 나가기',
     newChat: '새 채팅',
     noChats: '아직 채팅이 없어요',
     placeholder: '메일에 대해 묻거나 할 일을 말해 주세요…',

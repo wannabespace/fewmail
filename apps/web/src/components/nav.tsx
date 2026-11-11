@@ -41,30 +41,17 @@ const AGENT_ONLY = new Set(['today', 'agent'])
 /** Quiet until the month is nearly spent: never push. */
 const USAGE_SHOWN_FROM = 90
 
-const UsageLine = ({
-  limits,
-  usage,
-}: {
-  limits: { emails: number; messages: number }
+const usagePercent = (
+  limits: { emails: number; messages: number },
   usage: { emails: number; messages: number }
-}) => {
-  const t = useT()
-  const percent = Math.min(
+) =>
+  Math.min(
     100,
     Math.floor(
       Math.max(usage.emails / limits.emails, usage.messages / limits.messages) *
         100
     )
   )
-  if (percent < USAGE_SHOWN_FROM) {
-    return null
-  }
-  return (
-    <Link to="/settings" className="text-muted-foreground">
-      {t.nav.usage(percent)}
-    </Link>
-  )
-}
 
 export const visibleNavItems = (hasAgent: boolean) =>
   NAV_ITEMS.filter((item) => hasAgent || !AGENT_ONLY.has(item.key))
@@ -169,22 +156,40 @@ const NavLink = ({
   )
 }
 
-const SyncStatus = ({
+/** One line: the footer shows only what matters most right now. */
+const FooterStatus = ({
   mailboxes,
 }: {
   mailboxes?: { lastSyncedAt: Date | null; syncError: string | null }[]
 }) => {
   const t = useT()
-  if (mailboxes?.some(({ syncError }) => syncError)) {
-    return (
-      <Link to="/settings" className="text-muted-foreground">
-        {t.nav.syncFailed}
-      </Link>
-    )
+  const { plan, usage } = useMe()
+  const hasAgent = useHasAgent()
+  const percent =
+    plan.kind === 'free' ? 0 : usagePercent(PLAN_LIMITS[plan.kind], usage)
+  const isSyncing =
+    !mailboxes?.length || mailboxes.some(({ lastSyncedAt }) => !lastSyncedAt)
+
+  const toSettings = (text: string) => (
+    <Link to="/settings" className="text-muted-foreground truncate">
+      {text}
+    </Link>
+  )
+  if (hasAgent && mailboxes?.some(({ syncError }) => syncError)) {
+    return toSettings(t.nav.syncFailed)
   }
-  const isWatching =
-    !!mailboxes?.length && mailboxes.every(({ lastSyncedAt }) => lastSyncedAt)
-  return <span>{isWatching ? t.nav.watching : t.nav.syncing}</span>
+  if (hasAgent && isSyncing) {
+    return <span className="truncate">{t.nav.syncing}</span>
+  }
+  if (percent >= USAGE_SHOWN_FROM) {
+    return toSettings(t.nav.usage(percent))
+  }
+  if (plan.trialDaysLeft) {
+    return toSettings(t.nav.trialLeft(plan.trialDaysLeft))
+  }
+  return hasAgent ? (
+    <span className="truncate">{t.nav.watching}</span>
+  ) : null
 }
 
 export const Sidebar = ({
@@ -195,7 +200,6 @@ export const Sidebar = ({
   onSearch: () => void
 }) => {
   const t = useT()
-  const { plan, usage } = useMe()
   const hasAgent = useHasAgent()
   const isModifierHeld = useModifierHold()
   const { data: today } = useQuery(
@@ -241,15 +245,7 @@ export const Sidebar = ({
         <span data-mask className="text-foreground/80 truncate">
           {email}
         </span>
-        {hasAgent && <SyncStatus mailboxes={today?.mailboxes} />}
-        {plan.trialDaysLeft && (
-          <Link to="/settings" className="text-muted-foreground">
-            {t.nav.trialLeft(plan.trialDaysLeft)}
-          </Link>
-        )}
-        {plan.kind !== 'free' && (
-          <UsageLine usage={usage} limits={PLAN_LIMITS[plan.kind]} />
-        )}
+        <FooterStatus mailboxes={today?.mailboxes} />
       </div>
     </nav>
   )

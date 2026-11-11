@@ -43,7 +43,6 @@ export const zh: Messages = {
     deleteChat: '删除对话',
     failed: '助手没能完成。请再试一次。',
     lead: '问问你的邮件，或者告诉我要做什么。任何发送或改动 Gmail 的操作都会先等你确认。',
-    leave: '退出助手模式',
     newChat: '新对话',
     noChats: '还没有对话',
     placeholder: '问问你的邮件，或者告诉我要做什么…',

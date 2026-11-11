@@ -20,7 +20,6 @@ export const fr: Messages = {
     deleteChat: 'Supprimer la discussion',
     failed: 'L’agent n’a pas pu terminer. Réessayez.',
     lead: 'Posez une question sur vos e-mails ou dites quoi faire. Tout ce qui envoie ou modifie Gmail attend votre accord.',
-    leave: 'Quitter le mode agent',
     newChat: 'Nouvelle discussion',
     noChats: 'Aucune discussion pour l’instant',
     placeholder: 'Posez une question sur vos e-mails ou dites quoi faire…',

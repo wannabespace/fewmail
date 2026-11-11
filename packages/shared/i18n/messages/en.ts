@@ -42,7 +42,6 @@ export const en = {
     deleteChat: 'Delete chat',
     failed: 'The agent could not finish. Try again.',
     lead: 'Ask about your mail or say what to do. Anything that sends or changes Gmail waits for your yes.',
-    leave: 'Leave agent mode',
     newChat: 'New chat',
     noChats: 'No chats yet',
     placeholder: 'Ask about your mail or say what to do…',
