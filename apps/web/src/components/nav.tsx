@@ -1,5 +1,15 @@
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
+import {
+  Add01Icon,
+  DashboardSquare01Icon,
+  Mail01Icon,
+  Search01Icon,
+  Settings01Icon,
+  Sun03Icon,
+  ZapIcon,
+} from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -12,10 +22,15 @@ import { orpc } from '~/lib/orpc'
 import { Logo } from './logo'
 
 export const NAV_ITEMS = [
-  { key: 'today', sequence: ['G', 'T'], to: '/today' },
-  { key: 'mail', sequence: ['G', 'M'], to: '/mail' },
-  { key: 'rules', sequence: ['G', 'R'], to: '/rules' },
-  { key: 'settings', sequence: ['G', 'S'], to: '/settings' },
+  { icon: Sun03Icon, key: 'today', sequence: ['G', 'T'], to: '/today' },
+  { icon: Mail01Icon, key: 'mail', sequence: ['G', 'M'], to: '/mail' },
+  { icon: ZapIcon, key: 'rules', sequence: ['G', 'R'], to: '/rules' },
+  {
+    icon: Settings01Icon,
+    key: 'settings',
+    sequence: ['G', 'S'],
+    to: '/settings',
+  },
 ] as const
 
 const AGENT_ONLY = new Set(['today'])
@@ -24,7 +39,7 @@ export const visibleNavItems = (hasAgent: boolean) =>
   NAV_ITEMS.filter((item) => hasAgent || !AGENT_ONLY.has(item.key))
 
 const NAV_ROW =
-  'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 cursor-pointer items-center justify-between rounded-lg px-2.5 text-sm outline-none data-[status=active]:font-medium'
+  'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70 data-[status=active]:font-medium'
 
 const BOARD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 
@@ -51,7 +66,8 @@ const BoardLink = ({
       params={{ boardId: board.id }}
       className={NAV_ROW}
     >
-      <span className="truncate" data-mask>
+      <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
+      <span className="flex-1 truncate" data-mask>
         {board.name}
       </span>
       {showKeys && key && <Kbd>G {key}</Kbd>}
@@ -81,6 +97,7 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
         className={NAV_ROW}
         onClick={() => newBoardStore.set(true)}
       >
+        <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
         <span className="text-muted-foreground">{t.nav.newBoard}</span>
       </button>
     </section>
@@ -102,15 +119,13 @@ const NavLink = ({
 
   return (
     <Link to={item.to} className={NAV_ROW}>
-      <span>{t.nav[item.key]}</span>
-      {showKeys ? (
-        <Kbd>{item.sequence.join(' ')}</Kbd>
-      ) : (
-        Boolean(badge) && (
-          <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
-            {badge}
-          </span>
-        )
+      <HugeiconsIcon icon={item.icon} strokeWidth={2} />
+      <span className="flex-1">{t.nav[item.key]}</span>
+      {showKeys && <Kbd>{item.sequence.join(' ')}</Kbd>}
+      {!showKeys && Boolean(badge) && (
+        <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
+          {badge}
+        </span>
       )}
     </Link>
   )
@@ -162,7 +177,14 @@ export const Sidebar = ({
         onClick={onSearch}
         className="bg-input text-muted-foreground ring-foreground/6 hover:ring-foreground/12 focus-visible:focus-ring mb-3 flex h-8 cursor-pointer items-center justify-between rounded-lg px-2.5 text-sm shadow-2xs ring outline-none"
       >
-        <span>{t.nav.search}</span>
+        <span className="flex items-center gap-2">
+          <HugeiconsIcon
+            icon={Search01Icon}
+            strokeWidth={2}
+            className="size-4"
+          />
+          {t.nav.search}
+        </span>
         <Kbd>⌘K</Kbd>
       </button>
       {visibleNavItems(hasAgent).map((item) => (

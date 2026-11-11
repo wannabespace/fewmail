@@ -10,6 +10,20 @@ import {
   CommandShortcut,
 } from '@fewmail/ui/components/command'
 import { themeStore } from '@fewmail/ui/theme-store'
+import {
+  Add01Icon,
+  AiChat02Icon,
+  ComputerIcon,
+  CrownIcon,
+  Moon02Icon,
+  PencilEdit02Icon,
+  RefreshIcon,
+  Search01Icon,
+  SparklesIcon,
+  Sun03Icon,
+  ZapIcon,
+} from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
@@ -24,6 +38,12 @@ import { AskAnswer } from './ask-answer'
 import { newBoardStore } from './board-dialog'
 import { useCompose } from './compose/compose-context'
 import { visibleNavItems } from './nav'
+
+const THEME_ICONS = {
+  dark: Moon02Icon,
+  light: Sun03Icon,
+  system: ComputerIcon,
+} as const
 
 export const CommandMenu = ({
   onOpenChange: setOpen,
@@ -96,6 +116,7 @@ export const CommandMenu = ({
                   value={`ask ${search}`}
                   onSelect={() => ask.mutate({ question: search.trim() })}
                 >
+                  <HugeiconsIcon icon={AiChat02Icon} strokeWidth={2} />
                   {t.ask.label(search.trim())}
                 </CommandItem>
               )}
@@ -107,6 +128,7 @@ export const CommandMenu = ({
                   )
                 }
               >
+                <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
                 {t.command.searchFor(search.trim())}
               </CommandItem>
             </CommandGroup>
@@ -117,6 +139,7 @@ export const CommandMenu = ({
                 key={item.to}
                 onSelect={() => run(() => navigate({ to: item.to }))}
               >
+                <HugeiconsIcon icon={item.icon} strokeWidth={2} />
                 {t.nav[item.key]}
                 <CommandShortcut>{item.sequence.join(' ')}</CommandShortcut>
               </CommandItem>
@@ -124,14 +147,17 @@ export const CommandMenu = ({
           </CommandGroup>
           <CommandGroup heading={hasAgent ? t.command.agent : t.nav.mail}>
             <CommandItem onSelect={() => run(() => openCompose())}>
+              <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={2} />
               {t.command.compose}
               <CommandShortcut>C</CommandShortcut>
             </CommandItem>
             <CommandItem onSelect={() => run(() => sync.mutate())}>
+              <HugeiconsIcon icon={RefreshIcon} strokeWidth={2} />
               {t.command.checkMail}
             </CommandItem>
             {hasAgent && (
               <CommandItem onSelect={() => run(() => refreshBrief.mutate())}>
+                <HugeiconsIcon icon={SparklesIcon} strokeWidth={2} />
                 {t.command.rewriteBrief}
               </CommandItem>
             )}
@@ -140,10 +166,12 @@ export const CommandMenu = ({
                 run(() => navigate({ search: { new: true }, to: '/rules' }))
               }
             >
+              <HugeiconsIcon icon={ZapIcon} strokeWidth={2} />
               {t.command.teachRule}
             </CommandItem>
             {hasAgent && (
               <CommandItem onSelect={() => run(() => newBoardStore.set(true))}>
+                <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
                 {t.nav.newBoard}
               </CommandItem>
             )}
@@ -151,6 +179,7 @@ export const CommandMenu = ({
               <CommandItem
                 onSelect={() => run(() => navigate({ to: '/settings' }))}
               >
+                <HugeiconsIcon icon={CrownIcon} strokeWidth={2} />
                 {t.command.upgrade}
               </CommandItem>
             )}
@@ -161,6 +190,7 @@ export const CommandMenu = ({
                 key={theme}
                 onSelect={() => run(() => themeStore.set(theme))}
               >
+                <HugeiconsIcon icon={THEME_ICONS[theme]} strokeWidth={2} />
                 {t.command.theme[theme]}
               </CommandItem>
             ))}
