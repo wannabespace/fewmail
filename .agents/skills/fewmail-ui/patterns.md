@@ -125,4 +125,4 @@ Suggestion order is JSX order (`shouldFilter={false}`) — the literal answer fi
 
 ## Share card
 
-- `apps/web/public/og.png` (1200×630) is the login screen as a postcard: cream canvas, logo top-left, the login headline in Newsreader at display size with the lead in Inter, and the login preview rows on a level-2 panel bleeding off the right edge, the one important row raised with the terracotta dot. One card for every page; per-page titles live in the meta, not the image. `apple-touch-icon.png` is the favicon tile at 180px.
+- `apps/web/public/og.png` (1200×630) is the login screen as a postcard: cream canvas, logo top-left, the login headline in Newsreader at display size with the lead in Inter, and the login preview rows on a level-2 panel bleeding off the right edge, the one important row raised with the terracotta dot. One card for every page; per-page titles live in the meta, not the image. `apple-touch-icon.png` is the favicon tile at 180px. Both are artboards in the Paper file "Fewmail" (https://app.paper.design/file/01M75H40GVB69KCDEB53AV5YGK), exported at 1x; change them there and re-export, never edit the PNGs.
