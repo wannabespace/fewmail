@@ -609,7 +609,6 @@ export const uk: Messages = {
         many: (n) => `Ще ${n} прийдуть о ${time}`,
         other: (n) => `Ще ${n} прийде о ${time}`,
       }),
-    briefArrives: (time: string) => `Бриф приходить щодня о ${time}.`,
     briefFrom: (time: string) => `бриф від ${time}`,
     dates: 'Дати й зустрічі',
     done: 'Готово',
@@ -648,7 +647,6 @@ export const uk: Messages = {
     recent: 'Ще за добу',
     sent: 'Надіслано',
     worthAttention: 'Варто уваги',
-    writeNow: 'Написати зараз',
     writing: 'Пишу…',
   },
   boards: {

@@ -710,7 +710,6 @@ export const tr: Messages = {
     },
     later: (total: number, time: string) =>
       `${time} saatinde ${total} tane daha gelecek`,
-    briefArrives: (time: string) => `Özetin her gün şu saatte gelir: ${time}.`,
     briefFrom: (time: string) => `${time} özeti`,
     dates: 'Tarihler ve toplantılar',
     done: 'Tamam',
@@ -741,7 +740,6 @@ export const tr: Messages = {
     recent: 'Son bir günde ayrıca',
     sent: 'Gönderildi',
     worthAttention: 'İlgini hak ediyor',
-    writeNow: 'Şimdi yaz',
     writing: 'Yazılıyor…',
   },
   whatsapp: {

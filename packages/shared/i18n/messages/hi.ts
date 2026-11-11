@@ -585,7 +585,6 @@ export const hi: Messages = {
         one: () => `${time} पर एक और आएगा`,
         other: (n) => `${time} पर ${n} और आएँगे`,
       }),
-    briefArrives: (time: string) => `आपका ब्रीफ़ हर दिन ${time} बजे आता है।`,
     briefFrom: (time: string) => `${time} का ब्रीफ़`,
     dates: 'तारीखें और मीटिंग',
     done: 'हो गया',
@@ -616,7 +615,6 @@ export const hi: Messages = {
     recent: 'पिछले दिन में और',
     sent: 'भेजा गया',
     worthAttention: 'ध्यान देने लायक',
-    writeNow: 'अभी लिखें',
     writing: 'लिखा जा रहा है…',
   },
   boards: {

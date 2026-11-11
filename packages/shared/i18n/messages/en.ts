@@ -716,7 +716,6 @@ export const en = {
   },
   today: {
     awaiting: 'Waiting for a reply',
-    briefArrives: (time: string) => `Your brief arrives every day at ${time}.`,
     briefFrom: (time: string) => `brief from ${time}`,
     dates: 'Dates and meetings',
     done: 'Done',
@@ -761,7 +760,6 @@ export const en = {
     recent: 'Also in the last day',
     sent: 'Sent',
     worthAttention: 'Worth your attention',
-    writeNow: 'Write it now',
     writing: 'Writing…',
   },
   whatsapp: {

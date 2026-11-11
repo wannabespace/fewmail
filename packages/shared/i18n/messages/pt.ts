@@ -737,7 +737,6 @@ export const pt: Messages = {
         one: () => `Mais um chega às ${time}`,
         other: (n) => `Mais ${n} chegam às ${time}`,
       }),
-    briefArrives: (time: string) => `Seu resumo chega todo dia às ${time}.`,
     briefFrom: (time: string) => `resumo das ${time}`,
     dates: 'Datas e reuniões',
     done: 'Feito',
@@ -792,7 +791,6 @@ export const pt: Messages = {
     recent: 'Também no último dia',
     sent: 'Enviado',
     worthAttention: 'Merece sua atenção',
-    writeNow: 'Escrever agora',
     writing: 'Escrevendo…',
   },
   whatsapp: {

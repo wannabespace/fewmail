@@ -615,7 +615,6 @@ export const fr: Messages = {
         many: (n) => `${n} autres arrivent à ${time}`,
         other: (n) => `${n} autres arrivent à ${time}`,
       }),
-    briefArrives: (time: string) => `Votre brief arrive chaque jour à ${time}.`,
     briefFrom: (time: string) => `brief de ${time}`,
     dates: 'Dates et rendez-vous',
     done: 'Fait',
@@ -651,7 +650,6 @@ export const fr: Messages = {
     recent: 'Aussi ces dernières 24 h',
     sent: 'Envoyé',
     worthAttention: 'Mérite votre attention',
-    writeNow: 'L’écrire maintenant',
     writing: 'Rédaction…',
   },
   boards: {

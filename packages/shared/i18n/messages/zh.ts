@@ -563,7 +563,6 @@ export const zh: Messages = {
       turnOn: '开启',
     },
     later: (total: number, time: string) => `还有 ${total} 项将在 ${time} 送达`,
-    briefArrives: (time: string) => `简报每天 ${time} 送达。`,
     briefFrom: (time: string) => `${time} 的简报`,
     dates: '日期和会议',
     done: '完成',
@@ -587,7 +586,6 @@ export const zh: Messages = {
     recent: '过去一天的其他邮件',
     sent: '已发送',
     worthAttention: '值得关注',
-    writeNow: '立即撰写',
     writing: '正在撰写…',
   },
   boards: {

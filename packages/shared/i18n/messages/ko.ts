@@ -581,7 +581,6 @@ export const ko: Messages = {
     },
     later: (total: number, time: string) =>
       `${time}에 ${total}개가 더 도착해요`,
-    briefArrives: (time: string) => `브리핑은 매일 ${time}에 도착해요.`,
     briefFrom: (time: string) => `${time} 브리핑`,
     dates: '날짜와 일정',
     done: '완료',
@@ -606,7 +605,6 @@ export const ko: Messages = {
     recent: '지난 하루의 다른 메일',
     sent: '보냄',
     worthAttention: '살펴볼 만한 것',
-    writeNow: '지금 작성',
     writing: '작성 중…',
   },
   boards: {

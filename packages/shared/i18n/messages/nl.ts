@@ -738,7 +738,6 @@ export const nl: Messages = {
         one: () => `Nog één komt om ${time}`,
         other: (n) => `Nog ${n} komen om ${time}`,
       }),
-    briefArrives: (time: string) => `Je overzicht komt elke dag om ${time}.`,
     briefFrom: (time: string) => `overzicht van ${time}`,
     dates: 'Data en afspraken',
     done: 'Klaar',
@@ -773,7 +772,6 @@ export const nl: Messages = {
     recent: 'Ook het afgelopen etmaal',
     sent: 'Verstuurd',
     worthAttention: 'Verdient je aandacht',
-    writeNow: 'Nu schrijven',
     writing: 'Schrijven…',
   },
   whatsapp: {

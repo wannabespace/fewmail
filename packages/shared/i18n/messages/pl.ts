@@ -760,8 +760,6 @@ export const pl: Messages = {
         many: (n) => `Jeszcze ${n} rzeczy o ${time}`,
         other: (n) => `Jeszcze ${n} rzeczy o ${time}`,
       }),
-    briefArrives: (time: string) =>
-      `Podsumowanie przychodzi codziennie o ${time}.`,
     briefFrom: (time: string) => `podsumowanie z ${time}`,
     dates: 'Terminy i spotkania',
     done: 'Gotowe',
@@ -830,7 +828,6 @@ export const pl: Messages = {
     recent: 'Też z ostatniej doby',
     sent: 'Wysłano',
     worthAttention: 'Warte uwagi',
-    writeNow: 'Napisz teraz',
     writing: 'Piszę…',
   },
   whatsapp: {

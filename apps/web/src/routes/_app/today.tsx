@@ -1,11 +1,11 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
-import type { Messages } from '@fewmail/shared/i18n'
-import { Button } from '@fewmail/ui/components/button'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import { Skeleton } from '@fewmail/ui/components/skeleton'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -214,10 +214,57 @@ const isReadingFirstTime = (data?: {
   !!data &&
   data.mailboxes.every((mailbox) => !mailbox.lastSyncedAt && !mailbox.syncError)
 
-const quietCopy = (t: Messages, isFirstRead: boolean, queued: number) =>
-  isFirstRead
-    ? { headline: t.nav.syncing, note: t.today.firstRead }
-    : { headline: t.today.headline(queued), note: t.today.nothingNeedsYou }
+const BriefLoading = ({ note }: { note: string }) => (
+  <div aria-busy className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3 py-1.5">
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-[94%] [animation-delay:150ms]" />
+      <Skeleton className="h-4 w-[97%] [animation-delay:300ms]" />
+      <Skeleton className="h-4 w-[58%] [animation-delay:450ms]" />
+    </div>
+    <p className="text-muted-foreground flex items-center gap-2 text-sm">
+      <Spinner />
+      {note}
+    </p>
+  </div>
+)
+
+const BriefBody = ({
+  brief,
+  isFirstRead,
+  isLoading,
+  queued,
+}: {
+  brief?: Today['brief']
+  isFirstRead: boolean
+  isLoading: boolean
+  queued: number
+}) => {
+  const t = useT()
+
+  return (
+    <>
+      {isLoading && !isFirstRead ? (
+        <Skeleton className="my-1 h-9 w-3/5" />
+      ) : (
+        <h1 className="text-display font-serif tracking-tight" data-mask>
+          {brief?.headline ??
+            (isFirstRead ? t.nav.syncing : t.today.headline(queued))}
+        </h1>
+      )}
+      {brief && (
+        <p className="text-brief text-foreground/85 font-serif" data-mask>
+          {brief.body}
+        </p>
+      )}
+      {isLoading && (
+        <BriefLoading
+          note={isFirstRead ? t.today.firstRead : t.today.writing}
+        />
+      )}
+    </>
+  )
+}
 
 const BriefTime = ({ label }: { label: (time: string) => string }) => {
   const { me } = Route.useRouteContext()
@@ -249,7 +296,7 @@ const TodayPage = () => {
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
   const queue = data?.queue ?? []
-  const quiet = quietCopy(t, isReadingFirstTime(data), queue.length)
+  const isFirstRead = isReadingFirstTime(data)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
@@ -320,7 +367,7 @@ const TodayPage = () => {
   const refreshBrief = useMutation(
     orpc.today.refreshBrief.mutationOptions({ onSuccess: invalidate })
   )
-  const isMissingBrief = !!data && !data.brief && !isReadingFirstTime(data)
+  const isMissingBrief = !!data && !data.brief && !isFirstRead
   const { isIdle: isBriefIdle, mutate: writeBrief } = refreshBrief
   useEffect(() => {
     if (isMissingBrief && isBriefIdle) {
@@ -398,30 +445,17 @@ const TodayPage = () => {
               </span>
               {brief && <BriefTime label={t.today.briefFrom} />}
             </div>
-            <h1 className="text-display font-serif tracking-tight" data-mask>
-              {brief?.headline ?? quiet.headline}
-            </h1>
-            {brief ? (
-              <p className="text-brief text-foreground/85 font-serif" data-mask>
-                {brief.body}
-              </p>
-            ) : (
-              <div className="text-muted-foreground -ml-3 flex items-center gap-3">
-                <BriefTime label={t.today.briefArrives} />
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={refreshBrief.isPending}
-                  onClick={() => refreshBrief.mutate()}
-                >
-                  {refreshBrief.isPending ? t.today.writing : t.today.writeNow}
-                </Button>
-              </div>
-            )}
+            <BriefBody
+              brief={brief}
+              isFirstRead={isFirstRead}
+              isLoading={!brief && !refreshBrief.isError}
+              queued={queue.length}
+            />
           </header>
 
           <section
             aria-label={t.today.worthAttention}
+            hidden={isFirstRead && queue.length === 0}
             className="flex flex-col gap-2.5"
           >
             <h2 className="text-muted-foreground text-xs font-medium">
@@ -429,7 +463,7 @@ const TodayPage = () => {
             </h2>
             {queue.length === 0 && (
               <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">
-                {quiet.note}
+                {t.today.nothingNeedsYou}
               </p>
             )}
             {queue.map((item, index) => (

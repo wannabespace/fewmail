@@ -716,8 +716,6 @@ export const id: Messages = {
     },
     later: (total: number, time: string) =>
       `${total} lagi datang pukul ${time}`,
-    briefArrives: (time: string) =>
-      `Ringkasanmu tiba setiap hari pukul ${time}.`,
     briefFrom: (time: string) => `ringkasan pukul ${time}`,
     dates: 'Tanggal dan rapat',
     done: 'Selesai',
@@ -745,7 +743,6 @@ export const id: Messages = {
     recent: 'Juga dalam sehari terakhir',
     sent: 'Terkirim',
     worthAttention: 'Layak diperhatikan',
-    writeNow: 'Tulis sekarang',
     writing: 'Menulis…',
   },
   whatsapp: {

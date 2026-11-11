@@ -586,7 +586,6 @@ export const ja: Messages = {
       turnOn: 'オンにする',
     },
     later: (total: number, time: string) => `${time}にあと${total}件届きます`,
-    briefArrives: (time: string) => `ブリーフは毎日 ${time} に届きます。`,
     briefFrom: (time: string) => `${time} のブリーフ`,
     dates: '日付と予定',
     done: '完了',
@@ -614,7 +613,6 @@ export const ja: Messages = {
     recent: 'この1日のその他',
     sent: '送信済み',
     worthAttention: '目を通す価値あり',
-    writeNow: '今すぐ作成',
     writing: '作成中…',
   },
   boards: {

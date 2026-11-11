@@ -613,7 +613,6 @@ export const de: Messages = {
         one: () => `Eine weitere kommt um ${time}`,
         other: (n) => `${n} weitere kommen um ${time}`,
       }),
-    briefArrives: (time: string) => `Dein Briefing kommt jeden Tag um ${time}.`,
     briefFrom: (time: string) => `Briefing von ${time}`,
     dates: 'Termine und Fristen',
     done: 'Erledigt',
@@ -648,7 +647,6 @@ export const de: Messages = {
     recent: 'Außerdem in den letzten 24 Stunden',
     sent: 'Gesendet',
     worthAttention: 'Einen Blick wert',
-    writeNow: 'Jetzt schreiben',
     writing: 'Schreibe…',
   },
   boards: {
