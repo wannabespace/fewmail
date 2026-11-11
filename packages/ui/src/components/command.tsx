@@ -247,7 +247,7 @@ export const CommandItem = ({
   <CommandPrimitive.Item
     data-slot="command-item"
     className={cn(
-      `group/command-item data-selected:bg-accent data-selected:text-accent-foreground *:[svg]:text-foreground/70 data-selected:*:[svg]:text-foreground font-row relative flex min-h-7 cursor-default items-center gap-2 rounded-lg px-2 py-1 text-sm tracking-wide outline-hidden select-none group-data-[size=sm]/command:text-xs data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4`,
+      `group/command-item data-selected:bg-accent data-selected:text-accent-foreground *:[svg]:text-foreground/70 data-selected:*:[svg]:text-foreground font-row relative flex min-h-7 cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-sm tracking-wide outline-hidden select-none group-data-[size=sm]/command:text-xs data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4`,
       className
     )}
     {...props}

@@ -22,7 +22,7 @@ Topic files — read what the task touches; record new decisions in the matching
 0. **Search the registry before writing markup.** `pnpm dlx shadcn@latest search @shadcn -q <term>`. A `div` stack re-implementing a registry component (`Item`, `Empty`, `InputGroup`, `Field`, `ButtonGroup`…) is a review blocker. Missing from `packages/ui` → vendor it, rewrite imports to kit conventions, then use. Settings-like lists use `SettingsGroup`/`SettingsRow`.
 1. **No `dark:` selectors.** Theme tokens resolve in both themes (`globals.css` `:root` / `.dark`). Several call sites dialing their own alpha on one token = the token is wrong.
 2. **No pixel font sizes.** Tokens only (`text-2xs`…`text-base`, `text-brief`, `text-display`); a missing size gets a rem token in `@theme`.
-3. **No `cursor-pointer`.** It is an app: `cursor-default` on controls and row-styled links.
+3. **`cursor-pointer` on everything clickable** — controls, menu items and row-styled links.
 4. **Kit-level fixes** in `packages/ui` for systemic sizing or color problems; page overrides only for page-specific design. Sizes via size props, never per-page `h-*` on kit components.
 5. **No bare interactive icons.** Hover bg + color shift + tooltip, always.
 6. **A className on a kit component is a missing prop.** Call sites pass `size`/`variant` and own only layout. Re-dialing a kit component's surface (padding, radius, background, border, font size, height) means the kit needs a variant. `shadcn/no-restyle` enforces it.

@@ -24,7 +24,7 @@ export const visibleNavItems = (hasAgent: boolean) =>
   NAV_ITEMS.filter((item) => hasAgent || !AGENT_ONLY.has(item.key))
 
 const NAV_ROW =
-  'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 cursor-default items-center justify-between rounded-lg px-2.5 text-sm outline-none data-[status=active]:font-medium'
+  'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 cursor-pointer items-center justify-between rounded-lg px-2.5 text-sm outline-none data-[status=active]:font-medium'
 
 const BOARD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 
@@ -90,9 +90,11 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
 const NavLink = ({
   item,
   badge,
+  count,
   showKeys,
 }: {
   badge?: number
+  count?: number
   item: (typeof NAV_ITEMS)[number]
   showKeys: boolean
 }) => {
@@ -103,14 +105,16 @@ const NavLink = ({
   return (
     <Link to={item.to} className={NAV_ROW}>
       <span>{t.nav[item.key]}</span>
-      {showKeys ? (
-        <Kbd>{item.sequence.join(' ')}</Kbd>
-      ) : (
-        Boolean(badge) && (
-          <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
-            {badge}
-          </span>
-        )
+      {showKeys && <Kbd>{item.sequence.join(' ')}</Kbd>}
+      {!showKeys && Boolean(badge) && (
+        <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
+          {badge}
+        </span>
+      )}
+      {!showKeys && !badge && Boolean(count) && (
+        <span className="text-muted-foreground text-xs tabular-nums">
+          {count}
+        </span>
       )}
     </Link>
   )
@@ -148,6 +152,7 @@ export const Sidebar = ({
   const { data: today } = useQuery(
     orpc.today.get.queryOptions({ enabled: hasAgent })
   )
+  const { data: unread } = useQuery(orpc.mail.unread.queryOptions())
 
   return (
     <nav
@@ -160,7 +165,7 @@ export const Sidebar = ({
       <button
         type="button"
         onClick={onSearch}
-        className="bg-input text-muted-foreground ring-foreground/6 hover:ring-foreground/12 focus-visible:focus-ring mb-3 flex h-8 cursor-default items-center justify-between rounded-lg px-2.5 text-sm shadow-2xs ring outline-none"
+        className="bg-input text-muted-foreground ring-foreground/6 hover:ring-foreground/12 focus-visible:focus-ring mb-3 flex h-8 cursor-pointer items-center justify-between rounded-lg px-2.5 text-sm shadow-2xs ring outline-none"
       >
         <span>{t.nav.search}</span>
         <Kbd>⌘K</Kbd>
@@ -171,6 +176,7 @@ export const Sidebar = ({
           item={item}
           showKeys={isModifierHeld}
           badge={item.to === '/today' ? today?.queue.length : undefined}
+          count={item.to === '/mail' ? unread?.inbox : undefined}
         />
       ))}
       {hasAgent && <Boards showKeys={isModifierHeld} />}

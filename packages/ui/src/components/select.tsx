@@ -76,7 +76,7 @@ const SelectScrollUpButton = ({
   <SelectPrimitive.ScrollUpArrow
     data-slot="select-scroll-up-button"
     className={cn(
-      `bg-popover top-0 z-10 flex w-full cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4`,
+      `bg-popover top-0 z-10 flex w-full cursor-pointer items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4`,
       className
     )}
     {...props}
@@ -92,7 +92,7 @@ const SelectScrollDownButton = ({
   <SelectPrimitive.ScrollDownArrow
     data-slot="select-scroll-down-button"
     className={cn(
-      `bg-popover bottom-0 z-10 flex w-full cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4`,
+      `bg-popover bottom-0 z-10 flex w-full cursor-pointer items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4`,
       className
     )}
     {...props}
@@ -162,7 +162,7 @@ const SelectItem = ({
   <SelectPrimitive.Item
     data-slot="select-item"
     className={cn(
-      `focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground relative flex min-h-7 w-full cursor-default items-center gap-2 rounded-lg py-1.5 pr-8 pl-2 text-sm outline-hidden select-none in-data-[size=sm]:rounded-md in-data-[size=xs]:min-h-6 in-data-[size=xs]:gap-1.5 in-data-[size=xs]:rounded-sm in-data-[size=xs]:py-1 in-data-[size=xs]:pr-7 in-data-[size=xs]:text-xs data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 in-data-[size=xs]:[&_svg:not([class*='size-'])]:size-3 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2`,
+      `focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground relative flex min-h-7 w-full cursor-pointer items-center gap-2 rounded-lg py-1.5 pr-8 pl-2 text-sm outline-hidden select-none in-data-[size=sm]:rounded-md in-data-[size=xs]:min-h-6 in-data-[size=xs]:gap-1.5 in-data-[size=xs]:rounded-sm in-data-[size=xs]:py-1 in-data-[size=xs]:pr-7 in-data-[size=xs]:text-xs data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 in-data-[size=xs]:[&_svg:not([class*='size-'])]:size-3 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2`,
       className
     )}
     {...props}

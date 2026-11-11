@@ -132,7 +132,6 @@ const BoardPage = () => {
                     <Link
                       to="/mail"
                       search={{ thread: entry.threadId }}
-                      className="cursor-default"
                       data-mask
                     >
                       {entry.title}

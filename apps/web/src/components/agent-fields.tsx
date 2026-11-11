@@ -143,7 +143,7 @@ export const PersonaChoice = ({
           aria-checked={value === persona}
           onClick={() => onChange(persona)}
           className={cn(
-            'bg-popover focus-visible:focus-ring flex cursor-default flex-col gap-1.5 rounded-2xl p-4 text-left shadow-xs ring transition-[box-shadow,background-color] outline-none',
+            'bg-popover focus-visible:focus-ring flex cursor-pointer flex-col gap-1.5 rounded-2xl p-4 text-left shadow-xs ring transition-[box-shadow,background-color] outline-none',
             value === persona
               ? 'ring-primary ring-2'
               : 'ring-foreground/6 hover:ring-foreground/14'

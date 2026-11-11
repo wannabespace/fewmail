@@ -103,7 +103,7 @@ const MailRow = ({
         onClick={onOpen}
         aria-current={isOpen}
         className={cn(
-          'flex w-full cursor-default flex-col gap-0.5 border-b px-5 py-2.5 text-left outline-none',
+          'flex w-full cursor-pointer flex-col gap-0.5 border-b px-5 py-2.5 text-left outline-none',
           isCursor ? 'bg-accent' : 'hover:bg-accent/60',
           isOpen && 'bg-secondary'
         )}
