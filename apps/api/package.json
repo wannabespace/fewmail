@@ -23,6 +23,7 @@
     "ai-retry": "catalog:",
     "arktype": "catalog:",
     "better-auth": "catalog:",
+    "bun": "catalog:",
     "date-fns": "catalog:",
     "drizzle-orm": "catalog:",
     "grammy": "catalog:",
