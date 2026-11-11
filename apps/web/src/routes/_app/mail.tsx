@@ -1,5 +1,10 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { BULK_THRESHOLD } from '@fewmail/shared/agent'
+import {
+  ResizableGroup,
+  ResizablePanel,
+  ResizableSeparator,
+} from '@fewmail/ui/components/custom/resizable'
 import { Input } from '@fewmail/ui/components/input'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -9,6 +14,8 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { isToday } from 'date-fns'
 import { useEffect, useRef, useState } from 'react'
+import { useSubscription } from 'seitu/react'
+import { createWebStorageValue } from 'seitu/web'
 
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
@@ -27,6 +34,15 @@ const FILTERS = [
 ] as const
 
 type Filter = (typeof FILTERS)[number]
+
+const READER_WIDTH = { default: 640, max: '70%', min: 420 } as const
+
+const readerWidthStore = createWebStorageValue({
+  defaultValue: READER_WIDTH.default as number,
+  key: 'fewmail.reader-width',
+  schema: type('number'),
+  type: 'localStorage',
+})
 
 type MailRowData = RouterOutputs['mail']['list'][number]
 
@@ -143,6 +159,7 @@ const MailRow = ({
 
 const MailPage = () => {
   const t = useT()
+  const readerWidth = useSubscription(readerWidthStore)
   const hasAgent = useHasAgent()
   const { filter = 'inbox', q, thread } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -216,96 +233,105 @@ const MailPage = () => {
   })
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <section
-        aria-label={t.nav.mail}
-        className={cn(
-          'flex min-h-0 flex-col border-r',
-          thread ? 'w-[26rem] shrink-0' : 'flex-1'
-        )}
-      >
-        <div className="flex flex-col gap-3 border-b px-5 pt-5 pb-3">
-          <Input
-            ref={searchRef}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={t.mail.search}
-            aria-label={t.mail.search}
-          />
-          <Tabs
-            value={filter}
-            onValueChange={(value) =>
-              navigate({
-                search: (prev) => ({
-                  ...prev,
-                  filter: value as Filter,
-                  thread: undefined,
-                }),
-              })
-            }
-          >
-            <TabsList>
-              {FILTERS.map((value) => (
-                <TabsTrigger key={value} value={value}>
-                  {t.mail.filter[value]}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-        <ul
-          ref={listRef}
-          className={cn('flex-1 overflow-y-auto', isFetching && 'opacity-70')}
+    <ResizableGroup className="flex min-h-0 flex-1">
+      <ResizablePanel className="flex min-w-0">
+        <section
+          aria-label={t.nav.mail}
+          className={cn('flex min-w-0 flex-1 flex-col', thread && 'border-r')}
         >
-          {rows.length === 0 && !isFetching && (
-            <li className="text-muted-foreground px-5 py-8 text-sm">
-              {t.mail.empty}
-            </li>
-          )}
-          {rows.map((row, index) => (
-            <MailRow
-              key={row.message.id}
-              row={row}
-              isCursor={index === cursor}
-              isOpen={row.message.threadId === thread}
-              onOpen={() => open(index)}
+          <div className="flex flex-col gap-3 border-b px-5 pt-5 pb-3">
+            <Input
+              ref={searchRef}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t.mail.search}
+              aria-label={t.mail.search}
             />
-          ))}
-        </ul>
-        {!thread && (
-          <KeyHints
-            hints={[
-              ['J / K', t.keys.move],
-              ['⏎', t.keys.open],
-              ['/', t.keys.search],
-              ['⌘K', t.keys.anything],
-            ]}
-          />
+            <Tabs
+              value={filter}
+              onValueChange={(value) =>
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    filter: value as Filter,
+                    thread: undefined,
+                  }),
+                })
+              }
+            >
+              <TabsList>
+                {FILTERS.map((value) => (
+                  <TabsTrigger key={value} value={value}>
+                    {t.mail.filter[value]}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+          <ul
+            ref={listRef}
+            className={cn('flex-1 overflow-y-auto', isFetching && 'opacity-70')}
+          >
+            {rows.length === 0 && !isFetching && (
+              <li className="text-muted-foreground px-5 py-8 text-sm">
+                {t.mail.empty}
+              </li>
+            )}
+            {rows.map((row, index) => (
+              <MailRow
+                key={row.message.id}
+                row={row}
+                isCursor={index === cursor}
+                isOpen={row.message.threadId === thread}
+                onOpen={() => open(index)}
+              />
+            ))}
+          </ul>
+          {!thread && (
+            <KeyHints
+              hints={[
+                ['J / K', t.keys.move],
+                ['⏎', t.keys.open],
+                ['/', t.keys.search],
+                ['⌘K', t.keys.anything],
+              ]}
+            />
+          )}
+        </section>
+      </ResizablePanel>
+      {thread && <ResizableSeparator />}
+      <ResizablePanel
+        className="flex"
+        collapsed={!thread}
+        size={readerWidth}
+        minSize={READER_WIDTH.min}
+        maxSize={READER_WIDTH.max}
+        onSizeChange={(width) => readerWidthStore.set(width)}
+      >
+        {thread && (
+          <div className="bg-background flex min-w-0 flex-1 flex-col">
+            <ThreadView
+              key={thread}
+              isSnoozed={filter === 'snoozed'}
+              threadId={thread}
+              onDone={() =>
+                navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
+              }
+            />
+            <KeyHints
+              hints={[
+                ['E', t.keys.archive],
+                ...(hasAgent
+                  ? [['R', t.keys.draftReply] as [string, string]]
+                  : []),
+                ['esc', t.keys.close],
+                ['J / K', t.keys.move],
+              ]}
+            />
+          </div>
         )}
-      </section>
-      {thread && (
-        <div className="bg-background flex min-w-0 flex-1 flex-col">
-          <ThreadView
-            key={thread}
-            isSnoozed={filter === 'snoozed'}
-            threadId={thread}
-            onDone={() =>
-              navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
-            }
-          />
-          <KeyHints
-            hints={[
-              ['E', t.keys.archive],
-              ...(hasAgent
-                ? [['R', t.keys.draftReply] as [string, string]]
-                : []),
-              ['esc', t.keys.close],
-              ['J / K', t.keys.move],
-            ]}
-          />
-        </div>
-      )}
-    </div>
+      </ResizablePanel>
+    </ResizableGroup>
   )
 }
 

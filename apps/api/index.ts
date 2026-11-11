@@ -5,6 +5,7 @@ import { cors } from 'hono/cors'
 
 import { env } from './env'
 import { auth } from './lib/auth'
+import { relayChanges } from './lib/live'
 import { handleMcp } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
@@ -34,6 +35,7 @@ const app = new Hono()
   .get('/health', (c) => c.text('ok'))
 
 await runMigrations()
+await relayChanges()
 void startTelegram()
 
 export default {

@@ -27,7 +27,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Risk** | Known phishing domain (public list), lookalike sender domain or changed payment details; shown as a warning and a `security` action. Free. |
 | **Commitment** | A promise you made in sent mail; due ones come back as actions. Pro. |
 | **People** | Per-contact note the agent keeps, refreshed weekly. Pro. |
-| **Money** | Payments and subscriptions read from mail; price increases become `subscription` actions. Pro. |
+| **Money** | Payments and subscriptions read from mail, starting with half a year of history; price increases become `subscription` actions, a cancellation email takes the subscription off the page. Pro. |
 | **Cleanup** | Weekly Sunday suggestion to clear accumulated noise. Pro. |
 | **Task** | "Handle this": the agent works a thread toward a goal, asking before each send or sending on its own (`ask` / `auto`). Pro. |
 | **Instructions** | Free-text or voice messages to the Telegram or WhatsApp bot; replying to a bot message targets its thread. Pro. |

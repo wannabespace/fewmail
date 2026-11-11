@@ -8,6 +8,7 @@ import { and, eq, gte, isNotNull, sql } from 'drizzle-orm'
 import { localClock } from '../lib/clock'
 import { unsubscribeOneClick } from '../lib/gmail'
 import { senderHashOf } from '../lib/keyed-hash'
+import { announceChange } from '../lib/live'
 import { getSettings } from './settings'
 import { changeThreadLabels } from './thread-labels'
 import { recordUnsubscribe } from './zombies'
@@ -104,6 +105,7 @@ export const offerCleanup = async (userId: string) => {
     title: t.cleanup.title(senders.length),
     userId,
   })
+  await announceChange(userId)
 }
 
 export const runCleanup = async (userId: string, senders: CleanupSender[]) => {

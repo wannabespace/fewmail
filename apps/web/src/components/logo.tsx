@@ -1,4 +1,6 @@
 import { cn } from '@fewmail/ui/lib/utils'
+import type { LinkProps } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 export const LogoMark = ({ className }: { className?: string }) => (
   <svg
@@ -20,11 +22,14 @@ export const LogoMark = ({ className }: { className?: string }) => (
   </svg>
 )
 
-export const Logo = () => (
-  <span className="flex items-center gap-2.5">
+export const Logo = ({ to = '/' }: { to?: LinkProps['to'] }) => (
+  <Link
+    to={to}
+    className="text-foreground focus-visible:focus-ring flex w-fit items-center gap-2.5 rounded-md outline-none"
+  >
     <LogoMark />
     <span className="font-serif text-xl font-medium tracking-tight">
       Fewmail
     </span>
-  </span>
+  </Link>
 )

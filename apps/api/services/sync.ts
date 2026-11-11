@@ -6,8 +6,9 @@ import {
   messages,
   users,
 } from '@fewmail/db/schema'
-import { subDays } from 'date-fns'
-import { and, eq, gte, inArray, isNull, notExists } from 'drizzle-orm'
+import { ANALYZE_WINDOW_DAYS } from '@fewmail/shared/agent'
+import { subDays, subMinutes } from 'date-fns'
+import { and, eq, gte, inArray, isNull, lt, notExists, or } from 'drizzle-orm'
 
 import {
   getMessage,
@@ -16,9 +17,11 @@ import {
   listHistory,
   listMessageIds,
 } from '../lib/gmail'
+import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage } from './agent'
 import { measureBulk } from './bulk'
+import { recordCharge } from './money'
 import { getPlanInfo, hasAgent } from './plan'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
@@ -32,8 +35,11 @@ const INITIAL_INBOX_LIMIT = 60
 const VOICE_SAMPLE_QUERY = 'in:sent newer_than:60d'
 const VOICE_SAMPLE_LIMIT = 15
 const ANALYZE_CONCURRENCY = 4
-/** Mail older than this is never sent to the model, so an upgrade does not pay for the whole backlog. */
-const ANALYZE_WINDOW_DAYS = 3
+/** Receipts, invoices and cancellations of the last half year; the newest days are the regular sync's. */
+const MONEY_HISTORY_QUERY = `newer_than:6m older_than:${ANALYZE_WINDOW_DAYS}d -category:promotions -in:chats (category:purchases OR subject:(receipt OR invoice OR subscription OR renewal OR payment OR billing OR order OR cancel OR cancelled OR canceled OR trial OR plan))`
+const MONEY_HISTORY_LIMIT = 500
+/** A sync that died without releasing its claim (a crash, a deploy) is taken over after this. */
+const SYNC_CLAIM_MINUTES = 15
 
 type Mailbox = typeof mailboxes.$inferSelect
 type Message = typeof messages.$inferSelect
@@ -174,7 +180,66 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   ])
 }
 
-export const syncMailbox = async (mailbox: Mailbox) => {
+const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
+  const known = ids.length
+    ? await db
+        .select({ gmailId: messages.gmailId })
+        .from(messages)
+        .where(
+          and(
+            eq(messages.mailboxId, mailbox.id),
+            inArray(messages.gmailId, ids)
+          )
+        )
+    : []
+  const knownIds = new Set(known.map(({ gmailId }) => gmailId))
+
+  const inserted: Message[] = []
+  await inBatches(
+    ids.filter((id) => !knownIds.has(id)),
+    ANALYZE_CONCURRENCY,
+    async (id) => {
+      const parsed = await getMessage(mailbox.userId, id)
+      if (parsed.labelIds.includes('DRAFT')) {
+        return
+      }
+      const rows = await db
+        .insert(messages)
+        .values({ ...parsed, mailboxId: mailbox.id, userId: mailbox.userId })
+        .onConflictDoNothing()
+        .returning()
+      inserted.push(...rows)
+    }
+  )
+  return inserted
+}
+
+const claimSync = async (mailboxId: string) => {
+  const [claimed] = await db
+    .update(mailboxes)
+    .set({ syncStartedAt: new Date() })
+    .where(
+      and(
+        eq(mailboxes.id, mailboxId),
+        or(
+          isNull(mailboxes.syncStartedAt),
+          lt(
+            mailboxes.syncStartedAt,
+            subMinutes(new Date(), SYNC_CLAIM_MINUTES)
+          )
+        )
+      )
+    )
+    .returning()
+  return claimed
+}
+
+/** Does nothing while another process syncs the same mailbox. */
+export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
+  const mailbox = await claimSync(id)
+  if (!mailbox) {
+    return
+  }
   try {
     const { historyId, ids, labelChanges } = await newMessageIds(mailbox)
     await Promise.all(
@@ -190,51 +255,57 @@ export const syncMailbox = async (mailbox: Mailbox) => {
           )
       )
     )
-    const known = ids.length
-      ? await db
-          .select({ gmailId: messages.gmailId })
-          .from(messages)
-          .where(
-            and(
-              eq(messages.mailboxId, mailbox.id),
-              inArray(messages.gmailId, ids)
-            )
-          )
-      : []
-    const knownIds = new Set(known.map(({ gmailId }) => gmailId))
-
-    const inserted: Message[] = []
-    await inBatches(
-      ids.filter((id) => !knownIds.has(id)),
-      ANALYZE_CONCURRENCY,
-      async (id) => {
-        const parsed = await getMessage(mailbox.userId, id)
-        if (parsed.labelIds.includes('DRAFT')) {
-          return
-        }
-        const rows = await db
-          .insert(messages)
-          .values({ ...parsed, mailboxId: mailbox.id, userId: mailbox.userId })
-          .onConflictDoNothing()
-          .returning()
-        inserted.push(...rows)
-      }
-    )
-
+    const inserted = await insertMessages(mailbox, ids)
     await db
       .update(mailboxes)
-      .set({ historyId, lastSyncedAt: new Date(), syncError: null })
+      .set({ historyId })
       .where(eq(mailboxes.id, mailbox.id))
+    const hasChanges = inserted.length > 0 || labelChanges.size > 0
+    if (hasChanges) {
+      await announceChange(mailbox.userId)
+    }
 
     await processIncoming(mailbox, inserted)
+    await db
+      .update(mailboxes)
+      .set({ lastSyncedAt: new Date(), syncError: null, syncStartedAt: null })
+      .where(eq(mailboxes.id, mailbox.id))
+    if (hasChanges || !mailbox.lastSyncedAt) {
+      await announceChange(mailbox.userId)
+    }
   } catch (error) {
     await db
       .update(mailboxes)
       .set({
         lastSyncedAt: new Date(),
         syncError: error instanceof Error ? error.message : String(error),
+        syncStartedAt: null,
       })
       .where(eq(mailboxes.id, mailbox.id))
+    await announceChange(mailbox.userId)
     throw error
   }
+}
+
+/** Pro: the Money page starts with half a year of subscriptions instead of only what arrives from now on. */
+export const readMoneyHistory = async (mailbox: Mailbox) => {
+  const ids = await listMessageIds(
+    mailbox.userId,
+    MONEY_HISTORY_QUERY,
+    MONEY_HISTORY_LIMIT
+  )
+  const inserted = await insertMessages(mailbox, ids)
+  await inBatches(
+    inserted.filter((message) => !message.isFromMe),
+    ANALYZE_CONCURRENCY,
+    (message) =>
+      recordCharge(message).catch((error) =>
+        console.error(`money history ${message.id} failed`, error)
+      )
+  )
+  await db
+    .update(mailboxes)
+    .set({ moneyHistoryAt: new Date() })
+    .where(eq(mailboxes.id, mailbox.id))
+  await announceChange(mailbox.userId)
 }

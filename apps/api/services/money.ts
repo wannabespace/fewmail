@@ -1,9 +1,10 @@
 import { db } from '@fewmail/db'
-import type { messages } from '@fewmail/db/schema'
-import { actions, transactions } from '@fewmail/db/schema'
+import { actions, messages, transactions } from '@fewmail/db/schema'
+import { ANALYZE_WINDOW_DAYS } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
+import { subDays } from 'date-fns'
 import { and, desc, eq, gte, lt } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
@@ -18,7 +19,7 @@ const chargeSchema = type({
   chargedAt: 'string | null',
   currency: 'string',
   dueAt: 'string | null',
-  kind: "'subscription' | 'bill' | 'purchase' | 'none'",
+  kind: "'subscription' | 'bill' | 'purchase' | 'cancellation' | 'none'",
   merchant: 'string',
   period: "'month' | 'year' | 'week' | null",
 })
@@ -31,25 +32,76 @@ const formatMoney = (cents: number, currency: string, locale: string) =>
     cents / 100
   )
 
-/** Pro: receipts and bills become a ledger; a subscription that costs more than last time becomes a Today card. */
+const subscriptionMerchants = async (userId: string) => {
+  const rows = await db
+    .selectDistinct({ merchant: transactions.merchant })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        eq(transactions.kind, 'subscription')
+      )
+    )
+  return rows.map(({ merchant }) => merchant)
+}
+
+/** A notification from a sender that billed a subscription before may be its cancellation. */
+export const hasBilledBefore = async (message: Message) => {
+  const [billed] = await db
+    .select({ id: transactions.id })
+    .from(transactions)
+    .innerJoin(messages, eq(messages.id, transactions.messageId))
+    .where(
+      and(
+        eq(transactions.userId, message.userId),
+        eq(transactions.kind, 'subscription'),
+        eq(messages.fromEmail, message.fromEmail)
+      )
+    )
+    .limit(1)
+  return Boolean(billed)
+}
+
+/** Pro: receipts and bills become a ledger; a subscription that costs more than last time becomes a Today card, a cancelled one leaves the Money page. */
 export const recordCharge = async (message: Message) => {
+  const merchants = await subscriptionMerchants(message.userId)
   const { output } = await generateText({
     instructions: [
-      'Extract the charge from this email. kind: subscription (recurring plan), bill (an amount due to pay), purchase (one-time order), or none.',
+      'Extract the charge from this email. kind: subscription (recurring plan), bill (an amount due to pay), purchase (one-time order), cancellation (a subscription was cancelled or will not renew), or none.',
       'merchant: the company name as people say it ("Notion", not "Notion Labs Inc."). amount: the total as a number, currency: ISO 4217 code.',
+      ...(merchants.length > 0
+        ? [
+            `If it is one of these known subscriptions, use the merchant exactly as written: ${merchants.join(', ')}.`,
+          ]
+        : []),
       `chargedAt / dueAt: ISO dates if stated (today is ${new Date().toISOString().slice(0, 10)}). period: billing period for subscriptions.`,
     ].join('\n'),
     model: models.fast,
     output: Output.object({ schema: chargeSchema }),
     prompt: `From: ${message.fromName ?? ''} <${message.fromEmail}>\nSubject: ${message.subject}\n\n${message.body.slice(0, 5000)}`,
   })
+  const merchant = output.merchant.trim()
+  const chargedAt = toDate(output.chargedAt) ?? message.receivedAt
+  if (output.kind === 'cancellation') {
+    await db
+      .insert(transactions)
+      .values({
+        amountCents: 0,
+        chargedAt,
+        currency: output.currency.toUpperCase(),
+        kind: 'cancellation',
+        merchant,
+        messageId: message.id,
+        userId: message.userId,
+      })
+      .onConflictDoNothing()
+    return
+  }
   if (output.kind === 'none' || output.amount === null || output.amount <= 0) {
     return
   }
 
   const amountCents = Math.round(output.amount * 100)
-  const merchant = output.merchant.trim()
-  const chargedAt = toDate(output.chargedAt) ?? message.receivedAt
   const [previous] = await db
     .select()
     .from(transactions)
@@ -81,6 +133,7 @@ export const recordCharge = async (message: Message) => {
 
   if (
     output.kind === 'subscription' &&
+    message.receivedAt >= subDays(new Date(), ANALYZE_WINDOW_DAYS) &&
     previous &&
     previous.currency === output.currency.toUpperCase() &&
     amountCents > previous.amountCents
@@ -115,21 +168,26 @@ export const getMoney = async (userId: string) => {
 
   const latestByMerchant = new Map<string, (typeof rows)[number]>()
   for (const row of rows) {
-    if (row.kind === 'subscription' && !latestByMerchant.has(row.merchant)) {
+    if (
+      (row.kind === 'subscription' || row.kind === 'cancellation') &&
+      !latestByMerchant.has(row.merchant)
+    ) {
       latestByMerchant.set(row.merchant, row)
     }
   }
-  const subscriptions = [...latestByMerchant.values()].map((row) => ({
-    amountCents: row.amountCents,
-    currency: row.currency,
-    lastChargedAt: row.chargedAt,
-    merchant: row.merchant,
-    messageId: row.messageId,
-    monthlyCents: Math.round(
-      row.amountCents * PERIOD_PER_MONTH[row.period ?? 'month']
-    ),
-    period: row.period ?? 'month',
-  }))
+  const subscriptions = [...latestByMerchant.values()]
+    .filter((row) => row.kind === 'subscription')
+    .map((row) => ({
+      amountCents: row.amountCents,
+      currency: row.currency,
+      lastChargedAt: row.chargedAt,
+      merchant: row.merchant,
+      messageId: row.messageId,
+      monthlyCents: Math.round(
+        row.amountCents * PERIOD_PER_MONTH[row.period ?? 'month']
+      ),
+      period: row.period ?? 'month',
+    }))
   const monthlyByCurrency = Object.entries(
     Object.groupBy(subscriptions, ({ currency }) => currency)
   ).map(([currency, items]) => ({
@@ -154,7 +212,9 @@ export const getMoney = async (userId: string) => {
 
   return {
     monthlyByCurrency,
-    recent: rows.filter((row) => row.kind !== 'subscription').slice(0, 20),
+    recent: rows
+      .filter((row) => row.kind === 'bill' || row.kind === 'purchase')
+      .slice(0, 20),
     subscriptions: subscriptions.toSorted(
       (left, right) => right.monthlyCents - left.monthlyCents
     ),

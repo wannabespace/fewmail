@@ -42,9 +42,7 @@ export const TrialNote = () => (
 export const SiteHeader = () => (
   <header className="bg-body/85 sticky top-0 z-20 backdrop-blur-md">
     <div className={cn(CONTAINER, 'flex h-16 items-center gap-8')}>
-      <Link to="/" className="text-foreground">
-        <Logo />
-      </Link>
+      <Logo />
       <nav className="hidden items-center gap-1 sm:flex">
         <Button variant="ghost-muted" render={<Link to="/" hash="features" />}>
           Features

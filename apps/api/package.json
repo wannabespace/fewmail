@@ -20,6 +20,7 @@
     "@mistralai/mistralai": "catalog:",
     "@modelcontextprotocol/sdk": "catalog:",
     "@openrouter/ai-sdk-provider": "catalog:",
+    "@orpc/publisher": "catalog:",
     "@orpc/server": "catalog:",
     "@typesafe-ai/sdk": "catalog:",
     "ai": "catalog:",

@@ -28,7 +28,7 @@ Fewmail's use and transfer to any other app of information received from Google 
 - **Google OAuth tokens:** stored encrypted, used only to access Gmail on your behalf.
 - **Synced mail:** the message data listed in section 2. Everything that comes from your mail — addresses, names, subjects, snippets, bodies and headers — is encrypted at rest with AES-256-GCM.
 - **What the agent produces:** summaries, importance and reasons, drafts and daily briefs — also encrypted at rest.
-- **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and the goals of threads you ask the agent to handle — encrypted at rest. Payments and subscriptions found in your mail are stored as merchant (encrypted), amount, currency and dates.
+- **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and the goals of threads you ask the agent to handle — encrypted at rest. Payments, subscriptions and their cancellations found in your mail — including receipts and invoices from the last six months, read once when the agent starts — are stored as merchant (encrypted), amount, currency and dates.
 - **Fraud checks:** to warn you when bank or payment details in an email change, we store only keyed one-way hashes of those details, never the details themselves.
 - **Your settings and rules:** language, how you use email, brief time, time zone, the rules and snippets you write, and anything you tell the agent to know about you.
 - **Community spam protection:** when you report spam or mark something as not spam, we store your vote with a keyed one-way hash of the sender's address (and of the domain for company domains). No addresses, subjects or contents are stored for this, and other users never learn who voted. Mail from a sender is moved to spam for other users only after several different people reported it and few marked it as not spam; a sender you have written to is never moved by community votes.
@@ -43,14 +43,14 @@ We do not use third-party analytics, advertising or tracking tools.
 
 ## 5. AI processing
 
-Quick decisions about each email (its category, importance, whether someone waits for an answer, whether you expect a reply to mail you sent, matching your rules and checking for risky wording) are made by **TypeSafe** (Jev) on every plan, including Free. Everything else runs only on the Pro plan and during the trial; on the Free plan no email content is sent to other AI providers. To summarize emails and write drafts and briefs, the relevant email content and your settings are sent to large language models through **OpenRouter**, routed to **Anthropic** (primary) and to **Google** or **xAI** as fallback providers. Inline autocomplete while you write and transcription of voice messages you send to the Telegram or WhatsApp bot use **Mistral**; voice recordings are not stored. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
+Quick decisions about each email (its category, importance, whether someone waits for an answer, whether you expect a reply to mail you sent, matching your rules and checking for risky wording) are made by **TypeSafe** (Jev) on every plan, including Free. Everything else runs only on the Pro plan and during the trial; on the Free plan no email content is sent to other AI providers. To summarize emails and write drafts and briefs, the relevant email content and your settings are sent to large language models through **OpenRouter**: short summaries and extraction go to Anthropic Claude Haiku (Google Gemini Flash as fallback), drafts, briefs and answers about your mail go to Anthropic Claude Sonnet (xAI Grok as fallback). Inline autocomplete while you write uses **Mistral** Codestral, falling back to Claude Haiku through OpenRouter. Voice messages you send to the Telegram or WhatsApp bot are transcribed by **Mistral** Voxtral; voice recordings are not stored. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
 
 ## 6. Where your data goes
 
 | Service | Purpose |
 | --- | --- |
 | Google (Gmail API, OAuth) | Sign-in and access to your mailbox |
-| OpenRouter → Anthropic, Google, xAI | Reading emails, drafting replies, writing briefs, answering questions about your mail |
+| OpenRouter → Anthropic, Google, xAI | Reading emails, drafting replies, writing briefs, answering questions about your mail, autocomplete fallback |
 | TypeSafe (Jev) | Classifying each email, on every plan |
 | Mistral | Autocomplete while you write, transcribing Telegram and WhatsApp voice messages |
 | Stripe | Payments and subscriptions for Pro |

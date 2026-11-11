@@ -113,8 +113,15 @@ export interface MessageRisk {
 export type TaskAutonomy = 'ask' | 'auto'
 export type TaskStatus = 'active' | 'done' | 'canceled'
 
-export type TransactionKind = 'subscription' | 'bill' | 'purchase'
+export type TransactionKind =
+  | 'subscription'
+  | 'bill'
+  | 'purchase'
+  | 'cancellation'
 export type BillingPeriod = 'month' | 'year' | 'week'
+
+/** Mail older than this is never sent to the model and never becomes a Today card, so an upgrade or the money history does not flood the queue. */
+export const ANALYZE_WINDOW_DAYS = 3
 
 /** Two calm deliveries a day; urgent mail never waits. */
 export const BATCH_HOURS_AFTER_BRIEF = [0, 7] as const

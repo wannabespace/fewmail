@@ -10,7 +10,7 @@ import {
 } from '@fewmail/db/schema'
 import { IMPORTANCE } from '@fewmail/shared/agent'
 import { subMinutes } from 'date-fns'
-import { and, eq, gte, isNull, lt, or } from 'drizzle-orm'
+import { and, eq, gte, isNotNull, isNull, lt, or } from 'drizzle-orm'
 
 import { generateBrief, isBriefDue } from './services/brief'
 import { offerCleanup } from './services/cleanup'
@@ -23,7 +23,7 @@ import {
   processDueCommitments,
   processDueReminders,
 } from './services/reminders'
-import { syncMailbox } from './services/sync'
+import { ensureMailbox, readMoneyHistory, syncMailbox } from './services/sync'
 import { sendBrief, sendUrgent } from './telegram'
 import { sendWhatsappBrief, sendWhatsappUrgent } from './whatsapp'
 
@@ -56,9 +56,38 @@ const syncDueMailboxes = async () => {
         lt(mailboxes.lastSyncedAt, subMinutes(new Date(), SYNC_EVERY_MINUTES))
       )
     )
+  const withoutMailbox = await db
+    .select({ userId: userSettings.userId })
+    .from(userSettings)
+    .leftJoin(mailboxes, eq(mailboxes.userId, userSettings.userId))
+    .where(isNull(mailboxes.id))
+  await Promise.all([
+    ...due.map((mailbox) =>
+      once(`sync:${mailbox.userId}`, () => syncMailbox(mailbox))
+    ),
+    ...withoutMailbox.map(({ userId }) =>
+      once(`sync:${userId}`, async () =>
+        syncMailbox(await ensureMailbox(userId))
+      )
+    ),
+  ])
+}
+
+/** After the first sync, so the inbox is read before the history. */
+const readDueMoneyHistory = async () => {
+  const due = await db
+    .select()
+    .from(mailboxes)
+    .where(
+      and(isNull(mailboxes.moneyHistoryAt), isNotNull(mailboxes.lastSyncedAt))
+    )
   await Promise.all(
     due.map((mailbox) =>
-      once(`sync:${mailbox.userId}`, () => syncMailbox(mailbox))
+      once(`money-history:${mailbox.userId}`, async () => {
+        if (hasAgent(await getPlanInfo(mailbox.userId))) {
+          await readMoneyHistory(mailbox)
+        }
+      })
     )
   )
 }
@@ -136,6 +165,7 @@ const tick = async () => {
   try {
     await Promise.all([
       syncDueMailboxes(),
+      readDueMoneyHistory(),
       once('briefs', sendDueBriefs),
       once('urgent', pushUrgent),
       once('outbox', dispatchDueOutbox),

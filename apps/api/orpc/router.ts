@@ -16,6 +16,7 @@ import { type } from 'arktype'
 import { and, eq } from 'drizzle-orm'
 
 import { agent, authed } from '.'
+import { watchChanges } from '../lib/live'
 import { writeReply } from '../services/agent'
 import { askMail } from '../services/ask'
 import { completeEmail } from '../services/autocomplete'
@@ -326,6 +327,9 @@ export const router = {
       return settings
     }),
   },
+  live: authed.handler(async function* live({ context, signal }) {
+    yield* watchChanges(context.user.id, signal)
+  }),
   snippets: {
     delete: authed.input(id).handler(async ({ context, input }) => {
       await deleteSnippet(context.user.id, input.id)

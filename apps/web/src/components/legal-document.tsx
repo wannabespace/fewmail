@@ -1,5 +1,4 @@
 import { Response } from '@fewmail/ui/components/response'
-import { Link } from '@tanstack/react-router'
 
 import { useDates, useLocale, useT } from '~/lib/i18n'
 
@@ -21,9 +20,7 @@ export const LegalDocument = ({
   return (
     <main className="bg-body flex-1">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-12 px-6 py-16">
-        <Link to="/" className="text-foreground w-fit">
-          <Logo />
-        </Link>
+        <Logo />
         <header className="flex flex-col gap-3">
           <h1 className="text-display font-serif tracking-tight">{title}</h1>
           <p className="text-muted-foreground text-sm">

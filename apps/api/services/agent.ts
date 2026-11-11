@@ -16,7 +16,7 @@ import { JEV_MODEL_ID } from '../lib/jev'
 import { BULK_THRESHOLD } from './bulk'
 import { decideWithJev } from './classify'
 import { applyAgentLabel } from './labels'
-import { isChargeCategory, recordCharge } from './money'
+import { hasBilledBefore, isChargeCategory, recordCharge } from './money'
 import { getSettings } from './settings'
 import { changeThreadLabels } from './thread-labels'
 import { recordUnsubscribe } from './zombies'
@@ -331,7 +331,13 @@ const labelAndRecordCharge = async (
   await applyAgentLabel(message, category).catch((error) =>
     console.error('agent label failed', error)
   )
-  if (agent && isChargeCategory(category) && !isBulk(message)) {
+  if (!agent || isBulk(message)) {
+    return
+  }
+  if (
+    isChargeCategory(category) ||
+    (category === 'notification' && (await hasBilledBefore(message)))
+  ) {
     await recordCharge(message).catch((error) =>
       console.error('charge extraction failed', error)
     )

@@ -4,6 +4,7 @@ import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { addDays } from 'date-fns'
 import { and, desc, eq, gt, lte } from 'drizzle-orm'
 
+import { announceChange } from '../lib/live'
 import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 import { changeThreadLabels } from './thread-labels'
@@ -141,6 +142,7 @@ export const processDueReminders = async () => {
         .update(reminders)
         .set({ status })
         .where(eq(reminders.id, reminder.id))
+      await announceChange(reminder.userId)
     })
   )
 }
@@ -187,6 +189,7 @@ export const processDueCommitments = async () => {
         .update(commitments)
         .set({ status: 'reminded' })
         .where(eq(commitments.id, commitment.id))
+      await announceChange(commitment.userId)
     })
   )
 }

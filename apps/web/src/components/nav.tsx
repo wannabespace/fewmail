@@ -1,6 +1,6 @@
 import type { Messages } from '@fewmail/shared/i18n'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import { useHotkey } from '@tanstack/react-hotkeys'
+import { useHotkey, useKeyHold } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 
@@ -8,7 +8,7 @@ import { useT } from '~/lib/i18n'
 import { useHasAgent, useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
-import { LogoMark } from './logo'
+import { Logo } from './logo'
 
 export const NAV_ITEMS = [
   { key: 'today', sequence: ['G', 'T'], to: '/today' },
@@ -26,9 +26,11 @@ export const visibleNavItems = (hasAgent: boolean) =>
 const NavLink = ({
   item,
   badge,
+  showKeys,
 }: {
   badge?: number
   item: (typeof NAV_ITEMS)[number]
+  showKeys: boolean
 }) => {
   const t = useT()
   const navigate = useNavigate()
@@ -40,12 +42,14 @@ const NavLink = ({
       className="text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 cursor-default items-center justify-between rounded-lg px-2.5 text-sm outline-none data-[status=active]:font-medium"
     >
       <span>{t.nav[item.key]}</span>
-      {badge ? (
-        <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
-          {badge}
-        </span>
-      ) : (
+      {showKeys ? (
         <Kbd>{item.sequence.join(' ')}</Kbd>
+      ) : (
+        Boolean(badge) && (
+          <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
+            {badge}
+          </span>
+        )
       )}
     </Link>
   )
@@ -74,23 +78,19 @@ export const Sidebar = ({
   const t = useT()
   const { plan } = useMe()
   const hasAgent = useHasAgent()
+  const isMetaHeld = useKeyHold('Meta')
+  const isControlHeld = useKeyHold('Control')
   const { data: today } = useQuery(
-    orpc.today.get.queryOptions({
-      enabled: hasAgent,
-      refetchInterval: 30_000,
-    })
+    orpc.today.get.queryOptions({ enabled: hasAgent })
   )
 
   return (
     <nav
       aria-label="Main"
-      className="flex w-58 shrink-0 flex-col gap-1 border-r px-3.5 py-5"
+      className="flex w-full flex-col gap-1 border-r px-3.5 py-5"
     >
-      <div className="flex items-center gap-2.5 px-2.5 pb-4">
-        <LogoMark />
-        <span className="font-serif text-xl font-medium tracking-tight">
-          Fewmail
-        </span>
+      <div className="px-2.5 pb-4">
+        <Logo to={hasAgent ? '/today' : '/mail'} />
       </div>
       <button
         type="button"
@@ -104,6 +104,7 @@ export const Sidebar = ({
         <NavLink
           key={item.to}
           item={item}
+          showKeys={isMetaHeld || isControlHeld}
           badge={item.to === '/today' ? today?.queue.length : undefined}
         />
       ))}

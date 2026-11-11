@@ -8,6 +8,7 @@ import { and, desc, eq } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { localClock } from '../lib/clock'
+import { announceChange } from '../lib/live'
 import {
   getMailbox,
   handledSince,
@@ -94,6 +95,7 @@ export const generateBrief = async (userId: string) => {
   if (!brief) {
     throw new Error('Brief upsert returned no row')
   }
+  await announceChange(userId)
   return brief
 }
 

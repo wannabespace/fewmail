@@ -1,4 +1,5 @@
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -50,6 +51,17 @@ const HandledSummary = ({
   )
 }
 
+const isReadingFirstTime = (data?: {
+  mailbox: { lastSyncedAt: Date | null; syncError: string | null } | null
+}) =>
+  !!data &&
+  (!data.mailbox || (!data.mailbox.lastSyncedAt && !data.mailbox.syncError))
+
+const quietCopy = (t: Messages, isFirstRead: boolean, queued: number) =>
+  isFirstRead
+    ? { headline: t.nav.syncing, note: t.today.firstRead }
+    : { headline: t.today.headline(queued), note: t.today.nothingNeedsYou }
+
 const BriefTime = ({ label }: { label: (time: string) => string }) => {
   const { me } = Route.useRouteContext()
   const router = useRouter()
@@ -79,11 +91,10 @@ const TodayPage = () => {
   const { me } = Route.useRouteContext()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { data, dataUpdatedAt } = useQuery(
-    orpc.today.get.queryOptions({ refetchInterval: 30_000 })
-  )
+  const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
   const queue = data?.queue ?? []
+  const quiet = quietCopy(t, isReadingFirstTime(data), queue.length)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
@@ -231,7 +242,7 @@ const TodayPage = () => {
               {brief && <BriefTime label={t.today.briefFrom} />}
             </div>
             <h1 className="text-display font-serif tracking-tight" data-mask>
-              {brief?.headline ?? t.today.headline(queue.length)}
+              {brief?.headline ?? quiet.headline}
             </h1>
             {brief ? (
               <p className="text-brief text-foreground/85 font-serif" data-mask>
@@ -258,7 +269,7 @@ const TodayPage = () => {
             </h2>
             {queue.length === 0 && (
               <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">
-                {t.today.nothingNeedsYou}
+                {quiet.note}
               </p>
             )}
             {queue.map((item, index) => (
