@@ -242,7 +242,9 @@ export const Sidebar = ({
   const { data: today } = useQuery(
     orpc.today.get.queryOptions({ enabled: hasAgent })
   )
-  const { data: unread } = useQuery(orpc.mail.unread.queryOptions())
+  const { data: unread } = useQuery(
+    orpc.mail.unread.queryOptions({ input: {} })
+  )
 
   return (
     <nav

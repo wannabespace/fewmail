@@ -315,6 +315,7 @@ export const en = {
     title: 'Only what matters.',
   },
   mail: {
+    allMailboxes: 'All mailboxes',
     unread: 'Unread',
     archive: 'Archive',
     archived: 'Archived',

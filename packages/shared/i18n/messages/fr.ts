@@ -239,6 +239,7 @@ export const fr: Messages = {
     title: 'L’essentiel, rien de plus.',
   },
   mail: {
+    allMailboxes: 'Toutes les boîtes',
     unread: 'Non lu',
     block: 'Bloquer l’expéditeur',
     blocked: 'Bloqué. Ses e-mails vont désormais à la corbeille.',

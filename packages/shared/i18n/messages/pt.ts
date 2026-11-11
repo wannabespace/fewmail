@@ -319,6 +319,7 @@ export const pt: Messages = {
     title: 'Só o que importa.',
   },
   mail: {
+    allMailboxes: 'Todas as caixas',
     unread: 'Não lido',
     block: 'Bloquear remetente',
     blocked: 'Bloqueado. Os e-mails dele agora vão para a lixeira.',

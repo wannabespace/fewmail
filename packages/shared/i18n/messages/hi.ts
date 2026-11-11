@@ -220,6 +220,7 @@ export const hi: Messages = {
     title: 'सिर्फ़ वही, जो ज़रूरी है।',
   },
   mail: {
+    allMailboxes: 'सभी मेलबॉक्स',
     unread: 'अपठित',
     block: 'भेजने वाले को ब्लॉक करें',
     blocked: 'ब्लॉक किया गया। उनके मेल अब ट्रैश में जाएँगे।',

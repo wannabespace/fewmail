@@ -220,6 +220,7 @@ export const ko: Messages = {
     title: '중요한 것만.',
   },
   mail: {
+    allMailboxes: '모든 메일함',
     unread: '읽지 않음',
     block: '발신자 차단',
     blocked: '차단했어요. 이제 이 발신자의 메일은 휴지통으로 가요.',

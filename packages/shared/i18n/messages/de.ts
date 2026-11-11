@@ -238,6 +238,7 @@ export const de: Messages = {
     title: 'Nur, was zählt.',
   },
   mail: {
+    allMailboxes: 'Alle Postfächer',
     unread: 'Ungelesen',
     block: 'Absender blockieren',
     blocked: 'Blockiert. Ihre Mails landen jetzt im Papierkorb.',

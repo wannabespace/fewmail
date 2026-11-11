@@ -329,6 +329,7 @@ export const router = {
           'category?': type.enumerated(...MAIL_CATEGORIES),
           filter:
             "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'spam'",
+          'mailboxId?': 'string.uuid',
           'search?': 'string',
         })
       )
@@ -341,7 +342,11 @@ export const router = {
       .handler(async ({ context, input }) => {
         await markThreadRead(context.user.id, input.threadId)
       }),
-    unread: authed.handler(({ context }) => countUnread(context.user.id)),
+    unread: authed
+      .input(type({ 'mailboxId?': 'string.uuid' }))
+      .handler(({ context, input }) =>
+        countUnread(context.user.id, input.mailboxId)
+      ),
     thread: authed
       .input(type({ threadId: 'string' }))
       .handler(({ context, input }) =>

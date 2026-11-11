@@ -4,6 +4,7 @@ import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { subHours } from 'date-fns'
 import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
 
 import { trashThread, unsubscribeOneClick } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
@@ -138,12 +139,20 @@ const INBOX_FILTERS = new Set<MailFilter>([
   'quiet',
 ])
 
+const FILTER_WHERE: Partial<Record<MailFilter, SQL>> = {
+  important: gte(analyses.importance, 2),
+  needs_reply: eq(analyses.needsReply, true),
+  quiet: lt(analyses.importance, 1),
+  spam: sql`'SPAM' = ANY(${messages.labelIds})`,
+}
+
 export const listMail = async (
   userId: string,
   input: {
     before?: Date
     category?: MailCategory
     filter: MailFilter
+    mailboxId?: string
     search?: string
   }
 ) => {
@@ -170,21 +179,15 @@ export const listMail = async (
       and(
         eq(messages.userId, userId),
         eq(messages.isFromMe, false),
+        input.mailboxId ? eq(messages.mailboxId, input.mailboxId) : undefined,
         searchIds ? inArray(messages.gmailId, searchIds) : undefined,
         input.before ? lt(messages.receivedAt, input.before) : undefined,
         input.category ? eq(analyses.category, input.category) : undefined,
-        input.filter === 'important' ? gte(analyses.importance, 2) : undefined,
-        input.filter === 'needs_reply'
-          ? eq(analyses.needsReply, true)
-          : undefined,
-        input.filter === 'quiet' ? lt(analyses.importance, 1) : undefined,
+        FILTER_WHERE[input.filter],
         INBOX_FILTERS.has(input.filter) && !searchIds
           ? sql`'INBOX' = ANY(${messages.labelIds})`
           : undefined,
-        snoozed ? inArray(messages.threadId, snoozed) : undefined,
-        input.filter === 'spam'
-          ? sql`'SPAM' = ANY(${messages.labelIds})`
-          : undefined
+        snoozed ? inArray(messages.threadId, snoozed) : undefined
       )
     )
     .orderBy(desc(messages.receivedAt))
@@ -192,7 +195,7 @@ export const listMail = async (
 }
 
 /** Unread mail still in the inbox, per mail filter. */
-export const countUnread = async (userId: string) => {
+export const countUnread = async (userId: string, mailboxId?: string) => {
   const [counts] = await db
     .select({
       important:
@@ -216,6 +219,7 @@ export const countUnread = async (userId: string) => {
         eq(messages.userId, userId),
         eq(messages.isFromMe, false),
         eq(messages.isUnread, true),
+        mailboxId ? eq(messages.mailboxId, mailboxId) : undefined,
         sql`'INBOX' = ANY(${messages.labelIds})`
       )
     )

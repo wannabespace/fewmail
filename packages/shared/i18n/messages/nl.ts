@@ -319,6 +319,7 @@ export const nl: Messages = {
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
+    allMailboxes: 'Alle mailboxen',
     unread: 'Ongelezen',
     block: 'Afzender blokkeren',
     blocked: 'Geblokkeerd. Hun mail gaat nu naar de prullenbak.',

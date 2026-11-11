@@ -306,6 +306,7 @@ export const tr: Messages = {
     title: 'Yalnızca önemli olan.',
   },
   mail: {
+    allMailboxes: 'Tüm posta kutuları',
     unread: 'Okunmamış',
     block: 'Göndereni engelle',
     blocked: 'Engellendi. E-postaları artık çöpe gidiyor.',

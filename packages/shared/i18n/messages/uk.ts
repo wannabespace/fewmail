@@ -236,6 +236,7 @@ export const uk: Messages = {
     title: 'Лише те, що важливо.',
   },
   mail: {
+    allMailboxes: 'Усі скриньки',
     unread: 'Непрочитане',
     block: 'Заблокувати',
     blocked: 'Заблоковано. Їхні листи тепер ідуть у кошик.',

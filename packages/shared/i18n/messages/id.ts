@@ -311,6 +311,7 @@ export const id: Messages = {
     title: 'Hanya yang penting.',
   },
   mail: {
+    allMailboxes: 'Semua kotak surat',
     unread: 'Belum dibaca',
     block: 'Blokir pengirim',
     blocked: 'Diblokir. Email mereka kini masuk ke sampah.',

@@ -7,6 +7,13 @@ import {
 } from '@fewmail/ui/components/custom/resizable'
 import { Empty, EmptyDescription } from '@fewmail/ui/components/empty'
 import { Input } from '@fewmail/ui/components/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@fewmail/ui/components/select'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -35,6 +42,8 @@ const FILTERS = [
 ] as const
 
 type Filter = (typeof FILTERS)[number]
+
+const ALL_MAILBOXES = 'all'
 
 const isCounted = (
   filter: Filter
@@ -186,22 +195,27 @@ const MailPage = () => {
   const t = useT()
   const readerWidth = useSubscription(readerWidthStore)
   const hasAgent = useHasAgent()
-  const { filter = 'inbox', q, thread } = Route.useSearch()
+  const { filter = 'inbox', mailbox, q, thread } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
   const searchRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
   const [search, setSearch] = useState(q ?? '')
   const [cursor, setCursor] = useState(0)
-  const listKey = `${filter}:${q ?? ''}`
+  const listKey = `${filter}:${mailbox ?? ''}:${q ?? ''}`
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
     setCursorListKey(listKey)
     setCursor(0)
   }
 
-  const { data: unread } = useQuery(orpc.mail.unread.queryOptions())
+  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const { data: unread } = useQuery(
+    orpc.mail.unread.queryOptions({ input: { mailboxId: mailbox } })
+  )
   const { data: rows = [], isFetching } = useQuery(
-    orpc.mail.list.queryOptions({ input: { filter, ...(q && { search: q }) } })
+    orpc.mail.list.queryOptions({
+      input: { filter, mailboxId: mailbox, ...(q && { search: q }) },
+    })
   )
 
   useEffect(() => {
@@ -266,13 +280,54 @@ const MailPage = () => {
           className="flex min-w-0 flex-1 flex-col border-r"
         >
           <div className="flex flex-col gap-3 border-b px-5 pt-5 pb-3">
-            <Input
-              ref={searchRef}
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t.mail.search}
-              aria-label={t.mail.search}
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                ref={searchRef}
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={t.mail.search}
+                aria-label={t.mail.search}
+              />
+              {mailboxes.length > 1 && (
+                <Select
+                  items={[
+                    { label: t.mail.allMailboxes, value: ALL_MAILBOXES },
+                    ...mailboxes.map(({ email, id }) => ({
+                      label: email,
+                      value: id,
+                    })),
+                  ]}
+                  value={mailbox ?? ALL_MAILBOXES}
+                  onValueChange={(next) =>
+                    navigate({
+                      search: (prev) => ({
+                        ...prev,
+                        mailbox:
+                          next && next !== ALL_MAILBOXES ? next : undefined,
+                        thread: undefined,
+                      }),
+                    })
+                  }
+                >
+                  <SelectTrigger
+                    aria-label={t.mail.allMailboxes}
+                    className="max-w-56 shrink-0"
+                  >
+                    <SelectValue data-mask={mailbox ? true : undefined} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ALL_MAILBOXES}>
+                      {t.mail.allMailboxes}
+                    </SelectItem>
+                    {mailboxes.map(({ email, id }) => (
+                      <SelectItem key={id} value={id}>
+                        <span data-mask>{email}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
             <Tabs
               value={filter}
               onValueChange={(value) =>
@@ -379,6 +434,7 @@ export const Route = createFileRoute('/_app/mail')({
   validateSearch: type({
     'filter?':
       "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'spam'",
+    'mailbox?': 'string.uuid',
     'q?': 'string',
     'thread?': 'string',
   }),

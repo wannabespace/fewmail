@@ -330,6 +330,7 @@ export const pl: Messages = {
     title: 'Tylko to, co ważne.',
   },
   mail: {
+    allMailboxes: 'Wszystkie skrzynki',
     unread: 'Nieprzeczytane',
     block: 'Zablokuj nadawcę',
     blocked: 'Zablokowano. Jego poczta trafia teraz do kosza.',

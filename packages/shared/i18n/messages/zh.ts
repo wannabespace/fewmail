@@ -214,6 +214,7 @@ export const zh: Messages = {
     title: '只看重要的。',
   },
   mail: {
+    allMailboxes: '所有邮箱',
     unread: '未读',
     block: '屏蔽发件人',
     blocked: '已屏蔽。对方的邮件将进入废纸篓。',

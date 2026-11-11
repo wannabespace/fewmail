@@ -220,6 +220,7 @@ export const ja: Messages = {
     title: '大切なメールだけを。',
   },
   mail: {
+    allMailboxes: 'すべてのメールボックス',
     unread: '未読',
     block: '送信者をブロック',
     blocked: 'ブロックしました。今後のメールはゴミ箱に移動します。',

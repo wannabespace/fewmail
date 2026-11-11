@@ -239,6 +239,7 @@ export const it: Messages = {
     title: 'Solo ciò che conta.',
   },
   mail: {
+    allMailboxes: 'Tutte le caselle',
     unread: 'Non letto',
     block: 'Blocca mittente',
     blocked: 'Bloccato. Le sue email ora finiscono nel cestino.',

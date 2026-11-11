@@ -239,6 +239,7 @@ export const es: Messages = {
     title: 'Solo lo que importa.',
   },
   mail: {
+    allMailboxes: 'Todos los buzones',
     unread: 'No leído',
     block: 'Bloquear remitente',
     blocked: 'Bloqueado. Sus correos ahora van a la papelera.',
