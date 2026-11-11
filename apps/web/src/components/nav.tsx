@@ -15,6 +15,8 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useState } from 'react'
 
 import { newBoardStore } from '~/components/board-dialog'
 import { useT } from '~/lib/i18n'
@@ -122,6 +124,42 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
   )
 }
 
+const ROLL = { duration: 0.25, ease: [0.32, 0.72, 0, 1] } as const
+
+const roll = {
+  enter: (direction: number) => ({ y: `${direction * 100}%` }),
+  exit: (direction: number) => ({ y: `${direction * -100}%` }),
+  shown: { y: 0 },
+}
+
+const RollingCount = ({ flash, value }: { flash?: boolean; value: number }) => {
+  const reduceMotion = useReducedMotion()
+  const [last, setLast] = useState({ grew: false, value })
+  if (last.value !== value) {
+    setLast({ grew: value > last.value, value })
+  }
+  const direction = last.grew ? 1 : -1
+
+  return (
+    <span className="relative inline-flex overflow-hidden">
+      <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+        <motion.span
+          key={value}
+          custom={direction}
+          variants={roll}
+          initial="enter"
+          animate="shown"
+          exit="exit"
+          transition={reduceMotion ? { duration: 0 } : ROLL}
+          className={flash && last.grew ? 'animate-count-flash' : undefined}
+        >
+          {value}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  )
+}
+
 const NavLink = ({
   item,
   badge,
@@ -144,12 +182,12 @@ const NavLink = ({
       {showKeys && <Kbd>{item.sequence.join(' ')}</Kbd>}
       {!showKeys && Boolean(badge) && (
         <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
-          {badge}
+          <RollingCount value={badge ?? 0} />
         </span>
       )}
       {!showKeys && !badge && Boolean(count) && (
         <span className="text-muted-foreground text-xs tabular-nums">
-          {count}
+          <RollingCount flash value={count ?? 0} />
         </span>
       )}
     </Link>

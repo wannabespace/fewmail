@@ -75,6 +75,14 @@
     }
   }
 
+  --animate-count-flash: count-flash 1.5s var(--ease-house);
+
+  @keyframes count-flash {
+    from {
+      color: var(--color-primary);
+    }
+  }
+
   --default-border-width: 1px;
   --default-ring-width: 1px;
   --text-2xs: 0.6875rem;
