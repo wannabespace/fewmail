@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
+import { NewBoardDialog } from '~/components/board-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { ComposeDialog } from '~/components/compose/compose-dialog'
@@ -75,6 +76,7 @@ const AppLayout = () => {
           open={isCommandMenuOpen}
           onOpenChange={setIsCommandMenuOpen}
         />
+        <NewBoardDialog />
       </div>
     </ComposeProvider>
   )

@@ -72,7 +72,6 @@ export const fr: Messages = {
     cleanup: 'Se désabonner de tout',
     commitment: 'Fait',
     security: 'J’ai vérifié',
-    subscription: 'Compris',
     task: 'Envoyer',
     spam: 'Mis en spam',
     trash: 'Mettre à la corbeille',
@@ -209,7 +208,8 @@ export const fr: Messages = {
     you: 'Vous',
   },
   nav: {
-    money: 'Argent',
+    boards: 'Tableaux',
+    newBoard: 'Nouveau tableau',
     mail: 'E-mails',
     rules: 'Règles',
     search: 'Rechercher ou demander…',
@@ -523,6 +523,64 @@ export const fr: Messages = {
     writeNow: 'L’écrire maintenant',
     writing: 'Rédaction…',
   },
+  boards: {
+    chart: {
+      add: 'Ajouter un graphique',
+      edit: 'Réglages du graphique',
+      empty: 'Rien à afficher pour l’instant',
+      groupBy: 'Regroupé par',
+      groupings: {
+        group: 'Qui ou quoi',
+        month: 'Mois',
+        status: 'Statut',
+        week: 'Semaine',
+      },
+      measure: 'Affiche',
+      measures: { count: 'Nombre', sum: 'Montant total' },
+      other: 'Autres',
+      remove: 'Retirer le graphique',
+      title: 'Titre du graphique',
+      type: 'Type de graphique',
+      types: {
+        area: 'Aire',
+        bar: 'Barres',
+        line: 'Ligne',
+        pie: 'Camembert',
+      },
+      untitled: 'Nouveau graphique',
+    },
+    charts: 'Graphiques',
+    create: 'Créer le tableau',
+    delete: 'Supprimer le tableau',
+    description: 'Ce qu’il rassemble',
+    descriptionPlaceholder:
+      'Voyages : vols, hôtels et locations de voiture, avec leur coût',
+    edit: 'Modifier le tableau',
+    editHint:
+      'Si tu changes ce qu’il rassemble, les six derniers mois sont relus.',
+    empty:
+      'Encore vide. Les e-mails correspondants apparaîtront ici dès leur arrivée.',
+    entries: (total: number) =>
+      plural('fr', total, {
+        one: () => 'Une entrée',
+        other: (n) => `${n} entrées`,
+      }),
+    name: 'Nom',
+    namePlaceholder: 'Voyages',
+    new: 'Nouveau tableau',
+    newHint:
+      'Décris avec tes mots ce qu’il faut rassembler. Fewmail le retrouve dans les e-mails des six derniers mois, choisit les graphiques et tient le tout à jour.',
+    planning: 'Mise en place…',
+    readingHistory: 'Lecture des e-mails des six derniers mois…',
+    save: 'Enregistrer',
+    starter: {
+      money: {
+        description:
+          'Paiements, abonnements, factures et remboursements : ce que je paie, à qui et combien.',
+        name: 'Argent',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Envoyé à plus de ${n} utilisateurs de Fewmail`,
     reason: (n: number) =>
@@ -547,22 +605,6 @@ export const fr: Messages = {
   },
   commitments: {
     title: 'Vous avez promis',
-  },
-  money: {
-    due: (date: string) => `À payer le ${date}`,
-    empty:
-      'Rien pour l’instant. Reçus, factures et abonnements apparaîtront ici à leur arrivée.',
-    lastCharged: (date: string) => `Dernier prélèvement le ${date}`,
-    lead: 'Tout ce que Fewmail a trouvé dans vos reçus et factures.',
-    monthlyTotal: 'Chaque mois en abonnements',
-    period: { month: 'mensuel', week: 'hebdomadaire', year: 'annuel' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} coûte désormais ${to} (contre ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} a augmenté son prix`,
-    recent: 'Achats récents',
-    subscriptions: 'Abonnements',
-    title: 'Argent',
-    upcoming: 'Factures à payer',
   },
   people: {
     firstContact: (date: string) => `Échanges depuis ${date}`,

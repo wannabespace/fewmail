@@ -6,7 +6,6 @@ export const ja: Messages = {
     cleanup: 'すべて配信停止',
     commitment: '完了',
     security: '確認しました',
-    subscription: '了解',
     task: '送信',
     spam: '迷惑メールに移動',
     trash: 'ゴミ箱に移動',
@@ -187,7 +186,8 @@ export const ja: Messages = {
     you: 'あなた',
   },
   nav: {
-    money: 'お金',
+    boards: 'ボード',
+    newBoard: '新しいボード',
     mail: 'メール',
     rules: 'ルール',
     search: '検索または質問…',
@@ -491,6 +491,57 @@ export const ja: Messages = {
     writeNow: '今すぐ作成',
     writing: '作成中…',
   },
+  boards: {
+    chart: {
+      add: 'グラフを追加',
+      edit: 'グラフの設定',
+      empty: 'まだ表示できるデータがありません',
+      groupBy: 'まとめ方',
+      groupings: {
+        group: '相手・対象',
+        month: '月',
+        status: 'ステータス',
+        week: '週',
+      },
+      measure: '表示する値',
+      measures: { count: '件数', sum: '合計金額' },
+      other: 'その他',
+      remove: 'グラフを削除',
+      title: 'グラフのタイトル',
+      type: 'グラフの種類',
+      types: {
+        area: 'エリア',
+        bar: '棒',
+        line: '折れ線',
+        pie: '円',
+      },
+      untitled: '新しいグラフ',
+    },
+    charts: 'グラフ',
+    create: 'ボードを作成',
+    delete: 'ボードを削除',
+    description: '集める内容',
+    descriptionPlaceholder: '旅行：航空券、ホテル、レンタカーとその費用',
+    edit: 'ボードを編集',
+    editHint: '集める内容を変えると、過去6か月分を読み直します。',
+    empty: 'まだ空です。当てはまるメールが届くとここに表示されます。',
+    entries: (n: number) => `${n}件`,
+    name: '名前',
+    namePlaceholder: '旅行',
+    new: '新しいボード',
+    newHint:
+      '集めたいものを自分の言葉で書いてください。Fewmail が過去6か月のメールから探し出し、グラフを選び、最新の状態に保ちます。',
+    planning: '準備しています…',
+    readingHistory: '過去6か月のメールを読んでいます…',
+    save: '保存',
+    starter: {
+      money: {
+        description:
+          '支払い、サブスクリプション、請求書、返金：何に、誰に、いくら払っているか。',
+        name: 'お金',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `${n}人以上のFewmailユーザーに送信`,
     reason: (n: number) =>
@@ -503,22 +554,6 @@ export const ja: Messages = {
   },
   commitments: {
     title: 'あなたの約束',
-  },
-  money: {
-    due: (date: string) => `期限：${date}`,
-    empty:
-      'まだ何もありません。領収書、請求書、サブスクリプションは届き次第ここに表示されます。',
-    lastCharged: (date: string) => `前回の請求：${date}`,
-    lead: 'Fewmailが領収書や請求書から見つけたものすべて。',
-    monthlyTotal: '毎月のサブスクリプション代',
-    period: { month: '月額', week: '週額', year: '年額' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant}は${to}になりました（以前は${from}）`,
-    priceUpTitle: (merchant: string) => `${merchant}が値上がりしました`,
-    recent: '最近の購入',
-    subscriptions: 'サブスクリプション',
-    title: 'お金',
-    upcoming: '支払い予定',
   },
   people: {
     firstContact: (date: string) => `${date}からやり取り`,

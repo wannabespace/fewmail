@@ -22,7 +22,6 @@ const OWN_LABEL = new Set<Action['kind']>([
   'security',
   'commitment',
   'cleanup',
-  'subscription',
   'task',
 ])
 
@@ -33,7 +32,7 @@ const headline = ({ action, analysis, message }: QueueItem) => {
   if (action.kind === 'commitment') {
     return action.detail ?? action.title
   }
-  if (action.kind === 'cleanup' || action.kind === 'subscription') {
+  if (action.kind === 'cleanup') {
     return action.title
   }
   return analysis?.summary ?? message?.subject ?? action.title

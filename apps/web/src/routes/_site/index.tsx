@@ -9,13 +9,13 @@ import { Button } from '@fewmail/ui/components/button'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Agreement01Icon,
+  ChartBarLineIcon,
   Clock01Icon,
   FilterIcon,
   KeyboardIcon,
   LockIcon,
   Mail01Icon,
   McpServerIcon,
-  Money03Icon,
   Search01Icon,
   Task01Icon,
   Tick02Icon,
@@ -177,9 +177,9 @@ const LandingPage = () => (
           },
           {
             description:
-              'Payments and subscriptions read from your mail, with a heads-up when a price goes up.',
-            icon: Money03Icon,
-            title: 'Money',
+              'Describe what to track — money, trips, orders — and the agent collects it from your mail, with charts, starting with the last six months.',
+            icon: ChartBarLineIcon,
+            title: 'Boards',
           },
           {
             description:

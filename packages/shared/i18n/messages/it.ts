@@ -72,7 +72,6 @@ export const it: Messages = {
     cleanup: 'Disiscriviti da tutte',
     commitment: 'Fatto',
     security: 'Ho controllato',
-    subscription: 'Ok',
     task: 'Invia',
     spam: 'Spostata nello spam',
     trash: 'Sposta nel cestino',
@@ -208,7 +207,8 @@ export const it: Messages = {
     you: 'Tu',
   },
   nav: {
-    money: 'Soldi',
+    boards: 'Bacheche',
+    newBoard: 'Nuova bacheca',
     mail: 'Posta',
     rules: 'Regole',
     search: 'Cerca o chiedi…',
@@ -517,6 +517,63 @@ export const it: Messages = {
     writeNow: 'Scrivila ora',
     writing: 'Scrivo…',
   },
+  boards: {
+    chart: {
+      add: 'Aggiungi grafico',
+      edit: 'Impostazioni del grafico',
+      empty: 'Ancora niente da disegnare',
+      groupBy: 'Raggruppato per',
+      groupings: {
+        group: 'Chi o cosa',
+        month: 'Mese',
+        status: 'Stato',
+        week: 'Settimana',
+      },
+      measure: 'Mostra',
+      measures: { count: 'Numero', sum: 'Importo totale' },
+      other: 'Altro',
+      remove: 'Rimuovi grafico',
+      title: 'Titolo del grafico',
+      type: 'Tipo di grafico',
+      types: {
+        area: 'Area',
+        bar: 'Barre',
+        line: 'Linea',
+        pie: 'Torta',
+      },
+      untitled: 'Nuovo grafico',
+    },
+    charts: 'Grafici',
+    create: 'Crea bacheca',
+    delete: 'Elimina bacheca',
+    description: 'Cosa raccoglie',
+    descriptionPlaceholder:
+      'Viaggi: voli, hotel e noleggi auto, con quanto sono costati',
+    edit: 'Modifica bacheca',
+    editHint: 'Se cambi cosa raccoglie, gli ultimi sei mesi vengono riletti.',
+    empty:
+      'Ancora vuota. Le email pertinenti compariranno qui appena arrivano.',
+    entries: (total: number) =>
+      plural('it', total, {
+        one: () => 'Una voce',
+        other: (n) => `${n} voci`,
+      }),
+    name: 'Nome',
+    namePlaceholder: 'Viaggi',
+    new: 'Nuova bacheca',
+    newHint:
+      'Descrivi con parole tue cosa raccogliere. Fewmail lo trova nella posta degli ultimi sei mesi, sceglie i grafici e la tiene aggiornata.',
+    planning: 'Preparazione…',
+    readingHistory: 'Leggo la posta degli ultimi sei mesi…',
+    save: 'Salva',
+    starter: {
+      money: {
+        description:
+          'Pagamenti, abbonamenti, bollette e rimborsi: cosa pago, a chi e quanto.',
+        name: 'Soldi',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Inviata a oltre ${n} utenti Fewmail`,
     reason: (n: number) =>
@@ -539,22 +596,6 @@ export const it: Messages = {
   },
   commitments: {
     title: 'Hai promesso',
-  },
-  money: {
-    due: (date: string) => `Scade il ${date}`,
-    empty:
-      'Ancora niente. Ricevute, fatture e abbonamenti compariranno qui man mano che arrivano.',
-    lastCharged: (date: string) => `Ultimo addebito il ${date}`,
-    lead: 'Tutto ciò che Fewmail ha trovato nelle tue ricevute e bollette.',
-    monthlyTotal: 'Ogni mese in abbonamenti',
-    period: { month: 'mensile', week: 'settimanale', year: 'annuale' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} ora costa ${to} (prima ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} è aumentato di prezzo`,
-    recent: 'Acquisti recenti',
-    subscriptions: 'Abbonamenti',
-    title: 'Soldi',
-    upcoming: 'Bollette in scadenza',
   },
   people: {
     firstContact: (date: string) => `Vi scrivete dal ${date}`,

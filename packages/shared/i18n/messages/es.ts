@@ -72,7 +72,6 @@ export const es: Messages = {
     cleanup: 'Darse de baja de todos',
     commitment: 'Hecho',
     security: 'Ya lo comprobé',
-    subscription: 'Entendido',
     task: 'Enviar',
     spam: 'Movido a spam',
     trash: 'Mover a la papelera',
@@ -207,7 +206,8 @@ export const es: Messages = {
     you: 'Tú',
   },
   nav: {
-    money: 'Dinero',
+    boards: 'Tableros',
+    newBoard: 'Nuevo tablero',
     mail: 'Correo',
     rules: 'Reglas',
     search: 'Busca o pregunta…',
@@ -518,6 +518,64 @@ export const es: Messages = {
     writeNow: 'Escribirlo ahora',
     writing: 'Escribiendo…',
   },
+  boards: {
+    chart: {
+      add: 'Añadir gráfico',
+      edit: 'Ajustes del gráfico',
+      empty: 'Aún no hay nada que dibujar',
+      groupBy: 'Agrupado por',
+      groupings: {
+        group: 'Quién o qué',
+        month: 'Mes',
+        status: 'Estado',
+        week: 'Semana',
+      },
+      measure: 'Muestra',
+      measures: { count: 'Cantidad', sum: 'Importe total' },
+      other: 'Otros',
+      remove: 'Quitar gráfico',
+      title: 'Título del gráfico',
+      type: 'Tipo de gráfico',
+      types: {
+        area: 'Área',
+        bar: 'Barras',
+        line: 'Línea',
+        pie: 'Circular',
+      },
+      untitled: 'Nuevo gráfico',
+    },
+    charts: 'Gráficos',
+    create: 'Crear tablero',
+    delete: 'Eliminar tablero',
+    description: 'Qué recopila',
+    descriptionPlaceholder:
+      'Viajes: vuelos, hoteles y alquiler de coches, con lo que costaron',
+    edit: 'Editar tablero',
+    editHint:
+      'Si cambias lo que recopila, se vuelven a leer los últimos seis meses.',
+    empty:
+      'Aún está vacío. Los correos que encajen aparecerán aquí en cuanto lleguen.',
+    entries: (total: number) =>
+      plural('es', total, {
+        one: () => 'Una entrada',
+        other: (n) => `${n} entradas`,
+      }),
+    name: 'Nombre',
+    namePlaceholder: 'Viajes',
+    new: 'Nuevo tablero',
+    newHint:
+      'Describe con tus palabras qué recopilar. Fewmail lo busca en el correo de los últimos seis meses, elige los gráficos y lo mantiene al día.',
+    planning: 'Preparándolo…',
+    readingHistory: 'Leyendo el correo de los últimos seis meses…',
+    save: 'Guardar',
+    starter: {
+      money: {
+        description:
+          'Pagos, suscripciones, facturas y reembolsos: qué pago, a quién y cuánto.',
+        name: 'Dinero',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Enviado a más de ${n} usuarios de Fewmail`,
     reason: (n: number) =>
@@ -540,22 +598,6 @@ export const es: Messages = {
   },
   commitments: {
     title: 'Lo prometiste',
-  },
-  money: {
-    due: (date: string) => `Vence el ${date}`,
-    empty:
-      'Aún nada. Los recibos, facturas y suscripciones aparecerán aquí a medida que lleguen.',
-    lastCharged: (date: string) => `Último cargo: ${date}`,
-    lead: 'Todo lo que Fewmail encontró en tus recibos y facturas.',
-    monthlyTotal: 'Cada mes en suscripciones',
-    period: { month: 'mensual', week: 'semanal', year: 'anual' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} ahora cuesta ${to} (antes ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} ha subido de precio`,
-    recent: 'Compras recientes',
-    subscriptions: 'Suscripciones',
-    title: 'Dinero',
-    upcoming: 'Facturas pendientes',
   },
   people: {
     firstContact: (date: string) => `Os escribís desde ${date}`,

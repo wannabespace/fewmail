@@ -27,7 +27,6 @@ export const ACTION_KINDS = [
   'security',
   'commitment',
   'cleanup',
-  'subscription',
   'task',
 ] as const
 export type ActionKind = (typeof ACTION_KINDS)[number]
@@ -117,14 +116,22 @@ export interface MessageRisk {
 export type TaskAutonomy = 'ask' | 'auto'
 export type TaskStatus = 'active' | 'done' | 'canceled'
 
-export type TransactionKind =
-  | 'subscription'
-  | 'bill'
-  | 'purchase'
-  | 'cancellation'
-export type BillingPeriod = 'month' | 'year' | 'week'
+export const BOARD_CHART_TYPES = ['bar', 'line', 'area', 'pie'] as const
+export type BoardChartType = (typeof BOARD_CHART_TYPES)[number]
+export const BOARD_MEASURES = ['sum', 'count'] as const
+export type BoardMeasure = (typeof BOARD_MEASURES)[number]
+export const BOARD_GROUPINGS = ['month', 'week', 'group', 'status'] as const
+export type BoardGrouping = (typeof BOARD_GROUPINGS)[number]
 
-/** Mail older than this is never sent to the model and never becomes a Today card, so an upgrade or the money history does not flood the queue. */
+export interface BoardChart {
+  groupBy: BoardGrouping
+  id: string
+  measure: BoardMeasure
+  title: string
+  type: BoardChartType
+}
+
+/** Mail older than this is never sent to the model and never becomes a Today card, so an upgrade or a board's history does not flood the queue. */
 export const ANALYZE_WINDOW_DAYS = 3
 
 /** Two calm deliveries a day; urgent mail never waits. */

@@ -6,7 +6,6 @@ export const ko: Messages = {
     cleanup: '모두 구독 취소',
     commitment: '완료',
     security: '확인했어요',
-    subscription: '알겠어요',
     task: '보내기',
     spam: '스팸으로 이동',
     trash: '휴지통으로 이동',
@@ -188,7 +187,8 @@ export const ko: Messages = {
     you: '나',
   },
   nav: {
-    money: '돈',
+    boards: '보드',
+    newBoard: '새 보드',
     mail: '메일',
     rules: '규칙',
     search: '검색 또는 질문…',
@@ -484,6 +484,57 @@ export const ko: Messages = {
     writeNow: '지금 작성',
     writing: '작성 중…',
   },
+  boards: {
+    chart: {
+      add: '차트 추가',
+      edit: '차트 설정',
+      empty: '아직 그릴 내용이 없어요',
+      groupBy: '묶는 기준',
+      groupings: {
+        group: '누구 또는 무엇',
+        month: '월',
+        status: '상태',
+        week: '주',
+      },
+      measure: '표시 값',
+      measures: { count: '개수', sum: '총액' },
+      other: '기타',
+      remove: '차트 삭제',
+      title: '차트 제목',
+      type: '차트 종류',
+      types: {
+        area: '영역',
+        bar: '막대',
+        line: '선',
+        pie: '원형',
+      },
+      untitled: '새 차트',
+    },
+    charts: '차트',
+    create: '보드 만들기',
+    delete: '보드 삭제',
+    description: '모을 내용',
+    descriptionPlaceholder: '여행: 항공권, 호텔, 렌터카와 그 비용',
+    edit: '보드 편집',
+    editHint: '모을 내용을 바꾸면 최근 6개월을 다시 읽어요.',
+    empty: '아직 비어 있어요. 맞는 메일이 오면 바로 여기에 나타나요.',
+    entries: (n: number) => `${n}개 항목`,
+    name: '이름',
+    namePlaceholder: '여행',
+    new: '새 보드',
+    newHint:
+      '모을 내용을 직접 설명해 주세요. Fewmail이 최근 6개월 메일에서 찾아내고, 차트를 고르고, 계속 최신으로 유지해요.',
+    planning: '준비하는 중…',
+    readingHistory: '최근 6개월 메일을 읽는 중…',
+    save: '저장',
+    starter: {
+      money: {
+        description:
+          '결제, 구독, 청구서, 환불: 무엇에, 누구에게, 얼마를 내는지.',
+        name: '돈',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Fewmail 사용자 ${n}명 이상에게 발송됨`,
     reason: (n: number) =>
@@ -496,21 +547,6 @@ export const ko: Messages = {
   },
   commitments: {
     title: '내가 한 약속',
-  },
-  money: {
-    due: (date: string) => `${date}까지`,
-    empty: '아직 없어요. 영수증, 청구서, 구독이 도착하면 여기에 표시돼요.',
-    lastCharged: (date: string) => `마지막 결제 ${date}`,
-    lead: 'Fewmail이 영수증과 청구서에서 찾은 모든 것이에요.',
-    monthlyTotal: '매달 구독료',
-    period: { month: '월간', week: '주간', year: '연간' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} 가격이 ${to}로 올랐어요 (이전 ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} 가격이 올랐어요`,
-    recent: '최근 구매',
-    subscriptions: '구독',
-    title: '돈',
-    upcoming: '결제 예정',
   },
   people: {
     firstContact: (date: string) => `${date}부터 연락`,

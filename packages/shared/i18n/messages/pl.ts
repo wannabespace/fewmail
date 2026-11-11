@@ -7,7 +7,6 @@ export const pl: Messages = {
     cleanup: 'Wypisz ze wszystkich',
     commitment: 'Gotowe',
     security: 'Sprawdziłem',
-    subscription: 'Jasne',
     task: 'Wyślij',
     spam: 'Przeniesiono do spamu',
     archive: 'Archiwizuj',
@@ -32,6 +31,65 @@ export const pl: Messages = {
     thinking: 'Przeglądam twoją pocztę…',
   },
   byRule: 'przez regułę',
+  boards: {
+    chart: {
+      add: 'Dodaj wykres',
+      edit: 'Ustawienia wykresu',
+      empty: 'Na razie nie ma czego narysować',
+      groupBy: 'Grupowanie',
+      groupings: {
+        group: 'Kto lub co',
+        month: 'Miesiąc',
+        status: 'Status',
+        week: 'Tydzień',
+      },
+      measure: 'Pokazuje',
+      measures: { count: 'Liczba', sum: 'Łączna kwota' },
+      other: 'Inne',
+      remove: 'Usuń wykres',
+      title: 'Tytuł wykresu',
+      type: 'Rodzaj wykresu',
+      types: {
+        area: 'Warstwowy',
+        bar: 'Słupki',
+        line: 'Linia',
+        pie: 'Kołowy',
+      },
+      untitled: 'Nowy wykres',
+    },
+    charts: 'Wykresy',
+    create: 'Utwórz tablicę',
+    delete: 'Usuń tablicę',
+    description: 'Co zbiera',
+    descriptionPlaceholder:
+      'Podróże: loty, hotele i wynajem aut, razem z kosztami',
+    edit: 'Edytuj tablicę',
+    editHint:
+      'Jeśli zmienisz, co zbiera, ostatnie pół roku zostanie przeczytane od nowa.',
+    empty: 'Na razie pusto. Pasujące maile pojawią się tu, gdy tylko przyjdą.',
+    entries: (total: number) =>
+      plural('pl', total, {
+        one: () => 'Jeden wpis',
+        few: (n) => `${n} wpisy`,
+        many: (n) => `${n} wpisów`,
+        other: (n) => `${n} wpisu`,
+      }),
+    name: 'Nazwa',
+    namePlaceholder: 'Podróże',
+    new: 'Nowa tablica',
+    newHint:
+      'Opisz własnymi słowami, co zbierać. Fewmail znajdzie to w poczcie z ostatniego pół roku, dobierze wykresy i będzie je aktualizować.',
+    planning: 'Przygotowuję…',
+    readingHistory: 'Czytam pocztę z ostatniego pół roku…',
+    save: 'Zapisz',
+    starter: {
+      money: {
+        description:
+          'Płatności, subskrypcje, rachunki i zwroty: za co płacę, komu i ile.',
+        name: 'Pieniądze',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Wysłane do ${n}+ użytkowników Fewmail`,
     reason: (n: number) =>
@@ -224,24 +282,9 @@ export const pl: Messages = {
       'Ten nadawca nie obsługuje wypisania jednym kliknięciem, więc e-mail został zarchiwizowany.',
     you: 'Ty',
   },
-  money: {
-    due: (date: string) => `Termin: ${date}`,
-    empty:
-      'Na razie nic. Paragony, faktury i subskrypcje pojawią się tu, gdy tylko dotrą.',
-    lastCharged: (date: string) => `Ostatnie obciążenie: ${date}`,
-    lead: 'Wszystko, co Fewmail znalazł w twoich paragonach i rachunkach.',
-    monthlyTotal: 'Co miesiąc na subskrypcje',
-    period: { month: 'miesięcznie', week: 'tygodniowo', year: 'rocznie' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} kosztuje teraz ${to} (było ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} podrożał`,
-    recent: 'Ostatnie zakupy',
-    subscriptions: 'Subskrypcje',
-    title: 'Pieniądze',
-    upcoming: 'Rachunki do zapłaty',
-  },
   nav: {
-    money: 'Pieniądze',
+    boards: 'Tablice',
+    newBoard: 'Nowa tablica',
     mail: 'Poczta',
     rules: 'Reguły',
     search: 'Szukaj lub zapytaj…',

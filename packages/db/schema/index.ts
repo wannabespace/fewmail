@@ -21,6 +21,8 @@ export {
   whatsappLinks,
 } from './settings'
 export {
+  boardEntries,
+  boards,
   bulkPrints,
   commitments,
   domainAges,
@@ -31,6 +33,5 @@ export {
   people,
   tasks,
   templateReports,
-  transactions,
   unsubscribes,
 } from './insight'

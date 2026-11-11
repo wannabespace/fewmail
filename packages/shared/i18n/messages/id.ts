@@ -7,7 +7,6 @@ export const id: Messages = {
     cleanup: 'Berhenti dari semua',
     commitment: 'Selesai',
     security: 'Sudah saya cek',
-    subscription: 'Oke',
     task: 'Kirim',
     spam: 'Dipindahkan ke spam',
     archive: 'Arsipkan',
@@ -32,6 +31,60 @@ export const id: Messages = {
     thinking: 'Menelusuri email kamu…',
   },
   byRule: 'oleh aturan',
+  boards: {
+    chart: {
+      add: 'Tambah grafik',
+      edit: 'Pengaturan grafik',
+      empty: 'Belum ada yang bisa digambar',
+      groupBy: 'Dikelompokkan per',
+      groupings: {
+        group: 'Siapa atau apa',
+        month: 'Bulan',
+        status: 'Status',
+        week: 'Minggu',
+      },
+      measure: 'Menampilkan',
+      measures: { count: 'Jumlah', sum: 'Total nominal' },
+      other: 'Lainnya',
+      remove: 'Hapus grafik',
+      title: 'Judul grafik',
+      type: 'Jenis grafik',
+      types: {
+        area: 'Area',
+        bar: 'Batang',
+        line: 'Garis',
+        pie: 'Lingkaran',
+      },
+      untitled: 'Grafik baru',
+    },
+    charts: 'Grafik',
+    create: 'Buat papan',
+    delete: 'Hapus papan',
+    description: 'Apa yang dikumpulkan',
+    descriptionPlaceholder:
+      'Perjalanan: tiket pesawat, hotel, dan sewa mobil, beserta biayanya',
+    edit: 'Ubah papan',
+    editHint:
+      'Jika kamu mengubah apa yang dikumpulkan, enam bulan terakhir dibaca ulang.',
+    empty: 'Masih kosong. Email yang cocok akan muncul di sini begitu tiba.',
+    entries: (total: number) =>
+      plural('id', total, { other: (n) => `${n} entri` }),
+    name: 'Nama',
+    namePlaceholder: 'Perjalanan',
+    new: 'Papan baru',
+    newHint:
+      'Jelaskan dengan kata-katamu sendiri apa yang dikumpulkan. Fewmail mencarinya di email enam bulan terakhir, memilih grafik, dan terus memperbaruinya.',
+    planning: 'Menyiapkan…',
+    readingHistory: 'Membaca email enam bulan terakhir…',
+    save: 'Simpan',
+    starter: {
+      money: {
+        description:
+          'Pembayaran, langganan, tagihan, dan pengembalian dana: untuk apa saya membayar, kepada siapa, dan berapa.',
+        name: 'Uang',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Dikirim ke ${n}+ pengguna Fewmail`,
     reason: (n: number) =>
@@ -209,24 +262,9 @@ export const id: Messages = {
       'Pengirim ini tidak mendukung berhenti berlangganan sekali klik, jadi email-nya diarsipkan.',
     you: 'Kamu',
   },
-  money: {
-    due: (date: string) => `Jatuh tempo ${date}`,
-    empty:
-      'Belum ada apa-apa. Struk, tagihan, dan langganan muncul di sini begitu masuk.',
-    lastCharged: (date: string) => `Terakhir ditagih ${date}`,
-    lead: 'Semua yang Fewmail temukan di struk dan tagihanmu.',
-    monthlyTotal: 'Setiap bulan untuk langganan',
-    period: { month: 'bulanan', week: 'mingguan', year: 'tahunan' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} sekarang ${to} (sebelumnya ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} jadi lebih mahal`,
-    recent: 'Pembelian terbaru',
-    subscriptions: 'Langganan',
-    title: 'Uang',
-    upcoming: 'Tagihan jatuh tempo',
-  },
   nav: {
-    money: 'Uang',
+    boards: 'Papan',
+    newBoard: 'Papan baru',
     mail: 'Email',
     rules: 'Aturan',
     search: 'Cari atau tanya…',

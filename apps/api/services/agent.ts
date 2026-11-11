@@ -16,7 +16,6 @@ import { JEV_MODEL_ID } from '../lib/jev'
 import { BULK_THRESHOLD } from './bulk'
 import { decideWithJev } from './classify'
 import { applyAgentLabel } from './labels'
-import { hasBilledBefore, isChargeCategory, recordCharge } from './money'
 import { getSettings } from './settings'
 import { changeThreadLabels, mailboxOfThread } from './thread-labels'
 import { recordUnsubscribe } from './zombies'
@@ -326,27 +325,6 @@ const withNetworkFacts = <
   }
 }
 
-const labelAndRecordCharge = async (
-  message: Message,
-  category: Parameters<typeof applyAgentLabel>[1],
-  agent: boolean
-) => {
-  await applyAgentLabel(message, category).catch((error) =>
-    console.error('agent label failed', error)
-  )
-  if (!agent || isBulk(message)) {
-    return
-  }
-  if (
-    isChargeCategory(category) ||
-    (category === 'notification' && (await hasBilledBefore(message)))
-  ) {
-    await recordCharge(message).catch((error) =>
-      console.error('charge extraction failed', error)
-    )
-  }
-}
-
 /** Today cards: a drafted reply for mail that wants one, otherwise the suggested next step for mail that matters. */
 const queueForAgent = async (
   message: Message,
@@ -458,7 +436,9 @@ export const analyzeMessage = async (
     })
     .onConflictDoNothing()
 
-  await labelAndRecordCharge(message, output.category, agent)
+  await applyAgentLabel(message, output.category).catch((error) =>
+    console.error('agent label failed', error)
+  )
 
   const base = {
     messageId: message.id,

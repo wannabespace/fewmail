@@ -7,7 +7,6 @@ export const hi: Messages = {
     cleanup: 'सभी से अनसब्सक्राइब करें',
     commitment: 'हो गया',
     security: 'मैंने जाँच लिया',
-    subscription: 'समझ गया',
     task: 'भेजें',
     spam: 'स्पैम में डाला',
     trash: 'ट्रैश में डालें',
@@ -188,7 +187,8 @@ export const hi: Messages = {
     you: 'आप',
   },
   nav: {
-    money: 'पैसा',
+    boards: 'बोर्ड',
+    newBoard: 'नया बोर्ड',
     mail: 'मेल',
     rules: 'नियम',
     search: 'खोजें या पूछें…',
@@ -494,6 +494,59 @@ export const hi: Messages = {
     writeNow: 'अभी लिखें',
     writing: 'लिखा जा रहा है…',
   },
+  boards: {
+    chart: {
+      add: 'चार्ट जोड़ें',
+      edit: 'चार्ट सेटिंग्स',
+      empty: 'अभी दिखाने को कुछ नहीं',
+      groupBy: 'किसके हिसाब से',
+      groupings: {
+        group: 'कौन या क्या',
+        month: 'महीना',
+        status: 'स्थिति',
+        week: 'हफ़्ता',
+      },
+      measure: 'दिखाता है',
+      measures: { count: 'गिनती', sum: 'कुल राशि' },
+      other: 'अन्य',
+      remove: 'चार्ट हटाएँ',
+      title: 'चार्ट का नाम',
+      type: 'चार्ट का प्रकार',
+      types: {
+        area: 'एरिया',
+        bar: 'बार',
+        line: 'लाइन',
+        pie: 'पाई',
+      },
+      untitled: 'नया चार्ट',
+    },
+    charts: 'चार्ट',
+    create: 'बोर्ड बनाएँ',
+    delete: 'बोर्ड हटाएँ',
+    description: 'क्या इकट्ठा करना है',
+    descriptionPlaceholder:
+      'यात्राएँ: फ़्लाइट, होटल और किराये की कार, उनकी कीमत के साथ',
+    edit: 'बोर्ड बदलें',
+    editHint: 'क्या इकट्ठा करना है बदलने पर पिछले छह महीने फिर से पढ़े जाएँगे।',
+    empty: 'अभी खाली है। मिलते-जुलते ईमेल आते ही यहाँ दिखेंगे।',
+    entries: (total: number) =>
+      plural('hi', total, { one: () => 'एक एंट्री', other: (n) => `${n} एंट्री` }),
+    name: 'नाम',
+    namePlaceholder: 'यात्राएँ',
+    new: 'नया बोर्ड',
+    newHint:
+      'अपने शब्दों में बताएँ क्या इकट्ठा करना है। Fewmail पिछले छह महीनों के मेल में उसे ढूँढेगा, चार्ट चुनेगा और बोर्ड को अपडेट रखेगा।',
+    planning: 'तैयार कर रहा हूँ…',
+    readingHistory: 'पिछले छह महीनों के मेल पढ़ रहा हूँ…',
+    save: 'सहेजें',
+    starter: {
+      money: {
+        description:
+          'भुगतान, सब्सक्रिप्शन, बिल और रिफ़ंड: मैं किस चीज़ के लिए, किसे और कितना देता हूँ।',
+        name: 'पैसा',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `${n}+ Fewmail उपयोगकर्ताओं को भेजा गया`,
     reason: (n: number) => `बल्क ईमेल: ${n}+ Fewmail उपयोगकर्ताओं को यही टेक्स्ट मिला`,
@@ -513,21 +566,6 @@ export const hi: Messages = {
   },
   commitments: {
     title: 'आपने वादा किया',
-  },
-  money: {
-    due: (date: string) => `देय ${date}`,
-    empty: 'अभी कुछ नहीं। रसीदें, बिल और सब्सक्रिप्शन आते ही यहाँ दिखेंगे।',
-    lastCharged: (date: string) => `पिछला भुगतान ${date}`,
-    lead: 'Fewmail को आपकी रसीदों और बिलों में जो कुछ मिला।',
-    monthlyTotal: 'हर महीने सब्सक्रिप्शन पर',
-    period: { month: 'मासिक', week: 'साप्ताहिक', year: 'वार्षिक' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} अब ${to} का है (पहले ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} महँगा हो गया`,
-    recent: 'हाल की खरीदारी',
-    subscriptions: 'सब्सक्रिप्शन',
-    title: 'पैसा',
-    upcoming: 'देय बिल',
   },
   people: {
     firstContact: (date: string) => `${date} से संपर्क में`,

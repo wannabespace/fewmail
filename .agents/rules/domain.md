@@ -8,7 +8,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Mailbox** | A Gmail account whose mail Fewmail reads. One is the account you sign in with; more can be added in Settings and their mail joins the same Today, queue and inbox. An added mailbox never signs anyone in to your account — signing in with it opens its own Fewmail. |
 | **Today** | The home screen: brief + queue + handled summary. Non-urgent cards arrive in two batches (brief hour and 7 h later); security, promises, tasks and urgent mail come at once. |
 | **Queue** | Pending **actions** (`actions.status = 'pending'`), ordered by importance. Each is approved (`⏎`), edited, redrafted or skipped. |
-| **Action** | Something the agent proposes or did: `reply` (with a draft), `pay`, `schedule`, `follow_up`, `read`, `archive`, `mark_read`, `unsubscribe`, `spam`, `security`, `commitment`, `subscription`, `cleanup`, task actions. Statuses: `pending`, `done`, `dismissed` (skipped), `auto_done` (by an autonomous rule), `failed`. |
+| **Action** | Something the agent proposes or did: `reply` (with a draft), `pay`, `schedule`, `follow_up`, `read`, `archive`, `mark_read`, `unsubscribe`, `spam`, `security`, `commitment`, `cleanup`, task actions. Statuses: `pending`, `done`, `dismissed` (skipped), `auto_done` (by an autonomous rule), `failed`. |
 | **Handled** | `auto_done` actions — what the agent did on its own. Always reviewable, never hidden. |
 | **Analysis** | Per-message result (Jev decides; on Pro the fast model writes the text, on Free the summary is the snippet): category, importance 0–3, one-line summary, reason, `needsReply`, extracted amount / due date / meeting time, matched rule. |
 | **Importance** | 3 urgent (pushed to Telegram and WhatsApp immediately), 2 needs you soon, 1 worth knowing, 0 noise. |
@@ -28,7 +28,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Risk** | Known phishing domain (public list), lookalike sender domain or changed payment details; shown as a warning and a `security` action. Free. |
 | **Commitment** | A promise you made in sent mail; due ones come back as actions. Pro. |
 | **People** | Per-contact note the agent keeps, refreshed weekly. Pro. |
-| **Money** | Payments and subscriptions read from mail, starting with half a year of history; price increases become `subscription` actions, a cancellation email takes the subscription off the page. Pro. |
+| **Board** | A page the user describes in their own words ("Trips: flights and hotels with what they cost"); the agent collects matching mail as **entries** (title, group, status, amount, date), starting with half a year of history, and picks the **charts** when it is created — the user edits or removes them after. Everyone starts with a **Money** board, an ordinary board they may change or delete. Boards live in the sidebar (`G 1`…`G 9`). Pro. |
 | **Cleanup** | Weekly Sunday suggestion to clear accumulated noise. Pro. |
 | **Task** | "Handle this": the agent works a thread toward a goal, asking before each send or sending on its own (`ask` / `auto`). Pro. |
 | **Instructions** | Free-text or voice messages to the Telegram or WhatsApp bot; replying to a bot message targets its thread. Pro. |

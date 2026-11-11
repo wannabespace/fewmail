@@ -14,7 +14,6 @@ export const en = {
     schedule: 'Schedule',
     security: 'I checked it',
     spam: 'Moved to spam',
-    subscription: 'Got it',
     task: 'Send',
     trash: 'Move to trash',
     unsubscribe: 'Unsubscribe',
@@ -29,6 +28,62 @@ export const en = {
   ask: {
     label: (question: string) => `Ask Fewmail: “${question}”`,
     thinking: 'Looking through your mail…',
+  },
+  boards: {
+    chart: {
+      add: 'Add chart',
+      edit: 'Chart settings',
+      empty: 'Nothing to draw yet',
+      groupBy: 'Grouped by',
+      groupings: {
+        group: 'Who or what',
+        month: 'Month',
+        status: 'Status',
+        week: 'Week',
+      },
+      measure: 'Shows',
+      measures: { count: 'Count', sum: 'Total amount' },
+      other: 'Other',
+      remove: 'Remove chart',
+      title: 'Chart title',
+      type: 'Chart type',
+      types: {
+        area: 'Area',
+        bar: 'Bars',
+        line: 'Line',
+        pie: 'Pie',
+      },
+      untitled: 'New chart',
+    },
+    charts: 'Charts',
+    create: 'Create board',
+    delete: 'Delete board',
+    description: 'What it collects',
+    descriptionPlaceholder:
+      'Trips: flights, hotels and car rentals, with what they cost',
+    edit: 'Edit board',
+    editHint: 'Changing what it collects reads the last six months again.',
+    empty: 'Nothing here yet. Matching emails show up as they arrive.',
+    entries: (total: number) =>
+      plural('en', total, {
+        one: () => 'One entry',
+        other: (n) => `${n} entries`,
+      }),
+    name: 'Name',
+    namePlaceholder: 'Travel',
+    new: 'New board',
+    newHint:
+      'Describe what to collect in your own words. Fewmail finds it in the last six months of mail, picks the charts and keeps it up to date.',
+    planning: 'Setting it up…',
+    readingHistory: 'Reading the last six months of mail…',
+    save: 'Save',
+    starter: {
+      money: {
+        description:
+          'Payments, subscriptions, bills and refunds: what I pay for, to whom and how much.',
+        name: 'Money',
+      },
+    },
   },
   bulk: {
     badge: (n: number) => `Sent to ${n}+ Fewmail users`,
@@ -211,25 +266,10 @@ export const en = {
       'This sender has no one-click unsubscribe, so the email was archived.',
     you: 'You',
   },
-  money: {
-    due: (date: string) => `Due ${date}`,
-    empty:
-      'Nothing yet. Receipts, invoices and subscriptions show up here as they arrive.',
-    lastCharged: (date: string) => `Last charged ${date}`,
-    lead: 'Everything Fewmail found in your receipts and bills.',
-    monthlyTotal: 'Every month on subscriptions',
-    period: { month: 'monthly', week: 'weekly', year: 'yearly' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} now costs ${to} (was ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} got more expensive`,
-    recent: 'Recent purchases',
-    subscriptions: 'Subscriptions',
-    title: 'Money',
-    upcoming: 'Bills due',
-  },
   nav: {
+    boards: 'Boards',
+    newBoard: 'New board',
     mail: 'Mail',
-    money: 'Money',
     rules: 'Rules',
     search: 'Search or ask…',
     settings: 'Settings',

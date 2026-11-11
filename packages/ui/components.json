@@ -20,5 +20,8 @@
     "hooks": "@fewmail/ui/hooks"
   },
   "menuColor": "default",
-  "menuAccent": "subtle"
+  "menuAccent": "subtle",
+  "registries": {
+    "@evilcharts": "https://evilcharts.com/r/{name}.json"
+  }
 }

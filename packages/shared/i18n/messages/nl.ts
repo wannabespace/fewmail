@@ -7,7 +7,6 @@ export const nl: Messages = {
     cleanup: 'Overal afmelden',
     commitment: 'Klaar',
     security: 'Gecontroleerd',
-    subscription: 'Begrepen',
     task: 'Versturen',
     spam: 'Naar spam verplaatst',
     archive: 'Archiveren',
@@ -32,6 +31,63 @@ export const nl: Messages = {
     thinking: 'Je mail doorzoeken…',
   },
   byRule: 'door een regel',
+  boards: {
+    chart: {
+      add: 'Grafiek toevoegen',
+      edit: 'Grafiekinstellingen',
+      empty: 'Nog niets om te tekenen',
+      groupBy: 'Gegroepeerd per',
+      groupings: {
+        group: 'Wie of wat',
+        month: 'Maand',
+        status: 'Status',
+        week: 'Week',
+      },
+      measure: 'Toont',
+      measures: { count: 'Aantal', sum: 'Totaalbedrag' },
+      other: 'Overig',
+      remove: 'Grafiek verwijderen',
+      title: 'Titel van de grafiek',
+      type: 'Soort grafiek',
+      types: {
+        area: 'Vlak',
+        bar: 'Staven',
+        line: 'Lijn',
+        pie: 'Taart',
+      },
+      untitled: 'Nieuwe grafiek',
+    },
+    charts: 'Grafieken',
+    create: 'Bord maken',
+    delete: 'Bord verwijderen',
+    description: 'Wat het verzamelt',
+    descriptionPlaceholder:
+      'Reizen: vluchten, hotels en huurauto’s, met wat ze kostten',
+    edit: 'Bord bewerken',
+    editHint:
+      'Als je verandert wat het verzamelt, worden de afgelopen zes maanden opnieuw gelezen.',
+    empty: 'Nog leeg. Passende e-mails verschijnen hier zodra ze binnenkomen.',
+    entries: (total: number) =>
+      plural('nl', total, {
+        one: () => 'Eén item',
+        other: (n) => `${n} items`,
+      }),
+    name: 'Naam',
+    namePlaceholder: 'Reizen',
+    new: 'Nieuw bord',
+    newHint:
+      'Beschrijf in je eigen woorden wat er verzameld moet worden. Fewmail zoekt het op in de mail van de afgelopen zes maanden, kiest de grafieken en houdt het bij.',
+    planning: 'Bezig met instellen…',
+    readingHistory: 'Mail van de afgelopen zes maanden lezen…',
+    save: 'Opslaan',
+    starter: {
+      money: {
+        description:
+          'Betalingen, abonnementen, rekeningen en terugbetalingen: waarvoor ik betaal, aan wie en hoeveel.',
+        name: 'Geld',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Verstuurd naar ${n}+ Fewmail-gebruikers`,
     reason: (n: number) =>
@@ -214,24 +270,9 @@ export const nl: Messages = {
       'Deze afzender heeft geen afmelding met één klik, dus de e-mail is gearchiveerd.',
     you: 'Jij',
   },
-  money: {
-    due: (date: string) => `Te betalen op ${date}`,
-    empty:
-      'Nog niets. Bonnen, facturen en abonnementen verschijnen hier zodra ze binnenkomen.',
-    lastCharged: (date: string) => `Laatst afgeschreven op ${date}`,
-    lead: 'Alles wat Fewmail in je bonnen en rekeningen vond.',
-    monthlyTotal: 'Per maand aan abonnementen',
-    period: { month: 'per maand', week: 'per week', year: 'per jaar' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} kost nu ${to} (was ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} is duurder geworden`,
-    recent: 'Recente aankopen',
-    subscriptions: 'Abonnementen',
-    title: 'Geld',
-    upcoming: 'Te betalen rekeningen',
-  },
   nav: {
-    money: 'Geld',
+    boards: 'Borden',
+    newBoard: 'Nieuw bord',
     mail: 'Mail',
     rules: 'Regels',
     search: 'Zoek of vraag…',

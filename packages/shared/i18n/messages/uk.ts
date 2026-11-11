@@ -73,7 +73,6 @@ export const uk: Messages = {
     cleanup: 'Відписатися від усіх',
     commitment: 'Готово',
     security: 'Я перевірив',
-    subscription: 'Зрозуміло',
     task: 'Надіслати',
     spam: 'У спам',
     trash: 'У кошик',
@@ -204,7 +203,8 @@ export const uk: Messages = {
     you: 'Ти',
   },
   nav: {
-    money: 'Гроші',
+    boards: 'Дошки',
+    newBoard: 'Нова дошка',
     mail: 'Пошта',
     rules: 'Правила',
     search: 'Шукай або питай…',
@@ -520,6 +520,66 @@ export const uk: Messages = {
     writeNow: 'Написати зараз',
     writing: 'Пишу…',
   },
+  boards: {
+    chart: {
+      add: 'Додати графік',
+      edit: 'Налаштування графіка',
+      empty: 'Поки нічого малювати',
+      groupBy: 'Розбивка',
+      groupings: {
+        group: 'Хто або що',
+        month: 'Місяць',
+        status: 'Статус',
+        week: 'Тиждень',
+      },
+      measure: 'Показує',
+      measures: { count: 'Кількість', sum: 'Сума' },
+      other: 'Інше',
+      remove: 'Прибрати графік',
+      title: 'Назва графіка',
+      type: 'Тип графіка',
+      types: {
+        area: 'Область',
+        bar: 'Стовпці',
+        line: 'Лінія',
+        pie: 'Кругова',
+      },
+      untitled: 'Новий графік',
+    },
+    charts: 'Графіки',
+    create: 'Створити дошку',
+    delete: 'Видалити дошку',
+    description: 'Що збирати',
+    descriptionPlaceholder:
+      'Подорожі: квитки, готелі й оренда авто, разом із вартістю',
+    edit: 'Змінити дошку',
+    editHint:
+      'Якщо змінити, що збирати, останні пів року буде прочитано заново.',
+    empty:
+      'Поки порожньо. Відповідні листи з’являтимуться тут, щойно надійдуть.',
+    entries: (total: number) =>
+      plural('uk', total, {
+        one: (n) => `${n} запис`,
+        few: (n) => `${n} записи`,
+        many: (n) => `${n} записів`,
+        other: (n) => `${n} запису`,
+      }),
+    name: 'Назва',
+    namePlaceholder: 'Подорожі',
+    new: 'Нова дошка',
+    newHint:
+      'Опиши своїми словами, що збирати. Fewmail знайде це в пошті за останні пів року, підбере графіки й оновлюватиме дошку сам.',
+    planning: 'Налаштовую…',
+    readingHistory: 'Читаю пошту за останні пів року…',
+    save: 'Зберегти',
+    starter: {
+      money: {
+        description:
+          'Платежі, підписки, рахунки й повернення: за що я плачу, кому і скільки.',
+        name: 'Гроші',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Отримали ${n}+ користувачів Fewmail`,
     reason: (n: number) =>
@@ -545,22 +605,6 @@ export const uk: Messages = {
   },
   commitments: {
     title: 'Ти пообіцяв',
-  },
-  money: {
-    due: (date: string) => `Сплатити до ${date}`,
-    empty:
-      'Поки нічого. Чеки, рахунки й підписки з’являться тут, щойно прийдуть.',
-    lastCharged: (date: string) => `Останнє списання ${date}`,
-    lead: 'Усе, що Fewmail знайшов у твоїх чеках і рахунках.',
-    monthlyTotal: 'Щомісяця на підписки',
-    period: { month: 'щомісяця', week: 'щотижня', year: 'щороку' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} тепер коштує ${to} (було ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} подорожчав`,
-    recent: 'Останні покупки',
-    subscriptions: 'Підписки',
-    title: 'Гроші',
-    upcoming: 'Рахунки до сплати',
   },
   people: {
     firstContact: (date: string) => `Листуєтеся з ${date}`,
