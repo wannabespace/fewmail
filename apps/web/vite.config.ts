@@ -160,7 +160,7 @@ export default defineConfig({
     seo(),
   ],
   preview: {
-    allowedHosts: ['fewmail.app'],
+    allowedHosts: ['fewmail.app', 'healthcheck.railway.app'],
     host: true,
     port: Number(process.env.PORT) || undefined,
   },
