@@ -11,11 +11,15 @@ import { subMinutes } from 'date-fns'
 import { and, eq, gte, isNull, lt, or } from 'drizzle-orm'
 
 import { generateBrief, isBriefDue } from './services/brief'
+import { offerCleanup } from './services/cleanup'
 import { chatIdForUser } from './services/integrations'
 import { listQueue } from './services/mail'
 import { dispatchDueOutbox } from './services/outbox'
 import { getPlanInfo, hasAgent } from './services/plan'
-import { processDueReminders } from './services/reminders'
+import {
+  processDueCommitments,
+  processDueReminders,
+} from './services/reminders'
 import { syncMailbox } from './services/sync'
 import { sendBrief, sendUrgent } from './telegram'
 
@@ -56,8 +60,11 @@ const syncDueMailboxes = async () => {
 }
 
 const sendBriefIfDue = async (settings: typeof userSettings.$inferSelect) => {
+  if (!hasAgent(await getPlanInfo(settings.userId))) {
+    return
+  }
+  await offerCleanup(settings.userId)
   if (
-    !hasAgent(await getPlanInfo(settings.userId)) ||
     !(await isBriefDue(settings.userId, settings.timezone, settings.briefHour))
   ) {
     return
@@ -102,12 +109,15 @@ const pushUrgent = async () => {
   const urgent = await db
     .select({ id: actions.id, userId: actions.userId })
     .from(actions)
-    .innerJoin(analyses, eq(analyses.messageId, actions.messageId))
+    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
     .where(
       and(
         eq(actions.status, 'pending'),
         isNull(actions.notifiedAt),
-        gte(analyses.importance, IMPORTANCE.critical)
+        or(
+          gte(analyses.importance, IMPORTANCE.critical),
+          eq(actions.kind, 'security')
+        )
       )
     )
   for (const { id, userId } of urgent) {
@@ -124,6 +134,7 @@ const tick = async () => {
       once('urgent', pushUrgent),
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),
+      once('commitments', processDueCommitments),
     ])
   } catch (error) {
     console.error('worker tick', error)

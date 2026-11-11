@@ -18,10 +18,14 @@ import {
 } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage } from './agent'
+import { measureBulk } from './bulk'
 import { getPlanInfo, hasAgent } from './plan'
-import { watchSentMail } from './reminders'
+import { assessRisks } from './risk'
+import { watchSentMail } from './sent-mail'
 import { applySimpleRules } from './simple-rules'
 import { applySpamShield } from './spam'
+import { advanceTasksFor } from './tasks'
+import { catchZombies } from './zombies'
 
 const INITIAL_INBOX_QUERY = 'in:inbox newer_than:3d'
 const INITIAL_INBOX_LIMIT = 60
@@ -32,6 +36,7 @@ const ANALYZE_CONCURRENCY = 4
 const ANALYZE_WINDOW_DAYS = 3
 
 type Mailbox = typeof mailboxes.$inferSelect
+type Message = typeof messages.$inferSelect
 
 export const ensureMailbox = async (userId: string) => {
   const [existing] = await db
@@ -92,6 +97,7 @@ const inBatches = async <T>(
 }
 
 export const analyzePending = async (userId: string) => {
+  const agent = hasAgent(await getPlanInfo(userId))
   const [user] = await db
     .select({ email: users.email })
     .from(users)
@@ -119,10 +125,53 @@ export const analyzePending = async (userId: string) => {
     return
   }
   await inBatches(pending, ANALYZE_CONCURRENCY, ({ message }) =>
-    analyzeMessage(message, user.email).catch((error) =>
+    analyzeMessage(message, user.email, agent).catch((error) =>
       console.error(`analyze ${message.id} failed`, error)
     )
   )
+}
+
+/**
+ * Order matters: risk and bulk facts are on the message before anything judges it, zombie and
+ * spam moves win over rules, and the agent only sees what is left.
+ */
+const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
+  const { userId } = mailbox
+  await assessRisks(userId, inserted)
+  await measureBulk(userId, inserted)
+  const zombies = await catchZombies(userId, inserted)
+  const spam = await applySpamShield(
+    userId,
+    inserted.filter((message) => !zombies.has(message.id))
+  )
+  await applySimpleRules(
+    userId,
+    inserted.filter(
+      (message) => !zombies.has(message.id) && !spam.has(message.id)
+    )
+  )
+  await analyzePending(userId)
+  await Promise.all(
+    inserted
+      .filter((message) => message.isFromMe && mailbox.historyId)
+      .map((message) =>
+        watchSentMail(userId, {
+          messageId: message.id,
+          text: message.body,
+          threadId: message.threadId,
+        }).catch((error) => console.error('follow-up watch failed', error))
+      )
+  )
+  if (!hasAgent(await getPlanInfo(userId))) {
+    return
+  }
+  await advanceTasksFor(userId, [
+    ...new Set(
+      inserted
+        .filter((message) => !message.isFromMe)
+        .map(({ threadId }) => threadId)
+    ),
+  ])
 }
 
 export const syncMailbox = async (mailbox: Mailbox) => {
@@ -154,7 +203,7 @@ export const syncMailbox = async (mailbox: Mailbox) => {
       : []
     const knownIds = new Set(known.map(({ gmailId }) => gmailId))
 
-    const inserted: (typeof messages.$inferSelect)[] = []
+    const inserted: Message[] = []
     await inBatches(
       ids.filter((id) => !knownIds.has(id)),
       ANALYZE_CONCURRENCY,
@@ -177,23 +226,7 @@ export const syncMailbox = async (mailbox: Mailbox) => {
       .set({ historyId, lastSyncedAt: new Date(), syncError: null })
       .where(eq(mailboxes.id, mailbox.id))
 
-    const movedToSpam = await applySpamShield(mailbox.userId, inserted)
-    await applySimpleRules(
-      mailbox.userId,
-      inserted.filter((message) => !movedToSpam.has(message.id))
-    )
-    if (hasAgent(await getPlanInfo(mailbox.userId))) {
-      await analyzePending(mailbox.userId)
-      await Promise.all(
-        inserted
-          .filter((message) => message.isFromMe && mailbox.historyId)
-          .map((message) =>
-            watchSentMail(mailbox.userId, message.threadId, message.body).catch(
-              (error) => console.error('follow-up watch failed', error)
-            )
-          )
-      )
-    }
+    await processIncoming(mailbox, inserted)
   } catch (error) {
     await db
       .update(mailboxes)

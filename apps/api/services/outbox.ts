@@ -9,7 +9,8 @@ import { and, eq, lte } from 'drizzle-orm'
 import { sendMail } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
-import { scheduleFollowup, watchSentMail } from './reminders'
+import { scheduleFollowup } from './reminders'
+import { watchSentMail } from './sent-mail'
 import { changeThreadLabels } from './thread-labels'
 
 /** In-process timers make Undo-sized delays exact; the worker sweep catches anything a restart dropped. */
@@ -90,7 +91,10 @@ export const dispatchOutbox = async (id: string) => {
     }
     await (claimed.remindAfterDays
       ? scheduleFollowup(claimed.userId, sent.threadId, claimed.remindAfterDays)
-      : watchSentMail(claimed.userId, sent.threadId, claimed.text))
+      : watchSentMail(claimed.userId, {
+          text: claimed.text,
+          threadId: sent.threadId,
+        }))
   } catch (error) {
     await db
       .update(outbox)

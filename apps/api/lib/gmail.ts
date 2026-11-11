@@ -127,6 +127,9 @@ export const parseMessage = (message: GmailMessage) => {
     listUnsubscribePost: headers.get('list-unsubscribe-post') ?? null,
     messageIdHeader: headers.get('message-id') ?? null,
     receivedAt: new Date(Number(message.internalDate)),
+    replyTo: headers.get('reply-to')
+      ? parseAddress(headers.get('reply-to') ?? '').email
+      : null,
     snippet: message.snippet,
     subject: headers.get('subject') ?? '(no subject)',
     threadId: message.threadId,

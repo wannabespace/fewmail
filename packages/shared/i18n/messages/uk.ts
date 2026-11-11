@@ -69,6 +69,11 @@ export const uk: Messages = {
     weekend: 'На вихідних',
   },
   actionKind: {
+    cleanup: 'Відписатися від усіх',
+    commitment: 'Готово',
+    security: 'Я перевірив',
+    subscription: 'Зрозуміло',
+    task: 'Надіслати',
     spam: 'У спам',
     trash: 'У кошик',
     archive: 'В архів',
@@ -195,6 +200,7 @@ export const uk: Messages = {
     you: 'Ти',
   },
   nav: {
+    money: 'Гроші',
     mail: 'Пошта',
     rules: 'Правила',
     search: 'Шукай або питай…',
@@ -389,6 +395,10 @@ export const uk: Messages = {
     receipts: 'Чеки, підтвердження замовлень і доставки',
   },
   telegram: {
+    heard: (text: string) => `Почув: «${text}»`,
+    voiceFailed: 'Не вдалося розібрати. Спробуй ще раз або напиши текстом.',
+    whichEmail:
+      'Який лист? Дай відповідь на одне з моїх повідомлень і напиши, що сказати.',
     canceled: 'Скасовано. Чернетка знову в черзі.',
     sendingIn: (seconds: number) => `Надсилаю через ${seconds} с`,
     undo: 'Скасувати',
@@ -418,6 +428,13 @@ export const uk: Messages = {
     willSend: 'Надішлю:',
   },
   today: {
+    later: (total: number, time: string) =>
+      plural('uk', total, {
+        one: (n) => `Ще ${n} прийде о ${time}`,
+        few: (n) => `Ще ${n} прийдуть о ${time}`,
+        many: (n) => `Ще ${n} прийдуть о ${time}`,
+        other: (n) => `Ще ${n} прийде о ${time}`,
+      }),
     briefArrives: (time: string) => `Бриф приходить щодня о ${time}.`,
     briefFrom: (time: string) => `бриф від ${time}`,
     done: 'Готово',
@@ -445,5 +462,86 @@ export const uk: Messages = {
     worthAttention: 'Варто уваги',
     writeNow: 'Написати зараз',
     writing: 'Пишу…',
+  },
+  bulk: {
+    badge: (n: number) => `Отримали ${n}+ користувачів Fewmail`,
+    reason: (n: number) =>
+      `Масова розсилка: ${n}+ користувачів Fewmail отримали той самий текст`,
+  },
+  cleanup: {
+    emails: (total: number) =>
+      plural('uk', total, {
+        one: (n) => `${n} лист`,
+        few: (n) => `${n} листи`,
+        many: (n) => `${n} листів`,
+        other: (n) => `${n} листа`,
+      }),
+    reason: (total: number) =>
+      `Листів цього місяця: ${total}, жоден не відкрито`,
+    title: (total: number) =>
+      plural('uk', total, {
+        one: (n) => `Відписатися від ${n} розсилки, яку ти не відкриваєш`,
+        few: (n) => `Відписатися від ${n} розсилок, які ти не відкриваєш`,
+        many: (n) => `Відписатися від ${n} розсилок, які ти не відкриваєш`,
+        other: (n) => `Відписатися від ${n} розсилки, яку ти не відкриваєш`,
+      }),
+  },
+  commitments: {
+    title: 'Ти пообіцяв',
+  },
+  money: {
+    due: (date: string) => `Сплатити до ${date}`,
+    empty:
+      'Поки нічого. Чеки, рахунки й підписки з’являться тут, щойно прийдуть.',
+    lastCharged: (date: string) => `Останнє списання ${date}`,
+    lead: 'Усе, що Fewmail знайшов у твоїх чеках і рахунках.',
+    monthlyTotal: 'Щомісяця на підписки',
+    period: { month: 'щомісяця', week: 'щотижня', year: 'щороку' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} тепер коштує ${to} (було ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} подорожчав`,
+    recent: 'Останні покупки',
+    subscriptions: 'Підписки',
+    title: 'Гроші',
+    upcoming: 'Рахунки до сплати',
+  },
+  people: {
+    firstContact: (date: string) => `Листуєтеся з ${date}`,
+    lastContact: (date: string) => `Останній лист ${date}`,
+    open: 'Листування з ними',
+    promised: 'Ти пообіцяв',
+    threads: (total: number) =>
+      plural('uk', total, {
+        one: (n) => `${n} розмова`,
+        few: (n) => `${n} розмови`,
+        many: (n) => `${n} розмов`,
+        other: (n) => `${n} розмови`,
+      }),
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `Схоже на ${domain}, але це інша адреса. Не переходь за посиланнями й не плати.`,
+    new_sender_payment: (domain: string) =>
+      `Перший лист від ${domain}, і в ньому просять гроші. Перевір через канал, якому вже довіряєш.`,
+    payment_change: (domain: string) =>
+      `Нові платіжні реквізити від ${domain}. Підтвердь телефоном, перш ніж платити.`,
+    title: 'Перевір, перш ніж діяти',
+  },
+  tasks: {
+    active: (goal: string) => `Агент працює: ${goal}`,
+    auto: 'Надсилати листи без запиту',
+    autoHint: 'Кожен лист однаково чекає кілька секунд, щоб ти міг скасувати.',
+    cancel: 'Зупинити',
+    done: 'Завдання виконано',
+    goal: 'Чого має досягти агент?',
+    goalPlaceholder: 'напр. Отримати рахунок повторно з нашою новою адресою',
+    handle: 'Розібратися з цим…',
+    next: 'Наступний крок',
+    start: 'Почати',
+    started: 'Агент узявся до справи.',
+  },
+  zombie: {
+    badge: (share: number) => `Ігнорує відписку в ${share}% людей`,
+    reason: 'Продовжує писати після того, як ти відписався',
   },
 }

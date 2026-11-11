@@ -24,6 +24,11 @@ export const ACTION_KINDS = [
   'unsubscribe',
   'trash',
   'spam',
+  'security',
+  'commitment',
+  'cleanup',
+  'subscription',
+  'task',
 ] as const
 export type ActionKind = (typeof ACTION_KINDS)[number]
 
@@ -91,3 +96,33 @@ export type ReminderStatus = 'pending' | 'done' | 'canceled'
 export const FOLLOWUP_DAYS = [1, 3, 7] as const
 
 export type SpamVerdict = 'spam' | 'not_spam'
+
+export type RiskKind =
+  | 'lookalike_domain'
+  | 'payment_change'
+  | 'new_sender_payment'
+
+export interface MessageRisk {
+  /** The domain it imitates, for lookalikes. */
+  imitates: string | null
+  kind: RiskKind
+}
+
+export type TaskAutonomy = 'ask' | 'auto'
+export type TaskStatus = 'active' | 'done' | 'canceled'
+
+export type TransactionKind = 'subscription' | 'bill' | 'purchase'
+export type BillingPeriod = 'month' | 'year' | 'week'
+
+/** Two calm deliveries a day; urgent mail never waits. */
+export const BATCH_HOURS_AFTER_BRIEF = [0, 7] as const
+
+export interface CleanupSender {
+  count: number
+  fromEmail: string
+  fromName: string | null
+  messageId: string
+}
+
+/** "Personal" mail that this many different Fewmail users got is a mass send, whatever it pretends. */
+export const BULK_THRESHOLD = 5

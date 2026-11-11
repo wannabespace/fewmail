@@ -1,5 +1,7 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import type { CleanupSender } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
+import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -13,6 +15,49 @@ import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
+type Action = QueueItem['action']
+
+/** Kinds whose button speaks for itself; others use the agent's own label for this email. */
+const OWN_LABEL = new Set<Action['kind']>([
+  'security',
+  'commitment',
+  'cleanup',
+  'subscription',
+  'task',
+])
+
+export const hasDraft = (action: Action) =>
+  action.kind === 'reply' || (action.kind === 'task' && !!action.detail)
+
+const headline = ({ action, analysis, message }: QueueItem) => {
+  if (action.kind === 'commitment') {
+    return action.detail ?? action.title
+  }
+  if (action.kind === 'cleanup' || action.kind === 'subscription') {
+    return action.title
+  }
+  return analysis?.summary ?? message?.subject ?? action.title
+}
+
+const CleanupList = ({ action }: { action: Action }) => {
+  const t = useT()
+  const senders = (action.payload?.senders ?? []) as CleanupSender[]
+
+  return (
+    <ul className="flex flex-col gap-1 text-sm">
+      {senders.map((sender) => (
+        <li key={sender.fromEmail} className="flex items-center gap-2">
+          <span data-mask className="truncate">
+            {sender.fromName ?? sender.fromEmail}
+          </span>
+          <span className="text-muted-foreground ml-auto shrink-0 text-xs tabular-nums">
+            {t.cleanup.emails(sender.count)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 const QueueCardHeader = ({
   index,
@@ -38,10 +83,12 @@ const QueueCardHeader = ({
         {index + 1}
       </span>
       <strong data-mask className="truncate font-semibold">
-        {message?.fromName ?? message?.fromEmail ?? 'Fewmail'}
+        {action.kind === 'cleanup'
+          ? 'Fewmail'
+          : (message?.fromName ?? message?.fromEmail ?? 'Fewmail')}
       </strong>
       <span data-mask className="text-muted-foreground min-w-0 flex-1 truncate">
-        {analysis?.summary ?? message?.subject ?? action.title}
+        {headline({ action, analysis, message })}
       </span>
       {message && (
         <span className="text-muted-foreground shrink-0 text-xs">
@@ -51,6 +98,34 @@ const QueueCardHeader = ({
     </header>
   )
 }
+
+const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
+  if (isReply) {
+    return t.queue.send
+  }
+  return OWN_LABEL.has(action.kind)
+    ? t.actionKind[action.kind]
+    : action.title || t.actionKind[action.kind]
+}
+
+const completerFor = (hasAgent: boolean, message: QueueItem['message']) =>
+  hasAgent && message
+    ? ({
+        prefix,
+        signal,
+        suffix,
+      }: {
+        prefix: string
+        signal: AbortSignal
+        suffix: string
+      }) =>
+        client.mail
+          .complete(
+            { prefix, replyToMessageId: message.id, suffix },
+            { signal }
+          )
+          .then(({ text }) => text)
+    : undefined
 
 export const QueueCard = ({
   draft,
@@ -85,7 +160,9 @@ export const QueueCard = ({
 }) => {
   const t = useT()
   const { action, analysis, message } = item
-  const isReply = action.kind === 'reply'
+  const isReply = hasDraft(action)
+  const isSecurity = action.kind === 'security'
+  const reason = action.reason || analysis?.reason
   const ref = useRef<HTMLElement>(null)
   const editorRef = useRef<ComposerEditorHandle>(null)
   const hasAgent = useHasAgent()
@@ -110,7 +187,8 @@ export const QueueCard = ({
       onClick={onSelect}
       className={cn(
         'bg-popover flex flex-col gap-3 rounded-2xl px-4.5 py-4 ring transition-shadow',
-        isSelected ? 'ring-foreground/10 shadow-sm' : 'ring-foreground/6'
+        isSelected ? 'ring-foreground/10 shadow-sm' : 'ring-foreground/6',
+        isSecurity && 'ring-destructive/40'
       )}
     >
       <QueueCardHeader index={index} isSelected={isSelected} item={item} />
@@ -127,17 +205,7 @@ export const QueueCard = ({
                 onChange={({ text }) => onDraftChange(text)}
                 onSubmit={onApprove}
                 onEscape={onStopEditing}
-                complete={
-                  hasAgent && message
-                    ? ({ prefix, signal, suffix }) =>
-                        client.mail
-                          .complete(
-                            { prefix, replyToMessageId: message.id, suffix },
-                            { signal }
-                          )
-                          .then(({ text }) => text)
-                    : undefined
-                }
+                complete={completerFor(hasAgent, message)}
               />
             ) : (
               <p
@@ -147,16 +215,21 @@ export const QueueCard = ({
                 {draft}
               </p>
             ))}
-          {!isReply && analysis?.reason && (
-            <p data-mask className="text-muted-foreground text-sm">
-              {analysis.reason}
+          {action.kind === 'cleanup' && <CleanupList action={action} />}
+          {!isReply && action.kind !== 'cleanup' && reason && (
+            <p
+              data-mask
+              className={cn(
+                'text-sm',
+                isSecurity ? 'text-destructive' : 'text-muted-foreground'
+              )}
+            >
+              {reason}
             </p>
           )}
           <div className="flex flex-wrap items-center gap-2">
             <Button size="sm" disabled={isBusy} onClick={onApprove}>
-              {isReply
-                ? t.queue.send
-                : action.title || t.actionKind[action.kind]}
+              {approveLabel(t, action, isReply)}
               <Kbd>{isEditing ? '⌘⏎' : '⏎'}</Kbd>
             </Button>
             {isReply && !isEditing && (
@@ -193,7 +266,7 @@ export const QueueCard = ({
               {t.queue.skip} <Kbd>S</Kbd>
             </Button>
             <span className="text-muted-foreground ml-auto text-xs">
-              {isReply ? t.queue.draftedInVoice : t.actionKind[action.kind]}
+              {isReply ? t.queue.draftedInVoice : null}
             </span>
           </div>
         </div>

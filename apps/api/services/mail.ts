@@ -1,6 +1,12 @@
 import { db } from '@fewmail/db'
-import { actions, analyses, mailboxes, messages } from '@fewmail/db/schema'
-import type { MailCategory } from '@fewmail/shared/agent'
+import {
+  actions,
+  analyses,
+  commitments,
+  mailboxes,
+  messages,
+} from '@fewmail/db/schema'
+import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { subHours } from 'date-fns'
 import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm'
@@ -8,18 +14,33 @@ import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm'
 import { listMessageIds, trashThread, unsubscribeOneClick } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
+import { deliverySlots } from './batching'
+import { runCleanup } from './cleanup'
 import { NotFoundError } from './mail-errors'
 import { scheduleMail } from './outbox'
 import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
 import { createRule } from './rules'
+import { getSettings } from './settings'
+import { activeTask } from './tasks'
 import { changeThreadLabels } from './thread-labels'
+import { recordUnsubscribe, zombieStats } from './zombies'
 
 export { NotFoundError } from './mail-errors'
 
 const ARCHIVE = { remove: ['INBOX', 'UNREAD'] }
+/** Kinds whose approval only acknowledges; the email stays as it is. */
+const NO_GMAIL_CHANGE = new Set([
+  'security',
+  'commitment',
+  'subscription',
+  'task',
+  'cleanup',
+])
 const MARK_READ = { remove: ['UNREAD'] }
 
 const messageSummary = {
+  bulkCount: messages.bulkCount,
+  risk: messages.risk,
   fromEmail: messages.fromEmail,
   fromName: messages.fromName,
   gmailId: messages.gmailId,
@@ -41,7 +62,7 @@ const analysisSummary = {
   summary: analyses.summary,
 }
 
-export const listQueue = (userId: string) =>
+const allPending = (userId: string) =>
   db
     .select({
       action: actions,
@@ -53,6 +74,38 @@ export const listQueue = (userId: string) =>
     .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
     .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
     .orderBy(desc(analyses.importance), actions.createdAt)
+
+/** Kinds that never wait for the next delivery slot. */
+const ALWAYS_NOW = new Set(['security', 'commitment', 'task'])
+
+/** The queue as delivered: urgent items at once, the rest at the last calm slot (see batching). */
+export const listQueueWithLater = async (userId: string) => {
+  const [pending, settings] = await Promise.all([
+    allPending(userId),
+    getSettings(userId),
+  ])
+  if (!settings) {
+    return { later: null, queue: pending }
+  }
+  const slots = deliverySlots(settings.timezone, settings.briefHour)
+  const firstDay = settings.onboardedAt > slots.last
+  const isVisible = (item: (typeof pending)[number]) =>
+    firstDay ||
+    item.action.createdAt <= slots.last ||
+    ALWAYS_NOW.has(item.action.kind) ||
+    (item.analysis?.importance ?? 0) >= 3
+  const waiting = pending.filter((item) => !isVisible(item))
+  return {
+    later:
+      waiting.length > 0 ? { at: slots.next, count: waiting.length } : null,
+    queue: pending.filter(isVisible),
+  }
+}
+
+export const listQueue = async (userId: string) => {
+  const { queue } = await listQueueWithLater(userId)
+  return queue
+}
 
 export const handledSince = async (userId: string, since: Date) => {
   const rows = await db
@@ -169,7 +222,19 @@ export const getThread = async (userId: string, threadId: string) => {
     .where(and(eq(actions.userId, userId), eq(actions.threadId, threadId)))
     .orderBy(desc(actions.createdAt))
 
-  return { actions: threadActions, messages: rows }
+  const latest = rows.findLast(({ message }) => !message.isFromMe)?.message
+  const [task, zombie] = await Promise.all([
+    activeTask(userId, threadId),
+    latest?.listUnsubscribe ? zombieStats(latest.fromEmail) : null,
+  ])
+
+  return {
+    actions: threadActions,
+    messages: rows,
+    task: task && { goal: task.goal, id: task.id, summary: task.summary },
+    zombieShare:
+      zombie && zombie.total >= 3 ? Math.round(zombie.share * 100) : null,
+  }
 }
 
 const getAction = async (userId: string, actionId: string) => {
@@ -199,6 +264,94 @@ const finish = (
     .where(eq(actions.id, actionId))
     .returning()
 
+/** One-click unsubscribe when the sender supports it; the thread is archived either way. */
+/**
+ * Unsubscribing is remembered so later mail exposes zombie senders; a sender the network
+ * already knows ignores unsubscribes is blocked straight away instead of trusted again.
+ */
+const unsubscribeFrom = async (
+  userId: string,
+  message: typeof messages.$inferSelect
+) => {
+  await recordUnsubscribe(userId, message.fromEmail)
+  const zombie = await zombieStats(message.fromEmail)
+  if (zombie.isZombie) {
+    await createRule(userId, {
+      effect: 'trash',
+      match: { field: 'from', value: message.fromEmail },
+    })
+  }
+  const unsubscribed = message.listUnsubscribe
+    ? await unsubscribeOneClick(
+        message.listUnsubscribe,
+        message.listUnsubscribePost
+      )
+    : false
+  return { blocked: zombie.isZombie, unsubscribed }
+}
+
+const applyActionSideEffects = async (
+  userId: string,
+  action: typeof actions.$inferSelect
+) => {
+  if (action.kind === 'cleanup') {
+    const senders = (action.payload?.senders ?? []) as CleanupSender[]
+    await runCleanup(userId, senders)
+  }
+  if (
+    action.kind === 'commitment' &&
+    typeof action.payload?.commitmentId === 'string'
+  ) {
+    await db
+      .update(commitments)
+      .set({ status: 'done' })
+      .where(
+        and(
+          eq(commitments.id, action.payload.commitmentId),
+          eq(commitments.userId, userId)
+        )
+      )
+  }
+}
+
+const scheduleActionReply = async (
+  userId: string,
+  actionId: string,
+  message: typeof messages.$inferSelect,
+  body: string | null | undefined
+) => {
+  if (!body) {
+    throw new Error('Nothing to send')
+  }
+  const { id } = await scheduleMail(userId, {
+    actionId,
+    html: textToHtml(body),
+    mode: 'reply',
+    replyToMessageId: message.id,
+    subject: message.subject,
+    text: body,
+    to: [message.fromEmail],
+  })
+  return id
+}
+
+const applyGmailChange = async (
+  userId: string,
+  action: typeof actions.$inferSelect,
+  message: typeof messages.$inferSelect
+) => {
+  if (action.kind === 'unsubscribe' || action.kind === 'archive') {
+    if (action.kind === 'unsubscribe') {
+      await unsubscribeFrom(userId, message)
+    }
+    await changeThreadLabels(userId, message.threadId, ARCHIVE)
+  } else if (action.kind === 'trash') {
+    await trashThread(userId, message.threadId)
+  } else {
+    await changeThreadLabels(userId, message.threadId, MARK_READ)
+  }
+}
+
 export const approveAction = async (
   userId: string,
   actionId: string,
@@ -207,33 +360,27 @@ export const approveAction = async (
   const { action, message } = await getAction(userId, actionId)
 
   let outboxId: string | null = null
-  if (message) {
+  await applyActionSideEffects(userId, action)
+  const sendsMail =
+    action.kind === 'reply' ||
+    (action.kind === 'task' && !!(detail ?? action.detail))
+  if (message && sendsMail) {
+    outboxId = await scheduleActionReply(
+      userId,
+      actionId,
+      message,
+      detail ?? action.detail
+    )
+  } else if (message && !NO_GMAIL_CHANGE.has(action.kind)) {
     if (action.kind === 'reply') {
-      const body = detail ?? action.detail
-      if (!body) {
-        throw new Error('Nothing to send')
-      }
-      ;({ id: outboxId } = await scheduleMail(userId, {
+      outboxId = await scheduleActionReply(
+        userId,
         actionId,
-        html: textToHtml(body),
-        mode: 'reply',
-        replyToMessageId: message.id,
-        subject: message.subject,
-        text: body,
-        to: [message.fromEmail],
-      }))
-    } else if (action.kind === 'unsubscribe' || action.kind === 'archive') {
-      if (action.kind === 'unsubscribe' && message.listUnsubscribe) {
-        await unsubscribeOneClick(
-          message.listUnsubscribe,
-          message.listUnsubscribePost
-        )
-      }
-      await changeThreadLabels(userId, message.threadId, ARCHIVE)
-    } else if (action.kind === 'trash') {
-      await trashThread(userId, message.threadId)
+        message,
+        detail ?? action.detail
+      )
     } else {
-      await changeThreadLabels(userId, message.threadId, MARK_READ)
+      await applyGmailChange(userId, action, message)
     }
   }
 
@@ -358,17 +505,11 @@ export const archiveMessage = async (userId: string, messageId: string) => {
   await changeThreadLabels(userId, message.threadId, ARCHIVE)
 }
 
-/** One-click unsubscribe when the sender supports it; the thread is archived either way. */
 export const unsubscribeMessage = async (userId: string, messageId: string) => {
   const message = await ownMessage(userId, messageId)
-  const unsubscribed = message.listUnsubscribe
-    ? await unsubscribeOneClick(
-        message.listUnsubscribe,
-        message.listUnsubscribePost
-      )
-    : false
+  const result = await unsubscribeFrom(userId, message)
   await changeThreadLabels(userId, message.threadId, ARCHIVE)
-  return { unsubscribed }
+  return result
 }
 
 export const trashMessage = async (userId: string, messageId: string) => {

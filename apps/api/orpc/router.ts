@@ -44,8 +44,10 @@ import {
   unsubscribeMessage,
 } from '../services/mail'
 import { NotFoundError } from '../services/mail-errors'
+import { getMoney } from '../services/money'
 import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
-import { getPlanInfo } from '../services/plan'
+import { getPerson } from '../services/people'
+import { getPlanInfo, requireAgent } from '../services/plan'
 import {
   createRule,
   deleteRule,
@@ -56,6 +58,7 @@ import { getSettings, saveSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
 import { markNotSpam, reportSpam } from '../services/spam'
 import { ensureMailbox, syncMailbox } from '../services/sync'
+import { cancelTask, createTask } from '../services/tasks'
 
 const id = type({ id: 'string.uuid' })
 
@@ -97,6 +100,21 @@ const simpleRuleInput = type({
 })
 
 const messageId = type({ messageId: 'string.uuid' })
+
+const FREE_EFFECTS = new Set<string>(GMAIL_EFFECTS)
+
+/** Jev matches plain-language rules on every plan; drafting, showing in Today and asking first need the agent. */
+const requireAgentFor = async (
+  userId: string,
+  rule: { autonomous?: boolean; effect?: string }
+) => {
+  if (
+    rule.autonomous === false ||
+    (rule.effect && !FREE_EFFECTS.has(rule.effect))
+  ) {
+    await requireAgent(userId)
+  }
+}
 
 export const router = {
   actions: {
@@ -250,9 +268,10 @@ export const router = {
     user: context.user,
   })),
   rules: {
-    create: agent
-      .input(ruleInput)
-      .handler(({ context, input }) => createRule(context.user.id, input)),
+    create: authed.input(ruleInput).handler(async ({ context, input }) => {
+      await requireAgentFor(context.user.id, input)
+      return createRule(context.user.id, input)
+    }),
     createSimple: authed
       .input(simpleRuleInput)
       .handler(({ context, input }) => createRule(context.user.id, input)),
@@ -262,9 +281,31 @@ export const router = {
     list: authed.handler(({ context }) => listRules(context.user.id)),
     update: authed
       .input(id.and(ruleInput.partial()).and({ 'enabled?': 'boolean' }))
-      .handler(({ context, input: { id: ruleId, ...change } }) =>
-        updateRule(context.user.id, ruleId, change)
-      ),
+      .handler(async ({ context, input: { id: ruleId, ...change } }) => {
+        await requireAgentFor(context.user.id, change)
+        return updateRule(context.user.id, ruleId, change)
+      }),
+  },
+  money: agent.handler(({ context }) => getMoney(context.user.id)),
+  person: agent
+    .input(type({ email: 'string.email' }))
+    .handler(({ context, input }) => getPerson(context.user.id, input.email)),
+  tasks: {
+    cancel: agent.input(id).handler(async ({ context, input }) => {
+      await cancelTask(context.user.id, input.id)
+    }),
+    create: agent
+      .input(
+        type({
+          autonomy: "'ask' | 'auto'",
+          goal: 'string > 3',
+          messageId: 'string.uuid',
+        })
+      )
+      .handler(async ({ context, input }) => {
+        const task = await createTask(context.user.id, input)
+        return { id: task.id }
+      }),
   },
   settings: {
     save: authed.input(settingsInput).handler(async ({ context, input }) => {

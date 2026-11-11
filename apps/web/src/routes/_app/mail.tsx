@@ -1,4 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import { BULK_THRESHOLD } from '@fewmail/shared/agent'
 import { Input } from '@fewmail/ui/components/input'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -24,20 +25,51 @@ const FILTERS = [
   'snoozed',
   'spam',
 ] as const
-const FREE_FILTERS: Filter[] = ['inbox', 'snoozed', 'spam']
 
 type Filter = (typeof FILTERS)[number]
 
 type MailRowData = RouterOutputs['mail']['list'][number]
 
+const MailRowMeta = ({
+  insight,
+  message,
+}: {
+  insight: MailRowData['analysis']
+  message: MailRowData['message']
+}) => {
+  const t = useT()
+  if (
+    !insight &&
+    !message.hasAttachments &&
+    (message.bulkCount ?? 0) < BULK_THRESHOLD
+  ) {
+    return null
+  }
+  return (
+    <span
+      className={cn(
+        'text-muted-foreground flex flex-wrap items-center gap-1.5 pl-4 text-xs'
+      )}
+    >
+      {insight && <span>{t.category[insight.category]}</span>}
+      {insight?.needsReply && (
+        <span className="text-primary">· {t.mail.expectsReply}</span>
+      )}
+      {message.hasAttachments && <span>· {t.mail.attachment}</span>}
+      {(message.bulkCount ?? 0) >= BULK_THRESHOLD && (
+        <span>· {t.bulk.badge(message.bulkCount ?? 0)}</span>
+      )}
+      {insight && <ExtractedChips extracted={insight.extracted} />}
+    </span>
+  )
+}
+
 const MailRow = ({
-  hasAgent,
   isCursor,
   isOpen,
   onOpen,
   row: { analysis, message },
 }: {
-  hasAgent: boolean
   isCursor: boolean
   isOpen: boolean
   onOpen: () => void
@@ -45,7 +77,6 @@ const MailRow = ({
 }) => {
   const t = useT()
   const dates = useDates()
-  const insight = hasAgent ? analysis : null
 
   return (
     <li>
@@ -61,15 +92,14 @@ const MailRow = ({
         )}
       >
         <span className="flex items-center gap-2 text-sm">
-          {hasAgent &&
-            (insight ? (
-              <ImportanceDot
-                importance={insight.importance}
-                reason={insight.reason}
-              />
-            ) : (
-              <span className="bg-foreground/10 size-2 shrink-0 animate-pulse rounded-full" />
-            ))}
+          {analysis ? (
+            <ImportanceDot
+              importance={analysis.importance}
+              reason={analysis.reason}
+            />
+          ) : (
+            <span className="bg-foreground/10 size-2 shrink-0 animate-pulse rounded-full" />
+          )}
           <span
             data-mask
             className={cn('truncate', message.isUnread && 'font-semibold')}
@@ -91,28 +121,16 @@ const MailRow = ({
         </span>
         <span
           data-mask
-          className={cn(
-            'text-foreground/75 line-clamp-2 text-sm',
-            hasAgent && 'pl-4'
-          )}
+          className={cn('text-foreground/75 line-clamp-2 pl-4 text-sm')}
         >
-          {insight?.summary ?? message.snippet}
+          {analysis?.summary ?? message.snippet}
         </span>
-        {(insight || message.hasAttachments) && (
-          <span
-            className={cn(
-              'text-muted-foreground flex flex-wrap items-center gap-1.5 text-xs',
-              hasAgent && 'pl-4'
-            )}
-          >
-            {insight && <span>{t.category[insight.category]}</span>}
-            {insight?.needsReply && (
-              <span className="text-primary">· {t.mail.expectsReply}</span>
-            )}
-            {message.hasAttachments && <span>· {t.mail.attachment}</span>}
-            {insight && <ExtractedChips extracted={insight.extracted} />}
+        {message.risk && (
+          <span className="text-destructive text-xs font-medium">
+            {t.risk.title}
           </span>
         )}
+        <MailRowMeta insight={analysis} message={message} />
       </button>
     </li>
   )
@@ -222,7 +240,7 @@ const MailPage = () => {
             }
           >
             <TabsList>
-              {(hasAgent ? FILTERS : FREE_FILTERS).map((value) => (
+              {FILTERS.map((value) => (
                 <TabsTrigger key={value} value={value}>
                   {t.mail.filter[value]}
                 </TabsTrigger>
@@ -243,7 +261,6 @@ const MailPage = () => {
             <MailRow
               key={row.message.id}
               row={row}
-              hasAgent={hasAgent}
               isCursor={index === cursor}
               isOpen={row.message.threadId === thread}
               onOpen={() => open(index)}

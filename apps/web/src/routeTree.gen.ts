@@ -16,6 +16,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppMailRouteImport } from './routes/_app/mail'
+import { Route as AppMoneyRouteImport } from './routes/_app/money'
 import { Route as AppRulesRouteImport } from './routes/_app/rules'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
@@ -54,6 +55,11 @@ const AppMailRoute = AppMailRouteImport.update({
   path: '/mail',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMoneyRoute = AppMoneyRouteImport.update({
+  id: '/money',
+  path: '/money',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRulesRoute = AppRulesRouteImport.update({
   id: '/rules',
   path: '/rules',
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/mail': typeof AppMailRoute
+  '/money': typeof AppMoneyRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/today': typeof AppTodayRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/mail': typeof AppMailRoute
+  '/money': typeof AppMoneyRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/today': typeof AppTodayRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_app/mail': typeof AppMailRoute
+  '/_app/money': typeof AppMoneyRoute
   '/_app/rules': typeof AppRulesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/today': typeof AppTodayRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/mail'
+    | '/money'
     | '/rules'
     | '/settings'
     | '/today'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/mail'
+    | '/money'
     | '/rules'
     | '/settings'
     | '/today'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/_app/mail'
+    | '/_app/money'
     | '/_app/rules'
     | '/_app/settings'
     | '/_app/today'
@@ -202,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMailRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/money': {
+      id: '/_app/money'
+      path: '/money'
+      fullPath: '/money'
+      preLoaderRoute: typeof AppMoneyRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/rules': {
       id: '/_app/rules'
       path: '/rules'
@@ -228,6 +247,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppMailRoute: typeof AppMailRoute
+  AppMoneyRoute: typeof AppMoneyRoute
   AppRulesRoute: typeof AppRulesRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppTodayRoute: typeof AppTodayRoute
@@ -235,6 +255,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppMailRoute: AppMailRoute,
+  AppMoneyRoute: AppMoneyRoute,
   AppRulesRoute: AppRulesRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppTodayRoute: AppTodayRoute,

@@ -3,6 +3,11 @@ import type { Messages } from './en'
 
 export const zh: Messages = {
   actionKind: {
+    cleanup: '全部退订',
+    commitment: '完成',
+    security: '我已核实',
+    subscription: '知道了',
+    task: '发送',
     spam: '已移到垃圾邮件',
     trash: '移到废纸篓',
     archive: '归档',
@@ -173,6 +178,7 @@ export const zh: Messages = {
     you: '你',
   },
   nav: {
+    money: '财务',
     mail: '邮件',
     rules: '规则',
     search: '搜索或提问…',
@@ -360,6 +366,9 @@ export const zh: Messages = {
     receipts: '收据、订单确认和发货确认',
   },
   telegram: {
+    heard: (text: string) => `听到的是：“${text}”`,
+    voiceFailed: '我没听清。请再说一次，或直接输入。',
+    whichEmail: '哪封邮件？请回复我的某条消息，告诉我要说什么。',
     canceled: '已取消。草稿已回到队列。',
     sendingIn: (seconds: number) => `${seconds} 秒后发送`,
     undo: '撤销',
@@ -388,6 +397,7 @@ export const zh: Messages = {
     willSend: '将发送：',
   },
   today: {
+    later: (total: number, time: string) => `还有 ${total} 项将在 ${time} 送达`,
     briefArrives: (time: string) => `简报每天 ${time} 送达。`,
     briefFrom: (time: string) => `${time} 的简报`,
     done: '完成',
@@ -407,5 +417,65 @@ export const zh: Messages = {
     worthAttention: '值得关注',
     writeNow: '立即撰写',
     writing: '正在撰写…',
+  },
+  bulk: {
+    badge: (n: number) => `已发给 ${n}+ 位 Fewmail 用户`,
+    reason: (n: number) => `群发邮件：${n}+ 位 Fewmail 用户收到了相同内容`,
+  },
+  cleanup: {
+    emails: (total: number) => `${total} 封邮件`,
+    reason: (total: number) => `本月 ${total} 封，一封都没打开`,
+    title: (total: number) => `退订 ${total} 个你从不打开的简报`,
+  },
+  commitments: {
+    title: '你的承诺',
+  },
+  money: {
+    due: (date: string) => `${date} 到期`,
+    empty: '暂时没有内容。收据、账单和订阅到达后会显示在这里。',
+    lastCharged: (date: string) => `上次扣款 ${date}`,
+    lead: 'Fewmail 从你的收据和账单中找到的全部内容。',
+    monthlyTotal: '每月订阅支出',
+    period: { month: '每月', week: '每周', year: '每年' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} 现在是 ${to}（原价 ${from}）`,
+    priceUpTitle: (merchant: string) => `${merchant} 涨价了`,
+    recent: '最近购买',
+    subscriptions: '订阅',
+    title: '财务',
+    upcoming: '待付账单',
+  },
+  people: {
+    firstContact: (date: string) => `自 ${date} 起联系`,
+    lastContact: (date: string) => `最近邮件 ${date}`,
+    open: '查看往来',
+    promised: '你的承诺',
+    threads: (total: number) => `${total} 个对话`,
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `看起来像 ${domain}，但其实是另一个地址。请不要点击链接或付款。`,
+    new_sender_payment: (domain: string) =>
+      `这是 ${domain} 的第一封邮件，而且在要钱。请通过你已信任的渠道核实。`,
+    payment_change: (domain: string) =>
+      `${domain} 发来了新的付款信息。付款前请先电话确认。`,
+    title: '操作前请先核实',
+  },
+  tasks: {
+    active: (goal: string) => `代理正在处理：${goal}`,
+    auto: '无需询问直接发送邮件',
+    autoHint: '每封邮件仍会等待几秒，方便你撤销。',
+    cancel: '停止',
+    done: '任务完成',
+    goal: '你希望代理达成什么？',
+    goalPlaceholder: '例如：让对方按新地址重新发送发票',
+    handle: '交给代理…',
+    next: '下一步',
+    start: '开始',
+    started: '代理正在处理。',
+  },
+  zombie: {
+    badge: (share: number) => `对 ${share}% 的人无视退订`,
+    reason: '你退订后仍在继续发邮件',
   },
 }

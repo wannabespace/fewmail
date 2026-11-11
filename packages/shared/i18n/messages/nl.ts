@@ -4,6 +4,11 @@ import type { Messages } from './en'
 
 export const nl: Messages = {
   actionKind: {
+    cleanup: 'Overal afmelden',
+    commitment: 'Klaar',
+    security: 'Gecontroleerd',
+    subscription: 'Begrepen',
+    task: 'Versturen',
     spam: 'Naar spam verplaatst',
     archive: 'Archiveren',
     follow_up: 'Opvolgen',
@@ -27,6 +32,11 @@ export const nl: Messages = {
     thinking: 'Je mail doorzoeken…',
   },
   byRule: 'door een regel',
+  bulk: {
+    badge: (n: number) => `Verstuurd naar ${n}+ Fewmail-gebruikers`,
+    reason: (n: number) =>
+      `Massamail: ${n}+ Fewmail-gebruikers kregen dezelfde tekst`,
+  },
   category: {
     calendar: 'Agenda',
     finance: 'Financiën',
@@ -39,6 +49,23 @@ export const nl: Messages = {
     security: 'Beveiliging',
     travel: 'Reizen',
     work: 'Werk',
+  },
+  cleanup: {
+    emails: (total: number) =>
+      plural('nl', total, {
+        one: () => '1 e-mail',
+        other: (n) => `${n} e-mails`,
+      }),
+    reason: (total: number) =>
+      `${total} e-mails deze maand, geen enkele geopend`,
+    title: (total: number) =>
+      plural('nl', total, {
+        one: () => 'Meld je af voor een nieuwsbrief die je nooit opent',
+        other: (n) => `Meld je af voor ${n} nieuwsbrieven die je nooit opent`,
+      }),
+  },
+  commitments: {
+    title: 'Je hebt beloofd',
   },
   compose: {
     backInQueue: 'Geannuleerd. Het concept staat weer in Vandaag.',
@@ -183,7 +210,24 @@ export const nl: Messages = {
       'Deze afzender heeft geen afmelding met één klik, dus de e-mail is gearchiveerd.',
     you: 'Jij',
   },
+  money: {
+    due: (date: string) => `Te betalen op ${date}`,
+    empty:
+      'Nog niets. Bonnen, facturen en abonnementen verschijnen hier zodra ze binnenkomen.',
+    lastCharged: (date: string) => `Laatst afgeschreven op ${date}`,
+    lead: 'Alles wat Fewmail in je bonnen en rekeningen vond.',
+    monthlyTotal: 'Per maand aan abonnementen',
+    period: { month: 'per maand', week: 'per week', year: 'per jaar' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} kost nu ${to} (was ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} is duurder geworden`,
+    recent: 'Recente aankopen',
+    subscriptions: 'Abonnementen',
+    title: 'Geld',
+    upcoming: 'Te betalen rekeningen',
+  },
   nav: {
+    money: 'Geld',
     mail: 'Mail',
     rules: 'Regels',
     search: 'Zoek of vraag…',
@@ -227,6 +271,17 @@ export const nl: Messages = {
     upgrade: 'Overstappen op Pro',
     welcome: 'Welkom bij Pro. De agent is weer aan het werk.',
   },
+  people: {
+    firstContact: (date: string) => `Mailt sinds ${date}`,
+    lastContact: (date: string) => `Laatste e-mail ${date}`,
+    open: 'Gesprekken openen',
+    promised: 'Je hebt beloofd',
+    threads: (total: number) =>
+      plural('nl', total, {
+        one: () => '1 gesprek',
+        other: (n) => `${n} gesprekken`,
+      }),
+  },
   persona: {
     reader: {
       description:
@@ -251,6 +306,15 @@ export const nl: Messages = {
   reminders: {
     followUp: 'Opvolgen',
     noReply: 'Nog geen antwoord',
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `Lijkt op ${domain}, maar het is een ander adres. Klik niet op links en betaal niet.`,
+    new_sender_payment: (domain: string) =>
+      `Eerste e-mail van ${domain} en er wordt om geld gevraagd. Controleer het via een kanaal dat je al vertrouwt.`,
+    payment_change: (domain: string) =>
+      `Nieuwe betaalgegevens van ${domain}. Bevestig telefonisch voordat je betaalt.`,
+    title: 'Controleer voordat je iets doet',
   },
   rules: {
     actWithoutAsking: 'Handelen zonder te vragen',
@@ -386,7 +450,26 @@ export const nl: Messages = {
     promotions: 'Aanbiedingen, marketing en ongevraagde verkoopmails',
     receipts: 'Bonnen, bestel- en verzendbevestigingen',
   },
+  tasks: {
+    active: (goal: string) => `De agent is ermee bezig: ${goal}`,
+    auto: 'E-mails versturen zonder te vragen',
+    autoHint:
+      'Elke e-mail wacht nog steeds een paar seconden zodat je hem kunt terugdraaien.',
+    cancel: 'Stoppen',
+    done: 'Taak klaar',
+    goal: 'Wat moet de agent bereiken?',
+    goalPlaceholder:
+      'bijv. De factuur opnieuw laten sturen met ons nieuwe adres',
+    handle: 'Regel dit…',
+    next: 'Volgende stap',
+    start: 'Starten',
+    started: 'De agent is ermee bezig.',
+  },
   telegram: {
+    heard: (text: string) => `Gehoord: “${text}”`,
+    voiceFailed: 'Ik kon het niet verstaan. Probeer het opnieuw of typ het.',
+    whichEmail:
+      'Welke e-mail? Antwoord op een van mijn berichten met wat je wilt zeggen.',
     canceled: 'Geannuleerd. Het concept staat weer in je wachtrij.',
     sendingIn: (seconds: number) => `Versturen over ${seconds} s`,
     undo: 'Ongedaan maken',
@@ -416,6 +499,11 @@ export const nl: Messages = {
     willSend: 'Ik verstuur:',
   },
   today: {
+    later: (total: number, time: string) =>
+      plural('nl', total, {
+        one: () => `Nog één komt om ${time}`,
+        other: (n) => `Nog ${n} komen om ${time}`,
+      }),
     briefArrives: (time: string) => `Je overzicht komt elke dag om ${time}.`,
     briefFrom: (time: string) => `overzicht van ${time}`,
     done: 'Klaar',
@@ -441,5 +529,9 @@ export const nl: Messages = {
     worthAttention: 'Verdient je aandacht',
     writeNow: 'Nu schrijven',
     writing: 'Schrijven…',
+  },
+  zombie: {
+    badge: (share: number) => `Negeert afmeldingen bij ${share}% van de mensen`,
+    reason: 'Bleef mailen nadat je je had afgemeld',
   },
 }

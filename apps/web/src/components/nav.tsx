@@ -13,12 +13,15 @@ import { LogoMark } from './logo'
 export const NAV_ITEMS = [
   { key: 'today', sequence: ['G', 'T'], to: '/today' },
   { key: 'mail', sequence: ['G', 'M'], to: '/mail' },
+  { key: 'money', sequence: ['G', 'F'], to: '/money' },
   { key: 'rules', sequence: ['G', 'R'], to: '/rules' },
   { key: 'settings', sequence: ['G', 'S'], to: '/settings' },
 ] as const
 
+const AGENT_ONLY = new Set(['today', 'money'])
+
 export const visibleNavItems = (hasAgent: boolean) =>
-  NAV_ITEMS.filter((item) => hasAgent || item.key !== 'today')
+  NAV_ITEMS.filter((item) => hasAgent || !AGENT_ONLY.has(item.key))
 
 const NavLink = ({
   item,

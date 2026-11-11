@@ -3,6 +3,11 @@ import type { Messages } from './en'
 
 export const ja: Messages = {
   actionKind: {
+    cleanup: 'すべて配信停止',
+    commitment: '完了',
+    security: '確認しました',
+    subscription: '了解',
+    task: '送信',
     spam: '迷惑メールに移動',
     trash: 'ゴミ箱に移動',
     archive: 'アーカイブ',
@@ -178,6 +183,7 @@ export const ja: Messages = {
     you: 'あなた',
   },
   nav: {
+    money: 'お金',
     mail: 'メール',
     rules: 'ルール',
     search: '検索または質問…',
@@ -375,6 +381,11 @@ export const ja: Messages = {
     receipts: '領収書、注文確認、発送通知',
   },
   telegram: {
+    heard: (text: string) => `聞き取った内容：「${text}」`,
+    voiceFailed:
+      'うまく聞き取れませんでした。もう一度話すか、入力してください。',
+    whichEmail:
+      'どのメールですか？私のメッセージに返信して、伝えたい内容を送ってください。',
     canceled: 'キャンセルしました。下書きはキューに戻りました。',
     sendingIn: (seconds: number) => `${seconds}秒後に送信`,
     undo: '元に戻す',
@@ -404,6 +415,7 @@ export const ja: Messages = {
     willSend: '送信内容：',
   },
   today: {
+    later: (total: number, time: string) => `${time}にあと${total}件届きます`,
     briefArrives: (time: string) => `ブリーフは毎日 ${time} に届きます。`,
     briefFrom: (time: string) => `${time} のブリーフ`,
     done: '完了',
@@ -426,5 +438,67 @@ export const ja: Messages = {
     worthAttention: '目を通す価値あり',
     writeNow: '今すぐ作成',
     writing: '作成中…',
+  },
+  bulk: {
+    badge: (n: number) => `${n}人以上のFewmailユーザーに送信`,
+    reason: (n: number) =>
+      `一斉メール：${n}人以上のFewmailユーザーが同じ内容を受信`,
+  },
+  cleanup: {
+    emails: (total: number) => `${total}件のメール`,
+    reason: (total: number) => `今月${total}件、一度も開封なし`,
+    title: (total: number) => `開いていないニュースレター${total}件を配信停止`,
+  },
+  commitments: {
+    title: 'あなたの約束',
+  },
+  money: {
+    due: (date: string) => `期限：${date}`,
+    empty:
+      'まだ何もありません。領収書、請求書、サブスクリプションは届き次第ここに表示されます。',
+    lastCharged: (date: string) => `前回の請求：${date}`,
+    lead: 'Fewmailが領収書や請求書から見つけたものすべて。',
+    monthlyTotal: '毎月のサブスクリプション代',
+    period: { month: '月額', week: '週額', year: '年額' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant}は${to}になりました（以前は${from}）`,
+    priceUpTitle: (merchant: string) => `${merchant}が値上がりしました`,
+    recent: '最近の購入',
+    subscriptions: 'サブスクリプション',
+    title: 'お金',
+    upcoming: '支払い予定',
+  },
+  people: {
+    firstContact: (date: string) => `${date}からやり取り`,
+    lastContact: (date: string) => `最後のメール：${date}`,
+    open: 'この人とのやり取りを開く',
+    promised: 'あなたの約束',
+    threads: (total: number) => `${total}件の会話`,
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `${domain}に似ていますが、別のアドレスです。リンクを開いたり支払ったりしないでください。`,
+    new_sender_payment: (domain: string) =>
+      `${domain}からの初めてのメールで、支払いを求めています。信頼できる別の方法で確認してください。`,
+    payment_change: (domain: string) =>
+      `${domain}から新しい支払い先の連絡です。支払う前に電話で確認してください。`,
+    title: '対応する前に確認してください',
+  },
+  tasks: {
+    active: (goal: string) => `エージェントが対応中：${goal}`,
+    auto: '確認なしでメールを送信',
+    autoHint: '各メールは数秒待機するので、取り消せます。',
+    cancel: '停止',
+    done: 'タスク完了',
+    goal: 'エージェントに何を達成してほしいですか？',
+    goalPlaceholder: '例：新しい住所で請求書を再送してもらう',
+    handle: 'これを任せる…',
+    next: '次のステップ',
+    start: '開始',
+    started: 'エージェントが対応中です。',
+  },
+  zombie: {
+    badge: (share: number) => `${share}%の人の配信停止を無視しています`,
+    reason: '配信停止後もメールを送り続けています',
   },
 }

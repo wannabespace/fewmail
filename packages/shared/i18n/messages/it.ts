@@ -68,6 +68,11 @@ export const it: Messages = {
     weekend: 'Questo weekend',
   },
   actionKind: {
+    cleanup: 'Disiscriviti da tutte',
+    commitment: 'Fatto',
+    security: 'Ho controllato',
+    subscription: 'Ok',
+    task: 'Invia',
     spam: 'Spostata nello spam',
     trash: 'Sposta nel cestino',
     archive: 'Archivia',
@@ -199,6 +204,7 @@ export const it: Messages = {
     you: 'Tu',
   },
   nav: {
+    money: 'Soldi',
     mail: 'Posta',
     rules: 'Regole',
     search: 'Cerca o chiedi…',
@@ -390,6 +396,9 @@ export const it: Messages = {
     receipts: 'Ricevute, conferme d’ordine e di spedizione',
   },
   telegram: {
+    heard: (text: string) => `Ho sentito: “${text}”`,
+    voiceFailed: 'Non ho capito. Riprova o scrivilo.',
+    whichEmail: 'Quale email? Rispondi a uno dei miei messaggi con cosa dire.',
     canceled: 'Annullato. La bozza è di nuovo nella tua coda.',
     sendingIn: (seconds: number) => `Invio tra ${seconds} s`,
     undo: 'Annulla',
@@ -419,6 +428,12 @@ export const it: Messages = {
     willSend: 'Invierò:',
   },
   today: {
+    later: (total: number, time: string) =>
+      plural('it', total, {
+        one: () => `Un’altra arriva alle ${time}`,
+        many: (n) => `Altre ${n} arrivano alle ${time}`,
+        other: (n) => `Altre ${n} arrivano alle ${time}`,
+      }),
     briefArrives: (time: string) => `Il brief arriva ogni giorno alle ${time}.`,
     briefFrom: (time: string) => `brief delle ${time}`,
     done: 'Fatto',
@@ -445,5 +460,85 @@ export const it: Messages = {
     worthAttention: 'Merita attenzione',
     writeNow: 'Scrivila ora',
     writing: 'Scrivo…',
+  },
+  bulk: {
+    badge: (n: number) => `Inviata a oltre ${n} utenti Fewmail`,
+    reason: (n: number) =>
+      `Email di massa: oltre ${n} utenti Fewmail hanno ricevuto lo stesso testo`,
+  },
+  cleanup: {
+    emails: (total: number) =>
+      plural('it', total, {
+        one: () => '1 email',
+        many: (n) => `${n} email`,
+        other: (n) => `${n} email`,
+      }),
+    reason: (total: number) => `${total} email questo mese, nessuna aperta`,
+    title: (total: number) =>
+      plural('it', total, {
+        one: () => 'Disiscriviti da una newsletter che non apri mai',
+        many: (n) => `Disiscriviti da ${n} newsletter che non apri mai`,
+        other: (n) => `Disiscriviti da ${n} newsletter che non apri mai`,
+      }),
+  },
+  commitments: {
+    title: 'Hai promesso',
+  },
+  money: {
+    due: (date: string) => `Scade il ${date}`,
+    empty:
+      'Ancora niente. Ricevute, fatture e abbonamenti compariranno qui man mano che arrivano.',
+    lastCharged: (date: string) => `Ultimo addebito il ${date}`,
+    lead: 'Tutto ciò che Fewmail ha trovato nelle tue ricevute e bollette.',
+    monthlyTotal: 'Ogni mese in abbonamenti',
+    period: { month: 'mensile', week: 'settimanale', year: 'annuale' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} ora costa ${to} (prima ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} è aumentato di prezzo`,
+    recent: 'Acquisti recenti',
+    subscriptions: 'Abbonamenti',
+    title: 'Soldi',
+    upcoming: 'Bollette in scadenza',
+  },
+  people: {
+    firstContact: (date: string) => `Vi scrivete dal ${date}`,
+    lastContact: (date: string) => `Ultima email il ${date}`,
+    open: 'Apri le conversazioni',
+    promised: 'Hai promesso',
+    threads: (total: number) =>
+      plural('it', total, {
+        one: () => '1 conversazione',
+        many: (n) => `${n} conversazioni`,
+        other: (n) => `${n} conversazioni`,
+      }),
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `Sembra ${domain}, ma è un indirizzo diverso. Non cliccare sui link e non pagare.`,
+    new_sender_payment: (domain: string) =>
+      `Prima email da ${domain} e chiede soldi. Verifica tramite un canale di cui già ti fidi.`,
+    payment_change: (domain: string) =>
+      `Nuovi dati di pagamento da ${domain}. Conferma per telefono prima di pagare.`,
+    title: 'Controlla prima di agire',
+  },
+  tasks: {
+    active: (goal: string) => `L’agente se ne occupa: ${goal}`,
+    auto: 'Invia le email senza chiedermelo',
+    autoHint:
+      'Ogni email aspetta comunque qualche secondo, così puoi annullarla.',
+    cancel: 'Ferma',
+    done: 'Attività completata',
+    goal: 'Cosa deve ottenere l’agente?',
+    goalPlaceholder:
+      'es. Farsi rimandare la fattura con il nostro nuovo indirizzo',
+    handle: 'Occupatene tu…',
+    next: 'Prossimo passo',
+    start: 'Avvia',
+    started: 'L’agente se ne occupa.',
+  },
+  zombie: {
+    badge: (share: number) =>
+      `Ignora le disiscrizioni per il ${share}% delle persone`,
+    reason: 'Ha continuato a scriverti dopo la disiscrizione',
   },
 }

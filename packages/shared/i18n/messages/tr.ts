@@ -4,6 +4,11 @@ import type { Messages } from './en'
 
 export const tr: Messages = {
   actionKind: {
+    cleanup: 'Hepsinden çık',
+    commitment: 'Tamam',
+    security: 'Kontrol ettim',
+    subscription: 'Anladım',
+    task: 'Gönder',
     spam: 'Spama taşındı',
     archive: 'Arşivle',
     follow_up: 'Takip et',
@@ -27,6 +32,11 @@ export const tr: Messages = {
     thinking: 'E-postalarına bakılıyor…',
   },
   byRule: 'bir kuralla',
+  bulk: {
+    badge: (n: number) => `${n}+ Fewmail kullanıcısına gönderildi`,
+    reason: (n: number) =>
+      `Toplu e-posta: ${n}+ Fewmail kullanıcısı aynı metni aldı`,
+  },
   category: {
     calendar: 'Takvim',
     finance: 'Finans',
@@ -39,6 +49,18 @@ export const tr: Messages = {
     security: 'Güvenlik',
     travel: 'Seyahat',
     work: 'İş',
+  },
+  cleanup: {
+    emails: (total: number) => `${total} e-posta`,
+    reason: (total: number) => `Bu ay ${total} e-posta, hiçbiri açılmadı`,
+    title: (total: number) =>
+      plural('tr', total, {
+        one: () => 'Hiç açmadığın bir bültenden çık',
+        other: (n) => `Hiç açmadığın ${n} bültenden çık`,
+      }),
+  },
+  commitments: {
+    title: 'Söz verdin',
   },
   compose: {
     backInQueue: 'İptal edildi. Taslak Bugün’e geri döndü.',
@@ -179,7 +201,24 @@ export const tr: Messages = {
       'Bu gönderen tek tıkla abonelikten çıkmayı desteklemiyor, bu yüzden e-posta arşivlendi.',
     you: 'Sen',
   },
+  money: {
+    due: (date: string) => `Son ödeme ${date}`,
+    empty:
+      'Henüz bir şey yok. Fişler, faturalar ve abonelikler geldikçe burada görünür.',
+    lastCharged: (date: string) => `Son ödeme alındı: ${date}`,
+    lead: 'Fewmail’in fişlerinde ve faturalarında bulduğu her şey.',
+    monthlyTotal: 'Aylık abonelik tutarı',
+    period: { month: 'aylık', week: 'haftalık', year: 'yıllık' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} artık ${to} (önceden ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} zamlandı`,
+    recent: 'Son alışverişler',
+    subscriptions: 'Abonelikler',
+    title: 'Para',
+    upcoming: 'Yaklaşan ödemeler',
+  },
   nav: {
+    money: 'Para',
     mail: 'Posta',
     rules: 'Kurallar',
     search: 'Ara veya sor…',
@@ -219,6 +258,13 @@ export const tr: Messages = {
     upgrade: "Pro'ya geç",
     welcome: "Pro'ya hoş geldin. Ajan yeniden görevde.",
   },
+  people: {
+    firstContact: (date: string) => `${date} tarihinden beri yazışıyorsunuz`,
+    lastContact: (date: string) => `Son e-posta ${date}`,
+    open: 'Yazışmaları aç',
+    promised: 'Söz verdin',
+    threads: (total: number) => `${total} yazışma`,
+  },
   persona: {
     reader: {
       description:
@@ -243,6 +289,15 @@ export const tr: Messages = {
   reminders: {
     followUp: 'Takip et',
     noReply: 'Henüz yanıt yok',
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `${domain} gibi görünüyor ama farklı bir adres. Bağlantılara tıklama ve ödeme yapma.`,
+    new_sender_payment: (domain: string) =>
+      `${domain} adresinden ilk e-posta ve para istiyor. Zaten güvendiğin bir kanaldan doğrula.`,
+    payment_change: (domain: string) =>
+      `${domain} adresinden yeni ödeme bilgileri. Ödemeden önce telefonla teyit et.`,
+    title: 'Harekete geçmeden önce kontrol et',
   },
   rules: {
     actWithoutAsking: 'Sormadan uygula',
@@ -375,7 +430,25 @@ export const tr: Messages = {
     promotions: 'Promosyonlar, pazarlama ve istenmeyen satış e-postaları',
     receipts: 'Makbuzlar, sipariş ve kargo onayları',
   },
+  tasks: {
+    active: (goal: string) => `Ajan ilgileniyor: ${goal}`,
+    auto: 'E-postaları bana sormadan gönder',
+    autoHint:
+      'Her e-posta yine de birkaç saniye bekler, böylece geri alabilirsin.',
+    cancel: 'Durdur',
+    done: 'Görev tamamlandı',
+    goal: 'Ajan neyi başarmalı?',
+    goalPlaceholder:
+      'ör. Faturanın yeni adresimizle tekrar gönderilmesini sağla',
+    handle: 'Bununla ilgilen…',
+    next: 'Sonraki adım',
+    start: 'Başlat',
+    started: 'Ajan ilgileniyor.',
+  },
   telegram: {
+    heard: (text: string) => `Duyduğum: “${text}”`,
+    voiceFailed: 'Anlayamadım. Tekrar dene ya da yaz.',
+    whichEmail: 'Hangi e-posta? Mesajlarımdan birini ne yazılacağıyla yanıtla.',
     canceled: 'İptal edildi. Taslak kuyruğuna geri döndü.',
     sendingIn: (seconds: number) => `${seconds} sn içinde gönderiliyor`,
     undo: 'Geri al',
@@ -405,6 +478,8 @@ export const tr: Messages = {
     willSend: 'Gönderilecek:',
   },
   today: {
+    later: (total: number, time: string) =>
+      `${time} saatinde ${total} tane daha gelecek`,
     briefArrives: (time: string) => `Özetin her gün şu saatte gelir: ${time}.`,
     briefFrom: (time: string) => `${time} özeti`,
     done: 'Tamam',
@@ -430,5 +505,10 @@ export const tr: Messages = {
     worthAttention: 'İlgini hak ediyor',
     writeNow: 'Şimdi yaz',
     writing: 'Yazılıyor…',
+  },
+  zombie: {
+    badge: (share: number) =>
+      `Kişilerin %${share} kadarının abonelik iptalini yok sayıyor`,
+    reason: 'Abonelikten çıktıktan sonra da e-posta göndermeye devam etti',
   },
 }

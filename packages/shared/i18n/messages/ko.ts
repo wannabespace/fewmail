@@ -3,6 +3,11 @@ import type { Messages } from './en'
 
 export const ko: Messages = {
   actionKind: {
+    cleanup: '모두 구독 취소',
+    commitment: '완료',
+    security: '확인했어요',
+    subscription: '알겠어요',
+    task: '보내기',
     spam: '스팸으로 이동',
     trash: '휴지통으로 이동',
     archive: '보관',
@@ -179,6 +184,7 @@ export const ko: Messages = {
     you: '나',
   },
   nav: {
+    money: '돈',
     mail: '메일',
     rules: '규칙',
     search: '검색 또는 질문…',
@@ -373,6 +379,10 @@ export const ko: Messages = {
     receipts: '영수증, 주문 및 배송 확인 메일',
   },
   telegram: {
+    heard: (text: string) => `들은 내용: “${text}”`,
+    voiceFailed: '잘 알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
+    whichEmail:
+      '어떤 이메일인가요? 제 메시지 중 하나에 답장으로 할 말을 보내 주세요.',
     canceled: '취소했어요. 초안이 대기열로 돌아갔어요.',
     sendingIn: (seconds: number) => `${seconds}초 후 전송`,
     undo: '실행 취소',
@@ -402,6 +412,8 @@ export const ko: Messages = {
     willSend: '보낼 내용:',
   },
   today: {
+    later: (total: number, time: string) =>
+      `${time}에 ${total}개가 더 도착해요`,
     briefArrives: (time: string) => `브리핑은 매일 ${time}에 도착해요.`,
     briefFrom: (time: string) => `${time} 브리핑`,
     done: '완료',
@@ -421,5 +433,66 @@ export const ko: Messages = {
     worthAttention: '살펴볼 만한 것',
     writeNow: '지금 작성',
     writing: '작성 중…',
+  },
+  bulk: {
+    badge: (n: number) => `Fewmail 사용자 ${n}명 이상에게 발송됨`,
+    reason: (n: number) =>
+      `대량 메일: Fewmail 사용자 ${n}명 이상이 같은 내용을 받았어요`,
+  },
+  cleanup: {
+    emails: (total: number) => `이메일 ${total}개`,
+    reason: (total: number) => `이번 달 ${total}개, 하나도 열지 않았어요`,
+    title: (total: number) => `열지 않는 뉴스레터 ${total}개 구독 취소`,
+  },
+  commitments: {
+    title: '내가 한 약속',
+  },
+  money: {
+    due: (date: string) => `${date}까지`,
+    empty: '아직 없어요. 영수증, 청구서, 구독이 도착하면 여기에 표시돼요.',
+    lastCharged: (date: string) => `마지막 결제 ${date}`,
+    lead: 'Fewmail이 영수증과 청구서에서 찾은 모든 것이에요.',
+    monthlyTotal: '매달 구독료',
+    period: { month: '월간', week: '주간', year: '연간' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} 가격이 ${to}로 올랐어요 (이전 ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} 가격이 올랐어요`,
+    recent: '최근 구매',
+    subscriptions: '구독',
+    title: '돈',
+    upcoming: '결제 예정',
+  },
+  people: {
+    firstContact: (date: string) => `${date}부터 연락`,
+    lastContact: (date: string) => `마지막 이메일 ${date}`,
+    open: '대화 열기',
+    promised: '내가 한 약속',
+    threads: (total: number) => `대화 ${total}개`,
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `${domain}처럼 보이지만 다른 주소예요. 링크를 누르거나 결제하지 마세요.`,
+    new_sender_payment: (domain: string) =>
+      `${domain}에서 온 첫 이메일인데 돈을 요청하고 있어요. 이미 신뢰하는 다른 경로로 확인하세요.`,
+    payment_change: (domain: string) =>
+      `${domain}에서 새 결제 정보를 보냈어요. 결제하기 전에 전화로 확인하세요.`,
+    title: '행동하기 전에 확인하세요',
+  },
+  tasks: {
+    active: (goal: string) => `에이전트가 처리 중이에요: ${goal}`,
+    auto: '묻지 않고 이메일 보내기',
+    autoHint: '각 이메일은 몇 초 기다리니 취소할 수 있어요.',
+    cancel: '중지',
+    done: '작업 완료',
+    goal: '에이전트가 무엇을 해내면 될까요?',
+    goalPlaceholder: '예: 새 주소로 청구서를 다시 받기',
+    handle: '이거 맡기기…',
+    next: '다음 단계',
+    start: '시작',
+    started: '에이전트가 처리 중이에요.',
+  },
+  zombie: {
+    badge: (share: number) => `${share}%의 사람에게 구독 취소를 무시해요`,
+    reason: '구독 취소 후에도 계속 메일을 보냈어요',
   },
 }

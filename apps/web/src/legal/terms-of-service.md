@@ -37,8 +37,8 @@ Fewmail relies on Google (Gmail), OpenRouter and the AI providers behind it, Str
 
 ## 8. Plans and payment
 
-- **Free:** the mail view and simple rules (archive, mark as read or unsubscribe by sender, subject or mailing list), free for as long as you like.
-- **Pro:** the agent — daily brief, analysis of every email, drafts in your voice, plain-language rules, Telegram and MCP — for $15 per month, billed in advance through Stripe. Taxes may apply depending on where you live.
+- **Free:** the mail view, simple rules, sorting and importance of every email, plain-language rules that archive, mark as read, unsubscribe or trash, spam and fraud warnings and automatic follow-ups, free for as long as you like.
+- **Pro:** the full agent — daily brief, summaries, drafts in your voice, Ask, handling threads for you, Telegram and MCP — for $15 per month, billed in advance through Stripe. Taxes may apply depending on where you live.
 - **Trial:** every new account gets 14 days of Pro without a card. When it ends, the account moves to Free on its own; nothing is charged unless you subscribe.
 - **Cancel anytime** in Settings → Plan → Manage billing. Pro stays active until the end of the paid period; there are no refunds for partial periods.
 - We will tell you in advance about any price change, and it applies only from your next billing period.

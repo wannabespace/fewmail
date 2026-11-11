@@ -162,6 +162,7 @@ const useRuleInput = () => {
 
 const AgentRuleForm = () => {
   const t = useT()
+  const hasAgent = useHasAgent()
   const invalidate = useInvalidateRules()
   const inputRef = useRuleInput()
   const [instruction, setInstruction] = useState('')
@@ -179,7 +180,7 @@ const AgentRuleForm = () => {
   const submit = () =>
     instruction.trim().length > 2 &&
     create.mutate({
-      autonomous: ACTS_ON_GMAIL.has(effect) && autonomous,
+      autonomous: !hasAgent || (ACTS_ON_GMAIL.has(effect) && autonomous),
       effect,
       instruction: instruction.trim(),
     })
@@ -197,11 +198,11 @@ const AgentRuleForm = () => {
       />
       <div className="flex flex-wrap items-center gap-3">
         <EffectSelect
-          effects={RULE_EFFECTS}
+          effects={hasAgent ? RULE_EFFECTS : GMAIL_EFFECTS}
           value={effect}
           onChange={setEffect}
         />
-        {ACTS_ON_GMAIL.has(effect) && (
+        {hasAgent && ACTS_ON_GMAIL.has(effect) && (
           // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- Switch renders its control inside the label
           <label className="text-muted-foreground flex items-center gap-2 text-sm">
             <Switch checked={autonomous} onCheckedChange={setAutonomous} />
@@ -290,7 +291,6 @@ const RulesPage = () => {
   const t = useT()
   const hasAgent = useHasAgent()
   const { data: rules = [] } = useQuery(orpc.rules.list.queryOptions())
-  const visibleRules = hasAgent ? rules : rules.filter((rule) => rule.match)
 
   return (
     <main className="flex-1 overflow-y-auto">
@@ -305,12 +305,13 @@ const RulesPage = () => {
         </header>
 
         <SettingsGroup title={t.rules.newTitle}>
-          {hasAgent ? <AgentRuleForm /> : <SimpleRuleForm />}
+          <AgentRuleForm />
+          {!hasAgent && <SimpleRuleForm />}
         </SettingsGroup>
 
-        {visibleRules.length > 0 && (
-          <SettingsGroup title={t.rules.count(visibleRules.length)}>
-            {visibleRules.map((rule) => (
+        {rules.length > 0 && (
+          <SettingsGroup title={t.rules.count(rules.length)}>
+            {rules.map((rule) => (
               <RuleRow key={rule.id} rule={rule} />
             ))}
           </SettingsGroup>

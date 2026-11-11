@@ -4,6 +4,11 @@ import type { Messages } from './en'
 
 export const pt: Messages = {
   actionKind: {
+    cleanup: 'Cancelar todas',
+    commitment: 'Feito',
+    security: 'Já verifiquei',
+    subscription: 'Entendi',
+    task: 'Enviar',
     spam: 'Movido para spam',
     archive: 'Arquivar',
     follow_up: 'Acompanhar',
@@ -27,6 +32,11 @@ export const pt: Messages = {
     thinking: 'Procurando nos seus e-mails…',
   },
   byRule: 'por uma regra',
+  bulk: {
+    badge: (n: number) => `Enviado para ${n}+ usuários do Fewmail`,
+    reason: (n: number) =>
+      `E-mail em massa: ${n}+ usuários do Fewmail receberam o mesmo texto`,
+  },
   category: {
     calendar: 'Agenda',
     finance: 'Finanças',
@@ -39,6 +49,23 @@ export const pt: Messages = {
     security: 'Segurança',
     travel: 'Viagem',
     work: 'Trabalho',
+  },
+  cleanup: {
+    emails: (total: number) =>
+      plural('pt', total, {
+        one: () => '1 e-mail',
+        other: (n) => `${n} e-mails`,
+      }),
+    reason: (total: number) => `${total} e-mails este mês, nenhum aberto`,
+    title: (total: number) =>
+      plural('pt', total, {
+        one: () => 'Cancele a inscrição de uma newsletter que você nunca abre',
+        other: (n) =>
+          `Cancele a inscrição de ${n} newsletters que você nunca abre`,
+      }),
+  },
+  commitments: {
+    title: 'Você prometeu',
   },
   compose: {
     backInQueue: 'Cancelado. O rascunho voltou para Hoje.',
@@ -183,7 +210,24 @@ export const pt: Messages = {
       'Este remetente não tem cancelamento de inscrição com um clique, então o e-mail foi arquivado.',
     you: 'Você',
   },
+  money: {
+    due: (date: string) => `Vence em ${date}`,
+    empty:
+      'Nada ainda. Recibos, faturas e assinaturas aparecem aqui assim que chegam.',
+    lastCharged: (date: string) => `Última cobrança em ${date}`,
+    lead: 'Tudo o que o Fewmail encontrou nos seus recibos e contas.',
+    monthlyTotal: 'Por mês em assinaturas',
+    period: { month: 'mensal', week: 'semanal', year: 'anual' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} agora custa ${to} (antes ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} ficou mais caro`,
+    recent: 'Compras recentes',
+    subscriptions: 'Assinaturas',
+    title: 'Dinheiro',
+    upcoming: 'Contas a vencer',
+  },
   nav: {
+    money: 'Dinheiro',
     mail: 'E-mail',
     rules: 'Regras',
     search: 'Buscar ou perguntar…',
@@ -227,6 +271,17 @@ export const pt: Messages = {
     upgrade: 'Assinar o Pro',
     welcome: 'Boas-vindas ao Pro. O agente está de volta ao trabalho.',
   },
+  people: {
+    firstContact: (date: string) => `Trocando e-mails desde ${date}`,
+    lastContact: (date: string) => `Último e-mail em ${date}`,
+    open: 'Abrir conversas',
+    promised: 'Você prometeu',
+    threads: (total: number) =>
+      plural('pt', total, {
+        one: () => '1 conversa',
+        other: (n) => `${n} conversas`,
+      }),
+  },
   persona: {
     reader: {
       description:
@@ -251,6 +306,15 @@ export const pt: Messages = {
   reminders: {
     followUp: 'Cobrar resposta',
     noReply: 'Ainda sem resposta',
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `Parece ${domain}, mas é outro endereço. Não clique em links nem faça pagamentos.`,
+    new_sender_payment: (domain: string) =>
+      `Primeiro e-mail de ${domain} e já pede dinheiro. Confirme por um canal em que você já confia.`,
+    payment_change: (domain: string) =>
+      `Novos dados de pagamento de ${domain}. Confirme por telefone antes de pagar.`,
+    title: 'Verifique antes de agir',
   },
   rules: {
     actWithoutAsking: 'Agir sem perguntar',
@@ -385,7 +449,25 @@ export const pt: Messages = {
     promotions: 'Promoções, marketing e e-mails de vendas não solicitados',
     receipts: 'Recibos, confirmações de pedido e de envio',
   },
+  tasks: {
+    active: (goal: string) => `O agente está cuidando disso: ${goal}`,
+    auto: 'Enviar e-mails sem me perguntar',
+    autoHint:
+      'Cada e-mail ainda espera alguns segundos para você poder desfazer.',
+    cancel: 'Parar',
+    done: 'Tarefa concluída',
+    goal: 'O que o agente deve conseguir?',
+    goalPlaceholder: 'ex.: Pedir a fatura de novo com nosso endereço novo',
+    handle: 'Cuidar disso…',
+    next: 'Próximo passo',
+    start: 'Começar',
+    started: 'O agente está cuidando disso.',
+  },
   telegram: {
+    heard: (text: string) => `Entendi: “${text}”`,
+    voiceFailed: 'Não consegui entender. Tente de novo ou digite.',
+    whichEmail:
+      'Qual e-mail? Responda a uma das minhas mensagens dizendo o que escrever.',
     canceled: 'Cancelado. O rascunho voltou para sua fila.',
     sendingIn: (seconds: number) => `Enviando em ${seconds} s`,
     undo: 'Desfazer',
@@ -415,6 +497,11 @@ export const pt: Messages = {
     willSend: 'Vou enviar:',
   },
   today: {
+    later: (total: number, time: string) =>
+      plural('pt', total, {
+        one: () => `Mais um chega às ${time}`,
+        other: (n) => `Mais ${n} chegam às ${time}`,
+      }),
     briefArrives: (time: string) => `Seu resumo chega todo dia às ${time}.`,
     briefFrom: (time: string) => `resumo das ${time}`,
     done: 'Feito',
@@ -460,5 +547,9 @@ export const pt: Messages = {
     worthAttention: 'Merece sua atenção',
     writeNow: 'Escrever agora',
     writing: 'Escrevendo…',
+  },
+  zombie: {
+    badge: (share: number) => `Ignora o cancelamento de ${share}% das pessoas`,
+    reason: 'Continuou enviando e-mails depois que você cancelou a inscrição',
   },
 }

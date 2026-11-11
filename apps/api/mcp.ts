@@ -13,9 +13,12 @@ import {
   listMail,
   redraftAction,
 } from './services/mail'
+import { getMoney } from './services/money'
+import { getPerson } from './services/people'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { createRule, listRules } from './services/rules'
 import { ensureMailbox, syncMailbox } from './services/sync'
+import { createTask } from './services/tasks'
 
 const json = (value: unknown) => ({
   content: [{ text: JSON.stringify(value, null, 2), type: 'text' as const }],
@@ -113,6 +116,41 @@ const createServer = (userId: string) => {
       inputSchema: { actionId: z.string().uuid() },
     },
     async ({ actionId }) => json(await dismissAction(userId, actionId))
+  )
+
+  server.registerTool(
+    'handle_thread',
+    {
+      description:
+        'Hand an email thread to the agent with a goal ("get the invoice resent", "find a time next week"). It writes and, depending on autonomy, sends the emails until the goal is reached. autonomy "ask" (default) queues each email for the user to approve in Today; only use "auto" when the user explicitly asked the agent to send on their behalf.',
+      inputSchema: {
+        autonomy: z.enum(['ask', 'auto']).default('ask'),
+        goal: z.string().min(4),
+        messageId: z.string().uuid(),
+      },
+    },
+    async (input) => json(await createTask(userId, input))
+  )
+
+  server.registerTool(
+    'get_person',
+    {
+      annotations: { readOnlyHint: true },
+      description:
+        "What the user's mail knows about one person: since when they write, conversation count, open items, promises the user made to them and a short note.",
+      inputSchema: { email: z.string().email() },
+    },
+    async ({ email }) => json(await getPerson(userId, email))
+  )
+
+  server.registerTool(
+    'get_money',
+    {
+      annotations: { readOnlyHint: true },
+      description:
+        "Subscriptions (with monthly cost), upcoming bills and recent purchases found in the user's receipts and invoices.",
+    },
+    async () => json(await getMoney(userId))
   )
 
   server.registerTool(

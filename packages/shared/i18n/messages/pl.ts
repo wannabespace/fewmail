@@ -4,6 +4,11 @@ import type { Messages } from './en'
 
 export const pl: Messages = {
   actionKind: {
+    cleanup: 'Wypisz ze wszystkich',
+    commitment: 'Gotowe',
+    security: 'Sprawdziłem',
+    subscription: 'Jasne',
+    task: 'Wyślij',
     spam: 'Przeniesiono do spamu',
     archive: 'Archiwizuj',
     follow_up: 'Przypomnij się',
@@ -27,6 +32,11 @@ export const pl: Messages = {
     thinking: 'Przeglądam twoją pocztę…',
   },
   byRule: 'przez regułę',
+  bulk: {
+    badge: (n: number) => `Wysłane do ${n}+ użytkowników Fewmail`,
+    reason: (n: number) =>
+      `Masowy e-mail: ${n}+ użytkowników Fewmail dostało ten sam tekst`,
+  },
   category: {
     calendar: 'Kalendarz',
     finance: 'Finanse',
@@ -39,6 +49,30 @@ export const pl: Messages = {
     security: 'Bezpieczeństwo',
     travel: 'Podróże',
     work: 'Praca',
+  },
+  cleanup: {
+    emails: (total: number) =>
+      plural('pl', total, {
+        one: () => '1 e-mail',
+        few: (n) => `${n} e-maile`,
+        many: (n) => `${n} e-maili`,
+        other: (n) => `${n} e-maila`,
+      }),
+    reason: (total: number) =>
+      `E-maile w tym miesiącu: ${total}, żaden nie otwarty`,
+    title: (total: number) =>
+      plural('pl', total, {
+        one: () => 'Wypisz się z newslettera, którego nigdy nie otwierasz',
+        few: (n) =>
+          `Wypisz się z ${n} newsletterów, których nigdy nie otwierasz`,
+        many: (n) =>
+          `Wypisz się z ${n} newsletterów, których nigdy nie otwierasz`,
+        other: (n) =>
+          `Wypisz się z ${n} newslettera, którego nigdy nie otwierasz`,
+      }),
+  },
+  commitments: {
+    title: 'Obiecałeś',
   },
   compose: {
     backInQueue: 'Anulowano. Szkic wrócił do Dziś.',
@@ -186,7 +220,24 @@ export const pl: Messages = {
       'Ten nadawca nie obsługuje wypisania jednym kliknięciem, więc e-mail został zarchiwizowany.',
     you: 'Ty',
   },
+  money: {
+    due: (date: string) => `Termin: ${date}`,
+    empty:
+      'Na razie nic. Paragony, faktury i subskrypcje pojawią się tu, gdy tylko dotrą.',
+    lastCharged: (date: string) => `Ostatnie obciążenie: ${date}`,
+    lead: 'Wszystko, co Fewmail znalazł w twoich paragonach i rachunkach.',
+    monthlyTotal: 'Co miesiąc na subskrypcje',
+    period: { month: 'miesięcznie', week: 'tygodniowo', year: 'rocznie' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} kosztuje teraz ${to} (było ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} podrożał`,
+    recent: 'Ostatnie zakupy',
+    subscriptions: 'Subskrypcje',
+    title: 'Pieniądze',
+    upcoming: 'Rachunki do zapłaty',
+  },
   nav: {
+    money: 'Pieniądze',
     mail: 'Poczta',
     rules: 'Reguły',
     search: 'Szukaj lub zapytaj…',
@@ -232,6 +283,19 @@ export const pl: Messages = {
     upgrade: 'Przejdź na Pro',
     welcome: 'Witaj w Pro. Agent wraca do pracy.',
   },
+  people: {
+    firstContact: (date: string) => `Piszecie od ${date}`,
+    lastContact: (date: string) => `Ostatni e-mail: ${date}`,
+    open: 'Otwórz korespondencję',
+    promised: 'Obiecałeś',
+    threads: (total: number) =>
+      plural('pl', total, {
+        one: () => '1 rozmowa',
+        few: (n) => `${n} rozmowy`,
+        many: (n) => `${n} rozmów`,
+        other: (n) => `${n} rozmowy`,
+      }),
+  },
   persona: {
     reader: {
       description:
@@ -256,6 +320,15 @@ export const pl: Messages = {
   reminders: {
     followUp: 'Przypomnij się',
     noReply: 'Brak odpowiedzi',
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `Wygląda jak ${domain}, ale to inny adres. Nie klikaj linków i nie płać.`,
+    new_sender_payment: (domain: string) =>
+      `Pierwszy e-mail od ${domain} i od razu prośba o pieniądze. Sprawdź to kanałem, któremu już ufasz.`,
+    payment_change: (domain: string) =>
+      `Nowe dane do płatności od ${domain}. Potwierdź telefonicznie przed zapłatą.`,
+    title: 'Sprawdź, zanim zareagujesz',
   },
   rules: {
     actWithoutAsking: 'Działaj bez pytania',
@@ -394,7 +467,26 @@ export const pl: Messages = {
     promotions: 'Promocje, marketing i niezamówione oferty sprzedażowe',
     receipts: 'Paragony, potwierdzenia zamówień i wysyłek',
   },
+  tasks: {
+    active: (goal: string) => `Agent się tym zajmuje: ${goal}`,
+    auto: 'Wysyłaj e-maile bez pytania',
+    autoHint: 'Każdy e-mail i tak czeka kilka sekund, żebyś mógł go cofnąć.',
+    cancel: 'Zatrzymaj',
+    done: 'Zadanie wykonane',
+    goal: 'Co agent ma osiągnąć?',
+    goalPlaceholder:
+      'np. Poproś o ponowne wysłanie faktury z naszym nowym adresem',
+    handle: 'Zajmij się tym…',
+    next: 'Następny krok',
+    start: 'Zacznij',
+    started: 'Agent się tym zajmuje.',
+  },
   telegram: {
+    heard: (text: string) => `Usłyszałem: „${text}”`,
+    voiceFailed:
+      'Nie udało mi się tego zrozumieć. Spróbuj jeszcze raz albo napisz.',
+    whichEmail:
+      'Który e-mail? Odpowiedz na jedną z moich wiadomości i napisz, co odpisać.',
     canceled: 'Anulowano. Szkic wrócił do kolejki.',
     sendingIn: (seconds: number) => `Wysyłanie za ${seconds} s`,
     undo: 'Cofnij',
@@ -424,6 +516,13 @@ export const pl: Messages = {
     willSend: 'Wyślę:',
   },
   today: {
+    later: (total: number, time: string) =>
+      plural('pl', total, {
+        one: () => `Jeszcze jedna rzecz o ${time}`,
+        few: (n) => `Jeszcze ${n} rzeczy o ${time}`,
+        many: (n) => `Jeszcze ${n} rzeczy o ${time}`,
+        other: (n) => `Jeszcze ${n} rzeczy o ${time}`,
+      }),
     briefArrives: (time: string) =>
       `Podsumowanie przychodzi codziennie o ${time}.`,
     briefFrom: (time: string) => `podsumowanie z ${time}`,
@@ -482,5 +581,9 @@ export const pl: Messages = {
     worthAttention: 'Warte uwagi',
     writeNow: 'Napisz teraz',
     writing: 'Piszę…',
+  },
+  zombie: {
+    badge: (share: number) => `Ignoruje wypisanie u ${share}% osób`,
+    reason: 'Wysyłał dalej po tym, jak się wypisałeś',
   },
 }

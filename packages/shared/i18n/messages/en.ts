@@ -4,13 +4,18 @@ import { plural } from '../locales'
 export const en = {
   actionKind: {
     archive: 'Archive',
+    cleanup: 'Unsubscribe from all',
+    commitment: 'Done',
     follow_up: 'Follow up',
     mark_read: 'Mark read',
     pay: 'Pay',
     read: 'Read',
     reply: 'Reply',
     schedule: 'Schedule',
+    security: 'I checked it',
     spam: 'Moved to spam',
+    subscription: 'Got it',
+    task: 'Send',
     trash: 'Move to trash',
     unsubscribe: 'Unsubscribe',
   },
@@ -25,6 +30,10 @@ export const en = {
     label: (question: string) => `Ask Fewmail: “${question}”`,
     thinking: 'Looking through your mail…',
   },
+  bulk: {
+    badge: (n: number) => `Sent to ${n}+ Fewmail users`,
+    reason: (n: number) => `Mass email: ${n}+ Fewmail users got the same text`,
+  },
   byRule: 'by a rule',
   category: {
     calendar: 'Calendar',
@@ -38,6 +47,9 @@ export const en = {
     security: 'Security',
     travel: 'Travel',
     work: 'Work',
+  },
+  commitments: {
+    title: 'You promised',
   },
   compose: {
     backInQueue: 'Canceled. The draft is back in Today.',
@@ -74,6 +86,19 @@ export const en = {
     undo: 'Undo',
     writeForMe: 'Write it for me',
     writing: 'Writing…',
+  },
+  cleanup: {
+    emails: (total: number) =>
+      plural('en', total, {
+        one: () => '1 email',
+        other: (n) => `${n} emails`,
+      }),
+    reason: (total: number) => `${total} emails this month, none opened`,
+    title: (total: number) =>
+      plural('en', total, {
+        one: () => 'Unsubscribe from a newsletter you never open',
+        other: (n) => `Unsubscribe from ${n} newsletters you never open`,
+      }),
   },
   command: {
     agent: 'Agent',
@@ -182,8 +207,25 @@ export const en = {
       'This sender has no one-click unsubscribe, so the email was archived.',
     you: 'You',
   },
+  money: {
+    due: (date: string) => `Due ${date}`,
+    empty:
+      'Nothing yet. Receipts, invoices and subscriptions show up here as they arrive.',
+    lastCharged: (date: string) => `Last charged ${date}`,
+    lead: 'Everything Fewmail found in your receipts and bills.',
+    monthlyTotal: 'Every month on subscriptions',
+    period: { month: 'monthly', week: 'weekly', year: 'yearly' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} now costs ${to} (was ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} got more expensive`,
+    recent: 'Recent purchases',
+    subscriptions: 'Subscriptions',
+    title: 'Money',
+    upcoming: 'Bills due',
+  },
   nav: {
     mail: 'Mail',
+    money: 'Money',
     rules: 'Rules',
     search: 'Search or ask…',
     settings: 'Settings',
@@ -226,6 +268,17 @@ export const en = {
     upgrade: 'Upgrade to Pro',
     welcome: 'Welcome to Pro. The agent is back on duty.',
   },
+  people: {
+    firstContact: (date: string) => `Writing since ${date}`,
+    lastContact: (date: string) => `Last email ${date}`,
+    open: 'Open with them',
+    promised: 'You promised',
+    threads: (total: number) =>
+      plural('en', total, {
+        one: () => '1 conversation',
+        other: (n) => `${n} conversations`,
+      }),
+  },
   persona: {
     reader: {
       description:
@@ -250,6 +303,15 @@ export const en = {
   reminders: {
     followUp: 'Follow up',
     noReply: 'No reply yet',
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `Looks like ${domain}, but it is a different address. Do not click links or pay.`,
+    new_sender_payment: (domain: string) =>
+      `First email from ${domain} and it asks for money. Verify through a channel you already trust.`,
+    payment_change: (domain: string) =>
+      `New payment details from ${domain}. Confirm by phone before paying.`,
+    title: 'Check before you act',
   },
   rules: {
     actWithoutAsking: 'Act without asking',
@@ -380,6 +442,19 @@ export const en = {
     promotions: 'Promotions, marketing and cold sales emails',
     receipts: 'Receipts, order and shipping confirmations',
   },
+  tasks: {
+    active: (goal: string) => `The agent is on it: ${goal}`,
+    auto: 'Send emails without asking me',
+    autoHint: 'Each email still waits a few seconds so you can undo it.',
+    cancel: 'Stop',
+    done: 'Task done',
+    goal: 'What should the agent achieve?',
+    goalPlaceholder: 'e.g. Get the invoice resent with our new address',
+    handle: 'Handle this…',
+    next: 'Next step',
+    start: 'Start',
+    started: 'The agent is on it.',
+  },
   telegram: {
     commands: { brief: 'Today’s brief', queue: 'What needs you' },
     connectFirst:
@@ -392,6 +467,7 @@ export const en = {
     editPrompt:
       'Send me the text to use instead, or tell me how to change it starting with “/”, e.g. “/more formal”.',
     newDraft: 'New draft:',
+    heard: (text: string) => `Heard: “${text}”`,
     nothing: 'Nothing needs you right now.',
     proOnly:
       'Telegram is part of Fewmail Pro. Open Settings → Plan in Fewmail to upgrade.',
@@ -406,6 +482,8 @@ export const en = {
     skipped: 'Skipped',
     somethingWrong: 'Something went wrong',
     undo: 'Undo',
+    voiceFailed: 'I could not make that out. Try again or type it.',
+    whichEmail: 'Which email? Reply to one of my messages with what to say.',
     urgent: 'Urgent',
     willSend: 'Will send:',
   },
@@ -428,6 +506,11 @@ export const en = {
             one: () => 'One thing needs you.',
             other: (n) => `${n} things need you.`,
           }),
+    later: (total: number, time: string) =>
+      plural('en', total, {
+        one: () => `One more arrives at ${time}`,
+        other: (n) => `${n} more arrive at ${time}`,
+      }),
     nothingNeedsYou:
       'Nothing needs you right now. New mail is read the moment it arrives.',
     sent: 'Sent',
@@ -435,6 +518,10 @@ export const en = {
     worthAttention: 'Worth your attention',
     writeNow: 'Write it now',
     writing: 'Writing…',
+  },
+  zombie: {
+    badge: (share: number) => `Ignores unsubscribes for ${share}% of people`,
+    reason: 'Kept mailing you after you unsubscribed',
   },
 }
 

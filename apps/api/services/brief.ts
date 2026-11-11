@@ -7,29 +7,17 @@ import { subHours } from 'date-fns'
 import { and, desc, eq } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
-import { getMailbox, handledSince, listQueue, recentImportant } from './mail'
+import { localClock } from '../lib/clock'
+import {
+  getMailbox,
+  handledSince,
+  listQueue,
+  listQueueWithLater,
+  recentImportant,
+} from './mail'
 import { getSettings } from './settings'
 
 const BRIEF_WINDOW_HOURS = 24
-
-export const localClock = (timezone: string, date = new Date()) => {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat('en-CA', {
-      day: '2-digit',
-      hour: '2-digit',
-      hourCycle: 'h23',
-      month: '2-digit',
-      timeZone: timezone,
-      year: 'numeric',
-    })
-      .formatToParts(date)
-      .map(({ type: part, value }) => [part, value])
-  )
-  return {
-    date: `${parts.year}-${parts.month}-${parts.day}`,
-    hour: Number(parts.hour),
-  }
-}
 
 const briefSchema = type({ body: 'string', headline: 'string' })
 
@@ -111,15 +99,16 @@ export const generateBrief = async (userId: string) => {
 
 export const getToday = async (userId: string) => {
   const settings = await getSettings(userId)
-  const [brief, queue, handled, mailbox] = await Promise.all([
+  const [brief, { later, queue }, handled, mailbox] = await Promise.all([
     getLatestBrief(userId),
-    listQueue(userId),
+    listQueueWithLater(userId),
     handledSince(userId, subHours(new Date(), BRIEF_WINDOW_HOURS)),
     getMailbox(userId),
   ])
   return {
     brief,
     handled,
+    later,
     mailbox: mailbox && {
       email: mailbox.email,
       lastSyncedAt: mailbox.lastSyncedAt,
@@ -145,3 +134,5 @@ export const isBriefDue = async (
     .where(and(eq(briefs.userId, userId), eq(briefs.date, date)))
   return !existing
 }
+
+export { localClock } from '../lib/clock'

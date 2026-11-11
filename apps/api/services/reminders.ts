@@ -1,17 +1,12 @@
 import { db } from '@fewmail/db'
-import { actions, messages, reminders } from '@fewmail/db/schema'
+import { actions, commitments, messages, reminders } from '@fewmail/db/schema'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
-import { noul } from '@typesafe-ai/sdk'
 import { addDays } from 'date-fns'
 import { and, desc, eq, gt, lte } from 'drizzle-orm'
 
-import { jev } from '../lib/jev'
 import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 import { changeThreadLabels } from './thread-labels'
-
-const AUTO_FOLLOWUP_DAYS = 3
-const EXPECTS_REPLY_THRESHOLD = 0.7
 
 const cancelPending = (
   userId: string,
@@ -65,28 +60,6 @@ export const scheduleFollowup = async (
     threadId,
     userId,
   })
-}
-
-/** Pro only: the agent notices sent mail that waits for an answer and sets the follow-up itself. */
-export const watchSentMail = async (
-  userId: string,
-  threadId: string,
-  text: string
-) => {
-  if (!jev || !hasAgent(await getPlanInfo(userId))) {
-    return
-  }
-  const { answers } = await jev.systemOne({
-    questions: {
-      expectsReply: noul(
-        'This email asks the recipient a question, requests something or proposes something they must answer'
-      ),
-    },
-    state: text.slice(0, 4000),
-  })
-  if (answers.expectsReply.noul >= EXPECTS_REPLY_THRESHOLD) {
-    await scheduleFollowup(userId, threadId, AUTO_FOLLOWUP_DAYS)
-  }
 }
 
 const hasReplySince = async (userId: string, threadId: string, since: Date) => {
@@ -184,4 +157,36 @@ export const snoozedThreadIds = async (userId: string) => {
       )
     )
   return new Map(rows.map(({ dueAt, threadId }) => [threadId, dueAt]))
+}
+
+/** A promise surfaces on its due morning as a Today card; approving it closes the commitment. */
+export const processDueCommitments = async () => {
+  const due = await db
+    .select()
+    .from(commitments)
+    .where(
+      and(eq(commitments.status, 'open'), lte(commitments.dueAt, new Date()))
+    )
+  await Promise.all(
+    due.map(async (commitment) => {
+      const settings = await getSettings(commitment.userId)
+      const t = dictionaries[settings?.language ?? 'en']
+      await db.insert(actions).values({
+        autonomous: false,
+        detail: commitment.promise,
+        kind: 'commitment',
+        messageId: commitment.messageId,
+        payload: { commitmentId: commitment.id },
+        reason: commitment.recipient ?? '',
+        status: 'pending',
+        threadId: commitment.threadId,
+        title: t.commitments.title,
+        userId: commitment.userId,
+      })
+      await db
+        .update(commitments)
+        .set({ status: 'reminded' })
+        .where(eq(commitments.id, commitment.id))
+    })
+  )
 }

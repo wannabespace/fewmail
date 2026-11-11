@@ -4,6 +4,11 @@ import type { Messages } from './en'
 
 export const hi: Messages = {
   actionKind: {
+    cleanup: 'सभी से अनसब्सक्राइब करें',
+    commitment: 'हो गया',
+    security: 'मैंने जाँच लिया',
+    subscription: 'समझ गया',
+    task: 'भेजें',
     spam: 'स्पैम में डाला',
     trash: 'ट्रैश में डालें',
     archive: 'आर्काइव करें',
@@ -179,6 +184,7 @@ export const hi: Messages = {
     you: 'आप',
   },
   nav: {
+    money: 'पैसा',
     mail: 'मेल',
     rules: 'नियम',
     search: 'खोजें या पूछें…',
@@ -374,6 +380,9 @@ export const hi: Messages = {
     receipts: 'रसीदें, ऑर्डर और शिपिंग की पुष्टि',
   },
   telegram: {
+    heard: (text: string) => `सुना: “${text}”`,
+    voiceFailed: 'मैं समझ नहीं पाया। फिर से कोशिश करें या टाइप करें।',
+    whichEmail: 'कौन-सा ईमेल? मेरे किसी संदेश का जवाब देकर बताएँ कि क्या कहना है।',
     canceled: 'रद्द किया गया। ड्राफ़्ट वापस आपकी कतार में है।',
     sendingIn: (seconds: number) => `${seconds} सेकंड में भेजा जाएगा`,
     undo: 'पहले जैसा करें',
@@ -403,6 +412,11 @@ export const hi: Messages = {
     willSend: 'यह भेजा जाएगा:',
   },
   today: {
+    later: (total: number, time: string) =>
+      plural('hi', total, {
+        one: () => `${time} पर एक और आएगा`,
+        other: (n) => `${time} पर ${n} और आएँगे`,
+      }),
     briefArrives: (time: string) => `आपका ब्रीफ़ हर दिन ${time} बजे आता है।`,
     briefFrom: (time: string) => `${time} का ब्रीफ़`,
     done: 'हो गया',
@@ -428,5 +442,77 @@ export const hi: Messages = {
     worthAttention: 'ध्यान देने लायक',
     writeNow: 'अभी लिखें',
     writing: 'लिखा जा रहा है…',
+  },
+  bulk: {
+    badge: (n: number) => `${n}+ Fewmail उपयोगकर्ताओं को भेजा गया`,
+    reason: (n: number) => `बल्क ईमेल: ${n}+ Fewmail उपयोगकर्ताओं को यही टेक्स्ट मिला`,
+  },
+  cleanup: {
+    emails: (total: number) =>
+      plural('hi', total, {
+        one: () => '1 ईमेल',
+        other: (n) => `${n} ईमेल`,
+      }),
+    reason: (total: number) => `इस महीने ${total} ईमेल, एक भी नहीं खोला`,
+    title: (total: number) =>
+      plural('hi', total, {
+        one: () => 'वह न्यूज़लेटर बंद करें जिसे आप कभी नहीं खोलते',
+        other: (n) => `वे ${n} न्यूज़लेटर बंद करें जिन्हें आप कभी नहीं खोलते`,
+      }),
+  },
+  commitments: {
+    title: 'आपने वादा किया',
+  },
+  money: {
+    due: (date: string) => `देय ${date}`,
+    empty: 'अभी कुछ नहीं। रसीदें, बिल और सब्सक्रिप्शन आते ही यहाँ दिखेंगे।',
+    lastCharged: (date: string) => `पिछला भुगतान ${date}`,
+    lead: 'Fewmail को आपकी रसीदों और बिलों में जो कुछ मिला।',
+    monthlyTotal: 'हर महीने सब्सक्रिप्शन पर',
+    period: { month: 'मासिक', week: 'साप्ताहिक', year: 'वार्षिक' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} अब ${to} का है (पहले ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} महँगा हो गया`,
+    recent: 'हाल की खरीदारी',
+    subscriptions: 'सब्सक्रिप्शन',
+    title: 'पैसा',
+    upcoming: 'देय बिल',
+  },
+  people: {
+    firstContact: (date: string) => `${date} से संपर्क में`,
+    lastContact: (date: string) => `आखिरी ईमेल ${date}`,
+    open: 'बातचीत खोलें',
+    promised: 'आपने वादा किया',
+    threads: (total: number) =>
+      plural('hi', total, {
+        one: () => '1 बातचीत',
+        other: (n) => `${n} बातचीत`,
+      }),
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `यह ${domain} जैसा दिखता है, पर यह अलग पता है। लिंक पर क्लिक न करें और भुगतान न करें।`,
+    new_sender_payment: (domain: string) =>
+      `${domain} से पहला ईमेल है और इसमें पैसे माँगे गए हैं। किसी भरोसेमंद तरीके से पुष्टि करें।`,
+    payment_change: (domain: string) =>
+      `${domain} से नए भुगतान विवरण आए हैं। भुगतान से पहले फ़ोन पर पुष्टि करें।`,
+    title: 'कुछ करने से पहले जाँच लें',
+  },
+  tasks: {
+    active: (goal: string) => `एजेंट इस पर काम कर रहा है: ${goal}`,
+    auto: 'मुझसे पूछे बिना ईमेल भेजें',
+    autoHint: 'हर ईमेल फिर भी कुछ सेकंड रुकता है ताकि आप उसे पूर्ववत कर सकें।',
+    cancel: 'रोकें',
+    done: 'काम पूरा हुआ',
+    goal: 'एजेंट को क्या हासिल करना है?',
+    goalPlaceholder: 'जैसे: हमारे नए पते के साथ इनवॉइस दोबारा भिजवाएँ',
+    handle: 'इसे सौंपें…',
+    next: 'अगला कदम',
+    start: 'शुरू करें',
+    started: 'एजेंट इस पर काम कर रहा है।',
+  },
+  zombie: {
+    badge: (share: number) => `${share}% लोगों के अनसब्सक्राइब को अनदेखा करता है`,
+    reason: 'अनसब्सक्राइब के बाद भी ईमेल भेजता रहा',
   },
 }

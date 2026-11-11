@@ -71,6 +71,17 @@ const AgentSettings = () => {
           }}
         />
       </SettingsRow>
+      <SettingsRow
+        title={t.settings.labels.title}
+        description={t.settings.labels.description}
+        htmlFor="gmail-labels"
+      >
+        <Switch
+          id="gmail-labels"
+          checked={settings.gmailLabels}
+          onCheckedChange={(gmailLabels) => update({ gmailLabels })}
+        />
+      </SettingsRow>
       {me.plan.kind !== 'free' && (
         <>
           <SettingsRow
@@ -89,17 +100,6 @@ const AgentSettings = () => {
             <BriefHourSelect
               value={settings.briefHour}
               onChange={(briefHour) => update({ briefHour })}
-            />
-          </SettingsRow>
-          <SettingsRow
-            title={t.settings.labels.title}
-            description={t.settings.labels.description}
-            htmlFor="gmail-labels"
-          >
-            <Switch
-              id="gmail-labels"
-              checked={settings.gmailLabels}
-              onCheckedChange={(gmailLabels) => update({ gmailLabels })}
             />
           </SettingsRow>
           <div className="flex flex-col gap-2 p-3.5">

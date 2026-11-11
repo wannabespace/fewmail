@@ -4,6 +4,11 @@ import type { Messages } from './en'
 
 export const id: Messages = {
   actionKind: {
+    cleanup: 'Berhenti dari semua',
+    commitment: 'Selesai',
+    security: 'Sudah saya cek',
+    subscription: 'Oke',
+    task: 'Kirim',
     spam: 'Dipindahkan ke spam',
     archive: 'Arsipkan',
     follow_up: 'Tindak lanjuti',
@@ -27,6 +32,11 @@ export const id: Messages = {
     thinking: 'Menelusuri email kamu…',
   },
   byRule: 'oleh aturan',
+  bulk: {
+    badge: (n: number) => `Dikirim ke ${n}+ pengguna Fewmail`,
+    reason: (n: number) =>
+      `Email massal: ${n}+ pengguna Fewmail menerima teks yang sama`,
+  },
   category: {
     calendar: 'Kalender',
     finance: 'Keuangan',
@@ -39,6 +49,21 @@ export const id: Messages = {
     security: 'Keamanan',
     travel: 'Perjalanan',
     work: 'Kerja',
+  },
+  cleanup: {
+    emails: (total: number) => `${total} email`,
+    reason: (total: number) =>
+      `${total} email bulan ini, tidak ada yang dibuka`,
+    title: (total: number) =>
+      plural('id', total, {
+        other: (n) =>
+          n === 1
+            ? 'Berhenti langganan newsletter yang tidak pernah kamu buka'
+            : `Berhenti langganan ${n} newsletter yang tidak pernah kamu buka`,
+      }),
+  },
+  commitments: {
+    title: 'Kamu sudah berjanji',
   },
   compose: {
     backInQueue: 'Dibatalkan. Draf kembali ke Hari ini.',
@@ -180,7 +205,24 @@ export const id: Messages = {
       'Pengirim ini tidak mendukung berhenti berlangganan sekali klik, jadi email-nya diarsipkan.',
     you: 'Kamu',
   },
+  money: {
+    due: (date: string) => `Jatuh tempo ${date}`,
+    empty:
+      'Belum ada apa-apa. Struk, tagihan, dan langganan muncul di sini begitu masuk.',
+    lastCharged: (date: string) => `Terakhir ditagih ${date}`,
+    lead: 'Semua yang Fewmail temukan di struk dan tagihanmu.',
+    monthlyTotal: 'Setiap bulan untuk langganan',
+    period: { month: 'bulanan', week: 'mingguan', year: 'tahunan' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} sekarang ${to} (sebelumnya ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} jadi lebih mahal`,
+    recent: 'Pembelian terbaru',
+    subscriptions: 'Langganan',
+    title: 'Uang',
+    upcoming: 'Tagihan jatuh tempo',
+  },
   nav: {
+    money: 'Uang',
     mail: 'Email',
     rules: 'Aturan',
     search: 'Cari atau tanya…',
@@ -220,6 +262,13 @@ export const id: Messages = {
     upgrade: 'Beralih ke Pro',
     welcome: 'Selamat datang di Pro. Agen kembali bertugas.',
   },
+  people: {
+    firstContact: (date: string) => `Berkirim email sejak ${date}`,
+    lastContact: (date: string) => `Email terakhir ${date}`,
+    open: 'Buka percakapan',
+    promised: 'Kamu sudah berjanji',
+    threads: (total: number) => `${total} percakapan`,
+  },
   persona: {
     reader: {
       description:
@@ -244,6 +293,15 @@ export const id: Messages = {
   reminders: {
     followUp: 'Tindak lanjut',
     noReply: 'Belum dibalas',
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `Terlihat seperti ${domain}, tapi alamatnya berbeda. Jangan klik tautan atau membayar.`,
+    new_sender_payment: (domain: string) =>
+      `Email pertama dari ${domain} dan langsung meminta uang. Pastikan lewat saluran yang sudah kamu percaya.`,
+    payment_change: (domain: string) =>
+      `Detail pembayaran baru dari ${domain}. Konfirmasi lewat telepon sebelum membayar.`,
+    title: 'Cek dulu sebelum bertindak',
   },
   rules: {
     actWithoutAsking: 'Bertindak tanpa bertanya',
@@ -377,7 +435,25 @@ export const id: Messages = {
     promotions: 'Promosi, pemasaran, dan email penjualan yang tidak diminta',
     receipts: 'Tanda terima, konfirmasi pesanan dan pengiriman',
   },
+  tasks: {
+    active: (goal: string) => `Agen sedang mengerjakannya: ${goal}`,
+    auto: 'Kirim email tanpa bertanya',
+    autoHint:
+      'Setiap email tetap menunggu beberapa detik agar kamu bisa mengurungkannya.',
+    cancel: 'Hentikan',
+    done: 'Tugas selesai',
+    goal: 'Apa yang harus dicapai agen?',
+    goalPlaceholder: 'mis. Minta tagihan dikirim ulang dengan alamat baru kami',
+    handle: 'Urus ini…',
+    next: 'Langkah berikutnya',
+    start: 'Mulai',
+    started: 'Agen sedang mengerjakannya.',
+  },
   telegram: {
+    heard: (text: string) => `Terdengar: “${text}”`,
+    voiceFailed: 'Aku tidak bisa menangkapnya. Coba lagi atau ketik saja.',
+    whichEmail:
+      'Email yang mana? Balas salah satu pesanku dengan apa yang ingin dikatakan.',
     canceled: 'Dibatalkan. Draf kembali ke antrean kamu.',
     sendingIn: (seconds: number) => `Mengirim dalam ${seconds} dtk`,
     undo: 'Urungkan',
@@ -407,6 +483,8 @@ export const id: Messages = {
     willSend: 'Akan dikirim:',
   },
   today: {
+    later: (total: number, time: string) =>
+      `${total} lagi datang pukul ${time}`,
     briefArrives: (time: string) =>
       `Ringkasanmu tiba setiap hari pukul ${time}.`,
     briefFrom: (time: string) => `ringkasan pukul ${time}`,
@@ -430,5 +508,10 @@ export const id: Messages = {
     worthAttention: 'Layak diperhatikan',
     writeNow: 'Tulis sekarang',
     writing: 'Menulis…',
+  },
+  zombie: {
+    badge: (share: number) =>
+      `Mengabaikan berhenti langganan pada ${share}% orang`,
+    reason: 'Tetap mengirim email setelah kamu berhenti langganan',
   },
 }

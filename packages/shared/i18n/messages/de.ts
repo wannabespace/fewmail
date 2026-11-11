@@ -67,6 +67,11 @@ export const de: Messages = {
     weekend: 'Am Wochenende',
   },
   actionKind: {
+    cleanup: 'Alle abbestellen',
+    commitment: 'Erledigt',
+    security: 'Geprüft',
+    subscription: 'Verstanden',
+    task: 'Senden',
     spam: 'In Spam verschoben',
     trash: 'In den Papierkorb',
     archive: 'Archivieren',
@@ -198,6 +203,7 @@ export const de: Messages = {
     you: 'Du',
   },
   nav: {
+    money: 'Geld',
     mail: 'Mail',
     rules: 'Regeln',
     search: 'Suchen oder fragen…',
@@ -391,6 +397,11 @@ export const de: Messages = {
     receipts: 'Belege, Bestell- und Versandbestätigungen',
   },
   telegram: {
+    heard: (text: string) => `Verstanden: „${text}“`,
+    voiceFailed:
+      'Das konnte ich nicht verstehen. Versuch es noch mal oder schreib es.',
+    whichEmail:
+      'Welche Mail? Antworte auf eine meiner Nachrichten und schreib, was ich sagen soll.',
     canceled: 'Abgebrochen. Der Entwurf ist wieder in deiner Warteschlange.',
     sendingIn: (seconds: number) => `Senden in ${seconds} s`,
     undo: 'Rückgängig',
@@ -420,6 +431,11 @@ export const de: Messages = {
     willSend: 'Wird gesendet:',
   },
   today: {
+    later: (total: number, time: string) =>
+      plural('de', total, {
+        one: () => `Eine weitere kommt um ${time}`,
+        other: (n) => `${n} weitere kommen um ${time}`,
+      }),
     briefArrives: (time: string) => `Dein Briefing kommt jeden Tag um ${time}.`,
     briefFrom: (time: string) => `Briefing von ${time}`,
     done: 'Erledigt',
@@ -445,5 +461,81 @@ export const de: Messages = {
     worthAttention: 'Einen Blick wert',
     writeNow: 'Jetzt schreiben',
     writing: 'Schreibe…',
+  },
+  bulk: {
+    badge: (n: number) => `An ${n}+ Fewmail-Nutzer gesendet`,
+    reason: (n: number) =>
+      `Massenmail: ${n}+ Fewmail-Nutzer haben denselben Text bekommen`,
+  },
+  cleanup: {
+    emails: (total: number) =>
+      plural('de', total, {
+        one: () => '1 Mail',
+        other: (n) => `${n} Mails`,
+      }),
+    reason: (total: number) => `${total} Mails diesen Monat, keine geöffnet`,
+    title: (total: number) =>
+      plural('de', total, {
+        one: () => 'Einen Newsletter abbestellen, den du nie öffnest',
+        other: (n) => `${n} Newsletter abbestellen, die du nie öffnest`,
+      }),
+  },
+  commitments: {
+    title: 'Du hast versprochen',
+  },
+  money: {
+    due: (date: string) => `Fällig am ${date}`,
+    empty:
+      'Noch nichts. Belege, Rechnungen und Abos erscheinen hier, sobald sie ankommen.',
+    lastCharged: (date: string) => `Zuletzt abgebucht am ${date}`,
+    lead: 'Alles, was Fewmail in deinen Belegen und Rechnungen gefunden hat.',
+    monthlyTotal: 'Jeden Monat für Abos',
+    period: { month: 'monatlich', week: 'wöchentlich', year: 'jährlich' },
+    priceUp: (merchant: string, from: string, to: string) =>
+      `${merchant} kostet jetzt ${to} (vorher ${from})`,
+    priceUpTitle: (merchant: string) => `${merchant} ist teurer geworden`,
+    recent: 'Letzte Käufe',
+    subscriptions: 'Abos',
+    title: 'Geld',
+    upcoming: 'Fällige Rechnungen',
+  },
+  people: {
+    firstContact: (date: string) => `Ihr schreibt seit ${date}`,
+    lastContact: (date: string) => `Letzte Mail am ${date}`,
+    open: 'Verlauf öffnen',
+    promised: 'Du hast versprochen',
+    threads: (total: number) =>
+      plural('de', total, {
+        one: () => '1 Unterhaltung',
+        other: (n) => `${n} Unterhaltungen`,
+      }),
+  },
+  risk: {
+    lookalike_domain: (domain: string) =>
+      `Sieht aus wie ${domain}, ist aber eine andere Adresse. Klick keine Links an und zahl nichts.`,
+    new_sender_payment: (domain: string) =>
+      `Erste Mail von ${domain}, und es geht um Geld. Prüf das über einen Weg, dem du schon vertraust.`,
+    payment_change: (domain: string) =>
+      `Neue Zahlungsdaten von ${domain}. Bestätige sie telefonisch, bevor du zahlst.`,
+    title: 'Erst prüfen, dann handeln',
+  },
+  tasks: {
+    active: (goal: string) => `Der Agent kümmert sich: ${goal}`,
+    auto: 'Mails senden, ohne mich zu fragen',
+    autoHint:
+      'Jede Mail wartet trotzdem ein paar Sekunden, damit du sie zurücknehmen kannst.',
+    cancel: 'Stoppen',
+    done: 'Aufgabe erledigt',
+    goal: 'Was soll der Agent erreichen?',
+    goalPlaceholder:
+      'z. B. Die Rechnung mit unserer neuen Adresse neu ausstellen lassen',
+    handle: 'Darum kümmern…',
+    next: 'Nächster Schritt',
+    start: 'Starten',
+    started: 'Der Agent kümmert sich darum.',
+  },
+  zombie: {
+    badge: (share: number) => `Ignoriert Abmeldungen bei ${share}% der Leute`,
+    reason: 'Hat dir nach der Abmeldung weiter geschrieben',
   },
 }

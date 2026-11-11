@@ -1,4 +1,12 @@
+import { BULK_THRESHOLD } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
+import type { Messages } from '@fewmail/shared/i18n'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+} from '@fewmail/ui/components/alert'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
 import {
@@ -24,7 +32,9 @@ import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
 import { SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
+import { HandleDialog } from './handle-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
+import { PersonPanel } from './person-panel'
 
 type ThreadMessage = NonNullable<
   ReturnType<typeof useThread>['data']
@@ -32,6 +42,21 @@ type ThreadMessage = NonNullable<
 
 const useThread = (threadId: string) =>
   useQuery(orpc.mail.thread.queryOptions({ input: { threadId } }))
+
+const riskOf = (rows: { message: ThreadMessage }[]) =>
+  rows.findLast(({ message }) => message.risk)?.message ?? null
+
+const riskText = (t: Messages, rows: { message: ThreadMessage }[]) => {
+  const message = riskOf(rows)
+  if (!message?.risk) {
+    return ''
+  }
+  return t.risk[message.risk.kind](
+    message.risk.imitates ??
+      message.fromEmail.split('@')[1] ??
+      message.fromEmail
+  )
+}
 
 const SNOOZE_OPTIONS: SnoozePreset[] = [
   'laterToday',
@@ -47,6 +72,125 @@ const forwardDraft = (message: ThreadMessage, header: string): Draft => ({
   replyToMessageId: message.id,
   subject: message.subject,
 })
+
+type ThreadRow = NonNullable<
+  ReturnType<typeof useThread>['data']
+>['messages'][number]
+
+const MessageSection = ({
+  analysis,
+  hasAgent,
+  message,
+}: {
+  analysis: ThreadRow['analysis']
+  hasAgent: boolean
+  message: ThreadMessage
+}) => {
+  const t = useT()
+  const dates = useDates()
+  return (
+    <section className="flex flex-col gap-3">
+      <header className="flex flex-wrap items-center gap-2 text-sm">
+        {hasAgent && analysis && (
+          <ImportanceDot
+            importance={analysis.importance}
+            reason={analysis.reason}
+          />
+        )}
+        <strong data-mask className="font-semibold">
+          {message.isFromMe
+            ? t.mail.you
+            : (message.fromName ?? message.fromEmail)}
+        </strong>
+        {!message.isFromMe && (
+          <span data-mask className="text-muted-foreground">
+            {message.fromEmail}
+          </span>
+        )}
+        {(message.bulkCount ?? 0) >= BULK_THRESHOLD && (
+          <Badge variant="outline">
+            {t.bulk.badge(message.bulkCount ?? 0)}
+          </Badge>
+        )}
+        <span className="text-muted-foreground ml-auto text-xs">
+          {dates.format(message.receivedAt, 'd MMM, HH:mm')}
+        </span>
+      </header>
+      {hasAgent && analysis && (
+        <div className="bg-secondary/50 flex flex-col gap-2 rounded-xl px-4 py-3">
+          <p data-mask className="text-sm">
+            {analysis.summary}
+          </p>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge variant="outline">{t.category[analysis.category]}</Badge>
+            {analysis.needsReply && (
+              <Badge variant="outline">{t.mail.expectsReply}</Badge>
+            )}
+            <ExtractedChips extracted={analysis.extracted} />
+          </div>
+        </div>
+      )}
+      <p
+        data-mask
+        className="text-foreground/90 text-sm/relaxed wrap-break-word whitespace-pre-wrap"
+      >
+        {message.body}
+      </p>
+    </section>
+  )
+}
+
+const ThreadNotices = ({
+  data,
+}: {
+  data: NonNullable<ReturnType<typeof useThread>['data']>
+}) => {
+  const t = useT()
+  const queryClient = useQueryClient()
+  const cancelTask = useMutation(
+    orpc.tasks.cancel.mutationOptions({
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+    })
+  )
+
+  return (
+    <>
+      {riskOf(data.messages) && (
+        <Alert variant="destructive">
+          <AlertTitle>{t.risk.title}</AlertTitle>
+          <AlertDescription data-mask>
+            {riskText(t, data.messages)}
+          </AlertDescription>
+        </Alert>
+      )}
+      {data.task && (
+        <Alert>
+          <AlertTitle data-mask>{t.tasks.active(data.task.goal)}</AlertTitle>
+          {data.task.summary && (
+            <AlertDescription data-mask>{data.task.summary}</AlertDescription>
+          )}
+          <AlertAction>
+            <Button
+              size="xs"
+              variant="ghost-muted"
+              onClick={() =>
+                data.task && cancelTask.mutate({ id: data.task.id })
+              }
+            >
+              {t.tasks.cancel}
+            </Button>
+          </AlertAction>
+        </Alert>
+      )}
+      {data.zombieShare !== null && data.zombieShare >= 30 && (
+        <p className="text-muted-foreground text-sm">
+          {t.zombie.badge(data.zombieShare)}
+        </p>
+      )}
+    </>
+  )
+}
 
 export const ThreadView = ({
   isSnoozed,
@@ -65,6 +209,7 @@ export const ThreadView = ({
   const { data } = useThread(threadId)
   const [composing, setComposing] = useState<Draft | null>(null)
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
+  const [isHandleOpen, setIsHandleOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
   const finish = (message: string) => {
@@ -208,6 +353,11 @@ export const ThreadView = ({
                     {t.mail.more}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                    {hasAgent && !data.task && (
+                      <DropdownMenuItem onClick={() => setIsHandleOpen(true)}>
+                        {t.tasks.handle}
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={forward}>
                       {t.mail.forward}
                       <DropdownMenuShortcut>F</DropdownMenuShortcut>
@@ -260,6 +410,10 @@ export const ThreadView = ({
             )}
           </div>
 
+          <ThreadNotices data={data} />
+          {hasAgent && latest && (
+            <PersonPanel email={latest.message.fromEmail} />
+          )}
           {hasAgent && data.actions.length > 0 && (
             <ul className="text-muted-foreground flex flex-col gap-1 text-sm">
               {data.actions.map((action) => (
@@ -273,51 +427,12 @@ export const ThreadView = ({
           )}
 
           {data.messages.map(({ analysis, message }) => (
-            <section key={message.id} className="flex flex-col gap-3">
-              <header className="flex flex-wrap items-center gap-2 text-sm">
-                {hasAgent && analysis && (
-                  <ImportanceDot
-                    importance={analysis.importance}
-                    reason={analysis.reason}
-                  />
-                )}
-                <strong data-mask className="font-semibold">
-                  {message.isFromMe
-                    ? t.mail.you
-                    : (message.fromName ?? message.fromEmail)}
-                </strong>
-                {!message.isFromMe && (
-                  <span data-mask className="text-muted-foreground">
-                    {message.fromEmail}
-                  </span>
-                )}
-                <span className="text-muted-foreground ml-auto text-xs">
-                  {dates.format(message.receivedAt, 'd MMM, HH:mm')}
-                </span>
-              </header>
-              {hasAgent && analysis && (
-                <div className="bg-secondary/50 flex flex-col gap-2 rounded-xl px-4 py-3">
-                  <p data-mask className="text-sm">
-                    {analysis.summary}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <Badge variant="outline">
-                      {t.category[analysis.category]}
-                    </Badge>
-                    {analysis.needsReply && (
-                      <Badge variant="outline">{t.mail.expectsReply}</Badge>
-                    )}
-                    <ExtractedChips extracted={analysis.extracted} />
-                  </div>
-                </div>
-              )}
-              <p
-                data-mask
-                className="text-foreground/90 text-sm/relaxed wrap-break-word whitespace-pre-wrap"
-              >
-                {message.body}
-              </p>
-            </section>
+            <MessageSection
+              key={message.id}
+              analysis={analysis}
+              message={message}
+              hasAgent={hasAgent}
+            />
           ))}
 
           {composing && (
@@ -330,6 +445,13 @@ export const ThreadView = ({
           )}
         </div>
       </div>
+      {latest && (
+        <HandleDialog
+          messageId={latest.message.id}
+          open={isHandleOpen}
+          onOpenChange={setIsHandleOpen}
+        />
+      )}
     </article>
   )
 }

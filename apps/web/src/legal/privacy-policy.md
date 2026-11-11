@@ -7,7 +7,7 @@ Fewmail ("we," "our," "us"), owned by Wannabe Space, LLC, is an email agent: it 
 When you sign in with Google you grant Fewmail the `gmail.modify` permission together with your basic profile (name, email address, profile photo). We use it only for the features you see in the app:
 
 - **Read** your messages (sender, recipients, subject, date, labels, text body and whether there are attachments) so the agent can summarize them, judge their importance and draft replies. Attachments themselves are not downloaded.
-- **Read your recently sent messages** so drafts match how you write.
+- **Read your recently sent messages** so drafts match how you write, and to notice when you are waiting for an answer or promised something.
 - **Change labels** — archive, mark as read, snooze, move to trash, or add the agent's own `Fewmail/…` labels if you turn them on — only when you do it yourself, approve it, or keep a rule that allows it. Every automatic change is listed under "handled" in the app.
 - **Send email** only when you send it yourself or explicitly approve an agent draft — in the app, in Telegram or through an MCP client you connected. Every send waits a few seconds so you can undo it, and scheduled emails wait until the time you chose.
 - **Search** your mailbox when you ask the agent a question about your mail.
@@ -28,8 +28,11 @@ Fewmail's use and transfer to any other app of information received from Google 
 - **Google OAuth tokens:** stored encrypted, used only to access Gmail on your behalf.
 - **Synced mail:** the message data listed in section 2. Subjects, snippets and bodies are encrypted at rest with AES-256-GCM.
 - **What the agent produces:** summaries, importance and reasons, drafts and daily briefs — also encrypted at rest.
+- **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and the goals of threads you ask the agent to handle — encrypted at rest. Payments and subscriptions found in your mail are stored as merchant, amount, currency and dates.
+- **Fraud checks:** to warn you when bank or payment details in an email change, we store only keyed one-way hashes of those details, never the details themselves.
 - **Your settings and rules:** language, how you use email, brief time, time zone, the rules and snippets you write, and anything you tell the agent to know about you.
 - **Community spam protection:** when you report spam or mark something as not spam, we store your vote with a keyed one-way hash of the sender's address (and of the domain for company domains). No addresses, subjects or contents are stored for this, and other users never learn who voted. Mail from a sender is moved to spam for other users only after several different people reported it and few marked it as not spam; a sender you have written to is never moved by community votes.
+- **Other network signals:** to spot mass mailings, senders who keep writing after you unsubscribed, and lookalike domains, we store keyed one-way hashes of your account, senders, domains and a short fingerprint of each message's text. These are combined across users only as counts; no content is shared between users. We also record which senders you unsubscribed from.
 - **Outbox and reminders:** emails waiting to be sent (encrypted), snoozed threads and follow-up reminders.
 - **Billing:** if you subscribe to Pro, your Stripe customer ID and subscription status. Card details are handled by Stripe and never reach our servers.
 - **Integrations:** if you connect Telegram, your Telegram chat ID; if you create MCP keys, only a one-way hash of each key.
@@ -38,7 +41,7 @@ We do not use third-party analytics, advertising or tracking tools.
 
 ## 5. AI processing
 
-AI processing runs only on the Pro plan and during the trial; on the Free plan no email content is sent to AI providers. To analyze emails and write drafts and briefs, the relevant email content and your settings are sent to large language models through **OpenRouter**, routed to **Anthropic** (primary) and to **Google** or **xAI** as fallback providers. Quick decisions about each email (its category, importance and whether someone waits for an answer) are made by **TypeSafe** (Jev), and inline autocomplete while you write uses **Mistral**. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
+Quick decisions about each email (its category, importance, whether someone waits for an answer, whether you expect a reply to mail you sent, matching your rules and checking for risky wording) are made by **TypeSafe** (Jev) on every plan, including Free. Everything else runs only on the Pro plan and during the trial; on the Free plan no email content is sent to other AI providers. To summarize emails and write drafts and briefs, the relevant email content and your settings are sent to large language models through **OpenRouter**, routed to **Anthropic** (primary) and to **Google** or **xAI** as fallback providers. Inline autocomplete while you write and transcription of voice messages you send to the Telegram bot use **Mistral**; voice recordings are not stored. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
 
 ## 6. Where your data goes
 
@@ -46,8 +49,8 @@ AI processing runs only on the Pro plan and during the trial; on the Free plan n
 | --- | --- |
 | Google (Gmail API, OAuth) | Sign-in and access to your mailbox |
 | OpenRouter → Anthropic, Google, xAI | Reading emails, drafting replies, writing briefs, answering questions about your mail |
-| TypeSafe (Jev) | Classifying each email |
-| Mistral | Autocomplete while you write |
+| TypeSafe (Jev) | Classifying each email, on every plan |
+| Mistral | Autocomplete while you write, transcribing Telegram voice messages |
 | Stripe | Payments and subscriptions for Pro |
 | Telegram | Delivering your brief, urgent emails and drafts, only if you connect it |
 | MCP clients you connect (e.g. Claude, Cursor) | Data you or that client request with your API key |

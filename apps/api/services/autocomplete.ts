@@ -1,20 +1,15 @@
 import { db } from '@fewmail/db'
 import { messages, users } from '@fewmail/db/schema'
-import { Mistral } from '@mistralai/mistralai'
 import { generateText } from 'ai'
 import { and, eq } from 'drizzle-orm'
 
-import { env } from '../env'
 import { models } from '../lib/ai'
+import { mistral } from '../lib/mistral'
 import { getSettings } from './settings'
 
 const FIM_MODEL = 'codestral-latest'
 const MAX_TOKENS = 32
 const CONTEXT_LIMIT = 1500
-
-const mistral = env.MISTRAL_API_KEY
-  ? new Mistral({ apiKey: env.MISTRAL_API_KEY })
-  : null
 
 const preamble = async (userId: string, replyToMessageId?: string) => {
   const [user] = await db

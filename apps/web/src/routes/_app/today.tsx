@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 
 import { formatHour } from '~/components/agent-fields'
 import { KeyHints } from '~/components/key-hints'
-import { QueueCard } from '~/components/queue-card'
+import { hasDraft, QueueCard } from '~/components/queue-card'
 import { useDates, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
 
@@ -170,12 +170,13 @@ const TodayPage = () => {
   )
   useHotkey(
     'E',
-    () => selected?.action.kind === 'reply' && setEditingId(selected.action.id),
+    () =>
+      selected && hasDraft(selected.action) && setEditingId(selected.action.id),
     listKeys
   )
   useHotkey(
     'R',
-    () => selected?.action.kind === 'reply' && shorten(selected.action.id),
+    () => selected && hasDraft(selected.action) && shorten(selected.action.id),
     listKeys
   )
   useHotkey(
@@ -270,6 +271,14 @@ const TodayPage = () => {
             ))}
           </section>
 
+          {data?.later && (
+            <p className="text-muted-foreground text-sm">
+              {t.today.later(
+                data.later.count,
+                dates.format(data.later.at, 'p')
+              )}
+            </p>
+          )}
           {handled && handled.total > 0 && <HandledSummary handled={handled} />}
         </div>
       </div>

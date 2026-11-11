@@ -6,7 +6,9 @@ import type { Context } from 'grammy'
 import { Bot, InlineKeyboard, webhookCallback } from 'grammy'
 
 import { env } from './env'
+import { transcribe } from './lib/mistral'
 import { generateBrief, getLatestBrief, localClock } from './services/brief'
+import { draftFromInstruction } from './services/instructions'
 import { linkTelegramChat, userIdForChat } from './services/integrations'
 import {
   approveAction,
@@ -25,6 +27,24 @@ const TELEGRAM_TEXT_LIMIT = 3500
 
 /** Chat → action whose draft the next text message replaces. Lost on restart, which only cancels an edit in progress. */
 const editing = new Map<string, string>()
+
+/** Bot message → the action it shows, so replying to it ("make it warmer", a voice note) targets that draft. */
+const shown = new Map<string, string>()
+const SHOWN_LIMIT = 5000
+
+const remember = (
+  chatId: number | string,
+  messageId: number,
+  actionId: string
+) => {
+  shown.set(`${chatId}:${messageId}`, actionId)
+  if (shown.size > SHOWN_LIMIT) {
+    const [oldest] = shown.keys()
+    if (oldest) {
+      shown.delete(oldest)
+    }
+  }
+}
 
 const escapeHtml = (text: string) =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -67,6 +87,29 @@ const draftKeyboard = (t: Messages, actionId: string) =>
     .text(t.telegram.edit, `e:${actionId}`)
     .text(t.telegram.skip, `d:${actionId}`)
 
+const followInstruction = async (
+  ctx: Context,
+  userId: string,
+  text: string
+) => {
+  const t = await messagesForUser(userId)
+  const replyTo = ctx.message?.reply_to_message?.message_id
+  const targetId =
+    replyTo && ctx.chat
+      ? (shown.get(`${ctx.chat.id}:${replyTo}`) ?? null)
+      : null
+  const action = await draftFromInstruction(userId, text, targetId)
+  if (!action) {
+    await ctx.reply(t.telegram.whichEmail)
+    return
+  }
+  const sent = await ctx.reply(
+    `<i>${t.telegram.newDraft}</i>\n${escapeHtml(action.detail ?? '')}`,
+    { parse_mode: 'HTML', reply_markup: draftKeyboard(t, action.id) }
+  )
+  remember(sent.chat.id, sent.message_id, action.id)
+}
+
 const createBot = (token: string) => {
   const bot = new Bot(token)
 
@@ -97,10 +140,11 @@ const createBot = (token: string) => {
     }
     for (const item of queue) {
       // oxlint-disable-next-line eslint/no-await-in-loop -- queue items must arrive in order
-      await bot.api.sendMessage(chatId, itemText(t, item), {
+      const sent = await bot.api.sendMessage(chatId, itemText(t, item), {
         parse_mode: 'HTML',
         reply_markup: itemKeyboard(t, item),
       })
+      remember(chatId, sent.message_id, item.action.id)
     }
   }
 
@@ -197,10 +241,43 @@ const createBot = (token: string) => {
     }
   })
 
+  bot.on('message:voice', async (ctx) => {
+    const userId = await requireUser(ctx)
+    if (!userId) {
+      return
+    }
+    const t = await messagesForUser(userId)
+    try {
+      const file = await ctx.getFile()
+      const response = await fetch(
+        `https://api.telegram.org/file/bot${token}/${file.file_path ?? ''}`
+      )
+      const text = await transcribe(await response.arrayBuffer(), 'voice.ogg')
+      if (!text) {
+        await ctx.reply(t.telegram.voiceFailed)
+        return
+      }
+      await ctx.reply(t.telegram.heard(text))
+      await followInstruction(ctx, userId, text)
+    } catch (error) {
+      console.error('voice message failed', error)
+      await ctx.reply(t.telegram.voiceFailed)
+    }
+  })
+
   bot.on('message:text', async (ctx) => {
     const actionId = editing.get(String(ctx.chat.id))
-    const userId = actionId ? await requireUser(ctx) : null
-    if (!actionId || !userId) {
+    if (!actionId) {
+      if (!ctx.message.text.startsWith('/')) {
+        const userId = await requireUser(ctx)
+        if (userId) {
+          await followInstruction(ctx, userId, ctx.message.text)
+        }
+      }
+      return
+    }
+    const userId = await requireUser(ctx)
+    if (!userId) {
       return
     }
     editing.delete(String(ctx.chat.id))
@@ -292,9 +369,12 @@ export const sendUrgent = async (
   item: QueueItem
 ) => {
   const t = await messagesForUser(userId)
-  await bot?.api.sendMessage(
+  const sent = await bot?.api.sendMessage(
     chatId,
     `${t.telegram.urgent}\n${itemText(t, item)}`,
     { parse_mode: 'HTML', reply_markup: itemKeyboard(t, item) }
   )
+  if (sent) {
+    remember(chatId, sent.message_id, item.action.id)
+  }
 }

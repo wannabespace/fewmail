@@ -4,6 +4,7 @@ import type {
   ReminderKind,
   ReminderStatus,
   SpamVerdict,
+  MessageRisk,
   ActionKind,
   ActionStatus,
   MailCategory,
@@ -42,6 +43,8 @@ export const messages = d.snakeCase.table(
   {
     ...baseTable,
     body: encryptedText().notNull(),
+    /** Distinct Fewmail users who got a near-identical body in the last 30 days (null until computed). */
+    bulkCount: d.integer(),
     cc: d.text().array().notNull(),
     fromEmail: d.text().notNull(),
     fromName: d.text(),
@@ -58,6 +61,8 @@ export const messages = d.snakeCase.table(
       .references(() => mailboxes.id, { onDelete: 'cascade' }),
     messageIdHeader: d.text(),
     receivedAt: d.timestamp({ withTimezone: true }).notNull(),
+    replyTo: d.text(),
+    risk: d.jsonb().$type<MessageRisk>(),
     snippet: encryptedText().notNull(),
     subject: encryptedText().notNull(),
     threadId: d.text().notNull(),
@@ -121,6 +126,8 @@ export const actions = d.snakeCase.table(
     kind: d.text().$type<ActionKind>().notNull(),
     messageId: d.uuid().references(() => messages.id, { onDelete: 'cascade' }),
     notifiedAt: d.timestamp({ withTimezone: true }),
+    /** Structured data for kinds that carry more than text (cleanup senders, price changes). */
+    payload: d.jsonb().$type<Record<string, unknown>>(),
     reason: d.text().notNull(),
     resolvedAt: d.timestamp({ withTimezone: true }),
     ruleId: d.uuid().references(() => rules.id, { onDelete: 'set null' }),

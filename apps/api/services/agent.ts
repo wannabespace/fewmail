@@ -1,7 +1,8 @@
 import { db } from '@fewmail/db'
 import { actions, analyses, messages, rules } from '@fewmail/db/schema'
 import { ACTION_KINDS, MAIL_CATEGORIES } from '@fewmail/shared/agent'
-import type { Persona } from '@fewmail/shared/agent'
+import type { MailCategory, Persona } from '@fewmail/shared/agent'
+import type { Messages } from '@fewmail/shared/i18n'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import type { Locale } from '@fewmail/shared/i18n/locales'
@@ -12,10 +13,13 @@ import { and, desc, eq, isNotNull } from 'drizzle-orm'
 import { FAST_MODEL_ID, models } from '../lib/ai'
 import { trashThread, unsubscribeOneClick } from '../lib/gmail'
 import { JEV_MODEL_ID } from '../lib/jev'
+import { BULK_THRESHOLD } from './bulk'
 import { decideWithJev } from './classify'
 import { applyAgentLabel } from './labels'
+import { isChargeCategory, recordCharge } from './money'
 import { getSettings } from './settings'
 import { changeThreadLabels } from './thread-labels'
+import { recordUnsubscribe } from './zombies'
 
 const BODY_LIMIT = 4000
 
@@ -139,6 +143,9 @@ export const applyEffect = async (
   message: Message,
   effect: string
 ) => {
+  if (effect === 'unsubscribe') {
+    await recordUnsubscribe(userId, message.fromEmail)
+  }
   if (effect === 'unsubscribe' && message.listUnsubscribe) {
     await unsubscribeOneClick(
       message.listUnsubscribe,
@@ -203,7 +210,12 @@ const NO_EXTRACTED = { amount: null, dueDate: null, meetingTime: null }
 type Settings = NonNullable<Awaited<ReturnType<typeof getSettings>>>
 
 /** Jev decides; the LLM only writes text for mail that matters. Without Jev the LLM does both. */
+/**
+ * Jev decides for every plan; the LLM writes text only for the agent (Pro/trial) and only for
+ * mail that matters. Without Jev the LLM does both, but never for a free account.
+ */
 const analyze = async (input: {
+  agent: boolean
   message: Message
   rules: Rule[]
   settings: Settings
@@ -221,6 +233,9 @@ const analyze = async (input: {
   })
 
   if (!decisions) {
+    if (!input.agent) {
+      return null
+    }
     const { output } = await generateText({
       instructions: analyzeInstructions({
         ...input.settings,
@@ -235,7 +250,7 @@ const analyze = async (input: {
   }
 
   const t = dictionaries[input.settings.language]
-  if (decisions.importance === 0 && !decisions.needsReply) {
+  if (!input.agent || (decisions.importance === 0 && !decisions.needsReply)) {
     return {
       model: JEV_MODEL_ID,
       output: {
@@ -266,62 +281,72 @@ const analyze = async (input: {
   }
 }
 
-export const analyzeMessage = async (message: Message, userEmail: string) => {
-  const settings = await getSettings(message.userId)
-  if (!settings) {
-    return
+const isBulk = (message: Message) => (message.bulkCount ?? 0) >= BULK_THRESHOLD
+
+const PERSONAL_CATEGORIES = new Set(['person', 'work'])
+
+/** What the network knows beats what one email claims: mass mail is never personal, flagged mail is always urgent. */
+const withNetworkFacts = <
+  Output extends {
+    category: MailCategory
+    importance: 0 | 1 | 2 | 3
+    needsReply: boolean
+    reason: string
+  },
+>(
+  output: Output,
+  message: Message,
+  t: Messages
+): Output => {
+  if (message.risk) {
+    return { ...output, importance: 3 }
   }
-  const userRules = await db
-    .select()
-    .from(rules)
-    .where(
-      and(
-        eq(rules.userId, message.userId),
-        eq(rules.enabled, true),
-        isNotNull(rules.instruction)
-      )
-    )
+  if (!isBulk(message)) {
+    return output
+  }
+  return {
+    ...output,
+    category: PERSONAL_CATEGORIES.has(output.category)
+      ? 'promotion'
+      : output.category,
+    importance: Math.min(output.importance, 1) as 0 | 1,
+    needsReply: false,
+    reason: t.bulk.reason(message.bulkCount ?? BULK_THRESHOLD),
+  }
+}
 
-  const { model, output } = await analyze({
-    message,
-    rules: userRules,
-    settings,
-    userEmail,
-  })
-
-  const rule = userRules.find(({ id }) => id === output.ruleId) ?? null
-
-  await db
-    .insert(analyses)
-    .values({
-      category: output.category,
-      extracted: output.extracted,
-      importance: ruleImportance(rule, output.importance),
-      messageId: message.id,
-      model,
-      needsReply: output.needsReply,
-      reason: output.reason,
-      ruleId: rule?.id ?? null,
-      summary: output.summary,
-    })
-    .onConflictDoNothing()
-
-  await applyAgentLabel(message, output.category).catch((error) =>
+const labelAndRecordCharge = async (
+  message: Message,
+  category: Parameters<typeof applyAgentLabel>[1],
+  agent: boolean
+) => {
+  await applyAgentLabel(message, category).catch((error) =>
     console.error('agent label failed', error)
   )
-
-  const base = {
-    messageId: message.id,
-    threadId: message.threadId,
-    title: output.actionTitle,
-    userId: message.userId,
+  if (agent && isChargeCategory(category) && !isBulk(message)) {
+    await recordCharge(message).catch((error) =>
+      console.error('charge extraction failed', error)
+    )
   }
+}
 
-  if (rule && rule.effect !== 'always_show' && rule.effect !== 'draft_reply') {
-    await recordRuleAction(message, { ...rule, effect: rule.effect }, base)
-    return
+/** Today cards: a drafted reply for mail that wants one, otherwise the suggested next step for mail that matters. */
+const queueForAgent = async (
+  message: Message,
+  output: {
+    importance: number
+    needsReply: boolean
+    reason: string
+    suggestedAction: (typeof analysisSchema.infer)['suggestedAction']
+  },
+  rule: Rule | null,
+  base: {
+    messageId: string
+    threadId: string
+    title: string
+    userId: string
   }
-
+) => {
   const wantsReply =
     rule?.effect === 'draft_reply' ||
     (output.needsReply && output.importance >= 1)
@@ -353,4 +378,85 @@ export const analyzeMessage = async (message: Message, userEmail: string) => {
       status: 'pending',
     })
   }
+}
+
+/** Without Today a free account cannot confirm a suggestion, so only rules that act on their own run. */
+const isFreeRule = (rule: Rule) =>
+  rule.autonomous &&
+  rule.effect !== 'always_show' &&
+  rule.effect !== 'draft_reply'
+
+export const analyzeMessage = async (
+  message: Message,
+  userEmail: string,
+  agent: boolean
+) => {
+  const settings = await getSettings(message.userId)
+  if (!settings) {
+    return
+  }
+  const userRules = await db
+    .select()
+    .from(rules)
+    .where(
+      and(
+        eq(rules.userId, message.userId),
+        eq(rules.enabled, true),
+        isNotNull(rules.instruction)
+      )
+    )
+
+  const analysis = await analyze({
+    agent,
+    message,
+    rules: userRules,
+    settings,
+    userEmail,
+  })
+  if (!analysis) {
+    return
+  }
+  const { model } = analysis
+  const output = withNetworkFacts(
+    analysis.output,
+    message,
+    dictionaries[settings.language]
+  )
+
+  const matched = userRules.find(({ id }) => id === output.ruleId) ?? null
+  const rule = matched && (agent || isFreeRule(matched)) ? matched : null
+
+  await db
+    .insert(analyses)
+    .values({
+      category: output.category,
+      extracted: output.extracted,
+      importance: ruleImportance(rule, output.importance),
+      messageId: message.id,
+      model,
+      needsReply: output.needsReply,
+      reason: output.reason,
+      ruleId: rule?.id ?? null,
+      summary: output.summary,
+    })
+    .onConflictDoNothing()
+
+  await labelAndRecordCharge(message, output.category, agent)
+
+  const base = {
+    messageId: message.id,
+    threadId: message.threadId,
+    title: output.actionTitle,
+    userId: message.userId,
+  }
+
+  if (rule && rule.effect !== 'always_show' && rule.effect !== 'draft_reply') {
+    await recordRuleAction(message, { ...rule, effect: rule.effect }, base)
+    return
+  }
+  if (!agent) {
+    return
+  }
+
+  await queueForAgent(message, output, rule, base)
 }

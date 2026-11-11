@@ -1,12 +1,10 @@
-import { createHmac } from 'node:crypto'
-
 import { db } from '@fewmail/db'
 import { actions, messages, senderReports } from '@fewmail/db/schema'
 import type { SpamVerdict } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 
-import { env } from '../env'
+import { domainOf, keyedHash, senderHashOf } from '../lib/keyed-hash'
 import { NotFoundError } from './mail-errors'
 import { getSettings } from './settings'
 import { changeThreadLabels } from './thread-labels'
@@ -22,7 +20,7 @@ const SPAM_PROBABILITY = 0.8
 const SPAM = { add: ['SPAM'], remove: ['INBOX', 'UNREAD'] }
 
 /** Shared mailbox providers: a spammer on gmail.com says nothing about gmail.com. */
-const FREEMAIL_DOMAINS = new Set([
+export const FREEMAIL_DOMAINS = new Set([
   'aol.com',
   'gmail.com',
   'gmx.com',
@@ -46,19 +44,14 @@ const FREEMAIL_DOMAINS = new Set([
   'zoho.com',
 ])
 
-/** Keyed with the auth secret so the table cannot be reversed by hashing known addresses; rotating it resets reputation. */
-const keyedHash = (value: string) =>
-  createHmac('sha256', env.BETTER_AUTH_SECRET).update(value).digest('hex')
-
 export const senderKeys = (email: string) => {
-  const address = email.trim().toLowerCase()
-  const domain = address.split('@')[1] ?? ''
+  const domain = domainOf(email)
   return {
     domainHash:
       domain && !FREEMAIL_DOMAINS.has(domain)
         ? keyedHash(`domain:${domain}`)
         : null,
-    senderHash: keyedHash(`sender:${address}`),
+    senderHash: senderHashOf(email),
   }
 }
 
