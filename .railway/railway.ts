@@ -9,8 +9,12 @@ import {
 } from 'railway/iac'
 
 const REPO = 'wannabespace/fewmail'
-/** The port Railway already routes both custom domains to; a different one answers 502. */
-const PORT = 8080
+/**
+ * The ports the live custom domains already route to: `apply` does not change an existing domain's
+ * target port, so a service listening anywhere else answers 502.
+ */
+const API_PORT = 8080
+const WEB_PORT = 80
 
 /** Values live only in Railway (set once on `api`); the worker reads the same ones by reference. */
 const SECRETS = [
@@ -46,11 +50,11 @@ export default defineRailway(() => {
 
   const api = service('@fewmail/api', {
     build,
-    domains: [{ domain: 'api.fewmail.app', port: PORT }],
+    domains: [{ domain: 'api.fewmail.app', port: API_PORT }],
     env: {
       API_URL: preserve(),
       DATABASE_URL: db.env.DATABASE_URL,
-      PORT: String(PORT),
+      PORT: String(API_PORT),
       WEB_URL: preserve(),
       ...secrets,
     },
@@ -89,10 +93,10 @@ export default defineRailway(() => {
       dockerfilePath: 'apps/web/Dockerfile',
       watchPatterns: ['apps/web/**', 'packages/**', 'pnpm-lock.yaml'],
     },
-    domains: [{ domain: 'fewmail.app', port: PORT }],
+    domains: [{ domain: 'fewmail.app', port: WEB_PORT }],
     env: {
       API_URL: api.env.API_URL,
-      PORT: String(PORT),
+      PORT: String(WEB_PORT),
       WEB_URL: api.env.WEB_URL,
     },
     healthcheck: '/robots.txt',
