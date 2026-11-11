@@ -192,11 +192,10 @@ export const zh: Messages = {
     watching: '助手正在留意你的收件箱',
   },
   onboarding: {
-    briefTitle: '你希望简报什么时候准备好？',
     languageHint:
       '应用、简报、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
     languageTitle: 'Fewmail 应该说哪种语言？',
-    lead: '三个简单问题。之后都可以在设置中修改。',
+    lead: '两个简单问题。之后都可以在设置中修改。',
     personaTitle: '你平时怎么用邮件？',
     reading: '正在读取收件箱…',
     start: '开始',

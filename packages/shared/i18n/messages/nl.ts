@@ -245,11 +245,10 @@ export const nl: Messages = {
     watching: 'De agent houdt je inbox in de gaten',
   },
   onboarding: {
-    briefTitle: 'Wanneer moet je overzicht klaar zijn?',
     languageHint:
       'De app, overzichten, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
     languageTitle: 'Welke taal moet Fewmail spreken?',
-    lead: 'Drie snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
+    lead: 'Twee snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
     personaTitle: 'Hoe gebruik je e-mail?',
     reading: 'Je inbox wordt gelezen…',
     start: 'Starten',

@@ -236,11 +236,10 @@ export const id: Messages = {
     watching: 'Agen sedang memantau kotak masukmu',
   },
   onboarding: {
-    briefTitle: 'Kapan ringkasanmu harus siap?',
     languageHint:
       'Aplikasi, ringkasan, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
     languageTitle: 'Fewmail harus berbicara dalam bahasa apa?',
-    lead: 'Tiga jawaban singkat. Semuanya bisa diubah nanti di Pengaturan.',
+    lead: 'Dua jawaban singkat. Semuanya bisa diubah nanti di Pengaturan.',
     personaTitle: 'Bagaimana kamu memakai email?',
     reading: 'Membaca kotak masukmu…',
     start: 'Mulai',

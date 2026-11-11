@@ -198,11 +198,10 @@ export const ko: Messages = {
     watching: '에이전트가 받은편지함을 지켜보고 있어요',
   },
   onboarding: {
-    briefTitle: '브리핑을 언제 준비할까요?',
     languageHint:
       '앱, 브리핑, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
     languageTitle: 'Fewmail이 어떤 언어를 쓸까요?',
-    lead: '간단한 질문 세 가지예요. 나중에 설정에서 모두 바꿀 수 있어요.',
+    lead: '간단한 질문 두 가지예요. 나중에 설정에서 모두 바꿀 수 있어요.',
     personaTitle: '이메일을 어떻게 사용하세요?',
     reading: '받은편지함을 읽는 중…',
     start: '시작',

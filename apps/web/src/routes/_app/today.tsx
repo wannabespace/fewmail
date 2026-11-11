@@ -7,11 +7,12 @@ import {
   Link,
   redirect,
   useNavigate,
+  useRouter,
 } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { formatHour } from '~/components/agent-fields'
+import { BriefHourSelect } from '~/components/agent-fields'
 import { KeyHints } from '~/components/key-hints'
 import { hasDraft, QueueCard } from '~/components/queue-card'
 import { useDates, useT } from '~/lib/i18n'
@@ -46,6 +47,29 @@ const HandledSummary = ({
         {t.review}
       </Link>
     </div>
+  )
+}
+
+const BriefTime = ({ label }: { label: (time: string) => string }) => {
+  const { me } = Route.useRouteContext()
+  const router = useRouter()
+  const save = useMutation(
+    orpc.settings.save.mutationOptions({ onSuccess: () => router.invalidate() })
+  )
+
+  return (
+    <BriefHourSelect
+      label={label}
+      value={me.settings.briefHour}
+      onChange={(briefHour) =>
+        save.mutate({
+          briefHour,
+          language: me.settings.language,
+          persona: me.settings.persona,
+          timezone: me.settings.timezone,
+        })
+      }
+    />
   )
 }
 
@@ -193,17 +217,19 @@ const TodayPage = () => {
       : t.today.worthAttention
   const brief = data?.brief
   const handled = data?.handled
-  const briefTime = formatHour(me.settings.briefHour)
 
   return (
     <main className="flex min-h-0 flex-1 flex-col">
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
           <header className="flex flex-col gap-3">
-            <p className="text-muted-foreground text-sm first-letter:uppercase">
-              {dataUpdatedAt > 0 && dates.format(dataUpdatedAt, 'EEEE, d MMMM')}
-              {brief && ` · ${t.today.briefFrom(briefTime)}`}
-            </p>
+            <div className="text-muted-foreground flex items-center text-sm">
+              <span className="inline-block first-letter:uppercase">
+                {dataUpdatedAt > 0 &&
+                  dates.format(dataUpdatedAt, 'EEEE, d MMMM')}
+              </span>
+              {brief && <BriefTime label={t.today.briefFrom} />}
+            </div>
             <h1 className="text-display font-serif tracking-tight" data-mask>
               {brief?.headline ?? t.today.headline(queue.length)}
             </h1>
@@ -212,10 +238,8 @@ const TodayPage = () => {
                 {brief.body}
               </p>
             ) : (
-              <div className="flex items-center gap-3">
-                <p className="text-muted-foreground text-sm">
-                  {t.today.briefArrives(briefTime)}
-                </p>
+              <div className="text-muted-foreground -ml-3 flex items-center gap-3">
+                <BriefTime label={t.today.briefArrives} />
                 <Button
                   size="sm"
                   variant="secondary"

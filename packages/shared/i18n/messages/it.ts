@@ -223,11 +223,10 @@ export const it: Messages = {
     watching: 'L’agente tiene d’occhio la tua posta',
   },
   onboarding: {
-    briefTitle: 'Quando vuoi il tuo brief?',
     languageHint:
       'App, brief, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
     languageTitle: 'In che lingua deve parlare Fewmail?',
-    lead: 'Tre risposte veloci. Puoi cambiarle tutte più tardi nelle Impostazioni.',
+    lead: 'Due risposte veloci. Puoi cambiarle tutte più tardi nelle Impostazioni.',
     personaTitle: 'Come usi l’email?',
     reading: 'Leggo la tua posta…',
     start: 'Inizia',

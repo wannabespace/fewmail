@@ -257,11 +257,10 @@ export const pl: Messages = {
     watching: 'Agent pilnuje twojej skrzynki',
   },
   onboarding: {
-    briefTitle: 'Kiedy podsumowanie ma być gotowe?',
     languageHint:
       'W tym języku działa aplikacja, podsumowania i wyjaśnienia. Odpowiedzi zawsze są w języku maila, na który odpowiadasz.',
     languageTitle: 'W jakim języku ma mówić Fewmail?',
-    lead: 'Trzy szybkie odpowiedzi. Wszystko zmienisz później w Ustawieniach.',
+    lead: 'Dwie szybkie odpowiedzi. Wszystko zmienisz później w Ustawieniach.',
     personaTitle: 'Jak korzystasz z poczty?',
     reading: 'Czytam twoją skrzynkę…',
     start: 'Zaczynamy',

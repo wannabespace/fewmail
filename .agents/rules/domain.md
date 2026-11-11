@@ -4,7 +4,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 
 | Term | Meaning |
 | --- | --- |
-| **Brief** | A short daily summary in the user's language (`briefs`, one per local day), written at `briefHour` in the user's time zone, also sent to Telegram and WhatsApp. Headline + 2–4 sentences, no lists. |
+| **Brief** | A short daily summary in the user's language (`briefs`, one per local day), written at `briefHour` in the user's time zone (20:00 by default, not asked at onboarding; changed from the time on Today or in Settings), also sent to Telegram and WhatsApp. Headline + 2–4 sentences, no lists. |
 | **Today** | The home screen: brief + queue + handled summary. Non-urgent cards arrive in two batches (brief hour and 7 h later); security, promises, tasks and urgent mail come at once. |
 | **Queue** | Pending **actions** (`actions.status = 'pending'`), ordered by importance. Each is approved (`⏎`), edited, redrafted or skipped. |
 | **Action** | Something the agent proposes or did: `reply` (with a draft), `pay`, `schedule`, `follow_up`, `read`, `archive`, `mark_read`, `unsubscribe`, `spam`, `security`, `commitment`, `subscription`, `cleanup`, task actions. Statuses: `pending`, `done`, `dismissed` (skipped), `auto_done` (by an autonomous rule), `failed`. |

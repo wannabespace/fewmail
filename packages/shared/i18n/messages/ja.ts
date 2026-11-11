@@ -197,11 +197,10 @@ export const ja: Messages = {
     watching: 'エージェントが受信トレイを見守っています',
   },
   onboarding: {
-    briefTitle: 'ブリーフはいつ用意しましょうか？',
     languageHint:
       'アプリ、ブリーフ、要約、説明にこの言語を使います。返信は常に、返信するメールの言語に合わせます。',
     languageTitle: 'Fewmail は何語で話しましょうか？',
-    lead: '3つの簡単な質問です。あとから設定ですべて変更できます。',
+    lead: '2つの簡単な質問です。あとから設定ですべて変更できます。',
     personaTitle: 'メールをどう使っていますか？',
     reading: '受信トレイを読んでいます…',
     start: '始める',

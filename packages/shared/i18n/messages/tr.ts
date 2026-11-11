@@ -232,11 +232,10 @@ export const tr: Messages = {
     watching: 'Ajan gelen kutunu izliyor',
   },
   onboarding: {
-    briefTitle: 'Özetin ne zaman hazır olsun?',
     languageHint:
       'Uygulama, özetler ve açıklamalar bu dili kullanır. Yanıtlar her zaman yanıtladığın e-postanın dilinde olur.',
     languageTitle: 'Fewmail hangi dili konuşsun?',
-    lead: 'Üç kısa cevap. Hepsini daha sonra Ayarlar’dan değiştirebilirsin.',
+    lead: 'İki kısa cevap. Hepsini daha sonra Ayarlar’dan değiştirebilirsin.',
     personaTitle: 'E-postayı nasıl kullanıyorsun?',
     reading: 'Gelen kutun okunuyor…',
     start: 'Başla',

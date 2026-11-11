@@ -242,11 +242,10 @@ export const en = {
     watching: 'Agent is watching your inbox',
   },
   onboarding: {
-    briefTitle: 'When should your brief be ready?',
     languageHint:
       'The app, briefs, summaries and explanations use this language. Replies always match the language of the email you answer.',
     languageTitle: 'Which language should Fewmail speak?',
-    lead: 'Three quick answers. You can change all of them later in Settings.',
+    lead: 'Two quick answers. You can change all of them later in Settings.',
     personaTitle: 'How do you use email?',
     reading: 'Reading your inbox…',
     start: 'Start',

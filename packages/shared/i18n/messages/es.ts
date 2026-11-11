@@ -222,11 +222,10 @@ export const es: Messages = {
     watching: 'El agente vigila tu bandeja',
   },
   onboarding: {
-    briefTitle: '¿Cuándo quieres tu resumen?',
     languageHint:
       'La app, los resúmenes y las explicaciones usan este idioma. Las respuestas siempre siguen el idioma del correo que contestas.',
     languageTitle: '¿En qué idioma debe hablar Fewmail?',
-    lead: 'Tres respuestas rápidas. Puedes cambiarlas luego en Ajustes.',
+    lead: 'Dos respuestas rápidas. Puedes cambiarlas luego en Ajustes.',
     personaTitle: '¿Cómo usas el correo?',
     reading: 'Leyendo tu bandeja…',
     start: 'Empezar',

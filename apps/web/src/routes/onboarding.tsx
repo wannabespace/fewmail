@@ -6,16 +6,10 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import {
-  BriefHourSelect,
-  LanguageSelect,
-  PersonaChoice,
-} from '~/components/agent-fields'
+import { LanguageSelect, PersonaChoice } from '~/components/agent-fields'
 import { Logo } from '~/components/logo'
 import { localeStore, useLocale, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
-
-const DEFAULT_BRIEF_HOUR = 8
 
 const Step = ({
   children,
@@ -35,7 +29,6 @@ const OnboardingPage = () => {
   const language = useLocale()
   const navigate = useNavigate()
   const [persona, setPersona] = useState<Persona>('reader')
-  const [briefHour, setBriefHour] = useState(DEFAULT_BRIEF_HOUR)
 
   const save = useMutation(
     orpc.settings.save.mutationOptions({
@@ -44,7 +37,6 @@ const OnboardingPage = () => {
   )
   const submit = () =>
     save.mutate({
-      briefHour,
       language,
       persona,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -79,10 +71,6 @@ const OnboardingPage = () => {
 
         <Step title={t.onboarding.personaTitle}>
           <PersonaChoice value={persona} onChange={setPersona} />
-        </Step>
-
-        <Step title={t.onboarding.briefTitle}>
-          <BriefHourSelect value={briefHour} onChange={setBriefHour} />
         </Step>
 
         <Button size="lg" disabled={save.isPending} onClick={submit}>

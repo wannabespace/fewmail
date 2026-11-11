@@ -44,9 +44,11 @@ export const formatHour = (hour: number) =>
   `${String(hour).padStart(2, '0')}:00`
 
 export const BriefHourSelect = ({
+  label,
   onChange,
   value,
 }: {
+  label?: (time: string) => string
   onChange: (hour: number) => void
   value: number
 }) => {
@@ -61,9 +63,19 @@ export const BriefHourSelect = ({
       value={value}
       onValueChange={(next) => next !== null && onChange(next)}
     >
-      <SelectTrigger aria-label={t.settings.briefTitle} className="w-28">
-        <SelectValue />
-      </SelectTrigger>
+      {label ? (
+        <SelectTrigger
+          aria-label={t.settings.briefTitle}
+          size="sm"
+          variant="ghost-faint"
+        >
+          <SelectValue>{(hour: number) => label(formatHour(hour))}</SelectValue>
+        </SelectTrigger>
+      ) : (
+        <SelectTrigger aria-label={t.settings.briefTitle} className="w-28">
+          <SelectValue />
+        </SelectTrigger>
+      )}
       <SelectContent>
         {BRIEF_HOURS.map((hour) => (
           <SelectItem key={hour} value={hour}>

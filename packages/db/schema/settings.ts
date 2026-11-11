@@ -8,7 +8,7 @@ import { encryptedText, searchableText } from '../utils'
 import { users } from './auth'
 
 export const userSettings = d.snakeCase.table('user_settings', {
-  briefHour: d.smallint().default(8).notNull(),
+  briefHour: d.smallint().default(20).notNull(),
   gmailLabels: d.boolean().default(false).notNull(),
   knowledge: encryptedText(),
   language: d.text().$type<Locale>().notNull(),

@@ -224,11 +224,10 @@ export const fr: Messages = {
     watching: 'L’agent surveille votre boîte',
   },
   onboarding: {
-    briefTitle: 'Quand votre brief doit-il être prêt ?',
     languageHint:
       'L’app, les briefs, les résumés et les explications utilisent cette langue. Les réponses suivent toujours la langue de l’e-mail auquel vous répondez.',
     languageTitle: 'Dans quelle langue Fewmail doit-il parler ?',
-    lead: 'Trois réponses rapides. Vous pourrez tout changer plus tard dans les Réglages.',
+    lead: 'Deux réponses rapides. Vous pourrez tout changer plus tard dans les Réglages.',
     personaTitle: 'Comment utilisez-vous vos e-mails ?',
     reading: 'Lecture de votre boîte…',
     start: 'Commencer',

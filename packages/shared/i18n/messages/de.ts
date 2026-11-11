@@ -221,11 +221,10 @@ export const de: Messages = {
     watching: 'Der Agent behält deinen Posteingang im Blick',
   },
   onboarding: {
-    briefTitle: 'Wann soll dein Briefing bereit sein?',
     languageHint:
       'App, Briefings, Zusammenfassungen und Erklärungen nutzen diese Sprache. Antworten folgen immer der Sprache der Mail, auf die du antwortest.',
     languageTitle: 'Welche Sprache soll Fewmail sprechen?',
-    lead: 'Drei kurze Antworten. Du kannst alles später in den Einstellungen ändern.',
+    lead: 'Zwei kurze Antworten. Du kannst alles später in den Einstellungen ändern.',
     personaTitle: 'Wie nutzt du E-Mail?',
     reading: 'Lese deinen Posteingang…',
     start: 'Los geht’s',
