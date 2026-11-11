@@ -120,13 +120,14 @@ const components = { code: Code }
 
 export const Response = ({
   className,
+  components: extra,
   variant,
   ...props
 }: React.ComponentProps<typeof Streamdown> &
   VariantProps<typeof responseVariants>) => (
   <Streamdown
     className={cn(responseVariants({ variant }), className)}
-    components={components}
+    components={{ ...components, ...extra }}
     controls={false}
     data-slot="response"
     linkSafety={{ enabled: false }}

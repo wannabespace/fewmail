@@ -1,0 +1,162 @@
+import { db } from '@fewmail/db'
+import { chats } from '@fewmail/db/schema'
+import { englishName } from '@fewmail/shared/i18n/locales'
+import {
+  convertToModelMessages,
+  generateId,
+  isToolUIPart,
+  stepCountIs,
+  streamText,
+  tool,
+  validateUIMessages,
+} from 'ai'
+import type { UIMessage } from 'ai'
+import { and, desc, eq } from 'drizzle-orm'
+import { z } from 'zod'
+
+import { models } from '../lib/ai'
+import { agentTools } from './agent-tools'
+import { NotFoundError } from './mail-errors'
+import { getSettings } from './settings'
+
+const MAX_STEPS = 12
+const TITLE_LENGTH = 80
+
+const chatTools = (userId: string) =>
+  Object.fromEntries(
+    Object.entries(agentTools(userId)).map(([name, agentTool]) => [
+      name,
+      tool({
+        description: agentTool.description,
+        execute: (input: unknown) => agentTool.run(input as never),
+        inputSchema: z.object(agentTool.input ?? {}),
+        needsApproval: agentTool.access === 'consent',
+      }),
+    ])
+  )
+
+const instructionsFor = async (userId: string) => {
+  const settings = await getSettings(userId)
+  const timezone = settings?.timezone ?? 'UTC'
+  const now = new Date().toLocaleString('en-GB', {
+    dateStyle: 'full',
+    timeStyle: 'short',
+    timeZone: timezone,
+  })
+  return [
+    "You are Fewmail, the user's email agent, talking with them in a chat. You read all of their mail so they do not have to.",
+    `Write in ${englishName(settings?.language ?? 'en')}, or in the language the user writes in. Replies to an email are written in the language of that email.`,
+    settings?.persona === 'responder'
+      ? 'The user replies to a lot of mail: people waiting for them come first.'
+      : 'The user mostly reads: they want calm and nothing important lost.',
+    `Now: ${now} (${timezone}).`,
+    settings?.knowledge
+      ? `What the user told you to know:\n${settings.knowledge}`
+      : '',
+    'Use the tools for anything about their mail and never invent emails, people, amounts or dates; search before saying something is not there.',
+    'Be brief: a few sentences or a short list. Mention an email as a markdown link to its thread, [sender — subject](?thread=<threadId>), so the user can open it.',
+    'To send a reply: draft_reply, then approve_action with that action id. Sending, archiving, snoozing, unsubscribing, rules and handing threads over show the user a confirmation button, so call the tool instead of asking in text. When they decline, accept it and do not retry.',
+  ]
+    .filter(Boolean)
+    .join('\n')
+}
+
+/** An approval the user never answered (they wrote something else instead) counts as declined. */
+const declineUnanswered = (messages: UIMessage[]) =>
+  messages.map((message, index) =>
+    index === messages.length - 1
+      ? message
+      : {
+          ...message,
+          parts: message.parts.map((part) =>
+            isToolUIPart(part) && part.state === 'approval-requested'
+              ? {
+                  ...part,
+                  approval: { ...part.approval, approved: false },
+                  state: 'approval-responded' as const,
+                }
+              : part
+          ),
+        }
+  )
+
+const titleOf = (message: UIMessage) =>
+  message.parts
+    .flatMap((part) => (part.type === 'text' ? [part.text] : []))
+    .join(' ')
+    .slice(0, TITLE_LENGTH)
+
+const ownChat = async (userId: string, id: string) => {
+  const [chat] = await db
+    .select()
+    .from(chats)
+    .where(and(eq(chats.id, id), eq(chats.userId, userId)))
+  return chat
+}
+
+export const listChats = (userId: string) =>
+  db
+    .select({ id: chats.id, title: chats.title, updatedAt: chats.updatedAt })
+    .from(chats)
+    .where(eq(chats.userId, userId))
+    .orderBy(desc(chats.updatedAt))
+    .limit(50)
+
+export const getChat = async (userId: string, id: string) => {
+  const chat = await ownChat(userId, id)
+  if (!chat) {
+    throw new NotFoundError('Chat not found')
+  }
+  return { ...chat, messages: chat.messages as UIMessage[] }
+}
+
+export const deleteChat = async (userId: string, id: string) => {
+  await db.delete(chats).where(and(eq(chats.id, id), eq(chats.userId, userId)))
+}
+
+/**
+ * The client sends only its last message: a new one, the assistant turn it answered approvals in,
+ * or the question it regenerates — which drops what came after it. History comes from the database.
+ */
+export const streamChat = async (
+  userId: string,
+  { id, message }: { id: string; message: UIMessage }
+) => {
+  const chat = await ownChat(userId, id)
+  const stored = (chat?.messages ?? []) as UIMessage[]
+  const tools = chatTools(userId)
+  const known = stored.findIndex(({ id: storedId }) => storedId === message.id)
+  const history =
+    known === -1
+      ? [...stored, { ...message, role: 'user' as const }]
+      : [...stored.slice(0, known), message]
+  const messages = declineUnanswered(
+    await validateUIMessages({ messages: history, tools })
+  )
+
+  const save = (all: UIMessage[]) =>
+    db
+      .update(chats)
+      .set({ messages: all })
+      .where(and(eq(chats.id, id), eq(chats.userId, userId)))
+  await (chat
+    ? save(messages)
+    : db
+        .insert(chats)
+        .values({ id, messages, title: titleOf(message), userId }))
+
+  const result = streamText({
+    instructions: await instructionsFor(userId),
+    messages: await convertToModelMessages(messages, { tools }),
+    model: models.writer,
+    stopWhen: stepCountIs(MAX_STEPS),
+    tools,
+  })
+  return result.toUIMessageStream({
+    generateMessageId: generateId,
+    onFinish: async ({ messages: all }) => {
+      await save(all)
+    },
+    originalMessages: messages,
+  })
+}

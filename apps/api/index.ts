@@ -9,6 +9,7 @@ import { relayChanges } from './lib/live'
 import { handleMcp } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
+import { handleGmailPush } from './services/gmail-push'
 import { finishAddingMailbox } from './services/mailboxes'
 import { syncMailbox } from './services/sync'
 import { startTelegram, telegramWebhook } from './telegram'
@@ -34,6 +35,7 @@ const app = new Hono()
   .get('/whatsapp', (c) => verifyWhatsappWebhook(new URL(c.req.url)))
   .post('/whatsapp', (c) => whatsappWebhook(c.req.raw))
   .post('/stripe/webhook', (c) => handleStripeWebhook(c.req.raw))
+  .post('/gmail/push', (c) => handleGmailPush(c.req.raw))
   .get(MAILBOX_CALLBACK_PATH, async (c) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers })
     const { mailboxId, result } = await finishAddingMailbox(

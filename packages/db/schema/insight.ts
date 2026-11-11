@@ -231,3 +231,15 @@ export const domainAges = d.snakeCase.table('domain_ages', {
   domain: d.text().primaryKey(),
   registeredAt: d.timestamp({ withTimezone: true }),
 })
+
+/** Agent mode conversations; `messages` are the AI SDK UI messages, tool results included. */
+export const chats = d.snakeCase.table(
+  'chats',
+  {
+    ...baseTable,
+    messages: encryptedJson<unknown[]>().notNull(),
+    title: encryptedText().notNull(),
+    userId: userId(),
+  },
+  (table) => [d.index('chats_user_idx').on(table.userId, table.updatedAt)]
+)

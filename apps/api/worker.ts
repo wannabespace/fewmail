@@ -16,6 +16,7 @@ import { and, eq, gte, isNotNull, isNull, lt, or } from 'drizzle-orm'
 import { seedBoards } from './services/boards'
 import { generateBrief, isBriefDue } from './services/brief'
 import { offerCleanup } from './services/cleanup'
+import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { chatIdForUser } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
 import { listQueue } from './services/mail'
@@ -115,6 +116,15 @@ const seedDueBoards = async () => {
   )
 }
 
+const renewWatches = async () => {
+  const due = await mailboxesToWatch()
+  await Promise.all(
+    due.map((mailbox) =>
+      once(`watch:${mailbox.id}`, () => watchMailbox(mailbox))
+    )
+  )
+}
+
 const readDueBoardHistory = async () => {
   const due = await db.select().from(boards).where(isNull(boards.historyReadAt))
   await Promise.all(
@@ -199,6 +209,7 @@ const tick = async () => {
   try {
     await Promise.all([
       syncDueMailboxes(),
+      renewWatches(),
       seedDueBoards(),
       readDueBoardHistory(),
       once('briefs', sendDueBriefs),

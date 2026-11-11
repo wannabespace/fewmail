@@ -8,6 +8,7 @@
     "check-types": "bun check"
   },
   "dependencies": {
+    "@ai-sdk/react": "catalog:",
     "@base-ui/react": "catalog:",
     "@fewmail/shared": "workspace:*",
     "@fewmail/ui": "workspace:*",
@@ -26,6 +27,7 @@
     "@tiptap/react": "catalog:",
     "@tiptap/starter-kit": "catalog:",
     "@tiptap/suggestion": "catalog:",
+    "ai": "catalog:",
     "arktype": "catalog:",
     "better-auth": "catalog:",
     "date-fns": "catalog:",

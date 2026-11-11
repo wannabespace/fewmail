@@ -17,6 +17,8 @@ export const env = type({
   BETTER_AUTH_SECRET: 'string',
   GOOGLE_CLIENT_ID: 'string',
   GOOGLE_CLIENT_SECRET: 'string',
+  'GMAIL_PUSH_SECRET?': 'string',
+  'GMAIL_PUSH_TOPIC?': 'string',
   'MISTRAL_API_KEY?': 'string',
   OPENROUTER_API_KEY: 'string',
   'PORT?': 'string.numeric.parse',

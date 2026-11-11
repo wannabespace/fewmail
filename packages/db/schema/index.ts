@@ -24,6 +24,7 @@ export {
   boardEntries,
   boards,
   bulkPrints,
+  chats,
   commitments,
   domainAges,
   domainSightings,

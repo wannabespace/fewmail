@@ -15,6 +15,7 @@ import {
 } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { LOCALES } from '@fewmail/shared/i18n/locales'
+import { streamToEventIterator } from '@orpc/server'
 import type { InferRouterOutputs } from '@orpc/server'
 import { type } from 'arktype'
 import { and, eq } from 'drizzle-orm'
@@ -33,6 +34,7 @@ import {
   updateBoard,
 } from '../services/boards'
 import { generateBrief, getToday } from '../services/brief'
+import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
 import {
   createApiKey,
   getTelegramLink,
@@ -51,6 +53,8 @@ import {
   draftReply,
   getThread,
   listMail,
+  countUnread,
+  markThreadRead,
   redraftAction,
   snoozeMessage,
   trashMessage,
@@ -329,6 +333,12 @@ export const router = {
     sync: authed.handler(async ({ context }) => {
       await syncMailboxes(context.user.id)
     }),
+    markRead: authed
+      .input(type({ threadId: 'string' }))
+      .handler(async ({ context, input }) => {
+        await markThreadRead(context.user.id, input.threadId)
+      }),
+    unread: authed.handler(({ context }) => countUnread(context.user.id)),
     thread: authed
       .input(type({ threadId: 'string' }))
       .handler(({ context, input }) =>
@@ -338,6 +348,35 @@ export const router = {
       .input(messageId)
       .handler(({ context, input }) =>
         unsubscribeMessage(context.user.id, input.messageId)
+      ),
+  },
+  chats: {
+    delete: agent.input(id).handler(async ({ context, input }) => {
+      await deleteChat(context.user.id, input.id)
+    }),
+    get: agent
+      .input(id)
+      .handler(({ context, input }) => getChat(context.user.id, input.id)),
+    list: agent.handler(({ context }) => listChats(context.user.id)),
+    send: agent
+      .input(
+        id.and({
+          message: {
+            id: 'string',
+            parts: 'object[]',
+            role: "'user' | 'assistant'",
+          },
+        })
+      )
+      .handler(async ({ context, input }) =>
+        streamToEventIterator(
+          await streamChat(context.user.id, {
+            id: input.id,
+            message: input.message as Parameters<
+              typeof streamChat
+            >[1]['message'],
+          })
+        )
       ),
   },
   ask: agent

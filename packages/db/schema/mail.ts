@@ -39,6 +39,8 @@ export const mailboxes = d.snakeCase.table(
   'mailboxes',
   {
     ...baseTable,
+    /** Keyed hash of `email`: Gmail push names a mailbox only by its address, and `email` cannot be queried. */
+    addressHash: d.text(),
     email: encryptedText().notNull(),
     /** Null for the sign-in mailbox. */
     googleAccountId: searchableText(),
@@ -57,8 +59,11 @@ export const mailboxes = d.snakeCase.table(
     /** Claimed atomically: the API and the worker both sync, and a doubled sync would analyze mail twice. */
     syncStartedAt: d.timestamp({ withTimezone: true }),
     userId: userId(),
+    /** Gmail stops pushing at this time unless the watch is renewed. */
+    watchExpiresAt: d.timestamp({ withTimezone: true }),
   },
   (table) => [
+    d.index('mailboxes_address_hash_idx').on(table.addressHash),
     d
       .uniqueIndex('mailboxes_user_sign_in_idx')
       .on(table.userId)

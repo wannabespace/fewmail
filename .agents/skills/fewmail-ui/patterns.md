@@ -42,7 +42,8 @@
 
 ## Lists and tables
 
-- **Mail rows are two lines, brightness is the hierarchy.** Line one: importance dot, sender, subject, time; line two: the summary (or snippet), one line, `text-muted-foreground`. Unread rows carry a semibold sender and a `foreground/90` subject; read rows drop to `foreground/70` sender and `foreground/60` subject, so unread mail stands out without a second color. The summary is never brighter than the subject.
+- **Mail rows are three lines, Spark's density with Gmail's full subject.** Line one: unread dot (`bg-primary`, an empty slot when read), sender, importance dot, time; line two: the subject; line three: the summary (or snippet), `text-muted-foreground`, each one line. Unread rows carry a semibold sender, a `font-medium` `foreground/90` subject and an ink time; read rows drop to `foreground/70` sender, `foreground/60` subject and a muted time. The summary is never brighter than the subject.
+- **Unread counts mirror Gmail.** Mail filter tabs (all but Snoozed and Spam) and the sidebar Mail row show the unread count of inbox mail as plain muted `tabular-nums` text (`mail.unread`); the filled `bg-primary` pill stays reserved for Today, where the count is work waiting.
 - Grouped lists: one `rounded-xl border bg-card` container, `border-b last:border-b-0` rows, `hover:bg-accent`.
 - **A page list's search gets its own full-width row** under the count and controls row, at default size. Squeezed among the controls it truncates its placeholder; stripped of its surface it stops reading as a field. Matches are highlighted in the rows.
 - **Labels align by text, not by block.** A page title or heading over a card or list takes the rows' horizontal inset, so its first letter sits on the same line as the row text below — never on the card edge, never on a padding of its own. Change the row padding and the heading's inset moves with it: over `sm` Items (Settings rows) the heading, header row or inset `CodeBlock` takes the kit's `smallItemInsetClassName`, never a copied `px-3.5`.
@@ -119,6 +120,14 @@ Suggestion order is JSX order (`shouldFilter={false}`) — the literal answer fi
 
 - **The target is the whole surface, not the glyph inside it.** A row's hit area is the row, a strip button's is its hover square, a separator's is the grab strip around its line. A control whose clickable area is its ink is a control the user has to aim at.
 - **Anticipate the pointer, not the click.** Work the user has visibly committed to is warmed when the intent shows, so the click finds it ready. Hover is for *revealing* — it never navigates, selects, saves or opens a window, because crossing a surface is not a decision. Pressing is, which is why nav fires on mousedown.
+
+## Agent mode
+
+- **Agent mode is the app folded into one chat** (`/agent`): the sidebar panel collapses (kept mounted, so `G` sequences still work) and the page is a header (logo, the chat's title muted, then Chats ▾, New chat `⇧⌘O`, Leave agent mode `G T`), the transcript in a `max-w-2xl` column, the composer and `KeyHints`. An email linked from an answer opens in a reader pane on the right, the Mail reader's `ThreadView`.
+- Built only from the kit's shadcn chat set: `MessageScroller` (provider `autoScroll`, nothing anchored), `Message`, `Bubble` for the user (`secondary`, right), `Marker` for steps and status, `InputGroupTextarea` composer with the primary Send `⏎` / secondary Stop `esc` in a `block-end` addon. The agent's answer is no bubble: `Response variant="reading"` — serif `text-base/relaxed`, like the brief, because it is read.
+- **Every tool call is a `Marker` row**: spinner while it runs, tick when done, alert when it failed, cross plus "You said no" when declined; the label says what the agent is doing ("Searching mail · invoices from Anna · 12"). Drafts it writes show inline as the queue card's `DraftText`.
+- **Consent is a card in the transcript, never a dialog**: the queue card's surface (`bg-popover rounded-2xl`, lifted with `ring-foreground/10 shadow-sm`), the question in medium sans, what it touches (sender · subject, recipients, the exact text as `DraftText`, the snooze time, the rule), then the primary verb with `⌘⏎` and a ghost "Don’t". Only the last turn's cards can be answered; writing a new message declines them. An approved send gets the usual Undo toast.
+- The empty chat is the page's reading block: serif `text-display` title, serif `text-brief` lead that says nothing changes without a yes, and four `secondary` `sm` suggestion buttons that send at once.
 
 ## Compose & undo
 

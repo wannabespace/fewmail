@@ -20,3 +20,10 @@ export const signedInStore = createWebStorageValue({
   schema: type('boolean'),
   type: 'localStorage',
 })
+
+export const agentModeStore = createWebStorageValue({
+  defaultValue: false,
+  key: 'fewmail.agent-mode',
+  schema: type('boolean'),
+  type: 'localStorage',
+})

@@ -43,7 +43,7 @@ import {
   StartButton,
   TrialNote,
 } from '~/components/site'
-import { signedInStore } from '~/lib/auth'
+import { agentModeStore, signedInStore } from '~/lib/auth'
 import { FAQ } from '~/lib/marketing'
 
 const Hero = () => (
@@ -281,7 +281,7 @@ const LandingPage = () => (
 export const Route = createFileRoute('/_site/')({
   beforeLoad: () => {
     if (signedInStore.get()) {
-      throw redirect({ to: '/today' })
+      throw redirect({ to: agentModeStore.get() ? '/agent' : '/today' })
     }
   },
   component: LandingPage,

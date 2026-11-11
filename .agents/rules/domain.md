@@ -31,6 +31,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Board** | A page the user describes in their own words ("Trips: flights and hotels with what they cost"); the agent collects matching mail as **entries** (title, group, status, amount, date), starting with half a year of history, and picks the **charts** when it is created — the user edits or removes them after. Everyone starts with a **Money** board, an ordinary board they may change or delete. Boards live in the sidebar (`G 1`…`G 9`). Pro. |
 | **Cleanup** | Weekly Sunday suggestion to clear accumulated noise. Pro. |
 | **Task** | "Handle this": the agent works a thread toward a goal, asking before each send or sending on its own (`ask` / `auto`). Pro. |
+| **Agent mode** | `/agent` (`G A`): the whole app as one chat with the agent, sidebar folded away. It answers from the mail through the same tools as MCP, shows each step it takes, and anything that sends, changes Gmail, adds a rule or hands a thread over waits for the user's yes on a confirmation card in the chat. Chats are kept (`chats`) and listed under Chats; `/` reopens agent mode for someone who left the app in it. Pro. |
 | **Instructions** | Free-text or voice messages to the Telegram or WhatsApp bot; replying to a bot message targets its thread. Pro. |
 
 UI copy says "the agent" or "Fewmail", never "AI" or "the model".
@@ -39,7 +40,7 @@ UI copy says "the agent" or "Fewmail", never "AI" or "the model".
 
 | Plan | What it is |
 | --- | --- |
-| **Free** | Forever. Mail view, archive / unsubscribe / open in Gmail, **simple rules** (`rules.match`: from, subject contains, any mailing list → archive, mark read, unsubscribe; always act on their own), and every Jev decision: classification, importance, needs-reply, plain-language rules (archive / mark read / unsubscribe / trash, autonomous), risk checks, zombie and bulk detection, auto follow-ups, agent labels. **No LLM**: no Today, summaries, drafts, autocomplete, Ask AI, commitments, money, people, tasks, Telegram, WhatsApp or MCP — the controls are absent, not locked. |
+| **Free** | Forever. Mail view, archive / unsubscribe / open in Gmail, **simple rules** (`rules.match`: from, subject contains, any mailing list → archive, mark read, unsubscribe; always act on their own), and every Jev decision: classification, importance, needs-reply, plain-language rules (archive / mark read / unsubscribe / trash, autonomous), risk checks, zombie and bulk detection, auto follow-ups, agent labels. **No LLM**: no Today, agent mode, summaries, drafts, autocomplete, Ask AI, commitments, money, people, tasks, Telegram, WhatsApp or MCP — the controls are absent, not locked. |
 | **Trial** | 14 days of Pro from onboarding (`user_settings.trial_ends_at`), no card. Ends silently into Free. |
 | **Pro** | $15/month via Stripe (`PRO_PRICE_USD`). The whole agent: everything that uses an LLM. |
 

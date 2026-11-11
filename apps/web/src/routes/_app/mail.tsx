@@ -36,6 +36,11 @@ const FILTERS = [
 
 type Filter = (typeof FILTERS)[number]
 
+const isCounted = (
+  filter: Filter
+): filter is keyof RouterOutputs['mail']['unread'] =>
+  filter !== 'snoozed' && filter !== 'spam'
+
 const READER_WIDTH = { default: 640, max: '70%', min: 420 } as const
 
 const readerWidthStore = createWebStorageValue({
@@ -109,6 +114,22 @@ const MailRow = ({
         )}
       >
         <span className="flex items-center gap-2 text-sm">
+          <span
+            aria-label={message.isUnread ? t.mail.unread : undefined}
+            className={cn(
+              'size-2 shrink-0 rounded-full',
+              message.isUnread && 'bg-primary'
+            )}
+          />
+          <span
+            data-mask
+            className={cn(
+              'min-w-0 flex-1 truncate',
+              message.isUnread ? 'font-semibold' : 'text-foreground/70'
+            )}
+          >
+            {message.fromName ?? message.fromEmail}
+          </span>
           {analysis ? (
             <ImportanceDot
               importance={analysis.importance}
@@ -118,29 +139,29 @@ const MailRow = ({
             <span className="bg-foreground/10 size-2 shrink-0 animate-pulse rounded-full" />
           )}
           <span
-            data-mask
             className={cn(
-              'max-w-1/3 shrink-0 truncate',
-              message.isUnread ? 'font-semibold' : 'text-foreground/70'
+              'shrink-0 text-xs tabular-nums',
+              message.isUnread
+                ? 'text-foreground font-medium'
+                : 'text-muted-foreground'
             )}
           >
-            {message.fromName ?? message.fromEmail}
-          </span>
-          <span
-            data-mask
-            className={cn(
-              'min-w-0 flex-1 truncate',
-              message.isUnread ? 'text-foreground/90' : 'text-foreground/60'
-            )}
-          >
-            {message.subject}
-          </span>
-          <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
             {dates.format(
               message.receivedAt,
               isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
             )}
           </span>
+        </span>
+        <span
+          data-mask
+          className={cn(
+            'truncate pl-4 text-sm',
+            message.isUnread
+              ? 'text-foreground/90 font-medium'
+              : 'text-foreground/60'
+          )}
+        >
+          {message.subject}
         </span>
         <span data-mask className="text-muted-foreground truncate pl-4 text-sm">
           {analysis?.summary ?? message.snippet}
@@ -178,6 +199,7 @@ const MailPage = () => {
     setCursor(0)
   }
 
+  const { data: unread } = useQuery(orpc.mail.unread.queryOptions())
   const { data: rows = [], isFetching } = useQuery(
     orpc.mail.list.queryOptions({ input: { filter, ...(q && { search: q }) } })
   )
@@ -270,6 +292,11 @@ const MailPage = () => {
                 {FILTERS.map((value) => (
                   <TabsTrigger key={value} value={value}>
                     {t.mail.filter[value]}
+                    {isCounted(value) && Boolean(unread?.[value]) && (
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {unread?.[value]}
+                      </span>
+                    )}
                   </TabsTrigger>
                 ))}
               </TabsList>

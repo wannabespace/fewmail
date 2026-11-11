@@ -8,7 +8,7 @@ When you sign in with Google you grant Fewmail the `gmail.modify` permission tog
 
 - **Read** your messages (sender, recipients, subject, date, labels, text body and whether there are attachments) so the agent can summarize them, judge their importance and draft replies. Attachments themselves are not downloaded.
 - **Read your recently sent messages** so drafts match how you write, and to notice when you are waiting for an answer or promised something.
-- **Change labels** — archive, mark as read, snooze, move to trash, or add the agent's own `Fewmail/…` labels if you turn them on — only when you do it yourself, approve it, or keep a rule that allows it. Every automatic change is listed under "handled" in the app.
+- **Change labels** — archive, mark as read, snooze, move to trash, or add the agent's own `Fewmail/…` labels if you turn them on — only when you do it yourself (opening an email in Fewmail marks it as read in Gmail, as any mail app does), approve it, or keep a rule that allows it. Every automatic change is listed under "handled" in the app.
 - **Send email** only when you send it yourself or explicitly approve an agent draft — in the app, in Telegram or WhatsApp, or through an MCP client you connected. Every send waits a few seconds so you can undo it, and scheduled emails wait until the time you chose.
 - **Search** your mailbox when you ask the agent a question about your mail.
 - **Unsubscribe** from a mailing list through its one-click unsubscribe link, only when you approve it or a rule you keep allows it.
@@ -30,6 +30,7 @@ Fewmail's use and transfer to any other app of information received from Google 
 - **Google OAuth tokens:** stored encrypted, used only to access Gmail on your behalf.
 - **Synced mail:** the message data listed in section 2. Everything that comes from your mail — addresses, names, subjects, snippets, bodies and headers — is encrypted at rest with AES-256-GCM.
 - **What the agent produces:** summaries, importance and reasons, drafts and daily briefs — also encrypted at rest.
+- **Agent chats (Pro):** your conversations with the agent in agent mode — what you write, its answers and the mail details it looked up to answer — encrypted at rest until you delete the chat or your account.
 - **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and the goals of threads you ask the agent to handle — encrypted at rest. Boards you create are stored with their name, description and charts, and the entries the agent collects for them from your mail — including the last six months, read once when a board is created — are stored as title, group and status (encrypted), amount, currency and date.
 - **Fraud checks:** to warn you when bank or payment details in an email change, we store only keyed one-way hashes of those details, never the details themselves.
 - **Your settings and rules:** language, how you use email, brief time, time zone, the rules and snippets you write, and anything you tell the agent to know about you.
@@ -45,13 +46,13 @@ We do not use third-party analytics, advertising or tracking tools.
 
 ## 5. AI processing
 
-Quick decisions about each email (its category, importance, whether someone waits for an answer, whether you expect a reply to mail you sent, matching your rules and checking for risky wording) are made by **TypeSafe** (Jev) on every plan, including Free. Everything else runs only on the Pro plan and during the trial; on the Free plan no email content is sent to other AI providers. To summarize emails and write drafts and briefs, the relevant email content and your settings are sent to large language models through **OpenRouter**: short summaries and extraction go to Anthropic Claude Haiku (Google Gemini Flash as fallback), drafts, briefs and answers about your mail go to Anthropic Claude Sonnet (xAI Grok as fallback). Inline autocomplete while you write uses **Mistral** Codestral, falling back to Claude Haiku through OpenRouter. Voice messages you send to the Telegram or WhatsApp bot are transcribed by **Mistral** Voxtral; voice recordings are not stored. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
+Quick decisions about each email (its category, importance, whether someone waits for an answer, whether you expect a reply to mail you sent, matching your rules and checking for risky wording) are made by **TypeSafe** (Jev) on every plan, including Free. Everything else runs only on the Pro plan and during the trial; on the Free plan no email content is sent to other AI providers. To summarize emails and write drafts and briefs, the relevant email content and your settings are sent to large language models through **OpenRouter**: short summaries and extraction go to Anthropic Claude Haiku (Google Gemini Flash as fallback), drafts, briefs, answers about your mail and the agent chat (with the mail it looks up for you) go to Anthropic Claude Sonnet (xAI Grok as fallback). Inline autocomplete while you write uses **Mistral** Codestral, falling back to Claude Haiku through OpenRouter. Voice messages you send to the Telegram or WhatsApp bot are transcribed by **Mistral** Voxtral; voice recordings are not stored. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
 
 ## 6. Where your data goes
 
 | Service | Purpose |
 | --- | --- |
-| Google (Gmail API, OAuth) | Sign-in and access to your mailbox |
+| Google (Gmail API, OAuth, Cloud Pub/Sub) | Sign-in and access to your mailbox; Pub/Sub tells us that your mailbox changed (only your address and a change number, no mail content) so new mail and changes you make in Gmail show up in seconds |
 | OpenRouter → Anthropic, Google, xAI | Reading emails, drafting replies, writing briefs, answering questions about your mail, autocomplete fallback |
 | TypeSafe (Jev) | Classifying each email, on every plan |
 | Mistral | Autocomplete while you write, transcribing Telegram and WhatsApp voice messages |

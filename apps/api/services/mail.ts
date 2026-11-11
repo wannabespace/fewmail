@@ -131,6 +131,12 @@ export type MailFilter =
   | 'snoozed'
 
 const PAGE_SIZE = 50
+const INBOX_FILTERS = new Set<MailFilter>([
+  'inbox',
+  'important',
+  'needs_reply',
+  'quiet',
+])
 
 export const listMail = async (
   userId: string,
@@ -172,7 +178,7 @@ export const listMail = async (
           ? eq(analyses.needsReply, true)
           : undefined,
         input.filter === 'quiet' ? lt(analyses.importance, 1) : undefined,
-        input.filter === 'inbox' && !searchIds
+        INBOX_FILTERS.has(input.filter) && !searchIds
           ? sql`'INBOX' = ANY(${messages.labelIds})`
           : undefined,
         snoozed ? inArray(messages.threadId, snoozed) : undefined,
@@ -184,6 +190,40 @@ export const listMail = async (
     .orderBy(desc(messages.receivedAt))
     .limit(PAGE_SIZE)
 }
+
+/** Unread mail still in the inbox, per mail filter. */
+export const countUnread = async (userId: string) => {
+  const [counts] = await db
+    .select({
+      important:
+        sql<number>`count(*) filter (where ${analyses.importance} >= 2)`.mapWith(
+          Number
+        ),
+      inbox: sql<number>`count(*)`.mapWith(Number),
+      needs_reply:
+        sql<number>`count(*) filter (where ${analyses.needsReply})`.mapWith(
+          Number
+        ),
+      quiet:
+        sql<number>`count(*) filter (where ${analyses.importance} < 1)`.mapWith(
+          Number
+        ),
+    })
+    .from(messages)
+    .leftJoin(analyses, eq(analyses.messageId, messages.id))
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.isFromMe, false),
+        eq(messages.isUnread, true),
+        sql`'INBOX' = ANY(${messages.labelIds})`
+      )
+    )
+  return expectRow(counts)
+}
+
+export const markThreadRead = (userId: string, threadId: string) =>
+  changeThreadLabels(userId, threadId, MARK_READ)
 
 export const getThread = async (userId: string, threadId: string) => {
   const rows = await db

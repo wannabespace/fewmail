@@ -163,6 +163,12 @@ export const listMessageIds = async (
   return messages.map(({ id }) => id)
 }
 
+export const watchInbox = (account: GmailAccount, topicName: string) =>
+  gmail<{ expiration: string; historyId: string }>(account, '/watch', {
+    body: JSON.stringify({ topicName }),
+    method: 'POST',
+  })
+
 interface HistoryMessage {
   message: { id: string; labelIds?: string[] }
 }

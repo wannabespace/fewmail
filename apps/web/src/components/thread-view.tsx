@@ -20,7 +20,7 @@ import {
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -193,6 +193,25 @@ const ThreadNotices = ({
   )
 }
 
+const useMarkRead = (
+  threadId: string,
+  thread?: { messages: { message: { isUnread: boolean } }[] }
+) => {
+  const queryClient = useQueryClient()
+  const hasUnread = thread?.messages.some(({ message }) => message.isUnread)
+  const { mutate: markRead } = useMutation(
+    orpc.mail.markRead.mutationOptions({
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+    })
+  )
+  useEffect(() => {
+    if (hasUnread) {
+      markRead({ threadId })
+    }
+  }, [hasUnread, markRead, threadId])
+}
+
 export const ThreadView = ({
   isSnoozed,
   onDone,
@@ -213,6 +232,7 @@ export const ThreadView = ({
   const [isHandleOpen, setIsHandleOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
+  useMarkRead(threadId, data)
   const finish = (message: string) => {
     toast.success(message)
     void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })

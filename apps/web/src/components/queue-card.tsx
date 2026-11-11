@@ -25,6 +25,15 @@ const OWN_LABEL = new Set<Action['kind']>([
   'task',
 ])
 
+export const DraftText = ({ text }: { text: string }) => (
+  <p
+    data-mask
+    className="bg-secondary/60 text-foreground/90 rounded-xl px-4 py-3 font-serif text-base/relaxed whitespace-pre-wrap"
+  >
+    {text}
+  </p>
+)
+
 export const hasDraft = (action: Action) =>
   action.kind === 'reply' || (action.kind === 'task' && !!action.detail)
 
@@ -207,12 +216,7 @@ export const QueueCard = ({
                 complete={completerFor(hasAgent, message)}
               />
             ) : (
-              <p
-                data-mask
-                className="bg-secondary/60 text-foreground/90 rounded-xl px-4 py-3 font-serif text-base/relaxed whitespace-pre-wrap"
-              >
-                {draft}
-              </p>
+              <DraftText text={draft} />
             ))}
           {action.kind === 'cleanup' && <CleanupList action={action} />}
           {!isReply && action.kind !== 'cleanup' && reason && (

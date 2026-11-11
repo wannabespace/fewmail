@@ -62,10 +62,13 @@ export const useLocale = () => useSubscription(localeStore)
 export const useT = () => messages[useLocale()]
 
 export const useDates = () => {
-  const locale = DATE_LOCALES[useLocale()]
+  const code = useLocale()
+  const locale = DATE_LOCALES[code]
   return {
     ago: (date: Date) =>
-      formatDistanceToNowStrict(date, { addSuffix: true, locale }),
+      Date.now() - date.getTime() < 60_000
+        ? messages[code].justNow
+        : formatDistanceToNowStrict(date, { addSuffix: true, locale }),
     format: (date: Date | number, pattern: string) =>
       format(date, pattern, { locale }),
   }

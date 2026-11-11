@@ -8,6 +8,7 @@ import {
   Outlet,
   redirect,
   useRouter,
+  useRouterState,
 } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { useEffect, useState } from 'react'
@@ -19,7 +20,7 @@ import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { ComposeDialog } from '~/components/compose/compose-dialog'
 import { Sidebar } from '~/components/nav'
-import { signedInStore } from '~/lib/auth'
+import { agentModeStore, signedInStore } from '~/lib/auth'
 import { localeStore } from '~/lib/i18n'
 import { client, listenForChanges } from '~/lib/orpc'
 
@@ -37,6 +38,9 @@ const AppLayout = () => {
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   const sidebarWidth = useSubscription(sidebarWidthStore)
   const router = useRouter()
+  const isAgentMode = useRouterState({
+    select: ({ location }) => location.pathname === '/agent',
+  })
 
   useEffect(() => {
     for (const route of Object.values(router.routesById)) {
@@ -45,6 +49,9 @@ const AppLayout = () => {
       }
     }
   }, [router])
+  useEffect(() => {
+    agentModeStore.set(isAgentMode)
+  }, [isAgentMode])
   useEffect(() => {
     const controller = new AbortController()
     void listenForChanges(controller.signal)
@@ -57,6 +64,8 @@ const AppLayout = () => {
         <ResizableGroup className="flex-1">
           <ResizablePanel
             className="flex"
+            collapsed={isAgentMode}
+            keepMounted
             size={sidebarWidth}
             minSize={SIDEBAR_WIDTH.min}
             maxSize={SIDEBAR_WIDTH.max}

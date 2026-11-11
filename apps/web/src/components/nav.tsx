@@ -2,6 +2,7 @@ import { Kbd } from '@fewmail/ui/components/kbd'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
 import {
   Add01Icon,
+  AiChat02Icon,
   DashboardSquare01Icon,
   Mail01Icon,
   Search01Icon,
@@ -23,6 +24,7 @@ import { Logo } from './logo'
 
 export const NAV_ITEMS = [
   { icon: Sun03Icon, key: 'today', sequence: ['G', 'T'], to: '/today' },
+  { icon: AiChat02Icon, key: 'agent', sequence: ['G', 'A'], to: '/agent' },
   { icon: Mail01Icon, key: 'mail', sequence: ['G', 'M'], to: '/mail' },
   { icon: ZapIcon, key: 'rules', sequence: ['G', 'R'], to: '/rules' },
   {
@@ -33,7 +35,7 @@ export const NAV_ITEMS = [
   },
 ] as const
 
-const AGENT_ONLY = new Set(['today'])
+const AGENT_ONLY = new Set(['today', 'agent'])
 
 export const visibleNavItems = (hasAgent: boolean) =>
   NAV_ITEMS.filter((item) => hasAgent || !AGENT_ONLY.has(item.key))
@@ -107,9 +109,11 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
 const NavLink = ({
   item,
   badge,
+  count,
   showKeys,
 }: {
   badge?: number
+  count?: number
   item: (typeof NAV_ITEMS)[number]
   showKeys: boolean
 }) => {
@@ -125,6 +129,11 @@ const NavLink = ({
       {!showKeys && Boolean(badge) && (
         <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
           {badge}
+        </span>
+      )}
+      {!showKeys && !badge && Boolean(count) && (
+        <span className="text-muted-foreground text-xs tabular-nums">
+          {count}
         </span>
       )}
     </Link>
@@ -163,6 +172,7 @@ export const Sidebar = ({
   const { data: today } = useQuery(
     orpc.today.get.queryOptions({ enabled: hasAgent })
   )
+  const { data: unread } = useQuery(orpc.mail.unread.queryOptions())
 
   return (
     <nav
@@ -193,6 +203,7 @@ export const Sidebar = ({
           item={item}
           showKeys={isModifierHeld}
           badge={item.to === '/today' ? today?.queue.length : undefined}
+          count={item.to === '/mail' ? unread?.inbox : undefined}
         />
       ))}
       {hasAgent && <Boards showKeys={isModifierHeld} />}
