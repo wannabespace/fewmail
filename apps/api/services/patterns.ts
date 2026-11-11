@@ -269,14 +269,14 @@ const seenBefore = async (userId: string, domains: string[], before: Date) => {
   }
   const rows = await db
     .selectDistinct({
-      domain: sql<string>`split_part(${messages.fromEmail}, '@', 2)`,
+      domain: messages.fromDomain,
     })
     .from(messages)
     .where(
       and(
         eq(messages.userId, userId),
         lt(messages.receivedAt, before),
-        inArray(sql`split_part(${messages.fromEmail}, '@', 2)`, domains)
+        inArray(messages.fromDomain, domains)
       )
     )
   return new Set(rows.map(({ domain }) => domain))

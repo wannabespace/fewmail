@@ -9,7 +9,7 @@ import {
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText } from 'ai'
 import { subDays } from 'date-fns'
-import { and, desc, eq, inArray, or, sql } from 'drizzle-orm'
+import { and, arrayContains, desc, eq, inArray, or, sql } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { getPlanInfo, hasAgent } from './plan'
@@ -24,8 +24,8 @@ const withPerson = (userId: string, email: string) =>
     eq(messages.userId, userId),
     or(
       eq(messages.fromEmail, email),
-      sql`${email} = ANY(${messages.to})`,
-      sql`${email} = ANY(${messages.cc})`
+      arrayContains(messages.to, [email]),
+      arrayContains(messages.cc, [email])
     )
   )
 
@@ -81,11 +81,13 @@ export const getPerson = async (userId: string, rawEmail: string) => {
   const [stats] = await db
     .select({
       first: sql<Date>`min(${messages.receivedAt})`,
-      fromThem: sql<number>`count(*) filter (where ${messages.fromEmail} = ${email})::int`,
+      fromThem: sql<number>`count(*) filter (where ${eq(messages.fromEmail, email)})::int`,
       last: sql<Date>`max(${messages.receivedAt})`,
       name: sql<
         string | null
-      >`max(${messages.fromName}) filter (where ${messages.fromEmail} = ${email})`,
+      >`max(${messages.fromName}) filter (where ${eq(messages.fromEmail, email)})`.mapWith(
+        messages.fromName
+      ),
       toThem: sql<number>`count(*) filter (where ${messages.isFromMe})::int`,
     })
     .from(messages)

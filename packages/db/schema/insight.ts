@@ -10,7 +10,7 @@ import type {
 import * as d from 'drizzle-orm/pg-core'
 
 import { baseTable } from '../base-table'
-import { encryptedText } from '../utils'
+import { encryptedText, searchableText } from '../utils'
 import { users } from './auth'
 import { messages } from './mail'
 
@@ -63,7 +63,7 @@ export const domainSightings = d.snakeCase.table(
   'domain_sightings',
   {
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
-    domain: d.text().notNull(),
+    domain: searchableText().notNull(),
     userHash: d.text().notNull(),
   },
   (table) => [
@@ -78,7 +78,7 @@ export const paymentDetails = d.snakeCase.table(
   {
     createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     detailHash: d.text().notNull(),
-    senderDomain: d.text().notNull(),
+    senderDomain: searchableText().notNull(),
     userId: userId(),
   },
   (table) => [
@@ -95,7 +95,7 @@ export const commitments = d.snakeCase.table(
     dueAt: d.timestamp({ withTimezone: true }).notNull(),
     messageId: d.uuid().references(() => messages.id, { onDelete: 'cascade' }),
     promise: encryptedText().notNull(),
-    recipient: d.text(),
+    recipient: searchableText(),
     status: d.text().$type<'open' | 'reminded' | 'done'>().notNull(),
     threadId: d.text().notNull(),
     userId: userId(),
@@ -107,7 +107,7 @@ export const people = d.snakeCase.table(
   'people',
   {
     ...baseTable,
-    email: d.text().notNull(),
+    email: searchableText().notNull(),
     note: encryptedText(),
     noteUpdatedAt: d.timestamp({ withTimezone: true }),
     userId: userId(),
@@ -126,7 +126,7 @@ export const transactions = d.snakeCase.table(
     currency: d.text().notNull(),
     dueAt: d.timestamp({ withTimezone: true }),
     kind: d.text().$type<TransactionKind>().notNull(),
-    merchant: d.text().notNull(),
+    merchant: searchableText().notNull(),
     messageId: d
       .uuid()
       .notNull()

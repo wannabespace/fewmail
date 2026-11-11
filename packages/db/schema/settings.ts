@@ -4,12 +4,13 @@ import { sql } from 'drizzle-orm'
 import * as d from 'drizzle-orm/pg-core'
 
 import { baseTable } from '../base-table'
+import { encryptedText, searchableText } from '../utils'
 import { users } from './auth'
 
 export const userSettings = d.snakeCase.table('user_settings', {
   briefHour: d.smallint().default(8).notNull(),
   gmailLabels: d.boolean().default(false).notNull(),
-  knowledge: d.text(),
+  knowledge: encryptedText(),
   language: d.text().$type<Locale>().notNull(),
   onboardedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   persona: d.text().$type<Persona>().notNull(),
@@ -27,11 +28,11 @@ export const userSettings = d.snakeCase.table('user_settings', {
     .uuid()
     .primaryKey()
     .references(() => users.id, { onDelete: 'cascade' }),
-  voice: d.text(),
+  voice: encryptedText(),
 })
 
 export const telegramLinks = d.snakeCase.table('telegram_links', {
-  chatId: d.text().unique(),
+  chatId: searchableText().unique(),
   createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   linkCode: d.text().notNull().unique(),
   linkedAt: d.timestamp({ withTimezone: true }),
@@ -45,7 +46,7 @@ export const apiKeys = d.snakeCase.table('api_keys', {
   ...baseTable,
   keyHash: d.text().notNull().unique(),
   lastUsedAt: d.timestamp({ withTimezone: true }),
-  name: d.text().notNull(),
+  name: encryptedText().notNull(),
   prefix: d.text().notNull(),
   userId: d
     .uuid()

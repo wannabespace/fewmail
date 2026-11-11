@@ -1,15 +1,16 @@
 import { db } from '@fewmail/db'
 import { snippets } from '@fewmail/db/schema'
-import { and, asc, eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 import { expectRow } from '../lib/rows'
 
-export const listSnippets = (userId: string) =>
-  db
+export const listSnippets = async (userId: string) => {
+  const rows = await db
     .select({ html: snippets.html, id: snippets.id, name: snippets.name })
     .from(snippets)
     .where(eq(snippets.userId, userId))
-    .orderBy(asc(snippets.name))
+  return rows.toSorted((a, b) => a.name.localeCompare(b.name))
+}
 
 export const saveSnippet = async (
   userId: string,

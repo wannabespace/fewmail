@@ -151,7 +151,7 @@ const knownSender = async (userId: string, domain: string, before: Date) => {
     .where(
       and(
         eq(messages.userId, userId),
-        sql`split_part(${messages.fromEmail}, '@', 2) = ${domain}`,
+        eq(messages.fromDomain, domain),
         lt(messages.receivedAt, before)
       )
     )

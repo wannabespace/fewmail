@@ -1,13 +1,14 @@
 import * as d from 'drizzle-orm/pg-core'
 
 import { baseTable } from '../base-table'
+import { encryptedText, searchableText } from '../utils'
 
 export const users = d.snakeCase.table('users', {
   ...baseTable,
-  email: d.text().notNull().unique(),
+  email: searchableText().notNull().unique(),
   emailVerified: d.boolean().default(false).notNull(),
-  image: d.text(),
-  name: d.text().notNull(),
+  image: encryptedText(),
+  name: encryptedText().notNull(),
   stripeCustomerId: d.text(),
 })
 
@@ -16,9 +17,9 @@ export const sessions = d.snakeCase.table(
   {
     ...baseTable,
     expiresAt: d.timestamp({ withTimezone: true }).notNull(),
-    ipAddress: d.text(),
+    ipAddress: encryptedText(),
     token: d.text().notNull().unique(),
-    userAgent: d.text(),
+    userAgent: encryptedText(),
     userId: d
       .uuid()
       .notNull()
@@ -33,8 +34,8 @@ export const accounts = d.snakeCase.table(
     ...baseTable,
     accessToken: d.text(),
     accessTokenExpiresAt: d.timestamp({ withTimezone: true }),
-    accountId: d.text().notNull(),
-    idToken: d.text(),
+    accountId: searchableText().notNull(),
+    idToken: encryptedText(),
     password: d.text(),
     providerId: d.text().notNull(),
     refreshToken: d.text(),

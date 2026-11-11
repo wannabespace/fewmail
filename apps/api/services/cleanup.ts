@@ -23,7 +23,9 @@ const unopenedSenders = async (userId: string): Promise<CleanupSender[]> => {
     .select({
       count: sql<number>`count(*)::int`,
       fromEmail: messages.fromEmail,
-      fromName: sql<string | null>`max(${messages.fromName})`,
+      fromName: sql<string | null>`max(${messages.fromName})`.mapWith(
+        messages.fromName
+      ),
       messageId: sql<string>`(array_agg(${messages.id} order by ${messages.receivedAt} desc))[1]`,
       opened: sql<number>`count(*) filter (where not ${messages.isUnread})::int`,
     })

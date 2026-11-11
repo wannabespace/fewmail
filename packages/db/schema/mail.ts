@@ -15,7 +15,7 @@ import type {
 import * as d from 'drizzle-orm/pg-core'
 
 import { baseTable } from '../base-table'
-import { encryptedText } from '../utils'
+import { encryptedJson, encryptedText, searchableText, searchableTextArray } from '../utils'
 import { users } from './auth'
 
 const userId = () =>
@@ -26,7 +26,7 @@ const userId = () =>
 
 export const mailboxes = d.snakeCase.table('mailboxes', {
   ...baseTable,
-  email: d.text().notNull(),
+  email: encryptedText().notNull(),
   historyId: d.text(),
   /** Category → Gmail label id, created on demand when the user turns on agent labels. */
   labelIds: d
@@ -35,7 +35,7 @@ export const mailboxes = d.snakeCase.table('mailboxes', {
     .default({})
     .notNull(),
   lastSyncedAt: d.timestamp({ withTimezone: true }),
-  syncError: d.text(),
+  syncError: encryptedText(),
   userId: userId().unique(),
 })
 
@@ -47,30 +47,31 @@ export const messages = d.snakeCase.table(
     /** Distinct Fewmail users who got a near-identical body in the last 30 days (null until computed). */
     auth: d.jsonb().$type<MailAuth>(),
     bulkCount: d.integer(),
-    cc: d.text().array().notNull(),
-    fromEmail: d.text().notNull(),
-    fromName: d.text(),
+    cc: searchableTextArray().notNull(),
+    fromDomain: searchableText().notNull(),
+    fromEmail: searchableText().notNull(),
+    fromName: encryptedText(),
     gmailId: d.text().notNull(),
     hasAttachments: d.boolean().notNull(),
     isFromMe: d.boolean().notNull(),
     isUnread: d.boolean().notNull(),
     labelIds: d.text().array().notNull(),
-    listUnsubscribe: d.text(),
-    listUnsubscribePost: d.text(),
+    listUnsubscribe: encryptedText(),
+    listUnsubscribePost: encryptedText(),
     mailboxId: d
       .uuid()
       .notNull()
       .references(() => mailboxes.id, { onDelete: 'cascade' }),
     infraHash: d.text(),
-    messageIdHeader: d.text(),
+    messageIdHeader: encryptedText(),
     receivedAt: d.timestamp({ withTimezone: true }).notNull(),
-    replyTo: d.text(),
+    replyTo: encryptedText(),
     risk: d.jsonb().$type<MessageRisk>(),
     snippet: encryptedText().notNull(),
     suspicion: d.smallint(),
     subject: encryptedText().notNull(),
     threadId: d.text().notNull(),
-    to: d.text().array().notNull(),
+    to: searchableTextArray().notNull(),
     userId: userId(),
   },
   (table) => [
@@ -99,16 +100,16 @@ export const rules = d.snakeCase.table('rules', {
   effect: d.text().$type<RuleEffect>().notNull(),
   enabled: d.boolean().default(true).notNull(),
   /** Plain-language rule matched by the agent (Pro); null for a simple rule. */
-  instruction: d.text(),
+  instruction: encryptedText(),
   /** Simple rule matched without AI, available on every plan; null for an agent rule. */
-  match: d.jsonb().$type<SimpleMatch>(),
+  match: encryptedJson<SimpleMatch>(),
   userId: userId(),
 })
 
 export const analyses = d.snakeCase.table('analyses', {
   category: d.text().$type<MailCategory>().notNull(),
   createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
-  extracted: d.jsonb().$type<Extracted>().notNull(),
+  extracted: encryptedJson<Extracted>().notNull(),
   importance: d.smallint().notNull(),
   messageId: d
     .uuid()
@@ -116,7 +117,7 @@ export const analyses = d.snakeCase.table('analyses', {
     .references(() => messages.id, { onDelete: 'cascade' }),
   model: d.text().notNull(),
   needsReply: d.boolean().notNull(),
-  reason: d.text().notNull(),
+  reason: encryptedText().notNull(),
   ruleId: d.uuid().references(() => rules.id, { onDelete: 'set null' }),
   summary: encryptedText().notNull(),
 })
@@ -131,13 +132,13 @@ export const actions = d.snakeCase.table(
     messageId: d.uuid().references(() => messages.id, { onDelete: 'cascade' }),
     notifiedAt: d.timestamp({ withTimezone: true }),
     /** Structured data for kinds that carry more than text (cleanup senders, price changes). */
-    payload: d.jsonb().$type<Record<string, unknown>>(),
-    reason: d.text().notNull(),
+    payload: encryptedJson<Record<string, unknown>>(),
+    reason: encryptedText().notNull(),
     resolvedAt: d.timestamp({ withTimezone: true }),
     ruleId: d.uuid().references(() => rules.id, { onDelete: 'set null' }),
     status: d.text().$type<ActionStatus>().notNull(),
     threadId: d.text(),
-    title: d.text().notNull(),
+    title: encryptedText().notNull(),
     userId: userId(),
   },
   (table) => [d.index('actions_user_status_idx').on(table.userId, table.status)]
@@ -172,13 +173,13 @@ export const outbox = d.snakeCase.table(
   {
     ...baseTable,
     actionId: d.uuid().references(() => actions.id, { onDelete: 'set null' }),
-    bcc: d.text().array().notNull(),
-    cc: d.text().array().notNull(),
-    error: d.text(),
+    bcc: searchableTextArray().notNull(),
+    cc: searchableTextArray().notNull(),
+    error: encryptedText(),
     html: encryptedText().notNull(),
-    inReplyTo: d.text(),
+    inReplyTo: encryptedText(),
     mode: d.text().$type<OutboxMode>().notNull(),
-    references: d.text(),
+    references: encryptedText(),
     remindAfterDays: d.smallint(),
     replyToMessageId: d
       .uuid()
@@ -188,7 +189,7 @@ export const outbox = d.snakeCase.table(
     subject: encryptedText().notNull(),
     text: encryptedText().notNull(),
     threadId: d.text(),
-    to: d.text().array().notNull(),
+    to: searchableTextArray().notNull(),
     userId: userId(),
   },
   (table) => [d.index('outbox_due_idx').on(table.status, table.sendAt)]
@@ -214,8 +215,8 @@ export const reminders = d.snakeCase.table(
 
 export const snippets = d.snakeCase.table('snippets', {
   ...baseTable,
-  html: d.text().notNull(),
-  name: d.text().notNull(),
+  html: encryptedText().notNull(),
+  name: encryptedText().notNull(),
   userId: userId(),
 })
 

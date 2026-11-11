@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer'
 
 import { googleAccessToken } from './auth'
+import { domainOf } from './keyed-hash'
 import { mailSignals } from './mail-auth'
 
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
@@ -118,6 +119,7 @@ export const parseMessage = (message: GmailMessage) => {
     ...mailSignals(message.payload.headers ?? []),
     body: messageBody(plain, html, message.snippet),
     cc: splitAddresses(headers.get('cc')),
+    fromDomain: domainOf(from.email),
     fromEmail: from.email,
     fromName: from.name,
     gmailId: message.id,
