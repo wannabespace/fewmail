@@ -46,12 +46,6 @@ export const fr: Messages = {
       unsubscribe: 'Désabonnement',
     },
     stop: 'Arrêter',
-    suggestions: [
-      'Qu’est-ce qui m’attend aujourd’hui ?',
-      'Qui attend ma réponse ?',
-      'Des factures à payer bientôt ?',
-      'Que s’est-il passé dans mes e-mails cette semaine ?',
-    ],
     thinking: 'Réflexion…',
     title: 'Que puis-je faire pour vous ?',
     to: (recipients: string) => `À ${recipients}`,
@@ -122,6 +116,14 @@ export const fr: Messages = {
   reminders: {
     followUp: 'Relancer',
     noReply: 'Pas encore de réponse',
+  },
+  skills: {
+    bills: 'Factures et paiements à venir',
+    cleanup: 'Newsletters à faire le tri',
+    followups: 'Qui vous doit une réponse',
+    today: 'Ce qui vous attend aujourd’hui',
+    waiting: 'Qui attend votre réponse',
+    week: 'Votre semaine en e-mails',
   },
   snooze: {
     laterToday: 'Plus tard aujourd’hui',

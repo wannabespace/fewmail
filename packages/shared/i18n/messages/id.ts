@@ -70,12 +70,6 @@ export const id: Messages = {
       unsubscribe: 'Berhenti berlangganan',
     },
     stop: 'Hentikan',
-    suggestions: [
-      'Apa yang perlu aku urus hari ini?',
-      'Siapa yang menunggu balasanku?',
-      'Ada tagihan yang segera jatuh tempo?',
-      'Apa saja yang terjadi di emailku minggu ini?',
-    ],
     thinking: 'Berpikir…',
     title: 'Apa yang bisa aku bantu?',
     to: (recipients: string) => `Kepada ${recipients}`,
@@ -619,6 +613,14 @@ export const id: Messages = {
       unlinked: 'Terima ringkasan dan setujui draf dari WhatsApp.',
     },
     title: 'Pengaturan',
+  },
+  skills: {
+    bills: 'Tagihan dan pembayaran jatuh tempo',
+    cleanup: 'Newsletter yang perlu dibereskan',
+    followups: 'Siapa yang belum membalasmu',
+    today: 'Yang perlu kamu urus hari ini',
+    waiting: 'Siapa yang menunggu balasanmu',
+    week: 'Minggumu di email',
   },
   snooze: {
     laterToday: 'Nanti hari ini',

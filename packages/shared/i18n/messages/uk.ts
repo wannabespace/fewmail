@@ -46,12 +46,6 @@ export const uk: Messages = {
       unsubscribe: 'Відписую',
     },
     stop: 'Зупинити',
-    suggestions: [
-      'Що потребує мене сьогодні?',
-      'Хто чекає на мою відповідь?',
-      'Чи є рахунки до сплати найближчим часом?',
-      'Що було в пошті цього тижня?',
-    ],
     thinking: 'Думаю…',
     title: 'Чим допомогти?',
     to: (recipients: string) => `Кому: ${recipients}`,
@@ -123,6 +117,14 @@ export const uk: Messages = {
   reminders: {
     followUp: 'Нагадати',
     noReply: 'Ще без відповіді',
+  },
+  skills: {
+    bills: 'Рахунки до сплати',
+    cleanup: 'Розсилки, які варто прибрати',
+    followups: 'Хто досі не відповів вам',
+    today: 'Що потребує вас сьогодні',
+    waiting: 'Хто чекає на вашу відповідь',
+    week: 'Тиждень у пошті',
   },
   snooze: {
     laterToday: 'Пізніше сьогодні',

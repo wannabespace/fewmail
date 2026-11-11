@@ -46,12 +46,6 @@ export const it: Messages = {
       unsubscribe: 'Annullo l’iscrizione',
     },
     stop: 'Ferma',
-    suggestions: [
-      'Cosa richiede la mia attenzione oggi?',
-      'Chi aspetta una mia risposta?',
-      'Ci sono fatture in scadenza?',
-      'Cos’è successo nella mia posta questa settimana?',
-    ],
     thinking: 'Sto pensando…',
     title: 'Cosa posso fare per te?',
     to: (recipients: string) => `A ${recipients}`,
@@ -122,6 +116,14 @@ export const it: Messages = {
   reminders: {
     followUp: 'Sollecita',
     noReply: 'Ancora nessuna risposta',
+  },
+  skills: {
+    bills: 'Bollette e pagamenti in scadenza',
+    cleanup: 'Newsletter da sfoltire',
+    followups: 'Chi ti deve una risposta',
+    today: 'Cosa ti serve oggi',
+    waiting: 'Chi aspetta la tua risposta',
+    week: 'La tua settimana di posta',
   },
   snooze: {
     laterToday: 'Più tardi oggi',

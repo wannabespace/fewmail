@@ -1,8 +1,15 @@
 import { useChat } from '@ai-sdk/react'
-import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import { parseSkill, SKILLS, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import type { Skill } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Bubble, BubbleContent } from '@fewmail/ui/components/bubble'
 import { Button } from '@fewmail/ui/components/button'
+import {
+  Command,
+  CommandItem,
+  CommandList,
+  CommandShortcut,
+} from '@fewmail/ui/components/command'
 import {
   InputGroup,
   InputGroupAddon,
@@ -29,10 +36,17 @@ import { Spinner } from '@fewmail/ui/components/spinner'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Alert02Icon,
+  Calendar03Icon,
   Cancel01Icon,
+  Invoice03Icon,
+  MailRemove01Icon,
+  MailReply01Icon,
+  Sun03Icon,
   Tick02Icon,
+  UserTime01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import type { IconSvgElement } from '@hugeicons/react'
 import { eventIteratorToUnproxiedDataStream } from '@orpc/client'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQueryClient } from '@tanstack/react-query'
@@ -138,6 +152,15 @@ const STEP_ICONS = {
   declined: Cancel01Icon,
   done: Tick02Icon,
   failed: Alert02Icon,
+}
+
+const SKILL_ICONS: Record<Skill, IconSvgElement> = {
+  bills: Invoice03Icon,
+  cleanup: MailRemove01Icon,
+  followups: UserTime01Icon,
+  today: Sun03Icon,
+  waiting: MailReply01Icon,
+  week: Calendar03Icon,
 }
 
 const approvedHere = new Set<string>()
@@ -396,18 +419,74 @@ const EmptyChat = ({ onPick }: { onPick: (text: string) => void }) => {
         {t.agent.lead}
       </p>
       <div className="flex flex-wrap gap-2 pt-2">
-        {t.agent.suggestions.map((suggestion) => (
+        {SKILLS.map((skill) => (
           <Button
-            key={suggestion}
+            key={skill}
             size="sm"
             variant="secondary"
-            onClick={() => onPick(suggestion)}
+            onClick={() => onPick(`/${skill}`)}
           >
-            {suggestion}
+            <HugeiconsIcon icon={SKILL_ICONS[skill]} strokeWidth={2} />
+            {t.skills[skill]}
           </Button>
         ))}
       </div>
     </div>
+  )
+}
+
+const SkillMenu = ({
+  active,
+  onPick,
+  skills,
+}: {
+  active: Skill
+  onPick: (skill: Skill) => void
+  skills: Skill[]
+}) => {
+  const t = useT()
+
+  return (
+    <div className="bg-popover ring-foreground/6 absolute bottom-full left-6 mb-2 w-80 rounded-xl p-1 shadow-xl ring">
+      <Command value={active} shouldFilter={false} variant="transparent">
+        <CommandList>
+          {skills.map((skill) => (
+            <CommandItem
+              key={skill}
+              value={skill}
+              onPointerDown={(event) => event.preventDefault()}
+              onSelect={() => onPick(skill)}
+            >
+              <HugeiconsIcon icon={SKILL_ICONS[skill]} strokeWidth={2} />
+              <span className="font-medium">/{skill}</span>
+              <span className="text-muted-foreground truncate">
+                {t.skills[skill]}
+              </span>
+              {skill === active && (
+                <CommandShortcut>
+                  <Kbd>⏎</Kbd>
+                </CommandShortcut>
+              )}
+            </CommandItem>
+          ))}
+        </CommandList>
+      </Command>
+    </div>
+  )
+}
+
+const UserText = ({ text }: { text: string }) => {
+  const t = useT()
+  const parsed = parseSkill(text)
+  if (!parsed) {
+    return text
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <HugeiconsIcon icon={SKILL_ICONS[parsed.skill]} strokeWidth={2} />
+      {t.skills[parsed.skill]}
+      {parsed.details && ` · ${parsed.details}`}
+    </span>
   )
 }
 
@@ -423,6 +502,8 @@ export const AgentChat = ({
   const t = useT()
   const queryClient = useQueryClient()
   const [text, setText] = useState('')
+  const [skillIndex, setSkillIndex] = useState(0)
+  const [dismissedText, setDismissedText] = useState<string | null>(null)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const {
     addToolApprovalResponse,
@@ -443,6 +524,11 @@ export const AgentChat = ({
   })
   const isBusy = status === 'submitted' || status === 'streaming'
   const lastId = messages.at(-1)?.id
+  const skills =
+    /^\/[a-z_]*$/u.test(text) && text !== dismissedText
+      ? SKILLS.filter((skill) => skill.startsWith(text.slice(1)))
+      : []
+  const activeSkill = skills[skillIndex % skills.length]
 
   const send = (value: string) => {
     if (!value.trim() || isBusy) {
@@ -451,6 +537,23 @@ export const AgentChat = ({
     onSend()
     void sendMessage({ text: value.trim() })
     setText('')
+  }
+  /** The `/` menu takes arrows, Tab (complete to add details), Enter (run) and Escape (close) from the composer. */
+  const pickSkill = (key: string) => {
+    if (key === 'ArrowDown' || key === 'ArrowUp') {
+      setSkillIndex(
+        (index) => index + (key === 'ArrowDown' ? 1 : skills.length - 1)
+      )
+    } else if (key === 'Tab') {
+      setText(`/${activeSkill} `)
+    } else if (key === 'Enter') {
+      send(`/${activeSkill}`)
+    } else if (key === 'Escape') {
+      setDismissedText(text)
+    } else {
+      return false
+    }
+    return true
   }
   const answer = (part: ToolPart, approved: boolean) => {
     if (part.state !== 'approval-requested') {
@@ -504,7 +607,7 @@ export const AgentChat = ({
                                   data-mask
                                   className="whitespace-pre-wrap"
                                 >
-                                  {part.text}
+                                  <UserText text={part.text} />
                                 </BubbleContent>
                               </Bubble>
                             )
@@ -578,12 +681,19 @@ export const AgentChat = ({
         </MessageScrollerProvider>
       )}
       <form
-        className="mx-auto w-full max-w-2xl px-6 pb-5"
+        className="relative mx-auto w-full max-w-2xl px-6 pb-5"
         onSubmit={(event) => {
           event.preventDefault()
           send(text)
         }}
       >
+        {activeSkill && (
+          <SkillMenu
+            active={activeSkill}
+            skills={skills}
+            onPick={(skill) => send(`/${skill}`)}
+          />
+        )}
         <InputGroup>
           <InputGroupTextarea
             ref={composerRef}
@@ -591,8 +701,15 @@ export const AgentChat = ({
             placeholder={t.agent.placeholder}
             rows={2}
             value={text}
-            onChange={(event) => setText(event.target.value)}
+            onChange={(event) => {
+              setText(event.target.value)
+              setSkillIndex(0)
+            }}
             onKeyDown={(event) => {
+              if (activeSkill && pickSkill(event.key)) {
+                event.preventDefault()
+                return
+              }
               if (
                 event.key === 'Enter' &&
                 !event.shiftKey &&

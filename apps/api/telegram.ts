@@ -1,4 +1,4 @@
-import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import { SKILLS, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
 import {
@@ -93,8 +93,19 @@ const draftKeyboard = (t: Messages, actionId: string) =>
     .text(t.telegram.edit, `e:${actionId}`)
     .text(t.telegram.skip, `d:${actionId}`)
 
+const commandsFor = (t: Messages) => [
+  { command: 'brief', description: t.telegram.commands.brief },
+  { command: 'queue', description: t.telegram.commands.queue },
+  ...SKILLS.map((skill) => ({ command: skill, description: t.skills[skill] })),
+]
+
 const helpText = (t: Messages) =>
-  `${t.telegram.help}\n\n/brief — ${t.telegram.commands.brief}\n/queue — ${t.telegram.commands.queue}`
+  [
+    `${t.telegram.help}\n`,
+    ...commandsFor(t).map(
+      ({ command, description }) => `/${command} — ${description}`
+    ),
+  ].join('\n')
 
 const answerText = ({ answer, sources }: Awaited<ReturnType<typeof askMail>>) =>
   [
@@ -113,7 +124,13 @@ const followText = async (ctx: Context, userId: string, text: string) => {
       ? (shown.get(`${ctx.chat.id}:${replyTo}`) ?? null)
       : null
   await ctx.replyWithChatAction('typing')
-  const { answer, draft } = await followMessage(userId, text, targetId)
+  const { answer, draft, skill } = await followMessage(userId, text, targetId)
+  if (skill) {
+    await ctx.reply(
+      `${skill.text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${skill.chatId}`
+    )
+    return
+  }
   if (answer) {
     await ctx.reply(answerText(answer), { parse_mode: 'HTML' })
     return
@@ -214,6 +231,15 @@ const createBot = (token: string) => {
       await sendQueue(ctx.chat.id, userId)
     }
   })
+
+  for (const skill of SKILLS) {
+    bot.command(skill, async (ctx) => {
+      const userId = await requireUser(ctx)
+      if (userId) {
+        await followText(ctx, userId, `/${skill} ${ctx.match}`)
+      }
+    })
+  }
 
   bot.on('callback_query:data', async (ctx) => {
     const userId = await requireUser(ctx)
@@ -367,11 +393,6 @@ export const telegramWebhook =
         secretToken: env.TELEGRAM_WEBHOOK_SECRET,
       })
     : null
-
-const commandsFor = (t: Messages) => [
-  { command: 'brief', description: t.telegram.commands.brief },
-  { command: 'queue', description: t.telegram.commands.queue },
-]
 
 export const startTelegram = async () => {
   if (!bot) {

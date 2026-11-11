@@ -33,6 +33,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Cleanup** | Weekly Sunday suggestion to clear accumulated noise. Pro. |
 | **Task** | "Handle this": the agent works a thread toward a goal, asking before each send or sending on its own (`ask` / `auto`). Pro. |
 | **Agent mode** | `/agent` (`G A`): the whole app as one chat with the agent, sidebar folded away. It answers from the mail through the same tools as MCP, shows each step it takes, and anything that sends, changes Gmail, adds a rule or hands a thread over waits for the user's yes on a confirmation card in the chat. Chats are kept (`chats`) and listed under Chats; `/` reopens agent mode for someone who left the app in it. Pro. |
+| **Skill** | A built-in job the agent knows by name (`SKILLS`: `today`, `waiting`, `followups`, `bills`, `week`, `cleanup`), run as `/name` plus optional details. The chat's `/` menu and empty-chat chips, a Telegram command, a WhatsApp text and an MCP prompt all start the same skill. Not user-defined. Pro. |
 | **Instructions** | Free-text or voice messages to the Telegram or WhatsApp bot; replying to a bot message targets its thread. Pro. |
 
 UI copy says "the agent" or "Fewmail", never "AI" or "the model".

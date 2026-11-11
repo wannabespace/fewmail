@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
-import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import { SKILLS, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
@@ -269,7 +269,14 @@ const followText = async (
     return
   }
   const targetId = inbound.context ? shown.get(inbound.context.id) : null
-  const { answer, draft } = await followMessage(userId, text, targetId)
+  const { answer, draft, skill } = await followMessage(userId, text, targetId)
+  if (skill) {
+    await say(
+      to,
+      `${skill.text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${skill.chatId}`
+    )
+    return
+  }
   if (answer) {
     await say(
       to,
@@ -283,7 +290,14 @@ const followText = async (
     return
   }
   if (!draft) {
-    await ask(to, t.telegram.help, menuButtons(t))
+    await ask(
+      to,
+      [
+        `${t.telegram.help}\n`,
+        ...SKILLS.map((name) => `/${name} — ${t.skills[name]}`),
+      ].join('\n'),
+      menuButtons(t)
+    )
     return
   }
   await showDraft(to, t, draft)

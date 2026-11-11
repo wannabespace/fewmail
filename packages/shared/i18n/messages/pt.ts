@@ -69,12 +69,6 @@ export const pt: Messages = {
       unsubscribe: 'Cancelando inscrição',
     },
     stop: 'Parar',
-    suggestions: [
-      'O que precisa de mim hoje?',
-      'Quem está esperando minha resposta?',
-      'Alguma conta vencendo em breve?',
-      'O que aconteceu nos meus e-mails esta semana?',
-    ],
     thinking: 'Pensando…',
     title: 'O que posso fazer por você?',
     to: (recipients: string) => `Para ${recipients}`,
@@ -636,6 +630,14 @@ export const pt: Messages = {
       unlinked: 'Receba o resumo e aprove rascunhos pelo WhatsApp.',
     },
     title: 'Configurações',
+  },
+  skills: {
+    bills: 'Contas e pagamentos a vencer',
+    cleanup: 'Newsletters para limpar',
+    followups: 'Quem ainda não te respondeu',
+    today: 'O que precisa de você hoje',
+    waiting: 'Quem espera sua resposta',
+    week: 'Sua semana no e-mail',
   },
   snooze: {
     laterToday: 'Mais tarde hoje',

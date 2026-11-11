@@ -19,6 +19,7 @@ import { agentTools } from './agent-tools'
 import { NotFoundError } from './mail-errors'
 import { spendMessage } from './plan'
 import { getSettings } from './settings'
+import { expandSkills } from './skills'
 
 const MAX_STEPS = 12
 const TITLE_LENGTH = 80
@@ -175,7 +176,7 @@ export const streamChat = async (
 
   const result = streamText({
     instructions: await instructionsFor(userId),
-    messages: await convertToModelMessages(messages, { tools }),
+    messages: await convertToModelMessages(expandSkills(messages), { tools }),
     model: models.writer,
     stopWhen: stepCountIs(MAX_STEPS),
     tools,
@@ -187,4 +188,34 @@ export const streamChat = async (
     },
     originalMessages: messages,
   })
+}
+
+const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu
+
+/** Runs one message through the agent outside the web chat; the answer is plain text, since its thread links only work in the app. The model's own errors arrive as stream chunks, not exceptions. */
+export const askAgent = async (
+  userId: string,
+  { id, text }: { id: string; text: string }
+) => {
+  const stream = await streamChat(userId, {
+    id,
+    message: {
+      id: generateId(),
+      parts: [{ text, type: 'text' }],
+      role: 'user',
+    },
+  })
+  for await (const chunk of stream) {
+    if (chunk.type === 'error') {
+      throw new Error(chunk.errorText)
+    }
+  }
+  const { messages } = await getChat(userId, id)
+  return (
+    messages
+      .at(-1)
+      ?.parts.flatMap((part) => (part.type === 'text' ? [part.text] : []))
+      .join('\n')
+      .replaceAll(THREAD_LINK, '$<label>') ?? ''
+  )
 }

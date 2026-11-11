@@ -69,12 +69,6 @@ export const tr: Messages = {
       unsubscribe: 'Abonelik iptal ediliyor',
     },
     stop: 'Durdur',
-    suggestions: [
-      'Bugün beni ne bekliyor?',
-      'Kim yanıtımı bekliyor?',
-      'Yakında ödenecek fatura var mı?',
-      'Bu hafta e-postalarımda neler oldu?',
-    ],
     thinking: 'Düşünüyor…',
     title: 'Senin için ne yapabilirim?',
     to: (recipients: string) => `Kime: ${recipients}`,
@@ -612,6 +606,14 @@ export const tr: Messages = {
       unlinked: 'Özeti al ve taslakları WhatsApp’tan onayla.',
     },
     title: 'Ayarlar',
+  },
+  skills: {
+    bills: 'Yaklaşan faturalar ve ödemeler',
+    cleanup: 'Temizlenecek bültenler',
+    followups: 'Sana hâlâ yanıt vermeyenler',
+    today: 'Bugün seni bekleyenler',
+    waiting: 'Yanıtını bekleyenler',
+    week: 'E-postada haftan',
   },
   snooze: {
     laterToday: 'Bugün daha sonra',

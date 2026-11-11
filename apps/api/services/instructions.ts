@@ -1,5 +1,8 @@
+import { randomUUID } from 'node:crypto'
+
 import { db } from '@fewmail/db'
 import { actions, analyses, messages } from '@fewmail/db/schema'
+import { parseSkill } from '@fewmail/shared/agent'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { subDays } from 'date-fns'
@@ -7,6 +10,7 @@ import { and, desc, eq, gte } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { askMail } from './ask'
+import { askAgent } from './chat'
 import { draftReply, redraftAction } from './mail'
 import { spendMessage } from './plan'
 
@@ -84,12 +88,18 @@ const understand = async (userId: string, text: string) => {
   }
 }
 
-/** A typed or spoken chat message: a reply draft, an answer about the mail, or `help` when it is neither. */
+/** A typed or spoken chat message: a skill run in its own agent chat, a reply draft, an answer about the mail, or `help` when it is neither. */
 export const followMessage = async (
   userId: string,
   text: string,
   actionId?: string | null
 ) => {
+  if (parseSkill(text)) {
+    const chatId = randomUUID()
+    return {
+      skill: { chatId, text: await askAgent(userId, { id: chatId, text }) },
+    }
+  }
   await spendMessage(userId)
   if (actionId) {
     return { draft: await redraftAction(userId, actionId, text) }

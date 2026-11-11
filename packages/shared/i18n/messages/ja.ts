@@ -70,12 +70,6 @@ export const ja: Messages = {
       unsubscribe: '配信停止中',
     },
     stop: '停止',
-    suggestions: [
-      '今日対応が必要なことは？',
-      '返信を待っているのは誰？',
-      'もうすぐ支払期限の請求はある？',
-      '今週のメールで何があった？',
-    ],
     thinking: '考え中…',
     title: '何をお手伝いしましょうか？',
     to: (recipients: string) => `宛先: ${recipients}`,
@@ -505,6 +499,14 @@ export const ja: Messages = {
       unlinked: 'WhatsApp でブリーフを受け取り、下書きを承認できます。',
     },
     title: '設定',
+  },
+  skills: {
+    bills: '支払い期限の近い請求',
+    cleanup: '整理したいニュースレター',
+    followups: 'まだ返信がない相手',
+    today: '今日対応が必要なこと',
+    waiting: '返信を待っている人',
+    week: '今週のメールのまとめ',
   },
   snooze: {
     laterToday: '今日の後ほど',

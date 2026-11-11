@@ -68,12 +68,6 @@ export const en = {
       unsubscribe: 'Unsubscribing',
     },
     stop: 'Stop',
-    suggestions: [
-      'What needs me today?',
-      'Who is waiting for my reply?',
-      'Any bills due soon?',
-      'What happened in my mail this week?',
-    ],
     thinking: 'Thinking…',
     title: 'What can I do for you?',
     to: (recipients: string) => `To ${recipients}`,
@@ -625,6 +619,14 @@ export const en = {
       unlinked: 'Get the brief and approve drafts from WhatsApp.',
     },
     title: 'Settings',
+  },
+  skills: {
+    bills: 'Bills and payments due',
+    cleanup: 'Newsletters to clear out',
+    followups: 'Who owes you an answer',
+    today: 'What needs you today',
+    waiting: 'Who is waiting for your reply',
+    week: 'Your week in mail',
   },
   snooze: {
     laterToday: 'Later today',

@@ -14,7 +14,6 @@ import { IMPORTANCE } from '@fewmail/shared/agent'
 import { messages } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
-import { generateId } from 'ai'
 import { subMinutes } from 'date-fns'
 import { and, eq, gte, isNotNull, isNull, lt, lte, or } from 'drizzle-orm'
 
@@ -22,7 +21,7 @@ import { env } from './env'
 import { announceChange } from './lib/live'
 import { seedBoards } from './services/boards'
 import { generateBrief, isBriefDue } from './services/brief'
-import { getChat, postToChat, streamChat } from './services/chat'
+import { askAgent, postToChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { chatIdForUser } from './services/integrations'
@@ -222,30 +221,6 @@ type Schedule = typeof schedules.$inferSelect
 const STALE_RUN_MINUTES = 15
 const MAX_SCHEDULE_FAILURES = 3
 
-/** The model's own errors arrive as stream chunks, not exceptions. */
-const askScheduledAgent = async ({ chatId, instruction, userId }: Schedule) => {
-  const stream = await streamChat(userId, {
-    id: chatId,
-    message: {
-      id: generateId(),
-      parts: [{ text: instruction, type: 'text' }],
-      role: 'user',
-    },
-  })
-  for await (const chunk of stream) {
-    if (chunk.type === 'error') {
-      throw new Error(chunk.errorText)
-    }
-  }
-  const { messages: history } = await getChat(userId, chatId)
-  return (
-    history
-      .at(-1)
-      ?.parts.flatMap((part) => (part.type === 'text' ? [part.text] : []))
-      .join('\n') ?? ''
-  )
-}
-
 /** Messengers get a link because approvals for a scheduled run happen in its web chat. */
 const deliverScheduleRun = async (
   schedule: Schedule,
@@ -284,7 +259,7 @@ const runSchedule = async (schedule: Schedule) => {
 
   let answer: string
   try {
-    answer = await askScheduledAgent(schedule)
+    answer = await askAgent(userId, { id: chatId, text: instruction })
   } catch (error) {
     if (error instanceof LimitReachedError) {
       await finish({ nextRunAt: await nextRunAt(userId, cron, error.resetsAt) })

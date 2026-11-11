@@ -97,6 +97,26 @@ export type DeviceKind = (typeof DEVICE_KINDS)[number]
 export const PERSONAS = ['reader', 'responder'] as const
 export type Persona = (typeof PERSONAS)[number]
 
+/** Built-in agent skills, run as `/name` in the chat, as Telegram commands and as MCP prompts; labels come from `skills`. Names stay Telegram-safe: `[a-z0-9_]`. */
+export const SKILLS = [
+  'today',
+  'waiting',
+  'followups',
+  'bills',
+  'week',
+  'cleanup',
+] as const
+export type Skill = (typeof SKILLS)[number]
+
+/** "/bills netflix" → `{ skill: 'bills', details: 'netflix' }`; anything else → undefined. */
+export const parseSkill = (text: string) => {
+  const groups = /^\/(?<name>[a-z_]+)(?:\s+(?<details>[\s\S]*))?$/u.exec(
+    text.trim()
+  )?.groups
+  const skill = SKILLS.find((name) => name === groups?.name)
+  return skill ? { details: groups?.details?.trim() ?? '', skill } : undefined
+}
+
 /** Ready-made boards offered at onboarding; names and descriptions come from `boards.starter`. */
 export const BOARD_PRESETS = [
   'money',

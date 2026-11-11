@@ -69,12 +69,6 @@ export const ko: Messages = {
       unsubscribe: '구독 취소하는 중',
     },
     stop: '중지',
-    suggestions: [
-      '오늘 내가 처리할 일은?',
-      '누가 내 답장을 기다리고 있어?',
-      '곧 내야 할 청구서가 있어?',
-      '이번 주 메일에서 무슨 일이 있었어?',
-    ],
     thinking: '생각하는 중…',
     title: '무엇을 도와드릴까요?',
     to: (recipients: string) => `받는 사람: ${recipients}`,
@@ -500,6 +494,14 @@ export const ko: Messages = {
       unlinked: 'WhatsApp에서 브리핑을 받고 초안을 승인하세요.',
     },
     title: '설정',
+  },
+  skills: {
+    bills: '다가오는 청구서와 결제',
+    cleanup: '정리할 뉴스레터',
+    followups: '아직 답이 없는 사람',
+    today: '오늘 챙겨야 할 일',
+    waiting: '답장을 기다리는 사람',
+    week: '이번 주 메일 요약',
   },
   snooze: {
     laterToday: '오늘 나중에',

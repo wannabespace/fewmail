@@ -69,12 +69,6 @@ export const pl: Messages = {
       unsubscribe: 'Wypisuję',
     },
     stop: 'Zatrzymaj',
-    suggestions: [
-      'Co dziś na mnie czeka?',
-      'Kto czeka na moją odpowiedź?',
-      'Czy wkrótce mam jakieś rachunki do zapłaty?',
-      'Co działo się w mojej poczcie w tym tygodniu?',
-    ],
     thinking: 'Myślę…',
     title: 'W czym mogę pomóc?',
     to: (recipients: string) => `Do: ${recipients}`,
@@ -657,6 +651,14 @@ export const pl: Messages = {
       unlinked: 'Odbieraj podsumowanie i zatwierdzaj szkice w WhatsAppie.',
     },
     title: 'Ustawienia',
+  },
+  skills: {
+    bills: 'Rachunki i płatności do zapłaty',
+    cleanup: 'Newslettery do uprzątnięcia',
+    followups: 'Kto jeszcze ci nie odpisał',
+    today: 'Co czeka na ciebie dziś',
+    waiting: 'Kto czeka na twoją odpowiedź',
+    week: 'Twój tydzień w poczcie',
   },
   snooze: {
     laterToday: 'Później dziś',

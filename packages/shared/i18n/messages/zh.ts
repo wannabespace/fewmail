@@ -69,12 +69,6 @@ export const zh: Messages = {
       unsubscribe: '正在退订',
     },
     stop: '停止',
-    suggestions: [
-      '今天有什么需要我处理？',
-      '谁在等我回复？',
-      '最近有要付的账单吗？',
-      '这周我的邮件里发生了什么？',
-    ],
     thinking: '思考中…',
     title: '我能帮你做什么？',
     to: (recipients: string) => `收件人：${recipients}`,
@@ -485,6 +479,14 @@ export const zh: Messages = {
       unlinked: '在 WhatsApp 中接收简报并批准草稿。',
     },
     title: '设置',
+  },
+  skills: {
+    bills: '即将到期的账单和付款',
+    cleanup: '可以清理的订阅邮件',
+    followups: '谁还没回你',
+    today: '今天需要你处理的事',
+    waiting: '谁在等你回复',
+    week: '本周邮件回顾',
   },
   snooze: {
     laterToday: '今天稍后',

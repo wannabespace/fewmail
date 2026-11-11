@@ -69,12 +69,6 @@ export const nl: Messages = {
       unsubscribe: 'Afmelden',
     },
     stop: 'Stoppen',
-    suggestions: [
-      'Wat heeft vandaag mijn aandacht nodig?',
-      'Wie wacht op mijn antwoord?',
-      'Zijn er binnenkort rekeningen te betalen?',
-      'Wat gebeurde er deze week in mijn mail?',
-    ],
     thinking: 'Denken…',
     title: 'Wat kan ik voor je doen?',
     to: (recipients: string) => `Aan ${recipients}`,
@@ -637,6 +631,14 @@ export const nl: Messages = {
       unlinked: 'Ontvang het overzicht en keur concepten goed via WhatsApp.',
     },
     title: 'Instellingen',
+  },
+  skills: {
+    bills: 'Rekeningen en betalingen die eraan komen',
+    cleanup: 'Nieuwsbrieven om op te ruimen',
+    followups: 'Wie jou nog een antwoord schuldig is',
+    today: 'Wat vandaag op je wacht',
+    waiting: 'Wie wacht op je antwoord',
+    week: 'Je week in mail',
   },
   snooze: {
     laterToday: 'Later vandaag',
