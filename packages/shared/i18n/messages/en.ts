@@ -602,6 +602,11 @@ export const en = {
             one: () => 'One thing needs you.',
             other: (n) => `${n} things need you.`,
           }),
+    hint: {
+      notNow: 'Not now',
+      setUp: 'Set up',
+      turnOn: 'Turn on',
+    },
     later: (total: number, time: string) =>
       plural('en', total, {
         one: () => `One more arrives at ${time}`,

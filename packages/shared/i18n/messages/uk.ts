@@ -483,6 +483,11 @@ export const uk: Messages = {
     willSend: 'Надішлю:',
   },
   today: {
+    hint: {
+      notNow: 'Не зараз',
+      setUp: 'Налаштувати',
+      turnOn: 'Увімкнути',
+    },
     later: (total: number, time: string) =>
       plural('uk', total, {
         one: (n) => `Ще ${n} прийде о ${time}`,

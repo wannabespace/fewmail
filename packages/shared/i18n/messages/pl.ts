@@ -619,6 +619,11 @@ export const pl: Messages = {
     willSend: 'Wyślę:',
   },
   today: {
+    hint: {
+      notNow: 'Nie teraz',
+      setUp: 'Skonfiguruj',
+      turnOn: 'Włącz',
+    },
     later: (total: number, time: string) =>
       plural('pl', total, {
         one: () => `Jeszcze jedna rzecz o ${time}`,

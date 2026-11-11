@@ -597,6 +597,11 @@ export const pt: Messages = {
     willSend: 'Vou enviar:',
   },
   today: {
+    hint: {
+      notNow: 'Agora não',
+      setUp: 'Configurar',
+      turnOn: 'Ativar',
+    },
     later: (total: number, time: string) =>
       plural('pt', total, {
         one: () => `Mais um chega às ${time}`,

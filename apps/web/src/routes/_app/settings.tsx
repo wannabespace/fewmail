@@ -37,9 +37,9 @@ import { authClient, signedInStore } from '~/lib/auth'
 import { localeStore, useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import {
-  currentPushSubscription,
   disablePush,
   enablePush,
+  pushStateQuery,
   pushSupported,
 } from '~/lib/push'
 
@@ -134,27 +134,16 @@ const AgentSettings = () => {
   )
 }
 
-const PUSH_STATE_KEY = ['push-state']
-
-const readPushState = async () => ({
-  permission: Notification.permission,
-  subscribed: !!(await currentPushSubscription()),
-})
-
 const NotificationSettings = () => {
   const copy = useT().settings.notifications
   const queryClient = useQueryClient()
   const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
-  const { data: state } = useQuery({
-    enabled: pushSupported,
-    queryFn: readPushState,
-    queryKey: PUSH_STATE_KEY,
-  })
+  const { data: state } = useQuery(pushStateQuery)
   const toggle = useMutation({
     mutationFn: (on: boolean) =>
       on && publicKey ? enablePush(publicKey) : disablePush(),
     onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: PUSH_STATE_KEY }),
+      queryClient.invalidateQueries({ queryKey: pushStateQuery.queryKey }),
   })
   const available =
     pushSupported && !!publicKey && state?.permission !== 'denied'

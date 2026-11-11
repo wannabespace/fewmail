@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { BriefHourSelect } from '~/components/agent-fields'
+import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
 import { hasDraft, QueueCard } from '~/components/queue-card'
 import { useDates, useT } from '~/lib/i18n'
@@ -315,6 +316,7 @@ const TodayPage = () => {
             </p>
           )}
           {handled && handled.total > 0 && <HandledSummary handled={handled} />}
+          <ConnectHint />
         </div>
       </div>
       <KeyHints

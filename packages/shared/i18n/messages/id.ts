@@ -577,6 +577,11 @@ export const id: Messages = {
     willSend: 'Akan dikirim:',
   },
   today: {
+    hint: {
+      notNow: 'Nanti saja',
+      setUp: 'Atur',
+      turnOn: 'Aktifkan',
+    },
     later: (total: number, time: string) =>
       `${total} lagi datang pukul ${time}`,
     briefArrives: (time: string) =>

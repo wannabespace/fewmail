@@ -572,6 +572,11 @@ export const tr: Messages = {
     willSend: 'Gönderilecek:',
   },
   today: {
+    hint: {
+      notNow: 'Şimdi değil',
+      setUp: 'Kur',
+      turnOn: 'Aç',
+    },
     later: (total: number, time: string) =>
       `${time} saatinde ${total} tane daha gelecek`,
     briefArrives: (time: string) => `Özetin her gün şu saatte gelir: ${time}.`,

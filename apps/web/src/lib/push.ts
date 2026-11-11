@@ -10,6 +10,15 @@ export const currentPushSubscription = async () => {
   return (await registration?.pushManager.getSubscription()) ?? null
 }
 
+export const pushStateQuery = {
+  enabled: pushSupported,
+  queryFn: async () => ({
+    permission: Notification.permission,
+    subscribed: !!(await currentPushSubscription()),
+  }),
+  queryKey: ['push-state'],
+}
+
 export const enablePush = async (publicKey: string) => {
   const registration = await navigator.serviceWorker.register(WORKER_URL)
   const subscription = await registration.pushManager.subscribe({

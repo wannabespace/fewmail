@@ -461,6 +461,11 @@ export const hi: Messages = {
     willSend: 'यह भेजा जाएगा:',
   },
   today: {
+    hint: {
+      notNow: 'अभी नहीं',
+      setUp: 'सेट अप करें',
+      turnOn: 'चालू करें',
+    },
     later: (total: number, time: string) =>
       plural('hi', total, {
         one: () => `${time} पर एक और आएगा`,

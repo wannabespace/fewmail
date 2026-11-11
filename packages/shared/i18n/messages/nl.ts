@@ -597,6 +597,11 @@ export const nl: Messages = {
     willSend: 'Ik verstuur:',
   },
   today: {
+    hint: {
+      notNow: 'Niet nu',
+      setUp: 'Instellen',
+      turnOn: 'Inschakelen',
+    },
     later: (total: number, time: string) =>
       plural('nl', total, {
         one: () => `Nog één komt om ${time}`,

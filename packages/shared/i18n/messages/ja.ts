@@ -465,6 +465,11 @@ export const ja: Messages = {
     willSend: '送信内容：',
   },
   today: {
+    hint: {
+      notNow: '今はしない',
+      setUp: '設定する',
+      turnOn: 'オンにする',
+    },
     later: (total: number, time: string) => `${time}にあと${total}件届きます`,
     briefArrives: (time: string) => `ブリーフは毎日 ${time} に届きます。`,
     briefFrom: (time: string) => `${time} のブリーフ`,

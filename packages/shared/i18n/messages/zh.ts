@@ -443,6 +443,11 @@ export const zh: Messages = {
     willSend: '将发送：',
   },
   today: {
+    hint: {
+      notNow: '暂不',
+      setUp: '设置',
+      turnOn: '开启',
+    },
     later: (total: number, time: string) => `还有 ${total} 项将在 ${time} 送达`,
     briefArrives: (time: string) => `简报每天 ${time} 送达。`,
     briefFrom: (time: string) => `${time} 的简报`,

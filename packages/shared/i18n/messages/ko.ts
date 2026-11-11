@@ -460,6 +460,11 @@ export const ko: Messages = {
     willSend: '보낼 내용:',
   },
   today: {
+    hint: {
+      notNow: '나중에',
+      setUp: '설정하기',
+      turnOn: '켜기',
+    },
     later: (total: number, time: string) =>
       `${time}에 ${total}개가 더 도착해요`,
     briefArrives: (time: string) => `브리핑은 매일 ${time}에 도착해요.`,
