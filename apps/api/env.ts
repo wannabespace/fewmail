@@ -25,6 +25,8 @@ export const env = type({
   'TYPESAFE_API_KEY?': 'string',
   'TELEGRAM_BOT_USERNAME?': 'string',
   'TELEGRAM_WEBHOOK_SECRET?': 'string',
+  'VAPID_PRIVATE_KEY?': 'string',
+  'VAPID_PUBLIC_KEY?': 'string',
   WEB_URL: 'string.url',
   'WHATSAPP_APP_SECRET?': 'string',
   'WHATSAPP_NUMBER?': 'string.numeric',

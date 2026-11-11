@@ -67,6 +67,10 @@ export type Plan = (typeof PLANS)[number]
 
 export const PRO_PRICE_USD = 15
 
+/** Where a notification is delivered; mobile and desktop apps join as new kinds with their own sender in `services/notifications.ts`. */
+export const DEVICE_KINDS = ['web'] as const
+export type DeviceKind = (typeof DEVICE_KINDS)[number]
+
 /** Reader: wants calm and nothing important lost. Responder: answers a lot and wants drafts first. */
 export const PERSONAS = ['reader', 'responder'] as const
 export type Persona = (typeof PERSONAS)[number]

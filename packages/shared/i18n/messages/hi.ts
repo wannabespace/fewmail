@@ -201,6 +201,12 @@ export const hi: Messages = {
       }),
     watching: 'एजेंट आपके इनबॉक्स पर नज़र रख रहा है',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('hi', total, {
+        other: (n) => `Fewmail से ${n} नई सूचनाएँ`,
+      }),
+  },
   onboarding: {
     languageHint:
       'ऐप, ब्रीफ़, सारांश और व्याख्याएँ इसी भाषा में होंगी। जवाब हमेशा उस ईमेल की भाषा में होंगे जिसका आप जवाब दे रहे हैं।',
@@ -348,6 +354,15 @@ export const hi: Messages = {
     persona: 'आप ईमेल कैसे इस्तेमाल करते हैं',
     signedInWithGoogle: 'Google से साइन इन',
     signOut: 'साइन आउट',
+    notifications: {
+      blocked: 'सूचनाएँ ब्लॉक हैं। ब्राउज़र की साइट सेटिंग में इन्हें अनुमति दें।',
+      browser: 'यह ब्राउज़र',
+      notConfigured: 'इस सर्वर पर ब्राउज़र सूचनाएँ कॉन्फ़िगर नहीं हैं।',
+      off: 'Fewmail बंद होने पर भी ज़रूरी मेल और रोज़ का ब्रीफ़ यहाँ पाएँ।',
+      on: 'ज़रूरी मेल और रोज़ का ब्रीफ़ यहाँ दिखते हैं। एक साथ कई आएँ तो एक सूचना में आते हैं।',
+      title: 'सूचनाएँ',
+      unsupported: 'यह ब्राउज़र सूचनाएँ नहीं दिखा सकता।',
+    },
     telegram: {
       connect: 'Telegram जोड़ें',
       disconnect: 'डिस्कनेक्ट करें',
@@ -438,6 +453,8 @@ export const hi: Messages = {
     briefArrives: (time: string) => `आपका ब्रीफ़ हर दिन ${time} बजे आता है।`,
     briefFrom: (time: string) => `${time} का ब्रीफ़`,
     done: 'हो गया',
+    firstRead:
+      'आपके पिछले तीन दिनों के मेल पढ़ रहा हूँ। जिस पर आपका ध्यान चाहिए, वह यहाँ अपने आप दिखेगा।',
     handled: {
       spam: (n: number) => `${n} स्पैम में`,
       archived: (n: number) => `${n} आर्काइव किए`,

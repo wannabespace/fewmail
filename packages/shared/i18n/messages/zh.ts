@@ -191,6 +191,9 @@ export const zh: Messages = {
     trialLeft: (total: number) => `Pro 试用 · 还剩 ${total} 天`,
     watching: '助手正在留意你的收件箱',
   },
+  notifications: {
+    many: (n: number) => `Fewmail 有 ${n} 条新通知`,
+  },
   onboarding: {
     languageHint:
       '应用、简报、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
@@ -335,6 +338,15 @@ export const zh: Messages = {
     persona: '你如何使用邮件',
     signedInWithGoogle: '已通过 Google 登录',
     signOut: '退出登录',
+    notifications: {
+      blocked: '通知已被阻止。请在浏览器的网站设置中允许。',
+      browser: '此浏览器',
+      notConfigured: '此服务器未配置浏览器通知。',
+      off: '即使关闭 Fewmail，也能在这里收到紧急邮件和每日简报。',
+      on: '紧急邮件和每日简报会在这里显示。同时到达的多条会合并为一条。',
+      title: '通知',
+      unsupported: '此浏览器无法显示通知。',
+    },
     telegram: {
       connect: '连接 Telegram',
       disconnect: '断开连接',
@@ -419,6 +431,7 @@ export const zh: Messages = {
     briefArrives: (time: string) => `简报每天 ${time} 送达。`,
     briefFrom: (time: string) => `${time} 的简报`,
     done: '完成',
+    firstRead: '正在读取你最近三天的邮件。需要你处理的事会自动出现在这里。',
     handled: {
       spam: (n: number) => `已移到垃圾邮件 ${n} 封`,
       archived: (n: number) => `已归档 ${n} 封`,

@@ -241,6 +241,12 @@ export const en = {
       }),
     watching: 'Agent is watching your inbox',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('en', total, {
+        other: (n) => `${n} new from Fewmail`,
+      }),
+  },
   onboarding: {
     languageHint:
       'The app, briefs, summaries and explanations use this language. Replies always match the language of the email you answer.',
@@ -414,6 +420,16 @@ export const en = {
       name: 'Name',
       title: 'Snippets',
     },
+    notifications: {
+      blocked:
+        'Notifications are blocked. Allow them in this site’s browser settings.',
+      browser: 'This browser',
+      notConfigured: 'Browser notifications are not configured on this server.',
+      off: 'Get urgent mail and the daily brief here, even with Fewmail closed.',
+      on: 'Urgent mail and the daily brief show up here. Several at once arrive as one.',
+      title: 'Notifications',
+      unsupported: 'This browser cannot show notifications.',
+    },
     telegram: {
       connect: 'Connect Telegram',
       disconnect: 'Disconnect',
@@ -513,6 +529,8 @@ export const en = {
     briefArrives: (time: string) => `Your brief arrives every day at ${time}.`,
     briefFrom: (time: string) => `brief from ${time}`,
     done: 'Done',
+    firstRead:
+      'Reading the last three days of your mail. What needs you shows up here on its own.',
     handled: {
       archived: (n: number) => `${n} archived`,
       markedRead: (n: number) => `${n} marked read`,

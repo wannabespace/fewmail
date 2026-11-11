@@ -197,6 +197,9 @@ export const ko: Messages = {
     trialLeft: (total: number) => `Pro 체험 · ${total}일 남음`,
     watching: '에이전트가 받은편지함을 지켜보고 있어요',
   },
+  notifications: {
+    many: (n: number) => `Fewmail 새 알림 ${n}개`,
+  },
   onboarding: {
     languageHint:
       '앱, 브리핑, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
@@ -346,6 +349,16 @@ export const ko: Messages = {
     persona: '이메일 사용 방식',
     signedInWithGoogle: 'Google로 로그인됨',
     signOut: '로그아웃',
+    notifications: {
+      blocked:
+        '알림이 차단되어 있어요. 브라우저의 사이트 설정에서 허용해 주세요.',
+      browser: '이 브라우저',
+      notConfigured: '이 서버에는 브라우저 알림이 설정되어 있지 않아요.',
+      off: 'Fewmail을 닫아 두어도 긴급 메일과 데일리 브리핑을 여기서 받아요.',
+      on: '긴급 메일과 데일리 브리핑이 여기에 표시돼요. 한꺼번에 여러 개가 오면 하나로 묶어요.',
+      title: '알림',
+      unsupported: '이 브라우저는 알림을 표시할 수 없어요.',
+    },
     telegram: {
       connect: 'Telegram 연결',
       disconnect: '연결 해제',
@@ -435,6 +448,8 @@ export const ko: Messages = {
     briefArrives: (time: string) => `브리핑은 매일 ${time}에 도착해요.`,
     briefFrom: (time: string) => `${time} 브리핑`,
     done: '완료',
+    firstRead:
+      '최근 3일간의 메일을 읽고 있어요. 확인할 게 생기면 여기에 바로 나타나요.',
     handled: {
       spam: (n: number) => `${n}개 스팸`,
       archived: (n: number) => `${n}개 보관`,

@@ -196,6 +196,9 @@ export const ja: Messages = {
     trialLeft: (total: number) => `Pro トライアル · 残り ${total} 日`,
     watching: 'エージェントが受信トレイを見守っています',
   },
+  notifications: {
+    many: (n: number) => `Fewmail から ${n} 件のお知らせ`,
+  },
   onboarding: {
     languageHint:
       'アプリ、ブリーフ、要約、説明にこの言語を使います。返信は常に、返信するメールの言語に合わせます。',
@@ -349,6 +352,16 @@ export const ja: Messages = {
     persona: 'メールの使い方',
     signedInWithGoogle: 'Google でログイン中',
     signOut: 'ログアウト',
+    notifications: {
+      blocked:
+        '通知がブロックされています。ブラウザのサイト設定で許可してください。',
+      browser: 'このブラウザ',
+      notConfigured: 'このサーバーではブラウザ通知が設定されていません。',
+      off: 'Fewmail を閉じていても、緊急のメールとデイリーブリーフをここで受け取れます。',
+      on: '緊急のメールとデイリーブリーフがここに届きます。同時に複数届いたときは 1 件にまとめます。',
+      title: '通知',
+      unsupported: 'このブラウザは通知を表示できません。',
+    },
     telegram: {
       connect: 'Telegram を接続',
       disconnect: '接続を解除',
@@ -438,6 +451,8 @@ export const ja: Messages = {
     briefArrives: (time: string) => `ブリーフは毎日 ${time} に届きます。`,
     briefFrom: (time: string) => `${time} のブリーフ`,
     done: '完了',
+    firstRead:
+      '直近3日分のメールを読んでいます。対応が必要なものはここに自動で表示されます。',
     handled: {
       spam: (n: number) => `${n} 件迷惑メール`,
       archived: (n: number) => `${n} 件アーカイブ`,

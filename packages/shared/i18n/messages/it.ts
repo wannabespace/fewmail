@@ -222,6 +222,12 @@ export const it: Messages = {
       }),
     watching: 'L’agente tiene d’occhio la tua posta',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('it', total, {
+        other: (n) => `${n} novità da Fewmail`,
+      }),
+  },
   onboarding: {
     languageHint:
       'App, brief, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
@@ -372,6 +378,17 @@ export const it: Messages = {
     persona: 'Come usi l’email',
     signedInWithGoogle: 'Accesso con Google',
     signOut: 'Esci',
+    notifications: {
+      blocked:
+        'Le notifiche sono bloccate. Consentile nelle impostazioni del sito del browser.',
+      browser: 'Questo browser',
+      notConfigured:
+        'Le notifiche del browser non sono configurate su questo server.',
+      off: 'Ricevi qui le email urgenti e il brief giornaliero, anche con Fewmail chiuso.',
+      on: 'Le email urgenti e il brief giornaliero compaiono qui. Più insieme arrivano come una sola.',
+      title: 'Notifiche',
+      unsupported: 'Questo browser non può mostrare notifiche.',
+    },
     telegram: {
       connect: 'Collega Telegram',
       disconnect: 'Scollega',
@@ -457,6 +474,8 @@ export const it: Messages = {
     briefArrives: (time: string) => `Il brief arriva ogni giorno alle ${time}.`,
     briefFrom: (time: string) => `brief delle ${time}`,
     done: 'Fatto',
+    firstRead:
+      'Sto leggendo la posta degli ultimi tre giorni. Ciò che ha bisogno di te comparirà qui da solo.',
     handled: {
       spam: (n: number) => `Nello spam: ${n}`,
       archived: (n: number) => `Archiviate: ${n}`,

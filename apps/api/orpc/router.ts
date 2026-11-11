@@ -1,6 +1,7 @@
 import { db } from '@fewmail/db'
 import { messages } from '@fewmail/db/schema'
 import {
+  DEVICE_KINDS,
   FOLLOWUP_DAYS,
   GMAIL_EFFECTS,
   MAIL_CATEGORIES,
@@ -48,6 +49,11 @@ import {
 } from '../services/mail'
 import { NotFoundError } from '../services/mail-errors'
 import { getMoney } from '../services/money'
+import {
+  registerDevice,
+  removeDevice,
+  webPushKey,
+} from '../services/notifications'
 import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
 import { getPerson } from '../services/people'
 import { getPlanInfo, requireAgent } from '../services/plan'
@@ -136,6 +142,25 @@ export const router = {
       .handler(({ context, input }) =>
         redraftAction(context.user.id, input.id, input.instruction)
       ),
+  },
+  devices: {
+    register: authed
+      .input(
+        type({
+          keys: { auth: 'string', p256dh: 'string' },
+          kind: type.enumerated(...DEVICE_KINDS),
+          token: 'string.url',
+        })
+      )
+      .handler(async ({ context, input }) => {
+        await registerDevice(context.user.id, input)
+      }),
+    remove: authed
+      .input(type({ token: 'string' }))
+      .handler(async ({ context, input }) => {
+        await removeDevice(context.user.id, input.token)
+      }),
+    webPushKey: authed.handler(() => webPushKey()),
   },
   integrations: {
     apiKeys: {

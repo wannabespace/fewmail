@@ -1,10 +1,10 @@
-import type { Persona } from '@fewmail/shared/agent'
+import type { DeviceKind, Persona } from '@fewmail/shared/agent'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { sql } from 'drizzle-orm'
 import * as d from 'drizzle-orm/pg-core'
 
 import { baseTable } from '../base-table'
-import { encryptedText, searchableText } from '../utils'
+import { encryptedJson, encryptedText, searchableText } from '../utils'
 import { users } from './auth'
 
 export const userSettings = d.snakeCase.table('user_settings', {
@@ -52,6 +52,17 @@ export const whatsappLinks = d.snakeCase.table('whatsapp_links', {
   userId: d
     .uuid()
     .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+})
+
+export const devices = d.snakeCase.table('devices', {
+  ...baseTable,
+  keys: encryptedJson<{ auth: string; p256dh: string }>(),
+  kind: d.text().$type<DeviceKind>().notNull(),
+  token: searchableText().notNull().unique(),
+  userId: d
+    .uuid()
+    .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
 })
 

@@ -231,6 +231,12 @@ export const tr: Messages = {
     trialLeft: (total: number) => `Pro denemesi · ${total} gün kaldı`,
     watching: 'Ajan gelen kutunu izliyor',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('tr', total, {
+        other: (n) => `Fewmail’den ${n} yeni bildirim`,
+      }),
+  },
   onboarding: {
     languageHint:
       'Uygulama, özetler ve açıklamalar bu dili kullanır. Yanıtlar her zaman yanıtladığın e-postanın dilinde olur.',
@@ -402,6 +408,16 @@ export const tr: Messages = {
       name: 'Ad',
       title: 'Parçalar',
     },
+    notifications: {
+      blocked:
+        'Bildirimler engellendi. Tarayıcının site ayarlarından izin ver.',
+      browser: 'Bu tarayıcı',
+      notConfigured: 'Tarayıcı bildirimleri bu sunucuda yapılandırılmamış.',
+      off: 'Fewmail kapalıyken bile acil e-postaları ve günlük özeti burada al.',
+      on: 'Acil e-postalar ve günlük özet burada görünür. Aynı anda gelenler tek bildirimde toplanır.',
+      title: 'Bildirimler',
+      unsupported: 'Bu tarayıcı bildirim gösteremiyor.',
+    },
     telegram: {
       connect: 'Telegram’ı bağla',
       disconnect: 'Bağlantıyı kes',
@@ -507,6 +523,8 @@ export const tr: Messages = {
     briefArrives: (time: string) => `Özetin her gün şu saatte gelir: ${time}.`,
     briefFrom: (time: string) => `${time} özeti`,
     done: 'Tamam',
+    firstRead:
+      'Son üç günün e-postalarını okuyorum. İlgilenmen gerekenler burada kendiliğinden görünecek.',
     handled: {
       spam: (n: number) => `${n} spama taşındı`,
       archived: (n: number) => `${n} arşivlendi`,

@@ -235,6 +235,12 @@ export const id: Messages = {
     trialLeft: (total: number) => `Uji coba Pro · sisa ${total} hari`,
     watching: 'Agen sedang memantau kotak masukmu',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('id', total, {
+        other: (n) => `${n} kabar baru dari Fewmail`,
+      }),
+  },
   onboarding: {
     languageHint:
       'Aplikasi, ringkasan, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
@@ -407,6 +413,15 @@ export const id: Messages = {
       name: 'Nama',
       title: 'Snippet',
     },
+    notifications: {
+      blocked: 'Notifikasi diblokir. Izinkan di pengaturan situs browser.',
+      browser: 'Browser ini',
+      notConfigured: 'Notifikasi browser belum dikonfigurasi di server ini.',
+      off: 'Terima email mendesak dan ringkasan harian di sini, bahkan saat Fewmail ditutup.',
+      on: 'Email mendesak dan ringkasan harian muncul di sini. Beberapa sekaligus datang sebagai satu.',
+      title: 'Notifikasi',
+      unsupported: 'Browser ini tidak dapat menampilkan notifikasi.',
+    },
     telegram: {
       connect: 'Hubungkan Telegram',
       disconnect: 'Putuskan',
@@ -513,6 +528,8 @@ export const id: Messages = {
       `Ringkasanmu tiba setiap hari pukul ${time}.`,
     briefFrom: (time: string) => `ringkasan pukul ${time}`,
     done: 'Selesai',
+    firstRead:
+      'Membaca email tiga hari terakhir. Yang butuh perhatianmu akan muncul di sini dengan sendirinya.',
     handled: {
       spam: (n: number) => `${n} ke spam`,
       archived: (n: number) => `${n} diarsipkan`,

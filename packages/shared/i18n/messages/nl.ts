@@ -244,6 +244,12 @@ export const nl: Messages = {
       }),
     watching: 'De agent houdt je inbox in de gaten',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('nl', total, {
+        other: (n) => `${n} nieuwe meldingen van Fewmail`,
+      }),
+  },
   onboarding: {
     languageHint:
       'De app, overzichten, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
@@ -422,6 +428,16 @@ export const nl: Messages = {
       name: 'Naam',
       title: 'Snippets',
     },
+    notifications: {
+      blocked:
+        'Meldingen zijn geblokkeerd. Sta ze toe in de site-instellingen van de browser.',
+      browser: 'Deze browser',
+      notConfigured: 'Browsermeldingen zijn niet ingesteld op deze server.',
+      off: 'Ontvang dringende mail en het dagelijkse overzicht hier, ook als Fewmail dicht is.',
+      on: 'Dringende mail en het dagelijkse overzicht verschijnen hier. Meerdere tegelijk komen als één.',
+      title: 'Meldingen',
+      unsupported: 'Deze browser kan geen meldingen tonen.',
+    },
     telegram: {
       connect: 'Telegram koppelen',
       disconnect: 'Ontkoppelen',
@@ -531,6 +547,8 @@ export const nl: Messages = {
     briefArrives: (time: string) => `Je overzicht komt elke dag om ${time}.`,
     briefFrom: (time: string) => `overzicht van ${time}`,
     done: 'Klaar',
+    firstRead:
+      'Ik lees je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf.',
     handled: {
       spam: (n: number) => `${n} naar spam`,
       archived: (n: number) => `${n} gearchiveerd`,

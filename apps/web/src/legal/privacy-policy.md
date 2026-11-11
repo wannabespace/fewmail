@@ -35,7 +35,7 @@ Fewmail's use and transfer to any other app of information received from Google 
 - **Other network signals:** to spot mass mailings, senders who keep writing after you unsubscribed, and lookalike domains, we store keyed one-way hashes of your account, senders, domains and a short fingerprint of each message's text. When you report spam or mark mail as not spam, the vote is also stored against a fingerprint of the text, a keyed hash of the network that delivered the mail and keyed hashes of unfamiliar domains it links to, so the same campaign is caught when it comes from a new address. We also read the sender-authentication results Gmail attaches to each email (SPF, DKIM, DMARC). These are combined across users only as counts; no content is shared between users. We also record which senders you unsubscribed from.
 - **Outbox and reminders:** emails waiting to be sent (encrypted, recipients included), snoozed threads and follow-up reminders.
 - **Billing:** if you subscribe to Pro, your Stripe customer ID and subscription status. Card details are handled by Stripe and never reach our servers.
-- **Integrations:** if you connect Telegram, your Telegram chat ID; if you connect WhatsApp, your phone number and when you last wrote to the bot; if you create MCP keys, only a one-way hash of each key.
+- **Integrations:** if you connect Telegram, your Telegram chat ID; if you connect WhatsApp, your phone number and when you last wrote to the bot; if you turn on browser notifications, the push address and keys your browser gives us for that; if you create MCP keys, only a one-way hash of each key.
 
 - **Public domain lists:** to catch phishing, spam and lookalike senders we also check sender and link domains against public lists we download: [Phishing.Database](https://github.com/Phishing-Database/Phishing.Database) (MIT), [StopForumSpam](https://www.stopforumspam.com/license) toxic domains, [disposable-email-domains](https://github.com/disposable-email-domains/disposable-email-domains) (CC0) and the [Majestic Million](https://majestic.com/reports/majestic-million) (CC BY 3.0). The check happens on our servers; nothing about your mail is sent to these projects. To tell whether a new sender's domain was registered only days ago, we look up that domain (the domain alone, never the address or the email) in the public registration database (RDAP) through rdap.org.
 
@@ -56,6 +56,7 @@ Quick decisions about each email (its category, importance, whether someone wait
 | Stripe | Payments and subscriptions for Pro |
 | Telegram | Delivering your brief, urgent emails and drafts, only if you connect it |
 | WhatsApp (Meta) | Delivering your brief, urgent emails and drafts, only if you connect it |
+| Your browser’s push service (Google, Mozilla, Apple or Microsoft) | Delivering browser notifications with the sender, subject and summary of urgent emails and your brief, end-to-end encrypted so the push service cannot read them, only if you turn them on |
 | MCP clients you connect (e.g. Claude, Cursor) | Data you or that client request with your API key |
 | Our hosting and database providers | Running Fewmail and storing the data above |
 
@@ -64,7 +65,7 @@ We share data with these services only as needed to run Fewmail, and we may disc
 ## 7. Your choices and rights
 
 - **Change what the agent may do** at any time in Rules: turn a rule off, remove it or stop it from acting without asking.
-- **Disconnect** Telegram or WhatsApp, or revoke MCP keys in Settings.
+- **Disconnect** Telegram or WhatsApp, turn off browser notifications, or revoke MCP keys in Settings.
 - **Revoke access** to your Google account at any time at [myaccount.google.com/permissions](https://myaccount.google.com/permissions). Fewmail stops syncing immediately.
 - **Delete your account** in Settings → Account. This deletes your account, synced mail, drafts, briefs, rules, settings and integrations from our database right away and revokes our Google access. Your Gmail itself is not changed.
 - **Access or export** your data by contacting us.
@@ -75,7 +76,7 @@ We keep your data while your account exists. Synced mail is used for the brief a
 
 ## 9. Security
 
-Data is encrypted in transit (TLS). At rest, everything you or your mail provide is encrypted: your name, email address and photo, mail, rules, snippets, settings you write yourself, your Telegram chat, your WhatsApp number, API key names, and the IP address and browser of your sessions. What stays unencrypted is what is not personal: ids, dates, flags, amounts and the keyed hashes used for spam protection. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
+Data is encrypted in transit (TLS). At rest, everything you or your mail provide is encrypted: your name, email address and photo, mail, rules, snippets, settings you write yourself, your Telegram chat, your WhatsApp number, browser notification addresses, API key names, and the IP address and browser of your sessions. What stays unencrypted is what is not personal: ids, dates, flags, amounts and the keyed hashes used for spam protection. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
 
 ## 10. Children
 

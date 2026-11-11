@@ -256,6 +256,14 @@ export const pl: Messages = {
       }),
     watching: 'Agent pilnuje twojej skrzynki',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('pl', total, {
+        one: (n) => `${n} nowe powiadomienie z Fewmail`,
+        few: (n) => `${n} nowe powiadomienia z Fewmail`,
+        other: (n) => `${n} nowych powiadomień z Fewmail`,
+      }),
+  },
   onboarding: {
     languageHint:
       'W tym języku działa aplikacja, podsumowania i wyjaśnienia. Odpowiedzi zawsze są w języku maila, na który odpowiadasz.',
@@ -439,6 +447,17 @@ export const pl: Messages = {
       name: 'Nazwa',
       title: 'Fragmenty',
     },
+    notifications: {
+      blocked:
+        'Powiadomienia są zablokowane. Zezwól na nie w ustawieniach witryny w przeglądarce.',
+      browser: 'Ta przeglądarka',
+      notConfigured:
+        'Powiadomienia przeglądarki nie są skonfigurowane na tym serwerze.',
+      off: 'Odbieraj tutaj pilne maile i codzienne podsumowanie, nawet gdy Fewmail jest zamknięty.',
+      on: 'Pilne maile i codzienne podsumowanie pojawiają się tutaj. Kilka naraz przychodzi jako jedno.',
+      title: 'Powiadomienia',
+      unsupported: 'Ta przeglądarka nie może wyświetlać powiadomień.',
+    },
     telegram: {
       connect: 'Połącz Telegram',
       disconnect: 'Rozłącz',
@@ -551,6 +570,8 @@ export const pl: Messages = {
       `Podsumowanie przychodzi codziennie o ${time}.`,
     briefFrom: (time: string) => `podsumowanie z ${time}`,
     done: 'Gotowe',
+    firstRead:
+      'Czytam Twoją pocztę z ostatnich trzech dni. To, co wymaga Twojej uwagi, pojawi się tu samo.',
     handled: {
       spam: (total: number) =>
         plural('pl', total, {

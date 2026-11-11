@@ -14,6 +14,7 @@ export {
 export type { BriefStats, Extracted, SimpleMatch } from './mail'
 export {
   apiKeys,
+  devices,
   subscriptions,
   telegramLinks,
   userSettings,

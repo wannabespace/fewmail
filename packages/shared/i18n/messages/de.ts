@@ -220,6 +220,12 @@ export const de: Messages = {
       }),
     watching: 'Der Agent behält deinen Posteingang im Blick',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('de', total, {
+        other: (n) => `${n} Neuigkeiten von Fewmail`,
+      }),
+  },
   onboarding: {
     languageHint:
       'App, Briefings, Zusammenfassungen und Erklärungen nutzen diese Sprache. Antworten folgen immer der Sprache der Mail, auf die du antwortest.',
@@ -372,6 +378,17 @@ export const de: Messages = {
     persona: 'Wie du E-Mail nutzt',
     signedInWithGoogle: 'Mit Google angemeldet',
     signOut: 'Abmelden',
+    notifications: {
+      blocked:
+        'Benachrichtigungen sind blockiert. Erlaube sie in den Website-Einstellungen des Browsers.',
+      browser: 'Dieser Browser',
+      notConfigured:
+        'Browser-Benachrichtigungen sind auf diesem Server nicht eingerichtet.',
+      off: 'Erhalte dringende Mails und das tägliche Briefing hier, auch wenn Fewmail geschlossen ist.',
+      on: 'Dringende Mails und das tägliche Briefing erscheinen hier. Mehrere auf einmal kommen als eine.',
+      title: 'Benachrichtigungen',
+      unsupported: 'Dieser Browser kann keine Benachrichtigungen anzeigen.',
+    },
     telegram: {
       connect: 'Telegram verbinden',
       disconnect: 'Trennen',
@@ -461,6 +478,8 @@ export const de: Messages = {
     briefArrives: (time: string) => `Dein Briefing kommt jeden Tag um ${time}.`,
     briefFrom: (time: string) => `Briefing von ${time}`,
     done: 'Erledigt',
+    firstRead:
+      'Ich lese die Mails der letzten drei Tage. Was dich braucht, erscheint hier von selbst.',
     handled: {
       spam: (n: number) => `${n} als Spam`,
       archived: (n: number) => `${n} archiviert`,

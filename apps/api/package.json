@@ -34,10 +34,12 @@
     "hono": "catalog:",
     "nanoid": "catalog:",
     "stripe": "catalog:",
+    "web-push": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@fewmail/configs": "workspace:*",
+    "@types/web-push": "catalog:",
     "cross-env": "catalog:"
   },
   "portless": "api.local.fewmail"

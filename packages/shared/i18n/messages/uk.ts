@@ -219,6 +219,14 @@ export const uk: Messages = {
       }),
     watching: 'Агент стежить за поштою',
   },
+  notifications: {
+    many: (total: number) =>
+      plural('uk', total, {
+        one: (n) => `${n} нове у Fewmail`,
+        few: (n) => `${n} нові у Fewmail`,
+        other: (n) => `${n} нових у Fewmail`,
+      }),
+  },
   onboarding: {
     languageHint:
       'Цією мовою будуть застосунок, брифи, підсумки й пояснення. Відповіді завжди мовою листа, на який ти відповідаєш.',
@@ -371,6 +379,16 @@ export const uk: Messages = {
     persona: 'Як ти користуєшся поштою',
     signedInWithGoogle: 'Вхід через Google',
     signOut: 'Вийти',
+    notifications: {
+      blocked:
+        'Сповіщення заблоковано. Дозволь їх у налаштуваннях сайту в браузері.',
+      browser: 'Цей браузер',
+      notConfigured: 'Сповіщення в браузері не налаштовані на цьому сервері.',
+      off: 'Отримуй термінові листи й щоденний бриф тут, навіть коли Fewmail закритий.',
+      on: 'Термінові листи й щоденний бриф з’являються тут. Кілька одночасно приходять одним.',
+      title: 'Сповіщення',
+      unsupported: 'Цей браузер не вміє показувати сповіщення.',
+    },
     telegram: {
       connect: 'Підключити Telegram',
       disconnect: 'Відключити',
@@ -458,6 +476,8 @@ export const uk: Messages = {
     briefArrives: (time: string) => `Бриф приходить щодня о ${time}.`,
     briefFrom: (time: string) => `бриф від ${time}`,
     done: 'Готово',
+    firstRead:
+      "Читаю твою пошту за останні три дні. Усе, що потребує тебе, з'явиться тут само.",
     handled: {
       spam: (n: number) => `У спамі: ${n}`,
       archived: (n: number) => `В архіві: ${n}`,

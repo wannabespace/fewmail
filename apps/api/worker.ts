@@ -17,6 +17,12 @@ import { offerCleanup } from './services/cleanup'
 import { chatIdForUser } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
 import { listQueue } from './services/mail'
+import {
+  briefNotification,
+  flushNotifications,
+  notify,
+  urgentNotification,
+} from './services/notifications'
 import { dispatchDueOutbox } from './services/outbox'
 import { getPlanInfo, hasAgent } from './services/plan'
 import {
@@ -113,6 +119,7 @@ const sendBriefIfDue = async (settings: typeof userSettings.$inferSelect) => {
         .where(eq(briefs.id, brief.id))
     }
     await sendWhatsappBrief(settings.userId, brief)
+    notify(settings.userId, briefNotification(brief))
   })
 }
 
@@ -133,6 +140,7 @@ const notifyUrgent = async (id: string, userId: string) => {
       await sendUrgent(chatId, userId, item)
     }
     await sendWhatsappUrgent(userId, item)
+    notify(userId, urgentNotification(item))
   }
   await db
     .update(actions)
@@ -192,6 +200,7 @@ process.on('SIGTERM', async () => {
     // oxlint-disable-next-line eslint/no-await-in-loop -- polling the in-flight jobs until they finish
     await Bun.sleep(250)
   }
+  await flushNotifications()
   console.log(`worker stopped, ${running.size} jobs left`)
   process.exit(0)
 })

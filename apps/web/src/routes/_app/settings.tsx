@@ -36,6 +36,12 @@ import {
 import { authClient, signedInStore } from '~/lib/auth'
 import { localeStore, useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
+import {
+  currentPushSubscription,
+  disablePush,
+  enablePush,
+  pushSupported,
+} from '~/lib/push'
 
 const AgentSettings = () => {
   const t = useT()
@@ -124,6 +130,64 @@ const AgentSettings = () => {
           </div>
         </>
       )}
+    </SettingsGroup>
+  )
+}
+
+const PUSH_STATE_KEY = ['push-state']
+
+const readPushState = async () => ({
+  permission: Notification.permission,
+  subscribed: !!(await currentPushSubscription()),
+})
+
+const NotificationSettings = () => {
+  const copy = useT().settings.notifications
+  const queryClient = useQueryClient()
+  const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
+  const { data: state } = useQuery({
+    enabled: pushSupported,
+    queryFn: readPushState,
+    queryKey: PUSH_STATE_KEY,
+  })
+  const toggle = useMutation({
+    mutationFn: (on: boolean) =>
+      on && publicKey ? enablePush(publicKey) : disablePush(),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: PUSH_STATE_KEY }),
+  })
+  const available =
+    pushSupported && !!publicKey && state?.permission !== 'denied'
+
+  const description = () => {
+    if (!pushSupported) {
+      return copy.unsupported
+    }
+    if (publicKey === null) {
+      return copy.notConfigured
+    }
+    if (state?.permission === 'denied') {
+      return copy.blocked
+    }
+    return state?.subscribed ? copy.on : copy.off
+  }
+
+  return (
+    <SettingsGroup title={copy.title}>
+      <SettingsRow
+        title={copy.browser}
+        description={description()}
+        htmlFor="browser-notifications"
+      >
+        {available && (
+          <Switch
+            id="browser-notifications"
+            checked={!!state?.subscribed}
+            disabled={toggle.isPending}
+            onCheckedChange={(on) => toggle.mutate(on)}
+          />
+        )}
+      </SettingsRow>
     </SettingsGroup>
   )
 }
@@ -501,6 +565,7 @@ const SettingsPage = () => {
         </h1>
         <PlanSettings />
         <AgentSettings />
+        <NotificationSettings />
         {hasAgent && (
           <>
             <SettingsGroup title={t.settings.integrations}>
@@ -521,7 +586,9 @@ const SettingsPage = () => {
               variant="outline"
               onClick={() => {
                 signedInStore.set(false)
-                void authClient.signOut().then(() => location.assign('/login'))
+                void disablePush()
+                  .finally(() => authClient.signOut())
+                  .then(() => location.assign('/login'))
               }}
             >
               {t.settings.signOut}
