@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "portless run vite dev",
     "build": "vite build",
-    "start": "vite preview",
     "check-types": "bun check"
   },
   "dependencies": {

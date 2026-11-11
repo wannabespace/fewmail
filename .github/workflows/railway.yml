@@ -23,9 +23,10 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      - uses: oven-sh/setup-bun@v2
       # Only the root, for `railway/iac`; the root's install scripts start the local portless proxy.
       - run: pnpm install --frozen-lockfile --ignore-scripts --filter .
-      - run: npm install --global @railway/cli@latest
+      - run: bun install --global @railway/cli@latest
       - run: railway config plan
       # Never `--confirm-destructive`: removing a service or variable stays a manual decision.
       - run: railway config apply --yes

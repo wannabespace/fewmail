@@ -81,7 +81,7 @@ const withHead = (html: string, path: string) =>
 /**
  * Each public page is emitted as `<path>/index.html` with its own title, description and canonical, so
  * crawlers and link previews that never run JS still see them. `/` is `index.html` itself, so the
- * `noindex` app shell moves to `app.html`, and the preview server answers every other route with it.
+ * `noindex` app shell moves to `app.html`, which `Caddyfile` serves for every other route.
  */
 const seo = (): Plugin => ({
   configureServer(server) {
@@ -116,16 +116,6 @@ const seo = (): Plugin => ({
       }
     }
   },
-  configurePreviewServer(server) {
-    server.middlewares.use((req, _res, next) => {
-      const url = req.url?.split('?')[0] ?? '/'
-      const path = url.length > 1 ? url.replace(/\/$/u, '') : url
-      if (!path.includes('.')) {
-        req.url = path in PUBLIC_PAGES ? `${path}/index.html` : '/app.html'
-      }
-      next()
-    })
-  },
   name: 'fewmail-seo',
   transformIndexHtml: (html) =>
     html.replace(
@@ -159,10 +149,5 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     seo(),
   ],
-  preview: {
-    allowedHosts: ['fewmail.app', 'healthcheck.railway.app'],
-    host: true,
-    port: Number(process.env.PORT) || undefined,
-  },
   resolve: { tsconfigPaths: true },
 })

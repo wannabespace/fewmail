@@ -83,11 +83,11 @@ export default defineRailway((ctx) => {
     start: 'env NODE_ENV=production bun run ./worker.ts',
   })
 
-  /** `vite preview` of the built SPA; `dev` would start the portless dev server on 127.0.0.1 and answer nothing. */
+  /** Static `dist` behind Caddy (`apps/web/Dockerfile`); API_URL reaches the build as a build arg. */
   const web = service('@fewmail/web', {
     build: {
-      buildCommand: 'pnpm --filter @fewmail/web build',
-      builder: 'RAILPACK',
+      builder: 'DOCKERFILE',
+      dockerfilePath: 'apps/web/Dockerfile',
       watchPatterns: ['apps/web/**', 'packages/**', 'pnpm-lock.yaml'],
     },
     domains: isProduction ? [{ domain: 'fewmail.app', port: WEB_PORT }] : [],
@@ -99,7 +99,6 @@ export default defineRailway((ctx) => {
     healthcheck: '/robots.txt',
     replicas: 1,
     source: github(REPO, { branch: 'main' }),
-    start: 'pnpm --filter @fewmail/web start',
   })
 
   return project('fewmail', { resources: [db, api, worker, web] })
