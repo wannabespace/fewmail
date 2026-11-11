@@ -30,6 +30,8 @@ catalog:
   '@streamdown/code': ^2.0.0
   '@tailwindcss/typography': ^0.5.20
   '@tailwindcss/vite': ^4.3.4
+  '@tanstack/query-db-collection': 1.5.1
+  '@tanstack/react-db': 1.0.0-rc.1.4
   '@tanstack/react-form': ^1.33.5
   '@tanstack/react-hotkeys': ^0.22.0
   '@tanstack/react-query': ^5.106.1

@@ -18,13 +18,20 @@ import {
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
+import {
+  hideThread,
+  showThreadRead,
+  threadOfMessage,
+  threads,
+} from '~/lib/mail-db'
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
@@ -42,7 +49,12 @@ type ThreadMessage = NonNullable<
 >['messages'][number]['message']
 
 const useThread = (threadId: string) =>
-  useQuery(orpc.mail.thread.queryOptions({ input: { threadId } }))
+  useLiveQuery((q) =>
+    q
+      .from({ thread: threads })
+      .where(({ thread }) => eq(thread.threadId, threadId))
+      .findOne()
+  )
 
 const riskOf = (rows: { message: ThreadMessage }[]) =>
   rows.findLast(({ message }) => message.risk)?.message ?? null
@@ -296,6 +308,7 @@ const useMarkRead = (
   const hasUnread = thread?.messages.some(({ message }) => message.isUnread)
   const { mutate: markRead } = useMutation(
     orpc.mail.markRead.mutationOptions({
+      onMutate: () => showThreadRead(threadId),
       onSuccess: () =>
         queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
     })
@@ -311,50 +324,70 @@ export const useMailActions = (onDone?: () => void) => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
+  // Every action takes the thread out of the current list, so it leaves before the server answers.
+  const leave = {
+    onError: refresh,
+    onMutate: ({ messageId }: { messageId: string }) => {
+      const threadId = threadOfMessage(messageId)
+      if (threadId) {
+        hideThread(threadId)
+      }
+      onDone?.()
+    },
+  }
   const finish = (message: string) => {
     toast.success(message)
-    void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
-    onDone?.()
+    void refresh()
   }
   return {
     archive: useMutation(
       orpc.mail.archive.mutationOptions({
+        ...leave,
         onSuccess: () => finish(t.mail.archived),
       })
     ),
     block: useMutation(
       orpc.mail.block.mutationOptions({
+        ...leave,
         onSuccess: () => finish(t.mail.blocked),
       })
     ),
     notSpam: useMutation(
       orpc.mail.notSpam.mutationOptions({
+        ...leave,
         onSuccess: () => finish(t.mail.movedToInbox),
       })
     ),
     reportSpam: useMutation(
       orpc.mail.reportSpam.mutationOptions({
+        ...leave,
         onSuccess: () => finish(t.mail.reportedSpam),
       })
     ),
     snooze: useMutation(
       orpc.mail.snooze.mutationOptions({
+        ...leave,
         onSuccess: (_, { until }) =>
           finish(t.snooze.until(dates.format(until, 'EEE p'))),
       })
     ),
     trash: useMutation(
       orpc.mail.trash.mutationOptions({
+        ...leave,
         onSuccess: () => finish(t.mail.trashed),
       })
     ),
     unsnooze: useMutation(
       orpc.mail.unsnooze.mutationOptions({
+        ...leave,
         onSuccess: () => finish(t.snooze.unsnooze),
       })
     ),
     unsubscribe: useMutation(
       orpc.mail.unsubscribe.mutationOptions({
+        ...leave,
         onSuccess: ({ unsubscribed }) =>
           finish(unsubscribed ? t.mail.unsubscribed : t.mail.unsubscribeFailed),
       })

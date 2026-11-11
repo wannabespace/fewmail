@@ -22,6 +22,7 @@ import { ComposeDialog } from '~/components/compose/compose-dialog'
 import { Sidebar } from '~/components/nav'
 import { agentModeStore, signedInStore } from '~/lib/auth'
 import { localeStore } from '~/lib/i18n'
+import { mailRowsOf } from '~/lib/mail-db'
 import { client, listenForChanges } from '~/lib/orpc'
 
 const SIDEBAR_WIDTH = { default: 232, max: 320, min: 200 }
@@ -52,6 +53,9 @@ const AppLayout = () => {
   useEffect(() => {
     agentModeStore.set(isAgentMode)
   }, [isAgentMode])
+  useEffect(() => {
+    void mailRowsOf().preload()
+  }, [])
   useEffect(() => {
     const controller = new AbortController()
     void listenForChanges(controller.signal)

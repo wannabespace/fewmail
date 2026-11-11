@@ -18,6 +18,8 @@
     "@orpc/client": "catalog:",
     "@orpc/tanstack-query": "catalog:",
     "@tailwindcss/vite": "catalog:",
+    "@tanstack/query-db-collection": "catalog:",
+    "@tanstack/react-db": "catalog:",
     "@tanstack/react-hotkeys": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",

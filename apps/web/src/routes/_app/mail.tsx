@@ -42,6 +42,7 @@ import {
   Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import {
   skipToken,
@@ -65,6 +66,8 @@ import {
   useMailActions,
 } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
+import { mailRowsOf, prefetchThread } from '~/lib/mail-db'
+import type { MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
@@ -91,6 +94,9 @@ const isCounted = (
 ): filter is keyof RouterOutputs['mail']['unread'] =>
   filter !== 'snoozed' && filter !== 'spam' && filter !== 'drafts'
 
+/** Threads read ahead of the click; the cursor's neighbours and a hovered row are added as they come. */
+const PREFETCHED_ROWS = 10
+
 const READER_WIDTH = { default: 640, max: '70%', min: 420 } as const
 
 const readerWidthStore = createWebStorageValue({
@@ -99,8 +105,6 @@ const readerWidthStore = createWebStorageValue({
   schema: type('number'),
   type: 'localStorage',
 })
-
-type MailRowData = RouterOutputs['mail']['list'][number]
 
 const MailRowMeta = ({
   insight,
@@ -215,7 +219,7 @@ const MailRow = ({
   isSnoozeOpen: boolean
   onOpen: () => void
   onSnoozeOpenChange: (open: boolean) => void
-  row: MailRowData
+  row: Omit<MailRowData, 'key' | 'list'>
 }) => {
   const t = useT()
   const dates = useDates()
@@ -232,6 +236,9 @@ const MailRow = ({
         type="button"
         tabIndex={-1}
         onClick={onOpen}
+        onPointerEnter={() => {
+          void prefetchThread(message.threadId)
+        }}
         aria-current={isOpen}
         className="flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none"
       >
@@ -430,19 +437,29 @@ const useListRows = ({
   q: string | undefined
 }) => {
   const isDrafts = filter === 'drafts'
-  const mail = useQuery(
+  const found = useQuery(
     orpc.mail.list.queryOptions({
-      input: isDrafts
-        ? skipToken
-        : { filter, mailboxId: mailbox, ...(q && { search: q }) },
+      input:
+        q && !isDrafts ? { filter, mailboxId: mailbox, search: q } : skipToken,
     })
   )
+  const listed = useLiveQuery((query) =>
+    q || isDrafts
+      ? undefined
+      : query
+          .from({ row: mailRowsOf(mailbox) })
+          .where(({ row }) => eq(row.list, filter))
+          .orderBy(({ row }) => row.message.receivedAt, 'desc')
+  )
   const drafts = useDrafts({ isEnabled: isDrafts, mailbox, q })
-  const rows = mail.data ?? []
+  const source = q
+    ? { isFetching: found.isFetching, rows: found.data }
+    : { isFetching: listed.isLoading, rows: listed.data }
+  const rows = source.rows ?? []
   return {
     drafts,
     isDrafts,
-    isFetching: isDrafts ? drafts.isFetching : mail.isFetching,
+    isFetching: isDrafts ? drafts.isFetching : source.isFetching,
     rows,
     total: isDrafts ? drafts.rows.length : rows.length,
   }
@@ -523,6 +540,15 @@ const MailPage = () => {
   useEffect(() => {
     listRef.current?.children[cursor]?.scrollIntoView({ block: 'nearest' })
   }, [cursor])
+  useEffect(() => {
+    const ahead = [
+      ...rows.slice(0, PREFETCHED_ROWS),
+      ...rows.slice(Math.max(0, cursor - 1), cursor + 2),
+    ]
+    for (const { message } of ahead) {
+      void prefetchThread(message.threadId)
+    }
+  }, [rows, cursor])
 
   const open = (index: number) => {
     if (isDrafts) {
