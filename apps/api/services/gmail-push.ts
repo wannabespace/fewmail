@@ -56,7 +56,7 @@ const isFromPubSub = async (request: Request) => {
   }
   try {
     const { payload } = await jwtVerify(token, GOOGLE_KEYS, {
-      audience: `${env.API_URL}/gmail/push`,
+      audience: new URL('/gmail/push', env.API_URL).href,
       issuer: ['https://accounts.google.com', 'accounts.google.com'],
     })
     return (
