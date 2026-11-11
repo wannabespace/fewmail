@@ -5,7 +5,6 @@ import {
   ItemContent,
   ItemDescription,
   ItemMedia,
-  smallItemInsetClassName,
   ItemTitle,
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -20,14 +19,7 @@ export const SettingsGroup = ({
 }) => (
   <section className="flex flex-col gap-2">
     {title && (
-      <h2
-        className={cn(
-          smallItemInsetClassName,
-          'text-muted-foreground text-xs font-medium'
-        )}
-      >
-        {title}
-      </h2>
+      <h2 className="text-muted-foreground text-xs font-medium">{title}</h2>
     )}
     <div className={cn(cardClass, 'flex flex-col overflow-hidden')}>
       {children}
