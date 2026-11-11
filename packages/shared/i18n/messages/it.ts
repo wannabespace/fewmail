@@ -175,6 +175,7 @@ export const it: Messages = {
     trashed: 'Spostata nel cestino',
     movedToInbox:
       'Riportata nella posta in arrivo. Grazie per la segnalazione.',
+    noThread: 'Scegli un’email per leggerla qui',
     notSpam: 'Non è spam',
     reportSpam: 'Segnala come spam',
     reportedSpam: 'Segnalato. Le sue email ora finiscono nello spam.',
@@ -197,7 +198,7 @@ export const it: Messages = {
     },
     instruction: 'Di’ all’agente come rispondere, o premi Invio',
     open: 'Apri',
-    search: 'Cerca con la sintassi di Gmail: from:anna has:attachment',
+    search: 'Cerca o descrivi: fatture di Anna del mese scorso',
     openInGmail: 'Apri in Gmail',
     unsubscribe: 'Annulla iscrizione',
     unsubscribed: 'Iscrizione annullata',

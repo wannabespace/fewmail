@@ -5,6 +5,7 @@ import {
   ResizablePanel,
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
+import { Empty, EmptyDescription } from '@fewmail/ui/components/empty'
 import { Input } from '@fewmail/ui/components/input'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -102,7 +103,7 @@ const MailRow = ({
         onClick={onOpen}
         aria-current={isOpen}
         className={cn(
-          'flex w-full cursor-default flex-col gap-1 border-b px-5 py-3 text-left outline-none',
+          'flex w-full cursor-default flex-col gap-0.5 border-b px-5 py-2.5 text-left outline-none',
           isCursor ? 'bg-accent' : 'hover:bg-accent/60',
           isOpen && 'bg-secondary'
         )}
@@ -118,13 +119,19 @@ const MailRow = ({
           )}
           <span
             data-mask
-            className={cn('truncate', message.isUnread && 'font-semibold')}
+            className={cn(
+              'max-w-1/3 shrink-0 truncate',
+              message.isUnread ? 'font-semibold' : 'text-foreground/70'
+            )}
           >
             {message.fromName ?? message.fromEmail}
           </span>
           <span
             data-mask
-            className="text-muted-foreground min-w-0 flex-1 truncate"
+            className={cn(
+              'min-w-0 flex-1 truncate',
+              message.isUnread ? 'text-foreground/90' : 'text-foreground/60'
+            )}
           >
             {message.subject}
           </span>
@@ -135,10 +142,7 @@ const MailRow = ({
             )}
           </span>
         </span>
-        <span
-          data-mask
-          className={cn('text-foreground/75 line-clamp-2 pl-4 text-sm')}
-        >
+        <span data-mask className="text-muted-foreground truncate pl-4 text-sm">
           {analysis?.summary ?? message.snippet}
         </span>
         {message.risk && (
@@ -237,7 +241,7 @@ const MailPage = () => {
       <ResizablePanel className="flex min-w-0">
         <section
           aria-label={t.nav.mail}
-          className={cn('flex min-w-0 flex-1 flex-col', thread && 'border-r')}
+          className="flex min-w-0 flex-1 flex-col border-r"
         >
           <div className="flex flex-col gap-3 border-b px-5 pt-5 pb-3">
             <Input
@@ -299,16 +303,15 @@ const MailPage = () => {
           )}
         </section>
       </ResizablePanel>
-      {thread && <ResizableSeparator />}
+      <ResizableSeparator />
       <ResizablePanel
         className="flex"
-        collapsed={!thread}
         size={readerWidth}
         minSize={READER_WIDTH.min}
         maxSize={READER_WIDTH.max}
         onSizeChange={(width) => readerWidthStore.set(width)}
       >
-        {thread && (
+        {thread ? (
           <div className="bg-background flex min-w-0 flex-1 flex-col">
             <ThreadView
               key={thread}
@@ -328,6 +331,12 @@ const MailPage = () => {
                 ['J / K', t.keys.move],
               ]}
             />
+          </div>
+        ) : (
+          <div className="bg-background flex min-w-0 flex-1">
+            <Empty>
+              <EmptyDescription>{t.mail.noThread}</EmptyDescription>
+            </Empty>
           </div>
         )}
       </ResizablePanel>

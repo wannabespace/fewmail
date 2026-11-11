@@ -15,24 +15,27 @@ export const shortcutRevealStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-export const useShortcutReveal = (trigger: HTMLElement | null) => {
-  const isEnabled = useSubscription(shortcutRevealStore)
+const isUncovered = (trigger: HTMLElement) => {
+  const { left, top, width, height } = trigger.getBoundingClientRect()
+  return trigger.contains(
+    document.elementFromPoint(left + width / 2, top + height / 2)
+  )
+}
+
+/** ⌘ (Ctrl elsewhere) held alone past the reveal delay, with `trigger` (when given) not covered by anything. */
+export const useModifierHold = (trigger?: HTMLElement) => {
   const isHeld = useKeyHold(isMac ? 'Meta' : 'Control')
   const [heldLongEnough, setHeldLongEnough] = useState(false)
 
   useEffect(() => {
-    if (!isHeld || !trigger) {
+    if (!isHeld) {
       return
     }
     // The trigger is hit-tested only once, so a shortcut pressed mid-hold must end the reveal: what it opens would sit under the hints.
-    const timeout = setTimeout(() => {
-      const { left, top, width, height } = trigger.getBoundingClientRect()
-      setHeldLongEnough(
-        trigger.contains(
-          document.elementFromPoint(left + width / 2, top + height / 2)
-        )
-      )
-    }, REVEAL_DELAY_MS)
+    const timeout = setTimeout(
+      () => setHeldLongEnough(!trigger || isUncovered(trigger)),
+      REVEAL_DELAY_MS
+    )
     const combo = getKeyStateTracker().store.subscribe(({ heldKeys }) => {
       if (heldKeys.length > 1) {
         clearTimeout(timeout)
@@ -46,5 +49,11 @@ export const useShortcutReveal = (trigger: HTMLElement | null) => {
     }
   }, [isHeld, trigger])
 
-  return isEnabled && isHeld && heldLongEnough
+  return isHeld && heldLongEnough
+}
+
+export const useShortcutReveal = (trigger: HTMLElement | null) => {
+  const isEnabled = useSubscription(shortcutRevealStore)
+  const isHeld = useModifierHold(trigger ?? undefined)
+  return isEnabled && !!trigger && isHeld
 }

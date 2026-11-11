@@ -42,7 +42,7 @@ const createServer = (userId: string) => {
     {
       annotations: { readOnlyHint: true },
       description:
-        "List recent emails with the agent's analysis (category, importance 0–3, one-line summary, whether a reply is expected). filter: inbox (what is in the Gmail inbox now), important (importance ≥ 2), needs_reply, quiet (noise), snoozed. search takes Gmail search syntax (from:, subject:, newer_than:, has:attachment…).",
+        "List recent emails with the agent's analysis (category, importance 0–3, one-line summary, whether a reply is expected). filter: inbox (what is in the Gmail inbox now), important (importance ≥ 2), needs_reply, quiet (noise), snoozed. search takes plain language ('invoices from Anna last month') or Gmail search syntax (from:, subject:, newer_than:, has:attachment…).",
       inputSchema: {
         category: z.enum(MAIL_CATEGORIES).optional(),
         filter: z

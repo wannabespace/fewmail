@@ -177,6 +177,7 @@ export const id: Messages = {
     trashed: 'Dipindahkan ke sampah',
     movedToInbox:
       'Dikembalikan ke kotak masuk. Terima kasih sudah memberi tahu.',
+    noThread: 'Pilih email untuk membacanya di sini',
     notSpam: 'Bukan spam',
     reportSpam: 'Laporkan spam',
     reportedSpam: 'Dilaporkan. Email mereka kini masuk ke spam.',
@@ -199,7 +200,7 @@ export const id: Messages = {
     },
     instruction: 'Beri tahu agen cara membalas, atau tekan Enter saja',
     open: 'Buka',
-    search: 'Cari dengan sintaks Gmail: from:anna has:attachment',
+    search: 'Cari atau jelaskan: tagihan dari Anna bulan lalu',
     openInGmail: 'Buka di Gmail',
     unsubscribe: 'Berhenti berlangganan',
     unsubscribed: 'Berhenti berlangganan',

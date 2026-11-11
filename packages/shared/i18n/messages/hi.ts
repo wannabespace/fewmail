@@ -155,6 +155,7 @@ export const hi: Messages = {
     trash: 'ट्रैश में डालें',
     trashed: 'ट्रैश में डाल दिया',
     movedToInbox: 'इनबॉक्स में वापस डाल दिया। बताने के लिए शुक्रिया।',
+    noThread: 'यहाँ पढ़ने के लिए कोई ईमेल चुनें',
     notSpam: 'स्पैम नहीं',
     reportSpam: 'स्पैम रिपोर्ट करें',
     reportedSpam: 'रिपोर्ट किया गया। उनके मेल अब स्पैम में जाएँगे।',
@@ -178,7 +179,7 @@ export const hi: Messages = {
     instruction: 'एजेंट को बताएँ कि कैसे जवाब देना है, या बस Enter दबाएँ',
     open: 'खोलें',
     openInGmail: 'Gmail में खोलें',
-    search: 'Gmail सिंटैक्स से खोजें: from:anna has:attachment',
+    search: 'खोजें या बताएँ: पिछले महीने Anna के इनवॉइस',
     unsubscribe: 'अनसब्सक्राइब करें',
     unsubscribed: 'अनसब्सक्राइब हो गया',
     unsubscribeFailed:

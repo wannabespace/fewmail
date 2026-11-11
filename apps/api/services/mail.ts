@@ -14,6 +14,7 @@ import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm'
 import { listMessageIds, trashThread, unsubscribeOneClick } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
+import { toGmailQuery } from './ask'
 import { deliverySlots } from './batching'
 import { runCleanup } from './cleanup'
 import { NotFoundError } from './mail-errors'
@@ -160,7 +161,7 @@ export const listMail = async (
   }
 ) => {
   const searchIds = input.search
-    ? await listMessageIds(userId, input.search, PAGE_SIZE)
+    ? await listMessageIds(userId, await toGmailQuery(input.search), PAGE_SIZE)
     : null
 
   if (searchIds?.length === 0) {

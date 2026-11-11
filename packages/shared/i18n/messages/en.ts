@@ -178,6 +178,7 @@ export const en = {
     forward: 'Forward',
     more: 'More',
     movedToInbox: 'Moved back to the inbox. Thanks for telling us.',
+    noThread: 'Pick an email to read it here',
     notSpam: 'Not spam',
     reply: 'Reply',
     reportSpam: 'Report spam',
@@ -202,7 +203,7 @@ export const en = {
     instruction: 'Tell the agent how to reply, or just press Enter',
     open: 'Open',
     openInGmail: 'Open in Gmail',
-    search: 'Search with Gmail syntax: from:anna has:attachment',
+    search: 'Search or describe: invoices from Anna last month',
     unsubscribe: 'Unsubscribe',
     unsubscribed: 'Unsubscribed',
     unsubscribeFailed:

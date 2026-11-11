@@ -154,6 +154,7 @@ export const ja: Messages = {
     trash: 'ゴミ箱に移動',
     trashed: 'ゴミ箱に移動しました',
     movedToInbox: '受信トレイに戻しました。お知らせありがとうございます。',
+    noThread: 'メールを選ぶとここで読めます',
     notSpam: '迷惑メールではない',
     reportSpam: '迷惑メールとして報告',
     reportedSpam: '報告しました。今後のメールは迷惑メールに移動します。',
@@ -177,7 +178,7 @@ export const ja: Messages = {
     instruction: '返信の方針を伝えるか、そのまま Enter を押してください',
     open: '開く',
     openInGmail: 'Gmail で開く',
-    search: 'Gmail の検索構文で検索：from:anna has:attachment',
+    search: '検索または説明：先月の Anna からの請求書',
     unsubscribe: '配信停止',
     unsubscribed: '配信を停止しました',
     unsubscribeFailed:

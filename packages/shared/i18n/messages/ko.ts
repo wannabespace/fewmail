@@ -155,6 +155,7 @@ export const ko: Messages = {
     trash: '휴지통으로 이동',
     trashed: '휴지통으로 옮겼어요',
     movedToInbox: '받은편지함으로 되돌렸어요. 알려줘서 고마워요.',
+    noThread: '메일을 선택하면 여기에서 읽을 수 있어요',
     notSpam: '스팸 아님',
     reportSpam: '스팸 신고',
     reportedSpam: '신고했어요. 이제 이 발신자의 메일은 스팸으로 가요.',
@@ -178,7 +179,7 @@ export const ko: Messages = {
     instruction: '어떻게 답장할지 알려주거나, 그냥 Enter를 누르세요',
     open: '열기',
     openInGmail: 'Gmail에서 열기',
-    search: 'Gmail 검색 문법으로 검색: from:anna has:attachment',
+    search: '검색하거나 설명하세요: 지난달 Anna가 보낸 청구서',
     unsubscribe: '구독 취소',
     unsubscribed: '구독을 취소했어요',
     unsubscribeFailed:

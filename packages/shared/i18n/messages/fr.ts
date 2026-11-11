@@ -175,6 +175,7 @@ export const fr: Messages = {
     trashed: 'Mis à la corbeille',
     movedToInbox:
       'Remis dans la boîte de réception. Merci de nous l’avoir dit.',
+    noThread: 'Choisissez un e-mail pour le lire ici',
     notSpam: 'Pas un spam',
     reportSpam: 'Signaler comme spam',
     reportedSpam: 'Signalé. Ses e-mails vont désormais en spam.',
@@ -198,7 +199,7 @@ export const fr: Messages = {
     instruction:
       'Dites à l’agent comment répondre, ou appuyez simplement sur Entrée',
     open: 'Ouvrir',
-    search: 'Rechercher avec la syntaxe Gmail : from:anna has:attachment',
+    search: 'Recherchez ou décrivez : factures d’Anna le mois dernier',
     openInGmail: 'Ouvrir dans Gmail',
     unsubscribe: 'Se désabonner',
     unsubscribed: 'Désabonné',

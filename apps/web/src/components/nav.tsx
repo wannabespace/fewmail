@@ -1,6 +1,7 @@
 import type { Messages } from '@fewmail/shared/i18n'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import { useHotkey, useKeyHold } from '@tanstack/react-hotkeys'
+import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
+import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 
@@ -78,8 +79,7 @@ export const Sidebar = ({
   const t = useT()
   const { plan } = useMe()
   const hasAgent = useHasAgent()
-  const isMetaHeld = useKeyHold('Meta')
-  const isControlHeld = useKeyHold('Control')
+  const isModifierHeld = useModifierHold()
   const { data: today } = useQuery(
     orpc.today.get.queryOptions({ enabled: hasAgent })
   )
@@ -104,7 +104,7 @@ export const Sidebar = ({
         <NavLink
           key={item.to}
           item={item}
-          showKeys={isMetaHeld || isControlHeld}
+          showKeys={isModifierHeld}
           badge={item.to === '/today' ? today?.queue.length : undefined}
         />
       ))}

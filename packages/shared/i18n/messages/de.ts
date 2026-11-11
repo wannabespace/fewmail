@@ -173,6 +173,7 @@ export const de: Messages = {
     trash: 'In den Papierkorb',
     trashed: 'In den Papierkorb verschoben',
     movedToInbox: 'Zurück im Posteingang. Danke für den Hinweis.',
+    noThread: 'Wähle eine E-Mail, um sie hier zu lesen',
     notSpam: 'Kein Spam',
     reportSpam: 'Als Spam melden',
     reportedSpam: 'Gemeldet. Ihre Mails landen jetzt im Spam.',
@@ -196,7 +197,7 @@ export const de: Messages = {
     instruction:
       'Sag dem Agenten, wie er antworten soll, oder drück einfach Enter',
     open: 'Öffnen',
-    search: 'Mit Gmail-Syntax suchen: from:anna has:attachment',
+    search: 'Suchen oder beschreiben: Rechnungen von Anna letzten Monat',
     openInGmail: 'In Gmail öffnen',
     unsubscribe: 'Abmelden',
     unsubscribed: 'Abgemeldet',

@@ -15,10 +15,14 @@ const BODY_LIMIT = 1500
 const querySchema = type({ gmailQuery: 'string' })
 const answerSchema = type({ answer: 'string', sources: 'number[]' })
 
-/** Ask AI: the fast model turns the question into a Gmail search, the writer answers from what it finds, citing [n]. */
-export const askMail = async (userId: string, question: string) => {
-  const settings = await getSettings(userId)
-  const { output: search } = await generateText({
+const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
+
+/** Plain language goes through the fast model; text already in Gmail syntax is used as typed. */
+export const toGmailQuery = async (text: string) => {
+  if (GMAIL_OPERATOR.test(text)) {
+    return text
+  }
+  const { output } = await generateText({
     instructions: [
       "Turn the question about the user's mailbox into one Gmail search query (from:, to:, subject:, has:attachment, newer_than:, older_than:, quoted phrases, OR).",
       `Prefer few precise terms; add a time filter only when the question implies one. Today is ${new Date()
@@ -27,14 +31,17 @@ export const askMail = async (userId: string, question: string) => {
     ].join('\n'),
     model: models.fast,
     output: Output.object({ schema: querySchema }),
-    prompt: question,
+    prompt: text,
   })
+  return output.gmailQuery || text
+}
 
-  const ids = await listMessageIds(
-    userId,
-    search.gmailQuery || 'in:anywhere',
-    SOURCE_LIMIT
-  )
+/** Ask AI: the question becomes a Gmail search, the writer answers from what it finds, citing [n]. */
+export const askMail = async (userId: string, question: string) => {
+  const settings = await getSettings(userId)
+  const gmailQuery = await toGmailQuery(question)
+
+  const ids = await listMessageIds(userId, gmailQuery, SOURCE_LIMIT)
   const stored = ids.length
     ? await db
         .select()
@@ -68,7 +75,7 @@ export const askMail = async (userId: string, question: string) => {
 
   return {
     answer: output.answer,
-    query: search.gmailQuery,
+    query: gmailQuery,
     sources: output.sources.flatMap((number) => {
       const mail = found[number - 1]
       return mail

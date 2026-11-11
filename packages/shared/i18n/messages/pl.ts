@@ -191,6 +191,7 @@ export const pl: Messages = {
     trash: 'Przenieś do kosza',
     trashed: 'Przeniesiono do kosza',
     movedToInbox: 'Przywrócono do odebranych. Dzięki za informację.',
+    noThread: 'Wybierz e-mail, aby go tu przeczytać',
     notSpam: 'To nie spam',
     reportSpam: 'Zgłoś spam',
     reportedSpam: 'Zgłoszono. Jego poczta trafia teraz do spamu.',
@@ -214,7 +215,7 @@ export const pl: Messages = {
     instruction:
       'Powiedz agentowi, jak odpowiedzieć, albo po prostu naciśnij Enter',
     open: 'Otwórz',
-    search: 'Szukaj składnią Gmaila: from:anna has:attachment',
+    search: 'Szukaj lub opisz: faktury od Anny z zeszłego miesiąca',
     openInGmail: 'Otwórz w Gmailu',
     unsubscribe: 'Wypisz się',
     unsubscribed: 'Wypisano',
