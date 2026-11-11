@@ -26,6 +26,7 @@ export const es: Messages = {
     retry: 'Reintentar',
     send: 'Enviar',
     steps: {
+      list_subscriptions: 'Revisando suscripciones',
       approve_action: 'Aprobando',
       archive_thread: 'Archivando',
       create_rule: 'Añadiendo una regla',
@@ -194,6 +195,7 @@ export const es: Messages = {
   importance: ['Ruido', 'Bueno saberlo', 'Te necesita pronto', 'Urgente'],
   justNow: 'justo ahora',
   keys: {
+    unsubscribe: 'darse de baja',
     filter: 'filtro',
     reply: 'responder',
     snooze: 'posponer',
@@ -283,7 +285,20 @@ export const es: Messages = {
       'Este remitente no permite darse de baja con un clic, así que el correo se archivó.',
     you: 'Tú',
   },
+  subscriptions: {
+    archivedOnly:
+      'Este remitente no permite darse de baja con un clic, así que se archivó su correo. Si sigue llegando, irá a spam.',
+    count: (total: number) => `Listas de correo: ${total}`,
+    empty: 'Ninguna lista de correo te escribió este mes.',
+    lead: 'Listas de correo que te escribieron este mes, las más activas primero. Darte de baja archiva todo lo que enviaron; lo que siga llegando dos semanas después va a spam.',
+    opened: (total: number) =>
+      total === 0 ? 'ninguno abierto' : `${total} abiertos`,
+    title: 'Suscripciones',
+    unsubscribe: 'Darse de baja',
+    unsubscribed: 'Baja hecha',
+  },
   nav: {
+    subscriptions: 'Suscripciones',
     agent: 'Agente',
     boards: 'Tableros',
     newBoard: 'Nuevo tablero',

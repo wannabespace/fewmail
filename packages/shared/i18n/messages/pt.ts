@@ -49,6 +49,7 @@ export const pt: Messages = {
     retry: 'Tentar de novo',
     send: 'Enviar',
     steps: {
+      list_subscriptions: 'Lendo inscrições',
       approve_action: 'Aprovando',
       archive_thread: 'Arquivando',
       create_rule: 'Adicionando uma regra',
@@ -266,6 +267,7 @@ export const pt: Messages = {
   importance: ['Ruído', 'Bom saber', 'Precisa de você em breve', 'Urgente'],
   justNow: 'agora mesmo',
   keys: {
+    unsubscribe: 'cancelar inscrição',
     filter: 'filtro',
     reply: 'responder',
     snooze: 'adiar',
@@ -355,7 +357,20 @@ export const pt: Messages = {
       'Este remetente não tem cancelamento de inscrição com um clique, então o e-mail foi arquivado.',
     you: 'Você',
   },
+  subscriptions: {
+    archivedOnly:
+      'Este remetente não tem cancelamento com um clique, então os e-mails foram arquivados. Se continuarem chegando, vão para o spam.',
+    count: (total: number) => `Listas de e-mail: ${total}`,
+    empty: 'Nenhuma lista de e-mail escreveu para você este mês.',
+    lead: 'Listas de e-mail que escreveram para você este mês, as mais ativas primeiro. Cancelar a inscrição arquiva tudo o que enviaram; o que ainda chegar duas semanas depois vai para o spam.',
+    opened: (total: number) =>
+      total === 0 ? 'nenhum aberto' : `${total} abertos`,
+    title: 'Inscrições',
+    unsubscribe: 'Cancelar inscrição',
+    unsubscribed: 'Inscrição cancelada',
+  },
   nav: {
+    subscriptions: 'Inscrições',
     agent: 'Agente',
     boards: 'Painéis',
     newBoard: 'Novo painel',

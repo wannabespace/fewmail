@@ -30,6 +30,7 @@ import {
   DashboardSquare01Icon,
   Logout01Icon,
   Mail01Icon,
+  MailRemove01Icon,
   Moon02Icon,
   Search01Icon,
   Settings01Icon,
@@ -57,6 +58,12 @@ export const NAV_ITEMS = [
   { icon: AiChat02Icon, key: 'agent', sequence: ['G', 'A'], to: '/agent' },
   { icon: Mail01Icon, key: 'mail', sequence: ['G', 'M'], to: '/mail' },
   { icon: ZapIcon, key: 'rules', sequence: ['G', 'R'], to: '/rules' },
+  {
+    icon: MailRemove01Icon,
+    key: 'subscriptions',
+    sequence: ['G', 'U'],
+    to: '/subscriptions',
+  },
   {
     icon: Settings01Icon,
     key: 'settings',

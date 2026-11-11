@@ -49,6 +49,7 @@ export const tr: Messages = {
     retry: 'Tekrar dene',
     send: 'Gönder',
     steps: {
+      list_subscriptions: 'Abonelikler okunuyor',
       approve_action: 'Onaylanıyor',
       archive_thread: 'Arşivleniyor',
       create_rule: 'Kural ekleniyor',
@@ -253,6 +254,7 @@ export const tr: Messages = {
   importance: ['Gürültü', 'Bilmeye değer', 'Yakında seni bekliyor', 'Acil'],
   justNow: 'az önce',
   keys: {
+    unsubscribe: 'abonelikten çık',
     filter: 'filtre',
     reply: 'yanıtla',
     snooze: 'ertele',
@@ -342,7 +344,20 @@ export const tr: Messages = {
       'Bu gönderen tek tıkla abonelikten çıkmayı desteklemiyor, bu yüzden e-posta arşivlendi.',
     you: 'Sen',
   },
+  subscriptions: {
+    archivedOnly:
+      'Bu gönderenin tek tıkla abonelikten çıkma seçeneği yok, bu yüzden e-postaları arşivlendi. Gelmeye devam ederse spama gider.',
+    count: (total: number) => `E-posta listesi: ${total}`,
+    empty: 'Bu ay sana hiçbir e-posta listesi yazmadı.',
+    lead: 'Bu ay sana yazan e-posta listeleri, en etkin olanlar önce. Abonelikten çıkınca gönderdikleri her şey arşivlenir; iki hafta sonra hâlâ gelen e-postalar spama gider.',
+    opened: (total: number) =>
+      total === 0 ? 'hiçbiri açılmadı' : `${total} açıldı`,
+    title: 'Abonelikler',
+    unsubscribe: 'Abonelikten çık',
+    unsubscribed: 'Abonelikten çıkıldı',
+  },
   nav: {
+    subscriptions: 'Abonelikler',
     agent: 'Ajan',
     boards: 'Panolar',
     newBoard: 'Yeni pano',

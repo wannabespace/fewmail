@@ -36,6 +36,7 @@ export const SettingsGroup = ({
 
 /** `htmlFor`: makes the whole row the control's label, for a `Switch`; leave it out for a control that opens a popup. */
 export const SettingsRow = ({
+  active,
   children,
   dense,
   description,
@@ -44,6 +45,8 @@ export const SettingsRow = ({
   iconVariant,
   title,
 }: {
+  /** The keyboard cursor's row in a list walked with J / K. */
+  active?: boolean
   children?: ReactNode
   dense?: boolean
   description?: ReactNode
@@ -56,6 +59,7 @@ export const SettingsRow = ({
     size="sm"
     variant="grouped"
     className={cn(dense && 'py-2')}
+    data-active={active || undefined}
     // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- Item renders the title and description into this label
     render={htmlFor ? <label htmlFor={htmlFor} /> : undefined}
   >

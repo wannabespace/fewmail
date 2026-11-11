@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { getBoard, listBoards } from './boards'
 import { generateBrief, getToday } from './brief'
+import { listSubscriptions } from './cleanup'
 import {
   approveAction,
   archiveMessage,
@@ -135,6 +136,12 @@ export const agentTools = (userId: string) => ({
       'Unsubscribe from the mailing list an email came from (through its own unsubscribe link) and archive the thread.',
     input: { messageId: z.uuid() },
     run: ({ messageId }) => unsubscribeMessage(userId, messageId),
+  }),
+  list_subscriptions: define({
+    access: 'read',
+    description:
+      'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender, how many emails, how many were opened, and the messageId of the latest one — pass it to unsubscribe.',
+    run: () => listSubscriptions(userId),
   }),
   handle_thread: define({
     access: 'consent',

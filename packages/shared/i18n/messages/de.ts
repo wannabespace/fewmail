@@ -26,6 +26,7 @@ export const de: Messages = {
     retry: 'Erneut versuchen',
     send: 'Senden',
     steps: {
+      list_subscriptions: 'Lese Abos',
       approve_action: 'Wird ausgeführt',
       archive_thread: 'Wird archiviert',
       create_rule: 'Regel wird hinzugefügt',
@@ -193,6 +194,7 @@ export const de: Messages = {
   importance: ['Rauschen', 'Gut zu wissen', 'Braucht dich bald', 'Dringend'],
   justNow: 'gerade eben',
   keys: {
+    unsubscribe: 'abbestellen',
     filter: 'Filter',
     reply: 'antworten',
     snooze: 'zurückstellen',
@@ -283,7 +285,20 @@ export const de: Messages = {
       'Dieser Absender bietet keine Abmeldung per Klick, daher wurde die Mail archiviert.',
     you: 'Du',
   },
+  subscriptions: {
+    archivedOnly:
+      'Dieser Absender bietet kein Abbestellen per Klick, daher wurden seine Mails archiviert. Kommen weiter welche, gehen sie in den Spam.',
+    count: (total: number) => `Verteiler: ${total}`,
+    empty: 'Diesen Monat hat dir kein Verteiler geschrieben.',
+    lead: 'Verteiler, die dir diesen Monat geschrieben haben, die aktivsten zuerst. Abbestellen archiviert alles, was sie geschickt haben; Mails, die zwei Wochen später noch kommen, landen im Spam.',
+    opened: (total: number) =>
+      total === 0 ? 'keine geöffnet' : `${total} geöffnet`,
+    title: 'Abos',
+    unsubscribe: 'Abbestellen',
+    unsubscribed: 'Abbestellt',
+  },
   nav: {
+    subscriptions: 'Abos',
     agent: 'Agent',
     boards: 'Boards',
     newBoard: 'Neues Board',

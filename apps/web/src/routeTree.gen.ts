@@ -19,6 +19,7 @@ import { Route as AppAgentRouteImport } from './routes/_app/agent'
 import { Route as AppMailRouteImport } from './routes/_app/mail'
 import { Route as AppRulesRouteImport } from './routes/_app/rules'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppSubscriptionsRouteImport } from './routes/_app/subscriptions'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
@@ -74,6 +75,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSubscriptionsRoute = AppSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTodayRoute = AppTodayRouteImport.update({
   id: '/today',
   path: '/today',
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/mail': typeof AppMailRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
+  '/subscriptions': typeof AppSubscriptionsRoute
   '/today': typeof AppTodayRoute
   '/pricing': typeof SitePricingRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/mail': typeof AppMailRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
+  '/subscriptions': typeof AppSubscriptionsRoute
   '/today': typeof AppTodayRoute
   '/pricing': typeof SitePricingRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/_app/mail': typeof AppMailRoute
   '/_app/rules': typeof AppRulesRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/subscriptions': typeof AppSubscriptionsRoute
   '/_app/today': typeof AppTodayRoute
   '/_site/pricing': typeof SitePricingRoute
   '/_site/': typeof SiteIndexRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/mail'
     | '/rules'
     | '/settings'
+    | '/subscriptions'
     | '/today'
     | '/pricing'
     | '/boards/$boardId'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/mail'
     | '/rules'
     | '/settings'
+    | '/subscriptions'
     | '/today'
     | '/pricing'
     | '/boards/$boardId'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/_app/mail'
     | '/_app/rules'
     | '/_app/settings'
+    | '/_app/subscriptions'
     | '/_app/today'
     | '/_site/pricing'
     | '/_site/'
@@ -290,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/subscriptions': {
+      id: '/_app/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/subscriptions'
+      preLoaderRoute: typeof AppSubscriptionsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/today': {
       id: '/_app/today'
       path: '/today'
@@ -340,6 +359,7 @@ interface AppRouteChildren {
   AppMailRoute: typeof AppMailRoute
   AppRulesRoute: typeof AppRulesRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppSubscriptionsRoute: typeof AppSubscriptionsRoute
   AppTodayRoute: typeof AppTodayRoute
   AppBoardsBoardIdRoute: typeof AppBoardsBoardIdRoute
 }
@@ -349,6 +369,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMailRoute: AppMailRoute,
   AppRulesRoute: AppRulesRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppSubscriptionsRoute: AppSubscriptionsRoute,
   AppTodayRoute: AppTodayRoute,
   AppBoardsBoardIdRoute: AppBoardsBoardIdRoute,
 }

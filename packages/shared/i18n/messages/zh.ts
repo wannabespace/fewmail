@@ -49,6 +49,7 @@ export const zh: Messages = {
     retry: '重试',
     send: '发送',
     steps: {
+      list_subscriptions: '正在查看订阅',
       approve_action: '正在执行',
       archive_thread: '正在归档',
       create_rule: '正在添加规则',
@@ -163,6 +164,7 @@ export const zh: Messages = {
   importance: ['噪音', '值得了解', '需尽快处理', '紧急'],
   justNow: '刚刚',
   keys: {
+    unsubscribe: '退订',
     filter: '筛选',
     reply: '回复',
     snooze: '稍后提醒',
@@ -249,7 +251,20 @@ export const zh: Messages = {
     unsubscribeFailed: '该发件人不支持一键退订，所以这封邮件已归档。',
     you: '你',
   },
+  subscriptions: {
+    archivedOnly:
+      '这个发件人不支持一键退订，所以已归档其邮件。如果继续发来，会进入垃圾邮件。',
+    count: (total: number) => `邮件列表：${total} 个`,
+    empty: '本月没有邮件列表给你发信。',
+    lead: '本月给你发信的邮件列表，最活跃的在前。退订会归档它们发来的所有邮件；两周后仍在发来的邮件会进入垃圾邮件。',
+    opened: (total: number) =>
+      total === 0 ? '一封都没打开' : `打开了 ${total} 封`,
+    title: '订阅',
+    unsubscribe: '退订',
+    unsubscribed: '已退订',
+  },
   nav: {
+    subscriptions: '订阅',
     agent: '助手',
     boards: '看板',
     newBoard: '新建看板',
@@ -321,13 +336,11 @@ export const zh: Messages = {
   },
   persona: {
     reader: {
-      description:
-        '让收件箱保持清静，处理掉噪音，别让重要的事漏掉。',
+      description: '让收件箱保持清静，处理掉噪音，别让重要的事漏掉。',
       title: '我主要看邮件',
     },
     responder: {
-      description:
-        '把等我回复的人放在最前面，并用我的语气起草回复。',
+      description: '把等我回复的人放在最前面，并用我的语气起草回复。',
       title: '我经常回复',
     },
   },

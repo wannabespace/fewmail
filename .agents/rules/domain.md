@@ -24,6 +24,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Maybe spam** | One weak signal (odd domain name, freshly registered domain, weak sender authentication): labelled "Looks like spam" and kept out of Important, never moved. Two or more → spam. Free. |
 | **Snippets** | Saved texts inserted with `;name` in the editor. Free. |
 | **Agent labels** | Optional `Fewmail/<Category>` Gmail labels so the sorting shows in any Gmail client. Free. |
+| **Subscriptions** | `/subscriptions` (`G U`): every mailing list that wrote in the last 30 days and the user has not left, busiest first, with how many emails came and how many were opened. Unsubscribe (`U`) leaves the list by one-click when the sender supports it and archives everything that sender sent; either way later mail becomes a zombie. Free. |
 | **Zombie sender** | Mail that keeps coming more than 14 days after you unsubscribed; moved to spam. Free. |
 | **Bulk** | Mail sent near-identically to many people (`bulkCount`). Free. |
 | **Risk** | Known phishing domain (public list), lookalike sender domain or changed payment details; shown as a warning and a `security` action. Free. |

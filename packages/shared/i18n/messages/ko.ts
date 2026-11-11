@@ -49,6 +49,7 @@ export const ko: Messages = {
     retry: '다시 시도',
     send: '보내기',
     steps: {
+      list_subscriptions: '구독 확인 중',
       approve_action: '실행하는 중',
       archive_thread: '보관하는 중',
       create_rule: '규칙 추가하는 중',
@@ -167,6 +168,7 @@ export const ko: Messages = {
   importance: ['잡음', '알아두면 좋음', '곧 확인 필요', '긴급'],
   justNow: '방금',
   keys: {
+    unsubscribe: '구독 취소',
     filter: '필터',
     reply: '답장',
     snooze: '다시 알림',
@@ -256,7 +258,20 @@ export const ko: Messages = {
       '이 발신자는 원클릭 구독 취소를 지원하지 않아서 메일을 보관했어요.',
     you: '나',
   },
+  subscriptions: {
+    archivedOnly:
+      '이 발신자는 원클릭 구독 취소를 지원하지 않아 메일을 보관했어요. 계속 오면 스팸으로 보내요.',
+    count: (total: number) => `메일링 리스트 ${total}개`,
+    empty: '이번 달 메일을 보낸 메일링 리스트가 없어요.',
+    lead: '이번 달 메일을 보낸 메일링 리스트예요. 많이 보낸 순서예요. 구독을 취소하면 보낸 메일이 모두 보관되고, 2주 뒤에도 오는 메일은 스팸으로 가요.',
+    opened: (total: number) =>
+      total === 0 ? '하나도 안 열었어요' : `${total}개 열었어요`,
+    title: '구독',
+    unsubscribe: '구독 취소',
+    unsubscribed: '구독을 취소했어요',
+  },
   nav: {
+    subscriptions: '구독',
     agent: '에이전트',
     boards: '보드',
     newBoard: '새 보드',

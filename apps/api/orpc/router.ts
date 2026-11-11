@@ -38,6 +38,7 @@ import {
 } from '../services/boards'
 import { generateBrief, getToday } from '../services/brief'
 import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
+import { listSubscriptions, unsubscribeSender } from '../services/cleanup'
 import {
   createApiKey,
   getTelegramLink,
@@ -432,6 +433,14 @@ export const router = {
         await requireAgentFor(context.user.id, change)
         return updateRule(context.user.id, ruleId, change)
       }),
+  },
+  subscriptions: {
+    list: authed.handler(({ context }) => listSubscriptions(context.user.id)),
+    unsubscribe: authed
+      .input(messageId)
+      .handler(({ context, input }) =>
+        unsubscribeSender(context.user.id, input.messageId)
+      ),
   },
   person: agent
     .input(type({ email: 'string.email' }))

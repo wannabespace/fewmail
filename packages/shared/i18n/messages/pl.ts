@@ -49,6 +49,7 @@ export const pl: Messages = {
     retry: 'Spróbuj ponownie',
     send: 'Wyślij',
     steps: {
+      list_subscriptions: 'Sprawdzam subskrypcje',
       approve_action: 'Wykonuję',
       archive_thread: 'Archiwizuję',
       create_rule: 'Dodaję regułę',
@@ -277,6 +278,7 @@ export const pl: Messages = {
   importance: ['Szum', 'Warto wiedzieć', 'Wkrótce czeka na ciebie', 'Pilne'],
   justNow: 'przed chwilą',
   keys: {
+    unsubscribe: 'wypisz się',
     filter: 'filtr',
     reply: 'odpowiedz',
     snooze: 'odłóż',
@@ -367,7 +369,20 @@ export const pl: Messages = {
       'Ten nadawca nie obsługuje wypisania jednym kliknięciem, więc e-mail został zarchiwizowany.',
     you: 'Ty',
   },
+  subscriptions: {
+    archivedOnly:
+      'Ten nadawca nie ma wypisania jednym kliknięciem, więc jego poczta została zarchiwizowana. Jeśli dalej będzie przychodzić, trafi do spamu.',
+    count: (total: number) => `Listy mailingowe: ${total}`,
+    empty: 'W tym miesiącu nie pisała do ciebie żadna lista mailingowa.',
+    lead: 'Listy mailingowe, które pisały do ciebie w tym miesiącu, od najaktywniejszych. Wypisanie archiwizuje wszystko, co wysłały; poczta, która przychodzi jeszcze po dwóch tygodniach, trafia do spamu.',
+    opened: (total: number) =>
+      total === 0 ? 'żaden nie otwarty' : `otwarte: ${total}`,
+    title: 'Subskrypcje',
+    unsubscribe: 'Wypisz się',
+    unsubscribed: 'Wypisano',
+  },
   nav: {
+    subscriptions: 'Subskrypcje',
     agent: 'Agent',
     boards: 'Tablice',
     newBoard: 'Nowa tablica',

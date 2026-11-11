@@ -26,6 +26,7 @@ export const fr: Messages = {
     retry: 'Réessayer',
     send: 'Envoyer',
     steps: {
+      list_subscriptions: 'Lecture des abonnements',
       approve_action: 'Validation',
       archive_thread: 'Archivage',
       create_rule: 'Ajout d’une règle',
@@ -194,6 +195,7 @@ export const fr: Messages = {
   importance: ['Bruit', 'Bon à savoir', 'Bientôt pour vous', 'Urgent'],
   justNow: 'à l’instant',
   keys: {
+    unsubscribe: 'se désabonner',
     filter: 'filtre',
     reply: 'répondre',
     snooze: 'reporter',
@@ -285,7 +287,20 @@ export const fr: Messages = {
       'Cet expéditeur ne propose pas de désabonnement en un clic, l’e-mail a donc été archivé.',
     you: 'Vous',
   },
+  subscriptions: {
+    archivedOnly:
+      'Cet expéditeur n’a pas de désabonnement en un clic, ses e-mails ont donc été archivés. S’ils continuent d’arriver, ils iront en spam.',
+    count: (total: number) => `Listes de diffusion : ${total}`,
+    empty: 'Aucune liste de diffusion ne vous a écrit ce mois-ci.',
+    lead: 'Les listes de diffusion qui vous ont écrit ce mois-ci, les plus actives d’abord. Se désabonner archive tout ce qu’elles ont envoyé ; ce qui arrive encore deux semaines plus tard part en spam.',
+    opened: (total: number) =>
+      total === 0 ? 'aucun ouvert' : `${total} ouverts`,
+    title: 'Abonnements',
+    unsubscribe: 'Se désabonner',
+    unsubscribed: 'Désabonné',
+  },
   nav: {
+    subscriptions: 'Abonnements',
     agent: 'Agent',
     boards: 'Tableaux',
     newBoard: 'Nouveau tableau',

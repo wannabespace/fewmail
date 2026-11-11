@@ -26,6 +26,7 @@ export const it: Messages = {
     retry: 'Riprova',
     send: 'Invia',
     steps: {
+      list_subscriptions: 'Leggo le iscrizioni',
       approve_action: 'Eseguo',
       archive_thread: 'Archivio',
       create_rule: 'Aggiungo una regola',
@@ -194,6 +195,7 @@ export const it: Messages = {
   importance: ['Rumore', 'Buono a sapersi', 'Presto per te', 'Urgente'],
   justNow: 'proprio ora',
   keys: {
+    unsubscribe: 'disiscriviti',
     filter: 'filtro',
     reply: 'rispondi',
     snooze: 'posticipa',
@@ -284,7 +286,20 @@ export const it: Messages = {
       'Questo mittente non permette di annullare l’iscrizione con un clic, quindi l’email è stata archiviata.',
     you: 'Tu',
   },
+  subscriptions: {
+    archivedOnly:
+      'Questo mittente non ha la disiscrizione con un clic, quindi la sua posta è stata archiviata. Se continua ad arrivare, finirà nello spam.',
+    count: (total: number) => `Mailing list: ${total}`,
+    empty: 'Nessuna mailing list ti ha scritto questo mese.',
+    lead: 'Le mailing list che ti hanno scritto questo mese, le più attive prima. Disiscriversi archivia tutto ciò che hanno inviato; la posta che arriva ancora due settimane dopo va nello spam.',
+    opened: (total: number) =>
+      total === 0 ? 'nessuna aperta' : `${total} aperte`,
+    title: 'Iscrizioni',
+    unsubscribe: 'Disiscriviti',
+    unsubscribed: 'Disiscritto',
+  },
   nav: {
+    subscriptions: 'Iscrizioni',
     agent: 'Agente',
     boards: 'Bacheche',
     newBoard: 'Nuova bacheca',

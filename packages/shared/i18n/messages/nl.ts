@@ -49,6 +49,7 @@ export const nl: Messages = {
     retry: 'Opnieuw proberen',
     send: 'Versturen',
     steps: {
+      list_subscriptions: 'Abonnementen bekijken',
       approve_action: 'Uitvoeren',
       archive_thread: 'Archiveren',
       create_rule: 'Regel toevoegen',
@@ -266,6 +267,7 @@ export const nl: Messages = {
   importance: ['Ruis', 'Goed om te weten', 'Heeft je snel nodig', 'Dringend'],
   justNow: 'zojuist',
   keys: {
+    unsubscribe: 'afmelden',
     filter: 'filter',
     reply: 'beantwoorden',
     snooze: 'uitstellen',
@@ -355,7 +357,20 @@ export const nl: Messages = {
       'Deze afzender heeft geen afmelding met één klik, dus de e-mail is gearchiveerd.',
     you: 'Jij',
   },
+  subscriptions: {
+    archivedOnly:
+      'Deze afzender heeft geen afmelding met één klik, dus de mail is gearchiveerd. Blijft die komen, dan gaat ze naar spam.',
+    count: (total: number) => `Mailinglijsten: ${total}`,
+    empty: 'Geen mailinglijst heeft je deze maand gemaild.',
+    lead: 'Mailinglijsten die je deze maand mailden, de drukste eerst. Afmelden archiveert alles wat ze stuurden; mail die twee weken later nog komt, gaat naar spam.',
+    opened: (total: number) =>
+      total === 0 ? 'geen enkele geopend' : `${total} geopend`,
+    title: 'Abonnementen',
+    unsubscribe: 'Afmelden',
+    unsubscribed: 'Afgemeld',
+  },
   nav: {
+    subscriptions: 'Abonnementen',
     agent: 'Agent',
     boards: 'Borden',
     newBoard: 'Nieuw bord',

@@ -9,6 +9,7 @@ import { localClock } from '../lib/clock'
 import { unsubscribeOneClick } from '../lib/gmail'
 import { senderHashOf } from '../lib/keyed-hash'
 import { announceChange } from '../lib/live'
+import { NotFoundError } from './mail-errors'
 import { getSettings } from './settings'
 import { changeThreadLabels } from './thread-labels'
 import { recordUnsubscribe } from './zombies'
@@ -18,8 +19,8 @@ const MIN_UNOPENED = 3
 const MAX_SENDERS = 25
 const WEEKDAY_SUNDAY = 0
 
-/** Mailing lists the user got at least three times in a month and never opened. */
-const unopenedSenders = async (userId: string): Promise<CleanupSender[]> => {
+/** Every mailing list that wrote in the last month and the user has not left, busiest first. */
+export const listSubscriptions = async (userId: string) => {
   const rows = await db
     .select({
       count: sql<number>`count(*)::int`,
@@ -48,13 +49,15 @@ const unopenedSenders = async (userId: string): Promise<CleanupSender[]> => {
     unsubscribedRows.map(({ senderHash }) => senderHash)
   )
   return rows
-    .filter(
-      ({ count, fromEmail, opened }) =>
-        count >= MIN_UNOPENED &&
-        opened === 0 &&
-        !unsubscribed.has(senderHashOf(fromEmail))
-    )
+    .filter(({ fromEmail }) => !unsubscribed.has(senderHashOf(fromEmail)))
     .toSorted((left, right) => right.count - left.count)
+}
+
+/** Mailing lists the user got at least three times in a month and never opened. */
+const unopenedSenders = async (userId: string): Promise<CleanupSender[]> => {
+  const subscriptions = await listSubscriptions(userId)
+  return subscriptions
+    .filter(({ count, opened }) => count >= MIN_UNOPENED && opened === 0)
     .slice(0, MAX_SENDERS)
     .map(({ count, fromEmail, fromName, messageId }) => ({
       count,
@@ -108,36 +111,44 @@ export const offerCleanup = async (userId: string) => {
   await announceChange(userId)
 }
 
-export const runCleanup = async (userId: string, senders: CleanupSender[]) => {
-  await Promise.all(
-    senders.map(async ({ fromEmail, messageId }) => {
-      const [message] = await db
-        .select()
-        .from(messages)
-        .where(and(eq(messages.id, messageId), eq(messages.userId, userId)))
-      if (!message) {
-        return
-      }
-      if (message.listUnsubscribe) {
-        await unsubscribeOneClick(
-          message.listUnsubscribe,
-          message.listUnsubscribePost
-        ).catch(() => false)
-      }
-      await recordUnsubscribe(userId, fromEmail)
-      const threads = await db
-        .selectDistinct({ threadId: messages.threadId })
-        .from(messages)
-        .where(
-          and(eq(messages.userId, userId), eq(messages.fromEmail, fromEmail))
-        )
-      await Promise.all(
-        threads.map(({ threadId }) =>
-          changeThreadLabels(userId, threadId, {
-            remove: ['INBOX', 'UNREAD'],
-          }).catch(() => null)
-        )
+/** Leaves the list `messageId` came from and archives everything the sender sent. */
+export const unsubscribeSender = async (userId: string, messageId: string) => {
+  const [message] = await db
+    .select()
+    .from(messages)
+    .where(and(eq(messages.id, messageId), eq(messages.userId, userId)))
+  if (!message) {
+    throw new NotFoundError('Message not found')
+  }
+  const unsubscribed = message.listUnsubscribe
+    ? await unsubscribeOneClick(
+        message.listUnsubscribe,
+        message.listUnsubscribePost
+      ).catch(() => false)
+    : false
+  await recordUnsubscribe(userId, message.fromEmail)
+  const threads = await db
+    .selectDistinct({ threadId: messages.threadId })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.fromEmail, message.fromEmail)
       )
-    })
+    )
+  await Promise.all(
+    threads.map(({ threadId }) =>
+      changeThreadLabels(userId, threadId, {
+        remove: ['INBOX', 'UNREAD'],
+      }).catch(() => null)
+    )
   )
+  return { unsubscribed }
 }
+
+export const runCleanup = (userId: string, senders: CleanupSender[]) =>
+  Promise.all(
+    senders.map(({ messageId }) =>
+      unsubscribeSender(userId, messageId).catch(() => null)
+    )
+  )

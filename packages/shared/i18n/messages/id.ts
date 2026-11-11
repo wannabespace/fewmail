@@ -50,6 +50,7 @@ export const id: Messages = {
     retry: 'Coba lagi',
     send: 'Kirim',
     steps: {
+      list_subscriptions: 'Membaca langganan',
       approve_action: 'Menyetujui',
       archive_thread: 'Mengarsipkan',
       create_rule: 'Menambahkan aturan',
@@ -258,6 +259,7 @@ export const id: Messages = {
   importance: ['Kebisingan', 'Perlu tahu', 'Segera butuh kamu', 'Mendesak'],
   justNow: 'baru saja',
   keys: {
+    unsubscribe: 'berhenti langganan',
     filter: 'filter',
     reply: 'balas',
     snooze: 'tunda',
@@ -348,7 +350,20 @@ export const id: Messages = {
       'Pengirim ini tidak mendukung berhenti berlangganan sekali klik, jadi email-nya diarsipkan.',
     you: 'Kamu',
   },
+  subscriptions: {
+    archivedOnly:
+      'Pengirim ini tidak punya berhenti langganan sekali klik, jadi emailnya diarsipkan. Jika terus datang, akan masuk spam.',
+    count: (total: number) => `Milis: ${total}`,
+    empty: 'Tidak ada milis yang mengirimimu email bulan ini.',
+    lead: 'Milis yang mengirimimu email bulan ini, yang paling aktif lebih dulu. Berhenti langganan mengarsipkan semua kirimannya; email yang masih datang dua minggu kemudian masuk spam.',
+    opened: (total: number) =>
+      total === 0 ? 'tidak ada yang dibuka' : `${total} dibuka`,
+    title: 'Langganan',
+    unsubscribe: 'Berhenti langganan',
+    unsubscribed: 'Berhenti berlangganan',
+  },
   nav: {
+    subscriptions: 'Langganan',
     agent: 'Agen',
     boards: 'Papan',
     newBoard: 'Papan baru',

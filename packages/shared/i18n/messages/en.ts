@@ -48,6 +48,7 @@ export const en = {
     retry: 'Try again',
     send: 'Send',
     steps: {
+      list_subscriptions: 'Reading subscriptions',
       approve_action: 'Approving',
       archive_thread: 'Archiving',
       create_rule: 'Adding a rule',
@@ -262,6 +263,7 @@ export const en = {
   importance: ['Noise', 'Worth knowing', 'Needs you soon', 'Urgent'],
   justNow: 'just now',
   keys: {
+    unsubscribe: 'unsubscribe',
     filter: 'filter',
     anything: 'anything',
     approve: 'approve',
@@ -351,7 +353,24 @@ export const en = {
       'This sender has no one-click unsubscribe, so the email was archived.',
     you: 'You',
   },
+  subscriptions: {
+    archivedOnly:
+      'This sender has no one-click unsubscribe, so its mail was archived. If it keeps coming, it goes to spam.',
+    count: (total: number) =>
+      plural('en', total, {
+        one: () => '1 mailing list',
+        other: (n) => `${n} mailing lists`,
+      }),
+    empty: 'No mailing lists wrote to you this month.',
+    lead: 'Mailing lists that wrote to you this month, busiest first. Unsubscribing archives everything they sent; mail that still comes two weeks later goes to spam.',
+    opened: (total: number) =>
+      total === 0 ? 'none opened' : `${total} opened`,
+    title: 'Subscriptions',
+    unsubscribe: 'Unsubscribe',
+    unsubscribed: 'Unsubscribed',
+  },
   nav: {
+    subscriptions: 'Subscriptions',
     agent: 'Agent',
     boards: 'Boards',
     newBoard: 'New board',

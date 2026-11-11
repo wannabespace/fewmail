@@ -50,6 +50,7 @@ export const ja: Messages = {
     retry: '再試行',
     send: '送信',
     steps: {
+      list_subscriptions: '購読を確認中',
       approve_action: '実行中',
       archive_thread: 'アーカイブ中',
       create_rule: 'ルールを追加中',
@@ -168,6 +169,7 @@ export const ja: Messages = {
   importance: ['ノイズ', '知っておくと良い', '近いうちに対応', '緊急'],
   justNow: 'たった今',
   keys: {
+    unsubscribe: '配信停止',
     filter: 'フィルター',
     reply: '返信',
     snooze: 'スヌーズ',
@@ -256,7 +258,19 @@ export const ja: Messages = {
       'この送信者はワンクリック配信停止に対応していないため、メールをアーカイブしました。',
     you: 'あなた',
   },
+  subscriptions: {
+    archivedOnly:
+      'この送信者はワンクリック配信停止に対応していないため、メールをアーカイブしました。今後も届く場合は迷惑メールに移動します。',
+    count: (total: number) => `メーリングリスト${total}件`,
+    empty: '今月メールを送ってきたメーリングリストはありません。',
+    lead: '今月メールを送ってきたメーリングリスト（多い順）。配信停止すると送られたメールはすべてアーカイブされ、2週間後も届くメールは迷惑メールに移動します。',
+    opened: (total: number) => (total === 0 ? '開封なし' : `${total}件開封`),
+    title: '購読',
+    unsubscribe: '配信停止',
+    unsubscribed: '配信停止しました',
+  },
   nav: {
+    subscriptions: '購読',
     agent: 'エージェント',
     boards: 'ボード',
     newBoard: '新しいボード',
