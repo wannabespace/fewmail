@@ -131,6 +131,7 @@ export const parseMessage = (message: GmailMessage) => {
     fromName: from.name,
     gmailId: message.id,
     hasAttachments: hasAttachment(message.payload),
+    html: html ? decodeBase64Url(html) : '',
     isFromMe: labelIds.includes('SENT'),
     isUnread: labelIds.includes('UNREAD'),
     labelIds,
@@ -337,10 +338,9 @@ export const listDrafts = async (
         `/drafts/${id}?format=full`
       )
       const parsed = parseMessage(message)
-      const html = findPart(message.payload, 'text/html')?.body?.data
       return {
         ...parsed,
-        html: html ? decodeBase64Url(html) : textToHtml(parsed.body),
+        html: parsed.html || textToHtml(parsed.body),
         id,
       }
     })

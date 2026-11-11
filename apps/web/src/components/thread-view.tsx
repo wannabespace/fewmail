@@ -21,6 +21,7 @@ import { Kbd } from '@fewmail/ui/components/kbd'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -77,6 +78,44 @@ type ThreadRow = NonNullable<
   ReturnType<typeof useThread>['data']
 >['messages'][number]
 
+const FRAME_HEAD =
+  '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:anywhere}img{max-width:100%;height:auto}</style>'
+
+/** Senders' HTML is laid out for a white page, so it keeps one. No `allow-scripts`: with it, `allow-same-origin` would hand the mail our session. */
+const HtmlBody = ({ html }: { html: string }) => {
+  const [height, setHeight] = useState(0)
+  const watch = (frame: HTMLIFrameElement | null) => {
+    if (!frame) {
+      return
+    }
+    const observer = new ResizeObserver(() =>
+      setHeight(frame.contentDocument?.documentElement.scrollHeight ?? 0)
+    )
+    const observeBody = () => {
+      const body = frame.contentDocument?.body
+      if (body) {
+        observer.observe(body)
+      }
+    }
+    frame.addEventListener('load', observeBody)
+    return () => {
+      frame.removeEventListener('load', observeBody)
+      observer.disconnect()
+    }
+  }
+  return (
+    <iframe
+      ref={watch}
+      data-mask
+      title="email"
+      srcDoc={FRAME_HEAD + html}
+      sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      style={{ '--frame-height': `${height}px` } as CSSProperties}
+      className="h-(--frame-height) w-full rounded-xl bg-white"
+    />
+  )
+}
+
 const MessageSection = ({
   analysis,
   hasAgent,
@@ -131,12 +170,16 @@ const MessageSection = ({
           </div>
         </div>
       )}
-      <p
-        data-mask
-        className="text-foreground/90 text-sm/relaxed wrap-break-word whitespace-pre-wrap"
-      >
-        {message.body.replaceAll(/\n\s*\n\s*\n/gu, '\n\n').trim()}
-      </p>
+      {message.html ? (
+        <HtmlBody html={message.html} />
+      ) : (
+        <p
+          data-mask
+          className="text-foreground/90 text-sm/relaxed wrap-break-word whitespace-pre-wrap"
+        >
+          {message.body.replaceAll(/\n\s*\n\s*\n/gu, '\n\n').trim()}
+        </p>
+      )}
     </section>
   )
 }

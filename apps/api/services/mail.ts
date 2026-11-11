@@ -7,7 +7,7 @@ import { and, desc, eq, exists, gte, inArray, lt, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
-import { trashThread, unsubscribeOneClick } from '../lib/gmail'
+import { getMessage, trashThread, unsubscribeOneClick } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
 import { toGmailQuery } from './ask'
@@ -263,6 +263,32 @@ export const countUnread = async (userId: string, mailboxId?: string) => {
 export const markThreadRead = (userId: string, threadId: string) =>
   changeThreadLabels(userId, threadId, MARK_READ)
 
+const fillMissingHtml = async (
+  userId: string,
+  threadId: string,
+  rows: { message: { gmailId: string; html: string | null; id: string } }[]
+) => {
+  const missing = rows.filter(({ message }) => message.html === null)
+  if (missing.length === 0) {
+    return
+  }
+  const mailbox = await mailboxOfThread(userId, threadId)
+  await Promise.all(
+    missing.map(async ({ message }) => {
+      const parsed = await getMessage(mailbox, message.gmailId).catch(
+        () => null
+      )
+      if (parsed) {
+        message.html = parsed.html
+        await db
+          .update(messages)
+          .set({ html: parsed.html })
+          .where(eq(messages.id, message.id))
+      }
+    })
+  )
+}
+
 export const getThread = async (userId: string, threadId: string) => {
   const rows = await db
     .select({
@@ -277,6 +303,7 @@ export const getThread = async (userId: string, threadId: string) => {
   if (rows.length === 0) {
     throw new NotFoundError('Thread not found')
   }
+  await fillMissingHtml(userId, threadId, rows)
 
   const threadActions = await db
     .select()
