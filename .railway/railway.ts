@@ -40,14 +40,13 @@ const secrets = Object.fromEntries(
   SECRETS.map((name) => [name, preserve()])
 ) as Record<(typeof SECRETS)[number], ReturnType<typeof preserve>>
 
-export default defineRailway((ctx) => {
-  const isProduction = ctx.environment === 'production'
+export default defineRailway(() => {
   /** Names match the services that already exist, so `apply` updates them instead of adding copies. */
   const db = postgres('Postgres')
 
   const api = service('@fewmail/api', {
     build,
-    domains: isProduction ? [{ domain: 'api.fewmail.app', port: PORT }] : [],
+    domains: [{ domain: 'api.fewmail.app', port: PORT }],
     env: {
       API_URL: preserve(),
       DATABASE_URL: db.env.DATABASE_URL,
@@ -90,7 +89,7 @@ export default defineRailway((ctx) => {
       dockerfilePath: 'apps/web/Dockerfile',
       watchPatterns: ['apps/web/**', 'packages/**', 'pnpm-lock.yaml'],
     },
-    domains: isProduction ? [{ domain: 'fewmail.app', port: PORT }] : [],
+    domains: [{ domain: 'fewmail.app', port: PORT }],
     env: {
       API_URL: api.env.API_URL,
       PORT: String(PORT),
