@@ -23,6 +23,7 @@ export const ACTION_KINDS = [
   'mark_read',
   'unsubscribe',
   'trash',
+  'spam',
 ] as const
 export type ActionKind = (typeof ACTION_KINDS)[number]
 
@@ -88,3 +89,5 @@ export type ReminderKind = 'snooze' | 'followup'
 export type ReminderStatus = 'pending' | 'done' | 'canceled'
 
 export const FOLLOWUP_DAYS = [1, 3, 7] as const
+
+export type SpamVerdict = 'spam' | 'not_spam'

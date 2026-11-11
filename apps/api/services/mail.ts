@@ -72,6 +72,7 @@ export const handledSince = async (userId: string, since: Date) => {
   return {
     archived: byKind.archive ?? 0,
     markedRead: byKind.mark_read ?? 0,
+    spam: byKind.spam ?? 0,
     total: rows.reduce((sum, { count }) => sum + count, 0),
     unsubscribed: byKind.unsubscribe ?? 0,
   }
@@ -86,6 +87,7 @@ export const getMailbox = async (userId: string) => {
 }
 
 export type MailFilter =
+  | 'spam'
   | 'inbox'
   | 'important'
   | 'needs_reply'
@@ -136,7 +138,10 @@ export const listMail = async (
         input.filter === 'inbox' && !searchIds
           ? sql`'INBOX' = ANY(${messages.labelIds})`
           : undefined,
-        snoozed ? inArray(messages.threadId, snoozed) : undefined
+        snoozed ? inArray(messages.threadId, snoozed) : undefined,
+        input.filter === 'spam'
+          ? sql`'SPAM' = ANY(${messages.labelIds})`
+          : undefined
       )
     )
     .orderBy(desc(messages.receivedAt))

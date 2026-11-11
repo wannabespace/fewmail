@@ -69,6 +69,7 @@ export const uk: Messages = {
     weekend: 'На вихідних',
   },
   actionKind: {
+    spam: 'У спам',
     trash: 'У кошик',
     archive: 'В архів',
     follow_up: 'Нагадати',
@@ -162,6 +163,10 @@ export const uk: Messages = {
     reply: 'Відповісти',
     trash: 'У кошик',
     trashed: 'Переміщено в кошик',
+    movedToInbox: 'Повернуто у вхідні. Дякуємо, що сказав.',
+    notSpam: 'Не спам',
+    reportSpam: 'Позначити як спам',
+    reportedSpam: 'Позначено. Їхні листи тепер ідуть у спам.',
     archive: 'Архівувати',
     archived: 'Заархівовано',
     attachment: 'вкладення',
@@ -172,6 +177,7 @@ export const uk: Messages = {
     empty: 'Тут немає листів.',
     expectsReply: 'Чекає на відповідь',
     filter: {
+      spam: 'Спам',
       inbox: 'Вхідні',
       snoozed: 'Відкладені',
       important: 'Важливі',
@@ -368,6 +374,10 @@ export const uk: Messages = {
     },
     title: 'Налаштування',
   },
+  spam: {
+    reasonCommunity: 'Кілька користувачів Fewmail позначили це як спам',
+    reasonYou: 'Ти позначив цього відправника як спам',
+  },
   starterRules: {
     alwaysShow:
       'Сповіщення безпеки, рахунки до оплати, будь-що від мого банку чи державних органів',
@@ -412,6 +422,7 @@ export const uk: Messages = {
     briefFrom: (time: string) => `бриф від ${time}`,
     done: 'Готово',
     handled: {
+      spam: (n: number) => `У спамі: ${n}`,
       archived: (n: number) => `В архіві: ${n}`,
       markedRead: (n: number) => `Прочитано: ${n}`,
       review: 'Переглянути',

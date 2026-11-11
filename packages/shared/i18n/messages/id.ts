@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const id: Messages = {
   actionKind: {
+    spam: 'Dipindahkan ke spam',
     archive: 'Arsipkan',
     follow_up: 'Tindak lanjuti',
     mark_read: 'Tandai dibaca',
@@ -147,6 +148,11 @@ export const id: Messages = {
     reply: 'Balas',
     trash: 'Pindahkan ke sampah',
     trashed: 'Dipindahkan ke sampah',
+    movedToInbox:
+      'Dikembalikan ke kotak masuk. Terima kasih sudah memberi tahu.',
+    notSpam: 'Bukan spam',
+    reportSpam: 'Laporkan spam',
+    reportedSpam: 'Dilaporkan. Email mereka kini masuk ke spam.',
     archive: 'Arsipkan',
     archived: 'Diarsipkan',
     attachment: 'lampiran',
@@ -157,6 +163,7 @@ export const id: Messages = {
     empty: 'Tidak ada email di sini.',
     expectsReply: 'Menunggu balasan',
     filter: {
+      spam: 'Spam',
       inbox: 'Kotak masuk',
       snoozed: 'Ditunda',
       important: 'Penting',
@@ -356,6 +363,10 @@ export const id: Messages = {
     until: (date: string) => `Ditunda hingga ${date}`,
     weekend: 'Akhir pekan ini',
   },
+  spam: {
+    reasonCommunity: 'Dilaporkan sebagai spam oleh beberapa pengguna Fewmail',
+    reasonYou: 'Kamu melaporkan pengirim ini sebagai spam',
+  },
   starterRules: {
     alwaysShow:
       'Peringatan keamanan, tagihan yang jatuh tempo, apa pun dari bank atau pemerintah',
@@ -401,6 +412,7 @@ export const id: Messages = {
     briefFrom: (time: string) => `ringkasan pukul ${time}`,
     done: 'Selesai',
     handled: {
+      spam: (n: number) => `${n} ke spam`,
       archived: (n: number) => `${n} diarsipkan`,
       markedRead: (n: number) => `${n} ditandai dibaca`,
       review: 'Tinjau',

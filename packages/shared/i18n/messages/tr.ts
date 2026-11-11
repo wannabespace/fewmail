@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const tr: Messages = {
   actionKind: {
+    spam: 'Spama taşındı',
     archive: 'Arşivle',
     follow_up: 'Takip et',
     mark_read: 'Okundu yap',
@@ -147,6 +148,10 @@ export const tr: Messages = {
     reply: 'Yanıtla',
     trash: 'Çöpe taşı',
     trashed: 'Çöpe taşındı',
+    movedToInbox: 'Gelen kutusuna geri taşındı. Bildirdiğin için teşekkürler.',
+    notSpam: 'Spam değil',
+    reportSpam: 'Spam bildir',
+    reportedSpam: 'Bildirildi. E-postaları artık spama gidiyor.',
     archive: 'Arşivle',
     archived: 'Arşivlendi',
     attachment: 'ek',
@@ -157,6 +162,7 @@ export const tr: Messages = {
     empty: 'Burada e-posta yok.',
     expectsReply: 'Yanıt bekliyor',
     filter: {
+      spam: 'Spam',
       inbox: 'Gelen',
       snoozed: 'Ertelenen',
       important: 'Önemli',
@@ -355,6 +361,10 @@ export const tr: Messages = {
     until: (date: string) => `${date} tarihine kadar ertelendi`,
     weekend: 'Bu hafta sonu',
   },
+  spam: {
+    reasonCommunity: 'Birkaç Fewmail kullanıcısı spam olarak bildirdi',
+    reasonYou: 'Bu göndereni spam olarak bildirdin',
+  },
   starterRules: {
     alwaysShow:
       'Güvenlik uyarıları, ödeme tarihi gelen faturalar, bankamdan veya devletten gelen her şey',
@@ -399,6 +409,7 @@ export const tr: Messages = {
     briefFrom: (time: string) => `${time} özeti`,
     done: 'Tamam',
     handled: {
+      spam: (n: number) => `${n} spama taşındı`,
       archived: (n: number) => `${n} arşivlendi`,
       markedRead: (n: number) => `${n} okundu yapıldı`,
       review: 'İncele',

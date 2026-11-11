@@ -67,6 +67,7 @@ export const de: Messages = {
     weekend: 'Am Wochenende',
   },
   actionKind: {
+    spam: 'In Spam verschoben',
     trash: 'In den Papierkorb',
     archive: 'Archivieren',
     follow_up: 'Nachfassen',
@@ -164,6 +165,10 @@ export const de: Messages = {
     reply: 'Antworten',
     trash: 'In den Papierkorb',
     trashed: 'In den Papierkorb verschoben',
+    movedToInbox: 'Zurück im Posteingang. Danke für den Hinweis.',
+    notSpam: 'Kein Spam',
+    reportSpam: 'Als Spam melden',
+    reportedSpam: 'Gemeldet. Ihre Mails landen jetzt im Spam.',
     archive: 'Archivieren',
     archived: 'Archiviert',
     attachment: 'Anhang',
@@ -174,6 +179,7 @@ export const de: Messages = {
     empty: 'Hier sind keine Mails.',
     expectsReply: 'Erwartet Antwort',
     filter: {
+      spam: 'Spam',
       inbox: 'Posteingang',
       snoozed: 'Zurückgestellt',
       important: 'Wichtig',
@@ -370,6 +376,10 @@ export const de: Messages = {
     },
     title: 'Einstellungen',
   },
+  spam: {
+    reasonCommunity: 'Von mehreren Fewmail-Nutzern als Spam gemeldet',
+    reasonYou: 'Du hast diesen Absender als Spam gemeldet',
+  },
   starterRules: {
     alwaysShow:
       'Sicherheitswarnungen, fällige Rechnungen, alles von meiner Bank oder von Behörden',
@@ -414,6 +424,7 @@ export const de: Messages = {
     briefFrom: (time: string) => `Briefing von ${time}`,
     done: 'Erledigt',
     handled: {
+      spam: (n: number) => `${n} als Spam`,
       archived: (n: number) => `${n} archiviert`,
       markedRead: (n: number) => `${n} als gelesen markiert`,
       review: 'Ansehen',

@@ -8,6 +8,7 @@ export {
   outbox,
   reminders,
   rules,
+  senderReports,
   snippets,
 } from './mail'
 export type { BriefStats, Extracted, SimpleMatch } from './mail'

@@ -68,6 +68,7 @@ export const it: Messages = {
     weekend: 'Questo weekend',
   },
   actionKind: {
+    spam: 'Spostata nello spam',
     trash: 'Sposta nel cestino',
     archive: 'Archivia',
     follow_up: 'Sollecita',
@@ -165,6 +166,11 @@ export const it: Messages = {
     reply: 'Rispondi',
     trash: 'Sposta nel cestino',
     trashed: 'Spostata nel cestino',
+    movedToInbox:
+      'Riportata nella posta in arrivo. Grazie per la segnalazione.',
+    notSpam: 'Non è spam',
+    reportSpam: 'Segnala come spam',
+    reportedSpam: 'Segnalato. Le sue email ora finiscono nello spam.',
     archive: 'Archivia',
     archived: 'Archiviata',
     attachment: 'allegato',
@@ -175,6 +181,7 @@ export const it: Messages = {
     empty: 'Nessuna email qui.',
     expectsReply: 'Attende risposta',
     filter: {
+      spam: 'Spam',
       inbox: 'In arrivo',
       snoozed: 'Posticipate',
       important: 'Importanti',
@@ -368,6 +375,10 @@ export const it: Messages = {
     },
     title: 'Impostazioni',
   },
+  spam: {
+    reasonCommunity: 'Segnalato come spam da diversi utenti Fewmail',
+    reasonYou: 'Hai segnalato questo mittente come spam',
+  },
   starterRules: {
     alwaysShow:
       'Avvisi di sicurezza, bollette in scadenza, qualsiasi cosa dalla mia banca o dalla pubblica amministrazione',
@@ -412,6 +423,7 @@ export const it: Messages = {
     briefFrom: (time: string) => `brief delle ${time}`,
     done: 'Fatto',
     handled: {
+      spam: (n: number) => `Nello spam: ${n}`,
       archived: (n: number) => `Archiviate: ${n}`,
       markedRead: (n: number) => `Segnate come lette: ${n}`,
       review: 'Rivedi',

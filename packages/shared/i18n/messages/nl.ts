@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const nl: Messages = {
   actionKind: {
+    spam: 'Naar spam verplaatst',
     archive: 'Archiveren',
     follow_up: 'Opvolgen',
     mark_read: 'Markeer gelezen',
@@ -151,6 +152,10 @@ export const nl: Messages = {
     reply: 'Beantwoorden',
     trash: 'Naar prullenbak',
     trashed: 'Naar prullenbak verplaatst',
+    movedToInbox: 'Terug in de inbox. Bedankt voor het melden.',
+    notSpam: 'Geen spam',
+    reportSpam: 'Spam melden',
+    reportedSpam: 'Gemeld. Hun mail gaat nu naar spam.',
     archive: 'Archiveren',
     archived: 'Gearchiveerd',
     attachment: 'bijlage',
@@ -161,6 +166,7 @@ export const nl: Messages = {
     empty: 'Geen e-mails hier.',
     expectsReply: 'Verwacht antwoord',
     filter: {
+      spam: 'Spam',
       inbox: 'Inbox',
       snoozed: 'Uitgesteld',
       important: 'Belangrijk',
@@ -366,6 +372,10 @@ export const nl: Messages = {
     until: (date: string) => `Uitgesteld tot ${date}`,
     weekend: 'Dit weekend',
   },
+  spam: {
+    reasonCommunity: 'Door meerdere Fewmail-gebruikers als spam gemeld',
+    reasonYou: 'Je hebt deze afzender als spam gemeld',
+  },
   starterRules: {
     alwaysShow:
       'Beveiligingsmeldingen, rekeningen die betaald moeten worden, alles van mijn bank of de overheid',
@@ -410,6 +420,7 @@ export const nl: Messages = {
     briefFrom: (time: string) => `overzicht van ${time}`,
     done: 'Klaar',
     handled: {
+      spam: (n: number) => `${n} naar spam`,
       archived: (n: number) => `${n} gearchiveerd`,
       markedRead: (n: number) => `${n} als gelezen gemarkeerd`,
       review: 'Bekijken',

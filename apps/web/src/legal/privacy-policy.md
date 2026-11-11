@@ -29,6 +29,7 @@ Fewmail's use and transfer to any other app of information received from Google 
 - **Synced mail:** the message data listed in section 2. Subjects, snippets and bodies are encrypted at rest with AES-256-GCM.
 - **What the agent produces:** summaries, importance and reasons, drafts and daily briefs — also encrypted at rest.
 - **Your settings and rules:** language, how you use email, brief time, time zone, the rules and snippets you write, and anything you tell the agent to know about you.
+- **Community spam protection:** when you report spam or mark something as not spam, we store your vote with a keyed one-way hash of the sender's address (and of the domain for company domains). No addresses, subjects or contents are stored for this, and other users never learn who voted. Mail from a sender is moved to spam for other users only after several different people reported it and few marked it as not spam; a sender you have written to is never moved by community votes.
 - **Outbox and reminders:** emails waiting to be sent (encrypted), snoozed threads and follow-up reminders.
 - **Billing:** if you subscribe to Pro, your Stripe customer ID and subscription status. Card details are handled by Stripe and never reach our servers.
 - **Integrations:** if you connect Telegram, your Telegram chat ID; if you create MCP keys, only a one-way hash of each key.

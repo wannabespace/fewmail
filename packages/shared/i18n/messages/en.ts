@@ -10,6 +10,7 @@ export const en = {
     read: 'Read',
     reply: 'Reply',
     schedule: 'Schedule',
+    spam: 'Moved to spam',
     trash: 'Move to trash',
     unsubscribe: 'Unsubscribe',
   },
@@ -149,7 +150,11 @@ export const en = {
     blocked: 'Blocked. Their mail now goes to the trash.',
     forward: 'Forward',
     more: 'More',
+    movedToInbox: 'Moved back to the inbox. Thanks for telling us.',
+    notSpam: 'Not spam',
     reply: 'Reply',
+    reportSpam: 'Report spam',
+    reportedSpam: 'Reported. Their mail now goes to spam.',
     trash: 'Move to trash',
     trashed: 'Moved to trash',
     attachment: 'attachment',
@@ -162,6 +167,7 @@ export const en = {
     filter: {
       inbox: 'Inbox',
       snoozed: 'Snoozed',
+      spam: 'Spam',
       important: 'Important',
       needs_reply: 'Needs reply',
       quiet: 'Quiet',
@@ -360,6 +366,10 @@ export const en = {
     until: (date: string) => `Snoozed until ${date}`,
     weekend: 'This weekend',
   },
+  spam: {
+    reasonCommunity: 'Reported as spam by several Fewmail users',
+    reasonYou: 'You reported this sender as spam',
+  },
   starterRules: {
     alwaysShow:
       'Security alerts, bills that are due, anything from my bank or government',
@@ -406,6 +416,7 @@ export const en = {
     handled: {
       archived: (n: number) => `${n} archived`,
       markedRead: (n: number) => `${n} marked read`,
+      spam: (n: number) => `${n} to spam`,
       review: 'Review',
       total: (n: number) => `${n} handled`,
       unsubscribed: (n: number) => `${n} unsubscribed`,

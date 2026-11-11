@@ -23,6 +23,7 @@ const HandledSummary = ({
   handled: {
     archived: number
     markedRead: number
+    spam: number
     total: number
     unsubscribed: number
   }
@@ -37,6 +38,7 @@ const HandledSummary = ({
         </strong>
         {handled.archived > 0 && ` · ${t.archived(handled.archived)}`}
         {handled.markedRead > 0 && ` · ${t.markedRead(handled.markedRead)}`}
+        {handled.spam > 0 && ` · ${t.spam(handled.spam)}`}
         {handled.unsubscribed > 0 &&
           ` · ${t.unsubscribed(handled.unsubscribed)}`}
       </span>

@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const hi: Messages = {
   actionKind: {
+    spam: 'स्पैम में डाला',
     trash: 'ट्रैश में डालें',
     archive: 'आर्काइव करें',
     follow_up: 'फ़ॉलो-अप',
@@ -146,6 +147,10 @@ export const hi: Messages = {
     reply: 'जवाब दें',
     trash: 'ट्रैश में डालें',
     trashed: 'ट्रैश में डाल दिया',
+    movedToInbox: 'इनबॉक्स में वापस डाल दिया। बताने के लिए शुक्रिया।',
+    notSpam: 'स्पैम नहीं',
+    reportSpam: 'स्पैम रिपोर्ट करें',
+    reportedSpam: 'रिपोर्ट किया गया। उनके मेल अब स्पैम में जाएँगे।',
     archive: 'आर्काइव करें',
     archived: 'आर्काइव हो गया',
     attachment: 'अटैचमेंट',
@@ -156,6 +161,7 @@ export const hi: Messages = {
     empty: 'यहाँ कोई ईमेल नहीं है।',
     expectsReply: 'जवाब की उम्मीद है',
     filter: {
+      spam: 'स्पैम',
       inbox: 'इनबॉक्स',
       snoozed: 'स्नूज़ किए गए',
       important: 'ज़रूरी',
@@ -354,6 +360,10 @@ export const hi: Messages = {
     until: (date: string) => `${date} तक स्नूज़`,
     weekend: 'इस वीकेंड',
   },
+  spam: {
+    reasonCommunity: 'कई Fewmail यूज़र्स ने इसे स्पैम बताया',
+    reasonYou: 'आपने इस भेजने वाले को स्पैम बताया',
+  },
   starterRules: {
     alwaysShow:
       'सुरक्षा अलर्ट, जिन बिलों की देय तिथि है, और मेरे बैंक या सरकार से आया कोई भी ईमेल',
@@ -397,6 +407,7 @@ export const hi: Messages = {
     briefFrom: (time: string) => `${time} का ब्रीफ़`,
     done: 'हो गया',
     handled: {
+      spam: (n: number) => `${n} स्पैम में`,
       archived: (n: number) => `${n} आर्काइव किए`,
       markedRead: (n: number) => `${n} पढ़े हुए मार्क किए`,
       review: 'देखें',

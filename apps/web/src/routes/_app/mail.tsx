@@ -22,8 +22,9 @@ const FILTERS = [
   'needs_reply',
   'quiet',
   'snoozed',
+  'spam',
 ] as const
-const FREE_FILTERS: Filter[] = ['inbox', 'snoozed']
+const FREE_FILTERS: Filter[] = ['inbox', 'snoozed', 'spam']
 
 type Filter = (typeof FILTERS)[number]
 
@@ -289,7 +290,8 @@ const MailPage = () => {
 export const Route = createFileRoute('/_app/mail')({
   component: MailPage,
   validateSearch: type({
-    'filter?': "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed'",
+    'filter?':
+      "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'spam'",
     'q?': 'string',
     'thread?': 'string',
   }),

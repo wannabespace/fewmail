@@ -21,6 +21,7 @@ import { analyzeMessage } from './agent'
 import { getPlanInfo, hasAgent } from './plan'
 import { watchSentMail } from './reminders'
 import { applySimpleRules } from './simple-rules'
+import { applySpamShield } from './spam'
 
 const INITIAL_INBOX_QUERY = 'in:inbox newer_than:3d'
 const INITIAL_INBOX_LIMIT = 60
@@ -176,7 +177,11 @@ export const syncMailbox = async (mailbox: Mailbox) => {
       .set({ historyId, lastSyncedAt: new Date(), syncError: null })
       .where(eq(mailboxes.id, mailbox.id))
 
-    await applySimpleRules(mailbox.userId, inserted)
+    const movedToSpam = await applySpamShield(mailbox.userId, inserted)
+    await applySimpleRules(
+      mailbox.userId,
+      inserted.filter((message) => !movedToSpam.has(message.id))
+    )
     if (hasAgent(await getPlanInfo(mailbox.userId))) {
       await analyzePending(mailbox.userId)
       await Promise.all(

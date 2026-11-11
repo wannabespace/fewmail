@@ -94,6 +94,16 @@ export const ThreadView = ({
       onSuccess: () => finish(t.snooze.unsnooze),
     })
   )
+  const reportSpam = useMutation(
+    orpc.mail.reportSpam.mutationOptions({
+      onSuccess: () => finish(t.mail.reportedSpam),
+    })
+  )
+  const notSpam = useMutation(
+    orpc.mail.notSpam.mutationOptions({
+      onSuccess: () => finish(t.mail.movedToInbox),
+    })
+  )
   const unsubscribe = useMutation(
     orpc.mail.unsubscribe.mutationOptions({
       onSuccess: ({ unsubscribed }) =>
@@ -126,6 +136,7 @@ export const ThreadView = ({
   useHotkey('E', () => target && archive.mutate(target), keys)
   useHotkey('H', () => setIsSnoozeOpen(true), keys)
   useHotkey('Shift+3', () => target && trash.mutate(target), keys)
+  useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
 
   if (!data) {
     return null
@@ -225,6 +236,18 @@ export const ThreadView = ({
                       {t.mail.trash}
                       <DropdownMenuShortcut>#</DropdownMenuShortcut>
                     </DropdownMenuItem>
+                    {latest?.message.labelIds.includes('SPAM') ? (
+                      <DropdownMenuItem onClick={() => notSpam.mutate(target)}>
+                        {t.mail.notSpam}
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() => reportSpam.mutate(target)}
+                      >
+                        {t.mail.reportSpam}
+                        <DropdownMenuShortcut>!</DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                       variant="destructive"
                       onClick={() => block.mutate(target)}

@@ -3,6 +3,7 @@ import type {
   OutboxStatus,
   ReminderKind,
   ReminderStatus,
+  SpamVerdict,
   ActionKind,
   ActionStatus,
   MailCategory,
@@ -206,3 +207,25 @@ export const snippets = d.snakeCase.table('snippets', {
   name: d.text().notNull(),
   userId: userId(),
 })
+
+/**
+ * Community spam votes. Senders are stored only as keyed hashes (no address, no message),
+ * one vote per user and sender, so nobody can push a sender over the threshold alone.
+ */
+export const senderReports = d.snakeCase.table(
+  'sender_reports',
+  {
+    ...baseTable,
+    domainHash: d.text(),
+    senderHash: d.text().notNull(),
+    userId: userId(),
+    verdict: d.text().$type<SpamVerdict>().notNull(),
+  },
+  (table) => [
+    d
+      .uniqueIndex('sender_reports_user_sender_idx')
+      .on(table.userId, table.senderHash),
+    d.index('sender_reports_sender_idx').on(table.senderHash),
+    d.index('sender_reports_domain_idx').on(table.domainHash),
+  ]
+)

@@ -3,6 +3,7 @@ import type { Messages } from './en'
 
 export const zh: Messages = {
   actionKind: {
+    spam: '已移到垃圾邮件',
     trash: '移到废纸篓',
     archive: '归档',
     follow_up: '跟进',
@@ -141,6 +142,10 @@ export const zh: Messages = {
     reply: '回复',
     trash: '移到废纸篓',
     trashed: '已移到废纸篓',
+    movedToInbox: '已移回收件箱。感谢告知。',
+    notSpam: '不是垃圾邮件',
+    reportSpam: '举报垃圾邮件',
+    reportedSpam: '已举报。对方的邮件将进入垃圾邮件。',
     archive: '归档',
     archived: '已归档',
     attachment: '附件',
@@ -151,6 +156,7 @@ export const zh: Messages = {
     empty: '这里没有邮件。',
     expectsReply: '等待回复',
     filter: {
+      spam: '垃圾邮件',
       inbox: '收件箱',
       snoozed: '已延后',
       important: '重要',
@@ -341,6 +347,10 @@ export const zh: Messages = {
     until: (date: string) => `延后至 ${date}`,
     weekend: '本周末',
   },
+  spam: {
+    reasonCommunity: '多位 Fewmail 用户举报为垃圾邮件',
+    reasonYou: '你已将此发件人举报为垃圾邮件',
+  },
   starterRules: {
     alwaysShow: '安全警报、到期账单，以及来自我的银行或政府机构的任何邮件',
     newsletters: '新闻通讯和摘要',
@@ -382,6 +392,7 @@ export const zh: Messages = {
     briefFrom: (time: string) => `${time} 的简报`,
     done: '完成',
     handled: {
+      spam: (n: number) => `已移到垃圾邮件 ${n} 封`,
       archived: (n: number) => `已归档 ${n} 封`,
       markedRead: (n: number) => `已标为已读 ${n} 封`,
       review: '查看',

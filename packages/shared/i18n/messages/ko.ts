@@ -3,6 +3,7 @@ import type { Messages } from './en'
 
 export const ko: Messages = {
   actionKind: {
+    spam: '스팸으로 이동',
     trash: '휴지통으로 이동',
     archive: '보관',
     follow_up: '후속 조치',
@@ -146,6 +147,10 @@ export const ko: Messages = {
     reply: '답장',
     trash: '휴지통으로 이동',
     trashed: '휴지통으로 옮겼어요',
+    movedToInbox: '받은편지함으로 되돌렸어요. 알려줘서 고마워요.',
+    notSpam: '스팸 아님',
+    reportSpam: '스팸 신고',
+    reportedSpam: '신고했어요. 이제 이 발신자의 메일은 스팸으로 가요.',
     archive: '보관',
     archived: '보관했어요',
     attachment: '첨부파일',
@@ -156,6 +161,7 @@ export const ko: Messages = {
     empty: '메일이 없어요.',
     expectsReply: '답장을 기다림',
     filter: {
+      spam: '스팸',
       inbox: '받은편지함',
       snoozed: '다시 알림',
       important: '중요',
@@ -352,6 +358,10 @@ export const ko: Messages = {
     until: (date: string) => `${date}까지 다시 알림`,
     weekend: '이번 주말',
   },
+  spam: {
+    reasonCommunity: '여러 Fewmail 사용자가 스팸으로 신고했어요',
+    reasonYou: '이 발신자를 스팸으로 신고했어요',
+  },
   starterRules: {
     alwaysShow:
       '보안 알림, 납부 기한이 있는 청구서, 은행이나 정부 기관에서 온 모든 메일',
@@ -396,6 +406,7 @@ export const ko: Messages = {
     briefFrom: (time: string) => `${time} 브리핑`,
     done: '완료',
     handled: {
+      spam: (n: number) => `${n}개 스팸`,
       archived: (n: number) => `${n}개 보관`,
       markedRead: (n: number) => `${n}개 읽음 처리`,
       review: '검토',

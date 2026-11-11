@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const pt: Messages = {
   actionKind: {
+    spam: 'Movido para spam',
     archive: 'Arquivar',
     follow_up: 'Acompanhar',
     mark_read: 'Marcar como lido',
@@ -151,6 +152,10 @@ export const pt: Messages = {
     reply: 'Responder',
     trash: 'Mover para lixeira',
     trashed: 'Movido para a lixeira',
+    movedToInbox: 'De volta à caixa de entrada. Valeu por avisar.',
+    notSpam: 'Não é spam',
+    reportSpam: 'Denunciar spam',
+    reportedSpam: 'Denunciado. Os e-mails dele agora vão para o spam.',
     archive: 'Arquivar',
     archived: 'Arquivado',
     attachment: 'anexo',
@@ -161,6 +166,7 @@ export const pt: Messages = {
     empty: 'Nenhum e-mail aqui.',
     expectsReply: 'Aguarda resposta',
     filter: {
+      spam: 'Spam',
       inbox: 'Entrada',
       snoozed: 'Adiados',
       important: 'Importantes',
@@ -365,6 +371,10 @@ export const pt: Messages = {
     until: (date: string) => `Adiado até ${date}`,
     weekend: 'Neste fim de semana',
   },
+  spam: {
+    reasonCommunity: 'Denunciado como spam por vários usuários do Fewmail',
+    reasonYou: 'Você denunciou este remetente como spam',
+  },
   starterRules: {
     alwaysShow:
       'Alertas de segurança, contas a vencer, qualquer coisa do meu banco ou do governo',
@@ -409,6 +419,11 @@ export const pt: Messages = {
     briefFrom: (time: string) => `resumo das ${time}`,
     done: 'Feito',
     handled: {
+      spam: (total: number) =>
+        plural('pt', total, {
+          one: (n) => `${n} para spam`,
+          other: (n) => `${n} para spam`,
+        }),
       archived: (total: number) =>
         plural('pt', total, {
           one: (n) => `${n} arquivado`,

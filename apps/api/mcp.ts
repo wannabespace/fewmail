@@ -43,7 +43,14 @@ const createServer = (userId: string) => {
       inputSchema: {
         category: z.enum(MAIL_CATEGORIES).optional(),
         filter: z
-          .enum(['inbox', 'important', 'needs_reply', 'quiet', 'snoozed'])
+          .enum([
+            'inbox',
+            'important',
+            'needs_reply',
+            'quiet',
+            'snoozed',
+            'spam',
+          ])
           .default('inbox'),
         search: z.string().optional(),
       },

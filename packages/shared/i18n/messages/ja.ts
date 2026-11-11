@@ -3,6 +3,7 @@ import type { Messages } from './en'
 
 export const ja: Messages = {
   actionKind: {
+    spam: '迷惑メールに移動',
     trash: 'ゴミ箱に移動',
     archive: 'アーカイブ',
     follow_up: 'フォローアップ',
@@ -145,6 +146,10 @@ export const ja: Messages = {
     reply: '返信',
     trash: 'ゴミ箱に移動',
     trashed: 'ゴミ箱に移動しました',
+    movedToInbox: '受信トレイに戻しました。お知らせありがとうございます。',
+    notSpam: '迷惑メールではない',
+    reportSpam: '迷惑メールとして報告',
+    reportedSpam: '報告しました。今後のメールは迷惑メールに移動します。',
     archive: 'アーカイブ',
     archived: 'アーカイブしました',
     attachment: '添付ファイル',
@@ -155,6 +160,7 @@ export const ja: Messages = {
     empty: 'メールはありません。',
     expectsReply: '返信待ち',
     filter: {
+      spam: '迷惑メール',
       inbox: '受信トレイ',
       snoozed: 'スヌーズ中',
       important: '重要',
@@ -355,6 +361,10 @@ export const ja: Messages = {
     until: (date: string) => `${date} までスヌーズ`,
     weekend: '今週末',
   },
+  spam: {
+    reasonCommunity: '複数の Fewmail ユーザーが迷惑メールとして報告',
+    reasonYou: 'この送信者を迷惑メールとして報告済み',
+  },
   starterRules: {
     alwaysShow:
       'セキュリティ警告、支払期限のある請求書、銀行や行政機関からのあらゆるメール',
@@ -398,6 +408,7 @@ export const ja: Messages = {
     briefFrom: (time: string) => `${time} のブリーフ`,
     done: '完了',
     handled: {
+      spam: (n: number) => `${n} 件迷惑メール`,
       archived: (n: number) => `${n} 件アーカイブ`,
       markedRead: (n: number) => `${n} 件既読`,
       review: '確認',

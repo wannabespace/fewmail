@@ -19,6 +19,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Snooze** | Hide a thread until a time; it comes back to the inbox unread. Free. |
 | **Follow-up** | "Remind me if no reply in N days" on a sent email (Free: the thread resurfaces). Pro adds automatic follow-ups the agent sets itself and a nudge in Today. |
 | **Knowledge** | Free-form facts the user gives the agent (prices, availability…), used in drafts and autocomplete. Pro. |
+| **Spam shield** | Community spam protection: "Report spam" (`!`) moves the thread to Gmail spam and votes; enough independent votes move that sender's mail to spam for everyone. "Not spam" votes the other way. Free. |
 | **Snippets** | Saved texts inserted with `;name` in the editor. Free. |
 | **Agent labels** | Optional `Fewmail/<Category>` Gmail labels so the sorting shows in any Gmail client. Pro. |
 

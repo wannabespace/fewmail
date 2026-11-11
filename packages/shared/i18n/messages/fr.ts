@@ -68,6 +68,7 @@ export const fr: Messages = {
     weekend: 'Ce week-end',
   },
   actionKind: {
+    spam: 'Mis en spam',
     trash: 'Mettre à la corbeille',
     archive: 'Archiver',
     follow_up: 'Relancer',
@@ -165,6 +166,11 @@ export const fr: Messages = {
     reply: 'Répondre',
     trash: 'Mettre à la corbeille',
     trashed: 'Mis à la corbeille',
+    movedToInbox:
+      'Remis dans la boîte de réception. Merci de nous l’avoir dit.',
+    notSpam: 'Pas un spam',
+    reportSpam: 'Signaler comme spam',
+    reportedSpam: 'Signalé. Ses e-mails vont désormais en spam.',
     archive: 'Archiver',
     archived: 'Archivé',
     attachment: 'pièce jointe',
@@ -175,6 +181,7 @@ export const fr: Messages = {
     empty: 'Aucun e-mail ici.',
     expectsReply: 'Attend une réponse',
     filter: {
+      spam: 'Spam',
       inbox: 'Boîte de réception',
       snoozed: 'En attente',
       important: 'Importants',
@@ -371,6 +378,10 @@ export const fr: Messages = {
     },
     title: 'Réglages',
   },
+  spam: {
+    reasonCommunity: 'Signalé comme spam par plusieurs utilisateurs de Fewmail',
+    reasonYou: 'Tu as signalé cet expéditeur comme spam',
+  },
   starterRules: {
     alwaysShow:
       'Alertes de sécurité, factures à payer, tout ce qui vient de ma banque ou de l’administration',
@@ -415,6 +426,7 @@ export const fr: Messages = {
     briefFrom: (time: string) => `brief de ${time}`,
     done: 'Fait',
     handled: {
+      spam: (n: number) => `En spam : ${n}`,
       archived: (n: number) => `Archivés : ${n}`,
       markedRead: (n: number) => `Marqués comme lus : ${n}`,
       review: 'Revoir',

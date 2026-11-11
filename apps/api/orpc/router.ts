@@ -54,6 +54,7 @@ import {
 } from '../services/rules'
 import { getSettings, saveSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
+import { markNotSpam, reportSpam } from '../services/spam'
 import { ensureMailbox, syncMailbox } from '../services/sync'
 
 const id = type({ id: 'string.uuid' })
@@ -159,6 +160,12 @@ export const router = {
           userId: context.user.id,
         }),
       })),
+    notSpam: authed.input(messageId).handler(async ({ context, input }) => {
+      await markNotSpam(context.user.id, input.messageId)
+    }),
+    reportSpam: authed.input(messageId).handler(async ({ context, input }) => {
+      await reportSpam(context.user.id, input.messageId)
+    }),
     scheduled: authed.handler(({ context }) => listScheduled(context.user.id)),
     send: authed
       .input(sendInput)
@@ -206,7 +213,8 @@ export const router = {
         type({
           'before?': 'Date',
           'category?': type.enumerated(...MAIL_CATEGORIES),
-          filter: "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed'",
+          filter:
+            "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'spam'",
           'search?': 'string',
         })
       )
