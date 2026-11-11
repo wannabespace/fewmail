@@ -263,7 +263,10 @@ const MailPage = () => {
                 })
               }
             >
-              <TabsList>
+              <TabsList
+                variant="line"
+                className="scroll-fade-x max-w-full scrollbar-none justify-start overflow-x-auto"
+              >
                 {FILTERS.map((value) => (
                   <TabsTrigger key={value} value={value}>
                     {t.mail.filter[value]}
