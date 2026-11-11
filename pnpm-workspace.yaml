@@ -94,6 +94,7 @@ catalog:
   '@types/web-push': ^3.6.4
   recharts: ^3.10.1
   croner: ^11.0.0
+  jose: 6.2.15
 allowBuilds:
   bun: true
   esbuild: true

@@ -16,8 +16,6 @@ const SECRETS = [
   'ENCRYPTION_SECRET',
   'GOOGLE_CLIENT_ID',
   'GOOGLE_CLIENT_SECRET',
-  'GMAIL_PUSH_SECRET',
-  'GMAIL_PUSH_TOPIC',
   'MISTRAL_API_KEY',
   'OPENROUTER_API_KEY',
   'STRIPE_MAX_MONTHLY_PRICE_ID',
@@ -61,6 +59,8 @@ export default defineRailway(() => {
     env: {
       API_URL: preserve(),
       DATABASE_URL: db.env.DATABASE_URL,
+      GMAIL_PUSH_SERVICE_ACCOUNT: 'gmail-push@fewmail.iam.gserviceaccount.com',
+      GMAIL_PUSH_TOPIC: 'projects/fewmail/topics/gmail-push',
       WEB_URL: preserve(),
       ...secrets,
     },
@@ -84,6 +84,7 @@ export default defineRailway(() => {
     env: {
       API_URL: api.env.API_URL,
       DATABASE_URL: db.env.DATABASE_URL,
+      GMAIL_PUSH_TOPIC: api.env.GMAIL_PUSH_TOPIC,
       WEB_URL: api.env.WEB_URL,
       ...Object.fromEntries(SECRETS.map((name) => [name, api.env[name]])),
     },

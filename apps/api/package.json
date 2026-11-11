@@ -33,6 +33,7 @@
     "drizzle-orm": "catalog:",
     "grammy": "catalog:",
     "hono": "catalog:",
+    "jose": "catalog:",
     "nanoid": "catalog:",
     "stripe": "catalog:",
     "web-push": "catalog:",

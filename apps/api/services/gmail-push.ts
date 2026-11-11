@@ -1,10 +1,10 @@
 import { Buffer } from 'node:buffer'
-import { timingSafeEqual } from 'node:crypto'
 
 import { db } from '@fewmail/db'
 import { mailboxes } from '@fewmail/db/schema'
 import { addDays } from 'date-fns'
 import { eq, isNull, lt, or } from 'drizzle-orm'
+import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 import { env } from '../env'
 import { watchInbox } from '../lib/gmail'
@@ -44,14 +44,28 @@ export const watchMailbox = async (mailbox: Mailbox) => {
     .where(eq(mailboxes.id, mailbox.id))
 }
 
-const isPushToken = (token: string | null) => {
-  const expected = Buffer.from(env.GMAIL_PUSH_SECRET ?? '')
-  const given = Buffer.from(token ?? '')
-  return (
-    expected.length > 0 &&
-    expected.length === given.length &&
-    timingSafeEqual(expected, given)
-  )
+const GOOGLE_KEYS = createRemoteJWKSet(
+  new URL('https://www.googleapis.com/oauth2/v3/certs')
+)
+
+/** Pub/Sub signs each push as the subscription's service account; anything else could make us sync on demand. */
+const isFromPubSub = async (request: Request) => {
+  const token = request.headers.get('authorization')?.replace(/^Bearer /u, '')
+  if (!token || !env.GMAIL_PUSH_SERVICE_ACCOUNT) {
+    return false
+  }
+  try {
+    const { payload } = await jwtVerify(token, GOOGLE_KEYS, {
+      audience: `${env.API_URL}/gmail/push`,
+      issuer: ['https://accounts.google.com', 'accounts.google.com'],
+    })
+    return (
+      payload.email === env.GMAIL_PUSH_SERVICE_ACCOUNT &&
+      payload.email_verified === true
+    )
+  } catch {
+    return false
+  }
 }
 
 const pushedAddress = (body: unknown) => {
@@ -69,7 +83,7 @@ const pushedAddress = (body: unknown) => {
 
 /** Answers before syncing: Pub/Sub redelivers anything not acknowledged within its deadline. */
 export const handleGmailPush = async (request: Request) => {
-  if (!isPushToken(new URL(request.url).searchParams.get('token'))) {
+  if (!(await isFromPubSub(request))) {
     return new Response(null, { status: 403 })
   }
   const address = pushedAddress(await request.json().catch(() => null))

@@ -338,6 +338,9 @@ catalogs:
     input-otp:
       specifier: ^1.5.0
       version: 1.5.0
+    jose:
+      specifier: 6.2.15
+      version: 6.2.15
     motion:
       specifier: ^14.10.0
       version: 14.10.1
@@ -523,6 +526,9 @@ importers:
       hono:
         specifier: 'catalog:'
         version: 4.13.17
+      jose:
+        specifier: 'catalog:'
+        version: 6.2.15
       nanoid:
         specifier: 'catalog:'
         version: 6.0.2
