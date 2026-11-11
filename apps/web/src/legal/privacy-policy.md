@@ -26,14 +26,14 @@ Fewmail's use and transfer to any other app of information received from Google 
 
 - **Account and session data:** name, email address, profile photo, session tokens, IP address and user agent.
 - **Google OAuth tokens:** stored encrypted, used only to access Gmail on your behalf.
-- **Synced mail:** the message data listed in section 2. Subjects, snippets and bodies are encrypted at rest with AES-256-GCM.
+- **Synced mail:** the message data listed in section 2. Everything that comes from your mail — addresses, names, subjects, snippets, bodies and headers — is encrypted at rest with AES-256-GCM.
 - **What the agent produces:** summaries, importance and reasons, drafts and daily briefs — also encrypted at rest.
-- **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and the goals of threads you ask the agent to handle — encrypted at rest. Payments and subscriptions found in your mail are stored as merchant, amount, currency and dates.
+- **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and the goals of threads you ask the agent to handle — encrypted at rest. Payments and subscriptions found in your mail are stored as merchant (encrypted), amount, currency and dates.
 - **Fraud checks:** to warn you when bank or payment details in an email change, we store only keyed one-way hashes of those details, never the details themselves.
 - **Your settings and rules:** language, how you use email, brief time, time zone, the rules and snippets you write, and anything you tell the agent to know about you.
 - **Community spam protection:** when you report spam or mark something as not spam, we store your vote with a keyed one-way hash of the sender's address (and of the domain for company domains). No addresses, subjects or contents are stored for this, and other users never learn who voted. Mail from a sender is moved to spam for other users only after several different people reported it and few marked it as not spam; a sender you have written to is never moved by community votes.
 - **Other network signals:** to spot mass mailings, senders who keep writing after you unsubscribed, and lookalike domains, we store keyed one-way hashes of your account, senders, domains and a short fingerprint of each message's text. When you report spam or mark mail as not spam, the vote is also stored against a fingerprint of the text, a keyed hash of the network that delivered the mail and keyed hashes of unfamiliar domains it links to, so the same campaign is caught when it comes from a new address. We also read the sender-authentication results Gmail attaches to each email (SPF, DKIM, DMARC). These are combined across users only as counts; no content is shared between users. We also record which senders you unsubscribed from.
-- **Outbox and reminders:** emails waiting to be sent (encrypted), snoozed threads and follow-up reminders.
+- **Outbox and reminders:** emails waiting to be sent (encrypted, recipients included), snoozed threads and follow-up reminders.
 - **Billing:** if you subscribe to Pro, your Stripe customer ID and subscription status. Card details are handled by Stripe and never reach our servers.
 - **Integrations:** if you connect Telegram, your Telegram chat ID; if you create MCP keys, only a one-way hash of each key.
 
@@ -74,7 +74,7 @@ We keep your data while your account exists. Synced mail is used for the brief a
 
 ## 9. Security
 
-Data is encrypted in transit (TLS) and the sensitive fields listed above are encrypted at rest. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
+Data is encrypted in transit (TLS). At rest, everything you or your mail provide is encrypted: your name, email address and photo, mail, rules, snippets, settings you write yourself, your Telegram chat, API key names, and the IP address and browser of your sessions. What stays unencrypted is what is not personal: ids, dates, flags, amounts and the keyed hashes used for spam protection. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
 
 ## 10. Children
 

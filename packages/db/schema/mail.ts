@@ -15,7 +15,12 @@ import type {
 import * as d from 'drizzle-orm/pg-core'
 
 import { baseTable } from '../base-table'
-import { encryptedJson, encryptedText, searchableText, searchableTextArray } from '../utils'
+import {
+  encryptedJson,
+  encryptedText,
+  searchableText,
+  searchableTextArray,
+} from '../utils'
 import { users } from './auth'
 
 const userId = () =>

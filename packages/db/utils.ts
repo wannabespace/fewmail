@@ -21,8 +21,8 @@ export const encryptedText = (name?: string) =>
 
 const encryptedJsonType = customType<{ data: unknown; driverData: string }>({
   dataType: () => 'text',
-  fromDriver: (encryptedText) =>
-    JSON.parse(decrypt({ encryptedText, secret })) as unknown,
+  fromDriver: (sealed) =>
+    JSON.parse(decrypt({ encryptedText: sealed, secret })) as unknown,
   toDriver: (value) => encrypt({ secret, text: JSON.stringify(value) }),
 })
 
@@ -31,7 +31,7 @@ export const encryptedJson = <T>() => encryptedJsonType().$type<T>()
 /** Deterministic, so `eq`, `inArray`, unique indexes and `groupBy` work; never use it for free text, where equal ciphertexts reveal equal content. */
 const searchableTextType = customType<{ data: string; driverData: string }>({
   dataType: () => 'text',
-  fromDriver: (encryptedText) => decryptSearchable({ encryptedText, secret }),
+  fromDriver: (sealed) => decryptSearchable({ encryptedText: sealed, secret }),
   toDriver: (text) => encryptSearchable({ secret, text }),
 })
 
@@ -44,7 +44,9 @@ export const searchableTextArray = customType<{
 }>({
   dataType: () => 'text[]',
   fromDriver: (values) =>
-    values.map((encryptedText) => decryptSearchable({ encryptedText, secret })),
+    values.map((sealed) =>
+      decryptSearchable({ encryptedText: sealed, secret })
+    ),
   toDriver: (values) =>
     values.map((text) => encryptSearchable({ secret, text })),
 })
