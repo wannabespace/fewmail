@@ -1,10 +1,17 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { BULK_THRESHOLD } from '@fewmail/shared/agent'
+import { Button } from '@fewmail/ui/components/button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   ResizableGroup,
   ResizablePanel,
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@fewmail/ui/components/dropdown-menu'
 import { Empty, EmptyDescription } from '@fewmail/ui/components/empty'
 import { Input } from '@fewmail/ui/components/input'
 import {
@@ -16,6 +23,12 @@ import {
 } from '@fewmail/ui/components/select'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
+import {
+  Archive02Icon,
+  Clock01Icon,
+  Delete02Icon,
+} from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
@@ -27,7 +40,11 @@ import { createWebStorageValue } from 'seitu/web'
 
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
-import { ThreadView } from '~/components/thread-view'
+import {
+  SnoozeMenuItems,
+  ThreadView,
+  useMailActions,
+} from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
@@ -95,32 +112,104 @@ const MailRowMeta = ({
   )
 }
 
+const MailRowActions = ({
+  actions,
+  canSnooze,
+  isSnoozeOpen,
+  messageId,
+  onSnoozeOpenChange,
+}: {
+  actions: ReturnType<typeof useMailActions>
+  canSnooze: boolean
+  isSnoozeOpen: boolean
+  messageId: string
+  onSnoozeOpenChange: (open: boolean) => void
+}) => {
+  const t = useT()
+  const target = { messageId }
+  return (
+    <span
+      className={cn(
+        'absolute top-1.5 right-4 flex bg-inherit opacity-0 group-hover:opacity-100',
+        isSnoozeOpen && 'opacity-100'
+      )}
+    >
+      <IconButton
+        icon={Archive02Icon}
+        label={t.mail.archive}
+        shortcut="E"
+        size="icon-sm"
+        variant="ghost-muted"
+        onClick={() => actions.archive.mutate(target)}
+      />
+      {canSnooze && (
+        <DropdownMenu open={isSnoozeOpen} onOpenChange={onSnoozeOpenChange}>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                aria-label={t.snooze.title}
+                size="icon-sm"
+                variant="ghost-muted"
+              />
+            }
+          >
+            <HugeiconsIcon icon={Clock01Icon} strokeWidth={2} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <SnoozeMenuItems
+              onSnooze={(until) => actions.snooze.mutate({ ...target, until })}
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+      <IconButton
+        icon={Delete02Icon}
+        label={t.mail.trash}
+        shortcut="#"
+        size="icon-sm"
+        variant="ghost-destructive"
+        onClick={() => actions.trash.mutate(target)}
+      />
+    </span>
+  )
+}
+
 const MailRow = ({
+  actions,
+  canSnooze,
   isCursor,
   isOpen,
+  isSnoozeOpen,
   onOpen,
+  onSnoozeOpenChange,
   row: { analysis, message },
 }: {
+  actions: ReturnType<typeof useMailActions>
+  canSnooze: boolean
   isCursor: boolean
   isOpen: boolean
+  isSnoozeOpen: boolean
   onOpen: () => void
+  onSnoozeOpenChange: (open: boolean) => void
   row: MailRowData
 }) => {
   const t = useT()
   const dates = useDates()
 
   return (
-    <li>
+    <li
+      className={cn(
+        'group relative border-b',
+        isCursor || isSnoozeOpen ? 'bg-accent' : 'hover:bg-accent',
+        isOpen && 'bg-secondary'
+      )}
+    >
       <button
         type="button"
         tabIndex={-1}
         onClick={onOpen}
         aria-current={isOpen}
-        className={cn(
-          'flex w-full cursor-pointer flex-col gap-0.5 border-b px-5 py-2.5 text-left outline-none',
-          isCursor ? 'bg-accent' : 'hover:bg-accent/60',
-          isOpen && 'bg-secondary'
-        )}
+        className="flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none"
       >
         <span className="flex items-center gap-2 text-sm">
           <span
@@ -187,8 +276,50 @@ const MailRow = ({
         )}
         <MailRowMeta insight={analysis} message={message} />
       </button>
+      <MailRowActions
+        actions={actions}
+        canSnooze={canSnooze}
+        isSnoozeOpen={isSnoozeOpen}
+        messageId={message.id}
+        onSnoozeOpenChange={onSnoozeOpenChange}
+      />
     </li>
   )
+}
+
+const useListActions = ({
+  filter,
+  isEnabled,
+  messageId,
+}: {
+  filter: Filter
+  isEnabled: boolean
+  messageId: string | undefined
+}) => {
+  const t = useT()
+  const actions = useMailActions()
+  const [snoozeOpenId, setSnoozeOpenId] = useState<string | null>(null)
+  const canSnooze = filter !== 'snoozed'
+  const keys = { enabled: isEnabled && !!messageId }
+  useHotkey('E', () => messageId && actions.archive.mutate({ messageId }), keys)
+  useHotkey('H', () => messageId && setSnoozeOpenId(messageId), {
+    enabled: keys.enabled && canSnooze,
+  })
+  useHotkey(
+    'Shift+3',
+    () => messageId && actions.trash.mutate({ messageId }),
+    keys
+  )
+  useHotkey(
+    'Shift+1',
+    () => messageId && actions.reportSpam.mutate({ messageId }),
+    keys
+  )
+  const hints: [string, string][] = [
+    ['E', t.keys.archive],
+    ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
+  ]
+  return { actions, canSnooze, hints, setSnoozeOpenId, snoozeOpenId }
 }
 
 const MailPage = () => {
@@ -217,6 +348,13 @@ const MailPage = () => {
       input: { filter, mailboxId: mailbox, ...(q && { search: q }) },
     })
   )
+
+  const { actions, canSnooze, hints, setSnoozeOpenId, snoozeOpenId } =
+    useListActions({
+      filter,
+      isEnabled: !thread,
+      messageId: rows[cursor]?.message.id,
+    })
 
   useEffect(() => {
     listRef.current?.children[cursor]?.scrollIntoView({ block: 'nearest' })
@@ -370,9 +508,15 @@ const MailPage = () => {
               <MailRow
                 key={row.message.id}
                 row={row}
+                actions={actions}
+                canSnooze={canSnooze}
                 isCursor={index === cursor}
                 isOpen={row.message.threadId === thread}
+                isSnoozeOpen={snoozeOpenId === row.message.id}
                 onOpen={() => open(index)}
+                onSnoozeOpenChange={(isOpen) =>
+                  setSnoozeOpenId(isOpen ? row.message.id : null)
+                }
               />
             ))}
           </ul>
@@ -381,6 +525,7 @@ const MailPage = () => {
               hints={[
                 ['J / K', t.keys.move],
                 ['⏎', t.keys.open],
+                ...hints,
                 ['/', t.keys.search],
                 ['⌘K', t.keys.anything],
               ]}

@@ -212,6 +212,81 @@ const useMarkRead = (
   }, [hasUnread, markRead, threadId])
 }
 
+export const useMailActions = (onDone?: () => void) => {
+  const t = useT()
+  const dates = useDates()
+  const queryClient = useQueryClient()
+  const finish = (message: string) => {
+    toast.success(message)
+    void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
+    onDone?.()
+  }
+  return {
+    archive: useMutation(
+      orpc.mail.archive.mutationOptions({
+        onSuccess: () => finish(t.mail.archived),
+      })
+    ),
+    block: useMutation(
+      orpc.mail.block.mutationOptions({
+        onSuccess: () => finish(t.mail.blocked),
+      })
+    ),
+    notSpam: useMutation(
+      orpc.mail.notSpam.mutationOptions({
+        onSuccess: () => finish(t.mail.movedToInbox),
+      })
+    ),
+    reportSpam: useMutation(
+      orpc.mail.reportSpam.mutationOptions({
+        onSuccess: () => finish(t.mail.reportedSpam),
+      })
+    ),
+    snooze: useMutation(
+      orpc.mail.snooze.mutationOptions({
+        onSuccess: (_, { until }) =>
+          finish(t.snooze.until(dates.format(until, 'EEE p'))),
+      })
+    ),
+    trash: useMutation(
+      orpc.mail.trash.mutationOptions({
+        onSuccess: () => finish(t.mail.trashed),
+      })
+    ),
+    unsnooze: useMutation(
+      orpc.mail.unsnooze.mutationOptions({
+        onSuccess: () => finish(t.snooze.unsnooze),
+      })
+    ),
+    unsubscribe: useMutation(
+      orpc.mail.unsubscribe.mutationOptions({
+        onSuccess: ({ unsubscribed }) =>
+          finish(unsubscribed ? t.mail.unsubscribed : t.mail.unsubscribeFailed),
+      })
+    ),
+  }
+}
+
+export const SnoozeMenuItems = ({
+  onSnooze,
+}: {
+  onSnooze: (until: Date) => void
+}) => {
+  const t = useT()
+  const dates = useDates()
+  return SNOOZE_OPTIONS.map((preset) => {
+    const until = SNOOZE_PRESETS[preset]()
+    return (
+      <DropdownMenuItem key={preset} onClick={() => onSnooze(until)}>
+        {t.snooze[preset]}
+        <DropdownMenuShortcut>
+          {dates.format(until, 'EEE p')}
+        </DropdownMenuShortcut>
+      </DropdownMenuItem>
+    )
+  })
+}
+
 export const ThreadView = ({
   isSnoozed,
   onDone,
@@ -225,7 +300,6 @@ export const ThreadView = ({
   const dates = useDates()
   const { user } = useMe()
   const hasAgent = useHasAgent()
-  const queryClient = useQueryClient()
   const { data } = useThread(threadId)
   const [composing, setComposing] = useState<Draft | null>(null)
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
@@ -233,49 +307,16 @@ export const ThreadView = ({
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
   useMarkRead(threadId, data)
-  const finish = (message: string) => {
-    toast.success(message)
-    void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
-    onDone()
-  }
-  const archive = useMutation(
-    orpc.mail.archive.mutationOptions({
-      onSuccess: () => finish(t.mail.archived),
-    })
-  )
-  const trash = useMutation(
-    orpc.mail.trash.mutationOptions({ onSuccess: () => finish(t.mail.trashed) })
-  )
-  const block = useMutation(
-    orpc.mail.block.mutationOptions({ onSuccess: () => finish(t.mail.blocked) })
-  )
-  const snooze = useMutation(
-    orpc.mail.snooze.mutationOptions({
-      onSuccess: (_, { until }) =>
-        finish(t.snooze.until(dates.format(until, 'EEE p'))),
-    })
-  )
-  const unsnooze = useMutation(
-    orpc.mail.unsnooze.mutationOptions({
-      onSuccess: () => finish(t.snooze.unsnooze),
-    })
-  )
-  const reportSpam = useMutation(
-    orpc.mail.reportSpam.mutationOptions({
-      onSuccess: () => finish(t.mail.reportedSpam),
-    })
-  )
-  const notSpam = useMutation(
-    orpc.mail.notSpam.mutationOptions({
-      onSuccess: () => finish(t.mail.movedToInbox),
-    })
-  )
-  const unsubscribe = useMutation(
-    orpc.mail.unsubscribe.mutationOptions({
-      onSuccess: ({ unsubscribed }) =>
-        finish(unsubscribed ? t.mail.unsubscribed : t.mail.unsubscribeFailed),
-    })
-  )
+  const {
+    archive,
+    block,
+    notSpam,
+    reportSpam,
+    snooze,
+    trash,
+    unsnooze,
+    unsubscribe,
+  } = useMailActions(onDone)
 
   const target = latest ? { messageId: latest.message.id } : null
   const reply = () =>
@@ -350,20 +391,11 @@ export const ThreadView = ({
                       {t.snooze.title} <Kbd>H</Kbd>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {SNOOZE_OPTIONS.map((preset) => {
-                        const until = SNOOZE_PRESETS[preset]()
-                        return (
-                          <DropdownMenuItem
-                            key={preset}
-                            onClick={() => snooze.mutate({ ...target, until })}
-                          >
-                            {t.snooze[preset]}
-                            <DropdownMenuShortcut>
-                              {dates.format(until, 'EEE p')}
-                            </DropdownMenuShortcut>
-                          </DropdownMenuItem>
-                        )
-                      })}
+                      <SnoozeMenuItems
+                        onSnooze={(until) =>
+                          snooze.mutate({ ...target, until })
+                        }
+                      />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
