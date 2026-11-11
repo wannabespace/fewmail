@@ -14,7 +14,7 @@ Env lives in the root `.env` (template: `.env.example`). Cross-service dev URLs 
 
 ## Deploy (Railway)
 
-The Railway project is code: `.railway/railway.ts` (`railway/iac`, root devDependency). Change it, then `railway config plan` and `railway config apply` (Railway CLI ≥ 5.42.1; Railway never reads `.railway/` during deploys). `railway.json` / `railway.toml` are deprecated and must not come back — a service cannot be managed by both.
+The Railway project is code: `.railway/railway.ts` (`railway/iac`, root devDependency). Railway never reads `.railway/` during deploys: `.github/workflows/railway.yml` runs `railway config plan` and `railway config apply --yes` on every push to `main` that touches `.railway/**` (project token in the `RAILWAY_TOKEN` secret; never `--confirm-destructive`, so removals stay manual). Locally the same two commands need Railway CLI ≥ 5.42.1. `railway.json` / `railway.toml` are deprecated and must not come back — a service cannot be managed by both.
 
 - **postgres**, **api** and **worker**: one image, `apps/api/Dockerfile`, built with the repo root as context (it type-checks the API in a throwaway stage). `api` runs `index.ts` (HTTP, migrations on boot, Telegram webhook); `worker` overrides the start command with `worker.ts`.
 - **worker**: exactly one replica, `overlapSeconds: 0`, `drainingSeconds: 30` — its job locks are in memory, so two copies would send briefs and Telegram pushes twice. On SIGTERM it stops ticking and waits for jobs in flight.

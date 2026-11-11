@@ -1,0 +1,31 @@
+name: Railway
+
+on:
+  push:
+    branches: [main]
+    paths: ['.railway/**', '.github/workflows/railway.yml']
+  workflow_dispatch:
+
+# Two applies at once would race; Railway rejects the second one as stale anyway.
+concurrency:
+  group: railway
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      # Only the root, for `railway/iac`; the root's install scripts start the local portless proxy.
+      - run: pnpm install --frozen-lockfile --ignore-scripts --filter .
+      - run: npm install --global @railway/cli@latest
+      - run: railway config plan
+      # Never `--confirm-destructive`: removing a service or variable stays a manual decision.
+      - run: railway config apply --yes
