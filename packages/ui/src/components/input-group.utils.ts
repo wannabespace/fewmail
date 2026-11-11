@@ -10,6 +10,7 @@ export const inputGroupVariants = cva(
     },
     variants: {
       variant: {
+        composer: `bg-popover ring-foreground/8 hover:ring-foreground/14 has-[[data-slot=input-group-control]:focus-visible]:ring-foreground/18 rounded-3xl border border-transparent shadow-lg ring transition-shadow has-[[data-slot=input-group-control]:focus-visible]:shadow-xl *:data-[slot=input-group-addon]:px-2.5 *:data-[slot=input-group-addon]:pb-2.5 *:data-[slot=input-group-control]:min-h-14 *:data-[slot=input-group-control]:px-4 *:data-[slot=input-group-control]:pt-3.5`,
         default: inputGroupSurface,
         flat: `has-[[data-slot=input-group-control]:focus-visible]:focus-ring has-[[data-slot][aria-invalid=true]]:invalid-ring bg-transparent first:rounded-t-xl last:rounded-b-xl`,
         floating: `${inputGroupSurface} shadow-md`,

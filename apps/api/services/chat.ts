@@ -122,6 +122,7 @@ export const postToChat = async (
   const chat = await ownChat(userId, id)
   const message: UIMessage = {
     id: generateId(),
+    metadata: { createdAt: Date.now() },
     parts: [{ text, type: 'text' }],
     role: 'assistant',
   }
@@ -153,10 +154,14 @@ export const streamChat = async (
   const stored = (chat?.messages ?? []) as UIMessage[]
   const tools = chatTools(userId)
   const known = stored.findIndex(({ id: storedId }) => storedId === message.id)
+  const sent =
+    message.role === 'user'
+      ? { ...message, metadata: { createdAt: Date.now() } }
+      : { ...message, metadata: stored[known]?.metadata }
   const history =
     known === -1
-      ? [...stored, { ...message, role: 'user' as const }]
-      : [...stored.slice(0, known), message]
+      ? [...stored, { ...sent, role: 'user' as const }]
+      : [...stored.slice(0, known), sent]
   const messages = declineUnanswered(
     await validateUIMessages({ messages: history, tools })
   )
@@ -181,6 +186,10 @@ export const streamChat = async (
   })
   return result.toUIMessageStream({
     generateMessageId: generateId,
+    messageMetadata: ({ part }) =>
+      part.type === 'start' && sent.role === 'user'
+        ? { createdAt: Date.now() }
+        : undefined,
     onFinish: async ({ messages: all }) => {
       await save(all)
     },

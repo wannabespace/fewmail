@@ -10,6 +10,8 @@ import {
   CommandList,
   CommandShortcut,
 } from '@fewmail/ui/components/command'
+import { CopyIconButton } from '@fewmail/ui/components/custom/copy-button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   InputGroup,
   InputGroupAddon,
@@ -22,7 +24,11 @@ import {
   MarkerContent,
   MarkerIcon,
 } from '@fewmail/ui/components/marker'
-import { Message, MessageContent } from '@fewmail/ui/components/message'
+import {
+  Message,
+  MessageContent,
+  MessageFooter,
+} from '@fewmail/ui/components/message'
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -33,14 +39,24 @@ import {
 } from '@fewmail/ui/components/message-scroller'
 import { Response } from '@fewmail/ui/components/response'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@fewmail/ui/components/tooltip'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Alert02Icon,
+  ArrowUp02Icon,
   Calendar03Icon,
   Cancel01Icon,
   Invoice03Icon,
   MailRemove01Icon,
   MailReply01Icon,
+  PencilEdit02Icon,
+  RefreshIcon,
+  SlashIcon,
+  StopCircleIcon,
   Sun03Icon,
   Tick02Icon,
   UserTime01Icon,
@@ -62,6 +78,7 @@ import type {
   ToolUIPart,
   UIMessage,
 } from 'ai'
+import { isToday } from 'date-fns'
 import type { ComponentProps } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -407,7 +424,7 @@ const ThreadLink = ({ children, className, href }: ComponentProps<'a'>) => {
 
 const RESPONSE_COMPONENTS = { a: ThreadLink }
 
-const EmptyChat = ({ onPick }: { onPick: (text: string) => void }) => {
+const EmptyChat = ({ onPick }: { onPick: (skill: Skill) => void }) => {
   const t = useT()
 
   return (
@@ -424,7 +441,7 @@ const EmptyChat = ({ onPick }: { onPick: (text: string) => void }) => {
             key={skill}
             size="sm"
             variant="secondary"
-            onClick={() => onPick(`/${skill}`)}
+            onClick={() => onPick(skill)}
           >
             <HugeiconsIcon icon={SKILL_ICONS[skill]} strokeWidth={2} />
             {t.skills[skill]}
@@ -475,18 +492,92 @@ const SkillMenu = ({
   )
 }
 
-const UserText = ({ text }: { text: string }) => {
+const UserBubble = ({ text }: { text: string }) => {
   const t = useT()
   const parsed = parseSkill(text)
-  if (!parsed) {
-    return text
-  }
+
+  return parsed ? (
+    <Bubble variant="tinted">
+      <BubbleContent>
+        <span className="flex items-center gap-2 font-medium">
+          <HugeiconsIcon
+            icon={SKILL_ICONS[parsed.skill]}
+            strokeWidth={2}
+            className="size-4"
+          />
+          {t.skills[parsed.skill]}
+        </span>
+        {parsed.details && (
+          <p data-mask className="mt-1 whitespace-pre-wrap">
+            {parsed.details}
+          </p>
+        )}
+      </BubbleContent>
+    </Bubble>
+  ) : (
+    <Bubble variant="secondary">
+      <BubbleContent data-mask className="whitespace-pre-wrap">
+        {text}
+      </BubbleContent>
+    </Bubble>
+  )
+}
+
+const textOf = (message: UIMessage) =>
+  message.parts
+    .flatMap((part) => (part.type === 'text' ? [part.text] : []))
+    .join('\n\n')
+
+const MessageActions = ({
+  message,
+  onEdit,
+  onRegenerate,
+}: {
+  message: UIMessage
+  onEdit?: () => void
+  onRegenerate?: () => void
+}) => {
+  const t = useT()
+  const dates = useDates()
+  const { createdAt } = (message.metadata ?? {}) as { createdAt?: number }
+  const text = textOf(message)
+
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <HugeiconsIcon icon={SKILL_ICONS[parsed.skill]} strokeWidth={2} />
-      {t.skills[parsed.skill]}
-      {parsed.details && ` · ${parsed.details}`}
-    </span>
+    <MessageFooter>
+      {createdAt && (
+        <time
+          dateTime={new Date(createdAt).toISOString()}
+          className="px-1.5 font-normal tabular-nums"
+        >
+          {dates.format(createdAt, isToday(createdAt) ? 'p' : 'd MMM, p')}
+        </time>
+      )}
+      <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover/message:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100">
+        {text && <CopyIconButton label={t.agent.copy} text={text} />}
+        {onEdit && (
+          <IconButton
+            icon={PencilEdit02Icon}
+            label={t.agent.edit}
+            shortcut={<Kbd>↑</Kbd>}
+            side="bottom"
+            size="icon-xs"
+            variant="ghost-muted"
+            onClick={onEdit}
+          />
+        )}
+        {onRegenerate && (
+          <IconButton
+            icon={RefreshIcon}
+            label={t.agent.regenerate}
+            shortcut={<Kbd>R</Kbd>}
+            side="bottom"
+            size="icon-xs"
+            variant="ghost-muted"
+            onClick={onRegenerate}
+          />
+        )}
+      </div>
+    </MessageFooter>
   )
 }
 
@@ -502,6 +593,8 @@ export const AgentChat = ({
   const t = useT()
   const queryClient = useQueryClient()
   const [text, setText] = useState('')
+  const [skill, setSkill] = useState<Skill | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [skillIndex, setSkillIndex] = useState(0)
   const [dismissedText, setDismissedText] = useState<string | null>(null)
   const composerRef = useRef<HTMLTextAreaElement>(null)
@@ -524,32 +617,70 @@ export const AgentChat = ({
   })
   const isBusy = status === 'submitted' || status === 'streaming'
   const lastId = messages.at(-1)?.id
+  const lastUser = messages.findLast((message) => message.role === 'user')
+  const canRegenerate = !isBusy && messages.at(-1)?.role === 'assistant'
   const skills =
-    /^\/[a-z_]*$/u.test(text) && text !== dismissedText
-      ? SKILLS.filter((skill) => skill.startsWith(text.slice(1)))
+    !skill && /^\/[a-z_]*$/u.test(text) && text !== dismissedText
+      ? SKILLS.filter((name) => name.startsWith(text.slice(1)))
       : []
   const activeSkill = skills[skillIndex % skills.length]
 
-  const send = (value: string) => {
-    if (!value.trim() || isBusy) {
+  const pick = (name: Skill) => {
+    setSkill(name)
+    setText('')
+    composerRef.current?.focus()
+  }
+  const edit = (message: UIMessage) => {
+    const value = textOf(message)
+    const parsed = parseSkill(value)
+    setEditingId(message.id)
+    setSkill(parsed?.skill ?? null)
+    setText(parsed ? parsed.details : value)
+    composerRef.current?.focus()
+  }
+  const reset = () => {
+    setText('')
+    setSkill(null)
+    setEditingId(null)
+  }
+  const send = () => {
+    const value = (skill ? `/${skill} ${text}` : text).trim()
+    if (!value || isBusy) {
       return
     }
     onSend()
-    void sendMessage({ text: value.trim() })
-    setText('')
+    void sendMessage({
+      messageId: editingId ?? undefined,
+      metadata: { createdAt: Date.now() },
+      text: value,
+    })
+    reset()
   }
-  /** The `/` menu takes arrows, Tab (complete to add details), Enter (run) and Escape (close) from the composer. */
-  const pickSkill = (key: string) => {
+  /** The `/` menu takes arrows, Tab or Enter (pick) and Escape (close) from the composer. */
+  const navigateSkills = (key: string, active: Skill) => {
     if (key === 'ArrowDown' || key === 'ArrowUp') {
       setSkillIndex(
         (index) => index + (key === 'ArrowDown' ? 1 : skills.length - 1)
       )
-    } else if (key === 'Tab') {
-      setText(`/${activeSkill} `)
-    } else if (key === 'Enter') {
-      send(`/${activeSkill}`)
+    } else if (key === 'Tab' || key === 'Enter') {
+      pick(active)
     } else if (key === 'Escape') {
       setDismissedText(text)
+    } else {
+      return false
+    }
+    return true
+  }
+  /** Escape is a ladder here: the menu above, then the edit, then the skill. */
+  const handleComposerKey = (key: string) => {
+    if (key === 'Escape' && editingId) {
+      reset()
+    } else if (key === 'Escape' && skill) {
+      setSkill(null)
+    } else if (key === 'Backspace' && skill && !text) {
+      setSkill(null)
+    } else if (key === 'ArrowUp' && !text && !skill && lastUser && !isBusy) {
+      edit(lastUser)
     } else {
       return false
     }
@@ -576,6 +707,13 @@ export const AgentChat = ({
     }
   )
   useHotkey('/', () => composerRef.current?.focus())
+  useHotkey(
+    'R',
+    () => {
+      void regenerate()
+    },
+    { enabled: canRegenerate }
+  )
   useEffect(() => {
     composerRef.current?.focus()
   }, [])
@@ -588,7 +726,7 @@ export const AgentChat = ({
       )}
     >
       {messages.length === 0 ? (
-        <EmptyChat onPick={send} />
+        <EmptyChat onPick={pick} />
       ) : (
         <MessageScrollerProvider autoScroll>
           <MessageScroller>
@@ -601,16 +739,7 @@ export const AgentChat = ({
                         {message.parts.map((part, index) => {
                           const key = `${message.id}-${index}`
                           if (part.type === 'text' && message.role === 'user') {
-                            return (
-                              <Bubble key={key} variant="secondary">
-                                <BubbleContent
-                                  data-mask
-                                  className="whitespace-pre-wrap"
-                                >
-                                  <UserText text={part.text} />
-                                </BubbleContent>
-                              </Bubble>
-                            )
+                            return <UserBubble key={key} text={part.text} />
                           }
                           if (part.type === 'text') {
                             return (
@@ -637,6 +766,23 @@ export const AgentChat = ({
                           }
                           return null
                         })}
+                        {!(isBusy && message.id === lastId) && (
+                          <MessageActions
+                            message={message}
+                            onEdit={
+                              message.role === 'user' && !isBusy
+                                ? () => edit(message)
+                                : undefined
+                            }
+                            onRegenerate={
+                              canRegenerate && message.id === lastId
+                                ? () => {
+                                    void regenerate()
+                                  }
+                                : undefined
+                            }
+                          />
+                        )}
                       </MessageContent>
                     </Message>
                   </MessageScrollerItem>
@@ -684,29 +830,50 @@ export const AgentChat = ({
         className="relative mx-auto w-full max-w-2xl px-6 pb-5"
         onSubmit={(event) => {
           event.preventDefault()
-          send(text)
+          send()
         }}
       >
         {activeSkill && (
-          <SkillMenu
-            active={activeSkill}
-            skills={skills}
-            onPick={(skill) => send(`/${skill}`)}
-          />
+          <SkillMenu active={activeSkill} skills={skills} onPick={pick} />
         )}
-        <InputGroup>
+        <InputGroup variant="composer">
+          {editingId && (
+            <InputGroupAddon align="block-start">
+              <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={2} />
+              {t.agent.editing}
+              <IconButton
+                className="ml-auto"
+                icon={Cancel01Icon}
+                label={t.agent.cancelEdit}
+                shortcut={<Kbd>esc</Kbd>}
+                size="icon-xs"
+                variant="ghost-muted"
+                onClick={reset}
+              />
+            </InputGroupAddon>
+          )}
           <InputGroupTextarea
             ref={composerRef}
             aria-label={t.agent.placeholder}
-            placeholder={t.agent.placeholder}
-            rows={2}
+            placeholder={skill ? t.agent.skillPlaceholder : t.agent.placeholder}
+            rows={1}
             value={text}
             onChange={(event) => {
+              const typed = /^\/(?<name>[a-z_]+)\s$/u.exec(event.target.value)
+                ?.groups?.name
+              const typedSkill = SKILLS.find((name) => name === typed)
+              if (!skill && typedSkill) {
+                pick(typedSkill)
+                return
+              }
               setText(event.target.value)
               setSkillIndex(0)
             }}
             onKeyDown={(event) => {
-              if (activeSkill && pickSkill(event.key)) {
+              if (
+                (activeSkill && navigateSkills(event.key, activeSkill)) ||
+                handleComposerKey(event.key)
+              ) {
                 event.preventDefault()
                 return
               }
@@ -717,32 +884,68 @@ export const AgentChat = ({
                 !event.nativeEvent.isComposing
               ) {
                 event.preventDefault()
-                send(text)
+                send()
               }
             }}
           />
           <InputGroupAddon align="block-end">
-            {isBusy ? (
+            {skill ? (
+              <Tooltip shortcut={<Kbd>⌫</Kbd>}>
+                <TooltipTrigger
+                  render={
+                    <InputGroupButton
+                      aria-label={t.agent.removeSkill}
+                      size="sm"
+                      variant="tinted"
+                      onClick={() => {
+                        setSkill(null)
+                        composerRef.current?.focus()
+                      }}
+                    />
+                  }
+                >
+                  <HugeiconsIcon icon={SKILL_ICONS[skill]} strokeWidth={2} />
+                  {t.skills[skill]}
+                  <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
+                </TooltipTrigger>
+                <TooltipContent>{t.agent.removeSkill}</TooltipContent>
+              </Tooltip>
+            ) : (
               <InputGroupButton
-                className="ml-auto"
                 size="sm"
+                variant="ghost-muted"
+                onClick={() => {
+                  setText('/')
+                  setDismissedText(null)
+                  composerRef.current?.focus()
+                }}
+              >
+                <HugeiconsIcon icon={SlashIcon} strokeWidth={2} />
+                {t.agent.skills}
+              </InputGroupButton>
+            )}
+            {isBusy ? (
+              <IconButton
+                className="ml-auto"
+                icon={StopCircleIcon}
+                label={t.agent.stop}
+                shortcut={<Kbd>esc</Kbd>}
+                size="icon-round"
                 variant="secondary"
                 onClick={() => {
                   void stop()
                 }}
-              >
-                {t.agent.stop} <Kbd>esc</Kbd>
-              </InputGroupButton>
+              />
             ) : (
-              <InputGroupButton
+              <IconButton
                 className="ml-auto"
-                disabled={!text.trim()}
-                size="sm"
+                disabled={!text.trim() && !skill}
+                icon={ArrowUp02Icon}
+                label={t.agent.send}
+                shortcut={<Kbd>⏎</Kbd>}
+                size="icon-round"
                 type="submit"
-                variant="default"
-              >
-                {t.agent.send} <Kbd>⏎</Kbd>
-              </InputGroupButton>
+              />
             )}
           </InputGroupAddon>
         </InputGroup>

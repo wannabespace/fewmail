@@ -45,6 +45,14 @@ export const id: Messages = {
     lead: 'Tanyakan soal email kamu atau bilang apa yang harus dilakukan. Semua yang mengirim atau mengubah Gmail menunggu persetujuanmu.',
     newChat: 'Obrolan baru',
     noChats: 'Belum ada obrolan',
+    cancelEdit: 'Batalkan edit',
+    copy: 'Salin',
+    edit: 'Edit',
+    editing: 'Mengedit pesan Anda',
+    regenerate: 'Jawab ulang',
+    removeSkill: 'Hapus skill',
+    skillPlaceholder: 'Tambahkan detail atau langsung kirim',
+    skills: 'Skill',
     placeholder:
       'Tanyakan soal email kamu atau bilang apa yang harus dilakukan…',
     retry: 'Coba lagi',
@@ -262,6 +270,7 @@ export const id: Messages = {
   importance: ['Kebisingan', 'Perlu tahu', 'Segera butuh kamu', 'Mendesak'],
   justNow: 'baru saja',
   keys: {
+    skills: 'skill',
     unsubscribe: 'berhenti langganan',
     filter: 'filter',
     reply: 'balas',
