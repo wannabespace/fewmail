@@ -366,12 +366,12 @@ export const it: Messages = {
   persona: {
     reader: {
       description:
-        'Leggo soprattutto. Tieni calma la mia posta, gestisci il rumore e non lasciarti sfuggire niente di importante.',
+        'Tieni calma la mia posta, gestisci il rumore e non lasciarti sfuggire niente di importante.',
       title: 'Leggo soprattutto',
     },
     responder: {
       description:
-        'Rispondo molto. Metti prima chi aspetta una mia risposta e prepara bozze con la mia voce.',
+        'Metti prima chi aspetta una mia risposta e prepara bozze con la mia voce.',
       title: 'Rispondo molto',
     },
   },

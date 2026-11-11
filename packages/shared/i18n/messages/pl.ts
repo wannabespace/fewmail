@@ -471,12 +471,12 @@ export const pl: Messages = {
   persona: {
     reader: {
       description:
-        'Głównie czytam. Dbaj o spokój w skrzynce, zajmij się szumem i pilnuj, by nic ważnego mi nie umknęło.',
+        'Dbaj o spokój w skrzynce, zajmij się szumem i pilnuj, by nic ważnego mi nie umknęło.',
       title: 'Głównie czytam',
     },
     responder: {
       description:
-        'Dużo odpowiadam. Pokazuj najpierw osoby, które na mnie czekają, i przygotowuj szkice odpowiedzi moim głosem.',
+        'Pokazuj najpierw osoby, które na mnie czekają, i przygotowuj szkice odpowiedzi moim głosem.',
       title: 'Dużo odpowiadam',
     },
   },

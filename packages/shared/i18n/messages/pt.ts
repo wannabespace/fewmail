@@ -454,12 +454,12 @@ export const pt: Messages = {
   persona: {
     reader: {
       description:
-        'Eu mais leio. Mantenha minha caixa de entrada tranquila, cuide do ruído e não deixe nada importante passar.',
+        'Mantenha minha caixa de entrada tranquila, cuide do ruído e não deixe nada importante passar.',
       title: 'Eu mais leio',
     },
     responder: {
       description:
-        'Eu respondo muito. Coloque primeiro quem está esperando por mim e deixe respostas rascunhadas com a minha voz.',
+        'Coloque primeiro quem está esperando por mim e deixe respostas rascunhadas com a minha voz.',
       title: 'Eu respondo muito',
     },
   },

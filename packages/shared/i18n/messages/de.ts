@@ -364,12 +364,12 @@ export const de: Messages = {
   persona: {
     reader: {
       description:
-        'Ich lese vor allem. Halte meinen Posteingang ruhig, kümmere dich um das Rauschen und lass nichts Wichtiges durchrutschen.',
+        'Halte meinen Posteingang ruhig, kümmere dich um das Rauschen und lass nichts Wichtiges durchrutschen.',
       title: 'Ich lese vor allem',
     },
     responder: {
       description:
-        'Ich antworte viel. Zeig mir zuerst, wer auf mich wartet, und entwirf Antworten in meinem Ton.',
+        'Zeig mir zuerst, wer auf mich wartet, und entwirf Antworten in meinem Ton.',
       title: 'Ich antworte viel',
     },
   },

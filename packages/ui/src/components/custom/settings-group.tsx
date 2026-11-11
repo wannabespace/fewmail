@@ -6,6 +6,7 @@ import {
   ItemDescription,
   ItemMedia,
   ItemTitle,
+  smallItemBleedClassName,
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
 import type { ReactNode } from 'react'
@@ -21,7 +22,13 @@ export const SettingsGroup = ({
     {title && (
       <h2 className="text-muted-foreground text-xs font-medium">{title}</h2>
     )}
-    <div className={cn(cardClass, 'flex flex-col overflow-hidden')}>
+    <div
+      className={cn(
+        cardClass,
+        smallItemBleedClassName,
+        'flex flex-col overflow-hidden'
+      )}
+    >
       {children}
     </div>
   </section>

@@ -449,12 +449,12 @@ export const en = {
   persona: {
     reader: {
       description:
-        'I mostly read. Keep my inbox calm, handle the noise and make sure nothing important slips by.',
+        'Keep my inbox calm, handle the noise and make sure nothing important slips by.',
       title: 'I mostly read',
     },
     responder: {
       description:
-        'I answer a lot. Put the people waiting on me first and have replies drafted in my voice.',
+        'Put the people waiting on me first and have replies drafted in my voice.',
       title: 'I reply a lot',
     },
   },

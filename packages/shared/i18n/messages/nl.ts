@@ -455,12 +455,12 @@ export const nl: Messages = {
   persona: {
     reader: {
       description:
-        'Ik lees vooral. Houd mijn inbox rustig, handel de ruis af en zorg dat niets belangrijks me ontgaat.',
+        'Houd mijn inbox rustig, handel de ruis af en zorg dat niets belangrijks me ontgaat.',
       title: 'Ik lees vooral',
     },
     responder: {
       description:
-        'Ik antwoord veel. Zet mensen die op mij wachten bovenaan en stel antwoorden op in mijn stijl.',
+        'Zet mensen die op mij wachten bovenaan en stel antwoorden op in mijn stijl.',
       title: 'Ik antwoord veel',
     },
   },

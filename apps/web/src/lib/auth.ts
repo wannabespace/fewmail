@@ -2,6 +2,8 @@ import { type } from 'arktype'
 import { createAuthClient } from 'better-auth/react'
 import { createWebStorageValue } from 'seitu/web'
 
+import { disablePush } from './push'
+
 export const authClient = createAuthClient({
   basePath: '/auth',
   baseURL: import.meta.env.API_URL,
@@ -20,6 +22,13 @@ export const signedInStore = createWebStorageValue({
   schema: type('boolean'),
   type: 'localStorage',
 })
+
+export const signOut = () => {
+  signedInStore.set(false)
+  void disablePush()
+    .finally(() => authClient.signOut())
+    .then(() => location.assign('/login'))
+}
 
 export const agentModeStore = createWebStorageValue({
   defaultValue: false,

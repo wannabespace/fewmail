@@ -433,12 +433,12 @@ export const tr: Messages = {
   persona: {
     reader: {
       description:
-        'Çoğunlukla okurum. Gelen kutumu sakin tut, gürültüyü hallet ve önemli hiçbir şeyin gözden kaçmasına izin verme.',
+        'Gelen kutumu sakin tut, gürültüyü hallet ve önemli hiçbir şeyin gözden kaçmasına izin verme.',
       title: 'Çoğunlukla okurum',
     },
     responder: {
       description:
-        'Çok yanıt yazarım. Beni bekleyenleri öne al ve yanıtları benim üslubumla taslak olarak hazırla.',
+        'Beni bekleyenleri öne al ve yanıtları benim üslubumla taslak olarak hazırla.',
       title: 'Çok yanıt yazarım',
     },
   },

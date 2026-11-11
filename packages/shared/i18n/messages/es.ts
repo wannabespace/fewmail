@@ -365,12 +365,12 @@ export const es: Messages = {
   persona: {
     reader: {
       description:
-        'Sobre todo leo. Mantén mi bandeja tranquila, ocúpate del ruido y que no se escape nada importante.',
+        'Mantén mi bandeja tranquila, ocúpate del ruido y que no se escape nada importante.',
       title: 'Sobre todo leo',
     },
     responder: {
       description:
-        'Respondo mucho. Pon primero a quienes esperan mi respuesta y redacta borradores con mi voz.',
+        'Pon primero a quienes esperan mi respuesta y redacta borradores con mi voz.',
       title: 'Respondo mucho',
     },
   },

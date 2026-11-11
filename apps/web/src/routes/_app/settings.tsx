@@ -35,7 +35,7 @@ import {
   LanguageSelect,
   PersonaSelect,
 } from '~/components/agent-fields'
-import { authClient, signedInStore } from '~/lib/auth'
+import { authClient, signOut } from '~/lib/auth'
 import { localeStore, useDates, useLocale, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import {
@@ -795,12 +795,7 @@ const SettingsPage = () => {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => {
-                signedInStore.set(false)
-                void disablePush()
-                  .finally(() => authClient.signOut())
-                  .then(() => location.assign('/login'))
-              }}
+              onClick={signOut}
             >
               {t.settings.signOut}
             </Button>

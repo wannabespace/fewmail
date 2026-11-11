@@ -367,12 +367,12 @@ export const fr: Messages = {
   persona: {
     reader: {
       description:
-        'Je lis surtout. Gardez ma boîte au calme, gérez le bruit et ne laissez rien d’important passer.',
+        'Gardez ma boîte au calme, gérez le bruit et ne laissez rien d’important passer.',
       title: 'Je lis surtout',
     },
     responder: {
       description:
-        'Je réponds beaucoup. Mettez en premier ceux qui attendent ma réponse et rédigez des brouillons avec mon style.',
+        'Mettez en premier ceux qui attendent ma réponse et rédigez des brouillons avec mon style.',
       title: 'Je réponds beaucoup',
     },
   },

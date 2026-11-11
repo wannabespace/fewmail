@@ -440,12 +440,12 @@ export const id: Messages = {
   persona: {
     reader: {
       description:
-        'Saya lebih banyak membaca. Jaga kotak masuk tetap tenang, urus kebisingannya, dan pastikan tidak ada hal penting yang terlewat.',
+        'Jaga kotak masuk tetap tenang, urus kebisingannya, dan pastikan tidak ada hal penting yang terlewat.',
       title: 'Lebih banyak membaca',
     },
     responder: {
       description:
-        'Saya sering membalas. Dahulukan orang yang menunggu saya dan siapkan draf balasan dengan gaya saya.',
+        'Dahulukan orang yang menunggu saya dan siapkan draf balasan dengan gaya saya.',
       title: 'Sering membalas',
     },
   },

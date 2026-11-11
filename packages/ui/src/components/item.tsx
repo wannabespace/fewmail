@@ -29,7 +29,9 @@ const ItemSeparator = ({
   />
 )
 
+// Keep these two in step: the bleed pulls a card out by exactly its rows' inset.
 const smallItemInsetClassName = 'px-3.5'
+const smallItemBleedClassName = '-mx-3.5'
 
 const itemVariants = cva(
   `group/item focus-visible:focus-ring [a]:hover:bg-accent [a]:text-foreground flex w-full flex-wrap items-center rounded-2xl border text-sm transition-colors duration-100 outline-none [a]:transition-colors`,
@@ -185,5 +187,6 @@ export {
   ItemMedia,
   ItemSeparator,
   ItemTitle,
+  smallItemBleedClassName,
   smallItemInsetClassName,
 }
