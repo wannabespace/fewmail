@@ -10,6 +10,8 @@ if (process.env.NODE_ENV === 'development') {
   })
 }
 
+// A Railway reference to a variable that is not set on `api` arrives as "", which would fail
+// optional formats like `string.numeric`: treat it as unset.
 export const env = type({
   API_URL: 'string.url',
   BETTER_AUTH_SECRET: 'string',
@@ -34,4 +36,6 @@ export const env = type({
   'WHATSAPP_TEMPLATE?': 'string',
   'WHATSAPP_TOKEN?': 'string',
   'WHATSAPP_VERIFY_TOKEN?': 'string',
-}).assert(process.env)
+}).assert(
+  Object.fromEntries(Object.entries(process.env).filter(([, value]) => value))
+)
