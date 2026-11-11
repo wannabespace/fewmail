@@ -1,6 +1,9 @@
 import { cn } from '@fewmail/ui/lib/utils'
+import { Tick02Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 
+import { LogoMark } from '~/components/logo'
 import {
   Closing,
   CompareCards,
@@ -31,20 +34,28 @@ const ComparisonPage = () => {
         </div>
       </section>
       <section className={cn(CONTAINER, 'py-16')}>
-        <Reveal className="bg-background ring-foreground/6 overflow-hidden rounded-3xl ring">
-          <div className="text-muted-foreground hidden gap-6 border-b px-6 py-4 text-sm font-medium sm:grid sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)_minmax(0,1fr)]">
-            <span />
-            <span className="text-foreground">Fewmail</span>
-            <span>{name}</span>
+        <Reveal className="bg-background ring-foreground/6 relative grid rounded-3xl ring sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="bg-popover ring-foreground/10 absolute inset-x-0 -inset-y-3 col-start-2 col-end-3 hidden rounded-3xl shadow-sm ring sm:block" />
+          <div className="text-muted-foreground hidden text-sm font-medium sm:col-span-3 sm:grid sm:grid-cols-subgrid sm:*:px-6 sm:*:py-5">
+            <span className="border-b" />
+            <span className="text-foreground relative flex items-center gap-2 font-serif text-lg tracking-tight">
+              <LogoMark className="size-5" />
+              Fewmail
+            </span>
+            <span className="border-b">{name}</span>
           </div>
           {rows.map(({ fewmail, them, topic }) => (
             <div
               key={topic}
-              className="grid gap-1 border-b px-6 py-5 text-sm/relaxed last:border-b-0 sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)_minmax(0,1fr)] sm:gap-6"
+              className="grid gap-2 border-b px-6 py-5 text-sm/relaxed last:border-b-0 sm:col-span-3 sm:grid-cols-subgrid sm:gap-0 sm:border-b-0 sm:p-0 sm:*:px-6 sm:*:py-5 sm:[&:not(:last-child)>:not(:nth-child(2))]:border-b"
             >
               <span className="text-muted-foreground font-medium">{topic}</span>
-              <span>
-                <span className="font-medium sm:hidden">Fewmail: </span>
+              <span className="relative flex gap-2.5">
+                <HugeiconsIcon
+                  icon={Tick02Icon}
+                  strokeWidth={2}
+                  className="text-primary mt-0.5 size-4 shrink-0"
+                />
                 {fewmail}
               </span>
               <span className="text-muted-foreground">
