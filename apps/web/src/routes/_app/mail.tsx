@@ -199,7 +199,7 @@ const MailRow = ({
   isSnoozeOpen,
   onOpen,
   onSnoozeOpenChange,
-  row: { analysis, message },
+  row: { analysis, message, threadSize },
 }: {
   actions: ReturnType<typeof useMailActions>
   canSnooze: boolean
@@ -239,11 +239,14 @@ const MailRow = ({
           <span
             data-mask
             className={cn(
-              'min-w-0 flex-1 truncate',
+              'min-w-0 truncate',
               message.isUnread ? 'font-semibold' : 'text-foreground/70'
             )}
           >
             {message.fromName ?? message.fromEmail}
+          </span>
+          <span className="text-muted-foreground flex-1 text-xs tabular-nums">
+            {threadSize > 1 && threadSize}
           </span>
           {analysis ? (
             <ImportanceDot

@@ -165,6 +165,17 @@ export const listMessageIds = async (
   return messages.map(({ id }) => id)
 }
 
+export const listThreadMessageIds = async (
+  account: GmailAccount,
+  threadId: string
+) => {
+  const { messages = [] } = await gmail<{ messages?: { id: string }[] }>(
+    account,
+    `/threads/${threadId}?${new URLSearchParams({ fields: 'messages/id', format: 'minimal' })}`
+  )
+  return messages.map(({ id }) => id)
+}
+
 export const watchInbox = (account: GmailAccount, topicName: string) =>
   gmail<{ expiration: string; historyId: string }>(account, '/watch', {
     body: JSON.stringify({ topicName }),

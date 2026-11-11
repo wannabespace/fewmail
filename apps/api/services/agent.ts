@@ -5,14 +5,14 @@ import {
   IMPORTANCE,
   MAIL_CATEGORIES,
 } from '@fewmail/shared/agent'
-import type { MailCategory, Persona } from '@fewmail/shared/agent'
+import type { ActionKind, MailCategory, Persona } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
-import { and, desc, eq, isNotNull } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNotNull, lt, ne } from 'drizzle-orm'
 
 import { FAST_MODEL_ID, models } from '../lib/ai'
 import { trashThread, unsubscribeOneClick } from '../lib/gmail'
@@ -26,6 +26,8 @@ import { changeThreadLabels, mailboxOfThread } from './thread-labels'
 import { recordUnsubscribe } from './zombies'
 
 const BODY_LIMIT = 4000
+const EARLIER_LIMIT = 4
+const EARLIER_BODY_LIMIT = 1000
 
 type Message = typeof messages.$inferSelect
 type Rule = typeof rules.$inferSelect
@@ -71,9 +73,14 @@ const analyzeInstructions = (input: {
       : 'The user has no rules: ruleId is null.',
   ].join('\n')
 
+const senderOf = (message: Message) =>
+  message.fromName
+    ? `${message.fromName} <${message.fromEmail}>`
+    : message.fromEmail
+
 const messagePrompt = (message: Message) =>
   [
-    `From: ${message.fromName ? `${message.fromName} <${message.fromEmail}>` : message.fromEmail}`,
+    `From: ${senderOf(message)}`,
     `To: ${message.to.join(', ')}`,
     message.cc.length > 0 ? `Cc: ${message.cc.join(', ')}` : null,
     `Date: ${message.receivedAt.toISOString()}`,
@@ -87,6 +94,37 @@ const messagePrompt = (message: Message) =>
   ]
     .filter((line) => line !== null)
     .join('\n')
+
+/** The email with what came before it in its thread, so a judgement or a reply knows the conversation. */
+const threadPrompt = async (message: Message) => {
+  const earlier = await db
+    .select()
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, message.userId),
+        eq(messages.threadId, message.threadId),
+        lt(messages.receivedAt, message.receivedAt)
+      )
+    )
+    .orderBy(desc(messages.receivedAt))
+    .limit(EARLIER_LIMIT)
+  if (earlier.length === 0) {
+    return messagePrompt(message)
+  }
+  return [
+    'Earlier in this thread, oldest first:',
+    ...earlier
+      .toReversed()
+      .map(
+        (previous) =>
+          `---\nFrom: ${previous.isFromMe ? 'the user' : senderOf(previous)}\nDate: ${previous.receivedAt.toISOString()}\n\n${previous.body.slice(0, EARLIER_BODY_LIMIT)}`
+      ),
+    '---',
+    'The email to handle:',
+    messagePrompt(message),
+  ].join('\n')
+}
 
 const recentSentExamples = async (userId: string) => {
   const sent = await db
@@ -127,7 +165,7 @@ export const writeReply = async (input: {
       .join('\n\n'),
     model: models.writer,
     prompt: [
-      messagePrompt(input.message),
+      await threadPrompt(input.message),
       input.previousDraft ? `\nCurrent draft:\n${input.previousDraft}` : null,
       input.instruction
         ? `\nUser instruction for the draft: ${input.instruction}`
@@ -225,7 +263,7 @@ const analyze = async (input: {
   settings: Settings
   userEmail: string
 }) => {
-  const prompt = messagePrompt(input.message)
+  const prompt = await threadPrompt(input.message)
   const decisions = await decideWithJev({
     persona: input.settings.persona,
     prompt,
@@ -332,6 +370,34 @@ const withNetworkFacts = <
     reason: t.bulk.reason(message.bulkCount ?? BULK_THRESHOLD),
   }
 }
+
+/** Cards that answer one email of a thread; a newer email in it makes them stale. */
+const PER_EMAIL_KINDS: ActionKind[] = [
+  'reply',
+  'pay',
+  'schedule',
+  'follow_up',
+  'read',
+]
+
+/** Leaves one card per conversation: older pending cards of the thread go once a newer email arrives. */
+export const retireStaleActions = (
+  userId: string,
+  threadId: string,
+  exceptMessageId?: string
+) =>
+  db
+    .update(actions)
+    .set({ resolvedAt: new Date(), status: 'dismissed' })
+    .where(
+      and(
+        eq(actions.userId, userId),
+        eq(actions.threadId, threadId),
+        eq(actions.status, 'pending'),
+        inArray(actions.kind, PER_EMAIL_KINDS),
+        exceptMessageId ? ne(actions.messageId, exceptMessageId) : undefined
+      )
+    )
 
 /** Today cards: a drafted reply for mail that wants one, otherwise the suggested next step for mail that matters. */
 const queueForAgent = async (
@@ -441,6 +507,7 @@ export const analyzeMessage = async (
       summary: output.summary,
     })
     .onConflictDoNothing()
+  await retireStaleActions(message.userId, message.threadId, message.id)
 
   await applyAgentLabel(message, output.category).catch((error) =>
     console.error('agent label failed', error)

@@ -43,7 +43,7 @@
 
 ## Lists and tables
 
-- **Mail rows are three lines, Spark's density with Gmail's full subject.** Line one: unread dot (`bg-primary`, an empty slot when read), sender, importance dot, time; line two: the subject; line three: the summary (or snippet), `text-muted-foreground`, each one line. Unread rows carry a semibold sender, a `font-medium` `foreground/90` subject and an ink time; read rows drop to `foreground/70` sender, `foreground/60` subject and a muted time. The summary is never brighter than the subject.
+- **Mail rows are three lines, Spark's density with Gmail's full subject.** Line one: unread dot (`bg-primary`, an empty slot when read), sender, importance dot, time; line two: the subject; line three: the summary (or snippet), `text-muted-foreground`, each one line. Unread rows carry a semibold sender, a `font-medium` `foreground/90` subject and an ink time; read rows drop to `foreground/70` sender, `foreground/60` subject and a muted time. The summary is never brighter than the subject. A row is a thread: a thread of several emails shows its size after the sender as muted `text-xs tabular-nums`, Gmail's way.
 - **Unread counts mirror Gmail.** Mail filter tabs (all but Snoozed and Spam) and the sidebar Mail row show the unread count of inbox mail as plain muted `tabular-nums` text (`mail.unread`); the filled `bg-primary` pill stays reserved for Today, where the count is work waiting.
 - Grouped lists: one `rounded-xl border bg-card` container, `border-b last:border-b-0` rows, `hover:bg-accent`.
 - **A `SettingsGroup` list walked with J / K** marks the cursor row with `SettingsRow active` (`bg-accent`, the mail list's cursor surface) and shows the row action's key only on that row's button (Subscriptions: `U`).
@@ -138,6 +138,7 @@ Suggestion order is JSX order (`shouldFilter={false}`) — the literal answer fi
 
 - One `ComposeForm` everywhere (thread inline reply/forward, `C` dialog, restored drafts): recipients parse pasted lists (`parseRecipients`), Cc on demand, subject hidden for replies, footer = Send ⌘⏎ · Send later ▾ · Remind me ▾ · Save draft · Discard (Discard deletes a saved draft; Escape only closes). Saved drafts are the Mail → Drafts pill: rows show recipients · subject · snippet with a hover delete, and open in the `C` dialog. Pro adds "Write it for me" with an optional instruction above the editor — never a separate AI composer.
 - Every send shows one toast with **Undo** for the undo window (`UNDO_SEND_SECONDS`); Undo reopens the exact draft. Never confirm-before-send dialogs.
+- A thread opens with its read emails before the last one folded to one line (sender, snippet, date); clicking any or `;` (its `Kbd` on the first folded line) unfolds them all. Folding happens once on load, so opening the thread and marking it read never folds what was unread.
 - Thread actions: primary row Reply (R), Archive (E), Snooze (H); everything else (Forward F, Unsubscribe, Open in Gmail, Trash #, Block) lives in "More" so the row never grows.
 - Mail list rows reveal Archive (E), Snooze (H, a menu) and Trash (#) on hover as `icon-sm` `ghost-muted` icons over the date, on the row's own background (`bg-inherit`, so row hover is solid `bg-accent`); with no thread open the same keys, plus `!` for spam, act on the cursor row. They come from `useMailActions`, the thread view's own set, never a second copy.
 

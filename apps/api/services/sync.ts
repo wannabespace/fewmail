@@ -8,7 +8,18 @@ import {
 } from '@fewmail/db/schema'
 import { ANALYZE_WINDOW_DAYS } from '@fewmail/shared/agent'
 import { subDays, subMinutes } from 'date-fns'
-import { and, eq, gte, inArray, isNull, lt, notExists, or } from 'drizzle-orm'
+import {
+  and,
+  eq,
+  gt,
+  gte,
+  inArray,
+  isNull,
+  lt,
+  notExists,
+  or,
+} from 'drizzle-orm'
+import { alias } from 'drizzle-orm/pg-core'
 
 import { inBatches } from '../lib/batches'
 import {
@@ -17,10 +28,11 @@ import {
   GmailHistoryExpiredError,
   listHistory,
   listMessageIds,
+  listThreadMessageIds,
 } from '../lib/gmail'
 import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
-import { analyzeMessage } from './agent'
+import { analyzeMessage, retireStaleActions } from './agent'
 import { collectEntries, collectForNewMail } from './boards'
 import { measureBulk } from './bulk'
 import { searchMailboxes } from './mailboxes'
@@ -92,6 +104,9 @@ const newMessageIds = async (mailbox: Mailbox) => {
   }
 }
 
+const later = alias(messages, 'later')
+
+/** A thread is judged once, by its latest incoming email; older ones in it are context only. */
 export const analyzePending = async (userId: string) => {
   const { allowance, save } = await emailAllowance(userId)
   const pending = await db
@@ -110,6 +125,19 @@ export const analyzePending = async (userId: string) => {
             .select({ id: actions.id })
             .from(actions)
             .where(eq(actions.messageId, messages.id))
+        ),
+        notExists(
+          db
+            .select({ id: later.id })
+            .from(later)
+            .where(
+              and(
+                eq(later.userId, userId),
+                eq(later.threadId, messages.threadId),
+                eq(later.isFromMe, false),
+                gt(later.receivedAt, messages.receivedAt)
+              )
+            )
         )
       )
     )
@@ -142,6 +170,11 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
     )
   )
   await analyzePending(userId)
+  await Promise.all(
+    inserted
+      .filter((message) => message.isFromMe)
+      .map(({ threadId }) => retireStaleActions(userId, threadId))
+  )
   await Promise.all(
     inserted
       .filter((message) => message.isFromMe && mailbox.historyId)
@@ -200,6 +233,42 @@ const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
   return inserted
 }
 
+/**
+ * Earlier mail of a thread Fewmail first sees now (started before sign-up, or archived) is stored
+ * for reading and context only — never passed to `processIncoming`, so nothing acts on it.
+ */
+const completeThreads = async (mailbox: Mailbox, inserted: Message[]) => {
+  const incoming = [
+    ...new Set(
+      inserted
+        .filter((message) => !message.isFromMe)
+        .map(({ threadId }) => threadId)
+    ),
+  ]
+  if (incoming.length === 0) {
+    return
+  }
+  const known = await db
+    .select({ threadId: messages.threadId })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.mailboxId, mailbox.id),
+        inArray(messages.threadId, incoming)
+      )
+    )
+  const stored = Map.groupBy(known, ({ threadId }) => threadId)
+  const ids: string[] = []
+  await inBatches(
+    incoming.filter((threadId) => stored.get(threadId)?.length === 1),
+    ANALYZE_CONCURRENCY,
+    async (threadId) => {
+      ids.push(...(await listThreadMessageIds(mailbox, threadId)))
+    }
+  )
+  await insertMessages(mailbox, ids)
+}
+
 const claimSync = async (mailboxId: string) => {
   const [claimed] = await db
     .update(mailboxes)
@@ -242,6 +311,7 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
       )
     )
     const inserted = await insertMessages(mailbox, ids)
+    await completeThreads(mailbox, inserted)
     await db
       .update(mailboxes)
       .set({ historyId })

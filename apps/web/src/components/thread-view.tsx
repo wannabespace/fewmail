@@ -141,6 +141,58 @@ const MessageSection = ({
   )
 }
 
+/** Read mail before the latest email folds to one line, as in Gmail; any of them unfolds the thread. */
+const CollapsedMessage = ({
+  hasShortcut,
+  message,
+  onExpand,
+}: {
+  hasShortcut: boolean
+  message: ThreadMessage
+  onExpand: () => void
+}) => {
+  const t = useT()
+  const dates = useDates()
+  return (
+    <button
+      type="button"
+      onClick={onExpand}
+      className="hover:bg-accent -mx-3 flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 text-left text-sm"
+    >
+      <strong data-mask className="shrink-0 font-semibold">
+        {message.isFromMe
+          ? t.mail.you
+          : (message.fromName ?? message.fromEmail)}
+      </strong>
+      <span data-mask className="text-muted-foreground min-w-0 flex-1 truncate">
+        {message.snippet}
+      </span>
+      <span className="text-muted-foreground shrink-0 text-xs">
+        {dates.format(message.receivedAt, 'd MMM, HH:mm')}
+      </span>
+      {hasShortcut && <Kbd>;</Kbd>}
+    </button>
+  )
+}
+
+/** Folds once, on the first load: opening the thread marks it read, which must not fold what was unread. */
+const useFolding = (thread?: { messages: { message: ThreadMessage }[] }) => {
+  const [folded, setFolded] = useState<Set<string> | null>(null)
+  if (thread && !folded) {
+    setFolded(
+      new Set(
+        thread.messages
+          .slice(0, -1)
+          .filter(({ message }) => !message.isUnread)
+          .map(({ message }) => message.id)
+      )
+    )
+  }
+  const unfold = () => setFolded(new Set())
+  useHotkey(';', unfold, { enabled: !!folded?.size })
+  return { folded, unfold }
+}
+
 const ThreadNotices = ({
   data,
 }: {
@@ -306,6 +358,7 @@ export const ThreadView = ({
   const [isHandleOpen, setIsHandleOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
+  const { folded, unfold } = useFolding(data)
   useMarkRead(threadId, data)
   const {
     archive,
@@ -479,14 +532,25 @@ export const ThreadView = ({
             </ul>
           )}
 
-          {data.messages.map(({ analysis, message }) => (
-            <MessageSection
-              key={message.id}
-              analysis={analysis}
-              message={message}
-              hasAgent={hasAgent}
-            />
-          ))}
+          {data.messages.map(({ analysis, message }, index) =>
+            folded?.has(message.id) ? (
+              <CollapsedMessage
+                key={message.id}
+                hasShortcut={
+                  !folded.has(data.messages[index - 1]?.message.id ?? '')
+                }
+                message={message}
+                onExpand={unfold}
+              />
+            ) : (
+              <MessageSection
+                key={message.id}
+                analysis={analysis}
+                message={message}
+                hasAgent={hasAgent}
+              />
+            )
+          )}
 
           {composing && (
             <section className="bg-popover ring-foreground/6 rounded-2xl p-4 shadow-sm ring">

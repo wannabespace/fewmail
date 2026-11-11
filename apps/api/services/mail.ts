@@ -3,8 +3,9 @@ import { actions, analyses, commitments, messages } from '@fewmail/db/schema'
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { subHours } from 'date-fns'
-import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm'
+import { and, desc, eq, exists, gte, inArray, lt, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/pg-core'
 
 import { trashThread, unsubscribeOneClick } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
@@ -132,6 +133,7 @@ export type MailFilter =
   | 'snoozed'
 
 const PAGE_SIZE = 50
+const inThread = alias(messages, 'in_thread')
 const INBOX_FILTERS = new Set<MailFilter>([
   'inbox',
   'important',
@@ -171,8 +173,11 @@ export const listMail = async (
     return []
   }
 
-  return db
-    .select({ analysis: analysisSummary, message: messageSummary })
+  const latestInThread = db
+    .selectDistinctOn([messages.threadId], {
+      id: messages.id,
+      receivedAt: messages.receivedAt,
+    })
     .from(messages)
     .leftJoin(analyses, eq(analyses.messageId, messages.id))
     .where(
@@ -181,7 +186,6 @@ export const listMail = async (
         eq(messages.isFromMe, false),
         input.mailboxId ? eq(messages.mailboxId, input.mailboxId) : undefined,
         searchIds ? inArray(messages.gmailId, searchIds) : undefined,
-        input.before ? lt(messages.receivedAt, input.before) : undefined,
         input.category ? eq(analyses.category, input.category) : undefined,
         FILTER_WHERE[input.filter],
         INBOX_FILTERS.has(input.filter) && !searchIds
@@ -190,25 +194,55 @@ export const listMail = async (
         snoozed ? inArray(messages.threadId, snoozed) : undefined
       )
     )
-    .orderBy(desc(messages.receivedAt))
+    .orderBy(messages.threadId, desc(messages.receivedAt))
+    .as('latest_in_thread')
+
+  const sameThread = and(
+    eq(inThread.userId, messages.userId),
+    eq(inThread.threadId, messages.threadId)
+  )
+  return db
+    .select({
+      analysis: analysisSummary,
+      message: {
+        ...messageSummary,
+        isUnread: sql<boolean>`${exists(
+          db
+            .select({ id: inThread.id })
+            .from(inThread)
+            .where(and(sameThread, eq(inThread.isUnread, true)))
+        )}`,
+      },
+      threadSize: sql<number>`(${db
+        .select({ size: sql`count(*)` })
+        .from(inThread)
+        .where(sameThread)})`.mapWith(Number),
+    })
+    .from(latestInThread)
+    .innerJoin(messages, eq(messages.id, latestInThread.id))
+    .leftJoin(analyses, eq(analyses.messageId, messages.id))
+    .where(
+      input.before ? lt(latestInThread.receivedAt, input.before) : undefined
+    )
+    .orderBy(desc(latestInThread.receivedAt))
     .limit(PAGE_SIZE)
 }
 
-/** Unread mail still in the inbox, per mail filter. */
+/** Unread threads still in the inbox, per mail filter. */
 export const countUnread = async (userId: string, mailboxId?: string) => {
   const [counts] = await db
     .select({
       important:
-        sql<number>`count(*) filter (where ${analyses.importance} >= 2)`.mapWith(
+        sql<number>`count(distinct ${messages.threadId}) filter (where ${analyses.importance} >= 2)`.mapWith(
           Number
         ),
-      inbox: sql<number>`count(*)`.mapWith(Number),
+      inbox: sql<number>`count(distinct ${messages.threadId})`.mapWith(Number),
       needs_reply:
-        sql<number>`count(*) filter (where ${analyses.needsReply})`.mapWith(
+        sql<number>`count(distinct ${messages.threadId}) filter (where ${analyses.needsReply})`.mapWith(
           Number
         ),
       quiet:
-        sql<number>`count(*) filter (where ${analyses.importance} < 1)`.mapWith(
+        sql<number>`count(distinct ${messages.threadId}) filter (where ${analyses.importance} < 1)`.mapWith(
           Number
         ),
     })
