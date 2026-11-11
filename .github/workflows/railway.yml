@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths: ['.railway/**', '.github/workflows/railway.yml']
   workflow_dispatch:
+    inputs:
+      destructive:
+        description: Also remove services and variables that railway.ts no longer has
+        type: boolean
+        default: false
 
 # Two applies at once would race; Railway rejects the second one as stale anyway.
 concurrency:
@@ -28,5 +33,5 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts --filter .
       - run: bun install --global @railway/cli@latest
       - run: railway config plan
-      # Never `--confirm-destructive`: removing a service or variable stays a manual decision.
-      - run: railway config apply --yes
+      # Removals only from a manual run with `destructive` ticked, never from a push.
+      - run: railway config apply --yes ${{ inputs.destructive && '--confirm-destructive' || '' }}
