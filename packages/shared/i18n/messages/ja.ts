@@ -594,6 +594,7 @@ export const ja: Messages = {
     willSend: '送信内容：',
   },
   today: {
+    awaiting: '返信待ち',
     hint: {
       notNow: '今はしない',
       setUp: '設定する',
@@ -602,6 +603,7 @@ export const ja: Messages = {
     later: (total: number, time: string) => `${time}にあと${total}件届きます`,
     briefArrives: (time: string) => `ブリーフは毎日 ${time} に届きます。`,
     briefFrom: (time: string) => `${time} のブリーフ`,
+    dates: '日付と予定',
     done: '完了',
     firstRead:
       '直近3日分のメールを読んでいます。対応が必要なものはここに自動で表示されます。',
@@ -619,6 +621,12 @@ export const ja: Messages = {
         : `対応が必要なものが ${n} 件あります。`,
     nothingNeedsYou:
       '今、対応が必要なものはありません。新しいメールは届いた瞬間に読みます。',
+    pulse: {
+      lists: (n: number) => `メーリングリストから${n}通`,
+      people: (n: number) => `人から${n}通`,
+      total: (n: number) => `この1日で${n}通`,
+    },
+    recent: 'この1日のその他',
     sent: '送信済み',
     waitingOnYou: 'あなたの返事待ち',
     worthAttention: '目を通す価値あり',

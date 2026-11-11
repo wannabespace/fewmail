@@ -2,7 +2,7 @@ import { db } from '@fewmail/db'
 import { actions, commitments, messages, reminders } from '@fewmail/db/schema'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { addDays } from 'date-fns'
-import { and, desc, eq, gt, lte } from 'drizzle-orm'
+import { and, asc, desc, eq, gt, inArray, lte } from 'drizzle-orm'
 
 import { announceChange } from '../lib/live'
 import { getPlanInfo, hasAgent } from './plan'
@@ -60,6 +60,50 @@ export const scheduleFollowup = async (
     status: 'pending',
     threadId,
     userId,
+  })
+}
+
+const AWAITING_SHOWN = 6
+
+/** Sent mail the agent is watching for an answer that has not come yet, longest waiting first. */
+export const awaitingReplies = async (userId: string) => {
+  const watched = await db
+    .select({ since: reminders.since, threadId: reminders.threadId })
+    .from(reminders)
+    .where(
+      and(
+        eq(reminders.userId, userId),
+        eq(reminders.kind, 'followup'),
+        eq(reminders.status, 'pending')
+      )
+    )
+    .orderBy(asc(reminders.since))
+    .limit(AWAITING_SHOWN)
+  if (watched.length === 0) {
+    return []
+  }
+  const sent = await db
+    .select({
+      receivedAt: messages.receivedAt,
+      subject: messages.subject,
+      threadId: messages.threadId,
+      to: messages.to,
+    })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.isFromMe, true),
+        inArray(
+          messages.threadId,
+          watched.map(({ threadId }) => threadId)
+        )
+      )
+    )
+    .orderBy(desc(messages.receivedAt))
+  return watched.flatMap(({ threadId }) => {
+    const last = sent.find((message) => message.threadId === threadId)
+    return last ? [last] : []
   })
 }
 

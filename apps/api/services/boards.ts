@@ -17,8 +17,9 @@ import {
   eachWeekOfInterval,
   format,
   startOfWeek,
+  subDays,
 } from 'date-fns'
-import { and, desc, eq, isNotNull } from 'drizzle-orm'
+import { and, desc, eq, gte, isNotNull } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { announceChange } from '../lib/live'
@@ -102,6 +103,54 @@ export const listBoards = (userId: string) =>
     .from(boards)
     .where(eq(boards.userId, userId))
     .orderBy(boards.createdAt)
+
+const DIGEST_DAYS = 30
+
+/** Per board, what it collected that happened in the last month: how many, the totals per currency and the newest one. */
+export const boardsDigest = async (userId: string) => {
+  const rows = await db
+    .select({
+      board: { id: boards.id, name: boards.name },
+      entry: boardEntries,
+    })
+    .from(boardEntries)
+    .innerJoin(boards, eq(boards.id, boardEntries.boardId))
+    .where(
+      and(
+        eq(boardEntries.userId, userId),
+        gte(boardEntries.occurredAt, subDays(new Date(), DIGEST_DAYS))
+      )
+    )
+    .orderBy(desc(boardEntries.createdAt))
+  const byBoard = Map.groupBy(rows, ({ board }) => board.id)
+  return [...byBoard.values()].flatMap((boardRows) => {
+    const [newest] = boardRows
+    if (!newest) {
+      return []
+    }
+    const totals = new Map<string, number>()
+    for (const { entry } of boardRows) {
+      if (entry.amountCents !== null && entry.currency) {
+        totals.set(
+          entry.currency,
+          (totals.get(entry.currency) ?? 0) + entry.amountCents
+        )
+      }
+    }
+    return [
+      {
+        count: boardRows.length,
+        id: newest.board.id,
+        name: newest.board.name,
+        newest: newest.entry.title,
+        totals: [...totals].map(([currency, amountCents]) => ({
+          amountCents,
+          currency,
+        })),
+      },
+    ]
+  })
+}
 
 /** The worker reads the last half year next; the page fills in live. */
 export const createBoard = async (

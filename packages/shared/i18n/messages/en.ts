@@ -731,8 +731,10 @@ export const en = {
     willSend: 'Will send:',
   },
   today: {
+    awaiting: 'Waiting for a reply',
     briefArrives: (time: string) => `Your brief arrives every day at ${time}.`,
     briefFrom: (time: string) => `brief from ${time}`,
+    dates: 'Dates and meetings',
     done: 'Done',
     firstRead:
       'Reading the last three days of your mail. What needs you shows up here on its own.',
@@ -763,6 +765,16 @@ export const en = {
       }),
     nothingNeedsYou:
       'Nothing needs you right now. New mail is read the moment it arrives.',
+    pulse: {
+      lists: (n: number) => `${n} from mailing lists`,
+      people: (n: number) => `${n} from people`,
+      total: (total: number) =>
+        plural('en', total, {
+          one: (n) => `${n} email in the last day`,
+          other: (n) => `${n} emails in the last day`,
+        }),
+    },
+    recent: 'Also in the last day',
     sent: 'Sent',
     waitingOnYou: 'Waiting on you',
     worthAttention: 'Worth your attention',

@@ -589,6 +589,7 @@ export const ko: Messages = {
     willSend: '보낼 내용:',
   },
   today: {
+    awaiting: '답장 대기 중',
     hint: {
       notNow: '나중에',
       setUp: '설정하기',
@@ -598,6 +599,7 @@ export const ko: Messages = {
       `${time}에 ${total}개가 더 도착해요`,
     briefArrives: (time: string) => `브리핑은 매일 ${time}에 도착해요.`,
     briefFrom: (time: string) => `${time} 브리핑`,
+    dates: '날짜와 일정',
     done: '완료',
     firstRead:
       '최근 3일간의 메일을 읽고 있어요. 확인할 게 생기면 여기에 바로 나타나요.',
@@ -612,6 +614,12 @@ export const ko: Messages = {
     headline: (n: number) =>
       n === 0 ? '모두 평온해요.' : `확인이 필요한 일이 ${n}개 있어요.`,
     nothingNeedsYou: '지금은 확인할 게 없어요. 새 메일은 도착하는 즉시 읽어요.',
+    pulse: {
+      lists: (n: number) => `메일링 리스트에서 ${n}통`,
+      people: (n: number) => `사람에게서 ${n}통`,
+      total: (n: number) => `지난 하루 메일 ${n}통`,
+    },
+    recent: '지난 하루의 다른 메일',
     sent: '보냄',
     waitingOnYou: '내 답을 기다리는 중',
     worthAttention: '살펴볼 만한 것',

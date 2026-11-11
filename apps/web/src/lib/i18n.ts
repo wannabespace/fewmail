@@ -61,6 +61,14 @@ export const useLocale = () => useSubscription(localeStore)
 
 export const useT = () => messages[useLocale()]
 
+export const useMoneyFormat = () => {
+  const locale = useLocale()
+  return (cents: number, currency: string) =>
+    new Intl.NumberFormat(locale, { currency, style: 'currency' }).format(
+      cents / 100
+    )
+}
+
 export const useDates = () => {
   const code = useLocale()
   const locale = DATE_LOCALES[code]

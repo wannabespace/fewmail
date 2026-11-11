@@ -9,16 +9,21 @@ import { and, desc, eq } from 'drizzle-orm'
 import { models } from '../lib/ai'
 import { localClock } from '../lib/clock'
 import { announceChange } from '../lib/live'
+import { boardsDigest } from './boards'
 import {
   handledSince,
   listQueue,
   listQueueWithLater,
+  mailPulse,
+  mailWithDates,
   recentImportant,
 } from './mail'
 import { listMailboxes } from './mailboxes'
+import { awaitingReplies } from './reminders'
 import { getSettings } from './settings'
 
 const BRIEF_WINDOW_HOURS = 24
+const RECENT_SHOWN = 8
 
 const briefSchema = type({ body: 'string', headline: 'string' })
 
@@ -100,19 +105,44 @@ export const generateBrief = async (userId: string) => {
 }
 
 export const getToday = async (userId: string) => {
-  const settings = await getSettings(userId)
-  const [brief, { later, queue }, handled, mailboxes] = await Promise.all([
+  const since = subHours(new Date(), BRIEF_WINDOW_HOURS)
+  const [
+    settings,
+    brief,
+    { later, queue },
+    handled,
+    mailboxes,
+    important,
+    pulse,
+    dates,
+    awaiting,
+    boards,
+  ] = await Promise.all([
+    getSettings(userId),
     getLatestBrief(userId),
     listQueueWithLater(userId),
-    handledSince(userId, subHours(new Date(), BRIEF_WINDOW_HOURS)),
+    handledSince(userId, since),
     listMailboxes(userId),
+    recentImportant(userId, BRIEF_WINDOW_HOURS),
+    mailPulse(userId, since),
+    mailWithDates(userId),
+    awaitingReplies(userId),
+    boardsDigest(userId),
   ])
+  const queued = new Set(queue.map(({ message }) => message?.id))
   return {
+    awaiting,
+    boards,
     brief,
+    dates,
     handled,
     later,
     mailboxes,
+    pulse,
     queue,
+    recent: important
+      .filter(({ message }) => !queued.has(message.id))
+      .slice(0, RECENT_SHOWN),
     settings,
   }
 }

@@ -569,6 +569,7 @@ export const zh: Messages = {
     willSend: '将发送：',
   },
   today: {
+    awaiting: '等待回复',
     hint: {
       notNow: '暂不',
       setUp: '设置',
@@ -577,6 +578,7 @@ export const zh: Messages = {
     later: (total: number, time: string) => `还有 ${total} 项将在 ${time} 送达`,
     briefArrives: (time: string) => `简报每天 ${time} 送达。`,
     briefFrom: (time: string) => `${time} 的简报`,
+    dates: '日期和会议',
     done: '完成',
     firstRead: '正在读取你最近三天的邮件。需要你处理的事会自动出现在这里。',
     handled: {
@@ -590,6 +592,12 @@ export const zh: Messages = {
     headline: (n: number) =>
       n === 0 ? '一切安好。' : `有 ${n} 件事需要你处理。`,
     nothingNeedsYou: '现在没有需要你处理的事。新邮件一到就会被读取。',
+    pulse: {
+      lists: (n: number) => `${n} 封来自邮件列表`,
+      people: (n: number) => `${n} 封来自真人`,
+      total: (n: number) => `过去一天 ${n} 封邮件`,
+    },
+    recent: '过去一天的其他邮件',
     sent: '已发送',
     waitingOnYou: '等你回复',
     worthAttention: '值得关注',

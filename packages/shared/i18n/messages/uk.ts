@@ -612,6 +612,7 @@ export const uk: Messages = {
     willSend: 'Надішлю:',
   },
   today: {
+    awaiting: 'Чекаєш на відповідь',
     hint: {
       notNow: 'Не зараз',
       setUp: 'Налаштувати',
@@ -626,6 +627,7 @@ export const uk: Messages = {
       }),
     briefArrives: (time: string) => `Бриф приходить щодня о ${time}.`,
     briefFrom: (time: string) => `бриф від ${time}`,
+    dates: 'Дати й зустрічі',
     done: 'Готово',
     firstRead:
       "Читаю твою пошту за останні три дні. Усе, що потребує тебе, з'явиться тут само.",
@@ -648,6 +650,18 @@ export const uk: Messages = {
           }),
     nothingNeedsYou:
       'Зараз нічого не потребує тебе. Нові листи читаються, щойно приходять.',
+    pulse: {
+      lists: (n: number) => `${n} з розсилок`,
+      people: (n: number) => `${n} від людей`,
+      total: (total: number) =>
+        plural('uk', total, {
+          one: (n) => `${n} лист за добу`,
+          few: (n) => `${n} листи за добу`,
+          many: (n) => `${n} листів за добу`,
+          other: (n) => `${n} листа за добу`,
+        }),
+    },
+    recent: 'Ще за добу',
     sent: 'Надіслано',
     waitingOnYou: 'Чекають на тебе',
     worthAttention: 'Варто уваги',

@@ -718,6 +718,7 @@ export const tr: Messages = {
     willSend: 'Gönderilecek:',
   },
   today: {
+    awaiting: 'Yanıt bekleniyor',
     hint: {
       notNow: 'Şimdi değil',
       setUp: 'Kur',
@@ -727,6 +728,7 @@ export const tr: Messages = {
       `${time} saatinde ${total} tane daha gelecek`,
     briefArrives: (time: string) => `Özetin her gün şu saatte gelir: ${time}.`,
     briefFrom: (time: string) => `${time} özeti`,
+    dates: 'Tarihler ve toplantılar',
     done: 'Tamam',
     firstRead:
       'Son üç günün e-postalarını okuyorum. İlgilenmen gerekenler burada kendiliğinden görünecek.',
@@ -747,6 +749,12 @@ export const tr: Messages = {
           }),
     nothingNeedsYou:
       'Şu an seni bekleyen bir şey yok. Yeni postalar gelir gelmez okunur.',
+    pulse: {
+      lists: (n: number) => `${n} e-posta listelerinden`,
+      people: (n: number) => `${n} kişilerden`,
+      total: (n: number) => `Son bir günde ${n} e-posta`,
+    },
+    recent: 'Son bir günde ayrıca',
     sent: 'Gönderildi',
     waitingOnYou: 'Seni bekliyor',
     worthAttention: 'İlgini hak ediyor',

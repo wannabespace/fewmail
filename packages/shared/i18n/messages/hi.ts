@@ -589,6 +589,7 @@ export const hi: Messages = {
     willSend: 'यह भेजा जाएगा:',
   },
   today: {
+    awaiting: 'जवाब का इंतज़ार',
     hint: {
       notNow: 'अभी नहीं',
       setUp: 'सेट अप करें',
@@ -601,6 +602,7 @@ export const hi: Messages = {
       }),
     briefArrives: (time: string) => `आपका ब्रीफ़ हर दिन ${time} बजे आता है।`,
     briefFrom: (time: string) => `${time} का ब्रीफ़`,
+    dates: 'तारीखें और मीटिंग',
     done: 'हो गया',
     firstRead:
       'आपके पिछले तीन दिनों के मेल पढ़ रहा हूँ। जिस पर आपका ध्यान चाहिए, वह यहाँ अपने आप दिखेगा।',
@@ -621,6 +623,12 @@ export const hi: Messages = {
           }),
     nothingNeedsYou:
       'अभी किसी चीज़ को आपकी ज़रूरत नहीं है। नया मेल आते ही पढ़ लिया जाता है।',
+    pulse: {
+      lists: (n: number) => `${n} मेलिंग लिस्ट से`,
+      people: (n: number) => `${n} लोगों से`,
+      total: (n: number) => `पिछले दिन में ${n} ईमेल`,
+    },
+    recent: 'पिछले दिन में और',
     sent: 'भेजा गया',
     waitingOnYou: 'आपका इंतज़ार',
     worthAttention: 'ध्यान देने लायक',

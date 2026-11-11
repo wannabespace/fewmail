@@ -1,6 +1,11 @@
+import type { RouterOutputs } from '@fewmail/api/router'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
+import {
+  SettingsGroup,
+  SettingsRow,
+} from '@fewmail/ui/components/custom/settings-group'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -10,14 +15,15 @@ import {
   useNavigate,
   useRouter,
 } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { BriefHourSelect } from '~/components/agent-fields'
 import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
+import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { hasDraft, QueueCard } from '~/components/queue-card'
-import { useDates, useT } from '~/lib/i18n'
+import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
 
 const HandledSummary = ({
@@ -49,6 +55,156 @@ const HandledSummary = ({
         {t.review}
       </Link>
     </div>
+  )
+}
+
+type Today = RouterOutputs['today']['get']
+
+const ThreadLink = ({ text, threadId }: { text: string; threadId: string }) => (
+  <Link to="/mail" search={{ thread: threadId }} data-mask>
+    {text}
+  </Link>
+)
+
+const Ago = ({ date }: { date: Date }) => (
+  <span className="text-muted-foreground text-xs">{useDates().ago(date)}</span>
+)
+
+const MailDigest = ({ today }: { today: Today }) => {
+  const t = useT()
+  const money = useMoneyFormat()
+
+  return (
+    <>
+      {today.awaiting.length > 0 && (
+        <SettingsGroup title={t.today.awaiting}>
+          {today.awaiting.map((sent) => (
+            <SettingsRow
+              key={sent.threadId}
+              title={
+                <ThreadLink
+                  threadId={sent.threadId}
+                  text={sent.to[0] ?? sent.subject}
+                />
+              }
+              description={<span data-mask>{sent.subject}</span>}
+            >
+              <Ago date={sent.receivedAt} />
+            </SettingsRow>
+          ))}
+        </SettingsGroup>
+      )}
+      {today.recent.length > 0 && (
+        <SettingsGroup title={t.today.recent}>
+          {today.recent.map(({ analysis, message }) => (
+            <SettingsRow
+              key={message.id}
+              icon={
+                <ImportanceDot
+                  importance={analysis.importance}
+                  reason={analysis.reason}
+                />
+              }
+              title={
+                <ThreadLink
+                  threadId={message.threadId}
+                  text={message.fromName ?? message.fromEmail}
+                />
+              }
+              description={<span data-mask>{analysis.summary}</span>}
+            >
+              <Ago date={message.receivedAt} />
+            </SettingsRow>
+          ))}
+        </SettingsGroup>
+      )}
+      {today.dates.length > 0 && (
+        <SettingsGroup title={t.today.dates}>
+          {today.dates.map(({ analysis, message }) => (
+            <SettingsRow
+              key={message.id}
+              title={
+                <ThreadLink
+                  threadId={message.threadId}
+                  text={message.fromName ?? message.fromEmail}
+                />
+              }
+              description={<span data-mask>{analysis.summary}</span>}
+            >
+              <ExtractedChips
+                extracted={{ ...analysis.extracted, amount: null }}
+              />
+            </SettingsRow>
+          ))}
+        </SettingsGroup>
+      )}
+      {today.boards.length > 0 && (
+        <SettingsGroup title={t.nav.boards}>
+          {today.boards.map((board) => (
+            <SettingsRow
+              key={board.id}
+              title={
+                <Link
+                  to="/boards/$boardId"
+                  params={{ boardId: board.id }}
+                  data-mask
+                >
+                  {board.name}
+                </Link>
+              }
+              description={
+                <span data-mask>
+                  {t.boards.entries(board.count)} · {board.newest}
+                </span>
+              }
+            >
+              {board.totals.length > 0 && (
+                <span className="tabular-nums" data-mask>
+                  {board.totals
+                    .map(({ amountCents, currency }) =>
+                      money(amountCents, currency)
+                    )
+                    .join(' · ')}
+                </span>
+              )}
+            </SettingsRow>
+          ))}
+        </SettingsGroup>
+      )}
+    </>
+  )
+}
+
+const Pulse = ({ pulse }: { pulse: Today['pulse'] }) => {
+  const t = useT().today.pulse
+
+  return (
+    <p className="text-muted-foreground text-sm">
+      {[
+        t.total(pulse.total),
+        pulse.people > 0 && t.people(pulse.people),
+        pulse.lists > 0 && t.lists(pulse.lists),
+      ]
+        .filter(Boolean)
+        .join(' · ')}
+    </p>
+  )
+}
+
+const DayTally = ({ today }: { today: Today }) => {
+  const t = useT()
+  const dates = useDates()
+
+  return (
+    <>
+      {today.later && (
+        <p className="text-muted-foreground text-sm">
+          {t.today.later(today.later.count, dates.format(today.later.at, 'p'))}
+        </p>
+      )}
+      {today.pulse.total > 0 && <Pulse pulse={today.pulse} />}
+      {today.handled.total > 0 && <HandledSummary handled={today.handled} />}
+    </>
   )
 }
 
@@ -166,6 +322,13 @@ const TodayPage = () => {
   const refreshBrief = useMutation(
     orpc.today.refreshBrief.mutationOptions({ onSuccess: invalidate })
   )
+  const isMissingBrief = !!data && !data.brief && !isReadingFirstTime(data)
+  const { isIdle: isBriefIdle, mutate: writeBrief } = refreshBrief
+  useEffect(() => {
+    if (isMissingBrief && isBriefIdle) {
+      writeBrief()
+    }
+  }, [isMissingBrief, isBriefIdle, writeBrief])
 
   const draftOf = (item: (typeof queue)[number]) =>
     drafts[item.action.id] ?? item.action.detail ?? ''
@@ -228,7 +391,6 @@ const TodayPage = () => {
       ? t.today.waitingOnYou
       : t.today.worthAttention
   const brief = data?.brief
-  const handled = data?.handled
 
   return (
     <main className="flex min-h-0 flex-1 flex-col">
@@ -307,15 +469,8 @@ const TodayPage = () => {
             ))}
           </section>
 
-          {data?.later && (
-            <p className="text-muted-foreground text-sm">
-              {t.today.later(
-                data.later.count,
-                dates.format(data.later.at, 'p')
-              )}
-            </p>
-          )}
-          {handled && handled.total > 0 && <HandledSummary handled={handled} />}
+          {data && <MailDigest today={data} />}
+          {data && <DayTally today={data} />}
           <ConnectHint />
         </div>
       </div>

@@ -12,17 +12,9 @@ import { useState } from 'react'
 import { BoardChartCard } from '~/components/board-chart'
 import { BoardDialog, newBoardStore } from '~/components/board-dialog'
 import { KeyHints } from '~/components/key-hints'
-import { useDates, useLocale, useT } from '~/lib/i18n'
+import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import { queryClient } from '~/lib/query-client'
-
-const useMoneyFormat = () => {
-  const locale = useLocale()
-  return (cents: number, currency: string) =>
-    new Intl.NumberFormat(locale, { currency, style: 'currency' }).format(
-      cents / 100
-    )
-}
 
 const BoardPage = () => {
   const t = useT()

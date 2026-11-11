@@ -619,6 +619,7 @@ export const fr: Messages = {
     willSend: 'J’enverrai :',
   },
   today: {
+    awaiting: 'En attente de réponse',
     hint: {
       notNow: 'Pas maintenant',
       setUp: 'Configurer',
@@ -632,6 +633,7 @@ export const fr: Messages = {
       }),
     briefArrives: (time: string) => `Votre brief arrive chaque jour à ${time}.`,
     briefFrom: (time: string) => `brief de ${time}`,
+    dates: 'Dates et rendez-vous',
     done: 'Fait',
     firstRead:
       'Je lis tes e-mails des trois derniers jours. Ce qui demande ton attention apparaîtra ici tout seul.',
@@ -653,6 +655,16 @@ export const fr: Messages = {
           }),
     nothingNeedsYou:
       'Rien ne vous attend pour l’instant. Les nouveaux e-mails sont lus dès leur arrivée.',
+    pulse: {
+      lists: (n: number) => `${n} de listes de diffusion`,
+      people: (n: number) => `${n} de personnes`,
+      total: (total: number) =>
+        plural('fr', total, {
+          one: (n) => `${n} e-mail ces dernières 24 h`,
+          other: (n) => `${n} e-mails ces dernières 24 h`,
+        }),
+    },
+    recent: 'Aussi ces dernières 24 h',
     sent: 'Envoyé',
     waitingOnYou: 'Vous attendent',
     worthAttention: 'Mérite votre attention',

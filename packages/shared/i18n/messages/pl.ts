@@ -763,6 +763,7 @@ export const pl: Messages = {
     willSend: 'Wyślę:',
   },
   today: {
+    awaiting: 'Czekasz na odpowiedź',
     hint: {
       notNow: 'Nie teraz',
       setUp: 'Skonfiguruj',
@@ -778,6 +779,7 @@ export const pl: Messages = {
     briefArrives: (time: string) =>
       `Podsumowanie przychodzi codziennie o ${time}.`,
     briefFrom: (time: string) => `podsumowanie z ${time}`,
+    dates: 'Terminy i spotkania',
     done: 'Gotowe',
     firstRead:
       'Czytam Twoją pocztę z ostatnich trzech dni. To, co wymaga Twojej uwagi, pojawi się tu samo.',
@@ -830,6 +832,18 @@ export const pl: Messages = {
           }),
     nothingNeedsYou:
       'Nic teraz na ciebie nie czeka. Nowa poczta jest czytana od razu, gdy przychodzi.',
+    pulse: {
+      lists: (n: number) => `${n} z list mailingowych`,
+      people: (n: number) => `${n} od ludzi`,
+      total: (total: number) =>
+        plural('pl', total, {
+          one: (n) => `${n} e-mail z ostatniej doby`,
+          few: (n) => `${n} e-maile z ostatniej doby`,
+          many: (n) => `${n} e-maili z ostatniej doby`,
+          other: (n) => `${n} e-maila z ostatniej doby`,
+        }),
+    },
+    recent: 'Też z ostatniej doby',
     sent: 'Wysłano',
     waitingOnYou: 'Czeka na ciebie',
     worthAttention: 'Warte uwagi',

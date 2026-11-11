@@ -724,6 +724,7 @@ export const id: Messages = {
     willSend: 'Akan dikirim:',
   },
   today: {
+    awaiting: 'Menunggu balasan',
     hint: {
       notNow: 'Nanti saja',
       setUp: 'Atur',
@@ -734,6 +735,7 @@ export const id: Messages = {
     briefArrives: (time: string) =>
       `Ringkasanmu tiba setiap hari pukul ${time}.`,
     briefFrom: (time: string) => `ringkasan pukul ${time}`,
+    dates: 'Tanggal dan rapat',
     done: 'Selesai',
     firstRead:
       'Membaca email tiga hari terakhir. Yang butuh perhatianmu akan muncul di sini dengan sendirinya.',
@@ -751,6 +753,12 @@ export const id: Messages = {
         : plural('id', total, { other: (n) => `${n} hal butuh kamu.` }),
     nothingNeedsYou:
       'Tidak ada yang butuh kamu saat ini. Email baru dibaca begitu tiba.',
+    pulse: {
+      lists: (n: number) => `${n} dari milis`,
+      people: (n: number) => `${n} dari orang`,
+      total: (n: number) => `${n} email dalam sehari terakhir`,
+    },
+    recent: 'Juga dalam sehari terakhir',
     sent: 'Terkirim',
     waitingOnYou: 'Menunggumu',
     worthAttention: 'Layak diperhatikan',

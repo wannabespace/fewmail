@@ -743,6 +743,7 @@ export const nl: Messages = {
     willSend: 'Ik verstuur:',
   },
   today: {
+    awaiting: 'Wacht op antwoord',
     hint: {
       notNow: 'Niet nu',
       setUp: 'Instellen',
@@ -755,6 +756,7 @@ export const nl: Messages = {
       }),
     briefArrives: (time: string) => `Je overzicht komt elke dag om ${time}.`,
     briefFrom: (time: string) => `overzicht van ${time}`,
+    dates: 'Data en afspraken',
     done: 'Klaar',
     firstRead:
       'Ik lees je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf.',
@@ -775,6 +777,16 @@ export const nl: Messages = {
           }),
     nothingNeedsYou:
       'Er is nu niets dat jou nodig heeft. Nieuwe mail wordt gelezen zodra die binnenkomt.',
+    pulse: {
+      lists: (n: number) => `${n} van mailinglijsten`,
+      people: (n: number) => `${n} van mensen`,
+      total: (total: number) =>
+        plural('nl', total, {
+          one: (n) => `${n} e-mail het afgelopen etmaal`,
+          other: (n) => `${n} e-mails het afgelopen etmaal`,
+        }),
+    },
+    recent: 'Ook het afgelopen etmaal',
     sent: 'Verstuurd',
     waitingOnYou: 'Wacht op jou',
     worthAttention: 'Verdient je aandacht',

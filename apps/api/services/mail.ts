@@ -539,7 +539,7 @@ export const draftReply = async (
   return expectRow(created)
 }
 
-export const recentImportant = (userId: string, hours: number) =>
+const worthKnowingSince = (userId: string, hours: number) =>
   db
     .select({ analysis: analysisSummary, message: messageSummary })
     .from(messages)
@@ -551,8 +551,56 @@ export const recentImportant = (userId: string, hours: number) =>
         gte(analyses.importance, 1)
       )
     )
+
+export const recentImportant = (userId: string, hours: number) =>
+  worthKnowingSince(userId, hours)
     .orderBy(desc(analyses.importance), desc(messages.receivedAt))
     .limit(40)
+
+const PEOPLE_CATEGORIES = new Set(['person', 'work'])
+const LIST_CATEGORIES = new Set(['newsletter', 'promotion'])
+
+/** How much mail came in since `since`, split into people and mailing lists. */
+export const mailPulse = async (userId: string, since: Date) => {
+  const rows = await db
+    .select({ category: analyses.category, count: sql<number>`count(*)::int` })
+    .from(messages)
+    .leftJoin(analyses, eq(analyses.messageId, messages.id))
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.isFromMe, false),
+        gte(messages.receivedAt, since)
+      )
+    )
+    .groupBy(analyses.category)
+  const countOf = (categories: Set<string>) =>
+    rows
+      .filter(({ category }) => category && categories.has(category))
+      .reduce((sum, { count }) => sum + count, 0)
+  return {
+    lists: countOf(LIST_CATEGORIES),
+    people: countOf(PEOPLE_CATEGORIES),
+    total: rows.reduce((sum, { count }) => sum + count, 0),
+  }
+}
+
+const DATES_WINDOW_HOURS = 7 * 24
+const DATES_SCANNED = 200
+const DATES_SHOWN = 6
+
+/** Recent mail that names a due date or a meeting time, newest first; the dates stay as written. */
+export const mailWithDates = async (userId: string) => {
+  const rows = await worthKnowingSince(userId, DATES_WINDOW_HOURS)
+    .orderBy(desc(messages.receivedAt))
+    .limit(DATES_SCANNED)
+  return rows
+    .filter(
+      ({ analysis }) =>
+        analysis.extracted.dueDate || analysis.extracted.meetingTime
+    )
+    .slice(0, DATES_SHOWN)
+}
 
 const ownMessage = async (userId: string, messageId: string) => {
   const [message] = await db
