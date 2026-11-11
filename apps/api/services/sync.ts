@@ -1,11 +1,5 @@
 import { db } from '@fewmail/db'
-import {
-  actions,
-  analyses,
-  mailboxes,
-  messages,
-  users,
-} from '@fewmail/db/schema'
+import { actions, analyses, mailboxes, messages } from '@fewmail/db/schema'
 import { ANALYZE_WINDOW_DAYS } from '@fewmail/shared/agent'
 import { subDays, subMinutes } from 'date-fns'
 import { and, eq, gte, inArray, isNull, lt, notExists, or } from 'drizzle-orm'
@@ -44,15 +38,18 @@ const SYNC_CLAIM_MINUTES = 15
 type Mailbox = typeof mailboxes.$inferSelect
 type Message = typeof messages.$inferSelect
 
+const signInMailbox = (userId: string) =>
+  and(eq(mailboxes.userId, userId), isNull(mailboxes.googleAccountId))
+
 export const ensureMailbox = async (userId: string) => {
   const [existing] = await db
     .select()
     .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
+    .where(signInMailbox(userId))
   if (existing) {
     return existing
   }
-  const profile = await getProfile(userId)
+  const profile = await getProfile({ refreshToken: null, userId })
   const [created] = await db
     .insert(mailboxes)
     .values({ email: profile.emailAddress, userId })
@@ -61,17 +58,14 @@ export const ensureMailbox = async (userId: string) => {
   if (created) {
     return created
   }
-  const [raced] = await db
-    .select()
-    .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
+  const [raced] = await db.select().from(mailboxes).where(signInMailbox(userId))
   return expectRow(raced)
 }
 
 const newMessageIds = async (mailbox: Mailbox) => {
   if (mailbox.historyId) {
     try {
-      return await listHistory(mailbox.userId, mailbox.historyId)
+      return await listHistory(mailbox, mailbox.historyId)
     } catch (error) {
       if (!(error instanceof GmailHistoryExpiredError)) {
         throw error
@@ -79,10 +73,10 @@ const newMessageIds = async (mailbox: Mailbox) => {
     }
   }
 
-  const { historyId } = await getProfile(mailbox.userId)
+  const { historyId } = await getProfile(mailbox)
   const [inbox, sent] = await Promise.all([
-    listMessageIds(mailbox.userId, INITIAL_INBOX_QUERY, INITIAL_INBOX_LIMIT),
-    listMessageIds(mailbox.userId, VOICE_SAMPLE_QUERY, VOICE_SAMPLE_LIMIT),
+    listMessageIds(mailbox, INITIAL_INBOX_QUERY, INITIAL_INBOX_LIMIT),
+    listMessageIds(mailbox, VOICE_SAMPLE_QUERY, VOICE_SAMPLE_LIMIT),
   ])
   return {
     historyId,
@@ -104,13 +98,10 @@ const inBatches = async <T>(
 
 export const analyzePending = async (userId: string) => {
   const agent = hasAgent(await getPlanInfo(userId))
-  const [user] = await db
-    .select({ email: users.email })
-    .from(users)
-    .where(eq(users.id, userId))
   const pending = await db
-    .select({ message: messages })
+    .select({ address: mailboxes.email, message: messages })
     .from(messages)
+    .innerJoin(mailboxes, eq(mailboxes.id, messages.mailboxId))
     .leftJoin(analyses, eq(analyses.messageId, messages.id))
     .where(
       and(
@@ -127,11 +118,8 @@ export const analyzePending = async (userId: string) => {
       )
     )
 
-  if (!user) {
-    return
-  }
-  await inBatches(pending, ANALYZE_CONCURRENCY, ({ message }) =>
-    analyzeMessage(message, user.email, agent).catch((error) =>
+  await inBatches(pending, ANALYZE_CONCURRENCY, ({ address, message }) =>
+    analyzeMessage(message, address, agent).catch((error) =>
       console.error(`analyze ${message.id} failed`, error)
     )
   )
@@ -199,7 +187,7 @@ const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
     ids.filter((id) => !knownIds.has(id)),
     ANALYZE_CONCURRENCY,
     async (id) => {
-      const parsed = await getMessage(mailbox.userId, id)
+      const parsed = await getMessage(mailbox, id)
       if (parsed.labelIds.includes('DRAFT')) {
         return
       }
@@ -287,10 +275,20 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
   }
 }
 
+/** One failing mailbox (a revoked grant) must not stop the others; its error is on the row. */
+export const syncMailboxes = async (userId: string) => {
+  await ensureMailbox(userId)
+  const owned = await db
+    .select({ id: mailboxes.id })
+    .from(mailboxes)
+    .where(eq(mailboxes.userId, userId))
+  await Promise.allSettled(owned.map((mailbox) => syncMailbox(mailbox)))
+}
+
 /** Pro: the Money page starts with half a year of subscriptions instead of only what arrives from now on. */
 export const readMoneyHistory = async (mailbox: Mailbox) => {
   const ids = await listMessageIds(
-    mailbox.userId,
+    mailbox,
     MONEY_HISTORY_QUERY,
     MONEY_HISTORY_LIMIT
   )

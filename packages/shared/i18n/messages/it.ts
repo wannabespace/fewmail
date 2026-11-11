@@ -14,6 +14,7 @@ export const it: Messages = {
     discard: 'Elimina',
     forward: 'Inoltra',
     forwardedMessage: 'Messaggio inoltrato',
+    from: 'Da',
     instructionPlaceholder: 'Che tono deve avere? (facoltativo)',
     invalidRecipients: 'Aggiungi almeno un indirizzo email valido.',
     later: {
@@ -363,6 +364,21 @@ export const it: Messages = {
     languageDescription:
       'App, brief e riepiloghi. Le risposte seguono l’email.',
     legal: 'Note legali',
+    mailboxes: {
+      add: 'Aggiungi Gmail',
+      addDescription:
+        'La posta di un altro account Gmail arriva nello stesso Oggi e nella stessa casella. Non fa mai accedere nessuno qui: accedere con quell’account apre un Fewmail separato.',
+      added: 'Casella aggiunta. La posta compare tra un minuto.',
+      failed:
+        'Impossibile aggiungere la casella. Consenti l’accesso a Gmail e riprova.',
+      lost: 'Accesso a Gmail perso. Aggiungila di nuovo per ricollegarla.',
+      reading: 'Lettura della posta…',
+      remove: 'Rimuovi',
+      signIn: 'Accedi con questa',
+      signInChosen: 'È l’account con cui accedi. Scegline un altro.',
+      synced: (ago: string) => `Sincronizzata ${ago}`,
+      title: 'Caselle di posta',
+    },
     mcp: {
       copyNow:
         'Copia ora questa configurazione: la chiave viene mostrata una sola volta.',

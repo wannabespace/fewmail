@@ -17,7 +17,7 @@ import { getMoney } from './services/money'
 import { getPerson } from './services/people'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { createRule, listRules } from './services/rules'
-import { ensureMailbox, syncMailbox } from './services/sync'
+import { syncMailboxes } from './services/sync'
 import { createTask } from './services/tasks'
 
 const json = (value: unknown) => ({
@@ -184,7 +184,7 @@ const createServer = (userId: string) => {
         'Fetch new mail from Gmail, analyze it and rewrite the brief. Takes a few seconds per new email.',
     },
     async () => {
-      await syncMailbox(await ensureMailbox(userId))
+      await syncMailboxes(userId)
       return json(await generateBrief(userId))
     }
   )

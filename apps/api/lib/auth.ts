@@ -1,3 +1,5 @@
+import { Buffer } from 'node:buffer'
+
 import { drizzleAdapter } from '@better-auth/drizzle-adapter/relations-v2'
 import { db } from '@fewmail/db'
 import { accounts } from '@fewmail/db/schema'
@@ -66,3 +68,90 @@ export const googleAccessToken = async (userId: string) => {
   })
   return accessToken
 }
+
+export const MAILBOX_CALLBACK_PATH = '/mailboxes/callback'
+const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
+const mailboxRedirectUri = () => `${env.API_URL}${MAILBOX_CALLBACK_PATH}`
+
+/** An added mailbox is consented to outside Better Auth, so its grant can never sign anyone in. */
+export const mailboxConsentUrl = (state: string) =>
+  `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
+    access_type: 'offline',
+    client_id: env.GOOGLE_CLIENT_ID,
+    prompt: 'consent select_account',
+    redirect_uri: mailboxRedirectUri(),
+    response_type: 'code',
+    scope: ['openid', 'email', GMAIL_SCOPE].join(' '),
+    state,
+  })}`
+
+const googleToken = async (body: Record<string, string>) => {
+  const response = await fetch(GOOGLE_TOKEN_URL, {
+    body: new URLSearchParams({
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
+      ...body,
+    }),
+    method: 'POST',
+  })
+  if (!response.ok) {
+    throw new Error(`Google token request failed: ${response.status}`)
+  }
+  return (await response.json()) as {
+    access_token: string
+    expires_in: number
+    id_token?: string
+    refresh_token?: string
+    scope: string
+  }
+}
+
+export const exchangeMailboxCode = async (code: string) => {
+  const tokens = await googleToken({
+    code,
+    grant_type: 'authorization_code',
+    redirect_uri: mailboxRedirectUri(),
+  })
+  // Straight from Google's token endpoint over TLS, so the id token needs no signature check (OpenID Connect 3.1.3.7).
+  const claims = JSON.parse(
+    Buffer.from(tokens.id_token?.split('.')[1] ?? '', 'base64url').toString()
+  ) as { email: string; sub: string }
+  return {
+    email: claims.email,
+    googleAccountId: claims.sub,
+    hasGmail: tokens.scope.split(' ').includes(GMAIL_SCOPE),
+    refreshToken: tokens.refresh_token ?? null,
+  }
+}
+
+const addedAccessTokens = new Map<
+  string,
+  { expiresAt: number; token: string }
+>()
+
+const addedAccessToken = async (refreshToken: string) => {
+  const cached = addedAccessTokens.get(refreshToken)
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.token
+  }
+  const tokens = await googleToken({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+  })
+  addedAccessTokens.set(refreshToken, {
+    expiresAt: Date.now() + (tokens.expires_in - 60) * 1000,
+    token: tokens.access_token,
+  })
+  return tokens.access_token
+}
+
+/** No refresh token means the sign-in mailbox, read through the user's Better Auth account. */
+export interface GmailAccount {
+  refreshToken: string | null
+  userId: string
+}
+
+export const gmailAccessToken = (account: GmailAccount) =>
+  account.refreshToken
+    ? addedAccessToken(account.refreshToken)
+    : googleAccessToken(account.userId)

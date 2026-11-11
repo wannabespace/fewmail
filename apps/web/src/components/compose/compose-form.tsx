@@ -10,6 +10,13 @@ import {
 } from '@fewmail/ui/components/dropdown-menu'
 import { Input } from '@fewmail/ui/components/input'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@fewmail/ui/components/select'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -45,6 +52,8 @@ export const ComposeForm = ({
   const [remindAfterDays, setRemindAfterDays] = useState(draft.remindAfterDays)
   const [instruction, setInstruction] = useState('')
   const { data: snippets } = useQuery(orpc.snippets.list.queryOptions())
+  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const [mailboxId, setMailboxId] = useState(draft.mailboxId)
 
   const writeDraft = useMutation(orpc.mail.writeDraft.mutationOptions())
   const fillEditor = ({ html }: { html: string }) => {
@@ -71,6 +80,7 @@ export const ComposeForm = ({
       ...draft,
       cc: copies,
       html: editor.getHtml(),
+      mailboxId,
       remindAfterDays,
       sendAt,
       subject,
@@ -82,6 +92,28 @@ export const ComposeForm = ({
 
   return (
     <div className="flex flex-col gap-3">
+      {!draft.replyToMessageId && mailboxes.length > 1 && (
+        <Select
+          items={mailboxes.map(({ email, id }) => ({
+            label: email,
+            value: id,
+          }))}
+          value={mailboxId ?? mailboxes.find(({ signIn }) => signIn)?.id}
+          onValueChange={(next) => next && setMailboxId(next)}
+        >
+          <SelectTrigger aria-label={t.compose.from} className="w-full">
+            <span className="text-muted-foreground">{t.compose.from}</span>
+            <SelectValue data-mask />
+          </SelectTrigger>
+          <SelectContent>
+            {mailboxes.map(({ email, id }) => (
+              <SelectItem key={id} value={id}>
+                <span data-mask>{email}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       <div className="flex items-center gap-2">
         <Input
           value={to}

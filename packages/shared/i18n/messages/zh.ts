@@ -38,6 +38,7 @@ export const zh: Messages = {
     discard: '丢弃',
     forward: '转发',
     forwardedMessage: '转发的邮件',
+    from: '发件人',
     instructionPlaceholder: '想要什么语气？（可选）',
     invalidRecipients: '请至少添加一个有效的邮箱地址。',
     later: {
@@ -325,6 +326,20 @@ export const zh: Messages = {
     language: '语言',
     languageDescription: '用于应用、简报和摘要。回复跟随邮件的语言。',
     legal: '法律信息',
+    mailboxes: {
+      add: '添加 Gmail',
+      addDescription:
+        '另一个 Gmail 账号的邮件会进入同一个“今天”和收件箱。它永远不能登录这里：用它登录会打开一个独立的 Fewmail。',
+      added: '邮箱已添加，邮件将在一分钟内出现。',
+      failed: '无法添加邮箱。请允许访问 Gmail 后重试。',
+      lost: 'Gmail 访问已失效。请重新添加以重新连接。',
+      reading: '正在读取邮件…',
+      remove: '移除',
+      signIn: '你用这个账号登录',
+      signInChosen: '这是你登录用的账号，请选择另一个。',
+      synced: (ago: string) => `${ago}已同步`,
+      title: '邮箱',
+    },
     mcp: {
       copyNow: '请立即复制此配置：密钥只显示一次。',
       create: '创建密钥',

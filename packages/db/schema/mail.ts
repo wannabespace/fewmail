@@ -12,6 +12,7 @@ import type {
   RuleEffect,
   SimpleMatchField,
 } from '@fewmail/shared/agent'
+import { sql } from 'drizzle-orm'
 import * as d from 'drizzle-orm/pg-core'
 
 import { baseTable } from '../base-table'
@@ -29,24 +30,44 @@ const userId = () =>
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' })
 
-export const mailboxes = d.snakeCase.table('mailboxes', {
-  ...baseTable,
-  email: encryptedText().notNull(),
-  historyId: d.text(),
-  /** Category → Gmail label id, created on demand when the user turns on agent labels. */
-  labelIds: d
-    .jsonb()
-    .$type<Partial<Record<MailCategory, string>>>()
-    .default({})
-    .notNull(),
-  lastSyncedAt: d.timestamp({ withTimezone: true }),
-  /** Money history read once the agent is on; null until then, so an upgrade reads it too. */
-  moneyHistoryAt: d.timestamp({ withTimezone: true }),
-  syncError: encryptedText(),
-  /** Claimed atomically: the API and the worker both sync, and a doubled sync would analyze mail twice. */
-  syncStartedAt: d.timestamp({ withTimezone: true }),
-  userId: userId().unique(),
-})
+/**
+ * The sign-in mailbox reads Gmail through the user's Better Auth account; an added one keeps its own Google grant
+ * here. Added grants must never become Better Auth accounts: Google sign-in finds the user by account, so whoever
+ * owns an added mailbox would be signed in to this user.
+ */
+export const mailboxes = d.snakeCase.table(
+  'mailboxes',
+  {
+    ...baseTable,
+    email: encryptedText().notNull(),
+    /** Null for the sign-in mailbox. */
+    googleAccountId: searchableText(),
+    historyId: d.text(),
+    /** Category → Gmail label id, created on demand when the user turns on agent labels. */
+    labelIds: d
+      .jsonb()
+      .$type<Partial<Record<MailCategory, string>>>()
+      .default({})
+      .notNull(),
+    lastSyncedAt: d.timestamp({ withTimezone: true }),
+    /** Money history read once the agent is on; null until then, so an upgrade reads it too. */
+    moneyHistoryAt: d.timestamp({ withTimezone: true }),
+    refreshToken: encryptedText(),
+    syncError: encryptedText(),
+    /** Claimed atomically: the API and the worker both sync, and a doubled sync would analyze mail twice. */
+    syncStartedAt: d.timestamp({ withTimezone: true }),
+    userId: userId(),
+  },
+  (table) => [
+    d
+      .uniqueIndex('mailboxes_user_sign_in_idx')
+      .on(table.userId)
+      .where(sql`${table.googleAccountId} is null`),
+    d
+      .uniqueIndex('mailboxes_user_google_idx')
+      .on(table.userId, table.googleAccountId),
+  ]
+)
 
 export const messages = d.snakeCase.table(
   'messages',
@@ -187,6 +208,10 @@ export const outbox = d.snakeCase.table(
     error: encryptedText(),
     html: encryptedText().notNull(),
     inReplyTo: encryptedText(),
+    mailboxId: d
+      .uuid()
+      .notNull()
+      .references(() => mailboxes.id, { onDelete: 'cascade' }),
     mode: d.text().$type<OutboxMode>().notNull(),
     references: encryptedText(),
     remindAfterDays: d.smallint(),

@@ -6,7 +6,8 @@ import { type } from 'arktype'
 import { and, eq, inArray } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
-import { getMessage, listMessageIds } from '../lib/gmail'
+import { getMessage } from '../lib/gmail'
+import { searchMailboxes } from './mailboxes'
 import { getSettings } from './settings'
 
 const SOURCE_LIMIT = 12
@@ -41,7 +42,8 @@ export const askMail = async (userId: string, question: string) => {
   const settings = await getSettings(userId)
   const gmailQuery = await toGmailQuery(question)
 
-  const ids = await listMessageIds(userId, gmailQuery, SOURCE_LIMIT)
+  const results = await searchMailboxes(userId, gmailQuery, SOURCE_LIMIT)
+  const ids = results.flatMap((result) => result.ids)
   const stored = ids.length
     ? await db
         .select()
@@ -50,11 +52,17 @@ export const askMail = async (userId: string, question: string) => {
     : []
   const storedIds = new Set(stored.map(({ gmailId }) => gmailId))
   const fetched = await Promise.all(
-    ids.filter((id) => !storedIds.has(id)).map((id) => getMessage(userId, id))
+    results.flatMap(({ ids: found, mailbox }) =>
+      found
+        .filter((id) => !storedIds.has(id))
+        .map((id) => getMessage(mailbox, id))
+    )
   )
-  const found = [...stored, ...fetched].toSorted(
-    (left, right) => right.receivedAt.getTime() - left.receivedAt.getTime()
-  )
+  const found = [...stored, ...fetched]
+    .toSorted(
+      (left, right) => right.receivedAt.getTime() - left.receivedAt.getTime()
+    )
+    .slice(0, SOURCE_LIMIT)
 
   const { output } = await generateText({
     instructions: [

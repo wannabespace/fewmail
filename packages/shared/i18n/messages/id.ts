@@ -72,6 +72,7 @@ export const id: Messages = {
     discard: 'Buang',
     forward: 'Teruskan',
     forwardedMessage: 'Pesan yang diteruskan',
+    from: 'Dari',
     instructionPlaceholder: 'Bagaimana nadanya? (opsional)',
     invalidRecipients: 'Tambahkan minimal satu alamat email yang valid.',
     later: {
@@ -389,6 +390,21 @@ export const id: Messages = {
     languageDescription:
       'Aplikasi, ringkasan, dan ikhtisar. Balasan mengikuti email.',
     legal: 'Legal',
+    mailboxes: {
+      add: 'Tambah Gmail',
+      addDescription:
+        'Email dari akun Gmail lain masuk ke Hari ini dan kotak masuk yang sama. Akun itu tidak bisa dipakai masuk ke sini: masuk dengannya membuka Fewmail terpisah.',
+      added: 'Kotak surat ditambahkan. Emailnya muncul dalam semenit.',
+      failed:
+        'Kotak surat tidak bisa ditambahkan. Izinkan akses Gmail lalu coba lagi.',
+      lost: 'Akses Gmail hilang. Tambahkan lagi untuk menyambungkan ulang.',
+      reading: 'Membaca email…',
+      remove: 'Hapus',
+      signIn: 'Anda masuk dengan akun ini',
+      signInChosen: 'Itu akun yang Anda pakai untuk masuk. Pilih akun lain.',
+      synced: (ago: string) => `Disinkronkan ${ago}`,
+      title: 'Kotak surat',
+    },
     mcp: {
       copyNow:
         'Salin konfigurasi ini sekarang: kuncinya hanya ditampilkan sekali.',

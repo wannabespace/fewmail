@@ -14,6 +14,7 @@ export const es: Messages = {
     discard: 'Descartar',
     forward: 'Reenviar',
     forwardedMessage: 'Mensaje reenviado',
+    from: 'De',
     instructionPlaceholder: '¿Cómo debería sonar? (opcional)',
     invalidRecipients: 'Añade al menos una dirección válida.',
     later: {
@@ -364,6 +365,21 @@ export const es: Messages = {
     languageDescription:
       'App, resúmenes y síntesis. Las respuestas siguen al correo.',
     legal: 'Legal',
+    mailboxes: {
+      add: 'Añadir Gmail',
+      addDescription:
+        'El correo de otra cuenta de Gmail llega al mismo Hoy y a la misma bandeja. Nunca sirve para entrar aquí: iniciar sesión con ella abre un Fewmail aparte.',
+      added: 'Buzón añadido. Su correo aparecerá en un minuto.',
+      failed:
+        'No se pudo añadir el buzón. Permite el acceso a Gmail e inténtalo de nuevo.',
+      lost: 'Se perdió el acceso a Gmail. Añádelo de nuevo para reconectarlo.',
+      reading: 'Leyendo el correo…',
+      remove: 'Quitar',
+      signIn: 'Inicias sesión con esta',
+      signInChosen: 'Es la cuenta con la que inicias sesión. Elige otra.',
+      synced: (ago: string) => `Sincronizado ${ago}`,
+      title: 'Buzones',
+    },
     mcp: {
       copyNow:
         'Copia esta configuración ahora: la clave solo se muestra una vez.',

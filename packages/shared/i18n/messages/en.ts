@@ -58,6 +58,7 @@ export const en = {
     discard: 'Discard',
     forward: 'Forward',
     forwardedMessage: 'Forwarded message',
+    from: 'From',
     instructionPlaceholder: 'How should it read? (optional)',
     invalidRecipients: 'Add at least one valid email address.',
     later: {
@@ -398,6 +399,20 @@ export const en = {
     language: 'Language',
     languageDescription: 'App, briefs and summaries. Replies follow the email.',
     legal: 'Legal',
+    mailboxes: {
+      add: 'Add Gmail',
+      addDescription:
+        'Another Gmail account’s mail joins the same Today and inbox. It never signs anyone in here: signing in with it opens a separate Fewmail.',
+      added: 'Mailbox added. Its mail shows up in a minute.',
+      failed: 'Could not add the mailbox. Allow Gmail access and try again.',
+      lost: 'Gmail access was lost. Add it again to reconnect.',
+      reading: 'Reading mail…',
+      remove: 'Remove',
+      signIn: 'You sign in with this one',
+      signInChosen: 'That is the account you sign in with. Choose another one.',
+      synced: (ago: string) => `Synced ${ago}`,
+      title: 'Mailboxes',
+    },
     mcp: {
       copyNow: 'Copy this config now: the key is shown only once.',
       create: 'Create key',

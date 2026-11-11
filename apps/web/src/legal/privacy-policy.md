@@ -13,6 +13,8 @@ When you sign in with Google you grant Fewmail the `gmail.modify` permission tog
 - **Search** your mailbox when you ask the agent a question about your mail.
 - **Unsubscribe** from a mailing list through its one-click unsubscribe link, only when you approve it or a rule you keep allows it.
 
+You can add more Gmail accounts in Settings → Mailboxes. Each one grants the same `gmail.modify` permission plus its email address, and Fewmail uses it exactly as above; its mail joins your own account. An added account is never a way to sign in to yours: signing in to Fewmail with it opens its own, separate Fewmail account.
+
 ## 3. Limited Use
 
 Fewmail's use and transfer to any other app of information received from Google APIs will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements. In particular:
@@ -65,9 +67,10 @@ We share data with these services only as needed to run Fewmail, and we may disc
 ## 7. Your choices and rights
 
 - **Change what the agent may do** at any time in Rules: turn a rule off, remove it or stop it from acting without asking.
+- **Remove an added mailbox** in Settings → Mailboxes. Its synced mail is deleted from our database right away; to also end the Google permission, revoke it at [myaccount.google.com/permissions](https://myaccount.google.com/permissions) (we do not revoke it ourselves, since the same permission may also serve that account's own Fewmail).
 - **Disconnect** Telegram or WhatsApp, turn off browser notifications, or revoke MCP keys in Settings.
 - **Revoke access** to your Google account at any time at [myaccount.google.com/permissions](https://myaccount.google.com/permissions). Fewmail stops syncing immediately.
-- **Delete your account** in Settings → Account. This deletes your account, synced mail, drafts, briefs, rules, settings and integrations from our database right away and revokes our Google access. Your Gmail itself is not changed.
+- **Delete your account** in Settings → Account. This deletes your account, synced mail, drafts, briefs, rules, settings and integrations from our database right away and revokes our Google access to the account you sign in with. Your Gmail itself is not changed.
 - **Access or export** your data by contacting us.
 
 ## 8. Data retention

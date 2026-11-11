@@ -38,6 +38,7 @@ export const ko: Messages = {
     discard: '삭제',
     forward: '전달',
     forwardedMessage: '전달된 메시지',
+    from: '보낸 사람',
     instructionPlaceholder: '어떤 느낌으로 쓸까요? (선택)',
     invalidRecipients: '유효한 이메일 주소를 하나 이상 추가하세요.',
     later: {
@@ -335,6 +336,21 @@ export const ko: Messages = {
     languageDescription:
       '앱, 브리핑, 요약에 사용해요. 답장은 메일 언어를 따라요.',
     legal: '법적 고지',
+    mailboxes: {
+      add: 'Gmail 추가',
+      addDescription:
+        '다른 Gmail 계정의 메일이 같은 오늘과 받은편지함에 모입니다. 이 계정으로는 여기에 로그인할 수 없으며, 로그인하면 별도의 Fewmail이 열립니다.',
+      added: '메일함을 추가했습니다. 1분 안에 메일이 표시됩니다.',
+      failed:
+        '메일함을 추가하지 못했습니다. Gmail 접근을 허용하고 다시 시도하세요.',
+      lost: 'Gmail 접근이 끊겼습니다. 다시 연결하려면 다시 추가하세요.',
+      reading: '메일을 읽는 중…',
+      remove: '삭제',
+      signIn: '로그인에 사용하는 계정',
+      signInChosen: '로그인에 사용하는 계정입니다. 다른 계정을 선택하세요.',
+      synced: (ago: string) => `${ago} 동기화됨`,
+      title: '메일함',
+    },
     mcp: {
       copyNow: '지금 이 설정을 복사하세요. 키는 한 번만 표시돼요.',
       create: '키 만들기',

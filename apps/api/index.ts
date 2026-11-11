@@ -4,11 +4,13 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 import { env } from './env'
-import { auth } from './lib/auth'
+import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
 import { relayChanges } from './lib/live'
 import { handleMcp } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
+import { finishAddingMailbox } from './services/mailboxes'
+import { syncMailbox } from './services/sync'
 import { startTelegram, telegramWebhook } from './telegram'
 import { verifyWhatsappWebhook, whatsappWebhook } from './whatsapp'
 
@@ -32,6 +34,20 @@ const app = new Hono()
   .get('/whatsapp', (c) => verifyWhatsappWebhook(new URL(c.req.url)))
   .post('/whatsapp', (c) => whatsappWebhook(c.req.raw))
   .post('/stripe/webhook', (c) => handleStripeWebhook(c.req.raw))
+  .get(MAILBOX_CALLBACK_PATH, async (c) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers })
+    const { mailboxId, result } = await finishAddingMailbox(
+      session?.user.id ?? null,
+      new URL(c.req.url).searchParams
+    ).catch((error: unknown) => {
+      console.error('add mailbox failed', error)
+      return { mailboxId: undefined, result: 'failed' as const }
+    })
+    if (mailboxId) {
+      void syncMailbox({ id: mailboxId }).catch(console.error)
+    }
+    return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
+  })
   .get('/health', (c) => c.text('ok'))
 
 await runMigrations()

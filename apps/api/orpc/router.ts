@@ -48,6 +48,11 @@ import {
   unsubscribeMessage,
 } from '../services/mail'
 import { NotFoundError } from '../services/mail-errors'
+import {
+  listMailboxes,
+  removeMailbox,
+  startAddingMailbox,
+} from '../services/mailboxes'
 import { getMoney } from '../services/money'
 import {
   registerDevice,
@@ -66,7 +71,7 @@ import {
 import { getSettings, saveSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
 import { markNotSpam, reportSpam } from '../services/spam'
-import { ensureMailbox, syncMailbox } from '../services/sync'
+import { syncMailboxes } from '../services/sync'
 import { cancelTask, createTask } from '../services/tasks'
 
 const id = type({ id: 'string.uuid' })
@@ -85,6 +90,7 @@ const sendInput = type({
   'bcc?': 'string.email[]',
   'cc?': 'string.email[]',
   html: 'string',
+  'mailboxId?': 'string.uuid',
   mode: type.enumerated(...OUTBOX_MODES),
   'remindAfterDays?': type.enumerated(...FOLLOWUP_DAYS).or('null'),
   'replyToMessageId?': 'string.uuid',
@@ -187,6 +193,13 @@ export const router = {
       }),
     },
   },
+  mailboxes: {
+    add: authed.handler(({ context }) => startAddingMailbox(context.user.id)),
+    list: authed.handler(({ context }) => listMailboxes(context.user.id)),
+    remove: authed.input(id).handler(async ({ context, input }) => {
+      await removeMailbox(context.user.id, input.id)
+    }),
+  },
   mail: {
     archive: authed.input(messageId).handler(async ({ context, input }) => {
       await archiveMessage(context.user.id, input.messageId)
@@ -272,7 +285,7 @@ export const router = {
       )
       .handler(({ context, input }) => listMail(context.user.id, input)),
     sync: authed.handler(async ({ context }) => {
-      await syncMailbox(await ensureMailbox(context.user.id))
+      await syncMailboxes(context.user.id)
     }),
     thread: authed
       .input(type({ threadId: 'string' }))
@@ -348,7 +361,7 @@ export const router = {
       if (input.gmailLabels && !before?.gmailLabels) {
         void backfillAgentLabels(context.user.id).catch(console.error)
       }
-      void ensureMailbox(context.user.id).then(syncMailbox).catch(console.error)
+      void syncMailboxes(context.user.id).catch(console.error)
       return settings
     }),
   },

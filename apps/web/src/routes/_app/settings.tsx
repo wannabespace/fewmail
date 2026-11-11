@@ -467,6 +467,73 @@ const PlanSettings = () => {
   )
 }
 
+const mailboxStatus = (
+  copy: Messages['settings']['mailboxes'],
+  mailbox: {
+    lastSyncedAt: Date | null
+    signIn: boolean
+    syncError: string | null
+  },
+  ago: (date: Date) => string
+) => {
+  if (mailbox.syncError) {
+    return mailbox.signIn ? mailbox.syncError : copy.lost
+  }
+  if (!mailbox.lastSyncedAt) {
+    return copy.reading
+  }
+  return mailbox.signIn ? copy.signIn : copy.synced(ago(mailbox.lastSyncedAt))
+}
+
+const MailboxSettings = () => {
+  const copy = useT().settings.mailboxes
+  const dates = useDates()
+  const queryClient = useQueryClient()
+  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const add = useMutation(
+    orpc.mailboxes.add.mutationOptions({ onSuccess: redirectTo })
+  )
+  const remove = useMutation(
+    orpc.mailboxes.remove.mutationOptions({
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.mailboxes.key() }),
+    })
+  )
+
+  return (
+    <SettingsGroup title={copy.title}>
+      {mailboxes.map((mailbox) => (
+        <SettingsRow
+          key={mailbox.id}
+          title={<span data-mask>{mailbox.email}</span>}
+          description={mailboxStatus(copy, mailbox, dates.ago)}
+        >
+          {!mailbox.signIn && (
+            <Button
+              size="sm"
+              variant="ghost-destructive"
+              disabled={remove.isPending}
+              onClick={() => remove.mutate({ id: mailbox.id })}
+            >
+              {copy.remove}
+            </Button>
+          )}
+        </SettingsRow>
+      ))}
+      <SettingsRow title={copy.add} description={copy.addDescription}>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={add.isPending}
+          onClick={() => add.mutate()}
+        >
+          {copy.add}
+        </Button>
+      </SettingsRow>
+    </SettingsGroup>
+  )
+}
+
 const SnippetsSettings = () => {
   const t = useT()
   const queryClient = useQueryClient()
@@ -549,6 +616,16 @@ const SettingsPage = () => {
   const { upgraded } = Route.useSearch()
   const router = useRouter()
   const hasAgent = me.plan.kind !== 'free'
+  const { mailbox } = Route.useSearch()
+
+  useEffect(() => {
+    const copy = t.settings.mailboxes
+    if (mailbox === 'added') {
+      toast.success(copy.added)
+    } else if (mailbox) {
+      toast.error(mailbox === 'sign_in' ? copy.signInChosen : copy.failed)
+    }
+  }, [mailbox, t.settings.mailboxes])
 
   useEffect(() => {
     if (upgraded) {
@@ -564,6 +641,7 @@ const SettingsPage = () => {
           {t.settings.title}
         </h1>
         <PlanSettings />
+        <MailboxSettings />
         <AgentSettings />
         <NotificationSettings />
         {hasAgent && (
@@ -612,5 +690,8 @@ const SettingsPage = () => {
 
 export const Route = createFileRoute('/_app/settings')({
   component: SettingsPage,
-  validateSearch: type({ 'upgraded?': 'boolean' }),
+  validateSearch: type({
+    'mailbox?': "'added' | 'failed' | 'sign_in'",
+    'upgraded?': 'boolean',
+  }),
 })

@@ -1,29 +1,24 @@
 import { db } from '@fewmail/db'
-import {
-  actions,
-  analyses,
-  commitments,
-  mailboxes,
-  messages,
-} from '@fewmail/db/schema'
+import { actions, analyses, commitments, messages } from '@fewmail/db/schema'
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { subHours } from 'date-fns'
 import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm'
 
-import { listMessageIds, trashThread, unsubscribeOneClick } from '../lib/gmail'
+import { trashThread, unsubscribeOneClick } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
 import { toGmailQuery } from './ask'
 import { deliverySlots } from './batching'
 import { runCleanup } from './cleanup'
 import { NotFoundError } from './mail-errors'
+import { searchMailboxes } from './mailboxes'
 import { scheduleMail } from './outbox'
 import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
 import { createRule } from './rules'
 import { getSettings } from './settings'
 import { activeTask } from './tasks'
-import { changeThreadLabels } from './thread-labels'
+import { changeThreadLabels, mailboxOfThread } from './thread-labels'
 import { recordUnsubscribe, zombieStats } from './zombies'
 
 export { NotFoundError } from './mail-errors'
@@ -133,14 +128,6 @@ export const handledSince = async (userId: string, since: Date) => {
   }
 }
 
-export const getMailbox = async (userId: string) => {
-  const [mailbox] = await db
-    .select()
-    .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
-  return mailbox ?? null
-}
-
 export type MailFilter =
   | 'spam'
   | 'inbox'
@@ -160,9 +147,10 @@ export const listMail = async (
     search?: string
   }
 ) => {
-  const searchIds = input.search
-    ? await listMessageIds(userId, await toGmailQuery(input.search), PAGE_SIZE)
+  const found = input.search
+    ? await searchMailboxes(userId, await toGmailQuery(input.search), PAGE_SIZE)
     : null
+  const searchIds = found?.flatMap(({ ids }) => ids) ?? null
 
   if (searchIds?.length === 0) {
     return []
@@ -348,7 +336,10 @@ const applyGmailChange = async (
     }
     await changeThreadLabels(userId, message.threadId, ARCHIVE)
   } else if (action.kind === 'trash') {
-    await trashThread(userId, message.threadId)
+    await trashThread(
+      await mailboxOfThread(userId, message.threadId),
+      message.threadId
+    )
   } else {
     await changeThreadLabels(userId, message.threadId, MARK_READ)
   }
@@ -516,7 +507,10 @@ export const unsubscribeMessage = async (userId: string, messageId: string) => {
 
 export const trashMessage = async (userId: string, messageId: string) => {
   const message = await ownMessage(userId, messageId)
-  await trashThread(userId, message.threadId)
+  await trashThread(
+    await mailboxOfThread(userId, message.threadId),
+    message.threadId
+  )
   await changeThreadLabels(userId, message.threadId, {
     add: ['TRASH'],
     remove: ['INBOX'],

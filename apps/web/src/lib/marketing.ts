@@ -59,7 +59,7 @@ export const FAQ = [
   },
   {
     answer:
-      'Gmail and Google Workspace accounts today, one mailbox per account.',
+      'Gmail and Google Workspace accounts today. Add several mailboxes to one Fewmail and their mail lands in the same brief and inbox.',
     question: 'Which email accounts work?',
   },
 ] as const

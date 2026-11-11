@@ -14,6 +14,7 @@ export const de: Messages = {
     discard: 'Verwerfen',
     forward: 'Weiterleiten',
     forwardedMessage: 'Weitergeleitete Nachricht',
+    from: 'Von',
     instructionPlaceholder: 'Wie soll sie klingen? (optional)',
     invalidRecipients: 'Füge mindestens eine gültige E-Mail-Adresse hinzu.',
     later: {
@@ -363,6 +364,21 @@ export const de: Messages = {
     languageDescription:
       'App, Briefings und Zusammenfassungen. Antworten folgen der Mail.',
     legal: 'Rechtliches',
+    mailboxes: {
+      add: 'Gmail hinzufügen',
+      addDescription:
+        'Mail eines weiteren Gmail-Kontos landet im selben Heute und Posteingang. Damit meldet sich niemand hier an: Eine Anmeldung damit öffnet ein eigenes Fewmail.',
+      added: 'Postfach hinzugefügt. Die Mails erscheinen in einer Minute.',
+      failed:
+        'Das Postfach konnte nicht hinzugefügt werden. Erlaube den Gmail-Zugriff und versuche es erneut.',
+      lost: 'Der Gmail-Zugriff ging verloren. Füge es erneut hinzu, um es wieder zu verbinden.',
+      reading: 'Mails werden gelesen…',
+      remove: 'Entfernen',
+      signIn: 'Damit meldest du dich an',
+      signInChosen: 'Mit diesem Konto meldest du dich an. Wähle ein anderes.',
+      synced: (ago: string) => `Synchronisiert ${ago}`,
+      title: 'Postfächer',
+    },
     mcp: {
       copyNow:
         'Kopiere die Konfiguration jetzt: Der Schlüssel wird nur einmal angezeigt.',

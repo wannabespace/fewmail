@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer'
 
-import { googleAccessToken } from './auth'
+import type { GmailAccount } from './auth'
+import { gmailAccessToken } from './auth'
 import { domainOf } from './keyed-hash'
 import { mailSignals } from './mail-auth'
 
@@ -10,11 +11,15 @@ export class GmailHistoryExpiredError extends Error {
   override name = 'GmailHistoryExpiredError'
 }
 
-const gmail = async <T>(userId: string, path: string, init?: RequestInit) => {
+const gmail = async <T>(
+  account: GmailAccount,
+  path: string,
+  init?: RequestInit
+) => {
   const response = await fetch(`${GMAIL_API}${path}`, {
     ...init,
     headers: {
-      authorization: `Bearer ${await googleAccessToken(userId)}`,
+      authorization: `Bearer ${await gmailAccessToken(account)}`,
       'content-type': 'application/json',
     },
   })
@@ -143,16 +148,16 @@ export const parseMessage = (message: GmailMessage) => {
 
 export type ParsedMessage = ReturnType<typeof parseMessage>
 
-export const getProfile = (userId: string) =>
-  gmail<{ emailAddress: string; historyId: string }>(userId, '/profile')
+export const getProfile = (account: GmailAccount) =>
+  gmail<{ emailAddress: string; historyId: string }>(account, '/profile')
 
 export const listMessageIds = async (
-  userId: string,
+  account: GmailAccount,
   query: string,
   max: number
 ) => {
   const { messages = [] } = await gmail<{ messages?: { id: string }[] }>(
-    userId,
+    account,
     `/messages?${new URLSearchParams({ maxResults: String(max), q: query })}`
   )
   return messages.map(({ id }) => id)
@@ -163,7 +168,10 @@ interface HistoryMessage {
 }
 
 /** New message ids plus the current labels of messages whose labels changed (archive, read, snooze elsewhere). */
-export const listHistory = async (userId: string, startHistoryId: string) => {
+export const listHistory = async (
+  account: GmailAccount,
+  startHistoryId: string
+) => {
   const ids = new Set<string>()
   const labelChanges = new Map<string, string[]>()
   let pageToken: string | undefined
@@ -180,7 +188,7 @@ export const listHistory = async (userId: string, startHistoryId: string) => {
       historyId: string
       nextPageToken?: string
     }>(
-      userId,
+      account,
       `/history?${new URLSearchParams([
         ['historyTypes', 'messageAdded'],
         ['historyTypes', 'labelAdded'],
@@ -207,15 +215,17 @@ export const listHistory = async (userId: string, startHistoryId: string) => {
   return { historyId, ids: [...ids], labelChanges }
 }
 
-export const getMessage = async (userId: string, id: string) =>
-  parseMessage(await gmail<GmailMessage>(userId, `/messages/${id}?format=full`))
+export const getMessage = async (account: GmailAccount, id: string) =>
+  parseMessage(
+    await gmail<GmailMessage>(account, `/messages/${id}?format=full`)
+  )
 
 export const modifyMessage = (
-  userId: string,
+  account: GmailAccount,
   id: string,
   change: { add?: string[]; remove?: string[] }
 ) =>
-  gmail(userId, `/messages/${id}/modify`, {
+  gmail(account, `/messages/${id}/modify`, {
     body: JSON.stringify({
       addLabelIds: change.add ?? [],
       removeLabelIds: change.remove ?? [],
@@ -234,7 +244,7 @@ const BOUNDARY = 'fewmail-alternative'
 const encodeAddressList = (addresses: string[]) => addresses.join(', ')
 
 export const sendMail = (
-  userId: string,
+  account: GmailAccount,
   mail: {
     bcc: string[]
     cc: string[]
@@ -270,7 +280,7 @@ export const sendMail = (
     `--${BOUNDARY}--`,
   ].join('\r\n')
 
-  return gmail<{ id: string; threadId: string }>(userId, '/messages/send', {
+  return gmail<{ id: string; threadId: string }>(account, '/messages/send', {
     body: JSON.stringify({
       raw: Buffer.from(raw).toString('base64url'),
       ...(mail.threadId && { threadId: mail.threadId }),
@@ -280,11 +290,11 @@ export const sendMail = (
 }
 
 export const modifyThread = (
-  userId: string,
+  account: GmailAccount,
   threadId: string,
   change: { add?: string[]; remove?: string[] }
 ) =>
-  gmail(userId, `/threads/${threadId}/modify`, {
+  gmail(account, `/threads/${threadId}/modify`, {
     body: JSON.stringify({
       addLabelIds: change.add ?? [],
       removeLabelIds: change.remove ?? [],
@@ -292,18 +302,18 @@ export const modifyThread = (
     method: 'POST',
   })
 
-export const trashThread = (userId: string, threadId: string) =>
-  gmail(userId, `/threads/${threadId}/trash`, { method: 'POST' })
+export const trashThread = (account: GmailAccount, threadId: string) =>
+  gmail(account, `/threads/${threadId}/trash`, { method: 'POST' })
 
-export const listLabels = async (userId: string) => {
+export const listLabels = async (account: GmailAccount) => {
   const { labels = [] } = await gmail<{
     labels?: { id: string; name: string }[]
-  }>(userId, '/labels')
+  }>(account, '/labels')
   return labels
 }
 
-export const createLabel = (userId: string, name: string) =>
-  gmail<{ id: string; name: string }>(userId, '/labels', {
+export const createLabel = (account: GmailAccount, name: string) =>
+  gmail<{ id: string; name: string }>(account, '/labels', {
     body: JSON.stringify({
       labelListVisibility: 'labelShow',
       messageListVisibility: 'show',

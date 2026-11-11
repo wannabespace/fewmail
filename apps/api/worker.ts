@@ -65,11 +65,17 @@ const syncDueMailboxes = async () => {
   const withoutMailbox = await db
     .select({ userId: userSettings.userId })
     .from(userSettings)
-    .leftJoin(mailboxes, eq(mailboxes.userId, userSettings.userId))
+    .leftJoin(
+      mailboxes,
+      and(
+        eq(mailboxes.userId, userSettings.userId),
+        isNull(mailboxes.googleAccountId)
+      )
+    )
     .where(isNull(mailboxes.id))
   await Promise.all([
     ...due.map((mailbox) =>
-      once(`sync:${mailbox.userId}`, () => syncMailbox(mailbox))
+      once(`sync:${mailbox.id}`, () => syncMailbox(mailbox))
     ),
     ...withoutMailbox.map(({ userId }) =>
       once(`sync:${userId}`, async () =>
@@ -89,7 +95,7 @@ const readDueMoneyHistory = async () => {
     )
   await Promise.all(
     due.map((mailbox) =>
-      once(`money-history:${mailbox.userId}`, async () => {
+      once(`money-history:${mailbox.id}`, async () => {
         if (hasAgent(await getPlanInfo(mailbox.userId))) {
           await readMoneyHistory(mailbox)
         }

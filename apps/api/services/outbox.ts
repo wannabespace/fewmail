@@ -1,10 +1,10 @@
 import { db } from '@fewmail/db'
-import { actions, messages, outbox } from '@fewmail/db/schema'
+import { actions, mailboxes, messages, outbox } from '@fewmail/db/schema'
 import type { OutboxMode } from '@fewmail/shared/agent'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import { forwardSubject, replySubject } from '@fewmail/shared/email'
 import { addSeconds } from 'date-fns'
-import { and, eq, lte } from 'drizzle-orm'
+import { and, eq, isNull, lte } from 'drizzle-orm'
 
 import { sendMail } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
@@ -21,6 +21,8 @@ export interface OutgoingMail {
   bcc?: string[]
   cc?: string[]
   html: string
+  /** New mail only: a reply or forward leaves from the mailbox of the original. */
+  mailboxId?: string
   mode: OutboxMode
   remindAfterDays?: number | null
   replyToMessageId?: string
@@ -30,10 +32,29 @@ export interface OutgoingMail {
   to: string[]
 }
 
+const senderMailboxId = async (userId: string, mailboxId?: string) => {
+  const [mailbox] = await db
+    .select({ id: mailboxes.id })
+    .from(mailboxes)
+    .where(
+      and(
+        eq(mailboxes.userId, userId),
+        mailboxId
+          ? eq(mailboxes.id, mailboxId)
+          : isNull(mailboxes.googleAccountId)
+      )
+    )
+  if (!mailbox) {
+    throw new NotFoundError('Mailbox not found')
+  }
+  return mailbox.id
+}
+
 const replyHeaders = async (userId: string, mail: OutgoingMail) => {
   if (!mail.replyToMessageId) {
     return {
       inReplyTo: null,
+      mailboxId: await senderMailboxId(userId, mail.mailboxId),
       references: null,
       subject: mail.subject,
       threadId: null,
@@ -51,6 +72,7 @@ const replyHeaders = async (userId: string, mail: OutgoingMail) => {
   if (mail.mode === 'forward') {
     return {
       inReplyTo: null,
+      mailboxId: original.mailboxId,
       references: null,
       subject: forwardSubject(mail.subject || original.subject),
       threadId: null,
@@ -58,6 +80,7 @@ const replyHeaders = async (userId: string, mail: OutgoingMail) => {
   }
   return {
     inReplyTo: original.messageIdHeader,
+    mailboxId: original.mailboxId,
     references: original.messageIdHeader,
     subject: replySubject(mail.subject || original.subject),
     threadId: original.threadId,
@@ -82,7 +105,11 @@ export const dispatchOutbox = async (id: string) => {
   }
 
   try {
-    const sent = await sendMail(claimed.userId, claimed)
+    const [mailbox] = await db
+      .select()
+      .from(mailboxes)
+      .where(eq(mailboxes.id, claimed.mailboxId))
+    const sent = await sendMail(expectRow(mailbox), claimed)
     await db.update(outbox).set({ status: 'sent' }).where(eq(outbox.id, id))
     if (claimed.threadId) {
       await changeThreadLabels(claimed.userId, claimed.threadId, {
@@ -181,6 +208,7 @@ export const cancelMail = async (userId: string, id: string) => {
     bcc: canceled.bcc,
     cc: canceled.cc,
     html: canceled.html,
+    mailboxId: canceled.mailboxId,
     mode: canceled.mode,
     remindAfterDays: canceled.remindAfterDays,
     replyToMessageId: canceled.replyToMessageId,

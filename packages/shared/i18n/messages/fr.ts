@@ -14,6 +14,7 @@ export const fr: Messages = {
     discard: 'Supprimer',
     forward: 'Transférer',
     forwardedMessage: 'Message transféré',
+    from: 'De',
     instructionPlaceholder: 'Quel ton adopter ? (facultatif)',
     invalidRecipients: 'Ajoutez au moins une adresse e-mail valide.',
     later: {
@@ -366,6 +367,22 @@ export const fr: Messages = {
     languageDescription:
       'App, briefs et résumés. Les réponses suivent l’e-mail.',
     legal: 'Mentions légales',
+    mailboxes: {
+      add: 'Ajouter Gmail',
+      addDescription:
+        'Le courrier d’un autre compte Gmail rejoint le même Aujourd’hui et la même boîte de réception. Il ne connecte jamais personne ici : se connecter avec lui ouvre un Fewmail distinct.',
+      added: 'Boîte ajoutée. Son courrier apparaît dans une minute.',
+      failed:
+        'Impossible d’ajouter la boîte. Autorisez l’accès à Gmail et réessayez.',
+      lost: 'L’accès à Gmail a été perdu. Ajoutez-la de nouveau pour la reconnecter.',
+      reading: 'Lecture du courrier…',
+      remove: 'Retirer',
+      signIn: 'Vous vous connectez avec celle-ci',
+      signInChosen:
+        'C’est le compte avec lequel vous vous connectez. Choisissez-en un autre.',
+      synced: (ago: string) => `Synchronisé ${ago}`,
+      title: 'Boîtes mail',
+    },
     mcp: {
       copyNow:
         'Copiez cette configuration maintenant : la clé ne s’affiche qu’une fois.',

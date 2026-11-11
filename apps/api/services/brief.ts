@@ -10,12 +10,12 @@ import { models } from '../lib/ai'
 import { localClock } from '../lib/clock'
 import { announceChange } from '../lib/live'
 import {
-  getMailbox,
   handledSince,
   listQueue,
   listQueueWithLater,
   recentImportant,
 } from './mail'
+import { listMailboxes } from './mailboxes'
 import { getSettings } from './settings'
 
 const BRIEF_WINDOW_HOURS = 24
@@ -101,21 +101,17 @@ export const generateBrief = async (userId: string) => {
 
 export const getToday = async (userId: string) => {
   const settings = await getSettings(userId)
-  const [brief, { later, queue }, handled, mailbox] = await Promise.all([
+  const [brief, { later, queue }, handled, mailboxes] = await Promise.all([
     getLatestBrief(userId),
     listQueueWithLater(userId),
     handledSince(userId, subHours(new Date(), BRIEF_WINDOW_HOURS)),
-    getMailbox(userId),
+    listMailboxes(userId),
   ])
   return {
     brief,
     handled,
     later,
-    mailbox: mailbox && {
-      email: mailbox.email,
-      lastSyncedAt: mailbox.lastSyncedAt,
-      syncError: mailbox.syncError,
-    },
+    mailboxes,
     queue,
     settings,
   }

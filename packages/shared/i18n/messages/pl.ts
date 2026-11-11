@@ -81,6 +81,7 @@ export const pl: Messages = {
     discard: 'Odrzuć',
     forward: 'Przekaż',
     forwardedMessage: 'Przekazana wiadomość',
+    from: 'Od',
     instructionPlaceholder: 'Jak ma brzmieć? (opcjonalnie)',
     invalidRecipients: 'Dodaj co najmniej jeden poprawny adres e-mail.',
     later: {
@@ -424,6 +425,21 @@ export const pl: Messages = {
     languageDescription:
       'Aplikacja, podsumowania i streszczenia. Odpowiedzi w języku maila.',
     legal: 'Informacje prawne',
+    mailboxes: {
+      add: 'Dodaj Gmail',
+      addDescription:
+        'Poczta z innego konta Gmail trafia do tego samego Dziś i skrzynki odbiorczej. Nie da się nim tu zalogować: logowanie nim otwiera osobny Fewmail.',
+      added: 'Skrzynka dodana. Poczta pojawi się za minutę.',
+      failed:
+        'Nie udało się dodać skrzynki. Zezwól na dostęp do Gmaila i spróbuj ponownie.',
+      lost: 'Utracono dostęp do Gmaila. Dodaj skrzynkę ponownie, aby ją połączyć.',
+      reading: 'Czytam pocztę…',
+      remove: 'Usuń',
+      signIn: 'Logujesz się tym kontem',
+      signInChosen: 'Tym kontem się logujesz. Wybierz inne.',
+      synced: (ago: string) => `Zsynchronizowano ${ago}`,
+      title: 'Skrzynki',
+    },
     mcp: {
       copyNow:
         'Skopiuj tę konfigurację teraz: klucz jest pokazywany tylko raz.',

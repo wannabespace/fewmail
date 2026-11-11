@@ -16,27 +16,27 @@ const BACKFILL_LIMIT = 200
 const labelName = (category: MailCategory) =>
   `Fewmail/${category.charAt(0).toUpperCase()}${category.slice(1)}`
 
-const labelIdFor = async (userId: string, category: MailCategory) => {
+const mailboxWithLabel = async (mailboxId: string, category: MailCategory) => {
   const [mailbox] = await db
     .select()
     .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
+    .where(eq(mailboxes.id, mailboxId))
   if (!mailbox) {
     return null
   }
   const cached = mailbox.labelIds[category]
   if (cached) {
-    return cached
+    return { ...mailbox, labelId: cached }
   }
   const name = labelName(category)
-  const labels = await listLabels(userId)
+  const labels = await listLabels(mailbox)
   const existing = labels.find((label) => label.name === name)
-  const label = existing ?? (await createLabel(userId, name))
+  const label = existing ?? (await createLabel(mailbox, name))
   await db
     .update(mailboxes)
     .set({ labelIds: { ...mailbox.labelIds, [category]: label.id } })
     .where(eq(mailboxes.id, mailbox.id))
-  return label.id
+  return { ...mailbox, labelId: label.id }
 }
 
 export const applyAgentLabel = async (
@@ -47,9 +47,9 @@ export const applyAgentLabel = async (
   if (!settings?.gmailLabels) {
     return
   }
-  const labelId = await labelIdFor(message.userId, category)
-  if (labelId) {
-    await modifyMessage(message.userId, message.gmailId, { add: [labelId] })
+  const mailbox = await mailboxWithLabel(message.mailboxId, category)
+  if (mailbox) {
+    await modifyMessage(mailbox, message.gmailId, { add: [mailbox.labelId] })
   }
 }
 

@@ -12,6 +12,7 @@ export interface Draft {
   bcc: string[]
   cc: string[]
   html: string
+  mailboxId: string | null
   mode: OutboxMode
   remindAfterDays: number | null
   replyToMessageId: string | null
@@ -23,6 +24,7 @@ export const EMPTY_DRAFT: Draft = {
   bcc: [],
   cc: [],
   html: '',
+  mailboxId: null,
   mode: 'new',
   remindAfterDays: null,
   replyToMessageId: null,
@@ -91,9 +93,10 @@ export const ComposeProvider = ({
     <ComposeContext
       value={{
         openCompose: (next) => setDraft({ ...EMPTY_DRAFT, ...next }),
-        send: ({ remindAfterDays, replyToMessageId, ...input }) =>
+        send: ({ mailboxId, remindAfterDays, replyToMessageId, ...input }) =>
           sendMutation.mutate({
             ...input,
+            ...(mailboxId && { mailboxId }),
             ...(remindAfterDays && {
               remindAfterDays: remindAfterDays as 1 | 3 | 7,
             }),

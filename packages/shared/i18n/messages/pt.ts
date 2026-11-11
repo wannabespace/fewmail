@@ -74,6 +74,7 @@ export const pt: Messages = {
     discard: 'Descartar',
     forward: 'Encaminhar',
     forwardedMessage: 'Mensagem encaminhada',
+    from: 'De',
     instructionPlaceholder: 'Como deve soar? (opcional)',
     invalidRecipients: 'Adicione pelo menos um e-mail válido.',
     later: {
@@ -405,6 +406,21 @@ export const pt: Messages = {
     languageDescription:
       'App, resumos e sínteses. As respostas seguem o e-mail.',
     legal: 'Jurídico',
+    mailboxes: {
+      add: 'Adicionar Gmail',
+      addDescription:
+        'O e-mail de outra conta do Gmail chega ao mesmo Hoje e à mesma caixa de entrada. Ela nunca entra aqui: entrar com ela abre um Fewmail separado.',
+      added: 'Caixa adicionada. Os e-mails aparecem em um minuto.',
+      failed:
+        'Não foi possível adicionar a caixa. Permita o acesso ao Gmail e tente de novo.',
+      lost: 'O acesso ao Gmail foi perdido. Adicione de novo para reconectar.',
+      reading: 'Lendo os e-mails…',
+      remove: 'Remover',
+      signIn: 'Você entra com esta',
+      signInChosen: 'Essa é a conta com que você entra. Escolha outra.',
+      synced: (ago: string) => `Sincronizada ${ago}`,
+      title: 'Caixas de e-mail',
+    },
     mcp: {
       copyNow: 'Copie esta configuração agora: a chave só aparece uma vez.',
       create: 'Criar chave',

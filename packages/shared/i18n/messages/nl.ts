@@ -74,6 +74,7 @@ export const nl: Messages = {
     discard: 'Verwerpen',
     forward: 'Doorsturen',
     forwardedMessage: 'Doorgestuurd bericht',
+    from: 'Van',
     instructionPlaceholder: 'Hoe moet het klinken? (optioneel)',
     invalidRecipients: 'Voeg minstens één geldig e-mailadres toe.',
     later: {
@@ -405,6 +406,21 @@ export const nl: Messages = {
     languageDescription:
       'App, overzichten en samenvattingen. Antwoorden volgen de e-mail.',
     legal: 'Juridisch',
+    mailboxes: {
+      add: 'Gmail toevoegen',
+      addDescription:
+        'Mail van een ander Gmail-account komt in hetzelfde Vandaag en dezelfde inbox. Er logt nooit iemand mee in: inloggen ermee opent een aparte Fewmail.',
+      added: 'Mailbox toegevoegd. De mail verschijnt binnen een minuut.',
+      failed:
+        'De mailbox kon niet worden toegevoegd. Sta Gmail-toegang toe en probeer het opnieuw.',
+      lost: 'Gmail-toegang is verloren. Voeg hem opnieuw toe om opnieuw te verbinden.',
+      reading: 'Mail wordt gelezen…',
+      remove: 'Verwijderen',
+      signIn: 'Je logt hiermee in',
+      signInChosen: 'Met dit account log je in. Kies een ander.',
+      synced: (ago: string) => `Gesynchroniseerd ${ago}`,
+      title: 'Mailboxen',
+    },
     mcp: {
       copyNow:
         'Kopieer deze configuratie nu: de sleutel wordt maar één keer getoond.',

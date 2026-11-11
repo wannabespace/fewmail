@@ -69,6 +69,7 @@ export const tr: Messages = {
     discard: 'Sil',
     forward: 'İlet',
     forwardedMessage: 'İletilen mesaj',
+    from: 'Kimden',
     instructionPlaceholder: 'Nasıl olsun? (isteğe bağlı)',
     invalidRecipients: 'En az bir geçerli e-posta adresi ekle.',
     later: {
@@ -385,6 +386,21 @@ export const tr: Messages = {
     languageDescription:
       'Uygulama, özetler ve açıklamalar. Yanıtlar e-postanın dilini izler.',
     legal: 'Yasal',
+    mailboxes: {
+      add: 'Gmail ekle',
+      addDescription:
+        'Başka bir Gmail hesabının postaları aynı Bugün ve gelen kutusuna gelir. Bu hesapla buraya kimse giriş yapamaz: onunla giriş yapmak ayrı bir Fewmail açar.',
+      added: 'Posta kutusu eklendi. Postaları bir dakika içinde görünür.',
+      failed:
+        'Posta kutusu eklenemedi. Gmail erişimine izin verip tekrar deneyin.',
+      lost: 'Gmail erişimi kesildi. Yeniden bağlamak için tekrar ekleyin.',
+      reading: 'Postalar okunuyor…',
+      remove: 'Kaldır',
+      signIn: 'Bu hesapla giriş yapıyorsunuz',
+      signInChosen: 'Bu, giriş yaptığınız hesap. Başka birini seçin.',
+      synced: (ago: string) => `${ago} eşitlendi`,
+      title: 'Posta kutuları',
+    },
     mcp: {
       copyNow:
         'Bu yapılandırmayı şimdi kopyala: anahtar yalnızca bir kez gösterilir.',

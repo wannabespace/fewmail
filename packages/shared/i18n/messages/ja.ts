@@ -38,6 +38,7 @@ export const ja: Messages = {
     discard: '破棄',
     forward: '転送',
     forwardedMessage: '転送されたメッセージ',
+    from: '差出人',
     instructionPlaceholder: 'どんな文面にしますか？（任意）',
     invalidRecipients: '有効なメールアドレスを1つ以上追加してください。',
     later: {
@@ -337,6 +338,22 @@ export const ja: Messages = {
     languageDescription:
       'アプリ、ブリーフ、要約に使います。返信はメールの言語に合わせます。',
     legal: '法的情報',
+    mailboxes: {
+      add: 'Gmailを追加',
+      addDescription:
+        '別のGmailアカウントのメールも同じ「今日」と受信トレイに届きます。このアカウントでここにログインすることはできません。ログインすると別のFewmailが開きます。',
+      added: 'メールボックスを追加しました。1分ほどでメールが表示されます。',
+      failed:
+        'メールボックスを追加できませんでした。Gmailへのアクセスを許可して、もう一度お試しください。',
+      lost: 'Gmailへのアクセスが失われました。再接続するにはもう一度追加してください。',
+      reading: 'メールを読み込み中…',
+      remove: '削除',
+      signIn: 'ログインに使うアカウント',
+      signInChosen:
+        'それはログインに使っているアカウントです。別のアカウントを選んでください。',
+      synced: (ago: string) => `${ago}に同期`,
+      title: 'メールボックス',
+    },
     mcp: {
       copyNow:
         'この設定を今すぐコピーしてください。キーは一度しか表示されません。',

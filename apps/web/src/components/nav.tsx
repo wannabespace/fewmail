@@ -1,4 +1,3 @@
-import type { Messages } from '@fewmail/shared/i18n'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -56,17 +55,22 @@ const NavLink = ({
   )
 }
 
-const syncStatus = (
-  t: Messages,
-  mailbox:
-    | { lastSyncedAt: Date | null; syncError: string | null }
-    | null
-    | undefined
-) => {
-  if (mailbox?.syncError) {
-    return t.nav.syncFailed
+const SyncStatus = ({
+  mailboxes,
+}: {
+  mailboxes?: { lastSyncedAt: Date | null; syncError: string | null }[]
+}) => {
+  const t = useT()
+  if (mailboxes?.some(({ syncError }) => syncError)) {
+    return (
+      <Link to="/settings" className="text-muted-foreground">
+        {t.nav.syncFailed}
+      </Link>
+    )
   }
-  return mailbox?.lastSyncedAt ? t.nav.watching : t.nav.syncing
+  const isWatching =
+    !!mailboxes?.length && mailboxes.every(({ lastSyncedAt }) => lastSyncedAt)
+  return <span>{isWatching ? t.nav.watching : t.nav.syncing}</span>
 }
 
 export const Sidebar = ({
@@ -113,7 +117,7 @@ export const Sidebar = ({
         <span data-mask className="text-foreground/80 truncate">
           {email}
         </span>
-        {hasAgent && <span>{syncStatus(t, today?.mailbox)}</span>}
+        {hasAgent && <SyncStatus mailboxes={today?.mailboxes} />}
         {plan.trialDaysLeft && (
           <Link to="/settings" className="text-muted-foreground">
             {t.nav.trialLeft(plan.trialDaysLeft)}

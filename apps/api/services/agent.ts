@@ -18,7 +18,7 @@ import { decideWithJev } from './classify'
 import { applyAgentLabel } from './labels'
 import { hasBilledBefore, isChargeCategory, recordCharge } from './money'
 import { getSettings } from './settings'
-import { changeThreadLabels } from './thread-labels'
+import { changeThreadLabels, mailboxOfThread } from './thread-labels'
 import { recordUnsubscribe } from './zombies'
 
 const BODY_LIMIT = 4000
@@ -153,7 +153,10 @@ export const applyEffect = async (
     )
   }
   if (effect === 'trash') {
-    await trashThread(userId, message.threadId)
+    await trashThread(
+      await mailboxOfThread(userId, message.threadId),
+      message.threadId
+    )
     return
   }
   await changeThreadLabels(userId, message.threadId, {

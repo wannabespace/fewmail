@@ -52,10 +52,10 @@ const HandledSummary = ({
 }
 
 const isReadingFirstTime = (data?: {
-  mailbox: { lastSyncedAt: Date | null; syncError: string | null } | null
+  mailboxes: { lastSyncedAt: Date | null; syncError: string | null }[]
 }) =>
   !!data &&
-  (!data.mailbox || (!data.mailbox.lastSyncedAt && !data.mailbox.syncError))
+  data.mailboxes.every((mailbox) => !mailbox.lastSyncedAt && !mailbox.syncError)
 
 const quietCopy = (t: Messages, isFirstRead: boolean, queued: number) =>
   isFirstRead
