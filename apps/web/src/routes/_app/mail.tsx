@@ -566,12 +566,15 @@ const MailPage = () => {
     }
   }
 
-  useHotkey('J', () => setCursor((index) => Math.min(total - 1, index + 1)))
-  useHotkey('ArrowDown', () =>
-    setCursor((index) => Math.min(total - 1, index + 1))
-  )
-  useHotkey('K', () => setCursor((index) => Math.max(0, index - 1)))
-  useHotkey('ArrowUp', () => setCursor((index) => Math.max(0, index - 1)))
+  const moveCursor = (step: number) => {
+    // A focused tab or button owns Enter, so the list's Enter would never fire.
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    setCursor((index) => Math.min(total - 1, Math.max(0, index + step)))
+  }
+  useHotkey('J', () => moveCursor(1))
+  useHotkey('ArrowDown', () => moveCursor(1))
+  useHotkey('K', () => moveCursor(-1))
+  useHotkey('ArrowUp', () => moveCursor(-1))
   useHotkey('Enter', () => open(cursor))
   useHotkey('O', () => open(cursor))
   const showFilter = (next: Filter) =>
