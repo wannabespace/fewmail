@@ -19,6 +19,7 @@ The Railway project is code: `.railway/railway.ts` (`railway/iac`, root devDepen
 - **postgres**, **api** and **worker**: one image, `apps/api/Dockerfile`, built with the repo root as context (it type-checks the API in a throwaway stage). `api` runs `index.ts` (HTTP, migrations on boot, Telegram webhook); `worker` overrides the start command with `worker.ts`.
 - **worker**: exactly one replica, `overlapSeconds: 0`, `drainingSeconds: 30` — its job locks are in memory, so two copies would send briefs and Telegram pushes twice. On SIGTERM it stops ticking and waits for jobs in flight.
 - **Secrets** are `preserve()` on `api` and set in the Railway dashboard, never in the repo; `worker` references `api`'s variables (`api.env.X`), so each value is set once. A new env var goes into `SECRETS` there and into `.env.example`.
-- The web app is not in the Railway project yet.
+- **@fewmail/web**: Railpack, `pnpm --filter @fewmail/web build`, started with `start` (`vite preview` on `PORT` 4173, domain `fewmail.app`), never `dev` — that is the portless dev server on 127.0.0.1 and the domain answers 502. `API_URL` and `WEB_URL` reference the API's.
+- Service names in `railway.ts` are the existing ones (`@fewmail/api`, `@fewmail/web`, `Postgres`): IaC matches by name, so a new name creates a second service.
 
 Google OAuth redirect URI: `https://api.local.fewmail.app/auth/callback/google (prod: https://api.fewmail.app/auth/callback/google)`; the Gmail API must be enabled and, until verification, the user added as a test user.

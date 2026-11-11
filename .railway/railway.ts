@@ -10,6 +10,7 @@ import {
 
 const REPO = 'wannabespace/fewmail'
 const PORT = 3910
+const WEB_PORT = 4173
 
 /** Values live only in Railway (set once on `api`); the worker reads the same ones by reference. */
 const SECRETS = [
@@ -28,7 +29,7 @@ const SECRETS = [
   'TYPESAFE_API_KEY',
 ] as const
 
-/** One image for both services: the Dockerfile is built with the repo root as context. */
+/** One image for the API and the worker: the Dockerfile is built with the repo root as context. */
 const build: BuildConfig = {
   builder: 'DOCKERFILE',
   dockerfilePath: 'apps/api/Dockerfile',
@@ -41,9 +42,10 @@ const secrets = Object.fromEntries(
 
 export default defineRailway((ctx) => {
   const isProduction = ctx.environment === 'production'
-  const db = postgres('postgres')
+  /** Names match the services that already exist, so `apply` updates them instead of adding copies. */
+  const db = postgres('Postgres')
 
-  const api = service('api', {
+  const api = service('@fewmail/api', {
     build,
     domains: isProduction ? [{ domain: 'api.fewmail.app', port: PORT }] : [],
     env: {
@@ -81,5 +83,24 @@ export default defineRailway((ctx) => {
     start: 'env NODE_ENV=production bun run ./worker.ts',
   })
 
-  return project('fewmail', { resources: [db, api, worker] })
+  /** `vite preview` of the built SPA; `dev` would start the portless dev server on 127.0.0.1 and answer nothing. */
+  const web = service('@fewmail/web', {
+    build: {
+      buildCommand: 'pnpm --filter @fewmail/web build',
+      builder: 'RAILPACK',
+      watchPatterns: ['apps/web/**', 'packages/**', 'pnpm-lock.yaml'],
+    },
+    domains: isProduction ? [{ domain: 'fewmail.app', port: WEB_PORT }] : [],
+    env: {
+      API_URL: api.env.API_URL,
+      PORT: String(WEB_PORT),
+      WEB_URL: api.env.WEB_URL,
+    },
+    healthcheck: '/robots.txt',
+    replicas: 1,
+    source: github(REPO, { branch: 'main' }),
+    start: 'pnpm --filter @fewmail/web start',
+  })
+
+  return project('fewmail', { resources: [db, api, worker, web] })
 })
