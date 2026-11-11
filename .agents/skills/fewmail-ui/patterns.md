@@ -126,3 +126,9 @@ Suggestion order is JSX order (`shouldFilter={false}`) — the literal answer fi
 ## Share card
 
 - `apps/web/public/og.png` (1200×630) is the login screen as a postcard: cream canvas, logo top-left, the login headline in Newsreader at display size with the lead in Inter, and the login preview rows on a level-2 panel bleeding off the right edge, the one important row raised with the terracotta dot. One card for every page; per-page titles live in the meta, not the image. `apple-touch-icon.png` is the favicon tile at 180px. Both are artboards in the Paper file "Fewmail" (https://app.paper.design/file/01M75H40GVB69KCDEB53AV5YGK), exported at 1x; change them there and re-export, never edit the PNGs.
+
+## Marketing site
+
+- Built like Tamery's landing, re-themed: a `Chapter` per feature (border-top header, numbered label, serif `text-display` title left, serif muted `text-brief` description right), the illustration on a `Stage` (level-2 `bg-background` panel, `rounded-3xl`, hairline ring, content `inert`), smaller features in a `FeatureGrid` (icon in a `bg-secondary` square, medium title, muted body). Scroll reveals are CSS `animation-timeline: view()` (`Reveal`), never JS.
+- Chapters are ordered by how much the feature sells: Today, replies, Telegram, protection, memory, control. Demos show real-looking content (names, sentences, `ImportanceDot`, `Kbd`), never skeleton lines — the login story is the one exception, it plays in the hero.
+- The hero headline is the only `text-hero` (4.5rem) besides closing and page titles; everything else stays on the app's scale. One primary button per block ("Start free"), secondary next to it.

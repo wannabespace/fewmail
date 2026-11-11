@@ -1,4 +1,5 @@
 import { LEGAL_UPDATED_AT } from '../legal/updated-at'
+import { COMPARISONS, TRIAL_DAYS } from './marketing'
 
 export const SITE_NAME = 'Fewmail'
 
@@ -14,10 +15,30 @@ export const PUBLIC_PAGES: Record<
   string,
   { description: string; title: string; updatedAt?: Date }
 > = {
+  '/': {
+    description:
+      'Fewmail is an email agent for Gmail: it reads every email, drafts replies in your voice and shows you only what needs you.',
+    title: `${SITE_NAME} — the email agent for Gmail`,
+  },
+  '/compare': {
+    description:
+      'How Fewmail compares to Superhuman, Shortwave and SaneBox: an agent that reads your mail instead of a faster way to read it yourself.',
+    title: `Compare · ${SITE_NAME}`,
+  },
+  ...Object.fromEntries(
+    COMPARISONS.map(({ name, slug, summary }) => [
+      `/compare/${slug}`,
+      { description: summary, title: `${SITE_NAME} vs ${name}` },
+    ])
+  ),
   '/login': {
     description:
       'Fewmail reads your Gmail for you, answers in your voice and only shows you what actually needs you.',
     title: `${SITE_NAME} — only what matters in your inbox`,
+  },
+  '/pricing': {
+    description: `Fewmail is free forever for sorting, rules and spam protection. Pro, the whole agent, starts with ${TRIAL_DAYS} free days and no card.`,
+    title: `Pricing · ${SITE_NAME}`,
   },
   '/privacy': {
     description:

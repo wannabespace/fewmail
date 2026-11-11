@@ -13,7 +13,7 @@ import { OG_IMAGE, PUBLIC_PAGES, SITE_NAME } from './src/lib/seo'
 setupPortlessEnvs({
   API_URL: 'api.local.fewmail',
   WEB_URL: 'app.local.fewmail',
-}).defaults({ WEB_URL: 'https://app.fewmail.app' })
+}).defaults({ WEB_URL: 'https://fewmail.app' })
 
 const WEB_URL = process.env.WEB_URL?.replace(/\/$/u, '') ?? ''
 const THEME_COLOR = '#F4EFE6'
@@ -67,9 +67,21 @@ ${Object.entries(PUBLIC_PAGES)
 `,
 })
 
+const withHead = (html: string, path: string) =>
+  html
+    .replace(/<meta name="robots"[^>]*>\s*/u, '')
+    .replace(
+      /<title>.*?<\/title>/u,
+      pageHead(
+        path,
+        PUBLIC_PAGES[path] ?? { description: '', title: SITE_NAME }
+      )
+    )
+
 /**
- * The SPA shell stays `noindex`; each public page is also emitted as `<path>/index.html` with its own
- * title, description and canonical, so crawlers and link previews that never run JS still see them.
+ * Each public page is emitted as `<path>/index.html` with its own title, description and canonical, so
+ * crawlers and link previews that never run JS still see them. `/` is `index.html` itself, so the
+ * `noindex` app shell moves to `app.html`, and the preview server answers every other route with it.
  */
 const seo = (): Plugin => ({
   configureServer(server) {
@@ -90,15 +102,29 @@ const seo = (): Plugin => ({
     for (const [fileName, source] of Object.entries(siteFiles())) {
       this.emitFile({ fileName, source, type: 'asset' })
     }
-    for (const [path, page] of Object.entries(PUBLIC_PAGES)) {
-      this.emitFile({
-        fileName: `${path.slice(1)}/index.html`,
-        source: String(shell.source)
-          .replace(/<meta name="robots"[^>]*>\s*/u, '')
-          .replace(/<title>.*?<\/title>/u, pageHead(path, page)),
-        type: 'asset',
-      })
+    const html = String(shell.source)
+    this.emitFile({ fileName: 'app.html', source: html, type: 'asset' })
+    for (const path of Object.keys(PUBLIC_PAGES)) {
+      if (path === '/') {
+        shell.source = withHead(html, path)
+      } else {
+        this.emitFile({
+          fileName: `${path.slice(1)}/index.html`,
+          source: withHead(html, path),
+          type: 'asset',
+        })
+      }
     }
+  },
+  configurePreviewServer(server) {
+    server.middlewares.use((req, _res, next) => {
+      const url = req.url?.split('?')[0] ?? '/'
+      const path = url.length > 1 ? url.replace(/\/$/u, '') : url
+      if (!path.includes('.')) {
+        req.url = path in PUBLIC_PAGES ? `${path}/index.html` : '/app.html'
+      }
+      next()
+    })
   },
   name: 'fewmail-seo',
   transformIndexHtml: (html) =>
@@ -133,5 +159,10 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     seo(),
   ],
+  preview: {
+    allowedHosts: ['fewmail.app'],
+    host: true,
+    port: Number(process.env.PORT) || undefined,
+  },
   resolve: { tsconfigPaths: true },
 })

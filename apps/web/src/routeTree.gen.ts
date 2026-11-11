@@ -9,8 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as SiteRouteImport } from './routes/_site'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -20,14 +20,17 @@ import { Route as AppMoneyRouteImport } from './routes/_app/money'
 import { Route as AppRulesRouteImport } from './routes/_app/rules'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
+import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SitePricingRouteImport } from './routes/_site/pricing'
+import { Route as SiteCompareIndexRouteImport } from './routes/_site/compare.index'
+import { Route as SiteCompareSlugRouteImport } from './routes/_site/compare.$slug'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SiteRoute = SiteRouteImport.update({
+  id: '/_site',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -75,9 +78,29 @@ const AppTodayRoute = AppTodayRouteImport.update({
   path: '/today',
   getParentRoute: () => AppRoute,
 } as any)
+const SiteIndexRoute = SiteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SitePricingRoute = SitePricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteCompareIndexRoute = SiteCompareIndexRouteImport.update({
+  id: '/compare/',
+  path: '/compare/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteCompareSlugRoute = SiteCompareSlugRouteImport.update({
+  id: '/compare/$slug',
+  path: '/compare/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -87,9 +110,12 @@ export interface FileRoutesByFullPath {
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/today': typeof AppTodayRoute
+  '/pricing': typeof SitePricingRoute
+  '/compare/$slug': typeof SiteCompareSlugRoute
+  '/compare/': typeof SiteCompareIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof SiteIndexRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -99,11 +125,14 @@ export interface FileRoutesByTo {
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/today': typeof AppTodayRoute
+  '/pricing': typeof SitePricingRoute
+  '/compare/$slug': typeof SiteCompareSlugRoute
+  '/compare': typeof SiteCompareIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/_site': typeof SiteRouteWithChildren
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -113,6 +142,10 @@ export interface FileRoutesById {
   '/_app/rules': typeof AppRulesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/today': typeof AppTodayRoute
+  '/_site/pricing': typeof SitePricingRoute
+  '/_site/': typeof SiteIndexRoute
+  '/_site/compare/$slug': typeof SiteCompareSlugRoute
+  '/_site/compare/': typeof SiteCompareIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,6 +160,9 @@ export interface FileRouteTypes {
     | '/rules'
     | '/settings'
     | '/today'
+    | '/pricing'
+    | '/compare/$slug'
+    | '/compare/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -139,10 +175,13 @@ export interface FileRouteTypes {
     | '/rules'
     | '/settings'
     | '/today'
+    | '/pricing'
+    | '/compare/$slug'
+    | '/compare'
   id:
     | '__root__'
-    | '/'
     | '/_app'
+    | '/_site'
     | '/login'
     | '/onboarding'
     | '/privacy'
@@ -152,11 +191,15 @@ export interface FileRouteTypes {
     | '/_app/rules'
     | '/_app/settings'
     | '/_app/today'
+    | '/_site/pricing'
+    | '/_site/'
+    | '/_site/compare/$slug'
+    | '/_site/compare/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  SiteRoute: typeof SiteRouteWithChildren
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -165,18 +208,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_app': {
       id: '/_app'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_site': {
+      id: '/_site'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof SiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -242,6 +285,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTodayRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_site/': {
+      id: '/_site/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof SiteIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/pricing': {
+      id: '/_site/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof SitePricingRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/compare/': {
+      id: '/_site/compare/'
+      path: '/compare'
+      fullPath: '/compare/'
+      preLoaderRoute: typeof SiteCompareIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/compare/$slug': {
+      id: '/_site/compare/$slug'
+      path: '/compare/$slug'
+      fullPath: '/compare/$slug'
+      preLoaderRoute: typeof SiteCompareSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
   }
 }
 
@@ -263,9 +334,25 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface SiteRouteChildren {
+  SitePricingRoute: typeof SitePricingRoute
+  SiteIndexRoute: typeof SiteIndexRoute
+  SiteCompareSlugRoute: typeof SiteCompareSlugRoute
+  SiteCompareIndexRoute: typeof SiteCompareIndexRoute
+}
+
+const SiteRouteChildren: SiteRouteChildren = {
+  SitePricingRoute: SitePricingRoute,
+  SiteIndexRoute: SiteIndexRoute,
+  SiteCompareSlugRoute: SiteCompareSlugRoute,
+  SiteCompareIndexRoute: SiteCompareIndexRoute,
+}
+
+const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  SiteRoute: SiteRouteWithChildren,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,

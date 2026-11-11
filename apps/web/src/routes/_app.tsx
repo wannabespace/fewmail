@@ -5,6 +5,7 @@ import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { ComposeDialog } from '~/components/compose/compose-dialog'
 import { Sidebar } from '~/components/nav'
+import { signedInStore } from '~/lib/auth'
 import { localeStore } from '~/lib/i18n'
 import { client } from '~/lib/orpc'
 
@@ -34,6 +35,7 @@ const AppLayout = () => {
 export const Route = createFileRoute('/_app')({
   beforeLoad: async () => {
     const me = await client.me().catch(() => null)
+    signedInStore.set(Boolean(me))
     if (!me) {
       throw redirect({ to: '/login' })
     }
