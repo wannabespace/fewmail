@@ -17,7 +17,7 @@ export const AskAnswer = ({
   const dates = useDates()
 
   return (
-    <CommandGroup heading={question}>
+    <CommandGroup forceMount heading={question}>
       <div className="flex flex-col gap-3 px-2.5 py-2">
         {result ? (
           <p
@@ -35,6 +35,7 @@ export const AskAnswer = ({
       </div>
       {result?.sources.map((source) => (
         <CommandItem
+          forceMount
           key={`${source.number}-${source.threadId}`}
           value={`source ${source.number} ${source.subject}`}
           onSelect={() => onOpenThread(source.threadId)}

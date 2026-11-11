@@ -17,8 +17,6 @@ import {
   CrownIcon,
   Moon02Icon,
   PencilEdit02Icon,
-  RefreshIcon,
-  Search01Icon,
   SparklesIcon,
   Sun03Icon,
   ZapIcon,
@@ -28,7 +26,6 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { toast } from 'sonner'
 
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
@@ -58,14 +55,6 @@ export const CommandMenu = ({
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const sync = useMutation(
-    orpc.mail.sync.mutationOptions({
-      onSuccess: () => {
-        void queryClient.invalidateQueries()
-        toast.success(t.command.inboxUpToDate)
-      },
-    })
-  )
   const { openCompose } = useCompose()
   const ask = useMutation(orpc.ask.mutationOptions())
   const askedQuestion = ask.variables?.question
@@ -109,27 +98,15 @@ export const CommandMenu = ({
               }
             />
           )}
-          {search.trim() && (
-            <CommandGroup heading={t.command.mail}>
-              {hasAgent && (
-                <CommandItem
-                  value={`ask ${search}`}
-                  onSelect={() => ask.mutate({ question: search.trim() })}
-                >
-                  <HugeiconsIcon icon={AiChat02Icon} strokeWidth={2} />
-                  {t.ask.label(search.trim())}
-                </CommandItem>
-              )}
+          {hasAgent && search.trim() && (
+            <CommandGroup forceMount heading={t.command.mail}>
               <CommandItem
-                value={`search ${search}`}
-                onSelect={() =>
-                  run(() =>
-                    navigate({ search: { q: search.trim() }, to: '/mail' })
-                  )
-                }
+                forceMount
+                value={`ask ${search}`}
+                onSelect={() => ask.mutate({ question: search.trim() })}
               >
-                <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
-                {t.command.searchFor(search.trim())}
+                <HugeiconsIcon icon={AiChat02Icon} strokeWidth={2} />
+                {t.ask.label(search.trim())}
               </CommandItem>
             </CommandGroup>
           )}
@@ -150,10 +127,6 @@ export const CommandMenu = ({
               <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={2} />
               {t.command.compose}
               <CommandShortcut>C</CommandShortcut>
-            </CommandItem>
-            <CommandItem onSelect={() => run(() => sync.mutate())}>
-              <HugeiconsIcon icon={RefreshIcon} strokeWidth={2} />
-              {t.command.checkMail}
             </CommandItem>
             {hasAgent && (
               <CommandItem onSelect={() => run(() => refreshBrief.mutate())}>

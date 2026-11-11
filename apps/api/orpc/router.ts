@@ -346,9 +346,6 @@ export const router = {
         })
       )
       .handler(({ context, input }) => listMail(context.user.id, input)),
-    sync: authed.handler(async ({ context }) => {
-      await syncMailboxes(context.user.id)
-    }),
     markRead: authed
       .input(type({ threadId: 'string' }))
       .handler(async ({ context, input }) => {
