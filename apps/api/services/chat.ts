@@ -48,9 +48,7 @@ const instructionsFor = async (userId: string) => {
   return [
     "You are Fewmail, the user's email agent, talking with them in a chat. You read all of their mail so they do not have to.",
     `Write in ${englishName(settings?.language ?? 'en')}, or in the language the user writes in. Replies to an email are written in the language of that email.`,
-    settings?.persona === 'responder'
-      ? 'The user replies to a lot of mail: people waiting for them come first.'
-      : 'The user mostly reads: they want calm and nothing important lost.',
+    'The user wants calm and nothing important lost: people waiting for them come first.',
     `Now: ${now} (${timezone}).`,
     settings?.knowledge
       ? `What the user told you to know:\n${settings.knowledge}`

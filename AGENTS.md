@@ -6,7 +6,7 @@ Index only — rules live in `.agents/rules/`, one file per topic. `CLAUDE.md` s
 
 | File | Read before / update when |
 | --- | --- |
-| [`domain.md`](.agents/rules/domain.md) | Naming anything user-facing; core concepts — brief, queue, actions, rules, autonomy, personas, handled mail |
+| [`domain.md`](.agents/rules/domain.md) | Naming anything user-facing; core concepts — brief, queue, actions, rules, autonomy, handled mail |
 | [`architecture.md`](.agents/rules/architecture.md) | Adding a feature, a procedure, a table, an integration (web, MCP, Telegram), anything touching Gmail or the AI models |
 | [`monorepo.md`](.agents/rules/monorepo.md) | Commands, env vars, local URLs, adding a package |
 | [`ui.md`](.agents/rules/ui.md) | Any UI — before the first className |

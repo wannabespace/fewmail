@@ -309,8 +309,7 @@ export const ja: Messages = {
     languageHint:
       'アプリ、ブリーフ、要約、説明にこの言語を使います。返信は常に、返信するメールの言語に合わせます。',
     languageTitle: 'Fewmail は何語で話しましょうか？',
-    lead: '3つの簡単な質問です。すべて後から設定で変更できます。',
-    personaTitle: 'メールをどう使っていますか？',
+    lead: '2つの簡単な質問です。すべて後から設定で変更できます。',
     reading: '受信トレイを読んでいます…',
     start: '始める',
     title: 'エージェントを設定しましょう。',
@@ -348,18 +347,6 @@ export const ja: Messages = {
       `${date}までProの全機能、その後は無料。カード不要。`,
     upgrade: '他のプラン',
     usage: '今月',
-  },
-  persona: {
-    reader: {
-      description:
-        '受信トレイを静かに保ち、ノイズを処理して、大事なものを見逃さないようにしてほしい。',
-      title: '主に読む',
-    },
-    responder: {
-      description:
-        '返事を待っている人を先頭に並べ、私らしい文面で返信を下書きしてほしい。',
-      title: 'よく返信する',
-    },
   },
   queue: {
     draftedInVoice: 'あなたらしい文面で下書きしました',
@@ -489,7 +476,6 @@ export const ja: Messages = {
       title: 'Claude、Cursor、その他の MCP クライアントを接続',
       used: (ago: string) => `${ago}に使用`,
     },
-    persona: 'メールの使い方',
     signedInWithGoogle: 'Google でログイン中',
     signOut: 'ログアウト',
     notifications: {
@@ -556,7 +542,6 @@ export const ja: Messages = {
       'セキュリティ警告、支払期限のある請求書、銀行や行政機関からのあらゆるメール',
     newsletters: 'ニュースレターとダイジェスト',
     notifications: 'ツールやサービスからの自動通知',
-    people: '実在の人からの、質問をしている、または私の返事を待っているメール',
     promotions: 'プロモーション、マーケティング、営業の売り込みメール',
     receipts: '領収書、注文確認、発送通知',
   },
@@ -628,7 +613,6 @@ export const ja: Messages = {
     },
     recent: 'この1日のその他',
     sent: '送信済み',
-    waitingOnYou: 'あなたの返事待ち',
     worthAttention: '目を通す価値あり',
     writeNow: '今すぐ作成',
     writing: '作成中…',

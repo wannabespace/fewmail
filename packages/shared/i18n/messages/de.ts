@@ -345,8 +345,7 @@ export const de: Messages = {
     languageHint:
       'App, Briefings, Zusammenfassungen und Erklärungen nutzen diese Sprache. Antworten folgen immer der Sprache der Mail, auf die du antwortest.',
     languageTitle: 'Welche Sprache soll Fewmail sprechen?',
-    lead: 'Drei kurze Antworten. Du kannst alles später in den Einstellungen ändern.',
-    personaTitle: 'Wie nutzt du E-Mail?',
+    lead: 'Zwei kurze Antworten. Du kannst alles später in den Einstellungen ändern.',
     reading: 'Lese deinen Posteingang…',
     start: 'Los geht’s',
     title: 'Richten wir deinen Agenten ein.',
@@ -384,18 +383,6 @@ export const de: Messages = {
       `Alles aus Pro bis ${date}, danach kostenlos. Keine Karte nötig.`,
     upgrade: 'Andere Pläne',
     usage: 'Diesen Monat',
-  },
-  persona: {
-    reader: {
-      description:
-        'Halte meinen Posteingang ruhig, kümmere dich um das Rauschen und lass nichts Wichtiges durchrutschen.',
-      title: 'Ich lese vor allem',
-    },
-    responder: {
-      description:
-        'Zeig mir zuerst, wer auf mich wartet, und entwirf Antworten in meinem Ton.',
-      title: 'Ich antworte viel',
-    },
   },
   queue: {
     draftedInVoice: 'In deinem Ton entworfen',
@@ -524,7 +511,6 @@ export const de: Messages = {
       title: 'Claude, Cursor oder einen beliebigen MCP-Client verbinden',
       used: (ago: string) => `Verwendet ${ago}`,
     },
-    persona: 'Wie du E-Mail nutzt',
     signedInWithGoogle: 'Mit Google angemeldet',
     signOut: 'Abmelden',
     notifications: {
@@ -579,8 +565,6 @@ export const de: Messages = {
       'Sicherheitswarnungen, fällige Rechnungen, alles von meiner Bank oder von Behörden',
     newsletters: 'Newsletter und Digests',
     notifications: 'Automatische Benachrichtigungen von Tools und Diensten',
-    people:
-      'Mails von echten Menschen, die mir eine Frage stellen oder auf meine Antwort warten',
     promotions: 'Angebote, Marketing und Kaltakquise-Mails',
     receipts: 'Belege, Bestell- und Versandbestätigungen',
   },
@@ -663,7 +647,6 @@ export const de: Messages = {
     },
     recent: 'Außerdem in den letzten 24 Stunden',
     sent: 'Gesendet',
-    waitingOnYou: 'Wartet auf dich',
     worthAttention: 'Einen Blick wert',
     writeNow: 'Jetzt schreiben',
     writing: 'Schreibe…',

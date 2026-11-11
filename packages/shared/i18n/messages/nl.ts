@@ -417,8 +417,7 @@ export const nl: Messages = {
     languageHint:
       'De app, overzichten, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
     languageTitle: 'Welke taal moet Fewmail spreken?',
-    lead: 'Drie snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
-    personaTitle: 'Hoe gebruik je e-mail?',
+    lead: 'Twee snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
     reading: 'Je inbox wordt gelezen…',
     start: 'Starten',
     title: 'Laten we je agent instellen.',
@@ -467,18 +466,6 @@ export const nl: Messages = {
         one: () => '1 gesprek',
         other: (n) => `${n} gesprekken`,
       }),
-  },
-  persona: {
-    reader: {
-      description:
-        'Houd mijn inbox rustig, handel de ruis af en zorg dat niets belangrijks me ontgaat.',
-      title: 'Ik lees vooral',
-    },
-    responder: {
-      description:
-        'Zet mensen die op mij wachten bovenaan en stel antwoorden op in mijn stijl.',
-      title: 'Ik antwoord veel',
-    },
   },
   queue: {
     draftedInVoice: 'Opgesteld in jouw stijl',
@@ -608,7 +595,6 @@ export const nl: Messages = {
       title: 'Koppel Claude, Cursor of een andere MCP-client',
       used: (ago: string) => `Gebruikt ${ago}`,
     },
-    persona: 'Hoe je e-mail gebruikt',
     signedInWithGoogle: 'Ingelogd met Google',
     signOut: 'Uitloggen',
     schedules: {
@@ -690,8 +676,6 @@ export const nl: Messages = {
       'Beveiligingsmeldingen, rekeningen die betaald moeten worden, alles van mijn bank of de overheid',
     newsletters: 'Nieuwsbrieven en digests',
     notifications: 'Automatische meldingen van tools en diensten',
-    people:
-      'E-mails van echte mensen die me iets vragen of op mijn antwoord wachten',
     promotions: 'Aanbiedingen, marketing en ongevraagde verkoopmails',
     receipts: 'Bonnen, bestel- en verzendbevestigingen',
   },
@@ -788,7 +772,6 @@ export const nl: Messages = {
     },
     recent: 'Ook het afgelopen etmaal',
     sent: 'Verstuurd',
-    waitingOnYou: 'Wacht op jou',
     worthAttention: 'Verdient je aandacht',
     writeNow: 'Nu schrijven',
     writing: 'Schrijven…',

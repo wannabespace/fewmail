@@ -416,8 +416,7 @@ export const pt: Messages = {
     languageHint:
       'O app, os resumos e as explicações usam este idioma. As respostas sempre seguem o idioma do e-mail que você responde.',
     languageTitle: 'Em qual idioma o Fewmail deve falar?',
-    lead: 'Três respostas rápidas. Você pode mudar tudo depois nas Configurações.',
-    personaTitle: 'Como você usa o e-mail?',
+    lead: 'Duas respostas rápidas. Você pode mudar tudo depois nas Configurações.',
     reading: 'Lendo sua caixa de entrada…',
     start: 'Começar',
     title: 'Vamos configurar seu agente.',
@@ -466,18 +465,6 @@ export const pt: Messages = {
         one: () => '1 conversa',
         other: (n) => `${n} conversas`,
       }),
-  },
-  persona: {
-    reader: {
-      description:
-        'Mantenha minha caixa de entrada tranquila, cuide do ruído e não deixe nada importante passar.',
-      title: 'Eu mais leio',
-    },
-    responder: {
-      description:
-        'Coloque primeiro quem está esperando por mim e deixe respostas rascunhadas com a minha voz.',
-      title: 'Eu respondo muito',
-    },
   },
   queue: {
     draftedInVoice: 'Escrito com a sua voz',
@@ -606,7 +593,6 @@ export const pt: Messages = {
       title: 'Conecte Claude, Cursor ou qualquer cliente MCP',
       used: (ago: string) => `Usada ${ago}`,
     },
-    persona: 'Como você usa o e-mail',
     signedInWithGoogle: 'Conectado com o Google',
     signOut: 'Sair',
     schedules: {
@@ -690,8 +676,6 @@ export const pt: Messages = {
       'Alertas de segurança, contas a vencer, qualquer coisa do meu banco ou do governo',
     newsletters: 'Newsletters e resumos periódicos',
     notifications: 'Notificações automáticas de ferramentas e serviços',
-    people:
-      'E-mails de pessoas reais que me fazem uma pergunta ou esperam minha resposta',
     promotions: 'Promoções, marketing e e-mails de vendas não solicitados',
     receipts: 'Recibos, confirmações de pedido e de envio',
   },
@@ -807,7 +791,6 @@ export const pt: Messages = {
     },
     recent: 'Também no último dia',
     sent: 'Enviado',
-    waitingOnYou: 'Esperando por você',
     worthAttention: 'Merece sua atenção',
     writeNow: 'Escrever agora',
     writing: 'Escrevendo…',

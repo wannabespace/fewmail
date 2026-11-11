@@ -400,8 +400,7 @@ export const tr: Messages = {
     languageHint:
       'Uygulama, özetler ve açıklamalar bu dili kullanır. Yanıtlar her zaman yanıtladığın e-postanın dilinde olur.',
     languageTitle: 'Fewmail hangi dili konuşsun?',
-    lead: 'Üç kısa cevap. Hepsini daha sonra Ayarlar’dan değiştirebilirsin.',
-    personaTitle: 'E-postayı nasıl kullanıyorsun?',
+    lead: 'İki kısa cevap. Hepsini daha sonra Ayarlar’dan değiştirebilirsin.',
     reading: 'Gelen kutun okunuyor…',
     start: 'Başla',
     title: 'Ajanını kuralım.',
@@ -445,18 +444,6 @@ export const tr: Messages = {
     open: 'Yazışmaları aç',
     promised: 'Söz verdin',
     threads: (total: number) => `${total} yazışma`,
-  },
-  persona: {
-    reader: {
-      description:
-        'Gelen kutumu sakin tut, gürültüyü hallet ve önemli hiçbir şeyin gözden kaçmasına izin verme.',
-      title: 'Çoğunlukla okurum',
-    },
-    responder: {
-      description:
-        'Beni bekleyenleri öne al ve yanıtları benim üslubumla taslak olarak hazırla.',
-      title: 'Çok yanıt yazarım',
-    },
   },
   queue: {
     draftedInVoice: 'Senin üslubunla yazıldı',
@@ -583,7 +570,6 @@ export const tr: Messages = {
       title: 'Claude, Cursor veya herhangi bir MCP istemcisini bağla',
       used: (ago: string) => `Son kullanım ${ago}`,
     },
-    persona: 'E-postayı nasıl kullanıyorsun',
     signedInWithGoogle: 'Google ile giriş yapıldı',
     signOut: 'Çıkış yap',
     schedules: {
@@ -665,8 +651,6 @@ export const tr: Messages = {
       'Güvenlik uyarıları, ödeme tarihi gelen faturalar, bankamdan veya devletten gelen her şey',
     newsletters: 'Bültenler ve özet e-postalar',
     notifications: 'Araç ve hizmetlerden gelen otomatik bildirimler',
-    people:
-      'Gerçek kişilerden gelen, bana soru soran veya yanıtımı bekleyen e-postalar',
     promotions: 'Promosyonlar, pazarlama ve istenmeyen satış e-postaları',
     receipts: 'Makbuzlar, sipariş ve kargo onayları',
   },
@@ -756,7 +740,6 @@ export const tr: Messages = {
     },
     recent: 'Son bir günde ayrıca',
     sent: 'Gönderildi',
-    waitingOnYou: 'Seni bekliyor',
     worthAttention: 'İlgini hak ediyor',
     writeNow: 'Şimdi yaz',
     writing: 'Yazılıyor…',

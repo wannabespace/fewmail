@@ -310,8 +310,7 @@ export const ko: Messages = {
     languageHint:
       '앱, 브리핑, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
     languageTitle: 'Fewmail이 어떤 언어를 쓸까요?',
-    lead: '세 가지 간단한 질문이에요. 모두 나중에 설정에서 바꿀 수 있어요.',
-    personaTitle: '이메일을 어떻게 사용하세요?',
+    lead: '두 가지 간단한 질문이에요. 모두 나중에 설정에서 바꿀 수 있어요.',
     reading: '받은편지함을 읽는 중…',
     start: '시작',
     title: '에이전트를 설정해 볼게요.',
@@ -348,18 +347,6 @@ export const ko: Messages = {
       `${date}까지 Pro의 모든 기능, 이후 무료. 카드 필요 없음.`,
     upgrade: '다른 요금제',
     usage: '이번 달',
-  },
-  persona: {
-    reader: {
-      description:
-        '받은편지함을 차분하게 유지하고, 잡음은 처리하고, 중요한 건 놓치지 않게 해 주세요.',
-      title: '주로 읽어요',
-    },
-    responder: {
-      description:
-        '내 답을 기다리는 사람을 먼저 보여주고, 내 말투로 답장 초안을 써 주세요.',
-      title: '답장을 많이 해요',
-    },
   },
   queue: {
     draftedInVoice: '내 말투로 작성한 초안',
@@ -485,7 +472,6 @@ export const ko: Messages = {
       title: 'Claude, Cursor 또는 MCP 클라이언트 연결',
       used: (ago: string) => `${ago} 사용`,
     },
-    persona: '이메일 사용 방식',
     signedInWithGoogle: 'Google로 로그인됨',
     signOut: '로그아웃',
     notifications: {
@@ -551,8 +537,6 @@ export const ko: Messages = {
       '보안 알림, 납부 기한이 있는 청구서, 은행이나 정부 기관에서 온 모든 메일',
     newsletters: '뉴스레터와 다이제스트',
     notifications: '도구와 서비스에서 보낸 자동 알림',
-    people:
-      '실제 사람이 보낸 메일 중 나에게 질문하거나 내 답장을 기다리는 메일',
     promotions: '프로모션, 마케팅, 콜드 세일즈 메일',
     receipts: '영수증, 주문 및 배송 확인 메일',
   },
@@ -621,7 +605,6 @@ export const ko: Messages = {
     },
     recent: '지난 하루의 다른 메일',
     sent: '보냄',
-    waitingOnYou: '내 답을 기다리는 중',
     worthAttention: '살펴볼 만한 것',
     writeNow: '지금 작성',
     writing: '작성 중…',

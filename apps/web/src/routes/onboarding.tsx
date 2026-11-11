@@ -1,4 +1,4 @@
-import type { BoardPreset, Persona } from '@fewmail/shared/agent'
+import type { BoardPreset } from '@fewmail/shared/agent'
 import { BOARD_PRESETS, PLAN_LIMITS } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { LanguageSelect, PersonaChoice } from '~/components/agent-fields'
+import { LanguageSelect } from '~/components/agent-fields'
 import { Logo } from '~/components/logo'
 import { localeStore, useLocale, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
@@ -79,7 +79,6 @@ const OnboardingPage = () => {
   const t = useT()
   const language = useLocale()
   const navigate = useNavigate()
-  const [persona, setPersona] = useState<Persona>('reader')
   const [starterBoards, setStarterBoards] = useState<BoardPreset[]>([
     'money',
     'trips',
@@ -93,13 +92,10 @@ const OnboardingPage = () => {
   const submit = () =>
     save.mutate({
       language,
-      persona,
       starterBoards,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     })
 
-  useHotkey('1', () => setPersona('reader'))
-  useHotkey('2', () => setPersona('responder'))
   useHotkey('Mod+Enter', submit)
 
   return (
@@ -123,10 +119,6 @@ const OnboardingPage = () => {
             value={language}
             onChange={(next) => localeStore.set(next)}
           />
-        </Step>
-
-        <Step title={t.onboarding.personaTitle}>
-          <PersonaChoice value={persona} onChange={setPersona} />
         </Step>
 
         <Step title={t.onboarding.boardsTitle}>

@@ -5,7 +5,7 @@ import {
   IMPORTANCE,
   MAIL_CATEGORIES,
 } from '@fewmail/shared/agent'
-import type { ActionKind, MailCategory, Persona } from '@fewmail/shared/agent'
+import type { ActionKind, MailCategory } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
@@ -50,15 +50,12 @@ const analysisSchema = type({
 
 const analyzeInstructions = (input: {
   language: Locale
-  persona: Persona
   rules: Rule[]
   userEmail: string
 }) =>
   [
     `You are Fewmail, an email agent working for ${input.userEmail}. You read every incoming email so the user does not have to.`,
-    input.persona === 'reader'
-      ? 'The user mostly reads and wants calm: nothing important may slip, everything else stays quiet.'
-      : 'The user replies a lot: anything a real person expects an answer to matters.',
+    'The user wants calm: nothing important may slip, anything a real person expects an answer to matters, everything else stays quiet.',
     '',
     'Importance: 3 = urgent or time-critical (security, money due soon, a person blocked on the user); 2 = needs the user soon; 1 = worth knowing; 0 = noise.',
     'needsReply is true only when a real person (not an automated sender) is waiting for an answer from the user.',
@@ -265,7 +262,6 @@ const analyze = async (input: {
 }) => {
   const prompt = await threadPrompt(input.message)
   const decisions = await decideWithJev({
-    persona: input.settings.persona,
     prompt,
     rules: input.rules,
     userEmail: input.userEmail,

@@ -12,7 +12,6 @@ import {
   MAIL_CATEGORIES,
   OUTBOX_MODES,
   PAID_PLANS,
-  PERSONAS,
   RULE_EFFECTS,
   SIMPLE_MATCH_FIELDS,
 } from '@fewmail/shared/agent'
@@ -112,7 +111,6 @@ const boardText = { description: 'string > 2', name: 'string > 0' } as const
 const settingsInput = type({
   'briefHour?': '0 <= number.integer <= 23',
   language: type.enumerated(...LOCALES.map(({ code }) => code)),
-  persona: type.enumerated(...PERSONAS),
   'starterBoards?': type.enumerated(...BOARD_PRESETS).array(),
   'gmailLabels?': 'boolean',
   'knowledge?': 'string | null',

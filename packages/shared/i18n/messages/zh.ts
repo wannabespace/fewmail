@@ -303,8 +303,7 @@ export const zh: Messages = {
     languageHint:
       '应用、简报、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
     languageTitle: 'Fewmail 应该说哪种语言？',
-    lead: '三个简单的问题。之后都可以在设置里修改。',
-    personaTitle: '你平时怎么用邮件？',
+    lead: '两个简单的问题。之后都可以在设置里修改。',
     reading: '正在读取收件箱…',
     start: '开始',
     title: '来设置你的助手吧。',
@@ -339,16 +338,6 @@ export const zh: Messages = {
       `${date} 前可用 Pro 全部功能，之后免费。无需绑卡。`,
     upgrade: '其他方案',
     usage: '本月',
-  },
-  persona: {
-    reader: {
-      description: '让收件箱保持清静，处理掉噪音，别让重要的事漏掉。',
-      title: '我主要看邮件',
-    },
-    responder: {
-      description: '把等我回复的人放在最前面，并用我的语气起草回复。',
-      title: '我经常回复',
-    },
   },
   queue: {
     draftedInVoice: '已用你的语气起草',
@@ -469,7 +458,6 @@ export const zh: Messages = {
       title: '连接 Claude、Cursor 或任意 MCP 客户端',
       used: (ago: string) => `${ago}使用过`,
     },
-    persona: '你如何使用邮件',
     signedInWithGoogle: '已通过 Google 登录',
     signOut: '退出登录',
     notifications: {
@@ -533,7 +521,6 @@ export const zh: Messages = {
     alwaysShow: '安全警报、到期账单，以及来自我的银行或政府机构的任何邮件',
     newsletters: '新闻通讯和摘要',
     notifications: '来自工具和服务的自动通知',
-    people: '真人发来的、向我提问或等待我回复的邮件',
     promotions: '促销、营销和陌生推销邮件',
     receipts: '收据、订单确认和发货确认',
   },
@@ -599,7 +586,6 @@ export const zh: Messages = {
     },
     recent: '过去一天的其他邮件',
     sent: '已发送',
-    waitingOnYou: '等你回复',
     worthAttention: '值得关注',
     writeNow: '立即撰写',
     writing: '正在撰写…',

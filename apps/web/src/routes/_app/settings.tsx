@@ -30,11 +30,7 @@ import { type } from 'arktype'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import {
-  BriefHourSelect,
-  LanguageSelect,
-  PersonaSelect,
-} from '~/components/agent-fields'
+import { BriefHourSelect, LanguageSelect } from '~/components/agent-fields'
 import { authClient, signOut } from '~/lib/auth'
 import { localeStore, useDates, useLocale, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
@@ -59,7 +55,6 @@ const AgentSettings = () => {
       gmailLabels: settings.gmailLabels,
       knowledge: settings.knowledge,
       language: settings.language,
-      persona: settings.persona,
       timezone: settings.timezone,
       ...change,
     })
@@ -92,15 +87,6 @@ const AgentSettings = () => {
       </SettingsRow>
       {me.plan.kind !== 'free' && (
         <>
-          <SettingsRow
-            title={t.settings.persona}
-            description={t.persona[settings.persona].description}
-          >
-            <PersonaSelect
-              value={settings.persona}
-              onChange={(persona) => update({ persona })}
-            />
-          </SettingsRow>
           <SettingsRow
             title={t.settings.briefTitle}
             description={t.settings.briefDescription(settings.timezone)}

@@ -234,7 +234,6 @@ const BriefTime = ({ label }: { label: (time: string) => string }) => {
         save.mutate({
           briefHour,
           language: me.settings.language,
-          persona: me.settings.persona,
           timezone: me.settings.timezone,
         })
       }
@@ -245,7 +244,6 @@ const BriefTime = ({ label }: { label: (time: string) => string }) => {
 const TodayPage = () => {
   const t = useT()
   const dates = useDates()
-  const { me } = Route.useRouteContext()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
@@ -386,10 +384,6 @@ const TodayPage = () => {
     listKeys
   )
 
-  const sectionTitle =
-    me.settings.persona === 'responder'
-      ? t.today.waitingOnYou
-      : t.today.worthAttention
   const brief = data?.brief
 
   return (
@@ -426,9 +420,12 @@ const TodayPage = () => {
             )}
           </header>
 
-          <section aria-label={sectionTitle} className="flex flex-col gap-2.5">
+          <section
+            aria-label={t.today.worthAttention}
+            className="flex flex-col gap-2.5"
+          >
             <h2 className="text-muted-foreground text-xs font-medium">
-              {sectionTitle}
+              {t.today.worthAttention}
             </h2>
             {queue.length === 0 && (
               <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">

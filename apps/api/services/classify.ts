@@ -1,5 +1,5 @@
 import type { rules } from '@fewmail/db/schema'
-import type { ActionKind, MailCategory, Persona } from '@fewmail/shared/agent'
+import type { ActionKind, MailCategory } from '@fewmail/shared/agent'
 import { choice, noul, score } from '@typesafe-ai/sdk'
 
 import { jev } from '../lib/jev'
@@ -44,7 +44,6 @@ const NO_RULE = 'none'
 
 /** Every decision about an email in one Jev call; null when Jev is not configured, so the LLM path decides. */
 export const decideWithJev = async (input: {
-  persona: Persona
   prompt: string
   rules: Rule[]
   userEmail: string
@@ -67,9 +66,7 @@ export const decideWithJev = async (input: {
       ),
       category: choice('What kind of email this is', CATEGORY_CRITERIA),
       importance: score(
-        input.persona === 'reader'
-          ? 'How soon the recipient needs to see this; they want calm, but nothing important may slip'
-          : 'How soon the recipient needs to see this; anything a real person waits on matters',
+        'How soon the recipient needs to see this; they want calm, but nothing important may slip and anything a real person waits on matters',
         IMPORTANCE_LEVELS
       ),
       needsReply: noul(

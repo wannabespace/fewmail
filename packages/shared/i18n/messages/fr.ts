@@ -348,8 +348,7 @@ export const fr: Messages = {
     languageHint:
       'L’app, les briefs, les résumés et les explications utilisent cette langue. Les réponses suivent toujours la langue de l’e-mail auquel vous répondez.',
     languageTitle: 'Dans quelle langue Fewmail doit-il parler ?',
-    lead: 'Trois réponses rapides. Vous pourrez tout modifier plus tard dans les Réglages.',
-    personaTitle: 'Comment utilisez-vous vos e-mails ?',
+    lead: 'Deux réponses rapides. Vous pourrez tout modifier plus tard dans les Réglages.',
     reading: 'Lecture de votre boîte…',
     start: 'Commencer',
     title: 'Configurons votre agent.',
@@ -387,18 +386,6 @@ export const fr: Messages = {
       `Tout Pro jusqu’au ${date}, puis gratuit. Sans carte.`,
     upgrade: 'Autres formules',
     usage: 'Ce mois-ci',
-  },
-  persona: {
-    reader: {
-      description:
-        'Gardez ma boîte au calme, gérez le bruit et ne laissez rien d’important passer.',
-      title: 'Je lis surtout',
-    },
-    responder: {
-      description:
-        'Mettez en premier ceux qui attendent ma réponse et rédigez des brouillons avec mon style.',
-      title: 'Je réponds beaucoup',
-    },
   },
   queue: {
     draftedInVoice: 'Rédigé avec votre style',
@@ -528,7 +515,6 @@ export const fr: Messages = {
       title: 'Connecter Claude, Cursor ou tout client MCP',
       used: (ago: string) => `Utilisée ${ago}`,
     },
-    persona: 'Votre usage des e-mails',
     signedInWithGoogle: 'Connecté avec Google',
     signOut: 'Se déconnecter',
     notifications: {
@@ -581,8 +567,6 @@ export const fr: Messages = {
       'Alertes de sécurité, factures à payer, tout ce qui vient de ma banque ou de l’administration',
     newsletters: 'Newsletters et récapitulatifs',
     notifications: 'Notifications automatiques des outils et services',
-    people:
-      'E-mails de vraies personnes qui me posent une question ou attendent ma réponse',
     promotions: 'Promotions, marketing et prospection commerciale à froid',
     receipts: 'Reçus, confirmations de commande et d’expédition',
   },
@@ -666,7 +650,6 @@ export const fr: Messages = {
     },
     recent: 'Aussi ces dernières 24 h',
     sent: 'Envoyé',
-    waitingOnYou: 'Vous attendent',
     worthAttention: 'Mérite votre attention',
     writeNow: 'L’écrire maintenant',
     writing: 'Rédaction…',

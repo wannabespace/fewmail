@@ -406,8 +406,7 @@ export const id: Messages = {
     languageHint:
       'Aplikasi, ringkasan, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
     languageTitle: 'Fewmail harus berbicara dalam bahasa apa?',
-    lead: 'Tiga jawaban singkat. Semuanya bisa kamu ubah nanti di Pengaturan.',
-    personaTitle: 'Bagaimana kamu memakai email?',
+    lead: 'Dua jawaban singkat. Semuanya bisa kamu ubah nanti di Pengaturan.',
     reading: 'Membaca kotak masukmu…',
     start: 'Mulai',
     title: 'Ayo siapkan agenmu.',
@@ -452,18 +451,6 @@ export const id: Messages = {
     open: 'Buka percakapan',
     promised: 'Kamu sudah berjanji',
     threads: (total: number) => `${total} percakapan`,
-  },
-  persona: {
-    reader: {
-      description:
-        'Jaga kotak masuk tetap tenang, urus kebisingannya, dan pastikan tidak ada hal penting yang terlewat.',
-      title: 'Lebih banyak membaca',
-    },
-    responder: {
-      description:
-        'Dahulukan orang yang menunggu saya dan siapkan draf balasan dengan gaya saya.',
-      title: 'Sering membalas',
-    },
   },
   queue: {
     draftedInVoice: 'Ditulis dengan gayamu',
@@ -590,7 +577,6 @@ export const id: Messages = {
       title: 'Hubungkan Claude, Cursor, atau klien MCP apa pun',
       used: (ago: string) => `Dipakai ${ago}`,
     },
-    persona: 'Cara kamu memakai email',
     signedInWithGoogle: 'Masuk dengan Google',
     signOut: 'Keluar',
     schedules: {
@@ -672,8 +658,6 @@ export const id: Messages = {
       'Peringatan keamanan, tagihan yang jatuh tempo, apa pun dari bank atau pemerintah',
     newsletters: 'Buletin dan rangkuman berkala',
     notifications: 'Notifikasi otomatis dari alat dan layanan',
-    people:
-      'Email dari orang sungguhan yang bertanya kepada saya atau menunggu jawaban saya',
     promotions: 'Promosi, pemasaran, dan email penjualan yang tidak diminta',
     receipts: 'Tanda terima, konfirmasi pesanan dan pengiriman',
   },
@@ -760,7 +744,6 @@ export const id: Messages = {
     },
     recent: 'Juga dalam sehari terakhir',
     sent: 'Terkirim',
-    waitingOnYou: 'Menunggumu',
     worthAttention: 'Layak diperhatikan',
     writeNow: 'Tulis sekarang',
     writing: 'Menulis…',

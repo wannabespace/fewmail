@@ -1,6 +1,6 @@
 import { db } from '@fewmail/db'
 import { rules, userSettings } from '@fewmail/db/schema'
-import type { BoardPreset, Persona, RuleEffect } from '@fewmail/shared/agent'
+import type { BoardPreset, RuleEffect } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
@@ -14,32 +14,22 @@ export const getSettings = async (userId: string) => {
   return settings ?? null
 }
 
-const STARTER_RULES: Record<
-  Persona,
-  {
-    effect: RuleEffect
-    instruction: keyof Messages['starterRules']
-  }[]
-> = {
-  reader: [
-    { effect: 'archive', instruction: 'promotions' },
-    { effect: 'mark_read', instruction: 'newsletters' },
-    { effect: 'mark_read', instruction: 'receipts' },
-    { effect: 'always_show', instruction: 'alwaysShow' },
-  ],
-  responder: [
-    { effect: 'archive', instruction: 'promotions' },
-    { effect: 'mark_read', instruction: 'notifications' },
-    { effect: 'draft_reply', instruction: 'people' },
-  ],
-}
+const STARTER_RULES: {
+  effect: RuleEffect
+  instruction: keyof Messages['starterRules']
+}[] = [
+  { effect: 'archive', instruction: 'promotions' },
+  { effect: 'mark_read', instruction: 'newsletters' },
+  { effect: 'mark_read', instruction: 'receipts' },
+  { effect: 'mark_read', instruction: 'notifications' },
+  { effect: 'always_show', instruction: 'alwaysShow' },
+]
 
 export const saveSettings = async (
   userId: string,
   input: {
     briefHour?: number
     language: Locale
-    persona: Persona
     starterBoards?: BoardPreset[]
     gmailLabels?: boolean
     knowledge?: string | null
@@ -56,7 +46,7 @@ export const saveSettings = async (
 
   if (!existing) {
     await db.insert(rules).values(
-      STARTER_RULES[input.persona].map((rule) => ({
+      STARTER_RULES.map((rule) => ({
         ...rule,
         instruction: messages[input.language].starterRules[rule.instruction],
         userId,

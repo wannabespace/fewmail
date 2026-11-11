@@ -346,8 +346,7 @@ export const es: Messages = {
     languageHint:
       'La app, los resúmenes y las explicaciones usan este idioma. Las respuestas siempre siguen el idioma del correo que contestas.',
     languageTitle: '¿En qué idioma debe hablar Fewmail?',
-    lead: 'Tres respuestas rápidas. Puedes cambiarlo todo más tarde en Ajustes.',
-    personaTitle: '¿Cómo usas el correo?',
+    lead: 'Dos respuestas rápidas. Puedes cambiarlo todo más tarde en Ajustes.',
     reading: 'Leyendo tu bandeja…',
     start: 'Empezar',
     title: 'Configuremos tu agente.',
@@ -385,18 +384,6 @@ export const es: Messages = {
       `Todo Pro hasta el ${date}, luego gratis. Sin tarjeta.`,
     upgrade: 'Otros planes',
     usage: 'Este mes',
-  },
-  persona: {
-    reader: {
-      description:
-        'Mantén mi bandeja tranquila, ocúpate del ruido y que no se escape nada importante.',
-      title: 'Sobre todo leo',
-    },
-    responder: {
-      description:
-        'Pon primero a quienes esperan mi respuesta y redacta borradores con mi voz.',
-      title: 'Respondo mucho',
-    },
   },
   queue: {
     draftedInVoice: 'Redactado con tu voz',
@@ -524,7 +511,6 @@ export const es: Messages = {
       title: 'Conecta Claude, Cursor o cualquier cliente MCP',
       used: (ago: string) => `Usada ${ago}`,
     },
-    persona: 'Cómo usas el correo',
     signedInWithGoogle: 'Sesión iniciada con Google',
     signOut: 'Cerrar sesión',
     notifications: {
@@ -576,8 +562,6 @@ export const es: Messages = {
       'Alertas de seguridad, facturas por pagar, cualquier cosa de mi banco o de la administración pública',
     newsletters: 'Newsletters y boletines',
     notifications: 'Notificaciones automáticas de herramientas y servicios',
-    people:
-      'Correos de personas reales que me hacen una pregunta o esperan mi respuesta',
     promotions: 'Promociones, marketing y correos de venta en frío',
     receipts: 'Recibos, confirmaciones de pedido y de envío',
   },
@@ -660,7 +644,6 @@ export const es: Messages = {
     },
     recent: 'También en el último día',
     sent: 'Enviado',
-    waitingOnYou: 'Te esperan',
     worthAttention: 'Merece tu atención',
     writeNow: 'Escribirlo ahora',
     writing: 'Escribiendo…',

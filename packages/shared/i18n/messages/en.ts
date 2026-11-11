@@ -416,8 +416,7 @@ export const en = {
     languageHint:
       'The app, briefs, summaries and explanations use this language. Replies always match the language of the email you answer.',
     languageTitle: 'Which language should Fewmail speak?',
-    lead: 'Three quick answers. You can change all of them later in Settings.',
-    personaTitle: 'How do you use email?',
+    lead: 'Two quick answers. You can change all of them later in Settings.',
     reading: 'Reading your inbox…',
     start: 'Start',
     title: 'Let’s set up your agent.',
@@ -465,18 +464,6 @@ export const en = {
         one: () => '1 conversation',
         other: (n) => `${n} conversations`,
       }),
-  },
-  persona: {
-    reader: {
-      description:
-        'Keep my inbox calm, handle the noise and make sure nothing important slips by.',
-      title: 'I mostly read',
-    },
-    responder: {
-      description:
-        'Put the people waiting on me first and have replies drafted in my voice.',
-      title: 'I reply a lot',
-    },
   },
   queue: {
     draftedInVoice: 'Drafted in your voice',
@@ -600,7 +587,6 @@ export const en = {
       title: 'Connect Claude, Cursor or any MCP client',
       used: (ago: string) => `Used ${ago}`,
     },
-    persona: 'How you use email',
     signedInWithGoogle: 'Signed in with Google',
     signOut: 'Sign out',
     schedules: {
@@ -680,8 +666,6 @@ export const en = {
       'Security alerts, bills that are due, anything from my bank or government',
     newsletters: 'Newsletters and digests',
     notifications: 'Automated notifications from tools and services',
-    people:
-      'Emails from real people that ask me a question or wait for my answer',
     promotions: 'Promotions, marketing and cold sales emails',
     receipts: 'Receipts, order and shipping confirmations',
   },
@@ -776,7 +760,6 @@ export const en = {
     },
     recent: 'Also in the last day',
     sent: 'Sent',
-    waitingOnYou: 'Waiting on you',
     worthAttention: 'Worth your attention',
     writeNow: 'Write it now',
     writing: 'Writing…',

@@ -433,8 +433,7 @@ export const pl: Messages = {
     languageHint:
       'W tym języku działa aplikacja, podsumowania i wyjaśnienia. Odpowiedzi zawsze są w języku maila, na który odpowiadasz.',
     languageTitle: 'W jakim języku ma mówić Fewmail?',
-    lead: 'Trzy szybkie odpowiedzi. Wszystko zmienisz później w Ustawieniach.',
-    personaTitle: 'Jak korzystasz z poczty?',
+    lead: 'Dwie szybkie odpowiedzi. Wszystko zmienisz później w Ustawieniach.',
     reading: 'Czytam twoją skrzynkę…',
     start: 'Zaczynamy',
     title: 'Skonfigurujmy twojego agenta.',
@@ -483,18 +482,6 @@ export const pl: Messages = {
         many: (n) => `${n} rozmów`,
         other: (n) => `${n} rozmowy`,
       }),
-  },
-  persona: {
-    reader: {
-      description:
-        'Dbaj o spokój w skrzynce, zajmij się szumem i pilnuj, by nic ważnego mi nie umknęło.',
-      title: 'Głównie czytam',
-    },
-    responder: {
-      description:
-        'Pokazuj najpierw osoby, które na mnie czekają, i przygotowuj szkice odpowiedzi moim głosem.',
-      title: 'Dużo odpowiadam',
-    },
   },
   queue: {
     draftedInVoice: 'Napisane twoim głosem',
@@ -627,7 +614,6 @@ export const pl: Messages = {
       title: 'Połącz Claude, Cursor lub dowolnego klienta MCP',
       used: (ago: string) => `Użyty ${ago}`,
     },
-    persona: 'Jak korzystasz z poczty',
     signedInWithGoogle: 'Zalogowano przez Google',
     signOut: 'Wyloguj się',
     schedules: {
@@ -710,8 +696,6 @@ export const pl: Messages = {
       'Alerty bezpieczeństwa, rachunki do zapłaty, wszystko od mojego banku lub urzędów',
     newsletters: 'Newslettery i zestawienia',
     notifications: 'Automatyczne powiadomienia z narzędzi i serwisów',
-    people:
-      'Maile od prawdziwych ludzi, które zadają mi pytanie lub czekają na moją odpowiedź',
     promotions: 'Promocje, marketing i niezamówione oferty sprzedażowe',
     receipts: 'Paragony, potwierdzenia zamówień i wysyłek',
   },
@@ -845,7 +829,6 @@ export const pl: Messages = {
     },
     recent: 'Też z ostatniej doby',
     sent: 'Wysłano',
-    waitingOnYou: 'Czeka na ciebie',
     worthAttention: 'Warte uwagi',
     writeNow: 'Napisz teraz',
     writing: 'Piszę…',

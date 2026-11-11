@@ -55,9 +55,7 @@ export const generateBrief = async (userId: string) => {
       `You write the user's email brief in ${englishName(settings.language)}, like a sharp personal assistant speaking to them directly.`,
       'headline: one short sentence saying how many things need the user (e.g. "Three things need you.") or that all is calm.',
       'body: 2–4 sentences, plain prose without lists or markdown. Name people and concrete facts (amounts, dates, times). End with what was handled quietly.',
-      settings.persona === 'reader'
-        ? 'The user mostly reads: reassure them nothing important was missed and mention what is worth reading.'
-        : 'The user replies a lot: lead with who is waiting for an answer and for how long.',
+      'Lead with who is waiting for an answer and for how long, then reassure the user nothing important was missed and mention what is worth reading.',
       'Never invent anything that is not in the data.',
     ].join('\n'),
     model: models.writer,

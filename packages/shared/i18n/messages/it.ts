@@ -347,8 +347,7 @@ export const it: Messages = {
     languageHint:
       'App, brief, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
     languageTitle: 'In che lingua deve parlare Fewmail?',
-    lead: 'Tre risposte veloci. Puoi cambiare tutto più tardi nelle Impostazioni.',
-    personaTitle: 'Come usi l’email?',
+    lead: 'Due risposte veloci. Puoi cambiare tutto più tardi nelle Impostazioni.',
     reading: 'Leggo la tua posta…',
     start: 'Inizia',
     title: 'Configuriamo il tuo agente.',
@@ -386,18 +385,6 @@ export const it: Messages = {
       `Tutto Pro fino al ${date}, poi gratis. Nessuna carta.`,
     upgrade: 'Altri piani',
     usage: 'Questo mese',
-  },
-  persona: {
-    reader: {
-      description:
-        'Tieni calma la mia posta, gestisci il rumore e non lasciarti sfuggire niente di importante.',
-      title: 'Leggo soprattutto',
-    },
-    responder: {
-      description:
-        'Metti prima chi aspetta una mia risposta e prepara bozze con la mia voce.',
-      title: 'Rispondo molto',
-    },
   },
   queue: {
     draftedInVoice: 'Scritto con la tua voce',
@@ -524,7 +511,6 @@ export const it: Messages = {
       title: 'Collega Claude, Cursor o qualsiasi client MCP',
       used: (ago: string) => `Usata ${ago}`,
     },
-    persona: 'Come usi l’email',
     signedInWithGoogle: 'Accesso con Google',
     signOut: 'Esci',
     notifications: {
@@ -576,8 +562,6 @@ export const it: Messages = {
       'Avvisi di sicurezza, bollette in scadenza, qualsiasi cosa dalla mia banca o dalla pubblica amministrazione',
     newsletters: 'Newsletter e digest',
     notifications: 'Notifiche automatiche di strumenti e servizi',
-    people:
-      'Email di persone reali che mi fanno una domanda o aspettano una mia risposta',
     promotions: 'Promozioni, marketing ed email di vendita a freddo',
     receipts: 'Ricevute, conferme d’ordine e di spedizione',
   },
@@ -657,7 +641,6 @@ export const it: Messages = {
     },
     recent: 'Anche nell’ultimo giorno',
     sent: 'Inviata',
-    waitingOnYou: 'Ti aspettano',
     worthAttention: 'Merita attenzione',
     writeNow: 'Scrivila ora',
     writing: 'Scrivo…',

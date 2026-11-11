@@ -93,10 +93,6 @@ export const PLAN_LIMITS = {
 export const DEVICE_KINDS = ['web'] as const
 export type DeviceKind = (typeof DEVICE_KINDS)[number]
 
-/** Reader: wants calm and nothing important lost. Responder: answers a lot and wants drafts first. */
-export const PERSONAS = ['reader', 'responder'] as const
-export type Persona = (typeof PERSONAS)[number]
-
 /** Built-in agent skills, run as `/name` in the chat, as Telegram commands and as MCP prompts; labels come from `skills`. Names stay Telegram-safe: `[a-z0-9_]`. */
 export const SKILLS = [
   'today',
