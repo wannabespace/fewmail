@@ -161,7 +161,7 @@ export const es: Messages = {
       'Fewmail pide permiso para leer, organizar y enviar Gmail por ti. No se envía ni se archiva nada sin tu permiso, salvo que escribas una regla que lo permita.',
     continue: 'Continuar con Google',
     lead: 'Fewmail lee tu bandeja por ti, responde con tu voz y solo te muestra lo que de verdad te necesita.',
-    title: 'Lee menos correo.',
+    title: 'Solo lo que importa.',
   },
   mail: {
     block: 'Bloquear remitente',

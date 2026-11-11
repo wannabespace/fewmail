@@ -13,7 +13,7 @@ export const kbdVariants = cva(
         lg: `h-9 min-w-9 px-2.5 text-base [&_svg]:size-4`,
       },
       variant: {
-        default: `text-muted-foreground/80 in-data-[slot=tooltip-content]:text-card`,
+        default: `text-muted-foreground/80 in-data-[slot=tooltip-content]:text-card in-[.bg-primary]:text-primary-foreground/70`,
         keycap: `bg-input ring-foreground/4 rounded-lg shadow-md ring transition-shadow duration-100 data-pressed:shadow-xs`,
       },
     },

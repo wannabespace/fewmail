@@ -169,7 +169,7 @@ export const nl: Messages = {
       'Fewmail vraagt toestemming om je Gmail te lezen, te ordenen en te versturen. Er wordt niets verstuurd of gearchiveerd zonder jouw akkoord, tenzij je een regel maakt die dat toestaat.',
     continue: 'Doorgaan met Google',
     lead: 'Fewmail leest je inbox voor je, antwoordt in jouw stijl en laat alleen zien wat jou echt nodig heeft.',
-    title: 'Lees minder e-mail.',
+    title: 'Alleen wat ertoe doet.',
   },
   mail: {
     block: 'Afzender blokkeren',

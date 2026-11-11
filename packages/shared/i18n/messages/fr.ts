@@ -161,7 +161,7 @@ export const fr: Messages = {
       'Fewmail demande à lire, organiser et envoyer vos e-mails Gmail pour vous. Rien n’est envoyé ni archivé sans votre accord, sauf si vous créez une règle qui l’autorise.',
     continue: 'Continuer avec Google',
     lead: 'Fewmail lit votre boîte de réception pour vous, répond avec votre style et ne vous montre que ce qui a vraiment besoin de vous.',
-    title: 'Lisez moins d’e-mails.',
+    title: 'L’essentiel, rien de plus.',
   },
   mail: {
     block: 'Bloquer l’expéditeur',

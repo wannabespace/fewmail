@@ -160,7 +160,7 @@ export const tr: Messages = {
       'Fewmail, Gmail’ini senin için okumak, düzenlemek ve göndermek için izin ister. İzin veren bir kural yazmadığın sürece senin onayın olmadan hiçbir şey gönderilmez ve arşivlenmez.',
     continue: 'Google ile devam et',
     lead: 'Fewmail gelen kutunu senin yerine okur, senin üslubunla yanıtlar ve sadece gerçekten seni bekleyenleri gösterir.',
-    title: 'Daha az e-posta oku.',
+    title: 'Yalnızca önemli olan.',
   },
   mail: {
     block: 'Göndereni engelle',

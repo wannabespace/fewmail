@@ -166,7 +166,7 @@ export const en = {
       'Fewmail asks to read, organize and send Gmail for you. Nothing is sent and nothing is archived without your say, unless you write a rule that allows it.',
     continue: 'Continue with Google',
     lead: 'Fewmail reads your inbox for you, answers in your voice and only shows you what actually needs you.',
-    title: 'Read less email.',
+    title: 'Only what matters.',
   },
   mail: {
     archive: 'Archive',

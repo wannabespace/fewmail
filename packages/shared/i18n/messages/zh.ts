@@ -137,7 +137,7 @@ export const zh: Messages = {
       'Fewmail 会请求代你读取、整理和发送 Gmail 邮件。除非你写下允许的规则，否则未经你同意，不会发送或归档任何邮件。',
     continue: '使用 Google 继续',
     lead: 'Fewmail 替你阅读收件箱，用你的语气回复，只把真正需要你的邮件给你看。',
-    title: '少读点邮件。',
+    title: '只看重要的。',
   },
   mail: {
     block: '屏蔽发件人',

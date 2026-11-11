@@ -142,7 +142,7 @@ export const ko: Messages = {
       'Fewmail은 사용자를 대신해 Gmail을 읽고, 정리하고, 보낼 수 있는 권한을 요청해요. 허용하는 규칙을 직접 만들지 않는 한, 동의 없이 아무것도 보내거나 보관하지 않아요.',
     continue: 'Google로 계속하기',
     lead: 'Fewmail이 받은편지함을 대신 읽고, 내 말투로 답장하고, 정말 필요한 것만 보여줘요.',
-    title: '이메일은 덜 읽으세요.',
+    title: '중요한 것만.',
   },
   mail: {
     block: '발신자 차단',

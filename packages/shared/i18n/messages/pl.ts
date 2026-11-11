@@ -178,7 +178,7 @@ export const pl: Messages = {
       'Fewmail prosi o dostęp do czytania, porządkowania i wysyłania poczty Gmail w twoim imieniu. Nic nie zostanie wysłane ani zarchiwizowane bez twojej zgody, chyba że ustawisz regułę, która na to pozwala.',
     continue: 'Kontynuuj z Google',
     lead: 'Fewmail czyta twoją skrzynkę za ciebie, odpowiada twoim głosem i pokazuje tylko to, co naprawdę wymaga twojej uwagi.',
-    title: 'Czytaj mniej maili.',
+    title: 'Tylko to, co ważne.',
   },
   mail: {
     block: 'Zablokuj nadawcę',
