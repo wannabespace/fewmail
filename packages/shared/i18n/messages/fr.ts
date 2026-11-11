@@ -302,6 +302,15 @@ export const fr: Messages = {
     usage: (percent: number) => `Agent · ${percent} % du mois utilisé`,
     watching: 'L’agent surveille votre boîte',
   },
+  schedule: {
+    failed:
+      'Cette exécution planifiée a échoué. Je réessaierai à la prochaine.',
+    limitReached: (day: string) =>
+      `Les messages de ce mois sont épuisés, la planification saute donc les exécutions jusqu’au ${day}.`,
+    open: 'Ouvrir dans Fewmail',
+    stopped:
+      'Cette planification a échoué trois fois de suite, je l’ai donc arrêtée. Demandez-moi de la recréer quand vous la voulez.',
+  },
   notifications: {
     many: (total: number) =>
       plural('fr', total, {

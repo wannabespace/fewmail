@@ -11,18 +11,23 @@ import {
   userSettings,
 } from '@fewmail/db/schema'
 import { IMPORTANCE } from '@fewmail/shared/agent'
+import { messages } from '@fewmail/shared/i18n'
+import type { Messages } from '@fewmail/shared/i18n'
+import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { generateId } from 'ai'
 import { subMinutes } from 'date-fns'
 import { and, eq, gte, isNotNull, isNull, lt, lte, or } from 'drizzle-orm'
 
+import { env } from './env'
 import { announceChange } from './lib/live'
 import { seedBoards } from './services/boards'
 import { generateBrief, isBriefDue } from './services/brief'
-import { getChat, streamChat } from './services/chat'
+import { getChat, postToChat, streamChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { chatIdForUser } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
+import { LimitReachedError } from './services/limit-error'
 import { listQueue } from './services/mail'
 import {
   briefNotification,
@@ -38,6 +43,7 @@ import {
   processDueReminders,
 } from './services/reminders'
 import { nextRunAt } from './services/schedules'
+import { getSettings } from './services/settings'
 import { ensureMailbox, readBoardHistory, syncMailbox } from './services/sync'
 import { sendBrief, sendUrgent } from './telegram'
 import { sendWhatsappBrief, sendWhatsappUrgent } from './whatsapp'
@@ -211,54 +217,119 @@ const pushUrgent = async () => {
   }
 }
 
-const runSchedule = async (schedule: typeof schedules.$inferSelect) => {
-  const stream = await streamChat(schedule.userId, {
-    id: schedule.chatId,
+type Schedule = typeof schedules.$inferSelect
+
+const STALE_RUN_MINUTES = 15
+const MAX_SCHEDULE_FAILURES = 3
+
+/** The model's own errors arrive as stream chunks, not exceptions. */
+const askScheduledAgent = async ({ chatId, instruction, userId }: Schedule) => {
+  const stream = await streamChat(userId, {
+    id: chatId,
     message: {
       id: generateId(),
-      parts: [{ text: schedule.instruction, type: 'text' }],
+      parts: [{ text: instruction, type: 'text' }],
       role: 'user',
     },
   })
-  await stream.pipeTo(new WritableStream())
-  const { messages } = await getChat(schedule.userId, schedule.chatId)
-  const answer = messages
-    .at(-1)
-    ?.parts.flatMap((part) => (part.type === 'text' ? [part.text] : []))
-    .join('\n')
-  notify(
-    schedule.userId,
-    scheduleNotification(schedule.instruction, answer ?? '', schedule.chatId)
+  for await (const chunk of stream) {
+    if (chunk.type === 'error') {
+      throw new Error(chunk.errorText)
+    }
+  }
+  const { messages: history } = await getChat(userId, chatId)
+  return (
+    history
+      .at(-1)
+      ?.parts.flatMap((part) => (part.type === 'text' ? [part.text] : []))
+      .join('\n') ?? ''
   )
-  await announceChange(schedule.userId)
 }
 
-/** Moving `nextRunAt` first claims the run, so a slow or failed one is never repeated. */
+/** Messengers get a link because approvals for a scheduled run happen in its web chat. */
+const deliverScheduleRun = async (
+  schedule: Schedule,
+  t: Messages,
+  text: string
+) => {
+  const { chatId, instruction, userId } = schedule
+  notify(userId, scheduleNotification(instruction, text, chatId))
+  await announceChange(userId)
+  const run = {
+    body: `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${chatId}`,
+    headline: instruction,
+  }
+  const telegramChat = await chatIdForUser(userId)
+  await Promise.all([
+    telegramChat && sendBrief(telegramChat, userId, run),
+    sendWhatsappBrief(userId, run),
+  ])
+}
+
+const runSchedule = async (schedule: Schedule) => {
+  const { chatId, cron, id, instruction, userId } = schedule
+  const settings = await getSettings(userId)
+  const language = settings?.language ?? 'en'
+  const t = messages[language]
+  const finish = async (change: Partial<Schedule>) => {
+    await db
+      .update(schedules)
+      .set({ runningSince: null, ...change })
+      .where(eq(schedules.id, id))
+  }
+  const report = async (text: string) => {
+    await postToChat(userId, { id: chatId, text, title: instruction })
+    await deliverScheduleRun(schedule, t, text)
+  }
+
+  let answer: string
+  try {
+    answer = await askScheduledAgent(schedule)
+  } catch (error) {
+    if (error instanceof LimitReachedError) {
+      await finish({ nextRunAt: await nextRunAt(userId, cron, error.resetsAt) })
+      await report(
+        t.schedule.limitReached(formatResetDay(language, error.resetsAt))
+      )
+      return
+    }
+    console.error(`schedule ${id}`, error)
+    const failures = schedule.failures + 1
+    if (failures >= MAX_SCHEDULE_FAILURES) {
+      await db.delete(schedules).where(eq(schedules.id, id))
+      await report(t.schedule.stopped)
+      return
+    }
+    await finish({ failures, nextRunAt: await nextRunAt(userId, cron) })
+    await report(t.schedule.failed)
+    return
+  }
+  await finish({ failures: 0, nextRunAt: await nextRunAt(userId, cron) })
+  await deliverScheduleRun(schedule, t, answer)
+}
+
+/** `runningSince` claims a run until it finishes; one older than `STALE_RUN_MINUTES` was cut off (a deploy, a crash) and runs again. */
 const runDueSchedules = async () => {
-  const due = await db
-    .select()
-    .from(schedules)
-    .where(lte(schedules.nextRunAt, new Date()))
+  const now = new Date()
+  const claimed = await db
+    .update(schedules)
+    .set({ runningSince: now })
+    .where(
+      and(
+        lte(schedules.nextRunAt, now),
+        or(
+          isNull(schedules.runningSince),
+          lt(schedules.runningSince, subMinutes(now, STALE_RUN_MINUTES))
+        )
+      )
+    )
+    .returning()
   await Promise.all(
-    due.map(async (schedule) => {
-      try {
-        const [claimed] = await db
-          .update(schedules)
-          .set({ nextRunAt: await nextRunAt(schedule.userId, schedule.cron) })
-          .where(
-            and(
-              eq(schedules.id, schedule.id),
-              eq(schedules.nextRunAt, schedule.nextRunAt)
-            )
-          )
-          .returning()
-        if (claimed) {
-          await runSchedule(schedule)
-        }
-      } catch (error) {
+    claimed.map((schedule) =>
+      runSchedule(schedule).catch((error) =>
         console.error(`schedule ${schedule.id}`, error)
-      }
-    })
+      )
+    )
   )
 }
 

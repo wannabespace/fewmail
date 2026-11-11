@@ -378,6 +378,15 @@ export const pl: Messages = {
     usage: (percent: number) => `Agent · wykorzystano ${percent}% miesiąca`,
     watching: 'Agent pilnuje twojej skrzynki',
   },
+  schedule: {
+    failed:
+      'To zaplanowane uruchomienie się nie powiodło. Spróbuję ponownie przy następnym.',
+    limitReached: (day: string) =>
+      `Wiadomości na ten miesiąc się skończyły, więc harmonogram pomija uruchomienia do ${day}.`,
+    open: 'Otwórz w Fewmail',
+    stopped:
+      'Ten harmonogram zawiódł trzy razy z rzędu, więc go zatrzymałem. Poproś mnie o ponowne ustawienie, gdy będziesz chcieć.',
+  },
   notifications: {
     many: (total: number) =>
       plural('pl', total, {

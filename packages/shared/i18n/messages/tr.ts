@@ -347,6 +347,15 @@ export const tr: Messages = {
     usage: (percent: number) => `Ajan · bu ayın %${percent} kadarı kullanıldı`,
     watching: 'Ajan gelen kutunu izliyor',
   },
+  schedule: {
+    failed:
+      'Bu zamanlanmış çalışma başarısız oldu. Bir sonrakinde yeniden deneyeceğim.',
+    limitReached: (day: string) =>
+      `Bu ayın mesajları bitti, bu yüzden zamanlama şu tarihe kadar çalışmaları atlıyor: ${day}`,
+    open: 'Fewmail’de aç',
+    stopped:
+      'Bu zamanlama üst üste üç kez başarısız oldu, bu yüzden durdurdum. Geri istediğinizde yeniden kurmamı isteyin.',
+  },
   notifications: {
     many: (total: number) =>
       plural('tr', total, {

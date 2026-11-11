@@ -301,6 +301,15 @@ export const it: Messages = {
     usage: (percent: number) => `Agente · ${percent}% del mese usato`,
     watching: 'L’agente tiene d’occhio la tua posta',
   },
+  schedule: {
+    failed:
+      'Questa esecuzione pianificata non è riuscita. Riproverò alla prossima.',
+    limitReached: (day: string) =>
+      `I messaggi di questo mese sono esauriti, quindi la pianificazione salta le esecuzioni fino al ${day}.`,
+    open: 'Apri in Fewmail',
+    stopped:
+      'Questa pianificazione è fallita tre volte di seguito, quindi l’ho fermata. Chiedimi di reimpostarla quando la vuoi.',
+  },
   notifications: {
     many: (total: number) =>
       plural('it', total, {

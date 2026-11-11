@@ -276,6 +276,14 @@ export const ko: Messages = {
     usage: (percent: number) => `에이전트 · 이번 달 ${percent}% 사용`,
     watching: '에이전트가 받은편지함을 지켜보고 있어요',
   },
+  schedule: {
+    failed: '이번 예약 실행이 실패했습니다. 다음 실행 때 다시 시도할게요.',
+    limitReached: (day: string) =>
+      `이번 달 메시지를 모두 사용해 다음 날짜까지 실행을 건너뜁니다: ${day}`,
+    open: 'Fewmail에서 열기',
+    stopped:
+      '이 일정이 세 번 연속 실패해서 중지했습니다. 다시 원하시면 설정해 달라고 말씀해 주세요.',
+  },
   notifications: {
     many: (n: number) => `Fewmail 새 알림 ${n}개`,
   },

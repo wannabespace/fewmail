@@ -115,6 +115,30 @@ export const deleteChat = async (userId: string, id: string) => {
   await db.delete(chats).where(and(eq(chats.id, id), eq(chats.userId, userId)))
 }
 
+/** A note from Fewmail itself rather than the model, such as a scheduled run that could not happen. */
+export const postToChat = async (
+  userId: string,
+  { id, text, title }: { id: string; text: string; title: string }
+) => {
+  const chat = await ownChat(userId, id)
+  const message: UIMessage = {
+    id: generateId(),
+    parts: [{ text, type: 'text' }],
+    role: 'assistant',
+  }
+  await (chat
+    ? db
+        .update(chats)
+        .set({ messages: [...(chat.messages as UIMessage[]), message] })
+        .where(and(eq(chats.id, id), eq(chats.userId, userId)))
+    : db.insert(chats).values({
+        id,
+        messages: [message],
+        title: title.slice(0, TITLE_LENGTH),
+        userId,
+      }))
+}
+
 /**
  * The client sends only its last message: a new one, the assistant turn it answered approvals in,
  * or the question it regenerates — which drops what came after it. History comes from the database.

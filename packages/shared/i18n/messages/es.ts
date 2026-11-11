@@ -300,6 +300,15 @@ export const es: Messages = {
     usage: (percent: number) => `Agente · ${percent} % del mes usado`,
     watching: 'El agente vigila tu bandeja',
   },
+  schedule: {
+    failed:
+      'Esta ejecución programada falló. Lo intentaré de nuevo en la siguiente.',
+    limitReached: (day: string) =>
+      `Los mensajes de este mes se han agotado, así que la programación omite ejecuciones hasta el ${day}.`,
+    open: 'Abrir en Fewmail',
+    stopped:
+      'Esta programación falló tres veces seguidas, así que la detuve. Pídeme que la configure de nuevo cuando la quieras.',
+  },
   notifications: {
     many: (total: number) =>
       plural('es', total, {

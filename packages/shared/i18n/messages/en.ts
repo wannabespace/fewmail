@@ -360,6 +360,14 @@ export const en = {
     usage: (percent: number) => `Agent · ${percent}% of this month used`,
     watching: 'Agent is watching your inbox',
   },
+  schedule: {
+    failed: 'This scheduled run failed. I’ll try again at the next one.',
+    limitReached: (day: string) =>
+      `This month’s messages are used up, so the schedule skips runs until ${day}.`,
+    open: 'Open in Fewmail',
+    stopped:
+      'This schedule failed three times in a row, so I stopped it. Ask me to set it up again when you want it back.',
+  },
   notifications: {
     many: (total: number) =>
       plural('en', total, {

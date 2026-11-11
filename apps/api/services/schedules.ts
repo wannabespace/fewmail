@@ -10,11 +10,15 @@ import { getSettings } from './settings'
 
 const MIN_INTERVAL_MS = 60 * 60 * 1000
 
-export const nextRunAt = async (userId: string, cron: string) => {
+export const nextRunAt = async (
+  userId: string,
+  cron: string,
+  from = new Date()
+) => {
   const settings = await getSettings(userId)
   const [next, after] = new Cron(cron, {
     timezone: settings?.timezone ?? 'UTC',
-  }).nextRuns(2)
+  }).nextRuns(2, from)
   if (!next) {
     throw new Error('This schedule never runs')
   }

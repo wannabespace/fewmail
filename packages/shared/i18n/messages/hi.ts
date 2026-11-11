@@ -280,6 +280,14 @@ export const hi: Messages = {
     usage: (percent: number) => `एजेंट · इस महीने का ${percent}% इस्तेमाल हुआ`,
     watching: 'एजेंट आपके इनबॉक्स पर नज़र रख रहा है',
   },
+  schedule: {
+    failed: 'यह शेड्यूल्ड रन विफल रहा। अगली बार फिर कोशिश करूँगा।',
+    limitReached: (day: string) =>
+      `इस महीने के संदेश खत्म हो गए हैं, इसलिए शेड्यूल इस तारीख तक रन छोड़ेगा: ${day}`,
+    open: 'Fewmail में खोलें',
+    stopped:
+      'यह शेड्यूल लगातार तीन बार विफल रहा, इसलिए मैंने इसे रोक दिया। जब चाहें, मुझसे इसे फिर से सेट करने को कहें।',
+  },
   notifications: {
     many: (total: number) =>
       plural('hi', total, {

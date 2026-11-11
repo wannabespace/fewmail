@@ -251,8 +251,12 @@ export const schedules = d.snakeCase.table(
     ...baseTable,
     chatId: d.uuid().notNull(),
     cron: d.text().notNull(),
+    /** Failed runs in a row; the schedule is deleted at `MAX_SCHEDULE_FAILURES`. */
+    failures: d.smallint().default(0).notNull(),
     instruction: encryptedText().notNull(),
     nextRunAt: d.timestamp({ withTimezone: true }).notNull(),
+    /** Set while a worker runs it; an old one means the run was cut off and is retried. */
+    runningSince: d.timestamp({ withTimezone: true }),
     when: encryptedText().notNull(),
     userId: userId(),
   },

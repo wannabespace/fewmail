@@ -353,6 +353,15 @@ export const id: Messages = {
     usage: (percent: number) => `Agen · ${percent}% bulan ini terpakai`,
     watching: 'Agen sedang memantau kotak masukmu',
   },
+  schedule: {
+    failed:
+      'Jalannya jadwal ini gagal. Saya akan mencoba lagi di jadwal berikutnya.',
+    limitReached: (day: string) =>
+      `Pesan bulan ini sudah habis, jadi jadwal melewatkan jalannya hingga ${day}.`,
+    open: 'Buka di Fewmail',
+    stopped:
+      'Jadwal ini gagal tiga kali berturut-turut, jadi saya menghentikannya. Minta saya menyiapkannya lagi kapan pun Anda mau.',
+  },
   notifications: {
     many: (total: number) =>
       plural('id', total, {

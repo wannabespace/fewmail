@@ -269,6 +269,14 @@ export const zh: Messages = {
     usage: (percent: number) => `代理 · 本月已用 ${percent}%`,
     watching: '助手正在留意你的收件箱',
   },
+  schedule: {
+    failed: '这次定时运行失败了。下次运行时我会再试。',
+    limitReached: (day: string) =>
+      `本月的消息已用完，定时任务将跳过运行，直到 ${day}。`,
+    open: '在 Fewmail 中打开',
+    stopped:
+      '这个定时任务连续失败了三次，所以我停止了它。需要时让我重新设置即可。',
+  },
   notifications: {
     many: (n: number) => `Fewmail 有 ${n} 条新通知`,
   },

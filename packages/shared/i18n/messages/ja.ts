@@ -276,6 +276,14 @@ export const ja: Messages = {
     usage: (percent: number) => `エージェント · 今月の ${percent}% を使用`,
     watching: 'エージェントが受信トレイを見守っています',
   },
+  schedule: {
+    failed: 'このスケジュール実行は失敗しました。次回もう一度試します。',
+    limitReached: (day: string) =>
+      `今月のメッセージを使い切ったため、次の日付まで実行をスキップします: ${day}`,
+    open: 'Fewmail で開く',
+    stopped:
+      'このスケジュールは3回連続で失敗したため停止しました。また必要になったら設定し直すよう頼んでください。',
+  },
   notifications: {
     many: (n: number) => `Fewmail から ${n} 件のお知らせ`,
   },

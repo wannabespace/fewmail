@@ -364,6 +364,15 @@ export const nl: Messages = {
     usage: (percent: number) => `Agent · ${percent}% van deze maand gebruikt`,
     watching: 'De agent houdt je inbox in de gaten',
   },
+  schedule: {
+    failed:
+      'Deze geplande run is mislukt. Ik probeer het bij de volgende opnieuw.',
+    limitReached: (day: string) =>
+      `De berichten van deze maand zijn op, dus de planning slaat runs over tot ${day}.`,
+    open: 'Openen in Fewmail',
+    stopped:
+      'Deze planning is drie keer achter elkaar mislukt, dus ik heb haar gestopt. Vraag me haar opnieuw in te stellen als je haar terug wilt.',
+  },
   notifications: {
     many: (total: number) =>
       plural('nl', total, {

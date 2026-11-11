@@ -299,6 +299,15 @@ export const de: Messages = {
     usage: (percent: number) => `Agent · ${percent} % des Monats verbraucht`,
     watching: 'Der Agent behält deinen Posteingang im Blick',
   },
+  schedule: {
+    failed:
+      'Dieser geplante Lauf ist fehlgeschlagen. Ich versuche es beim nächsten erneut.',
+    limitReached: (day: string) =>
+      `Die Nachrichten dieses Monats sind aufgebraucht, daher überspringt der Zeitplan Läufe bis zum ${day}.`,
+    open: 'In Fewmail öffnen',
+    stopped:
+      'Dieser Zeitplan ist dreimal hintereinander fehlgeschlagen, deshalb habe ich ihn gestoppt. Bitte mich, ihn neu einzurichten, wenn du ihn zurück willst.',
+  },
   notifications: {
     many: (total: number) =>
       plural('de', total, {

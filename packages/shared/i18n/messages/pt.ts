@@ -364,6 +364,14 @@ export const pt: Messages = {
     usage: (percent: number) => `Agente · ${percent}% do mês usado`,
     watching: 'O agente está de olho na sua caixa de entrada',
   },
+  schedule: {
+    failed: 'Esta execução agendada falhou. Vou tentar de novo na próxima.',
+    limitReached: (day: string) =>
+      `As mensagens deste mês acabaram, então o agendamento pula execuções até ${day}.`,
+    open: 'Abrir no Fewmail',
+    stopped:
+      'Este agendamento falhou três vezes seguidas, então eu o parei. Peça para eu configurá-lo de novo quando quiser.',
+  },
   notifications: {
     many: (total: number) =>
       plural('pt', total, {
