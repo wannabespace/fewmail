@@ -380,6 +380,14 @@ export const uk: Messages = {
       notConfigured: 'Бот Telegram не налаштовано на цьому сервері.',
       unlinked: 'Отримуй бриф і схвалюй чернетки в Telegram.',
     },
+    whatsapp: {
+      connect: 'Підключити WhatsApp',
+      disconnect: 'Відключити',
+      linked:
+        'Бриф приходить щоранку, термінові листи — одразу. Схвалюй і редагуй чернетки прямо в чаті.',
+      notConfigured: 'Бот WhatsApp не налаштовано на цьому сервері.',
+      unlinked: 'Отримуй бриф і схвалюй чернетки в WhatsApp.',
+    },
     title: 'Налаштування',
   },
   spam: {
@@ -556,6 +564,14 @@ export const uk: Messages = {
     next: 'Наступний крок',
     start: 'Почати',
     started: 'Агент узявся до справи.',
+  },
+  whatsapp: {
+    connectFirst:
+      'Спершу відкрий Fewmail → Налаштування → Інтеграції й натисни «Підключити WhatsApp».',
+    connected:
+      'Під’єднано. Я надсилатиму бриф щоранку й писатиму, коли прийде щось термінове. Надішли текст або голосове, щоб відповісти на будь-який лист.',
+    proOnly:
+      'WhatsApp входить у Fewmail Pro. Щоб перейти, відкрий у Fewmail Налаштування → План.',
   },
   zombie: {
     badge: (share: number) => `Ігнорує відписку в ${share}% людей`,

@@ -9,6 +9,7 @@ import { handleMcp } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
 import { startTelegram, telegramWebhook } from './telegram'
+import { verifyWhatsappWebhook, whatsappWebhook } from './whatsapp'
 
 const rpc = new RPCHandler(router)
 
@@ -27,6 +28,8 @@ const app = new Hono()
   .post('/telegram', (c) =>
     telegramWebhook ? telegramWebhook(c.req.raw) : c.notFound()
   )
+  .get('/whatsapp', (c) => verifyWhatsappWebhook(new URL(c.req.url)))
+  .post('/whatsapp', (c) => whatsappWebhook(c.req.raw))
   .post('/stripe/webhook', (c) => handleStripeWebhook(c.req.raw))
   .get('/health', (c) => c.text('ok'))
 

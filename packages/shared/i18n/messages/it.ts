@@ -381,6 +381,14 @@ export const it: Messages = {
       notConfigured: 'Il bot Telegram non è configurato su questo server.',
       unlinked: 'Ricevi il brief e approva le bozze da Telegram.',
     },
+    whatsapp: {
+      connect: 'Collega WhatsApp',
+      disconnect: 'Scollega',
+      linked:
+        'Il brief arriva ogni mattina, la posta urgente subito. Approva e modifica le bozze dalla chat.',
+      notConfigured: 'Il bot WhatsApp non è configurato su questo server.',
+      unlinked: 'Ricevi il brief e approva le bozze da WhatsApp.',
+    },
     title: 'Impostazioni',
   },
   spam: {
@@ -552,6 +560,14 @@ export const it: Messages = {
     next: 'Prossimo passo',
     start: 'Avvia',
     started: 'L’agente se ne occupa.',
+  },
+  whatsapp: {
+    connectFirst:
+      'Prima apri Fewmail → Impostazioni → Integrazioni e tocca “Collega WhatsApp”.',
+    connected:
+      'Collegato. Ti invierò il brief ogni mattina e ti scriverò quando arriva qualcosa di urgente. Manda un testo o un vocale per rispondere a qualsiasi email.',
+    proOnly:
+      'WhatsApp fa parte di Fewmail Pro. Apri Impostazioni → Piano in Fewmail per passare a Pro.',
   },
   zombie: {
     badge: (share: number) =>

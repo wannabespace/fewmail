@@ -9,7 +9,7 @@ When you sign in with Google you grant Fewmail the `gmail.modify` permission tog
 - **Read** your messages (sender, recipients, subject, date, labels, text body and whether there are attachments) so the agent can summarize them, judge their importance and draft replies. Attachments themselves are not downloaded.
 - **Read your recently sent messages** so drafts match how you write, and to notice when you are waiting for an answer or promised something.
 - **Change labels** — archive, mark as read, snooze, move to trash, or add the agent's own `Fewmail/…` labels if you turn them on — only when you do it yourself, approve it, or keep a rule that allows it. Every automatic change is listed under "handled" in the app.
-- **Send email** only when you send it yourself or explicitly approve an agent draft — in the app, in Telegram or through an MCP client you connected. Every send waits a few seconds so you can undo it, and scheduled emails wait until the time you chose.
+- **Send email** only when you send it yourself or explicitly approve an agent draft — in the app, in Telegram or WhatsApp, or through an MCP client you connected. Every send waits a few seconds so you can undo it, and scheduled emails wait until the time you chose.
 - **Search** your mailbox when you ask the agent a question about your mail.
 - **Unsubscribe** from a mailing list through its one-click unsubscribe link, only when you approve it or a rule you keep allows it.
 
@@ -35,7 +35,7 @@ Fewmail's use and transfer to any other app of information received from Google 
 - **Other network signals:** to spot mass mailings, senders who keep writing after you unsubscribed, and lookalike domains, we store keyed one-way hashes of your account, senders, domains and a short fingerprint of each message's text. When you report spam or mark mail as not spam, the vote is also stored against a fingerprint of the text, a keyed hash of the network that delivered the mail and keyed hashes of unfamiliar domains it links to, so the same campaign is caught when it comes from a new address. We also read the sender-authentication results Gmail attaches to each email (SPF, DKIM, DMARC). These are combined across users only as counts; no content is shared between users. We also record which senders you unsubscribed from.
 - **Outbox and reminders:** emails waiting to be sent (encrypted, recipients included), snoozed threads and follow-up reminders.
 - **Billing:** if you subscribe to Pro, your Stripe customer ID and subscription status. Card details are handled by Stripe and never reach our servers.
-- **Integrations:** if you connect Telegram, your Telegram chat ID; if you create MCP keys, only a one-way hash of each key.
+- **Integrations:** if you connect Telegram, your Telegram chat ID; if you connect WhatsApp, your phone number and when you last wrote to the bot; if you create MCP keys, only a one-way hash of each key.
 
 - **Public domain lists:** to catch phishing, spam and lookalike senders we also check sender and link domains against public lists we download: [Phishing.Database](https://github.com/Phishing-Database/Phishing.Database) (MIT), [StopForumSpam](https://www.stopforumspam.com/license) toxic domains, [disposable-email-domains](https://github.com/disposable-email-domains/disposable-email-domains) (CC0) and the [Majestic Million](https://majestic.com/reports/majestic-million) (CC BY 3.0). The check happens on our servers; nothing about your mail is sent to these projects. To tell whether a new sender's domain was registered only days ago, we look up that domain (the domain alone, never the address or the email) in the public registration database (RDAP) through rdap.org.
 
@@ -43,7 +43,7 @@ We do not use third-party analytics, advertising or tracking tools.
 
 ## 5. AI processing
 
-Quick decisions about each email (its category, importance, whether someone waits for an answer, whether you expect a reply to mail you sent, matching your rules and checking for risky wording) are made by **TypeSafe** (Jev) on every plan, including Free. Everything else runs only on the Pro plan and during the trial; on the Free plan no email content is sent to other AI providers. To summarize emails and write drafts and briefs, the relevant email content and your settings are sent to large language models through **OpenRouter**, routed to **Anthropic** (primary) and to **Google** or **xAI** as fallback providers. Inline autocomplete while you write and transcription of voice messages you send to the Telegram bot use **Mistral**; voice recordings are not stored. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
+Quick decisions about each email (its category, importance, whether someone waits for an answer, whether you expect a reply to mail you sent, matching your rules and checking for risky wording) are made by **TypeSafe** (Jev) on every plan, including Free. Everything else runs only on the Pro plan and during the trial; on the Free plan no email content is sent to other AI providers. To summarize emails and write drafts and briefs, the relevant email content and your settings are sent to large language models through **OpenRouter**, routed to **Anthropic** (primary) and to **Google** or **xAI** as fallback providers. Inline autocomplete while you write and transcription of voice messages you send to the Telegram or WhatsApp bot use **Mistral**; voice recordings are not stored. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
 
 ## 6. Where your data goes
 
@@ -52,9 +52,10 @@ Quick decisions about each email (its category, importance, whether someone wait
 | Google (Gmail API, OAuth) | Sign-in and access to your mailbox |
 | OpenRouter → Anthropic, Google, xAI | Reading emails, drafting replies, writing briefs, answering questions about your mail |
 | TypeSafe (Jev) | Classifying each email, on every plan |
-| Mistral | Autocomplete while you write, transcribing Telegram voice messages |
+| Mistral | Autocomplete while you write, transcribing Telegram and WhatsApp voice messages |
 | Stripe | Payments and subscriptions for Pro |
 | Telegram | Delivering your brief, urgent emails and drafts, only if you connect it |
+| WhatsApp (Meta) | Delivering your brief, urgent emails and drafts, only if you connect it |
 | MCP clients you connect (e.g. Claude, Cursor) | Data you or that client request with your API key |
 | Our hosting and database providers | Running Fewmail and storing the data above |
 
@@ -63,7 +64,7 @@ We share data with these services only as needed to run Fewmail, and we may disc
 ## 7. Your choices and rights
 
 - **Change what the agent may do** at any time in Rules: turn a rule off, remove it or stop it from acting without asking.
-- **Disconnect** Telegram or revoke MCP keys in Settings.
+- **Disconnect** Telegram or WhatsApp, or revoke MCP keys in Settings.
 - **Revoke access** to your Google account at any time at [myaccount.google.com/permissions](https://myaccount.google.com/permissions). Fewmail stops syncing immediately.
 - **Delete your account** in Settings → Account. This deletes your account, synced mail, drafts, briefs, rules, settings and integrations from our database right away and revokes our Google access. Your Gmail itself is not changed.
 - **Access or export** your data by contacting us.
@@ -74,7 +75,7 @@ We keep your data while your account exists. Synced mail is used for the brief a
 
 ## 9. Security
 
-Data is encrypted in transit (TLS). At rest, everything you or your mail provide is encrypted: your name, email address and photo, mail, rules, snippets, settings you write yourself, your Telegram chat, API key names, and the IP address and browser of your sessions. What stays unencrypted is what is not personal: ids, dates, flags, amounts and the keyed hashes used for spam protection. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
+Data is encrypted in transit (TLS). At rest, everything you or your mail provide is encrypted: your name, email address and photo, mail, rules, snippets, settings you write yourself, your Telegram chat, your WhatsApp number, API key names, and the IP address and browser of your sessions. What stays unencrypted is what is not personal: ids, dates, flags, amounts and the keyed hashes used for spam protection. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
 
 ## 10. Children
 

@@ -42,6 +42,19 @@ export const telegramLinks = d.snakeCase.table('telegram_links', {
     .references(() => users.id, { onDelete: 'cascade' }),
 })
 
+export const whatsappLinks = d.snakeCase.table('whatsapp_links', {
+  createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+  /** WhatsApp only allows free-form messages within 24 h of the user's last one; later pushes go out as a template. */
+  lastInboundAt: d.timestamp({ withTimezone: true }),
+  linkCode: d.text().notNull().unique(),
+  linkedAt: d.timestamp({ withTimezone: true }),
+  phone: searchableText().unique(),
+  userId: d
+    .uuid()
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+})
+
 export const apiKeys = d.snakeCase.table('api_keys', {
   ...baseTable,
   keyHash: d.text().notNull().unique(),

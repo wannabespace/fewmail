@@ -448,6 +448,14 @@ export const pl: Messages = {
       notConfigured: 'Bot Telegram nie jest skonfigurowany na tym serwerze.',
       unlinked: 'Odbieraj podsumowanie i zatwierdzaj szkice w Telegramie.',
     },
+    whatsapp: {
+      connect: 'Połącz WhatsApp',
+      disconnect: 'Rozłącz',
+      linked:
+        'Podsumowanie przychodzi co rano, pilne maile od razu. Zatwierdzaj i edytuj szkice na czacie.',
+      notConfigured: 'Bot WhatsApp nie jest skonfigurowany na tym serwerze.',
+      unlinked: 'Odbieraj podsumowanie i zatwierdzaj szkice w WhatsAppie.',
+    },
     title: 'Ustawienia',
   },
   snooze: {
@@ -598,6 +606,14 @@ export const pl: Messages = {
     worthAttention: 'Warte uwagi',
     writeNow: 'Napisz teraz',
     writing: 'Piszę…',
+  },
+  whatsapp: {
+    connectFirst:
+      'Najpierw otwórz Fewmail → Ustawienia → Integracje i stuknij „Połącz WhatsApp”.',
+    connected:
+      'Połączono. Będę wysyłać podsumowanie każdego ranka i dam znać, gdy przyjdzie coś pilnego. Wyślij tekst albo głosówkę, żeby odpowiedzieć na dowolny e-mail.',
+    proOnly:
+      'WhatsApp jest częścią Fewmail Pro. Otwórz Ustawienia → Plan w Fewmail, aby przejść na Pro.',
   },
   zombie: {
     badge: (share: number) => `Ignoruje wypisanie u ${share}% osób`,

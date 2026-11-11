@@ -357,6 +357,14 @@ export const hi: Messages = {
       notConfigured: 'इस सर्वर पर Telegram बॉट कॉन्फ़िगर नहीं है।',
       unlinked: 'Telegram पर ब्रीफ़ पाएँ और ड्राफ़्ट मंज़ूर करें।',
     },
+    whatsapp: {
+      connect: 'WhatsApp जोड़ें',
+      disconnect: 'डिस्कनेक्ट करें',
+      linked:
+        'आपका ब्रीफ़ हर सुबह आता है, ज़रूरी मेल तुरंत। चैट से ही ड्राफ़्ट मंज़ूर करें और बदलें।',
+      notConfigured: 'इस सर्वर पर WhatsApp बॉट कॉन्फ़िगर नहीं है।',
+      unlinked: 'WhatsApp पर ब्रीफ़ पाएँ और ड्राफ़्ट मंज़ूर करें।',
+    },
     title: 'सेटिंग्स',
   },
   snooze: {
@@ -525,6 +533,14 @@ export const hi: Messages = {
     next: 'अगला कदम',
     start: 'शुरू करें',
     started: 'एजेंट इस पर काम कर रहा है।',
+  },
+  whatsapp: {
+    connectFirst:
+      'पहले Fewmail → सेटिंग्स → इंटीग्रेशन खोलें और “WhatsApp जोड़ें” पर टैप करें।',
+    connected:
+      'जुड़ गया। मैं हर सुबह आपका ब्रीफ़ भेजूँगा और कुछ ज़रूरी आने पर संदेश करूँगा। किसी भी ईमेल का जवाब देने के लिए टेक्स्ट या वॉइस मैसेज भेजें।',
+    proOnly:
+      'WhatsApp, Fewmail Pro का हिस्सा है। अपग्रेड करने के लिए Fewmail में सेटिंग्स → प्लान खोलें।',
   },
   zombie: {
     badge: (share: number) => `${share}% लोगों के अनसब्सक्राइब को अनदेखा करता है`,

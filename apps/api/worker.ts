@@ -25,6 +25,7 @@ import {
 } from './services/reminders'
 import { syncMailbox } from './services/sync'
 import { sendBrief, sendUrgent } from './telegram'
+import { sendWhatsappBrief, sendWhatsappUrgent } from './whatsapp'
 
 const TICK_MS = 60_000
 const SYNC_EVERY_MINUTES = 2
@@ -82,6 +83,7 @@ const sendBriefIfDue = async (settings: typeof userSettings.$inferSelect) => {
         .set({ telegramSentAt: new Date() })
         .where(eq(briefs.id, brief.id))
     }
+    await sendWhatsappBrief(settings.userId, brief)
   })
 }
 
@@ -94,13 +96,14 @@ const sendDueBriefs = async () => {
 }
 
 const notifyUrgent = async (id: string, userId: string) => {
-  const chatId = await chatIdForUser(userId)
-  if (chatId) {
-    const queue = await listQueue(userId)
-    const item = queue.find(({ action }) => action.id === id)
-    if (item) {
+  const queue = await listQueue(userId)
+  const item = queue.find(({ action }) => action.id === id)
+  if (item) {
+    const chatId = await chatIdForUser(userId)
+    if (chatId) {
       await sendUrgent(chatId, userId, item)
     }
+    await sendWhatsappUrgent(userId, item)
   }
   await db
     .update(actions)

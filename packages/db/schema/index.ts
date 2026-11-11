@@ -12,7 +12,13 @@ export {
   snippets,
 } from './mail'
 export type { BriefStats, Extracted, SimpleMatch } from './mail'
-export { apiKeys, subscriptions, telegramLinks, userSettings } from './settings'
+export {
+  apiKeys,
+  subscriptions,
+  telegramLinks,
+  userSettings,
+  whatsappLinks,
+} from './settings'
 export {
   bulkPrints,
   commitments,

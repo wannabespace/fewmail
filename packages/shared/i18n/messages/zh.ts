@@ -344,6 +344,14 @@ export const zh: Messages = {
       notConfigured: '此服务器未配置 Telegram 机器人。',
       unlinked: '在 Telegram 中接收简报并批准草稿。',
     },
+    whatsapp: {
+      connect: '连接 WhatsApp',
+      disconnect: '断开连接',
+      linked:
+        '简报每天早上送达，紧急邮件即时送达。可以直接在聊天中批准和编辑草稿。',
+      notConfigured: '此服务器未配置 WhatsApp 机器人。',
+      unlinked: '在 WhatsApp 中接收简报并批准草稿。',
+    },
     title: '设置',
   },
   snooze: {
@@ -488,6 +496,13 @@ export const zh: Messages = {
     next: '下一步',
     start: '开始',
     started: '代理正在处理。',
+  },
+  whatsapp: {
+    connectFirst: '请先打开 Fewmail → 设置 → 集成，然后点按“连接 WhatsApp”。',
+    connected:
+      '已连接。我会每天早上发送简报，有紧急邮件时立即通知你。发送文字或语音即可回复任何邮件。',
+    proOnly:
+      'WhatsApp 是 Fewmail Pro 的功能。如需升级，请在 Fewmail 中打开 设置 → 方案。',
   },
   zombie: {
     badge: (share: number) => `对 ${share}% 的人无视退订`,

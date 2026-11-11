@@ -416,6 +416,14 @@ export const id: Messages = {
       notConfigured: 'Bot Telegram belum dikonfigurasi di server ini.',
       unlinked: 'Terima ringkasan dan setujui draf dari Telegram.',
     },
+    whatsapp: {
+      connect: 'Hubungkan WhatsApp',
+      disconnect: 'Putuskan',
+      linked:
+        'Ringkasanmu tiba setiap pagi, email mendesak langsung. Setujui dan edit draf dari chat.',
+      notConfigured: 'Bot WhatsApp belum dikonfigurasi di server ini.',
+      unlinked: 'Terima ringkasan dan setujui draf dari WhatsApp.',
+    },
     title: 'Pengaturan',
   },
   snooze: {
@@ -525,6 +533,14 @@ export const id: Messages = {
     worthAttention: 'Layak diperhatikan',
     writeNow: 'Tulis sekarang',
     writing: 'Menulis…',
+  },
+  whatsapp: {
+    connectFirst:
+      'Buka dulu Fewmail → Pengaturan → Integrasi lalu ketuk “Hubungkan WhatsApp”.',
+    connected:
+      'Terhubung. Aku akan mengirim ringkasan setiap pagi dan mengabari saat ada yang mendesak. Kirim teks atau pesan suara untuk membalas email apa pun.',
+    proOnly:
+      'WhatsApp adalah bagian dari Fewmail Pro. Buka Pengaturan → Paket di Fewmail untuk beralih.',
   },
   zombie: {
     badge: (share: number) =>

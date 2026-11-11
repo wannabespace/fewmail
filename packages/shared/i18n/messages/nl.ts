@@ -431,6 +431,14 @@ export const nl: Messages = {
       notConfigured: 'De Telegram-bot is niet ingesteld op deze server.',
       unlinked: 'Ontvang het overzicht en keur concepten goed via Telegram.',
     },
+    whatsapp: {
+      connect: 'WhatsApp koppelen',
+      disconnect: 'Ontkoppelen',
+      linked:
+        'Je overzicht komt elke ochtend, dringende mail meteen. Keur concepten goed en bewerk ze in de chat.',
+      notConfigured: 'De WhatsApp-bot is niet ingesteld op deze server.',
+      unlinked: 'Ontvang het overzicht en keur concepten goed via WhatsApp.',
+    },
     title: 'Instellingen',
   },
   snooze: {
@@ -546,6 +554,14 @@ export const nl: Messages = {
     worthAttention: 'Verdient je aandacht',
     writeNow: 'Nu schrijven',
     writing: 'Schrijven…',
+  },
+  whatsapp: {
+    connectFirst:
+      'Open eerst Fewmail → Instellingen → Integraties en tik op “WhatsApp koppelen”.',
+    connected:
+      'Gekoppeld. Ik stuur je elke ochtend het overzicht en laat het weten als er iets dringends binnenkomt. Stuur tekst of een spraakbericht om op een e-mail te antwoorden.',
+    proOnly:
+      'WhatsApp is onderdeel van Fewmail Pro. Open Instellingen → Abonnement in Fewmail om over te stappen.',
   },
   zombie: {
     badge: (share: number) => `Negeert afmeldingen bij ${share}% van de mensen`,

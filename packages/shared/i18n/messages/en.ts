@@ -423,6 +423,14 @@ export const en = {
       notConfigured: 'The Telegram bot is not configured on this server.',
       unlinked: 'Get the brief and approve drafts from Telegram.',
     },
+    whatsapp: {
+      connect: 'Connect WhatsApp',
+      disconnect: 'Disconnect',
+      linked:
+        'Your brief arrives every morning, urgent mail right away. Approve and edit drafts from the chat.',
+      notConfigured: 'The WhatsApp bot is not configured on this server.',
+      unlinked: 'Get the brief and approve drafts from WhatsApp.',
+    },
     title: 'Settings',
   },
   snooze: {
@@ -533,6 +541,14 @@ export const en = {
     worthAttention: 'Worth your attention',
     writeNow: 'Write it now',
     writing: 'Writing…',
+  },
+  whatsapp: {
+    connectFirst:
+      'Open Fewmail → Settings → Integrations and tap “Connect WhatsApp” first.',
+    connected:
+      'Connected. I will send your brief every morning and message you when something urgent arrives. Send text or a voice message to answer any email.',
+    proOnly:
+      'WhatsApp is part of Fewmail Pro. Open Settings → Plan in Fewmail to upgrade.',
   },
   zombie: {
     badge: (share: number) => `Ignores unsubscribes for ${share}% of people`,

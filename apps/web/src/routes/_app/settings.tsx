@@ -128,61 +128,65 @@ const AgentSettings = () => {
   )
 }
 
-const telegramDescription = (
-  t: Messages,
-  telegram: { botUrl: string | null; linked: boolean } | undefined
+const MESSENGERS = { telegram: 'Telegram', whatsapp: 'WhatsApp' } as const
+
+const messengerDescription = (
+  copy: Messages['settings']['telegram'],
+  link: { botUrl: string | null; linked: boolean } | undefined
 ) => {
-  if (telegram?.linked) {
-    return t.settings.telegram.linked
+  if (link?.linked) {
+    return copy.linked
   }
-  return telegram?.botUrl
-    ? t.settings.telegram.unlinked
-    : t.settings.telegram.notConfigured
+  return link?.botUrl ? copy.unlinked : copy.notConfigured
 }
 
-const TelegramSettings = () => {
+const MessengerSettings = ({
+  channel,
+}: {
+  channel: keyof typeof MESSENGERS
+}) => {
   const t = useT()
+  const copy = t.settings[channel]
   const queryClient = useQueryClient()
-  const { data: telegram } = useQuery(
-    orpc.integrations.telegram.get.queryOptions({ refetchInterval: 5000 })
+  const procedures = orpc.integrations[channel]
+  const { data: link } = useQuery(
+    procedures.get.queryOptions({ refetchInterval: 5000 })
   )
   const unlink = useMutation(
-    orpc.integrations.telegram.unlink.mutationOptions({
+    procedures.unlink.mutationOptions({
       onSuccess: () =>
-        queryClient.invalidateQueries({
-          queryKey: orpc.integrations.telegram.key(),
-        }),
+        queryClient.invalidateQueries({ queryKey: procedures.key() }),
     })
   )
 
   return (
     <SettingsRow
-      title="Telegram"
-      description={telegramDescription(t, telegram)}
+      title={MESSENGERS[channel]}
+      description={messengerDescription(copy, link)}
     >
-      {telegram?.linked ? (
+      {link?.linked ? (
         <Button
           size="sm"
           variant="ghost-destructive"
           onClick={() => unlink.mutate()}
         >
-          {t.settings.telegram.disconnect}
+          {copy.disconnect}
         </Button>
       ) : (
-        telegram?.botUrl && (
+        link?.botUrl && (
           <Button
             size="sm"
             variant="outline"
             render={
               <a
-                href={telegram.botUrl}
+                href={link.botUrl}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={t.settings.telegram.connect}
+                aria-label={copy.connect}
               />
             }
           >
-            {t.settings.telegram.connect}
+            {copy.connect}
           </Button>
         )
       )}
@@ -500,7 +504,8 @@ const SettingsPage = () => {
         {hasAgent && (
           <>
             <SettingsGroup title={t.settings.integrations}>
-              <TelegramSettings />
+              <MessengerSettings channel="telegram" />
+              <MessengerSettings channel="whatsapp" />
             </SettingsGroup>
             <McpSettings />
           </>

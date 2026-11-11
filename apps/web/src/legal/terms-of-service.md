@@ -9,13 +9,13 @@ Fewmail, owned by Wannabe Space, LLC, is an email agent that connects to your Gm
 - reads and summarizes your email and writes a daily brief
 - proposes actions and drafts replies in your voice
 - follows rules you write, including rules that let it archive, mark as read or unsubscribe without asking
-- is available in the web app, in Telegram and to MCP clients you connect
+- is available in the web app, in Telegram and WhatsApp, and to MCP clients you connect
 
 ## 3. Accounts
 
 - You must be at least 16 years old
 - You may connect only mailboxes you own or are authorized to manage
-- Keep your Google account, connected Telegram chat and MCP keys secure; you are responsible for all activity under your account
+- Keep your Google account, connected Telegram chat, WhatsApp number and MCP keys secure; you are responsible for all activity under your account
 
 ## 4. You stay in control — and responsible
 
@@ -33,12 +33,12 @@ You keep ownership of your email and everything you create in Fewmail. You grant
 
 ## 7. Third-party services
 
-Fewmail relies on Google (Gmail), OpenRouter and the AI providers behind it, Stripe for payments, and optionally Telegram and MCP clients. Their own terms apply to your use of them, and we are not responsible for their availability or actions.
+Fewmail relies on Google (Gmail), OpenRouter and the AI providers behind it, Stripe for payments, and optionally Telegram, WhatsApp (Meta) and MCP clients. Their own terms apply to your use of them, and we are not responsible for their availability or actions.
 
 ## 8. Plans and payment
 
 - **Free:** the mail view, simple rules, sorting and importance of every email, plain-language rules that archive, mark as read, unsubscribe or trash, spam and fraud warnings and automatic follow-ups, free for as long as you like.
-- **Pro:** the full agent — daily brief, summaries, drafts in your voice, Ask, handling threads for you, Telegram and MCP — for $15 per month, billed in advance through Stripe. Taxes may apply depending on where you live.
+- **Pro:** the full agent — daily brief, summaries, drafts in your voice, Ask, handling threads for you, Telegram, WhatsApp and MCP — for $15 per month, billed in advance through Stripe. Taxes may apply depending on where you live.
 - **Trial:** every new account gets 14 days of Pro without a card. When it ends, the account moves to Free on its own; nothing is charged unless you subscribe.
 - **Cancel anytime** in Settings → Plan → Manage billing. Pro stays active until the end of the paid period; there are no refunds for partial periods.
 - We will tell you in advance about any price change, and it applies only from your next billing period.

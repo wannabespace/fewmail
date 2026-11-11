@@ -384,6 +384,14 @@ export const fr: Messages = {
       notConfigured: 'Le bot Telegram n’est pas configuré sur ce serveur.',
       unlinked: 'Recevez le brief et approuvez les brouillons depuis Telegram.',
     },
+    whatsapp: {
+      connect: 'Connecter WhatsApp',
+      disconnect: 'Déconnecter',
+      linked:
+        'Votre brief arrive chaque matin, les e-mails urgents tout de suite. Approuvez et modifiez les brouillons depuis le chat.',
+      notConfigured: 'Le bot WhatsApp n’est pas configuré sur ce serveur.',
+      unlinked: 'Recevez le brief et approuvez les brouillons depuis WhatsApp.',
+    },
     title: 'Réglages',
   },
   spam: {
@@ -559,6 +567,14 @@ export const fr: Messages = {
     next: 'Étape suivante',
     start: 'Démarrer',
     started: 'L’agent s’en occupe.',
+  },
+  whatsapp: {
+    connectFirst:
+      'Ouvrez d’abord Fewmail → Réglages → Intégrations et touchez « Connecter WhatsApp ».',
+    connected:
+      'Connecté. Je vous enverrai le brief chaque matin et vous écrirai dès qu’un e-mail urgent arrive. Envoyez un texte ou un message vocal pour répondre à un e-mail.',
+    proOnly:
+      'WhatsApp fait partie de Fewmail Pro. Ouvrez Réglages → Formule dans Fewmail pour passer à Pro.',
   },
   zombie: {
     badge: (share: number) =>

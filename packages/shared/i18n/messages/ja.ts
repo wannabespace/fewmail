@@ -358,6 +358,14 @@ export const ja: Messages = {
       notConfigured: 'このサーバーでは Telegram ボットが設定されていません。',
       unlinked: 'Telegram でブリーフを受け取り、下書きを承認できます。',
     },
+    whatsapp: {
+      connect: 'WhatsApp を接続',
+      disconnect: '接続を解除',
+      linked:
+        'ブリーフは毎朝、緊急のメールはすぐに届きます。下書きの承認や編集もチャットからできます。',
+      notConfigured: 'このサーバーでは WhatsApp ボットが設定されていません。',
+      unlinked: 'WhatsApp でブリーフを受け取り、下書きを承認できます。',
+    },
     title: '設定',
   },
   snooze: {
@@ -512,6 +520,14 @@ export const ja: Messages = {
     next: '次のステップ',
     start: '開始',
     started: 'エージェントが対応中です。',
+  },
+  whatsapp: {
+    connectFirst:
+      '先に Fewmail → 設定 → 連携 を開き、「WhatsApp を接続」をタップしてください。',
+    connected:
+      '接続しました。毎朝ブリーフを送り、緊急のメールが届いたらお知らせします。テキストや音声メッセージで、どのメールにも返信できます。',
+    proOnly:
+      'WhatsApp は Fewmail Pro の機能です。アップグレードするには Fewmail の 設定 → プラン を開いてください。',
   },
   zombie: {
     badge: (share: number) => `${share}%の人の配信停止を無視しています`,

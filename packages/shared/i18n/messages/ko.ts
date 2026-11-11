@@ -355,6 +355,14 @@ export const ko: Messages = {
       notConfigured: '이 서버에는 Telegram 봇이 설정되어 있지 않아요.',
       unlinked: 'Telegram에서 브리핑을 받고 초안을 승인하세요.',
     },
+    whatsapp: {
+      connect: 'WhatsApp 연결',
+      disconnect: '연결 해제',
+      linked:
+        '브리핑은 매일 아침, 긴급 메일은 바로 도착해요. 채팅에서 초안을 승인하고 편집할 수 있어요.',
+      notConfigured: '이 서버에는 WhatsApp 봇이 설정되어 있지 않아요.',
+      unlinked: 'WhatsApp에서 브리핑을 받고 초안을 승인하세요.',
+    },
     title: '설정',
   },
   snooze: {
@@ -505,6 +513,14 @@ export const ko: Messages = {
     next: '다음 단계',
     start: '시작',
     started: '에이전트가 처리 중이에요.',
+  },
+  whatsapp: {
+    connectFirst:
+      '먼저 Fewmail → 설정 → 연동을 열고 “WhatsApp 연결”을 누르세요.',
+    connected:
+      '연결됐어요. 매일 아침 브리핑을 보내고 긴급한 메일이 오면 바로 알려 드릴게요. 텍스트나 음성 메시지로 어떤 메일에도 답장할 수 있어요.',
+    proOnly:
+      'WhatsApp은 Fewmail Pro 기능이에요. 업그레이드하려면 Fewmail에서 설정 → 요금제를 열어 주세요.',
   },
   zombie: {
     badge: (share: number) => `${share}%의 사람에게 구독 취소를 무시해요`,

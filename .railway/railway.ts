@@ -25,6 +25,12 @@ const SECRETS = [
   'TELEGRAM_BOT_USERNAME',
   'TELEGRAM_WEBHOOK_SECRET',
   'TYPESAFE_API_KEY',
+  'WHATSAPP_APP_SECRET',
+  'WHATSAPP_NUMBER',
+  'WHATSAPP_PHONE_NUMBER_ID',
+  'WHATSAPP_TEMPLATE',
+  'WHATSAPP_TOKEN',
+  'WHATSAPP_VERIFY_TOKEN',
 ] as const
 
 /** One image for the API and the worker: the Dockerfile is built with the repo root as context. */

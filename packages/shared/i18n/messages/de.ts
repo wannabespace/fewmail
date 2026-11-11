@@ -382,6 +382,15 @@ export const de: Messages = {
         'Der Telegram-Bot ist auf diesem Server nicht eingerichtet.',
       unlinked: 'Erhalte das Briefing und gib Entwürfe in Telegram frei.',
     },
+    whatsapp: {
+      connect: 'WhatsApp verbinden',
+      disconnect: 'Trennen',
+      linked:
+        'Dein Briefing kommt jeden Morgen, dringende Mails sofort. Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
+      notConfigured:
+        'Der WhatsApp-Bot ist auf diesem Server nicht eingerichtet.',
+      unlinked: 'Erhalte das Briefing und gib Entwürfe in WhatsApp frei.',
+    },
     title: 'Einstellungen',
   },
   spam: {
@@ -551,6 +560,14 @@ export const de: Messages = {
     next: 'Nächster Schritt',
     start: 'Starten',
     started: 'Der Agent kümmert sich darum.',
+  },
+  whatsapp: {
+    connectFirst:
+      'Öffne zuerst Fewmail → Einstellungen → Integrationen und tippe auf „WhatsApp verbinden“.',
+    connected:
+      'Verbunden. Ich schicke dir jeden Morgen dein Briefing und melde mich, wenn etwas Dringendes kommt. Schreib oder sprich eine Nachricht ein, um auf eine Mail zu antworten.',
+    proOnly:
+      'WhatsApp ist Teil von Fewmail Pro. Öffne in Fewmail Einstellungen → Tarif, um zu upgraden.',
   },
   zombie: {
     badge: (share: number) => `Ignoriert Abmeldungen bei ${share}% der Leute`,

@@ -26,4 +26,10 @@ export const env = type({
   'TELEGRAM_BOT_USERNAME?': 'string',
   'TELEGRAM_WEBHOOK_SECRET?': 'string',
   WEB_URL: 'string.url',
+  'WHATSAPP_APP_SECRET?': 'string',
+  'WHATSAPP_NUMBER?': 'string.numeric',
+  'WHATSAPP_PHONE_NUMBER_ID?': 'string',
+  'WHATSAPP_TEMPLATE?': 'string',
+  'WHATSAPP_TOKEN?': 'string',
+  'WHATSAPP_VERIFY_TOKEN?': 'string',
 }).assert(process.env)

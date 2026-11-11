@@ -24,9 +24,11 @@ import { generateBrief, getToday } from '../services/brief'
 import {
   createApiKey,
   getTelegramLink,
+  getWhatsappLink,
   listApiKeys,
   revokeApiKey,
   unlinkTelegram,
+  unlinkWhatsapp,
 } from '../services/integrations'
 import { backfillAgentLabels } from '../services/labels'
 import {
@@ -150,6 +152,12 @@ export const router = {
       get: agent.handler(({ context }) => getTelegramLink(context.user.id)),
       unlink: agent.handler(async ({ context }) => {
         await unlinkTelegram(context.user.id)
+      }),
+    },
+    whatsapp: {
+      get: agent.handler(({ context }) => getWhatsappLink(context.user.id)),
+      unlink: agent.handler(async ({ context }) => {
+        await unlinkWhatsapp(context.user.id)
       }),
     },
   },

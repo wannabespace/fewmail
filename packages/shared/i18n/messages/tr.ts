@@ -411,6 +411,14 @@ export const tr: Messages = {
       notConfigured: 'Telegram botu bu sunucuda yapılandırılmamış.',
       unlinked: 'Özeti al ve taslakları Telegram’dan onayla.',
     },
+    whatsapp: {
+      connect: 'WhatsApp’ı bağla',
+      disconnect: 'Bağlantıyı kes',
+      linked:
+        'Özetin her sabah, acil postalar hemen gelir. Taslakları sohbetten onayla ve düzenle.',
+      notConfigured: 'WhatsApp botu bu sunucuda yapılandırılmamış.',
+      unlinked: 'Özeti al ve taslakları WhatsApp’tan onayla.',
+    },
     title: 'Ayarlar',
   },
   snooze: {
@@ -522,6 +530,14 @@ export const tr: Messages = {
     worthAttention: 'İlgini hak ediyor',
     writeNow: 'Şimdi yaz',
     writing: 'Yazılıyor…',
+  },
+  whatsapp: {
+    connectFirst:
+      'Önce Fewmail → Ayarlar → Entegrasyonlar’ı aç ve “WhatsApp’ı bağla”ya dokun.',
+    connected:
+      'Bağlandı. Her sabah özetini gönderecek, acil bir şey geldiğinde yazacağım. Herhangi bir e-postayı yanıtlamak için metin ya da sesli mesaj gönder.',
+    proOnly:
+      "WhatsApp, Fewmail Pro'nun bir parçası. Pro'ya geçmek için Fewmail'de Ayarlar → Plan'ı aç.",
   },
   zombie: {
     badge: (share: number) =>
