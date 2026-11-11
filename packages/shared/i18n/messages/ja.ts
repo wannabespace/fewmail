@@ -51,10 +51,8 @@ export const ja: Messages = {
     edit: '編集',
     editing: 'メッセージを編集中',
     regenerate: 'もう一度回答',
-    removeSkill: 'スキルを外す',
-    skillPlaceholder: '詳細を追加するか、そのまま送信',
     skills: 'スキル',
-    placeholder: 'メールについて質問するか、してほしいことを伝えてください…',
+    placeholder: 'メールについて質問するか、/ でスキルを選択',
     retry: '再試行',
     send: '送信',
     steps: {

@@ -50,10 +50,8 @@ export const tr: Messages = {
     edit: 'Düzenle',
     editing: 'Mesajını düzenliyorsun',
     regenerate: 'Yeniden yanıtla',
-    removeSkill: 'Beceriyi kaldır',
-    skillPlaceholder: 'Ayrıntı ekle ya da direkt gönder',
     skills: 'Beceriler',
-    placeholder: 'E-postaların hakkında sor ya da ne yapılacağını söyle…',
+    placeholder: 'E-postaların hakkında sor ya da beceriler için / yaz',
     retry: 'Tekrar dene',
     send: 'Gönder',
     steps: {

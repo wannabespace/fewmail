@@ -51,10 +51,8 @@ export const hi: Messages = {
     edit: 'संपादित करें',
     editing: 'आप अपना संदेश संपादित कर रहे हैं',
     regenerate: 'फिर से जवाब दें',
-    removeSkill: 'स्किल हटाएँ',
-    skillPlaceholder: 'विवरण जोड़ें या सीधे भेजें',
     skills: 'स्किल',
-    placeholder: 'अपने मेल के बारे में पूछें या बताएँ क्या करना है…',
+    placeholder: 'अपने मेल के बारे में पूछें या स्किल के लिए / लिखें',
     retry: 'फिर कोशिश करें',
     send: 'भेजें',
     steps: {

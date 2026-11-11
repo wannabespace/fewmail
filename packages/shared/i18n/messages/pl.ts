@@ -50,10 +50,8 @@ export const pl: Messages = {
     edit: 'Edytuj',
     editing: 'Edytujesz wiadomość',
     regenerate: 'Odpowiedz ponownie',
-    removeSkill: 'Usuń umiejętność',
-    skillPlaceholder: 'Dodaj szczegóły albo po prostu wyślij',
     skills: 'Umiejętności',
-    placeholder: 'Zapytaj o pocztę albo powiedz, co zrobić…',
+    placeholder: 'Zapytaj o pocztę albo wpisz /, by wybrać umiejętność',
     retry: 'Spróbuj ponownie',
     send: 'Wyślij',
     steps: {

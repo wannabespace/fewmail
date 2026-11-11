@@ -39,11 +39,6 @@ import {
 } from '@fewmail/ui/components/message-scroller'
 import { Response } from '@fewmail/ui/components/response'
 import { Spinner } from '@fewmail/ui/components/spinner'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@fewmail/ui/components/tooltip'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Alert02Icon,
@@ -547,7 +542,7 @@ const MessageActions = ({
       {createdAt && (
         <time
           dateTime={new Date(createdAt).toISOString()}
-          className="px-1.5 font-normal tabular-nums"
+          className="px-1.5 font-normal tabular-nums group-data-[align=end]/message:order-last"
         >
           {dates.format(createdAt, isToday(createdAt) ? 'p' : 'd MMM, p')}
         </time>
@@ -593,7 +588,6 @@ export const AgentChat = ({
   const t = useT()
   const queryClient = useQueryClient()
   const [text, setText] = useState('')
-  const [skill, setSkill] = useState<Skill | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [skillIndex, setSkillIndex] = useState(0)
   const [dismissedText, setDismissedText] = useState<string | null>(null)
@@ -620,31 +614,26 @@ export const AgentChat = ({
   const lastUser = messages.findLast((message) => message.role === 'user')
   const canRegenerate = !isBusy && messages.at(-1)?.role === 'assistant'
   const skills =
-    !skill && /^\/[a-z_]*$/u.test(text) && text !== dismissedText
+    /^\/[a-z_]*$/u.test(text) && text !== dismissedText
       ? SKILLS.filter((name) => name.startsWith(text.slice(1)))
       : []
   const activeSkill = skills[skillIndex % skills.length]
 
   const pick = (name: Skill) => {
-    setSkill(name)
-    setText('')
+    setText(`/${name} `)
     composerRef.current?.focus()
   }
   const edit = (message: UIMessage) => {
-    const value = textOf(message)
-    const parsed = parseSkill(value)
     setEditingId(message.id)
-    setSkill(parsed?.skill ?? null)
-    setText(parsed ? parsed.details : value)
+    setText(textOf(message))
     composerRef.current?.focus()
   }
   const reset = () => {
     setText('')
-    setSkill(null)
     setEditingId(null)
   }
   const send = () => {
-    const value = (skill ? `/${skill} ${text}` : text).trim()
+    const value = text.trim()
     if (!value || isBusy) {
       return
     }
@@ -671,15 +660,11 @@ export const AgentChat = ({
     }
     return true
   }
-  /** Escape is a ladder here: the menu above, then the edit, then the skill. */
+  /** Escape is a ladder here: the menu above, then the edit. */
   const handleComposerKey = (key: string) => {
     if (key === 'Escape' && editingId) {
       reset()
-    } else if (key === 'Escape' && skill) {
-      setSkill(null)
-    } else if (key === 'Backspace' && skill && !text) {
-      setSkill(null)
-    } else if (key === 'ArrowUp' && !text && !skill && lastUser && !isBusy) {
+    } else if (key === 'ArrowUp' && !text && lastUser && !isBusy) {
       edit(lastUser)
     } else {
       return false
@@ -855,17 +840,10 @@ export const AgentChat = ({
           <InputGroupTextarea
             ref={composerRef}
             aria-label={t.agent.placeholder}
-            placeholder={skill ? t.agent.skillPlaceholder : t.agent.placeholder}
+            placeholder={t.agent.placeholder}
             rows={1}
             value={text}
             onChange={(event) => {
-              const typed = /^\/(?<name>[a-z_]+)\s$/u.exec(event.target.value)
-                ?.groups?.name
-              const typedSkill = SKILLS.find((name) => name === typed)
-              if (!skill && typedSkill) {
-                pick(typedSkill)
-                return
-              }
               setText(event.target.value)
               setSkillIndex(0)
             }}
@@ -889,41 +867,18 @@ export const AgentChat = ({
             }}
           />
           <InputGroupAddon align="block-end">
-            {skill ? (
-              <Tooltip shortcut={<Kbd>⌫</Kbd>}>
-                <TooltipTrigger
-                  render={
-                    <InputGroupButton
-                      aria-label={t.agent.removeSkill}
-                      size="sm"
-                      variant="tinted"
-                      onClick={() => {
-                        setSkill(null)
-                        composerRef.current?.focus()
-                      }}
-                    />
-                  }
-                >
-                  <HugeiconsIcon icon={SKILL_ICONS[skill]} strokeWidth={2} />
-                  {t.skills[skill]}
-                  <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
-                </TooltipTrigger>
-                <TooltipContent>{t.agent.removeSkill}</TooltipContent>
-              </Tooltip>
-            ) : (
-              <InputGroupButton
-                size="sm"
-                variant="ghost-muted"
-                onClick={() => {
-                  setText('/')
-                  setDismissedText(null)
-                  composerRef.current?.focus()
-                }}
-              >
-                <HugeiconsIcon icon={SlashIcon} strokeWidth={2} />
-                {t.agent.skills}
-              </InputGroupButton>
-            )}
+            <InputGroupButton
+              size="sm"
+              variant="ghost-muted"
+              onClick={() => {
+                setText('/')
+                setDismissedText(null)
+                composerRef.current?.focus()
+              }}
+            >
+              <HugeiconsIcon icon={SlashIcon} strokeWidth={2} />
+              {t.agent.skills}
+            </InputGroupButton>
             {isBusy ? (
               <IconButton
                 className="ml-auto"
@@ -939,7 +894,7 @@ export const AgentChat = ({
             ) : (
               <IconButton
                 className="ml-auto"
-                disabled={!text.trim() && !skill}
+                disabled={!text.trim()}
                 icon={ArrowUp02Icon}
                 label={t.agent.send}
                 shortcut={<Kbd>⏎</Kbd>}

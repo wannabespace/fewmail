@@ -50,11 +50,8 @@ export const id: Messages = {
     edit: 'Edit',
     editing: 'Mengedit pesan Anda',
     regenerate: 'Jawab ulang',
-    removeSkill: 'Hapus skill',
-    skillPlaceholder: 'Tambahkan detail atau langsung kirim',
     skills: 'Skill',
-    placeholder:
-      'Tanyakan soal email kamu atau bilang apa yang harus dilakukan…',
+    placeholder: 'Tanya soal email kamu, atau ketik / untuk skill',
     retry: 'Coba lagi',
     send: 'Kirim',
     steps: {

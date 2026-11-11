@@ -27,10 +27,9 @@ export const fr: Messages = {
     edit: 'Modifier',
     editing: 'Vous modifiez votre message',
     regenerate: 'Répondre à nouveau',
-    removeSkill: 'Retirer la compétence',
-    skillPlaceholder: 'Ajoutez des détails ou envoyez directement',
     skills: 'Compétences',
-    placeholder: 'Posez une question sur vos e-mails ou dites quoi faire…',
+    placeholder:
+      'Posez une question sur vos e-mails ou tapez / pour les compétences',
     retry: 'Réessayer',
     send: 'Envoyer',
     steps: {

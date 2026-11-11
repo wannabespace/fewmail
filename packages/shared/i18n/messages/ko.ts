@@ -50,10 +50,8 @@ export const ko: Messages = {
     edit: '편집',
     editing: '메시지 편집 중',
     regenerate: '다시 답변',
-    removeSkill: '스킬 제거',
-    skillPlaceholder: '세부 내용을 추가하거나 바로 보내세요',
     skills: '스킬',
-    placeholder: '메일에 대해 묻거나 할 일을 말해 주세요…',
+    placeholder: '메일에 대해 묻거나 / 를 입력해 스킬을 고르세요',
     retry: '다시 시도',
     send: '보내기',
     steps: {

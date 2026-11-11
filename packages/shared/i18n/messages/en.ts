@@ -49,10 +49,8 @@ export const en = {
     edit: 'Edit',
     editing: 'Editing your message',
     regenerate: 'Answer again',
-    removeSkill: 'Remove skill',
-    skillPlaceholder: 'Add details or just send',
     skills: 'Skills',
-    placeholder: 'Ask about your mail or say what to do…',
+    placeholder: 'Ask about your mail, or type / for skills',
     retry: 'Try again',
     send: 'Send',
     steps: {

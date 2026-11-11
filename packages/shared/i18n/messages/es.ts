@@ -27,10 +27,8 @@ export const es: Messages = {
     edit: 'Editar',
     editing: 'Editando tu mensaje',
     regenerate: 'Responder de nuevo',
-    removeSkill: 'Quitar habilidad',
-    skillPlaceholder: 'Añade detalles o envía sin más',
     skills: 'Habilidades',
-    placeholder: 'Pregunta por tu correo o di qué hacer…',
+    placeholder: 'Pregunta por tu correo o escribe / para ver habilidades',
     retry: 'Reintentar',
     send: 'Enviar',
     steps: {

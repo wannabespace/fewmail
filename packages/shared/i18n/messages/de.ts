@@ -27,10 +27,8 @@ export const de: Messages = {
     edit: 'Bearbeiten',
     editing: 'Du bearbeitest deine Nachricht',
     regenerate: 'Neu antworten',
-    removeSkill: 'Skill entfernen',
-    skillPlaceholder: 'Details ergänzen oder einfach senden',
     skills: 'Skills',
-    placeholder: 'Frag nach deinen Mails oder sag, was zu tun ist…',
+    placeholder: 'Frag nach deinen Mails oder tipp / für Skills',
     retry: 'Erneut versuchen',
     send: 'Senden',
     steps: {

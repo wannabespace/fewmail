@@ -50,10 +50,8 @@ export const zh: Messages = {
     edit: '编辑',
     editing: '正在编辑你的消息',
     regenerate: '重新回答',
-    removeSkill: '移除技能',
-    skillPlaceholder: '补充细节，或直接发送',
     skills: '技能',
-    placeholder: '问问你的邮件，或者告诉我要做什么…',
+    placeholder: '问问你的邮件，或输入 / 选择技能',
     retry: '重试',
     send: '发送',
     steps: {

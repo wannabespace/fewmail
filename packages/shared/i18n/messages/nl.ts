@@ -50,10 +50,8 @@ export const nl: Messages = {
     edit: 'Bewerken',
     editing: 'Je bewerkt je bericht',
     regenerate: 'Opnieuw antwoorden',
-    removeSkill: 'Skill verwijderen',
-    skillPlaceholder: 'Voeg details toe of verstuur meteen',
     skills: 'Skills',
-    placeholder: 'Vraag iets over je mail of zeg wat er moet gebeuren…',
+    placeholder: 'Vraag iets over je mail of typ / voor skills',
     retry: 'Opnieuw proberen',
     send: 'Versturen',
     steps: {
