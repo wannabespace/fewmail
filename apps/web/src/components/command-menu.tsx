@@ -81,7 +81,9 @@ export const CommandMenu = ({
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandPrimitive>
         <CommandPaletteInput
-          placeholder={t.command.placeholder}
+          placeholder={
+            hasAgent ? t.command.placeholder : t.command.commandsOnly
+          }
           value={search}
           onValueChange={setSearch}
         />

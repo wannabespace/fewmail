@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
+import { useDebouncedMemo } from '@fewmail/ui/hookas/use-debounced-memo'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Archive02Icon,
@@ -53,7 +54,7 @@ import {
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { isToday } from 'date-fns'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
@@ -592,18 +593,22 @@ const MailPage = () => {
     },
     { enabled: !!thread || !!q }
   )
-  useHotkey(
-    'Enter',
-    () =>
-      navigate({
-        search: (prev) => ({
-          ...prev,
-          q: search.trim() || undefined,
-          thread: undefined,
-        }),
-      }),
-    { ignoreInputs: false, target: searchRef }
-  )
+  const applySearch = (value: string) =>
+    navigate({
+      replace: true,
+      search: (prev) => ({ ...prev, q: value || undefined, thread: undefined }),
+    })
+  const typedSearch = useDebouncedMemo(() => search.trim(), [search], 400)
+  const onTyped = useEffectEvent((value: string) => {
+    if (value !== (q ?? '')) {
+      void applySearch(value)
+    }
+  })
+  useEffect(() => onTyped(typedSearch), [typedSearch])
+  useHotkey('Enter', () => applySearch(search.trim()), {
+    ignoreInputs: false,
+    target: searchRef,
+  })
   useHotkey('Escape', () => searchRef.current?.blur(), {
     ignoreInputs: false,
     target: searchRef,
