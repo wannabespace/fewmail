@@ -15,12 +15,10 @@
     "@fewmail/shared": "workspace:*",
     "arktype": "catalog:",
     "drizzle-orm": "catalog:",
-    "pg": "catalog:",
     "uuid": "catalog:"
   },
   "devDependencies": {
     "@fewmail/configs": "workspace:*",
-    "@types/pg": "catalog:",
     "drizzle-kit": "catalog:"
   }
 }

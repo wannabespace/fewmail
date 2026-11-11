@@ -1,6 +1,6 @@
 import { defineRelations } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { migrate } from 'drizzle-orm/node-postgres/migrator'
+import { drizzle } from 'drizzle-orm/bun-sql/postgres'
+import { migrate } from 'drizzle-orm/bun-sql/migrator'
 
 import { env } from './env'
 import * as schema from './schema'
