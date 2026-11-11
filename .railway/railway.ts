@@ -9,8 +9,8 @@ import {
 } from 'railway/iac'
 
 const REPO = 'wannabespace/fewmail'
-const PORT = 3910
-const WEB_PORT = 4173
+/** The port Railway already routes both custom domains to; a different one answers 502. */
+const PORT = 8080
 
 /** Values live only in Railway (set once on `api`); the worker reads the same ones by reference. */
 const SECRETS = [
@@ -90,10 +90,10 @@ export default defineRailway((ctx) => {
       dockerfilePath: 'apps/web/Dockerfile',
       watchPatterns: ['apps/web/**', 'packages/**', 'pnpm-lock.yaml'],
     },
-    domains: isProduction ? [{ domain: 'fewmail.app', port: WEB_PORT }] : [],
+    domains: isProduction ? [{ domain: 'fewmail.app', port: PORT }] : [],
     env: {
       API_URL: api.env.API_URL,
-      PORT: String(WEB_PORT),
+      PORT: String(PORT),
       WEB_URL: api.env.WEB_URL,
     },
     healthcheck: '/robots.txt',

@@ -346,7 +346,11 @@ export const startTelegram = async () => {
         })
       : bot.start())
   } catch (error) {
-    console.error('telegram start', error)
+    // Only the message: grammy's error carries the request payload, webhook secret included.
+    console.error(
+      'telegram start',
+      error instanceof Error ? error.message : error
+    )
   }
 }
 
