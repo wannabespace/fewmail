@@ -174,6 +174,7 @@ export const ja: Messages = {
   importance: ['ノイズ', '知っておくと良い', '近いうちに対応', '緊急'],
   justNow: 'たった今',
   keys: {
+    filter: 'フィルター',
     reply: '返信',
     snooze: 'スヌーズ',
     anything: '何でも',

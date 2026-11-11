@@ -192,6 +192,7 @@ export const es: Messages = {
   importance: ['Ruido', 'Bueno saberlo', 'Te necesita pronto', 'Urgente'],
   justNow: 'justo ahora',
   keys: {
+    filter: 'filtro',
     reply: 'responder',
     snooze: 'posponer',
     anything: 'lo que sea',

@@ -268,6 +268,7 @@ export const en = {
   importance: ['Noise', 'Worth knowing', 'Needs you soon', 'Urgent'],
   justNow: 'just now',
   keys: {
+    filter: 'filter',
     anything: 'anything',
     approve: 'approve',
     archive: 'archive',

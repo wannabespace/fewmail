@@ -272,6 +272,7 @@ export const nl: Messages = {
   importance: ['Ruis', 'Goed om te weten', 'Heeft je snel nodig', 'Dringend'],
   justNow: 'zojuist',
   keys: {
+    filter: 'filter',
     reply: 'beantwoorden',
     snooze: 'uitstellen',
     anything: 'alles',

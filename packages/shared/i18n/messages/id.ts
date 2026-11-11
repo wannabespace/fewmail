@@ -264,6 +264,7 @@ export const id: Messages = {
   importance: ['Kebisingan', 'Perlu tahu', 'Segera butuh kamu', 'Mendesak'],
   justNow: 'baru saja',
   keys: {
+    filter: 'filter',
     reply: 'balas',
     snooze: 'tunda',
     anything: 'apa saja',

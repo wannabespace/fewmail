@@ -283,6 +283,7 @@ export const pl: Messages = {
   importance: ['Szum', 'Warto wiedzieć', 'Wkrótce czeka na ciebie', 'Pilne'],
   justNow: 'przed chwilą',
   keys: {
+    filter: 'filtr',
     reply: 'odpowiedz',
     snooze: 'odłóż',
     anything: 'cokolwiek',

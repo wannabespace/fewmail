@@ -191,6 +191,7 @@ export const de: Messages = {
   importance: ['Rauschen', 'Gut zu wissen', 'Braucht dich bald', 'Dringend'],
   justNow: 'gerade eben',
   keys: {
+    filter: 'Filter',
     reply: 'antworten',
     snooze: 'zurückstellen',
     anything: 'alles',

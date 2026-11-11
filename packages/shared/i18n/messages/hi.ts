@@ -174,6 +174,7 @@ export const hi: Messages = {
   importance: ['शोर', 'जानने लायक', 'जल्द ध्यान दें', 'ज़रूरी'],
   justNow: 'अभी',
   keys: {
+    filter: 'फ़िल्टर',
     reply: 'जवाब',
     snooze: 'स्नूज़',
     anything: 'कुछ भी',

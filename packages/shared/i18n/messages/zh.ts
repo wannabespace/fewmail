@@ -169,6 +169,7 @@ export const zh: Messages = {
   importance: ['噪音', '值得了解', '需尽快处理', '紧急'],
   justNow: '刚刚',
   keys: {
+    filter: '筛选',
     reply: '回复',
     snooze: '稍后提醒',
     anything: '任意',

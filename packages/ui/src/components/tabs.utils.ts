@@ -11,6 +11,7 @@ export const tabsListVariants = cva(
         bar: 'bg-body/50 gap-0',
         default: 'bg-foreground/6',
         line: 'gap-1 bg-transparent',
+        pill: 'gap-1 rounded-none bg-transparent p-0',
       },
     },
   }

@@ -13,7 +13,12 @@ import {
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { Empty, EmptyDescription } from '@fewmail/ui/components/empty'
-import { Input } from '@fewmail/ui/components/input'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@fewmail/ui/components/input-group'
+import { Kbd } from '@fewmail/ui/components/kbd'
 import {
   Select,
   SelectContent,
@@ -27,6 +32,7 @@ import {
   Archive02Icon,
   Clock01Icon,
   Delete02Icon,
+  Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -59,6 +65,10 @@ const FILTERS = [
 ] as const
 
 type Filter = (typeof FILTERS)[number]
+
+const stepFilter = (filter: Filter, step: number) =>
+  FILTERS[(FILTERS.indexOf(filter) + step + FILTERS.length) % FILTERS.length] ??
+  filter
 
 const ALL_MAILBOXES = 'all'
 
@@ -137,7 +147,7 @@ const MailRowActions = ({
       <IconButton
         icon={Archive02Icon}
         label={t.mail.archive}
-        shortcut="E"
+        shortcut={<Kbd>E</Kbd>}
         size="icon-sm"
         variant="ghost-muted"
         onClick={() => actions.archive.mutate(target)}
@@ -165,7 +175,7 @@ const MailRowActions = ({
       <IconButton
         icon={Delete02Icon}
         label={t.mail.trash}
-        shortcut="#"
+        shortcut={<Kbd>#</Kbd>}
         size="icon-sm"
         variant="ghost-destructive"
         onClick={() => actions.trash.mutate(target)}
@@ -380,6 +390,12 @@ const MailPage = () => {
   useHotkey('ArrowUp', () => setCursor((index) => Math.max(0, index - 1)))
   useHotkey('Enter', () => open(cursor))
   useHotkey('O', () => open(cursor))
+  const showFilter = (next: Filter) =>
+    navigate({
+      search: (prev) => ({ ...prev, filter: next, thread: undefined }),
+    })
+  useHotkey('[', () => showFilter(stepFilter(filter, -1)))
+  useHotkey(']', () => showFilter(stepFilter(filter, 1)))
   useHotkey('/', () => searchRef.current?.focus())
   useHotkey(
     'Escape',
@@ -417,76 +433,73 @@ const MailPage = () => {
           aria-label={t.nav.mail}
           className="flex min-w-0 flex-1 flex-col border-r"
         >
-          <div className="flex flex-col gap-3 border-b px-5 pt-5 pb-3">
-            <div className="flex items-center gap-2">
-              <Input
+          <div className="flex flex-col gap-2.5 border-b px-5 pt-4 pb-3">
+            <InputGroup>
+              <InputGroupAddon>
+                <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+              </InputGroupAddon>
+              <InputGroupInput
                 ref={searchRef}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder={t.mail.search}
                 aria-label={t.mail.search}
               />
-              {mailboxes.length > 1 && (
-                <Select
-                  items={[
-                    { label: t.mail.allMailboxes, value: ALL_MAILBOXES },
-                    ...mailboxes.map(({ email, id }) => ({
-                      label: email,
-                      value: id,
-                    })),
-                  ]}
-                  value={mailbox ?? ALL_MAILBOXES}
-                  onValueChange={(next) =>
-                    navigate({
-                      search: (prev) => ({
-                        ...prev,
-                        mailbox:
-                          next && next !== ALL_MAILBOXES ? next : undefined,
-                        thread: undefined,
-                      }),
-                    })
-                  }
-                >
-                  <SelectTrigger
-                    aria-label={t.mail.allMailboxes}
-                    className="max-w-56 shrink-0"
+              <InputGroupAddon align="inline-end">
+                <Kbd className="group-focus-within/input-group:hidden">/</Kbd>
+                {mailboxes.length > 1 && (
+                  <Select
+                    items={[
+                      { label: t.mail.allMailboxes, value: ALL_MAILBOXES },
+                      ...mailboxes.map(({ email, id }) => ({
+                        label: email,
+                        value: id,
+                      })),
+                    ]}
+                    value={mailbox ?? ALL_MAILBOXES}
+                    onValueChange={(next) =>
+                      navigate({
+                        search: (prev) => ({
+                          ...prev,
+                          mailbox:
+                            next && next !== ALL_MAILBOXES ? next : undefined,
+                          thread: undefined,
+                        }),
+                      })
+                    }
                   >
-                    <SelectValue data-mask={mailbox ? true : undefined} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ALL_MAILBOXES}>
-                      {t.mail.allMailboxes}
-                    </SelectItem>
-                    {mailboxes.map(({ email, id }) => (
-                      <SelectItem key={id} value={id}>
-                        <span data-mask>{email}</span>
+                    <SelectTrigger
+                      aria-label={t.mail.allMailboxes}
+                      size="xs"
+                      variant="flat"
+                      className="max-w-48"
+                    >
+                      <SelectValue data-mask={mailbox ? true : undefined} />
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      <SelectItem value={ALL_MAILBOXES}>
+                        {t.mail.allMailboxes}
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-            <Tabs
-              value={filter}
-              onValueChange={(value) =>
-                navigate({
-                  search: (prev) => ({
-                    ...prev,
-                    filter: value as Filter,
-                    thread: undefined,
-                  }),
-                })
-              }
-            >
+                      {mailboxes.map(({ email, id }) => (
+                        <SelectItem key={id} value={id}>
+                          <span data-mask>{email}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </InputGroupAddon>
+            </InputGroup>
+            <Tabs value={filter} onValueChange={(value) => showFilter(value)}>
               <TabsList
-                variant="line"
+                variant="pill"
                 className="scroll-fade-x max-w-full scrollbar-none justify-start overflow-x-auto"
               >
                 {FILTERS.map((value) => (
                   <TabsTrigger key={value} value={value}>
                     {t.mail.filter[value]}
                     {isCounted(value) && Boolean(unread?.[value]) && (
-                      <span className="text-muted-foreground text-xs tabular-nums">
+                      <span className="text-xs tabular-nums opacity-60">
                         {unread?.[value]}
                       </span>
                     )}
@@ -526,6 +539,7 @@ const MailPage = () => {
                 ['J / K', t.keys.move],
                 ['⏎', t.keys.open],
                 ...hints,
+                ['[ / ]', t.keys.filter],
                 ['/', t.keys.search],
                 ['⌘K', t.keys.anything],
               ]}

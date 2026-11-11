@@ -259,6 +259,7 @@ export const tr: Messages = {
   importance: ['Gürültü', 'Bilmeye değer', 'Yakında seni bekliyor', 'Acil'],
   justNow: 'az önce',
   keys: {
+    filter: 'filtre',
     reply: 'yanıtla',
     snooze: 'ertele',
     anything: 'her şey',

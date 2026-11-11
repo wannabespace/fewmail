@@ -173,6 +173,7 @@ export const ko: Messages = {
   importance: ['잡음', '알아두면 좋음', '곧 확인 필요', '긴급'],
   justNow: '방금',
   keys: {
+    filter: '필터',
     reply: '답장',
     snooze: '다시 알림',
     anything: '아무거나',

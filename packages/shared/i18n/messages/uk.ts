@@ -189,6 +189,7 @@ export const uk: Messages = {
   importance: ['Шум', 'Варто знати', 'Скоро знадобишся', 'Терміново'],
   justNow: 'щойно',
   keys: {
+    filter: 'фільтр',
     reply: 'відповісти',
     snooze: 'відкласти',
     anything: 'будь-що',
