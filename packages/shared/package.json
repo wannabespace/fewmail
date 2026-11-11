@@ -1,0 +1,15 @@
+{
+  "name": "@fewmail/shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./i18n": "./i18n/index.ts",
+    "./*": "./*.ts"
+  },
+  "scripts": {
+    "check-types": "bun check"
+  },
+  "dependencies": {
+    "@fewmail/configs": "workspace:*"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@fewmail/db",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./schema": "./schema/index.ts"
+  },
+  "scripts": {
+    "check-types": "bun check",
+    "db:generate": "bun --env-file=../../.env --bun drizzle-kit generate",
+    "db:migrate": "bun --env-file=../../.env --bun drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@fewmail/shared": "workspace:*",
+    "arktype": "catalog:",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:",
+    "uuid": "catalog:"
+  },
+  "devDependencies": {
+    "@fewmail/configs": "workspace:*",
+    "@types/pg": "catalog:",
+    "drizzle-kit": "catalog:"
+  }
+}

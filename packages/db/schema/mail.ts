@@ -1,0 +1,208 @@
+import type {
+  OutboxMode,
+  OutboxStatus,
+  ReminderKind,
+  ReminderStatus,
+  ActionKind,
+  ActionStatus,
+  MailCategory,
+  RuleEffect,
+  SimpleMatchField,
+} from '@fewmail/shared/agent'
+import * as d from 'drizzle-orm/pg-core'
+
+import { baseTable } from '../base-table'
+import { encryptedText } from '../utils'
+import { users } from './auth'
+
+const userId = () =>
+  d
+    .uuid()
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' })
+
+export const mailboxes = d.snakeCase.table('mailboxes', {
+  ...baseTable,
+  email: d.text().notNull(),
+  historyId: d.text(),
+  /** Category → Gmail label id, created on demand when the user turns on agent labels. */
+  labelIds: d
+    .jsonb()
+    .$type<Partial<Record<MailCategory, string>>>()
+    .default({})
+    .notNull(),
+  lastSyncedAt: d.timestamp({ withTimezone: true }),
+  syncError: d.text(),
+  userId: userId().unique(),
+})
+
+export const messages = d.snakeCase.table(
+  'messages',
+  {
+    ...baseTable,
+    body: encryptedText().notNull(),
+    cc: d.text().array().notNull(),
+    fromEmail: d.text().notNull(),
+    fromName: d.text(),
+    gmailId: d.text().notNull(),
+    hasAttachments: d.boolean().notNull(),
+    isFromMe: d.boolean().notNull(),
+    isUnread: d.boolean().notNull(),
+    labelIds: d.text().array().notNull(),
+    listUnsubscribe: d.text(),
+    listUnsubscribePost: d.text(),
+    mailboxId: d
+      .uuid()
+      .notNull()
+      .references(() => mailboxes.id, { onDelete: 'cascade' }),
+    messageIdHeader: d.text(),
+    receivedAt: d.timestamp({ withTimezone: true }).notNull(),
+    snippet: encryptedText().notNull(),
+    subject: encryptedText().notNull(),
+    threadId: d.text().notNull(),
+    to: d.text().array().notNull(),
+    userId: userId(),
+  },
+  (table) => [
+    d
+      .uniqueIndex('messages_mailbox_gmail_idx')
+      .on(table.mailboxId, table.gmailId),
+    d.index('messages_user_received_idx').on(table.userId, table.receivedAt),
+    d.index('messages_thread_idx').on(table.userId, table.threadId),
+  ]
+)
+
+export interface SimpleMatch {
+  field: SimpleMatchField
+  value: string
+}
+
+export interface Extracted {
+  amount: string | null
+  dueDate: string | null
+  meetingTime: string | null
+}
+
+export const rules = d.snakeCase.table('rules', {
+  ...baseTable,
+  autonomous: d.boolean().notNull(),
+  effect: d.text().$type<RuleEffect>().notNull(),
+  enabled: d.boolean().default(true).notNull(),
+  /** Plain-language rule matched by the agent (Pro); null for a simple rule. */
+  instruction: d.text(),
+  /** Simple rule matched without AI, available on every plan; null for an agent rule. */
+  match: d.jsonb().$type<SimpleMatch>(),
+  userId: userId(),
+})
+
+export const analyses = d.snakeCase.table('analyses', {
+  category: d.text().$type<MailCategory>().notNull(),
+  createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+  extracted: d.jsonb().$type<Extracted>().notNull(),
+  importance: d.smallint().notNull(),
+  messageId: d
+    .uuid()
+    .primaryKey()
+    .references(() => messages.id, { onDelete: 'cascade' }),
+  model: d.text().notNull(),
+  needsReply: d.boolean().notNull(),
+  reason: d.text().notNull(),
+  ruleId: d.uuid().references(() => rules.id, { onDelete: 'set null' }),
+  summary: encryptedText().notNull(),
+})
+
+export const actions = d.snakeCase.table(
+  'actions',
+  {
+    ...baseTable,
+    autonomous: d.boolean().notNull(),
+    detail: encryptedText(),
+    kind: d.text().$type<ActionKind>().notNull(),
+    messageId: d.uuid().references(() => messages.id, { onDelete: 'cascade' }),
+    notifiedAt: d.timestamp({ withTimezone: true }),
+    reason: d.text().notNull(),
+    resolvedAt: d.timestamp({ withTimezone: true }),
+    ruleId: d.uuid().references(() => rules.id, { onDelete: 'set null' }),
+    status: d.text().$type<ActionStatus>().notNull(),
+    threadId: d.text(),
+    title: d.text().notNull(),
+    userId: userId(),
+  },
+  (table) => [d.index('actions_user_status_idx').on(table.userId, table.status)]
+)
+
+export interface BriefStats {
+  archived: number
+  filed: number
+  handled: number
+  needYou: number
+  unsubscribed: number
+}
+
+export const briefs = d.snakeCase.table(
+  'briefs',
+  {
+    ...baseTable,
+    body: encryptedText().notNull(),
+    date: d.date().notNull(),
+    headline: encryptedText().notNull(),
+    stats: d.jsonb().$type<BriefStats>().notNull(),
+    telegramSentAt: d.timestamp({ withTimezone: true }),
+    userId: userId(),
+  },
+  (table) => [
+    d.uniqueIndex('briefs_user_date_idx').on(table.userId, table.date),
+  ]
+)
+
+export const outbox = d.snakeCase.table(
+  'outbox',
+  {
+    ...baseTable,
+    actionId: d.uuid().references(() => actions.id, { onDelete: 'set null' }),
+    bcc: d.text().array().notNull(),
+    cc: d.text().array().notNull(),
+    error: d.text(),
+    html: encryptedText().notNull(),
+    inReplyTo: d.text(),
+    mode: d.text().$type<OutboxMode>().notNull(),
+    references: d.text(),
+    remindAfterDays: d.smallint(),
+    replyToMessageId: d
+      .uuid()
+      .references(() => messages.id, { onDelete: 'set null' }),
+    sendAt: d.timestamp({ withTimezone: true }).notNull(),
+    status: d.text().$type<OutboxStatus>().notNull(),
+    subject: encryptedText().notNull(),
+    text: encryptedText().notNull(),
+    threadId: d.text(),
+    to: d.text().array().notNull(),
+    userId: userId(),
+  },
+  (table) => [d.index('outbox_due_idx').on(table.status, table.sendAt)]
+)
+
+export const reminders = d.snakeCase.table(
+  'reminders',
+  {
+    ...baseTable,
+    dueAt: d.timestamp({ withTimezone: true }).notNull(),
+    kind: d.text().$type<ReminderKind>().notNull(),
+    /** For a follow-up: when the user wrote, so any later inbound mail in the thread cancels it. */
+    since: d.timestamp({ withTimezone: true }),
+    status: d.text().$type<ReminderStatus>().notNull(),
+    threadId: d.text().notNull(),
+    userId: userId(),
+  },
+  (table) => [
+    d.index('reminders_due_idx').on(table.status, table.dueAt),
+    d.index('reminders_thread_idx').on(table.userId, table.threadId),
+  ]
+)
+
+export const snippets = d.snakeCase.table('snippets', {
+  ...baseTable,
+  html: d.text().notNull(),
+  name: d.text().notNull(),
+  userId: userId(),
+})

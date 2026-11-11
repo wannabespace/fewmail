@@ -1,0 +1,353 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './typography.css';
+@import 'shadcn/tailwind.css';
+@import 'streamdown/styles.css';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/inter/wght-italic.css';
+@import '@fontsource-variable/newsreader';
+@import '@fontsource-variable/newsreader/wght-italic.css';
+
+@plugin 'tailwind-scrollbar';
+@plugin '@tailwindcss/typography';
+
+@source "../../node_modules/streamdown/dist/*.js";
+@source "../**/*.{ts,tsx}";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Drops tw-animate-css's `filter: blur(0)`, which stalls every enter/exit on Chrome's main thread; blur-in/out-* do nothing. */
+  @keyframes enter {
+    from {
+      opacity: var(--tw-enter-opacity, 1);
+      transform: translate3d(
+          var(--tw-enter-translate-x, 0),
+          var(--tw-enter-translate-y, 0),
+          0
+        )
+        scale3d(
+          var(--tw-enter-scale, 1),
+          var(--tw-enter-scale, 1),
+          var(--tw-enter-scale, 1)
+        )
+        rotate(var(--tw-enter-rotate, 0));
+    }
+  }
+
+  --animate-focus-in: focus-in
+    var(--tw-animation-duration, var(--tw-duration, 0.15s)) var(--tw-ease, ease)
+    var(--tw-animation-delay, 0s) var(--tw-animation-fill-mode, none);
+
+  @keyframes focus-in {
+    from {
+      filter: blur(12px);
+    }
+  }
+
+  @keyframes exit {
+    to {
+      opacity: var(--tw-exit-opacity, 1);
+      transform: translate3d(
+          var(--tw-exit-translate-x, 0),
+          var(--tw-exit-translate-y, 0),
+          0
+        )
+        scale3d(
+          var(--tw-exit-scale, 1),
+          var(--tw-exit-scale, 1),
+          var(--tw-exit-scale, 1)
+        )
+        rotate(var(--tw-exit-rotate, 0));
+    }
+  }
+
+  --ease-house: cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-progress-sweep: progress-sweep 1.5s cubic-bezier(0.65, 0, 0.35, 1)
+    infinite;
+
+  @keyframes progress-sweep {
+    from {
+      transform: translateX(-110%);
+    }
+    to {
+      transform: translateX(370%);
+    }
+  }
+
+  --default-border-width: 1px;
+  --default-ring-width: 1px;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 0.875rem;
+  --font-heading: var(--font-serif);
+  --font-sans: 'Inter Variable', sans-serif;
+  --font-serif: 'Newsreader Variable', Georgia, serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  --text-brief: 1.1875rem;
+  --text-brief--line-height: 1.55;
+  --text-display: 2.5rem;
+  --text-display--line-height: 1.1;
+  --font-weight-row: 450;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-body: var(--body);
+  --color-chip: color-mix(in oklch, var(--input), var(--foreground) 4%);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --shadow-2xs: 0 1px 2px 0 rgb(60 40 20 / 0.03);
+  --shadow-xs: 0 2px 4px 0 rgb(60 40 20 / 0.03);
+  --shadow-sm:
+    0 6px 20px -12px rgb(60 40 20 / 0.25), 0 1px 2px 0 rgb(60 40 20 / 0.03);
+  --shadow-md:
+    0 6px 16px -2px rgb(60 40 20 / 0.09), 0 2px 4px -2px rgb(60 40 20 / 0.05);
+  --shadow-lg:
+    0 16px 32px -4px rgb(60 40 20 / 0.13), 0 4px 8px -4px rgb(60 40 20 / 0.06);
+  --shadow-xl:
+    0 28px 56px -8px rgb(60 40 20 / 0.17), 0 8px 16px -8px rgb(60 40 20 / 0.08);
+  --shadow-2xl: 0 40px 80px -12px rgb(60 40 20 / 0.2);
+}
+
+:root {
+  --body: oklch(0.951 0.013 80);
+  --background: oklch(0.982 0.007 85);
+  --foreground: oklch(0.22 0.012 70);
+  --card: oklch(0.982 0.007 85);
+  --card-foreground: oklch(0.22 0.012 70);
+  --popover: oklch(0.995 0.005 90);
+  --popover-foreground: oklch(0.22 0.012 70);
+  --primary: oklch(0.55 0.15 38);
+  --primary-foreground: oklch(0.985 0.01 80);
+  --secondary: oklch(0.93 0.017 80);
+  --secondary-foreground: oklch(0.22 0.012 70);
+  --muted: oklch(0.94 0.014 80);
+  --muted-foreground: oklch(0.5 0.02 70);
+  --accent: oklch(0.935 0.016 80);
+  --accent-foreground: oklch(0.22 0.012 70);
+  --destructive: oklch(0.55 0.2 27);
+  --success: oklch(0.56 0.11 160);
+  --success-foreground: oklch(0.985 0.01 80);
+  --warning: oklch(0.72 0.14 75);
+  --warning-foreground: oklch(0.22 0.012 70);
+  --info: oklch(0.52 0.1 245);
+  --info-foreground: oklch(0.985 0.01 80);
+  --border: oklch(0.35 0.03 60 / 12%);
+  --input: oklch(0.995 0.005 90);
+  --ring: var(--primary);
+  --radius: 0.55rem;
+}
+
+.dark {
+  --body: oklch(0.19 0.008 60);
+  --background: oklch(0.215 0.009 60);
+  --foreground: oklch(0.95 0.01 80);
+  --card: oklch(0.215 0.009 60);
+  --card-foreground: oklch(0.95 0.01 80);
+  --popover: oklch(0.235 0.01 60);
+  --popover-foreground: oklch(0.95 0.01 80);
+  --primary: oklch(0.68 0.15 40);
+  --primary-foreground: oklch(0.18 0.01 60);
+  --secondary: oklch(0.29 0.012 60);
+  --secondary-foreground: oklch(0.95 0.01 80);
+  --muted: oklch(0.2 0.009 60);
+  --muted-foreground: oklch(0.72 0.015 75);
+  --accent: oklch(0.25 0.01 60);
+  --accent-foreground: oklch(0.95 0.01 80);
+  --destructive: oklch(0.68 0.18 25);
+  --success: oklch(0.7 0.13 160);
+  --success-foreground: oklch(0.18 0.01 60);
+  --warning: oklch(0.78 0.14 75);
+  --warning-foreground: oklch(0.18 0.01 60);
+  --info: oklch(0.72 0.11 245);
+  --info-foreground: oklch(0.18 0.01 60);
+  --border: oklch(1 0.02 80 / 7%);
+  --input: oklch(0.245 0.01 60);
+  --shadow-md:
+    0 6px 16px -2px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg:
+    0 16px 32px -4px rgb(0 0 0 / 0.4), 0 4px 8px -4px rgb(0 0 0 / 0.26);
+  --shadow-xl:
+    0 28px 56px -8px rgb(0 0 0 / 0.7), 0 8px 16px -8px rgb(0 0 0 / 0.5);
+  --shadow-2xl: 0 40px 80px -12px rgb(0 0 0 / 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:is(.bg-background, .bg-card):not(.dark *) {
+  --accent: oklch(0.945 0.015 80);
+}
+
+.bg-popover:not(.dark *) {
+  --accent: oklch(0.955 0.013 82);
+}
+
+.dark :is(.bg-background, .bg-card) {
+  --accent: oklch(0.25 0.01 60);
+}
+
+.dark .bg-popover {
+  --accent: oklch(0.265 0.011 60);
+}
+
+.dark .bg-input {
+  --accent: oklch(0.275 0.011 60);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  :lang(ja),
+  :lang(zh),
+  :lang(ko) {
+    word-break: auto-phrase;
+  }
+
+  html {
+    color-scheme: light dark;
+    @apply font-sans;
+  }
+
+  a {
+    @apply focus-visible:outline-ring/50 text-primary hover:text-primary/80;
+  }
+
+  body {
+    @apply bg-body text-foreground overscroll-none font-sans antialiased;
+  }
+
+  .dark [data-slot='code-block'] span[style*='--shiki-dark'] {
+    color: var(--shiki-dark) !important;
+  }
+}
+
+::selection {
+  @apply bg-primary/30 text-primary;
+}
+
+.bg-primary::selection,
+.bg-primary *::selection,
+[data-slot='bubble'][data-variant='default']
+  [data-slot='bubble-content']::selection,
+[data-slot='bubble'][data-variant='default']
+  [data-slot='bubble-content']
+  *::selection {
+  @apply text-primary bg-white/90;
+}
+
+@utility table-scroller {
+  --table-header-height: calc(var(--spacing) * 8);
+
+  container-type: inline-size;
+}
+
+/* Keep non-inherited and set on the element that reads it: these change while scrolling, and an inherited one restyles every cell below on each write. */
+@property --grid-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --grid-height {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --grid-width {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Name the portal's children, never the portal: it has no box and naming it hides them. Naming a nested portal traps its z-index under the outer overlay. */
+[data-base-ui-portal] > :not([data-base-ui-portal]) {
+  view-transition-name: match-element;
+  view-transition-class: overlay;
+}
+
+::view-transition-group(.overlay),
+::view-transition-new(.overlay) {
+  animation: none;
+}
+
+::view-transition-old(.overlay) {
+  display: none;
+}
+
+/* Both, or the page loses :hover during a transition: a captured root and the transition's own layer each take the pointer, so hover-revealed row actions blink on every tab swap. */
+:root {
+  view-transition-name: none;
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+@utility focus-ring {
+  @apply ring-ring/50 ring-3 transition-none;
+}
+
+@utility invalid-ring {
+  @apply ring-destructive/50 ring-3;
+}
+
+@utility hit-area-* {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: calc(--spacing(--value(number)) * -1);
+    inset: calc(--value([*]) * -1);
+    pointer-events: inherit;
+  }
+}
+
+@utility end-fade {
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
+}
+
+@utility row-actions-fade {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 4.75rem),
+    transparent calc(100% - 2.5rem)
+  );
+}

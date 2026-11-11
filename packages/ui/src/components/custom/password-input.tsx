@@ -1,0 +1,59 @@
+import { Button } from '@fewmail/ui/components/button'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@fewmail/ui/components/input-group'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@fewmail/ui/components/tooltip'
+import { ViewIcon, ViewOffSlashIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+import type { ComponentProps, ReactNode } from 'react'
+import { useState } from 'react'
+
+export const PasswordInput = ({
+  addon,
+  variant,
+  ...props
+}: Omit<ComponentProps<typeof InputGroupInput>, 'type'> &
+  Pick<ComponentProps<typeof InputGroup>, 'variant'> & {
+    addon?: ReactNode
+  }) => {
+  const [showPassword, setShowPassword] = useState(false)
+
+  return (
+    <InputGroup variant={variant} className="relative">
+      <InputGroupInput type={showPassword ? 'text' : 'password'} {...props} />
+      <InputGroupAddon align="inline-end">
+        {addon}
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
+                onClick={() => setShowPassword(!showPassword)}
+              />
+            }
+          >
+            <HugeiconsIcon
+              icon={showPassword ? ViewOffSlashIcon : ViewIcon}
+              strokeWidth={2}
+              className="size-4"
+              aria-hidden="true"
+            />
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            {showPassword ? 'Hide password' : 'Show password'}
+          </TooltipContent>
+        </Tooltip>
+      </InputGroupAddon>
+    </InputGroup>
+  )
+}

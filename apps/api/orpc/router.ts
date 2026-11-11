@@ -1,0 +1,290 @@
+import { db } from '@fewmail/db'
+import { messages } from '@fewmail/db/schema'
+import {
+  FOLLOWUP_DAYS,
+  GMAIL_EFFECTS,
+  MAIL_CATEGORIES,
+  OUTBOX_MODES,
+  PERSONAS,
+  RULE_EFFECTS,
+  SIMPLE_MATCH_FIELDS,
+} from '@fewmail/shared/agent'
+import { textToHtml } from '@fewmail/shared/email'
+import { LOCALES } from '@fewmail/shared/i18n/locales'
+import type { InferRouterOutputs } from '@orpc/server'
+import { type } from 'arktype'
+import { and, eq } from 'drizzle-orm'
+
+import { agent, authed } from '.'
+import { writeReply } from '../services/agent'
+import { askMail } from '../services/ask'
+import { completeEmail } from '../services/autocomplete'
+import { createBillingPortal, createCheckout } from '../services/billing'
+import { generateBrief, getToday } from '../services/brief'
+import {
+  createApiKey,
+  getTelegramLink,
+  listApiKeys,
+  revokeApiKey,
+  unlinkTelegram,
+} from '../services/integrations'
+import { backfillAgentLabels } from '../services/labels'
+import {
+  approveAction,
+  archiveMessage,
+  blockSender,
+  dismissAction,
+  draftReply,
+  getThread,
+  listMail,
+  redraftAction,
+  snoozeMessage,
+  trashMessage,
+  unsnoozeMessage,
+  unsubscribeMessage,
+} from '../services/mail'
+import { NotFoundError } from '../services/mail-errors'
+import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
+import { getPlanInfo } from '../services/plan'
+import {
+  createRule,
+  deleteRule,
+  listRules,
+  updateRule,
+} from '../services/rules'
+import { getSettings, saveSettings } from '../services/settings'
+import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
+import { ensureMailbox, syncMailbox } from '../services/sync'
+
+const id = type({ id: 'string.uuid' })
+
+const settingsInput = type({
+  'briefHour?': '0 <= number.integer <= 23',
+  language: type.enumerated(...LOCALES.map(({ code }) => code)),
+  persona: type.enumerated(...PERSONAS),
+  'gmailLabels?': 'boolean',
+  'knowledge?': 'string | null',
+  timezone: 'string',
+  'voice?': 'string | null',
+})
+
+const sendInput = type({
+  'bcc?': 'string.email[]',
+  'cc?': 'string.email[]',
+  html: 'string',
+  mode: type.enumerated(...OUTBOX_MODES),
+  'remindAfterDays?': type.enumerated(...FOLLOWUP_DAYS).or('null'),
+  'replyToMessageId?': 'string.uuid',
+  'sendAt?': 'Date',
+  subject: 'string',
+  text: 'string',
+  to: 'string.email[] >= 1',
+})
+
+const ruleInput = type({
+  autonomous: 'boolean',
+  effect: type.enumerated(...RULE_EFFECTS),
+  instruction: 'string > 2',
+})
+
+const simpleRuleInput = type({
+  effect: type.enumerated(...GMAIL_EFFECTS),
+  match: {
+    field: type.enumerated(...SIMPLE_MATCH_FIELDS),
+    value: 'string',
+  },
+})
+
+const messageId = type({ messageId: 'string.uuid' })
+
+export const router = {
+  actions: {
+    approve: agent
+      .input(id.and({ 'detail?': 'string' }))
+      .handler(({ context, input }) =>
+        approveAction(context.user.id, input.id, input.detail)
+      ),
+    dismiss: agent
+      .input(id)
+      .handler(({ context, input }) =>
+        dismissAction(context.user.id, input.id)
+      ),
+    redraft: agent
+      .input(id.and({ 'instruction?': 'string' }))
+      .handler(({ context, input }) =>
+        redraftAction(context.user.id, input.id, input.instruction)
+      ),
+  },
+  integrations: {
+    apiKeys: {
+      create: agent
+        .input(type({ name: 'string > 0' }))
+        .handler(async ({ context, input }) => ({
+          key: await createApiKey(context.user.id, input.name),
+        })),
+      list: agent.handler(({ context }) => listApiKeys(context.user.id)),
+      revoke: agent.input(id).handler(async ({ context, input }) => {
+        await revokeApiKey(context.user.id, input.id)
+      }),
+    },
+    telegram: {
+      get: agent.handler(({ context }) => getTelegramLink(context.user.id)),
+      unlink: agent.handler(async ({ context }) => {
+        await unlinkTelegram(context.user.id)
+      }),
+    },
+  },
+  mail: {
+    archive: authed.input(messageId).handler(async ({ context, input }) => {
+      await archiveMessage(context.user.id, input.messageId)
+    }),
+    block: authed.input(messageId).handler(async ({ context, input }) => {
+      await blockSender(context.user.id, input.messageId)
+    }),
+    cancelSend: authed
+      .input(id)
+      .handler(({ context, input }) => cancelMail(context.user.id, input.id)),
+    complete: agent
+      .input(
+        type({
+          prefix: 'string',
+          'replyToMessageId?': 'string.uuid',
+          suffix: 'string',
+        })
+      )
+      .handler(async ({ context, input, signal }) => ({
+        text: await completeEmail({
+          ...input,
+          signal,
+          userId: context.user.id,
+        }),
+      })),
+    scheduled: authed.handler(({ context }) => listScheduled(context.user.id)),
+    send: authed
+      .input(sendInput)
+      .handler(({ context, input }) => scheduleMail(context.user.id, input)),
+    snooze: authed
+      .input(messageId.and({ until: 'Date' }))
+      .handler(async ({ context, input }) => {
+        await snoozeMessage(context.user.id, input.messageId, input.until)
+      }),
+    trash: authed.input(messageId).handler(async ({ context, input }) => {
+      await trashMessage(context.user.id, input.messageId)
+    }),
+    unsnooze: authed.input(messageId).handler(async ({ context, input }) => {
+      await unsnoozeMessage(context.user.id, input.messageId)
+    }),
+    writeDraft: agent
+      .input(messageId.and({ 'instruction?': 'string' }))
+      .handler(async ({ context, input }) => {
+        const [message] = await db
+          .select()
+          .from(messages)
+          .where(
+            and(
+              eq(messages.id, input.messageId),
+              eq(messages.userId, context.user.id)
+            )
+          )
+        if (!message) {
+          throw new NotFoundError('Email not found')
+        }
+        const text = await writeReply({
+          instruction: input.instruction,
+          message,
+          userId: context.user.id,
+        })
+        return { html: textToHtml(text), text }
+      }),
+    draftReply: agent
+      .input(type({ 'instruction?': 'string', messageId: 'string.uuid' }))
+      .handler(({ context, input }) =>
+        draftReply(context.user.id, input.messageId, input.instruction)
+      ),
+    list: authed
+      .input(
+        type({
+          'before?': 'Date',
+          'category?': type.enumerated(...MAIL_CATEGORIES),
+          filter: "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed'",
+          'search?': 'string',
+        })
+      )
+      .handler(({ context, input }) => listMail(context.user.id, input)),
+    sync: authed.handler(async ({ context }) => {
+      await syncMailbox(await ensureMailbox(context.user.id))
+    }),
+    thread: authed
+      .input(type({ threadId: 'string' }))
+      .handler(({ context, input }) =>
+        getThread(context.user.id, input.threadId)
+      ),
+    unsubscribe: authed
+      .input(messageId)
+      .handler(({ context, input }) =>
+        unsubscribeMessage(context.user.id, input.messageId)
+      ),
+  },
+  ask: agent
+    .input(type({ question: 'string > 2' }))
+    .handler(({ context, input }) => askMail(context.user.id, input.question)),
+  billing: {
+    checkout: authed.handler(async ({ context }) => ({
+      url: await createCheckout(context.user.id),
+    })),
+    portal: authed.handler(async ({ context }) => ({
+      url: await createBillingPortal(context.user.id),
+    })),
+  },
+  me: authed.handler(async ({ context }) => ({
+    plan: await getPlanInfo(context.user.id),
+    settings: await getSettings(context.user.id),
+    user: context.user,
+  })),
+  rules: {
+    create: agent
+      .input(ruleInput)
+      .handler(({ context, input }) => createRule(context.user.id, input)),
+    createSimple: authed
+      .input(simpleRuleInput)
+      .handler(({ context, input }) => createRule(context.user.id, input)),
+    delete: authed.input(id).handler(async ({ context, input }) => {
+      await deleteRule(context.user.id, input.id)
+    }),
+    list: authed.handler(({ context }) => listRules(context.user.id)),
+    update: authed
+      .input(id.and(ruleInput.partial()).and({ 'enabled?': 'boolean' }))
+      .handler(({ context, input: { id: ruleId, ...change } }) =>
+        updateRule(context.user.id, ruleId, change)
+      ),
+  },
+  settings: {
+    save: authed.input(settingsInput).handler(async ({ context, input }) => {
+      const before = await getSettings(context.user.id)
+      const settings = await saveSettings(context.user.id, input)
+      if (input.gmailLabels && !before?.gmailLabels) {
+        void backfillAgentLabels(context.user.id).catch(console.error)
+      }
+      void ensureMailbox(context.user.id).then(syncMailbox).catch(console.error)
+      return settings
+    }),
+  },
+  snippets: {
+    delete: authed.input(id).handler(async ({ context, input }) => {
+      await deleteSnippet(context.user.id, input.id)
+    }),
+    list: authed.handler(({ context }) => listSnippets(context.user.id)),
+    save: authed
+      .input(type({ html: 'string', 'id?': 'string.uuid', name: 'string > 0' }))
+      .handler(({ context, input }) => saveSnippet(context.user.id, input)),
+  },
+  today: {
+    get: agent.handler(({ context }) => getToday(context.user.id)),
+    refreshBrief: agent.handler(({ context }) =>
+      generateBrief(context.user.id)
+    ),
+  },
+}
+
+export type Router = typeof router
+export type RouterOutputs = InferRouterOutputs<Router>

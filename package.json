@@ -1,0 +1,37 @@
+{
+  "name": "fewmail",
+  "private": true,
+  "description": "An email agent that reads your mail so you don't have to.",
+  "type": "module",
+  "scripts": {
+    "postinstall": "pnpm run portless:start",
+    "portless:start": "portless proxy start --tld app",
+    "portless:stop": "portless proxy stop",
+    "dev": "turbo run dev",
+    "check": "ultracite check",
+    "fix": "ultracite fix",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test",
+    "db:generate": "pnpm --filter @fewmail/db run db:generate",
+    "db:migrate": "pnpm --filter @fewmail/db run db:migrate",
+    "docker:start": "docker compose -f docker-compose.dev.yml up -d",
+    "docker:stop": "docker compose -f docker-compose.dev.yml down"
+  },
+  "devDependencies": {
+    "@fewmail/configs": "workspace:*",
+    "@shadcn/lint": "catalog:",
+    "@types/bun": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tailwindcss": "catalog:",
+    "portless": "catalog:",
+    "tailwindcss": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:",
+    "ultracite": "catalog:"
+  },
+  "engines": {
+    "bun": ">=1.4.4"
+  },
+  "packageManager": "pnpm@12.15.0"
+}

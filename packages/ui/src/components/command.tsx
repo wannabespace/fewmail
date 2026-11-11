@@ -1,0 +1,276 @@
+import { EnterIcon } from '@fewmail/ui/components/custom/shortcuts'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@fewmail/ui/components/dialog'
+import { InputGroup, InputGroupAddon } from '@fewmail/ui/components/input-group'
+import { Kbd } from '@fewmail/ui/components/kbd'
+import { cn } from '@fewmail/ui/lib/utils'
+import {
+  ArrowDown02Icon,
+  ArrowUp02Icon,
+  Search01Icon,
+  Tick02Icon,
+} from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Command as CommandPrimitive } from 'cmdk'
+import * as React from 'react'
+
+export { Command as CommandPrimitive, defaultFilter } from 'cmdk'
+
+const commandVariants = {
+  flat: 'text-foreground **:data-[slot=command-item]:font-normal',
+  popup: 'bg-popover text-popover-foreground rounded-xl',
+  transparent: 'text-popover-foreground rounded-xl',
+}
+
+export const Command = ({
+  className,
+  size = 'default',
+  variant = 'popup',
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive> & {
+  size?: 'default' | 'sm'
+  variant?: keyof typeof commandVariants
+}) => (
+  <CommandPrimitive
+    data-slot="command"
+    data-size={size}
+    className={cn(
+      'group/command flex size-full flex-col overflow-hidden outline-none',
+      commandVariants[variant],
+      className
+    )}
+    {...props}
+  />
+)
+
+export const CommandDialog = ({
+  title = 'Command Palette',
+  description = 'Search for a command to run...',
+  children,
+  className,
+  showCloseButton = false,
+  ...props
+}: Omit<React.ComponentProps<typeof Dialog>, 'children'> & {
+  title?: string
+  description?: string
+  className?: string
+  showCloseButton?: boolean
+  children: React.ReactNode
+}) => (
+  <Dialog {...props}>
+    <DialogContent
+      animated={false}
+      className={cn(
+        `top-[16svh] flex max-h-[min(35rem,calc(84svh-2rem))] translate-y-0 flex-col gap-0 overflow-hidden rounded-3xl! p-0 sm:max-w-xl`,
+        className
+      )}
+      showCloseButton={showCloseButton}
+    >
+      <DialogHeader className="sr-only">
+        <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
+      </DialogHeader>
+      {children}
+    </DialogContent>
+  </Dialog>
+)
+
+const commandInputVariants = {
+  flat: {
+    group: `h-9! rounded-none border-0 border-b bg-transparent px-1 shadow-none ring-0`,
+    wrapper: '',
+  },
+  pill: {
+    group: `h-7! rounded-lg bg-chip`,
+    wrapper: 'p-1 pb-0',
+  },
+}
+
+export const CommandInput = ({
+  className,
+  variant = 'pill',
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Input> & {
+  variant?: keyof typeof commandInputVariants
+}) => (
+  <div
+    data-slot="command-input-wrapper"
+    className={commandInputVariants[variant].wrapper}
+  >
+    <InputGroup className={commandInputVariants[variant].group}>
+      <CommandPrimitive.Input
+        data-slot="command-input"
+        className={cn(
+          `w-full text-sm outline-hidden group-data-[size=sm]/command:text-xs disabled:cursor-not-allowed disabled:opacity-50`,
+          className
+        )}
+        {...props}
+      />
+      <InputGroupAddon>
+        <HugeiconsIcon
+          icon={Search01Icon}
+          strokeWidth={2}
+          className="size-4 shrink-0 opacity-50"
+        />
+      </InputGroupAddon>
+    </InputGroup>
+  </div>
+)
+
+export const CommandPaletteInput = ({
+  className,
+  end,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Input> & {
+  end?: React.ReactNode
+}) => (
+  <div className="flex shrink-0 items-center gap-3 border-b px-4">
+    <HugeiconsIcon
+      icon={Search01Icon}
+      strokeWidth={2}
+      className="text-muted-foreground size-4 shrink-0"
+    />
+    <CommandPrimitive.Input
+      data-slot="command-input"
+      className={cn(
+        'placeholder:text-muted-foreground/60 h-12 min-w-0 flex-1 bg-transparent text-base outline-hidden',
+        className
+      )}
+      {...props}
+    />
+    {end}
+  </div>
+)
+
+const CommandPaletteHint = ({
+  children,
+  label,
+}: {
+  children: React.ReactNode
+  label: string
+}) => (
+  <span className="flex items-center gap-1">
+    {children}
+    {label}
+  </span>
+)
+
+export const CommandPaletteFooter = () => (
+  <div className="text-2xs text-muted-foreground/70 flex shrink-0 items-center gap-3 border-t px-4 py-2">
+    <CommandPaletteHint label="navigate">
+      <Kbd>
+        <HugeiconsIcon
+          icon={ArrowUp02Icon}
+          strokeWidth={2}
+          className="size-3"
+        />
+      </Kbd>
+      <Kbd>
+        <HugeiconsIcon
+          icon={ArrowDown02Icon}
+          strokeWidth={2}
+          className="size-3"
+        />
+      </Kbd>
+    </CommandPaletteHint>
+    <CommandPaletteHint label="open">
+      <Kbd>
+        <EnterIcon />
+      </Kbd>
+    </CommandPaletteHint>
+    <CommandPaletteHint label="close">
+      <Kbd>esc</Kbd>
+    </CommandPaletteHint>
+  </div>
+)
+
+export const CommandList = ({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.List>) => (
+  <CommandPrimitive.List
+    data-slot="command-list"
+    className={cn(
+      `no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none`,
+      className
+    )}
+    {...props}
+  />
+)
+
+export const CommandEmpty = ({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Empty>) => (
+  <CommandPrimitive.Empty
+    data-slot="command-empty"
+    className={cn('py-4 text-center text-sm', className)}
+    {...props}
+  />
+)
+
+export const CommandGroup = ({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Group>) => (
+  <CommandPrimitive.Group
+    data-slot="command-group"
+    className={cn(
+      `text-foreground **:[[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium`,
+      className
+    )}
+    {...props}
+  />
+)
+
+export const CommandSeparator = ({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Separator>) => (
+  <CommandPrimitive.Separator
+    data-slot="command-separator"
+    className={cn('bg-border/50 my-1 h-px', className)}
+    {...props}
+  />
+)
+
+export const CommandItem = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Item>) => (
+  <CommandPrimitive.Item
+    data-slot="command-item"
+    className={cn(
+      `group/command-item data-selected:bg-accent data-selected:text-accent-foreground *:[svg]:text-foreground/70 data-selected:*:[svg]:text-foreground font-row relative flex min-h-7 cursor-default items-center gap-2 rounded-lg px-2 py-1 text-sm tracking-wide outline-hidden select-none group-data-[size=sm]/command:text-xs data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4`,
+      className
+    )}
+    {...props}
+  >
+    {children}
+    <HugeiconsIcon
+      icon={Tick02Icon}
+      strokeWidth={2}
+      className="ml-auto hidden size-4 opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-checked/command-item:block group-data-[checked=true]/command-item:opacity-100 group-data-[size=sm]/command:size-3"
+    />
+  </CommandPrimitive.Item>
+)
+
+export const CommandShortcut = ({
+  className,
+  ...props
+}: React.ComponentProps<'span'>) => (
+  <span
+    data-slot="command-shortcut"
+    className={cn(
+      `text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-xs`,
+      className
+    )}
+    {...props}
+  />
+)

@@ -1,0 +1,99 @@
+@layer base {
+  .typography:not(.typography-disabled) h1 {
+    @apply scroll-m-20 text-xl font-extrabold tracking-tight;
+  }
+
+  .typography:not(.typography-disabled) h2 {
+    @apply scroll-m-20 text-lg font-semibold tracking-tight;
+  }
+
+  .typography:not(.typography-disabled) h3 {
+    @apply scroll-m-20 text-base font-semibold tracking-tight;
+  }
+
+  .typography:not(.typography-disabled) hr {
+    @apply my-4;
+  }
+
+  .typography:not(.typography-disabled) p {
+    @apply leading-normal not-first:mt-4 not-last:mb-4;
+  }
+
+  .typography:not(.typography-disabled) blockquote {
+    @apply border-border mt-6 border-l-2 pl-6 italic;
+  }
+
+  .typography:not(.typography-disabled) ul {
+    @apply my-4 ml-5 list-disc [&>li]:mt-2;
+  }
+
+  .typography:not(.typography-disabled) ol {
+    @apply my-4 ml-5 list-decimal [&>li]:mt-2;
+  }
+
+  .typography:not(.typography-disabled) code {
+    @apply bg-muted relative rounded px-[0.2rem] py-[0.1rem] font-mono text-[90%] font-semibold;
+  }
+
+  .typography:not(.typography-disabled) pre {
+    @apply bg-card mt-6 mb-4 overflow-x-auto rounded-lg border p-4;
+  }
+
+  .typography:not(.typography-disabled) pre > code {
+    @apply relative block bg-transparent p-0 text-[90%] font-normal;
+  }
+
+  .typography:not(.typography-disabled) a {
+    @apply font-medium underline underline-offset-4;
+  }
+
+  .typography:not(.typography-disabled) small {
+    @apply text-[90%] leading-none font-medium;
+  }
+}
+
+@layer base {
+  .typography-sm:not(.typography-disabled) h1 {
+    @apply text-base;
+  }
+
+  .typography-sm:not(.typography-disabled) h2 {
+    @apply text-sm;
+  }
+
+  .typography-sm:not(.typography-disabled) h3 {
+    @apply text-sm font-medium;
+  }
+
+  .typography-sm:not(.typography-disabled) p {
+    @apply leading-relaxed not-first:mt-3 not-last:mb-3;
+  }
+
+  .typography-sm:not(.typography-disabled) hr {
+    @apply my-3;
+  }
+
+  .typography-sm:not(.typography-disabled) blockquote {
+    @apply my-3 pl-3;
+  }
+
+  .typography-sm:not(.typography-disabled) ul {
+    @apply my-3 ml-4 [&>li]:mt-1;
+  }
+
+  .typography-sm:not(.typography-disabled) ol {
+    @apply my-3 ml-4 [&>li]:mt-1;
+  }
+
+  .typography-sm:not(.typography-disabled) li {
+    @apply leading-relaxed;
+  }
+
+  .typography-sm:not(.typography-disabled) code {
+    @apply bg-foreground/5 rounded-md px-1 py-px text-[0.9em] font-normal;
+  }
+
+  .typography-sm:not(.typography-disabled) a {
+    @apply underline-offset-2;
+  }
+}

@@ -1,0 +1,184 @@
+import { smallItemInsetClassName } from '@fewmail/ui/components/item'
+import { cn } from '@fewmail/ui/lib/utils'
+import type { CodeHighlighterPlugin, HighlightOptions } from '@streamdown/code'
+import type { VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
+import type { ComponentProps, CSSProperties } from 'react'
+import { useRef, useSyncExternalStore } from 'react'
+
+interface Token {
+  content: string
+  htmlStyle?: CSSProperties
+}
+
+let highlighter: CodeHighlighterPlugin | undefined
+
+const highlight = (
+  code: string,
+  language: string,
+  onTokens: (tokens: Token[][]) => void
+): Token[][] | undefined => {
+  if (highlighter) {
+    return highlighter.highlight(
+      {
+        code,
+        language: language as HighlightOptions['language'],
+        themes: highlighter.getThemes(),
+      },
+      ({ tokens }) => onTokens(tokens)
+    )?.tokens
+  }
+  // Never import statically or on the server: Shiki's wasm breaks the site's server bundle.
+  if (!import.meta.env.SSR) {
+    void (async () => {
+      const { code: loaded } = await import('@streamdown/code')
+      highlighter = loaded
+      const tokens = highlight(code, language, onTokens)
+      if (tokens) {
+        onTokens(tokens)
+      }
+    })()
+  }
+}
+
+const useTokens = (code: string, language: string) => {
+  const cache = useRef<{ key: string; tokens?: Token[][] }>({ key: '' })
+  const listener = useRef<(() => void) | null>(null)
+  const key = `${language}\n${code}`
+
+  const getSnapshot = () =>
+    cache.current.key === key ? cache.current.tokens : undefined
+
+  return useSyncExternalStore(
+    (onChange) => {
+      listener.current = onChange
+
+      if (cache.current.key !== key) {
+        cache.current = { key }
+        const tokens = highlight(code, language, (highlighted) => {
+          if (cache.current.key === key) {
+            cache.current = { key, tokens: highlighted }
+          }
+          // React can resubscribe while a highlight is pending (hydration does), so notify whoever is subscribed now.
+          listener.current?.()
+        })
+        if (tokens) {
+          cache.current = { key, tokens }
+        }
+      }
+
+      return () => {
+        listener.current = null
+      }
+    },
+    getSnapshot,
+    getSnapshot
+  )
+}
+
+const TokenSpans = ({ tokens }: { tokens: Token[] }) =>
+  tokens.map((token, index) => (
+    // oxlint-disable-next-line shadcn/no-inline-styles -- Shiki emits each token's theme colors as inline styles
+    <span key={index} style={token.htmlStyle}>
+      {token.content}
+    </span>
+  ))
+
+const CodeInline = ({
+  className,
+  code,
+  language,
+  ...props
+}: ComponentProps<'code'> & {
+  code: string
+  language: string
+}) => {
+  const tokens = useTokens(code, language)
+
+  return (
+    <code
+      data-slot="code-block"
+      className={cn('font-mono', className)}
+      {...props}
+    >
+      {tokens ? <TokenSpans tokens={tokens.flat()} /> : code}
+    </code>
+  )
+}
+
+const codeBlockVariants = cva('scrollbar-thin overflow-auto px-2 font-mono', {
+  defaultVariants: {
+    size: '2xs',
+    variant: 'ghost',
+  },
+  variants: {
+    padding: {
+      item: `${smallItemInsetClassName} py-3`,
+      popup: 'px-3 py-2.5',
+    },
+    size: {
+      '2xs': 'text-2xs/5',
+      xs: 'text-xs/5',
+    },
+    variant: {
+      destructive: 'text-destructive',
+      field: 'bg-input ring-foreground/4 rounded-xl py-1.5 shadow-xs ring',
+      ghost: '',
+      inset: 'border-foreground/6 border-t',
+    },
+    wrap: {
+      true: 'whitespace-pre-wrap',
+    },
+  },
+})
+
+const CodeBlock = ({
+  className,
+  code,
+  language,
+  lineNumbers = false,
+  padding,
+  size,
+  variant,
+  wrap = false,
+  ...props
+}: ComponentProps<'pre'> &
+  VariantProps<typeof codeBlockVariants> & {
+    code: string
+    language: string
+    lineNumbers?: boolean
+  }) => {
+  const lines: Token[][] =
+    useTokens(code, language) ??
+    code.split('\n').map((line) => [{ content: line }])
+
+  return (
+    <pre
+      data-slot="code-block"
+      className={cn(
+        codeBlockVariants({ padding, size, variant, wrap }),
+        className
+      )}
+      {...props}
+    >
+      <code data-mask className={cn(lineNumbers && '[counter-reset:line]')}>
+        {lines.map((line, index) => (
+          <span
+            className={cn(
+              'block',
+              lineNumbers &&
+                'before:text-muted-foreground/40 before:mr-3 before:inline-block before:w-6 before:text-right before:tabular-nums before:content-[counter(line)] before:[counter-increment:line]',
+              wrap && lineNumbers && 'pl-9 -indent-9'
+            )}
+            key={index}
+          >
+            <TokenSpans tokens={line} />
+            {'\n'}
+          </span>
+        ))}
+      </code>
+    </pre>
+  )
+}
+
+export { CodeBlock, CodeInline }

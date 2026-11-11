@@ -1,0 +1,55 @@
+import type { RouterOutputs } from '@fewmail/api/router'
+import { CommandGroup, CommandItem } from '@fewmail/ui/components/command'
+import { Spinner } from '@fewmail/ui/components/spinner'
+
+import { useDates, useT } from '~/lib/i18n'
+
+export const AskAnswer = ({
+  onOpenThread,
+  question,
+  result,
+}: {
+  onOpenThread: (threadId: string) => void
+  question: string
+  result: RouterOutputs['ask'] | undefined
+}) => {
+  const t = useT()
+  const dates = useDates()
+
+  return (
+    <CommandGroup heading={question}>
+      <div className="flex flex-col gap-3 px-2.5 py-2">
+        {result ? (
+          <p
+            data-mask
+            className="font-serif text-base/relaxed whitespace-pre-wrap"
+          >
+            {result.answer}
+          </p>
+        ) : (
+          <p className="text-muted-foreground flex items-center gap-2 text-sm">
+            <Spinner />
+            {t.ask.thinking}
+          </p>
+        )}
+      </div>
+      {result?.sources.map((source) => (
+        <CommandItem
+          key={`${source.number}-${source.threadId}`}
+          value={`source ${source.number} ${source.subject}`}
+          onSelect={() => onOpenThread(source.threadId)}
+        >
+          <span className="text-muted-foreground tabular-nums">
+            [{source.number}]
+          </span>
+          <span data-mask className="truncate">
+            {source.from} · {source.subject}
+          </span>
+          <span className="text-muted-foreground ml-auto shrink-0 text-xs">
+            {dates.format(source.receivedAt, 'd MMM')}
+          </span>
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  )
+}

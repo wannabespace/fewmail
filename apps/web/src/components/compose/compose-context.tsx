@@ -1,0 +1,108 @@
+import type { OutboxMode } from '@fewmail/shared/agent'
+import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
+import { createContext, use, useState } from 'react'
+import { toast } from 'sonner'
+
+import { useDates, useT } from '~/lib/i18n'
+import { client, orpc } from '~/lib/orpc'
+
+export interface Draft {
+  bcc: string[]
+  cc: string[]
+  html: string
+  mode: OutboxMode
+  remindAfterDays: number | null
+  replyToMessageId: string | null
+  subject: string
+  to: string[]
+}
+
+export const EMPTY_DRAFT: Draft = {
+  bcc: [],
+  cc: [],
+  html: '',
+  mode: 'new',
+  remindAfterDays: null,
+  replyToMessageId: null,
+  subject: '',
+  to: [],
+}
+
+interface ComposeContextValue {
+  /** Opens the compose dialog; a restored draft (after Undo) comes back exactly as it was. */
+  openCompose: (draft?: Partial<Draft>) => void
+  send: (draft: Draft & { sendAt?: Date; text: string }) => void
+}
+
+const ComposeContext = createContext<ComposeContextValue | null>(null)
+
+export const useCompose = () => {
+  const value = use(ComposeContext)
+  if (!value) {
+    throw new Error('useCompose needs ComposeProvider')
+  }
+  return value
+}
+
+export const ComposeProvider = ({
+  children,
+  renderDialog,
+}: {
+  children: ReactNode
+  renderDialog: (props: {
+    draft: Draft | null
+    onClose: () => void
+  }) => ReactNode
+}) => {
+  const t = useT()
+  const dates = useDates()
+  const queryClient = useQueryClient()
+  const [draft, setDraft] = useState<Draft | null>(null)
+
+  const sendMutation = useMutation(
+    orpc.mail.send.mutationOptions({
+      onSuccess: ({ id, sendAt }, input) => {
+        const isUndoWindow =
+          sendAt.getTime() - Date.now() <= (UNDO_SEND_SECONDS + 1) * 1000
+        toast.success(
+          isUndoWindow
+            ? t.compose.sendingIn(UNDO_SEND_SECONDS)
+            : t.compose.scheduledFor(dates.format(sendAt, 'PPp')),
+          {
+            action: {
+              label: t.compose.undo,
+              onClick: async () => {
+                const restored = await client.mail.cancelSend({ id })
+                setDraft({ ...EMPTY_DRAFT, ...input, ...restored })
+                toast(t.compose.canceled)
+              },
+            },
+            duration: isUndoWindow ? UNDO_SEND_SECONDS * 1000 : 6000,
+          }
+        )
+        void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
+      },
+    })
+  )
+
+  return (
+    <ComposeContext
+      value={{
+        openCompose: (next) => setDraft({ ...EMPTY_DRAFT, ...next }),
+        send: ({ remindAfterDays, replyToMessageId, ...input }) =>
+          sendMutation.mutate({
+            ...input,
+            ...(remindAfterDays && {
+              remindAfterDays: remindAfterDays as 1 | 3 | 7,
+            }),
+            ...(replyToMessageId && { replyToMessageId }),
+          }),
+      }}
+    >
+      {children}
+      {renderDialog({ draft, onClose: () => setDraft(null) })}
+    </ComposeContext>
+  )
+}

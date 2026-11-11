@@ -1,0 +1,9 @@
+.DS_Store
+node_modules
+.turbo
+*.tsbuildinfo
+.idea
+.pnpm-store
+dist
+.env
+.env.local

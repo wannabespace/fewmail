@@ -1,0 +1,12 @@
+{
+  "extends": "@fewmail/configs/ts/react.json",
+  "compilerOptions": {
+    "paths": {
+      "@fewmail/ui/*": ["./src/*"]
+    },
+    "noEmit": true,
+    "strictNullChecks": true
+  },
+  "include": ["."],
+  "exclude": ["node_modules"]
+}

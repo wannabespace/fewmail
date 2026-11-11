@@ -1,0 +1,296 @@
+import type { RouterOutputs } from '@fewmail/api/router'
+import { Input } from '@fewmail/ui/components/input'
+import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
+import { cn } from '@fewmail/ui/lib/utils'
+import { useHotkey } from '@tanstack/react-hotkeys'
+import { useQuery } from '@tanstack/react-query'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { type } from 'arktype'
+import { isToday } from 'date-fns'
+import { useEffect, useRef, useState } from 'react'
+
+import { KeyHints } from '~/components/key-hints'
+import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
+import { ThreadView } from '~/components/thread-view'
+import { useDates, useT } from '~/lib/i18n'
+import { useHasAgent } from '~/lib/me'
+import { orpc } from '~/lib/orpc'
+
+const FILTERS = [
+  'inbox',
+  'important',
+  'needs_reply',
+  'quiet',
+  'snoozed',
+] as const
+const FREE_FILTERS: Filter[] = ['inbox', 'snoozed']
+
+type Filter = (typeof FILTERS)[number]
+
+type MailRowData = RouterOutputs['mail']['list'][number]
+
+const MailRow = ({
+  hasAgent,
+  isCursor,
+  isOpen,
+  onOpen,
+  row: { analysis, message },
+}: {
+  hasAgent: boolean
+  isCursor: boolean
+  isOpen: boolean
+  onOpen: () => void
+  row: MailRowData
+}) => {
+  const t = useT()
+  const dates = useDates()
+  const insight = hasAgent ? analysis : null
+
+  return (
+    <li>
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={onOpen}
+        aria-current={isOpen}
+        className={cn(
+          'flex w-full cursor-default flex-col gap-1 border-b px-5 py-3 text-left outline-none',
+          isCursor ? 'bg-accent' : 'hover:bg-accent/60',
+          isOpen && 'bg-secondary'
+        )}
+      >
+        <span className="flex items-center gap-2 text-sm">
+          {hasAgent &&
+            (insight ? (
+              <ImportanceDot
+                importance={insight.importance}
+                reason={insight.reason}
+              />
+            ) : (
+              <span className="bg-foreground/10 size-2 shrink-0 animate-pulse rounded-full" />
+            ))}
+          <span
+            data-mask
+            className={cn('truncate', message.isUnread && 'font-semibold')}
+          >
+            {message.fromName ?? message.fromEmail}
+          </span>
+          <span
+            data-mask
+            className="text-muted-foreground min-w-0 flex-1 truncate"
+          >
+            {message.subject}
+          </span>
+          <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+            {dates.format(
+              message.receivedAt,
+              isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
+            )}
+          </span>
+        </span>
+        <span
+          data-mask
+          className={cn(
+            'text-foreground/75 line-clamp-2 text-sm',
+            hasAgent && 'pl-4'
+          )}
+        >
+          {insight?.summary ?? message.snippet}
+        </span>
+        {(insight || message.hasAttachments) && (
+          <span
+            className={cn(
+              'text-muted-foreground flex flex-wrap items-center gap-1.5 text-xs',
+              hasAgent && 'pl-4'
+            )}
+          >
+            {insight && <span>{t.category[insight.category]}</span>}
+            {insight?.needsReply && (
+              <span className="text-primary">· {t.mail.expectsReply}</span>
+            )}
+            {message.hasAttachments && <span>· {t.mail.attachment}</span>}
+            {insight && <ExtractedChips extracted={insight.extracted} />}
+          </span>
+        )}
+      </button>
+    </li>
+  )
+}
+
+const MailPage = () => {
+  const t = useT()
+  const hasAgent = useHasAgent()
+  const { filter = 'inbox', q, thread } = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+  const searchRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+  const [search, setSearch] = useState(q ?? '')
+  const [cursor, setCursor] = useState(0)
+  const listKey = `${filter}:${q ?? ''}`
+  const [cursorListKey, setCursorListKey] = useState(listKey)
+  if (cursorListKey !== listKey) {
+    setCursorListKey(listKey)
+    setCursor(0)
+  }
+
+  const { data: rows = [], isFetching } = useQuery(
+    orpc.mail.list.queryOptions({ input: { filter, ...(q && { search: q }) } })
+  )
+
+  useEffect(() => {
+    listRef.current?.children[cursor]?.scrollIntoView({ block: 'nearest' })
+  }, [cursor])
+
+  const open = (index: number) => {
+    const row = rows[index]
+    if (row) {
+      setCursor(index)
+      void navigate({
+        search: (prev) => ({ ...prev, thread: row.message.threadId }),
+      })
+    }
+  }
+
+  useHotkey('J', () =>
+    setCursor((index) => Math.min(rows.length - 1, index + 1))
+  )
+  useHotkey('ArrowDown', () =>
+    setCursor((index) => Math.min(rows.length - 1, index + 1))
+  )
+  useHotkey('K', () => setCursor((index) => Math.max(0, index - 1)))
+  useHotkey('ArrowUp', () => setCursor((index) => Math.max(0, index - 1)))
+  useHotkey('Enter', () => open(cursor))
+  useHotkey('O', () => open(cursor))
+  useHotkey('/', () => searchRef.current?.focus())
+  useHotkey(
+    'Escape',
+    () => {
+      if (thread) {
+        void navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
+      } else if (q) {
+        setSearch('')
+        void navigate({ search: (prev) => ({ ...prev, q: undefined }) })
+      }
+    },
+    { enabled: !!thread || !!q }
+  )
+  useHotkey(
+    'Enter',
+    () =>
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          q: search.trim() || undefined,
+          thread: undefined,
+        }),
+      }),
+    { ignoreInputs: false, target: searchRef }
+  )
+  useHotkey('Escape', () => searchRef.current?.blur(), {
+    ignoreInputs: false,
+    target: searchRef,
+  })
+
+  return (
+    <div className="flex min-h-0 flex-1">
+      <section
+        aria-label={t.nav.mail}
+        className={cn(
+          'flex min-h-0 flex-col border-r',
+          thread ? 'w-[26rem] shrink-0' : 'flex-1'
+        )}
+      >
+        <div className="flex flex-col gap-3 border-b px-5 pt-5 pb-3">
+          <Input
+            ref={searchRef}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t.mail.search}
+            aria-label={t.mail.search}
+          />
+          <Tabs
+            value={filter}
+            onValueChange={(value) =>
+              navigate({
+                search: (prev) => ({
+                  ...prev,
+                  filter: value as Filter,
+                  thread: undefined,
+                }),
+              })
+            }
+          >
+            <TabsList>
+              {(hasAgent ? FILTERS : FREE_FILTERS).map((value) => (
+                <TabsTrigger key={value} value={value}>
+                  {t.mail.filter[value]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+        <ul
+          ref={listRef}
+          className={cn('flex-1 overflow-y-auto', isFetching && 'opacity-70')}
+        >
+          {rows.length === 0 && !isFetching && (
+            <li className="text-muted-foreground px-5 py-8 text-sm">
+              {t.mail.empty}
+            </li>
+          )}
+          {rows.map((row, index) => (
+            <MailRow
+              key={row.message.id}
+              row={row}
+              hasAgent={hasAgent}
+              isCursor={index === cursor}
+              isOpen={row.message.threadId === thread}
+              onOpen={() => open(index)}
+            />
+          ))}
+        </ul>
+        {!thread && (
+          <KeyHints
+            hints={[
+              ['J / K', t.keys.move],
+              ['⏎', t.keys.open],
+              ['/', t.keys.search],
+              ['⌘K', t.keys.anything],
+            ]}
+          />
+        )}
+      </section>
+      {thread && (
+        <div className="bg-background flex min-w-0 flex-1 flex-col">
+          <ThreadView
+            key={thread}
+            isSnoozed={filter === 'snoozed'}
+            threadId={thread}
+            onDone={() =>
+              navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
+            }
+          />
+          <KeyHints
+            hints={[
+              ['E', t.keys.archive],
+              ...(hasAgent
+                ? [['R', t.keys.draftReply] as [string, string]]
+                : []),
+              ['esc', t.keys.close],
+              ['J / K', t.keys.move],
+            ]}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+export const Route = createFileRoute('/_app/mail')({
+  component: MailPage,
+  validateSearch: type({
+    'filter?': "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed'",
+    'q?': 'string',
+    'thread?': 'string',
+  }),
+})

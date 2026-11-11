@@ -1,0 +1,39 @@
+{
+  "name": "@fewmail/api",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./router": "./orpc/router.ts"
+  },
+  "scripts": {
+    "dev": "portless run cross-env NODE_ENV=development bun --env-file=../../.env --watch run ./index.ts",
+    "start": "cross-env NODE_ENV=production bun run ./index.ts",
+    "check-types": "bun check"
+  },
+  "dependencies": {
+    "@better-auth/drizzle-adapter": "catalog:",
+    "@fewmail/db": "workspace:*",
+    "@fewmail/shared": "workspace:*",
+    "@mistralai/mistralai": "catalog:",
+    "@modelcontextprotocol/sdk": "catalog:",
+    "@openrouter/ai-sdk-provider": "catalog:",
+    "@orpc/server": "catalog:",
+    "@typesafe-ai/sdk": "catalog:",
+    "ai": "catalog:",
+    "ai-retry": "catalog:",
+    "arktype": "catalog:",
+    "better-auth": "catalog:",
+    "date-fns": "catalog:",
+    "drizzle-orm": "catalog:",
+    "grammy": "catalog:",
+    "hono": "catalog:",
+    "nanoid": "catalog:",
+    "stripe": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@fewmail/configs": "workspace:*",
+    "cross-env": "catalog:"
+  },
+  "portless": "api.local.fewmail"
+}

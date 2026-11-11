@@ -1,0 +1,53 @@
+{
+  "name": "@fewmail/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "portless run vite dev",
+    "build": "vite build",
+    "check-types": "bun check"
+  },
+  "dependencies": {
+    "@base-ui/react": "catalog:",
+    "@fewmail/shared": "workspace:*",
+    "@fewmail/ui": "workspace:*",
+    "@hugeicons/core-free-icons": "catalog:",
+    "@hugeicons/react": "catalog:",
+    "@orpc/client": "catalog:",
+    "@orpc/tanstack-query": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@tanstack/react-hotkeys": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/router-plugin": "catalog:",
+    "@tiptap/core": "catalog:",
+    "@tiptap/extensions": "catalog:",
+    "@tiptap/pm": "catalog:",
+    "@tiptap/react": "catalog:",
+    "@tiptap/starter-kit": "catalog:",
+    "@tiptap/suggestion": "catalog:",
+    "arktype": "catalog:",
+    "better-auth": "catalog:",
+    "date-fns": "catalog:",
+    "motion": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "seitu": "catalog:",
+    "sonner": "catalog:"
+  },
+  "devDependencies": {
+    "@fewmail/api": "workspace:*",
+    "@fewmail/configs": "workspace:*",
+    "@orpc/server": "catalog:",
+    "@rolldown/plugin-babel": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
+  "portless": "app.local.fewmail"
+}

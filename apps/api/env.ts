@@ -1,0 +1,29 @@
+import process from 'node:process'
+
+import { setupPortlessEnvs } from '@fewmail/shared/portless-env'
+import { type } from 'arktype'
+
+if (process.env.NODE_ENV === 'development') {
+  setupPortlessEnvs({
+    API_URL: 'api.local.fewmail',
+    WEB_URL: 'app.local.fewmail',
+  })
+}
+
+export const env = type({
+  API_URL: 'string.url',
+  BETTER_AUTH_SECRET: 'string',
+  GOOGLE_CLIENT_ID: 'string',
+  GOOGLE_CLIENT_SECRET: 'string',
+  'MISTRAL_API_KEY?': 'string',
+  OPENROUTER_API_KEY: 'string',
+  'PORT?': 'string.numeric.parse',
+  'STRIPE_PRICE_ID?': 'string',
+  'STRIPE_SECRET_KEY?': 'string',
+  'STRIPE_WEBHOOK_SECRET?': 'string',
+  'TELEGRAM_BOT_TOKEN?': 'string',
+  'TYPESAFE_API_KEY?': 'string',
+  'TELEGRAM_BOT_USERNAME?': 'string',
+  'TELEGRAM_WEBHOOK_SECRET?': 'string',
+  WEB_URL: 'string.url',
+}).assert(process.env)

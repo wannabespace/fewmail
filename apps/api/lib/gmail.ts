@@ -1,0 +1,323 @@
+import { Buffer } from 'node:buffer'
+
+import { googleAccessToken } from './auth'
+
+const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
+
+export class GmailHistoryExpiredError extends Error {
+  override name = 'GmailHistoryExpiredError'
+}
+
+const gmail = async <T>(userId: string, path: string, init?: RequestInit) => {
+  const response = await fetch(`${GMAIL_API}${path}`, {
+    ...init,
+    headers: {
+      authorization: `Bearer ${await googleAccessToken(userId)}`,
+      'content-type': 'application/json',
+    },
+  })
+
+  if (response.status === 404 && path.startsWith('/history')) {
+    throw new GmailHistoryExpiredError()
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Gmail ${path} failed: ${response.status} ${await response.text()}`
+    )
+  }
+
+  return (await response.json()) as T
+}
+
+interface GmailPart {
+  body?: { data?: string; attachmentId?: string }
+  filename?: string
+  headers?: { name: string; value: string }[]
+  mimeType: string
+  parts?: GmailPart[]
+}
+
+interface GmailMessage {
+  historyId: string
+  id: string
+  internalDate: string
+  labelIds?: string[]
+  payload: GmailPart
+  snippet: string
+  threadId: string
+}
+
+const decodeBase64Url = (data: string) =>
+  Buffer.from(data, 'base64url').toString('utf-8')
+
+const findPart = (part: GmailPart, mimeType: string): GmailPart | undefined =>
+  part.mimeType === mimeType && part.body?.data
+    ? part
+    : part.parts?.map((child) => findPart(child, mimeType)).find(Boolean)
+
+const htmlToText = (html: string) =>
+  html
+    .replaceAll(/<(?<tag>style|script)[\s\S]*?<\/\k<tag>>/giu, '')
+    .replaceAll(/<br\s*\/?>|<\/(?:p|div|tr|li|h\d)>/giu, '\n')
+    .replaceAll(/<[^>]+>/gu, '')
+    .replaceAll('&nbsp;', ' ')
+    .replaceAll('&amp;', '&')
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#39;', "'")
+    .replaceAll(/\n{3,}/gu, '\n\n')
+    .trim()
+
+const hasAttachment = (part: GmailPart): boolean =>
+  !!part.filename || !!part.parts?.some(hasAttachment)
+
+const parseAddress = (value: string) => {
+  const groups = value.match(
+    /^\s*"?(?<name>[^"<]*?)"?\s*<(?<email>[^>]+)>\s*$/u
+  )?.groups
+  return groups?.email
+    ? { email: groups.email.toLowerCase(), name: groups.name?.trim() || null }
+    : { email: value.trim().toLowerCase(), name: null }
+}
+
+const splitAddresses = (value: string | undefined) =>
+  value
+    ? value
+        .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/u)
+        .map((address) => parseAddress(address).email)
+        .filter(Boolean)
+    : []
+
+const messageBody = (
+  plain: string | undefined,
+  html: string | undefined,
+  snippet: string
+) => {
+  if (plain) {
+    return decodeBase64Url(plain)
+  }
+  return html ? htmlToText(decodeBase64Url(html)) : snippet
+}
+
+export const parseMessage = (message: GmailMessage) => {
+  const headers = new Map(
+    (message.payload.headers ?? []).map(({ name, value }) => [
+      name.toLowerCase(),
+      value,
+    ])
+  )
+  const plain = findPart(message.payload, 'text/plain')?.body?.data
+  const html = findPart(message.payload, 'text/html')?.body?.data
+  const from = parseAddress(headers.get('from') ?? '')
+  const labelIds = message.labelIds ?? []
+
+  return {
+    body: messageBody(plain, html, message.snippet),
+    cc: splitAddresses(headers.get('cc')),
+    fromEmail: from.email,
+    fromName: from.name,
+    gmailId: message.id,
+    hasAttachments: hasAttachment(message.payload),
+    isFromMe: labelIds.includes('SENT'),
+    isUnread: labelIds.includes('UNREAD'),
+    labelIds,
+    listUnsubscribe: headers.get('list-unsubscribe') ?? null,
+    listUnsubscribePost: headers.get('list-unsubscribe-post') ?? null,
+    messageIdHeader: headers.get('message-id') ?? null,
+    receivedAt: new Date(Number(message.internalDate)),
+    snippet: message.snippet,
+    subject: headers.get('subject') ?? '(no subject)',
+    threadId: message.threadId,
+    to: splitAddresses(headers.get('to')),
+  }
+}
+
+export type ParsedMessage = ReturnType<typeof parseMessage>
+
+export const getProfile = (userId: string) =>
+  gmail<{ emailAddress: string; historyId: string }>(userId, '/profile')
+
+export const listMessageIds = async (
+  userId: string,
+  query: string,
+  max: number
+) => {
+  const { messages = [] } = await gmail<{ messages?: { id: string }[] }>(
+    userId,
+    `/messages?${new URLSearchParams({ maxResults: String(max), q: query })}`
+  )
+  return messages.map(({ id }) => id)
+}
+
+interface HistoryMessage {
+  message: { id: string; labelIds?: string[] }
+}
+
+/** New message ids plus the current labels of messages whose labels changed (archive, read, snooze elsewhere). */
+export const listHistory = async (userId: string, startHistoryId: string) => {
+  const ids = new Set<string>()
+  const labelChanges = new Map<string, string[]>()
+  let pageToken: string | undefined
+  let historyId = startHistoryId
+
+  do {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- history pages chain via nextPageToken
+    const page = await gmail<{
+      history?: {
+        labelsAdded?: HistoryMessage[]
+        labelsRemoved?: HistoryMessage[]
+        messagesAdded?: HistoryMessage[]
+      }[]
+      historyId: string
+      nextPageToken?: string
+    }>(
+      userId,
+      `/history?${new URLSearchParams([
+        ['historyTypes', 'messageAdded'],
+        ['historyTypes', 'labelAdded'],
+        ['historyTypes', 'labelRemoved'],
+        ['startHistoryId', startHistoryId],
+        ...(pageToken ? [['pageToken', pageToken]] : []),
+      ])}`
+    )
+    for (const entry of page.history ?? []) {
+      for (const added of entry.messagesAdded ?? []) {
+        ids.add(added.message.id)
+      }
+      for (const changed of [
+        ...(entry.labelsAdded ?? []),
+        ...(entry.labelsRemoved ?? []),
+      ]) {
+        labelChanges.set(changed.message.id, changed.message.labelIds ?? [])
+      }
+    }
+    ;({ historyId } = page)
+    pageToken = page.nextPageToken
+  } while (pageToken)
+
+  return { historyId, ids: [...ids], labelChanges }
+}
+
+export const getMessage = async (userId: string, id: string) =>
+  parseMessage(await gmail<GmailMessage>(userId, `/messages/${id}?format=full`))
+
+export const modifyMessage = (
+  userId: string,
+  id: string,
+  change: { add?: string[]; remove?: string[] }
+) =>
+  gmail(userId, `/messages/${id}/modify`, {
+    body: JSON.stringify({
+      addLabelIds: change.add ?? [],
+      removeLabelIds: change.remove ?? [],
+    }),
+    method: 'POST',
+  })
+
+const encodeHeader = (value: string) =>
+  // oxlint-disable-next-line no-control-regex -- RFC 2047 only for non-ASCII headers
+  /^[\u0000-\u007F]*$/u.test(value)
+    ? value
+    : `=?UTF-8?B?${Buffer.from(value).toString('base64')}?=`
+
+const BOUNDARY = 'fewmail-alternative'
+
+const encodeAddressList = (addresses: string[]) => addresses.join(', ')
+
+export const sendMail = (
+  userId: string,
+  mail: {
+    bcc: string[]
+    cc: string[]
+    html: string
+    inReplyTo: string | null
+    references: string | null
+    subject: string
+    text: string
+    threadId: string | null
+    to: string[]
+  }
+) => {
+  const raw = [
+    `To: ${encodeAddressList(mail.to)}`,
+    ...(mail.cc.length > 0 ? [`Cc: ${encodeAddressList(mail.cc)}`] : []),
+    ...(mail.bcc.length > 0 ? [`Bcc: ${encodeAddressList(mail.bcc)}`] : []),
+    `Subject: ${encodeHeader(mail.subject)}`,
+    ...(mail.inReplyTo ? [`In-Reply-To: ${mail.inReplyTo}`] : []),
+    ...(mail.references ? [`References: ${mail.references}`] : []),
+    'MIME-Version: 1.0',
+    `Content-Type: multipart/alternative; boundary="${BOUNDARY}"`,
+    '',
+    `--${BOUNDARY}`,
+    'Content-Type: text/plain; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
+    '',
+    Buffer.from(mail.text).toString('base64'),
+    `--${BOUNDARY}`,
+    'Content-Type: text/html; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
+    '',
+    Buffer.from(mail.html).toString('base64'),
+    `--${BOUNDARY}--`,
+  ].join('\r\n')
+
+  return gmail<{ id: string; threadId: string }>(userId, '/messages/send', {
+    body: JSON.stringify({
+      raw: Buffer.from(raw).toString('base64url'),
+      ...(mail.threadId && { threadId: mail.threadId }),
+    }),
+    method: 'POST',
+  })
+}
+
+export const modifyThread = (
+  userId: string,
+  threadId: string,
+  change: { add?: string[]; remove?: string[] }
+) =>
+  gmail(userId, `/threads/${threadId}/modify`, {
+    body: JSON.stringify({
+      addLabelIds: change.add ?? [],
+      removeLabelIds: change.remove ?? [],
+    }),
+    method: 'POST',
+  })
+
+export const trashThread = (userId: string, threadId: string) =>
+  gmail(userId, `/threads/${threadId}/trash`, { method: 'POST' })
+
+export const listLabels = async (userId: string) => {
+  const { labels = [] } = await gmail<{
+    labels?: { id: string; name: string }[]
+  }>(userId, '/labels')
+  return labels
+}
+
+export const createLabel = (userId: string, name: string) =>
+  gmail<{ id: string; name: string }>(userId, '/labels', {
+    body: JSON.stringify({
+      labelListVisibility: 'labelShow',
+      messageListVisibility: 'show',
+      name,
+    }),
+    method: 'POST',
+  })
+
+/** RFC 8058 one-click only: a mailto or a plain link needs a person, so the caller falls back to archiving. */
+export const unsubscribeOneClick = async (
+  listUnsubscribe: string,
+  listUnsubscribePost: string | null
+) => {
+  const url = listUnsubscribe.match(/<(?<url>https:[^>]+)>/u)?.groups?.url
+  if (!url || !/One-Click/iu.test(listUnsubscribePost ?? '')) {
+    return false
+  }
+  const response = await fetch(url, {
+    body: 'List-Unsubscribe=One-Click',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'POST',
+  })
+  return response.ok
+}
