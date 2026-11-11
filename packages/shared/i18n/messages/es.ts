@@ -656,6 +656,7 @@ export const es: Messages = {
   boards: {
     chart: {
       add: 'Añadir gráfico',
+      currency: 'Moneda',
       edit: 'Ajustes del gráfico',
       empty: 'Aún no hay nada que dibujar',
       groupBy: 'Agrupado por',
@@ -669,6 +670,7 @@ export const es: Messages = {
       measures: { count: 'Cantidad', sum: 'Importe total' },
       other: 'Otros',
       remove: 'Quitar gráfico',
+      skipped: (n: number) => `Sin contar: ${n} en otra moneda o sin importe`,
       title: 'Título del gráfico',
       type: 'Tipo de gráfico',
       types: {
@@ -678,6 +680,7 @@ export const es: Messages = {
         pie: 'Circular',
       },
       untitled: 'Nuevo gráfico',
+      weekOf: (date: string) => `Semana del ${date}`,
     },
     charts: 'Gráficos',
     create: 'Crear tablero',

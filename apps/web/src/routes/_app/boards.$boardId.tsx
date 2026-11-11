@@ -1,15 +1,18 @@
 import type { BoardChart } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import { Kbd } from '@fewmail/ui/components/kbd'
+import { PencilEdit02Icon } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { BoardChartCard } from '~/components/board-chart'
+import { BoardChartCard, toChart } from '~/components/board-chart'
 import { BoardDialog, newBoardStore } from '~/components/board-dialog'
 import { KeyHints } from '~/components/key-hints'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
@@ -34,27 +37,27 @@ const BoardPage = () => {
   useHotkey('E', () => setIsEditing(true))
   useHotkey('N', () => newBoardStore.set(true))
 
-  const charts = board?.charts.map((series): BoardChart => series) ?? []
+  const charts = board?.charts.map(toChart) ?? []
   const saveCharts = (next: BoardChart[]) =>
-    update.mutate({
-      charts: next.map(({ groupBy, id, measure, title, type }) => ({
-        groupBy,
-        id,
-        measure,
-        title,
-        type,
-      })),
-      id: boardId,
-    })
+    update.mutate({ charts: next.map(toChart), id: boardId })
 
   return (
     <main className="flex min-h-0 flex-1 flex-col">
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
           <header className="flex flex-col gap-3">
-            <h1 className="text-display font-serif tracking-tight" data-mask>
-              {board?.name}
-            </h1>
+            <div className="flex items-center justify-between gap-3">
+              <h1 className="text-display font-serif tracking-tight" data-mask>
+                {board?.name}
+              </h1>
+              <IconButton
+                icon={PencilEdit02Icon}
+                label={t.boards.edit}
+                shortcut={<Kbd>E</Kbd>}
+                variant="ghost-muted"
+                onClick={() => setIsEditing(true)}
+              />
+            </div>
             <p className="text-brief text-foreground/85 font-serif" data-mask>
               {board?.description}
             </p>

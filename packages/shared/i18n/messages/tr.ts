@@ -100,6 +100,7 @@ export const tr: Messages = {
   boards: {
     chart: {
       add: 'Grafik ekle',
+      currency: 'Para birimi',
       edit: 'Grafik ayarları',
       empty: 'Henüz çizilecek bir şey yok',
       groupBy: 'Gruplama',
@@ -113,6 +114,8 @@ export const tr: Messages = {
       measures: { count: 'Adet', sum: 'Toplam tutar' },
       other: 'Diğer',
       remove: 'Grafiği kaldır',
+      skipped: (n: number) =>
+        `Sayılmadı: ${n} başka para biriminde veya tutarsız`,
       title: 'Grafik başlığı',
       type: 'Grafik türü',
       types: {
@@ -122,6 +125,7 @@ export const tr: Messages = {
         pie: 'Pasta',
       },
       untitled: 'Yeni grafik',
+      weekOf: (date: string) => `${date} haftası`,
     },
     charts: 'Grafikler',
     create: 'Pano oluştur',

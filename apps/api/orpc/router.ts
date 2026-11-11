@@ -99,6 +99,7 @@ import { cancelTask, createTask } from '../services/tasks'
 const id = type({ id: 'string.uuid' })
 
 const boardChart = type({
+  'currency?': 'string',
   groupBy: type.enumerated(...BOARD_GROUPINGS),
   id: 'string',
   measure: type.enumerated(...BOARD_MEASURES),

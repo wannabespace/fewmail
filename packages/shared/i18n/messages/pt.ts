@@ -100,6 +100,7 @@ export const pt: Messages = {
   boards: {
     chart: {
       add: 'Adicionar gráfico',
+      currency: 'Moeda',
       edit: 'Ajustes do gráfico',
       empty: 'Ainda não há nada para mostrar',
       groupBy: 'Agrupado por',
@@ -113,6 +114,7 @@ export const pt: Messages = {
       measures: { count: 'Quantidade', sum: 'Valor total' },
       other: 'Outros',
       remove: 'Remover gráfico',
+      skipped: (n: number) => `Não contados: ${n} em outra moeda ou sem valor`,
       title: 'Título do gráfico',
       type: 'Tipo de gráfico',
       types: {
@@ -122,6 +124,7 @@ export const pt: Messages = {
         pie: 'Pizza',
       },
       untitled: 'Novo gráfico',
+      weekOf: (date: string) => `Semana de ${date}`,
     },
     charts: 'Gráficos',
     create: 'Criar painel',

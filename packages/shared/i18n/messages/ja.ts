@@ -625,6 +625,7 @@ export const ja: Messages = {
   boards: {
     chart: {
       add: 'グラフを追加',
+      currency: '通貨',
       edit: 'グラフの設定',
       empty: 'まだ表示できるデータがありません',
       groupBy: 'まとめ方',
@@ -638,6 +639,7 @@ export const ja: Messages = {
       measures: { count: '件数', sum: '合計金額' },
       other: 'その他',
       remove: 'グラフを削除',
+      skipped: (n: number) => `集計外: ${n}件(別の通貨または金額なし)`,
       title: 'グラフのタイトル',
       type: 'グラフの種類',
       types: {
@@ -647,6 +649,7 @@ export const ja: Messages = {
         pie: '円',
       },
       untitled: '新しいグラフ',
+      weekOf: (date: string) => `${date}の週`,
     },
     charts: 'グラフ',
     create: 'ボードを作成',

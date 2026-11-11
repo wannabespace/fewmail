@@ -100,6 +100,7 @@ export const nl: Messages = {
   boards: {
     chart: {
       add: 'Grafiek toevoegen',
+      currency: 'Valuta',
       edit: 'Grafiekinstellingen',
       empty: 'Nog niets om te tekenen',
       groupBy: 'Gegroepeerd per',
@@ -113,6 +114,8 @@ export const nl: Messages = {
       measures: { count: 'Aantal', sum: 'Totaalbedrag' },
       other: 'Overig',
       remove: 'Grafiek verwijderen',
+      skipped: (n: number) =>
+        `Niet meegeteld: ${n} in een andere valuta of zonder bedrag`,
       title: 'Titel van de grafiek',
       type: 'Soort grafiek',
       types: {
@@ -122,6 +125,7 @@ export const nl: Messages = {
         pie: 'Taart',
       },
       untitled: 'Nieuwe grafiek',
+      weekOf: (date: string) => `Week van ${date}`,
     },
     charts: 'Grafieken',
     create: 'Bord maken',

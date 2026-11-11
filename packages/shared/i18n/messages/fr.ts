@@ -663,6 +663,7 @@ export const fr: Messages = {
   boards: {
     chart: {
       add: 'Ajouter un graphique',
+      currency: 'Devise',
       edit: 'Réglages du graphique',
       empty: 'Rien à afficher pour l’instant',
       groupBy: 'Regroupé par',
@@ -676,6 +677,8 @@ export const fr: Messages = {
       measures: { count: 'Nombre', sum: 'Montant total' },
       other: 'Autres',
       remove: 'Retirer le graphique',
+      skipped: (n: number) =>
+        `Non comptées : ${n} dans une autre devise ou sans montant`,
       title: 'Titre du graphique',
       type: 'Type de graphique',
       types: {
@@ -685,6 +688,7 @@ export const fr: Messages = {
         pie: 'Camembert',
       },
       untitled: 'Nouveau graphique',
+      weekOf: (date: string) => `Semaine du ${date}`,
     },
     charts: 'Graphiques',
     create: 'Créer le tableau',

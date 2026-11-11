@@ -627,6 +627,7 @@ export const hi: Messages = {
   boards: {
     chart: {
       add: 'चार्ट जोड़ें',
+      currency: 'मुद्रा',
       edit: 'चार्ट सेटिंग्स',
       empty: 'अभी दिखाने को कुछ नहीं',
       groupBy: 'किसके हिसाब से',
@@ -640,6 +641,7 @@ export const hi: Messages = {
       measures: { count: 'गिनती', sum: 'कुल राशि' },
       other: 'अन्य',
       remove: 'चार्ट हटाएँ',
+      skipped: (n: number) => `नहीं गिना गया: ${n} दूसरी मुद्रा में या बिना राशि के`,
       title: 'चार्ट का नाम',
       type: 'चार्ट का प्रकार',
       types: {
@@ -649,6 +651,7 @@ export const hi: Messages = {
         pie: 'पाई',
       },
       untitled: 'नया चार्ट',
+      weekOf: (date: string) => `${date} से शुरू सप्ताह`,
     },
     charts: 'चार्ट',
     create: 'बोर्ड बनाएँ',

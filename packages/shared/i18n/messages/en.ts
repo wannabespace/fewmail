@@ -98,6 +98,7 @@ export const en = {
   boards: {
     chart: {
       add: 'Add chart',
+      currency: 'Currency',
       edit: 'Chart settings',
       empty: 'Nothing to draw yet',
       groupBy: 'Grouped by',
@@ -111,6 +112,8 @@ export const en = {
       measures: { count: 'Count', sum: 'Total amount' },
       other: 'Other',
       remove: 'Remove chart',
+      skipped: (n: number) =>
+        `Not counted: ${n} in another currency or without an amount`,
       title: 'Chart title',
       type: 'Chart type',
       types: {
@@ -120,6 +123,7 @@ export const en = {
         pie: 'Pie',
       },
       untitled: 'New chart',
+      weekOf: (date: string) => `Week of ${date}`,
     },
     charts: 'Charts',
     create: 'Create board',

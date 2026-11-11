@@ -100,6 +100,7 @@ export const id: Messages = {
   boards: {
     chart: {
       add: 'Tambah grafik',
+      currency: 'Mata uang',
       edit: 'Pengaturan grafik',
       empty: 'Belum ada yang bisa digambar',
       groupBy: 'Dikelompokkan per',
@@ -113,6 +114,8 @@ export const id: Messages = {
       measures: { count: 'Jumlah', sum: 'Total nominal' },
       other: 'Lainnya',
       remove: 'Hapus grafik',
+      skipped: (n: number) =>
+        `Tidak dihitung: ${n} dalam mata uang lain atau tanpa jumlah`,
       title: 'Judul grafik',
       type: 'Jenis grafik',
       types: {
@@ -122,6 +125,7 @@ export const id: Messages = {
         pie: 'Lingkaran',
       },
       untitled: 'Grafik baru',
+      weekOf: (date: string) => `Minggu ${date}`,
     },
     charts: 'Grafik',
     create: 'Buat papan',

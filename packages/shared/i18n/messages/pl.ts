@@ -100,6 +100,7 @@ export const pl: Messages = {
   boards: {
     chart: {
       add: 'Dodaj wykres',
+      currency: 'Waluta',
       edit: 'Ustawienia wykresu',
       empty: 'Na razie nie ma czego narysować',
       groupBy: 'Grupowanie',
@@ -113,6 +114,8 @@ export const pl: Messages = {
       measures: { count: 'Liczba', sum: 'Łączna kwota' },
       other: 'Inne',
       remove: 'Usuń wykres',
+      skipped: (n: number) =>
+        `Nie wliczono: ${n} w innej walucie lub bez kwoty`,
       title: 'Tytuł wykresu',
       type: 'Rodzaj wykresu',
       types: {
@@ -122,6 +125,7 @@ export const pl: Messages = {
         pie: 'Kołowy',
       },
       untitled: 'Nowy wykres',
+      weekOf: (date: string) => `Tydzień od ${date}`,
     },
     charts: 'Wykresy',
     create: 'Utwórz tablicę',

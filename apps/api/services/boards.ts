@@ -72,7 +72,7 @@ const planBoard = async (
     instructions: [
       'The user describes a board: a page that collects one kind of email (receipts, trips, job applications…) as entries with a title, a group, a status, an amount and a date.',
       'gmailQuery: a Gmail search query that finds these emails with high recall — OR-ed subject keywords in English and in the languages the description suggests, sender domains you are sure of, Gmail categories (category:purchases) where they fit. Never date operators (newer_than, after, before): they are added later.',
-      `charts: 1–${MAX_CHARTS} charts that answer what the user most likely wants to see. measure "sum" only when the entries carry amounts. groupBy month or week for a trend, group for who or what (merchant, airline, company), status for the state. type: bar for totals per period, line or area for a trend, pie only for shares (group or status). title: a few words in ${englishName(language)}.`,
+      `charts: 1–${MAX_CHARTS} charts that answer what the user most likely wants to see. measure "sum" only when the entries carry amounts. groupBy month or week for a trend, group for who or what (merchant, airline, company), status for the state. type: bar for anything per month or week, since entries are sparse and a line would draw slopes between them; pie only for shares (group or status). title: a few words in ${englishName(language)}.`,
     ].join('\n'),
     model: models.writer,
     output: Output.object({ schema: planSchema }),
@@ -347,14 +347,16 @@ export const collectForNewMail = async (
   }
 }
 
-const dominantCurrency = (entries: Entry[]) => {
+const currenciesByUse = (entries: Entry[]) => {
   const counts = new Map<string, number>()
   for (const { currency } of entries) {
     if (currency) {
       counts.set(currency, (counts.get(currency) ?? 0) + 1)
     }
   }
-  return [...counts].toSorted((left, right) => right[1] - left[1])[0]?.[0]
+  return [...counts]
+    .toSorted((left, right) => right[1] - left[1])
+    .map(([currency]) => currency)
 }
 
 const bucketOf = (chart: BoardChart, entry: Entry) => {
@@ -395,37 +397,50 @@ const timeBuckets = (chart: BoardChart, entries: Entry[]) => {
   return starts.slice(-TIME_BUCKETS_SHOWN)
 }
 
-/** Sums use the most common currency only; mixing currencies would draw a meaningless total. */
+/** Sums draw one currency only, mixing them would draw a meaningless total; `skipped` counts the entries left out so the chart can say so. */
 const chartSeries = (chart: BoardChart, entries: Entry[]) => {
-  const currency =
-    chart.measure === 'sum' ? (dominantCurrency(entries) ?? null) : null
-  const totals = new Map<string, number>()
+  const currencies = chart.measure === 'sum' ? currenciesByUse(entries) : []
+  const sumCurrency =
+    currencies.find((currency) => currency === chart.currency) ??
+    currencies[0] ??
+    null
+  const totals = new Map<string, { count: number; value: number }>()
+  let skipped = 0
   for (const entry of entries) {
     const bucket = bucketOf(chart, entry)
-    if (!bucket || (chart.measure === 'sum' && entry.currency !== currency)) {
+    if (chart.measure === 'sum' && entry.currency !== sumCurrency) {
+      skipped += 1
       continue
     }
-    const value = chart.measure === 'sum' ? (entry.amountCents ?? 0) / 100 : 1
-    totals.set(bucket, (totals.get(bucket) ?? 0) + value)
+    if (!bucket) {
+      continue
+    }
+    const total = totals.get(bucket) ?? { count: 0, value: 0 }
+    totals.set(bucket, {
+      count: total.count + 1,
+      value:
+        total.value +
+        (chart.measure === 'sum' ? (entry.amountCents ?? 0) / 100 : 1),
+    })
   }
+  const shared = { ...chart, currencies, skipped, sumCurrency }
   const isOverTime = chart.groupBy === 'month' || chart.groupBy === 'week'
   if (isOverTime) {
     return {
-      ...chart,
-      currency,
+      ...shared,
       points: timeBuckets(chart, entries).map((key) => ({
+        count: totals.get(key)?.count ?? 0,
         key,
-        value: totals.get(key) ?? 0,
+        value: totals.get(key)?.value ?? 0,
       })),
       rest: 0,
     }
   }
   const ranked = [...totals]
-    .map(([key, value]) => ({ key, value }))
+    .map(([key, total]) => ({ key, ...total }))
     .toSorted((left, right) => right.value - left.value)
   return {
-    ...chart,
-    currency,
+    ...shared,
     points: ranked.slice(0, SHARE_BUCKETS_SHOWN),
     rest: ranked
       .slice(SHARE_BUCKETS_SHOWN)

@@ -561,13 +561,19 @@ interface TooltipProps {
   variant?: TooltipVariant // visual style of the tooltip surface
   roundness?: TooltipRoundness // border-radius of the tooltip
   defaultIndex?: number // data index shown by default with no hover
+  labelFormatter?: ComponentProps<typeof ChartTooltipContent>['labelFormatter'] // tooltip heading from the hovered rows
 }
 
 /**
  * The hover tooltip. Reads the chart's selection from context so its content
  * dims unselected series. Hidden automatically while the chart is loading.
  */
-function Tooltip({ variant, roundness, defaultIndex }: TooltipProps) {
+function Tooltip({
+  variant,
+  roundness,
+  defaultIndex,
+  labelFormatter,
+}: TooltipProps) {
   const { isLoading, selectedDataKey } = useBarChart()
 
   if (isLoading) {
@@ -581,6 +587,7 @@ function Tooltip({ variant, roundness, defaultIndex }: TooltipProps) {
       content={
         <ChartTooltipContent
           selected={selectedDataKey}
+          labelFormatter={labelFormatter}
           roundness={roundness}
           variant={variant}
         />

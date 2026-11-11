@@ -545,6 +545,7 @@ interface TooltipProps {
   variant?: TooltipVariant // visual style of the tooltip surface
   roundness?: TooltipRoundness // border-radius of the tooltip
   defaultIndex?: number // data index shown by default with no hover
+  labelFormatter?: ComponentProps<typeof ChartTooltipContent>['labelFormatter'] // tooltip heading from the hovered rows
   cursor?: boolean // whether the vertical cursor line follows the pointer
 }
 
@@ -555,7 +556,7 @@ interface TooltipProps {
 function Tooltip({
   variant,
   roundness,
-  defaultIndex,
+  defaultIndex, labelFormatter,
   cursor = true,
 }: TooltipProps) {
   const { isLoading, selectedDataKey } = useAreaChart()
@@ -573,6 +574,7 @@ function Tooltip({
       content={
         <ChartTooltipContent
           selected={selectedDataKey}
+          labelFormatter={labelFormatter}
           roundness={roundness}
           variant={variant}
         />

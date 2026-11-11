@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { Settings02Icon } from '@hugeicons/core-free-icons'
+import type { ComponentProps } from 'react'
 import { useState } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -36,7 +37,15 @@ const PRIMARY = { dark: ['var(--primary)'], light: ['var(--primary)'] }
 /** Shares step the one accent's strength; a second hue would read as a category color. */
 const SHARE_STRENGTHS = [100, 78, 60, 45, 34, 26, 20]
 
-const toChart = ({ groupBy, id, measure, title, type }: BoardChart) => ({
+export const toChart = ({
+  currency,
+  groupBy,
+  id,
+  measure,
+  title,
+  type,
+}: BoardChart): BoardChart => ({
+  ...(currency && { currency }),
   groupBy,
   id,
   measure,
@@ -77,10 +86,14 @@ const ChoiceSelect = <Value extends string>({
 
 const ChartEditor = ({
   chart,
+  currencies,
   onChange,
   onRemove,
+  sumCurrency,
 }: {
   chart: BoardChart
+  currencies: string[]
+  sumCurrency: string | null
   onChange: (chart: BoardChart) => void
   onRemove: () => void
 }) => {
@@ -132,6 +145,15 @@ const ChartEditor = ({
           value={chart.groupBy}
           onChange={(groupBy) => onChange({ ...chart, groupBy })}
         />
+        {currencies.length > 1 && sumCurrency && (
+          <ChoiceSelect
+            label={t.boards.chart.currency}
+            labels={Object.fromEntries(currencies.map((code) => [code, code]))}
+            values={currencies}
+            value={sumCurrency}
+            onChange={(currency) => onChange({ ...chart, currency })}
+          />
+        )}
         <Button variant="ghost-destructive" size="sm" onClick={onRemove}>
           {t.boards.chart.remove}
         </Button>
@@ -143,23 +165,43 @@ const ChartEditor = ({
 const useRows = (series: ChartSeries) => {
   const t = useT()
   const dates = useDates()
-  const label = (key: string) => {
+  const labels = (key: string) => {
     if (series.groupBy === 'month') {
-      return dates.format(new Date(`${key}-01T00:00:00`), 'MMM')
+      const month = new Date(`${key}-01T00:00:00`)
+      return {
+        heading: dates.format(month, 'LLLL yyyy'),
+        label: dates.format(month, 'MMM'),
+      }
     }
     if (series.groupBy === 'week') {
-      return dates.format(new Date(`${key}T00:00:00`), 'd MMM')
+      const label = dates.format(new Date(`${key}T00:00:00`), 'd MMM')
+      return { heading: t.boards.chart.weekOf(label), label }
     }
-    return key
+    return { heading: key, label: key }
   }
-  const rows = series.points.map(({ key, value }) => ({
-    label: label(key),
-    value: Math.round(value * 100) / 100,
-  }))
+  const rows = series.points.map(({ count, key, value }) => {
+    const { heading, label } = labels(key)
+    return {
+      heading: count > 0 ? `${heading} · ${t.boards.entries(count)}` : heading,
+      label,
+      value: Math.round(value * 100) / 100,
+    }
+  })
   return series.rest > 0
-    ? [...rows, { label: t.boards.chart.other, value: series.rest }]
+    ? [
+        ...rows,
+        {
+          heading: t.boards.chart.other,
+          label: t.boards.chart.other,
+          value: series.rest,
+        },
+      ]
     : rows
 }
+
+const headingOf: ComponentProps<
+  typeof EvilBarChart.Tooltip
+>['labelFormatter'] = (_, payload) => payload[0]?.payload?.heading
 
 const ChartBody = ({ series }: { series: ChartSeries }) => {
   const t = useT()
@@ -167,7 +209,7 @@ const ChartBody = ({ series }: { series: ChartSeries }) => {
   const config = {
     value: {
       colors: PRIMARY,
-      label: series.currency ?? t.boards.chart.measures.count,
+      label: series.sumCurrency ?? t.boards.chart.measures.count,
     },
   } satisfies ChartConfig
 
@@ -210,7 +252,7 @@ const ChartBody = ({ series }: { series: ChartSeries }) => {
       >
         <EvilLineChart.Grid />
         <EvilLineChart.XAxis dataKey="label" />
-        <EvilLineChart.Tooltip />
+        <EvilLineChart.Tooltip labelFormatter={headingOf} />
         <EvilLineChart.Line dataKey="value" />
       </EvilLineChart>
     )
@@ -225,7 +267,7 @@ const ChartBody = ({ series }: { series: ChartSeries }) => {
       >
         <EvilAreaChart.Grid />
         <EvilAreaChart.XAxis dataKey="label" />
-        <EvilAreaChart.Tooltip />
+        <EvilAreaChart.Tooltip labelFormatter={headingOf} />
         <EvilAreaChart.Area dataKey="value" />
       </EvilAreaChart>
     )
@@ -239,9 +281,18 @@ const ChartBody = ({ series }: { series: ChartSeries }) => {
     >
       <EvilBarChart.Grid />
       <EvilBarChart.XAxis dataKey="label" />
-      <EvilBarChart.Tooltip />
+      <EvilBarChart.Tooltip labelFormatter={headingOf} />
       <EvilBarChart.Bar dataKey="value" />
     </EvilBarChart>
+  )
+}
+
+const SkippedNote = ({ series }: { series: ChartSeries }) => {
+  const t = useT()
+  return (
+    <p className="text-muted-foreground text-xs">
+      {t.boards.chart.skipped(series.skipped)}
+    </p>
   )
 }
 
@@ -261,6 +312,8 @@ export const BoardChartCard = ({
       </h3>
       <ChartEditor
         chart={toChart(series)}
+        currencies={series.currencies}
+        sumCurrency={series.sumCurrency}
         onChange={onChange}
         onRemove={onRemove}
       />
@@ -268,5 +321,6 @@ export const BoardChartCard = ({
     <div data-mask>
       <ChartBody series={series} />
     </div>
+    {series.skipped > 0 && <SkippedNote series={series} />}
   </section>
 )

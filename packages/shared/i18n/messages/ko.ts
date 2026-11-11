@@ -617,6 +617,7 @@ export const ko: Messages = {
   boards: {
     chart: {
       add: '차트 추가',
+      currency: '통화',
       edit: '차트 설정',
       empty: '아직 그릴 내용이 없어요',
       groupBy: '묶는 기준',
@@ -630,6 +631,7 @@ export const ko: Messages = {
       measures: { count: '개수', sum: '총액' },
       other: '기타',
       remove: '차트 삭제',
+      skipped: (n: number) => `집계 제외: ${n}건(다른 통화 또는 금액 없음)`,
       title: '차트 제목',
       type: '차트 종류',
       types: {
@@ -639,6 +641,7 @@ export const ko: Messages = {
         pie: '원형',
       },
       untitled: '새 차트',
+      weekOf: (date: string) => `${date} 주`,
     },
     charts: '차트',
     create: '보드 만들기',

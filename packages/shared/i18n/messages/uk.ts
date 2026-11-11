@@ -660,6 +660,7 @@ export const uk: Messages = {
   boards: {
     chart: {
       add: 'Додати графік',
+      currency: 'Валюта',
       edit: 'Налаштування графіка',
       empty: 'Поки нічого малювати',
       groupBy: 'Розбивка',
@@ -673,6 +674,7 @@ export const uk: Messages = {
       measures: { count: 'Кількість', sum: 'Сума' },
       other: 'Інше',
       remove: 'Прибрати графік',
+      skipped: (n: number) => `Не враховано: ${n} — інша валюта або без суми`,
       title: 'Назва графіка',
       type: 'Тип графіка',
       types: {
@@ -682,6 +684,7 @@ export const uk: Messages = {
         pie: 'Кругова',
       },
       untitled: 'Новий графік',
+      weekOf: (date: string) => `Тиждень з ${date}`,
     },
     charts: 'Графіки',
     create: 'Створити дошку',

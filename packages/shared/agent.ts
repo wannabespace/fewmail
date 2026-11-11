@@ -167,6 +167,7 @@ export const BOARD_GROUPINGS = ['month', 'week', 'group', 'status'] as const
 export type BoardGrouping = (typeof BOARD_GROUPINGS)[number]
 
 export interface BoardChart {
+  currency?: string
   groupBy: BoardGrouping
   id: string
   measure: BoardMeasure

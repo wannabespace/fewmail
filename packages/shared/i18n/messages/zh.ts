@@ -598,6 +598,7 @@ export const zh: Messages = {
   boards: {
     chart: {
       add: '添加图表',
+      currency: '货币',
       edit: '图表设置',
       empty: '暂时没有可显示的数据',
       groupBy: '分组方式',
@@ -611,6 +612,7 @@ export const zh: Messages = {
       measures: { count: '数量', sum: '总金额' },
       other: '其他',
       remove: '移除图表',
+      skipped: (n: number) => `未计入:${n} 条(其他货币或无金额)`,
       title: '图表标题',
       type: '图表类型',
       types: {
@@ -620,6 +622,7 @@ export const zh: Messages = {
         pie: '饼图',
       },
       untitled: '新图表',
+      weekOf: (date: string) => `${date} 当周`,
     },
     charts: '图表',
     create: '创建看板',

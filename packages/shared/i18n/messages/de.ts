@@ -659,6 +659,7 @@ export const de: Messages = {
   boards: {
     chart: {
       add: 'Diagramm hinzufügen',
+      currency: 'Währung',
       edit: 'Diagramm-Einstellungen',
       empty: 'Noch nichts zu zeichnen',
       groupBy: 'Gruppiert nach',
@@ -672,6 +673,8 @@ export const de: Messages = {
       measures: { count: 'Anzahl', sum: 'Gesamtbetrag' },
       other: 'Sonstiges',
       remove: 'Diagramm entfernen',
+      skipped: (n: number) =>
+        `Nicht gezählt: ${n} in anderer Währung oder ohne Betrag`,
       title: 'Diagrammtitel',
       type: 'Diagrammtyp',
       types: {
@@ -681,6 +684,7 @@ export const de: Messages = {
         pie: 'Kreis',
       },
       untitled: 'Neues Diagramm',
+      weekOf: (date: string) => `Woche ab ${date}`,
     },
     charts: 'Diagramme',
     create: 'Board erstellen',

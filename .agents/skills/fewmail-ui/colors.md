@@ -34,3 +34,5 @@ Shadows are tinted warm brown (`rgb(60 40 20 / …)`), never black, in light mod
 ## Charts
 
 Boards draw with the EvilCharts registry (`packages/ui/src/components/evilcharts`, Recharts underneath), wrapped once in `apps/web/src/components/board-chart.tsx`. Every series is the one accent, `var(--primary)`; a pie steps that accent's strength (`color-mix` toward transparent) instead of adding hues, since a second color would read as a category. A chart sits in a `bg-card` ring card with its title in sans and a ghost settings `IconButton` opening its editor popover.
+
+A chart never leaves data out silently. A tooltip heading names the whole bucket and how many entries it holds ("Week of 9 Nov · 3 entries"), never the bare axis tick. A sum draws one currency, picked in the editor (the most used one by default), and a muted line under the chart counts the entries it left out. Time buckets default to bars: entries are sparse, and a line draws slopes between payments that never happened.
