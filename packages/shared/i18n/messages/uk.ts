@@ -765,7 +765,7 @@ export const uk: Messages = {
   people: {
     firstContact: (date: string) => `Листуєтеся з ${date}`,
     lastContact: (date: string) => `Останній лист ${date}`,
-    open: 'Листування з ними',
+    open: 'Ще відкрито з ними',
     promised: 'Ти пообіцяв',
     threads: (total: number) =>
       plural('uk', total, {

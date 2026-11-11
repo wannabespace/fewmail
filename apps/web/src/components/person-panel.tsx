@@ -4,7 +4,13 @@ import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 
 /** Pro: who this person is to the user, from their own mail; quiet when there is nothing to say. */
-export const PersonPanel = ({ email }: { email: string }) => {
+export const PersonPanel = ({
+  email,
+  threadId,
+}: {
+  email: string
+  threadId: string
+}) => {
   const t = useT()
   const dates = useDates()
   const { data: person } = useQuery(
@@ -15,8 +21,16 @@ export const PersonPanel = ({ email }: { email: string }) => {
     return null
   }
 
+  const elsewhere = [
+    ...new Set(
+      person.open
+        .filter((item) => item.threadId !== threadId)
+        .map((item) => item.title)
+    ),
+  ]
+
   return (
-    <section className="bg-secondary/40 flex flex-col gap-2 rounded-xl px-4 py-3 text-sm">
+    <section className="border-border flex flex-col gap-2 border-t pt-5 text-sm">
       <div className="text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-xs">
         <span data-mask className="text-foreground font-medium">
           {person.name ?? person.email}
@@ -34,33 +48,31 @@ export const PersonPanel = ({ email }: { email: string }) => {
         )}
       </div>
       {person.note && (
-        <p data-mask className="font-serif text-base/relaxed">
+        <p
+          data-mask
+          className="text-muted-foreground font-serif text-sm/relaxed"
+        >
           {person.note}
         </p>
       )}
       {person.promised.length > 0 && (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-muted-foreground text-xs font-medium">
-            {t.people.promised}
-          </span>
-          {person.promised.map((promise) => (
-            <span key={promise.id} data-mask>
+        <p className="text-muted-foreground">
+          {t.people.promised}:{' '}
+          {person.promised.map((promise, index) => (
+            <span key={promise.id} data-mask className="text-foreground">
+              {index > 0 && ', '}
               {promise.promise} · {dates.format(promise.dueAt, 'EEE d MMM')}
             </span>
           ))}
-        </div>
+        </p>
       )}
-      {person.open.length > 0 && (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-muted-foreground text-xs font-medium">
-            {t.people.open}
+      {elsewhere.length > 0 && (
+        <p className="text-muted-foreground">
+          {t.people.open}:{' '}
+          <span data-mask className="text-foreground">
+            {elsewhere.join(', ')}
           </span>
-          {person.open.map((item) => (
-            <span key={item.id} data-mask>
-              {item.title}
-            </span>
-          ))}
-        </div>
+        </p>
       )}
     </section>
   )

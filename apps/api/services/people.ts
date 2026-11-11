@@ -102,7 +102,12 @@ export const getPerson = async (userId: string, rawEmail: string) => {
   const [open, promised, recent, [stored]] = await Promise.all([
     threadIds.length
       ? db
-          .select({ id: actions.id, kind: actions.kind, title: actions.title })
+          .select({
+            id: actions.id,
+            kind: actions.kind,
+            threadId: actions.threadId,
+            title: actions.title,
+          })
           .from(actions)
           .where(
             and(

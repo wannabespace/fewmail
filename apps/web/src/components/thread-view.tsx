@@ -135,7 +135,7 @@ const MessageSection = ({
         data-mask
         className="text-foreground/90 text-sm/relaxed wrap-break-word whitespace-pre-wrap"
       >
-        {message.body}
+        {message.body.replaceAll(/\n\s*\n\s*\n/gu, '\n\n').trim()}
       </p>
     </section>
   )
@@ -517,9 +517,6 @@ export const ThreadView = ({
           </div>
 
           <ThreadNotices data={data} />
-          {hasAgent && latest && (
-            <PersonPanel email={latest.message.fromEmail} />
-          )}
           {hasAgent && data.actions.length > 0 && (
             <ul className="text-muted-foreground flex flex-col gap-1 text-sm">
               {data.actions.map((action) => (
@@ -550,6 +547,10 @@ export const ThreadView = ({
                 hasAgent={hasAgent}
               />
             )
+          )}
+
+          {hasAgent && latest && (
+            <PersonPanel email={latest.message.fromEmail} threadId={threadId} />
           )}
 
           {composing && (
