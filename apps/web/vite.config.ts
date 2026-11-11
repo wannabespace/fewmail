@@ -1,3 +1,5 @@
+import process from 'node:process'
+
 import { setupPortlessEnvs } from '@fewmail/shared/portless-env'
 import babel from '@rolldown/plugin-babel'
 import tailwindcss from '@tailwindcss/vite'
@@ -20,5 +22,10 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
   ],
+  preview: {
+    allowedHosts: ['fewmail.app'],
+    host: true,
+    port: Number(process.env.PORT) || undefined,
+  },
   resolve: { tsconfigPaths: true },
 })
