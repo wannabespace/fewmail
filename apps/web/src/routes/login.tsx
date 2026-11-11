@@ -1,12 +1,14 @@
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { BubbleChatIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { motion } from 'motion/react'
 import { Fragment, useState } from 'react'
 
 import { LanguageSelect } from '~/components/agent-fields'
-import { LoginStory, TelegramMark } from '~/components/login-story'
+import { LoginStory } from '~/components/login-story'
 import { Logo } from '~/components/logo'
 import { signInWithGoogle } from '~/lib/auth'
 import { localeStore, useLocale, useT } from '~/lib/i18n'
@@ -72,9 +74,13 @@ const LoginPage = () => {
             className="text-muted-foreground flex items-center gap-3 text-sm text-pretty"
           >
             <span className="bg-secondary text-foreground flex size-8 shrink-0 items-center justify-center rounded-lg">
-              <TelegramMark className="size-4" />
+              <HugeiconsIcon
+                icon={BubbleChatIcon}
+                strokeWidth={2}
+                className="size-4"
+              />
             </span>
-            {t.login.telegram}
+            {t.login.messengers}
           </motion.p>
           <motion.div variants={rise} className="flex flex-col gap-4">
             <Button size="lg" disabled={isRedirecting} onClick={signIn}>

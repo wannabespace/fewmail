@@ -169,8 +169,8 @@ export const nl: Messages = {
       'Fewmail vraagt toestemming om je Gmail te lezen, te ordenen en te versturen. Er wordt niets verstuurd of gearchiveerd zonder jouw akkoord, tenzij je een regel maakt die dat toestaat.',
     continue: 'Doorgaan met Google',
     lead: 'Fewmail leest je inbox voor je, antwoordt in jouw stijl en laat alleen zien wat jou echt nodig heeft.',
-    telegram:
-      'Werkt ook in Telegram: ontvang het overzicht, keur antwoorden goed of stuur gewoon een spraakbericht.',
+    messengers:
+      'Werkt ook in messengers, te beginnen met Telegram: ontvang het overzicht, keur antwoorden goed of stuur gewoon een spraakbericht.',
     title: 'Alleen wat ertoe doet.',
   },
   mail: {

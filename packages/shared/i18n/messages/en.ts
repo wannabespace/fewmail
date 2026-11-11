@@ -166,8 +166,8 @@ export const en = {
       'Fewmail asks to read, organize and send Gmail for you. Nothing is sent and nothing is archived without your say, unless you write a rule that allows it.',
     continue: 'Continue with Google',
     lead: 'Fewmail reads your inbox for you, answers in your voice and only shows you what actually needs you.',
-    telegram:
-      'Works in Telegram too: get the brief, approve replies or just send a voice message.',
+    messengers:
+      'Works in messengers too, starting with Telegram: get the brief, approve replies or just send a voice message.',
     title: 'Only what matters.',
   },
   mail: {

@@ -161,8 +161,8 @@ export const fr: Messages = {
       'Fewmail demande à lire, organiser et envoyer vos e-mails Gmail pour vous. Rien n’est envoyé ni archivé sans votre accord, sauf si vous créez une règle qui l’autorise.',
     continue: 'Continuer avec Google',
     lead: 'Fewmail lit votre boîte de réception pour vous, répond avec votre style et ne vous montre que ce qui a vraiment besoin de vous.',
-    telegram:
-      'Aussi dans Telegram : recevez le brief, approuvez les réponses ou envoyez simplement un message vocal.',
+    messengers:
+      'Aussi dans les messageries, à commencer par Telegram : recevez le brief, approuvez les réponses ou envoyez simplement un message vocal.',
     title: 'L’essentiel, rien de plus.',
   },
   mail: {

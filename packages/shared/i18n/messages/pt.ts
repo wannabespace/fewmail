@@ -169,8 +169,8 @@ export const pt: Messages = {
       'O Fewmail pede permissão para ler, organizar e enviar seus e-mails do Gmail. Nada é enviado nem arquivado sem o seu aval, a menos que você crie uma regra que permita.',
     continue: 'Continuar com o Google',
     lead: 'O Fewmail lê sua caixa de entrada por você, responde com a sua voz e só mostra o que realmente precisa de você.',
-    telegram:
-      'Também no Telegram: receba o resumo, aprove respostas ou simplesmente envie uma mensagem de voz.',
+    messengers:
+      'Também em mensageiros, começando pelo Telegram: receba o resumo, aprove respostas ou simplesmente envie uma mensagem de voz.',
     title: 'Só o que importa.',
   },
   mail: {
