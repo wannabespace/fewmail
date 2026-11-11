@@ -269,7 +269,7 @@ const AccountMenu = ({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={NAV_ROW}>
+      <DropdownMenuTrigger className={`${NAV_ROW} ps-1`}>
         <Avatar size="sm">
           <AvatarFallback data-mask>{email[0]?.toUpperCase()}</AvatarFallback>
           {status?.isAlert && <AvatarBadge />}
