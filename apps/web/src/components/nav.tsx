@@ -1,14 +1,40 @@
 import { PLAN_LIMITS } from '@fewmail/shared/agent'
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+} from '@fewmail/ui/components/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
+import type { Theme } from '@fewmail/ui/theme-store'
+import { themeStore, useTheme } from '@fewmail/ui/theme-store'
 import {
   Add01Icon,
   AiChat02Icon,
+  ComputerIcon,
+  CrownIcon,
   DashboardSquare01Icon,
+  Logout01Icon,
   Mail01Icon,
+  Moon02Icon,
   Search01Icon,
   Settings01Icon,
   Sun03Icon,
+  UnfoldMoreIcon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -19,6 +45,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useState } from 'react'
 
 import { newBoardStore } from '~/components/board-dialog'
+import { signOut } from '~/lib/auth'
 import { useT } from '~/lib/i18n'
 import { useHasAgent, useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
@@ -194,18 +221,16 @@ const NavLink = ({
   )
 }
 
-const SettingsLine = ({ text }: { text: string }) => (
-  <Link to="/settings" className="text-muted-foreground truncate">
-    {text}
-  </Link>
-)
+const THEME_ICONS = {
+  dark: Moon02Icon,
+  light: Sun03Icon,
+  system: ComputerIcon,
+} as const
 
-/** One line: the footer shows only what matters most right now. */
-const FooterStatus = ({
-  mailboxes,
-}: {
+/** The account's state in one line, flagged when the user should act on it. */
+const useAccountStatus = (
   mailboxes?: { lastSyncedAt: Date | null; syncError: string | null }[]
-}) => {
+) => {
   const t = useT()
   const { plan, usage } = useMe()
   const hasAgent = useHasAgent()
@@ -215,18 +240,87 @@ const FooterStatus = ({
     !mailboxes?.length || mailboxes.some(({ lastSyncedAt }) => !lastSyncedAt)
 
   if (hasAgent && mailboxes?.some(({ syncError }) => syncError)) {
-    return <SettingsLine text={t.nav.syncFailed} />
+    return { isAlert: true, text: t.nav.syncFailed }
   }
   if (hasAgent && isSyncing) {
-    return <span className="truncate">{t.nav.syncing}</span>
+    return { isAlert: false, text: t.nav.syncing }
   }
   if (percent >= USAGE_SHOWN_FROM) {
-    return <SettingsLine text={t.nav.usage(percent)} />
+    return { isAlert: true, text: t.nav.usage(percent) }
   }
   if (plan.trialDaysLeft) {
-    return <SettingsLine text={t.nav.trialLeft(plan.trialDaysLeft)} />
+    return { isAlert: false, text: t.nav.trialLeft(plan.trialDaysLeft) }
   }
-  return hasAgent ? <span className="truncate">{t.nav.watching}</span> : null
+  return hasAgent ? { isAlert: false, text: t.nav.watching } : null
+}
+
+const AccountMenu = ({
+  email,
+  mailboxes,
+}: {
+  email: string
+  mailboxes?: { lastSyncedAt: Date | null; syncError: string | null }[]
+}) => {
+  const t = useT()
+  const navigate = useNavigate()
+  const { plan } = useMe()
+  const theme = useTheme()
+  const status = useAccountStatus(mailboxes)
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className={NAV_ROW}>
+        <Avatar size="sm">
+          <AvatarFallback data-mask>{email[0]?.toUpperCase()}</AvatarFallback>
+          {status?.isAlert && <AvatarBadge />}
+        </Avatar>
+        <span className="flex-1 truncate text-left" data-mask>
+          {email}
+        </span>
+        <HugeiconsIcon icon={UnfoldMoreIcon} strokeWidth={2} />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="top">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <span className="text-foreground block truncate" data-mask>
+              {email}
+            </span>
+            {status && <span className="block">{status.text}</span>}
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        {(plan.kind === 'free' || Boolean(plan.trialDaysLeft)) && (
+          <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
+            <HugeiconsIcon icon={CrownIcon} strokeWidth={2} />
+            {t.command.upgrade}
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <HugeiconsIcon icon={THEME_ICONS[theme]} strokeWidth={2} />
+            {t.command.appearance}
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuRadioGroup
+              value={theme}
+              onValueChange={(value: Theme) => themeStore.set(value)}
+            >
+              {(['light', 'dark', 'system'] as const).map((option) => (
+                <DropdownMenuRadioItem key={option} value={option}>
+                  {t.command.theme[option]}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onClick={signOut}>
+          <HugeiconsIcon icon={Logout01Icon} strokeWidth={2} />
+          {t.settings.signOut}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }
 
 export const Sidebar = ({
@@ -280,12 +374,7 @@ export const Sidebar = ({
       ))}
       {hasAgent && <Boards showKeys={isModifierHeld} />}
       <div className="flex-1" />
-      <div className="text-muted-foreground flex flex-col gap-0.5 px-2.5 text-xs">
-        <span data-mask className="text-foreground/80 truncate">
-          {email}
-        </span>
-        <FooterStatus mailboxes={today?.mailboxes} />
-      </div>
+      <AccountMenu email={email} mailboxes={today?.mailboxes} />
     </nav>
   )
 }

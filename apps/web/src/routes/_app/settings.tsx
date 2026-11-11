@@ -792,11 +792,7 @@ const SettingsPage = () => {
             title={<span data-mask>{me.user.email}</span>}
             description={t.settings.signedInWithGoogle}
           >
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={signOut}
-            >
+            <Button size="sm" variant="outline" onClick={signOut}>
               {t.settings.signOut}
             </Button>
           </SettingsRow>
