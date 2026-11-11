@@ -670,6 +670,10 @@ export const ko: Messages = {
     readingHistory: '최근 6개월 메일을 읽는 중…',
     save: '저장',
     starter: {
+      events: {
+        description: '티켓, 예약, 약속: 어디에, 언제, 누구와 가야 하는지.',
+        name: '일정',
+      },
       money: {
         description:
           '결제, 구독, 청구서, 환불: 무엇에, 누구에게, 얼마를 내는지.',
@@ -679,10 +683,6 @@ export const ko: Messages = {
         description:
           '온라인 주문과 배송: 무엇을 어디서 샀고 지금 어디에 있는지.',
         name: '주문',
-      },
-      subscriptions: {
-        description: '구독과 멤버십: 무엇이 갱신되는지, 얼마나 자주, 얼마에.',
-        name: '구독',
       },
       trips: {
         description: '항공, 기차, 호텔, 렌터카: 어디로, 언제, 비용은 얼마인지.',

@@ -718,6 +718,11 @@ export const de: Messages = {
     readingHistory: 'Lese die Mails der letzten sechs Monate…',
     save: 'Speichern',
     starter: {
+      events: {
+        description:
+          'Tickets, Reservierungen und Termine: wo ich sein muss, wann und mit wem.',
+        name: 'Termine',
+      },
       money: {
         description:
           'Zahlungen, Abos, Rechnungen und Erstattungen: wofür ich zahle, an wen und wie viel.',
@@ -727,11 +732,6 @@ export const de: Messages = {
         description:
           'Online-Bestellungen und Lieferungen: was ich gekauft habe, bei wem und wo es gerade ist.',
         name: 'Bestellungen',
-      },
-      subscriptions: {
-        description:
-          'Abos und Mitgliedschaften: was sich verlängert, wie oft und zu welchem Preis.',
-        name: 'Abos',
       },
       trips: {
         description:

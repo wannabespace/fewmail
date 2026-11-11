@@ -118,12 +118,7 @@ export const parseSkill = (text: string) => {
 }
 
 /** Ready-made boards offered at onboarding; names and descriptions come from `boards.starter`. */
-export const BOARD_PRESETS = [
-  'money',
-  'subscriptions',
-  'trips',
-  'orders',
-] as const
+export const BOARD_PRESETS = ['money', 'trips', 'orders', 'events'] as const
 export type BoardPreset = (typeof BOARD_PRESETS)[number]
 
 export const IMPORTANCE = {

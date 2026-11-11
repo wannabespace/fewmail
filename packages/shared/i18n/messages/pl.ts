@@ -143,6 +143,11 @@ export const pl: Messages = {
     readingHistory: 'Czytam pocztę z ostatniego pół roku…',
     save: 'Zapisz',
     starter: {
+      events: {
+        description:
+          'Bilety, rezerwacje i wizyty: gdzie mam być, kiedy i z kim.',
+        name: 'Wydarzenia',
+      },
       money: {
         description:
           'Płatności, subskrypcje, rachunki i zwroty: za co płacę, komu i ile.',
@@ -152,11 +157,6 @@ export const pl: Messages = {
         description:
           'Zamówienia online i dostawy: co kupiłem, u kogo i gdzie teraz jest.',
         name: 'Zamówienia',
-      },
-      subscriptions: {
-        description:
-          'Subskrypcje i członkostwa: co się odnawia, jak często i za ile.',
-        name: 'Subskrypcje',
       },
       trips: {
         description:

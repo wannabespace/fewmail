@@ -137,6 +137,11 @@ export const tr: Messages = {
     readingHistory: 'Son altı ayın postaları okunuyor…',
     save: 'Kaydet',
     starter: {
+      events: {
+        description:
+          'Biletler, rezervasyonlar ve randevular: nerede, ne zaman ve kiminle olmam gerektiği.',
+        name: 'Etkinlikler',
+      },
       money: {
         description:
           'Ödemeler, abonelikler, faturalar ve iadeler: neye, kime ve ne kadar ödediğim.',
@@ -146,11 +151,6 @@ export const tr: Messages = {
         description:
           'Online siparişler ve teslimatlar: ne aldım, kimden ve şu an nerede.',
         name: 'Siparişler',
-      },
-      subscriptions: {
-        description:
-          'Abonelikler ve üyelikler: ne yenileniyor, ne sıklıkla ve kaça.',
-        name: 'Abonelikler',
       },
       trips: {
         description:

@@ -648,6 +648,10 @@ export const zh: Messages = {
     readingHistory: '正在读取最近六个月的邮件…',
     save: '保存',
     starter: {
+      events: {
+        description: '门票、预订和预约：我要去哪里、什么时候、和谁一起。',
+        name: '活动',
+      },
       money: {
         description: '付款、订阅、账单和退款：我为什么付钱、付给谁、付多少。',
         name: '钱',
@@ -655,10 +659,6 @@ export const zh: Messages = {
       orders: {
         description: '网购订单和快递：买了什么、在哪家买的、现在到哪了。',
         name: '订单',
-      },
-      subscriptions: {
-        description: '订阅和会员：哪些会续费、多久一次、多少钱。',
-        name: '订阅',
       },
       trips: {
         description: '机票、火车、酒店和租车：去哪里、什么时候、花多少钱。',

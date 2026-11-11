@@ -82,7 +82,7 @@ const OnboardingPage = () => {
   const [persona, setPersona] = useState<Persona>('reader')
   const [starterBoards, setStarterBoards] = useState<BoardPreset[]>([
     'money',
-    'subscriptions',
+    'trips',
   ])
 
   const save = useMutation(

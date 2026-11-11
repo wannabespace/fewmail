@@ -141,6 +141,11 @@ export const nl: Messages = {
     readingHistory: 'Mail van de afgelopen zes maanden lezen…',
     save: 'Opslaan',
     starter: {
+      events: {
+        description:
+          'Tickets, reserveringen en afspraken: waar ik moet zijn, wanneer en met wie.',
+        name: 'Afspraken',
+      },
       money: {
         description:
           'Betalingen, abonnementen, rekeningen en terugbetalingen: waarvoor ik betaal, aan wie en hoeveel.',
@@ -150,11 +155,6 @@ export const nl: Messages = {
         description:
           'Online bestellingen en leveringen: wat ik kocht, bij wie en waar het nu is.',
         name: 'Bestellingen',
-      },
-      subscriptions: {
-        description:
-          'Abonnementen en lidmaatschappen: wat verlengt, hoe vaak en voor hoeveel.',
-        name: 'Abonnementen',
       },
       trips: {
         description:

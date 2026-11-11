@@ -139,6 +139,11 @@ export const id: Messages = {
     readingHistory: 'Membaca email enam bulan terakhir…',
     save: 'Simpan',
     starter: {
+      events: {
+        description:
+          'Tiket, reservasi, dan janji temu: di mana saya harus berada, kapan, dan dengan siapa.',
+        name: 'Acara',
+      },
       money: {
         description:
           'Pembayaran, langganan, tagihan, dan pengembalian dana: untuk apa saya membayar, kepada siapa, dan berapa.',
@@ -148,11 +153,6 @@ export const id: Messages = {
         description:
           'Pesanan online dan pengiriman: apa yang kubeli, dari siapa dan di mana sekarang.',
         name: 'Pesanan',
-      },
-      subscriptions: {
-        description:
-          'Langganan dan keanggotaan: apa yang diperpanjang, seberapa sering dan berapa biayanya.',
-        name: 'Langganan',
       },
       trips: {
         description:

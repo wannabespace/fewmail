@@ -677,6 +677,10 @@ export const ja: Messages = {
     readingHistory: '過去6か月のメールを読んでいます…',
     save: '保存',
     starter: {
+      events: {
+        description: 'チケット、予約、アポイント：どこに、いつ、誰と行くか。',
+        name: '予定',
+      },
       money: {
         description:
           '支払い、サブスクリプション、請求書、返金：何に、誰に、いくら払っているか。',
@@ -685,10 +689,6 @@ export const ja: Messages = {
       orders: {
         description: 'オンライン注文と配送：何をどこで買い、今どこにあるか。',
         name: '注文',
-      },
-      subscriptions: {
-        description: 'サブスクと会員契約：何が更新されるか、頻度と金額。',
-        name: 'サブスク',
       },
       trips: {
         description:

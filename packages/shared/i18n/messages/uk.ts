@@ -721,6 +721,11 @@ export const uk: Messages = {
     readingHistory: 'Читаю пошту за останні пів року…',
     save: 'Зберегти',
     starter: {
+      events: {
+        description:
+          'Квитки, бронювання й записи: куди мені треба, коли і з ким.',
+        name: 'Події',
+      },
       money: {
         description:
           'Платежі, підписки, рахунки й повернення: за що я плачу, кому і скільки.',
@@ -730,11 +735,6 @@ export const uk: Messages = {
         description:
           'Онлайн-замовлення й доставки: що я купив, у кого і де воно зараз.',
         name: 'Замовлення',
-      },
-      subscriptions: {
-        description:
-          'Підписки й членства: що поновлюється, як часто і за скільки.',
-        name: 'Підписки',
       },
       trips: {
         description:

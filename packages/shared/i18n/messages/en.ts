@@ -138,6 +138,11 @@ export const en = {
     readingHistory: 'Reading the last six months of mail…',
     save: 'Save',
     starter: {
+      events: {
+        description:
+          'Tickets, reservations and appointments: where I need to be, when and with whom.',
+        name: 'Events',
+      },
       money: {
         description:
           'Payments, subscriptions, bills and refunds: what I pay for, to whom and how much.',
@@ -147,11 +152,6 @@ export const en = {
         description:
           'Online orders and deliveries: what I bought, from whom, and where it is.',
         name: 'Orders',
-      },
-      subscriptions: {
-        description:
-          'Subscriptions and memberships: what renews, how often and for how much.',
-        name: 'Subscriptions',
       },
       trips: {
         description:

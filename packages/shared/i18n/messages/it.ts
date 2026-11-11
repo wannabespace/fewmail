@@ -712,6 +712,11 @@ export const it: Messages = {
     readingHistory: 'Leggo la posta degli ultimi sei mesi…',
     save: 'Salva',
     starter: {
+      events: {
+        description:
+          'Biglietti, prenotazioni e appuntamenti: dove devo essere, quando e con chi.',
+        name: 'Eventi',
+      },
       money: {
         description:
           'Pagamenti, abbonamenti, bollette e rimborsi: cosa pago, a chi e quanto.',
@@ -721,11 +726,6 @@ export const it: Messages = {
         description:
           'Ordini online e consegne: cosa ho comprato, da chi e dove si trova.',
         name: 'Ordini',
-      },
-      subscriptions: {
-        description:
-          'Abbonamenti e iscrizioni: cosa si rinnova, ogni quanto e a che prezzo.',
-        name: 'Abbonamenti',
       },
       trips: {
         description:
