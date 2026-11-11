@@ -353,7 +353,8 @@ export const pl: Messages = {
     drafting: 'Piszę…',
     draftWaiting: 'Szkic czeka w Dziś',
     due: (date: string) => `termin ${date}`,
-    empty: 'Brak maili.',
+    empty: 'Brak maili',
+    emptyHint: 'Nowe maile pojawią się tu, gdy tylko przyjdą.',
     expectsReply: 'Czeka na odpowiedź',
     filter: {
       drafts: 'Szkice',

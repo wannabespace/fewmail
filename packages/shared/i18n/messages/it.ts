@@ -271,7 +271,8 @@ export const it: Messages = {
     drafting: 'Scrivo…',
     draftWaiting: 'La bozza ti aspetta in Oggi',
     due: (date: string) => `scade il ${date}`,
-    empty: 'Nessuna email qui.',
+    empty: 'Nessuna email qui',
+    emptyHint: 'Le nuove email compariranno qui appena arrivano.',
     expectsReply: 'Attende risposta',
     filter: {
       drafts: 'Bozze',

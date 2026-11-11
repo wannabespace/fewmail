@@ -342,7 +342,8 @@ export const pt: Messages = {
     drafting: 'Escrevendo…',
     draftWaiting: 'O rascunho está aguardando em Hoje',
     due: (date: string) => `vence em ${date}`,
-    empty: 'Nenhum e-mail aqui.',
+    empty: 'Nenhum e-mail aqui',
+    emptyHint: 'Novos e-mails aparecem aqui assim que chegam.',
     expectsReply: 'Aguarda resposta',
     filter: {
       drafts: 'Rascunhos',

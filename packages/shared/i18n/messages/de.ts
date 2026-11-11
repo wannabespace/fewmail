@@ -269,7 +269,8 @@ export const de: Messages = {
     drafting: 'Entwerfe…',
     draftWaiting: 'Entwurf wartet in Heute',
     due: (date: string) => `fällig am ${date}`,
-    empty: 'Hier sind keine Mails.',
+    empty: 'Hier sind keine Mails',
+    emptyHint: 'Neue Mails erscheinen hier, sobald sie ankommen.',
     expectsReply: 'Erwartet Antwort',
     filter: {
       drafts: 'Entwürfe',

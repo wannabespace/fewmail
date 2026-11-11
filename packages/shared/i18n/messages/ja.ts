@@ -243,7 +243,8 @@ export const ja: Messages = {
     drafting: '下書き中…',
     draftWaiting: '下書きが「今日」で待っています',
     due: (date: string) => `期限 ${date}`,
-    empty: 'メールはありません。',
+    empty: 'メールはありません',
+    emptyHint: '新しいメールが届くとここに表示されます。',
     expectsReply: '返信待ち',
     filter: {
       drafts: '下書き',

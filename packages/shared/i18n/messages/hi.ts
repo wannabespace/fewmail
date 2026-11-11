@@ -243,7 +243,8 @@ export const hi: Messages = {
     drafting: 'ड्राफ़्ट बन रहा है…',
     draftWaiting: 'ड्राफ़्ट आज में इंतज़ार कर रहा है',
     due: (date: string) => `देय ${date}`,
-    empty: 'यहाँ कोई ईमेल नहीं है।',
+    empty: 'यहाँ कोई ईमेल नहीं है',
+    emptyHint: 'नए ईमेल आते ही यहाँ दिखेंगे।',
     expectsReply: 'जवाब की उम्मीद है',
     filter: {
       drafts: 'ड्राफ़्ट',

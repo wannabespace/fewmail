@@ -335,7 +335,8 @@ export const id: Messages = {
     drafting: 'Menyusun…',
     draftWaiting: 'Draf menunggu di Hari ini',
     due: (date: string) => `jatuh tempo ${date}`,
-    empty: 'Tidak ada email di sini.',
+    empty: 'Tidak ada email di sini',
+    emptyHint: 'Email baru akan muncul di sini begitu tiba.',
     expectsReply: 'Menunggu balasan',
     filter: {
       drafts: 'Draf',

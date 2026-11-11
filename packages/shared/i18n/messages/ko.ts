@@ -243,7 +243,8 @@ export const ko: Messages = {
     drafting: '초안 작성 중…',
     draftWaiting: '초안이 오늘에서 기다리고 있어요',
     due: (date: string) => `마감 ${date}`,
-    empty: '메일이 없어요.',
+    empty: '메일이 없어요',
+    emptyHint: '새 메일이 오면 바로 여기에 나타나요.',
     expectsReply: '답장을 기다림',
     filter: {
       drafts: '임시보관함',

@@ -271,7 +271,8 @@ export const fr: Messages = {
     drafting: 'Rédaction…',
     draftWaiting: 'Le brouillon vous attend dans Aujourd’hui',
     due: (date: string) => `échéance le ${date}`,
-    empty: 'Aucun e-mail ici.',
+    empty: 'Aucun e-mail ici',
+    emptyHint: 'Les nouveaux e-mails apparaîtront ici dès leur arrivée.',
     expectsReply: 'Attend une réponse',
     filter: {
       drafts: 'Brouillons',

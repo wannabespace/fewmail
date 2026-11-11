@@ -329,7 +329,8 @@ export const tr: Messages = {
     drafting: 'Yazılıyor…',
     draftWaiting: 'Taslak Bugün’de bekliyor',
     due: (date: string) => `son tarih ${date}`,
-    empty: 'Burada e-posta yok.',
+    empty: 'Burada e-posta yok',
+    emptyHint: 'Yeni e-postalar gelir gelmez burada görünür.',
     expectsReply: 'Yanıt bekliyor',
     filter: {
       drafts: 'Taslaklar',

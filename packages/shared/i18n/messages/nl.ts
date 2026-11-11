@@ -342,7 +342,8 @@ export const nl: Messages = {
     drafting: 'Opstellen…',
     draftWaiting: 'Concept wacht in Vandaag',
     due: (date: string) => `vervalt ${date}`,
-    empty: 'Geen e-mails hier.',
+    empty: 'Geen e-mails hier',
+    emptyHint: 'Nieuwe e-mails verschijnen hier zodra ze binnenkomen.',
     expectsReply: 'Verwacht antwoord',
     filter: {
       drafts: 'Concepten',

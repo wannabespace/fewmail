@@ -338,7 +338,8 @@ export const en = {
     drafting: 'Drafting…',
     draftWaiting: 'Draft is waiting in Today',
     due: (date: string) => `due ${date}`,
-    empty: 'No emails here.',
+    empty: 'No emails here',
+    emptyHint: 'New mail shows up here as it arrives.',
     expectsReply: 'Expects a reply',
     filter: {
       drafts: 'Drafts',

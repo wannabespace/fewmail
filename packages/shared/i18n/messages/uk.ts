@@ -267,7 +267,8 @@ export const uk: Messages = {
     drafting: 'Пишу…',
     draftWaiting: 'Чернетка чекає в «Сьогодні»',
     due: (date: string) => `до ${date}`,
-    empty: 'Тут немає листів.',
+    empty: 'Тут немає листів',
+    emptyHint: 'Нові листи з’являться тут, щойно надійдуть.',
     expectsReply: 'Чекає на відповідь',
     filter: {
       drafts: 'Чернетки',

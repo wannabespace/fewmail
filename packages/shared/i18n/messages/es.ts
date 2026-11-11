@@ -270,7 +270,8 @@ export const es: Messages = {
     drafting: 'Redactando…',
     draftWaiting: 'El borrador te espera en Hoy',
     due: (date: string) => `vence el ${date}`,
-    empty: 'No hay correos aquí.',
+    empty: 'No hay correos aquí',
+    emptyHint: 'Los correos nuevos aparecerán aquí en cuanto lleguen.',
     expectsReply: 'Espera respuesta',
     filter: {
       drafts: 'Borradores',

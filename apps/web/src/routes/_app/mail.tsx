@@ -12,7 +12,13 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
-import { Empty, EmptyDescription } from '@fewmail/ui/components/empty'
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@fewmail/ui/components/empty'
 import {
   InputGroup,
   InputGroupAddon,
@@ -32,6 +38,7 @@ import {
   Archive02Icon,
   Clock01Icon,
   Delete02Icon,
+  Mail01Icon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -658,15 +665,25 @@ const MailPage = () => {
               </TabsList>
             </Tabs>
           </div>
+          {total === 0 && !isFetching && (
+            <Empty size="sm">
+              <EmptyHeader>
+                <EmptyMedia variant="muted">
+                  <HugeiconsIcon icon={Mail01Icon} />
+                </EmptyMedia>
+                <EmptyTitle>{t.mail.empty}</EmptyTitle>
+                <EmptyDescription>{t.mail.emptyHint}</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
           <ul
             ref={listRef}
-            className={cn('flex-1 overflow-y-auto', isFetching && 'opacity-70')}
-          >
-            {total === 0 && !isFetching && (
-              <li className="text-muted-foreground px-5 py-8 text-sm">
-                {t.mail.empty}
-              </li>
+            className={cn(
+              'overflow-y-auto',
+              total > 0 && 'flex-1',
+              isFetching && 'opacity-70'
             )}
+          >
             {drafts.rows.map((saved, index) => (
               <DraftRow
                 key={saved.id}

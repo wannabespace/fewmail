@@ -237,7 +237,8 @@ export const zh: Messages = {
     drafting: '正在起草…',
     draftWaiting: '草稿在“今天”中等你',
     due: (date: string) => `${date} 到期`,
-    empty: '这里没有邮件。',
+    empty: '这里没有邮件',
+    emptyHint: '新邮件一到就会出现在这里。',
     expectsReply: '等待回复',
     filter: {
       drafts: '草稿',
