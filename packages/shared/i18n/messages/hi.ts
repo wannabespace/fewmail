@@ -363,7 +363,6 @@ export const hi: Messages = {
     noReply: 'अभी तक जवाब नहीं',
   },
   rules: {
-    actWithoutAsking: 'बिना पूछे करें',
     add: 'नियम जोड़ें',
     count: (total: number) =>
       plural('hi', total, { one: () => '1 नियम', other: (n) => `${n} नियम` }),
@@ -372,7 +371,6 @@ export const hi: Messages = {
       alwaysShow: 'हमेशा आज में दिखता है',
       autonomous: 'अपने आप होता है, निपटाए गए में दिखता है',
       draft: 'एक ड्राफ़्ट आज में आपका इंतज़ार करता है',
-      suggested: 'आज में सुझाव, पुष्टि आप करते हैं',
     },
     effect: {
       trash: 'ट्रैश में डालें',
@@ -406,7 +404,6 @@ export const hi: Messages = {
     title: 'नियम',
     whatAgentDoes: 'एजेंट क्या करे',
     whichEmails: 'कौन-से ईमेल',
-    withoutAsking: 'बिना पूछे',
   },
   settings: {
     knowledge: {

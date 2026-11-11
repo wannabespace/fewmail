@@ -350,7 +350,6 @@ export const zh: Messages = {
     noReply: '尚未回复',
   },
   rules: {
-    actWithoutAsking: '无需询问直接执行',
     add: '添加规则',
     count: (n: number) => `${n} 条规则`,
     delete: '删除',
@@ -358,7 +357,6 @@ export const zh: Messages = {
       alwaysShow: '始终出现在“今天”',
       autonomous: '自动完成，列在已处理中',
       draft: '草稿在“今天”中等你',
-      suggested: '在“今天”中建议，由你确认',
     },
     effect: {
       trash: '移到废纸篓',
@@ -391,7 +389,6 @@ export const zh: Messages = {
     title: '规则',
     whatAgentDoes: '助手要做什么',
     whichEmails: '哪些邮件',
-    withoutAsking: '无需询问',
   },
   settings: {
     knowledge: {

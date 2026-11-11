@@ -384,7 +384,6 @@ export const it: Messages = {
     skip: 'Salta',
   },
   rules: {
-    actWithoutAsking: 'Agisci senza chiedere',
     add: 'Aggiungi regola',
     count: (total: number) =>
       plural('it', total, {
@@ -396,7 +395,6 @@ export const it: Messages = {
       alwaysShow: 'Arriva sempre in Oggi',
       autonomous: 'Fatto in autonomia, elencato tra le gestite',
       draft: 'Una bozza ti aspetta in Oggi',
-      suggested: 'Suggerito in Oggi, confermi tu',
     },
     effect: {
       trash: 'Spostala nel cestino',
@@ -430,7 +428,6 @@ export const it: Messages = {
     title: 'Regole',
     whatAgentDoes: 'Cosa fa l’agente',
     whichEmails: 'Quali email',
-    withoutAsking: 'Senza chiedere',
   },
   settings: {
     knowledge: {

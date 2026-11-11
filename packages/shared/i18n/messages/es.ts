@@ -383,7 +383,6 @@ export const es: Messages = {
     skip: 'Omitir',
   },
   rules: {
-    actWithoutAsking: 'Actuar sin preguntar',
     add: 'Añadir regla',
     count: (total: number) =>
       plural('es', total, {
@@ -395,7 +394,6 @@ export const es: Messages = {
       alwaysShow: 'Siempre llega a Hoy',
       autonomous: 'Se hace solo y aparece en gestionados',
       draft: 'Un borrador te espera en Hoy',
-      suggested: 'Se sugiere en Hoy y tú confirmas',
     },
     effect: {
       trash: 'Moverlo a la papelera',
@@ -429,7 +427,6 @@ export const es: Messages = {
     title: 'Reglas',
     whatAgentDoes: 'Qué hace el agente',
     whichEmails: 'Qué correos',
-    withoutAsking: 'Sin preguntar',
   },
   settings: {
     knowledge: {

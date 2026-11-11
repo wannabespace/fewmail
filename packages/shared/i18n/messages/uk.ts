@@ -381,7 +381,6 @@ export const uk: Messages = {
     skip: 'Пропустити',
   },
   rules: {
-    actWithoutAsking: 'Діяти без запиту',
     add: 'Додати правило',
     count: (total: number) =>
       plural('uk', total, {
@@ -395,7 +394,6 @@ export const uk: Messages = {
       alwaysShow: 'Завжди потрапляє в «Сьогодні»',
       autonomous: 'Робиться саме, видно серед опрацьованих',
       draft: 'Чернетка чекає на тебе в «Сьогодні»',
-      suggested: 'Пропонується в «Сьогодні», ти підтверджуєш',
     },
     effect: {
       trash: 'Видалити в кошик',
@@ -429,7 +427,6 @@ export const uk: Messages = {
     title: 'Правила',
     whatAgentDoes: 'Що робить агент',
     whichEmails: 'Які листи',
-    withoutAsking: 'Без запиту',
   },
   settings: {
     knowledge: {

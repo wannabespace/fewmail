@@ -469,7 +469,6 @@ export const tr: Messages = {
     title: 'Harekete geçmeden önce kontrol et',
   },
   rules: {
-    actWithoutAsking: 'Sormadan uygula',
     add: 'Kural ekle',
     count: (total: number) =>
       plural('tr', total, { other: (n) => `${n} kural` }),
@@ -478,7 +477,6 @@ export const tr: Messages = {
       alwaysShow: 'Her zaman Bugün’e düşer',
       autonomous: 'Kendiliğinden yapılır, halledilenlerde listelenir',
       draft: 'Bir taslak Bugün’de seni bekler',
-      suggested: 'Bugün’de önerilir, sen onaylarsın',
     },
     effect: {
       always_show: 'Her zaman göster',
@@ -512,7 +510,6 @@ export const tr: Messages = {
     title: 'Kurallar',
     whatAgentDoes: 'Ajan ne yapar',
     whichEmails: 'Hangi e-postalar',
-    withoutAsking: 'Sormadan',
   },
   settings: {
     account: 'Hesap',

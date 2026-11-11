@@ -149,15 +149,9 @@ const messageId = type({ messageId: 'string.uuid' })
 
 const FREE_EFFECTS = new Set<string>(GMAIL_EFFECTS)
 
-/** Jev matches plain-language rules on every plan; drafting, showing in Today and asking first need the agent. */
-const requireAgentFor = async (
-  userId: string,
-  rule: { autonomous?: boolean; effect?: string }
-) => {
-  if (
-    rule.autonomous === false ||
-    (rule.effect && !FREE_EFFECTS.has(rule.effect))
-  ) {
+/** Jev matches plain-language rules on every plan; drafting and showing in Today need the agent. */
+const requireAgentFor = async (userId: string, rule: { effect?: string }) => {
+  if (rule.effect && !FREE_EFFECTS.has(rule.effect)) {
     await requireAgent(userId)
   }
 }

@@ -80,9 +80,7 @@ const ruleDescription = (t: Messages, rule: Rule) => {
     return t.rules.simple.appliedAutomatically
   }
   if (ACTS_ON_GMAIL.has(rule.effect)) {
-    return rule.autonomous
-      ? t.rules.describe.autonomous
-      : t.rules.describe.suggested
+    return t.rules.describe.autonomous
   }
   return rule.effect === 'draft_reply'
     ? t.rules.describe.draft
@@ -115,15 +113,6 @@ const RuleRow = ({ rule }: { rule: Rule }) => {
           value={rule.effect}
           onChange={(effect) => update.mutate({ effect, id: rule.id })}
         />
-        {!rule.match && ACTS_ON_GMAIL.has(rule.effect) && (
-          <Switch
-            aria-label={t.rules.actWithoutAsking}
-            checked={rule.autonomous}
-            onCheckedChange={(autonomous) =>
-              update.mutate({ autonomous, id: rule.id })
-            }
-          />
-        )}
         <Switch
           aria-label={t.rules.enabled}
           checked={rule.enabled}
@@ -167,7 +156,6 @@ const AgentRuleForm = () => {
   const inputRef = useRuleInput()
   const [instruction, setInstruction] = useState('')
   const [effect, setEffect] = useState<RuleEffect>('archive')
-  const [autonomous, setAutonomous] = useState(true)
 
   const create = useMutation(
     orpc.rules.create.mutationOptions({
@@ -180,7 +168,6 @@ const AgentRuleForm = () => {
   const submit = () =>
     instruction.trim().length > 2 &&
     create.mutate({
-      autonomous: !hasAgent || (ACTS_ON_GMAIL.has(effect) && autonomous),
       effect,
       instruction: instruction.trim(),
     })
@@ -202,13 +189,6 @@ const AgentRuleForm = () => {
           value={effect}
           onChange={setEffect}
         />
-        {hasAgent && ACTS_ON_GMAIL.has(effect) && (
-          // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- Switch renders its control inside the label
-          <label className="text-muted-foreground flex items-center gap-2 text-sm">
-            <Switch checked={autonomous} onCheckedChange={setAutonomous} />
-            {t.rules.withoutAsking}
-          </label>
-        )}
         <Button
           className="ml-auto"
           disabled={create.isPending}

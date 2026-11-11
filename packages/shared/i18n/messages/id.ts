@@ -475,7 +475,6 @@ export const id: Messages = {
     title: 'Cek dulu sebelum bertindak',
   },
   rules: {
-    actWithoutAsking: 'Bertindak tanpa bertanya',
     add: 'Tambah aturan',
     count: (total: number) =>
       plural('id', total, { other: (n) => `${n} aturan` }),
@@ -484,7 +483,6 @@ export const id: Messages = {
       alwaysShow: 'Selalu masuk ke Hari ini',
       autonomous: 'Dikerjakan sendiri, tercatat di yang sudah ditangani',
       draft: 'Draf menunggumu di Hari ini',
-      suggested: 'Disarankan di Hari ini, kamu yang konfirmasi',
     },
     effect: {
       always_show: 'Selalu tampilkan',
@@ -518,7 +516,6 @@ export const id: Messages = {
     title: 'Aturan',
     whatAgentDoes: 'Yang dilakukan agen',
     whichEmails: 'Email yang mana',
-    withoutAsking: 'Tanpa bertanya',
   },
   settings: {
     account: 'Akun',

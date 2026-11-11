@@ -484,7 +484,6 @@ export const en = {
     title: 'Check before you act',
   },
   rules: {
-    actWithoutAsking: 'Act without asking',
     add: 'Add rule',
     count: (total: number) =>
       plural('en', total, { one: () => '1 rule', other: (n) => `${n} rules` }),
@@ -493,7 +492,6 @@ export const en = {
       alwaysShow: 'Always lands in Today',
       autonomous: 'Done on its own, listed under handled',
       draft: 'A draft waits for you in Today',
-      suggested: 'Suggested in Today, you confirm',
     },
     effect: {
       always_show: 'Always show me',
@@ -527,7 +525,6 @@ export const en = {
     title: 'Rules',
     whatAgentDoes: 'What the agent does',
     whichEmails: 'Which emails',
-    withoutAsking: 'Without asking',
   },
   settings: {
     account: 'Account',

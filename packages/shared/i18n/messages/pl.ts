@@ -506,7 +506,6 @@ export const pl: Messages = {
     title: 'Sprawdź, zanim zareagujesz',
   },
   rules: {
-    actWithoutAsking: 'Działaj bez pytania',
     add: 'Dodaj regułę',
     count: (total: number) =>
       plural('pl', total, {
@@ -520,7 +519,6 @@ export const pl: Messages = {
       alwaysShow: 'Zawsze trafia do Dziś',
       autonomous: 'Robione samo, widoczne w załatwionych',
       draft: 'Szkic czeka na ciebie w Dziś',
-      suggested: 'Proponowane w Dziś, ty zatwierdzasz',
     },
     effect: {
       always_show: 'Zawsze pokazuj',
@@ -554,7 +552,6 @@ export const pl: Messages = {
     title: 'Reguły',
     whatAgentDoes: 'Co robi agent',
     whichEmails: 'Które maile',
-    withoutAsking: 'Bez pytania',
   },
   settings: {
     account: 'Konto',

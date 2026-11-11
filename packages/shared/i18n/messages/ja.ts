@@ -359,7 +359,6 @@ export const ja: Messages = {
     noReply: 'まだ返信なし',
   },
   rules: {
-    actWithoutAsking: '確認せずに実行',
     add: 'ルールを追加',
     count: (n: number) => `${n} 件のルール`,
     delete: '削除',
@@ -367,7 +366,6 @@ export const ja: Messages = {
       alwaysShow: '常に「今日」に表示',
       autonomous: '自動で実行し、対応済みに表示',
       draft: '下書きが「今日」で待っています',
-      suggested: '「今日」で提案し、あなたが確認',
     },
     effect: {
       trash: 'ゴミ箱に移動',
@@ -401,7 +399,6 @@ export const ja: Messages = {
     title: 'ルール',
     whatAgentDoes: 'エージェントの動作',
     whichEmails: '対象のメール',
-    withoutAsking: '確認なし',
   },
   settings: {
     knowledge: {

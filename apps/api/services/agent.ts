@@ -183,21 +183,18 @@ const recordRuleAction = async (
     userId: string
   }
 ) => {
-  const done = rule.autonomous
-    ? await applyEffect(message.userId, message, rule.effect).then(
-        () => true,
-        () => false
-      )
-    : false
-  const autonomousStatus = done ? 'auto_done' : 'failed'
+  const done = await applyEffect(message.userId, message, rule.effect).then(
+    () => true,
+    () => false
+  )
   await db.insert(actions).values({
     ...base,
-    autonomous: rule.autonomous,
+    autonomous: true,
     kind: rule.effect,
     reason: rule.instruction ?? '',
     resolvedAt: done ? new Date() : null,
     ruleId: rule.id,
-    status: rule.autonomous ? autonomousStatus : 'pending',
+    status: done ? 'auto_done' : 'failed',
   })
 }
 
@@ -386,11 +383,9 @@ const queueForAgent = async (
   }
 }
 
-/** Without Today a free account cannot confirm a suggestion, so only rules that act on their own run. */
+/** Without Today a free account cannot see a draft or a pinned email, so only rules that act on Gmail run. */
 const isFreeRule = (rule: Rule) =>
-  rule.autonomous &&
-  rule.effect !== 'always_show' &&
-  rule.effect !== 'draft_reply'
+  rule.effect !== 'always_show' && rule.effect !== 'draft_reply'
 
 export const analyzeMessage = async (
   message: Message,

@@ -489,7 +489,6 @@ export const pt: Messages = {
     title: 'Verifique antes de agir',
   },
   rules: {
-    actWithoutAsking: 'Agir sem perguntar',
     add: 'Adicionar regra',
     count: (total: number) =>
       plural('pt', total, {
@@ -501,7 +500,6 @@ export const pt: Messages = {
       alwaysShow: 'Sempre aparece em Hoje',
       autonomous: 'Feito sozinho, listado em resolvidos',
       draft: 'Um rascunho espera por você em Hoje',
-      suggested: 'Sugerido em Hoje, você confirma',
     },
     effect: {
       always_show: 'Sempre me mostrar',
@@ -535,7 +533,6 @@ export const pt: Messages = {
     title: 'Regras',
     whatAgentDoes: 'O que o agente faz',
     whichEmails: 'Quais e-mails',
-    withoutAsking: 'Sem perguntar',
   },
   settings: {
     account: 'Conta',

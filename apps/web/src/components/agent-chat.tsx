@@ -73,7 +73,6 @@ interface Known {
 
 interface ToolInput {
   actionId?: string
-  autonomous?: boolean
   effect?: keyof Messages['rules']['effect']
   goal?: string
   instruction?: string
@@ -261,7 +260,6 @@ const OtherDetails = ({ input, name }: { input: ToolInput; name: string }) => {
           <span className="text-muted-foreground">
             {' · '}
             {t.rules.effect[input.effect]}
-            {input.autonomous && ` · ${t.rules.withoutAsking}`}
           </span>
         </p>
       )}

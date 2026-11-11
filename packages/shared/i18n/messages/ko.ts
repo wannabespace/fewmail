@@ -359,7 +359,6 @@ export const ko: Messages = {
     noReply: '아직 답장 없음',
   },
   rules: {
-    actWithoutAsking: '묻지 않고 실행',
     add: '규칙 추가',
     count: (n: number) => `규칙 ${n}개`,
     delete: '삭제',
@@ -367,7 +366,6 @@ export const ko: Messages = {
       alwaysShow: '항상 오늘에 표시',
       autonomous: '자동으로 처리하고 처리됨에 표시',
       draft: '초안이 오늘에서 기다려요',
-      suggested: '오늘에서 제안하고 직접 확인',
     },
     effect: {
       trash: '휴지통으로 이동',
@@ -401,7 +399,6 @@ export const ko: Messages = {
     title: '규칙',
     whatAgentDoes: '에이전트가 할 일',
     whichEmails: '대상 메일',
-    withoutAsking: '묻지 않고',
   },
   settings: {
     knowledge: {

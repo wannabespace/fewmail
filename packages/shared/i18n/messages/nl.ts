@@ -490,7 +490,6 @@ export const nl: Messages = {
     title: 'Controleer voordat je iets doet',
   },
   rules: {
-    actWithoutAsking: 'Handelen zonder te vragen',
     add: 'Regel toevoegen',
     count: (total: number) =>
       plural('nl', total, {
@@ -502,7 +501,6 @@ export const nl: Messages = {
       alwaysShow: 'Komt altijd in Vandaag',
       autonomous: 'Wordt zelf gedaan, staat bij afgehandeld',
       draft: 'Een concept wacht op je in Vandaag',
-      suggested: 'Voorgesteld in Vandaag, jij bevestigt',
     },
     effect: {
       always_show: 'Altijd tonen',
@@ -536,7 +534,6 @@ export const nl: Messages = {
     title: 'Regels',
     whatAgentDoes: 'Wat de agent doet',
     whichEmails: 'Welke e-mails',
-    withoutAsking: 'Zonder te vragen',
   },
   settings: {
     account: 'Account',

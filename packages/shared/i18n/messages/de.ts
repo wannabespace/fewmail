@@ -382,7 +382,6 @@ export const de: Messages = {
     skip: 'Überspringen',
   },
   rules: {
-    actWithoutAsking: 'Ohne Nachfrage handeln',
     add: 'Regel hinzufügen',
     count: (total: number) =>
       plural('de', total, {
@@ -394,7 +393,6 @@ export const de: Messages = {
       alwaysShow: 'Landet immer in Heute',
       autonomous: 'Wird selbst erledigt, steht unter Erledigt',
       draft: 'Ein Entwurf wartet in Heute auf dich',
-      suggested: 'Wird in Heute vorgeschlagen, du bestätigst',
     },
     effect: {
       trash: 'In den Papierkorb',
@@ -429,7 +427,6 @@ export const de: Messages = {
     title: 'Regeln',
     whatAgentDoes: 'Was der Agent tut',
     whichEmails: 'Welche Mails',
-    withoutAsking: 'Ohne Nachfrage',
   },
   settings: {
     knowledge: {
