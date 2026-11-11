@@ -40,8 +40,8 @@ export const mailboxes = d.snakeCase.table('mailboxes', {
     .default({})
     .notNull(),
   lastSyncedAt: d.timestamp({ withTimezone: true }),
-  /** Money history read once the agent is on; null until then, so an upgrade reads it too. */
-  moneyHistoryAt: d.timestamp({ withTimezone: true }),
+  /** Null until the default boards were created; set once the agent is on, so an upgrade gets them too. */
+  boardsSeededAt: d.timestamp({ withTimezone: true }),
   syncError: encryptedText(),
   /** Claimed atomically: the API and the worker both sync, and a doubled sync would analyze mail twice. */
   syncStartedAt: d.timestamp({ withTimezone: true }),

@@ -4,6 +4,7 @@ import { db } from '@fewmail/db'
 import {
   actions,
   analyses,
+  boards,
   briefs,
   mailboxes,
   userSettings,
@@ -12,6 +13,7 @@ import { IMPORTANCE } from '@fewmail/shared/agent'
 import { subMinutes } from 'date-fns'
 import { and, eq, gte, isNotNull, isNull, lt, or } from 'drizzle-orm'
 
+import { seedBoards } from './services/boards'
 import { generateBrief, isBriefDue } from './services/brief'
 import { offerCleanup } from './services/cleanup'
 import { chatIdForUser } from './services/integrations'
@@ -29,7 +31,7 @@ import {
   processDueCommitments,
   processDueReminders,
 } from './services/reminders'
-import { ensureMailbox, readMoneyHistory, syncMailbox } from './services/sync'
+import { ensureMailbox, readBoardHistory, syncMailbox } from './services/sync'
 import { sendBrief, sendUrgent } from './telegram'
 import { sendWhatsappBrief, sendWhatsappUrgent } from './whatsapp'
 
@@ -79,21 +81,35 @@ const syncDueMailboxes = async () => {
   ])
 }
 
-/** After the first sync, so the inbox is read before the history. */
-const readDueMoneyHistory = async () => {
+/** After the first sync, so the inbox is read before any history. */
+const seedDueBoards = async () => {
   const due = await db
     .select()
     .from(mailboxes)
     .where(
-      and(isNull(mailboxes.moneyHistoryAt), isNotNull(mailboxes.lastSyncedAt))
+      and(isNull(mailboxes.boardsSeededAt), isNotNull(mailboxes.lastSyncedAt))
     )
   await Promise.all(
     due.map((mailbox) =>
-      once(`money-history:${mailbox.userId}`, async () => {
-        if (hasAgent(await getPlanInfo(mailbox.userId))) {
-          await readMoneyHistory(mailbox)
+      once(`boards-seed:${mailbox.userId}`, async () => {
+        if (!hasAgent(await getPlanInfo(mailbox.userId))) {
+          return
         }
+        await seedBoards(mailbox.userId)
+        await db
+          .update(mailboxes)
+          .set({ boardsSeededAt: new Date() })
+          .where(eq(mailboxes.id, mailbox.id))
       })
+    )
+  )
+}
+
+const readDueBoardHistory = async () => {
+  const due = await db.select().from(boards).where(isNull(boards.historyReadAt))
+  await Promise.all(
+    due.map((board) =>
+      once(`board-history:${board.id}`, () => readBoardHistory(board))
     )
   )
 }
@@ -173,7 +189,8 @@ const tick = async () => {
   try {
     await Promise.all([
       syncDueMailboxes(),
-      readDueMoneyHistory(),
+      seedDueBoards(),
+      readDueBoardHistory(),
       once('briefs', sendDueBriefs),
       once('urgent', pushUrgent),
       once('outbox', dispatchDueOutbox),

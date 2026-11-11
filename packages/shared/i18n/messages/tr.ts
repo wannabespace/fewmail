@@ -7,7 +7,6 @@ export const tr: Messages = {
     cleanup: 'Hepsinden çık',
     commitment: 'Tamam',
     security: 'Kontrol ettim',
-    subscription: 'Anladım',
     task: 'Gönder',
     spam: 'Spama taşındı',
     archive: 'Arşivle',
@@ -32,6 +31,59 @@ export const tr: Messages = {
     thinking: 'E-postalarına bakılıyor…',
   },
   byRule: 'bir kuralla',
+  boards: {
+    chart: {
+      add: 'Grafik ekle',
+      edit: 'Grafik ayarları',
+      empty: 'Henüz çizilecek bir şey yok',
+      groupBy: 'Gruplama',
+      groupings: {
+        group: 'Kim veya ne',
+        month: 'Ay',
+        status: 'Durum',
+        week: 'Hafta',
+      },
+      measure: 'Gösterilen',
+      measures: { count: 'Adet', sum: 'Toplam tutar' },
+      other: 'Diğer',
+      remove: 'Grafiği kaldır',
+      title: 'Grafik başlığı',
+      type: 'Grafik türü',
+      types: {
+        area: 'Alan',
+        bar: 'Çubuk',
+        line: 'Çizgi',
+        pie: 'Pasta',
+      },
+      untitled: 'Yeni grafik',
+    },
+    charts: 'Grafikler',
+    create: 'Pano oluştur',
+    delete: 'Panoyu sil',
+    description: 'Neleri topladığı',
+    descriptionPlaceholder:
+      'Seyahatler: uçuşlar, oteller ve araç kiralama, maliyetleriyle',
+    edit: 'Panoyu düzenle',
+    editHint: 'Neleri topladığını değiştirirsen son altı ay yeniden okunur.',
+    empty: 'Henüz boş. Uygun e-postalar gelir gelmez burada görünür.',
+    entries: (total: number) =>
+      plural('tr', total, { other: (n) => `${n} kayıt` }),
+    name: 'Ad',
+    namePlaceholder: 'Seyahatler',
+    new: 'Yeni pano',
+    newHint:
+      'Neyin toplanacağını kendi kelimelerinle anlat. Fewmail son altı ayın postalarında bulur, grafikleri seçer ve panoyu güncel tutar.',
+    planning: 'Hazırlanıyor…',
+    readingHistory: 'Son altı ayın postaları okunuyor…',
+    save: 'Kaydet',
+    starter: {
+      money: {
+        description:
+          'Ödemeler, abonelikler, faturalar ve iadeler: neye, kime ve ne kadar ödediğim.',
+        name: 'Para',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `${n}+ Fewmail kullanıcısına gönderildi`,
     reason: (n: number) =>
@@ -204,24 +256,9 @@ export const tr: Messages = {
       'Bu gönderen tek tıkla abonelikten çıkmayı desteklemiyor, bu yüzden e-posta arşivlendi.',
     you: 'Sen',
   },
-  money: {
-    due: (date: string) => `Son ödeme ${date}`,
-    empty:
-      'Henüz bir şey yok. Fişler, faturalar ve abonelikler geldikçe burada görünür.',
-    lastCharged: (date: string) => `Son ödeme alındı: ${date}`,
-    lead: 'Fewmail’in fişlerinde ve faturalarında bulduğu her şey.',
-    monthlyTotal: 'Aylık abonelik tutarı',
-    period: { month: 'aylık', week: 'haftalık', year: 'yıllık' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} artık ${to} (önceden ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} zamlandı`,
-    recent: 'Son alışverişler',
-    subscriptions: 'Abonelikler',
-    title: 'Para',
-    upcoming: 'Yaklaşan ödemeler',
-  },
   nav: {
-    money: 'Para',
+    boards: 'Panolar',
+    newBoard: 'Yeni pano',
     mail: 'Posta',
     rules: 'Kurallar',
     search: 'Ara veya sor…',

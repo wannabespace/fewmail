@@ -7,7 +7,6 @@ export const pt: Messages = {
     cleanup: 'Cancelar todas',
     commitment: 'Feito',
     security: 'Já verifiquei',
-    subscription: 'Entendi',
     task: 'Enviar',
     spam: 'Movido para spam',
     archive: 'Arquivar',
@@ -32,6 +31,63 @@ export const pt: Messages = {
     thinking: 'Procurando nos seus e-mails…',
   },
   byRule: 'por uma regra',
+  boards: {
+    chart: {
+      add: 'Adicionar gráfico',
+      edit: 'Ajustes do gráfico',
+      empty: 'Ainda não há nada para mostrar',
+      groupBy: 'Agrupado por',
+      groupings: {
+        group: 'Quem ou o quê',
+        month: 'Mês',
+        status: 'Status',
+        week: 'Semana',
+      },
+      measure: 'Mostra',
+      measures: { count: 'Quantidade', sum: 'Valor total' },
+      other: 'Outros',
+      remove: 'Remover gráfico',
+      title: 'Título do gráfico',
+      type: 'Tipo de gráfico',
+      types: {
+        area: 'Área',
+        bar: 'Barras',
+        line: 'Linha',
+        pie: 'Pizza',
+      },
+      untitled: 'Novo gráfico',
+    },
+    charts: 'Gráficos',
+    create: 'Criar painel',
+    delete: 'Excluir painel',
+    description: 'O que ele reúne',
+    descriptionPlaceholder:
+      'Viagens: voos, hotéis e aluguel de carro, com quanto custaram',
+    edit: 'Editar painel',
+    editHint:
+      'Se você mudar o que ele reúne, os últimos seis meses são lidos de novo.',
+    empty: 'Ainda vazio. E-mails que combinam aparecem aqui assim que chegam.',
+    entries: (total: number) =>
+      plural('pt', total, {
+        one: () => 'Um registro',
+        other: (n) => `${n} registros`,
+      }),
+    name: 'Nome',
+    namePlaceholder: 'Viagens',
+    new: 'Novo painel',
+    newHint:
+      'Descreva com suas palavras o que reunir. O Fewmail encontra isso nos e-mails dos últimos seis meses, escolhe os gráficos e mantém tudo atualizado.',
+    planning: 'Preparando…',
+    readingHistory: 'Lendo os e-mails dos últimos seis meses…',
+    save: 'Salvar',
+    starter: {
+      money: {
+        description:
+          'Pagamentos, assinaturas, contas e reembolsos: pelo que pago, a quem e quanto.',
+        name: 'Dinheiro',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `Enviado para ${n}+ usuários do Fewmail`,
     reason: (n: number) =>
@@ -213,24 +269,9 @@ export const pt: Messages = {
       'Este remetente não tem cancelamento de inscrição com um clique, então o e-mail foi arquivado.',
     you: 'Você',
   },
-  money: {
-    due: (date: string) => `Vence em ${date}`,
-    empty:
-      'Nada ainda. Recibos, faturas e assinaturas aparecem aqui assim que chegam.',
-    lastCharged: (date: string) => `Última cobrança em ${date}`,
-    lead: 'Tudo o que o Fewmail encontrou nos seus recibos e contas.',
-    monthlyTotal: 'Por mês em assinaturas',
-    period: { month: 'mensal', week: 'semanal', year: 'anual' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} agora custa ${to} (antes ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} ficou mais caro`,
-    recent: 'Compras recentes',
-    subscriptions: 'Assinaturas',
-    title: 'Dinheiro',
-    upcoming: 'Contas a vencer',
-  },
   nav: {
-    money: 'Dinheiro',
+    boards: 'Painéis',
+    newBoard: 'Novo painel',
     mail: 'E-mail',
     rules: 'Regras',
     search: 'Buscar ou perguntar…',

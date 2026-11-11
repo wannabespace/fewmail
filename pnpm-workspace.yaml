@@ -91,6 +91,7 @@ catalog:
   zod: ^4.6.7
   web-push: ^3.6.7
   '@types/web-push': ^3.6.4
+  recharts: ^3.10.1
 allowBuilds:
   bun: true
   esbuild: true

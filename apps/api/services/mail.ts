@@ -30,13 +30,7 @@ export { NotFoundError } from './mail-errors'
 
 const ARCHIVE = { remove: ['INBOX', 'UNREAD'] }
 /** Kinds whose approval only acknowledges; the email stays as it is. */
-const NO_GMAIL_CHANGE = new Set([
-  'security',
-  'commitment',
-  'subscription',
-  'task',
-  'cleanup',
-])
+const NO_GMAIL_CHANGE = new Set(['security', 'commitment', 'task', 'cleanup'])
 const MARK_READ = { remove: ['UNREAD'] }
 
 const messageSummary = {

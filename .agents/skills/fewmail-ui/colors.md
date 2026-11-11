@@ -30,3 +30,7 @@ Shadows are tinted warm brown (`rgb(60 40 20 / …)`), never black, in light mod
 ## Selection & secondary fills
 
 `bg-secondary` (`#EFE7DA`-ish) is the warm chip/fill: secondary buttons, the active nav item, draft blocks (`bg-secondary/60`), agent analysis blocks (`bg-secondary/50`).
+
+## Charts
+
+Boards draw with the EvilCharts registry (`packages/ui/src/components/evilcharts`, Recharts underneath), wrapped once in `apps/web/src/components/board-chart.tsx`. Every series is the one accent, `var(--primary)`; a pie steps that accent's strength (`color-mix` toward transparent) instead of adding hues, since a second color would read as a category. A chart sits in a `bg-card` ring card with its title in sans and a ghost settings `IconButton` opening its editor popover.

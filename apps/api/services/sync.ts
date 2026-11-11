@@ -2,6 +2,7 @@ import { db } from '@fewmail/db'
 import {
   actions,
   analyses,
+  boards,
   mailboxes,
   messages,
   users,
@@ -10,6 +11,7 @@ import { ANALYZE_WINDOW_DAYS } from '@fewmail/shared/agent'
 import { subDays, subMinutes } from 'date-fns'
 import { and, eq, gte, inArray, isNull, lt, notExists, or } from 'drizzle-orm'
 
+import { inBatches } from '../lib/batches'
 import {
   getMessage,
   getProfile,
@@ -20,8 +22,8 @@ import {
 import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage } from './agent'
+import { collectEntries, collectForNewMail } from './boards'
 import { measureBulk } from './bulk'
-import { recordCharge } from './money'
 import { getPlanInfo, hasAgent } from './plan'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
@@ -35,9 +37,8 @@ const INITIAL_INBOX_LIMIT = 60
 const VOICE_SAMPLE_QUERY = 'in:sent newer_than:60d'
 const VOICE_SAMPLE_LIMIT = 15
 const ANALYZE_CONCURRENCY = 4
-/** Receipts, invoices and cancellations of the last half year; the newest days are the regular sync's. */
-const MONEY_HISTORY_QUERY = `newer_than:6m older_than:${ANALYZE_WINDOW_DAYS}d -category:promotions -in:chats (category:purchases OR subject:(receipt OR invoice OR subscription OR renewal OR payment OR billing OR order OR cancel OR cancelled OR canceled OR trial OR plan))`
-const MONEY_HISTORY_LIMIT = 500
+const BOARD_HISTORY = 'newer_than:6m'
+const BOARD_HISTORY_LIMIT = 300
 /** A sync that died without releasing its claim (a crash, a deploy) is taken over after this. */
 const SYNC_CLAIM_MINUTES = 15
 
@@ -88,17 +89,6 @@ const newMessageIds = async (mailbox: Mailbox) => {
     historyId,
     ids: [...new Set([...inbox, ...sent])],
     labelChanges: new Map<string, string[]>(),
-  }
-}
-
-const inBatches = async <T>(
-  items: T[],
-  size: number,
-  run: (item: T) => Promise<unknown>
-) => {
-  for (let index = 0; index < items.length; index += size) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- batches cap concurrency
-    await Promise.allSettled(items.slice(index, index + size).map(run))
   }
 }
 
@@ -171,6 +161,7 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   if (!hasAgent(await getPlanInfo(userId))) {
     return
   }
+  await collectForNewMail(userId, inserted)
   await advanceTasksFor(userId, [
     ...new Set(
       inserted
@@ -287,25 +278,30 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
   }
 }
 
-/** Pro: the Money page starts with half a year of subscriptions instead of only what arrives from now on. */
-export const readMoneyHistory = async (mailbox: Mailbox) => {
+/** Pro: a new board starts with half a year of its mail, not only what arrives from now on. */
+export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
+  const mailbox = await ensureMailbox(board.userId)
   const ids = await listMessageIds(
-    mailbox.userId,
-    MONEY_HISTORY_QUERY,
-    MONEY_HISTORY_LIMIT
+    board.userId,
+    `(${board.gmailQuery}) ${BOARD_HISTORY}`,
+    BOARD_HISTORY_LIMIT
   )
-  const inserted = await insertMessages(mailbox, ids)
-  await inBatches(
-    inserted.filter((message) => !message.isFromMe),
-    ANALYZE_CONCURRENCY,
-    (message) =>
-      recordCharge(message).catch((error) =>
-        console.error(`money history ${message.id} failed`, error)
-      )
-  )
+  await insertMessages(mailbox, ids)
+  const found = ids.length
+    ? await db
+        .select()
+        .from(messages)
+        .where(
+          and(
+            eq(messages.mailboxId, mailbox.id),
+            inArray(messages.gmailId, ids)
+          )
+        )
+    : []
+  await collectEntries(board, found)
   await db
-    .update(mailboxes)
-    .set({ moneyHistoryAt: new Date() })
-    .where(eq(mailboxes.id, mailbox.id))
-  await announceChange(mailbox.userId)
+    .update(boards)
+    .set({ historyReadAt: new Date() })
+    .where(eq(boards.id, board.id))
+  await announceChange(board.userId)
 }

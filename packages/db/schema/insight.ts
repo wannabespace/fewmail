@@ -1,16 +1,15 @@
 import type {
-  BillingPeriod,
+  BoardChart,
   DomainList,
   PatternKind,
   SpamVerdict,
   TaskAutonomy,
   TaskStatus,
-  TransactionKind,
 } from '@fewmail/shared/agent'
 import * as d from 'drizzle-orm/pg-core'
 
 import { baseTable } from '../base-table'
-import { encryptedText, searchableText } from '../utils'
+import { encryptedJson, encryptedText, searchableText } from '../utils'
 import { users } from './auth'
 import { messages } from './mail'
 
@@ -117,26 +116,46 @@ export const people = d.snakeCase.table(
   ]
 )
 
-export const transactions = d.snakeCase.table(
-  'transactions',
+/** A page the user describes in their own words; the agent turns the description into a Gmail query and the charts. */
+export const boards = d.snakeCase.table(
+  'boards',
   {
     ...baseTable,
-    amountCents: d.integer().notNull(),
-    chargedAt: d.timestamp({ withTimezone: true }).notNull(),
-    currency: d.text().notNull(),
-    dueAt: d.timestamp({ withTimezone: true }),
-    kind: d.text().$type<TransactionKind>().notNull(),
-    merchant: searchableText().notNull(),
+    charts: encryptedJson<BoardChart[]>().notNull(),
+    description: encryptedText().notNull(),
+    gmailQuery: encryptedText().notNull(),
+    /** Null until the last half year was read; a new description resets it. */
+    historyReadAt: d.timestamp({ withTimezone: true }),
+    name: encryptedText().notNull(),
+    userId: userId(),
+  },
+  (table) => [d.index('boards_user_idx').on(table.userId)]
+)
+
+export const boardEntries = d.snakeCase.table(
+  'board_entries',
+  {
+    ...baseTable,
+    amountCents: d.integer(),
+    boardId: d
+      .uuid()
+      .notNull()
+      .references(() => boards.id, { onDelete: 'cascade' }),
+    currency: d.text(),
+    group: encryptedText(),
     messageId: d
       .uuid()
       .notNull()
-      .unique()
       .references(() => messages.id, { onDelete: 'cascade' }),
-    period: d.text().$type<BillingPeriod>(),
+    occurredAt: d.timestamp({ withTimezone: true }).notNull(),
+    status: encryptedText(),
+    title: encryptedText().notNull(),
     userId: userId(),
   },
   (table) => [
-    d.index('transactions_user_merchant_idx').on(table.userId, table.merchant),
+    d
+      .uniqueIndex('board_entries_board_message_idx')
+      .on(table.boardId, table.messageId),
   ]
 )
 

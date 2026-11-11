@@ -21,6 +21,7 @@ import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
 import { AskAnswer } from './ask-answer'
+import { newBoardStore } from './board-dialog'
 import { useCompose } from './compose/compose-context'
 import { visibleNavItems } from './nav'
 
@@ -141,6 +142,11 @@ export const CommandMenu = ({
             >
               {t.command.teachRule}
             </CommandItem>
+            {hasAgent && (
+              <CommandItem onSelect={() => run(() => newBoardStore.set(true))}>
+                {t.nav.newBoard}
+              </CommandItem>
+            )}
             {!hasAgent && (
               <CommandItem
                 onSelect={() => run(() => navigate({ to: '/settings' }))}

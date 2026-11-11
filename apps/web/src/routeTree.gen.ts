@@ -16,12 +16,12 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppMailRouteImport } from './routes/_app/mail'
-import { Route as AppMoneyRouteImport } from './routes/_app/money'
 import { Route as AppRulesRouteImport } from './routes/_app/rules'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
+import { Route as AppBoardsBoardIdRouteImport } from './routes/_app/boards.$boardId'
 import { Route as SiteCompareIndexRouteImport } from './routes/_site/compare.index'
 import { Route as SiteCompareSlugRouteImport } from './routes/_site/compare.$slug'
 
@@ -58,11 +58,6 @@ const AppMailRoute = AppMailRouteImport.update({
   path: '/mail',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMoneyRoute = AppMoneyRouteImport.update({
-  id: '/money',
-  path: '/money',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppRulesRoute = AppRulesRouteImport.update({
   id: '/rules',
   path: '/rules',
@@ -88,6 +83,11 @@ const SitePricingRoute = SitePricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => SiteRoute,
 } as any)
+const AppBoardsBoardIdRoute = AppBoardsBoardIdRouteImport.update({
+  id: '/boards/$boardId',
+  path: '/boards/$boardId',
+  getParentRoute: () => AppRoute,
+} as any)
 const SiteCompareIndexRoute = SiteCompareIndexRouteImport.update({
   id: '/compare/',
   path: '/compare/',
@@ -106,11 +106,11 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/mail': typeof AppMailRoute
-  '/money': typeof AppMoneyRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/today': typeof AppTodayRoute
   '/pricing': typeof SitePricingRoute
+  '/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare/': typeof SiteCompareIndexRoute
 }
@@ -121,11 +121,11 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/mail': typeof AppMailRoute
-  '/money': typeof AppMoneyRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/today': typeof AppTodayRoute
   '/pricing': typeof SitePricingRoute
+  '/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare': typeof SiteCompareIndexRoute
 }
@@ -138,12 +138,12 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_app/mail': typeof AppMailRoute
-  '/_app/money': typeof AppMoneyRoute
   '/_app/rules': typeof AppRulesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/today': typeof AppTodayRoute
   '/_site/pricing': typeof SitePricingRoute
   '/_site/': typeof SiteIndexRoute
+  '/_app/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/_site/compare/$slug': typeof SiteCompareSlugRoute
   '/_site/compare/': typeof SiteCompareIndexRoute
 }
@@ -156,11 +156,11 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/mail'
-    | '/money'
     | '/rules'
     | '/settings'
     | '/today'
     | '/pricing'
+    | '/boards/$boardId'
     | '/compare/$slug'
     | '/compare/'
   fileRoutesByTo: FileRoutesByTo
@@ -171,11 +171,11 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/mail'
-    | '/money'
     | '/rules'
     | '/settings'
     | '/today'
     | '/pricing'
+    | '/boards/$boardId'
     | '/compare/$slug'
     | '/compare'
   id:
@@ -187,12 +187,12 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/_app/mail'
-    | '/_app/money'
     | '/_app/rules'
     | '/_app/settings'
     | '/_app/today'
     | '/_site/pricing'
     | '/_site/'
+    | '/_app/boards/$boardId'
     | '/_site/compare/$slug'
     | '/_site/compare/'
   fileRoutesById: FileRoutesById
@@ -257,13 +257,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMailRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/money': {
-      id: '/_app/money'
-      path: '/money'
-      fullPath: '/money'
-      preLoaderRoute: typeof AppMoneyRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/rules': {
       id: '/_app/rules'
       path: '/rules'
@@ -299,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitePricingRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_app/boards/$boardId': {
+      id: '/_app/boards/$boardId'
+      path: '/boards/$boardId'
+      fullPath: '/boards/$boardId'
+      preLoaderRoute: typeof AppBoardsBoardIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_site/compare/': {
       id: '/_site/compare/'
       path: '/compare'
@@ -318,18 +318,18 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppMailRoute: typeof AppMailRoute
-  AppMoneyRoute: typeof AppMoneyRoute
   AppRulesRoute: typeof AppRulesRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppTodayRoute: typeof AppTodayRoute
+  AppBoardsBoardIdRoute: typeof AppBoardsBoardIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppMailRoute: AppMailRoute,
-  AppMoneyRoute: AppMoneyRoute,
   AppRulesRoute: AppRulesRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppTodayRoute: AppTodayRoute,
+  AppBoardsBoardIdRoute: AppBoardsBoardIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

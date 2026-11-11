@@ -1,6 +1,9 @@
 import { db } from '@fewmail/db'
 import { messages } from '@fewmail/db/schema'
 import {
+  BOARD_CHART_TYPES,
+  BOARD_GROUPINGS,
+  BOARD_MEASURES,
   DEVICE_KINDS,
   FOLLOWUP_DAYS,
   GMAIL_EFFECTS,
@@ -22,6 +25,13 @@ import { writeReply } from '../services/agent'
 import { askMail } from '../services/ask'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
+import {
+  createBoard,
+  deleteBoard,
+  getBoard,
+  listBoards,
+  updateBoard,
+} from '../services/boards'
 import { generateBrief, getToday } from '../services/brief'
 import {
   createApiKey,
@@ -48,7 +58,6 @@ import {
   unsubscribeMessage,
 } from '../services/mail'
 import { NotFoundError } from '../services/mail-errors'
-import { getMoney } from '../services/money'
 import {
   registerDevice,
   removeDevice,
@@ -70,6 +79,15 @@ import { ensureMailbox, syncMailbox } from '../services/sync'
 import { cancelTask, createTask } from '../services/tasks'
 
 const id = type({ id: 'string.uuid' })
+
+const boardChart = type({
+  groupBy: type.enumerated(...BOARD_GROUPINGS),
+  id: 'string',
+  measure: type.enumerated(...BOARD_MEASURES),
+  title: 'string',
+  type: type.enumerated(...BOARD_CHART_TYPES),
+})
+const boardText = { description: 'string > 2', name: 'string > 0' } as const
 
 const settingsInput = type({
   'briefHour?': '0 <= number.integer <= 23',
@@ -126,6 +144,30 @@ const requireAgentFor = async (
 }
 
 export const router = {
+  boards: {
+    create: agent.input(type(boardText)).handler(async ({ context, input }) => {
+      const board = await createBoard(context.user.id, input)
+      return { id: board.id }
+    }),
+    delete: agent.input(id).handler(async ({ context, input }) => {
+      await deleteBoard(context.user.id, input.id)
+    }),
+    get: agent
+      .input(id)
+      .handler(({ context, input }) => getBoard(context.user.id, input.id)),
+    list: agent.handler(({ context }) => listBoards(context.user.id)),
+    update: agent
+      .input(
+        id.and({
+          'charts?': boardChart.array(),
+          'description?': boardText.description,
+          'name?': boardText.name,
+        })
+      )
+      .handler(async ({ context, input: { id: boardId, ...input } }) => {
+        await updateBoard(context.user.id, boardId, input)
+      }),
+  },
   actions: {
     approve: agent
       .input(id.and({ 'detail?': 'string' }))
@@ -320,7 +362,6 @@ export const router = {
         return updateRule(context.user.id, ruleId, change)
       }),
   },
-  money: agent.handler(({ context }) => getMoney(context.user.id)),
   person: agent
     .input(type({ email: 'string.email' }))
     .handler(({ context, input }) => getPerson(context.user.id, input.email)),

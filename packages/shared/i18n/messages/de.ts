@@ -70,7 +70,6 @@ export const de: Messages = {
     cleanup: 'Alle abbestellen',
     commitment: 'Erledigt',
     security: 'Geprüft',
-    subscription: 'Verstanden',
     task: 'Senden',
     spam: 'In Spam verschoben',
     trash: 'In den Papierkorb',
@@ -206,7 +205,8 @@ export const de: Messages = {
     you: 'Du',
   },
   nav: {
-    money: 'Geld',
+    boards: 'Boards',
+    newBoard: 'Neues Board',
     mail: 'Mail',
     rules: 'Regeln',
     search: 'Suchen oder fragen…',
@@ -504,6 +504,63 @@ export const de: Messages = {
     writeNow: 'Jetzt schreiben',
     writing: 'Schreibe…',
   },
+  boards: {
+    chart: {
+      add: 'Diagramm hinzufügen',
+      edit: 'Diagramm-Einstellungen',
+      empty: 'Noch nichts zu zeichnen',
+      groupBy: 'Gruppiert nach',
+      groupings: {
+        group: 'Wer oder was',
+        month: 'Monat',
+        status: 'Status',
+        week: 'Woche',
+      },
+      measure: 'Zeigt',
+      measures: { count: 'Anzahl', sum: 'Gesamtbetrag' },
+      other: 'Sonstiges',
+      remove: 'Diagramm entfernen',
+      title: 'Diagrammtitel',
+      type: 'Diagrammtyp',
+      types: {
+        area: 'Fläche',
+        bar: 'Balken',
+        line: 'Linie',
+        pie: 'Kreis',
+      },
+      untitled: 'Neues Diagramm',
+    },
+    charts: 'Diagramme',
+    create: 'Board erstellen',
+    delete: 'Board löschen',
+    description: 'Was es sammelt',
+    descriptionPlaceholder:
+      'Reisen: Flüge, Hotels und Mietwagen, mit den Kosten',
+    edit: 'Board bearbeiten',
+    editHint:
+      'Wenn du änderst, was es sammelt, werden die letzten sechs Monate neu gelesen.',
+    empty: 'Noch leer. Passende E-Mails erscheinen hier, sobald sie ankommen.',
+    entries: (total: number) =>
+      plural('de', total, {
+        one: () => 'Ein Eintrag',
+        other: (n) => `${n} Einträge`,
+      }),
+    name: 'Name',
+    namePlaceholder: 'Reisen',
+    new: 'Neues Board',
+    newHint:
+      'Beschreibe in eigenen Worten, was gesammelt werden soll. Fewmail findet es in den Mails der letzten sechs Monate, wählt die Diagramme und hält alles aktuell.',
+    planning: 'Wird eingerichtet…',
+    readingHistory: 'Lese die Mails der letzten sechs Monate…',
+    save: 'Speichern',
+    starter: {
+      money: {
+        description:
+          'Zahlungen, Abos, Rechnungen und Erstattungen: wofür ich zahle, an wen und wie viel.',
+        name: 'Geld',
+      },
+    },
+  },
   bulk: {
     badge: (n: number) => `An ${n}+ Fewmail-Nutzer gesendet`,
     reason: (n: number) =>
@@ -524,22 +581,6 @@ export const de: Messages = {
   },
   commitments: {
     title: 'Du hast versprochen',
-  },
-  money: {
-    due: (date: string) => `Fällig am ${date}`,
-    empty:
-      'Noch nichts. Belege, Rechnungen und Abos erscheinen hier, sobald sie ankommen.',
-    lastCharged: (date: string) => `Zuletzt abgebucht am ${date}`,
-    lead: 'Alles, was Fewmail in deinen Belegen und Rechnungen gefunden hat.',
-    monthlyTotal: 'Jeden Monat für Abos',
-    period: { month: 'monatlich', week: 'wöchentlich', year: 'jährlich' },
-    priceUp: (merchant: string, from: string, to: string) =>
-      `${merchant} kostet jetzt ${to} (vorher ${from})`,
-    priceUpTitle: (merchant: string) => `${merchant} ist teurer geworden`,
-    recent: 'Letzte Käufe',
-    subscriptions: 'Abos',
-    title: 'Geld',
-    upcoming: 'Fällige Rechnungen',
   },
   people: {
     firstContact: (date: string) => `Ihr schreibt seit ${date}`,

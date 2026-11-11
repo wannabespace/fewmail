@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
 import { z } from 'zod'
 
+import { getBoard, listBoards } from './services/boards'
 import { generateBrief, getToday } from './services/brief'
 import { userIdForApiKey } from './services/integrations'
 import {
@@ -13,7 +14,6 @@ import {
   listMail,
   redraftAction,
 } from './services/mail'
-import { getMoney } from './services/money'
 import { getPerson } from './services/people'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { createRule, listRules } from './services/rules'
@@ -144,13 +144,24 @@ const createServer = (userId: string) => {
   )
 
   server.registerTool(
-    'get_money',
+    'list_boards',
     {
       annotations: { readOnlyHint: true },
       description:
-        "Subscriptions (with monthly cost), upcoming bills and recent purchases found in the user's receipts and invoices.",
+        "The user's boards: pages that collect one kind of email (money, trips, orders…) as entries. Use get_board to read one.",
     },
-    async () => json(await getMoney(userId))
+    async () => json(await listBoards(userId))
+  )
+
+  server.registerTool(
+    'get_board',
+    {
+      annotations: { readOnlyHint: true },
+      description:
+        'One board: its description, the newest entries (title, group, status, amount, date) and the series behind its charts.',
+      inputSchema: { id: z.string().uuid() },
+    },
+    async ({ id }) => json(await getBoard(userId, id))
   )
 
   server.registerTool(

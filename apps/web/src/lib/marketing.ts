@@ -23,7 +23,7 @@ export const PLANS = [
       'Replies drafted in your voice, sent only when you approve',
       'Telegram: the brief, approvals and voice instructions',
       '“Handle this”: the agent works a thread to its goal',
-      'Promises, people and money remembered for you',
+      'Promises and people remembered, boards with charts for money or anything you track',
       'Ask your mail anything, plus MCP for your own tools',
     ],
     includes: 'Free',
