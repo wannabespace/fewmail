@@ -90,11 +90,9 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
 const NavLink = ({
   item,
   badge,
-  count,
   showKeys,
 }: {
   badge?: number
-  count?: number
   item: (typeof NAV_ITEMS)[number]
   showKeys: boolean
 }) => {
@@ -105,16 +103,14 @@ const NavLink = ({
   return (
     <Link to={item.to} className={NAV_ROW}>
       <span>{t.nav[item.key]}</span>
-      {showKeys && <Kbd>{item.sequence.join(' ')}</Kbd>}
-      {!showKeys && Boolean(badge) && (
-        <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
-          {badge}
-        </span>
-      )}
-      {!showKeys && !badge && Boolean(count) && (
-        <span className="text-muted-foreground text-xs tabular-nums">
-          {count}
-        </span>
+      {showKeys ? (
+        <Kbd>{item.sequence.join(' ')}</Kbd>
+      ) : (
+        Boolean(badge) && (
+          <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
+            {badge}
+          </span>
+        )
       )}
     </Link>
   )
@@ -152,7 +148,6 @@ export const Sidebar = ({
   const { data: today } = useQuery(
     orpc.today.get.queryOptions({ enabled: hasAgent })
   )
-  const { data: unread } = useQuery(orpc.mail.unread.queryOptions())
 
   return (
     <nav
@@ -176,7 +171,6 @@ export const Sidebar = ({
           item={item}
           showKeys={isModifierHeld}
           badge={item.to === '/today' ? today?.queue.length : undefined}
-          count={item.to === '/mail' ? unread?.inbox : undefined}
         />
       ))}
       {hasAgent && <Boards showKeys={isModifierHeld} />}
