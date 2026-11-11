@@ -12,7 +12,7 @@ const Switch = ({
     data-slot="switch"
     data-size={size}
     className={cn(
-      `peer group/switch focus-visible:focus-ring data-checked:border-primary data-checked:bg-primary data-unchecked:bg-muted aria-invalid:invalid-ring relative inline-flex shrink-0 items-center rounded-2xl border-2 transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50 data-unchecked:border-transparent data-[size=default]:h-5 data-[size=default]:w-8 data-[size=sm]:h-4 data-[size=sm]:w-6`,
+      `peer group/switch focus-visible:focus-ring data-checked:border-primary data-checked:bg-primary data-unchecked:bg-foreground/15 aria-invalid:invalid-ring relative inline-flex shrink-0 items-center rounded-2xl border-2 transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50 data-unchecked:border-transparent data-[size=default]:h-5 data-[size=default]:w-8 data-[size=sm]:h-4 data-[size=sm]:w-6`,
       className
     )}
     {...props}
