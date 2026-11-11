@@ -56,6 +56,7 @@ export const id: Messages = {
       create_rule: 'Menambahkan aturan',
       dismiss_action: 'Melewati',
       draft_reply: 'Menulis balasan',
+      create_draft: 'Menyimpan draf',
       get_board: 'Membaca papan',
       get_person: 'Mencari orangnya',
       get_today: 'Memeriksa hari ini',
@@ -198,6 +199,8 @@ export const id: Messages = {
     canceled: 'Dibatalkan. Email kamu kembali ke editor.',
     cc: 'Cc',
     discard: 'Buang',
+    draftSaved: 'Draf disimpan',
+    saveDraft: 'Simpan draf',
     forward: 'Teruskan',
     forwardedMessage: 'Pesan yang diteruskan',
     from: 'Dari',
@@ -320,6 +323,8 @@ export const id: Messages = {
     movedToInbox:
       'Dikembalikan ke kotak masuk. Terima kasih sudah memberi tahu.',
     noThread: 'Pilih email untuk membacanya di sini',
+    deleteDraft: 'Hapus draf',
+    noRecipients: 'Tanpa penerima',
     notSpam: 'Bukan spam',
     reportSpam: 'Laporkan spam',
     reportedSpam: 'Dilaporkan. Email mereka kini masuk ke spam.',
@@ -333,6 +338,7 @@ export const id: Messages = {
     empty: 'Tidak ada email di sini.',
     expectsReply: 'Menunggu balasan',
     filter: {
+      drafts: 'Draf',
       spam: 'Spam',
       inbox: 'Kotak masuk',
       snoozed: 'Ditunda',

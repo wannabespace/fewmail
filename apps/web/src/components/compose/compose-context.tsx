@@ -11,6 +11,7 @@ import { client, orpc } from '~/lib/orpc'
 export interface Draft {
   bcc: string[]
   cc: string[]
+  gmailDraft: { id: string; mailboxId: string } | null
   html: string
   mailboxId: string | null
   mode: OutboxMode
@@ -23,6 +24,7 @@ export interface Draft {
 export const EMPTY_DRAFT: Draft = {
   bcc: [],
   cc: [],
+  gmailDraft: null,
   html: '',
   mailboxId: null,
   mode: 'new',
@@ -65,7 +67,7 @@ export const ComposeProvider = ({
 
   const sendMutation = useMutation(
     orpc.mail.send.mutationOptions({
-      onSuccess: ({ id, sendAt }, input) => {
+      onSuccess: ({ id, sendAt }) => {
         const isUndoWindow =
           sendAt.getTime() - Date.now() <= (UNDO_SEND_SECONDS + 1) * 1000
         toast.success(
@@ -77,7 +79,7 @@ export const ComposeProvider = ({
               label: t.compose.undo,
               onClick: async () => {
                 const restored = await client.mail.cancelSend({ id })
-                setDraft({ ...EMPTY_DRAFT, ...input, ...restored })
+                setDraft({ ...EMPTY_DRAFT, ...restored })
                 toast(t.compose.canceled)
               },
             },
@@ -93,9 +95,16 @@ export const ComposeProvider = ({
     <ComposeContext
       value={{
         openCompose: (next) => setDraft({ ...EMPTY_DRAFT, ...next }),
-        send: ({ mailboxId, remindAfterDays, replyToMessageId, ...input }) =>
+        send: ({
+          gmailDraft,
+          mailboxId,
+          remindAfterDays,
+          replyToMessageId,
+          ...input
+        }) =>
           sendMutation.mutate({
             ...input,
+            ...(gmailDraft && { draft: gmailDraft }),
             ...(mailboxId && { mailboxId }),
             ...(remindAfterDays && {
               remindAfterDays: remindAfterDays as 1 | 3 | 7,

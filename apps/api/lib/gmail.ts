@@ -1,5 +1,7 @@
 import { Buffer } from 'node:buffer'
 
+import { textToHtml } from '@fewmail/shared/email'
+
 import type { GmailAccount } from './auth'
 import { gmailAccessToken } from './auth'
 import { domainOf } from './keyed-hash'
@@ -34,7 +36,7 @@ const gmail = async <T>(
     )
   }
 
-  return (await response.json()) as T
+  return (response.status === 204 ? undefined : await response.json()) as T
 }
 
 interface GmailPart {
@@ -249,51 +251,93 @@ const BOUNDARY = 'fewmail-alternative'
 
 const encodeAddressList = (addresses: string[]) => addresses.join(', ')
 
-export const sendMail = (
-  account: GmailAccount,
-  mail: {
-    bcc: string[]
-    cc: string[]
-    html: string
-    inReplyTo: string | null
-    references: string | null
-    subject: string
-    text: string
-    threadId: string | null
-    to: string[]
-  }
-) => {
-  const raw = [
-    `To: ${encodeAddressList(mail.to)}`,
-    ...(mail.cc.length > 0 ? [`Cc: ${encodeAddressList(mail.cc)}`] : []),
-    ...(mail.bcc.length > 0 ? [`Bcc: ${encodeAddressList(mail.bcc)}`] : []),
-    `Subject: ${encodeHeader(mail.subject)}`,
-    ...(mail.inReplyTo ? [`In-Reply-To: ${mail.inReplyTo}`] : []),
-    ...(mail.references ? [`References: ${mail.references}`] : []),
-    'MIME-Version: 1.0',
-    `Content-Type: multipart/alternative; boundary="${BOUNDARY}"`,
-    '',
-    `--${BOUNDARY}`,
-    'Content-Type: text/plain; charset="UTF-8"',
-    'Content-Transfer-Encoding: base64',
-    '',
-    Buffer.from(mail.text).toString('base64'),
-    `--${BOUNDARY}`,
-    'Content-Type: text/html; charset="UTF-8"',
-    'Content-Transfer-Encoding: base64',
-    '',
-    Buffer.from(mail.html).toString('base64'),
-    `--${BOUNDARY}--`,
-  ].join('\r\n')
+interface MailContent {
+  bcc: string[]
+  cc: string[]
+  html: string
+  inReplyTo: string | null
+  references: string | null
+  subject: string
+  text: string
+  threadId: string | null
+  to: string[]
+}
 
-  return gmail<{ id: string; threadId: string }>(account, '/messages/send', {
-    body: JSON.stringify({
-      raw: Buffer.from(raw).toString('base64url'),
-      ...(mail.threadId && { threadId: mail.threadId }),
-    }),
+const rawMessage = (mail: MailContent) => ({
+  raw: Buffer.from(
+    [
+      ...(mail.to.length > 0 ? [`To: ${encodeAddressList(mail.to)}`] : []),
+      ...(mail.cc.length > 0 ? [`Cc: ${encodeAddressList(mail.cc)}`] : []),
+      ...(mail.bcc.length > 0 ? [`Bcc: ${encodeAddressList(mail.bcc)}`] : []),
+      `Subject: ${encodeHeader(mail.subject)}`,
+      ...(mail.inReplyTo ? [`In-Reply-To: ${mail.inReplyTo}`] : []),
+      ...(mail.references ? [`References: ${mail.references}`] : []),
+      'MIME-Version: 1.0',
+      `Content-Type: multipart/alternative; boundary="${BOUNDARY}"`,
+      '',
+      `--${BOUNDARY}`,
+      'Content-Type: text/plain; charset="UTF-8"',
+      'Content-Transfer-Encoding: base64',
+      '',
+      Buffer.from(mail.text).toString('base64'),
+      `--${BOUNDARY}`,
+      'Content-Type: text/html; charset="UTF-8"',
+      'Content-Transfer-Encoding: base64',
+      '',
+      Buffer.from(mail.html).toString('base64'),
+      `--${BOUNDARY}--`,
+    ].join('\r\n')
+  ).toString('base64url'),
+  ...(mail.threadId && { threadId: mail.threadId }),
+})
+
+export const sendMail = (account: GmailAccount, mail: MailContent) =>
+  gmail<{ id: string; threadId: string }>(account, '/messages/send', {
+    body: JSON.stringify(rawMessage(mail)),
     method: 'POST',
   })
+
+export const saveDraft = (
+  account: GmailAccount,
+  mail: MailContent,
+  draftId?: string
+) =>
+  gmail<{ id: string }>(account, draftId ? `/drafts/${draftId}` : '/drafts', {
+    body: JSON.stringify({
+      ...(draftId && { id: draftId }),
+      message: rawMessage(mail),
+    }),
+    method: draftId ? 'PUT' : 'POST',
+  })
+
+export const listDrafts = async (
+  account: GmailAccount,
+  query: string,
+  max: number
+) => {
+  const { drafts = [] } = await gmail<{ drafts?: { id: string }[] }>(
+    account,
+    `/drafts?${new URLSearchParams({ maxResults: String(max), q: query })}`
+  )
+  return Promise.all(
+    drafts.map(async ({ id }) => {
+      const { message } = await gmail<{ message: GmailMessage }>(
+        account,
+        `/drafts/${id}?format=full`
+      )
+      const parsed = parseMessage(message)
+      const html = findPart(message.payload, 'text/html')?.body?.data
+      return {
+        ...parsed,
+        html: html ? decodeBase64Url(html) : textToHtml(parsed.body),
+        id,
+      }
+    })
+  )
 }
+
+export const deleteDraft = (account: GmailAccount, draftId: string) =>
+  gmail(account, `/drafts/${draftId}`, { method: 'DELETE' })
 
 export const modifyThread = (
   account: GmailAccount,

@@ -1,1 +1,1 @@
-export const LEGAL_UPDATED_AT = new Date(2026, 10, 11)
+export const LEGAL_UPDATED_AT = new Date(2026, 10, 12)

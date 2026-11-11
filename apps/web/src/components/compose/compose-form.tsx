@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@fewmail/ui/components/select'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -33,6 +33,8 @@ import type { LaterPreset } from './schedule'
 import { LATER_PRESETS, parseRecipients, validRecipients } from './schedule'
 
 const LATER_OPTIONS: LaterPreset[] = ['inHour', 'tomorrow', 'monday']
+
+const isValid = (recipient: string) => validRecipients([recipient])
 
 export const ComposeForm = ({
   draft,
@@ -55,7 +57,23 @@ export const ComposeForm = ({
   const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
   const [mailboxId, setMailboxId] = useState(draft.mailboxId)
 
+  const queryClient = useQueryClient()
   const writeDraft = useMutation(orpc.mail.writeDraft.mutationOptions())
+  const closeDraft = (message?: string) => {
+    if (message) {
+      toast.success(message)
+    }
+    void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
+    onDone()
+  }
+  const saveDraft = useMutation(
+    orpc.mail.saveDraft.mutationOptions({
+      onSuccess: () => closeDraft(t.compose.draftSaved),
+    })
+  )
+  const deleteDraft = useMutation(
+    orpc.mail.deleteDraft.mutationOptions({ onSuccess: () => closeDraft() })
+  )
   const fillEditor = ({ html }: { html: string }) => {
     editorRef.current?.setContent(html)
     editorRef.current?.focus()
@@ -88,6 +106,26 @@ export const ComposeForm = ({
       to: recipients,
     })
     onDone()
+  }
+
+  const save = () => {
+    const editor = editorRef.current
+    if (!editor) {
+      return
+    }
+    saveDraft.mutate({
+      cc: parseRecipients(cc).filter(isValid),
+      ...(draft.gmailDraft && { draft: draft.gmailDraft }),
+      html: editor.getHtml(),
+      ...(mailboxId && { mailboxId }),
+      mode: draft.mode,
+      ...(draft.replyToMessageId && {
+        replyToMessageId: draft.replyToMessageId,
+      }),
+      subject,
+      text: editor.getText(),
+      to: parseRecipients(to).filter(isValid),
+    })
   }
 
   return (
@@ -256,7 +294,18 @@ export const ComposeForm = ({
           size="sm"
           variant="ghost-muted"
           className="ml-auto"
-          onClick={onDone}
+          disabled={saveDraft.isPending}
+          onClick={save}
+        >
+          {t.compose.saveDraft}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost-muted"
+          disabled={deleteDraft.isPending}
+          onClick={() =>
+            draft.gmailDraft ? deleteDraft.mutate(draft.gmailDraft) : onDone()
+          }
         >
           {t.compose.discard}
         </Button>

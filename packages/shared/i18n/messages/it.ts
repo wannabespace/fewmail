@@ -32,6 +32,7 @@ export const it: Messages = {
       create_rule: 'Aggiungo una regola',
       dismiss_action: 'Salto',
       draft_reply: 'Scrivo una risposta',
+      create_draft: 'Salvo una bozza',
       get_board: 'Leggo la bacheca',
       get_person: 'Cerco la persona',
       get_today: 'Controllo oggi',
@@ -71,6 +72,8 @@ export const it: Messages = {
     canceled: 'Annullato. La tua email è di nuovo nell’editor.',
     cc: 'Cc',
     discard: 'Elimina',
+    draftSaved: 'Bozza salvata',
+    saveDraft: 'Salva bozza',
     forward: 'Inoltra',
     forwardedMessage: 'Messaggio inoltrato',
     from: 'Da',
@@ -256,6 +259,8 @@ export const it: Messages = {
     movedToInbox:
       'Riportata nella posta in arrivo. Grazie per la segnalazione.',
     noThread: 'Scegli un’email per leggerla qui',
+    deleteDraft: 'Elimina bozza',
+    noRecipients: 'Nessun destinatario',
     notSpam: 'Non è spam',
     reportSpam: 'Segnala come spam',
     reportedSpam: 'Segnalato. Le sue email ora finiscono nello spam.',
@@ -269,6 +274,7 @@ export const it: Messages = {
     empty: 'Nessuna email qui.',
     expectsReply: 'Attende risposta',
     filter: {
+      drafts: 'Bozze',
       spam: 'Spam',
       inbox: 'In arrivo',
       snoozed: 'Posticipate',

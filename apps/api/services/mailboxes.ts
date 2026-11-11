@@ -33,6 +33,17 @@ export const listMailboxes = (userId: string) =>
       }))
     )
 
+export const ownMailbox = async (userId: string, id: string) => {
+  const [mailbox] = await db
+    .select()
+    .from(mailboxes)
+    .where(and(eq(mailboxes.id, id), eq(mailboxes.userId, userId)))
+  if (!mailbox) {
+    throw new NotFoundError('Mailbox not found')
+  }
+  return mailbox
+}
+
 export const startAddingMailbox = async (userId: string) => {
   const state = randomBytes(24).toString('base64url')
   await db.insert(verifications).values({

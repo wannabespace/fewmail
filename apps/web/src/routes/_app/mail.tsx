@@ -36,7 +36,12 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useQuery } from '@tanstack/react-query'
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { isToday } from 'date-fns'
@@ -44,6 +49,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
+import { useCompose } from '~/components/compose/compose-context'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
@@ -61,6 +67,7 @@ const FILTERS = [
   'needs_reply',
   'quiet',
   'snoozed',
+  'drafts',
   'spam',
 ] as const
 
@@ -75,7 +82,7 @@ const ALL_MAILBOXES = 'all'
 const isCounted = (
   filter: Filter
 ): filter is keyof RouterOutputs['mail']['unread'] =>
-  filter !== 'snoozed' && filter !== 'spam'
+  filter !== 'snoozed' && filter !== 'spam' && filter !== 'drafts'
 
 const READER_WIDTH = { default: 640, max: '70%', min: 420 } as const
 
@@ -297,6 +304,140 @@ const MailRow = ({
   )
 }
 
+type DraftRowData = RouterOutputs['mail']['drafts'][number]
+
+const DraftRow = ({
+  draft,
+  isCursor,
+  onDelete,
+  onOpen,
+}: {
+  draft: DraftRowData
+  isCursor: boolean
+  onDelete: () => void
+  onOpen: () => void
+}) => {
+  const t = useT()
+  const dates = useDates()
+  return (
+    <li
+      className={cn(
+        'group relative border-b',
+        isCursor ? 'bg-accent' : 'hover:bg-accent'
+      )}
+    >
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={onOpen}
+        className="flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none"
+      >
+        <span className="flex items-center gap-2 pl-4 text-sm">
+          <span
+            data-mask
+            className="text-foreground/70 min-w-0 flex-1 truncate"
+          >
+            {draft.to.join(', ') || t.mail.noRecipients}
+          </span>
+          <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+            {dates.format(
+              draft.savedAt,
+              isToday(draft.savedAt) ? 'HH:mm' : 'd MMM'
+            )}
+          </span>
+        </span>
+        <span data-mask className="text-foreground/60 truncate pl-4 text-sm">
+          {draft.subject}
+        </span>
+        <span data-mask className="text-muted-foreground truncate pl-4 text-sm">
+          {draft.snippet}
+        </span>
+      </button>
+      <span className="absolute top-1.5 right-4 flex bg-inherit opacity-0 group-hover:opacity-100">
+        <IconButton
+          icon={Delete02Icon}
+          label={t.mail.deleteDraft}
+          size="icon-sm"
+          variant="ghost-destructive"
+          onClick={onDelete}
+        />
+      </span>
+    </li>
+  )
+}
+
+const useDrafts = ({
+  isEnabled,
+  mailbox,
+  q,
+}: {
+  isEnabled: boolean
+  mailbox: string | undefined
+  q: string | undefined
+}) => {
+  const { openCompose } = useCompose()
+  const queryClient = useQueryClient()
+  const { data: rows = [], isFetching } = useQuery(
+    orpc.mail.drafts.queryOptions({
+      input: isEnabled
+        ? { mailboxId: mailbox, ...(q && { search: q }) }
+        : skipToken,
+    })
+  )
+  const deleteDraft = useMutation(
+    orpc.mail.deleteDraft.mutationOptions({
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() }),
+    })
+  )
+  const open = (index: number) => {
+    const saved = rows[index]
+    if (saved) {
+      openCompose({
+        cc: saved.cc,
+        gmailDraft: { id: saved.id, mailboxId: saved.mailboxId },
+        html: saved.html,
+        mailboxId: saved.mailboxId,
+        mode: saved.mode,
+        replyToMessageId: saved.replyToMessageId,
+        subject: saved.subject,
+        to: saved.to,
+      })
+    }
+  }
+  const remove = ({ id, mailboxId }: DraftRowData) =>
+    deleteDraft.mutate({ id, mailboxId })
+  return { isFetching, open, remove, rows }
+}
+
+const useListRows = ({
+  filter,
+  mailbox,
+  q,
+}: {
+  filter: Filter
+  mailbox: string | undefined
+  q: string | undefined
+}) => {
+  const isDrafts = filter === 'drafts'
+  const mail = useQuery(
+    orpc.mail.list.queryOptions({
+      input: isDrafts
+        ? skipToken
+        : { filter, mailboxId: mailbox, ...(q && { search: q }) },
+    })
+  )
+  const drafts = useDrafts({ isEnabled: isDrafts, mailbox, q })
+  const rows = mail.data ?? []
+  return {
+    drafts,
+    isDrafts,
+    isFetching: isDrafts ? drafts.isFetching : mail.isFetching,
+    rows,
+    total: isDrafts ? drafts.rows.length : rows.length,
+  }
+}
+
 const useListActions = ({
   filter,
   isEnabled,
@@ -325,10 +466,13 @@ const useListActions = ({
     () => messageId && actions.reportSpam.mutate({ messageId }),
     keys
   )
-  const hints: [string, string][] = [
-    ['E', t.keys.archive],
-    ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
-  ]
+  const hints: [string, string][] =
+    filter === 'drafts'
+      ? []
+      : [
+          ['E', t.keys.archive],
+          ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
+        ]
   return { actions, canSnooze, hints, setSnoozeOpenId, snoozeOpenId }
 }
 
@@ -353,11 +497,11 @@ const MailPage = () => {
   const { data: unread } = useQuery(
     orpc.mail.unread.queryOptions({ input: { mailboxId: mailbox } })
   )
-  const { data: rows = [], isFetching } = useQuery(
-    orpc.mail.list.queryOptions({
-      input: { filter, mailboxId: mailbox, ...(q && { search: q }) },
-    })
-  )
+  const { drafts, isDrafts, isFetching, rows, total } = useListRows({
+    filter,
+    mailbox,
+    q,
+  })
 
   const { actions, canSnooze, hints, setSnoozeOpenId, snoozeOpenId } =
     useListActions({
@@ -371,6 +515,11 @@ const MailPage = () => {
   }, [cursor])
 
   const open = (index: number) => {
+    if (isDrafts) {
+      setCursor(index)
+      drafts.open(index)
+      return
+    }
     const row = rows[index]
     if (row) {
       setCursor(index)
@@ -380,11 +529,9 @@ const MailPage = () => {
     }
   }
 
-  useHotkey('J', () =>
-    setCursor((index) => Math.min(rows.length - 1, index + 1))
-  )
+  useHotkey('J', () => setCursor((index) => Math.min(total - 1, index + 1)))
   useHotkey('ArrowDown', () =>
-    setCursor((index) => Math.min(rows.length - 1, index + 1))
+    setCursor((index) => Math.min(total - 1, index + 1))
   )
   useHotkey('K', () => setCursor((index) => Math.max(0, index - 1)))
   useHotkey('ArrowUp', () => setCursor((index) => Math.max(0, index - 1)))
@@ -512,11 +659,20 @@ const MailPage = () => {
             ref={listRef}
             className={cn('flex-1 overflow-y-auto', isFetching && 'opacity-70')}
           >
-            {rows.length === 0 && !isFetching && (
+            {total === 0 && !isFetching && (
               <li className="text-muted-foreground px-5 py-8 text-sm">
                 {t.mail.empty}
               </li>
             )}
+            {drafts.rows.map((saved, index) => (
+              <DraftRow
+                key={saved.id}
+                draft={saved}
+                isCursor={index === cursor}
+                onOpen={() => open(index)}
+                onDelete={() => drafts.remove(saved)}
+              />
+            ))}
             {rows.map((row, index) => (
               <MailRow
                 key={row.message.id}
@@ -592,7 +748,7 @@ export const Route = createFileRoute('/_app/mail')({
   component: MailPage,
   validateSearch: type({
     'filter?':
-      "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'spam'",
+      "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'drafts' | 'spam'",
     'mailbox?': 'string.uuid',
     'q?': 'string',
     'thread?': 'string',

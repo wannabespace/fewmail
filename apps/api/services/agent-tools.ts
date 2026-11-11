@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { getBoard, listBoards } from './boards'
 import { generateBrief, getToday } from './brief'
 import { listSubscriptions } from './cleanup'
+import { saveDraft } from './drafts'
 import {
   approveAction,
   archiveMessage,
@@ -108,6 +109,24 @@ export const agentTools = (userId: string) => ({
         ...mail,
         html: textToHtml(mail.text),
         mode: 'new',
+      }),
+  }),
+  create_draft: define({
+    access: 'write',
+    description:
+      "Save an email as a draft in the user's Gmail without sending it; they finish and send it themselves from Fewmail or Gmail. replyToMessageId makes it a reply in that email's thread.",
+    input: {
+      cc: z.array(z.email()).optional(),
+      replyToMessageId: z.uuid().optional(),
+      subject: z.string(),
+      text: z.string().min(1),
+      to: z.array(z.email()),
+    },
+    run: (mail) =>
+      saveDraft(userId, {
+        ...mail,
+        html: textToHtml(mail.text),
+        mode: mail.replyToMessageId ? 'reply' : 'new',
       }),
   }),
   archive_thread: define({

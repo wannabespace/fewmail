@@ -136,7 +136,7 @@ Suggestion order is JSX order (`shouldFilter={false}`) — the literal answer fi
 
 ## Compose & undo
 
-- One `ComposeForm` everywhere (thread inline reply/forward, `C` dialog, restored drafts): recipients parse pasted lists (`parseRecipients`), Cc on demand, subject hidden for replies, footer = Send ⌘⏎ · Send later ▾ · Remind me ▾ · Discard. Pro adds "Write it for me" with an optional instruction above the editor — never a separate AI composer.
+- One `ComposeForm` everywhere (thread inline reply/forward, `C` dialog, restored drafts): recipients parse pasted lists (`parseRecipients`), Cc on demand, subject hidden for replies, footer = Send ⌘⏎ · Send later ▾ · Remind me ▾ · Save draft · Discard (Discard deletes a saved draft; Escape only closes). Saved drafts are the Mail → Drafts pill: rows show recipients · subject · snippet with a hover delete, and open in the `C` dialog. Pro adds "Write it for me" with an optional instruction above the editor — never a separate AI composer.
 - Every send shows one toast with **Undo** for the undo window (`UNDO_SEND_SECONDS`); Undo reopens the exact draft. Never confirm-before-send dialogs.
 - Thread actions: primary row Reply (R), Archive (E), Snooze (H); everything else (Forward F, Unsubscribe, Open in Gmail, Trash #, Block) lives in "More" so the row never grows.
 - Mail list rows reveal Archive (E), Snooze (H, a menu) and Trash (#) on hover as `icon-sm` `ghost-muted` icons over the date, on the row's own background (`bg-inherit`, so row hover is solid `bg-accent`); with no thread open the same keys, plus `!` for spam, act on the cursor row. They come from `useMailActions`, the thread view's own set, never a second copy.

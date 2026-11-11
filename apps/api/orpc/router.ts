@@ -39,6 +39,7 @@ import {
 import { generateBrief, getToday } from '../services/brief'
 import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
 import { listSubscriptions, unsubscribeSender } from '../services/cleanup'
+import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
 import {
   createApiKey,
   getTelegramLink,
@@ -119,17 +120,24 @@ const settingsInput = type({
   'voice?': 'string | null',
 })
 
-const sendInput = type({
+const draftRef = type({ id: 'string', mailboxId: 'string.uuid' })
+
+const draftInput = type({
   'bcc?': 'string.email[]',
   'cc?': 'string.email[]',
+  'draft?': draftRef,
   html: 'string',
   'mailboxId?': 'string.uuid',
   mode: type.enumerated(...OUTBOX_MODES),
-  'remindAfterDays?': type.enumerated(...FOLLOWUP_DAYS).or('null'),
   'replyToMessageId?': 'string.uuid',
-  'sendAt?': 'Date',
   subject: 'string',
   text: 'string',
+  to: 'string.email[]',
+})
+
+const sendInput = draftInput.and({
+  'remindAfterDays?': type.enumerated(...FOLLOWUP_DAYS).or('null'),
+  'sendAt?': 'Date',
   to: 'string.email[] >= 1',
 })
 
@@ -260,6 +268,12 @@ export const router = {
     cancelSend: authed
       .input(id)
       .handler(({ context, input }) => cancelMail(context.user.id, input.id)),
+    deleteDraft: authed.input(draftRef).handler(async ({ context, input }) => {
+      await deleteDraft(context.user.id, input)
+    }),
+    drafts: authed
+      .input(type({ 'mailboxId?': 'string.uuid', 'search?': 'string' }))
+      .handler(({ context, input }) => listDrafts(context.user.id, input)),
     complete: agent
       .input(
         type({
@@ -281,6 +295,9 @@ export const router = {
     reportSpam: authed.input(messageId).handler(async ({ context, input }) => {
       await reportSpam(context.user.id, input.messageId)
     }),
+    saveDraft: authed
+      .input(draftInput)
+      .handler(({ context, input }) => saveDraft(context.user.id, input)),
     scheduled: authed.handler(({ context }) => listScheduled(context.user.id)),
     send: authed
       .input(sendInput)

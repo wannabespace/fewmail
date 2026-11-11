@@ -6,9 +6,10 @@ import { forwardSubject, replySubject } from '@fewmail/shared/email'
 import { addSeconds } from 'date-fns'
 import { and, eq, isNull, lte } from 'drizzle-orm'
 
-import { sendMail } from '../lib/gmail'
+import { deleteDraft, sendMail } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
+import { ownMailbox } from './mailboxes'
 import { scheduleFollowup } from './reminders'
 import { watchSentMail } from './sent-mail'
 import { changeThreadLabels } from './thread-labels'
@@ -16,10 +17,16 @@ import { changeThreadLabels } from './thread-labels'
 /** In-process timers make Undo-sized delays exact; the worker sweep catches anything a restart dropped. */
 const timers = new Map<string, ReturnType<typeof setTimeout>>()
 
+export interface DraftRef {
+  id: string
+  mailboxId: string
+}
+
 export interface OutgoingMail {
   actionId?: string
   bcc?: string[]
   cc?: string[]
+  draft?: DraftRef
   html: string
   /** New mail only: a reply or forward leaves from the mailbox of the original. */
   mailboxId?: string
@@ -50,7 +57,7 @@ const senderMailboxId = async (userId: string, mailboxId?: string) => {
   return mailbox.id
 }
 
-const replyHeaders = async (userId: string, mail: OutgoingMail) => {
+export const mailHeaders = async (userId: string, mail: OutgoingMail) => {
   if (!mail.replyToMessageId) {
     return {
       inReplyTo: null,
@@ -155,7 +162,7 @@ const arm = (id: string, sendAt: Date) => {
 }
 
 export const scheduleMail = async (userId: string, mail: OutgoingMail) => {
-  const headers = await replyHeaders(userId, mail)
+  const headers = await mailHeaders(userId, mail)
   const sendAt = mail.sendAt ?? addSeconds(new Date(), UNDO_SEND_SECONDS)
   const [row] = await db
     .insert(outbox)
@@ -177,6 +184,13 @@ export const scheduleMail = async (userId: string, mail: OutgoingMail) => {
     .returning({ id: outbox.id, sendAt: outbox.sendAt })
   const scheduled = expectRow(row)
   arm(scheduled.id, scheduled.sendAt)
+  if (mail.draft) {
+    // The mail is already queued: a draft that fails to go must not fail the send, or the client sends it twice.
+    const { id, mailboxId } = mail.draft
+    await ownMailbox(userId, mailboxId)
+      .then((mailbox) => deleteDraft(mailbox, id))
+      .catch(() => false)
+  }
   return scheduled
 }
 

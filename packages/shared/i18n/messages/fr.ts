@@ -32,6 +32,7 @@ export const fr: Messages = {
       create_rule: 'Ajout d’une règle',
       dismiss_action: 'Ignorer',
       draft_reply: 'Rédaction d’une réponse',
+      create_draft: 'Enregistrement du brouillon',
       get_board: 'Lecture du tableau',
       get_person: 'Recherche de la personne',
       get_today: 'Point sur aujourd’hui',
@@ -71,6 +72,8 @@ export const fr: Messages = {
     canceled: 'Annulé. Votre e-mail est de retour dans l’éditeur.',
     cc: 'Cc',
     discard: 'Supprimer',
+    draftSaved: 'Brouillon enregistré',
+    saveDraft: 'Enregistrer le brouillon',
     forward: 'Transférer',
     forwardedMessage: 'Message transféré',
     from: 'De',
@@ -256,6 +259,8 @@ export const fr: Messages = {
     movedToInbox:
       'Remis dans la boîte de réception. Merci de nous l’avoir dit.',
     noThread: 'Choisissez un e-mail pour le lire ici',
+    deleteDraft: 'Supprimer le brouillon',
+    noRecipients: 'Aucun destinataire',
     notSpam: 'Pas un spam',
     reportSpam: 'Signaler comme spam',
     reportedSpam: 'Signalé. Ses e-mails vont désormais en spam.',
@@ -269,6 +274,7 @@ export const fr: Messages = {
     empty: 'Aucun e-mail ici.',
     expectsReply: 'Attend une réponse',
     filter: {
+      drafts: 'Brouillons',
       spam: 'Spam',
       inbox: 'Boîte de réception',
       snoozed: 'En attente',
