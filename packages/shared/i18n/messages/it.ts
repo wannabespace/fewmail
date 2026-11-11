@@ -126,6 +126,7 @@ export const it: Messages = {
     },
   },
   importance: ['Rumore', 'Buono a sapersi', 'Presto per te', 'Urgente'],
+  justNow: 'proprio ora',
   keys: {
     reply: 'rispondi',
     snooze: 'posticipa',
@@ -166,6 +167,7 @@ export const it: Messages = {
     title: 'Solo ciò che conta.',
   },
   mail: {
+    unread: 'Non letto',
     block: 'Blocca mittente',
     blocked: 'Bloccato. Le sue email ora finiscono nel cestino.',
     forward: 'Inoltra',
@@ -452,7 +454,7 @@ export const it: Messages = {
   telegram: {
     heard: (text: string) => `Ho sentito: “${text}”`,
     voiceFailed: 'Non ho capito. Riprova o scrivilo.',
-    whichEmail: 'Quale email? Rispondi a uno dei miei messaggi con cosa dire.',
+    help: 'Scrivi o di’ cosa ti serve:\n• chiedi della tua posta: «quando si rinnova Netflix?»\n• di’ cosa rispondere: «di’ ad Anna che firmo domani»\n• rispondi a una mia bozza per cambiarla',
     canceled: 'Annullato. La bozza è di nuovo nella tua coda.',
     sendingIn: (seconds: number) => `Invio tra ${seconds} s`,
     undo: 'Annulla',

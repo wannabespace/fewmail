@@ -107,6 +107,7 @@ export const ja: Messages = {
     },
   },
   importance: ['ノイズ', '知っておくと良い', '近いうちに対応', '緊急'],
+  justNow: 'たった今',
   keys: {
     reply: '返信',
     snooze: 'スヌーズ',
@@ -146,6 +147,7 @@ export const ja: Messages = {
     title: '大切なメールだけを。',
   },
   mail: {
+    unread: '未読',
     block: '送信者をブロック',
     blocked: 'ブロックしました。今後のメールはゴミ箱に移動します。',
     forward: '転送',
@@ -434,8 +436,7 @@ export const ja: Messages = {
     heard: (text: string) => `聞き取った内容：「${text}」`,
     voiceFailed:
       'うまく聞き取れませんでした。もう一度話すか、入力してください。',
-    whichEmail:
-      'どのメールですか？私のメッセージに返信して、伝えたい内容を送ってください。',
+    help: '必要なことを書くか話してください：\n• メールについて質問：「Netflixの更新日はいつ？」\n• 返信内容を伝える：「アンナに明日署名すると伝えて」\n• 下書きを変えるには、その下書きに返信',
     canceled: 'キャンセルしました。下書きはキューに戻りました。',
     sendingIn: (seconds: number) => `${seconds}秒後に送信`,
     undo: '元に戻す',

@@ -191,6 +191,7 @@ export const nl: Messages = {
     removeLink: 'Link verwijderen',
   },
   importance: ['Ruis', 'Goed om te weten', 'Heeft je snel nodig', 'Dringend'],
+  justNow: 'zojuist',
   keys: {
     reply: 'beantwoorden',
     snooze: 'uitstellen',
@@ -231,6 +232,7 @@ export const nl: Messages = {
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
+    unread: 'Ongelezen',
     block: 'Afzender blokkeren',
     blocked: 'Geblokkeerd. Hun mail gaat nu naar de prullenbak.',
     forward: 'Doorsturen',
@@ -566,8 +568,7 @@ export const nl: Messages = {
   telegram: {
     heard: (text: string) => `Gehoord: “${text}”`,
     voiceFailed: 'Ik kon het niet verstaan. Probeer het opnieuw of typ het.',
-    whichEmail:
-      'Welke e-mail? Antwoord op een van mijn berichten met wat je wilt zeggen.',
+    help: 'Schrijf of zeg wat je nodig hebt:\n• vraag iets over je mail: ‘wanneer verlengt Netflix?’\n• zeg wat ik moet antwoorden: ‘zeg Anna dat ik morgen teken’\n• antwoord op een van mijn concepten om het aan te passen',
     canceled: 'Geannuleerd. Het concept staat weer in je wachtrij.',
     sendingIn: (seconds: number) => `Versturen over ${seconds} s`,
     undo: 'Ongedaan maken',

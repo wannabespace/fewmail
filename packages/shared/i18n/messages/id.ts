@@ -182,6 +182,7 @@ export const id: Messages = {
     removeLink: 'Hapus tautan',
   },
   importance: ['Kebisingan', 'Perlu tahu', 'Segera butuh kamu', 'Mendesak'],
+  justNow: 'baru saja',
   keys: {
     reply: 'balas',
     snooze: 'tunda',
@@ -222,6 +223,7 @@ export const id: Messages = {
     title: 'Hanya yang penting.',
   },
   mail: {
+    unread: 'Belum dibaca',
     block: 'Blokir pengirim',
     blocked: 'Diblokir. Email mereka kini masuk ke sampah.',
     forward: 'Teruskan',
@@ -546,8 +548,7 @@ export const id: Messages = {
   telegram: {
     heard: (text: string) => `Terdengar: “${text}”`,
     voiceFailed: 'Aku tidak bisa menangkapnya. Coba lagi atau ketik saja.',
-    whichEmail:
-      'Email yang mana? Balas salah satu pesanku dengan apa yang ingin dikatakan.',
+    help: 'Tulis atau ucapkan apa yang kamu perlukan:\n• tanya soal email: “kapan Netflix diperpanjang?”\n• bilang apa balasannya: “bilang ke Anna aku tanda tangan besok”\n• balas salah satu drafku untuk mengubahnya',
     canceled: 'Dibatalkan. Draf kembali ke antrean kamu.',
     sendingIn: (seconds: number) => `Mengirim dalam ${seconds} dtk`,
     undo: 'Urungkan',

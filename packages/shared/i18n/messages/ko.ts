@@ -107,6 +107,7 @@ export const ko: Messages = {
     },
   },
   importance: ['잡음', '알아두면 좋음', '곧 확인 필요', '긴급'],
+  justNow: '방금',
   keys: {
     reply: '답장',
     snooze: '다시 알림',
@@ -147,6 +148,7 @@ export const ko: Messages = {
     title: '중요한 것만.',
   },
   mail: {
+    unread: '읽지 않음',
     block: '발신자 차단',
     blocked: '차단했어요. 이제 이 발신자의 메일은 휴지통으로 가요.',
     forward: '전달',
@@ -429,8 +431,7 @@ export const ko: Messages = {
   telegram: {
     heard: (text: string) => `들은 내용: “${text}”`,
     voiceFailed: '잘 알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
-    whichEmail:
-      '어떤 이메일인가요? 제 메시지 중 하나에 답장으로 할 말을 보내 주세요.',
+    help: '필요한 것을 쓰거나 말해 주세요:\n• 메일에 대해 묻기: “넷플릭스 갱신일이 언제야?”\n• 답장 내용 말하기: “안나에게 내일 서명한다고 전해 줘”\n• 초안을 바꾸려면 그 초안에 답장하기',
     canceled: '취소했어요. 초안이 대기열로 돌아갔어요.',
     sendingIn: (seconds: number) => `${seconds}초 후 전송`,
     undo: '실행 취소',

@@ -103,6 +103,7 @@ export const zh: Messages = {
     theme: { dark: '使用深色主题', light: '使用浅色主题', system: '跟随系统' },
   },
   importance: ['噪音', '值得了解', '需尽快处理', '紧急'],
+  justNow: '刚刚',
   keys: {
     reply: '回复',
     snooze: '稍后提醒',
@@ -142,6 +143,7 @@ export const zh: Messages = {
     title: '只看重要的。',
   },
   mail: {
+    unread: '未读',
     block: '屏蔽发件人',
     blocked: '已屏蔽。对方的邮件将进入废纸篓。',
     forward: '转发',
@@ -414,7 +416,7 @@ export const zh: Messages = {
   telegram: {
     heard: (text: string) => `听到的是：“${text}”`,
     voiceFailed: '我没听清。请再说一次，或直接输入。',
-    whichEmail: '哪封邮件？请回复我的某条消息，告诉我要说什么。',
+    help: '写下或说出你需要什么：\n• 询问邮件：“Netflix 什么时候续费？”\n• 告诉我回复什么：“告诉安娜我明天签字”\n• 回复我的某个草稿来修改它',
     canceled: '已取消。草稿已回到队列。',
     sendingIn: (seconds: number) => `${seconds} 秒后发送`,
     undo: '撤销',

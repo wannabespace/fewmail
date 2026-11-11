@@ -8,7 +8,7 @@ import { addHours, isBefore } from 'date-fns'
 import { env } from './env'
 import { transcribe } from './lib/mistral'
 import { generateBrief, getLatestBrief, localClock } from './services/brief'
-import { draftFromInstruction } from './services/instructions'
+import { followMessage } from './services/instructions'
 import {
   linkWhatsappPhone,
   userIdForPhone,
@@ -267,12 +267,24 @@ const followText = async (
     return
   }
   const targetId = inbound.context ? shown.get(inbound.context.id) : null
-  const action = await draftFromInstruction(userId, text, targetId)
-  if (!action) {
-    await ask(to, t.telegram.whichEmail, menuButtons(t))
+  const { answer, draft } = await followMessage(userId, text, targetId)
+  if (answer) {
+    await say(
+      to,
+      [
+        answer.answer,
+        ...answer.sources.map(
+          (source) => `_[${source.number}] ${source.from} · ${source.subject}_`
+        ),
+      ].join('\n')
+    )
     return
   }
-  await showDraft(to, t, action)
+  if (!draft) {
+    await ask(to, t.telegram.help, menuButtons(t))
+    return
+  }
+  await showDraft(to, t, draft)
 }
 
 const transcribeVoice = async (mediaId: string) => {

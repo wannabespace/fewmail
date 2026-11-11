@@ -7,8 +7,9 @@ import { Bot, InlineKeyboard, webhookCallback } from 'grammy'
 
 import { env } from './env'
 import { transcribe } from './lib/mistral'
+import type { askMail } from './services/ask'
 import { generateBrief, getLatestBrief, localClock } from './services/brief'
-import { draftFromInstruction } from './services/instructions'
+import { followMessage } from './services/instructions'
 import { linkTelegramChat, userIdForChat } from './services/integrations'
 import {
   approveAction,
@@ -87,27 +88,40 @@ const draftKeyboard = (t: Messages, actionId: string) =>
     .text(t.telegram.edit, `e:${actionId}`)
     .text(t.telegram.skip, `d:${actionId}`)
 
-const followInstruction = async (
-  ctx: Context,
-  userId: string,
-  text: string
-) => {
+const helpText = (t: Messages) =>
+  `${t.telegram.help}\n\n/brief — ${t.telegram.commands.brief}\n/queue — ${t.telegram.commands.queue}`
+
+const answerText = ({ answer, sources }: Awaited<ReturnType<typeof askMail>>) =>
+  [
+    escapeHtml(answer),
+    ...sources.map(
+      (source) =>
+        `<i>[${source.number}] ${escapeHtml(source.from)} · ${escapeHtml(source.subject)}</i>`
+    ),
+  ].join('\n')
+
+const followText = async (ctx: Context, userId: string, text: string) => {
   const t = await messagesForUser(userId)
   const replyTo = ctx.message?.reply_to_message?.message_id
   const targetId =
     replyTo && ctx.chat
       ? (shown.get(`${ctx.chat.id}:${replyTo}`) ?? null)
       : null
-  const action = await draftFromInstruction(userId, text, targetId)
-  if (!action) {
-    await ctx.reply(t.telegram.whichEmail)
+  await ctx.replyWithChatAction('typing')
+  const { answer, draft } = await followMessage(userId, text, targetId)
+  if (answer) {
+    await ctx.reply(answerText(answer), { parse_mode: 'HTML' })
+    return
+  }
+  if (!draft) {
+    await ctx.reply(helpText(t))
     return
   }
   const sent = await ctx.reply(
-    `<i>${t.telegram.newDraft}</i>\n${escapeHtml(action.detail ?? '')}`,
-    { parse_mode: 'HTML', reply_markup: draftKeyboard(t, action.id) }
+    `<i>${t.telegram.newDraft}</i>\n${escapeHtml(draft.detail ?? '')}`,
+    { parse_mode: 'HTML', reply_markup: draftKeyboard(t, draft.id) }
   )
-  remember(sent.chat.id, sent.message_id, action.id)
+  remember(sent.chat.id, sent.message_id, draft.id)
 }
 
 const createBot = (token: string) => {
@@ -156,7 +170,19 @@ const createBot = (token: string) => {
       await ctx.reply(t.telegram.connected)
       return
     }
-    await ctx.reply(messagesForChat(ctx).telegram.connectFirst)
+    const userId = await userIdForChat(String(ctx.chat.id))
+    await ctx.reply(
+      userId
+        ? helpText(await messagesForUser(userId))
+        : messagesForChat(ctx).telegram.connectFirst
+    )
+  })
+
+  bot.command('help', async (ctx) => {
+    const userId = await requireUser(ctx)
+    if (userId) {
+      await ctx.reply(helpText(await messagesForUser(userId)))
+    }
   })
 
   bot.command('brief', async (ctx) => {
@@ -164,6 +190,7 @@ const createBot = (token: string) => {
     if (!userId) {
       return
     }
+    await ctx.replyWithChatAction('typing')
     const settings = await getSettings(userId)
     const latest = await getLatestBrief(userId)
     const brief =
@@ -258,7 +285,7 @@ const createBot = (token: string) => {
         return
       }
       await ctx.reply(t.telegram.heard(text))
-      await followInstruction(ctx, userId, text)
+      await followText(ctx, userId, text)
     } catch (error) {
       console.error('voice message failed', error)
       await ctx.reply(t.telegram.voiceFailed)
@@ -271,7 +298,7 @@ const createBot = (token: string) => {
       if (!ctx.message.text.startsWith('/')) {
         const userId = await requireUser(ctx)
         if (userId) {
-          await followInstruction(ctx, userId, ctx.message.text)
+          await followText(ctx, userId, ctx.message.text)
         }
       }
       return
@@ -302,7 +329,17 @@ const createBot = (token: string) => {
   })
 
   // oxlint-disable-next-line promise/prefer-await-to-callbacks -- grammY error handler API
-  bot.catch((error) => console.error('telegram', error.error))
+  bot.catch(async (error) => {
+    console.error('telegram', error.error)
+    if (!error.ctx.message) {
+      return
+    }
+    try {
+      await error.ctx.reply(messagesForChat(error.ctx).telegram.somethingWrong)
+    } catch {
+      // The chat may be gone; the error is already logged.
+    }
+  })
 
   return bot
 }
@@ -314,6 +351,8 @@ export const bot = env.TELEGRAM_BOT_TOKEN
 export const telegramWebhook =
   bot && env.TELEGRAM_WEBHOOK_SECRET
     ? webhookCallback(bot, 'std/http', {
+        // Drafts and answers take longer than grammY's 10 s: on "throw" Telegram retries the update and holds every later one behind it.
+        onTimeout: 'return',
         secretToken: env.TELEGRAM_WEBHOOK_SECRET,
       })
     : null

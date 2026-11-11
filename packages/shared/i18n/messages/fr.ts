@@ -126,6 +126,7 @@ export const fr: Messages = {
     },
   },
   importance: ['Bruit', 'Bon à savoir', 'Bientôt pour vous', 'Urgent'],
+  justNow: 'à l’instant',
   keys: {
     reply: 'répondre',
     snooze: 'reporter',
@@ -166,6 +167,7 @@ export const fr: Messages = {
     title: 'L’essentiel, rien de plus.',
   },
   mail: {
+    unread: 'Non lu',
     block: 'Bloquer l’expéditeur',
     blocked: 'Bloqué. Ses e-mails vont désormais à la corbeille.',
     forward: 'Transférer',
@@ -457,8 +459,7 @@ export const fr: Messages = {
   telegram: {
     heard: (text: string) => `Entendu : « ${text} »`,
     voiceFailed: 'Je n’ai pas compris. Réessayez ou écrivez-le.',
-    whichEmail:
-      'Quel e-mail ? Répondez à l’un de mes messages avec ce qu’il faut dire.',
+    help: 'Écrivez ou dites ce qu’il vous faut :\n• une question sur vos e-mails : « quand Netflix se renouvelle-t-il ? »\n• quoi répondre : « dis à Anna que je signe demain »\n• répondez à l’un de mes brouillons pour le modifier',
     canceled: 'Annulé. Le brouillon est de retour dans votre file.',
     sendingIn: (seconds: number) => `Envoi dans ${seconds} s`,
     undo: 'Annuler',

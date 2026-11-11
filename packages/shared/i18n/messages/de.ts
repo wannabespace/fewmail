@@ -125,6 +125,7 @@ export const de: Messages = {
     },
   },
   importance: ['Rauschen', 'Gut zu wissen', 'Braucht dich bald', 'Dringend'],
+  justNow: 'gerade eben',
   keys: {
     reply: 'antworten',
     snooze: 'zurückstellen',
@@ -165,6 +166,7 @@ export const de: Messages = {
     title: 'Nur, was zählt.',
   },
   mail: {
+    unread: 'Ungelesen',
     block: 'Absender blockieren',
     blocked: 'Blockiert. Ihre Mails landen jetzt im Papierkorb.',
     forward: 'Weiterleiten',
@@ -456,8 +458,7 @@ export const de: Messages = {
     heard: (text: string) => `Verstanden: „${text}“`,
     voiceFailed:
       'Das konnte ich nicht verstehen. Versuch es noch mal oder schreib es.',
-    whichEmail:
-      'Welche Mail? Antworte auf eine meiner Nachrichten und schreib, was ich sagen soll.',
+    help: 'Schreib oder sag, was du brauchst:\n• frag nach deiner Mail: „Wann verlängert sich Netflix?“\n• sag, was ich antworten soll: „Sag Anna, dass ich morgen unterschreibe“\n• antworte auf einen meiner Entwürfe, um ihn zu ändern',
     canceled: 'Abgebrochen. Der Entwurf ist wieder in deiner Warteschlange.',
     sendingIn: (seconds: number) => `Senden in ${seconds} s`,
     undo: 'Rückgängig',

@@ -178,6 +178,7 @@ export const tr: Messages = {
     removeLink: 'Bağlantıyı kaldır',
   },
   importance: ['Gürültü', 'Bilmeye değer', 'Yakında seni bekliyor', 'Acil'],
+  justNow: 'az önce',
   keys: {
     reply: 'yanıtla',
     snooze: 'ertele',
@@ -218,6 +219,7 @@ export const tr: Messages = {
     title: 'Yalnızca önemli olan.',
   },
   mail: {
+    unread: 'Okunmamış',
     block: 'Göndereni engelle',
     blocked: 'Engellendi. E-postaları artık çöpe gidiyor.',
     forward: 'İlet',
@@ -542,7 +544,7 @@ export const tr: Messages = {
   telegram: {
     heard: (text: string) => `Duyduğum: “${text}”`,
     voiceFailed: 'Anlayamadım. Tekrar dene ya da yaz.',
-    whichEmail: 'Hangi e-posta? Mesajlarımdan birini ne yazılacağıyla yanıtla.',
+    help: 'Ne istediğini yaz ya da söyle:\n• e-postaların hakkında sor: “Netflix ne zaman yenileniyor?”\n• ne yanıtlanacağını söyle: “Anna’ya yarın imzalayacağımı yaz”\n• değiştirmek için taslaklarımdan birini yanıtla',
     canceled: 'İptal edildi. Taslak kuyruğuna geri döndü.',
     sendingIn: (seconds: number) => `${seconds} sn içinde gönderiliyor`,
     undo: 'Geri al',

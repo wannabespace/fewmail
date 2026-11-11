@@ -187,6 +187,7 @@ export const en = {
     removeLink: 'Remove link',
   },
   importance: ['Noise', 'Worth knowing', 'Needs you soon', 'Urgent'],
+  justNow: 'just now',
   keys: {
     anything: 'anything',
     approve: 'approve',
@@ -227,6 +228,7 @@ export const en = {
     title: 'Only what matters.',
   },
   mail: {
+    unread: 'Unread',
     archive: 'Archive',
     archived: 'Archived',
     block: 'Block sender',
@@ -577,7 +579,7 @@ export const en = {
     somethingWrong: 'Something went wrong',
     undo: 'Undo',
     voiceFailed: 'I could not make that out. Try again or type it.',
-    whichEmail: 'Which email? Reply to one of my messages with what to say.',
+    help: 'Write or say what you need:\n• ask about your mail: “when does my Netflix renew?”\n• say what to answer: “tell Anna I’ll sign tomorrow”\n• reply to one of my drafts to change it',
     urgent: 'Urgent',
     willSend: 'Will send:',
   },

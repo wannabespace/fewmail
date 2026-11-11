@@ -202,6 +202,7 @@ export const pl: Messages = {
     removeLink: 'Usuń link',
   },
   importance: ['Szum', 'Warto wiedzieć', 'Wkrótce czeka na ciebie', 'Pilne'],
+  justNow: 'przed chwilą',
   keys: {
     reply: 'odpowiedz',
     snooze: 'odłóż',
@@ -242,6 +243,7 @@ export const pl: Messages = {
     title: 'Tylko to, co ważne.',
   },
   mail: {
+    unread: 'Nieprzeczytane',
     block: 'Zablokuj nadawcę',
     blocked: 'Zablokowano. Jego poczta trafia teraz do kosza.',
     forward: 'Przekaż',
@@ -588,8 +590,7 @@ export const pl: Messages = {
     heard: (text: string) => `Usłyszałem: „${text}”`,
     voiceFailed:
       'Nie udało mi się tego zrozumieć. Spróbuj jeszcze raz albo napisz.',
-    whichEmail:
-      'Który e-mail? Odpowiedz na jedną z moich wiadomości i napisz, co odpisać.',
+    help: 'Napisz albo powiedz, czego potrzebujesz:\n• zapytaj o pocztę: „kiedy odnawia się Netflix?”\n• powiedz, co odpisać: „napisz Annie, że podpiszę jutro”\n• odpowiedz na mój szkic, żeby go zmienić',
     canceled: 'Anulowano. Szkic wrócił do kolejki.',
     sendingIn: (seconds: number) => `Wysyłanie za ${seconds} s`,
     undo: 'Cofnij',

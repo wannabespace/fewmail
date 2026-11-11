@@ -6,15 +6,19 @@ import { subDays } from 'date-fns'
 import { and, desc, eq, gte } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
+import { askMail } from './ask'
 import { draftReply, redraftAction } from './mail'
 
 const RECENT_DAYS = 7
 const CANDIDATES = 15
 
-const targetSchema = type({ index: 'number' })
+const understandingSchema = type({
+  index: 'number',
+  intent: "'reply' | 'question' | 'other'",
+})
 
-/** "Tell Anna I'll sign tomorrow": find which email the user means among open drafts and recent mail. */
-const resolveTarget = async (userId: string, instruction: string) => {
+/** "Tell Anna I'll sign tomorrow" names an email among open drafts and recent mail; "when does Netflix renew?" asks about the mail. */
+const understand = async (userId: string, text: string) => {
   const [openDrafts, recent] = await Promise.all([
     db
       .select({
@@ -57,39 +61,47 @@ const resolveTarget = async (userId: string, instruction: string) => {
     ...openDrafts.map((draft) => ({ ...draft, messageId: null })),
     ...recent.map((mail) => ({ ...mail, actionId: null })),
   ]
-  if (candidates.length === 0) {
-    return null
-  }
   const { output } = await generateText({
-    instructions:
-      'The user gives an instruction about replying to one email. Return the index of the email it is about, or -1 when none clearly fits.',
+    instructions: [
+      'The user writes to their email assistant in a chat.',
+      'intent: "reply" when they say what to answer to one email, "question" when they ask something about their mail, "other" for anything else (greetings, what the assistant can do).',
+      'index: for "reply", the email it is about, or -1 when none clearly fits; -1 otherwise.',
+    ].join('\n'),
     model: models.fast,
-    output: Output.object({ schema: targetSchema }),
+    output: Output.object({ schema: understandingSchema }),
     prompt: [
-      `Instruction: ${instruction}`,
+      `Message: ${text}`,
       ...candidates.map(
         (candidate, index) =>
           `${index}. ${candidate.from ?? candidate.fromEmail} — ${candidate.subject}${'summary' in candidate && candidate.summary ? ` — ${candidate.summary}` : ''}`
       ),
     ].join('\n'),
   })
-  return candidates[output.index] ?? null
+  return {
+    intent: output.intent,
+    target: output.intent === 'reply' ? candidates[output.index] : undefined,
+  }
 }
 
-/** Turns a spoken or typed instruction into a reply draft; returns null when it is unclear which email is meant. */
-export const draftFromInstruction = async (
+/** A typed or spoken chat message: a reply draft, an answer about the mail, or `help` when it is neither. */
+export const followMessage = async (
   userId: string,
-  instruction: string,
+  text: string,
   actionId?: string | null
 ) => {
   if (actionId) {
-    return redraftAction(userId, actionId, instruction)
+    return { draft: await redraftAction(userId, actionId, text) }
   }
-  const target = await resolveTarget(userId, instruction)
+  const { intent, target } = await understand(userId, text)
+  if (intent === 'question') {
+    return { answer: await askMail(userId, text) }
+  }
   if (!target) {
-    return null
+    return { help: true as const }
   }
-  return target.actionId
-    ? redraftAction(userId, target.actionId, instruction)
-    : draftReply(userId, target.messageId ?? '', instruction)
+  return {
+    draft: target.actionId
+      ? await redraftAction(userId, target.actionId, text)
+      : await draftReply(userId, target.messageId ?? '', text),
+  }
 }
