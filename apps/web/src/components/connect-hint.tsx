@@ -78,7 +78,7 @@ export const ConnectHint = () => {
   const { data: whatsapp } = useQuery(
     orpc.integrations.whatsapp.get.queryOptions()
   )
-  const { data: keys } = useQuery(orpc.integrations.apiKeys.list.queryOptions())
+  const { data: apps } = useQuery(orpc.integrations.apps.list.queryOptions())
   const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
   const { data: push } = useQuery(pushStateQuery)
   const turnOnPush = useMutation({
@@ -101,7 +101,7 @@ export const ConnectHint = () => {
       action: { render: <Link to="/settings" /> },
       description: t.settings.mcp.description,
       icon: McpServerIcon,
-      isNeeded: keys && keys.length === 0,
+      isNeeded: apps && apps.length === 0,
       label: copy.setUp,
       title: t.settings.mcp.title,
     },

@@ -474,17 +474,18 @@ export const ja: Messages = {
       title: 'メールボックス',
     },
     mcp: {
-      copyNow:
-        'この設定を今すぐコピーしてください。キーは一度しか表示されません。',
-      create: 'キーを作成',
+      allow: '許可',
+      connected: (ago: string) => `${ago}に接続`,
+      copy: 'URLをコピー',
       defaultName: 'MCP クライアント',
+      deny: '拒否',
       description:
         'ブリーフとメールの閲覧、返信の下書き、あなたの確認後の送信ができます。',
-      keyName: 'キー名',
-      neverUsed: '未使用',
-      revoke: '取り消す',
+      disconnect: '接続を解除',
+      paste:
+        'このURLをアプリのコネクタとして追加し、Fewmailにサインインしてください。',
+      request: (app: string) => `${app}がFewmailへのアクセスを求めています`,
       title: 'Claude、Cursor、その他の MCP クライアントを接続',
-      used: (ago: string) => `${ago}に使用`,
     },
     signedInWithGoogle: 'Google でログイン中',
     signOut: 'ログアウト',

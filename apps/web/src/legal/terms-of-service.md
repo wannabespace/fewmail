@@ -15,7 +15,7 @@ Fewmail, owned by Wannabe Space, LLC, is an email agent that connects to your Gm
 
 - You must be at least 16 years old
 - You may connect only mailboxes you own or are authorized to manage
-- Keep your Google account, connected Telegram chat, WhatsApp number and MCP keys secure; you are responsible for all activity under your account
+- Keep your Google account, connected Telegram chat, WhatsApp number and connected MCP clients secure; you are responsible for all activity under your account
 
 ## 4. You stay in control — and responsible
 

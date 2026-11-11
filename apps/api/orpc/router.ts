@@ -40,11 +40,10 @@ import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
 import { listSubscriptions, unsubscribeSender } from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
 import {
-  createApiKey,
   getTelegramLink,
   getWhatsappLink,
-  listApiKeys,
-  revokeApiKey,
+  disconnectApp,
+  listConnectedApps,
   unlinkTelegram,
   unlinkWhatsapp,
 } from '../services/integrations'
@@ -225,16 +224,13 @@ export const router = {
     webPushKey: authed.handler(() => webPushKey()),
   },
   integrations: {
-    apiKeys: {
-      create: agent
-        .input(type({ name: 'string > 0' }))
-        .handler(async ({ context, input }) => ({
-          key: await createApiKey(context.user.id, input.name),
-        })),
-      list: agent.handler(({ context }) => listApiKeys(context.user.id)),
-      revoke: agent.input(id).handler(async ({ context, input }) => {
-        await revokeApiKey(context.user.id, input.id)
-      }),
+    apps: {
+      disconnect: agent
+        .input(type({ clientId: 'string' }))
+        .handler(async ({ context, input }) => {
+          await disconnectApp(context.user.id, input.clientId)
+        }),
+      list: agent.handler(({ context }) => listConnectedApps(context.user.id)),
     },
     telegram: {
       get: agent.handler(({ context }) => getTelegramLink(context.user.id)),

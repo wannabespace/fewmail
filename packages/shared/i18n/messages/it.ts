@@ -509,17 +509,18 @@ export const it: Messages = {
       title: 'Caselle di posta',
     },
     mcp: {
-      copyNow:
-        'Copia ora questa configurazione: la chiave viene mostrata una sola volta.',
-      create: 'Crea chiave',
+      allow: 'Consenti',
+      connected: (ago: string) => `Collegato ${ago}`,
+      copy: 'Copia URL',
       defaultName: 'Client MCP',
+      deny: 'Rifiuta',
       description:
         'Possono leggere il tuo brief e la posta, scrivere bozze e inviarle dopo la tua conferma.',
-      keyName: 'Nome della chiave',
-      neverUsed: 'Mai usata',
-      revoke: 'Revoca',
+      disconnect: 'Scollega',
+      paste:
+        'Aggiungi questo URL come connettore nella tua app, poi accedi a Fewmail.',
+      request: (app: string) => `${app} vuole usare il tuo Fewmail`,
       title: 'Collega Claude, Cursor o qualsiasi client MCP',
-      used: (ago: string) => `Usata ${ago}`,
     },
     signedInWithGoogle: 'Accesso con Google',
     signOut: 'Esci',

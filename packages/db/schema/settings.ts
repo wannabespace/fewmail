@@ -71,18 +71,6 @@ export const devices = d.snakeCase.table('devices', {
     .references(() => users.id, { onDelete: 'cascade' }),
 })
 
-export const apiKeys = d.snakeCase.table('api_keys', {
-  ...baseTable,
-  keyHash: d.text().notNull().unique(),
-  lastUsedAt: d.timestamp({ withTimezone: true }),
-  name: encryptedText().notNull(),
-  prefix: d.text().notNull(),
-  userId: d
-    .uuid()
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-})
-
 /** Agent usage per user and calendar month (UTC), against `PLAN_LIMITS`. */
 export const usage = d.snakeCase.table(
   'usage',

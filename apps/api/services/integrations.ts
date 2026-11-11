@@ -1,52 +1,53 @@
-import { createHash } from 'node:crypto'
-
 import { db } from '@fewmail/db'
-import { apiKeys, telegramLinks, whatsappLinks } from '@fewmail/db/schema'
+import {
+  oauthAccessTokens,
+  oauthClients,
+  oauthConsents,
+  oauthRefreshTokens,
+  telegramLinks,
+  whatsappLinks,
+} from '@fewmail/db/schema'
 import { and, desc, eq } from 'drizzle-orm'
-import { customAlphabet, nanoid } from 'nanoid'
+import { customAlphabet } from 'nanoid'
 
 import { env } from '../env'
 
-const API_KEY_PREFIX = 'fm_'
-
-const hashKey = (key: string) => createHash('sha256').update(key).digest('hex')
-
-export const listApiKeys = (userId: string) =>
+/** Apps the user allowed into MCP through OAuth; consent is what keeps one connected. */
+export const listConnectedApps = (userId: string) =>
   db
     .select({
-      createdAt: apiKeys.createdAt,
-      id: apiKeys.id,
-      lastUsedAt: apiKeys.lastUsedAt,
-      name: apiKeys.name,
-      prefix: apiKeys.prefix,
+      clientId: oauthConsents.clientId,
+      connectedAt: oauthConsents.createdAt,
+      name: oauthClients.name,
     })
-    .from(apiKeys)
-    .where(eq(apiKeys.userId, userId))
-    .orderBy(desc(apiKeys.createdAt))
+    .from(oauthConsents)
+    .innerJoin(oauthClients, eq(oauthClients.clientId, oauthConsents.clientId))
+    .where(eq(oauthConsents.userId, userId))
+    .orderBy(desc(oauthConsents.createdAt))
 
-/** The plain key is returned once and never stored. */
-export const createApiKey = async (userId: string, name: string) => {
-  const key = `${API_KEY_PREFIX}${nanoid(40)}`
-  await db.insert(apiKeys).values({
-    keyHash: hashKey(key),
-    name,
-    prefix: key.slice(0, API_KEY_PREFIX.length + 6),
-    userId,
-  })
-  return key
+export const isAppConnected = async (userId: string, clientId: string) => {
+  const [consent] = await db
+    .select({ id: oauthConsents.id })
+    .from(oauthConsents)
+    .where(
+      and(
+        eq(oauthConsents.userId, userId),
+        eq(oauthConsents.clientId, clientId)
+      )
+    )
+  return !!consent
 }
 
-export const revokeApiKey = (userId: string, id: string) =>
-  db.delete(apiKeys).where(and(eq(apiKeys.id, id), eq(apiKeys.userId, userId)))
-
-export const userIdForApiKey = async (key: string) => {
-  const [row] = await db
-    .update(apiKeys)
-    .set({ lastUsedAt: new Date() })
-    .where(eq(apiKeys.keyHash, hashKey(key)))
-    .returning({ userId: apiKeys.userId })
-  return row?.userId ?? null
-}
+export const disconnectApp = (userId: string, clientId: string) =>
+  db.transaction((tx) =>
+    Promise.all(
+      [oauthConsents, oauthAccessTokens, oauthRefreshTokens].map((table) =>
+        tx
+          .delete(table)
+          .where(and(eq(table.userId, userId), eq(table.clientId, clientId)))
+      )
+    )
+  )
 
 const linkCode = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 10)
 

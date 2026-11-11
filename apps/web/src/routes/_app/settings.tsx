@@ -15,7 +15,7 @@ import {
   AlertDialogTrigger,
 } from '@fewmail/ui/components/alert-dialog'
 import { Button } from '@fewmail/ui/components/button'
-import { CodeBlock } from '@fewmail/ui/components/custom/code-block'
+import { CopyIconButton } from '@fewmail/ui/components/custom/copy-button'
 import {
   SettingsGroup,
   SettingsRow,
@@ -235,94 +235,49 @@ const MessengerSettings = ({
   )
 }
 
-const mcpConfig = (key: string) =>
-  JSON.stringify(
-    {
-      mcpServers: {
-        fewmail: {
-          headers: { Authorization: `Bearer ${key}` },
-          type: 'http',
-          url: `${import.meta.env.API_URL}/mcp`,
-        },
-      },
-    },
-    null,
-    2
-  )
+const MCP_URL = `${import.meta.env.API_URL}/mcp`
 
 const McpSettings = () => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
-  const [name, setName] = useState('')
-  const [createdKey, setCreatedKey] = useState<string | null>(null)
-  const { data: keys = [] } = useQuery(
-    orpc.integrations.apiKeys.list.queryOptions()
+  const { data: apps = [] } = useQuery(
+    orpc.integrations.apps.list.queryOptions()
   )
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: orpc.integrations.apiKeys.key() })
-  const create = useMutation(
-    orpc.integrations.apiKeys.create.mutationOptions({
-      onSuccess: ({ key }) => {
-        setCreatedKey(key)
-        setName('')
-        void invalidate()
-      },
+  const disconnect = useMutation(
+    orpc.integrations.apps.disconnect.mutationOptions({
+      onSuccess: () =>
+        queryClient.invalidateQueries({
+          queryKey: orpc.integrations.apps.key(),
+        }),
     })
-  )
-  const revoke = useMutation(
-    orpc.integrations.apiKeys.revoke.mutationOptions({ onSuccess: invalidate })
   )
 
   return (
     <SettingsGroup title="MCP">
       <SettingsRow
         title={t.settings.mcp.title}
-        description={t.settings.mcp.description}
+        description={t.settings.mcp.paste}
       >
-        <form
-          className="flex items-center gap-2"
-          onSubmit={(event) => {
-            event.preventDefault()
-            create.mutate({ name: name.trim() || t.settings.mcp.defaultName })
-          }}
-        >
-          <Input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder={t.settings.mcp.keyName}
-            aria-label={t.settings.mcp.keyName}
-            className="w-36"
-          />
-          <Button size="sm" type="submit" disabled={create.isPending}>
-            {t.settings.mcp.create}
-          </Button>
-        </form>
-      </SettingsRow>
-      {createdKey && (
-        <div className="flex flex-col gap-2 p-3.5">
-          <p className="text-muted-foreground text-sm">
-            {t.settings.mcp.copyNow}
-          </p>
-          <CodeBlock code={mcpConfig(createdKey)} language="json" />
+        <div className="flex items-center gap-1">
+          <span className="text-muted-foreground font-mono text-sm">
+            {MCP_URL}
+          </span>
+          <CopyIconButton label={t.settings.mcp.copy} text={MCP_URL} />
         </div>
-      )}
-      {keys.map((key) => (
+      </SettingsRow>
+      {apps.map((app) => (
         <SettingsRow
-          key={key.id}
-          title={`${key.name} · ${key.prefix}…`}
-          description={
-            key.lastUsedAt
-              ? t.settings.mcp.used(dates.ago(key.lastUsedAt))
-              : t.settings.mcp.neverUsed
-          }
+          key={app.clientId}
+          title={app.name ?? t.settings.mcp.defaultName}
+          description={t.settings.mcp.connected(dates.ago(app.connectedAt))}
         >
           <Button
             size="sm"
             variant="ghost-destructive"
-            onClick={() => revoke.mutate({ id: key.id })}
+            onClick={() => disconnect.mutate({ clientId: app.clientId })}
           >
-            {t.settings.mcp.revoke}
+            {t.settings.mcp.disconnect}
           </Button>
         </SettingsRow>
       ))}

@@ -509,17 +509,18 @@ export const de: Messages = {
       title: 'Postfächer',
     },
     mcp: {
-      copyNow:
-        'Kopiere die Konfiguration jetzt: Der Schlüssel wird nur einmal angezeigt.',
-      create: 'Schlüssel erstellen',
+      allow: 'Erlauben',
+      connected: (ago: string) => `Verbunden ${ago}`,
+      copy: 'URL kopieren',
       defaultName: 'MCP-Client',
+      deny: 'Ablehnen',
       description:
         'Sie können dein Briefing und deine Mails lesen, Antworten entwerfen und nach deiner Bestätigung senden.',
-      keyName: 'Name des Schlüssels',
-      neverUsed: 'Nie verwendet',
-      revoke: 'Widerrufen',
+      disconnect: 'Trennen',
+      paste:
+        'Füge diese URL als Connector in deiner App hinzu und melde dich bei Fewmail an.',
+      request: (app: string) => `${app} möchte dein Fewmail nutzen`,
       title: 'Claude, Cursor oder einen beliebigen MCP-Client verbinden',
-      used: (ago: string) => `Verwendet ${ago}`,
     },
     signedInWithGoogle: 'Mit Google angemeldet',
     signOut: 'Abmelden',

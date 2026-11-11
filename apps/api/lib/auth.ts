@@ -1,15 +1,20 @@
 import { Buffer } from 'node:buffer'
 
 import { drizzleAdapter } from '@better-auth/drizzle-adapter/relations-v2'
+import { oauthProvider } from '@better-auth/oauth-provider'
 import { db } from '@fewmail/db'
 import { accounts } from '@fewmail/db/schema'
 import * as schema from '@fewmail/db/schema'
 import { betterAuth } from 'better-auth'
+import { jwt } from 'better-auth/plugins'
 import { and, eq } from 'drizzle-orm'
 
 import { env } from '../env'
 
 export const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
+
+export const MCP_RESOURCE = `${env.API_URL}/mcp`
+export const AUTH_ISSUER = `${env.API_URL}/auth`
 
 export const auth = betterAuth({
   account: {
@@ -20,11 +25,28 @@ export const auth = betterAuth({
   },
   basePath: '/auth',
   baseURL: env.API_URL,
+  // Session JWTs would share the signing key with MCP access tokens.
+  disabledPaths: ['/token'],
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema,
     usePlural: true,
   }) as ReturnType<typeof drizzleAdapter>,
+  plugins: [
+    jwt({
+      disableSettingJwtHeader: true,
+      schema: { jwks: { modelName: 'jwk' } },
+    }),
+    oauthProvider({
+      allowDynamicClientRegistration: true,
+      allowUnauthenticatedClientRegistration: true,
+      clientRegistrationDefaultApplicationType: 'infer',
+      clientRegistrationDefaultResources: [MCP_RESOURCE],
+      consentPage: `${env.WEB_URL}/connect`,
+      loginPage: `${env.WEB_URL}/login`,
+      resources: [MCP_RESOURCE],
+    }),
+  ],
   secret: env.BETTER_AUTH_SECRET,
   socialProviders: {
     google: {

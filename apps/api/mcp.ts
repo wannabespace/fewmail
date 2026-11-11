@@ -1,11 +1,16 @@
+import { createResourceServerChallenge } from '@better-auth/oauth-provider'
+import { oauthProviderResourceClient } from '@better-auth/oauth-provider/resource-client'
 import { SKILLS } from '@fewmail/shared/agent'
 import { messages } from '@fewmail/shared/i18n'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
+import { APIError, isAPIError } from 'better-auth/api'
+import { createAuthClient } from 'better-auth/client'
 import { z } from 'zod'
 
+import { auth, AUTH_ISSUER, MCP_RESOURCE } from './lib/auth'
 import { agentTools } from './services/agent-tools'
-import { userIdForApiKey } from './services/integrations'
+import { isAppConnected } from './services/integrations'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { skillPrompt } from './services/skills'
 
@@ -55,16 +60,43 @@ const createServer = (userId: string) => {
   return server
 }
 
+const resourceServer = createAuthClient({
+  plugins: [oauthProviderResourceClient(auth)],
+})
+
+export const mcpResourceMetadata = () =>
+  resourceServer.getProtectedResourceMetadata({
+    authorization_servers: [AUTH_ISSUER],
+    resource: MCP_RESOURCE,
+  })
+
+/** Access tokens are JWTs that outlive a disconnect, so the consent is checked on every call. */
+const verifyCaller = async (request: Request) => {
+  const token = await resourceServer.verifyAccessTokenRequest(request, {
+    verifyOptions: {
+      audience: MCP_RESOURCE,
+      issuer: AUTH_ISSUER,
+      requiredClaims: ['azp'],
+      typ: 'at+jwt',
+    },
+  })
+  if (!token.sub || !(await isAppConnected(token.sub, String(token.azp)))) {
+    throw new APIError('UNAUTHORIZED', { error: 'invalid_token' })
+  }
+  return token.sub
+}
+
 export const handleMcp = async (request: Request) => {
-  const key = request.headers.get('authorization')?.replace(/^Bearer\s+/iu, '')
-  const userId = key ? await userIdForApiKey(key) : null
-  if (!userId) {
+  const userId = await verifyCaller(request).catch((error: unknown) => {
+    if (!isAPIError(error)) {
+      throw error
+    }
+    return createResourceServerChallenge(error, MCP_RESOURCE)
+  })
+  if (typeof userId !== 'string') {
     return Response.json(
-      {
-        error:
-          'Create an API key in Fewmail → Settings → Integrations and send it as a Bearer token.',
-      },
-      { status: 401 }
+      { error: 'Connect Fewmail from your MCP client and allow access.' },
+      { headers: userId?.headers, status: userId?.statusCode ?? 401 }
     )
   }
   if (!hasAgent(await getPlanInfo(userId))) {

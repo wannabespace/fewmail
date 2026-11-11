@@ -509,17 +509,18 @@ export const es: Messages = {
       title: 'Buzones',
     },
     mcp: {
-      copyNow:
-        'Copia esta configuración ahora: la clave solo se muestra una vez.',
-      create: 'Crear clave',
+      allow: 'Permitir',
+      connected: (ago: string) => `Conectado ${ago}`,
+      copy: 'Copiar URL',
       defaultName: 'Cliente MCP',
+      deny: 'Rechazar',
       description:
         'Pueden leer tu resumen y tu correo, redactar respuestas y enviarlas cuando confirmes.',
-      keyName: 'Nombre de la clave',
-      neverUsed: 'Nunca usada',
-      revoke: 'Revocar',
+      disconnect: 'Desconectar',
+      paste:
+        'Añade esta URL como conector en tu app e inicia sesión en Fewmail.',
+      request: (app: string) => `${app} quiere usar tu Fewmail`,
       title: 'Conecta Claude, Cursor o cualquier cliente MCP',
-      used: (ago: string) => `Usada ${ago}`,
     },
     signedInWithGoogle: 'Sesión iniciada con Google',
     signOut: 'Cerrar sesión',

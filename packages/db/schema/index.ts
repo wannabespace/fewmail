@@ -1,4 +1,17 @@
-export { accounts, sessions, users, verifications } from './auth'
+export {
+  accounts,
+  jwks,
+  oauthAccessTokens,
+  oauthClientAssertions,
+  oauthClientResources,
+  oauthClients,
+  oauthConsents,
+  oauthRefreshTokens,
+  oauthResources,
+  sessions,
+  users,
+  verifications,
+} from './auth'
 export {
   actions,
   analyses,
@@ -13,7 +26,6 @@ export {
 } from './mail'
 export type { BriefStats, Extracted, SimpleMatch } from './mail'
 export {
-  apiKeys,
   devices,
   subscriptions,
   telegramLinks,

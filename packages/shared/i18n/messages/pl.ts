@@ -612,17 +612,18 @@ export const pl: Messages = {
       title: 'Skrzynki',
     },
     mcp: {
-      copyNow:
-        'Skopiuj tę konfigurację teraz: klucz jest pokazywany tylko raz.',
-      create: 'Utwórz klucz',
+      allow: 'Zezwól',
+      connected: (ago: string) => `Połączono ${ago}`,
+      copy: 'Kopiuj URL',
       defaultName: 'Klient MCP',
+      deny: 'Odmów',
       description:
         'Mogą czytać twoje podsumowanie i pocztę, pisać szkice odpowiedzi i wysyłać je po twoim potwierdzeniu.',
-      keyName: 'Nazwa klucza',
-      neverUsed: 'Nigdy nieużyty',
-      revoke: 'Unieważnij',
+      disconnect: 'Odłącz',
+      paste:
+        'Dodaj ten URL jako konektor w swojej aplikacji i zaloguj się do Fewmail.',
+      request: (app: string) => `${app} chce korzystać z twojego Fewmail`,
       title: 'Połącz Claude, Cursor lub dowolnego klienta MCP',
-      used: (ago: string) => `Użyty ${ago}`,
     },
     signedInWithGoogle: 'Zalogowano przez Google',
     signOut: 'Wyloguj się',

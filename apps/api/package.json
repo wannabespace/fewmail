@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "catalog:",
+    "@better-auth/oauth-provider": "catalog:",
     "@fewmail/db": "workspace:*",
     "@fewmail/shared": "workspace:*",
     "@mistralai/mistralai": "catalog:",

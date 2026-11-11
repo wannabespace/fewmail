@@ -575,17 +575,18 @@ export const id: Messages = {
       title: 'Kotak surat',
     },
     mcp: {
-      copyNow:
-        'Salin konfigurasi ini sekarang: kuncinya hanya ditampilkan sekali.',
-      create: 'Buat kunci',
+      allow: 'Izinkan',
+      connected: (ago: string) => `Terhubung ${ago}`,
+      copy: 'Salin URL',
       defaultName: 'Klien MCP',
+      deny: 'Tolak',
       description:
         'Mereka bisa membaca ringkasan dan emailmu, menyusun draf balasan, dan mengirimnya setelah kamu konfirmasi.',
-      keyName: 'Nama kunci',
-      neverUsed: 'Belum pernah dipakai',
-      revoke: 'Cabut',
+      disconnect: 'Putuskan',
+      paste:
+        'Tambahkan URL ini sebagai konektor di aplikasimu, lalu masuk ke Fewmail.',
+      request: (app: string) => `${app} ingin memakai Fewmail-mu`,
       title: 'Hubungkan Claude, Cursor, atau klien MCP apa pun',
-      used: (ago: string) => `Dipakai ${ago}`,
     },
     signedInWithGoogle: 'Masuk dengan Google',
     signOut: 'Keluar',

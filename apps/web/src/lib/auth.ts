@@ -1,3 +1,4 @@
+import { oauthProviderClient } from '@better-auth/oauth-provider/client'
 import { type } from 'arktype'
 import { createAuthClient } from 'better-auth/react'
 import { createWebStorageValue } from 'seitu/web'
@@ -7,6 +8,7 @@ import { disablePush } from './push'
 export const authClient = createAuthClient({
   basePath: '/auth',
   baseURL: import.meta.env.API_URL,
+  plugins: [oauthProviderClient()],
 })
 
 export const signInWithGoogle = () =>

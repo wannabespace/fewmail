@@ -1,3 +1,4 @@
+import { oauthProviderAuthServerMetadata } from '@better-auth/oauth-provider'
 import { runMigrations } from '@fewmail/db'
 import { RPCHandler } from '@orpc/server/fetch'
 import { Hono } from 'hono'
@@ -6,7 +7,7 @@ import { cors } from 'hono/cors'
 import { env } from './env'
 import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
 import { relayChanges } from './lib/live'
-import { handleMcp } from './mcp'
+import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
 import { handleGmailPush } from './services/gmail-push'
@@ -28,6 +29,13 @@ const app = new Hono()
     })
     return matched ? response : c.notFound()
   })
+  .use('/.well-known/*', cors({ origin: '*' }))
+  .get('/.well-known/oauth-authorization-server/auth', (c) =>
+    oauthProviderAuthServerMetadata(auth)(c.req.raw)
+  )
+  .get('/.well-known/oauth-protected-resource/mcp', async (c) =>
+    c.json(await mcpResourceMetadata())
+  )
   .all('/mcp', (c) => handleMcp(c.req.raw))
   .post('/telegram', (c) =>
     telegramWebhook ? telegramWebhook(c.req.raw) : c.notFound()

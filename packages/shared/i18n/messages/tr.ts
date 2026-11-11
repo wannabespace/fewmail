@@ -568,17 +568,18 @@ export const tr: Messages = {
       title: 'Posta kutuları',
     },
     mcp: {
-      copyNow:
-        'Bu yapılandırmayı şimdi kopyala: anahtar yalnızca bir kez gösterilir.',
-      create: 'Anahtar oluştur',
+      allow: 'İzin ver',
+      connected: (ago: string) => `${ago} bağlandı`,
+      copy: 'URL’yi kopyala',
       defaultName: 'MCP istemcisi',
+      deny: 'Reddet',
       description:
         'Özetini ve postalarını okuyabilir, yanıt taslağı yazabilir ve sen onayladıktan sonra gönderebilirler.',
-      keyName: 'Anahtar adı',
-      neverUsed: 'Hiç kullanılmadı',
-      revoke: 'İptal et',
+      disconnect: 'Bağlantıyı kes',
+      paste:
+        'Bu URL’yi uygulamana bağlayıcı olarak ekle, sonra Fewmail’e giriş yap.',
+      request: (app: string) => `${app} Fewmail’ini kullanmak istiyor`,
       title: 'Claude, Cursor veya herhangi bir MCP istemcisini bağla',
-      used: (ago: string) => `Son kullanım ${ago}`,
     },
     signedInWithGoogle: 'Google ile giriş yapıldı',
     signOut: 'Çıkış yap',
