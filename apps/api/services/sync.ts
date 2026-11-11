@@ -24,7 +24,7 @@ import { analyzeMessage } from './agent'
 import { collectEntries, collectForNewMail } from './boards'
 import { measureBulk } from './bulk'
 import { searchMailboxes } from './mailboxes'
-import { getPlanInfo, hasAgent } from './plan'
+import { emailAllowance, getPlanInfo, hasAgent } from './plan'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
 import { applySimpleRules } from './simple-rules'
@@ -93,7 +93,7 @@ const newMessageIds = async (mailbox: Mailbox) => {
 }
 
 export const analyzePending = async (userId: string) => {
-  const agent = hasAgent(await getPlanInfo(userId))
+  const { allowance, save } = await emailAllowance(userId)
   const pending = await db
     .select({ address: mailboxes.email, message: messages })
     .from(messages)
@@ -115,10 +115,11 @@ export const analyzePending = async (userId: string) => {
     )
 
   await inBatches(pending, ANALYZE_CONCURRENCY, ({ address, message }) =>
-    analyzeMessage(message, address, agent).catch((error) =>
+    analyzeMessage(message, address, allowance).catch((error) =>
       console.error(`analyze ${message.id} failed`, error)
     )
   )
+  await save()
 }
 
 /**

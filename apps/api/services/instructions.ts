@@ -8,6 +8,7 @@ import { and, desc, eq, gte } from 'drizzle-orm'
 import { models } from '../lib/ai'
 import { askMail } from './ask'
 import { draftReply, redraftAction } from './mail'
+import { spendMessage } from './plan'
 
 const RECENT_DAYS = 7
 const CANDIDATES = 15
@@ -89,6 +90,7 @@ export const followMessage = async (
   text: string,
   actionId?: string | null
 ) => {
+  await spendMessage(userId)
   if (actionId) {
     return { draft: await redraftAction(userId, actionId, text) }
   }

@@ -37,6 +37,14 @@ export const matchLocale = (tags: readonly string[]): Locale => {
 export const englishName = (locale: Locale) =>
   LOCALES.find(({ code }) => code === locale)?.english ?? 'English'
 
+/** Plan limits reset at a UTC month start, so the day is read in UTC. */
+export const formatResetDay = (locale: Locale, date: Date) =>
+  new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'UTC',
+  }).format(date)
+
 export const plural = (
   locale: Locale,
   count: number,

@@ -18,6 +18,7 @@ import {
 import { scheduleMail } from './outbox'
 import { getPerson } from './people'
 import { createRule, listRules } from './rules'
+import { createSchedule, deleteSchedule, listSchedules } from './schedules'
 import { syncMailboxes } from './sync'
 import { createTask } from './tasks'
 
@@ -182,6 +183,32 @@ export const agentTools = (userId: string) => ({
       instruction: z.string().min(3),
     },
     run: (input) => createRule(userId, input),
+  }),
+  list_schedules: define({
+    access: 'read',
+    description:
+      "The user's schedules: instructions the agent runs on its own at set times, each with its cadence in words, the next run and the chat its runs land in.",
+    run: () => listSchedules(userId),
+  }),
+  create_schedule: define({
+    access: 'consent',
+    description:
+      'Run an instruction on a schedule, for anything the user wants regularly: every Friday at 17:00 "collect this week\'s invoices and tell me the total", every Monday at 9:00 "write the weekly report to team@… from the Money board". instruction is the message the agent receives each time, complete on its own. cron is a 5-field cron expression in the user\'s timezone, at most hourly; when is the same cadence in words in the user\'s language ("Every Friday at 17:00"). Each run is a new message in the schedule\'s own chat and the user gets a notification; sending and Gmail changes still wait for their approval there.',
+    input: {
+      cron: z.string(),
+      instruction: z.string().min(4),
+      when: z.string().min(2),
+    },
+    run: (input) => createSchedule(userId, input),
+  }),
+  delete_schedule: define({
+    access: 'write',
+    description: 'Stop a schedule; its past runs stay in its chat.',
+    input: { id: z.uuid() },
+    run: async ({ id }) => {
+      await deleteSchedule(userId, id)
+      return { deleted: true }
+    },
   }),
   refresh: define({
     access: 'write',

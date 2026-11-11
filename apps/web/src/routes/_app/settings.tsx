@@ -1,7 +1,8 @@
-import type { Plan } from '@fewmail/shared/agent'
-import { PRO_PRICE_USD } from '@fewmail/shared/agent'
+import type { BillingInterval, PaidPlan, Plan } from '@fewmail/shared/agent'
+import { PAID_PLANS, PLAN_LIMITS, PRICE_USD } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
+import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +21,7 @@ import {
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Input } from '@fewmail/ui/components/input'
+import { Progress } from '@fewmail/ui/components/progress'
 import { Switch } from '@fewmail/ui/components/switch'
 import { Textarea } from '@fewmail/ui/components/textarea'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -34,7 +36,7 @@ import {
   PersonaSelect,
 } from '~/components/agent-fields'
 import { authClient, signedInStore } from '~/lib/auth'
-import { localeStore, useDates, useT } from '~/lib/i18n'
+import { localeStore, useDates, useLocale, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import {
   disablePush,
@@ -386,6 +388,9 @@ const DeleteAccount = () => {
   )
 }
 
+const isPaid = (kind: Plan): kind is PaidPlan =>
+  (PAID_PLANS as readonly Plan[]).includes(kind)
+
 const planDescription = (
   t: Messages,
   plan: {
@@ -399,9 +404,9 @@ const planDescription = (
   if (plan.kind === 'trial' && plan.trialEndsAt) {
     return t.plan.trialDescription(formatDate(plan.trialEndsAt))
   }
-  if (plan.kind === 'pro' && plan.periodEnd) {
+  if (isPaid(plan.kind) && plan.periodEnd) {
     return plan.cancelAtPeriodEnd
-      ? t.plan.proCancels(formatDate(plan.periodEnd))
+      ? t.plan.cancels(t.plan[plan.kind], formatDate(plan.periodEnd))
       : t.plan.proRenews(formatDate(plan.periodEnd))
   }
   return t.plan.freeDescription
@@ -409,17 +414,48 @@ const planDescription = (
 
 const redirectTo = ({ url }: { url: string }) => location.assign(url)
 
+const UsageMeter = ({ total, used }: { total: number; used: number }) => {
+  const t = useT()
+  const locale = useLocale()
+  return (
+    <div className="flex w-28 flex-col items-end gap-1.5">
+      <span className="text-muted-foreground text-xs tabular-nums">
+        {t.plan.of(used.toLocaleString(locale), total.toLocaleString(locale))}
+      </span>
+      <Progress
+        value={Math.min(100, (used / total) * 100)}
+        variant={used >= total ? 'destructive' : 'default'}
+      />
+    </div>
+  )
+}
+
 const PlanSettings = () => {
   const t = useT()
   const dates = useDates()
+  const locale = useLocale()
   const { me } = Route.useRouteContext()
-  const { plan } = me
+  const { plan, usage } = me
   const checkout = useMutation(
     orpc.billing.checkout.mutationOptions({ onSuccess: redirectTo })
   )
   const portal = useMutation(
     orpc.billing.portal.mutationOptions({ onSuccess: redirectTo })
   )
+  const [billingInterval, setBillingInterval] =
+    useState<BillingInterval>('month')
+  const formatPrice =
+    billingInterval === 'year' ? t.plan.priceYearly : t.plan.price
+  const limits = plan.kind === 'free' ? null : PLAN_LIMITS[plan.kind]
+  const choices =
+    plan.kind === 'max'
+      ? []
+      : PAID_PLANS.filter((choice) => choice !== plan.kind)
+  const limitsText = (choice: PaidPlan) => {
+    const { emails, messages } = PLAN_LIMITS[choice]
+    const describe = choice === 'max' ? t.plan.maxLimits : t.plan.proLimits
+    return describe(emails.toLocaleString(locale), String(messages))
+  }
 
   return (
     <SettingsGroup title={t.plan.title}>
@@ -429,7 +465,7 @@ const PlanSettings = () => {
           dates.format(date, 'PPP')
         )}
       >
-        {plan.kind === 'pro' ? (
+        {isPaid(plan.kind) && (
           <Button
             size="sm"
             variant="outline"
@@ -438,20 +474,63 @@ const PlanSettings = () => {
           >
             {t.plan.manage}
           </Button>
-        ) : (
-          <Button
-            size="sm"
-            variant={plan.kind === 'free' ? 'default' : 'outline'}
-            disabled={checkout.isPending}
-            onClick={() => checkout.mutate()}
-          >
-            {t.plan.upgrade} · {t.plan.price(PRO_PRICE_USD)}
-          </Button>
         )}
       </SettingsRow>
-      {plan.kind !== 'pro' && (
-        <p className="text-muted-foreground p-3.5 text-sm">{t.plan.includes}</p>
+      {limits && (
+        <>
+          <SettingsRow title={t.plan.emails} description={t.plan.emailsHint}>
+            <UsageMeter used={usage.emails} total={limits.emails} />
+          </SettingsRow>
+          <SettingsRow
+            title={t.plan.messages}
+            description={t.plan.messagesHint}
+          >
+            <UsageMeter used={usage.messages} total={limits.messages} />
+          </SettingsRow>
+        </>
       )}
+      {!isPaid(plan.kind) && (
+        <SettingsRow
+          title={t.plan.yearly}
+          description={t.plan.yearlyHint}
+          htmlFor="yearly-billing"
+        >
+          <Switch
+            id="yearly-billing"
+            checked={billingInterval === 'year'}
+            onCheckedChange={(yearly) =>
+              setBillingInterval(yearly ? 'year' : 'month')
+            }
+          />
+        </SettingsRow>
+      )}
+      {choices.map((choice) => (
+        <SettingsRow
+          key={choice}
+          title={`${t.plan[choice]} · ${formatPrice(PRICE_USD[choice][billingInterval])}`}
+          description={limitsText(choice)}
+        >
+          <Button
+            size="sm"
+            variant={
+              plan.kind === 'free' && choice === 'pro' ? 'default' : 'outline'
+            }
+            disabled={checkout.isPending || portal.isPending}
+            onClick={() =>
+              isPaid(plan.kind)
+                ? portal.mutate()
+                : checkout.mutate({ interval: billingInterval, plan: choice })
+            }
+          >
+            {t.plan.choose(t.plan[choice])}
+          </Button>
+        </SettingsRow>
+      ))}
+      <p className="text-muted-foreground p-3.5 text-sm">
+        {limits
+          ? t.plan.resets(formatResetDay(locale, usage.resetsAt))
+          : t.plan.includes}
+      </p>
     </SettingsGroup>
   )
 }
@@ -599,6 +678,47 @@ const SnippetsSettings = () => {
   )
 }
 
+const ScheduleSettings = () => {
+  const t = useT()
+  const dates = useDates()
+  const queryClient = useQueryClient()
+  const { data: schedules = [] } = useQuery(orpc.schedules.list.queryOptions())
+  const remove = useMutation(
+    orpc.schedules.delete.mutationOptions({
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.schedules.key() }),
+    })
+  )
+
+  return (
+    <SettingsGroup title={t.settings.schedules.title}>
+      <span className="text-muted-foreground p-3.5 text-sm">
+        {t.settings.schedules.description}
+      </span>
+      {schedules.map((schedule) => (
+        <SettingsRow
+          key={schedule.id}
+          title={<span data-mask>{schedule.instruction}</span>}
+          description={
+            <span data-mask>
+              {schedule.when} ·{' '}
+              {dates.format(schedule.nextRunAt, 'EEE d MMM, HH:mm')}
+            </span>
+          }
+        >
+          <Button
+            size="sm"
+            variant="ghost-destructive"
+            onClick={() => remove.mutate({ id: schedule.id })}
+          >
+            {t.settings.schedules.delete}
+          </Button>
+        </SettingsRow>
+      ))}
+    </SettingsGroup>
+  )
+}
+
 const SettingsPage = () => {
   const t = useT()
   const { me } = Route.useRouteContext()
@@ -618,10 +738,10 @@ const SettingsPage = () => {
 
   useEffect(() => {
     if (upgraded) {
-      toast.success(t.plan.welcome)
+      toast.success(t.plan.welcome(t.plan[upgraded]))
       void router.invalidate()
     }
-  }, [upgraded, router, t.plan.welcome])
+  }, [upgraded, router, t.plan])
 
   return (
     <main className="flex-1 overflow-y-auto">
@@ -640,6 +760,7 @@ const SettingsPage = () => {
               <MessengerSettings channel="whatsapp" />
             </SettingsGroup>
             <McpSettings />
+            <ScheduleSettings />
           </>
         )}
         <SnippetsSettings />
@@ -681,6 +802,6 @@ export const Route = createFileRoute('/_app/settings')({
   component: SettingsPage,
   validateSearch: type({
     'mailbox?': "'added' | 'failed' | 'sign_in'",
-    'upgraded?': 'boolean',
+    'upgraded?': type.enumerated(...PAID_PLANS),
   }),
 })

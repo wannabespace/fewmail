@@ -196,6 +196,14 @@ export const ja: Messages = {
     terms: '利用規約',
     updated: (date: string) => `最終更新日：${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `現在のプランのボードは ${total} 個までです。1 つ削除するか、設定 → プランで Max に切り替えてください。`,
+    messages: (date: string) =>
+      `今月のエージェントへのメッセージを使い切りました。${date} に戻ります。`,
+    tasks: (total: number) =>
+      `現在のプランで同時に任せられるスレッドは ${total} 件です。1 件終わるのを待つか、設定 → プランで Max に切り替えてください。`,
+  },
   login: {
     agree: ((slots) => [
       '続行すると、',
@@ -265,6 +273,7 @@ export const ja: Messages = {
     syncing: '受信トレイを読んでいます…',
     today: '今日',
     trialLeft: (total: number) => `Pro トライアル · 残り ${total} 日`,
+    usage: (percent: number) => `エージェント · 今月の ${percent}% を使用`,
     watching: 'エージェントが受信トレイを見守っています',
   },
   notifications: {
@@ -288,16 +297,31 @@ export const ja: Messages = {
       'Pro ではエージェントが加わります：毎日のブリーフ、すべてのメールの読み取りと要約、あなたの口調での返信の下書き、自然な言葉で書けるルール、Telegram と MCP。',
     manage: '支払いを管理',
     price: (usd: number) => `$${usd} / 月`,
+    priceYearly: (usd: number) => `$${usd} / 年`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `毎月 ${emails} 通のメールと ${messages} 件のメッセージ。ボードと任せたスレッドは無制限。`,
+    messages: 'エージェントへのメッセージ',
+    messagesHint: 'チャット、Ask、Telegram、WhatsApp。',
+    of: (used: string, total: string) => `${used} / ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) =>
-      `${date} まで Pro、その後は Free になります。`,
+    proLimits: (emails: string, messages: string) =>
+      `毎月 ${emails} 通のメールと ${messages} 件のメッセージ。`,
+    cancels: (plan: string, date: string) =>
+      `${date} まで ${plan}、その後は Free になります。`,
+    choose: (plan: string) => `${plan} を選ぶ`,
+    emails: 'エージェントが読んだメール',
+    emailsHint: '自動で仕分けたノイズは数えません。',
     proRenews: (date: string) => `${date} に更新されます。`,
+    resets: (date: string) => `${date} にリセットされます。`,
     title: 'プラン',
     trial: 'Pro トライアル',
     trialDescription: (date: string) =>
       `${date} まで Pro のすべての機能を使えます。その後もシンプルなルールで Fewmail を無料で使い続けられます。カードは不要です。`,
-    upgrade: 'Pro にアップグレード',
-    welcome: 'Pro へようこそ。エージェントが再び動き始めました。',
+    welcome: (plan: string) =>
+      `${plan} へようこそ。エージェントが再び動き始めました。`,
+    yearly: '年払いにする',
+    yearlyHint: '2 か月分無料。',
   },
   persona: {
     reader: {
@@ -381,6 +405,12 @@ export const ja: Messages = {
       description:
         'メールを Fewmail/… ラベルに分類し、スマホの Gmail でも同じ順序で表示します。',
       title: 'Gmail のエージェントラベル',
+    },
+    schedules: {
+      delete: '削除',
+      description:
+        '「毎週金曜 17:00 に今週の請求書をまとめて」のように、定期的に行うことをチャットでエージェントに頼めます。実行のたびに専用のチャットに届き、送信したいものはそこで承認します。',
+      title: 'スケジュール',
     },
     snippets: {
       add: 'スニペットを追加',

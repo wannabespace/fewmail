@@ -52,7 +52,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
-import { client, orpc } from '~/lib/orpc'
+import { client, limitText, orpc } from '~/lib/orpc'
 
 import { useCompose } from './compose/compose-context'
 import { DraftText } from './queue-card'
@@ -548,16 +548,20 @@ export const AgentChat = ({
                     <MarkerIcon>
                       <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
                     </MarkerIcon>
-                    <MarkerContent>{t.agent.failed}</MarkerContent>
-                    <Button
-                      size="xs"
-                      variant="ghost-muted"
-                      onClick={() => {
-                        void regenerate()
-                      }}
-                    >
-                      {t.agent.retry}
-                    </Button>
+                    <MarkerContent>
+                      {limitText(error) ?? t.agent.failed}
+                    </MarkerContent>
+                    {!limitText(error) && (
+                      <Button
+                        size="xs"
+                        variant="ghost-muted"
+                        onClick={() => {
+                          void regenerate()
+                        }}
+                      >
+                        {t.agent.retry}
+                      </Button>
+                    )}
                   </Marker>
                 </MessageScrollerItem>
               )}

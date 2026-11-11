@@ -28,6 +28,7 @@
     "arktype": "catalog:",
     "better-auth": "catalog:",
     "bun": "catalog:",
+    "croner": "catalog:",
     "date-fns": "catalog:",
     "drizzle-orm": "catalog:",
     "grammy": "catalog:",

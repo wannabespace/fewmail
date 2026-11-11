@@ -196,6 +196,14 @@ export const hi: Messages = {
     terms: 'सेवा की शर्तें',
     updated: (date: string) => `अंतिम अपडेट: ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `आपके प्लान में ${total} बोर्ड हैं। एक हटाएं, या सेटिंग्स → प्लान में Max पर जाएं।`,
+    messages: (date: string) =>
+      `इस महीने एजेंट को भेजे जाने वाले संदेश खत्म हो गए। ये ${date} को फिर मिलेंगे।`,
+    tasks: (total: number) =>
+      `आपका प्लान एक साथ ${total} थ्रेड संभालता है। किसी एक के पूरा होने दें, या सेटिंग्स → प्लान में Max पर जाएं।`,
+  },
   login: {
     agree: ((slots) => [
       'जारी रखकर आप ',
@@ -269,6 +277,7 @@ export const hi: Messages = {
         one: () => 'Pro ट्रायल · 1 दिन बाकी',
         other: (n) => `Pro ट्रायल · ${n} दिन बाकी`,
       }),
+    usage: (percent: number) => `एजेंट · इस महीने का ${percent}% इस्तेमाल हुआ`,
     watching: 'एजेंट आपके इनबॉक्स पर नज़र रख रहा है',
   },
   notifications: {
@@ -294,15 +303,29 @@ export const hi: Messages = {
       'Pro में एजेंट जुड़ता है: रोज़ का ब्रीफ़, हर ईमेल पढ़ा और सारांशित, आपकी आवाज़ में ड्राफ़्ट किए गए जवाब, सादे शब्दों में नियम, Telegram और MCP।',
     manage: 'बिलिंग मैनेज करें',
     price: (usd: number) => `$${usd} / महीना`,
+    priceYearly: (usd: number) => `$${usd} / वर्ष`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `हर महीने ${emails} ईमेल और ${messages} संदेश; बोर्ड और सौंपे गए थ्रेड बिना सीमा।`,
+    messages: 'एजेंट को संदेश',
+    messagesHint: 'चैट, Ask, Telegram और WhatsApp।',
+    of: (used: string, total: string) => `${total} में से ${used}`,
     pro: 'Pro',
-    proCancels: (date: string) => `${date} तक Pro, फिर Free।`,
+    proLimits: (emails: string, messages: string) =>
+      `हर महीने ${emails} ईमेल और ${messages} संदेश।`,
+    cancels: (plan: string, date: string) => `${date} तक ${plan}, फिर Free।`,
+    choose: (plan: string) => `${plan} चुनें`,
+    emails: 'एजेंट ने जो ईमेल पढ़े',
+    emailsHint: 'अपने-आप छांटा गया शोर नहीं गिना जाता।',
     proRenews: (date: string) => `${date} को रिन्यू होगा।`,
+    resets: (date: string) => `${date} को फिर से शुरू होगा।`,
     title: 'प्लान',
     trial: 'Pro ट्रायल',
     trialDescription: (date: string) =>
       `${date} तक Pro की हर सुविधा। उसके बाद भी Fewmail आसान नियमों के साथ मुफ़्त रहता है — कार्ड की ज़रूरत नहीं।`,
-    upgrade: 'Pro में अपग्रेड करें',
-    welcome: 'Pro में आपका स्वागत है। एजेंट फिर से काम पर है।',
+    welcome: (plan: string) => `${plan} में आपका स्वागत है। एजेंट फिर से काम पर है।`,
+    yearly: 'सालाना भुगतान करें',
+    yearlyHint: 'दो महीने मुफ़्त।',
   },
   persona: {
     reader: {
@@ -386,6 +409,12 @@ export const hi: Messages = {
       description:
         'मेल को Fewmail/… लेबल में बाँटें ताकि आपके फ़ोन के Gmail में भी वही क्रम दिखे।',
       title: 'Gmail में एजेंट लेबल',
+    },
+    schedules: {
+      delete: 'हटाएँ',
+      description:
+        'चैट में एजेंट से कुछ नियमित रूप से करने को कहें, जैसे “हर शुक्रवार 17:00 बजे हफ़्ते के इनवॉइस इकट्ठा करो”। हर रन अपनी अलग चैट में आता है, जहाँ आप वह सब मंज़ूर करते हैं जो वह भेजना चाहता है।',
+      title: 'शेड्यूल',
     },
     snippets: {
       add: 'स्निपेट जोड़ें',

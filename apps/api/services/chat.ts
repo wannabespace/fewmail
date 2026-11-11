@@ -17,6 +17,7 @@ import { z } from 'zod'
 import { models } from '../lib/ai'
 import { agentTools } from './agent-tools'
 import { NotFoundError } from './mail-errors'
+import { spendMessage } from './plan'
 import { getSettings } from './settings'
 
 const MAX_STEPS = 12
@@ -122,6 +123,9 @@ export const streamChat = async (
   userId: string,
   { id, message }: { id: string; message: UIMessage }
 ) => {
+  if (message.role === 'user') {
+    await spendMessage(userId)
+  }
   const chat = await ownChat(userId, id)
   const stored = (chat?.messages ?? []) as UIMessage[]
   const tools = chatTools(userId)

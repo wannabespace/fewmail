@@ -61,10 +61,33 @@ export const GMAIL_EFFECTS = [
   'trash',
 ] as const
 
-export const PLANS = ['free', 'trial', 'pro'] as const
+export const PLANS = ['free', 'trial', 'pro', 'max'] as const
 export type Plan = (typeof PLANS)[number]
 
-export const PRO_PRICE_USD = 15
+export const PAID_PLANS = ['pro', 'max'] as const
+export type PaidPlan = (typeof PAID_PLANS)[number]
+
+export const BILLING_INTERVALS = ['month', 'year'] as const
+export type BillingInterval = (typeof BILLING_INTERVALS)[number]
+
+/** A year costs ten months; limits stay monthly either way. */
+export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
+  max: { month: 30, year: 300 },
+  pro: { month: 10, year: 100 },
+}
+
+/**
+ * What the agent may do per calendar month (UTC); `null` is unlimited. `emails` counts only mail the
+ * agent wrote for — noise Jev settles costs nothing. Every plan has every feature; only these differ.
+ */
+export const PLAN_LIMITS = {
+  max: { boards: null, emails: 6000, messages: 500, tasks: null },
+  pro: { boards: 3, emails: 1000, messages: 100, tasks: 5 },
+  trial: { boards: 3, emails: 500, messages: 50, tasks: 5 },
+} satisfies Record<
+  Exclude<Plan, 'free'>,
+  Record<'boards' | 'emails' | 'messages' | 'tasks', number | null>
+>
 
 /** Where a notification is delivered; mobile and desktop apps join as new kinds with their own sender in `services/notifications.ts`. */
 export const DEVICE_KINDS = ['web'] as const

@@ -1,4 +1,6 @@
-import { PRO_PRICE_USD } from '@fewmail/shared/agent'
+import { PLAN_LIMITS, PRICE_USD } from '@fewmail/shared/agent'
+
+const count = (total: number) => total.toLocaleString('en')
 
 export const TRIAL_DAYS = 14
 
@@ -14,11 +16,12 @@ export const PLANS = [
       'Snooze, snippets and Fewmail labels in Gmail',
     ],
     name: 'Free',
-    price: 0,
+    price: { month: 0, year: 0 },
   },
   {
     description: 'The whole agent: it reads, writes and remembers.',
     features: [
+      `${count(PLAN_LIMITS.pro.emails)} emails read and ${PLAN_LIMITS.pro.messages} messages to the agent a month; noise never counts`,
       'Today: a daily brief and one queue of decisions',
       'Replies drafted in your voice, sent only when you approve',
       'Telegram: the brief, approvals and voice instructions',
@@ -28,7 +31,18 @@ export const PLANS = [
     ],
     includes: 'Free',
     name: 'Pro',
-    price: PRO_PRICE_USD,
+    price: PRICE_USD.pro,
+  },
+  {
+    description: 'The same agent for a busy inbox.',
+    features: [
+      `${count(PLAN_LIMITS.max.emails)} emails read a month`,
+      `${PLAN_LIMITS.max.messages} messages to the agent a month`,
+      'Boards and handed-over threads without limit',
+    ],
+    includes: 'Pro',
+    name: 'Max',
+    price: PRICE_USD.max,
   },
 ] as const
 
@@ -85,7 +99,7 @@ export const COMPARISONS: Comparison[] = [
         topic: 'What it is',
       },
       {
-        fewmail: `Free forever; Pro $${PRO_PRICE_USD}/month`,
+        fewmail: `Free forever; Pro $${PRICE_USD.pro.month} or Max $${PRICE_USD.max.month} a month`,
         them: 'From $30 per member a month, no free plan',
         topic: 'Price',
       },
@@ -125,7 +139,7 @@ export const COMPARISONS: Comparison[] = [
         topic: 'What it is',
       },
       {
-        fewmail: `Free forever; Pro $${PRO_PRICE_USD}/month`,
+        fewmail: `Free forever; Pro $${PRICE_USD.pro.month} or Max $${PRICE_USD.max.month} a month`,
         them: 'Free plan; paid plans billed per seat',
         topic: 'Price',
       },
@@ -165,7 +179,7 @@ export const COMPARISONS: Comparison[] = [
         topic: 'What it is',
       },
       {
-        fewmail: `Free forever; Pro $${PRO_PRICE_USD}/month`,
+        fewmail: `Free forever; Pro $${PRICE_USD.pro.month} or Max $${PRICE_USD.max.month} a month`,
         them: 'Paid plans only, after a 14-day trial',
         topic: 'Price',
       },

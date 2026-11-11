@@ -272,6 +272,14 @@ export const id: Messages = {
     terms: 'Ketentuan Layanan',
     updated: (date: string) => `Terakhir diperbarui ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `Paketmu mencakup ${total} papan. Hapus satu, atau beralih ke Max di Pengaturan → Paket.`,
+    messages: (date: string) =>
+      `Pesan ke agen untuk bulan ini sudah habis. Akan tersedia lagi pada ${date}.`,
+    tasks: (total: number) =>
+      `Paketmu menangani ${total} utas sekaligus. Tunggu satu selesai, atau beralih ke Max di Pengaturan → Paket.`,
+  },
   login: {
     agree: ((slots) => [
       'Dengan melanjutkan, kamu menyetujui ',
@@ -342,6 +350,7 @@ export const id: Messages = {
     syncing: 'Membaca kotak masukmu…',
     today: 'Hari ini',
     trialLeft: (total: number) => `Uji coba Pro · sisa ${total} hari`,
+    usage: (percent: number) => `Agen · ${percent}% bulan ini terpakai`,
     watching: 'Agen sedang memantau kotak masukmu',
   },
   notifications: {
@@ -368,15 +377,31 @@ export const id: Messages = {
       'Pro menambahkan agen: ringkasan harian, setiap email dibaca dan diringkas, balasan disusun dengan gayamu, aturan dalam kata-kata biasa, Telegram, dan MCP.',
     manage: 'Kelola tagihan',
     price: (usd: number) => `$${usd} / bulan`,
+    priceYearly: (usd: number) => `$${usd} / tahun`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `${emails} email dan ${messages} pesan per bulan; papan dan utas yang diserahkan tanpa batas.`,
+    messages: 'Pesan ke agen',
+    messagesHint: 'Chat, Ask, Telegram, dan WhatsApp.',
+    of: (used: string, total: string) => `${used} dari ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) => `Pro sampai ${date}, lalu Gratis.`,
+    proLimits: (emails: string, messages: string) =>
+      `${emails} email dan ${messages} pesan per bulan.`,
+    cancels: (plan: string, date: string) =>
+      `${plan} sampai ${date}, lalu Gratis.`,
+    choose: (plan: string) => `Pilih ${plan}`,
+    emails: 'Email yang dibaca agen',
+    emailsHint: 'Gangguan yang dipilah otomatis tidak dihitung.',
     proRenews: (date: string) => `Diperpanjang pada ${date}.`,
+    resets: (date: string) => `Diatur ulang pada ${date}.`,
     title: 'Paket',
     trial: 'Uji coba Pro',
     trialDescription: (date: string) =>
       `Semua fitur Pro sampai ${date}. Setelah itu Fewmail tetap gratis dengan aturan sederhana — tanpa kartu.`,
-    upgrade: 'Beralih ke Pro',
-    welcome: 'Selamat datang di Pro. Agen kembali bertugas.',
+    welcome: (plan: string) =>
+      `Selamat datang di ${plan}. Agen kembali bertugas.`,
+    yearly: 'Bayar tahunan',
+    yearlyHint: 'Gratis dua bulan.',
   },
   people: {
     firstContact: (date: string) => `Berkirim email sejak ${date}`,
@@ -528,6 +553,12 @@ export const id: Messages = {
     persona: 'Cara kamu memakai email',
     signedInWithGoogle: 'Masuk dengan Google',
     signOut: 'Keluar',
+    schedules: {
+      delete: 'Hapus',
+      description:
+        'Minta agen di chat untuk melakukan sesuatu secara rutin, misalnya “setiap Jumat pukul 17.00 kumpulkan tagihan minggu ini”. Setiap jalannya masuk ke chat tersendiri, tempat Anda menyetujui apa pun yang ingin dikirimnya.',
+      title: 'Jadwal',
+    },
     snippets: {
       add: 'Tambah snippet',
       body: 'Teks',

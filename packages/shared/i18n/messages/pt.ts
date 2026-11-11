@@ -280,6 +280,14 @@ export const pt: Messages = {
     terms: 'Termos de Serviço',
     updated: (date: string) => `Atualizado em ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `Seu plano inclui ${total} quadros. Exclua um ou mude para o Max em Configurações → Plano.`,
+    messages: (date: string) =>
+      `As mensagens ao agente deste mês acabaram. Elas voltam em ${date}.`,
+    tasks: (total: number) =>
+      `Seu plano cuida de ${total} conversas por vez. Espere uma terminar ou mude para o Max em Configurações → Plano.`,
+  },
   login: {
     agree: ((slots) => [
       'Ao continuar, você concorda com os ',
@@ -353,6 +361,7 @@ export const pt: Messages = {
         one: () => 'Teste do Pro · falta 1 dia',
         other: (n) => `Teste do Pro · faltam ${n} dias`,
       }),
+    usage: (percent: number) => `Agente · ${percent}% do mês usado`,
     watching: 'O agente está de olho na sua caixa de entrada',
   },
   notifications: {
@@ -379,15 +388,31 @@ export const pt: Messages = {
       'O Pro adiciona o agente: um resumo diário, cada e-mail lido e resumido, respostas redigidas no seu estilo, regras em palavras simples, Telegram e MCP.',
     manage: 'Gerenciar cobrança',
     price: (usd: number) => `$${usd} / mês`,
+    priceYearly: (usd: number) => `$${usd} / ano`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `${emails} e-mails e ${messages} mensagens por mês; quadros e conversas entregues sem limite.`,
+    messages: 'Mensagens ao agente',
+    messagesHint: 'Chat, Ask, Telegram e WhatsApp.',
+    of: (used: string, total: string) => `${used} de ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) => `Pro até ${date}, depois Grátis.`,
+    proLimits: (emails: string, messages: string) =>
+      `${emails} e-mails e ${messages} mensagens por mês.`,
+    cancels: (plan: string, date: string) =>
+      `${plan} até ${date}, depois Grátis.`,
+    choose: (plan: string) => `Escolher ${plan}`,
+    emails: 'E-mails lidos pelo agente',
+    emailsHint: 'Ruído organizado automaticamente não conta.',
     proRenews: (date: string) => `Renova em ${date}.`,
+    resets: (date: string) => `Reinicia em ${date}.`,
     title: 'Plano',
     trial: 'Teste do Pro',
     trialDescription: (date: string) =>
       `Todos os recursos do Pro até ${date}. Depois, o Fewmail continua grátis com regras simples — sem precisar de cartão.`,
-    upgrade: 'Assinar o Pro',
-    welcome: 'Boas-vindas ao Pro. O agente está de volta ao trabalho.',
+    welcome: (plan: string) =>
+      `Boas-vindas ao ${plan}. O agente está de volta ao trabalho.`,
+    yearly: 'Pagar anualmente',
+    yearlyHint: 'Dois meses grátis.',
   },
   people: {
     firstContact: (date: string) => `Trocando e-mails desde ${date}`,
@@ -545,6 +570,12 @@ export const pt: Messages = {
     persona: 'Como você usa o e-mail',
     signedInWithGoogle: 'Conectado com o Google',
     signOut: 'Sair',
+    schedules: {
+      delete: 'Excluir',
+      description:
+        'Peça ao agente no chat para fazer algo com regularidade, como “toda sexta às 17:00 junte as faturas da semana”. Cada execução chega no próprio chat, onde você aprova o que ele quiser enviar.',
+      title: 'Agendamentos',
+    },
     snippets: {
       add: 'Adicionar snippet',
       body: 'Texto',

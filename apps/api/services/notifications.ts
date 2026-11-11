@@ -164,3 +164,13 @@ export const briefNotification = (brief: {
   title: brief.headline,
   url: '/today',
 })
+
+export const scheduleNotification = (
+  instruction: string,
+  answer: string,
+  chatId: string
+): Notification => ({
+  body: answer.slice(0, BODY_LIMIT),
+  title: instruction,
+  url: `/agent?chat=${chatId}`,
+})

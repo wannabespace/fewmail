@@ -196,6 +196,14 @@ export const ko: Messages = {
     terms: '서비스 약관',
     updated: (date: string) => `최종 업데이트: ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `현재 플랜은 보드를 ${total}개까지 쓸 수 있어요. 하나를 삭제하거나 설정 → 플랜에서 Max로 바꾸세요.`,
+    messages: (date: string) =>
+      `이번 달 에이전트 메시지를 모두 썼어요. ${date}에 다시 채워져요.`,
+    tasks: (total: number) =>
+      `현재 플랜은 스레드를 한 번에 ${total}개까지 맡길 수 있어요. 하나가 끝나길 기다리거나 설정 → 플랜에서 Max로 바꾸세요.`,
+  },
   login: {
     agree: ((slots) => [
       '계속하면 ',
@@ -265,6 +273,7 @@ export const ko: Messages = {
     syncing: '받은편지함을 읽는 중…',
     today: '오늘',
     trialLeft: (total: number) => `Pro 체험 · ${total}일 남음`,
+    usage: (percent: number) => `에이전트 · 이번 달 ${percent}% 사용`,
     watching: '에이전트가 받은편지함을 지켜보고 있어요',
   },
   notifications: {
@@ -288,15 +297,31 @@ export const ko: Messages = {
       'Pro에서는 에이전트가 함께해요: 매일 브리핑, 모든 메일 읽기와 요약, 내 말투로 작성하는 답장 초안, 평소 말로 쓰는 규칙, Telegram과 MCP.',
     manage: '결제 관리',
     price: (usd: number) => `$${usd} / 월`,
+    priceYearly: (usd: number) => `$${usd} / 년`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `매달 메일 ${emails}통과 메시지 ${messages}개, 보드와 맡긴 스레드는 무제한이에요.`,
+    messages: '에이전트에게 보낸 메시지',
+    messagesHint: '채팅, Ask, Telegram, WhatsApp.',
+    of: (used: string, total: string) => `${total} 중 ${used}`,
     pro: 'Pro',
-    proCancels: (date: string) => `${date}까지 Pro, 그 후에는 Free로 바뀌어요.`,
+    proLimits: (emails: string, messages: string) =>
+      `매달 메일 ${emails}통과 메시지 ${messages}개.`,
+    cancels: (plan: string, date: string) =>
+      `${date}까지 ${plan}, 그 후에는 Free로 바뀌어요.`,
+    choose: (plan: string) => `${plan} 선택`,
+    emails: '에이전트가 읽은 메일',
+    emailsHint: '자동으로 분류한 소음은 세지 않아요.',
     proRenews: (date: string) => `${date}에 갱신돼요.`,
+    resets: (date: string) => `${date}에 초기화돼요.`,
     title: '요금제',
     trial: 'Pro 체험',
     trialDescription: (date: string) =>
       `${date}까지 Pro의 모든 기능을 쓸 수 있어요. 그 후에도 Fewmail은 간단한 규칙과 함께 무료로 쓸 수 있어요. 카드는 필요 없어요.`,
-    upgrade: 'Pro로 업그레이드',
-    welcome: 'Pro에 오신 걸 환영해요. 에이전트가 다시 일을 시작했어요.',
+    welcome: (plan: string) =>
+      `${plan}에 오신 걸 환영해요. 에이전트가 다시 일을 시작했어요.`,
+    yearly: '연간 결제',
+    yearlyHint: '두 달 무료예요.',
   },
   persona: {
     reader: {
@@ -380,6 +405,12 @@ export const ko: Messages = {
       description:
         '메일을 Fewmail/… 라벨로 분류해서 휴대폰의 Gmail에서도 같은 순서로 보여요.',
       title: 'Gmail 에이전트 라벨',
+    },
+    schedules: {
+      delete: '삭제',
+      description:
+        '“매주 금요일 17:00에 이번 주 청구서를 모아 줘”처럼 정기적으로 할 일을 채팅에서 에이전트에게 요청하세요. 실행할 때마다 전용 채팅으로 오고, 보내려는 것은 그곳에서 승인합니다.',
+      title: '일정',
     },
     snippets: {
       add: '스니펫 추가',

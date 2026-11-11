@@ -1,4 +1,4 @@
-import { PRO_PRICE_USD } from '@fewmail/shared/agent'
+import { PRICE_USD } from '@fewmail/shared/agent'
 import {
   Accordion,
   AccordionContent,
@@ -246,8 +246,8 @@ const LandingPage = () => (
     <Chapter
       id="pricing"
       label="Pricing"
-      title={`Free for the sorting. $${PRO_PRICE_USD} for the agent.`}
-      description="The sorting, rules and protection are free forever. Pro adds everything that reads and writes for you."
+      title={`Free for the sorting. From $${PRICE_USD.pro.month} for the agent.`}
+      description="The sorting, rules and protection are free forever. Pro and Max add everything that reads and writes for you; Max simply does more of it."
     >
       <PlanCards />
     </Chapter>

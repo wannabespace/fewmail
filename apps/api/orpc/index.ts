@@ -1,6 +1,7 @@
 import { ORPCError, os } from '@orpc/server'
 
 import { auth } from '../lib/auth'
+import { LimitReachedError } from '../services/limit-error'
 import { NotFoundError } from '../services/mail'
 import { AgentRequiredError, requireAgent } from '../services/plan'
 
@@ -15,6 +16,16 @@ const notFoundToOrpc = orpc.middleware(async ({ next }) => {
     }
     if (error instanceof AgentRequiredError) {
       throw new ORPCError('FORBIDDEN', { message: error.message })
+    }
+    if (error instanceof LimitReachedError) {
+      throw new ORPCError('TOO_MANY_REQUESTS', {
+        data: {
+          limit: error.limit,
+          resetsAt: error.resetsAt,
+          total: error.total,
+        },
+        message: error.message,
+      })
     }
     throw error
   }

@@ -11,9 +11,9 @@ const PricingPage = () => (
       </h1>
       <p className="text-brief text-foreground/75 max-w-2xl font-serif text-pretty">
         Sorting, plain-language rules and protection are free forever. Pro is
-        the agent that reads, writes and remembers for you. Every account starts
-        with {TRIAL_DAYS} days of Pro, and when they end you simply stay on
-        Free.
+        the agent that reads, writes and remembers for you; Max is the same
+        agent with room for a busy inbox. Every account starts with {TRIAL_DAYS}{' '}
+        days of Pro, and when they end you simply stay on Free.
       </p>
       <PlanCards />
     </section>

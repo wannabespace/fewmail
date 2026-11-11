@@ -280,6 +280,14 @@ export const nl: Messages = {
     terms: 'Servicevoorwaarden',
     updated: (date: string) => `Laatst bijgewerkt op ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `Je abonnement bevat ${total} borden. Verwijder er een of stap over op Max via Instellingen → Abonnement.`,
+    messages: (date: string) =>
+      `De berichten aan de agent zijn op voor deze maand. Ze komen terug op ${date}.`,
+    tasks: (total: number) =>
+      `Je abonnement neemt ${total} threads tegelijk over. Laat er een afronden of stap over op Max via Instellingen → Abonnement.`,
+  },
   login: {
     agree: ((slots) => [
       'Door verder te gaan ga je akkoord met de ',
@@ -353,6 +361,7 @@ export const nl: Messages = {
         one: () => 'Pro-proefperiode · nog 1 dag',
         other: (n) => `Pro-proefperiode · nog ${n} dagen`,
       }),
+    usage: (percent: number) => `Agent · ${percent}% van deze maand gebruikt`,
     watching: 'De agent houdt je inbox in de gaten',
   },
   notifications: {
@@ -379,15 +388,31 @@ export const nl: Messages = {
       'Pro voegt de agent toe: een dagelijkse briefing, elke e-mail gelezen en samengevat, antwoorden in jouw stijl, regels in gewone woorden, Telegram en MCP.',
     manage: 'Facturering beheren',
     price: (usd: number) => `$${usd} / maand`,
+    priceYearly: (usd: number) => `$${usd} / jaar`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `${emails} e-mails en ${messages} berichten per maand; borden en overgedragen threads zonder limiet.`,
+    messages: 'Berichten aan de agent',
+    messagesHint: 'Chat, Ask, Telegram en WhatsApp.',
+    of: (used: string, total: string) => `${used} van ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) => `Pro tot ${date}, daarna Gratis.`,
+    proLimits: (emails: string, messages: string) =>
+      `${emails} e-mails en ${messages} berichten per maand.`,
+    cancels: (plan: string, date: string) =>
+      `${plan} tot ${date}, daarna Gratis.`,
+    choose: (plan: string) => `Kies ${plan}`,
+    emails: 'E-mails die de agent las',
+    emailsHint: 'Automatisch gesorteerde ruis telt niet mee.',
     proRenews: (date: string) => `Wordt verlengd op ${date}.`,
+    resets: (date: string) => `Begint opnieuw op ${date}.`,
     title: 'Abonnement',
     trial: 'Pro-proefperiode',
     trialDescription: (date: string) =>
       `Alle Pro-functies tot ${date}. Daarna blijft Fewmail gratis met eenvoudige regels — geen creditcard nodig.`,
-    upgrade: 'Overstappen op Pro',
-    welcome: 'Welkom bij Pro. De agent is weer aan het werk.',
+    welcome: (plan: string) =>
+      `Welkom bij ${plan}. De agent is weer aan het werk.`,
+    yearly: 'Jaarlijks betalen',
+    yearlyHint: 'Twee maanden gratis.',
   },
   people: {
     firstContact: (date: string) => `Mailt sinds ${date}`,
@@ -546,6 +571,12 @@ export const nl: Messages = {
     persona: 'Hoe je e-mail gebruikt',
     signedInWithGoogle: 'Ingelogd met Google',
     signOut: 'Uitloggen',
+    schedules: {
+      delete: 'Verwijderen',
+      description:
+        'Vraag de agent in de chat om iets regelmatig te doen, zoals „elke vrijdag om 17:00 de facturen van de week verzamelen”. Elke run komt in een eigen chat, waar je goedkeurt wat hij wil versturen.',
+      title: 'Planningen',
+    },
     snippets: {
       add: 'Snippet toevoegen',
       body: 'Tekst',

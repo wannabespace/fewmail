@@ -314,6 +314,9 @@ catalogs:
     cn:
       specifier: ^0.5.2
       version: 0.5.2
+    croner:
+      specifier: ^11.0.0
+      version: 11.0.0
     cross-env:
       specifier: ^10.1.0
       version: 10.1.0
@@ -505,6 +508,9 @@ importers:
       bun:
         specifier: 'catalog:'
         version: 1.4.4
+      croner:
+        specifier: 'catalog:'
+        version: 11.0.0
       date-fns:
         specifier: 'catalog:'
         version: 4.4.0
@@ -3333,6 +3339,10 @@ packages:
   cors@2.8.6:
     resolution: {integrity: sha512-tJtZBBHA6vjIAaF6EnIaq6laBBP9aq/Y3ouVJjEfoHbRBcHBAHYcMh/w8LDrk2PvIMMq8gmopa5D4V8RmbrxGw==}
     engines: {node: '>= 0.10'}
+
+  croner@11.0.0:
+    resolution: {integrity: sha512-T17ADjdttrVToyzLpLq9Xb9xzcMwpQ/M3Qs9szhh0MVNTbv6NWQ9OFYa2qlzPYXFMn+uoDlnW1IpIv6cAvFtyA==}
+    engines: {node: '>=18.0'}
 
   cross-env@10.1.0:
     resolution: {integrity: sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw==}
@@ -7717,6 +7727,8 @@ snapshots:
     dependencies:
       object-assign: 4.1.1
       vary: 1.1.2
+
+  croner@11.0.0: {}
 
   cross-env@10.1.0:
     dependencies:

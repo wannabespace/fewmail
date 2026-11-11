@@ -1,3 +1,4 @@
+import { PLAN_LIMITS } from '@fewmail/shared/agent'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
 import {
@@ -36,6 +37,34 @@ export const NAV_ITEMS = [
 ] as const
 
 const AGENT_ONLY = new Set(['today', 'agent'])
+
+/** Quiet until the month is nearly spent: never push. */
+const USAGE_SHOWN_FROM = 90
+
+const UsageLine = ({
+  limits,
+  usage,
+}: {
+  limits: { emails: number; messages: number }
+  usage: { emails: number; messages: number }
+}) => {
+  const t = useT()
+  const percent = Math.min(
+    100,
+    Math.floor(
+      Math.max(usage.emails / limits.emails, usage.messages / limits.messages) *
+        100
+    )
+  )
+  if (percent < USAGE_SHOWN_FROM) {
+    return null
+  }
+  return (
+    <Link to="/settings" className="text-muted-foreground">
+      {t.nav.usage(percent)}
+    </Link>
+  )
+}
 
 export const visibleNavItems = (hasAgent: boolean) =>
   NAV_ITEMS.filter((item) => hasAgent || !AGENT_ONLY.has(item.key))
@@ -166,7 +195,7 @@ export const Sidebar = ({
   onSearch: () => void
 }) => {
   const t = useT()
-  const { plan } = useMe()
+  const { plan, usage } = useMe()
   const hasAgent = useHasAgent()
   const isModifierHeld = useModifierHold()
   const { data: today } = useQuery(
@@ -217,6 +246,9 @@ export const Sidebar = ({
           <Link to="/settings" className="text-muted-foreground">
             {t.nav.trialLeft(plan.trialDaysLeft)}
           </Link>
+        )}
+        {plan.kind !== 'free' && (
+          <UsageLine usage={usage} limits={PLAN_LIMITS[plan.kind]} />
         )}
       </div>
     </nav>

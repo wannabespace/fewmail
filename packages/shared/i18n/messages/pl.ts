@@ -291,6 +291,14 @@ export const pl: Messages = {
     terms: 'Warunki korzystania',
     updated: (date: string) => `Ostatnia aktualizacja: ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `Twój plan obejmuje ${total} tablice. Usuń jedną albo przejdź na Max w Ustawieniach → Plan.`,
+    messages: (date: string) =>
+      `Wiadomości do agenta na ten miesiąc się skończyły. Wrócą ${date}.`,
+    tasks: (total: number) =>
+      `Twój plan prowadzi ${total} wątków naraz. Poczekaj, aż jeden się skończy, albo przejdź na Max w Ustawieniach → Plan.`,
+  },
   login: {
     agree: ((slots) => [
       'Kontynuując, akceptujesz ',
@@ -367,6 +375,7 @@ export const pl: Messages = {
         many: (n) => `Okres próbny Pro · zostało ${n} dni`,
         other: (n) => `Okres próbny Pro · zostało ${n} dnia`,
       }),
+    usage: (percent: number) => `Agent · wykorzystano ${percent}% miesiąca`,
     watching: 'Agent pilnuje twojej skrzynki',
   },
   notifications: {
@@ -395,15 +404,29 @@ export const pl: Messages = {
       'Pro dodaje agenta: codzienne podsumowanie, każdy e-mail przeczytany i streszczony, odpowiedzi pisane twoim stylem, reguły zwykłymi słowami, Telegram i MCP.',
     manage: 'Zarządzaj płatnościami',
     price: (usd: number) => `$${usd} / miesiąc`,
+    priceYearly: (usd: number) => `$${usd} / rok`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `${emails} e-maili i ${messages} wiadomości miesięcznie; tablice i przekazane wątki bez limitu.`,
+    messages: 'Wiadomości do agenta',
+    messagesHint: 'Czat, Ask, Telegram i WhatsApp.',
+    of: (used: string, total: string) => `${used} z ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) => `Pro do ${date}, potem Free.`,
+    proLimits: (emails: string, messages: string) =>
+      `${emails} e-maili i ${messages} wiadomości miesięcznie.`,
+    cancels: (plan: string, date: string) => `${plan} do ${date}, potem Free.`,
+    choose: (plan: string) => `Wybierz ${plan}`,
+    emails: 'E-maile przeczytane przez agenta',
+    emailsHint: 'Szum posortowany automatycznie się nie liczy.',
     proRenews: (date: string) => `Odnowienie ${date}.`,
+    resets: (date: string) => `Odnowi się ${date}.`,
     title: 'Plan',
     trial: 'Okres próbny Pro',
     trialDescription: (date: string) =>
       `Wszystkie funkcje Pro do ${date}. Potem Fewmail zostaje darmowy z prostymi regułami — bez karty.`,
-    upgrade: 'Przejdź na Pro',
-    welcome: 'Witaj w Pro. Agent wraca do pracy.',
+    welcome: (plan: string) => `Witaj w ${plan}. Agent wraca do pracy.`,
+    yearly: 'Płać rocznie',
+    yearlyHint: 'Dwa miesiące gratis.',
   },
   people: {
     firstContact: (date: string) => `Piszecie od ${date}`,
@@ -567,6 +590,12 @@ export const pl: Messages = {
     persona: 'Jak korzystasz z poczty',
     signedInWithGoogle: 'Zalogowano przez Google',
     signOut: 'Wyloguj się',
+    schedules: {
+      delete: 'Usuń',
+      description:
+        'Poproś agenta na czacie, by robił coś regularnie, np. „w każdy piątek o 17:00 zbierz faktury z tygodnia”. Każde uruchomienie trafia do osobnego czatu, gdzie zatwierdzasz wszystko, co chce wysłać.',
+      title: 'Harmonogramy',
+    },
     snippets: {
       add: 'Dodaj fragment',
       body: 'Tekst',

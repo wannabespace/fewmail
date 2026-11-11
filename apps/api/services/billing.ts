@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { subscriptions, users } from '@fewmail/db/schema'
+import type { BillingInterval, PaidPlan } from '@fewmail/shared/agent'
 import { eq } from 'drizzle-orm'
 import { Stripe } from 'stripe'
 
@@ -8,11 +9,25 @@ import { expectRow } from '../lib/rows'
 
 const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY) : null
 
+const PRICE_IDS: Record<
+  PaidPlan,
+  Record<BillingInterval, string | undefined>
+> = {
+  max: {
+    month: env.STRIPE_MAX_MONTHLY_PRICE_ID,
+    year: env.STRIPE_MAX_YEARLY_PRICE_ID,
+  },
+  pro: {
+    month: env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    year: env.STRIPE_PRO_YEARLY_PRICE_ID,
+  },
+}
+
 const requireStripe = () => {
-  if (!stripe || !env.STRIPE_PRICE_ID) {
+  if (!stripe) {
     throw new Error('Payments are not configured on this server')
   }
-  return { priceId: env.STRIPE_PRICE_ID, stripe }
+  return { stripe }
 }
 
 const customerFor = async (userId: string) => {
@@ -34,8 +49,15 @@ const customerFor = async (userId: string) => {
   return customer.id
 }
 
-export const createCheckout = async (userId: string) => {
-  const { priceId, stripe: client } = requireStripe()
+export const createCheckout = async (
+  userId: string,
+  { interval, plan }: { interval: BillingInterval; plan: PaidPlan }
+) => {
+  const { stripe: client } = requireStripe()
+  const priceId = PRICE_IDS[plan][interval]
+  if (!priceId) {
+    throw new Error('Payments are not configured on this server')
+  }
   const session = await client.checkout.sessions.create({
     allow_promotion_codes: true,
     cancel_url: `${env.WEB_URL}/settings`,
@@ -43,7 +65,7 @@ export const createCheckout = async (userId: string) => {
     line_items: [{ price: priceId, quantity: 1 }],
     mode: 'subscription',
     subscription_data: { metadata: { userId } },
-    success_url: `${env.WEB_URL}/settings?upgraded=true`,
+    success_url: `${env.WEB_URL}/settings?upgraded=${plan}`,
   })
   return expectRow(session.url ?? undefined)
 }

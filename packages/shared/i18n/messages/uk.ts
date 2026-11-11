@@ -212,6 +212,14 @@ export const uk: Messages = {
     terms: 'Умови використання',
     updated: (date: string) => `Оновлено ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `Твій план вміщує ${total} борди. Видали один або перейди на Max у Налаштуваннях → План.`,
+    messages: (date: string) =>
+      `Повідомлення агенту на цей місяць закінчилися. Вони повернуться ${date}.`,
+    tasks: (total: number) =>
+      `Твій план веде ${total} тредів одночасно. Дочекайся, поки один завершиться, або перейди на Max у Налаштуваннях → План.`,
+  },
   login: {
     agree: ((slots) => [
       'Продовжуючи, ти погоджуєшся з ',
@@ -287,6 +295,7 @@ export const uk: Messages = {
         many: (n) => `Пробний Pro · залишилося ${n} днів`,
         other: (n) => `Пробний Pro · залишилося ${n} дня`,
       }),
+    usage: (percent: number) => `Агент · використано ${percent}% місяця`,
     watching: 'Агент стежить за поштою',
   },
   notifications: {
@@ -315,15 +324,30 @@ export const uk: Messages = {
       'Pro додає агента: щоденний бриф, кожен лист прочитаний і підсумований, відповіді у твоєму стилі, правила звичайними словами, Telegram і MCP.',
     manage: 'Керувати оплатою',
     price: (usd: number) => `$${usd} / місяць`,
+    priceYearly: (usd: number) => `$${usd} / рік`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `${emails} листів і ${messages} повідомлень на місяць; борди й передані агенту треди без обмежень.`,
+    messages: 'Повідомлення агенту',
+    messagesHint: 'Чат, Ask, Telegram і WhatsApp.',
+    of: (used: string, total: string) => `${used} з ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) => `Pro до ${date}, далі — безкоштовний.`,
+    proLimits: (emails: string, messages: string) =>
+      `${emails} листів і ${messages} повідомлень на місяць.`,
+    cancels: (plan: string, date: string) =>
+      `${plan} до ${date}, далі — безкоштовний.`,
+    choose: (plan: string) => `Обрати ${plan}`,
+    emails: 'Листи, які прочитав агент',
+    emailsHint: 'Шум, відсортований автоматично, не рахується.',
     proRenews: (date: string) => `Поновлюється ${date}.`,
+    resets: (date: string) => `Оновиться ${date}.`,
     title: 'План',
     trial: 'Пробний Pro',
     trialDescription: (date: string) =>
       `Усі можливості Pro до ${date}. Потім Fewmail лишається безкоштовним із простими правилами — картка не потрібна.`,
-    upgrade: 'Перейти на Pro',
-    welcome: 'Вітаємо в Pro. Агент знову до роботи.',
+    welcome: (plan: string) => `Вітаємо в ${plan}. Агент знову до роботи.`,
+    yearly: 'Платити щороку',
+    yearlyHint: 'Два місяці безкоштовно.',
   },
   persona: {
     reader: {
@@ -409,6 +433,12 @@ export const uk: Messages = {
       description:
         'Сортує пошту за мітками Fewmail/…, щоб Gmail на телефоні показував той самий порядок.',
       title: 'Мітки агента в Gmail',
+    },
+    schedules: {
+      delete: 'Видалити',
+      description:
+        'Попросіть агента в чаті робити щось регулярно, наприклад «щоп’ятниці о 17:00 збери рахунки за тиждень». Кожен запуск приходить в окремий чат, де ви підтверджуєте все, що він хоче надіслати.',
+      title: 'Розклади',
     },
     snippets: {
       add: 'Додати шаблон',

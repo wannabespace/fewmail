@@ -1,6 +1,10 @@
 import { db } from '@fewmail/db'
 import { actions, analyses, messages, rules } from '@fewmail/db/schema'
-import { ACTION_KINDS, MAIL_CATEGORIES } from '@fewmail/shared/agent'
+import {
+  ACTION_KINDS,
+  IMPORTANCE,
+  MAIL_CATEGORIES,
+} from '@fewmail/shared/agent'
 import type { MailCategory, Persona } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
@@ -16,6 +20,7 @@ import { JEV_MODEL_ID } from '../lib/jev'
 import { BULK_THRESHOLD } from './bulk'
 import { decideWithJev } from './classify'
 import { applyAgentLabel } from './labels'
+import type { EmailAllowance } from './plan'
 import { getSettings } from './settings'
 import { changeThreadLabels, mailboxOfThread } from './thread-labels'
 import { recordUnsubscribe } from './zombies'
@@ -211,13 +216,13 @@ const NO_EXTRACTED = { amount: null, dueDate: null, meetingTime: null }
 
 type Settings = NonNullable<Awaited<ReturnType<typeof getSettings>>>
 
-/** Jev decides; the LLM only writes text for mail that matters. Without Jev the LLM does both. */
 /**
- * Jev decides for every plan; the LLM writes text only for the agent (Pro/trial) and only for
- * mail that matters. Without Jev the LLM does both, but never for a free account.
+ * Jev decides for every plan; the LLM writes text only for the agent and only for mail that
+ * matters, while the month's email allowance lasts. Without Jev the LLM does both, never for free.
+ * `agent` says whether this email gets the agent at all — past the allowance it is treated as Free.
  */
 const analyze = async (input: {
-  agent: boolean
+  allowance: EmailAllowance | null
   message: Message
   rules: Rule[]
   settings: Settings
@@ -235,7 +240,7 @@ const analyze = async (input: {
   })
 
   if (!decisions) {
-    if (!input.agent) {
+    if (!input.allowance?.(false)) {
       return null
     }
     const { output } = await generateText({
@@ -248,12 +253,17 @@ const analyze = async (input: {
       output: Output.object({ schema: analysisSchema }),
       prompt,
     })
-    return { model: FAST_MODEL_ID, output }
+    return { agent: true, model: FAST_MODEL_ID, output }
   }
 
   const t = dictionaries[input.settings.language]
-  if (!input.agent || (decisions.importance === 0 && !decisions.needsReply)) {
+  const isNoise = decisions.importance === 0 && !decisions.needsReply
+  const agent =
+    !!input.allowance &&
+    (isNoise || input.allowance(decisions.importance >= IMPORTANCE.critical))
+  if (!agent || isNoise) {
     return {
+      agent,
       model: JEV_MODEL_ID,
       output: {
         ...decisions,
@@ -278,6 +288,7 @@ const analyze = async (input: {
     prompt,
   })
   return {
+    agent: true,
     model: `${JEV_MODEL_ID}+${FAST_MODEL_ID}`,
     output: { ...decisions, ...text },
   }
@@ -384,7 +395,7 @@ const isFreeRule = (rule: Rule) =>
 export const analyzeMessage = async (
   message: Message,
   userEmail: string,
-  agent: boolean
+  allowance: EmailAllowance | null
 ) => {
   const settings = await getSettings(message.userId)
   if (!settings) {
@@ -402,7 +413,7 @@ export const analyzeMessage = async (
     )
 
   const analysis = await analyze({
-    agent,
+    allowance,
     message,
     rules: userRules,
     settings,
@@ -411,7 +422,7 @@ export const analyzeMessage = async (
   if (!analysis) {
     return
   }
-  const { model } = analysis
+  const { agent, model } = analysis
   const output = withNetworkFacts(
     analysis.output,
     message,

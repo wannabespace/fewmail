@@ -267,6 +267,14 @@ export const tr: Messages = {
     terms: 'Hizmet Koşulları',
     updated: (date: string) => `Son güncelleme: ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `Planın ${total} pano içeriyor. Birini sil ya da Ayarlar → Plan’dan Max’e geç.`,
+    messages: (date: string) =>
+      `Bu ayki ajan mesajların bitti. ${date} tarihinde yenilenecek.`,
+    tasks: (total: number) =>
+      `Planın aynı anda ${total} yazışmayı devralır. Birinin bitmesini bekle ya da Ayarlar → Plan’dan Max’e geç.`,
+  },
   login: {
     agree: ((slots) => [
       'Devam ederek ',
@@ -336,6 +344,7 @@ export const tr: Messages = {
     syncing: 'Gelen kutun okunuyor…',
     today: 'Bugün',
     trialLeft: (total: number) => `Pro denemesi · ${total} gün kaldı`,
+    usage: (percent: number) => `Ajan · bu ayın %${percent} kadarı kullanıldı`,
     watching: 'Ajan gelen kutunu izliyor',
   },
   notifications: {
@@ -362,15 +371,31 @@ export const tr: Messages = {
       'Pro, ajanı ekler: günlük özet, her e-postanın okunup özetlenmesi, senin üslubunla yazılan yanıt taslakları, sade sözcüklerle kurallar, Telegram ve MCP.',
     manage: 'Faturalandırmayı yönet',
     price: (usd: number) => `$${usd} / ay`,
+    priceYearly: (usd: number) => `$${usd} / yıl`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `Ayda ${emails} e-posta ve ${messages} mesaj; panolar ve devredilen yazışmalar sınırsız.`,
+    messages: 'Ajana mesajlar',
+    messagesHint: 'Sohbet, Ask, Telegram ve WhatsApp.',
+    of: (used: string, total: string) => `${used} / ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) => `${date} tarihine kadar Pro, sonra Ücretsiz.`,
+    proLimits: (emails: string, messages: string) =>
+      `Ayda ${emails} e-posta ve ${messages} mesaj.`,
+    cancels: (plan: string, date: string) =>
+      `${date} tarihine kadar ${plan}, sonra Ücretsiz.`,
+    choose: (plan: string) => `${plan} seç`,
+    emails: 'Ajanın okuduğu e-postalar',
+    emailsHint: 'Kendiliğinden ayıklanan gürültü sayılmaz.',
     proRenews: (date: string) => `${date} tarihinde yenilenir.`,
+    resets: (date: string) => `${date} tarihinde sıfırlanır.`,
     title: 'Plan',
     trial: 'Pro denemesi',
     trialDescription: (date: string) =>
       `${date} tarihine kadar tüm Pro özellikleri. Sonrasında Fewmail basit kurallarla ücretsiz kalır — kart gerekmez.`,
-    upgrade: "Pro'ya geç",
-    welcome: "Pro'ya hoş geldin. Ajan yeniden görevde.",
+    welcome: (plan: string) =>
+      `${plan} planına hoş geldin. Ajan yeniden görevde.`,
+    yearly: 'Yıllık öde',
+    yearlyHint: 'İki ay ücretsiz.',
   },
   people: {
     firstContact: (date: string) => `${date} tarihinden beri yazışıyorsunuz`,
@@ -522,6 +547,12 @@ export const tr: Messages = {
     persona: 'E-postayı nasıl kullanıyorsun',
     signedInWithGoogle: 'Google ile giriş yapıldı',
     signOut: 'Çıkış yap',
+    schedules: {
+      delete: 'Sil',
+      description:
+        'Sohbette ajandan düzenli olarak bir şey yapmasını isteyin, örneğin “her cuma 17:00’de haftanın faturalarını topla”. Her çalışma kendi sohbetine gelir; göndermek istediği her şeyi orada onaylarsınız.',
+      title: 'Zamanlamalar',
+    },
     snippets: {
       add: 'Parça ekle',
       body: 'Metin',

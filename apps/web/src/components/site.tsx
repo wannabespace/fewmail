@@ -1,10 +1,13 @@
+import type { BillingInterval } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
+import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
 import { ArrowRight01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Link } from '@tanstack/react-router'
 import type { ComponentProps, ReactNode } from 'react'
+import { useState } from 'react'
 
 import { COMPARISONS, PLANS, TRIAL_DAYS } from '~/lib/marketing'
 
@@ -207,65 +210,81 @@ export const FeatureGrid = ({
   </Reveal>
 )
 
-export const PlanCards = () => (
-  <Reveal className="mt-12 grid gap-4 md:grid-cols-2">
-    {PLANS.map((plan) => {
-      const isPro = plan.name === 'Pro'
-      return (
-        <article
-          key={plan.name}
-          className={cn(
-            'flex flex-col rounded-3xl p-8 ring',
-            isPro
-              ? 'bg-popover ring-foreground/10 shadow-sm'
-              : 'bg-background ring-foreground/6'
-          )}
-        >
-          <h3 className="font-medium">{plan.name}</h3>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {plan.description}
-          </p>
-          <p className="mt-6 flex items-baseline gap-1.5">
-            <span className="text-display font-serif tabular-nums">
-              ${plan.price}
-            </span>
-            <span className="text-muted-foreground text-sm">
-              {isPro ? 'a month' : 'forever'}
-            </span>
-          </p>
-          <div className="mt-6 grid">
-            <Button
-              size="lg"
-              variant={isPro ? 'default' : 'secondary'}
-              render={<Link to="/login" />}
+export const PlanCards = () => {
+  const [billingInterval, setBillingInterval] =
+    useState<BillingInterval>('month')
+  return (
+    <div className="mt-12 flex flex-col items-center gap-6">
+      <Tabs
+        value={billingInterval}
+        onValueChange={(value) => setBillingInterval(value as BillingInterval)}
+      >
+        <TabsList>
+          <TabsTrigger value="month">Monthly</TabsTrigger>
+          <TabsTrigger value="year">Yearly · 2 months free</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <Reveal className="grid w-full gap-4 md:grid-cols-3">
+        {PLANS.map((plan) => {
+          const isPro = plan.name === 'Pro'
+          const isFree = plan.price.month === 0
+          return (
+            <article
+              key={plan.name}
+              className={cn(
+                'flex flex-col rounded-3xl p-8 ring',
+                isPro
+                  ? 'bg-popover ring-foreground/10 shadow-sm'
+                  : 'bg-background ring-foreground/6'
+              )}
             >
-              {isPro ? `Try Pro free for ${TRIAL_DAYS} days` : 'Start free'}
-            </Button>
-          </div>
-          <div className="mt-8 flex flex-col gap-3 border-t pt-6 text-sm">
-            {'includes' in plan && (
-              <p className="text-muted-foreground">
-                Everything in {plan.includes}, plus
+              <h3 className="font-medium">{plan.name}</h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {plan.description}
               </p>
-            )}
-            <ul className="flex flex-col gap-3">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex gap-2.5">
-                  <HugeiconsIcon
-                    icon={Tick02Icon}
-                    strokeWidth={2}
-                    className="text-primary mt-0.5 size-4 shrink-0"
-                  />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </article>
-      )
-    })}
-  </Reveal>
-)
+              <p className="mt-6 flex items-baseline gap-1.5">
+                <span className="text-display font-serif tabular-nums">
+                  ${plan.price[billingInterval]}
+                </span>
+                <span className="text-muted-foreground text-sm">
+                  {isFree ? 'forever' : `a ${billingInterval}`}
+                </span>
+              </p>
+              <div className="mt-6 grid">
+                <Button
+                  size="lg"
+                  variant={isPro ? 'default' : 'secondary'}
+                  render={<Link to="/login" />}
+                >
+                  {isFree ? 'Start free' : `Try free for ${TRIAL_DAYS} days`}
+                </Button>
+              </div>
+              <div className="mt-8 flex flex-col gap-3 border-t pt-6 text-sm">
+                {'includes' in plan && (
+                  <p className="text-muted-foreground">
+                    Everything in {plan.includes}, plus
+                  </p>
+                )}
+                <ul className="flex flex-col gap-3">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex gap-2.5">
+                      <HugeiconsIcon
+                        icon={Tick02Icon}
+                        strokeWidth={2}
+                        className="text-primary mt-0.5 size-4 shrink-0"
+                      />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          )
+        })}
+      </Reveal>
+    </div>
+  )
+}
 
 export const CompareCards = () => (
   <Reveal className="mt-12 grid gap-4 md:grid-cols-3">

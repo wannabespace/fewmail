@@ -1,11 +1,31 @@
 import type { Router } from '@fewmail/api/router'
+import { messages } from '@fewmail/shared/i18n'
+import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { createORPCClient, onError, ORPCError } from '@orpc/client'
 import { RPCLink } from '@orpc/client/fetch'
 import type { RouterClient } from '@orpc/server'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import { toast } from 'sonner'
 
+import { localeStore } from './i18n'
 import { queryClient } from './query-client'
+
+/** A plan limit the server refused with, in the user's language; `null` for any other error. */
+export const limitText = (error: unknown) => {
+  if (!(error instanceof ORPCError) || error.code !== 'TOO_MANY_REQUESTS') {
+    return null
+  }
+  const { limit, resetsAt, total } = error.data as {
+    limit: 'boards' | 'messages' | 'tasks'
+    resetsAt: Date
+    total: number
+  }
+  const locale = localeStore.get()
+  const t = messages[locale].limits
+  return limit === 'messages'
+    ? t.messages(formatResetDay(locale, new Date(resetsAt)))
+    : t[limit](total)
+}
 
 export const client: RouterClient<Router> = createORPCClient(
   new RPCLink({
@@ -22,7 +42,7 @@ export const client: RouterClient<Router> = createORPCClient(
           !isSignedOut &&
           path[0] !== 'live'
         ) {
-          toast.error(error.message)
+          toast.error(limitText(error) ?? error.message)
         }
       }),
     ],

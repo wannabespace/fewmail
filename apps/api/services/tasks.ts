@@ -6,12 +6,13 @@ import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
-import { and, desc, eq, gte, inArray } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, ne } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
 import { scheduleMail } from './outbox'
+import { requireRoom } from './plan'
 import { getSettings } from './settings'
 
 /** A runaway loop with an auto-replying sender must stop and ask the user. */
@@ -139,6 +140,16 @@ export const createTask = async (
   if (!message) {
     throw new NotFoundError('Email not found')
   }
+  await requireRoom(userId, 'tasks', () =>
+    db.$count(
+      tasks,
+      and(
+        eq(tasks.userId, userId),
+        eq(tasks.status, 'active'),
+        ne(tasks.threadId, message.threadId)
+      )
+    )
+  )
   await db
     .update(tasks)
     .set({ status: 'canceled' })

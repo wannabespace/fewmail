@@ -78,6 +78,24 @@ export const apiKeys = d.snakeCase.table('api_keys', {
     .references(() => users.id, { onDelete: 'cascade' }),
 })
 
+/** Agent usage per user and calendar month (UTC), against `PLAN_LIMITS`. */
+export const usage = d.snakeCase.table(
+  'usage',
+  {
+    ...baseTable,
+    emails: d.integer().default(0).notNull(),
+    messages: d.integer().default(0).notNull(),
+    month: d.date({ mode: 'string' }).notNull(),
+    userId: d
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => [
+    d.uniqueIndex('usage_user_month_idx').on(table.userId, table.month),
+  ]
+)
+
 export const subscriptions = d.snakeCase.table('subscriptions', {
   ...baseTable,
   cancelAtPeriodEnd: d.boolean().default(false).notNull(),

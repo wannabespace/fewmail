@@ -17,6 +17,7 @@ export {
   devices,
   subscriptions,
   telegramLinks,
+  usage,
   userSettings,
   whatsappLinks,
 } from './settings'
@@ -32,6 +33,7 @@ export {
   paymentDetails,
   patternReports,
   people,
+  schedules,
   tasks,
   templateReports,
   unsubscribes,

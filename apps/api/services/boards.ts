@@ -25,6 +25,7 @@ import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
 import { searchMailboxes } from './mailboxes'
+import { requireRoom } from './plan'
 import { getSettings } from './settings'
 
 type Board = typeof boards.$inferSelect
@@ -107,6 +108,9 @@ export const createBoard = async (
   userId: string,
   input: { description: string; name: string }
 ) => {
+  await requireRoom(userId, 'boards', () =>
+    db.$count(boards, eq(boards.userId, userId))
+  )
   const plan = await planBoard(input, await languageOf(userId))
   const [board] = await db
     .insert(boards)

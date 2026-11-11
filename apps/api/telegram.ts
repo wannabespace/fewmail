@@ -1,7 +1,11 @@
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
-import { LOCALES, matchLocale } from '@fewmail/shared/i18n/locales'
+import {
+  formatResetDay,
+  LOCALES,
+  matchLocale,
+} from '@fewmail/shared/i18n/locales'
 import type { Context } from 'grammy'
 import { Bot, InlineKeyboard, webhookCallback } from 'grammy'
 
@@ -11,6 +15,7 @@ import type { askMail } from './services/ask'
 import { generateBrief, getLatestBrief, localClock } from './services/brief'
 import { followMessage } from './services/instructions'
 import { linkTelegramChat, userIdForChat } from './services/integrations'
+import { LimitReachedError } from './services/limit-error'
 import {
   approveAction,
   dismissAction,
@@ -334,8 +339,14 @@ const createBot = (token: string) => {
     if (!error.ctx.message) {
       return
     }
+    const locale = matchLocale([error.ctx.from?.language_code ?? 'en'])
+    const t = messages[locale]
     try {
-      await error.ctx.reply(messagesForChat(error.ctx).telegram.somethingWrong)
+      await error.ctx.reply(
+        error.error instanceof LimitReachedError
+          ? t.limits.messages(formatResetDay(locale, error.error.resetsAt))
+          : t.telegram.somethingWrong
+      )
     } catch {
       // The chat may be gone; the error is already logged.
     }

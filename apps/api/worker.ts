@@ -7,14 +7,18 @@ import {
   boards,
   briefs,
   mailboxes,
+  schedules,
   userSettings,
 } from '@fewmail/db/schema'
 import { IMPORTANCE } from '@fewmail/shared/agent'
+import { generateId } from 'ai'
 import { subMinutes } from 'date-fns'
-import { and, eq, gte, isNotNull, isNull, lt, or } from 'drizzle-orm'
+import { and, eq, gte, isNotNull, isNull, lt, lte, or } from 'drizzle-orm'
 
+import { announceChange } from './lib/live'
 import { seedBoards } from './services/boards'
 import { generateBrief, isBriefDue } from './services/brief'
+import { getChat, streamChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { chatIdForUser } from './services/integrations'
@@ -24,6 +28,7 @@ import {
   briefNotification,
   flushNotifications,
   notify,
+  scheduleNotification,
   urgentNotification,
 } from './services/notifications'
 import { dispatchDueOutbox } from './services/outbox'
@@ -32,6 +37,7 @@ import {
   processDueCommitments,
   processDueReminders,
 } from './services/reminders'
+import { nextRunAt } from './services/schedules'
 import { ensureMailbox, readBoardHistory, syncMailbox } from './services/sync'
 import { sendBrief, sendUrgent } from './telegram'
 import { sendWhatsappBrief, sendWhatsappUrgent } from './whatsapp'
@@ -205,6 +211,57 @@ const pushUrgent = async () => {
   }
 }
 
+const runSchedule = async (schedule: typeof schedules.$inferSelect) => {
+  const stream = await streamChat(schedule.userId, {
+    id: schedule.chatId,
+    message: {
+      id: generateId(),
+      parts: [{ text: schedule.instruction, type: 'text' }],
+      role: 'user',
+    },
+  })
+  await stream.pipeTo(new WritableStream())
+  const { messages } = await getChat(schedule.userId, schedule.chatId)
+  const answer = messages
+    .at(-1)
+    ?.parts.flatMap((part) => (part.type === 'text' ? [part.text] : []))
+    .join('\n')
+  notify(
+    schedule.userId,
+    scheduleNotification(schedule.instruction, answer ?? '', schedule.chatId)
+  )
+  await announceChange(schedule.userId)
+}
+
+/** Moving `nextRunAt` first claims the run, so a slow or failed one is never repeated. */
+const runDueSchedules = async () => {
+  const due = await db
+    .select()
+    .from(schedules)
+    .where(lte(schedules.nextRunAt, new Date()))
+  await Promise.all(
+    due.map(async (schedule) => {
+      try {
+        const [claimed] = await db
+          .update(schedules)
+          .set({ nextRunAt: await nextRunAt(schedule.userId, schedule.cron) })
+          .where(
+            and(
+              eq(schedules.id, schedule.id),
+              eq(schedules.nextRunAt, schedule.nextRunAt)
+            )
+          )
+          .returning()
+        if (claimed) {
+          await runSchedule(schedule)
+        }
+      } catch (error) {
+        console.error(`schedule ${schedule.id}`, error)
+      }
+    })
+  )
+}
+
 const tick = async () => {
   try {
     await Promise.all([
@@ -217,6 +274,7 @@ const tick = async () => {
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),
       once('commitments', processDueCommitments),
+      once('schedules', runDueSchedules),
       once('known-domains', refreshKnownDomains),
     ])
   } catch (error) {

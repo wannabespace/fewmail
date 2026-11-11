@@ -243,3 +243,18 @@ export const chats = d.snakeCase.table(
   },
   (table) => [d.index('chats_user_idx').on(table.userId, table.updatedAt)]
 )
+
+/** A standing instruction the worker sends to the agent on `cron`, in the user's timezone; every run lands in `chatId`. */
+export const schedules = d.snakeCase.table(
+  'schedules',
+  {
+    ...baseTable,
+    chatId: d.uuid().notNull(),
+    cron: d.text().notNull(),
+    instruction: encryptedText().notNull(),
+    nextRunAt: d.timestamp({ withTimezone: true }).notNull(),
+    when: encryptedText().notNull(),
+    userId: userId(),
+  },
+  (table) => [d.index('schedules_next_run_idx').on(table.nextRunAt)]
+)

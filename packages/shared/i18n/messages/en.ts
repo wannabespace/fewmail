@@ -276,6 +276,14 @@ export const en = {
     terms: 'Terms of Service',
     updated: (date: string) => `Last updated ${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `Your plan holds ${total} boards. Delete one, or switch to Max in Settings → Plan.`,
+    messages: (date: string) =>
+      `This month’s messages to the agent are used up. They come back on ${date}.`,
+    tasks: (total: number) =>
+      `Your plan hands over ${total} threads at a time. Let one finish, or switch to Max in Settings → Plan.`,
+  },
   login: {
     agree: ((slots) => [
       'By continuing you agree to the ',
@@ -349,6 +357,7 @@ export const en = {
         one: () => 'Pro trial · 1 day left',
         other: (n) => `Pro trial · ${n} days left`,
       }),
+    usage: (percent: number) => `Agent · ${percent}% of this month used`,
     watching: 'Agent is watching your inbox',
   },
   notifications: {
@@ -375,15 +384,30 @@ export const en = {
       'Pro adds the agent: a daily brief, every email read and summarized, replies drafted in your voice, rules in plain words, Telegram and MCP.',
     manage: 'Manage billing',
     price: (usd: number) => `$${usd} / month`,
+    priceYearly: (usd: number) => `$${usd} / year`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `${emails} emails and ${messages} messages a month; boards and handed-over threads without limit.`,
+    messages: 'Messages to the agent',
+    messagesHint: 'Chat, Ask, Telegram and WhatsApp.',
+    of: (used: string, total: string) => `${used} of ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) => `Pro until ${date}, then Free.`,
+    proLimits: (emails: string, messages: string) =>
+      `${emails} emails and ${messages} messages a month.`,
+    cancels: (plan: string, date: string) =>
+      `${plan} until ${date}, then Free.`,
+    choose: (plan: string) => `Choose ${plan}`,
+    emails: 'Emails the agent read',
+    emailsHint: 'Noise sorted on its own does not count.',
     proRenews: (date: string) => `Renews on ${date}.`,
+    resets: (date: string) => `Resets on ${date}.`,
     title: 'Plan',
     trial: 'Pro trial',
     trialDescription: (date: string) =>
       `Every Pro feature until ${date}. Afterwards Fewmail stays free with simple rules — no card needed.`,
-    upgrade: 'Upgrade to Pro',
-    welcome: 'Welcome to Pro. The agent is back on duty.',
+    welcome: (plan: string) => `Welcome to ${plan}. The agent is back on duty.`,
+    yearly: 'Pay yearly',
+    yearlyHint: 'Two months free.',
   },
   people: {
     firstContact: (date: string) => `Writing since ${date}`,
@@ -536,6 +560,12 @@ export const en = {
     persona: 'How you use email',
     signedInWithGoogle: 'Signed in with Google',
     signOut: 'Sign out',
+    schedules: {
+      delete: 'Delete',
+      description:
+        'Ask the agent in chat to do something regularly, like “every Friday at 17:00 collect the week’s invoices”. Each run arrives in its own chat, where you approve anything it wants to send.',
+      title: 'Schedules',
+    },
     snippets: {
       add: 'Add snippet',
       body: 'Text',

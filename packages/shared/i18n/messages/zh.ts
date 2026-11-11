@@ -191,6 +191,13 @@ export const zh: Messages = {
     terms: '服务条款',
     updated: (date: string) => `最后更新：${date}`,
   },
+  limits: {
+    boards: (total: number) =>
+      `你的套餐最多 ${total} 个看板。删除一个，或在设置 → 套餐中切换到 Max。`,
+    messages: (date: string) => `本月发给代理的消息已用完，将于 ${date} 恢复。`,
+    tasks: (total: number) =>
+      `你的套餐一次可托付 ${total} 个会话。等其中一个完成，或在设置 → 套餐中切换到 Max。`,
+  },
   login: {
     agree: ((slots) => [
       '继续即表示你同意',
@@ -259,6 +266,7 @@ export const zh: Messages = {
     syncing: '正在读取收件箱…',
     today: '今天',
     trialLeft: (total: number) => `Pro 试用 · 还剩 ${total} 天`,
+    usage: (percent: number) => `代理 · 本月已用 ${percent}%`,
     watching: '助手正在留意你的收件箱',
   },
   notifications: {
@@ -281,15 +289,30 @@ export const zh: Messages = {
       'Pro 会加入助手：每日简报、每封邮件都会被阅读和总结、用你的语气起草回复、用日常语言写规则，以及 Telegram 和 MCP。',
     manage: '管理账单',
     price: (usd: number) => `$${usd} / 月`,
+    priceYearly: (usd: number) => `$${usd} / 年`,
+    max: 'Max',
+    maxLimits: (emails: string, messages: string) =>
+      `每月 ${emails} 封邮件和 ${messages} 条消息；看板和托付的会话不限。`,
+    messages: '发给代理的消息',
+    messagesHint: '聊天、Ask、Telegram 和 WhatsApp。',
+    of: (used: string, total: string) => `${used} / ${total}`,
     pro: 'Pro',
-    proCancels: (date: string) => `Pro 有效至 ${date}，之后转为 Free。`,
+    proLimits: (emails: string, messages: string) =>
+      `每月 ${emails} 封邮件和 ${messages} 条消息。`,
+    cancels: (plan: string, date: string) =>
+      `${plan} 有效至 ${date}，之后转为 Free。`,
+    choose: (plan: string) => `选择 ${plan}`,
+    emails: '代理读过的邮件',
+    emailsHint: '自动归类的杂讯不计入。',
     proRenews: (date: string) => `将于 ${date} 续订。`,
+    resets: (date: string) => `将于 ${date} 重置。`,
     title: '方案',
     trial: 'Pro 试用',
     trialDescription: (date: string) =>
       `${date} 前可使用 Pro 的全部功能。之后 Fewmail 仍可免费使用简单规则，无需绑卡。`,
-    upgrade: '升级到 Pro',
-    welcome: '欢迎使用 Pro，助手已重新开始工作。',
+    welcome: (plan: string) => `欢迎使用 ${plan}，助手已重新开始工作。`,
+    yearly: '按年付费',
+    yearlyHint: '免费两个月。',
   },
   persona: {
     reader: {
@@ -371,6 +394,12 @@ export const zh: Messages = {
       description:
         '将邮件分到 Fewmail/… 标签中，让手机上的 Gmail 显示相同的顺序。',
       title: 'Gmail 中的助手标签',
+    },
+    schedules: {
+      delete: '删除',
+      description:
+        '在聊天中让代理定期做某件事，例如“每周五 17:00 汇总本周的发票”。每次运行都会出现在它自己的聊天中，你在那里批准它想发送的内容。',
+      title: '定时任务',
     },
     snippets: {
       add: '添加片段',

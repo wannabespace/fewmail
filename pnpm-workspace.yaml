@@ -93,6 +93,7 @@ catalog:
   web-push: ^3.6.7
   '@types/web-push': ^3.6.4
   recharts: ^3.10.1
+  croner: ^11.0.0
 allowBuilds:
   bun: true
   esbuild: true

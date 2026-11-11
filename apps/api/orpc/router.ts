@@ -1,6 +1,7 @@
 import { db } from '@fewmail/db'
 import { messages } from '@fewmail/db/schema'
 import {
+  BILLING_INTERVALS,
   BOARD_CHART_TYPES,
   BOARD_GROUPINGS,
   BOARD_MEASURES,
@@ -9,6 +10,7 @@ import {
   GMAIL_EFFECTS,
   MAIL_CATEGORIES,
   OUTBOX_MODES,
+  PAID_PLANS,
   PERSONAS,
   RULE_EFFECTS,
   SIMPLE_MATCH_FIELDS,
@@ -74,13 +76,19 @@ import {
 } from '../services/notifications'
 import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
 import { getPerson } from '../services/people'
-import { getPlanInfo, requireAgent } from '../services/plan'
+import {
+  getPlanInfo,
+  getUsage,
+  requireAgent,
+  spendMessage,
+} from '../services/plan'
 import {
   createRule,
   deleteRule,
   listRules,
   updateRule,
 } from '../services/rules'
+import { deleteSchedule, listSchedules } from '../services/schedules'
 import { getSettings, saveSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
 import { markNotSpam, reportSpam } from '../services/spam'
@@ -381,11 +389,21 @@ export const router = {
   },
   ask: agent
     .input(type({ question: 'string > 2' }))
-    .handler(({ context, input }) => askMail(context.user.id, input.question)),
+    .handler(async ({ context, input }) => {
+      await spendMessage(context.user.id)
+      return askMail(context.user.id, input.question)
+    }),
   billing: {
-    checkout: authed.handler(async ({ context }) => ({
-      url: await createCheckout(context.user.id),
-    })),
+    checkout: authed
+      .input(
+        type({
+          interval: type.enumerated(...BILLING_INTERVALS),
+          plan: type.enumerated(...PAID_PLANS),
+        })
+      )
+      .handler(async ({ context, input }) => ({
+        url: await createCheckout(context.user.id, input),
+      })),
     portal: authed.handler(async ({ context }) => ({
       url: await createBillingPortal(context.user.id),
     })),
@@ -393,6 +411,7 @@ export const router = {
   me: authed.handler(async ({ context }) => ({
     plan: await getPlanInfo(context.user.id),
     settings: await getSettings(context.user.id),
+    usage: await getUsage(context.user.id),
     user: context.user,
   })),
   rules: {
@@ -433,6 +452,12 @@ export const router = {
         const task = await createTask(context.user.id, input)
         return { id: task.id }
       }),
+  },
+  schedules: {
+    delete: agent.input(id).handler(async ({ context, input }) => {
+      await deleteSchedule(context.user.id, input.id)
+    }),
+    list: agent.handler(({ context }) => listSchedules(context.user.id)),
   },
   settings: {
     save: authed.input(settingsInput).handler(async ({ context, input }) => {

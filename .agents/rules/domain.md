@@ -18,6 +18,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Voice** | How drafts sound: learned from the user's recent sent mail (synced alongside the inbox) plus an optional `voice` note. |
 | **Snooze** | Hide a thread until a time; it comes back to the inbox unread. Free. |
 | **Follow-up** | "Remind me if no reply in N days" on a sent email (Free: the thread resurfaces). The agent also sets follow-ups itself on sent mail that expects an answer (all plans); Pro adds a nudge in Today. |
+| **Schedule** | Something the user asked the agent to do regularly ("every Friday at 17:00 collect the week's invoices", "every Monday send the team the report"). Each run is a message in its own agent chat with a notification; anything it wants to send waits for approval there. Created by asking the agent; listed in Settings. |
 | **Knowledge** | Free-form facts the user gives the agent (prices, availability…), used in drafts and autocomplete. Pro. |
 | **Spam shield** | Community spam protection: "Report spam" (`!`) moves the thread to Gmail spam and votes; enough independent votes move that sender's mail to spam for everyone. Votes also count against the campaign's patterns — the same text, the sending network, the linked domains — so a spammer gains nothing by switching address. "Not spam" votes the other way. Free. |
 | **Maybe spam** | One weak signal (odd domain name, freshly registered domain, weak sender authentication): labelled "Looks like spam" and kept out of Important, never moved. Two or more → spam. Free. |
@@ -41,7 +42,10 @@ UI copy says "the agent" or "Fewmail", never "AI" or "the model".
 | Plan | What it is |
 | --- | --- |
 | **Free** | Forever. Mail view, archive / unsubscribe / open in Gmail, **simple rules** (`rules.match`: from, subject contains, any mailing list → archive, mark read, unsubscribe; always act on their own), and every Jev decision: classification, importance, needs-reply, plain-language rules (archive / mark read / unsubscribe / trash, autonomous), risk checks, zombie and bulk detection, auto follow-ups, agent labels. **No LLM**: no Today, agent mode, summaries, drafts, autocomplete, Ask AI, commitments, money, people, tasks, Telegram, WhatsApp or MCP — the controls are absent, not locked. |
-| **Trial** | 14 days of Pro from onboarding (`user_settings.trial_ends_at`), no card. Ends silently into Free. |
-| **Pro** | $15/month via Stripe (`PRO_PRICE_USD`). The whole agent: everything that uses an LLM. |
+| **Trial** | 14 days of Pro from onboarding (`user_settings.trial_ends_at`), no card, with smaller limits (500 emails, 50 messages). Ends silently into Free. |
+| **Pro** | $10/month or $100/year via Stripe (`PRICE_USD`; a year is ten months). The whole agent: everything that uses an LLM, within `PLAN_LIMITS`: 1,000 emails and 100 messages a month, 3 boards, 5 handed-over threads at a time. |
+| **Max** | $30/month or $300/year. The same agent with 6,000 emails and 500 messages a month and no limit on boards or tasks. Subscribers of the old $15 Pro get Max limits. |
 
-**Never push.** Pro is mentioned only in Settings → Plan, one ⌘K item ("Upgrade to Pro") and, during the trial, a muted "N days left" line in the sidebar. No modals, no banners, no badges, no "Sent with Fewmail" signature.
+**Limit, never degrade.** Both paid plans have every feature and the same models; they differ only in `PLAN_LIMITS`. **Emails** count mail the agent wrote for — noise Jev settles is free. Past the email limit new mail is handled exactly as on Free (Jev, rules, spam shield) with no summary or draft, except urgent mail, which may run 10% over. **Messages** are chat turns, Ask, and Telegram / WhatsApp texts; past the limit they are refused with the reset date. Limits are monthly on yearly plans too (never a yearly pool) and reset on the 1st (UTC).
+
+**Never push.** Paid plans are mentioned only in Settings → Plan (usage meters and the plan choices), one ⌘K item ("Upgrade to Pro"), a muted "N days left" line in the sidebar during the trial, and a muted usage line once a month is ≥ 90% spent. No modals, no banners, no badges, no "Sent with Fewmail" signature.

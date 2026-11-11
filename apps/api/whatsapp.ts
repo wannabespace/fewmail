@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
+import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { addHours, isBefore } from 'date-fns'
 
 import { env } from './env'
@@ -14,6 +15,7 @@ import {
   userIdForPhone,
   whatsappForUser,
 } from './services/integrations'
+import { LimitReachedError } from './services/limit-error'
 import {
   approveAction,
   dismissAction,
@@ -294,6 +296,20 @@ const transcribeVoice = async (mediaId: string) => {
   return transcribe(await audio.arrayBuffer(), 'voice.ogg')
 }
 
+const failureText = async (
+  userId: string,
+  t: Messages,
+  error: unknown,
+  isVoice: boolean
+) => {
+  if (error instanceof LimitReachedError) {
+    const settings = await getSettings(userId)
+    const language = settings?.language ?? 'en'
+    return t.limits.messages(formatResetDay(language, error.resetsAt))
+  }
+  return isVoice ? t.telegram.voiceFailed : t.telegram.somethingWrong
+}
+
 const handle = async (inbound: Inbound) => {
   const to = inbound.from
   const text = inbound.text?.body
@@ -331,10 +347,7 @@ const handle = async (inbound: Inbound) => {
     }
   } catch (error) {
     console.error('whatsapp', error instanceof Error ? error.message : error)
-    await say(
-      to,
-      inbound.audio ? t.telegram.voiceFailed : t.telegram.somethingWrong
-    )
+    await say(to, await failureText(userId, t, error, !!inbound.audio))
   }
 }
 
