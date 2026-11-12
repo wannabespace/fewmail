@@ -778,6 +778,7 @@ export const fr: Messages = {
     reload: 'Recharger',
   },
   keys: {
+    copyCode: 'copier le code',
     restore: 'vers la boîte de réception',
     calendarToday: 'aujourd’hui',
     newEvent: 'nouvel événement',
@@ -839,11 +840,25 @@ export const fr: Messages = {
     title: 'L’essentiel, rien de plus.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Copier et archiver',
+      copied: 'Code copié',
+      copy: 'Copier le code',
+      trash: 'Copier et supprimer',
+    },
     openUnsubscribePage: 'Ouvrir la page',
     unsubscribeYourself:
       'Pour quitter cette liste, termine sur sa page. Ses e-mails sont archivés en attendant.',
     allMailboxes: 'Toutes les boîtes',
+    filterAbout: {
+      inbox: 'Tout ce qui est dans ta boîte',
+      important: 'Les mails qui ont bientôt besoin de toi',
+      needs_reply: 'Des gens attendent ta réponse',
+      quiet: 'Newsletters, notifications et autre bruit',
+    },
     group: {
+      read: 'Lus',
+      unread: "Non lus d'abord",
       category: 'Catégorie',
       importance: 'Importance',
       none: 'Sans groupes',

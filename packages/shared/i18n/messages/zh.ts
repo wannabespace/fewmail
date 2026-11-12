@@ -268,6 +268,7 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
+    copyCode: '复制验证码',
     restore: '移回收件箱',
     calendarToday: '今天',
     newEvent: '新建日程',
@@ -327,11 +328,25 @@ export const zh: Messages = {
     title: '只看重要的。',
   },
   mail: {
+    oneTimeCode: {
+      archive: '复制并归档',
+      copied: '已复制验证码',
+      copy: '复制验证码',
+      trash: '复制并删除',
+    },
     openUnsubscribePage: '打开页面',
     unsubscribeYourself:
       '这个列表需要你在它的页面上自己退订。在此之前，它的邮件已归档。',
     allMailboxes: '所有邮箱',
+    filterAbout: {
+      inbox: '收件箱中的全部邮件',
+      important: '很快需要你处理的邮件',
+      needs_reply: '正在等你回复的人',
+      quiet: '新闻简报、通知和其他杂讯',
+    },
     group: {
+      read: '已读',
+      unread: '未读优先',
       category: '类别',
       importance: '重要性',
       none: '不分组',

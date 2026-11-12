@@ -1,5 +1,7 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { BULK_THRESHOLD } from '@fewmail/shared/agent'
+import { Button } from '@fewmail/ui/components/button'
+import { CopyButton } from '@fewmail/ui/components/custom/copy-button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   ResizableGroup,
@@ -25,6 +27,11 @@ import {
 } from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@fewmail/ui/components/popover'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -32,16 +39,27 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { useDebouncedMemo } from '@fewmail/ui/hookas/use-debounced-memo'
+import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
+  Archive02Icon,
+  ArrowDown01Icon,
   Clock01Icon,
   Delete02Icon,
+  FileEditIcon,
+  Flag02Icon,
+  InboxIcon,
   Mail01Icon,
+  MailReply01Icon,
+  NotificationOff01Icon,
   Search01Icon,
   Shield01Icon,
+  SpamIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import type { IconSvgElement } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import {
@@ -74,19 +92,25 @@ import type { MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
-const FILTERS = [
-  'inbox',
-  'important',
-  'needs_reply',
-  'quiet',
-  'snoozed',
-  'drafts',
-  'archive',
-  'spam',
-  'trash',
-] as const
+const INBOX_VIEWS = ['inbox', 'important', 'needs_reply', 'quiet'] as const
+
+const FOLDERS = ['snoozed', 'drafts', 'archive', 'spam', 'trash'] as const
+
+const FILTERS = [...INBOX_VIEWS, ...FOLDERS] as const
 
 type Filter = (typeof FILTERS)[number]
+
+const FILTER_ICONS: Record<Filter, IconSvgElement> = {
+  archive: Archive02Icon,
+  drafts: FileEditIcon,
+  important: Flag02Icon,
+  inbox: InboxIcon,
+  needs_reply: MailReply01Icon,
+  quiet: NotificationOff01Icon,
+  snoozed: Clock01Icon,
+  spam: SpamIcon,
+  trash: Delete02Icon,
+}
 
 const ARRIVING = new Set<Filter>([
   'inbox',
@@ -156,20 +180,38 @@ const readerWidthStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-const GROUPINGS = ['none', 'category', 'sender', 'importance'] as const
+const GROUPINGS = [
+  'unread',
+  'category',
+  'sender',
+  'importance',
+  'none',
+] as const
 
 type Grouping = (typeof GROUPINGS)[number]
 
 const groupingStore = createWebStorageValue({
-  defaultValue: 'none' as Grouping,
+  defaultValue: 'unread' as Grouping,
   key: 'fewmail.mail-grouping',
-  schema: type("'none' | 'category' | 'sender' | 'importance'"),
+  schema: type("'none' | 'unread' | 'category' | 'sender' | 'importance'"),
   type: 'localStorage',
 })
 
 type ListedRow = Omit<MailRowData, 'key' | 'list'>
 
-const groupKeyOf = (grouping: Grouping, { analysis, message }: ListedRow) => {
+/** Threads opened from the Unread group stay in it until the list changes, so reading one never moves the rows under the cursor. */
+type KeptUnread = ReadonlySet<string>
+
+const groupKeyOf = (
+  grouping: Grouping,
+  { analysis, message }: ListedRow,
+  keptUnread: KeptUnread
+) => {
+  if (grouping === 'unread') {
+    return message.isUnread || keptUnread.has(message.threadId)
+      ? 'unread'
+      : 'read'
+  }
   if (grouping === 'sender') {
     return message.fromEmail
   }
@@ -179,13 +221,25 @@ const groupKeyOf = (grouping: Grouping, { analysis, message }: ListedRow) => {
   return analysis?.category ?? 'other'
 }
 
-const groupRows = <Row extends ListedRow>(rows: Row[], grouping: Grouping) => {
+const groupRows = <Row extends ListedRow>(
+  rows: Row[],
+  grouping: Grouping,
+  keptUnread: KeptUnread
+) => {
   if (grouping === 'none') {
     return []
   }
   const groups = [
-    ...Map.groupBy(rows, (row) => groupKeyOf(grouping, row)).entries(),
+    ...Map.groupBy(rows, (row) =>
+      groupKeyOf(grouping, row, keptUnread)
+    ).entries(),
   ]
+  if (grouping === 'unread' && groups.length < 2) {
+    return []
+  }
+  if (grouping === 'unread') {
+    groups.sort(([a]) => (a === 'unread' ? -1 : 1))
+  }
   if (grouping === 'importance') {
     groups.sort(([a], [b]) => Number(b) - Number(a))
   }
@@ -238,9 +292,10 @@ const onEach =
 
 const useGroupedRows = <Row extends ListedRow>(
   listedRows: Row[],
-  grouping: Grouping
+  grouping: Grouping,
+  keptUnread: KeptUnread
 ) => {
-  const groups = groupRows(listedRows, grouping)
+  const groups = groupRows(listedRows, grouping, keptUnread)
   if (groups.length === 0) {
     return {
       groupStarts: new Map<number, (typeof groups)[number]>(),
@@ -274,6 +329,7 @@ const GroupHeader = ({
     category: () => t.category[groupKey as keyof typeof t.category],
     importance: () => t.importance[Number(groupKey)],
     sender: () => message.fromName ?? message.fromEmail,
+    unread: () => (groupKey === 'unread' ? t.mail.unread : t.mail.group.read),
   }
   const label = grouping === 'none' ? null : labels[grouping]()
   return (
@@ -293,71 +349,129 @@ const SearchHint = ({ isPending }: { isPending: boolean }) =>
     <Kbd className="group-focus-within/input-group:hidden">/</Kbd>
   )
 
-const FilterSelect = ({
+const UnreadCount = ({
   filter,
+  unread,
+}: {
+  filter: Filter
+  unread: RouterOutputs['mail']['unread'] | undefined
+}) =>
+  isCounted(filter) &&
+  Boolean(unread?.[filter]) && (
+    <span className="text-muted-foreground text-xs tabular-nums">
+      {unread?.[filter]}
+    </span>
+  )
+
+const VIEW_CHOICE =
+  'focus-visible:focus-ring cursor-pointer rounded-lg ring transition-[box-shadow,background-color] outline-none hover:bg-accent'
+
+const viewChoiceOf = (isActive: boolean) =>
+  cn(VIEW_CHOICE, isActive ? 'ring-primary ring-2' : 'ring-foreground/6')
+
+const ViewPicker = ({
+  filter,
+  grouping,
   onChange,
   unread,
 }: {
   filter: Filter
+  grouping: Grouping
   onChange: (filter: Filter) => void
   unread: RouterOutputs['mail']['unread'] | undefined
 }) => {
   const t = useT()
-  const countOf = (value: Filter) =>
-    isCounted(value) &&
-    Boolean(unread?.[value]) && (
-      <span className="text-muted-foreground text-xs tabular-nums">
-        {unread?.[value]}
-      </span>
-    )
+  const [isOpen, setIsOpen] = useState(false)
+  const pick = (next: Filter) => {
+    setIsOpen(false)
+    onChange(next)
+  }
   return (
-    <Select
-      items={FILTERS.map((value) => ({ label: t.mail.filter[value], value }))}
-      value={filter}
-      onValueChange={(next) => next && onChange(next)}
-    >
-      <SelectTrigger aria-label={t.mail.filter[filter]} size="sm">
-        <SelectValue />
-        {countOf(filter)}
-      </SelectTrigger>
-      <SelectContent align="start">
-        {FILTERS.map((value) => (
-          <SelectItem key={value} value={value}>
-            {t.mail.filter[value]}
-            <span className="ml-auto">{countOf(value)}</span>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
-}
-
-const GroupingSelect = ({ grouping }: { grouping: Grouping }) => {
-  const t = useT()
-  return (
-    <Select
-      items={GROUPINGS.map((value) => ({
-        label: value === 'none' ? t.mail.group.title : t.mail.group[value],
-        value,
-      }))}
-      value={grouping}
-      onValueChange={(next) => next && groupingStore.set(next)}
-    >
-      <SelectTrigger
-        aria-label={t.mail.group.title}
-        size="sm"
-        className="ml-auto"
-      >
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent align="end">
-        {GROUPINGS.map((value) => (
-          <SelectItem key={value} value={value}>
-            {t.mail.group[value]}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger render={<Button variant="outline" size="sm" />}>
+        <HugeiconsIcon icon={FILTER_ICONS[filter]} strokeWidth={2} />
+        {t.mail.filter[filter]}
+        <UnreadCount filter={filter} unread={unread} />
+        <HugeiconsIcon
+          icon={ArrowDown01Icon}
+          strokeWidth={2}
+          className="text-muted-foreground"
+        />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-96">
+        <div className="grid grid-cols-2 gap-2">
+          {INBOX_VIEWS.map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-current={value === filter || undefined}
+              onClick={() => pick(value)}
+              className={cn(
+                viewChoiceOf(value === filter),
+                'flex flex-col gap-1.5 p-3 text-left'
+              )}
+            >
+              <span className="flex items-center gap-2 font-medium">
+                <HugeiconsIcon
+                  icon={FILTER_ICONS[value]}
+                  strokeWidth={2}
+                  className="text-muted-foreground size-4"
+                />
+                {t.mail.filter[value]}
+                <span className="ml-auto">
+                  <UnreadCount filter={value} unread={unread} />
+                </span>
+              </span>
+              <span className="text-muted-foreground line-clamp-2 text-xs">
+                {t.mail.filterAbout[value]}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="grid grid-cols-5 gap-2">
+          {FOLDERS.map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-current={value === filter || undefined}
+              onClick={() => pick(value)}
+              className={cn(
+                viewChoiceOf(value === filter),
+                'flex min-w-0 flex-col items-center gap-1 px-1 py-2.5 text-xs'
+              )}
+            >
+              <HugeiconsIcon
+                icon={FILTER_ICONS[value]}
+                strokeWidth={2}
+                className="text-muted-foreground size-5"
+              />
+              <span className="max-w-full truncate">
+                {t.mail.filter[value]}
+              </span>
+            </button>
+          ))}
+        </div>
+        {filter !== 'drafts' && (
+          <div className="flex flex-col gap-2">
+            <span className="text-muted-foreground text-xs font-medium">
+              {t.mail.group.title}
+            </span>
+            <Tabs
+              value={grouping}
+              onValueChange={(next: Grouping) => groupingStore.set(next)}
+            >
+              <TabsList variant="pill" className="flex-wrap">
+                {GROUPINGS.map((value) => (
+                  <TabsTrigger key={value} value={value}>
+                    {t.mail.group[value]}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -460,6 +574,76 @@ const MailRowActions = ({
   )
 }
 
+/** Like iOS's verification codes: copied without opening the email, then the email goes away in the same click. */
+const MailRowCode = ({
+  actions,
+  code,
+  messageIds,
+  sweep,
+}: {
+  actions: ReturnType<typeof useMailActions>
+  code: string | null
+  messageIds: string[]
+  sweep: Sweep
+}) => {
+  const t = useT()
+  if (!code) {
+    return null
+  }
+  const copyThen = (mutate: (input: { messageId: string }) => void) => () => {
+    void copy(code)
+    onEach(messageIds, mutate)()
+  }
+  return (
+    <span className="absolute top-12.5 right-4 flex items-center gap-0.5 bg-inherit">
+      <span className="flex bg-inherit opacity-0 group-hover:opacity-100 has-focus-visible:opacity-100">
+        {sweep.action === actions.archive && (
+          <IconButton
+            icon={sweep.icon}
+            label={t.mail.oneTimeCode.archive}
+            size="icon-xs"
+            variant="ghost-muted"
+            onClick={copyThen(actions.archive.mutate)}
+          />
+        )}
+        <IconButton
+          icon={Delete02Icon}
+          label={t.mail.oneTimeCode.trash}
+          size="icon-xs"
+          variant="ghost-destructive"
+          onClick={copyThen(actions.trash.mutate)}
+        />
+      </span>
+      <CopyButton
+        text={code}
+        size="xs"
+        variant="outline"
+        aria-label={t.mail.oneTimeCode.copy}
+      >
+        <span data-mask className="font-mono tracking-wider tabular-nums">
+          {code}
+        </span>
+      </CopyButton>
+    </span>
+  )
+}
+
+const rowSurfaceOf = ({
+  isActive,
+  isOpen,
+  isUnread,
+}: {
+  isActive: boolean
+  isOpen: boolean
+  isUnread: boolean
+}) =>
+  cn(
+    'group relative border-b',
+    isUnread && 'bg-background',
+    isActive ? 'bg-accent' : 'hover:bg-accent',
+    isOpen && 'bg-secondary'
+  )
+
 const MailRow = ({
   actions,
   canSnooze,
@@ -483,15 +667,16 @@ const MailRow = ({
 }) => {
   const t = useT()
   const dates = useDates()
+  const codeRoom = message.code ? 'pr-28' : undefined
 
   return (
     <li
       data-row
-      className={cn(
-        'group relative border-b',
-        isCursor || isSnoozeOpen ? 'bg-accent' : 'hover:bg-accent',
-        isOpen && 'bg-secondary'
-      )}
+      className={rowSurfaceOf({
+        isActive: isCursor || isSnoozeOpen,
+        isOpen,
+        isUnread: message.isUnread,
+      })}
     >
       <button
         type="button"
@@ -555,6 +740,7 @@ const MailRow = ({
           data-mask
           className={cn(
             'truncate pl-4 text-sm',
+            codeRoom,
             message.isUnread
               ? 'text-foreground/90 font-medium'
               : 'text-foreground/60'
@@ -564,7 +750,10 @@ const MailRow = ({
         </span>
         <span
           data-mask
-          className="text-muted-foreground/80 truncate pl-4 text-xs"
+          className={cn(
+            'text-muted-foreground/80 truncate pl-4 text-xs',
+            codeRoom
+          )}
         >
           {analysis?.summary ?? message.snippet}
         </span>
@@ -585,6 +774,12 @@ const MailRow = ({
         isSnoozeOpen={isSnoozeOpen}
         messageIds={messageIds}
         onSnoozeOpenChange={onSnoozeOpenChange}
+        sweep={sweep}
+      />
+      <MailRowCode
+        actions={actions}
+        code={message.code}
+        messageIds={messageIds}
         sweep={sweep}
       />
     </li>
@@ -781,12 +976,14 @@ const useListRows = ({
 const useListActions = ({
   filter,
   isEnabled,
-  messageIds = [],
+  row,
 }: {
   filter: Filter
   isEnabled: boolean
-  messageIds: string[] | undefined
+  row: { message: { code: string | null }; messageIds: string[] } | undefined
 }) => {
+  const messageIds = row?.messageIds ?? []
+  const code = row?.message.code
   const t = useT()
   const actions = useMailActions()
   const [snoozeOpenId, setSnoozeOpenId] = useState<string | null>(null)
@@ -800,6 +997,9 @@ const useListActions = ({
   })
   useHotkey('Shift+3', onEach(messageIds, actions.trash.mutate), keys)
   useHotkey('Shift+1', onEach(messageIds, actions.reportSpam.mutate), keys)
+  useHotkey('Y', () => code && copy(code, t.mail.oneTimeCode.copied), {
+    enabled: keys.enabled && !!code,
+  })
   const sweepHint: [string, string] = [
     'E',
     filter in OUT_OF_INBOX ? t.keys.restore : t.keys.archive,
@@ -811,6 +1011,7 @@ const useListActions = ({
           sweepHint,
           ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
           ['#', t.keys.trash],
+          ...(code ? [['Y', t.keys.copyCode] as [string, string]] : []),
         ]
   return {
     actions,
@@ -837,11 +1038,13 @@ const MailPage = () => {
   const [expandedBursts, setExpandedBursts] = useState<ReadonlySet<string>>(
     new Set()
   )
+  const [keptUnread, setKeptUnread] = useState<KeptUnread>(new Set())
   const listKey = `${filter}:${mailbox ?? ''}:${q ?? ''}`
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
     setCursorListKey(listKey)
     setCursor(0)
+    setKeptUnread(new Set())
   }
 
   const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
@@ -865,7 +1068,7 @@ const MailPage = () => {
     q,
     typed: search.trim(),
   })
-  const { groupStarts, rows } = useGroupedRows(listedRows, grouping)
+  const { groupStarts, rows } = useGroupedRows(listedRows, grouping, keptUnread)
 
   const {
     actions,
@@ -878,7 +1081,7 @@ const MailPage = () => {
   } = useListActions({
     filter,
     isEnabled: !thread,
-    messageIds: rows[cursor]?.messageIds,
+    row: rows[cursor],
   })
 
   useEffect(() => {
@@ -912,6 +1115,9 @@ const MailPage = () => {
     if (row) {
       setCursor(index)
       expandBurst(index)
+      if (row.message.isUnread) {
+        setKeptUnread((kept) => new Set(kept).add(row.message.threadId))
+      }
       void navigate({
         search: (prev) => ({ ...prev, thread: row.message.threadId }),
       })
@@ -1001,8 +1207,9 @@ const MailPage = () => {
               </InputGroupAddon>
             </InputGroup>
             <div className="flex items-center gap-2">
-              <FilterSelect
+              <ViewPicker
                 filter={filter}
+                grouping={grouping}
                 unread={unread}
                 onChange={showFilter}
               />
@@ -1046,7 +1253,6 @@ const MailPage = () => {
                   </SelectContent>
                 </Select>
               )}
-              {!isDrafts && <GroupingSelect grouping={grouping} />}
             </div>
           </div>
           {total === 0 && !isFetching && (

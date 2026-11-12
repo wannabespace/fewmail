@@ -54,6 +54,7 @@ const messageSummary = {
   bulkCount: messages.bulkCount,
   suspicion: messages.suspicion,
   risk: messages.risk,
+  code: messages.code,
   fromEmail: messages.fromEmail,
   fromName: messages.fromName,
   gmailId: messages.gmailId,

@@ -272,6 +272,7 @@ export const hi: Messages = {
     reload: 'रीलोड करें',
   },
   keys: {
+    copyCode: 'कोड कॉपी करें',
     restore: 'इनबॉक्स में',
     calendarToday: 'आज',
     newEvent: 'नया इवेंट',
@@ -332,11 +333,25 @@ export const hi: Messages = {
     title: 'सिर्फ़ वही, जो ज़रूरी है।',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'कॉपी करें और संग्रहित करें',
+      copied: 'कोड कॉपी हो गया',
+      copy: 'कोड कॉपी करें',
+      trash: 'कॉपी करें और हटाएँ',
+    },
     openUnsubscribePage: 'पेज खोलें',
     unsubscribeYourself:
       'इस सूची से निकलना आपको उसके पेज पर ख़ुद पूरा करना होगा। तब तक उसके ईमेल आर्काइव हैं।',
     allMailboxes: 'सभी मेलबॉक्स',
+    filterAbout: {
+      inbox: 'आपके इनबॉक्स में सब कुछ',
+      important: 'मेल जिन्हें जल्द आपकी ज़रूरत है',
+      needs_reply: 'लोग आपके जवाब का इंतज़ार कर रहे हैं',
+      quiet: 'न्यूज़लेटर, सूचनाएँ और बाकी शोर',
+    },
     group: {
+      read: 'पढ़े हुए',
+      unread: 'पहले अपठित',
       category: 'श्रेणी',
       importance: 'महत्व',
       none: 'कोई समूह नहीं',

@@ -541,6 +541,7 @@ export const nl: Messages = {
     reload: 'Herladen',
   },
   keys: {
+    copyCode: 'code kopiëren',
     restore: 'naar inbox',
     calendarToday: 'vandaag',
     newEvent: 'nieuwe afspraak',
@@ -602,11 +603,25 @@ export const nl: Messages = {
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Kopiëren en archiveren',
+      copied: 'Code gekopieerd',
+      copy: 'Code kopiëren',
+      trash: 'Kopiëren en verwijderen',
+    },
     openUnsubscribePage: 'Pagina openen',
     unsubscribeYourself:
       'Voor deze lijst moet je zelf afmelden op de pagina ervan. Tot dan is de mail gearchiveerd.',
     allMailboxes: 'Alle mailboxen',
+    filterAbout: {
+      inbox: 'Alles in je inbox',
+      important: 'Mail die je binnenkort nodig heeft',
+      needs_reply: 'Mensen wachten op je antwoord',
+      quiet: 'Nieuwsbrieven, meldingen en andere ruis',
+    },
     group: {
+      read: 'Gelezen',
+      unread: 'Ongelezen eerst',
       category: 'Categorie',
       importance: 'Belang',
       none: 'Geen groepen',

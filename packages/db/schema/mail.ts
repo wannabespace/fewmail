@@ -85,6 +85,8 @@ export const messages = d.snakeCase.table(
     auth: d.jsonb().$type<MailAuth>(),
     bulkCount: d.integer(),
     cc: searchableTextArray().notNull(),
+    /** A sign-in or verification code found in the email (`oneTimeCode`), shown in the list to copy without opening it. */
+    code: encryptedText(),
     fromDomain: searchableText().notNull(),
     fromEmail: searchableText().notNull(),
     fromName: encryptedText(),

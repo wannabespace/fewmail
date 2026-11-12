@@ -553,6 +553,7 @@ export const pl: Messages = {
     reload: 'Odśwież',
   },
   keys: {
+    copyCode: 'kopiuj kod',
     restore: 'do odebranych',
     calendarToday: 'dziś',
     newEvent: 'nowe wydarzenie',
@@ -614,11 +615,25 @@ export const pl: Messages = {
     title: 'Tylko to, co ważne.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Kopiuj i archiwizuj',
+      copied: 'Skopiowano kod',
+      copy: 'Kopiuj kod',
+      trash: 'Kopiuj i usuń',
+    },
     openUnsubscribePage: 'Otwórz stronę',
     unsubscribeYourself:
       'Z tej listy trzeba wypisać się samemu na jej stronie. Do tego czasu jej maile są w archiwum.',
     allMailboxes: 'Wszystkie skrzynki',
+    filterAbout: {
+      inbox: 'Wszystko w skrzynce odbiorczej',
+      important: 'Poczta, która wkrótce cię potrzebuje',
+      needs_reply: 'Ludzie czekają na twoją odpowiedź',
+      quiet: 'Newslettery, powiadomienia i inny szum',
+    },
     group: {
+      read: 'Przeczytane',
+      unread: 'Najpierw nieprzeczytane',
       category: 'Kategoria',
       importance: 'Ważność',
       none: 'Bez grup',

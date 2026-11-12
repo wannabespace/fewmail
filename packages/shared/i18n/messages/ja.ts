@@ -274,6 +274,7 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
+    copyCode: 'コードをコピー',
     restore: '受信トレイへ',
     calendarToday: '今日',
     newEvent: '新しい予定',
@@ -334,11 +335,25 @@ export const ja: Messages = {
     title: '大切なメールだけを。',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'コピーしてアーカイブ',
+      copied: 'コードをコピーしました',
+      copy: 'コードをコピー',
+      trash: 'コピーして削除',
+    },
     openUnsubscribePage: 'ページを開く',
     unsubscribeYourself:
       'このリストの配信停止はページで手続きが必要です。それまでメールはアーカイブします。',
     allMailboxes: 'すべてのメールボックス',
+    filterAbout: {
+      inbox: '受信トレイのすべて',
+      important: 'まもなく対応が必要なメール',
+      needs_reply: 'あなたの返信を待っている人',
+      quiet: 'ニュースレター、通知などのノイズ',
+    },
     group: {
+      read: '既読',
+      unread: '未読を先に',
       category: 'カテゴリ',
       importance: '重要度',
       none: 'グループなし',

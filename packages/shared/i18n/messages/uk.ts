@@ -765,6 +765,7 @@ export const uk: Messages = {
     reload: 'Оновити',
   },
   keys: {
+    copyCode: 'скопіювати код',
     restore: 'у вхідні',
     calendarToday: 'сьогодні',
     newEvent: 'нова подія',
@@ -826,11 +827,25 @@ export const uk: Messages = {
     title: 'Лише те, що важливо.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Скопіювати й архівувати',
+      copied: 'Код скопійовано',
+      copy: 'Скопіювати код',
+      trash: 'Скопіювати й видалити',
+    },
     openUnsubscribePage: 'Відкрити сторінку',
     unsubscribeYourself:
       'Цю розсилку треба покинути на її сторінці самому. Поки що її листи в архіві.',
     allMailboxes: 'Усі скриньки',
+    filterAbout: {
+      inbox: 'Усе, що у вхідних',
+      important: 'Листи, які скоро потребують вас',
+      needs_reply: 'Люди чекають на вашу відповідь',
+      quiet: 'Розсилки, сповіщення та інший шум',
+    },
     group: {
+      read: 'Прочитані',
+      unread: 'Спершу непрочитані',
       category: 'Категорія',
       importance: 'Важливість',
       none: 'Без груп',

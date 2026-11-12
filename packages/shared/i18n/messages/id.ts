@@ -527,6 +527,7 @@ export const id: Messages = {
     reload: 'Muat ulang',
   },
   keys: {
+    copyCode: 'salin kode',
     restore: 'ke kotak masuk',
     calendarToday: 'hari ini',
     newEvent: 'acara baru',
@@ -588,11 +589,25 @@ export const id: Messages = {
     title: 'Hanya yang penting.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Salin dan arsipkan',
+      copied: 'Kode disalin',
+      copy: 'Salin kode',
+      trash: 'Salin dan hapus',
+    },
     openUnsubscribePage: 'Buka halaman',
     unsubscribeYourself:
       'Untuk keluar dari daftar ini, selesaikan di halamannya. Sementara itu emailnya diarsipkan.',
     allMailboxes: 'Semua kotak surat',
+    filterAbout: {
+      inbox: 'Semua yang ada di kotak masuk',
+      important: 'Email yang segera butuh kamu',
+      needs_reply: 'Orang menunggu balasanmu',
+      quiet: 'Buletin, pemberitahuan, dan gangguan lain',
+    },
     group: {
+      read: 'Sudah dibaca',
+      unread: 'Belum dibaca dulu',
       category: 'Kategori',
       importance: 'Kepentingan',
       none: 'Tanpa grup',

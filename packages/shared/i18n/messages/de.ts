@@ -768,6 +768,7 @@ export const de: Messages = {
     reload: 'Neu laden',
   },
   keys: {
+    copyCode: 'Code kopieren',
     restore: 'in den Posteingang',
     calendarToday: 'heute',
     newEvent: 'neuer Termin',
@@ -829,11 +830,25 @@ export const de: Messages = {
     title: 'Nur, was zählt.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Kopieren und archivieren',
+      copied: 'Code kopiert',
+      copy: 'Code kopieren',
+      trash: 'Kopieren und löschen',
+    },
     openUnsubscribePage: 'Seite öffnen',
     unsubscribeYourself:
       'Diesen Newsletter musst du auf seiner Seite selbst abbestellen. Seine Mails sind bis dahin archiviert.',
     allMailboxes: 'Alle Postfächer',
+    filterAbout: {
+      inbox: 'Alles in deinem Posteingang',
+      important: 'Mails, die dich bald brauchen',
+      needs_reply: 'Leute warten auf deine Antwort',
+      quiet: 'Newsletter, Hinweise und anderes Rauschen',
+    },
     group: {
+      read: 'Gelesen',
+      unread: 'Ungelesene zuerst',
       category: 'Kategorie',
       importance: 'Wichtigkeit',
       none: 'Keine Gruppen',

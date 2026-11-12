@@ -7,6 +7,7 @@ import type { GmailAccount } from './auth'
 import { gmailAccessToken } from './auth'
 import { domainOf } from './keyed-hash'
 import { mailSignals } from './mail-auth'
+import { oneTimeCode } from './one-time-code'
 
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 
@@ -160,10 +161,13 @@ export const parseMessage = (message: GmailMessage) => {
   const from = parseAddress(headers.get('from') ?? '')
   const labelIds = message.labelIds ?? []
   const snippet = decodeEntities(message.snippet)
+  const subject = headers.get('subject') ?? '(no subject)'
+  const body = messageBody(plain, html, snippet)
+  const isFromMe = labelIds.includes('SENT')
 
   return {
     ...mailSignals(message.payload.headers ?? []),
-    body: messageBody(plain, html, snippet),
+    body,
     cc: splitAddresses(headers.get('cc')),
     fromDomain: domainOf(from.email),
     fromEmail: from.email,
@@ -171,7 +175,8 @@ export const parseMessage = (message: GmailMessage) => {
     gmailId: message.id,
     hasAttachments: hasAttachment(message.payload),
     html: html ? decodeBase64Url(html) : '',
-    isFromMe: labelIds.includes('SENT'),
+    code: isFromMe ? null : oneTimeCode(subject, body),
+    isFromMe,
     isUnread: labelIds.includes('UNREAD'),
     labelIds,
     listUnsubscribe: headers.get('list-unsubscribe') ?? null,
@@ -182,7 +187,7 @@ export const parseMessage = (message: GmailMessage) => {
       ? parseAddress(headers.get('reply-to') ?? '').email
       : null,
     snippet,
-    subject: headers.get('subject') ?? '(no subject)',
+    subject,
     threadId: message.threadId,
     to: splitAddresses(headers.get('to')),
   }

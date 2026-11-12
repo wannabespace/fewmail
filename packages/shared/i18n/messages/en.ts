@@ -537,6 +537,7 @@ export const en = {
     reload: 'Reload',
   },
   keys: {
+    copyCode: 'copy code',
     restore: 'back to inbox',
     calendarToday: 'today',
     newEvent: 'new event',
@@ -598,11 +599,25 @@ export const en = {
     title: 'Only what matters.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Copy and archive',
+      copied: 'Code copied',
+      copy: 'Copy code',
+      trash: 'Copy and delete',
+    },
     openUnsubscribePage: 'Open page',
     unsubscribeYourself:
       'This list needs you to finish leaving on its own page. Its mail is archived meanwhile.',
     allMailboxes: 'All mailboxes',
+    filterAbout: {
+      inbox: 'Everything in your inbox',
+      important: 'Mail that needs you soon',
+      needs_reply: 'People waiting for your answer',
+      quiet: 'Newsletters, notices and other noise',
+    },
     group: {
+      read: 'Read',
+      unread: 'Unread first',
       category: 'Category',
       importance: 'Importance',
       none: 'No groups',

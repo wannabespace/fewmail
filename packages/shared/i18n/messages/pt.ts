@@ -541,6 +541,7 @@ export const pt: Messages = {
     reload: 'Recarregar',
   },
   keys: {
+    copyCode: 'copiar código',
     restore: 'para a caixa de entrada',
     calendarToday: 'hoje',
     newEvent: 'novo evento',
@@ -602,11 +603,25 @@ export const pt: Messages = {
     title: 'Só o que importa.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Copiar e arquivar',
+      copied: 'Código copiado',
+      copy: 'Copiar código',
+      trash: 'Copiar e excluir',
+    },
     openUnsubscribePage: 'Abrir página',
     unsubscribeYourself:
       'Para sair desta lista, termine na página dela. Enquanto isso, o e-mail fica arquivado.',
     allMailboxes: 'Todas as caixas',
+    filterAbout: {
+      inbox: 'Tudo na sua caixa de entrada',
+      important: 'E-mails que logo precisam de você',
+      needs_reply: 'Pessoas esperando sua resposta',
+      quiet: 'Newsletters, avisos e outros ruídos',
+    },
     group: {
+      read: 'Lidos',
+      unread: 'Não lidos primeiro',
       category: 'Categoria',
       importance: 'Importância',
       none: 'Sem grupos',

@@ -524,6 +524,7 @@ export const tr: Messages = {
     reload: 'Yenile',
   },
   keys: {
+    copyCode: 'kodu kopyala',
     restore: 'gelen kutusuna',
     calendarToday: 'bugün',
     newEvent: 'yeni etkinlik',
@@ -585,11 +586,25 @@ export const tr: Messages = {
     title: 'Yalnızca önemli olan.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Kopyala ve arşivle',
+      copied: 'Kod kopyalandı',
+      copy: 'Kodu kopyala',
+      trash: 'Kopyala ve sil',
+    },
     openUnsubscribePage: 'Sayfayı aç',
     unsubscribeYourself:
       'Bu listeden çıkmayı kendi sayfasında tamamlaman gerekiyor. O zamana kadar e-postaları arşivde.',
     allMailboxes: 'Tüm posta kutuları',
+    filterAbout: {
+      inbox: 'Gelen kutundaki her şey',
+      important: 'Yakında seni bekleyen e-postalar',
+      needs_reply: 'Cevabını bekleyen kişiler',
+      quiet: 'Bültenler, bildirimler ve diğer gürültü',
+    },
     group: {
+      read: 'Okunanlar',
+      unread: 'Önce okunmamışlar',
       category: 'Kategori',
       importance: 'Önem',
       none: 'Grup yok',

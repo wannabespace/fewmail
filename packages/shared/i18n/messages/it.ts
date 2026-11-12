@@ -772,6 +772,7 @@ export const it: Messages = {
     reload: 'Ricarica',
   },
   keys: {
+    copyCode: 'copia codice',
     restore: 'nella posta in arrivo',
     calendarToday: 'oggi',
     newEvent: 'nuovo evento',
@@ -833,11 +834,25 @@ export const it: Messages = {
     title: 'Solo ciò che conta.',
   },
   mail: {
+    oneTimeCode: {
+      archive: 'Copia e archivia',
+      copied: 'Codice copiato',
+      copy: 'Copia codice',
+      trash: 'Copia ed elimina',
+    },
     openUnsubscribePage: 'Apri pagina',
     unsubscribeYourself:
       'Per lasciare questa lista devi finire sulla sua pagina. Intanto la sua posta è archiviata.',
     allMailboxes: 'Tutte le caselle',
+    filterAbout: {
+      inbox: 'Tutto ciò che è nella posta in arrivo',
+      important: 'Mail che presto ti richiedono',
+      needs_reply: 'Persone che aspettano una tua risposta',
+      quiet: 'Newsletter, avvisi e altro rumore',
+    },
     group: {
+      read: 'Letti',
+      unread: 'Prima i non letti',
       category: 'Categoria',
       importance: 'Importanza',
       none: 'Nessun gruppo',

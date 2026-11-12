@@ -272,6 +272,7 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
+    copyCode: '코드 복사',
     restore: '받은편지함으로',
     calendarToday: '오늘',
     newEvent: '새 일정',
@@ -333,11 +334,25 @@ export const ko: Messages = {
     title: '중요한 것만.',
   },
   mail: {
+    oneTimeCode: {
+      archive: '복사 후 보관',
+      copied: '코드를 복사했습니다',
+      copy: '코드 복사',
+      trash: '복사 후 삭제',
+    },
     openUnsubscribePage: '페이지 열기',
     unsubscribeYourself:
       '이 목록은 해당 페이지에서 직접 구독을 해지해야 해요. 그동안 메일은 보관해 둘게요.',
     allMailboxes: '모든 메일함',
+    filterAbout: {
+      inbox: '받은편지함의 모든 메일',
+      important: '곧 확인이 필요한 메일',
+      needs_reply: '답장을 기다리는 사람들',
+      quiet: '뉴스레터, 알림 등 기타 소음',
+    },
     group: {
+      read: '읽음',
+      unread: '읽지 않은 메일 먼저',
       category: '카테고리',
       importance: '중요도',
       none: '그룹 없음',
