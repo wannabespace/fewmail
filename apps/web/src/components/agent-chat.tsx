@@ -467,6 +467,9 @@ const CONSENT_DETAILS: Record<
       )}
     </>
   ),
+  mark_not_spam: ({ email }) => <EmailLine email={email} />,
+  report_spam: ({ email }) => <EmailLine email={email} />,
+  trash_thread: ({ email }) => <EmailLine email={email} />,
   unsubscribe: ({ email }) => <EmailLine email={email} />,
   update_event: ({ calendar, event, input }) => (
     <EventDetails calendar={calendar} event={input} previous={event} />

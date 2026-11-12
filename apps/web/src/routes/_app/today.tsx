@@ -521,7 +521,7 @@ const TodayPage = () => {
                 {dataUpdatedAt > 0 &&
                   dates.format(dataUpdatedAt, 'EEEE, d MMMM')}
               </span>
-              {brief && <BriefTime label={t.today.briefFrom} />}
+              {brief && <BriefTime label={t.today.briefAt} />}
             </div>
             <BriefBody
               brief={brief}

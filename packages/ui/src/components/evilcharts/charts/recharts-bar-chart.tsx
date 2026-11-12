@@ -737,7 +737,8 @@ const CustomBar = (props: CustomBarProps) => {
         y={y}
         width={width}
         opacity={fillOpacity}
-        height={Math.max(0, height - 3)}
+        // A negative value (a refund month) arrives as a negative height; clamping it to 0 hides the bar.
+        height={height < 0 ? Math.min(0, height + 3) : Math.max(0, height - 3)}
         radius={radius}
         fill={fill}
         filter={filter}

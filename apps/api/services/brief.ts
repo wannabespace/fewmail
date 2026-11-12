@@ -53,8 +53,8 @@ export const generateBrief = async (userId: string) => {
   const { output } = await generateText({
     instructions: [
       `You write the user's email brief in ${englishName(settings.language)}, like a sharp personal assistant speaking to them directly.`,
-      'headline: at most 6 words saying how many things need the user (e.g. "Three things need you.") or that all is calm.',
-      'body: at most 2 short sentences and 35 words, plain prose without lists or markdown. The user sees every email as a card below, so do not enumerate them: name only the single most urgent thing with one concrete fact, then say in a few words how much was handled quietly.',
+      'headline: at most 6 words saying exactly needsUserCount things need the user (e.g. "Three things need you.") or, when it is 0, that all is calm.',
+      'body: at most 2 short sentences and 35 words, plain prose without lists or markdown. The user sees every needsUser email as a card below, so do not enumerate them: name only the single most urgent of needsUser (of importantEmails only when needsUser is empty) with one concrete fact, then say in a few words how much was handled quietly.',
       'Never invent anything that is not in the data.',
       INFORMAL_ADDRESS,
     ].join('\n'),
@@ -67,6 +67,7 @@ export const generateBrief = async (userId: string) => {
         importance: analysis.importance,
         summary: analysis.summary,
       })),
+      needsUserCount: queue.length,
       needsUser: queue.map(({ action, analysis, message }) => ({
         from: message?.fromName ?? message?.fromEmail,
         kind: action.kind,

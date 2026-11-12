@@ -251,7 +251,7 @@ const ChartBody = ({ series }: { series: ChartSeries }) => {
         xDataKey="label"
       >
         <EvilLineChart.Grid />
-        <EvilLineChart.XAxis dataKey="label" />
+        <EvilLineChart.XAxis dataKey="label" interval="preserveStartEnd" />
         <EvilLineChart.Tooltip labelFormatter={headingOf} />
         <EvilLineChart.Line dataKey="value" />
       </EvilLineChart>
@@ -266,7 +266,7 @@ const ChartBody = ({ series }: { series: ChartSeries }) => {
         xDataKey="label"
       >
         <EvilAreaChart.Grid />
-        <EvilAreaChart.XAxis dataKey="label" />
+        <EvilAreaChart.XAxis dataKey="label" interval="preserveStartEnd" />
         <EvilAreaChart.Tooltip labelFormatter={headingOf} />
         <EvilAreaChart.Area dataKey="value" />
       </EvilAreaChart>
@@ -280,7 +280,7 @@ const ChartBody = ({ series }: { series: ChartSeries }) => {
       xDataKey="label"
     >
       <EvilBarChart.Grid />
-      <EvilBarChart.XAxis dataKey="label" />
+      <EvilBarChart.XAxis dataKey="label" interval="preserveStartEnd" />
       <EvilBarChart.Tooltip labelFormatter={headingOf} />
       <EvilBarChart.Bar dataKey="value" />
     </EvilBarChart>

@@ -32,6 +32,7 @@ export const SnippetsSettings = () => {
   const remove = useMutation(
     orpc.snippets.delete.mutationOptions({ onSuccess: invalidate })
   )
+  const isFilled = Boolean(name.trim() && body.trim())
 
   return (
     <SettingsGroup title={t.settings.snippets.title}>
@@ -39,7 +40,7 @@ export const SnippetsSettings = () => {
         className="flex flex-col gap-2 p-3.5"
         onSubmit={(event) => {
           event.preventDefault()
-          if (name.trim() && body.trim()) {
+          if (isFilled) {
             save.mutate({ html: textToHtml(body), name: name.trim() })
           }
         }}
@@ -65,7 +66,7 @@ export const SnippetsSettings = () => {
           size="sm"
           type="submit"
           className="self-start"
-          disabled={save.isPending}
+          disabled={!isFilled || save.isPending}
         >
           {t.settings.snippets.add}
         </Button>

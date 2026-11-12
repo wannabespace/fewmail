@@ -176,6 +176,7 @@ export const parseSkill = (text: string) => {
 export const AGENT_TOOLS = {
   approve_action: 'consent',
   archive_thread: 'consent',
+  create_board: 'write',
   create_draft: 'write',
   create_event: 'consent',
   create_rule: 'consent',
@@ -195,11 +196,14 @@ export const AGENT_TOOLS = {
   list_rules: 'read',
   list_schedules: 'read',
   list_subscriptions: 'read',
+  mark_not_spam: 'consent',
   read_thread: 'read',
   redraft_action: 'write',
   refresh: 'write',
+  report_spam: 'consent',
   send_email: 'consent',
   snooze_thread: 'consent',
+  trash_thread: 'consent',
   unsubscribe: 'consent',
   update_event: 'consent',
 } as const satisfies Record<string, 'read' | 'write' | 'consent'>

@@ -5,8 +5,9 @@ import {
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
 import { cn } from '@fewmail/ui/lib/utils'
+import { parseISO } from 'date-fns'
 
-import { useT } from '~/lib/i18n'
+import { useDates, useT } from '~/lib/i18n'
 
 export const ImportanceDot = ({
   importance,
@@ -38,6 +39,8 @@ export const ImportanceDot = ({
   )
 }
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/u
+
 export const ExtractedChips = ({
   extracted,
 }: {
@@ -48,6 +51,7 @@ export const ExtractedChips = ({
   }
 }) => {
   const t = useT()
+  const dates = useDates()
 
   return (
     <>
@@ -58,7 +62,11 @@ export const ExtractedChips = ({
       )}
       {extracted.dueDate && (
         <Badge variant="secondary" data-mask>
-          {t.mail.due(extracted.dueDate)}
+          {t.mail.due(
+            ISO_DATE.test(extracted.dueDate)
+              ? dates.format(parseISO(extracted.dueDate), 'd MMM')
+              : extracted.dueDate
+          )}
         </Badge>
       )}
       {extracted.meetingTime && (

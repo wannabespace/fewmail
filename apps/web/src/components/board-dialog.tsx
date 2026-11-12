@@ -63,6 +63,8 @@ const BoardForm = ({
     })
   )
   const isPending = create.isPending || update.isPending
+  const input = { description: description.trim(), name: name.trim() }
+  const isFilled = Boolean(input.name) && input.description.length >= 3
   const submitLabel = board ? t.boards.save : t.boards.create
 
   return (
@@ -70,8 +72,7 @@ const BoardForm = ({
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
-        const input = { description: description.trim(), name: name.trim() }
-        if (!input.name || input.description.length < 3) {
+        if (!isFilled) {
           return
         }
         if (board) {
@@ -108,7 +109,7 @@ const BoardForm = ({
             {t.boards.delete}
           </Button>
         )}
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={!isFilled || isPending}>
           {isPending ? t.boards.planning : submitLabel}
         </Button>
       </DialogFooter>

@@ -7,7 +7,7 @@ import type { AgentToolName } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { z } from 'zod'
 
-import { getBoard, listBoards } from './boards'
+import { createBoard, getBoard, listBoards } from './boards'
 import { generateBrief, getToday } from './brief'
 import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
 import { listSubscriptions } from './cleanup'
@@ -22,11 +22,13 @@ import {
   listMail,
   redraftAction,
   snoozeMessage,
+  trashMessage,
 } from './mail'
 import { scheduleMail } from './outbox'
 import { getPerson } from './people'
 import { createRule, listRules } from './rules'
 import { createSchedule, deleteSchedule, listSchedules } from './schedules'
+import { markNotSpam, reportSpam } from './spam'
 import { syncMailboxes } from './sync'
 import { createTask } from './tasks'
 import { unsubscribeMessage } from './thread-effects'
@@ -152,6 +154,33 @@ export const agentTools = (
       return { archived: true }
     },
   }),
+  trash_thread: define({
+    description:
+      'Move the email thread to the Gmail trash; Gmail deletes it for good after 30 days. messageId is any email of the thread.',
+    input: { messageId: z.uuid() },
+    run: async ({ messageId }) => {
+      await trashMessage(userId, messageId)
+      return { trashed: true }
+    },
+  }),
+  report_spam: define({
+    description:
+      "Move the email thread to spam and report its sender, so the sender's later mail goes to spam too.",
+    input: { messageId: z.uuid() },
+    run: async ({ messageId }) => {
+      await reportSpam(userId, messageId)
+      return { reported: true }
+    },
+  }),
+  mark_not_spam: define({
+    description:
+      'Move an email thread wrongly sent to spam back to the inbox and trust its sender again.',
+    input: { messageId: z.uuid() },
+    run: async ({ messageId }) => {
+      await markNotSpam(userId, messageId)
+      return { inInbox: true }
+    },
+  }),
   snooze_thread: define({
     description:
       "Hide the email thread until a time; it comes back to the inbox unread then. until is ISO 8601 with the user's UTC offset.",
@@ -199,6 +228,12 @@ export const agentTools = (
     description:
       "The user's boards: pages that collect one kind of email (money, trips, orders…) as entries. Use get_board to read one.",
     run: () => listBoards(userId),
+  }),
+  create_board: define({
+    description:
+      'Create a board that collects one kind of email as entries. description says what belongs on it ("receipts and refunds with their amounts"), at least 3 characters; it fills from mail the user already has.',
+    input: { description: z.string().min(3), name: z.string().min(1) },
+    run: ({ description, name }) => createBoard(userId, { description, name }),
   }),
   get_board: define({
     description:
