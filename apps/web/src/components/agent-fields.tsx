@@ -35,17 +35,14 @@ export const LanguageSelect = ({
   </Select>
 )
 
-const BRIEF_HOURS = Array.from({ length: 24 }, (_, hour) => hour)
+const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 
-export const formatHour = (hour: number) =>
-  `${String(hour).padStart(2, '0')}:00`
+const formatHour = (hour: number) => `${String(hour).padStart(2, '0')}:00`
 
-export const BriefHourSelect = ({
-  label,
+export const MorningHourSelect = ({
   onChange,
   value,
 }: {
-  label?: (time: string) => string
   onChange: (hour: number) => void
   value: number
 }) => {
@@ -53,29 +50,15 @@ export const BriefHourSelect = ({
 
   return (
     <Select
-      items={BRIEF_HOURS.map((hour) => ({
-        label: formatHour(hour),
-        value: hour,
-      }))}
+      items={HOURS.map((hour) => ({ label: formatHour(hour), value: hour }))}
       value={value}
       onValueChange={(next) => next !== null && onChange(next)}
     >
-      {label ? (
-        <SelectTrigger
-          aria-label={t.settings.briefTitle}
-          className="ml-1.5"
-          size="sm"
-          variant="ghost-faint"
-        >
-          <SelectValue>{(hour: number) => label(formatHour(hour))}</SelectValue>
-        </SelectTrigger>
-      ) : (
-        <SelectTrigger aria-label={t.settings.briefTitle} className="w-28">
-          <SelectValue />
-        </SelectTrigger>
-      )}
+      <SelectTrigger aria-label={t.settings.morningTitle} className="w-28">
+        <SelectValue />
+      </SelectTrigger>
       <SelectContent>
-        {BRIEF_HOURS.map((hour) => (
+        {HOURS.map((hour) => (
           <SelectItem key={hour} value={hour}>
             {formatHour(hour)}
           </SelectItem>

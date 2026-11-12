@@ -72,7 +72,7 @@ export const getPlanInfo = async (userId: string) => {
 
 export type PlanInfo = Awaited<ReturnType<typeof getPlanInfo>>
 
-/** Everything that runs a model — analysis, drafts, briefs, Telegram, MCP — needs the agent. */
+/** Everything that runs a model — analysis, drafts, Telegram, MCP — needs the agent. */
 export const hasAgent = <Info extends Pick<PlanInfo, 'kind'>>(
   plan: Info
 ): plan is Info & { kind: Exclude<Plan, 'free'> } => plan.kind !== 'free'

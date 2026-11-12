@@ -9,7 +9,7 @@ import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
 import { requireAgent } from './plan'
 
-/** Jev matches plain-language rules on every plan; drafting and showing in Today need the agent. */
+/** Jev matches plain-language rules on every plan; drafting and showing on Home need the agent. */
 const requireAgentFor = async (userId: string, effect?: RuleEffect) => {
   if (effect && !isGmailEffect(effect)) {
     await requireAgent(userId)

@@ -1,6 +1,6 @@
 # Fewmail
 
-An email agent: it reads your Gmail, writes a daily brief, drafts replies in your voice and only shows you what needs you. Web app, MCP server and Telegram bot over one agent.
+An email agent: it reads your Gmail, drafts replies in your voice and only shows you what needs you. Web app, MCP server and Telegram bot over one agent.
 
 ```sh
 cp .env.example .env   # fill in Google OAuth, OpenRouter, optional Telegram

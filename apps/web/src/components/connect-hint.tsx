@@ -32,7 +32,7 @@ const HINTS = ['telegram', 'whatsapp', 'mcp', 'push'] as const
 
 const today = () => new Date().toDateString()
 
-/** A dismissed hint never returns, and the next one waits until another day so Today never nags. */
+/** A dismissed hint never returns, and the next one waits until another day so Home never nags. */
 const hintsStore = createWebStorageValue({
   defaultValue: { dismissed: [], dismissedOn: null },
   key: 'fewmail.hints',

@@ -1,6 +1,5 @@
 import { db } from '@fewmail/db'
 import { botMessages } from '@fewmail/db/schema'
-import type { BriefStats } from '@fewmail/db/schema'
 import {
   parseSkill,
   PLAN_LIMITS,
@@ -15,10 +14,9 @@ import { isAfter, subDays, subMinutes } from 'date-fns'
 import { eq, lt } from 'drizzle-orm'
 
 import { env } from '../env'
-import { canSpeak } from '../lib/elevenlabs'
 import { transcribe } from '../lib/mistral'
-import { generateBrief, getLatestBrief, localClock } from './brief'
 import { getChat } from './chat'
+import { savedThisWeek } from './home'
 import { followMessage } from './instructions'
 import { LimitReachedError } from './limit-error'
 import {
@@ -192,10 +190,7 @@ const queueButton = (t: Messages): Button => ({
   title: t.telegram.commands.queue,
 })
 
-export const menuButtons = (t: Messages): Button[] => [
-  { id: 'brief', title: t.telegram.commands.brief },
-  queueButton(t),
-]
+export const menuButtons = (t: Messages): Button[] => [queueButton(t)]
 
 export const helpReply = (chat: Chat, t: Messages): Reply => ({
   buttons: menuButtons(t),
@@ -250,54 +245,20 @@ export const itemReply = (
   }
 }
 
-const MONDAY = 1
-
-export interface BriefMessage {
+export interface Run {
   body: string
-  date?: string
   headline: string
-  stats?: BriefStats
 }
 
-/** Monday's brief carries the week's time saved, the weekly report. */
-const weekLine = (t: Messages, brief: BriefMessage) =>
-  brief.date &&
-  new Date(`${brief.date}T12:00:00Z`).getUTCDay() === MONDAY &&
-  brief.stats?.savedMinutes
-    ? t.today.saved(brief.stats.savedMinutes)
-    : null
+/** A schedule run's or a forwarded email's answer. */
+export const runReply = (chat: Chat, run: Run): Reply => ({
+  text: `${chat.channel.bold(run.headline)}\n\n${chat.channel.plain(run.body)}`,
+})
 
-export const briefReply = (
-  chat: Chat,
-  t: Messages,
-  brief: BriefMessage
-): Reply => {
-  const week = weekLine(t, brief)
-  return {
-    buttons: canSpeak
-      ? [queueButton(t), { id: 'listen', title: t.telegram.listen }]
-      : [queueButton(t)],
-    text: [
-      chat.channel.bold(brief.headline),
-      chat.channel.plain(brief.body),
-      week && chat.channel.italic(week),
-    ]
-      .filter(Boolean)
-      .join('\n\n'),
-  }
-}
-
-export const todayBrief = async (userId: string) => {
-  const [settings, latest] = await Promise.all([
-    getSettings(userId),
-    getLatestBrief(userId),
-  ])
-  return latest &&
-    settings &&
-    latest.date === localClock(settings.timezone).date
-    ? latest
-    : generateBrief(userId)
-}
+/** Monday's weekly report: the time the agent saved over the last 7 days. */
+export const weekReply = (chat: Chat, t: Messages, minutes: number): Reply => ({
+  text: `${chat.channel.bold(t.today.saved(minutes))}\n\n${env.WEB_URL}/wrapped`,
+})
 
 const DIGEST_SHOWN = 10
 
@@ -321,25 +282,15 @@ export const readingReply = (
 
 const SPOKEN_ITEMS = 5
 
-/** The brief read aloud: its two lines, then the first cards of the queue by title. */
-export const spokenBrief = async (userId: string) => {
-  const [brief, queue] = await Promise.all([
-    todayBrief(userId),
-    listQueue(userId),
-  ])
+/** Read aloud on Home: how many things need the user, then the first cards of the queue by title. */
+export const spokenHome = async (userId: string) => {
+  const [t, queue] = await Promise.all([messagesFor(userId), listQueue(userId)])
   return [
-    brief.headline,
-    brief.body,
+    t.today.headline(queue.length),
     ...queue
       .slice(0, SPOKEN_ITEMS)
       .map(({ action, analysis }) => analysis?.summary ?? action.title),
   ].join('\n')
-}
-
-/** The spoken brief for users who turned on `voiceBrief`, when the server can speak. */
-export const briefVoice = async (userId: string) => {
-  const settings = await getSettings(userId)
-  return canSpeak && settings?.voiceBrief ? spokenBrief(userId) : undefined
 }
 
 /** WhatsApp shows three buttons at most. */
@@ -389,7 +340,7 @@ const scheduleAnswer = async (
   return chatLinkReply(chat, t, answer, chatId)
 }
 
-/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `e:` edit, `brief`, `queue`, `chat:` a schedule run's answer. */
+/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `e:` edit, `queue`, `reading`, `week`, `chat:` a schedule run's answer. */
 export const press = async (
   chat: Chat,
   userId: string,
@@ -397,24 +348,17 @@ export const press = async (
 ): Promise<Pressed> => {
   const t = await messagesFor(userId)
   const [command, id = ''] = pressed.split(':')
-  if (command === 'brief') {
-    return {
-      replies: async () => [
-        {
-          ...briefReply(chat, t, await todayBrief(userId)),
-          voice: await briefVoice(userId),
-        },
-      ],
-    }
-  }
   if (command === 'reading') {
     return {
       replies: async () => [readingReply(chat, t, await getReading(userId))],
     }
   }
-  if (command === 'listen') {
+  if (command === 'week') {
     return {
-      replies: async () => [{ text: '', voice: await spokenBrief(userId) }],
+      replies: async () => {
+        const { minutes } = await savedThisWeek(userId)
+        return [weekReply(chat, t, minutes)]
+      },
     }
   }
   if (command === 'queue') {

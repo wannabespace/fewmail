@@ -11,6 +11,8 @@ import {
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
+import { Tick02Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -64,10 +66,12 @@ const CleanupList = ({ action }: { action: Action }) => {
 
 const QueueCardHeader = ({
   index,
+  isPicked,
   isSelected,
   item: { action, analysis, message },
 }: {
   index: number
+  isPicked: boolean
   isSelected: boolean
   item: QueueItem
 }) => {
@@ -78,12 +82,20 @@ const QueueCardHeader = ({
       <span
         className={cn(
           'flex size-5.5 shrink-0 items-center justify-center rounded-md text-xs font-semibold tabular-nums',
-          isSelected
+          isSelected || isPicked
             ? 'bg-primary text-primary-foreground'
             : 'bg-secondary text-foreground/70'
         )}
       >
-        {index + 1}
+        {isPicked ? (
+          <HugeiconsIcon
+            icon={Tick02Icon}
+            strokeWidth={2.5}
+            className="size-3.5"
+          />
+        ) : (
+          index + 1
+        )}
       </span>
       <strong data-mask className="truncate font-semibold">
         {action.kind === 'cleanup'
@@ -135,12 +147,14 @@ export const QueueCard = ({
   index,
   isBusy,
   isEditing,
+  isPicked,
   isSelected,
   item,
   onApprove,
   onDraftChange,
   onEdit,
   onOpen,
+  onPick,
   onRedraft,
   onSkip,
   onStopEditing,
@@ -149,12 +163,14 @@ export const QueueCard = ({
   index: number
   isBusy: boolean
   isEditing: boolean
+  isPicked: boolean
   isSelected: boolean
   item: QueueItem
   onApprove: () => void
   onDraftChange: (draft: string) => void
   onEdit: () => void
   onOpen: () => void
+  onPick: () => void
   onRedraft: () => void
   onSkip: () => void
   onStopEditing: () => void
@@ -186,7 +202,12 @@ export const QueueCard = ({
       value={action.id}
       tone={isSecurity ? 'destructive' : 'default'}
     >
-      <QueueCardHeader index={index} isSelected={isSelected} item={item} />
+      <QueueCardHeader
+        index={index}
+        isPicked={isPicked}
+        isSelected={isSelected}
+        item={item}
+      />
 
       <AccordionContent>
         <div className="flex flex-col gap-3 pl-8.5">
@@ -254,6 +275,9 @@ export const QueueCard = ({
               onClick={onSkip}
             >
               {t.queue.skip} <Kbd>S</Kbd>
+            </Button>
+            <Button size="sm" variant="ghost-muted" onClick={onPick}>
+              {isPicked ? t.queue.unpick : t.queue.pick} <Kbd>X</Kbd>
             </Button>
             <span className="text-muted-foreground ml-auto text-xs">
               {isReply ? t.queue.draftedInVoice : null}

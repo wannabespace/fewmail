@@ -10,7 +10,7 @@ export const useMe = () => {
   return data?.settings ? { ...data, settings: data.settings } : loaded
 }
 
-/** Free accounts never see an AI control: no brief, analysis, drafts, Telegram or MCP. */
+/** Free accounts never see an AI control: no analysis, drafts, Telegram or MCP. */
 export const useHasAgent = () => useMe().plan.kind !== 'free'
 
 type Settings = ReturnType<typeof useMe>['settings']
@@ -39,6 +39,7 @@ export const useSaveSettings = () => {
       gmailLabels: latest.gmailLabels,
       knowledge: latest.knowledge,
       language: latest.language,
+      readingDigest: latest.readingDigest,
       timezone: latest.timezone,
     })
   }

@@ -458,12 +458,12 @@ export const InboxStory = () => {
               </p>
             </Phase>
             <Phase isActive={phase === 2} opacity={phases[2]} rise={12}>
-              <p className="text-primary text-sm font-medium">{t.brief.tag}</p>
+              <p className="text-primary text-sm font-medium">{t.needs.tag}</p>
               <h2 className="text-display sm:text-hero font-serif tracking-tight text-balance">
-                <Emphasized {...t.brief} text={t.brief.title} />
+                <Emphasized {...t.needs} text={t.needs.title} />
               </h2>
               <p className="text-brief text-foreground/75 max-w-lg font-serif text-pretty">
-                {t.brief.lead(HANDLED_TODAY.toLocaleString(locale))}
+                {t.needs.lead(HANDLED_TODAY.toLocaleString(locale))}
               </p>
               <div className="flex flex-wrap gap-2">
                 <StartButton>{t.start}</StartButton>
@@ -485,7 +485,7 @@ export const InboxStory = () => {
             <div className="bg-background ring-foreground/6 flex h-full max-h-160 w-full max-w-xl flex-col overflow-hidden rounded-3xl shadow-sm ring [--row:--spacing(12)] sm:[--row:--spacing(13)] md:h-[calc(100%-3rem)]">
               <div className="flex h-13 shrink-0 items-center justify-between gap-4 border-b px-4 text-sm sm:px-5">
                 <span className="font-medium">
-                  {phase === 2 ? t.today : t.inbox}
+                  {phase === 2 ? t.home : t.inbox}
                 </span>
                 <span className="text-muted-foreground">
                   <Parts
@@ -602,7 +602,7 @@ export const PlayQueue = () => {
     >
       <div className="text-muted-foreground flex items-center justify-between gap-4 text-sm">
         <span>
-          <b className="text-foreground font-medium">{hero.today}</b> ·{' '}
+          <b className="text-foreground font-medium">{hero.home}</b> ·{' '}
           {play.left(left)}
         </span>
         <span className="flex gap-1">

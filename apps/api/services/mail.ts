@@ -2,7 +2,6 @@ import { db } from '@fewmail/db'
 import { actions, analyses, commitments, messages } from '@fewmail/db/schema'
 import {
   ACTION_KIND_TRAITS,
-  ACTION_KINDS,
   SECONDS_SAVED,
   sendsDraft,
 } from '@fewmail/shared/agent'
@@ -21,7 +20,6 @@ import {
   gte,
   inArray,
   lt,
-  lte,
   notExists,
   notInArray,
   or,
@@ -35,7 +33,6 @@ import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
 import { searchByQuestion } from './ask'
-import { deliverySlots } from './batching'
 import { runCleanup } from './cleanup'
 import { NotFoundError } from './mail-errors'
 import { scheduleMail } from './outbox'
@@ -76,7 +73,7 @@ const analysisSummary = {
   summary: analyses.summary,
 }
 
-const allPending = (userId: string) =>
+export const listQueue = (userId: string) =>
   db
     .select({
       action: actions,
@@ -89,66 +86,11 @@ const allPending = (userId: string) =>
     .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
     .orderBy(sql`${analyses.importance} desc nulls last`, actions.createdAt)
 
-const URGENT_IMPORTANCE = 3
-const IMMEDIATE_KINDS = ACTION_KINDS.filter(
-  (kind) => ACTION_KIND_TRAITS[kind].immediate
-)
-
-const batchingSlots = (settings: Awaited<ReturnType<typeof getSettings>>) => {
-  if (!settings) {
-    return null
-  }
-  const slots = deliverySlots(settings.timezone, settings.briefHour)
-  return settings.onboardedAt > slots.last ? null : slots
-}
-
-/** The queue as delivered: urgent items at once, the rest at the last calm slot (see batching). */
-export const listQueueWithLater = async (userId: string) => {
-  const [pending, settings] = await Promise.all([
-    allPending(userId),
-    getSettings(userId),
-  ])
-  const slots = batchingSlots(settings)
-  if (!slots) {
-    return { held: [], later: null, queue: pending }
-  }
-  const isVisible = (item: (typeof pending)[number]) =>
-    item.action.createdAt <= slots.last ||
-    ACTION_KIND_TRAITS[item.action.kind].immediate ||
-    (item.analysis?.importance ?? 0) >= URGENT_IMPORTANCE
-  const held = pending.filter((item) => !isVisible(item))
-  return {
-    held,
-    later: held.length > 0 ? { at: slots.next, count: held.length } : null,
-    queue: pending.filter(isVisible),
-  }
-}
-
-export const listQueue = async (userId: string) => {
-  const { queue } = await listQueueWithLater(userId)
-  return queue
-}
-
-/** Must stay the same filter as `isVisible` in `listQueueWithLater`. */
 export const countQueue = async (userId: string) => {
-  const slots = batchingSlots(await getSettings(userId))
   const [row] = await db
     .select({ total: sql<number>`count(*)::int` })
     .from(actions)
-    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
-    .where(
-      and(
-        eq(actions.userId, userId),
-        eq(actions.status, 'pending'),
-        slots
-          ? or(
-              lte(actions.createdAt, slots.last),
-              inArray(actions.kind, IMMEDIATE_KINDS),
-              gte(analyses.importance, URGENT_IMPORTANCE)
-            )
-          : undefined
-      )
-    )
+    .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
   return expectRow(row).total
 }
 
@@ -190,30 +132,13 @@ export const timeSaved = async (userId: string, since: Date) => {
         inArray(actions.status, ['auto_done', 'done']),
         gte(actions.updatedAt, since)
       )
-  | 'pinned'
     )
   const { handled, replies } = expectRow(row)
   return {
     handled,
     minutes: Math.round(
-const starredInThread = alias(messages, 'starred_in_thread')
       (handled * SECONDS_SAVED.handled + replies * SECONDS_SAVED.reply) / 60
     ),
-/** A pin is Gmail's star on any email of the thread, so it follows the thread whoever starred it. */
-const isPinned = (message: MessageTable) =>
-  exists(
-    db
-      .select({ id: starredInThread.id })
-      .from(starredInThread)
-      .where(
-        and(
-          eq(starredInThread.userId, message.userId),
-          eq(starredInThread.threadId, message.threadId),
-          arrayContains(starredInThread.labelIds, ['STARRED'])
-        )
-      )
-  )
-
     replies,
   }
 }
@@ -224,7 +149,6 @@ const HANDLED_SHOWN = 100
 export const listHandled = (
   userId: string,
   since = subHours(new Date(), HANDLED_HOURS)
-  'pinned',
 ) =>
   db
     .select({
@@ -237,7 +161,6 @@ export const listHandled = (
       },
       message: {
         fromEmail: messages.fromEmail,
-  pinned: isPinned,
         fromName: messages.fromName,
         id: messages.id,
         subject: messages.subject,
@@ -267,12 +190,29 @@ export type MailFilter =
   | 'snoozed'
   | 'archive'
   | 'trash'
+  | 'pinned'
 
 const PAGE_SIZE = 50
 const inThread = alias(messages, 'in_thread')
 const newerInThread = alias(messages, 'newer_in_thread')
 const newerAnalysis = alias(analyses, 'newer_analysis')
+const starredInThread = alias(messages, 'starred_in_thread')
 type MessageTable = typeof messages | typeof newerInThread
+
+/** A pin is Gmail's star on any email of the thread, so it follows the thread whoever starred it. */
+const isPinned = (message: MessageTable) =>
+  exists(
+    db
+      .select({ id: starredInThread.id })
+      .from(starredInThread)
+      .where(
+        and(
+          eq(starredInThread.userId, message.userId),
+          eq(starredInThread.threadId, message.threadId),
+          arrayContains(starredInThread.labelIds, ['STARRED'])
+        )
+      )
+  )
 
 /** Mail the user received: their own sent mail is left out unless Gmail put it in the inbox (mail to themselves). */
 const isReceived = (message: MessageTable) =>
@@ -284,6 +224,7 @@ const INBOX_FILTERS = new Set<MailFilter>([
   'important',
   'needs_reply',
   'quiet',
+  'pinned',
 ])
 
 const FILTER_WHERE: Partial<
@@ -296,6 +237,7 @@ const FILTER_WHERE: Partial<
   archive: (message) =>
     sql`not (${message.labelIds} && array['INBOX', 'SPAM', 'TRASH'])`,
   trash: (message) => arrayContains(message.labelIds, ['TRASH']),
+  pinned: isPinned,
 }
 
 // Snoozed threads are out of the inbox too, so Archive must leave them to Snoozed.
@@ -337,7 +279,6 @@ export const listMail = async (
     before?: Date
     category?: MailCategory
     filter: MailFilter
-        isPinned: sql<boolean>`${isPinned(messages)}`,
     mailboxId?: string
     search?: string
   }
@@ -396,6 +337,7 @@ export const listMail = async (
             .from(inThread)
             .where(and(sameThread, eq(inThread.isUnread, true)))
         )}`,
+        isPinned: sql<boolean>`${isPinned(messages)}`,
       },
       threadSize: sql<number>`(${db
         .select({ size: sql`count(*)` })
@@ -792,19 +734,6 @@ export const mailPulse = async (userId: string, since: Date) => {
       .reduce((sum, { count }) => sum + count, 0)
   return {
     lists: countOf(LIST_CATEGORIES),
-export const pinMessage = async (
-  userId: string,
-  messageId: string,
-  pinned: boolean
-) => {
-  const message = await ownMessage(userId, messageId)
-  await changeThreadLabels(
-    userId,
-    message.threadId,
-    pinned ? { add: ['STARRED'] } : { remove: ['STARRED'] }
-  )
-}
-
     people: countOf(PEOPLE_CATEGORIES),
     total: rows.reduce((sum, { count }) => sum + count, 0),
   }
@@ -861,6 +790,19 @@ export const snoozeMessage = async (
 ) => {
   const message = await ownMessage(userId, messageId)
   await snoozeThread(userId, message.threadId, until)
+}
+
+export const pinMessage = async (
+  userId: string,
+  messageId: string,
+  pinned: boolean
+) => {
+  const message = await ownMessage(userId, messageId)
+  await changeThreadLabels(
+    userId,
+    message.threadId,
+    pinned ? { add: ['STARRED'] } : { remove: ['STARRED'] }
+  )
 }
 
 export const unsnoozeMessage = async (userId: string, messageId: string) => {

@@ -24,7 +24,7 @@ export const tr: Messages = {
     dismissed: 'atlandı',
     done: 'tamam',
     failed: 'başarısız',
-    pending: 'Bugün’de bekliyor',
+    pending: 'Ana Sayfa’da bekliyor',
   },
   agent: {
     voice: 'Ajana sesle söyle',
@@ -339,6 +339,7 @@ export const tr: Messages = {
       `Toplu e-posta: ${n}+ Fewmail kullanıcısı aynı metni aldı`,
   },
   calendar: {
+    tomorrow: 'Yarın',
     noAccess: {
       allow: 'Erişime izin ver',
       description:
@@ -455,7 +456,7 @@ export const tr: Messages = {
     title: 'Söz verdin',
   },
   compose: {
-    backInQueue: 'İptal edildi. Taslak Bugün’e geri döndü.',
+    backInQueue: 'İptal edildi. Taslak Ana Sayfa’ya geri döndü.',
     canceled: 'İptal edildi. E-postan düzenleyiciye geri döndü.',
     cc: 'Bilgi',
     discard: 'Sil',
@@ -496,7 +497,6 @@ export const tr: Messages = {
     mail: 'Posta',
     nothingMatches: 'Eşleşen bir şey yok.',
     placeholder: 'Postaların hakkında sor veya komut çalıştır…',
-    rewriteBrief: 'Özeti yeniden yaz',
     teachRule: 'Yeni kural öğret',
     upgrade: "Pro'ya geç",
     theme: {
@@ -531,6 +531,10 @@ export const tr: Messages = {
     reload: 'Yenile',
   },
   keys: {
+    approvePicked: (n: number) => `seçili ${n} öğeyi onayla`,
+    pick: 'seç',
+    pickAll: 'tümünü seç',
+    unpick: 'seçimi temizle',
     pin: 'sabitle',
     unpin: 'sabitlemeyi kaldır',
     copyCode: 'kodu kopyala',
@@ -598,7 +602,7 @@ export const tr: Messages = {
     continue: 'Google ile devam et',
     lead: 'Fewmail gelen kutunu senin yerine okur, senin üslubunla yanıtlar ve sadece gerçekten seni bekleyenleri gösterir.',
     messengers:
-      'Mesajlaşma uygulamalarında da çalışır, ilk olarak Telegram’da: özeti al, yanıtları onayla ya da sadece sesli mesaj gönder.',
+      'Mesajlaşma uygulamalarında da çalışır, ilk olarak Telegram’da: acil postaları al, yanıtları onayla ya da sadece sesli mesaj gönder.',
     title: 'Yalnızca önemli olan.',
   },
   mail: {
@@ -667,7 +671,7 @@ export const tr: Messages = {
     attachment: 'ek',
     draftReply: 'Yanıt taslağı',
     drafting: 'Yazılıyor…',
-    draftWaiting: 'Taslak Bugün’de bekliyor',
+    draftWaiting: 'Taslak Ana Sayfa’da bekliyor',
     due: (date: string) => `son tarih ${date}`,
     dueHint: 'Ajanın bu e-postada bulduğu son tarih',
     empty: 'Burada e-posta yok',
@@ -722,7 +726,7 @@ export const tr: Messages = {
     settings: 'Ayarlar',
     syncFailed: 'Gmail eşitlemesi başarısız, yeniden deneniyor',
     syncing: 'Gelen kutun okunuyor…',
-    today: 'Bugün',
+    home: 'Ana Sayfa',
     trialLeft: (total: number) => `Pro denemesi · ${total} gün kaldı`,
     usage: (percent: number) => `Ajan · bu ayın %${percent} kadarı kullanıldı`,
     watching: 'Ajan gelen kutunu izliyor',
@@ -761,7 +765,7 @@ export const tr: Messages = {
     freeDescription:
       'Basit kurallarla hızlı ve sakin e-posta. İstediğin kadar ücretsiz.',
     includes:
-      'Pro, ajanı ekler: günlük özet, her e-postanın okunup özetlenmesi, senin üslubunla yazılan yanıt taslakları, sade sözcüklerle kurallar, Telegram ve MCP.',
+      'Pro, ajanı ekler: her e-postanın okunup özetlenmesi, senin üslubunla yazılan yanıt taslakları, sade sözcüklerle kurallar, Telegram ve MCP.',
     manage: 'Faturalandırmayı yönet',
     price: (usd: number) => `$${usd} / ay`,
     priceYearly: (usd: number) => `$${usd} / yıl`,
@@ -797,6 +801,11 @@ export const tr: Messages = {
     threads: (total: number) => `${total} yazışma`,
   },
   queue: {
+    approve: 'Onayla',
+    delete: 'Sil',
+    pick: 'Seç',
+    picked: (n: number) => `${n} seçili`,
+    unpick: 'Seçimi kaldır',
     askedByYou: 'Senin isteğinle',
     draftedInVoice: 'Senin üslubunla yazıldı',
     edit: 'Düzenle',
@@ -830,9 +839,9 @@ export const tr: Messages = {
       plural('tr', total, { other: (n) => `${n} kural` }),
     delete: 'Sil',
     describe: {
-      alwaysShow: 'Her zaman Bugün’e düşer',
+      alwaysShow: 'Her zaman Ana Sayfa’ya düşer',
       autonomous: 'Kendiliğinden yapılır, halledilenlerde listelenir',
-      draft: 'Bir taslak Bugün’de seni bekler',
+      draft: 'Bir taslak Ana Sayfa’da seni bekler',
     },
     effect: {
       always_show: 'Her zaman göster',
@@ -870,12 +879,8 @@ export const tr: Messages = {
   settings: {
     readingDigest: {
       description:
-        'Özetten sonra günün bültenleri Telegram ve WhatsApp’a tek mesaj olarak gelir.',
+        'Her sabah son bir günün bültenleri Telegram ve WhatsApp’a tek mesaj olarak gelir.',
       title: 'Bülten özeti',
-    },
-    voiceBrief: {
-      description: 'Özet Telegram ve WhatsApp’a sesli mesaj olarak da gelir.',
-      title: 'Sesli özet',
     },
     forward: {
       copy: 'Adresi kopyala',
@@ -885,12 +890,13 @@ export const tr: Messages = {
     },
     account: 'Hesap',
     agent: 'Ajan',
-    briefDescription: (timezone: string) => `Senin saat diliminde, ${timezone}`,
-    briefTitle: 'Günlük özet',
+    morningDescription: (timezone: string) =>
+      `Bülten özeti ve pazartesi haftalık rapor, senin saat diliminde, ${timezone}`,
+    morningTitle: 'Sabah mesajları',
     deleteAccount: 'Hesabı sil',
     deleteConfirm: 'Her şeyi sil',
     deleteDescription:
-      'Hesabını, eşitlenen postaları, taslakları, kuralları ve özetleri Fewmail’den hemen siler. Gmail’ine dokunulmaz.',
+      'Hesabını, eşitlenen postaları, taslakları ve kuralları Fewmail’den hemen siler. Gmail’ine dokunulmaz.',
     deleteTitle: 'Fewmail hesabın silinsin mi?',
     cancel: 'İptal',
     integrations: 'Entegrasyonlar',
@@ -908,12 +914,12 @@ export const tr: Messages = {
     },
     language: 'Dil',
     languageDescription:
-      'Uygulama, özetler ve açıklamalar. Yanıtlar e-postanın dilini izler.',
+      'Uygulama, bot ve özetler. Yanıtlar e-postanın dilini izler.',
     legal: 'Yasal',
     mailboxes: {
       add: 'Gmail ekle',
       addDescription:
-        'Başka bir Gmail hesabının postaları aynı Bugün ve gelen kutusuna gelir. Bu hesapla buraya kimse giriş yapamaz: onunla giriş yapmak ayrı bir Fewmail açar.',
+        'Başka bir Gmail hesabının postaları aynı Ana Sayfa’ya ve gelen kutusuna gelir. Bu hesapla buraya kimse giriş yapamaz: onunla giriş yapmak ayrı bir Fewmail açar.',
       added: 'Posta kutusu eklendi. Postaları bir dakika içinde görünür.',
       failed:
         'Posta kutusu eklenemedi. Gmail erişimine izin verip tekrar deneyin.',
@@ -932,7 +938,7 @@ export const tr: Messages = {
       defaultName: 'MCP istemcisi',
       deny: 'Reddet',
       description:
-        'Özetini ve postalarını okuyabilir, yanıt taslağı yazabilir ve sen onayladıktan sonra gönderebilirler.',
+        'Postalarını okuyabilir, yanıt taslağı yazabilir ve sen onayladıktan sonra gönderebilirler.',
       disconnect: 'Bağlantıyı kes',
       paste:
         'Bu URL’yi uygulamana bağlayıcı olarak ekle, sonra Fewmail’e giriş yap.',
@@ -960,8 +966,8 @@ export const tr: Messages = {
         'Bildirimler engellendi. Tarayıcının site ayarlarından izin ver.',
       browser: 'Bu tarayıcı',
       notConfigured: 'Tarayıcı bildirimleri bu sunucuda yapılandırılmamış.',
-      off: 'Fewmail kapalıyken bile acil e-postaları ve günlük özeti burada al.',
-      on: 'Acil e-postalar ve günlük özet burada görünür. Aynı anda gelenler tek bildirimde toplanır.',
+      off: 'Fewmail kapalıyken bile acil e-postaları burada al.',
+      on: 'Acil e-postalar burada görünür. Aynı anda gelenler tek bildirimde toplanır.',
       title: 'Bildirimler',
       unsupported: 'Bu tarayıcı bildirim gösteremiyor.',
     },
@@ -969,17 +975,17 @@ export const tr: Messages = {
       connect: 'Telegram’ı bağla',
       disconnect: 'Bağlantıyı kes',
       linked:
-        'Özetin her sabah, acil postalar hemen gelir. Taslakları sohbetten onayla ve düzenle.',
+        'Acil postalar hemen gelir. Taslakları sohbetten onayla ve düzenle.',
       notConfigured: 'Telegram botu bu sunucuda yapılandırılmamış.',
-      unlinked: 'Özeti al ve taslakları Telegram’dan onayla.',
+      unlinked: 'Acil postaları al ve taslakları Telegram’dan onayla.',
     },
     whatsapp: {
       connect: 'WhatsApp’ı bağla',
       disconnect: 'Bağlantıyı kes',
       linked:
-        'Özetin her sabah, acil postalar hemen gelir. Taslakları sohbetten onayla ve düzenle.',
+        'Acil postalar hemen gelir. Taslakları sohbetten onayla ve düzenle.',
       notConfigured: 'WhatsApp botu bu sunucuda yapılandırılmamış.',
-      unlinked: 'Özeti al ve taslakları WhatsApp’tan onayla.',
+      unlinked: 'Acil postaları al ve taslakları WhatsApp’tan onayla.',
     },
     title: 'Ayarlar',
   },
@@ -1045,7 +1051,7 @@ export const tr: Messages = {
       },
       labels: {
         ask: 'Postana her şeyi sor',
-        brief: 'Günlük özet',
+        home: 'Seni bekleyen her şey tek sayfada',
         calendar: 'Takvim',
         drafts: 'Senin için hazırlanan yanıtlar',
         followUps: 'Takip hatırlatmaları',
@@ -1071,7 +1077,7 @@ export const tr: Messages = {
       noFreePlan: 'Ücretsiz plan yok',
       ours: {
         ask: 'Pro’da',
-        brief: 'Senin dilinde, Pro’da',
+        home: 'Canlı güncellenir, toplu onay, Pro’da',
         drafts: 'Senin üslubunla, yalnızca sen onaylayınca gönderilir, Pro’da',
         followUps: 'Yanıt bekleyen postalarda otomatik',
         handOver: 'Ajan hedefe ulaşana dek yürütür, Pro’da',
@@ -1101,9 +1107,9 @@ export const tr: Messages = {
           snack: '1 posta kutusu ve temel filtreleme',
         },
         summary:
-          'SaneBox postaları klasörlere ayırır, en üst planında taslak da yazar ve özetler. Fewmail önce her şeyi okur ve sana tek bir özetle yalnızca senin verebileceğin birkaç kararı sunar.',
+          'SaneBox postaları klasörlere ayırır, en üst planında taslak da yazar ve özetler. Fewmail önce her şeyi okur ve yalnızca senin verebileceğin birkaç kararı tek sayfada toplar.',
         them: {
-          brief: 'Filtrelenen postaların günlük derlemesi',
+          home: 'Filtrelenen postaların günlük derlemesi',
           drafts: 'SaneDrafts, Dinner’da',
           followUps: 'SaneNoReplies',
           importance: 'Önemsiz postalar SaneLater’a taşınır',
@@ -1193,12 +1199,12 @@ export const tr: Messages = {
       },
       {
         answer:
-          'Taslaklar, yanıtladığın e-postanın dilinde yazılır. Uygulama, özet ve Telegram botu ise on beş dil arasından seçtiğin tek bir dili konuşur.',
+          'Taslaklar, yanıtladığın e-postanın dilinde yazılır. Uygulama, özetler ve Telegram botu ise on beş dil arasından seçtiğin tek bir dili konuşur.',
         question: 'Hangi dilleri konuşuyor?',
       },
       {
         answer:
-          'Şimdilik Gmail ve Google Workspace hesapları. Tek bir Fewmail’e birden fazla posta kutusu ekle; hepsinin postaları aynı özete ve gelen kutusuna düşer.',
+          'Şimdilik Gmail ve Google Workspace hesapları. Tek bir Fewmail’e birden fazla posta kutusu ekle; hepsinin postaları aynı Ana Sayfa’ya ve gelen kutusuna düşer.',
         question: 'Hangi e-posta hesaplarıyla çalışır?',
       },
     ],
@@ -1243,8 +1249,8 @@ export const tr: Messages = {
         },
         voice: {
           description:
-            'Özeti Telegram’da, WhatsApp’ta ya da uygulamada dinle, bota da sesli mesajla yanıt ver.',
-          title: 'Özeti dinle',
+            'Ana Sayfa’da Dinle’ye bas, seni bekleyenleri duy. Uygulamada, Telegram’da ya da WhatsApp’ta ajanla konuş, sana sesli yanıt versin.',
+          title: 'Seni bekleyenleri dinle',
         },
         wrapped: {
           description:
@@ -1291,18 +1297,18 @@ export const tr: Messages = {
           problem: 'Söz verip unuttuğun o şey.',
         },
         {
-          fix: 'Telegram’a ya da WhatsApp’a yalnızca acil postalar gelir. Gerisi sabah özetini bekler, onu dinleyebilirsin de.',
+          fix: 'Telegram’a ya da WhatsApp’a yalnızca acil postalar gelir. Gerisi önceden ayıklanmış halde Ana Sayfa’da, ne zaman bakarsan seni bekler.',
           problem: 'Akşam yemeğinde, ne olur ne olmaz diye postalara bakmak.',
         },
       ],
       title: 'E-posta dertlerin artık geride.',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: 'seni bekliyor.',
         lead: (handled: string) =>
-          `Anna sözleşmeyi bekliyor, Northwind’in faturasının son günü gelecek hafta ve Marco perşembeyi istiyor. ${handled} bülten ve bildirim halledildi.`,
-        tag: 'Perşembe özeti · 08:00',
+          `Anna sözleşmeyi bekliyor, Northwind’in faturasının son günü gelecek hafta ve Marco perşembeyi istiyor. ${handled} bülten ve bildirim halledildi; yeni posta geldikçe Ana Sayfa kendini günceller.`,
+        tag: 'Ana Sayfa · Perşembe, 08:12',
         title: 'Üç şey seni bekliyor.',
       },
       fates: {
@@ -1345,7 +1351,7 @@ export const tr: Messages = {
       remindPlan: 'Faturalarına ekler ve 19 Kasım’da sana hatırlatır.',
       start: 'Google ile ücretsiz başla',
       title: 'E-posta senin işin değil.',
-      today: 'Bugün',
+      home: 'Ana Sayfa',
       tryQueue: 'Kuyruğu dene',
       unread: ((slots) => [slots.count, ' okunmamış']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -1404,9 +1410,9 @@ export const tr: Messages = {
       pro: {
         description: 'Ajanın tamamı: okur, yazar ve hatırlar.',
         features: [
-          'Bugün: günlük özet ve tek bir karar kuyruğu',
+          'Ana Sayfa: canlı tek bir karar kuyruğu, tek tek ya da toplu onay',
           'Senin üslubunla hazırlanan, yalnızca sen onaylayınca gönderilen yanıtlar',
-          'Telegram: özet, onaylar ve sesli talimatlar',
+          'Telegram: acil postalar, onaylar ve sesli talimatlar',
           '“Bununla ilgilen”: ajan bir yazışmayı hedefine ulaştırır',
           'Sözler ve kişiler hatırlanır; para ya da takip ettiğin her şey için grafikli panolar',
           'Postalarına her şeyi sor, ayrıca kendi araçların için MCP',
@@ -1510,18 +1516,17 @@ export const tr: Messages = {
   },
   telegram: {
     approveAlike: 'Aynı türdeki tüm kartları birden onayla:',
-    listen: '🔊 Dinle',
     heard: (text: string) => `Duyduğum: “${text}”`,
     voiceFailed: 'Anlayamadım. Tekrar dene ya da yaz.',
     help: 'Ne istediğini yaz ya da söyle:\n• e-postaların hakkında sor: “Netflix ne zaman yenileniyor?”\n• ne yanıtlanacağını söyle: “Anna’ya yarın imzalayacağımı yaz”\n• bana bir iş ver: “seyahatler için bir pano oluştur”\n• değiştirmek için taslaklarımdan birini yanıtla',
     canceled: 'İptal edildi. Taslak kuyruğuna geri döndü.',
     sendingIn: (seconds: number) => `${seconds} sn içinde gönderiliyor`,
     undo: 'Geri al',
-    commands: { brief: 'Bugünün özeti', queue: 'Seni bekleyenler' },
+    commands: { queue: 'Seni bekleyenler' },
     connectFirst:
       'Önce Fewmail → Ayarlar → Entegrasyonlar’ı aç ve “Telegram’ı bağla”ya dokun.',
     connected:
-      'Bağlandı. Özetini her sabah göndereceğim ve acil bir şey gelince haber vereceğim.\n\n/brief: bugünün özeti\n/queue: seni bekleyenler',
+      'Bağlandı. Acil bir şey gelince haber vereceğim.\n\n/queue: seni bekleyenler',
     done: 'Tamam',
     draft: 'Taslak:',
     edit: 'Düzenle',
@@ -1551,15 +1556,12 @@ export const tr: Messages = {
       setUp: 'Kur',
       turnOn: 'Aç',
     },
-    later: (total: number, time: string) =>
-      `${time} saatinde ${total} tane daha gelecek`,
-    briefAt: (time: string) => `her gün ${time} özeti`,
     dates: 'Tarihler ve toplantılar',
     done: 'Tamam',
     firstRead:
       'Son üç günün e-postalarını okuyorum. İlgilenmen gerekenler burada kendiliğinden görünecek.',
     approvedMany: (n: number) => `${n} onaylandı`,
-    listen: 'Özeti dinle',
+    listen: 'Dinle',
     handled: {
       spam: (n: number) => `${n} spama taşındı`,
       archived: (n: number) => `${n} arşivlendi`,
@@ -1591,7 +1593,6 @@ export const tr: Messages = {
     recent: (period: string) => `${period} ayrıca`,
     sent: 'Gönderildi',
     worthAttention: 'İlgini hak ediyor',
-    writing: 'Yazılıyor…',
   },
   upgrade: {
     ask: 'Postana sor',
@@ -1603,17 +1604,16 @@ export const tr: Messages = {
         "Fewmail Pro'nun parçası: neyin toplanacağını anlat, ajan postalarında bulsun ve güncel tutsun.",
       drafts:
         "Fewmail Pro'nun parçası: ajan yanıtı senin üslubunla yazar, sen düzenleyip gönderirsin.",
+      home: "Fewmail Pro'nun parçası: seni bekleyen e-postalar, yanıt taslakları hazır, posta geldikçe güncellenir.",
       tasks:
         "Fewmail Pro'nun parçası: konuyu ajana devret, o da gönderdiği her e-postadan önce sorarak işi bitirsin.",
-      today:
-        "Fewmail Pro'nun parçası: seni bekleyen e-postalar, yanıt taslakları hazır, posta geldikçe güncellenir.",
     },
   },
   whatsapp: {
     connectFirst:
       'Önce Fewmail → Ayarlar → Entegrasyonlar’ı aç ve “WhatsApp’ı bağla”ya dokun.',
     connected:
-      'Bağlandı. Her sabah özetini gönderecek, acil bir şey geldiğinde yazacağım. Herhangi bir e-postayı yanıtlamak için metin ya da sesli mesaj gönder.',
+      'Bağlandı. Acil bir şey geldiğinde yazacağım. Herhangi bir e-postayı yanıtlamak için metin ya da sesli mesaj gönder.',
     proOnly:
       "WhatsApp, Fewmail Pro'nun bir parçası. Pro'ya geçmek için Fewmail'de Ayarlar → Plan'ı aç.",
   },

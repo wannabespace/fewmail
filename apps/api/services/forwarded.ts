@@ -11,7 +11,7 @@ import { eq } from 'drizzle-orm'
 import { env } from '../env'
 import { announceChange } from '../lib/live'
 import { logError } from '../lib/log'
-import { sendBrief } from '../telegram'
+import { sendRun } from '../telegram'
 import { sendWhatsappSchedule } from '../whatsapp'
 import { askAgent } from './chat'
 import { chatIdForUser } from './integrations'
@@ -47,7 +47,7 @@ const deliver = async (userId: string, chatId: string, text: string) => {
   }
   const telegramChat = await chatIdForUser(userId)
   await Promise.all([
-    telegramChat && sendBrief(telegramChat, userId, run),
+    telegramChat && sendRun(telegramChat, run),
     sendWhatsappSchedule(userId, run, chatId),
   ])
 }

@@ -122,7 +122,7 @@ export const boards = d.snakeCase.table(
   {
     ...baseTable,
     charts: encryptedJson<BoardChart[]>().notNull(),
-    /** Days before an entry's `dueAt` it shows as a banner (Today, the board); null: the board has no heads-ups. */
+    /** Days before an entry's `dueAt` it shows as a banner (Home, the board); null: the board has no heads-ups. */
     bannerDays: d.smallint(),
     description: encryptedText().notNull(),
     gmailQuery: encryptedText().notNull(),

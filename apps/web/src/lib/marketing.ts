@@ -9,7 +9,7 @@ export const PLANS = [
 ] as const
 
 export const COMPARISON_GROUPS = {
-  day: ['brief', 'importance', 'rules', 'snooze', 'followUps', 'calendar'],
+  day: ['home', 'importance', 'rules', 'snooze', 'followUps', 'calendar'],
   agent: ['drafts', 'summaries', 'ask', 'handOver', 'memory', 'mcp'],
   safety: ['unsubscribe', 'spamShield', 'phishing'],
   reach: ['gmail', 'outlook', 'otherProviders', 'keepApp', 'phone', 'teams'],
@@ -31,7 +31,7 @@ export const FEWMAIL_LACKS: readonly ComparisonFeature[] = [
 export const COMPARISONS = [
   {
     lacks: [
-      'brief',
+      'home',
       'handOver',
       'memory',
       'spamShield',
@@ -48,14 +48,7 @@ export const COMPARISONS = [
     slug: 'superhuman',
   },
   {
-    lacks: [
-      'brief',
-      'handOver',
-      'spamShield',
-      'phishing',
-      'outlook',
-      'keepApp',
-    ],
+    lacks: ['home', 'handOver', 'spamShield', 'phishing', 'outlook', 'keepApp'],
     name: 'Shortwave',
     plans: [
       { id: 'free', name: 'Free', price: 0 },

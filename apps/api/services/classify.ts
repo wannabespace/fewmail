@@ -33,7 +33,7 @@ export const ACTION_CRITERIA = {
   unsubscribe: 'Marketing the user never engages with',
 } satisfies Partial<Record<ActionKind | 'none', string>>
 
-/** Jev and the LLM fallback offer the same actions; anything wider would let an email steer itself into a card kind that skips batching. */
+/** Jev and the LLM fallback offer the same actions; anything wider would let an email steer itself into a card kind that is pushed as urgent (security) or sends on approval (task). */
 export const SUGGESTED_ACTIONS = Object.keys(ACTION_CRITERIA) as [
   keyof typeof ACTION_CRITERIA,
   ...(keyof typeof ACTION_CRITERIA)[],

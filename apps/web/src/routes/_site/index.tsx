@@ -130,7 +130,7 @@ const LandingPage = () => {
 export const Route = createFileRoute('/_site/')({
   beforeLoad: () => {
     if (signedInStore.get()) {
-      throw redirect({ to: agentModeStore.get() ? '/agent' : '/today' })
+      throw redirect({ to: agentModeStore.get() ? '/agent' : '/home' })
     }
   },
   component: LandingPage,

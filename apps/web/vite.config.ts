@@ -55,7 +55,7 @@ const siteFiles = (): Record<string, string> => ({
       { sizes: '180x180', src: '/apple-touch-icon.png', type: 'image/png' },
     ],
     name: SITE_NAME,
-    start_url: '/today',
+    start_url: '/home',
     theme_color: THEME_COLOR,
   }),
   'sitemap.xml': `<?xml version="1.0" encoding="UTF-8"?>

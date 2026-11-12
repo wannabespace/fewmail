@@ -24,7 +24,7 @@ export const ko: Messages = {
     dismissed: '건너뜀',
     done: '완료',
     failed: '실패',
-    pending: '오늘에서 대기 중',
+    pending: '홈에서 대기 중',
   },
   byRule: '규칙에 따라',
   agent: {
@@ -155,7 +155,7 @@ export const ko: Messages = {
     thinking: '메일을 살펴보는 중…',
   },
   compose: {
-    backInQueue: '취소했어요. 초안이 오늘로 돌아갔어요.',
+    backInQueue: '취소했어요. 초안이 홈으로 돌아갔어요.',
     canceled: '취소했어요. 이메일이 편집기로 돌아갔어요.',
     cc: '참조',
     discard: '삭제',
@@ -199,6 +199,7 @@ export const ko: Messages = {
     removeLink: '링크 제거',
   },
   calendar: {
+    tomorrow: '내일',
     noAccess: {
       allow: '접근 허용',
       description:
@@ -254,7 +255,6 @@ export const ko: Messages = {
     mail: '메일',
     nothingMatches: '일치하는 항목이 없어요.',
     placeholder: '메일에 대해 묻거나 명령 실행…',
-    rewriteBrief: '브리핑 다시 쓰기',
     teachRule: '새 규칙 가르치기',
     upgrade: 'Pro로 업그레이드',
     theme: {
@@ -279,6 +279,10 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
+    approvePicked: (n: number) => `선택한 ${n}개 승인`,
+    pick: '선택',
+    pickAll: '모두 선택',
+    unpick: '선택 해제',
     pin: '고정',
     unpin: '고정 해제',
     copyCode: '코드 복사',
@@ -346,7 +350,7 @@ export const ko: Messages = {
     continue: 'Google로 계속하기',
     lead: 'Fewmail이 받은편지함을 대신 읽고, 내 말투로 답장하고, 정말 필요한 것만 보여줘요.',
     messengers:
-      '메신저에서도 됩니다. Telegram부터 시작해요. 브리핑을 받고, 답장을 승인하거나 음성 메시지로 지시하세요.',
+      '메신저에서도 됩니다. Telegram부터 시작해요. 급한 메일을 받고, 답장을 승인하거나 음성 메시지로 지시하세요.',
     title: '중요한 것만.',
   },
   mail: {
@@ -415,7 +419,7 @@ export const ko: Messages = {
     attachment: '첨부파일',
     draftReply: '답장 초안 작성',
     drafting: '초안 작성 중…',
-    draftWaiting: '초안이 오늘에서 기다리고 있어요',
+    draftWaiting: '초안이 홈에서 기다리고 있어요',
     due: (date: string) => `마감 ${date}`,
     dueHint: '에이전트가 이 메일에서 찾은 마감일',
     empty: '메일이 없어요',
@@ -470,7 +474,7 @@ export const ko: Messages = {
     settings: '설정',
     syncFailed: 'Gmail 동기화 실패, 다시 시도 중',
     syncing: '받은편지함을 읽는 중…',
-    today: '오늘',
+    home: '홈',
     trialLeft: (total: number) => `Pro 체험 · ${total}일 남음`,
     usage: (percent: number) => `에이전트 · 이번 달 ${percent}% 사용`,
     watching: '에이전트가 받은편지함을 지켜보고 있어요',
@@ -493,7 +497,7 @@ export const ko: Messages = {
       `에이전트가 메일에서 채워 주는 페이지예요. 최근 6개월부터 시작해요. 최대 ${max}개까지 고를 수 있고, 직접 만든 보드는 나중에 추가할 수 있어요.`,
     boardsTitle: '에이전트가 무엇을 모아 둘까요?',
     languageHint:
-      '앱, 브리핑, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
+      '앱, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
     languageTitle: 'Fewmail이 어떤 언어를 쓸까요?',
     lead: '두 가지 간단한 질문이에요. 모두 나중에 설정에서 바꿀 수 있어요.',
     reading: '받은편지함을 읽는 중…',
@@ -505,7 +509,7 @@ export const ko: Messages = {
     freeDescription:
       '간단한 규칙으로 빠르고 차분한 메일을. 원하는 만큼 무료로 쓸 수 있어요.',
     includes:
-      'Pro에서는 에이전트가 함께해요: 매일 브리핑, 모든 메일 읽기와 요약, 내 말투로 작성하는 답장 초안, 평소 말로 쓰는 규칙, Telegram과 MCP.',
+      'Pro에서는 에이전트가 함께해요: 모든 메일 읽기와 요약, 내 말투로 작성하는 답장 초안, 평소 말로 쓰는 규칙, Telegram과 MCP.',
     manage: '결제 관리',
     price: (usd: number) => `$${usd} / 월`,
     priceYearly: (usd: number) => `$${usd} / 년`,
@@ -534,6 +538,11 @@ export const ko: Messages = {
     usage: '이번 달',
   },
   queue: {
+    approve: '승인',
+    delete: '삭제',
+    pick: '선택',
+    picked: (n: number) => `${n}개 선택됨`,
+    unpick: '선택 해제',
     askedByYou: '요청하신 답장',
     draftedInVoice: '내 말투로 작성한 초안',
     edit: '편집',
@@ -553,9 +562,9 @@ export const ko: Messages = {
     count: (n: number) => `규칙 ${n}개`,
     delete: '삭제',
     describe: {
-      alwaysShow: '항상 오늘에 표시',
+      alwaysShow: '항상 홈에 표시',
       autonomous: '자동으로 처리하고 처리됨에 표시',
-      draft: '초안이 오늘에서 기다려요',
+      draft: '초안이 홈에서 기다려요',
     },
     effect: {
       trash: '휴지통으로 이동',
@@ -593,12 +602,8 @@ export const ko: Messages = {
   settings: {
     readingDigest: {
       description:
-        '브리핑 뒤에 그날의 뉴스레터를 Telegram과 WhatsApp으로 한 메시지에 모아 보내요.',
+        '매일 아침, 지난 하루의 뉴스레터를 Telegram과 WhatsApp으로 한 메시지에 모아 보내요.',
       title: '뉴스레터 다이제스트',
-    },
-    voiceBrief: {
-      description: '브리핑을 Telegram과 WhatsApp에 음성 메시지로도 보내요.',
-      title: '음성 브리핑',
     },
     forward: {
       copy: '주소 복사',
@@ -634,23 +639,20 @@ export const ko: Messages = {
     },
     account: '계정',
     agent: '에이전트',
-    briefDescription: (timezone: string) => `내 시간대 기준, ${timezone}`,
-    briefTitle: '데일리 브리핑',
     deleteAccount: '계정 삭제',
     deleteConfirm: '모두 삭제',
     deleteDescription:
-      '계정, 동기화된 메일, 초안, 규칙, 브리핑을 Fewmail에서 즉시 삭제해요. Gmail 자체는 건드리지 않아요.',
+      '계정, 동기화된 메일, 초안, 규칙을 Fewmail에서 즉시 삭제해요. Gmail 자체는 건드리지 않아요.',
     deleteTitle: 'Fewmail 계정을 삭제할까요?',
     cancel: '취소',
     integrations: '연동',
     language: '언어',
-    languageDescription:
-      '앱, 브리핑, 요약에 사용해요. 답장은 메일 언어를 따라요.',
+    languageDescription: '앱, 봇, 요약에 사용해요. 답장은 메일 언어를 따라요.',
     legal: '법적 고지',
     mailboxes: {
       add: 'Gmail 추가',
       addDescription:
-        '다른 Gmail 계정의 메일이 같은 오늘과 받은편지함에 모입니다. 이 계정으로는 여기에 로그인할 수 없으며, 로그인하면 별도의 Fewmail이 열립니다.',
+        '다른 Gmail 계정의 메일이 같은 홈과 받은편지함에 모입니다. 이 계정으로는 여기에 로그인할 수 없으며, 로그인하면 별도의 Fewmail이 열립니다.',
       added: '메일함을 추가했습니다. 1분 안에 메일이 표시됩니다.',
       failed:
         '메일함을 추가하지 못했습니다. Gmail 접근을 허용하고 다시 시도하세요.',
@@ -669,12 +671,15 @@ export const ko: Messages = {
       defaultName: 'MCP 클라이언트',
       deny: '거부',
       description:
-        '브리핑과 메일을 읽고, 답장 초안을 쓰고, 확인을 받은 뒤 보낼 수 있어요.',
+        '메일을 읽고, 답장 초안을 쓰고, 확인을 받은 뒤 보낼 수 있어요.',
       disconnect: '연결 해제',
       paste: '이 URL을 앱의 커넥터로 추가한 뒤 Fewmail에 로그인하세요.',
       request: (app: string) => `${app}에서 Fewmail을 사용하려고 해요`,
       title: 'Claude, Cursor 또는 MCP 클라이언트 연결',
     },
+    morningDescription: (timezone: string) =>
+      `뉴스레터 다이제스트와 월요일 주간 리포트를 내 시간대(${timezone}) 기준으로 보내요`,
+    morningTitle: '아침 메시지',
     signedInWithGoogle: 'Google로 로그인됨',
     signOut: '로그아웃',
     notifications: {
@@ -682,8 +687,8 @@ export const ko: Messages = {
         '알림이 차단되어 있어요. 브라우저의 사이트 설정에서 허용해 주세요.',
       browser: '이 브라우저',
       notConfigured: '이 서버에는 브라우저 알림이 설정되어 있지 않아요.',
-      off: 'Fewmail을 닫아 두어도 긴급 메일과 데일리 브리핑을 여기서 받아요.',
-      on: '긴급 메일과 데일리 브리핑이 여기에 표시돼요. 한꺼번에 여러 개가 오면 하나로 묶어요.',
+      off: 'Fewmail을 닫아 두어도 긴급 메일을 여기서 받아요.',
+      on: '긴급 메일이 여기에 표시돼요. 한꺼번에 여러 개가 오면 하나로 묶어요.',
       title: '알림',
       unsupported: '이 브라우저는 알림을 표시할 수 없어요.',
     },
@@ -691,17 +696,17 @@ export const ko: Messages = {
       connect: 'Telegram 연결',
       disconnect: '연결 해제',
       linked:
-        '브리핑은 매일 아침, 긴급 메일은 바로 도착해요. 채팅에서 초안을 승인하고 편집할 수 있어요.',
+        '긴급 메일은 바로 도착해요. 채팅에서 초안을 승인하고 편집할 수 있어요.',
       notConfigured: '이 서버에는 Telegram 봇이 설정되어 있지 않아요.',
-      unlinked: 'Telegram에서 브리핑을 받고 초안을 승인하세요.',
+      unlinked: 'Telegram에서 긴급 메일을 받고 초안을 승인하세요.',
     },
     whatsapp: {
       connect: 'WhatsApp 연결',
       disconnect: '연결 해제',
       linked:
-        '브리핑은 매일 아침, 긴급 메일은 바로 도착해요. 채팅에서 초안을 승인하고 편집할 수 있어요.',
+        '긴급 메일은 바로 도착해요. 채팅에서 초안을 승인하고 편집할 수 있어요.',
       notConfigured: '이 서버에는 WhatsApp 봇이 설정되어 있지 않아요.',
-      unlinked: 'WhatsApp에서 브리핑을 받고 초안을 승인하세요.',
+      unlinked: 'WhatsApp에서 긴급 메일을 받고 초안을 승인하세요.',
     },
     title: '설정',
   },
@@ -766,7 +771,7 @@ export const ko: Messages = {
       },
       labels: {
         ask: '메일에 무엇이든 질문',
-        brief: '데일리 브리핑',
+        home: '나를 기다리는 일을 한 페이지에',
         calendar: '캘린더',
         drafts: '대신 써 주는 답장 초안',
         followUps: '후속 알림',
@@ -792,7 +797,7 @@ export const ko: Messages = {
       noFreePlan: '무료 요금제 없음',
       ours: {
         ask: 'Pro에서',
-        brief: '내 언어로, Pro에서',
+        home: '실시간, 한 번에 승인, Pro에서',
         drafts: '내 말투로, 승인할 때만 전송, Pro에서',
         followUps: '답장을 기다리는 메일에 자동으로',
         handOver: '에이전트가 목표까지 처리, Pro에서',
@@ -822,9 +827,9 @@ export const ko: Messages = {
           snack: '메일함 1개와 기본 필터',
         },
         summary:
-          'SaneBox는 메일을 폴더로 분류하고, 최상위 요금제에서는 초안과 요약도 해 줘요. Fewmail은 먼저 모두 읽고, 브리핑 하나와 나만 내릴 수 있는 몇 가지 결정만 건네줘요.',
+          'SaneBox는 메일을 폴더로 분류하고, 최상위 요금제에서는 초안과 요약도 해 줘요. Fewmail은 먼저 모두 읽고, 나만 내릴 수 있는 몇 가지 결정만 한 페이지에 모아 줘요.',
         them: {
-          brief: '걸러진 메일의 일일 요약본',
+          home: '걸러진 메일의 일일 요약본',
           drafts: 'SaneDrafts, Dinner에서',
           followUps: 'SaneNoReplies',
           importance: '중요하지 않은 메일은 SaneLater로',
@@ -913,12 +918,12 @@ export const ko: Messages = {
       },
       {
         answer:
-          '초안은 답장하는 메일의 언어로 써요. 앱, 브리핑, Telegram 봇은 15개 언어 중 내가 고른 언어 하나로 말해요.',
+          '초안은 답장하는 메일의 언어로 써요. 앱, 요약, Telegram 봇은 15개 언어 중 내가 고른 언어 하나로 말해요.',
         question: '어떤 언어를 지원하나요?',
       },
       {
         answer:
-          '지금은 Gmail과 Google Workspace 계정이에요. 여러 메일함을 하나의 Fewmail에 추가하면 모든 메일이 같은 브리핑과 받은편지함으로 모여요.',
+          '지금은 Gmail과 Google Workspace 계정이에요. 여러 메일함을 하나의 Fewmail에 추가하면 모든 메일이 같은 홈과 받은편지함으로 모여요.',
         question: '어떤 메일 계정을 쓸 수 있나요?',
       },
     ],
@@ -963,8 +968,8 @@ export const ko: Messages = {
         },
         voice: {
           description:
-            'Telegram, WhatsApp, 앱에서 브리핑을 듣고, 봇에게 음성 메시지로 답하세요.',
-          title: '브리핑 듣기',
+            '홈에서 듣기를 누르면 나를 기다리는 일을 읽어 줘요. 앱, Telegram, WhatsApp에서 에이전트에게 말하면 소리 내어 답해요.',
+          title: '나를 기다리는 일 듣기',
         },
         wrapped: {
           description:
@@ -1010,18 +1015,18 @@ export const ko: Messages = {
           problem: '약속해 놓고 잊어버린 일.',
         },
         {
-          fix: 'Telegram이나 WhatsApp으로는 급한 메일만 와요. 나머지는 아침 브리핑에서 기다리고, 브리핑은 들을 수도 있어요.',
+          fix: 'Telegram이나 WhatsApp으로는 급한 메일만 와요. 나머지는 이미 정리된 채로 홈에서 기다리니, 원할 때 보면 돼요.',
           problem: '혹시 몰라 저녁 먹다가도 메일 확인하기.',
         },
       ],
       title: '메일 고민, 이제 그만.',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: '나를 기다려요.',
         lead: (handled: string) =>
-          `Anna는 계약서를 기다리고 있고, Northwind 청구서는 다음 주가 기한이며, Marco는 목요일에 시간을 잡고 싶어 해요. 뉴스레터와 알림 ${handled}통은 처리했어요.`,
-        tag: '목요일 브리핑 · 08:00',
+          `Anna는 계약서를 기다리고 있고, Northwind 청구서는 다음 주가 기한이며, Marco는 목요일에 시간을 잡고 싶어 해요. 뉴스레터와 알림 ${handled}통은 처리했고, 새 메일이 오면 홈이 알아서 업데이트돼요.`,
+        tag: '홈 · 목요일 08:12',
         title: '세 가지가 나를 기다려요.',
       },
       fates: {
@@ -1063,7 +1068,7 @@ export const ko: Messages = {
       remindPlan: '청구서 목록에 추가하고 11월 19일에 알려 줘요.',
       start: 'Google로 무료로 시작하기',
       title: '메일은 당신의 일이 아니에요.',
-      today: '오늘',
+      home: '홈',
       tryQueue: '대기열 써 보기',
       unread: ((slots) => ['안 읽음 ', slots.count, '개']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -1123,9 +1128,9 @@ export const ko: Messages = {
       pro: {
         description: '에이전트의 모든 것: 읽고, 쓰고, 기억해요.',
         features: [
-          '오늘: 데일리 브리핑과 결정 대기열 하나',
+          '홈: 실시간으로 바뀌는 결정 대기열, 하나씩 또는 한 번에 승인',
           '내 말투로 쓴 답장 초안, 승인할 때만 전송',
-          'Telegram: 브리핑, 승인, 음성 지시',
+          'Telegram: 급한 메일, 승인, 음성 지시',
           '“이거 맡기기”: 에이전트가 스레드를 목표까지 진행',
           '약속과 사람을 기억하고, 돈이든 무엇이든 추적할 것은 차트가 있는 보드로',
           '메일에 무엇이든 묻기, 내 도구를 위한 MCP까지',
@@ -1211,18 +1216,17 @@ export const ko: Messages = {
   },
   telegram: {
     approveAlike: '같은 종류의 카드를 한 번에 승인:',
-    listen: '🔊 듣기',
     heard: (text: string) => `들은 내용: “${text}”`,
     voiceFailed: '잘 알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
     help: '필요한 것을 쓰거나 말해 주세요:\n• 메일에 대해 묻기: “넷플릭스 갱신일이 언제야?”\n• 답장 내용 말하기: “안나에게 내일 서명한다고 전해 줘”\n• 일 맡기기: “여행 보드 만들어 줘”\n• 초안을 바꾸려면 그 초안에 답장하기',
     canceled: '취소했어요. 초안이 대기열로 돌아갔어요.',
     sendingIn: (seconds: number) => `${seconds}초 후 전송`,
     undo: '실행 취소',
-    commands: { brief: '오늘의 브리핑', queue: '확인이 필요한 것' },
+    commands: { queue: '확인이 필요한 것' },
     connectFirst:
       '먼저 Fewmail → 설정 → 연동을 열고 “Telegram 연결”을 누르세요.',
     connected:
-      '연결됐어요. 매일 아침 브리핑을 보내고, 긴급한 메일이 오면 바로 알려드릴게요.\n\n/brief: 오늘의 브리핑\n/queue: 확인이 필요한 것',
+      '연결됐어요. 긴급한 메일이 오면 바로 알려드릴게요.\n\n/queue: 확인이 필요한 것',
     done: '완료',
     draft: '초안:',
     edit: '편집',
@@ -1252,15 +1256,12 @@ export const ko: Messages = {
       setUp: '설정하기',
       turnOn: '켜기',
     },
-    later: (total: number, time: string) =>
-      `${time}에 ${total}개가 더 도착해요`,
-    briefAt: (time: string) => `매일 ${time} 브리핑`,
     dates: '날짜와 일정',
     done: '완료',
     firstRead:
       '최근 3일간의 메일을 읽고 있어요. 확인할 게 생기면 여기에 바로 나타나요.',
     approvedMany: (n: number) => `${n}개 승인됨`,
-    listen: '브리핑 듣기',
+    listen: '듣기',
     handled: {
       spam: (n: number) => `${n}개 스팸`,
       archived: (n: number) => `${n}개 보관`,
@@ -1285,7 +1286,6 @@ export const ko: Messages = {
     recent: (period: string) => `${period}의 다른 메일`,
     sent: '보냄',
     worthAttention: '살펴볼 만한 것',
-    writing: '작성 중…',
   },
   boards: {
     addTo: '보드에 추가',
@@ -1566,17 +1566,16 @@ export const ko: Messages = {
         'Fewmail Pro 기능이에요. 모을 내용을 설명하면 에이전트가 메일에서 찾아내고 계속 최신으로 유지해요.',
       drafts:
         'Fewmail Pro 기능이에요. 에이전트가 내 말투로 답장을 쓰고, 나는 고쳐서 보내기만 하면 돼요.',
+      home: 'Fewmail Pro 기능이에요. 내가 챙겨야 할 메일을 미리 써 둔 답장과 함께 보여 주고, 메일이 올 때마다 업데이트해요.',
       tasks:
         'Fewmail Pro 기능이에요. 스레드를 에이전트에게 맡기면 메일을 보낼 때마다 먼저 물어보며 끝까지 처리해요.',
-      today:
-        'Fewmail Pro 기능이에요. 내가 챙겨야 할 메일을 미리 써 둔 답장과 함께 보여 주고, 메일이 올 때마다 업데이트해요.',
     },
   },
   whatsapp: {
     connectFirst:
       '먼저 Fewmail → 설정 → 연동을 열고 “WhatsApp 연결”을 누르세요.',
     connected:
-      '연결됐어요. 매일 아침 브리핑을 보내고 긴급한 메일이 오면 바로 알려 드릴게요. 텍스트나 음성 메시지로 어떤 메일에도 답장할 수 있어요.',
+      '연결됐어요. 긴급한 메일이 오면 바로 알려 드릴게요. 텍스트나 음성 메시지로 어떤 메일에도 답장할 수 있어요.',
     proOnly:
       'WhatsApp은 Fewmail Pro 기능이에요. 업그레이드하려면 Fewmail에서 설정 → 요금제를 열어 주세요.',
   },

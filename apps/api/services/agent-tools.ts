@@ -21,7 +21,6 @@ import {
   updateBoard,
   updateEntry,
 } from './boards'
-import { generateBrief, getToday } from './brief'
 import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
 import {
   listSubscriptions,
@@ -30,6 +29,7 @@ import {
   undoClearOut,
 } from './cleanup'
 import { saveDraft } from './drafts'
+import { getToday } from './home'
 import {
   approveAction,
   archiveMessage,
@@ -86,7 +86,7 @@ export const agentTools = (
 ): Record<AgentToolName, AgentTool> => ({
   get_today: define({
     description:
-      "The user's email brief and the queue of things that need them: each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Today (days: at least 1, at most 7), the other mail worth knowing from those days (recent), mail naming a due date or meeting time (dates), sent mail still waiting for an answer (awaiting) what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts).",
+      "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other mail worth knowing from those days (recent), mail naming a due date or meeting time (dates), sent mail still waiting for an answer (awaiting), what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts).",
     run: () => getToday(userId),
   }),
   list_mail: define({
@@ -279,7 +279,7 @@ export const agentTools = (
   }),
   handle_thread: define({
     description:
-      'Hand an email thread to the agent with a goal ("get the invoice resent", "find a time next week"). It writes and, depending on autonomy, sends the emails until the goal is reached. autonomy "ask" (default) queues each email for the user to approve in Today; only use "auto" when the user explicitly asked the agent to send on their behalf.',
+      'Hand an email thread to the agent with a goal ("get the invoice resent", "find a time next week"). It writes and, depending on autonomy, sends the emails until the goal is reached. autonomy "ask" (default) queues each email for the user to approve on Home; only use "auto" when the user explicitly asked the agent to send on their behalf.',
     input: {
       autonomy: z.enum(['ask', 'auto']).default('ask'),
       goal: z.string().min(4),
@@ -408,7 +408,7 @@ export const agentTools = (
   }),
   list_rules: define({
     description:
-      'The rules the agent follows. Each has a plain-language instruction matched against incoming mail, and an effect: archive, mark_read, unsubscribe and trash are applied on their own, draft_reply leaves a draft in Today, always_show puts the email in Today.',
+      'The rules the agent follows. Each has a plain-language instruction matched against incoming mail, and an effect: archive, mark_read, unsubscribe and trash are applied on their own, draft_reply leaves a draft on Home, always_show puts the email on Home.',
     run: () => listRules(userId),
   }),
   create_rule: define({
@@ -445,10 +445,10 @@ export const agentTools = (
   }),
   refresh: define({
     description:
-      'Fetch new mail from Gmail, analyze it and rewrite the brief. Takes a few seconds per new email.',
+      'Fetch new mail from Gmail and analyze it, then return the same as get_today. Takes a few seconds per new email.',
     run: async () => {
       await syncMailboxes(userId)
-      return generateBrief(userId)
+      return getToday(userId)
     },
   }),
 })

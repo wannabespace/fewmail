@@ -192,32 +192,6 @@ export const actions = d.snakeCase.table(
   ]
 )
 
-export interface BriefStats {
-  archived: number
-  filed: number
-  handled: number
-  needYou: number
-  /** Over the 7 days before the brief; absent on briefs written before it was counted. */
-  savedMinutes?: number
-  unsubscribed: number
-}
-
-export const briefs = d.snakeCase.table(
-  'briefs',
-  {
-    ...baseTable,
-    body: encryptedText().notNull(),
-    date: d.date().notNull(),
-    headline: encryptedText().notNull(),
-    stats: d.jsonb().$type<BriefStats>().notNull(),
-    telegramSentAt: d.timestamp({ withTimezone: true }),
-    userId: userId(),
-  },
-  (table) => [
-    d.uniqueIndex('briefs_user_date_idx').on(table.userId, table.date),
-  ]
-)
-
 export const outbox = d.snakeCase.table(
   'outbox',
   {

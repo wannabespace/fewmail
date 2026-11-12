@@ -88,7 +88,7 @@ const OnboardingPage = () => {
 
   const save = useMutation(
     orpc.settings.save.mutationOptions({
-      onSuccess: () => navigate({ to: '/today' }),
+      onSuccess: () => navigate({ to: '/home' }),
     })
   )
   const submit = () =>
@@ -149,7 +149,7 @@ export const Route = createFileRoute('/onboarding')({
       throw redirect({ to: '/login' })
     }
     if (me.settings) {
-      throw redirect({ to: '/today' })
+      throw redirect({ to: '/home' })
     }
   },
   component: OnboardingPage,

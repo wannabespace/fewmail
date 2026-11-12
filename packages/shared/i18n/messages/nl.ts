@@ -24,7 +24,7 @@ export const nl: Messages = {
     dismissed: 'overgeslagen',
     done: 'gedaan',
     failed: 'mislukt',
-    pending: 'wacht in Vandaag',
+    pending: 'wacht op Home',
   },
   agent: {
     voice: 'Praat met de agent',
@@ -348,6 +348,7 @@ export const nl: Messages = {
       `Massamail: ${n}+ Fewmail-gebruikers kregen dezelfde tekst`,
   },
   calendar: {
+    tomorrow: 'Morgen',
     noAccess: {
       allow: 'Toegang geven',
       description:
@@ -468,7 +469,7 @@ export const nl: Messages = {
     title: 'Je hebt beloofd',
   },
   compose: {
-    backInQueue: 'Geannuleerd. Het concept staat weer in Vandaag.',
+    backInQueue: 'Geannuleerd. Het concept staat weer op Home.',
     canceled: 'Geannuleerd. Je e-mail staat weer in de editor.',
     cc: 'Cc',
     discard: 'Verwerpen',
@@ -513,7 +514,6 @@ export const nl: Messages = {
     mail: 'Mail',
     nothingMatches: 'Geen resultaten.',
     placeholder: 'Vraag iets over je mail of voer een opdracht uit…',
-    rewriteBrief: 'Overzicht opnieuw schrijven',
     teachRule: 'Nieuwe regel aanleren',
     upgrade: 'Overstappen op Pro',
     theme: {
@@ -548,6 +548,10 @@ export const nl: Messages = {
     reload: 'Herladen',
   },
   keys: {
+    approvePicked: (n: number) => `${n} gekozen goedkeuren`,
+    pick: 'kiezen',
+    pickAll: 'alles kiezen',
+    unpick: 'keuze wissen',
     pin: 'vastzetten',
     unpin: 'losmaken',
     copyCode: 'code kopiëren',
@@ -617,7 +621,7 @@ export const nl: Messages = {
     continue: 'Doorgaan met Google',
     lead: 'Fewmail leest je inbox voor je, antwoordt in jouw stijl en laat alleen zien wat jou echt nodig heeft.',
     messengers:
-      'Werkt ook in messengers, te beginnen met Telegram: ontvang het overzicht, keur antwoorden goed of stuur gewoon een spraakbericht.',
+      'Werkt ook in messengers, te beginnen met Telegram: ontvang dringende mail, keur antwoorden goed of stuur gewoon een spraakbericht.',
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
@@ -687,7 +691,7 @@ export const nl: Messages = {
     attachment: 'bijlage',
     draftReply: 'Antwoord opstellen',
     drafting: 'Opstellen…',
-    draftWaiting: 'Concept wacht in Vandaag',
+    draftWaiting: 'Concept wacht op Home',
     due: (date: string) => `vervalt ${date}`,
     dueHint: 'Deadline die de agent in deze e-mail vond',
     empty: 'Geen e-mails hier',
@@ -742,7 +746,7 @@ export const nl: Messages = {
     settings: 'Instellingen',
     syncFailed: 'Gmail-synchronisatie mislukt, opnieuw proberen',
     syncing: 'Je inbox wordt gelezen…',
-    today: 'Vandaag',
+    home: 'Home',
     trialLeft: (total: number) =>
       plural('nl', total, {
         one: () => 'Pro-proefperiode · nog 1 dag',
@@ -773,7 +777,7 @@ export const nl: Messages = {
       `Pagina’s die de agent uit je mail vult, te beginnen met het laatste halfjaar. Kies er tot ${max}; eigen pagina’s kun je later toevoegen.`,
     boardsTitle: 'Wat moet de agent voor je verzamelen?',
     languageHint:
-      'De app, overzichten, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
+      'De app, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
     languageTitle: 'Welke taal moet Fewmail spreken?',
     lead: 'Twee snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
     reading: 'Je inbox wordt gelezen…',
@@ -785,7 +789,7 @@ export const nl: Messages = {
     freeDescription:
       'Snelle, rustige mail met eenvoudige regels. Gratis zo lang je wilt.',
     includes:
-      'Pro voegt de agent toe: een dagelijkse briefing, elke e-mail gelezen en samengevat, antwoorden in jouw stijl, regels in gewone woorden, Telegram en MCP.',
+      'Pro voegt de agent toe: elke e-mail gelezen en samengevat, antwoorden in jouw stijl, regels in gewone woorden, Telegram en MCP.',
     manage: 'Facturering beheren',
     price: (usd: number) => `$${usd} / maand`,
     priceYearly: (usd: number) => `$${usd} / jaar`,
@@ -826,6 +830,11 @@ export const nl: Messages = {
       }),
   },
   queue: {
+    approve: 'Goedkeuren',
+    delete: 'Verwijderen',
+    pick: 'Kiezen',
+    picked: (n: number) => `${n} gekozen`,
+    unpick: 'Niet kiezen',
     askedByYou: 'Op jouw verzoek',
     draftedInVoice: 'Opgesteld in jouw stijl',
     edit: 'Bewerken',
@@ -862,9 +871,9 @@ export const nl: Messages = {
       }),
     delete: 'Verwijderen',
     describe: {
-      alwaysShow: 'Komt altijd in Vandaag',
+      alwaysShow: 'Komt altijd op Home',
       autonomous: 'Wordt zelf gedaan, staat bij afgehandeld',
-      draft: 'Een concept wacht op je in Vandaag',
+      draft: 'Een concept wacht op je op Home',
     },
     effect: {
       always_show: 'Altijd tonen',
@@ -902,13 +911,8 @@ export const nl: Messages = {
   settings: {
     readingDigest: {
       description:
-        'Na de briefing komen de nieuwsbrieven van de dag als één bericht in Telegram en WhatsApp.',
+        'Elke ochtend komen de nieuwsbrieven van de afgelopen dag als één bericht in Telegram en WhatsApp.',
       title: 'Nieuwsbriefoverzicht',
-    },
-    voiceBrief: {
-      description:
-        'De briefing komt in Telegram en WhatsApp ook als spraakbericht.',
-      title: 'Briefing als spraakbericht',
     },
     forward: {
       copy: 'Adres kopiëren',
@@ -918,12 +922,10 @@ export const nl: Messages = {
     },
     account: 'Account',
     agent: 'Agent',
-    briefDescription: (timezone: string) => `In jouw tijdzone, ${timezone}`,
-    briefTitle: 'Dagelijks overzicht',
     deleteAccount: 'Account verwijderen',
     deleteConfirm: 'Alles verwijderen',
     deleteDescription:
-      'Verwijdert direct je account, gesynchroniseerde mail, concepten, regels en overzichten uit Fewmail. Je Gmail zelf blijft onaangeroerd.',
+      'Verwijdert direct je account, gesynchroniseerde mail, concepten en regels uit Fewmail. Je Gmail zelf blijft onaangeroerd.',
     deleteTitle: 'Je Fewmail-account verwijderen?',
     cancel: 'Annuleren',
     integrations: 'Integraties',
@@ -941,12 +943,12 @@ export const nl: Messages = {
     },
     language: 'Taal',
     languageDescription:
-      'App, overzichten en samenvattingen. Antwoorden volgen de e-mail.',
+      'App, bot en samenvattingen. Antwoorden volgen de e-mail.',
     legal: 'Juridisch',
     mailboxes: {
       add: 'Gmail toevoegen',
       addDescription:
-        'Mail van een ander Gmail-account komt in hetzelfde Vandaag en dezelfde inbox. Er logt nooit iemand mee in: inloggen ermee opent een aparte Fewmail.',
+        'Mail van een ander Gmail-account komt ook op Home en in dezelfde inbox. Er logt nooit iemand mee in: inloggen ermee opent een aparte Fewmail.',
       added: 'Mailbox toegevoegd. De mail verschijnt binnen een minuut.',
       failed:
         'De mailbox kon niet worden toegevoegd. Sta Gmail-toegang toe en probeer het opnieuw.',
@@ -965,12 +967,15 @@ export const nl: Messages = {
       defaultName: 'MCP-client',
       deny: 'Weigeren',
       description:
-        'Ze kunnen je overzicht en mail lezen, antwoorden opstellen en die versturen nadat jij bevestigt.',
+        'Ze kunnen je mail lezen, antwoorden opstellen en die versturen nadat jij bevestigt.',
       disconnect: 'Ontkoppelen',
       paste: 'Voeg deze URL toe als connector in je app en log in bij Fewmail.',
       request: (app: string) => `${app} wil je Fewmail gebruiken`,
       title: 'Koppel Claude, Cursor of een andere MCP-client',
     },
+    morningDescription: (timezone: string) =>
+      `Nieuwsbriefoverzicht en het weekrapport op maandag, in jouw tijdzone, ${timezone}`,
+    morningTitle: 'Ochtendberichten',
     signedInWithGoogle: 'Ingelogd met Google',
     signOut: 'Uitloggen',
     schedules: {
@@ -992,8 +997,8 @@ export const nl: Messages = {
         'Meldingen zijn geblokkeerd. Sta ze toe in de site-instellingen van de browser.',
       browser: 'Deze browser',
       notConfigured: 'Browsermeldingen zijn niet ingesteld op deze server.',
-      off: 'Ontvang dringende mail en het dagelijkse overzicht hier, ook als Fewmail dicht is.',
-      on: 'Dringende mail en het dagelijkse overzicht verschijnen hier. Meerdere tegelijk komen als één.',
+      off: 'Ontvang dringende mail hier, ook als Fewmail dicht is.',
+      on: 'Dringende mail verschijnt hier. Meerdere tegelijk komen als één.',
       title: 'Meldingen',
       unsupported: 'Deze browser kan geen meldingen tonen.',
     },
@@ -1001,17 +1006,17 @@ export const nl: Messages = {
       connect: 'Telegram koppelen',
       disconnect: 'Ontkoppelen',
       linked:
-        'Je overzicht komt elke ochtend, dringende mail meteen. Keur concepten goed en bewerk ze in de chat.',
+        'Dringende mail komt meteen binnen. Keur concepten goed en bewerk ze in de chat.',
       notConfigured: 'De Telegram-bot is niet ingesteld op deze server.',
-      unlinked: 'Ontvang het overzicht en keur concepten goed via Telegram.',
+      unlinked: 'Ontvang dringende mail en keur concepten goed via Telegram.',
     },
     whatsapp: {
       connect: 'WhatsApp koppelen',
       disconnect: 'Ontkoppelen',
       linked:
-        'Je overzicht komt elke ochtend, dringende mail meteen. Keur concepten goed en bewerk ze in de chat.',
+        'Dringende mail komt meteen binnen. Keur concepten goed en bewerk ze in de chat.',
       notConfigured: 'De WhatsApp-bot is niet ingesteld op deze server.',
-      unlinked: 'Ontvang het overzicht en keur concepten goed via WhatsApp.',
+      unlinked: 'Ontvang dringende mail en keur concepten goed via WhatsApp.',
     },
     title: 'Instellingen',
   },
@@ -1078,7 +1083,7 @@ export const nl: Messages = {
       },
       labels: {
         ask: 'Vraag je mail wat je wilt',
-        brief: 'Dagelijks overzicht',
+        home: 'Alles wat jou nodig heeft, op één pagina',
         calendar: 'Agenda',
         drafts: 'Antwoorden voor je opgesteld',
         followUps: 'Herinneringen om op te volgen',
@@ -1104,7 +1109,7 @@ export const nl: Messages = {
       noFreePlan: 'Geen gratis abonnement',
       ours: {
         ask: 'In Pro',
-        brief: 'In jouw taal, in Pro',
+        home: 'Live, in één keer goed te keuren, in Pro',
         drafts: 'In jouw stijl, pas verstuurd als jij akkoord geeft, in Pro',
         followUps: 'Automatisch, bij mail die een antwoord verwacht',
         handOver: 'De agent werkt het af tot het doel, in Pro',
@@ -1134,9 +1139,9 @@ export const nl: Messages = {
           snack: '1 mailbox en basisfilters',
         },
         summary:
-          'SaneBox sorteert mail in mappen en stelt op het hoogste abonnement ook antwoorden op en vat samen. Fewmail leest eerst alles en geeft je één overzicht en de paar beslissingen die alleen jij kunt nemen.',
+          'SaneBox sorteert mail in mappen en stelt op het hoogste abonnement ook antwoorden op en vat samen. Fewmail leest eerst alles en zet de paar beslissingen die alleen jij kunt nemen op één pagina.',
         them: {
-          brief: 'Een dagelijkse samenvatting van gefilterde mail',
+          home: 'Een dagelijkse samenvatting van gefilterde mail',
           drafts: 'SaneDrafts, in Dinner',
           followUps: 'SaneNoReplies',
           importance: 'Onbelangrijke mail gaat naar SaneLater',
@@ -1226,12 +1231,12 @@ export const nl: Messages = {
       },
       {
         answer:
-          'Concepten worden geschreven in de taal van de e-mail die je beantwoordt. De app, het overzicht en de Telegram-bot spreken één taal naar keuze, uit vijftien.',
+          'Concepten worden geschreven in de taal van de e-mail die je beantwoordt. De app, de samenvattingen en de Telegram-bot spreken één taal naar keuze, uit vijftien.',
         question: 'Welke talen spreekt het?',
       },
       {
         answer:
-          'Voorlopig accounts van Gmail en Google Workspace. Voeg meerdere mailboxen toe aan één Fewmail en hun mail komt in hetzelfde overzicht en dezelfde inbox terecht.',
+          'Voorlopig accounts van Gmail en Google Workspace. Voeg meerdere mailboxen toe aan één Fewmail en hun mail komt op Home en in dezelfde inbox terecht.',
         question: 'Welke e-mailaccounts werken?',
       },
     ],
@@ -1276,8 +1281,8 @@ export const nl: Messages = {
         },
         voice: {
           description:
-            'Luister naar het overzicht in Telegram, WhatsApp of de app, en antwoord de bot met een spraakbericht.',
-          title: 'Luister naar het overzicht',
+            'Tik op Home op Luisteren en hoor wat jou nodig heeft. Praat met de agent in de app, Telegram of WhatsApp en hij antwoordt hardop.',
+          title: 'Hoor wat jou nodig heeft',
         },
         wrapped: {
           description:
@@ -1324,18 +1329,18 @@ export const nl: Messages = {
           problem: 'Dat ene wat je beloofde en vergat.',
         },
         {
-          fix: 'Alleen dringende mail bereikt je in Telegram of WhatsApp. De rest wacht op het ochtendoverzicht, waar je ook naar kunt luisteren.',
+          fix: 'Alleen dringende mail bereikt je in Telegram of WhatsApp. De rest wacht al gesorteerd op Home, tot je kijkt.',
           problem: 'Tijdens het eten je mail checken, voor de zekerheid.',
         },
       ],
       title: 'E-mailproblemen die je niet meer hebt.',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: 'hebben jou nodig.',
         lead: (handled: string) =>
-          `Anna wacht op het contract, de factuur van Northwind moet volgende week betaald zijn en Marco wil donderdag. ${handled} nieuwsbrieven en meldingen zijn afgehandeld.`,
-        tag: 'Overzicht van donderdag · 08:00',
+          `Anna wacht op het contract, de factuur van Northwind moet volgende week betaald zijn en Marco wil donderdag. ${handled} nieuwsbrieven en meldingen zijn afgehandeld, en Home werkt zichzelf bij zodra er nieuwe mail binnenkomt.`,
+        tag: 'Home · donderdag, 08:12',
         title: 'Drie dingen hebben jou nodig.',
       },
       fates: {
@@ -1378,7 +1383,7 @@ export const nl: Messages = {
       remindPlan: 'Zet hem bij je rekeningen en herinnert je op 19 nov.',
       start: 'Gratis starten met Google',
       title: 'E-mail is niet jouw werk.',
-      today: 'Vandaag',
+      home: 'Home',
       tryQueue: 'Probeer de wachtrij',
       unread: ((slots) => [slots.count, ' ongelezen']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -1437,9 +1442,9 @@ export const nl: Messages = {
       pro: {
         description: 'De hele agent: hij leest, schrijft en onthoudt.',
         features: [
-          'Vandaag: een dagelijks overzicht en één wachtrij met beslissingen',
+          'Home: één live wachtrij met beslissingen, los of in één keer goedgekeurd',
           'Antwoorden in jouw stijl, pas verstuurd als jij akkoord geeft',
-          'Telegram: het overzicht, goedkeuringen en spraakopdrachten',
+          'Telegram: dringende mail, goedkeuringen en spraakopdrachten',
           '“Regel dit”: de agent werkt een thread af tot het doel',
           'Beloftes en mensen onthouden, borden met grafieken voor geld of alles wat je bijhoudt',
           'Vraag je mail alles, plus MCP voor je eigen tools',
@@ -1542,18 +1547,17 @@ export const nl: Messages = {
   },
   telegram: {
     approveAlike: 'Alle kaarten van één soort tegelijk goedkeuren:',
-    listen: '🔊 Luisteren',
     heard: (text: string) => `Gehoord: “${text}”`,
     voiceFailed: 'Ik kon het niet verstaan. Probeer het opnieuw of typ het.',
     help: 'Schrijf of zeg wat je nodig hebt:\n• vraag iets over je mail: ‘wanneer verlengt Netflix?’\n• zeg wat ik moet antwoorden: ‘zeg Anna dat ik morgen teken’\n• geef me een taak: ‘maak een bord voor reizen’\n• antwoord op een van mijn concepten om het aan te passen',
     canceled: 'Geannuleerd. Het concept staat weer in je wachtrij.',
     sendingIn: (seconds: number) => `Versturen over ${seconds} s`,
     undo: 'Ongedaan maken',
-    commands: { brief: 'Overzicht van vandaag', queue: 'Wat jou nodig heeft' },
+    commands: { queue: 'Wat jou nodig heeft' },
     connectFirst:
       'Open eerst Fewmail → Instellingen → Integraties en tik op “Telegram koppelen”.',
     connected:
-      'Gekoppeld. Ik stuur je elke ochtend je overzicht en laat het weten als er iets dringends binnenkomt.\n\n/brief: overzicht van vandaag\n/queue: wat jou nodig heeft',
+      'Gekoppeld. Ik laat het weten als er iets dringends binnenkomt.\n\n/queue: wat jou nodig heeft',
     done: 'Klaar',
     draft: 'Concept:',
     edit: 'Bewerken',
@@ -1583,18 +1587,12 @@ export const nl: Messages = {
       setUp: 'Instellen',
       turnOn: 'Inschakelen',
     },
-    later: (total: number, time: string) =>
-      plural('nl', total, {
-        one: () => `Nog één komt om ${time}`,
-        other: (n) => `Nog ${n} komen om ${time}`,
-      }),
-    briefAt: (time: string) => `dagelijks overzicht om ${time}`,
     dates: 'Data en afspraken',
     done: 'Klaar',
     firstRead:
       'Ik lees je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf.',
     approvedMany: (n: number) => `${n} goedgekeurd`,
-    listen: 'Naar de briefing luisteren',
+    listen: 'Luisteren',
     handled: {
       spam: (n: number) => `${n} naar spam`,
       archived: (n: number) => `${n} gearchiveerd`,
@@ -1630,7 +1628,6 @@ export const nl: Messages = {
     recent: (period: string) => `Ook ${period}`,
     sent: 'Verstuurd',
     worthAttention: 'Verdient je aandacht',
-    writing: 'Schrijven…',
   },
   upgrade: {
     ask: 'Vraag het je mail',
@@ -1642,17 +1639,16 @@ export const nl: Messages = {
         'Onderdeel van Fewmail Pro: beschrijf wat er verzameld moet worden, en de agent vindt het in je mail en houdt het bij.',
       drafts:
         'Onderdeel van Fewmail Pro: de agent schrijft het antwoord in jouw stijl, jij past het aan en verstuurt het.',
+      home: 'Onderdeel van Fewmail Pro: de mail die jou nodig heeft, met antwoorden die al klaarstaan, bijgewerkt zodra er mail binnenkomt.',
       tasks:
         'Onderdeel van Fewmail Pro: geef de thread aan de agent en hij handelt het af, en vraagt het je vóór elke mail die hij verstuurt.',
-      today:
-        'Onderdeel van Fewmail Pro: elke ochtend een korte briefing, de mail die jou nodig heeft en antwoorden die al klaarstaan.',
     },
   },
   whatsapp: {
     connectFirst:
       'Open eerst Fewmail → Instellingen → Integraties en tik op “WhatsApp koppelen”.',
     connected:
-      'Gekoppeld. Ik stuur je elke ochtend het overzicht en laat het weten als er iets dringends binnenkomt. Stuur tekst of een spraakbericht om op een e-mail te antwoorden.',
+      'Gekoppeld. Ik stuur je een bericht als er iets dringends binnenkomt. Stuur tekst of een spraakbericht om op een e-mail te antwoorden.',
     proOnly:
       'WhatsApp is onderdeel van Fewmail Pro. Open Instellingen → Abonnement in Fewmail om over te stappen.',
   },

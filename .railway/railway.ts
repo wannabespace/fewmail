@@ -85,7 +85,7 @@ export default defineRailway(() => {
 
   /**
    * Exactly one replica, and the old one drains before the new one starts: the worker's locks are
-   * in memory, so two at once would send the same brief or Telegram push twice.
+   * in memory, so two at once would send the same morning message or Telegram push twice.
    */
   const worker = service('worker', {
     build,

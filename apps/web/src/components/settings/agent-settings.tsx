@@ -6,11 +6,13 @@ import {
 } from '@fewmail/ui/components/custom/settings-group'
 import { Switch } from '@fewmail/ui/components/switch'
 import { Textarea } from '@fewmail/ui/components/textarea'
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
-import { BriefHourSelect, LanguageSelect } from '~/components/agent-fields'
+import { LanguageSelect, MorningHourSelect } from '~/components/agent-fields'
 import { localeStore, useT } from '~/lib/i18n'
 import { useHasAgent, useMe, useSaveSettings } from '~/lib/me'
+import { orpc } from '~/lib/orpc'
 
 /** Browsers still report Kyiv by its old IANA alias. */
 const timezoneLabel = (timezone: string) =>
@@ -22,6 +24,13 @@ export const AgentSettings = () => {
   const hasAgent = useHasAgent()
   const update = useSaveSettings()
   const [knowledge, setKnowledge] = useState(settings.knowledge ?? '')
+  const { data: telegram } = useQuery(
+    orpc.integrations.telegram.get.queryOptions({ enabled: hasAgent })
+  )
+  const { data: whatsapp } = useQuery(
+    orpc.integrations.whatsapp.get.queryOptions({ enabled: hasAgent })
+  )
+  const hasMessenger = !!telegram?.linked || !!whatsapp?.linked
 
   return (
     <SettingsGroup title={t.settings.agent}>
@@ -50,28 +59,32 @@ export const AgentSettings = () => {
       </SettingsRow>
       {hasAgent && (
         <>
-          <SettingsRow
-            title={t.settings.readingDigest.title}
-            description={t.settings.readingDigest.description}
-            htmlFor="reading-digest"
-          >
-            <Switch
-              id="reading-digest"
-              checked={settings.readingDigest}
-              onCheckedChange={(readingDigest) => update({ readingDigest })}
-            />
-          </SettingsRow>
-          <SettingsRow
-            title={t.settings.voiceBrief.title}
-            description={t.settings.voiceBrief.description}
-            htmlFor="voice-brief"
-          >
-            <Switch
-              id="voice-brief"
-              checked={settings.voiceBrief}
-              onCheckedChange={(voiceBrief) => update({ voiceBrief })}
-            />
-          </SettingsRow>
+          {hasMessenger && (
+            <>
+              <SettingsRow
+                title={t.settings.readingDigest.title}
+                description={t.settings.readingDigest.description}
+                htmlFor="reading-digest"
+              >
+                <Switch
+                  id="reading-digest"
+                  checked={settings.readingDigest}
+                  onCheckedChange={(readingDigest) => update({ readingDigest })}
+                />
+              </SettingsRow>
+              <SettingsRow
+                title={t.settings.morningTitle}
+                description={t.settings.morningDescription(
+                  timezoneLabel(settings.timezone)
+                )}
+              >
+                <MorningHourSelect
+                  value={settings.briefHour}
+                  onChange={(briefHour) => update({ briefHour })}
+                />
+              </SettingsRow>
+            </>
+          )}
           <SettingsRow
             title={t.settings.forward.title}
             hint={t.settings.forward.description}
@@ -88,17 +101,6 @@ export const AgentSettings = () => {
                 text={forwardAddress(user.email)}
               />
             </div>
-          </SettingsRow>
-          <SettingsRow
-            title={t.settings.briefTitle}
-            description={t.settings.briefDescription(
-              timezoneLabel(settings.timezone)
-            )}
-          >
-            <BriefHourSelect
-              value={settings.briefHour}
-              onChange={(briefHour) => update({ briefHour })}
-            />
           </SettingsRow>
           <div className="flex flex-col gap-2 p-3.5">
             <span className="text-sm font-medium">

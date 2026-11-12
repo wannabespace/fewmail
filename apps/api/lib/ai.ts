@@ -7,7 +7,7 @@ export const models = {
     model: openrouter('anthropic/claude-haiku-4.5'),
     retries: [openrouter('google/gemini-3.8-flash')],
   }),
-  /** Drafts and briefs: the text a person reads or sends. */
+  /** Drafts: the text a person reads or sends. */
   writer: createRetryableModel({
     model: openrouter('anthropic/claude-sonnet-5.5'),
     retries: [openrouter('x-ai/grok-4.7')],

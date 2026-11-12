@@ -94,7 +94,7 @@ const combine = async (userId: string, batch: Notification[]) => {
       .join('\n')
       .slice(0, BODY_LIMIT),
     title: t.notifications.many(batch.length),
-    url: '/today',
+    url: '/home',
   }
 }
 
@@ -157,16 +157,7 @@ export const urgentNotification = ({
     .join('\n')
     .slice(0, BODY_LIMIT),
   title: message?.fromName ?? message?.fromEmail ?? 'Fewmail',
-  url: '/today',
-})
-
-export const briefNotification = (brief: {
-  body: string
-  headline: string
-}): Notification => ({
-  body: brief.body.slice(0, BODY_LIMIT),
-  title: brief.headline,
-  url: '/today',
+  url: '/home',
 })
 
 export const scheduleNotification = (

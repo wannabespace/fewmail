@@ -19,6 +19,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppAgentRouteImport } from './routes/_app/agent'
 import { Route as AppCalendarRouteImport } from './routes/_app/calendar'
 import { Route as AppComposeRouteImport } from './routes/_app/compose'
+import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppMailRouteImport } from './routes/_app/mail'
 import { Route as AppReadingRouteImport } from './routes/_app/reading'
 import { Route as AppRulesRouteImport } from './routes/_app/rules'
@@ -80,6 +81,11 @@ const AppCalendarRoute = AppCalendarRouteImport.update({
 const AppComposeRoute = AppComposeRouteImport.update({
   id: '/compose',
   path: '/compose',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHomeRoute = AppHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMailRoute = AppMailRouteImport.update({
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/agent': typeof AppAgentRoute
   '/calendar': typeof AppCalendarRoute
   '/compose': typeof AppComposeRoute
+  '/home': typeof AppHomeRoute
   '/mail': typeof AppMailRoute
   '/reading': typeof AppReadingRoute
   '/rules': typeof AppRulesRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/agent': typeof AppAgentRoute
   '/calendar': typeof AppCalendarRoute
   '/compose': typeof AppComposeRoute
+  '/home': typeof AppHomeRoute
   '/mail': typeof AppMailRoute
   '/reading': typeof AppReadingRoute
   '/rules': typeof AppRulesRoute
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/_app/agent': typeof AppAgentRoute
   '/_app/calendar': typeof AppCalendarRoute
   '/_app/compose': typeof AppComposeRoute
+  '/_app/home': typeof AppHomeRoute
   '/_app/mail': typeof AppMailRoute
   '/_app/reading': typeof AppReadingRoute
   '/_app/rules': typeof AppRulesRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/agent'
     | '/calendar'
     | '/compose'
+    | '/home'
     | '/mail'
     | '/reading'
     | '/rules'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/agent'
     | '/calendar'
     | '/compose'
+    | '/home'
     | '/mail'
     | '/reading'
     | '/rules'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/_app/agent'
     | '/_app/calendar'
     | '/_app/compose'
+    | '/_app/home'
     | '/_app/mail'
     | '/_app/reading'
     | '/_app/rules'
@@ -386,6 +398,13 @@ declare module '@tanstack/react-router' {
       path: '/compose'
       fullPath: '/compose'
       preLoaderRoute: typeof AppComposeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/home': {
+      id: '/_app/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AppHomeRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/mail': {
@@ -493,6 +512,7 @@ interface AppRouteChildren {
   AppAgentRoute: typeof AppAgentRoute
   AppCalendarRoute: typeof AppCalendarRoute
   AppComposeRoute: typeof AppComposeRoute
+  AppHomeRoute: typeof AppHomeRoute
   AppMailRoute: typeof AppMailRoute
   AppReadingRoute: typeof AppReadingRoute
   AppRulesRoute: typeof AppRulesRoute
@@ -507,6 +527,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAgentRoute: AppAgentRoute,
   AppCalendarRoute: AppCalendarRoute,
   AppComposeRoute: AppComposeRoute,
+  AppHomeRoute: AppHomeRoute,
   AppMailRoute: AppMailRoute,
   AppReadingRoute: AppReadingRoute,
   AppRulesRoute: AppRulesRoute,

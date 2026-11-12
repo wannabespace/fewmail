@@ -5,7 +5,6 @@ import {
   actions,
   analyses,
   boards,
-  briefs,
   mailboxes,
   schedules,
   userSettings,
@@ -19,21 +18,20 @@ import { subMinutes } from 'date-fns'
 import { and, eq, gte, isNotNull, isNull, lt, lte, or } from 'drizzle-orm'
 
 import { env } from './env'
+import { localClock } from './lib/clock'
 import { announceChange } from './lib/live'
 import { logError } from './lib/log'
 import { seedBoards } from './services/boards'
-import { generateBrief, isBriefDue } from './services/brief'
 import { askAgent, postToChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
 import { followForwarded } from './services/forwarded'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
-import { chatIdForUser } from './services/integrations'
+import { savedThisWeek } from './services/home'
+import { chatIdForUser, whatsappForUser } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
 import { LimitReachedError } from './services/limit-error'
 import { listQueue } from './services/mail'
-import { briefVoice } from './services/messenger'
 import {
-  briefNotification,
   flushNotifications,
   notify,
   scheduleNotification,
@@ -59,12 +57,12 @@ import {
   readBoardHistory,
   syncMailbox,
 } from './services/sync'
-import { sendBrief, sendReading, sendUrgent } from './telegram'
+import { sendReading, sendRun, sendUrgent, sendWeek } from './telegram'
 import {
-  sendWhatsappBrief,
   sendWhatsappReading,
   sendWhatsappSchedule,
   sendWhatsappUrgent,
+  sendWhatsappWeek,
 } from './whatsapp'
 
 const TICK_MS = 60_000
@@ -161,12 +159,19 @@ const readDueBoardHistory = async () => {
   )
 }
 
-const BRIEF_RETRY_MS = 3_600_000
+const MONDAY = 1
 
-/** In memory: the worker runs as one replica, and a restart retrying at once is fine. */
-const briefFailedAt = new Map<string, number>()
+const isMorningDue = (settings: typeof userSettings.$inferSelect) => {
+  const now = localClock(settings.timezone)
+  const sent =
+    settings.morningSentAt &&
+    localClock(settings.timezone, settings.morningSentAt)
+  return (
+    now.hour >= settings.briefHour &&
+    (!sent || sent.date !== now.date || sent.hour < settings.briefHour)
+  )
+}
 
-/** After the brief, once a day; nothing when no newsletter came. */
 const sendReadingDigest = async (userId: string, chatId: string | null) => {
   const rows = await getReading(userId)
   if (rows.length === 0) {
@@ -178,43 +183,50 @@ const sendReadingDigest = async (userId: string, chatId: string | null) => {
   ])
 }
 
-const sendBriefIfDue = async (settings: typeof userSettings.$inferSelect) => {
+const sendWeeklyReport = async (userId: string, chatId: string | null) => {
+  const { minutes } = await savedThisWeek(userId)
+  if (minutes > 0) {
+    await Promise.all([
+      chatId && sendWeek(chatId, userId, minutes),
+      sendWhatsappWeek(userId, minutes),
+    ])
+  }
+}
+
+/** Marked sent before sending, so a failed digest is not summarized and retried every minute. */
+const sendMorningIfDue = async (settings: typeof userSettings.$inferSelect) => {
   const { userId } = settings
-  if (
-    Date.now() - (briefFailedAt.get(userId) ?? 0) < BRIEF_RETRY_MS ||
-    !(await isBriefDue(userId, settings.timezone, settings.briefHour))
-  ) {
+  if (!isMorningDue(settings)) {
     return
   }
-  const brief = await generateBrief(userId).catch((error: unknown) => {
-    briefFailedAt.set(userId, Date.now())
-    throw error
-  })
-  briefFailedAt.delete(userId)
-  const chatId = await chatIdForUser(userId)
-  const voice = await briefVoice(userId)
-  if (chatId) {
-    await sendBrief(chatId, userId, brief, voice)
-    await db
-      .update(briefs)
-      .set({ telegramSentAt: new Date() })
-      .where(eq(briefs.id, brief.id))
+  await db
+    .update(userSettings)
+    .set({ morningSentAt: new Date() })
+    .where(eq(userSettings.userId, userId))
+  const [chatId, whatsapp] = await Promise.all([
+    chatIdForUser(userId),
+    whatsappForUser(userId),
+  ])
+  if (!chatId && !whatsapp) {
+    return
   }
-  await sendWhatsappBrief(userId, brief, voice)
-  notify(userId, briefNotification(brief))
   if (settings.readingDigest) {
     await sendReadingDigest(userId, chatId)
+  }
+  const { date } = localClock(settings.timezone)
+  if (new Date(`${date}T12:00:00Z`).getUTCDay() === MONDAY) {
+    await sendWeeklyReport(userId, chatId)
   }
 }
 
 const settingsWithAgent = () =>
   db.select().from(userSettings).where(hasAgentSql(userSettings.userId))
 
-const sendDueBriefs = async () => {
+const sendDueMornings = async () => {
   for (const settings of await settingsWithAgent()) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- briefs are generated one user at a time
-    await sendBriefIfDue(settings).catch((error) =>
-      logError(`brief ${settings.userId}`, error)
+    // oxlint-disable-next-line eslint/no-await-in-loop -- digests are summarized one user at a time
+    await sendMorningIfDue(settings).catch((error) =>
+      logError(`morning ${settings.userId}`, error)
     )
   }
 }
@@ -305,7 +317,7 @@ const deliverScheduleRun = async (
   }
   const telegramChat = await chatIdForUser(userId)
   await Promise.all([
-    telegramChat && sendBrief(telegramChat, userId, run),
+    telegramChat && sendRun(telegramChat, run),
     sendWhatsappSchedule(userId, run, chatId),
   ])
 }
@@ -389,7 +401,7 @@ const tick = async () => {
       renewWatches(),
       seedDueBoards(),
       readDueBoardHistory(),
-      once('briefs', sendDueBriefs),
+      once('mornings', sendDueMornings),
       once('cleanups', offerDueCleanups),
       once('urgent', pushUrgent),
       once('outbox', dispatchDueOutbox),

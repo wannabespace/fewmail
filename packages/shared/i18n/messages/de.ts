@@ -132,7 +132,7 @@ export const de: Messages = {
     thinking: 'Durchsuche deine Mails…',
   },
   compose: {
-    backInQueue: 'Abgebrochen. Der Entwurf ist wieder in Heute.',
+    backInQueue: 'Abgebrochen. Der Entwurf ist wieder auf der Startseite.',
     canceled: 'Abgebrochen. Deine E-Mail ist wieder im Editor.',
     cc: 'Cc',
     discard: 'Verwerfen',
@@ -245,7 +245,7 @@ export const de: Messages = {
       },
       labels: {
         ask: 'Frag deine Mails, was du willst',
-        brief: 'Tägliches Briefing',
+        home: 'Alles, was dich braucht, auf einer Seite',
         calendar: 'Kalender',
         drafts: 'Antworten für dich entworfen',
         followUps: 'Erinnerungen zum Nachfassen',
@@ -271,7 +271,7 @@ export const de: Messages = {
       noFreePlan: 'Kein kostenloser Tarif',
       ours: {
         ask: 'Mit Pro',
-        brief: 'In deiner Sprache, mit Pro',
+        home: 'Live, mit Sammelfreigabe, mit Pro',
         drafts: 'In deinem Ton, gesendet erst nach deiner Freigabe, mit Pro',
         followUps: 'Automatisch, bei Mails, die eine Antwort erwarten',
         handOver: 'Der Agent bringt ihn ans Ziel, mit Pro',
@@ -301,9 +301,9 @@ export const de: Messages = {
           snack: '1 Postfach und einfache Filter',
         },
         summary:
-          'SaneBox sortiert Mails in Ordner und schreibt im größten Tarif auch Entwürfe und Zusammenfassungen. Fewmail liest zuerst alles und gibt dir ein Briefing und die wenigen Entscheidungen, die nur du treffen kannst.',
+          'SaneBox sortiert Mails in Ordner und schreibt im größten Tarif auch Entwürfe und Zusammenfassungen. Fewmail liest zuerst alles und sammelt auf einer Seite die wenigen Entscheidungen, die nur du treffen kannst.',
         them: {
-          brief: 'Eine tägliche Übersicht gefilterter Mails',
+          home: 'Eine tägliche Übersicht gefilterter Mails',
           drafts: 'SaneDrafts, mit Dinner',
           followUps: 'SaneNoReplies',
           importance: 'Unwichtige Mails landen in SaneLater',
@@ -393,12 +393,12 @@ export const de: Messages = {
       },
       {
         answer:
-          'Entwürfe entstehen in der Sprache der Mail, auf die du antwortest. App, Briefing und Telegram-Bot sprechen eine Sprache deiner Wahl, aus fünfzehn.',
+          'Entwürfe entstehen in der Sprache der Mail, auf die du antwortest. App, Zusammenfassungen und Telegram-Bot sprechen eine Sprache deiner Wahl, aus fünfzehn.',
         question: 'Welche Sprachen spricht es?',
       },
       {
         answer:
-          'Derzeit Konten von Gmail und Google Workspace. Füge mehrere Postfächer zu einem Fewmail hinzu, und ihre Mails landen im selben Briefing und im selben Posteingang.',
+          'Derzeit Konten von Gmail und Google Workspace. Füge mehrere Postfächer zu einem Fewmail hinzu, und ihre Mails landen auf derselben Startseite und im selben Posteingang.',
         question: 'Welche E-Mail-Konten funktionieren?',
       },
     ],
@@ -443,8 +443,8 @@ export const de: Messages = {
         },
         voice: {
           description:
-            'Hör dir das Briefing in Telegram, WhatsApp oder der App an und antworte dem Bot mit einer Sprachnachricht.',
-          title: 'Briefing anhören',
+            'Tippe auf der Startseite auf „Anhören“ und hör, was dich braucht. Sprich mit dem Agenten in der App, in Telegram oder WhatsApp, und er antwortet laut.',
+          title: 'Hör, was dich braucht',
         },
         wrapped: {
           description:
@@ -491,18 +491,18 @@ export const de: Messages = {
           problem: 'Das, was du versprochen und dann vergessen hast.',
         },
         {
-          fix: 'Nur dringende Mails erreichen dich in Telegram oder WhatsApp. Der Rest wartet aufs Morgen-Briefing, das du dir auch anhören kannst.',
+          fix: 'Nur dringende Mails erreichen dich in Telegram oder WhatsApp. Der Rest wartet schon sortiert auf der Startseite, bis du reinschaust.',
           problem: 'Beim Abendessen Mails checken, nur für alle Fälle.',
         },
       ],
       title: 'E-Mail-Probleme, die du nicht mehr hast.',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: 'brauchen dich.',
         lead: (handled: string) =>
-          `Anna wartet auf den Vertrag, die Rechnung von Northwind ist nächste Woche fällig und Marco möchte Donnerstag. ${handled} Newsletter und Benachrichtigungen sind erledigt.`,
-        tag: 'Briefing für Donnerstag · 08:00',
+          `Anna wartet auf den Vertrag, die Rechnung von Northwind ist nächste Woche fällig und Marco möchte Donnerstag. ${handled} Newsletter und Benachrichtigungen sind erledigt, und die Startseite aktualisiert sich, sobald neue Mail kommt.`,
+        tag: 'Startseite · Donnerstag, 08:12',
         title: 'Drei Dinge brauchen dich.',
       },
       fates: {
@@ -545,7 +545,7 @@ export const de: Messages = {
       remindPlan: 'Legt sie zu deinen Rechnungen und erinnert dich am 19. Nov.',
       start: 'Kostenlos mit Google starten',
       title: 'E-Mail ist nicht dein Job.',
-      today: 'Heute',
+      home: 'Startseite',
       tryQueue: 'Probier die Warteschlange aus',
       unread: ((slots) => [slots.count, ' ungelesen']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -605,9 +605,9 @@ export const de: Messages = {
         description:
           'Der ganze Agent: Er liest, schreibt und merkt sich alles.',
         features: [
-          'Heute: ein tägliches Briefing und eine Warteschlange von Entscheidungen',
+          'Startseite: eine Live-Warteschlange von Entscheidungen, einzeln oder gesammelt freigegeben',
           'Antworten in deinem Ton, gesendet erst nach deiner Freigabe',
-          'Telegram: Briefing, Freigaben und Sprachbefehle',
+          'Telegram: dringende Mails, Freigaben und Sprachbefehle',
           '„Darum kümmern“: Der Agent bringt einen Thread ans Ziel',
           'Versprechen und Personen im Gedächtnis, Boards mit Diagrammen für Geld oder alles, was du erfasst',
           'Frag deine Mails alles, dazu MCP für deine eigenen Tools',
@@ -691,10 +691,11 @@ export const de: Messages = {
     dismissed: 'übersprungen',
     done: 'erledigt',
     failed: 'fehlgeschlagen',
-    pending: 'wartet in Heute',
+    pending: 'wartet auf der Startseite',
   },
   byRule: 'per Regel',
   calendar: {
+    tomorrow: 'Morgen',
     noAccess: {
       allow: 'Zugriff erlauben',
       description:
@@ -750,7 +751,6 @@ export const de: Messages = {
     mail: 'Mail',
     nothingMatches: 'Keine Treffer.',
     placeholder: 'Frag nach deinen Mails oder führe einen Befehl aus…',
-    rewriteBrief: 'Briefing neu schreiben',
     upgrade: 'Auf Pro upgraden',
     teachRule: 'Neue Regel beibringen',
     theme: {
@@ -775,6 +775,10 @@ export const de: Messages = {
     reload: 'Neu laden',
   },
   keys: {
+    approvePicked: (n: number) => `${n} ausgewählte genehmigen`,
+    pick: 'auswählen',
+    pickAll: 'alle auswählen',
+    unpick: 'Auswahl aufheben',
     pin: 'anheften',
     unpin: 'lösen',
     copyCode: 'Code kopieren',
@@ -844,7 +848,7 @@ export const de: Messages = {
     continue: 'Weiter mit Google',
     lead: 'Fewmail liest deinen Posteingang für dich, antwortet in deinem Ton und zeigt dir nur, was dich wirklich braucht.',
     messengers:
-      'Funktioniert auch in Messengern, zuerst in Telegram: Briefing lesen, Antworten freigeben oder einfach eine Sprachnachricht schicken.',
+      'Funktioniert auch in Messengern, zuerst in Telegram: dringende Mails erhalten, Antworten freigeben oder einfach eine Sprachnachricht schicken.',
     title: 'Nur, was zählt.',
   },
   mail: {
@@ -914,7 +918,7 @@ export const de: Messages = {
     attachment: 'Anhang',
     draftReply: 'Antwort entwerfen',
     drafting: 'Entwerfe…',
-    draftWaiting: 'Entwurf wartet in Heute',
+    draftWaiting: 'Entwurf wartet auf der Startseite',
     due: (date: string) => `fällig am ${date}`,
     dueHint: 'Frist, die der Agent in dieser E-Mail gefunden hat',
     empty: 'Hier sind keine Mails',
@@ -970,7 +974,7 @@ export const de: Messages = {
     settings: 'Einstellungen',
     syncFailed: 'Gmail-Sync fehlgeschlagen, neuer Versuch',
     syncing: 'Lese deinen Posteingang…',
-    today: 'Heute',
+    home: 'Startseite',
     trialLeft: (total: number) =>
       plural('de', total, {
         one: () => 'Pro-Testphase · noch 1 Tag',
@@ -1001,7 +1005,7 @@ export const de: Messages = {
       `Seiten, die der Agent aus deinen Mails füllt, beginnend mit dem letzten halben Jahr. Wähle bis zu ${max}; eigene kannst du später hinzufügen.`,
     boardsTitle: 'Was soll der Agent für dich sammeln?',
     languageHint:
-      'App, Briefings, Zusammenfassungen und Erklärungen nutzen diese Sprache. Antworten folgen immer der Sprache der Mail, auf die du antwortest.',
+      'App, Zusammenfassungen und Erklärungen nutzen diese Sprache. Antworten folgen immer der Sprache der Mail, auf die du antwortest.',
     languageTitle: 'Welche Sprache soll Fewmail sprechen?',
     lead: 'Zwei kurze Antworten. Du kannst alles später in den Einstellungen ändern.',
     reading: 'Lese deinen Posteingang…',
@@ -1013,7 +1017,7 @@ export const de: Messages = {
     freeDescription:
       'Schnelle, ruhige Mail mit einfachen Regeln. Kostenlos, so lange du willst.',
     includes:
-      'Pro bringt den Agenten: ein tägliches Briefing, jede Mail gelesen und zusammengefasst, Antworten in deinem Ton, Regeln in einfachen Worten, Telegram und MCP.',
+      'Pro bringt den Agenten: jede Mail gelesen und zusammengefasst, Antworten in deinem Ton, Regeln in einfachen Worten, Telegram und MCP.',
     manage: 'Abrechnung verwalten',
     price: (usd: number) => `$${usd} / Monat`,
     priceYearly: (usd: number) => `$${usd} / Jahr`,
@@ -1043,6 +1047,11 @@ export const de: Messages = {
     usage: 'Diesen Monat',
   },
   queue: {
+    approve: 'Genehmigen',
+    delete: 'Löschen',
+    pick: 'Auswählen',
+    picked: (n: number) => `${n} ausgewählt`,
+    unpick: 'Abwählen',
     askedByYou: 'Von dir angefragt',
     draftedInVoice: 'In deinem Ton entworfen',
     edit: 'Bearbeiten',
@@ -1062,9 +1071,9 @@ export const de: Messages = {
       }),
     delete: 'Löschen',
     describe: {
-      alwaysShow: 'Landet immer in Heute',
+      alwaysShow: 'Landet immer auf der Startseite',
       autonomous: 'Wird selbst erledigt, steht unter Erledigt',
-      draft: 'Ein Entwurf wartet in Heute auf dich',
+      draft: 'Ein Entwurf wartet auf der Startseite auf dich',
     },
     effect: {
       trash: 'In den Papierkorb',
@@ -1103,13 +1112,8 @@ export const de: Messages = {
   settings: {
     readingDigest: {
       description:
-        'Nach dem Briefing kommen die Newsletter des Tages als eine Nachricht in Telegram und WhatsApp.',
+        'Jeden Morgen kommen die Newsletter des letzten Tages als eine Nachricht in Telegram und WhatsApp.',
       title: 'Newsletter-Digest',
-    },
-    voiceBrief: {
-      description:
-        'Das Briefing kommt in Telegram und WhatsApp auch als Sprachnachricht.',
-      title: 'Briefing als Sprachnachricht',
     },
     forward: {
       copy: 'Adresse kopieren',
@@ -1146,23 +1150,21 @@ export const de: Messages = {
     },
     account: 'Konto',
     agent: 'Agent',
-    briefDescription: (timezone: string) => `In deiner Zeitzone, ${timezone}`,
-    briefTitle: 'Tägliches Briefing',
     deleteAccount: 'Konto löschen',
     deleteConfirm: 'Alles löschen',
     deleteDescription:
-      'Löscht dein Konto, synchronisierte Mails, Entwürfe, Regeln und Briefings sofort aus Fewmail. Dein Gmail selbst bleibt unberührt.',
+      'Löscht dein Konto, synchronisierte Mails, Entwürfe und Regeln sofort aus Fewmail. Dein Gmail selbst bleibt unberührt.',
     deleteTitle: 'Fewmail-Konto löschen?',
     cancel: 'Abbrechen',
     integrations: 'Integrationen',
     language: 'Sprache',
     languageDescription:
-      'App, Briefings und Zusammenfassungen. Antworten folgen der Mail.',
+      'App, Bot und Zusammenfassungen. Antworten folgen der Mail.',
     legal: 'Rechtliches',
     mailboxes: {
       add: 'Gmail hinzufügen',
       addDescription:
-        'Mail eines weiteren Gmail-Kontos landet im selben Heute und Posteingang. Damit meldet sich niemand hier an: Eine Anmeldung damit öffnet ein eigenes Fewmail.',
+        'Mail eines weiteren Gmail-Kontos landet auf derselben Startseite und im selben Posteingang. Damit meldet sich niemand hier an: Eine Anmeldung damit öffnet ein eigenes Fewmail.',
       added: 'Postfach hinzugefügt. Die Mails erscheinen in einer Minute.',
       failed:
         'Das Postfach konnte nicht hinzugefügt werden. Erlaube den Gmail-Zugriff und versuche es erneut.',
@@ -1181,13 +1183,16 @@ export const de: Messages = {
       defaultName: 'MCP-Client',
       deny: 'Ablehnen',
       description:
-        'Sie können dein Briefing und deine Mails lesen, Antworten entwerfen und nach deiner Bestätigung senden.',
+        'Sie können deine Mails lesen, Antworten entwerfen und nach deiner Bestätigung senden.',
       disconnect: 'Trennen',
       paste:
         'Füge diese URL als Connector in deiner App hinzu und melde dich bei Fewmail an.',
       request: (app: string) => `${app} möchte dein Fewmail nutzen`,
       title: 'Claude, Cursor oder einen beliebigen MCP-Client verbinden',
     },
+    morningDescription: (timezone: string) =>
+      `Newsletter-Digest und der Wochenbericht am Montag, in deiner Zeitzone, ${timezone}`,
+    morningTitle: 'Morgennachrichten',
     signedInWithGoogle: 'Mit Google angemeldet',
     signOut: 'Abmelden',
     notifications: {
@@ -1196,8 +1201,8 @@ export const de: Messages = {
       browser: 'Dieser Browser',
       notConfigured:
         'Browser-Benachrichtigungen sind auf diesem Server nicht eingerichtet.',
-      off: 'Erhalte dringende Mails und das tägliche Briefing hier, auch wenn Fewmail geschlossen ist.',
-      on: 'Dringende Mails und das tägliche Briefing erscheinen hier. Mehrere auf einmal kommen als eine.',
+      off: 'Erhalte dringende Mails hier, auch wenn Fewmail geschlossen ist.',
+      on: 'Dringende Mails erscheinen hier. Mehrere auf einmal kommen als eine.',
       title: 'Benachrichtigungen',
       unsupported: 'Dieser Browser kann keine Benachrichtigungen anzeigen.',
     },
@@ -1205,19 +1210,19 @@ export const de: Messages = {
       connect: 'Telegram verbinden',
       disconnect: 'Trennen',
       linked:
-        'Dein Briefing kommt jeden Morgen, dringende Mails sofort. Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
+        'Dringende Mails kommen sofort. Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
       notConfigured:
         'Der Telegram-Bot ist auf diesem Server nicht eingerichtet.',
-      unlinked: 'Erhalte das Briefing und gib Entwürfe in Telegram frei.',
+      unlinked: 'Erhalte dringende Mails und gib Entwürfe in Telegram frei.',
     },
     whatsapp: {
       connect: 'WhatsApp verbinden',
       disconnect: 'Trennen',
       linked:
-        'Dein Briefing kommt jeden Morgen, dringende Mails sofort. Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
+        'Dringende Mails kommen sofort. Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
       notConfigured:
         'Der WhatsApp-Bot ist auf diesem Server nicht eingerichtet.',
-      unlinked: 'Erhalte das Briefing und gib Entwürfe in WhatsApp frei.',
+      unlinked: 'Erhalte dringende Mails und gib Entwürfe in WhatsApp frei.',
     },
     title: 'Einstellungen',
   },
@@ -1247,7 +1252,6 @@ export const de: Messages = {
   },
   telegram: {
     approveAlike: 'Alle Karten einer Art auf einmal freigeben:',
-    listen: '🔊 Anhören',
     heard: (text: string) => `Verstanden: „${text}“`,
     voiceFailed:
       'Das konnte ich nicht verstehen. Versuch es noch mal oder schreib es.',
@@ -1255,11 +1259,11 @@ export const de: Messages = {
     canceled: 'Abgebrochen. Der Entwurf ist wieder in deiner Warteschlange.',
     sendingIn: (seconds: number) => `Senden in ${seconds} s`,
     undo: 'Rückgängig',
-    commands: { brief: 'Briefing von heute', queue: 'Was dich braucht' },
+    commands: { queue: 'Was dich braucht' },
     connectFirst:
       'Öffne zuerst Fewmail → Einstellungen → Integrationen und tippe auf „Telegram verbinden“.',
     connected:
-      'Verbunden. Ich schicke dir jeden Morgen dein Briefing und melde mich, wenn etwas Dringendes kommt.\n\n/brief: Briefing von heute\n/queue: was dich braucht',
+      'Verbunden. Ich melde mich, wenn etwas Dringendes kommt.\n\n/queue: was dich braucht',
     done: 'Erledigt',
     draft: 'Entwurf:',
     edit: 'Bearbeiten',
@@ -1289,18 +1293,12 @@ export const de: Messages = {
       setUp: 'Einrichten',
       turnOn: 'Einschalten',
     },
-    later: (total: number, time: string) =>
-      plural('de', total, {
-        one: () => `Eine weitere kommt um ${time}`,
-        other: (n) => `${n} weitere kommen um ${time}`,
-      }),
-    briefAt: (time: string) => `Briefing täglich um ${time}`,
     dates: 'Termine und Fristen',
     done: 'Erledigt',
     firstRead:
       'Ich lese die Mails der letzten drei Tage. Was dich braucht, erscheint hier von selbst.',
     approvedMany: (n: number) => `${n} freigegeben`,
-    listen: 'Briefing anhören',
+    listen: 'Anhören',
     handled: {
       spam: (n: number) => `${n} als Spam`,
       archived: (n: number) => `${n} archiviert`,
@@ -1336,7 +1334,6 @@ export const de: Messages = {
     recent: (period: string) => `Außerdem ${period}`,
     sent: 'Gesendet',
     worthAttention: 'Einen Blick wert',
-    writing: 'Schreibe…',
   },
   boards: {
     addTo: 'Zu einem Board hinzufügen',
@@ -1652,17 +1649,16 @@ export const de: Messages = {
         'Teil von Fewmail Pro: Beschreibe, was gesammelt werden soll, und der Agent findet es in deinen Mails und hält es aktuell.',
       drafts:
         'Teil von Fewmail Pro: Der Agent schreibt die Antwort in deinem Stil, du bearbeitest und sendest sie.',
+      home: 'Teil von Fewmail Pro: die Mails, die dich brauchen, mit fertigen Antwortentwürfen, aktualisiert, sobald Mail ankommt.',
       tasks:
         'Teil von Fewmail Pro: Übergib den Thread dem Agenten, er bringt ihn zu Ende und fragt vor jeder Mail, die er sendet.',
-      today:
-        'Teil von Fewmail Pro: jeden Morgen ein kurzes Briefing, die Mails, die dich brauchen, und fertige Antwortentwürfe.',
     },
   },
   whatsapp: {
     connectFirst:
       'Öffne zuerst Fewmail → Einstellungen → Integrationen und tippe auf „WhatsApp verbinden“.',
     connected:
-      'Verbunden. Ich schicke dir jeden Morgen dein Briefing und melde mich, wenn etwas Dringendes kommt. Schreib oder sprich eine Nachricht ein, um auf eine Mail zu antworten.',
+      'Verbunden. Ich melde mich, wenn etwas Dringendes kommt. Schreib oder sprich eine Nachricht ein, um auf eine Mail zu antworten.',
     proOnly:
       'WhatsApp ist Teil von Fewmail Pro. Öffne in Fewmail Einstellungen → Tarif, um zu upgraden.',
   },

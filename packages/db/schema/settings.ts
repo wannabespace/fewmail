@@ -9,11 +9,13 @@ import { users } from './auth'
 import { actions } from './mail'
 
 export const userSettings = d.snakeCase.table('user_settings', {
+  /** Named for the old daily brief: the hour of the morning messages (newsletter digest, Monday's report). */
   briefHour: d.smallint().default(8).notNull(),
   cleanupCheckedAt: d.timestamp({ withTimezone: true }),
   gmailLabels: d.boolean().default(false).notNull(),
   knowledge: encryptedText(),
-  /** The day's newsletters sent to Telegram and WhatsApp after the brief. */
+  morningSentAt: d.timestamp({ withTimezone: true }),
+  /** The day's newsletters sent to Telegram and WhatsApp at `briefHour`. */
   readingDigest: d.boolean().default(true).notNull(),
   language: d.text().$type<Locale>().notNull(),
   onboardedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
@@ -24,8 +26,6 @@ export const userSettings = d.snakeCase.table('user_settings', {
     .default(['money'])
     .notNull(),
   timezone: d.text().notNull(),
-  /** The brief also arrives as a voice note in Telegram and WhatsApp. */
-  voiceBrief: d.boolean().default(false).notNull(),
   todayOpenedAt: d.timestamp({ withTimezone: true }),
   todaySince: d.timestamp({ withTimezone: true }),
   trialEndsAt: d

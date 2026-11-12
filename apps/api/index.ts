@@ -20,7 +20,7 @@ import { followForwarded } from './services/forwarded'
 import { handleGmailPush } from './services/gmail-push'
 import { LimitReachedError } from './services/limit-error'
 import { finishAddingMailbox } from './services/mailboxes'
-import { hear, spokenBrief } from './services/messenger'
+import { hear, spokenHome } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { onNewMail, syncMailbox } from './services/sync'
 import { readSharedWrapped } from './services/wrapped'
@@ -123,12 +123,12 @@ const app = new Hono()
       headers: { 'cache-control': 'no-store', 'content-type': 'audio/mpeg' },
     })
   })
-  .get('/voice/brief', async (c) => {
+  .get('/voice/home', async (c) => {
     const userId = await voiceUser(c.req.raw.headers)
     if (!userId) {
       return c.notFound()
     }
-    const audio = await speak(await spokenBrief(userId), 'web')
+    const audio = await speak(await spokenHome(userId), 'web')
     return new Response(audio, {
       headers: { 'cache-control': 'no-store', 'content-type': 'audio/mpeg' },
     })

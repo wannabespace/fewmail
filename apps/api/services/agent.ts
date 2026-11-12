@@ -230,7 +230,7 @@ const ruleImportance = (rule: Rule | null, importance: number) =>
 
 type GmailRule = Rule & { effect: GmailEffect }
 
-/** Without Today a free account cannot see a draft or a pinned email, so only rules that act on Gmail run. */
+/** Without Home a free account cannot see a draft or a pinned email, so only rules that act on Gmail run. */
 const actsOnGmail = (rule: Rule): rule is GmailRule =>
   isGmailEffect(rule.effect)
 
@@ -466,7 +466,7 @@ const hasNewerMail = async (message: Message) =>
     )
   )) > 0
 
-/** Today cards: a drafted reply for mail that wants one, otherwise the suggested next step for mail that matters. */
+/** Home cards: a drafted reply for mail that wants one, otherwise the suggested next step for mail that matters. */
 const queueForAgent = async (
   message: Message,
   output: {

@@ -24,7 +24,6 @@ import {
   Moon02Icon,
   PencilEdit02Icon,
   Settings01Icon,
-  SparklesIcon,
   Sun03Icon,
   Tag01Icon,
   TextAlignLeftIcon,
@@ -32,7 +31,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { useState } from 'react'
 
@@ -71,7 +70,6 @@ export const CommandMenu = ({
   const navItems = useVisibleNavItems()
   const [search, setSearch] = useState('')
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
 
   const { openCompose } = useCompose()
   const ask = useMutation(orpc.ask.mutationOptions())
@@ -79,13 +77,6 @@ export const CommandMenu = ({
   const canAsk = Boolean(search.trim())
   const withAgent = useWithAgent()
   const goTo = useGoTo()
-
-  const refreshBrief = useMutation(
-    orpc.today.refreshBrief.mutationOptions({
-      onSuccess: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
-    })
-  )
 
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -232,12 +223,6 @@ export const CommandMenu = ({
               {t.command.compose}
               <CommandShortcut>C</CommandShortcut>
             </CommandItem>
-            {hasAgent && (
-              <CommandItem onSelect={() => run(() => refreshBrief.mutate())}>
-                <HugeiconsIcon icon={SparklesIcon} strokeWidth={2} />
-                {t.command.rewriteBrief}
-              </CommandItem>
-            )}
             <CommandItem
               onSelect={() => run(() => navigate({ to: '/wrapped' }))}
             >

@@ -24,7 +24,7 @@ export const en = {
     dismissed: 'skipped',
     done: 'done',
     failed: 'failed',
-    pending: 'waiting in Today',
+    pending: 'waiting on Home',
   },
   agent: {
     voice: 'Talk to the agent',
@@ -373,6 +373,7 @@ export const en = {
     title: 'Calendar',
     titlePlaceholder: 'Add a title',
     today: 'Today',
+    tomorrow: 'Tomorrow',
     untitled: '(No title)',
     views: {
       day: 'Day',
@@ -398,7 +399,7 @@ export const en = {
     title: 'You promised',
   },
   compose: {
-    backInQueue: 'Canceled. The draft is back in Today.',
+    backInQueue: 'Canceled. The draft is back on Home.',
     canceled: 'Canceled. Your email is back in the editor.',
     cc: 'Cc',
     discard: 'Discard',
@@ -509,7 +510,6 @@ export const en = {
     mail: 'Mail',
     nothingMatches: 'Nothing matches.',
     placeholder: 'Ask about your mail or run a command…',
-    rewriteBrief: 'Rewrite the brief',
     teachRule: 'Teach a new rule',
     upgrade: 'Upgrade to Pro',
     theme: {
@@ -558,6 +558,7 @@ export const en = {
     ask: 'ask about it',
     approve: 'approve',
     approveAll: (n: number) => `approve all ${n} like this`,
+    approvePicked: (n: number) => `approve ${n} picked`,
     archive: 'archive',
     reply: 'reply',
     snooze: 'snooze',
@@ -567,6 +568,9 @@ export const en = {
     edit: 'edit',
     move: 'move',
     open: 'open',
+    pick: 'pick',
+    pickAll: 'pick all',
+    unpick: 'clear picks',
     notOnBoard: 'not on this board',
     rename: 'rename',
     clearFilter: 'clear filter',
@@ -611,7 +615,7 @@ export const en = {
     continue: 'Continue with Google',
     lead: 'Fewmail reads your inbox for you, answers in your voice and only shows you what actually needs you.',
     messengers:
-      'Works in messengers too, starting with Telegram: get the brief, approve replies or just send a voice message.',
+      'Works in messengers too, starting with Telegram: get urgent mail, approve replies or just send a voice message.',
     title: 'Only what matters.',
   },
   mail: {
@@ -680,7 +684,7 @@ export const en = {
     attachment: 'attachment',
     draftReply: 'Draft reply',
     drafting: 'Drafting…',
-    draftWaiting: 'Draft is waiting in Today',
+    draftWaiting: 'Draft is waiting on Home',
     due: (date: string) => `due ${date}`,
     dueHint: 'Deadline the agent found in this email',
     empty: 'No emails here',
@@ -739,7 +743,7 @@ export const en = {
     settings: 'Settings',
     syncFailed: 'Gmail sync failed, retrying',
     syncing: 'Reading your inbox…',
-    today: 'Today',
+    home: 'Home',
     trialLeft: (total: number) =>
       plural('en', total, {
         one: () => 'Pro trial · 1 day left',
@@ -769,7 +773,7 @@ export const en = {
       `Pages the agent fills from your mail, starting with the last half year. Pick up to ${max}; you can add your own later.`,
     boardsTitle: 'What should the agent collect for you?',
     languageHint:
-      'The app, briefs, summaries and explanations use this language. Replies always match the language of the email you answer.',
+      'The app, summaries and explanations use this language. Replies always match the language of the email you answer.',
     languageTitle: 'Which language should Fewmail speak?',
     lead: 'Two quick answers. You can change all of them later in Settings.',
     reading: 'Reading your inbox…',
@@ -781,7 +785,7 @@ export const en = {
     freeDescription:
       'Fast, calm mail with simple rules. Free for as long as you like.',
     includes:
-      'Pro adds the agent: a daily brief, every email read and summarized, replies drafted in your voice, rules in plain words, Telegram and MCP.',
+      'Pro adds the agent: every email read and summarized, replies drafted in your voice, rules in plain words, Telegram and MCP.',
     manage: 'Manage billing',
     price: (usd: number) => `$${usd} / month`,
     priceYearly: (usd: number) => `$${usd} / year`,
@@ -822,13 +826,18 @@ export const en = {
   },
   queue: {
     askedByYou: 'Asked by you',
+    approve: 'Approve',
+    delete: 'Delete',
     draftedInVoice: 'Drafted in your voice',
     edit: 'Edit',
     open: 'Open',
+    pick: 'Pick',
+    picked: (n: number) => `${n} picked`,
     send: 'Send',
     shorter: 'Shorter',
     shorterInstruction: 'Make it shorter.',
     skip: 'Skip',
+    unpick: 'Unpick',
   },
   reminders: {
     followUp: 'Follow up',
@@ -854,9 +863,9 @@ export const en = {
       plural('en', total, { one: () => '1 rule', other: (n) => `${n} rules` }),
     delete: 'Delete',
     describe: {
-      alwaysShow: 'Always lands in Today',
+      alwaysShow: 'Always lands on Home',
       autonomous: 'Done on its own, listed under handled',
-      draft: 'A draft waits for you in Today',
+      draft: 'A draft waits for you on Home',
     },
     effect: {
       always_show: 'Always show me',
@@ -894,13 +903,8 @@ export const en = {
   settings: {
     readingDigest: {
       description:
-        'After the brief, the day’s newsletters arrive in Telegram and WhatsApp as one message.',
+        'Each morning, the last day’s newsletters arrive in Telegram and WhatsApp as one message.',
       title: 'Newsletter digest',
-    },
-    voiceBrief: {
-      description:
-        'The brief also arrives in Telegram and WhatsApp as a voice note you can listen to.',
-      title: 'Brief as a voice note',
     },
     forward: {
       copy: 'Copy address',
@@ -910,12 +914,10 @@ export const en = {
     },
     account: 'Account',
     agent: 'Agent',
-    briefDescription: (timezone: string) => `In your time zone, ${timezone}`,
-    briefTitle: 'Daily brief',
     deleteAccount: 'Delete account',
     deleteConfirm: 'Delete everything',
     deleteDescription:
-      'Deletes your account, synced mail, drafts, rules and briefs from Fewmail right away. Your Gmail itself is not touched.',
+      'Deletes your account, synced mail, drafts and rules from Fewmail right away. Your Gmail itself is not touched.',
     deleteTitle: 'Delete your Fewmail account?',
     cancel: 'Cancel',
     integrations: 'Integrations',
@@ -932,12 +934,12 @@ export const en = {
       title: 'Agent labels in Gmail',
     },
     language: 'Language',
-    languageDescription: 'App, briefs and summaries. Replies follow the email.',
+    languageDescription: 'App, bot and summaries. Replies follow the email.',
     legal: 'Legal',
     mailboxes: {
       add: 'Add Gmail',
       addDescription:
-        'Another Gmail account’s mail joins the same Today and inbox. It never signs anyone in here: signing in with it opens a separate Fewmail.',
+        'Another Gmail account’s mail joins the same Home and inbox. It never signs anyone in here: signing in with it opens a separate Fewmail.',
       added: 'Mailbox added. Its mail shows up in a minute.',
       failed: 'Could not add the mailbox. Allow Gmail access and try again.',
       lost: 'Gmail access was lost. Add it again to reconnect.',
@@ -955,13 +957,16 @@ export const en = {
       defaultName: 'MCP client',
       deny: 'Deny',
       description:
-        'They can read your brief and mail, draft replies and send them after you confirm.',
+        'They can read your mail, draft replies and send them after you confirm.',
       disconnect: 'Disconnect',
       paste:
         'Add this URL as a connector in your app, then sign in to Fewmail.',
       request: (app: string) => `${app} wants to use your Fewmail`,
       title: 'Connect Claude, Cursor or any MCP client',
     },
+    morningDescription: (timezone: string) =>
+      `Newsletter digest and Monday’s weekly report, in your time zone, ${timezone}`,
+    morningTitle: 'Morning messages',
     signedInWithGoogle: 'Signed in with Google',
     signOut: 'Sign out',
     schedules: {
@@ -983,8 +988,8 @@ export const en = {
         'Notifications are blocked. Allow them in this site’s browser settings.',
       browser: 'This browser',
       notConfigured: 'Browser notifications are not configured on this server.',
-      off: 'Get urgent mail and the daily brief here, even with Fewmail closed.',
-      on: 'Urgent mail and the daily brief show up here. Several at once arrive as one.',
+      off: 'Get urgent mail here, even with Fewmail closed.',
+      on: 'Urgent mail shows up here. Several at once arrive as one.',
       title: 'Notifications',
       unsupported: 'This browser cannot show notifications.',
     },
@@ -992,17 +997,17 @@ export const en = {
       connect: 'Connect Telegram',
       disconnect: 'Disconnect',
       linked:
-        'Your brief arrives every morning, urgent mail right away. Approve and edit drafts from the chat.',
+        'Urgent mail arrives right away. Approve and edit drafts from the chat.',
       notConfigured: 'The Telegram bot is not configured on this server.',
-      unlinked: 'Get the brief and approve drafts from Telegram.',
+      unlinked: 'Get urgent mail and approve drafts from Telegram.',
     },
     whatsapp: {
       connect: 'Connect WhatsApp',
       disconnect: 'Disconnect',
       linked:
-        'Your brief arrives every morning, urgent mail right away. Approve and edit drafts from the chat.',
+        'Urgent mail arrives right away. Approve and edit drafts from the chat.',
       notConfigured: 'The WhatsApp bot is not configured on this server.',
-      unlinked: 'Get the brief and approve drafts from WhatsApp.',
+      unlinked: 'Get urgent mail and approve drafts from WhatsApp.',
     },
     title: 'Settings',
   },
@@ -1069,7 +1074,7 @@ export const en = {
       },
       labels: {
         ask: 'Ask your mail anything',
-        brief: 'Daily brief',
+        home: 'What needs you, on one page',
         calendar: 'Calendar',
         drafts: 'Replies drafted for you',
         followUps: 'Follow-up reminders',
@@ -1095,7 +1100,7 @@ export const en = {
       noFreePlan: 'No free plan',
       ours: {
         ask: 'On Pro',
-        brief: 'In your language, on Pro',
+        home: 'Live, approved in batches, on Pro',
         drafts: 'In your voice, sent only when you approve, on Pro',
         followUps: 'Automatic, on mail that expects a reply',
         handOver: 'The agent works it to its goal, on Pro',
@@ -1125,9 +1130,9 @@ export const en = {
           snack: '1 mailbox and basic filtering',
         },
         summary:
-          'SaneBox sorts mail into folders, and on its top plan drafts and summarises too. Fewmail reads everything first and hands you one brief and the few decisions only you can make.',
+          'SaneBox sorts mail into folders, and on its top plan drafts and summarises too. Fewmail reads everything first and keeps the few decisions only you can make on one page.',
         them: {
-          brief: 'A daily digest of filtered mail',
+          home: 'A daily digest of filtered mail',
           drafts: 'SaneDrafts, on Dinner',
           followUps: 'SaneNoReplies',
           importance: 'Unimportant mail moved to SaneLater',
@@ -1217,12 +1222,12 @@ export const en = {
       },
       {
         answer:
-          'Drafts are written in the language of the email you are answering. The app, the brief and the Telegram bot speak one language you choose, from fifteen.',
+          'Drafts are written in the language of the email you are answering. The app, the summaries and the Telegram bot speak one language you choose, from fifteen.',
         question: 'Which languages does it speak?',
       },
       {
         answer:
-          'Gmail and Google Workspace accounts today. Add several mailboxes to one Fewmail and their mail lands in the same brief and inbox.',
+          'Gmail and Google Workspace accounts today. Add several mailboxes to one Fewmail and their mail joins the same Home and inbox.',
         question: 'Which email accounts work?',
       },
     ],
@@ -1267,8 +1272,8 @@ export const en = {
         },
         voice: {
           description:
-            'Listen to the brief in Telegram, WhatsApp or the app, and answer the bot with a voice note.',
-          title: 'Listen to the brief',
+            'Press Listen on Home and hear what needs you. Talk to the agent in the app, Telegram or WhatsApp and it answers out loud.',
+          title: 'Hear what needs you',
         },
         wrapped: {
           description:
@@ -1315,18 +1320,18 @@ export const en = {
           problem: 'The thing you promised and forgot.',
         },
         {
-          fix: 'Only urgent mail reaches you in Telegram or WhatsApp. The rest waits for the morning brief, which you can also listen to.',
+          fix: 'Only urgent mail reaches you in Telegram or WhatsApp. The rest waits on Home, already sorted, for whenever you look.',
           problem: 'Checking mail at dinner, just in case.',
         },
       ],
       title: 'Email problems you stop having.',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: 'need you.',
         lead: (handled: string) =>
-          `Anna is waiting on the contract, Northwind’s invoice is due next week and Marco wants Thursday. ${handled} newsletters and notifications were handled.`,
-        tag: 'Thursday brief · 08:00',
+          `Anna is waiting on the contract, Northwind’s invoice is due next week and Marco wants Thursday. ${handled} newsletters and notifications were handled, and Home keeps up as new mail arrives.`,
+        tag: 'Home · Thursday, 08:12',
         title: 'Three things need you.',
       },
       fates: {
@@ -1368,7 +1373,7 @@ export const en = {
       remindPlan: 'Adds it to your bills and reminds you on Nov 19.',
       start: 'Start free with Google',
       title: 'Email is not your job.',
-      today: 'Today',
+      home: 'Home',
       tryQueue: 'Try the queue',
       unread: ((slots) => [slots.count, ' unread']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -1427,9 +1432,9 @@ export const en = {
       pro: {
         description: 'The whole agent: it reads, writes and remembers.',
         features: [
-          'Today: a daily brief and one queue of decisions',
+          'Home: one live queue of decisions, approved one by one or in batches',
           'Replies drafted in your voice, sent only when you approve',
-          'Telegram: the brief, approvals and voice instructions',
+          'Telegram: urgent mail, approvals and voice instructions',
           '“Handle this”: the agent works a thread to its goal',
           'Promises and people remembered, boards with charts for money or anything you track',
           'Ask your mail anything, plus MCP for your own tools',
@@ -1528,12 +1533,11 @@ export const en = {
   },
   telegram: {
     approveAlike: 'Approve every card of one kind at once:',
-    listen: '🔊 Listen',
-    commands: { brief: 'Today’s brief', queue: 'What needs you' },
+    commands: { queue: 'What needs you' },
     connectFirst:
       'Open Fewmail → Settings → Integrations and tap “Connect Telegram” first.',
     connected:
-      'Connected. I will send your brief every morning and ping you when something urgent arrives.\n\n/brief: today’s brief\n/queue: what needs you',
+      'Connected. I will ping you when something urgent arrives.\n\n/queue: what needs you',
     done: 'Done',
     draft: 'Draft:',
     edit: 'Edit',
@@ -1564,13 +1568,12 @@ export const en = {
   today: {
     stopListening: 'Stop',
     awaiting: 'Waiting for a reply',
-    briefAt: (time: string) => `daily brief at ${time}`,
     dates: 'Dates and meetings',
     done: 'Done',
     firstRead:
       'Reading the last three days of your mail. What needs you shows up here on its own.',
     approvedMany: (n: number) => `${n} approved`,
-    listen: 'Listen to the brief',
+    listen: 'Listen',
     handled: {
       archived: (n: number) => `${n} archived`,
       markedRead: (n: number) => `${n} marked read`,
@@ -1591,11 +1594,6 @@ export const en = {
       setUp: 'Set up',
       turnOn: 'Turn on',
     },
-    later: (total: number, time: string) =>
-      plural('en', total, {
-        one: () => `One more arrives at ${time}`,
-        other: (n) => `${n} more arrive at ${time}`,
-      }),
     nothingNeedsYou:
       'Nothing needs you right now. New mail is read the moment it arrives.',
     period: (days: number) =>
@@ -1616,7 +1614,6 @@ export const en = {
     recent: (period: string) => `Also ${period}`,
     sent: 'Sent',
     worthAttention: 'Worth your attention',
-    writing: 'Writing…',
   },
   upgrade: {
     ask: 'Ask your mail',
@@ -1628,17 +1625,16 @@ export const en = {
         'Part of Fewmail Pro: describe what to collect, and the agent finds it in your mail and keeps it up to date.',
       drafts:
         'Part of Fewmail Pro: the agent writes the reply in your style, and you edit and send it.',
+      home: 'Part of Fewmail Pro: the emails that need you, with replies already drafted, updated as mail arrives.',
       tasks:
         'Part of Fewmail Pro: hand the thread to the agent and it sees it through, asking before each email it sends.',
-      today:
-        'Part of Fewmail Pro: the emails that need you, with replies already drafted, updated as mail arrives.',
     },
   },
   whatsapp: {
     connectFirst:
       'Open Fewmail → Settings → Integrations and tap “Connect WhatsApp” first.',
     connected:
-      'Connected. I will send your brief every morning and message you when something urgent arrives. Send text or a voice message to answer any email.',
+      'Connected. I will message you when something urgent arrives. Send text or a voice message to answer any email.',
     proOnly:
       'WhatsApp is part of Fewmail Pro. Open Settings → Plan in Fewmail to upgrade.',
   },

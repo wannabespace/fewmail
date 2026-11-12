@@ -14,15 +14,8 @@ import {
   whatsappForUser,
 } from './services/integrations'
 import type { listQueue } from './services/mail'
-import type {
-  BriefMessage,
-  Button,
-  Channel,
-  Chat,
-  Reply,
-} from './services/messenger'
+import type { Button, Channel, Chat, Reply, Run } from './services/messenger'
 import {
-  briefReply,
   readingReply,
   failureText,
   follow,
@@ -33,7 +26,9 @@ import {
   messagesFor,
   press,
   remember,
+  runReply,
   splitText,
+  weekReply,
 } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 
@@ -343,15 +338,13 @@ const push = async (
   })
 }
 
-export const sendWhatsappBrief = (
-  userId: string,
-  brief: BriefMessage,
-  voice?: string
-) =>
-  push(userId, brief.headline, 'brief', (chat, t) => ({
-    ...briefReply(chat, t, brief),
-    voice,
-  }))
+/** Outside the 24-hour window the template's button fetches the report (`week`). */
+export const sendWhatsappWeek = async (userId: string, minutes: number) => {
+  const t = await messagesFor(userId)
+  await push(userId, t.today.saved(minutes), 'week', (chat, chatT) =>
+    weekReply(chat, chatT, minutes)
+  )
+}
 
 /** Outside the 24-hour window the template's button fetches the digest (`reading`). */
 export const sendWhatsappReading = async (
@@ -364,15 +357,12 @@ export const sendWhatsappReading = async (
   )
 }
 
-/** The template's button brings back this run's answer, not the daily brief. */
+/** The template's button brings back this run's answer. */
 export const sendWhatsappSchedule = (
   userId: string,
-  run: { body: string; headline: string },
+  run: Run,
   chatId: string
-) =>
-  push(userId, run.headline, `chat:${chatId}`, (chat, t) =>
-    briefReply(chat, t, run)
-  )
+) => push(userId, run.headline, `chat:${chatId}`, (chat) => runReply(chat, run))
 
 export const sendWhatsappUrgent = (userId: string, item: QueueItem) =>
   push(

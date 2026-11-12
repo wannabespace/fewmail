@@ -34,8 +34,6 @@ export type ActionKind = (typeof ACTION_KINDS)[number]
 interface ActionKindTraits {
   /** What approving does to the thread in Gmail; `null` leaves it as it is. */
   gmail: GmailEffect | null
-  /** Never waits for the next delivery slot. */
-  immediate: boolean
   /** The approve button names the kind instead of the agent's label for this email. */
   ownLabel: boolean
   /** Approving sends the draft: always, only once one is written, or never. */
@@ -44,20 +42,18 @@ interface ActionKindTraits {
 
 const quiet = (gmail: GmailEffect | null): ActionKindTraits => ({
   gmail,
-  immediate: false,
   ownLabel: false,
   sends: null,
 })
 const own: ActionKindTraits = {
   gmail: null,
-  immediate: true,
   ownLabel: true,
   sends: null,
 }
 
 export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
   archive: quiet('archive'),
-  cleanup: { ...own, immediate: false },
+  cleanup: own,
   commitment: own,
   follow_up: quiet('mark_read'),
   mark_read: quiet('mark_read'),
@@ -353,11 +349,8 @@ export interface BoardChart {
   type: BoardChartType
 }
 
-/** Mail older than this is never sent to the model and never becomes a Today card, so an upgrade or a board's history does not flood the queue. */
+/** Mail older than this is never sent to the model and never becomes a Home card, so an upgrade or a board's history does not flood the queue. */
 export const ANALYZE_WINDOW_DAYS = 3
-
-/** Two calm deliveries a day; urgent mail never waits. */
-export const BATCH_HOURS_AFTER_BRIEF = [0, 7] as const
 
 export interface CleanupSender {
   count: number

@@ -254,7 +254,7 @@ export const DeleteBoardDialog = () => {
       onMutate: ({ id }) => {
         deletingBoardStore.set(null)
         if (window.location.pathname === `/boards/${id}`) {
-          void navigate({ to: '/today' })
+          void navigate({ to: '/home' })
         }
         queryClient.setQueryData(orpc.boards.list.queryKey(), (old) =>
           old?.filter((item) => item.id !== id)

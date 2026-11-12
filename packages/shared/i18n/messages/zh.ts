@@ -24,7 +24,7 @@ export const zh: Messages = {
     dismissed: '已跳过',
     done: '已完成',
     failed: '失败',
-    pending: '在“今天”中等待',
+    pending: '在“首页”中等待',
   },
   byRule: '按规则',
   agent: {
@@ -155,7 +155,7 @@ export const zh: Messages = {
     thinking: '正在查看你的邮件…',
   },
   compose: {
-    backInQueue: '已取消。草稿已回到“今天”。',
+    backInQueue: '已取消。草稿已回到“首页”。',
     canceled: '已取消。你的邮件已回到编辑器。',
     cc: '抄送',
     discard: '丢弃',
@@ -199,6 +199,7 @@ export const zh: Messages = {
     removeLink: '移除链接',
   },
   calendar: {
+    tomorrow: '明天',
     noAccess: {
       allow: '授予权限',
       description:
@@ -254,7 +255,6 @@ export const zh: Messages = {
     mail: '邮件',
     nothingMatches: '没有匹配项。',
     placeholder: '询问邮件或运行命令…',
-    rewriteBrief: '重写简报',
     teachRule: '教一条新规则',
     upgrade: '升级到 Pro',
     theme: { dark: '使用深色主题', light: '使用浅色主题', system: '跟随系统' },
@@ -274,6 +274,10 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
+    approvePicked: (n: number) => `批准已选的 ${n} 项`,
+    pick: '选择',
+    pickAll: '全选',
+    unpick: '取消选择',
     pin: '置顶',
     unpin: '取消置顶',
     copyCode: '复制验证码',
@@ -339,7 +343,7 @@ export const zh: Messages = {
     continue: '使用 Google 继续',
     lead: 'Fewmail 替你阅读收件箱，用你的语气回复，只把真正需要你的邮件给你看。',
     messengers:
-      '也能在聊天应用中使用，首先支持 Telegram：接收简报、批准回复,或者直接发一条语音。',
+      '也能在聊天应用中使用，首先支持 Telegram：接收紧急邮件、批准回复，或者直接发一条语音。',
     title: '只看重要的。',
   },
   mail: {
@@ -408,7 +412,7 @@ export const zh: Messages = {
     attachment: '附件',
     draftReply: '起草回复',
     drafting: '正在起草…',
-    draftWaiting: '草稿在“今天”中等你',
+    draftWaiting: '草稿在“首页”中等你',
     due: (date: string) => `${date} 到期`,
     dueHint: '助手在这封邮件中找到的截止日期',
     empty: '这里没有邮件',
@@ -462,7 +466,7 @@ export const zh: Messages = {
     settings: '设置',
     syncFailed: 'Gmail 同步失败，正在重试',
     syncing: '正在读取收件箱…',
-    today: '今天',
+    home: '首页',
     trialLeft: (total: number) => `Pro 试用 · 还剩 ${total} 天`,
     usage: (percent: number) => `代理 · 本月已用 ${percent}%`,
     watching: '助手正在留意你的收件箱',
@@ -484,7 +488,7 @@ export const zh: Messages = {
       `助手会用你的邮件填充这些页面，从最近半年开始。最多选 ${max} 个；之后可以添加你自己的。`,
     boardsTitle: '要让助手为你收集什么？',
     languageHint:
-      '应用、简报、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
+      '应用、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
     languageTitle: 'Fewmail 应该说哪种语言？',
     lead: '两个简单的问题。之后都可以在设置里修改。',
     reading: '正在读取收件箱…',
@@ -495,7 +499,7 @@ export const zh: Messages = {
     free: 'Free',
     freeDescription: '快速、安静的邮件，配合简单规则。想用多久就免费用多久。',
     includes:
-      'Pro 会加入助手：每日简报、每封邮件都会被阅读和总结、用你的语气起草回复、用日常语言写规则，以及 Telegram 和 MCP。',
+      'Pro 会加入助手：每封邮件都会被阅读和总结、用你的语气起草回复、用日常语言写规则，以及 Telegram 和 MCP。',
     manage: '管理账单',
     price: (usd: number) => `$${usd} / 月`,
     priceYearly: (usd: number) => `$${usd} / 年`,
@@ -523,6 +527,11 @@ export const zh: Messages = {
     usage: '本月',
   },
   queue: {
+    approve: '批准',
+    delete: '删除',
+    pick: '选择',
+    picked: (n: number) => `已选 ${n} 项`,
+    unpick: '取消选择',
     askedByYou: '你要求的',
     draftedInVoice: '已用你的语气起草',
     edit: '编辑',
@@ -542,9 +551,9 @@ export const zh: Messages = {
     count: (n: number) => `${n} 条规则`,
     delete: '删除',
     describe: {
-      alwaysShow: '始终出现在“今天”',
+      alwaysShow: '始终出现在“首页”',
       autonomous: '自动完成，列在已处理中',
-      draft: '草稿在“今天”中等你',
+      draft: '草稿在“首页”中等你',
     },
     effect: {
       trash: '移到废纸篓',
@@ -581,12 +590,8 @@ export const zh: Messages = {
   settings: {
     readingDigest: {
       description:
-        '简报之后，当天的订阅邮件会合成一条消息发到 Telegram 和 WhatsApp。',
+        '每天早上，过去一天的订阅邮件会合成一条消息发到 Telegram 和 WhatsApp。',
       title: '订阅邮件摘要',
-    },
-    voiceBrief: {
-      description: '简报也会以语音消息发到 Telegram 和 WhatsApp。',
-      title: '语音简报',
     },
     forward: {
       copy: '复制地址',
@@ -621,22 +626,20 @@ export const zh: Messages = {
     },
     account: '账户',
     agent: '助手',
-    briefDescription: (timezone: string) => `按你的时区：${timezone}`,
-    briefTitle: '每日简报',
     deleteAccount: '删除账户',
     deleteConfirm: '全部删除',
     deleteDescription:
-      '立即从 Fewmail 删除你的账户、已同步的邮件、草稿、规则和简报。你的 Gmail 本身不会受影响。',
+      '立即从 Fewmail 删除你的账户、已同步的邮件、草稿和规则。你的 Gmail 本身不会受影响。',
     deleteTitle: '删除你的 Fewmail 账户？',
     cancel: '取消',
     integrations: '集成',
     language: '语言',
-    languageDescription: '用于应用、简报和摘要。回复跟随邮件的语言。',
+    languageDescription: '用于应用、机器人和摘要。回复跟随邮件的语言。',
     legal: '法律信息',
     mailboxes: {
       add: '添加 Gmail',
       addDescription:
-        '另一个 Gmail 账号的邮件会进入同一个“今天”和收件箱。它永远不能登录这里：用它登录会打开一个独立的 Fewmail。',
+        '另一个 Gmail 账号的邮件会进入同一个“首页”和收件箱。它永远不能登录这里：用它登录会打开一个独立的 Fewmail。',
       added: '邮箱已添加，邮件将在一分钟内出现。',
       failed: '无法添加邮箱。请允许访问 Gmail 后重试。',
       lost: 'Gmail 访问已失效。请重新添加以重新连接。',
@@ -653,38 +656,39 @@ export const zh: Messages = {
       copy: '复制 URL',
       defaultName: 'MCP 客户端',
       deny: '拒绝',
-      description: '它们可以读取你的简报和邮件、起草回复，并在你确认后发送。',
+      description: '它们可以读取你的邮件、起草回复，并在你确认后发送。',
       disconnect: '断开连接',
       paste: '在你的应用中将此 URL 添加为连接器，然后登录 Fewmail。',
       request: (app: string) => `${app} 想使用你的 Fewmail`,
       title: '连接 Claude、Cursor 或任意 MCP 客户端',
     },
+    morningDescription: (timezone: string) =>
+      `订阅邮件摘要和周一的每周报告，按你的时区发送：${timezone}`,
+    morningTitle: '早间消息',
     signedInWithGoogle: '已通过 Google 登录',
     signOut: '退出登录',
     notifications: {
       blocked: '通知已被阻止。请在浏览器的网站设置中允许。',
       browser: '此浏览器',
       notConfigured: '此服务器未配置浏览器通知。',
-      off: '即使关闭 Fewmail，也能在这里收到紧急邮件和每日简报。',
-      on: '紧急邮件和每日简报会在这里显示。同时到达的多条会合并为一条。',
+      off: '即使关闭 Fewmail，也能在这里收到紧急邮件。',
+      on: '紧急邮件会在这里显示。同时到达的多条会合并为一条。',
       title: '通知',
       unsupported: '此浏览器无法显示通知。',
     },
     telegram: {
       connect: '连接 Telegram',
       disconnect: '断开连接',
-      linked:
-        '简报每天早上送达，紧急邮件即时送达。可以直接在聊天中批准和编辑草稿。',
+      linked: '紧急邮件即时送达。可以直接在聊天中批准和编辑草稿。',
       notConfigured: '此服务器未配置 Telegram 机器人。',
-      unlinked: '在 Telegram 中接收简报并批准草稿。',
+      unlinked: '在 Telegram 中接收紧急邮件并批准草稿。',
     },
     whatsapp: {
       connect: '连接 WhatsApp',
       disconnect: '断开连接',
-      linked:
-        '简报每天早上送达，紧急邮件即时送达。可以直接在聊天中批准和编辑草稿。',
+      linked: '紧急邮件即时送达。可以直接在聊天中批准和编辑草稿。',
       notConfigured: '此服务器未配置 WhatsApp 机器人。',
-      unlinked: '在 WhatsApp 中接收简报并批准草稿。',
+      unlinked: '在 WhatsApp 中接收紧急邮件并批准草稿。',
     },
     title: '设置',
   },
@@ -748,7 +752,7 @@ export const zh: Messages = {
       },
       labels: {
         ask: '向你的邮件提任何问题',
-        brief: '每日简报',
+        home: '需要你的事，集中在一页',
         calendar: '日历',
         drafts: '替你起草回复',
         followUps: '跟进提醒',
@@ -774,7 +778,7 @@ export const zh: Messages = {
       noFreePlan: '无免费方案',
       ours: {
         ask: 'Pro 方案',
-        brief: '用你的语言，Pro 方案',
+        home: '实时更新，可批量批准，Pro 方案',
         drafts: '用你的语气，经你批准才发送，Pro 方案',
         followUps: '对等待回复的邮件自动提醒',
         handOver: '助手一直处理到达成目标，Pro 方案',
@@ -804,9 +808,9 @@ export const zh: Messages = {
           snack: '1 个邮箱和基础过滤',
         },
         summary:
-          'SaneBox 把邮件分进文件夹，最高方案还能起草和总结。Fewmail 先替你读完所有邮件，只交给你一份简报和少数只有你能做的决定。',
+          'SaneBox 把邮件分进文件夹，最高方案还能起草和总结。Fewmail 先替你读完所有邮件，把少数只有你能做的决定集中在一页。',
         them: {
-          brief: '过滤后邮件的每日摘要',
+          home: '过滤后邮件的每日摘要',
           drafts: 'SaneDrafts，Dinner 方案',
           followUps: 'SaneNoReplies',
           importance: '不重要的邮件移到 SaneLater',
@@ -895,12 +899,12 @@ export const zh: Messages = {
       },
       {
         answer:
-          '草稿会使用你所回复邮件的语言。应用、简报和 Telegram 机器人则使用你从十五种语言中选定的一种。',
+          '草稿会使用你所回复邮件的语言。应用、摘要和 Telegram 机器人则使用你从十五种语言中选定的一种。',
         question: '它支持哪些语言？',
       },
       {
         answer:
-          '目前支持 Gmail 和 Google Workspace 账户。把多个邮箱添加到同一个 Fewmail，它们的邮件会汇入同一份简报和收件箱。',
+          '目前支持 Gmail 和 Google Workspace 账户。把多个邮箱添加到同一个 Fewmail，它们的邮件会汇入同一个“首页”和收件箱。',
         question: '支持哪些邮箱账户？',
       },
     ],
@@ -944,8 +948,8 @@ export const zh: Messages = {
         },
         voice: {
           description:
-            '在 Telegram、WhatsApp 或应用里收听简报，也可以发语音回复机器人。',
-          title: '收听简报',
+            '在“首页”点“收听”，就能听到需要你处理的事。在应用、Telegram 或 WhatsApp 里和助手说话，它会用语音回答。',
+          title: '听听需要你的事',
         },
         wrapped: {
           description:
@@ -991,18 +995,18 @@ export const zh: Messages = {
           problem: '答应了却忘了的事。',
         },
         {
-          fix: '只有紧急邮件才会在 Telegram 或 WhatsApp 里找你。其余的等早上的简报，简报也可以听。',
+          fix: '只有紧急邮件才会在 Telegram 或 WhatsApp 里找你。其余的已经整理好，在“首页”等你随时查看。',
           problem: '吃晚饭时还要看一眼邮件，以防万一。',
         },
       ],
       title: '这些邮件烦恼，从此不再有。',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: '需要你。',
         lead: (handled: string) =>
-          `Anna 在等合同，Northwind 的发票下周到期，Marco 想约周四。${handled} 封订阅邮件和通知已处理。`,
-        tag: '周四简报 · 08:00',
+          `Anna 在等合同，Northwind 的发票下周到期，Marco 想约周四。${handled} 封订阅邮件和通知已处理，新邮件一到，“首页”就会自动更新。`,
+        tag: '首页 · 周四 08:12',
         title: '有三件事需要你。',
       },
       fates: {
@@ -1043,7 +1047,7 @@ export const zh: Messages = {
       remindPlan: '加入你的账单，并在 11月19日提醒你。',
       start: '用 Google 免费开始',
       title: '邮件不该是你的工作。',
-      today: '今天',
+      home: '首页',
       tryQueue: '试试队列',
       unread: ((slots) => [slots.count, ' 封未读']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -1102,9 +1106,9 @@ export const zh: Messages = {
       pro: {
         description: '完整的助手：阅读、撰写、记忆。',
         features: [
-          '今天：每日简报和一个决定队列',
+          '首页：实时更新的决定队列，可逐条或批量批准',
           '用你的语气起草回复，经你批准才发送',
-          'Telegram：简报、批准和语音指令',
+          'Telegram：紧急邮件、批准和语音指令',
           '“交给代理”：代理把一段对话推进到目标',
           '记住承诺和联系人，用带图表的看板追踪钱或任何你关心的东西',
           '随意问你的邮件，还有供你自己的工具使用的 MCP',
@@ -1189,17 +1193,15 @@ export const zh: Messages = {
   },
   telegram: {
     approveAlike: '一次批准同一类的全部卡片：',
-    listen: '🔊 收听',
     heard: (text: string) => `听到的是：“${text}”`,
     voiceFailed: '我没听清。请再说一次，或直接输入。',
     help: '写下或说出你需要什么：\n• 询问邮件：“Netflix 什么时候续费？”\n• 告诉我回复什么：“告诉安娜我明天签字”\n• 交给我一件事：“建一个旅行看板”\n• 回复我的某个草稿来修改它',
     canceled: '已取消。草稿已回到队列。',
     sendingIn: (seconds: number) => `${seconds} 秒后发送`,
     undo: '撤销',
-    commands: { brief: '今日简报', queue: '需要你处理的事' },
+    commands: { queue: '需要你处理的事' },
     connectFirst: '请先打开 Fewmail → 设置 → 集成，然后点按“连接 Telegram”。',
-    connected:
-      '已连接。我会每天早上发送简报，有紧急邮件时立即提醒你。\n\n/brief：今日简报\n/queue：需要你处理的事',
+    connected: '已连接。有紧急邮件时我会立即提醒你。\n\n/queue：需要你处理的事',
     done: '完成',
     draft: '草稿：',
     edit: '编辑',
@@ -1228,13 +1230,11 @@ export const zh: Messages = {
       setUp: '设置',
       turnOn: '开启',
     },
-    later: (total: number, time: string) => `还有 ${total} 项将在 ${time} 送达`,
-    briefAt: (time: string) => `每天 ${time} 的简报`,
     dates: '日期和会议',
     done: '完成',
     firstRead: '正在读取你最近三天的邮件。需要你处理的事会自动出现在这里。',
     approvedMany: (n: number) => `已批准 ${n} 项`,
-    listen: '收听简报',
+    listen: '收听',
     handled: {
       spam: (n: number) => `已移到垃圾邮件 ${n} 封`,
       archived: (n: number) => `已归档 ${n} 封`,
@@ -1259,7 +1259,6 @@ export const zh: Messages = {
     recent: (period: string) => `${period}的其他邮件`,
     sent: '已发送',
     worthAttention: '值得关注',
-    writing: '正在撰写…',
   },
   boards: {
     addTo: '加入看板',
@@ -1531,16 +1530,15 @@ export const zh: Messages = {
       boards:
         'Fewmail Pro 的功能：描述要收集什么，代理会在你的邮件中找到它并持续更新。',
       drafts: 'Fewmail Pro 的功能：代理用你的风格写好回复，你修改后发送。',
+      home: 'Fewmail Pro 的功能：需要你处理的邮件，附带已写好的回复草稿，随新邮件到达实时更新。',
       tasks:
         'Fewmail Pro 的功能：把这个会话交给代理，它会处理到底，每发一封邮件前都会先问你。',
-      today:
-        'Fewmail Pro 的功能：每天早上一份简短简报、需要你处理的邮件，以及已写好的回复草稿。',
     },
   },
   whatsapp: {
     connectFirst: '请先打开 Fewmail → 设置 → 集成，然后点按“连接 WhatsApp”。',
     connected:
-      '已连接。我会每天早上发送简报，有紧急邮件时立即通知你。发送文字或语音即可回复任何邮件。',
+      '已连接。有紧急邮件时我会立即通知你。发送文字或语音即可回复任何邮件。',
     proOnly:
       'WhatsApp 是 Fewmail Pro 的功能。如需升级，请在 Fewmail 中打开 设置 → 方案。',
   },

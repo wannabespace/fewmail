@@ -24,7 +24,7 @@ export const ja: Messages = {
     dismissed: 'スキップ',
     done: '完了',
     failed: '失敗',
-    pending: '「今日」で待機中',
+    pending: '「ホーム」で待機中',
   },
   byRule: 'ルールによる',
   agent: {
@@ -157,7 +157,7 @@ export const ja: Messages = {
     thinking: 'メールを確認しています…',
   },
   compose: {
-    backInQueue: 'キャンセルしました。下書きは「今日」に戻りました。',
+    backInQueue: 'キャンセルしました。下書きは「ホーム」に戻りました。',
     canceled: 'キャンセルしました。メールはエディタに戻りました。',
     cc: 'Cc',
     discard: '破棄',
@@ -201,6 +201,7 @@ export const ja: Messages = {
     removeLink: 'リンクを削除',
   },
   calendar: {
+    tomorrow: '明日',
     noAccess: {
       allow: 'アクセスを許可',
       description:
@@ -256,7 +257,6 @@ export const ja: Messages = {
     mail: 'メール',
     nothingMatches: '一致するものはありません。',
     placeholder: 'メールについて質問、またはコマンドを実行…',
-    rewriteBrief: 'ブリーフを書き直す',
     teachRule: '新しいルールを教える',
     upgrade: 'Pro にアップグレード',
     theme: {
@@ -281,6 +281,10 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
+    approvePicked: (n: number) => `選択した${n}件を承認`,
+    pick: '選択',
+    pickAll: 'すべて選択',
+    unpick: '選択を解除',
     pin: 'ピン留め',
     unpin: 'ピン留めを外す',
     copyCode: 'コードをコピー',
@@ -349,7 +353,7 @@ export const ja: Messages = {
     continue: 'Google で続行',
     lead: 'Fewmail があなたの代わりに受信トレイを読み、あなたらしい文面で返信し、本当に必要なものだけをお見せします。',
     messengers:
-      'メッセンジャーでも使えます（まずは Telegram から）。ブリーフを受け取り、返信を承認し、音声メッセージで指示することもできます。',
+      'メッセンジャーでも使えます（まずは Telegram から）。急ぎのメールを受け取り、返信を承認し、音声メッセージで指示することもできます。',
     title: '大切なメールだけを。',
   },
   mail: {
@@ -418,7 +422,7 @@ export const ja: Messages = {
     attachment: '添付ファイル',
     draftReply: '返信を下書き',
     drafting: '下書き中…',
-    draftWaiting: '下書きが「今日」で待っています',
+    draftWaiting: '下書きが「ホーム」で待っています',
     due: (date: string) => `期限 ${date}`,
     dueHint: 'エージェントがこのメールで見つけた期限',
     empty: 'メールはありません',
@@ -472,7 +476,7 @@ export const ja: Messages = {
     settings: '設定',
     syncFailed: 'Gmail の同期に失敗しました。再試行中',
     syncing: '受信トレイを読んでいます…',
-    today: '今日',
+    home: 'ホーム',
     trialLeft: (total: number) => `Pro トライアル · 残り ${total} 日`,
     usage: (percent: number) => `エージェント · 今月の ${percent}% を使用`,
     watching: 'エージェントが受信トレイを見守っています',
@@ -495,7 +499,7 @@ export const ja: Messages = {
       `エージェントがメールから自動でまとめるページです。直近半年分から始めます。${max} 件まで選べます。自分のボードは後から追加できます。`,
     boardsTitle: 'エージェントに何を集めてもらいますか？',
     languageHint:
-      'アプリ、ブリーフ、要約、説明にこの言語を使います。返信は常に、返信するメールの言語に合わせます。',
+      'アプリ、要約、説明にこの言語を使います。返信は常に、返信するメールの言語に合わせます。',
     languageTitle: 'Fewmail は何語で話しましょうか？',
     lead: '2つの簡単な質問です。すべて後から設定で変更できます。',
     reading: '受信トレイを読んでいます…',
@@ -507,7 +511,7 @@ export const ja: Messages = {
     freeDescription:
       'シンプルなルールで、速く落ち着いたメールを。好きなだけ無料で使えます。',
     includes:
-      'Pro ではエージェントが加わります：毎日のブリーフ、すべてのメールの読み取りと要約、あなたの口調での返信の下書き、自然な言葉で書けるルール、Telegram と MCP。',
+      'Pro ではエージェントが加わります：すべてのメールの読み取りと要約、あなたの口調での返信の下書き、自然な言葉で書けるルール、Telegram と MCP。',
     manage: '支払いを管理',
     price: (usd: number) => `$${usd} / 月`,
     priceYearly: (usd: number) => `$${usd} / 年`,
@@ -537,6 +541,11 @@ export const ja: Messages = {
     usage: '今月',
   },
   queue: {
+    approve: '承認',
+    delete: '削除',
+    pick: '選択',
+    picked: (n: number) => `${n}件を選択中`,
+    unpick: '選択解除',
     askedByYou: 'あなたの依頼',
     draftedInVoice: 'あなたらしい文面で下書きしました',
     edit: '編集',
@@ -556,9 +565,9 @@ export const ja: Messages = {
     count: (n: number) => `${n} 件のルール`,
     delete: '削除',
     describe: {
-      alwaysShow: '常に「今日」に表示',
+      alwaysShow: '常に「ホーム」に表示',
       autonomous: '自動で実行し、対応済みに表示',
-      draft: '下書きが「今日」で待っています',
+      draft: '下書きが「ホーム」で待っています',
     },
     effect: {
       trash: 'ゴミ箱に移動',
@@ -596,13 +605,8 @@ export const ja: Messages = {
   settings: {
     readingDigest: {
       description:
-        'ブリーフの後、その日のメルマガを Telegram と WhatsApp にひとつのメッセージで届けます。',
+        '毎朝、前日のメルマガを Telegram と WhatsApp にひとつのメッセージで届けます。',
       title: 'メルマガのダイジェスト',
-    },
-    voiceBrief: {
-      description:
-        'ブリーフを Telegram と WhatsApp に音声メッセージでも届けます。',
-      title: '音声ブリーフ',
     },
     forward: {
       copy: 'アドレスをコピー',
@@ -639,24 +643,21 @@ export const ja: Messages = {
     },
     account: 'アカウント',
     agent: 'エージェント',
-    briefDescription: (timezone: string) =>
-      `あなたのタイムゾーン（${timezone}）で`,
-    briefTitle: 'デイリーブリーフ',
     deleteAccount: 'アカウントを削除',
     deleteConfirm: 'すべて削除',
     deleteDescription:
-      'アカウント、同期したメール、下書き、ルール、ブリーフを Fewmail からすぐに削除します。Gmail 自体には影響しません。',
+      'アカウント、同期したメール、下書き、ルールを Fewmail からすぐに削除します。Gmail 自体には影響しません。',
     deleteTitle: 'Fewmail アカウントを削除しますか？',
     cancel: 'キャンセル',
     integrations: '連携',
     language: '言語',
     languageDescription:
-      'アプリ、ブリーフ、要約に使います。返信はメールの言語に合わせます。',
+      'アプリ、ボット、要約に使います。返信はメールの言語に合わせます。',
     legal: '法的情報',
     mailboxes: {
       add: 'Gmailを追加',
       addDescription:
-        '別のGmailアカウントのメールも同じ「今日」と受信トレイに届きます。このアカウントでここにログインすることはできません。ログインすると別のFewmailが開きます。',
+        '別のGmailアカウントのメールも同じ「ホーム」と受信トレイに届きます。このアカウントでここにログインすることはできません。ログインすると別のFewmailが開きます。',
       added: 'メールボックスを追加しました。1分ほどでメールが表示されます。',
       failed:
         'メールボックスを追加できませんでした。Gmailへのアクセスを許可して、もう一度お試しください。',
@@ -676,13 +677,16 @@ export const ja: Messages = {
       defaultName: 'MCP クライアント',
       deny: '拒否',
       description:
-        'ブリーフとメールの閲覧、返信の下書き、あなたの確認後の送信ができます。',
+        'メールの閲覧、返信の下書き、あなたの確認後の送信ができます。',
       disconnect: '接続を解除',
       paste:
         'このURLをアプリのコネクタとして追加し、Fewmailにサインインしてください。',
       request: (app: string) => `${app}がFewmailへのアクセスを求めています`,
       title: 'Claude、Cursor、その他の MCP クライアントを接続',
     },
+    morningDescription: (timezone: string) =>
+      `メルマガのダイジェストと月曜の週次レポートを、あなたのタイムゾーン（${timezone}）で届けます`,
+    morningTitle: '朝のメッセージ',
     signedInWithGoogle: 'Google でログイン中',
     signOut: 'ログアウト',
     notifications: {
@@ -690,8 +694,8 @@ export const ja: Messages = {
         '通知がブロックされています。ブラウザのサイト設定で許可してください。',
       browser: 'このブラウザ',
       notConfigured: 'このサーバーではブラウザ通知が設定されていません。',
-      off: 'Fewmail を閉じていても、緊急のメールとデイリーブリーフをここで受け取れます。',
-      on: '緊急のメールとデイリーブリーフがここに届きます。同時に複数届いたときは 1 件にまとめます。',
+      off: 'Fewmail を閉じていても、緊急のメールをここで受け取れます。',
+      on: '緊急のメールがここに届きます。同時に複数届いたときは 1 件にまとめます。',
       title: '通知',
       unsupported: 'このブラウザは通知を表示できません。',
     },
@@ -699,17 +703,17 @@ export const ja: Messages = {
       connect: 'Telegram を接続',
       disconnect: '接続を解除',
       linked:
-        'ブリーフは毎朝、緊急のメールはすぐに届きます。下書きの承認や編集もチャットからできます。',
+        '緊急のメールはすぐに届きます。下書きの承認や編集もチャットからできます。',
       notConfigured: 'このサーバーでは Telegram ボットが設定されていません。',
-      unlinked: 'Telegram でブリーフを受け取り、下書きを承認できます。',
+      unlinked: 'Telegram で緊急のメールを受け取り、下書きを承認できます。',
     },
     whatsapp: {
       connect: 'WhatsApp を接続',
       disconnect: '接続を解除',
       linked:
-        'ブリーフは毎朝、緊急のメールはすぐに届きます。下書きの承認や編集もチャットからできます。',
+        '緊急のメールはすぐに届きます。下書きの承認や編集もチャットからできます。',
       notConfigured: 'このサーバーでは WhatsApp ボットが設定されていません。',
-      unlinked: 'WhatsApp でブリーフを受け取り、下書きを承認できます。',
+      unlinked: 'WhatsApp で緊急のメールを受け取り、下書きを承認できます。',
     },
     title: '設定',
   },
@@ -775,7 +779,7 @@ export const ja: Messages = {
       },
       labels: {
         ask: 'メールに何でも質問',
-        brief: '毎日のブリーフ',
+        home: '対応が必要なことを 1 ページに',
         calendar: 'カレンダー',
         drafts: '返信の下書き',
         followUps: 'フォローアップのリマインダー',
@@ -801,7 +805,7 @@ export const ja: Messages = {
       noFreePlan: '無料プランなし',
       ours: {
         ask: 'Pro で',
-        brief: 'あなたの言語で、Pro で',
+        home: 'リアルタイムで更新、まとめて承認、Pro で',
         drafts: 'あなたの口調で。送信は承認したときだけ、Pro で',
         followUps: '返信を待っているメールに自動で',
         handOver: 'エージェントが目的まで進める、Pro で',
@@ -831,9 +835,9 @@ export const ja: Messages = {
           snack: 'メールボックス 1 つと基本のフィルター',
         },
         summary:
-          'SaneBox はメールをフォルダに仕分け、最上位プランでは下書きと要約もします。Fewmail は先にすべてを読み、ひとつのブリーフと、あなたにしかできない少しの判断だけを渡します。',
+          'SaneBox はメールをフォルダに仕分け、最上位プランでは下書きと要約もします。Fewmail は先にすべてを読み、あなたにしかできない少しの判断だけを 1 ページにまとめます。',
         them: {
-          brief: 'フィルターされたメールの毎日のダイジェスト',
+          home: 'フィルターされたメールの毎日のダイジェスト',
           drafts: 'SaneDrafts、Dinner で',
           followUps: 'SaneNoReplies',
           importance: '重要でないメールを SaneLater へ移動',
@@ -922,12 +926,12 @@ export const ja: Messages = {
       },
       {
         answer:
-          '下書きは、返信するメールと同じ言語で書かれます。アプリ、ブリーフ、Telegram ボットは、15 言語から選んだひとつの言語で話します。',
+          '下書きは、返信するメールと同じ言語で書かれます。アプリ、要約、Telegram ボットは、15 言語から選んだひとつの言語で話します。',
         question: '対応している言語は？',
       },
       {
         answer:
-          '現在は Gmail と Google Workspace のアカウントに対応しています。ひとつの Fewmail に複数のメールボックスを追加すれば、すべてのメールが同じブリーフと受信トレイに届きます。',
+          '現在は Gmail と Google Workspace のアカウントに対応しています。ひとつの Fewmail に複数のメールボックスを追加すれば、すべてのメールが同じ「ホーム」と受信トレイに届きます。',
         question: 'どのメールアカウントで使えますか？',
       },
     ],
@@ -972,8 +976,8 @@ export const ja: Messages = {
         },
         voice: {
           description:
-            'ブリーフは Telegram、WhatsApp、アプリで聞けます。ボットには音声メッセージで返事ができます。',
-          title: 'ブリーフを聞く',
+            '「ホーム」で「聞く」を押すと、対応が必要なことを読み上げます。アプリ、Telegram、WhatsApp でエージェントに話しかければ、声で答えます。',
+          title: '対応が必要なことを聞く',
         },
         wrapped: {
           description:
@@ -1020,18 +1024,18 @@ export const ja: Messages = {
           problem: '約束したのに忘れていたこと。',
         },
         {
-          fix: 'Telegram や WhatsApp に届くのは急ぎのメールだけ。残りは朝のブリーフで待っていて、ブリーフは音声でも聞けます。',
+          fix: 'Telegram や WhatsApp に届くのは急ぎのメールだけ。残りは仕分け済みで「ホーム」に並び、好きなときに確認できます。',
           problem: '念のため、夕食中もメールを確認すること。',
         },
       ],
       title: 'メールの悩みは、もう過去のもの。',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: 'あなたの出番',
         lead: (handled: string) =>
-          `Anna は契約書を待っていて、Northwind の請求書は来週が支払期限、Marco は木曜に時間を取りたいそうです。ニュースレターと通知 ${handled} 通は対応済みです。`,
-        tag: '木曜日のブリーフ · 08:00',
+          `Anna は契約書を待っていて、Northwind の請求書は来週が支払期限、Marco は木曜に時間を取りたいそうです。ニュースレターと通知 ${handled} 通は対応済み。新しいメールが届くたびに「ホーム」は自動で更新されます。`,
+        tag: 'ホーム · 木曜日 08:12',
         title: 'あなたの出番は 3 つ。',
       },
       fates: {
@@ -1079,7 +1083,7 @@ export const ja: Messages = {
       remindPlan: '請求の一覧に追加して、11月19日にお知らせします。',
       start: 'Google で無料で始める',
       title: 'メールは、あなたの仕事じゃない。',
-      today: '今日',
+      home: 'ホーム',
       tryQueue: 'キューを試す',
       unread: ((slots) => ['未読 ', slots.count, ' 件']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -1139,9 +1143,9 @@ export const ja: Messages = {
       pro: {
         description: 'エージェントのすべて：読み、書き、覚える。',
         features: [
-          '今日：毎日のブリーフと、判断のためのキューがひとつ',
+          'ホーム：リアルタイムで更新される判断のキュー、1 件ずつでもまとめてでも承認',
           'あなたの口調で返信を下書きし、承認したときだけ送信',
-          'Telegram：ブリーフ、承認、音声での指示',
+          'Telegram：急ぎのメール、承認、音声での指示',
           '「これを任せる」：エージェントがスレッドを目的まで進める',
           '約束と相手のことを記憶。お金など追跡したいものはグラフ付きのボードに',
           'メールに何でも質問。自分のツール向けの MCP も',
@@ -1228,7 +1232,6 @@ export const ja: Messages = {
   },
   telegram: {
     approveAlike: '同じ種類のカードをまとめて承認：',
-    listen: '🔊 聞く',
     heard: (text: string) => `聞き取った内容：「${text}」`,
     voiceFailed:
       'うまく聞き取れませんでした。もう一度話すか、入力してください。',
@@ -1236,11 +1239,11 @@ export const ja: Messages = {
     canceled: 'キャンセルしました。下書きはキューに戻りました。',
     sendingIn: (seconds: number) => `${seconds}秒後に送信`,
     undo: '元に戻す',
-    commands: { brief: '今日のブリーフ', queue: '対応が必要なもの' },
+    commands: { queue: '対応が必要なもの' },
     connectFirst:
       '先に Fewmail → 設定 → 連携 を開き、「Telegram を接続」をタップしてください。',
     connected:
-      '接続しました。毎朝ブリーフをお送りし、緊急の連絡が届いたらすぐにお知らせします。\n\n/brief：今日のブリーフ\n/queue：対応が必要なもの',
+      '接続しました。緊急の連絡が届いたらすぐにお知らせします。\n\n/queue：対応が必要なもの',
     done: '完了',
     draft: '下書き：',
     edit: '編集',
@@ -1270,14 +1273,12 @@ export const ja: Messages = {
       setUp: '設定する',
       turnOn: 'オンにする',
     },
-    later: (total: number, time: string) => `${time}にあと${total}件届きます`,
-    briefAt: (time: string) => `毎日 ${time} のブリーフ`,
     dates: '日付と予定',
     done: '完了',
     firstRead:
       '直近3日分のメールを読んでいます。対応が必要なものはここに自動で表示されます。',
     approvedMany: (n: number) => `${n}件を承認しました`,
-    listen: 'ブリーフを聞く',
+    listen: '聞く',
     handled: {
       spam: (n: number) => `${n} 件迷惑メール`,
       archived: (n: number) => `${n} 件アーカイブ`,
@@ -1305,7 +1306,6 @@ export const ja: Messages = {
     recent: (period: string) => `${period}のその他`,
     sent: '送信済み',
     worthAttention: '目を通す価値あり',
-    writing: '作成中…',
   },
   boards: {
     addTo: 'ボードに追加',
@@ -1586,17 +1586,16 @@ export const ja: Messages = {
         'Fewmail Pro の機能です。集めたいものを書くと、エージェントがメールから探し出し、最新の状態に保ちます。',
       drafts:
         'Fewmail Pro の機能です。エージェントがあなたの文体で返信を書き、あなたが編集して送信します。',
+      home: 'Fewmail Pro の機能です。あなたが対応すべきメールが、下書き済みの返信付きで、メールが届くたびに更新されます。',
       tasks:
         'Fewmail Pro の機能です。スレッドをエージェントに任せると、メールを送る前に毎回確認しながら最後までやり遂げます。',
-      today:
-        'Fewmail Pro の機能です。あなたが対応すべきメールが、下書き済みの返信付きで、メールが届くたびに更新されます。',
     },
   },
   whatsapp: {
     connectFirst:
       '先に Fewmail → 設定 → 連携 を開き、「WhatsApp を接続」をタップしてください。',
     connected:
-      '接続しました。毎朝ブリーフを送り、緊急のメールが届いたらお知らせします。テキストや音声メッセージで、どのメールにも返信できます。',
+      '接続しました。緊急のメールが届いたらお知らせします。テキストや音声メッセージで、どのメールにも返信できます。',
     proOnly:
       'WhatsApp は Fewmail Pro の機能です。アップグレードするには Fewmail の 設定 → プラン を開いてください。',
   },

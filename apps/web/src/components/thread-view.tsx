@@ -67,12 +67,12 @@ export const useThread = (threadId: string | undefined) =>
       : undefined
   )
 
-const riskOf = (rows: { message: ThreadMessage }[]) =>
 const isThreadPinned = (
   thread: ReturnType<typeof useThread>['data'] | undefined
 ) =>
   !!thread?.messages.some(({ message }) => message.labelIds.includes('STARRED'))
 
+const riskOf = (rows: { message: ThreadMessage }[]) =>
   rows.findLast(({ message }) => message.risk)?.message ?? null
 
 const riskText = (t: Messages, rows: { message: ThreadMessage }[]) => {
@@ -407,7 +407,6 @@ export const useMailActions = (onDone?: () => void) => {
         onSuccess: () => finish(t.mail.movedToInbox),
       })
     ),
-    reportSpam: useMutation(
     pin: useMutation(
       orpc.mail.pin.mutationOptions({
         onMutate: ({ messageId, pinned }) => {
@@ -419,6 +418,7 @@ export const useMailActions = (onDone?: () => void) => {
         onSettled: refresh,
       })
     ),
+    reportSpam: useMutation(
       orpc.mail.reportSpam.mutationOptions({
         ...leave,
         onSuccess: () => finish(t.mail.reportedSpam),
@@ -581,10 +581,10 @@ export const ThreadView = ({
   const target = latest ? { messageId: latest.message.id } : null
   const labelIds = latest?.message.labelIds ?? []
   const sweep = sweepOf(actions, t, placeOf(labelIds, isSnoozed))
-  const reply = () =>
-    latest &&
   const isPinned = isThreadPinned(data)
   const togglePin = () => target && pin.mutate({ ...target, pinned: !isPinned })
+  const reply = () =>
+    latest &&
     setComposing({
       ...EMPTY_DRAFT,
       mode: 'reply',
@@ -606,9 +606,9 @@ export const ThreadView = ({
   useHotkey('F', forward, keys)
   useHotkey('E', () => target && sweep.action.mutate(target), keys)
   useHotkey('H', () => setIsSnoozeOpen(true), keys)
+  useHotkey('S', togglePin, keys)
   useHotkey('Shift+3', () => target && trash.mutate(target), keys)
   useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
-  useHotkey('S', togglePin, keys)
 
   if (!data) {
     return null
@@ -694,16 +694,16 @@ export const ThreadView = ({
                         {t.tasks.handle}
                       </DropdownMenuItem>
                     )}
+                    <DropdownMenuItem onClick={togglePin}>
+                      {isPinned ? t.mail.unpin : t.mail.pin}
+                      <DropdownMenuShortcut>S</DropdownMenuShortcut>
+                    </DropdownMenuItem>
                     <AddToBoardItems messageId={target.messageId} />
                     <DropdownMenuItem onClick={forward}>
                       {t.mail.forward}
                       <DropdownMenuShortcut>F</DropdownMenuShortcut>
                     </DropdownMenuItem>
                     {latest?.message.listUnsubscribe && (
-                    <DropdownMenuItem onClick={togglePin}>
-                      {isPinned ? t.mail.unpin : t.mail.pin}
-                      <DropdownMenuShortcut>S</DropdownMenuShortcut>
-                    </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => unsubscribe.mutate(target)}
                       >

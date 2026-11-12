@@ -133,7 +133,7 @@ export const it: Messages = {
     thinking: 'Sto cercando nella tua posta…',
   },
   compose: {
-    backInQueue: 'Annullato. La bozza è di nuovo in Oggi.',
+    backInQueue: 'Annullato. La bozza è di nuovo in Home.',
     canceled: 'Annullato. La tua email è di nuovo nell’editor.',
     cc: 'Cc',
     discard: 'Elimina',
@@ -248,7 +248,7 @@ export const it: Messages = {
       },
       labels: {
         ask: 'Chiedi qualsiasi cosa alla tua posta',
-        brief: 'Brief quotidiano',
+        home: 'Ciò che ha bisogno di te, in una sola pagina',
         calendar: 'Calendario',
         drafts: 'Risposte scritte per te',
         followUps: 'Promemoria per i solleciti',
@@ -274,7 +274,7 @@ export const it: Messages = {
       noFreePlan: 'Nessun piano gratuito',
       ours: {
         ask: 'Con Pro',
-        brief: 'Nella tua lingua, con Pro',
+        home: 'In tempo reale, approvazione in blocco, con Pro',
         drafts: 'Con la tua voce, inviate solo quando approvi, con Pro',
         followUps: 'Automatici, sulle email che attendono risposta',
         handOver: 'L’agente la porta al suo obiettivo, con Pro',
@@ -304,9 +304,9 @@ export const it: Messages = {
           snack: '1 casella e filtri di base',
         },
         summary:
-          'SaneBox smista la posta nelle cartelle e, nel piano più alto, scrive bozze e riassunti. Fewmail legge prima tutto e ti consegna un solo brief e le poche decisioni che spettano solo a te.',
+          'SaneBox smista la posta nelle cartelle e, nel piano più alto, scrive bozze e riassunti. Fewmail legge prima tutto e raccoglie in una sola pagina le poche decisioni che spettano solo a te.',
         them: {
-          brief: 'Un riepilogo quotidiano della posta filtrata',
+          home: 'Un riepilogo quotidiano della posta filtrata',
           drafts: 'SaneDrafts, con Dinner',
           followUps: 'SaneNoReplies',
           importance: 'La posta meno importante va in SaneLater',
@@ -396,12 +396,12 @@ export const it: Messages = {
       },
       {
         answer:
-          'Le bozze sono scritte nella lingua dell’email a cui rispondi. L’app, il brief e il bot Telegram parlano la lingua che scegli, tra quindici.',
+          'Le bozze sono scritte nella lingua dell’email a cui rispondi. L’app, i riassunti e il bot Telegram parlano la lingua che scegli, tra quindici.',
         question: 'Quali lingue parla?',
       },
       {
         answer:
-          'Per ora account Gmail e Google Workspace. Aggiungi più caselle a un solo Fewmail e la loro posta arriva nello stesso brief e nella stessa casella.',
+          'Per ora account Gmail e Google Workspace. Aggiungi più caselle a un solo Fewmail e la loro posta arriva nella stessa Home e nella stessa casella.',
         question: 'Quali account email funzionano?',
       },
     ],
@@ -446,8 +446,8 @@ export const it: Messages = {
         },
         voice: {
           description:
-            'Ascolta il brief su Telegram, WhatsApp o nell’app, e rispondi al bot con un vocale.',
-          title: 'Ascolta il brief',
+            'Premi Ascolta in Home e senti ciò che ha bisogno di te. Parla con l’agente nell’app, su Telegram o su WhatsApp e ti risponde a voce.',
+          title: 'Ascolta ciò che ha bisogno di te',
         },
         wrapped: {
           description:
@@ -494,18 +494,18 @@ export const it: Messages = {
           problem: 'Quella cosa che avevi promesso e poi dimenticato.',
         },
         {
-          fix: 'Solo la posta urgente ti raggiunge su Telegram o WhatsApp. Il resto aspetta il brief del mattino, che puoi anche ascoltare.',
+          fix: 'Solo la posta urgente ti raggiunge su Telegram o WhatsApp. Il resto ti aspetta in Home, già in ordine, per quando vuoi guardarlo.',
           problem: 'Controllare la posta a cena, per sicurezza.',
         },
       ],
       title: 'I problemi di posta che non avrai più.',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: 'hanno bisogno di te.',
         lead: (handled: string) =>
-          `Anna aspetta il contratto, la fattura di Northwind scade la settimana prossima e Marco vuole giovedì. ${handled} newsletter e notifiche sono state gestite.`,
-        tag: 'Brief di giovedì · 08:00',
+          `Anna aspetta il contratto, la fattura di Northwind scade la settimana prossima e Marco vuole giovedì. ${handled} newsletter e notifiche sono state gestite, e Home si aggiorna da sola appena arriva nuova posta.`,
+        tag: 'Home · giovedì, 08:12',
         title: 'Tre cose hanno bisogno di te.',
       },
       fates: {
@@ -550,7 +550,7 @@ export const it: Messages = {
       remindPlan: 'La aggiunge alle tue bollette e te la ricorda il 19 nov.',
       start: 'Inizia gratis con Google',
       title: 'La posta non è il tuo lavoro.',
-      today: 'Oggi',
+      home: 'Home',
       tryQueue: 'Prova la coda',
       unread: ((slots) => [slots.count, ' non lette']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -609,9 +609,9 @@ export const it: Messages = {
       pro: {
         description: 'L’agente completo: legge, scrive e ricorda.',
         features: [
-          'Oggi: un brief quotidiano e una sola coda di decisioni',
+          'Home: una sola coda di decisioni in tempo reale, da approvare una alla volta o in blocco',
           'Risposte scritte con la tua voce, inviate solo quando approvi',
-          'Telegram: il brief, le approvazioni e le istruzioni vocali',
+          'Telegram: la posta urgente, le approvazioni e le istruzioni vocali',
           '«Occupatene tu»: l’agente porta un thread al suo obiettivo',
           'Promesse e persone ricordate, bacheche con grafici per i soldi o qualsiasi cosa tu segua',
           'Chiedi qualsiasi cosa alla tua posta, più MCP per i tuoi strumenti',
@@ -695,10 +695,11 @@ export const it: Messages = {
     dismissed: 'saltato',
     done: 'fatto',
     failed: 'non riuscito',
-    pending: 'in attesa in Oggi',
+    pending: 'in attesa in Home',
   },
   byRule: 'da una regola',
   calendar: {
+    tomorrow: 'Domani',
     noAccess: {
       allow: 'Consenti accesso',
       description:
@@ -754,7 +755,6 @@ export const it: Messages = {
     mail: 'Posta',
     nothingMatches: 'Nessun risultato.',
     placeholder: 'Chiedi della tua posta o esegui un comando…',
-    rewriteBrief: 'Riscrivi il brief',
     upgrade: 'Passa a Pro',
     teachRule: 'Insegna una nuova regola',
     theme: {
@@ -779,6 +779,10 @@ export const it: Messages = {
     reload: 'Ricarica',
   },
   keys: {
+    approvePicked: (n: number) => `approva ${n} selezionati`,
+    pick: 'seleziona',
+    pickAll: 'seleziona tutto',
+    unpick: 'annulla selezione',
     pin: 'fissa',
     unpin: 'sblocca',
     copyCode: 'copia codice',
@@ -847,7 +851,7 @@ export const it: Messages = {
     continue: 'Continua con Google',
     lead: 'Fewmail legge la posta per te, risponde con la tua voce e ti mostra solo ciò che ha davvero bisogno di te.',
     messengers:
-      'Funziona anche nelle app di messaggistica, a partire da Telegram: ricevi il brief, approva le risposte o invia semplicemente un vocale.',
+      'Funziona anche nelle app di messaggistica, a partire da Telegram: ricevi la posta urgente, approva le risposte o invia semplicemente un vocale.',
     title: 'Solo ciò che conta.',
   },
   mail: {
@@ -918,7 +922,7 @@ export const it: Messages = {
     attachment: 'allegato',
     draftReply: 'Scrivi bozza',
     drafting: 'Scrivo…',
-    draftWaiting: 'La bozza ti aspetta in Oggi',
+    draftWaiting: 'La bozza ti aspetta in Home',
     due: (date: string) => `scade il ${date}`,
     dueHint: 'Scadenza trovata dall’agente in questa email',
     empty: 'Nessuna email qui',
@@ -973,7 +977,7 @@ export const it: Messages = {
     settings: 'Impostazioni',
     syncFailed: 'Sincronizzazione Gmail non riuscita, riprovo',
     syncing: 'Leggo la tua posta…',
-    today: 'Oggi',
+    home: 'Home',
     trialLeft: (total: number) =>
       plural('it', total, {
         one: (n) => `Prova Pro · ${n} giorno rimasto`,
@@ -1005,7 +1009,7 @@ export const it: Messages = {
       `Pagine che l’agente riempie con la tua posta, a partire dagli ultimi sei mesi. Scegline fino a ${max}; le tue puoi aggiungerle dopo.`,
     boardsTitle: 'Cosa deve raccogliere l’agente per te?',
     languageHint:
-      'App, brief, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
+      'App, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
     languageTitle: 'In che lingua deve parlare Fewmail?',
     lead: 'Due risposte veloci. Puoi cambiare tutto più tardi nelle Impostazioni.',
     reading: 'Leggo la tua posta…',
@@ -1017,7 +1021,7 @@ export const it: Messages = {
     freeDescription:
       'Email veloce e tranquilla con regole semplici. Gratis per tutto il tempo che vuoi.',
     includes:
-      'Pro aggiunge l’agente: un riepilogo quotidiano, ogni email letta e riassunta, risposte scritte con la tua voce, regole a parole semplici, Telegram e MCP.',
+      'Pro aggiunge l’agente: ogni email letta e riassunta, risposte scritte con la tua voce, regole a parole semplici, Telegram e MCP.',
     manage: 'Gestisci fatturazione',
     price: (usd: number) => `$${usd} / mese`,
     priceYearly: (usd: number) => `$${usd} / anno`,
@@ -1047,6 +1051,11 @@ export const it: Messages = {
     usage: 'Questo mese',
   },
   queue: {
+    approve: 'Approva',
+    delete: 'Elimina',
+    pick: 'Seleziona',
+    picked: (n: number) => `${n} selezionati`,
+    unpick: 'Deseleziona',
     askedByYou: 'Richiesto da te',
     draftedInVoice: 'Scritto con la tua voce',
     edit: 'Modifica',
@@ -1066,9 +1075,9 @@ export const it: Messages = {
       }),
     delete: 'Elimina',
     describe: {
-      alwaysShow: 'Arriva sempre in Oggi',
+      alwaysShow: 'Arriva sempre in Home',
       autonomous: 'Fatto in autonomia, elencato tra le gestite',
-      draft: 'Una bozza ti aspetta in Oggi',
+      draft: 'Una bozza ti aspetta in Home',
     },
     effect: {
       trash: 'Spostala nel cestino',
@@ -1106,13 +1115,8 @@ export const it: Messages = {
   settings: {
     readingDigest: {
       description:
-        'Dopo il riepilogo, le newsletter del giorno arrivano su Telegram e WhatsApp in un solo messaggio.',
+        'Ogni mattina, le newsletter dell’ultimo giorno arrivano su Telegram e WhatsApp in un solo messaggio.',
       title: 'Riepilogo newsletter',
-    },
-    voiceBrief: {
-      description:
-        'Il riepilogo arriva anche su Telegram e WhatsApp come messaggio vocale.',
-      title: 'Riepilogo vocale',
     },
     forward: {
       copy: 'Copia indirizzo',
@@ -1148,23 +1152,23 @@ export const it: Messages = {
     },
     account: 'Account',
     agent: 'Agente',
-    briefDescription: (timezone: string) => `Nel tuo fuso orario, ${timezone}`,
-    briefTitle: 'Brief giornaliero',
+    morningDescription: (timezone: string) =>
+      `Riepilogo delle newsletter e report settimanale del lunedì, nel tuo fuso orario, ${timezone}`,
+    morningTitle: 'Messaggi del mattino',
     deleteAccount: 'Elimina account',
     deleteConfirm: 'Elimina tutto',
     deleteDescription:
-      'Elimina subito da Fewmail il tuo account, la posta sincronizzata, bozze, regole e brief. Il tuo Gmail non viene toccato.',
+      'Elimina subito da Fewmail il tuo account, la posta sincronizzata, le bozze e le regole. Il tuo Gmail non viene toccato.',
     deleteTitle: 'Eliminare il tuo account Fewmail?',
     cancel: 'Annulla',
     integrations: 'Integrazioni',
     language: 'Lingua',
-    languageDescription:
-      'App, brief e riepiloghi. Le risposte seguono l’email.',
+    languageDescription: 'App, bot e riepiloghi. Le risposte seguono l’email.',
     legal: 'Note legali',
     mailboxes: {
       add: 'Aggiungi Gmail',
       addDescription:
-        'La posta di un altro account Gmail arriva nello stesso Oggi e nella stessa casella. Non fa mai accedere nessuno qui: accedere con quell’account apre un Fewmail separato.',
+        'La posta di un altro account Gmail arriva nella stessa Home e nella stessa casella. Non fa mai accedere nessuno qui: accedere con quell’account apre un Fewmail separato.',
       added: 'Casella aggiunta. La posta compare tra un minuto.',
       failed:
         'Impossibile aggiungere la casella. Consenti l’accesso a Gmail e riprova.',
@@ -1183,7 +1187,7 @@ export const it: Messages = {
       defaultName: 'Client MCP',
       deny: 'Rifiuta',
       description:
-        'Possono leggere il tuo brief e la posta, scrivere bozze e inviarle dopo la tua conferma.',
+        'Possono leggere la tua posta, scrivere bozze e inviarle dopo la tua conferma.',
       disconnect: 'Scollega',
       paste:
         'Aggiungi questo URL come connettore nella tua app, poi accedi a Fewmail.',
@@ -1198,8 +1202,8 @@ export const it: Messages = {
       browser: 'Questo browser',
       notConfigured:
         'Le notifiche del browser non sono configurate su questo server.',
-      off: 'Ricevi qui le email urgenti e il brief giornaliero, anche con Fewmail chiuso.',
-      on: 'Le email urgenti e il brief giornaliero compaiono qui. Più insieme arrivano come una sola.',
+      off: 'Ricevi qui le email urgenti, anche con Fewmail chiuso.',
+      on: 'Le email urgenti compaiono qui. Più insieme arrivano come una sola.',
       title: 'Notifiche',
       unsupported: 'Questo browser non può mostrare notifiche.',
     },
@@ -1207,17 +1211,17 @@ export const it: Messages = {
       connect: 'Collega Telegram',
       disconnect: 'Scollega',
       linked:
-        'Il brief arriva ogni mattina, la posta urgente subito. Approva e modifica le bozze dalla chat.',
+        'La posta urgente arriva subito. Approva e modifica le bozze dalla chat.',
       notConfigured: 'Il bot Telegram non è configurato su questo server.',
-      unlinked: 'Ricevi il brief e approva le bozze da Telegram.',
+      unlinked: 'Ricevi la posta urgente e approva le bozze da Telegram.',
     },
     whatsapp: {
       connect: 'Collega WhatsApp',
       disconnect: 'Scollega',
       linked:
-        'Il brief arriva ogni mattina, la posta urgente subito. Approva e modifica le bozze dalla chat.',
+        'La posta urgente arriva subito. Approva e modifica le bozze dalla chat.',
       notConfigured: 'Il bot WhatsApp non è configurato su questo server.',
-      unlinked: 'Ricevi il brief e approva le bozze da WhatsApp.',
+      unlinked: 'Ricevi la posta urgente e approva le bozze da WhatsApp.',
     },
     title: 'Impostazioni',
   },
@@ -1246,18 +1250,17 @@ export const it: Messages = {
   },
   telegram: {
     approveAlike: 'Approva insieme tutte le schede di un tipo:',
-    listen: '🔊 Ascolta',
     heard: (text: string) => `Ho sentito: “${text}”`,
     voiceFailed: 'Non ho capito. Riprova o scrivilo.',
     help: 'Scrivi o di’ cosa ti serve:\n• chiedi della tua posta: «quando si rinnova Netflix?»\n• di’ cosa rispondere: «di’ ad Anna che firmo domani»\n• dammi un compito: «crea una bacheca per i viaggi»\n• rispondi a una mia bozza per cambiarla',
     canceled: 'Annullato. La bozza è di nuovo nella tua coda.',
     sendingIn: (seconds: number) => `Invio tra ${seconds} s`,
     undo: 'Annulla',
-    commands: { brief: 'Brief di oggi', queue: 'Cosa ti aspetta' },
+    commands: { queue: 'Cosa ti aspetta' },
     connectFirst:
       'Prima apri Fewmail → Impostazioni → Integrazioni e tocca “Collega Telegram”.',
     connected:
-      'Collegato. Ti invierò il brief ogni mattina e ti avviserò quando arriva qualcosa di urgente.\n\n/brief: brief di oggi\n/queue: cosa ti aspetta',
+      'Collegato. Ti avviserò quando arriva qualcosa di urgente.\n\n/queue: cosa ti aspetta',
     done: 'Fatto',
     draft: 'Bozza:',
     edit: 'Modifica',
@@ -1287,19 +1290,12 @@ export const it: Messages = {
       setUp: 'Configura',
       turnOn: 'Attiva',
     },
-    later: (total: number, time: string) =>
-      plural('it', total, {
-        one: () => `Un’altra arriva alle ${time}`,
-        many: (n) => `Altre ${n} arrivano alle ${time}`,
-        other: (n) => `Altre ${n} arrivano alle ${time}`,
-      }),
-    briefAt: (time: string) => `brief ogni giorno alle ${time}`,
     dates: 'Date e riunioni',
     done: 'Fatto',
     firstRead:
       'Sto leggendo la posta degli ultimi tre giorni. Ciò che ha bisogno di te comparirà qui da solo.',
     approvedMany: (n: number) => `${n} approvate`,
-    listen: 'Ascolta il riepilogo',
+    listen: 'Ascolta',
     handled: {
       spam: (n: number) => `Nello spam: ${n}`,
       archived: (n: number) => `Archiviate: ${n}`,
@@ -1332,7 +1328,6 @@ export const it: Messages = {
     recent: (period: string) => `Anche ${period}`,
     sent: 'Inviata',
     worthAttention: 'Merita attenzione',
-    writing: 'Scrivo…',
   },
   boards: {
     addTo: 'Aggiungi a una bacheca',
@@ -1652,17 +1647,16 @@ export const it: Messages = {
         'Incluso in Fewmail Pro: descrivi cosa raccogliere e l’agente lo trova nella tua posta e lo tiene aggiornato.',
       drafts:
         'Incluso in Fewmail Pro: l’agente scrive la risposta nel tuo stile, tu la modifichi e la invii.',
+      home: 'Incluso in Fewmail Pro: le email che hanno bisogno di te, con le risposte già scritte, aggiornate man mano che arriva la posta.',
       tasks:
         'Incluso in Fewmail Pro: affida la conversazione all’agente e lui la porta a termine, chiedendo prima di ogni email che invia.',
-      today:
-        'Incluso in Fewmail Pro: le email che hanno bisogno di te, con le risposte già scritte, aggiornate man mano che arriva la posta.',
     },
   },
   whatsapp: {
     connectFirst:
       'Prima apri Fewmail → Impostazioni → Integrazioni e tocca “Collega WhatsApp”.',
     connected:
-      'Collegato. Ti invierò il brief ogni mattina e ti scriverò quando arriva qualcosa di urgente. Manda un testo o un vocale per rispondere a qualsiasi email.',
+      'Collegato. Ti scriverò quando arriva qualcosa di urgente. Manda un testo o un vocale per rispondere a qualsiasi email.',
     proOnly:
       'WhatsApp fa parte di Fewmail Pro. Apri Impostazioni → Piano in Fewmail per passare a Pro.',
   },

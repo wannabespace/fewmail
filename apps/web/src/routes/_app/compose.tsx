@@ -16,7 +16,7 @@ const ComposePage = () => {
   const leave = () =>
     router.history.canGoBack()
       ? router.history.back()
-      : router.navigate({ to: hasAgent ? '/today' : '/mail' })
+      : router.navigate({ to: hasAgent ? '/home' : '/mail' })
   useHotkey('Escape', leave, { ignoreInputs: true })
 
   return (

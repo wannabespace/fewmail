@@ -11,7 +11,7 @@ export const authClient = createAuthClient({
   plugins: [oauthProviderClient()],
 })
 
-export const signInWithGoogle = (path = '/today') =>
+export const signInWithGoogle = (path = '/home') =>
   authClient.signIn.social({
     callbackURL: `${location.origin}${path}`,
     provider: 'google',

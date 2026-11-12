@@ -87,7 +87,7 @@ const unopenedSenders = async (userId: string): Promise<CleanupSender[]> => {
 
 const CLEANUP_EVERY_DAYS = 6
 
-/** Once a week, on Sunday after the brief hour, one card offers to unsubscribe from everything unopened. `cleanupCheckedAt` is set before looking, so a week with nothing to offer is not looked at again every minute. */
+/** Once a week, on Sunday after the morning hour (`briefHour`), one card offers to unsubscribe from everything unopened. `cleanupCheckedAt` is set before looking, so a week with nothing to offer is not looked at again every minute. */
 export const offerCleanup = async (
   settings: typeof userSettings.$inferSelect
 ) => {

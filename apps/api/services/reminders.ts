@@ -266,7 +266,7 @@ const isDueMorning = (dueAt: Date, timezone: string) => {
   return date > dueDate || (date === dueDate && hour >= MORNING_HOUR)
 }
 
-/** A promise surfaces on its due morning as a Today card; approving it closes the commitment. */
+/** A promise surfaces on its due morning as a Home card; approving it closes the commitment. */
 export const processDueCommitments = async () => {
   const candidates = await db
     .select({

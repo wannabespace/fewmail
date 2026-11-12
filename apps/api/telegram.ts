@@ -11,9 +11,8 @@ import { canSpeak, speak } from './lib/elevenlabs'
 import { logError } from './lib/log'
 import { linkTelegramChat, userIdForChat } from './services/integrations'
 import type { listQueue } from './services/mail'
-import type { BriefMessage, Button, Channel, Reply } from './services/messenger'
+import type { Button, Channel, Reply, Run } from './services/messenger'
 import {
-  briefReply,
   readingReply,
   failureText,
   follow,
@@ -24,7 +23,9 @@ import {
   messagesFor,
   press,
   remember,
+  runReply,
   splitText,
+  weekReply,
 } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 
@@ -101,7 +102,6 @@ const messagesForChat = (ctx: Context) =>
   messages[matchLocale([ctx.from?.language_code ?? 'en'])]
 
 const commandsFor = (t: Messages) => [
-  { command: 'brief', description: t.telegram.commands.brief },
   { command: 'queue', description: t.telegram.commands.queue },
   ...SKILLS.map((skill) => ({ command: skill, description: t.skills[skill] })),
 ]
@@ -175,17 +175,15 @@ const createBot = (token: string) => {
     }
   })
 
-  for (const command of ['brief', 'queue']) {
-    bot.command(command, async (ctx) => {
-      const userId = await requireUser(ctx)
-      if (!userId) {
-        return
-      }
-      await ctx.replyWithChatAction('typing')
-      const { replies } = await press(chatOf(ctx.chat.id), userId, command)
-      await sendAll(ctx.api, ctx.chat.id, (await replies?.()) ?? [])
-    })
-  }
+  bot.command('queue', async (ctx) => {
+    const userId = await requireUser(ctx)
+    if (!userId) {
+      return
+    }
+    await ctx.replyWithChatAction('typing')
+    const { replies } = await press(chatOf(ctx.chat.id), userId, 'queue')
+    await sendAll(ctx.api, ctx.chat.id, (await replies?.()) ?? [])
+  })
 
   for (const skill of SKILLS) {
     bot.command(skill, async (ctx) => {
@@ -328,18 +326,20 @@ export const startTelegram = async () => {
   }
 }
 
-export const sendBrief = async (
+export const sendRun = async (chatId: string, run: Run) => {
+  if (bot) {
+    await send(bot.api, chatId, runReply(chatOf(chatId), run))
+  }
+}
+
+export const sendWeek = async (
   chatId: string,
   userId: string,
-  brief: BriefMessage,
-  voice?: string
+  minutes: number
 ) => {
   if (bot) {
     const t = await messagesFor(userId)
-    await send(bot.api, chatId, {
-      ...briefReply(chatOf(chatId), t, brief),
-      voice,
-    })
+    await send(bot.api, chatId, weekReply(chatOf(chatId), t, minutes))
   }
 }
 

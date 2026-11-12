@@ -47,6 +47,7 @@ import {
   DashboardSquare01Icon,
   Delete02Icon,
   Edit02Icon,
+  Home01Icon,
   Logout01Icon,
   Mail01Icon,
   MailRemove01Icon,
@@ -82,7 +83,7 @@ import { Logo } from './logo'
 import { useWithAgent } from './upgrade-dialog'
 
 export const NAV_ITEMS = [
-  { icon: Sun03Icon, key: 'today', sequence: ['G', 'T'], to: '/today' },
+  { icon: Home01Icon, key: 'home', sequence: ['G', 'H'], to: '/home' },
   { icon: AiChat02Icon, key: 'agent', sequence: ['G', 'A'], to: '/agent' },
   { icon: Mail01Icon, key: 'mail', sequence: ['G', 'M'], to: '/mail' },
   {
@@ -107,10 +108,10 @@ export const NAV_ITEMS = [
   },
 ] as const
 
-const isAgentOnly = (key: string): key is 'agent' | 'today' =>
-  key === 'today' || key === 'agent'
+const isAgentOnly = (key: string): key is 'agent' | 'home' =>
+  key === 'home' || key === 'agent'
 
-/** Today and Agent show on Free too; opening one there asks for Pro instead. */
+/** Home and Agent show on Free too; opening one there asks for Pro instead. */
 export const useGoTo = () => {
   const navigate = useNavigate()
   const withAgent = useWithAgent()
@@ -423,7 +424,7 @@ const useAccountStatus = (
   return hasAgent ? { isAlert: false, text: t.nav.watching } : null
 }
 
-/** The tab says what waits without opening it: `(3) Today · Fewmail`. */
+/** The tab says what waits without opening it: `(3) Home · Fewmail`. */
 const useDocumentTitle = ({
   count,
   mailboxes,
@@ -539,10 +540,10 @@ export const Sidebar = ({
   const hasAgent = useHasAgent()
   const isModifierHeld = useModifierHold()
   const { openCompose } = useCompose()
+  const navItems = useVisibleNavItems()
   const { data: queued } = useQuery(
     orpc.today.count.queryOptions({ enabled: hasAgent })
   )
-  const navItems = useVisibleNavItems()
   const { data: mailboxes } = useQuery(
     orpc.mailboxes.list.queryOptions({ enabled: hasAgent })
   )
@@ -560,7 +561,7 @@ export const Sidebar = ({
       className="flex w-full flex-col gap-1 border-r px-3.5 py-5"
     >
       <div className="px-2.5 pb-4">
-        <Logo to={hasAgent ? '/today' : '/mail'} />
+        <Logo to={hasAgent ? '/home' : '/mail'} />
       </div>
       <div className="mb-3 flex items-center gap-1.5">
         <Tooltip shortcut={<Kbd>⌘K</Kbd>}>
@@ -596,7 +597,7 @@ export const Sidebar = ({
           key={item.to}
           item={item}
           showKeys={isModifierHeld}
-          badge={item.to === '/today' ? queued : undefined}
+          badge={item.to === '/home' ? queued : undefined}
           count={item.to === '/mail' ? unread?.inbox : undefined}
         />
       ))}

@@ -24,7 +24,7 @@ export const id: Messages = {
     dismissed: 'dilewati',
     done: 'selesai',
     failed: 'gagal',
-    pending: 'menunggu di Hari ini',
+    pending: 'menunggu di Beranda',
   },
   agent: {
     voice: 'Bicara ke agen',
@@ -339,6 +339,7 @@ export const id: Messages = {
       `Email massal: ${n}+ pengguna Fewmail menerima teks yang sama`,
   },
   calendar: {
+    tomorrow: 'Besok',
     noAccess: {
       allow: 'Izinkan akses',
       description:
@@ -458,7 +459,7 @@ export const id: Messages = {
     title: 'Kamu sudah berjanji',
   },
   compose: {
-    backInQueue: 'Dibatalkan. Draf kembali ke Hari ini.',
+    backInQueue: 'Dibatalkan. Draf kembali ke Beranda.',
     canceled: 'Dibatalkan. Email kamu kembali ke editor.',
     cc: 'Cc',
     discard: 'Buang',
@@ -499,7 +500,6 @@ export const id: Messages = {
     mail: 'Email',
     nothingMatches: 'Tidak ada yang cocok.',
     placeholder: 'Tanya soal email atau jalankan perintah…',
-    rewriteBrief: 'Tulis ulang ringkasan',
     teachRule: 'Ajarkan aturan baru',
     upgrade: 'Beralih ke Pro',
     theme: {
@@ -534,6 +534,10 @@ export const id: Messages = {
     reload: 'Muat ulang',
   },
   keys: {
+    approvePicked: (n: number) => `setujui ${n} yang dipilih`,
+    pick: 'pilih',
+    pickAll: 'pilih semua',
+    unpick: 'hapus pilihan',
     pin: 'sematkan',
     unpin: 'lepas sematan',
     copyCode: 'salin kode',
@@ -602,7 +606,7 @@ export const id: Messages = {
     continue: 'Lanjutkan dengan Google',
     lead: 'Fewmail membaca kotak masukmu, membalas dengan gayamu, dan hanya menampilkan yang benar-benar butuh kamu.',
     messengers:
-      'Juga di aplikasi pesan, dimulai dari Telegram: terima ringkasan, setujui balasan, atau cukup kirim pesan suara.',
+      'Juga di aplikasi pesan, dimulai dari Telegram: terima email mendesak, setujui balasan, atau cukup kirim pesan suara.',
     title: 'Hanya yang penting.',
   },
   mail: {
@@ -672,7 +676,7 @@ export const id: Messages = {
     attachment: 'lampiran',
     draftReply: 'Draf balasan',
     drafting: 'Menyusun…',
-    draftWaiting: 'Draf menunggu di Hari ini',
+    draftWaiting: 'Draf menunggu di Beranda',
     due: (date: string) => `jatuh tempo ${date}`,
     dueHint: 'Tenggat yang ditemukan agen di email ini',
     empty: 'Tidak ada email di sini',
@@ -727,7 +731,7 @@ export const id: Messages = {
     settings: 'Pengaturan',
     syncFailed: 'Sinkronisasi Gmail gagal, mencoba lagi',
     syncing: 'Membaca kotak masukmu…',
-    today: 'Hari ini',
+    home: 'Beranda',
     trialLeft: (total: number) => `Uji coba Pro · sisa ${total} hari`,
     usage: (percent: number) => `Agen · ${percent}% bulan ini terpakai`,
     watching: 'Agen sedang memantau kotak masukmu',
@@ -754,7 +758,7 @@ export const id: Messages = {
       `Halaman yang diisi agen dari email kamu, mulai dari setengah tahun terakhir. Pilih sampai ${max}; kamu bisa menambah sendiri nanti.`,
     boardsTitle: 'Apa yang perlu dikumpulkan agen untukmu?',
     languageHint:
-      'Aplikasi, ringkasan, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
+      'Aplikasi, ikhtisar, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
     languageTitle: 'Fewmail harus berbicara dalam bahasa apa?',
     lead: 'Dua jawaban singkat. Semuanya bisa kamu ubah nanti di Pengaturan.',
     reading: 'Membaca kotak masukmu…',
@@ -766,7 +770,7 @@ export const id: Messages = {
     freeDescription:
       'Email yang cepat dan tenang dengan aturan sederhana. Gratis selama kamu mau.',
     includes:
-      'Pro menambahkan agen: ringkasan harian, setiap email dibaca dan diringkas, balasan disusun dengan gayamu, aturan dalam kata-kata biasa, Telegram, dan MCP.',
+      'Pro menambahkan agen: setiap email dibaca dan diringkas, balasan disusun dengan gayamu, aturan dalam kata-kata biasa, Telegram, dan MCP.',
     manage: 'Kelola tagihan',
     price: (usd: number) => `$${usd} / bulan`,
     priceYearly: (usd: number) => `$${usd} / tahun`,
@@ -803,6 +807,11 @@ export const id: Messages = {
     threads: (total: number) => `${total} percakapan`,
   },
   queue: {
+    approve: 'Setujui',
+    delete: 'Hapus',
+    pick: 'Pilih',
+    picked: (n: number) => `${n} dipilih`,
+    unpick: 'Batal pilih',
     askedByYou: 'Atas permintaanmu',
     draftedInVoice: 'Ditulis dengan gayamu',
     edit: 'Edit',
@@ -836,9 +845,9 @@ export const id: Messages = {
       plural('id', total, { other: (n) => `${n} aturan` }),
     delete: 'Hapus',
     describe: {
-      alwaysShow: 'Selalu masuk ke Hari ini',
+      alwaysShow: 'Selalu masuk ke Beranda',
       autonomous: 'Dikerjakan sendiri, tercatat di yang sudah ditangani',
-      draft: 'Draf menunggumu di Hari ini',
+      draft: 'Draf menunggumu di Beranda',
     },
     effect: {
       always_show: 'Selalu tampilkan',
@@ -876,13 +885,8 @@ export const id: Messages = {
   settings: {
     readingDigest: {
       description:
-        'Setelah ringkasan harian, newsletter hari itu datang ke Telegram dan WhatsApp dalam satu pesan.',
+        'Setiap pagi, newsletter sehari terakhir datang ke Telegram dan WhatsApp dalam satu pesan.',
       title: 'Ringkasan newsletter',
-    },
-    voiceBrief: {
-      description:
-        'Ringkasan juga datang ke Telegram dan WhatsApp sebagai pesan suara.',
-      title: 'Ringkasan suara',
     },
     forward: {
       copy: 'Salin alamat',
@@ -892,12 +896,13 @@ export const id: Messages = {
     },
     account: 'Akun',
     agent: 'Agen',
-    briefDescription: (timezone: string) => `Di zona waktumu, ${timezone}`,
-    briefTitle: 'Ringkasan harian',
+    morningDescription: (timezone: string) =>
+      `Ringkasan newsletter dan laporan mingguan hari Senin, di zona waktumu, ${timezone}`,
+    morningTitle: 'Pesan pagi',
     deleteAccount: 'Hapus akun',
     deleteConfirm: 'Hapus semuanya',
     deleteDescription:
-      'Langsung menghapus akun, email yang disinkronkan, draf, aturan, dan ringkasanmu dari Fewmail. Gmail-mu sendiri tidak disentuh.',
+      'Langsung menghapus akun, email yang disinkronkan, draf, dan aturanmu dari Fewmail. Gmail-mu sendiri tidak disentuh.',
     deleteTitle: 'Hapus akun Fewmail-mu?',
     cancel: 'Batal',
     integrations: 'Integrasi',
@@ -915,12 +920,12 @@ export const id: Messages = {
     },
     language: 'Bahasa',
     languageDescription:
-      'Aplikasi, ringkasan, dan ikhtisar. Balasan mengikuti email.',
+      'Aplikasi, bot, dan ikhtisar. Balasan mengikuti email.',
     legal: 'Legal',
     mailboxes: {
       add: 'Tambah Gmail',
       addDescription:
-        'Email dari akun Gmail lain masuk ke Hari ini dan kotak masuk yang sama. Akun itu tidak bisa dipakai masuk ke sini: masuk dengannya membuka Fewmail terpisah.',
+        'Email dari akun Gmail lain masuk ke Beranda dan kotak masuk yang sama. Akun itu tidak bisa dipakai masuk ke sini: masuk dengannya membuka Fewmail terpisah.',
       added: 'Kotak surat ditambahkan. Emailnya muncul dalam semenit.',
       failed:
         'Kotak surat tidak bisa ditambahkan. Izinkan akses Gmail lalu coba lagi.',
@@ -939,7 +944,7 @@ export const id: Messages = {
       defaultName: 'Klien MCP',
       deny: 'Tolak',
       description:
-        'Mereka bisa membaca ringkasan dan emailmu, menyusun draf balasan, dan mengirimnya setelah kamu konfirmasi.',
+        'Mereka bisa membaca emailmu, menyusun draf balasan, dan mengirimnya setelah kamu konfirmasi.',
       disconnect: 'Putuskan',
       paste:
         'Tambahkan URL ini sebagai konektor di aplikasimu, lalu masuk ke Fewmail.',
@@ -967,26 +972,24 @@ export const id: Messages = {
       blocked: 'Notifikasi diblokir. Izinkan di pengaturan situs browser.',
       browser: 'Browser ini',
       notConfigured: 'Notifikasi browser belum dikonfigurasi di server ini.',
-      off: 'Terima email mendesak dan ringkasan harian di sini, bahkan saat Fewmail ditutup.',
-      on: 'Email mendesak dan ringkasan harian muncul di sini. Beberapa sekaligus datang sebagai satu.',
+      off: 'Terima email mendesak di sini, bahkan saat Fewmail ditutup.',
+      on: 'Email mendesak muncul di sini. Beberapa sekaligus datang sebagai satu.',
       title: 'Notifikasi',
       unsupported: 'Browser ini tidak dapat menampilkan notifikasi.',
     },
     telegram: {
       connect: 'Hubungkan Telegram',
       disconnect: 'Putuskan',
-      linked:
-        'Ringkasanmu tiba setiap pagi, email mendesak langsung. Setujui dan edit draf dari chat.',
+      linked: 'Email mendesak langsung tiba. Setujui dan edit draf dari chat.',
       notConfigured: 'Bot Telegram belum dikonfigurasi di server ini.',
-      unlinked: 'Terima ringkasan dan setujui draf dari Telegram.',
+      unlinked: 'Terima email mendesak dan setujui draf dari Telegram.',
     },
     whatsapp: {
       connect: 'Hubungkan WhatsApp',
       disconnect: 'Putuskan',
-      linked:
-        'Ringkasanmu tiba setiap pagi, email mendesak langsung. Setujui dan edit draf dari chat.',
+      linked: 'Email mendesak langsung tiba. Setujui dan edit draf dari chat.',
       notConfigured: 'Bot WhatsApp belum dikonfigurasi di server ini.',
-      unlinked: 'Terima ringkasan dan setujui draf dari WhatsApp.',
+      unlinked: 'Terima email mendesak dan setujui draf dari WhatsApp.',
     },
     title: 'Pengaturan',
   },
@@ -1053,7 +1056,7 @@ export const id: Messages = {
       },
       labels: {
         ask: 'Tanyakan apa saja ke emailmu',
-        brief: 'Ringkasan harian',
+        home: 'Yang butuh kamu, dalam satu halaman',
         calendar: 'Kalender',
         drafts: 'Balasan yang disusunkan untukmu',
         followUps: 'Pengingat tindak lanjut',
@@ -1079,7 +1082,7 @@ export const id: Messages = {
       noFreePlan: 'Tanpa paket gratis',
       ours: {
         ask: 'Di Pro',
-        brief: 'Dalam bahasamu, di Pro',
+        home: 'Langsung diperbarui, setujui sekaligus, di Pro',
         drafts: 'Dengan gayamu, dikirim hanya setelah kamu setujui, di Pro',
         followUps: 'Otomatis, untuk email yang menunggu balasan',
         handOver: 'Agen menuntaskannya sampai tujuan, di Pro',
@@ -1109,9 +1112,9 @@ export const id: Messages = {
           snack: '1 kotak surat dan filter dasar',
         },
         summary:
-          'SaneBox menyortir email ke dalam folder, dan di paket teratasnya juga menyusun draf dan ringkasan. Fewmail membaca semuanya lebih dulu, lalu memberimu satu ringkasan dan sedikit keputusan yang hanya bisa kamu ambil.',
+          'SaneBox menyortir email ke dalam folder, dan di paket teratasnya juga menyusun draf dan ringkasan. Fewmail membaca semuanya lebih dulu, lalu mengumpulkan di satu halaman sedikit keputusan yang hanya bisa kamu ambil.',
         them: {
-          brief: 'Rangkuman harian email yang sudah difilter',
+          home: 'Rangkuman harian email yang sudah difilter',
           drafts: 'SaneDrafts, di Dinner',
           followUps: 'SaneNoReplies',
           importance: 'Email tak penting dipindah ke SaneLater',
@@ -1206,7 +1209,7 @@ export const id: Messages = {
       },
       {
         answer:
-          'Saat ini akun Gmail dan Google Workspace. Tambahkan beberapa kotak surat ke satu Fewmail, dan emailnya masuk ke ringkasan dan kotak masuk yang sama.',
+          'Saat ini akun Gmail dan Google Workspace. Tambahkan beberapa kotak surat ke satu Fewmail, dan emailnya masuk ke Beranda dan kotak masuk yang sama.',
         question: 'Akun email apa saja yang bisa dipakai?',
       },
     ],
@@ -1251,8 +1254,8 @@ export const id: Messages = {
         },
         voice: {
           description:
-            'Dengarkan ringkasan di Telegram, WhatsApp, atau aplikasi, dan balas bot dengan pesan suara.',
-          title: 'Dengarkan ringkasan',
+            'Tekan Dengarkan di Beranda dan dengar apa yang butuh kamu. Bicara dengan agen di aplikasi, Telegram, atau WhatsApp, dan ia menjawab dengan suara.',
+          title: 'Dengarkan yang butuh kamu',
         },
         wrapped: {
           description:
@@ -1299,18 +1302,18 @@ export const id: Messages = {
           problem: 'Hal yang kamu janjikan lalu terlupa.',
         },
         {
-          fix: 'Hanya email mendesak yang sampai ke Telegram atau WhatsApp. Sisanya menunggu ringkasan pagi, yang juga bisa kamu dengarkan.',
+          fix: 'Hanya email mendesak yang sampai ke Telegram atau WhatsApp. Sisanya menunggu di Beranda, sudah tersortir, kapan pun kamu sempat melihat.',
           problem: 'Mengecek email saat makan malam, jaga-jaga.',
         },
       ],
       title: 'Masalah email yang tak lagi kamu alami.',
     },
     hero: {
-      brief: {
+      needs: {
         emphasis: 'butuh kamu.',
         lead: (handled: string) =>
-          `Anna menunggu kontraknya, tagihan Northwind jatuh tempo minggu depan, dan Marco minta hari Kamis. ${handled} newsletter dan notifikasi sudah ditangani.`,
-        tag: 'Ringkasan Kamis · 08:00',
+          `Anna menunggu kontraknya, tagihan Northwind jatuh tempo minggu depan, dan Marco minta hari Kamis. ${handled} newsletter dan notifikasi sudah ditangani, dan Beranda memperbarui diri begitu email baru masuk.`,
+        tag: 'Beranda · Kamis, 08:12',
         title: 'Tiga hal butuh kamu.',
       },
       fates: {
@@ -1353,7 +1356,7 @@ export const id: Messages = {
       remindPlan: 'Menambahkannya ke tagihanmu dan mengingatkanmu pada 19 Nov.',
       start: 'Mulai gratis dengan Google',
       title: 'Email bukan pekerjaanmu.',
-      today: 'Hari ini',
+      home: 'Beranda',
       tryQueue: 'Coba antreannya',
       unread: ((slots) => [slots.count, ' belum dibaca']) as Rich<'count'>,
       unreadInbox: ((slots) => [
@@ -1411,9 +1414,9 @@ export const id: Messages = {
       pro: {
         description: 'Agen seutuhnya: membaca, menulis, dan mengingat.',
         features: [
-          'Hari ini: ringkasan harian dan satu antrean keputusan',
+          'Beranda: satu antrean keputusan yang selalu terbaru, disetujui satu per satu atau sekaligus',
           'Balasan disusun dengan gayamu, dikirim hanya setelah kamu setujui',
-          'Telegram: ringkasan, persetujuan, dan perintah suara',
+          'Telegram: email mendesak, persetujuan, dan perintah suara',
           '“Urus ini”: agen menggarap percakapan sampai tujuannya tercapai',
           'Janji dan orang diingat, papan dengan grafik untuk uang atau apa pun yang kamu lacak',
           'Tanyakan apa saja pada emailmu, plus MCP untuk alatmu sendiri',
@@ -1516,18 +1519,17 @@ export const id: Messages = {
   },
   telegram: {
     approveAlike: 'Setujui sekaligus semua kartu sejenis:',
-    listen: '🔊 Dengarkan',
     heard: (text: string) => `Terdengar: “${text}”`,
     voiceFailed: 'Aku tidak bisa menangkapnya. Coba lagi atau ketik saja.',
     help: 'Tulis atau ucapkan apa yang kamu perlukan:\n• tanya soal email: “kapan Netflix diperpanjang?”\n• bilang apa balasannya: “bilang ke Anna aku tanda tangan besok”\n• kasih tugas: “buat papan untuk perjalanan”\n• balas salah satu drafku untuk mengubahnya',
     canceled: 'Dibatalkan. Draf kembali ke antrean kamu.',
     sendingIn: (seconds: number) => `Mengirim dalam ${seconds} dtk`,
     undo: 'Urungkan',
-    commands: { brief: 'Ringkasan hari ini', queue: 'Yang butuh kamu' },
+    commands: { queue: 'Yang butuh kamu' },
     connectFirst:
       'Buka dulu Fewmail → Pengaturan → Integrasi lalu ketuk “Hubungkan Telegram”.',
     connected:
-      'Terhubung. Aku akan mengirim ringkasanmu setiap pagi dan memberi tahu saat ada yang mendesak.\n\n/brief: ringkasan hari ini\n/queue: yang butuh kamu',
+      'Terhubung. Aku akan memberi tahu saat ada yang mendesak.\n\n/queue: yang butuh kamu',
     done: 'Selesai',
     draft: 'Draf:',
     edit: 'Edit',
@@ -1557,15 +1559,12 @@ export const id: Messages = {
       setUp: 'Atur',
       turnOn: 'Aktifkan',
     },
-    later: (total: number, time: string) =>
-      `${total} lagi datang pukul ${time}`,
-    briefAt: (time: string) => `ringkasan harian pukul ${time}`,
     dates: 'Tanggal dan rapat',
     done: 'Selesai',
     firstRead:
       'Membaca email tiga hari terakhir. Yang butuh perhatianmu akan muncul di sini dengan sendirinya.',
     approvedMany: (n: number) => `${n} disetujui`,
-    listen: 'Dengarkan ringkasan',
+    listen: 'Dengarkan',
     handled: {
       spam: (n: number) => `${n} ke spam`,
       archived: (n: number) => `${n} diarsipkan`,
@@ -1594,7 +1593,6 @@ export const id: Messages = {
     recent: (period: string) => `Juga ${period}`,
     sent: 'Terkirim',
     worthAttention: 'Layak diperhatikan',
-    writing: 'Menulis…',
   },
   upgrade: {
     ask: 'Tanya email-mu',
@@ -1606,17 +1604,16 @@ export const id: Messages = {
         'Bagian dari Fewmail Pro: jelaskan apa yang dikumpulkan, dan agen mencarinya di email-mu serta terus memperbaruinya.',
       drafts:
         'Bagian dari Fewmail Pro: agen menulis balasan dengan gayamu, lalu kamu edit dan kirim.',
+      home: 'Bagian dari Fewmail Pro: email yang butuh kamu, dengan balasan yang sudah dirancang, diperbarui begitu email tiba.',
       tasks:
         'Bagian dari Fewmail Pro: serahkan utas ke agen dan ia menyelesaikannya, bertanya dulu sebelum setiap email yang dikirim.',
-      today:
-        'Bagian dari Fewmail Pro: email yang butuh kamu, dengan balasan yang sudah dirancang, diperbarui begitu email tiba.',
     },
   },
   whatsapp: {
     connectFirst:
       'Buka dulu Fewmail → Pengaturan → Integrasi lalu ketuk “Hubungkan WhatsApp”.',
     connected:
-      'Terhubung. Aku akan mengirim ringkasan setiap pagi dan mengabari saat ada yang mendesak. Kirim teks atau pesan suara untuk membalas email apa pun.',
+      'Terhubung. Aku akan mengabari saat ada yang mendesak. Kirim teks atau pesan suara untuk membalas email apa pun.',
     proOnly:
       'WhatsApp adalah bagian dari Fewmail Pro. Buka Pengaturan → Paket di Fewmail untuk beralih.',
   },

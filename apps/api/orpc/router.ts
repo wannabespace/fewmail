@@ -40,7 +40,6 @@ import {
   updateBoard,
   updateEntry,
 } from '../services/boards'
-import { generateBrief, listTodayHandled, openToday } from '../services/brief'
 import {
   createEvent,
   deleteEvent,
@@ -55,6 +54,7 @@ import {
   undoClearOut,
 } from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
+import { listTodayHandled, openToday } from '../services/home'
 import { askFewmail } from '../services/instructions'
 import {
   getTelegramLink,
@@ -78,8 +78,8 @@ import {
   listMail,
   countUnread,
   markThreadRead,
-  redraftAction,
   pinMessage,
+  redraftAction,
   snoozeMessage,
   trashMessage,
   unsnoozeMessage,
@@ -137,7 +137,6 @@ const settingsInput = type({
     (zone, ctx) => isTimeZone(zone) || ctx.mustBe('an IANA time zone')
   ),
   'voice?': 'string | null',
-  'voiceBrief?': 'boolean',
 })
 
 const draftRef = type({ id: 'string', mailboxId: 'string.uuid' })
@@ -600,9 +599,6 @@ export const router = {
     count: agent.handler(({ context }) => countQueue(context.user.id)),
     get: agent.handler(({ context }) => openToday(context.user.id)),
     handled: agent.handler(({ context }) => listTodayHandled(context.user.id)),
-    refreshBrief: agent.handler(({ context }) =>
-      generateBrief(context.user.id)
-    ),
   },
   reading: {
     count: authed.handler(({ context }) => countReading(context.user.id)),

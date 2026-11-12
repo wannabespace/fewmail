@@ -15,7 +15,6 @@ export {
 export {
   actions,
   analyses,
-  briefs,
   mailboxes,
   messages,
   outbox,
@@ -24,7 +23,7 @@ export {
   senderReports,
   snippets,
 } from './mail'
-export type { BriefStats, Extracted, SimpleMatch } from './mail'
+export type { Extracted, SimpleMatch } from './mail'
 export {
   botMessages,
   devices,
