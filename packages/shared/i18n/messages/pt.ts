@@ -28,7 +28,15 @@ export const pt: Messages = {
   },
   agent: {
     chats: 'Conversas',
+    autonomy: {
+      ask: 'Pergunta a você antes de cada e-mail',
+      auto: (most: number) =>
+        `Envia os e-mails sozinho, sem perguntar a você (até ${most})`,
+    },
+    calendar: (email: string) => `Na agenda de ${email}`,
+    cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      create_schedule: 'Executar isto de forma agendada?',
       create_event: 'Adicionar este evento?',
       delete_event: 'Eliminar este evento?',
       update_event: 'Alterar este evento?',
@@ -58,6 +66,9 @@ export const pt: Messages = {
     retry: 'Tentar de novo',
     send: 'Enviar',
     steps: {
+      create_schedule: 'Criando o agendamento',
+      delete_schedule: 'Parando o agendamento',
+      list_schedules: 'Lendo os agendamentos',
       create_event: 'A adicionar um evento',
       delete_event: 'A eliminar o evento',
       list_events: 'A ver o calendário',
@@ -74,6 +85,7 @@ export const pt: Messages = {
       get_today: 'Vendo o dia',
       handle_thread: 'Entregando a conversa',
       list_boards: 'Abrindo quadros',
+      list_handled: 'Conferindo o que foi tratado',
       list_mail: 'Buscando nos e-mails',
       list_rules: 'Lendo regras',
       read_thread: 'Lendo a conversa',
@@ -89,6 +101,7 @@ export const pt: Messages = {
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Até ${time}`,
     yes: {
+      create_schedule: 'Agendar',
       create_event: 'Adicionar',
       delete_event: 'Eliminar',
       update_event: 'Guardar',
@@ -321,6 +334,7 @@ export const pt: Messages = {
   errors: {
     failed: 'Algo deu errado. Tente novamente.',
     needsPro: 'Isso requer o Fewmail Pro.',
+    alreadySent: 'Já foi enviado — tarde demais para desfazer.',
     notFound: 'Isso não existe mais — talvez tenha sido excluído.',
     offline: 'Não foi possível conectar ao Fewmail. Verifique sua conexão.',
   },
@@ -399,6 +413,7 @@ export const pt: Messages = {
     movedToInbox: 'De volta à caixa de entrada. Valeu por avisar.',
     noThread: 'Escolha um e-mail para lê-lo aqui',
     deleteDraft: 'Excluir rascunho',
+    notSent: 'Não enviado — abra para tentar de novo',
     noRecipients: 'Sem destinatários',
     notSpam: 'Não é spam',
     reportSpam: 'Denunciar spam',
@@ -466,6 +481,8 @@ export const pt: Messages = {
     watching: 'O agente está de olho na sua caixa de entrada',
   },
   schedule: {
+    awaitsAnswer:
+      'Pulei esta execução: a anterior ainda espera sua resposta neste chat.',
     failed: 'Esta execução agendada falhou. Vou tentar de novo na próxima.',
     limitReached: (day: string) =>
       `As mensagens deste mês acabaram, então o agendamento pula execuções até ${day}.`,
@@ -537,6 +554,7 @@ export const pt: Messages = {
       }),
   },
   queue: {
+    askedByYou: 'Pedido por você',
     draftedInVoice: 'Escrito com a sua voz',
     edit: 'Editar',
     open: 'Abrir',
@@ -785,7 +803,8 @@ export const pt: Messages = {
     nothing: 'Nada precisa de você agora.',
     proOnly:
       'O Telegram faz parte do Fewmail Pro. Abra Configurações → Plano no Fewmail para assinar.',
-    queueHint: '/queue — o que precisa de você',
+    draftClipped:
+      'Encurtado aqui. “Enviar” envia o rascunho completo — leia no Fewmail.',
     rewriting: 'Reescrevendo…',
     send: 'Enviar',
     sendThis: 'Enviar isto',

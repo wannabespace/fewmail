@@ -1,6 +1,6 @@
 import { db } from '@fewmail/db'
-import { mailboxes, messages } from '@fewmail/db/schema'
-import { and, desc, eq, inArray } from 'drizzle-orm'
+import { mailboxes, messages, outbox } from '@fewmail/db/schema'
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
 
 import {
   deleteDraft as deleteGmailDraft,
@@ -26,14 +26,14 @@ export const saveDraft = async (
   const headers = await mailHeaders(userId, mail)
   const mailbox = await ownMailbox(userId, headers.mailboxId)
   const isSameMailbox = mail.draft?.mailboxId === mailbox.id
-  if (mail.draft && !isSameMailbox) {
-    await deleteDraft(userId, mail.draft)
-  }
   const saved = await saveGmailDraft(
     mailbox,
     { ...mail, bcc: mail.bcc ?? [], cc: mail.cc ?? [], ...headers },
     isSameMailbox ? mail.draft?.id : undefined
   )
+  if (mail.draft && !isSameMailbox) {
+    await deleteDraft(userId, mail.draft)
+  }
   return { id: saved.id, mailboxId: mailbox.id }
 }
 
@@ -50,7 +50,7 @@ export const listDrafts = async (
         input.mailboxId ? eq(mailboxes.id, input.mailboxId) : undefined
       )
     )
-  const query = input.search ? await toGmailQuery(input.search) : ''
+  const query = input.search ? await toGmailQuery(userId, input.search) : ''
   const perMailbox = await Promise.all(
     owned.map(async (mailbox) => {
       const found = await listGmailDrafts(mailbox, query, PAGE_SIZE)
@@ -58,6 +58,19 @@ export const listDrafts = async (
     })
   )
   const drafts = perMailbox.flat()
+  const failed = input.search
+    ? []
+    : await db
+        .select()
+        .from(outbox)
+        .where(
+          and(
+            eq(outbox.userId, userId),
+            eq(outbox.status, 'failed'),
+            isNull(outbox.actionId),
+            input.mailboxId ? eq(outbox.mailboxId, input.mailboxId) : undefined
+          )
+        )
 
   const threadIds = drafts.map(({ threadId }) => threadId)
   const answered = threadIds.length
@@ -77,16 +90,18 @@ export const listDrafts = async (
         .orderBy(desc(messages.receivedAt))
     : []
 
-  return drafts
-    .map((draft) => {
+  return [
+    ...drafts.map((draft) => {
       const original = answered.find(
         ({ mailboxId, threadId }) =>
           threadId === draft.threadId && mailboxId === draft.mailboxId
       )
       return {
+        bcc: draft.bcc,
         cc: draft.cc,
         html: draft.html,
         id: draft.id,
+        isFailed: false,
         mailboxId: draft.mailboxId,
         mode: original ? ('reply' as const) : ('new' as const),
         replyToMessageId: original?.id ?? null,
@@ -95,6 +110,20 @@ export const listDrafts = async (
         subject: draft.subject,
         to: draft.to,
       }
-    })
-    .toSorted((a, b) => b.savedAt.getTime() - a.savedAt.getTime())
+    }),
+    ...failed.map((mail) => ({
+      bcc: mail.bcc,
+      cc: mail.cc,
+      html: mail.html,
+      id: mail.id,
+      isFailed: true,
+      mailboxId: mail.mailboxId,
+      mode: mail.mode,
+      replyToMessageId: mail.replyToMessageId,
+      savedAt: mail.sendAt,
+      snippet: mail.text.slice(0, 200),
+      subject: mail.subject,
+      to: mail.to,
+    })),
+  ].toSorted((a, b) => b.savedAt.getTime() - a.savedAt.getTime())
 }

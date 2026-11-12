@@ -14,5 +14,13 @@ export const senderHashOf = (email: string) =>
 
 export const userHashOf = (userId: string) => keyedHash(`user:${userId}`)
 
+export const domainHashOf = (domain: string) => keyedHash(`domain:${domain}`)
+
+export const linkHashOf = (domain: string) => keyedHash(`link:${domain}`)
+
+export const infraHashOf = (block: string) => keyedHash(`infra:${block}`)
+
+export const paymentHashOf = (detail: string) => keyedHash(`pay:${detail}`)
+
 export const domainOf = (email: string) =>
   email.trim().toLowerCase().split('@')[1] ?? ''

@@ -384,15 +384,18 @@ export const Sidebar = ({
   const t = useT()
   const hasAgent = useHasAgent()
   const isModifierHeld = useModifierHold()
-  const { data: today } = useQuery(
-    orpc.today.get.queryOptions({ enabled: hasAgent })
+  const { data: queued } = useQuery(
+    orpc.today.count.queryOptions({ enabled: hasAgent })
+  )
+  const { data: mailboxes } = useQuery(
+    orpc.mailboxes.list.queryOptions({ enabled: hasAgent })
   )
   const { data: unread } = useQuery(
     orpc.mail.unread.queryOptions({ input: {} })
   )
   useDocumentTitle({
-    count: hasAgent ? today?.queue.length : unread?.inbox,
-    mailboxes: today?.mailboxes,
+    count: hasAgent ? queued : unread?.inbox,
+    mailboxes,
   })
 
   return (
@@ -423,13 +426,13 @@ export const Sidebar = ({
           key={item.to}
           item={item}
           showKeys={isModifierHeld}
-          badge={item.to === '/today' ? today?.queue.length : undefined}
+          badge={item.to === '/today' ? queued : undefined}
           count={item.to === '/mail' ? unread?.inbox : undefined}
         />
       ))}
       {hasAgent && <Boards showKeys={isModifierHeld} />}
       <div className="flex-1" />
-      <AccountMenu email={email} mailboxes={today?.mailboxes} />
+      <AccountMenu email={email} mailboxes={mailboxes} />
     </nav>
   )
 }

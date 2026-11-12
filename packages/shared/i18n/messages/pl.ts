@@ -28,7 +28,15 @@ export const pl: Messages = {
   },
   agent: {
     chats: 'Czaty',
+    autonomy: {
+      ask: 'Pyta cię przed każdym e-mailem',
+      auto: (most: number) =>
+        `Wysyła e-maile sam, bez pytania cię (maksymalnie ${most})`,
+    },
+    calendar: (email: string) => `W kalendarzu ${email}`,
+    cc: (recipients: string) => `DW: ${recipients}`,
     confirm: {
+      create_schedule: 'Uruchamiać to według harmonogramu?',
       create_event: 'Dodać to wydarzenie?',
       delete_event: 'Usunąć to wydarzenie?',
       update_event: 'Zmienić to wydarzenie?',
@@ -58,6 +66,9 @@ export const pl: Messages = {
     retry: 'Spróbuj ponownie',
     send: 'Wyślij',
     steps: {
+      create_schedule: 'Ustawiam harmonogram',
+      delete_schedule: 'Zatrzymuję harmonogram',
+      list_schedules: 'Czytam harmonogramy',
       create_event: 'Dodaję wydarzenie',
       delete_event: 'Usuwam wydarzenie',
       list_events: 'Sprawdzam kalendarz',
@@ -74,6 +85,7 @@ export const pl: Messages = {
       get_today: 'Sprawdzam dzisiejsze',
       handle_thread: 'Przekazuję wątek',
       list_boards: 'Otwieram tablice',
+      list_handled: 'Sprawdzam, co załatwiono',
       list_mail: 'Przeszukuję pocztę',
       list_rules: 'Czytam reguły',
       read_thread: 'Czytam wątek',
@@ -89,6 +101,7 @@ export const pl: Messages = {
     to: (recipients: string) => `Do: ${recipients}`,
     until: (time: string) => `Do ${time}`,
     yes: {
+      create_schedule: 'Zaplanuj',
       create_event: 'Dodaj',
       delete_event: 'Usuń',
       update_event: 'Zapisz',
@@ -333,6 +346,7 @@ export const pl: Messages = {
   errors: {
     failed: 'Coś poszło nie tak. Spróbuj ponownie.',
     needsPro: 'Do tego potrzebny jest Fewmail Pro.',
+    alreadySent: 'Już wysłano — za późno, by cofnąć.',
     notFound: 'Tego już nie ma — możliwe, że zostało usunięte.',
     offline: 'Brak połączenia z Fewmail. Sprawdź internet.',
   },
@@ -411,6 +425,7 @@ export const pl: Messages = {
     movedToInbox: 'Przywrócono do odebranych. Dzięki za informację.',
     noThread: 'Wybierz e-mail, aby go tu przeczytać',
     deleteDraft: 'Usuń szkic',
+    notSent: 'Nie wysłano — otwórz, by spróbować ponownie',
     noRecipients: 'Brak odbiorców',
     notSpam: 'To nie spam',
     reportSpam: 'Zgłoś spam',
@@ -481,6 +496,8 @@ export const pl: Messages = {
     watching: 'Agent pilnuje twojej skrzynki',
   },
   schedule: {
+    awaitsAnswer:
+      'Pominąłem to uruchomienie: poprzednie wciąż czeka w tym czacie na twoją odpowiedź.',
     failed:
       'To zaplanowane uruchomienie się nie powiodło. Spróbuję ponownie przy następnym.',
     limitReached: (day: string) =>
@@ -555,6 +572,7 @@ export const pl: Messages = {
       }),
   },
   queue: {
+    askedByYou: 'Na twoją prośbę',
     draftedInVoice: 'Napisane twoim głosem',
     edit: 'Edytuj',
     open: 'Otwórz',
@@ -807,7 +825,8 @@ export const pl: Messages = {
     nothing: 'Nic teraz na ciebie nie czeka.',
     proOnly:
       'Telegram jest częścią Fewmail Pro. Otwórz Ustawienia → Plan w Fewmail, aby przejść na Pro.',
-    queueHint: '/queue — co czeka na ciebie',
+    draftClipped:
+      'Tu skrócono. „Wyślij” wysyła cały szkic — przeczytaj go w Fewmail.',
     rewriting: 'Przepisuję…',
     send: 'Wyślij',
     sendThis: 'Wyślij to',

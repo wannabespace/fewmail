@@ -5,7 +5,15 @@ import type { Messages } from './en'
 export const fr: Messages = {
   agent: {
     chats: 'Discussions',
+    autonomy: {
+      ask: 'Vous demande avant chaque e-mail',
+      auto: (most: number) =>
+        `Envoie les e-mails seul, sans vous demander (jusqu’à ${most})`,
+    },
+    calendar: (email: string) => `Dans l’agenda de ${email}`,
+    cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      create_schedule: 'Lancer ceci de façon planifiée ?',
       create_event: 'Ajouter cet événement ?',
       delete_event: 'Supprimer cet événement ?',
       update_event: 'Modifier cet événement ?',
@@ -36,6 +44,9 @@ export const fr: Messages = {
     retry: 'Réessayer',
     send: 'Envoyer',
     steps: {
+      create_schedule: 'Création de la planification',
+      delete_schedule: 'Arrêt de la planification',
+      list_schedules: 'Lecture des planifications',
       create_event: 'Ajout d’un événement',
       delete_event: 'Suppression de l’événement',
       list_events: 'Lecture du calendrier',
@@ -52,6 +63,7 @@ export const fr: Messages = {
       get_today: 'Point sur aujourd’hui',
       handle_thread: 'Transmission de la conversation',
       list_boards: 'Ouverture des tableaux',
+      list_handled: 'Lecture de ce qui a été traité',
       list_mail: 'Recherche dans les e-mails',
       list_rules: 'Lecture des règles',
       read_thread: 'Lecture de la conversation',
@@ -67,6 +79,7 @@ export const fr: Messages = {
     to: (recipients: string) => `À ${recipients}`,
     until: (time: string) => `Jusqu’à ${time}`,
     yes: {
+      create_schedule: 'Planifier',
       create_event: 'Ajouter',
       delete_event: 'Supprimer',
       update_event: 'Enregistrer',
@@ -248,6 +261,7 @@ export const fr: Messages = {
   errors: {
     failed: 'Un problème est survenu. Réessaie.',
     needsPro: 'Il faut Fewmail Pro pour cela.',
+    alreadySent: 'Déjà envoyé — trop tard pour annuler.',
     notFound: 'Ceci n’existe plus — il a peut-être été supprimé.',
     offline: 'Impossible de joindre Fewmail. Vérifie ta connexion.',
   },
@@ -327,6 +341,7 @@ export const fr: Messages = {
       'Remis dans la boîte de réception. Merci de nous l’avoir dit.',
     noThread: 'Choisissez un e-mail pour le lire ici',
     deleteDraft: 'Supprimer le brouillon',
+    notSent: 'Non envoyé — ouvrez pour réessayer',
     noRecipients: 'Aucun destinataire',
     notSpam: 'Pas un spam',
     reportSpam: 'Signaler comme spam',
@@ -396,6 +411,8 @@ export const fr: Messages = {
     watching: 'L’agent surveille votre boîte',
   },
   schedule: {
+    awaitsAnswer:
+      'J’ai sauté cette exécution : la précédente attend encore votre réponse dans cette discussion.',
     failed:
       'Cette exécution planifiée a échoué. Je réessaierai à la prochaine.',
     limitReached: (day: string) =>
@@ -457,6 +474,7 @@ export const fr: Messages = {
     usage: 'Ce mois-ci',
   },
   queue: {
+    askedByYou: 'Demandé par vous',
     draftedInVoice: 'Rédigé avec votre style',
     edit: 'Modifier',
     open: 'Ouvrir',
@@ -661,7 +679,8 @@ export const fr: Messages = {
     nothing: 'Rien ne vous attend pour l’instant.',
     proOnly:
       'Telegram fait partie de Fewmail Pro. Ouvrez Réglages → Formule dans Fewmail pour passer à Pro.',
-    queueHint: '/queue — ce qui vous attend',
+    draftClipped:
+      'Raccourci ici. « Envoyer » envoie le brouillon complet : lisez-le dans Fewmail.',
     rewriting: 'Réécriture…',
     send: 'Envoyer',
     sendThis: 'Envoyer ceci',

@@ -1,3 +1,4 @@
+import type { AgentToolName, ConsentToolName } from '../../agent'
 import type { Rich } from '../locales'
 import { plural } from '../locales'
 
@@ -26,8 +27,16 @@ export const en = {
     pending: 'waiting in Today',
   },
   agent: {
+    autonomy: {
+      ask: 'Asks you before each email',
+      auto: (most: number) =>
+        `Sends the emails on its own, without asking you (up to ${most})`,
+    },
+    calendar: (email: string) => `In the calendar of ${email}`,
+    cc: (recipients: string) => `Cc ${recipients}`,
     chats: 'Chats',
     confirm: {
+      create_schedule: 'Run this on a schedule?',
       create_event: 'Add this event?',
       delete_event: 'Delete this event?',
       update_event: 'Change this event?',
@@ -39,7 +48,7 @@ export const en = {
       send_email: 'Send this email?',
       snooze_thread: 'Snooze this thread?',
       unsubscribe: 'Unsubscribe from this sender?',
-    },
+    } satisfies Record<ConsentToolName | 'reply', string>,
     decline: 'Don’t',
     declined: 'You said no',
     deleteChat: 'Delete chat',
@@ -57,6 +66,9 @@ export const en = {
     retry: 'Try again',
     send: 'Send',
     steps: {
+      create_schedule: 'Setting up a schedule',
+      delete_schedule: 'Stopping the schedule',
+      list_schedules: 'Reading schedules',
       create_event: 'Adding an event',
       delete_event: 'Deleting the event',
       list_events: 'Checking the calendar',
@@ -73,6 +85,7 @@ export const en = {
       get_today: 'Checking today',
       handle_thread: 'Handing the thread over',
       list_boards: 'Opening boards',
+      list_handled: 'Checking what was handled',
       list_mail: 'Searching mail',
       list_rules: 'Reading rules',
       read_thread: 'Reading the thread',
@@ -81,13 +94,14 @@ export const en = {
       send_email: 'Sending',
       snooze_thread: 'Snoozing',
       unsubscribe: 'Unsubscribing',
-    },
+    } satisfies Record<AgentToolName, string>,
     stop: 'Stop',
     thinking: 'Thinking…',
     title: 'What can I do for you?',
     to: (recipients: string) => `To ${recipients}`,
     until: (time: string) => `Until ${time}`,
     yes: {
+      create_schedule: 'Schedule it',
       create_event: 'Add',
       delete_event: 'Delete',
       update_event: 'Save',
@@ -99,7 +113,7 @@ export const en = {
       send_email: 'Send',
       snooze_thread: 'Snooze',
       unsubscribe: 'Unsubscribe',
-    },
+    } satisfies Record<ConsentToolName | 'reply', string>,
   },
   ask: {
     label: (question: string) => `Ask Fewmail: “${question}”`,
@@ -318,6 +332,7 @@ export const en = {
   errors: {
     failed: 'Something went wrong. Try again.',
     needsPro: 'This needs Fewmail Pro.',
+    alreadySent: "Already sent — it's too late to undo.",
     notFound: 'This is no longer here — it may have been deleted.',
     offline: "Can't reach Fewmail. Check your connection.",
   },
@@ -395,6 +410,7 @@ export const en = {
     movedToInbox: 'Moved back to the inbox. Thanks for telling us.',
     noThread: 'Pick an email to read it here',
     deleteDraft: 'Delete draft',
+    notSent: 'Not sent — open to retry',
     noRecipients: 'No recipients',
     notSpam: 'Not spam',
     reply: 'Reply',
@@ -467,6 +483,8 @@ export const en = {
     watching: 'Agent is watching your inbox',
   },
   schedule: {
+    awaitsAnswer:
+      'I skipped this run: the last one still waits for your answer in this chat.',
     failed: 'This scheduled run failed. I’ll try again at the next one.',
     limitReached: (day: string) =>
       `This month’s messages are used up, so the schedule skips runs until ${day}.`,
@@ -537,6 +555,7 @@ export const en = {
       }),
   },
   queue: {
+    askedByYou: 'Asked by you',
     draftedInVoice: 'Drafted in your voice',
     edit: 'Edit',
     open: 'Open',
@@ -771,7 +790,8 @@ export const en = {
     nothing: 'Nothing needs you right now.',
     proOnly:
       'Telegram is part of Fewmail Pro. Open Settings → Plan in Fewmail to upgrade.',
-    queueHint: '/queue — what needs you',
+    draftClipped:
+      'Shortened here. Send sends the whole draft — read it in Fewmail.',
     rewriting: 'Rewriting…',
     canceled: 'Canceled. The draft is back in your queue.',
     send: 'Send',

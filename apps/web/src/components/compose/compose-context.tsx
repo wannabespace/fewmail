@@ -78,9 +78,14 @@ export const ComposeProvider = ({
             action: {
               label: t.compose.undo,
               onClick: async () => {
-                const restored = await client.mail.cancelSend({ id })
-                setDraft({ ...EMPTY_DRAFT, ...restored })
-                toast(t.compose.canceled)
+                // The client's error interceptor already toasts "already sent"; a toast here would double it.
+                const restored = await client.mail
+                  .cancelSend({ id })
+                  .catch(() => null)
+                if (restored) {
+                  setDraft({ ...EMPTY_DRAFT, ...restored })
+                  toast(t.compose.canceled)
+                }
               },
             },
             duration: isUndoWindow ? UNDO_SEND_SECONDS * 1000 : 6000,

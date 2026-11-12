@@ -28,7 +28,15 @@ export const id: Messages = {
   },
   agent: {
     chats: 'Obrolan',
+    autonomy: {
+      ask: 'Bertanya padamu sebelum setiap email',
+      auto: (most: number) =>
+        `Mengirim email sendiri tanpa bertanya padamu (hingga ${most})`,
+    },
+    calendar: (email: string) => `Di kalender ${email}`,
+    cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      create_schedule: 'Jalankan ini sesuai jadwal?',
       create_event: 'Tambahkan acara ini?',
       delete_event: 'Hapus acara ini?',
       update_event: 'Ubah acara ini?',
@@ -58,6 +66,9 @@ export const id: Messages = {
     retry: 'Coba lagi',
     send: 'Kirim',
     steps: {
+      create_schedule: 'Menyiapkan jadwal',
+      delete_schedule: 'Menghentikan jadwal',
+      list_schedules: 'Membaca jadwal',
       create_event: 'Menambahkan acara',
       delete_event: 'Menghapus acara',
       list_events: 'Memeriksa kalender',
@@ -74,6 +85,7 @@ export const id: Messages = {
       get_today: 'Memeriksa hari ini',
       handle_thread: 'Menyerahkan percakapan',
       list_boards: 'Membuka papan',
+      list_handled: 'Memeriksa yang sudah ditangani',
       list_mail: 'Mencari di email',
       list_rules: 'Membaca aturan',
       read_thread: 'Membaca percakapan',
@@ -89,6 +101,7 @@ export const id: Messages = {
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
     yes: {
+      create_schedule: 'Jadwalkan',
       create_event: 'Tambah',
       delete_event: 'Hapus',
       update_event: 'Simpan',
@@ -313,6 +326,7 @@ export const id: Messages = {
   errors: {
     failed: 'Terjadi kesalahan. Coba lagi.',
     needsPro: 'Ini memerlukan Fewmail Pro.',
+    alreadySent: 'Sudah terkirim — terlambat untuk membatalkan.',
     notFound: 'Ini sudah tidak ada — mungkin sudah dihapus.',
     offline: 'Tidak dapat terhubung ke Fewmail. Periksa koneksimu.',
   },
@@ -392,6 +406,7 @@ export const id: Messages = {
       'Dikembalikan ke kotak masuk. Terima kasih sudah memberi tahu.',
     noThread: 'Pilih email untuk membacanya di sini',
     deleteDraft: 'Hapus draf',
+    notSent: 'Tidak terkirim — buka untuk mencoba lagi',
     noRecipients: 'Tanpa penerima',
     notSpam: 'Bukan spam',
     reportSpam: 'Laporkan spam',
@@ -455,6 +470,8 @@ export const id: Messages = {
     watching: 'Agen sedang memantau kotak masukmu',
   },
   schedule: {
+    awaitsAnswer:
+      'Saya melewati jalannya kali ini: yang sebelumnya masih menunggu jawabanmu di chat ini.',
     failed:
       'Jalannya jadwal ini gagal. Saya akan mencoba lagi di jadwal berikutnya.',
     limitReached: (day: string) =>
@@ -523,6 +540,7 @@ export const id: Messages = {
     threads: (total: number) => `${total} percakapan`,
   },
   queue: {
+    askedByYou: 'Atas permintaanmu',
     draftedInVoice: 'Ditulis dengan gayamu',
     edit: 'Edit',
     open: 'Buka',
@@ -767,7 +785,8 @@ export const id: Messages = {
     nothing: 'Tidak ada yang butuh kamu saat ini.',
     proOnly:
       'Telegram adalah bagian dari Fewmail Pro. Buka Pengaturan → Paket di Fewmail untuk beralih.',
-    queueHint: '/queue — yang butuh kamu',
+    draftClipped:
+      'Dipendekkan di sini. “Kirim” mengirim draf lengkap — baca di Fewmail.',
     rewriting: 'Menulis ulang…',
     send: 'Kirim',
     sendThis: 'Kirim ini',

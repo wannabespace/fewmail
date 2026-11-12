@@ -1,60 +1,33 @@
 import { db } from '@fewmail/db'
-import { actions, messages, senderReports } from '@fewmail/db/schema'
+import { messages, senderReports } from '@fewmail/db/schema'
 import type { SpamVerdict } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
-import { and, eq, inArray, sql } from 'drizzle-orm'
+import { and, eq, inArray, or } from 'drizzle-orm'
 
-import { domainOf, keyedHash, senderHashOf } from '../lib/keyed-hash'
-import { listedDomains } from './known-domains'
+import { domainHashOf, domainOf, senderHashOf } from '../lib/keyed-hash'
+import { FREEMAIL_DOMAINS, listedDomains } from './known-domains'
 import { NotFoundError } from './mail-errors'
-import { isSpammy, readPatterns, votePatterns } from './patterns'
+import { isSpammy, readPatterns, voteCounts, votePatterns } from './patterns'
 import { getSettings } from './settings'
-import { changeThreadLabels } from './thread-labels'
+import { changeThreadLabels, moveToSpam, SPAM } from './thread-labels'
 
 type Message = typeof messages.$inferSelect
 
-/** A sender counts as spam for everyone only after this many different people reported it. */
+/** A sender counts as spam (or vouched not-spam) for everyone only after this many different people said so. */
 const MIN_SENDER_REPORTERS = 3
 /** Company domains need more independent reporters, since one domain hosts many senders. */
 const MIN_DOMAIN_REPORTERS = 5
-
-const SPAM = { add: ['SPAM'], remove: ['INBOX', 'UNREAD'] }
-
-/** Shared mailbox providers: a spammer on gmail.com says nothing about gmail.com. */
-export const FREEMAIL_DOMAINS = new Set([
-  'aol.com',
-  'gmail.com',
-  'gmx.com',
-  'gmx.de',
-  'googlemail.com',
-  'hotmail.com',
-  'i.ua',
-  'icloud.com',
-  'live.com',
-  'mail.com',
-  'mail.ru',
-  'me.com',
-  'msn.com',
-  'outlook.com',
-  'proton.me',
-  'protonmail.com',
-  'qq.com',
-  'ukr.net',
-  'yahoo.com',
-  'yandex.ru',
-  'zoho.com',
-])
 
 export const senderKeys = (email: string) => {
   const domain = domainOf(email)
   return {
     domainHash:
-      domain && !FREEMAIL_DOMAINS.has(domain)
-        ? keyedHash(`domain:${domain}`)
-        : null,
+      domain && !FREEMAIL_DOMAINS.has(domain) ? domainHashOf(domain) : null,
     senderHash: senderHashOf(email),
   }
 }
+
+type Keyed = ReturnType<typeof senderKeys> & { message: Message }
 
 const tally = async (
   column: typeof senderReports.senderHash | typeof senderReports.domainHash,
@@ -66,8 +39,7 @@ const tally = async (
   const rows = await db
     .select({
       hash: column,
-      notSpam: sql<number>`count(*) filter (where ${senderReports.verdict} = 'not_spam')::int`,
-      spam: sql<number>`count(*) filter (where ${senderReports.verdict} = 'spam')::int`,
+      ...voteCounts(senderReports.userId, senderReports.verdict),
     })
     .from(senderReports)
     .where(inArray(column, hashes))
@@ -85,17 +57,17 @@ const contactsOf = async (userId: string) => {
   )
 }
 
-/** Runs before simple rules and the agent, on every plan; returns the messages it moved to spam. */
 /** Public spammer lists name registrable domains; mail often comes from a subdomain of one. */
 const isListed = (listed: Set<string>, domain: string) =>
   [...listed].some((entry) => domain === entry || domain.endsWith(`.${entry}`))
 
+/** Runs before simple rules and the agent, on every plan; returns the messages it moved to spam. */
 export const applySpamShield = async (userId: string, incoming: Message[]) => {
   const inbound = incoming.filter((message) => !message.isFromMe)
   if (inbound.length === 0) {
     return new Set<string>()
   }
-  const keyed = inbound.map((message) => ({
+  const keyed: Keyed[] = inbound.map((message) => ({
     message,
     ...senderKeys(message.fromEmail),
   }))
@@ -110,6 +82,7 @@ export const applySpamShield = async (userId: string, incoming: Message[]) => {
     [
       db
         .select({
+          domainHash: senderReports.domainHash,
           senderHash: senderReports.senderHash,
           verdict: senderReports.verdict,
         })
@@ -117,7 +90,10 @@ export const applySpamShield = async (userId: string, incoming: Message[]) => {
         .where(
           and(
             eq(senderReports.userId, userId),
-            inArray(senderReports.senderHash, senderHashes)
+            or(
+              inArray(senderReports.senderHash, senderHashes),
+              inArray(senderReports.domainHash, domainHashes)
+            )
           )
         ),
       tally(senderReports.senderHash, senderHashes),
@@ -132,27 +108,30 @@ export const applySpamShield = async (userId: string, incoming: Message[]) => {
       ).then((rows) => new Set(rows)),
     ]
   )
-  const patterns = await readPatterns(
-    userId,
-    keyed
-      .filter(
-        ({ message, senderHash }) =>
-          !contacts.has(message.fromEmail.toLowerCase()) &&
-          !own.some((row) => row.senderHash === senderHash)
-      )
-      .map(({ message }) => message),
-    FREEMAIL_DOMAINS
-  )
   const ownVerdicts = new Map(
     own.map(({ senderHash, verdict }) => [senderHash, verdict])
   )
+  const ownVouched = new Set(
+    own.flatMap(({ domainHash, verdict }) =>
+      domainHash && verdict === 'not_spam' ? [domainHash] : []
+    )
+  )
   const t = dictionaries[settings?.language ?? 'en']
 
-  const verdictFor = ({
-    domainHash,
-    message,
-    senderHash,
-  }: (typeof keyed)[number]) => {
+  /** Vouching for others takes as many people as reporting, or one account could clear its own spam. */
+  const isVouched = ({ domainHash, senderHash }: Keyed) =>
+    (!!domainHash && ownVouched.has(domainHash)) ||
+    (senders.get(senderHash)?.notSpam ?? 0) >= MIN_SENDER_REPORTERS ||
+    (domainHash ? (domains.get(domainHash)?.notSpam ?? 0) : 0) >=
+      MIN_DOMAIN_REPORTERS
+
+  const isTrusted = (entry: Keyed) =>
+    ownVerdicts.has(entry.senderHash) ||
+    contacts.has(entry.message.fromEmail.toLowerCase()) ||
+    isVouched(entry)
+
+  const addressVerdict = (entry: Keyed) => {
+    const { domainHash, message, senderHash } = entry
     const ownVerdict = ownVerdicts.get(senderHash)
     if (ownVerdict) {
       return ownVerdict === 'spam' ? t.spam.reasonYou : null
@@ -168,44 +147,45 @@ export const applySpamShield = async (userId: string, incoming: Message[]) => {
     if (community) {
       return t.spam.reasonCommunity
     }
-    const vouched = (domain?.notSpam ?? 0) > 0 || (sender?.notSpam ?? 0) > 0
-    if (vouched) {
-      return null
-    }
-    if (isListed(listed, domainOf(message.fromEmail))) {
-      return t.spam.reasonList
-    }
-    const pattern = patterns.get(message.id)
-    return pattern ? t.spam.reasonPattern[pattern] : null
+    return !isVouched(entry) && isListed(listed, domainOf(message.fromEmail))
+      ? t.spam.reasonList
+      : null
   }
+
+  const { reasons: patterns, suspicions } = await readPatterns(
+    userId,
+    keyed
+      .filter((entry) => !isTrusted(entry) && !addressVerdict(entry))
+      .map(({ message }) => message)
+  )
+  await Promise.all(
+    keyed.flatMap(({ message }) => {
+      const suspicion = suspicions.get(message.id)
+      if (!suspicion) {
+        return []
+      }
+      message.suspicion = suspicion
+      return [
+        db
+          .update(messages)
+          .set({ suspicion })
+          .where(eq(messages.id, message.id)),
+      ]
+    })
+  )
 
   const moved = new Set<string>()
   await Promise.all(
     keyed.map(async (entry) => {
-      const reason = verdictFor(entry)
+      const pattern = patterns.get(entry.message.id)
+      const reason =
+        addressVerdict(entry) ??
+        (pattern ? t.spam.reasonPattern[pattern] : null)
       if (!reason) {
         return
       }
-      const done = await changeThreadLabels(
-        userId,
-        entry.message.threadId,
-        SPAM
-      ).then(
-        () => true,
-        () => false
-      )
       moved.add(entry.message.id)
-      await db.insert(actions).values({
-        autonomous: true,
-        kind: 'spam',
-        messageId: entry.message.id,
-        reason,
-        resolvedAt: done ? new Date() : null,
-        status: done ? 'auto_done' : 'failed',
-        threadId: entry.message.threadId,
-        title: t.actionKind.spam,
-        userId,
-      })
+      await moveToSpam(userId, entry.message, reason, t)
     })
   )
   return moved
@@ -213,14 +193,16 @@ export const applySpamShield = async (userId: string, incoming: Message[]) => {
 
 const vote = async (userId: string, message: Message, verdict: SpamVerdict) => {
   const keys = senderKeys(message.fromEmail)
-  await db
-    .insert(senderReports)
-    .values({ ...keys, userId, verdict })
-    .onConflictDoUpdate({
-      set: { updatedAt: new Date(), verdict },
-      target: [senderReports.userId, senderReports.senderHash],
-    })
-  await votePatterns(userId, message, verdict)
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(senderReports)
+      .values({ ...keys, userId, verdict })
+      .onConflictDoUpdate({
+        set: { updatedAt: new Date(), verdict },
+        target: [senderReports.userId, senderReports.senderHash],
+      })
+    await votePatterns(tx, userId, message, verdict)
+  })
 }
 
 const ownMessage = async (userId: string, messageId: string) => {

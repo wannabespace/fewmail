@@ -35,7 +35,7 @@ const systemOne = async <Questions extends Record<string, Question>>(input: {
     method: 'POST',
   })
   if (!response.ok) {
-    throw new Error(`Jev ${response.status}: ${await response.text()}`)
+    throw new Error(`Jev ${response.status}`)
   }
   return (await response.json()) as {
     answers: { [Key in keyof Questions]: Answer<Questions[Key]> }

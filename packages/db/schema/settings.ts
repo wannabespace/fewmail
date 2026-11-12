@@ -6,9 +6,11 @@ import * as d from 'drizzle-orm/pg-core'
 import { baseTable } from '../base-table'
 import { encryptedJson, encryptedText, searchableText } from '../utils'
 import { users } from './auth'
+import { actions } from './mail'
 
 export const userSettings = d.snakeCase.table('user_settings', {
   briefHour: d.smallint().default(20).notNull(),
+  cleanupCheckedAt: d.timestamp({ withTimezone: true }),
   gmailLabels: d.boolean().default(false).notNull(),
   knowledge: encryptedText(),
   language: d.text().$type<Locale>().notNull(),
@@ -59,6 +61,17 @@ export const whatsappLinks = d.snakeCase.table('whatsapp_links', {
     .primaryKey()
     .references(() => users.id, { onDelete: 'cascade' }),
 })
+
+/** Shared by the API and the worker: a bot message → the action it shows, a chat → the draft it is editing, and WhatsApp inbound ids already handled (no action). Keys carry chat ids and phones, hence searchable. */
+export const botMessages = d.snakeCase.table(
+  'bot_messages',
+  {
+    actionId: d.uuid().references(() => actions.id, { onDelete: 'cascade' }),
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    key: searchableText().primaryKey(),
+  },
+  (table) => [d.index('bot_messages_created_at_idx').on(table.createdAt)]
+)
 
 export const devices = d.snakeCase.table('devices', {
   ...baseTable,

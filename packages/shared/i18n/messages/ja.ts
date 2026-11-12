@@ -28,7 +28,15 @@ export const ja: Messages = {
   byRule: 'ルールによる',
   agent: {
     chats: 'チャット',
+    autonomy: {
+      ask: 'メールを送る前に毎回確認します',
+      auto: (most: number) =>
+        `確認せずに自分でメールを送ります（最大 ${most} 通）`,
+    },
+    calendar: (email: string) => `${email} のカレンダー`,
+    cc: (recipients: string) => `CC: ${recipients}`,
     confirm: {
+      create_schedule: 'これをスケジュールで実行しますか？',
       create_event: 'この予定を追加しますか？',
       delete_event: 'この予定を削除しますか？',
       update_event: 'この予定を変更しますか？',
@@ -59,6 +67,9 @@ export const ja: Messages = {
     retry: '再試行',
     send: '送信',
     steps: {
+      create_schedule: 'スケジュールを設定中',
+      delete_schedule: 'スケジュールを停止中',
+      list_schedules: 'スケジュールを確認中',
       create_event: '予定を追加中',
       delete_event: '予定を削除中',
       list_events: 'カレンダーを確認中',
@@ -75,6 +86,7 @@ export const ja: Messages = {
       get_today: '今日の状況を確認中',
       handle_thread: 'スレッドを引き渡し中',
       list_boards: 'ボードを開いています',
+      list_handled: '処理済みを確認中',
       list_mail: 'メールを検索中',
       list_rules: 'ルールを確認中',
       read_thread: 'スレッドを読込中',
@@ -90,6 +102,7 @@ export const ja: Messages = {
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
     yes: {
+      create_schedule: 'スケジュールする',
       create_event: '追加',
       delete_event: '削除',
       update_event: '保存',
@@ -221,6 +234,7 @@ export const ja: Messages = {
   errors: {
     failed: '問題が発生しました。もう一度お試しください。',
     needsPro: 'これには Fewmail Pro が必要です。',
+    alreadySent: 'すでに送信済みのため、取り消せません。',
     notFound: 'これはもう存在しません。削除された可能性があります。',
     offline: 'Fewmail に接続できません。接続を確認してください。',
   },
@@ -298,6 +312,7 @@ export const ja: Messages = {
     movedToInbox: '受信トレイに戻しました。お知らせありがとうございます。',
     noThread: 'メールを選ぶとここで読めます',
     deleteDraft: '下書きを削除',
+    notSent: '未送信 — 開いて再試行',
     noRecipients: '宛先なし',
     notSpam: '迷惑メールではない',
     reportSpam: '迷惑メールとして報告',
@@ -360,6 +375,8 @@ export const ja: Messages = {
     watching: 'エージェントが受信トレイを見守っています',
   },
   schedule: {
+    awaitsAnswer:
+      '今回の実行はスキップしました。前回の実行がこのチャットであなたの返答を待っています。',
     failed: 'このスケジュール実行は失敗しました。次回もう一度試します。',
     limitReached: (day: string) =>
       `今月のメッセージを使い切ったため、次の日付まで実行をスキップします: ${day}`,
@@ -417,6 +434,7 @@ export const ja: Messages = {
     usage: '今月',
   },
   queue: {
+    askedByYou: 'あなたの依頼',
     draftedInVoice: 'あなたらしい文面で下書きしました',
     edit: '編集',
     open: '開く',
@@ -636,7 +654,8 @@ export const ja: Messages = {
     nothing: '今、対応が必要なものはありません。',
     proOnly:
       'Telegram は Fewmail Pro の機能です。アップグレードするには Fewmail の 設定 → プラン を開いてください。',
-    queueHint: '/queue — 対応が必要なもの',
+    draftClipped:
+      'ここでは一部だけ表示しています。「送信」で下書き全文が送られます。全文は Fewmail で確認できます。',
     rewriting: '書き直し中…',
     send: '送信',
     sendThis: 'これを送信',

@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer'
+import { isIP } from 'node:net'
 
 import { textToHtml } from '@fewmail/shared/email'
 
@@ -9,8 +10,15 @@ import { mailSignals } from './mail-auth'
 
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 
-export class GmailHistoryExpiredError extends Error {
-  override name = 'GmailHistoryExpiredError'
+/** A 404 from `/history` means the history id expired. */
+export class GmailError extends Error {
+  override name = 'GmailError'
+  readonly status: number
+
+  constructor(status: number, message: string) {
+    super(message)
+    this.status = status
+  }
 }
 
 const gmail = async <T>(
@@ -26,12 +34,9 @@ const gmail = async <T>(
     },
   })
 
-  if (response.status === 404 && path.startsWith('/history')) {
-    throw new GmailHistoryExpiredError()
-  }
-
   if (!response.ok) {
-    throw new Error(
+    throw new GmailError(
+      response.status,
       `Gmail ${path} failed: ${response.status} ${await response.text()}`
     )
   }
@@ -340,6 +345,11 @@ export const listDrafts = async (
       const parsed = parseMessage(message)
       return {
         ...parsed,
+        bcc: splitAddresses(
+          message.payload.headers?.find(
+            ({ name }) => name.toLowerCase() === 'bcc'
+          )?.value
+        ),
         html: parsed.html || textToHtml(parsed.body),
         id,
       }
@@ -383,19 +393,38 @@ export const createLabel = (account: GmailAccount, name: string) =>
     method: 'POST',
   })
 
+const UNSUBSCRIBE_TIMEOUT_MS = 10_000
+
+/** The sender writes the link and sync posts to it unattended, so it must never reach our own network; redirects are not followed for the same reason. */
+const isPublicHost = (hostname: string) => {
+  const host = hostname.replaceAll(/^\[|\]$/gu, '').replace(/\.$/u, '')
+  return (
+    host.includes('.') &&
+    isIP(host) === 0 &&
+    !/\.(?:localhost|local|internal|home\.arpa)$/iu.test(host)
+  )
+}
+
 /** RFC 8058 one-click only: a mailto or a plain link needs a person, so the caller falls back to archiving. */
 export const unsubscribeOneClick = async (
   listUnsubscribe: string,
   listUnsubscribePost: string | null
 ) => {
   const url = listUnsubscribe.match(/<(?<url>https:[^>]+)>/u)?.groups?.url
-  if (!url || !/One-Click/iu.test(listUnsubscribePost ?? '')) {
+  if (
+    !url ||
+    !URL.canParse(url) ||
+    !isPublicHost(new URL(url).hostname) ||
+    !/One-Click/iu.test(listUnsubscribePost ?? '')
+  ) {
     return false
   }
   const response = await fetch(url, {
     body: 'List-Unsubscribe=One-Click',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     method: 'POST',
+    redirect: 'manual',
+    signal: AbortSignal.timeout(UNSUBSCRIBE_TIMEOUT_MS),
   })
-  return response.ok
+  return response.status >= 200 && response.status < 400
 }

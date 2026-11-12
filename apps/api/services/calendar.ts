@@ -10,6 +10,7 @@ import {
   listEvents as listGoogleEvents,
   patchEvent,
 } from '../lib/calendar'
+import { logError } from '../lib/log'
 import { NotFoundError } from './mail-errors'
 import { ownMailbox } from './mailboxes'
 
@@ -43,7 +44,7 @@ export const listEvents = async (
         }
       } catch (error) {
         if (!(error instanceof CalendarScopeMissingError)) {
-          console.error('calendar list failed', error)
+          logError('calendar list failed', error)
         }
         return { calendar: { ...calendar, connected: false }, events: [] }
       }

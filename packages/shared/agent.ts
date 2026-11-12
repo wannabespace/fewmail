@@ -31,6 +31,56 @@ export const ACTION_KINDS = [
 ] as const
 export type ActionKind = (typeof ACTION_KINDS)[number]
 
+interface ActionKindTraits {
+  /** What approving does to the thread in Gmail; `null` leaves it as it is. */
+  gmail: GmailEffect | null
+  /** Never waits for the next delivery slot. */
+  immediate: boolean
+  /** The approve button names the kind instead of the agent's label for this email. */
+  ownLabel: boolean
+  /** Approving sends the draft: always, only once one is written, or never. */
+  sends: 'always' | 'drafted' | null
+}
+
+const quiet = (gmail: GmailEffect | null): ActionKindTraits => ({
+  gmail,
+  immediate: false,
+  ownLabel: false,
+  sends: null,
+})
+const own: ActionKindTraits = {
+  gmail: null,
+  immediate: true,
+  ownLabel: true,
+  sends: null,
+}
+
+export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
+  archive: quiet('archive'),
+  cleanup: { ...own, immediate: false },
+  commitment: own,
+  follow_up: quiet('mark_read'),
+  mark_read: quiet('mark_read'),
+  pay: quiet('mark_read'),
+  read: quiet('mark_read'),
+  reply: { ...quiet(null), sends: 'always' },
+  schedule: quiet('mark_read'),
+  security: own,
+  spam: quiet('mark_read'),
+  task: { ...own, sends: 'drafted' },
+  trash: quiet('trash'),
+  unsubscribe: quiet('unsubscribe'),
+}
+
+/** A reply, or a task step the agent wrote an email for: approving sends it. */
+export const sendsDraft = (action: {
+  detail: string | null
+  kind: ActionKind
+}) => {
+  const { sends } = ACTION_KIND_TRAITS[action.kind]
+  return sends === 'always' || (sends === 'drafted' && !!action.detail)
+}
+
 export const ACTION_STATUSES = [
   'pending',
   'done',
@@ -60,6 +110,10 @@ export const GMAIL_EFFECTS = [
   'unsubscribe',
   'trash',
 ] as const
+export type GmailEffect = (typeof GMAIL_EFFECTS)[number]
+
+export const isGmailEffect = (effect: RuleEffect) =>
+  (GMAIL_EFFECTS as readonly RuleEffect[]).includes(effect)
 
 export const PLANS = ['free', 'trial', 'pro', 'max'] as const
 export type Plan = (typeof PLANS)[number]
@@ -89,6 +143,8 @@ export const PLAN_LIMITS = {
   Record<'boards' | 'emails' | 'messages' | 'tasks', number | null>
 >
 
+export type Limit = 'boards' | 'messages' | 'tasks'
+
 /** Where a notification is delivered; mobile and desktop apps join as new kinds with their own sender in `services/notifications.ts`. */
 export const DEVICE_KINDS = ['web'] as const
 export type DeviceKind = (typeof DEVICE_KINDS)[number]
@@ -112,6 +168,47 @@ export const parseSkill = (text: string) => {
   const skill = SKILLS.find((name) => name === groups?.name)
   return skill ? { details: groups?.details?.trim() ?? '', skill } : undefined
 }
+
+/**
+ * Every tool of `apps/api/services/agent-tools.ts` with its access. `consent` changes Gmail, sends or lets the agent act alone:
+ * the chat asks first and its card must show every input (`ConsentToolName`), MCP marks it destructive.
+ */
+export const AGENT_TOOLS = {
+  approve_action: 'consent',
+  archive_thread: 'consent',
+  create_draft: 'write',
+  create_event: 'consent',
+  create_rule: 'consent',
+  create_schedule: 'consent',
+  delete_event: 'consent',
+  delete_schedule: 'write',
+  dismiss_action: 'write',
+  draft_reply: 'write',
+  get_board: 'read',
+  get_person: 'read',
+  get_today: 'read',
+  handle_thread: 'consent',
+  list_boards: 'read',
+  list_events: 'read',
+  list_handled: 'read',
+  list_mail: 'read',
+  list_rules: 'read',
+  list_schedules: 'read',
+  list_subscriptions: 'read',
+  read_thread: 'read',
+  redraft_action: 'write',
+  refresh: 'write',
+  send_email: 'consent',
+  snooze_thread: 'consent',
+  unsubscribe: 'consent',
+  update_event: 'consent',
+} as const satisfies Record<string, 'read' | 'write' | 'consent'>
+export type AgentToolName = keyof typeof AGENT_TOOLS
+export type ConsentToolName = {
+  [Name in AgentToolName]: (typeof AGENT_TOOLS)[Name] extends 'consent'
+    ? Name
+    : never
+}[AgentToolName]
 
 /** Ready-made boards offered at onboarding; names and descriptions come from `boards.starter`. */
 export const BOARD_PRESETS = ['money', 'trips', 'orders', 'events'] as const
@@ -157,6 +254,8 @@ export interface MessageRisk {
 }
 
 export type TaskAutonomy = 'ask' | 'auto'
+/** A runaway loop with an auto-replying sender must stop and ask the user. */
+export const MAX_EMAILS_PER_TASK = 6
 export type TaskStatus = 'active' | 'done' | 'canceled'
 
 export const BOARD_CHART_TYPES = ['bar', 'line', 'area', 'pie'] as const

@@ -25,15 +25,16 @@ import { inBatches } from '../lib/batches'
 import {
   getMessage,
   getProfile,
-  GmailHistoryExpiredError,
+  GmailError,
   listHistory,
   listMessageIds,
   listThreadMessageIds,
 } from '../lib/gmail'
 import { announceChange } from '../lib/live'
+import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage, retireStaleActions } from './agent'
-import { collectEntries, collectForNewMail } from './boards'
+import { collectEntries, collectForNewMail, isUnchanged } from './boards'
 import { measureBulk } from './bulk'
 import { searchMailboxes } from './mailboxes'
 import { emailAllowance, getPlanInfo, hasAgent } from './plan'
@@ -81,12 +82,16 @@ export const ensureMailbox = async (userId: string) => {
   return expectRow(raced)
 }
 
+/** Also an expired history id, when it comes from `listHistory`. */
+const isMissing = (error: unknown) =>
+  error instanceof GmailError && error.status === 404
+
 const newMessageIds = async (mailbox: Mailbox) => {
   if (mailbox.historyId) {
     try {
       return await listHistory(mailbox, mailbox.historyId)
     } catch (error) {
-      if (!(error instanceof GmailHistoryExpiredError)) {
+      if (!isMissing(error)) {
         throw error
       }
     }
@@ -106,8 +111,15 @@ const newMessageIds = async (mailbox: Mailbox) => {
 
 const later = alias(messages, 'later')
 
-/** A thread is judged once, by its latest incoming email; older ones in it are context only. */
-export const analyzePending = async (userId: string) => {
+/**
+ * A thread is judged once, by its latest email when that one is incoming; older ones in it are
+ * context only. Only what this sync inserted is judged: history and context mail never is, and an
+ * insert returns a row to one sync only, so parallel mailbox syncs never analyse an email twice.
+ */
+const analyzePending = async (userId: string, inserted: Message[]) => {
+  if (inserted.length === 0) {
+    return
+  }
   const { allowance, save } = await emailAllowance(userId)
   const pending = await db
     .select({ address: mailboxes.email, message: messages })
@@ -117,6 +129,10 @@ export const analyzePending = async (userId: string) => {
     .where(
       and(
         eq(messages.userId, userId),
+        inArray(
+          messages.id,
+          inserted.map(({ id }) => id)
+        ),
         eq(messages.isFromMe, false),
         isNull(analyses.messageId),
         gte(messages.receivedAt, subDays(new Date(), ANALYZE_WINDOW_DAYS)),
@@ -134,7 +150,6 @@ export const analyzePending = async (userId: string) => {
               and(
                 eq(later.userId, userId),
                 eq(later.threadId, messages.threadId),
-                eq(later.isFromMe, false),
                 gt(later.receivedAt, messages.receivedAt)
               )
             )
@@ -144,7 +159,7 @@ export const analyzePending = async (userId: string) => {
 
   await inBatches(pending, ANALYZE_CONCURRENCY, ({ address, message }) =>
     analyzeMessage(message, address, allowance).catch((error) =>
-      console.error(`analyze ${message.id} failed`, error)
+      logError(`analyze ${message.id} failed`, error)
     )
   )
   await save()
@@ -169,11 +184,11 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
       (message) => !zombies.has(message.id) && !spam.has(message.id)
     )
   )
-  await analyzePending(userId)
+  await analyzePending(userId, inserted)
   await Promise.all(
     inserted
       .filter((message) => message.isFromMe)
-      .map(({ threadId }) => retireStaleActions(userId, threadId))
+      .map((message) => retireStaleActions(userId, message))
   )
   await Promise.all(
     inserted
@@ -183,23 +198,41 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
           messageId: message.id,
           text: message.body,
           threadId: message.threadId,
-        }).catch((error) => console.error('follow-up watch failed', error))
+        }).catch((error) => logError('follow-up watch failed', error))
       )
   )
   if (!hasAgent(await getPlanInfo(userId))) {
     return
   }
-  await collectForNewMail(userId, inserted)
+  await collectForNewMail(userId, inserted).catch((error) =>
+    logError('board collection failed', error)
+  )
   await advanceTasksFor(userId, [
     ...new Set(
       inserted
         .filter((message) => !message.isFromMe)
         .map(({ threadId }) => threadId)
     ),
-  ])
+  ]).catch((error) => logError('task advance failed', error))
 }
 
-const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
+/**
+ * A failed sync keeps its history id, so the same mail comes back next time; forgetting what it
+ * stored lets that mail be processed then instead of being skipped as known.
+ */
+const forget = async (inserted: Message[]) => {
+  if (inserted.length > 0) {
+    await db.delete(messages).where(
+      inArray(
+        messages.id,
+        inserted.map(({ id }) => id)
+      )
+    )
+  }
+}
+
+/** Only stores: mail found by search or for a board must never reach `processIncoming`. */
+export const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
   const known = ids.length
     ? await db
         .select({ gmailId: messages.gmailId })
@@ -214,22 +247,32 @@ const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
   const knownIds = new Set(known.map(({ gmailId }) => gmailId))
 
   const inserted: Message[] = []
-  await inBatches(
-    ids.filter((id) => !knownIds.has(id)),
-    ANALYZE_CONCURRENCY,
-    async (id) => {
-      const parsed = await getMessage(mailbox, id)
-      if (parsed.labelIds.includes('DRAFT')) {
-        return
+  try {
+    await inBatches(
+      ids.filter((id) => !knownIds.has(id)),
+      ANALYZE_CONCURRENCY,
+      async (id) => {
+        const parsed = await getMessage(mailbox, id).catch((error) => {
+          if (isMissing(error)) {
+            return null
+          }
+          throw error
+        })
+        if (!parsed || parsed.labelIds.includes('DRAFT')) {
+          return
+        }
+        const rows = await db
+          .insert(messages)
+          .values({ ...parsed, mailboxId: mailbox.id, userId: mailbox.userId })
+          .onConflictDoNothing()
+          .returning()
+        inserted.push(...rows)
       }
-      const rows = await db
-        .insert(messages)
-        .values({ ...parsed, mailboxId: mailbox.id, userId: mailbox.userId })
-        .onConflictDoNothing()
-        .returning()
-      inserted.push(...rows)
-    }
-  )
+    )
+  } catch (error) {
+    await forget(inserted)
+    throw error
+  }
   return inserted
 }
 
@@ -297,34 +340,46 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
   }
   try {
     const { historyId, ids, labelChanges } = await newMessageIds(mailbox)
+    const byLabels = Map.groupBy(labelChanges, ([, labelIds]) =>
+      labelIds.toSorted().join(' ')
+    )
     await Promise.all(
-      [...labelChanges].map(([gmailId, labelIds]) =>
-        db
+      [...byLabels].map(([joined, changes]) => {
+        const labelIds = joined ? joined.split(' ') : []
+        return db
           .update(messages)
           .set({ isUnread: labelIds.includes('UNREAD'), labelIds })
           .where(
             and(
               eq(messages.mailboxId, mailbox.id),
-              eq(messages.gmailId, gmailId)
+              inArray(
+                messages.gmailId,
+                changes.map(([gmailId]) => gmailId)
+              )
             )
           )
-      )
+      })
     )
     const inserted = await insertMessages(mailbox, ids)
-    await completeThreads(mailbox, inserted)
-    await db
-      .update(mailboxes)
-      .set({ historyId })
-      .where(eq(mailboxes.id, mailbox.id))
     const hasChanges = inserted.length > 0 || labelChanges.size > 0
-    if (hasChanges) {
-      await announceChange(mailbox.userId)
+    try {
+      await completeThreads(mailbox, inserted)
+      if (hasChanges) {
+        await announceChange(mailbox.userId)
+      }
+      await processIncoming(mailbox, inserted)
+    } catch (error) {
+      await forget(inserted)
+      throw error
     }
-
-    await processIncoming(mailbox, inserted)
     await db
       .update(mailboxes)
-      .set({ lastSyncedAt: new Date(), syncError: null, syncStartedAt: null })
+      .set({
+        historyId,
+        lastSyncedAt: new Date(),
+        syncError: null,
+        syncStartedAt: null,
+      })
       .where(eq(mailboxes.id, mailbox.id))
     if (hasChanges || !mailbox.lastSyncedAt) {
       await announceChange(mailbox.userId)
@@ -377,6 +432,9 @@ export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
     })
   )
   await collectEntries(board, found.flat())
+  if (!(await isUnchanged(board))) {
+    return
+  }
   await db
     .update(boards)
     .set({ historyReadAt: new Date() })

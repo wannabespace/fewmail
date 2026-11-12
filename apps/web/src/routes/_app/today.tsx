@@ -1,9 +1,11 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import { sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import { Button } from '@fewmail/ui/components/button'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import { Kbd } from '@fewmail/ui/components/kbd'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -22,20 +24,16 @@ import { BriefHourSelect } from '~/components/agent-fields'
 import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
-import { hasDraft, QueueCard } from '~/components/queue-card'
+import { QueueCard } from '~/components/queue-card'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
 
 const HandledSummary = ({
   handled,
+  onReview,
 }: {
-  handled: {
-    archived: number
-    markedRead: number
-    spam: number
-    total: number
-    unsubscribed: number
-  }
+  handled: Today['handled']
+  onReview: () => void
 }) => {
   const t = useT().today.handled
 
@@ -51,10 +49,67 @@ const HandledSummary = ({
         {handled.unsubscribed > 0 &&
           ` · ${t.unsubscribed(handled.unsubscribed)}`}
       </span>
-      <Link to="/mail" search={{ filter: 'quiet' }} className="ml-auto">
-        {t.review}
-      </Link>
+      <Button size="sm" variant="link" className="ml-auto" onClick={onReview}>
+        {t.review} <Kbd>H</Kbd>
+      </Button>
     </div>
+  )
+}
+
+const HandledList = () => {
+  const t = useT()
+  const queryClient = useQueryClient()
+  const { data: handled = [] } = useQuery(orpc.today.handled.queryOptions())
+  const notSpam = useMutation(
+    orpc.mail.notSpam.mutationOptions({
+      onSuccess: () => {
+        toast(t.mail.movedToInbox)
+        void queryClient.invalidateQueries()
+      },
+    })
+  )
+
+  return (
+    <SettingsGroup title={t.today.handled.total(handled.length)}>
+      {handled.map(({ action, message, summary }) => (
+        <SettingsRow
+          key={action.id}
+          title={
+            message ? (
+              <ThreadLink
+                threadId={message.threadId}
+                text={message.fromName ?? message.fromEmail}
+              />
+            ) : (
+              action.title
+            )
+          }
+          description={
+            <span data-mask>
+              {[
+                action.title || t.actionKind[action.kind],
+                action.reason || summary,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
+          }
+        >
+          {action.kind === 'spam' && message ? (
+            <Button
+              size="sm"
+              variant="ghost-muted"
+              disabled={notSpam.isPending}
+              onClick={() => notSpam.mutate({ messageId: message.id })}
+            >
+              {t.mail.notSpam}
+            </Button>
+          ) : (
+            <Ago date={action.createdAt} />
+          )}
+        </SettingsRow>
+      ))}
+    </SettingsGroup>
   )
 }
 
@@ -191,7 +246,15 @@ const Pulse = ({ pulse }: { pulse: Today['pulse'] }) => {
   )
 }
 
-const DayTally = ({ today }: { today: Today }) => {
+const DayTally = ({
+  isReviewing,
+  onReview,
+  today,
+}: {
+  isReviewing: boolean
+  onReview: () => void
+  today: Today
+}) => {
   const t = useT()
   const dates = useDates()
 
@@ -203,7 +266,10 @@ const DayTally = ({ today }: { today: Today }) => {
         </p>
       )}
       {today.pulse.total > 0 && <Pulse pulse={today.pulse} />}
-      {today.handled.total > 0 && <HandledSummary handled={today.handled} />}
+      {today.handled.total > 0 && (
+        <HandledSummary handled={today.handled} onReview={onReview} />
+      )}
+      {isReviewing && <HandledList />}
     </>
   )
 }
@@ -300,6 +366,7 @@ const TodayPage = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
+  const [isReviewing, setIsReviewing] = useState(false)
 
   const selectedIndex = Math.max(
     0,
@@ -336,9 +403,14 @@ const TodayPage = () => {
           action: {
             label: t.compose.undo,
             onClick: async () => {
-              await client.mail.cancelSend({ id: outboxId })
-              void invalidate()
-              toast(t.compose.backInQueue)
+              // The client's error toast already says it was sent.
+              const canceled = await client.mail
+                .cancelSend({ id: outboxId })
+                .catch(() => null)
+              if (canceled) {
+                void invalidate()
+                toast(t.compose.backInQueue)
+              }
             },
           },
           duration: UNDO_SEND_SECONDS * 1000,
@@ -415,14 +487,20 @@ const TodayPage = () => {
   useHotkey(
     'E',
     () =>
-      selected && hasDraft(selected.action) && setEditingId(selected.action.id),
+      selected &&
+      sendsDraft(selected.action) &&
+      setEditingId(selected.action.id),
     listKeys
   )
   useHotkey(
     'R',
-    () => selected && hasDraft(selected.action) && shorten(selected.action.id),
+    () =>
+      selected && sendsDraft(selected.action) && shorten(selected.action.id),
     listKeys
   )
+  const hasHandled = !!data?.handled.total
+  const reviewHandled = () => setIsReviewing((current) => !current)
+  useHotkey('H', reviewHandled, { enabled: !isEditing && hasHandled })
   useHotkey(
     'O',
     () =>
@@ -501,7 +579,13 @@ const TodayPage = () => {
           </section>
 
           {data && <MailDigest today={data} />}
-          {data && <DayTally today={data} />}
+          {data && (
+            <DayTally
+              today={data}
+              isReviewing={isReviewing}
+              onReview={reviewHandled}
+            />
+          )}
           <ConnectHint />
         </div>
       </div>
@@ -517,6 +601,9 @@ const TodayPage = () => {
                 ['⏎', t.keys.approve],
                 ['E', t.keys.edit],
                 ['S', t.keys.skip],
+                ...(hasHandled
+                  ? [['H', t.today.handled.review] as [string, string]]
+                  : []),
                 ['⌘K', t.keys.anything],
               ]
         }

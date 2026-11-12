@@ -3,6 +3,7 @@ import { ORPCError, os } from '@orpc/server'
 import { auth } from '../lib/auth'
 import { LimitReachedError } from '../services/limit-error'
 import { NotFoundError } from '../services/mail'
+import { AlreadySentError } from '../services/outbox'
 import { AgentRequiredError, requireAgent } from '../services/plan'
 
 export const orpc = os.$context<{ headers: Headers }>()
@@ -11,6 +12,9 @@ const notFoundToOrpc = orpc.middleware(async ({ next }) => {
   try {
     return await next()
   } catch (error) {
+    if (error instanceof AlreadySentError) {
+      throw new ORPCError('CONFLICT', { message: error.message })
+    }
     if (error instanceof NotFoundError) {
       throw new ORPCError('NOT_FOUND', { message: error.message })
     }

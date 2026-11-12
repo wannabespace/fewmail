@@ -1,3 +1,5 @@
+import { domainToUnicode } from 'node:url'
+
 import { db } from '@fewmail/db'
 import {
   actions,
@@ -11,11 +13,20 @@ import { noul } from '@typesafe-ai/sdk'
 import { and, eq, lt, sql } from 'drizzle-orm'
 
 import { jev } from '../lib/jev'
-import { domainOf, keyedHash, userHashOf } from '../lib/keyed-hash'
-import { listedDomains, popularDomains } from './known-domains'
-import { domainAgeDays, registrable } from './patterns'
+import { domainOf, paymentHashOf, userHashOf } from '../lib/keyed-hash'
+import { logError } from '../lib/log'
+import {
+  FREEMAIL_DOMAINS,
+  listedDomains,
+  popularDomains,
+} from './known-domains'
+import {
+  domainAgeDays,
+  linkHostsOf,
+  registrable,
+  YOUNG_DOMAIN_DAYS,
+} from './patterns'
 import { getSettings } from './settings'
-import { FREEMAIL_DOMAINS } from './spam'
 
 type Message = typeof messages.$inferSelect
 
@@ -42,8 +53,6 @@ const BRAND_DOMAINS = [
   'stripe.com',
   'wise.com',
 ]
-/** A domain registered this recently that asks for money is treated like a throwaway one. */
-const YOUNG_DOMAIN_DAYS = 30
 const POPULAR_DOMAIN_USERS = 20
 const POPULAR_CACHE_MS = 10 * 60_000
 
@@ -63,9 +72,9 @@ const CONFUSABLES: [RegExp, string][] = [
 ]
 
 const labelOf = (domain: string) =>
-  domain.split('.').slice(0, -1).join('.') || domain
+  registrable(domainToUnicode(domain) || domain).split('.')[0] ?? ''
 
-/** What a domain reads as to a human: confusable letters folded, TLD dropped. */
+/** What a domain reads as to a human: confusable letters folded, subdomains and TLD dropped. */
 const skeleton = (domain: string) => {
   let text = labelOf(domain).normalize('NFKC').toLowerCase()
   for (const [pattern, letter] of CONFUSABLES) {
@@ -126,23 +135,30 @@ export const imitatedDomain = async (domain: string) => {
     : null
 }
 
-const LINK_HOST = /https?:\/\/(?<host>[^\s/"'<>?#:]+)/giu
-
-const linkedDomains = (body: string) =>
-  [...body.matchAll(LINK_HOST)].map(
-    (match) => match.groups?.host?.toLowerCase() ?? ''
-  )
-
 const IBAN = /\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){2,7}(?:\s?[A-Z0-9]{1,4})?\b/gu
 const WALLET =
   /\b(?:0x[a-fA-F0-9]{40}|bc1[a-z0-9]{25,59}|T[1-9A-HJ-NP-Za-km-z]{33})\b/gu
 const MONEY_WORDS =
   /invoice|payment|pay |iban|bank|wire|transfer|account number|wallet|usdt|btc|crypto|оплат|рахун|реквізит|переказ|rechnung|zahlung|factura|pago|facture|paiement|fattura|pagamento|faktura|płatno/iu
 
-const paymentDetailsIn = (body: string) =>
-  [
-    ...new Set([...(body.match(IBAN) ?? []), ...(body.match(WALLET) ?? [])]),
-  ].map((detail) => detail.replaceAll(/\s/gu, '').toUpperCase())
+const compact = (detail: string) => detail.replaceAll(/\s/gu, '').toUpperCase()
+
+/** ISO 13616: `- 55` maps A–Z to 10–35. */
+const isIban = (iban: string) =>
+  BigInt(
+    `${iban.slice(4)}${iban.slice(0, 4)}`.replaceAll(/[A-Z]/gu, (letter) =>
+      String((letter.codePointAt(0) ?? 0) - 55)
+    )
+  ) %
+    97n ===
+  1n
+
+const paymentDetailsIn = (body: string) => [
+  ...new Set([
+    ...(body.match(IBAN) ?? []).map(compact).filter(isIban),
+    ...(body.match(WALLET) ?? []).map(compact),
+  ]),
+]
 
 const knownSender = async (userId: string, domain: string, before: Date) => {
   const [previous] = await db
@@ -189,7 +205,7 @@ const senderRisk = async (
   const [phishing] = await listedDomains('phishing', [
     domain,
     replyDomain,
-    ...linkedDomains(message.body),
+    ...linkHostsOf(message.body),
   ])
   if (phishing) {
     return { imitates: phishing, kind: 'known_phishing' }
@@ -231,7 +247,7 @@ const assess = async (
     : []
   const knownHashes = new Set(known.map(({ detailHash }) => detailHash))
   const newDetails = details.filter(
-    (detail) => !knownHashes.has(keyedHash(`pay:${detail}`))
+    (detail) => !knownHashes.has(paymentHashOf(detail))
   )
   const signals = await jevSignals(message.body)
 
@@ -269,7 +285,7 @@ const remember = async (userId: string, message: Message) => {
       .insert(paymentDetails)
       .values(
         details.map((detail) => ({
-          detailHash: keyedHash(`pay:${detail}`),
+          detailHash: paymentHashOf(detail),
           senderDomain: domain,
           userId,
         }))
@@ -290,12 +306,12 @@ export const assessRisks = async (userId: string, incoming: Message[]) => {
   for (const message of inbound) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- payment details learned from one email must count for the next
     const risk = await assess(userId, message).catch((error) => {
-      console.error('risk check failed', error)
+      logError('risk check failed', error)
       return null
     })
-    // oxlint-disable-next-line eslint/no-await-in-loop -- see above
-    await remember(userId, message)
     if (!risk) {
+      // oxlint-disable-next-line eslint/no-await-in-loop -- see above
+      await remember(userId, message)
       continue
     }
     // oxlint-disable-next-line eslint/no-await-in-loop -- see above

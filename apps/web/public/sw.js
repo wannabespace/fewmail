@@ -18,7 +18,12 @@ const openApp = async (url) => {
     return self.clients.openWindow(url)
   }
   const focused = await open.focus()
-  return focused.navigate(url)
+  try {
+    // Rejects for a tab this worker does not control yet.
+    return await focused.navigate(url)
+  } catch {
+    return self.clients.openWindow(url)
+  }
 }
 
 self.addEventListener('notificationclick', (event) => {

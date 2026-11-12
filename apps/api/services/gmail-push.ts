@@ -9,6 +9,7 @@ import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { env } from '../env'
 import { watchInbox } from '../lib/gmail'
 import { keyedHash } from '../lib/keyed-hash'
+import { logErrorAs } from '../lib/log'
 import { syncMailbox } from './sync'
 
 type Mailbox = typeof mailboxes.$inferSelect
@@ -93,7 +94,7 @@ export const handleGmailPush = async (request: Request) => {
       .from(mailboxes)
       .where(eq(mailboxes.addressHash, addressHashOf(address)))
     for (const mailbox of pushed) {
-      void syncMailbox(mailbox).catch(console.error)
+      void syncMailbox(mailbox).catch(logErrorAs('push sync'))
     }
   }
   return new Response(null, { status: 204 })

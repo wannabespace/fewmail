@@ -1,18 +1,20 @@
 import { db } from '@fewmail/db'
-import { actions, messages, unsubscribes } from '@fewmail/db/schema'
+import {
+  actions,
+  messages,
+  unsubscribes,
+  userSettings,
+} from '@fewmail/db/schema'
 import type { CleanupSender } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { subDays } from 'date-fns'
 import { and, eq, gte, isNotNull, sql } from 'drizzle-orm'
 
 import { localClock } from '../lib/clock'
-import { unsubscribeOneClick } from '../lib/gmail'
 import { senderHashOf } from '../lib/keyed-hash'
 import { announceChange } from '../lib/live'
-import { NotFoundError } from './mail-errors'
-import { getSettings } from './settings'
-import { changeThreadLabels } from './thread-labels'
-import { recordUnsubscribe } from './zombies'
+import { logError } from '../lib/log'
+import { unsubscribeMessage } from './thread-effects'
 
 const LOOKBACK_DAYS = 30
 const MIN_UNOPENED = 3
@@ -67,31 +69,27 @@ const unopenedSenders = async (userId: string): Promise<CleanupSender[]> => {
     }))
 }
 
-/** Once a week, on Sunday after the brief hour, one card offers to unsubscribe from everything unopened. */
-export const offerCleanup = async (userId: string) => {
-  const settings = await getSettings(userId)
-  if (!settings) {
-    return
-  }
+const CLEANUP_EVERY_DAYS = 6
+
+/** Once a week, on Sunday after the brief hour, one card offers to unsubscribe from everything unopened. `cleanupCheckedAt` is set before looking, so a week with nothing to offer is not looked at again every minute. */
+export const offerCleanup = async (
+  settings: typeof userSettings.$inferSelect
+) => {
+  const { userId } = settings
   const clock = localClock(settings.timezone)
   const weekday = new Date(`${clock.date}T12:00:00Z`).getUTCDay()
-  if (weekday !== WEEKDAY_SUNDAY || clock.hour < settings.briefHour) {
+  if (
+    weekday !== WEEKDAY_SUNDAY ||
+    clock.hour < settings.briefHour ||
+    (settings.cleanupCheckedAt &&
+      settings.cleanupCheckedAt > subDays(new Date(), CLEANUP_EVERY_DAYS))
+  ) {
     return
   }
-  const [recent] = await db
-    .select({ id: actions.id })
-    .from(actions)
-    .where(
-      and(
-        eq(actions.userId, userId),
-        eq(actions.kind, 'cleanup'),
-        gte(actions.createdAt, subDays(new Date(), 6))
-      )
-    )
-    .limit(1)
-  if (recent) {
-    return
-  }
+  await db
+    .update(userSettings)
+    .set({ cleanupCheckedAt: new Date() })
+    .where(eq(userSettings.userId, userId))
   const senders = await unopenedSenders(userId)
   if (senders.length === 0) {
     return
@@ -111,44 +109,13 @@ export const offerCleanup = async (userId: string) => {
   await announceChange(userId)
 }
 
-/** Leaves the list `messageId` came from and archives everything the sender sent. */
-export const unsubscribeSender = async (userId: string, messageId: string) => {
-  const [message] = await db
-    .select()
-    .from(messages)
-    .where(and(eq(messages.id, messageId), eq(messages.userId, userId)))
-  if (!message) {
-    throw new NotFoundError('Message not found')
-  }
-  const unsubscribed = message.listUnsubscribe
-    ? await unsubscribeOneClick(
-        message.listUnsubscribe,
-        message.listUnsubscribePost
-      ).catch(() => false)
-    : false
-  await recordUnsubscribe(userId, message.fromEmail)
-  const threads = await db
-    .selectDistinct({ threadId: messages.threadId })
-    .from(messages)
-    .where(
-      and(
-        eq(messages.userId, userId),
-        eq(messages.fromEmail, message.fromEmail)
-      )
-    )
-  await Promise.all(
-    threads.map(({ threadId }) =>
-      changeThreadLabels(userId, threadId, {
-        remove: ['INBOX', 'UNREAD'],
-      }).catch(() => null)
-    )
-  )
-  return { unsubscribed }
-}
-
 export const runCleanup = (userId: string, senders: CleanupSender[]) =>
   Promise.all(
-    senders.map(({ messageId }) =>
-      unsubscribeSender(userId, messageId).catch(() => null)
-    )
+    senders.map(async ({ messageId }) => {
+      try {
+        await unsubscribeMessage(userId, messageId, 'sender')
+      } catch (error) {
+        logError('cleanup unsubscribe failed', error)
+      }
+    })
   )

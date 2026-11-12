@@ -28,7 +28,15 @@ export const tr: Messages = {
   },
   agent: {
     chats: 'Sohbetler',
+    autonomy: {
+      ask: 'Her e-postadan önce sana sorar',
+      auto: (most: number) =>
+        `E-postaları sana sormadan kendisi gönderir (en fazla ${most})`,
+    },
+    calendar: (email: string) => `${email} takviminde`,
+    cc: (recipients: string) => `Bilgi: ${recipients}`,
     confirm: {
+      create_schedule: 'Bu bir zamanlamayla çalıştırılsın mı?',
       create_event: 'Bu etkinlik eklensin mi?',
       delete_event: 'Bu etkinlik silinsin mi?',
       update_event: 'Bu etkinlik değiştirilsin mi?',
@@ -58,6 +66,9 @@ export const tr: Messages = {
     retry: 'Tekrar dene',
     send: 'Gönder',
     steps: {
+      create_schedule: 'Zamanlama kuruluyor',
+      delete_schedule: 'Zamanlama durduruluyor',
+      list_schedules: 'Zamanlamalar okunuyor',
       create_event: 'Etkinlik ekleniyor',
       delete_event: 'Etkinlik siliniyor',
       list_events: 'Takvime bakılıyor',
@@ -74,6 +85,7 @@ export const tr: Messages = {
       get_today: 'Bugün kontrol ediliyor',
       handle_thread: 'Yazışma devrediliyor',
       list_boards: 'Panolar açılıyor',
+      list_handled: 'Halledilenlere bakılıyor',
       list_mail: 'E-postalarda aranıyor',
       list_rules: 'Kurallar okunuyor',
       read_thread: 'Yazışma okunuyor',
@@ -89,6 +101,7 @@ export const tr: Messages = {
     to: (recipients: string) => `Kime: ${recipients}`,
     until: (time: string) => `Şu zamana kadar: ${time}`,
     yes: {
+      create_schedule: 'Zamanla',
       create_event: 'Ekle',
       delete_event: 'Sil',
       update_event: 'Kaydet',
@@ -310,6 +323,7 @@ export const tr: Messages = {
   errors: {
     failed: 'Bir şeyler ters gitti. Tekrar dene.',
     needsPro: 'Bunun için Fewmail Pro gerekiyor.',
+    alreadySent: 'Zaten gönderildi — geri almak için çok geç.',
     notFound: 'Bu artık yok — silinmiş olabilir.',
     offline: 'Fewmail’e ulaşılamıyor. Bağlantını kontrol et.',
   },
@@ -388,6 +402,7 @@ export const tr: Messages = {
     movedToInbox: 'Gelen kutusuna geri taşındı. Bildirdiğin için teşekkürler.',
     noThread: 'Burada okumak için bir e-posta seç',
     deleteDraft: 'Taslağı sil',
+    notSent: 'Gönderilemedi — yeniden denemek için aç',
     noRecipients: 'Alıcı yok',
     notSpam: 'Spam değil',
     reportSpam: 'Spam bildir',
@@ -451,6 +466,8 @@ export const tr: Messages = {
     watching: 'Ajan gelen kutunu izliyor',
   },
   schedule: {
+    awaitsAnswer:
+      'Bu çalışmayı atladım: bir önceki hâlâ bu sohbette yanıtını bekliyor.',
     failed:
       'Bu zamanlanmış çalışma başarısız oldu. Bir sonrakinde yeniden deneyeceğim.',
     limitReached: (day: string) =>
@@ -518,6 +535,7 @@ export const tr: Messages = {
     threads: (total: number) => `${total} yazışma`,
   },
   queue: {
+    askedByYou: 'Senin isteğinle',
     draftedInVoice: 'Senin üslubunla yazıldı',
     edit: 'Düzenle',
     open: 'Aç',
@@ -763,7 +781,8 @@ export const tr: Messages = {
     nothing: 'Şu an seni bekleyen bir şey yok.',
     proOnly:
       "Telegram, Fewmail Pro'nun bir parçası. Pro'ya geçmek için Fewmail'de Ayarlar → Plan'ı aç.",
-    queueHint: '/queue — seni bekleyenler',
+    draftClipped:
+      'Burada kısaltıldı. “Gönder” taslağın tamamını gönderir; Fewmail’de oku.',
     rewriting: 'Yeniden yazılıyor…',
     send: 'Gönder',
     sendThis: 'Bunu gönder',

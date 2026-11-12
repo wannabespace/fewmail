@@ -7,10 +7,11 @@ import {
   telegramLinks,
   whatsappLinks,
 } from '@fewmail/db/schema'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, isNull, or } from 'drizzle-orm'
 import { customAlphabet } from 'nanoid'
 
 import { env } from '../env'
+import { announceChange } from '../lib/live'
 
 /** Apps the user allowed into MCP through OAuth; consent is what keeps one connected. */
 export const listConnectedApps = (userId: string) =>
@@ -87,8 +88,16 @@ export const linkTelegramChat = async (code: string, chatId: string) => {
   const [link] = await db
     .update(telegramLinks)
     .set({ chatId, linkCode: linkCode(), linkedAt: new Date() })
-    .where(eq(telegramLinks.linkCode, code))
+    .where(
+      and(
+        eq(telegramLinks.linkCode, code),
+        or(isNull(telegramLinks.chatId), eq(telegramLinks.chatId, chatId))
+      )
+    )
     .returning()
+  if (link) {
+    await announceChange(link.userId)
+  }
   return link ?? null
 }
 
@@ -159,8 +168,16 @@ export const linkWhatsappPhone = async (text: string, phone: string) => {
       linkedAt: new Date(),
       phone,
     })
-    .where(eq(whatsappLinks.linkCode, code))
+    .where(
+      and(
+        eq(whatsappLinks.linkCode, code),
+        or(isNull(whatsappLinks.phone), eq(whatsappLinks.phone, phone))
+      )
+    )
     .returning()
+  if (link) {
+    await announceChange(link.userId)
+  }
   return link ?? null
 }
 

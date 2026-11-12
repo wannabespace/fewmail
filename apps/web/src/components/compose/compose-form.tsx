@@ -119,6 +119,7 @@ export const ComposeForm = ({
       return
     }
     saveDraft.mutate({
+      bcc: draft.bcc,
       cc: parseRecipients(cc).filter(isValid),
       ...(draft.gmailDraft && { draft: draft.gmailDraft }),
       html: editor.getHtml(),

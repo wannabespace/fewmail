@@ -28,9 +28,35 @@ const BoardPage = () => {
     orpc.boards.get.queryOptions({ input: { id: boardId } })
   )
   const [isEditing, setIsEditing] = useState(false)
+  const boardKey = orpc.boards.get.queryKey({ input: { id: boardId } })
+  // Each edit sends every chart: the next one must build on this one, so it shows at once and edits run in order.
   const update = useMutation(
     orpc.boards.update.mutationOptions({
-      onSettled: () => queryClient.invalidateQueries(),
+      onMutate: async ({ charts: next }) => {
+        await queryClient.cancelQueries({ queryKey: boardKey })
+        queryClient.setQueryData(
+          boardKey,
+          (old) =>
+            old &&
+            next && {
+              ...old,
+              charts: next.map((chart) => ({
+                currencies: [],
+                points: [],
+                rest: 0,
+                skipped: 0,
+                sumCurrency: null,
+                ...old.charts.find(({ id }) => id === chart.id),
+                ...chart,
+              })),
+            }
+        )
+      },
+      onSettled: () =>
+        queryClient.isMutating({
+          mutationKey: orpc.boards.update.mutationKey(),
+        }) === 1 && queryClient.invalidateQueries(),
+      scope: { id: `board:${boardId}` },
     })
   )
 

@@ -3,19 +3,26 @@ import { actions, mailboxes, messages, outbox } from '@fewmail/db/schema'
 import type { OutboxMode } from '@fewmail/shared/agent'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import { forwardSubject, replySubject } from '@fewmail/shared/email'
-import { addSeconds } from 'date-fns'
-import { and, eq, isNull, lte } from 'drizzle-orm'
+import { addSeconds, subMinutes } from 'date-fns'
+import { and, eq, inArray, isNull, lte } from 'drizzle-orm'
 
 import { deleteDraft, sendMail } from '../lib/gmail'
+import { announceChange } from '../lib/live'
+import { logError, logErrorAs } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
 import { ownMailbox } from './mailboxes'
 import { scheduleFollowup } from './reminders'
-import { watchSentMail } from './sent-mail'
 import { changeThreadLabels } from './thread-labels'
 
 /** In-process timers make Undo-sized delays exact; the worker sweep catches anything a restart dropped. */
 const timers = new Map<string, ReturnType<typeof setTimeout>>()
+
+const STUCK_SENDING_MINUTES = 10
+
+export class AlreadySentError extends NotFoundError {
+  override name = 'AlreadySentError'
+}
 
 export interface DraftRef {
   id: string
@@ -94,6 +101,24 @@ export const mailHeaders = async (userId: string, mail: OutgoingMail) => {
   }
 }
 
+/** An approved draft goes back to the queue; the user's own mail is listed among the drafts as not sent. */
+const markFailed = async (
+  row: Pick<typeof outbox.$inferSelect, 'actionId' | 'id' | 'userId'>,
+  error: string
+) => {
+  await db
+    .update(outbox)
+    .set({ error, status: 'failed' })
+    .where(eq(outbox.id, row.id))
+  if (row.actionId) {
+    await db
+      .update(actions)
+      .set({ resolvedAt: null, status: 'pending' })
+      .where(and(eq(actions.id, row.actionId), eq(actions.userId, row.userId)))
+  }
+  await announceChange(row.userId)
+}
+
 export const dispatchOutbox = async (id: string) => {
   timers.delete(id)
   const [claimed] = await db
@@ -119,24 +144,10 @@ export const dispatchOutbox = async (id: string) => {
       .where(eq(mailboxes.id, claimed.mailboxId))
     sent = await sendMail(expectRow(mailbox), claimed)
   } catch (error) {
-    await db
-      .update(outbox)
-      .set({
-        error: error instanceof Error ? error.message : String(error),
-        status: 'failed',
-      })
-      .where(eq(outbox.id, id))
-    if (claimed.actionId) {
-      await db
-        .update(actions)
-        .set({ resolvedAt: null, status: 'pending' })
-        .where(
-          and(
-            eq(actions.id, claimed.actionId),
-            eq(actions.userId, claimed.userId)
-          )
-        )
-    }
+    await markFailed(
+      claimed,
+      error instanceof Error ? error.message : String(error)
+    )
     return
   }
 
@@ -148,14 +159,16 @@ export const dispatchOutbox = async (id: string) => {
         remove: ['UNREAD'],
       })
     }
-    await (claimed.remindAfterDays
-      ? scheduleFollowup(claimed.userId, sent.threadId, claimed.remindAfterDays)
-      : watchSentMail(claimed.userId, {
-          text: claimed.text,
-          threadId: sent.threadId,
-        }))
+    // Sync watches every sent message (commitments, automatic follow-up); here only the user's own choice.
+    if (claimed.remindAfterDays) {
+      await scheduleFollowup(
+        claimed.userId,
+        sent.threadId,
+        claimed.remindAfterDays
+      )
+    }
   } catch (error) {
-    console.error('outbox after-send failed', error)
+    logError('outbox after-send failed', error)
   }
 }
 
@@ -166,7 +179,7 @@ const arm = (id: string, sendAt: Date) => {
       id,
       setTimeout(
         () => {
-          dispatchOutbox(id).catch(console.error)
+          dispatchOutbox(id).catch(logErrorAs('outbox dispatch'))
         },
         Math.max(0, delay)
       )
@@ -207,7 +220,7 @@ export const scheduleMail = async (userId: string, mail: OutgoingMail) => {
   return scheduled
 }
 
-/** Undo: works until the outbox claims the row; an approved agent draft goes back to the queue. */
+/** Undo, or reopening mail that failed: works until the outbox claims the row; an approved agent draft goes back to the queue. */
 export const cancelMail = async (userId: string, id: string) => {
   const [canceled] = await db
     .update(outbox)
@@ -216,12 +229,12 @@ export const cancelMail = async (userId: string, id: string) => {
       and(
         eq(outbox.id, id),
         eq(outbox.userId, userId),
-        eq(outbox.status, 'scheduled')
+        inArray(outbox.status, ['scheduled', 'failed'])
       )
     )
     .returning()
   if (!canceled) {
-    throw new NotFoundError('Already sent')
+    throw new AlreadySentError('Already sent')
   }
   clearTimeout(timers.get(id))
   timers.delete(id)
@@ -249,14 +262,33 @@ export const listScheduled = (userId: string) =>
     .select({
       id: outbox.id,
       sendAt: outbox.sendAt,
+      status: outbox.status,
       subject: outbox.subject,
       to: outbox.to,
     })
     .from(outbox)
-    .where(and(eq(outbox.userId, userId), eq(outbox.status, 'scheduled')))
+    .where(
+      and(
+        eq(outbox.userId, userId),
+        inArray(outbox.status, ['scheduled', 'failed'])
+      )
+    )
     .orderBy(outbox.sendAt)
 
 export const dispatchDueOutbox = async () => {
+  // Never send these again: Gmail may have sent the mail before the process died.
+  const stuck = await db
+    .select()
+    .from(outbox)
+    .where(
+      and(
+        eq(outbox.status, 'sending'),
+        lte(outbox.updatedAt, subMinutes(new Date(), STUCK_SENDING_MINUTES))
+      )
+    )
+  await Promise.all(
+    stuck.map((row) => markFailed(row, 'Interrupted while sending'))
+  )
   const due = await db
     .select({ id: outbox.id })
     .from(outbox)

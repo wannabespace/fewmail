@@ -1,13 +1,13 @@
 import { db } from '@fewmail/db'
 import type { messages } from '@fewmail/db/schema'
-import { actions, unsubscribes } from '@fewmail/db/schema'
+import { senderReports, unsubscribes } from '@fewmail/db/schema'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { subDays } from 'date-fns'
-import { and, eq, inArray, isNull, lt, sql } from 'drizzle-orm'
+import { and, eq, inArray, isNull, lt, notExists, sql } from 'drizzle-orm'
 
 import { senderHashOf } from '../lib/keyed-hash'
 import { getSettings } from './settings'
-import { changeThreadLabels } from './thread-labels'
+import { moveToSpam } from './thread-labels'
 
 type Message = typeof messages.$inferSelect
 
@@ -17,8 +17,6 @@ const GRACE_DAYS = 14
 const MIN_IGNORED = 3
 /** …and they are at least this share of everyone who unsubscribed from it. */
 const IGNORED_SHARE = 0.5
-
-const SPAM = { add: ['SPAM'], remove: ['INBOX', 'UNREAD'] }
 
 export const recordUnsubscribe = (userId: string, fromEmail: string) =>
   db
@@ -45,7 +43,7 @@ export const zombieStats = async (fromEmail: string) => {
   }
 }
 
-/** Mail from a sender the user unsubscribed from long ago goes to spam, and counts against the sender for everyone. */
+/** Mail from a sender the user unsubscribed from long ago goes to spam, and counts against the sender for everyone — unless the user marked it not spam since. */
 export const catchZombies = async (userId: string, incoming: Message[]) => {
   const inbound = incoming.filter((message) => !message.isFromMe)
   if (inbound.length === 0) {
@@ -61,7 +59,19 @@ export const catchZombies = async (userId: string, incoming: Message[]) => {
       and(
         eq(unsubscribes.userId, userId),
         inArray(unsubscribes.senderHash, hashes),
-        lt(unsubscribes.createdAt, subDays(new Date(), GRACE_DAYS))
+        lt(unsubscribes.createdAt, subDays(new Date(), GRACE_DAYS)),
+        notExists(
+          db
+            .select({ id: senderReports.id })
+            .from(senderReports)
+            .where(
+              and(
+                eq(senderReports.userId, userId),
+                eq(senderReports.senderHash, unsubscribes.senderHash),
+                eq(senderReports.verdict, 'not_spam')
+              )
+            )
+        )
       )
     )
   if (overdue.length === 0) {
@@ -76,26 +86,8 @@ export const catchZombies = async (userId: string, incoming: Message[]) => {
     inbound
       .filter((message) => overdueHashes.has(senderHashOf(message.fromEmail)))
       .map(async (message) => {
-        const done = await changeThreadLabels(
-          userId,
-          message.threadId,
-          SPAM
-        ).then(
-          () => true,
-          () => false
-        )
         moved.add(message.id)
-        await db.insert(actions).values({
-          autonomous: true,
-          kind: 'spam',
-          messageId: message.id,
-          reason: t.zombie.reason,
-          resolvedAt: done ? new Date() : null,
-          status: done ? 'auto_done' : 'failed',
-          threadId: message.threadId,
-          title: t.actionKind.spam,
-          userId,
-        })
+        await moveToSpam(userId, message, t.zombie.reason, t)
       })
   )
   await db

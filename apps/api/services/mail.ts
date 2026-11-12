@@ -1,13 +1,16 @@
 import { db } from '@fewmail/db'
 import { actions, analyses, commitments, messages } from '@fewmail/db/schema'
+import { ACTION_KIND_TRAITS, sendsDraft } from '@fewmail/shared/agent'
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
-import { textToHtml } from '@fewmail/shared/email'
+import { replyRecipients, textToHtml } from '@fewmail/shared/email'
+import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { subHours } from 'date-fns'
 import { and, desc, eq, exists, gte, inArray, lt, sql } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
-import { getMessage, trashThread, unsubscribeOneClick } from '../lib/gmail'
+import { getMessage } from '../lib/gmail'
+import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
 import { toGmailQuery } from './ask'
@@ -19,16 +22,13 @@ import { scheduleMail } from './outbox'
 import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
 import { createRule } from './rules'
 import { getSettings } from './settings'
+import { insertMessages } from './sync'
 import { activeTask } from './tasks'
-import { changeThreadLabels, mailboxOfThread } from './thread-labels'
-import { recordUnsubscribe, zombieStats } from './zombies'
+import { applyThreadEffect } from './thread-effects'
+import { changeThreadLabels, MARK_READ, mailboxOfThread } from './thread-labels'
+import { zombieStats } from './zombies'
 
 export { NotFoundError } from './mail-errors'
-
-const ARCHIVE = { remove: ['INBOX', 'UNREAD'] }
-/** Kinds whose approval only acknowledges; the email stays as it is. */
-const NO_GMAIL_CHANGE = new Set(['security', 'commitment', 'task', 'cleanup'])
-const MARK_READ = { remove: ['UNREAD'] }
 
 const messageSummary = {
   bulkCount: messages.bulkCount,
@@ -66,10 +66,7 @@ const allPending = (userId: string) =>
     .leftJoin(messages, eq(messages.id, actions.messageId))
     .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
     .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
-    .orderBy(desc(analyses.importance), actions.createdAt)
-
-/** Kinds that never wait for the next delivery slot. */
-const ALWAYS_NOW = new Set(['security', 'commitment', 'task'])
+    .orderBy(sql`${analyses.importance} desc nulls last`, actions.createdAt)
 
 /** The queue as delivered: urgent items at once, the rest at the last calm slot (see batching). */
 export const listQueueWithLater = async (userId: string) => {
@@ -78,19 +75,19 @@ export const listQueueWithLater = async (userId: string) => {
     getSettings(userId),
   ])
   if (!settings) {
-    return { later: null, queue: pending }
+    return { held: [], later: null, queue: pending }
   }
   const slots = deliverySlots(settings.timezone, settings.briefHour)
   const firstDay = settings.onboardedAt > slots.last
   const isVisible = (item: (typeof pending)[number]) =>
     firstDay ||
     item.action.createdAt <= slots.last ||
-    ALWAYS_NOW.has(item.action.kind) ||
+    ACTION_KIND_TRAITS[item.action.kind].immediate ||
     (item.analysis?.importance ?? 0) >= 3
-  const waiting = pending.filter((item) => !isVisible(item))
+  const held = pending.filter((item) => !isVisible(item))
   return {
-    later:
-      waiting.length > 0 ? { at: slots.next, count: waiting.length } : null,
+    held,
+    later: held.length > 0 ? { at: slots.next, count: held.length } : null,
     queue: pending.filter(isVisible),
   }
 }
@@ -98,6 +95,11 @@ export const listQueueWithLater = async (userId: string) => {
 export const listQueue = async (userId: string) => {
   const { queue } = await listQueueWithLater(userId)
   return queue
+}
+
+export const countQueue = async (userId: string) => {
+  const queue = await listQueue(userId)
+  return queue.length
 }
 
 export const handledSince = async (userId: string, since: Date) => {
@@ -123,6 +125,44 @@ export const handledSince = async (userId: string, since: Date) => {
     unsubscribed: byKind.unsubscribe ?? 0,
   }
 }
+
+const HANDLED_HOURS = 24
+const HANDLED_SHOWN = 100
+
+export const listHandled = (
+  userId: string,
+  since = subHours(new Date(), HANDLED_HOURS)
+) =>
+  db
+    .select({
+      action: {
+        createdAt: actions.createdAt,
+        id: actions.id,
+        kind: actions.kind,
+        reason: actions.reason,
+        title: actions.title,
+      },
+      message: {
+        fromEmail: messages.fromEmail,
+        fromName: messages.fromName,
+        id: messages.id,
+        subject: messages.subject,
+        threadId: messages.threadId,
+      },
+      summary: analyses.summary,
+    })
+    .from(actions)
+    .leftJoin(messages, eq(messages.id, actions.messageId))
+    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
+    .where(
+      and(
+        eq(actions.userId, userId),
+        eq(actions.status, 'auto_done'),
+        gte(actions.createdAt, since)
+      )
+    )
+    .orderBy(desc(actions.createdAt))
+    .limit(HANDLED_SHOWN)
 
 export type MailFilter =
   | 'spam'
@@ -159,8 +199,20 @@ export const listMail = async (
   }
 ) => {
   const found = input.search
-    ? await searchMailboxes(userId, await toGmailQuery(input.search), PAGE_SIZE)
+    ? await searchMailboxes(
+        userId,
+        await toGmailQuery(userId, input.search),
+        PAGE_SIZE,
+        input.mailboxId
+      )
     : null
+  await Promise.all(
+    (found ?? []).map(({ ids, mailbox }) =>
+      insertMessages(mailbox, ids).catch((error) =>
+        logError('storing found mail failed', error)
+      )
+    )
+  )
   const searchIds = found?.flatMap(({ ids }) => ids) ?? null
 
   if (searchIds?.length === 0) {
@@ -353,32 +405,6 @@ const finish = (
     .where(eq(actions.id, actionId))
     .returning()
 
-/** One-click unsubscribe when the sender supports it; the thread is archived either way. */
-/**
- * Unsubscribing is remembered so later mail exposes zombie senders; a sender the network
- * already knows ignores unsubscribes is blocked straight away instead of trusted again.
- */
-const unsubscribeFrom = async (
-  userId: string,
-  message: typeof messages.$inferSelect
-) => {
-  await recordUnsubscribe(userId, message.fromEmail)
-  const zombie = await zombieStats(message.fromEmail)
-  if (zombie.isZombie) {
-    await createRule(userId, {
-      effect: 'trash',
-      match: { field: 'from', value: message.fromEmail },
-    })
-  }
-  const unsubscribed = message.listUnsubscribe
-    ? await unsubscribeOneClick(
-        message.listUnsubscribe,
-        message.listUnsubscribePost
-      )
-    : false
-  return { blocked: zombie.isZombie, unsubscribed }
-}
-
 const applyActionSideEffects = async (
   userId: string,
   action: typeof actions.$inferSelect
@@ -419,29 +445,9 @@ const scheduleActionReply = async (
     replyToMessageId: message.id,
     subject: message.subject,
     text: body,
-    to: [message.fromEmail],
+    to: replyRecipients(message),
   })
   return id
-}
-
-const applyGmailChange = async (
-  userId: string,
-  action: typeof actions.$inferSelect,
-  message: typeof messages.$inferSelect
-) => {
-  if (action.kind === 'unsubscribe' || action.kind === 'archive') {
-    if (action.kind === 'unsubscribe') {
-      await unsubscribeFrom(userId, message)
-    }
-    await changeThreadLabels(userId, message.threadId, ARCHIVE)
-  } else if (action.kind === 'trash') {
-    await trashThread(
-      await mailboxOfThread(userId, message.threadId),
-      message.threadId
-    )
-  } else {
-    await changeThreadLabels(userId, message.threadId, MARK_READ)
-  }
 }
 
 export const approveAction = async (
@@ -460,20 +466,14 @@ export const approveAction = async (
   }
 
   let outboxId: string | null = null
+  const body = detail ?? action.detail
+  const { gmail } = ACTION_KIND_TRAITS[action.kind]
   try {
     await applyActionSideEffects(userId, action)
-    const sendsMail =
-      action.kind === 'reply' ||
-      (action.kind === 'task' && !!(detail ?? action.detail))
-    if (message && sendsMail) {
-      outboxId = await scheduleActionReply(
-        userId,
-        actionId,
-        message,
-        detail ?? action.detail
-      )
-    } else if (message && !NO_GMAIL_CHANGE.has(action.kind)) {
-      await applyGmailChange(userId, action, message)
+    if (message && sendsDraft({ detail: body, kind: action.kind })) {
+      outboxId = await scheduleActionReply(userId, actionId, message, body)
+    } else if (message && gmail) {
+      await applyThreadEffect(userId, message, gmail)
     }
   } catch (error) {
     await db
@@ -489,8 +489,15 @@ export const approveAction = async (
 
 export const dismissAction = async (userId: string, actionId: string) => {
   await getAction(userId, actionId)
-  const [dismissed] = await finish(actionId, 'dismissed')
-  return expectRow(dismissed)
+  const [dismissed] = await db
+    .update(actions)
+    .set({ resolvedAt: new Date(), status: 'dismissed' })
+    .where(and(eq(actions.id, actionId), eq(actions.status, 'pending')))
+    .returning()
+  if (!dismissed) {
+    throw new NotFoundError('Action already handled')
+  }
+  return dismissed
 }
 
 export const redraftAction = async (
@@ -530,12 +537,7 @@ export const updateDraft = async (
   return expectRow(updated)
 }
 
-/** Reply on demand, from the Mail view, MCP or Telegram: reuses the open draft for the thread when there is one. */
-export const draftReply = async (
-  userId: string,
-  messageId: string,
-  instruction?: string
-) => {
+const ownMessage = async (userId: string, messageId: string) => {
   const [message] = await db
     .select()
     .from(messages)
@@ -543,6 +545,28 @@ export const draftReply = async (
   if (!message) {
     throw new NotFoundError('Email not found')
   }
+  return message
+}
+
+/** A reply for the composer to edit; nothing is queued. */
+export const writeReplyTo = async (
+  userId: string,
+  messageId: string,
+  instruction?: string
+) =>
+  writeReply({
+    instruction,
+    message: await ownMessage(userId, messageId),
+    userId,
+  })
+
+/** Reply on demand, from the Mail view, MCP or Telegram: reuses the open draft for the thread when there is one. */
+export const draftReply = async (
+  userId: string,
+  messageId: string,
+  instruction?: string
+) => {
+  const message = await ownMessage(userId, messageId)
   const [open] = await db
     .select()
     .from(actions)
@@ -556,17 +580,22 @@ export const draftReply = async (
   if (open) {
     return redraftAction(userId, open.id, instruction)
   }
+  const [detail, settings] = await Promise.all([
+    writeReply({ instruction, message, userId }),
+    getSettings(userId),
+  ])
+  const t = dictionaries[settings?.language ?? 'en']
   const [created] = await db
     .insert(actions)
     .values({
       autonomous: false,
-      detail: await writeReply({ instruction, message, userId }),
+      detail,
       kind: 'reply',
       messageId,
-      reason: 'Asked by you',
+      reason: t.queue.askedByYou,
       status: 'pending',
       threadId: message.threadId,
-      title: 'Reply',
+      title: t.actionKind.reply,
       userId,
     })
     .returning()
@@ -636,40 +665,11 @@ export const mailWithDates = async (userId: string) => {
     .slice(0, DATES_SHOWN)
 }
 
-const ownMessage = async (userId: string, messageId: string) => {
-  const [message] = await db
-    .select()
-    .from(messages)
-    .where(and(eq(messages.id, messageId), eq(messages.userId, userId)))
-  if (!message) {
-    throw new NotFoundError('Email not found')
-  }
-  return message
-}
+export const archiveMessage = async (userId: string, messageId: string) =>
+  applyThreadEffect(userId, await ownMessage(userId, messageId), 'archive')
 
-export const archiveMessage = async (userId: string, messageId: string) => {
-  const message = await ownMessage(userId, messageId)
-  await changeThreadLabels(userId, message.threadId, ARCHIVE)
-}
-
-export const unsubscribeMessage = async (userId: string, messageId: string) => {
-  const message = await ownMessage(userId, messageId)
-  const result = await unsubscribeFrom(userId, message)
-  await changeThreadLabels(userId, message.threadId, ARCHIVE)
-  return result
-}
-
-export const trashMessage = async (userId: string, messageId: string) => {
-  const message = await ownMessage(userId, messageId)
-  await trashThread(
-    await mailboxOfThread(userId, message.threadId),
-    message.threadId
-  )
-  await changeThreadLabels(userId, message.threadId, {
-    add: ['TRASH'],
-    remove: ['INBOX'],
-  })
-}
+export const trashMessage = async (userId: string, messageId: string) =>
+  applyThreadEffect(userId, await ownMessage(userId, messageId), 'trash')
 
 /** Blocking is a simple rule: future mail from the sender goes to the trash on every plan. */
 export const blockSender = async (userId: string, messageId: string) => {

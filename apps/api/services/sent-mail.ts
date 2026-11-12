@@ -1,15 +1,17 @@
 import { db } from '@fewmail/db'
-import { commitments } from '@fewmail/db/schema'
+import { commitments, messages } from '@fewmail/db/schema'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { noul } from '@typesafe-ai/sdk'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { addDays } from 'date-fns'
+import { eq } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
+import { localClock } from '../lib/clock'
 import { jev } from '../lib/jev'
 import { getPlanInfo, hasAgent } from './plan'
-import { scheduleFollowup } from './reminders'
+import { watchForReply } from './reminders'
 import { getSettings } from './settings'
 
 const AUTO_FOLLOWUP_DAYS = 3
@@ -25,20 +27,34 @@ const promisesSchema = type({
   }).array(),
 })
 
-const extractPromises = async (userId: string, text: string) => {
+/** `dueAt` holds the calendar date at UTC midnight; `processDueCommitments` reads it in the user's timezone. */
+const extractPromises = async (
+  userId: string,
+  sent: { text: string; to: string[] }
+) => {
   const settings = await getSettings(userId)
+  const today = localClock(settings?.timezone ?? 'UTC').date
   const { output } = await generateText({
     instructions: [
       'List every concrete promise the writer of this email makes to do something themselves (send, sign, call, review, pay…).',
       `promise: a short reminder phrased to the writer in ${englishName(settings?.language ?? 'en')}, e.g. "Send Anna the signed contract".`,
-      `due: the deadline as an ISO date if the email gives or implies one (today is ${new Date().toISOString().slice(0, 10)}), else null. recipient: who it was promised to, or null.`,
+      `due: the deadline as an ISO date if the email gives or implies one (today is ${today}), else null. recipient: the address from To it was promised to, or null.`,
       'Ignore requests to others, pleasantries and conditional offers.',
     ].join('\n'),
     model: models.fast,
     output: Output.object({ schema: promisesSchema }),
-    prompt: text.slice(0, 6000),
+    prompt: `To: ${sent.to.join(', ')}\n\n${sent.text.slice(0, 6000)}`,
   })
-  return output.promises
+  return output.promises.map(({ due, promise, recipient }) => ({
+    dueAt:
+      due && !Number.isNaN(Date.parse(due))
+        ? new Date(due.slice(0, 10))
+        : addDays(new Date(today), DEFAULT_PROMISE_DAYS),
+    promise,
+    recipient:
+      sent.to.find((address) => address === recipient?.trim().toLowerCase()) ??
+      (sent.to.length === 1 ? sent.to[0] : null),
+  }))
 }
 
 /**
@@ -47,7 +63,7 @@ const extractPromises = async (userId: string, text: string) => {
  */
 export const watchSentMail = async (
   userId: string,
-  sent: { messageId?: string | null; text: string; threadId: string }
+  sent: { messageId: string; text: string; threadId: string }
 ) => {
   if (!jev) {
     return
@@ -64,24 +80,26 @@ export const watchSentMail = async (
     state: sent.text.slice(0, 4000),
   })
   if (answers.expectsReply.noul >= SIGNAL) {
-    await scheduleFollowup(userId, sent.threadId, AUTO_FOLLOWUP_DAYS)
+    await watchForReply(userId, sent.threadId, AUTO_FOLLOWUP_DAYS)
   }
   if (answers.promises.noul < SIGNAL || !hasAgent(await getPlanInfo(userId))) {
     return
   }
-  const promises = await extractPromises(userId, sent.text)
+  const [message] = await db
+    .select({ to: messages.to })
+    .from(messages)
+    .where(eq(messages.id, sent.messageId))
+  const promises = await extractPromises(userId, {
+    text: sent.text,
+    to: message?.to ?? [],
+  })
   if (promises.length === 0) {
     return
   }
   await db.insert(commitments).values(
-    promises.map(({ due, promise, recipient }) => ({
-      dueAt:
-        due && !Number.isNaN(Date.parse(due))
-          ? new Date(due)
-          : addDays(new Date(), DEFAULT_PROMISE_DAYS),
-      messageId: sent.messageId ?? null,
-      promise,
-      recipient,
+    promises.map((promise) => ({
+      ...promise,
+      messageId: sent.messageId,
       status: 'open' as const,
       threadId: sent.threadId,
       userId,

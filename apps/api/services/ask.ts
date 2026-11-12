@@ -8,6 +8,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { INFORMAL_ADDRESS, models } from '../lib/ai'
 import { getMessage } from '../lib/gmail'
 import { searchMailboxes } from './mailboxes'
+import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 
 const SOURCE_LIMIT = 12
@@ -18,9 +19,9 @@ const answerSchema = type({ answer: 'string', sources: 'number[]' })
 
 const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
 
-/** Plain language goes through the fast model; text already in Gmail syntax is used as typed. */
-export const toGmailQuery = async (text: string) => {
-  if (GMAIL_OPERATOR.test(text)) {
+/** Plain language goes through the fast model (agent only); text already in Gmail syntax is used as typed. */
+export const toGmailQuery = async (userId: string, text: string) => {
+  if (GMAIL_OPERATOR.test(text) || !hasAgent(await getPlanInfo(userId))) {
     return text
   }
   const { output } = await generateText({
@@ -40,7 +41,7 @@ export const toGmailQuery = async (text: string) => {
 /** Ask AI: the question becomes a Gmail search, the writer answers from what it finds, citing [n]. */
 export const askMail = async (userId: string, question: string) => {
   const settings = await getSettings(userId)
-  const gmailQuery = await toGmailQuery(question)
+  const gmailQuery = await toGmailQuery(userId, question)
 
   const results = await searchMailboxes(userId, gmailQuery, SOURCE_LIMIT)
   const ids = results.flatMap((result) => result.ids)

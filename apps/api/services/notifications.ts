@@ -6,6 +6,7 @@ import { and, eq } from 'drizzle-orm'
 import webpush from 'web-push'
 
 import { env } from '../env'
+import { logError } from '../lib/log'
 import type { listQueue } from './mail'
 import { getSettings } from './settings'
 
@@ -108,10 +109,7 @@ const deliver = async (userId: string, batch: Notification[]) => {
           await db.delete(devices).where(eq(devices.id, device.id))
         }
       } catch (error) {
-        console.error(
-          `notification to ${device.kind} failed`,
-          error instanceof webpush.WebPushError ? error.statusCode : error
-        )
+        logError(`notification to ${device.kind} failed`, error)
       }
     })
   )
@@ -124,7 +122,7 @@ const flush = async (userId: string) => {
   pending.delete(userId)
   if (batch) {
     await deliver(userId, batch).catch((error) =>
-      console.error('notifications', error)
+      logError('notifications', error)
     )
   }
 }

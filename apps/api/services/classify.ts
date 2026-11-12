@@ -6,7 +6,7 @@ import { jev } from '../lib/jev'
 
 type Rule = typeof rules.$inferSelect
 
-const CATEGORY_CRITERIA = {
+export const CATEGORY_CRITERIA = {
   calendar: 'Meeting invitations, scheduling, calendar updates',
   finance: 'Bills, invoices, payments due, bank and money matters',
   newsletter: 'Newsletters, digests, blog posts the user subscribed to',
@@ -21,7 +21,7 @@ const CATEGORY_CRITERIA = {
   work: 'Work discussions, projects, colleagues, clients',
 } satisfies Record<MailCategory, string>
 
-const ACTION_CRITERIA = {
+export const ACTION_CRITERIA = {
   archive: 'Noise that can be archived unread',
   follow_up: 'The user should chase someone about something',
   mark_read: 'Noise worth keeping but not reading',
@@ -33,12 +33,21 @@ const ACTION_CRITERIA = {
   unsubscribe: 'Marketing the user never engages with',
 } satisfies Partial<Record<ActionKind | 'none', string>>
 
-const IMPORTANCE_LEVELS = [
+/** Jev and the LLM fallback offer the same actions; anything wider would let an email steer itself into a card kind that skips batching. */
+export const SUGGESTED_ACTIONS = Object.keys(ACTION_CRITERIA) as [
+  keyof typeof ACTION_CRITERIA,
+  ...(keyof typeof ACTION_CRITERIA)[],
+]
+
+export const IMPORTANCE_LEVELS = [
   'Noise: nobody needs to see it',
   'Worth knowing, no rush',
   'Needs the user soon',
   'Urgent: security, money due very soon, or a person blocked on the user',
 ]
+
+export const NEEDS_REPLY =
+  'A real person, not an automated sender, is waiting for an answer from the recipient'
 
 const NO_RULE = 'none'
 
@@ -69,9 +78,7 @@ export const decideWithJev = async (input: {
         'How soon the recipient needs to see this; they want calm, but nothing important may slip and anything a real person waits on matters',
         IMPORTANCE_LEVELS
       ),
-      needsReply: noul(
-        'A real person, not an automated sender, is waiting for an answer from the recipient'
-      ),
+      needsReply: noul(NEEDS_REPLY),
       rule: choice(
         "Which of the recipient's rules this email clearly matches",
         {

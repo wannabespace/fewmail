@@ -5,7 +5,15 @@ import type { Messages } from './en'
 export const uk: Messages = {
   agent: {
     chats: 'Чати',
+    autonomy: {
+      ask: 'Питає тебе перед кожним листом',
+      auto: (most: number) =>
+        `Сам надсилає листи, не питаючи тебе (до ${most})`,
+    },
+    calendar: (email: string) => `У календарі ${email}`,
+    cc: (recipients: string) => `Копія: ${recipients}`,
     confirm: {
+      create_schedule: 'Запускати це за розкладом?',
       create_event: 'Додати цю подію?',
       delete_event: 'Видалити цю подію?',
       update_event: 'Змінити цю подію?',
@@ -35,6 +43,9 @@ export const uk: Messages = {
     retry: 'Спробувати ще',
     send: 'Надіслати',
     steps: {
+      create_schedule: 'Налаштовую розклад',
+      delete_schedule: 'Зупиняю розклад',
+      list_schedules: 'Читаю розклади',
       create_event: 'Додаю подію',
       delete_event: 'Видаляю подію',
       list_events: 'Дивлюся календар',
@@ -51,6 +62,7 @@ export const uk: Messages = {
       get_today: 'Дивлюся сьогоднішнє',
       handle_thread: 'Доручаю лист агенту',
       list_boards: 'Відкриваю дошки',
+      list_handled: 'Дивлюся, що зроблено',
       list_mail: 'Шукаю в пошті',
       list_rules: 'Читаю правила',
       read_thread: 'Читаю лист',
@@ -66,6 +78,7 @@ export const uk: Messages = {
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
     yes: {
+      create_schedule: 'Запланувати',
       create_event: 'Додати',
       delete_event: 'Видалити',
       update_event: 'Зберегти',
@@ -243,6 +256,7 @@ export const uk: Messages = {
   errors: {
     failed: 'Щось пішло не так. Спробуй ще раз.',
     needsPro: 'Для цього потрібен Fewmail Pro.',
+    alreadySent: 'Уже надіслано — скасувати запізно.',
     notFound: 'Цього вже немає — можливо, його видалили.',
     offline: 'Немає зв’язку з Fewmail. Перевір інтернет.',
   },
@@ -321,6 +335,7 @@ export const uk: Messages = {
     movedToInbox: 'Повернуто у вхідні. Дякуємо, що сказав.',
     noThread: 'Вибери лист, щоб прочитати його тут',
     deleteDraft: 'Видалити чернетку',
+    notSent: 'Не надіслано — відкрийте, щоб спробувати ще раз',
     noRecipients: 'Без отримувачів',
     notSpam: 'Не спам',
     reportSpam: 'Позначити як спам',
@@ -390,6 +405,8 @@ export const uk: Messages = {
     watching: 'Агент стежить за поштою',
   },
   schedule: {
+    awaitsAnswer:
+      'Я пропустив цей запуск: попередній ще чекає на твою відповідь у цьому чаті.',
     failed: 'Цей запуск за розкладом не вдався. Спробую знову наступного разу.',
     limitReached: (day: string) =>
       `Повідомлення на цей місяць вичерпано, тому розклад пропускає запуски до ${day}.`,
@@ -451,6 +468,7 @@ export const uk: Messages = {
     usage: 'Цього місяця',
   },
   queue: {
+    askedByYou: 'На твоє прохання',
     draftedInVoice: 'Написано твоїм голосом',
     edit: 'Змінити',
     open: 'Відкрити',
@@ -653,7 +671,8 @@ export const uk: Messages = {
     nothing: 'Зараз нічого не потребує тебе.',
     proOnly:
       'Telegram входить у Fewmail Pro. Щоб перейти, відкрий у Fewmail Налаштування → План.',
-    queueHint: '/queue — що потребує тебе',
+    draftClipped:
+      'Тут скорочено. «Надіслати» надсилає чернетку повністю — прочитай її у Fewmail.',
     rewriting: 'Переписую…',
     send: 'Надіслати',
     sendThis: 'Надіслати це',

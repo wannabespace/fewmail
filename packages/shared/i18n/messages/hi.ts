@@ -29,7 +29,14 @@ export const hi: Messages = {
   byRule: 'एक नियम से',
   agent: {
     chats: 'चैट',
+    autonomy: {
+      ask: 'हर ईमेल से पहले आपसे पूछता है',
+      auto: (most: number) => `ईमेल खुद भेजता है, आपसे पूछे बिना (${most} तक)`,
+    },
+    calendar: (email: string) => `${email} के कैलेंडर में`,
+    cc: (recipients: string) => `Cc: ${recipients}`,
     confirm: {
+      create_schedule: 'इसे शेड्यूल पर चलाएँ?',
       create_event: 'यह इवेंट जोड़ें?',
       delete_event: 'यह इवेंट हटाएं?',
       update_event: 'यह इवेंट बदलें?',
@@ -59,6 +66,9 @@ export const hi: Messages = {
     retry: 'फिर कोशिश करें',
     send: 'भेजें',
     steps: {
+      create_schedule: 'शेड्यूल सेट हो रहा है',
+      delete_schedule: 'शेड्यूल रोका जा रहा है',
+      list_schedules: 'शेड्यूल पढ़े जा रहे हैं',
       create_event: 'इवेंट जोड़ रहा है',
       delete_event: 'इवेंट हटा रहा है',
       list_events: 'कैलेंडर देख रहा है',
@@ -75,6 +85,7 @@ export const hi: Messages = {
       get_today: 'आज का हाल देखा जा रहा है',
       handle_thread: 'थ्रेड सौंपा जा रहा है',
       list_boards: 'बोर्ड खोले जा रहे हैं',
+      list_handled: 'संभाले गए काम देखे जा रहे हैं',
       list_mail: 'मेल में खोजा जा रहा है',
       list_rules: 'नियम पढ़े जा रहे हैं',
       read_thread: 'थ्रेड पढ़ा जा रहा है',
@@ -90,6 +101,7 @@ export const hi: Messages = {
     to: (recipients: string) => `प्रति: ${recipients}`,
     until: (time: string) => `तक: ${time}`,
     yes: {
+      create_schedule: 'शेड्यूल करें',
       create_event: 'जोड़ें',
       delete_event: 'हटाएं',
       update_event: 'सेव करें',
@@ -220,6 +232,7 @@ export const hi: Messages = {
   errors: {
     failed: 'कुछ गड़बड़ हो गई। फिर से कोशिश करें।',
     needsPro: 'इसके लिए Fewmail Pro चाहिए।',
+    alreadySent: 'पहले ही भेजा जा चुका है — अब पूर्ववत नहीं हो सकता।',
     notFound: 'यह अब मौजूद नहीं है — शायद इसे हटा दिया गया है।',
     offline: 'Fewmail से कनेक्ट नहीं हो पा रहा। अपना कनेक्शन जाँचें।',
   },
@@ -297,6 +310,7 @@ export const hi: Messages = {
     movedToInbox: 'इनबॉक्स में वापस डाल दिया। बताने के लिए शुक्रिया।',
     noThread: 'यहाँ पढ़ने के लिए कोई ईमेल चुनें',
     deleteDraft: 'ड्राफ़्ट हटाएँ',
+    notSent: 'नहीं भेजा गया — फिर से कोशिश करने के लिए खोलें',
     noRecipients: 'कोई प्राप्तकर्ता नहीं',
     notSpam: 'स्पैम नहीं',
     reportSpam: 'स्पैम रिपोर्ट करें',
@@ -364,6 +378,8 @@ export const hi: Messages = {
     watching: 'एजेंट आपके इनबॉक्स पर नज़र रख रहा है',
   },
   schedule: {
+    awaitsAnswer:
+      'यह रन छोड़ दिया: पिछला रन अभी भी इस चैट में आपके जवाब का इंतज़ार कर रहा है।',
     failed: 'यह शेड्यूल्ड रन विफल रहा। अगली बार फिर कोशिश करूँगा।',
     limitReached: (day: string) =>
       `इस महीने के संदेश खत्म हो गए हैं, इसलिए शेड्यूल इस तारीख तक रन छोड़ेगा: ${day}`,
@@ -420,6 +436,7 @@ export const hi: Messages = {
     usage: 'इस महीने',
   },
   queue: {
+    askedByYou: 'आपके कहने पर',
     draftedInVoice: 'आपके अंदाज़ में ड्राफ़्ट किया गया',
     edit: 'बदलें',
     open: 'खोलें',
@@ -630,7 +647,8 @@ export const hi: Messages = {
     nothing: 'अभी किसी चीज़ को आपकी ज़रूरत नहीं है।',
     proOnly:
       'Telegram, Fewmail Pro का हिस्सा है। अपग्रेड करने के लिए Fewmail में सेटिंग्स → प्लान खोलें।',
-    queueHint: '/queue — जिसे आपकी ज़रूरत है',
+    draftClipped:
+      'यहाँ छोटा करके दिखाया है। “भेजें” पूरा ड्राफ़्ट भेजता है — उसे Fewmail में पढ़ें।',
     rewriting: 'दोबारा लिखा जा रहा है…',
     send: 'भेजें',
     sendThis: 'यही भेजें',

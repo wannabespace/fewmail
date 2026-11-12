@@ -1,37 +1,34 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
-import { SKILLS, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
-import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { addHours, isBefore } from 'date-fns'
 
 import { env } from './env'
-import { transcribe } from './lib/mistral'
-import { generateBrief, getLatestBrief, localClock } from './services/brief'
-import { followMessage } from './services/instructions'
+import { logError } from './lib/log'
 import {
   linkWhatsappPhone,
   userIdForPhone,
   whatsappForUser,
 } from './services/integrations'
-import { LimitReachedError } from './services/limit-error'
+import type { listQueue } from './services/mail'
+import type { Button, Channel, Chat, Reply } from './services/messenger'
 import {
-  approveAction,
-  dismissAction,
-  listQueue,
-  redraftAction,
-  updateDraft,
-} from './services/mail'
-import { cancelMail } from './services/outbox'
+  briefReply,
+  failureText,
+  follow,
+  hear,
+  itemReply,
+  localeFor,
+  menuButtons,
+  messagesFor,
+  press,
+  remember,
+  splitText,
+} from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
-import { getSettings } from './services/settings'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
-interface Button {
-  id: string
-  title: string
-}
 
 interface Inbound {
   audio?: { id: string }
@@ -46,8 +43,7 @@ interface Inbound {
 const GRAPH = 'https://graph.facebook.com/v23.0'
 const BUTTON_TITLE_LIMIT = 20
 const BODY_LIMIT = 1024
-const TEXT_LIMIT = 4000
-const SEEN_LIMIT = 5000
+const TEXT_LIMIT = 4096
 
 const config =
   env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_NUMBER_ID && env.WHATSAPP_APP_SECRET
@@ -58,21 +54,15 @@ const config =
       }
     : null
 
-/** Phone → action whose draft the next text message replaces. Lost on restart, which only cancels an edit in progress. */
-const editing = new Map<string, string>()
-
-/** Our message id → the action it shows, so replying to it targets that draft. Also remembers handled inbound ids: Meta redelivers webhooks. */
-const shown = new Map<string, string>()
-
-const remember = (messageId: string, actionId: string) => {
-  shown.set(messageId, actionId)
-  if (shown.size > SEEN_LIMIT) {
-    const [oldest] = shown.keys()
-    if (oldest) {
-      shown.delete(oldest)
-    }
-  }
+const channel: Channel = {
+  bold: (text) => `*${text}*`,
+  italic: (text) => `_${text}_`,
+  name: 'whatsapp',
+  plain: (text) => text,
+  shorter: false,
 }
+
+const chatOf = (phone: string): Chat => ({ channel, id: phone })
 
 /** Takes a Graph path or a full media URL; both need the token. */
 const graph = async (path: string, init?: RequestInit) => {
@@ -107,8 +97,14 @@ const post = async (to: string, message: Record<string, unknown>) => {
   return sent[0]?.id ?? ''
 }
 
-const say = (to: string, text: string) =>
-  post(to, { text: { body: text.slice(0, TEXT_LIMIT) }, type: 'text' })
+const say = async (to: string, text: string) => {
+  let sent = ''
+  for (const part of splitText(text, TEXT_LIMIT)) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- parts must arrive in order
+    sent = await post(to, { text: { body: part }, type: 'text' })
+  }
+  return sent
+}
 
 const clip = (text: string) =>
   text.length > BUTTON_TITLE_LIMIT
@@ -136,192 +132,31 @@ const ask = async (to: string, text: string, buttons: Button[]) => {
   })
 }
 
-const messagesForUser = async (userId: string) => {
-  const settings = await getSettings(userId)
-  return messages[settings?.language ?? 'en']
-}
-
-const itemText = (t: Messages, { action, analysis, message }: QueueItem) =>
-  [
-    `*${message?.fromName ?? message?.fromEmail ?? 'Fewmail'}* · ${message?.subject ?? action.title}`,
-    analysis?.summary ?? null,
-    action.kind === 'reply' && action.detail
-      ? `\n_${t.telegram.draft}_\n${action.detail}`
-      : null,
-  ]
-    .filter(Boolean)
-    .join('\n')
-
-const itemButtons = (t: Messages, { action }: QueueItem): Button[] => [
-  action.kind === 'reply'
-    ? { id: `a:${action.id}`, title: t.telegram.send }
-    : { id: `a:${action.id}`, title: action.title },
-  ...(action.kind === 'reply'
-    ? [{ id: `e:${action.id}`, title: t.telegram.edit }]
-    : []),
-  { id: `d:${action.id}`, title: t.telegram.skip },
-]
-
-const draftButtons = (t: Messages, actionId: string): Button[] => [
-  { id: `a:${actionId}`, title: t.telegram.send },
-  { id: `e:${actionId}`, title: t.telegram.edit },
-  { id: `d:${actionId}`, title: t.telegram.skip },
-]
-
-const queueButton = (t: Messages): Button => ({
-  id: 'queue',
-  title: t.telegram.commands.queue,
-})
-
-const menuButtons = (t: Messages): Button[] => [
-  { id: 'brief', title: t.telegram.commands.brief },
-  queueButton(t),
-]
-
-const showDraft = async (
-  to: string,
-  t: Messages,
-  action: { detail: string | null; id: string }
-) => {
-  const sent = await ask(
-    to,
-    `_${t.telegram.newDraft}_\n${action.detail ?? ''}`,
-    draftButtons(t, action.id)
-  )
-  remember(sent, action.id)
-}
-
-const sendQueue = async (to: string, userId: string, t: Messages) => {
-  const queue = await listQueue(userId)
-  if (queue.length === 0) {
-    await say(to, t.telegram.nothing)
-    return
-  }
-  for (const item of queue) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- queue items must arrive in order
-    const sent = await ask(to, itemText(t, item), itemButtons(t, item))
-    remember(sent, item.action.id)
-  }
-}
-
-const briefText = (brief: { body: string; headline: string }) =>
-  `*${brief.headline}*\n\n${brief.body}`
-
-const sendTodayBrief = async (to: string, userId: string, t: Messages) => {
-  const settings = await getSettings(userId)
-  const latest = await getLatestBrief(userId)
-  const brief =
-    latest && settings && latest.date === localClock(settings.timezone).date
-      ? latest
-      : await generateBrief(userId)
-  await ask(to, briefText(brief), [queueButton(t)])
-}
-
-const press = async (to: string, userId: string, t: Messages, id: string) => {
-  const [command, actionId = ''] = id.split(':')
-  if (command === 'brief') {
-    await sendTodayBrief(to, userId, t)
-  } else if (command === 'queue') {
-    await sendQueue(to, userId, t)
-  } else if (command === 'a') {
-    const { outboxId } = await approveAction(userId, actionId)
-    await (outboxId
-      ? ask(to, t.telegram.sendingIn(UNDO_SEND_SECONDS), [
-          { id: `u:${outboxId}`, title: t.telegram.undo },
-        ])
-      : say(to, t.telegram.done))
-  } else if (command === 'u') {
-    await cancelMail(userId, actionId)
-    await say(to, t.telegram.canceled)
-  } else if (command === 'd') {
-    await dismissAction(userId, actionId)
-    await say(to, t.telegram.skipped)
-  } else if (command === 'e') {
-    editing.set(to, actionId)
-    await say(to, t.telegram.editPrompt)
-  }
-}
-
-const followText = async (
-  inbound: Inbound,
-  userId: string,
-  t: Messages,
-  text: string
-) => {
-  const to = inbound.from
-  const actionId = editing.get(to)
+const send = async (to: string, { actionId, buttons, text }: Reply) => {
+  const sent = buttons?.length
+    ? await ask(to, text, buttons)
+    : await say(to, text)
   if (actionId) {
-    editing.delete(to)
-    if (text.startsWith('/')) {
-      await showDraft(
-        to,
-        t,
-        await redraftAction(userId, actionId, text.slice(1))
-      )
-      return
-    }
-    await updateDraft(userId, actionId, text)
-    const sent = await ask(to, `_${t.telegram.willSend}_\n${text}`, [
-      { id: `a:${actionId}`, title: t.telegram.sendThis },
-      { id: `d:${actionId}`, title: t.telegram.skip },
-    ])
-    remember(sent, actionId)
-    return
+    await remember(chatOf(to), sent, actionId)
   }
-  const targetId = inbound.context ? shown.get(inbound.context.id) : null
-  const { answer, draft, skill } = await followMessage(userId, text, targetId)
-  if (skill) {
-    await say(
-      to,
-      `${skill.text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${skill.chatId}`
-    )
-    return
-  }
-  if (answer) {
-    await say(
-      to,
-      [
-        answer.answer,
-        ...answer.sources.map(
-          (source) => `_[${source.number}] ${source.from} · ${source.subject}_`
-        ),
-      ].join('\n')
-    )
-    return
-  }
-  if (!draft) {
-    await ask(
-      to,
-      [
-        `${t.telegram.help}\n`,
-        ...SKILLS.map((name) => `/${name} — ${t.skills[name]}`),
-      ].join('\n'),
-      menuButtons(t)
-    )
-    return
-  }
-  await showDraft(to, t, draft)
 }
 
-const transcribeVoice = async (mediaId: string) => {
+const pressButton = async (to: string, userId: string, pressed: string) => {
+  const { buttons, notice, replies } = await press(chatOf(to), userId, pressed)
+  if (notice) {
+    await send(to, { buttons, text: notice })
+  }
+  for (const reply of (await replies?.()) ?? []) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- replies must arrive in order
+    await send(to, reply)
+  }
+}
+
+const download = async (mediaId: string) => {
   const media = await graph(mediaId)
   const { url } = (await media.json()) as { url: string }
   const audio = await graph(url)
-  return transcribe(await audio.arrayBuffer(), 'voice.ogg')
-}
-
-const failureText = async (
-  userId: string,
-  t: Messages,
-  error: unknown,
-  isVoice: boolean
-) => {
-  if (error instanceof LimitReachedError) {
-    const settings = await getSettings(userId)
-    const language = settings?.language ?? 'en'
-    return t.limits.messages(formatResetDay(language, error.resetsAt))
-  }
-  return isVoice ? t.telegram.voiceFailed : t.telegram.somethingWrong
+  return audio.arrayBuffer()
 }
 
 const handle = async (inbound: Inbound) => {
@@ -331,37 +166,38 @@ const handle = async (inbound: Inbound) => {
   if (!userId) {
     const link = text ? await linkWhatsappPhone(text, to) : null
     if (link) {
-      const t = await messagesForUser(link.userId)
+      const t = await messagesFor(link.userId)
       await ask(to, t.whatsapp.connected, menuButtons(t))
       return
     }
     await say(to, messages.en.whatsapp.connectFirst)
     return
   }
-  const t = await messagesForUser(userId)
+  const t = await messagesFor(userId)
   if (!hasAgent(await getPlanInfo(userId))) {
     await say(to, t.whatsapp.proOnly)
     return
   }
+  const { audio, context } = inbound
   try {
     const pressed =
       inbound.interactive?.button_reply?.id ?? inbound.button?.payload
     if (pressed) {
-      await press(to, userId, t, pressed)
-    } else if (inbound.audio) {
-      const heard = await transcribeVoice(inbound.audio.id)
+      await pressButton(to, userId, pressed)
+    } else if (audio) {
+      const heard = await hear(userId, () => download(audio.id))
       if (!heard) {
         await say(to, t.telegram.voiceFailed)
         return
       }
       await say(to, t.telegram.heard(heard))
-      await followText(inbound, userId, t, heard)
+      await send(to, await follow(chatOf(to), userId, heard, context?.id))
     } else if (text) {
-      await followText(inbound, userId, t, text)
+      await send(to, await follow(chatOf(to), userId, text, context?.id))
     }
   } catch (error) {
-    console.error('whatsapp', error instanceof Error ? error.message : error)
-    await say(to, await failureText(userId, t, error, !!inbound.audio))
+    logError('whatsapp', error)
+    await say(to, failureText(await localeFor(userId), error, !!audio))
   }
 }
 
@@ -369,7 +205,7 @@ const handleSafely = async (inbound: Inbound) => {
   try {
     await handle(inbound)
   } catch (error) {
-    console.error('whatsapp', error instanceof Error ? error.message : error)
+    logError('whatsapp', error)
   }
 }
 
@@ -404,33 +240,33 @@ export const whatsappWebhook = async (request: Request) => {
   const inbound = (payload.entry ?? []).flatMap(({ changes = [] }) =>
     changes.flatMap(({ value }) => value?.messages ?? [])
   )
-  for (const message of inbound) {
-    if (!shown.has(message.id)) {
-      remember(message.id, '')
-      // Answered after the 200: Meta retries any webhook that takes longer than a few seconds.
-      void handleSafely(message)
-    }
-  }
+  await Promise.all(
+    inbound.map(async (message) => {
+      if (await remember(chatOf(message.from), message.id, null)) {
+        // Answered after the 200: Meta retries any webhook that takes longer than a few seconds.
+        void handleSafely(message)
+      }
+    })
+  )
   return new Response(null, { status: 200 })
 }
 
-/** Free-form messages only reach a user who wrote within 24 h; otherwise an approved template carries a one-line preview and a button that reopens the chat. */
+/** Free-form messages only reach a user who wrote within 24 h; otherwise an approved template carries a one-line preview and a button whose payload (a press) brings the content once tapped. */
 const push = async (
   userId: string,
   preview: string,
-  then: 'brief' | 'queue',
-  send: (to: string, t: Messages) => Promise<unknown>
+  then: string,
+  reply: (chat: Chat, t: Messages) => Reply
 ) => {
   const link = config ? await whatsappForUser(userId) : null
   if (!link) {
     return
   }
-  const t = await messagesForUser(userId)
   if (
     link.lastInboundAt &&
     isBefore(new Date(), addHours(link.lastInboundAt, 23))
   ) {
-    await send(link.phone, t)
+    await send(link.phone, reply(chatOf(link.phone), await messagesFor(userId)))
     return
   }
   if (!env.WHATSAPP_TEMPLATE) {
@@ -466,8 +302,16 @@ export const sendWhatsappBrief = (
   userId: string,
   brief: { body: string; headline: string }
 ) =>
-  push(userId, brief.headline, 'brief', (to, t) =>
-    ask(to, briefText(brief), [queueButton(t)])
+  push(userId, brief.headline, 'brief', (chat, t) => briefReply(chat, t, brief))
+
+/** The template's button brings back this run's answer, not the daily brief. */
+export const sendWhatsappSchedule = (
+  userId: string,
+  run: { body: string; headline: string },
+  chatId: string
+) =>
+  push(userId, run.headline, `chat:${chatId}`, (chat, t) =>
+    briefReply(chat, t, run)
   )
 
 export const sendWhatsappUrgent = (userId: string, item: QueueItem) =>
@@ -475,12 +319,5 @@ export const sendWhatsappUrgent = (userId: string, item: QueueItem) =>
     userId,
     `${item.message?.fromName ?? item.message?.fromEmail ?? ''} · ${item.message?.subject ?? item.action.title}`,
     'queue',
-    async (to, t) => {
-      const sent = await ask(
-        to,
-        `${t.telegram.urgent}\n${itemText(t, item)}`,
-        itemButtons(t, item)
-      )
-      remember(sent, item.action.id)
-    }
+    (chat, t) => itemReply(chat, t, item, true)
   )

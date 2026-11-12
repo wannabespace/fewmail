@@ -105,9 +105,8 @@ export const generateBrief = async (userId: string) => {
 export const getToday = async (userId: string) => {
   const since = subHours(new Date(), BRIEF_WINDOW_HOURS)
   const [
-    settings,
     brief,
-    { later, queue },
+    { held, later, queue },
     handled,
     mailboxes,
     important,
@@ -116,7 +115,6 @@ export const getToday = async (userId: string) => {
     awaiting,
     boards,
   ] = await Promise.all([
-    getSettings(userId),
     getLatestBrief(userId),
     listQueueWithLater(userId),
     handledSince(userId, since),
@@ -127,7 +125,7 @@ export const getToday = async (userId: string) => {
     awaitingReplies(userId),
     boardsDigest(userId),
   ])
-  const queued = new Set(queue.map(({ message }) => message?.id))
+  const queued = new Set([...queue, ...held].map(({ message }) => message?.id))
   return {
     awaiting,
     boards,
@@ -141,7 +139,6 @@ export const getToday = async (userId: string) => {
     recent: important
       .filter(({ message }) => !queued.has(message.id))
       .slice(0, RECENT_SHOWN),
-    settings,
   }
 }
 

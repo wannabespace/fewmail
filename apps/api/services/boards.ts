@@ -23,6 +23,7 @@ import { and, desc, eq, gte, isNotNull } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { announceChange } from '../lib/live'
+import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { LimitReachedError } from './limit-error'
 import { NotFoundError } from './mail-errors'
@@ -55,6 +56,7 @@ const entrySchema = type({
   belongs: 'boolean',
   currency: 'string | null',
   group: 'string | null',
+  isUpdate: 'boolean',
   occurredAt: 'string | null',
   status: 'string | null',
   title: 'string',
@@ -214,9 +216,6 @@ export const updateBoard = async (
         await languageOf(userId)
       )
     : null
-  if (isRedescribed) {
-    await db.delete(boardEntries).where(eq(boardEntries.boardId, id))
-  }
   await db
     .update(boards)
     .set({
@@ -224,6 +223,10 @@ export const updateBoard = async (
       ...(plan && { gmailQuery: plan.gmailQuery, historyReadAt: null }),
     })
     .where(eq(boards.id, id))
+  // After the new description is stored: a read still running under the old one checks it before each write (`isUnchanged`).
+  if (isRedescribed) {
+    await db.delete(boardEntries).where(eq(boardEntries.boardId, id))
+  }
   await announceChange(userId)
 }
 
@@ -234,11 +237,81 @@ export const deleteBoard = async (userId: string, id: string) => {
   await announceChange(userId)
 }
 
+/** A new description drops the entries and reads the history again; a read under the old one must stop writing. */
+export const isUnchanged = async (board: Board) => {
+  const [current] = await db
+    .select({ description: boards.description })
+    .from(boards)
+    .where(eq(boards.id, board.id))
+  return current?.description === board.description
+}
+
+const threadKey = (message: { mailboxId: string; threadId: string }) =>
+  `${message.mailboxId}:${message.threadId}`
+
+/** A later email of the same thing (shipped after ordered) updates its entry, so its amount is not counted twice. */
+const saveEntry = async (
+  board: Board,
+  message: Message,
+  output: typeof entrySchema.infer,
+  earlier: Entry | undefined
+) => {
+  const status = output.status?.trim() || null
+  const amount =
+    output.amount !== null && output.amount !== 0 && output.currency
+      ? {
+          amountCents: Math.round(output.amount * 100),
+          currency: output.currency.toUpperCase(),
+        }
+      : { amountCents: null, currency: null }
+  if (earlier && output.isUpdate) {
+    await db
+      .update(boardEntries)
+      .set({
+        messageId: message.id,
+        ...(status && { status }),
+        ...(earlier.amountCents === null && amount),
+      })
+      .where(eq(boardEntries.id, earlier.id))
+    return
+  }
+  const occurredAt = output.occurredAt ? new Date(output.occurredAt) : null
+  await db
+    .insert(boardEntries)
+    .values({
+      ...amount,
+      boardId: board.id,
+      group: output.group?.trim() || null,
+      messageId: message.id,
+      occurredAt:
+        occurredAt && !Number.isNaN(occurredAt.getTime())
+          ? occurredAt
+          : message.receivedAt,
+      status,
+      title: output.title.trim(),
+      userId: board.userId,
+    })
+    .onConflictDoNothing()
+}
+
 const extractEntry = async (
   board: Board,
   message: Message,
   context: { groups: string[]; language: Locale; statuses: string[] }
 ) => {
+  const [earlier] = await db
+    .select({ entry: boardEntries })
+    .from(boardEntries)
+    .innerJoin(messages, eq(messages.id, boardEntries.messageId))
+    .where(
+      and(
+        eq(boardEntries.boardId, board.id),
+        eq(messages.mailboxId, message.mailboxId),
+        eq(messages.threadId, message.threadId)
+      )
+    )
+    .orderBy(desc(messages.receivedAt))
+    .limit(1)
   const language = englishName(context.language)
   const { output } = await generateText({
     instructions: [
@@ -249,34 +322,17 @@ const extractEntry = async (
       `group: who or what it belongs to as people say it ("Netflix", "Ryanair"), or null.${context.groups.length > 0 ? ` Reuse one of these when it is the same: ${context.groups.join(', ')}.` : ''}`,
       `status: its state in one or two lowercase words (paid, refunded, cancelled, shipped, booked, rejected…), or null.${context.statuses.length > 0 ? ` Reuse one of these when it means the same: ${context.statuses.join(', ')}.` : ''}`,
       `amount and currency (ISO 4217): the total charged or due, negative when money goes back to the user (refund, chargeback, credit), else null. occurredAt: ISO date of the event itself (today is ${new Date().toISOString().slice(0, 10)}), else null.`,
+      earlier
+        ? `isUpdate: this thread already holds the entry "${earlier.entry.title}"${earlier.entry.status ? ` (${earlier.entry.status})` : ''}. true when this email is news about that same thing (shipped, delivered, changed, cancelled), false when it is a new one (next month's receipt, a refund).`
+        : 'isUpdate: false.',
     ].join('\n'),
     model: models.fast,
     output: Output.object({ schema: entrySchema }),
     prompt: `From: ${message.fromName ?? ''} <${message.fromEmail}>\nSubject: ${message.subject}\n\n${message.body.slice(0, 5000)}`,
   })
-  if (!output.belongs) {
-    return
+  if (output.belongs && (await isUnchanged(board))) {
+    await saveEntry(board, message, output, earlier?.entry)
   }
-  const occurredAt = output.occurredAt ? new Date(output.occurredAt) : null
-  const hasAmount =
-    output.amount !== null && output.amount !== 0 && Boolean(output.currency)
-  await db
-    .insert(boardEntries)
-    .values({
-      amountCents: hasAmount ? Math.round((output.amount ?? 0) * 100) : null,
-      boardId: board.id,
-      currency: hasAmount ? (output.currency?.toUpperCase() ?? null) : null,
-      group: output.group?.trim() || null,
-      messageId: message.id,
-      occurredAt:
-        occurredAt && !Number.isNaN(occurredAt.getTime())
-          ? occurredAt
-          : message.receivedAt,
-      status: output.status?.trim() || null,
-      title: output.title.trim(),
-      userId: board.userId,
-    })
-    .onConflictDoNothing()
 }
 
 const distinct = (values: (string | null)[]) =>
@@ -289,40 +345,70 @@ const knownValues = async (boardId: string) => {
   const rows = await db
     .select({
       group: boardEntries.group,
-      messageId: boardEntries.messageId,
+      mailboxId: messages.mailboxId,
+      receivedAt: messages.receivedAt,
       status: boardEntries.status,
+      threadId: messages.threadId,
     })
     .from(boardEntries)
+    .innerJoin(messages, eq(messages.id, boardEntries.messageId))
     .where(eq(boardEntries.boardId, boardId))
+  const latestInThread = new Map<string, number>()
+  for (const row of rows) {
+    latestInThread.set(
+      threadKey(row),
+      Math.max(
+        latestInThread.get(threadKey(row)) ?? 0,
+        row.receivedAt.getTime()
+      )
+    )
+  }
   return {
     groups: distinct(rows.map(({ group }) => group)),
-    messageIds: new Set(rows.map(({ messageId }) => messageId)),
+    latestInThread,
     statuses: distinct(rows.map(({ status }) => status)),
   }
 }
 
-/** Each message is read once per board; mail the user sent is never an entry. */
+/** Each message is read once per board, a thread's oldest first so a later one updates its entry instead of adding one; mail the user sent is never an entry. */
 export const collectEntries = async (board: Board, candidates: Message[]) => {
   if (candidates.length === 0) {
     return
   }
   const language = await languageOf(board.userId)
-  const { messageIds } = await knownValues(board.id)
+  const { latestInThread } = await knownValues(board.id)
   const fresh = candidates.filter(
-    (message) => !message.isFromMe && !messageIds.has(message.id)
+    (message) =>
+      !message.isFromMe &&
+      message.receivedAt.getTime() >
+        (latestInThread.get(threadKey(message)) ?? 0)
   )
-  for (let index = 0; index < fresh.length; index += EXTRACT_CONCURRENCY) {
+  const threads = [...Map.groupBy(fresh, threadKey).values()].map((thread) =>
+    thread.toSorted(
+      (left, right) => left.receivedAt.getTime() - right.receivedAt.getTime()
+    )
+  )
+  for (let index = 0; index < threads.length; index += EXTRACT_CONCURRENCY) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- stop once the board was described anew
+    if (!(await isUnchanged(board))) {
+      return
+    }
     // oxlint-disable-next-line eslint/no-await-in-loop -- each batch sees the groups and statuses the previous one wrote, so spellings converge
     const { groups, statuses } = await knownValues(board.id)
     // oxlint-disable-next-line eslint/no-await-in-loop -- batches cap concurrency
     await Promise.allSettled(
-      fresh
-        .slice(index, index + EXTRACT_CONCURRENCY)
-        .map((message) =>
-          extractEntry(board, message, { groups, language, statuses }).catch(
-            (error) => console.error(`board entry ${message.id} failed`, error)
+      threads.slice(index, index + EXTRACT_CONCURRENCY).map(async (thread) => {
+        for (const message of thread) {
+          // oxlint-disable-next-line eslint/no-await-in-loop -- in order: each message sees the entry the one before wrote
+          await extractEntry(board, message, {
+            groups,
+            language,
+            statuses,
+          }).catch((error) =>
+            logError(`board entry ${message.id} failed`, error)
           )
-        )
+        }
+      })
     )
   }
 }
@@ -402,8 +488,11 @@ const timeBuckets = (chart: BoardChart, entries: Entry[]) => {
   if (dates.length === 0) {
     return []
   }
+  const now = Date.now()
+  const past = dates.filter((date) => date <= now)
+  // Trips and events sit ahead: ending at the furthest one would show empty future buckets instead of the history.
   const interval = {
-    end: new Date(Math.max(...dates)),
+    end: new Date(Math.max(...(past.length > 0 ? past : dates))),
     start: new Date(Math.min(...dates)),
   }
   const starts =

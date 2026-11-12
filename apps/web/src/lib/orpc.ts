@@ -1,4 +1,5 @@
 import type { Router } from '@fewmail/api/router'
+import type { Limit } from '@fewmail/shared/agent'
 import { messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { createORPCClient, onError, ORPCError } from '@orpc/client'
@@ -16,7 +17,7 @@ export const limitText = (error: unknown) => {
     return null
   }
   const { limit, resetsAt, total } = error.data as {
-    limit: 'boards' | 'messages' | 'tasks'
+    limit: Limit
     resetsAt: Date
     total: number
   }
@@ -28,6 +29,7 @@ export const limitText = (error: unknown) => {
 }
 
 const ERROR_TEXT_BY_CODE = {
+  CONFLICT: 'alreadySent',
   FORBIDDEN: 'needsPro',
   NOT_FOUND: 'notFound',
 } as const

@@ -9,7 +9,7 @@ import { createAuthClient } from 'better-auth/client'
 import { z } from 'zod'
 
 import { auth, AUTH_ISSUER, MCP_RESOURCE } from './lib/auth'
-import { agentTools } from './services/agent-tools'
+import { agentTools, toolAccess } from './services/agent-tools'
 import { isAppConnected } from './services/integrations'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { skillPrompt } from './services/skills'
@@ -30,7 +30,7 @@ const createServer = (userId: string) => {
     server.registerTool(
       name,
       {
-        annotations: ANNOTATIONS[tool.access],
+        annotations: ANNOTATIONS[toolAccess(name)],
         description: tool.description,
         inputSchema: tool.input,
       },

@@ -28,7 +28,14 @@ export const zh: Messages = {
   byRule: '按规则',
   agent: {
     chats: '对话',
+    autonomy: {
+      ask: '每封邮件发出前都会先问你',
+      auto: (most: number) => `不问你，自己发送邮件（最多 ${most} 封）`,
+    },
+    calendar: (email: string) => `在 ${email} 的日历中`,
+    cc: (recipients: string) => `抄送：${recipients}`,
     confirm: {
+      create_schedule: '按计划运行这个吗？',
       create_event: '添加此日程？',
       delete_event: '删除此日程？',
       update_event: '修改此日程？',
@@ -58,6 +65,9 @@ export const zh: Messages = {
     retry: '重试',
     send: '发送',
     steps: {
+      create_schedule: '正在设置定时任务',
+      delete_schedule: '正在停止定时任务',
+      list_schedules: '正在读取定时任务',
       create_event: '正在添加日程',
       delete_event: '正在删除日程',
       list_events: '正在查看日历',
@@ -74,6 +84,7 @@ export const zh: Messages = {
       get_today: '正在查看今天',
       handle_thread: '正在移交会话',
       list_boards: '正在打开看板',
+      list_handled: '正在查看已处理的邮件',
       list_mail: '正在搜索邮件',
       list_rules: '正在读取规则',
       read_thread: '正在阅读会话',
@@ -89,6 +100,7 @@ export const zh: Messages = {
     to: (recipients: string) => `收件人：${recipients}`,
     until: (time: string) => `推迟到：${time}`,
     yes: {
+      create_schedule: '设定',
       create_event: '添加',
       delete_event: '删除',
       update_event: '保存',
@@ -215,6 +227,7 @@ export const zh: Messages = {
   errors: {
     failed: '出了点问题，请重试。',
     needsPro: '此功能需要 Fewmail Pro。',
+    alreadySent: '已发送，无法撤销。',
     notFound: '它已不存在，可能已被删除。',
     offline: '无法连接到 Fewmail，请检查网络。',
   },
@@ -291,6 +304,7 @@ export const zh: Messages = {
     movedToInbox: '已移回收件箱。感谢告知。',
     noThread: '选择一封邮件在这里阅读',
     deleteDraft: '删除草稿',
+    notSent: '未发送 — 打开后重试',
     noRecipients: '无收件人',
     notSpam: '不是垃圾邮件',
     reportSpam: '举报垃圾邮件',
@@ -353,6 +367,7 @@ export const zh: Messages = {
     watching: '助手正在留意你的收件箱',
   },
   schedule: {
+    awaitsAnswer: '这次运行已跳过：上一次运行仍在此聊天中等待你的回复。',
     failed: '这次定时运行失败了。下次运行时我会再试。',
     limitReached: (day: string) =>
       `本月的消息已用完，定时任务将跳过运行，直到 ${day}。`,
@@ -407,6 +422,7 @@ export const zh: Messages = {
     usage: '本月',
   },
   queue: {
+    askedByYou: '你要求的',
     draftedInVoice: '已用你的语气起草',
     edit: '编辑',
     open: '打开',
@@ -612,7 +628,7 @@ export const zh: Messages = {
     nothing: '现在没有需要你处理的事。',
     proOnly:
       'Telegram 是 Fewmail Pro 的功能。如需升级，请在 Fewmail 中打开 设置 → 方案。',
-    queueHint: '/queue — 需要你处理的事',
+    draftClipped: '此处已截断。“发送”会发送完整草稿，可在 Fewmail 中查看全文。',
     rewriting: '正在重写…',
     send: '发送',
     sendThis: '发送这条',

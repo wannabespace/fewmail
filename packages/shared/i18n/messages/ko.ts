@@ -28,7 +28,14 @@ export const ko: Messages = {
   byRule: '규칙에 따라',
   agent: {
     chats: '채팅',
+    autonomy: {
+      ask: '메일을 보내기 전에 매번 물어봐요',
+      auto: (most: number) => `묻지 않고 직접 메일을 보내요 (최대 ${most}통)`,
+    },
+    calendar: (email: string) => `${email}의 캘린더`,
+    cc: (recipients: string) => `참조: ${recipients}`,
     confirm: {
+      create_schedule: '이 작업을 일정에 따라 실행할까요?',
       create_event: '이 일정을 추가할까요?',
       delete_event: '이 일정을 삭제할까요?',
       update_event: '이 일정을 변경할까요?',
@@ -58,6 +65,9 @@ export const ko: Messages = {
     retry: '다시 시도',
     send: '보내기',
     steps: {
+      create_schedule: '일정 설정 중',
+      delete_schedule: '일정 중지 중',
+      list_schedules: '일정 읽는 중',
       create_event: '일정 추가 중',
       delete_event: '일정 삭제 중',
       list_events: '캘린더 확인 중',
@@ -74,6 +84,7 @@ export const ko: Messages = {
       get_today: '오늘 확인하는 중',
       handle_thread: '스레드 맡기는 중',
       list_boards: '보드 여는 중',
+      list_handled: '처리한 항목 확인 중',
       list_mail: '메일 검색하는 중',
       list_rules: '규칙 읽는 중',
       read_thread: '스레드 읽는 중',
@@ -89,6 +100,7 @@ export const ko: Messages = {
     to: (recipients: string) => `받는 사람: ${recipients}`,
     until: (time: string) => `다시 표시: ${time}`,
     yes: {
+      create_schedule: '예약하기',
       create_event: '추가',
       delete_event: '삭제',
       update_event: '저장',
@@ -219,6 +231,7 @@ export const ko: Messages = {
   errors: {
     failed: '문제가 발생했어요. 다시 시도해 주세요.',
     needsPro: 'Fewmail Pro가 필요해요.',
+    alreadySent: '이미 보냈어요. 취소하기엔 늦었어요.',
     notFound: '더 이상 존재하지 않아요. 삭제되었을 수 있어요.',
     offline: 'Fewmail에 연결할 수 없어요. 연결 상태를 확인해 주세요.',
   },
@@ -297,6 +310,7 @@ export const ko: Messages = {
     movedToInbox: '받은편지함으로 되돌렸어요. 알려줘서 고마워요.',
     noThread: '메일을 선택하면 여기에서 읽을 수 있어요',
     deleteDraft: '초안 삭제',
+    notSent: '보내지 못함 — 열어서 다시 시도',
     noRecipients: '받는 사람 없음',
     notSpam: '스팸 아님',
     reportSpam: '스팸 신고',
@@ -360,6 +374,8 @@ export const ko: Messages = {
     watching: '에이전트가 받은편지함을 지켜보고 있어요',
   },
   schedule: {
+    awaitsAnswer:
+      '이번 실행은 건너뛰었어요. 지난 실행이 이 채팅에서 아직 답을 기다리고 있어요.',
     failed: '이번 예약 실행이 실패했습니다. 다음 실행 때 다시 시도할게요.',
     limitReached: (day: string) =>
       `이번 달 메시지를 모두 사용해 다음 날짜까지 실행을 건너뜁니다: ${day}`,
@@ -416,6 +432,7 @@ export const ko: Messages = {
     usage: '이번 달',
   },
   queue: {
+    askedByYou: '요청하신 답장',
     draftedInVoice: '내 말투로 작성한 초안',
     edit: '편집',
     open: '열기',
@@ -629,7 +646,8 @@ export const ko: Messages = {
     nothing: '지금은 확인할 게 없어요.',
     proOnly:
       'Telegram은 Fewmail Pro 기능이에요. 업그레이드하려면 Fewmail에서 설정 → 요금제를 열어 주세요.',
-    queueHint: '/queue — 확인이 필요한 것',
+    draftClipped:
+      '여기서는 일부만 보여 줘요. “보내기”를 누르면 초안 전체가 전송돼요. 전체 내용은 Fewmail에서 확인하세요.',
     rewriting: '다시 쓰는 중…',
     send: '보내기',
     sendThis: '이대로 보내기',

@@ -1,11 +1,13 @@
 import { db } from '@fewmail/db'
 import { subscriptions, users } from '@fewmail/db/schema'
 import type { BillingInterval, PaidPlan } from '@fewmail/shared/agent'
-import { eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { Stripe } from 'stripe'
 
 import { env } from '../env'
+import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
+import { getPlanInfo } from './plan'
 
 const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY) : null
 
@@ -30,7 +32,7 @@ const requireStripe = () => {
   return { stripe }
 }
 
-const customerFor = async (userId: string) => {
+const customerFor = async (userId: string): Promise<string> => {
   const { stripe: client } = requireStripe()
   const [row] = await db.select().from(users).where(eq(users.id, userId))
   const user = expectRow(row)
@@ -42,13 +44,28 @@ const customerFor = async (userId: string) => {
     metadata: { userId },
     name: user.name,
   })
-  await db
+  const [saved] = await db
     .update(users)
     .set({ stripeCustomerId: customer.id })
-    .where(eq(users.id, userId))
-  return customer.id
+    .where(and(eq(users.id, userId), isNull(users.stripeCustomerId)))
+    .returning({ id: users.id })
+  if (saved) {
+    return customer.id
+  }
+  await client.customers.del(customer.id)
+  return customerFor(userId)
 }
 
+export const createBillingPortal = async (userId: string) => {
+  const { stripe: client } = requireStripe()
+  const session = await client.billingPortal.sessions.create({
+    customer: await customerFor(userId),
+    return_url: `${env.WEB_URL}/settings`,
+  })
+  return session.url
+}
+
+/** A subscriber goes to the portal instead, so a second Checkout never starts a second subscription. */
 export const createCheckout = async (
   userId: string,
   { interval, plan }: { interval: BillingInterval; plan: PaidPlan }
@@ -57,6 +74,10 @@ export const createCheckout = async (
   const priceId = PRICE_IDS[plan][interval]
   if (!priceId) {
     throw new Error('Payments are not configured on this server')
+  }
+  const { kind } = await getPlanInfo(userId)
+  if (kind === 'pro' || kind === 'max') {
+    return createBillingPortal(userId)
   }
   const session = await client.checkout.sessions.create({
     allow_promotion_codes: true,
@@ -68,15 +89,6 @@ export const createCheckout = async (
     success_url: `${env.WEB_URL}/settings?upgraded=${plan}`,
   })
   return expectRow(session.url ?? undefined)
-}
-
-export const createBillingPortal = async (userId: string) => {
-  const { stripe: client } = requireStripe()
-  const session = await client.billingPortal.sessions.create({
-    customer: await customerFor(userId),
-    return_url: `${env.WEB_URL}/settings`,
-  })
-  return session.url
 }
 
 const SUBSCRIPTION_EVENTS = new Set<Stripe.Event.Type>([
@@ -91,16 +103,24 @@ export const handleStripeWebhook = async (request: Request) => {
     return new Response('Not configured', { status: 400 })
   }
 
-  const event = await stripe.webhooks.constructEventAsync(
-    await request.text(),
-    signature,
-    env.STRIPE_WEBHOOK_SECRET
-  )
+  const event = await stripe.webhooks
+    .constructEventAsync(
+      await request.text(),
+      signature,
+      env.STRIPE_WEBHOOK_SECRET
+    )
+    .catch(() => null)
+  if (!event) {
+    return new Response('Bad signature', { status: 400 })
+  }
   if (!SUBSCRIPTION_EVENTS.has(event.type)) {
     return new Response('Ignored')
   }
 
-  const subscription = event.data.object as Stripe.Subscription
+  // Stripe does not deliver events in order: the subscription as it is now, not as the event saw it, is what gets stored.
+  const subscription = await stripe.subscriptions.retrieve(
+    (event.data.object as Stripe.Subscription).id
+  )
   const { userId } = subscription.metadata
   const [item] = subscription.items.data
   if (!userId || !item) {
@@ -120,6 +140,7 @@ export const handleStripeWebhook = async (request: Request) => {
       set: values,
       target: subscriptions.stripeSubscriptionId,
     })
+  await announceChange(userId)
 
   return new Response('ok')
 }

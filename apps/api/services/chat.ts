@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { chats } from '@fewmail/db/schema'
+import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import {
   convertToModelMessages,
@@ -15,7 +16,7 @@ import { and, desc, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { INFORMAL_ADDRESS, models } from '../lib/ai'
-import { agentTools } from './agent-tools'
+import { agentTools, toolAccess } from './agent-tools'
 import { NotFoundError } from './mail-errors'
 import { spendMessage } from './plan'
 import { getSettings } from './settings'
@@ -32,7 +33,7 @@ const chatTools = (userId: string) =>
         description: agentTool.description,
         execute: (input: unknown) => agentTool.run(input as never),
         inputSchema: z.object(agentTool.input ?? {}),
-        needsApproval: agentTool.access === 'consent',
+        needsApproval: toolAccess(name) === 'consent',
       }),
     ])
   )
@@ -200,11 +201,24 @@ export const streamChat = async (
 
 const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu
 
-/** Runs one message through the agent outside the web chat; the answer is plain text, since its thread links only work in the app. The model's own errors arrive as stream chunks, not exceptions. */
+const awaitsAnswer = (message: UIMessage | undefined) =>
+  !!message?.parts.some(
+    (part) => isToolUIPart(part) && part.state === 'approval-requested'
+  )
+
+/**
+ * Runs one message through the agent outside the web chat; the answer is plain text, since its thread links only work in the app. The model's own errors arrive as stream chunks, not exceptions.
+ * A new turn would decline the approvals the chat still waits for (the previous scheduled run's), so it only reminds of them.
+ */
 export const askAgent = async (
   userId: string,
   { id, text }: { id: string; text: string }
 ) => {
+  const chat = await ownChat(userId, id)
+  if (awaitsAnswer((chat?.messages as UIMessage[] | undefined)?.at(-1))) {
+    const settings = await getSettings(userId)
+    return dictionaries[settings?.language ?? 'en'].schedule.awaitsAnswer
+  }
   const stream = await streamChat(userId, {
     id,
     message: {

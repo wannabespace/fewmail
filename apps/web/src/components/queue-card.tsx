@@ -1,4 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import { ACTION_KIND_TRAITS, sendsDraft } from '@fewmail/shared/agent'
 import type { CleanupSender } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
@@ -17,14 +18,6 @@ import { ComposerEditor } from './composer/composer-editor'
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
 type Action = QueueItem['action']
 
-/** Kinds whose button speaks for itself; others use the agent's own label for this email. */
-const OWN_LABEL = new Set<Action['kind']>([
-  'security',
-  'commitment',
-  'cleanup',
-  'task',
-])
-
 export const DraftText = ({ text }: { text: string }) => (
   <p
     data-mask
@@ -33,9 +26,6 @@ export const DraftText = ({ text }: { text: string }) => (
     {text}
   </p>
 )
-
-export const hasDraft = (action: Action) =>
-  action.kind === 'reply' || (action.kind === 'task' && !!action.detail)
 
 const headline = ({ action, analysis, message }: QueueItem) => {
   if (action.kind === 'commitment') {
@@ -111,7 +101,7 @@ const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
   if (isReply) {
     return t.queue.send
   }
-  return OWN_LABEL.has(action.kind)
+  return ACTION_KIND_TRAITS[action.kind].ownLabel
     ? t.actionKind[action.kind]
     : action.title || t.actionKind[action.kind]
 }
@@ -168,7 +158,7 @@ export const QueueCard = ({
 }) => {
   const t = useT()
   const { action, analysis, message } = item
-  const isReply = hasDraft(action)
+  const isReply = sendsDraft(action)
   const isSecurity = action.kind === 'security'
   const reason = action.reason || analysis?.reason
   const ref = useRef<HTMLElement>(null)

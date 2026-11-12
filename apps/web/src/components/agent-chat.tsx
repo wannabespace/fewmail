@@ -1,6 +1,16 @@
 import { useChat } from '@ai-sdk/react'
-import { parseSkill, SKILLS, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
-import type { Skill } from '@fewmail/shared/agent'
+import {
+  MAX_EMAILS_PER_TASK,
+  parseSkill,
+  SKILLS,
+  UNDO_SEND_SECONDS,
+} from '@fewmail/shared/agent'
+import type {
+  AgentToolName,
+  ConsentToolName,
+  Skill,
+  TaskAutonomy,
+} from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Bubble, BubbleContent } from '@fewmail/ui/components/bubble'
 import { Button } from '@fewmail/ui/components/button'
@@ -12,6 +22,7 @@ import {
 } from '@fewmail/ui/components/command'
 import { CopyIconButton } from '@fewmail/ui/components/custom/copy-button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
+import { InlineCode } from '@fewmail/ui/components/custom/inline-code'
 import {
   InputGroup,
   InputGroupAddon,
@@ -73,8 +84,8 @@ import type {
   ToolUIPart,
   UIMessage,
 } from 'ai'
-import { isToday, parseISO } from 'date-fns'
-import type { ComponentProps } from 'react'
+import { isSameDay, isToday, parseISO, subDays } from 'date-fns'
+import type { ComponentProps, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -85,14 +96,19 @@ import { useCompose } from './compose/compose-context'
 import { DraftText } from './queue-card'
 
 type ToolPart = ToolUIPart | DynamicToolUIPart
-type ConfirmKey = keyof Messages['agent']['confirm']
-type StepKey = keyof Messages['agent']['steps']
 
 interface Known {
+  allDay?: boolean
   detail?: string | null
+  email?: string
+  end?: string
   fromEmail?: string
   fromName?: string | null
+  id?: string
   kind?: string
+  mailboxId?: string
+  messageId?: string | null
+  start?: string
   subject?: string
   title?: string
 }
@@ -100,9 +116,17 @@ interface Known {
 interface ToolInput {
   actionId?: string
   allDay?: boolean
+  autonomy?: TaskAutonomy
+  cc?: string[]
+  cron?: string
+  description?: string
   effect?: keyof Messages['rules']['effect']
+  end?: string
   goal?: string
+  id?: string
   instruction?: string
+  location?: string
+  mailboxId?: string
   messageId?: string
   search?: string
   start?: string
@@ -111,6 +135,18 @@ interface ToolInput {
   title?: string
   to?: string[]
   until?: string
+  when?: string
+}
+
+interface ConsentDetails {
+  action?: Known
+  calendar?: Known
+  dates: ReturnType<typeof useDates>
+  email?: Known
+  event?: Known
+  input: ToolInput
+  t: Messages
+  text?: string | null
 }
 
 const transport: ChatTransport<UIMessage> = {
@@ -136,15 +172,18 @@ const transport: ChatTransport<UIMessage> = {
   },
 }
 
-const findKnown = (value: unknown, id: string): Known | undefined => {
+const findKnown = (
+  value: unknown,
+  matches: (known: Known) => boolean
+): Known | undefined => {
   if (!value || typeof value !== 'object') {
     return undefined
   }
-  if ('id' in value && value.id === id) {
+  if (matches(value as Known)) {
     return value as Known
   }
   for (const child of Object.values(value)) {
-    const found = findKnown(child, id)
+    const found = findKnown(child, matches)
     if (found) {
       return found
     }
@@ -226,7 +265,13 @@ const useUndoToast = (part: ToolPart) => {
       action: {
         label: t.compose.undo,
         onClick: async () => {
-          const restored = await client.mail.cancelSend({ id: outboxId })
+          // The client's error toast already says it was sent.
+          const restored = await client.mail
+            .cancelSend({ id: outboxId })
+            .catch(() => null)
+          if (!restored) {
+            return
+          }
           void queryClient.invalidateQueries({ queryKey: orpc.today.key() })
           if (name === 'send_email') {
             openCompose(restored)
@@ -241,85 +286,191 @@ const useUndoToast = (part: ToolPart) => {
   }, [name, openCompose, part, queryClient, t])
 }
 
-const MailDetails = ({
-  action,
-  email,
-  input,
-  text,
-}: {
-  action?: Known
-  email?: Known
-  input: ToolInput
-  text?: string | null
-}) => {
+const EmailLine = ({ email }: { email?: Known }) =>
+  email?.subject ? (
+    <p data-mask className="text-muted-foreground truncate text-sm">
+      {email.fromName ?? email.fromEmail} · {email.subject}
+    </p>
+  ) : null
+
+const Recipients = ({ cc, to }: { cc?: string[]; to?: string[] }) => {
   const t = useT()
 
   return (
     <>
-      {email?.subject && (
-        <p data-mask className="text-muted-foreground truncate text-sm">
-          {email.fromName ?? email.fromEmail} · {email.subject}
-        </p>
-      )}
-      {!text && action?.title && (
+      {to && to.length > 0 && (
         <p data-mask className="text-muted-foreground text-sm">
-          {action.title}
+          {t.agent.to(to.join(', '))}
         </p>
       )}
-      {input.to && (
+      {cc && cc.length > 0 && (
         <p data-mask className="text-muted-foreground text-sm">
-          {t.agent.to(input.to.join(', '))}
+          {t.agent.cc(cc.join(', '))}
         </p>
       )}
-      {input.subject && (
-        <p data-mask className="text-sm font-medium">
-          {input.subject}
-        </p>
-      )}
-      {text && <DraftText text={text} />}
     </>
   )
 }
 
-const OtherDetails = ({ input, name }: { input: ToolInput; name: string }) => {
+const eventSpan = (
+  dates: ReturnType<typeof useDates>,
+  { allDay, end, start }: Known
+) => {
+  if (!start) {
+    return ''
+  }
+  const from = parseISO(start)
+  if (allDay) {
+    const last = end ? subDays(parseISO(end), 1) : from
+    return last > from
+      ? `${dates.format(from, 'EEE PP')} – ${dates.format(last, 'EEE PP')}`
+      : dates.format(from, 'EEE PP')
+  }
+  if (!end) {
+    return dates.format(from, 'EEE PP p')
+  }
+  const to = parseISO(end)
+  return `${dates.format(from, 'EEE PP p')} – ${dates.format(to, isSameDay(from, to) ? 'p' : 'EEE PP p')}`
+}
+
+const EventDetails = ({
+  calendar,
+  event,
+  previous,
+}: {
+  calendar?: Known
+  event: Known & { description?: string; location?: string }
+  previous?: Known
+}) => {
   const t = useT()
   const dates = useDates()
 
   return (
     <>
+      {previous?.title && (
+        <p data-mask className="text-muted-foreground text-sm line-through">
+          {previous.title} · {eventSpan(dates, previous)}
+        </p>
+      )}
+      <p className="text-sm">
+        <span data-mask>{event.title}</span>
+        <span className="text-muted-foreground" data-mask>
+          {' · '}
+          {eventSpan(dates, event)}
+        </span>
+      </p>
+      {event.location && (
+        <p data-mask className="text-muted-foreground text-sm">
+          {event.location}
+        </p>
+      )}
+      {event.description && (
+        <p
+          data-mask
+          className="text-muted-foreground line-clamp-4 text-sm whitespace-pre-wrap"
+        >
+          {event.description}
+        </p>
+      )}
+      {calendar?.email && (
+        <p data-mask className="text-muted-foreground text-sm">
+          {t.agent.calendar(calendar.email)}
+        </p>
+      )}
+    </>
+  )
+}
+
+/** Every input of a consent tool must show here, or the user says yes to something they cannot see. */
+const CONSENT_DETAILS: Record<
+  ConsentToolName,
+  (details: ConsentDetails) => ReactNode
+> = {
+  approve_action: ({ action, email, text }) => (
+    <>
+      <EmailLine email={email} />
+      {text ? (
+        <>
+          <Recipients to={email?.fromEmail ? [email.fromEmail] : undefined} />
+          <DraftText text={text} />
+        </>
+      ) : (
+        action?.title && (
+          <p data-mask className="text-muted-foreground text-sm">
+            {action.title}
+          </p>
+        )
+      )}
+    </>
+  ),
+  archive_thread: ({ email }) => <EmailLine email={email} />,
+  create_event: ({ calendar, input }) => (
+    <EventDetails calendar={calendar} event={input} />
+  ),
+  create_rule: ({ input, t }) => (
+    <p className="text-sm">
+      <span data-mask>{input.instruction}</span>
+      {input.effect && (
+        <span className="text-muted-foreground">
+          {' · '}
+          {t.rules.effect[input.effect]}
+        </span>
+      )}
+    </p>
+  ),
+  create_schedule: ({ input }) => (
+    <>
+      <p data-mask className="text-sm whitespace-pre-wrap">
+        {input.instruction}
+      </p>
+      <p className="text-muted-foreground text-sm">
+        <span data-mask>{input.when}</span> ·{' '}
+        <InlineCode>{input.cron}</InlineCode>
+      </p>
+    </>
+  ),
+  delete_event: ({ calendar, event }) =>
+    event && <EventDetails calendar={calendar} event={event} />,
+  handle_thread: ({ email, input, t }) => (
+    <>
+      <EmailLine email={email} />
+      <p data-mask className="text-sm">
+        {input.goal}
+      </p>
+      {input.autonomy === 'auto' ? (
+        <p className="text-sm font-medium">
+          {t.agent.autonomy.auto(MAX_EMAILS_PER_TASK)}
+        </p>
+      ) : (
+        <p className="text-muted-foreground text-sm">{t.agent.autonomy.ask}</p>
+      )}
+    </>
+  ),
+  send_email: ({ input }) => (
+    <>
+      <Recipients cc={input.cc} to={input.to} />
+      {input.subject && (
+        <p data-mask className="text-sm font-medium">
+          {input.subject}
+        </p>
+      )}
+      {input.text && <DraftText text={input.text} />}
+    </>
+  ),
+  snooze_thread: ({ dates, email, input, t }) => (
+    <>
+      <EmailLine email={email} />
       {input.until && (
         <p className="text-muted-foreground text-sm">
           {t.agent.until(dates.format(new Date(input.until), 'EEE p'))}
         </p>
       )}
-      {name === 'create_rule' && input.instruction && input.effect && (
-        <p className="text-sm">
-          <span data-mask>{input.instruction}</span>
-          <span className="text-muted-foreground">
-            {' · '}
-            {t.rules.effect[input.effect]}
-          </span>
-        </p>
-      )}
-      {input.goal && (
-        <p data-mask className="text-sm">
-          {input.goal}
-        </p>
-      )}
-      {input.title && input.start && (
-        <p className="text-sm">
-          <span data-mask>{input.title}</span>
-          <span className="text-muted-foreground" data-mask>
-            {' · '}
-            {dates.format(
-              parseISO(input.start),
-              input.allDay ? 'EEE PP' : 'EEE PP p'
-            )}
-          </span>
-        </p>
-      )}
     </>
-  )
+  ),
+  unsubscribe: ({ email }) => <EmailLine email={email} />,
+  update_event: ({ calendar, event, input }) => (
+    <EventDetails calendar={calendar} event={input} previous={event} />
+  ),
 }
 
 const Confirmation = ({
@@ -330,29 +481,43 @@ const Confirmation = ({
 }: {
   input: ToolInput
   messages: UIMessage[]
-  name: string
+  name: ConsentToolName
   onAnswer: (approved: boolean) => void
 }) => {
   const t = useT()
+  const dates = useDates()
   const outputs = toolOutputs(messages)
-  const action = input.actionId ? findKnown(outputs, input.actionId) : undefined
-  const email = input.messageId
-    ? findKnown(outputs, input.messageId)
-    : undefined
+  const byId = (id: string | null | undefined) =>
+    id ? findKnown(outputs, (known) => known.id === id) : undefined
+  const action = byId(input.actionId)
+  const email = byId(input.messageId ?? action?.messageId)
   const isReply = action?.kind === 'reply' || action?.kind === 'task'
   const text = input.text ?? (isReply ? action?.detail : undefined)
-  const key = (name === 'approve_action' && text ? 'reply' : name) as ConfirmKey
+  const key = name === 'approve_action' && text ? 'reply' : name
 
   useHotkey('Mod+Enter', () => onAnswer(true), { ignoreInputs: false })
 
   return (
     <div className="bg-popover ring-foreground/10 flex flex-col gap-3 rounded-2xl px-4.5 py-4 shadow-sm ring">
-      <p className="text-sm font-medium">{t.agent.confirm[key] ?? name}</p>
-      <MailDetails action={action} email={email} input={input} text={text} />
-      <OtherDetails input={input} name={name} />
+      <p className="text-sm font-medium">{t.agent.confirm[key]}</p>
+      {CONSENT_DETAILS[name]({
+        action,
+        calendar: input.mailboxId
+          ? findKnown(
+              outputs,
+              (known) => known.mailboxId === input.mailboxId && !!known.email
+            )
+          : undefined,
+        dates,
+        email,
+        event: byId(input.id),
+        input,
+        t,
+        text,
+      })}
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={() => onAnswer(true)}>
-          {t.agent.yes[key] ?? t.agent.yes.approve_action} <Kbd>⌘⏎</Kbd>
+          {t.agent.yes[key]} <Kbd>⌘⏎</Kbd>
         </Button>
         <Button size="sm" variant="ghost-muted" onClick={() => onAnswer(false)}>
           {t.agent.decline}
@@ -383,7 +548,7 @@ const ToolStep = ({
       <Confirmation
         input={input}
         messages={messages}
-        name={name}
+        name={name as ConsentToolName}
         onAnswer={(approved) => onAnswer(part, approved)}
       />
     )
@@ -404,7 +569,7 @@ const ToolStep = ({
           )}
         </MarkerIcon>
         <MarkerContent>
-          {t.agent.steps[name as StepKey] ?? name}
+          {t.agent.steps[name as AgentToolName]}
           {input.search && <span data-mask> · {input.search}</span>}
           {Array.isArray(output) && ` · ${output.length}`}
           {state === 'declined' && ` · ${t.agent.declined}`}

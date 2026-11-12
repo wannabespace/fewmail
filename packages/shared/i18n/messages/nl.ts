@@ -28,7 +28,15 @@ export const nl: Messages = {
   },
   agent: {
     chats: 'Chats',
+    autonomy: {
+      ask: 'Vraagt het je vóór elke e-mail',
+      auto: (most: number) =>
+        `Verstuurt de e-mails zelf, zonder het je te vragen (tot ${most})`,
+    },
+    calendar: (email: string) => `In de agenda van ${email}`,
+    cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      create_schedule: 'Dit volgens een planning uitvoeren?',
       create_event: 'Deze afspraak toevoegen?',
       delete_event: 'Deze afspraak verwijderen?',
       update_event: 'Deze afspraak wijzigen?',
@@ -58,6 +66,9 @@ export const nl: Messages = {
     retry: 'Opnieuw proberen',
     send: 'Versturen',
     steps: {
+      create_schedule: 'Planning instellen',
+      delete_schedule: 'Planning stoppen',
+      list_schedules: 'Planningen lezen',
       create_event: 'Afspraak toevoegen',
       delete_event: 'Afspraak verwijderen',
       list_events: 'Agenda bekijken',
@@ -74,6 +85,7 @@ export const nl: Messages = {
       get_today: 'Vandaag bekijken',
       handle_thread: 'Gesprek overdragen',
       list_boards: 'Borden openen',
+      list_handled: 'Afgehandelde mail bekijken',
       list_mail: 'Mail doorzoeken',
       list_rules: 'Regels lezen',
       read_thread: 'Gesprek lezen',
@@ -89,6 +101,7 @@ export const nl: Messages = {
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
     yes: {
+      create_schedule: 'Inplannen',
       create_event: 'Toevoegen',
       delete_event: 'Verwijderen',
       update_event: 'Opslaan',
@@ -323,6 +336,7 @@ export const nl: Messages = {
   errors: {
     failed: 'Er ging iets mis. Probeer het opnieuw.',
     needsPro: 'Hiervoor heb je Fewmail Pro nodig.',
+    alreadySent: 'Al verzonden — te laat om ongedaan te maken.',
     notFound: 'Dit bestaat niet meer — misschien is het verwijderd.',
     offline: 'Fewmail is niet bereikbaar. Controleer je verbinding.',
   },
@@ -401,6 +415,7 @@ export const nl: Messages = {
     movedToInbox: 'Terug in de inbox. Bedankt voor het melden.',
     noThread: 'Kies een e-mail om hem hier te lezen',
     deleteDraft: 'Concept verwijderen',
+    notSent: 'Niet verzonden — open om opnieuw te proberen',
     noRecipients: 'Geen ontvangers',
     notSpam: 'Geen spam',
     reportSpam: 'Spam melden',
@@ -468,6 +483,8 @@ export const nl: Messages = {
     watching: 'De agent houdt je inbox in de gaten',
   },
   schedule: {
+    awaitsAnswer:
+      'Deze run heb ik overgeslagen: de vorige wacht in deze chat nog op je antwoord.',
     failed:
       'Deze geplande run is mislukt. Ik probeer het bij de volgende opnieuw.',
     limitReached: (day: string) =>
@@ -540,6 +557,7 @@ export const nl: Messages = {
       }),
   },
   queue: {
+    askedByYou: 'Op jouw verzoek',
     draftedInVoice: 'Opgesteld in jouw stijl',
     edit: 'Bewerken',
     open: 'Openen',
@@ -787,7 +805,8 @@ export const nl: Messages = {
     nothing: 'Er is nu niets dat jou nodig heeft.',
     proOnly:
       'Telegram is onderdeel van Fewmail Pro. Open Instellingen → Abonnement in Fewmail om over te stappen.',
-    queueHint: '/queue — wat jou nodig heeft',
+    draftClipped:
+      'Hier ingekort. ‘Versturen’ verstuurt het hele concept – lees het in Fewmail.',
     rewriting: 'Herschrijven…',
     send: 'Versturen',
     sendThis: 'Dit versturen',

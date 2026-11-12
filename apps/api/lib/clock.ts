@@ -17,3 +17,13 @@ export const localClock = (timezone: string, date = new Date()) => {
     hour: Number(parts.hour),
   }
 }
+
+/** Intl throws on an unknown zone, which would fail every worker loop for that user. */
+export const isTimeZone = (timezone: string) => {
+  try {
+    localClock(timezone)
+    return true
+  } catch {
+    return false
+  }
+}

@@ -139,12 +139,18 @@ export const removeMailbox = async (userId: string, id: string) => {
 export const searchMailboxes = async (
   userId: string,
   query: string,
-  limit: number
+  limit: number,
+  mailboxId?: string
 ) => {
   const owned = await db
     .select()
     .from(mailboxes)
-    .where(eq(mailboxes.userId, userId))
+    .where(
+      and(
+        eq(mailboxes.userId, userId),
+        mailboxId ? eq(mailboxes.id, mailboxId) : undefined
+      )
+    )
   return Promise.all(
     owned.map(async (mailbox) => ({
       ids: await listMessageIds(mailbox, query, limit),

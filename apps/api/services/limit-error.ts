@@ -1,4 +1,4 @@
-export type Limit = 'boards' | 'messages' | 'tasks'
+import type { Limit } from '@fewmail/shared/agent'
 
 export const usageResetsAt = () => {
   const now = new Date()

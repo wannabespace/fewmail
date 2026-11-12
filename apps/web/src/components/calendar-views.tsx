@@ -148,7 +148,11 @@ export const MonthView = ({
                 {day.getDate()}
               </span>
               {dayEvents.slice(0, MONTH_CELL_EVENTS).map((event) => (
-                <EventChip key={event.id} event={event} onOpen={onOpenEvent} />
+                <EventChip
+                  key={`${event.mailboxId}:${event.id}`}
+                  event={event}
+                  onOpen={onOpenEvent}
+                />
               ))}
               {hidden > 0 && (
                 <button
@@ -285,7 +289,11 @@ export const TimeGrid = ({
             {allDay
               .filter((event) => isOnDay(event, day))
               .map((event) => (
-                <EventChip key={event.id} event={event} onOpen={onOpenEvent} />
+                <EventChip
+                  key={`${event.mailboxId}:${event.id}`}
+                  event={event}
+                  onOpen={onOpenEvent}
+                />
               ))}
           </div>
         ))}
@@ -341,7 +349,7 @@ export const TimeGrid = ({
                 day
               ).map(({ end, event, lane, lanes, start }) => (
                 <button
-                  key={event.id}
+                  key={`${event.mailboxId}:${event.id}`}
                   type="button"
                   className={cn(
                     EVENT_SURFACE,

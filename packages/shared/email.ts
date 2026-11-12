@@ -324,5 +324,12 @@ export const htmlToText = (html: string) =>
 export const replySubject = (subject: string) =>
   /^re:/iu.test(subject) ? subject : `Re: ${subject}`
 
+/** Who a reply to `message` goes to: its sender, or its recipients when the user sent it. */
+export const replyRecipients = (message: {
+  fromEmail: string
+  isFromMe: boolean
+  to: string[]
+}) => (message.isFromMe ? message.to : [message.fromEmail])
+
 export const forwardSubject = (subject: string) =>
   /^fwd?:/iu.test(subject) ? subject : `Fwd: ${subject}`

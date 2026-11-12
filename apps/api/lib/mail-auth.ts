@@ -1,6 +1,6 @@
 import type { MailAuth } from '@fewmail/shared/agent'
 
-import { keyedHash } from './keyed-hash'
+import { infraHashOf } from './keyed-hash'
 
 interface Header {
   name: string
@@ -20,13 +20,19 @@ const authOf = (headers: Header[]): MailAuth | null => {
   if (!google) {
     return null
   }
+  /** Comments quote other verdicts, e.g. `arc=pass (… dmarc=pass)` from a forwarder: never read those. */
+  const verdicts = google.value.replaceAll(/\([^()]*\)/gu, '')
   const read = (method: string) =>
-    google.value.match(RESULT(method))?.groups?.result?.toLowerCase() ?? 'none'
+    verdicts.match(RESULT(method))?.groups?.result?.toLowerCase() ?? 'none'
   return { dkim: read('dkim'), dmarc: read('dmarc'), spf: read('spf') }
 }
 
 const IPV4 = /\[(?<ip>\d{1,3}(?:\.\d{1,3}){3})\]/u
 const IPV6 = /\[(?:IPv6:)?(?<ip>[0-9a-f]*:[0-9a-f:]+)\]/iu
+const REVERSE_DNS = /\((?<host>[a-z0-9.-]+?)\.? \[/iu
+/** Big providers send everyone's mail from the same ranges, so a vote on their network says nothing about the sender. */
+const SHARED_SENDERS =
+  /(?:^|\.)(?:amazonses\.com|google\.com|icloud\.com|mailgun\.net|mcdlv\.net|mcsv\.net|me\.com|mtasv\.net|outlook\.com|rsgsv\.net|sendgrid\.net|sparkpostmail\.com|yahoo\.com|yahoodns\.net|zoho\.com)$/iu
 
 /** The hop that handed the mail to Google: the only Received line a sender cannot forge. */
 const sendingBlock = (headers: Header[]) => {
@@ -34,6 +40,10 @@ const sendingBlock = (headers: Header[]) => {
     ({ name, value }) =>
       name.toLowerCase() === 'received' && /\bby mx\.google\.com\b/u.test(value)
   )
+  const host = hop?.value.match(REVERSE_DNS)?.groups?.host
+  if (host && SHARED_SENDERS.test(host)) {
+    return null
+  }
   const v4 = hop?.value.match(IPV4)?.groups?.ip
   if (v4) {
     return v4.split('.').slice(0, 3).join('.')
@@ -47,6 +57,6 @@ export const mailSignals = (headers: Header[]) => {
   const block = sendingBlock(headers)
   return {
     auth: authOf(headers),
-    infraHash: block ? keyedHash(`infra:${block}`) : null,
+    infraHash: block ? infraHashOf(block) : null,
   }
 }

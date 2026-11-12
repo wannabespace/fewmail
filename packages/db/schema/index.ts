@@ -26,6 +26,7 @@ export {
 } from './mail'
 export type { BriefStats, Extracted, SimpleMatch } from './mail'
 export {
+  botMessages,
   devices,
   subscriptions,
   telegramLinks,

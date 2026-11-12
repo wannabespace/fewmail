@@ -2,6 +2,7 @@ import { db } from '@fewmail/db'
 import {
   domainAges,
   knownDomains,
+  mailboxes,
   messages,
   patternReports,
   templateReports,
@@ -9,24 +10,27 @@ import {
 import type { PatternKind, SpamVerdict } from '@fewmail/shared/agent'
 import { SUSPICION_SPAM } from '@fewmail/shared/agent'
 import { differenceInDays, subDays } from 'date-fns'
-import { and, eq, inArray, lt, or, sql } from 'drizzle-orm'
+import type { AnyColumn } from 'drizzle-orm'
+import { and, eq, inArray, isNotNull, lt, sql } from 'drizzle-orm'
 
-import { domainOf, keyedHash, userHashOf } from '../lib/keyed-hash'
-import { fingerprint, isNear, personalWords } from './bulk'
-import { popularDomainSet } from './known-domains'
+import { domainOf, linkHashOf, userHashOf } from '../lib/keyed-hash'
+import { fingerprint, isNear, personalWords, sharesBand } from './bulk'
+import { FREEMAIL_DOMAINS, popularDomainSet } from './known-domains'
 
 type Message = typeof messages.$inferSelect
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
 export type PatternReason = 'auth' | 'infra' | 'link' | 'signals' | 'template'
 
 const SPAM_PROBABILITY = 0.8
 const TEMPLATE_REPORTERS = 3
 const LINK_REPORTERS = 3
-/** Shared sending networks (SES, SendGrid) carry honest mail too, so a network needs more votes and a cleaner record. */
+/** Shared sending networks carry honest mail too, so a network needs more votes and a cleaner record. */
 const INFRA_REPORTERS = 5
-const INFRA_PROBABILITY = 0.9
+/** Smoothed, 5 spam / 0 not-spam is 6/7 ≈ 0.857: raising this above that silently raises INFRA_REPORTERS. */
+const INFRA_PROBABILITY = 0.85
 const TEMPLATE_WINDOW_DAYS = 90
-const YOUNG_DOMAIN_DAYS = 30
+export const YOUNG_DOMAIN_DAYS = 30
 const RDAP_TIMEOUT_MS = 4000
 const DAY_MS = 24 * 60 * 60_000
 
@@ -37,6 +41,12 @@ export const isSpammy = (
   minReporters: number,
   probability = SPAM_PROBABILITY
 ) => spam >= minReporters && (spam + 1) / (spam + notSpam + 2) >= probability
+
+/** Distinct voters, not rows: one person reporting five addresses at a domain is still one reporter. */
+export const voteCounts = (voter: AnyColumn, verdict: AnyColumn) => ({
+  notSpam: sql<number>`count(distinct ${voter}) filter (where ${verdict} = 'not_spam')::int`,
+  spam: sql<number>`count(distinct ${voter}) filter (where ${verdict} = 'spam')::int`,
+})
 
 const SECOND_LEVEL = /^(?:ac|co|com|edu|go|gov|ne|net|or|org)$/u
 
@@ -54,24 +64,22 @@ export const registrable = (domain: string) => {
 
 const LINK_HOST = /https?:\/\/(?<host>[^\s/"'<>?#:]+)/giu
 
+export const linkHostsOf = (body: string) =>
+  [...body.matchAll(LINK_HOST)].map(
+    (match) => match.groups?.host?.toLowerCase() ?? ''
+  )
+
 const linkDomainsOf = async (message: Message) => {
   const popular = await popularDomainSet()
   const own = registrable(domainOf(message.fromEmail))
-  return [
-    ...new Set(
-      [...message.body.matchAll(LINK_HOST)].map((match) =>
-        registrable(match.groups?.host ?? '')
-      )
-    ),
-  ].filter(
+  return [...new Set(linkHostsOf(message.body).map(registrable))].filter(
     (domain) => domain.includes('.') && domain !== own && !popular.has(domain)
   )
 }
 
-const linkHash = (domain: string) => keyedHash(`link:${domain}`)
-
 /** One vote per user on the template, the sending network and every unfamiliar linked domain. */
 export const votePatterns = async (
+  tx: Transaction,
   userId: string,
   message: Message,
   verdict: SpamVerdict
@@ -79,7 +87,7 @@ export const votePatterns = async (
   const userHash = userHashOf(userId)
   const printed = fingerprint(message.body, await personalWords(userId))
   if (printed) {
-    await db
+    await tx
       .insert(templateReports)
       .values({
         ...printed,
@@ -98,12 +106,12 @@ export const votePatterns = async (
       ? [{ hash: message.infraHash, kind: 'infra' as const }]
       : []),
     ...links.map((domain) => ({
-      hash: linkHash(domain),
+      hash: linkHashOf(domain),
       kind: 'link' as const,
     })),
   ]
   if (patterns.length > 0) {
-    await db
+    await tx
       .insert(patternReports)
       .values(patterns.map((pattern) => ({ ...pattern, userHash, verdict })))
       .onConflictDoUpdate({
@@ -130,14 +138,10 @@ const templateIsSpam = async (message: Message, personal: string[]) => {
     })
     .from(templateReports)
     .where(
-      and(
-        sql`${templateReports.createdAt} >= ${subDays(new Date(), TEMPLATE_WINDOW_DAYS)}`,
-        or(
-          eq(templateReports.band0, printed.band0),
-          eq(templateReports.band1, printed.band1),
-          eq(templateReports.band2, printed.band2),
-          eq(templateReports.band3, printed.band3)
-        )
+      sharesBand(
+        templateReports,
+        printed,
+        subDays(new Date(), TEMPLATE_WINDOW_DAYS)
       )
     )
   const voters = new Map<string, SpamVerdict>()
@@ -161,8 +165,7 @@ const patternTally = async (kind: PatternKind, hashes: string[]) => {
   const rows = await db
     .select({
       hash: patternReports.hash,
-      notSpam: sql<number>`count(*) filter (where ${patternReports.verdict} = 'not_spam')::int`,
-      spam: sql<number>`count(*) filter (where ${patternReports.verdict} = 'spam')::int`,
+      ...voteCounts(patternReports.userHash, patternReports.verdict),
     })
     .from(patternReports)
     .where(
@@ -239,13 +242,17 @@ export const domainAgeDays = async (domain: string) => {
       ? differenceInDays(new Date(), cached.registeredAt)
       : null
   }
+  /** False on a timeout, rate limit or outage: that is not an answer, so it is not cached. */
   const registeredAt = await fetch(`https://rdap.org/domain/${name}`, {
     headers: { accept: 'application/rdap+json' },
     signal: AbortSignal.timeout(RDAP_TIMEOUT_MS),
   })
     .then(async (response) => {
-      if (!response.ok) {
+      if (response.status === 404) {
         return null
+      }
+      if (!response.ok) {
+        return false
       }
       const data = (await response.json()) as {
         events?: { eventAction: string; eventDate: string }[]
@@ -255,7 +262,10 @@ export const domainAgeDays = async (domain: string) => {
       )
       return event ? new Date(event.eventDate) : null
     })
-    .catch(() => null)
+    .catch(() => false as const)
+  if (registeredAt === false) {
+    return null
+  }
   await db
     .insert(domainAges)
     .values({ domain: name, registeredAt })
@@ -263,34 +273,47 @@ export const domainAgeDays = async (domain: string) => {
   return registeredAt ? differenceInDays(new Date(), registeredAt) : null
 }
 
-const seenBefore = async (userId: string, domains: string[], before: Date) => {
-  if (domains.length === 0) {
-    return new Set<string>()
-  }
-  const rows = await db
-    .selectDistinct({
-      domain: messages.fromDomain,
-    })
-    .from(messages)
-    .where(
-      and(
-        eq(messages.userId, userId),
-        lt(messages.receivedAt, before),
-        inArray(messages.fromDomain, domains)
-      )
-    )
-  return new Set(rows.map(({ domain }) => domain))
+/** A mailbox's first sync has nothing older to compare with: none of its domains count as first-seen. */
+const firstSeenTest = async (userId: string, candidates: Message[]) => {
+  const earliest = new Date(
+    Math.min(...candidates.map(({ receivedAt }) => receivedAt.getTime()))
+  )
+  const [synced, seen] = await Promise.all([
+    db
+      .select({ id: mailboxes.id })
+      .from(mailboxes)
+      .where(
+        and(
+          inArray(mailboxes.id, [
+            ...new Set(candidates.map(({ mailboxId }) => mailboxId)),
+          ]),
+          isNotNull(mailboxes.lastSyncedAt)
+        )
+      ),
+    db
+      .selectDistinct({ domain: messages.fromDomain })
+      .from(messages)
+      .where(
+        and(
+          eq(messages.userId, userId),
+          lt(messages.receivedAt, earliest),
+          inArray(messages.fromDomain, [
+            ...new Set(candidates.map(({ fromEmail }) => domainOf(fromEmail))),
+          ])
+        )
+      ),
+  ])
+  const syncedIds = new Set(synced.map(({ id }) => id))
+  const seenDomains = new Set(seen.map(({ domain }) => domain))
+  return (message: Message) =>
+    syncedIds.has(message.mailboxId) &&
+    !seenDomains.has(domainOf(message.fromEmail))
 }
 
-const suspicionOf = async (message: Message, isNew: boolean) => {
-  const domain = domainOf(message.fromEmail)
-  const young = isNew ? await domainAgeDays(domain) : null
-  return (
-    Number(await shapeIsOdd(domain)) +
-    Number(young !== null && young < YOUNG_DOMAIN_DAYS) +
-    Number(weakAuth(message))
-  )
-}
+const suspicionOf = async (message: Message, ageDays: number | null) =>
+  Number(await shapeIsOdd(domainOf(message.fromEmail))) +
+  Number(ageDays !== null && ageDays < YOUNG_DOMAIN_DAYS) +
+  Number(weakAuth(message))
 
 const strongReason = (signals: {
   infraSpam: boolean
@@ -314,88 +337,84 @@ const strongReason = (signals: {
  * Spam by pattern rather than address, for senders the user never wrote to and nobody vouched for:
  * a reported template, a reported sending network, reported link domains, failed authentication,
  * or weak signals (odd domain shape, freshly registered domain, weak authentication) that add up.
- * One weak signal only marks the mail as "maybe spam".
+ * Community patterns never apply to authenticated mail from a domain the user already gets mail
+ * from. One weak signal only yields a suspicion ("maybe spam"), which the caller stores.
  */
-export const readPatterns = async (
-  userId: string,
-  candidates: Message[],
-  skipDomains: Set<string>
-) => {
+export const readPatterns = async (userId: string, candidates: Message[]) => {
   const reasons = new Map<string, PatternReason>()
+  const suspicions = new Map<string, number>()
   if (candidates.length === 0) {
-    return reasons
+    return { reasons, suspicions }
   }
-  const personal = await personalWords(userId)
-  const popular = await popularDomainSet()
-  const earliest = new Date(
-    Math.min(...candidates.map(({ receivedAt }) => receivedAt.getTime()))
-  )
-  const seen = await seenBefore(
-    userId,
-    [...new Set(candidates.map(({ fromEmail }) => domainOf(fromEmail)))],
-    earliest
-  )
-  const links = new Map(
-    await Promise.all(
+  const [personal, popular, isFirstSeen, links] = await Promise.all([
+    personalWords(userId),
+    popularDomainSet(),
+    firstSeenTest(userId, candidates),
+    Promise.all(
       candidates.map(
         async (message) => [message.id, await linkDomainsOf(message)] as const
       )
-    )
-  )
+    ).then((entries) => new Map(entries)),
+  ])
   const [infra, linkVotes] = await Promise.all([
     patternTally('infra', [
       ...new Set(candidates.flatMap(({ infraHash }) => infraHash ?? [])),
     ]),
     patternTally('link', [
-      ...new Set([...links.values()].flat().map(linkHash)),
+      ...new Set([...links.values()].flat().map(linkHashOf)),
     ]),
   ])
-
-  for (const message of candidates) {
-    const domain = domainOf(message.fromEmail)
-    const isNew = !seen.has(domain)
-    const infraVotes = message.infraHash
-      ? infra.get(message.infraHash)
-      : undefined
-    const linkSpam = (links.get(message.id) ?? []).some((link) => {
-      const votes = linkVotes.get(linkHash(link))
-      return votes && isSpammy(votes.spam, votes.notSpam, LINK_REPORTERS)
-    })
-    // oxlint-disable-next-line eslint/no-await-in-loop -- RDAP results are cached per domain, so a later message from the same domain must wait for the earlier lookup
-    const template = await templateIsSpam(message, personal)
-    const reason = strongReason({
-      infraSpam:
-        !!infraVotes &&
-        (isNew || message.auth?.dmarc !== 'pass') &&
-        isSpammy(
-          infraVotes.spam,
-          infraVotes.notSpam,
-          INFRA_REPORTERS,
-          INFRA_PROBABILITY
-        ),
-      linkSpam,
-      message,
-      template,
-    })
-    if (reason) {
-      reasons.set(message.id, reason)
-      continue
-    }
-    if (skipDomains.has(domain) || popular.has(registrable(domain))) {
-      continue
-    }
-    // oxlint-disable-next-line eslint/no-await-in-loop -- see above
-    const suspicion = await suspicionOf(message, isNew)
-    if (suspicion >= SUSPICION_SPAM) {
-      reasons.set(message.id, 'signals')
-    } else if (suspicion > 0) {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- see above
-      await db
-        .update(messages)
-        .set({ suspicion })
-        .where(eq(messages.id, message.id))
-      message.suspicion = suspicion
-    }
+  const ages = new Map<string, Promise<number | null>>()
+  const ageOf = (domain: string) => {
+    const age = ages.get(domain) ?? domainAgeDays(domain)
+    ages.set(domain, age)
+    return age
   }
-  return reasons
+
+  await Promise.all(
+    candidates.map(async (message) => {
+      const domain = domainOf(message.fromEmail)
+      const isNew = isFirstSeen(message)
+      const established = !isNew && message.auth?.dmarc === 'pass'
+      const infraVotes = message.infraHash
+        ? infra.get(message.infraHash)
+        : undefined
+      const reason = strongReason({
+        infraSpam:
+          !established &&
+          !!infraVotes &&
+          isSpammy(
+            infraVotes.spam,
+            infraVotes.notSpam,
+            INFRA_REPORTERS,
+            INFRA_PROBABILITY
+          ),
+        linkSpam:
+          !established &&
+          (links.get(message.id) ?? []).some((link) => {
+            const votes = linkVotes.get(linkHashOf(link))
+            return votes && isSpammy(votes.spam, votes.notSpam, LINK_REPORTERS)
+          }),
+        message,
+        template: !established && (await templateIsSpam(message, personal)),
+      })
+      if (reason) {
+        reasons.set(message.id, reason)
+        return
+      }
+      if (FREEMAIL_DOMAINS.has(domain) || popular.has(registrable(domain))) {
+        return
+      }
+      const suspicion = await suspicionOf(
+        message,
+        isNew ? await ageOf(domain) : null
+      )
+      if (suspicion >= SUSPICION_SPAM) {
+        reasons.set(message.id, 'signals')
+      } else if (suspicion > 0) {
+        suspicions.set(message.id, suspicion)
+      }
+    })
+  )
+  return { reasons, suspicions }
 }

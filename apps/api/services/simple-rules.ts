@@ -4,8 +4,8 @@ import { actions, rules } from '@fewmail/db/schema'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { and, eq, isNotNull } from 'drizzle-orm'
 
-import { applyEffect } from './agent'
 import { getSettings } from './settings'
+import { applyThreadEffect } from './thread-effects'
 
 type Message = typeof messages.$inferSelect
 
@@ -67,7 +67,7 @@ export const applySimpleRules = async (userId: string, incoming: Message[]) => {
       ) {
         return
       }
-      const done = await applyEffect(userId, message, rule.effect).then(
+      const done = await applyThreadEffect(userId, message, rule.effect).then(
         () => true,
         () => false
       )

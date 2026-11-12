@@ -2,12 +2,18 @@ import { db } from '@fewmail/db'
 import { analyses, mailboxes, messages } from '@fewmail/db/schema'
 import type { MailCategory } from '@fewmail/shared/agent'
 import { subDays } from 'date-fns'
-import { and, eq, gte } from 'drizzle-orm'
+import { and, eq, gte, sql } from 'drizzle-orm'
 
-import { createLabel, listLabels, modifyMessage } from '../lib/gmail'
+import {
+  createLabel,
+  GmailError,
+  listLabels,
+  modifyMessage,
+} from '../lib/gmail'
 import { getSettings } from './settings'
 
 type Message = typeof messages.$inferSelect
+type Mailbox = typeof mailboxes.$inferSelect
 
 const BACKFILL_DAYS = 7
 const BACKFILL_LIMIT = 200
@@ -16,28 +22,48 @@ const BACKFILL_LIMIT = 200
 const labelName = (category: MailCategory) =>
   `Fewmail/${category.charAt(0).toUpperCase()}${category.slice(1)}`
 
-const mailboxWithLabel = async (mailboxId: string, category: MailCategory) => {
-  const [mailbox] = await db
-    .select()
-    .from(mailboxes)
-    .where(eq(mailboxes.id, mailboxId))
-  if (!mailbox) {
-    return null
+const isGmailStatus = (error: unknown, ...statuses: number[]) =>
+  error instanceof GmailError && statuses.includes(error.status)
+
+/** Two analyses may create the same new label at once; the loser finds the winner's (409). */
+const findOrCreateLabel = async (mailbox: Mailbox, name: string) => {
+  const find = async () => {
+    const labels = await listLabels(mailbox)
+    return labels.find((label) => label.name === name)
   }
+  return (
+    (await find()) ??
+    (await createLabel(mailbox, name).catch(async (error) => {
+      const raced = isGmailStatus(error, 409) ? await find() : undefined
+      if (!raced) {
+        throw error
+      }
+      return raced
+    }))
+  )
+}
+
+const labelIdOf = async (mailbox: Mailbox, category: MailCategory) => {
   const cached = mailbox.labelIds[category]
   if (cached) {
-    return { ...mailbox, labelId: cached }
+    return cached
   }
-  const name = labelName(category)
-  const labels = await listLabels(mailbox)
-  const existing = labels.find((label) => label.name === name)
-  const label = existing ?? (await createLabel(mailbox, name))
+  const label = await findOrCreateLabel(mailbox, labelName(category))
   await db
     .update(mailboxes)
-    .set({ labelIds: { ...mailbox.labelIds, [category]: label.id } })
+    .set({
+      labelIds: sql`${mailboxes.labelIds} || jsonb_build_object(${category}::text, ${label.id}::text)`,
+    })
     .where(eq(mailboxes.id, mailbox.id))
-  return { ...mailbox, labelId: label.id }
+  return label.id
 }
+
+/** A label the user deleted in Gmail is created again instead of failing every email after. */
+const forgetLabel = (mailbox: Mailbox, category: MailCategory) =>
+  db
+    .update(mailboxes)
+    .set({ labelIds: sql`${mailboxes.labelIds} - ${category}::text` })
+    .where(eq(mailboxes.id, mailbox.id))
 
 export const applyAgentLabel = async (
   message: Message,
@@ -47,10 +73,25 @@ export const applyAgentLabel = async (
   if (!settings?.gmailLabels) {
     return
   }
-  const mailbox = await mailboxWithLabel(message.mailboxId, category)
-  if (mailbox) {
-    await modifyMessage(mailbox, message.gmailId, { add: [mailbox.labelId] })
+  const [mailbox] = await db
+    .select()
+    .from(mailboxes)
+    .where(eq(mailboxes.id, message.mailboxId))
+  if (!mailbox) {
+    return
   }
+  const labelId = await labelIdOf(mailbox, category)
+  await modifyMessage(mailbox, message.gmailId, { add: [labelId] }).catch(
+    async (error) => {
+      if (!mailbox.labelIds[category] || !isGmailStatus(error, 400, 404)) {
+        throw error
+      }
+      await forgetLabel(mailbox, category)
+      await modifyMessage(mailbox, message.gmailId, {
+        add: [await labelIdOf({ ...mailbox, labelIds: {} }, category)],
+      })
+    }
+  )
 }
 
 /** Turning labels on labels the last week too, so Gmail looks sorted right away. */

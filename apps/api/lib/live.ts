@@ -2,6 +2,8 @@ import { db } from '@fewmail/db'
 import { MemoryPublisher } from '@orpc/publisher/memory'
 import { sql } from 'drizzle-orm'
 
+import { logError } from './log'
+
 const CHANNEL = 'mail_changed'
 
 const publisher = new MemoryPublisher<Record<string, { at: number }>>()
@@ -11,7 +13,7 @@ export const announceChange = async (userId: string) => {
   try {
     await db.execute(sql`select pg_notify(${CHANNEL}, ${userId})`)
   } catch (error) {
-    console.error('live announce failed', error)
+    logError('live announce failed', error)
   }
 }
 

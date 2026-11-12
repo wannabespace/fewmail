@@ -505,6 +505,11 @@ const DraftRow = ({
         <span data-mask className="text-muted-foreground truncate pl-4 text-sm">
           {draft.snippet}
         </span>
+        {draft.isFailed && (
+          <span className="text-destructive pl-4 text-xs font-medium">
+            {t.mail.notSent}
+          </span>
+        )}
       </button>
       <span className="absolute top-1.5 right-4 flex bg-inherit opacity-0 group-hover:opacity-100">
         <IconButton
@@ -537,16 +542,21 @@ const useDrafts = ({
         : skipToken,
     })
   )
+  const refetchDrafts = () =>
+    queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
   const deleteDraft = useMutation(
-    orpc.mail.deleteDraft.mutationOptions({
-      onSuccess: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() }),
-    })
+    orpc.mail.deleteDraft.mutationOptions({ onSuccess: refetchDrafts })
+  )
+  const takeBackFailed = useMutation(
+    orpc.mail.cancelSend.mutationOptions({ onSuccess: refetchDrafts })
   )
   const open = (index: number) => {
     const saved = rows[index]
-    if (saved) {
+    if (saved?.isFailed) {
+      takeBackFailed.mutate({ id: saved.id }, { onSuccess: openCompose })
+    } else if (saved) {
       openCompose({
+        bcc: saved.bcc,
         cc: saved.cc,
         gmailDraft: { id: saved.id, mailboxId: saved.mailboxId },
         html: saved.html,
@@ -558,8 +568,10 @@ const useDrafts = ({
       })
     }
   }
-  const remove = ({ id, mailboxId }: DraftRowData) =>
-    deleteDraft.mutate({ id, mailboxId })
+  const remove = ({ id, isFailed, mailboxId }: DraftRowData) =>
+    isFailed
+      ? takeBackFailed.mutate({ id })
+      : deleteDraft.mutate({ id, mailboxId })
   return { isFetching, open, remove, rows }
 }
 

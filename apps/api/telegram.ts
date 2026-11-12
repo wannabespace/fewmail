@@ -1,97 +1,81 @@
-import { SKILLS, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import { SKILLS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
-import {
-  formatResetDay,
-  LOCALES,
-  matchLocale,
-} from '@fewmail/shared/i18n/locales'
-import type { Context } from 'grammy'
+import { LOCALES, matchLocale } from '@fewmail/shared/i18n/locales'
+import type { Api, Context } from 'grammy'
 import { Bot, InlineKeyboard, webhookCallback } from 'grammy'
 
 import { env } from './env'
-import { transcribe } from './lib/mistral'
-import type { askMail } from './services/ask'
-import { generateBrief, getLatestBrief, localClock } from './services/brief'
-import { followMessage } from './services/instructions'
+import { logError } from './lib/log'
 import { linkTelegramChat, userIdForChat } from './services/integrations'
-import { LimitReachedError } from './services/limit-error'
+import type { listQueue } from './services/mail'
+import type { Button, Channel, Reply } from './services/messenger'
 import {
-  approveAction,
-  dismissAction,
-  listQueue,
-  redraftAction,
-  updateDraft,
-} from './services/mail'
-import { cancelMail } from './services/outbox'
+  briefReply,
+  failureText,
+  follow,
+  hear,
+  helpReply,
+  itemReply,
+  localeFor,
+  messagesFor,
+  press,
+  remember,
+  splitText,
+} from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
-import { getSettings } from './services/settings'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
 
-const TELEGRAM_TEXT_LIMIT = 3500
-
-/** Chat → action whose draft the next text message replaces. Lost on restart, which only cancels an edit in progress. */
-const editing = new Map<string, string>()
-
-/** Bot message → the action it shows, so replying to it ("make it warmer", a voice note) targets that draft. */
-const shown = new Map<string, string>()
-const SHOWN_LIMIT = 5000
-
-const remember = (
-  chatId: number | string,
-  messageId: number,
-  actionId: string
-) => {
-  shown.set(`${chatId}:${messageId}`, actionId)
-  if (shown.size > SHOWN_LIMIT) {
-    const [oldest] = shown.keys()
-    if (oldest) {
-      shown.delete(oldest)
-    }
-  }
-}
+const MESSAGE_LIMIT = 4096
 
 const escapeHtml = (text: string) =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 
-const messagesForUser = async (userId: string) => {
-  const settings = await getSettings(userId)
-  return messages[settings?.language ?? 'en']
+const channel: Channel = {
+  bold: (text) => `<b>${escapeHtml(text)}</b>`,
+  italic: (text) => `<i>${escapeHtml(text)}</i>`,
+  name: 'telegram',
+  plain: escapeHtml,
+  shorter: true,
+}
+
+const chatOf = (id: number | string) => ({ channel, id: String(id) })
+
+const keyboard = (buttons: Button[]) =>
+  InlineKeyboard.from([
+    buttons.map(({ id, title }) => InlineKeyboard.text(title, id)),
+  ])
+
+const send = async (
+  api: Api,
+  chatId: number | string,
+  { actionId, buttons, text }: Reply
+) => {
+  const parts = splitText(text, MESSAGE_LIMIT)
+  const last = parts.pop() ?? ''
+  for (const part of parts) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- parts must arrive in order
+    await api.sendMessage(chatId, part, { parse_mode: 'HTML' })
+  }
+  const sent = await api.sendMessage(chatId, last, {
+    parse_mode: 'HTML',
+    ...(buttons?.length ? { reply_markup: keyboard(buttons) } : {}),
+  })
+  if (actionId) {
+    await remember(chatOf(chatId), String(sent.message_id), actionId)
+  }
+}
+
+const sendAll = async (api: Api, chatId: number, replies: Reply[]) => {
+  for (const reply of replies) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- replies must arrive in order
+    await send(api, chatId, reply)
+  }
 }
 
 const messagesForChat = (ctx: Context) =>
   messages[matchLocale([ctx.from?.language_code ?? 'en'])]
-
-const itemText = (t: Messages, { action, analysis, message }: QueueItem) =>
-  [
-    `<b>${escapeHtml(message?.fromName ?? message?.fromEmail ?? 'Fewmail')}</b> · ${escapeHtml(message?.subject ?? action.title)}`,
-    analysis?.summary ? escapeHtml(analysis.summary) : null,
-    action.kind === 'reply' && action.detail
-      ? `\n<i>${t.telegram.draft}</i>\n${escapeHtml(action.detail).slice(0, TELEGRAM_TEXT_LIMIT)}`
-      : null,
-  ]
-    .filter(Boolean)
-    .join('\n')
-
-const itemKeyboard = (t: Messages, { action }: QueueItem) => {
-  const keyboard = new InlineKeyboard()
-  if (action.kind === 'reply') {
-    keyboard
-      .text(t.telegram.send, `a:${action.id}`)
-      .text(t.telegram.shorter, `r:${action.id}`)
-      .text(t.telegram.edit, `e:${action.id}`)
-  } else {
-    keyboard.text(action.title, `a:${action.id}`)
-  }
-  return keyboard.text(t.telegram.skip, `d:${action.id}`)
-}
-
-const draftKeyboard = (t: Messages, actionId: string) =>
-  new InlineKeyboard()
-    .text(t.telegram.send, `a:${actionId}`)
-    .text(t.telegram.edit, `e:${actionId}`)
-    .text(t.telegram.skip, `d:${actionId}`)
 
 const commandsFor = (t: Messages) => [
   { command: 'brief', description: t.telegram.commands.brief },
@@ -99,51 +83,22 @@ const commandsFor = (t: Messages) => [
   ...SKILLS.map((skill) => ({ command: skill, description: t.skills[skill] })),
 ]
 
-const helpText = (t: Messages) =>
-  [
-    `${t.telegram.help}\n`,
-    ...commandsFor(t).map(
-      ({ command, description }) => `/${command} — ${description}`
-    ),
-  ].join('\n')
-
-const answerText = ({ answer, sources }: Awaited<ReturnType<typeof askMail>>) =>
-  [
-    escapeHtml(answer),
-    ...sources.map(
-      (source) =>
-        `<i>[${source.number}] ${escapeHtml(source.from)} · ${escapeHtml(source.subject)}</i>`
-    ),
-  ].join('\n')
-
 const followText = async (ctx: Context, userId: string, text: string) => {
-  const t = await messagesForUser(userId)
+  if (!ctx.chat) {
+    return
+  }
   const replyTo = ctx.message?.reply_to_message?.message_id
-  const targetId =
-    replyTo && ctx.chat
-      ? (shown.get(`${ctx.chat.id}:${replyTo}`) ?? null)
-      : null
   await ctx.replyWithChatAction('typing')
-  const { answer, draft, skill } = await followMessage(userId, text, targetId)
-  if (skill) {
-    await ctx.reply(
-      `${skill.text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${skill.chatId}`
+  await send(
+    ctx.api,
+    ctx.chat.id,
+    await follow(
+      chatOf(ctx.chat.id),
+      userId,
+      text,
+      replyTo ? String(replyTo) : undefined
     )
-    return
-  }
-  if (answer) {
-    await ctx.reply(answerText(answer), { parse_mode: 'HTML' })
-    return
-  }
-  if (!draft) {
-    await ctx.reply(helpText(t))
-    return
-  }
-  const sent = await ctx.reply(
-    `<i>${t.telegram.newDraft}</i>\n${escapeHtml(draft.detail ?? '')}`,
-    { parse_mode: 'HTML', reply_markup: draftKeyboard(t, draft.id) }
   )
-  remember(sent.chat.id, sent.message_id, draft.id)
 }
 
 const createBot = (token: string) => {
@@ -160,77 +115,48 @@ const createBot = (token: string) => {
       return null
     }
     if (chatId && userId && !hasAgent(await getPlanInfo(userId))) {
-      const t = await messagesForUser(userId)
+      const t = await messagesFor(userId)
       await bot.api.sendMessage(chatId, t.telegram.proOnly)
       return null
     }
     return userId
   }
 
-  const sendQueue = async (chatId: number, userId: string) => {
-    const t = await messagesForUser(userId)
-    const queue = await listQueue(userId)
-    if (queue.length === 0) {
-      await bot.api.sendMessage(chatId, t.telegram.nothing)
-      return
-    }
-    for (const item of queue) {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- queue items must arrive in order
-      const sent = await bot.api.sendMessage(chatId, itemText(t, item), {
-        parse_mode: 'HTML',
-        reply_markup: itemKeyboard(t, item),
-      })
-      remember(chatId, sent.message_id, item.action.id)
-    }
-  }
+  const sendHelp = async (chatId: number, userId: string) =>
+    send(bot.api, chatId, helpReply(chatOf(chatId), await messagesFor(userId)))
 
   bot.command('start', async (ctx) => {
     const code = ctx.match.trim()
     const link = code ? await linkTelegramChat(code, String(ctx.chat.id)) : null
     if (link) {
-      const t = await messagesForUser(link.userId)
+      const t = await messagesFor(link.userId)
       await ctx.reply(t.telegram.connected)
       return
     }
     const userId = await userIdForChat(String(ctx.chat.id))
-    await ctx.reply(
-      userId
-        ? helpText(await messagesForUser(userId))
-        : messagesForChat(ctx).telegram.connectFirst
-    )
+    await (userId
+      ? sendHelp(ctx.chat.id, userId)
+      : ctx.reply(messagesForChat(ctx).telegram.connectFirst))
   })
 
   bot.command('help', async (ctx) => {
     const userId = await requireUser(ctx)
     if (userId) {
-      await ctx.reply(helpText(await messagesForUser(userId)))
+      await sendHelp(ctx.chat.id, userId)
     }
   })
 
-  bot.command('brief', async (ctx) => {
-    const userId = await requireUser(ctx)
-    if (!userId) {
-      return
-    }
-    await ctx.replyWithChatAction('typing')
-    const settings = await getSettings(userId)
-    const latest = await getLatestBrief(userId)
-    const brief =
-      latest && settings && latest.date === localClock(settings.timezone).date
-        ? latest
-        : await generateBrief(userId)
-    await ctx.reply(
-      `<b>${escapeHtml(brief.headline)}</b>\n\n${escapeHtml(brief.body)}`,
-      { parse_mode: 'HTML' }
-    )
-  })
-
-  bot.command('queue', async (ctx) => {
-    const userId = await requireUser(ctx)
-    if (userId) {
-      await sendQueue(ctx.chat.id, userId)
-    }
-  })
+  for (const command of ['brief', 'queue']) {
+    bot.command(command, async (ctx) => {
+      const userId = await requireUser(ctx)
+      if (!userId) {
+        return
+      }
+      await ctx.replyWithChatAction('typing')
+      const { replies } = await press(chatOf(ctx.chat.id), userId, command)
+      await sendAll(ctx.api, ctx.chat.id, (await replies?.()) ?? [])
+    })
+  }
 
   for (const skill of SKILLS) {
     bot.command(skill, async (ctx) => {
@@ -247,55 +173,31 @@ const createBot = (token: string) => {
       await ctx.answerCallbackQuery()
       return
     }
-    const t = await messagesForUser(userId)
-    const [command, actionId = ''] = ctx.callbackQuery.data.split(':')
-
+    const chatId = ctx.chat.id
+    // Telegram takes one answer per press: a second one throws.
+    let answered = false
     try {
-      if (command === 'a') {
-        const { outboxId } = await approveAction(userId, actionId)
+      const { buttons, notice, replies } = await press(
+        chatOf(chatId),
+        userId,
+        ctx.callbackQuery.data
+      )
+      answered = true
+      await ctx.answerCallbackQuery(notice)
+      if (buttons) {
         await ctx.editMessageReplyMarkup(
-          outboxId
-            ? {
-                reply_markup: new InlineKeyboard().text(
-                  t.telegram.undo,
-                  `u:${outboxId}`
-                ),
-              }
-            : undefined
+          buttons.length > 0 ? { reply_markup: keyboard(buttons) } : undefined
         )
-        await ctx.answerCallbackQuery(
-          outboxId ? t.telegram.sendingIn(UNDO_SEND_SECONDS) : t.telegram.done
-        )
-      } else if (command === 'u') {
-        await cancelMail(userId, actionId)
-        await ctx.editMessageReplyMarkup()
-        await ctx.answerCallbackQuery(t.telegram.canceled)
-      } else if (command === 'd') {
-        await dismissAction(userId, actionId)
-        await ctx.editMessageReplyMarkup()
-        await ctx.answerCallbackQuery(t.telegram.skipped)
-      } else if (command === 'r') {
-        await ctx.answerCallbackQuery(t.telegram.rewriting)
-        const action = await redraftAction(
-          userId,
-          actionId,
-          t.queue.shorterInstruction
-        )
-        await ctx.reply(
-          `<i>${t.telegram.newDraft}</i>\n${escapeHtml(action.detail ?? '')}`,
-          { parse_mode: 'HTML', reply_markup: draftKeyboard(t, action.id) }
-        )
-      } else if (command === 'e') {
-        editing.set(String(ctx.chat.id), actionId)
-        await ctx.answerCallbackQuery()
-        await ctx.reply(t.telegram.editPrompt)
+      }
+      if (replies) {
+        await sendAll(ctx.api, chatId, await replies())
       }
     } catch (error) {
-      await ctx.answerCallbackQuery({
-        show_alert: true,
-        text:
-          error instanceof Error ? error.message : t.telegram.somethingWrong,
-      })
+      logError('telegram press', error)
+      const text = failureText(await localeFor(userId), error, false)
+      await (answered
+        ? ctx.reply(text)
+        : ctx.answerCallbackQuery({ show_alert: true, text }))
     }
   })
 
@@ -304,75 +206,43 @@ const createBot = (token: string) => {
     if (!userId) {
       return
     }
-    const t = await messagesForUser(userId)
-    try {
+    const t = await messagesFor(userId)
+    const heard = await hear(userId, async () => {
       const file = await ctx.getFile()
       const response = await fetch(
         `https://api.telegram.org/file/bot${token}/${file.file_path ?? ''}`
       )
-      const text = await transcribe(await response.arrayBuffer(), 'voice.ogg')
-      if (!text) {
-        await ctx.reply(t.telegram.voiceFailed)
-        return
-      }
-      await ctx.reply(t.telegram.heard(text))
-      await followText(ctx, userId, text)
-    } catch (error) {
-      console.error('voice message failed', error)
+      return response.arrayBuffer()
+    })
+    if (!heard) {
       await ctx.reply(t.telegram.voiceFailed)
+      return
     }
+    await send(ctx.api, ctx.chat.id, {
+      text: escapeHtml(t.telegram.heard(heard)),
+    })
+    await followText(ctx, userId, heard)
   })
 
   bot.on('message:text', async (ctx) => {
-    const actionId = editing.get(String(ctx.chat.id))
-    if (!actionId) {
-      if (!ctx.message.text.startsWith('/')) {
-        const userId = await requireUser(ctx)
-        if (userId) {
-          await followText(ctx, userId, ctx.message.text)
-        }
-      }
-      return
-    }
     const userId = await requireUser(ctx)
-    if (!userId) {
-      return
+    if (userId) {
+      await followText(ctx, userId, ctx.message.text)
     }
-    editing.delete(String(ctx.chat.id))
-    const t = await messagesForUser(userId)
-    const { text } = ctx.message
-
-    if (text.startsWith('/')) {
-      const action = await redraftAction(userId, actionId, text.slice(1))
-      await ctx.reply(
-        `<i>${t.telegram.newDraft}</i>\n${escapeHtml(action.detail ?? '')}`,
-        { parse_mode: 'HTML', reply_markup: draftKeyboard(t, action.id) }
-      )
-      return
-    }
-    await updateDraft(userId, actionId, text)
-    await ctx.reply(`<i>${t.telegram.willSend}</i>\n${escapeHtml(text)}`, {
-      parse_mode: 'HTML',
-      reply_markup: new InlineKeyboard()
-        .text(t.telegram.sendThis, `a:${actionId}`)
-        .text(t.telegram.skip, `d:${actionId}`),
-    })
   })
 
   // oxlint-disable-next-line promise/prefer-await-to-callbacks -- grammY error handler API
-  bot.catch(async (error) => {
-    console.error('telegram', error.error)
-    if (!error.ctx.message) {
+  bot.catch(async ({ ctx, error }) => {
+    logError('telegram', error)
+    if (!ctx.message) {
       return
     }
-    const locale = matchLocale([error.ctx.from?.language_code ?? 'en'])
-    const t = messages[locale]
     try {
-      await error.ctx.reply(
-        error.error instanceof LimitReachedError
-          ? t.limits.messages(formatResetDay(locale, error.error.resetsAt))
-          : t.telegram.somethingWrong
-      )
+      const userId = await userIdForChat(String(ctx.message.chat.id))
+      const locale = userId
+        ? await localeFor(userId)
+        : matchLocale([ctx.from?.language_code ?? 'en'])
+      await ctx.reply(failureText(locale, error, !!ctx.message.voice))
     } catch {
       // The chat may be gone; the error is already logged.
     }
@@ -408,7 +278,7 @@ export const startTelegram = async () => {
       ),
     ])
   } catch (error) {
-    console.error('telegram commands', error)
+    logError('telegram commands', error)
   }
   try {
     await (env.TELEGRAM_WEBHOOK_SECRET
@@ -418,10 +288,7 @@ export const startTelegram = async () => {
       : bot.start())
   } catch (error) {
     // Only the message: grammy's error carries the request payload, webhook secret included.
-    console.error(
-      'telegram start',
-      error instanceof Error ? error.message : error
-    )
+    logError('telegram start', error)
   }
 }
 
@@ -430,12 +297,10 @@ export const sendBrief = async (
   userId: string,
   brief: { body: string; headline: string }
 ) => {
-  const t = await messagesForUser(userId)
-  await bot?.api.sendMessage(
-    chatId,
-    `<b>${escapeHtml(brief.headline)}</b>\n\n${escapeHtml(brief.body)}\n\n${t.telegram.queueHint}`,
-    { parse_mode: 'HTML' }
-  )
+  if (bot) {
+    const t = await messagesFor(userId)
+    await send(bot.api, chatId, briefReply(chatOf(chatId), t, brief))
+  }
 }
 
 export const sendUrgent = async (
@@ -443,13 +308,8 @@ export const sendUrgent = async (
   userId: string,
   item: QueueItem
 ) => {
-  const t = await messagesForUser(userId)
-  const sent = await bot?.api.sendMessage(
-    chatId,
-    `${t.telegram.urgent}\n${itemText(t, item)}`,
-    { parse_mode: 'HTML', reply_markup: itemKeyboard(t, item) }
-  )
-  if (sent) {
-    remember(chatId, sent.message_id, item.action.id)
+  if (bot) {
+    const t = await messagesFor(userId)
+    await send(bot.api, chatId, itemReply(chatOf(chatId), t, item, true))
   }
 }

@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto'
 
 import { db } from '@fewmail/db'
+import type { templateReports } from '@fewmail/db/schema'
 import { bulkPrints, messages, users } from '@fewmail/db/schema'
 import { subDays } from 'date-fns'
 import { and, eq, gte, or } from 'drizzle-orm'
@@ -72,6 +73,24 @@ const bands = (print: bigint) =>
 export const isNear = (left: bigint, hex: string) =>
   hamming(left, BigInt(`0x${hex}`)) <= MAX_HAMMING
 
+type Printed = NonNullable<ReturnType<typeof fingerprint>>
+
+/** Candidates sharing any 16-bit band with the print since a date; confirm each with `isNear`. */
+export const sharesBand = (
+  table: typeof bulkPrints | typeof templateReports,
+  printed: Printed,
+  since: Date
+) =>
+  and(
+    gte(table.createdAt, since),
+    or(
+      eq(table.band0, printed.band0),
+      eq(table.band1, printed.band1),
+      eq(table.band2, printed.band2),
+      eq(table.band3, printed.band3)
+    )
+  )
+
 export const personalWords = async (userId: string) => {
   const [user] = await db
     .select({ name: users.name })
@@ -116,17 +135,7 @@ export const measureBulk = async (userId: string, incoming: Message[]) => {
     const near = await db
       .select({ print: bulkPrints.print, userHash: bulkPrints.userHash })
       .from(bulkPrints)
-      .where(
-        and(
-          gte(bulkPrints.createdAt, since),
-          or(
-            eq(bulkPrints.band0, band0),
-            eq(bulkPrints.band1, band1),
-            eq(bulkPrints.band2, band2),
-            eq(bulkPrints.band3, band3)
-          )
-        )
-      )
+      .where(sharesBand(bulkPrints, printed, since))
     const recipients = new Set(
       near.filter((row) => isNear(print, row.print)).map((row) => row.userHash)
     )

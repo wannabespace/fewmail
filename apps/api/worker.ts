@@ -19,6 +19,7 @@ import { and, eq, gte, isNotNull, isNull, lt, lte, or } from 'drizzle-orm'
 
 import { env } from './env'
 import { announceChange } from './lib/live'
+import { logError } from './lib/log'
 import { seedBoards } from './services/boards'
 import { generateBrief, isBriefDue } from './services/brief'
 import { askAgent, postToChat } from './services/chat'
@@ -36,7 +37,12 @@ import {
   urgentNotification,
 } from './services/notifications'
 import { dispatchDueOutbox } from './services/outbox'
-import { getPlanInfo, hasAgent } from './services/plan'
+import {
+  AgentRequiredError,
+  getPlanInfo,
+  hasAgent,
+  hasAgentSql,
+} from './services/plan'
 import {
   processDueCommitments,
   processDueReminders,
@@ -45,7 +51,11 @@ import { nextRunAt } from './services/schedules'
 import { getSettings } from './services/settings'
 import { ensureMailbox, readBoardHistory, syncMailbox } from './services/sync'
 import { sendBrief, sendUrgent } from './telegram'
-import { sendWhatsappBrief, sendWhatsappUrgent } from './whatsapp'
+import {
+  sendWhatsappBrief,
+  sendWhatsappSchedule,
+  sendWhatsappUrgent,
+} from './whatsapp'
 
 const TICK_MS = 60_000
 const SYNC_EVERY_MINUTES = 2
@@ -60,7 +70,7 @@ const once = async (key: string, run: () => Promise<unknown>) => {
   try {
     await run()
   } catch (error) {
-    console.error(`worker ${key}`, error)
+    logError(`worker ${key}`, error)
   } finally {
     running.delete(key)
   }
@@ -108,15 +118,13 @@ const seedDueBoards = async () => {
       and(
         isNull(mailboxes.googleAccountId),
         isNull(mailboxes.boardsSeededAt),
-        isNotNull(mailboxes.lastSyncedAt)
+        isNotNull(mailboxes.lastSyncedAt),
+        hasAgentSql(mailboxes.userId)
       )
     )
   await Promise.all(
     due.map((mailbox) =>
       once(`boards-seed:${mailbox.userId}`, async () => {
-        if (!hasAgent(await getPlanInfo(mailbox.userId))) {
-          return
-        }
         await seedBoards(mailbox.userId)
         await db
           .update(mailboxes)
@@ -145,56 +153,89 @@ const readDueBoardHistory = async () => {
   )
 }
 
+const BRIEF_RETRY_MS = 3_600_000
+
+/** In memory: the worker runs as one replica, and a restart retrying at once is fine. */
+const briefFailedAt = new Map<string, number>()
+
 const sendBriefIfDue = async (settings: typeof userSettings.$inferSelect) => {
-  if (!hasAgent(await getPlanInfo(settings.userId))) {
-    return
-  }
-  await offerCleanup(settings.userId)
+  const { userId } = settings
   if (
-    !(await isBriefDue(settings.userId, settings.timezone, settings.briefHour))
+    Date.now() - (briefFailedAt.get(userId) ?? 0) < BRIEF_RETRY_MS ||
+    !(await isBriefDue(userId, settings.timezone, settings.briefHour))
   ) {
     return
   }
-  await once(`brief:${settings.userId}`, async () => {
-    const brief = await generateBrief(settings.userId)
-    const chatId = await chatIdForUser(settings.userId)
-    if (chatId) {
-      await sendBrief(chatId, settings.userId, brief)
-      await db
-        .update(briefs)
-        .set({ telegramSentAt: new Date() })
-        .where(eq(briefs.id, brief.id))
-    }
-    await sendWhatsappBrief(settings.userId, brief)
-    notify(settings.userId, briefNotification(brief))
+  const brief = await generateBrief(userId).catch((error: unknown) => {
+    briefFailedAt.set(userId, Date.now())
+    throw error
   })
+  briefFailedAt.delete(userId)
+  const chatId = await chatIdForUser(userId)
+  if (chatId) {
+    await sendBrief(chatId, userId, brief)
+    await db
+      .update(briefs)
+      .set({ telegramSentAt: new Date() })
+      .where(eq(briefs.id, brief.id))
+  }
+  await sendWhatsappBrief(userId, brief)
+  notify(userId, briefNotification(brief))
 }
 
+const settingsWithAgent = () =>
+  db.select().from(userSettings).where(hasAgentSql(userSettings.userId))
+
 const sendDueBriefs = async () => {
-  const everyone = await db.select().from(userSettings)
-  for (const settings of everyone) {
+  for (const settings of await settingsWithAgent()) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- briefs are generated one user at a time
     await sendBriefIfDue(settings).catch((error) =>
-      console.error('brief failed', settings.userId, error)
+      logError(`brief ${settings.userId}`, error)
     )
   }
 }
 
-const notifyUrgent = async (id: string, userId: string) => {
+const offerDueCleanups = async () => {
+  for (const settings of await settingsWithAgent()) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- one 30-day subscription scan at a time
+    await offerCleanup(settings).catch((error) =>
+      logError(`cleanup ${settings.userId}`, error)
+    )
+  }
+}
+
+/** Telegram and WhatsApp are Pro channels; device push reaches every plan. A failed channel never re-sends the others. */
+const sendUrgentEverywhere = async (id: string, userId: string) => {
   const queue = await listQueue(userId)
   const item = queue.find(({ action }) => action.id === id)
-  if (item) {
-    const chatId = await chatIdForUser(userId)
-    if (chatId) {
-      await sendUrgent(chatId, userId, item)
-    }
-    await sendWhatsappUrgent(userId, item)
-    notify(userId, urgentNotification(item))
+  if (!item) {
+    return
   }
-  await db
-    .update(actions)
-    .set({ notifiedAt: new Date() })
-    .where(eq(actions.id, id))
+  notify(userId, urgentNotification(item))
+  if (!hasAgent(await getPlanInfo(userId))) {
+    return
+  }
+  const chatId = await chatIdForUser(userId)
+  const sent = await Promise.allSettled([
+    chatId && sendUrgent(chatId, userId, item),
+    sendWhatsappUrgent(userId, item),
+  ])
+  for (const result of sent) {
+    if (result.status === 'rejected') {
+      logError(`urgent ${id}`, result.reason)
+    }
+  }
+}
+
+const notifyUrgent = async (id: string, userId: string) => {
+  try {
+    await sendUrgentEverywhere(id, userId)
+  } finally {
+    await db
+      .update(actions)
+      .set({ notifiedAt: new Date() })
+      .where(eq(actions.id, id))
+  }
 }
 
 const pushUrgent = async () => {
@@ -214,7 +255,9 @@ const pushUrgent = async () => {
     )
   for (const { id, userId } of urgent) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- urgent pushes go out in order
-    await notifyUrgent(id, userId)
+    await notifyUrgent(id, userId).catch((error) =>
+      logError(`urgent ${id}`, error)
+    )
   }
 }
 
@@ -239,7 +282,7 @@ const deliverScheduleRun = async (
   const telegramChat = await chatIdForUser(userId)
   await Promise.all([
     telegramChat && sendBrief(telegramChat, userId, run),
-    sendWhatsappBrief(userId, run),
+    sendWhatsappSchedule(userId, run, chatId),
   ])
 }
 
@@ -263,6 +306,10 @@ const runSchedule = async (schedule: Schedule) => {
   try {
     answer = await askAgent(userId, { id: chatId, text: instruction })
   } catch (error) {
+    if (error instanceof AgentRequiredError) {
+      await finish({ nextRunAt: await nextRunAt(userId, cron) })
+      return
+    }
     if (error instanceof LimitReachedError) {
       await finish({ nextRunAt: await nextRunAt(userId, cron, error.resetsAt) })
       await report(
@@ -270,7 +317,7 @@ const runSchedule = async (schedule: Schedule) => {
       )
       return
     }
-    console.error(`schedule ${id}`, error)
+    logError(`schedule ${id}`, error)
     const failures = schedule.failures + 1
     if (failures >= MAX_SCHEDULE_FAILURES) {
       await db.delete(schedules).where(eq(schedules.id, id))
@@ -304,7 +351,7 @@ const runDueSchedules = async () => {
   await Promise.all(
     claimed.map((schedule) =>
       runSchedule(schedule).catch((error) =>
-        console.error(`schedule ${schedule.id}`, error)
+        logError(`schedule ${schedule.id}`, error)
       )
     )
   )
@@ -318,6 +365,7 @@ const tick = async () => {
       seedDueBoards(),
       readDueBoardHistory(),
       once('briefs', sendDueBriefs),
+      once('cleanups', offerDueCleanups),
       once('urgent', pushUrgent),
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),
@@ -326,7 +374,7 @@ const tick = async () => {
       once('known-domains', refreshKnownDomains),
     ])
   } catch (error) {
-    console.error('worker tick', error)
+    logError('worker tick', error)
   }
 }
 

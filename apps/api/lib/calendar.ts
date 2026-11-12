@@ -58,8 +58,9 @@ export interface CalendarEventFields {
   title: string
 }
 
-const toGoogleTime = (value: string, allDay: boolean): GoogleTime =>
-  allDay ? { date: value } : { dateTime: value }
+/** PATCH merges `start` and `end`: the other key must be cleared or switching all-day ↔ timed keeps both and Google rejects it. */
+const toGoogleTime = (value: string, allDay: boolean) =>
+  allDay ? { date: value, dateTime: null } : { date: null, dateTime: value }
 
 const toGoogleEvent = (event: CalendarEventFields) => ({
   description: event.description ?? '',

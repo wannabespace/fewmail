@@ -1,5 +1,5 @@
 import { BATCH_HOURS_AFTER_BRIEF } from '@fewmail/shared/agent'
-import { addDays, subDays } from 'date-fns'
+import { addDays, addHours, subDays } from 'date-fns'
 
 import { localClock } from '../lib/clock'
 
@@ -27,7 +27,7 @@ export const deliverySlots = (
   const tomorrow = localClock(timezone, addDays(now, 1)).date
   const slots = [yesterday, today, tomorrow].flatMap((date) =>
     BATCH_HOURS_AFTER_BRIEF.map((offset) =>
-      zonedInstant(date, (briefHour + offset) % 24, timezone)
+      addHours(zonedInstant(date, briefHour, timezone), offset)
     )
   )
   const past = slots.filter((slot) => slot <= now)

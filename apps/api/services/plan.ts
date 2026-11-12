@@ -2,7 +2,8 @@ import { db } from '@fewmail/db'
 import { subscriptions, usage, userSettings } from '@fewmail/db/schema'
 import { PLAN_LIMITS } from '@fewmail/shared/agent'
 import type { Plan } from '@fewmail/shared/agent'
-import { and, desc, eq, inArray, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, inArray, lt, or, sql } from 'drizzle-orm'
+import type { Column } from 'drizzle-orm'
 
 import { env } from '../env'
 import { LimitReachedError, usageResetsAt } from './limit-error'
@@ -76,6 +77,25 @@ export const hasAgent = <Info extends Pick<PlanInfo, 'kind'>>(
   plan: Info
 ): plan is Info & { kind: Exclude<Plan, 'free'> } => plan.kind !== 'free'
 
+/** `hasAgent` as a SQL filter, so the worker skips Free users without asking `getPlanInfo` for each. */
+export const hasAgentSql = (userId: Column) =>
+  or(
+    inArray(
+      userId,
+      db
+        .select({ userId: userSettings.userId })
+        .from(userSettings)
+        .where(gt(userSettings.trialEndsAt, sql`now()`))
+    ),
+    inArray(
+      userId,
+      db
+        .select({ userId: subscriptions.userId })
+        .from(subscriptions)
+        .where(inArray(subscriptions.status, ACTIVE_STATUSES))
+    )
+  )
+
 export const requireAgent = async (userId: string) => {
   const plan = await getPlanInfo(userId)
   if (!hasAgent(plan)) {
@@ -113,11 +133,18 @@ const countUsage = (
 export const spendMessage = async (userId: string) => {
   const plan = await requireAgent(userId)
   const total = PLAN_LIMITS[plan.kind].messages
-  const { messages } = await getUsage(userId)
-  if (messages >= total) {
+  const [counted] = await db
+    .insert(usage)
+    .values({ messages: 1, month: currentMonth(), userId })
+    .onConflictDoUpdate({
+      set: { messages: sql`${usage.messages} + 1` },
+      setWhere: lt(usage.messages, total),
+      target: [usage.userId, usage.month],
+    })
+    .returning({ messages: usage.messages })
+  if (!counted) {
     throw new LimitReachedError('messages', total)
   }
-  await countUsage(userId, 'messages', 1)
 }
 
 /** Boards and tasks are limited by how many exist at once, not per month. */
@@ -133,7 +160,11 @@ export const requireRoom = async (
   }
 }
 
-export type EmailAllowance = (urgent: boolean) => boolean
+export interface EmailAllowance {
+  /** Reserves one email; `refund` gives it back when the LLM failed, so only written emails count. */
+  take: (urgent: boolean) => boolean
+  refund: () => void
+}
 
 /** Whether the agent may write for one more email this month; `save` records what was spent. */
 export const emailAllowance = async (userId: string) => {
@@ -144,12 +175,17 @@ export const emailAllowance = async (userId: string) => {
   const limit = PLAN_LIMITS[plan.kind].emails
   const { emails } = await getUsage(userId)
   let spent = 0
-  const allowance: EmailAllowance = (urgent) => {
-    if (emails + spent >= (urgent ? limit * URGENT_RESERVE : limit)) {
-      return false
-    }
-    spent += 1
-    return true
+  const allowance: EmailAllowance = {
+    refund: () => {
+      spent -= 1
+    },
+    take: (urgent) => {
+      if (emails + spent >= (urgent ? limit * URGENT_RESERVE : limit)) {
+        return false
+      }
+      spent += 1
+      return true
+    },
   }
   return {
     allowance,

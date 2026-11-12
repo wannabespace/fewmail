@@ -1,30 +1,37 @@
 import { db } from '@fewmail/db'
-import { actions, commitments, messages, reminders } from '@fewmail/db/schema'
+import {
+  actions,
+  commitments,
+  messages,
+  reminders,
+  userSettings,
+} from '@fewmail/db/schema'
+import type { ReminderKind } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
-import { addDays } from 'date-fns'
+import { addDays, addHours } from 'date-fns'
 import { and, asc, desc, eq, gt, inArray, lte } from 'drizzle-orm'
 
+import { localClock } from '../lib/clock'
+import { GmailError } from '../lib/gmail'
 import { announceChange } from '../lib/live'
-import { getPlanInfo, hasAgent } from './plan'
+import { NotFoundError } from './mail-errors'
+import { getPlanInfo, hasAgent, hasAgentSql } from './plan'
 import { getSettings } from './settings'
 import { changeThreadLabels } from './thread-labels'
 
-const cancelPending = (
-  userId: string,
-  threadId: string,
-  kind: 'followup' | 'snooze'
-) =>
+const pendingOn = (userId: string, threadId: string, kind: ReminderKind) =>
+  and(
+    eq(reminders.userId, userId),
+    eq(reminders.threadId, threadId),
+    eq(reminders.kind, kind),
+    eq(reminders.status, 'pending')
+  )
+
+const cancelPending = (userId: string, threadId: string, kind: ReminderKind) =>
   db
     .update(reminders)
     .set({ status: 'canceled' })
-    .where(
-      and(
-        eq(reminders.userId, userId),
-        eq(reminders.threadId, threadId),
-        eq(reminders.kind, kind),
-        eq(reminders.status, 'pending')
-      )
-    )
+    .where(pendingOn(userId, threadId, kind))
 
 export const snoozeThread = async (
   userId: string,
@@ -47,13 +54,8 @@ export const unsnoozeThread = async (userId: string, threadId: string) => {
   await changeThreadLabels(userId, threadId, { add: ['INBOX'] })
 }
 
-export const scheduleFollowup = async (
-  userId: string,
-  threadId: string,
-  days: number
-) => {
-  await cancelPending(userId, threadId, 'followup')
-  await db.insert(reminders).values({
+const insertFollowup = (userId: string, threadId: string, days: number) =>
+  db.insert(reminders).values({
     dueAt: addDays(new Date(), days),
     kind: 'followup',
     since: new Date(),
@@ -61,6 +63,31 @@ export const scheduleFollowup = async (
     threadId,
     userId,
   })
+
+/** The user's own choice when sending: replaces whatever follow-up the thread had. */
+export const scheduleFollowup = async (
+  userId: string,
+  threadId: string,
+  days: number
+) => {
+  await cancelPending(userId, threadId, 'followup')
+  await insertFollowup(userId, threadId, days)
+}
+
+/** Automatic: never replaces a pending follow-up, which may be the one the user chose when sending. */
+export const watchForReply = async (
+  userId: string,
+  threadId: string,
+  days: number
+) => {
+  const [pending] = await db
+    .select({ id: reminders.id })
+    .from(reminders)
+    .where(pendingOn(userId, threadId, 'followup'))
+    .limit(1)
+  if (!pending) {
+    await insertFollowup(userId, threadId, days)
+  }
 }
 
 const AWAITING_SHOWN = 6
@@ -126,6 +153,22 @@ const hasReplySince = async (userId: string, threadId: string, since: Date) => {
 const resurface = (userId: string, threadId: string) =>
   changeThreadLabels(userId, threadId, { add: ['INBOX', 'UNREAD'] })
 
+/** A reply already brought the thread back; waking it would mark it unread after the user answered. */
+const wakeSnooze = async (reminder: typeof reminders.$inferSelect) => {
+  if (
+    await hasReplySince(reminder.userId, reminder.threadId, reminder.createdAt)
+  ) {
+    return 'canceled' as const
+  }
+  await resurface(reminder.userId, reminder.threadId)
+  return 'done' as const
+}
+
+/** The mailbox was removed or the thread deleted in Gmail: retrying every minute would never succeed. */
+const isGone = (error: unknown) =>
+  error instanceof NotFoundError ||
+  (error instanceof GmailError && error.status === 404)
+
 const fireFollowup = async (reminder: typeof reminders.$inferSelect) => {
   if (
     await hasReplySince(
@@ -176,12 +219,16 @@ export const processDueReminders = async () => {
 
   await Promise.all(
     due.map(async (reminder) => {
-      const status =
+      const status = await (
         reminder.kind === 'snooze'
-          ? await resurface(reminder.userId, reminder.threadId).then(
-              () => 'done' as const
-            )
-          : await fireFollowup(reminder)
+          ? wakeSnooze(reminder)
+          : fireFollowup(reminder)
+      ).catch((error: unknown) => {
+        if (isGone(error)) {
+          return 'canceled' as const
+        }
+        throw error
+      })
       await db
         .update(reminders)
         .set({ status })
@@ -205,35 +252,66 @@ export const snoozedThreadIds = async (userId: string) => {
   return new Map(rows.map(({ dueAt, threadId }) => [threadId, dueAt]))
 }
 
+const MORNING_HOUR = 8
+const MAX_UTC_OFFSET_HOURS = 14
+
+/** `dueAt` is a calendar date at UTC midnight; it is due from that date's morning where the user is. */
+const isDueMorning = (dueAt: Date, timezone: string) => {
+  const { date, hour } = localClock(timezone)
+  const dueDate = dueAt.toISOString().slice(0, 10)
+  return date > dueDate || (date === dueDate && hour >= MORNING_HOUR)
+}
+
 /** A promise surfaces on its due morning as a Today card; approving it closes the commitment. */
 export const processDueCommitments = async () => {
-  const due = await db
-    .select()
+  const candidates = await db
+    .select({
+      commitment: commitments,
+      language: userSettings.language,
+      timezone: userSettings.timezone,
+    })
     .from(commitments)
+    .leftJoin(userSettings, eq(userSettings.userId, commitments.userId))
     .where(
-      and(eq(commitments.status, 'open'), lte(commitments.dueAt, new Date()))
+      and(
+        eq(commitments.status, 'open'),
+        lte(commitments.dueAt, addHours(new Date(), MAX_UTC_OFFSET_HOURS)),
+        hasAgentSql(commitments.userId)
+      )
     )
   await Promise.all(
-    due.map(async (commitment) => {
-      const settings = await getSettings(commitment.userId)
-      const t = dictionaries[settings?.language ?? 'en']
-      await db.insert(actions).values({
-        autonomous: false,
-        detail: commitment.promise,
-        kind: 'commitment',
-        messageId: commitment.messageId,
-        payload: { commitmentId: commitment.id },
-        reason: commitment.recipient ?? '',
-        status: 'pending',
-        threadId: commitment.threadId,
-        title: t.commitments.title,
-        userId: commitment.userId,
+    candidates
+      .filter(({ commitment, timezone }) =>
+        isDueMorning(commitment.dueAt, timezone ?? 'UTC')
+      )
+      .map(async ({ commitment, language }) => {
+        // Claim before inserting: a failure after the insert must not surface it again next minute.
+        const [claimed] = await db
+          .update(commitments)
+          .set({ status: 'reminded' })
+          .where(
+            and(
+              eq(commitments.id, commitment.id),
+              eq(commitments.status, 'open')
+            )
+          )
+          .returning({ id: commitments.id })
+        if (!claimed) {
+          return
+        }
+        await db.insert(actions).values({
+          autonomous: false,
+          detail: commitment.promise,
+          kind: 'commitment',
+          messageId: commitment.messageId,
+          payload: { commitmentId: commitment.id },
+          reason: commitment.recipient ?? '',
+          status: 'pending',
+          threadId: commitment.threadId,
+          title: dictionaries[language ?? 'en'].commitments.title,
+          userId: commitment.userId,
+        })
+        await announceChange(commitment.userId)
       })
-      await db
-        .update(commitments)
-        .set({ status: 'reminded' })
-        .where(eq(commitments.id, commitment.id))
-      await announceChange(commitment.userId)
-    })
   )
 }

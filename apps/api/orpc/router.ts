@@ -1,5 +1,3 @@
-import { db } from '@fewmail/db'
-import { messages } from '@fewmail/db/schema'
 import {
   BILLING_INTERVALS,
   BOARD_CHART_TYPES,
@@ -20,11 +18,10 @@ import { LOCALES } from '@fewmail/shared/i18n/locales'
 import { streamToEventIterator } from '@orpc/server'
 import type { InferRouterOutputs } from '@orpc/server'
 import { type } from 'arktype'
-import { and, eq } from 'drizzle-orm'
 
 import { agent, authed } from '.'
+import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
-import { writeReply } from '../services/agent'
 import { askMail } from '../services/ask'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
@@ -43,7 +40,7 @@ import {
   updateEvent,
 } from '../services/calendar'
 import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
-import { listSubscriptions, unsubscribeSender } from '../services/cleanup'
+import { listSubscriptions } from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
 import {
   getTelegramLink,
@@ -53,14 +50,15 @@ import {
   unlinkTelegram,
   unlinkWhatsapp,
 } from '../services/integrations'
-import { backfillAgentLabels } from '../services/labels'
 import {
   approveAction,
   archiveMessage,
   blockSender,
+  countQueue,
   dismissAction,
   draftReply,
   getThread,
+  listHandled,
   listMail,
   countUnread,
   markThreadRead,
@@ -68,9 +66,8 @@ import {
   snoozeMessage,
   trashMessage,
   unsnoozeMessage,
-  unsubscribeMessage,
+  writeReplyTo,
 } from '../services/mail'
-import { NotFoundError } from '../services/mail-errors'
 import {
   listMailboxes,
   removeMailbox,
@@ -83,24 +80,20 @@ import {
 } from '../services/notifications'
 import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
 import { getPerson } from '../services/people'
-import {
-  getPlanInfo,
-  getUsage,
-  requireAgent,
-  spendMessage,
-} from '../services/plan'
+import { getPlanInfo, getUsage, spendMessage } from '../services/plan'
 import {
   createRule,
   deleteRule,
   listRules,
   updateRule,
 } from '../services/rules'
+import { saveSettings } from '../services/save-settings'
 import { deleteSchedule, listSchedules } from '../services/schedules'
-import { getSettings, saveSettings } from '../services/settings'
+import { getSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
 import { markNotSpam, reportSpam } from '../services/spam'
-import { syncMailboxes } from '../services/sync'
 import { cancelTask, createTask } from '../services/tasks'
+import { unsubscribeMessage } from '../services/thread-effects'
 
 const id = type({ id: 'string.uuid' })
 
@@ -120,7 +113,9 @@ const settingsInput = type({
   'starterBoards?': type.enumerated(...BOARD_PRESETS).array(),
   'gmailLabels?': 'boolean',
   'knowledge?': 'string | null',
-  timezone: 'string',
+  timezone: type('string').narrow(
+    (zone, ctx) => isTimeZone(zone) || ctx.mustBe('an IANA time zone')
+  ),
   'voice?': 'string | null',
 })
 
@@ -170,15 +165,6 @@ const eventInput = type({
   start: 'string',
   title: 'string',
 })
-
-const FREE_EFFECTS = new Set<string>(GMAIL_EFFECTS)
-
-/** Jev matches plain-language rules on every plan; drafting and showing in Today need the agent. */
-const requireAgentFor = async (userId: string, rule: { effect?: string }) => {
-  if (rule.effect && !FREE_EFFECTS.has(rule.effect)) {
-    await requireAgent(userId)
-  }
-}
 
 export const router = {
   boards: {
@@ -259,22 +245,22 @@ export const router = {
   },
   integrations: {
     apps: {
-      disconnect: agent
+      disconnect: authed
         .input(type({ clientId: 'string' }))
         .handler(async ({ context, input }) => {
           await disconnectApp(context.user.id, input.clientId)
         }),
-      list: agent.handler(({ context }) => listConnectedApps(context.user.id)),
+      list: authed.handler(({ context }) => listConnectedApps(context.user.id)),
     },
     telegram: {
       get: agent.handler(({ context }) => getTelegramLink(context.user.id)),
-      unlink: agent.handler(async ({ context }) => {
+      unlink: authed.handler(async ({ context }) => {
         await unlinkTelegram(context.user.id)
       }),
     },
     whatsapp: {
       get: agent.handler(({ context }) => getWhatsappLink(context.user.id)),
-      unlink: agent.handler(async ({ context }) => {
+      unlink: authed.handler(async ({ context }) => {
         await unlinkWhatsapp(context.user.id)
       }),
     },
@@ -344,23 +330,11 @@ export const router = {
     writeDraft: agent
       .input(messageId.and({ 'instruction?': 'string' }))
       .handler(async ({ context, input }) => {
-        const [message] = await db
-          .select()
-          .from(messages)
-          .where(
-            and(
-              eq(messages.id, input.messageId),
-              eq(messages.userId, context.user.id)
-            )
-          )
-        if (!message) {
-          throw new NotFoundError('Email not found')
-        }
-        const text = await writeReply({
-          instruction: input.instruction,
-          message,
-          userId: context.user.id,
-        })
+        const text = await writeReplyTo(
+          context.user.id,
+          input.messageId,
+          input.instruction
+        )
         return { html: textToHtml(text), text }
       }),
     draftReply: agent
@@ -398,7 +372,7 @@ export const router = {
     unsubscribe: authed
       .input(messageId)
       .handler(({ context, input }) =>
-        unsubscribeMessage(context.user.id, input.messageId)
+        unsubscribeMessage(context.user.id, input.messageId, 'thread')
       ),
   },
   chats: {
@@ -458,10 +432,9 @@ export const router = {
     user: context.user,
   })),
   rules: {
-    create: authed.input(ruleInput).handler(async ({ context, input }) => {
-      await requireAgentFor(context.user.id, input)
-      return createRule(context.user.id, input)
-    }),
+    create: authed
+      .input(ruleInput)
+      .handler(({ context, input }) => createRule(context.user.id, input)),
     createSimple: authed
       .input(simpleRuleInput)
       .handler(({ context, input }) => createRule(context.user.id, input)),
@@ -471,17 +444,16 @@ export const router = {
     list: authed.handler(({ context }) => listRules(context.user.id)),
     update: authed
       .input(id.and(ruleInput.partial()).and({ 'enabled?': 'boolean' }))
-      .handler(async ({ context, input: { id: ruleId, ...change } }) => {
-        await requireAgentFor(context.user.id, change)
-        return updateRule(context.user.id, ruleId, change)
-      }),
+      .handler(({ context, input: { id: ruleId, ...change } }) =>
+        updateRule(context.user.id, ruleId, change)
+      ),
   },
   subscriptions: {
     list: authed.handler(({ context }) => listSubscriptions(context.user.id)),
     unsubscribe: authed
       .input(messageId)
       .handler(({ context, input }) =>
-        unsubscribeSender(context.user.id, input.messageId)
+        unsubscribeMessage(context.user.id, input.messageId, 'sender')
       ),
   },
   person: agent
@@ -511,15 +483,9 @@ export const router = {
     list: agent.handler(({ context }) => listSchedules(context.user.id)),
   },
   settings: {
-    save: authed.input(settingsInput).handler(async ({ context, input }) => {
-      const before = await getSettings(context.user.id)
-      const settings = await saveSettings(context.user.id, input)
-      if (input.gmailLabels && !before?.gmailLabels) {
-        void backfillAgentLabels(context.user.id).catch(console.error)
-      }
-      void syncMailboxes(context.user.id).catch(console.error)
-      return settings
-    }),
+    save: authed
+      .input(settingsInput)
+      .handler(({ context, input }) => saveSettings(context.user.id, input)),
   },
   live: authed.handler(async function* live({ context, signal }) {
     yield* watchChanges(context.user.id, signal)
@@ -534,7 +500,9 @@ export const router = {
       .handler(({ context, input }) => saveSnippet(context.user.id, input)),
   },
   today: {
+    count: agent.handler(({ context }) => countQueue(context.user.id)),
     get: agent.handler(({ context }) => getToday(context.user.id)),
+    handled: agent.handler(({ context }) => listHandled(context.user.id)),
     refreshBrief: agent.handler(({ context }) =>
       generateBrief(context.user.id)
     ),

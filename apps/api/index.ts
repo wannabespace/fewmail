@@ -8,6 +8,7 @@ import { cors } from 'hono/cors'
 import { env } from './env'
 import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
 import { relayChanges } from './lib/live'
+import { logError, logErrorAs } from './lib/log'
 import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
@@ -18,7 +19,7 @@ import { startTelegram, telegramWebhook } from './telegram'
 import { verifyWhatsappWebhook, whatsappWebhook } from './whatsapp'
 
 const rpc = new RPCHandler(router, {
-  interceptors: [onError((cause) => console.error('rpc failed', cause))],
+  interceptors: [onError((cause) => logError('rpc failed', cause))],
 })
 
 const app = new Hono()
@@ -53,11 +54,11 @@ const app = new Hono()
       session?.user.id ?? null,
       new URL(c.req.url).searchParams
     ).catch((error: unknown) => {
-      console.error('add mailbox failed', error)
+      logError('add mailbox failed', error)
       return { mailboxId: undefined, result: 'failed' as const }
     })
     if (mailboxId) {
-      void syncMailbox({ id: mailboxId }).catch(console.error)
+      void syncMailbox({ id: mailboxId }).catch(logErrorAs('first sync'))
     }
     return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
   })

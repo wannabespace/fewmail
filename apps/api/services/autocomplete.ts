@@ -12,19 +12,18 @@ const MAX_TOKENS = 32
 const CONTEXT_LIMIT = 1500
 
 const preamble = async (userId: string, replyToMessageId?: string) => {
-  const [user] = await db
-    .select({ name: users.name })
-    .from(users)
-    .where(eq(users.id, userId))
-  const settings = await getSettings(userId)
-  const [original] = replyToMessageId
-    ? await db
-        .select()
-        .from(messages)
-        .where(
-          and(eq(messages.id, replyToMessageId), eq(messages.userId, userId))
-        )
-    : []
+  const [[user], settings, [original]] = await Promise.all([
+    db.select({ name: users.name }).from(users).where(eq(users.id, userId)),
+    getSettings(userId),
+    replyToMessageId
+      ? db
+          .select()
+          .from(messages)
+          .where(
+            and(eq(messages.id, replyToMessageId), eq(messages.userId, userId))
+          )
+      : [],
+  ])
   return [
     `Email written by ${user?.name ?? 'the user'}.`,
     settings?.voice ? `Their style: ${settings.voice}` : null,
