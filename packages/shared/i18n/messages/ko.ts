@@ -221,6 +221,7 @@ export const ko: Messages = {
     newEvent: '새 일정',
     period: '이전 / 다음',
     view: '보기',
+    group: '그룹',
     skills: '스킬',
     unsubscribe: '구독 취소',
     filter: '필터',
@@ -272,6 +273,13 @@ export const ko: Messages = {
   },
   mail: {
     allMailboxes: '모든 메일함',
+    group: {
+      category: '카테고리',
+      importance: '중요도',
+      none: '그룹 없음',
+      sender: '보낸 사람',
+      title: '그룹',
+    },
     unread: '읽지 않음',
     block: '발신자 차단',
     blocked: '차단했어요. 이제 이 발신자의 메일은 휴지통으로 가요.',

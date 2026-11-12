@@ -325,6 +325,7 @@ export const nl: Messages = {
     newEvent: 'nieuwe afspraak',
     period: 'vorige / volgende',
     view: 'weergave',
+    group: 'groeperen',
     skills: 'skills',
     unsubscribe: 'afmelden',
     filter: 'filter',
@@ -376,6 +377,13 @@ export const nl: Messages = {
   },
   mail: {
     allMailboxes: 'Alle mailboxen',
+    group: {
+      category: 'Categorie',
+      importance: 'Belang',
+      none: 'Geen groepen',
+      sender: 'Afzender',
+      title: 'Groeperen',
+    },
     unread: 'Ongelezen',
     block: 'Afzender blokkeren',
     blocked: 'Geblokkeerd. Hun mail gaat nu naar de prullenbak.',

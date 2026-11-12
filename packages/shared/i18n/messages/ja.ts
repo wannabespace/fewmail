@@ -223,6 +223,7 @@ export const ja: Messages = {
     newEvent: '新しい予定',
     period: '前へ / 次へ',
     view: '表示',
+    group: 'グループ',
     skills: 'スキル',
     unsubscribe: '配信停止',
     filter: 'フィルター',
@@ -273,6 +274,13 @@ export const ja: Messages = {
   },
   mail: {
     allMailboxes: 'すべてのメールボックス',
+    group: {
+      category: 'カテゴリ',
+      importance: '重要度',
+      none: 'グループなし',
+      sender: '送信者',
+      title: 'グループ化',
+    },
     unread: '未読',
     block: '送信者をブロック',
     blocked: 'ブロックしました。今後のメールはゴミ箱に移動します。',

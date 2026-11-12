@@ -217,6 +217,7 @@ export const zh: Messages = {
     newEvent: '新建日程',
     period: '上一个 / 下一个',
     view: '视图',
+    group: '分组',
     skills: '技能',
     unsubscribe: '退订',
     filter: '筛选',
@@ -266,6 +267,13 @@ export const zh: Messages = {
   },
   mail: {
     allMailboxes: '所有邮箱',
+    group: {
+      category: '类别',
+      importance: '重要性',
+      none: '不分组',
+      sender: '发件人',
+      title: '分组',
+    },
     unread: '未读',
     block: '屏蔽发件人',
     blocked: '已屏蔽。对方的邮件将进入废纸篓。',

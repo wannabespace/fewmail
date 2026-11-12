@@ -222,6 +222,7 @@ export const hi: Messages = {
     newEvent: 'नया इवेंट',
     period: 'पिछला / अगला',
     view: 'व्यू',
+    group: 'समूह',
     skills: 'स्किल',
     unsubscribe: 'अनसब्सक्राइब',
     filter: 'फ़िल्टर',
@@ -272,6 +273,13 @@ export const hi: Messages = {
   },
   mail: {
     allMailboxes: 'सभी मेलबॉक्स',
+    group: {
+      category: 'श्रेणी',
+      importance: 'महत्व',
+      none: 'कोई समूह नहीं',
+      sender: 'भेजने वाला',
+      title: 'समूह बनाएँ',
+    },
     unread: 'अपठित',
     block: 'भेजने वाले को ब्लॉक करें',
     blocked: 'ब्लॉक किया गया। उनके मेल अब ट्रैश में जाएँगे।',

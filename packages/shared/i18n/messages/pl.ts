@@ -335,6 +335,7 @@ export const pl: Messages = {
     newEvent: 'nowe wydarzenie',
     period: 'wstecz / dalej',
     view: 'widok',
+    group: 'grupuj',
     skills: 'umiejętności',
     unsubscribe: 'wypisz się',
     filter: 'filtr',
@@ -386,6 +387,13 @@ export const pl: Messages = {
   },
   mail: {
     allMailboxes: 'Wszystkie skrzynki',
+    group: {
+      category: 'Kategoria',
+      importance: 'Ważność',
+      none: 'Bez grup',
+      sender: 'Nadawca',
+      title: 'Grupuj',
+    },
     unread: 'Nieprzeczytane',
     block: 'Zablokuj nadawcę',
     blocked: 'Zablokowano. Jego poczta trafia teraz do kosza.',

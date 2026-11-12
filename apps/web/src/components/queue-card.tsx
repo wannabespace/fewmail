@@ -195,8 +195,10 @@ export const QueueCard = ({
       onClick={onSelect}
       className={cn(
         'bg-popover flex flex-col gap-3 rounded-2xl px-4.5 py-4 ring transition-shadow',
-        isSelected ? 'ring-foreground/10 shadow-sm' : 'ring-foreground/6',
-        isSecurity && 'ring-destructive/40'
+        isSelected
+          ? 'ring-foreground/10 shadow-sm'
+          : 'ring-foreground/6 hover:ring-foreground/10 cursor-pointer',
+        isSecurity && 'ring-destructive/40 hover:ring-destructive/60'
       )}
     >
       <QueueCardHeader index={index} isSelected={isSelected} item={item} />

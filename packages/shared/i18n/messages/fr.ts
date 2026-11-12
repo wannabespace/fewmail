@@ -250,6 +250,7 @@ export const fr: Messages = {
     newEvent: 'nouvel événement',
     period: 'précédent / suivant',
     view: 'vue',
+    group: 'grouper',
     skills: 'compétences',
     unsubscribe: 'se désabonner',
     filter: 'filtre',
@@ -301,6 +302,13 @@ export const fr: Messages = {
   },
   mail: {
     allMailboxes: 'Toutes les boîtes',
+    group: {
+      category: 'Catégorie',
+      importance: 'Importance',
+      none: 'Sans groupes',
+      sender: 'Expéditeur',
+      title: 'Grouper',
+    },
     unread: 'Non lu',
     block: 'Bloquer l’expéditeur',
     blocked: 'Bloqué. Ses e-mails vont désormais à la corbeille.',

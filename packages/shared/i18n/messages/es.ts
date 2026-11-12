@@ -248,6 +248,7 @@ export const es: Messages = {
     newEvent: 'nuevo evento',
     period: 'anterior / siguiente',
     view: 'vista',
+    group: 'agrupar',
     skills: 'habilidades',
     unsubscribe: 'darse de baja',
     filter: 'filtro',
@@ -299,6 +300,13 @@ export const es: Messages = {
   },
   mail: {
     allMailboxes: 'Todos los buzones',
+    group: {
+      category: 'Categoría',
+      importance: 'Importancia',
+      none: 'Sin grupos',
+      sender: 'Remitente',
+      title: 'Agrupar',
+    },
     unread: 'No leído',
     block: 'Bloquear remitente',
     blocked: 'Bloqueado. Sus correos ahora van a la papelera.',

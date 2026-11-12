@@ -249,6 +249,7 @@ export const it: Messages = {
     newEvent: 'nuovo evento',
     period: 'precedente / successivo',
     view: 'vista',
+    group: 'raggruppa',
     skills: 'skill',
     unsubscribe: 'disiscriviti',
     filter: 'filtro',
@@ -300,6 +301,13 @@ export const it: Messages = {
   },
   mail: {
     allMailboxes: 'Tutte le caselle',
+    group: {
+      category: 'Categoria',
+      importance: 'Importanza',
+      none: 'Nessun gruppo',
+      sender: 'Mittente',
+      title: 'Raggruppa',
+    },
     unread: 'Non letto',
     block: 'Blocca mittente',
     blocked: 'Bloccato. Le sue email ora finiscono nel cestino.',

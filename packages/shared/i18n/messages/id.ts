@@ -315,6 +315,7 @@ export const id: Messages = {
     newEvent: 'acara baru',
     period: 'sebelumnya / berikutnya',
     view: 'tampilan',
+    group: 'kelompokkan',
     skills: 'skill',
     unsubscribe: 'berhenti langganan',
     filter: 'filter',
@@ -366,6 +367,13 @@ export const id: Messages = {
   },
   mail: {
     allMailboxes: 'Semua kotak surat',
+    group: {
+      category: 'Kategori',
+      importance: 'Kepentingan',
+      none: 'Tanpa grup',
+      sender: 'Pengirim',
+      title: 'Kelompokkan',
+    },
     unread: 'Belum dibaca',
     block: 'Blokir pengirim',
     blocked: 'Diblokir. Email mereka kini masuk ke sampah.',

@@ -323,6 +323,7 @@ export const pt: Messages = {
     newEvent: 'novo evento',
     period: 'anterior / seguinte',
     view: 'vista',
+    group: 'agrupar',
     skills: 'habilidades',
     unsubscribe: 'cancelar inscrição',
     filter: 'filtro',
@@ -374,6 +375,13 @@ export const pt: Messages = {
   },
   mail: {
     allMailboxes: 'Todas as caixas',
+    group: {
+      category: 'Categoria',
+      importance: 'Importância',
+      none: 'Sem grupos',
+      sender: 'Remetente',
+      title: 'Agrupar',
+    },
     unread: 'Não lido',
     block: 'Bloquear remetente',
     blocked: 'Bloqueado. Os e-mails dele agora vão para a lixeira.',

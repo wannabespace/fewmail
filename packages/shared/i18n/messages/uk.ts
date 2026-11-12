@@ -245,6 +245,7 @@ export const uk: Messages = {
     newEvent: 'нова подія',
     period: 'назад / далі',
     view: 'вигляд',
+    group: 'групувати',
     skills: 'навички',
     unsubscribe: 'відписатися',
     filter: 'фільтр',
@@ -296,6 +297,13 @@ export const uk: Messages = {
   },
   mail: {
     allMailboxes: 'Усі скриньки',
+    group: {
+      category: 'Категорія',
+      importance: 'Важливість',
+      none: 'Без груп',
+      sender: 'Відправник',
+      title: 'Групувати',
+    },
     unread: 'Непрочитане',
     block: 'Заблокувати',
     blocked: 'Заблоковано. Їхні листи тепер ідуть у кошик.',

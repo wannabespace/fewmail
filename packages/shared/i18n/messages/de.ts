@@ -248,6 +248,7 @@ export const de: Messages = {
     newEvent: 'neuer Termin',
     period: 'zurück / weiter',
     view: 'Ansicht',
+    group: 'gruppieren',
     skills: 'Skills',
     unsubscribe: 'abbestellen',
     filter: 'Filter',
@@ -299,6 +300,13 @@ export const de: Messages = {
   },
   mail: {
     allMailboxes: 'Alle Postfächer',
+    group: {
+      category: 'Kategorie',
+      importance: 'Wichtigkeit',
+      none: 'Keine Gruppen',
+      sender: 'Absender',
+      title: 'Gruppieren',
+    },
     unread: 'Ungelesen',
     block: 'Absender blockieren',
     blocked: 'Blockiert. Ihre Mails landen jetzt im Papierkorb.',

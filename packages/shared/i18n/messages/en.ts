@@ -320,6 +320,7 @@ export const en = {
     newEvent: 'new event',
     period: 'previous / next',
     view: 'view',
+    group: 'group',
     skills: 'skills',
     unsubscribe: 'unsubscribe',
     filter: 'filter',
@@ -371,6 +372,13 @@ export const en = {
   },
   mail: {
     allMailboxes: 'All mailboxes',
+    group: {
+      category: 'Category',
+      importance: 'Importance',
+      none: 'No groups',
+      sender: 'Sender',
+      title: 'Group by',
+    },
     unread: 'Unread',
     archive: 'Archive',
     archived: 'Archived',

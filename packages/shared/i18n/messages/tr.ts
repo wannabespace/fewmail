@@ -312,6 +312,7 @@ export const tr: Messages = {
     newEvent: 'yeni etkinlik',
     period: 'önceki / sonraki',
     view: 'görünüm',
+    group: 'grupla',
     skills: 'beceriler',
     unsubscribe: 'abonelikten çık',
     filter: 'filtre',
@@ -363,6 +364,13 @@ export const tr: Messages = {
   },
   mail: {
     allMailboxes: 'Tüm posta kutuları',
+    group: {
+      category: 'Kategori',
+      importance: 'Önem',
+      none: 'Grup yok',
+      sender: 'Gönderen',
+      title: 'Grupla',
+    },
     unread: 'Okunmamış',
     block: 'Göndereni engelle',
     blocked: 'Engellendi. E-postaları artık çöpe gidiyor.',

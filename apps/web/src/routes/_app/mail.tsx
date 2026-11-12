@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@fewmail/ui/components/select'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { useDebouncedMemo } from '@fewmail/ui/hookas/use-debounced-memo'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -54,7 +55,7 @@ import {
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { isToday } from 'date-fns'
-import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { Fragment, useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
@@ -107,6 +108,124 @@ const readerWidthStore = createWebStorageValue({
   type: 'localStorage',
 })
 
+const GROUPINGS = ['none', 'category', 'sender', 'importance'] as const
+
+type Grouping = (typeof GROUPINGS)[number]
+
+const groupingStore = createWebStorageValue({
+  defaultValue: 'none' as Grouping,
+  key: 'fewmail.mail-grouping',
+  schema: type("'none' | 'category' | 'sender' | 'importance'"),
+  type: 'localStorage',
+})
+
+type ListedRow = Omit<MailRowData, 'key' | 'list'>
+
+const groupKeyOf = (grouping: Grouping, { analysis, message }: ListedRow) => {
+  if (grouping === 'sender') {
+    return message.fromEmail
+  }
+  if (grouping === 'importance') {
+    return String(analysis?.importance ?? 0)
+  }
+  return analysis?.category ?? 'other'
+}
+
+const groupRows = <Row extends ListedRow>(rows: Row[], grouping: Grouping) => {
+  if (grouping === 'none') {
+    return []
+  }
+  const groups = [
+    ...Map.groupBy(rows, (row) => groupKeyOf(grouping, row)).entries(),
+  ]
+  if (grouping === 'importance') {
+    groups.sort(([a], [b]) => Number(b) - Number(a))
+  }
+  return groups.map(([key, members]) => ({ key, rows: members }))
+}
+
+const useGroupedRows = <Row extends ListedRow>(
+  listedRows: Row[],
+  grouping: Grouping
+) => {
+  const groups = groupRows(listedRows, grouping)
+  if (groups.length === 0) {
+    return {
+      groupStarts: new Map<number, (typeof groups)[number]>(),
+      rows: listedRows,
+    }
+  }
+  let start = 0
+  const groupStarts = new Map<number, (typeof groups)[number]>()
+  for (const group of groups) {
+    groupStarts.set(start, group)
+    start += group.rows.length
+  }
+  return { groupStarts, rows: groups.flatMap((group) => group.rows) }
+}
+
+const GroupHeader = ({
+  group,
+  grouping,
+}: {
+  group: ReturnType<typeof groupRows>[number] | undefined
+  grouping: Grouping
+}) => {
+  const t = useT()
+  const first = group?.rows[0]
+  if (!group || !first) {
+    return null
+  }
+  const { message } = first
+  const groupKey = group.key
+  const labels = {
+    category: () => t.category[groupKey as keyof typeof t.category],
+    importance: () => t.importance[Number(groupKey)],
+    sender: () => message.fromName ?? message.fromEmail,
+  }
+  const label = grouping === 'none' ? null : labels[grouping]()
+  return (
+    <li className="bg-body text-muted-foreground sticky top-0 z-10 flex items-center gap-2 border-b px-5 py-1.5 pl-9 text-xs font-medium">
+      <span data-mask={grouping === 'sender' || undefined} className="truncate">
+        {label}
+      </span>
+      <span className="tabular-nums opacity-60">{group.rows.length}</span>
+    </li>
+  )
+}
+
+const SearchHint = ({ isPending }: { isPending: boolean }) =>
+  isPending ? (
+    <Spinner className="text-muted-foreground" />
+  ) : (
+    <Kbd className="group-focus-within/input-group:hidden">/</Kbd>
+  )
+
+const GroupingSelect = ({ grouping }: { grouping: Grouping }) => {
+  const t = useT()
+  return (
+    <Select
+      items={GROUPINGS.map((value) => ({
+        label: value === 'none' ? t.mail.group.title : t.mail.group[value],
+        value,
+      }))}
+      value={grouping}
+      onValueChange={(next) => next && groupingStore.set(next)}
+    >
+      <SelectTrigger aria-label={t.mail.group.title} size="xs" variant="flat">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent align="end">
+        {GROUPINGS.map((value) => (
+          <SelectItem key={value} value={value}>
+            {t.mail.group[value]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
 const MailRowMeta = ({
   insight,
   message,
@@ -144,12 +263,14 @@ const MailRowMeta = ({
 const MailRowActions = ({
   actions,
   canSnooze,
+  isCursor,
   isSnoozeOpen,
   messageId,
   onSnoozeOpenChange,
 }: {
   actions: ReturnType<typeof useMailActions>
   canSnooze: boolean
+  isCursor: boolean
   isSnoozeOpen: boolean
   messageId: string
   onSnoozeOpenChange: (open: boolean) => void
@@ -159,14 +280,14 @@ const MailRowActions = ({
   return (
     <span
       className={cn(
-        'absolute top-1.5 right-4 flex bg-inherit opacity-0 group-hover:opacity-100',
+        'absolute top-1.5 right-4 flex bg-inherit opacity-0 group-hover:opacity-100 has-data-popup-open:opacity-100',
         isSnoozeOpen && 'opacity-100'
       )}
     >
       <IconButton
         icon={Archive02Icon}
         label={t.mail.archive}
-        shortcut={<Kbd>E</Kbd>}
+        shortcut={isCursor && <Kbd>E</Kbd>}
         size="icon-sm"
         variant="ghost-muted"
         onClick={() => actions.archive.mutate(target)}
@@ -194,7 +315,7 @@ const MailRowActions = ({
       <IconButton
         icon={Delete02Icon}
         label={t.mail.trash}
-        shortcut={<Kbd>#</Kbd>}
+        shortcut={isCursor && <Kbd>#</Kbd>}
         size="icon-sm"
         variant="ghost-destructive"
         onClick={() => actions.trash.mutate(target)}
@@ -220,13 +341,14 @@ const MailRow = ({
   isSnoozeOpen: boolean
   onOpen: () => void
   onSnoozeOpenChange: (open: boolean) => void
-  row: Omit<MailRowData, 'key' | 'list'>
+  row: ListedRow
 }) => {
   const t = useT()
   const dates = useDates()
 
   return (
     <li
+      data-row
       className={cn(
         'group relative border-b',
         isCursor || isSnoozeOpen ? 'bg-accent' : 'hover:bg-accent',
@@ -314,6 +436,7 @@ const MailRow = ({
       <MailRowActions
         actions={actions}
         canSnooze={canSnooze}
+        isCursor={isCursor}
         isSnoozeOpen={isSnoozeOpen}
         messageId={message.id}
         onSnoozeOpenChange={onSnoozeOpenChange}
@@ -339,6 +462,7 @@ const DraftRow = ({
   const dates = useDates()
   return (
     <li
+      data-row
       className={cn(
         'group relative border-b',
         isCursor ? 'bg-accent' : 'hover:bg-accent'
@@ -432,10 +556,12 @@ const useListRows = ({
   filter,
   mailbox,
   q,
+  typed,
 }: {
   filter: Filter
   mailbox: string | undefined
   q: string | undefined
+  typed: string
 }) => {
   const isDrafts = filter === 'drafts'
   const found = useQuery(
@@ -458,6 +584,7 @@ const useListRows = ({
     : { isFetching: listed.isLoading, rows: listed.data }
   const rows = source.rows ?? []
   return {
+    isSearchPending: typed !== (q ?? '') || (!!q && found.isFetching),
     drafts,
     isDrafts,
     isFetching: isDrafts ? drafts.isFetching : source.isFetching,
@@ -507,6 +634,7 @@ const useListActions = ({
 const MailPage = () => {
   const t = useT()
   const readerWidth = useSubscription(readerWidthStore)
+  const grouping = useSubscription(groupingStore)
   const hasAgent = useHasAgent()
   const { filter = 'inbox', mailbox, q, thread } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -525,11 +653,15 @@ const MailPage = () => {
   const { data: unread } = useQuery(
     orpc.mail.unread.queryOptions({ input: { mailboxId: mailbox } })
   )
-  const { drafts, isDrafts, isFetching, rows, total } = useListRows({
-    filter,
-    mailbox,
-    q,
-  })
+  const {
+    drafts,
+    isDrafts,
+    isFetching,
+    isSearchPending,
+    rows: listedRows,
+    total,
+  } = useListRows({ filter, mailbox, q, typed: search.trim() })
+  const { groupStarts, rows } = useGroupedRows(listedRows, grouping)
 
   const { actions, canSnooze, hints, setSnoozeOpenId, snoozeOpenId } =
     useListActions({
@@ -539,7 +671,8 @@ const MailPage = () => {
     })
 
   useEffect(() => {
-    listRef.current?.children[cursor]?.scrollIntoView({ block: 'nearest' })
+    const row = listRef.current?.querySelectorAll('[data-row]')[cursor]
+    row?.scrollIntoView({ block: 'nearest' })
   }, [cursor])
   useEffect(() => {
     const ahead = [
@@ -584,6 +717,11 @@ const MailPage = () => {
   useHotkey('[', () => showFilter(stepFilter(filter, -1)))
   useHotkey(']', () => showFilter(stepFilter(filter, 1)))
   useHotkey('/', () => searchRef.current?.focus())
+  useHotkey('V', () =>
+    groupingStore.set(
+      GROUPINGS[(GROUPINGS.indexOf(grouping) + 1) % GROUPINGS.length] ?? 'none'
+    )
+  )
   useHotkey(
     'Escape',
     () => {
@@ -637,7 +775,8 @@ const MailPage = () => {
                 aria-label={t.mail.search}
               />
               <InputGroupAddon align="inline-end">
-                <Kbd className="group-focus-within/input-group:hidden">/</Kbd>
+                <SearchHint isPending={isSearchPending} />
+                {!isDrafts && <GroupingSelect grouping={grouping} />}
                 {mailboxes.length > 1 && (
                   <Select
                     items={[
@@ -728,19 +867,24 @@ const MailPage = () => {
               />
             ))}
             {rows.map((row, index) => (
-              <MailRow
-                key={row.message.id}
-                row={row}
-                actions={actions}
-                canSnooze={canSnooze}
-                isCursor={index === cursor}
-                isOpen={row.message.threadId === thread}
-                isSnoozeOpen={snoozeOpenId === row.message.id}
-                onOpen={() => open(index)}
-                onSnoozeOpenChange={(isOpen) =>
-                  setSnoozeOpenId(isOpen ? row.message.id : null)
-                }
-              />
+              <Fragment key={row.message.id}>
+                <GroupHeader
+                  grouping={grouping}
+                  group={groupStarts.get(index)}
+                />
+                <MailRow
+                  row={row}
+                  actions={actions}
+                  canSnooze={canSnooze}
+                  isCursor={index === cursor}
+                  isOpen={row.message.threadId === thread}
+                  isSnoozeOpen={snoozeOpenId === row.message.id}
+                  onOpen={() => open(index)}
+                  onSnoozeOpenChange={(isOpen) =>
+                    setSnoozeOpenId(isOpen ? row.message.id : null)
+                  }
+                />
+              </Fragment>
             ))}
           </ul>
           {!thread && (
@@ -750,6 +894,7 @@ const MailPage = () => {
                 ['⏎', t.keys.open],
                 ...hints,
                 ['[ / ]', t.keys.filter],
+                ['V', t.keys.group],
                 ['/', t.keys.search],
                 ['⌘K', t.keys.anything],
               ]}
