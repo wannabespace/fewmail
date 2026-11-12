@@ -44,7 +44,7 @@ function ChartLegendContent({
   return (
     <div
       className={cn(
-        'flex items-center gap-4 select-none',
+        'flex flex-wrap items-center gap-x-4 gap-y-1.5 select-none',
         align === 'left' && 'justify-start',
         align === 'center' && 'justify-center',
         align === 'right' && 'justify-end',
