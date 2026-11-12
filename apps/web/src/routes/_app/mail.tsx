@@ -39,13 +39,13 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { Spinner } from '@fewmail/ui/components/spinner'
-import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { useDebouncedMemo } from '@fewmail/ui/hookas/use-debounced-memo'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Archive02Icon,
   ArrowDown01Icon,
+  ArrowLeft01Icon,
   Clock01Icon,
   Delete02Icon,
   FileEditIcon,
@@ -83,6 +83,7 @@ import {
 import { useCompose } from '~/components/compose/compose-context'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
+import { MailSearchStart, rememberSearch } from '~/components/mail-search'
 import {
   SnoozeMenuItems,
   sweepOf,
@@ -204,22 +205,19 @@ const readerWidthStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-const GROUPINGS = [
-  'unread',
-  'category',
-  'sender',
-  'importance',
-  'none',
-] as const
+type Grouping = 'unread' | 'category' | 'sender' | 'importance' | 'none'
 
-type Grouping = (typeof GROUPINGS)[number]
-
-const groupingStore = createWebStorageValue({
-  defaultValue: 'unread' as Grouping,
-  key: 'fewmail.mail-grouping',
-  schema: type("'none' | 'unread' | 'category' | 'sender' | 'importance'"),
-  type: 'localStorage',
-})
+const GROUPING_OF: Record<Filter, Grouping> = {
+  archive: 'none',
+  drafts: 'none',
+  important: 'importance',
+  inbox: 'unread',
+  needs_reply: 'sender',
+  quiet: 'category',
+  snoozed: 'none',
+  spam: 'none',
+  trash: 'none',
+}
 
 type ListedRow = Omit<MailRowData, 'key' | 'list'>
 
@@ -366,13 +364,6 @@ const GroupHeader = ({
   )
 }
 
-const SearchHint = ({ isPending }: { isPending: boolean }) =>
-  isPending ? (
-    <Spinner className="text-muted-foreground" />
-  ) : (
-    <Kbd className="group-focus-within/input-group:hidden">/</Kbd>
-  )
-
 const UnreadCount = ({
   filter,
   unread,
@@ -387,20 +378,68 @@ const UnreadCount = ({
     </span>
   )
 
-const VIEW_CHOICE =
-  'focus-visible:focus-ring cursor-pointer rounded-lg ring transition-[box-shadow,background-color] outline-none hover:bg-accent'
+type SketchLine = 'group' | 'unread' | 'read' | 'urgent' | 'reply' | 'quiet'
 
-const viewChoiceOf = (isActive: boolean) =>
-  cn(VIEW_CHOICE, isActive ? 'ring-primary ring-2' : 'ring-foreground/6')
+const VIEW_SKETCHES: Record<(typeof INBOX_VIEWS)[number], SketchLine[]> = {
+  important: ['group', 'urgent', 'urgent', 'group', 'unread'],
+  inbox: ['group', 'unread', 'unread', 'group', 'read'],
+  needs_reply: ['group', 'reply', 'reply', 'group', 'reply'],
+  quiet: ['group', 'quiet', 'quiet', 'group', 'quiet'],
+}
+
+const SKETCH_MARKS: Record<Exclude<SketchLine, 'group' | 'reply'>, string> = {
+  quiet: 'bg-foreground/20',
+  read: '',
+  unread: 'bg-primary',
+  urgent: 'bg-destructive',
+}
+
+const ViewSketch = ({ lines }: { lines: SketchLine[] }) => (
+  <span className="bg-body flex h-20 overflow-hidden rounded-md px-4 pt-3">
+    <span className="bg-popover ring-foreground/6 flex flex-1 flex-col gap-1.5 rounded-t-md p-2 shadow-xs ring">
+      {lines.map((line, index) =>
+        line === 'group' ? (
+          // oxlint-disable-next-line react/no-array-index-key -- a fixed sketch, never reordered
+          <span
+            key={index}
+            className="bg-foreground/30 h-1 w-8 shrink-0 rounded-full"
+          />
+        ) : (
+          // oxlint-disable-next-line react/no-array-index-key -- a fixed sketch, never reordered
+          <span key={index} className="flex items-center gap-1.5">
+            {line === 'reply' ? (
+              <HugeiconsIcon
+                icon={MailReply01Icon}
+                strokeWidth={2}
+                className="text-primary size-2.5"
+              />
+            ) : (
+              <span
+                className={cn('size-1.5 rounded-full', SKETCH_MARKS[line])}
+              />
+            )}
+            <span
+              className={cn(
+                'flex flex-1 flex-col gap-0.5',
+                line === 'quiet' && 'opacity-50'
+              )}
+            >
+              <span className="bg-foreground/25 h-1 w-3/4 rounded-full" />
+              <span className="bg-foreground/10 h-1 w-1/2 rounded-full" />
+            </span>
+          </span>
+        )
+      )}
+    </span>
+  </span>
+)
 
 const ViewPicker = ({
   filter,
-  grouping,
   onChange,
   unread,
 }: {
   filter: Filter
-  grouping: Grouping
   onChange: (filter: Filter) => void
   unread: RouterOutputs['mail']['unread'] | undefined
 }) => {
@@ -431,71 +470,83 @@ const ViewPicker = ({
               aria-current={value === filter || undefined}
               onClick={() => pick(value)}
               className={cn(
-                viewChoiceOf(value === filter),
-                'flex flex-col gap-1.5 p-3 text-left'
+                'focus-visible:focus-ring hover:bg-accent flex cursor-pointer flex-col gap-2 rounded-lg p-2 text-left ring transition-[box-shadow,background-color] outline-none',
+                value === filter ? 'ring-primary ring-2' : 'ring-foreground/6'
               )}
             >
-              <span className="flex items-center gap-2 font-medium">
-                <HugeiconsIcon
-                  icon={FILTER_ICONS[value]}
-                  strokeWidth={2}
-                  className="text-muted-foreground size-4"
-                />
-                {t.mail.filter[value]}
-                <span className="ml-auto">
-                  <UnreadCount filter={value} unread={unread} />
+              <ViewSketch lines={VIEW_SKETCHES[value]} />
+              <span className="flex flex-col gap-0.5 px-1 pb-0.5">
+                <span className="flex items-center gap-1.5 font-medium">
+                  {t.mail.filter[value]}
+                  <span className="ml-auto">
+                    <UnreadCount filter={value} unread={unread} />
+                  </span>
+                </span>
+                <span className="text-muted-foreground line-clamp-2 text-xs">
+                  {t.mail.filterAbout[value]}
                 </span>
               </span>
-              <span className="text-muted-foreground line-clamp-2 text-xs">
-                {t.mail.filterAbout[value]}
-              </span>
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="flex justify-center gap-1">
           {FOLDERS.map((value) => (
-            <button
+            <IconButton
               key={value}
-              type="button"
-              aria-current={value === filter || undefined}
+              icon={FILTER_ICONS[value]}
+              label={t.mail.filter[value]}
+              variant="ghost-muted"
+              size="icon"
+              aria-pressed={value === filter}
               onClick={() => pick(value)}
-              className={cn(
-                viewChoiceOf(value === filter),
-                'flex min-w-0 flex-col items-center gap-1 px-1 py-2.5 text-xs'
-              )}
-            >
-              <HugeiconsIcon
-                icon={FILTER_ICONS[value]}
-                strokeWidth={2}
-                className="text-muted-foreground size-5"
-              />
-              <span className="max-w-full truncate">
-                {t.mail.filter[value]}
-              </span>
-            </button>
+            />
           ))}
         </div>
-        {filter !== 'drafts' && (
-          <div className="flex flex-col gap-2">
-            <span className="text-muted-foreground text-xs font-medium">
-              {t.mail.group.title}
-            </span>
-            <Tabs
-              value={grouping}
-              onValueChange={(next: Grouping) => groupingStore.set(next)}
-            >
-              <TabsList variant="pill">
-                {GROUPINGS.map((value) => (
-                  <TabsTrigger key={value} value={value}>
-                    {t.mail.group[value]}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-        )}
       </PopoverContent>
     </Popover>
+  )
+}
+
+const MailboxSelect = ({
+  mailbox,
+  mailboxes,
+  onChange,
+}: {
+  mailbox: string | undefined
+  mailboxes: { email: string; id: string }[]
+  onChange: (mailbox: string | undefined) => void
+}) => {
+  const t = useT()
+  if (mailboxes.length < 2) {
+    return null
+  }
+  return (
+    <Select
+      items={[
+        { label: t.mail.allMailboxes, value: ALL_MAILBOXES },
+        ...mailboxes.map(({ email, id }) => ({ label: email, value: id })),
+      ]}
+      value={mailbox ?? ALL_MAILBOXES}
+      onValueChange={(next) =>
+        onChange(next && next !== ALL_MAILBOXES ? next : undefined)
+      }
+    >
+      <SelectTrigger
+        aria-label={t.mail.allMailboxes}
+        size="sm"
+        className="max-w-48"
+      >
+        <SelectValue data-mask={mailbox ? true : undefined} />
+      </SelectTrigger>
+      <SelectContent align="start">
+        <SelectItem value={ALL_MAILBOXES}>{t.mail.allMailboxes}</SelectItem>
+        {mailboxes.map(({ email, id }) => (
+          <SelectItem key={id} value={id}>
+            <span data-mask>{email}</span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }
 
@@ -983,6 +1034,7 @@ const useListRows = ({
   )
   const drafts = useDrafts({ isEnabled: isDrafts, mailbox, q })
   const needle = typed.toLowerCase()
+  const browsed = q === undefined ? listed.data : []
   const rows = collapseBursts(
     (q === typed ? found.data : undefined) ??
       (typed
@@ -997,7 +1049,7 @@ const useListRows = ({
               .toLowerCase()
               .includes(needle)
           )
-        : listed.data) ??
+        : browsed) ??
       [],
     expanded
   )
@@ -1065,6 +1117,115 @@ const useListActions = ({
   }
 }
 
+const useSearchField = ({
+  isSearching,
+  onCloseThread,
+  q,
+  thread,
+}: {
+  isSearching: boolean
+  onCloseThread: () => Promise<void>
+  q: string | undefined
+  thread: string | undefined
+}) => {
+  const navigate = useNavigate({ from: Route.fullPath })
+  const searchRef = useRef<HTMLInputElement>(null)
+  const [search, setSearch] = useState(q ?? '')
+  const applySearch = (value: string) =>
+    navigate({
+      replace: isSearching,
+      search: (prev) => ({ ...prev, q: value, thread: undefined }),
+    })
+  const leaveSearch = () => {
+    setSearch('')
+    void navigate({
+      search: (prev) => ({ ...prev, q: undefined, thread: undefined }),
+    })
+  }
+  useHotkey('/', () =>
+    isSearching ? searchRef.current?.focus() : applySearch('')
+  )
+  const typedSearch = useDebouncedMemo(() => search.trim(), [search], 400)
+  const onTyped = useEffectEvent((value: string) => {
+    if (isSearching && value !== q) {
+      void applySearch(value)
+    }
+  })
+  useEffect(() => onTyped(typedSearch), [typedSearch])
+  useHotkey(
+    'Enter',
+    () => {
+      rememberSearch(search)
+      void applySearch(search.trim())
+    },
+    { ignoreInputs: false, target: searchRef }
+  )
+  useHotkey('Escape', () => searchRef.current?.blur(), {
+    ignoreInputs: false,
+    target: searchRef,
+  })
+  useHotkey(
+    'Escape',
+    () => {
+      if (thread) {
+        void onCloseThread()
+      } else if (q) {
+        setSearch('')
+        void applySearch('')
+      } else {
+        leaveSearch()
+      }
+    },
+    { enabled: !!thread || isSearching }
+  )
+  return {
+    addToSearch: (text: string) => {
+      setSearch((current) => [current.trim(), text].filter(Boolean).join(' '))
+      searchRef.current?.focus()
+    },
+    applySearch,
+    isSearchStart: isSearching && !q && !search.trim(),
+    leaveSearch,
+    search,
+    searchFor: (query: string) => {
+      setSearch(query)
+      rememberSearch(query)
+      void applySearch(query)
+    },
+    searchRef,
+    setSearch,
+  }
+}
+
+const listModeOf = (q: string | undefined, picked: Filter = 'inbox') => {
+  const isSearching = q !== undefined
+  const filter: Filter = isSearching ? 'inbox' : picked
+  return {
+    filter,
+    grouping: isSearching ? ('none' as const) : GROUPING_OF[filter],
+    isSearching,
+    shownFilter: picked,
+  }
+}
+
+const listHintsOf = ({
+  hints,
+  isSearching,
+  t,
+  total,
+}: {
+  hints: [string, string][]
+  isSearching: boolean
+  t: ReturnType<typeof useT>
+  total: number
+}): [string, string][] => {
+  const walk: [string, string][] =
+    total > 0 ? [['J / K', t.keys.move], ['⏎', t.keys.open], ...hints] : []
+  return isSearching
+    ? [...walk, ['esc', t.keys.close]]
+    : [...walk, ['[ / ]', t.keys.filter], ['/', t.keys.search]]
+}
+
 const MailPage = () => {
   const t = useT()
   const isNarrow = useSubscription(narrowScreen)
@@ -1082,13 +1243,28 @@ const MailPage = () => {
           Math.max(READER_WIDTH.min, Math.round(panesWidth * READER_SHARE))
         )
       : rememberedWidth
-  const grouping = useSubscription(groupingStore)
   const hasAgent = useHasAgent()
-  const { filter = 'inbox', mailbox, q, thread } = Route.useSearch()
+  const { filter: picked, mailbox, q, thread } = Route.useSearch()
+  const { filter, grouping, isSearching, shownFilter } = listModeOf(q, picked)
   const navigate = useNavigate({ from: Route.fullPath })
-  const searchRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
-  const [search, setSearch] = useState(q ?? '')
+  const closeThread = () =>
+    navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
+  const {
+    addToSearch,
+    applySearch,
+    isSearchStart,
+    leaveSearch,
+    search,
+    searchFor,
+    searchRef,
+    setSearch,
+  } = useSearchField({
+    isSearching,
+    onCloseThread: closeThread,
+    q,
+    thread,
+  })
   const [cursor, setCursor] = useState(0)
   const [expandedBursts, setExpandedBursts] = useState<ReadonlySet<string>>(
     new Set()
@@ -1174,6 +1350,9 @@ const MailPage = () => {
       if (row.message.isUnread) {
         setKeptUnread((kept) => new Set(kept).add(row.message.threadId))
       }
+      if (q) {
+        rememberSearch(q)
+      }
       void navigate({
         search: (prev) => ({ ...prev, thread: row.message.threadId }),
       })
@@ -1194,50 +1373,19 @@ const MailPage = () => {
   useHotkey('ArrowRight', () => expandBurst(cursor))
   const showFilter = (next: Filter) =>
     navigate({
-      search: (prev) => ({ ...prev, filter: next, thread: undefined }),
+      search: (prev) => ({
+        ...prev,
+        filter: next,
+        q: undefined,
+        thread: undefined,
+      }),
     })
-  useHotkey('[', () => showFilter(stepFilter(filter, -1)))
-  useHotkey(']', () => showFilter(stepFilter(filter, 1)))
-  useHotkey('/', () => searchRef.current?.focus())
-  useHotkey('V', () =>
-    groupingStore.set(
-      GROUPINGS[(GROUPINGS.indexOf(grouping) + 1) % GROUPINGS.length] ?? 'none'
-    )
-  )
-  const closeThread = () =>
-    navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
-  useHotkey(
-    'Escape',
-    () => {
-      if (thread) {
-        void closeThread()
-      } else if (q) {
-        setSearch('')
-        void navigate({ search: (prev) => ({ ...prev, q: undefined }) })
-      }
-    },
-    { enabled: !!thread || !!q }
-  )
-  const applySearch = (value: string) =>
+  useHotkey('[', () => showFilter(stepFilter(shownFilter, -1)))
+  useHotkey(']', () => showFilter(stepFilter(shownFilter, 1)))
+  const pickMailbox = (next: string | undefined) =>
     navigate({
-      replace: true,
-      search: (prev) => ({ ...prev, q: value || undefined, thread: undefined }),
+      search: (prev) => ({ ...prev, mailbox: next, thread: undefined }),
     })
-  const typedSearch = useDebouncedMemo(() => search.trim(), [search], 400)
-  const onTyped = useEffectEvent((value: string) => {
-    if (value !== (q ?? '')) {
-      void applySearch(value)
-    }
-  })
-  useEffect(() => onTyped(typedSearch), [typedSearch])
-  useHotkey('Enter', () => applySearch(search.trim()), {
-    ignoreInputs: false,
-    target: searchRef,
-  })
-  useHotkey('Escape', () => searchRef.current?.blur(), {
-    ignoreInputs: false,
-    target: searchRef,
-  })
 
   return (
     <ResizableGroup ref={setPanes} className="flex min-h-0 flex-1">
@@ -1246,72 +1394,66 @@ const MailPage = () => {
           aria-label={t.nav.mail}
           className="flex min-w-0 flex-1 flex-col border-r"
         >
-          <div className="flex flex-col gap-2.5 border-b px-5 pt-4 pb-3">
-            <InputGroup>
-              <InputGroupAddon>
-                <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
-              </InputGroupAddon>
-              <InputGroupInput
-                ref={searchRef}
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder={t.mail.search}
-                aria-label={t.mail.search}
+          {isSearching ? (
+            <div className="flex items-center gap-2 border-b px-5 py-3">
+              <IconButton
+                icon={ArrowLeft01Icon}
+                label={t.mail.find.back}
+                variant="ghost-muted"
+                size="icon-sm"
+                onClick={leaveSearch}
               />
-              <InputGroupAddon align="inline-end">
-                <SearchHint isPending={isSearchPending} />
-              </InputGroupAddon>
-            </InputGroup>
-            <div className="flex items-center gap-2">
+              <InputGroup size="sm">
+                <InputGroupAddon>
+                  <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+                </InputGroupAddon>
+                <InputGroupInput
+                  ref={searchRef}
+                  autoFocus
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder={t.mail.search}
+                  aria-label={t.mail.search}
+                />
+                {isSearchPending && (
+                  <InputGroupAddon align="inline-end">
+                    <Spinner className="text-muted-foreground" />
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+              <MailboxSelect
+                mailbox={mailbox}
+                mailboxes={mailboxes}
+                onChange={pickMailbox}
+              />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 border-b px-5 py-3">
               <ViewPicker
-                filter={filter}
-                grouping={grouping}
+                filter={shownFilter}
                 unread={unread}
                 onChange={showFilter}
               />
-              {mailboxes.length > 1 && (
-                <Select
-                  items={[
-                    { label: t.mail.allMailboxes, value: ALL_MAILBOXES },
-                    ...mailboxes.map(({ email, id }) => ({
-                      label: email,
-                      value: id,
-                    })),
-                  ]}
-                  value={mailbox ?? ALL_MAILBOXES}
-                  onValueChange={(next) =>
-                    navigate({
-                      search: (prev) => ({
-                        ...prev,
-                        mailbox:
-                          next && next !== ALL_MAILBOXES ? next : undefined,
-                        thread: undefined,
-                      }),
-                    })
-                  }
-                >
-                  <SelectTrigger
-                    aria-label={t.mail.allMailboxes}
-                    size="sm"
-                    className="max-w-48"
-                  >
-                    <SelectValue data-mask={mailbox ? true : undefined} />
-                  </SelectTrigger>
-                  <SelectContent align="start">
-                    <SelectItem value={ALL_MAILBOXES}>
-                      {t.mail.allMailboxes}
-                    </SelectItem>
-                    {mailboxes.map(({ email, id }) => (
-                      <SelectItem key={id} value={id}>
-                        <span data-mask>{email}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              <MailboxSelect
+                mailbox={mailbox}
+                mailboxes={mailboxes}
+                onChange={pickMailbox}
+              />
+              <IconButton
+                icon={Search01Icon}
+                label={t.mail.find.open}
+                shortcut={<Kbd>/</Kbd>}
+                variant="outline"
+                size="icon-sm"
+                className="ml-auto"
+                onClick={() => applySearch('')}
+              />
             </div>
-          </div>
-          {total === 0 && !isFetching && (
+          )}
+          {isSearchStart && (
+            <MailSearchStart onAdd={addToSearch} onSearch={searchFor} />
+          )}
+          {total === 0 && !isFetching && !isSearchStart && (
             <MailListEmpty
               filter={filter}
               isSearch={!!q}
@@ -1358,23 +1500,14 @@ const MailPage = () => {
             ))}
           </ul>
           {!thread && (
-            <KeyHints
-              hints={[
-                ['J / K', t.keys.move],
-                ['⏎', t.keys.open],
-                ...hints,
-                ['[ / ]', t.keys.filter],
-                ['V', t.keys.group],
-                ['/', t.keys.search],
-              ]}
-            />
+            <KeyHints hints={listHintsOf({ hints, isSearching, t, total })} />
           )}
         </section>
       </ResizablePanel>
       <ResizableSeparator />
       <ResizablePanel
         className="flex"
-        collapsed={isNarrow && !thread}
+        collapsed={(isNarrow || isSearching) && !thread}
         size={readerWidth}
         minSize={READER_WIDTH.min}
         maxSize={READER_WIDTH.max}
