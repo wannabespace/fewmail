@@ -15,7 +15,9 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@fewmail/ui/components/input-group'
+import { smallItemBleedClassName } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { cn } from '@fewmail/ui/lib/utils'
 import {
   Add01Icon,
   Cancel01Icon,
@@ -503,7 +505,7 @@ const BoardEntries = ({
 
   return (
     <section className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
+      <div className={cn('flex items-center gap-2', smallItemBleedClassName)}>
         <InputGroup>
           <InputGroupAddon>
             <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />

@@ -64,7 +64,7 @@ const AccordionTrigger = ({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          `group/accordion-trigger focus-visible:focus-ring relative flex flex-1 border border-transparent text-left transition-all outline-none focus-visible:ring-inset aria-disabled:pointer-events-none aria-disabled:opacity-50`,
+          `group/accordion-trigger focus-visible:focus-ring relative flex min-w-0 flex-1 border border-transparent text-left transition-all outline-none focus-visible:ring-inset aria-disabled:pointer-events-none aria-disabled:opacity-50`,
           variant === 'cards'
             ? 'cursor-pointer items-center gap-3 rounded-2xl px-4.5 py-4'
             : `**:data-[slot=accordion-trigger-icon]:text-muted-foreground items-start justify-between gap-6 p-4 text-sm font-medium hover:underline **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4`,
