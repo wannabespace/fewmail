@@ -1,7 +1,26 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
+
+const ThreadLink = ({
+  children,
+  threadId,
+}: {
+  children: ReactNode
+  threadId: string
+}) => (
+  <Link
+    to="/mail"
+    search={(prev) => ({ ...prev, thread: threadId })}
+    data-mask
+    className="text-foreground underline-offset-3 hover:underline"
+  >
+    {children}
+  </Link>
+)
 
 /** Pro: who this person is to the user, from their own mail; quiet when there is nothing to say. */
 export const PersonPanel = ({
@@ -22,11 +41,13 @@ export const PersonPanel = ({
   }
 
   const elsewhere = [
-    ...new Set(
-      person.open
-        .filter((item) => item.threadId !== threadId)
-        .map((item) => item.title)
-    ),
+    ...new Map(
+      person.open.flatMap(({ id, threadId: itemThreadId, title }) =>
+        itemThreadId && itemThreadId !== threadId
+          ? [[title, { id, threadId: itemThreadId, title }] as const]
+          : []
+      )
+    ).values(),
   ]
 
   return (
@@ -59,9 +80,11 @@ export const PersonPanel = ({
         <p className="text-muted-foreground">
           {t.people.promised}:{' '}
           {person.promised.map((promise, index) => (
-            <span key={promise.id} data-mask className="text-foreground">
+            <span key={promise.id}>
               {index > 0 && ', '}
-              {promise.promise} · {dates.format(promise.dueAt, 'EEE d MMM')}
+              <ThreadLink threadId={promise.threadId}>
+                {promise.promise} · {dates.format(promise.dueAt, 'EEE d MMM')}
+              </ThreadLink>
             </span>
           ))}
         </p>
@@ -69,9 +92,12 @@ export const PersonPanel = ({
       {elsewhere.length > 0 && (
         <p className="text-muted-foreground">
           {t.people.open}:{' '}
-          <span data-mask className="text-foreground">
-            {elsewhere.join(', ')}
-          </span>
+          {elsewhere.map((item, index) => (
+            <span key={item.id}>
+              {index > 0 && ', '}
+              <ThreadLink threadId={item.threadId}>{item.title}</ThreadLink>
+            </span>
+          ))}
         </p>
       )}
     </section>

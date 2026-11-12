@@ -807,7 +807,7 @@ export const ja: Messages = {
   people: {
     firstContact: (date: string) => `${date}からやり取り`,
     lastContact: (date: string) => `最後のメール：${date}`,
-    open: 'この人とのやり取りを開く',
+    open: '他のスレッドで保留中',
     promised: 'あなたの約束',
     threads: (total: number) => `${total}件の会話`,
   },

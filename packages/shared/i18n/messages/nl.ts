@@ -569,7 +569,7 @@ export const nl: Messages = {
   people: {
     firstContact: (date: string) => `Mailt sinds ${date}`,
     lastContact: (date: string) => `Laatste e-mail ${date}`,
-    open: 'Gesprekken openen',
+    open: 'Wacht in andere gesprekken',
     promised: 'Je hebt beloofd',
     threads: (total: number) =>
       plural('nl', total, {

@@ -582,7 +582,7 @@ export const pl: Messages = {
   people: {
     firstContact: (date: string) => `Piszecie od ${date}`,
     lastContact: (date: string) => `Ostatni e-mail: ${date}`,
-    open: 'Otwórz korespondencję',
+    open: 'Czeka w innych wątkach',
     promised: 'Obiecałeś',
     threads: (total: number) =>
       plural('pl', total, {

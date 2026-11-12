@@ -854,7 +854,7 @@ export const it: Messages = {
   people: {
     firstContact: (date: string) => `Vi scrivete dal ${date}`,
     lastContact: (date: string) => `Ultima email il ${date}`,
-    open: 'Apri le conversazioni',
+    open: 'In attesa in altre conversazioni',
     promised: 'Hai promesso',
     threads: (total: number) =>
       plural('it', total, {

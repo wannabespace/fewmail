@@ -566,7 +566,7 @@ export const pt: Messages = {
   people: {
     firstContact: (date: string) => `Trocando e-mails desde ${date}`,
     lastContact: (date: string) => `Último e-mail em ${date}`,
-    open: 'Abrir conversas',
+    open: 'Pendente em outras conversas',
     promised: 'Você prometeu',
     threads: (total: number) =>
       plural('pt', total, {

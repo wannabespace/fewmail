@@ -556,7 +556,7 @@ export const id: Messages = {
   people: {
     firstContact: (date: string) => `Berkirim email sejak ${date}`,
     lastContact: (date: string) => `Email terakhir ${date}`,
-    open: 'Buka percakapan',
+    open: 'Menunggu di utas lain',
     promised: 'Kamu sudah berjanji',
     threads: (total: number) => `${total} percakapan`,
   },

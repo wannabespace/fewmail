@@ -867,7 +867,7 @@ export const fr: Messages = {
   people: {
     firstContact: (date: string) => `Échanges depuis ${date}`,
     lastContact: (date: string) => `Dernier e-mail le ${date}`,
-    open: 'Voir les échanges',
+    open: 'En attente dans d’autres fils',
     promised: 'Vous avez promis',
     threads: (total: number) =>
       plural('fr', total, {

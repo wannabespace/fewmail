@@ -551,7 +551,7 @@ export const tr: Messages = {
   people: {
     firstContact: (date: string) => `${date} tarihinden beri yazışıyorsunuz`,
     lastContact: (date: string) => `Son e-posta ${date}`,
-    open: 'Yazışmaları aç',
+    open: 'Diğer yazışmalarda bekliyor',
     promised: 'Söz verdin',
     threads: (total: number) => `${total} yazışma`,
   },

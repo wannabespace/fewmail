@@ -122,6 +122,7 @@ export const getPerson = async (userId: string, rawEmail: string) => {
         dueAt: commitments.dueAt,
         id: commitments.id,
         promise: commitments.promise,
+        threadId: commitments.threadId,
       })
       .from(commitments)
       .where(

@@ -567,7 +567,7 @@ export const en = {
   people: {
     firstContact: (date: string) => `Writing since ${date}`,
     lastContact: (date: string) => `Last email ${date}`,
-    open: 'Open with them',
+    open: 'Waiting in other threads',
     promised: 'You promised',
     threads: (total: number) =>
       plural('en', total, {

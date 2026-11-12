@@ -797,7 +797,7 @@ export const ko: Messages = {
   people: {
     firstContact: (date: string) => `${date}부터 연락`,
     lastContact: (date: string) => `마지막 이메일 ${date}`,
-    open: '대화 열기',
+    open: '다른 대화에서 대기 중',
     promised: '내가 한 약속',
     threads: (total: number) => `대화 ${total}개`,
   },

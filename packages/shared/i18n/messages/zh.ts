@@ -773,7 +773,7 @@ export const zh: Messages = {
   people: {
     firstContact: (date: string) => `自 ${date} 起联系`,
     lastContact: (date: string) => `最近邮件 ${date}`,
-    open: '查看往来',
+    open: '其他邮件中待处理',
     promised: '你的承诺',
     threads: (total: number) => `${total} 个对话`,
   },

@@ -817,7 +817,7 @@ export const hi: Messages = {
   people: {
     firstContact: (date: string) => `${date} से संपर्क में`,
     lastContact: (date: string) => `आखिरी ईमेल ${date}`,
-    open: 'बातचीत खोलें',
+    open: 'दूसरी बातचीत में बाकी',
     promised: 'आपने वादा किया',
     threads: (total: number) =>
       plural('hi', total, {
