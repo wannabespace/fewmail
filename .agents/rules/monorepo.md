@@ -8,6 +8,8 @@ pnpm workspaces + turbo, Bun runtime for the API, versions pinned in the `pnpm-w
 | `pnpm db:generate` / `pnpm db:migrate` | Drizzle migrations (`packages/db/migrations`), env from the root `.env` |
 | `pnpm dev` | Through portless: web `https://app.local.fewmail.app`, API `https://api.local.fewmail.app`; plus the worker (`dev:worker`, no URL) |
 | `pnpm check` / `pnpm fix` | ultracite (oxlint + oxfmt) |
+
+`apps/web` runs Vite with `--configLoader runner`: `vite.config.ts` imports `src/lib/seo.ts`, which reaches `@fewmail/shared/i18n`, and the default loader leaves workspace packages to Node, which cannot resolve their extensionless TS imports — the build fails with `ERR_MODULE_NOT_FOUND`.
 | `bun check` in a package | type check |
 
 Env lives in the root `.env` (template: `.env.example`). Cross-service dev URLs (`API_URL`, `WEB_URL`) are not in `.env`: `setupPortlessEnvs(...)` (`@fewmail/shared/portless-env`) fills them at startup from the `portless` name in each app's `package.json`, worktree-aware; precedence: existing env var > portless. The web build also reads `WEB_URL` (canonical, sitemap and OG URLs), defaulting to `https://fewmail.app`. Production serves `dist` with Caddy (`apps/web/Dockerfile`, `apps/web/Caddyfile`): `<path>/index.html` when it exists, `app.html` otherwise, 404 for a missing `/assets/*`. The proxy starts on `pnpm install` (`portless:start`, TLD `app`), shared with Tamery. A stopped backend shows up in the browser as a CORS error (portless answers 502 without CORS headers).
