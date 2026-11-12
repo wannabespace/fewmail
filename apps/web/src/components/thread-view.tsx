@@ -593,6 +593,7 @@ export const ThreadView = ({
   }
 
   const subject = data.messages[0]?.message.subject
+  const cards = data.actions.filter(({ status }) => status !== 'dismissed')
 
   return (
     <article className="flex min-h-0 flex-1 flex-col">
@@ -704,9 +705,9 @@ export const ThreadView = ({
           </div>
 
           <ThreadNotices data={data} />
-          {hasAgent && data.actions.length > 0 && (
+          {hasAgent && cards.length > 0 && (
             <ul className="text-muted-foreground flex flex-col gap-1 text-sm">
-              {data.actions.map((action) => (
+              {cards.map((action) => (
                 <li key={action.id}>
                   <span className="text-foreground">{action.title}</span> ·{' '}
                   {t.actionStatus[action.status]}

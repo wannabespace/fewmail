@@ -23,6 +23,7 @@ import { and, desc, eq, gt, inArray, isNotNull, lt } from 'drizzle-orm'
 import { FAST_MODEL_ID, INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
+import { oneTimeCode } from '../lib/one-time-code'
 import { attachmentText } from './attachments'
 import { BULK_THRESHOLD } from './bulk'
 import {
@@ -597,7 +598,11 @@ export const analyzeMessage = async (
     })
     return
   }
-  if (!agent || (await hasNewerMail(message))) {
+  if (
+    !agent ||
+    oneTimeCode(message.subject, message.body) ||
+    (await hasNewerMail(message))
+  ) {
     return
   }
 
