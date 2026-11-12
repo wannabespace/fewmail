@@ -665,8 +665,25 @@ const rowSurfaceOf = ({
     'group relative border-b',
     isUnread && 'bg-background',
     isActive ? 'bg-accent' : 'hover:bg-accent',
-    isOpen && 'bg-secondary'
+    isOpen && 'bg-secondary hover:bg-secondary'
   )
+
+const useCursorOnOpenThread = ({
+  rows,
+  setCursor,
+  thread,
+}: {
+  rows: { message: { threadId: string } }[]
+  setCursor: (index: number) => void
+  thread: string | undefined
+}) => {
+  const openIndex = rows.findIndex((row) => row.message.threadId === thread)
+  const [followedKey, setFollowedKey] = useState('')
+  if (openIndex !== -1 && followedKey !== `${thread}:${openIndex}`) {
+    setFollowedKey(`${thread}:${openIndex}`)
+    setCursor(openIndex)
+  }
+}
 
 const MailRow = ({
   actions,
@@ -1107,6 +1124,7 @@ const MailPage = () => {
     typed: search.trim(),
   })
   const { groupStarts, rows } = useGroupedRows(listedRows, grouping, keptUnread)
+  useCursorOnOpenThread({ rows, setCursor, thread })
 
   const {
     actions,
