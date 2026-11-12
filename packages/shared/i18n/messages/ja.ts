@@ -162,7 +162,6 @@ export const ja: Messages = {
     cc: 'Cc',
     discard: '破棄',
     draftSaved: '下書きを保存しました',
-    saveDraft: '下書きを保存',
     forward: '転送',
     forwardedMessage: '転送されたメッセージ',
     from: '差出人',

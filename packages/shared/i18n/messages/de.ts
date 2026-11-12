@@ -137,7 +137,6 @@ export const de: Messages = {
     cc: 'Cc',
     discard: 'Verwerfen',
     draftSaved: 'Entwurf gespeichert',
-    saveDraft: 'Als Entwurf speichern',
     forward: 'Weiterleiten',
     forwardedMessage: 'Weitergeleitete Nachricht',
     from: 'Von',

@@ -21,7 +21,6 @@ import { DeleteBoardDialog, NewBoardDialog } from '~/components/board-dialog'
 import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
-import { ComposeDialog } from '~/components/compose/compose-dialog'
 import { Sidebar } from '~/components/nav'
 import { agentModeStore, signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
@@ -102,7 +101,7 @@ const AppLayout = () => {
   }, [])
 
   return (
-    <ComposeProvider renderDialog={(props) => <ComposeDialog {...props} />}>
+    <ComposeProvider>
       <div className="bg-body flex h-svh">
         <ResizableGroup className="flex-1">
           <ResizablePanel

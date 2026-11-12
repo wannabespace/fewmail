@@ -1,4 +1,5 @@
 import { FOLLOWUP_DAYS } from '@fewmail/shared/agent'
+import { htmlToText } from '@fewmail/shared/email'
 import { Button } from '@fewmail/ui/components/button'
 import {
   DropdownMenu,
@@ -18,7 +19,7 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useT } from '~/lib/i18n'
@@ -33,6 +34,8 @@ import type { LaterPreset } from './schedule'
 import { LATER_PRESETS, parseRecipients, validRecipients } from './schedule'
 
 const LATER_OPTIONS: LaterPreset[] = ['inHour', 'tomorrow', 'monday']
+
+const AUTOSAVE_MS = 1000
 
 const isValid = (recipient: string) => validRecipients([recipient])
 
@@ -59,21 +62,72 @@ export const ComposeForm = ({
 
   const queryClient = useQueryClient()
   const writeDraft = useMutation(orpc.mail.writeDraft.mutationOptions())
-  const closeDraft = (message?: string) => {
-    if (message) {
-      toast.success(message)
-    }
-    void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
-    onDone()
+  const [edits, setEdits] = useState(0)
+  const [isSaved, setIsSaved] = useState(Boolean(draft.gmailDraft))
+  const body = useRef({ html: draft.html, text: htmlToText(draft.html) })
+  const gmailDraft = useRef(draft.gmailDraft)
+  // Saves run one after another: a second save started before the first returns its id would create a duplicate draft.
+  const saving = useRef<Promise<unknown>>(Promise.resolve())
+  const isLeaving = useRef(false)
+  const edit = () => {
+    setEdits((count) => count + 1)
+    setIsSaved(false)
   }
-  const saveDraft = useMutation(
-    orpc.mail.saveDraft.mutationOptions({
-      onSuccess: () => closeDraft(t.compose.draftSaved),
-    })
-  )
-  const deleteDraft = useMutation(
-    orpc.mail.deleteDraft.mutationOptions({ onSuccess: () => closeDraft() })
-  )
+
+  const save = useEffectEvent(() => {
+    const mail = {
+      bcc: draft.bcc,
+      cc: parseRecipients(cc).filter(isValid),
+      ...body.current,
+      ...(mailboxId && { mailboxId }),
+      mode: draft.mode,
+      ...(draft.replyToMessageId && {
+        replyToMessageId: draft.replyToMessageId,
+      }),
+      subject,
+      to: parseRecipients(to).filter(isValid),
+    }
+    const isBlank =
+      !mail.subject.trim() && mail.to.length === 0 && !mail.text.trim()
+    const persist = async () => {
+      if (isBlank && !gmailDraft.current) {
+        return
+      }
+      gmailDraft.current = await client.mail.saveDraft({
+        ...mail,
+        ...(gmailDraft.current && { draft: gmailDraft.current }),
+      })
+      setIsSaved(true)
+      void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
+    }
+    saving.current = saving.current.then(persist).catch(() => null)
+  })
+  useEffect(() => {
+    if (edits === 0) {
+      return
+    }
+    const timer = setTimeout(save, AUTOSAVE_MS)
+    return () => clearTimeout(timer)
+  }, [edits])
+  const hasUnsaved = edits > 0 && !isSaved
+  const saveOnLeave = useEffectEvent(() => {
+    if (hasUnsaved && !isLeaving.current) {
+      save()
+    }
+  })
+  useEffect(() => () => saveOnLeave(), [])
+
+  const removeDraft = async () => {
+    if (gmailDraft.current) {
+      await client.mail.deleteDraft(gmailDraft.current)
+      void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
+    }
+  }
+  const discard = () => {
+    isLeaving.current = true
+    onDone()
+    void saving.current.then(removeDraft)
+  }
   const fillEditor = ({ html }: { html: string }) => {
     editorRef.current?.setContent(html)
     editorRef.current?.focus()
@@ -99,7 +153,7 @@ export const ComposeForm = ({
     if (!editor || !editor.getText().trim()) {
       return
     }
-    send({
+    const mail = {
       ...draft,
       cc: copies,
       html: editor.getHtml(),
@@ -109,29 +163,12 @@ export const ComposeForm = ({
       subject,
       text: editor.getText(),
       to: recipients,
-    })
-    onDone()
-  }
-
-  const save = () => {
-    const editor = editorRef.current
-    if (!editor) {
-      return
     }
-    saveDraft.mutate({
-      bcc: draft.bcc,
-      cc: parseRecipients(cc).filter(isValid),
-      ...(draft.gmailDraft && { draft: draft.gmailDraft }),
-      html: editor.getHtml(),
-      ...(mailboxId && { mailboxId }),
-      mode: draft.mode,
-      ...(draft.replyToMessageId && {
-        replyToMessageId: draft.replyToMessageId,
-      }),
-      subject,
-      text: editor.getText(),
-      to: parseRecipients(to).filter(isValid),
-    })
+    isLeaving.current = true
+    onDone()
+    void saving.current.then(() =>
+      send({ ...mail, gmailDraft: gmailDraft.current })
+    )
   }
 
   return (
@@ -143,7 +180,12 @@ export const ComposeForm = ({
             value: id,
           }))}
           value={mailboxId ?? mailboxes.find(({ signIn }) => signIn)?.id}
-          onValueChange={(next) => next && setMailboxId(next)}
+          onValueChange={(next) => {
+            if (next) {
+              setMailboxId(next)
+              edit()
+            }
+          }}
         >
           <SelectTrigger aria-label={t.compose.from} className="w-full">
             <span className="text-muted-foreground">{t.compose.from}</span>
@@ -161,7 +203,10 @@ export const ComposeForm = ({
       <div className="flex items-center gap-2">
         <Input
           value={to}
-          onChange={(event) => setTo(event.target.value)}
+          onChange={(event) => {
+            setTo(event.target.value)
+            edit()
+          }}
           placeholder={t.compose.to}
           aria-label={t.compose.to}
           data-mask
@@ -179,7 +224,10 @@ export const ComposeForm = ({
       {showCc && (
         <Input
           value={cc}
-          onChange={(event) => setCc(event.target.value)}
+          onChange={(event) => {
+            setCc(event.target.value)
+            edit()
+          }}
           placeholder={t.compose.cc}
           aria-label={t.compose.cc}
           data-mask
@@ -188,7 +236,10 @@ export const ComposeForm = ({
       {!isReply && (
         <Input
           value={subject}
-          onChange={(event) => setSubject(event.target.value)}
+          onChange={(event) => {
+            setSubject(event.target.value)
+            edit()
+          }}
           placeholder={t.compose.subject}
           aria-label={t.compose.subject}
           data-mask
@@ -229,8 +280,15 @@ export const ComposeForm = ({
         placeholder={t.compose.placeholder}
         aria-label={t.compose.placeholder}
         snippets={snippets}
+        onChange={(value) => {
+          body.current = value
+          edit()
+        }}
         onSubmit={() => submit()}
-        onEscape={onDone}
+        onEscape={() =>
+          document.activeElement instanceof HTMLElement &&
+          document.activeElement.blur()
+        }
         complete={
           hasAgent
             ? ({ prefix, signal, suffix }) =>
@@ -296,23 +354,10 @@ export const ComposeForm = ({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button
-          size="sm"
-          variant="ghost-muted"
-          className="ml-auto"
-          disabled={saveDraft.isPending}
-          onClick={save}
-        >
-          {t.compose.saveDraft}
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost-muted"
-          disabled={deleteDraft.isPending}
-          onClick={() =>
-            draft.gmailDraft ? deleteDraft.mutate(draft.gmailDraft) : onDone()
-          }
-        >
+        <span className="text-muted-foreground ml-auto text-xs">
+          {isSaved && t.compose.draftSaved}
+        </span>
+        <Button size="sm" variant="ghost-muted" onClick={discard}>
           {t.compose.discard}
         </Button>
       </div>

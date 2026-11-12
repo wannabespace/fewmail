@@ -137,7 +137,6 @@ export const uk: Messages = {
     cc: 'Копія',
     discard: 'Видалити',
     draftSaved: 'Чернетку збережено',
-    saveDraft: 'Зберегти чернетку',
     forward: 'Переслати',
     forwardedMessage: 'Переслане повідомлення',
     from: 'Від',

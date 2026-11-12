@@ -457,7 +457,6 @@ export const tr: Messages = {
     cc: 'Bilgi',
     discard: 'Sil',
     draftSaved: 'Taslak kaydedildi',
-    saveDraft: 'Taslağı kaydet',
     forward: 'İlet',
     forwardedMessage: 'İletilen mesaj',
     from: 'Kimden',

@@ -160,7 +160,6 @@ export const ko: Messages = {
     cc: '참조',
     discard: '삭제',
     draftSaved: '초안을 저장했어요',
-    saveDraft: '초안 저장',
     forward: '전달',
     forwardedMessage: '전달된 메시지',
     from: '보낸 사람',

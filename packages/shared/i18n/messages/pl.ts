@@ -480,7 +480,6 @@ export const pl: Messages = {
     cc: 'DW',
     discard: 'Odrzuć',
     draftSaved: 'Szkic zapisany',
-    saveDraft: 'Zapisz szkic',
     forward: 'Przekaż',
     forwardedMessage: 'Przekazana wiadomość',
     from: 'Od',

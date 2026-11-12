@@ -470,7 +470,6 @@ export const pt: Messages = {
     cc: 'Cc',
     discard: 'Descartar',
     draftSaved: 'Rascunho salvo',
-    saveDraft: 'Salvar rascunho',
     forward: 'Encaminhar',
     forwardedMessage: 'Mensagem encaminhada',
     from: 'De',

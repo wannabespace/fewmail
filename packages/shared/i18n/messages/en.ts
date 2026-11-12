@@ -400,7 +400,6 @@ export const en = {
     cc: 'Cc',
     discard: 'Discard',
     draftSaved: 'Draft saved',
-    saveDraft: 'Save draft',
     forward: 'Forward',
     forwardedMessage: 'Forwarded message',
     from: 'From',

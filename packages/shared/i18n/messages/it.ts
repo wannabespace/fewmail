@@ -138,7 +138,6 @@ export const it: Messages = {
     cc: 'Cc',
     discard: 'Elimina',
     draftSaved: 'Bozza salvata',
-    saveDraft: 'Salva bozza',
     forward: 'Inoltra',
     forwardedMessage: 'Messaggio inoltrato',
     from: 'Da',

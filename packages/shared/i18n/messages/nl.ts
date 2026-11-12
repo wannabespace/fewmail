@@ -471,7 +471,6 @@ export const nl: Messages = {
     cc: 'Cc',
     discard: 'Verwerpen',
     draftSaved: 'Concept opgeslagen',
-    saveDraft: 'Concept opslaan',
     forward: 'Doorsturen',
     forwardedMessage: 'Doorgestuurd bericht',
     from: 'Van',

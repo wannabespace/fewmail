@@ -460,7 +460,6 @@ export const id: Messages = {
     cc: 'Cc',
     discard: 'Buang',
     draftSaved: 'Draf disimpan',
-    saveDraft: 'Simpan draf',
     forward: 'Teruskan',
     forwardedMessage: 'Pesan yang diteruskan',
     from: 'Dari',

@@ -137,7 +137,6 @@ export const es: Messages = {
     cc: 'Cc',
     discard: 'Descartar',
     draftSaved: 'Borrador guardado',
-    saveDraft: 'Guardar borrador',
     forward: 'Reenviar',
     forwardedMessage: 'Mensaje reenviado',
     from: 'De',

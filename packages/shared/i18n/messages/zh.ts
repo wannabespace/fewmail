@@ -160,7 +160,6 @@ export const zh: Messages = {
     cc: '抄送',
     discard: '丢弃',
     draftSaved: '草稿已保存',
-    saveDraft: '保存草稿',
     forward: '转发',
     forwardedMessage: '转发的邮件',
     from: '发件人',

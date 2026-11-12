@@ -139,7 +139,6 @@ export const fr: Messages = {
     cc: 'Cc',
     discard: 'Supprimer',
     draftSaved: 'Brouillon enregistré',
-    saveDraft: 'Enregistrer le brouillon',
     forward: 'Transférer',
     forwardedMessage: 'Message transféré',
     from: 'De',

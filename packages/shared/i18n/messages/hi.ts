@@ -160,7 +160,6 @@ export const hi: Messages = {
     cc: 'Cc',
     discard: 'हटाएँ',
     draftSaved: 'ड्राफ़्ट सहेजा गया',
-    saveDraft: 'ड्राफ़्ट सहेजें',
     forward: 'फ़ॉरवर्ड करें',
     forwardedMessage: 'फ़ॉरवर्ड किया गया संदेश',
     from: 'से',

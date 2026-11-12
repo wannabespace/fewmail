@@ -1,8 +1,9 @@
 import type { OutboxMode } from '@fewmail/shared/agent'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
-import { createContext, use, useState } from 'react'
+import { createContext, use } from 'react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -21,6 +22,12 @@ export interface Draft {
   to: string[]
 }
 
+declare module '@tanstack/react-router' {
+  interface HistoryState {
+    compose?: Draft
+  }
+}
+
 export const EMPTY_DRAFT: Draft = {
   bcc: [],
   cc: [],
@@ -35,8 +42,8 @@ export const EMPTY_DRAFT: Draft = {
 }
 
 interface ComposeContextValue {
-  /** Opens the compose dialog; a restored draft (after Undo) comes back exactly as it was. */
-  openCompose: (draft?: Partial<Draft>) => void
+  /** Opens the compose page; a restored draft (after Undo) comes back exactly as it was. */
+  openCompose: (draft?: Partial<Draft>) => Promise<void>
   send: (draft: Draft & { sendAt?: Date; text: string }) => void
 }
 
@@ -50,20 +57,16 @@ export const useCompose = () => {
   return value
 }
 
-export const ComposeProvider = ({
-  children,
-  renderDialog,
-}: {
-  children: ReactNode
-  renderDialog: (props: {
-    draft: Draft | null
-    onClose: () => void
-  }) => ReactNode
-}) => {
+export const ComposeProvider = ({ children }: { children: ReactNode }) => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
-  const [draft, setDraft] = useState<Draft | null>(null)
+  const navigate = useNavigate()
+  const openCompose = (next?: Partial<Draft>) =>
+    navigate({
+      state: { compose: { ...EMPTY_DRAFT, ...next } },
+      to: '/compose',
+    })
 
   const sendMutation = useMutation(
     orpc.mail.send.mutationOptions({
@@ -83,7 +86,7 @@ export const ComposeProvider = ({
                   .cancelSend({ id })
                   .catch(() => null)
                 if (restored) {
-                  setDraft({ ...EMPTY_DRAFT, ...restored })
+                  void openCompose(restored)
                   toast(t.compose.canceled)
                 }
               },
@@ -99,7 +102,7 @@ export const ComposeProvider = ({
   return (
     <ComposeContext
       value={{
-        openCompose: (next) => setDraft({ ...EMPTY_DRAFT, ...next }),
+        openCompose,
         send: ({
           gmailDraft,
           mailboxId,
@@ -119,7 +122,6 @@ export const ComposeProvider = ({
       }}
     >
       {children}
-      {renderDialog({ draft, onClose: () => setDraft(null) })}
     </ComposeContext>
   )
 }
