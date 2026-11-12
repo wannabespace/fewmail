@@ -3,7 +3,19 @@ import { Mistral } from '@mistralai/mistralai'
 import { env } from '../env'
 
 export const mistral = env.MISTRAL_API_KEY
-  ? new Mistral({ apiKey: env.MISTRAL_API_KEY })
+  ? new Mistral({
+      apiKey: env.MISTRAL_API_KEY,
+      // The SDK retries nothing by default, and a first sync reading many attachments at once hits 429.
+      retryConfig: {
+        backoff: {
+          exponent: 2,
+          initialInterval: 1000,
+          maxElapsedTime: 60_000,
+          maxInterval: 20_000,
+        },
+        strategy: 'backoff',
+      },
+    })
   : null
 
 const TRANSCRIBE_MODEL = 'voxtral-mini-latest'
