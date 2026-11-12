@@ -854,8 +854,8 @@ export const de: Messages = {
     pin: 'Anheften',
     unpin: 'Lösen',
     pinned: 'Angeheftet',
-    allPinned: (n: number) => `Alle ${n} zeigen`,
-    fewerPinned: 'Weniger zeigen',
+    showAll: (n: number) => `Alle ${n} zeigen`,
+    showFewer: 'Weniger zeigen',
     oneTimeCode: {
       archive: 'Kopieren und archivieren',
       copied: 'Code kopiert',
@@ -867,10 +867,9 @@ export const de: Messages = {
       'Diesen Newsletter musst du auf seiner Seite selbst abbestellen. Seine Mails sind bis dahin archiviert.',
     allMailboxes: 'Alle Postfächer',
     filterAbout: {
-      inbox: 'Alles in deinem Posteingang',
-      important: 'Mails, die dich bald brauchen',
-      needs_reply: 'Leute warten auf deine Antwort',
-      quiet: 'Newsletter, Hinweise und anderes Rauschen',
+      focused: 'Wichtiges und Menschen zuerst, Hinweise eingeklappt',
+      unread: 'Was du noch nicht gelesen hast, nach Art',
+      inbox: 'Alles, Neuestes zuerst',
     },
     find: {
       back: 'Zurück zur Post',
@@ -893,6 +892,10 @@ export const de: Messages = {
     },
     group: {
       read: 'Gelesen',
+      important: 'Wichtig',
+      people: 'Menschen',
+      updates: 'Benachrichtigungen',
+      newsletters: 'Newsletter',
     },
     unread: 'Ungelesen',
     block: 'Absender blockieren',
@@ -933,9 +936,8 @@ export const de: Messages = {
       spam: 'Spam',
       inbox: 'Posteingang',
       snoozed: 'Zurückgestellt',
-      important: 'Wichtig',
-      needs_reply: 'Offen',
-      quiet: 'Ruhig',
+      focused: 'Fokus',
+      unread: 'Ungelesen',
     },
     instruction:
       'Sag dem Agenten, wie er antworten soll, oder drück einfach Enter',

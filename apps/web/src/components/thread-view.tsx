@@ -19,10 +19,15 @@ import {
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { cn } from '@fewmail/ui/lib/utils'
 import {
   Archive02Icon,
   Cancel01Icon,
+  Clock01Icon,
+  Delete02Icon,
   InboxDownloadIcon,
+  PinIcon,
+  PinOffIcon,
 } from '@hugeicons/core-free-icons'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -378,12 +383,15 @@ const useMarkRead = (
 
 const LEAVE_YOURSELF_MS = 15_000
 
-export const useMailActions = (onDone?: () => void) => {
+export const useMailActions = (onDone?: (messageId: string) => void) => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
   const refresh = () =>
-    queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+      queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
+    ])
   // Every action takes the thread out of the current list, so it leaves before the server answers.
   const leave = {
     onError: refresh,
@@ -392,7 +400,7 @@ export const useMailActions = (onDone?: () => void) => {
       if (threadId) {
         hideThread(threadId)
       }
-      onDone?.()
+      onDone?.(messageId)
     },
   }
   // The id folds a burst's per-email answers into one toast.
@@ -540,6 +548,108 @@ export const SnoozeMenuItems = ({
       </DropdownMenuItem>
     )
   })
+}
+
+export const ROW_ACTIONS =
+  'absolute top-1.5 right-4 flex bg-inherit opacity-0 transition-opacity duration-150 ease-house group-hover:opacity-100 before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-inherit before:[mask-image:linear-gradient(to_right,transparent,black)]'
+
+export const onEach =
+  (messageIds: string[], mutate: (input: { messageId: string }) => void) =>
+  () => {
+    for (const messageId of messageIds) {
+      mutate({ messageId })
+    }
+  }
+
+export const pinEach =
+  (
+    messageIds: string[],
+    pinned: boolean,
+    mutate: (input: { messageId: string; pinned: boolean }) => void
+  ) =>
+  () => {
+    for (const messageId of messageIds) {
+      mutate({ messageId, pinned })
+    }
+  }
+
+export const MailRowActions = ({
+  actions,
+  canSnooze,
+  className,
+  isPinned,
+  isSnoozeOpen,
+  messageIds,
+  onSnoozeOpenChange,
+  sweep,
+}: {
+  actions: ReturnType<typeof useMailActions>
+  canSnooze: boolean
+  className?: string
+  isPinned?: boolean
+  isSnoozeOpen?: boolean
+  messageIds: string[]
+  onSnoozeOpenChange?: (open: boolean) => void
+  sweep: Sweep
+}) => {
+  const t = useT()
+  return (
+    <span
+      className={cn(
+        ROW_ACTIONS,
+        'has-data-popup-open:opacity-100',
+        isSnoozeOpen && 'opacity-100',
+        className
+      )}
+    >
+      {isPinned !== undefined && (
+        <IconButton
+          icon={isPinned ? PinOffIcon : PinIcon}
+          label={isPinned ? t.mail.unpin : t.mail.pin}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={pinEach(messageIds, !isPinned, actions.pin.mutate)}
+        />
+      )}
+      <IconButton
+        icon={sweep.icon}
+        label={sweep.label}
+        size="icon-sm"
+        variant="ghost-muted"
+        onClick={onEach(messageIds, sweep.action.mutate)}
+      />
+      {canSnooze && (
+        <DropdownMenu open={isSnoozeOpen} onOpenChange={onSnoozeOpenChange}>
+          <DropdownMenuTrigger
+            render={
+              <IconButton
+                icon={Clock01Icon}
+                label={t.snooze.title}
+                size="icon-sm"
+                variant="ghost-muted"
+              />
+            }
+          />
+          <DropdownMenuContent align="end">
+            <SnoozeMenuItems
+              onSnooze={(until) =>
+                onEach(messageIds, ({ messageId }) =>
+                  actions.snooze.mutate({ messageId, until })
+                )()
+              }
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+      <IconButton
+        icon={Delete02Icon}
+        label={t.mail.trash}
+        size="icon-sm"
+        variant="ghost-destructive"
+        onClick={onEach(messageIds, actions.trash.mutate)}
+      />
+    </span>
+  )
 }
 
 const DiscardItems = ({

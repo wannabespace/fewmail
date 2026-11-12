@@ -638,8 +638,8 @@ export const pl: Messages = {
     pin: 'Przypnij',
     unpin: 'Odepnij',
     pinned: 'Przypięte',
-    allPinned: (n: number) => `Pokaż wszystkie (${n})`,
-    fewerPinned: 'Pokaż mniej',
+    showAll: (n: number) => `Pokaż wszystkie (${n})`,
+    showFewer: 'Pokaż mniej',
     oneTimeCode: {
       archive: 'Kopiuj i archiwizuj',
       copied: 'Skopiowano kod',
@@ -651,10 +651,9 @@ export const pl: Messages = {
       'Z tej listy trzeba wypisać się samemu na jej stronie. Do tego czasu jej maile są w archiwum.',
     allMailboxes: 'Wszystkie skrzynki',
     filterAbout: {
-      inbox: 'Wszystko w skrzynce odbiorczej',
-      important: 'Poczta, która wkrótce cię potrzebuje',
-      needs_reply: 'Ludzie czekają na twoją odpowiedź',
-      quiet: 'Newslettery, powiadomienia i inny szum',
+      focused: 'Najpierw ważne i ludzie, powiadomienia zwinięte',
+      unread: 'Jeszcze nieprzeczytane, według rodzaju',
+      inbox: 'Wszystko, od najnowszych',
     },
     find: {
       back: 'Wróć do poczty',
@@ -676,6 +675,10 @@ export const pl: Messages = {
     },
     group: {
       read: 'Przeczytane',
+      important: 'Ważne',
+      people: 'Ludzie',
+      updates: 'Powiadomienia',
+      newsletters: 'Newslettery',
     },
     unread: 'Nieprzeczytane',
     block: 'Zablokuj nadawcę',
@@ -716,9 +719,8 @@ export const pl: Messages = {
       spam: 'Spam',
       inbox: 'Odebrane',
       snoozed: 'Odłożone',
-      important: 'Ważne',
-      needs_reply: 'Do odpowiedzi',
-      quiet: 'Ciche',
+      focused: 'Skupienie',
+      unread: 'Nieprzeczytane',
     },
     instruction:
       'Powiedz agentowi, jak odpowiedzieć, albo po prostu naciśnij Enter',

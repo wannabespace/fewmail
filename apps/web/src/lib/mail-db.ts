@@ -10,9 +10,7 @@ import { queryClient } from './query-client'
 
 export const MAIL_LISTS = [
   'inbox',
-  'important',
-  'needs_reply',
-  'quiet',
+  'unread',
   'pinned',
   'snoozed',
   'spam',

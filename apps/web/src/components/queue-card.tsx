@@ -10,8 +10,14 @@ import {
 } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { Checkbox } from '@fewmail/ui/components/checkbox'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
+import {
+  MailOpen01Icon,
+  NextIcon,
+  Tick02Icon,
+} from '@hugeicons/core-free-icons'
 import { useEffect, useRef } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -20,6 +26,7 @@ import { client } from '~/lib/orpc'
 
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
+import { ROW_ACTIONS } from './thread-view'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
 type Action = QueueItem['action']
@@ -63,18 +70,85 @@ const CleanupList = ({ action }: { action: Action }) => {
   )
 }
 
+const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
+  if (isReply) {
+    return t.queue.send
+  }
+  return ACTION_KIND_TRAITS[action.kind].ownLabel
+    ? t.actionKind[action.kind]
+    : action.title || t.actionKind[action.kind]
+}
+
+const QuickActions = ({
+  action,
+  hasMessage,
+  onApprove,
+  onOpen,
+  onSkip,
+}: {
+  action: Action
+  hasMessage: boolean
+  onApprove: () => void
+  onOpen: () => void
+  onSkip: () => void
+}) => {
+  const t = useT()
+
+  return (
+    <span
+      className={cn(
+        ROW_ACTIONS,
+        'bg-popover inset-y-0 right-full items-center'
+      )}
+    >
+      {/* A reply is never sent unread: it needs the open card. */}
+      {!sendsDraft(action) && (
+        <IconButton
+          icon={Tick02Icon}
+          label={approveLabel(t, action, false)}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={onApprove}
+        />
+      )}
+      {hasMessage && (
+        <IconButton
+          icon={MailOpen01Icon}
+          label={t.queue.open}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={onOpen}
+        />
+      )}
+      <IconButton
+        icon={NextIcon}
+        label={t.queue.skip}
+        size="icon-sm"
+        variant="ghost-muted"
+        onClick={onSkip}
+      />
+    </span>
+  )
+}
+
 const QueueCardHeader = ({
   index,
   isPicked,
   isSelected,
   item: { action, analysis, message },
+  onApprove,
+  onOpen,
   onPick,
+  onSkip,
 }: {
   index: number
   isPicked: boolean
   isSelected: boolean
   item: QueueItem
+  onApprove: () => void
+  onOpen: () => void
   onPick: () => void
+  onSkip: () => void
 }) => {
   const t = useT()
   const dates = useDates()
@@ -82,11 +156,22 @@ const QueueCardHeader = ({
   return (
     <AccordionTrigger
       trailing={
-        <Checkbox
-          aria-label={t.queue.pick}
-          checked={isPicked}
-          onCheckedChange={onPick}
-        />
+        <>
+          {!isSelected && (
+            <QuickActions
+              action={action}
+              hasMessage={!!message}
+              onApprove={onApprove}
+              onOpen={onOpen}
+              onSkip={onSkip}
+            />
+          )}
+          <Checkbox
+            aria-label={t.queue.pick}
+            checked={isPicked}
+            onCheckedChange={onPick}
+          />
+        </>
       }
     >
       <span
@@ -114,15 +199,6 @@ const QueueCardHeader = ({
       )}
     </AccordionTrigger>
   )
-}
-
-const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
-  if (isReply) {
-    return t.queue.send
-  }
-  return ACTION_KIND_TRAITS[action.kind].ownLabel
-    ? t.actionKind[action.kind]
-    : action.title || t.actionKind[action.kind]
 }
 
 const completerFor = (hasAgent: boolean, message: QueueItem['message']) =>
@@ -203,13 +279,17 @@ export const QueueCard = ({
       ref={ref}
       value={action.id}
       tone={isSecurity ? 'destructive' : 'default'}
+      className="group"
     >
       <QueueCardHeader
         index={index}
         isPicked={isPicked}
         isSelected={isSelected}
         item={item}
+        onApprove={onApprove}
+        onOpen={onOpen}
         onPick={onPick}
+        onSkip={onSkip}
       />
 
       <AccordionContent>

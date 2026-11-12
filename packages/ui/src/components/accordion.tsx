@@ -94,7 +94,9 @@ const AccordionTrigger = ({
         )}
       </AccordionPrimitive.Trigger>
       {trailing && (
-        <div className="flex shrink-0 items-center pr-4.5">{trailing}</div>
+        <div className="relative flex shrink-0 items-center pr-4.5">
+          {trailing}
+        </div>
       )}
     </AccordionPrimitive.Header>
   )

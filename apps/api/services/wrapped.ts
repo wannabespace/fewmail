@@ -3,13 +3,14 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 
 import { db } from '@fewmail/db'
 import { analyses, messages, unsubscribes } from '@fewmail/db/schema'
+import { PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
 import type { WrappedPeriod, WrappedStats } from '@fewmail/shared/agent'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { and, count, desc, eq, gte, inArray, sql } from 'drizzle-orm'
 
 import { env } from '../env'
 import { localClock } from '../lib/clock'
-import { handledSince, mailPulse, PEOPLE_CATEGORIES, timeSaved } from './mail'
+import { handledSince, mailPulse, timeSaved } from './mail'
 import { NotFoundError } from './mail-errors'
 import { getSettings } from './settings'
 

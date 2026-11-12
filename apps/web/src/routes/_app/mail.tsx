@@ -1,5 +1,9 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { BULK_THRESHOLD } from '@fewmail/shared/agent'
+import {
+  BULK_THRESHOLD,
+  LIST_CATEGORIES,
+  PEOPLE_CATEGORIES,
+} from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { CopyButton } from '@fewmail/ui/components/custom/copy-button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
@@ -8,11 +12,6 @@ import {
   ResizablePanel,
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@fewmail/ui/components/dropdown-menu'
 import {
   Empty,
   EmptyDescription,
@@ -49,20 +48,17 @@ import {
   Clock01Icon,
   Delete02Icon,
   FileEditIcon,
-  Flag02Icon,
+  FlashIcon,
   InboxIcon,
+  InboxUnreadIcon,
   Mail01Icon,
-  MailReply01Icon,
-  NotificationOff01Icon,
-  PinIcon,
-  PinOffIcon,
   Search01Icon,
   Shield01Icon,
   SpamIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { IconSvgElement } from '@hugeicons/react'
-import { eq, useLiveQuery } from '@tanstack/react-db'
+import { inArray, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import {
   keepPreviousData,
@@ -87,7 +83,10 @@ import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { MailSearchStart, rememberSearch } from '~/components/mail-search'
 import {
-  SnoozeMenuItems,
+  MailRowActions,
+  onEach,
+  pinEach,
+  ROW_ACTIONS,
   sweepOf,
   ThreadView,
   useMailActions,
@@ -99,7 +98,9 @@ import type { MailList, MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
-const INBOX_VIEWS = ['inbox', 'important', 'needs_reply', 'quiet'] as const
+const INBOX_VIEWS = ['focused', 'unread', 'inbox'] as const
+
+type InboxView = (typeof INBOX_VIEWS)[number]
 
 const FOLDERS = ['snoozed', 'drafts', 'archive', 'spam', 'trash'] as const
 
@@ -107,25 +108,39 @@ const FILTERS = [...INBOX_VIEWS, ...FOLDERS] as const
 
 type Filter = (typeof FILTERS)[number]
 
+const isInboxView = (filter: Filter): filter is InboxView =>
+  (INBOX_VIEWS as readonly Filter[]).includes(filter)
+
 const FILTER_ICONS: Record<Filter, IconSvgElement> = {
   archive: Archive02Icon,
   drafts: FileEditIcon,
-  important: Flag02Icon,
+  focused: FlashIcon,
   inbox: InboxIcon,
-  needs_reply: MailReply01Icon,
-  quiet: NotificationOff01Icon,
   snoozed: Clock01Icon,
   spam: SpamIcon,
   trash: Delete02Icon,
+  unread: InboxUnreadIcon,
 }
 
-const ARRIVING = new Set<Filter>([
-  'inbox',
-  'important',
-  'needs_reply',
-  'quiet',
-  'spam',
-])
+/** Unread also lists the inbox's read mail, under Read, and reaches unread threads older than the inbox's newest page. */
+const LISTS_OF: Record<Exclude<Filter, 'drafts'>, MailList[]> = {
+  archive: ['archive'],
+  focused: ['inbox'],
+  inbox: ['inbox'],
+  snoozed: ['snoozed'],
+  spam: ['spam'],
+  trash: ['trash'],
+  unread: ['unread', 'inbox'],
+}
+
+const inboxViewStore = createWebStorageValue({
+  defaultValue: 'focused' as InboxView,
+  key: 'fewmail.inbox-view',
+  schema: type("'focused' | 'unread' | 'inbox'"),
+  type: 'localStorage',
+})
+
+const ARRIVING = new Set<Filter>([...INBOX_VIEWS, 'spam'])
 
 const MailListEmpty = ({
   filter,
@@ -196,17 +211,6 @@ const stepFilter = (filter: Filter, step: number) =>
 
 const ALL_MAILBOXES = 'all'
 
-const COUNTED: Record<keyof RouterOutputs['mail']['unread'], true> = {
-  important: true,
-  inbox: true,
-  needs_reply: true,
-  quiet: true,
-}
-
-const isCounted = (
-  filter: Filter
-): filter is keyof RouterOutputs['mail']['unread'] => filter in COUNTED
-
 /** Threads read ahead of the click; the cursor's neighbours and a hovered row are added as they come. */
 const PREFETCHED_ROWS = 10
 
@@ -224,73 +228,83 @@ const readerWidthStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-type Grouping = 'unread' | 'category' | 'sender' | 'importance' | 'none'
+type Grouping = 'focused' | 'unread' | 'none'
 
-const GROUPING_OF: Record<Filter, Grouping> = {
-  archive: 'none',
-  drafts: 'none',
-  important: 'importance',
-  inbox: 'unread',
-  needs_reply: 'sender',
-  quiet: 'category',
-  snoozed: 'none',
-  spam: 'none',
-  trash: 'none',
-}
+const groupingOf = (filter: Filter): Grouping =>
+  filter === 'focused' || filter === 'unread' ? filter : 'none'
+
+const GROUPS = [
+  'important',
+  'people',
+  'updates',
+  'newsletters',
+  'read',
+] as const
+
+type GroupKey = (typeof GROUPS)[number]
+
+/** Folded groups show their newest few until asked, so notifications never push people's mail away. */
+const FOLDED = new Set<GroupKey>(['updates', 'newsletters'])
+const FOLDED_SHOWN = 3
 
 type ListedRow = Omit<MailRowData, 'key' | 'list'>
 
-/** Threads opened from the Unread group stay in it until the list changes, so reading one never moves the rows under the cursor. */
+/** Threads opened from an unread group stay in it until the list changes, so reading one never moves the rows under the cursor. */
 type KeptUnread = ReadonlySet<string>
 
 const groupKeyOf = (
   grouping: Grouping,
   { analysis, message }: ListedRow,
   keptUnread: KeptUnread
-) => {
-  if (grouping === 'unread') {
-    return message.isUnread || keptUnread.has(message.threadId)
-      ? 'unread'
-      : 'read'
+): GroupKey => {
+  if (
+    grouping === 'unread' &&
+    !message.isUnread &&
+    !keptUnread.has(message.threadId)
+  ) {
+    return 'read'
   }
-  if (grouping === 'sender') {
-    return message.fromEmail
+  // Mail not analysed yet stays with people's, never folded out of sight.
+  if (!analysis) {
+    return 'people'
   }
-  if (grouping === 'importance') {
-    return String(analysis?.importance ?? 0)
+  if (analysis.importance >= 2) {
+    return 'important'
   }
-  return analysis?.category ?? 'other'
+  if (PEOPLE_CATEGORIES.has(analysis.category)) {
+    return 'people'
+  }
+  return LIST_CATEGORIES.has(analysis.category) ? 'newsletters' : 'updates'
 }
 
 const groupRows = <Row extends ListedRow>(
   rows: Row[],
   grouping: Grouping,
-  keptUnread: KeptUnread
+  keptUnread: KeptUnread,
+  unfolded: ReadonlySet<GroupKey>
 ) => {
   if (grouping === 'none') {
     return []
   }
-  const groups = [
-    ...Map.groupBy(rows, (row) =>
-      groupKeyOf(grouping, row, keptUnread)
-    ).entries(),
-  ]
-  if (grouping === 'unread' && groups.length < 2) {
-    return []
-  }
-  if (grouping === 'unread') {
-    groups.sort(([a]) => (a === 'unread' ? -1 : 1))
-  }
-  if (grouping === 'importance') {
-    groups.sort(([a], [b]) => Number(b) - Number(a))
-  }
-  return groups.map(([key, members]) => ({ key, rows: members }))
+  const byKey = Map.groupBy(rows, (row) =>
+    groupKeyOf(grouping, row, keptUnread)
+  )
+  return GROUPS.flatMap((key) => {
+    const members = byKey.get(key) ?? []
+    const isFolded = FOLDED.has(key) && !unfolded.has(key)
+    return members.length > 0
+      ? [
+          {
+            key,
+            rows: isFolded ? members.slice(0, FOLDED_SHOWN) : members,
+            total: members.length,
+          },
+        ]
+      : []
+  })
 }
 
 const BURST_MINUTES = 10
-
-const ROW_ACTIONS =
-  'absolute top-1.5 right-4 flex bg-inherit opacity-0 transition-opacity duration-150 ease-house group-hover:opacity-100 before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-inherit before:[mask-image:linear-gradient(to_right,transparent,black)]'
 
 /** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until opened. */
 const collapseBursts = <Row extends ListedRow>(
@@ -323,26 +337,6 @@ const collapseBursts = <Row extends ListedRow>(
   return collapsed
 }
 
-const onEach =
-  (messageIds: string[], mutate: (input: { messageId: string }) => void) =>
-  () => {
-    for (const messageId of messageIds) {
-      mutate({ messageId })
-    }
-  }
-
-const pinEach =
-  (
-    messageIds: string[],
-    pinned: boolean,
-    mutate: (input: { messageId: string; pinned: boolean }) => void
-  ) =>
-  () => {
-    for (const messageId of messageIds) {
-      mutate({ messageId, pinned })
-    }
-  }
-
 const pinHint = (
   t: ReturnType<typeof useT>,
   isPinned: boolean
@@ -367,9 +361,10 @@ const usePinnedRows = <Row extends ListedRow & { messageIds: string[] }>(
 const useGroupedRows = <Row extends ListedRow>(
   listedRows: Row[],
   grouping: Grouping,
-  keptUnread: KeptUnread
+  keptUnread: KeptUnread,
+  unfolded: ReadonlySet<GroupKey>
 ) => {
-  const groups = groupRows(listedRows, grouping, keptUnread)
+  const groups = groupRows(listedRows, grouping, keptUnread, unfolded)
   if (groups.length === 0) {
     return {
       groupStarts: new Map<string, (typeof groups)[number]>(),
@@ -392,31 +387,28 @@ const PINNED_SHOWN = 3
 
 const GroupHeader = ({
   group,
-  grouping,
+  isUnfolded,
+  onToggle,
 }: {
-  group: ReturnType<typeof groupRows>[number] | undefined
-  grouping: Grouping
+  group: ReturnType<typeof groupRows>[number]
+  isUnfolded: boolean
+  onToggle: () => void
 }) => {
   const t = useT()
-  const first = group?.rows[0]
-  if (!group || !first) {
-    return null
-  }
-  const { message } = first
-  const groupKey = group.key
-  const labels = {
-    category: () => t.category[groupKey as keyof typeof t.category],
-    importance: () => t.importance[Number(groupKey)],
-    sender: () => message.fromName ?? message.fromEmail,
-    unread: () => (groupKey === 'unread' ? t.mail.unread : t.mail.group.read),
-  }
-  const label = grouping === 'none' ? null : labels[grouping]()
   return (
     <li className={GROUP_HEADER}>
-      <span data-mask={grouping === 'sender' || undefined} className="truncate">
-        {label}
-      </span>
-      <span className="tabular-nums opacity-60">{group.rows.length}</span>
+      <span className="truncate">{t.mail.group[group.key]}</span>
+      <span className="tabular-nums opacity-60">{group.total}</span>
+      {(group.rows.length < group.total || isUnfolded) && (
+        <Button
+          size="xs"
+          variant="link-muted"
+          className="ml-auto"
+          onClick={onToggle}
+        >
+          {isUnfolded ? t.mail.showFewer : t.mail.showAll(group.total)}
+        </Button>
+      )}
     </li>
   )
 }
@@ -428,23 +420,22 @@ const UnreadCount = ({
   filter: Filter
   unread: RouterOutputs['mail']['unread'] | undefined
 }) =>
-  isCounted(filter) &&
-  Boolean(unread?.[filter]) && (
+  isInboxView(filter) &&
+  Boolean(unread?.inbox) && (
     <span className="text-muted-foreground text-xs tabular-nums">
-      {unread?.[filter]}
+      {unread?.inbox}
     </span>
   )
 
-type SketchLine = 'group' | 'unread' | 'read' | 'urgent' | 'reply' | 'quiet'
+type SketchLine = 'group' | 'unread' | 'read' | 'urgent' | 'quiet'
 
-const VIEW_SKETCHES: Record<(typeof INBOX_VIEWS)[number], SketchLine[]> = {
-  important: ['group', 'urgent', 'urgent', 'group', 'unread'],
-  inbox: ['group', 'unread', 'unread', 'group', 'read'],
-  needs_reply: ['group', 'reply', 'reply', 'group', 'reply'],
-  quiet: ['group', 'quiet', 'quiet', 'group', 'quiet'],
+const VIEW_SKETCHES: Record<InboxView, SketchLine[]> = {
+  focused: ['group', 'urgent', 'unread', 'group', 'quiet', 'quiet'],
+  inbox: ['unread', 'read', 'unread', 'read', 'read'],
+  unread: ['group', 'unread', 'unread', 'group', 'unread', 'group', 'read'],
 }
 
-const SKETCH_MARKS: Record<Exclude<SketchLine, 'group' | 'reply'>, string> = {
+const SKETCH_MARKS: Record<Exclude<SketchLine, 'group'>, string> = {
   quiet: 'bg-foreground/20',
   read: '',
   unread: 'bg-primary',
@@ -452,7 +443,7 @@ const SKETCH_MARKS: Record<Exclude<SketchLine, 'group' | 'reply'>, string> = {
 }
 
 const ViewSketch = ({ lines }: { lines: SketchLine[] }) => (
-  <span className="bg-body flex h-20 overflow-hidden rounded-md px-4 pt-3">
+  <span className="bg-body flex h-20 overflow-hidden rounded-md px-3 pt-3">
     <span className="bg-popover ring-foreground/6 flex flex-1 flex-col gap-1.5 rounded-t-md p-2 shadow-xs ring">
       {lines.map((line, index) =>
         line === 'group' ? (
@@ -464,17 +455,7 @@ const ViewSketch = ({ lines }: { lines: SketchLine[] }) => (
         ) : (
           // oxlint-disable-next-line react/no-array-index-key -- a fixed sketch, never reordered
           <span key={index} className="flex items-center gap-1.5">
-            {line === 'reply' ? (
-              <HugeiconsIcon
-                icon={MailReply01Icon}
-                strokeWidth={2}
-                className="text-primary size-2.5"
-              />
-            ) : (
-              <span
-                className={cn('size-1.5 rounded-full', SKETCH_MARKS[line])}
-              />
-            )}
+            <span className={cn('size-1.5 rounded-full', SKETCH_MARKS[line])} />
             <span
               className={cn(
                 'flex flex-1 flex-col gap-0.5',
@@ -518,8 +499,8 @@ const ViewPicker = ({
           className="text-muted-foreground"
         />
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-112">
-        <div className="grid grid-cols-2 gap-2">
+      <PopoverContent align="start" className="w-120">
+        <div className="grid grid-cols-3 gap-2">
           {INBOX_VIEWS.map((value) => (
             <button
               key={value}
@@ -533,13 +514,8 @@ const ViewPicker = ({
             >
               <ViewSketch lines={VIEW_SKETCHES[value]} />
               <span className="flex flex-col gap-0.5 px-1 pb-0.5">
-                <span className="flex items-center gap-1.5 font-medium">
-                  {t.mail.filter[value]}
-                  <span className="ml-auto">
-                    <UnreadCount filter={value} unread={unread} />
-                  </span>
-                </span>
-                <span className="text-muted-foreground line-clamp-2 text-xs">
+                <span className="font-medium">{t.mail.filter[value]}</span>
+                <span className="text-muted-foreground line-clamp-3 text-xs">
                   {t.mail.filterAbout[value]}
                 </span>
               </span>
@@ -637,83 +613,6 @@ const MailRowMeta = ({
         <span>· {t.bulk.badge(message.bulkCount ?? 0)}</span>
       )}
       {insight && <ExtractedChips extracted={insight.extracted} />}
-    </span>
-  )
-}
-
-const MailRowActions = ({
-  actions,
-  canSnooze,
-  className,
-  isPinned,
-  isSnoozeOpen,
-  messageIds,
-  onSnoozeOpenChange,
-  sweep,
-}: {
-  actions: ReturnType<typeof useMailActions>
-  canSnooze: boolean
-  className?: string
-  isPinned: boolean
-  isSnoozeOpen: boolean
-  messageIds: string[]
-  onSnoozeOpenChange: (open: boolean) => void
-  sweep: Sweep
-}) => {
-  const t = useT()
-  return (
-    <span
-      className={cn(
-        ROW_ACTIONS,
-        'has-data-popup-open:opacity-100',
-        isSnoozeOpen && 'opacity-100',
-        className
-      )}
-    >
-      <IconButton
-        icon={isPinned ? PinOffIcon : PinIcon}
-        label={isPinned ? t.mail.unpin : t.mail.pin}
-        size="icon-sm"
-        variant="ghost-muted"
-        onClick={pinEach(messageIds, !isPinned, actions.pin.mutate)}
-      />
-      <IconButton
-        icon={sweep.icon}
-        label={sweep.label}
-        size="icon-sm"
-        variant="ghost-muted"
-        onClick={onEach(messageIds, sweep.action.mutate)}
-      />
-      {canSnooze && (
-        <DropdownMenu open={isSnoozeOpen} onOpenChange={onSnoozeOpenChange}>
-          <DropdownMenuTrigger
-            render={
-              <IconButton
-                icon={Clock01Icon}
-                label={t.snooze.title}
-                size="icon-sm"
-                variant="ghost-muted"
-              />
-            }
-          />
-          <DropdownMenuContent align="end">
-            <SnoozeMenuItems
-              onSnooze={(until) =>
-                onEach(messageIds, ({ messageId }) =>
-                  actions.snooze.mutate({ messageId, until })
-                )()
-              }
-            />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-      <IconButton
-        icon={Delete02Icon}
-        label={t.mail.trash}
-        size="icon-sm"
-        variant="ghost-destructive"
-        onClick={onEach(messageIds, actions.trash.mutate)}
-      />
     </span>
   )
 }
@@ -1165,7 +1064,7 @@ const PinnedHeader = ({
           className="ml-auto"
           onClick={onToggle}
         >
-          {isExpanded ? t.mail.fewerPinned : t.mail.allPinned(total)}
+          {isExpanded ? t.mail.showFewer : t.mail.showAll(total)}
         </Button>
       )}
     </li>
@@ -1315,24 +1214,25 @@ const useListRows = ({
   const found = useQuery(
     orpc.mail.list.queryOptions({
       input:
-        q && !isDrafts ? { filter, mailboxId: mailbox, search: q } : skipToken,
+        q && !isDrafts
+          ? { filter: 'inbox', mailboxId: mailbox, search: q }
+          : skipToken,
     })
   )
   const listed = useLiveQuery((query) =>
-    isDrafts
+    filter === 'drafts'
       ? undefined
       : query
           .from({ row: mailRowsOf(mailbox) })
-          .where(({ row }) => eq(row.list, filter))
+          .where(({ row }) => inArray(row.list, LISTS_OF[filter]))
           .orderBy(({ row }) => row.message.receivedAt, 'desc')
   )
-  const showsPinned =
-    q === undefined && (INBOX_VIEWS as readonly Filter[]).includes(filter)
+  const showsPinned = q === undefined && isInboxView(filter)
   const pinned = useLiveQuery((query) =>
     showsPinned
       ? query
           .from({ row: mailRowsOf(mailbox) })
-          .where(({ row }) => eq(row.list, 'pinned'))
+          .where(({ row }) => inArray(row.list, ['pinned']))
           .orderBy(({ row }) => row.message.receivedAt, 'desc')
       : undefined
   )
@@ -1340,7 +1240,14 @@ const useListRows = ({
   const needle = typed.toLowerCase()
   const browsed =
     q === undefined
-      ? listed.data?.filter(({ message }) => !showsPinned || !message.isPinned)
+      ? [
+          ...Map.groupBy(
+            listed.data ?? [],
+            ({ message }) => message.threadId
+          ).values(),
+        ].flatMap(([newest]) =>
+          newest && (!showsPinned || !newest.message.isPinned) ? [newest] : []
+        )
       : []
   const rows = collapseBursts(
     (q === typed ? found.data : undefined) ??
@@ -1513,12 +1420,12 @@ const useSearchField = ({
   }
 }
 
-const listModeOf = (q: string | undefined, picked: Filter = 'inbox') => {
+const listModeOf = (q: string | undefined, picked: Filter) => {
   const isSearching = q !== undefined
   const filter: Filter = isSearching ? 'inbox' : picked
   return {
     filter,
-    grouping: isSearching ? ('none' as const) : GROUPING_OF[filter],
+    grouping: isSearching ? ('none' as const) : groupingOf(filter),
     isSearching,
     shownFilter: picked,
   }
@@ -1572,7 +1479,11 @@ const MailPage = () => {
       : rememberedWidth
   const hasAgent = useHasAgent()
   const { filter: picked, mailbox, q, thread } = Route.useSearch()
-  const { filter, grouping, isSearching, shownFilter } = listModeOf(q, picked)
+  const inboxView = useSubscription(inboxViewStore)
+  const { filter, grouping, isSearching, shownFilter } = listModeOf(
+    q,
+    picked ?? inboxView
+  )
   const navigate = useNavigate({ from: Route.fullPath })
   const listRef = useRef<HTMLUListElement>(null)
   const closeThread = () =>
@@ -1597,6 +1508,7 @@ const MailPage = () => {
     new Set()
   )
   const [keptUnread, setKeptUnread] = useState<KeptUnread>(new Set())
+  const [unfolded, setUnfolded] = useState<ReadonlySet<GroupKey>>(new Set())
   const [relatedOf, setRelatedOf] = useState<string | null>(null)
   const listKey = `${filter}:${mailbox ?? ''}:${q ?? ''}`
   const [cursorListKey, setCursorListKey] = useState(listKey)
@@ -1604,6 +1516,7 @@ const MailPage = () => {
     setCursorListKey(listKey)
     setCursor(HIDDEN_CURSOR)
     setKeptUnread(new Set())
+    setUnfolded(new Set())
     setRelatedOf(null)
   }
 
@@ -1632,8 +1545,17 @@ const MailPage = () => {
   const { groupStarts, rows: groupedRows } = useGroupedRows(
     listedRows,
     grouping,
-    keptUnread
+    keptUnread,
+    unfolded
   )
+  const toggleGroup = (key: GroupKey) =>
+    setUnfolded((current) => {
+      const next = new Set(current)
+      if (!next.delete(key)) {
+        next.add(key)
+      }
+      return next
+    })
   const pinnedRows = usePinnedRows(pinned, groupedRows)
   const related = useRelatedRows({
     anchor: relatedOf,
@@ -1730,8 +1652,11 @@ const MailPage = () => {
     },
     { enabled: related.anchorIndex !== -1 }
   )
-  const showFilter = (next: Filter) =>
-    navigate({
+  const showFilter = (next: Filter) => {
+    if (isInboxView(next)) {
+      inboxViewStore.set(next)
+    }
+    return navigate({
       search: (prev) => ({
         ...prev,
         filter: next,
@@ -1739,6 +1664,7 @@ const MailPage = () => {
         thread: undefined,
       }),
     })
+  }
   useHotkey('[', () => showFilter(stepFilter(shownFilter, -1)))
   useHotkey(']', () => showFilter(stepFilter(shownFilter, 1)))
   const pickMailbox = (next: string | undefined) =>
@@ -1856,12 +1782,16 @@ const MailPage = () => {
                 )
               }
               const Row = index < pinnedRows.shown ? PinnedRow : MailRow
+              const group = groupStarts.get(row.message.id)
               return (
                 <Fragment key={row.message.id}>
-                  <GroupHeader
-                    grouping={grouping}
-                    group={groupStarts.get(row.message.id)}
-                  />
+                  {group && (
+                    <GroupHeader
+                      group={group}
+                      isUnfolded={unfolded.has(group.key)}
+                      onToggle={() => toggleGroup(group.key)}
+                    />
+                  )}
                   <Row
                     row={row}
                     actions={actions}
@@ -1944,7 +1874,7 @@ export const Route = createFileRoute('/_app/mail')({
   component: MailPage,
   validateSearch: type({
     'filter?':
-      "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'drafts' | 'archive' | 'spam' | 'trash'",
+      "'focused' | 'unread' | 'inbox' | 'snoozed' | 'drafts' | 'archive' | 'spam' | 'trash'",
     'mailbox?': 'string.uuid',
     'q?': 'string',
     'thread?': 'string',

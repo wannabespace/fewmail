@@ -863,8 +863,8 @@ export const fr: Messages = {
     pin: 'Épingler',
     unpin: 'Désépingler',
     pinned: 'Épinglés',
-    allPinned: (n: number) => `Tout afficher (${n})`,
-    fewerPinned: 'Afficher moins',
+    showAll: (n: number) => `Tout afficher (${n})`,
+    showFewer: 'Afficher moins',
     oneTimeCode: {
       archive: 'Copier et archiver',
       copied: 'Code copié',
@@ -876,10 +876,9 @@ export const fr: Messages = {
       'Pour quitter cette liste, termine sur sa page. Ses e-mails sont archivés en attendant.',
     allMailboxes: 'Toutes les boîtes',
     filterAbout: {
-      inbox: 'Tout ce qui est dans ta boîte',
-      important: 'Les mails qui ont bientôt besoin de toi',
-      needs_reply: 'Des gens attendent ta réponse',
-      quiet: 'Newsletters, notifications et autre bruit',
+      focused: 'L’important et les personnes d’abord, notifications repliées',
+      unread: 'Ce que tu n’as pas encore lu, par type',
+      inbox: 'Tout, le plus récent en haut',
     },
     find: {
       back: 'Retour au courrier',
@@ -901,6 +900,10 @@ export const fr: Messages = {
     },
     group: {
       read: 'Lus',
+      important: 'Importants',
+      people: 'Personnes',
+      updates: 'Notifications',
+      newsletters: 'Newsletters',
     },
     unread: 'Non lu',
     block: 'Bloquer l’expéditeur',
@@ -942,9 +945,8 @@ export const fr: Messages = {
       spam: 'Spam',
       inbox: 'Boîte de réception',
       snoozed: 'En attente',
-      important: 'Importants',
-      needs_reply: 'À répondre',
-      quiet: 'Calmes',
+      focused: 'Essentiel',
+      unread: 'Non lus',
     },
     instruction:
       'Dites à l’agent comment répondre, ou appuyez simplement sur Entrée',

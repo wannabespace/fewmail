@@ -13,6 +13,15 @@ export const MAIL_CATEGORIES = [
 ] as const
 export type MailCategory = (typeof MAIL_CATEGORIES)[number]
 
+export const PEOPLE_CATEGORIES: ReadonlySet<MailCategory> = new Set([
+  'person',
+  'work',
+])
+export const LIST_CATEGORIES: ReadonlySet<MailCategory> = new Set([
+  'newsletter',
+  'promotion',
+])
+
 export const ACTION_KINDS = [
   'reply',
   'pay',

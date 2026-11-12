@@ -422,7 +422,7 @@ export const router = {
           'before?': 'Date',
           'category?': type.enumerated(...MAIL_CATEGORIES),
           filter:
-            "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'pinned' | 'snoozed' | 'spam' | 'archive' | 'trash'",
+            "'inbox' | 'unread' | 'important' | 'needs_reply' | 'quiet' | 'pinned' | 'snoozed' | 'spam' | 'archive' | 'trash'",
           'mailboxId?': 'string.uuid',
           'search?': 'string',
         })

@@ -2,6 +2,8 @@ import { db } from '@fewmail/db'
 import { actions, analyses, commitments, messages } from '@fewmail/db/schema'
 import {
   ACTION_KIND_TRAITS,
+  LIST_CATEGORIES,
+  PEOPLE_CATEGORIES,
   SECONDS_SAVED,
   sendsDraft,
 } from '@fewmail/shared/agent'
@@ -184,6 +186,7 @@ export const listHandled = (
 export type MailFilter =
   | 'spam'
   | 'inbox'
+  | 'unread'
   | 'important'
   | 'needs_reply'
   | 'quiet'
@@ -221,6 +224,7 @@ type AnalysisTable = typeof analyses | typeof newerAnalysis
 
 const INBOX_FILTERS = new Set<MailFilter>([
   'inbox',
+  'unread',
   'important',
   'needs_reply',
   'quiet',
@@ -230,6 +234,7 @@ const INBOX_FILTERS = new Set<MailFilter>([
 const FILTER_WHERE: Partial<
   Record<MailFilter, (message: MessageTable, analysis: AnalysisTable) => SQL>
 > = {
+  unread: (message) => eq(message.isUnread, true),
   important: (_, analysis) => gte(analysis.importance, 2),
   needs_reply: (_, analysis) => eq(analysis.needsReply, true),
   quiet: (_, analysis) => lt(analysis.importance, 1),
@@ -358,26 +363,13 @@ export const listMail = async (
     .limit(PAGE_SIZE)
 }
 
-/** Unread threads still in the inbox, per mail filter. */
+/** Unread threads still in the inbox. */
 export const countUnread = async (userId: string, mailboxId?: string) => {
   const [counts] = await db
     .select({
-      important:
-        sql<number>`count(distinct ${messages.threadId}) filter (where ${analyses.importance} >= 2)`.mapWith(
-          Number
-        ),
       inbox: sql<number>`count(distinct ${messages.threadId})`.mapWith(Number),
-      needs_reply:
-        sql<number>`count(distinct ${messages.threadId}) filter (where ${analyses.needsReply})`.mapWith(
-          Number
-        ),
-      quiet:
-        sql<number>`count(distinct ${messages.threadId}) filter (where ${analyses.importance} < 1)`.mapWith(
-          Number
-        ),
     })
     .from(messages)
-    .leftJoin(analyses, eq(analyses.messageId, messages.id))
     .where(
       and(
         eq(messages.userId, userId),
@@ -693,7 +685,7 @@ export const draftReply = async (
   return expectRow(created)
 }
 
-const worthKnowingSince = (userId: string, since: Date) =>
+const worthKnowingSince = (userId: string, since: Date, where?: SQL) =>
   db
     .select({ analysis: analysisSummary, message: messageSummary })
     .from(messages)
@@ -702,17 +694,15 @@ const worthKnowingSince = (userId: string, since: Date) =>
       and(
         eq(messages.userId, userId),
         gte(messages.receivedAt, since),
-        gte(analyses.importance, 1)
+        gte(analyses.importance, 1),
+        where
       )
     )
 
 export const recentImportant = (userId: string, since: Date) =>
-  worthKnowingSince(userId, since)
+  worthKnowingSince(userId, since, arrayContains(messages.labelIds, ['INBOX']))
     .orderBy(desc(analyses.importance), desc(messages.receivedAt))
     .limit(40)
-
-export const PEOPLE_CATEGORIES = new Set<MailCategory>(['person', 'work'])
-const LIST_CATEGORIES = new Set(['newsletter', 'promotion'])
 
 /** How much mail came in since `since`, split into people and mailing lists. */
 export const mailPulse = async (userId: string, since: Date) => {
@@ -728,7 +718,7 @@ export const mailPulse = async (userId: string, since: Date) => {
       )
     )
     .groupBy(analyses.category)
-  const countOf = (categories: Set<string>) =>
+  const countOf = (categories: ReadonlySet<string>) =>
     rows
       .filter(({ category }) => category && categories.has(category))
       .reduce((sum, { count }) => sum + count, 0)

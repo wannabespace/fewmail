@@ -59,7 +59,12 @@ import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
-import { ThreadView } from '~/components/thread-view'
+import {
+  MailRowActions,
+  sweepOf,
+  ThreadView,
+  useMailActions,
+} from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
@@ -183,6 +188,18 @@ const Ago = ({ date }: { date: Date }) => (
 const MailDigest = ({ today }: { today: Today }) => {
   const t = useT()
   const money = useMoneyFormat()
+  const queryClient = useQueryClient()
+  const actions = useMailActions((messageId) =>
+    queryClient.setQueryData(
+      orpc.today.get.queryKey(),
+      (old) =>
+        old && {
+          ...old,
+          recent: old.recent.filter(({ message }) => message.id !== messageId),
+        }
+    )
+  )
+  const sweep = sweepOf(actions, t, 'inbox')
 
   return (
     <>
@@ -217,11 +234,20 @@ const MailDigest = ({ today }: { today: Today }) => {
               }
               description={<span data-mask>{analysis.summary}</span>}
             >
-              <Ago date={message.receivedAt} />
-              <ImportanceDot
-                importance={analysis.importance}
-                reason={analysis.reason}
-              />
+              <span className="relative flex items-center gap-2">
+                <Ago date={message.receivedAt} />
+                <ImportanceDot
+                  importance={analysis.importance}
+                  reason={analysis.reason}
+                />
+                <MailRowActions
+                  actions={actions}
+                  canSnooze
+                  className="bg-popover top-1/2 right-0 -translate-y-1/2 group-hover/item:opacity-100"
+                  messageIds={[message.id]}
+                  sweep={sweep}
+                />
+              </span>
             </SettingsRow>
           ))}
         </SettingsGroup>
@@ -812,9 +838,11 @@ const HomePage = () => {
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
   const removeAndAdvance = (actionId: string) => {
-    const next = queue[selectedIndex + 1] ?? queue[selectedIndex - 1]
-    setSelectedId(next?.action.id ?? null)
-    setEditingId(null)
+    if (actionId === selected?.action.id) {
+      const next = queue[selectedIndex + 1] ?? queue[selectedIndex - 1]
+      setSelectedId(next?.action.id ?? null)
+      setEditingId(null)
+    }
     queryClient.setQueryData(
       orpc.today.get.queryKey(),
       (old) =>
@@ -923,16 +951,14 @@ const HomePage = () => {
   const shorten = (id: string) =>
     redraft.mutate({ id, instruction: t.queue.shorterInstruction })
 
-  const approveSelected = () => {
-    if (!selected) {
-      return
-    }
-    const edited = drafts[selected.action.id]
+  const approveItem = ({ action }: QueueItem) => {
+    const edited = drafts[action.id]
     approve.mutate({
-      id: selected.action.id,
+      id: action.id,
       ...(edited !== undefined && { detail: edited }),
     })
   }
+  const approveSelected = () => selected && approveItem(selected)
 
   const alike = queue.filter(
     ({ action }) => action.kind === selected?.action.kind
@@ -1076,7 +1102,7 @@ const HomePage = () => {
                           redraft.isPending &&
                           redraft.variables.id === item.action.id
                         }
-                        onApprove={approveSelected}
+                        onApprove={() => approveItem(item)}
                         onEdit={() => setEditingId(item.action.id)}
                         onDraftChange={(draft) =>
                           setDrafts((current) => ({

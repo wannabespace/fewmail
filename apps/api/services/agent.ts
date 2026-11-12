@@ -5,6 +5,7 @@ import {
   IMPORTANCE,
   isGmailEffect,
   MAIL_CATEGORIES,
+  PEOPLE_CATEGORIES,
 } from '@fewmail/shared/agent'
 import type {
   ActionKind,
@@ -267,8 +268,6 @@ const NO_EXTRACTED = { amount: null, dueDate: null, meetingTime: null }
 
 const isBulk = (message: Message) => (message.bulkCount ?? 0) >= BULK_THRESHOLD
 
-const PERSONAL_CATEGORIES = new Set(['person', 'work'])
-
 /** What the network knows beats what one email claims: mass mail is never personal, flagged mail is always urgent. */
 const withNetworkFacts = <
   Output extends {
@@ -297,7 +296,7 @@ const withNetworkFacts = <
   }
   return {
     ...output,
-    category: PERSONAL_CATEGORIES.has(output.category)
+    category: PEOPLE_CATEGORIES.has(output.category)
       ? 'promotion'
       : output.category,
     importance: Math.min(output.importance, 1) as 0 | 1,

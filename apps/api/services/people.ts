@@ -6,6 +6,7 @@ import {
   messages,
   people,
 } from '@fewmail/db/schema'
+import { PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText } from 'ai'
 import { subDays } from 'date-fns'
@@ -14,7 +15,6 @@ import { and, arrayContains, desc, eq, inArray, or, sql } from 'drizzle-orm'
 import { models, NO_EM_DASH } from '../lib/ai'
 import { announceChange } from '../lib/live'
 import { logErrorAs } from '../lib/log'
-import { PEOPLE_CATEGORIES } from './mail'
 import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 
