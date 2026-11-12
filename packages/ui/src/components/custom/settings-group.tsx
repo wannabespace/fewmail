@@ -10,7 +10,7 @@ import {
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
 import { InformationCircleIcon } from '@hugeicons/core-free-icons'
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 import { IconButton } from './icon-button'
 
@@ -37,7 +37,7 @@ export const SettingsGroup = ({
   </section>
 )
 
-/** `htmlFor`: makes the whole row the control's label, for a `Switch`; leave it out for a control that opens a popup. */
+/** `htmlFor`: makes the whole row the control's label, for a `Switch`; leave it out for a control that opens a popup. `render`: the whole row as a link. */
 export const SettingsRow = ({
   active,
   children,
@@ -47,6 +47,7 @@ export const SettingsRow = ({
   htmlFor,
   icon,
   iconVariant,
+  render,
   title,
 }: {
   /** The keyboard cursor's row in a list walked with J / K. */
@@ -59,6 +60,7 @@ export const SettingsRow = ({
   htmlFor?: string
   icon?: ReactNode
   iconVariant?: 'avatar'
+  render?: ReactElement
   title: ReactNode
 }) => (
   <Item
@@ -67,7 +69,7 @@ export const SettingsRow = ({
     className={cn(dense && 'py-2')}
     data-active={active || undefined}
     // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- Item renders the title and description into this label
-    render={htmlFor ? <label htmlFor={htmlFor} /> : undefined}
+    render={htmlFor ? <label htmlFor={htmlFor} /> : render}
   >
     {icon && <ItemMedia variant={iconVariant}>{icon}</ItemMedia>}
     <ItemContent>

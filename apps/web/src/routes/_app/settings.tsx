@@ -70,8 +70,11 @@ const SettingsPage = () => {
         <SnippetsSettings />
         <AccountSettings />
         <SettingsGroup title={t.settings.legal}>
-          <SettingsRow title={<Link to="/privacy">{t.legal.privacy}</Link>} />
-          <SettingsRow title={<Link to="/terms">{t.legal.terms}</Link>} />
+          <SettingsRow
+            title={t.legal.privacy}
+            render={<Link to="/privacy" />}
+          />
+          <SettingsRow title={t.legal.terms} render={<Link to="/terms" />} />
         </SettingsGroup>
       </div>
     </main>

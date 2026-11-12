@@ -64,7 +64,7 @@ const ReadingPage = () => {
                     </span>
                   }
                   description={
-                    <span data-mask className="font-serif text-sm">
+                    <span data-mask className="font-serif">
                       {row.summary}
                     </span>
                   }
