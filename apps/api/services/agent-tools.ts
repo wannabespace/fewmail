@@ -64,7 +64,7 @@ export const agentTools = (
 ): Record<AgentToolName, AgentTool> => ({
   get_today: define({
     description:
-      "The user's email brief and the queue of things that need them: each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) in the last 24 hours, the other mail worth knowing from that day (recent), mail naming a due date or meeting time (dates), sent mail still waiting for an answer (awaiting) and what each board collected in the last 30 days (boards).",
+      "The user's email brief and the queue of things that need them: each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Today (days: at least 1, at most 7), the other mail worth knowing from those days (recent), mail naming a due date or meeting time (dates), sent mail still waiting for an answer (awaiting) and what each board collected in the last 30 days (boards).",
     run: () => getToday(userId),
   }),
   list_mail: define({

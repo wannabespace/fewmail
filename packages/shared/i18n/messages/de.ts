@@ -746,16 +746,18 @@ export const de: Messages = {
           }),
     nothingNeedsYou:
       'Gerade braucht dich nichts. Neue Mails werden gelesen, sobald sie ankommen.',
+    period: (days: number) =>
+      days === 1 ? 'in den letzten 24 Stunden' : `in den letzten ${days} Tagen`,
     pulse: {
       lists: (n: number) => `${n} aus Newslettern`,
       people: (n: number) => `${n} von Menschen`,
-      total: (total: number) =>
+      total: (total: number, period: string) =>
         plural('de', total, {
-          one: (n) => `${n} E-Mail in den letzten 24 Stunden`,
-          other: (n) => `${n} E-Mails in den letzten 24 Stunden`,
+          one: (n) => `${n} E-Mail ${period}`,
+          other: (n) => `${n} E-Mails ${period}`,
         }),
     },
-    recent: 'Außerdem in den letzten 24 Stunden',
+    recent: (period: string) => `Außerdem ${period}`,
     sent: 'Gesendet',
     worthAttention: 'Einen Blick wert',
     writing: 'Schreibe…',

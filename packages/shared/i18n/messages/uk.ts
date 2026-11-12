@@ -744,18 +744,25 @@ export const uk: Messages = {
           }),
     nothingNeedsYou:
       'Зараз нічого не потребує тебе. Нові листи читаються, щойно приходять.',
+    period: (days: number) =>
+      days === 1
+        ? 'за добу'
+        : plural('uk', days, {
+            few: (n) => `за ${n} дні`,
+            other: (n) => `за ${n} днів`,
+          }),
     pulse: {
       lists: (n: number) => `${n} з розсилок`,
       people: (n: number) => `${n} від людей`,
-      total: (total: number) =>
+      total: (total: number, period: string) =>
         plural('uk', total, {
-          one: (n) => `${n} лист за добу`,
-          few: (n) => `${n} листи за добу`,
-          many: (n) => `${n} листів за добу`,
-          other: (n) => `${n} листа за добу`,
+          one: (n) => `${n} лист ${period}`,
+          few: (n) => `${n} листи ${period}`,
+          many: (n) => `${n} листів ${period}`,
+          other: (n) => `${n} листа ${period}`,
         }),
     },
-    recent: 'Ще за добу',
+    recent: (period: string) => `Ще ${period}`,
     sent: 'Надіслано',
     worthAttention: 'Варто уваги',
     writing: 'Пишу…',

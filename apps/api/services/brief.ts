@@ -1,9 +1,9 @@
 import { db } from '@fewmail/db'
-import { briefs } from '@fewmail/db/schema'
+import { briefs, userSettings } from '@fewmail/db/schema'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
-import { subHours } from 'date-fns'
+import { differenceInHours, max, min, subDays, subHours } from 'date-fns'
 import { and, desc, eq } from 'drizzle-orm'
 
 import { INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
@@ -12,6 +12,7 @@ import { announceChange } from '../lib/live'
 import { boardsDigest } from './boards'
 import {
   handledSince,
+  listHandled,
   listQueue,
   listQueueWithLater,
   mailPulse,
@@ -22,8 +23,32 @@ import { listMailboxes } from './mailboxes'
 import { awaitingReplies } from './reminders'
 import { getSettings } from './settings'
 
-const BRIEF_WINDOW_HOURS = 24
-const RECENT_SHOWN = 8
+const CATCH_UP_MIN_HOURS = 24
+const CATCH_UP_MAX_DAYS = 7
+const RECENT_SHOWN_PER_DAY = 8
+
+type Settings = typeof userSettings.$inferSelect
+
+const lastVisit = (settings: Settings, now: Date) =>
+  settings.todayOpenedAt &&
+  localClock(settings.timezone, settings.todayOpenedAt).date !==
+    localClock(settings.timezone, now).date
+    ? settings.todayOpenedAt
+    : settings.todaySince
+
+const catchUp = (settings: Settings | null, now = new Date()) => {
+  const since = max([
+    subDays(now, CATCH_UP_MAX_DAYS),
+    min([
+      (settings && lastVisit(settings, now)) ?? now,
+      subHours(now, CATCH_UP_MIN_HOURS),
+    ]),
+  ])
+  return {
+    days: Math.max(1, Math.round(differenceInHours(now, since) / 24)),
+    since,
+  }
+}
 
 const briefSchema = type({ body: 'string', headline: 'string' })
 
@@ -43,10 +68,10 @@ export const generateBrief = async (userId: string) => {
     throw new Error('Finish onboarding first')
   }
 
-  const since = subHours(new Date(), BRIEF_WINDOW_HOURS)
+  const { days, since } = catchUp(settings)
   const [queue, important, handled] = await Promise.all([
     listQueue(userId),
-    recentImportant(userId, BRIEF_WINDOW_HOURS),
+    recentImportant(userId, since),
     handledSince(userId, since),
   ])
 
@@ -55,6 +80,7 @@ export const generateBrief = async (userId: string) => {
       `You write the user's email brief in ${englishName(settings.language)}, like a sharp personal assistant speaking to them directly.`,
       'headline: at most 6 words saying exactly needsUserCount things need the user (e.g. "Three things need you.") or, when it is 0, that all is calm.',
       'body: at most 2 short sentences and 35 words, plain prose without lists or markdown. The user sees every needsUser email as a card below, so do not enumerate them: name only the single most urgent of needsUser (of importantEmails only when needsUser is empty) with one concrete fact, then say in a few words how much was handled quietly.',
+      'The data covers the last coversDays days, since the user last opened Fewmail; when that is more than 1, say the handled count is over those days.',
       'Never invent anything that is not in the data.',
       INFORMAL_ADDRESS,
       NO_EM_DASH,
@@ -62,6 +88,7 @@ export const generateBrief = async (userId: string) => {
     model: models.writer,
     output: Output.object({ schema: briefSchema }),
     prompt: JSON.stringify({
+      coversDays: days,
       handledQuietly: handled,
       importantEmails: important.map(({ analysis, message }) => ({
         from: message.fromName ?? message.fromEmail,
@@ -105,7 +132,7 @@ export const generateBrief = async (userId: string) => {
 }
 
 export const getToday = async (userId: string) => {
-  const since = subHours(new Date(), BRIEF_WINDOW_HOURS)
+  const { days, since } = catchUp(await getSettings(userId))
   const [
     brief,
     { held, later, queue },
@@ -121,7 +148,7 @@ export const getToday = async (userId: string) => {
     listQueueWithLater(userId),
     handledSince(userId, since),
     listMailboxes(userId),
-    recentImportant(userId, BRIEF_WINDOW_HOURS),
+    recentImportant(userId, since),
     mailPulse(userId, since),
     mailWithDates(userId),
     awaitingReplies(userId),
@@ -133,6 +160,7 @@ export const getToday = async (userId: string) => {
     boards,
     brief,
     dates,
+    days,
     handled,
     later,
     mailboxes,
@@ -140,9 +168,24 @@ export const getToday = async (userId: string) => {
     queue,
     recent: important
       .filter(({ message }) => !queued.has(message.id))
-      .slice(0, RECENT_SHOWN),
+      .slice(0, RECENT_SHOWN_PER_DAY * days),
   }
 }
+
+export const openToday = async (userId: string) => {
+  const settings = await getSettings(userId)
+  if (settings) {
+    const now = new Date()
+    await db
+      .update(userSettings)
+      .set({ todayOpenedAt: now, todaySince: lastVisit(settings, now) })
+      .where(eq(userSettings.userId, userId))
+  }
+  return getToday(userId)
+}
+
+export const listTodayHandled = async (userId: string) =>
+  listHandled(userId, catchUp(await getSettings(userId)).since)
 
 export const isBriefDue = async (
   userId: string,

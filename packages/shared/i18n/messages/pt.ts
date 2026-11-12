@@ -893,16 +893,18 @@ export const pt: Messages = {
           }),
     nothingNeedsYou:
       'Nada precisa de você agora. Novos e-mails são lidos assim que chegam.',
+    period: (days: number) =>
+      days === 1 ? 'no último dia' : `nos últimos ${days} dias`,
     pulse: {
       lists: (n: number) => `${n} de listas de e-mail`,
       people: (n: number) => `${n} de pessoas`,
-      total: (total: number) =>
+      total: (total: number, period: string) =>
         plural('pt', total, {
-          one: (n) => `${n} e-mail no último dia`,
-          other: (n) => `${n} e-mails no último dia`,
+          one: (n) => `${n} e-mail ${period}`,
+          other: (n) => `${n} e-mails ${period}`,
         }),
     },
-    recent: 'Também no último dia',
+    recent: (period: string) => `Também ${period}`,
     sent: 'Enviado',
     worthAttention: 'Merece sua atenção',
     writing: 'Escrevendo…',

@@ -865,16 +865,18 @@ export const en = {
       }),
     nothingNeedsYou:
       'Nothing needs you right now. New mail is read the moment it arrives.',
+    period: (days: number) =>
+      days === 1 ? 'in the last day' : `in the last ${days} days`,
     pulse: {
       lists: (n: number) => `${n} from mailing lists`,
       people: (n: number) => `${n} from people`,
-      total: (total: number) =>
+      total: (total: number, period: string) =>
         plural('en', total, {
-          one: (n) => `${n} email in the last day`,
-          other: (n) => `${n} emails in the last day`,
+          one: (n) => `${n} email ${period}`,
+          other: (n) => `${n} emails ${period}`,
         }),
     },
-    recent: 'Also in the last day',
+    recent: (period: string) => `Also ${period}`,
     sent: 'Sent',
     worthAttention: 'Worth your attention',
     writing: 'Writing…',

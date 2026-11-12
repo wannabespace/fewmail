@@ -849,12 +849,14 @@ export const id: Messages = {
         : plural('id', total, { other: (n) => `${n} hal butuh kamu.` }),
     nothingNeedsYou:
       'Tidak ada yang butuh kamu saat ini. Email baru dibaca begitu tiba.',
+    period: (days: number) =>
+      days === 1 ? 'dalam sehari terakhir' : `dalam ${days} hari terakhir`,
     pulse: {
       lists: (n: number) => `${n} dari milis`,
       people: (n: number) => `${n} dari orang`,
-      total: (n: number) => `${n} email dalam sehari terakhir`,
+      total: (n: number, period: string) => `${n} email ${period}`,
     },
-    recent: 'Juga dalam sehari terakhir',
+    recent: (period: string) => `Juga ${period}`,
     sent: 'Terkirim',
     worthAttention: 'Layak diperhatikan',
     writing: 'Menulis…',

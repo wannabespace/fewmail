@@ -717,12 +717,14 @@ export const hi: Messages = {
           }),
     nothingNeedsYou:
       'अभी किसी चीज़ को आपकी ज़रूरत नहीं है। नया मेल आते ही पढ़ लिया जाता है।',
+    period: (days: number) =>
+      days === 1 ? 'पिछले दिन में' : `पिछले ${days} दिनों में`,
     pulse: {
       lists: (n: number) => `${n} मेलिंग लिस्ट से`,
       people: (n: number) => `${n} लोगों से`,
-      total: (n: number) => `पिछले दिन में ${n} ईमेल`,
+      total: (n: number, period: string) => `${period} ${n} ईमेल`,
     },
-    recent: 'पिछले दिन में और',
+    recent: (period: string) => `${period} और`,
     sent: 'भेजा गया',
     worthAttention: 'ध्यान देने लायक',
     writing: 'लिखा जा रहा है…',

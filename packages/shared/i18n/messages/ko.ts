@@ -707,12 +707,13 @@ export const ko: Messages = {
     headline: (n: number) =>
       n === 0 ? '모두 평온해요.' : `확인이 필요한 일이 ${n}개 있어요.`,
     nothingNeedsYou: '지금은 확인할 게 없어요. 새 메일은 도착하는 즉시 읽어요.',
+    period: (days: number) => (days === 1 ? '지난 하루' : `지난 ${days}일`),
     pulse: {
       lists: (n: number) => `메일링 리스트에서 ${n}통`,
       people: (n: number) => `사람에게서 ${n}통`,
-      total: (n: number) => `지난 하루 메일 ${n}통`,
+      total: (n: number, period: string) => `${period} 메일 ${n}통`,
     },
-    recent: '지난 하루의 다른 메일',
+    recent: (period: string) => `${period}의 다른 메일`,
     sent: '보냄',
     worthAttention: '살펴볼 만한 것',
     writing: '작성 중…',

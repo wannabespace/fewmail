@@ -744,12 +744,14 @@ export const it: Messages = {
           }),
     nothingNeedsYou:
       'Al momento niente ha bisogno di te. La nuova posta viene letta appena arriva.',
+    period: (days: number) =>
+      days === 1 ? 'nell’ultimo giorno' : `negli ultimi ${days} giorni`,
     pulse: {
       lists: (n: number) => `${n} da mailing list`,
       people: (n: number) => `${n} da persone`,
-      total: (n: number) => `${n} email nell’ultimo giorno`,
+      total: (n: number, period: string) => `${n} email ${period}`,
     },
-    recent: 'Anche nell’ultimo giorno',
+    recent: (period: string) => `Anche ${period}`,
     sent: 'Inviata',
     worthAttention: 'Merita attenzione',
     writing: 'Scrivo…',

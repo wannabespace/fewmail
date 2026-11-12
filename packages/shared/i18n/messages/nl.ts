@@ -874,16 +874,18 @@ export const nl: Messages = {
           }),
     nothingNeedsYou:
       'Er is nu niets dat jou nodig heeft. Nieuwe mail wordt gelezen zodra die binnenkomt.',
+    period: (days: number) =>
+      days === 1 ? 'het afgelopen etmaal' : `de afgelopen ${days} dagen`,
     pulse: {
       lists: (n: number) => `${n} van mailinglijsten`,
       people: (n: number) => `${n} van mensen`,
-      total: (total: number) =>
+      total: (total: number, period: string) =>
         plural('nl', total, {
-          one: (n) => `${n} e-mail het afgelopen etmaal`,
-          other: (n) => `${n} e-mails het afgelopen etmaal`,
+          one: (n) => `${n} e-mail ${period}`,
+          other: (n) => `${n} e-mails ${period}`,
         }),
     },
-    recent: 'Ook het afgelopen etmaal',
+    recent: (period: string) => `Ook ${period}`,
     sent: 'Verstuurd',
     worthAttention: 'Verdient je aandacht',
     writing: 'Schrijven…',

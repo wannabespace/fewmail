@@ -32,7 +32,7 @@ import {
   listBoards,
   updateBoard,
 } from '../services/boards'
-import { generateBrief, getToday } from '../services/brief'
+import { generateBrief, listTodayHandled, openToday } from '../services/brief'
 import {
   createEvent,
   deleteEvent,
@@ -59,7 +59,6 @@ import {
   dismissAction,
   draftReply,
   getThread,
-  listHandled,
   listMail,
   countUnread,
   markThreadRead,
@@ -507,8 +506,8 @@ export const router = {
   },
   today: {
     count: agent.handler(({ context }) => countQueue(context.user.id)),
-    get: agent.handler(({ context }) => getToday(context.user.id)),
-    handled: agent.handler(({ context }) => listHandled(context.user.id)),
+    get: agent.handler(({ context }) => openToday(context.user.id)),
+    handled: agent.handler(({ context }) => listTodayHandled(context.user.id)),
     refreshBrief: agent.handler(({ context }) =>
       generateBrief(context.user.id)
     ),

@@ -163,7 +163,7 @@ const MailDigest = ({ today }: { today: Today }) => {
         </SettingsGroup>
       )}
       {today.recent.length > 0 && (
-        <SettingsGroup title={t.today.recent}>
+        <SettingsGroup title={t.today.recent(t.today.period(today.days))}>
           {today.recent.map(({ analysis, message }) => (
             <SettingsRow
               key={message.id}
@@ -243,15 +243,15 @@ const MailDigest = ({ today }: { today: Today }) => {
   )
 }
 
-const Pulse = ({ pulse }: { pulse: Today['pulse'] }) => {
-  const t = useT().today.pulse
+const Pulse = ({ days, pulse }: Pick<Today, 'days' | 'pulse'>) => {
+  const t = useT().today
 
   return (
     <p className="text-muted-foreground text-sm">
       {[
-        t.total(pulse.total),
-        pulse.people > 0 && t.people(pulse.people),
-        pulse.lists > 0 && t.lists(pulse.lists),
+        t.pulse.total(pulse.total, t.period(days)),
+        pulse.people > 0 && t.pulse.people(pulse.people),
+        pulse.lists > 0 && t.pulse.lists(pulse.lists),
       ]
         .filter(Boolean)
         .join(' · ')}
@@ -278,7 +278,7 @@ const DayTally = ({
           {t.today.later(today.later.count, dates.format(today.later.at, 'p'))}
         </p>
       )}
-      {today.pulse.total > 0 && <Pulse pulse={today.pulse} />}
+      {today.pulse.total > 0 && <Pulse days={today.days} pulse={today.pulse} />}
       {today.handled.total > 0 && (
         <HandledSummary handled={today.handled} onReview={onReview} />
       )}

@@ -690,7 +690,7 @@ export const draftReply = async (
   return expectRow(created)
 }
 
-const worthKnowingSince = (userId: string, hours: number) =>
+const worthKnowingSince = (userId: string, since: Date) =>
   db
     .select({ analysis: analysisSummary, message: messageSummary })
     .from(messages)
@@ -698,13 +698,13 @@ const worthKnowingSince = (userId: string, hours: number) =>
     .where(
       and(
         eq(messages.userId, userId),
-        gte(messages.receivedAt, subHours(new Date(), hours)),
+        gte(messages.receivedAt, since),
         gte(analyses.importance, 1)
       )
     )
 
-export const recentImportant = (userId: string, hours: number) =>
-  worthKnowingSince(userId, hours)
+export const recentImportant = (userId: string, since: Date) =>
+  worthKnowingSince(userId, since)
     .orderBy(desc(analyses.importance), desc(messages.receivedAt))
     .limit(40)
 
@@ -742,7 +742,10 @@ const DATES_SHOWN = 6
 
 /** Recent mail that names a due date or a meeting time, newest first; the dates stay as written. */
 export const mailWithDates = async (userId: string) => {
-  const rows = await worthKnowingSince(userId, DATES_WINDOW_HOURS)
+  const rows = await worthKnowingSince(
+    userId,
+    subHours(new Date(), DATES_WINDOW_HOURS)
+  )
     .orderBy(desc(messages.receivedAt))
     .limit(DATES_SCANNED)
   return rows

@@ -9,7 +9,7 @@ import { users } from './auth'
 import { actions } from './mail'
 
 export const userSettings = d.snakeCase.table('user_settings', {
-  briefHour: d.smallint().default(20).notNull(),
+  briefHour: d.smallint().default(8).notNull(),
   cleanupCheckedAt: d.timestamp({ withTimezone: true }),
   gmailLabels: d.boolean().default(false).notNull(),
   knowledge: encryptedText(),
@@ -22,6 +22,8 @@ export const userSettings = d.snakeCase.table('user_settings', {
     .default(['money'])
     .notNull(),
   timezone: d.text().notNull(),
+  todayOpenedAt: d.timestamp({ withTimezone: true }),
+  todaySince: d.timestamp({ withTimezone: true }),
   trialEndsAt: d
     .timestamp({ withTimezone: true })
     .default(sql`now() + interval '14 days'`)

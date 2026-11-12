@@ -686,12 +686,13 @@ export const zh: Messages = {
     headline: (n: number) =>
       n === 0 ? '一切安好。' : `有 ${n} 件事需要你处理。`,
     nothingNeedsYou: '现在没有需要你处理的事。新邮件一到就会被读取。',
+    period: (days: number) => (days === 1 ? '过去一天' : `过去 ${days} 天`),
     pulse: {
       lists: (n: number) => `${n} 封来自邮件列表`,
       people: (n: number) => `${n} 封来自真人`,
-      total: (n: number) => `过去一天 ${n} 封邮件`,
+      total: (n: number, period: string) => `${period} ${n} 封邮件`,
     },
-    recent: '过去一天的其他邮件',
+    recent: (period: string) => `${period}的其他邮件`,
     sent: '已发送',
     worthAttention: '值得关注',
     writing: '正在撰写…',

@@ -716,12 +716,13 @@ export const ja: Messages = {
         : `対応が必要なものが ${n} 件あります。`,
     nothingNeedsYou:
       '今、対応が必要なものはありません。新しいメールは届いた瞬間に読みます。',
+    period: (days: number) => (days === 1 ? 'この1日' : `この${days}日`),
     pulse: {
       lists: (n: number) => `メーリングリストから${n}通`,
       people: (n: number) => `人から${n}通`,
-      total: (n: number) => `この1日で${n}通`,
+      total: (n: number, period: string) => `${period}で${n}通`,
     },
-    recent: 'この1日のその他',
+    recent: (period: string) => `${period}のその他`,
     sent: '送信済み',
     worthAttention: '目を通す価値あり',
     writing: '作成中…',

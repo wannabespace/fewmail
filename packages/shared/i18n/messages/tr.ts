@@ -847,12 +847,14 @@ export const tr: Messages = {
           }),
     nothingNeedsYou:
       'Şu an seni bekleyen bir şey yok. Yeni postalar gelir gelmez okunur.',
+    period: (days: number) =>
+      days === 1 ? 'Son bir günde' : `Son ${days} günde`,
     pulse: {
       lists: (n: number) => `${n} e-posta listelerinden`,
       people: (n: number) => `${n} kişilerden`,
-      total: (n: number) => `Son bir günde ${n} e-posta`,
+      total: (n: number, period: string) => `${period} ${n} e-posta`,
     },
-    recent: 'Son bir günde ayrıca',
+    recent: (period: string) => `${period} ayrıca`,
     sent: 'Gönderildi',
     worthAttention: 'İlgini hak ediyor',
     writing: 'Yazılıyor…',

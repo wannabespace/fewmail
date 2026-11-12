@@ -929,18 +929,20 @@ export const pl: Messages = {
           }),
     nothingNeedsYou:
       'Nic teraz na ciebie nie czeka. Nowa poczta jest czytana od razu, gdy przychodzi.',
+    period: (days: number) =>
+      days === 1 ? 'z ostatniej doby' : `z ostatnich ${days} dni`,
     pulse: {
       lists: (n: number) => `${n} z list mailingowych`,
       people: (n: number) => `${n} od ludzi`,
-      total: (total: number) =>
+      total: (total: number, period: string) =>
         plural('pl', total, {
-          one: (n) => `${n} e-mail z ostatniej doby`,
-          few: (n) => `${n} e-maile z ostatniej doby`,
-          many: (n) => `${n} e-maili z ostatniej doby`,
-          other: (n) => `${n} e-maila z ostatniej doby`,
+          one: (n) => `${n} e-mail ${period}`,
+          few: (n) => `${n} e-maile ${period}`,
+          many: (n) => `${n} e-maili ${period}`,
+          other: (n) => `${n} e-maila ${period}`,
         }),
     },
-    recent: 'Też z ostatniej doby',
+    recent: (period: string) => `Też ${period}`,
     sent: 'Wysłano',
     worthAttention: 'Warte uwagi',
     writing: 'Piszę…',

@@ -750,16 +750,18 @@ export const fr: Messages = {
           }),
     nothingNeedsYou:
       'Rien ne vous attend pour l’instant. Les nouveaux e-mails sont lus dès leur arrivée.',
+    period: (days: number) =>
+      days === 1 ? 'ces dernières 24 h' : `ces ${days} derniers jours`,
     pulse: {
       lists: (n: number) => `${n} de listes de diffusion`,
       people: (n: number) => `${n} de personnes`,
-      total: (total: number) =>
+      total: (total: number, period: string) =>
         plural('fr', total, {
-          one: (n) => `${n} e-mail ces dernières 24 h`,
-          other: (n) => `${n} e-mails ces dernières 24 h`,
+          one: (n) => `${n} e-mail ${period}`,
+          other: (n) => `${n} e-mails ${period}`,
         }),
     },
-    recent: 'Aussi ces dernières 24 h',
+    recent: (period: string) => `Aussi ${period}`,
     sent: 'Envoyé',
     worthAttention: 'Mérite votre attention',
     writing: 'Rédaction…',
