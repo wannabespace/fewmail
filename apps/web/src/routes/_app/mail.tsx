@@ -33,15 +33,14 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { Spinner } from '@fewmail/ui/components/spinner'
-import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { useDebouncedMemo } from '@fewmail/ui/hookas/use-debounced-memo'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
-  Archive02Icon,
   Clock01Icon,
   Delete02Icon,
   Mail01Icon,
   Search01Icon,
+  Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
@@ -64,9 +63,11 @@ import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
   SnoozeMenuItems,
+  sweepOf,
   ThreadView,
   useMailActions,
 } from '~/components/thread-view'
+import type { Place, Sweep } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { mailRowsOf, prefetchThread } from '~/lib/mail-db'
 import type { MailRow as MailRowData } from '~/lib/mail-db'
@@ -80,7 +81,9 @@ const FILTERS = [
   'quiet',
   'snoozed',
   'drafts',
+  'archive',
   'spam',
+  'trash',
 ] as const
 
 type Filter = (typeof FILTERS)[number]
@@ -93,8 +96,11 @@ const ARRIVING = new Set<Filter>([
   'spam',
 ])
 
-const revealTab = (node: HTMLElement | null) =>
-  node?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+const OUT_OF_INBOX: Partial<Record<Filter, Place>> = {
+  archive: 'elsewhere',
+  spam: 'spam',
+  trash: 'elsewhere',
+}
 
 const stepFilter = (filter: Filter, step: number) =>
   FILTERS[(FILTERS.indexOf(filter) + step + FILTERS.length) % FILTERS.length] ??
@@ -102,10 +108,16 @@ const stepFilter = (filter: Filter, step: number) =>
 
 const ALL_MAILBOXES = 'all'
 
+const COUNTED: Record<keyof RouterOutputs['mail']['unread'], true> = {
+  important: true,
+  inbox: true,
+  needs_reply: true,
+  quiet: true,
+}
+
 const isCounted = (
   filter: Filter
-): filter is keyof RouterOutputs['mail']['unread'] =>
-  filter !== 'snoozed' && filter !== 'spam' && filter !== 'drafts'
+): filter is keyof RouterOutputs['mail']['unread'] => filter in COUNTED
 
 /** Threads read ahead of the click; the cursor's neighbours and a hovered row are added as they come. */
 const PREFETCHED_ROWS = 10
@@ -212,6 +224,45 @@ const SearchHint = ({ isPending }: { isPending: boolean }) =>
     <Kbd className="group-focus-within/input-group:hidden">/</Kbd>
   )
 
+const FilterSelect = ({
+  filter,
+  onChange,
+  unread,
+}: {
+  filter: Filter
+  onChange: (filter: Filter) => void
+  unread: RouterOutputs['mail']['unread'] | undefined
+}) => {
+  const t = useT()
+  const countOf = (value: Filter) =>
+    isCounted(value) &&
+    Boolean(unread?.[value]) && (
+      <span className="text-muted-foreground text-xs tabular-nums">
+        {unread?.[value]}
+      </span>
+    )
+  return (
+    <Select
+      items={FILTERS.map((value) => ({ label: t.mail.filter[value], value }))}
+      value={filter}
+      onValueChange={(next) => next && onChange(next)}
+    >
+      <SelectTrigger aria-label={t.mail.filter[filter]} size="sm">
+        <SelectValue />
+        {countOf(filter)}
+      </SelectTrigger>
+      <SelectContent align="start">
+        {FILTERS.map((value) => (
+          <SelectItem key={value} value={value}>
+            {t.mail.filter[value]}
+            <span className="ml-auto">{countOf(value)}</span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
 const GroupingSelect = ({ grouping }: { grouping: Grouping }) => {
   const t = useT()
   return (
@@ -223,7 +274,11 @@ const GroupingSelect = ({ grouping }: { grouping: Grouping }) => {
       value={grouping}
       onValueChange={(next) => next && groupingStore.set(next)}
     >
-      <SelectTrigger aria-label={t.mail.group.title} size="xs" variant="flat">
+      <SelectTrigger
+        aria-label={t.mail.group.title}
+        size="sm"
+        className="ml-auto"
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent align="end">
@@ -245,20 +300,20 @@ const MailRowMeta = ({
   message: MailRowData['message']
 }) => {
   const t = useT()
-  if (
-    !insight &&
-    !message.hasAttachments &&
-    (message.bulkCount ?? 0) < BULK_THRESHOLD
-  ) {
-    return null
-  }
   return (
-    <span
-      className={cn(
-        'text-muted-foreground flex flex-wrap items-center gap-1.5 pl-4 text-xs'
+    <span className="text-muted-foreground flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-xs whitespace-nowrap">
+      {insight?.category === 'security' ? (
+        <span className="text-destructive flex items-center gap-1 font-medium">
+          <HugeiconsIcon
+            icon={Shield01Icon}
+            strokeWidth={2}
+            className="size-3"
+          />
+          {t.category.security}
+        </span>
+      ) : (
+        insight && <span>{t.category[insight.category]}</span>
       )}
-    >
-      {insight && <span>{t.category[insight.category]}</span>}
       {insight?.needsReply && (
         <span className="text-primary">· {t.mail.expectsReply}</span>
       )}
@@ -274,17 +329,17 @@ const MailRowMeta = ({
 const MailRowActions = ({
   actions,
   canSnooze,
-  isCursor,
   isSnoozeOpen,
   messageId,
   onSnoozeOpenChange,
+  sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
   canSnooze: boolean
-  isCursor: boolean
   isSnoozeOpen: boolean
   messageId: string
   onSnoozeOpenChange: (open: boolean) => void
+  sweep: Sweep
 }) => {
   const t = useT()
   const target = { messageId }
@@ -296,12 +351,11 @@ const MailRowActions = ({
       )}
     >
       <IconButton
-        icon={Archive02Icon}
-        label={t.mail.archive}
-        shortcut={isCursor && <Kbd>E</Kbd>}
+        icon={sweep.icon}
+        label={sweep.label}
         size="icon-sm"
         variant="ghost-muted"
-        onClick={() => actions.archive.mutate(target)}
+        onClick={() => sweep.action.mutate(target)}
       />
       {canSnooze && (
         <DropdownMenu open={isSnoozeOpen} onOpenChange={onSnoozeOpenChange}>
@@ -326,7 +380,6 @@ const MailRowActions = ({
       <IconButton
         icon={Delete02Icon}
         label={t.mail.trash}
-        shortcut={isCursor && <Kbd>#</Kbd>}
         size="icon-sm"
         variant="ghost-destructive"
         onClick={() => actions.trash.mutate(target)}
@@ -344,6 +397,7 @@ const MailRow = ({
   onOpen,
   onSnoozeOpenChange,
   row: { analysis, message, threadSize },
+  sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
   canSnooze: boolean
@@ -353,6 +407,7 @@ const MailRow = ({
   onOpen: () => void
   onSnoozeOpenChange: (open: boolean) => void
   row: ListedRow
+  sweep: Sweep
 }) => {
   const t = useT()
   const dates = useDates()
@@ -393,9 +448,10 @@ const MailRow = ({
           >
             {message.fromName ?? message.fromEmail}
           </span>
-          <span className="text-muted-foreground flex-1 text-xs tabular-nums">
+          <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
             {threadSize > 1 && threadSize}
           </span>
+          <MailRowMeta insight={analysis} message={message} />
           {analysis ? (
             <ImportanceDot
               importance={analysis.importance}
@@ -429,7 +485,10 @@ const MailRow = ({
         >
           {message.subject}
         </span>
-        <span data-mask className="text-muted-foreground truncate pl-4 text-sm">
+        <span
+          data-mask
+          className="text-muted-foreground/80 truncate pl-4 text-xs"
+        >
           {analysis?.summary ?? message.snippet}
         </span>
         {message.risk && (
@@ -442,15 +501,14 @@ const MailRow = ({
             {t.spam.suspect}
           </span>
         )}
-        <MailRowMeta insight={analysis} message={message} />
       </button>
       <MailRowActions
         actions={actions}
         canSnooze={canSnooze}
-        isCursor={isCursor}
         isSnoozeOpen={isSnoozeOpen}
         messageId={message.id}
         onSnoozeOpenChange={onSnoozeOpenChange}
+        sweep={sweep}
       />
     </li>
   )
@@ -629,8 +687,9 @@ const useListActions = ({
   const actions = useMailActions()
   const [snoozeOpenId, setSnoozeOpenId] = useState<string | null>(null)
   const canSnooze = filter !== 'snoozed'
+  const sweep = sweepOf(actions, t, OUT_OF_INBOX[filter] ?? 'inbox')
   const keys = { enabled: isEnabled && !!messageId }
-  useHotkey('E', () => messageId && actions.archive.mutate({ messageId }), keys)
+  useHotkey('E', () => messageId && sweep.action.mutate({ messageId }), keys)
   useHotkey('H', () => messageId && setSnoozeOpenId(messageId), {
     enabled: keys.enabled && canSnooze,
   })
@@ -644,14 +703,27 @@ const useListActions = ({
     () => messageId && actions.reportSpam.mutate({ messageId }),
     keys
   )
+  const sweepHint: [string, string] = [
+    'E',
+    filter in OUT_OF_INBOX ? t.keys.restore : t.keys.archive,
+  ]
   const hints: [string, string][] =
     filter === 'drafts'
       ? []
       : [
-          ['E', t.keys.archive],
+          sweepHint,
           ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
+          ['#', t.keys.trash],
         ]
-  return { actions, canSnooze, hints, setSnoozeOpenId, snoozeOpenId }
+  return {
+    actions,
+    canSnooze,
+    hints,
+    setSnoozeOpenId,
+    snoozeOpenId,
+    sweep,
+    sweepHint,
+  }
 }
 
 const MailPage = () => {
@@ -686,12 +758,19 @@ const MailPage = () => {
   } = useListRows({ filter, mailbox, q, typed: search.trim() })
   const { groupStarts, rows } = useGroupedRows(listedRows, grouping)
 
-  const { actions, canSnooze, hints, setSnoozeOpenId, snoozeOpenId } =
-    useListActions({
-      filter,
-      isEnabled: !thread,
-      messageId: rows[cursor]?.message.id,
-    })
+  const {
+    actions,
+    canSnooze,
+    hints,
+    setSnoozeOpenId,
+    snoozeOpenId,
+    sweep,
+    sweepHint,
+  } = useListActions({
+    filter,
+    isEnabled: !thread,
+    messageId: rows[cursor]?.message.id,
+  })
 
   useEffect(() => {
     const row = listRef.current?.querySelectorAll('[data-row]')[cursor]
@@ -799,71 +878,56 @@ const MailPage = () => {
               />
               <InputGroupAddon align="inline-end">
                 <SearchHint isPending={isSearchPending} />
-                {!isDrafts && <GroupingSelect grouping={grouping} />}
-                {mailboxes.length > 1 && (
-                  <Select
-                    items={[
-                      { label: t.mail.allMailboxes, value: ALL_MAILBOXES },
-                      ...mailboxes.map(({ email, id }) => ({
-                        label: email,
-                        value: id,
-                      })),
-                    ]}
-                    value={mailbox ?? ALL_MAILBOXES}
-                    onValueChange={(next) =>
-                      navigate({
-                        search: (prev) => ({
-                          ...prev,
-                          mailbox:
-                            next && next !== ALL_MAILBOXES ? next : undefined,
-                          thread: undefined,
-                        }),
-                      })
-                    }
-                  >
-                    <SelectTrigger
-                      aria-label={t.mail.allMailboxes}
-                      size="xs"
-                      variant="flat"
-                      className="max-w-48"
-                    >
-                      <SelectValue data-mask={mailbox ? true : undefined} />
-                    </SelectTrigger>
-                    <SelectContent align="end">
-                      <SelectItem value={ALL_MAILBOXES}>
-                        {t.mail.allMailboxes}
-                      </SelectItem>
-                      {mailboxes.map(({ email, id }) => (
-                        <SelectItem key={id} value={id}>
-                          <span data-mask>{email}</span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
               </InputGroupAddon>
             </InputGroup>
-            <Tabs value={filter} onValueChange={(value) => showFilter(value)}>
-              <TabsList
-                variant="pill"
-                className="scroll-fade-x max-w-full scrollbar-none justify-start overflow-x-auto"
-              >
-                {FILTERS.map((value) => (
-                  <TabsTrigger
-                    key={value}
-                    ref={value === filter ? revealTab : undefined}
-                    value={value}
+            <div className="flex items-center gap-2">
+              <FilterSelect
+                filter={filter}
+                unread={unread}
+                onChange={showFilter}
+              />
+              {mailboxes.length > 1 && (
+                <Select
+                  items={[
+                    { label: t.mail.allMailboxes, value: ALL_MAILBOXES },
+                    ...mailboxes.map(({ email, id }) => ({
+                      label: email,
+                      value: id,
+                    })),
+                  ]}
+                  value={mailbox ?? ALL_MAILBOXES}
+                  onValueChange={(next) =>
+                    navigate({
+                      search: (prev) => ({
+                        ...prev,
+                        mailbox:
+                          next && next !== ALL_MAILBOXES ? next : undefined,
+                        thread: undefined,
+                      }),
+                    })
+                  }
+                >
+                  <SelectTrigger
+                    aria-label={t.mail.allMailboxes}
+                    size="sm"
+                    className="max-w-48"
                   >
-                    {t.mail.filter[value]}
-                    {isCounted(value) && Boolean(unread?.[value]) && (
-                      <span className="text-xs tabular-nums opacity-60">
-                        {unread?.[value]}
-                      </span>
-                    )}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+                    <SelectValue data-mask={mailbox ? true : undefined} />
+                  </SelectTrigger>
+                  <SelectContent align="start">
+                    <SelectItem value={ALL_MAILBOXES}>
+                      {t.mail.allMailboxes}
+                    </SelectItem>
+                    {mailboxes.map(({ email, id }) => (
+                      <SelectItem key={id} value={id}>
+                        <span data-mask>{email}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {!isDrafts && <GroupingSelect grouping={grouping} />}
+            </div>
           </div>
           {total === 0 && !isFetching && (
             <Empty size="sm">
@@ -912,6 +976,7 @@ const MailPage = () => {
                   onSnoozeOpenChange={(isOpen) =>
                     setSnoozeOpenId(isOpen ? row.message.id : null)
                   }
+                  sweep={sweep}
                 />
               </Fragment>
             ))}
@@ -951,7 +1016,7 @@ const MailPage = () => {
             />
             <KeyHints
               hints={[
-                ['E', t.keys.archive],
+                sweepHint,
                 ...(hasAgent
                   ? [['R', t.keys.draftReply] as [string, string]]
                   : []),
@@ -976,7 +1041,7 @@ export const Route = createFileRoute('/_app/mail')({
   component: MailPage,
   validateSearch: type({
     'filter?':
-      "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'drafts' | 'spam'",
+      "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'drafts' | 'archive' | 'spam' | 'trash'",
     'mailbox?': 'string.uuid',
     'q?': 'string',
     'thread?': 'string',

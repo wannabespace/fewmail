@@ -74,7 +74,7 @@ const planBoard = async (
   const { output } = await generateText({
     instructions: [
       'The user describes a board: a page that collects one kind of email (receipts, trips, job applications…) as entries with a title, a group, a status, an amount and a date.',
-      'gmailQuery: a Gmail search query that finds these emails with high recall — OR-ed subject keywords in English and in the languages the description suggests, sender domains you are sure of, Gmail categories (category:purchases) where they fit. Never date operators (newer_than, after, before): they are added later.',
+      'gmailQuery: a Gmail search query that finds these emails with high recall: OR-ed subject keywords in English and in the languages the description suggests, sender domains you are sure of, Gmail categories (category:purchases) where they fit. Never date operators (newer_than, after, before): they are added later.',
       `charts: 1–${MAX_CHARTS} charts that answer what the user most likely wants to see. measure "sum" only when the entries carry amounts. groupBy month or week for a trend, group for who or what (merchant, airline, company), status for the state. type: bar for anything per month or week, since entries are sparse and a line would draw slopes between them; pie only for shares (group or status). title: a few words in ${englishName(language)}.`,
     ].join('\n'),
     model: models.writer,

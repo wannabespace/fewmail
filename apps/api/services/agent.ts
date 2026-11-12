@@ -19,7 +19,7 @@ import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { and, desc, eq, inArray, isNotNull, lt } from 'drizzle-orm'
 
-import { FAST_MODEL_ID, INFORMAL_ADDRESS, models } from '../lib/ai'
+import { FAST_MODEL_ID, INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
 import { BULK_THRESHOLD } from './bulk'
@@ -83,7 +83,8 @@ const analyzeInstructions = (input: {
     `suggestedAction: ${listed(ACTION_CRITERIA)}.`,
     `Write summary (one sentence), reason (why this importance, a few words) and actionTitle (a short imperative button label) in ${englishName(input.language)}.`,
     INFORMAL_ADDRESS,
-    'extracted: an amount with currency, a due date and a proposed meeting time as written in the email, else null.',
+    NO_EM_DASH,
+    'extracted: an amount with currency, a due date (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null.',
     '',
     input.rules.length > 0
       ? `User rules. Set ruleId to the id of the first rule this email clearly matches, else null:\n${input.rules
@@ -182,6 +183,7 @@ const draftReply = async (
       'You write email replies as the user, in their own voice. Output only the reply body: no subject, no quoted text, no placeholders.',
       'Reply in the language of the email you are answering.',
       'Be brief and concrete. Never invent facts, dates or commitments the user did not make; when a decision is needed, propose the most likely one in a way the user can easily change.',
+      NO_EM_DASH,
       user?.name
         ? `The user's name is ${user.name}; sign with it unless their own emails sign differently, never with another name.`
         : null,
@@ -381,8 +383,9 @@ const analyze = async (input: {
     const { output: text } = await generateText({
       instructions: [
         `Write in ${englishName(input.settings.language)}: summary (one sentence, concrete names, amounts and dates), reason (why it matters, a few words) and actionTitle (a short imperative button label for: ${decisions.suggestedAction}).`,
-        'extracted: an amount with currency, a due date and a proposed meeting time as written in the email, else null. Never invent anything.',
+        'extracted: an amount with currency, a due date (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null. Never invent anything.',
         INFORMAL_ADDRESS,
+        NO_EM_DASH,
       ].join('\n'),
       model: models.fast,
       output: Output.object({ schema: textSchema }),

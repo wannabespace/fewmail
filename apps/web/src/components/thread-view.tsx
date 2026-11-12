@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { Archive02Icon, InboxDownloadIcon } from '@hugeicons/core-free-icons'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -174,7 +175,13 @@ const MessageSection = ({
             {analysis.summary}
           </p>
           <div className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="outline">{t.category[analysis.category]}</Badge>
+            <Badge
+              variant={
+                analysis.category === 'security' ? 'destructive' : 'outline'
+              }
+            >
+              {t.category[analysis.category]}
+            </Badge>
             {analysis.needsReply && (
               <Badge variant="outline">{t.mail.expectsReply}</Badge>
             )}
@@ -354,6 +361,12 @@ export const useMailActions = (onDone?: () => void) => {
         onSuccess: () => finish(t.mail.blocked),
       })
     ),
+    moveToInbox: useMutation(
+      orpc.mail.moveToInbox.mutationOptions({
+        ...leave,
+        onSuccess: () => finish(t.mail.backInInbox),
+      })
+    ),
     notSpam: useMutation(
       orpc.mail.notSpam.mutationOptions({
         ...leave,
@@ -395,6 +408,43 @@ export const useMailActions = (onDone?: () => void) => {
   }
 }
 
+export type Place = 'inbox' | 'spam' | 'elsewhere'
+
+/** What `E` does: archive from the inbox, bring back from anywhere else. */
+export const sweepOf = (
+  actions: ReturnType<typeof useMailActions>,
+  t: Messages,
+  place: Place
+) => {
+  if (place === 'inbox') {
+    return {
+      action: actions.archive,
+      icon: Archive02Icon,
+      label: t.mail.archive,
+    }
+  }
+  return place === 'spam'
+    ? {
+        action: actions.notSpam,
+        icon: InboxDownloadIcon,
+        label: t.mail.notSpam,
+      }
+    : {
+        action: actions.moveToInbox,
+        icon: InboxDownloadIcon,
+        label: t.mail.moveToInbox,
+      }
+}
+
+export type Sweep = ReturnType<typeof sweepOf>
+
+const placeOf = (labelIds: string[], isSnoozed: boolean): Place => {
+  if (isSnoozed || labelIds.includes('INBOX')) {
+    return 'inbox'
+  }
+  return labelIds.includes('SPAM') ? 'spam' : 'elsewhere'
+}
+
 export const SnoozeMenuItems = ({
   onSnooze,
 }: {
@@ -413,6 +463,40 @@ export const SnoozeMenuItems = ({
       </DropdownMenuItem>
     )
   })
+}
+
+const DiscardItems = ({
+  actions: { block, reportSpam, trash },
+  labelIds,
+  target,
+}: {
+  actions: ReturnType<typeof useMailActions>
+  labelIds: string[]
+  target: { messageId: string }
+}) => {
+  const t = useT()
+  return (
+    <>
+      {!labelIds.includes('TRASH') && (
+        <DropdownMenuItem onClick={() => trash.mutate(target)}>
+          {t.mail.trash}
+          <DropdownMenuShortcut>#</DropdownMenuShortcut>
+        </DropdownMenuItem>
+      )}
+      {!labelIds.includes('SPAM') && (
+        <DropdownMenuItem onClick={() => reportSpam.mutate(target)}>
+          {t.mail.reportSpam}
+          <DropdownMenuShortcut>!</DropdownMenuShortcut>
+        </DropdownMenuItem>
+      )}
+      <DropdownMenuItem
+        variant="destructive"
+        onClick={() => block.mutate(target)}
+      >
+        {t.mail.block}
+      </DropdownMenuItem>
+    </>
+  )
 }
 
 const revealComposer = (node: HTMLElement | null) =>
@@ -439,18 +523,12 @@ export const ThreadView = ({
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
   const { folded, unfold } = useFolding(data)
   useMarkRead(threadId, data)
-  const {
-    archive,
-    block,
-    notSpam,
-    reportSpam,
-    snooze,
-    trash,
-    unsnooze,
-    unsubscribe,
-  } = useMailActions(onDone)
+  const actions = useMailActions(onDone)
+  const { reportSpam, snooze, trash, unsnooze, unsubscribe } = actions
 
   const target = latest ? { messageId: latest.message.id } : null
+  const labelIds = latest?.message.labelIds ?? []
+  const sweep = sweepOf(actions, t, placeOf(labelIds, isSnoozed))
   const reply = () =>
     latest &&
     setComposing({
@@ -472,7 +550,7 @@ export const ThreadView = ({
   const keys = { enabled: !!target && !composing }
   useHotkey('R', reply, keys)
   useHotkey('F', forward, keys)
-  useHotkey('E', () => target && archive.mutate(target), keys)
+  useHotkey('E', () => target && sweep.action.mutate(target), keys)
   useHotkey('H', () => setIsSnoozeOpen(true), keys)
   useHotkey('Shift+3', () => target && trash.mutate(target), keys)
   useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
@@ -499,10 +577,10 @@ export const ThreadView = ({
                 <Button
                   size="sm"
                   variant="secondary"
-                  disabled={archive.isPending}
-                  onClick={() => archive.mutate(target)}
+                  disabled={sweep.action.isPending}
+                  onClick={() => sweep.action.mutate(target)}
                 >
-                  {t.mail.archive} <Kbd>E</Kbd>
+                  {sweep.label} <Kbd>E</Kbd>
                 </Button>
                 {isSnoozed ? (
                   <Button
@@ -567,28 +645,11 @@ export const ThreadView = ({
                       {t.mail.openInGmail}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => trash.mutate(target)}>
-                      {t.mail.trash}
-                      <DropdownMenuShortcut>#</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                    {latest?.message.labelIds.includes('SPAM') ? (
-                      <DropdownMenuItem onClick={() => notSpam.mutate(target)}>
-                        {t.mail.notSpam}
-                      </DropdownMenuItem>
-                    ) : (
-                      <DropdownMenuItem
-                        onClick={() => reportSpam.mutate(target)}
-                      >
-                        {t.mail.reportSpam}
-                        <DropdownMenuShortcut>!</DropdownMenuShortcut>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => block.mutate(target)}
-                    >
-                      {t.mail.block}
-                    </DropdownMenuItem>
+                    <DiscardItems
+                      actions={actions}
+                      labelIds={labelIds}
+                      target={target}
+                    />
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

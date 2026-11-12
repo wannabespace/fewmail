@@ -28,6 +28,7 @@ export const it: Messages = {
       trash_thread: 'Spostare questa conversazione nel cestino?',
       report_spam: 'Segnalare questo mittente come spam?',
       mark_not_spam: 'Togliere questa conversazione dallo spam?',
+      move_to_inbox: 'Riportare questa conversazione nella posta in arrivo?',
     },
     decline: 'No',
     declined: 'Hai detto di no',
@@ -77,6 +78,7 @@ export const it: Messages = {
       trash_thread: 'Sposto nel cestino',
       report_spam: 'Segnalo come spam',
       mark_not_spam: 'Tolgo dallo spam',
+      move_to_inbox: 'Sposto nella posta in arrivo',
       create_board: 'Creo una bacheca',
     },
     stop: 'Ferma',
@@ -100,6 +102,7 @@ export const it: Messages = {
       trash_thread: 'Nel cestino',
       report_spam: 'Segnala spam',
       mark_not_spam: 'Non è spam',
+      move_to_inbox: 'Riporta',
     },
   },
   ask: {
@@ -275,6 +278,7 @@ export const it: Messages = {
     offline: 'Impossibile raggiungere Fewmail. Controlla la connessione.',
   },
   keys: {
+    restore: 'nella posta in arrivo',
     calendarToday: 'oggi',
     newEvent: 'nuovo evento',
     period: 'precedente / successivo',
@@ -285,6 +289,7 @@ export const it: Messages = {
     filter: 'filtro',
     reply: 'rispondi',
     snooze: 'posticipa',
+    trash: 'cestino',
     anything: 'qualsiasi cosa',
     archive: 'archivia',
     approve: 'approva',
@@ -346,6 +351,8 @@ export const it: Messages = {
     reply: 'Rispondi',
     trash: 'Sposta nel cestino',
     trashed: 'Spostata nel cestino',
+    moveToInbox: 'Nella posta in arrivo',
+    backInInbox: 'Spostato nella posta in arrivo',
     movedToInbox:
       'Riportata nella posta in arrivo. Grazie per la segnalazione.',
     noThread: 'Scegli un’email per leggerla qui',
@@ -362,10 +369,13 @@ export const it: Messages = {
     drafting: 'Scrivo…',
     draftWaiting: 'La bozza ti aspetta in Oggi',
     due: (date: string) => `scade il ${date}`,
+    dueHint: 'Scadenza trovata dall’agente in questa email',
     empty: 'Nessuna email qui',
     emptyHint: 'Le nuove email compariranno qui appena arrivano.',
     expectsReply: 'Attende risposta',
     filter: {
+      archive: 'Archivio',
+      trash: 'Cestino',
       drafts: 'Bozze',
       spam: 'Spam',
       inbox: 'In arrivo',
@@ -673,7 +683,7 @@ export const it: Messages = {
     connectFirst:
       'Prima apri Fewmail → Impostazioni → Integrazioni e tocca “Collega Telegram”.',
     connected:
-      'Collegato. Ti invierò il brief ogni mattina e ti avviserò quando arriva qualcosa di urgente.\n\n/brief — brief di oggi\n/queue — cosa ti aspetta',
+      'Collegato. Ti invierò il brief ogni mattina e ti avviserò quando arriva qualcosa di urgente.\n\n/brief: brief di oggi\n/queue: cosa ti aspetta',
     done: 'Fatto',
     draft: 'Bozza:',
     edit: 'Modifica',

@@ -8,8 +8,8 @@ When you sign in with Google you grant Fewmail the `gmail.modify` and `calendar.
 
 - **Read** your messages (sender, recipients, subject, date, labels, text body and whether there are attachments) so the agent can summarize them, judge their importance and draft replies. Attachments themselves are not downloaded.
 - **Read your recently sent messages** so drafts match how you write, and to notice when you are waiting for an answer or promised something.
-- **Change labels** — archive, mark as read, snooze, move to trash, or add the agent's own `Fewmail/…` labels if you turn them on — only when you do it yourself (opening an email in Fewmail marks it as read in Gmail, as any mail app does), approve it, or keep a rule that allows it. Every automatic change is listed under "handled" in the app.
-- **Send email** only when you send it yourself or explicitly approve an agent draft — in the app, in Telegram or WhatsApp, or through an MCP client you connected. Every send waits a few seconds so you can undo it, and scheduled emails wait until the time you chose.
+- **Change labels** (archive, mark as read, snooze, move to trash, or add the agent's own `Fewmail/…` labels if you turn them on) only when you do it yourself (opening an email in Fewmail marks it as read in Gmail, as any mail app does), approve it, or keep a rule that allows it. Every automatic change is listed under "handled" in the app.
+- **Send email** only when you send it yourself or explicitly approve an agent draft: in the app, in Telegram or WhatsApp, or through an MCP client you connected. Every send waits a few seconds so you can undo it, and scheduled emails wait until the time you chose.
 - **Save drafts** to your Gmail when you press "Save draft" or ask the agent for a draft, list them under Drafts, and delete one when you send it from Fewmail or discard it. Drafts stay in Gmail; Fewmail does not store them.
 - **Search** your mailbox when you ask the agent a question about your mail.
 - **Unsubscribe** from a mailing list through its one-click unsubscribe link, only when you approve it or a rule you keep allows it.
@@ -30,10 +30,10 @@ Fewmail's use and transfer to any other app of information received from Google 
 
 - **Account and session data:** name, email address, profile photo, session tokens, IP address and user agent.
 - **Google OAuth tokens:** stored encrypted, used only to access Gmail on your behalf.
-- **Synced mail:** the message data listed in section 2. Everything that comes from your mail — addresses, names, subjects, snippets, bodies and headers — is encrypted at rest with AES-256-GCM.
-- **What the agent produces:** summaries, importance and reasons, drafts and daily briefs — also encrypted at rest.
-- **Agent chats (Pro):** your conversations with the agent in agent mode — what you write, its answers and the mail details it looked up to answer — encrypted at rest until you delete the chat or your account.
-- **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and the goals of threads you ask the agent to handle — encrypted at rest. Boards you create are stored with their name, description and charts, and the entries the agent collects for them from your mail — including the last six months, read once when a board is created — are stored as title, group and status (encrypted), amount, currency and date.
+- **Synced mail:** the message data listed in section 2. Everything that comes from your mail (addresses, names, subjects, snippets, bodies and headers) is encrypted at rest with AES-256-GCM.
+- **What the agent produces:** summaries, importance and reasons, drafts and daily briefs, also encrypted at rest.
+- **Agent chats (Pro):** your conversations with the agent in agent mode (what you write, its answers and the mail details it looked up to answer), encrypted at rest until you delete the chat or your account.
+- **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and the goals of threads you ask the agent to handle, encrypted at rest. Boards you create are stored with their name, description and charts, and the entries the agent collects for them from your mail (including the last six months, read once when a board is created) are stored as title, group and status (encrypted), amount, currency and date.
 - **Fraud checks:** to warn you when bank or payment details in an email change, we store only keyed one-way hashes of those details, never the details themselves.
 - **Your settings and rules:** language, how you use email, brief time, time zone, the rules and snippets you write, and anything you tell the agent to know about you.
 - **Community spam protection:** when you report spam or mark something as not spam, we store your vote with a keyed one-way hash of the sender's address (and of the domain for company domains). No addresses, subjects or contents are stored for this, and other users never learn who voted. Mail from a sender is moved to spam for other users only after several different people reported it and few marked it as not spam; a sender you have written to is never moved by community votes.

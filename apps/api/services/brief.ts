@@ -6,7 +6,7 @@ import { type } from 'arktype'
 import { subHours } from 'date-fns'
 import { and, desc, eq } from 'drizzle-orm'
 
-import { INFORMAL_ADDRESS, models } from '../lib/ai'
+import { INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
 import { localClock } from '../lib/clock'
 import { announceChange } from '../lib/live'
 import { boardsDigest } from './boards'
@@ -57,6 +57,7 @@ export const generateBrief = async (userId: string) => {
       'body: at most 2 short sentences and 35 words, plain prose without lists or markdown. The user sees every needsUser email as a card below, so do not enumerate them: name only the single most urgent of needsUser (of importantEmails only when needsUser is empty) with one concrete fact, then say in a few words how much was handled quietly.',
       'Never invent anything that is not in the data.',
       INFORMAL_ADDRESS,
+      NO_EM_DASH,
     ].join('\n'),
     model: models.writer,
     output: Output.object({ schema: briefSchema }),

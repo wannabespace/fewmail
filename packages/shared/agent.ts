@@ -197,6 +197,7 @@ export const AGENT_TOOLS = {
   list_schedules: 'read',
   list_subscriptions: 'read',
   mark_not_spam: 'consent',
+  move_to_inbox: 'consent',
   read_thread: 'read',
   redraft_action: 'write',
   refresh: 'write',

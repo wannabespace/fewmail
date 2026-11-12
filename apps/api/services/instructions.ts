@@ -78,7 +78,7 @@ const understand = async (userId: string, text: string) => {
       `Message: ${text}`,
       ...candidates.map(
         (candidate, index) =>
-          `${index}. ${candidate.from ?? candidate.fromEmail} — ${candidate.subject}${'summary' in candidate && candidate.summary ? ` — ${candidate.summary}` : ''}`
+          `${index}. ${candidate.from ?? candidate.fromEmail}: ${candidate.subject}${'summary' in candidate && candidate.summary ? `. ${candidate.summary}` : ''}`
       ),
     ].join('\n'),
   })

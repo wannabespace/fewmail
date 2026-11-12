@@ -15,6 +15,7 @@ import { saveDraft } from './drafts'
 import {
   approveAction,
   archiveMessage,
+  moveToInbox,
   dismissAction,
   draftReply,
   getThread,
@@ -68,11 +69,20 @@ export const agentTools = (
   }),
   list_mail: define({
     description:
-      "List recent emails with the agent's analysis (category, importance 0–3, one-line summary, whether a reply is expected). filter: inbox (what is in the Gmail inbox now), important (importance ≥ 2), needs_reply and quiet (noise) — all three within the inbox — snoozed. search takes plain language ('invoices from Anna last month') or Gmail search syntax (from:, subject:, newer_than:, has:attachment…).",
+      "List recent emails with the agent's analysis (category, importance 0–3, one-line summary, whether a reply is expected). filter: inbox (what is in the Gmail inbox now), important (importance ≥ 2), needs_reply and quiet (noise), all three within the inbox; snoozed, spam, archive (archived, out of the inbox) and trash. search takes plain language ('invoices from Anna last month') or Gmail search syntax (from:, subject:, newer_than:, has:attachment…).",
     input: {
       category: z.enum(MAIL_CATEGORIES).optional(),
       filter: z
-        .enum(['inbox', 'important', 'needs_reply', 'quiet', 'snoozed', 'spam'])
+        .enum([
+          'inbox',
+          'important',
+          'needs_reply',
+          'quiet',
+          'snoozed',
+          'spam',
+          'archive',
+          'trash',
+        ])
         .default('inbox'),
       search: z.string().optional(),
     },
@@ -163,6 +173,15 @@ export const agentTools = (
       return { trashed: true }
     },
   }),
+  move_to_inbox: define({
+    description:
+      'Move an archived or trashed email thread back to the inbox. For spam use mark_not_spam. messageId is any email of the thread.',
+    input: { messageId: z.uuid() },
+    run: async ({ messageId }) => {
+      await moveToInbox(userId, messageId)
+      return { inInbox: true }
+    },
+  }),
   report_spam: define({
     description:
       "Move the email thread to spam and report its sender, so the sender's later mail goes to spam too.",
@@ -205,7 +224,7 @@ export const agentTools = (
   }),
   list_subscriptions: define({
     description:
-      'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender, how many emails, how many were opened, and the messageId of the latest one — pass it to unsubscribe.',
+      'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender, how many emails, how many were opened, and the messageId of the latest one to pass to unsubscribe.',
     run: () => listSubscriptions(userId),
   }),
   handle_thread: define({

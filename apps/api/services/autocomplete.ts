@@ -3,7 +3,7 @@ import { messages, users } from '@fewmail/db/schema'
 import { generateText } from 'ai'
 import { and, eq } from 'drizzle-orm'
 
-import { models } from '../lib/ai'
+import { models, NO_EM_DASH } from '../lib/ai'
 import { mistral } from '../lib/mistral'
 import { getSettings } from './settings'
 
@@ -61,8 +61,7 @@ const fim = async (prompt: string, suffix: string, signal?: AbortSignal) => {
 const chat = async (prompt: string, suffix: string, signal?: AbortSignal) => {
   const { text } = await generateText({
     abortSignal: signal,
-    instructions:
-      'You are an inline autocomplete inside an email editor. Continue the text at <CARET> with the next few words the author would most likely write, in their language and tone. Return only the continuation, never repeat text, never more than one sentence. Return an empty string when the thought is complete.',
+    instructions: `You are an inline autocomplete inside an email editor. Continue the text at <CARET> with the next few words the author would most likely write, in their language and tone. Return only the continuation, never repeat text, never more than one sentence. Return an empty string when the thought is complete. ${NO_EM_DASH}`,
     maxOutputTokens: MAX_TOKENS,
     model: models.fast,
     prompt: `${prompt}<CARET>${suffix}`,

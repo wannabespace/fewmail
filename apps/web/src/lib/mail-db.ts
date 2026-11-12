@@ -15,6 +15,8 @@ export const MAIL_LISTS = [
   'quiet',
   'snoozed',
   'spam',
+  'archive',
+  'trash',
 ] as const
 
 export type MailList = (typeof MAIL_LISTS)[number]

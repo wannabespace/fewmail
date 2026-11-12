@@ -4,7 +4,7 @@ import { COMPARISONS, TRIAL_DAYS } from './marketing'
 export const SITE_NAME = 'Fewmail'
 
 export const OG_IMAGE = {
-  alt: `${SITE_NAME} — only what matters in your inbox`,
+  alt: `${SITE_NAME}: only what matters in your inbox`,
   height: 630,
   path: '/og.png',
   width: 1200,
@@ -18,7 +18,7 @@ export const PUBLIC_PAGES: Record<
   '/': {
     description:
       'Fewmail is an email agent for Gmail: it reads every email, drafts replies in your voice and shows you only what needs you.',
-    title: `${SITE_NAME} — the email agent for Gmail`,
+    title: `${SITE_NAME}: the email agent for Gmail`,
   },
   '/compare': {
     description:
@@ -34,7 +34,7 @@ export const PUBLIC_PAGES: Record<
   '/login': {
     description:
       'Fewmail reads your Gmail for you, answers in your voice and only shows you what actually needs you.',
-    title: `${SITE_NAME} — only what matters in your inbox`,
+    title: `${SITE_NAME}: only what matters in your inbox`,
   },
   '/pricing': {
     description: `Fewmail is free forever for sorting, rules and spam protection. Pro, the whole agent, starts with ${TRIAL_DAYS} free days and no card.`,

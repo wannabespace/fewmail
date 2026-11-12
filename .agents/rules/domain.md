@@ -38,7 +38,7 @@ Fewmail is an **email agent**: it reads every incoming email so the person does 
 | **Skill** | A built-in job the agent knows by name (`SKILLS`: `today`, `waiting`, `followups`, `bills`, `week`, `cleanup`), run as `/name` plus optional details. The chat's `/` menu and empty-chat chips, a Telegram command, a WhatsApp text and an MCP prompt all start the same skill. Not user-defined. Pro. |
 | **Instructions** | Free-text or voice messages to the Telegram or WhatsApp bot; replying to a bot message targets its thread. Pro. |
 
-UI copy says "the agent" or "Fewmail", never "AI" or "the model".
+UI copy says "the agent" or "Fewmail", never "AI" or "the model". No em dashes (—) in copy, in any language, nor in prompts and tool descriptions the models read: a comma, colon, period or parentheses instead.
 
 ## Plans
 

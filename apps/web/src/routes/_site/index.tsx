@@ -177,7 +177,7 @@ const LandingPage = () => (
           },
           {
             description:
-              'Describe what to track — money, trips, orders — and the agent collects it from your mail, with charts, starting with the last six months.',
+              'Describe what to track (money, trips, orders) and the agent collects it from your mail, with charts, starting with the last six months.',
             icon: ChartBarLineIcon,
             title: 'Boards',
           },

@@ -11,7 +11,7 @@ import { generateText } from 'ai'
 import { subDays } from 'date-fns'
 import { and, arrayContains, desc, eq, inArray, or, sql } from 'drizzle-orm'
 
-import { models } from '../lib/ai'
+import { models, NO_EM_DASH } from '../lib/ai'
 import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 
@@ -36,7 +36,7 @@ const writeNote = async (
 ) => {
   const settings = await getSettings(userId)
   const { text } = await generateText({
-    instructions: `In ${englishName(settings?.language ?? 'en')}, write 2–3 short sentences for the user about this person: who they are to the user, what they usually write about, and anything still open. Plain prose, no lists, nothing invented.`,
+    instructions: `In ${englishName(settings?.language ?? 'en')}, write 2–3 short sentences for the user about this person: who they are to the user, what they usually write about, and anything still open. Plain prose, no lists, nothing invented. ${NO_EM_DASH}`,
     model: models.writer,
     prompt: `Person: ${email}\nRecent emails, newest first:\n${summaries.join('\n')}`,
   })

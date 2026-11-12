@@ -61,13 +61,16 @@ export const ExtractedChips = ({
         </Badge>
       )}
       {extracted.dueDate && (
-        <Badge variant="secondary" data-mask>
-          {t.mail.due(
-            ISO_DATE.test(extracted.dueDate)
-              ? dates.format(parseISO(extracted.dueDate), 'd MMM')
-              : extracted.dueDate
-          )}
-        </Badge>
+        <Tooltip>
+          <TooltipTrigger render={<Badge variant="secondary" data-mask />}>
+            {t.mail.due(
+              ISO_DATE.test(extracted.dueDate)
+                ? dates.format(parseISO(extracted.dueDate), 'd MMM')
+                : extracted.dueDate
+            )}
+          </TooltipTrigger>
+          <TooltipContent>{t.mail.dueHint}</TooltipContent>
+        </Tooltip>
       )}
       {extracted.meetingTime && (
         <Badge variant="secondary" data-mask>

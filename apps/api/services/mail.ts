@@ -5,7 +5,17 @@ import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { replyRecipients, textToHtml } from '@fewmail/shared/email'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { subHours } from 'date-fns'
-import { and, desc, eq, exists, gte, inArray, lt, sql } from 'drizzle-orm'
+import {
+  and,
+  desc,
+  eq,
+  exists,
+  gte,
+  inArray,
+  lt,
+  notInArray,
+  sql,
+} from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
@@ -171,6 +181,8 @@ export type MailFilter =
   | 'needs_reply'
   | 'quiet'
   | 'snoozed'
+  | 'archive'
+  | 'trash'
 
 const PAGE_SIZE = 50
 const inThread = alias(messages, 'in_thread')
@@ -186,6 +198,20 @@ const FILTER_WHERE: Partial<Record<MailFilter, SQL>> = {
   needs_reply: eq(analyses.needsReply, true),
   quiet: lt(analyses.importance, 1),
   spam: sql`'SPAM' = ANY(${messages.labelIds})`,
+  archive: sql`not (${messages.labelIds} && array['INBOX', 'SPAM', 'TRASH'])`,
+  trash: sql`'TRASH' = ANY(${messages.labelIds})`,
+}
+
+// Snoozed threads are out of the inbox too, so Archive must leave them to Snoozed.
+const snoozedWhere = async (userId: string, filter: MailFilter) => {
+  if (filter !== 'snoozed' && filter !== 'archive') {
+    return
+  }
+  const snoozedIds = await snoozedThreadIds(userId)
+  const snoozed = [...snoozedIds.keys()]
+  return filter === 'snoozed'
+    ? inArray(messages.threadId, snoozed)
+    : notInArray(messages.threadId, snoozed)
 }
 
 export const listMail = async (
@@ -218,12 +244,7 @@ export const listMail = async (
   if (searchIds?.length === 0) {
     return []
   }
-  const snoozedIds =
-    input.filter === 'snoozed' ? await snoozedThreadIds(userId) : null
-  const snoozed = snoozedIds ? [...snoozedIds.keys()] : null
-  if (snoozed?.length === 0) {
-    return []
-  }
+  const snoozed = await snoozedWhere(userId, input.filter)
 
   const latestInThread = db
     .selectDistinctOn([messages.threadId], {
@@ -243,7 +264,7 @@ export const listMail = async (
         INBOX_FILTERS.has(input.filter) && !searchIds
           ? sql`'INBOX' = ANY(${messages.labelIds})`
           : undefined,
-        snoozed ? inArray(messages.threadId, snoozed) : undefined
+        snoozed
       )
     )
     .orderBy(messages.threadId, desc(messages.receivedAt))
@@ -670,6 +691,14 @@ export const archiveMessage = async (userId: string, messageId: string) =>
 
 export const trashMessage = async (userId: string, messageId: string) =>
   applyThreadEffect(userId, await ownMessage(userId, messageId), 'trash')
+
+export const moveToInbox = async (userId: string, messageId: string) => {
+  const message = await ownMessage(userId, messageId)
+  await changeThreadLabels(userId, message.threadId, {
+    add: ['INBOX'],
+    remove: ['TRASH'],
+  })
+}
 
 /** Blocking is a simple rule: future mail from the sender goes to the trash on every plan. */
 export const blockSender = async (userId: string, messageId: string) => {

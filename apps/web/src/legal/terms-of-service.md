@@ -17,7 +17,7 @@ Fewmail, owned by Wannabe Space, LLC, is an email agent that connects to your Gm
 - You may connect only mailboxes you own or are authorized to manage
 - Keep your Google account, connected Telegram chat, WhatsApp number and connected MCP clients secure; you are responsible for all activity under your account
 
-## 4. You stay in control — and responsible
+## 4. You stay in control and responsible
 
 - **Sending:** Fewmail never sends an email without your explicit approval. You are responsible for every message you approve, whether you edited the draft or not.
 - **Autonomous rules:** when you keep or create a rule that lets the agent act without asking, you authorize it to make that change in your Gmail. Review what was handled in the app.
@@ -38,7 +38,7 @@ Fewmail relies on Google (Gmail, Google Calendar), OpenRouter and the AI provide
 ## 8. Plans and payment
 
 - **Free:** the mail view, simple rules, sorting and importance of every email, plain-language rules that archive, mark as read, unsubscribe or trash, spam and fraud warnings and automatic follow-ups, free for as long as you like.
-- **Pro:** the full agent — daily brief, summaries, drafts in your voice, Ask, handling threads for you, Telegram, WhatsApp and MCP — for $10 per month or $100 per year, with up to 1,000 emails read by the agent and 100 messages to it (chat, Ask, Telegram and WhatsApp) each calendar month, 3 boards and 5 threads handled at a time.
+- **Pro:** the full agent (daily brief, summaries, drafts in your voice, Ask, handling threads for you, Telegram, WhatsApp and MCP) for $10 per month or $100 per year, with up to 1,000 emails read by the agent and 100 messages to it (chat, Ask, Telegram and WhatsApp) each calendar month, 3 boards and 5 threads handled at a time.
 - **Max:** the same agent for $30 per month or $300 per year, with up to 6,000 emails and 500 messages each calendar month and no limit on boards or handled threads.
 - Both are billed in advance through Stripe; on yearly billing the limits still apply per calendar month; taxes may apply depending on where you live. Mail the agent sorts as noise does not count toward the email limit. Past it, new mail is still sorted, protected and handled by your rules as on Free, and urgent mail is still read; monthly limits reset on the first day of each month (UTC).
 - **Trial:** every new account gets 14 days of Pro without a card, with 500 emails and 50 messages. When it ends, the account moves to Free on its own; nothing is charged unless you subscribe.

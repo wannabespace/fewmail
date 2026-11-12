@@ -17,7 +17,7 @@ All values are `oklch` tokens in `packages/ui/src/styles/globals.css`, defined f
 ## Accent
 
 - `--primary` terracotta (`oklch(0.55 0.15 38)`, ≈ `#B8431F`), lighter in dark. Used for: the one primary button per card, the Today count badge, the unread dot leading a mail row, the selected card's index chip, links, focus ring, "expects a reply".
-- Never a second accent color. Categories are text labels, not colors.
+- Never a second accent color. Categories are text labels, not colors — except **security**, which takes `text-destructive` (a `Shield01Icon` in mail rows, the `destructive` badge in the thread), so a sign-in alert or reset never blends into the rest.
 
 ## Importance
 

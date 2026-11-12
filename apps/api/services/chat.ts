@@ -15,7 +15,7 @@ import type { UIMessage } from 'ai'
 import { and, desc, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-import { INFORMAL_ADDRESS, models } from '../lib/ai'
+import { INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
 import { agentTools, toolAccess } from './agent-tools'
 import { NotFoundError } from './mail-errors'
 import { spendMessage } from './plan'
@@ -50,13 +50,14 @@ const instructionsFor = async (userId: string) => {
     "You are Fewmail, the user's email agent, talking with them in a chat. You read all of their mail so they do not have to.",
     `Write in ${englishName(settings?.language ?? 'en')}, or in the language the user writes in. Replies to an email are written in the language of that email.`,
     INFORMAL_ADDRESS,
+    NO_EM_DASH,
     'The user wants calm and nothing important lost: people waiting for them come first.',
     `Now: ${now} (${timezone}).`,
     settings?.knowledge
       ? `What the user told you to know:\n${settings.knowledge}`
       : '',
     'Use the tools for anything about their mail and never invent emails, people, amounts or dates; search before saying something is not there.',
-    'Be brief: a few sentences or a short list. Mention an email as a markdown link to its thread, [sender — subject](?thread=<threadId>), so the user can open it.',
+    'Be brief: a few sentences or a short list. Mention an email as a markdown link to its thread, [sender: subject](?thread=<threadId>), so the user can open it.',
     'To send a reply: draft_reply, then approve_action with that action id. Sending, archiving, snoozing, unsubscribing, rules and handing threads over show the user a confirmation button, so call the tool instead of asking in text. When they decline, accept it and do not retry.',
   ]
     .filter(Boolean)

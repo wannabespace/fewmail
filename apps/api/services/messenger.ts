@@ -196,7 +196,7 @@ export const helpReply = (chat: Chat, t: Messages): Reply => ({
   text: chat.channel.plain(
     [
       `${t.telegram.help}\n`,
-      ...SKILLS.map((skill) => `/${skill} — ${t.skills[skill]}`),
+      ...SKILLS.map((skill) => `/${skill}: ${t.skills[skill]}`),
     ].join('\n')
   ),
 })

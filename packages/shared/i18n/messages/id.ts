@@ -51,6 +51,7 @@ export const id: Messages = {
       trash_thread: 'Pindahkan utas ini ke sampah?',
       report_spam: 'Laporkan pengirim ini sebagai spam?',
       mark_not_spam: 'Keluarkan utas ini dari spam?',
+      move_to_inbox: 'Kembalikan utas ini ke kotak masuk?',
     },
     decline: 'Jangan',
     declined: 'Kamu menolak',
@@ -100,6 +101,7 @@ export const id: Messages = {
       trash_thread: 'Memindahkan ke sampah',
       report_spam: 'Melaporkan spam',
       mark_not_spam: 'Mengeluarkan dari spam',
+      move_to_inbox: 'Memindahkan ke kotak masuk',
       create_board: 'Membuat papan',
     },
     stop: 'Hentikan',
@@ -123,6 +125,7 @@ export const id: Messages = {
       trash_thread: 'Ke sampah',
       report_spam: 'Laporkan spam',
       mark_not_spam: 'Bukan spam',
+      move_to_inbox: 'Kembalikan',
     },
   },
   ask: {
@@ -336,11 +339,12 @@ export const id: Messages = {
   errors: {
     failed: 'Terjadi kesalahan. Coba lagi.',
     needsPro: 'Ini memerlukan Fewmail Pro.',
-    alreadySent: 'Sudah terkirim — terlambat untuk membatalkan.',
-    notFound: 'Ini sudah tidak ada — mungkin sudah dihapus.',
+    alreadySent: 'Sudah terkirim, terlambat untuk membatalkan.',
+    notFound: 'Ini sudah tidak ada. Mungkin sudah dihapus.',
     offline: 'Tidak dapat terhubung ke Fewmail. Periksa koneksimu.',
   },
   keys: {
+    restore: 'ke kotak masuk',
     calendarToday: 'hari ini',
     newEvent: 'acara baru',
     period: 'sebelumnya / berikutnya',
@@ -351,6 +355,7 @@ export const id: Messages = {
     filter: 'filter',
     reply: 'balas',
     snooze: 'tunda',
+    trash: 'buang',
     anything: 'apa saja',
     approve: 'setujui',
     archive: 'arsipkan',
@@ -412,11 +417,13 @@ export const id: Messages = {
     reply: 'Balas',
     trash: 'Pindahkan ke sampah',
     trashed: 'Dipindahkan ke sampah',
+    moveToInbox: 'Ke kotak masuk',
+    backInInbox: 'Dipindahkan ke kotak masuk',
     movedToInbox:
       'Dikembalikan ke kotak masuk. Terima kasih sudah memberi tahu.',
     noThread: 'Pilih email untuk membacanya di sini',
     deleteDraft: 'Hapus draf',
-    notSent: 'Tidak terkirim — buka untuk mencoba lagi',
+    notSent: 'Tidak terkirim. Buka untuk mencoba lagi',
     noRecipients: 'Tanpa penerima',
     notSpam: 'Bukan spam',
     reportSpam: 'Laporkan spam',
@@ -428,10 +435,13 @@ export const id: Messages = {
     drafting: 'Menyusun…',
     draftWaiting: 'Draf menunggu di Hari ini',
     due: (date: string) => `jatuh tempo ${date}`,
+    dueHint: 'Tenggat yang ditemukan agen di email ini',
     empty: 'Tidak ada email di sini',
     emptyHint: 'Email baru akan muncul di sini begitu tiba.',
     expectsReply: 'Menunggu balasan',
     filter: {
+      archive: 'Arsip',
+      trash: 'Sampah',
       drafts: 'Draf',
       spam: 'Spam',
       inbox: 'Kotak masuk',
@@ -785,7 +795,7 @@ export const id: Messages = {
     connectFirst:
       'Buka dulu Fewmail → Pengaturan → Integrasi lalu ketuk “Hubungkan Telegram”.',
     connected:
-      'Terhubung. Aku akan mengirim ringkasanmu setiap pagi dan memberi tahu saat ada yang mendesak.\n\n/brief — ringkasan hari ini\n/queue — yang butuh kamu',
+      'Terhubung. Aku akan mengirim ringkasanmu setiap pagi dan memberi tahu saat ada yang mendesak.\n\n/brief: ringkasan hari ini\n/queue: yang butuh kamu',
     done: 'Selesai',
     draft: 'Draf:',
     edit: 'Edit',
@@ -796,7 +806,7 @@ export const id: Messages = {
     proOnly:
       'Telegram adalah bagian dari Fewmail Pro. Buka Pengaturan → Paket di Fewmail untuk beralih.',
     draftClipped:
-      'Dipendekkan di sini. “Kirim” mengirim draf lengkap — baca di Fewmail.',
+      'Dipendekkan di sini. “Kirim” mengirim draf lengkap. Baca di Fewmail.',
     rewriting: 'Menulis ulang…',
     send: 'Kirim',
     sendThis: 'Kirim ini',

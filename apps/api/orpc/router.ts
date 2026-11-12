@@ -53,6 +53,7 @@ import {
 import {
   approveAction,
   archiveMessage,
+  moveToInbox,
   blockSender,
   countQueue,
   dismissAction,
@@ -303,6 +304,9 @@ export const router = {
           userId: context.user.id,
         }),
       })),
+    moveToInbox: authed.input(messageId).handler(async ({ context, input }) => {
+      await moveToInbox(context.user.id, input.messageId)
+    }),
     notSpam: authed.input(messageId).handler(async ({ context, input }) => {
       await markNotSpam(context.user.id, input.messageId)
     }),
@@ -348,7 +352,7 @@ export const router = {
           'before?': 'Date',
           'category?': type.enumerated(...MAIL_CATEGORIES),
           filter:
-            "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'spam'",
+            "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'spam' | 'archive' | 'trash'",
           'mailboxId?': 'string.uuid',
           'search?': 'string',
         })
