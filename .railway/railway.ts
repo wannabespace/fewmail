@@ -39,21 +39,18 @@ const SECRETS = [
 ] as const
 
 /**
- * The API and the web deploy on the same changes: the web waits for the API to run its commit
- * (`/health` in `apps/web/Caddyfile`), so a commit the API skipped would never go live.
+ * One image for the API and the worker: the Dockerfile is built with the repo root as context. The API
+ * also serves the web's `dist` on `fewmail.app`, so both go live in one deploy.
  */
-const watchPatterns = [
-  'apps/api/**',
-  'apps/web/**',
-  'packages/**',
-  'pnpm-lock.yaml',
-]
-
-/** One image for the API and the worker: the Dockerfile is built with the repo root as context. */
 const build: BuildConfig = {
   builder: 'DOCKERFILE',
   dockerfilePath: 'apps/api/Dockerfile',
-  watchPatterns,
+  watchPatterns: [
+    'apps/api/**',
+    'apps/web/**',
+    'packages/**',
+    'pnpm-lock.yaml',
+  ],
 }
 
 const secrets = Object.fromEntries(
@@ -66,7 +63,7 @@ export default defineRailway(() => {
 
   const api = service('@fewmail/api', {
     build,
-    domains: ['api.fewmail.app'],
+    domains: ['api.fewmail.app', 'fewmail.app'],
     env: {
       API_URL: preserve(),
       DATABASE_URL: db.env.DATABASE_URL,
@@ -104,24 +101,5 @@ export default defineRailway(() => {
     start: 'env NODE_ENV=production bun run ./worker.ts',
   })
 
-  /** Static `dist` behind Caddy (`apps/web/Dockerfile`); API_URL reaches the build as a build arg. */
-  const web = service('@fewmail/web', {
-    build: {
-      builder: 'DOCKERFILE',
-      dockerfilePath: 'apps/web/Dockerfile',
-      watchPatterns,
-    },
-    domains: ['fewmail.app'],
-    env: {
-      API_URL: api.env.API_URL,
-      WEB_URL: api.env.WEB_URL,
-    },
-    healthcheck: '/health',
-    /** Covers the API's whole build, type check and migrations, which run while the web waits. */
-    healthcheckTimeout: 600,
-    replicas: 1,
-    source: github(REPO, { branch: 'main' }),
-  })
-
-  return project('fewmail', { resources: [db, api, worker, web] })
+  return project('fewmail', { resources: [db, api, worker] })
 })

@@ -9,6 +9,7 @@ import { env } from './env'
 import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
 import { relayChanges } from './lib/live'
 import { logError, logErrorAs } from './lib/log'
+import { serveWeb } from './lib/web'
 import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
@@ -63,18 +64,20 @@ const app = new Hono()
     return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
   })
   .get('/health', (c) => c.text('ok'))
-  .get('/health/:commit', (c) =>
-    c.req.param('commit') === env.RAILWAY_GIT_COMMIT_SHA
-      ? c.text('ok')
-      : c.text('another commit', 503)
-  )
+
+const WEB_HOST = new URL(env.WEB_URL).host
 
 await runMigrations()
 await relayChanges()
 void startTelegram()
 
 export default {
-  fetch: app.fetch,
+  fetch: (request: Request, server: unknown) => {
+    const url = new URL(request.url)
+    return url.host === WEB_HOST
+      ? serveWeb(url.pathname)
+      : app.fetch(request, server)
+  },
   idleTimeout: 120,
   port: env.PORT ?? 3910,
 }
