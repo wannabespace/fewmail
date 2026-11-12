@@ -39,6 +39,7 @@ import {
   BOARD_HISTORY_LIMIT,
   collectEntries,
   collectForNewMail,
+  collectMatching,
   isUnchanged,
 } from './boards'
 import { measureBulk } from './bulk'
@@ -448,6 +449,7 @@ export const syncMailboxes = async (userId: string) => {
 
 /** Pro: a new board starts with half a year of its mail, not only what arrives from now on. */
 export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
+  const searchedAt = new Date()
   const results = await searchMailboxes(
     board.userId,
     `(${board.gmailQuery}) ${BOARD_HISTORY}`,
@@ -482,9 +484,28 @@ export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
   if (!(await isUnchanged(board))) {
     return
   }
+  const readAt = new Date()
   await db
     .update(boards)
-    .set({ historyReadAt: new Date() })
+    .set({ historyReadAt: readAt })
     .where(eq(boards.id, board.id))
   await announceChange(board.userId, ['boards', 'today'])
+  // Only after `historyReadAt` is set: from then on `collectForNewMail` takes new mail, so nothing falls between the two.
+  const read = new Set(candidates.map(({ id }) => id))
+  const arrived = await db
+    .select()
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, board.userId),
+        eq(messages.isFromMe, false),
+        gte(messages.createdAt, searchedAt),
+        lt(messages.createdAt, readAt)
+      )
+    )
+  const missed = arrived.filter(({ id }) => !read.has(id))
+  if (missed.length > 0) {
+    await collectMatching(board, missed)
+    await announceChange(board.userId, ['boards', 'today'])
+  }
 }

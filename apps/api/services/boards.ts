@@ -751,7 +751,30 @@ export const collectEntries = async (board: Board, candidates: Message[]) => {
   }
 }
 
-/** Boards still reading their history pick new mail up there. */
+/** Of `incoming`, collects what the board's query returns within the analysis window. */
+export const collectMatching = async (board: Board, incoming: Message[]) => {
+  if (incoming.length === 0) {
+    return
+  }
+  const results = await searchMailboxes(
+    board.userId,
+    `(${board.gmailQuery}) newer_than:${ANALYZE_WINDOW_DAYS}d`,
+    incoming.length + 50
+  )
+  const matching = new Set(
+    results.flatMap(({ ids, mailbox }) =>
+      ids.map((id) => `${mailbox.id}:${id}`)
+    )
+  )
+  await collectEntries(
+    board,
+    incoming.filter(({ gmailId, mailboxId }) =>
+      matching.has(`${mailboxId}:${gmailId}`)
+    )
+  )
+}
+
+/** Boards still reading their history are skipped: `readBoardHistory` catches up on what arrived meanwhile. */
 export const collectForNewMail = async (
   userId: string,
   inserted: Message[]
@@ -764,26 +787,7 @@ export const collectForNewMail = async (
     .select()
     .from(boards)
     .where(and(eq(boards.userId, userId), isNotNull(boards.historyReadAt)))
-  await Promise.all(
-    ready.map(async (board) => {
-      const results = await searchMailboxes(
-        userId,
-        `(${board.gmailQuery}) newer_than:${ANALYZE_WINDOW_DAYS}d`,
-        incoming.length + 50
-      )
-      const matching = new Set(
-        results.flatMap(({ ids, mailbox }) =>
-          ids.map((id) => `${mailbox.id}:${id}`)
-        )
-      )
-      await collectEntries(
-        board,
-        incoming.filter(({ gmailId, mailboxId }) =>
-          matching.has(`${mailboxId}:${gmailId}`)
-        )
-      )
-    })
-  )
+  await Promise.all(ready.map((board) => collectMatching(board, incoming)))
   if (ready.length > 0) {
     await announceChange(userId, ['boards', 'today'])
   }
