@@ -106,6 +106,28 @@ type ThreadRow = NonNullable<
   ReturnType<typeof useThread>['data']
 >['messages'][number]
 
+type ThreadAction = NonNullable<
+  ReturnType<typeof useThread>['data']
+>['actions'][number]
+
+/** What the agent did with one email, next to it; pending cards live on Home. */
+const ActionNote = ({ actions }: { actions: ThreadAction[] }) => {
+  const t = useT()
+  if (actions.length === 0) {
+    return null
+  }
+  return (
+    <span data-mask className="text-muted-foreground shrink-0 text-xs">
+      {actions
+        .map(
+          (action) =>
+            `${action.title} · ${action.autonomous ? t.byRule : t.actionStatus[action.status]}`
+        )
+        .join(', ')}
+    </span>
+  )
+}
+
 // `overflow-wrap:anywhere` would collapse senders' table columns to one letter per line.
 const FRAME_HEAD =
   '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:break-word}img{max-width:100%;height:auto}</style>'
@@ -151,10 +173,12 @@ const HtmlBody = ({ html, id }: { html: string; id: string }) => {
 }
 
 const MessageSection = ({
+  actions,
   analysis,
   hasAgent,
   message,
 }: {
+  actions: ThreadAction[]
   analysis: ThreadRow['analysis']
   hasAgent: boolean
   message: ThreadMessage
@@ -186,7 +210,8 @@ const MessageSection = ({
             {t.bulk.badge(message.bulkCount ?? 0)}
           </Badge>
         )}
-        <span className="text-muted-foreground ml-auto text-xs">
+        <span className="text-muted-foreground ml-auto flex items-center gap-2 text-xs">
+          <ActionNote actions={actions} />
           {dates.format(message.receivedAt, 'd MMM, HH:mm')}
         </span>
       </header>
@@ -226,10 +251,12 @@ const MessageSection = ({
 
 /** Read mail before the latest email folds to one line, as in Gmail; any of them unfolds the thread. */
 const CollapsedMessage = ({
+  actions,
   hasShortcut,
   message,
   onExpand,
 }: {
+  actions: ThreadAction[]
   hasShortcut: boolean
   message: ThreadMessage
   onExpand: () => void
@@ -250,6 +277,7 @@ const CollapsedMessage = ({
       <span data-mask className="text-muted-foreground min-w-0 flex-1 truncate">
         {message.snippet}
       </span>
+      <ActionNote actions={actions} />
       <span className="text-muted-foreground shrink-0 text-xs">
         {dates.format(message.receivedAt, 'd MMM, HH:mm')}
       </span>
@@ -615,7 +643,15 @@ export const ThreadView = ({
   }
 
   const subject = data.messages[0]?.message.subject
-  const cards = data.actions.filter(({ status }) => status !== 'dismissed')
+  const settled = hasAgent
+    ? data.actions.filter(
+        ({ status }) => status !== 'dismissed' && status !== 'pending'
+      )
+    : []
+  const actionsOf = (messageId: string, isLatest: boolean) =>
+    settled.filter((action) =>
+      action.messageId ? action.messageId === messageId : isLatest
+    )
 
   return (
     <article className="flex min-h-0 flex-1 flex-col">
@@ -735,23 +771,16 @@ export const ThreadView = ({
           </div>
 
           <ThreadNotices data={data} />
-          {hasAgent && cards.length > 0 && (
-            <ul className="text-muted-foreground flex flex-col gap-1 text-sm">
-              {cards.map((action) => (
-                <li key={action.id}>
-                  <span className="text-foreground">{action.title}</span> ·{' '}
-                  {t.actionStatus[action.status]}
-                  {action.autonomous && ` ${t.byRule}`}
-                </li>
-              ))}
-            </ul>
-          )}
 
           <div className="flex flex-col gap-2">
             {data.messages.map(({ analysis, message }, index) =>
               folded?.has(message.id) ? (
                 <CollapsedMessage
                   key={message.id}
+                  actions={actionsOf(
+                    message.id,
+                    index === data.messages.length - 1
+                  )}
                   hasShortcut={
                     !folded.has(data.messages[index - 1]?.message.id ?? '')
                   }
@@ -761,6 +790,10 @@ export const ThreadView = ({
               ) : (
                 <MessageSection
                   key={message.id}
+                  actions={actionsOf(
+                    message.id,
+                    index === data.messages.length - 1
+                  )}
                   analysis={analysis}
                   message={message}
                   hasAgent={hasAgent}
