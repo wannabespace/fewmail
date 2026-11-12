@@ -129,15 +129,32 @@ const ARRIVING = new Set<Filter>([
 
 const MailListEmpty = ({
   filter,
+  isPending,
   isSearch,
   mailboxes,
 }: {
   filter: Filter
+  isPending: boolean
   isSearch: boolean
   mailboxes: { hasSynced: boolean }[]
 }) => {
   const t = useT()
   const isFirstRead = mailboxes.length > 0 && isReadingFirstTime(mailboxes)
+  if (isSearch && isPending) {
+    return (
+      <Empty size="sm">
+        <EmptyHeader>
+          <EmptyMedia variant="muted">
+            <Spinner />
+          </EmptyMedia>
+          <EmptyTitle>{t.mail.find.searching}</EmptyTitle>
+        </EmptyHeader>
+      </Empty>
+    )
+  }
+  if (isPending) {
+    return <Empty />
+  }
   if (isSearch) {
     return (
       <Empty size="sm">
@@ -1382,7 +1399,7 @@ const useSearchField = ({
       searchRef.current?.focus()
     },
     applySearch,
-    isSearchStart: isSearching && !q && !search.trim(),
+    isSearchStart: isSearching && !search.trim(),
     leaveSearch,
     search,
     searchFor: (query: string) => {
@@ -1659,10 +1676,11 @@ const MailPage = () => {
           {isSearchStart && (
             <MailSearchStart onAdd={addToSearch} onSearch={searchFor} />
           )}
-          {total === 0 && !isFetching && !isSearchStart && (
+          {total === 0 && !isSearchStart && (
             <MailListEmpty
               filter={filter}
-              isSearch={!!q}
+              isPending={isFetching}
+              isSearch={isSearching}
               mailboxes={mailboxes}
             />
           )}

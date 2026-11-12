@@ -634,6 +634,7 @@ export const tr: Messages = {
       tips: 'İpuçları',
       combine: 'Daha net sonuç için birleştir: from:anna has:attachment',
       describeExample: "Anna'dan geçen ayki faturalar",
+      searching: 'E-postalarında arıyorum…',
       tip: {
         from: "Anna'dan gelen e-postalar",
         subject: 'Konu “invoice” içeriyor',

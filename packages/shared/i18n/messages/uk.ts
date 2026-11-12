@@ -875,6 +875,7 @@ export const uk: Messages = {
       tips: 'Підказки',
       combine: 'Поєднуй їх для точнішого пошуку: from:anna has:attachment',
       describeExample: 'рахунки від Анни за минулий місяць',
+      searching: 'Шукаю у твоїй пошті…',
       tip: {
         from: 'Листи від Анни',
         subject: 'Тема згадує «invoice»',

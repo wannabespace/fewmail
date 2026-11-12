@@ -654,6 +654,7 @@ export const nl: Messages = {
       combine:
         'Combineer ze voor een scherpere zoekopdracht: from:anna has:attachment',
       describeExample: 'facturen van Anna van vorige maand',
+      searching: 'Je mail doorzoeken…',
       tip: {
         from: 'Mail van Anna',
         subject: 'Onderwerp noemt “invoice”',

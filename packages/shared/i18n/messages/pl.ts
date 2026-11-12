@@ -664,6 +664,7 @@ export const pl: Messages = {
       tips: 'Wskazówki',
       combine: 'Łącz je, by zawęzić wyniki: from:anna has:attachment',
       describeExample: 'faktury od Anny z zeszłego miesiąca',
+      searching: 'Szukam w twojej poczcie…',
       tip: {
         from: 'Maile od Anny',
         subject: 'Temat zawiera „invoice”',

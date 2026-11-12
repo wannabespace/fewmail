@@ -380,6 +380,7 @@ export const hi: Messages = {
       tips: 'सुझाव',
       combine: 'सटीक खोज के लिए इन्हें मिलाएँ: from:anna has:attachment',
       describeExample: 'पिछले महीने Anna के इनवॉइस',
+      searching: 'आपके मेल में खोज रहा हूँ…',
       tip: {
         from: 'Anna के ईमेल',
         subject: 'विषय में “invoice” है',

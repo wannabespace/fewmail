@@ -647,6 +647,7 @@ export const en = {
       tips: 'Tips',
       combine: 'Combine them for a sharper search: from:anna has:attachment',
       describeExample: 'invoices from Anna last month',
+      searching: 'Searching your mail…',
       tip: {
         from: 'Mail from Anna',
         subject: 'Subject mentions “invoice”',

@@ -382,6 +382,7 @@ export const ko: Messages = {
       tips: '팁',
       combine: '함께 쓰면 더 정확해요: from:anna has:attachment',
       describeExample: '지난달 Anna가 보낸 청구서',
+      searching: '메일을 검색하는 중…',
       tip: {
         from: 'Anna가 보낸 메일',
         subject: '제목에 “invoice” 포함',

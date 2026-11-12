@@ -889,6 +889,7 @@ export const fr: Messages = {
       tips: 'Astuces',
       combine: 'Combinez-les pour affiner : from:anna has:attachment',
       describeExample: 'factures d’Anna le mois dernier',
+      searching: 'Recherche dans tes e-mails…',
       tip: {
         from: 'E-mails d’Anna',
         subject: 'L’objet mentionne « invoice »',

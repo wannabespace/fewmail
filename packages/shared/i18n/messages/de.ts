@@ -881,6 +881,7 @@ export const de: Messages = {
       combine:
         'Kombiniere sie für eine genauere Suche: from:anna has:attachment',
       describeExample: 'Rechnungen von Anna letzten Monat',
+      searching: 'Durchsuche deine Mails…',
       tip: {
         from: 'Mails von Anna',
         subject: 'Betreff enthält „invoice“',

@@ -375,6 +375,7 @@ export const zh: Messages = {
       tips: '提示',
       combine: '组合使用，搜索更精准：from:anna has:attachment',
       describeExample: 'Anna 上个月发来的发票',
+      searching: '正在搜索你的邮件…',
       tip: {
         from: '来自 Anna 的邮件',
         subject: '主题包含“invoice”',

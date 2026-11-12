@@ -879,6 +879,7 @@ export const es: Messages = {
       tips: 'Consejos',
       combine: 'Combínalos para afinar la búsqueda: from:anna has:attachment',
       describeExample: 'facturas de Anna del mes pasado',
+      searching: 'Buscando en tu correo…',
       tip: {
         from: 'Correos de Anna',
         subject: 'El asunto menciona «invoice»',

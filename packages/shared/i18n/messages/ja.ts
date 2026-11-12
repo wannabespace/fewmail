@@ -385,6 +385,7 @@ export const ja: Messages = {
       tips: 'ヒント',
       combine: '組み合わせて絞り込めます：from:anna has:attachment',
       describeExample: '先月の Anna からの請求書',
+      searching: 'メールを検索中…',
       tip: {
         from: 'Anna からのメール',
         subject: '件名に「invoice」を含む',

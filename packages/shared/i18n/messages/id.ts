@@ -638,6 +638,7 @@ export const id: Messages = {
       tips: 'Tips',
       combine: 'Gabungkan agar lebih tepat: from:anna has:attachment',
       describeExample: 'tagihan dari Anna bulan lalu',
+      searching: 'Mencari di emailmu…',
       tip: {
         from: 'Email dari Anna',
         subject: 'Subjek menyebut “invoice”',
