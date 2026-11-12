@@ -598,7 +598,7 @@ export const PlayQueue = () => {
   return (
     <div
       ref={desk}
-      className="bg-background ring-foreground/6 flex min-h-140 min-w-0 flex-col gap-4 rounded-3xl p-4 ring sm:p-8"
+      className="bg-background ring-foreground/6 isolate flex min-h-140 min-w-0 flex-col gap-4 rounded-3xl p-4 ring sm:p-8"
     >
       <div className="text-muted-foreground flex items-center justify-between gap-4 text-sm">
         <span>
