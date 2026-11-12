@@ -593,7 +593,7 @@ const useHints = ({
     hints.push(['J / K', t.keys.move])
   }
   if (isActive) {
-    hints.push(['↵', t.keys.open], ['E', t.keys.edit], ['#', t.keys.notOnBoard])
+    hints.push(['↵', t.keys.open], ['E', t.keys.edit], ['⌫', t.keys.notOnBoard])
   } else {
     hints.push(['E', t.keys.rename])
   }
@@ -701,7 +701,7 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
   useHotkey('ArrowUp', () => step(-1), listKeys)
   useHotkey('Enter', () => active && entryActions.open(active), rowKeys)
   useHotkey('O', () => active && entryActions.open(active), rowKeys)
-  useHotkey('Shift+3', () => active && entryActions.remove(active), rowKeys)
+  useHotkey('Backspace', () => active && entryActions.remove(active), rowKeys)
   useHotkey(
     'E',
     () => (active ? setEditingEntry(active) : setEditing('name')),

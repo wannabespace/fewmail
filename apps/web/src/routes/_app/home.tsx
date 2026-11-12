@@ -185,10 +185,12 @@ const MailDigest = ({ today }: { today: Today }) => {
             <SettingsRow
               key={message.id}
               icon={
-                <ImportanceDot
-                  importance={analysis.importance}
-                  reason={analysis.reason}
-                />
+                <span className="flex size-4 items-center justify-center">
+                  <ImportanceDot
+                    importance={analysis.importance}
+                    reason={analysis.reason}
+                  />
+                </span>
               }
               title={
                 <ThreadLink
@@ -346,7 +348,7 @@ const homeHints = (
       ['X', t.keys.pick],
       ['⏎', t.keys.approvePicked(state.picked)],
       ['S', t.keys.skip],
-      ['#', t.keys.trash],
+      ['⌫', t.keys.trash],
       ['esc', t.keys.unpick],
     ]
   }
@@ -358,7 +360,7 @@ const homeHints = (
       : []),
     ['E', t.keys.edit],
     ['S', t.keys.skip],
-    ['#', t.keys.trash],
+    ['⌫', t.keys.trash],
     ['X', t.keys.pick],
     ['⌘A', t.keys.pickAll],
     ...(state.hasHandled
@@ -693,7 +695,7 @@ const HomePage = () => {
   useHotkey('Enter', approveTargets, listKeys)
   useHotkey('Shift+Enter', approveAlike, listKeys)
   useHotkey('S', skipTargets, listKeys)
-  useHotkey('Shift+3', () => trashMany.mutate(targets), listKeys)
+  useHotkey('Backspace', () => trashMany.mutate(targets), listKeys)
   useHotkey('X', () => selected && togglePick(selected.action.id), listKeys)
   useHotkey(
     'Mod+A',
@@ -768,7 +770,7 @@ const HomePage = () => {
                     variant="secondary"
                     onClick={() => trashMany.mutate(picked)}
                   >
-                    {t.queue.delete} <Kbd>#</Kbd>
+                    {t.queue.delete} <Kbd>⌫</Kbd>
                   </Button>
                   <Button size="sm" variant="ghost-muted" onClick={skipTargets}>
                     {t.queue.skip} <Kbd>S</Kbd>

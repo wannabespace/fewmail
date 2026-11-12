@@ -529,7 +529,7 @@ const DiscardItems = ({
       {!labelIds.includes('TRASH') && (
         <DropdownMenuItem onClick={() => trash.mutate(target)}>
           {t.mail.trash}
-          <DropdownMenuShortcut>#</DropdownMenuShortcut>
+          <DropdownMenuShortcut>⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
       )}
       {!labelIds.includes('SPAM') && (
@@ -607,7 +607,7 @@ export const ThreadView = ({
   useHotkey('E', () => target && sweep.action.mutate(target), keys)
   useHotkey('H', () => setIsSnoozeOpen(true), keys)
   useHotkey('S', togglePin, keys)
-  useHotkey('Shift+3', () => target && trash.mutate(target), keys)
+  useHotkey('Backspace', () => target && trash.mutate(target), keys)
   useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
 
   if (!data) {

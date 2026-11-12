@@ -1284,7 +1284,7 @@ const useListActions = ({
   useHotkey('H', () => head && setSnoozeOpenId(head), {
     enabled: keys.enabled && canSnooze,
   })
-  useHotkey('Shift+3', onEach(messageIds, actions.trash.mutate), keys)
+  useHotkey('Backspace', onEach(messageIds, actions.trash.mutate), keys)
   useHotkey('Shift+1', onEach(messageIds, actions.reportSpam.mutate), keys)
   useHotkey('S', pinEach(messageIds, !isPinned, actions.pin.mutate), keys)
   useHotkey('Y', () => code && copy(code, t.mail.oneTimeCode.copied), {
@@ -1301,7 +1301,7 @@ const useListActions = ({
           sweepHint,
           ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
           pinHint(t, isPinned),
-          ['#', t.keys.trash],
+          ['⌫', t.keys.trash],
           ...(code ? [['Y', t.keys.copyCode] as [string, string]] : []),
         ]
   return {

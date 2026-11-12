@@ -360,7 +360,7 @@ export const EntryRow = ({
           <DropdownMenuItem variant="destructive" onClick={onRemove}>
             <HugeiconsIcon icon={MinusSignCircleIcon} strokeWidth={2} />
             {t.boards.entry.remove}
-            <DropdownMenuShortcut>#</DropdownMenuShortcut>
+            <DropdownMenuShortcut>⌫</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
