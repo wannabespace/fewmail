@@ -230,7 +230,7 @@ const extractEntry = async (
       'title: what this entry is in a few words ("Lisbon → Kyiv", "Netflix Premium"), never the subject line.',
       `group: who or what it belongs to as people say it ("Netflix", "Ryanair"), or null.${context.groups.length > 0 ? ` Reuse one of these when it is the same: ${context.groups.join(', ')}.` : ''}`,
       `status: its state in one or two lowercase words (paid, refunded, cancelled, shipped, booked, rejected…), or null.${context.statuses.length > 0 ? ` Reuse one of these when it means the same: ${context.statuses.join(', ')}.` : ''}`,
-      `amount and currency (ISO 4217): the total charged or due, else null. occurredAt: ISO date of the event itself (today is ${new Date().toISOString().slice(0, 10)}), else null.`,
+      `amount and currency (ISO 4217): the total charged or due, negative when money goes back to the user (refund, chargeback, credit), else null. occurredAt: ISO date of the event itself (today is ${new Date().toISOString().slice(0, 10)}), else null.`,
     ].join('\n'),
     model: models.fast,
     output: Output.object({ schema: entrySchema }),
@@ -241,7 +241,7 @@ const extractEntry = async (
   }
   const occurredAt = output.occurredAt ? new Date(output.occurredAt) : null
   const hasAmount =
-    output.amount !== null && output.amount > 0 && Boolean(output.currency)
+    output.amount !== null && output.amount !== 0 && Boolean(output.currency)
   await db
     .insert(boardEntries)
     .values({
@@ -436,8 +436,10 @@ const chartSeries = (chart: BoardChart, entries: Entry[]) => {
       rest: 0,
     }
   }
+  // A pie cannot draw a negative share: a fully refunded group nets to zero or below and drops out.
   const ranked = [...totals]
     .map(([key, total]) => ({ key, ...total }))
+    .filter(({ value }) => chart.measure !== 'sum' || value > 0)
     .toSorted((left, right) => right.value - left.value)
   return {
     ...shared,
