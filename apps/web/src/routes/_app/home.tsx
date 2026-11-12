@@ -448,7 +448,7 @@ const ChatHistory = ({
           <IconButton
             icon={Clock01Icon}
             label={t.agent.chats}
-            size="icon-sm"
+            size="icon-round"
             variant="ghost-muted"
           />
         }
@@ -1027,94 +1027,103 @@ const HomePage = () => {
     <ResizableGroup className="flex-1">
       <ResizablePanel className="flex min-w-0 flex-col">
         <main className="flex min-h-0 flex-1 flex-col">
-          <div className="flex-1 overflow-y-auto">
-            <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-10">
-              <HomeHeader
-                data={data}
-                isFirstRead={isFirstRead}
-                updatedAt={dataUpdatedAt}
-              />
+          <div className="relative min-h-0 flex-1">
+            <div className="h-full overflow-y-auto">
+              <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-40">
+                <HomeHeader
+                  data={data}
+                  isFirstRead={isFirstRead}
+                  updatedAt={dataUpdatedAt}
+                />
 
-              <section
-                aria-label={t.today.worthAttention}
-                hidden={isFirstRead && queue.length === 0}
-                className="flex flex-col gap-2.5"
-              >
-                <div className="flex min-h-7 items-center gap-1.5">
-                  <h2 className="text-muted-foreground mr-auto text-xs font-medium">
-                    {picked.length > 0
-                      ? t.queue.picked(picked.length)
-                      : t.today.worthAttention}
-                  </h2>
-                  {picked.length > 0 && (
-                    <PickedActions
-                      onApprove={approveTargets}
-                      onClear={() => setPickedIds([])}
-                      onSkip={skipTargets}
-                      onTrash={() => trashMany.mutate(picked)}
-                    />
-                  )}
-                </div>
-                {!!data && queue.length === 0 && (
-                  <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">
-                    {t.today.nothingNeedsYou}
-                  </p>
-                )}
-                <Accordion
-                  variant="cards"
-                  hidden={queue.length === 0}
-                  value={selected ? [selected.action.id] : []}
-                  onValueChange={([id]) => id && setSelectedId(id)}
+                <section
+                  aria-label={t.today.worthAttention}
+                  hidden={isFirstRead && queue.length === 0}
+                  className="flex flex-col gap-2.5"
                 >
-                  {queue.map((item, index) => (
-                    <QueueCard
-                      key={item.action.id}
-                      item={item}
-                      index={index}
-                      draft={draftOf(item)}
-                      isPicked={pickedIds.includes(item.action.id)}
-                      isSelected={item === selected}
-                      isEditing={editingId === item.action.id}
-                      isBusy={
-                        redraft.isPending &&
-                        redraft.variables.id === item.action.id
-                      }
-                      onApprove={approveSelected}
-                      onEdit={() => setEditingId(item.action.id)}
-                      onDraftChange={(draft) =>
-                        setDrafts((current) => ({
-                          ...current,
-                          [item.action.id]: draft,
-                        }))
-                      }
-                      onRedraft={() => shorten(item.action.id)}
-                      onOpen={() =>
-                        item.message && showThread(item.message.threadId)
-                      }
-                      onPick={() => togglePick(item.action.id)}
-                      onSkip={() => dismiss.mutate({ id: item.action.id })}
-                      onStopEditing={() => setEditingId(null)}
-                    />
-                  ))}
-                </Accordion>
-              </section>
+                  <div className="flex min-h-7 items-center gap-1.5">
+                    <h2 className="text-muted-foreground mr-auto text-xs font-medium">
+                      {picked.length > 0
+                        ? t.queue.picked(picked.length)
+                        : t.today.worthAttention}
+                    </h2>
+                    {picked.length > 0 && (
+                      <PickedActions
+                        onApprove={approveTargets}
+                        onClear={() => setPickedIds([])}
+                        onSkip={skipTargets}
+                        onTrash={() => trashMany.mutate(picked)}
+                      />
+                    )}
+                  </div>
+                  {!!data && queue.length === 0 && (
+                    <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">
+                      {t.today.nothingNeedsYou}
+                    </p>
+                  )}
+                  <Accordion
+                    variant="cards"
+                    hidden={queue.length === 0}
+                    value={selected ? [selected.action.id] : []}
+                    onValueChange={([id]) => id && setSelectedId(id)}
+                  >
+                    {queue.map((item, index) => (
+                      <QueueCard
+                        key={item.action.id}
+                        item={item}
+                        index={index}
+                        draft={draftOf(item)}
+                        isPicked={pickedIds.includes(item.action.id)}
+                        isSelected={item === selected}
+                        isEditing={editingId === item.action.id}
+                        isBusy={
+                          redraft.isPending &&
+                          redraft.variables.id === item.action.id
+                        }
+                        onApprove={approveSelected}
+                        onEdit={() => setEditingId(item.action.id)}
+                        onDraftChange={(draft) =>
+                          setDrafts((current) => ({
+                            ...current,
+                            [item.action.id]: draft,
+                          }))
+                        }
+                        onRedraft={() => shorten(item.action.id)}
+                        onOpen={() =>
+                          item.message && showThread(item.message.threadId)
+                        }
+                        onPick={() => togglePick(item.action.id)}
+                        onSkip={() => dismiss.mutate({ id: item.action.id })}
+                        onStopEditing={() => setEditingId(null)}
+                      />
+                    ))}
+                  </Accordion>
+                </section>
 
-              <CalendarAhead />
-              {data && (
-                <>
-                  <MailDigest today={data} />
-                  <DayTally
-                    today={data}
-                    isReviewing={isReviewing}
-                    onReview={reviewHandled}
-                  />
-                </>
-              )}
-              <ConnectHint />
+                <CalendarAhead />
+                {data && (
+                  <>
+                    <MailDigest today={data} />
+                    <DayTally
+                      today={data}
+                      isReviewing={isReviewing}
+                      onReview={reviewHandled}
+                    />
+                  </>
+                )}
+                <ConnectHint />
+              </div>
             </div>
-          </div>
-          <div className="mx-auto w-full max-w-3xl px-10 pb-3">
-            <ChatDock chat={chat} thread={thread} onFocusChange={setIsAsking} />
+            {/* Over the page, never beside it: opening or folding the chat must not move what is under it. */}
+            <div className="from-body pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-50% to-transparent pt-12">
+              <div className="pointer-events-auto mx-auto w-full max-w-3xl px-10 pb-3">
+                <ChatDock
+                  chat={chat}
+                  thread={thread}
+                  onFocusChange={setIsAsking}
+                />
+              </div>
+            </div>
           </div>
           <KeyHints
             hints={homeHints(t, {

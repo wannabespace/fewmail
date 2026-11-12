@@ -29,7 +29,6 @@ import { InlineCode } from '@fewmail/ui/components/custom/inline-code'
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupTextarea,
 } from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
@@ -769,7 +768,6 @@ const VoiceButton = ({
 
   return (
     <IconButton
-      className="ml-auto"
       disabled={voice.state === 'hearing' || isBusy}
       icon={isRecording ? StopIcon : Mic01Icon}
       label={isRecording ? t.agent.voiceStop : t.agent.voice}
@@ -890,6 +888,16 @@ const MessageActions = ({
   )
 }
 
+/** Hysteresis lives in the caller: once wide, the composer stays wide until emptied, or the row would flicker. */
+const px = (value: string) => Number(value.replace('px', ''))
+
+const wraps = (field: HTMLTextAreaElement) => {
+  const style = getComputedStyle(field)
+  const textHeight =
+    field.scrollHeight - px(style.paddingTop) - px(style.paddingBottom)
+  return textHeight > px(style.lineHeight) * 1.5
+}
+
 /** Docked under Home: the conversation grows upward over the page while the composer stays put. */
 export const AgentChat = ({
   chatId,
@@ -916,6 +924,7 @@ export const AgentChat = ({
   const [text, setText] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [skillIndex, setSkillIndex] = useState(0)
+  const [isExpanded, setIsExpanded] = useState(false)
   const [dismissedText, setDismissedText] = useState<string | null>(null)
   const [detachedThread, setDetachedThread] = useState<string>()
   const composerRef = useRef<HTMLTextAreaElement>(null)
@@ -973,6 +982,7 @@ export const AgentChat = ({
   }
   const reset = () => {
     setText('')
+    setIsExpanded(false)
     setEditingId(null)
   }
   const send = (spoken?: string) => {
@@ -1182,7 +1192,7 @@ export const AgentChat = ({
         {activeSkill && (
           <SkillMenu active={activeSkill} skills={skills} onPick={pick} />
         )}
-        <InputGroup variant="composer">
+        <InputGroup variant="composer" data-expanded={isExpanded}>
           {attached && (
             <InputGroupAddon align="block-start">
               <HugeiconsIcon icon={Mail01Icon} strokeWidth={2} />
@@ -1228,6 +1238,9 @@ export const AgentChat = ({
             onChange={(event) => {
               setText(event.target.value)
               setSkillIndex(0)
+              setIsExpanded(
+                event.target.value !== '' && (isExpanded || wraps(event.target))
+              )
             }}
             onKeyDown={(event) => {
               if (
@@ -1248,20 +1261,21 @@ export const AgentChat = ({
               }
             }}
           />
-          <InputGroupAddon align="block-end">
-            <InputGroupButton
-              size="sm"
+          <InputGroupAddon align="inline-start">
+            <IconButton
+              icon={SlashIcon}
+              label={t.agent.skills}
+              size="icon-round"
               variant="ghost-muted"
               onClick={() => {
                 setText('/')
                 setDismissedText(null)
                 composerRef.current?.focus()
               }}
-            >
-              <HugeiconsIcon icon={SlashIcon} strokeWidth={2} />
-              {t.agent.skills}
-            </InputGroupButton>
+            />
             {composerActions}
+          </InputGroupAddon>
+          <InputGroupAddon align="inline-end">
             <VoiceButton isBusy={isBusy} voice={voice} />
             {isBusy ? (
               <IconButton
