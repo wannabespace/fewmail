@@ -3,222 +3,843 @@ import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
-  AlertDiamondIcon,
-  Mic01Icon,
-  Shield01Icon,
+  ArrowRight01Icon,
+  McpServerIcon,
   Tick02Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { useHotkey } from '@tanstack/react-hotkeys'
+import { Link } from '@tanstack/react-router'
+import type { MotionStyle, MotionValue } from 'motion/react'
+import {
+  cubicBezier,
+  motion,
+  useInView,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+} from 'motion/react'
 import type { ReactNode } from 'react'
+import { Fragment, useRef, useState } from 'react'
 
-import { useT } from '~/lib/i18n'
+import { useLocale, useT } from '~/lib/i18n'
 
-import { TelegramMark } from './login-story'
 import { ImportanceDot } from './mail-meta'
+import { CONTAINER, StartButton, TrialNote } from './site'
 
-const QUEUE = [
-  { importance: 3, sender: 'Anna Kovalenko' },
-  { importance: 2, sender: 'Northwind Studio' },
-  { importance: 2, sender: 'Marco Bellini' },
+const HOUSE = cubicBezier(0.32, 0.72, 0, 1)
+
+type Fate = 'archived' | 'markedRead' | 'spam' | 'summarised' | 'unsubscribed'
+
+/** Mail is shown in the language it was written in; only the agent's words are translated. */
+const NOISE: { fate: Fate; from: string; snippet: string; subject: string }[] =
+  [
+    {
+      fate: 'unsubscribed',
+      from: 'Lumen Weekly',
+      snippet: 'This week: a calendar for your calendar and…',
+      subject: '10 tools you will never use',
+    },
+    {
+      fate: 'spam',
+      from: 'paypa1-billing.com',
+      snippet: 'Confirm your details within 24 hours or…',
+      subject: 'Your account has been limited',
+    },
+    {
+      fate: 'archived',
+      from: 'Parcelhub',
+      snippet: 'Track your delivery: arriving between 9 and…',
+      subject: 'Your parcel is on its way',
+    },
+    {
+      fate: 'unsubscribed',
+      from: 'Coursely',
+      snippet: 'Your cart misses you. So do we. Finish…',
+      subject: 'Last chance: 70% off ends tonight',
+    },
+    {
+      fate: 'summarised',
+      from: 'Taskboard',
+      snippet: '“@sam can you take a look when you…',
+      subject: 'Ivan mentioned you in 3 comments',
+    },
+    {
+      fate: 'archived',
+      from: 'Mira at Growthly',
+      snippet: 'Hi Sam, I noticed your company is hiring…',
+      subject: 'Quick question about your team',
+    },
+    {
+      fate: 'markedRead',
+      from: 'Linkwork',
+      snippet: 'See who is looking at your profile this…',
+      subject: 'You appeared in 14 searches',
+    },
+    {
+      fate: 'archived',
+      from: 'Cloudnest',
+      snippet: 'Upgrade now to keep your files syncing…',
+      subject: 'Your storage is 92% full',
+    },
+    {
+      fate: 'unsubscribed',
+      from: 'Webinarly',
+      snippet: 'Join the live session now with…',
+      subject: 'Starting in 10 minutes',
+    },
+    {
+      fate: 'archived',
+      from: 'Brew & Co',
+      snippet: 'Thanks for your order. Flat white ×2…',
+      subject: 'Receipt #48213',
+    },
+    {
+      fate: 'unsubscribed',
+      from: 'The Morning Edit',
+      snippet: 'Markets are up, a new phone is out and…',
+      subject: 'Five things to know today',
+    },
+    {
+      fate: 'markedRead',
+      from: 'Codehub',
+      snippet: 'All checks have passed for commit 8a8ea60…',
+      subject: '[web] Build passed on main',
+    },
+  ]
+
+/** In the same order as `site.hero.queue`. */
+const IMPORTANT = [
+  {
+    at: 2,
+    draft: 'Hi Anna, signed and attached. See you Friday at ten. Best, Sam',
+    from: 'Anna Kovacs',
+    importance: 3,
+    snippet: 'Could you send the signed contract back…',
+    subject: 'Contract for Friday’s kickoff',
+  },
+  {
+    at: 6,
+    from: 'Northwind Studio',
+    importance: 2,
+    snippet: 'Please find attached the invoice for…',
+    subject: 'October invoice',
+  },
+  {
+    at: 10,
+    draft:
+      'Ciao Marco, giovedì va bene, ma possiamo fare alle 16? A presto, Sam',
+    from: 'Marco Rossi',
+    importance: 2,
+    snippet: 'Would Thursday at 15:00 work for…',
+    subject: 'Quarterly review',
+  },
 ]
 
-const Tile = ({
-  children,
-  className,
-  isRaised,
+/** The inbox as it arrives: the important emails buried among the noise at their `at`. */
+const INBOX = Array.from(
+  { length: NOISE.length + IMPORTANT.length },
+  (_, row) => {
+    const important = IMPORTANT.findIndex(({ at }) => at === row)
+    return important === -1
+      ? {
+          index: row - IMPORTANT.filter(({ at }) => at < row).length,
+          kind: 'noise' as const,
+        }
+      : { index: important, kind: 'important' as const }
+  }
+)
+/** Newest first: each row a little earlier than the one above it. */
+const timeAt = (row: number) => {
+  const minutes = 8 * 60 + 2 - row * 17
+  return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
+}
+const UNREAD = 4218
+const HANDLED_TODAY = UNREAD - IMPORTANT.length
+
+const SORT_START = 0.08
+const SORT_END = 0.6
+const OPEN_START = 0.6
+const OPEN_END = 0.8
+/** Where each line of copy beside the inbox takes over, halfway through its cross-fade. */
+const PHASE_STARTS = [0, 0.11, 0.64]
+
+const Parts = ({ parts }: { parts: (ReactNode | string)[] }) =>
+  parts.map((part, index) => (
+    // oxlint-disable-next-line react/no-array-index-key -- parts of one sentence never reorder
+    <Fragment key={index}>{part}</Fragment>
+  ))
+
+/** Sets the translated `emphasis` (a part of `text`) in the accent italic. */
+export const Emphasized = ({
+  emphasis,
+  text,
 }: {
-  children: ReactNode
-  className?: string
-  isRaised?: boolean
+  emphasis: string
+  text: string
+}) => {
+  const at = text.lastIndexOf(emphasis)
+  if (at === -1) {
+    return text
+  }
+  return (
+    <>
+      {text.slice(0, at)}
+      <em className="text-primary italic">{emphasis}</em>
+      {text.slice(at + emphasis.length)}
+    </>
+  )
+}
+
+const Count = ({ value }: { value: MotionValue<number> }) => {
+  const locale = useLocale()
+  const text = useTransform(value, (count) =>
+    Math.round(count).toLocaleString(locale)
+  )
+  return (
+    <motion.b className="text-foreground font-medium tabular-nums">
+      {text}
+    </motion.b>
+  )
+}
+
+const MailLine = ({
+  dot,
+  end,
+  from,
+  snippet,
+  subject,
+}: {
+  dot?: ReactNode
+  end: ReactNode
+  from: string
+  snippet: string
+  subject: string
 }) => (
-  <div
-    className={cn(
-      'bg-popover rounded-2xl p-4 text-left ring',
-      isRaised ? 'ring-foreground/10 shadow-sm' : 'ring-foreground/6',
-      className
-    )}
-  >
-    {children}
+  <div className="relative grid h-(--row) grid-cols-[0.5rem_minmax(0,5.5rem)_minmax(0,1fr)_auto] items-center gap-3 px-4 text-sm sm:grid-cols-[0.5rem_minmax(0,8rem)_minmax(0,1fr)_auto] sm:px-5">
+    <span className="bg-foreground/25 grid size-2 rounded-full">{dot}</span>
+    <span className="truncate font-medium">{from}</span>
+    <span className="text-muted-foreground truncate">
+      <span className="text-foreground">{subject}</span> · {snippet}
+    </span>
+    <span className="grid justify-items-end text-xs *:col-start-1 *:row-start-1">
+      {end}
+    </span>
   </div>
 )
 
-export const TodayDemo = () => {
-  const t = useT()
-  const demo = t.site.demos.today
+const NoiseRow = ({
+  gone,
+  index,
+  mail,
+  row,
+}: {
+  gone: MotionValue<number>
+  index: number
+  mail: (typeof NOISE)[number]
+  row: number
+}) => {
+  const t = useT().site.hero
+  const local = useTransform(gone, (count) => count - index)
+  const stamp = useTransform(local, [0, 0.3], [0, 1])
+  const time = useTransform(stamp, (shown) => 1 - shown)
+  const leave = useTransform(local, [0.3, 0.75], [0, 1], { ease: HOUSE })
+  const fold = useTransform(local, [0.45, 1], [0, 1], { ease: HOUSE })
+  const opacity = useTransform(leave, (left) => 1 - left)
+  const scale = useTransform(leave, [0, 1], [1, 0.97])
   return (
-    <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:items-center">
-      <div className="flex flex-col gap-3 text-left">
-        <p className="text-muted-foreground text-xs font-medium">{demo.day}</p>
-        <p className="text-display font-serif tracking-tight">
-          {t.today.headline(QUEUE.length)}
-        </p>
-        <p className="text-brief text-foreground/75 font-serif">{demo.brief}</p>
-      </div>
-      <div className="flex flex-col gap-3">
-        {QUEUE.map((item, index) => (
-          <Tile
-            key={item.sender}
-            isRaised={index === 0}
-            className="flex flex-col gap-3"
-          >
-            <div className="flex items-center gap-2.5">
-              <ImportanceDot importance={item.importance} />
-              <span className="text-sm font-medium">{item.sender}</span>
-              <span className="text-muted-foreground ml-auto text-xs">
-                {demo.queue[index]?.reason}
-              </span>
-            </div>
-            <p className="text-foreground/80 text-sm">
-              {demo.queue[index]?.summary}
-            </p>
-            {index === 0 && (
-              <div className="flex gap-2">
-                <Button size="sm">
-                  {t.queue.send}
-                  <Kbd>⏎</Kbd>
-                </Button>
-                <Button size="sm" variant="secondary">
-                  {t.queue.skip}
-                  <Kbd>S</Kbd>
+    <motion.div
+      className="h-[calc(var(--row)*(1-var(--fold)))] overflow-hidden border-b"
+      style={{ '--fold': fold, opacity, scale } as MotionStyle}
+    >
+      <MailLine
+        {...mail}
+        end={
+          <>
+            <motion.time
+              className="text-muted-foreground tabular-nums"
+              style={{ opacity: time }}
+            >
+              {timeAt(row)}
+            </motion.time>
+            <motion.span style={{ opacity: stamp }}>
+              <Badge
+                variant={mail.fate === 'spam' ? 'destructive' : 'secondary'}
+              >
+                {t.fates[mail.fate]}
+              </Badge>
+            </motion.span>
+          </>
+        }
+      />
+    </motion.div>
+  )
+}
+
+const ImportantRow = ({
+  gone,
+  index,
+  mail,
+  progress,
+}: {
+  gone: MotionValue<number>
+  index: number
+  mail: (typeof IMPORTANT)[number]
+  progress: MotionValue<number>
+}) => {
+  const t = useT()
+  const { hero } = t.site
+  const noiseAbove = mail.at - index
+  const lit = useTransform(gone, [noiseAbove - 0.2, noiseAbove + 0.6], [0, 1])
+  const open = useTransform(
+    progress,
+    [OPEN_START + index * 0.03, OPEN_END + index * 0.03],
+    [0, 1],
+    { ease: HOUSE }
+  )
+  const more = useRef<HTMLDivElement>(null)
+  const time = useTransform(lit, (shown) => 1 - shown)
+  const lift = useTransform(open, [0, 0.2], [0, 1])
+  const height = useTransform(
+    open,
+    (opened) => `${opened * (more.current?.scrollHeight ?? 0)}px`
+  )
+  const moreOpacity = useTransform(open, [0.4, 1], [0, 1])
+  return (
+    <div className="relative border-b">
+      <motion.div
+        className="bg-popover absolute inset-0"
+        style={{ opacity: lift }}
+      />
+      <MailLine
+        {...mail}
+        dot={
+          <motion.span
+            className={cn(
+              'rounded-full',
+              mail.importance === 3 ? 'bg-destructive' : 'bg-primary'
+            )}
+            style={{ opacity: lit }}
+          />
+        }
+        end={
+          <>
+            <motion.time
+              className="text-muted-foreground tabular-nums"
+              style={{ opacity: time }}
+            >
+              {timeAt(mail.at)}
+            </motion.time>
+            <motion.span
+              className={cn(
+                'font-medium whitespace-nowrap',
+                mail.importance === 3 ? 'text-destructive' : 'text-primary'
+              )}
+              style={{ opacity: lit }}
+            >
+              {hero.queue[index]?.reason}
+            </motion.span>
+          </>
+        }
+      />
+      <motion.div
+        ref={more}
+        className="relative h-(--open) overflow-hidden"
+        style={{ '--open': height, opacity: moreOpacity } as MotionStyle}
+      >
+        <div className="flex flex-col gap-3 pr-4 pb-4 pl-9 sm:pr-5 sm:pl-10">
+          <p className="font-serif text-base/relaxed">
+            {hero.queue[index]?.summary}
+          </p>
+          <div className="flex gap-2">
+            <Button size="sm">
+              {mail.draft ? t.queue.send : hero.remind}
+              <Kbd>⏎</Kbd>
+            </Button>
+            <Button size="sm" variant="secondary">
+              {t.queue.skip}
+              <Kbd>S</Kbd>
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+const Phase = ({
+  children,
+  isActive,
+  opacity,
+  rise,
+}: {
+  children: ReactNode
+  isActive: boolean
+  opacity: MotionValue<number>
+  rise: number
+}) => {
+  const translateY = useTransform(opacity, (shown) => (1 - shown) * rise)
+  return (
+    <motion.div
+      inert={!isActive}
+      className="col-start-1 row-start-1 flex flex-col gap-4 sm:gap-6"
+      style={{ opacity, translateY }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+/** The hero: scrolling lets the agent read the inbox until three emails are left. */
+export const InboxStory = () => {
+  const t = useT().site.hero
+  const locale = useLocale()
+  const story = useRef<HTMLElement>(null)
+  const { scrollYProgress: progress } = useScroll({
+    offset: ['start start', 'end end'],
+    target: story,
+  })
+  const gone = useTransform(progress, [SORT_START, SORT_END], [0, NOISE.length])
+  const handled = useTransform(
+    gone,
+    (count) => (count / NOISE.length) * HANDLED_TODAY
+  )
+  const unread = useTransform(handled, (count) => UNREAD - count)
+  const phases = [
+    useTransform(progress, [0.06, 0.12], [1, 0]),
+    useTransform(progress, [0.09, 0.15, 0.6, 0.67], [0, 1, 1, 0]),
+    useTransform(progress, [0.64, 0.72], [0, 1]),
+  ] as const
+  const [phase, setPhase] = useState(0)
+  useMotionValueEvent(progress, 'change', (at) =>
+    setPhase(PHASE_STARTS.findLastIndex((start) => at >= start))
+  )
+  const counter = (
+    <p className="text-muted-foreground flex items-center gap-2 font-serif">
+      <span className="bg-primary size-2 rounded-full" />
+      <span>
+        <Parts parts={t.unreadInbox({ count: <Count value={unread} /> })} />
+      </span>
+    </p>
+  )
+
+  return (
+    <section ref={story} className="relative h-[340svh] md:h-[360svh]">
+      <div className="sticky top-16 h-[calc(100svh-4rem)] min-h-136 overflow-hidden">
+        <div
+          className={cn(
+            CONTAINER,
+            'grid h-full grid-rows-[auto_minmax(0,1fr)] gap-3 pt-5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:grid-rows-1 md:items-center md:gap-10 md:pt-0'
+          )}
+        >
+          <div className="grid">
+            <Phase isActive={phase === 0} opacity={phases[0]} rise={-12}>
+              {counter}
+              <h1 className="text-display sm:text-hero font-serif tracking-tight text-balance">
+                {t.title}
+              </h1>
+              <p className="text-brief text-foreground/75 max-w-lg font-serif text-pretty">
+                {t.lead}
+              </p>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <StartButton>{t.start}</StartButton>
+                </div>
+                <TrialNote />
+              </div>
+            </Phase>
+            <Phase isActive={phase === 1} opacity={phases[1]} rise={12}>
+              {counter}
+              <h2 className="text-display sm:text-hero font-serif tracking-tight text-balance">
+                <Emphasized {...t.reading} text={t.reading.title} />
+              </h2>
+              <p className="text-brief text-foreground/75 max-w-lg font-serif text-pretty">
+                {t.reading.lead}
+              </p>
+            </Phase>
+            <Phase isActive={phase === 2} opacity={phases[2]} rise={12}>
+              <p className="text-primary text-sm font-medium">{t.brief.tag}</p>
+              <h2 className="text-display sm:text-hero font-serif tracking-tight text-balance">
+                <Emphasized {...t.brief} text={t.brief.title} />
+              </h2>
+              <p className="text-brief text-foreground/75 max-w-lg font-serif text-pretty">
+                {t.brief.lead(HANDLED_TODAY.toLocaleString(locale))}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <StartButton>{t.start}</StartButton>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  render={<Link to="/" hash="try" />}
+                >
+                  {t.tryQueue}
                 </Button>
               </div>
-            )}
-          </Tile>
+            </Phase>
+          </div>
+          <div
+            inert
+            aria-hidden
+            className="flex min-h-0 items-center justify-center pb-4 md:h-full md:pb-0"
+          >
+            <div className="bg-background ring-foreground/6 flex h-full max-h-160 w-full max-w-xl flex-col overflow-hidden rounded-3xl shadow-sm ring [--row:--spacing(12)] sm:[--row:--spacing(13)] md:h-[calc(100%-3rem)]">
+              <div className="flex h-13 shrink-0 items-center justify-between gap-4 border-b px-4 text-sm sm:px-5">
+                <span className="font-medium">
+                  {phase === 2 ? t.today : t.inbox}
+                </span>
+                <span className="text-muted-foreground">
+                  <Parts
+                    parts={
+                      phase === 2
+                        ? t.needYou({ count: IMPORTANT.length })
+                        : t.unread({ count: <Count value={unread} /> })
+                    }
+                  />
+                </span>
+              </div>
+              <div className="min-h-0 flex-1 overflow-hidden mask-b-from-75%">
+                {INBOX.map(({ index, kind }, row) => {
+                  if (kind === 'important') {
+                    const mail = IMPORTANT[index]
+                    return (
+                      mail && (
+                        <ImportantRow
+                          key={mail.from}
+                          gone={gone}
+                          index={index}
+                          mail={mail}
+                          progress={progress}
+                        />
+                      )
+                    )
+                  }
+                  const mail = NOISE[index]
+                  return (
+                    mail && (
+                      <NoiseRow
+                        key={mail.subject}
+                        gone={gone}
+                        index={index}
+                        mail={mail}
+                        row={row}
+                      />
+                    )
+                  )
+                })}
+              </div>
+              <p className="text-muted-foreground m-3 flex shrink-0 items-center gap-2 rounded-xl border border-dashed px-3.5 py-2.5 text-xs">
+                <HugeiconsIcon
+                  icon={Tick02Icon}
+                  strokeWidth={2}
+                  className="text-primary size-3.5"
+                />
+                <span>
+                  <Parts
+                    parts={t.handled({ count: <Count value={handled} /> })}
+                  />
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/** Each problem is struck through as it scrolls past the middle of the screen. */
+export const Ledger = () => (
+  <div className="mt-12 border-t sm:mt-16">
+    {useT().site.gone.rows.map(({ fix, problem }) => (
+      <div
+        key={problem}
+        className="grid gap-x-12 gap-y-4 border-b py-6 sm:py-8 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:items-center"
+      >
+        <p className="text-display font-serif tracking-tight text-balance">
+          <span className="strike-on-scroll">{problem}</span>
+        </p>
+        <div className="motion-safe:animate-in fade-in slide-in-from-bottom-2 fill-mode-both flex gap-3 [animation-range:cover_54%_cover_68%] [animation-timeline:view()]">
+          <HugeiconsIcon
+            icon={Tick02Icon}
+            strokeWidth={2}
+            className="text-primary mt-1 size-4.5 shrink-0"
+          />
+          <p className="text-foreground/75 max-w-md text-pretty">{fix}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+)
+
+const QUEUE_LAYER = ['z-30', 'z-20', 'z-10']
+const QUEUE_POSE = [
+  { opacity: 1, scale: 1, y: 0 },
+  { opacity: 0.6, scale: 0.96, y: 14 },
+  { opacity: 0.3, scale: 0.92, y: 28 },
+]
+
+/** The same three emails the hero ends on, cleared with the real keys. */
+export const PlayQueue = () => {
+  const t = useT()
+  const { hero, play } = t.site
+  const locale = useLocale()
+  const desk = useRef<HTMLDivElement>(null)
+  const isInView = useInView(desk, { amount: 0.4 })
+  const [decided, setDecided] = useState<('send' | 'skip')[]>([])
+  const left = IMPORTANT.length - decided.length
+  const decide = (choice: 'send' | 'skip') =>
+    setDecided((done) =>
+      done.length < IMPORTANT.length ? [...done, choice] : done
+    )
+  const keys = { enabled: isInView && left > 0 }
+  useHotkey('Enter', () => decide('send'), keys)
+  useHotkey('S', () => decide('skip'), keys)
+
+  return (
+    <div
+      ref={desk}
+      className="bg-background ring-foreground/6 flex min-h-140 min-w-0 flex-col gap-4 rounded-3xl p-4 ring sm:p-8"
+    >
+      <div className="text-muted-foreground flex items-center justify-between gap-4 text-sm">
+        <span>
+          <b className="text-foreground font-medium">{hero.today}</b> ·{' '}
+          {play.left(left)}
+        </span>
+        <span className="flex gap-1">
+          {IMPORTANT.map((mail, index) => (
+            <span
+              key={mail.from}
+              className={cn(
+                'h-1 w-5 rounded-full transition-colors',
+                index < decided.length ? 'bg-primary' : 'bg-secondary'
+              )}
+            />
+          ))}
+        </span>
+      </div>
+      <div className="grid min-w-0">
+        {IMPORTANT.map((mail, index) => {
+          const choice = decided[index]
+          const position = index - decided.length
+          const card = hero.queue[index]
+          return (
+            <motion.article
+              key={mail.from}
+              inert={position !== 0}
+              initial={false}
+              animate={
+                choice
+                  ? {
+                      opacity: 0,
+                      rotate: choice === 'send' ? 6 : -5,
+                      x: choice === 'send' ? '40%' : '-40%',
+                      y: choice === 'send' ? -40 : 20,
+                    }
+                  : { rotate: 0, x: 0, ...QUEUE_POSE[Math.min(position, 2)] }
+              }
+              transition={{ duration: 0.45, ease: HOUSE }}
+              className={cn(
+                'bg-popover ring-foreground/6 col-start-1 row-start-1 flex min-w-0 flex-col gap-4 rounded-2xl p-5 shadow-sm ring',
+                choice ? 'z-40' : QUEUE_LAYER[position]
+              )}
+            >
+              <div
+                className={cn(
+                  'flex flex-col gap-4',
+                  position > 0 && 'invisible'
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <ImportanceDot
+                    importance={mail.importance}
+                    reason={card?.reason}
+                  />
+                  <span className="text-sm font-medium">{mail.from}</span>
+                  <span className="text-muted-foreground truncate text-sm">
+                    {mail.subject}
+                  </span>
+                </div>
+                <p className="font-serif text-base/relaxed">{card?.summary}</p>
+                <p
+                  className={cn(
+                    'text-xs font-medium',
+                    mail.importance === 3 ? 'text-destructive' : 'text-primary'
+                  )}
+                >
+                  {card?.reason}
+                </p>
+                <div className="bg-secondary/60 rounded-xl px-4 py-3">
+                  <p className="text-muted-foreground mb-1 text-xs">
+                    {mail.draft ? t.queue.draftedInVoice : hero.willDo}
+                  </p>
+                  <p className="text-foreground/80 font-serif text-base/relaxed">
+                    {mail.draft ?? hero.remindPlan}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" onClick={() => decide('send')}>
+                    {mail.draft ? t.queue.send : hero.remind}
+                    <Kbd>⏎</Kbd>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => decide('skip')}
+                  >
+                    {t.queue.skip}
+                    <Kbd>S</Kbd>
+                  </Button>
+                </div>
+              </div>
+            </motion.article>
+          )
+        })}
+        <motion.div
+          inert={left > 0}
+          initial={false}
+          animate={left > 0 ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
+          transition={{
+            delay: left > 0 ? 0 : 0.15,
+            duration: 0.4,
+            ease: HOUSE,
+          }}
+          className="col-start-1 row-start-1 flex flex-col items-start gap-4 py-6"
+        >
+          <h3 className="text-display font-serif tracking-tight">
+            {play.doneTitle}
+          </h3>
+          <p className="text-brief text-foreground/75 max-w-md font-serif">
+            {play.doneLead(HANDLED_TODAY.toLocaleString(locale))}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <StartButton>{hero.start}</StartButton>
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={() => setDecided([])}
+            >
+              {play.again}
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+      <div className="text-muted-foreground mt-auto flex flex-col gap-2 rounded-2xl border border-dashed p-4 text-xs">
+        <p className="text-foreground flex justify-between font-medium">
+          <span>{play.handledTitle}</span>
+          <span className="tabular-nums">
+            {HANDLED_TODAY.toLocaleString(locale)}
+          </span>
+        </p>
+        {(['unsubscribed', 'spam', 'archived'] as const).map((fate, index) => (
+          <p key={fate} className="flex min-w-0 gap-2">
+            <span className="text-foreground/75 shrink-0 font-medium">
+              {hero.fates[fate]}
+            </span>
+            <span className="truncate">{play.handled[index]}</span>
+          </p>
         ))}
       </div>
     </div>
   )
 }
 
-export const DraftDemo = () => {
-  const t = useT()
-  const demo = t.site.demos.draft
+const MCP_CLIENTS = ['Claude', 'ChatGPT', 'Claude Code', 'Cursor']
+
+/** An assistant answering from the mail through Fewmail's MCP tools. */
+export const McpShowcase = () => {
+  const t = useT().site
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-3">
-      <Tile className="flex flex-col gap-2">
-        <div className="flex items-center gap-2.5">
-          <ImportanceDot importance={2} />
-          <span className="text-sm font-medium">Lena Fischer</span>
-          <span className="text-muted-foreground ml-auto text-xs">
-            {demo.expectsReply}
-          </span>
-        </div>
-        <p className="text-foreground/80 text-sm">
-          Hast du am Dienstag Zeit für einen kurzen Call zum Angebot?
+    <div className="mt-12 grid gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-center">
+      <div className="flex flex-col gap-6">
+        <p className="text-muted-foreground text-brief font-serif text-pretty">
+          {t.mcp.lead}
         </p>
-      </Tile>
-      <Tile isRaised className="ml-8 flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">{t.queue.draftedInVoice}</Badge>
-          <span className="text-muted-foreground text-xs">{demo.language}</span>
-        </div>
-        <div className="bg-secondary/60 rounded-xl p-4 font-serif text-base/relaxed">
-          Hallo Lena, Dienstag passt gut. Wie wäre es um 10 Uhr? Ich schicke dir
-          vorher die überarbeitete Version des Angebots.
-          <br />
-          Viele Grüße, Max
-        </div>
-        <div className="flex gap-2">
-          <Button size="sm">
-            {t.queue.send}
-            <Kbd>⏎</Kbd>
+        <p className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-muted-foreground mr-1">{t.mcp.clients}</span>
+          {MCP_CLIENTS.map((client) => (
+            <Badge key={client} variant="secondary">
+              {client}
+            </Badge>
+          ))}
+        </p>
+        <div className="flex flex-col items-start gap-3">
+          <Button size="lg" variant="secondary" render={<Link to="/mcp" />}>
+            {t.mcp.setup}
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              strokeWidth={2}
+              data-icon="inline-end"
+            />
           </Button>
-          <Button size="sm" variant="secondary">
-            {t.queue.edit}
-            <Kbd>E</Kbd>
-          </Button>
-          <Button size="sm" variant="secondary">
-            {demo.redraft}
-            <Kbd>R</Kbd>
-          </Button>
+          <p className="text-muted-foreground text-sm">{t.mcp.free}</p>
         </div>
-      </Tile>
-    </div>
-  )
-}
-
-const Bubble = ({
-  children,
-  isOwn,
-}: {
-  children: ReactNode
-  isOwn?: boolean
-}) => (
-  <div
-    className={cn(
-      'max-w-[85%] rounded-2xl px-4 py-3 text-left text-sm/relaxed',
-      isOwn
-        ? 'bg-primary text-primary-foreground self-end rounded-br-md'
-        : 'bg-popover ring-foreground/6 self-start rounded-bl-md ring'
-    )}
-  >
-    {children}
-  </div>
-)
-
-export const TelegramDemo = () => {
-  const t = useT()
-  const demo = t.site.demos.telegram
-  return (
-    <div className="mx-auto flex max-w-md flex-col gap-3">
-      <div className="flex items-center gap-2 pb-1">
-        <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-full">
-          <TelegramMark className="size-4" />
-        </span>
-        <span className="text-sm font-medium">Fewmail</span>
       </div>
-      <Bubble>
-        <span className="font-medium">{t.importance[3]} · Anna Kovalenko</span>
-        <br />
-        {demo.urgent}
-        <span className="mt-3 grid grid-cols-2 gap-2">
-          <Button size="sm">{t.telegram.send}</Button>
-          <Button size="sm" variant="secondary">
-            {t.telegram.skip}
-          </Button>
-        </span>
-      </Bubble>
-      <Bubble isOwn>
-        <span className="flex items-center gap-2">
-          <HugeiconsIcon icon={Mic01Icon} strokeWidth={2} className="size-4" />
-          {demo.voice}
-        </span>
-      </Bubble>
-      <Bubble>
-        <span className="flex items-center gap-2">
-          <HugeiconsIcon
-            icon={Tick02Icon}
-            strokeWidth={2}
-            className="text-primary size-4"
-          />
-          {demo.draftReady}
-        </span>
-      </Bubble>
+      <div
+        inert
+        className="bg-background ring-foreground/6 flex flex-col gap-4 rounded-3xl p-5 ring sm:p-8"
+      >
+        <p className="bg-secondary ml-auto max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm">
+          {t.mcp.question}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {['list_mail', 'read_thread'].map((tool) => (
+            <span
+              key={tool}
+              className="text-muted-foreground ring-foreground/8 flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-mono text-xs ring"
+            >
+              <HugeiconsIcon
+                icon={McpServerIcon}
+                strokeWidth={2}
+                className="text-primary size-3.5"
+              />
+              fewmail · {tool}
+            </span>
+          ))}
+        </div>
+        <p className="text-brief font-serif text-pretty">{t.mcp.answer}</p>
+      </div>
     </div>
   )
 }
 
-export const ShieldDemo = () => (
-  <div className="mx-auto grid max-w-3xl gap-3 sm:grid-cols-3">
-    {useT().site.demos.shield.map(({ detail, label }, index) => (
-      <Tile key={label} className="flex flex-col gap-3">
-        <span
-          className={cn(
-            'flex size-8 items-center justify-center rounded-lg',
-            index < 2
-              ? 'bg-destructive/15 text-destructive'
-              : 'bg-secondary text-foreground'
-          )}
-        >
-          <HugeiconsIcon
-            icon={index < 2 ? AlertDiamondIcon : Shield01Icon}
-            strokeWidth={2}
-            className="size-4"
-          />
-        </span>
-        <span className="text-sm font-medium">{label}</span>
-        <span className="text-muted-foreground text-xs/relaxed">{detail}</span>
-      </Tile>
-    ))}
-  </div>
-)
+const PLACES = ['Gmail', 'Telegram', 'WhatsApp', 'Claude', 'ChatGPT']
+
+export const TrustBand = () => {
+  const t = useT().site.trust
+  return (
+    <section className={cn(CONTAINER, 'py-14 sm:py-20')}>
+      <div className="bg-foreground text-background flex flex-col gap-12 rounded-4xl px-6 py-14 sm:gap-16 sm:px-14 sm:py-20">
+        <div className="flex max-w-3xl flex-col gap-5">
+          <p className="text-background/60 text-sm font-medium">{t.label}</p>
+          <h2 className="text-display sm:text-hero font-serif tracking-tight text-balance">
+            <Emphasized emphasis={t.emphasis} text={t.title} />
+          </h2>
+        </div>
+        <div className="grid gap-8 md:grid-cols-3">
+          {t.vows.map(({ description, title }) => (
+            <div
+              key={title}
+              className="border-background/15 flex flex-col gap-3 border-t pt-6"
+            >
+              <h3 className="font-serif text-xl tracking-tight">{title}</h3>
+              <p className="text-background/65 text-sm/relaxed text-pretty">
+                {description}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="text-background/65 flex flex-wrap items-center gap-2 text-sm">
+          <span className="mr-1">{t.places}</span>
+          {PLACES.map((place) => (
+            <span
+              key={place}
+              className="bg-background/10 text-background rounded-full px-3 py-1"
+            >
+              {place}
+            </span>
+          ))}
+        </p>
+      </div>
+    </section>
+  )
+}

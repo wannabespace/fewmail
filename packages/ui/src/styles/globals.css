@@ -361,3 +361,26 @@
     transparent calc(100% - 2.5rem)
   );
 }
+
+/* The landing's struck-through problems. Without scroll timelines the animation ends at once, so the line shows struck. */
+@utility strike-on-scroll {
+  background-image: linear-gradient(var(--primary), var(--primary));
+  background-repeat: no-repeat;
+  background-position: 0 58%;
+  background-size: 100% 0.08em;
+  box-decoration-break: clone;
+  color: var(--muted-foreground);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: strike linear both;
+    animation-range: cover 48% cover 64%;
+    animation-timeline: view();
+  }
+}
+
+@keyframes strike {
+  from {
+    background-size: 0% 0.08em;
+    color: var(--foreground);
+  }
+}

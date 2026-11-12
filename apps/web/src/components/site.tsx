@@ -136,6 +136,10 @@ export const SiteFooter = () => {
               link: <Link to="/pricing">{t.site.nav.pricing}</Link>,
             },
             {
+              label: 'mcp',
+              link: <Link to="/mcp">{t.site.nav.mcp}</Link>,
+            },
+            {
               label: 'login',
               link: <Link to="/login">{t.site.nav.signIn}</Link>,
             },
@@ -175,34 +179,27 @@ export const Chapter = ({
   description,
   id,
   label,
-  number,
   title,
 }: {
   children?: ReactNode
-  description: ReactNode
+  description?: ReactNode
   id?: string
   label: string
-  number?: string
   title: ReactNode
 }) => (
   <section id={id} className={cn(CONTAINER, 'scroll-mt-20 py-14 sm:py-20')}>
     <Reveal className="grid gap-x-10 gap-y-6 border-t pt-8 md:grid-cols-12">
       <div className="flex flex-col gap-6 md:col-span-7">
-        <p className="text-sm font-medium">
-          {number && (
-            <span className="text-muted-foreground mr-2 tabular-nums">
-              {number}
-            </span>
-          )}
-          {label}
-        </p>
+        <p className="text-sm font-medium">{label}</p>
         <h2 className="text-display font-serif tracking-tight text-balance">
           {title}
         </h2>
       </div>
-      <p className="text-muted-foreground text-brief font-serif text-pretty md:col-span-5 md:self-end">
-        {description}
-      </p>
+      {description && (
+        <p className="text-muted-foreground text-brief font-serif text-pretty md:col-span-5 md:self-end">
+          {description}
+        </p>
+      )}
     </Reveal>
     {children}
   </section>
