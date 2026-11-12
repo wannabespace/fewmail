@@ -9,10 +9,9 @@ import {
   AccordionTrigger,
 } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
+import { Checkbox } from '@fewmail/ui/components/checkbox'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
-import { Tick02Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -69,33 +68,36 @@ const QueueCardHeader = ({
   isPicked,
   isSelected,
   item: { action, analysis, message },
+  onPick,
 }: {
   index: number
   isPicked: boolean
   isSelected: boolean
   item: QueueItem
+  onPick: () => void
 }) => {
+  const t = useT()
   const dates = useDates()
 
   return (
-    <AccordionTrigger>
+    <AccordionTrigger
+      trailing={
+        <Checkbox
+          aria-label={t.queue.pick}
+          checked={isPicked}
+          onCheckedChange={onPick}
+        />
+      }
+    >
       <span
         className={cn(
           'flex size-5.5 shrink-0 items-center justify-center rounded-md text-xs font-semibold tabular-nums',
-          isSelected || isPicked
+          isSelected
             ? 'bg-primary text-primary-foreground'
             : 'bg-secondary text-foreground/70'
         )}
       >
-        {isPicked ? (
-          <HugeiconsIcon
-            icon={Tick02Icon}
-            strokeWidth={2.5}
-            className="size-3.5"
-          />
-        ) : (
-          index + 1
-        )}
+        {index + 1}
       </span>
       <strong data-mask className="truncate font-semibold">
         {action.kind === 'cleanup'
@@ -207,6 +209,7 @@ export const QueueCard = ({
         isPicked={isPicked}
         isSelected={isSelected}
         item={item}
+        onPick={onPick}
       />
 
       <AccordionContent>
@@ -275,9 +278,6 @@ export const QueueCard = ({
               onClick={onSkip}
             >
               {t.queue.skip} <Kbd>S</Kbd>
-            </Button>
-            <Button size="sm" variant="ghost-muted" onClick={onPick}>
-              {isPicked ? t.queue.unpick : t.queue.pick} <Kbd>X</Kbd>
             </Button>
             <span className="text-muted-foreground ml-auto text-xs">
               {isReply ? t.queue.draftedInVoice : null}

@@ -3,6 +3,7 @@ import { cn } from '@fewmail/ui/lib/utils'
 import { ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { createContext, useContext } from 'react'
+import type { ReactNode } from 'react'
 
 type AccordionVariant = 'default' | 'cards'
 
@@ -52,11 +53,13 @@ const AccordionItem = ({
   )
 }
 
+/** `trailing` sits beside the trigger, not in it, so a control there (a checkbox) never nests a button in a button. */
 const AccordionTrigger = ({
   className,
   children,
+  trailing,
   ...props
-}: AccordionPrimitive.Trigger.Props) => {
+}: AccordionPrimitive.Trigger.Props & { trailing?: ReactNode }) => {
   const variant = useContext(VariantContext)
 
   return (
@@ -90,6 +93,9 @@ const AccordionTrigger = ({
           </>
         )}
       </AccordionPrimitive.Trigger>
+      {trailing && (
+        <div className="flex shrink-0 items-center pr-4.5">{trailing}</div>
+      )}
     </AccordionPrimitive.Header>
   )
 }
