@@ -942,6 +942,7 @@ const MailRow = ({
       <MailRowActions
         actions={actions}
         canSnooze={canSnooze}
+        className={ROW_ACTIONS}
         isPinned={message.isPinned}
         isSnoozeOpen={isSnoozeOpen}
         messageIds={messageIds}
@@ -1034,7 +1035,7 @@ const PinnedRow = ({
       <MailRowActions
         actions={actions}
         canSnooze={canSnooze}
-        className="top-1"
+        className={cn(ROW_ACTIONS, 'top-1')}
         isPinned
         isSnoozeOpen={isSnoozeOpen}
         messageIds={messageIds}

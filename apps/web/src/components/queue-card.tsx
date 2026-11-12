@@ -26,7 +26,7 @@ import { client } from '~/lib/orpc'
 
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
-import { ROW_ACTIONS } from './thread-view'
+import { ROW_SWAP } from './thread-view'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
 type Action = QueueItem['action']
@@ -95,12 +95,7 @@ const QuickActions = ({
   const t = useT()
 
   return (
-    <span
-      className={cn(
-        ROW_ACTIONS,
-        'bg-popover inset-y-0 right-full items-center'
-      )}
-    >
+    <span className="flex opacity-0 group-hover:opacity-100">
       {/* A reply is never sent unread: it needs the open card. */}
       {!sendsDraft(action) && (
         <IconButton
@@ -157,15 +152,27 @@ const QueueCardHeader = ({
     <AccordionTrigger
       trailing={
         <>
-          {!isSelected && (
-            <QuickActions
-              action={action}
-              hasMessage={!!message}
-              onApprove={onApprove}
-              onOpen={onOpen}
-              onSkip={onSkip}
-            />
-          )}
+          <span className={cn(ROW_SWAP, 'mr-3')}>
+            {message && (
+              <span
+                className={cn(
+                  'text-muted-foreground text-xs',
+                  !isSelected && 'group-hover:opacity-0'
+                )}
+              >
+                {dates.ago(message.receivedAt)}
+              </span>
+            )}
+            {!isSelected && (
+              <QuickActions
+                action={action}
+                hasMessage={!!message}
+                onApprove={onApprove}
+                onOpen={onOpen}
+                onSkip={onSkip}
+              />
+            )}
+          </span>
           <Checkbox
             aria-label={t.queue.pick}
             checked={isPicked}
@@ -192,11 +199,6 @@ const QueueCardHeader = ({
       <span data-mask className="text-muted-foreground min-w-0 flex-1 truncate">
         {headline({ action, analysis, message })}
       </span>
-      {message && (
-        <span className="text-muted-foreground shrink-0 text-xs">
-          {dates.ago(message.receivedAt)}
-        </span>
-      )}
     </AccordionTrigger>
   )
 }

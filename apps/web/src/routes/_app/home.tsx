@@ -61,6 +61,7 @@ import { QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import {
   MailRowActions,
+  ROW_SWAP,
   sweepOf,
   ThreadView,
   useMailActions,
@@ -234,16 +235,18 @@ const MailDigest = ({ today }: { today: Today }) => {
               }
               description={<span data-mask>{analysis.summary}</span>}
             >
-              <span className="relative flex items-center gap-2">
-                <Ago date={message.receivedAt} />
-                <ImportanceDot
-                  importance={analysis.importance}
-                  reason={analysis.reason}
-                />
+              <span className={`${ROW_SWAP} group/swap`}>
+                <span className="flex items-center gap-2 group-hover/item:opacity-0 group-has-data-popup-open/swap:opacity-0">
+                  <Ago date={message.receivedAt} />
+                  <ImportanceDot
+                    importance={analysis.importance}
+                    reason={analysis.reason}
+                  />
+                </span>
                 <MailRowActions
                   actions={actions}
                   canSnooze
-                  className="bg-popover top-1/2 right-0 -translate-y-1/2 group-hover/item:opacity-100"
+                  className="group-hover/item:opacity-100"
                   messageIds={[message.id]}
                   sweep={sweep}
                 />
