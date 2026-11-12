@@ -64,6 +64,8 @@ export const tr: Messages = {
     failed: 'Ajan işi bitiremedi. Tekrar dene.',
     lead: 'E-postaların hakkında sor ya da ne yapılacağını söyle. Gönderen ya da Gmail’i değiştiren her şey senin onayını bekler.',
     newChat: 'Yeni sohbet',
+    closeChat: 'Sekmeyi kapat',
+    switchChat: 'Sohbet değiştir',
     noChats: 'Henüz sohbet yok',
     cancelEdit: 'Düzenlemeyi iptal et',
     copy: 'Kopyala',

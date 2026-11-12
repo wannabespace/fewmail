@@ -64,6 +64,8 @@ export const nl: Messages = {
     failed: 'De agent kon het niet afmaken. Probeer het opnieuw.',
     lead: 'Vraag iets over je mail of zeg wat er moet gebeuren. Alles wat verstuurt of Gmail wijzigt, wacht op jouw ja.',
     newChat: 'Nieuwe chat',
+    closeChat: 'Tabblad sluiten',
+    switchChat: 'Andere chat',
     noChats: 'Nog geen chats',
     cancelEdit: 'Bewerken annuleren',
     copy: 'Kopiëren',

@@ -64,6 +64,8 @@ export const ko: Messages = {
     failed: '에이전트가 끝내지 못했어요. 다시 시도해 주세요.',
     lead: '메일에 대해 묻거나 할 일을 말해 주세요. 보내거나 Gmail을 바꾸는 일은 모두 당신의 확인을 기다려요.',
     newChat: '새 채팅',
+    closeChat: '탭 닫기',
+    switchChat: '채팅 전환',
     noChats: '아직 채팅이 없어요',
     cancelEdit: '편집 취소',
     copy: '복사',

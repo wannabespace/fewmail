@@ -41,6 +41,8 @@ export const de: Messages = {
     failed: 'Der Agent konnte nicht fertig werden. Versuch es noch einmal.',
     lead: 'Frag nach deinen Mails oder sag, was zu tun ist. Alles, was sendet oder Gmail ändert, wartet auf dein Ja.',
     newChat: 'Neuer Chat',
+    closeChat: 'Tab schließen',
+    switchChat: 'Chat wechseln',
     noChats: 'Noch keine Chats',
     cancelEdit: 'Bearbeiten abbrechen',
     copy: 'Kopieren',

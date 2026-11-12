@@ -64,6 +64,8 @@ export const pl: Messages = {
     failed: 'Agent nie dał rady dokończyć. Spróbuj ponownie.',
     lead: 'Pytaj o swoją pocztę albo powiedz, co zrobić. Wszystko, co wysyła lub zmienia Gmaila, czeka na twoje „tak”.',
     newChat: 'Nowy czat',
+    closeChat: 'Zamknij kartę',
+    switchChat: 'Przełącz czat',
     noChats: 'Nie ma jeszcze czatów',
     cancelEdit: 'Anuluj edycję',
     copy: 'Kopiuj',

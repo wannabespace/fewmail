@@ -64,6 +64,8 @@ export const id: Messages = {
     failed: 'Agen tidak bisa menyelesaikannya. Coba lagi.',
     lead: 'Tanyakan soal email kamu atau bilang apa yang harus dilakukan. Semua yang mengirim atau mengubah Gmail menunggu persetujuanmu.',
     newChat: 'Obrolan baru',
+    closeChat: 'Tutup tab',
+    switchChat: 'Ganti obrolan',
     noChats: 'Belum ada obrolan',
     cancelEdit: 'Batalkan edit',
     copy: 'Salin',

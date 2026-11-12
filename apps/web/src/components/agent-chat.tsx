@@ -50,9 +50,16 @@ import {
   MessageScrollerItem,
   MessageScrollerProvider,
   MessageScrollerViewport,
+  useMessageScroller,
+  useMessageScrollerVisibility,
 } from '@fewmail/ui/components/message-scroller'
 import { Response } from '@fewmail/ui/components/response'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@fewmail/ui/components/tooltip'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Mic01Icon,
@@ -755,13 +762,16 @@ const UserBubble = ({ text }: { text: string }) => {
   return parsed ? (
     <Bubble variant="tinted">
       <BubbleContent>
-        <span className="flex items-center gap-2 font-medium">
+        <span className="flex items-center gap-2">
           <HugeiconsIcon
             icon={SKILL_ICONS[parsed.skill]}
             strokeWidth={2}
             className="size-4"
           />
-          {t.skills[parsed.skill]}
+          <span className="font-medium">/{parsed.skill}</span>
+          <span className="text-muted-foreground truncate">
+            {t.skills[parsed.skill]}
+          </span>
         </span>
         {parsed.details && (
           <p data-mask className="mt-1 whitespace-pre-wrap">
@@ -807,6 +817,58 @@ const textOf = (message: UIMessage) =>
   message.parts
     .flatMap((part) => (part.type === 'text' ? [part.text] : []))
     .join('\n\n')
+
+const MessageRail = ({ messages }: { messages: UIMessage[] }) => {
+  const { scrollToMessage } = useMessageScroller()
+  const { visibleMessageIds } = useMessageScrollerVisibility()
+  const turns: { ids: string[]; question: UIMessage }[] = []
+  for (const message of messages) {
+    if (message.role === 'user') {
+      turns.push({ ids: [message.id], question: message })
+    } else {
+      turns.at(-1)?.ids.push(message.id)
+    }
+  }
+
+  return turns.length < 2 ? null : (
+    <nav className="absolute top-1/2 right-3 flex max-h-[70%] -translate-y-1/2 scrollbar-none flex-col overflow-y-auto">
+      {turns.map(({ ids, question }) => (
+        <Tooltip key={question.id}>
+          <TooltipTrigger
+            render={
+              <button
+                type="button"
+                className="group/rail flex cursor-pointer justify-end py-1 pl-3"
+                onClick={() =>
+                  scrollToMessage(question.id, {
+                    align: 'start',
+                    behavior: 'smooth',
+                  })
+                }
+              >
+                <span
+                  className={cn(
+                    'bg-foreground/15 group-hover/rail:bg-foreground/60 h-0.5 w-3 rounded-full transition-[width,background-color] group-hover/rail:w-5',
+                    ids.some((id) => visibleMessageIds.includes(id)) &&
+                      'bg-foreground/50'
+                  )}
+                />
+                <span data-mask className="sr-only">
+                  {textOf(question)}
+                </span>
+              </button>
+            }
+          />
+          <TooltipContent side="left">
+            <span data-mask className="line-clamp-2">
+              {textOf(question)}
+            </span>
+          </TooltipContent>
+        </Tooltip>
+      ))}
+    </nav>
+  )
+}
 
 const MessageActions = ({
   message,
@@ -1132,6 +1194,7 @@ export const AgentChat = ({
                 )}
               </MessageScrollerContent>
             </MessageScrollerViewport>
+            <MessageRail messages={messages} />
             <MessageScrollerButton />
           </MessageScroller>
         </MessageScrollerProvider>

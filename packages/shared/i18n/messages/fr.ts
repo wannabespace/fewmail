@@ -42,6 +42,8 @@ export const fr: Messages = {
     failed: 'L’agent n’a pas pu terminer. Réessayez.',
     lead: 'Posez une question sur vos e-mails ou dites quoi faire. Tout ce qui envoie ou modifie Gmail attend votre accord.',
     newChat: 'Nouvelle discussion',
+    closeChat: 'Fermer l’onglet',
+    switchChat: 'Changer de discussion',
     noChats: 'Aucune discussion pour l’instant',
     cancelEdit: 'Annuler la modification',
     copy: 'Copier',

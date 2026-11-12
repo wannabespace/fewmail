@@ -64,6 +64,8 @@ export const en = {
     failed: 'The agent could not finish. Try again.',
     lead: 'Ask about your mail or say what to do. Anything that sends or changes Gmail waits for your yes.',
     newChat: 'New chat',
+    closeChat: 'Close tab',
+    switchChat: 'Switch chat',
     noChats: 'No chats yet',
     cancelEdit: 'Cancel editing',
     copy: 'Copy',

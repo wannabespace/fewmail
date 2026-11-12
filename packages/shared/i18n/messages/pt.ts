@@ -65,6 +65,8 @@ export const pt: Messages = {
     failed: 'O agente não conseguiu terminar. Tente de novo.',
     lead: 'Pergunte sobre seus e-mails ou diga o que fazer. Tudo o que envia ou altera o Gmail espera o seu sim.',
     newChat: 'Nova conversa',
+    closeChat: 'Fechar aba',
+    switchChat: 'Trocar de conversa',
     noChats: 'Nenhuma conversa ainda',
     cancelEdit: 'Cancelar edição',
     copy: 'Copiar',

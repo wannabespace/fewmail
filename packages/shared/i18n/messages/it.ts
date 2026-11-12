@@ -42,6 +42,8 @@ export const it: Messages = {
     failed: 'L’agente non è riuscito a finire. Riprova.',
     lead: 'Chiedi della tua posta o di’ cosa fare. Tutto ciò che invia o modifica Gmail aspetta il tuo sì.',
     newChat: 'Nuova chat',
+    closeChat: 'Chiudi scheda',
+    switchChat: 'Cambia chat',
     noChats: 'Ancora nessuna chat',
     cancelEdit: 'Annulla modifica',
     copy: 'Copia',

@@ -1,4 +1,4 @@
-import { Button } from '@fewmail/ui/components/button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   ResizableGroup,
   ResizablePanel,
@@ -8,16 +8,22 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
+import {
+  Add01Icon,
+  Cancel01Icon,
+  Clock01Icon,
+  Delete02Icon,
+} from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
@@ -34,6 +40,13 @@ const readerWidthStore = createWebStorageValue({
   defaultValue: READER_WIDTH.default as number,
   key: 'fewmail.agent-reader-width',
   schema: type('number'),
+  type: 'localStorage',
+})
+
+const openChatsStore = createWebStorageValue({
+  defaultValue: [] as string[],
+  key: 'fewmail.agent-tabs',
+  schema: type('string[]'),
   type: 'localStorage',
 })
 
@@ -56,12 +69,54 @@ const AgentPage = () => {
       input: { id: chatId },
     })
   )
-  const { data: chats = [] } = useQuery(orpc.chats.list.queryOptions())
-  const current = chats.find(({ id }) => id === chatId)
+  const { data: chats = [], isSuccess } = useQuery(
+    orpc.chats.list.queryOptions()
+  )
+  const openIds = useSubscription(openChatsStore)
+  const tabIds = [
+    ...openIds.filter(
+      (id) =>
+        id === chatId || !isSuccess || chats.some((item) => item.id === id)
+    ),
+    ...(openIds.includes(chatId) ? [] : [chatId]),
+  ]
+  const titleOf = (id: string) =>
+    chats.find((item) => item.id === id)?.title ?? t.agent.newChat
+
+  useEffect(() => {
+    const open = openChatsStore.get()
+    if (chat && !open.includes(chat)) {
+      openChatsStore.set([...open, chat])
+    }
+  }, [chat])
 
   const startChat = () => {
     setDraftId(crypto.randomUUID())
     void navigate({ search: {}, to: '/agent' })
+  }
+  const openChat = (id: string) =>
+    navigate({
+      search: { chat: id === draftId && !chat ? undefined : id },
+      to: '/agent',
+    })
+  const stepChat = (offset: number) => {
+    const next = tabIds[tabIds.indexOf(chatId) + offset]
+    if (next) {
+      void openChat(next)
+    }
+  }
+  const closeChat = (id: string) => {
+    openChatsStore.set(openIds.filter((item) => item !== id))
+    if (id !== chatId) {
+      return
+    }
+    const index = tabIds.indexOf(id)
+    const next = tabIds[index + 1] ?? tabIds[index - 1]
+    if (next) {
+      void openChat(next)
+    } else {
+      startChat()
+    }
   }
   const showThread = (id: string | undefined) =>
     navigate({
@@ -78,7 +133,7 @@ const AgentPage = () => {
   const remove = useMutation(
     orpc.chats.delete.mutationOptions({
       onMutate: ({ id }) => {
-        startChat()
+        closeChat(id)
         queryClient.setQueryData(orpc.chats.list.queryKey(), (old) =>
           old?.filter((item) => item.id !== id)
         )
@@ -89,6 +144,8 @@ const AgentPage = () => {
   )
 
   useHotkey('Mod+Shift+O', startChat, { ignoreInputs: false })
+  useHotkey('Alt+ArrowUp', () => stepChat(-1), { ignoreInputs: false })
+  useHotkey('Alt+ArrowDown', () => stepChat(1), { ignoreInputs: false })
   useHotkey('Escape', closeThread, { enabled: Boolean(thread) })
   useHotkey('J', () => stepThread(1))
   useHotkey('K', () => stepThread(-1))
@@ -96,20 +153,56 @@ const AgentPage = () => {
   return (
     <ResizableGroup className="flex-1">
       <ResizablePanel className="flex min-w-0 flex-col">
-        <header className="flex h-14 shrink-0 items-center gap-4 px-5">
-          <span
-            data-mask
-            className="text-muted-foreground min-w-0 truncate text-sm"
+        <header className="flex h-14 shrink-0 items-center gap-1 px-5">
+          <Tabs
+            className="min-w-0"
+            value={chatId}
+            onValueChange={(id: string) => openChat(id)}
           >
-            {current?.title}
-          </span>
-          <div className="ml-auto flex shrink-0 items-center gap-1">
+            <TabsList
+              variant="pill"
+              className="scroll-fade-x max-w-full scrollbar-none justify-start overflow-x-auto"
+            >
+              {tabIds.map((id) => (
+                <div key={id} className="group/tab flex shrink-0 items-center">
+                  <TabsTrigger value={id} className="max-w-52">
+                    <span data-mask className="truncate">
+                      {titleOf(id)}
+                    </span>
+                  </TabsTrigger>
+                  <IconButton
+                    className="opacity-0 group-hover/tab:opacity-100 group-has-data-active/tab:opacity-100 data-popup-open:opacity-100"
+                    icon={Cancel01Icon}
+                    label={t.agent.closeChat}
+                    size="icon-2xs"
+                    variant="ghost-muted"
+                    onClick={() => closeChat(id)}
+                  />
+                </div>
+              ))}
+            </TabsList>
+          </Tabs>
+          <IconButton
+            className="shrink-0"
+            icon={Add01Icon}
+            label={t.agent.newChat}
+            shortcut={<Kbd>⇧⌘O</Kbd>}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={startChat}
+          />
+          <div className="ml-auto flex shrink-0 items-center">
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={<Button size="sm" variant="ghost-muted" />}
-              >
-                {t.agent.chats}
-              </DropdownMenuTrigger>
+                render={
+                  <IconButton
+                    icon={Clock01Icon}
+                    label={t.agent.chats}
+                    size="icon-sm"
+                    variant="ghost-muted"
+                  />
+                }
+              />
               <DropdownMenuContent align="end" className="w-80">
                 {chats.length === 0 && (
                   <DropdownMenuItem disabled>
@@ -129,24 +222,21 @@ const AgentPage = () => {
                     <DropdownMenuShortcut>
                       {dates.ago(item.updatedAt)}
                     </DropdownMenuShortcut>
+                    <IconButton
+                      className="-my-1 -mr-1 opacity-0 group-hover/dropdown-menu-item:opacity-100 group-focus/dropdown-menu-item:opacity-100"
+                      icon={Delete02Icon}
+                      label={t.agent.deleteChat}
+                      size="icon-sm"
+                      variant="ghost-destructive"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        remove.mutate({ id: item.id })
+                      }}
+                    />
                   </DropdownMenuItem>
                 ))}
-                {current && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => remove.mutate({ id: current.id })}
-                    >
-                      {t.agent.deleteChat}
-                    </DropdownMenuItem>
-                  </>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button size="sm" variant="ghost-muted" onClick={startChat}>
-              {t.agent.newChat} <Kbd>⇧⌘O</Kbd>
-            </Button>
           </div>
         </header>
         {isSaved && !saved ? (
@@ -177,6 +267,9 @@ const AgentPage = () => {
               ? [['J', t.keys.open] as [string, string]]
               : []),
             ['⇧⌘O', t.agent.newChat],
+            ...(tabIds.length > 1
+              ? [['⌥↑↓', t.agent.switchChat] as [string, string]]
+              : []),
           ]}
         />
       </ResizablePanel>
