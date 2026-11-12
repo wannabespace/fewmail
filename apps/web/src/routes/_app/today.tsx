@@ -2,7 +2,6 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import { sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
-import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   SettingsGroup,
   SettingsRow,
@@ -16,6 +15,7 @@ import {
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
 import { PlayIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -34,7 +34,12 @@ import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { QueueCard } from '~/components/queue-card'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
-import { hideThread, prefetchThread, threadOfMessage } from '~/lib/mail-db'
+import {
+  hideThread,
+  isReadingFirstTime,
+  prefetchThread,
+  threadOfMessage,
+} from '~/lib/mail-db'
 import { useMe, useSaveSettings } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
@@ -338,11 +343,11 @@ const todayHints = (
         ['⌘K', t.keys.anything],
       ]
 
-const isReadingFirstTime = (data?: {
-  mailboxes: { lastSyncedAt: Date | null; syncError: string | null }[]
-}) =>
+/** Missing, or saying all is calm above emails that need the user (written before they were read). */
+const isOutdated = (data?: Today) =>
   !!data &&
-  data.mailboxes.every((mailbox) => !mailbox.lastSyncedAt && !mailbox.syncError)
+  !isReadingFirstTime(data.mailboxes) &&
+  (!data.brief || (data.brief.stats.needYou === 0 && data.queue.length > 0))
 
 const BriefLoading = ({ note }: { note: string }) => (
   <div aria-busy className="flex flex-col gap-5">
@@ -389,13 +394,10 @@ const BriefBody = ({
       )}
       {brief && (
         <div>
-          <IconButton
-            icon={PlayIcon}
-            label={t.today.listen}
-            size="icon-sm"
-            variant="ghost-muted"
-            onClick={() => playBrief()}
-          />
+          <Button size="sm" variant="secondary" onClick={() => playBrief()}>
+            <HugeiconsIcon icon={PlayIcon} strokeWidth={2} />
+            {t.today.listen}
+          </Button>
         </div>
       )}
       {isLoading && (
@@ -432,7 +434,7 @@ const TodayPage = () => {
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
   const queue = data?.queue ?? []
-  const isFirstRead = isReadingFirstTime(data)
+  const isFirstRead = !!data && isReadingFirstTime(data.mailboxes)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
@@ -527,13 +529,13 @@ const TodayPage = () => {
   const refreshBrief = useMutation(
     orpc.today.refreshBrief.mutationOptions({ onSuccess: invalidate })
   )
-  const isMissingBrief = !!data && !data.brief && !isFirstRead
+  const isBriefOutdated = isOutdated(data)
   const { isIdle: isBriefIdle, mutate: writeBrief } = refreshBrief
   useEffect(() => {
-    if (isMissingBrief && isBriefIdle) {
+    if (isBriefOutdated && isBriefIdle) {
       writeBrief()
     }
-  }, [isMissingBrief, isBriefIdle, writeBrief])
+  }, [isBriefOutdated, isBriefIdle, writeBrief])
 
   const draftOf = (item: (typeof queue)[number]) =>
     drafts[item.action.id] ?? item.action.detail ?? ''

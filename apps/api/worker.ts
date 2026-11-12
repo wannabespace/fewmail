@@ -22,7 +22,7 @@ import { env } from './env'
 import { announceChange } from './lib/live'
 import { logError } from './lib/log'
 import { seedBoards } from './services/boards'
-import { generateBrief, getLatestBrief, isBriefDue } from './services/brief'
+import { generateBrief, isBriefDue } from './services/brief'
 import { askAgent, postToChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
 import { followForwarded } from './services/forwarded'
@@ -84,13 +84,6 @@ const once = async (key: string, run: () => Promise<unknown>) => {
   }
 }
 
-/** Today writes a brief the moment it opens, so one written while the first sync kept failing says the inbox is empty. */
-const rewriteEarlyBrief = async (userId: string) => {
-  if (hasAgent(await getPlanInfo(userId)) && (await getLatestBrief(userId))) {
-    await generateBrief(userId)
-  }
-}
-
 const syncDueMailboxes = async () => {
   const due = await db
     .select()
@@ -114,12 +107,7 @@ const syncDueMailboxes = async () => {
     .where(isNull(mailboxes.id))
   await Promise.all([
     ...due.map((mailbox) =>
-      once(`sync:${mailbox.id}`, async () => {
-        await syncMailbox(mailbox)
-        if (!mailbox.historyId) {
-          await rewriteEarlyBrief(mailbox.userId)
-        }
-      })
+      once(`sync:${mailbox.id}`, () => syncMailbox(mailbox))
     ),
     ...withoutMailbox.map(({ userId }) =>
       once(`sync:${userId}`, async () =>

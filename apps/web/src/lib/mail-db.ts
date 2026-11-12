@@ -28,6 +28,10 @@ export type MailRow = RouterOutputs['mail']['list'][number] & {
 
 export type Thread = RouterOutputs['mail']['thread'] & { threadId: string }
 
+/** A failed first sync still sets `lastSyncedAt`, so only `hasSynced` tells an empty inbox from one not read yet. */
+export const isReadingFirstTime = (mailboxes: { hasSynced: boolean }[]) =>
+  mailboxes.every(({ hasSynced }) => !hasSynced)
+
 // Keys sit under `orpc.mail.key()` so every existing mail invalidation (and the live stream) refreshes them too.
 const [mailKey] = orpc.mail.key()
 

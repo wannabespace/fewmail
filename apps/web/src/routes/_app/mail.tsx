@@ -69,7 +69,7 @@ import {
 } from '~/components/thread-view'
 import type { Place, Sweep } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
-import { mailRowsOf, prefetchThread } from '~/lib/mail-db'
+import { isReadingFirstTime, mailRowsOf, prefetchThread } from '~/lib/mail-db'
 import type { MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
@@ -95,6 +95,31 @@ const ARRIVING = new Set<Filter>([
   'quiet',
   'spam',
 ])
+
+const MailListEmpty = ({
+  filter,
+  mailboxes,
+}: {
+  filter: Filter
+  mailboxes: { hasSynced: boolean }[]
+}) => {
+  const t = useT()
+  const isFirstRead = mailboxes.length > 0 && isReadingFirstTime(mailboxes)
+
+  return (
+    <Empty size="sm">
+      <EmptyHeader>
+        <EmptyMedia variant="muted">
+          {isFirstRead ? <Spinner /> : <HugeiconsIcon icon={Mail01Icon} />}
+        </EmptyMedia>
+        <EmptyTitle>{isFirstRead ? t.nav.syncing : t.mail.empty}</EmptyTitle>
+        <EmptyDescription hidden={isFirstRead || !ARRIVING.has(filter)}>
+          {t.mail.emptyHint}
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  )
+}
 
 const OUT_OF_INBOX: Partial<Record<Filter, Place>> = {
   archive: 'elsewhere',
@@ -1021,17 +1046,7 @@ const MailPage = () => {
             </div>
           </div>
           {total === 0 && !isFetching && (
-            <Empty size="sm">
-              <EmptyHeader>
-                <EmptyMedia variant="muted">
-                  <HugeiconsIcon icon={Mail01Icon} />
-                </EmptyMedia>
-                <EmptyTitle>{t.mail.empty}</EmptyTitle>
-                <EmptyDescription hidden={!ARRIVING.has(filter)}>
-                  {t.mail.emptyHint}
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
+            <MailListEmpty filter={filter} mailboxes={mailboxes} />
           )}
           <ul
             ref={listRef}

@@ -19,6 +19,7 @@ export const listMailboxes = (userId: string) =>
     .select({
       email: mailboxes.email,
       googleAccountId: mailboxes.googleAccountId,
+      historyId: mailboxes.historyId,
       id: mailboxes.id,
       lastSyncedAt: mailboxes.lastSyncedAt,
       syncError: mailboxes.syncError,
@@ -27,8 +28,9 @@ export const listMailboxes = (userId: string) =>
     .where(eq(mailboxes.userId, userId))
     .orderBy(asc(mailboxes.createdAt))
     .then((rows) =>
-      rows.map(({ googleAccountId, ...mailbox }) => ({
+      rows.map(({ googleAccountId, historyId, ...mailbox }) => ({
         ...mailbox,
+        hasSynced: historyId !== null,
         signIn: googleAccountId === null,
       }))
     )
