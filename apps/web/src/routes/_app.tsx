@@ -45,7 +45,7 @@ const useNewVersionToast = () => {
     enabled: Boolean(BUILT_COMMIT),
     queryFn: async () => {
       const response = await fetch('/version.txt', { cache: 'no-store' })
-      // Without the file the server answers with the app shell: that is not a newer commit.
+      // Without the file Caddy answers with the app shell: that is not a newer commit.
       if (!response.headers.get('content-type')?.startsWith('text/plain')) {
         return BUILT_COMMIT
       }

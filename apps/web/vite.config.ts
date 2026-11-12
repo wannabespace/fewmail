@@ -84,7 +84,7 @@ const withHead = (html: string, path: string) =>
 /**
  * Each public page is emitted as `<path>/index.html` with its own title, description and canonical, so
  * crawlers and link previews that never run JS still see them. `/` is `index.html` itself, so the
- * `noindex` app shell moves to `app.html`, which `apps/api/lib/web.ts` serves for every other route.
+ * `noindex` app shell moves to `app.html`, which `Caddyfile` serves for every other route.
  */
 const seo = (): Plugin => ({
   configureServer(server) {

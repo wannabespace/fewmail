@@ -15,16 +15,6 @@ RUN pnpm rebuild --filter @fewmail/api... --filter .
 COPY . .
 RUN pnpm --dir apps/api run check-types
 
-FROM base AS web
-RUN pnpm install --frozen-lockfile --ignore-scripts --filter @fewmail/web...
-RUN pnpm rebuild --filter @fewmail/web...
-COPY . .
-# Railway passes service variables to the build only when they are declared here; Vite inlines API_URL and the commit.
-ARG API_URL
-ARG WEB_URL
-ARG RAILWAY_GIT_COMMIT_SHA
-RUN pnpm --dir apps/web run build
-
 FROM base
 # A production-only install looks stale to pnpm, which would then reinstall the whole workspace before every `pnpm run`.
 ENV pnpm_config_verify_deps_before_run=false
@@ -33,8 +23,6 @@ RUN pnpm rebuild --filter @fewmail/api...
 COPY . .
 # Without a reference to the checked stage BuildKit skips it, and the type check with it.
 COPY --from=checked /app/apps/api/package.json /tmp/checked
-# Served by the API on `fewmail.app` (`lib/web.ts`).
-COPY --from=web /app/apps/web/dist /app/apps/web/dist
 WORKDIR /app/apps/api
 # Not `pnpm run start`: as PID 1 pnpm never passes SIGTERM on, so the worker could not drain.
 CMD ["env", "NODE_ENV=production", "bun", "run", "./index.ts"]
