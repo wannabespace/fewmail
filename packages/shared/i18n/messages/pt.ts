@@ -204,7 +204,6 @@ export const pt: Messages = {
       'Viagens: voos, hotéis e aluguel de carro, com quanto custaram',
     due: (when: string) => `Em breve: ${when}`,
     empty: 'Ainda vazio. E-mails que combinam aparecem aqui assim que chegam.',
-    emptyQuery: 'Ele procura e-mails que correspondem a',
     entries: (total: number) =>
       plural('pt', total, {
         one: () => 'Um registro',
@@ -275,11 +274,9 @@ export const pt: Messages = {
           one: () => '1 dia antes',
           other: (count) => `${count} dias antes`,
         }),
-      hint: 'Como o painel encontra seus e-mails e quando avisa você.',
+      hint: 'Quando o painel avisa você antes de uma data.',
       never: 'Nunca',
-      query: 'Busca do Gmail',
-      queryHint: 'Mudar isso lê os últimos seis meses de novo.',
-      title: 'Busca e avisos',
+      title: 'Avisos',
     },
     starter: {
       events: {

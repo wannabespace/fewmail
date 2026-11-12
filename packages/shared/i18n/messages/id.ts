@@ -204,7 +204,6 @@ export const id: Messages = {
       'Perjalanan: tiket pesawat, hotel, dan sewa mobil, beserta biayanya',
     due: (when: string) => `Segera: ${when}`,
     empty: 'Masih kosong. Email yang cocok akan muncul di sini begitu tiba.',
-    emptyQuery: 'Mencari email yang cocok dengan',
     entries: (total: number) =>
       plural('id', total, { other: (n) => `${n} entri` }),
     entry: {
@@ -269,11 +268,9 @@ export const id: Messages = {
       bannerDays: 'Pengingat sebelum tanggal',
       days: (n: number) =>
         plural('id', n, { other: (count) => `${count} hari sebelumnya` }),
-      hint: 'Cara papan menemukan emailnya dan kapan memberi tahu kamu.',
+      hint: 'Kapan papan memberi tahu kamu sebelum suatu tanggal.',
       never: 'Tidak pernah',
-      query: 'Pencarian Gmail',
-      queryHint: 'Jika diubah, enam bulan terakhir dibaca ulang.',
-      title: 'Pencarian dan pengingat',
+      title: 'Pengingat',
     },
     starter: {
       events: {

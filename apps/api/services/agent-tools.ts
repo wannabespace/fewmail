@@ -314,11 +314,10 @@ export const agentTools = (
   }),
   update_board: define({
     description:
-      "Change a board: its name, what it collects (a new description reads the last six months again; entries the user edited or removed stay), its Gmail query (also reads again), or how many days before an entry's next date it warns (1–14, null for never).",
+      "Change a board: its name, what it collects (a new description reads the last six months again; entries the user edited or removed stay), or how many days before an entry's next date it warns (1–14, null for never).",
     input: {
       bannerDays: z.number().int().min(1).max(14).nullable().optional(),
       description: z.string().min(3).optional(),
-      gmailQuery: z.string().min(1).optional(),
       id: z.uuid(),
       name: z.string().min(1).optional(),
     },

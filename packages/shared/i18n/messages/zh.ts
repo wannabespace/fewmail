@@ -1256,7 +1256,6 @@ export const zh: Messages = {
     descriptionPlaceholder: '旅行：机票、酒店和租车，以及花费',
     due: (when: string) => `即将到来：${when}`,
     empty: '暂时为空。符合条件的邮件一到就会出现在这里。',
-    emptyQuery: '查找符合以下条件的邮件',
     entries: (n: number) => `${n} 条记录`,
     entry: {
       amount: '金额',
@@ -1318,11 +1317,9 @@ export const zh: Messages = {
     settings: {
       bannerDays: '日期前提醒',
       days: (n: number) => `提前 ${n} 天`,
-      hint: '看板如何查找邮件，以及何时提醒你。',
+      hint: '看板在日期前多久提醒你。',
       never: '从不',
-      query: 'Gmail 搜索',
-      queryHint: '更改后会重新读取最近六个月的邮件。',
-      title: '搜索与提醒',
+      title: '提醒',
     },
     starter: {
       events: {

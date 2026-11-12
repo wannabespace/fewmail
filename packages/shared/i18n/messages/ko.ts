@@ -1281,7 +1281,6 @@ export const ko: Messages = {
     descriptionPlaceholder: '여행: 항공권, 호텔, 렌터카와 그 비용',
     due: (when: string) => `다가오는 날짜: ${when}`,
     empty: '아직 비어 있어요. 맞는 메일이 오면 바로 여기에 나타나요.',
-    emptyQuery: '다음 조건에 맞는 메일을 찾아요',
     entries: (n: number) => `${n}개 항목`,
     entry: {
       amount: '금액',
@@ -1344,11 +1343,9 @@ export const ko: Messages = {
     settings: {
       bannerDays: '날짜 전 미리 알림',
       days: (n: number) => `${n}일 전`,
-      hint: '보드가 메일을 찾는 방법과 미리 알려 주는 시점이에요.',
+      hint: '보드가 날짜 며칠 전에 알려 줄지 정해요.',
       never: '안 함',
-      query: 'Gmail 검색어',
-      queryHint: '바꾸면 최근 6개월을 다시 읽어요.',
-      title: '검색과 미리 알림',
+      title: '미리 알림',
     },
     starter: {
       events: {

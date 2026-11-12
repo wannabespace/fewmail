@@ -1330,7 +1330,6 @@ export const it: Messages = {
     due: (when: string) => `In arrivo: ${when}`,
     empty:
       'Ancora vuota. Le email pertinenti compariranno qui appena arrivano.',
-    emptyQuery: 'Cerca le email che corrispondono a',
     entries: (total: number) =>
       plural('it', total, {
         one: () => 'Una voce',
@@ -1401,11 +1400,9 @@ export const it: Messages = {
           one: () => '1 giorno prima',
           other: (count) => `${count} giorni prima`,
         }),
-      hint: 'Come la bacheca trova la sua posta e quando ti avvisa.',
+      hint: 'Quando la bacheca ti avvisa prima di una data.',
       never: 'Mai',
-      query: 'Ricerca Gmail',
-      queryHint: 'Se la cambi, gli ultimi sei mesi vengono riletti.',
-      title: 'Ricerca e avvisi',
+      title: 'Avvisi',
     },
     starter: {
       events: {

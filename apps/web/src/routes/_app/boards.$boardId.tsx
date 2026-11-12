@@ -1,6 +1,5 @@
 import type { BoardChart, BoardGrouping } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
-import { InlineCode } from '@fewmail/ui/components/custom/inline-code'
 import { SettingsGroup } from '@fewmail/ui/components/custom/settings-group'
 import {
   DropdownMenu,
@@ -562,24 +561,14 @@ const BoardEntries = ({
   )
 }
 
-const BoardEmpty = ({
-  board,
-  onSettings,
-}: {
-  board: Board
-  onSettings: () => void
-}) => {
+const BoardEmpty = ({ onDescribe }: { onDescribe: () => void }) => {
   const t = useT()
 
   return (
     <div className="text-muted-foreground flex flex-col items-start gap-2 rounded-2xl border border-dashed px-4.5 py-4 text-sm">
       <p>{t.boards.empty}</p>
-      <p>
-        {t.boards.emptyQuery}{' '}
-        <InlineCode data-mask>{board.gmailQuery}</InlineCode>
-      </p>
-      <Button size="sm" variant="secondary" onClick={onSettings}>
-        {t.boards.settings.title}
+      <Button size="sm" variant="secondary" onClick={onDescribe}>
+        {t.boards.describe}
       </Button>
     </div>
   )
@@ -771,10 +760,7 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
             />
           )}
           {board.total === 0 && !board.isReadingHistory && (
-            <BoardEmpty
-              board={board}
-              onSettings={() => setIsSettingsOpen(true)}
-            />
+            <BoardEmpty onDescribe={() => setEditing('description')} />
           )}
           {board.total > 0 && (
             <BoardEntries

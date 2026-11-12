@@ -1328,7 +1328,6 @@ export const es: Messages = {
     due: (when: string) => `Próximamente: ${when}`,
     empty:
       'Aún está vacío. Los correos que encajen aparecerán aquí en cuanto lleguen.',
-    emptyQuery: 'Busca correos que coincidan con',
     entries: (total: number) =>
       plural('es', total, {
         one: () => 'Una entrada',
@@ -1399,11 +1398,9 @@ export const es: Messages = {
           one: () => '1 día antes',
           other: (count) => `${count} días antes`,
         }),
-      hint: 'Cómo encuentra el tablero su correo y cuándo te avisa.',
+      hint: 'Cuándo te avisa el tablero antes de una fecha.',
       never: 'Nunca',
-      query: 'Búsqueda de Gmail',
-      queryHint: 'Al cambiarla se vuelven a leer los últimos seis meses.',
-      title: 'Búsqueda y avisos',
+      title: 'Avisos',
     },
     starter: {
       events: {

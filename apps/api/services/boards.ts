@@ -474,16 +474,13 @@ export const updateBoard = async (
     bannerDays?: number | null
     charts?: BoardChart[]
     description?: string
-    gmailQuery?: string
     name?: string
   }
 ) => {
-  const { bannerDays, gmailQuery, ...rest } = input
+  const { bannerDays, ...rest } = input
   const board = await getOwnBoard(userId, id)
   const isRedescribed =
     input.description !== undefined && input.description !== board.description
-  const query = gmailQuery?.trim()
-  const isRequeried = Boolean(query) && query !== board.gmailQuery
   const plan = isRedescribed
     ? await planBoard(
         {
@@ -501,12 +498,11 @@ export const updateBoard = async (
       ...(bannerDays !== undefined && {
         bannerDays: clampBannerDays(bannerDays),
       }),
-      ...(isRequeried && { gmailQuery: query }),
-      ...((plan || isRequeried) && { historyFound: null, historyReadAt: null }),
+      ...(plan && { historyFound: null, historyReadAt: null }),
     })
     .where(eq(boards.id, id))
   // After the new description is stored: a read still running under the old one checks it before each write (`isUnchanged`).
-  if (plan || isRequeried) {
+  if (plan) {
     await db
       .delete(boardEntries)
       .where(
@@ -527,7 +523,7 @@ export const deleteBoard = async (userId: string, id: string) => {
   await announceChange(userId, ['boards', 'today'])
 }
 
-/** A new description or search drops the entries and reads the history again; a read under the old one must stop writing. */
+/** A new description drops the entries and reads the history again; a read under the old one must stop writing. */
 export const isUnchanged = async (board: Board) => {
   const [current] = await db
     .select({ description: boards.description, gmailQuery: boards.gmailQuery })

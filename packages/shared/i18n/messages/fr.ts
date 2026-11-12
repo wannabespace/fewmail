@@ -1345,7 +1345,6 @@ export const fr: Messages = {
     due: (when: string) => `À venir : ${when}`,
     empty:
       'Encore vide. Les e-mails correspondants apparaîtront ici dès leur arrivée.',
-    emptyQuery: 'Il cherche les e-mails correspondant à',
     entries: (total: number) =>
       plural('fr', total, {
         one: () => 'Une entrée',
@@ -1416,11 +1415,9 @@ export const fr: Messages = {
           one: () => '1 jour avant',
           other: (count) => `${count} jours avant`,
         }),
-      hint: 'Comment le tableau trouve ses e-mails et quand il te prévient.',
+      hint: 'Quand le tableau te prévient avant une date.',
       never: 'Jamais',
-      query: 'Recherche Gmail',
-      queryHint: 'La modifier relit les six derniers mois.',
-      title: 'Recherche et alertes',
+      title: 'Alertes',
     },
     starter: {
       events: {

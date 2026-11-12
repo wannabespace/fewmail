@@ -1332,7 +1332,6 @@ export const de: Messages = {
       'Reisen: Flüge, Hotels und Mietwagen, mit den Kosten',
     due: (when: string) => `Steht an: ${when}`,
     empty: 'Noch leer. Passende E-Mails erscheinen hier, sobald sie ankommen.',
-    emptyQuery: 'Es sucht nach Mails passend zu',
     entries: (total: number) =>
       plural('de', total, {
         one: () => 'Ein Eintrag',
@@ -1404,11 +1403,9 @@ export const de: Messages = {
           one: () => '1 Tag vorher',
           other: (count) => `${count} Tage vorher`,
         }),
-      hint: 'Wie das Board seine Mails findet und wann es dich warnt.',
+      hint: 'Wann das Board dich vor einem Datum warnt.',
       never: 'Nie',
-      query: 'Gmail-Suche',
-      queryHint: 'Eine Änderung liest die letzten sechs Monate neu.',
-      title: 'Suche und Hinweise',
+      title: 'Hinweise',
     },
     starter: {
       events: {

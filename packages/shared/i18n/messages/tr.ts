@@ -204,7 +204,6 @@ export const tr: Messages = {
       'Seyahatler: uçuşlar, oteller ve araç kiralama, maliyetleriyle',
     due: (when: string) => `Yaklaşıyor: ${when}`,
     empty: 'Henüz boş. Uygun e-postalar gelir gelmez burada görünür.',
-    emptyQuery: 'Şununla eşleşen postaları arar:',
     entries: (total: number) =>
       plural('tr', total, { other: (n) => `${n} kayıt` }),
     entry: {
@@ -269,11 +268,9 @@ export const tr: Messages = {
       bannerDays: 'Tarihten önce uyarı',
       days: (n: number) =>
         plural('tr', n, { other: (count) => `${count} gün önce` }),
-      hint: 'Panonun postalarını nasıl bulduğu ve seni ne zaman uyardığı.',
+      hint: 'Panonun seni bir tarihten ne kadar önce uyaracağı.',
       never: 'Hiçbir zaman',
-      query: 'Gmail araması',
-      queryHint: 'Değiştirirsen son altı ay yeniden okunur.',
-      title: 'Arama ve uyarılar',
+      title: 'Uyarılar',
     },
     starter: {
       events: {

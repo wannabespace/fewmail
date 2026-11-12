@@ -203,7 +203,6 @@ export const en = {
       'Trips: flights, hotels and car rentals, with what they cost',
     due: (when: string) => `Coming up ${when}`,
     empty: 'Nothing here yet. Matching emails show up as they arrive.',
-    emptyQuery: 'It looks for mail matching',
     entries: (total: number) =>
       plural('en', total, {
         one: () => 'One entry',
@@ -274,11 +273,9 @@ export const en = {
           one: () => '1 day before',
           other: (count) => `${count} days before`,
         }),
-      hint: 'How the board finds its mail and when it warns you.',
+      hint: 'When the board warns you before a date.',
       never: 'Never',
-      query: 'Gmail search',
-      queryHint: 'Changing it reads the last six months again.',
-      title: 'Search and heads-ups',
+      title: 'Heads-ups',
     },
     starter: {
       events: {

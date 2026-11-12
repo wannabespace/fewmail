@@ -208,7 +208,6 @@ export const router = {
           'bannerDays?': '1 <= number.integer <= 14 | null',
           'charts?': boardChart.array(),
           'description?': boardText.description,
-          'gmailQuery?': 'string > 0',
           'name?': boardText.name,
         })
       )

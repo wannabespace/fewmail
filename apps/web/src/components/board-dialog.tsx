@@ -143,9 +143,8 @@ export const NewBoardDialog = () => {
   )
 }
 
-interface SearchSettings {
+interface HeadsUpSettings {
   bannerDays: number | null
-  gmailQuery: string
   id: string
 }
 
@@ -153,45 +152,24 @@ const SettingsForm = ({
   board,
   onDone,
 }: {
-  board: SearchSettings
+  board: HeadsUpSettings
   onDone: () => void
 }) => {
   const t = useT()
-  const [query, setQuery] = useState(board.gmailQuery)
   const [days, setDays] = useState(board.bannerDays)
   const update = useMutation(
     orpc.boards.update.mutationOptions({ onSettled: refetchBoards })
   )
-  const isRequeried = query.trim() !== board.gmailQuery
 
   return (
     <form
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
-        if (!query.trim()) {
-          return
-        }
         onDone()
-        update.mutate({
-          bannerDays: days,
-          id: board.id,
-          ...(isRequeried && { gmailQuery: query.trim() }),
-        })
+        update.mutate({ bannerDays: days, id: board.id })
       }}
     >
-      <div className="flex flex-col gap-1.5 text-sm">
-        <span className="text-muted-foreground">{t.boards.settings.query}</span>
-        <Textarea
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          aria-label={t.boards.settings.query}
-          data-mask
-        />
-        <span className="text-muted-foreground text-xs">
-          {t.boards.settings.queryHint}
-        </span>
-      </div>
       <div className="grid grid-cols-[1fr_auto] items-center gap-2 text-sm">
         <span className="text-muted-foreground">
           {t.boards.settings.bannerDays}
@@ -223,13 +201,7 @@ const SettingsForm = ({
         </Select>
       </div>
       <DialogFooter>
-        <Button
-          type="submit"
-          variant={isRequeried ? 'warning' : 'default'}
-          disabled={!query.trim()}
-        >
-          {isRequeried ? t.boards.redescribe : t.boards.save}
-        </Button>
+        <Button type="submit">{t.boards.save}</Button>
       </DialogFooter>
     </form>
   )
@@ -240,7 +212,7 @@ export const BoardSettingsDialog = ({
   onOpenChange,
   open,
 }: {
-  board: SearchSettings
+  board: HeadsUpSettings
   onOpenChange: (open: boolean) => void
   open: boolean
 }) => {

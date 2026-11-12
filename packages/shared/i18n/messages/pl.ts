@@ -204,7 +204,6 @@ export const pl: Messages = {
       'Podróże: loty, hotele i wynajem aut, razem z kosztami',
     due: (when: string) => `Najbliższa data: ${when}`,
     empty: 'Na razie pusto. Pasujące maile pojawią się tu, gdy tylko przyjdą.',
-    emptyQuery: 'Szuka maili pasujących do',
     entries: (total: number) =>
       plural('pl', total, {
         one: () => 'Jeden wpis',
@@ -277,11 +276,9 @@ export const pl: Messages = {
           one: () => '1 dzień wcześniej',
           other: (count) => `${count} dni wcześniej`,
         }),
-      hint: 'Jak tablica znajduje maile i kiedy cię uprzedza.',
+      hint: 'Kiedy tablica uprzedza cię przed terminem.',
       never: 'Nigdy',
-      query: 'Wyszukiwanie w Gmailu',
-      queryHint: 'Po zmianie ostatnie pół roku zostanie przeczytane od nowa.',
-      title: 'Wyszukiwanie i przypomnienia',
+      title: 'Przypomnienia',
     },
     starter: {
       events: {

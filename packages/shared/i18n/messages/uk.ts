@@ -1336,7 +1336,6 @@ export const uk: Messages = {
     due: (when: string) => `Наступна дата ${when}`,
     empty:
       'Поки порожньо. Відповідні листи з’являтимуться тут, щойно надійдуть.',
-    emptyQuery: 'Шукає листи за запитом',
     entries: (total: number) =>
       plural('uk', total, {
         one: (n) => `${n} запис`,
@@ -1411,11 +1410,9 @@ export const uk: Messages = {
           many: (count) => `за ${count} днів`,
           other: (count) => `за ${count} дня`,
         }),
-      hint: 'Як дошка знаходить листи і коли попереджає.',
+      hint: 'Коли дошка попереджає перед датою.',
       never: 'Ніколи',
-      query: 'Пошук у Gmail',
-      queryHint: 'Після зміни останні пів року буде перечитано.',
-      title: 'Пошук і нагадування',
+      title: 'Нагадування',
     },
     starter: {
       events: {

@@ -203,7 +203,6 @@ export const nl: Messages = {
       'Reizen: vluchten, hotels en huurauto’s, met wat ze kostten',
     due: (when: string) => `Binnenkort: ${when}`,
     empty: 'Nog leeg. Passende e-mails verschijnen hier zodra ze binnenkomen.',
-    emptyQuery: 'Het zoekt naar mail die past bij',
     entries: (total: number) =>
       plural('nl', total, {
         one: () => 'Eén item',
@@ -275,12 +274,9 @@ export const nl: Messages = {
           one: () => '1 dag van tevoren',
           other: (count) => `${count} dagen van tevoren`,
         }),
-      hint: 'Hoe het bord zijn mail vindt en wanneer het je waarschuwt.',
+      hint: 'Wanneer het bord je vóór een datum waarschuwt.',
       never: 'Nooit',
-      query: 'Gmail-zoekopdracht',
-      queryHint:
-        'Als je dit aanpast, worden de afgelopen zes maanden opnieuw gelezen.',
-      title: 'Zoeken en seintjes',
+      title: 'Seintjes',
     },
     starter: {
       events: {

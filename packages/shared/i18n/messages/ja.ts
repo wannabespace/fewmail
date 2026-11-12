@@ -1299,7 +1299,6 @@ export const ja: Messages = {
     descriptionPlaceholder: '旅行：航空券、ホテル、レンタカーとその費用',
     due: (when: string) => `次の日付: ${when}`,
     empty: 'まだ空です。当てはまるメールが届くとここに表示されます。',
-    emptyQuery: '次の条件に合うメールを探します',
     entries: (n: number) => `${n}件`,
     entry: {
       amount: '金額',
@@ -1361,11 +1360,9 @@ export const ja: Messages = {
     settings: {
       bannerDays: '日付の前のお知らせ',
       days: (n: number) => `${n}日前`,
-      hint: 'ボードがメールを探す方法と、お知らせするタイミング。',
+      hint: '日付の何日前にボードがお知らせするか。',
       never: 'なし',
-      query: 'Gmail の検索条件',
-      queryHint: '変更すると過去6か月を読み直します。',
-      title: '検索とお知らせ',
+      title: 'お知らせ',
     },
     starter: {
       events: {
