@@ -99,6 +99,7 @@ import type {
   UIMessage,
 } from 'ai'
 import { isSameDay, isToday, parseISO, subDays } from 'date-fns'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import type { ComponentProps, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -662,6 +663,13 @@ const ThreadChip = ({ thread }: { thread: OpenThread }) => (
 /** Home already is the `today` skill, so it is never suggested there. */
 const SUGGESTED_SKILLS = SKILLS.filter((skill) => skill !== 'today')
 
+const RISE = {
+  animate: { opacity: 1, scale: 1, transition: { duration: 0.15 }, y: 0 },
+  exit: { opacity: 0, scale: 0.98, transition: { duration: 0.1 }, y: 8 },
+  initial: { opacity: 0, scale: 0.98, y: 12 },
+  transition: { ease: [0.32, 0.72, 0, 1] },
+} as const
+
 const Suggestions = ({ onPick }: { onPick: (skill: Skill) => void }) => {
   const t = useT()
 
@@ -1053,131 +1061,144 @@ export const AgentChat = ({
   })
   useHotkey('Mod+Shift+Space', voice.toggle, { ignoreInputs: false })
   useHotkey('/', () => composerRef.current?.focus())
+  const reduceMotion = useReducedMotion()
+  const rise = reduceMotion ? { transition: { duration: 0 } } : RISE
   return (
     <div className="flex flex-col gap-2">
-      {isOpen && messages.length > 0 ? (
-        <div className="bg-popover ring-foreground/6 flex h-[min(26rem,45vh)] flex-col overflow-hidden rounded-2xl shadow-sm ring">
-          {header}
-          <MessageScrollerProvider autoScroll>
-            <MessageScroller>
-              <MessageScrollerViewport>
-                <MessageScrollerContent className="w-full px-5 pt-4 pb-3">
-                  {messages.map((message) => (
-                    <MessageScrollerItem
-                      key={message.id}
-                      messageId={message.id}
-                    >
-                      <Message
-                        align={message.role === 'user' ? 'end' : 'start'}
+      {/* popLayout from the bottom: the dock is bottom-anchored, so a top-anchored pop drops the leaving card by the height it frees. */}
+      <AnimatePresence mode="popLayout" anchorY="bottom" initial={false}>
+        {isOpen && messages.length > 0 ? (
+          <motion.div
+            key="chat"
+            {...rise}
+            className="bg-popover ring-foreground/6 flex h-[min(26rem,45vh)] origin-bottom flex-col overflow-hidden rounded-2xl shadow-sm ring"
+          >
+            {header}
+            <MessageScrollerProvider autoScroll>
+              <MessageScroller>
+                <MessageScrollerViewport>
+                  <MessageScrollerContent className="w-full px-5 pt-4 pb-3">
+                    {messages.map((message) => (
+                      <MessageScrollerItem
+                        key={message.id}
+                        messageId={message.id}
                       >
-                        <MessageContent>
-                          {message.parts.map((part, index) => {
-                            const key = `${message.id}-${index}`
-                            if (part.type === 'data-thread') {
-                              return (
-                                <ThreadChip
-                                  key={key}
-                                  thread={part.data as OpenThread}
-                                />
-                              )
-                            }
-                            if (
-                              part.type === 'text' &&
-                              message.role === 'user'
-                            ) {
-                              return <UserBubble key={key} text={part.text} />
-                            }
-                            if (part.type === 'text') {
-                              return (
-                                <div key={key} data-mask>
-                                  <Response
-                                    variant="reading"
-                                    components={RESPONSE_COMPONENTS}
-                                  >
-                                    {part.text}
-                                  </Response>
-                                </div>
-                              )
-                            }
-                            if (isToolUIPart(part)) {
-                              return (
-                                <ToolStep
-                                  key={key}
-                                  part={part}
-                                  messages={messages}
-                                  isAnswerable={
-                                    message.id === lastId && !isBusy
-                                  }
-                                  onAnswer={answer}
-                                />
-                              )
-                            }
-                            return null
-                          })}
-                          {!(isBusy && message.id === lastId) && (
-                            <MessageActions
-                              message={message}
-                              onEdit={
-                                message.role === 'user' && !isBusy
-                                  ? () => edit(message)
-                                  : undefined
+                        <Message
+                          align={message.role === 'user' ? 'end' : 'start'}
+                        >
+                          <MessageContent>
+                            {message.parts.map((part, index) => {
+                              const key = `${message.id}-${index}`
+                              if (part.type === 'data-thread') {
+                                return (
+                                  <ThreadChip
+                                    key={key}
+                                    thread={part.data as OpenThread}
+                                  />
+                                )
                               }
-                              onRegenerate={
-                                canRegenerate && message.id === lastId
-                                  ? () => {
-                                      void regenerate()
+                              if (
+                                part.type === 'text' &&
+                                message.role === 'user'
+                              ) {
+                                return <UserBubble key={key} text={part.text} />
+                              }
+                              if (part.type === 'text') {
+                                return (
+                                  <div key={key} data-mask>
+                                    <Response
+                                      variant="reading"
+                                      components={RESPONSE_COMPONENTS}
+                                    >
+                                      {part.text}
+                                    </Response>
+                                  </div>
+                                )
+                              }
+                              if (isToolUIPart(part)) {
+                                return (
+                                  <ToolStep
+                                    key={key}
+                                    part={part}
+                                    messages={messages}
+                                    isAnswerable={
+                                      message.id === lastId && !isBusy
                                     }
-                                  : undefined
+                                    onAnswer={answer}
+                                  />
+                                )
                               }
-                            />
+                              return null
+                            })}
+                            {!(isBusy && message.id === lastId) && (
+                              <MessageActions
+                                message={message}
+                                onEdit={
+                                  message.role === 'user' && !isBusy
+                                    ? () => edit(message)
+                                    : undefined
+                                }
+                                onRegenerate={
+                                  canRegenerate && message.id === lastId
+                                    ? () => {
+                                        void regenerate()
+                                      }
+                                    : undefined
+                                }
+                              />
+                            )}
+                          </MessageContent>
+                        </Message>
+                      </MessageScrollerItem>
+                    ))}
+                    {status === 'submitted' && (
+                      <MessageScrollerItem>
+                        <Marker render={<output />}>
+                          <MarkerIcon>
+                            <Spinner />
+                          </MarkerIcon>
+                          <MarkerContent>{t.agent.thinking}</MarkerContent>
+                        </Marker>
+                      </MessageScrollerItem>
+                    )}
+                    {error && (
+                      <MessageScrollerItem>
+                        <Marker role="alert">
+                          <MarkerIcon>
+                            <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
+                          </MarkerIcon>
+                          <MarkerContent>
+                            {limitText(error) ?? t.agent.failed}
+                          </MarkerContent>
+                          {!limitText(error) && (
+                            <Button
+                              size="xs"
+                              variant="ghost-muted"
+                              onClick={() => {
+                                void regenerate()
+                              }}
+                            >
+                              {t.agent.retry}
+                            </Button>
                           )}
-                        </MessageContent>
-                      </Message>
-                    </MessageScrollerItem>
-                  ))}
-                  {status === 'submitted' && (
-                    <MessageScrollerItem>
-                      <Marker render={<output />}>
-                        <MarkerIcon>
-                          <Spinner />
-                        </MarkerIcon>
-                        <MarkerContent>{t.agent.thinking}</MarkerContent>
-                      </Marker>
-                    </MessageScrollerItem>
-                  )}
-                  {error && (
-                    <MessageScrollerItem>
-                      <Marker role="alert">
-                        <MarkerIcon>
-                          <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
-                        </MarkerIcon>
-                        <MarkerContent>
-                          {limitText(error) ?? t.agent.failed}
-                        </MarkerContent>
-                        {!limitText(error) && (
-                          <Button
-                            size="xs"
-                            variant="ghost-muted"
-                            onClick={() => {
-                              void regenerate()
-                            }}
-                          >
-                            {t.agent.retry}
-                          </Button>
-                        )}
-                      </Marker>
-                    </MessageScrollerItem>
-                  )}
-                </MessageScrollerContent>
-              </MessageScrollerViewport>
-              <MessageRail messages={messages} />
-              <MessageScrollerButton />
-            </MessageScroller>
-          </MessageScrollerProvider>
-        </div>
-      ) : (
-        !text && <Suggestions onPick={(skill) => send(`/${skill}`)} />
-      )}
+                        </Marker>
+                      </MessageScrollerItem>
+                    )}
+                  </MessageScrollerContent>
+                </MessageScrollerViewport>
+                <MessageRail messages={messages} />
+                <MessageScrollerButton />
+              </MessageScroller>
+            </MessageScrollerProvider>
+          </motion.div>
+        ) : (
+          !text && (
+            <motion.div key="suggestions" {...rise}>
+              <Suggestions onPick={(skill) => send(`/${skill}`)} />
+            </motion.div>
+          )
+        )}
+      </AnimatePresence>
       <form
         className="relative"
         onSubmit={(event) => {
