@@ -63,6 +63,7 @@ export const BriefHourSelect = ({
       {label ? (
         <SelectTrigger
           aria-label={t.settings.briefTitle}
+          className="ml-1.5"
           size="sm"
           variant="ghost-faint"
         >
