@@ -256,7 +256,6 @@ export const ja: Messages = {
     mail: 'メール',
     nothingMatches: '一致するものはありません。',
     placeholder: 'メールについて質問、またはコマンドを実行…',
-    commandsOnly: 'コマンドを実行…',
     rewriteBrief: 'ブリーフを書き直す',
     teachRule: '新しいルールを教える',
     upgrade: 'Pro にアップグレード',
@@ -1576,6 +1575,22 @@ export const ja: Messages = {
     next: '次のステップ',
     start: '開始',
     started: 'エージェントが対応中です。',
+  },
+  upgrade: {
+    ask: 'メールに聞く',
+    hints: {
+      agent:
+        'Fewmail Pro の機能です。メールについて質問したり、してほしいことを伝えたりすると、エージェントが実行します。Gmail で何かを変える前には必ずあなたの承認を待ちます。',
+      ask: 'Fewmail Pro の機能です。普段の言葉で何でも質問すると、あなた自身のメールから答えが返ってきます。',
+      boards:
+        'Fewmail Pro の機能です。集めたいものを書くと、エージェントがメールから探し出し、最新の状態に保ちます。',
+      drafts:
+        'Fewmail Pro の機能です。エージェントがあなたの文体で返信を書き、あなたが編集して送信します。',
+      tasks:
+        'Fewmail Pro の機能です。スレッドをエージェントに任せると、メールを送る前に毎回確認しながら最後までやり遂げます。',
+      today:
+        'Fewmail Pro の機能です。あなたが対応すべきメールが、下書き済みの返信付きで、メールが届くたびに更新されます。',
+    },
   },
   whatsapp: {
     connectFirst:

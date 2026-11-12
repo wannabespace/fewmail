@@ -750,7 +750,6 @@ export const de: Messages = {
     mail: 'Mail',
     nothingMatches: 'Keine Treffer.',
     placeholder: 'Frag nach deinen Mails oder führe einen Befehl aus…',
-    commandsOnly: 'Befehl ausführen…',
     rewriteBrief: 'Briefing neu schreiben',
     upgrade: 'Auf Pro upgraden',
     teachRule: 'Neue Regel beibringen',
@@ -1642,6 +1641,22 @@ export const de: Messages = {
     next: 'Nächster Schritt',
     start: 'Starten',
     started: 'Der Agent kümmert sich darum.',
+  },
+  upgrade: {
+    ask: 'Frag deine Mails',
+    hints: {
+      agent:
+        'Teil von Fewmail Pro: Frag nach deinen Mails oder sag, was zu tun ist – der Agent erledigt es und wartet auf dein Ja, bevor sich in Gmail etwas ändert.',
+      ask: 'Teil von Fewmail Pro: Frag alles in eigenen Worten und bekomm die Antwort aus deinen eigenen Mails.',
+      boards:
+        'Teil von Fewmail Pro: Beschreibe, was gesammelt werden soll, und der Agent findet es in deinen Mails und hält es aktuell.',
+      drafts:
+        'Teil von Fewmail Pro: Der Agent schreibt die Antwort in deinem Stil, du bearbeitest und sendest sie.',
+      tasks:
+        'Teil von Fewmail Pro: Übergib den Thread dem Agenten, er bringt ihn zu Ende und fragt vor jeder Mail, die er sendet.',
+      today:
+        'Teil von Fewmail Pro: jeden Morgen ein kurzes Briefing, die Mails, die dich brauchen, und fertige Antwortentwürfe.',
+    },
   },
   whatsapp: {
     connectFirst:

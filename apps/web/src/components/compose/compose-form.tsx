@@ -29,6 +29,7 @@ import { client, orpc } from '~/lib/orpc'
 
 import type { ComposerEditorHandle } from '../composer/composer-editor'
 import { ComposerEditor } from '../composer/composer-editor'
+import { useWithAgent } from '../upgrade-dialog'
 import type { Draft } from './compose-context'
 import { useCompose } from './compose-context'
 import type { LaterPreset } from './schedule'
@@ -49,6 +50,7 @@ export const ComposeForm = ({
 }) => {
   const t = useT()
   const hasAgent = useHasAgent()
+  const withAgent = useWithAgent()
   const { send } = useCompose()
   const editorRef = useRef<ComposerEditorHandle>(null)
   const [to, setTo] = useState(draft.to.join(', '))
@@ -256,7 +258,7 @@ export const ComposeForm = ({
           data-mask
         />
       )}
-      {hasAgent && draft.replyToMessageId && (
+      {draft.replyToMessageId && (
         <div className="flex items-center gap-2">
           <Input
             value={instruction}
@@ -269,15 +271,19 @@ export const ComposeForm = ({
             variant="secondary"
             disabled={writeDraft.isPending}
             onClick={() =>
-              draft.replyToMessageId &&
-              writeDraft.mutate(
-                {
-                  messageId: draft.replyToMessageId,
-                  ...(instruction.trim() && {
-                    instruction: instruction.trim(),
-                  }),
-                },
-                { onSuccess: fillEditor }
+              withAgent(
+                'drafts',
+                () =>
+                  draft.replyToMessageId &&
+                  writeDraft.mutate(
+                    {
+                      messageId: draft.replyToMessageId,
+                      ...(instruction.trim() && {
+                        instruction: instruction.trim(),
+                      }),
+                    },
+                    { onSuccess: fillEditor }
+                  )
               )
             }
           >

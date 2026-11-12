@@ -23,6 +23,7 @@ import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
+import { UpgradeDialog } from '~/components/upgrade-dialog'
 import { agentModeStore, signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
@@ -128,6 +129,7 @@ const AppLayout = () => {
           onOpenChange={setIsCommandMenuOpen}
         />
         <NewBoardDialog />
+        <UpgradeDialog />
         <DeleteBoardDialog />
         <ClearOutDialog />
       </div>

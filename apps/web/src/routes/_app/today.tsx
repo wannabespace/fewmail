@@ -34,6 +34,7 @@ import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { QueueCard } from '~/components/queue-card'
+import { upgradeStore } from '~/components/upgrade-dialog'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import {
   hideThread,
@@ -757,8 +758,11 @@ const TodayPage = () => {
 }
 
 export const Route = createFileRoute('/_app/today')({
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, preload }) => {
     if (context.me.plan.kind === 'free') {
+      if (!preload) {
+        upgradeStore.set('today')
+      }
       throw redirect({ to: '/mail' })
     }
   },

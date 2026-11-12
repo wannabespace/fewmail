@@ -754,7 +754,6 @@ export const it: Messages = {
     mail: 'Posta',
     nothingMatches: 'Nessun risultato.',
     placeholder: 'Chiedi della tua posta o esegui un comando…',
-    commandsOnly: 'Esegui un comando…',
     rewriteBrief: 'Riscrivi il brief',
     upgrade: 'Passa a Pro',
     teachRule: 'Insegna una nuova regola',
@@ -1642,6 +1641,22 @@ export const it: Messages = {
     next: 'Prossimo passo',
     start: 'Avvia',
     started: 'L’agente se ne occupa.',
+  },
+  upgrade: {
+    ask: 'Chiedi alla tua posta',
+    hints: {
+      agent:
+        'Incluso in Fewmail Pro: chiedi della tua posta o di’ cosa fare, e l’agente lo fa, aspettando il tuo sì prima di cambiare qualcosa in Gmail.',
+      ask: 'Incluso in Fewmail Pro: chiedi qualsiasi cosa con parole tue e ricevi la risposta dalla tua posta.',
+      boards:
+        'Incluso in Fewmail Pro: descrivi cosa raccogliere e l’agente lo trova nella tua posta e lo tiene aggiornato.',
+      drafts:
+        'Incluso in Fewmail Pro: l’agente scrive la risposta nel tuo stile, tu la modifichi e la invii.',
+      tasks:
+        'Incluso in Fewmail Pro: affida la conversazione all’agente e lui la porta a termine, chiedendo prima di ogni email che invia.',
+      today:
+        'Incluso in Fewmail Pro: le email che hanno bisogno di te, con le risposte già scritte, aggiornate man mano che arriva la posta.',
+    },
   },
   whatsapp: {
     connectFirst:

@@ -29,6 +29,7 @@ import { createWebStorageValue } from 'seitu/web'
 import { AgentChat } from '~/components/agent-chat'
 import { KeyHints } from '~/components/key-hints'
 import { ThreadView } from '~/components/thread-view'
+import { upgradeStore } from '~/components/upgrade-dialog'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
@@ -308,8 +309,11 @@ const AgentPage = () => {
 }
 
 export const Route = createFileRoute('/_app/agent')({
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, preload }) => {
     if (context.me.plan.kind === 'free') {
+      if (!preload) {
+        upgradeStore.set('agent')
+      }
       throw redirect({ to: '/mail' })
     }
   },

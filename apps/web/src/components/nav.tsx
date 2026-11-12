@@ -79,6 +79,7 @@ import { SITE_NAME } from '~/lib/seo'
 
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
+import { useWithAgent } from './upgrade-dialog'
 
 export const NAV_ITEMS = [
   { icon: Sun03Icon, key: 'today', sequence: ['G', 'T'], to: '/today' },
@@ -106,7 +107,18 @@ export const NAV_ITEMS = [
   },
 ] as const
 
-const AGENT_ONLY = new Set(['today', 'agent'])
+const isAgentOnly = (key: string): key is 'agent' | 'today' =>
+  key === 'today' || key === 'agent'
+
+/** Today and Agent show on Free too; opening one there asks for Pro instead. */
+export const useGoTo = () => {
+  const navigate = useNavigate()
+  const withAgent = useWithAgent()
+  return (item: (typeof NAV_ITEMS)[number]) =>
+    isAgentOnly(item.key)
+      ? withAgent(item.key, () => navigate({ to: item.to }))
+      : navigate({ to: item.to })
+}
 
 /** Quiet until the month is nearly spent: never push. */
 const USAGE_SHOWN_FROM = 90
@@ -124,13 +136,8 @@ const usagePercent = (
   )
 
 export const useVisibleNavItems = () => {
-  const hasAgent = useHasAgent()
   const { data: reading = 0 } = useQuery(orpc.reading.count.queryOptions())
-  return NAV_ITEMS.filter(
-    (item) =>
-      (hasAgent || !AGENT_ONLY.has(item.key)) &&
-      (item.key !== 'reading' || reading > 0)
-  )
+  return NAV_ITEMS.filter((item) => item.key !== 'reading' || reading > 0)
 }
 
 const NAV_ROW =
@@ -220,7 +227,11 @@ const BoardLink = ({
 
 const Boards = ({ showKeys }: { showKeys: boolean }) => {
   const t = useT()
-  const { data: boards = [] } = useQuery(orpc.boards.list.queryOptions())
+  const hasAgent = useHasAgent()
+  const withAgent = useWithAgent()
+  const { data: boards = [] } = useQuery(
+    orpc.boards.list.queryOptions({ enabled: hasAgent })
+  )
   const reorder = useMutation(
     orpc.boards.reorder.mutationOptions({
       onMutate: ({ ids }) =>
@@ -257,7 +268,7 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
       <button
         type="button"
         className={NAV_ROW}
-        onClick={() => newBoardStore.set(true)}
+        onClick={() => withAgent('boards', () => newBoardStore.set(true))}
       >
         <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
         <span className="text-muted-foreground">{t.nav.newBoard}</span>
@@ -347,11 +358,21 @@ const NavLink = ({
   showKeys: boolean
 }) => {
   const t = useT()
-  const navigate = useNavigate()
-  useHotkey(item.sequence, () => navigate({ to: item.to }))
+  const hasAgent = useHasAgent()
+  const goTo = useGoTo()
+  useHotkey(item.sequence, () => goTo(item))
 
   return (
-    <Link to={item.to} className={NAV_ROW}>
+    <Link
+      to={item.to}
+      className={NAV_ROW}
+      onClick={(event) => {
+        if (!hasAgent && isAgentOnly(item.key)) {
+          event.preventDefault()
+          goTo(item)
+        }
+      }}
+    >
       <HugeiconsIcon icon={item.icon} strokeWidth={2} />
       <span className="flex-1">{t.nav[item.key]}</span>
       {showKeys && <Kbd>{item.sequence.join(' ')}</Kbd>}
@@ -580,7 +601,7 @@ export const Sidebar = ({
         />
       ))}
       <div className="-mx-1 flex min-h-0 flex-1 flex-col overflow-y-auto px-1 pb-3">
-        {hasAgent && <Boards showKeys={isModifierHeld} />}
+        <Boards showKeys={isModifierHeld} />
         <Folders />
       </div>
       <AccountMenu email={email} mailboxes={mailboxes} />

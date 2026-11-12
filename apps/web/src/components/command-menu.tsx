@@ -44,7 +44,8 @@ import { AskAnswer } from './ask-answer'
 import { deletingBoardStore, newBoardStore } from './board-dialog'
 import { clearOutStore } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
-import { FOLDER_ITEMS, useVisibleNavItems } from './nav'
+import { FOLDER_ITEMS, useGoTo, useVisibleNavItems } from './nav'
+import { upgradeStore, useWithAgent } from './upgrade-dialog'
 
 const THEME_ICONS = {
   dark: Moon02Icon,
@@ -75,7 +76,9 @@ export const CommandMenu = ({
   const { openCompose } = useCompose()
   const ask = useMutation(orpc.ask.mutationOptions())
   const askedQuestion = ask.variables?.question
-  const canAsk = hasAgent && Boolean(search.trim())
+  const canAsk = Boolean(search.trim())
+  const withAgent = useWithAgent()
+  const goTo = useGoTo()
 
   const refreshBrief = useMutation(
     orpc.today.refreshBrief.mutationOptions({
@@ -122,13 +125,11 @@ export const CommandMenu = ({
       open={open}
       onOpenChange={setOpen}
       title={t.nav.search}
-      description={hasAgent ? t.command.placeholder : t.command.commandsOnly}
+      description={t.command.placeholder}
     >
       <CommandPrimitive filter={rankAskLast}>
         <CommandPaletteInput
-          placeholder={
-            hasAgent ? t.command.placeholder : t.command.commandsOnly
-          }
+          placeholder={t.command.placeholder}
           value={search}
           onValueChange={setSearch}
         />
@@ -150,10 +151,7 @@ export const CommandMenu = ({
           )}
           <CommandGroup heading={t.command.goTo}>
             {navItems.map((item) => (
-              <CommandItem
-                key={item.to}
-                onSelect={() => run(() => navigate({ to: item.to }))}
-              >
+              <CommandItem key={item.to} onSelect={() => run(() => goTo(item))}>
                 <HugeiconsIcon icon={item.icon} strokeWidth={2} />
                 {t.nav[item.key]}
                 <CommandShortcut>{item.sequence.join(' ')}</CommandShortcut>
@@ -258,12 +256,14 @@ export const CommandMenu = ({
               <HugeiconsIcon icon={ZapIcon} strokeWidth={2} />
               {t.command.teachRule}
             </CommandItem>
-            {hasAgent && (
-              <CommandItem onSelect={() => run(() => newBoardStore.set(true))}>
-                <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
-                {t.nav.newBoard}
-              </CommandItem>
-            )}
+            <CommandItem
+              onSelect={() =>
+                run(() => withAgent('boards', () => newBoardStore.set(true)))
+              }
+            >
+              <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
+              {t.nav.newBoard}
+            </CommandItem>
             {!hasAgent && (
               <CommandItem
                 onSelect={() => run(() => navigate({ to: '/settings' }))}
@@ -289,7 +289,11 @@ export const CommandMenu = ({
               <CommandItem
                 forceMount
                 value={`ask ${search}`}
-                onSelect={() => ask.mutate({ question: search.trim() })}
+                onSelect={() =>
+                  hasAgent
+                    ? ask.mutate({ question: search.trim() })
+                    : run(() => upgradeStore.set('ask'))
+                }
               >
                 <HugeiconsIcon icon={AiChat02Icon} strokeWidth={2} />
                 {t.ask.label(search.trim())}

@@ -760,7 +760,6 @@ export const fr: Messages = {
     mail: 'E-mails',
     nothingMatches: 'Aucun résultat.',
     placeholder: 'Pose une question sur tes e-mails ou lance une commande…',
-    commandsOnly: 'Lancer une commande…',
     rewriteBrief: 'Réécrire le brief',
     upgrade: 'Passer à Pro',
     teachRule: 'Apprendre une nouvelle règle',
@@ -1659,6 +1658,22 @@ export const fr: Messages = {
     next: 'Étape suivante',
     start: 'Démarrer',
     started: 'L’agent s’en occupe.',
+  },
+  upgrade: {
+    ask: 'Interroge tes e-mails',
+    hints: {
+      agent:
+        'Inclus dans Fewmail Pro : pose une question sur tes e-mails ou dis quoi faire, l’agent s’en charge et attend ton accord avant de changer quoi que ce soit dans Gmail.',
+      ask: 'Inclus dans Fewmail Pro : demande ce que tu veux avec tes mots et obtiens la réponse tirée de tes propres e-mails.',
+      boards:
+        'Inclus dans Fewmail Pro : décris ce qu’il faut rassembler, l’agent le retrouve dans tes e-mails et le tient à jour.',
+      drafts:
+        'Inclus dans Fewmail Pro : l’agent rédige la réponse dans ton style, tu la modifies et l’envoies.',
+      tasks:
+        'Inclus dans Fewmail Pro : confie le fil à l’agent, il le mène à bien en te demandant avant chaque e-mail envoyé.',
+      today:
+        'Inclus dans Fewmail Pro : les e-mails qui ont besoin de toi, avec des réponses déjà rédigées, mis à jour à chaque nouvel e-mail.',
+    },
   },
   whatsapp: {
     connectFirst:

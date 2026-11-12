@@ -513,7 +513,6 @@ export const pt: Messages = {
     mail: 'E-mail',
     nothingMatches: 'Nada encontrado.',
     placeholder: 'Pergunte sobre seus e-mails ou execute um comando…',
-    commandsOnly: 'Execute um comando…',
     rewriteBrief: 'Reescrever o resumo',
     teachRule: 'Ensinar uma nova regra',
     upgrade: 'Assinar o Pro',
@@ -1649,6 +1648,22 @@ export const pt: Messages = {
     sent: 'Enviado',
     worthAttention: 'Merece sua atenção',
     writing: 'Escrevendo…',
+  },
+  upgrade: {
+    ask: 'Pergunte ao seu e-mail',
+    hints: {
+      agent:
+        'Parte do Fewmail Pro: pergunte sobre seus e-mails ou diga o que fazer, e o agente faz, esperando seu sim antes de mudar qualquer coisa no Gmail.',
+      ask: 'Parte do Fewmail Pro: pergunte o que quiser com suas palavras e receba a resposta dos seus próprios e-mails.',
+      boards:
+        'Parte do Fewmail Pro: descreva o que reunir e o agente encontra isso nos seus e-mails e mantém tudo atualizado.',
+      drafts:
+        'Parte do Fewmail Pro: o agente escreve a resposta no seu estilo, e você edita e envia.',
+      tasks:
+        'Parte do Fewmail Pro: entregue a conversa ao agente e ele a leva até o fim, perguntando antes de cada e-mail que envia.',
+      today:
+        'Parte do Fewmail Pro: os e-mails que precisam de você, com respostas já redigidas, atualizados conforme os e-mails chegam.',
+    },
   },
   whatsapp: {
     connectFirst:

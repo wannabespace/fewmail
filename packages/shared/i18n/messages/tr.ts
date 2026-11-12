@@ -496,7 +496,6 @@ export const tr: Messages = {
     mail: 'Posta',
     nothingMatches: 'Eşleşen bir şey yok.',
     placeholder: 'Postaların hakkında sor veya komut çalıştır…',
-    commandsOnly: 'Komut çalıştır…',
     rewriteBrief: 'Özeti yeniden yaz',
     teachRule: 'Yeni kural öğret',
     upgrade: "Pro'ya geç",
@@ -1593,6 +1592,22 @@ export const tr: Messages = {
     sent: 'Gönderildi',
     worthAttention: 'İlgini hak ediyor',
     writing: 'Yazılıyor…',
+  },
+  upgrade: {
+    ask: 'Postana sor',
+    hints: {
+      agent:
+        "Fewmail Pro'nun parçası: postaların hakkında sor ya da ne yapılacağını söyle; ajan yapar ve Gmail'de bir şey değişmeden önce onayını bekler.",
+      ask: "Fewmail Pro'nun parçası: istediğini kendi kelimelerinle sor, yanıtı kendi postalarından al.",
+      boards:
+        "Fewmail Pro'nun parçası: neyin toplanacağını anlat, ajan postalarında bulsun ve güncel tutsun.",
+      drafts:
+        "Fewmail Pro'nun parçası: ajan yanıtı senin üslubunla yazar, sen düzenleyip gönderirsin.",
+      tasks:
+        "Fewmail Pro'nun parçası: konuyu ajana devret, o da gönderdiği her e-postadan önce sorarak işi bitirsin.",
+      today:
+        "Fewmail Pro'nun parçası: seni bekleyen e-postalar, yanıt taslakları hazır, posta geldikçe güncellenir.",
+    },
   },
   whatsapp: {
     connectFirst:

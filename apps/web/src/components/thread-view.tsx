@@ -51,6 +51,7 @@ import type { SnoozePreset } from './compose/schedule'
 import { HandleDialog } from './handle-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { PersonPanel } from './person-panel'
+import { useWithAgent } from './upgrade-dialog'
 
 type ThreadMessage = NonNullable<
   ReturnType<typeof useThread>['data']
@@ -569,6 +570,7 @@ export const ThreadView = ({
   const [composing, setComposing] = useState<Draft | null>(null)
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
   const [isHandleOpen, setIsHandleOpen] = useState(false)
+  const withAgent = useWithAgent()
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
   const { folded, unfold } = useFolding(data)
@@ -683,8 +685,12 @@ export const ThreadView = ({
                     {t.mail.more}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    {hasAgent && !data.task && (
-                      <DropdownMenuItem onClick={() => setIsHandleOpen(true)}>
+                    {!data.task && (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          withAgent('tasks', () => setIsHandleOpen(true))
+                        }
+                      >
                         {t.tasks.handle}
                       </DropdownMenuItem>
                     )}

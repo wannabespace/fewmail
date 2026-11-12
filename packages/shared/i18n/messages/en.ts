@@ -509,7 +509,6 @@ export const en = {
     mail: 'Mail',
     nothingMatches: 'Nothing matches.',
     placeholder: 'Ask about your mail or run a command…',
-    commandsOnly: 'Run a command…',
     rewriteBrief: 'Rewrite the brief',
     teachRule: 'Teach a new rule',
     upgrade: 'Upgrade to Pro',
@@ -1618,6 +1617,22 @@ export const en = {
     sent: 'Sent',
     worthAttention: 'Worth your attention',
     writing: 'Writing…',
+  },
+  upgrade: {
+    ask: 'Ask your mail',
+    hints: {
+      agent:
+        'Part of Fewmail Pro: ask about your mail or say what to do, and the agent does it, waiting for your yes before anything changes in Gmail.',
+      ask: 'Part of Fewmail Pro: ask anything in plain words and get the answer from your own mail.',
+      boards:
+        'Part of Fewmail Pro: describe what to collect, and the agent finds it in your mail and keeps it up to date.',
+      drafts:
+        'Part of Fewmail Pro: the agent writes the reply in your style, and you edit and send it.',
+      tasks:
+        'Part of Fewmail Pro: hand the thread to the agent and it sees it through, asking before each email it sends.',
+      today:
+        'Part of Fewmail Pro: the emails that need you, with replies already drafted, updated as mail arrives.',
+    },
   },
   whatsapp: {
     connectFirst:

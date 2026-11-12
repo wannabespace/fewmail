@@ -525,7 +525,6 @@ export const pl: Messages = {
     mail: 'Poczta',
     nothingMatches: 'Brak wyników.',
     placeholder: 'Zapytaj o pocztę lub wpisz polecenie…',
-    commandsOnly: 'Wpisz polecenie…',
     rewriteBrief: 'Napisz podsumowanie od nowa',
     teachRule: 'Naucz nowej reguły',
     upgrade: 'Przejdź na Pro',
@@ -1691,6 +1690,22 @@ export const pl: Messages = {
     sent: 'Wysłano',
     worthAttention: 'Warte uwagi',
     writing: 'Piszę…',
+  },
+  upgrade: {
+    ask: 'Zapytaj swoją pocztę',
+    hints: {
+      agent:
+        'Część Fewmail Pro: pytaj o pocztę albo powiedz, co zrobić, a agent to zrobi i poczeka na twoje „tak”, zanim cokolwiek zmieni w Gmailu.',
+      ask: 'Część Fewmail Pro: pytaj o cokolwiek własnymi słowami i dostawaj odpowiedź z własnej poczty.',
+      boards:
+        'Część Fewmail Pro: opisz, co zbierać, a agent znajdzie to w poczcie i będzie aktualizować.',
+      drafts:
+        'Część Fewmail Pro: agent napisze odpowiedź w twoim stylu, a ty ją poprawisz i wyślesz.',
+      tasks:
+        'Część Fewmail Pro: przekaż wątek agentowi, a on doprowadzi sprawę do końca, pytając przed każdym wysłanym mailem.',
+      today:
+        'Część Fewmail Pro: krótkie podsumowanie każdego ranka, maile, które cię potrzebują, i gotowe szkice odpowiedzi.',
+    },
   },
   whatsapp: {
     connectFirst:

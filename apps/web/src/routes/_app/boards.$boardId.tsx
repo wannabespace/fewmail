@@ -50,6 +50,7 @@ import {
   useEntryActions,
 } from '~/components/board-entries'
 import { KeyHints } from '~/components/key-hints'
+import { upgradeStore } from '~/components/upgrade-dialog'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import { queryClient, warmQuery } from '~/lib/query-client'
@@ -804,8 +805,11 @@ const BoardRoute = () => {
 }
 
 export const Route = createFileRoute('/_app/boards/$boardId')({
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, preload }) => {
     if (context.me.plan.kind === 'free') {
+      if (!preload) {
+        upgradeStore.set('boards')
+      }
       throw redirect({ to: '/mail' })
     }
   },

@@ -499,7 +499,6 @@ export const id: Messages = {
     mail: 'Email',
     nothingMatches: 'Tidak ada yang cocok.',
     placeholder: 'Tanya soal email atau jalankan perintah…',
-    commandsOnly: 'Jalankan perintah…',
     rewriteBrief: 'Tulis ulang ringkasan',
     teachRule: 'Ajarkan aturan baru',
     upgrade: 'Beralih ke Pro',
@@ -1596,6 +1595,22 @@ export const id: Messages = {
     sent: 'Terkirim',
     worthAttention: 'Layak diperhatikan',
     writing: 'Menulis…',
+  },
+  upgrade: {
+    ask: 'Tanya email-mu',
+    hints: {
+      agent:
+        'Bagian dari Fewmail Pro: tanyakan soal email-mu atau katakan apa yang harus dilakukan, dan agen mengerjakannya, menunggu persetujuanmu sebelum mengubah apa pun di Gmail.',
+      ask: 'Bagian dari Fewmail Pro: tanyakan apa saja dengan kata-katamu sendiri dan dapatkan jawaban dari email-mu.',
+      boards:
+        'Bagian dari Fewmail Pro: jelaskan apa yang dikumpulkan, dan agen mencarinya di email-mu serta terus memperbaruinya.',
+      drafts:
+        'Bagian dari Fewmail Pro: agen menulis balasan dengan gayamu, lalu kamu edit dan kirim.',
+      tasks:
+        'Bagian dari Fewmail Pro: serahkan utas ke agen dan ia menyelesaikannya, bertanya dulu sebelum setiap email yang dikirim.',
+      today:
+        'Bagian dari Fewmail Pro: email yang butuh kamu, dengan balasan yang sudah dirancang, diperbarui begitu email tiba.',
+    },
   },
   whatsapp: {
     connectFirst:

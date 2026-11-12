@@ -254,7 +254,6 @@ export const ko: Messages = {
     mail: '메일',
     nothingMatches: '일치하는 항목이 없어요.',
     placeholder: '메일에 대해 묻거나 명령 실행…',
-    commandsOnly: '명령 실행…',
     rewriteBrief: '브리핑 다시 쓰기',
     teachRule: '새 규칙 가르치기',
     upgrade: 'Pro로 업그레이드',
@@ -1556,6 +1555,22 @@ export const ko: Messages = {
     next: '다음 단계',
     start: '시작',
     started: '에이전트가 처리 중이에요.',
+  },
+  upgrade: {
+    ask: '메일에 물어보기',
+    hints: {
+      agent:
+        'Fewmail Pro 기능이에요. 메일에 대해 묻거나 할 일을 말하면 에이전트가 처리하고, Gmail에서 무언가를 바꾸기 전에는 내 승인을 기다려요.',
+      ask: 'Fewmail Pro 기능이에요. 평소 말로 무엇이든 물으면 내 메일에서 답을 찾아 줘요.',
+      boards:
+        'Fewmail Pro 기능이에요. 모을 내용을 설명하면 에이전트가 메일에서 찾아내고 계속 최신으로 유지해요.',
+      drafts:
+        'Fewmail Pro 기능이에요. 에이전트가 내 말투로 답장을 쓰고, 나는 고쳐서 보내기만 하면 돼요.',
+      tasks:
+        'Fewmail Pro 기능이에요. 스레드를 에이전트에게 맡기면 메일을 보낼 때마다 먼저 물어보며 끝까지 처리해요.',
+      today:
+        'Fewmail Pro 기능이에요. 내가 챙겨야 할 메일을 미리 써 둔 답장과 함께 보여 주고, 메일이 올 때마다 업데이트해요.',
+    },
   },
   whatsapp: {
     connectFirst:

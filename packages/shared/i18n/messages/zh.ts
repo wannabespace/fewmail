@@ -254,7 +254,6 @@ export const zh: Messages = {
     mail: '邮件',
     nothingMatches: '没有匹配项。',
     placeholder: '询问邮件或运行命令…',
-    commandsOnly: '运行命令…',
     rewriteBrief: '重写简报',
     teachRule: '教一条新规则',
     upgrade: '升级到 Pro',
@@ -1522,6 +1521,21 @@ export const zh: Messages = {
     next: '下一步',
     start: '开始',
     started: '代理正在处理。',
+  },
+  upgrade: {
+    ask: '问问你的邮件',
+    hints: {
+      agent:
+        'Fewmail Pro 的功能：询问你的邮件或说出要做的事，代理就会去做，在 Gmail 中做任何更改前都会等你同意。',
+      ask: 'Fewmail Pro 的功能：用自己的话随便问，答案来自你自己的邮件。',
+      boards:
+        'Fewmail Pro 的功能：描述要收集什么，代理会在你的邮件中找到它并持续更新。',
+      drafts: 'Fewmail Pro 的功能：代理用你的风格写好回复，你修改后发送。',
+      tasks:
+        'Fewmail Pro 的功能：把这个会话交给代理，它会处理到底，每发一封邮件前都会先问你。',
+      today:
+        'Fewmail Pro 的功能：每天早上一份简短简报、需要你处理的邮件，以及已写好的回复草稿。',
+    },
   },
   whatsapp: {
     connectFirst: '请先打开 Fewmail → 设置 → 集成，然后点按“连接 WhatsApp”。',

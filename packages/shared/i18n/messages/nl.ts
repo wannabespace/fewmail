@@ -513,7 +513,6 @@ export const nl: Messages = {
     mail: 'Mail',
     nothingMatches: 'Geen resultaten.',
     placeholder: 'Vraag iets over je mail of voer een opdracht uit…',
-    commandsOnly: 'Voer een opdracht uit…',
     rewriteBrief: 'Overzicht opnieuw schrijven',
     teachRule: 'Nieuwe regel aanleren',
     upgrade: 'Overstappen op Pro',
@@ -1632,6 +1631,22 @@ export const nl: Messages = {
     sent: 'Verstuurd',
     worthAttention: 'Verdient je aandacht',
     writing: 'Schrijven…',
+  },
+  upgrade: {
+    ask: 'Vraag het je mail',
+    hints: {
+      agent:
+        'Onderdeel van Fewmail Pro: vraag iets over je mail of zeg wat er moet gebeuren, en de agent doet het en wacht op je ja voordat er iets in Gmail verandert.',
+      ask: 'Onderdeel van Fewmail Pro: vraag alles in je eigen woorden en krijg het antwoord uit je eigen mail.',
+      boards:
+        'Onderdeel van Fewmail Pro: beschrijf wat er verzameld moet worden, en de agent vindt het in je mail en houdt het bij.',
+      drafts:
+        'Onderdeel van Fewmail Pro: de agent schrijft het antwoord in jouw stijl, jij past het aan en verstuurt het.',
+      tasks:
+        'Onderdeel van Fewmail Pro: geef de thread aan de agent en hij handelt het af, en vraagt het je vóór elke mail die hij verstuurt.',
+      today:
+        'Onderdeel van Fewmail Pro: elke ochtend een korte briefing, de mail die jou nodig heeft en antwoorden die al klaarstaan.',
+    },
   },
   whatsapp: {
     connectFirst:
