@@ -278,6 +278,10 @@ export const fr: Messages = {
     notFound: 'Ceci n’existe plus. Il a peut-être été supprimé.',
     offline: 'Impossible de joindre Fewmail. Vérifie ta connexion.',
   },
+  update: {
+    available: 'Une nouvelle version de Fewmail est disponible.',
+    reload: 'Recharger',
+  },
   keys: {
     restore: 'vers la boîte de réception',
     calendarToday: 'aujourd’hui',

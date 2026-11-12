@@ -276,6 +276,10 @@ export const de: Messages = {
     notFound: 'Das gibt es nicht mehr – vielleicht wurde es gelöscht.',
     offline: 'Fewmail ist nicht erreichbar. Prüf deine Verbindung.',
   },
+  update: {
+    available: 'Eine neue Version von Fewmail ist da.',
+    reload: 'Neu laden',
+  },
   keys: {
     restore: 'in den Posteingang',
     calendarToday: 'heute',

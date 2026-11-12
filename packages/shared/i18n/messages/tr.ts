@@ -340,6 +340,10 @@ export const tr: Messages = {
     notFound: 'Bu artık yok. Silinmiş olabilir.',
     offline: 'Fewmail’e ulaşılamıyor. Bağlantını kontrol et.',
   },
+  update: {
+    available: 'Fewmail’in yeni bir sürümü çıktı.',
+    reload: 'Yenile',
+  },
   keys: {
     restore: 'gelen kutusuna',
     calendarToday: 'bugün',

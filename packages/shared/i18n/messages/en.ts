@@ -349,6 +349,10 @@ export const en = {
     notFound: 'This is no longer here. It may have been deleted.',
     offline: "Can't reach Fewmail. Check your connection.",
   },
+  update: {
+    available: 'A new version of Fewmail is out.',
+    reload: 'Reload',
+  },
   keys: {
     restore: 'back to inbox',
     calendarToday: 'today',

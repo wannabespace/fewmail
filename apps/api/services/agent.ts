@@ -17,7 +17,7 @@ import { englishName } from '@fewmail/shared/i18n/locales'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
-import { and, desc, eq, inArray, isNotNull, lt } from 'drizzle-orm'
+import { and, desc, eq, gt, inArray, isNotNull, lt } from 'drizzle-orm'
 
 import { FAST_MODEL_ID, INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
@@ -449,6 +449,17 @@ export const retireStaleActions = (
       )
     )
 
+/** Its newer email carries the conversation's card, even when this one's analysis finishes later. */
+const hasNewerMail = async (message: Message) =>
+  (await db.$count(
+    messages,
+    and(
+      eq(messages.userId, message.userId),
+      eq(messages.threadId, message.threadId),
+      gt(messages.receivedAt, message.receivedAt)
+    )
+  )) > 0
+
 /** Today cards: a drafted reply for mail that wants one, otherwise the suggested next step for mail that matters. */
 const queueForAgent = async (
   message: Message,
@@ -581,7 +592,7 @@ export const analyzeMessage = async (
     })
     return
   }
-  if (!agent) {
+  if (!agent || (await hasNewerMail(message))) {
     return
   }
 

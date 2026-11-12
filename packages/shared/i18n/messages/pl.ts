@@ -363,6 +363,10 @@ export const pl: Messages = {
     notFound: 'Tego już nie ma. Możliwe, że zostało usunięte.',
     offline: 'Brak połączenia z Fewmail. Sprawdź internet.',
   },
+  update: {
+    available: 'Jest nowa wersja Fewmail.',
+    reload: 'Odśwież',
+  },
   keys: {
     restore: 'do odebranych',
     calendarToday: 'dziś',

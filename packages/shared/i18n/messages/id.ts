@@ -343,6 +343,10 @@ export const id: Messages = {
     notFound: 'Ini sudah tidak ada. Mungkin sudah dihapus.',
     offline: 'Tidak dapat terhubung ke Fewmail. Periksa koneksimu.',
   },
+  update: {
+    available: 'Versi baru Fewmail sudah tersedia.',
+    reload: 'Muat ulang',
+  },
   keys: {
     restore: 'ke kotak masuk',
     calendarToday: 'hari ini',

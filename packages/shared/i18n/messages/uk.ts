@@ -273,6 +273,10 @@ export const uk: Messages = {
     notFound: 'Цього вже немає. Можливо, його видалили.',
     offline: 'Немає зв’язку з Fewmail. Перевір інтернет.',
   },
+  update: {
+    available: 'Вийшла нова версія Fewmail.',
+    reload: 'Оновити',
+  },
   keys: {
     restore: 'у вхідні',
     calendarToday: 'сьогодні',
@@ -586,8 +590,7 @@ export const uk: Messages = {
     cancel: 'Скасувати',
     integrations: 'Інтеграції',
     language: 'Мова',
-    languageDescription:
-      'Застосунок, брифи й підсумки. Відповіді мовою листа.',
+    languageDescription: 'Застосунок, брифи й підсумки. Відповіді мовою листа.',
     legal: 'Правова інформація',
     mailboxes: {
       add: 'Додати Gmail',

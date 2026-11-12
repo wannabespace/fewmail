@@ -251,6 +251,10 @@ export const ja: Messages = {
     notFound: 'これはもう存在しません。削除された可能性があります。',
     offline: 'Fewmail に接続できません。接続を確認してください。',
   },
+  update: {
+    available: 'Fewmail の新しいバージョンがあります。',
+    reload: '再読み込み',
+  },
   keys: {
     restore: '受信トレイへ',
     calendarToday: '今日',

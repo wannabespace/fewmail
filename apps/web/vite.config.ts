@@ -42,7 +42,10 @@ const pageHead = (
   ].join('\n    ')
 }
 
+const COMMIT = process.env.RAILWAY_GIT_COMMIT_SHA
+
 const siteFiles = (): Record<string, string> => ({
+  ...(COMMIT && { 'version.txt': COMMIT }),
   'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${WEB_URL}/sitemap.xml\n`,
   'site.webmanifest': JSON.stringify({
     background_color: THEME_COLOR,
@@ -137,7 +140,7 @@ const seo = (): Plugin => ({
 
 export default defineConfig({
   envDir: '../..',
-  envPrefix: ['VITE_', 'API_URL'],
+  envPrefix: ['VITE_', 'API_URL', 'RAILWAY_GIT_COMMIT_SHA'],
   plugins: [
     tailwindcss(),
     tanstackRouter({

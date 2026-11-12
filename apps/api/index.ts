@@ -63,6 +63,11 @@ const app = new Hono()
     return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
   })
   .get('/health', (c) => c.text('ok'))
+  .get('/health/:commit', (c) =>
+    c.req.param('commit') === env.RAILWAY_GIT_COMMIT_SHA
+      ? c.text('ok')
+      : c.text('another commit', 503)
+  )
 
 await runMigrations()
 await relayChanges()

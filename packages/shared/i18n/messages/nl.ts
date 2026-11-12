@@ -353,6 +353,10 @@ export const nl: Messages = {
     notFound: 'Dit bestaat niet meer. Misschien is het verwijderd.',
     offline: 'Fewmail is niet bereikbaar. Controleer je verbinding.',
   },
+  update: {
+    available: 'Er is een nieuwe versie van Fewmail.',
+    reload: 'Herladen',
+  },
   keys: {
     restore: 'naar inbox',
     calendarToday: 'vandaag',

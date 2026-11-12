@@ -3,6 +3,7 @@ import {
   ResizablePanel,
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
+import { useQuery } from '@tanstack/react-query'
 import {
   createFileRoute,
   Outlet,
@@ -14,6 +15,7 @@ import { type } from 'arktype'
 import { useEffect, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
+import { toast } from 'sonner'
 
 import { NewBoardDialog } from '~/components/board-dialog'
 import { CommandMenu } from '~/components/command-menu'
@@ -21,7 +23,7 @@ import { ComposeProvider } from '~/components/compose/compose-context'
 import { ComposeDialog } from '~/components/compose/compose-dialog'
 import { Sidebar } from '~/components/nav'
 import { agentModeStore, signedInStore } from '~/lib/auth'
-import { localeStore } from '~/lib/i18n'
+import { localeStore, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
 import { client, listenForChanges } from '~/lib/orpc'
 
@@ -34,8 +36,40 @@ const sidebarWidthStore = createWebStorageValue({
   type: 'localStorage',
 })
 
+const BUILT_COMMIT = import.meta.env.RAILWAY_GIT_COMMIT_SHA
+const VERSION_CHECK_MS = 60_000
+
+const useNewVersionToast = () => {
+  const t = useT().update
+  const { data: liveCommit } = useQuery({
+    enabled: Boolean(BUILT_COMMIT),
+    queryFn: async () => {
+      const response = await fetch('/version.txt', { cache: 'no-store' })
+      // Without the file Caddy answers with the app shell: that is not a newer commit.
+      if (!response.headers.get('content-type')?.startsWith('text/plain')) {
+        return BUILT_COMMIT
+      }
+      const commit = await response.text()
+      return commit.trim()
+    },
+    queryKey: ['version'],
+    refetchInterval: VERSION_CHECK_MS,
+  })
+
+  useEffect(() => {
+    if (liveCommit && liveCommit !== BUILT_COMMIT) {
+      toast(t.available, {
+        action: { label: t.reload, onClick: () => location.reload() },
+        duration: Infinity,
+        id: 'new-version',
+      })
+    }
+  }, [liveCommit, t])
+}
+
 const AppLayout = () => {
   const { me } = Route.useRouteContext()
+  useNewVersionToast()
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   const sidebarWidth = useSubscription(sidebarWidthStore)
   const router = useRouter()

@@ -351,6 +351,10 @@ export const pt: Messages = {
     notFound: 'Isso não existe mais. Talvez tenha sido excluído.',
     offline: 'Não foi possível conectar ao Fewmail. Verifique sua conexão.',
   },
+  update: {
+    available: 'Uma nova versão do Fewmail está disponível.',
+    reload: 'Recarregar',
+  },
   keys: {
     restore: 'para a caixa de entrada',
     calendarToday: 'hoje',

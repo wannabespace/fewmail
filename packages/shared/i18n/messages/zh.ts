@@ -244,6 +244,10 @@ export const zh: Messages = {
     notFound: '它已不存在，可能已被删除。',
     offline: '无法连接到 Fewmail，请检查网络。',
   },
+  update: {
+    available: 'Fewmail 有新版本了。',
+    reload: '重新加载',
+  },
   keys: {
     restore: '移回收件箱',
     calendarToday: '今天',

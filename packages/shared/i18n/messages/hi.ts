@@ -249,6 +249,10 @@ export const hi: Messages = {
     notFound: 'यह अब मौजूद नहीं है। शायद इसे हटा दिया गया है।',
     offline: 'Fewmail से कनेक्ट नहीं हो पा रहा। अपना कनेक्शन जाँचें।',
   },
+  update: {
+    available: 'Fewmail का नया वर्ज़न आ गया है।',
+    reload: 'रीलोड करें',
+  },
   keys: {
     restore: 'इनबॉक्स में',
     calendarToday: 'आज',

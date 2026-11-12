@@ -38,11 +38,22 @@ const SECRETS = [
   'WHATSAPP_VERIFY_TOKEN',
 ] as const
 
+/**
+ * The API and the web deploy on the same changes: the web waits for the API to run its commit
+ * (`/health` in `apps/web/Caddyfile`), so a commit the API skipped would never go live.
+ */
+const watchPatterns = [
+  'apps/api/**',
+  'apps/web/**',
+  'packages/**',
+  'pnpm-lock.yaml',
+]
+
 /** One image for the API and the worker: the Dockerfile is built with the repo root as context. */
 const build: BuildConfig = {
   builder: 'DOCKERFILE',
   dockerfilePath: 'apps/api/Dockerfile',
-  watchPatterns: ['apps/api/**', 'packages/**', 'pnpm-lock.yaml'],
+  watchPatterns,
 }
 
 const secrets = Object.fromEntries(
@@ -98,14 +109,16 @@ export default defineRailway(() => {
     build: {
       builder: 'DOCKERFILE',
       dockerfilePath: 'apps/web/Dockerfile',
-      watchPatterns: ['apps/web/**', 'packages/**', 'pnpm-lock.yaml'],
+      watchPatterns,
     },
     domains: ['fewmail.app'],
     env: {
       API_URL: api.env.API_URL,
       WEB_URL: api.env.WEB_URL,
     },
-    healthcheck: '/robots.txt',
+    healthcheck: '/health',
+    /** Covers the API's whole build, type check and migrations, which run while the web waits. */
+    healthcheckTimeout: 600,
     replicas: 1,
     source: github(REPO, { branch: 'main' }),
   })

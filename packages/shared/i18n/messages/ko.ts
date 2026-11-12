@@ -248,6 +248,10 @@ export const ko: Messages = {
     notFound: '더 이상 존재하지 않아요. 삭제되었을 수 있어요.',
     offline: 'Fewmail에 연결할 수 없어요. 연결 상태를 확인해 주세요.',
   },
+  update: {
+    available: 'Fewmail 새 버전이 나왔어요.',
+    reload: '새로고침',
+  },
   keys: {
     restore: '받은편지함으로',
     calendarToday: '오늘',

@@ -12,6 +12,7 @@ COPY . .
 # Railway passes service variables to the build only when they are declared here; Vite inlines API_URL.
 ARG API_URL
 ARG WEB_URL
+ARG RAILWAY_GIT_COMMIT_SHA
 RUN pnpm --dir apps/web run build
 
 FROM caddy:2-alpine
