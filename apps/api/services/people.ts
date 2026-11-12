@@ -14,12 +14,14 @@ import { and, arrayContains, desc, eq, inArray, or, sql } from 'drizzle-orm'
 import { models, NO_EM_DASH } from '../lib/ai'
 import { announceChange } from '../lib/live'
 import { logErrorAs } from '../lib/log'
+import { PEOPLE_CATEGORIES } from './mail'
 import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 
 const NOTE_MAX_AGE_DAYS = 7
 const NOTE_MIN_MESSAGES = 3
 const RECENT_SUMMARIES = 12
+const CONVERSATIONS_SHOWN = 20
 
 const withPerson = (userId: string, email: string) =>
   and(
@@ -93,93 +95,127 @@ const refreshStaleNote = (
     .finally(() => refreshing.delete(key))
 }
 
+const personStats = async (userId: string, email: string) => {
+  const [stats] = await db
+    .select({
+      first: sql<Date>`min(${messages.receivedAt})`,
+      fromThem: sql<number>`count(*) filter (where ${eq(messages.fromEmail, email)})::int`,
+      humanFromThem: sql<number>`count(*) filter (where ${and(eq(messages.fromEmail, email), inArray(analyses.category, [...PEOPLE_CATEGORIES]))})::int`,
+      last: sql<Date>`max(${messages.receivedAt})`,
+      name: sql<
+        string | null
+      >`max(${messages.fromName}) filter (where ${eq(messages.fromEmail, email)})`.mapWith(
+        messages.fromName
+      ),
+      threads: sql<number>`count(distinct ${messages.threadId})::int`,
+      toThem: sql<number>`count(*) filter (where ${messages.isFromMe})::int`,
+    })
+    .from(messages)
+    .leftJoin(analyses, eq(analyses.messageId, messages.id))
+    .where(withPerson(userId, email))
+  return {
+    firstContact: stats?.first ?? null,
+    fromThem: stats?.fromThem ?? 0,
+    isPerson: (stats?.toThem ?? 0) > 0 || (stats?.humanFromThem ?? 0) > 0,
+    lastContact: stats?.last ?? null,
+    name: stats?.name ?? null,
+    threads: stats?.threads ?? 0,
+    toThem: stats?.toThem ?? 0,
+  }
+}
+
+/** The newest message of each of the person's threads, newest thread first. */
+const latestConversations = (userId: string, email: string) =>
+  db
+    .select({
+      receivedAt: messages.receivedAt,
+      subject: messages.subject,
+      threadId: messages.threadId,
+    })
+    .from(messages)
+    .where(
+      inArray(
+        messages.id,
+        db
+          .selectDistinctOn([messages.threadId], { id: messages.id })
+          .from(messages)
+          .where(withPerson(userId, email))
+          .orderBy(messages.threadId, desc(messages.receivedAt))
+      )
+    )
+    .orderBy(desc(messages.receivedAt))
+    .limit(CONVERSATIONS_SHOWN)
+
 /** Everything the user's mail knows about one person; the note is Pro, refreshed at most weekly in the background. */
 export const getPerson = async (userId: string, rawEmail: string) => {
   const email = rawEmail.trim().toLowerCase()
-  const [[stats], open, promised, recent, [stored]] = await Promise.all([
-    db
-      .select({
-        first: sql<Date>`min(${messages.receivedAt})`,
-        fromThem: sql<number>`count(*) filter (where ${eq(messages.fromEmail, email)})::int`,
-        last: sql<Date>`max(${messages.receivedAt})`,
-        name: sql<
-          string | null
-        >`max(${messages.fromName}) filter (where ${eq(messages.fromEmail, email)})`.mapWith(
-          messages.fromName
-        ),
-        threads: sql<number>`count(distinct ${messages.threadId})::int`,
-        toThem: sql<number>`count(*) filter (where ${messages.isFromMe})::int`,
-      })
-      .from(messages)
-      .where(withPerson(userId, email)),
-    db
-      .select({
-        id: actions.id,
-        kind: actions.kind,
-        threadId: actions.threadId,
-        title: actions.title,
-      })
-      .from(actions)
-      .where(
-        and(
-          eq(actions.userId, userId),
-          eq(actions.status, 'pending'),
-          inArray(
-            actions.threadId,
-            db
-              .select({ threadId: messages.threadId })
-              .from(messages)
-              .where(withPerson(userId, email))
+  const [stats, conversations, open, promised, recent, [stored]] =
+    await Promise.all([
+      personStats(userId, email),
+      latestConversations(userId, email),
+      db
+        .select({
+          id: actions.id,
+          kind: actions.kind,
+          threadId: actions.threadId,
+          title: actions.title,
+        })
+        .from(actions)
+        .where(
+          and(
+            eq(actions.userId, userId),
+            eq(actions.status, 'pending'),
+            inArray(
+              actions.threadId,
+              db
+                .select({ threadId: messages.threadId })
+                .from(messages)
+                .where(withPerson(userId, email))
+            )
           )
-        )
-      ),
-    db
-      .select({
-        dueAt: commitments.dueAt,
-        id: commitments.id,
-        promise: commitments.promise,
-        threadId: commitments.threadId,
-      })
-      .from(commitments)
-      .where(
-        and(
-          eq(commitments.userId, userId),
-          eq(commitments.recipient, email),
-          inArray(commitments.status, ['open', 'reminded'])
-        )
-      ),
-    db
-      .select({
-        receivedAt: messages.receivedAt,
-        subject: messages.subject,
-        summary: analyses.summary,
-      })
-      .from(messages)
-      .leftJoin(analyses, eq(analyses.messageId, messages.id))
-      .where(withPerson(userId, email))
-      .orderBy(desc(messages.receivedAt))
-      .limit(RECENT_SUMMARIES),
-    db
-      .select()
-      .from(people)
-      .where(and(eq(people.userId, userId), eq(people.email, email))),
-  ])
+        ),
+      db
+        .select({
+          dueAt: commitments.dueAt,
+          id: commitments.id,
+          promise: commitments.promise,
+          threadId: commitments.threadId,
+        })
+        .from(commitments)
+        .where(
+          and(
+            eq(commitments.userId, userId),
+            eq(commitments.recipient, email),
+            inArray(commitments.status, ['open', 'reminded'])
+          )
+        ),
+      db
+        .select({
+          receivedAt: messages.receivedAt,
+          subject: messages.subject,
+          summary: analyses.summary,
+        })
+        .from(messages)
+        .leftJoin(analyses, eq(analyses.messageId, messages.id))
+        .where(withPerson(userId, email))
+        .orderBy(desc(messages.receivedAt))
+        .limit(RECENT_SUMMARIES),
+      db
+        .select()
+        .from(people)
+        .where(and(eq(people.userId, userId), eq(people.email, email))),
+    ])
 
-  const total = (stats?.fromThem ?? 0) + (stats?.toThem ?? 0)
-  if (total >= NOTE_MIN_MESSAGES) {
+  if (stats.isPerson && stats.fromThem + stats.toThem >= NOTE_MIN_MESSAGES) {
     refreshStaleNote(userId, email, stored, recent)
   }
 
   return {
+    ...stats,
+    conversations,
     email,
-    firstContact: stats?.first ?? null,
-    fromThem: stats?.fromThem ?? 0,
-    lastContact: stats?.last ?? null,
-    name: stats?.name ?? null,
     note: stored?.note ?? null,
     open,
     promised,
-    threads: stats?.threads ?? 0,
-    toThem: stats?.toThem ?? 0,
   }
 }

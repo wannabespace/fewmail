@@ -1,5 +1,7 @@
+import { Button } from '@fewmail/ui/components/button'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -39,8 +41,9 @@ export const PersonPanel = ({
   const { data: person } = useQuery(
     orpc.person.queryOptions({ input: { email } })
   )
+  const [isListed, setIsListed] = useState(false)
 
-  if (!person || person.fromThem + person.toThem < 2) {
+  if (!person?.isPerson || person.fromThem + person.toThem < 2) {
     return null
   }
 
@@ -56,11 +59,18 @@ export const PersonPanel = ({
 
   return (
     <section className="border-border flex flex-col gap-2 border-t pt-5 text-sm">
-      <div className="text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-xs">
+      <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
         <span data-mask className="text-foreground font-medium">
           {person.name ?? person.email}
         </span>
-        <span>{t.people.threads(person.threads)}</span>
+        <Button
+          size="xs"
+          variant="link-muted"
+          aria-expanded={isListed}
+          onClick={() => setIsListed(!isListed)}
+        >
+          {t.people.threads(person.threads)}
+        </Button>
         {person.firstContact && (
           <span>
             {t.people.firstContact(
@@ -72,6 +82,29 @@ export const PersonPanel = ({
           <span>{t.people.lastContact(dates.ago(person.lastContact))}</span>
         )}
       </div>
+      {isListed && (
+        <ul className="flex flex-col gap-1">
+          {person.conversations.map((conversation) => (
+            <li
+              key={conversation.threadId}
+              className="flex items-baseline justify-between gap-3"
+            >
+              <span className="text-muted-foreground min-w-0 truncate">
+                {conversation.threadId === threadId ? (
+                  <span data-mask>{conversation.subject}</span>
+                ) : (
+                  <ThreadLink threadId={conversation.threadId}>
+                    {conversation.subject}
+                  </ThreadLink>
+                )}
+              </span>
+              <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+                {dates.format(conversation.receivedAt, 'd MMM')}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
       {person.note && (
         <p
           data-mask
