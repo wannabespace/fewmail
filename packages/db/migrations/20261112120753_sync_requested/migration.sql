@@ -1,0 +1,1 @@
+ALTER TABLE "mailboxes" ADD COLUMN "sync_requested" boolean DEFAULT false NOT NULL;

@@ -58,6 +58,8 @@ export const mailboxes = d.snakeCase.table(
     syncError: encryptedText(),
     /** Claimed atomically: the API and the worker both sync, and a doubled sync would analyze mail twice. */
     syncStartedAt: d.timestamp({ withTimezone: true }),
+    /** Set by a sync that found the claim taken; the holder syncs again on release, so a push mid-sync is not left to the poll. */
+    syncRequested: d.boolean().default(false).notNull(),
     userId: userId(),
     /** Gmail stops pushing at this time unless the watch is renewed. */
     watchExpiresAt: d.timestamp({ withTimezone: true }),

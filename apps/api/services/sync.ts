@@ -312,10 +312,15 @@ const completeThreads = async (mailbox: Mailbox, inserted: Message[]) => {
   await insertMessages(mailbox, ids)
 }
 
+// The request goes in before the claim attempt: set after a failed claim, it could land once the holder already released and wait for the poll.
 const claimSync = async (mailboxId: string) => {
+  await db
+    .update(mailboxes)
+    .set({ syncRequested: true })
+    .where(eq(mailboxes.id, mailboxId))
   const [claimed] = await db
     .update(mailboxes)
-    .set({ syncStartedAt: new Date() })
+    .set({ syncRequested: false, syncStartedAt: new Date() })
     .where(
       and(
         eq(mailboxes.id, mailboxId),
@@ -332,7 +337,7 @@ const claimSync = async (mailboxId: string) => {
   return claimed
 }
 
-/** Does nothing while another process syncs the same mailbox. */
+/** While another process syncs the same mailbox, leaves it a request to go again instead. */
 export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
   const mailbox = await claimSync(id)
   if (!mailbox) {
@@ -372,7 +377,7 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
       await forget(inserted)
       throw error
     }
-    await db
+    const [released] = await db
       .update(mailboxes)
       .set({
         historyId,
@@ -381,8 +386,14 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
         syncStartedAt: null,
       })
       .where(eq(mailboxes.id, mailbox.id))
+      .returning({ syncRequested: mailboxes.syncRequested })
     if (hasChanges || !mailbox.lastSyncedAt || mailbox.syncError) {
       await announceChange(mailbox.userId, MAIL_TOPICS)
+    }
+    if (released?.syncRequested) {
+      await syncMailbox(mailbox).catch((error) =>
+        logError('requested sync failed', error)
+      )
     }
   } catch (error) {
     await db
