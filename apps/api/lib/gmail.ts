@@ -21,11 +21,18 @@ export class GmailError extends Error {
   }
 }
 
+const RATE_LIMIT_RETRIES = 6
+
+/** The per-user quota answers 429 or a 403 `rateLimitExceeded`/`userRateLimitExceeded`; it refills within a minute. */
+const isRateLimited = (status: number, body: string) =>
+  status === 429 || (status === 403 && /ratelimitexceeded/iu.test(body))
+
 const gmail = async <T>(
   account: GmailAccount,
   path: string,
-  init?: RequestInit
-) => {
+  init?: RequestInit,
+  attempt = 0
+): Promise<T> => {
   const response = await fetch(`${GMAIL_API}${path}`, {
     ...init,
     headers: {
@@ -35,9 +42,14 @@ const gmail = async <T>(
   })
 
   if (!response.ok) {
+    const body = await response.text()
+    if (isRateLimited(response.status, body) && attempt < RATE_LIMIT_RETRIES) {
+      await Bun.sleep(1000 * 2 ** attempt + Math.random() * 1000)
+      return gmail<T>(account, path, init, attempt + 1)
+    }
     throw new GmailError(
       response.status,
-      `Gmail ${path} failed: ${response.status} ${await response.text()}`
+      `Gmail ${path} failed: ${response.status} ${body}`
     )
   }
 

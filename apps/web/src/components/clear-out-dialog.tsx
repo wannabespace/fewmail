@@ -34,12 +34,34 @@ const ClearOutForm = ({
   onRun: (groups: ClearOutGroup[]) => void
 }) => {
   const t = useT()
-  const { data: scan } = useQuery(
-    orpc.subscriptions.scanClearOut.queryOptions({ staleTime: 0 })
-  )
+  const {
+    data: scan,
+    isError,
+    refetch,
+  } = useQuery(orpc.subscriptions.scanClearOut.queryOptions({ staleTime: 0 }))
   const [chosen, setChosen] = useState<ClearOutGroup[]>(
     CLEAR_OUT_GROUPS.filter((group) => group !== 'old')
   )
+
+  if (!scan && isError) {
+    return (
+      <p
+        role="alert"
+        className="text-muted-foreground flex items-center gap-2 text-sm"
+      >
+        {t.errors.failed}
+        <Button
+          size="xs"
+          variant="ghost-muted"
+          onClick={() => {
+            void refetch()
+          }}
+        >
+          {t.agent.retry}
+        </Button>
+      </p>
+    )
+  }
 
   if (!scan) {
     return (
