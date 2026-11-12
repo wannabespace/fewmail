@@ -772,6 +772,8 @@ const rowSurfaceOf = ({
     isOpen && 'bg-secondary hover:bg-secondary'
   )
 
+const HIDDEN_CURSOR = -1
+
 const useCursorOnOpenThread = ({
   rows,
   setCursor,
@@ -1461,7 +1463,7 @@ const MailPage = () => {
     q,
     thread,
   })
-  const [cursor, setCursor] = useState(0)
+  const [cursor, setCursor] = useState(HIDDEN_CURSOR)
   const [expandedBursts, setExpandedBursts] = useState<ReadonlySet<string>>(
     new Set()
   )
@@ -1470,7 +1472,7 @@ const MailPage = () => {
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
     setCursorListKey(listKey)
-    setCursor(0)
+    setCursor(HIDDEN_CURSOR)
     setKeptUnread(new Set())
   }
 
