@@ -723,7 +723,6 @@ const SkillMenu = ({
 }
 
 const UserBubble = ({ text }: { text: string }) => {
-  const t = useT()
   const parsed = parseSkill(text)
 
   return parsed ? (
@@ -736,9 +735,6 @@ const UserBubble = ({ text }: { text: string }) => {
             className="size-4"
           />
           <span className="font-medium">/{parsed.skill}</span>
-          <span className="text-muted-foreground truncate">
-            {t.skills[parsed.skill]}
-          </span>
         </span>
         {parsed.details && (
           <p data-mask className="mt-1 whitespace-pre-wrap">
