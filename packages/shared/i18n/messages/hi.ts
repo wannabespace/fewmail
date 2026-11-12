@@ -165,6 +165,9 @@ export const hi: Messages = {
     later: {
       inHour: 'एक घंटे में',
       monday: 'सोमवार सुबह',
+      pick: 'तारीख़ और समय चुनें',
+      schedule: 'शेड्यूल करें',
+      time: 'समय',
       tomorrow: 'कल सुबह',
     },
     new: 'नया ईमेल',

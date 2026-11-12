@@ -469,6 +469,9 @@ export const id: Messages = {
     later: {
       inHour: 'Satu jam lagi',
       monday: 'Senin pagi',
+      pick: 'Pilih tanggal & waktu',
+      schedule: 'Jadwalkan',
+      time: 'Waktu',
       tomorrow: 'Besok pagi',
     },
     new: 'Email baru',

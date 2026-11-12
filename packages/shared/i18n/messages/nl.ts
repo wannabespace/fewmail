@@ -479,6 +479,9 @@ export const nl: Messages = {
     later: {
       inHour: 'Over een uur',
       monday: 'Maandagochtend',
+      pick: 'Datum en tijd kiezen',
+      schedule: 'Inplannen',
+      time: 'Tijd',
       tomorrow: 'Morgenochtend',
     },
     new: 'Nieuwe e-mail',

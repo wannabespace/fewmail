@@ -409,6 +409,9 @@ export const en = {
     later: {
       inHour: 'In an hour',
       monday: 'Monday morning',
+      pick: 'Pick date & time',
+      schedule: 'Schedule',
+      time: 'Time',
       tomorrow: 'Tomorrow morning',
     },
     new: 'New email',

@@ -142,6 +142,9 @@ export const uk: Messages = {
     later: {
       inHour: 'За годину',
       monday: 'У понеділок зранку',
+      pick: 'Обрати дату й час',
+      schedule: 'Запланувати',
+      time: 'Час',
       tomorrow: 'Завтра зранку',
     },
     new: 'Новий лист',

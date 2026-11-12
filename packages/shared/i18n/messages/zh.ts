@@ -165,6 +165,9 @@ export const zh: Messages = {
     later: {
       inHour: '一小时后',
       monday: '周一早上',
+      pick: '选择日期和时间',
+      schedule: '定时发送',
+      time: '时间',
       tomorrow: '明天早上',
     },
     new: '新邮件',

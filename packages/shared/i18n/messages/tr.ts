@@ -466,6 +466,9 @@ export const tr: Messages = {
     later: {
       inHour: 'Bir saat sonra',
       monday: 'Pazartesi sabahı',
+      pick: 'Tarih ve saat seç',
+      schedule: 'Planla',
+      time: 'Saat',
       tomorrow: 'Yarın sabah',
     },
     new: 'Yeni e-posta',

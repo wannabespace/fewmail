@@ -167,6 +167,9 @@ export const ja: Messages = {
     later: {
       inHour: '1時間後',
       monday: '月曜日の朝',
+      pick: '日時を選択',
+      schedule: '予約',
+      time: '時刻',
       tomorrow: '明日の朝',
     },
     new: '新規メール',

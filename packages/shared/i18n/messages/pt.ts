@@ -479,6 +479,9 @@ export const pt: Messages = {
     later: {
       inHour: 'Em uma hora',
       monday: 'Segunda de manhã',
+      pick: 'Escolher data e hora',
+      schedule: 'Agendar',
+      time: 'Hora',
       tomorrow: 'Amanhã de manhã',
     },
     new: 'Novo e-mail',

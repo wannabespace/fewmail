@@ -142,6 +142,9 @@ export const es: Messages = {
     later: {
       inHour: 'En una hora',
       monday: 'El lunes por la mañana',
+      pick: 'Elegir fecha y hora',
+      schedule: 'Programar',
+      time: 'Hora',
       tomorrow: 'Mañana por la mañana',
     },
     new: 'Nuevo correo',

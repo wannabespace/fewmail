@@ -165,6 +165,9 @@ export const ko: Messages = {
     later: {
       inHour: '1시간 후',
       monday: '월요일 아침',
+      pick: '날짜 및 시간 선택',
+      schedule: '예약',
+      time: '시간',
       tomorrow: '내일 아침',
     },
     new: '새 이메일',

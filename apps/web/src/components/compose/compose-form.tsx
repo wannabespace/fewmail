@@ -4,7 +4,6 @@ import { Button } from '@fewmail/ui/components/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
@@ -32,10 +31,8 @@ import { ComposerEditor } from '../composer/composer-editor'
 import { useWithAgent } from '../upgrade-dialog'
 import type { Draft } from './compose-context'
 import { useCompose } from './compose-context'
-import type { LaterPreset } from './schedule'
-import { LATER_PRESETS, parseRecipients, validRecipients } from './schedule'
-
-const LATER_OPTIONS: LaterPreset[] = ['inHour', 'tomorrow', 'monday']
+import { parseRecipients, validRecipients } from './schedule'
+import { SendLater } from './send-later'
 
 const AUTOSAVE_MS = 1000
 
@@ -328,23 +325,7 @@ export const ComposeForm = ({
         <Button size="sm" onClick={() => submit()}>
           {t.compose.send} <Kbd>⌘⏎</Kbd>
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={<Button size="sm" variant="secondary" />}
-          >
-            {t.compose.sendLater}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {LATER_OPTIONS.map((preset) => (
-              <DropdownMenuItem
-                key={preset}
-                onClick={() => submit(LATER_PRESETS[preset]())}
-              >
-                {t.compose.later[preset]}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <SendLater onSchedule={submit} />
         <DropdownMenu>
           <DropdownMenuTrigger
             render={<Button size="sm" variant="ghost-muted" />}
