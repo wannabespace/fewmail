@@ -194,6 +194,9 @@ const groupRows = <Row extends ListedRow>(rows: Row[], grouping: Grouping) => {
 
 const BURST_MINUTES = 10
 
+const ROW_ACTIONS =
+  'absolute top-1.5 right-4 flex bg-inherit opacity-0 transition-opacity duration-150 ease-house group-hover:opacity-100 before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-inherit before:[mask-image:linear-gradient(to_right,transparent,black)]'
+
 /** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until opened. */
 const collapseBursts = <Row extends ListedRow>(
   rows: Row[],
@@ -411,7 +414,8 @@ const MailRowActions = ({
   return (
     <span
       className={cn(
-        'absolute top-1.5 right-4 flex bg-inherit opacity-0 group-hover:opacity-100 has-data-popup-open:opacity-100',
+        ROW_ACTIONS,
+        'has-data-popup-open:opacity-100',
         isSnoozeOpen && 'opacity-100'
       )}
     >
@@ -642,7 +646,7 @@ const DraftRow = ({
           </span>
         )}
       </button>
-      <span className="absolute top-1.5 right-4 flex bg-inherit opacity-0 group-hover:opacity-100">
+      <span className={ROW_ACTIONS}>
         <IconButton
           icon={Delete02Icon}
           label={t.mail.deleteDraft}
