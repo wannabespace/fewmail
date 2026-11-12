@@ -25,6 +25,7 @@ import { seedBoards } from './services/boards'
 import { generateBrief, isBriefDue } from './services/brief'
 import { askAgent, postToChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
+import { followForwarded } from './services/forwarded'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { chatIdForUser } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
@@ -50,7 +51,12 @@ import {
 } from './services/reminders'
 import { nextRunAt } from './services/schedules'
 import { getSettings } from './services/settings'
-import { ensureMailbox, readBoardHistory, syncMailbox } from './services/sync'
+import {
+  ensureMailbox,
+  onNewMail,
+  readBoardHistory,
+  syncMailbox,
+} from './services/sync'
 import { sendBrief, sendUrgent } from './telegram'
 import {
   sendWhatsappBrief,
@@ -382,6 +388,7 @@ const tick = async () => {
 /** Railway sends SIGTERM on deploy and waits `drainingSeconds`: finish the jobs in flight, start no new ones. */
 const DRAIN_MS = 25_000
 
+onNewMail(followForwarded)
 const interval = setInterval(tick, TICK_MS)
 void tick()
 console.log('worker started')

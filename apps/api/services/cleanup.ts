@@ -1,21 +1,33 @@
 import { db } from '@fewmail/db'
 import {
   actions,
+  mailboxes,
   messages,
   unsubscribes,
   userSettings,
 } from '@fewmail/db/schema'
-import type { CleanupSender } from '@fewmail/shared/agent'
+import { CLEAR_OUT_GROUPS } from '@fewmail/shared/agent'
+import type { CleanupSender, ClearOutGroup } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { Result } from 'better-result'
 import { subDays } from 'date-fns'
-import { and, eq, gte, isNotNull, sql } from 'drizzle-orm'
+import { and, eq, gte, inArray, isNotNull, sql } from 'drizzle-orm'
 
+import { inBatches } from '../lib/batches'
 import { localClock } from '../lib/clock'
+import {
+  GmailError,
+  getMessageHeaders,
+  listLabels,
+  listMessageIds,
+  modifyMessages,
+} from '../lib/gmail'
 import { senderHashOf } from '../lib/keyed-hash'
-import { announceChange } from '../lib/live'
+import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
-import { unsubscribeMessage } from './thread-effects'
+import { findOrCreateLabel } from './labels'
+import { insertMessages } from './sync'
+import { unsubscribe, unsubscribeMessage } from './thread-effects'
 
 const LOOKBACK_DAYS = 30
 const MIN_UNOPENED = 3
@@ -123,3 +135,224 @@ export const runCleanup = (userId: string, senders: CleanupSender[]) =>
       }
     })
   )
+
+type Mailbox = typeof mailboxes.$inferSelect
+
+const CLEAR_OUT_QUERIES: Record<Exclude<ClearOutGroup, 'lists'>, string> = {
+  notifications:
+    'in:inbox {category:updates category:forums} is:read older_than:30d',
+  old: 'in:inbox older_than:1y',
+  promotions: 'in:inbox {category:promotions category:social} older_than:3d',
+}
+const INBOX_QUERY = 'in:inbox'
+/** Beyond it the counts read "50,000+": listing more costs a minute of the user's Gmail quota. */
+export const CLEAR_OUT_CAP = 50_000
+const SENDER_SAMPLE = 600
+/** Header reads at once: Gmail allows 250 quota units a second per user, five per read. */
+const SAMPLE_CONCURRENCY = 10
+const SENDERS_PER_QUERY = 20
+/** Gmail turns the slash into a hyphen in search. */
+const CLEARED_LABEL = 'Fewmail/Cleared'
+const CLEARED_QUERY = 'label:fewmail-cleared'
+
+const ownedMailboxes = (userId: string) =>
+  db.select().from(mailboxes).where(eq(mailboxes.userId, userId))
+
+type Headers = Awaited<ReturnType<typeof getMessageHeaders>>
+
+/** Mailing lists among the newest inbox mail that sent at least three emails, none of them opened. */
+const unopenedListSenders = async (mailbox: Mailbox, inboxIds: string[]) => {
+  const sample: Headers[] = []
+  await inBatches(
+    inboxIds.slice(0, SENDER_SAMPLE),
+    SAMPLE_CONCURRENCY,
+    async (id) => {
+      const headers = await getMessageHeaders(mailbox, id).catch((error) => {
+        if (error instanceof GmailError && error.status === 404) {
+          return null
+        }
+        throw error
+      })
+      if (headers?.isList) {
+        sample.push(headers)
+      }
+    }
+  )
+  const bySender = Map.groupBy(sample, ({ from }) => from.email)
+  return [...bySender.values()].flatMap((mail) => {
+    const [latest] = mail
+    return latest &&
+      mail.length >= MIN_UNOPENED &&
+      mail.every(({ isUnread }) => isUnread)
+      ? [{ count: mail.length, from: latest.from, gmailId: latest.gmailId }]
+      : []
+  })
+}
+
+const sendersInboxIds = async (mailbox: Mailbox, emails: string[]) => {
+  const chunks = Array.from(
+    { length: Math.ceil(emails.length / SENDERS_PER_QUERY) },
+    (_, index) =>
+      emails.slice(index * SENDERS_PER_QUERY, (index + 1) * SENDERS_PER_QUERY)
+  )
+  const pages = await Promise.all(
+    chunks.map((chunk) =>
+      listMessageIds(
+        mailbox,
+        `${INBOX_QUERY} {${chunk.map((email) => `from:${email}`).join(' ')}}`,
+        CLEAR_OUT_CAP
+      )
+    )
+  )
+  return pages.flat()
+}
+
+const groupIds = (
+  mailbox: Mailbox,
+  group: ClearOutGroup,
+  senderEmails: string[]
+) =>
+  group === 'lists'
+    ? sendersInboxIds(mailbox, senderEmails)
+    : listMessageIds(mailbox, CLEAR_OUT_QUERIES[group], CLEAR_OUT_CAP)
+
+const scanMailbox = async (mailbox: Mailbox) => {
+  const inbox = await listMessageIds(mailbox, INBOX_QUERY, CLEAR_OUT_CAP)
+  const senders = await unopenedListSenders(mailbox, inbox)
+  const emails = senders.map(({ from }) => from.email)
+  const groups = await Promise.all(
+    CLEAR_OUT_GROUPS.map(
+      async (group) => new Set(await groupIds(mailbox, group, emails))
+    )
+  )
+  return { inbox, groups, mailbox, senders }
+}
+
+/**
+ * What a clear-out would move out of the inbox, read from Gmail directly (headers only, nothing stored).
+ * `overlaps` counts inbox mail by the exact set of groups it falls in, so any choice of groups adds up
+ * without counting an email twice.
+ */
+export const scanClearOut = async (userId: string) => {
+  const owned = await ownedMailboxes(userId)
+  const scans = await Promise.all(owned.map(scanMailbox))
+  const overlaps = new Map<string, { count: number; groups: ClearOutGroup[] }>()
+  for (const { groups, inbox } of scans) {
+    for (const id of inbox) {
+      const matched = CLEAR_OUT_GROUPS.filter((_, index) =>
+        groups[index]?.has(id)
+      )
+      const key = matched.join(',')
+      if (matched.length > 0) {
+        overlaps.set(key, {
+          count: (overlaps.get(key)?.count ?? 0) + 1,
+          groups: matched,
+        })
+      }
+    }
+  }
+  return {
+    inbox: scans.reduce((sum, { inbox }) => sum + inbox.length, 0),
+    isCapped: scans.some(({ inbox }) => inbox.length >= CLEAR_OUT_CAP),
+    overlaps: [...overlaps.values()],
+    senders: scans
+      .flatMap(({ senders }) => senders)
+      .toSorted((left, right) => right.count - left.count)
+      .map(({ count, from }) => ({
+        count,
+        fromEmail: from.email,
+        fromName: from.name,
+      })),
+  }
+}
+
+/** Leaves each list through the one email kept of it, the same path as any unsubscribe. */
+const leaveLists = async (
+  userId: string,
+  mailbox: Mailbox,
+  senders: Awaited<ReturnType<typeof unopenedListSenders>>
+) => {
+  const gmailIds = senders.map(({ gmailId }) => gmailId)
+  await insertMessages(mailbox, gmailIds)
+  const kept = gmailIds.length
+    ? await db
+        .select()
+        .from(messages)
+        .where(
+          and(
+            eq(messages.mailboxId, mailbox.id),
+            inArray(messages.gmailId, gmailIds)
+          )
+        )
+    : []
+  const results = await Promise.all(
+    kept.map((message) =>
+      unsubscribe(userId, message, 'thread').catch((error: unknown) => {
+        logError('clear-out unsubscribe failed', error)
+        return { unsubscribed: false }
+      })
+    )
+  )
+  return results.filter(({ unsubscribed }) => unsubscribed).length
+}
+
+const clearMailbox = async (
+  userId: string,
+  mailbox: Mailbox,
+  groups: ClearOutGroup[]
+) => {
+  const newest = groups.includes('lists')
+    ? await listMessageIds(mailbox, INBOX_QUERY, SENDER_SAMPLE)
+    : []
+  const senders = await unopenedListSenders(mailbox, newest)
+  const emails = senders.map(({ from }) => from.email)
+  const matched = await Promise.all(
+    groups.map((group) => groupIds(mailbox, group, emails))
+  )
+  const ids = new Set(matched.flat())
+  const label = await findOrCreateLabel(mailbox, CLEARED_LABEL)
+  await modifyMessages(mailbox, [...ids], {
+    add: [label.id],
+    remove: ['INBOX'],
+  })
+  const unsubscribed = await leaveLists(userId, mailbox, senders)
+  return { cleared: ids.size, unsubscribed }
+}
+
+/** Archives the chosen groups under `Fewmail/Cleared`, so `undoClearOut` can bring every one back. */
+export const runClearOut = async (userId: string, groups: ClearOutGroup[]) => {
+  const owned = await ownedMailboxes(userId)
+  const results = await Promise.all(
+    owned.map((mailbox) => clearMailbox(userId, mailbox, groups))
+  )
+  await announceChange(userId, MAIL_TOPICS)
+  return {
+    cleared: results.reduce((sum, { cleared }) => sum + cleared, 0),
+    unsubscribed: results.reduce(
+      (sum, { unsubscribed }) => sum + unsubscribed,
+      0
+    ),
+  }
+}
+
+/** Unsubscribes stay: a list once left cannot be rejoined from here. */
+export const undoClearOut = async (userId: string) => {
+  const owned = await ownedMailboxes(userId)
+  const restored = await Promise.all(
+    owned.map(async (mailbox) => {
+      const labels = await listLabels(mailbox)
+      const label = labels.find(({ name }) => name === CLEARED_LABEL)
+      if (!label) {
+        return 0
+      }
+      const ids = await listMessageIds(mailbox, CLEARED_QUERY, CLEAR_OUT_CAP)
+      await modifyMessages(mailbox, ids, {
+        add: ['INBOX'],
+        remove: [label.id],
+      })
+      return ids.length
+    })
+  )
+  await announceChange(userId, MAIL_TOPICS)
+  return { restored: restored.reduce((sum, count) => sum + count, 0) }
+}

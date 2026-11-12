@@ -1,4 +1,5 @@
 import type { BillingInterval } from '@fewmail/shared/agent'
+import { PLAN_LIMITS } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -9,8 +10,10 @@ import { Link } from '@tanstack/react-router'
 import type { ComponentProps, ReactNode } from 'react'
 import { useState } from 'react'
 
+import { localeStore, useLocale, useT } from '~/lib/i18n'
 import { COMPARISONS, PLANS, TRIAL_DAYS } from '~/lib/marketing'
 
+import { LanguageSelect } from './agent-fields'
 import { Logo } from './logo'
 
 export const CONTAINER = 'mx-auto w-full max-w-6xl px-6'
@@ -25,47 +28,56 @@ export const Reveal = ({ className, ...props }: ComponentProps<'div'>) => (
   />
 )
 
-export const StartButton = ({ children }: { children?: ReactNode }) => (
-  <Button size="lg" render={<Link to="/login" />}>
-    {children ?? 'Start free'}
-    <HugeiconsIcon
-      icon={ArrowRight01Icon}
-      strokeWidth={2}
-      data-icon="inline-end"
-    />
-  </Button>
-)
+export const StartButton = ({ children }: { children?: ReactNode }) => {
+  const t = useT()
+  return (
+    <Button size="lg" render={<Link to="/login" />}>
+      {children ?? t.site.startFree}
+      <HugeiconsIcon
+        icon={ArrowRight01Icon}
+        strokeWidth={2}
+        data-icon="inline-end"
+      />
+    </Button>
+  )
+}
 
 export const TrialNote = () => (
   <p className="text-muted-foreground text-sm">
-    {TRIAL_DAYS} days of Pro, no card. Then free for as long as you like.
+    {useT().site.trialNote(TRIAL_DAYS)}
   </p>
 )
 
-export const SiteHeader = () => (
-  <header className="bg-body/85 sticky top-0 z-20 backdrop-blur-md">
-    <div className={cn(CONTAINER, 'flex h-16 items-center gap-8')}>
-      <Logo />
-      <nav className="hidden items-center gap-1 sm:flex">
-        <Button variant="ghost-muted" render={<Link to="/" hash="features" />}>
-          Features
-        </Button>
-        <Button variant="ghost-muted" render={<Link to="/pricing" />}>
-          Pricing
-        </Button>
-        <Button variant="ghost-muted" render={<Link to="/compare" />}>
-          Compare
-        </Button>
-      </nav>
-      <div className="ml-auto flex items-center gap-2">
-        <Button variant="ghost" render={<Link to="/login" />}>
-          Sign in
-        </Button>
-        <Button render={<Link to="/login" />}>Start free</Button>
+export const SiteHeader = () => {
+  const t = useT().site
+  return (
+    <header className="bg-body/85 sticky top-0 z-20 backdrop-blur-md">
+      <div className={cn(CONTAINER, 'flex h-16 items-center gap-8')}>
+        <Logo />
+        <nav className="hidden items-center gap-1 sm:flex">
+          <Button
+            variant="ghost-muted"
+            render={<Link to="/" hash="features" />}
+          >
+            {t.nav.features}
+          </Button>
+          <Button variant="ghost-muted" render={<Link to="/pricing" />}>
+            {t.nav.pricing}
+          </Button>
+          <Button variant="ghost-muted" render={<Link to="/compare" />}>
+            {t.nav.compare}
+          </Button>
+        </nav>
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="ghost" render={<Link to="/login" />}>
+            {t.nav.signIn}
+          </Button>
+          <Button render={<Link to="/login" />}>{t.startFree}</Button>
+        </div>
       </div>
-    </div>
-  </header>
-)
+    </header>
+  )
+}
 
 const FooterColumn = ({
   links,
@@ -87,57 +99,76 @@ const FooterColumn = ({
   </div>
 )
 
-export const SiteFooter = () => (
-  <footer className="border-t">
-    <div
-      className={cn(
-        CONTAINER,
-        'grid gap-10 py-14 sm:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]'
-      )}
-    >
-      <div className="flex flex-col gap-3">
-        <Logo />
-        <p className="text-muted-foreground max-w-xs text-sm text-pretty">
-          The email agent that reads your Gmail and only shows you what needs
-          you.
-        </p>
-      </div>
-      <FooterColumn
-        title="Product"
-        links={[
-          {
-            label: 'features',
+export const SiteFooter = () => {
+  const t = useT()
+  const locale = useLocale()
+  return (
+    <footer className="border-t">
+      <div
+        className={cn(
+          CONTAINER,
+          'grid gap-10 py-14 sm:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]'
+        )}
+      >
+        <div className="flex flex-col items-start gap-3">
+          <Logo />
+          <p className="text-muted-foreground max-w-xs text-sm text-pretty">
+            {t.site.footer.tagline}
+          </p>
+          <LanguageSelect
+            value={locale}
+            onChange={(next) => localeStore.set(next)}
+          />
+        </div>
+        <FooterColumn
+          title={t.site.footer.product}
+          links={[
+            {
+              label: 'features',
+              link: (
+                <Link to="/" hash="features">
+                  {t.site.nav.features}
+                </Link>
+              ),
+            },
+            {
+              label: 'pricing',
+              link: <Link to="/pricing">{t.site.nav.pricing}</Link>,
+            },
+            {
+              label: 'login',
+              link: <Link to="/login">{t.site.nav.signIn}</Link>,
+            },
+          ]}
+        />
+        <FooterColumn
+          title={t.site.nav.compare}
+          links={COMPARISONS.map(({ name, slug }) => ({
+            label: slug,
             link: (
-              <Link to="/" hash="features">
-                Features
+              <Link to="/compare/$slug" params={{ slug }}>
+                {t.site.footer.versus(name)}
               </Link>
             ),
-          },
-          { label: 'pricing', link: <Link to="/pricing">Pricing</Link> },
-          { label: 'login', link: <Link to="/login">Sign in</Link> },
-        ]}
-      />
-      <FooterColumn
-        title="Compare"
-        links={COMPARISONS.map(({ name, slug }) => ({
-          label: slug,
-          link: (
-            <Link to="/compare/$slug" params={{ slug }}>
-              vs {name}
-            </Link>
-          ),
-        }))}
-      />
-      <FooterColumn
-        title="Legal"
-        links={[
-          { label: 'privacy', link: <Link to="/privacy">Privacy Policy</Link> },
-          { label: 'terms', link: <Link to="/terms">Terms of Service</Link> },
-        ]}
-      />
-    </div>
-  </footer>
-)
+          }))}
+        />
+        <FooterColumn
+          title={t.site.footer.legal}
+          links={[
+            {
+              label: 'privacy',
+              link: <Link to="/privacy">{t.legal.privacy}</Link>,
+            },
+            {
+              label: 'terms',
+              link: <Link to="/terms">{t.legal.terms}</Link>,
+            },
+          ]}
+        />
+      </div>
+    </footer>
+  )
+}
 
 export const Chapter = ({
   children,
@@ -211,8 +242,24 @@ export const FeatureGrid = ({
 )
 
 export const PlanCards = () => {
+  const t = useT()
+  const locale = useLocale()
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('month')
+  const count = (total: number) => total.toLocaleString(locale)
+  const { plans } = t.site
+  const features = {
+    free: plans.free.features,
+    max: [
+      plans.max.emails(count(PLAN_LIMITS.max.emails)),
+      plans.max.messages(PLAN_LIMITS.max.messages),
+      plans.max.unlimited,
+    ],
+    pro: [
+      plans.pro.limits(count(PLAN_LIMITS.pro.emails), PLAN_LIMITS.pro.messages),
+      ...plans.pro.features,
+    ],
+  }
   return (
     <div className="mt-12 flex flex-col items-center gap-6">
       <Tabs
@@ -220,17 +267,17 @@ export const PlanCards = () => {
         onValueChange={(value) => setBillingInterval(value as BillingInterval)}
       >
         <TabsList>
-          <TabsTrigger value="month">Monthly</TabsTrigger>
-          <TabsTrigger value="year">Yearly · 2 months free</TabsTrigger>
+          <TabsTrigger value="month">{plans.monthly}</TabsTrigger>
+          <TabsTrigger value="year">{plans.yearly}</TabsTrigger>
         </TabsList>
       </Tabs>
       <Reveal className="grid w-full gap-4 md:grid-cols-3">
         {PLANS.map((plan) => {
-          const isPro = plan.name === 'Pro'
-          const isFree = plan.price.month === 0
+          const isPro = plan.id === 'pro'
+          const isFree = plan.id === 'free'
           return (
             <article
-              key={plan.name}
+              key={plan.id}
               className={cn(
                 'flex flex-col rounded-3xl p-8 ring',
                 isPro
@@ -238,16 +285,16 @@ export const PlanCards = () => {
                   : 'bg-background ring-foreground/6'
               )}
             >
-              <h3 className="font-medium">{plan.name}</h3>
+              <h3 className="font-medium">{t.plan[plan.id]}</h3>
               <p className="text-muted-foreground mt-1 text-sm">
-                {plan.description}
+                {plans[plan.id].description}
               </p>
               <p className="mt-6 flex items-baseline gap-1.5">
                 <span className="text-display font-serif tabular-nums">
                   ${plan.price[billingInterval]}
                 </span>
                 <span className="text-muted-foreground text-sm">
-                  {isFree ? 'forever' : `a ${billingInterval}`}
+                  {isFree ? plans.forever : plans.per[billingInterval]}
                 </span>
               </p>
               <div className="mt-6 grid">
@@ -256,17 +303,17 @@ export const PlanCards = () => {
                   variant={isPro ? 'default' : 'secondary'}
                   render={<Link to="/login" />}
                 >
-                  {isFree ? 'Start free' : `Try free for ${TRIAL_DAYS} days`}
+                  {isFree ? t.site.startFree : plans.tryFree(TRIAL_DAYS)}
                 </Button>
               </div>
               <div className="mt-8 flex flex-col gap-3 border-t pt-6 text-sm">
                 {'includes' in plan && (
                   <p className="text-muted-foreground">
-                    Everything in {plan.includes}, plus
+                    {plans.everythingIn(t.plan[plan.includes])}
                   </p>
                 )}
                 <ul className="flex flex-col gap-3">
-                  {plan.features.map((feature) => (
+                  {features[plan.id].map((feature) => (
                     <li key={feature} className="flex gap-2.5">
                       <HugeiconsIcon
                         icon={Tick02Icon}
@@ -286,44 +333,51 @@ export const PlanCards = () => {
   )
 }
 
-export const CompareCards = () => (
-  <Reveal className="mt-12 grid gap-4 md:grid-cols-3">
-    {COMPARISONS.map(({ name, slug, summary }) => (
-      <Link
-        key={slug}
-        to="/compare/$slug"
-        params={{ slug }}
-        className="bg-background ring-foreground/6 hover:ring-foreground/12 flex flex-col gap-3 rounded-3xl p-6 text-inherit ring transition-shadow hover:text-inherit"
-      >
-        <h3 className="font-serif text-xl tracking-tight">Fewmail vs {name}</h3>
-        <p className="text-muted-foreground text-sm/relaxed text-pretty">
-          {summary}
-        </p>
-        <span className="text-primary mt-auto flex items-center gap-1 pt-2 text-sm">
-          Read the comparison
-          <HugeiconsIcon
-            icon={ArrowRight01Icon}
-            strokeWidth={2}
-            className="size-4"
-          />
-        </span>
-      </Link>
-    ))}
-  </Reveal>
-)
-
-export const Closing = () => (
-  <section className={cn(CONTAINER, 'py-24 sm:py-32')}>
-    <Reveal className="flex flex-col items-center gap-6 text-center">
-      <h2 className="text-display sm:text-hero font-serif tracking-tight text-balance">
-        Get your mornings back.
-      </h2>
-      <p className="text-muted-foreground text-brief max-w-xl font-serif text-pretty">
-        Connect Gmail in a minute. Fewmail starts with the last three days of
-        mail, so the first decisions are waiting for you right away.
-      </p>
-      <StartButton />
-      <TrialNote />
+export const CompareCards = () => {
+  const t = useT().site
+  return (
+    <Reveal className="mt-12 grid gap-4 md:grid-cols-3">
+      {COMPARISONS.map(({ name, slug }) => (
+        <Link
+          key={slug}
+          to="/compare/$slug"
+          params={{ slug }}
+          className="bg-background ring-foreground/6 hover:ring-foreground/12 flex flex-col gap-3 rounded-3xl p-6 text-inherit ring transition-shadow hover:text-inherit"
+        >
+          <h3 className="font-serif text-xl tracking-tight">
+            {t.comparison.title(name)}
+          </h3>
+          <p className="text-muted-foreground text-sm/relaxed text-pretty">
+            {t.comparisons[slug].summary}
+          </p>
+          <span className="text-primary mt-auto flex items-center gap-1 pt-2 text-sm">
+            {t.comparison.read}
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              strokeWidth={2}
+              className="size-4"
+            />
+          </span>
+        </Link>
+      ))}
     </Reveal>
-  </section>
-)
+  )
+}
+
+export const Closing = () => {
+  const t = useT().site
+  return (
+    <section className={cn(CONTAINER, 'py-24 sm:py-32')}>
+      <Reveal className="flex flex-col items-center gap-6 text-center">
+        <h2 className="text-display sm:text-hero font-serif tracking-tight text-balance">
+          {t.closing.title}
+        </h2>
+        <p className="text-muted-foreground text-brief max-w-xl font-serif text-pretty">
+          {t.closing.lead}
+        </p>
+        <StartButton />
+        <TrialNote />
+      </Reveal>
+    </section>
+  )
+}

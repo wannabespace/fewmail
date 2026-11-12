@@ -63,10 +63,10 @@ const SettingsPage = () => {
               <MessengerSettings channel="telegram" />
               <MessengerSettings channel="whatsapp" />
             </SettingsGroup>
-            <McpSettings />
             <ScheduleSettings />
           </>
         )}
+        <McpSettings />
         <SnippetsSettings />
         <AccountSettings />
         <SettingsGroup title={t.settings.legal}>

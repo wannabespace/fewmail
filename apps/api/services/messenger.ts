@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { botMessages } from '@fewmail/db/schema'
+import type { BriefStats } from '@fewmail/db/schema'
 import {
   parseSkill,
   PLAN_LIMITS,
@@ -14,6 +15,7 @@ import { isAfter, subDays, subMinutes } from 'date-fns'
 import { eq, lt } from 'drizzle-orm'
 
 import { env } from '../env'
+import { canSpeak } from '../lib/elevenlabs'
 import { transcribe } from '../lib/mistral'
 import { generateBrief, getLatestBrief, localClock } from './brief'
 import { getChat } from './chat'
@@ -42,6 +44,8 @@ export interface Reply {
   actionId?: string
   buttons?: Button[]
   text: string
+  /** Also sent as a voice note, spoken from this text; a reply with only a voice has empty `text`. */
+  voice?: string
 }
 
 /** What a button press changes: a short notice, the pressed message's new buttons (`[]` removes them) and slower replies after. */
@@ -244,14 +248,42 @@ export const itemReply = (
   }
 }
 
+const MONDAY = 1
+
+export interface BriefMessage {
+  body: string
+  date?: string
+  headline: string
+  stats?: BriefStats
+}
+
+/** Monday's brief carries the week's time saved, the weekly report. */
+const weekLine = (t: Messages, brief: BriefMessage) =>
+  brief.date &&
+  new Date(`${brief.date}T12:00:00Z`).getUTCDay() === MONDAY &&
+  brief.stats?.savedMinutes
+    ? t.today.saved(brief.stats.savedMinutes)
+    : null
+
 export const briefReply = (
   chat: Chat,
   t: Messages,
-  brief: { body: string; headline: string }
-): Reply => ({
-  buttons: [queueButton(t)],
-  text: `${chat.channel.bold(brief.headline)}\n\n${chat.channel.plain(brief.body)}`,
-})
+  brief: BriefMessage
+): Reply => {
+  const week = weekLine(t, brief)
+  return {
+    buttons: canSpeak
+      ? [queueButton(t), { id: 'listen', title: t.telegram.listen }]
+      : [queueButton(t)],
+    text: [
+      chat.channel.bold(brief.headline),
+      chat.channel.plain(brief.body),
+      week && chat.channel.italic(week),
+    ]
+      .filter(Boolean)
+      .join('\n\n'),
+  }
+}
 
 export const todayBrief = async (userId: string) => {
   const [settings, latest] = await Promise.all([
@@ -263,6 +295,23 @@ export const todayBrief = async (userId: string) => {
     latest.date === localClock(settings.timezone).date
     ? latest
     : generateBrief(userId)
+}
+
+const SPOKEN_ITEMS = 5
+
+/** The brief read aloud: its two lines, then the first cards of the queue by title. */
+export const spokenBrief = async (userId: string) => {
+  const [brief, queue] = await Promise.all([
+    todayBrief(userId),
+    listQueue(userId),
+  ])
+  return [
+    brief.headline,
+    brief.body,
+    ...queue
+      .slice(0, SPOKEN_ITEMS)
+      .map(({ action, analysis }) => analysis?.summary ?? action.title),
+  ].join('\n')
 }
 
 const queueReplies = async (chat: Chat, userId: string, t: Messages) => {
@@ -299,6 +348,11 @@ export const press = async (
   if (command === 'brief') {
     return {
       replies: async () => [briefReply(chat, t, await todayBrief(userId))],
+    }
+  }
+  if (command === 'listen') {
+    return {
+      replies: async () => [{ text: '', voice: await spokenBrief(userId) }],
     }
   }
   if (command === 'queue') {

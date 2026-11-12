@@ -1,4 +1,5 @@
 import type { Rich } from '../locales'
+import { formatMinutes } from '../locales'
 import type { Messages } from './en'
 
 export const ko: Messages = {
@@ -41,6 +42,8 @@ export const ko: Messages = {
       update_event: '이 일정을 변경할까요?',
       approve_action: '이 작업을 실행할까요?',
       archive_thread: '이 스레드를 보관할까요?',
+      clear_out: '받은편지함에서 이 메일들을 정리할까요?',
+      undo_clear_out: '정리한 메일을 모두 받은편지함으로 되돌릴까요?',
       create_rule: '이 규칙을 추가할까요?',
       handle_thread: '이 스레드를 에이전트에게 맡길까요?',
       reply: '이 답장을 보낼까요?',
@@ -80,6 +83,11 @@ export const ko: Messages = {
       list_subscriptions: '구독 확인 중',
       approve_action: '실행하는 중',
       archive_thread: '보관하는 중',
+      get_reading: '뉴스레터 읽는 중',
+      get_wrapped: '메일을 세는 중',
+      clear_out: '받은편지함 정리 중',
+      preview_clear_out: '받은편지함 전체를 읽는 중',
+      undo_clear_out: '정리한 메일을 되돌리는 중',
       create_rule: '규칙 추가하는 중',
       dismiss_action: '건너뛰는 중',
       draft_reply: '답장 작성하는 중',
@@ -116,6 +124,8 @@ export const ko: Messages = {
       update_event: '저장',
       approve_action: '실행',
       archive_thread: '보관',
+      clear_out: '정리',
+      undo_clear_out: '되돌리기',
       create_rule: '추가',
       handle_thread: '맡기기',
       reply: '보내기',
@@ -267,6 +277,7 @@ export const ko: Messages = {
     anything: '아무거나',
     archive: '보관',
     approve: '승인',
+    approveAll: (n: number) => `같은 종류 ${n}개 모두 승인`,
     close: '닫기',
     draftReply: '답장 초안',
     edit: '편집',
@@ -387,6 +398,7 @@ export const ko: Messages = {
     boards: '보드',
     newBoard: '새 보드',
     mail: '메일',
+    reading: '읽을거리',
     rules: '규칙',
     search: '검색 또는 질문…',
     settings: '설정',
@@ -512,6 +524,12 @@ export const ko: Messages = {
     whichEmails: '대상 메일',
   },
   settings: {
+    forward: {
+      copy: '주소 복사',
+      description:
+        '내 메일함에서 이 주소로 메일을 보내거나 전달하고, 맨 위에 할 일을 메모로 적어 주세요. 답은 Telegram이나 WhatsApp, 그리고 여기 채팅으로 와요.',
+      title: '에이전트에게 전달',
+    },
     knowledge: {
       description:
         '가격, 주소, 가능한 일정, 선호하는 답장 방식 등. 에이전트가 초안과 자동 완성에 사용해요.',
@@ -611,10 +629,439 @@ export const ko: Messages = {
     },
     title: '설정',
   },
+  site: {
+    chapters: {
+      compare: {
+        description:
+          '대부분의 도구는 받은편지함을 더 빨리 처리하도록 도와줘요. Fewmail은 대신 처리해 줘요.',
+        label: '비교',
+        title: 'Fewmail은 이렇게 달라요.',
+      },
+      control: {
+        description:
+          '메일을 어떻게 처리할지 평소 말로 Fewmail에 알려 주고, 어떤 규칙이 알아서 움직일지 정하세요. Fewmail이 한 일은 모두 처리됨에서 확인할 수 있어요.',
+        label: '제어',
+        title: '규칙은 내가 정하고, 한 일은 전부 보여줘요.',
+      },
+      memory: {
+        description:
+          '내가 한 약속, 상대가 누구인지, 무엇에 돈을 내는지, 아직 대신 챙기고 있는 스레드까지 Fewmail이 기억해요.',
+        label: '기억',
+        title: '기억은 Fewmail이 맡을게요.',
+      },
+      pricing: {
+        description:
+          '분류, 규칙, 보호 기능은 평생 무료예요. Pro와 Max에는 대신 읽고 써 주는 모든 기능이 더해져요. Max는 그걸 더 많이 할 뿐이에요.',
+        label: '요금',
+        title: (usd: number) => `분류는 무료. 에이전트는 $${usd}부터.`,
+      },
+      protection: {
+        description:
+          '모든 요금제에 커뮤니티 스팸 방패가 들어 있어요. Fewmail 사용자들에게서 배우지만, 주소도 메일 내용도 한 글자도 공유하지 않아요. 비슷하게 꾸민 도메인, 알려진 피싱, 바뀐 결제 정보는 행동하기 전에 경고해 줘요.',
+        label: '보호',
+        title: '사기는 문 앞에서 막아요.',
+      },
+      questions: {
+        description: '짧게 답했어요. 자세한 내용은 개인정보 처리방침에 있어요.',
+        label: '자주 묻는 질문',
+        title: 'Gmail을 연결하기 전에.',
+      },
+      replies: {
+        description:
+          'Fewmail은 보낸 메일에서 내 글쓰기 방식을 배우고, 받은 메일의 언어로 답장을 미리 써 둬요. 고치거나, 다른 버전을 요청하거나, 그대로 보내세요. 내가 승인하기 전에는 아무것도 나가지 않아요.',
+        label: '답장',
+        title: '내 말투로, 상대의 언어로.',
+      },
+      telegram: {
+        description:
+          '브리핑과 급한 메일을 Telegram으로 받고, 한 번 탭해서 답장을 승인하세요. 음성 메시지로 “Marco에게 목요일 괜찮다고 전해 줘”라고만 해도 돼요. Fewmail이 스레드를 찾아 초안을 써요.',
+        label: 'Telegram',
+        title: '받은편지함을 채팅에서.',
+      },
+      today: {
+        description:
+          '매일 내가 정한 시간에 Fewmail이 내 언어로 짧은 브리핑을 쓰고, 결정이 필요한 몇 통의 메일을 중요한 순서대로 정리해 둬요. ⏎로 승인, S로 건너뛰기. 나머지는 이미 처리됐고, 무엇을 했는지 정확히 볼 수 있어요.',
+        label: '오늘',
+        title: '브리핑 하나, 대기열 하나. 받은편지함은 그걸로 끝.',
+      },
+    },
+    closing: {
+      lead: 'Gmail 연결은 1분이면 돼요. Fewmail은 최근 3일 치 메일부터 시작하니, 첫 결정이 바로 기다리고 있어요.',
+      title: '아침 시간을 되찾으세요.',
+    },
+    mcpPage: {
+      copy: 'URL 복사',
+      lead: 'Fewmail을 MCP 서버로 연결하고, 이미 쓰는 AI에서 메일에 대해 물어보세요. 메일 읽기와 에이전트의 분류는 무료이고, 초안·발송·규칙은 Pro에 있어요.',
+      safety:
+        '메일을 보내거나 Gmail을 바꾸는 일은 모두 먼저 동의를 구해요. 메일은 절대 모델 학습에 쓰이지 않고, 어떤 앱이든 설정에서 연결을 끊을 수 있어요.',
+      steps: {
+        chatgpt:
+          'Settings에서 이 URL로 커넥터(앱)를 추가한 뒤 Fewmail에 로그인하세요.',
+        claude:
+          'Settings → Connectors에서 이 URL로 사용자 지정 커넥터를 추가한 뒤 Fewmail에 로그인하세요.',
+        code: '터미널에서 한 번 실행하고, Claude Code가 요청하면 Fewmail에 로그인하세요.',
+        cursor:
+          'mcp.json에 추가하고, Cursor가 요청하면 Fewmail에 로그인하세요.',
+      },
+      title: 'Claude, ChatGPT, 그리고 쓰는 도구 안의 Fewmail.',
+    },
+    comparePage: {
+      lead: '메일 클라이언트는 모든 메일을 더 빨리 읽게 해 줘요. 필터는 메일을 폴더로 옮겨요. Fewmail은 에이전트예요. 메일을 읽고, 무엇이 기다려도 되는지 판단하고, 나머지만 물어봐요.',
+      title: 'Fewmail 비교.',
+    },
+    comparison: {
+      custom: '별도 문의',
+      features: '기능별 비교',
+      groups: {
+        agent: '읽기와 답장',
+        day: '나의 하루',
+        reach: '쓸 수 있는 곳',
+        safety: '보호',
+      },
+      labels: {
+        ask: '메일에 무엇이든 질문',
+        brief: '데일리 브리핑',
+        calendar: '캘린더',
+        drafts: '대신 써 주는 답장 초안',
+        followUps: '후속 알림',
+        gmail: 'Gmail과 Google Workspace',
+        handOver: '스레드 맡기기',
+        importance: '중요도순 정렬',
+        keepApp: '쓰던 메일 앱 그대로',
+        mcp: '내 도구를 위한 MCP',
+        memory: '약속과 사람을 기억',
+        otherProviders: 'iCloud, Yahoo 등 IMAP 메일',
+        outlook: 'Outlook과 Microsoft 365',
+        phishing: '피싱과 결제 정보 변경 경고',
+        phone: '휴대폰에서',
+        rules: '평소 말로 쓰는 규칙',
+        snooze: '다시 알림',
+        spamShield: '커뮤니티 스팸 방패',
+        summaries: '메일 요약',
+        teams: '팀 받은편지함',
+        unsubscribe: '원클릭 구독 취소',
+      },
+      more: '다른 비교',
+      no: '없음',
+      noFreePlan: '무료 요금제 없음',
+      ours: {
+        ask: 'Pro에서',
+        brief: '내 언어로, Pro에서',
+        drafts: '내 말투로, 승인할 때만 전송, Pro에서',
+        followUps: '답장을 기다리는 메일에 자동으로',
+        handOver: '에이전트가 목표까지 처리, Pro에서',
+        importance: '모든 메일에 점수, 무료',
+        keepApp: '모든 것이 Gmail에 반영',
+        mcp: 'Pro에서',
+        memory: 'Pro에서',
+        phone: 'Telegram과 WhatsApp, 음성까지, Pro에서',
+        rules: '보관, 읽음 표시, 구독 취소, 무료',
+        summaries: 'Pro에서',
+        unsubscribe: '무시하는 발신자는 스팸으로',
+      },
+      plans: '요금제와 가격',
+      read: '비교 읽기',
+      source: (name: string, date: string) =>
+        `${name} 정보는 공식 웹사이트에서 가져왔고 ${date}에 확인했어요. 가격과 기능은 바뀔 수 있으니 최신 정보는 해당 사이트에서 확인하세요.`,
+      title: (name: string) => `Fewmail vs ${name}`,
+      tryFree: 'Fewmail 무료로 써 보기',
+      which: '나에게 맞는 건 어느 쪽일까요?',
+      yes: '있음',
+    },
+    comparisons: {
+      sanebox: {
+        plans: {
+          dinner: '메일함 4개와 모든 기능, AI Bundle 포함',
+          lunch: '메일함 2개, 다시 알림과 리마인더',
+          snack: '메일함 1개와 기본 필터',
+        },
+        summary:
+          'SaneBox는 메일을 폴더로 분류하고, 최상위 요금제에서는 초안과 요약도 해 줘요. Fewmail은 먼저 모두 읽고, 브리핑 하나와 나만 내릴 수 있는 몇 가지 결정만 건네줘요.',
+        them: {
+          brief: '걸러진 메일의 일일 요약본',
+          drafts: 'SaneDrafts, Dinner에서',
+          followUps: 'SaneNoReplies',
+          importance: '중요하지 않은 메일은 SaneLater로',
+          keepApp: '폴더로 작동',
+          otherProviders: '모든 IMAP 또는 Exchange 서버',
+          phone: '메일 앱을 통해',
+          rules: '메일을 폴더 사이로 옮겨 학습',
+          snooze: 'Lunch부터',
+          summaries: 'SaneSummary, Dinner에서',
+          unsubscribe: 'SaneBlackHole 폴더',
+        },
+        verdict:
+          '메일이 Gmail 밖에 있고 폴더만으로 충분하다면 SaneBox. Gmail을 쓰고 중요한 메일을 읽고, 요약하고, 답장까지 해 주길 원한다면 Fewmail.',
+      },
+      shortwave: {
+        plans: {
+          business: '사용자당',
+          free: '대부분의 기능과 어시스턴트',
+          max: '사용자당, 가장 강력한 모델',
+          premier: '사용자당, 더 강력한 모델',
+          pro: '전체 기록, AI 검색과 글쓰기',
+        },
+        summary:
+          'Shortwave는 대화로 쓰는 AI 어시스턴트가 있는 메일 클라이언트예요. Fewmail은 먼저 메일을 읽고, 스스로 판단할 수 없는 것만 물어보는 에이전트예요.',
+        them: {
+          ask: 'AI 어시스턴트와 검색',
+          drafts: '요청할 때',
+          importance: '분할과 번들',
+          keepApp: '메일 앱을 대체',
+          memory: 'AI 메모리',
+          otherProviders: 'Gmail로 전달해서',
+          outlook: 'Microsoft 365 미지원',
+          phone: 'iOS와 Android 앱',
+          rules: 'AI 필터, 요금제별 3~50개',
+          summaries: '모든 메일 상단에',
+          teams: '공유 스레드와 댓글',
+          unsubscribe: '원클릭 차단 포함',
+        },
+        verdict:
+          '채팅 어시스턴트가 있는 새 받은편지함을 원한다면 Shortwave. 지금 쓰는 Gmail에서 볼 메일을 줄이고 싶다면 Fewmail.',
+      },
+      superhuman: {
+        plans: {
+          business: '멤버당 $33, 연간 결제. Auto Drafts와 Ask AI 추가',
+          enterprise: 'SSO와 관리자 기능',
+          starter: '멤버당 $25, 연간 결제',
+        },
+        summary:
+          'Superhuman은 모든 메일을 더 빨리 처리하게 해 줘요. Fewmail은 대신 처리하고 내가 봐야 할 것만 보여줘요.',
+        them: {
+          ask: 'Ask AI, Business에서',
+          drafts: 'Auto Drafts, Business에서',
+          followUps: 'Auto Reminders',
+          importance: 'Split Inbox와 Auto Labels',
+          keepApp: '메일 앱을 대체',
+          mcp: 'Business에서',
+          phone: 'iOS와 Android 앱',
+          rules: 'Custom Auto Labels, Business에서',
+          spamShield: '메일 서비스 제공자의 필터',
+          summaries: 'Auto Summarize',
+          teams: '공유 초안과 댓글',
+        },
+        verdict:
+          '모든 메일을 직접, 더 빨리 처리하고 싶다면 Superhuman. 대부분의 메일을 아예 보고 싶지 않다면 Fewmail.',
+      },
+    },
+    control: {
+      gmail: {
+        description:
+          '선택 사항인 Fewmail 라벨을 켜면 Gmail 자체에서도, 휴대폰에서도, 다른 메일 앱에서도 분류가 보여요.',
+        title: '어떤 Gmail 앱과도 함께',
+      },
+      handled: {
+        description:
+          '에이전트가 스스로 한 일은 모두 처리됨에 이유와 함께 표시돼요.',
+        title: '처리됨, 투명하게',
+      },
+      keyboard: {
+        description:
+          '모든 동작에 키가 하나씩 있고, ⌘K로 어디든 갈 수 있어요. 손이 키보드를 떠날 일이 없어요.',
+        title: '키보드 우선',
+      },
+      mcp: {
+        description:
+          'Claude나 다른 MCP 클라이언트를 연결해서 같은 에이전트로 메일을 읽고, 분류하고, 초안을 쓰게 하세요.',
+        title: 'MCP 서버',
+      },
+      privacy: {
+        description:
+          '제목, 본문, 요약, 초안은 데이터베이스에 암호화되어 저장돼요. 보내기에는 언제나 내 승인이 필요해요.',
+        title: '설계부터 프라이빗하게',
+      },
+      rules: {
+        description:
+          '“열어 보지 않는 뉴스레터”나 “쇼핑몰 영수증”을 보관, 읽음 처리 또는 구독 취소.',
+        title: '평소 말로 쓰는 규칙',
+      },
+    },
+    demos: {
+      draft: {
+        expectsReply: '답장을 기다려요',
+        language: 'Lena에 맞춰 독일어로',
+        redraft: '다시 쓰기',
+      },
+      shield: [
+        {
+          detail: 'paypa1-billing.com이 paypal.com처럼 보여요',
+          label: '위장 도메인',
+        },
+        {
+          detail: '거래하던 업체의 청구서에 새 IBAN이 있어요',
+          label: '결제 정보 변경됨',
+        },
+        {
+          detail: '9명이 이 캠페인을 스팸으로 신고했어요',
+          label: '스팸으로 이동',
+        },
+      ],
+      telegram: {
+        draftReady: 'Marco에게 보낼 초안이 준비됐어요: 목요일 16:00. 보낼까요?',
+        urgent:
+          '금요일 전까지 서명한 계약서가 필요하대요. 답장 초안을 써 뒀어요.',
+        voice: '“Marco에게 목요일 괜찮은데 4시로 하자고 전해 줘.”',
+      },
+      today: {
+        brief:
+          'Anna는 계약서를 기다리고 있고, Northwind 청구서는 다음 주가 기한이며, Marco는 목요일에 시간을 잡고 싶어 해요. 뉴스레터와 알림 42통은 처리했어요.',
+        day: '목요일 브리핑',
+        queue: [
+          {
+            reason: '계약 기한 내일',
+            summary: '금요일 킥오프 전에 서명한 계약서를 돌려받아야 해요.',
+          },
+          {
+            reason: '청구서 · 11월 20일까지 $1,240',
+            summary: '웹사이트 리디자인 10월 청구서예요.',
+          },
+          {
+            reason: '회의 제안',
+            summary: '분기 리뷰를 목요일 15:00에 하자고 해요.',
+          },
+        ],
+      },
+    },
+    faq: (trialDays: number) => [
+      {
+        answer:
+          '아니요. Fewmail은 Gmail 위에서 작동해요. 하는 일은 모두 Gmail에도 그대로 반영되고, 쓰던 Gmail 앱도 함께 계속 쓸 수 있어요.',
+        question: 'Gmail을 떠나야 하나요?',
+      },
+      {
+        answer:
+          '내 허락 없이는 절대 안 해요. 답장은 승인할 때까지 대기열에서 기다리고, 보관, 읽음 처리, 구독 취소를 스스로 할 수 있는 건 내가 만들었거나 남겨 둔 규칙뿐이에요. 한 일은 모두 처리됨에 표시돼요.',
+        question: '메일을 알아서 보내거나 지우기도 하나요?',
+      },
+      {
+        answer:
+          '제목, 본문, 요약, 초안은 데이터베이스에 암호화되어 저장돼요. 내 메일은 절대 모델 학습에 쓰이지 않고, 스팸 방패는 사용자 사이에 키 해시만 공유할 뿐 주소나 내용은 공유하지 않아요.',
+        question: '내 메일은 어떻게 되나요?',
+      },
+      {
+        answer: `모든 새 계정은 카드 없이 Pro를 ${trialDays}일 동안 써요. 체험이 끝나면 그냥 Free로 남고, 아무것도 지워지거나 결제되지 않아요.`,
+        question: '체험이 끝나면 어떻게 되나요?',
+      },
+      {
+        answer:
+          '초안은 답장하는 메일의 언어로 써요. 앱, 브리핑, Telegram 봇은 15개 언어 중 내가 고른 언어 하나로 말해요.',
+        question: '어떤 언어를 지원하나요?',
+      },
+      {
+        answer:
+          '지금은 Gmail과 Google Workspace 계정이에요. 여러 메일함을 하나의 Fewmail에 추가하면 모든 메일이 같은 브리핑과 받은편지함으로 모여요.',
+        question: '어떤 메일 계정을 쓸 수 있나요?',
+      },
+    ],
+    footer: {
+      legal: '법적 고지',
+      product: '제품',
+      tagline: 'Gmail을 읽고 내가 봐야 할 것만 보여주는 메일 에이전트.',
+      versus: (name: string) => `vs ${name}`,
+    },
+    hero: {
+      lead: 'Fewmail은 Gmail을 위한 메일 에이전트예요. 모든 메일을 대신 읽고, 내 말투로 답장 초안을 쓰고, 정말 내가 봐야 할 것만 짧은 목록으로 건네줘요.',
+      start: 'Google로 무료로 시작하기',
+    },
+    memory: {
+      ask: {
+        description:
+          '⌘K에서 질문하면 내 메일에서 찾은 답을, 근거가 된 메일과 함께 보여줘요.',
+        title: '메일에 묻기',
+      },
+      boards: {
+        description:
+          '추적할 것(돈, 여행, 주문)을 설명하면 에이전트가 최근 6개월 치 메일부터 모아 차트로 보여줘요.',
+        title: '보드',
+      },
+      followUps: {
+        description:
+          '답장을 기다리는 메일에는 후속 연락이 붙어서, 스레드가 조용히 끊기는 일이 없어요.',
+        title: '후속 연락',
+      },
+      handle: {
+        description:
+          '“이거 맡기기”라고 하면 에이전트가 목표를 향해 스레드를 진행해요. 보낼 때마다 묻게 하거나, 알아서 보내게 할 수 있어요.',
+        title: '이거 맡기기',
+      },
+      people: {
+        description:
+          '메일을 주고받는 모든 사람에 대한 짧은 메모를 매주 새로 고쳐, 메일 바로 옆에 보여줘요.',
+        title: '사람',
+      },
+      promises: {
+        description:
+          '보낸 메일에서 한 약속은 기한이 되면 다시 알려 줘요. 누가 재촉하기 전에요.',
+        title: '지키는 약속',
+      },
+    },
+    nav: {
+      compare: '비교',
+      features: '기능',
+      pricing: '요금',
+      signIn: '로그인',
+    },
+    plans: {
+      everythingIn: (plan: string) => `${plan}의 모든 기능, 그리고`,
+      forever: '평생',
+      free: {
+        description: '분류, 규칙, 보호. 평생 무료.',
+        features: [
+          '모든 메일을 분류하고 중요도 점수 매기기',
+          '보관, 읽음 처리, 구독 취소를 하는 평소 말 규칙',
+          '커뮤니티 스팸 방패와 피싱 경고',
+          '구독 취소 후에도 보내는 좀비 발신자 잡아내기',
+          '답장을 기다리는 메일에 자동 후속 연락',
+          '다시 알림, 스니펫, Gmail의 Fewmail 라벨',
+        ],
+      },
+      max: {
+        description: '바쁜 받은편지함을 위한, 같은 에이전트.',
+        emails: (emails: string) => `매달 메일 ${emails}통 읽기`,
+        messages: (messages: number) =>
+          `매달 에이전트에게 메시지 ${messages}개`,
+        unlimited: '보드와 맡긴 스레드 무제한',
+      },
+      monthly: '월간',
+      per: { month: '/ 월', year: '/ 년' },
+      pro: {
+        description: '에이전트의 모든 것: 읽고, 쓰고, 기억해요.',
+        features: [
+          '오늘: 데일리 브리핑과 결정 대기열 하나',
+          '내 말투로 쓴 답장 초안, 승인할 때만 전송',
+          'Telegram: 브리핑, 승인, 음성 지시',
+          '“이거 맡기기”: 에이전트가 스레드를 목표까지 진행',
+          '약속과 사람을 기억하고, 돈이든 무엇이든 추적할 것은 차트가 있는 보드로',
+          '메일에 무엇이든 묻기, 내 도구를 위한 MCP까지',
+        ],
+        limits: (emails: string, messages: number) =>
+          `매달 메일 ${emails}통 읽기와 에이전트에게 메시지 ${messages}개. 쓸모없는 메일은 세지 않아요`,
+      },
+      tryFree: (days: number) => `${days}일 무료 체험`,
+      yearly: '연간 · 두 달 무료',
+    },
+    pricingPage: {
+      lead: (trialDays: number) =>
+        `분류, 평소 말로 쓰는 규칙, 보호 기능은 평생 무료예요. Pro는 대신 읽고, 쓰고, 기억하는 에이전트이고, Max는 바쁜 받은편지함을 위해 여유를 더한 같은 에이전트예요. 모든 계정은 Pro ${trialDays}일로 시작하고, 끝나면 그냥 Free로 남아요.`,
+      otherTool: '다른 도구를 고민 중인가요?',
+      title: '받은편지함이 아니라 에이전트에 돈을 내세요.',
+    },
+    promises: [
+      '승인 없이는 아무것도 보내지 않아요',
+      '메일은 저장할 때 암호화돼요',
+      '모델 학습에는 절대 쓰지 않아요',
+    ],
+    startFree: '무료로 시작하기',
+    trialNote: (days: number) =>
+      `Pro ${days}일, 카드 필요 없음. 그 뒤로는 원하는 만큼 무료예요.`,
+  },
   skills: {
     bills: '다가오는 청구서와 결제',
+    cancel: '유료 구독 해지하기',
     cleanup: '정리할 뉴스레터',
     followups: '아직 답이 없는 사람',
+    reading: '오늘의 뉴스레터를 한 번에 요약',
     today: '오늘 챙겨야 할 일',
     waiting: '답장을 기다리는 사람',
     week: '이번 주 메일 요약',
@@ -650,6 +1097,7 @@ export const ko: Messages = {
     receipts: '영수증, 주문 및 배송 확인 메일',
   },
   telegram: {
+    listen: '🔊 듣기',
     heard: (text: string) => `들은 내용: “${text}”`,
     voiceFailed: '잘 알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
     help: '필요한 것을 쓰거나 말해 주세요:\n• 메일에 대해 묻기: “넷플릭스 갱신일이 언제야?”\n• 답장 내용 말하기: “안나에게 내일 서명한다고 전해 줘”\n• 초안을 바꾸려면 그 초안에 답장하기',
@@ -696,6 +1144,8 @@ export const ko: Messages = {
     done: '완료',
     firstRead:
       '최근 3일간의 메일을 읽고 있어요. 확인할 게 생기면 여기에 바로 나타나요.',
+    approvedMany: (n: number) => `${n}개 승인됨`,
+    listen: '브리핑 듣기',
     handled: {
       spam: (n: number) => `${n}개 스팸`,
       archived: (n: number) => `${n}개 보관`,
@@ -713,6 +1163,10 @@ export const ko: Messages = {
       people: (n: number) => `사람에게서 ${n}통`,
       total: (n: number, period: string) => `${period} 메일 ${n}통`,
     },
+    saved: (minutes: number) =>
+      `이번 주 Fewmail이 아껴 준 시간: 약 ${formatMinutes('ko', minutes)}`,
+    savedHow: (handled: number, replies: number) =>
+      `알아서 처리: ${handled} · 초안으로 보낸 답장: ${replies}`,
     recent: (period: string) => `${period}의 다른 메일`,
     sent: '보냄',
     worthAttention: '살펴볼 만한 것',
@@ -779,6 +1233,11 @@ export const ko: Messages = {
           '온라인 주문과 배송: 무엇을 어디서 샀고 지금 어디에 있는지.',
         name: '주문',
       },
+      subscriptions: {
+        description:
+          '정기적으로 결제하는 서비스: 각각의 금액, 주기, 다음 갱신일.',
+        name: '유료 구독',
+      },
       trips: {
         description: '항공, 기차, 호텔, 렌터카: 어디로, 언제, 비용은 얼마인지.',
         name: '여행',
@@ -794,6 +1253,59 @@ export const ko: Messages = {
     emails: (total: number) => `이메일 ${total}개`,
     reason: (total: number) => `이번 달 ${total}개, 하나도 열지 않았어요`,
     title: (total: number) => `열지 않는 뉴스레터 ${total}개 구독 취소`,
+  },
+  clearOut: {
+    groups: {
+      lists: '한 번도 열지 않은 뉴스레터',
+      notifications: '읽은 알림, 한 달 지난 메일',
+      old: '1년 지난 모든 메일',
+      promotions: '광고와 소셜, 3일 지난 메일',
+    },
+    done: (emails: string) => `${emails} 정리 완료`,
+    empty: '정리할 메일이 없어요. 받은편지함이 이미 깔끔해요.',
+    lead: (emails: string) =>
+      `받은편지함에 ${emails}. 정리할 수 있는 메일이에요.`,
+    leadCapped: (emails: string) =>
+      `받은편지함에 ${emails} 이상. 정리할 수 있는 메일이에요.`,
+    left: (emails: string) => `받은편지함에 남는 메일: ${emails}`,
+    listsFrom: (names: string, more: number) =>
+      more ? `${names} 외 ${more}개` : names,
+    run: (emails: string) => `${emails} 정리`,
+    safe: '아무것도 삭제하지 않아요. 정리한 메일은 Fewmail/Cleared 라벨로 보관되고 한 번에 되돌릴 수 있어요. 뉴스레터는 구독도 해지해요.',
+    scanning: '받은편지함 전체를 헤더만 읽고 있어요. 최대 1분.',
+    title: '받은편지함 정리',
+    undo: '모두 되돌리기',
+    undone: (emails: string) => `받은편지함으로 돌아온 메일: ${emails}`,
+  },
+  wrapped: {
+    busiest: (day: string, hour: string) => `가장 바쁜 때: ${day}, ${hour}쯤`,
+    copied: '링크를 복사했어요',
+    copyLink: '링크 복사',
+    cta: 'Fewmail로 나만의 기록 받기',
+    emails: '통의 메일 수신',
+    empty: '아직 이야기할 만큼 메일이 없어요. 며칠 뒤에 다시 와 주세요.',
+    handled: 'Fewmail이 알아서 처리',
+    people: '가장 많이 보낸 사람',
+    period: { month: '이번 달', year: '올해' },
+    replies: 'Fewmail이 쓰고 보낸 답장',
+    saveImage: '이미지 저장',
+    saved: 'Fewmail이 아껴 준 시간',
+    shareNote:
+      '링크와 이미지에는 이 숫자만 담기고, 이름이나 주소는 담기지 않아요.',
+    shared: { month: '메일로 본 한 달', year: '메일로 본 한 해' },
+    spam: '막은 스팸',
+    split: (people: string, lists: string) =>
+      `사람에게서 ${people} · 뉴스레터에서 ${lists}`,
+    title: { month: '메일로 본 이번 달', year: '메일로 본 올해' },
+    unsubscribed: '떠난 뉴스레터',
+  },
+  forward: {
+    done: '전달한 메일',
+  },
+  reading: {
+    empty: '지난 하루 동안 받은 뉴스레터가 없어요.',
+    lead: '지난 하루의 뉴스레터를 한곳에 모아 받은편지함을 비워 둬요.',
+    title: '읽을거리',
   },
   commitments: {
     title: '내가 한 약속',

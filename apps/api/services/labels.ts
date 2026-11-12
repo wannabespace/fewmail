@@ -26,7 +26,7 @@ const isGmailStatus = (error: unknown, ...statuses: number[]) =>
   error instanceof GmailError && statuses.includes(error.status)
 
 /** Two analyses may create the same new label at once; the loser finds the winner's (409). */
-const findOrCreateLabel = async (mailbox: Mailbox, name: string) => {
+export const findOrCreateLabel = async (mailbox: Mailbox, name: string) => {
   const find = async () => {
     const labels = await listLabels(mailbox)
     return labels.find((label) => label.name === name)

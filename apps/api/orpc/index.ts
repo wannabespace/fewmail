@@ -37,6 +37,9 @@ const notFoundToOrpc = orpc.middleware(async ({ next }) => {
   throw error
 })
 
+/** Signed-out visitors: only what a shared link shows. */
+export const visitor = orpc.use(notFoundToOrpc)
+
 export const authed = orpc
   .use(notFoundToOrpc)
   .use(async ({ context, next }) => {

@@ -4,6 +4,7 @@ import {
   BOARD_GROUPINGS,
   BOARD_MEASURES,
   BOARD_PRESETS,
+  CLEAR_OUT_GROUPS,
   DEVICE_KINDS,
   FOLLOWUP_DAYS,
   GMAIL_EFFECTS,
@@ -12,6 +13,7 @@ import {
   PAID_PLANS,
   RULE_EFFECTS,
   SIMPLE_MATCH_FIELDS,
+  WRAPPED_PERIODS,
 } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { LOCALES } from '@fewmail/shared/i18n/locales'
@@ -19,7 +21,7 @@ import { streamToEventIterator } from '@orpc/server'
 import type { InferRouterOutputs } from '@orpc/server'
 import { type } from 'arktype'
 
-import { agent, authed } from '.'
+import { agent, authed, visitor } from '.'
 import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
 import { askMail } from '../services/ask'
@@ -40,7 +42,12 @@ import {
   updateEvent,
 } from '../services/calendar'
 import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
-import { listSubscriptions } from '../services/cleanup'
+import {
+  listSubscriptions,
+  runClearOut,
+  scanClearOut,
+  undoClearOut,
+} from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
 import {
   getTelegramLink,
@@ -52,6 +59,7 @@ import {
 } from '../services/integrations'
 import {
   approveAction,
+  approveActions,
   archiveMessage,
   moveToInbox,
   blockSender,
@@ -81,6 +89,7 @@ import {
 import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
 import { getPerson } from '../services/people'
 import { getPlanInfo, getUsage, spendMessage } from '../services/plan'
+import { getReading } from '../services/reading'
 import {
   createRule,
   deleteRule,
@@ -94,6 +103,7 @@ import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
 import { markNotSpam, reportSpam } from '../services/spam'
 import { cancelTask, createTask } from '../services/tasks'
 import { unsubscribeMessage } from '../services/thread-effects'
+import { getWrapped, readSharedWrapped } from '../services/wrapped'
 
 const id = type({ id: 'string.uuid' })
 
@@ -196,6 +206,11 @@ export const router = {
       .input(id.and({ 'detail?': 'string' }))
       .handler(({ context, input }) =>
         approveAction(context.user.id, input.id, input.detail)
+      ),
+    approveMany: agent
+      .input(type({ ids: 'string.uuid[] > 0' }))
+      .handler(({ context, input }) =>
+        approveActions(context.user.id, input.ids)
       ),
     dismiss: agent
       .input(id)
@@ -454,7 +469,18 @@ export const router = {
       ),
   },
   subscriptions: {
+    clearOut: authed
+      .input(type({ groups: type.enumerated(...CLEAR_OUT_GROUPS).array() }))
+      .handler(({ context, input }) =>
+        runClearOut(context.user.id, input.groups)
+      ),
     list: authed.handler(({ context }) => listSubscriptions(context.user.id)),
+    scanClearOut: authed.handler(({ context }) =>
+      scanClearOut(context.user.id)
+    ),
+    undoClearOut: authed.handler(({ context }) =>
+      undoClearOut(context.user.id)
+    ),
     unsubscribe: authed
       .input(messageId)
       .handler(({ context, input }) =>
@@ -511,6 +537,17 @@ export const router = {
     refreshBrief: agent.handler(({ context }) =>
       generateBrief(context.user.id)
     ),
+  },
+  reading: authed.handler(({ context }) => getReading(context.user.id)),
+  wrapped: {
+    get: authed
+      .input(type({ period: type.enumerated(...WRAPPED_PERIODS) }))
+      .handler(({ context, input }) =>
+        getWrapped(context.user.id, input.period)
+      ),
+    shared: visitor
+      .input(type({ token: 'string' }))
+      .handler(({ input }) => readSharedWrapped(input.token)),
   },
 }
 

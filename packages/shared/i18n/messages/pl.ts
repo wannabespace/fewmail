@@ -1,5 +1,5 @@
 import type { Rich } from '../locales'
-import { plural } from '../locales'
+import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const pl: Messages = {
@@ -42,6 +42,8 @@ export const pl: Messages = {
       update_event: 'Zmienić to wydarzenie?',
       approve_action: 'Wykonać tę akcję?',
       archive_thread: 'Zarchiwizować ten wątek?',
+      clear_out: 'Uprzątnąć te grupy maili ze skrzynki?',
+      undo_clear_out: 'Przywrócić do skrzynki wszystko, co uprzątnięto?',
       create_rule: 'Dodać tę regułę?',
       handle_thread: 'Przekazać ten wątek agentowi?',
       reply: 'Wysłać tę odpowiedź?',
@@ -81,6 +83,11 @@ export const pl: Messages = {
       list_subscriptions: 'Sprawdzam subskrypcje',
       approve_action: 'Wykonuję',
       archive_thread: 'Archiwizuję',
+      get_reading: 'Czytam newslettery',
+      get_wrapped: 'Liczę twoją pocztę',
+      clear_out: 'Porządkuję skrzynkę',
+      preview_clear_out: 'Czytam całą skrzynkę',
+      undo_clear_out: 'Przywracam uprzątnięte maile',
       create_rule: 'Dodaję regułę',
       dismiss_action: 'Pomijam',
       draft_reply: 'Piszę odpowiedź',
@@ -117,6 +124,8 @@ export const pl: Messages = {
       update_event: 'Zapisz',
       approve_action: 'Wykonaj',
       archive_thread: 'Archiwizuj',
+      clear_out: 'Uprzątnij',
+      undo_clear_out: 'Przywróć',
       create_rule: 'Dodaj',
       handle_thread: 'Przekaż',
       reply: 'Wyślij',
@@ -205,6 +214,11 @@ export const pl: Messages = {
           'Zamówienia online i dostawy: co kupiłem, u kogo i gdzie teraz jest.',
         name: 'Zamówienia',
       },
+      subscriptions: {
+        description:
+          'Usługi, za które płacę regularnie: ile kosztuje każda, jak często i kiedy się odnawia.',
+        name: 'Płatne subskrypcje',
+      },
       trips: {
         description:
           'Loty, pociągi, hotele i wynajem: dokąd jadę, kiedy i ile to kosztuje.',
@@ -279,6 +293,59 @@ export const pl: Messages = {
         other: (n) =>
           `Wypisz się z ${n} newslettera, którego nigdy nie otwierasz`,
       }),
+  },
+  clearOut: {
+    groups: {
+      lists: 'Newslettery, których nie otwierasz',
+      notifications: 'Przeczytane powiadomienia, starsze niż miesiąc',
+      old: 'Wszystko starsze niż rok',
+      promotions: 'Reklamy i społeczności, starsze niż 3 dni',
+    },
+    done: (emails: string) => `Uprzątnięto: ${emails}`,
+    empty: 'Nie ma czego sprzątać: skrzynka jest już w porządku.',
+    lead: (emails: string) => `W skrzynce: ${emails}. Oto co może zniknąć.`,
+    leadCapped: (emails: string) =>
+      `W skrzynce ponad ${emails}. Oto co może zniknąć.`,
+    left: (emails: string) => `W skrzynce zostanie: ${emails}`,
+    listsFrom: (names: string, more: number) =>
+      more ? `${names} i jeszcze ${more}` : names,
+    run: (emails: string) => `Uprzątnij: ${emails}`,
+    safe: 'Nic nie jest usuwane. Uprzątnięte maile trafiają do archiwum z etykietą Fewmail/Cleared i wracają jednym kliknięciem; z newsletterów dodatkowo się wypisuję.',
+    scanning: 'Czytam całą skrzynkę, tylko nagłówki. Do minuty.',
+    title: 'Uprzątnij skrzynkę odbiorczą',
+    undo: 'Przywróć wszystko',
+    undone: (emails: string) => `Z powrotem w skrzynce: ${emails}`,
+  },
+  wrapped: {
+    busiest: (day: string, hour: string) =>
+      `Najwięcej poczty: ${day}, około ${hour}`,
+    copied: 'Link skopiowany',
+    copyLink: 'Kopiuj link',
+    cta: 'Zdobądź swój z Fewmail',
+    emails: 'maili przyszło',
+    empty: 'Za mało poczty na historię. Wróć za kilka dni.',
+    handled: 'Fewmail załatwił sam',
+    people: 'Kto pisał najwięcej',
+    period: { month: 'Ten miesiąc', year: 'Ten rok' },
+    replies: 'odpowiedzi napisał Fewmail i zostały wysłane',
+    saveImage: 'Zapisz obrazek',
+    saved: 'zaoszczędził Fewmail',
+    shareNote:
+      'Link i obrazek pokazują tylko te liczby, nigdy imion ani adresów.',
+    shared: { month: 'Miesiąc w mailach', year: 'Rok w mailach' },
+    spam: 'maili spamowych zatrzymanych',
+    split: (people: string, lists: string) =>
+      `${people} od ludzi · ${lists} z newsletterów`,
+    title: { month: 'Twój miesiąc w mailach', year: 'Twój rok w mailach' },
+    unsubscribed: 'newsletterów porzuconych',
+  },
+  forward: {
+    done: 'Twój przekazany mail',
+  },
+  reading: {
+    empty: 'W ostatniej dobie nie było newsletterów.',
+    lead: 'Newslettery z ostatniej doby w jednym miejscu, żeby nie zaśmiecały skrzynki.',
+    title: 'Czytanie',
   },
   commitments: {
     title: 'Obiecałeś',
@@ -381,6 +448,7 @@ export const pl: Messages = {
     ask: 'zapytaj o niego',
     anything: 'cokolwiek',
     approve: 'zatwierdź',
+    approveAll: (n: number) => `zatwierdź wszystkie ${n} tego typu`,
     archive: 'archiwizuj',
     close: 'zamknij',
     draftReply: 'szkic odpowiedzi',
@@ -503,6 +571,7 @@ export const pl: Messages = {
     boards: 'Tablice',
     newBoard: 'Nowa tablica',
     mail: 'Poczta',
+    reading: 'Czytanie',
     rules: 'Reguły',
     search: 'Szukaj lub zapytaj…',
     settings: 'Ustawienia',
@@ -671,6 +740,12 @@ export const pl: Messages = {
     whichEmails: 'Które maile',
   },
   settings: {
+    forward: {
+      copy: 'Kopiuj adres',
+      description:
+        'Wyślij lub przekaż dowolny mail na ten adres ze swojej skrzynki, z notatką na górze, co zrobić. Odpowiedź przyjdzie w Telegramie lub WhatsAppie i w osobnym czacie tutaj.',
+      title: 'Przekaż agentowi',
+    },
     account: 'Konto',
     agent: 'Agent',
     briefDescription: (timezone: string) =>
@@ -773,10 +848,445 @@ export const pl: Messages = {
     },
     title: 'Ustawienia',
   },
+  site: {
+    chapters: {
+      compare: {
+        description:
+          'Większość narzędzi pomaga ci szybciej przebić się przez skrzynkę. Fewmail robi to za ciebie.',
+        label: 'Porównanie',
+        title: 'Czym Fewmail się wyróżnia.',
+      },
+      control: {
+        description:
+          'Powiedz Fewmail zwykłymi słowami, co robić z pocztą, zdecyduj, które reguły mogą działać same, i przejrzyj wszystko, co zrobił, w Załatwionych.',
+        label: 'Kontrola',
+        title: 'Ty ustalasz reguły. On pokazuje swoją pracę.',
+      },
+      memory: {
+        description:
+          'Fewmail pamięta, co obiecałeś, kim są ludzie, za co płacisz i którymi wątkami wciąż się dla ciebie zajmuje.',
+        label: 'Pamięć',
+        title: 'Pamięta, żebyś ty nie musiał.',
+      },
+      pricing: {
+        description:
+          'Sortowanie, reguły i ochrona są za darmo na zawsze. Pro i Max dodają wszystko, co czyta i pisze za ciebie; Max po prostu robi tego więcej.',
+        label: 'Cennik',
+        title: (usd: number) => `Sortowanie za darmo. Agent od $${usd}.`,
+      },
+      protection: {
+        description:
+          'Każdy plan ma społecznościową tarczę antyspamową, która uczy się od wszystkich użytkowników Fewmail, nigdy nie udostępniając żadnego adresu ani słowa z twojej poczty. Podszywające się domeny, znany phishing i zmienione dane do płatności wywołują ostrzeżenie, zanim cokolwiek zrobisz.',
+        label: 'Ochrona',
+        title: 'Oszuści zostają za drzwiami.',
+      },
+      questions: {
+        description:
+          'Krótkie odpowiedzi. Długie znajdziesz w polityce prywatności.',
+        label: 'Pytania',
+        title: 'Zanim połączysz Gmaila.',
+      },
+      replies: {
+        description:
+          'Fewmail uczy się, jak piszesz, z wysłanych przez ciebie maili, a potem z wyprzedzeniem przygotowuje odpowiedzi w języku danego e-maila. Popraw, poproś o inną wersję albo wyślij bez zmian. Nic nie wychodzi bez twojego „tak”.',
+        label: 'Odpowiedzi',
+        title: 'Odpowiedzi twoim głosem, w ich języku.',
+      },
+      telegram: {
+        description:
+          'Odbieraj podsumowanie i pilne maile w Telegramie, zatwierdzaj odpowiedź jednym stuknięciem albo po prostu nagraj głosówkę: „powiedz Marco, że czwartek pasuje”. Fewmail znajdzie wątek i przygotuje szkic.',
+        label: 'Telegram',
+        title: 'Twoja skrzynka w czacie.',
+      },
+      today: {
+        description:
+          'Codziennie o wybranej przez ciebie godzinie Fewmail pisze krótkie podsumowanie w twoim języku i ustawia w kolejce tych kilka maili, które wymagają decyzji, od najważniejszych. Zatwierdź ⏎, pomiń S; reszta jest już załatwiona, a ty widzisz dokładnie, co zrobił.',
+        label: 'Dziś',
+        title: 'Jedno podsumowanie. Jedna kolejka. To cała twoja skrzynka.',
+      },
+    },
+    closing: {
+      lead: 'Połącz Gmaila w minutę. Fewmail zaczyna od poczty z ostatnich trzech dni, więc pierwsze decyzje czekają na ciebie od razu.',
+      title: 'Odzyskaj swoje poranki.',
+    },
+    mcpPage: {
+      copy: 'Kopiuj URL',
+      lead: 'Podłącz Fewmail jako serwer MCP i pytaj o pocztę z AI, której już używasz. Czytanie poczty i sortowanie przez agenta są darmowe; szkice, wysyłka i reguły są w Pro.',
+      safety:
+        'Wszystko, co wysyła maila lub zmienia Gmaila, najpierw pyta o twoje „tak”. Twoja poczta nigdy nie trenuje modeli, a każdą aplikację odłączysz w ustawieniach.',
+      steps: {
+        chatgpt:
+          'W Settings dodaj konektor (aplikację) z tym URL, potem zaloguj się do Fewmail.',
+        claude:
+          'W Settings → Connectors dodaj własny konektor z tym URL, potem zaloguj się do Fewmail.',
+        code: 'Uruchom to raz w terminalu, potem zaloguj się do Fewmail, gdy Claude Code poprosi.',
+        cursor:
+          'Dodaj to do mcp.json, potem zaloguj się do Fewmail, gdy Cursor poprosi.',
+      },
+      title: 'Fewmail w Claude, ChatGPT i twoich narzędziach.',
+    },
+    comparePage: {
+      lead: 'Klienty poczty sprawiają, że szybciej czytasz każdy e-mail. Filtry przenoszą pocztę do folderów. Fewmail jest agentem: czyta pocztę, decyduje, co może poczekać, i pyta cię tylko o resztę.',
+      title: 'Fewmail w porównaniu.',
+    },
+    comparison: {
+      custom: 'Indywidualnie',
+      features: 'Funkcja po funkcji',
+      groups: {
+        agent: 'Czytanie i odpowiadanie',
+        day: 'Twój dzień',
+        reach: 'Gdzie działa',
+        safety: 'Ochrona',
+      },
+      labels: {
+        ask: 'Zapytaj pocztę o cokolwiek',
+        brief: 'Codzienne podsumowanie',
+        calendar: 'Kalendarz',
+        drafts: 'Odpowiedzi pisane za ciebie',
+        followUps: 'Przypomnienia o odpowiedziach',
+        gmail: 'Gmail i Google Workspace',
+        handOver: 'Przekazanie wątku',
+        importance: 'Sortowanie według ważności',
+        keepApp: 'Zostajesz przy swojej aplikacji pocztowej',
+        mcp: 'MCP dla twoich narzędzi',
+        memory: 'Pamięta obietnice i ludzi',
+        otherProviders: 'iCloud, Yahoo i inna poczta IMAP',
+        outlook: 'Outlook i Microsoft 365',
+        phishing: 'Ostrzeżenia o phishingu i zmianie danych do płatności',
+        phone: 'Na telefonie',
+        rules: 'Reguły zwykłymi słowami',
+        snooze: 'Odkładanie na później',
+        spamShield: 'Społecznościowa tarcza antyspamowa',
+        summaries: 'Streszczenia maili',
+        teams: 'Wspólna skrzynka zespołu',
+        unsubscribe: 'Wypisanie jednym kliknięciem',
+      },
+      more: 'Więcej porównań',
+      no: 'Nie',
+      noFreePlan: 'Brak darmowego planu',
+      ours: {
+        ask: 'W Pro',
+        brief: 'W twoim języku, w Pro',
+        drafts: 'Twoim głosem, wysyłane dopiero po twojej zgodzie, w Pro',
+        followUps: 'Automatyczne, przy mailach czekających na odpowiedź',
+        handOver: 'Agent doprowadza go do celu, w Pro',
+        importance: 'Każdy mail oceniony, za darmo',
+        keepApp: 'Wszystko widać w Gmailu',
+        mcp: 'W Pro',
+        memory: 'W Pro',
+        phone: 'Telegram i WhatsApp, z głosem, w Pro',
+        rules:
+          'Archiwizacja, oznaczanie jako przeczytane lub wypisanie, za darmo',
+        summaries: 'W Pro',
+        unsubscribe: 'Nadawcy, którzy to ignorują, trafiają do spamu',
+      },
+      plans: 'Plany i ceny',
+      read: 'Przeczytaj porównanie',
+      source: (name: string, date: string) =>
+        `Dane o ${name} pochodzą z jego publicznej strony, stan na ${date}. Ceny i funkcje się zmieniają; aktualną ofertę sprawdź na ich stronie.`,
+      title: (name: string) => `Fewmail vs ${name}`,
+      tryFree: 'Wypróbuj Fewmail za darmo',
+      which: 'Co wybrać?',
+      yes: 'Tak',
+    },
+    comparisons: {
+      sanebox: {
+        plans: {
+          dinner: '4 skrzynki i wszystkie funkcje, z AI Bundle',
+          lunch: '2 skrzynki, odkładanie i przypomnienia',
+          snack: '1 skrzynka i podstawowe filtrowanie',
+        },
+        summary:
+          'SaneBox sortuje pocztę do folderów, a w najwyższym planie pisze też szkice i streszcza. Fewmail najpierw wszystko czyta i daje ci jedno podsumowanie oraz kilka decyzji, które możesz podjąć tylko ty.',
+        them: {
+          brief: 'Codzienne zestawienie odfiltrowanej poczty',
+          drafts: 'SaneDrafts, w Dinner',
+          followUps: 'SaneNoReplies',
+          importance: 'Mniej ważna poczta trafia do SaneLater',
+          keepApp: 'Działa przez foldery',
+          otherProviders: 'Dowolny serwer IMAP lub Exchange',
+          phone: 'Przez twoją aplikację pocztową',
+          rules: 'Trenowanie przez przenoszenie maili między folderami',
+          snooze: 'Od Lunch',
+          summaries: 'SaneSummary, w Dinner',
+          unsubscribe: 'Folder SaneBlackHole',
+        },
+        verdict:
+          'Wybierz SaneBox, jeśli twoja poczta jest poza Gmailem i wystarczą ci foldery. Wybierz Fewmail, jeśli używasz Gmaila i chcesz, żeby ważna poczta była przeczytana, streszczona i miała odpowiedź.',
+      },
+      shortwave: {
+        plans: {
+          business: 'Za użytkownika',
+          free: 'Większość funkcji i asystent',
+          max: 'Za użytkownika, najmocniejsze modele',
+          premier: 'Za użytkownika, mocniejsze modele',
+          pro: 'Pełna historia, wyszukiwanie i pisanie z AI',
+        },
+        summary:
+          'Shortwave to klient poczty z asystentem AI, z którym rozmawiasz. Fewmail to agent, który najpierw sam czyta pocztę i pyta cię tylko o to, czego nie może rozstrzygnąć.',
+        them: {
+          ask: 'Asystent AI i wyszukiwanie',
+          drafts: 'Gdy poprosisz',
+          importance: 'Podziały i pakiety',
+          keepApp: 'Zastępuje twoją aplikację pocztową',
+          memory: 'Pamięć AI',
+          otherProviders: 'Przekierowane do Gmaila',
+          outlook: 'Brak obsługi Microsoft 365',
+          phone: 'Aplikacje na iOS i Android',
+          rules: 'Filtry AI, od 3 do 50 zależnie od planu',
+          summaries: 'Nad każdym mailem',
+          teams: 'Wspólne wątki i komentarze',
+          unsubscribe: 'Z blokowaniem jednym kliknięciem',
+        },
+        verdict:
+          'Wybierz Shortwave, jeśli chcesz nową skrzynkę z asystentem na czacie. Wybierz Fewmail, jeśli chcesz oglądać mniej maili, w Gmailu, którego już używasz.',
+      },
+      superhuman: {
+        plans: {
+          business:
+            'Za członka, $33 przy płatności rocznej. Dodaje Auto Drafts i Ask AI',
+          enterprise: 'SSO i narzędzia administratora',
+          starter: 'Za członka, $25 przy płatności rocznej',
+        },
+        summary:
+          'Superhuman sprawia, że szybciej przechodzisz przez każdy e-mail. Fewmail przechodzi przez nie za ciebie i pokazuje tylko to, co wymaga twojej uwagi.',
+        them: {
+          ask: 'Ask AI, w Business',
+          drafts: 'Auto Drafts, w Business',
+          followUps: 'Auto Reminders',
+          importance: 'Split Inbox i Auto Labels',
+          keepApp: 'Zastępuje twoją aplikację pocztową',
+          mcp: 'W Business',
+          phone: 'Aplikacje na iOS i Android',
+          rules: 'Custom Auto Labels, w Business',
+          spamShield: 'Filtr twojego dostawcy',
+          summaries: 'Auto Summarize',
+          teams: 'Wspólne szkice i komentarze',
+        },
+        verdict:
+          'Wybierz Superhuman, jeśli chcesz sam dotknąć każdego maila, tylko szybciej. Wybierz Fewmail, jeśli wolisz większości z nich w ogóle nie oglądać.',
+      },
+    },
+    control: {
+      gmail: {
+        description:
+          'Opcjonalne etykiety Fewmail pokazują sortowanie w samym Gmailu, na telefonie i w każdej innej aplikacji pocztowej.',
+        title: 'Działa z każdą aplikacją Gmail',
+      },
+      handled: {
+        description:
+          'Wszystko, co agent zrobił sam, znajdziesz w Załatwionych, każdą czynność z powodem.',
+        title: 'Załatwione, na widoku',
+      },
+      keyboard: {
+        description:
+          'Każda akcja ma swój klawisz, a ⌘K sięga wszędzie. Ręce nie opuszczają klawiatury.',
+        title: 'Najpierw klawiatura',
+      },
+      mcp: {
+        description:
+          'Połącz Claude lub dowolnego klienta MCP i pozwól mu czytać, segregować i pisać szkice z tym samym agentem.',
+        title: 'Serwer MCP',
+      },
+      privacy: {
+        description:
+          'Tematy, treści, streszczenia i szkice są szyfrowane w naszej bazie danych. Wysłanie zawsze wymaga twojej zgody.',
+        title: 'Prywatność od podstaw',
+      },
+      rules: {
+        description:
+          '„Newslettery, których nigdy nie otwieram” albo „paragony ze sklepów”: archiwizuj, oznacz jako przeczytane lub wypisz się.',
+        title: 'Reguły zwykłymi słowami',
+      },
+    },
+    demos: {
+      draft: {
+        expectsReply: 'Oczekuje odpowiedzi',
+        language: 'Po niemiecku, jak Lena',
+        redraft: 'Napisz od nowa',
+      },
+      shield: [
+        {
+          detail: 'paypa1-billing.com udaje paypal.com',
+          label: 'Podszywająca się domena',
+        },
+        {
+          detail: 'Nowy IBAN na fakturze od znanego dostawcy',
+          label: 'Zmienione dane do płatności',
+        },
+        {
+          detail: '9 osób zgłosiło tę kampanię jako spam',
+          label: 'Przeniesione do spamu',
+        },
+      ],
+      telegram: {
+        draftReady: 'Szkic dla Marco gotowy: czwartek o 16:00. Wysłać?',
+        urgent:
+          'Potrzebuje podpisanej umowy przed piątkiem. Przygotowałem odpowiedź.',
+        voice: '„Powiedz Marco, że czwartek pasuje, ale o czwartej.”',
+      },
+      today: {
+        brief:
+          'Anna czeka na umowę, faktura Northwind jest do zapłaty w przyszłym tygodniu, a Marco chce termin w czwartek. Czterdzieści dwa newslettery i powiadomienia są już załatwione.',
+        day: 'Podsumowanie na czwartek',
+        queue: [
+          {
+            reason: 'Umowa na jutro',
+            summary:
+              'Potrzebuje podpisanej umowy przed piątkowym startem projektu.',
+          },
+          {
+            reason: 'Faktura · 1240 $ do 20 listopada',
+            summary: 'Faktura za październik za nowy projekt strony.',
+          },
+          {
+            reason: 'Propozycja spotkania',
+            summary: 'Proponuje czwartek o 15:00 na przegląd kwartalny.',
+          },
+        ],
+      },
+    },
+    faq: (trialDays: number) => [
+      {
+        answer:
+          'Nie. Fewmail działa na Gmailu. Wszystko, co robi, widać też w Gmailu, a obok możesz dalej używać dowolnej aplikacji Gmail.',
+        question: 'Czy muszę rezygnować z Gmaila?',
+      },
+      {
+        answer:
+          'Nigdy bez ciebie. Odpowiedzi czekają w kolejce, aż je zatwierdzisz, a archiwizować, oznaczać jako przeczytane czy wypisywać się mogą same tylko reguły, które utworzyłeś lub zostawiłeś. Wszystko, co zrobił, znajdziesz w Załatwionych.',
+        question: 'Czy może sam wysyłać lub usuwać maile?',
+      },
+      {
+        answer:
+          'Tematy, treści, streszczenia i szkice są szyfrowane w naszej bazie danych. Twoja poczta nigdy nie służy do trenowania modeli, a tarcza antyspamowa wymienia między użytkownikami tylko hashe z kluczem, nigdy adresy ani treść.',
+        question: 'Co dzieje się z moją pocztą?',
+      },
+      {
+        answer: `Każde nowe konto dostaje ${trialDays} dni Pro, bez karty. Gdy się skończą, po prostu zostajesz na planie Free; nic nie jest usuwane i nic nie jest pobierane.`,
+        question: 'Co po okresie próbnym?',
+      },
+      {
+        answer:
+          'Szkice powstają w języku e-maila, na który odpowiadasz. Aplikacja, podsumowanie i bot w Telegramie mówią jednym wybranym przez ciebie językiem spośród piętnastu.',
+        question: 'Jakie języki zna?',
+      },
+      {
+        answer:
+          'Na razie konta Gmail i Google Workspace. Dodaj kilka skrzynek do jednego Fewmail, a ich poczta trafi do tego samego podsumowania i tej samej skrzynki.',
+        question: 'Jakie konta e-mail działają?',
+      },
+    ],
+    footer: {
+      legal: 'Informacje prawne',
+      product: 'Produkt',
+      tagline:
+        'Agent poczty, który czyta twojego Gmaila i pokazuje tylko to, co wymaga twojej uwagi.',
+      versus: (name: string) => `vs ${name}`,
+    },
+    hero: {
+      lead: 'Fewmail to agent poczty dla Gmaila. Czyta za ciebie każdy e-mail, pisze odpowiedzi twoim głosem i daje ci jedną krótką listę tego, co naprawdę wymaga twojej uwagi.',
+      start: 'Zacznij za darmo z Google',
+    },
+    memory: {
+      ask: {
+        description:
+          'Zadaj pytanie w ⌘K i dostań odpowiedź z własnej poczty, razem z mailami, z których pochodzi.',
+        title: 'Zapytaj swoją pocztę',
+      },
+      boards: {
+        description:
+          'Opisz, co śledzić (pieniądze, podróże, zamówienia), a agent zbierze to z twojej poczty, z wykresami, zaczynając od ostatnich sześciu miesięcy.',
+        title: 'Tablice',
+      },
+      followUps: {
+        description:
+          'Mail, który czeka na odpowiedź, dostaje przypomnienie, więc żaden wątek nie umiera po cichu.',
+        title: 'Przypomnienia',
+      },
+      handle: {
+        description:
+          'Powiedz „zajmij się tym”, a agent poprowadzi wątek do twojego celu, pytając przed każdą wysyłką albo wysyłając sam.',
+        title: 'Zajmij się tym',
+      },
+      people: {
+        description:
+          'Krótka notatka o każdym, do kogo piszesz, odświeżana co tydzień, tuż obok jego maila.',
+        title: 'Ludzie',
+      },
+      promises: {
+        description:
+          'Obietnice z wysłanych maili wracają do ciebie w terminie, zanim ktokolwiek będzie musiał cię ponaglać.',
+        title: 'Dotrzymane obietnice',
+      },
+    },
+    nav: {
+      compare: 'Porównanie',
+      features: 'Funkcje',
+      pricing: 'Cennik',
+      signIn: 'Zaloguj się',
+    },
+    plans: {
+      everythingIn: (plan: string) => `Wszystko z planu ${plan}, a do tego`,
+      forever: 'na zawsze',
+      free: {
+        description: 'Sortowanie, reguły i ochrona. Na zawsze.',
+        features: [
+          'Każdy e-mail posortowany i oceniony pod kątem ważności',
+          'Reguły zwykłymi słowami, które archiwizują, oznaczają jako przeczytane lub wypisują',
+          'Społecznościowa tarcza antyspamowa i ostrzeżenia przed phishingiem',
+          'Nadawcy-zombie wyłapywani po wypisaniu się',
+          'Automatyczne przypomnienia przy mailach, które czekają na odpowiedź',
+          'Odkładanie, fragmenty i etykiety Fewmail w Gmailu',
+        ],
+      },
+      max: {
+        description: 'Ten sam agent dla zapchanej skrzynki.',
+        emails: (emails: string) =>
+          `${emails} przeczytanych e-maili miesięcznie`,
+        messages: (messages: number) =>
+          `${messages} wiadomości do agenta miesięcznie`,
+        unlimited: 'Tablice i przekazane wątki bez limitu',
+      },
+      monthly: 'Miesięcznie',
+      per: { month: 'miesięcznie', year: 'rocznie' },
+      pro: {
+        description: 'Cały agent: czyta, pisze i pamięta.',
+        features: [
+          'Dziś: codzienne podsumowanie i jedna kolejka decyzji',
+          'Odpowiedzi pisane twoim głosem, wysyłane dopiero po twojej zgodzie',
+          'Telegram: podsumowanie, zatwierdzanie i polecenia głosowe',
+          '„Zajmij się tym”: agent prowadzi wątek do celu',
+          'Zapamiętane obietnice i ludzie, tablice z wykresami dla pieniędzy lub czegokolwiek, co śledzisz',
+          'Pytaj swoją pocztę o wszystko, plus MCP dla twoich narzędzi',
+        ],
+        limits: (emails: string, messages: number) =>
+          `${emails} przeczytanych e-maili i ${messages} wiadomości do agenta miesięcznie; szum nigdy się nie liczy`,
+      },
+      tryFree: (days: number) => `Wypróbuj za darmo przez ${days} dni`,
+      yearly: 'Rocznie · 2 miesiące gratis',
+    },
+    pricingPage: {
+      lead: (trialDays: number) =>
+        `Sortowanie, reguły zwykłymi słowami i ochrona są za darmo na zawsze. Pro to agent, który czyta, pisze i pamięta za ciebie; Max to ten sam agent z zapasem na zapchaną skrzynkę. Każde konto zaczyna od ${trialDays} dni Pro, a gdy się skończą, po prostu zostajesz na planie Free.`,
+      otherTool: 'Rozważasz inne narzędzie?',
+      title: 'Płać za agenta, nie za skrzynkę.',
+    },
+    promises: [
+      'Nic nie zostanie wysłane bez twojej zgody',
+      'Twoja poczta jest przechowywana w postaci zaszyfrowanej',
+      'Nigdy nie służy do trenowania modeli',
+    ],
+    startFree: 'Zacznij za darmo',
+    trialNote: (days: number) =>
+      `${days} dni Pro, bez karty. Potem za darmo, jak długo chcesz.`,
+  },
   skills: {
     bills: 'Rachunki i płatności do zapłaty',
+    cancel: 'Anulować płatną subskrypcję',
     cleanup: 'Newslettery do uprzątnięcia',
     followups: 'Kto jeszcze ci nie odpisał',
+    reading: 'Newslettery z dnia w jednym podsumowaniu',
     today: 'Co czeka na ciebie dziś',
     waiting: 'Kto czeka na twoją odpowiedź',
     week: 'Twój tydzień w poczcie',
@@ -828,6 +1338,7 @@ export const pl: Messages = {
     started: 'Agent się tym zajmuje.',
   },
   telegram: {
+    listen: '🔊 Posłuchaj',
     heard: (text: string) => `Usłyszałem: „${text}”`,
     voiceFailed:
       'Nie udało mi się tego zrozumieć. Spróbuj jeszcze raz albo napisz.',
@@ -880,6 +1391,8 @@ export const pl: Messages = {
     done: 'Gotowe',
     firstRead:
       'Czytam Twoją pocztę z ostatnich trzech dni. To, co wymaga Twojej uwagi, pojawi się tu samo.',
+    approvedMany: (n: number) => `Zatwierdzono: ${n}`,
+    listen: 'Posłuchaj podsumowania',
     handled: {
       spam: (total: number) =>
         plural('pl', total, {
@@ -942,6 +1455,10 @@ export const pl: Messages = {
           other: (n) => `${n} e-maila ${period}`,
         }),
     },
+    saved: (minutes: number) =>
+      `W tym tygodniu Fewmail zaoszczędził ci około ${formatMinutes('pl', minutes)}`,
+    savedHow: (handled: number, replies: number) =>
+      `Załatwione samodzielnie: ${handled} · Odpowiedzi wysłane z wersji roboczych: ${replies}`,
     recent: (period: string) => `Też ${period}`,
     sent: 'Wysłano',
     worthAttention: 'Warte uwagi',

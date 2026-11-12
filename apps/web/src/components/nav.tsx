@@ -32,6 +32,7 @@ import {
   Logout01Icon,
   Mail01Icon,
   MailRemove01Icon,
+  News01Icon,
   Moon02Icon,
   Search01Icon,
   Settings01Icon,
@@ -65,6 +66,7 @@ export const NAV_ITEMS = [
     sequence: ['G', 'L'],
     to: '/calendar',
   },
+  { icon: News01Icon, key: 'reading', sequence: ['G', 'N'], to: '/reading' },
   { icon: ZapIcon, key: 'rules', sequence: ['G', 'R'], to: '/rules' },
   {
     icon: MailRemove01Icon,

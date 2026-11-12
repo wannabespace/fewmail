@@ -1,4 +1,5 @@
 import type { Rich } from '../locales'
+import { formatMinutes } from '../locales'
 import type { Messages } from './en'
 
 export const zh: Messages = {
@@ -41,6 +42,8 @@ export const zh: Messages = {
       update_event: '修改此日程？',
       approve_action: '执行这项操作？',
       archive_thread: '归档这个会话？',
+      clear_out: '要从收件箱清理这些邮件吗？',
+      undo_clear_out: '要把清理的邮件全部放回收件箱吗？',
       create_rule: '添加这条规则？',
       handle_thread: '把这个会话交给助手？',
       reply: '发送这条回复？',
@@ -80,6 +83,11 @@ export const zh: Messages = {
       list_subscriptions: '正在查看订阅',
       approve_action: '正在执行',
       archive_thread: '正在归档',
+      get_reading: '正在阅读订阅邮件',
+      get_wrapped: '正在统计你的邮件',
+      clear_out: '正在清理收件箱',
+      preview_clear_out: '正在读取整个收件箱',
+      undo_clear_out: '正在放回已清理的邮件',
       create_rule: '正在添加规则',
       dismiss_action: '正在跳过',
       draft_reply: '正在起草回复',
@@ -116,6 +124,8 @@ export const zh: Messages = {
       update_event: '保存',
       approve_action: '执行',
       archive_thread: '归档',
+      clear_out: '清理',
+      undo_clear_out: '放回',
       create_rule: '添加',
       handle_thread: '交给助手',
       reply: '发送',
@@ -263,6 +273,7 @@ export const zh: Messages = {
     anything: '任意',
     archive: '归档',
     approve: '批准',
+    approveAll: (n: number) => `批准同类的全部 ${n} 项`,
     close: '关闭',
     draftReply: '起草回复',
     edit: '编辑',
@@ -380,6 +391,7 @@ export const zh: Messages = {
     boards: '看板',
     newBoard: '新建看板',
     mail: '邮件',
+    reading: '阅读',
     rules: '规则',
     search: '搜索或提问…',
     settings: '设置',
@@ -501,6 +513,12 @@ export const zh: Messages = {
     whichEmails: '哪些邮件',
   },
   settings: {
+    forward: {
+      copy: '复制地址',
+      description:
+        '从你自己的邮箱把任何邮件发送或转发到这个地址，并在顶部写一句要做什么。回复会发到 Telegram 或 WhatsApp，以及这里的一个对话中。',
+      title: '转发给代理',
+    },
     knowledge: {
       description:
         '价格、地址、空闲时间、你喜欢的回复方式。助手会在草稿和自动补全中使用。',
@@ -595,10 +613,433 @@ export const zh: Messages = {
     },
     title: '设置',
   },
+  site: {
+    chapters: {
+      compare: {
+        description: '大多数工具帮你更快地处理收件箱。Fewmail 直接替你处理。',
+        label: '对比',
+        title: 'Fewmail 有何不同。',
+      },
+      control: {
+        description:
+          '用平常的话告诉 Fewmail 如何处理邮件，决定哪些规则可以自动执行，再到“已处理”里查看它做过的每一件事。',
+        label: '掌控',
+        title: '规则由你定，它做了什么一目了然。',
+      },
+      memory: {
+        description:
+          'Fewmail 记得你许下的承诺、每个人是谁、你在为什么付费，以及它还在替你跟进哪些邮件。',
+        label: '记忆',
+        title: '它替你记着，你不必费心。',
+      },
+      pricing: {
+        description:
+          '分类、规则和防护永久免费。Pro 和 Max 加上所有替你阅读和撰写的功能；Max 只是能做得更多。',
+        label: '价格',
+        title: (usd: number) => `分类免费。助手 $${usd} 起。`,
+      },
+      protection: {
+        description:
+          '每个方案都带有社区垃圾邮件防护盾，它从 Fewmail 用户那里学习，却从不分享任何地址，也不分享你邮件里的任何一个字。仿冒域名、已知钓鱼网站和变更的付款信息，都会在你操作前发出警告。',
+        label: '防护',
+        title: '骗局挡在门外。',
+      },
+      questions: {
+        description: '简短的回答在这里。详细的写在隐私政策里。',
+        label: '常见问题',
+        title: '连接 Gmail 之前。',
+      },
+      replies: {
+        description:
+          'Fewmail 从你发过的邮件中学习你的写作方式，再提前用来信的语言起草回复。你可以编辑、换一种写法，或者直接发送。没有你点头，什么都不会发出。',
+        label: '回复',
+        title: '用你的语气，说对方的语言。',
+      },
+      telegram: {
+        description:
+          '在 Telegram 接收简报和紧急邮件，一键批准回复，或者直接发一条语音：“告诉 Marco 周四可以”。Fewmail 会找到对应的邮件并起草回复。',
+        label: 'Telegram',
+        title: '在聊天里管好收件箱。',
+      },
+      today: {
+        description:
+          '每天在你选定的时间，Fewmail 用你的语言写一份简短的简报，并把少数需要你决定的邮件按重要程度排好。按 ⏎ 批准，按 S 跳过；其余的都已处理好，它做了什么你都能看得清清楚楚。',
+        label: '今天',
+        title: '一份简报，一个队列。这就是你的收件箱。',
+      },
+    },
+    closing: {
+      lead: '一分钟连接 Gmail。Fewmail 从最近三天的邮件开始，第一批需要你决定的事马上就在等你。',
+      title: '把早晨还给自己。',
+    },
+    mcpPage: {
+      copy: '复制 URL',
+      lead: '把 Fewmail 作为 MCP 服务器连接，就能在你常用的 AI 里询问自己的邮件。读取邮件和代理的分类免费；草稿、发送和规则属于 Pro。',
+      safety:
+        '任何发送邮件或更改 Gmail 的操作都会先征得你的同意。你的邮件绝不会用于训练模型，任何应用都可以在设置中断开。',
+      steps: {
+        chatgpt:
+          '在 Settings 中用这个 URL 添加连接器（应用），然后登录 Fewmail。',
+        claude:
+          '在 Settings → Connectors 中用这个 URL 添加自定义连接器，然后登录 Fewmail。',
+        code: '在终端运行一次，然后在 Claude Code 提示时登录 Fewmail。',
+        cursor: '把这段加入你的 mcp.json，然后在 Cursor 提示时登录 Fewmail。',
+      },
+      title: '在 Claude、ChatGPT 和你的工具里使用 Fewmail。',
+    },
+    comparePage: {
+      lead: '邮件客户端让你更快地读完每一封邮件。过滤器把邮件移进文件夹。Fewmail 是一个助手：它阅读邮件，判断哪些可以等，只把其余的拿来问你。',
+      title: 'Fewmail 对比。',
+    },
+    comparison: {
+      custom: '定制',
+      features: '逐项对比',
+      groups: {
+        agent: '阅读与回复',
+        day: '你的一天',
+        reach: '在哪里可用',
+        safety: '防护',
+      },
+      labels: {
+        ask: '向你的邮件提任何问题',
+        brief: '每日简报',
+        calendar: '日历',
+        drafts: '替你起草回复',
+        followUps: '跟进提醒',
+        gmail: 'Gmail 和 Google Workspace',
+        handOver: '把一个对话交出去',
+        importance: '按重要程度排序',
+        keepApp: '继续用你的邮件应用',
+        mcp: '供你自己的工具使用的 MCP',
+        memory: '记得承诺和联系人',
+        otherProviders: 'iCloud、Yahoo 和其他 IMAP 邮箱',
+        outlook: 'Outlook 和 Microsoft 365',
+        phishing: '钓鱼和付款信息变更警告',
+        phone: '在手机上',
+        rules: '用平常的话写规则',
+        snooze: '稍后提醒',
+        spamShield: '社区垃圾邮件防护盾',
+        summaries: '邮件摘要',
+        teams: '团队收件箱',
+        unsubscribe: '一键退订',
+      },
+      more: '更多对比',
+      no: '无',
+      noFreePlan: '无免费方案',
+      ours: {
+        ask: 'Pro 方案',
+        brief: '用你的语言，Pro 方案',
+        drafts: '用你的语气，经你批准才发送，Pro 方案',
+        followUps: '对等待回复的邮件自动提醒',
+        handOver: '助手一直处理到达成目标，Pro 方案',
+        importance: '每封邮件都打分，免费',
+        keepApp: '一切都同步到 Gmail',
+        mcp: 'Pro 方案',
+        memory: 'Pro 方案',
+        phone: 'Telegram 和 WhatsApp，支持语音，Pro 方案',
+        rules: '归档、标为已读或退订，免费',
+        summaries: 'Pro 方案',
+        unsubscribe: '无视退订的发件人进垃圾邮件',
+      },
+      plans: '方案和价格',
+      read: '阅读对比',
+      source: (name: string, date: string) =>
+        `${name} 的信息来自其官方网站，核实于 ${date}。价格和功能可能变化，请以其官网的最新信息为准。`,
+      title: (name: string) => `Fewmail vs ${name}`,
+      tryFree: '免费试用 Fewmail',
+      which: '哪个更适合你？',
+      yes: '有',
+    },
+    comparisons: {
+      sanebox: {
+        plans: {
+          dinner: '4 个邮箱和全部功能，含 AI Bundle',
+          lunch: '2 个邮箱，稍后提醒和提醒功能',
+          snack: '1 个邮箱和基础过滤',
+        },
+        summary:
+          'SaneBox 把邮件分进文件夹，最高方案还能起草和总结。Fewmail 先替你读完所有邮件，只交给你一份简报和少数只有你能做的决定。',
+        them: {
+          brief: '过滤后邮件的每日摘要',
+          drafts: 'SaneDrafts，Dinner 方案',
+          followUps: 'SaneNoReplies',
+          importance: '不重要的邮件移到 SaneLater',
+          keepApp: '通过文件夹工作',
+          otherProviders: '任何 IMAP 或 Exchange 服务器',
+          phone: '通过你的邮件应用',
+          rules: '靠在文件夹之间移动邮件来训练',
+          snooze: 'Lunch 方案起',
+          summaries: 'SaneSummary，Dinner 方案',
+          unsubscribe: 'SaneBlackHole 文件夹',
+        },
+        verdict:
+          '邮件不在 Gmail 里，而且文件夹就够用，选 SaneBox。用 Gmail，并希望重要邮件被阅读、总结并回复，选 Fewmail。',
+      },
+      shortwave: {
+        plans: {
+          business: '按席位计费',
+          free: '大部分功能和助手',
+          max: '按席位计费，最强的模型',
+          premier: '按席位计费，更强的模型',
+          pro: '完整历史，AI 搜索和写作',
+        },
+        summary:
+          'Shortwave 是一个带 AI 助手的邮件客户端，你得和助手对话。Fewmail 则会先替你读完邮件，只问你它自己无法决定的事。',
+        them: {
+          ask: 'AI 助手和搜索',
+          drafts: '你开口才起草',
+          importance: '分栏和分组',
+          keepApp: '取代你的邮件应用',
+          memory: 'AI 记忆',
+          otherProviders: '转发到 Gmail',
+          outlook: '不支持 Microsoft 365',
+          phone: 'iOS 和 Android 应用',
+          rules: 'AI 过滤器，按方案 3 到 50 个',
+          summaries: '显示在每封邮件顶部',
+          teams: '共享对话和评论',
+          unsubscribe: '附带一键屏蔽',
+        },
+        verdict:
+          '想要一个带聊天助手的新收件箱，选 Shortwave。想在现在用的 Gmail 里少看些邮件，选 Fewmail。',
+      },
+      superhuman: {
+        plans: {
+          business: '每位成员 $33，按年付费。增加 Auto Drafts 和 Ask AI',
+          enterprise: 'SSO 和管理控制',
+          starter: '每位成员 $25，按年付费',
+        },
+        summary:
+          'Superhuman 让你更快地处理每一封邮件。Fewmail 替你处理，只给你看需要你的那几封。',
+        them: {
+          ask: 'Ask AI，Business 方案',
+          drafts: 'Auto Drafts，Business 方案',
+          followUps: 'Auto Reminders',
+          importance: 'Split Inbox 和 Auto Labels',
+          keepApp: '取代你的邮件应用',
+          mcp: 'Business 方案',
+          phone: 'iOS 和 Android 应用',
+          rules: 'Custom Auto Labels，Business 方案',
+          spamShield: '你的邮件服务商的过滤器',
+          summaries: 'Auto Summarize',
+          teams: '共享草稿和评论',
+        },
+        verdict:
+          '想亲手更快地处理每一封邮件，选 Superhuman。宁愿大部分邮件都不用看，选 Fewmail。',
+      },
+    },
+    control: {
+      gmail: {
+        description:
+          '可选的 Fewmail 标签会把分类显示在 Gmail 本身、手机上以及任何其他邮件应用里。',
+        title: '适用于任何 Gmail 应用',
+      },
+      handled: {
+        description:
+          '助手自行完成的每件事都列在“已处理”中，并附上它这样做的原因。',
+        title: '“已处理”，公开透明',
+      },
+      keyboard: {
+        description:
+          '每个操作都有一个快捷键，⌘K 可以直达一切。双手无需离开键盘。',
+        title: '键盘优先',
+      },
+      mcp: {
+        description:
+          '连接 Claude 或任何 MCP 客户端，让它通过同一个助手阅读、分拣和起草邮件。',
+        title: 'MCP 服务器',
+      },
+      privacy: {
+        description:
+          '主题、正文、摘要和草稿在我们的数据库中加密存储。发送始终需要你的批准。',
+        title: '隐私从设计开始',
+      },
+      rules: {
+        description:
+          '“我从不打开的订阅邮件”或“商店的收据”：归档、标为已读或退订。',
+        title: '用平常的话写规则',
+      },
+    },
+    demos: {
+      draft: {
+        expectsReply: '对方在等回复',
+        language: '德语，和 Lena 一样',
+        redraft: '重新起草',
+      },
+      shield: [
+        {
+          detail: 'paypa1-billing.com 看起来像 paypal.com',
+          label: '仿冒域名',
+        },
+        {
+          detail: '老供应商的发票里出现了新的 IBAN',
+          label: '付款信息已变更',
+        },
+        {
+          detail: '9 人将这次推广举报为垃圾邮件',
+          label: '已移到垃圾邮件',
+        },
+      ],
+      telegram: {
+        draftReady: '给 Marco 的草稿已准备好：周四 16:00。要发送吗？',
+        urgent: '需要在周五前拿到签好的合同。我已起草了回复。',
+        voice: '“告诉 Marco 周四可以，不过定在四点。”',
+      },
+      today: {
+        brief:
+          'Anna 在等合同，Northwind 的发票下周到期，Marco 想约周四的时间。42 封订阅邮件和通知已处理。',
+        day: '周四简报',
+        queue: [
+          {
+            reason: '合同明天到期',
+            summary: '需要在周五启动会前寄回签好的合同。',
+          },
+          {
+            reason: '发票 · $1,240，11月20日到期',
+            summary: '网站改版的十月发票。',
+          },
+          {
+            reason: '会议提议',
+            summary: '提议周四 15:00 开季度回顾会。',
+          },
+        ],
+      },
+    },
+    faq: (trialDays: number) => [
+      {
+        answer:
+          '不用。Fewmail 在 Gmail 之上工作。它做的一切也会出现在 Gmail 里，你也可以同时继续使用任何 Gmail 应用。',
+        question: '我需要离开 Gmail 吗？',
+      },
+      {
+        answer:
+          '没有你绝不会。回复会在队列里等你批准，只有你创建或保留的规则才能自动归档、标为已读或退订。它做过的一切都列在“已处理”中。',
+        question: '它会自己发送或删除邮件吗？',
+      },
+      {
+        answer:
+          '主题、正文、摘要和草稿在我们的数据库中加密存储。你的邮件绝不会用于训练模型，垃圾邮件防护盾在用户之间只共享带密钥的哈希值，从不共享地址或内容。',
+        question: '我的邮件会怎样？',
+      },
+      {
+        answer: `每个新账户都能使用 ${trialDays} 天 Pro，无需绑卡。试用结束后你会自动留在 Free，不删除任何东西，也不收取任何费用。`,
+        question: '试用结束后会怎样？',
+      },
+      {
+        answer:
+          '草稿会使用你所回复邮件的语言。应用、简报和 Telegram 机器人则使用你从十五种语言中选定的一种。',
+        question: '它支持哪些语言？',
+      },
+      {
+        answer:
+          '目前支持 Gmail 和 Google Workspace 账户。把多个邮箱添加到同一个 Fewmail，它们的邮件会汇入同一份简报和收件箱。',
+        question: '支持哪些邮箱账户？',
+      },
+    ],
+    footer: {
+      legal: '法律信息',
+      product: '产品',
+      tagline: '读你的 Gmail，只给你看需要你处理的邮件助手。',
+      versus: (name: string) => `vs ${name}`,
+    },
+    hero: {
+      lead: 'Fewmail 是 Gmail 的邮件助手。它替你阅读每一封邮件，用你的语气起草回复，再把真正需要你处理的事整理成一份简短的清单交给你。',
+      start: '用 Google 免费开始',
+    },
+    memory: {
+      ask: {
+        description: '在 ⌘K 中提问，从你自己的邮件里得到答案，并附上出处邮件。',
+        title: '问问你的邮件',
+      },
+      boards: {
+        description:
+          '描述你想追踪的内容（钱、行程、订单），助手会从最近六个月的邮件开始收集，并配上图表。',
+        title: '看板',
+      },
+      followUps: {
+        description: '等待回复的邮件会自动跟进，对话不会悄无声息地断掉。',
+        title: '跟进',
+      },
+      handle: {
+        description:
+          '说一声“交给代理”，代理就会朝你的目标推进这段对话：每次发送前先问你，或者自行发送。',
+        title: '交给代理',
+      },
+      people: {
+        description:
+          '为每个与你通信的人写一段简短笔记，每周更新，就显示在他们的邮件旁边。',
+        title: '联系人',
+      },
+      promises: {
+        description:
+          '你在发出的邮件里许下的承诺，到期时会回到你面前，不用等别人来催。',
+        title: '说到做到',
+      },
+    },
+    nav: {
+      compare: '对比',
+      features: '功能',
+      pricing: '价格',
+      signIn: '登录',
+    },
+    plans: {
+      everythingIn: (plan: string) => `${plan} 的全部功能，外加`,
+      forever: '永久',
+      free: {
+        description: '分类、规则和防护。永久免费。',
+        features: [
+          '每封邮件都被分类并按重要程度评分',
+          '用平常的话写规则，自动归档、标为已读或退订',
+          '社区垃圾邮件防护盾和钓鱼警告',
+          '揪出退订后仍在发信的僵尸发件人',
+          '对等待回复的邮件自动跟进',
+          '延后、片段，以及 Gmail 中的 Fewmail 标签',
+        ],
+      },
+      max: {
+        description: '同一个助手，为繁忙的收件箱准备。',
+        emails: (emails: string) => `每月阅读 ${emails} 封邮件`,
+        messages: (messages: number) => `每月给助手发 ${messages} 条消息`,
+        unlimited: '看板和托付的会话不限',
+      },
+      monthly: '按月',
+      per: { month: '/ 月', year: '/ 年' },
+      pro: {
+        description: '完整的助手：阅读、撰写、记忆。',
+        features: [
+          '今天：每日简报和一个决定队列',
+          '用你的语气起草回复，经你批准才发送',
+          'Telegram：简报、批准和语音指令',
+          '“交给代理”：代理把一段对话推进到目标',
+          '记住承诺和联系人，用带图表的看板追踪钱或任何你关心的东西',
+          '随意问你的邮件，还有供你自己的工具使用的 MCP',
+        ],
+        limits: (emails: string, messages: number) =>
+          `每月阅读 ${emails} 封邮件、给助手发 ${messages} 条消息；无用邮件从不计入`,
+      },
+      tryFree: (days: number) => `免费试用 ${days} 天`,
+      yearly: '按年 · 免费两个月',
+    },
+    pricingPage: {
+      lead: (trialDays: number) =>
+        `分类、用平常的话写的规则和防护永久免费。Pro 是替你阅读、撰写和记忆的助手；Max 是同一个助手，为繁忙的收件箱留出更多空间。每个账户都从 ${trialDays} 天 Pro 开始，结束后自动留在 Free。`,
+      otherTool: '还在考虑其他工具？',
+      title: '为助手付费，而不是为收件箱。',
+    },
+    promises: [
+      '未经你批准，什么都不会发送',
+      '你的邮件在存储时加密',
+      '绝不用于训练模型',
+    ],
+    startFree: '免费开始',
+    trialNote: (days: number) =>
+      `${days} 天 Pro，无需绑卡。之后想免费用多久就用多久。`,
+  },
   skills: {
     bills: '即将到期的账单和付款',
+    cancel: '取消付费订阅',
     cleanup: '可以清理的订阅邮件',
     followups: '谁还没回你',
+    reading: '把当天的订阅邮件合成一份摘要',
     today: '今天需要你处理的事',
     waiting: '谁在等你回复',
     week: '本周邮件回顾',
@@ -633,6 +1074,7 @@ export const zh: Messages = {
     receipts: '收据、订单确认和发货确认',
   },
   telegram: {
+    listen: '🔊 收听',
     heard: (text: string) => `听到的是：“${text}”`,
     voiceFailed: '我没听清。请再说一次，或直接输入。',
     help: '写下或说出你需要什么：\n• 询问邮件：“Netflix 什么时候续费？”\n• 告诉我回复什么：“告诉安娜我明天签字”\n• 回复我的某个草稿来修改它',
@@ -675,6 +1117,8 @@ export const zh: Messages = {
     dates: '日期和会议',
     done: '完成',
     firstRead: '正在读取你最近三天的邮件。需要你处理的事会自动出现在这里。',
+    approvedMany: (n: number) => `已批准 ${n} 项`,
+    listen: '收听简报',
     handled: {
       spam: (n: number) => `已移到垃圾邮件 ${n} 封`,
       archived: (n: number) => `已归档 ${n} 封`,
@@ -692,6 +1136,10 @@ export const zh: Messages = {
       people: (n: number) => `${n} 封来自真人`,
       total: (n: number, period: string) => `${period} ${n} 封邮件`,
     },
+    saved: (minutes: number) =>
+      `本周 Fewmail 为你节省了约 ${formatMinutes('zh', minutes)}`,
+    savedHow: (handled: number, replies: number) =>
+      `自动处理：${handled} · 用草稿发出的回复：${replies}`,
     recent: (period: string) => `${period}的其他邮件`,
     sent: '已发送',
     worthAttention: '值得关注',
@@ -756,6 +1204,10 @@ export const zh: Messages = {
         description: '网购订单和快递：买了什么、在哪家买的、现在到哪了。',
         name: '订单',
       },
+      subscriptions: {
+        description: '我定期付费的服务：每项多少钱、多久一次、下次何时续费。',
+        name: '付费订阅',
+      },
       trips: {
         description: '机票、火车、酒店和租车：去哪里、什么时候、花多少钱。',
         name: '出行',
@@ -770,6 +1222,56 @@ export const zh: Messages = {
     emails: (total: number) => `${total} 封邮件`,
     reason: (total: number) => `本月 ${total} 封，一封都没打开`,
     title: (total: number) => `退订 ${total} 个你从不打开的简报`,
+  },
+  clearOut: {
+    groups: {
+      lists: '你从不打开的订阅邮件',
+      notifications: '已读通知，超过一个月',
+      old: '一年以前的所有邮件',
+      promotions: '广告和社交，超过 3 天',
+    },
+    done: (emails: string) => `已清理 ${emails}`,
+    empty: '没有需要清理的：收件箱已经很整洁。',
+    lead: (emails: string) => `收件箱里有 ${emails}。以下可以清理。`,
+    leadCapped: (emails: string) => `收件箱里有超过 ${emails}。以下可以清理。`,
+    left: (emails: string) => `收件箱将保留 ${emails}`,
+    listsFrom: (names: string, more: number) =>
+      more ? `${names} 等另外 ${more} 个` : names,
+    run: (emails: string) => `清理 ${emails}`,
+    safe: '不会删除任何邮件。清理的邮件会带着 Fewmail/Cleared 标签归档，一键即可放回；订阅邮件还会退订。',
+    scanning: '正在读取整个收件箱，只读邮件头。最多一分钟。',
+    title: '清理收件箱',
+    undo: '全部放回',
+    undone: (emails: string) => `${emails} 已回到收件箱`,
+  },
+  wrapped: {
+    busiest: (day: string, hour: string) => `最忙的时候：${day} ${hour} 左右`,
+    copied: '链接已复制',
+    copyLink: '复制链接',
+    cta: '用 Fewmail 生成你的',
+    emails: '封邮件到来',
+    empty: '邮件还不够讲故事。过几天再来看看。',
+    handled: 'Fewmail 自动处理',
+    people: '谁写得最多',
+    period: { month: '本月', year: '今年' },
+    replies: 'Fewmail 起草并发出的回复',
+    saveImage: '保存图片',
+    saved: 'Fewmail 帮你节省',
+    shareNote: '链接和图片只显示这些数字，绝不包含姓名或地址。',
+    shared: { month: '一个月的邮件', year: '一年的邮件' },
+    spam: '拦下的垃圾邮件',
+    split: (people: string, lists: string) =>
+      `来自真人 ${people} · 来自订阅 ${lists}`,
+    title: { month: '你的一个月邮件', year: '你的一年邮件' },
+    unsubscribed: '退出的订阅',
+  },
+  forward: {
+    done: '你转发的邮件',
+  },
+  reading: {
+    empty: '过去一天没有订阅邮件。',
+    lead: '过去一天的订阅邮件集中在一处，不再挤满收件箱。',
+    title: '阅读',
   },
   commitments: {
     title: '你的承诺',

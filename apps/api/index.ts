@@ -9,14 +9,18 @@ import { cors } from 'hono/cors'
 
 import { env } from './env'
 import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
+import { canSpeak, speak } from './lib/elevenlabs'
 import { relayChanges } from './lib/live'
 import { logError, logErrorAs } from './lib/log'
 import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
+import { followForwarded } from './services/forwarded'
 import { handleGmailPush } from './services/gmail-push'
 import { finishAddingMailbox } from './services/mailboxes'
-import { syncMailbox } from './services/sync'
+import { spokenBrief } from './services/messenger'
+import { getPlanInfo, hasAgent } from './services/plan'
+import { onNewMail, syncMailbox } from './services/sync'
 import { startTelegram, telegramWebhook } from './telegram'
 import { verifyWhatsappWebhook, whatsappWebhook } from './whatsapp'
 
@@ -74,6 +78,20 @@ const app = new Hono()
     }
     return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
   })
+  .get('/voice/brief', async (c) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers })
+    if (
+      !session ||
+      !canSpeak ||
+      !hasAgent(await getPlanInfo(session.user.id))
+    ) {
+      return c.notFound()
+    }
+    const audio = await speak(await spokenBrief(session.user.id), 'web')
+    return new Response(audio, {
+      headers: { 'cache-control': 'no-store', 'content-type': 'audio/mpeg' },
+    })
+  })
   .get('/health', (c) => c.text('ok'))
   .get('/health/:commit', (c) =>
     c.req.param('commit') === env.RAILWAY_GIT_COMMIT_SHA
@@ -81,6 +99,7 @@ const app = new Hono()
       : c.text('another commit', 503)
   )
 
+onNewMail(followForwarded)
 await runMigrations()
 await relayChanges()
 void startTelegram()

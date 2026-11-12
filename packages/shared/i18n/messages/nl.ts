@@ -1,5 +1,5 @@
 import type { Rich } from '../locales'
-import { plural } from '../locales'
+import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const nl: Messages = {
@@ -42,6 +42,8 @@ export const nl: Messages = {
       update_event: 'Deze afspraak wijzigen?',
       approve_action: 'Deze actie uitvoeren?',
       archive_thread: 'Dit gesprek archiveren?',
+      clear_out: 'Deze groepen mail uit je inbox opruimen?',
+      undo_clear_out: 'Alle opgeruimde mail terug naar de inbox?',
       create_rule: 'Deze regel toevoegen?',
       handle_thread: 'Dit gesprek aan de agent overlaten?',
       reply: 'Dit antwoord versturen?',
@@ -81,6 +83,11 @@ export const nl: Messages = {
       list_subscriptions: 'Abonnementen bekijken',
       approve_action: 'Uitvoeren',
       archive_thread: 'Archiveren',
+      get_reading: 'Nieuwsbrieven lezen',
+      get_wrapped: 'Ik tel je mail',
+      clear_out: 'Inbox opruimen',
+      preview_clear_out: 'Hele inbox lezen',
+      undo_clear_out: 'Opgeruimde mail terugzetten',
       create_rule: 'Regel toevoegen',
       dismiss_action: 'Overslaan',
       draft_reply: 'Antwoord opstellen',
@@ -117,6 +124,8 @@ export const nl: Messages = {
       update_event: 'Opslaan',
       approve_action: 'Uitvoeren',
       archive_thread: 'Archiveren',
+      clear_out: 'Opruimen',
+      undo_clear_out: 'Terugzetten',
       create_rule: 'Toevoegen',
       handle_thread: 'Overlaten',
       reply: 'Versturen',
@@ -203,6 +212,11 @@ export const nl: Messages = {
           'Online bestellingen en leveringen: wat ik kocht, bij wie en waar het nu is.',
         name: 'Bestellingen',
       },
+      subscriptions: {
+        description:
+          'Diensten waarvoor ik regelmatig betaal: wat elk kost, hoe vaak en wanneer het verlengt.',
+        name: 'Betaalde abonnementen',
+      },
       trips: {
         description:
           'Vluchten, treinen, hotels en huur: waar ik heen ga, wanneer en wat het kost.',
@@ -270,6 +284,60 @@ export const nl: Messages = {
         one: () => 'Meld je af voor een nieuwsbrief die je nooit opent',
         other: (n) => `Meld je af voor ${n} nieuwsbrieven die je nooit opent`,
       }),
+  },
+  clearOut: {
+    groups: {
+      lists: 'Nieuwsbrieven die je nooit opent',
+      notifications: 'Gelezen meldingen, ouder dan een maand',
+      old: 'Alles ouder dan een jaar',
+      promotions: 'Reclame en sociaal, ouder dan 3 dagen',
+    },
+    done: (emails: string) => `${emails} opgeruimd`,
+    empty: 'Niets op te ruimen: de inbox is al op orde.',
+    lead: (emails: string) => `${emails} in de inbox. Dit kan weg.`,
+    leadCapped: (emails: string) =>
+      `Meer dan ${emails} in de inbox. Dit kan weg.`,
+    left: (emails: string) => `${emails} blijven in de inbox`,
+    listsFrom: (names: string, more: number) =>
+      more ? `${names} en nog ${more}` : names,
+    run: (emails: string) => `${emails} opruimen`,
+    safe: 'Er wordt niets verwijderd. Opgeruimde mail gaat naar het archief met het label Fewmail/Cleared en komt met één klik terug; van nieuwsbrieven word je ook afgemeld.',
+    scanning: 'Ik lees de hele inbox, alleen de kopregels. Tot een minuut.',
+    title: 'Inbox opruimen',
+    undo: 'Alles terugzetten',
+    undone: (emails: string) => `${emails} terug in de inbox`,
+  },
+  wrapped: {
+    busiest: (day: string, hour: string) =>
+      `Drukste moment: ${day}, rond ${hour}`,
+    copied: 'Link gekopieerd',
+    copyLink: 'Link kopiëren',
+    cta: 'Haal de jouwe met Fewmail',
+    emails: 'e-mails binnengekomen',
+    empty:
+      'Nog te weinig mail voor een verhaal. Kom over een paar dagen terug.',
+    handled: 'zelf afgehandeld door Fewmail',
+    people: 'Wie het meest schreef',
+    period: { month: 'Deze maand', year: 'Dit jaar' },
+    replies: 'antwoorden door Fewmail geschreven en verstuurd',
+    saveImage: 'Afbeelding opslaan',
+    saved: 'bespaard door Fewmail',
+    shareNote:
+      'De link en de afbeelding tonen alleen deze cijfers, nooit namen of adressen.',
+    shared: { month: 'Een maand in e-mail', year: 'Een jaar in e-mail' },
+    spam: 'spammails tegengehouden',
+    split: (people: string, lists: string) =>
+      `${people} van mensen · ${lists} van nieuwsbrieven`,
+    title: { month: 'Jouw maand in e-mail', year: 'Jouw jaar in e-mail' },
+    unsubscribed: 'nieuwsbrieven verlaten',
+  },
+  forward: {
+    done: 'Je doorgestuurde e-mail',
+  },
+  reading: {
+    empty: 'Geen nieuwsbrieven in de afgelopen dag.',
+    lead: 'De nieuwsbrieven van de afgelopen dag op één plek, zodat ze je inbox niet vullen.',
+    title: 'Lezen',
   },
   commitments: {
     title: 'Je hebt beloofd',
@@ -370,6 +438,7 @@ export const nl: Messages = {
     ask: 'ernaar vragen',
     anything: 'alles',
     approve: 'goedkeuren',
+    approveAll: (n: number) => `alle ${n} van deze soort goedkeuren`,
     archive: 'archiveren',
     close: 'sluiten',
     draftReply: 'concept',
@@ -491,6 +560,7 @@ export const nl: Messages = {
     boards: 'Borden',
     newBoard: 'Nieuw bord',
     mail: 'Mail',
+    reading: 'Lezen',
     rules: 'Regels',
     search: 'Zoek of vraag…',
     settings: 'Instellingen',
@@ -653,6 +723,12 @@ export const nl: Messages = {
     whichEmails: 'Welke e-mails',
   },
   settings: {
+    forward: {
+      copy: 'Adres kopiëren',
+      description:
+        'Stuur of forward elke e-mail vanuit je eigen mailbox naar dit adres, met bovenaan een notitie wat er moet gebeuren. Het antwoord komt in Telegram of WhatsApp en in een chat hier.',
+      title: 'Doorsturen naar de agent',
+    },
     account: 'Account',
     agent: 'Agent',
     briefDescription: (timezone: string) => `In jouw tijdzone, ${timezone}`,
@@ -752,10 +828,444 @@ export const nl: Messages = {
     },
     title: 'Instellingen',
   },
+  site: {
+    chapters: {
+      compare: {
+        description:
+          'De meeste tools helpen je sneller door je inbox heen. Fewmail gaat er voor je doorheen.',
+        label: 'Vergelijken',
+        title: 'Wat Fewmail anders maakt.',
+      },
+      control: {
+        description:
+          'Vertel Fewmail in gewone woorden wat er met je mail moet gebeuren, bepaal welke regels zelf mogen handelen en bekijk alles wat het deed onder Afgehandeld.',
+        label: 'Controle',
+        title: 'Jij maakt de regels. Het laat zien wat het doet.',
+      },
+      memory: {
+        description:
+          'Fewmail houdt bij wat je beloofd hebt, wie mensen zijn, waarvoor je betaalt en met welke threads het nog voor je bezig is.',
+        label: 'Geheugen',
+        title: 'Het onthoudt, zodat jij dat niet hoeft.',
+      },
+      pricing: {
+        description:
+          'Sorteren, regels en bescherming zijn voor altijd gratis. Pro en Max voegen alles toe wat voor je leest en schrijft; Max doet er gewoon meer van.',
+        label: 'Prijzen',
+        title: (usd: number) =>
+          `Gratis voor het sorteren. Vanaf $${usd} voor de agent.`,
+      },
+      protection: {
+        description:
+          'Elk abonnement krijgt een spamschild van de community dat leert van iedereen die Fewmail gebruikt, zonder ooit een adres of een woord uit je mail te delen. Nagemaakte domeinen, bekende phishing en gewijzigde betaalgegevens geven een waarschuwing voordat je iets doet.',
+        label: 'Bescherming',
+        title: 'Oplichters komen er niet in.',
+      },
+      questions: {
+        description:
+          'De korte antwoorden. De lange staan in het privacybeleid.',
+        label: 'Vragen',
+        title: 'Voordat je Gmail koppelt.',
+      },
+      replies: {
+        description:
+          'Fewmail leert hoe je schrijft uit de mail die je hebt verstuurd en stelt antwoorden alvast op, in de taal van de e-mail. Pas aan, vraag om een andere versie of verstuur het zoals het is. Niets gaat de deur uit zonder jouw ja.',
+        label: 'Antwoorden',
+        title: 'Antwoorden in jouw stijl, in hun taal.',
+      },
+      telegram: {
+        description:
+          'Ontvang het overzicht en dringende mail in Telegram, keur een antwoord goed met één tik of stuur gewoon een spraakbericht: “zeg Marco dat donderdag goed is”. Fewmail vindt de thread en stelt het antwoord op.',
+        label: 'Telegram',
+        title: 'Je inbox vanuit een chat.',
+      },
+      today: {
+        description:
+          'Elke dag, op het uur dat jij kiest, schrijft Fewmail een kort overzicht in jouw taal en zet het de paar e-mails klaar die een beslissing nodig hebben, de belangrijkste eerst. Goedkeuren met ⏎, overslaan met S; de rest is al afgehandeld en je ziet precies wat het deed.',
+        label: 'Vandaag',
+        title: 'Eén overzicht. Eén wachtrij. Dat is je inbox.',
+      },
+    },
+    closing: {
+      lead: 'Koppel Gmail in een minuut. Fewmail begint met de mail van de afgelopen drie dagen, dus de eerste beslissingen liggen meteen voor je klaar.',
+      title: 'Krijg je ochtenden terug.',
+    },
+    mcpPage: {
+      copy: 'URL kopiëren',
+      lead: 'Koppel Fewmail als MCP-server en vraag naar je mail vanuit de AI die je al gebruikt. Je mail lezen en het sorteren door de agent zijn gratis; concepten, versturen en regels komen met Pro.',
+      safety:
+        'Alles wat een e-mail verstuurt of Gmail wijzigt, vraagt eerst om je ja. Je mail traint nooit modellen en je kunt elke app ontkoppelen in de instellingen.',
+      steps: {
+        chatgpt:
+          'Voeg in Settings een connector (app) met deze URL toe en log daarna in bij Fewmail.',
+        claude:
+          'Voeg in Settings → Connectors een eigen connector met deze URL toe en log daarna in bij Fewmail.',
+        code: 'Voer dit één keer uit in een terminal en log in bij Fewmail als Claude Code erom vraagt.',
+        cursor:
+          'Zet dit in je mcp.json en log in bij Fewmail als Cursor erom vraagt.',
+      },
+      title: 'Fewmail in Claude, ChatGPT en je tools.',
+    },
+    comparePage: {
+      lead: 'Mailprogramma’s maken je sneller in het lezen van elke e-mail. Filters verplaatsen mail naar mappen. Fewmail is een agent: het leest je mail, beslist wat kan wachten en vraagt jou alleen naar de rest.',
+      title: 'Fewmail vergeleken.',
+    },
+    comparison: {
+      custom: 'Op maat',
+      features: 'Functie voor functie',
+      groups: {
+        agent: 'Lezen en beantwoorden',
+        day: 'Je dag',
+        reach: 'Waar het werkt',
+        safety: 'Bescherming',
+      },
+      labels: {
+        ask: 'Vraag je mail wat je wilt',
+        brief: 'Dagelijks overzicht',
+        calendar: 'Agenda',
+        drafts: 'Antwoorden voor je opgesteld',
+        followUps: 'Herinneringen om op te volgen',
+        gmail: 'Gmail en Google Workspace',
+        handOver: 'Een gesprek overdragen',
+        importance: 'Gesorteerd op belangrijkheid',
+        keepApp: 'Houd je eigen mailapp',
+        mcp: 'MCP voor je eigen tools',
+        memory: 'Onthoudt afspraken en mensen',
+        otherProviders: 'iCloud, Yahoo en andere IMAP-mail',
+        outlook: 'Outlook en Microsoft 365',
+        phishing: 'Waarschuwingen voor phishing en gewijzigde betaalgegevens',
+        phone: 'Op je telefoon',
+        rules: 'Regels in gewone woorden',
+        snooze: 'Snoozen',
+        spamShield: 'Spamschild van de community',
+        summaries: 'Samenvattingen van e-mails',
+        teams: 'Gedeelde teaminbox',
+        unsubscribe: 'Afmelden met één klik',
+      },
+      more: 'Meer vergelijkingen',
+      no: 'Nee',
+      noFreePlan: 'Geen gratis abonnement',
+      ours: {
+        ask: 'In Pro',
+        brief: 'In jouw taal, in Pro',
+        drafts: 'In jouw stijl, pas verstuurd als jij akkoord geeft, in Pro',
+        followUps: 'Automatisch, bij mail die een antwoord verwacht',
+        handOver: 'De agent werkt het af tot het doel, in Pro',
+        importance: 'Elke e-mail beoordeeld, gratis',
+        keepApp: 'Alles verschijnt in Gmail',
+        mcp: 'In Pro',
+        memory: 'In Pro',
+        phone: 'Telegram en WhatsApp, met spraak, in Pro',
+        rules: 'Archiveren, als gelezen markeren of afmelden, gratis',
+        summaries: 'In Pro',
+        unsubscribe: 'Afzenders die het negeren gaan naar spam',
+      },
+      plans: 'Abonnementen en prijzen',
+      read: 'Lees de vergelijking',
+      source: (name: string, date: string) =>
+        `Gegevens over ${name} komen van de openbare website, gecontroleerd in ${date}. Prijzen en functies veranderen; kijk op hun site voor het actuele aanbod.`,
+      title: (name: string) => `Fewmail vs ${name}`,
+      tryFree: 'Probeer Fewmail gratis',
+      which: 'Welke past bij jou?',
+      yes: 'Ja',
+    },
+    comparisons: {
+      sanebox: {
+        plans: {
+          dinner: '4 mailboxen en alle functies, inclusief AI Bundle',
+          lunch: '2 mailboxen, snoozen en herinneringen',
+          snack: '1 mailbox en basisfilters',
+        },
+        summary:
+          'SaneBox sorteert mail in mappen en stelt op het hoogste abonnement ook antwoorden op en vat samen. Fewmail leest eerst alles en geeft je één overzicht en de paar beslissingen die alleen jij kunt nemen.',
+        them: {
+          brief: 'Een dagelijkse samenvatting van gefilterde mail',
+          drafts: 'SaneDrafts, in Dinner',
+          followUps: 'SaneNoReplies',
+          importance: 'Onbelangrijke mail gaat naar SaneLater',
+          keepApp: 'Werkt via mappen',
+          otherProviders: 'Elke IMAP- of Exchange-server',
+          phone: 'Via je mailapp',
+          rules: 'Trainen door mail tussen mappen te verplaatsen',
+          snooze: 'Vanaf Lunch',
+          summaries: 'SaneSummary, in Dinner',
+          unsubscribe: 'Map SaneBlackHole',
+        },
+        verdict:
+          'Kies SaneBox als je mail buiten Gmail staat en mappen genoeg zijn. Kies Fewmail als je Gmail gebruikt en wilt dat belangrijke mail gelezen, samengevat en beantwoord wordt.',
+      },
+      shortwave: {
+        plans: {
+          business: 'Per gebruiker',
+          free: 'De meeste functies en de assistent',
+          max: 'Per gebruiker, de sterkste modellen',
+          premier: 'Per gebruiker, sterkere modellen',
+          pro: 'Volledige geschiedenis, zoeken en schrijven met AI',
+        },
+        summary:
+          'Shortwave is een mailprogramma met een AI-assistent waarmee je praat. Fewmail is een agent die eerst zelf leest en jou alleen vraagt wat het niet kan beslissen.',
+        them: {
+          ask: 'AI-assistent en zoeken',
+          drafts: 'Als je erom vraagt',
+          importance: 'Splitsingen en bundels',
+          keepApp: 'Vervangt je mailapp',
+          memory: 'AI-geheugen',
+          otherProviders: 'Doorgestuurd naar Gmail',
+          outlook: 'Microsoft 365 niet ondersteund',
+          phone: 'Apps voor iOS en Android',
+          rules: 'AI-filters, 3 tot 50 per abonnement',
+          summaries: 'Boven elke e-mail',
+          teams: 'Gedeelde gesprekken en opmerkingen',
+          unsubscribe: 'Met blokkeren in één klik',
+        },
+        verdict:
+          'Kies Shortwave als je een nieuwe inbox met een chatassistent wilt. Kies Fewmail als je minder e-mails wilt zien, in de Gmail die je al gebruikt.',
+      },
+      superhuman: {
+        plans: {
+          business:
+            'Per lid, $33 bij jaarlijkse betaling. Met Auto Drafts en Ask AI',
+          enterprise: 'SSO en beheeropties',
+          starter: 'Per lid, $25 bij jaarlijkse betaling',
+        },
+        summary:
+          'Met Superhuman ga je sneller door elke e-mail. Fewmail gaat er voor je doorheen en laat alleen zien wat jou nodig heeft.',
+        them: {
+          ask: 'Ask AI, in Business',
+          drafts: 'Auto Drafts, in Business',
+          followUps: 'Auto Reminders',
+          importance: 'Split Inbox en Auto Labels',
+          keepApp: 'Vervangt je mailapp',
+          mcp: 'In Business',
+          phone: 'Apps voor iOS en Android',
+          rules: 'Custom Auto Labels, in Business',
+          spamShield: 'Het filter van je provider',
+          summaries: 'Auto Summarize',
+          teams: 'Gedeelde concepten en opmerkingen',
+        },
+        verdict:
+          'Kies Superhuman als je elke e-mail zelf wilt aanraken, maar sneller. Kies Fewmail als je de meeste liever helemaal niet ziet.',
+      },
+    },
+    control: {
+      gmail: {
+        description:
+          'Optionele Fewmail-labels tonen de sortering in Gmail zelf, op je telefoon en in elke andere mailapp.',
+        title: 'Werkt met elke Gmail-app',
+      },
+      handled: {
+        description:
+          'Alles wat de agent zelf deed, staat onder Afgehandeld, telkens met de reden waarom.',
+        title: 'Afgehandeld, gewoon zichtbaar',
+      },
+      keyboard: {
+        description:
+          'Elke actie heeft één toets en ⌘K bereikt alles. Je handen blijven op het toetsenbord.',
+        title: 'Toetsenbord eerst',
+      },
+      mcp: {
+        description:
+          'Koppel Claude of een andere MCP-client en laat die lezen, sorteren en concepten opstellen met dezelfde agent.',
+        title: 'MCP-server',
+      },
+      privacy: {
+        description:
+          'Onderwerpen, inhoud, samenvattingen en concepten zijn versleuteld in onze database. Versturen vraagt altijd jouw akkoord.',
+        title: 'Privacy ingebouwd',
+      },
+      rules: {
+        description:
+          '“Nieuwsbrieven die ik nooit open” of “bonnetjes van webwinkels”: archiveren, als gelezen markeren of afmelden.',
+        title: 'Regels in gewone woorden',
+      },
+    },
+    demos: {
+      draft: {
+        expectsReply: 'Verwacht een antwoord',
+        language: 'Duits, net als Lena',
+        redraft: 'Opnieuw opstellen',
+      },
+      shield: [
+        {
+          detail: 'paypa1-billing.com lijkt op paypal.com',
+          label: 'Nagemaakt domein',
+        },
+        {
+          detail: 'Nieuw IBAN op een factuur van een bekende leverancier',
+          label: 'Betaalgegevens gewijzigd',
+        },
+        {
+          detail: '9 mensen meldden deze campagne als spam',
+          label: 'Naar spam verplaatst',
+        },
+      ],
+      telegram: {
+        draftReady: 'Concept voor Marco klaar: donderdag om 16:00. Versturen?',
+        urgent:
+          'Heeft het getekende contract vóór vrijdag nodig. Ik heb een antwoord opgesteld.',
+        voice: '“Zeg Marco dat donderdag goed is, maar om vier uur.”',
+      },
+      today: {
+        brief:
+          'Anna wacht op het contract, de factuur van Northwind moet volgende week betaald zijn en Marco wil donderdag een afspraak. Tweeënveertig nieuwsbrieven en meldingen zijn afgehandeld.',
+        day: 'Overzicht van donderdag',
+        queue: [
+          {
+            reason: 'Contract morgen nodig',
+            summary:
+              'Heeft het getekende contract terug nodig vóór de kick-off van vrijdag.',
+          },
+          {
+            reason: 'Factuur · $ 1.240 vóór 20 nov.',
+            summary: 'Factuur van oktober voor het nieuwe websiteontwerp.',
+          },
+          {
+            reason: 'Afspraak voorgesteld',
+            summary: 'Stelt donderdag om 15:00 voor, voor het kwartaaloverleg.',
+          },
+        ],
+      },
+    },
+    faq: (trialDays: number) => [
+      {
+        answer:
+          'Nee. Fewmail werkt bovenop Gmail. Alles wat het doet, zie je ook in Gmail, en je kunt elke Gmail-app ernaast blijven gebruiken.',
+        question: 'Moet ik weg bij Gmail?',
+      },
+      {
+        answer:
+          'Nooit zonder jou. Antwoorden wachten in je wachtrij tot je ze goedkeurt, en alleen regels die jij hebt gemaakt of behouden mogen zelf archiveren, als gelezen markeren of afmelden. Alles wat het deed, staat onder Afgehandeld.',
+        question: 'Kan het zelf mail versturen of verwijderen?',
+      },
+      {
+        answer:
+          'Onderwerpen, inhoud, samenvattingen en concepten zijn versleuteld in onze database. Je mail wordt nooit gebruikt om modellen te trainen, en het spamschild deelt tussen gebruikers alleen hashes met een sleutel, nooit adressen of inhoud.',
+        question: 'Wat gebeurt er met mijn mail?',
+      },
+      {
+        answer: `Elk nieuw account krijgt ${trialDays} dagen Pro, zonder kaart. Daarna blijf je gewoon op Gratis; er wordt niets verwijderd en niets afgeschreven.`,
+        question: 'Wat gebeurt er na de proefperiode?',
+      },
+      {
+        answer:
+          'Concepten worden geschreven in de taal van de e-mail die je beantwoordt. De app, het overzicht en de Telegram-bot spreken één taal naar keuze, uit vijftien.',
+        question: 'Welke talen spreekt het?',
+      },
+      {
+        answer:
+          'Voorlopig accounts van Gmail en Google Workspace. Voeg meerdere mailboxen toe aan één Fewmail en hun mail komt in hetzelfde overzicht en dezelfde inbox terecht.',
+        question: 'Welke e-mailaccounts werken?',
+      },
+    ],
+    footer: {
+      legal: 'Juridisch',
+      product: 'Product',
+      tagline:
+        'De e-mailagent die je Gmail leest en je alleen laat zien wat jou nodig heeft.',
+      versus: (name: string) => `vs ${name}`,
+    },
+    hero: {
+      lead: 'Fewmail is een e-mailagent voor Gmail. Hij leest elke e-mail voor je, stelt de antwoorden op in jouw stijl en geeft je één korte lijst met wat jou echt nodig heeft.',
+      start: 'Gratis starten met Google',
+    },
+    memory: {
+      ask: {
+        description:
+          'Stel een vraag in ⌘K en krijg antwoord uit je eigen mail, met de e-mails waar het vandaan komt.',
+        title: 'Vraag het je mail',
+      },
+      boards: {
+        description:
+          'Beschrijf wat je wilt bijhouden (geld, reizen, bestellingen) en de agent verzamelt het uit je mail, met grafieken, te beginnen met het laatste halfjaar.',
+        title: 'Borden',
+      },
+      followUps: {
+        description:
+          'Mail die een antwoord verwacht, wordt opgevolgd, zodat geen enkele thread stilletjes doodbloedt.',
+        title: 'Opvolgen',
+      },
+      handle: {
+        description:
+          'Zeg “regel dit” en de agent werkt de thread af richting jouw doel: hij vraagt het vóór elke verzending of verstuurt zelf.',
+        title: 'Regel dit',
+      },
+      people: {
+        description:
+          'Een korte notitie over iedereen met wie je mailt, elke week bijgewerkt, direct naast hun e-mail.',
+        title: 'Mensen',
+      },
+      promises: {
+        description:
+          'Beloftes die je in verstuurde mail doet, komen op tijd bij je terug, voordat iemand je achterna moet zitten.',
+        title: 'Beloftes nagekomen',
+      },
+    },
+    nav: {
+      compare: 'Vergelijken',
+      features: 'Functies',
+      pricing: 'Prijzen',
+      signIn: 'Inloggen',
+    },
+    plans: {
+      everythingIn: (plan: string) => `Alles uit ${plan}, plus`,
+      forever: 'voor altijd',
+      free: {
+        description: 'Het sorteren, de regels en de bescherming. Voor altijd.',
+        features: [
+          'Elke e-mail gesorteerd en beoordeeld op belangrijkheid',
+          'Regels in gewone woorden die archiveren, als gelezen markeren of afmelden',
+          'Spamschild van de community en phishingwaarschuwingen',
+          'Zombie-afzenders betrapt nadat je je hebt afgemeld',
+          'Automatisch opvolgen van mail die een antwoord verwacht',
+          'Uitstellen, snippets en Fewmail-labels in Gmail',
+        ],
+      },
+      max: {
+        description: 'Dezelfde agent voor een drukke inbox.',
+        emails: (emails: string) => `${emails} gelezen e-mails per maand`,
+        messages: (messages: number) =>
+          `${messages} berichten aan de agent per maand`,
+        unlimited: 'Borden en overgedragen threads zonder limiet',
+      },
+      monthly: 'Maandelijks',
+      per: { month: 'per maand', year: 'per jaar' },
+      pro: {
+        description: 'De hele agent: hij leest, schrijft en onthoudt.',
+        features: [
+          'Vandaag: een dagelijks overzicht en één wachtrij met beslissingen',
+          'Antwoorden in jouw stijl, pas verstuurd als jij akkoord geeft',
+          'Telegram: het overzicht, goedkeuringen en spraakopdrachten',
+          '“Regel dit”: de agent werkt een thread af tot het doel',
+          'Beloftes en mensen onthouden, borden met grafieken voor geld of alles wat je bijhoudt',
+          'Vraag je mail alles, plus MCP voor je eigen tools',
+        ],
+        limits: (emails: string, messages: number) =>
+          `${emails} gelezen e-mails en ${messages} berichten aan de agent per maand; ruis telt nooit mee`,
+      },
+      tryFree: (days: number) => `${days} dagen gratis proberen`,
+      yearly: 'Jaarlijks · 2 maanden gratis',
+    },
+    pricingPage: {
+      lead: (trialDays: number) =>
+        `Sorteren, regels in gewone woorden en bescherming zijn voor altijd gratis. Pro is de agent die voor je leest, schrijft en onthoudt; Max is dezelfde agent met ruimte voor een drukke inbox. Elk account begint met ${trialDays} dagen Pro, en daarna blijf je gewoon op Gratis.`,
+      otherTool: 'Denk je aan een andere tool?',
+      title: 'Betaal voor de agent, niet voor de inbox.',
+    },
+    promises: [
+      'Niets wordt verstuurd zonder jouw akkoord',
+      'Je mail wordt versleuteld opgeslagen',
+      'Nooit gebruikt om modellen te trainen',
+    ],
+    startFree: 'Gratis starten',
+    trialNote: (days: number) =>
+      `${days} dagen Pro, geen kaart nodig. Daarna gratis zo lang je wilt.`,
+  },
   skills: {
     bills: 'Rekeningen en betalingen die eraan komen',
+    cancel: 'Een betaald abonnement opzeggen',
     cleanup: 'Nieuwsbrieven om op te ruimen',
     followups: 'Wie jou nog een antwoord schuldig is',
+    reading: 'De nieuwsbrieven van de dag in één overzicht',
     today: 'Wat vandaag op je wacht',
     waiting: 'Wie wacht op je antwoord',
     week: 'Je week in mail',
@@ -808,6 +1318,7 @@ export const nl: Messages = {
     started: 'De agent is ermee bezig.',
   },
   telegram: {
+    listen: '🔊 Luisteren',
     heard: (text: string) => `Gehoord: “${text}”`,
     voiceFailed: 'Ik kon het niet verstaan. Probeer het opnieuw of typ het.',
     help: 'Schrijf of zeg wat je nodig hebt:\n• vraag iets over je mail: ‘wanneer verlengt Netflix?’\n• zeg wat ik moet antwoorden: ‘zeg Anna dat ik morgen teken’\n• antwoord op een van mijn concepten om het aan te passen',
@@ -857,6 +1368,8 @@ export const nl: Messages = {
     done: 'Klaar',
     firstRead:
       'Ik lees je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf.',
+    approvedMany: (n: number) => `${n} goedgekeurd`,
+    listen: 'Naar de briefing luisteren',
     handled: {
       spam: (n: number) => `${n} naar spam`,
       archived: (n: number) => `${n} gearchiveerd`,
@@ -885,6 +1398,10 @@ export const nl: Messages = {
           other: (n) => `${n} e-mails ${period}`,
         }),
     },
+    saved: (minutes: number) =>
+      `Fewmail heeft je deze week ongeveer ${formatMinutes('nl', minutes)} bespaard`,
+    savedHow: (handled: number, replies: number) =>
+      `Zelf afgehandeld: ${handled} · Antwoorden verstuurd vanuit concepten: ${replies}`,
     recent: (period: string) => `Ook ${period}`,
     sent: 'Verstuurd',
     worthAttention: 'Verdient je aandacht',

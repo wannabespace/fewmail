@@ -14,8 +14,10 @@ import { themeStore } from '@fewmail/ui/theme-store'
 import {
   Add01Icon,
   AiChat02Icon,
+  CleanIcon,
   ComputerIcon,
   CrownIcon,
+  GiftIcon,
   Moon02Icon,
   PencilEdit02Icon,
   SparklesIcon,
@@ -34,6 +36,7 @@ import { orpc } from '~/lib/orpc'
 
 import { AskAnswer } from './ask-answer'
 import { newBoardStore } from './board-dialog'
+import { clearOutStore } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
 import { visibleNavItems } from './nav'
 
@@ -137,6 +140,16 @@ export const CommandMenu = ({
                 {t.command.rewriteBrief}
               </CommandItem>
             )}
+            <CommandItem
+              onSelect={() => run(() => navigate({ to: '/wrapped' }))}
+            >
+              <HugeiconsIcon icon={GiftIcon} strokeWidth={2} />
+              {t.wrapped.title.year}
+            </CommandItem>
+            <CommandItem onSelect={() => run(() => clearOutStore.set(true))}>
+              <HugeiconsIcon icon={CleanIcon} strokeWidth={2} />
+              {t.clearOut.title}
+            </CommandItem>
             <CommandItem
               onSelect={() =>
                 run(() => navigate({ search: { new: true }, to: '/rules' }))

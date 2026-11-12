@@ -18,6 +18,7 @@ import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
 import { NewBoardDialog } from '~/components/board-dialog'
+import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { ComposeDialog } from '~/components/compose/compose-dialog'
@@ -126,6 +127,7 @@ const AppLayout = () => {
           onOpenChange={setIsCommandMenuOpen}
         />
         <NewBoardDialog />
+        <ClearOutDialog />
       </div>
     </ComposeProvider>
   )

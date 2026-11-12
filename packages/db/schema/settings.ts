@@ -13,6 +13,8 @@ export const userSettings = d.snakeCase.table('user_settings', {
   cleanupCheckedAt: d.timestamp({ withTimezone: true }),
   gmailLabels: d.boolean().default(false).notNull(),
   knowledge: encryptedText(),
+  /** The day's newsletters sent to Telegram and WhatsApp after the brief. */
+  readingDigest: d.boolean().default(true).notNull(),
   language: d.text().$type<Locale>().notNull(),
   onboardedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   starterBoards: d

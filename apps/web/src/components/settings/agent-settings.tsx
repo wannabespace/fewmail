@@ -1,3 +1,5 @@
+import { forwardAddress } from '@fewmail/shared/agent'
+import { CopyIconButton } from '@fewmail/ui/components/custom/copy-button'
 import {
   SettingsGroup,
   SettingsRow,
@@ -12,7 +14,7 @@ import { useHasAgent, useMe, useSaveSettings } from '~/lib/me'
 
 export const AgentSettings = () => {
   const t = useT()
-  const { settings } = useMe()
+  const { settings, user } = useMe()
   const hasAgent = useHasAgent()
   const update = useSaveSettings()
   const [knowledge, setKnowledge] = useState(settings.knowledge ?? '')
@@ -44,6 +46,23 @@ export const AgentSettings = () => {
       </SettingsRow>
       {hasAgent && (
         <>
+          <SettingsRow
+            title={t.settings.forward.title}
+            description={t.settings.forward.description}
+          >
+            <div className="flex items-center gap-1">
+              <span
+                className="text-muted-foreground font-mono text-sm"
+                data-mask
+              >
+                {forwardAddress(user.email)}
+              </span>
+              <CopyIconButton
+                label={t.settings.forward.copy}
+                text={forwardAddress(user.email)}
+              />
+            </div>
+          </SettingsRow>
           <SettingsRow
             title={t.settings.briefTitle}
             description={t.settings.briefDescription(settings.timezone)}

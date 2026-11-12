@@ -3,6 +3,7 @@ import { actions, analyses, commitments, messages } from '@fewmail/db/schema'
 import {
   ACTION_KIND_TRAITS,
   ACTION_KINDS,
+  SECONDS_SAVED,
   sendsDraft,
 } from '@fewmail/shared/agent'
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
@@ -172,6 +173,31 @@ export const handledSince = async (userId: string, since: Date) => {
     spam: byKind.spam ?? 0,
     total: rows.reduce((sum, { count }) => sum + count, 0),
     unsubscribed: byKind.unsubscribe ?? 0,
+  }
+}
+
+/** Mail the agent handled on its own plus replies sent from its drafts, priced by `SECONDS_SAVED`. */
+export const timeSaved = async (userId: string, since: Date) => {
+  const [row] = await db
+    .select({
+      handled: sql<number>`count(*) filter (where ${actions.status} = 'auto_done' and ${actions.createdAt} >= ${since})::int`,
+      replies: sql<number>`count(*) filter (where ${actions.status} = 'done' and ${actions.kind} = 'reply' and ${actions.updatedAt} >= ${since})::int`,
+    })
+    .from(actions)
+    .where(
+      and(
+        eq(actions.userId, userId),
+        inArray(actions.status, ['auto_done', 'done']),
+        gte(actions.updatedAt, since)
+      )
+    )
+  const { handled, replies } = expectRow(row)
+  return {
+    handled,
+    minutes: Math.round(
+      (handled * SECONDS_SAVED.handled + replies * SECONDS_SAVED.reply) / 60
+    ),
+    replies,
   }
 }
 
@@ -575,6 +601,17 @@ export const approveAction = async (
   return { ...expectRow(done), outboxId: applied.value }
 }
 
+/** One by one, so each send keeps its own undo window and a failure leaves the rest approved. */
+export const approveActions = async (userId: string, actionIds: string[]) => {
+  let sending = 0
+  for (const actionId of actionIds) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- approvals share the thread and outbox state
+    const { outboxId } = await approveAction(userId, actionId)
+    sending += outboxId ? 1 : 0
+  }
+  return { approved: actionIds.length, sending }
+}
+
 export const dismissAction = async (userId: string, actionId: string) => {
   await getAction(userId, actionId)
   const [dismissed] = await db
@@ -708,7 +745,7 @@ export const recentImportant = (userId: string, since: Date) =>
     .orderBy(desc(analyses.importance), desc(messages.receivedAt))
     .limit(40)
 
-const PEOPLE_CATEGORIES = new Set(['person', 'work'])
+export const PEOPLE_CATEGORIES = new Set<MailCategory>(['person', 'work'])
 const LIST_CATEGORIES = new Set(['newsletter', 'promotion'])
 
 /** How much mail came in since `since`, split into people and mailing lists. */

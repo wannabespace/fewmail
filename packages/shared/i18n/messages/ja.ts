@@ -1,4 +1,5 @@
 import type { Rich } from '../locales'
+import { formatMinutes } from '../locales'
 import type { Messages } from './en'
 
 export const ja: Messages = {
@@ -42,6 +43,8 @@ export const ja: Messages = {
       update_event: 'この予定を変更しますか？',
       approve_action: 'この操作を実行しますか？',
       archive_thread: 'このスレッドをアーカイブしますか？',
+      clear_out: '受信トレイからこれらのメールを片付けますか？',
+      undo_clear_out: '片付けたメールをすべて受信トレイに戻しますか？',
       create_rule: 'このルールを追加しますか？',
       handle_thread: 'このスレッドをエージェントに任せますか？',
       reply: 'この返信を送信しますか？',
@@ -82,6 +85,11 @@ export const ja: Messages = {
       list_subscriptions: '購読を確認中',
       approve_action: '実行中',
       archive_thread: 'アーカイブ中',
+      get_reading: 'メルマガを読み込み中',
+      get_wrapped: 'メールを集計中',
+      clear_out: '受信トレイを片付け中',
+      preview_clear_out: '受信トレイ全体を読み込み中',
+      undo_clear_out: '片付けたメールを戻し中',
       create_rule: 'ルールを追加中',
       dismiss_action: 'スキップ中',
       draft_reply: '返信を作成中',
@@ -118,6 +126,8 @@ export const ja: Messages = {
       update_event: '保存',
       approve_action: '実行',
       archive_thread: 'アーカイブ',
+      clear_out: '片付ける',
+      undo_clear_out: '戻す',
       create_rule: '追加',
       handle_thread: '任せる',
       reply: '送信',
@@ -269,6 +279,7 @@ export const ja: Messages = {
     anything: '何でも',
     archive: 'アーカイブ',
     approve: '承認',
+    approveAll: (n: number) => `同じ種類の${n}件をすべて承認`,
     close: '閉じる',
     draftReply: '返信を下書き',
     edit: '編集',
@@ -387,6 +398,7 @@ export const ja: Messages = {
     boards: 'ボード',
     newBoard: '新しいボード',
     mail: 'メール',
+    reading: 'リーディング',
     rules: 'ルール',
     search: '検索または質問…',
     settings: '設定',
@@ -513,6 +525,12 @@ export const ja: Messages = {
     whichEmails: '対象のメール',
   },
   settings: {
+    forward: {
+      copy: 'アドレスをコピー',
+      description:
+        '自分のメールボックスからこのアドレスにメールを送信または転送し、上にやってほしいことをメモしてください。返事は Telegram か WhatsApp と、ここのチャットに届きます。',
+      title: 'エージェントに転送',
+    },
     knowledge: {
       description:
         '料金、住所、対応可能な日時、返信のスタイルなど。エージェントが下書きや自動補完に使います。',
@@ -616,10 +634,442 @@ export const ja: Messages = {
     },
     title: '設定',
   },
+  site: {
+    chapters: {
+      compare: {
+        description:
+          '多くのツールは、受信トレイを速く片づける手助けをします。Fewmail は、あなたの代わりに片づけます。',
+        label: '比較',
+        title: 'Fewmail はここが違う。',
+      },
+      control: {
+        description:
+          'メールの扱い方を普段の言葉で Fewmail に伝え、どのルールに自動で動いてもらうかを決めましょう。実行したことはすべて「対応済み」で確認できます。',
+        label: 'コントロール',
+        title: 'ルールを決めるのはあなた。やったことはすべて見せます。',
+      },
+      memory: {
+        description:
+          'あなたがした約束、相手が誰か、何にお金を払っているか、どのスレッドをまだ対応中か。Fewmail がすべて覚えています。',
+        label: '記憶',
+        title: '覚えておくのは、Fewmail の仕事。',
+      },
+      pricing: {
+        description:
+          '仕分け、ルール、保護機能はずっと無料。Pro と Max では、メールを読み、書いてくれる機能がすべて加わります。Max は、それをもっとたくさんこなすだけです。',
+        label: '料金',
+        title: (usd: number) => `仕分けは無料。エージェントは $${usd} から。`,
+      },
+      protection: {
+        description:
+          'どのプランにも、Fewmail を使う人たちから学ぶコミュニティ迷惑メールシールドが付いています。アドレスやメールの中身が共有されることは一切ありません。なりすましドメイン、既知のフィッシング、支払い先の変更は、対応する前に警告します。',
+        label: '保護',
+        title: '詐欺は入口で止める。',
+      },
+      questions: {
+        description:
+          '要点だけの回答です。詳しくはプライバシーポリシーをご覧ください。',
+        label: 'よくある質問',
+        title: 'Gmail をつなぐ前に。',
+      },
+      replies: {
+        description:
+          'Fewmail は送信済みメールからあなたの書き方を学び、届いたメールと同じ言語で返信を先回りして下書きします。編集しても、別の案を頼んでも、そのまま送っても大丈夫。あなたが OK するまで、何も送られません。',
+        label: '返信',
+        title: 'あなたの口調で、相手の言語で。',
+      },
+      telegram: {
+        description:
+          'ブリーフと急ぎのメールを Telegram で受け取り、ワンタップで返信を承認。音声メッセージで「Marco に木曜で大丈夫って伝えて」と送るだけでも OK。Fewmail がスレッドを見つけて下書きします。',
+        label: 'Telegram',
+        title: '受信トレイを、チャットから。',
+      },
+      today: {
+        description:
+          '毎日、あなたが選んだ時刻に、Fewmail があなたの言語で短いブリーフを書き、判断が必要な数通のメールを重要な順に並べます。⏎ で承認、S でスキップ。残りはすでに対応済みで、何をしたかも正確に確認できます。',
+        label: '今日',
+        title: 'ブリーフがひとつ、キューがひとつ。それがあなたの受信トレイ。',
+      },
+    },
+    closing: {
+      lead: 'Gmail の接続は 1 分。Fewmail は直近 3 日分のメールから始めるので、最初の判断がすぐにあなたを待っています。',
+      title: '朝の時間を取り戻そう。',
+    },
+    mcpPage: {
+      copy: 'URL をコピー',
+      lead: 'Fewmail を MCP サーバーとしてつなげば、使い慣れた AI からメールについて聞けます。メールの閲覧とエージェントによる仕分けは無料。下書き、送信、ルールは Pro で使えます。',
+      safety:
+        'メールの送信や Gmail の変更は、必ず先にあなたの承認を求めます。メールがモデルの学習に使われることはなく、どのアプリも設定から切断できます。',
+      steps: {
+        chatgpt:
+          'Settings でこの URL のコネクタ（アプリ）を追加し、Fewmail にサインインします。',
+        claude:
+          'Settings → Connectors でこの URL のカスタムコネクタを追加し、Fewmail にサインインします。',
+        code: 'ターミナルで一度これを実行し、Claude Code に求められたら Fewmail にサインインします。',
+        cursor:
+          'これを mcp.json に追加し、Cursor に求められたら Fewmail にサインインします。',
+      },
+      title: 'Claude、ChatGPT、いつものツールの中に Fewmail を。',
+    },
+    comparePage: {
+      lead: 'メールクライアントは、すべてのメールを速く読めるようにします。フィルターは、メールをフォルダに振り分けます。Fewmail はエージェントです。メールを読み、後回しにできるものを判断し、それ以外だけをあなたに尋ねます。',
+      title: 'Fewmail を比べる。',
+    },
+    comparison: {
+      custom: '個別見積もり',
+      features: '機能ごとの比較',
+      groups: {
+        agent: '読むことと返信',
+        day: 'あなたの 1 日',
+        reach: '使える場所',
+        safety: '保護',
+      },
+      labels: {
+        ask: 'メールに何でも質問',
+        brief: '毎日のブリーフ',
+        calendar: 'カレンダー',
+        drafts: '返信の下書き',
+        followUps: 'フォローアップのリマインダー',
+        gmail: 'Gmail と Google Workspace',
+        handOver: 'スレッドを任せる',
+        importance: '重要度順に並べる',
+        keepApp: 'いつものメールアプリのまま',
+        mcp: '自分のツール向けの MCP',
+        memory: '約束や人を覚えている',
+        otherProviders: 'iCloud、Yahoo などの IMAP メール',
+        outlook: 'Outlook と Microsoft 365',
+        phishing: 'フィッシングと支払い先変更の警告',
+        phone: 'スマートフォンで',
+        rules: '普段の言葉で書くルール',
+        snooze: 'スヌーズ',
+        spamShield: 'コミュニティ迷惑メールシールド',
+        summaries: 'メールの要約',
+        teams: 'チームの受信トレイ',
+        unsubscribe: 'ワンクリックで配信停止',
+      },
+      more: 'ほかの比較',
+      no: 'なし',
+      noFreePlan: '無料プランなし',
+      ours: {
+        ask: 'Pro で',
+        brief: 'あなたの言語で、Pro で',
+        drafts: 'あなたの口調で。送信は承認したときだけ、Pro で',
+        followUps: '返信を待っているメールに自動で',
+        handOver: 'エージェントが目的まで進める、Pro で',
+        importance: 'すべてのメールを採点、無料',
+        keepApp: 'すべて Gmail に反映',
+        mcp: 'Pro で',
+        memory: 'Pro で',
+        phone: 'Telegram と WhatsApp、音声も、Pro で',
+        rules: 'アーカイブ、既読、配信停止、無料',
+        summaries: 'Pro で',
+        unsubscribe: '無視する送信者は迷惑メールへ',
+      },
+      plans: 'プランと料金',
+      read: '比較を読む',
+      source: (name: string, date: string) =>
+        `${name} の情報は公式サイトの公開情報に基づき、${date} に確認したものです。料金や機能は変わることがあるため、最新の内容は ${name} のサイトでご確認ください。`,
+      title: (name: string) => `Fewmail vs ${name}`,
+      tryFree: 'Fewmail を無料で試す',
+      which: 'あなたに合うのはどちら？',
+      yes: 'あり',
+    },
+    comparisons: {
+      sanebox: {
+        plans: {
+          dinner: 'メールボックス 4 つとすべての機能、AI Bundle 付き',
+          lunch: 'メールボックス 2 つ、スヌーズとリマインダー',
+          snack: 'メールボックス 1 つと基本のフィルター',
+        },
+        summary:
+          'SaneBox はメールをフォルダに仕分け、最上位プランでは下書きと要約もします。Fewmail は先にすべてを読み、ひとつのブリーフと、あなたにしかできない少しの判断だけを渡します。',
+        them: {
+          brief: 'フィルターされたメールの毎日のダイジェスト',
+          drafts: 'SaneDrafts、Dinner で',
+          followUps: 'SaneNoReplies',
+          importance: '重要でないメールを SaneLater へ移動',
+          keepApp: 'フォルダを通して動作',
+          otherProviders: 'あらゆる IMAP または Exchange サーバー',
+          phone: 'メールアプリを通して',
+          rules: 'フォルダ間でメールを動かして学習',
+          snooze: 'Lunch から',
+          summaries: 'SaneSummary、Dinner で',
+          unsubscribe: 'SaneBlackHole フォルダ',
+        },
+        verdict:
+          'メールが Gmail 以外にあり、フォルダ分けで十分なら SaneBox。Gmail を使っていて、大切なメールを読んで、要約して、返信まで任せたいなら Fewmail。',
+      },
+      shortwave: {
+        plans: {
+          business: 'ユーザー単位',
+          free: 'ほとんどの機能とアシスタント',
+          max: 'ユーザー単位、最も高性能なモデル',
+          premier: 'ユーザー単位、より高性能なモデル',
+          pro: '全履歴、AI 検索と文章作成',
+        },
+        summary:
+          'Shortwave は、話しかけて使う AI アシスタント付きのメールクライアントです。Fewmail は先にメールを読み、自分で判断できないことだけをあなたに尋ねるエージェントです。',
+        them: {
+          ask: 'AI アシスタントと検索',
+          drafts: '頼んだときに',
+          importance: '分割とバンドル',
+          keepApp: 'メールアプリを置き換える',
+          memory: 'AI メモリー',
+          otherProviders: 'Gmail に転送して',
+          outlook: 'Microsoft 365 は非対応',
+          phone: 'iOS と Android アプリ',
+          rules: 'AI フィルター、プランにより 3〜50 個',
+          summaries: 'すべてのメールの上部に',
+          teams: '共有スレッドとコメント',
+          unsubscribe: 'ワンクリックのブロック付き',
+        },
+        verdict:
+          'チャットアシスタント付きの新しい受信トレイが欲しいなら Shortwave。いつもの Gmail のまま、目を通すメールを減らしたいなら Fewmail。',
+      },
+      superhuman: {
+        plans: {
+          business: '1 メンバーあたり $33、年払い。Auto Drafts と Ask AI 付き',
+          enterprise: 'SSO と管理機能',
+          starter: '1 メンバーあたり $25、年払い',
+        },
+        summary:
+          'Superhuman は、すべてのメールを速く処理できるようにします。Fewmail はあなたの代わりに処理し、あなたが必要なものだけを見せます。',
+        them: {
+          ask: 'Ask AI、Business で',
+          drafts: 'Auto Drafts、Business で',
+          followUps: 'Auto Reminders',
+          importance: 'Split Inbox と Auto Labels',
+          keepApp: 'メールアプリを置き換える',
+          mcp: 'Business で',
+          phone: 'iOS と Android アプリ',
+          rules: 'Custom Auto Labels、Business で',
+          spamShield: 'メールプロバイダーのフィルター',
+          summaries: 'Auto Summarize',
+          teams: '共有下書きとコメント',
+        },
+        verdict:
+          'すべてのメールに自分で、もっと速く目を通したいなら Superhuman。ほとんどのメールを見ずに済ませたいなら Fewmail。',
+      },
+    },
+    control: {
+      gmail: {
+        description:
+          'オプションの Fewmail ラベルを使えば、Gmail 自体でも、スマホでも、ほかのメールアプリでも仕分けが見えます。',
+        title: 'どの Gmail アプリでも使える',
+      },
+      handled: {
+        description:
+          'エージェントが自動で行ったことはすべて「対応済み」に一覧で表示され、それぞれに理由が添えられます。',
+        title: 'すべて見える「対応済み」',
+      },
+      keyboard: {
+        description:
+          'すべての操作にキーがひとつ。⌘K からは何でも呼び出せます。手がキーボードから離れることはありません。',
+        title: 'キーボードファースト',
+      },
+      mcp: {
+        description:
+          'Claude や任意の MCP クライアントをつなげば、同じエージェントでメールの読み取り、仕分け、下書きができます。',
+        title: 'MCP サーバー',
+      },
+      privacy: {
+        description:
+          '件名、本文、要約、下書きはデータベース内で暗号化されています。送信には必ずあなたの承認が必要です。',
+        title: 'プライバシーを前提に設計',
+      },
+      rules: {
+        description:
+          '「開かないニュースレター」や「お店からのレシート」を、アーカイブ、既読、配信停止に。',
+        title: '普段の言葉で書くルール',
+      },
+    },
+    demos: {
+      draft: {
+        expectsReply: '返信を待っています',
+        language: 'Lena に合わせてドイツ語',
+        redraft: '書き直す',
+      },
+      shield: [
+        {
+          detail: 'paypa1-billing.com は paypal.com に似せたドメインです',
+          label: 'なりすましドメイン',
+        },
+        {
+          detail: 'いつもの取引先からの請求書に新しい IBAN',
+          label: '支払い先が変更されました',
+        },
+        {
+          detail: '9 人がこのキャンペーンを迷惑メールとして報告',
+          label: '迷惑メールに移動',
+        },
+      ],
+      telegram: {
+        draftReady: 'Marco への下書きができました：木曜 16:00。送信しますか？',
+        urgent:
+          '金曜までに署名済みの契約書が必要とのことです。返信を下書きしました。',
+        voice: '「Marco に、木曜で大丈夫だけど 4 時にしてって伝えて」',
+      },
+      today: {
+        brief:
+          'Anna は契約書を待っていて、Northwind の請求書は来週が支払期限、Marco は木曜に時間を取りたいそうです。ニュースレターと通知 42 通は対応済みです。',
+        day: '木曜日のブリーフ',
+        queue: [
+          {
+            reason: '契約書の期限は明日',
+            summary:
+              '金曜のキックオフまでに、署名済みの契約書を返送してほしいとのこと。',
+          },
+          {
+            reason: '請求書 · 11月20日までに $1,240',
+            summary: 'ウェブサイトリニューアルの 10 月分の請求書。',
+          },
+          {
+            reason: '会議の提案',
+            summary: '四半期レビューを木曜 15:00 にどうかとの提案。',
+          },
+        ],
+      },
+    },
+    faq: (trialDays: number) => [
+      {
+        answer:
+          'いいえ。Fewmail は Gmail の上で動きます。行ったことはすべて Gmail にも反映され、普段の Gmail アプリもそのまま併用できます。',
+        question: 'Gmail から乗り換える必要はありますか？',
+      },
+      {
+        answer:
+          'あなたの了承なしには決して行いません。返信はあなたが承認するまでキューで待機し、自動でアーカイブ、既読、配信停止ができるのは、あなたが作成したか残したルールだけです。行ったことはすべて「対応済み」に表示されます。',
+        question: '勝手にメールを送ったり削除したりしませんか？',
+      },
+      {
+        answer:
+          '件名、本文、要約、下書きはデータベース内で暗号化されています。あなたのメールがモデルの学習に使われることはありません。迷惑メールシールドがユーザー間で共有するのは鍵付きハッシュだけで、アドレスや内容は共有しません。',
+        question: '私のメールはどう扱われますか？',
+      },
+      {
+        answer: `新しいアカウントはすべて、Pro を ${trialDays} 日間カードなしで使えます。終了後はそのまま Free に移るだけで、何も削除されず、請求もありません。`,
+        question: 'トライアル終了後はどうなりますか？',
+      },
+      {
+        answer:
+          '下書きは、返信するメールと同じ言語で書かれます。アプリ、ブリーフ、Telegram ボットは、15 言語から選んだひとつの言語で話します。',
+        question: '対応している言語は？',
+      },
+      {
+        answer:
+          '現在は Gmail と Google Workspace のアカウントに対応しています。ひとつの Fewmail に複数のメールボックスを追加すれば、すべてのメールが同じブリーフと受信トレイに届きます。',
+        question: 'どのメールアカウントで使えますか？',
+      },
+    ],
+    footer: {
+      legal: '法的情報',
+      product: 'プロダクト',
+      tagline:
+        'Gmail を読んで、あなたが必要なものだけを見せるメールエージェント。',
+      versus: (name: string) => `vs ${name}`,
+    },
+    hero: {
+      lead: 'Fewmail は Gmail のためのメールエージェントです。すべてのメールをあなたの代わりに読み、あなたの口調で返信を下書きし、本当に対応が必要なものだけを短いリストにして渡します。',
+      start: 'Google で無料で始める',
+    },
+    memory: {
+      ask: {
+        description:
+          '⌘K で質問すると、あなた自身のメールから答えが返ってきます。根拠になったメールも一緒に。',
+        title: 'メールに聞く',
+      },
+      boards: {
+        description:
+          '追跡したいもの（お金、旅行、注文）を書くだけで、エージェントが直近 6 か月分のメールから集め、グラフにまとめます。',
+        title: 'ボード',
+      },
+      followUps: {
+        description:
+          '返信を待っているメールにはフォローアップが付くので、スレッドが知らないうちに途切れることはありません。',
+        title: 'フォローアップ',
+      },
+      handle: {
+        description:
+          '「これを任せる」と言えば、エージェントが目的に向けてスレッドを進めます。送信のたびに確認することも、自分で送らせることもできます。',
+        title: 'これを任せる',
+      },
+      people: {
+        description:
+          'やり取りする相手ごとの短いメモを毎週更新し、メールのすぐ横に表示します。',
+        title: '人物メモ',
+      },
+      promises: {
+        description:
+          '送信したメールでした約束は、期限が来るとあなたのもとに戻ってきます。誰かに催促される前に。',
+        title: '約束を守る',
+      },
+    },
+    nav: {
+      compare: '比較',
+      features: '機能',
+      pricing: '料金',
+      signIn: 'ログイン',
+    },
+    plans: {
+      everythingIn: (plan: string) => `${plan} のすべてに加えて`,
+      forever: 'ずっと',
+      free: {
+        description: '仕分け、ルール、保護。ずっと無料。',
+        features: [
+          'すべてのメールを仕分けし、重要度を判定',
+          'アーカイブ、既読、配信停止をこなす、普段の言葉で書くルール',
+          'コミュニティ迷惑メールシールドとフィッシング警告',
+          '配信停止後も送ってくるゾンビ送信者を検出',
+          '返信を待っているメールに自動でフォローアップ',
+          'スヌーズ、スニペット、Gmail の Fewmail ラベル',
+        ],
+      },
+      max: {
+        description: '同じエージェントを、忙しい受信トレイのために。',
+        emails: (emails: string) => `毎月 ${emails} 通のメールを読む`,
+        messages: (messages: number) =>
+          `エージェントへのメッセージ 毎月 ${messages} 件`,
+        unlimited: 'ボードと任せたスレッドは無制限',
+      },
+      monthly: '月払い',
+      per: { month: '/ 月', year: '/ 年' },
+      pro: {
+        description: 'エージェントのすべて：読み、書き、覚える。',
+        features: [
+          '今日：毎日のブリーフと、判断のためのキューがひとつ',
+          'あなたの口調で返信を下書きし、承認したときだけ送信',
+          'Telegram：ブリーフ、承認、音声での指示',
+          '「これを任せる」：エージェントがスレッドを目的まで進める',
+          '約束と相手のことを記憶。お金など追跡したいものはグラフ付きのボードに',
+          'メールに何でも質問。自分のツール向けの MCP も',
+        ],
+        limits: (emails: string, messages: number) =>
+          `毎月 ${emails} 通のメール読み取りと、エージェントへの ${messages} 件のメッセージ。ノイズはカウントされません`,
+      },
+      tryFree: (days: number) => `${days} 日間無料で試す`,
+      yearly: '年払い · 2 か月分無料',
+    },
+    pricingPage: {
+      lead: (trialDays: number) =>
+        `仕分け、普段の言葉で書くルール、保護機能はずっと無料。Pro は、あなたの代わりに読み、書き、覚えるエージェントです。Max は同じエージェントに、忙しい受信トレイのための余裕を加えたもの。どのアカウントも Pro の ${trialDays} 日間から始まり、終わったらそのまま Free に移るだけです。`,
+      otherTool: 'ほかのツールも検討中ですか？',
+      title: '払うのはエージェントに。受信トレイにではなく。',
+    },
+    promises: [
+      '承認なしには何も送信しません',
+      'メールは保存時に暗号化',
+      'モデルの学習には一切使いません',
+    ],
+    startFree: '無料で始める',
+    trialNote: (days: number) =>
+      `Pro を ${days} 日間、カード不要で。その後も好きなだけ無料で使えます。`,
+  },
   skills: {
     bills: '支払い期限の近い請求',
+    cancel: '有料サブスクを解約する',
     cleanup: '整理したいニュースレター',
     followups: 'まだ返信がない相手',
+    reading: '今日のメルマガをひとつのダイジェストに',
     today: '今日対応が必要なこと',
     waiting: '返信を待っている人',
     week: '今週のメールのまとめ',
@@ -656,6 +1106,7 @@ export const ja: Messages = {
     receipts: '領収書、注文確認、発送通知',
   },
   telegram: {
+    listen: '🔊 聞く',
     heard: (text: string) => `聞き取った内容：「${text}」`,
     voiceFailed:
       'うまく聞き取れませんでした。もう一度話すか、入力してください。',
@@ -702,6 +1153,8 @@ export const ja: Messages = {
     done: '完了',
     firstRead:
       '直近3日分のメールを読んでいます。対応が必要なものはここに自動で表示されます。',
+    approvedMany: (n: number) => `${n}件を承認しました`,
+    listen: 'ブリーフを聞く',
     handled: {
       spam: (n: number) => `${n} 件迷惑メール`,
       archived: (n: number) => `${n} 件アーカイブ`,
@@ -722,6 +1175,10 @@ export const ja: Messages = {
       people: (n: number) => `人から${n}通`,
       total: (n: number, period: string) => `${period}で${n}通`,
     },
+    saved: (minutes: number) =>
+      `今週 Fewmail が節約した時間: 約${formatMinutes('ja', minutes)}`,
+    savedHow: (handled: number, replies: number) =>
+      `自動で処理: ${handled} · 下書きから送信した返信: ${replies}`,
     recent: (period: string) => `${period}のその他`,
     sent: '送信済み',
     worthAttention: '目を通す価値あり',
@@ -787,6 +1244,11 @@ export const ja: Messages = {
         description: 'オンライン注文と配送：何をどこで買い、今どこにあるか。',
         name: '注文',
       },
+      subscriptions: {
+        description:
+          '定期的に支払っているサービス：それぞれの料金、頻度、次の更新日。',
+        name: '有料サブスク',
+      },
       trips: {
         description:
           'フライト、列車、ホテル、レンタル：どこへ、いつ、いくらかかるか。',
@@ -803,6 +1265,59 @@ export const ja: Messages = {
     emails: (total: number) => `${total}件のメール`,
     reason: (total: number) => `今月${total}件、一度も開封なし`,
     title: (total: number) => `開いていないニュースレター${total}件を配信停止`,
+  },
+  clearOut: {
+    groups: {
+      lists: '一度も開いていないメルマガ',
+      notifications: '既読の通知（1か月より前）',
+      old: '1年より前のすべて',
+      promotions: '広告とソーシャル（3日より前）',
+    },
+    done: (emails: string) => `${emails}を片付けました`,
+    empty: '片付けるものはありません。受信トレイは整っています。',
+    lead: (emails: string) => `受信トレイに${emails}。片付けられるのはこちら。`,
+    leadCapped: (emails: string) =>
+      `受信トレイに${emails}以上。片付けられるのはこちら。`,
+    left: (emails: string) => `受信トレイに残るのは${emails}`,
+    listsFrom: (names: string, more: number) =>
+      more ? `${names} ほか${more}件` : names,
+    run: (emails: string) => `${emails}を片付ける`,
+    safe: '何も削除されません。片付けたメールは Fewmail/Cleared ラベル付きでアーカイブされ、ワンクリックで戻せます。メルマガは配信停止もします。',
+    scanning: '受信トレイ全体をヘッダーだけ読み込んでいます。最大1分。',
+    title: '受信トレイを片付ける',
+    undo: 'すべて戻す',
+    undone: (emails: string) => `${emails}を受信トレイに戻しました`,
+  },
+  wrapped: {
+    busiest: (day: string, hour: string) =>
+      `いちばん多いのは${day}の${hour}ごろ`,
+    copied: 'リンクをコピーしました',
+    copyLink: 'リンクをコピー',
+    cta: 'Fewmail で自分のものを',
+    emails: '通のメールが届いた',
+    empty: 'まだ振り返るほどメールがありません。数日後にまた見てください。',
+    handled: 'Fewmail が自動で処理',
+    people: 'よく届いた相手',
+    period: { month: '今月', year: '今年' },
+    replies: 'Fewmail が下書きして送信した返信',
+    saveImage: '画像を保存',
+    saved: 'Fewmail が節約した時間',
+    shareNote:
+      'リンクと画像にはこの数字だけが表示され、名前やアドレスは含まれません。',
+    shared: { month: 'メールで振り返る1か月', year: 'メールで振り返る1年' },
+    spam: '止めたスパム',
+    split: (people: string, lists: string) =>
+      `人から ${people} · メルマガから ${lists}`,
+    title: { month: 'メールで振り返る今月', year: 'メールで振り返る今年' },
+    unsubscribed: 'やめたメルマガ',
+  },
+  forward: {
+    done: '転送されたメール',
+  },
+  reading: {
+    empty: '直近1日にメルマガはありません。',
+    lead: '直近1日のメルマガを1か所に。受信トレイを埋めません。',
+    title: 'リーディング',
   },
   commitments: {
     title: 'あなたの約束',

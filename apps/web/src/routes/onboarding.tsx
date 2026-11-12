@@ -9,6 +9,7 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { LanguageSelect } from '~/components/agent-fields'
+import { clearOutStore } from '~/components/clear-out-dialog'
 import { Logo } from '~/components/logo'
 import { localeStore, useLocale, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
@@ -86,7 +87,10 @@ const OnboardingPage = () => {
 
   const save = useMutation(
     orpc.settings.save.mutationOptions({
-      onSuccess: () => navigate({ to: '/today' }),
+      onSuccess: () => {
+        clearOutStore.set(true)
+        void navigate({ to: '/today' })
+      },
     })
   )
   const submit = () =>

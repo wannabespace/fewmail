@@ -9,7 +9,7 @@ import { and, desc, eq } from 'drizzle-orm'
 import { INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
 import { localClock } from '../lib/clock'
 import { announceChange } from '../lib/live'
-import { boardsDigest } from './boards'
+import { boardBanners, boardsDigest } from './boards'
 import {
   handledSince,
   listHandled,
@@ -18,6 +18,7 @@ import {
   mailPulse,
   mailWithDates,
   recentImportant,
+  timeSaved,
 } from './mail'
 import { listMailboxes } from './mailboxes'
 import { awaitingReplies } from './reminders'
@@ -26,6 +27,7 @@ import { getSettings } from './settings'
 const CATCH_UP_MIN_HOURS = 24
 const CATCH_UP_MAX_DAYS = 7
 const RECENT_SHOWN_PER_DAY = 8
+const SAVED_WINDOW_DAYS = 7
 
 type Settings = typeof userSettings.$inferSelect
 
@@ -69,10 +71,11 @@ export const generateBrief = async (userId: string) => {
   }
 
   const { days, since } = catchUp(settings)
-  const [queue, important, handled] = await Promise.all([
+  const [queue, important, handled, saved] = await Promise.all([
     listQueue(userId),
     recentImportant(userId, since),
     handledSince(userId, since),
+    timeSaved(userId, subDays(new Date(), SAVED_WINDOW_DAYS)),
   ])
 
   const { output } = await generateText({
@@ -112,6 +115,7 @@ export const generateBrief = async (userId: string) => {
     filed: handled.markedRead,
     handled: handled.total,
     needYou: queue.length,
+    savedMinutes: saved.minutes,
     unsubscribed: handled.unsubscribed,
   }
   const { date } = localClock(settings.timezone)
@@ -143,6 +147,8 @@ export const getToday = async (userId: string) => {
     dates,
     awaiting,
     boards,
+    saved,
+    banners,
   ] = await Promise.all([
     getLatestBrief(userId),
     listQueueWithLater(userId),
@@ -153,10 +159,13 @@ export const getToday = async (userId: string) => {
     mailWithDates(userId),
     awaitingReplies(userId),
     boardsDigest(userId),
+    timeSaved(userId, subDays(new Date(), SAVED_WINDOW_DAYS)),
+    boardBanners(userId),
   ])
   const queued = new Set([...queue, ...held].map(({ message }) => message?.id))
   return {
     awaiting,
+    banners,
     boards,
     brief,
     dates,
@@ -169,6 +178,7 @@ export const getToday = async (userId: string) => {
     recent: important
       .filter(({ message }) => !queued.has(message.id))
       .slice(0, RECENT_SHOWN_PER_DAY * days),
+    saved,
   }
 }
 

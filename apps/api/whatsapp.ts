@@ -6,6 +6,7 @@ import { Result } from 'better-result'
 import { addHours, isBefore } from 'date-fns'
 
 import { env } from './env'
+import { canSpeak, speak } from './lib/elevenlabs'
 import { logError } from './lib/log'
 import {
   linkWhatsappPhone,
@@ -13,7 +14,13 @@ import {
   whatsappForUser,
 } from './services/integrations'
 import type { listQueue } from './services/mail'
-import type { Button, Channel, Chat, Reply } from './services/messenger'
+import type {
+  BriefMessage,
+  Button,
+  Channel,
+  Chat,
+  Reply,
+} from './services/messenger'
 import {
   briefReply,
   failureText,
@@ -133,7 +140,39 @@ const ask = async (to: string, text: string, buttons: Button[]) => {
   })
 }
 
-const send = async (to: string, { actionId, buttons, text }: Reply) => {
+/** Media upload is multipart, so it skips `graph`'s JSON header. A failed voice never takes the text answer with it. */
+const sendVoice = async (to: string, voice: string) => {
+  const sent = await Result.tryPromise(async () => {
+    const audio = await speak(voice, 'messenger')
+    const form = new FormData()
+    form.append('messaging_product', 'whatsapp')
+    form.append('type', 'audio/ogg')
+    form.append('file', new Blob([audio], { type: 'audio/ogg' }), 'voice.ogg')
+    const uploaded = await fetch(`${GRAPH}/${config?.phoneNumberId}/media`, {
+      body: form,
+      headers: { Authorization: `Bearer ${config?.token}` },
+      method: 'POST',
+    })
+    if (!uploaded.ok) {
+      throw new Error(
+        `WhatsApp media ${uploaded.status}: ${await uploaded.text()}`
+      )
+    }
+    const { id } = (await uploaded.json()) as { id: string }
+    await post(to, { audio: { id }, type: 'audio' })
+  })
+  if (sent.isErr()) {
+    logError('whatsapp voice', sent.error.cause)
+  }
+}
+
+const send = async (to: string, { actionId, buttons, text, voice }: Reply) => {
+  if (voice) {
+    await sendVoice(to, voice)
+  }
+  if (!text) {
+    return
+  }
   const sent = buttons?.length
     ? await ask(to, text, buttons)
     : await say(to, text)
@@ -192,7 +231,8 @@ const handle = async (inbound: Inbound) => {
         return
       }
       await say(to, t.telegram.heard(heard))
-      await send(to, await follow(chatOf(to), userId, heard, context?.id))
+      const reply = await follow(chatOf(to), userId, heard, context?.id)
+      await send(to, { ...reply, voice: canSpeak ? reply.text : undefined })
     } else if (text) {
       await send(to, await follow(chatOf(to), userId, text, context?.id))
     }
@@ -302,10 +342,7 @@ const push = async (
   })
 }
 
-export const sendWhatsappBrief = (
-  userId: string,
-  brief: { body: string; headline: string }
-) =>
+export const sendWhatsappBrief = (userId: string, brief: BriefMessage) =>
   push(userId, brief.headline, 'brief', (chat, t) => briefReply(chat, t, brief))
 
 /** The template's button brings back this run's answer, not the daily brief. */

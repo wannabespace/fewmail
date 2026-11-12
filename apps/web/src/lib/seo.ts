@@ -1,3 +1,5 @@
+import { messages } from '@fewmail/shared/i18n'
+
 import { LEGAL_UPDATED_AT } from '../legal/updated-at'
 import { COMPARISONS, TRIAL_DAYS } from './marketing'
 
@@ -26,15 +28,23 @@ export const PUBLIC_PAGES: Record<
     title: `Compare · ${SITE_NAME}`,
   },
   ...Object.fromEntries(
-    COMPARISONS.map(({ name, slug, summary }) => [
+    COMPARISONS.map(({ name, slug }) => [
       `/compare/${slug}`,
-      { description: summary, title: `${SITE_NAME} vs ${name}` },
+      {
+        description: messages.en.site.comparisons[slug].summary,
+        title: messages.en.site.comparison.title(name),
+      },
     ])
   ),
   '/login': {
     description:
       'Fewmail reads your Gmail for you, answers in your voice and only shows you what actually needs you.',
     title: `${SITE_NAME}: only what matters in your inbox`,
+  },
+  '/mcp': {
+    description:
+      'Connect Fewmail to Claude, ChatGPT, Claude Code or Cursor as an MCP server: read and triage your Gmail from the AI you already use.',
+    title: `MCP · ${SITE_NAME}`,
   },
   '/pricing': {
     description: `Fewmail is free forever for sorting, rules and spam protection. Pro, the whole agent, starts with ${TRIAL_DAYS} free days and no card.`,

@@ -157,6 +157,8 @@ export const SKILLS = [
   'bills',
   'week',
   'cleanup',
+  'reading',
+  'cancel',
 ] as const
 export type Skill = (typeof SKILLS)[number]
 
@@ -184,6 +186,7 @@ export interface OpenThread {
 export const AGENT_TOOLS = {
   approve_action: 'consent',
   archive_thread: 'consent',
+  clear_out: 'consent',
   create_board: 'write',
   create_draft: 'write',
   create_event: 'consent',
@@ -195,7 +198,9 @@ export const AGENT_TOOLS = {
   draft_reply: 'write',
   get_board: 'read',
   get_person: 'read',
+  get_reading: 'read',
   get_today: 'read',
+  get_wrapped: 'read',
   handle_thread: 'consent',
   list_boards: 'read',
   list_events: 'read',
@@ -206,6 +211,7 @@ export const AGENT_TOOLS = {
   list_subscriptions: 'read',
   mark_not_spam: 'consent',
   move_to_inbox: 'consent',
+  preview_clear_out: 'read',
   read_thread: 'read',
   redraft_action: 'write',
   refresh: 'write',
@@ -213,6 +219,7 @@ export const AGENT_TOOLS = {
   send_email: 'consent',
   snooze_thread: 'consent',
   trash_thread: 'consent',
+  undo_clear_out: 'consent',
   unsubscribe: 'consent',
   update_event: 'consent',
 } as const satisfies Record<string, 'read' | 'write' | 'consent'>
@@ -223,8 +230,52 @@ export type ConsentToolName = {
     : never
 }[AgentToolName]
 
+/** Clear-out groups in the order the dialog lists them; `old` is the one left off by default. */
+export const CLEAR_OUT_GROUPS = [
+  'promotions',
+  'notifications',
+  'lists',
+  'old',
+] as const
+export type ClearOutGroup = (typeof CLEAR_OUT_GROUPS)[number]
+
+export const WRAPPED_PERIODS = ['year', 'month'] as const
+export type WrappedPeriod = (typeof WRAPPED_PERIODS)[number]
+
+/** What a shared Wrapped link carries: counts only, never a name, address or subject. */
+export interface WrappedStats {
+  /** ISO weekday 1–7 and hour 0–23 in the user's time zone; null with no mail yet. */
+  busiestHour: number | null
+  busiestWeekday: number | null
+  emails: number
+  fromLists: number
+  fromPeople: number
+  handled: number
+  replies: number
+  savedMinutes: number
+  spam: number
+  unsubscribed: number
+}
+
+export const FORWARD_TAG = 'fewmail'
+
+/** `anna@gmail.com` → `anna+fewmail@gmail.com`: Gmail delivers it to the same inbox, so no other mail service is needed. */
+export const isForwardToAgent = (to: string[]) =>
+  to.some((address) => address.includes(`+${FORWARD_TAG}@`))
+
+export const forwardAddress = (email: string) => {
+  const [local, domain] = email.toLowerCase().split('@')
+  return `${local}+${FORWARD_TAG}@${domain}`
+}
+
 /** Ready-made boards offered at onboarding; names and descriptions come from `boards.starter`. */
-export const BOARD_PRESETS = ['money', 'trips', 'orders', 'events'] as const
+export const BOARD_PRESETS = [
+  'money',
+  'subscriptions',
+  'trips',
+  'orders',
+  'events',
+] as const
 export type BoardPreset = (typeof BOARD_PRESETS)[number]
 
 export const IMPORTANCE = {
@@ -245,6 +296,9 @@ export type OutboxStatus =
 
 /** Seconds a sent email waits in the outbox so Undo can still stop it. */
 export const UNDO_SEND_SECONDS = 10
+
+/** What "time saved" counts: a glance and a click per email the agent handled, writing one reply per draft that went out. */
+export const SECONDS_SAVED = { handled: 15, reply: 180 } as const
 
 export type ReminderKind = 'snooze' | 'followup'
 export type ReminderStatus = 'pending' | 'done' | 'canceled'

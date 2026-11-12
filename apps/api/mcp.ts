@@ -18,24 +18,46 @@ const json = (value: unknown) => ({
   content: [{ text: JSON.stringify(value, null, 2), type: 'text' as const }],
 })
 
+/** Directories (Claude, ChatGPT) list a tool only with both hints set. */
 const ANNOTATIONS = {
-  consent: { destructiveHint: true },
-  read: { readOnlyHint: true },
-  write: undefined,
+  consent: { destructiveHint: true, readOnlyHint: false },
+  read: { destructiveHint: false, readOnlyHint: true },
+  write: { destructiveHint: false, readOnlyHint: false },
 }
 
-const createServer = (userId: string) => {
-  const server = new McpServer({ name: 'fewmail', version: '0.1.0' })
+/** Free reads mail without the LLM; `get_person` writes a note with it, so it stays with the agent. */
+const LLM_READS = new Set(['get_person'])
+
+const titleOf = (name: string) => {
+  const words = name.replaceAll('_', ' ')
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)}`
+}
+
+const createServer = (userId: string, withAgent: boolean) => {
+  const server = new McpServer({
+    name: 'fewmail',
+    title: 'Fewmail',
+    version: '0.1.0',
+    websiteUrl: 'https://fewmail.app',
+  })
   for (const [name, tool] of Object.entries(agentTools(userId))) {
+    const access = toolAccess(name)
+    if (!withAgent && (access !== 'read' || LLM_READS.has(name))) {
+      continue
+    }
     server.registerTool(
       name,
       {
-        annotations: ANNOTATIONS[toolAccess(name)],
+        annotations: ANNOTATIONS[access],
         description: tool.description,
         inputSchema: tool.input,
+        title: titleOf(name),
       },
       async (input: unknown) => json(await tool.run(input as never))
     )
+  }
+  if (!withAgent) {
+    return server
   }
   for (const skill of SKILLS) {
     server.registerPrompt(
@@ -99,17 +121,12 @@ export const handleMcp = async (request: Request) => {
       { headers: userId?.headers, status: userId?.statusCode ?? 401 }
     )
   }
-  if (!hasAgent(await getPlanInfo(userId))) {
-    return Response.json(
-      { error: 'MCP is part of Fewmail Pro. Upgrade in Settings → Plan.' },
-      { status: 403 }
-    )
-  }
-
   const transport = new WebStandardStreamableHTTPServerTransport({
     enableJsonResponse: true,
     sessionIdGenerator: undefined,
   })
-  await createServer(userId).connect(transport)
+  await createServer(userId, hasAgent(await getPlanInfo(userId))).connect(
+    transport
+  )
   return transport.handleRequest(request)
 }

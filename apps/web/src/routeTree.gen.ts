@@ -19,12 +19,16 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppAgentRouteImport } from './routes/_app/agent'
 import { Route as AppCalendarRouteImport } from './routes/_app/calendar'
 import { Route as AppMailRouteImport } from './routes/_app/mail'
+import { Route as AppReadingRouteImport } from './routes/_app/reading'
 import { Route as AppRulesRouteImport } from './routes/_app/rules'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppSubscriptionsRouteImport } from './routes/_app/subscriptions'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
+import { Route as AppWrappedRouteImport } from './routes/_app/wrapped'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SiteMcpRouteImport } from './routes/_site/mcp'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
+import { Route as WTokenRouteImport } from './routes/w.$token'
 import { Route as AppBoardsBoardIdRouteImport } from './routes/_app/boards.$boardId'
 import { Route as SiteCompareIndexRouteImport } from './routes/_site/compare.index'
 import { Route as SiteCompareSlugRouteImport } from './routes/_site/compare.$slug'
@@ -77,6 +81,11 @@ const AppMailRoute = AppMailRouteImport.update({
   path: '/mail',
   getParentRoute: () => AppRoute,
 } as any)
+const AppReadingRoute = AppReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRulesRoute = AppRulesRouteImport.update({
   id: '/rules',
   path: '/rules',
@@ -97,15 +106,30 @@ const AppTodayRoute = AppTodayRouteImport.update({
   path: '/today',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWrappedRoute = AppWrappedRouteImport.update({
+  id: '/wrapped',
+  path: '/wrapped',
+  getParentRoute: () => AppRoute,
+} as any)
 const SiteIndexRoute = SiteIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteMcpRoute = SiteMcpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => SiteRoute,
 } as any)
 const SitePricingRoute = SitePricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
   getParentRoute: () => SiteRoute,
+} as any)
+const WTokenRoute = WTokenRouteImport.update({
+  id: '/w/$token',
+  path: '/w/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppBoardsBoardIdRoute = AppBoardsBoardIdRouteImport.update({
   id: '/boards/$boardId',
@@ -133,11 +157,15 @@ export interface FileRoutesByFullPath {
   '/agent': typeof AppAgentRoute
   '/calendar': typeof AppCalendarRoute
   '/mail': typeof AppMailRoute
+  '/reading': typeof AppReadingRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/subscriptions': typeof AppSubscriptionsRoute
   '/today': typeof AppTodayRoute
+  '/wrapped': typeof AppWrappedRoute
+  '/mcp': typeof SiteMcpRoute
   '/pricing': typeof SitePricingRoute
+  '/w/$token': typeof WTokenRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare/': typeof SiteCompareIndexRoute
@@ -152,11 +180,15 @@ export interface FileRoutesByTo {
   '/agent': typeof AppAgentRoute
   '/calendar': typeof AppCalendarRoute
   '/mail': typeof AppMailRoute
+  '/reading': typeof AppReadingRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/subscriptions': typeof AppSubscriptionsRoute
   '/today': typeof AppTodayRoute
+  '/wrapped': typeof AppWrappedRoute
+  '/mcp': typeof SiteMcpRoute
   '/pricing': typeof SitePricingRoute
+  '/w/$token': typeof WTokenRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare': typeof SiteCompareIndexRoute
@@ -173,11 +205,15 @@ export interface FileRoutesById {
   '/_app/agent': typeof AppAgentRoute
   '/_app/calendar': typeof AppCalendarRoute
   '/_app/mail': typeof AppMailRoute
+  '/_app/reading': typeof AppReadingRoute
   '/_app/rules': typeof AppRulesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/subscriptions': typeof AppSubscriptionsRoute
   '/_app/today': typeof AppTodayRoute
+  '/_app/wrapped': typeof AppWrappedRoute
+  '/_site/mcp': typeof SiteMcpRoute
   '/_site/pricing': typeof SitePricingRoute
+  '/w/$token': typeof WTokenRoute
   '/_site/': typeof SiteIndexRoute
   '/_app/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/_site/compare/$slug': typeof SiteCompareSlugRoute
@@ -195,11 +231,15 @@ export interface FileRouteTypes {
     | '/agent'
     | '/calendar'
     | '/mail'
+    | '/reading'
     | '/rules'
     | '/settings'
     | '/subscriptions'
     | '/today'
+    | '/wrapped'
+    | '/mcp'
     | '/pricing'
+    | '/w/$token'
     | '/boards/$boardId'
     | '/compare/$slug'
     | '/compare/'
@@ -214,11 +254,15 @@ export interface FileRouteTypes {
     | '/agent'
     | '/calendar'
     | '/mail'
+    | '/reading'
     | '/rules'
     | '/settings'
     | '/subscriptions'
     | '/today'
+    | '/wrapped'
+    | '/mcp'
     | '/pricing'
+    | '/w/$token'
     | '/boards/$boardId'
     | '/compare/$slug'
     | '/compare'
@@ -234,11 +278,15 @@ export interface FileRouteTypes {
     | '/_app/agent'
     | '/_app/calendar'
     | '/_app/mail'
+    | '/_app/reading'
     | '/_app/rules'
     | '/_app/settings'
     | '/_app/subscriptions'
     | '/_app/today'
+    | '/_app/wrapped'
+    | '/_site/mcp'
     | '/_site/pricing'
+    | '/w/$token'
     | '/_site/'
     | '/_app/boards/$boardId'
     | '/_site/compare/$slug'
@@ -253,6 +301,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  WTokenRoute: typeof WTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -327,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMailRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/reading': {
+      id: '/_app/reading'
+      path: '/reading'
+      fullPath: '/reading'
+      preLoaderRoute: typeof AppReadingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/rules': {
       id: '/_app/rules'
       path: '/rules'
@@ -355,11 +411,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTodayRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/wrapped': {
+      id: '/_app/wrapped'
+      path: '/wrapped'
+      fullPath: '/wrapped'
+      preLoaderRoute: typeof AppWrappedRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_site/': {
       id: '/_site/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof SiteIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/mcp': {
+      id: '/_site/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof SiteMcpRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/pricing': {
@@ -368,6 +438,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/pricing'
       preLoaderRoute: typeof SitePricingRouteImport
       parentRoute: typeof SiteRoute
+    }
+    '/w/$token': {
+      id: '/w/$token'
+      path: '/w/$token'
+      fullPath: '/w/$token'
+      preLoaderRoute: typeof WTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/boards/$boardId': {
       id: '/_app/boards/$boardId'
@@ -397,10 +474,12 @@ interface AppRouteChildren {
   AppAgentRoute: typeof AppAgentRoute
   AppCalendarRoute: typeof AppCalendarRoute
   AppMailRoute: typeof AppMailRoute
+  AppReadingRoute: typeof AppReadingRoute
   AppRulesRoute: typeof AppRulesRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSubscriptionsRoute: typeof AppSubscriptionsRoute
   AppTodayRoute: typeof AppTodayRoute
+  AppWrappedRoute: typeof AppWrappedRoute
   AppBoardsBoardIdRoute: typeof AppBoardsBoardIdRoute
 }
 
@@ -408,16 +487,19 @@ const AppRouteChildren: AppRouteChildren = {
   AppAgentRoute: AppAgentRoute,
   AppCalendarRoute: AppCalendarRoute,
   AppMailRoute: AppMailRoute,
+  AppReadingRoute: AppReadingRoute,
   AppRulesRoute: AppRulesRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSubscriptionsRoute: AppSubscriptionsRoute,
   AppTodayRoute: AppTodayRoute,
+  AppWrappedRoute: AppWrappedRoute,
   AppBoardsBoardIdRoute: AppBoardsBoardIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface SiteRouteChildren {
+  SiteMcpRoute: typeof SiteMcpRoute
   SitePricingRoute: typeof SitePricingRoute
   SiteIndexRoute: typeof SiteIndexRoute
   SiteCompareSlugRoute: typeof SiteCompareSlugRoute
@@ -425,6 +507,7 @@ interface SiteRouteChildren {
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteMcpRoute: SiteMcpRoute,
   SitePricingRoute: SitePricingRoute,
   SiteIndexRoute: SiteIndexRoute,
   SiteCompareSlugRoute: SiteCompareSlugRoute,
@@ -441,6 +524,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  WTokenRoute: WTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

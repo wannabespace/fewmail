@@ -18,3 +18,24 @@ export const transcribe = async (audio: ArrayBuffer, fileName: string) => {
   })
   return text.trim()
 }
+
+const OCR_MODEL = 'mistral-ocr-latest'
+/** Invoices and contracts state what matters on their first pages; more only costs. */
+const OCR_PAGES = [0, 1, 2]
+
+/** A PDF's or an image's text as Markdown; null without a Mistral key. */
+export const readDocument = async (base64: string, mimeType: string) => {
+  if (!mistral) {
+    return null
+  }
+  const url = `data:${mimeType};base64,${base64}`
+  const isPdf = mimeType === 'application/pdf'
+  const { pages } = await mistral.ocr.process({
+    document: isPdf
+      ? { documentUrl: url, type: 'document_url' }
+      : { imageUrl: url, type: 'image_url' },
+    model: OCR_MODEL,
+    pages: isPdf ? OCR_PAGES : undefined,
+  })
+  return pages.map(({ markdown }) => markdown).join('\n\n')
+}

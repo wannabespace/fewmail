@@ -1,6 +1,6 @@
 import type { AgentToolName, ConsentToolName } from '../../agent'
 import type { Rich } from '../locales'
-import { plural } from '../locales'
+import { formatMinutes, plural } from '../locales'
 
 export const en = {
   actionKind: {
@@ -42,6 +42,8 @@ export const en = {
       update_event: 'Change this event?',
       approve_action: 'Approve this action?',
       archive_thread: 'Archive this thread?',
+      clear_out: 'Clear out these groups of inbox mail?',
+      undo_clear_out: 'Bring every cleared email back to the inbox?',
       create_rule: 'Add this rule?',
       handle_thread: 'Hand this thread to the agent?',
       reply: 'Send this reply?',
@@ -81,6 +83,11 @@ export const en = {
       list_subscriptions: 'Reading subscriptions',
       approve_action: 'Approving',
       archive_thread: 'Archiving',
+      get_reading: 'Reading the newsletters',
+      get_wrapped: 'Counting your mail',
+      clear_out: 'Clearing out the inbox',
+      preview_clear_out: 'Reading the whole inbox',
+      undo_clear_out: 'Bringing cleared mail back',
       create_rule: 'Adding a rule',
       dismiss_action: 'Skipping',
       draft_reply: 'Drafting a reply',
@@ -117,6 +124,8 @@ export const en = {
       update_event: 'Save',
       approve_action: 'Approve',
       archive_thread: 'Archive',
+      clear_out: 'Clear out',
+      undo_clear_out: 'Bring back',
       create_rule: 'Add rule',
       handle_thread: 'Hand over',
       reply: 'Send',
@@ -200,6 +209,11 @@ export const en = {
         description:
           'Online orders and deliveries: what I bought, from whom, and where it is.',
         name: 'Orders',
+      },
+      subscriptions: {
+        description:
+          'Services I pay for regularly: what each costs, how often, and when it renews next.',
+        name: 'Paid subscriptions',
       },
       trips: {
         description:
@@ -310,6 +324,58 @@ export const en = {
         other: (n) => `Unsubscribe from ${n} newsletters you never open`,
       }),
   },
+  clearOut: {
+    groups: {
+      lists: 'Mailing lists you never open',
+      notifications: 'Read notifications, older than a month',
+      old: 'Everything older than a year',
+      promotions: 'Ads and social, older than 3 days',
+    },
+    done: (emails: string) => `${emails} cleared out`,
+    empty: 'Nothing to clear: the inbox is already in order.',
+    lead: (emails: string) => `${emails} in the inbox. This is what can go.`,
+    leadCapped: (emails: string) =>
+      `More than ${emails} in the inbox. This is what can go.`,
+    left: (emails: string) => `${emails} stay in the inbox`,
+    listsFrom: (names: string, more: number) =>
+      more ? `${names} and ${more} more` : names,
+    run: (emails: string) => `Clear out ${emails}`,
+    safe: 'Nothing is deleted. Cleared mail is archived under the Fewmail/Cleared label and comes back in one click; lists are also unsubscribed.',
+    scanning: 'Reading the whole inbox, headers only. Up to a minute.',
+    title: 'Clear out the inbox',
+    undo: 'Bring it all back',
+    undone: (emails: string) => `${emails} back in the inbox`,
+  },
+  wrapped: {
+    busiest: (day: string, hour: string) => `Busiest: ${day}, around ${hour}`,
+    copied: 'Link copied',
+    copyLink: 'Copy link',
+    cta: 'Get yours with Fewmail',
+    emails: 'emails came in',
+    empty: 'Not enough mail yet to tell the story. Come back in a few days.',
+    handled: 'handled by Fewmail on its own',
+    people: 'Who wrote most',
+    period: { month: 'This month', year: 'This year' },
+    replies: 'replies drafted by Fewmail and sent',
+    saveImage: 'Save image',
+    saved: 'saved by Fewmail',
+    shareNote:
+      'The link and the image show only these numbers, never names or emails.',
+    shared: { month: 'A month in email', year: 'A year in email' },
+    spam: 'spam emails stopped',
+    split: (people: string, lists: string) =>
+      `${people} from people · ${lists} from mailing lists`,
+    title: { month: 'Your month in email', year: 'Your year in email' },
+    unsubscribed: 'mailing lists left',
+  },
+  forward: {
+    done: 'Your forwarded email',
+  },
+  reading: {
+    empty: 'No newsletters in the last day.',
+    lead: 'The last day of newsletters in one place, so they never crowd the inbox.',
+    title: 'Reading',
+  },
   command: {
     agent: 'Agent',
     appearance: 'Appearance',
@@ -364,6 +430,7 @@ export const en = {
     ask: 'ask about it',
     anything: 'anything',
     approve: 'approve',
+    approveAll: (n: number) => `approve all ${n} like this`,
     archive: 'archive',
     reply: 'reply',
     snooze: 'snooze',
@@ -492,6 +559,7 @@ export const en = {
     boards: 'Boards',
     newBoard: 'New board',
     mail: 'Mail',
+    reading: 'Reading',
     rules: 'Rules',
     search: 'Search or ask…',
     settings: 'Settings',
@@ -649,6 +717,12 @@ export const en = {
     whichEmails: 'Which emails',
   },
   settings: {
+    forward: {
+      copy: 'Copy address',
+      description:
+        'Send or forward any email to this address from your own mailbox, with a note on top saying what to do. The answer comes in Telegram or WhatsApp and in a chat here.',
+      title: 'Forward to the agent',
+    },
     account: 'Account',
     agent: 'Agent',
     briefDescription: (timezone: string) => `In your time zone, ${timezone}`,
@@ -747,10 +821,442 @@ export const en = {
     },
     title: 'Settings',
   },
+  site: {
+    chapters: {
+      compare: {
+        description:
+          'Most tools help you get through your inbox faster. Fewmail gets through it for you.',
+        label: 'Compare',
+        title: 'How Fewmail is different.',
+      },
+      control: {
+        description:
+          'Tell Fewmail in plain words what to do with mail, decide which rules may act on their own, and review everything it did under Handled.',
+        label: 'Control',
+        title: 'You set the rules. It shows its work.',
+      },
+      memory: {
+        description:
+          'Fewmail keeps track of what you promised, who people are, what you pay for and which threads it is still working on for you.',
+        label: 'Memory',
+        title: 'It remembers so you don’t have to.',
+      },
+      pricing: {
+        description:
+          'The sorting, rules and protection are free forever. Pro and Max add everything that reads and writes for you; Max simply does more of it.',
+        label: 'Pricing',
+        title: (usd: number) =>
+          `Free for the sorting. From $${usd} for the agent.`,
+      },
+      protection: {
+        description:
+          'Every plan gets a community spam shield that learns from the people who use Fewmail, without ever sharing an address or a word of your mail. Lookalike domains, known phishing and changed payment details raise a warning before you act.',
+        label: 'Protection',
+        title: 'Scams stop at the door.',
+      },
+      questions: {
+        description:
+          'The short answers. The long ones are in the privacy policy.',
+        label: 'Questions',
+        title: 'Before you connect Gmail.',
+      },
+      replies: {
+        description:
+          'Fewmail learns how you write from the mail you have sent, then drafts answers ahead of time, in the language of the email. Edit, ask for another take, or send it as it is. Nothing leaves without your yes.',
+        label: 'Replies',
+        title: 'Replies in your voice, in their language.',
+      },
+      telegram: {
+        description:
+          'Get the brief and urgent mail in Telegram, approve a reply with one tap, or just send a voice message: “tell Marco Thursday works”. Fewmail finds the thread and drafts it.',
+        label: 'Telegram',
+        title: 'Your inbox, from a chat.',
+      },
+      today: {
+        description:
+          'Every day, at the hour you pick, Fewmail writes a short brief in your language and lines up the few emails that need a decision, most important first. Approve with ⏎, skip with S; the rest is already handled, and you can see exactly what it did.',
+        label: 'Today',
+        title: 'One brief. One queue. That’s your inbox.',
+      },
+    },
+    closing: {
+      lead: 'Connect Gmail in a minute. Fewmail starts with the last three days of mail, so the first decisions are waiting for you right away.',
+      title: 'Get your mornings back.',
+    },
+    mcpPage: {
+      copy: 'Copy URL',
+      lead: 'Connect Fewmail as an MCP server and ask about your mail from the AI you already use. Reading your mail and the agent’s sorting is free; drafting, sending and rules come with Pro.',
+      safety:
+        'Anything that sends an email or changes Gmail asks for your yes first. Your mail is never used to train models, and you can disconnect any app in Settings.',
+      steps: {
+        chatgpt:
+          'In Settings, add a connector (app) with this URL, then sign in to Fewmail.',
+        claude:
+          'In Settings → Connectors, add a custom connector with this URL, then sign in to Fewmail.',
+        code: 'Run this once in a terminal, then sign in to Fewmail when Claude Code asks.',
+        cursor:
+          'Add this to your mcp.json, then sign in to Fewmail when Cursor asks.',
+      },
+      title: 'Fewmail inside Claude, ChatGPT and your tools.',
+    },
+    comparePage: {
+      lead: 'Email clients make you faster at reading every email. Filters move mail into folders. Fewmail is an agent: it reads the mail, decides what can wait and asks you only about the rest.',
+      title: 'Fewmail compared.',
+    },
+    comparison: {
+      custom: 'Custom',
+      features: 'Feature by feature',
+      groups: {
+        agent: 'Reading and replying',
+        day: 'Your day',
+        reach: 'Where it works',
+        safety: 'Protection',
+      },
+      labels: {
+        ask: 'Ask your mail anything',
+        brief: 'Daily brief',
+        calendar: 'Calendar',
+        drafts: 'Replies drafted for you',
+        followUps: 'Follow-up reminders',
+        gmail: 'Gmail and Google Workspace',
+        handOver: 'Hand a thread over',
+        importance: 'Sorted by importance',
+        keepApp: 'Keep your mail app',
+        mcp: 'MCP for your own tools',
+        memory: 'Remembers promises and people',
+        otherProviders: 'iCloud, Yahoo and other IMAP mail',
+        outlook: 'Outlook and Microsoft 365',
+        phishing: 'Phishing and payment-change warnings',
+        phone: 'On your phone',
+        rules: 'Rules in plain words',
+        snooze: 'Snooze',
+        spamShield: 'Community spam shield',
+        summaries: 'Email summaries',
+        teams: 'Team inbox',
+        unsubscribe: 'One-click unsubscribe',
+      },
+      more: 'More comparisons',
+      no: 'No',
+      noFreePlan: 'No free plan',
+      ours: {
+        ask: 'On Pro',
+        brief: 'In your language, on Pro',
+        drafts: 'In your voice, sent only when you approve, on Pro',
+        followUps: 'Automatic, on mail that expects a reply',
+        handOver: 'The agent works it to its goal, on Pro',
+        importance: 'Every email scored, free',
+        keepApp: 'Everything shows up in Gmail',
+        mcp: 'On Pro',
+        memory: 'On Pro',
+        phone: 'Telegram and WhatsApp, with voice, on Pro',
+        rules: 'Archive, mark read or unsubscribe, free',
+        summaries: 'On Pro',
+        unsubscribe: 'Senders who ignore it go to spam',
+      },
+      plans: 'Plans and prices',
+      read: 'Read the comparison',
+      source: (name: string, date: string) =>
+        `${name} details come from its public website, checked in ${date}. Prices and features change; check their site for the current offer.`,
+      title: (name: string) => `Fewmail vs ${name}`,
+      tryFree: 'Try Fewmail free',
+      which: 'Which one is for you?',
+      yes: 'Yes',
+    },
+    comparisons: {
+      sanebox: {
+        plans: {
+          dinner: '4 mailboxes and every feature, AI Bundle included',
+          lunch: '2 mailboxes, snooze and reminders',
+          snack: '1 mailbox and basic filtering',
+        },
+        summary:
+          'SaneBox sorts mail into folders, and on its top plan drafts and summarises too. Fewmail reads everything first and hands you one brief and the few decisions only you can make.',
+        them: {
+          brief: 'A daily digest of filtered mail',
+          drafts: 'SaneDrafts, on Dinner',
+          followUps: 'SaneNoReplies',
+          importance: 'Unimportant mail moved to SaneLater',
+          keepApp: 'Works through folders',
+          otherProviders: 'Any IMAP or Exchange server',
+          phone: 'Through your mail app',
+          rules: 'Trained by moving mail between folders',
+          snooze: 'From Lunch',
+          summaries: 'SaneSummary, on Dinner',
+          unsubscribe: 'SaneBlackHole folder',
+        },
+        verdict:
+          'Pick SaneBox if your mail lives outside Gmail and folders are enough. Pick Fewmail if you use Gmail and want the important mail read, summarised and answered.',
+      },
+      shortwave: {
+        plans: {
+          business: 'Per seat',
+          free: 'Most features and the assistant',
+          max: 'Per seat, the strongest models',
+          premier: 'Per seat, stronger models',
+          pro: 'Full history, AI search and writing',
+        },
+        summary:
+          'Shortwave is an email client with an AI assistant you talk to. Fewmail is an agent that does the reading first and asks you only what it cannot decide.',
+        them: {
+          ask: 'AI assistant and search',
+          drafts: 'When you ask',
+          importance: 'Splits and bundles',
+          keepApp: 'Replaces your mail app',
+          memory: 'AI memory',
+          otherProviders: 'Forwarded into Gmail',
+          outlook: 'Microsoft 365 not supported',
+          phone: 'iOS and Android apps',
+          rules: 'AI filters, 3 to 50 by plan',
+          summaries: 'On top of every email',
+          teams: 'Shared threads and comments',
+          unsubscribe: 'With one-click block',
+        },
+        verdict:
+          'Pick Shortwave if you want a new inbox with a chat assistant. Pick Fewmail if you want fewer emails to look at, in the Gmail you already use.',
+      },
+      superhuman: {
+        plans: {
+          business:
+            'Per member, $33 billed yearly. Adds Auto Drafts and Ask AI',
+          enterprise: 'SSO and admin controls',
+          starter: 'Per member, $25 billed yearly',
+        },
+        summary:
+          'Superhuman makes you faster at going through every email. Fewmail goes through them for you and shows only what needs you.',
+        them: {
+          ask: 'Ask AI, on Business',
+          drafts: 'Auto Drafts, on Business',
+          followUps: 'Auto Reminders',
+          importance: 'Split Inbox and Auto Labels',
+          keepApp: 'Replaces your mail app',
+          mcp: 'On Business',
+          phone: 'iOS and Android apps',
+          rules: 'Custom Auto Labels, on Business',
+          spamShield: "Your provider's filter",
+          summaries: 'Auto Summarize',
+          teams: 'Shared drafts and comments',
+        },
+        verdict:
+          'Pick Superhuman if you want to touch every email yourself, faster. Pick Fewmail if you would rather not see most of them at all.',
+      },
+    },
+    control: {
+      gmail: {
+        description:
+          'Optional Fewmail labels show the sorting in Gmail itself, on your phone and in any other mail app.',
+        title: 'Works with any Gmail app',
+      },
+      handled: {
+        description:
+          'Everything the agent did on its own is listed under Handled, each with the reason it acted.',
+        title: 'Handled, in the open',
+      },
+      keyboard: {
+        description:
+          'Every action has one key and ⌘K reaches everything. Your hands never leave the keyboard.',
+        title: 'Keyboard first',
+      },
+      mcp: {
+        description:
+          'Connect Claude or any MCP client and let it read, triage and draft with the same agent.',
+        title: 'MCP server',
+      },
+      privacy: {
+        description:
+          'Subjects, bodies, summaries and drafts are encrypted in our database. Sending always needs your approval.',
+        title: 'Private by design',
+      },
+      rules: {
+        description:
+          '“Newsletters I never open” or “receipts from shops”: archive, mark read or unsubscribe.',
+        title: 'Rules in plain language',
+      },
+    },
+    demos: {
+      draft: {
+        expectsReply: 'Expects a reply',
+        language: 'German, like Lena',
+        redraft: 'Redraft',
+      },
+      shield: [
+        {
+          detail: 'paypa1-billing.com looks like paypal.com',
+          label: 'Lookalike domain',
+        },
+        {
+          detail: 'New IBAN in an invoice from a known supplier',
+          label: 'Payment details changed',
+        },
+        {
+          detail: '9 people reported this campaign as spam',
+          label: 'Moved to spam',
+        },
+      ],
+      telegram: {
+        draftReady: 'Draft ready for Marco: Thursday at 16:00. Send it?',
+        urgent: 'Needs the signed contract before Friday. I drafted a reply.',
+        voice: '“Tell Marco Thursday works, but at four.”',
+      },
+      today: {
+        brief:
+          'Anna is waiting on the contract, Northwind’s invoice is due next week and Marco wants a slot on Thursday. Forty-two newsletters and notifications were handled.',
+        day: 'Thursday brief',
+        queue: [
+          {
+            reason: 'Contract due tomorrow',
+            summary: 'Needs the signed contract back before Friday’s kickoff.',
+          },
+          {
+            reason: 'Invoice · $1,240 due Nov 20',
+            summary: 'October invoice for the website redesign.',
+          },
+          {
+            reason: 'Meeting proposed',
+            summary: 'Suggests Thursday at 15:00 for the quarterly review.',
+          },
+        ],
+      },
+    },
+    faq: (trialDays: number) => [
+      {
+        answer:
+          'No. Fewmail works on top of Gmail. Everything it does shows up in Gmail too, and you can keep using any Gmail app alongside it.',
+        question: 'Do I have to leave Gmail?',
+      },
+      {
+        answer:
+          'Never without you. Replies wait in your queue until you approve them, and only rules you created or kept can archive, mark read or unsubscribe on their own. Everything it did is listed under Handled.',
+        question: 'Can it send or delete mail on its own?',
+      },
+      {
+        answer:
+          'Subjects, bodies, summaries and drafts are encrypted in our database. Your mail is never used to train models, and the spam shield shares only keyed hashes between users, never addresses or content.',
+        question: 'What happens to my mail?',
+      },
+      {
+        answer: `Every new account gets ${trialDays} days of Pro, no card. When it ends you simply stay on Free; nothing is deleted and nothing is charged.`,
+        question: 'What happens after the trial?',
+      },
+      {
+        answer:
+          'Drafts are written in the language of the email you are answering. The app, the brief and the Telegram bot speak one language you choose, from fifteen.',
+        question: 'Which languages does it speak?',
+      },
+      {
+        answer:
+          'Gmail and Google Workspace accounts today. Add several mailboxes to one Fewmail and their mail lands in the same brief and inbox.',
+        question: 'Which email accounts work?',
+      },
+    ],
+    footer: {
+      legal: 'Legal',
+      product: 'Product',
+      tagline:
+        'The email agent that reads your Gmail and only shows you what needs you.',
+      versus: (name: string) => `vs ${name}`,
+    },
+    hero: {
+      lead: 'Fewmail is an email agent for Gmail. It reads every email for you, drafts the replies in your voice and hands you one short list of what actually needs you.',
+      start: 'Start free with Google',
+    },
+    memory: {
+      ask: {
+        description:
+          'Ask a question in ⌘K and get an answer from your own mail, with the emails it came from.',
+        title: 'Ask your mail',
+      },
+      boards: {
+        description:
+          'Describe what to track (money, trips, orders) and the agent collects it from your mail, with charts, starting with the last six months.',
+        title: 'Boards',
+      },
+      followUps: {
+        description:
+          'Mail that expects an answer gets a follow-up, so a thread never dies quietly.',
+        title: 'Follow-ups',
+      },
+      handle: {
+        description:
+          'Say “handle this” and the agent works the thread toward your goal, asking before each send or sending on its own.',
+        title: 'Handle this',
+      },
+      people: {
+        description:
+          'A short note on everyone you write to, refreshed weekly, right next to their email.',
+        title: 'People',
+      },
+      promises: {
+        description:
+          'Promises you make in sent mail come back to you when they are due, before anyone has to chase you.',
+        title: 'Promises kept',
+      },
+    },
+    nav: {
+      compare: 'Compare',
+      features: 'Features',
+      pricing: 'Pricing',
+      signIn: 'Sign in',
+    },
+    plans: {
+      everythingIn: (plan: string) => `Everything in ${plan}, plus`,
+      forever: 'forever',
+      free: {
+        description: 'The sorting, the rules and the protection. Forever.',
+        features: [
+          'Every email sorted and scored by importance',
+          'Plain-language rules that archive, mark read or unsubscribe',
+          'Community spam shield and phishing warnings',
+          'Zombie senders caught after you unsubscribe',
+          'Automatic follow-ups on mail that expects a reply',
+          'Snooze, snippets and Fewmail labels in Gmail',
+        ],
+      },
+      max: {
+        description: 'The same agent for a busy inbox.',
+        emails: (emails: string) => `${emails} emails read a month`,
+        messages: (messages: number) =>
+          `${messages} messages to the agent a month`,
+        unlimited: 'Boards and handed-over threads without limit',
+      },
+      monthly: 'Monthly',
+      per: { month: 'a month', year: 'a year' },
+      pro: {
+        description: 'The whole agent: it reads, writes and remembers.',
+        features: [
+          'Today: a daily brief and one queue of decisions',
+          'Replies drafted in your voice, sent only when you approve',
+          'Telegram: the brief, approvals and voice instructions',
+          '“Handle this”: the agent works a thread to its goal',
+          'Promises and people remembered, boards with charts for money or anything you track',
+          'Ask your mail anything, plus MCP for your own tools',
+        ],
+        limits: (emails: string, messages: number) =>
+          `${emails} emails read and ${messages} messages to the agent a month; noise never counts`,
+      },
+      tryFree: (days: number) => `Try free for ${days} days`,
+      yearly: 'Yearly · 2 months free',
+    },
+    pricingPage: {
+      lead: (trialDays: number) =>
+        `Sorting, plain-language rules and protection are free forever. Pro is the agent that reads, writes and remembers for you; Max is the same agent with room for a busy inbox. Every account starts with ${trialDays} days of Pro, and when they end you simply stay on Free.`,
+      otherTool: 'Thinking about another tool?',
+      title: 'Pay for the agent, not the inbox.',
+    },
+    promises: [
+      'Nothing is sent without your approval',
+      'Your mail is encrypted at rest',
+      'Never used to train models',
+    ],
+    startFree: 'Start free',
+    trialNote: (days: number) =>
+      `${days} days of Pro, no card. Then free for as long as you like.`,
+  },
   skills: {
     bills: 'Bills and payments due',
+    cancel: 'Cancel a paid subscription',
     cleanup: 'Newsletters to clear out',
     followups: 'Who owes you an answer',
+    reading: 'The day’s newsletters in one digest',
     today: 'What needs you today',
     waiting: 'Who is waiting for your reply',
     week: 'Your week in mail',
@@ -799,6 +1305,7 @@ export const en = {
     started: 'The agent is on it.',
   },
   telegram: {
+    listen: '🔊 Listen',
     commands: { brief: 'Today’s brief', queue: 'What needs you' },
     connectFirst:
       'Open Fewmail → Settings → Integrations and tap “Connect Telegram” first.',
@@ -838,6 +1345,8 @@ export const en = {
     done: 'Done',
     firstRead:
       'Reading the last three days of your mail. What needs you shows up here on its own.',
+    approvedMany: (n: number) => `${n} approved`,
+    listen: 'Listen to the brief',
     handled: {
       archived: (n: number) => `${n} archived`,
       markedRead: (n: number) => `${n} marked read`,
@@ -876,6 +1385,10 @@ export const en = {
           other: (n) => `${n} emails ${period}`,
         }),
     },
+    saved: (minutes: number) =>
+      `Fewmail saved you about ${formatMinutes('en', minutes)} this week`,
+    savedHow: (handled: number, replies: number) =>
+      `Handled on its own: ${handled} · Replies sent from drafts: ${replies}`,
     recent: (period: string) => `Also ${period}`,
     sent: 'Sent',
     worthAttention: 'Worth your attention',

@@ -23,6 +23,7 @@ import { and, desc, eq, gt, inArray, isNotNull, lt } from 'drizzle-orm'
 import { FAST_MODEL_ID, INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
+import { attachmentText } from './attachments'
 import { BULK_THRESHOLD } from './bulk'
 import {
   ACTION_CRITERIA,
@@ -380,6 +381,7 @@ const analyze = async (input: {
     return jevOnly(agent)
   }
 
+  const attached = await attachmentText(input.message)
   const written = await Result.tryPromise(() =>
     generateText({
       instructions: [
@@ -390,7 +392,7 @@ const analyze = async (input: {
       ].join('\n'),
       model: models.fast,
       output: Output.object({ schema: textSchema }),
-      prompt,
+      prompt: attached ? `${prompt}\n\n${attached}` : prompt,
     })
   )
   if (written.isErr()) {

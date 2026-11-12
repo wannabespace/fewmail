@@ -4,13 +4,14 @@ import { messages } from '@fewmail/shared/i18n'
 import { LOCALES, matchLocale } from '@fewmail/shared/i18n/locales'
 import { Result } from 'better-result'
 import type { Api, Context } from 'grammy'
-import { Bot, InlineKeyboard, webhookCallback } from 'grammy'
+import { Bot, InlineKeyboard, InputFile, webhookCallback } from 'grammy'
 
 import { env } from './env'
+import { canSpeak, speak } from './lib/elevenlabs'
 import { logError } from './lib/log'
 import { linkTelegramChat, userIdForChat } from './services/integrations'
 import type { listQueue } from './services/mail'
-import type { Button, Channel, Reply } from './services/messenger'
+import type { BriefMessage, Button, Channel, Reply } from './services/messenger'
 import {
   briefReply,
   failureText,
@@ -48,11 +49,31 @@ const keyboard = (buttons: Button[]) =>
     buttons.map(({ id, title }) => InlineKeyboard.text(title, id)),
   ])
 
+/** A failed voice never takes the text answer with it. */
+const sendVoice = async (api: Api, chatId: number | string, voice: string) => {
+  const sent = await Result.tryPromise(async () => {
+    const audio = await speak(voice, 'messenger')
+    await api.sendVoice(
+      chatId,
+      new InputFile(new Uint8Array(audio), 'voice.ogg')
+    )
+  })
+  if (sent.isErr()) {
+    logError('telegram voice', sent.error.cause)
+  }
+}
+
 const send = async (
   api: Api,
   chatId: number | string,
-  { actionId, buttons, text }: Reply
+  { actionId, buttons, text, voice }: Reply
 ) => {
+  if (voice) {
+    await sendVoice(api, chatId, voice)
+  }
+  if (!text) {
+    return
+  }
   const parts = splitText(text, MESSAGE_LIMIT)
   const last = parts.pop() ?? ''
   for (const part of parts) {
@@ -84,22 +105,28 @@ const commandsFor = (t: Messages) => [
   ...SKILLS.map((skill) => ({ command: skill, description: t.skills[skill] })),
 ]
 
-const followText = async (ctx: Context, userId: string, text: string) => {
+/** A spoken message is answered by voice too, when the server can speak. */
+const followText = async (
+  ctx: Context,
+  userId: string,
+  text: string,
+  { spoken = false } = {}
+) => {
   if (!ctx.chat) {
     return
   }
   const replyTo = ctx.message?.reply_to_message?.message_id
   await ctx.replyWithChatAction('typing')
-  await send(
-    ctx.api,
-    ctx.chat.id,
-    await follow(
-      chatOf(ctx.chat.id),
-      userId,
-      text,
-      replyTo ? String(replyTo) : undefined
-    )
+  const reply = await follow(
+    chatOf(ctx.chat.id),
+    userId,
+    text,
+    replyTo ? String(replyTo) : undefined
   )
+  await send(ctx.api, ctx.chat.id, {
+    ...reply,
+    voice: spoken && canSpeak ? reply.text : undefined,
+  })
 }
 
 const createBot = (token: string) => {
@@ -227,7 +254,7 @@ const createBot = (token: string) => {
     await send(ctx.api, ctx.chat.id, {
       text: escapeHtml(t.telegram.heard(heard)),
     })
-    await followText(ctx, userId, heard)
+    await followText(ctx, userId, heard, { spoken: true })
   })
 
   bot.on('message:text', async (ctx) => {
@@ -303,7 +330,7 @@ export const startTelegram = async () => {
 export const sendBrief = async (
   chatId: string,
   userId: string,
-  brief: { body: string; headline: string }
+  brief: BriefMessage
 ) => {
   if (bot) {
     const t = await messagesFor(userId)

@@ -2,6 +2,8 @@ import {
   AGENT_TOOLS,
   MAIL_CATEGORIES,
   RULE_EFFECTS,
+  CLEAR_OUT_GROUPS,
+  WRAPPED_PERIODS,
 } from '@fewmail/shared/agent'
 import type { AgentToolName } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
@@ -10,7 +12,12 @@ import { z } from 'zod'
 import { createBoard, getBoard, listBoards } from './boards'
 import { generateBrief, getToday } from './brief'
 import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
-import { listSubscriptions } from './cleanup'
+import {
+  listSubscriptions,
+  runClearOut,
+  scanClearOut,
+  undoClearOut,
+} from './cleanup'
 import { saveDraft } from './drafts'
 import {
   approveAction,
@@ -27,12 +34,14 @@ import {
 } from './mail'
 import { scheduleMail } from './outbox'
 import { getPerson } from './people'
+import { getReading } from './reading'
 import { createRule, listRules } from './rules'
 import { createSchedule, deleteSchedule, listSchedules } from './schedules'
 import { markNotSpam, reportSpam } from './spam'
 import { syncMailboxes } from './sync'
 import { createTask } from './tasks'
 import { unsubscribeMessage } from './thread-effects'
+import { getWrapped } from './wrapped'
 
 const define = <Input extends z.ZodRawShape = Record<never, never>>(tool: {
   description: string
@@ -64,7 +73,7 @@ export const agentTools = (
 ): Record<AgentToolName, AgentTool> => ({
   get_today: define({
     description:
-      "The user's email brief and the queue of things that need them: each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Today (days: at least 1, at most 7), the other mail worth knowing from those days (recent), mail naming a due date or meeting time (dates), sent mail still waiting for an answer (awaiting) and what each board collected in the last 30 days (boards).",
+      "The user's email brief and the queue of things that need them: each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Today (days: at least 1, at most 7), the other mail worth knowing from those days (recent), mail naming a due date or meeting time (dates), sent mail still waiting for an answer (awaiting) what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts).",
     run: () => getToday(userId),
   }),
   list_mail: define({
@@ -214,6 +223,33 @@ export const agentTools = (
       "Unsubscribe from the mailing list an email came from (through its own one-click unsubscribe link, when it has one) and archive everything that sender sent. unsubscribed says whether the sender's list was actually left.",
     input: { messageId: z.uuid() },
     run: ({ messageId }) => unsubscribeMessage(userId, messageId, 'sender'),
+  }),
+  preview_clear_out: define({
+    description:
+      'What a clear-out of the whole inbox would move out, read from Gmail (takes up to a minute): inbox is how many emails are in it (isCapped: more than counted), overlaps counts inbox emails by the exact set of groups they fall in, so a choice of groups adds up without double counting (promotions: ads and social older than 3 days, notifications: read updates and forum mail older than 30 days, lists: mailing lists with 3+ emails none of them opened, old: everything older than a year), senders are those unopened lists. Show the user the numbers before offering clear_out.',
+    run: () => scanClearOut(userId),
+  }),
+  clear_out: define({
+    description:
+      'Archive the chosen groups of inbox mail (see preview_clear_out) under the Gmail label Fewmail/Cleared, and for lists also unsubscribe from them. Nothing is deleted; undo_clear_out brings every cleared email back.',
+    input: { groups: z.array(z.enum(CLEAR_OUT_GROUPS)).min(1) },
+    run: ({ groups }) => runClearOut(userId, groups),
+  }),
+  undo_clear_out: define({
+    description:
+      'Move every email a clear-out archived back to the inbox. Unsubscribes are not undone.',
+    run: () => undoClearOut(userId),
+  }),
+  get_reading: define({
+    description:
+      "The last 24 hours of newsletters, newest first: sender, subject, a two or three sentence summary of what each says, and the threadId to open it. They usually sit outside the inbox, archived by the user's newsletter rule.",
+    run: () => getReading(userId),
+  }),
+  get_wrapped: define({
+    description:
+      "The user's mail so far this year or this month, Wrapped style: emails in (from people, from lists), handled by the agent on its own, replies sent from its drafts, minutes saved, lists left, spam stopped, the busiest ISO weekday and hour in their time zone, and the three people who wrote most. shareToken makes the public link /w/<shareToken>, which shows the counts only.",
+    input: { period: z.enum(WRAPPED_PERIODS) },
+    run: ({ period }) => getWrapped(userId, period),
   }),
   list_handled: define({
     description:

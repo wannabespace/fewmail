@@ -195,6 +195,8 @@ export interface BriefStats {
   filed: number
   handled: number
   needYou: number
+  /** Over the 7 days before the brief; absent on briefs written before it was counted. */
+  savedMinutes?: number
   unsubscribed: number
 }
 

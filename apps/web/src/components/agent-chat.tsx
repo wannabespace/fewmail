@@ -8,6 +8,7 @@ import {
 } from '@fewmail/shared/agent'
 import type {
   AgentToolName,
+  ClearOutGroup,
   ConsentToolName,
   OpenThread,
   Skill,
@@ -54,6 +55,8 @@ import { Response } from '@fewmail/ui/components/response'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
+  CancelCircleIcon,
+  News01Icon,
   Alert02Icon,
   ArrowUp02Icon,
   Calendar03Icon,
@@ -127,6 +130,7 @@ interface ToolInput {
   effect?: keyof Messages['rules']['effect']
   end?: string
   goal?: string
+  groups?: ClearOutGroup[]
   id?: string
   instruction?: string
   location?: string
@@ -214,8 +218,10 @@ const STEP_ICONS = {
 
 const SKILL_ICONS: Record<Skill, IconSvgElement> = {
   bills: Invoice03Icon,
+  cancel: CancelCircleIcon,
   cleanup: MailRemove01Icon,
   followups: UserTime01Icon,
+  reading: News01Icon,
   today: Sun03Icon,
   waiting: MailReply01Icon,
   week: Calendar03Icon,
@@ -408,6 +414,11 @@ const CONSENT_DETAILS: Record<
     </>
   ),
   archive_thread: ({ email }) => <EmailLine email={email} />,
+  clear_out: ({ input, t }) => (
+    <p className="text-sm">
+      {input.groups?.map((group) => t.clearOut.groups[group]).join(' · ')}
+    </p>
+  ),
   create_event: ({ calendar, input }) => (
     <EventDetails calendar={calendar} event={input} />
   ),
@@ -475,6 +486,7 @@ const CONSENT_DETAILS: Record<
   move_to_inbox: ({ email }) => <EmailLine email={email} />,
   report_spam: ({ email }) => <EmailLine email={email} />,
   trash_thread: ({ email }) => <EmailLine email={email} />,
+  undo_clear_out: () => null,
   unsubscribe: ({ email }) => <EmailLine email={email} />,
   update_event: ({ calendar, event, input }) => (
     <EventDetails calendar={calendar} event={input} previous={event} />

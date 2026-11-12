@@ -1,3 +1,4 @@
+import { BOARD_PRESETS } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import {
   Dialog,
@@ -98,6 +99,24 @@ const BoardForm = ({
         }
       }}
     >
+      {!board && !name && (
+        <div className="flex flex-wrap gap-2">
+          {BOARD_PRESETS.map((preset) => (
+            <Button
+              key={preset}
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setName(t.boards.starter[preset].name)
+                setDescription(t.boards.starter[preset].description)
+              }}
+            >
+              {t.boards.starter[preset].name}
+            </Button>
+          ))}
+        </div>
+      )}
       <Input
         autoFocus
         value={name}

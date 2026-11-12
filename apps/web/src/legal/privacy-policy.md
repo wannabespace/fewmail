@@ -6,13 +6,14 @@ Fewmail ("we," "our," "us"), owned by Wannabe Space, LLC, is an email agent: it 
 
 When you sign in with Google you grant Fewmail the `gmail.modify` and `calendar.events` permissions together with your basic profile (name, email address, profile photo). We use it only for the features you see in the app:
 
-- **Read** your messages (sender, recipients, subject, date, labels, text body and whether there are attachments) so the agent can summarize them, judge their importance and draft replies. Attachments themselves are not downloaded.
+- **Read** your messages (sender, recipients, subject, date, labels, text body and whether there are attachments) so the agent can summarize them, judge their importance and draft replies. On paid plans, the PDFs and images attached to email that matters (up to two per email, the first three pages) are read once so the summary can name the amounts and dates inside them; their text is not stored.
 - **Read your recently sent messages** so drafts match how you write, and to notice when you are waiting for an answer or promised something.
 - **Change labels** (archive, mark as read, snooze, move to trash, or add the agent's own `Fewmail/…` labels if you turn them on) only when you do it yourself (opening an email in Fewmail marks it as read in Gmail, as any mail app does), approve it, or keep a rule that allows it. Every automatic change is listed under "handled" in the app.
 - **Send email** only when you send it yourself or explicitly approve an agent draft: in the app, in Telegram or WhatsApp, or through an MCP client you connected. Every send waits a few seconds so you can undo it, and scheduled emails wait until the time you chose.
 - **Save drafts** to your Gmail when you press "Save draft" or ask the agent for a draft, list them under Drafts, and delete one when you send it from Fewmail or discard it. Drafts stay in Gmail; Fewmail does not store them.
 - **Search** your mailbox when you ask the agent a question about your mail.
-- **Unsubscribe** from a mailing list through its one-click unsubscribe link, only when you approve it or a rule you keep allows it.
+- **Clear out your inbox**, only when you open the clear-out and approve it: Fewmail reads the sender, labels and list headers of the mail in your inbox (up to 50,000 emails) to count what could be archived, without storing them; it then archives the groups you chose under the `Fewmail/Cleared` label, which brings them back in one click, and keeps one email from each mailing list it unsubscribes you from.
+- **Unsubscribe** from a mailing list, only when you approve it or a rule you keep allows it: through its one-click unsubscribe link; else by opening its unsubscribe page from our server (without your cookies or any login) and sending the one-click form on it; else by sending the short unsubscribe email the list asks for from the Gmail address it writes to.
 - **Show and edit your calendar** (`calendar.events`): Fewmail reads the events of your primary Google calendar (title, time, location and description) to show them on the Calendar page, and creates, changes or deletes an event only when you do it there or approve the agent doing it. Events are read live from Google each time and are not stored by Fewmail; when the agent looks them up for you (agent mode, MCP), they are processed like the mail details it reads. You can leave this permission unticked on Google's consent screen; everything else keeps working.
 
 You can add more Gmail accounts in Settings → Mailboxes. Each one grants the same `gmail.modify` and `calendar.events` permissions plus its email address, and Fewmail uses it exactly as above; its mail joins your own account. An added account is never a way to sign in to yours: signing in to Fewmail with it opens its own, separate Fewmail account.
@@ -57,7 +58,8 @@ Quick decisions about each email (its category, importance, whether someone wait
 | Google (Gmail API, OAuth, Cloud Pub/Sub) | Sign-in and access to your mailbox; Pub/Sub tells us that your mailbox changed (only your address and a change number, no mail content) so new mail and changes you make in Gmail show up in seconds |
 | OpenRouter → Anthropic, Google, xAI | Reading emails, drafting replies, writing briefs, answering questions about your mail, autocomplete fallback |
 | TypeSafe (Jev) | Classifying each email, on every plan |
-| Mistral | Autocomplete while you write, transcribing Telegram and WhatsApp voice messages |
+| ElevenLabs | Reading aloud, only when you ask: the brief and the first items of your queue, and the bot’s answer to a voice message you sent (paid plans) |
+| Mistral | Autocomplete while you write, transcribing Telegram and WhatsApp voice messages, reading the text of PDFs and images attached to email that matters (paid plans) |
 | Stripe | Payments and subscriptions for Pro |
 | Telegram | Delivering your brief, urgent emails and drafts, only if you connect it |
 | WhatsApp (Meta) | Delivering your brief, urgent emails and drafts, only if you connect it |

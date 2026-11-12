@@ -1,6 +1,8 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   SettingsGroup,
   SettingsRow,
@@ -8,6 +10,12 @@ import {
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@fewmail/ui/components/tooltip'
+import { PlayIcon } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -259,6 +267,24 @@ const Pulse = ({ days, pulse }: Pick<Today, 'days' | 'pulse'>) => {
   )
 }
 
+const Saved = ({ saved }: { saved: Today['saved'] }) => {
+  const t = useT().today
+
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={<Link to="/wrapped" />}
+        className="text-muted-foreground hover:text-foreground w-fit cursor-pointer text-sm"
+      >
+        {t.saved(saved.minutes)}
+      </TooltipTrigger>
+      <TooltipContent>
+        {t.savedHow(saved.handled, saved.replies)}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 const DayTally = ({
   isReviewing,
   onReview,
@@ -279,6 +305,7 @@ const DayTally = ({
         </p>
       )}
       {today.pulse.total > 0 && <Pulse days={today.days} pulse={today.pulse} />}
+      {today.saved.minutes > 0 && <Saved saved={today.saved} />}
       {today.handled.total > 0 && (
         <HandledSummary handled={today.handled} onReview={onReview} />
       )}
@@ -286,6 +313,29 @@ const DayTally = ({
     </>
   )
 }
+
+const todayHints = (
+  t: Messages,
+  state: { alike: number; hasHandled: boolean; isEditing: boolean }
+): [string, string][] =>
+  state.isEditing
+    ? [
+        ['⌘⏎', t.keys.send],
+        ['esc', t.keys.stopEditing],
+      ]
+    : [
+        ['J / K', t.keys.move],
+        ['⏎', t.keys.approve],
+        ...(state.alike > 1
+          ? [['⇧⏎', t.keys.approveAll(state.alike)] as [string, string]]
+          : []),
+        ['E', t.keys.edit],
+        ['S', t.keys.skip],
+        ...(state.hasHandled
+          ? [['H', t.today.handled.review] as [string, string]]
+          : []),
+        ['⌘K', t.keys.anything],
+      ]
 
 const isReadingFirstTime = (data?: {
   mailboxes: { lastSyncedAt: Date | null; syncError: string | null }[]
@@ -336,6 +386,17 @@ const BriefBody = ({
           {brief.body}
         </p>
       )}
+      {brief && (
+        <div>
+          <IconButton
+            icon={PlayIcon}
+            label={t.today.listen}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={() => playBrief()}
+          />
+        </div>
+      )}
       {isLoading && (
         <BriefLoading
           note={isFirstRead ? t.today.firstRead : t.today.writing}
@@ -344,6 +405,10 @@ const BriefBody = ({
     </>
   )
 }
+
+/** Spoken by the API on demand; the audio element carries the session cookie (same site). */
+const playBrief = () =>
+  new Audio(`${import.meta.env.API_URL}/voice/brief`).play()
 
 const BriefTime = ({ label }: { label: (time: string) => string }) => {
   const { settings } = useMe()
@@ -422,6 +487,24 @@ const TodayPage = () => {
       },
     })
   )
+  const approveMany = useMutation(
+    orpc.actions.approveMany.mutationOptions({
+      onMutate: ({ ids }) => {
+        setSelectedId(null)
+        queryClient.setQueryData(
+          orpc.today.get.queryKey(),
+          (old) =>
+            old && {
+              ...old,
+              queue: old.queue.filter(({ action }) => !ids.includes(action.id)),
+            }
+        )
+      },
+      onSettled: invalidate,
+      onSuccess: ({ approved }) =>
+        toast.success(t.today.approvedMany(approved)),
+    })
+  )
   const dismiss = useMutation(
     orpc.actions.dismiss.mutationOptions({
       onMutate: ({ id }) => removeAndAdvance(id),
@@ -468,6 +551,13 @@ const TodayPage = () => {
     })
   }
 
+  const alike = queue.filter(
+    ({ action }) => action.kind === selected?.action.kind
+  )
+  const approveAlike = () =>
+    alike.length > 1 &&
+    approveMany.mutate({ ids: alike.map(({ action }) => action.id) })
+
   const move = (step: number) => {
     const next =
       queue[Math.min(queue.length - 1, Math.max(0, selectedIndex + step))]
@@ -483,6 +573,7 @@ const TodayPage = () => {
   useHotkey('K', () => move(-1), listKeys)
   useHotkey('ArrowUp', () => move(-1), listKeys)
   useHotkey('Enter', approveSelected, listKeys)
+  useHotkey('Shift+Enter', approveAlike, listKeys)
   useHotkey(
     'S',
     () => selected && dismiss.mutate({ id: selected.action.id }),
@@ -594,23 +685,11 @@ const TodayPage = () => {
         </div>
       </div>
       <KeyHints
-        hints={
-          isEditing
-            ? [
-                ['⌘⏎', t.keys.send],
-                ['esc', t.keys.stopEditing],
-              ]
-            : [
-                ['J / K', t.keys.move],
-                ['⏎', t.keys.approve],
-                ['E', t.keys.edit],
-                ['S', t.keys.skip],
-                ...(hasHandled
-                  ? [['H', t.today.handled.review] as [string, string]]
-                  : []),
-                ['⌘K', t.keys.anything],
-              ]
-        }
+        hints={todayHints(t, {
+          alike: alike.length,
+          hasHandled,
+          isEditing,
+        })}
       />
     </main>
   )

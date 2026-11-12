@@ -19,7 +19,7 @@ import {
   startOfWeek,
   subDays,
 } from 'date-fns'
-import { and, desc, eq, gte, isNotNull } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, isNotNull, sql } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { announceChange } from '../lib/live'
@@ -37,6 +37,7 @@ type Message = typeof messages.$inferSelect
 
 const EXTRACT_CONCURRENCY = 4
 const MAX_CHARTS = 4
+const MAX_BANNER_DAYS = 14
 const ENTRIES_SHOWN = 200
 const KNOWN_VALUES_SHOWN = 60
 const TIME_BUCKETS_SHOWN = 12
@@ -49,12 +50,17 @@ const chartSchema = type({
   type: type.enumerated(...BOARD_CHART_TYPES),
 })
 
-const planSchema = type({ charts: chartSchema.array(), gmailQuery: 'string' })
+const planSchema = type({
+  bannerDays: 'number | null',
+  charts: chartSchema.array(),
+  gmailQuery: 'string',
+})
 
 const entrySchema = type({
   amount: 'number | null',
   belongs: 'boolean',
   currency: 'string | null',
+  dueAt: 'string | null',
   group: 'string | null',
   isUpdate: 'boolean',
   occurredAt: 'string | null',
@@ -75,6 +81,7 @@ const planBoard = async (
     instructions: [
       'The user describes a board: a page that collects one kind of email (receipts, trips, job applications…) as entries with a title, a group, a status, an amount and a date.',
       'gmailQuery: a Gmail search query that finds these emails with high recall: OR-ed subject keywords in English and in the languages the description suggests, sender domains you are sure of, Gmail categories (category:purchases) where they fit. Never date operators (newer_than, after, before): they are added later.',
+      'bannerDays: when entries carry a next date the user must not miss (a subscription renews, a bill is due, a flight leaves, an event starts), how many days before it they want a heads-up (renewals and bills 3, trips and events 2); null when the entries have no such date.',
       `charts: 1–${MAX_CHARTS} charts that answer what the user most likely wants to see. measure "sum" only when the entries carry amounts. groupBy month or week for a trend, group for who or what (merchant, airline, company), status for the state. type: bar for anything per month or week, since entries are sparse and a line would draw slopes between them; pie only for shares (group or status). title: a few words in ${englishName(language)}.`,
     ].join('\n'),
     model: models.writer,
@@ -82,6 +89,10 @@ const planBoard = async (
     prompt: `Name: ${board.name}\nDescription: ${board.description}`,
   })
   return {
+    bannerDays:
+      output.bannerDays === null
+        ? null
+        : Math.min(MAX_BANNER_DAYS, Math.max(1, Math.round(output.bannerDays))),
     charts: output.charts
       .slice(0, MAX_CHARTS)
       .map((chart) => ({ ...chart, id: crypto.randomUUID() })),
@@ -155,6 +166,35 @@ export const boardsDigest = async (userId: string) => {
   })
 }
 
+/** Entries whose next date falls within their board's `bannerDays`: a renewal, a bill, a departure coming up. */
+export const boardBanners = async (userId: string, boardId?: string) => {
+  const rows = await db
+    .select({
+      amountCents: boardEntries.amountCents,
+      boardId: boards.id,
+      boardName: boards.name,
+      currency: boardEntries.currency,
+      dueAt: boardEntries.dueAt,
+      id: boardEntries.id,
+      threadId: messages.threadId,
+      title: boardEntries.title,
+    })
+    .from(boardEntries)
+    .innerJoin(boards, eq(boards.id, boardEntries.boardId))
+    .innerJoin(messages, eq(messages.id, boardEntries.messageId))
+    .where(
+      and(
+        eq(boardEntries.userId, userId),
+        boardId ? eq(boards.id, boardId) : undefined,
+        isNotNull(boards.bannerDays),
+        gte(boardEntries.dueAt, new Date()),
+        sql`${boardEntries.dueAt} <= now() + make_interval(days => ${boards.bannerDays})`
+      )
+    )
+    .orderBy(asc(boardEntries.dueAt))
+  return rows.flatMap(({ dueAt, ...row }) => (dueAt ? [{ ...row, dueAt }] : []))
+}
+
 /** The worker reads the last half year next; the page fills in live. */
 export const createBoard = async (
   userId: string,
@@ -220,7 +260,11 @@ export const updateBoard = async (
     .update(boards)
     .set({
       ...input,
-      ...(plan && { gmailQuery: plan.gmailQuery, historyReadAt: null }),
+      ...(plan && {
+        bannerDays: plan.bannerDays,
+        gmailQuery: plan.gmailQuery,
+        historyReadAt: null,
+      }),
     })
     .where(eq(boards.id, id))
   // After the new description is stored: a read still running under the old one checks it before each write (`isUnchanged`).
@@ -264,11 +308,14 @@ const saveEntry = async (
           currency: output.currency.toUpperCase(),
         }
       : { amountCents: null, currency: null }
+  const due = output.dueAt ? new Date(output.dueAt) : null
+  const dueAt = due && due.getTime() > Date.now() ? due : null
   if (earlier && output.isUpdate) {
     await db
       .update(boardEntries)
       .set({
         messageId: message.id,
+        ...(dueAt && { dueAt }),
         ...(status && { status }),
         ...(earlier.amountCents === null && amount),
       })
@@ -281,6 +328,7 @@ const saveEntry = async (
     .values({
       ...amount,
       boardId: board.id,
+      dueAt,
       group: output.group?.trim() || null,
       messageId: message.id,
       occurredAt:
@@ -321,6 +369,9 @@ const extractEntry = async (
       'title: what this entry is in a few words ("Lisbon → Kyiv", "Netflix Premium"), never the subject line.',
       `group: who or what it belongs to as people say it ("Netflix", "Ryanair"), or null.${context.groups.length > 0 ? ` Reuse one of these when it is the same: ${context.groups.join(', ')}.` : ''}`,
       `status: its state in one or two lowercase words (paid, refunded, cancelled, shipped, booked, rejected…), or null.${context.statuses.length > 0 ? ` Reuse one of these when it means the same: ${context.statuses.join(', ')}.` : ''}`,
+      board.bannerDays === null
+        ? 'dueAt: null.'
+        : 'dueAt: ISO date of the next thing this entry asks of the user that the email states (the next renewal or charge, a payment due date, a departure, an event start), else null. Never a date that has passed, never a guess.',
       `amount and currency (ISO 4217): the total charged or due, negative when money goes back to the user (refund, chargeback, credit), else null. occurredAt: ISO date of the event itself (today is ${new Date().toISOString().slice(0, 10)}), else null.`,
       earlier
         ? `isUpdate: this thread already holds the entry "${earlier.entry.title}"${earlier.entry.status ? ` (${earlier.entry.status})` : ''}. true when this email is news about that same thing (shipped, delivered, changed, cancelled), false when it is a new one (next month's receipt, a refund).`
@@ -567,11 +618,13 @@ export const getBoard = async (userId: string, id: string) => {
     .orderBy(desc(boardEntries.occurredAt))
   const entries = rows.map(({ entry }) => entry)
   return {
+    banners: await boardBanners(userId, id),
     charts: board.charts.map((chart) => chartSeries(chart, entries)),
     description: board.description,
     entries: rows.slice(0, ENTRIES_SHOWN).map(({ entry, threadId }) => ({
       amountCents: entry.amountCents,
       currency: entry.currency,
+      dueAt: entry.dueAt,
       group: entry.group,
       id: entry.id,
       occurredAt: entry.occurredAt,

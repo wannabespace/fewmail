@@ -122,6 +122,8 @@ export const boards = d.snakeCase.table(
   {
     ...baseTable,
     charts: encryptedJson<BoardChart[]>().notNull(),
+    /** Days before an entry's `dueAt` it shows as a banner (Today, the board); null: the board has no heads-ups. */
+    bannerDays: d.smallint(),
     description: encryptedText().notNull(),
     gmailQuery: encryptedText().notNull(),
     /** Null until the last half year was read; a new description resets it. */
@@ -142,6 +144,8 @@ export const boardEntries = d.snakeCase.table(
       .notNull()
       .references(() => boards.id, { onDelete: 'cascade' }),
     currency: d.text(),
+    /** The entry's next date that needs the user: a renewal, a payment due, a departure. */
+    dueAt: d.timestamp({ withTimezone: true }),
     group: encryptedText(),
     messageId: d
       .uuid()

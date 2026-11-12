@@ -1,0 +1,147 @@
+import { Buffer } from 'node:buffer'
+import { createHmac, timingSafeEqual } from 'node:crypto'
+
+import { db } from '@fewmail/db'
+import { analyses, messages, unsubscribes } from '@fewmail/db/schema'
+import type { WrappedPeriod, WrappedStats } from '@fewmail/shared/agent'
+import { and, count, desc, eq, gte, inArray, sql } from 'drizzle-orm'
+
+import { env } from '../env'
+import { localClock } from '../lib/clock'
+import { handledSince, mailPulse, PEOPLE_CATEGORIES, timeSaved } from './mail'
+import { NotFoundError } from './mail-errors'
+import { getSettings } from './settings'
+
+const TOP_PEOPLE = 3
+
+/** Read in UTC: a few hours either side of midnight do not change a month's numbers. */
+const periodOf = (timezone: string, period: WrappedPeriod) => {
+  const [year = '', month = ''] = localClock(timezone).date.split('-')
+  return period === 'year'
+    ? { label: year, since: new Date(`${year}-01-01T00:00:00Z`) }
+    : {
+        label: `${year}-${month}`,
+        since: new Date(`${year}-${month}-01T00:00:00Z`),
+      }
+}
+
+const busiest = async (
+  userId: string,
+  since: Date,
+  timezone: string,
+  unit: 'isodow' | 'hour'
+) => {
+  const bucket = sql<number>`extract(${sql.raw(unit)} from ${messages.receivedAt} at time zone ${timezone})::int`
+  const [row] = await db
+    .select({ bucket, total: count() })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.isFromMe, false),
+        gte(messages.receivedAt, since)
+      )
+    )
+    .groupBy(bucket)
+    .orderBy(desc(count()))
+    .limit(1)
+  return row?.bucket ?? null
+}
+
+const topPeople = (userId: string, since: Date) =>
+  db
+    .select({
+      count: count(),
+      fromEmail: messages.fromEmail,
+      fromName: sql<string | null>`max(${messages.fromName})`.mapWith(
+        messages.fromName
+      ),
+    })
+    .from(messages)
+    .innerJoin(analyses, eq(analyses.messageId, messages.id))
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.isFromMe, false),
+        gte(messages.receivedAt, since),
+        inArray(analyses.category, [...PEOPLE_CATEGORIES])
+      )
+    )
+    .groupBy(messages.fromEmail)
+    .orderBy(desc(count()))
+    .limit(TOP_PEOPLE)
+
+const unsubscribedSince = async (userId: string, since: Date) => {
+  const [row] = await db
+    .select({ total: count() })
+    .from(unsubscribes)
+    .where(
+      and(eq(unsubscribes.userId, userId), gte(unsubscribes.createdAt, since))
+    )
+  return row?.total ?? 0
+}
+
+const signature = (payload: string) =>
+  createHmac('sha256', env.BETTER_AUTH_SECRET)
+    .update(`wrapped:${payload}`)
+    .digest('base64url')
+
+interface Shared {
+  label: string
+  period: WrappedPeriod
+  stats: WrappedStats
+}
+
+/** The link carries its own numbers, signed so nobody can mint a card in our name. */
+const shareToken = (shared: Shared) => {
+  const payload = Buffer.from(JSON.stringify(shared)).toString('base64url')
+  return `${payload}.${signature(payload)}`
+}
+
+export const readSharedWrapped = (token: string): Shared => {
+  const [payload = '', signed = ''] = token.split('.')
+  const expected = Buffer.from(signature(payload))
+  const given = Buffer.from(signed)
+  if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
+    throw new NotFoundError('Wrapped link not found')
+  }
+  return JSON.parse(Buffer.from(payload, 'base64url').toString()) as Shared
+}
+
+/** The user's mail so far this year or month; `people` stays in the app and never goes into the link. */
+export const getWrapped = async (userId: string, period: WrappedPeriod) => {
+  const settings = await getSettings(userId)
+  if (!settings) {
+    throw new NotFoundError('Finish onboarding first')
+  }
+  const { label, since } = periodOf(settings.timezone, period)
+  const [pulse, handled, saved, unsubscribed, weekday, hour, people] =
+    await Promise.all([
+      mailPulse(userId, since),
+      handledSince(userId, since),
+      timeSaved(userId, since),
+      unsubscribedSince(userId, since),
+      busiest(userId, since, settings.timezone, 'isodow'),
+      busiest(userId, since, settings.timezone, 'hour'),
+      topPeople(userId, since),
+    ])
+  const stats: WrappedStats = {
+    busiestHour: hour,
+    busiestWeekday: weekday,
+    emails: pulse.total,
+    fromLists: pulse.lists,
+    fromPeople: pulse.people,
+    handled: handled.total,
+    replies: saved.replies,
+    savedMinutes: saved.minutes,
+    spam: handled.spam,
+    unsubscribed,
+  }
+  return {
+    label,
+    people,
+    period,
+    shareToken: shareToken({ label, period, stats }),
+    stats,
+  }
+}

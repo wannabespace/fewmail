@@ -45,6 +45,24 @@ export const formatResetDay = (locale: Locale, date: Date) =>
     timeZone: 'UTC',
   }).format(date)
 
+/** "2 h 10 min" in the locale's own units, minutes dropped from four hours up. */
+export const formatMinutes = (locale: Locale, minutes: number) => {
+  const unit = (value: number, name: 'hour' | 'minute') =>
+    new Intl.NumberFormat(locale, {
+      style: 'unit',
+      unit: name,
+      unitDisplay: 'short',
+    }).format(value)
+  const hours = Math.floor(minutes / 60)
+  const rest = Math.round(minutes % 60)
+  if (hours === 0) {
+    return unit(Math.max(1, rest), 'minute')
+  }
+  return hours >= 4 || rest === 0
+    ? unit(Math.round(minutes / 60), 'hour')
+    : `${unit(hours, 'hour')} ${unit(rest, 'minute')}`
+}
+
 export const plural = (
   locale: Locale,
   count: number,

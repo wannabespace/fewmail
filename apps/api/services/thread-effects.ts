@@ -1,10 +1,11 @@
 import { db } from '@fewmail/db'
-import { messages } from '@fewmail/db/schema'
+import { mailboxes, messages } from '@fewmail/db/schema'
 import type { GmailEffect } from '@fewmail/shared/agent'
 import { and, eq } from 'drizzle-orm'
 
-import { unsubscribeOneClick } from '../lib/gmail'
+import { sendMail, unsubscribeOneClick } from '../lib/gmail'
 import { logError } from '../lib/log'
+import { unsubscribeByPage } from '../lib/unsubscribe-page'
 import { NotFoundError } from './mail-errors'
 import { createRule, listRules } from './rules'
 import {
@@ -39,8 +40,53 @@ const senderThreadIds = async (userId: string, fromEmail: string) => {
   return rows.map(({ threadId }) => threadId)
 }
 
+const LINKS = /<(?<link>[^>]+)>/gu
+
+/** An unsubscribe request by email is part of leaving the list, so it goes out with the unsubscribe the user or their rule chose. */
+const unsubscribeByMail = async (message: Message, mailto: string) => {
+  const url = new URL(mailto)
+  const [mailbox] = await db
+    .select()
+    .from(mailboxes)
+    .where(eq(mailboxes.id, message.mailboxId))
+  if (!mailbox || !url.pathname.includes('@')) {
+    return false
+  }
+  const subject = url.searchParams.get('subject') ?? 'unsubscribe'
+  const text = url.searchParams.get('body') ?? 'unsubscribe'
+  await sendMail(mailbox, {
+    bcc: [],
+    cc: [],
+    html: text,
+    inReplyTo: null,
+    references: null,
+    subject,
+    text,
+    threadId: null,
+    to: [decodeURIComponent(url.pathname)],
+  })
+  return true
+}
+
+/** One-click first (RFC 8058), then the list's page, then its mailto: the order a person would try them. */
+const leaveList = async (message: Message) => {
+  const header = message.listUnsubscribe ?? ''
+  if (await unsubscribeOneClick(header, message.listUnsubscribePost)) {
+    return true
+  }
+  const links = [...header.matchAll(LINKS)].map(
+    ({ groups }) => groups?.link?.trim() ?? ''
+  )
+  const page = links.find((link) => /^https?:/iu.test(link))
+  if (page && (await unsubscribeByPage(page))) {
+    return true
+  }
+  const mailto = links.find((link) => /^mailto:/iu.test(link))
+  return mailto ? unsubscribeByMail(message, mailto) : false
+}
+
 /**
- * Leaves the list `message` came from (RFC 8058 one-click) and archives its thread or everything the
+ * Leaves the list `message` came from (RFC 8058 one-click, its page or its mailto) and archives its thread or everything the
  * sender sent. Only an unsubscribe that went out is remembered: later mail then makes the sender a
  * zombie, so a failed one must not. A sender the network already knows ignores unsubscribes is blocked.
  */
@@ -50,11 +96,8 @@ export const unsubscribe = async (
   scope: 'thread' | 'sender'
 ) => {
   const unsubscribed = message.listUnsubscribe
-    ? await unsubscribeOneClick(
-        message.listUnsubscribe,
-        message.listUnsubscribePost
-      ).catch((error: unknown) => {
-        logError('one-click unsubscribe failed', error)
+    ? await leaveList(message).catch((error: unknown) => {
+        logError('unsubscribe failed', error)
         return false
       })
     : false

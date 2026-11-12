@@ -45,7 +45,7 @@ const gmail = async <T>(
 }
 
 interface GmailPart {
-  body?: { data?: string; attachmentId?: string }
+  body?: { data?: string; attachmentId?: string; size?: number }
   filename?: string
   headers?: { name: string; value: string }[]
   mimeType: string
@@ -159,16 +159,110 @@ export type ParsedMessage = ReturnType<typeof parseMessage>
 export const getProfile = (account: GmailAccount) =>
   gmail<{ emailAddress: string; historyId: string }>(account, '/profile')
 
+const LIST_PAGE_MAX = 500
+
+/** Newest first; pages past Gmail's 500 a request until `max`. */
 export const listMessageIds = async (
   account: GmailAccount,
   query: string,
   max: number
 ) => {
-  const { messages = [] } = await gmail<{ messages?: { id: string }[] }>(
+  const ids: string[] = []
+  let pageToken: string | undefined
+  do {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- pages chain via nextPageToken
+    const page = await gmail<{
+      messages?: { id: string }[]
+      nextPageToken?: string
+    }>(
+      account,
+      `/messages?${new URLSearchParams({
+        fields: 'messages/id,nextPageToken',
+        maxResults: String(Math.min(LIST_PAGE_MAX, max - ids.length)),
+        q: query,
+        ...(pageToken && { pageToken }),
+      })}`
+    )
+    ids.push(...(page.messages ?? []).map(({ id }) => id))
+    pageToken = page.nextPageToken
+  } while (pageToken && ids.length < max)
+  return ids
+}
+
+/** Sender and list headers only: a fraction of a full message, for scanning a whole inbox. */
+export const getMessageHeaders = async (account: GmailAccount, id: string) => {
+  const message = await gmail<Pick<GmailMessage, 'labelIds' | 'payload'>>(
     account,
-    `/messages?${new URLSearchParams({ maxResults: String(max), q: query })}`
+    `/messages/${id}?${new URLSearchParams([
+      ['format', 'metadata'],
+      ['metadataHeaders', 'From'],
+      ['metadataHeaders', 'List-Unsubscribe'],
+      ['fields', 'labelIds,payload/headers'],
+    ])}`
   )
-  return messages.map(({ id }) => id)
+  const headers = new Map(
+    (message.payload.headers ?? []).map(({ name, value }) => [
+      name.toLowerCase(),
+      value,
+    ])
+  )
+  return {
+    from: parseAddress(headers.get('from') ?? ''),
+    gmailId: id,
+    isList: headers.has('list-unsubscribe'),
+    isUnread: (message.labelIds ?? []).includes('UNREAD'),
+  }
+}
+
+const attachmentParts = (part: GmailPart): GmailPart[] => [
+  ...(part.filename && part.body?.attachmentId ? [part] : []),
+  ...(part.parts ?? []).flatMap(attachmentParts),
+]
+
+export const listAttachments = async (account: GmailAccount, id: string) => {
+  const message = await gmail<Pick<GmailMessage, 'payload'>>(
+    account,
+    `/messages/${id}?${new URLSearchParams({ fields: 'payload', format: 'full' })}`
+  )
+  return attachmentParts(message.payload).map((part) => ({
+    attachmentId: part.body?.attachmentId ?? '',
+    filename: part.filename ?? '',
+    mimeType: part.mimeType,
+    size: part.body?.size ?? 0,
+  }))
+}
+
+/** Standard base64, the encoding data URLs expect. */
+export const getAttachment = async (
+  account: GmailAccount,
+  id: string,
+  attachmentId: string
+) => {
+  const { data } = await gmail<{ data: string }>(
+    account,
+    `/messages/${id}/attachments/${attachmentId}`
+  )
+  return Buffer.from(data, 'base64url').toString('base64')
+}
+
+const BATCH_MODIFY_MAX = 1000
+
+export const modifyMessages = async (
+  account: GmailAccount,
+  ids: string[],
+  change: { add?: string[]; remove?: string[] }
+) => {
+  for (let index = 0; index < ids.length; index += BATCH_MODIFY_MAX) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- one batch at a time stays inside the per-user quota
+    await gmail(account, '/messages/batchModify', {
+      body: JSON.stringify({
+        addLabelIds: change.add ?? [],
+        ids: ids.slice(index, index + BATCH_MODIFY_MAX),
+        removeLabelIds: change.remove ?? [],
+      }),
+      method: 'POST',
+    })
+  }
 }
 
 export const listThreadMessageIds = async (
@@ -396,7 +490,7 @@ export const createLabel = (account: GmailAccount, name: string) =>
 const UNSUBSCRIBE_TIMEOUT_MS = 10_000
 
 /** The sender writes the link and sync posts to it unattended, so it must never reach our own network; redirects are not followed for the same reason. */
-const isPublicHost = (hostname: string) => {
+export const isPublicHost = (hostname: string) => {
   const host = hostname.replaceAll(/^\[|\]$/gu, '').replace(/\.$/u, '')
   return (
     host.includes('.') &&
