@@ -29,6 +29,9 @@ export const id: Messages = {
   agent: {
     chats: 'Obrolan',
     confirm: {
+      create_event: 'Tambahkan acara ini?',
+      delete_event: 'Hapus acara ini?',
+      update_event: 'Ubah acara ini?',
       approve_action: 'Jalankan tindakan ini?',
       archive_thread: 'Arsipkan percakapan ini?',
       create_rule: 'Tambahkan aturan ini?',
@@ -55,6 +58,10 @@ export const id: Messages = {
     retry: 'Coba lagi',
     send: 'Kirim',
     steps: {
+      create_event: 'Menambahkan acara',
+      delete_event: 'Menghapus acara',
+      list_events: 'Memeriksa kalender',
+      update_event: 'Mengubah acara',
       list_subscriptions: 'Membaca langganan',
       approve_action: 'Menyetujui',
       archive_thread: 'Mengarsipkan',
@@ -82,6 +89,9 @@ export const id: Messages = {
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
     yes: {
+      create_event: 'Tambah',
+      delete_event: 'Hapus',
+      update_event: 'Simpan',
       approve_action: 'Setujui',
       archive_thread: 'Arsipkan',
       create_rule: 'Tambahkan',
@@ -174,6 +184,38 @@ export const id: Messages = {
     badge: (n: number) => `Dikirim ke ${n}+ pengguna Fewmail`,
     reason: (n: number) =>
       `Email massal: ${n}+ pengguna Fewmail menerima teks yang sama`,
+  },
+  calendar: {
+    allDay: 'Sepanjang hari',
+    calendar: 'Kalender',
+    connect: 'Hubungkan',
+    connectHint: 'Izinkan Fewmail melihat dan mengedit acara akun ini.',
+    connectTitle: 'Hubungkan Google Kalender',
+    create: 'Tambah acara',
+    delete: 'Hapus',
+    deleted: 'Acara dihapus',
+    description: 'Deskripsi',
+    editEvent: 'Edit acara',
+    endBeforeStart: 'Acara berakhir sebelum dimulai',
+    ends: 'Selesai',
+    location: 'Lokasi',
+    newEvent: 'Acara baru',
+    next: 'Berikutnya',
+    openInGoogle: 'Buka di Google Kalender',
+    previous: 'Sebelumnya',
+    save: 'Simpan',
+    saved: 'Acara disimpan',
+    starts: 'Mulai',
+    title: 'Kalender',
+    titlePlaceholder: 'Tambahkan judul',
+    today: 'Hari ini',
+    untitled: '(Tanpa judul)',
+    views: {
+      day: 'Hari',
+      week: 'Minggu',
+      month: 'Bulan',
+      year: 'Tahun',
+    },
   },
   category: {
     calendar: 'Kalender',
@@ -269,6 +311,10 @@ export const id: Messages = {
   importance: ['Kebisingan', 'Perlu tahu', 'Segera butuh kamu', 'Mendesak'],
   justNow: 'baru saja',
   keys: {
+    calendarToday: 'hari ini',
+    newEvent: 'acara baru',
+    period: 'sebelumnya / berikutnya',
+    view: 'tampilan',
     skills: 'skill',
     unsubscribe: 'berhenti langganan',
     filter: 'filter',
@@ -311,7 +357,7 @@ export const id: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail meminta izin untuk membaca, merapikan, dan mengirim Gmail untukmu. Tidak ada yang dikirim atau diarsipkan tanpa persetujuanmu, kecuali kamu membuat aturan yang mengizinkannya.',
+      'Fewmail meminta izin untuk membaca, merapikan, dan mengirim Gmail untukmu. Tidak ada yang dikirim atau diarsipkan tanpa persetujuanmu, kecuali kamu membuat aturan yang mengizinkannya. Fewmail juga meminta akses Google Kalender, yang bisa kamu hapus centangnya.',
     continue: 'Lanjutkan dengan Google',
     lead: 'Fewmail membaca kotak masukmu, membalas dengan gayamu, dan hanya menampilkan yang benar-benar butuh kamu.',
     messengers:
@@ -378,6 +424,7 @@ export const id: Messages = {
     unsubscribed: 'Berhenti berlangganan',
   },
   nav: {
+    calendar: 'Kalender',
     subscriptions: 'Langganan',
     agent: 'Agen',
     boards: 'Papan',

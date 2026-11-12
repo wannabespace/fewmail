@@ -79,5 +79,7 @@ export const useDates = () => {
         : formatDistanceToNowStrict(date, { addSuffix: true, locale }),
     format: (date: Date | number, pattern: string) =>
       format(date, pattern, { locale }),
+    locale,
+    weekStartsOn: locale.options?.weekStartsOn ?? 1,
   }
 }

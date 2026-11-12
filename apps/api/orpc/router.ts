@@ -36,6 +36,12 @@ import {
   updateBoard,
 } from '../services/boards'
 import { generateBrief, getToday } from '../services/brief'
+import {
+  createEvent,
+  deleteEvent,
+  listEvents,
+  updateEvent,
+} from '../services/calendar'
 import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
 import { listSubscriptions, unsubscribeSender } from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
@@ -154,6 +160,17 @@ const simpleRuleInput = type({
 
 const messageId = type({ messageId: 'string.uuid' })
 
+const eventRef = type({ id: 'string', mailboxId: 'string.uuid' })
+
+const eventInput = type({
+  allDay: 'boolean',
+  'description?': 'string',
+  end: 'string',
+  'location?': 'string',
+  start: 'string',
+  title: 'string',
+})
+
 const FREE_EFFECTS = new Set<string>(GMAIL_EFFECTS)
 
 /** Jev matches plain-language rules on every plan; drafting and showing in Today need the agent. */
@@ -203,6 +220,22 @@ export const router = {
       .input(id.and({ 'instruction?': 'string' }))
       .handler(({ context, input }) =>
         redraftAction(context.user.id, input.id, input.instruction)
+      ),
+  },
+  calendar: {
+    create: authed
+      .input(eventInput.and({ 'mailboxId?': 'string.uuid' }))
+      .handler(({ context, input }) => createEvent(context.user.id, input)),
+    delete: authed.input(eventRef).handler(async ({ context, input }) => {
+      await deleteEvent(context.user.id, input)
+    }),
+    events: authed
+      .input(type({ from: 'Date', to: 'Date' }))
+      .handler(({ context, input }) => listEvents(context.user.id, input)),
+    update: authed
+      .input(eventRef.and(eventInput))
+      .handler(({ context, input: { id: eventId, mailboxId, ...event } }) =>
+        updateEvent(context.user.id, { id: eventId, mailboxId }, event)
       ),
   },
   devices: {

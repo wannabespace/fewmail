@@ -29,6 +29,9 @@ export const pt: Messages = {
   agent: {
     chats: 'Conversas',
     confirm: {
+      create_event: 'Adicionar este evento?',
+      delete_event: 'Eliminar este evento?',
+      update_event: 'Alterar este evento?',
       approve_action: 'Fazer esta ação?',
       archive_thread: 'Arquivar esta conversa?',
       create_rule: 'Adicionar esta regra?',
@@ -55,6 +58,10 @@ export const pt: Messages = {
     retry: 'Tentar de novo',
     send: 'Enviar',
     steps: {
+      create_event: 'A adicionar um evento',
+      delete_event: 'A eliminar o evento',
+      list_events: 'A ver o calendário',
+      update_event: 'A alterar o evento',
       list_subscriptions: 'Lendo inscrições',
       approve_action: 'Aprovando',
       archive_thread: 'Arquivando',
@@ -82,6 +89,9 @@ export const pt: Messages = {
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Até ${time}`,
     yes: {
+      create_event: 'Adicionar',
+      delete_event: 'Eliminar',
+      update_event: 'Guardar',
       approve_action: 'Aprovar',
       archive_thread: 'Arquivar',
       create_rule: 'Adicionar',
@@ -176,6 +186,38 @@ export const pt: Messages = {
     badge: (n: number) => `Enviado para ${n}+ usuários do Fewmail`,
     reason: (n: number) =>
       `E-mail em massa: ${n}+ usuários do Fewmail receberam o mesmo texto`,
+  },
+  calendar: {
+    allDay: 'Dia inteiro',
+    calendar: 'Calendário',
+    connect: 'Ligar',
+    connectHint: 'Permita que o Fewmail veja e edite os eventos desta conta.',
+    connectTitle: 'Ligar o Google Agenda',
+    create: 'Adicionar evento',
+    delete: 'Eliminar',
+    deleted: 'Evento eliminado',
+    description: 'Descrição',
+    editEvent: 'Editar evento',
+    endBeforeStart: 'O evento termina antes de começar',
+    ends: 'Fim',
+    location: 'Local',
+    newEvent: 'Novo evento',
+    next: 'Seguinte',
+    openInGoogle: 'Abrir no Google Agenda',
+    previous: 'Anterior',
+    save: 'Guardar',
+    saved: 'Evento guardado',
+    starts: 'Início',
+    title: 'Calendário',
+    titlePlaceholder: 'Adicione um título',
+    today: 'Hoje',
+    untitled: '(Sem título)',
+    views: {
+      day: 'Dia',
+      week: 'Semana',
+      month: 'Mês',
+      year: 'Ano',
+    },
   },
   category: {
     calendar: 'Agenda',
@@ -277,6 +319,10 @@ export const pt: Messages = {
   importance: ['Ruído', 'Bom saber', 'Precisa de você em breve', 'Urgente'],
   justNow: 'agora mesmo',
   keys: {
+    calendarToday: 'hoje',
+    newEvent: 'novo evento',
+    period: 'anterior / seguinte',
+    view: 'vista',
     skills: 'habilidades',
     unsubscribe: 'cancelar inscrição',
     filter: 'filtro',
@@ -319,7 +365,7 @@ export const pt: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'O Fewmail pede permissão para ler, organizar e enviar seus e-mails do Gmail. Nada é enviado nem arquivado sem o seu aval, a menos que você crie uma regra que permita.',
+      'O Fewmail pede permissão para ler, organizar e enviar seus e-mails do Gmail. Nada é enviado nem arquivado sem o seu aval, a menos que você crie uma regra que permita. Também pede acesso ao teu Google Agenda, que podes desmarcar.',
     continue: 'Continuar com o Google',
     lead: 'O Fewmail lê sua caixa de entrada por você, responde com a sua voz e só mostra o que realmente precisa de você.',
     messengers:
@@ -385,6 +431,7 @@ export const pt: Messages = {
     unsubscribed: 'Inscrição cancelada',
   },
   nav: {
+    calendar: 'Calendário',
     subscriptions: 'Inscrições',
     agent: 'Agente',
     boards: 'Painéis',

@@ -22,4 +22,4 @@ The Railway project is code: `.railway/railway.ts` (`railway/iac`, root devDepen
 - **@fewmail/web**: `apps/web/Dockerfile` (repo root as context): `vite build` with `API_URL` / `WEB_URL` as build args (referenced from the API), then a Caddy image serving `dist` on the `PORT` Railway injects (never set it in `railway.ts`; a custom domain's target port must stay automatic, `apply` does not change it), domain `fewmail.app`. Never `vite dev` or `vite preview` in production.
 - Service names in `railway.ts` are the existing ones (`@fewmail/api`, `@fewmail/web`, `Postgres`): IaC matches by name, so a new name creates a second service.
 
-Google OAuth redirect URI: `https://api.local.fewmail.app/auth/callback/google (prod: https://api.fewmail.app/auth/callback/google)`; the Gmail API must be enabled and, until verification, the user added as a test user.
+Google OAuth redirect URI: `https://api.local.fewmail.app/auth/callback/google (prod: https://api.fewmail.app/auth/callback/google)`; the Gmail and Google Calendar APIs must be enabled, the `calendar.events` scope added to the consent screen, and, until verification, the user added as a test user.

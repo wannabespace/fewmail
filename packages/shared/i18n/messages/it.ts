@@ -6,6 +6,9 @@ export const it: Messages = {
   agent: {
     chats: 'Chat',
     confirm: {
+      create_event: 'Aggiungere questo evento?',
+      delete_event: 'Eliminare questo evento?',
+      update_event: 'Modificare questo evento?',
       approve_action: 'Eseguire questa azione?',
       archive_thread: 'Archiviare questa conversazione?',
       create_rule: 'Aggiungere questa regola?',
@@ -32,6 +35,10 @@ export const it: Messages = {
     retry: 'Riprova',
     send: 'Invia',
     steps: {
+      create_event: 'Aggiungo un evento',
+      delete_event: 'Elimino l’evento',
+      list_events: 'Controllo il calendario',
+      update_event: 'Modifico l’evento',
       list_subscriptions: 'Leggo le iscrizioni',
       approve_action: 'Eseguo',
       archive_thread: 'Archivio',
@@ -59,6 +66,9 @@ export const it: Messages = {
     to: (recipients: string) => `A ${recipients}`,
     until: (time: string) => `Fino a ${time}`,
     yes: {
+      create_event: 'Aggiungi',
+      delete_event: 'Elimina',
+      update_event: 'Salva',
       approve_action: 'Esegui',
       archive_thread: 'Archivia',
       create_rule: 'Aggiungi',
@@ -168,6 +178,39 @@ export const it: Messages = {
     pending: 'in attesa in Oggi',
   },
   byRule: 'da una regola',
+  calendar: {
+    allDay: 'Tutto il giorno',
+    calendar: 'Calendario',
+    connect: 'Collega',
+    connectHint:
+      'Consenti a Fewmail di vedere e modificare gli eventi di questo account.',
+    connectTitle: 'Collega Google Calendar',
+    create: 'Aggiungi evento',
+    delete: 'Elimina',
+    deleted: 'Evento eliminato',
+    description: 'Descrizione',
+    editEvent: 'Modifica evento',
+    endBeforeStart: 'L’evento finisce prima di iniziare',
+    ends: 'Fine',
+    location: 'Luogo',
+    newEvent: 'Nuovo evento',
+    next: 'Successivo',
+    openInGoogle: 'Apri in Google Calendar',
+    previous: 'Precedente',
+    save: 'Salva',
+    saved: 'Evento salvato',
+    starts: 'Inizio',
+    title: 'Calendario',
+    titlePlaceholder: 'Aggiungi un titolo',
+    today: 'Oggi',
+    untitled: '(Senza titolo)',
+    views: {
+      day: 'Giorno',
+      week: 'Settimana',
+      month: 'Mese',
+      year: 'Anno',
+    },
+  },
   category: {
     calendar: 'Calendario',
     finance: 'Finanze',
@@ -202,6 +245,10 @@ export const it: Messages = {
   importance: ['Rumore', 'Buono a sapersi', 'Presto per te', 'Urgente'],
   justNow: 'proprio ora',
   keys: {
+    calendarToday: 'oggi',
+    newEvent: 'nuovo evento',
+    period: 'precedente / successivo',
+    view: 'vista',
     skills: 'skill',
     unsubscribe: 'disiscriviti',
     filter: 'filtro',
@@ -244,7 +291,7 @@ export const it: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail chiede di leggere, organizzare e inviare Gmail per te. Niente viene inviato né archiviato senza il tuo ok, a meno che tu non scriva una regola che lo consenta.',
+      'Fewmail chiede di leggere, organizzare e inviare Gmail per te. Niente viene inviato né archiviato senza il tuo ok, a meno che tu non scriva una regola che lo consenta. Chiede anche il tuo Google Calendar, che puoi deselezionare.',
     continue: 'Continua con Google',
     lead: 'Fewmail legge la posta per te, risponde con la tua voce e ti mostra solo ciò che ha davvero bisogno di te.',
     messengers:
@@ -311,6 +358,7 @@ export const it: Messages = {
     unsubscribed: 'Disiscritto',
   },
   nav: {
+    calendar: 'Calendario',
     subscriptions: 'Iscrizioni',
     agent: 'Agente',
     boards: 'Bacheche',

@@ -25,6 +25,7 @@ import { themeStore, useTheme } from '@fewmail/ui/theme-store'
 import {
   Add01Icon,
   AiChat02Icon,
+  Calendar03Icon,
   ComputerIcon,
   CrownIcon,
   DashboardSquare01Icon,
@@ -57,6 +58,12 @@ export const NAV_ITEMS = [
   { icon: Sun03Icon, key: 'today', sequence: ['G', 'T'], to: '/today' },
   { icon: AiChat02Icon, key: 'agent', sequence: ['G', 'A'], to: '/agent' },
   { icon: Mail01Icon, key: 'mail', sequence: ['G', 'M'], to: '/mail' },
+  {
+    icon: Calendar03Icon,
+    key: 'calendar',
+    sequence: ['G', 'L'],
+    to: '/calendar',
+  },
   { icon: ZapIcon, key: 'rules', sequence: ['G', 'R'], to: '/rules' },
   {
     icon: MailRemove01Icon,

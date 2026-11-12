@@ -33,7 +33,7 @@ You keep ownership of your email and everything you create in Fewmail. You grant
 
 ## 7. Third-party services
 
-Fewmail relies on Google (Gmail), OpenRouter and the AI providers behind it, Stripe for payments, and optionally Telegram, WhatsApp (Meta) and MCP clients. Their own terms apply to your use of them, and we are not responsible for their availability or actions.
+Fewmail relies on Google (Gmail, Google Calendar), OpenRouter and the AI providers behind it, Stripe for payments, and optionally Telegram, WhatsApp (Meta) and MCP clients. Their own terms apply to your use of them, and we are not responsible for their availability or actions.
 
 ## 8. Plans and payment
 

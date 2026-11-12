@@ -29,6 +29,9 @@ export const nl: Messages = {
   agent: {
     chats: 'Chats',
     confirm: {
+      create_event: 'Deze afspraak toevoegen?',
+      delete_event: 'Deze afspraak verwijderen?',
+      update_event: 'Deze afspraak wijzigen?',
       approve_action: 'Deze actie uitvoeren?',
       archive_thread: 'Dit gesprek archiveren?',
       create_rule: 'Deze regel toevoegen?',
@@ -55,6 +58,10 @@ export const nl: Messages = {
     retry: 'Opnieuw proberen',
     send: 'Versturen',
     steps: {
+      create_event: 'Afspraak toevoegen',
+      delete_event: 'Afspraak verwijderen',
+      list_events: 'Agenda bekijken',
+      update_event: 'Afspraak wijzigen',
       list_subscriptions: 'Abonnementen bekijken',
       approve_action: 'Uitvoeren',
       archive_thread: 'Archiveren',
@@ -82,6 +89,9 @@ export const nl: Messages = {
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
     yes: {
+      create_event: 'Toevoegen',
+      delete_event: 'Verwijderen',
+      update_event: 'Opslaan',
       approve_action: 'Uitvoeren',
       archive_thread: 'Archiveren',
       create_rule: 'Toevoegen',
@@ -177,6 +187,39 @@ export const nl: Messages = {
     badge: (n: number) => `Verstuurd naar ${n}+ Fewmail-gebruikers`,
     reason: (n: number) =>
       `Massamail: ${n}+ Fewmail-gebruikers kregen dezelfde tekst`,
+  },
+  calendar: {
+    allDay: 'Hele dag',
+    calendar: 'Agenda',
+    connect: 'Koppelen',
+    connectHint:
+      'Sta Fewmail toe de afspraken van dit account te zien en te bewerken.',
+    connectTitle: 'Google Agenda koppelen',
+    create: 'Afspraak toevoegen',
+    delete: 'Verwijderen',
+    deleted: 'Afspraak verwijderd',
+    description: 'Beschrijving',
+    editEvent: 'Afspraak bewerken',
+    endBeforeStart: 'De afspraak eindigt voordat hij begint',
+    ends: 'Eindigt',
+    location: 'Locatie',
+    newEvent: 'Nieuwe afspraak',
+    next: 'Volgende',
+    openInGoogle: 'Openen in Google Agenda',
+    previous: 'Vorige',
+    save: 'Opslaan',
+    saved: 'Afspraak opgeslagen',
+    starts: 'Begint',
+    title: 'Agenda',
+    titlePlaceholder: 'Titel toevoegen',
+    today: 'Vandaag',
+    untitled: '(Geen titel)',
+    views: {
+      day: 'Dag',
+      week: 'Week',
+      month: 'Maand',
+      year: 'Jaar',
+    },
   },
   category: {
     calendar: 'Agenda',
@@ -278,6 +321,10 @@ export const nl: Messages = {
   importance: ['Ruis', 'Goed om te weten', 'Heeft je snel nodig', 'Dringend'],
   justNow: 'zojuist',
   keys: {
+    calendarToday: 'vandaag',
+    newEvent: 'nieuwe afspraak',
+    period: 'vorige / volgende',
+    view: 'weergave',
     skills: 'skills',
     unsubscribe: 'afmelden',
     filter: 'filter',
@@ -320,7 +367,7 @@ export const nl: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail vraagt toestemming om je Gmail te lezen, te ordenen en te versturen. Er wordt niets verstuurd of gearchiveerd zonder jouw akkoord, tenzij je een regel maakt die dat toestaat.',
+      'Fewmail vraagt toestemming om je Gmail te lezen, te ordenen en te versturen. Er wordt niets verstuurd of gearchiveerd zonder jouw akkoord, tenzij je een regel maakt die dat toestaat. Het vraagt ook om je Google Agenda, die je kunt uitvinken.',
     continue: 'Doorgaan met Google',
     lead: 'Fewmail leest je inbox voor je, antwoordt in jouw stijl en laat alleen zien wat jou echt nodig heeft.',
     messengers:
@@ -386,6 +433,7 @@ export const nl: Messages = {
     unsubscribed: 'Afgemeld',
   },
   nav: {
+    calendar: 'Agenda',
     subscriptions: 'Abonnementen',
     agent: 'Agent',
     boards: 'Borden',

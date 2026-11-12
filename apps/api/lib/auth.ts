@@ -12,6 +12,7 @@ import { and, eq } from 'drizzle-orm'
 import { env } from '../env'
 
 export const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
+export const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events'
 
 export const MCP_RESOURCE = `${env.API_URL}/mcp`
 export const AUTH_ISSUER = `${env.API_URL}/auth`
@@ -55,7 +56,7 @@ export const auth = betterAuth({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       prompt: 'consent',
-      scope: [GMAIL_SCOPE],
+      scope: [GMAIL_SCOPE, CALENDAR_SCOPE],
     },
   },
   trustedOrigins: [env.WEB_URL],
@@ -103,7 +104,7 @@ export const mailboxConsentUrl = (state: string) =>
     prompt: 'consent select_account',
     redirect_uri: mailboxRedirectUri(),
     response_type: 'code',
-    scope: ['openid', 'email', GMAIL_SCOPE].join(' '),
+    scope: ['openid', 'email', GMAIL_SCOPE, CALENDAR_SCOPE].join(' '),
     state,
   })}`
 

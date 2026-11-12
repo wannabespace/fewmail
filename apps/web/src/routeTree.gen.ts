@@ -17,6 +17,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppAgentRouteImport } from './routes/_app/agent'
+import { Route as AppCalendarRouteImport } from './routes/_app/calendar'
 import { Route as AppMailRouteImport } from './routes/_app/mail'
 import { Route as AppRulesRouteImport } from './routes/_app/rules'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
@@ -64,6 +65,11 @@ const TermsRoute = TermsRouteImport.update({
 const AppAgentRoute = AppAgentRouteImport.update({
   id: '/agent',
   path: '/agent',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCalendarRoute = AppCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMailRoute = AppMailRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/agent': typeof AppAgentRoute
+  '/calendar': typeof AppCalendarRoute
   '/mail': typeof AppMailRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/agent': typeof AppAgentRoute
+  '/calendar': typeof AppCalendarRoute
   '/mail': typeof AppMailRoute
   '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_app/agent': typeof AppAgentRoute
+  '/_app/calendar': typeof AppCalendarRoute
   '/_app/mail': typeof AppMailRoute
   '/_app/rules': typeof AppRulesRoute
   '/_app/settings': typeof AppSettingsRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/agent'
+    | '/calendar'
     | '/mail'
     | '/rules'
     | '/settings'
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/agent'
+    | '/calendar'
     | '/mail'
     | '/rules'
     | '/settings'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/_app/agent'
+    | '/_app/calendar'
     | '/_app/mail'
     | '/_app/rules'
     | '/_app/settings'
@@ -301,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAgentRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/calendar': {
+      id: '/_app/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AppCalendarRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/mail': {
       id: '/_app/mail'
       path: '/mail'
@@ -376,6 +395,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAgentRoute: typeof AppAgentRoute
+  AppCalendarRoute: typeof AppCalendarRoute
   AppMailRoute: typeof AppMailRoute
   AppRulesRoute: typeof AppRulesRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -386,6 +406,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAgentRoute: AppAgentRoute,
+  AppCalendarRoute: AppCalendarRoute,
   AppMailRoute: AppMailRoute,
   AppRulesRoute: AppRulesRoute,
   AppSettingsRoute: AppSettingsRoute,

@@ -29,6 +29,9 @@ export const ja: Messages = {
   agent: {
     chats: 'チャット',
     confirm: {
+      create_event: 'この予定を追加しますか？',
+      delete_event: 'この予定を削除しますか？',
+      update_event: 'この予定を変更しますか？',
       approve_action: 'この操作を実行しますか？',
       archive_thread: 'このスレッドをアーカイブしますか？',
       create_rule: 'このルールを追加しますか？',
@@ -56,6 +59,10 @@ export const ja: Messages = {
     retry: '再試行',
     send: '送信',
     steps: {
+      create_event: '予定を追加中',
+      delete_event: '予定を削除中',
+      list_events: 'カレンダーを確認中',
+      update_event: '予定を変更中',
       list_subscriptions: '購読を確認中',
       approve_action: '実行中',
       archive_thread: 'アーカイブ中',
@@ -83,6 +90,9 @@ export const ja: Messages = {
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
     yes: {
+      create_event: '追加',
+      delete_event: '削除',
+      update_event: '保存',
       approve_action: '実行',
       archive_thread: 'アーカイブ',
       create_rule: '追加',
@@ -142,6 +152,39 @@ export const ja: Messages = {
     noSnippets: '一致するスニペットはありません。',
     removeLink: 'リンクを削除',
   },
+  calendar: {
+    allDay: '終日',
+    calendar: 'カレンダー',
+    connect: '接続',
+    connectHint:
+      'このアカウントの予定の表示と編集を Fewmail に許可してください。',
+    connectTitle: 'Google カレンダーを接続',
+    create: '予定を追加',
+    delete: '削除',
+    deleted: '予定を削除しました',
+    description: '説明',
+    editEvent: '予定を編集',
+    endBeforeStart: '終了が開始より前になっています',
+    ends: '終了',
+    location: '場所',
+    newEvent: '新しい予定',
+    next: '次へ',
+    openInGoogle: 'Google カレンダーで開く',
+    previous: '前へ',
+    save: '保存',
+    saved: '予定を保存しました',
+    starts: '開始',
+    title: 'カレンダー',
+    titlePlaceholder: 'タイトルを追加',
+    today: '今日',
+    untitled: '(タイトルなし)',
+    views: {
+      day: '日',
+      week: '週',
+      month: '月',
+      year: '年',
+    },
+  },
   category: {
     calendar: 'カレンダー',
     finance: 'お金',
@@ -176,6 +219,10 @@ export const ja: Messages = {
   importance: ['ノイズ', '知っておくと良い', '近いうちに対応', '緊急'],
   justNow: 'たった今',
   keys: {
+    calendarToday: '今日',
+    newEvent: '新しい予定',
+    period: '前へ / 次へ',
+    view: '表示',
     skills: 'スキル',
     unsubscribe: '配信停止',
     filter: 'フィルター',
@@ -217,7 +264,7 @@ export const ja: Messages = {
       'に同意したことになります。',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail は、あなたに代わって Gmail を読み、整理し、送信する権限をリクエストします。許可するルールを書かない限り、あなたの承認なしに送信やアーカイブは行いません。',
+      'Fewmail は、あなたに代わって Gmail を読み、整理し、送信する権限をリクエストします。許可するルールを書かない限り、あなたの承認なしに送信やアーカイブは行いません。 Google カレンダーへのアクセスも求めますが、チェックを外せます。',
     continue: 'Google で続行',
     lead: 'Fewmail があなたの代わりに受信トレイを読み、あなたらしい文面で返信し、本当に必要なものだけをお見せします。',
     messengers:
@@ -282,6 +329,7 @@ export const ja: Messages = {
     unsubscribed: '配信停止しました',
   },
   nav: {
+    calendar: 'カレンダー',
     subscriptions: '購読',
     agent: 'エージェント',
     boards: 'ボード',

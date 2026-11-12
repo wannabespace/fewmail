@@ -29,6 +29,9 @@ export const tr: Messages = {
   agent: {
     chats: 'Sohbetler',
     confirm: {
+      create_event: 'Bu etkinlik eklensin mi?',
+      delete_event: 'Bu etkinlik silinsin mi?',
+      update_event: 'Bu etkinlik değiştirilsin mi?',
       approve_action: 'Bu işlem yapılsın mı?',
       archive_thread: 'Bu yazışma arşivlensin mi?',
       create_rule: 'Bu kural eklensin mi?',
@@ -55,6 +58,10 @@ export const tr: Messages = {
     retry: 'Tekrar dene',
     send: 'Gönder',
     steps: {
+      create_event: 'Etkinlik ekleniyor',
+      delete_event: 'Etkinlik siliniyor',
+      list_events: 'Takvime bakılıyor',
+      update_event: 'Etkinlik değiştiriliyor',
       list_subscriptions: 'Abonelikler okunuyor',
       approve_action: 'Onaylanıyor',
       archive_thread: 'Arşivleniyor',
@@ -82,6 +89,9 @@ export const tr: Messages = {
     to: (recipients: string) => `Kime: ${recipients}`,
     until: (time: string) => `Şu zamana kadar: ${time}`,
     yes: {
+      create_event: 'Ekle',
+      delete_event: 'Sil',
+      update_event: 'Kaydet',
       approve_action: 'Onayla',
       archive_thread: 'Arşivle',
       create_rule: 'Ekle',
@@ -174,6 +184,39 @@ export const tr: Messages = {
     reason: (n: number) =>
       `Toplu e-posta: ${n}+ Fewmail kullanıcısı aynı metni aldı`,
   },
+  calendar: {
+    allDay: 'Tüm gün',
+    calendar: 'Takvim',
+    connect: 'Bağla',
+    connectHint:
+      "Fewmail'in bu hesabın etkinliklerini görmesine ve düzenlemesine izin verin.",
+    connectTitle: "Google Takvim'i bağla",
+    create: 'Etkinlik ekle',
+    delete: 'Sil',
+    deleted: 'Etkinlik silindi',
+    description: 'Açıklama',
+    editEvent: 'Etkinliği düzenle',
+    endBeforeStart: 'Etkinlik başlamadan bitiyor',
+    ends: 'Bitiş',
+    location: 'Konum',
+    newEvent: 'Yeni etkinlik',
+    next: 'Sonraki',
+    openInGoogle: "Google Takvim'de aç",
+    previous: 'Önceki',
+    save: 'Kaydet',
+    saved: 'Etkinlik kaydedildi',
+    starts: 'Başlangıç',
+    title: 'Takvim',
+    titlePlaceholder: 'Başlık ekleyin',
+    today: 'Bugün',
+    untitled: '(Başlıksız)',
+    views: {
+      day: 'Gün',
+      week: 'Hafta',
+      month: 'Ay',
+      year: 'Yıl',
+    },
+  },
   category: {
     calendar: 'Takvim',
     finance: 'Finans',
@@ -265,6 +308,10 @@ export const tr: Messages = {
   importance: ['Gürültü', 'Bilmeye değer', 'Yakında seni bekliyor', 'Acil'],
   justNow: 'az önce',
   keys: {
+    calendarToday: 'bugün',
+    newEvent: 'yeni etkinlik',
+    period: 'önceki / sonraki',
+    view: 'görünüm',
     skills: 'beceriler',
     unsubscribe: 'abonelikten çık',
     filter: 'filtre',
@@ -307,7 +354,7 @@ export const tr: Messages = {
       ' metinlerini kabul etmiş olursun.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail, Gmail’ini senin için okumak, düzenlemek ve göndermek için izin ister. İzin veren bir kural yazmadığın sürece senin onayın olmadan hiçbir şey gönderilmez ve arşivlenmez.',
+      'Fewmail, Gmail’ini senin için okumak, düzenlemek ve göndermek için izin ister. İzin veren bir kural yazmadığın sürece senin onayın olmadan hiçbir şey gönderilmez ve arşivlenmez. Google Takvim erişimi de ister; bunu kaldırabilirsin.',
     continue: 'Google ile devam et',
     lead: 'Fewmail gelen kutunu senin yerine okur, senin üslubunla yanıtlar ve sadece gerçekten seni bekleyenleri gösterir.',
     messengers:
@@ -373,6 +420,7 @@ export const tr: Messages = {
     unsubscribed: 'Abonelikten çıkıldı',
   },
   nav: {
+    calendar: 'Takvim',
     subscriptions: 'Abonelikler',
     agent: 'Ajan',
     boards: 'Panolar',

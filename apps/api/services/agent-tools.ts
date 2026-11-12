@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { getBoard, listBoards } from './boards'
 import { generateBrief, getToday } from './brief'
+import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
 import { listSubscriptions } from './cleanup'
 import { saveDraft } from './drafts'
 import {
@@ -33,6 +34,18 @@ const define = <Input extends z.ZodRawShape = Record<never, never>>(tool: {
   input?: Input
   run: (input: z.infer<z.ZodObject<Input>>) => Promise<unknown>
 }) => tool
+
+const eventFields = {
+  allDay: z.boolean(),
+  description: z.string().optional(),
+  end: z.string(),
+  location: z.string().optional(),
+  start: z.string(),
+  title: z.string().min(1),
+}
+
+const EVENT_TIMES =
+  "start and end are ISO 8601 with the user's UTC offset, or yyyy-MM-dd when allDay (end exclusive: a one-day event ends the next day)."
 
 /** Everything the agent can do for a user, shared by MCP and the agent chat. */
 export const agentTools = (userId: string) => ({
@@ -192,6 +205,39 @@ export const agentTools = (userId: string) => ({
       'One board: its description, the newest entries (title, group, status, amount, date) and the series behind its charts.',
     input: { id: z.uuid() },
     run: ({ id }) => getBoard(userId, id),
+  }),
+  list_events: define({
+    access: 'read',
+    description:
+      "Events in the user's Google calendars between from and to (ISO 8601), across every mailbox, each with its id and mailboxId. calendars lists each mailbox and whether its calendar is connected.",
+    input: {
+      from: z.iso.datetime({ offset: true }),
+      to: z.iso.datetime({ offset: true }),
+    },
+    run: ({ from, to }) =>
+      listEvents(userId, { from: new Date(from), to: new Date(to) }),
+  }),
+  create_event: define({
+    access: 'consent',
+    description: `Add an event to the user's Google calendar (the sign-in mailbox's unless mailboxId is given). ${EVENT_TIMES} Confirm the title and time with the user first.`,
+    input: { ...eventFields, mailboxId: z.uuid().optional() },
+    run: (event) => createEvent(userId, event),
+  }),
+  update_event: define({
+    access: 'consent',
+    description: `Change an event from list_events, sending every field again. ${EVENT_TIMES}`,
+    input: { ...eventFields, id: z.string(), mailboxId: z.uuid() },
+    run: ({ id, mailboxId, ...event }) =>
+      updateEvent(userId, { id, mailboxId }, event),
+  }),
+  delete_event: define({
+    access: 'consent',
+    description: 'Delete an event from list_events from the Google calendar.',
+    input: { id: z.string(), mailboxId: z.uuid() },
+    run: async (ref) => {
+      await deleteEvent(userId, ref)
+      return { deleted: true }
+    },
   }),
   list_rules: define({
     access: 'read',

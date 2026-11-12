@@ -4,7 +4,7 @@ Fewmail ("we," "our," "us"), owned by Wannabe Space, LLC, is an email agent: it 
 
 ## 2. Google user data we access
 
-When you sign in with Google you grant Fewmail the `gmail.modify` permission together with your basic profile (name, email address, profile photo). We use it only for the features you see in the app:
+When you sign in with Google you grant Fewmail the `gmail.modify` and `calendar.events` permissions together with your basic profile (name, email address, profile photo). We use it only for the features you see in the app:
 
 - **Read** your messages (sender, recipients, subject, date, labels, text body and whether there are attachments) so the agent can summarize them, judge their importance and draft replies. Attachments themselves are not downloaded.
 - **Read your recently sent messages** so drafts match how you write, and to notice when you are waiting for an answer or promised something.
@@ -13,8 +13,9 @@ When you sign in with Google you grant Fewmail the `gmail.modify` permission tog
 - **Save drafts** to your Gmail when you press "Save draft" or ask the agent for a draft, list them under Drafts, and delete one when you send it from Fewmail or discard it. Drafts stay in Gmail; Fewmail does not store them.
 - **Search** your mailbox when you ask the agent a question about your mail.
 - **Unsubscribe** from a mailing list through its one-click unsubscribe link, only when you approve it or a rule you keep allows it.
+- **Show and edit your calendar** (`calendar.events`): Fewmail reads the events of your primary Google calendar (title, time, location and description) to show them on the Calendar page, and creates, changes or deletes an event only when you do it there or approve the agent doing it. Events are read live from Google each time and are not stored by Fewmail; when the agent looks them up for you (agent mode, MCP), they are processed like the mail details it reads. You can leave this permission unticked on Google's consent screen; everything else keeps working.
 
-You can add more Gmail accounts in Settings → Mailboxes. Each one grants the same `gmail.modify` permission plus its email address, and Fewmail uses it exactly as above; its mail joins your own account. An added account is never a way to sign in to yours: signing in to Fewmail with it opens its own, separate Fewmail account.
+You can add more Gmail accounts in Settings → Mailboxes. Each one grants the same `gmail.modify` and `calendar.events` permissions plus its email address, and Fewmail uses it exactly as above; its mail joins your own account. An added account is never a way to sign in to yours: signing in to Fewmail with it opens its own, separate Fewmail account.
 
 ## 3. Limited Use
 

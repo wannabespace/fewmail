@@ -85,6 +85,7 @@ const Calendar = ({
   components,
   formatters,
   locale,
+  modifiersClassNames,
   showOutsideDays = true,
   ...props
 }: React.ComponentProps<typeof DayPicker>) => {
@@ -99,6 +100,11 @@ const Calendar = ({
         className
       )}
       components={{ ...calendarComponents, ...components }}
+      modifiersClassNames={{
+        marked:
+          'after:bg-primary after:absolute after:bottom-0.5 after:left-1/2 after:z-20 after:size-1 after:-translate-x-1/2 after:rounded-full',
+        ...modifiersClassNames,
+      }}
       formatters={{
         formatMonthDropdown: (date) =>
           date.toLocaleString(locale?.code, { month: 'short' }),

@@ -73,7 +73,7 @@ import type {
   ToolUIPart,
   UIMessage,
 } from 'ai'
-import { isToday } from 'date-fns'
+import { isToday, parseISO } from 'date-fns'
 import type { ComponentProps } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -99,13 +99,16 @@ interface Known {
 
 interface ToolInput {
   actionId?: string
+  allDay?: boolean
   effect?: keyof Messages['rules']['effect']
   goal?: string
   instruction?: string
   messageId?: string
   search?: string
+  start?: string
   subject?: string
   text?: string
+  title?: string
   to?: string[]
   until?: string
 }
@@ -301,6 +304,18 @@ const OtherDetails = ({ input, name }: { input: ToolInput; name: string }) => {
       {input.goal && (
         <p data-mask className="text-sm">
           {input.goal}
+        </p>
+      )}
+      {input.title && input.start && (
+        <p className="text-sm">
+          <span data-mask>{input.title}</span>
+          <span className="text-muted-foreground" data-mask>
+            {' · '}
+            {dates.format(
+              parseISO(input.start),
+              input.allDay ? 'EEE PP' : 'EEE PP p'
+            )}
+          </span>
         </p>
       )}
     </>
