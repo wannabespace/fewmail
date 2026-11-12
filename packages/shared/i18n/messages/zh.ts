@@ -151,6 +151,7 @@ export const zh: Messages = {
   },
   ask: {
     label: (question: string) => `问 Fewmail：“${question}”`,
+    openChat: '在聊天中打开',
     thinking: '正在查看你的邮件…',
   },
   compose: {
@@ -1142,7 +1143,7 @@ export const zh: Messages = {
     listen: '🔊 收听',
     heard: (text: string) => `听到的是：“${text}”`,
     voiceFailed: '我没听清。请再说一次，或直接输入。',
-    help: '写下或说出你需要什么：\n• 询问邮件：“Netflix 什么时候续费？”\n• 告诉我回复什么：“告诉安娜我明天签字”\n• 回复我的某个草稿来修改它',
+    help: '写下或说出你需要什么：\n• 询问邮件：“Netflix 什么时候续费？”\n• 告诉我回复什么：“告诉安娜我明天签字”\n• 交给我一件事：“建一个旅行看板”\n• 回复我的某个草稿来修改它',
     canceled: '已取消。草稿已回到队列。',
     sendingIn: (seconds: number) => `${seconds} 秒后发送`,
     undo: '撤销',

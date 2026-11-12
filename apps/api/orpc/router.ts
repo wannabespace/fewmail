@@ -24,7 +24,6 @@ import { type } from 'arktype'
 import { agent, authed, visitor } from '.'
 import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
-import { askMail } from '../services/ask'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
 import {
@@ -55,6 +54,7 @@ import {
   undoClearOut,
 } from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
+import { askFewmail } from '../services/instructions'
 import {
   getTelegramLink,
   getWhatsappLink,
@@ -94,7 +94,7 @@ import {
 } from '../services/notifications'
 import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
 import { getPerson } from '../services/people'
-import { getPlanInfo, getUsage, spendMessage } from '../services/plan'
+import { getPlanInfo, getUsage } from '../services/plan'
 import { getReading } from '../services/reading'
 import {
   createRule,
@@ -474,10 +474,9 @@ export const router = {
   },
   ask: agent
     .input(type({ question: 'string > 2' }))
-    .handler(async ({ context, input }) => {
-      await spendMessage(context.user.id)
-      return askMail(context.user.id, input.question)
-    }),
+    .handler(({ context, input }) =>
+      askFewmail(context.user.id, input.question)
+    ),
   billing: {
     checkout: authed
       .input(

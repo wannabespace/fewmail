@@ -12,17 +12,17 @@ import { models } from '../lib/ai'
 import { askMail } from './ask'
 import { askAgent } from './chat'
 import { draftReply, redraftAction } from './mail'
-import { spendMessage } from './plan'
+import { requireAgent, spendMessage } from './plan'
 
 const RECENT_DAYS = 7
 const CANDIDATES = 15
 
 const understandingSchema = type({
   index: 'number',
-  intent: "'reply' | 'question' | 'other'",
+  intent: "'reply' | 'question' | 'request' | 'other'",
 })
 
-/** "Tell Anna I'll sign tomorrow" names an email among open drafts and recent mail; "when does Netflix renew?" asks about the mail. */
+/** "Tell Anna I'll sign tomorrow" names an email among open drafts and recent mail; "when does Netflix renew?" asks about the mail; "make a board for trips" is work for the agent. */
 const understand = async (userId: string, text: string) => {
   const [openDrafts, recent] = await Promise.all([
     db
@@ -69,7 +69,7 @@ const understand = async (userId: string, text: string) => {
   const { output } = await generateText({
     instructions: [
       'The user writes to their email assistant in a chat.',
-      'intent: "reply" when they say what to answer to one email, "question" when they ask something about their mail, "other" for anything else (greetings, what the assistant can do).',
+      'intent: "reply" when they say what to answer to one email, "question" when they ask something about their mail, "request" when they ask the assistant to do or change anything else (create or change a board, a rule, a schedule or an event; archive, unsubscribe, hand over a thread), "other" for anything else (greetings, what the assistant can do).',
       'index: for "reply", the email it is about, or -1 when none clearly fits; -1 otherwise.',
     ].join('\n'),
     model: models.fast,
@@ -88,23 +88,42 @@ const understand = async (userId: string, text: string) => {
   }
 }
 
-/** A typed or spoken chat message: a skill run in its own agent chat, a reply draft, an answer about the mail, or `help` when it is neither. */
+const inNewChat = async (userId: string, text: string) => {
+  const chatId = randomUUID()
+  return { chatId, text: await askAgent(userId, { id: chatId, text }) }
+}
+
+/** ⌘K: a question is answered from the mail; anything else goes to the agent in a new chat, where its approvals wait. */
+export const askFewmail = async (userId: string, text: string) => {
+  const { intent } = await understand(userId, text)
+  if (intent !== 'question') {
+    const { chatId, text: answer } = await inNewChat(userId, text)
+    return { answer, chatId, query: null, sources: [] }
+  }
+  await spendMessage(userId)
+  return { ...(await askMail(userId, text)), chatId: null }
+}
+
+/** A typed or spoken chat message: a skill or a request run in its own agent chat, a reply draft, an answer about the mail, or `help` when it is none of them. */
 export const followMessage = async (
   userId: string,
   text: string,
   actionId?: string | null
 ) => {
   if (parseSkill(text)) {
-    const chatId = randomUUID()
-    return {
-      skill: { chatId, text: await askAgent(userId, { id: chatId, text }) },
-    }
+    return { skill: await inNewChat(userId, text) }
   }
-  await spendMessage(userId)
   if (actionId) {
+    await spendMessage(userId)
     return { draft: await redraftAction(userId, actionId, text) }
   }
+  await requireAgent(userId)
   const { intent, target } = await understand(userId, text)
+  // The agent's chat spends the message itself; spending here too would count it twice.
+  if (intent === 'request') {
+    return { skill: await inNewChat(userId, text) }
+  }
+  await spendMessage(userId)
   if (intent === 'question') {
     return { answer: await askMail(userId, text) }
   }

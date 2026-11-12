@@ -151,6 +151,7 @@ export const en = {
   },
   ask: {
     label: (question: string) => `Ask Fewmail: “${question}”`,
+    openChat: 'Open in chat',
     thinking: 'Looking through your mail…',
   },
   boards: {
@@ -1509,7 +1510,7 @@ export const en = {
     somethingWrong: 'Something went wrong',
     undo: 'Undo',
     voiceFailed: 'I could not make that out. Try again or type it.',
-    help: 'Write or say what you need:\n• ask about your mail: “when does my Netflix renew?”\n• say what to answer: “tell Anna I’ll sign tomorrow”\n• reply to one of my drafts to change it',
+    help: 'Write or say what you need:\n• ask about your mail: “when does my Netflix renew?”\n• say what to answer: “tell Anna I’ll sign tomorrow”\n• give me a task: “make a board for trips”\n• reply to one of my drafts to change it',
     urgent: 'Urgent',
     willSend: 'Will send:',
   },

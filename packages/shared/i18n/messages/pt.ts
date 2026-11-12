@@ -152,6 +152,7 @@ export const pt: Messages = {
   },
   ask: {
     label: (question: string) => `Perguntar ao Fewmail: “${question}”`,
+    openChat: 'Abrir no chat',
     thinking: 'Procurando nos seus e-mails…',
   },
   byRule: 'por uma regra',
@@ -1493,7 +1494,7 @@ export const pt: Messages = {
     listen: '🔊 Ouvir',
     heard: (text: string) => `Entendi: “${text}”`,
     voiceFailed: 'Não consegui entender. Tente de novo ou digite.',
-    help: 'Escreva ou diga o que precisa:\n• pergunte sobre seus e-mails: “quando a Netflix renova?”\n• diga o que responder: “diga à Ana que assino amanhã”\n• responda a um dos meus rascunhos para mudá-lo',
+    help: 'Escreva ou diga o que precisa:\n• pergunte sobre seus e-mails: “quando a Netflix renova?”\n• diga o que responder: “diga à Ana que assino amanhã”\n• peça uma tarefa: “crie um quadro para viagens”\n• responda a um dos meus rascunhos para mudá-lo',
     canceled: 'Cancelado. O rascunho voltou para sua fila.',
     sendingIn: (seconds: number) => `Enviando em ${seconds} s`,
     undo: 'Desfazer',

@@ -130,6 +130,7 @@ export const fr: Messages = {
   },
   ask: {
     label: (question: string) => `Demander à Fewmail : « ${question} »`,
+    openChat: 'Ouvrir dans le chat',
     thinking: 'Je parcours vos e-mails…',
   },
   compose: {
@@ -1207,7 +1208,7 @@ export const fr: Messages = {
     listen: '🔊 Écouter',
     heard: (text: string) => `Entendu : « ${text} »`,
     voiceFailed: 'Je n’ai pas compris. Réessayez ou écrivez-le.',
-    help: 'Écrivez ou dites ce qu’il vous faut :\n• une question sur vos e-mails : « quand Netflix se renouvelle-t-il ? »\n• quoi répondre : « dis à Anna que je signe demain »\n• répondez à l’un de mes brouillons pour le modifier',
+    help: 'Écrivez ou dites ce qu’il vous faut :\n• une question sur vos e-mails : « quand Netflix se renouvelle-t-il ? »\n• quoi répondre : « dis à Anna que je signe demain »\n• une tâche : « crée un tableau pour les voyages »\n• répondez à l’un de mes brouillons pour le modifier',
     canceled: 'Annulé. Le brouillon est de retour dans votre file.',
     sendingIn: (seconds: number) => `Envoi dans ${seconds} s`,
     undo: 'Annuler',

@@ -135,6 +135,9 @@ export const CommandMenu = ({
             <AskAnswer
               question={askedQuestion}
               result={ask.data}
+              onOpenChat={(chatId) =>
+                run(() => navigate({ search: { chat: chatId }, to: '/agent' }))
+              }
               onOpenThread={(threadId) =>
                 run(() =>
                   navigate({ search: { thread: threadId }, to: '/mail' })

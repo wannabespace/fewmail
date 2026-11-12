@@ -151,6 +151,7 @@ export const nl: Messages = {
   },
   ask: {
     label: (question: string) => `Vraag Fewmail: “${question}”`,
+    openChat: 'Openen in chat',
     thinking: 'Je mail doorzoeken…',
   },
   byRule: 'door een regel',
@@ -1495,7 +1496,7 @@ export const nl: Messages = {
     listen: '🔊 Luisteren',
     heard: (text: string) => `Gehoord: “${text}”`,
     voiceFailed: 'Ik kon het niet verstaan. Probeer het opnieuw of typ het.',
-    help: 'Schrijf of zeg wat je nodig hebt:\n• vraag iets over je mail: ‘wanneer verlengt Netflix?’\n• zeg wat ik moet antwoorden: ‘zeg Anna dat ik morgen teken’\n• antwoord op een van mijn concepten om het aan te passen',
+    help: 'Schrijf of zeg wat je nodig hebt:\n• vraag iets over je mail: ‘wanneer verlengt Netflix?’\n• zeg wat ik moet antwoorden: ‘zeg Anna dat ik morgen teken’\n• geef me een taak: ‘maak een bord voor reizen’\n• antwoord op een van mijn concepten om het aan te passen',
     canceled: 'Geannuleerd. Het concept staat weer in je wachtrij.',
     sendingIn: (seconds: number) => `Versturen over ${seconds} s`,
     undo: 'Ongedaan maken',

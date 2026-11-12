@@ -151,6 +151,7 @@ export const ko: Messages = {
   },
   ask: {
     label: (question: string) => `Fewmail에 묻기: “${question}”`,
+    openChat: '채팅에서 열기',
     thinking: '메일을 살펴보는 중…',
   },
   compose: {
@@ -1163,7 +1164,7 @@ export const ko: Messages = {
     listen: '🔊 듣기',
     heard: (text: string) => `들은 내용: “${text}”`,
     voiceFailed: '잘 알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
-    help: '필요한 것을 쓰거나 말해 주세요:\n• 메일에 대해 묻기: “넷플릭스 갱신일이 언제야?”\n• 답장 내용 말하기: “안나에게 내일 서명한다고 전해 줘”\n• 초안을 바꾸려면 그 초안에 답장하기',
+    help: '필요한 것을 쓰거나 말해 주세요:\n• 메일에 대해 묻기: “넷플릭스 갱신일이 언제야?”\n• 답장 내용 말하기: “안나에게 내일 서명한다고 전해 줘”\n• 일 맡기기: “여행 보드 만들어 줘”\n• 초안을 바꾸려면 그 초안에 답장하기',
     canceled: '취소했어요. 초안이 대기열로 돌아갔어요.',
     sendingIn: (seconds: number) => `${seconds}초 후 전송`,
     undo: '실행 취소',

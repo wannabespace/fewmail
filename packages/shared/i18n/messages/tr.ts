@@ -151,6 +151,7 @@ export const tr: Messages = {
   },
   ask: {
     label: (question: string) => `Fewmail'e sor: “${question}”`,
+    openChat: 'Sohbette aç',
     thinking: 'E-postalarına bakılıyor…',
   },
   byRule: 'bir kuralla',
@@ -1465,7 +1466,7 @@ export const tr: Messages = {
     listen: '🔊 Dinle',
     heard: (text: string) => `Duyduğum: “${text}”`,
     voiceFailed: 'Anlayamadım. Tekrar dene ya da yaz.',
-    help: 'Ne istediğini yaz ya da söyle:\n• e-postaların hakkında sor: “Netflix ne zaman yenileniyor?”\n• ne yanıtlanacağını söyle: “Anna’ya yarın imzalayacağımı yaz”\n• değiştirmek için taslaklarımdan birini yanıtla',
+    help: 'Ne istediğini yaz ya da söyle:\n• e-postaların hakkında sor: “Netflix ne zaman yenileniyor?”\n• ne yanıtlanacağını söyle: “Anna’ya yarın imzalayacağımı yaz”\n• bana bir iş ver: “seyahatler için bir pano oluştur”\n• değiştirmek için taslaklarımdan birini yanıtla',
     canceled: 'İptal edildi. Taslak kuyruğuna geri döndü.',
     sendingIn: (seconds: number) => `${seconds} sn içinde gönderiliyor`,
     undo: 'Geri al',

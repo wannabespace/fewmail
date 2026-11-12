@@ -151,6 +151,7 @@ export const pl: Messages = {
   },
   ask: {
     label: (question: string) => `Zapytaj Fewmail: „${question}”`,
+    openChat: 'Otwórz w czacie',
     thinking: 'Przeglądam twoją pocztę…',
   },
   byRule: 'przez regułę',
@@ -1519,7 +1520,7 @@ export const pl: Messages = {
     heard: (text: string) => `Usłyszałem: „${text}”`,
     voiceFailed:
       'Nie udało mi się tego zrozumieć. Spróbuj jeszcze raz albo napisz.',
-    help: 'Napisz albo powiedz, czego potrzebujesz:\n• zapytaj o pocztę: „kiedy odnawia się Netflix?”\n• powiedz, co odpisać: „napisz Annie, że podpiszę jutro”\n• odpowiedz na mój szkic, żeby go zmienić',
+    help: 'Napisz albo powiedz, czego potrzebujesz:\n• zapytaj o pocztę: „kiedy odnawia się Netflix?”\n• powiedz, co odpisać: „napisz Annie, że podpiszę jutro”\n• zleć mi coś: „utwórz tablicę na podróże”\n• odpowiedz na mój szkic, żeby go zmienić',
     canceled: 'Anulowano. Szkic wrócił do kolejki.',
     sendingIn: (seconds: number) => `Wysyłanie za ${seconds} s`,
     undo: 'Cofnij',

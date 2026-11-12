@@ -151,6 +151,7 @@ export const id: Messages = {
   },
   ask: {
     label: (question: string) => `Tanya Fewmail: “${question}”`,
+    openChat: 'Buka di chat',
     thinking: 'Menelusuri email kamu…',
   },
   byRule: 'oleh aturan',
@@ -1470,7 +1471,7 @@ export const id: Messages = {
     listen: '🔊 Dengarkan',
     heard: (text: string) => `Terdengar: “${text}”`,
     voiceFailed: 'Aku tidak bisa menangkapnya. Coba lagi atau ketik saja.',
-    help: 'Tulis atau ucapkan apa yang kamu perlukan:\n• tanya soal email: “kapan Netflix diperpanjang?”\n• bilang apa balasannya: “bilang ke Anna aku tanda tangan besok”\n• balas salah satu drafku untuk mengubahnya',
+    help: 'Tulis atau ucapkan apa yang kamu perlukan:\n• tanya soal email: “kapan Netflix diperpanjang?”\n• bilang apa balasannya: “bilang ke Anna aku tanda tangan besok”\n• kasih tugas: “buat papan untuk perjalanan”\n• balas salah satu drafku untuk mengubahnya',
     canceled: 'Dibatalkan. Draf kembali ke antrean kamu.',
     sendingIn: (seconds: number) => `Mengirim dalam ${seconds} dtk`,
     undo: 'Urungkan',

@@ -128,6 +128,7 @@ export const es: Messages = {
   },
   ask: {
     label: (question: string) => `Preguntar a Fewmail: «${question}»`,
+    openChat: 'Abrir en el chat',
     thinking: 'Buscando en tu correo…',
   },
   compose: {
@@ -1192,7 +1193,7 @@ export const es: Messages = {
     listen: '🔊 Escuchar',
     heard: (text: string) => `He oído: «${text}»`,
     voiceFailed: 'No lo he entendido. Inténtalo de nuevo o escríbelo.',
-    help: 'Escribe o di lo que necesitas:\n• pregunta por tu correo: «¿cuándo se renueva Netflix?»\n• di qué responder: «dile a Ana que firmo mañana»\n• responde a uno de mis borradores para cambiarlo',
+    help: 'Escribe o di lo que necesitas:\n• pregunta por tu correo: «¿cuándo se renueva Netflix?»\n• di qué responder: «dile a Ana que firmo mañana»\n• pídeme algo: «crea un tablero para viajes»\n• responde a uno de mis borradores para cambiarlo',
     canceled: 'Cancelado. El borrador vuelve a tu cola.',
     sendingIn: (seconds: number) => `Enviando en ${seconds} s`,
     undo: 'Deshacer',

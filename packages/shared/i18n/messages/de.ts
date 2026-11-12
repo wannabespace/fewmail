@@ -128,6 +128,7 @@ export const de: Messages = {
   },
   ask: {
     label: (question: string) => `Fewmail fragen: „${question}“`,
+    openChat: 'Im Chat öffnen',
     thinking: 'Durchsuche deine Mails…',
   },
   compose: {
@@ -1197,7 +1198,7 @@ export const de: Messages = {
     heard: (text: string) => `Verstanden: „${text}“`,
     voiceFailed:
       'Das konnte ich nicht verstehen. Versuch es noch mal oder schreib es.',
-    help: 'Schreib oder sag, was du brauchst:\n• frag nach deiner Mail: „Wann verlängert sich Netflix?“\n• sag, was ich antworten soll: „Sag Anna, dass ich morgen unterschreibe“\n• antworte auf einen meiner Entwürfe, um ihn zu ändern',
+    help: 'Schreib oder sag, was du brauchst:\n• frag nach deiner Mail: „Wann verlängert sich Netflix?“\n• sag, was ich antworten soll: „Sag Anna, dass ich morgen unterschreibe“\n• gib mir eine Aufgabe: „leg ein Board für Reisen an“\n• antworte auf einen meiner Entwürfe, um ihn zu ändern',
     canceled: 'Abgebrochen. Der Entwurf ist wieder in deiner Warteschlange.',
     sendingIn: (seconds: number) => `Senden in ${seconds} s`,
     undo: 'Rückgängig',
