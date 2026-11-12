@@ -9,6 +9,7 @@ import {
 import type {
   AgentToolName,
   ConsentToolName,
+  OpenThread,
   Skill,
   TaskAutonomy,
 } from '@fewmail/shared/agent'
@@ -58,6 +59,7 @@ import {
   Calendar03Icon,
   Cancel01Icon,
   Invoice03Icon,
+  Mail01Icon,
   MailRemove01Icon,
   MailReply01Icon,
   PencilEdit02Icon,
@@ -95,6 +97,7 @@ import { client, limitText, orpc, refetchChanged } from '~/lib/orpc'
 
 import { useCompose } from './compose/compose-context'
 import { DraftText } from './queue-card'
+import { useThread } from './thread-view'
 
 type ToolPart = ToolUIPart | DynamicToolUIPart
 
@@ -591,7 +594,10 @@ const ThreadLink = ({ children, className, href }: ComponentProps<'a'>) => {
     <Link
       to="/agent"
       search={(prev) => ({ ...prev, thread })}
-      className={className}
+      className={cn(
+        'data-[status=active]:bg-foreground/5 -mx-0.5 rounded-sm px-0.5',
+        className
+      )}
     >
       {children}
     </Link>
@@ -603,6 +609,61 @@ const ThreadLink = ({ children, className, href }: ComponentProps<'a'>) => {
 }
 
 const RESPONSE_COMPONENTS = { a: ThreadLink }
+
+const THREAD_HREF = /\]\(\?thread=(?<thread>[^)\s]+)\)/gu
+
+const linkedThreads = (message: UIMessage) => [
+  ...new Set(
+    message.parts.flatMap((part) =>
+      part.type === 'text'
+        ? [...part.text.matchAll(THREAD_HREF)].map(
+            (match) => match.groups?.thread ?? ''
+          )
+        : []
+    )
+  ),
+]
+
+/** The emails J/K walks: the answer that linked the open one, else the newest answer with links. */
+const threadListOf = (messages: UIMessage[], thread: string | undefined) => {
+  const lists = messages
+    .filter(({ role }) => role === 'assistant')
+    .map(linkedThreads)
+    .filter((list) => list.length > 0)
+  return (
+    lists.findLast((list) => !!thread && list.includes(thread)) ??
+    lists.at(-1) ??
+    []
+  )
+}
+
+const useOpenThread = (thread: string | undefined) => {
+  const { data } = useThread(thread)
+  const latest =
+    data?.messages.findLast(({ message }) => !message.isFromMe) ??
+    data?.messages.at(-1)
+  return thread && latest
+    ? {
+        from: latest.message.fromName ?? latest.message.fromEmail,
+        messageId: latest.message.id,
+        subject: latest.message.subject,
+        threadId: thread,
+      }
+    : undefined
+}
+
+const ThreadChip = ({ thread }: { thread: OpenThread }) => (
+  <Link
+    to="/agent"
+    search={(prev) => ({ ...prev, thread: thread.threadId })}
+    className="text-muted-foreground hover:text-foreground flex max-w-full items-center gap-1.5 self-end text-sm transition-colors"
+  >
+    <HugeiconsIcon icon={Mail01Icon} strokeWidth={2} className="size-4" />
+    <span data-mask className="truncate">
+      {thread.from}: {thread.subject}
+    </span>
+  </Link>
+)
 
 const EmptyChat = ({ onPick }: { onPick: (skill: Skill) => void }) => {
   const t = useT()
@@ -765,17 +826,24 @@ export const AgentChat = ({
   chatId,
   initialMessages,
   onSend,
+  onThreadList,
+  thread,
 }: {
   chatId: string
   initialMessages: UIMessage[]
   onSend: () => void
+  onThreadList: (threads: string[]) => void
+  thread: string | undefined
 }) => {
   const t = useT()
   const [text, setText] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [skillIndex, setSkillIndex] = useState(0)
   const [dismissedText, setDismissedText] = useState<string | null>(null)
+  const [detachedThread, setDetachedThread] = useState<string>()
   const composerRef = useRef<HTMLTextAreaElement>(null)
+  const openThread = useOpenThread(thread)
+  const attached = thread === detachedThread ? undefined : openThread
   const {
     addToolApprovalResponse,
     error,
@@ -832,7 +900,10 @@ export const AgentChat = ({
     void sendMessage({
       messageId: editingId ?? undefined,
       metadata: { createdAt: Date.now() },
-      text: value,
+      parts: [
+        ...(attached ? [{ data: attached, type: 'data-thread' as const }] : []),
+        { text: value, type: 'text' as const },
+      ],
     })
     reset()
   }
@@ -888,8 +959,12 @@ export const AgentChat = ({
     () => {
       void regenerate()
     },
-    { enabled: canRegenerate }
+    { enabled: canRegenerate && !thread }
   )
+  const threadList = threadListOf(messages, thread).join(' ')
+  useEffect(() => {
+    onThreadList(threadList ? threadList.split(' ') : [])
+  }, [onThreadList, threadList])
   useEffect(() => {
     composerRef.current?.focus()
   }, [])
@@ -914,6 +989,14 @@ export const AgentChat = ({
                       <MessageContent>
                         {message.parts.map((part, index) => {
                           const key = `${message.id}-${index}`
+                          if (part.type === 'data-thread') {
+                            return (
+                              <ThreadChip
+                                key={key}
+                                thread={part.data as OpenThread}
+                              />
+                            )
+                          }
                           if (part.type === 'text' && message.role === 'user') {
                             return <UserBubble key={key} text={part.text} />
                           }
@@ -1013,6 +1096,22 @@ export const AgentChat = ({
           <SkillMenu active={activeSkill} skills={skills} onPick={pick} />
         )}
         <InputGroup variant="composer">
+          {attached && (
+            <InputGroupAddon align="block-start">
+              <HugeiconsIcon icon={Mail01Icon} strokeWidth={2} />
+              <span data-mask className="min-w-0 truncate">
+                {attached.from}: {attached.subject}
+              </span>
+              <IconButton
+                className="ml-auto"
+                icon={Cancel01Icon}
+                label={t.agent.detach}
+                size="icon-xs"
+                variant="ghost-muted"
+                onClick={() => setDetachedThread(thread)}
+              />
+            </InputGroupAddon>
+          )}
           {editingId && (
             <InputGroupAddon align="block-start">
               <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={2} />

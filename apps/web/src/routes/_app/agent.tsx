@@ -47,6 +47,8 @@ const AgentPage = () => {
   const chatId = chat ?? draftId
   const isSaved = chat !== undefined && chat !== draftId
   const readerWidth = useSubscription(readerWidthStore)
+  const [threadList, setThreadList] = useState<string[]>([])
+  const threadIndex = thread ? threadList.indexOf(thread) : -1
 
   const { data: saved } = useQuery(
     orpc.chats.get.queryOptions({
@@ -61,11 +63,18 @@ const AgentPage = () => {
     setDraftId(crypto.randomUUID())
     void navigate({ search: {}, to: '/agent' })
   }
-  const closeThread = () =>
+  const showThread = (id: string | undefined) =>
     navigate({
-      search: (prev) => ({ ...prev, thread: undefined }),
+      search: (prev) => ({ ...prev, thread: id }),
       to: '/agent',
     })
+  const closeThread = () => showThread(undefined)
+  const stepThread = (offset: number) => {
+    const next = threadList[threadIndex + offset]
+    if (next) {
+      void showThread(next)
+    }
+  }
   const remove = useMutation(
     orpc.chats.delete.mutationOptions({
       onMutate: ({ id }) => {
@@ -81,6 +90,8 @@ const AgentPage = () => {
 
   useHotkey('Mod+Shift+O', startChat, { ignoreInputs: false })
   useHotkey('Escape', closeThread, { enabled: Boolean(thread) })
+  useHotkey('J', () => stepThread(1))
+  useHotkey('K', () => stepThread(-1))
 
   return (
     <ResizableGroup className="flex-1">
@@ -145,6 +156,8 @@ const AgentPage = () => {
             key={chatId}
             chatId={chatId}
             initialMessages={saved?.messages ?? []}
+            thread={thread}
+            onThreadList={setThreadList}
             onSend={() => {
               if (!chat) {
                 void navigate({
@@ -160,6 +173,9 @@ const AgentPage = () => {
           hints={[
             ['⏎', t.keys.send],
             ['⌘⏎', t.keys.approve],
+            ...(threadList.length > 0 && !thread
+              ? [['J', t.keys.open] as [string, string]]
+              : []),
             ['⇧⌘O', t.agent.newChat],
             ['⌘K', t.keys.anything],
           ]}
@@ -180,12 +196,19 @@ const AgentPage = () => {
                 key={thread}
                 isSnoozed={false}
                 threadId={thread}
-                onDone={closeThread}
+                onClose={closeThread}
+                onDone={() => {
+                  void showThread(threadList[threadIndex + 1])
+                }}
               />
               <KeyHints
                 hints={[
+                  ['R', t.keys.reply],
                   ['E', t.keys.archive],
-                  ['R', t.keys.draftReply],
+                  ['/', t.keys.ask],
+                  ...(threadIndex === -1
+                    ? []
+                    : [['J / K', t.keys.move] as [string, string]]),
                   ['esc', t.keys.close],
                 ]}
               />

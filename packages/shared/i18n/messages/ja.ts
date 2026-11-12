@@ -55,6 +55,7 @@ export const ja: Messages = {
     },
     decline: 'やめる',
     declined: 'キャンセルしました',
+    detach: 'このメールを添付しない',
     deleteChat: 'チャットを削除',
     failed:
       'エージェントが最後まで完了できませんでした。もう一度お試しください。',
@@ -268,6 +269,7 @@ export const ja: Messages = {
     reply: '返信',
     snooze: 'スヌーズ',
     trash: 'ゴミ箱',
+    ask: 'これについて聞く',
     anything: '何でも',
     archive: 'アーカイブ',
     approve: '承認',

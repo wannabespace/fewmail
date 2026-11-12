@@ -169,6 +169,14 @@ export const parseSkill = (text: string) => {
   return skill ? { details: groups?.details?.trim() ?? '', skill } : undefined
 }
 
+/** The email open beside the agent chat when the user wrote, sent as a `data-thread` part of their message. */
+export interface OpenThread {
+  from: string
+  messageId: string
+  subject: string
+  threadId: string
+}
+
 /**
  * Every tool of `apps/api/services/agent-tools.ts` with its access. `consent` changes Gmail, sends or lets the agent act alone:
  * the chat asks first and its card must show every input (`ConsentToolName`), MCP marks it destructive.

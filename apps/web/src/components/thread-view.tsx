@@ -54,12 +54,14 @@ type ThreadMessage = NonNullable<
   ReturnType<typeof useThread>['data']
 >['messages'][number]['message']
 
-const useThread = (threadId: string) =>
+export const useThread = (threadId: string | undefined) =>
   useLiveQuery((q) =>
-    q
-      .from({ thread: threads })
-      .where(({ thread }) => eq(thread.threadId, threadId))
-      .findOne()
+    threadId
+      ? q
+          .from({ thread: threads })
+          .where(({ thread }) => eq(thread.threadId, threadId))
+          .findOne()
+      : undefined
   )
 
 const riskOf = (rows: { message: ThreadMessage }[]) =>
@@ -514,10 +516,12 @@ const revealComposer = (node: HTMLElement | null) =>
 
 export const ThreadView = ({
   isSnoozed,
+  onClose,
   onDone,
   threadId,
 }: {
   isSnoozed: boolean
+  onClose: () => void
   onDone: () => void
   threadId: string
 }) => {
@@ -589,7 +593,7 @@ export const ThreadView = ({
                 shortcut={<Kbd>esc</Kbd>}
                 size="icon-sm"
                 variant="ghost-muted"
-                onClick={onDone}
+                onClick={onClose}
               />
             </div>
             {target && (

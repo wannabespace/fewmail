@@ -851,11 +851,13 @@ const MailPage = () => {
       GROUPINGS[(GROUPINGS.indexOf(grouping) + 1) % GROUPINGS.length] ?? 'none'
     )
   )
+  const closeThread = () =>
+    navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
   useHotkey(
     'Escape',
     () => {
       if (thread) {
-        void navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
+        void closeThread()
       } else if (q) {
         setSearch('')
         void navigate({ search: (prev) => ({ ...prev, q: undefined }) })
@@ -1037,9 +1039,8 @@ const MailPage = () => {
               key={thread}
               isSnoozed={filter === 'snoozed'}
               threadId={thread}
-              onDone={() =>
-                navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
-              }
+              onClose={closeThread}
+              onDone={closeThread}
             />
             <KeyHints
               hints={[

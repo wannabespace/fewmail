@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { chats } from '@fewmail/db/schema'
+import type { OpenThread } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import {
@@ -62,6 +63,18 @@ const instructionsFor = async (userId: string) => {
   ]
     .filter(Boolean)
     .join('\n')
+}
+
+/** History keeps the email that was open, so "this" and "reply to it" still mean that one later in the chat. */
+const openThreadText = (part: { data: unknown; type: string }) => {
+  if (part.type !== 'data-thread') {
+    return
+  }
+  const { from, messageId, subject, threadId } = part.data as OpenThread
+  return {
+    text: `The user wrote this with an email open beside the chat: ${from}: ${subject} (threadId ${threadId}, latest messageId ${messageId}). "This", "it" or "here" mean that email.`,
+    type: 'text' as const,
+  }
 }
 
 /** An approval the user never answered (they wrote something else instead) counts as declined. */
@@ -182,7 +195,10 @@ export const streamChat = async (
 
   const result = streamText({
     instructions: await instructionsFor(userId),
-    messages: await convertToModelMessages(expandSkills(messages), { tools }),
+    messages: await convertToModelMessages(expandSkills(messages), {
+      convertDataPart: openThreadText,
+      tools,
+    }),
     model: models.writer,
     stopWhen: stepCountIs(MAX_STEPS),
     tools,
