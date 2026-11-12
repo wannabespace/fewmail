@@ -82,17 +82,38 @@ const findPart = (part: GmailPart, mimeType: string): GmailPart | undefined =>
     ? part
     : part.parts?.map((child) => findPart(child, mimeType)).find(Boolean)
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  apos: "'",
+  gt: '>',
+  lt: '<',
+  nbsp: ' ',
+  quot: '"',
+}
+
+/** One pass, so `&amp;lt;` stays `&lt;` instead of turning into `<`. */
+const decodeEntities = (text: string) =>
+  text.replaceAll(
+    /&(?:#(?<hex>x[\da-f]+)|#(?<dec>\d+)|(?<name>[a-z]+));/giu,
+    (entity, ...args) => {
+      const { dec, hex, name } = args.at(-1) as Record<string, string>
+      const code = hex ? Number.parseInt(hex.slice(1), 16) : Number(dec)
+      if (name) {
+        return NAMED_ENTITIES[name.toLowerCase()] ?? entity
+      }
+      return code > 0 && code <= 0x10_ff_ff
+        ? String.fromCodePoint(code)
+        : entity
+    }
+  )
+
 const htmlToText = (html: string) =>
-  html
-    .replaceAll(/<(?<tag>style|script)[\s\S]*?<\/\k<tag>>/giu, '')
-    .replaceAll(/<br\s*\/?>|<\/(?:p|div|tr|li|h\d)>/giu, '\n')
-    .replaceAll(/<[^>]+>/gu, '')
-    .replaceAll('&nbsp;', ' ')
-    .replaceAll('&amp;', '&')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#39;', "'")
+  decodeEntities(
+    html
+      .replaceAll(/<(?<tag>style|script)[\s\S]*?<\/\k<tag>>/giu, '')
+      .replaceAll(/<br\s*\/?>|<\/(?:p|div|tr|li|h\d)>/giu, '\n')
+      .replaceAll(/<[^>]+>/gu, '')
+  )
     .replaceAll(/\n{3,}/gu, '\n\n')
     .trim()
 
@@ -138,10 +159,11 @@ export const parseMessage = (message: GmailMessage) => {
   const html = findPart(message.payload, 'text/html')?.body?.data
   const from = parseAddress(headers.get('from') ?? '')
   const labelIds = message.labelIds ?? []
+  const snippet = decodeEntities(message.snippet)
 
   return {
     ...mailSignals(message.payload.headers ?? []),
-    body: messageBody(plain, html, message.snippet),
+    body: messageBody(plain, html, snippet),
     cc: splitAddresses(headers.get('cc')),
     fromDomain: domainOf(from.email),
     fromEmail: from.email,
@@ -159,7 +181,7 @@ export const parseMessage = (message: GmailMessage) => {
     replyTo: headers.get('reply-to')
       ? parseAddress(headers.get('reply-to') ?? '').email
       : null,
-    snippet: message.snippet,
+    snippet,
     subject: headers.get('subject') ?? '(no subject)',
     threadId: message.threadId,
     to: splitAddresses(headers.get('to')),
