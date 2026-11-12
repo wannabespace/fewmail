@@ -209,14 +209,6 @@ const MailDigest = ({ today }: { today: Today }) => {
           {today.recent.map(({ analysis, message }) => (
             <SettingsRow
               key={message.id}
-              icon={
-                <span className="flex size-4 items-center justify-center">
-                  <ImportanceDot
-                    importance={analysis.importance}
-                    reason={analysis.reason}
-                  />
-                </span>
-              }
               title={
                 <ThreadLink
                   threadId={message.threadId}
@@ -226,6 +218,10 @@ const MailDigest = ({ today }: { today: Today }) => {
               description={<span data-mask>{analysis.summary}</span>}
             >
               <Ago date={message.receivedAt} />
+              <ImportanceDot
+                importance={analysis.importance}
+                reason={analysis.reason}
+              />
             </SettingsRow>
           ))}
         </SettingsGroup>
