@@ -11,6 +11,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@fewmail/ui/components/context-menu'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +46,7 @@ import {
   MailRemove01Icon,
   News01Icon,
   Moon02Icon,
+  PencilEdit02Icon,
   Search01Icon,
   Settings01Icon,
   Sun03Icon,
@@ -67,6 +69,7 @@ import { orpc, refetchChanged } from '~/lib/orpc'
 import { queryClient } from '~/lib/query-client'
 import { SITE_NAME } from '~/lib/seo'
 
+import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
 
 export const NAV_ITEMS = [
@@ -466,6 +469,7 @@ export const Sidebar = ({
   const t = useT()
   const hasAgent = useHasAgent()
   const isModifierHeld = useModifierHold()
+  const { openCompose } = useCompose()
   const { data: queued } = useQuery(
     orpc.today.count.queryOptions({ enabled: hasAgent })
   )
@@ -488,21 +492,31 @@ export const Sidebar = ({
       <div className="px-2.5 pb-4">
         <Logo to={hasAgent ? '/today' : '/mail'} />
       </div>
-      <button
-        type="button"
-        onClick={onSearch}
-        className="bg-input text-muted-foreground ring-foreground/6 hover:ring-foreground/12 focus-visible:focus-ring mb-3 flex h-8 cursor-pointer items-center justify-between rounded-lg px-2.5 text-sm shadow-2xs ring outline-none"
-      >
-        <span className="flex items-center gap-2">
-          <HugeiconsIcon
-            icon={Search01Icon}
-            strokeWidth={2}
-            className="size-4"
-          />
-          {t.nav.search}
-        </span>
-        <Kbd>⌘K</Kbd>
-      </button>
+      <div className="mb-3 flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={onSearch}
+          className="bg-input text-muted-foreground ring-foreground/6 hover:ring-foreground/12 focus-visible:focus-ring flex h-8 min-w-0 flex-1 cursor-pointer items-center justify-between rounded-lg px-2.5 text-sm shadow-2xs ring outline-none"
+        >
+          <span className="flex min-w-0 items-center gap-2">
+            <HugeiconsIcon
+              icon={Search01Icon}
+              strokeWidth={2}
+              className="size-4 shrink-0"
+            />
+            <span className="truncate">{t.nav.search}</span>
+          </span>
+          <Kbd>⌘K</Kbd>
+        </button>
+        <IconButton
+          icon={PencilEdit02Icon}
+          label={t.command.compose}
+          shortcut={<Kbd>C</Kbd>}
+          size="icon"
+          variant="outline-muted"
+          onClick={() => openCompose()}
+        />
+      </div>
       {visibleNavItems(hasAgent).map((item) => (
         <NavLink
           key={item.to}
