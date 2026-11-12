@@ -45,7 +45,8 @@ export const listSubscriptions = async (userId: string) => {
           messages.fromName
         ),
         messageId: sql<string>`(array_agg(${messages.id} order by ${messages.receivedAt} desc))[1]`,
-        opened: sql<number>`count(*) filter (where not ${messages.isUnread})::int`,
+        // An autonomous archive or mark-read clears UNREAD too: counted as opened, every list a starter rule handled looked read and was never offered for cleanup.
+        opened: sql<number>`count(*) filter (where not ${messages.isUnread} and not exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id} and ${actions.status} = 'auto_done' and ${actions.kind} in ('archive', 'mark_read')))::int`,
       })
       .from(messages)
       .where(

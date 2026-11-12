@@ -422,7 +422,7 @@ export const useMailActions = (onDone?: () => void) => {
     unsnooze: useMutation(
       orpc.mail.unsnooze.mutationOptions({
         ...leave,
-        onSuccess: () => finish(t.snooze.unsnooze),
+        onSuccess: () => finish(t.mail.backInInbox),
       })
     ),
     unsubscribe: useMutation(

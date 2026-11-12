@@ -112,7 +112,7 @@ export const GMAIL_EFFECTS = [
 ] as const
 export type GmailEffect = (typeof GMAIL_EFFECTS)[number]
 
-export const isGmailEffect = (effect: RuleEffect) =>
+export const isGmailEffect = (effect: RuleEffect): effect is GmailEffect =>
   (GMAIL_EFFECTS as readonly RuleEffect[]).includes(effect)
 
 export const PLANS = ['free', 'trial', 'pro', 'max'] as const

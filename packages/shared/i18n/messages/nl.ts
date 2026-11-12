@@ -348,6 +348,12 @@ export const nl: Messages = {
       `Massamail: ${n}+ Fewmail-gebruikers kregen dezelfde tekst`,
   },
   calendar: {
+    noAccess: {
+      allow: 'Toegang geven',
+      description:
+        'Google mocht je agenda niet met Fewmail delen. Sta het toe om hier afspraken te zien en toe te voegen.',
+      title: 'Agenda niet verbonden',
+    },
     allDay: 'Hele dag',
     calendar: 'Agenda',
     create: 'Afspraak toevoegen',
@@ -530,6 +536,8 @@ export const nl: Messages = {
   importance: ['Ruis', 'Goed om te weten', 'Heeft je snel nodig', 'Dringend'],
   justNow: 'zojuist',
   errors: {
+    calendarAccess:
+      'Fewmail heeft geen toegang tot deze agenda. Sta het toe op de pagina Agenda.',
     failed: 'Er ging iets mis. Probeer het opnieuw.',
     needsPro: 'Hiervoor heb je Fewmail Pro nodig.',
     alreadySent: 'Al verzonden, te laat om ongedaan te maken.',
@@ -586,7 +594,17 @@ export const nl: Messages = {
     tasks: (total: number) =>
       `Je abonnement neemt ${total} threads tegelijk over. Laat er een afronden of stap over op Max via Instellingen → Abonnement.`,
   },
+  notices: {
+    mailLost:
+      'Fewmail heeft geen toegang meer tot je Gmail en leest geen nieuwe mail.',
+    mailboxLost: (email: string) =>
+      `Fewmail heeft geen toegang meer tot ${email}.`,
+    reconnect: 'Opnieuw verbinden',
+    signInAgain: 'Opnieuw inloggen',
+  },
   login: {
+    needsGmail:
+      'Fewmail heeft toegang tot je Gmail nodig. Log opnieuw in en laat het Gmail-vakje op het scherm van Google aangevinkt.',
     agree: ((slots) => [
       'Door verder te gaan ga je akkoord met de ',
       slots.terms,
@@ -657,6 +675,8 @@ export const nl: Messages = {
     dueHint: 'Deadline die de agent in deze e-mail vond',
     empty: 'Geen e-mails hier',
     emptyHint: 'Nieuwe e-mails verschijnen hier zodra ze binnenkomen.',
+    noResults: 'Niets gevonden',
+    noResultsHint: 'Probeer andere woorden of een andere map.',
     expectsReply: 'Verwacht antwoord',
     filter: {
       archive: 'Archief',
@@ -815,6 +835,7 @@ export const nl: Messages = {
     title: 'Controleer voordat je iets doet',
   },
   rules: {
+    deleted: 'Regel verwijderd',
     add: 'Regel toevoegen',
     count: (total: number) =>
       plural('nl', total, {
@@ -836,7 +857,7 @@ export const nl: Messages = {
       unsubscribe: 'Afmelden',
     },
     enabled: 'Regel ingeschakeld',
-    lead: 'Vertel de agent in gewone woorden wat hij met bepaalde mail moet doen. Hij toetst elke e-mail aan deze regels, van boven naar beneden.',
+    lead: 'Vertel de agent in gewone woorden wat hij met bepaalde mail moet doen. Hij toetst elke e-mail aan deze regels.',
     newTitle: 'Nieuwe regel aanleren',
     leadFree:
       'Archiveer, markeer als gelezen of meld je automatisch af. Regels werken op nieuwe mail zodra die binnenkomt.',
@@ -1537,6 +1558,7 @@ export const nl: Messages = {
     willSend: 'Ik verstuur:',
   },
   today: {
+    stopListening: 'Stoppen',
     awaiting: 'Wacht op antwoord',
     hint: {
       notNow: 'Niet nu',

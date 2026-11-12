@@ -15,7 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
-import { PlayIcon } from '@hugeicons/core-free-icons'
+import { PlayIcon, StopIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -25,7 +25,7 @@ import {
   redirect,
   useNavigate,
 } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { BriefHourSelect } from '~/components/agent-fields'
@@ -292,6 +292,10 @@ const Saved = ({ saved }: { saved: Today['saved'] }) => {
   )
 }
 
+/** Module-level so the ref stays the same function and scrolls once, when H opens the list below the fold. */
+const revealOnMount = (node: HTMLElement | null) =>
+  node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
 const DayTally = ({
   isReviewing,
   onReview,
@@ -316,7 +320,11 @@ const DayTally = ({
       {today.handled.total > 0 && (
         <HandledSummary handled={today.handled} onReview={onReview} />
       )}
-      {isReviewing && <HandledList />}
+      {isReviewing && (
+        <div ref={revealOnMount}>
+          <HandledList />
+        </div>
+      )}
     </>
   )
 }
@@ -394,10 +402,7 @@ const BriefBody = ({
       )}
       {brief && (
         <div>
-          <Button size="sm" variant="secondary" onClick={() => playBrief()}>
-            <HugeiconsIcon icon={PlayIcon} strokeWidth={2} />
-            {t.today.listen}
-          </Button>
+          <ListenButton />
         </div>
       )}
       {isLoading && (
@@ -409,9 +414,52 @@ const BriefBody = ({
   )
 }
 
-/** Spoken by the API on demand; the audio element carries the session cookie (same site). */
-const playBrief = () =>
-  new Audio(`${import.meta.env.API_URL}/voice/brief`).play()
+/** Spoken by the API on demand, which takes a few seconds; the audio element carries the session cookie (same site). */
+const ListenButton = () => {
+  const t = useT()
+  const audio = useRef<HTMLAudioElement | null>(null)
+  const [state, setState] = useState<'idle' | 'loading' | 'playing'>('idle')
+  useEffect(() => () => audio.current?.pause(), [])
+
+  const toggle = () => {
+    if (audio.current) {
+      audio.current.pause()
+      audio.current = null
+      setState('idle')
+      return
+    }
+    const player = new Audio(`${import.meta.env.API_URL}/voice/brief`)
+    audio.current = player
+    setState('loading')
+    player.addEventListener('playing', () => setState('playing'))
+    const stop = () => {
+      if (audio.current === player) {
+        audio.current = null
+        setState('idle')
+      }
+    }
+    player.addEventListener('ended', stop)
+    player.addEventListener('error', () => {
+      stop()
+      toast.error(t.errors.failed)
+    })
+    void player.play().catch(stop)
+  }
+
+  return (
+    <Button size="sm" variant="secondary" onClick={toggle}>
+      {state === 'loading' ? (
+        <Spinner />
+      ) : (
+        <HugeiconsIcon
+          icon={state === 'playing' ? StopIcon : PlayIcon}
+          strokeWidth={2}
+        />
+      )}
+      {state === 'idle' ? t.today.listen : t.today.stopListening}
+    </Button>
+  )
+}
 
 const BriefTime = ({ label }: { label: (time: string) => string }) => {
   const { settings } = useMe()

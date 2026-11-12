@@ -705,6 +705,12 @@ export const fr: Messages = {
   },
   byRule: 'par une règle',
   calendar: {
+    noAccess: {
+      allow: 'Autoriser l’accès',
+      description:
+        'Google n’a pas été autorisé à partager votre agenda avec Fewmail. Autorisez-le pour voir et ajouter des événements ici.',
+      title: 'Agenda non connecté',
+    },
     allDay: 'Toute la journée',
     calendar: 'Calendrier',
     create: 'Ajouter l’événement',
@@ -767,6 +773,8 @@ export const fr: Messages = {
   importance: ['Bruit', 'Bon à savoir', 'Bientôt pour vous', 'Urgent'],
   justNow: 'à l’instant',
   errors: {
+    calendarAccess:
+      'Fewmail n’a pas accès à cet agenda. Autorisez-le depuis la page Agenda.',
     failed: 'Un problème est survenu. Réessaie.',
     needsPro: 'Il faut Fewmail Pro pour cela.',
     alreadySent: 'Déjà envoyé, trop tard pour annuler.',
@@ -823,7 +831,16 @@ export const fr: Messages = {
     tasks: (total: number) =>
       `Votre forfait gère ${total} fils à la fois. Laissez-en un se terminer ou passez à Max dans Réglages → Forfait.`,
   },
+  notices: {
+    mailLost:
+      'Fewmail a perdu l’accès à votre Gmail et ne lit plus les nouveaux e-mails.',
+    mailboxLost: (email: string) => `Fewmail a perdu l’accès à ${email}.`,
+    reconnect: 'Reconnecter',
+    signInAgain: 'Se reconnecter',
+  },
   login: {
+    needsGmail:
+      'Fewmail a besoin d’accéder à votre Gmail. Reconnectez-vous et laissez la case Gmail cochée sur l’écran de Google.',
     agree: ((slots) => [
       'En continuant, vous acceptez les ',
       slots.terms,
@@ -895,6 +912,8 @@ export const fr: Messages = {
     dueHint: 'Échéance trouvée par l’agent dans cet e-mail',
     empty: 'Aucun e-mail ici',
     emptyHint: 'Les nouveaux e-mails apparaîtront ici dès leur arrivée.',
+    noResults: 'Aucun résultat',
+    noResultsHint: 'Essayez d’autres mots ou un autre dossier.',
     expectsReply: 'Attend une réponse',
     filter: {
       archive: 'Archives',
@@ -1027,6 +1046,7 @@ export const fr: Messages = {
     skip: 'Passer',
   },
   rules: {
+    deleted: 'Règle supprimée',
     add: 'Ajouter une règle',
     count: (total: number) =>
       plural('fr', total, {
@@ -1048,7 +1068,7 @@ export const fr: Messages = {
       unsubscribe: 'Se désabonner',
     },
     enabled: 'Règle activée',
-    lead: 'Dites à l’agent avec vos mots quoi faire de certains e-mails. Il compare chaque e-mail à ces règles, de haut en bas.',
+    lead: 'Dites à l’agent avec vos mots quoi faire de certains e-mails. Il compare chaque e-mail à ces règles.',
     newTitle: 'Apprendre une nouvelle règle',
     placeholder: 'ex. Factures de Hetzner ou notifications LinkedIn',
     leadFree:
@@ -1253,6 +1273,7 @@ export const fr: Messages = {
     willSend: 'J’enverrai :',
   },
   today: {
+    stopListening: 'Arrêter',
     awaiting: 'En attente de réponse',
     hint: {
       notNow: 'Pas maintenant',

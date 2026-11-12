@@ -14,6 +14,10 @@ const CONSENT_MINUTES = 10
 
 export type AddMailboxResult = 'added' | 'failed' | 'sign_in'
 
+/** A revoked or narrowed grant, which only the user can fix; any other sync error is retried on its own. */
+const LOST_ACCESS =
+  /failed: 40[01]\b|invalid_grant|insufficient|access token|No Google account/iu
+
 export const listMailboxes = (userId: string) =>
   db
     .select({
@@ -30,6 +34,7 @@ export const listMailboxes = (userId: string) =>
     .then((rows) =>
       rows.map(({ googleAccountId, historyId, ...mailbox }) => ({
         ...mailbox,
+        hasLostAccess: LOST_ACCESS.test(mailbox.syncError ?? ''),
         hasSynced: historyId !== null,
         signIn: googleAccountId === null,
       }))

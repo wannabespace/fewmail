@@ -7,6 +7,7 @@ import { accounts } from '@fewmail/db/schema'
 import * as schema from '@fewmail/db/schema'
 import { betterAuth } from 'better-auth'
 import { jwt } from 'better-auth/plugins'
+import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 
 import { env } from '../env'
@@ -122,6 +123,39 @@ export const googleAccessToken = async (userId: string) => {
     })
   }
   return accessToken
+}
+
+const tokenScopes = new Map<string, { scopes: Set<string>; token: string }>()
+
+/**
+ * Google's consent screen lets the user untick a scope, and Better Auth never rewrites `accounts.scope` on a later sign-in,
+ * so the current token is asked instead. When Google cannot be asked, the scope counts as granted: a wrong "no" locks the user out.
+ */
+export const hasSignInScope = async (userId: string, scope: string) => {
+  const token = await Result.tryPromise(() => googleAccessToken(userId))
+  if (token.isErr()) {
+    return true
+  }
+  const cached = tokenScopes.get(userId)
+  if (cached?.token === token.value) {
+    return cached.scopes.has(scope)
+  }
+  const info = await Result.tryPromise(async () => {
+    const response = await fetch('https://oauth2.googleapis.com/tokeninfo', {
+      body: new URLSearchParams({ access_token: token.value }),
+      method: 'POST',
+    })
+    if (!response.ok) {
+      throw new Error(`Google tokeninfo failed: ${response.status}`)
+    }
+    return (await response.json()) as { scope: string }
+  })
+  if (info.isErr()) {
+    return true
+  }
+  const scopes = new Set(info.value.scope.split(' '))
+  tokenScopes.set(userId, { scopes, token: token.value })
+  return scopes.has(scope)
 }
 
 export const MAILBOX_CALLBACK_PATH = '/mailboxes/callback'

@@ -16,30 +16,18 @@ const requireAgentFor = async (userId: string, effect?: RuleEffect) => {
   }
 }
 
+/** Newest first; starter rules share one `createdAt`, so the id keeps their order from shuffling between reads. */
+export const RULE_ORDER = [desc(rules.createdAt), desc(rules.id)] as const
+
 export const listRules = (userId: string) =>
   db
     .select()
     .from(rules)
     .where(eq(rules.userId, userId))
-    .orderBy(desc(rules.createdAt))
+    .orderBy(...RULE_ORDER)
 
-export const createRule = async (
-  userId: string,
-  input:
-    | { effect: RuleEffect; instruction: string }
-    | { effect: RuleEffect; match: SimpleMatch }
-) => {
-  await requireAgentFor(userId, input.effect)
-  const [rule] = await db
-    .insert(rules)
-    .values(
-      'match' in input
-        ? { effect: input.effect, match: input.match, userId }
-        : { ...input, userId }
-    )
-    .returning()
-  return expectRow(rule)
-}
+const sameText = (a: string, b: string) =>
+  a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase()
 
 export const updateRule = async (
   userId: string,
@@ -60,6 +48,35 @@ export const updateRule = async (
     throw new NotFoundError('Rule not found')
   }
   return rule
+}
+
+export const createRule = async (
+  userId: string,
+  input:
+    | { effect: RuleEffect; instruction: string }
+    | { effect: RuleEffect; match: SimpleMatch }
+) => {
+  await requireAgentFor(userId, input.effect)
+  const existing = await listRules(userId)
+  const twin = existing.find((rule) =>
+    'match' in input
+      ? rule.match?.field === input.match.field &&
+        sameText(rule.match.value, input.match.value)
+      : rule.instruction !== null &&
+        sameText(rule.instruction, input.instruction)
+  )
+  if (twin) {
+    return updateRule(userId, twin.id, { effect: input.effect, enabled: true })
+  }
+  const [rule] = await db
+    .insert(rules)
+    .values(
+      'match' in input
+        ? { effect: input.effect, match: input.match, userId }
+        : { ...input, userId }
+    )
+    .returning()
+  return expectRow(rule)
 }
 
 export const deleteRule = async (userId: string, id: string) => {

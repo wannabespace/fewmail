@@ -699,6 +699,12 @@ export const it: Messages = {
   },
   byRule: 'da una regola',
   calendar: {
+    noAccess: {
+      allow: 'Consenti accesso',
+      description:
+        'Google non ha il permesso di condividere il tuo calendario con Fewmail. Consentilo per vedere e aggiungere eventi qui.',
+      title: 'Calendario non collegato',
+    },
     allDay: 'Tutto il giorno',
     calendar: 'Calendario',
     create: 'Aggiungi evento',
@@ -761,6 +767,8 @@ export const it: Messages = {
   importance: ['Rumore', 'Buono a sapersi', 'Presto per te', 'Urgente'],
   justNow: 'proprio ora',
   errors: {
+    calendarAccess:
+      'Fewmail non ha accesso a questo calendario. Consentilo dalla pagina Calendario.',
     failed: 'Qualcosa è andato storto. Riprova.',
     needsPro: 'Serve Fewmail Pro.',
     alreadySent: 'Già inviata: è tardi per annullare.',
@@ -817,7 +825,16 @@ export const it: Messages = {
     tasks: (total: number) =>
       `Il tuo piano gestisce ${total} thread alla volta. Lascia che uno finisca o passa a Max in Impostazioni → Piano.`,
   },
+  notices: {
+    mailLost:
+      'Fewmail ha perso l’accesso al tuo Gmail e non legge la posta nuova.',
+    mailboxLost: (email: string) => `Fewmail ha perso l’accesso a ${email}.`,
+    reconnect: 'Ricollega',
+    signInAgain: 'Accedi di nuovo',
+  },
   login: {
+    needsGmail:
+      'Fewmail ha bisogno del tuo Gmail. Accedi di nuovo e lascia spuntata la casella Gmail nella schermata di Google.',
     agree: ((slots) => [
       'Continuando accetti i ',
       slots.terms,
@@ -889,6 +906,8 @@ export const it: Messages = {
     dueHint: 'Scadenza trovata dall’agente in questa email',
     empty: 'Nessuna email qui',
     emptyHint: 'Le nuove email compariranno qui appena arrivano.',
+    noResults: 'Nessun risultato',
+    noResultsHint: 'Prova altre parole o un’altra cartella.',
     expectsReply: 'Attende risposta',
     filter: {
       archive: 'Archivio',
@@ -1020,6 +1039,7 @@ export const it: Messages = {
     skip: 'Salta',
   },
   rules: {
+    deleted: 'Regola eliminata',
     add: 'Aggiungi regola',
     count: (total: number) =>
       plural('it', total, {
@@ -1041,7 +1061,7 @@ export const it: Messages = {
       unsubscribe: 'Disiscriviti',
     },
     enabled: 'Regola attiva',
-    lead: 'Di’ all’agente a parole tue cosa fare con certe email. Confronta ogni email con queste regole, dall’alto in basso.',
+    lead: 'Di’ all’agente a parole tue cosa fare con certe email. Confronta ogni email con queste regole.',
     newTitle: 'Insegna una nuova regola',
     placeholder: 'es. Fatture di Hetzner o notifiche di LinkedIn',
     leadFree:
@@ -1242,6 +1262,7 @@ export const it: Messages = {
     willSend: 'Invierò:',
   },
   today: {
+    stopListening: 'Interrompi',
     awaiting: 'In attesa di risposta',
     hint: {
       notNow: 'Non ora',

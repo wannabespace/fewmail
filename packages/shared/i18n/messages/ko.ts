@@ -199,6 +199,12 @@ export const ko: Messages = {
     removeLink: '링크 제거',
   },
   calendar: {
+    noAccess: {
+      allow: '접근 허용',
+      description:
+        'Google에서 캘린더 공유가 허용되지 않았어요. 여기서 일정을 보고 추가하려면 허용해 주세요.',
+      title: '캘린더가 연결되지 않았어요',
+    },
     allDay: '종일',
     calendar: '캘린더',
     create: '일정 추가',
@@ -261,6 +267,8 @@ export const ko: Messages = {
   importance: ['잡음', '알아두면 좋음', '곧 확인 필요', '긴급'],
   justNow: '방금',
   errors: {
+    calendarAccess:
+      'Fewmail이 이 캘린더에 접근할 수 없어요. 캘린더 페이지에서 허용해 주세요.',
     failed: '문제가 발생했어요. 다시 시도해 주세요.',
     needsPro: 'Fewmail Pro가 필요해요.',
     alreadySent: '이미 보냈어요. 취소하기엔 늦었어요.',
@@ -317,7 +325,15 @@ export const ko: Messages = {
     tasks: (total: number) =>
       `현재 플랜은 스레드를 한 번에 ${total}개까지 맡길 수 있어요. 하나가 끝나길 기다리거나 설정 → 플랜에서 Max로 바꾸세요.`,
   },
+  notices: {
+    mailLost: 'Fewmail이 Gmail에 접근할 수 없어 새 메일을 읽지 못하고 있어요.',
+    mailboxLost: (email: string) => `Fewmail이 ${email}에 접근할 수 없어요.`,
+    reconnect: '다시 연결',
+    signInAgain: '다시 로그인',
+  },
   login: {
+    needsGmail:
+      'Fewmail이 작동하려면 Gmail 접근 권한이 필요해요. 다시 로그인하고 Google 화면에서 Gmail 항목을 체크한 채로 두세요.',
     agree: ((slots) => [
       '계속하면 ',
       slots.terms,
@@ -388,6 +404,8 @@ export const ko: Messages = {
     dueHint: '에이전트가 이 메일에서 찾은 마감일',
     empty: '메일이 없어요',
     emptyHint: '새 메일이 오면 바로 여기에 나타나요.',
+    noResults: '찾은 결과가 없어요',
+    noResultsHint: '다른 단어나 다른 폴더로 찾아보세요.',
     expectsReply: '답장을 기다림',
     filter: {
       archive: '보관함',
@@ -513,6 +531,7 @@ export const ko: Messages = {
     noReply: '아직 답장 없음',
   },
   rules: {
+    deleted: '규칙을 삭제했어요',
     add: '규칙 추가',
     count: (n: number) => `규칙 ${n}개`,
     delete: '삭제',
@@ -530,7 +549,7 @@ export const ko: Messages = {
       unsubscribe: '구독 취소',
     },
     enabled: '규칙 사용',
-    lead: '특정 메일을 어떻게 처리할지 에이전트에게 평소 말로 알려주세요. 에이전트는 모든 메일을 이 규칙들과 위에서부터 차례로 대조해요.',
+    lead: '특정 메일을 어떻게 처리할지 에이전트에게 평소 말로 알려주세요. 에이전트는 모든 메일을 이 규칙들과 대조해요.',
     newTitle: '새 규칙 가르치기',
     leadFree:
       '보관, 읽음 표시, 구독 취소를 자동으로 해요. 규칙은 새 메일이 도착하는 즉시 적용돼요.',
@@ -1209,6 +1228,7 @@ export const ko: Messages = {
     willSend: '보낼 내용:',
   },
   today: {
+    stopListening: '정지',
     awaiting: '답장 대기 중',
     hint: {
       notNow: '나중에',

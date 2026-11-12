@@ -348,6 +348,12 @@ export const pt: Messages = {
       `E-mail em massa: ${n}+ usuários do Fewmail receberam o mesmo texto`,
   },
   calendar: {
+    noAccess: {
+      allow: 'Permitir acesso',
+      description:
+        'O Google não teve permissão para compartilhar sua agenda com o Fewmail. Permita para ver e adicionar eventos aqui.',
+      title: 'Agenda não conectada',
+    },
     allDay: 'Dia inteiro',
     calendar: 'Calendário',
     create: 'Adicionar evento',
@@ -530,6 +536,8 @@ export const pt: Messages = {
   importance: ['Ruído', 'Bom saber', 'Precisa de você em breve', 'Urgente'],
   justNow: 'agora mesmo',
   errors: {
+    calendarAccess:
+      'O Fewmail não tem acesso a esta agenda. Permita na página Agenda.',
     failed: 'Algo deu errado. Tente novamente.',
     needsPro: 'Isso requer o Fewmail Pro.',
     alreadySent: 'Já foi enviado, tarde demais para desfazer.',
@@ -586,7 +594,16 @@ export const pt: Messages = {
     tasks: (total: number) =>
       `Seu plano cuida de ${total} conversas por vez. Espere uma terminar ou mude para o Max em Configurações → Plano.`,
   },
+  notices: {
+    mailLost:
+      'O Fewmail perdeu o acesso ao seu Gmail e não está lendo e-mails novos.',
+    mailboxLost: (email: string) => `O Fewmail perdeu o acesso a ${email}.`,
+    reconnect: 'Reconectar',
+    signInAgain: 'Entrar de novo',
+  },
   login: {
+    needsGmail:
+      'O Fewmail precisa do seu Gmail para funcionar. Entre de novo e deixe a caixa do Gmail marcada na tela do Google.',
     agree: ((slots) => [
       'Ao continuar, você concorda com os ',
       slots.terms,
@@ -657,6 +674,8 @@ export const pt: Messages = {
     dueHint: 'Prazo que o agente encontrou neste e-mail',
     empty: 'Nenhum e-mail aqui',
     emptyHint: 'Novos e-mails aparecem aqui assim que chegam.',
+    noResults: 'Nada encontrado',
+    noResultsHint: 'Tente outras palavras ou outra pasta.',
     expectsReply: 'Aguarda resposta',
     filter: {
       archive: 'Arquivo',
@@ -814,6 +833,7 @@ export const pt: Messages = {
     title: 'Verifique antes de agir',
   },
   rules: {
+    deleted: 'Regra excluída',
     add: 'Adicionar regra',
     count: (total: number) =>
       plural('pt', total, {
@@ -835,7 +855,7 @@ export const pt: Messages = {
       unsubscribe: 'Cancelar inscrição',
     },
     enabled: 'Regra ativada',
-    lead: 'Diga ao agente, com palavras simples, o que fazer com certos e-mails. Ele confere cada e-mail com estas regras, de cima para baixo.',
+    lead: 'Diga ao agente, com palavras simples, o que fazer com certos e-mails. Ele confere cada e-mail com estas regras.',
     newTitle: 'Ensinar uma nova regra',
     leadFree:
       'Arquive, marque como lido ou cancele inscrições automaticamente. As regras são aplicadas aos novos e-mails assim que chegam.',
@@ -1536,6 +1556,7 @@ export const pt: Messages = {
     willSend: 'Vou enviar:',
   },
   today: {
+    stopListening: 'Parar',
     awaiting: 'Aguardando resposta',
     hint: {
       notNow: 'Agora não',

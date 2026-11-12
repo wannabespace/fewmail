@@ -4,6 +4,7 @@ import { actions, rules } from '@fewmail/db/schema'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { and, eq, isNotNull } from 'drizzle-orm'
 
+import { RULE_ORDER } from './rules'
 import { getSettings } from './settings'
 import { applyThreadEffect } from './thread-effects'
 
@@ -46,6 +47,7 @@ export const applySimpleRules = async (userId: string, incoming: Message[]) => {
         isNotNull(rules.match)
       )
     )
+    .orderBy(...RULE_ORDER)
   if (simple.length === 0) {
     return
   }

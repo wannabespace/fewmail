@@ -34,6 +34,7 @@ const ERROR_TEXT_BY_CODE = {
   CONFLICT: 'alreadySent',
   FORBIDDEN: 'needsPro',
   NOT_FOUND: 'notFound',
+  PRECONDITION_FAILED: 'calendarAccess',
 } as const
 
 /** The server's own messages are English and meant for logs; the user reads what went wrong in their language. */

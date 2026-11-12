@@ -203,6 +203,12 @@ export const hi: Messages = {
     removeLink: 'लिंक हटाएँ',
   },
   calendar: {
+    noAccess: {
+      allow: 'अनुमति दें',
+      description:
+        'Google को आपका कैलेंडर Fewmail के साथ साझा करने की अनुमति नहीं मिली। यहाँ इवेंट देखने और जोड़ने के लिए अनुमति दें।',
+      title: 'कैलेंडर जुड़ा नहीं है',
+    },
     allDay: 'पूरा दिन',
     calendar: 'कैलेंडर',
     create: 'इवेंट जोड़ें',
@@ -261,6 +267,7 @@ export const hi: Messages = {
   importance: ['शोर', 'जानने लायक', 'जल्द ध्यान दें', 'ज़रूरी'],
   justNow: 'अभी',
   errors: {
+    calendarAccess: 'Fewmail के पास इस कैलेंडर की अनुमति नहीं है। कैलेंडर पेज पर अनुमति दें।',
     failed: 'कुछ गड़बड़ हो गई। फिर से कोशिश करें।',
     needsPro: 'इसके लिए Fewmail Pro चाहिए।',
     alreadySent: 'पहले ही भेजा जा चुका है, अब पूर्ववत नहीं हो सकता।',
@@ -316,7 +323,15 @@ export const hi: Messages = {
     tasks: (total: number) =>
       `आपका प्लान एक साथ ${total} थ्रेड संभालता है। किसी एक के पूरा होने दें, या सेटिंग्स → प्लान में Max पर जाएं।`,
   },
+  notices: {
+    mailLost: 'Fewmail की आपके Gmail तक पहुँच खो गई है और वह नए मेल नहीं पढ़ रहा।',
+    mailboxLost: (email: string) => `Fewmail की ${email} तक पहुँच खो गई है।`,
+    reconnect: 'फिर से जोड़ें',
+    signInAgain: 'फिर से साइन इन करें',
+  },
   login: {
+    needsGmail:
+      'Fewmail को काम करने के लिए आपके Gmail की ज़रूरत है। फिर से साइन इन करें और Google की स्क्रीन पर Gmail वाला बॉक्स चुना रहने दें।',
     agree: ((slots) => [
       'जारी रखकर आप ',
       slots.terms,
@@ -387,6 +402,8 @@ export const hi: Messages = {
     dueHint: 'इस ईमेल में एजेंट को मिली समय-सीमा',
     empty: 'यहाँ कोई ईमेल नहीं है',
     emptyHint: 'नए ईमेल आते ही यहाँ दिखेंगे।',
+    noResults: 'कुछ नहीं मिला',
+    noResultsHint: 'दूसरे शब्द या दूसरा फ़ोल्डर आज़माएँ।',
     expectsReply: 'जवाब की उम्मीद है',
     filter: {
       archive: 'संग्रह',
@@ -516,6 +533,7 @@ export const hi: Messages = {
     noReply: 'अभी तक जवाब नहीं',
   },
   rules: {
+    deleted: 'नियम हटाया गया',
     add: 'नियम जोड़ें',
     count: (total: number) =>
       plural('hi', total, { one: () => '1 नियम', other: (n) => `${n} नियम` }),
@@ -534,7 +552,7 @@ export const hi: Messages = {
       unsubscribe: 'अनसब्सक्राइब करें',
     },
     enabled: 'नियम चालू है',
-    lead: 'एजेंट को आसान शब्दों में बताएँ कि कुछ खास मेल के साथ क्या करना है। वह हर ईमेल को इन नियमों से, ऊपर से नीचे, मिलाकर देखता है।',
+    lead: 'एजेंट को आसान शब्दों में बताएँ कि कुछ खास मेल के साथ क्या करना है। वह हर ईमेल को इन नियमों से मिलाकर देखता है।',
     newTitle: 'नया नियम सिखाएँ',
     leadFree:
       'अपने आप आर्काइव करें, पढ़ा हुआ मार्क करें या अनसब्सक्राइब करें। नियम नए मेल के आते ही चलते हैं।',
@@ -1210,6 +1228,7 @@ export const hi: Messages = {
     willSend: 'यह भेजा जाएगा:',
   },
   today: {
+    stopListening: 'रोकें',
     awaiting: 'जवाब का इंतज़ार',
     hint: {
       notNow: 'अभी नहीं',

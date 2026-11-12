@@ -339,6 +339,12 @@ export const id: Messages = {
       `Email massal: ${n}+ pengguna Fewmail menerima teks yang sama`,
   },
   calendar: {
+    noAccess: {
+      allow: 'Izinkan akses',
+      description:
+        'Google tidak diizinkan membagikan kalendermu ke Fewmail. Izinkan agar bisa melihat dan menambah acara di sini.',
+      title: 'Kalender belum terhubung',
+    },
     allDay: 'Sepanjang hari',
     calendar: 'Kalender',
     create: 'Tambah acara',
@@ -516,6 +522,8 @@ export const id: Messages = {
   importance: ['Kebisingan', 'Perlu tahu', 'Segera butuh kamu', 'Mendesak'],
   justNow: 'baru saja',
   errors: {
+    calendarAccess:
+      'Fewmail tidak punya akses ke kalender ini. Izinkan di halaman Kalender.',
     failed: 'Terjadi kesalahan. Coba lagi.',
     needsPro: 'Ini memerlukan Fewmail Pro.',
     alreadySent: 'Sudah terkirim, terlambat untuk membatalkan.',
@@ -572,7 +580,16 @@ export const id: Messages = {
     tasks: (total: number) =>
       `Paketmu menangani ${total} utas sekaligus. Tunggu satu selesai, atau beralih ke Max di Pengaturan → Paket.`,
   },
+  notices: {
+    mailLost:
+      'Fewmail kehilangan akses ke Gmail-mu dan tidak membaca email baru.',
+    mailboxLost: (email: string) => `Fewmail kehilangan akses ke ${email}.`,
+    reconnect: 'Hubungkan lagi',
+    signInAgain: 'Masuk lagi',
+  },
   login: {
+    needsGmail:
+      'Fewmail butuh akses ke Gmail-mu. Masuk lagi dan biarkan kotak Gmail tetap dicentang di layar Google.',
     agree: ((slots) => [
       'Dengan melanjutkan, kamu menyetujui ',
       slots.terms,
@@ -644,6 +661,8 @@ export const id: Messages = {
     dueHint: 'Tenggat yang ditemukan agen di email ini',
     empty: 'Tidak ada email di sini',
     emptyHint: 'Email baru akan muncul di sini begitu tiba.',
+    noResults: 'Tidak ada hasil',
+    noResultsHint: 'Coba kata lain atau folder lain.',
     expectsReply: 'Menunggu balasan',
     filter: {
       archive: 'Arsip',
@@ -794,6 +813,7 @@ export const id: Messages = {
     title: 'Cek dulu sebelum bertindak',
   },
   rules: {
+    deleted: 'Aturan dihapus',
     add: 'Tambah aturan',
     count: (total: number) =>
       plural('id', total, { other: (n) => `${n} aturan` }),
@@ -812,7 +832,7 @@ export const id: Messages = {
       unsubscribe: 'Berhenti langganan',
     },
     enabled: 'Aturan aktif',
-    lead: 'Beri tahu agen dengan kata-kata biasa apa yang harus dilakukan pada email tertentu. Agen mencocokkan setiap email dengan aturan ini, dari atas ke bawah.',
+    lead: 'Beri tahu agen dengan kata-kata biasa apa yang harus dilakukan pada email tertentu. Agen mencocokkan setiap email dengan aturan ini.',
     newTitle: 'Ajarkan aturan baru',
     leadFree:
       'Arsipkan, tandai sudah dibaca, atau berhenti berlangganan secara otomatis. Aturan berjalan pada email baru begitu email itu tiba.',
@@ -1513,6 +1533,7 @@ export const id: Messages = {
     willSend: 'Akan dikirim:',
   },
   today: {
+    stopListening: 'Hentikan',
     awaiting: 'Menunggu balasan',
     hint: {
       notNow: 'Nanti saja',

@@ -22,6 +22,7 @@ import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { Sidebar } from '~/components/nav'
+import { NoticeBar } from '~/components/notice-bar'
 import { agentModeStore, signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
@@ -118,6 +119,7 @@ const AppLayout = () => {
           </ResizablePanel>
           <ResizableSeparator />
           <ResizablePanel className="flex min-w-0 flex-col">
+            <NoticeBar />
             <Outlet />
           </ResizablePanel>
         </ResizableGroup>
@@ -145,6 +147,9 @@ export const Route = createFileRoute('/_app')({
     signedInStore.set(Boolean(me))
     if (!me) {
       throw redirect({ to: '/login' })
+    }
+    if (!me.hasGmail) {
+      throw redirect({ search: { missing: 'gmail' }, to: '/login' })
     }
     if (!me.settings) {
       throw redirect({ to: '/onboarding' })

@@ -1,9 +1,11 @@
+import { Alert, AlertDescription } from '@fewmail/ui/components/alert'
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { BubbleChatIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { type } from 'arktype'
 import { motion } from 'motion/react'
 import { Fragment, useState } from 'react'
 
@@ -32,6 +34,7 @@ const GoogleMark = () => (
 const LoginPage = () => {
   const t = useT()
   const locale = useLocale()
+  const { missing } = Route.useSearch()
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   const signIn = () => {
@@ -83,6 +86,11 @@ const LoginPage = () => {
             {t.login.messengers}
           </motion.p>
           <motion.div variants={rise} className="flex flex-col gap-4">
+            {missing === 'gmail' && (
+              <Alert variant="error">
+                <AlertDescription>{t.login.needsGmail}</AlertDescription>
+              </Alert>
+            )}
             <Button size="lg" disabled={isRedirecting} onClick={signIn}>
               <GoogleMark />
               {t.login.continue}
@@ -116,4 +124,5 @@ const LoginPage = () => {
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
+  validateSearch: type({ 'missing?': "'gmail'" }),
 })

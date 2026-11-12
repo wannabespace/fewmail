@@ -422,9 +422,12 @@ const BoardCharts = ({
     }
   }
 
+  // An empty board would show a screen of blank charts above the one line saying why.
+  const shown = board.total > 0 || board.isReadingHistory ? board.charts : []
+
   return (
     <section aria-label={t.boards.charts} className="grid gap-3 sm:grid-cols-2">
-      {board.charts.map((series, index) => (
+      {shown.map((series, index) => (
         <BoardChartCard
           key={series.id}
           series={series}

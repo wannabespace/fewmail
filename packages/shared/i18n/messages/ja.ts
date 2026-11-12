@@ -201,6 +201,12 @@ export const ja: Messages = {
     removeLink: 'リンクを削除',
   },
   calendar: {
+    noAccess: {
+      allow: 'アクセスを許可',
+      description:
+        'Google でカレンダーの共有が許可されていません。ここで予定を見たり追加したりするには許可してください。',
+      title: 'カレンダーが接続されていません',
+    },
     allDay: '終日',
     calendar: 'カレンダー',
     create: '予定を追加',
@@ -263,6 +269,8 @@ export const ja: Messages = {
   importance: ['ノイズ', '知っておくと良い', '近いうちに対応', '緊急'],
   justNow: 'たった今',
   errors: {
+    calendarAccess:
+      'Fewmail はこのカレンダーにアクセスできません。カレンダーのページで許可してください。',
     failed: '問題が発生しました。もう一度お試しください。',
     needsPro: 'これには Fewmail Pro が必要です。',
     alreadySent: 'すでに送信済みのため、取り消せません。',
@@ -318,7 +326,17 @@ export const ja: Messages = {
     tasks: (total: number) =>
       `現在のプランで同時に任せられるスレッドは ${total} 件です。1 件終わるのを待つか、設定 → プランで Max に切り替えてください。`,
   },
+  notices: {
+    mailLost:
+      'Fewmail が Gmail にアクセスできなくなり、新しいメールを読めていません。',
+    mailboxLost: (email: string) =>
+      `Fewmail が ${email} にアクセスできなくなりました。`,
+    reconnect: '再接続',
+    signInAgain: 'もう一度ログイン',
+  },
   login: {
+    needsGmail:
+      'Fewmail を使うには Gmail へのアクセスが必要です。もう一度ログインし、Google の画面で Gmail のチェックを外さないでください。',
     agree: ((slots) => [
       '続行すると、',
       slots.terms,
@@ -389,6 +407,8 @@ export const ja: Messages = {
     dueHint: 'エージェントがこのメールで見つけた期限',
     empty: 'メールはありません',
     emptyHint: '新しいメールが届くとここに表示されます。',
+    noResults: '見つかりませんでした',
+    noResultsHint: '別の言葉や別のフォルダーで試してください。',
     expectsReply: '返信待ち',
     filter: {
       archive: 'アーカイブ',
@@ -514,6 +534,7 @@ export const ja: Messages = {
     noReply: 'まだ返信なし',
   },
   rules: {
+    deleted: 'ルールを削除しました',
     add: 'ルールを追加',
     count: (n: number) => `${n} 件のルール`,
     delete: '削除',
@@ -531,7 +552,7 @@ export const ja: Messages = {
       unsubscribe: '配信停止する',
     },
     enabled: 'ルールを有効化',
-    lead: '特定のメールをどう扱うか、普段の言葉でエージェントに伝えてください。エージェントはすべてのメールを、これらのルールに上から順に照らし合わせます。',
+    lead: '特定のメールをどう扱うか、普段の言葉でエージェントに伝えてください。エージェントはすべてのメールを、これらのルールに照らし合わせます。',
     newTitle: '新しいルールを教える',
     leadFree:
       'アーカイブ、既読、配信停止を自動で行います。ルールは新しいメールが届いた瞬間に適用されます。',
@@ -1225,6 +1246,7 @@ export const ja: Messages = {
     willSend: '送信内容：',
   },
   today: {
+    stopListening: '停止',
     awaiting: '返信待ち',
     hint: {
       notNow: '今はしない',

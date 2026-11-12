@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@fewmail/ui/components/select'
+import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -171,6 +172,16 @@ export const ComposeForm = ({
     )
   }
 
+  // The editor handles its own ⌘⏎: answering it here too would send the mail twice.
+  useHotkey(
+    'Mod+Enter',
+    (event) =>
+      !(
+        event.target instanceof HTMLElement && event.target.isContentEditable
+      ) && submit(),
+    { ignoreInputs: false }
+  )
+
   return (
     <div className="flex flex-col gap-3">
       {!draft.replyToMessageId && mailboxes.length > 1 && (
@@ -307,7 +318,7 @@ export const ComposeForm = ({
             : undefined
         }
       />
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-2">
         <Button size="sm" onClick={() => submit()}>
           {t.compose.send} <Kbd>⌘⏎</Kbd>
         </Button>
@@ -336,7 +347,7 @@ export const ComposeForm = ({
               ? t.compose.remind.days(remindAfterDays)
               : t.compose.remind.label}
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="max-w-none">
             <DropdownMenuRadioGroup
               value={String(remindAfterDays ?? 0)}
               onValueChange={(value) =>
@@ -354,7 +365,7 @@ export const ComposeForm = ({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <span className="text-muted-foreground ml-auto text-xs">
+        <span className="text-muted-foreground ml-auto min-w-0 truncate text-xs">
           {isSaved && t.compose.draftSaved}
         </span>
         <Button size="sm" variant="ghost-muted" onClick={discard}>

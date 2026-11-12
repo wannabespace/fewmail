@@ -352,6 +352,12 @@ export const pl: Messages = {
       `Masowy e-mail: ${n}+ użytkowników Fewmail dostało ten sam tekst`,
   },
   calendar: {
+    noAccess: {
+      allow: 'Zezwól na dostęp',
+      description:
+        'Google nie pozwolił udostępnić Twojego kalendarza Fewmail. Zezwól, aby widzieć i dodawać tu wydarzenia.',
+      title: 'Kalendarz nie jest połączony',
+    },
     allDay: 'Cały dzień',
     calendar: 'Kalendarz',
     create: 'Dodaj wydarzenie',
@@ -542,6 +548,8 @@ export const pl: Messages = {
   importance: ['Szum', 'Warto wiedzieć', 'Wkrótce czeka na ciebie', 'Pilne'],
   justNow: 'przed chwilą',
   errors: {
+    calendarAccess:
+      'Fewmail nie ma dostępu do tego kalendarza. Zezwól na niego na stronie Kalendarz.',
     failed: 'Coś poszło nie tak. Spróbuj ponownie.',
     needsPro: 'Do tego potrzebny jest Fewmail Pro.',
     alreadySent: 'Już wysłano, za późno, by cofnąć.',
@@ -598,7 +606,16 @@ export const pl: Messages = {
     tasks: (total: number) =>
       `Twój plan prowadzi ${total} wątków naraz. Poczekaj, aż jeden się skończy, albo przejdź na Max w Ustawieniach → Plan.`,
   },
+  notices: {
+    mailLost:
+      'Fewmail stracił dostęp do Twojego Gmaila i nie czyta nowej poczty.',
+    mailboxLost: (email: string) => `Fewmail stracił dostęp do ${email}.`,
+    reconnect: 'Połącz ponownie',
+    signInAgain: 'Zaloguj się ponownie',
+  },
   login: {
+    needsGmail:
+      'Fewmail potrzebuje dostępu do Gmaila. Zaloguj się ponownie i zostaw zaznaczone pole Gmail na ekranie Google.',
     agree: ((slots) => [
       'Kontynuując, akceptujesz ',
       slots.terms,
@@ -669,6 +686,8 @@ export const pl: Messages = {
     dueHint: 'Termin znaleziony przez agenta w tym mailu',
     empty: 'Brak maili',
     emptyHint: 'Nowe maile pojawią się tu, gdy tylko przyjdą.',
+    noResults: 'Nic nie znaleziono',
+    noResultsHint: 'Spróbuj innych słów albo innego folderu.',
     expectsReply: 'Czeka na odpowiedź',
     filter: {
       archive: 'Archiwum',
@@ -832,6 +851,7 @@ export const pl: Messages = {
     title: 'Sprawdź, zanim zareagujesz',
   },
   rules: {
+    deleted: 'Reguła usunięta',
     add: 'Dodaj regułę',
     count: (total: number) =>
       plural('pl', total, {
@@ -855,7 +875,7 @@ export const pl: Messages = {
       unsubscribe: 'Wypisz się',
     },
     enabled: 'Reguła włączona',
-    lead: 'Powiedz agentowi zwykłymi słowami, co robić z określonymi mailami. Sprawdza każdy mail według tych reguł, od góry do dołu.',
+    lead: 'Powiedz agentowi zwykłymi słowami, co robić z określonymi mailami. Sprawdza każdy mail według tych reguł.',
     newTitle: 'Naucz nowej reguły',
     leadFree:
       'Archiwizuj, oznaczaj jako przeczytane lub wypisuj się automatycznie. Reguły działają na nowej poczcie, gdy tylko przychodzi.',
@@ -1562,6 +1582,7 @@ export const pl: Messages = {
     willSend: 'Wyślę:',
   },
   today: {
+    stopListening: 'Zatrzymaj',
     awaiting: 'Czekasz na odpowiedź',
     hint: {
       notNow: 'Nie teraz',

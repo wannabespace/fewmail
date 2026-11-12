@@ -22,6 +22,7 @@ import type { InferRouterOutputs } from '@orpc/server'
 import { type } from 'arktype'
 
 import { agent, authed, visitor } from '.'
+import { CALENDAR_SCOPE, GMAIL_SCOPE, hasSignInScope } from '../lib/auth'
 import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
 import { completeEmail } from '../services/autocomplete'
@@ -492,12 +493,21 @@ export const router = {
     })),
   },
   me: authed.handler(async ({ context }) => {
-    const [plan, settings, usage] = await Promise.all([
+    const [plan, settings, usage, hasGmail, hasCalendar] = await Promise.all([
       getPlanInfo(context.user.id),
       getSettings(context.user.id),
       getUsage(context.user.id),
+      hasSignInScope(context.user.id, GMAIL_SCOPE),
+      hasSignInScope(context.user.id, CALENDAR_SCOPE),
     ])
-    return { plan, settings, usage, user: context.user }
+    return {
+      hasCalendar,
+      hasGmail,
+      plan,
+      settings,
+      usage,
+      user: context.user,
+    }
   }),
   rules: {
     create: authed

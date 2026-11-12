@@ -347,6 +347,12 @@ export const en = {
   },
   byRule: 'by a rule',
   calendar: {
+    noAccess: {
+      allow: 'Allow access',
+      description:
+        'Google was not allowed to share your calendar with Fewmail. Allow it to see and add events here.',
+      title: 'Calendar is not connected',
+    },
     allDay: 'All day',
     calendar: 'Calendar',
     create: 'Add event',
@@ -526,6 +532,8 @@ export const en = {
   importance: ['Noise', 'Worth knowing', 'Needs you soon', 'Urgent'],
   justNow: 'just now',
   errors: {
+    calendarAccess:
+      'Fewmail has no access to this calendar. Allow it on the Calendar page.',
     failed: 'Something went wrong. Try again.',
     needsPro: 'This needs Fewmail Pro.',
     alreadySent: "Already sent, it's too late to undo.",
@@ -582,7 +590,15 @@ export const en = {
     tasks: (total: number) =>
       `Your plan hands over ${total} threads at a time. Let one finish, or switch to Max in Settings → Plan.`,
   },
+  notices: {
+    mailLost: 'Fewmail lost access to your Gmail and is not reading new mail.',
+    mailboxLost: (email: string) => `Fewmail lost access to ${email}.`,
+    reconnect: 'Reconnect',
+    signInAgain: 'Sign in again',
+  },
   login: {
+    needsGmail:
+      "Fewmail needs your Gmail to work. Sign in again and keep the Gmail box ticked on Google's screen.",
     agree: ((slots) => [
       'By continuing you agree to the ',
       slots.terms,
@@ -653,6 +669,8 @@ export const en = {
     dueHint: 'Deadline the agent found in this email',
     empty: 'No emails here',
     emptyHint: 'New mail shows up here as it arrives.',
+    noResults: 'Nothing found',
+    noResultsHint: 'Try other words, or look in another folder.',
     expectsReply: 'Expects a reply',
     filter: {
       archive: 'Archive',
@@ -813,6 +831,7 @@ export const en = {
     title: 'Check before you act',
   },
   rules: {
+    deleted: 'Rule deleted',
     add: 'Add rule',
     count: (total: number) =>
       plural('en', total, { one: () => '1 rule', other: (n) => `${n} rules` }),
@@ -831,7 +850,7 @@ export const en = {
       unsubscribe: 'Unsubscribe',
     },
     enabled: 'Rule enabled',
-    lead: 'Tell the agent in plain words what to do with certain mail. It reads every email against these, top to bottom.',
+    lead: 'Tell the agent in plain words what to do with certain mail. It reads every email against these.',
     newTitle: 'Teach a new rule',
     leadFree:
       'Archive, mark as read or unsubscribe automatically. Rules run on new mail the moment it arrives.',
@@ -869,7 +888,7 @@ export const en = {
     forward: {
       copy: 'Copy address',
       description:
-        'Send or forward any email to this address from your own mailbox, with a note on top saying what to do. The answer comes in Telegram or WhatsApp and in a chat here.',
+        'Forward an email here from your own mailbox with a note on what to do. The answer comes in a chat of its own.',
       title: 'Forward to the agent',
     },
     account: 'Account',
@@ -1526,6 +1545,7 @@ export const en = {
     willSend: 'Will send:',
   },
   today: {
+    stopListening: 'Stop',
     awaiting: 'Waiting for a reply',
     briefAt: (time: string) => `daily brief at ${time}`,
     dates: 'Dates and meetings',

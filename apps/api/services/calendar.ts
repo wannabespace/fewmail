@@ -3,6 +3,7 @@ import { mailboxes } from '@fewmail/db/schema'
 import { Result } from 'better-result'
 import { and, asc, eq, isNull } from 'drizzle-orm'
 
+import { CALENDAR_SCOPE, hasSignInScope } from '../lib/auth'
 import type { CalendarEventFields } from '../lib/calendar'
 import {
   deleteEvent as deleteGoogleEvent,
@@ -22,6 +23,27 @@ export interface EventRef {
 const EVENTS_CACHE_MS = 60_000
 
 type Mailbox = typeof mailboxes.$inferSelect
+
+/** Google's consent screen lets the user untick Calendar while keeping Gmail. */
+export class CalendarAccessError extends Error {
+  override name = 'CalendarAccessError'
+
+  constructor() {
+    super('Fewmail has no access to this Google calendar')
+  }
+}
+
+/** Added mailboxes are refused without the Calendar scope, so only the sign-in grant can lack it. */
+const isConnected = async (mailbox: Mailbox) =>
+  Boolean(mailbox.googleAccountId) ||
+  (await hasSignInScope(mailbox.userId, CALENDAR_SCOPE))
+
+const requireConnected = async (mailbox: Mailbox) => {
+  if (!(await isConnected(mailbox))) {
+    throw new CalendarAccessError()
+  }
+  return mailbox
+}
 type EventCache = Map<
   string,
   {
@@ -71,7 +93,14 @@ export const listEvents = async (
     .orderBy(asc(mailboxes.createdAt))
   const perMailbox = await Promise.all(
     owned.map(async (mailbox) => {
-      const calendar = { email: mailbox.email, mailboxId: mailbox.id }
+      const calendar = {
+        connected: await isConnected(mailbox),
+        email: mailbox.email,
+        mailboxId: mailbox.id,
+      }
+      if (!calendar.connected) {
+        return { calendar, events: [] }
+      }
       const events = await Result.tryPromise(() => cachedEvents(mailbox, range))
       if (events.isErr()) {
         logError('calendar list failed', events.error.cause)
@@ -110,7 +139,7 @@ export const createEvent = async (
   if (!mailbox) {
     throw new NotFoundError('Mailbox not found')
   }
-  const created = await insertEvent(mailbox, event)
+  const created = await insertEvent(await requireConnected(mailbox), event)
   forgetEvents(userId)
   return { ...created, mailboxId: mailbox.id }
 }
@@ -121,7 +150,7 @@ export const updateEvent = async (
   event: CalendarEventFields
 ) => {
   const updated = await patchEvent(
-    await ownMailbox(userId, ref.mailboxId),
+    await requireConnected(await ownMailbox(userId, ref.mailboxId)),
     ref.id,
     event
   )
@@ -130,6 +159,9 @@ export const updateEvent = async (
 }
 
 export const deleteEvent = async (userId: string, ref: EventRef) => {
-  await deleteGoogleEvent(await ownMailbox(userId, ref.mailboxId), ref.id)
+  await deleteGoogleEvent(
+    await requireConnected(await ownMailbox(userId, ref.mailboxId)),
+    ref.id
+  )
   forgetEvents(userId)
 }

@@ -254,6 +254,10 @@ const inThread = alias(messages, 'in_thread')
 const newerInThread = alias(messages, 'newer_in_thread')
 const newerAnalysis = alias(analyses, 'newer_analysis')
 type MessageTable = typeof messages | typeof newerInThread
+
+/** Mail the user received: their own sent mail is left out unless Gmail put it in the inbox (mail to themselves). */
+const isReceived = (message: MessageTable) =>
+  or(eq(message.isFromMe, false), arrayContains(message.labelIds, ['INBOX']))
 type AnalysisTable = typeof analyses | typeof newerAnalysis
 
 const INBOX_FILTERS = new Set<MailFilter>([
@@ -329,7 +333,7 @@ export const listMail = async (
   const matches = (message: MessageTable, analysis: AnalysisTable) =>
     and(
       eq(message.userId, userId),
-      eq(message.isFromMe, false),
+      isReceived(message),
       input.mailboxId ? eq(message.mailboxId, input.mailboxId) : undefined,
       searchIds ? inArray(message.gmailId, searchIds) : undefined,
       input.category ? eq(analysis.category, input.category) : undefined,
@@ -415,7 +419,7 @@ export const countUnread = async (userId: string, mailboxId?: string) => {
     .where(
       and(
         eq(messages.userId, userId),
-        eq(messages.isFromMe, false),
+        isReceived(messages),
         eq(messages.isUnread, true),
         mailboxId ? eq(messages.mailboxId, mailboxId) : undefined,
         arrayContains(messages.labelIds, ['INBOX'])

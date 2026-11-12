@@ -339,6 +339,12 @@ export const tr: Messages = {
       `Toplu e-posta: ${n}+ Fewmail kullanıcısı aynı metni aldı`,
   },
   calendar: {
+    noAccess: {
+      allow: 'Erişime izin ver',
+      description:
+        'Google’ın takvimini Fewmail ile paylaşmasına izin verilmedi. Etkinlikleri burada görmek ve eklemek için izin ver.',
+      title: 'Takvim bağlı değil',
+    },
     allDay: 'Tüm gün',
     calendar: 'Takvim',
     create: 'Etkinlik ekle',
@@ -513,6 +519,8 @@ export const tr: Messages = {
   importance: ['Gürültü', 'Bilmeye değer', 'Yakında seni bekliyor', 'Acil'],
   justNow: 'az önce',
   errors: {
+    calendarAccess:
+      'Fewmail’in bu takvime erişimi yok. Takvim sayfasından izin ver.',
     failed: 'Bir şeyler ters gitti. Tekrar dene.',
     needsPro: 'Bunun için Fewmail Pro gerekiyor.',
     alreadySent: 'Zaten gönderildi, geri almak için çok geç.',
@@ -569,7 +577,15 @@ export const tr: Messages = {
     tasks: (total: number) =>
       `Planın aynı anda ${total} yazışmayı devralır. Birinin bitmesini bekle ya da Ayarlar → Plan’dan Max’e geç.`,
   },
+  notices: {
+    mailLost: 'Fewmail Gmail erişimini kaybetti ve yeni postaları okumuyor.',
+    mailboxLost: (email: string) => `Fewmail ${email} erişimini kaybetti.`,
+    reconnect: 'Yeniden bağla',
+    signInAgain: 'Yeniden giriş yap',
+  },
   login: {
+    needsGmail:
+      'Fewmail’in çalışması için Gmail erişimi gerekiyor. Yeniden giriş yap ve Google ekranında Gmail kutusunu işaretli bırak.',
     agree: ((slots) => [
       'Devam ederek ',
       slots.terms,
@@ -640,6 +656,8 @@ export const tr: Messages = {
     dueHint: 'Ajanın bu e-postada bulduğu son tarih',
     empty: 'Burada e-posta yok',
     emptyHint: 'Yeni e-postalar gelir gelmez burada görünür.',
+    noResults: 'Hiçbir şey bulunamadı',
+    noResultsHint: 'Başka kelimeler ya da başka bir klasör dene.',
     expectsReply: 'Yanıt bekliyor',
     filter: {
       archive: 'Arşiv',
@@ -789,6 +807,7 @@ export const tr: Messages = {
     title: 'Harekete geçmeden önce kontrol et',
   },
   rules: {
+    deleted: 'Kural silindi',
     add: 'Kural ekle',
     count: (total: number) =>
       plural('tr', total, { other: (n) => `${n} kural` }),
@@ -807,7 +826,7 @@ export const tr: Messages = {
       unsubscribe: 'Abonelikten çık',
     },
     enabled: 'Kural etkin',
-    lead: 'Ajana belirli postalarla ne yapacağını sade bir dille anlat. Her e-postayı yukarıdan aşağıya bu kurallarla karşılaştırır.',
+    lead: 'Ajana belirli postalarla ne yapacağını sade bir dille anlat. Her e-postayı bu kurallarla karşılaştırır.',
     newTitle: 'Yeni kural öğret',
     leadFree:
       'Otomatik olarak arşivle, okundu olarak işaretle veya abonelikten çık. Kurallar yeni e-postalara geldiği anda uygulanır.',
@@ -1508,6 +1527,7 @@ export const tr: Messages = {
     willSend: 'Gönderilecek:',
   },
   today: {
+    stopListening: 'Durdur',
     awaiting: 'Yanıt bekleniyor',
     hint: {
       notNow: 'Şimdi değil',

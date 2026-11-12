@@ -3,7 +3,7 @@ import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
-import { createContext, use } from 'react'
+import { createContext, use, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -47,6 +47,21 @@ interface ComposeContextValue {
   send: (draft: Draft & { sendAt?: Date; text: string }) => void
 }
 
+const secondsUntil = (date: Date) =>
+  Math.max(0, Math.ceil((date.getTime() - Date.now()) / 1000))
+
+const SendingIn = ({ sendAt }: { sendAt: Date }) => {
+  const t = useT()
+  const [seconds, setSeconds] = useState(() => secondsUntil(sendAt))
+  useEffect(() => {
+    const tick = setInterval(() => setSeconds(secondsUntil(sendAt)), 250)
+    return () => clearInterval(tick)
+  }, [sendAt])
+  return t.compose.sendingIn(seconds)
+}
+
+const sendingIn = (sendAt: Date) => <SendingIn sendAt={sendAt} />
+
 const ComposeContext = createContext<ComposeContextValue | null>(null)
 
 export const useCompose = () => {
@@ -75,7 +90,7 @@ export const ComposeProvider = ({ children }: { children: ReactNode }) => {
           sendAt.getTime() - Date.now() <= (UNDO_SEND_SECONDS + 1) * 1000
         toast.success(
           isUndoWindow
-            ? t.compose.sendingIn(UNDO_SEND_SECONDS)
+            ? sendingIn(sendAt)
             : t.compose.scheduledFor(dates.format(sendAt, 'PPp')),
           {
             action: {

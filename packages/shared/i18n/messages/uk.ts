@@ -21,8 +21,8 @@ export const uk: Messages = {
       update_event: 'Змінити цю подію?',
       approve_action: 'Виконати цю дію?',
       archive_thread: 'Архівувати цей лист?',
-      clear_out: 'Прибрати ці групи листів з inbox?',
-      undo_clear_out: 'Повернути в inbox усе прибране?',
+      clear_out: 'Прибрати ці групи листів із вхідних?',
+      undo_clear_out: 'Повернути у вхідні все прибране?',
       create_rule: 'Додати це правило?',
       handle_thread: 'Доручити цей лист агенту?',
       reply: 'Надіслати цю відповідь?',
@@ -66,8 +66,8 @@ export const uk: Messages = {
       archive_thread: 'Архівую',
       get_reading: 'Читаю розсилки',
       get_wrapped: 'Рахую твою пошту',
-      clear_out: 'Прибираю inbox',
-      preview_clear_out: 'Читаю весь inbox',
+      clear_out: 'Прибираю вхідні',
+      preview_clear_out: 'Читаю всі вхідні',
       undo_clear_out: 'Повертаю прибрані листи',
       create_rule: 'Додаю правило',
       dismiss_action: 'Пропускаю',
@@ -152,10 +152,10 @@ export const uk: Messages = {
     remind: {
       days: (total: number) =>
         plural('uk', total, {
-          one: (n) => `Нагадати, якщо немає відповіді ${n} день`,
-          few: (n) => `Нагадати, якщо немає відповіді ${n} дні`,
-          many: (n) => `Нагадати, якщо немає відповіді ${n} днів`,
-          other: (n) => `Нагадати, якщо немає відповіді ${n} дня`,
+          one: (n) => `Нагадати, якщо ${n} день без відповіді`,
+          few: (n) => `Нагадати, якщо ${n} дні без відповіді`,
+          many: (n) => `Нагадати, якщо ${n} днів без відповіді`,
+          other: (n) => `Нагадати, якщо ${n} дня без відповіді`,
         }),
       label: 'Нагадати',
       off: 'Без нагадування',
@@ -425,7 +425,7 @@ export const uk: Messages = {
         clearOut: {
           description:
             'Увесь завал за один раз, до 50 000 листів на скриньку, під однією міткою, тож «Повернути все» поверне кожен. Безкоштовно.',
-          title: 'Розібрати inbox',
+          title: 'Розібрати вхідні',
         },
         forward: {
           description:
@@ -468,7 +468,7 @@ export const uk: Messages = {
       label: 'Що зникає',
       rows: [
         {
-          fix: '«Розібрати inbox» прибирає весь завал за один раз: стару рекламу, прочитані сповіщення, розсилки, які ти не відкриваєш. Одне «Повернути все» поверне кожен лист.',
+          fix: '«Розібрати вхідні» прибирає весь завал за один раз: стару рекламу, прочитані сповіщення, розсилки, які ти не відкриваєш. Одне «Повернути все» поверне кожен лист.',
           problem: 'Тисячі листів, які ніхто ніколи не прочитає.',
         },
         {
@@ -696,6 +696,12 @@ export const uk: Messages = {
   },
   byRule: 'за правилом',
   calendar: {
+    noAccess: {
+      allow: 'Дозволити доступ',
+      description:
+        'Google не дозволили ділитися твоїм календарем із Fewmail. Дозволь, щоб бачити й додавати події тут.',
+      title: 'Календар не підключено',
+    },
     allDay: 'Увесь день',
     calendar: 'Календар',
     create: 'Додати подію',
@@ -754,6 +760,8 @@ export const uk: Messages = {
   importance: ['Шум', 'Варто знати', 'Скоро знадобишся', 'Терміново'],
   justNow: 'щойно',
   errors: {
+    calendarAccess:
+      'Fewmail не має доступу до цього календаря. Дозволь його на сторінці «Календар».',
     failed: 'Щось пішло не так. Спробуй ще раз.',
     needsPro: 'Для цього потрібен Fewmail Pro.',
     alreadySent: 'Уже надіслано, скасувати запізно.',
@@ -810,7 +818,15 @@ export const uk: Messages = {
     tasks: (total: number) =>
       `Твій план веде ${total} тредів одночасно. Дочекайся, поки один завершиться, або перейди на Max у Налаштуваннях → План.`,
   },
+  notices: {
+    mailLost: 'Fewmail втратив доступ до твого Gmail і не читає нову пошту.',
+    mailboxLost: (email: string) => `Fewmail втратив доступ до ${email}.`,
+    reconnect: 'Підключити знову',
+    signInAgain: 'Увійти ще раз',
+  },
   login: {
+    needsGmail:
+      'Fewmail не може працювати без доступу до Gmail. Увійди ще раз і залиш галочку Gmail на екрані Google.',
     agree: ((slots) => [
       'Продовжуючи, ти погоджуєшся з ',
       slots.terms,
@@ -881,6 +897,8 @@ export const uk: Messages = {
     dueHint: 'Термін, який агент знайшов у цьому листі',
     empty: 'Тут немає листів',
     emptyHint: 'Нові листи з’являться тут, щойно надійдуть.',
+    noResults: 'Нічого не знайдено',
+    noResultsHint: 'Спробуй інші слова або іншу папку.',
     expectsReply: 'Чекає на відповідь',
     filter: {
       archive: 'Архів',
@@ -1013,6 +1031,7 @@ export const uk: Messages = {
     skip: 'Пропустити',
   },
   rules: {
+    deleted: 'Правило видалено',
     add: 'Додати правило',
     count: (total: number) =>
       plural('uk', total, {
@@ -1036,7 +1055,7 @@ export const uk: Messages = {
       unsubscribe: 'Відписатися',
     },
     enabled: 'Правило ввімкнено',
-    lead: 'Простими словами скажи агенту, що робити з певними листами. Він перевіряє кожен лист за цими правилами, згори донизу.',
+    lead: 'Простими словами скажи агенту, що робити з певними листами. Він перевіряє кожен лист за цими правилами.',
     newTitle: 'Навчити нового правила',
     placeholder: 'напр. Рахунки від Hetzner або сповіщення LinkedIn',
     leadFree:
@@ -1074,7 +1093,7 @@ export const uk: Messages = {
     forward: {
       copy: 'Скопіювати адресу',
       description:
-        'Надішли або перешли будь-який лист на цю адресу зі своєї пошти, з приміткою згори, що зробити. Відповідь прийде в Telegram чи WhatsApp і в окремий чат тут.',
+        'Перешли лист сюди зі своєї пошти з приміткою, що зробити. Відповідь прийде в окремий чат.',
       title: 'Переслати агенту',
     },
     knowledge: {
@@ -1236,6 +1255,7 @@ export const uk: Messages = {
     willSend: 'Надішлю:',
   },
   today: {
+    stopListening: 'Зупинити',
     awaiting: 'Чекаєш на відповідь',
     hint: {
       notNow: 'Не зараз',
@@ -1526,19 +1546,19 @@ export const uk: Messages = {
       promotions: 'Реклама й соцмережі, старші за 3 дні',
     },
     done: (emails: string) => `Прибрано ${emails}`,
-    empty: 'Прибирати нічого: inbox уже в порядку.',
-    lead: (emails: string) => `У inbox ${emails}. Ось що можна прибрати.`,
+    empty: 'Прибирати нічого: у вхідних уже порядок.',
+    lead: (emails: string) => `У вхідних ${emails}. Ось що можна прибрати.`,
     leadCapped: (emails: string) =>
-      `У inbox понад ${emails}. Ось що можна прибрати.`,
-    left: (emails: string) => `У inbox лишиться ${emails}`,
+      `У вхідних понад ${emails}. Ось що можна прибрати.`,
+    left: (emails: string) => `У вхідних лишиться ${emails}`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} і ще ${more}` : names,
     run: (emails: string) => `Прибрати ${emails}`,
     safe: 'Нічого не видаляється. Прибрані листи йдуть в архів з міткою Fewmail/Cleared і повертаються одним кліком; від розсилок я ще й відпишу.',
-    scanning: 'Читаю весь inbox, лише заголовки. До хвилини.',
-    title: 'Розібрати inbox',
+    scanning: 'Читаю всі вхідні, лише заголовки. До хвилини.',
+    title: 'Розібрати вхідні',
     undo: 'Повернути все',
-    undone: (emails: string) => `${emails} знову в inbox`,
+    undone: (emails: string) => `${emails} знову у вхідних`,
   },
   wrapped: {
     busiest: (day: string, hour: string) =>
@@ -1569,7 +1589,7 @@ export const uk: Messages = {
   reading: {
     digest: (n: number) => `Розсилок сьогодні: ${n}`,
     empty: 'За останню добу розсилок не було.',
-    lead: 'Розсилки за останню добу в одному місці, щоб вони не захаращували inbox.',
+    lead: 'Розсилки за останню добу в одному місці, щоб вони не захаращували вхідні.',
     title: 'Читання',
   },
   commitments: {

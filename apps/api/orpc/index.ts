@@ -2,6 +2,7 @@ import { ORPCError, os } from '@orpc/server'
 import { Result } from 'better-result'
 
 import { auth } from '../lib/auth'
+import { CalendarAccessError } from '../services/calendar'
 import { LimitReachedError } from '../services/limit-error'
 import { NotFoundError } from '../services/mail'
 import { AlreadySentError } from '../services/outbox'
@@ -20,6 +21,9 @@ const notFoundToOrpc = orpc.middleware(async ({ next }) => {
   }
   if (error instanceof NotFoundError) {
     throw new ORPCError('NOT_FOUND', { message: error.message })
+  }
+  if (error instanceof CalendarAccessError) {
+    throw new ORPCError('PRECONDITION_FAILED', { message: error.message })
   }
   if (error instanceof AgentRequiredError) {
     throw new ORPCError('FORBIDDEN', { message: error.message })

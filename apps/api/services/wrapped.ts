@@ -43,7 +43,8 @@ const busiest = async (
         gte(messages.receivedAt, since)
       )
     )
-    .groupBy(bucket)
+    // By position: the timezone is a bound parameter, so a repeated `bucket` is a different expression to Postgres.
+    .groupBy(sql`1`)
     .orderBy(desc(count()))
     .limit(1)
   return row?.bucket ?? null

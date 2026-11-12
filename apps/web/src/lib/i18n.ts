@@ -24,6 +24,21 @@ import {
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
+/** date-fns abbreviates Ukrainian weekdays as "пон", "чтв"; people write "пн", "чт", its short width. */
+const ukrainian: DateLocale = {
+  ...uk,
+  localize: {
+    ...uk.localize,
+    day: (day, options) =>
+      uk.localize.day(
+        day,
+        options?.width === 'abbreviated'
+          ? { ...options, width: 'short' }
+          : options
+      ),
+  },
+}
+
 const DATE_LOCALES: Record<Locale, DateLocale> = {
   de,
   en: enUS,
@@ -38,7 +53,7 @@ const DATE_LOCALES: Record<Locale, DateLocale> = {
   pl,
   pt: ptBR,
   tr,
-  uk,
+  uk: ukrainian,
   zh: zhCN,
 }
 

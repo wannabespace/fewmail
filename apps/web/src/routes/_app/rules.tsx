@@ -2,6 +2,7 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import type { RuleEffect, SimpleMatchField } from '@fewmail/shared/agent'
 import {
   GMAIL_EFFECTS,
+  isGmailEffect,
   RULE_EFFECTS,
   SIMPLE_MATCH_FIELDS,
 } from '@fewmail/shared/agent'
@@ -26,10 +27,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
-import { orpc } from '~/lib/orpc'
+import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
 
 type Rule = RouterOutputs['rules']['list'][number]
@@ -93,6 +95,14 @@ const useInvalidateRules = () => {
   return () => queryClient.invalidateQueries({ queryKey: orpc.rules.key() })
 }
 
+const restoreRule = (rule: Rule) =>
+  rule.match && isGmailEffect(rule.effect)
+    ? client.rules.createSimple({ effect: rule.effect, match: rule.match })
+    : client.rules.create({
+        effect: rule.effect,
+        instruction: rule.instruction ?? '',
+      })
+
 const RuleRow = ({ rule }: { rule: Rule }) => {
   const t = useT()
   const queryClient = useQueryClient()
@@ -118,6 +128,16 @@ const RuleRow = ({ rule }: { rule: Rule }) => {
       onSettled: invalidate,
     })
   )
+  const deleteRule = () => {
+    remove.mutate({ id: rule.id })
+    toast(t.rules.deleted, {
+      action: {
+        label: t.compose.undo,
+        // The row is gone by now, so this cannot be a mutation of its own.
+        onClick: () => restoreRule(rule).then(invalidate),
+      },
+    })
+  }
 
   return (
     <SettingsRow
@@ -135,11 +155,7 @@ const RuleRow = ({ rule }: { rule: Rule }) => {
           checked={rule.enabled}
           onCheckedChange={(enabled) => update.mutate({ enabled, id: rule.id })}
         />
-        <Button
-          size="sm"
-          variant="ghost-destructive"
-          onClick={() => remove.mutate({ id: rule.id })}
-        >
+        <Button size="sm" variant="ghost-destructive" onClick={deleteRule}>
           {t.rules.delete}
         </Button>
       </div>

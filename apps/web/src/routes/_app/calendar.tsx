@@ -21,6 +21,7 @@ import {
   endOfWeek,
   endOfYear,
   format,
+  isThisYear,
   isValid,
   parseISO,
   set,
@@ -39,7 +40,7 @@ import { draftOf, EventDialog } from '~/components/event-dialog'
 import { KeyHints } from '~/components/key-hints'
 import type { CalendarView } from '~/lib/calendar'
 import { CALENDAR_VIEWS } from '~/lib/calendar'
-import { localeStore, useDates, useT, weekStartOf } from '~/lib/i18n'
+import { localeStore, useDates, useLocale, useT, weekStartOf } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 
 const STEP = {
@@ -81,15 +82,32 @@ const usePeriodLabel = (
   range: { from: Date; to: Date }
 ) => {
   const dates = useDates()
+  const locale = useLocale()
+  const upperFirst = (text: string) =>
+    text.charAt(0).toLocaleUpperCase(locale) + text.slice(1)
+  const intl = (options: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat(locale, {
+      ...options,
+      ...(isThisYear(range.to) ? {} : { year: 'numeric' }),
+    })
   switch (view) {
     case 'day': {
-      return dates.format(range.from, 'PPPP')
+      return upperFirst(
+        intl({ day: 'numeric', month: 'long', weekday: 'long' }).format(
+          range.from
+        )
+      )
     }
     case 'week': {
-      return `${dates.format(range.from, 'd MMM')} – ${dates.format(range.to, 'd MMM yyyy')}`
+      return intl({ day: 'numeric', month: 'short' }).formatRange(
+        range.from,
+        range.to
+      )
     }
     case 'month': {
-      return dates.format(add(range.from, { weeks: 1 }), 'LLLL yyyy')
+      return upperFirst(
+        dates.format(add(range.from, { weeks: 1 }), 'LLLL yyyy')
+      )
     }
     default: {
       return dates.format(range.from, 'yyyy')
@@ -123,6 +141,8 @@ const CalendarPage = () => {
     })
   )
   const events = data?.events ?? []
+  const connected = data?.calendars.filter((calendar) => calendar.connected)
+  const canAdd = connected === undefined || connected.length > 0
 
   const [draft, setDraft] = useState<EventDraft | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -160,7 +180,7 @@ const CalendarPage = () => {
   })
   useHotkey('ArrowLeft', () => step(-1), keys)
   useHotkey('ArrowRight', () => step(1), keys)
-  useHotkey('N', newEventNow, keys)
+  useHotkey('N', newEventNow, { enabled: keys.enabled && canAdd })
   useHotkey('D', () => show({ view: 'day' }), keys)
   useHotkey('W', () => show({ view: 'week' }), keys)
   useHotkey('M', () => show({ view: 'month' }), keys)
@@ -176,47 +196,54 @@ const CalendarPage = () => {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col">
-      <header className="flex items-center gap-2 px-10 pt-10 pb-5 *:shrink-0">
-        <h1 className="text-display min-w-0 flex-1 truncate font-serif tracking-tight">
+      <header className="flex flex-wrap items-center gap-x-6 gap-y-3 px-10 pt-10 pb-5">
+        <h1 className="text-display flex-1 font-serif tracking-tight whitespace-nowrap">
           {label}
         </h1>
-        {!isCurrentPeriod && (
-          <Button variant="outline" onClick={() => show({ date: new Date() })}>
-            {t.calendar.today}
-            <Kbd>T</Kbd>
-          </Button>
-        )}
-        <IconButton
-          icon={ArrowLeft01Icon}
-          label={t.calendar.previous}
-          shortcut={<Kbd>←</Kbd>}
-          variant="ghost-muted"
-          onClick={() => step(-1)}
-        />
-        <IconButton
-          icon={ArrowRight01Icon}
-          label={t.calendar.next}
-          shortcut={<Kbd>→</Kbd>}
-          variant="ghost-muted"
-          onClick={() => step(1)}
-        />
-        <Tabs
-          value={view}
-          onValueChange={(next: CalendarView) => show({ view: next })}
-        >
-          <TabsList>
-            {CALENDAR_VIEWS.map((option) => (
-              <TabsTrigger key={option} value={option}>
-                {t.calendar.views[option]}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        <Button onClick={newEventNow}>
-          <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
-          {t.calendar.newEvent}
-          <Kbd>N</Kbd>
-        </Button>
+        <div className="flex items-center gap-2">
+          {!isCurrentPeriod && (
+            <Button
+              variant="outline"
+              onClick={() => show({ date: new Date() })}
+            >
+              {t.calendar.today}
+              <Kbd>T</Kbd>
+            </Button>
+          )}
+          <IconButton
+            icon={ArrowLeft01Icon}
+            label={t.calendar.previous}
+            shortcut={<Kbd>←</Kbd>}
+            variant="ghost-muted"
+            onClick={() => step(-1)}
+          />
+          <IconButton
+            icon={ArrowRight01Icon}
+            label={t.calendar.next}
+            shortcut={<Kbd>→</Kbd>}
+            variant="ghost-muted"
+            onClick={() => step(1)}
+          />
+          <Tabs
+            value={view}
+            onValueChange={(next: CalendarView) => show({ view: next })}
+          >
+            <TabsList>
+              {CALENDAR_VIEWS.map((option) => (
+                <TabsTrigger key={option} value={option}>
+                  {t.calendar.views[option]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          {canAdd && (
+            <Button onClick={newEventNow}>
+              <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
+              {t.calendar.newEvent}
+              <Kbd>N</Kbd>
+            </Button>
+          )}
+        </div>
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col border-t">
@@ -249,11 +276,11 @@ const CalendarPage = () => {
             : [['T', t.keys.calendarToday] as [string, string]]),
           ['← / →', t.keys.period],
           ['D W M Y', t.keys.view],
-          ['N', t.keys.newEvent],
+          ...(canAdd ? [['N', t.keys.newEvent] as [string, string]] : []),
         ]}
       />
       <EventDialog
-        calendars={data?.calendars ?? []}
+        calendars={connected ?? []}
         draft={draft}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}

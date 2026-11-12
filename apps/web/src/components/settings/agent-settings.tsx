@@ -12,6 +12,10 @@ import { BriefHourSelect, LanguageSelect } from '~/components/agent-fields'
 import { localeStore, useT } from '~/lib/i18n'
 import { useHasAgent, useMe, useSaveSettings } from '~/lib/me'
 
+/** Browsers still report Kyiv by its old IANA alias. */
+const timezoneLabel = (timezone: string) =>
+  timezone.replace('Europe/Kiev', 'Europe/Kyiv').replaceAll('_', ' ')
+
 export const AgentSettings = () => {
   const t = useT()
   const { settings, user } = useMe()
@@ -87,7 +91,9 @@ export const AgentSettings = () => {
           </SettingsRow>
           <SettingsRow
             title={t.settings.briefTitle}
-            description={t.settings.briefDescription(settings.timezone)}
+            description={t.settings.briefDescription(
+              timezoneLabel(settings.timezone)
+            )}
           >
             <BriefHourSelect
               value={settings.briefHour}

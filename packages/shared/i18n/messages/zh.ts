@@ -199,6 +199,12 @@ export const zh: Messages = {
     removeLink: '移除链接',
   },
   calendar: {
+    noAccess: {
+      allow: '授予权限',
+      description:
+        'Google 未获准与 Fewmail 共享你的日历。授权后即可在这里查看和添加日程。',
+      title: '日历未连接',
+    },
     allDay: '全天',
     calendar: '日历',
     create: '添加日程',
@@ -257,6 +263,7 @@ export const zh: Messages = {
   importance: ['噪音', '值得了解', '需尽快处理', '紧急'],
   justNow: '刚刚',
   errors: {
+    calendarAccess: 'Fewmail 无权访问此日历。请在日历页面中授权。',
     failed: '出了点问题，请重试。',
     needsPro: '此功能需要 Fewmail Pro。',
     alreadySent: '已发送，无法撤销。',
@@ -311,7 +318,15 @@ export const zh: Messages = {
     tasks: (total: number) =>
       `你的套餐一次可托付 ${total} 个会话。等其中一个完成，或在设置 → 套餐中切换到 Max。`,
   },
+  notices: {
+    mailLost: 'Fewmail 已无法访问你的 Gmail，暂时无法读取新邮件。',
+    mailboxLost: (email: string) => `Fewmail 已无法访问 ${email}。`,
+    reconnect: '重新连接',
+    signInAgain: '重新登录',
+  },
   login: {
+    needsGmail:
+      'Fewmail 需要访问你的 Gmail 才能工作。请重新登录，并在 Google 页面上保持勾选 Gmail。',
     agree: ((slots) => [
       '继续即表示你同意',
       slots.terms,
@@ -382,6 +397,8 @@ export const zh: Messages = {
     dueHint: '助手在这封邮件中找到的截止日期',
     empty: '这里没有邮件',
     emptyHint: '新邮件一到就会出现在这里。',
+    noResults: '未找到结果',
+    noResultsHint: '换个词或换个文件夹试试。',
     expectsReply: '等待回复',
     filter: {
       archive: '归档',
@@ -503,6 +520,7 @@ export const zh: Messages = {
     noReply: '尚未回复',
   },
   rules: {
+    deleted: '规则已删除',
     add: '添加规则',
     count: (n: number) => `${n} 条规则`,
     delete: '删除',
@@ -520,7 +538,7 @@ export const zh: Messages = {
       unsubscribe: '退订',
     },
     enabled: '规则已启用',
-    lead: '用平常的话告诉助手如何处理某些邮件。它会将每封邮件按从上到下的顺序与这些规则比对。',
+    lead: '用平常的话告诉助手如何处理某些邮件。它会将每封邮件与这些规则比对。',
     newTitle: '教一条新规则',
     leadFree: '自动归档、标为已读或退订。新邮件一到，规则就会立即生效。',
     simple: {
@@ -1186,6 +1204,7 @@ export const zh: Messages = {
     willSend: '将发送：',
   },
   today: {
+    stopListening: '停止',
     awaiting: '等待回复',
     hint: {
       notNow: '暂不',

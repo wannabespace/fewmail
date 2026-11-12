@@ -74,7 +74,11 @@ import { type } from 'arktype'
 import { differenceInMinutes, isToday } from 'date-fns'
 import { Fragment, useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useSubscription } from 'seitu/react'
-import { createWebStorageValue } from 'seitu/web'
+import {
+  createElementSize,
+  createMediaQuery,
+  createWebStorageValue,
+} from 'seitu/web'
 
 import { useCompose } from '~/components/compose/compose-context'
 import { KeyHints } from '~/components/key-hints'
@@ -122,13 +126,28 @@ const ARRIVING = new Set<Filter>([
 
 const MailListEmpty = ({
   filter,
+  isSearch,
   mailboxes,
 }: {
   filter: Filter
+  isSearch: boolean
   mailboxes: { hasSynced: boolean }[]
 }) => {
   const t = useT()
   const isFirstRead = mailboxes.length > 0 && isReadingFirstTime(mailboxes)
+  if (isSearch) {
+    return (
+      <Empty size="sm">
+        <EmptyHeader>
+          <EmptyMedia variant="muted">
+            <HugeiconsIcon icon={Search01Icon} />
+          </EmptyMedia>
+          <EmptyTitle>{t.mail.noResults}</EmptyTitle>
+          <EmptyDescription>{t.mail.noResultsHint}</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    )
+  }
 
   return (
     <Empty size="sm">
@@ -171,7 +190,12 @@ const isCounted = (
 /** Threads read ahead of the click; the cursor's neighbours and a hovered row are added as they come. */
 const PREFETCHED_ROWS = 10
 
-const READER_WIDTH = { default: 640, max: '70%', min: 420 } as const
+/** At most 60%: a wider reader squeezed the list into unreadable initials on a 1024px screen. */
+const READER_WIDTH = { default: 640, max: '60%', min: 420 } as const
+const READER_SHARE = 0.6
+
+/** Too narrow for both panes: the reader folds away while no thread is open. */
+const narrowScreen = createMediaQuery({ query: '(max-width: 1100px)' })
 
 const readerWidthStore = createWebStorageValue({
   defaultValue: READER_WIDTH.default as number,
@@ -398,7 +422,7 @@ const ViewPicker = ({
           className="text-muted-foreground"
         />
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-96">
+      <PopoverContent align="start" className="w-112">
         <div className="grid grid-cols-2 gap-2">
           {INBOX_VIEWS.map((value) => (
             <button
@@ -460,7 +484,7 @@ const ViewPicker = ({
               value={grouping}
               onValueChange={(next: Grouping) => groupingStore.set(next)}
             >
-              <TabsList variant="pill" className="flex-wrap">
+              <TabsList variant="pill">
                 {GROUPINGS.map((value) => (
                   <TabsTrigger key={value} value={value}>
                     {t.mail.group[value]}
@@ -1026,7 +1050,21 @@ const useListActions = ({
 
 const MailPage = () => {
   const t = useT()
-  const readerWidth = useSubscription(readerWidthStore)
+  const isNarrow = useSubscription(narrowScreen)
+  const rememberedWidth = useSubscription(readerWidthStore)
+  const [panes, setPanes] = useState<HTMLElement | null>(null)
+  const { width: panesWidth } = useSubscription(
+    () => createElementSize({ element: panes }),
+    { deps: [panes] }
+  )
+  // `maxSize` bounds only a drag; the remembered width is applied as is, so a smaller window clamps it here.
+  const readerWidth =
+    panesWidth > 0
+      ? Math.min(
+          rememberedWidth,
+          Math.max(READER_WIDTH.min, Math.round(panesWidth * READER_SHARE))
+        )
+      : rememberedWidth
   const grouping = useSubscription(groupingStore)
   const hasAgent = useHasAgent()
   const { filter = 'inbox', mailbox, q, thread } = Route.useSearch()
@@ -1184,7 +1222,7 @@ const MailPage = () => {
   })
 
   return (
-    <ResizableGroup className="flex min-h-0 flex-1">
+    <ResizableGroup ref={setPanes} className="flex min-h-0 flex-1">
       <ResizablePanel className="flex min-w-0">
         <section
           aria-label={t.nav.mail}
@@ -1256,7 +1294,11 @@ const MailPage = () => {
             </div>
           </div>
           {total === 0 && !isFetching && (
-            <MailListEmpty filter={filter} mailboxes={mailboxes} />
+            <MailListEmpty
+              filter={filter}
+              isSearch={!!q}
+              mailboxes={mailboxes}
+            />
           )}
           <ul
             ref={listRef}
@@ -1314,6 +1356,7 @@ const MailPage = () => {
       <ResizableSeparator />
       <ResizablePanel
         className="flex"
+        collapsed={isNarrow && !thread}
         size={readerWidth}
         minSize={READER_WIDTH.min}
         maxSize={READER_WIDTH.max}
