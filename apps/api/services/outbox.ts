@@ -111,24 +111,13 @@ export const dispatchOutbox = async (id: string) => {
     return
   }
 
+  let sent: Awaited<ReturnType<typeof sendMail>>
   try {
     const [mailbox] = await db
       .select()
       .from(mailboxes)
       .where(eq(mailboxes.id, claimed.mailboxId))
-    const sent = await sendMail(expectRow(mailbox), claimed)
-    await db.update(outbox).set({ status: 'sent' }).where(eq(outbox.id, id))
-    if (claimed.threadId) {
-      await changeThreadLabels(claimed.userId, claimed.threadId, {
-        remove: ['UNREAD'],
-      })
-    }
-    await (claimed.remindAfterDays
-      ? scheduleFollowup(claimed.userId, sent.threadId, claimed.remindAfterDays)
-      : watchSentMail(claimed.userId, {
-          text: claimed.text,
-          threadId: sent.threadId,
-        }))
+    sent = await sendMail(expectRow(mailbox), claimed)
   } catch (error) {
     await db
       .update(outbox)
@@ -141,8 +130,32 @@ export const dispatchOutbox = async (id: string) => {
       await db
         .update(actions)
         .set({ resolvedAt: null, status: 'pending' })
-        .where(eq(actions.id, claimed.actionId))
+        .where(
+          and(
+            eq(actions.id, claimed.actionId),
+            eq(actions.userId, claimed.userId)
+          )
+        )
     }
+    return
+  }
+
+  // Gmail already sent it: a failure below must never mark it failed, or it is sent twice.
+  await db.update(outbox).set({ status: 'sent' }).where(eq(outbox.id, id))
+  try {
+    if (claimed.threadId) {
+      await changeThreadLabels(claimed.userId, claimed.threadId, {
+        remove: ['UNREAD'],
+      })
+    }
+    await (claimed.remindAfterDays
+      ? scheduleFollowup(claimed.userId, sent.threadId, claimed.remindAfterDays)
+      : watchSentMail(claimed.userId, {
+          text: claimed.text,
+          threadId: sent.threadId,
+        }))
+  } catch (error) {
+    console.error('outbox after-send failed', error)
   }
 }
 
@@ -216,7 +229,7 @@ export const cancelMail = async (userId: string, id: string) => {
     await db
       .update(actions)
       .set({ resolvedAt: null, status: 'pending' })
-      .where(eq(actions.id, canceled.actionId))
+      .where(and(eq(actions.id, canceled.actionId), eq(actions.userId, userId)))
   }
   return {
     bcc: canceled.bcc,

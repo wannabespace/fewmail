@@ -7,6 +7,7 @@ import {
   CommandPaletteFooter,
   CommandPaletteInput,
   CommandPrimitive,
+  defaultFilter,
   CommandShortcut,
 } from '@fewmail/ui/components/command'
 import { themeStore } from '@fewmail/ui/theme-store'
@@ -42,6 +43,12 @@ const THEME_ICONS = {
   system: ComputerIcon,
 } as const
 
+// Asking spends a message: a matching command must win Enter, asking only when nothing else matches.
+const rankAskLast = (value: string, search: string, keywords?: string[]) =>
+  value.startsWith('ask ')
+    ? Number.MIN_VALUE
+    : defaultFilter(value, search, keywords)
+
 export const CommandMenu = ({
   onOpenChange: setOpen,
   open,
@@ -58,6 +65,7 @@ export const CommandMenu = ({
   const { openCompose } = useCompose()
   const ask = useMutation(orpc.ask.mutationOptions())
   const askedQuestion = ask.variables?.question
+  const canAsk = hasAgent && Boolean(search.trim())
 
   const refreshBrief = useMutation(
     orpc.today.refreshBrief.mutationOptions({
@@ -78,8 +86,13 @@ export const CommandMenu = ({
   useHotkey('C', () => openCompose())
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandPrimitive>
+    <CommandDialog
+      open={open}
+      onOpenChange={setOpen}
+      title={t.nav.search}
+      description={hasAgent ? t.command.placeholder : t.command.commandsOnly}
+    >
+      <CommandPrimitive filter={rankAskLast}>
         <CommandPaletteInput
           placeholder={
             hasAgent ? t.command.placeholder : t.command.commandsOnly
@@ -88,7 +101,7 @@ export const CommandMenu = ({
           onValueChange={setSearch}
         />
         <CommandList className="m-1.5 max-h-96">
-          <CommandEmpty>{t.command.nothingMatches}</CommandEmpty>
+          {!canAsk && <CommandEmpty>{t.command.nothingMatches}</CommandEmpty>}
           {askedQuestion && (
             <AskAnswer
               question={askedQuestion}
@@ -99,18 +112,6 @@ export const CommandMenu = ({
                 )
               }
             />
-          )}
-          {hasAgent && search.trim() && (
-            <CommandGroup forceMount heading={t.command.mail}>
-              <CommandItem
-                forceMount
-                value={`ask ${search}`}
-                onSelect={() => ask.mutate({ question: search.trim() })}
-              >
-                <HugeiconsIcon icon={AiChat02Icon} strokeWidth={2} />
-                {t.ask.label(search.trim())}
-              </CommandItem>
-            </CommandGroup>
           )}
           <CommandGroup heading={t.command.goTo}>
             {visibleNavItems(hasAgent).map((item) => (
@@ -170,8 +171,20 @@ export const CommandMenu = ({
               </CommandItem>
             ))}
           </CommandGroup>
+          {canAsk && (
+            <CommandGroup forceMount heading={t.command.mail}>
+              <CommandItem
+                forceMount
+                value={`ask ${search}`}
+                onSelect={() => ask.mutate({ question: search.trim() })}
+              >
+                <HugeiconsIcon icon={AiChat02Icon} strokeWidth={2} />
+                {t.ask.label(search.trim())}
+              </CommandItem>
+            </CommandGroup>
+          )}
         </CommandList>
-        <CommandPaletteFooter />
+        <CommandPaletteFooter labels={t.keys} />
       </CommandPrimitive>
     </CommandDialog>
   )

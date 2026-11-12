@@ -14,4 +14,7 @@ export const models = {
   }),
 }
 
+export const INFORMAL_ADDRESS =
+  'Address the user informally where the language distinguishes (Ukrainian ти, German du, French tu, Spanish tú).'
+
 export const FAST_MODEL_ID = 'anthropic/claude-haiku-4.5'

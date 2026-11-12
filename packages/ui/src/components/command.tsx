@@ -160,9 +160,13 @@ const CommandPaletteHint = ({
   </span>
 )
 
-export const CommandPaletteFooter = () => (
+export const CommandPaletteFooter = ({
+  labels,
+}: {
+  labels: { close: string; move: string; open: string }
+}) => (
   <div className="text-2xs text-muted-foreground/70 flex shrink-0 items-center gap-3 border-t px-4 py-2">
-    <CommandPaletteHint label="navigate">
+    <CommandPaletteHint label={labels.move}>
       <Kbd>
         <HugeiconsIcon
           icon={ArrowUp02Icon}
@@ -178,12 +182,12 @@ export const CommandPaletteFooter = () => (
         />
       </Kbd>
     </CommandPaletteHint>
-    <CommandPaletteHint label="open">
+    <CommandPaletteHint label={labels.open}>
       <Kbd>
         <EnterIcon />
       </Kbd>
     </CommandPaletteHint>
-    <CommandPaletteHint label="close">
+    <CommandPaletteHint label={labels.close}>
       <Kbd>esc</Kbd>
     </CommandPaletteHint>
   </div>

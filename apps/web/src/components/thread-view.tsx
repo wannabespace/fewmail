@@ -415,6 +415,9 @@ export const SnoozeMenuItems = ({
   })
 }
 
+const revealComposer = (node: HTMLElement | null) =>
+  node?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+
 export const ThreadView = ({
   isSnoozed,
   onDone,
@@ -630,7 +633,10 @@ export const ThreadView = ({
           )}
 
           {composing && (
-            <section className="bg-popover ring-foreground/6 rounded-2xl p-4 shadow-sm ring">
+            <section
+              ref={revealComposer}
+              className="bg-popover ring-foreground/6 rounded-2xl p-4 shadow-sm ring"
+            >
               <ComposeForm
                 draft={composing}
                 onDone={() => setComposing(null)}

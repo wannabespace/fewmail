@@ -14,7 +14,7 @@ import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { and, desc, eq, inArray, isNotNull, lt, ne } from 'drizzle-orm'
 
-import { FAST_MODEL_ID, models } from '../lib/ai'
+import { FAST_MODEL_ID, INFORMAL_ADDRESS, models } from '../lib/ai'
 import { trashThread, unsubscribeOneClick } from '../lib/gmail'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { BULK_THRESHOLD } from './bulk'
@@ -61,6 +61,7 @@ const analyzeInstructions = (input: {
     'needsReply is true only when a real person (not an automated sender) is waiting for an answer from the user.',
     'suggestedAction: reply, pay (an amount is due), schedule (a meeting time is proposed), follow_up (the user should chase something), read (important to read, nothing to do), archive or mark_read (noise), unsubscribe (marketing the user never engages with), none.',
     `Write summary (one sentence), reason (why this importance, a few words) and actionTitle (a short imperative button label) in ${englishName(input.language)}.`,
+    INFORMAL_ADDRESS,
     'extracted: an amount with currency, a due date and a proposed meeting time as written in the email, else null.',
     '',
     input.rules.length > 0
@@ -313,6 +314,7 @@ const analyze = async (input: {
     instructions: [
       `Write in ${englishName(input.settings.language)}: summary (one sentence, concrete names, amounts and dates), reason (why it matters, a few words) and actionTitle (a short imperative button label for: ${decisions.suggestedAction}).`,
       'extracted: an amount with currency, a due date and a proposed meeting time as written in the email, else null. Never invent anything.',
+      INFORMAL_ADDRESS,
     ].join('\n'),
     model: models.fast,
     output: Output.object({ schema: textSchema }),
@@ -517,7 +519,14 @@ export const analyzeMessage = async (
   }
 
   if (rule && rule.effect !== 'always_show' && rule.effect !== 'draft_reply') {
-    await recordRuleAction(message, { ...rule, effect: rule.effect }, base)
+    await recordRuleAction(
+      message,
+      { ...rule, effect: rule.effect },
+      {
+        ...base,
+        title: dictionaries[settings.language].rules.effect[rule.effect],
+      }
+    )
     return
   }
   if (!agent) {

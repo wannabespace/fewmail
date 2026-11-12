@@ -450,30 +450,37 @@ export const approveAction = async (
   detail?: string
 ) => {
   const { action, message } = await getAction(userId, actionId)
+  const [claimed] = await db
+    .update(actions)
+    .set({ resolvedAt: new Date(), status: 'done' })
+    .where(and(eq(actions.id, actionId), eq(actions.status, 'pending')))
+    .returning({ id: actions.id })
+  if (!claimed) {
+    throw new NotFoundError('Action already handled')
+  }
 
   let outboxId: string | null = null
-  await applyActionSideEffects(userId, action)
-  const sendsMail =
-    action.kind === 'reply' ||
-    (action.kind === 'task' && !!(detail ?? action.detail))
-  if (message && sendsMail) {
-    outboxId = await scheduleActionReply(
-      userId,
-      actionId,
-      message,
-      detail ?? action.detail
-    )
-  } else if (message && !NO_GMAIL_CHANGE.has(action.kind)) {
-    if (action.kind === 'reply') {
+  try {
+    await applyActionSideEffects(userId, action)
+    const sendsMail =
+      action.kind === 'reply' ||
+      (action.kind === 'task' && !!(detail ?? action.detail))
+    if (message && sendsMail) {
       outboxId = await scheduleActionReply(
         userId,
         actionId,
         message,
         detail ?? action.detail
       )
-    } else {
+    } else if (message && !NO_GMAIL_CHANGE.has(action.kind)) {
       await applyGmailChange(userId, action, message)
     }
+  } catch (error) {
+    await db
+      .update(actions)
+      .set({ resolvedAt: null, status: 'pending' })
+      .where(eq(actions.id, actionId))
+    throw error
   }
 
   const [done] = await finish(actionId, 'done', detail)

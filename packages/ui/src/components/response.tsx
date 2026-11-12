@@ -6,8 +6,8 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import type { VariantProps } from 'class-variance-authority'
 import type * as React from 'react'
 import { useState } from 'react'
-import { Streamdown } from 'streamdown'
-import type { ExtraProps } from 'streamdown'
+import { defaultRehypePlugins, Streamdown } from 'streamdown'
+import type { ExtraProps, StreamdownProps } from 'streamdown'
 
 import { responseVariants } from './response.utils'
 
@@ -118,6 +118,26 @@ const Code = ({
 
 const components = { code: Code }
 
+type PluggableList = NonNullable<StreamdownProps['rehypePlugins']>
+
+const [harden, hardenOptions] = defaultRehypePlugins.harden as [
+  PluggableList[number],
+  object,
+]
+// Without an origin, harden blocks every relative link — the agent's `?thread=` links included.
+const rehypePlugins = [
+  defaultRehypePlugins.raw,
+  defaultRehypePlugins.sanitize,
+  [
+    harden,
+    {
+      ...hardenOptions,
+      defaultOrigin:
+        typeof window === 'undefined' ? undefined : window.location.origin,
+    },
+  ],
+] as PluggableList
+
 export const Response = ({
   className,
   components: extra,
@@ -131,6 +151,7 @@ export const Response = ({
     controls={false}
     data-slot="response"
     linkSafety={{ enabled: false }}
+    rehypePlugins={rehypePlugins}
     {...props}
   />
 )

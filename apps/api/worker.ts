@@ -174,7 +174,9 @@ const sendDueBriefs = async () => {
   const everyone = await db.select().from(userSettings)
   for (const settings of everyone) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- briefs are generated one user at a time
-    await sendBriefIfDue(settings)
+    await sendBriefIfDue(settings).catch((error) =>
+      console.error('brief failed', settings.userId, error)
+    )
   }
 }
 

@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useT } from '~/lib/i18n'
@@ -80,6 +80,11 @@ export const ComposeForm = ({
   }
 
   const isReply = draft.mode === 'reply'
+  useEffect(() => {
+    if (isReply) {
+      editorRef.current?.focus()
+    }
+  }, [isReply])
   const submit = (sendAt?: Date) => {
     const recipients = parseRecipients(to)
     const copies = parseRecipients(cc)

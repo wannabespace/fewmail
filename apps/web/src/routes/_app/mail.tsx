@@ -85,6 +85,17 @@ const FILTERS = [
 
 type Filter = (typeof FILTERS)[number]
 
+const ARRIVING = new Set<Filter>([
+  'inbox',
+  'important',
+  'needs_reply',
+  'quiet',
+  'spam',
+])
+
+const revealTab = (node: HTMLElement | null) =>
+  node?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+
 const stepFilter = (filter: Filter, step: number) =>
   FILTERS[(FILTERS.indexOf(filter) + step + FILTERS.length) % FILTERS.length] ??
   filter
@@ -826,7 +837,11 @@ const MailPage = () => {
                 className="scroll-fade-x max-w-full scrollbar-none justify-start overflow-x-auto"
               >
                 {FILTERS.map((value) => (
-                  <TabsTrigger key={value} value={value}>
+                  <TabsTrigger
+                    key={value}
+                    ref={value === filter ? revealTab : undefined}
+                    value={value}
+                  >
                     {t.mail.filter[value]}
                     {isCounted(value) && Boolean(unread?.[value]) && (
                       <span className="text-xs tabular-nums opacity-60">
@@ -845,7 +860,9 @@ const MailPage = () => {
                   <HugeiconsIcon icon={Mail01Icon} />
                 </EmptyMedia>
                 <EmptyTitle>{t.mail.empty}</EmptyTitle>
-                <EmptyDescription>{t.mail.emptyHint}</EmptyDescription>
+                <EmptyDescription hidden={!ARRIVING.has(filter)}>
+                  {t.mail.emptyHint}
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}

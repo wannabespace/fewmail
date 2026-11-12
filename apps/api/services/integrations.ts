@@ -86,7 +86,7 @@ export const unlinkTelegram = (userId: string) =>
 export const linkTelegramChat = async (code: string, chatId: string) => {
   const [link] = await db
     .update(telegramLinks)
-    .set({ chatId, linkedAt: new Date() })
+    .set({ chatId, linkCode: linkCode(), linkedAt: new Date() })
     .where(eq(telegramLinks.linkCode, code))
     .returning()
   return link ?? null
@@ -153,7 +153,12 @@ export const linkWhatsappPhone = async (text: string, phone: string) => {
   }
   const [link] = await db
     .update(whatsappLinks)
-    .set({ lastInboundAt: new Date(), linkedAt: new Date(), phone })
+    .set({
+      lastInboundAt: new Date(),
+      linkCode: linkCode(),
+      linkedAt: new Date(),
+      phone,
+    })
     .where(eq(whatsappLinks.linkCode, code))
     .returning()
   return link ?? null

@@ -24,6 +24,7 @@ import { and, desc, eq, gte, isNotNull } from 'drizzle-orm'
 import { models } from '../lib/ai'
 import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
+import { LimitReachedError } from './limit-error'
 import { NotFoundError } from './mail-errors'
 import { searchMailboxes } from './mailboxes'
 import { requireRoom } from './plan'
@@ -172,9 +173,26 @@ export const createBoard = async (
 export const seedBoards = async (userId: string) => {
   const settings = await getSettings(userId)
   const t = dictionaries[settings?.language ?? 'en']
+  const existing = await db
+    .select({ name: boards.name })
+    .from(boards)
+    .where(eq(boards.userId, userId))
+  const names = new Set(existing.map(({ name }) => name))
   for (const preset of settings?.starterBoards ?? []) {
+    const input = t.boards.starter[preset]
+    if (names.has(input.name)) {
+      continue
+    }
     // oxlint-disable-next-line no-await-in-loop -- one at a time: createBoard counts boards against the plan, parallel calls would all pass the limit
-    await createBoard(userId, t.boards.starter[preset])
+    const created = await createBoard(userId, input).catch((error) => {
+      if (error instanceof LimitReachedError) {
+        return null
+      }
+      throw error
+    })
+    if (!created) {
+      return
+    }
   }
 }
 

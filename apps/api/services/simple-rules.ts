@@ -62,6 +62,7 @@ export const applySimpleRules = async (userId: string, incoming: Message[]) => {
         !rule ||
         (rule.effect !== 'archive' &&
           rule.effect !== 'mark_read' &&
+          rule.effect !== 'trash' &&
           rule.effect !== 'unsubscribe')
       ) {
         return

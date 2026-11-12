@@ -14,7 +14,7 @@ import type { UIMessage } from 'ai'
 import { and, desc, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-import { models } from '../lib/ai'
+import { INFORMAL_ADDRESS, models } from '../lib/ai'
 import { agentTools } from './agent-tools'
 import { NotFoundError } from './mail-errors'
 import { spendMessage } from './plan'
@@ -48,6 +48,7 @@ const instructionsFor = async (userId: string) => {
   return [
     "You are Fewmail, the user's email agent, talking with them in a chat. You read all of their mail so they do not have to.",
     `Write in ${englishName(settings?.language ?? 'en')}, or in the language the user writes in. Replies to an email are written in the language of that email.`,
+    INFORMAL_ADDRESS,
     'The user wants calm and nothing important lost: people waiting for them come first.',
     `Now: ${now} (${timezone}).`,
     settings?.knowledge
@@ -147,13 +148,13 @@ export const streamChat = async (
   userId: string,
   { id, message }: { id: string; message: UIMessage }
 ) => {
-  if (message.role === 'user') {
-    await spendMessage(userId)
-  }
   const chat = await ownChat(userId, id)
   const stored = (chat?.messages ?? []) as UIMessage[]
   const tools = chatTools(userId)
   const known = stored.findIndex(({ id: storedId }) => storedId === message.id)
+  if (message.role === 'user' || known === -1) {
+    await spendMessage(userId)
+  }
   const sent =
     message.role === 'user'
       ? { ...message, metadata: { createdAt: Date.now() } }

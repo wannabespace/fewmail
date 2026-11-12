@@ -5,7 +5,7 @@ import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { and, eq, inArray } from 'drizzle-orm'
 
-import { models } from '../lib/ai'
+import { INFORMAL_ADDRESS, models } from '../lib/ai'
 import { getMessage } from '../lib/gmail'
 import { searchMailboxes } from './mailboxes'
 import { getSettings } from './settings'
@@ -69,6 +69,7 @@ export const askMail = async (userId: string, question: string) => {
       `Answer the user's question about their email in ${englishName(settings?.language ?? 'en')}, briefly and concretely.`,
       'Use only the emails below. Cite them inline as [n]. If they do not answer the question, say so plainly.',
       'sources: the numbers you cited, in order.',
+      INFORMAL_ADDRESS,
     ].join('\n'),
     model: models.writer,
     output: Output.object({ schema: answerSchema }),

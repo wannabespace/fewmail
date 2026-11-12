@@ -56,7 +56,7 @@ const EffectSelect = <Effect extends RuleEffect>({
       value={value}
       onValueChange={(next) => next && onChange(next)}
     >
-      <SelectTrigger aria-label={t.rules.whatAgentDoes} className="w-40">
+      <SelectTrigger aria-label={t.rules.whatAgentDoes} className="w-52">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
