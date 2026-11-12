@@ -42,15 +42,16 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { newBoardStore } from '~/components/board-dialog'
 import { signOut } from '~/lib/auth'
 import { useT } from '~/lib/i18n'
 import { useHasAgent, useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
+import { SITE_NAME } from '~/lib/seo'
 
 import { Logo } from './logo'
 
@@ -254,18 +255,54 @@ const useAccountStatus = (
     !mailboxes?.length || mailboxes.some(({ lastSyncedAt }) => !lastSyncedAt)
 
   if (hasAgent && mailboxes?.some(({ syncError }) => syncError)) {
-    return { isAlert: true, text: t.nav.syncFailed }
+    return { isAlert: true, isTitled: true, text: t.nav.syncFailed }
   }
   if (hasAgent && isSyncing) {
-    return { isAlert: false, text: t.nav.syncing }
+    return { isAlert: false, isTitled: true, text: t.nav.syncing }
   }
   if (percent >= USAGE_SHOWN_FROM) {
-    return { isAlert: true, text: t.nav.usage(percent) }
+    return { isAlert: true, isTitled: true, text: t.nav.usage(percent) }
   }
   if (plan.trialDaysLeft) {
     return { isAlert: false, text: t.nav.trialLeft(plan.trialDaysLeft) }
   }
   return hasAgent ? { isAlert: false, text: t.nav.watching } : null
+}
+
+/** The tab says what waits without opening it: `(3) Today · Fewmail`. */
+const useDocumentTitle = ({
+  count,
+  mailboxes,
+}: {
+  count?: number
+  mailboxes?: { lastSyncedAt: Date | null; syncError: string | null }[]
+}) => {
+  const t = useT()
+  const status = useAccountStatus(mailboxes)
+  const pathname = useRouterState({
+    select: ({ location }) => location.pathname,
+  })
+  const { data: boards } = useQuery(
+    orpc.boards.list.queryOptions({ enabled: pathname.startsWith('/boards/') })
+  )
+  const page = NAV_ITEMS.find(({ to }) => pathname.startsWith(to))?.key ?? null
+  const board = boards?.find(({ id }) => pathname === `/boards/${id}`)
+  const title = [
+    count ? `(${count})` : '',
+    [
+      board?.name ?? (page && t.nav[page]),
+      status?.isTitled && status.text,
+      SITE_NAME,
+    ]
+      .filter(Boolean)
+      .join(' · '),
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  useEffect(() => {
+    document.title = title
+  }, [title])
 }
 
 const AccountMenu = ({
@@ -353,6 +390,10 @@ export const Sidebar = ({
   const { data: unread } = useQuery(
     orpc.mail.unread.queryOptions({ input: {} })
   )
+  useDocumentTitle({
+    count: hasAgent ? today?.queue.length : unread?.inbox,
+    mailboxes: today?.mailboxes,
+  })
 
   return (
     <nav

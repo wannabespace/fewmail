@@ -13,7 +13,10 @@ const router = createRouter({
 })
 
 router.subscribe('onResolved', ({ toLocation }) => {
-  document.title = pageTitle(toLocation.pathname)
+  // The signed-in app owns its title: the sidebar adds counts and status.
+  if (!router.state.matches.some(({ routeId }) => routeId === '/_app')) {
+    document.title = pageTitle(toLocation.pathname)
+  }
 })
 
 declare module '@tanstack/react-router' {
