@@ -4,6 +4,7 @@ import {
   AvatarBadge,
   AvatarFallback,
 } from '@fewmail/ui/components/avatar'
+import { Button } from '@fewmail/ui/components/button'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -27,6 +28,11 @@ import {
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@fewmail/ui/components/tooltip'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
 import type { Theme } from '@fewmail/ui/theme-store'
 import { themeStore, useTheme } from '@fewmail/ui/theme-store'
@@ -493,21 +499,25 @@ export const Sidebar = ({
         <Logo to={hasAgent ? '/today' : '/mail'} />
       </div>
       <div className="mb-3 flex items-center gap-1.5">
-        <button
-          type="button"
-          onClick={onSearch}
-          className="bg-input text-muted-foreground ring-foreground/6 hover:ring-foreground/12 focus-visible:focus-ring flex h-8 min-w-0 flex-1 cursor-pointer items-center justify-between rounded-lg px-2.5 text-sm shadow-2xs ring outline-none"
-        >
-          <span className="flex min-w-0 items-center gap-2">
+        <Tooltip shortcut={<Kbd>⌘K</Kbd>}>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="outline-muted"
+                className="min-w-0 flex-1 justify-start"
+                onClick={onSearch}
+              />
+            }
+          >
             <HugeiconsIcon
               icon={Search01Icon}
               strokeWidth={2}
-              className="size-4 shrink-0"
+              data-icon="inline-start"
             />
             <span className="truncate">{t.nav.search}</span>
-          </span>
-          <Kbd>⌘K</Kbd>
-        </button>
+          </TooltipTrigger>
+          <TooltipContent>{t.nav.search}</TooltipContent>
+        </Tooltip>
         <IconButton
           icon={PencilEdit02Icon}
           label={t.command.compose}

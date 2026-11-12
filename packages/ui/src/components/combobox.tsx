@@ -269,7 +269,7 @@ const ComboboxChips = ({
       data-slot="combobox-chips"
       aria-invalid={invalidMark ? true : undefined}
       className={cn(
-        `bg-input ring-foreground/4 hover:ring-foreground/12 focus-within:focus-ring aria-invalid:invalid-ring flex min-h-8 flex-wrap items-center gap-1 rounded-xl border border-transparent px-2.5 py-1 text-sm shadow-xs ring transition-[color,box-shadow] duration-200 has-data-[slot=combobox-chip]:px-1 has-[input:disabled]:pointer-events-none has-[input:disabled]:opacity-50`,
+        `bg-input border-foreground/4 hover:border-foreground/12 focus-within:focus-ring aria-invalid:invalid-ring flex min-h-8 flex-wrap items-center gap-1 rounded-xl border bg-clip-padding px-2.5 py-1 text-sm shadow-xs transition-[color,box-shadow] duration-200 has-data-[slot=combobox-chip]:px-1 has-[input:disabled]:pointer-events-none has-[input:disabled]:opacity-50`,
         className
       )}
       {...props}
