@@ -728,6 +728,7 @@ export const pt: Messages = {
     unsubscribed: 'Inscrição cancelada',
   },
   nav: {
+    folders: 'Pastas',
     calendar: 'Calendário',
     subscriptions: 'Inscrições',
     agent: 'Agente',

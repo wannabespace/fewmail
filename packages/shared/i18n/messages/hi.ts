@@ -456,6 +456,7 @@ export const hi: Messages = {
     unsubscribed: 'अनसब्सक्राइब हो गया',
   },
   nav: {
+    folders: 'फ़ोल्डर',
     calendar: 'कैलेंडर',
     subscriptions: 'सब्सक्रिप्शन',
     agent: 'एजेंट',

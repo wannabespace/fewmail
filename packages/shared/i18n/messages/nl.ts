@@ -730,6 +730,7 @@ export const nl: Messages = {
     unsubscribed: 'Afgemeld',
   },
   nav: {
+    folders: 'Mappen',
     calendar: 'Agenda',
     subscriptions: 'Abonnementen',
     agent: 'Agent',

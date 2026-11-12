@@ -460,6 +460,7 @@ export const ja: Messages = {
     unsubscribed: '配信停止しました',
   },
   nav: {
+    folders: 'フォルダ',
     calendar: 'カレンダー',
     subscriptions: '購読',
     agent: 'エージェント',

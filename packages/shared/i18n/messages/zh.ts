@@ -450,6 +450,7 @@ export const zh: Messages = {
     unsubscribed: '已退订',
   },
   nav: {
+    folders: '文件夹',
     calendar: '日历',
     subscriptions: '订阅',
     agent: '助手',

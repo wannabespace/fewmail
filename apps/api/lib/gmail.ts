@@ -515,7 +515,7 @@ export const trashThread = (account: GmailAccount, threadId: string) =>
 
 export const listLabels = async (account: GmailAccount) => {
   const { labels = [] } = await gmail<{
-    labels?: { id: string; name: string }[]
+    labels?: { id: string; name: string; type: 'system' | 'user' }[]
   }>(account, '/labels')
   return labels
 }

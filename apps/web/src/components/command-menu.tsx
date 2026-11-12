@@ -26,6 +26,7 @@ import {
   Settings01Icon,
   SparklesIcon,
   Sun03Icon,
+  Tag01Icon,
   TextAlignLeftIcon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
@@ -43,7 +44,7 @@ import { AskAnswer } from './ask-answer'
 import { deletingBoardStore, newBoardStore } from './board-dialog'
 import { clearOutStore } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
-import { useVisibleNavItems } from './nav'
+import { FOLDER_ITEMS, useVisibleNavItems } from './nav'
 
 const THEME_ICONS = {
   dark: Moon02Icon,
@@ -89,6 +90,7 @@ export const CommandMenu = ({
   const { data: boards = [] } = useQuery(
     orpc.boards.list.queryOptions({ enabled: hasAgent })
   )
+  const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
   const board = boards.find(({ id }) => pathname === `/boards/${id}`)
   const onBoard = (intent: 'chart' | 'describe' | 'rename' | 'settings') =>
     board &&
@@ -201,6 +203,31 @@ export const CommandMenu = ({
               ))}
             </CommandGroup>
           )}
+          <CommandGroup heading={t.nav.folders}>
+            {FOLDER_ITEMS.map(({ filter, icon }) => (
+              <CommandItem
+                key={filter}
+                onSelect={() =>
+                  run(() => navigate({ search: { filter }, to: '/mail' }))
+                }
+              >
+                <HugeiconsIcon icon={icon} strokeWidth={2} />
+                {t.mail.filter[filter]}
+              </CommandItem>
+            ))}
+            {labels.map(({ name, query }) => (
+              <CommandItem
+                key={name}
+                value={`label ${name}`}
+                onSelect={() =>
+                  run(() => navigate({ search: { q: query }, to: '/mail' }))
+                }
+              >
+                <HugeiconsIcon icon={Tag01Icon} strokeWidth={2} />
+                <span data-mask>{name}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
           <CommandGroup heading={hasAgent ? t.command.agent : t.nav.mail}>
             <CommandItem onSelect={() => run(() => openCompose())}>
               <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={2} />

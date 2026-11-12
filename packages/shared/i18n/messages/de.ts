@@ -958,6 +958,7 @@ export const de: Messages = {
     unsubscribed: 'Abbestellt',
   },
   nav: {
+    folders: 'Ordner',
     calendar: 'Kalender',
     subscriptions: 'Abos',
     agent: 'Agent',

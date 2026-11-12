@@ -741,6 +741,7 @@ export const pl: Messages = {
     unsubscribed: 'Wypisano',
   },
   nav: {
+    folders: 'Foldery',
     calendar: 'Kalendarz',
     subscriptions: 'Subskrypcje',
     agent: 'Agent',

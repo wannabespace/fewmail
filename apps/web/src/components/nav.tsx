@@ -55,7 +55,9 @@ import {
   PencilEdit02Icon,
   Search01Icon,
   Settings01Icon,
+  SpamIcon,
   Sun03Icon,
+  Tag01Icon,
   TextAlignLeftIcon,
   UnfoldMoreIcon,
   ZapIcon,
@@ -260,6 +262,39 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
         <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
         <span className="text-muted-foreground">{t.nav.newBoard}</span>
       </button>
+    </section>
+  )
+}
+
+export const FOLDER_ITEMS = [
+  { filter: 'spam', icon: SpamIcon },
+  { filter: 'trash', icon: Delete02Icon },
+] as const
+
+/** Gmail's folders the view picker tucks away, then the user's own labels, each opening the Mail search for it. */
+const Folders = () => {
+  const t = useT()
+  const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
+
+  return (
+    <section aria-label={t.nav.folders} className="mt-4 flex flex-col gap-1">
+      <h2 className="text-muted-foreground px-2.5 pb-1 text-xs font-medium">
+        {t.nav.folders}
+      </h2>
+      {FOLDER_ITEMS.map(({ filter, icon }) => (
+        <Link key={filter} to="/mail" search={{ filter }} className={NAV_ROW}>
+          <HugeiconsIcon icon={icon} strokeWidth={2} />
+          <span className="flex-1">{t.mail.filter[filter]}</span>
+        </Link>
+      ))}
+      {labels.map(({ name, query }) => (
+        <Link key={name} to="/mail" search={{ q: query }} className={NAV_ROW}>
+          <HugeiconsIcon icon={Tag01Icon} strokeWidth={2} />
+          <span className="flex-1 truncate" data-mask>
+            {name}
+          </span>
+        </Link>
+      ))}
     </section>
   )
 }
@@ -544,8 +579,10 @@ export const Sidebar = ({
           count={item.to === '/mail' ? unread?.inbox : undefined}
         />
       ))}
-      {hasAgent && <Boards showKeys={isModifierHeld} />}
-      <div className="flex-1" />
+      <div className="-mx-1 flex min-h-0 flex-1 flex-col overflow-y-auto px-1 pb-3">
+        {hasAgent && <Boards showKeys={isModifierHeld} />}
+        <Folders />
+      </div>
       <AccountMenu email={email} mailboxes={mailboxes} />
     </nav>
   )

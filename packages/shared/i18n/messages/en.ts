@@ -727,6 +727,7 @@ export const en = {
     unsubscribed: 'Unsubscribed',
   },
   nav: {
+    folders: 'Folders',
     calendar: 'Calendar',
     subscriptions: 'Subscriptions',
     agent: 'Agent',

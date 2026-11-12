@@ -64,6 +64,7 @@ import {
   unlinkTelegram,
   unlinkWhatsapp,
 } from '../services/integrations'
+import { listUserLabels } from '../services/labels'
 import {
   approveAction,
   approveActions,
@@ -428,6 +429,7 @@ export const router = {
         })
       )
       .handler(({ context, input }) => listMail(context.user.id, input)),
+    labels: authed.handler(({ context }) => listUserLabels(context.user.id)),
     markRead: authed
       .input(type({ threadId: 'string' }))
       .handler(async ({ context, input }) => {

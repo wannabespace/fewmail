@@ -967,6 +967,7 @@ export const fr: Messages = {
     unsubscribed: 'Désabonné',
   },
   nav: {
+    folders: 'Dossiers',
     calendar: 'Calendrier',
     subscriptions: 'Abonnements',
     agent: 'Agent',

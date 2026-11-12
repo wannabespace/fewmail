@@ -1,6 +1,7 @@
 import { db } from '@fewmail/db'
 import { analyses, mailboxes, messages } from '@fewmail/db/schema'
 import type { MailCategory } from '@fewmail/shared/agent'
+import { Result } from 'better-result'
 import { subDays } from 'date-fns'
 import { and, eq, gte, sql } from 'drizzle-orm'
 
@@ -10,6 +11,7 @@ import {
   listLabels,
   modifyMessage,
 } from '../lib/gmail'
+import { logError } from '../lib/log'
 import { getSettings } from './settings'
 
 type Message = typeof messages.$inferSelect
@@ -111,4 +113,34 @@ export const backfillAgentLabels = async (userId: string) => {
     // oxlint-disable-next-line eslint/no-await-in-loop -- one at a time keeps label creation race-free and under Gmail's rate limit
     await applyAgentLabel(message, category)
   }
+}
+
+/** Gmail's own search form of a label: lower case, spaces and slashes as hyphens (`Fewmail/Newsletter` → `label:fewmail-newsletter`). */
+const labelQuery = (name: string) =>
+  `label:${name.toLowerCase().replaceAll(/[\s/]+/gu, '-')}`
+
+/** The user's own Gmail labels across mailboxes, merged by name; a mailbox Gmail refuses is left out instead of failing the list. */
+export const listUserLabels = async (userId: string) => {
+  const owned = await db
+    .select()
+    .from(mailboxes)
+    .where(eq(mailboxes.userId, userId))
+  const perMailbox = await Promise.all(
+    owned.map(async (mailbox) => {
+      const result = await Result.tryPromise(() => listLabels(mailbox))
+      if (result.isErr()) {
+        logError('listing labels failed', result.error.cause)
+      }
+      return result.unwrapOr([])
+    })
+  )
+  const names = new Set(
+    perMailbox
+      .flat()
+      .filter((label) => label.type === 'user')
+      .map((label) => label.name)
+  )
+  return [...names]
+    .toSorted((a, b) => a.localeCompare(b))
+    .map((name) => ({ name, query: labelQuery(name) }))
 }

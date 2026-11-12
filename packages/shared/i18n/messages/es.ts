@@ -955,6 +955,7 @@ export const es: Messages = {
     unsubscribed: 'Baja hecha',
   },
   nav: {
+    folders: 'Carpetas',
     calendar: 'Calendario',
     subscriptions: 'Suscripciones',
     agent: 'Agente',
