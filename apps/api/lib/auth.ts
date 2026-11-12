@@ -30,6 +30,8 @@ export const auth = betterAuth({
   },
   advanced: {
     database: { generateId: 'uuid' },
+    // Cloudflare sits in front of Railway: x-forwarded-for holds several hops, which Better Auth refuses, so every client shared one rate-limit bucket.
+    ipAddress: { ipAddressHeaders: ['cf-connecting-ip'] },
   },
   basePath: '/auth',
   baseURL: env.API_URL,
