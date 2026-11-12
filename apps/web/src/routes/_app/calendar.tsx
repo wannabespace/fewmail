@@ -162,6 +162,9 @@ const CalendarPage = () => {
   const date = isValid(parsed) ? parsed : startOfToday()
   const range = visibleRange(view, date, weekStartsOn)
   const label = usePeriodLabel(view, range)
+  const isCurrentPeriod =
+    visibleRange(view, startOfToday(), weekStartsOn).from.getTime() ===
+    range.from.getTime()
 
   const { data } = useQuery(
     orpc.calendar.events.queryOptions({
@@ -205,7 +208,9 @@ const CalendarPage = () => {
   const showDay = (day: Date) => show({ date: day, view: 'day' })
 
   const keys = { enabled: !isDialogOpen }
-  useHotkey('T', () => show({ date: new Date() }), keys)
+  useHotkey('T', () => show({ date: new Date() }), {
+    enabled: keys.enabled && !isCurrentPeriod,
+  })
   useHotkey('ArrowLeft', () => step(-1), keys)
   useHotkey('ArrowRight', () => step(1), keys)
   useHotkey('N', newEventNow, keys)
@@ -224,14 +229,16 @@ const CalendarPage = () => {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col">
-      <header className="flex flex-wrap items-center gap-2 px-10 pt-10 pb-5">
-        <h1 className="text-display me-auto font-serif tracking-tight">
+      <header className="flex items-center gap-2 px-10 pt-10 pb-5 *:shrink-0">
+        <h1 className="text-display min-w-0 flex-1 truncate font-serif tracking-tight">
           {label}
         </h1>
-        <Button variant="outline" onClick={() => show({ date: new Date() })}>
-          {t.calendar.today}
-          <Kbd>T</Kbd>
-        </Button>
+        {!isCurrentPeriod && (
+          <Button variant="outline" onClick={() => show({ date: new Date() })}>
+            {t.calendar.today}
+            <Kbd>T</Kbd>
+          </Button>
+        )}
         <IconButton
           icon={ArrowLeft01Icon}
           label={t.calendar.previous}
@@ -298,7 +305,9 @@ const CalendarPage = () => {
 
       <KeyHints
         hints={[
-          ['T', t.keys.calendarToday],
+          ...(isCurrentPeriod
+            ? []
+            : [['T', t.keys.calendarToday] as [string, string]]),
           ['← / →', t.keys.period],
           ['D W M Y', t.keys.view],
           ['N', t.keys.newEvent],
