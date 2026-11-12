@@ -1,5 +1,6 @@
 import { oauthProviderAuthServerMetadata } from '@better-auth/oauth-provider'
 import { runMigrations } from '@fewmail/db'
+import { onError } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
@@ -16,7 +17,9 @@ import { syncMailbox } from './services/sync'
 import { startTelegram, telegramWebhook } from './telegram'
 import { verifyWhatsappWebhook, whatsappWebhook } from './whatsapp'
 
-const rpc = new RPCHandler(router)
+const rpc = new RPCHandler(router, {
+  interceptors: [onError((cause) => console.error('rpc failed', cause))],
+})
 
 const app = new Hono()
   .use('/auth/*', cors({ credentials: true, origin: env.WEB_URL }))

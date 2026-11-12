@@ -42,10 +42,10 @@ export const listEvents = async (
           events: events.map((event) => ({ ...event, mailboxId: mailbox.id })),
         }
       } catch (error) {
-        if (error instanceof CalendarScopeMissingError) {
-          return { calendar: { ...calendar, connected: false }, events: [] }
+        if (!(error instanceof CalendarScopeMissingError)) {
+          console.error('calendar list failed', error)
         }
-        throw error
+        return { calendar: { ...calendar, connected: false }, events: [] }
       }
     })
   )
