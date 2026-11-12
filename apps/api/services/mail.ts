@@ -34,11 +34,10 @@ import { getMessage } from '../lib/gmail'
 import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
-import { toGmailQuery } from './ask'
+import { searchByQuestion } from './ask'
 import { deliverySlots } from './batching'
 import { runCleanup } from './cleanup'
 import { NotFoundError } from './mail-errors'
-import { searchMailboxes } from './mailboxes'
 import { scheduleMail } from './outbox'
 import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
 import { createRule } from './rules'
@@ -292,9 +291,9 @@ const searchMail = async (
   search: string,
   mailboxId?: string
 ) => {
-  const found = await searchMailboxes(
+  const { results: found } = await searchByQuestion(
     userId,
-    await toGmailQuery(userId, search),
+    search,
     PAGE_SIZE,
     mailboxId
   )

@@ -14,25 +14,27 @@ import { getSettings } from './settings'
 const SOURCE_LIMIT = 12
 const BODY_LIMIT = 1500
 
-const querySchema = type({ gmailQuery: 'string' })
+const querySchema = type({ gmailQueries: 'string[]' })
 const answerSchema = type({ answer: 'string', sources: 'number[]' })
 
 const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
 const ONE_WORD = /^\S+$/u
 
-/** Plain language goes through the fast model (agent only); one word or text already in Gmail syntax is used as typed. */
-export const toGmailQuery = async (userId: string, text: string) => {
+/** Plain language goes through the fast model (agent only) as a few queries, strictest first; one word or text already in Gmail syntax is used as typed. */
+export const toGmailQueries = async (userId: string, text: string) => {
   if (
     ONE_WORD.test(text.trim()) ||
     GMAIL_OPERATOR.test(text) ||
     !hasAgent(await getPlanInfo(userId))
   ) {
-    return text
+    return [text]
   }
   const { output } = await generateText({
     instructions: [
-      "Turn the question about the user's mailbox into one Gmail search query (from:, to:, subject:, has:attachment, newer_than:, older_than:, quoted phrases, OR).",
-      `Prefer few precise terms; add a time filter only when the question implies one. Today is ${new Date()
+      "Turn the question about the user's mailbox into up to three Gmail search queries (from:, to:, subject:, has:attachment, newer_than:, older_than:, quoted phrases, OR), strictest first. The last one is only the sender (from:name) when there is one, else the main noun in English OR the question's language, so it still finds the mail when the others guessed wrong.",
+      'Search in the language the emails are likely written in, not the language of the question: services and companies mostly write in English, so add English terms (receipt OR invoice OR payment for money) next to any in the question’s language.',
+      'Name the company that sends the mail, not only the product (Claude is billed by Anthropic), but never guess a company the user did not name or imply (no airline for a flight). from: takes one word of its name (from:anthropic), never a guessed domain; subject: only for words the user quoted.',
+      `Prefer few precise terms. Add a time filter only when the question names a past period, written as after:YYYY/MM/DD or newer_than:7d / 2m / 1y, nothing else. Today is ${new Date()
         .toISOString()
         .slice(0, 10)}.`,
     ].join('\n'),
@@ -40,15 +42,36 @@ export const toGmailQuery = async (userId: string, text: string) => {
     output: Output.object({ schema: querySchema }),
     prompt: text,
   })
-  return output.gmailQuery || text
+  const queries = output.gmailQueries.filter(Boolean)
+  return queries.length > 0 ? queries : [text]
+}
+
+/** The first query that finds anything, so a guess that was too strict falls back to a broader one. */
+export const searchByQuestion = async (
+  userId: string,
+  text: string,
+  limit: number,
+  mailboxId?: string
+) => {
+  const queries = await toGmailQueries(userId, text)
+  for (const query of queries) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- the next query runs only when this one found nothing
+    const results = await searchMailboxes(userId, query, limit, mailboxId)
+    if (results.some(({ ids }) => ids.length > 0)) {
+      return { query, results }
+    }
+  }
+  return { query: queries.at(-1) ?? text, results: [] }
 }
 
 /** Ask AI: the question becomes a Gmail search, the writer answers from what it finds, citing [n]. */
 export const askMail = async (userId: string, question: string) => {
   const settings = await getSettings(userId)
-  const gmailQuery = await toGmailQuery(userId, question)
-
-  const results = await searchMailboxes(userId, gmailQuery, SOURCE_LIMIT)
+  const { query: gmailQuery, results } = await searchByQuestion(
+    userId,
+    question,
+    SOURCE_LIMIT
+  )
   const ids = results.flatMap((result) => result.ids)
   const stored = ids.length
     ? await db

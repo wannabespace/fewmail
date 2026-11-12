@@ -7,7 +7,7 @@ import {
   listDrafts as listGmailDrafts,
   saveDraft as saveGmailDraft,
 } from '../lib/gmail'
-import { toGmailQuery } from './ask'
+import { toGmailQueries } from './ask'
 import { ownMailbox } from './mailboxes'
 import type { DraftRef, OutgoingMail } from './outbox'
 import { mailHeaders } from './outbox'
@@ -50,7 +50,9 @@ export const listDrafts = async (
         input.mailboxId ? eq(mailboxes.id, input.mailboxId) : undefined
       )
     )
-  const query = input.search ? await toGmailQuery(userId, input.search) : ''
+  const [query = ''] = input.search
+    ? await toGmailQueries(userId, input.search)
+    : []
   const perMailbox = await Promise.all(
     owned.map(async (mailbox) => {
       const found = await listGmailDrafts(mailbox, query, PAGE_SIZE)
