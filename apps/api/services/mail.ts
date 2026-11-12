@@ -1,19 +1,28 @@
 import { db } from '@fewmail/db'
 import { actions, analyses, commitments, messages } from '@fewmail/db/schema'
-import { ACTION_KIND_TRAITS, sendsDraft } from '@fewmail/shared/agent'
+import {
+  ACTION_KIND_TRAITS,
+  ACTION_KINDS,
+  sendsDraft,
+} from '@fewmail/shared/agent'
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { replyRecipients, textToHtml } from '@fewmail/shared/email'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { subHours } from 'date-fns'
 import {
   and,
+  arrayContains,
   desc,
   eq,
   exists,
+  gt,
   gte,
   inArray,
   lt,
+  lte,
+  notExists,
   notInArray,
+  or,
   sql,
 } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
@@ -78,22 +87,33 @@ const allPending = (userId: string) =>
     .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
     .orderBy(sql`${analyses.importance} desc nulls last`, actions.createdAt)
 
+const URGENT_IMPORTANCE = 3
+const IMMEDIATE_KINDS = ACTION_KINDS.filter(
+  (kind) => ACTION_KIND_TRAITS[kind].immediate
+)
+
+const batchingSlots = (settings: Awaited<ReturnType<typeof getSettings>>) => {
+  if (!settings) {
+    return null
+  }
+  const slots = deliverySlots(settings.timezone, settings.briefHour)
+  return settings.onboardedAt > slots.last ? null : slots
+}
+
 /** The queue as delivered: urgent items at once, the rest at the last calm slot (see batching). */
 export const listQueueWithLater = async (userId: string) => {
   const [pending, settings] = await Promise.all([
     allPending(userId),
     getSettings(userId),
   ])
-  if (!settings) {
+  const slots = batchingSlots(settings)
+  if (!slots) {
     return { held: [], later: null, queue: pending }
   }
-  const slots = deliverySlots(settings.timezone, settings.briefHour)
-  const firstDay = settings.onboardedAt > slots.last
   const isVisible = (item: (typeof pending)[number]) =>
-    firstDay ||
     item.action.createdAt <= slots.last ||
     ACTION_KIND_TRAITS[item.action.kind].immediate ||
-    (item.analysis?.importance ?? 0) >= 3
+    (item.analysis?.importance ?? 0) >= URGENT_IMPORTANCE
   const held = pending.filter((item) => !isVisible(item))
   return {
     held,
@@ -107,9 +127,27 @@ export const listQueue = async (userId: string) => {
   return queue
 }
 
+/** Must stay the same filter as `isVisible` in `listQueueWithLater`. */
 export const countQueue = async (userId: string) => {
-  const queue = await listQueue(userId)
-  return queue.length
+  const slots = batchingSlots(await getSettings(userId))
+  const [row] = await db
+    .select({ total: sql<number>`count(*)::int` })
+    .from(actions)
+    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
+    .where(
+      and(
+        eq(actions.userId, userId),
+        eq(actions.status, 'pending'),
+        slots
+          ? or(
+              lte(actions.createdAt, slots.last),
+              inArray(actions.kind, IMMEDIATE_KINDS),
+              gte(analyses.importance, URGENT_IMPORTANCE)
+            )
+          : undefined
+      )
+    )
+  return expectRow(row).total
 }
 
 export const handledSince = async (userId: string, since: Date) => {
@@ -186,6 +224,11 @@ export type MailFilter =
 
 const PAGE_SIZE = 50
 const inThread = alias(messages, 'in_thread')
+const newerInThread = alias(messages, 'newer_in_thread')
+const newerAnalysis = alias(analyses, 'newer_analysis')
+type MessageTable = typeof messages | typeof newerInThread
+type AnalysisTable = typeof analyses | typeof newerAnalysis
+
 const INBOX_FILTERS = new Set<MailFilter>([
   'inbox',
   'important',
@@ -193,13 +236,16 @@ const INBOX_FILTERS = new Set<MailFilter>([
   'quiet',
 ])
 
-const FILTER_WHERE: Partial<Record<MailFilter, SQL>> = {
-  important: gte(analyses.importance, 2),
-  needs_reply: eq(analyses.needsReply, true),
-  quiet: lt(analyses.importance, 1),
-  spam: sql`'SPAM' = ANY(${messages.labelIds})`,
-  archive: sql`not (${messages.labelIds} && array['INBOX', 'SPAM', 'TRASH'])`,
-  trash: sql`'TRASH' = ANY(${messages.labelIds})`,
+const FILTER_WHERE: Partial<
+  Record<MailFilter, (message: MessageTable, analysis: AnalysisTable) => SQL>
+> = {
+  important: (_, analysis) => gte(analysis.importance, 2),
+  needs_reply: (_, analysis) => eq(analysis.needsReply, true),
+  quiet: (_, analysis) => lt(analysis.importance, 1),
+  spam: (message) => arrayContains(message.labelIds, ['SPAM']),
+  archive: (message) =>
+    sql`not (${message.labelIds} && array['INBOX', 'SPAM', 'TRASH'])`,
+  trash: (message) => arrayContains(message.labelIds, ['TRASH']),
 }
 
 // Snoozed threads are out of the inbox too, so Archive must leave them to Snoozed.
@@ -214,6 +260,27 @@ const snoozedWhere = async (userId: string, filter: MailFilter) => {
     : notInArray(messages.threadId, snoozed)
 }
 
+const searchMail = async (
+  userId: string,
+  search: string,
+  mailboxId?: string
+) => {
+  const found = await searchMailboxes(
+    userId,
+    await toGmailQuery(userId, search),
+    PAGE_SIZE,
+    mailboxId
+  )
+  await Promise.all(
+    found.map(({ ids, mailbox }) =>
+      insertMessages(mailbox, ids).catch((error) =>
+        logError('storing found mail failed', error)
+      )
+    )
+  )
+  return found.flatMap(({ ids }) => ids)
+}
+
 export const listMail = async (
   userId: string,
   input: {
@@ -224,51 +291,44 @@ export const listMail = async (
     search?: string
   }
 ) => {
-  const found = input.search
-    ? await searchMailboxes(
-        userId,
-        await toGmailQuery(userId, input.search),
-        PAGE_SIZE,
-        input.mailboxId
-      )
-    : null
-  await Promise.all(
-    (found ?? []).map(({ ids, mailbox }) =>
-      insertMessages(mailbox, ids).catch((error) =>
-        logError('storing found mail failed', error)
-      )
-    )
-  )
-  const searchIds = found?.flatMap(({ ids }) => ids) ?? null
-
+  const [searchIds, snoozed] = await Promise.all([
+    input.search ? searchMail(userId, input.search, input.mailboxId) : null,
+    snoozedWhere(userId, input.filter),
+  ])
   if (searchIds?.length === 0) {
     return []
   }
-  const snoozed = await snoozedWhere(userId, input.filter)
 
-  const latestInThread = db
-    .selectDistinctOn([messages.threadId], {
-      id: messages.id,
-      receivedAt: messages.receivedAt,
-    })
-    .from(messages)
-    .leftJoin(analyses, eq(analyses.messageId, messages.id))
+  const matches = (message: MessageTable, analysis: AnalysisTable) =>
+    and(
+      eq(message.userId, userId),
+      eq(message.isFromMe, false),
+      input.mailboxId ? eq(message.mailboxId, input.mailboxId) : undefined,
+      searchIds ? inArray(message.gmailId, searchIds) : undefined,
+      input.category ? eq(analysis.category, input.category) : undefined,
+      FILTER_WHERE[input.filter]?.(message, analysis),
+      INBOX_FILTERS.has(input.filter) && !searchIds
+        ? arrayContains(message.labelIds, ['INBOX'])
+        : undefined
+    )
+  // Without the id tie-break a thread whose two latest matching messages share a timestamp is listed twice.
+  const newerMatch = db
+    .select({ id: newerInThread.id })
+    .from(newerInThread)
+    .leftJoin(newerAnalysis, eq(newerAnalysis.messageId, newerInThread.id))
     .where(
       and(
-        eq(messages.userId, userId),
-        eq(messages.isFromMe, false),
-        input.mailboxId ? eq(messages.mailboxId, input.mailboxId) : undefined,
-        searchIds ? inArray(messages.gmailId, searchIds) : undefined,
-        input.category ? eq(analyses.category, input.category) : undefined,
-        FILTER_WHERE[input.filter],
-        INBOX_FILTERS.has(input.filter) && !searchIds
-          ? sql`'INBOX' = ANY(${messages.labelIds})`
-          : undefined,
-        snoozed
+        eq(newerInThread.threadId, messages.threadId),
+        or(
+          gt(newerInThread.receivedAt, messages.receivedAt),
+          and(
+            eq(newerInThread.receivedAt, messages.receivedAt),
+            gt(newerInThread.id, messages.id)
+          )
+        ),
+        matches(newerInThread, newerAnalysis)
       )
     )
-    .orderBy(messages.threadId, desc(messages.receivedAt))
-    .as('latest_in_thread')
 
   const sameThread = and(
     eq(inThread.userId, messages.userId),
@@ -291,13 +351,17 @@ export const listMail = async (
         .from(inThread)
         .where(sameThread)})`.mapWith(Number),
     })
-    .from(latestInThread)
-    .innerJoin(messages, eq(messages.id, latestInThread.id))
+    .from(messages)
     .leftJoin(analyses, eq(analyses.messageId, messages.id))
     .where(
-      input.before ? lt(latestInThread.receivedAt, input.before) : undefined
+      and(
+        matches(messages, analyses),
+        snoozed,
+        input.before ? lt(messages.receivedAt, input.before) : undefined,
+        notExists(newerMatch)
+      )
     )
-    .orderBy(desc(latestInThread.receivedAt))
+    .orderBy(desc(messages.receivedAt))
     .limit(PAGE_SIZE)
 }
 
@@ -327,7 +391,7 @@ export const countUnread = async (userId: string, mailboxId?: string) => {
         eq(messages.isFromMe, false),
         eq(messages.isUnread, true),
         mailboxId ? eq(messages.mailboxId, mailboxId) : undefined,
-        sql`'INBOX' = ANY(${messages.labelIds})`
+        arrayContains(messages.labelIds, ['INBOX'])
       )
     )
   return expectRow(counts)
@@ -363,31 +427,31 @@ const fillMissingHtml = async (
 }
 
 export const getThread = async (userId: string, threadId: string) => {
-  const rows = await db
-    .select({
-      analysis: analyses,
-      message: messages,
-    })
-    .from(messages)
-    .leftJoin(analyses, eq(analyses.messageId, messages.id))
-    .where(and(eq(messages.userId, userId), eq(messages.threadId, threadId)))
-    .orderBy(messages.receivedAt)
-
+  const [rows, threadActions, task] = await Promise.all([
+    db
+      .select({
+        analysis: analyses,
+        message: messages,
+      })
+      .from(messages)
+      .leftJoin(analyses, eq(analyses.messageId, messages.id))
+      .where(and(eq(messages.userId, userId), eq(messages.threadId, threadId)))
+      .orderBy(messages.receivedAt),
+    db
+      .select()
+      .from(actions)
+      .where(and(eq(actions.userId, userId), eq(actions.threadId, threadId)))
+      .orderBy(desc(actions.createdAt)),
+    activeTask(userId, threadId),
+  ])
   if (rows.length === 0) {
     throw new NotFoundError('Thread not found')
   }
-  await fillMissingHtml(userId, threadId, rows)
-
-  const threadActions = await db
-    .select()
-    .from(actions)
-    .where(and(eq(actions.userId, userId), eq(actions.threadId, threadId)))
-    .orderBy(desc(actions.createdAt))
 
   const latest = rows.findLast(({ message }) => !message.isFromMe)?.message
-  const [task, zombie] = await Promise.all([
-    activeTask(userId, threadId),
+  const [zombie] = await Promise.all([
     latest?.listUnsubscribe ? zombieStats(latest.fromEmail) : null,
+    fillMissingHtml(userId, threadId, rows),
   ])
 
   return {

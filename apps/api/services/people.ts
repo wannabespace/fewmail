@@ -12,6 +12,8 @@ import { subDays } from 'date-fns'
 import { and, arrayContains, desc, eq, inArray, or, sql } from 'drizzle-orm'
 
 import { models, NO_EM_DASH } from '../lib/ai'
+import { announceChange } from '../lib/live'
+import { logErrorAs } from '../lib/log'
 import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 
@@ -51,72 +53,86 @@ const writeNote = async (
   return note
 }
 
-const resolveNote = async (
+const refreshing = new Set<string>()
+
+const refreshNote = async (
   userId: string,
   email: string,
-  total: number,
-  stored: typeof people.$inferSelect | undefined,
   recent: { receivedAt: Date; subject: string; summary: string | null }[]
 ) => {
-  const isStale =
-    !stored?.noteUpdatedAt ||
-    stored.noteUpdatedAt < subDays(new Date(), NOTE_MAX_AGE_DAYS)
-  return total >= NOTE_MIN_MESSAGES &&
-    isStale &&
-    hasAgent(await getPlanInfo(userId))
-    ? await writeNote(
-        userId,
-        email,
-        recent.map(
-          ({ receivedAt, subject, summary }) =>
-            `${receivedAt.toISOString().slice(0, 10)} · ${summary ?? subject}`
-        )
-      ).catch(() => stored?.note ?? null)
-    : (stored?.note ?? null)
+  if (!hasAgent(await getPlanInfo(userId))) {
+    return
+  }
+  await writeNote(
+    userId,
+    email,
+    recent.map(
+      ({ receivedAt, subject, summary }) =>
+        `${receivedAt.toISOString().slice(0, 10)} · ${summary ?? subject}`
+    )
+  )
+  await announceChange(userId, ['person'])
 }
 
-/** Everything the user's mail knows about one person; the note is Pro and refreshed at most weekly. */
+const refreshStaleNote = (
+  userId: string,
+  email: string,
+  stored: typeof people.$inferSelect | undefined,
+  recent: Parameters<typeof refreshNote>[2]
+) => {
+  const key = `${userId} ${email}`
+  const isFresh =
+    stored?.noteUpdatedAt &&
+    stored.noteUpdatedAt >= subDays(new Date(), NOTE_MAX_AGE_DAYS)
+  if (isFresh || refreshing.has(key)) {
+    return
+  }
+  refreshing.add(key)
+  void refreshNote(userId, email, recent)
+    .catch(logErrorAs('person note failed'))
+    .finally(() => refreshing.delete(key))
+}
+
+/** Everything the user's mail knows about one person; the note is Pro, refreshed at most weekly in the background. */
 export const getPerson = async (userId: string, rawEmail: string) => {
   const email = rawEmail.trim().toLowerCase()
-  const [stats] = await db
-    .select({
-      first: sql<Date>`min(${messages.receivedAt})`,
-      fromThem: sql<number>`count(*) filter (where ${eq(messages.fromEmail, email)})::int`,
-      last: sql<Date>`max(${messages.receivedAt})`,
-      name: sql<
-        string | null
-      >`max(${messages.fromName}) filter (where ${eq(messages.fromEmail, email)})`.mapWith(
-        messages.fromName
-      ),
-      toThem: sql<number>`count(*) filter (where ${messages.isFromMe})::int`,
-    })
-    .from(messages)
-    .where(withPerson(userId, email))
-
-  const threadRows = await db
-    .selectDistinct({ threadId: messages.threadId })
-    .from(messages)
-    .where(withPerson(userId, email))
-  const threadIds = threadRows.map(({ threadId }) => threadId)
-
-  const [open, promised, recent, [stored]] = await Promise.all([
-    threadIds.length
-      ? db
-          .select({
-            id: actions.id,
-            kind: actions.kind,
-            threadId: actions.threadId,
-            title: actions.title,
-          })
-          .from(actions)
-          .where(
-            and(
-              eq(actions.userId, userId),
-              eq(actions.status, 'pending'),
-              inArray(actions.threadId, threadIds)
-            )
+  const [[stats], open, promised, recent, [stored]] = await Promise.all([
+    db
+      .select({
+        first: sql<Date>`min(${messages.receivedAt})`,
+        fromThem: sql<number>`count(*) filter (where ${eq(messages.fromEmail, email)})::int`,
+        last: sql<Date>`max(${messages.receivedAt})`,
+        name: sql<
+          string | null
+        >`max(${messages.fromName}) filter (where ${eq(messages.fromEmail, email)})`.mapWith(
+          messages.fromName
+        ),
+        threads: sql<number>`count(distinct ${messages.threadId})::int`,
+        toThem: sql<number>`count(*) filter (where ${messages.isFromMe})::int`,
+      })
+      .from(messages)
+      .where(withPerson(userId, email)),
+    db
+      .select({
+        id: actions.id,
+        kind: actions.kind,
+        threadId: actions.threadId,
+        title: actions.title,
+      })
+      .from(actions)
+      .where(
+        and(
+          eq(actions.userId, userId),
+          eq(actions.status, 'pending'),
+          inArray(
+            actions.threadId,
+            db
+              .select({ threadId: messages.threadId })
+              .from(messages)
+              .where(withPerson(userId, email))
           )
-      : [],
+        )
+      ),
     db
       .select({
         dueAt: commitments.dueAt,
@@ -150,7 +166,9 @@ export const getPerson = async (userId: string, rawEmail: string) => {
   ])
 
   const total = (stats?.fromThem ?? 0) + (stats?.toThem ?? 0)
-  const note = await resolveNote(userId, email, total, stored, recent)
+  if (total >= NOTE_MIN_MESSAGES) {
+    refreshStaleNote(userId, email, stored, recent)
+  }
 
   return {
     email,
@@ -158,10 +176,10 @@ export const getPerson = async (userId: string, rawEmail: string) => {
     fromThem: stats?.fromThem ?? 0,
     lastContact: stats?.last ?? null,
     name: stats?.name ?? null,
-    note,
+    note: stored?.note ?? null,
     open,
     promised,
-    threads: threadIds.length,
+    threads: stats?.threads ?? 0,
     toThem: stats?.toThem ?? 0,
   }
 }

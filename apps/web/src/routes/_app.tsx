@@ -25,7 +25,7 @@ import { Sidebar } from '~/components/nav'
 import { agentModeStore, signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
-import { client, listenForChanges } from '~/lib/orpc'
+import { listenForChanges, orpc } from '~/lib/orpc'
 
 const SIDEBAR_WIDTH = { default: 232, max: 320, min: 200 }
 
@@ -78,11 +78,15 @@ const AppLayout = () => {
   })
 
   useEffect(() => {
-    for (const route of Object.values(router.routesById)) {
-      if (route.id.startsWith('/_app/')) {
-        void router.loadRouteChunk(route)
+    // Charts and the AI SDK would otherwise compete with the first page's own requests.
+    const idle = requestIdleCallback(() => {
+      for (const route of Object.values(router.routesById)) {
+        if (route.id.startsWith('/_app/')) {
+          void router.loadRouteChunk(route)
+        }
       }
-    }
+    })
+    return () => cancelIdleCallback(idle)
   }, [router])
   useEffect(() => {
     agentModeStore.set(isAgentMode)
@@ -128,8 +132,14 @@ const AppLayout = () => {
 }
 
 export const Route = createFileRoute('/_app')({
-  beforeLoad: async () => {
-    const me = await client.me().catch(() => null)
+  beforeLoad: async ({ context: { queryClient } }) => {
+    const meQuery = orpc.me.queryOptions()
+    // Every navigation passes here, so a cached account answers at once; one without settings is onboarding that just finished.
+    const me = await (
+      queryClient.getQueryData(meQuery.queryKey)?.settings
+        ? queryClient.ensureQueryData({ ...meQuery, revalidateIfStale: true })
+        : queryClient.fetchQuery({ ...meQuery, staleTime: 0 })
+    ).catch(() => null)
     signedInStore.set(Boolean(me))
     if (!me) {
       throw redirect({ to: '/login' })

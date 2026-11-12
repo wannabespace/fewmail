@@ -15,7 +15,6 @@ import {
   Link,
   redirect,
   useNavigate,
-  useRouter,
 } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -26,7 +25,10 @@ import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { QueueCard } from '~/components/queue-card'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
+import { hideThread, prefetchThread, threadOfMessage } from '~/lib/mail-db'
+import { useMe, useSaveSettings } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
+import { warmQuery } from '~/lib/query-client'
 
 const HandledSummary = ({
   handled,
@@ -62,10 +64,15 @@ const HandledList = () => {
   const { data: handled = [] } = useQuery(orpc.today.handled.queryOptions())
   const notSpam = useMutation(
     orpc.mail.notSpam.mutationOptions({
-      onSuccess: () => {
-        toast(t.mail.movedToInbox)
-        void queryClient.invalidateQueries()
+      onMutate: ({ messageId }) => {
+        const threadId = threadOfMessage(messageId)
+        if (threadId) {
+          hideThread(threadId)
+        }
       },
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+      onSuccess: () => toast(t.mail.movedToInbox),
     })
   )
 
@@ -99,7 +106,6 @@ const HandledList = () => {
             <Button
               size="sm"
               variant="ghost-muted"
-              disabled={notSpam.isPending}
               onClick={() => notSpam.mutate({ messageId: message.id })}
             >
               {t.mail.notSpam}
@@ -116,7 +122,14 @@ const HandledList = () => {
 type Today = RouterOutputs['today']['get']
 
 const ThreadLink = ({ text, threadId }: { text: string; threadId: string }) => (
-  <Link to="/mail" search={{ thread: threadId }} data-mask>
+  <Link
+    to="/mail"
+    search={{ thread: threadId }}
+    onPointerEnter={() => {
+      void prefetchThread(threadId)
+    }}
+    data-mask
+  >
     {text}
   </Link>
 )
@@ -333,23 +346,14 @@ const BriefBody = ({
 }
 
 const BriefTime = ({ label }: { label: (time: string) => string }) => {
-  const { me } = Route.useRouteContext()
-  const router = useRouter()
-  const save = useMutation(
-    orpc.settings.save.mutationOptions({ onSuccess: () => router.invalidate() })
-  )
+  const { settings } = useMe()
+  const save = useSaveSettings()
 
   return (
     <BriefHourSelect
       label={label}
-      value={me.settings.briefHour}
-      onChange={(briefHour) =>
-        save.mutate({
-          briefHour,
-          language: me.settings.language,
-          timezone: me.settings.timezone,
-        })
-      }
+      value={settings.briefHour}
+      onChange={(briefHour) => save({ briefHour })}
     />
   )
 }
@@ -539,7 +543,7 @@ const TodayPage = () => {
             <h2 className="text-muted-foreground text-xs font-medium">
               {t.today.worthAttention}
             </h2>
-            {queue.length === 0 && (
+            {!!data && queue.length === 0 && (
               <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">
                 {t.today.nothingNeedsYou}
               </p>
@@ -619,4 +623,5 @@ export const Route = createFileRoute('/_app/today')({
     }
   },
   component: TodayPage,
+  loader: () => warmQuery(orpc.today.get.queryOptions()),
 })

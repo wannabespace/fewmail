@@ -4,6 +4,7 @@ import { messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { createORPCClient, onError, ORPCError } from '@orpc/client'
 import { RPCLink } from '@orpc/client/fetch'
+import { BatchLinkPlugin } from '@orpc/client/plugins'
 import type { RouterClient } from '@orpc/server'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import { toast } from 'sonner'
@@ -67,6 +68,14 @@ export const client: RouterClient<Router> = createORPCClient(
       }),
     ],
     origin: import.meta.env.API_URL,
+    plugins: [
+      new BatchLinkPlugin({
+        // The live stream never ends, so a batch holding it would never answer.
+        filter: ({ path }) => path[0] !== 'live',
+        groups: [{ condition: () => true, context: {} }],
+        mode: 'streaming',
+      }),
+    ],
     url: '/rpc',
   })
 )
@@ -74,21 +83,49 @@ export const client: RouterClient<Router> = createORPCClient(
 export const orpc = createTanstackQueryUtils(client)
 
 const LIVE_RECONNECT_MS = 5000
+const LIVE_SETTLE_MS = 200
 
-/** The server says when mail, the queue or the brief changed; a dropped stream reconnects and refetches what it missed. */
+let pendingTopics = new Set<string>()
+let isEverythingPending = false
+let flushTimer: ReturnType<typeof setTimeout> | undefined
+
+/** Refetches whole router namespaces, `null` everything; calls close together refetch once. */
+export const refetchChanged = (topics: string[] | null) => {
+  if (topics) {
+    for (const topic of topics) {
+      pendingTopics.add(topic)
+    }
+  } else {
+    isEverythingPending = true
+  }
+  clearTimeout(flushTimer)
+  flushTimer = setTimeout(() => {
+    if (isEverythingPending) {
+      void queryClient.invalidateQueries()
+    } else {
+      for (const topic of pendingTopics) {
+        void queryClient.invalidateQueries({ queryKey: [[topic]] })
+      }
+    }
+    pendingTopics = new Set()
+    isEverythingPending = false
+  }, LIVE_SETTLE_MS)
+}
+
+/** The server says which parts changed; a dropped stream reconnects and refetches everything it may have missed. */
 export const listenForChanges = async (signal: AbortSignal) => {
   while (!signal.aborted) {
     try {
       // oxlint-disable-next-line eslint/no-await-in-loop -- one stream at a time, reopened after it drops
-      for await (const _change of await client.live(undefined, { signal })) {
-        void queryClient.invalidateQueries()
+      for await (const { topics } of await client.live(undefined, { signal })) {
+        refetchChanged(topics)
       }
     } catch {
       // oxlint-disable-next-line eslint/no-await-in-loop, promise/avoid-new -- waits before reconnecting
       await new Promise((resolve) => {
         setTimeout(resolve, LIVE_RECONNECT_MS)
       })
-      void queryClient.invalidateQueries()
+      refetchChanged(null)
     }
   }
 }

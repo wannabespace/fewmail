@@ -99,16 +99,21 @@ type ThreadRow = NonNullable<
 const FRAME_HEAD =
   '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:anywhere}img{max-width:100%;height:auto}</style>'
 
+// A frame starts empty on every open; the last measured height keeps a reopened mail from growing into place.
+const frameHeights = new Map<string, number>()
+
 /** Senders' HTML is laid out for a white page, so it keeps one. No `allow-scripts`: with it, `allow-same-origin` would hand the mail our session. */
-const HtmlBody = ({ html }: { html: string }) => {
-  const [height, setHeight] = useState(0)
+const HtmlBody = ({ html, id }: { html: string; id: string }) => {
+  const [height, setHeight] = useState(frameHeights.get(id) ?? 0)
   const watch = (frame: HTMLIFrameElement | null) => {
     if (!frame) {
       return
     }
-    const observer = new ResizeObserver(() =>
-      setHeight(frame.contentDocument?.documentElement.scrollHeight ?? 0)
-    )
+    const observer = new ResizeObserver(() => {
+      const measured = frame.contentDocument?.documentElement.scrollHeight ?? 0
+      frameHeights.set(id, measured)
+      setHeight(measured)
+    })
     const observeBody = () => {
       const body = frame.contentDocument?.body
       if (body) {
@@ -195,7 +200,7 @@ const MessageSection = ({
         </div>
       )}
       {message.html ? (
-        <HtmlBody html={message.html} />
+        <HtmlBody html={message.html} id={message.id} />
       ) : (
         <p
           data-mask
@@ -322,7 +327,7 @@ const useMarkRead = (
     orpc.mail.markRead.mutationOptions({
       onMutate: () => showThreadRead(threadId),
       onSuccess: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+        queryClient.invalidateQueries({ queryKey: orpc.mail.unread.key() }),
     })
   )
   useEffect(() => {

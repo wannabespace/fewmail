@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
+import { prefetchThread } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
 
 const ThreadLink = ({
@@ -15,6 +16,9 @@ const ThreadLink = ({
   <Link
     to="/mail"
     search={(prev) => ({ ...prev, thread: threadId })}
+    onPointerEnter={() => {
+      void prefetchThread(threadId)
+    }}
     data-mask
     className="text-foreground underline-offset-3 hover:underline"
   >

@@ -38,8 +38,10 @@ export const snoozeThread = async (
   threadId: string,
   until: Date
 ) => {
-  await cancelPending(userId, threadId, 'snooze')
-  await changeThreadLabels(userId, threadId, { remove: ['INBOX'] })
+  await Promise.all([
+    cancelPending(userId, threadId, 'snooze'),
+    changeThreadLabels(userId, threadId, { remove: ['INBOX'] }),
+  ])
   await db.insert(reminders).values({
     dueAt: until,
     kind: 'snooze',
@@ -50,8 +52,10 @@ export const snoozeThread = async (
 }
 
 export const unsnoozeThread = async (userId: string, threadId: string) => {
-  await cancelPending(userId, threadId, 'snooze')
-  await changeThreadLabels(userId, threadId, { add: ['INBOX'] })
+  await Promise.all([
+    cancelPending(userId, threadId, 'snooze'),
+    changeThreadLabels(userId, threadId, { add: ['INBOX'] }),
+  ])
 }
 
 const insertFollowup = (userId: string, threadId: string, days: number) =>

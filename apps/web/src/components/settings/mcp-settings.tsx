@@ -20,7 +20,12 @@ export const McpSettings = () => {
   )
   const disconnect = useMutation(
     orpc.integrations.apps.disconnect.mutationOptions({
-      onSuccess: () =>
+      onMutate: ({ clientId }) =>
+        queryClient.setQueryData(
+          orpc.integrations.apps.list.queryKey(),
+          (old) => old?.filter((app) => app.clientId !== clientId)
+        ),
+      onSettled: () =>
         queryClient.invalidateQueries({
           queryKey: orpc.integrations.apps.key(),
         }),

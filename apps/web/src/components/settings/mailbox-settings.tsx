@@ -39,7 +39,11 @@ export const MailboxSettings = () => {
   )
   const remove = useMutation(
     orpc.mailboxes.remove.mutationOptions({
-      onSuccess: () =>
+      onMutate: ({ id }) =>
+        queryClient.setQueryData(orpc.mailboxes.list.queryKey(), (old) =>
+          old?.filter((mailbox) => mailbox.id !== id)
+        ),
+      onSettled: () =>
         queryClient.invalidateQueries({ queryKey: orpc.mailboxes.key() }),
     })
   )
@@ -56,7 +60,6 @@ export const MailboxSettings = () => {
             <Button
               size="sm"
               variant="ghost-destructive"
-              disabled={remove.isPending}
               onClick={() => remove.mutate({ id: mailbox.id })}
             >
               {copy.remove}

@@ -23,30 +23,32 @@ const WEEKDAY_SUNDAY = 0
 
 /** Every mailing list that wrote in the last month and the user has not left, busiest first. */
 export const listSubscriptions = async (userId: string) => {
-  const rows = await db
-    .select({
-      count: sql<number>`count(*)::int`,
-      fromEmail: messages.fromEmail,
-      fromName: sql<string | null>`max(${messages.fromName})`.mapWith(
-        messages.fromName
-      ),
-      messageId: sql<string>`(array_agg(${messages.id} order by ${messages.receivedAt} desc))[1]`,
-      opened: sql<number>`count(*) filter (where not ${messages.isUnread})::int`,
-    })
-    .from(messages)
-    .where(
-      and(
-        eq(messages.userId, userId),
-        eq(messages.isFromMe, false),
-        isNotNull(messages.listUnsubscribe),
-        gte(messages.receivedAt, subDays(new Date(), LOOKBACK_DAYS))
+  const [rows, unsubscribedRows] = await Promise.all([
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        fromEmail: messages.fromEmail,
+        fromName: sql<string | null>`max(${messages.fromName})`.mapWith(
+          messages.fromName
+        ),
+        messageId: sql<string>`(array_agg(${messages.id} order by ${messages.receivedAt} desc))[1]`,
+        opened: sql<number>`count(*) filter (where not ${messages.isUnread})::int`,
+      })
+      .from(messages)
+      .where(
+        and(
+          eq(messages.userId, userId),
+          eq(messages.isFromMe, false),
+          isNotNull(messages.listUnsubscribe),
+          gte(messages.receivedAt, subDays(new Date(), LOOKBACK_DAYS))
+        )
       )
-    )
-    .groupBy(messages.fromEmail)
-  const unsubscribedRows = await db
-    .select({ senderHash: unsubscribes.senderHash })
-    .from(unsubscribes)
-    .where(eq(unsubscribes.userId, userId))
+      .groupBy(messages.fromEmail),
+    db
+      .select({ senderHash: unsubscribes.senderHash })
+      .from(unsubscribes)
+      .where(eq(unsubscribes.userId, userId)),
+  ])
   const unsubscribed = new Set(
     unsubscribedRows.map(({ senderHash }) => senderHash)
   )

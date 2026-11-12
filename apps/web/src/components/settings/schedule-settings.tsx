@@ -15,7 +15,11 @@ export const ScheduleSettings = () => {
   const { data: schedules = [] } = useQuery(orpc.schedules.list.queryOptions())
   const remove = useMutation(
     orpc.schedules.delete.mutationOptions({
-      onSuccess: () =>
+      onMutate: ({ id }) =>
+        queryClient.setQueryData(orpc.schedules.list.queryKey(), (old) =>
+          old?.filter((schedule) => schedule.id !== id)
+        ),
+      onSettled: () =>
         queryClient.invalidateQueries({ queryKey: orpc.schedules.key() }),
     })
   )

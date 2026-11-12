@@ -26,6 +26,7 @@ import { KeyHints } from '~/components/key-hints'
 import { ThreadView } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
+import { warmQuery } from '~/lib/query-client'
 
 const READER_WIDTH = { default: 560, max: '60%', min: 420 } as const
 
@@ -67,10 +68,14 @@ const AgentPage = () => {
     })
   const remove = useMutation(
     orpc.chats.delete.mutationOptions({
-      onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: orpc.chats.key() })
+      onMutate: ({ id }) => {
         startChat()
+        queryClient.setQueryData(orpc.chats.list.queryKey(), (old) =>
+          old?.filter((item) => item.id !== id)
+        )
       },
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.chats.list.key() }),
     })
   )
 
@@ -200,4 +205,12 @@ export const Route = createFileRoute('/_app/agent')({
   },
   component: AgentPage,
   validateSearch: type({ 'chat?': 'string.uuid', 'thread?': 'string' }),
+  loaderDeps: ({ search }) => ({ chat: search.chat }),
+  loader: async ({ deps: { chat } }) => {
+    const chats = await warmQuery(orpc.chats.list.queryOptions())
+    // A chat that is still being started is not saved yet: asking for it would answer "not found".
+    if (chat && chats?.some(({ id }) => id === chat)) {
+      await warmQuery(orpc.chats.get.queryOptions({ input: { id: chat } }))
+    }
+  },
 })

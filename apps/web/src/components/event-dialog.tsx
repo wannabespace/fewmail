@@ -1,3 +1,4 @@
+import type { RouterOutputs } from '@fewmail/api/router'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
@@ -62,6 +63,20 @@ const at = (day: string, time: string) =>
 const invalidate = () =>
   queryClient.invalidateQueries({ queryKey: orpc.calendar.key() })
 
+const changeEvents = (change: (events: CalendarEvent[]) => CalendarEvent[]) =>
+  queryClient.setQueriesData<RouterOutputs['calendar']['events']>(
+    { queryKey: orpc.calendar.events.key() },
+    (data) => data && { ...data, events: change(data.events) }
+  )
+
+const shownEvent = <Event extends { description?: string; location?: string }>(
+  event: Event
+) => ({
+  ...event,
+  description: event.description ?? '',
+  location: event.location ?? '',
+})
+
 const EventForm = ({
   calendars,
   draft,
@@ -82,24 +97,48 @@ const EventForm = ({
     draft.mailboxId ?? calendars[0]?.mailboxId
   )
 
-  const done = (message: string) => {
-    toast.success(message)
-    onDone()
-    void invalidate()
-  }
   const create = useMutation(
     orpc.calendar.create.mutationOptions({
-      onSuccess: () => done(t.calendar.saved),
+      onMutate: (event) => {
+        onDone()
+        changeEvents((events) =>
+          [
+            ...events,
+            {
+              ...shownEvent(event),
+              id: crypto.randomUUID(),
+              link: '',
+              mailboxId: event.mailboxId ?? '',
+            },
+          ].toSorted((a, b) => a.start.localeCompare(b.start))
+        )
+      },
+      onSettled: invalidate,
+      onSuccess: () => toast.success(t.calendar.saved),
     })
   )
   const update = useMutation(
     orpc.calendar.update.mutationOptions({
-      onSuccess: () => done(t.calendar.saved),
+      onMutate: (event) => {
+        onDone()
+        changeEvents((events) =>
+          events.map((item) =>
+            item.id === event.id ? { ...item, ...shownEvent(event) } : item
+          )
+        )
+      },
+      onSettled: invalidate,
+      onSuccess: () => toast.success(t.calendar.saved),
     })
   )
   const remove = useMutation(
     orpc.calendar.delete.mutationOptions({
-      onSuccess: () => done(t.calendar.deleted),
+      onMutate: ({ id }) => {
+        onDone()
+        changeEvents((events) => events.filter((event) => event.id !== id))
+      },
+      onSettled: invalidate,
+      onSuccess: () => toast.success(t.calendar.deleted),
     })
   )
 
@@ -223,7 +262,6 @@ const EventForm = ({
             type="button"
             variant="ghost-destructive"
             className="mr-auto"
-            disabled={remove.isPending}
             onClick={() =>
               draft.id &&
               draft.mailboxId &&
@@ -248,7 +286,7 @@ const EventForm = ({
             }
           />
         )}
-        <Button type="submit" disabled={create.isPending || update.isPending}>
+        <Button type="submit">
           {draft.id ? t.calendar.save : t.calendar.create}
         </Button>
       </DialogFooter>

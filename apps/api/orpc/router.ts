@@ -429,12 +429,14 @@ export const router = {
       url: await createBillingPortal(context.user.id),
     })),
   },
-  me: authed.handler(async ({ context }) => ({
-    plan: await getPlanInfo(context.user.id),
-    settings: await getSettings(context.user.id),
-    usage: await getUsage(context.user.id),
-    user: context.user,
-  })),
+  me: authed.handler(async ({ context }) => {
+    const [plan, settings, usage] = await Promise.all([
+      getPlanInfo(context.user.id),
+      getSettings(context.user.id),
+      getUsage(context.user.id),
+    ])
+    return { plan, settings, usage, user: context.user }
+  }),
   rules: {
     create: authed
       .input(ruleInput)

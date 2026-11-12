@@ -49,7 +49,7 @@ import { KeyHints } from '~/components/key-hints'
 import { signInWithGoogle } from '~/lib/auth'
 import type { CalendarView } from '~/lib/calendar'
 import { CALENDAR_VIEWS } from '~/lib/calendar'
-import { useDates, useT } from '~/lib/i18n'
+import { localeStore, useDates, useT, weekStartOf } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 
 const STEP = {
@@ -152,14 +152,19 @@ const ConnectCalendar = ({
   )
 }
 
+const periodOf = (search: { date?: string; view?: CalendarView }) => {
+  const parsed = search.date ? parseISO(search.date) : startOfToday()
+  return {
+    date: isValid(parsed) ? parsed : startOfToday(),
+    view: search.view ?? 'month',
+  }
+}
+
 const CalendarPage = () => {
   const t = useT()
   const { weekStartsOn } = useDates()
   const navigate = useNavigate({ from: Route.fullPath })
-  const search = Route.useSearch()
-  const view = search.view ?? 'month'
-  const parsed = search.date ? parseISO(search.date) : startOfToday()
-  const date = isValid(parsed) ? parsed : startOfToday()
+  const { date, view } = periodOf(Route.useSearch())
   const range = visibleRange(view, date, weekStartsOn)
   const label = usePeriodLabel(view, range)
   const isCurrentPeriod =
@@ -330,4 +335,20 @@ export const Route = createFileRoute('/_app/calendar')({
     'date?': 'string',
     'view?': type.enumerated(...CALENDAR_VIEWS),
   }),
+  loaderDeps: ({ search }) => search,
+  // Google answers slowly: awaiting here would hold every step; the neighbours load ahead for ← / →.
+  loader: ({ context: { queryClient }, deps }) => {
+    const { date, view } = periodOf(deps)
+    for (const step of [0, -1, 1]) {
+      void queryClient.prefetchQuery(
+        orpc.calendar.events.queryOptions({
+          input: visibleRange(
+            view,
+            add(date, { [STEP[view]]: step }),
+            weekStartOf(localeStore.get())
+          ),
+        })
+      )
+    }
+  },
 })

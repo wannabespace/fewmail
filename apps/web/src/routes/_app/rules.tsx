@@ -30,6 +30,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
+import { warmQuery } from '~/lib/query-client'
 
 type Rule = RouterOutputs['rules']['list'][number]
 type GmailEffect = (typeof GMAIL_EFFECTS)[number]
@@ -94,12 +95,28 @@ const useInvalidateRules = () => {
 
 const RuleRow = ({ rule }: { rule: Rule }) => {
   const t = useT()
+  const queryClient = useQueryClient()
   const invalidate = useInvalidateRules()
+  const changeRules = (change: (rules: Rule[]) => Rule[]) =>
+    queryClient.setQueryData(
+      orpc.rules.list.queryKey(),
+      (rules) => rules && change(rules)
+    )
   const update = useMutation(
-    orpc.rules.update.mutationOptions({ onSuccess: invalidate })
+    orpc.rules.update.mutationOptions({
+      onMutate: ({ id, ...change }) =>
+        changeRules((rules) =>
+          rules.map((item) => (item.id === id ? { ...item, ...change } : item))
+        ),
+      onSettled: invalidate,
+    })
   )
   const remove = useMutation(
-    orpc.rules.delete.mutationOptions({ onSuccess: invalidate })
+    orpc.rules.delete.mutationOptions({
+      onMutate: ({ id }) =>
+        changeRules((rules) => rules.filter((item) => item.id !== id)),
+      onSettled: invalidate,
+    })
   )
 
   return (
@@ -303,5 +320,6 @@ const RulesPage = () => {
 
 export const Route = createFileRoute('/_app/rules')({
   component: RulesPage,
+  loader: () => warmQuery(orpc.rules.list.queryOptions()),
   validateSearch: type({ 'new?': 'boolean' }),
 })

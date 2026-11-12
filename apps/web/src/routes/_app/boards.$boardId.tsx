@@ -17,7 +17,7 @@ import { BoardDialog, newBoardStore } from '~/components/board-dialog'
 import { KeyHints } from '~/components/key-hints'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
-import { queryClient } from '~/lib/query-client'
+import { queryClient, warmQuery } from '~/lib/query-client'
 
 const BoardPage = () => {
   const t = useT()
@@ -55,7 +55,8 @@ const BoardPage = () => {
       onSettled: () =>
         queryClient.isMutating({
           mutationKey: orpc.boards.update.mutationKey(),
-        }) === 1 && queryClient.invalidateQueries(),
+        }) === 1 &&
+        queryClient.invalidateQueries({ queryKey: orpc.boards.key() }),
       scope: { id: `board:${boardId}` },
     })
   )
@@ -205,4 +206,6 @@ export const Route = createFileRoute('/_app/boards/$boardId')({
     }
   },
   component: BoardPage,
+  loader: ({ params }) =>
+    warmQuery(orpc.boards.get.queryOptions({ input: { id: params.boardId } })),
 })

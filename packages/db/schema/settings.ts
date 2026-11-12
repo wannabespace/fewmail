@@ -102,15 +102,19 @@ export const usage = d.snakeCase.table(
   ]
 )
 
-export const subscriptions = d.snakeCase.table('subscriptions', {
-  ...baseTable,
-  cancelAtPeriodEnd: d.boolean().default(false).notNull(),
-  periodEnd: d.timestamp({ withTimezone: true }),
-  status: d.text().notNull(),
-  stripePriceId: d.text().notNull(),
-  stripeSubscriptionId: d.text().notNull().unique(),
-  userId: d
-    .uuid()
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-})
+export const subscriptions = d.snakeCase.table(
+  'subscriptions',
+  {
+    ...baseTable,
+    cancelAtPeriodEnd: d.boolean().default(false).notNull(),
+    periodEnd: d.timestamp({ withTimezone: true }),
+    status: d.text().notNull(),
+    stripePriceId: d.text().notNull(),
+    stripeSubscriptionId: d.text().notNull().unique(),
+    userId: d
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => [d.index('subscriptions_user_idx').on(table.userId)]
+)

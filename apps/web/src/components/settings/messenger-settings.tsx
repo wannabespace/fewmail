@@ -30,7 +30,12 @@ export const MessengerSettings = ({
   const { data: link } = useQuery(procedures.get.queryOptions())
   const unlink = useMutation(
     procedures.unlink.mutationOptions({
-      onSuccess: () =>
+      onMutate: () =>
+        queryClient.setQueryData(
+          procedures.get.queryKey(),
+          (old) => old && { ...old, linked: false }
+        ),
+      onSettled: () =>
         queryClient.invalidateQueries({ queryKey: procedures.key() }),
     })
   )

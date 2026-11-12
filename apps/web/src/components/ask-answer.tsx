@@ -3,6 +3,7 @@ import { CommandGroup, CommandItem } from '@fewmail/ui/components/command'
 import { Spinner } from '@fewmail/ui/components/spinner'
 
 import { useDates, useT } from '~/lib/i18n'
+import { prefetchThread } from '~/lib/mail-db'
 
 export const AskAnswer = ({
   onOpenThread,
@@ -39,6 +40,9 @@ export const AskAnswer = ({
           key={`${source.number}-${source.threadId}`}
           value={`source ${source.number} ${source.subject}`}
           onSelect={() => onOpenThread(source.threadId)}
+          onPointerEnter={() => {
+            void prefetchThread(source.threadId)
+          }}
         >
           <span className="text-muted-foreground tabular-nums">
             [{source.number}]

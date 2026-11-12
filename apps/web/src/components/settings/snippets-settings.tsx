@@ -20,17 +20,29 @@ export const SnippetsSettings = () => {
   const { data: snippets = [] } = useQuery(orpc.snippets.list.queryOptions())
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.snippets.key() })
+  const listKey = orpc.snippets.list.queryKey()
   const save = useMutation(
     orpc.snippets.save.mutationOptions({
-      onSuccess: () => {
+      onMutate: (snippet) => {
         setName('')
         setBody('')
-        void invalidate()
+        queryClient.setQueryData(listKey, (old) =>
+          [...(old ?? []), { id: crypto.randomUUID(), ...snippet }].toSorted(
+            (a, b) => a.name.localeCompare(b.name)
+          )
+        )
       },
+      onSettled: invalidate,
     })
   )
   const remove = useMutation(
-    orpc.snippets.delete.mutationOptions({ onSuccess: invalidate })
+    orpc.snippets.delete.mutationOptions({
+      onMutate: ({ id }) =>
+        queryClient.setQueryData(listKey, (old) =>
+          old?.filter((snippet) => snippet.id !== id)
+        ),
+      onSettled: invalidate,
+    })
   )
   const isFilled = Boolean(name.trim() && body.trim())
 
@@ -66,7 +78,7 @@ export const SnippetsSettings = () => {
           size="sm"
           type="submit"
           className="self-start"
-          disabled={!isFilled || save.isPending}
+          disabled={!isFilled}
         >
           {t.settings.snippets.add}
         </Button>

@@ -71,9 +71,18 @@ export const mailRowsOf = (mailboxId?: string) => {
 const threadKey = (threadId?: string) =>
   threadId ? [[...mailKey, 'thread'], threadId] : [[...mailKey, 'thread']]
 
-const fetchThread = async (threadId: string): Promise<Thread[]> => [
-  { ...(await client.mail.thread({ threadId })), threadId },
-]
+/** The reader's person panel asks next, so its answer is on the way before the thread renders. */
+const fetchThread = async (threadId: string): Promise<Thread[]> => {
+  const thread = await client.mail.thread({ threadId })
+  const sender = thread.messages.findLast(({ message }) => !message.isFromMe)
+  const plan = queryClient.getQueryData(orpc.me.queryKey())?.plan.kind
+  if (sender && plan && plan !== 'free') {
+    void queryClient.prefetchQuery(
+      orpc.person.queryOptions({ input: { email: sender.message.fromEmail } })
+    )
+  }
+  return [{ ...thread, threadId }]
+}
 
 /** Loaded one thread at a time as a reader asks for it; `prefetchThread` fills the same cache entry ahead of the click. */
 export const threads = createCollection(
@@ -117,6 +126,16 @@ export const hideThread = (threadId: string) => {
 }
 
 export const showThreadRead = (threadId: string) => {
+  const thread = threads.get(threadId)
+  if (thread) {
+    void threads.utils.writeUpdate({
+      messages: thread.messages.map((entry) => ({
+        ...entry,
+        message: { ...entry.message, isUnread: false },
+      })),
+      threadId,
+    })
+  }
   for (const { keys, rows } of rowsOfThread(threadId)) {
     void rows.utils.writeUpdate(
       keys.flatMap((key) => {

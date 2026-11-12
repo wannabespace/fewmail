@@ -2,7 +2,9 @@ import { oauthProviderAuthServerMetadata } from '@better-auth/oauth-provider'
 import { runMigrations } from '@fewmail/db'
 import { onError } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
+import { BatchHandlerPlugin } from '@orpc/server/plugins'
 import { Hono } from 'hono'
+import { compress } from 'hono/compress'
 import { cors } from 'hono/cors'
 
 import { env } from './env'
@@ -20,11 +22,21 @@ import { verifyWhatsappWebhook, whatsappWebhook } from './whatsapp'
 
 const rpc = new RPCHandler(router, {
   interceptors: [onError((cause) => logError('rpc failed', cause))],
+  plugins: [new BatchHandlerPlugin()],
+})
+
+// Without a long max age the browser asks again before nearly every call: the web is on another origin.
+const PREFLIGHT_CACHE_SECONDS = 86_400
+const webCors = cors({
+  credentials: true,
+  maxAge: PREFLIGHT_CACHE_SECONDS,
+  origin: env.WEB_URL,
 })
 
 const app = new Hono()
-  .use('/auth/*', cors({ credentials: true, origin: env.WEB_URL }))
-  .use('/rpc/*', cors({ credentials: true, origin: env.WEB_URL }))
+  .use(compress())
+  .use('/auth/*', webCors)
+  .use('/rpc/*', webCors)
   .on(['GET', 'POST'], '/auth/*', (c) => auth.handler(c.req.raw))
   .all('/rpc/*', async (c) => {
     const { matched, response } = await rpc.handle(c.req.raw, {

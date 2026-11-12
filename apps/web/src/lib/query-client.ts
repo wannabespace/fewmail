@@ -1,11 +1,22 @@
-import { keepPreviousData, QueryClient } from '@tanstack/react-query'
+import type { EnsureQueryDataOptions, QueryKey } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
+
+const DAY_MS = 86_400_000
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      placeholderData: keepPreviousData,
+      gcTime: DAY_MS,
       retry: 0,
       staleTime: 30_000,
     },
   },
 })
+
+/** For route loaders: only data never loaded holds the navigation; cached data renders at once and refreshes behind it. A failure is left to the page's own query. */
+export const warmQuery = <Data, Key extends QueryKey>(
+  options: EnsureQueryDataOptions<Data, Error, Data, Key>
+) =>
+  queryClient
+    .ensureQueryData({ ...options, revalidateIfStale: true })
+    .catch(() => null)

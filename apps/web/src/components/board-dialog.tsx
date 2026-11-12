@@ -16,13 +16,13 @@ import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
 import { useT } from '~/lib/i18n'
-import { orpc } from '~/lib/orpc'
+import { orpc, refetchChanged } from '~/lib/orpc'
 import { queryClient } from '~/lib/query-client'
 
 /** Opened from the sidebar and from ⌘K, so it lives outside both. */
 export const newBoardStore = createStore(false)
 
-const invalidate = () => queryClient.invalidateQueries()
+const refetchBoards = () => refetchChanged(['boards', 'today'])
 
 const BoardForm = ({
   board,
@@ -40,29 +40,45 @@ const BoardForm = ({
     orpc.boards.create.mutationOptions({
       onSuccess: ({ id }) => {
         onDone()
-        void invalidate()
+        refetchBoards()
         void navigate({ params: { boardId: id }, to: '/boards/$boardId' })
       },
     })
   )
   const update = useMutation(
     orpc.boards.update.mutationOptions({
-      onSuccess: () => {
+      onMutate: ({ id, ...change }) => {
         onDone()
-        void invalidate()
+        queryClient.setQueryData(
+          orpc.boards.get.queryKey({ input: { id } }),
+          (old) =>
+            old && {
+              ...old,
+              description: change.description ?? old.description,
+              name: change.name ?? old.name,
+            }
+        )
+        queryClient.setQueryData(orpc.boards.list.queryKey(), (old) =>
+          old?.map((item) =>
+            item.id === id ? { ...item, name: change.name ?? item.name } : item
+          )
+        )
       },
+      onSettled: refetchBoards,
     })
   )
   const remove = useMutation(
     orpc.boards.delete.mutationOptions({
-      onSuccess: () => {
+      onMutate: ({ id }) => {
         onDone()
-        void invalidate()
         void navigate({ to: '/today' })
+        queryClient.setQueryData(orpc.boards.list.queryKey(), (old) =>
+          old?.filter((item) => item.id !== id)
+        )
       },
+      onSettled: refetchBoards,
     })
   )
-  const isPending = create.isPending || update.isPending
   const input = { description: description.trim(), name: name.trim() }
   const isFilled = Boolean(input.name) && input.description.length >= 3
   const submitLabel = board ? t.boards.save : t.boards.create
@@ -103,14 +119,13 @@ const BoardForm = ({
             type="button"
             variant="ghost-destructive"
             className="mr-auto"
-            disabled={remove.isPending}
             onClick={() => remove.mutate({ id: board.id })}
           >
             {t.boards.delete}
           </Button>
         )}
-        <Button type="submit" disabled={!isFilled || isPending}>
-          {isPending ? t.boards.planning : submitLabel}
+        <Button type="submit" disabled={!isFilled || create.isPending}>
+          {create.isPending ? t.boards.planning : submitLabel}
         </Button>
       </DialogFooter>
     </form>

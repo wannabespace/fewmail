@@ -15,7 +15,8 @@ import { toast } from 'sonner'
 
 import { KeyHints } from '~/components/key-hints'
 import { useT } from '~/lib/i18n'
-import { orpc } from '~/lib/orpc'
+import { orpc, refetchChanged } from '~/lib/orpc'
+import { warmQuery } from '~/lib/query-client'
 
 type Subscription = RouterOutputs['subscriptions']['list'][number]
 
@@ -42,7 +43,7 @@ const SubscriptionsPage = () => {
             ? t.subscriptions.unsubscribed
             : t.subscriptions.archivedOnly
         ),
-      onSettled: () => queryClient.invalidateQueries(),
+      onSettled: () => refetchChanged(['subscriptions', 'mail', 'rules']),
     })
   )
   const leave = (row?: Subscription) =>
@@ -133,4 +134,5 @@ const SubscriptionsPage = () => {
 
 export const Route = createFileRoute('/_app/subscriptions')({
   component: SubscriptionsPage,
+  loader: () => warmQuery(orpc.subscriptions.list.queryOptions()),
 })

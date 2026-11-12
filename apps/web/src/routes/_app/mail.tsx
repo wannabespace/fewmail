@@ -46,6 +46,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import {
+  keepPreviousData,
   skipToken,
   useMutation,
   useQuery,
@@ -598,15 +599,22 @@ const useDrafts = ({
       input: isEnabled
         ? { mailboxId: mailbox, ...(q && { search: q }) }
         : skipToken,
+      placeholderData: keepPreviousData,
     })
   )
   const refetchDrafts = () =>
     queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
-  const deleteDraft = useMutation(
-    orpc.mail.deleteDraft.mutationOptions({ onSuccess: refetchDrafts })
-  )
+  const leave = {
+    onMutate: ({ id }: { id: string }) =>
+      queryClient.setQueriesData<DraftRowData[]>(
+        { queryKey: orpc.mail.drafts.key() },
+        (old) => old?.filter((draft) => draft.id !== id)
+      ),
+    onSettled: refetchDrafts,
+  }
+  const deleteDraft = useMutation(orpc.mail.deleteDraft.mutationOptions(leave))
   const takeBackFailed = useMutation(
-    orpc.mail.cancelSend.mutationOptions({ onSuccess: refetchDrafts })
+    orpc.mail.cancelSend.mutationOptions(leave)
   )
   const open = (index: number) => {
     const saved = rows[index]
@@ -652,7 +660,7 @@ const useListRows = ({
     })
   )
   const listed = useLiveQuery((query) =>
-    q || isDrafts
+    isDrafts
       ? undefined
       : query
           .from({ row: mailRowsOf(mailbox) })
@@ -660,15 +668,31 @@ const useListRows = ({
           .orderBy(({ row }) => row.message.receivedAt, 'desc')
   )
   const drafts = useDrafts({ isEnabled: isDrafts, mailbox, q })
-  const source = q
-    ? { isFetching: found.isFetching, rows: found.data }
-    : { isFetching: listed.isLoading, rows: listed.data }
-  const rows = source.rows ?? []
+  const needle = typed.toLowerCase()
+  const rows =
+    (q === typed ? found.data : undefined) ??
+    (typed
+      ? listed.data?.filter(({ message }) =>
+          [
+            message.subject,
+            message.fromName,
+            message.fromEmail,
+            message.snippet,
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(needle)
+        )
+      : listed.data) ??
+    []
+  const isSearchPending = typed !== (q ?? '') || (!!q && found.isFetching)
   return {
-    isSearchPending: typed !== (q ?? '') || (!!q && found.isFetching),
+    isSearchPending,
     drafts,
     isDrafts,
-    isFetching: isDrafts ? drafts.isFetching : source.isFetching,
+    isFetching: isDrafts
+      ? drafts.isFetching
+      : listed.isLoading || isSearchPending,
     rows,
     total: isDrafts ? drafts.rows.length : rows.length,
   }
@@ -746,7 +770,10 @@ const MailPage = () => {
 
   const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
   const { data: unread } = useQuery(
-    orpc.mail.unread.queryOptions({ input: { mailboxId: mailbox } })
+    orpc.mail.unread.queryOptions({
+      input: { mailboxId: mailbox },
+      placeholderData: keepPreviousData,
+    })
   )
   const {
     drafts,

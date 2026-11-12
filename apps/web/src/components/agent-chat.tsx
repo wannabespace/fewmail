@@ -1,5 +1,6 @@
 import { useChat } from '@ai-sdk/react'
 import {
+  AGENT_TOOLS,
   MAX_EMAILS_PER_TASK,
   parseSkill,
   SKILLS,
@@ -90,7 +91,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
-import { client, limitText, orpc } from '~/lib/orpc'
+import { client, limitText, orpc, refetchChanged } from '~/lib/orpc'
 
 import { useCompose } from './compose/compose-context'
 import { DraftText } from './queue-card'
@@ -770,7 +771,6 @@ export const AgentChat = ({
   onSend: () => void
 }) => {
   const t = useT()
-  const queryClient = useQueryClient()
   const [text, setText] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [skillIndex, setSkillIndex] = useState(0)
@@ -787,9 +787,16 @@ export const AgentChat = ({
   } = useChat({
     id: chatId,
     messages: initialMessages,
-    onFinish: () => {
-      void queryClient.invalidateQueries()
-    },
+    onFinish: ({ message }) =>
+      refetchChanged(
+        message.parts.some(
+          (part) =>
+            isToolUIPart(part) &&
+            AGENT_TOOLS[getToolName(part) as AgentToolName] !== 'read'
+        )
+          ? null
+          : ['chats', 'me']
+      ),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     transport,
   })

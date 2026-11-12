@@ -3,7 +3,8 @@ import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
@@ -19,11 +20,13 @@ import { ScheduleSettings } from '~/components/settings/schedule-settings'
 import { SnippetsSettings } from '~/components/settings/snippets-settings'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
+import { orpc } from '~/lib/orpc'
+import { warmQuery } from '~/lib/query-client'
 
 const SettingsPage = () => {
   const t = useT()
   const hasAgent = useHasAgent()
-  const router = useRouter()
+  const queryClient = useQueryClient()
   const navigate = Route.useNavigate()
   const { mailbox, upgraded } = Route.useSearch()
 
@@ -39,10 +42,10 @@ const SettingsPage = () => {
     }
     if (upgraded) {
       toast.success(t.plan.welcome(t.plan[upgraded]))
-      void router.invalidate()
+      void queryClient.invalidateQueries({ queryKey: orpc.me.key() })
     }
     void navigate({ replace: true, search: {} })
-  }, [mailbox, upgraded, navigate, router, t])
+  }, [mailbox, upgraded, navigate, queryClient, t])
 
   return (
     <main className="flex-1 overflow-y-auto">
@@ -77,6 +80,20 @@ const SettingsPage = () => {
 
 export const Route = createFileRoute('/_app/settings')({
   component: SettingsPage,
+  loader: ({ context: { me } }) =>
+    Promise.all([
+      warmQuery(orpc.mailboxes.list.queryOptions()),
+      warmQuery(orpc.devices.webPushKey.queryOptions()),
+      warmQuery(orpc.snippets.list.queryOptions()),
+      ...(me.plan.kind === 'free'
+        ? []
+        : [
+            warmQuery(orpc.integrations.telegram.get.queryOptions()),
+            warmQuery(orpc.integrations.whatsapp.get.queryOptions()),
+            warmQuery(orpc.integrations.apps.list.queryOptions()),
+            warmQuery(orpc.schedules.list.queryOptions()),
+          ]),
+    ]),
   validateSearch: type({
     'mailbox?': "'added' | 'failed' | 'sign_in'",
     'upgraded?': type.enumerated(...PAID_PLANS),

@@ -117,6 +117,10 @@ export const messages = d.snakeCase.table(
       .on(table.mailboxId, table.gmailId),
     d.index('messages_user_received_idx').on(table.userId, table.receivedAt),
     d.index('messages_thread_idx').on(table.userId, table.threadId),
+    d.index('messages_user_from_idx').on(table.userId, table.fromEmail),
+    d.index('messages_label_ids_idx').using('gin', table.labelIds),
+    d.index('messages_to_idx').using('gin', table.to),
+    d.index('messages_cc_idx').using('gin', table.cc),
   ]
 )
 
@@ -177,7 +181,11 @@ export const actions = d.snakeCase.table(
     title: encryptedText().notNull(),
     userId: userId(),
   },
-  (table) => [d.index('actions_user_status_idx').on(table.userId, table.status)]
+  (table) => [
+    d.index('actions_user_status_idx').on(table.userId, table.status),
+    d.index('actions_user_thread_idx').on(table.userId, table.threadId),
+    d.index('actions_message_idx').on(table.messageId),
+  ]
 )
 
 export interface BriefStats {

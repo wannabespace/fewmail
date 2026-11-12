@@ -18,10 +18,15 @@ const querySchema = type({ gmailQuery: 'string' })
 const answerSchema = type({ answer: 'string', sources: 'number[]' })
 
 const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
+const ONE_WORD = /^\S+$/u
 
-/** Plain language goes through the fast model (agent only); text already in Gmail syntax is used as typed. */
+/** Plain language goes through the fast model (agent only); one word or text already in Gmail syntax is used as typed. */
 export const toGmailQuery = async (userId: string, text: string) => {
-  if (GMAIL_OPERATOR.test(text) || !hasAgent(await getPlanInfo(userId))) {
+  if (
+    ONE_WORD.test(text.trim()) ||
+    GMAIL_OPERATOR.test(text) ||
+    !hasAgent(await getPlanInfo(userId))
+  ) {
     return text
   }
   const { output } = await generateText({

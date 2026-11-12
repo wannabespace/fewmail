@@ -17,6 +17,13 @@ export const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events'
 export const MCP_RESOURCE = `${env.API_URL}/mcp`
 export const AUTH_ISSUER = `${env.API_URL}/auth`
 
+const TOKEN_EXPIRY_MARGIN_MS = 60_000
+
+const signInAccessTokens = new Map<
+  string,
+  { expiresAt: number; token: string }
+>()
+
 export const auth = betterAuth({
   account: {
     encryptOAuthTokens: true,
@@ -26,6 +33,17 @@ export const auth = betterAuth({
   },
   basePath: '/auth',
   baseURL: env.API_URL,
+  databaseHooks: {
+    account: {
+      update: {
+        // A new sign-in can grant scopes (Calendar) the cached token lacks.
+        after: (account) => {
+          signInAccessTokens.delete(account.userId)
+          return Promise.resolve()
+        },
+      },
+    },
+  },
   // Session JWTs would share the signing key with MCP access tokens.
   disabledPaths: ['/token'],
   database: drizzleAdapter(db, {
@@ -49,6 +67,8 @@ export const auth = betterAuth({
     }),
   ],
   secret: env.BETTER_AUTH_SECRET,
+  // A signed-out or deleted session keeps working for up to this long; without it every call reads the session from Postgres.
+  session: { cookieCache: { enabled: true, maxAge: 5 * 60 } },
   socialProviders: {
     google: {
       // Without offline access and a forced consent Google returns no refresh token, and the agent loses the mailbox after an hour.
@@ -79,6 +99,10 @@ export const auth = betterAuth({
 })
 
 export const googleAccessToken = async (userId: string) => {
+  const cached = signInAccessTokens.get(userId)
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.token
+  }
   const [account] = await db
     .select({ id: accounts.id })
     .from(accounts)
@@ -86,9 +110,15 @@ export const googleAccessToken = async (userId: string) => {
   if (!account) {
     throw new Error('No Google account connected')
   }
-  const { accessToken } = await auth.api.getAccessToken({
+  const { accessToken, accessTokenExpiresAt } = await auth.api.getAccessToken({
     body: { accountId: account.id, userId },
   })
+  if (accessTokenExpiresAt) {
+    signInAccessTokens.set(userId, {
+      expiresAt: accessTokenExpiresAt.getTime() - TOKEN_EXPIRY_MARGIN_MS,
+      token: accessToken,
+    })
+  }
   return accessToken
 }
 

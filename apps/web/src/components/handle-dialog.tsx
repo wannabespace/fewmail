@@ -9,12 +9,12 @@ import {
 } from '@fewmail/ui/components/dialog'
 import { Input } from '@fewmail/ui/components/input'
 import { Switch } from '@fewmail/ui/components/switch'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { useT } from '~/lib/i18n'
-import { orpc } from '~/lib/orpc'
+import { orpc, refetchChanged } from '~/lib/orpc'
 
 /** "Handle this": the user states a goal once; asking before each email is the default. */
 export const HandleDialog = ({
@@ -27,7 +27,6 @@ export const HandleDialog = ({
   open: boolean
 }) => {
   const t = useT()
-  const queryClient = useQueryClient()
   const [goal, setGoal] = useState('')
   const [isAuto, setIsAuto] = useState(false)
   const create = useMutation(
@@ -36,7 +35,7 @@ export const HandleDialog = ({
         toast.success(t.tasks.started)
         setGoal('')
         onOpenChange(false)
-        void queryClient.invalidateQueries()
+        refetchChanged(['mail', 'today'])
       },
     })
   )

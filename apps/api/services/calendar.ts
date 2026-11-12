@@ -19,7 +19,47 @@ export interface EventRef {
   mailboxId: string
 }
 
-/** Events are read live from each mailbox's primary Google calendar, never stored. */
+const EVENTS_CACHE_MS = 60_000
+
+type Mailbox = typeof mailboxes.$inferSelect
+type EventCache = Map<
+  string,
+  {
+    events: Awaited<ReturnType<typeof listGoogleEvents>>
+    expiresAt: number
+  }
+>
+
+// Replaced, never cleared, on a change: a read still in flight then fills the dropped map, not the new one.
+const eventCaches = new Map<string, EventCache>()
+
+const cachedEvents = async (
+  mailbox: Mailbox,
+  range: { from: Date; to: Date }
+) => {
+  const cache: EventCache = eventCaches.get(mailbox.userId) ?? new Map()
+  eventCaches.set(mailbox.userId, cache)
+  const key = `${mailbox.id} ${range.from.toISOString()} ${range.to.toISOString()}`
+  const now = Date.now()
+  const hit = cache.get(key)
+  if (hit && hit.expiresAt > now) {
+    return hit.events
+  }
+  const events = await listGoogleEvents(mailbox, range)
+  for (const [stale, { expiresAt }] of cache) {
+    if (expiresAt <= now) {
+      cache.delete(stale)
+    }
+  }
+  cache.set(key, { events, expiresAt: now + EVENTS_CACHE_MS })
+  return events
+}
+
+const forgetEvents = (userId: string) => {
+  eventCaches.delete(userId)
+}
+
+/** Events are read live from each mailbox's primary Google calendar, never stored; reads are cached for a minute. */
 export const listEvents = async (
   userId: string,
   range: { from: Date; to: Date }
@@ -37,7 +77,7 @@ export const listEvents = async (
         signIn: mailbox.googleAccountId === null,
       }
       try {
-        const events = await listGoogleEvents(mailbox, range)
+        const events = await cachedEvents(mailbox, range)
         return {
           calendar: { ...calendar, connected: true },
           events: events.map((event) => ({ ...event, mailboxId: mailbox.id })),
@@ -74,18 +114,26 @@ export const createEvent = async (
   if (!mailbox) {
     throw new NotFoundError('Mailbox not found')
   }
-  return { ...(await insertEvent(mailbox, event)), mailboxId: mailbox.id }
+  const created = await insertEvent(mailbox, event)
+  forgetEvents(userId)
+  return { ...created, mailboxId: mailbox.id }
 }
 
 export const updateEvent = async (
   userId: string,
   ref: EventRef,
   event: CalendarEventFields
-) => ({
-  ...(await patchEvent(await ownMailbox(userId, ref.mailboxId), ref.id, event)),
-  mailboxId: ref.mailboxId,
-})
+) => {
+  const updated = await patchEvent(
+    await ownMailbox(userId, ref.mailboxId),
+    ref.id,
+    event
+  )
+  forgetEvents(userId)
+  return { ...updated, mailboxId: ref.mailboxId }
+}
 
 export const deleteEvent = async (userId: string, ref: EventRef) => {
   await deleteGoogleEvent(await ownMailbox(userId, ref.mailboxId), ref.id)
+  forgetEvents(userId)
 }

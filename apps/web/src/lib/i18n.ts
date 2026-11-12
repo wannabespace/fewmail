@@ -69,6 +69,9 @@ export const useMoneyFormat = () => {
     )
 }
 
+export const weekStartOf = (code: Locale) =>
+  DATE_LOCALES[code].options?.weekStartsOn ?? 1
+
 export const useDates = () => {
   const code = useLocale()
   const locale = DATE_LOCALES[code]
@@ -80,6 +83,6 @@ export const useDates = () => {
     format: (date: Date | number, pattern: string) =>
       format(date, pattern, { locale }),
     locale,
-    weekStartsOn: locale.options?.weekStartsOn ?? 1,
+    weekStartsOn: weekStartOf(code),
   }
 }

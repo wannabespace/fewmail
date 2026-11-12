@@ -30,7 +30,7 @@ import {
   listMessageIds,
   listThreadMessageIds,
 } from '../lib/gmail'
-import { announceChange } from '../lib/live'
+import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage, retireStaleActions } from './agent'
@@ -365,7 +365,7 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
     try {
       await completeThreads(mailbox, inserted)
       if (hasChanges) {
-        await announceChange(mailbox.userId)
+        await announceChange(mailbox.userId, ['mail', 'mailboxes'])
       }
       await processIncoming(mailbox, inserted)
     } catch (error) {
@@ -381,8 +381,8 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
         syncStartedAt: null,
       })
       .where(eq(mailboxes.id, mailbox.id))
-    if (hasChanges || !mailbox.lastSyncedAt) {
-      await announceChange(mailbox.userId)
+    if (hasChanges || !mailbox.lastSyncedAt || mailbox.syncError) {
+      await announceChange(mailbox.userId, MAIL_TOPICS)
     }
   } catch (error) {
     await db
@@ -393,7 +393,9 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
         syncStartedAt: null,
       })
       .where(eq(mailboxes.id, mailbox.id))
-    await announceChange(mailbox.userId)
+    if (!mailbox.syncError) {
+      await announceChange(mailbox.userId, ['mailboxes'])
+    }
     throw error
   }
 }

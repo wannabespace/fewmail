@@ -4,32 +4,17 @@ import {
 } from '@fewmail/ui/components/custom/settings-group'
 import { Switch } from '@fewmail/ui/components/switch'
 import { Textarea } from '@fewmail/ui/components/textarea'
-import { useMutation } from '@tanstack/react-query'
-import { useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { BriefHourSelect, LanguageSelect } from '~/components/agent-fields'
 import { localeStore, useT } from '~/lib/i18n'
-import { useHasAgent, useMe } from '~/lib/me'
-import { orpc } from '~/lib/orpc'
+import { useHasAgent, useMe, useSaveSettings } from '~/lib/me'
 
 export const AgentSettings = () => {
   const t = useT()
   const { settings } = useMe()
   const hasAgent = useHasAgent()
-  const router = useRouter()
-  const save = useMutation(
-    orpc.settings.save.mutationOptions({ onSuccess: () => router.invalidate() })
-  )
-  const update = (change: Partial<typeof settings>) =>
-    save.mutate({
-      briefHour: settings.briefHour,
-      gmailLabels: settings.gmailLabels,
-      knowledge: settings.knowledge,
-      language: settings.language,
-      timezone: settings.timezone,
-      ...change,
-    })
+  const update = useSaveSettings()
   const [knowledge, setKnowledge] = useState(settings.knowledge ?? '')
 
   return (
