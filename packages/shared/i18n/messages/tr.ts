@@ -411,6 +411,7 @@ export const tr: Messages = {
     blocked: 'Engellendi. E-postaları artık çöpe gidiyor.',
     forward: 'İlet',
     more: 'Daha fazla',
+    close: 'Kapat',
     reply: 'Yanıtla',
     trash: 'Çöpe taşı',
     trashed: 'Çöpe taşındı',

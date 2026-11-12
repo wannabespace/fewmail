@@ -347,6 +347,7 @@ export const de: Messages = {
     blocked: 'Blockiert. Ihre Mails landen jetzt im Papierkorb.',
     forward: 'Weiterleiten',
     more: 'Mehr',
+    close: 'Schließen',
     reply: 'Antworten',
     trash: 'In den Papierkorb',
     trashed: 'In den Papierkorb verschoben',

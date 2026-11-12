@@ -313,6 +313,7 @@ export const zh: Messages = {
     blocked: '已屏蔽。对方的邮件将进入废纸篓。',
     forward: '转发',
     more: '更多',
+    close: '关闭',
     reply: '回复',
     trash: '移到废纸篓',
     trashed: '已移到废纸篓',

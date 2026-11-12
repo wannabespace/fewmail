@@ -349,6 +349,7 @@ export const fr: Messages = {
     blocked: 'Bloqué. Ses e-mails vont désormais à la corbeille.',
     forward: 'Transférer',
     more: 'Plus',
+    close: 'Fermer',
     reply: 'Répondre',
     trash: 'Mettre à la corbeille',
     trashed: 'Mis à la corbeille',

@@ -319,6 +319,7 @@ export const ko: Messages = {
     blocked: '차단했어요. 이제 이 발신자의 메일은 휴지통으로 가요.',
     forward: '전달',
     more: '더 보기',
+    close: '닫기',
     reply: '답장',
     trash: '휴지통으로 이동',
     trashed: '휴지통으로 옮겼어요',

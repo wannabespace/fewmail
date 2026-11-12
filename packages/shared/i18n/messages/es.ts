@@ -347,6 +347,7 @@ export const es: Messages = {
     blocked: 'Bloqueado. Sus correos ahora van a la papelera.',
     forward: 'Reenviar',
     more: 'Más',
+    close: 'Cerrar',
     reply: 'Responder',
     trash: 'Mover a la papelera',
     trashed: 'Movido a la papelera',

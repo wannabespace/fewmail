@@ -9,6 +9,7 @@ import {
 } from '@fewmail/ui/components/alert'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +19,11 @@ import {
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import { Archive02Icon, InboxDownloadIcon } from '@hugeicons/core-free-icons'
+import {
+  Archive02Icon,
+  Cancel01Icon,
+  InboxDownloadIcon,
+} from '@hugeicons/core-free-icons'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -566,9 +571,22 @@ export const ThreadView = ({
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 py-8">
           <div className="flex flex-col gap-3">
-            <h1 data-mask className="font-serif text-2xl tracking-tight">
-              {subject}
-            </h1>
+            <div className="flex items-start gap-2">
+              <h1
+                data-mask
+                className="flex-1 font-serif text-2xl tracking-tight"
+              >
+                {subject}
+              </h1>
+              <IconButton
+                icon={Cancel01Icon}
+                label={t.mail.close}
+                shortcut={<Kbd>esc</Kbd>}
+                size="icon-sm"
+                variant="ghost-muted"
+                onClick={onDone}
+              />
+            </div>
             {target && (
               <div className="flex flex-wrap items-center gap-2">
                 <Button size="sm" onClick={reply}>

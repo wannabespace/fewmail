@@ -319,6 +319,7 @@ export const hi: Messages = {
     blocked: 'ब्लॉक किया गया। उनके मेल अब ट्रैश में जाएँगे।',
     forward: 'फ़ॉरवर्ड करें',
     more: 'और',
+    close: 'बंद करें',
     reply: 'जवाब दें',
     trash: 'ट्रैश में डालें',
     trashed: 'ट्रैश में डाल दिया',

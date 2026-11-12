@@ -424,6 +424,7 @@ export const nl: Messages = {
     blocked: 'Geblokkeerd. Hun mail gaat nu naar de prullenbak.',
     forward: 'Doorsturen',
     more: 'Meer',
+    close: 'Sluiten',
     reply: 'Beantwoorden',
     trash: 'Naar prullenbak',
     trashed: 'Naar prullenbak verplaatst',

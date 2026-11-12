@@ -348,6 +348,7 @@ export const it: Messages = {
     blocked: 'Bloccato. Le sue email ora finiscono nel cestino.',
     forward: 'Inoltra',
     more: 'Altro',
+    close: 'Chiudi',
     reply: 'Rispondi',
     trash: 'Sposta nel cestino',
     trashed: 'Spostata nel cestino',

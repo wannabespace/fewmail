@@ -434,6 +434,7 @@ export const pl: Messages = {
     blocked: 'Zablokowano. Jego poczta trafia teraz do kosza.',
     forward: 'Przekaż',
     more: 'Więcej',
+    close: 'Zamknij',
     reply: 'Odpowiedz',
     trash: 'Przenieś do kosza',
     trashed: 'Przeniesiono do kosza',

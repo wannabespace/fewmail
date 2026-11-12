@@ -344,6 +344,7 @@ export const uk: Messages = {
     blocked: 'Заблоковано. Їхні листи тепер ідуть у кошик.',
     forward: 'Переслати',
     more: 'Ще',
+    close: 'Закрити',
     reply: 'Відповісти',
     trash: 'У кошик',
     trashed: 'Переміщено в кошик',

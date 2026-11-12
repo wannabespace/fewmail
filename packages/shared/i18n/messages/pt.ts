@@ -422,6 +422,7 @@ export const pt: Messages = {
     blocked: 'Bloqueado. Os e-mails dele agora vão para a lixeira.',
     forward: 'Encaminhar',
     more: 'Mais',
+    close: 'Fechar',
     reply: 'Responder',
     trash: 'Mover para lixeira',
     trashed: 'Movido para a lixeira',

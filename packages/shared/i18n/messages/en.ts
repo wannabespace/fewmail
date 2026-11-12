@@ -422,6 +422,7 @@ export const en = {
     blocked: 'Blocked. Their mail now goes to the trash.',
     forward: 'Forward',
     more: 'More',
+    close: 'Close',
     movedToInbox: 'Moved back to the inbox. Thanks for telling us.',
     moveToInbox: 'Move to inbox',
     backInInbox: 'Moved to the inbox',

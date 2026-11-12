@@ -321,6 +321,7 @@ export const ja: Messages = {
     blocked: 'ブロックしました。今後のメールはゴミ箱に移動します。',
     forward: '転送',
     more: 'その他',
+    close: '閉じる',
     reply: '返信',
     trash: 'ゴミ箱に移動',
     trashed: 'ゴミ箱に移動しました',

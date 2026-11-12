@@ -414,6 +414,7 @@ export const id: Messages = {
     blocked: 'Diblokir. Email mereka kini masuk ke sampah.',
     forward: 'Teruskan',
     more: 'Lainnya',
+    close: 'Tutup',
     reply: 'Balas',
     trash: 'Pindahkan ke sampah',
     trashed: 'Dipindahkan ke sampah',
