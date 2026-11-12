@@ -84,7 +84,7 @@ const MessageScrollerButton = ({
     data-size={size}
     direction={direction}
     className={cn(
-      'transition-[translate,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] data-[active=false]:pointer-events-none data-[active=false]:translate-y-2 data-[active=false]:opacity-0',
+      'absolute bottom-3 left-1/2 -translate-x-1/2 transition-[translate,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] data-[active=false]:pointer-events-none data-[active=false]:translate-y-2 data-[active=false]:opacity-0',
       className
     )}
     render={render ?? <Button variant={variant} size={size} />}
