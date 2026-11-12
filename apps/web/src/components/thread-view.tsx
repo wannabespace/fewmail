@@ -155,7 +155,7 @@ const MessageSection = ({
   const t = useT()
   const dates = useDates()
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-3 not-first:mt-6 not-first:border-t not-first:pt-8">
       <header className="flex flex-wrap items-center gap-2 text-sm">
         {hasAgent && analysis && (
           <ImportanceDot
@@ -716,25 +716,27 @@ export const ThreadView = ({
             </ul>
           )}
 
-          {data.messages.map(({ analysis, message }, index) =>
-            folded?.has(message.id) ? (
-              <CollapsedMessage
-                key={message.id}
-                hasShortcut={
-                  !folded.has(data.messages[index - 1]?.message.id ?? '')
-                }
-                message={message}
-                onExpand={unfold}
-              />
-            ) : (
-              <MessageSection
-                key={message.id}
-                analysis={analysis}
-                message={message}
-                hasAgent={hasAgent}
-              />
-            )
-          )}
+          <div className="flex flex-col gap-2">
+            {data.messages.map(({ analysis, message }, index) =>
+              folded?.has(message.id) ? (
+                <CollapsedMessage
+                  key={message.id}
+                  hasShortcut={
+                    !folded.has(data.messages[index - 1]?.message.id ?? '')
+                  }
+                  message={message}
+                  onExpand={unfold}
+                />
+              ) : (
+                <MessageSection
+                  key={message.id}
+                  analysis={analysis}
+                  message={message}
+                  hasAgent={hasAgent}
+                />
+              )
+            )}
+          </div>
 
           {hasAgent && latest && (
             <PersonPanel email={latest.message.fromEmail} threadId={threadId} />
