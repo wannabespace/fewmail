@@ -217,6 +217,12 @@ export const hi: Messages = {
   },
   importance: ['शोर', 'जानने लायक', 'जल्द ध्यान दें', 'ज़रूरी'],
   justNow: 'अभी',
+  errors: {
+    failed: 'कुछ गड़बड़ हो गई। फिर से कोशिश करें।',
+    needsPro: 'इसके लिए Fewmail Pro चाहिए।',
+    notFound: 'यह अब मौजूद नहीं है — शायद इसे हटा दिया गया है।',
+    offline: 'Fewmail से कनेक्ट नहीं हो पा रहा। अपना कनेक्शन जाँचें।',
+  },
   keys: {
     calendarToday: 'आज',
     newEvent: 'नया इवेंट',

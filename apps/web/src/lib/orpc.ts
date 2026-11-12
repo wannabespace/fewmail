@@ -27,6 +27,24 @@ export const limitText = (error: unknown) => {
     : t[limit](total)
 }
 
+const ERROR_TEXT_BY_CODE = {
+  FORBIDDEN: 'needsPro',
+  NOT_FOUND: 'notFound',
+} as const
+
+/** The server's own messages are English and meant for logs; the user reads what went wrong in their language. */
+export const errorText = (error: unknown) => {
+  const t = messages[localeStore.get()].errors
+  if (error instanceof TypeError) {
+    return t.offline
+  }
+  const key =
+    error instanceof ORPCError
+      ? ERROR_TEXT_BY_CODE[error.code as keyof typeof ERROR_TEXT_BY_CODE]
+      : undefined
+  return limitText(error) ?? t[key ?? 'failed']
+}
+
 export const client: RouterClient<Router> = createORPCClient(
   new RPCLink({
     fetch: (url, init) =>
@@ -42,7 +60,7 @@ export const client: RouterClient<Router> = createORPCClient(
           !isSignedOut &&
           path[0] !== 'live'
         ) {
-          toast.error(limitText(error) ?? error.message)
+          toast.error(errorText(error))
         }
       }),
     ],

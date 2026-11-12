@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority'
 
-const outline = `bg-input ring-foreground/4 hover:ring-foreground/12 aria-expanded:ring-foreground/12 hover:bg-accent aria-expanded:bg-accent aria-pressed:bg-foreground/10 shadow-xs ring`
+const outline = `bg-input border-foreground/4 hover:border-foreground/12 aria-expanded:border-foreground/12 hover:bg-accent aria-expanded:bg-accent aria-pressed:bg-foreground/10 bg-clip-padding shadow-xs`
 
 export const buttonVariants = cva(
   `group/button focus-visible:focus-ring aria-invalid:invalid-ring inline-flex shrink-0 cursor-pointer items-center justify-center rounded-xl border border-transparent text-sm whitespace-nowrap transition-[transform,box-shadow,color,background-color,border-color] outline-none select-none not-aria-[haspopup]:active:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-disabled:opacity-50 aria-disabled:active:translate-y-0 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4`,

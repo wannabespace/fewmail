@@ -212,6 +212,12 @@ export const zh: Messages = {
   },
   importance: ['噪音', '值得了解', '需尽快处理', '紧急'],
   justNow: '刚刚',
+  errors: {
+    failed: '出了点问题，请重试。',
+    needsPro: '此功能需要 Fewmail Pro。',
+    notFound: '它已不存在，可能已被删除。',
+    offline: '无法连接到 Fewmail，请检查网络。',
+  },
   keys: {
     calendarToday: '今天',
     newEvent: '新建日程',

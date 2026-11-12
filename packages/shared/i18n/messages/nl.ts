@@ -320,6 +320,12 @@ export const nl: Messages = {
   },
   importance: ['Ruis', 'Goed om te weten', 'Heeft je snel nodig', 'Dringend'],
   justNow: 'zojuist',
+  errors: {
+    failed: 'Er ging iets mis. Probeer het opnieuw.',
+    needsPro: 'Hiervoor heb je Fewmail Pro nodig.',
+    notFound: 'Dit bestaat niet meer — misschien is het verwijderd.',
+    offline: 'Fewmail is niet bereikbaar. Controleer je verbinding.',
+  },
   keys: {
     calendarToday: 'vandaag',
     newEvent: 'nieuwe afspraak',

@@ -315,6 +315,12 @@ export const en = {
   },
   importance: ['Noise', 'Worth knowing', 'Needs you soon', 'Urgent'],
   justNow: 'just now',
+  errors: {
+    failed: 'Something went wrong. Try again.',
+    needsPro: 'This needs Fewmail Pro.',
+    notFound: 'This is no longer here — it may have been deleted.',
+    offline: "Can't reach Fewmail. Check your connection.",
+  },
   keys: {
     calendarToday: 'today',
     newEvent: 'new event',

@@ -294,7 +294,7 @@ const DeleteAccount = () => {
     const { error } = await authClient.deleteUser()
     if (error) {
       setIsDeleting(false)
-      toast.error(error.message ?? error.statusText)
+      toast.error(t.errors.failed)
       return
     }
     location.assign('/login')

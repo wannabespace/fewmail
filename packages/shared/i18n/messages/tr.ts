@@ -307,6 +307,12 @@ export const tr: Messages = {
   },
   importance: ['Gürültü', 'Bilmeye değer', 'Yakında seni bekliyor', 'Acil'],
   justNow: 'az önce',
+  errors: {
+    failed: 'Bir şeyler ters gitti. Tekrar dene.',
+    needsPro: 'Bunun için Fewmail Pro gerekiyor.',
+    notFound: 'Bu artık yok — silinmiş olabilir.',
+    offline: 'Fewmail’e ulaşılamıyor. Bağlantını kontrol et.',
+  },
   keys: {
     calendarToday: 'bugün',
     newEvent: 'yeni etkinlik',

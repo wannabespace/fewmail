@@ -240,6 +240,12 @@ export const uk: Messages = {
   },
   importance: ['Шум', 'Варто знати', 'Скоро знадобишся', 'Терміново'],
   justNow: 'щойно',
+  errors: {
+    failed: 'Щось пішло не так. Спробуй ще раз.',
+    needsPro: 'Для цього потрібен Fewmail Pro.',
+    notFound: 'Цього вже немає — можливо, його видалили.',
+    offline: 'Немає зв’язку з Fewmail. Перевір інтернет.',
+  },
   keys: {
     calendarToday: 'сьогодні',
     newEvent: 'нова подія',

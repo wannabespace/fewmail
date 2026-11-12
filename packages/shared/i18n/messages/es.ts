@@ -243,6 +243,12 @@ export const es: Messages = {
   },
   importance: ['Ruido', 'Bueno saberlo', 'Te necesita pronto', 'Urgente'],
   justNow: 'justo ahora',
+  errors: {
+    failed: 'Algo salió mal. Inténtalo de nuevo.',
+    needsPro: 'Esto requiere Fewmail Pro.',
+    notFound: 'Esto ya no existe; puede que se haya eliminado.',
+    offline: 'No se puede conectar con Fewmail. Revisa tu conexión.',
+  },
   keys: {
     calendarToday: 'hoy',
     newEvent: 'nuevo evento',

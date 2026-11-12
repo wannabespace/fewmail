@@ -218,6 +218,12 @@ export const ja: Messages = {
   },
   importance: ['ノイズ', '知っておくと良い', '近いうちに対応', '緊急'],
   justNow: 'たった今',
+  errors: {
+    failed: '問題が発生しました。もう一度お試しください。',
+    needsPro: 'これには Fewmail Pro が必要です。',
+    notFound: 'これはもう存在しません。削除された可能性があります。',
+    offline: 'Fewmail に接続できません。接続を確認してください。',
+  },
   keys: {
     calendarToday: '今日',
     newEvent: '新しい予定',

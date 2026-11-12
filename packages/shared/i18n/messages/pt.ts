@@ -318,6 +318,12 @@ export const pt: Messages = {
   },
   importance: ['Ruído', 'Bom saber', 'Precisa de você em breve', 'Urgente'],
   justNow: 'agora mesmo',
+  errors: {
+    failed: 'Algo deu errado. Tente novamente.',
+    needsPro: 'Isso requer o Fewmail Pro.',
+    notFound: 'Isso não existe mais — talvez tenha sido excluído.',
+    offline: 'Não foi possível conectar ao Fewmail. Verifique sua conexão.',
+  },
   keys: {
     calendarToday: 'hoje',
     newEvent: 'novo evento',

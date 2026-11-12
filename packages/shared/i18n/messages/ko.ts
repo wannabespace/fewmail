@@ -216,6 +216,12 @@ export const ko: Messages = {
   },
   importance: ['잡음', '알아두면 좋음', '곧 확인 필요', '긴급'],
   justNow: '방금',
+  errors: {
+    failed: '문제가 발생했어요. 다시 시도해 주세요.',
+    needsPro: 'Fewmail Pro가 필요해요.',
+    notFound: '더 이상 존재하지 않아요. 삭제되었을 수 있어요.',
+    offline: 'Fewmail에 연결할 수 없어요. 연결 상태를 확인해 주세요.',
+  },
   keys: {
     calendarToday: '오늘',
     newEvent: '새 일정',

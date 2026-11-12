@@ -310,6 +310,12 @@ export const id: Messages = {
   },
   importance: ['Kebisingan', 'Perlu tahu', 'Segera butuh kamu', 'Mendesak'],
   justNow: 'baru saja',
+  errors: {
+    failed: 'Terjadi kesalahan. Coba lagi.',
+    needsPro: 'Ini memerlukan Fewmail Pro.',
+    notFound: 'Ini sudah tidak ada — mungkin sudah dihapus.',
+    offline: 'Tidak dapat terhubung ke Fewmail. Periksa koneksimu.',
+  },
   keys: {
     calendarToday: 'hari ini',
     newEvent: 'acara baru',

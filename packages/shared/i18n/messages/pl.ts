@@ -330,6 +330,12 @@ export const pl: Messages = {
   },
   importance: ['Szum', 'Warto wiedzieć', 'Wkrótce czeka na ciebie', 'Pilne'],
   justNow: 'przed chwilą',
+  errors: {
+    failed: 'Coś poszło nie tak. Spróbuj ponownie.',
+    needsPro: 'Do tego potrzebny jest Fewmail Pro.',
+    notFound: 'Tego już nie ma — możliwe, że zostało usunięte.',
+    offline: 'Brak połączenia z Fewmail. Sprawdź internet.',
+  },
   keys: {
     calendarToday: 'dziś',
     newEvent: 'nowe wydarzenie',

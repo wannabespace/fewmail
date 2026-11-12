@@ -243,6 +243,12 @@ export const de: Messages = {
   },
   importance: ['Rauschen', 'Gut zu wissen', 'Braucht dich bald', 'Dringend'],
   justNow: 'gerade eben',
+  errors: {
+    failed: 'Etwas ist schiefgelaufen. Versuch es noch einmal.',
+    needsPro: 'Dafür brauchst du Fewmail Pro.',
+    notFound: 'Das gibt es nicht mehr – vielleicht wurde es gelöscht.',
+    offline: 'Fewmail ist nicht erreichbar. Prüf deine Verbindung.',
+  },
   keys: {
     calendarToday: 'heute',
     newEvent: 'neuer Termin',
