@@ -783,6 +783,7 @@ export const fr: Messages = {
   },
   keys: {
     askAgent: 'demander à l’agent',
+    fromSender: 'plus de cet expéditeur',
     approvePicked: (n: number) => `approuver les ${n} choisis`,
     pick: 'choisir',
     pickAll: 'tout choisir',

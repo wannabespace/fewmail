@@ -532,6 +532,7 @@ export const id: Messages = {
   },
   keys: {
     askAgent: 'tanya agen',
+    fromSender: 'lainnya dari pengirim',
     approvePicked: (n: number) => `setujui ${n} yang dipilih`,
     pick: 'pilih',
     pickAll: 'pilih semua',

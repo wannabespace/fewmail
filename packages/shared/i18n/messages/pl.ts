@@ -558,6 +558,7 @@ export const pl: Messages = {
   },
   keys: {
     askAgent: 'zapytaj agenta',
+    fromSender: 'więcej od nadawcy',
     approvePicked: (n: number) => `zatwierdź wybrane (${n})`,
     pick: 'wybierz',
     pickAll: 'wybierz wszystkie',

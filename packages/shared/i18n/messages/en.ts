@@ -542,6 +542,7 @@ export const en = {
   },
   keys: {
     askAgent: 'ask the agent',
+    fromSender: 'more from sender',
     pin: 'pin',
     unpin: 'unpin',
     copyCode: 'copy code',

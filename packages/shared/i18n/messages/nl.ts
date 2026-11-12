@@ -546,6 +546,7 @@ export const nl: Messages = {
   },
   keys: {
     askAgent: 'agent vragen',
+    fromSender: 'meer van afzender',
     approvePicked: (n: number) => `${n} gekozen goedkeuren`,
     pick: 'kiezen',
     pickAll: 'alles kiezen',

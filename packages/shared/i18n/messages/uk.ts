@@ -770,6 +770,7 @@ export const uk: Messages = {
   },
   keys: {
     askAgent: 'запитати агента',
+    fromSender: 'ще від відправника',
     approvePicked: (n: number) => `схвалити вибрані (${n})`,
     pick: 'вибрати',
     pickAll: 'вибрати всі',

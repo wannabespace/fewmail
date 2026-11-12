@@ -272,6 +272,7 @@ export const zh: Messages = {
   },
   keys: {
     askAgent: '问助手',
+    fromSender: '同一发件人的邮件',
     approvePicked: (n: number) => `批准已选的 ${n} 项`,
     pick: '选择',
     pickAll: '全选',

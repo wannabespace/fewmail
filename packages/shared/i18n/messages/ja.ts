@@ -279,6 +279,7 @@ export const ja: Messages = {
   },
   keys: {
     askAgent: 'エージェントに聞く',
+    fromSender: '同じ差出人のメール',
     approvePicked: (n: number) => `選択した${n}件を承認`,
     pick: '選択',
     pickAll: 'すべて選択',

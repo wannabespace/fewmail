@@ -529,6 +529,7 @@ export const tr: Messages = {
   },
   keys: {
     askAgent: 'ajana sor',
+    fromSender: 'gönderenden diğerleri',
     approvePicked: (n: number) => `seçili ${n} öğeyi onayla`,
     pick: 'seç',
     pickAll: 'tümünü seç',

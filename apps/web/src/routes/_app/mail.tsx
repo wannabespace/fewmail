@@ -95,7 +95,7 @@ import {
 import type { Place, Sweep } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { isReadingFirstTime, mailRowsOf, prefetchThread } from '~/lib/mail-db'
-import type { MailRow as MailRowData } from '~/lib/mail-db'
+import type { MailList, MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
@@ -372,16 +372,15 @@ const useGroupedRows = <Row extends ListedRow>(
   const groups = groupRows(listedRows, grouping, keptUnread)
   if (groups.length === 0) {
     return {
-      groupStarts: new Map<number, (typeof groups)[number]>(),
+      groupStarts: new Map<string, (typeof groups)[number]>(),
       rows: listedRows,
     }
   }
-  let start = 0
-  const groupStarts = new Map<number, (typeof groups)[number]>()
-  for (const group of groups) {
-    groupStarts.set(start, group)
-    start += group.rows.length
-  }
+  const groupStarts = new Map(
+    groups.flatMap((group) =>
+      group.rows[0] ? [[group.rows[0].message.id, group] as const] : []
+    )
+  )
   return { groupStarts, rows: groups.flatMap((group) => group.rows) }
 }
 
@@ -806,6 +805,108 @@ const useCursorOnOpenThread = ({
     setFollowedKey(`${thread}:${openIndex}`)
     setCursor(openIndex)
   }
+}
+
+const RELATED_SHOWN = 5
+const UNRELATED_LISTS = new Set<MailList>(['pinned', 'spam', 'trash'])
+
+/** Under the open row, the sender's other threads from every list as real rows (J / K, ⏎ and E reach them); never one the list already shows. */
+const useRelatedRows = <Row extends ListedRow & { messageIds: string[] }>({
+  anchor,
+  mailbox,
+  rows,
+}: {
+  anchor: string | null
+  mailbox: string | undefined
+  rows: Row[]
+}) => {
+  const everything = useLiveQuery((query) =>
+    query
+      .from({ row: mailRowsOf(mailbox) })
+      .orderBy(({ row }) => row.message.receivedAt, 'desc')
+  )
+  const seen = new Set(rows.map(({ message }) => message.threadId))
+  const others = (everything.data ?? []).filter(({ list, message }) => {
+    if (UNRELATED_LISTS.has(list) || seen.has(message.threadId)) {
+      return false
+    }
+    seen.add(message.threadId)
+    return true
+  })
+  const bySender = Map.groupBy(others, ({ message }) => message.fromEmail)
+  const anchorIndex = rows.findIndex(
+    ({ message }) => message.threadId === anchor
+  )
+  const related = (
+    bySender.get(rows[anchorIndex]?.message.fromEmail ?? '') ?? []
+  )
+    .slice(0, RELATED_SHOWN)
+    .map((row) => ({
+      ...row,
+      isRelated: true as const,
+      messageIds: [row.message.id],
+    }))
+  return {
+    anchorIndex,
+    canShowFor: (row: ListedRow | undefined) =>
+      !!row &&
+      !('isRelated' in row) &&
+      row.message.threadId !== anchor &&
+      bySender.has(row.message.fromEmail),
+    rows: [
+      ...rows.slice(0, anchorIndex + 1),
+      ...related,
+      ...rows.slice(anchorIndex + 1),
+    ],
+  }
+}
+
+const RelatedRow = ({
+  isCursor,
+  isOpen,
+  onOpen,
+  row: { message },
+}: {
+  isCursor: boolean
+  isOpen: boolean
+  onOpen: () => void
+  row: ListedRow
+}) => {
+  const dates = useDates()
+  return (
+    <li
+      data-row
+      className={rowSurfaceOf({
+        isActive: isCursor,
+        isOpen,
+        isUnread: message.isUnread,
+      })}
+    >
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={onOpen}
+        onPointerEnter={() => {
+          void prefetchThread(message.threadId)
+        }}
+        aria-current={isOpen}
+        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-9 text-left text-sm outline-none"
+      >
+        <span
+          data-mask
+          className={cn(
+            'min-w-0 flex-1 truncate',
+            message.isUnread ? 'font-medium' : 'text-foreground/60'
+          )}
+        >
+          {message.subject}
+        </span>
+        <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+          {dates.format(message.receivedAt, 'd MMM')}
+        </span>
+      </button>
+    </li>
+  )
 }
 
 const MailRow = ({
@@ -1424,18 +1525,29 @@ const listModeOf = (q: string | undefined, picked: Filter = 'inbox') => {
 }
 
 const listHintsOf = ({
+  canShowRelated,
   hints,
   isSearching,
   t,
   total,
 }: {
+  canShowRelated: boolean
   hints: [string, string][]
   isSearching: boolean
   t: ReturnType<typeof useT>
   total: number
 }): [string, string][] => {
   const walk: [string, string][] =
-    total > 0 ? [['J / K', t.keys.move], ['⏎', t.keys.open], ...hints] : []
+    total > 0
+      ? [
+          ['J / K', t.keys.move],
+          ['⏎', t.keys.open],
+          ...(canShowRelated
+            ? [['→', t.keys.fromSender] as [string, string]]
+            : []),
+          ...hints,
+        ]
+      : []
   return isSearching
     ? [...walk, ['esc', t.keys.close]]
     : [...walk, ['[ / ]', t.keys.filter], ['/', t.keys.search]]
@@ -1485,12 +1597,14 @@ const MailPage = () => {
     new Set()
   )
   const [keptUnread, setKeptUnread] = useState<KeptUnread>(new Set())
+  const [relatedOf, setRelatedOf] = useState<string | null>(null)
   const listKey = `${filter}:${mailbox ?? ''}:${q ?? ''}`
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
     setCursorListKey(listKey)
     setCursor(HIDDEN_CURSOR)
     setKeptUnread(new Set())
+    setRelatedOf(null)
   }
 
   const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
@@ -1521,8 +1635,13 @@ const MailPage = () => {
     keptUnread
   )
   const pinnedRows = usePinnedRows(pinned, groupedRows)
-  const { rows } = pinnedRows
-  const total = listedTotal + pinnedRows.shown
+  const related = useRelatedRows({
+    anchor: relatedOf,
+    mailbox,
+    rows: pinnedRows.rows,
+  })
+  const { rows } = related
+  const total = isDrafts ? listedTotal : rows.length
   useCursorOnOpenThread({ rows, setCursor, thread })
 
   const {
@@ -1570,6 +1689,9 @@ const MailPage = () => {
     if (row) {
       setCursor(index)
       expandBurst(index)
+      if (!('isRelated' in row)) {
+        setRelatedOf(row.message.threadId)
+      }
       if (row.message.isUnread) {
         setKeptUnread((kept) => new Set(kept).add(row.message.threadId))
       }
@@ -1593,7 +1715,21 @@ const MailPage = () => {
   useHotkey('ArrowUp', () => moveCursor(-1))
   useHotkey('Enter', () => open(cursor))
   useHotkey('O', () => open(cursor))
-  useHotkey('ArrowRight', () => expandBurst(cursor))
+  const canShowRelated = related.canShowFor(rows[cursor])
+  useHotkey('ArrowRight', () => {
+    expandBurst(cursor)
+    if (canShowRelated) {
+      setRelatedOf(rows[cursor]?.message.threadId ?? null)
+    }
+  })
+  useHotkey(
+    'ArrowLeft',
+    () => {
+      setCursor(related.anchorIndex)
+      setRelatedOf(null)
+    },
+    { enabled: related.anchorIndex !== -1 }
+  )
   const showFilter = (next: Filter) =>
     navigate({
       search: (prev) => ({
@@ -1708,12 +1844,23 @@ const MailPage = () => {
               onToggle={() => pinnedRows.toggle()}
             />
             {rows.map((row, index) => {
+              if ('isRelated' in row) {
+                return (
+                  <RelatedRow
+                    key={`related:${row.message.id}`}
+                    row={row}
+                    isCursor={index === cursor}
+                    isOpen={row.message.threadId === thread}
+                    onOpen={() => open(index)}
+                  />
+                )
+              }
               const Row = index < pinnedRows.shown ? PinnedRow : MailRow
               return (
                 <Fragment key={row.message.id}>
                   <GroupHeader
                     grouping={grouping}
-                    group={groupStarts.get(index - pinnedRows.shown)}
+                    group={groupStarts.get(row.message.id)}
                   />
                   <Row
                     row={row}
@@ -1733,7 +1880,15 @@ const MailPage = () => {
             })}
           </ul>
           {!thread && (
-            <KeyHints hints={listHintsOf({ hints, isSearching, t, total })} />
+            <KeyHints
+              hints={listHintsOf({
+                canShowRelated,
+                hints,
+                isSearching,
+                t,
+                total,
+              })}
+            />
           )}
         </section>
       </ResizablePanel>

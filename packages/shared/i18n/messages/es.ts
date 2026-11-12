@@ -773,6 +773,7 @@ export const es: Messages = {
   },
   keys: {
     askAgent: 'preguntar al agente',
+    fromSender: 'más del remitente',
     approvePicked: (n: number) => `aprobar ${n} seleccionados`,
     pick: 'seleccionar',
     pickAll: 'seleccionar todo',

@@ -277,6 +277,7 @@ export const ko: Messages = {
   },
   keys: {
     askAgent: '에이전트에게 묻기',
+    fromSender: '같은 발신자의 메일',
     approvePicked: (n: number) => `선택한 ${n}개 승인`,
     pick: '선택',
     pickAll: '모두 선택',

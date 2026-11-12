@@ -276,6 +276,7 @@ export const hi: Messages = {
   },
   keys: {
     askAgent: 'एजेंट से पूछें',
+    fromSender: 'इस प्रेषक से और',
     approvePicked: (n: number) => `${n} चुने हुए मंज़ूर करें`,
     pick: 'चुनें',
     pickAll: 'सब चुनें',
