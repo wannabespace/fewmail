@@ -209,10 +209,6 @@ export const fr: Messages = {
   calendar: {
     allDay: 'Toute la journée',
     calendar: 'Calendrier',
-    connect: 'Connecter',
-    connectHint:
-      'Autorisez Fewmail à voir et modifier les événements de ce compte.',
-    connectTitle: 'Connecter Google Agenda',
     create: 'Ajouter l’événement',
     delete: 'Supprimer',
     deleted: 'Événement supprimé',

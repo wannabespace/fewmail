@@ -169,10 +169,13 @@ export const exchangeMailboxCode = async (code: string) => {
   const claims = JSON.parse(
     Buffer.from(tokens.id_token?.split('.')[1] ?? '', 'base64url').toString()
   ) as { email: string; sub: string }
+  const granted = tokens.scope.split(' ')
   return {
     email: claims.email,
     googleAccountId: claims.sub,
-    hasGmail: tokens.scope.split(' ').includes(GMAIL_SCOPE),
+    hasScopes: [GMAIL_SCOPE, CALENDAR_SCOPE].every((scope) =>
+      granted.includes(scope)
+    ),
     refreshToken: tokens.refresh_token ?? null,
   }
 }

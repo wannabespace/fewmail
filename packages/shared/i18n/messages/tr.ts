@@ -214,10 +214,6 @@ export const tr: Messages = {
   calendar: {
     allDay: 'Tüm gün',
     calendar: 'Takvim',
-    connect: 'Bağla',
-    connectHint:
-      "Fewmail'in bu hesabın etkinliklerini görmesine ve düzenlemesine izin verin.",
-    connectTitle: "Google Takvim'i bağla",
     create: 'Etkinlik ekle',
     delete: 'Sil',
     deleted: 'Etkinlik silindi',

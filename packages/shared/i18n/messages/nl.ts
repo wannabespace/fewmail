@@ -218,10 +218,6 @@ export const nl: Messages = {
   calendar: {
     allDay: 'Hele dag',
     calendar: 'Agenda',
-    connect: 'Koppelen',
-    connectHint:
-      'Sta Fewmail toe de afspraken van dit account te zien en te bewerken.',
-    connectTitle: 'Google Agenda koppelen',
     create: 'Afspraak toevoegen',
     delete: 'Verwijderen',
     deleted: 'Afspraak verwijderd',

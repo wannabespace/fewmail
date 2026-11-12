@@ -182,10 +182,6 @@ export const ja: Messages = {
   calendar: {
     allDay: '終日',
     calendar: 'カレンダー',
-    connect: '接続',
-    connectHint:
-      'このアカウントの予定の表示と編集を Fewmail に許可してください。',
-    connectTitle: 'Google カレンダーを接続',
     create: '予定を追加',
     delete: '削除',
     deleted: '予定を削除しました',

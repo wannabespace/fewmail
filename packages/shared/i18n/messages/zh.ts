@@ -180,9 +180,6 @@ export const zh: Messages = {
   calendar: {
     allDay: '全天',
     calendar: '日历',
-    connect: '连接',
-    connectHint: '允许 Fewmail 查看和编辑此账号的日程。',
-    connectTitle: '连接 Google 日历',
     create: '添加日程',
     delete: '删除',
     deleted: '日程已删除',

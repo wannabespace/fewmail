@@ -95,7 +95,7 @@ export const finishAddingMailbox = async (
   if (signIn) {
     return { result: 'sign_in' }
   }
-  if (!grant.refreshToken || !grant.hasGmail) {
+  if (!grant.refreshToken || !grant.hasScopes) {
     return { result: 'failed' }
   }
 

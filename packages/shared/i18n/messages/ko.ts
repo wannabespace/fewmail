@@ -180,9 +180,6 @@ export const ko: Messages = {
   calendar: {
     allDay: '종일',
     calendar: '캘린더',
-    connect: '연결',
-    connectHint: 'Fewmail이 이 계정의 일정을 보고 편집하도록 허용하세요.',
-    connectTitle: 'Google 캘린더 연결',
     create: '일정 추가',
     delete: '삭제',
     deleted: '일정을 삭제했습니다',

@@ -208,10 +208,6 @@ export const it: Messages = {
   calendar: {
     allDay: 'Tutto il giorno',
     calendar: 'Calendario',
-    connect: 'Collega',
-    connectHint:
-      'Consenti a Fewmail di vedere e modificare gli eventi di questo account.',
-    connectTitle: 'Collega Google Calendar',
     create: 'Aggiungi evento',
     delete: 'Elimina',
     deleted: 'Evento eliminato',

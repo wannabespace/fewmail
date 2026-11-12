@@ -4,11 +4,6 @@ import { gmailAccessToken } from './auth'
 const EVENTS_API =
   'https://www.googleapis.com/calendar/v3/calendars/primary/events'
 
-/** A grant from before the calendar scope, or one where the user unticked it on Google's consent screen. */
-export class CalendarScopeMissingError extends Error {
-  override name = 'CalendarScopeMissingError'
-}
-
 const calendar = async <T>(
   account: GmailAccount,
   path: string,
@@ -22,11 +17,9 @@ const calendar = async <T>(
     },
   })
   if (!response.ok) {
-    const body = await response.text()
-    if (response.status === 403 && /insufficient/iu.test(body)) {
-      throw new CalendarScopeMissingError()
-    }
-    throw new Error(`Calendar ${path} failed: ${response.status} ${body}`)
+    throw new Error(
+      `Calendar ${path} failed: ${response.status} ${await response.text()}`
+    )
   }
   return (response.status === 204 ? undefined : await response.json()) as T
 }

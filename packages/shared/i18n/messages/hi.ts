@@ -185,9 +185,6 @@ export const hi: Messages = {
   calendar: {
     allDay: 'पूरा दिन',
     calendar: 'कैलेंडर',
-    connect: 'जोड़ें',
-    connectHint: 'Fewmail को इस खाते के इवेंट देखने और बदलने दें।',
-    connectTitle: 'Google Calendar जोड़ें',
     create: 'इवेंट जोड़ें',
     delete: 'हटाएं',
     deleted: 'इवेंट हटाया गया',

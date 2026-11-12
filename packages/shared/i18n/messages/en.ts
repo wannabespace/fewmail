@@ -216,9 +216,6 @@ export const en = {
   calendar: {
     allDay: 'All day',
     calendar: 'Calendar',
-    connect: 'Connect',
-    connectHint: 'Allow Fewmail to see and edit the events of this account.',
-    connectTitle: 'Connect Google Calendar',
     create: 'Add event',
     delete: 'Delete',
     deleted: 'Event deleted',

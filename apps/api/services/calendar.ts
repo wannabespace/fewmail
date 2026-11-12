@@ -4,7 +4,6 @@ import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import type { CalendarEventFields } from '../lib/calendar'
 import {
-  CalendarScopeMissingError,
   deleteEvent as deleteGoogleEvent,
   insertEvent,
   listEvents as listGoogleEvents,
@@ -71,22 +70,16 @@ export const listEvents = async (
     .orderBy(asc(mailboxes.createdAt))
   const perMailbox = await Promise.all(
     owned.map(async (mailbox) => {
-      const calendar = {
-        email: mailbox.email,
-        mailboxId: mailbox.id,
-        signIn: mailbox.googleAccountId === null,
-      }
+      const calendar = { email: mailbox.email, mailboxId: mailbox.id }
       try {
         const events = await cachedEvents(mailbox, range)
         return {
-          calendar: { ...calendar, connected: true },
+          calendar,
           events: events.map((event) => ({ ...event, mailboxId: mailbox.id })),
         }
       } catch (error) {
-        if (!(error instanceof CalendarScopeMissingError)) {
-          logError('calendar list failed', error)
-        }
-        return { calendar: { ...calendar, connected: false }, events: [] }
+        logError('calendar list failed', error)
+        return { calendar, events: [] }
       }
     })
   )

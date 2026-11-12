@@ -207,10 +207,6 @@ export const de: Messages = {
   calendar: {
     allDay: 'Ganztägig',
     calendar: 'Kalender',
-    connect: 'Verbinden',
-    connectHint:
-      'Erlaube Fewmail, die Termine dieses Kontos zu sehen und zu bearbeiten.',
-    connectTitle: 'Google Kalender verbinden',
     create: 'Termin hinzufügen',
     delete: 'Löschen',
     deleted: 'Termin gelöscht',

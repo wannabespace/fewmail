@@ -11,7 +11,6 @@ export const authClient = createAuthClient({
   plugins: [oauthProviderClient()],
 })
 
-/** Signing in again is also how the sign-in account grants a scope it lacks (the calendar). */
 export const signInWithGoogle = (path = '/today') =>
   authClient.signIn.social({
     callbackURL: `${location.origin}${path}`,

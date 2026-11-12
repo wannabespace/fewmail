@@ -215,9 +215,6 @@ export const id: Messages = {
   calendar: {
     allDay: 'Sepanjang hari',
     calendar: 'Kalender',
-    connect: 'Hubungkan',
-    connectHint: 'Izinkan Fewmail melihat dan mengedit acara akun ini.',
-    connectTitle: 'Hubungkan Google Kalender',
     create: 'Tambah acara',
     delete: 'Hapus',
     deleted: 'Acara dihapus',

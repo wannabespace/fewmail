@@ -208,9 +208,6 @@ export const es: Messages = {
   calendar: {
     allDay: 'Todo el día',
     calendar: 'Calendario',
-    connect: 'Conectar',
-    connectHint: 'Permite que Fewmail vea y edite los eventos de esta cuenta.',
-    connectTitle: 'Conectar Google Calendar',
     create: 'Añadir evento',
     delete: 'Eliminar',
     deleted: 'Evento eliminado',

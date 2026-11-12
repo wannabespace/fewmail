@@ -1,24 +1,15 @@
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import {
   Add01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
-  Calendar03Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
 import {
@@ -46,7 +37,6 @@ import { MonthView, TimeGrid, YearView } from '~/components/calendar-views'
 import type { EventDraft } from '~/components/event-dialog'
 import { draftOf, EventDialog } from '~/components/event-dialog'
 import { KeyHints } from '~/components/key-hints'
-import { signInWithGoogle } from '~/lib/auth'
 import type { CalendarView } from '~/lib/calendar'
 import { CALENDAR_VIEWS } from '~/lib/calendar'
 import { localeStore, useDates, useT, weekStartOf } from '~/lib/i18n'
@@ -107,51 +97,6 @@ const usePeriodLabel = (
   }
 }
 
-const ConnectCalendar = ({
-  email,
-  signIn,
-}: {
-  email: string
-  signIn: boolean
-}) => {
-  const t = useT()
-  const addMailbox = useMutation(
-    orpc.mailboxes.add.mutationOptions({
-      onSuccess: ({ url }) => location.assign(url),
-    })
-  )
-
-  return (
-    <Item variant="card" size="sm">
-      <ItemMedia variant="icon">
-        <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle>{t.calendar.connectTitle}</ItemTitle>
-        <ItemDescription>
-          <span data-mask>{email}</span> · {t.calendar.connectHint}
-        </ItemDescription>
-      </ItemContent>
-      <ItemActions>
-        <Button
-          size="sm"
-          variant="secondary"
-          disabled={addMailbox.isPending}
-          onClick={async () => {
-            if (signIn) {
-              await signInWithGoogle('/calendar')
-            } else {
-              addMailbox.mutate()
-            }
-          }}
-        >
-          {t.calendar.connect}
-        </Button>
-      </ItemActions>
-    </Item>
-  )
-}
-
 const periodOf = (search: { date?: string; view?: CalendarView }) => {
   const parsed = search.date ? parseISO(search.date) : startOfToday()
   return {
@@ -178,9 +123,6 @@ const CalendarPage = () => {
     })
   )
   const events = data?.events ?? []
-  const connected = (data?.calendars ?? []).filter(
-    (calendar) => calendar.connected
-  )
 
   const [draft, setDraft] = useState<EventDraft | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -277,14 +219,6 @@ const CalendarPage = () => {
         </Button>
       </header>
 
-      {data?.calendars
-        .filter((calendar) => !calendar.connected)
-        .map((calendar) => (
-          <div key={calendar.mailboxId} className="px-10 pb-4">
-            <ConnectCalendar email={calendar.email} signIn={calendar.signIn} />
-          </div>
-        ))}
-
       <div className="flex min-h-0 flex-1 flex-col border-t">
         {view === 'month' && (
           <MonthView
@@ -320,7 +254,7 @@ const CalendarPage = () => {
         ]}
       />
       <EventDialog
-        calendars={connected}
+        calendars={data?.calendars ?? []}
         draft={draft}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}

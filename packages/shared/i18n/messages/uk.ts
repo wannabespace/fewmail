@@ -209,9 +209,6 @@ export const uk: Messages = {
   calendar: {
     allDay: 'Увесь день',
     calendar: 'Календар',
-    connect: 'Підключити',
-    connectHint: 'Дозволь Fewmail бачити й редагувати події цього акаунта.',
-    connectTitle: 'Підключити Google Календар',
     create: 'Додати подію',
     delete: 'Видалити',
     deleted: 'Подію видалено',
