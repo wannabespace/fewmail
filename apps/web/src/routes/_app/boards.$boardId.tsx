@@ -12,6 +12,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 
+import { BoardBanners } from '~/components/board-banners'
 import { BoardChartCard, toChart } from '~/components/board-chart'
 import { BoardDialog, newBoardStore } from '~/components/board-dialog'
 import { KeyHints } from '~/components/key-hints'
@@ -94,6 +95,10 @@ const BoardPage = () => {
               </p>
             )}
           </header>
+
+          {board && board.banners.length > 0 && (
+            <BoardBanners banners={board.banners} showBoard={false} />
+          )}
 
           {board && (
             <section

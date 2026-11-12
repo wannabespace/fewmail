@@ -14,6 +14,7 @@ import type { listQueue } from './services/mail'
 import type { BriefMessage, Button, Channel, Reply } from './services/messenger'
 import {
   briefReply,
+  readingReply,
   failureText,
   follow,
   hear,
@@ -330,11 +331,26 @@ export const startTelegram = async () => {
 export const sendBrief = async (
   chatId: string,
   userId: string,
-  brief: BriefMessage
+  brief: BriefMessage,
+  voice?: string
 ) => {
   if (bot) {
     const t = await messagesFor(userId)
-    await send(bot.api, chatId, briefReply(chatOf(chatId), t, brief))
+    await send(bot.api, chatId, {
+      ...briefReply(chatOf(chatId), t, brief),
+      voice,
+    })
+  }
+}
+
+export const sendReading = async (
+  chatId: string,
+  userId: string,
+  rows: Parameters<typeof readingReply>[2]
+) => {
+  if (bot) {
+    const t = await messagesFor(userId)
+    await send(bot.api, chatId, readingReply(chatOf(chatId), t, rows))
   }
 }
 

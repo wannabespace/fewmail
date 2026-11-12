@@ -340,6 +340,8 @@ const useMarkRead = (
   }, [hasUnread, markRead, threadId])
 }
 
+const LEAVE_YOURSELF_MS = 15_000
+
 export const useMailActions = (onDone?: () => void) => {
   const t = useT()
   const dates = useDates()
@@ -360,6 +362,16 @@ export const useMailActions = (onDone?: () => void) => {
   // The id folds a burst's per-email answers into one toast.
   const finish = (message: string) => {
     toast.success(message, { id: message })
+    void refresh()
+  }
+  const leaveYourself = (link: string) => {
+    toast(t.mail.unsubscribeYourself, {
+      action: {
+        label: t.mail.openUnsubscribePage,
+        onClick: () => window.open(link, '_blank', 'noopener'),
+      },
+      duration: LEAVE_YOURSELF_MS,
+    })
     void refresh()
   }
   return {
@@ -415,8 +427,12 @@ export const useMailActions = (onDone?: () => void) => {
     unsubscribe: useMutation(
       orpc.mail.unsubscribe.mutationOptions({
         ...leave,
-        onSuccess: ({ unsubscribed }) =>
-          finish(unsubscribed ? t.mail.unsubscribed : t.mail.unsubscribeFailed),
+        onSuccess: ({ link, unsubscribed }) =>
+          link
+            ? leaveYourself(link)
+            : finish(
+                unsubscribed ? t.mail.unsubscribed : t.mail.unsubscribeFailed
+              ),
       })
     ),
   }

@@ -813,24 +813,6 @@ export const id: Messages = {
   },
   site: {
     chapters: {
-      compare: {
-        description:
-          'Kebanyakan aplikasi membantumu membereskan kotak masuk lebih cepat. Fewmail membereskannya untukmu.',
-        label: 'Bandingkan',
-        title: 'Apa yang membuat Fewmail berbeda.',
-      },
-      control: {
-        description:
-          'Beri tahu Fewmail dengan kata-kata biasa apa yang harus dilakukan pada email, tentukan aturan mana yang boleh berjalan sendiri, dan tinjau semua yang dikerjakannya di Sudah ditangani.',
-        label: 'Kendali',
-        title: 'Kamu yang membuat aturan. Ia menunjukkan kerjanya.',
-      },
-      memory: {
-        description:
-          'Fewmail mengingat apa yang kamu janjikan, siapa saja orang-orangnya, apa saja yang kamu bayar, dan percakapan mana yang masih ia urus untukmu.',
-        label: 'Ingatan',
-        title: 'Ia yang mengingat, jadi kamu tak perlu.',
-      },
       pricing: {
         description:
           'Penyortiran, aturan, dan perlindungan gratis selamanya. Pro dan Max menambahkan semua yang membaca dan menulis untukmu; Max hanya melakukannya lebih banyak.',
@@ -838,40 +820,28 @@ export const id: Messages = {
         title: (usd: number) =>
           `Gratis untuk penyortiran. Mulai $${usd} untuk agennya.`,
       },
-      protection: {
-        description:
-          'Setiap paket mendapat perisai spam komunitas yang belajar dari para pengguna Fewmail, tanpa pernah membagikan satu alamat pun atau satu kata pun dari emailmu. Domain tiruan, phishing yang sudah dikenal, dan detail pembayaran yang berubah memunculkan peringatan sebelum kamu bertindak.',
-        label: 'Perlindungan',
-        title: 'Penipuan berhenti di depan pintu.',
-      },
       questions: {
         description:
           'Jawaban singkatnya ada di sini. Yang panjang ada di kebijakan privasi.',
         label: 'Pertanyaan',
         title: 'Sebelum kamu menghubungkan Gmail.',
       },
-      replies: {
-        description:
-          'Fewmail mempelajari gaya menulismu dari email yang pernah kamu kirim, lalu menyiapkan balasan lebih awal, dalam bahasa email tersebut. Edit, minta versi lain, atau kirim apa adanya. Tidak ada yang terkirim tanpa persetujuanmu.',
-        label: 'Balasan',
-        title: 'Balasan dengan gayamu, dalam bahasa mereka.',
-      },
-      telegram: {
-        description:
-          'Terima ringkasan dan email mendesak di Telegram, setujui balasan dengan sekali ketuk, atau cukup kirim pesan suara: “bilang ke Marco Kamis bisa”. Fewmail menemukan percakapannya dan menyusun drafnya.',
-        label: 'Telegram',
-        title: 'Kotak masukmu, dari sebuah chat.',
-      },
-      today: {
-        description:
-          'Setiap hari, pada jam yang kamu pilih, Fewmail menulis ringkasan singkat dalam bahasamu dan mengantrekan beberapa email yang perlu keputusan, yang terpenting lebih dulu. Setujui dengan ⏎, lewati dengan S; sisanya sudah ditangani, dan kamu bisa melihat persis apa yang dilakukannya.',
-        label: 'Hari ini',
-        title: 'Satu ringkasan. Satu antrean. Itulah kotak masukmu.',
-      },
     },
     closing: {
       lead: 'Hubungkan Gmail dalam semenit. Fewmail mulai dari email tiga hari terakhir, jadi keputusan pertama langsung menunggumu.',
       title: 'Rebut kembali pagimu.',
+    },
+    mcp: {
+      answer:
+        'Kontrak yang sudah ditandatangani, sebelum kickoff hari Jumat. Balasannya sudah disusun dan menunggu di antrean Fewmail-mu.',
+      clients: 'Bekerja dengan',
+      emphasis: 'Claude dan ChatGPT.',
+      free: 'Membaca emailmu dan penyortiran oleh agen gratis.',
+      label: 'MCP',
+      lead: 'Hubungkan Fewmail sebagai server MCP dan tanyakan soal emailmu dari asisten yang sudah kamu pakai. Apa pun yang mengirim email atau mengubah Gmail tetap menunggu persetujuanmu.',
+      question: 'Apa yang Anna butuhkan dariku minggu ini?',
+      setup: 'Hubungkan dalam semenit',
+      title: 'Emailmu, langsung di Claude dan ChatGPT.',
     },
     mcpPage: {
       copy: 'Salin URL',
@@ -1030,85 +1000,6 @@ export const id: Messages = {
           'Pilih Superhuman jika kamu ingin menyentuh setiap email sendiri, dengan lebih cepat. Pilih Fewmail jika kamu lebih suka tidak melihat sebagian besar email sama sekali.',
       },
     },
-    control: {
-      gmail: {
-        description:
-          'Label Fewmail opsional menampilkan hasil penyortiran langsung di Gmail, di ponselmu, dan di aplikasi email lainnya.',
-        title: 'Bekerja dengan aplikasi Gmail apa pun',
-      },
-      handled: {
-        description:
-          'Semua yang dikerjakan agen sendiri tercatat di Sudah ditangani, masing-masing dengan alasannya.',
-        title: 'Sudah ditangani, serba terbuka',
-      },
-      keyboard: {
-        description:
-          'Setiap tindakan punya satu tombol dan ⌘K menjangkau semuanya. Tanganmu tak perlu lepas dari keyboard.',
-        title: 'Mengutamakan keyboard',
-      },
-      mcp: {
-        description:
-          'Hubungkan Claude atau klien MCP apa pun, lalu biarkan ia membaca, memilah, dan menyusun draf dengan agen yang sama.',
-        title: 'Server MCP',
-      },
-      privacy: {
-        description:
-          'Subjek, isi, ringkasan, dan draf dienkripsi di database kami. Mengirim selalu butuh persetujuanmu.',
-        title: 'Privat sejak awal',
-      },
-      rules: {
-        description:
-          '“Newsletter yang tidak pernah kubuka” atau “tanda terima dari toko”: arsipkan, tandai dibaca, atau berhenti langganan.',
-        title: 'Aturan dengan kata-kata biasa',
-      },
-    },
-    demos: {
-      draft: {
-        expectsReply: 'Menunggu balasan',
-        language: 'Bahasa Jerman, seperti Lena',
-        redraft: 'Tulis ulang',
-      },
-      shield: [
-        {
-          detail: 'paypa1-billing.com mirip paypal.com',
-          label: 'Domain tiruan',
-        },
-        {
-          detail: 'IBAN baru di tagihan dari pemasok yang dikenal',
-          label: 'Detail pembayaran berubah',
-        },
-        {
-          detail: '9 orang melaporkan kampanye ini sebagai spam',
-          label: 'Dipindahkan ke spam',
-        },
-      ],
-      telegram: {
-        draftReady: 'Draf untuk Marco siap: Kamis pukul 16:00. Kirim?',
-        urgent:
-          'Butuh kontrak yang sudah ditandatangani sebelum Jumat. Aku sudah menyusun balasannya.',
-        voice: '“Bilang ke Marco Kamis bisa, tapi jam empat.”',
-      },
-      today: {
-        brief:
-          'Anna menunggu kontraknya, tagihan Northwind jatuh tempo minggu depan, dan Marco minta waktu hari Kamis. Empat puluh dua newsletter dan notifikasi sudah ditangani.',
-        day: 'Ringkasan Kamis',
-        queue: [
-          {
-            reason: 'Kontrak jatuh tempo besok',
-            summary:
-              'Kontrak yang sudah ditandatangani perlu dikirim balik sebelum kickoff hari Jumat.',
-          },
-          {
-            reason: 'Tagihan · US$1.240, jatuh tempo 20 Nov',
-            summary: 'Tagihan Oktober untuk desain ulang situs web.',
-          },
-          {
-            reason: 'Usulan rapat',
-            summary: 'Mengusulkan Kamis pukul 15:00 untuk tinjauan kuartalan.',
-          },
-        ],
-      },
-    },
     faq: (trialDays: number) => [
       {
         answer:
@@ -1140,6 +1031,59 @@ export const id: Messages = {
         question: 'Akun email apa saja yang bisa dipakai?',
       },
     ],
+    features: {
+      description:
+        'Urusan email yang dulu menghabiskan satu sore, kini dikerjakan di latar belakang dan dicatat di tempat yang bisa kamu periksa.',
+      items: {
+        ask: {
+          description:
+            'Tanyakan apa saja dengan kata-kata biasa dan dapatkan jawaban dari emailmu sendiri, lengkap dengan email sumbernya.',
+          title: 'Tanya emailmu',
+        },
+        boards: {
+          description:
+            'Uang, langganan berbayar, perjalanan, pesanan: jelaskan apa yang ingin dilacak dan agen mengumpulkannya dari email enam bulan terakhir, lengkap dengan grafik.',
+          title: 'Papan',
+        },
+        calendar: {
+          description:
+            'Kalender semua kotak suratmu dalam satu tampilan. Rapat yang diusulkan lewat email menjadi acara begitu kamu setuju.',
+          title: 'Kalender',
+        },
+        clearOut: {
+          description:
+            'Semua tumpukan lama keluar sekaligus, hingga 50.000 email per kotak surat, semuanya di bawah satu label sehingga satu klik mengembalikan semuanya. Gratis.',
+          title: 'Bersihkan kotak masuk',
+        },
+        forward: {
+          description:
+            'Teruskan email dengan catatan di atasnya, misalnya “carikan waktu dengan mereka minggu depan”, dan agen yang melanjutkan.',
+          title: 'Teruskan ke agen',
+        },
+        handle: {
+          description:
+            'Serahkan percakapan beserta tujuannya, dan agen menuntaskannya sampai akhir, selalu bertanya sebelum mengirim.',
+          title: 'Urus ini',
+        },
+        reading: {
+          description:
+            'Newsletter hari ini dalam satu daftar yang tenang, masing-masing diringkas dalam beberapa kalimat.',
+          title: 'Bacaan',
+        },
+        voice: {
+          description:
+            'Dengarkan ringkasan di Telegram, WhatsApp, atau aplikasi, dan balas bot dengan pesan suara.',
+          title: 'Dengarkan ringkasan',
+        },
+        wrapped: {
+          description:
+            'Bulan atau tahunmu dalam email: apa yang masuk, apa yang ditangani, berapa banyak waktu yang kembali padamu. Bisa dibagikan, tanpa pernah menampilkan nama.',
+          title: 'Tahunmu dalam email',
+        },
+      },
+      label: 'Dan selebihnya',
+      title: 'Semua hal lain yang biasa dikerjakan seorang asisten.',
+    },
     footer: {
       legal: 'Legal',
       product: 'Produk',
@@ -1147,47 +1091,121 @@ export const id: Messages = {
         'Agen email yang membaca Gmail-mu dan hanya menampilkan yang butuh kamu.',
       versus: (name: string) => `vs ${name}`,
     },
-    hero: {
-      lead: 'Fewmail adalah agen email untuk Gmail. Ia membaca setiap email untukmu, menyusun balasan dengan gayamu, dan memberimu satu daftar singkat berisi yang benar-benar butuh kamu.',
-      start: 'Mulai gratis dengan Google',
+    gone: {
+      emphasis: 'tak lagi kamu alami.',
+      label: 'Yang hilang',
+      rows: [
+        {
+          fix: 'Bersihkan kotak masuk menyingkirkan semua tumpukan lama sekaligus: iklan lama, notifikasi yang sudah dibaca, milis yang tak pernah kamu buka. Satu klik mengembalikan semuanya.',
+          problem: 'Ribuan email yang tak akan pernah dibaca siapa pun.',
+        },
+        {
+          fix: 'Balasan disusun lebih awal, dengan gayamu dan dalam bahasa mereka. Yang mirip bisa disetujui sekaligus dengan ⇧⏎, dan tetap bisa kamu periksa satu per satu.',
+          problem: 'Membalas email tengah malam.',
+        },
+        {
+          fix: 'Satu tombol berhenti berlangganan seperti yang dilakukan orang: satu klik, halaman berhenti langganan, atau sebuah email. Pengirim yang terus menulis langsung masuk spam.',
+          problem: 'Newsletter yang tak pernah kamu daftari.',
+        },
+        {
+          fix: 'Bacaan mengumpulkan newsletter hari ini dalam satu daftar, masing-masing diringkas dalam beberapa kalimat.',
+          problem: 'Newsletter yang ingin kamu baca.',
+        },
+        {
+          fix: 'Detail pembayaran yang berubah, domain tiruan, dan phishing yang sudah dikenal memunculkan peringatan sebelum kamu bertindak.',
+          problem: 'Tagihan dengan detail rekening baru.',
+        },
+        {
+          fix: 'Janji yang kamu buat di email terkirim kembali padamu saat waktunya tiba, dan percakapan yang tak dibalas siapa pun akan ditindaklanjuti.',
+          problem: 'Hal yang kamu janjikan lalu terlupa.',
+        },
+        {
+          fix: 'Hanya email mendesak yang sampai ke Telegram atau WhatsApp. Sisanya menunggu ringkasan pagi, yang juga bisa kamu dengarkan.',
+          problem: 'Mengecek email saat makan malam, jaga-jaga.',
+        },
+      ],
+      title: 'Masalah email yang tak lagi kamu alami.',
     },
-    memory: {
-      ask: {
-        description:
-          'Ajukan pertanyaan di ⌘K dan dapatkan jawaban dari emailmu sendiri, lengkap dengan email sumbernya.',
-        title: 'Tanya emailmu',
+    hero: {
+      brief: {
+        emphasis: 'butuh kamu.',
+        lead: (handled: string) =>
+          `Anna menunggu kontraknya, tagihan Northwind jatuh tempo minggu depan, dan Marco minta hari Kamis. ${handled} newsletter dan notifikasi sudah ditangani.`,
+        tag: 'Ringkasan Kamis · 08:00',
+        title: 'Tiga hal butuh kamu.',
       },
-      boards: {
-        description:
-          'Jelaskan apa yang ingin dilacak (uang, perjalanan, pesanan) dan agen mengumpulkannya dari emailmu, lengkap dengan grafik, mulai dari enam bulan terakhir.',
-        title: 'Papan',
+      fates: {
+        archived: 'Diarsipkan',
+        markedRead: 'Ditandai dibaca',
+        spam: 'Spam',
+        summarised: 'Diringkas',
+        unsubscribed: 'Berhenti langganan',
       },
-      followUps: {
-        description:
-          'Email yang menunggu jawaban akan ditindaklanjuti, jadi tak ada percakapan yang mati diam-diam.',
-        title: 'Tindak lanjut',
+      handled: ((slots) => [
+        slots.count,
+        ' ditangani, masing-masing dengan alasannya',
+      ]) as Rich<'count'>,
+      inbox: 'Kotak masuk',
+      lead: 'Newsletter, struk, notifikasi, sebuah tautan phishing, dan di antaranya, tiga email yang benar-benar penting. Fewmail adalah agen yang membaca semuanya untukmu.',
+      needYou: ((slots) => [slots.count, ' butuh kamu']) as Rich<'count'>,
+      queue: [
+        {
+          reason: 'Kontrak jatuh tempo besok',
+          summary:
+            'Kontrak yang sudah ditandatangani perlu dikirim balik sebelum kickoff hari Jumat.',
+        },
+        {
+          reason: 'Tagihan · $1,240, jatuh tempo 20 Nov',
+          summary:
+            'Tagihan Oktober untuk desain ulang situs web. Detail rekeningnya sama seperti sebelumnya.',
+        },
+        {
+          reason: 'Usulan rapat',
+          summary:
+            'Mengusulkan Kamis pukul 15:00. Kamu baru luang mulai 16:00, jadi drafnya meminta jam empat.',
+        },
+      ],
+      reading: {
+        emphasis: 'setiap email.',
+        lead: 'Ia mengarsipkan yang tak penting, menghentikan langganan yang tak pernah kamu buka, dan menghadang penipuan di depan pintu. Semua yang dilakukannya dicatat beserta alasannya, jadi kamu bisa memeriksanya.',
+        title: 'Fewmail membaca setiap email.',
       },
-      handle: {
-        description:
-          'Bilang “urus ini” dan agen menggarap percakapan menuju tujuanmu, bertanya sebelum setiap pengiriman atau mengirim sendiri.',
-        title: 'Urus ini',
-      },
-      people: {
-        description:
-          'Catatan singkat tentang setiap orang yang kamu kirimi email, diperbarui setiap minggu, tepat di samping email mereka.',
-        title: 'Orang',
-      },
-      promises: {
-        description:
-          'Janji yang kamu buat di email terkirim akan kembali padamu saat waktunya tiba, sebelum ada yang perlu menagihnya.',
-        title: 'Janji ditepati',
-      },
+      remind: 'Ingatkan aku 19 Nov',
+      remindPlan: 'Menambahkannya ke tagihanmu dan mengingatkanmu pada 19 Nov.',
+      start: 'Mulai gratis dengan Google',
+      title: 'Email bukan pekerjaanmu.',
+      today: 'Hari ini',
+      tryQueue: 'Coba antreannya',
+      unread: ((slots) => [slots.count, ' belum dibaca']) as Rich<'count'>,
+      unreadInbox: ((slots) => [
+        slots.count,
+        ' belum dibaca di kotak masukmu',
+      ]) as Rich<'count'>,
+      willDo: 'Yang akan dilakukan Fewmail',
     },
     nav: {
       compare: 'Bandingkan',
       features: 'Fitur',
+      mcp: 'Server MCP',
       pricing: 'Harga',
       signIn: 'Masuk',
+    },
+    play: {
+      again: 'Bersihkan lagi',
+      doneLead: (handled: string) =>
+        `Kamu membuat tiga keputusan. Fewmail mengurus ${handled} sisanya dan mencatat alasannya.`,
+      doneTitle: 'Selesai untuk hari ini.',
+      emphasis: 'dalam dua menit.',
+      handled: [
+        'Lumen Weekly: kamu tidak membuka satu pun dari 30 edisi terakhir',
+        'paypa1-billing.com mirip paypal.com',
+        'Parcelhub: pemberitahuan pengiriman, lewat aturan “Struk dan pengiriman”',
+      ],
+      handledTitle: 'Ditangani selagi kamu tidur',
+      label: 'Coba',
+      lead: 'Beginilah pagi sekarang. Drafnya sudah ditulis, alasannya sudah ada, kamu yang memutuskan. Ayo, bereskan.',
+      left: (count: number) => `${count} perlu diputuskan`,
+      title: 'Seluruh kotak masukmu, dalam dua menit.',
     },
     plans: {
       everythingIn: (plan: string) => `Semua yang ada di ${plan}, plus`,
@@ -1233,14 +1251,33 @@ export const id: Messages = {
       otherTool: 'Sedang mempertimbangkan aplikasi lain?',
       title: 'Bayar untuk agennya, bukan kotak masuknya.',
     },
-    promises: [
-      'Tidak ada yang terkirim tanpa persetujuanmu',
-      'Emailmu dienkripsi saat disimpan',
-      'Tidak pernah dipakai untuk melatih model',
-    ],
     startFree: 'Mulai gratis',
     trialNote: (days: number) =>
       `${days} hari Pro, tanpa kartu. Setelah itu gratis selama kamu mau.`,
+    trust: {
+      emphasis: 'bertanya',
+      label: 'Emailmu, keputusanmu',
+      places:
+        'Bekerja di atas Gmail yang sudah kamu pakai, dan menjangkaumu di',
+      title: 'Ia bertanya sebelum bertindak.',
+      vows: [
+        {
+          description:
+            'Draf menunggumu. Hanya aturan yang kamu buat atau pertahankan yang boleh mengarsipkan, menandai dibaca, atau berhenti langganan sendiri, dan semua yang dilakukannya tercatat di Sudah ditangani.',
+          title: 'Tidak ada yang terkirim tanpa persetujuanmu.',
+        },
+        {
+          description:
+            'Subjek, isi, ringkasan, dan draf dienkripsi di database kami. Draf yang tersimpan tetap di Gmail, tidak pernah di tempat kami.',
+          title: 'Dienkripsi saat disimpan.',
+        },
+        {
+          description:
+            'Perisai spam belajar dari semua pengguna lewat hash berkunci. Tidak satu alamat atau satu kata pun dari emailmu yang dibagikan.',
+          title: 'Tidak pernah dipakai untuk melatih model.',
+        },
+      ],
+    },
   },
   skills: {
     bills: 'Tagihan dan pembayaran jatuh tempo',

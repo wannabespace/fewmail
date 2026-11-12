@@ -55,6 +55,8 @@ import { Response } from '@fewmail/ui/components/response'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
+  Mic01Icon,
+  StopIcon,
   CancelCircleIcon,
   News01Icon,
   Alert02Icon,
@@ -97,6 +99,7 @@ import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
 import { client, limitText, orpc, refetchChanged } from '~/lib/orpc'
+import { speakAloud, useVoice } from '~/lib/voice'
 
 import { useCompose } from './compose/compose-context'
 import { DraftText } from './queue-card'
@@ -776,6 +779,30 @@ const UserBubble = ({ text }: { text: string }) => {
   )
 }
 
+const VoiceButton = ({
+  isBusy,
+  voice,
+}: {
+  isBusy: boolean
+  voice: ReturnType<typeof useVoice>
+}) => {
+  const t = useT()
+  const isRecording = voice.state === 'recording'
+
+  return (
+    <IconButton
+      className="ml-auto"
+      disabled={voice.state === 'hearing' || isBusy}
+      icon={isRecording ? StopIcon : Mic01Icon}
+      label={isRecording ? t.agent.voiceStop : t.agent.voice}
+      shortcut={<Kbd>⌘⇧Space</Kbd>}
+      size="icon-round"
+      variant={isRecording ? 'destructive' : 'ghost-muted'}
+      onClick={() => voice.toggle()}
+    />
+  )
+}
+
 const textOf = (message: UIMessage) =>
   message.parts
     .flatMap((part) => (part.type === 'text' ? [part.text] : []))
@@ -854,6 +881,8 @@ export const AgentChat = ({
   const [dismissedText, setDismissedText] = useState<string | null>(null)
   const [detachedThread, setDetachedThread] = useState<string>()
   const composerRef = useRef<HTMLTextAreaElement>(null)
+  /** The turn the user spoke is answered aloud too. */
+  const isSpokenTurn = useRef(false)
   const openThread = useOpenThread(thread)
   const attached = thread === detachedThread ? undefined : openThread
   const {
@@ -867,7 +896,11 @@ export const AgentChat = ({
   } = useChat({
     id: chatId,
     messages: initialMessages,
-    onFinish: ({ message }) =>
+    onFinish: ({ message }) => {
+      if (isSpokenTurn.current) {
+        isSpokenTurn.current = false
+        void speakAloud(textOf(message))
+      }
       refetchChanged(
         message.parts.some(
           (part) =>
@@ -876,7 +909,8 @@ export const AgentChat = ({
         )
           ? null
           : ['chats', 'me']
-      ),
+      )
+    },
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     transport,
   })
@@ -903,8 +937,8 @@ export const AgentChat = ({
     setText('')
     setEditingId(null)
   }
-  const send = () => {
-    const value = text.trim()
+  const send = (spoken?: string) => {
+    const value = spoken ?? text.trim()
     if (!value || isBusy) {
       return
     }
@@ -965,6 +999,11 @@ export const AgentChat = ({
       ignoreInputs: false,
     }
   )
+  const voice = useVoice((heard) => {
+    isSpokenTurn.current = true
+    send(heard)
+  })
+  useHotkey('Mod+Shift+Space', voice.toggle, { ignoreInputs: false })
   useHotkey('/', () => composerRef.current?.focus())
   useHotkey(
     'R',
@@ -1181,9 +1220,9 @@ export const AgentChat = ({
               <HugeiconsIcon icon={SlashIcon} strokeWidth={2} />
               {t.agent.skills}
             </InputGroupButton>
+            <VoiceButton isBusy={isBusy} voice={voice} />
             {isBusy ? (
               <IconButton
-                className="ml-auto"
                 icon={StopCircleIcon}
                 label={t.agent.stop}
                 shortcut={<Kbd>esc</Kbd>}
@@ -1195,7 +1234,6 @@ export const AgentChat = ({
               />
             ) : (
               <IconButton
-                className="ml-auto"
                 disabled={!text.trim()}
                 icon={ArrowUp02Icon}
                 label={t.agent.send}

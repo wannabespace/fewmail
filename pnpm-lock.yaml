@@ -215,6 +215,9 @@ catalogs:
     '@orpc/tanstack-query':
       specifier: 2.0.0-beta.48
       version: 2.0.0-beta.48
+    '@resvg/resvg-wasm':
+      specifier: ^2.6.2
+      version: 2.6.2
     '@rolldown/plugin-babel':
       specifier: ^0.2.4
       version: 0.2.4
@@ -508,6 +511,9 @@ importers:
       '@orpc/server':
         specifier: 'catalog:'
         version: 2.0.0-beta.48
+      '@resvg/resvg-wasm':
+        specifier: 'catalog:'
+        version: 2.6.2
       '@typesafe-ai/sdk':
         specifier: 'catalog:'
         version: 0.7.0
@@ -2165,6 +2171,10 @@ packages:
         optional: true
       react-redux:
         optional: true
+
+  '@resvg/resvg-wasm@2.6.2':
+    resolution: {integrity: sha512-FqALmHI8D4o6lk/LRWDnhw95z5eO+eAa6ORjVg09YRR7BkcM6oPHU9uyC0gtQG5vpFLvgpeU4+zEAz2H8APHNw==}
+    engines: {node: '>= 10'}
 
   '@rolldown/binding-android-arm-eabi@1.2.16':
     resolution: {integrity: sha512-ia3DwAs0OsMGS7+IConptSiyk9pEXkOx/AbJ2n/lAGxH3QkWQus1t8d7gnAT38FCU2sQu8lUbeR6AiZFv4JxaA==}
@@ -6765,6 +6775,8 @@ snapshots:
       '@types/react': 19.3.0
       react: 19.3.1
       react-redux: 9.3.1(@types/react@19.3.0)(react@19.3.1)(redux@5.0.1)
+
+  '@resvg/resvg-wasm@2.6.2': {}
 
   '@rolldown/binding-android-arm-eabi@1.2.16':
     optional: true

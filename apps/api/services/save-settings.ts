@@ -34,8 +34,10 @@ export const saveSettings = async (
     starterBoards?: BoardPreset[]
     gmailLabels?: boolean
     knowledge?: string | null
+    readingDigest?: boolean
     timezone: string
     voice?: string | null
+    voiceBrief?: boolean
   }
 ) => {
   const before = await getSettings(userId)

@@ -23,6 +23,7 @@ import type {
 } from './services/messenger'
 import {
   briefReply,
+  readingReply,
   failureText,
   follow,
   hear,
@@ -342,8 +343,26 @@ const push = async (
   })
 }
 
-export const sendWhatsappBrief = (userId: string, brief: BriefMessage) =>
-  push(userId, brief.headline, 'brief', (chat, t) => briefReply(chat, t, brief))
+export const sendWhatsappBrief = (
+  userId: string,
+  brief: BriefMessage,
+  voice?: string
+) =>
+  push(userId, brief.headline, 'brief', (chat, t) => ({
+    ...briefReply(chat, t, brief),
+    voice,
+  }))
+
+/** Outside the 24-hour window the template's button fetches the digest (`reading`). */
+export const sendWhatsappReading = async (
+  userId: string,
+  rows: Parameters<typeof readingReply>[2]
+) => {
+  const t = await messagesFor(userId)
+  await push(userId, t.reading.digest(rows.length), 'reading', (chat, chatT) =>
+    readingReply(chat, chatT, rows)
+  )
+}
 
 /** The template's button brings back this run's answer, not the daily brief. */
 export const sendWhatsappSchedule = (

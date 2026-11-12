@@ -28,6 +28,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { BriefHourSelect } from '~/components/agent-fields'
+import { BoardBanners } from '~/components/board-banners'
 import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
@@ -625,6 +626,10 @@ const TodayPage = () => {
               queued={queue.length}
             />
           </header>
+
+          {data && data.banners.length > 0 && (
+            <BoardBanners banners={data.banners} />
+          )}
 
           <section
             aria-label={t.today.worthAttention}

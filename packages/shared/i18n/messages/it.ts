@@ -176,24 +176,6 @@ export const it: Messages = {
   },
   site: {
     chapters: {
-      compare: {
-        description:
-          'La maggior parte degli strumenti ti aiuta a smaltire la posta più in fretta. Fewmail la smaltisce per te.',
-        label: 'Confronto',
-        title: 'Cosa rende Fewmail diverso.',
-      },
-      control: {
-        description:
-          'Di’ a Fewmail con parole tue cosa fare con la posta, scegli quali regole possono agire da sole e rivedi tutto ciò che ha fatto in Gestite.',
-        label: 'Controllo',
-        title: 'Le regole le decidi tu. Lui mostra il suo lavoro.',
-      },
-      memory: {
-        description:
-          'Fewmail tiene traccia di ciò che hai promesso, di chi sono le persone, di cosa paghi e dei thread che sta ancora seguendo per te.',
-        label: 'Memoria',
-        title: 'Si ricorda tutto, così tu non devi.',
-      },
       pricing: {
         description:
           'Smistamento, regole e protezione sono gratis per sempre. Pro e Max aggiungono tutto ciò che legge e scrive per te; Max semplicemente ne fa di più.',
@@ -201,40 +183,28 @@ export const it: Messages = {
         title: (usd: number) =>
           `Lo smistamento è gratis. L’agente, da $${usd}.`,
       },
-      protection: {
-        description:
-          'Ogni piano include uno scudo antispam della community che impara da chi usa Fewmail, senza mai condividere un indirizzo né una parola della tua posta. Domini che ne imitano altri, phishing noto e coordinate di pagamento cambiate fanno scattare un avviso prima che tu agisca.',
-        label: 'Protezione',
-        title: 'Le truffe restano fuori dalla porta.',
-      },
       questions: {
         description:
           'Le risposte brevi. Quelle lunghe sono nell’informativa sulla privacy.',
         label: 'Domande',
         title: 'Prima di collegare Gmail.',
       },
-      replies: {
-        description:
-          'Fewmail impara come scrivi dalla posta che hai inviato, poi prepara le risposte in anticipo, nella lingua dell’email. Modificale, chiedi un’altra versione o inviale così come sono. Non parte nulla senza il tuo sì.',
-        label: 'Risposte',
-        title: 'Risposte con la tua voce, nella loro lingua.',
-      },
-      telegram: {
-        description:
-          'Ricevi il brief e la posta urgente su Telegram, approva una risposta con un tocco o manda semplicemente un vocale: «di’ a Marco che giovedì va bene». Fewmail trova il thread e scrive la bozza.',
-        label: 'Telegram',
-        title: 'La tua posta, da una chat.',
-      },
-      today: {
-        description:
-          'Ogni giorno, all’ora che scegli, Fewmail scrive un brief breve nella tua lingua e mette in coda le poche email che richiedono una decisione, le più importanti per prime. Approva con ⏎, salta con S; il resto è già gestito, e puoi vedere esattamente cosa ha fatto.',
-        label: 'Oggi',
-        title: 'Un brief. Una coda. Ecco la tua posta.',
-      },
     },
     closing: {
       lead: 'Collega Gmail in un minuto. Fewmail parte dalla posta degli ultimi tre giorni, così le prime decisioni ti aspettano subito.',
       title: 'Riprenditi le mattine.',
+    },
+    mcp: {
+      answer:
+        'Il contratto firmato, prima del kickoff di venerdì. Una risposta è già pronta e ti aspetta nella tua coda di Fewmail.',
+      clients: 'Funziona con',
+      emphasis: 'Claude e ChatGPT.',
+      free: 'Leggere la posta e lo smistamento dell’agente sono gratis.',
+      label: 'MCP',
+      lead: 'Collega Fewmail come server MCP e chiedi della tua posta all’assistente che usi già. Tutto ciò che invia un’email o cambia Gmail chiede comunque il tuo sì.',
+      question: 'Di cosa ha bisogno Anna da me questa settimana?',
+      setup: 'Collegalo in un minuto',
+      title: 'La tua posta, dentro Claude e ChatGPT.',
     },
     mcpPage: {
       copy: 'Copia URL',
@@ -393,84 +363,6 @@ export const it: Messages = {
           'Scegli Superhuman se vuoi toccare ogni email da solo, più in fretta. Scegli Fewmail se preferisci non vederne la maggior parte.',
       },
     },
-    control: {
-      gmail: {
-        description:
-          'Le etichette Fewmail, facoltative, mostrano lo smistamento direttamente in Gmail, sul telefono e in qualsiasi altra app di posta.',
-        title: 'Funziona con qualsiasi app Gmail',
-      },
-      handled: {
-        description:
-          'Tutto ciò che l’agente ha fatto da solo è elencato in Gestite, ognuna con il motivo per cui ha agito.',
-        title: 'Gestite, alla luce del sole',
-      },
-      keyboard: {
-        description:
-          'Ogni azione ha il suo tasto e ⌘K arriva ovunque. Le mani non lasciano mai la tastiera.',
-        title: 'Prima la tastiera',
-      },
-      mcp: {
-        description:
-          'Collega Claude o qualsiasi client MCP e lascia che legga, smisti e scriva bozze con lo stesso agente.',
-        title: 'Server MCP',
-      },
-      privacy: {
-        description:
-          'Oggetti, testi, riepiloghi e bozze sono cifrati nel nostro database. L’invio richiede sempre la tua approvazione.',
-        title: 'Privato per progetto',
-      },
-      rules: {
-        description:
-          '«Newsletter che non apro mai» o «ricevute dei negozi»: archivia, segna come letta o disiscriviti.',
-        title: 'Regole a parole semplici',
-      },
-    },
-    demos: {
-      draft: {
-        expectsReply: 'Attende risposta',
-        language: 'In tedesco, come Lena',
-        redraft: 'Riscrivi',
-      },
-      shield: [
-        {
-          detail: 'paypa1-billing.com imita paypal.com',
-          label: 'Dominio ingannevole',
-        },
-        {
-          detail: 'Nuovo IBAN in una fattura di un fornitore noto',
-          label: 'Coordinate di pagamento cambiate',
-        },
-        {
-          detail: '9 persone hanno segnalato questa campagna come spam',
-          label: 'Spostata nello spam',
-        },
-      ],
-      telegram: {
-        draftReady: 'Bozza pronta per Marco: giovedì alle 16:00. La invio?',
-        urgent:
-          'Gli serve il contratto firmato entro venerdì. Ho preparato una risposta.',
-        voice: '«Di’ a Marco che giovedì va bene, ma alle quattro.»',
-      },
-      today: {
-        brief:
-          'Anna aspetta il contratto, la fattura di Northwind scade la settimana prossima e Marco vuole uno spazio giovedì. Quarantadue newsletter e notifiche sono state gestite.',
-        day: 'Brief di giovedì',
-        queue: [
-          {
-            reason: 'Contratto entro domani',
-            summary: 'Serve il contratto firmato prima del kickoff di venerdì.',
-          },
-          {
-            reason: 'Fattura · 1.240 $ entro il 20 nov',
-            summary: 'Fattura di ottobre per il restyling del sito.',
-          },
-          {
-            reason: 'Riunione proposta',
-            summary: 'Propone giovedì alle 15:00 per la revisione trimestrale.',
-          },
-        ],
-      },
-    },
     faq: (trialDays: number) => [
       {
         answer:
@@ -502,6 +394,59 @@ export const it: Messages = {
         question: 'Quali account email funzionano?',
       },
     ],
+    features: {
+      description:
+        'Le parti della posta che prima ti rubavano un pomeriggio, fatte in background ed elencate dove puoi controllarle.',
+      items: {
+        ask: {
+          description:
+            'Chiedi qualsiasi cosa a parole tue e ottieni la risposta dalla tua posta, con le email da cui proviene.',
+          title: 'Chiedi alla tua posta',
+        },
+        boards: {
+          description:
+            'Soldi, abbonamenti a pagamento, viaggi, ordini: descrivi cosa tenere d’occhio e l’agente lo raccoglie da sei mesi di posta, con grafici.',
+          title: 'Bacheche',
+        },
+        calendar: {
+          description:
+            'Il calendario di ogni casella in un’unica vista. Una riunione proposta in un’email diventa un evento appena dici sì.',
+          title: 'Calendario',
+        },
+        clearOut: {
+          description:
+            'Tutto l’arretrato via in un colpo, fino a 50.000 email per casella, tutte sotto un’unica etichetta, così con «Riporta tutto» tornano tutte indietro. Gratis.',
+          title: 'Fai pulizia',
+        },
+        forward: {
+          description:
+            'Inoltra un’email con una nota in cima, «trova un momento con loro la settimana prossima», e l’agente pensa al resto.',
+          title: 'Inoltra all’agente',
+        },
+        handle: {
+          description:
+            'Affida un thread con un obiettivo e l’agente lo porta fino in fondo, chiedendo prima di ogni invio.',
+          title: 'Occupatene tu',
+        },
+        reading: {
+          description:
+            'Le newsletter del giorno in un’unica lista tranquilla, ognuna riassunta in poche frasi.',
+          title: 'Lettura',
+        },
+        voice: {
+          description:
+            'Ascolta il brief su Telegram, WhatsApp o nell’app, e rispondi al bot con un vocale.',
+          title: 'Ascolta il brief',
+        },
+        wrapped: {
+          description:
+            'Il tuo mese o il tuo anno in email: cosa è arrivato, cosa è stato gestito, quanto tempo hai recuperato. Da condividere, mai con un nome.',
+          title: 'Il tuo anno in email',
+        },
+      },
+      label: 'E il resto',
+      title: 'Tutto il resto che farebbe un assistente.',
+    },
     footer: {
       legal: 'Note legali',
       product: 'Prodotto',
@@ -509,47 +454,123 @@ export const it: Messages = {
         'L’agente email che legge il tuo Gmail e ti mostra solo ciò che richiede te.',
       versus: (name: string) => `vs ${name}`,
     },
-    hero: {
-      lead: 'Fewmail è un agente email per Gmail. Legge ogni email al posto tuo, scrive le risposte con la tua voce e ti consegna una sola lista breve di ciò che ha davvero bisogno di te.',
-      start: 'Inizia gratis con Google',
+    gone: {
+      emphasis: 'non avrai più.',
+      label: 'Cosa sparisce',
+      rows: [
+        {
+          fix: 'Fai pulizia toglie tutto l’arretrato in un colpo: vecchie pubblicità, notifiche lette, liste che non apri mai. Con un solo «Riporta tutto» ogni email torna indietro.',
+          problem: 'Migliaia di email che nessuno leggerà mai.',
+        },
+        {
+          fix: 'Le risposte sono scritte in anticipo, con la tua voce e nella loro lingua. Quelle simili si approvano insieme con ⇧⏎, e puoi comunque controllarle una per una.',
+          problem: 'Rispondere alle email a mezzanotte.',
+        },
+        {
+          fix: 'Un tasto ti disiscrive come farebbe una persona: un clic, la pagina di disiscrizione o un’email. Chi continua a scrivere finisce dritto nello spam.',
+          problem: 'Newsletter a cui non ti sei mai iscritto.',
+        },
+        {
+          fix: 'Lettura raccoglie le newsletter del giorno in un’unica lista, ognuna riassunta in poche frasi.',
+          problem: 'Newsletter che volevi leggere.',
+        },
+        {
+          fix: 'Coordinate di pagamento cambiate, domini che ne imitano altri e phishing noto fanno scattare un avviso prima che tu agisca.',
+          problem: 'Una fattura con nuove coordinate bancarie.',
+        },
+        {
+          fix: 'Le promesse che fai nella posta inviata tornano da te quando scadono, e i thread senza risposta ricevono un sollecito.',
+          problem: 'Quella cosa che avevi promesso e poi dimenticato.',
+        },
+        {
+          fix: 'Solo la posta urgente ti raggiunge su Telegram o WhatsApp. Il resto aspetta il brief del mattino, che puoi anche ascoltare.',
+          problem: 'Controllare la posta a cena, per sicurezza.',
+        },
+      ],
+      title: 'I problemi di posta che non avrai più.',
     },
-    memory: {
-      ask: {
-        description:
-          'Fai una domanda in ⌘K e ottieni una risposta dalla tua posta, con le email da cui proviene.',
-        title: 'Chiedi alla tua posta',
+    hero: {
+      brief: {
+        emphasis: 'hanno bisogno di te.',
+        lead: (handled: string) =>
+          `Anna aspetta il contratto, la fattura di Northwind scade la settimana prossima e Marco vuole giovedì. ${handled} newsletter e notifiche sono state gestite.`,
+        tag: 'Brief di giovedì · 08:00',
+        title: 'Tre cose hanno bisogno di te.',
       },
-      boards: {
-        description:
-          'Descrivi cosa tenere d’occhio (soldi, viaggi, ordini) e l’agente lo raccoglie dalla tua posta, con grafici, partendo dagli ultimi sei mesi.',
-        title: 'Bacheche',
+      fates: {
+        archived: 'Archiviata',
+        markedRead: 'Segnata come letta',
+        spam: 'Spam',
+        summarised: 'Riassunta',
+        unsubscribed: 'Disiscrizione',
       },
-      followUps: {
-        description:
-          'La posta che attende una risposta riceve un sollecito, così nessun thread si spegne in silenzio.',
-        title: 'Solleciti',
+      handled: ((slots) => [
+        slots.count,
+        ' gestite, ognuna con il suo motivo',
+      ]) as Rich<'count'>,
+      inbox: 'Posta in arrivo',
+      lead: 'Newsletter, ricevute, notifiche, un link di phishing e, da qualche parte lì in mezzo, le tre email che contano davvero. Fewmail è l’agente che le legge tutte per te.',
+      needYou: ((slots) => [
+        slots.count,
+        ' hanno bisogno di te',
+      ]) as Rich<'count'>,
+      queue: [
+        {
+          reason: 'Contratto entro domani',
+          summary: 'Serve il contratto firmato prima del kickoff di venerdì.',
+        },
+        {
+          reason: 'Fattura · $1,240 entro il 20 nov',
+          summary:
+            'Fattura di ottobre per il restyling del sito. Stesse coordinate bancarie dell’ultima volta.',
+        },
+        {
+          reason: 'Riunione proposta',
+          summary:
+            'Propone giovedì alle 15:00. Sei libero solo dalle 16:00, quindi la bozza chiede quell’orario.',
+        },
+      ],
+      reading: {
+        emphasis: 'le legge tutte.',
+        lead: 'Archivia il rumore, ti disiscrive da ciò che non apri mai e ferma la truffa alla porta. Ogni cosa che fa viene annotata con il motivo, così puoi controllarla.',
+        title: 'Fewmail le legge tutte.',
       },
-      handle: {
-        description:
-          'Di’ «occupatene tu» e l’agente porta avanti il thread verso il tuo obiettivo, chiedendo prima di ogni invio o inviando da solo.',
-        title: 'Occupatene tu',
-      },
-      people: {
-        description:
-          'Una breve nota su ogni persona a cui scrivi, aggiornata ogni settimana, proprio accanto alla sua email.',
-        title: 'Persone',
-      },
-      promises: {
-        description:
-          'Le promesse che fai nella posta inviata tornano da te quando scadono, prima che qualcuno debba sollecitarti.',
-        title: 'Promesse mantenute',
-      },
+      remind: 'Ricordamelo il 19 nov',
+      remindPlan: 'La aggiunge alle tue bollette e te la ricorda il 19 nov.',
+      start: 'Inizia gratis con Google',
+      title: 'La posta non è il tuo lavoro.',
+      today: 'Oggi',
+      tryQueue: 'Prova la coda',
+      unread: ((slots) => [slots.count, ' non lette']) as Rich<'count'>,
+      unreadInbox: ((slots) => [
+        slots.count,
+        ' non lette nella posta in arrivo',
+      ]) as Rich<'count'>,
+      willDo: 'Cosa farà Fewmail',
     },
     nav: {
       compare: 'Confronto',
       features: 'Funzioni',
+      mcp: 'Server MCP',
       pricing: 'Prezzi',
       signIn: 'Accedi',
+    },
+    play: {
+      again: 'Svuotala di nuovo',
+      doneLead: (handled: string) =>
+        `Hai preso tre decisioni. Fewmail si è occupato delle altre ${handled} e ha annotato il perché.`,
+      doneTitle: 'Per oggi è tutto.',
+      emphasis: 'in due minuti.',
+      handled: [
+        'Lumen Weekly: non hai aperto nessuno degli ultimi 30 numeri',
+        'paypa1-billing.com imita paypal.com',
+        'Parcelhub: avvisi di consegna, con la regola «Ricevute e spedizioni»',
+      ],
+      handledTitle: 'Gestite mentre dormivi',
+      label: 'Provalo',
+      lead: 'Ecco com’è una mattina adesso. Le bozze sono scritte, i motivi sono spiegati, decidi tu. Dai, svuotala.',
+      left: (count: number) => `${count} da decidere`,
+      title: 'Tutta la tua posta, in due minuti.',
     },
     plans: {
       everythingIn: (plan: string) => `Tutto di ${plan}, in più`,
@@ -596,14 +617,32 @@ export const it: Messages = {
       otherTool: 'Stai valutando un altro strumento?',
       title: 'Paghi l’agente, non la casella.',
     },
-    promises: [
-      'Nulla viene inviato senza la tua approvazione',
-      'La tua posta è cifrata a riposo',
-      'Mai usata per addestrare modelli',
-    ],
     startFree: 'Inizia gratis',
     trialNote: (days: number) =>
       `${days} giorni di Pro, senza carta. Poi gratis per tutto il tempo che vuoi.`,
+    trust: {
+      emphasis: 'Chiede',
+      label: 'La tua posta, la tua parola',
+      places: 'Funziona sopra il Gmail che usi già, e ti raggiunge su',
+      title: 'Chiede prima di agire.',
+      vows: [
+        {
+          description:
+            'Le bozze ti aspettano. Solo le regole che hai creato o tenuto possono archiviare, segnare come letto o disiscriverti da sole, e tutto ciò che hanno fatto è elencato in Gestite.',
+          title: 'Non parte nulla senza il tuo sì.',
+        },
+        {
+          description:
+            'Oggetti, testi, riepiloghi e bozze sono cifrati nel nostro database. Le bozze salvate restano in Gmail, mai da noi.',
+          title: 'Cifrata a riposo.',
+        },
+        {
+          description:
+            'Lo scudo antispam impara da tutti tramite hash con chiave. Non si condivide un solo indirizzo né una parola della tua posta.',
+          title: 'Mai usata per addestrare modelli.',
+        },
+      ],
+    },
   },
   skills: {
     bills: 'Bollette e pagamenti in scadenza',

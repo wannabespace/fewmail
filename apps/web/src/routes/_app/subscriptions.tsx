@@ -37,12 +37,22 @@ const SubscriptionsPage = () => {
         queryClient.setQueryData<Subscription[]>(listKey, (previous) =>
           previous?.filter((row) => row.messageId !== messageId)
         ),
-      onSuccess: ({ unsubscribed }) =>
+      onSuccess: ({ link, unsubscribed }) => {
+        if (link) {
+          toast(t.mail.unsubscribeYourself, {
+            action: {
+              label: t.mail.openUnsubscribePage,
+              onClick: () => window.open(link, '_blank', 'noopener'),
+            },
+          })
+          return
+        }
         toast.success(
           unsubscribed
             ? t.subscriptions.unsubscribed
             : t.subscriptions.archivedOnly
-        ),
+        )
+      },
       onSettled: () => refetchChanged(['subscriptions', 'mail', 'rules']),
     })
   )

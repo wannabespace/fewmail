@@ -4,6 +4,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { db } from '@fewmail/db'
 import { analyses, messages, unsubscribes } from '@fewmail/db/schema'
 import type { WrappedPeriod, WrappedStats } from '@fewmail/shared/agent'
+import type { Locale } from '@fewmail/shared/i18n/locales'
 import { and, count, desc, eq, gte, inArray, sql } from 'drizzle-orm'
 
 import { env } from '../env'
@@ -86,8 +87,10 @@ const signature = (payload: string) =>
     .update(`wrapped:${payload}`)
     .digest('base64url')
 
-interface Shared {
+export interface Shared {
   label: string
+  /** The sharer's language, for the link's preview image; absent on links made before it. */
+  locale?: Locale
   period: WrappedPeriod
   stats: WrappedStats
 }
@@ -141,7 +144,12 @@ export const getWrapped = async (userId: string, period: WrappedPeriod) => {
     label,
     people,
     period,
-    shareToken: shareToken({ label, period, stats }),
+    shareToken: shareToken({
+      label,
+      locale: settings.language,
+      period,
+      stats,
+    }),
     stats,
   }
 }

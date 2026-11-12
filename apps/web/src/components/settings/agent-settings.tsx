@@ -47,6 +47,28 @@ export const AgentSettings = () => {
       {hasAgent && (
         <>
           <SettingsRow
+            title={t.settings.readingDigest.title}
+            description={t.settings.readingDigest.description}
+            htmlFor="reading-digest"
+          >
+            <Switch
+              id="reading-digest"
+              checked={settings.readingDigest}
+              onCheckedChange={(readingDigest) => update({ readingDigest })}
+            />
+          </SettingsRow>
+          <SettingsRow
+            title={t.settings.voiceBrief.title}
+            description={t.settings.voiceBrief.description}
+            htmlFor="voice-brief"
+          >
+            <Switch
+              id="voice-brief"
+              checked={settings.voiceBrief}
+              onCheckedChange={(voiceBrief) => update({ voiceBrief })}
+            />
+          </SettingsRow>
+          <SettingsRow
             title={t.settings.forward.title}
             description={t.settings.forward.description}
           >

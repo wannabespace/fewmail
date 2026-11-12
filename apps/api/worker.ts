@@ -31,6 +31,7 @@ import { chatIdForUser } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
 import { LimitReachedError } from './services/limit-error'
 import { listQueue } from './services/mail'
+import { briefVoice } from './services/messenger'
 import {
   briefNotification,
   flushNotifications,
@@ -45,6 +46,7 @@ import {
   hasAgent,
   hasAgentSql,
 } from './services/plan'
+import { getReading } from './services/reading'
 import {
   processDueCommitments,
   processDueReminders,
@@ -57,9 +59,10 @@ import {
   readBoardHistory,
   syncMailbox,
 } from './services/sync'
-import { sendBrief, sendUrgent } from './telegram'
+import { sendBrief, sendReading, sendUrgent } from './telegram'
 import {
   sendWhatsappBrief,
+  sendWhatsappReading,
   sendWhatsappSchedule,
   sendWhatsappUrgent,
 } from './whatsapp'
@@ -163,6 +166,18 @@ const BRIEF_RETRY_MS = 3_600_000
 /** In memory: the worker runs as one replica, and a restart retrying at once is fine. */
 const briefFailedAt = new Map<string, number>()
 
+/** After the brief, once a day; nothing when no newsletter came. */
+const sendReadingDigest = async (userId: string, chatId: string | null) => {
+  const rows = await getReading(userId)
+  if (rows.length === 0) {
+    return
+  }
+  await Promise.all([
+    chatId && sendReading(chatId, userId, rows),
+    sendWhatsappReading(userId, rows),
+  ])
+}
+
 const sendBriefIfDue = async (settings: typeof userSettings.$inferSelect) => {
   const { userId } = settings
   if (
@@ -177,15 +192,19 @@ const sendBriefIfDue = async (settings: typeof userSettings.$inferSelect) => {
   })
   briefFailedAt.delete(userId)
   const chatId = await chatIdForUser(userId)
+  const voice = await briefVoice(userId)
   if (chatId) {
-    await sendBrief(chatId, userId, brief)
+    await sendBrief(chatId, userId, brief, voice)
     await db
       .update(briefs)
       .set({ telegramSentAt: new Date() })
       .where(eq(briefs.id, brief.id))
   }
-  await sendWhatsappBrief(userId, brief)
+  await sendWhatsappBrief(userId, brief, voice)
   notify(userId, briefNotification(brief))
+  if (settings.readingDigest) {
+    await sendReadingDigest(userId, chatId)
+  }
 }
 
 const settingsWithAgent = () =>

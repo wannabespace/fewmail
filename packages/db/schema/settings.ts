@@ -24,6 +24,8 @@ export const userSettings = d.snakeCase.table('user_settings', {
     .default(['money'])
     .notNull(),
   timezone: d.text().notNull(),
+  /** The brief also arrives as a voice note in Telegram and WhatsApp. */
+  voiceBrief: d.boolean().default(false).notNull(),
   todayOpenedAt: d.timestamp({ withTimezone: true }),
   todaySince: d.timestamp({ withTimezone: true }),
   trialEndsAt: d

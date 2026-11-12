@@ -830,24 +830,6 @@ export const nl: Messages = {
   },
   site: {
     chapters: {
-      compare: {
-        description:
-          'De meeste tools helpen je sneller door je inbox heen. Fewmail gaat er voor je doorheen.',
-        label: 'Vergelijken',
-        title: 'Wat Fewmail anders maakt.',
-      },
-      control: {
-        description:
-          'Vertel Fewmail in gewone woorden wat er met je mail moet gebeuren, bepaal welke regels zelf mogen handelen en bekijk alles wat het deed onder Afgehandeld.',
-        label: 'Controle',
-        title: 'Jij maakt de regels. Het laat zien wat het doet.',
-      },
-      memory: {
-        description:
-          'Fewmail houdt bij wat je beloofd hebt, wie mensen zijn, waarvoor je betaalt en met welke threads het nog voor je bezig is.',
-        label: 'Geheugen',
-        title: 'Het onthoudt, zodat jij dat niet hoeft.',
-      },
       pricing: {
         description:
           'Sorteren, regels en bescherming zijn voor altijd gratis. Pro en Max voegen alles toe wat voor je leest en schrijft; Max doet er gewoon meer van.',
@@ -855,40 +837,28 @@ export const nl: Messages = {
         title: (usd: number) =>
           `Gratis voor het sorteren. Vanaf $${usd} voor de agent.`,
       },
-      protection: {
-        description:
-          'Elk abonnement krijgt een spamschild van de community dat leert van iedereen die Fewmail gebruikt, zonder ooit een adres of een woord uit je mail te delen. Nagemaakte domeinen, bekende phishing en gewijzigde betaalgegevens geven een waarschuwing voordat je iets doet.',
-        label: 'Bescherming',
-        title: 'Oplichters komen er niet in.',
-      },
       questions: {
         description:
           'De korte antwoorden. De lange staan in het privacybeleid.',
         label: 'Vragen',
         title: 'Voordat je Gmail koppelt.',
       },
-      replies: {
-        description:
-          'Fewmail leert hoe je schrijft uit de mail die je hebt verstuurd en stelt antwoorden alvast op, in de taal van de e-mail. Pas aan, vraag om een andere versie of verstuur het zoals het is. Niets gaat de deur uit zonder jouw ja.',
-        label: 'Antwoorden',
-        title: 'Antwoorden in jouw stijl, in hun taal.',
-      },
-      telegram: {
-        description:
-          'Ontvang het overzicht en dringende mail in Telegram, keur een antwoord goed met één tik of stuur gewoon een spraakbericht: “zeg Marco dat donderdag goed is”. Fewmail vindt de thread en stelt het antwoord op.',
-        label: 'Telegram',
-        title: 'Je inbox vanuit een chat.',
-      },
-      today: {
-        description:
-          'Elke dag, op het uur dat jij kiest, schrijft Fewmail een kort overzicht in jouw taal en zet het de paar e-mails klaar die een beslissing nodig hebben, de belangrijkste eerst. Goedkeuren met ⏎, overslaan met S; de rest is al afgehandeld en je ziet precies wat het deed.',
-        label: 'Vandaag',
-        title: 'Eén overzicht. Eén wachtrij. Dat is je inbox.',
-      },
     },
     closing: {
       lead: 'Koppel Gmail in een minuut. Fewmail begint met de mail van de afgelopen drie dagen, dus de eerste beslissingen liggen meteen voor je klaar.',
       title: 'Krijg je ochtenden terug.',
+    },
+    mcp: {
+      answer:
+        'Het getekende contract, vóór de kick-off van vrijdag. Er staat al een antwoord klaar in je wachtrij in Fewmail.',
+      clients: 'Werkt met',
+      emphasis: 'Claude en ChatGPT.',
+      free: 'Je mail lezen en het sorteren door de agent zijn gratis.',
+      label: 'MCP',
+      lead: 'Koppel Fewmail als MCP-server en vraag naar je mail vanuit de assistent die je al gebruikt. Alles wat iets verstuurt of Gmail wijzigt, vraagt nog steeds om je ja.',
+      question: 'Wat heeft Anna deze week van me nodig?',
+      setup: 'In een minuut gekoppeld',
+      title: 'Je mail, gewoon in Claude en ChatGPT.',
     },
     mcpPage: {
       copy: 'URL kopiëren',
@@ -1047,85 +1017,6 @@ export const nl: Messages = {
           'Kies Superhuman als je elke e-mail zelf wilt aanraken, maar sneller. Kies Fewmail als je de meeste liever helemaal niet ziet.',
       },
     },
-    control: {
-      gmail: {
-        description:
-          'Optionele Fewmail-labels tonen de sortering in Gmail zelf, op je telefoon en in elke andere mailapp.',
-        title: 'Werkt met elke Gmail-app',
-      },
-      handled: {
-        description:
-          'Alles wat de agent zelf deed, staat onder Afgehandeld, telkens met de reden waarom.',
-        title: 'Afgehandeld, gewoon zichtbaar',
-      },
-      keyboard: {
-        description:
-          'Elke actie heeft één toets en ⌘K bereikt alles. Je handen blijven op het toetsenbord.',
-        title: 'Toetsenbord eerst',
-      },
-      mcp: {
-        description:
-          'Koppel Claude of een andere MCP-client en laat die lezen, sorteren en concepten opstellen met dezelfde agent.',
-        title: 'MCP-server',
-      },
-      privacy: {
-        description:
-          'Onderwerpen, inhoud, samenvattingen en concepten zijn versleuteld in onze database. Versturen vraagt altijd jouw akkoord.',
-        title: 'Privacy ingebouwd',
-      },
-      rules: {
-        description:
-          '“Nieuwsbrieven die ik nooit open” of “bonnetjes van webwinkels”: archiveren, als gelezen markeren of afmelden.',
-        title: 'Regels in gewone woorden',
-      },
-    },
-    demos: {
-      draft: {
-        expectsReply: 'Verwacht een antwoord',
-        language: 'Duits, net als Lena',
-        redraft: 'Opnieuw opstellen',
-      },
-      shield: [
-        {
-          detail: 'paypa1-billing.com lijkt op paypal.com',
-          label: 'Nagemaakt domein',
-        },
-        {
-          detail: 'Nieuw IBAN op een factuur van een bekende leverancier',
-          label: 'Betaalgegevens gewijzigd',
-        },
-        {
-          detail: '9 mensen meldden deze campagne als spam',
-          label: 'Naar spam verplaatst',
-        },
-      ],
-      telegram: {
-        draftReady: 'Concept voor Marco klaar: donderdag om 16:00. Versturen?',
-        urgent:
-          'Heeft het getekende contract vóór vrijdag nodig. Ik heb een antwoord opgesteld.',
-        voice: '“Zeg Marco dat donderdag goed is, maar om vier uur.”',
-      },
-      today: {
-        brief:
-          'Anna wacht op het contract, de factuur van Northwind moet volgende week betaald zijn en Marco wil donderdag een afspraak. Tweeënveertig nieuwsbrieven en meldingen zijn afgehandeld.',
-        day: 'Overzicht van donderdag',
-        queue: [
-          {
-            reason: 'Contract morgen nodig',
-            summary:
-              'Heeft het getekende contract terug nodig vóór de kick-off van vrijdag.',
-          },
-          {
-            reason: 'Factuur · $ 1.240 vóór 20 nov.',
-            summary: 'Factuur van oktober voor het nieuwe websiteontwerp.',
-          },
-          {
-            reason: 'Afspraak voorgesteld',
-            summary: 'Stelt donderdag om 15:00 voor, voor het kwartaaloverleg.',
-          },
-        ],
-      },
-    },
     faq: (trialDays: number) => [
       {
         answer:
@@ -1157,6 +1048,59 @@ export const nl: Messages = {
         question: 'Welke e-mailaccounts werken?',
       },
     ],
+    features: {
+      description:
+        'De stukken e-mail die vroeger een middag kostten, gedaan op de achtergrond en op een rij gezet waar je ze kunt nakijken.',
+      items: {
+        ask: {
+          description:
+            'Vraag wat je wilt in gewone woorden en krijg het antwoord uit je eigen mail, met de e-mails waar het vandaan komt.',
+          title: 'Vraag het je mail',
+        },
+        boards: {
+          description:
+            'Geld, betaalde abonnementen, reizen, bestellingen: beschrijf wat je wilt bijhouden en de agent verzamelt het uit een halfjaar mail, met grafieken.',
+          title: 'Borden',
+        },
+        calendar: {
+          description:
+            'De agenda van elke mailbox in één overzicht. Een afspraak die in een e-mail wordt voorgesteld, komt in je agenda zodra je ja zegt.',
+          title: 'Agenda',
+        },
+        clearOut: {
+          description:
+            'De hele achterstand in één keer weg, tot 50.000 e-mails per mailbox, allemaal onder één label, zodat Ongedaan maken ze stuk voor stuk terugzet. Gratis.',
+          title: 'Opruimen',
+        },
+        forward: {
+          description:
+            'Stuur een e-mail door met een notitie erboven, “zoek volgende week een moment met ze”, en de agent neemt het over.',
+          title: 'Doorsturen naar de agent',
+        },
+        handle: {
+          description:
+            'Draag een thread over met een doel en de agent werkt hem af tot het einde, en vraagt het vóór elke verzending.',
+          title: 'Regel dit',
+        },
+        reading: {
+          description:
+            'De nieuwsbrieven van de dag in één rustige lijst, elk samengevat in een paar zinnen.',
+          title: 'Lezen',
+        },
+        voice: {
+          description:
+            'Luister naar het overzicht in Telegram, WhatsApp of de app, en antwoord de bot met een spraakbericht.',
+          title: 'Luister naar het overzicht',
+        },
+        wrapped: {
+          description:
+            'Jouw maand of jaar in e-mail: wat er binnenkwam, wat er werd afgehandeld, hoeveel tijd je terugkreeg. Om te delen, nooit met een naam.',
+          title: 'Wrapped',
+        },
+      },
+      label: 'En de rest',
+      title: 'Al het andere wat een assistent zou doen.',
+    },
     footer: {
       legal: 'Juridisch',
       product: 'Product',
@@ -1164,47 +1108,121 @@ export const nl: Messages = {
         'De e-mailagent die je Gmail leest en je alleen laat zien wat jou nodig heeft.',
       versus: (name: string) => `vs ${name}`,
     },
-    hero: {
-      lead: 'Fewmail is een e-mailagent voor Gmail. Hij leest elke e-mail voor je, stelt de antwoorden op in jouw stijl en geeft je één korte lijst met wat jou echt nodig heeft.',
-      start: 'Gratis starten met Google',
+    gone: {
+      emphasis: 'niet meer hebt.',
+      label: 'Wat verdwijnt',
+      rows: [
+        {
+          fix: 'Opruimen haalt de hele achterstand in één keer weg: oude reclame, gelezen meldingen, lijsten die je nooit opent. Eén keer Ongedaan maken zet elke e-mail terug.',
+          problem: 'Duizenden e-mails die niemand ooit gaat lezen.',
+        },
+        {
+          fix: 'Antwoorden staan al klaar, in jouw stijl en in hun taal. Vergelijkbare keur je samen goed met ⇧⏎, en je kunt ze nog steeds allemaal nakijken.',
+          problem: 'Om middernacht nog e-mail beantwoorden.',
+        },
+        {
+          fix: 'Eén toets meldt je af zoals een mens dat zou doen: één klik, de afmeldpagina of een e-mail. Afzenders die blijven mailen, gaan direct naar spam.',
+          problem: 'Nieuwsbrieven waarvoor je je nooit hebt aangemeld.',
+        },
+        {
+          fix: 'Lezen zet de nieuwsbrieven van de dag in één lijst, elk samengevat in een paar zinnen.',
+          problem: 'Nieuwsbrieven die je nog wilde lezen.',
+        },
+        {
+          fix: 'Gewijzigde betaalgegevens, nagemaakte domeinen en bekende phishing geven een waarschuwing voordat je iets doet.',
+          problem: 'Een factuur met een nieuw rekeningnummer.',
+        },
+        {
+          fix: 'Beloftes die je in verstuurde mail doet, komen terug als ze aan de beurt zijn, en threads waar niemand op reageerde, worden opgevolgd.',
+          problem: 'Dat ene wat je beloofde en vergat.',
+        },
+        {
+          fix: 'Alleen dringende mail bereikt je in Telegram of WhatsApp. De rest wacht op het ochtendoverzicht, waar je ook naar kunt luisteren.',
+          problem: 'Tijdens het eten je mail checken, voor de zekerheid.',
+        },
+      ],
+      title: 'E-mailproblemen die je niet meer hebt.',
     },
-    memory: {
-      ask: {
-        description:
-          'Stel een vraag in ⌘K en krijg antwoord uit je eigen mail, met de e-mails waar het vandaan komt.',
-        title: 'Vraag het je mail',
+    hero: {
+      brief: {
+        emphasis: 'hebben jou nodig.',
+        lead: (handled: string) =>
+          `Anna wacht op het contract, de factuur van Northwind moet volgende week betaald zijn en Marco wil donderdag. ${handled} nieuwsbrieven en meldingen zijn afgehandeld.`,
+        tag: 'Overzicht van donderdag · 08:00',
+        title: 'Drie dingen hebben jou nodig.',
       },
-      boards: {
-        description:
-          'Beschrijf wat je wilt bijhouden (geld, reizen, bestellingen) en de agent verzamelt het uit je mail, met grafieken, te beginnen met het laatste halfjaar.',
-        title: 'Borden',
+      fates: {
+        archived: 'Gearchiveerd',
+        markedRead: 'Als gelezen gemarkeerd',
+        spam: 'Spam',
+        summarised: 'Samengevat',
+        unsubscribed: 'Afgemeld',
       },
-      followUps: {
-        description:
-          'Mail die een antwoord verwacht, wordt opgevolgd, zodat geen enkele thread stilletjes doodbloedt.',
-        title: 'Opvolgen',
+      handled: ((slots) => [
+        slots.count,
+        ' afgehandeld, elk met een reden',
+      ]) as Rich<'count'>,
+      inbox: 'Inbox',
+      lead: 'Nieuwsbrieven, bonnetjes, meldingen, een phishinglink en, ergens daartussen, de drie e-mails die er echt toe doen. Fewmail is de agent die het allemaal voor je leest.',
+      needYou: ((slots) => [slots.count, ' hebben jou nodig']) as Rich<'count'>,
+      queue: [
+        {
+          reason: 'Contract morgen nodig',
+          summary:
+            'Heeft het getekende contract terug nodig vóór de kick-off van vrijdag.',
+        },
+        {
+          reason: 'Factuur · $1,240 vóór 20 nov.',
+          summary:
+            'Factuur van oktober voor het nieuwe websiteontwerp. Zelfde rekeningnummer als de vorige keer.',
+        },
+        {
+          reason: 'Afspraak voorgesteld',
+          summary:
+            'Stelt donderdag om 15:00 voor. Jij kunt vanaf 16:00, dus het concept vraagt om vier uur.',
+        },
+      ],
+      reading: {
+        emphasis: 'elke e-mail.',
+        lead: 'Het archiveert de ruis, meldt je af voor wat je nooit opent en houdt oplichters buiten de deur. Alles wat het doet, wordt met de reden opgeschreven, zodat je het kunt nakijken.',
+        title: 'Fewmail leest elke e-mail.',
       },
-      handle: {
-        description:
-          'Zeg “regel dit” en de agent werkt de thread af richting jouw doel: hij vraagt het vóór elke verzending of verstuurt zelf.',
-        title: 'Regel dit',
-      },
-      people: {
-        description:
-          'Een korte notitie over iedereen met wie je mailt, elke week bijgewerkt, direct naast hun e-mail.',
-        title: 'Mensen',
-      },
-      promises: {
-        description:
-          'Beloftes die je in verstuurde mail doet, komen op tijd bij je terug, voordat iemand je achterna moet zitten.',
-        title: 'Beloftes nagekomen',
-      },
+      remind: 'Herinner me op 19 nov.',
+      remindPlan: 'Zet hem bij je rekeningen en herinnert je op 19 nov.',
+      start: 'Gratis starten met Google',
+      title: 'E-mail is niet jouw werk.',
+      today: 'Vandaag',
+      tryQueue: 'Probeer de wachtrij',
+      unread: ((slots) => [slots.count, ' ongelezen']) as Rich<'count'>,
+      unreadInbox: ((slots) => [
+        slots.count,
+        ' ongelezen in je inbox',
+      ]) as Rich<'count'>,
+      willDo: 'Wat Fewmail doet',
     },
     nav: {
       compare: 'Vergelijken',
       features: 'Functies',
+      mcp: 'MCP-server',
       pricing: 'Prijzen',
       signIn: 'Inloggen',
+    },
+    play: {
+      again: 'Nog een keer',
+      doneLead: (handled: string) =>
+        `Je nam drie beslissingen. Fewmail regelde de andere ${handled} en schreef op waarom.`,
+      doneTitle: 'Dat was het voor vandaag.',
+      emphasis: 'in twee minuten.',
+      handled: [
+        'Lumen Weekly: je opende geen van de laatste 30 nummers',
+        'paypa1-billing.com lijkt op paypal.com',
+        'Parcelhub: bezorgberichten, via de regel “Bonnetjes en verzending”',
+      ],
+      handledTitle: 'Afgehandeld terwijl je sliep',
+      label: 'Probeer het',
+      lead: 'Zo ziet een ochtend er nu uit. De concepten zijn geschreven, de redenen staan erbij, jij beslist. Ga je gang, werk hem weg.',
+      left: (count: number) => `Nog ${count} te beslissen`,
+      title: 'Je hele inbox, in twee minuten.',
     },
     plans: {
       everythingIn: (plan: string) => `Alles uit ${plan}, plus`,
@@ -1251,14 +1269,32 @@ export const nl: Messages = {
       otherTool: 'Denk je aan een andere tool?',
       title: 'Betaal voor de agent, niet voor de inbox.',
     },
-    promises: [
-      'Niets wordt verstuurd zonder jouw akkoord',
-      'Je mail wordt versleuteld opgeslagen',
-      'Nooit gebruikt om modellen te trainen',
-    ],
     startFree: 'Gratis starten',
     trialNote: (days: number) =>
       `${days} dagen Pro, geen kaart nodig. Daarna gratis zo lang je wilt.`,
+    trust: {
+      emphasis: 'vraagt',
+      label: 'Jouw mail, jouw beslissing',
+      places: 'Werkt bovenop de Gmail die je al gebruikt, en bereikt je in',
+      title: 'Het vraagt eerst, en doet dan pas iets.',
+      vows: [
+        {
+          description:
+            'Concepten wachten op jou. Alleen regels die jij hebt gemaakt of behouden mogen zelf archiveren, als gelezen markeren of afmelden, en alles wat ze deden, staat onder Afgehandeld.',
+          title: 'Niets wordt verstuurd zonder jouw ja.',
+        },
+        {
+          description:
+            'Onderwerpen, inhoud, samenvattingen en concepten zijn versleuteld in onze database. Opgeslagen concepten blijven in Gmail, nooit bij ons.',
+          title: 'Versleuteld opgeslagen.',
+        },
+        {
+          description:
+            'Het spamschild leert van iedereen via hashes met een sleutel. Geen enkel adres en geen woord uit je mail wordt gedeeld.',
+          title: 'Nooit gebruikt om modellen te trainen.',
+        },
+      ],
+    },
   },
   skills: {
     bills: 'Rekeningen en betalingen die eraan komen',

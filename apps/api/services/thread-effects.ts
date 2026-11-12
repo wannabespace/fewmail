@@ -68,16 +68,26 @@ const unsubscribeByMail = async (message: Message, mailto: string) => {
   return true
 }
 
-/** One-click first (RFC 8058), then the list's page, then its mailto: the order a person would try them. */
-const leaveList = async (message: Message) => {
-  const header = message.listUnsubscribe ?? ''
-  if (await unsubscribeOneClick(header, message.listUnsubscribePost)) {
-    return true
-  }
-  const links = [...header.matchAll(LINKS)].map(
+const listLinks = (message: Message) =>
+  [...(message.listUnsubscribe ?? '').matchAll(LINKS)].map(
     ({ groups }) => groups?.link?.trim() ?? ''
   )
-  const page = links.find((link) => /^https?:/iu.test(link))
+
+const pageOf = (message: Message) =>
+  listLinks(message).find((link) => /^https?:/iu.test(link)) ?? null
+
+/** One-click first (RFC 8058), then the list's page, then its mailto: the order a person would try them. */
+const leaveList = async (message: Message) => {
+  if (
+    await unsubscribeOneClick(
+      message.listUnsubscribe ?? '',
+      message.listUnsubscribePost
+    )
+  ) {
+    return true
+  }
+  const links = listLinks(message)
+  const page = pageOf(message)
   if (page && (await unsubscribeByPage(page))) {
     return true
   }
@@ -115,7 +125,12 @@ export const unsubscribe = async (
   await Promise.all(
     threadIds.map((threadId) => changeThreadLabels(userId, threadId, ARCHIVE))
   )
-  return { blocked: isZombie, unsubscribed }
+  // A page that needs a person (JavaScript, a choice, a login) is left to the user: they get its link.
+  return {
+    blocked: isZombie,
+    link: unsubscribed ? null : pageOf(message),
+    unsubscribed,
+  }
 }
 
 export const unsubscribeMessage = async (

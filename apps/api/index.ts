@@ -3,6 +3,7 @@ import { runMigrations } from '@fewmail/db'
 import { onError } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
 import { BatchHandlerPlugin } from '@orpc/server/plugins'
+import { Result } from 'better-result'
 import { Hono } from 'hono'
 import { compress } from 'hono/compress'
 import { cors } from 'hono/cors'
@@ -17,10 +18,13 @@ import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
 import { followForwarded } from './services/forwarded'
 import { handleGmailPush } from './services/gmail-push'
+import { LimitReachedError } from './services/limit-error'
 import { finishAddingMailbox } from './services/mailboxes'
-import { spokenBrief } from './services/messenger'
+import { hear, spokenBrief } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { onNewMail, syncMailbox } from './services/sync'
+import { readSharedWrapped } from './services/wrapped'
+import { wrappedImage, wrappedPreviewHtml } from './services/wrapped-image'
 import { startTelegram, telegramWebhook } from './telegram'
 import { verifyWhatsappWebhook, whatsappWebhook } from './whatsapp'
 
@@ -37,10 +41,19 @@ const webCors = cors({
   origin: env.WEB_URL,
 })
 
+/** Voice is part of the agent and needs a speaking key; anyone else gets a 404. */
+const voiceUser = async (headers: Headers) => {
+  const session = await auth.api.getSession({ headers })
+  return session && canSpeak && hasAgent(await getPlanInfo(session.user.id))
+    ? session.user.id
+    : null
+}
+
 const app = new Hono()
   .use(compress())
   .use('/auth/*', webCors)
   .use('/rpc/*', webCors)
+  .use('/voice/*', webCors)
   .on(['GET', 'POST'], '/auth/*', (c) => auth.handler(c.req.raw))
   .all('/rpc/*', async (c) => {
     const { matched, response } = await rpc.handle(c.req.raw, {
@@ -78,18 +91,65 @@ const app = new Hono()
     }
     return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
   })
-  .get('/voice/brief', async (c) => {
-    const session = await auth.api.getSession({ headers: c.req.raw.headers })
-    if (
-      !session ||
-      !canSpeak ||
-      !hasAgent(await getPlanInfo(session.user.id))
-    ) {
+  .post('/voice/hear', async (c) => {
+    const userId = await voiceUser(c.req.raw.headers)
+    if (!userId) {
       return c.notFound()
     }
-    const audio = await speak(await spokenBrief(session.user.id), 'web')
+    const type = c.req.header('content-type') ?? ''
+    const heard = await Result.tryPromise(() =>
+      hear(
+        userId,
+        () => c.req.arrayBuffer(),
+        `voice.${type.includes('mp4') ? 'mp4' : 'webm'}`
+      )
+    )
+    if (heard.isErr()) {
+      logError('voice hear', heard.error.cause)
+      return c.json(
+        { text: '' },
+        heard.error.cause instanceof LimitReachedError ? 429 : 500
+      )
+    }
+    return c.json({ text: heard.value })
+  })
+  .post('/voice/speak', async (c) => {
+    const userId = await voiceUser(c.req.raw.headers)
+    if (!userId) {
+      return c.notFound()
+    }
+    const { text } = await c.req.json<{ text: string }>()
+    return new Response(await speak(text, 'web'), {
+      headers: { 'cache-control': 'no-store', 'content-type': 'audio/mpeg' },
+    })
+  })
+  .get('/voice/brief', async (c) => {
+    const userId = await voiceUser(c.req.raw.headers)
+    if (!userId) {
+      return c.notFound()
+    }
+    const audio = await speak(await spokenBrief(userId), 'web')
     return new Response(audio, {
       headers: { 'cache-control': 'no-store', 'content-type': 'audio/mpeg' },
+    })
+  })
+  .get('/og/w/:token', (c) => {
+    const token = c.req.param('token')
+    const shared = Result.try(() => readSharedWrapped(token))
+    return shared.isOk()
+      ? c.html(wrappedPreviewHtml(shared.value, token))
+      : c.notFound()
+  })
+  .get('/og/w/:token/image.png', async (c) => {
+    const shared = Result.try(() => readSharedWrapped(c.req.param('token')))
+    if (shared.isErr()) {
+      return c.notFound()
+    }
+    return new Response(await wrappedImage(shared.value), {
+      headers: {
+        'cache-control': 'public, max-age=86400, immutable',
+        'content-type': 'image/png',
+      },
     })
   })
   .get('/health', (c) => c.text('ok'))

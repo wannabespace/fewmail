@@ -20,6 +20,19 @@
 		}
 	}
 
+	# Link previews: social apps do not run the SPA, so a shared Wrapped link sends their crawlers to the API's preview page (tags and a drawn image); people still get the app.
+	@shareCrawler {
+		path /w/*
+		header_regexp User-Agent (?i)(bot|crawl|spider|preview|facebookexternalhit|slack|discord|telegram|whatsapp|twitter|linkedin|embedly|skype|vkshare|pinterest)
+	}
+	handle @shareCrawler {
+		rewrite * /og{path}
+		reverse_proxy {$API_URL} {
+			header_up Host {upstream_hostport}
+			header_up -CF-Connecting-IP
+		}
+	}
+
 	# A missing asset is a 404, never the app shell: a stale chunk must fail loudly, not parse HTML as JS.
 	handle /assets/* {
 		file_server

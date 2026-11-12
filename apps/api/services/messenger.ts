@@ -23,6 +23,7 @@ import { followMessage } from './instructions'
 import { LimitReachedError } from './limit-error'
 import {
   approveAction,
+  approveActions,
   dismissAction,
   listQueue,
   redraftAction,
@@ -30,6 +31,7 @@ import {
 } from './mail'
 import { cancelMail } from './outbox'
 import { getUsage, requireAgent } from './plan'
+import { getReading } from './reading'
 import { getSettings } from './settings'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
@@ -297,6 +299,26 @@ export const todayBrief = async (userId: string) => {
     : generateBrief(userId)
 }
 
+const DIGEST_SHOWN = 10
+
+/** The day's newsletters as one message: sender in bold, what it says, then the page for the rest. */
+export const readingReply = (
+  chat: Chat,
+  t: Messages,
+  rows: Awaited<ReturnType<typeof getReading>>
+): Reply => ({
+  text: [
+    chat.channel.bold(t.reading.digest(rows.length)),
+    ...rows
+      .slice(0, DIGEST_SHOWN)
+      .map(
+        ({ fromEmail, fromName, summary }) =>
+          `${chat.channel.bold(fromName ?? fromEmail)}: ${chat.channel.plain(summary)}`
+      ),
+    `${env.WEB_URL}/reading`,
+  ].join('\n\n'),
+})
+
 const SPOKEN_ITEMS = 5
 
 /** The brief read aloud: its two lines, then the first cards of the queue by title. */
@@ -314,11 +336,41 @@ export const spokenBrief = async (userId: string) => {
   ].join('\n')
 }
 
+/** The spoken brief for users who turned on `voiceBrief`, when the server can speak. */
+export const briefVoice = async (userId: string) => {
+  const settings = await getSettings(userId)
+  return canSpeak && settings?.voiceBrief ? spokenBrief(userId) : undefined
+}
+
+/** WhatsApp shows three buttons at most. */
+const ALIKE_BUTTONS = 3
+
+/** After the cards, one button per kind with two or more of them: approving them all is still the user's yes. */
+const alikeReply = (chat: Chat, t: Messages, queue: QueueItem[]): Reply[] => {
+  const kinds = [...Map.groupBy(queue, ({ action }) => action.kind)]
+    .filter(([, items]) => items.length > 1)
+    .slice(0, ALIKE_BUTTONS)
+  return kinds.length === 0
+    ? []
+    : [
+        {
+          buttons: kinds.map(([kind, items]) => ({
+            id: `all:${kind}`,
+            title: `${t.actionKind[kind]} · ${items.length}`,
+          })),
+          text: chat.channel.italic(t.telegram.approveAlike),
+        },
+      ]
+}
+
 const queueReplies = async (chat: Chat, userId: string, t: Messages) => {
   const queue = await listQueue(userId)
   return queue.length === 0
     ? [{ text: chat.channel.plain(t.telegram.nothing) }]
-    : queue.map((item) => itemReply(chat, t, item))
+    : [
+        ...queue.map((item) => itemReply(chat, t, item)),
+        ...alikeReply(chat, t, queue),
+      ]
 }
 
 const scheduleAnswer = async (
@@ -347,7 +399,17 @@ export const press = async (
   const [command, id = ''] = pressed.split(':')
   if (command === 'brief') {
     return {
-      replies: async () => [briefReply(chat, t, await todayBrief(userId))],
+      replies: async () => [
+        {
+          ...briefReply(chat, t, await todayBrief(userId)),
+          voice: await briefVoice(userId),
+        },
+      ],
+    }
+  }
+  if (command === 'reading') {
+    return {
+      replies: async () => [readingReply(chat, t, await getReading(userId))],
     }
   }
   if (command === 'listen') {
@@ -369,6 +431,16 @@ export const press = async (
           notice: t.telegram.sendingIn(UNDO_SEND_SECONDS),
         }
       : { buttons: [], notice: t.telegram.done }
+  }
+  if (command === 'all') {
+    const queue = await listQueue(userId)
+    const { approved } = await approveActions(
+      userId,
+      queue
+        .filter(({ action }) => action.kind === id)
+        .map(({ action }) => action.id)
+    )
+    return { buttons: [], notice: t.today.approvedMany(approved) }
   }
   if (command === 'u') {
     await cancelMail(userId, id)
@@ -414,10 +486,11 @@ const requireMessageRoom = async (userId: string) => {
 
 export const hear = async (
   userId: string,
-  audio: () => Promise<ArrayBuffer>
+  audio: () => Promise<ArrayBuffer>,
+  fileName = 'voice.ogg'
 ) => {
   await requireMessageRoom(userId)
-  return transcribe(await audio(), 'voice.ogg')
+  return transcribe(await audio(), fileName)
 }
 
 /** A typed or spoken message: the replacement for a draft in edit mode, else whatever `followMessage` makes of it; `replyTo` is the bot message it answers. */

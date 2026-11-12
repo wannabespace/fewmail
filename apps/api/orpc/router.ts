@@ -123,10 +123,12 @@ const settingsInput = type({
   'starterBoards?': type.enumerated(...BOARD_PRESETS).array(),
   'gmailLabels?': 'boolean',
   'knowledge?': 'string | null',
+  'readingDigest?': 'boolean',
   timezone: type('string').narrow(
     (zone, ctx) => isTimeZone(zone) || ctx.mustBe('an IANA time zone')
   ),
   'voice?': 'string | null',
+  'voiceBrief?': 'boolean',
 })
 
 const draftRef = type({ id: 'string', mailboxId: 'string.uuid' })

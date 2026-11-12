@@ -807,24 +807,6 @@ export const tr: Messages = {
   },
   site: {
     chapters: {
-      compare: {
-        description:
-          'Çoğu araç gelen kutunu daha hızlı bitirmene yardım eder. Fewmail ise onu senin yerine bitirir.',
-        label: 'Karşılaştır',
-        title: 'Fewmail’i farklı kılan ne?',
-      },
-      control: {
-        description:
-          'Postalarla ne yapılacağını Fewmail’e sade bir dille anlat, hangi kuralların kendi başına çalışabileceğine sen karar ver ve yaptığı her şeyi Halledilenler’de incele.',
-        label: 'Kontrol',
-        title: 'Kuralları sen koyarsın. O da ne yaptığını gösterir.',
-      },
-      memory: {
-        description:
-          'Fewmail neye söz verdiğini, kimin kim olduğunu, neye para ödediğini ve senin için hâlâ hangi yazışmalarla ilgilendiğini aklında tutar.',
-        label: 'Hafıza',
-        title: 'O hatırlar, sen hatırlamak zorunda kalmazsın.',
-      },
       pricing: {
         description:
           'Sıralama, kurallar ve koruma sonsuza dek ücretsiz. Pro ve Max, senin için okuyan ve yazan her şeyi ekler; Max sadece bunu daha çok yapar.',
@@ -832,39 +814,27 @@ export const tr: Messages = {
         title: (usd: number) =>
           `Sıralama ücretsiz. Ajan için başlangıç fiyatı $${usd}.`,
       },
-      protection: {
-        description:
-          'Her planda, Fewmail kullananlardan öğrenen bir topluluk spam kalkanı var ve tek bir adresi ya da postandan tek bir kelimeyi bile paylaşmaz. Benzer alan adları, bilinen oltalama siteleri ve değişen ödeme bilgileri, sen harekete geçmeden önce uyarı verir.',
-        label: 'Koruma',
-        title: 'Dolandırıcılar kapıda kalır.',
-      },
       questions: {
         description: 'Kısa cevaplar burada. Uzunları gizlilik politikasında.',
         label: 'Sorular',
         title: 'Gmail’i bağlamadan önce.',
       },
-      replies: {
-        description:
-          'Fewmail, gönderdiğin postalardan nasıl yazdığını öğrenir, sonra yanıtları önceden ve e-postanın dilinde hazırlar. Düzenle, başka bir versiyon iste ya da olduğu gibi gönder. Sen onay vermeden hiçbir şey gitmez.',
-        label: 'Yanıtlar',
-        title: 'Senin üslubunla, onların dilinde yanıtlar.',
-      },
-      telegram: {
-        description:
-          'Özeti ve acil postaları Telegram’da al, bir yanıtı tek dokunuşla onayla ya da sadece sesli mesaj gönder: “Marco’ya perşembe uyar de”. Fewmail yazışmayı bulur ve yanıtı hazırlar.',
-        label: 'Telegram',
-        title: 'Gelen kutun, bir sohbette.',
-      },
-      today: {
-        description:
-          'Fewmail her gün, seçtiğin saatte senin dilinde kısa bir özet yazar ve karar bekleyen birkaç e-postayı en önemlisi başta olacak şekilde sıraya koyar. ⏎ ile onayla, S ile atla; gerisi zaten halledildi ve tam olarak ne yaptığını görebilirsin.',
-        label: 'Bugün',
-        title: 'Bir özet. Bir kuyruk. Gelen kutun bu kadar.',
-      },
     },
     closing: {
       lead: 'Gmail’i bir dakikada bağla. Fewmail son üç günün postalarıyla başlar, böylece ilk kararlar seni hemen bekliyor olur.',
       title: 'Sabahlarını geri al.',
+    },
+    mcp: {
+      answer:
+        'Cuma günkü başlangıç toplantısından önce imzalı sözleşme. Yanıtı çoktan hazırlandı, Fewmail kuyruğunda seni bekliyor.',
+      clients: 'Şunlarla çalışır',
+      emphasis: 'Claude ve ChatGPT’nin içinde.',
+      free: 'Postanı okumak ve ajanın sıralaması ücretsiz.',
+      label: 'MCP',
+      lead: 'Fewmail’i MCP sunucusu olarak bağla ve postanı zaten kullandığın asistana sor. E-posta gönderen ya da Gmail’i değiştiren her şey yine de önce onayını ister.',
+      question: 'Anna bu hafta benden ne bekliyor?',
+      setup: 'Bir dakikada bağla',
+      title: 'Postan, Claude ve ChatGPT’nin içinde.',
     },
     mcpPage: {
       copy: 'URL’yi kopyala',
@@ -1023,84 +993,6 @@ export const tr: Messages = {
           'Her e-postaya kendin ve daha hızlı dokunmak istiyorsan Superhuman’ı seç. Çoğunu hiç görmemeyi tercih ediyorsan Fewmail’i seç.',
       },
     },
-    control: {
-      gmail: {
-        description:
-          'İsteğe bağlı Fewmail etiketleri, sıralamayı Gmail’in kendisinde, telefonunda ve diğer tüm posta uygulamalarında gösterir.',
-        title: 'Her Gmail uygulamasıyla çalışır',
-      },
-      handled: {
-        description:
-          'Ajanın kendi başına yaptığı her şey, nedeniyle birlikte Halledilenler’de listelenir.',
-        title: 'Halledilenler, göz önünde',
-      },
-      keyboard: {
-        description:
-          'Her işlemin tek bir tuşu var ve ⌘K ile her şeye ulaşırsın. Ellerin klavyeden hiç ayrılmaz.',
-        title: 'Önce klavye',
-      },
-      mcp: {
-        description:
-          'Claude’u ya da herhangi bir MCP istemcisini bağla; aynı ajanla okusun, ayıklasın ve taslak yazsın.',
-        title: 'MCP sunucusu',
-      },
-      privacy: {
-        description:
-          'Konular, içerikler, özetler ve taslaklar veritabanımızda şifrelenir. Göndermek her zaman senin onayını gerektirir.',
-        title: 'Gizlilik baştan tasarımda',
-      },
-      rules: {
-        description:
-          '“Hiç açmadığım bültenler” ya da “mağaza makbuzları”: arşivle, okundu yap ya da abonelikten çık.',
-        title: 'Sade dille kurallar',
-      },
-    },
-    demos: {
-      draft: {
-        expectsReply: 'Yanıt bekliyor',
-        language: 'Lena gibi Almanca',
-        redraft: 'Yeniden yaz',
-      },
-      shield: [
-        {
-          detail: 'paypa1-billing.com, paypal.com gibi görünüyor',
-          label: 'Benzer alan adı',
-        },
-        {
-          detail: 'Tanıdık bir tedarikçinin faturasında yeni IBAN',
-          label: 'Ödeme bilgileri değişti',
-        },
-        {
-          detail: '9 kişi bu kampanyayı spam olarak bildirdi',
-          label: 'Spama taşındı',
-        },
-      ],
-      telegram: {
-        draftReady: 'Marco için taslak hazır: perşembe 16:00. Gönderilsin mi?',
-        urgent: 'İmzalı sözleşmeyi cumadan önce istiyor. Bir yanıt hazırladım.',
-        voice: '“Marco’ya perşembe uyar de, ama saat dörtte.”',
-      },
-      today: {
-        brief:
-          'Anna sözleşmeyi bekliyor, Northwind’in faturasının son günü gelecek hafta ve Marco perşembe için bir saat istiyor. Kırk iki bülten ve bildirim halledildi.',
-        day: 'Perşembe özeti',
-        queue: [
-          {
-            reason: 'Sözleşme yarın bekleniyor',
-            summary:
-              'İmzalı sözleşmenin cuma günkü başlangıç toplantısından önce geri gelmesi gerekiyor.',
-          },
-          {
-            reason: 'Fatura · 1.240 $, son gün 20 Kasım',
-            summary: 'Web sitesi yenilemesi için ekim faturası.',
-          },
-          {
-            reason: 'Toplantı önerisi',
-            summary: 'Üç aylık değerlendirme için perşembe 15:00’i öneriyor.',
-          },
-        ],
-      },
-    },
     faq: (trialDays: number) => [
       {
         answer:
@@ -1132,6 +1024,59 @@ export const tr: Messages = {
         question: 'Hangi e-posta hesaplarıyla çalışır?',
       },
     ],
+    features: {
+      description:
+        'E-postanın eskiden bir öğleden sonranı alan işleri arka planda yapılır ve kontrol edebileceğin bir yerde listelenir.',
+      items: {
+        ask: {
+          description:
+            'Sade bir dille her şeyi sor, yanıtı kendi postalarından, dayandığı e-postalarla birlikte al.',
+          title: 'Postalarına sor',
+        },
+        boards: {
+          description:
+            'Para, ücretli abonelikler, seyahatler, siparişler: neyin takip edileceğini anlat, ajan bunları son altı ayın postalarından grafiklerle toplasın.',
+          title: 'Panolar',
+        },
+        calendar: {
+          description:
+            'Tüm posta kutularının takvimi tek bir görünümde. Bir e-postada önerilen toplantı, sen evet deyince etkinliğe dönüşür.',
+          title: 'Takvim',
+        },
+        clearOut: {
+          description:
+            'Biriken her şey tek seferde gider: posta kutusu başına 50.000 e-postaya kadar, hepsi tek bir etiket altında, böylece tek tıkla hepsi geri gelir. Ücretsiz.',
+          title: 'Gelen kutusunu temizle',
+        },
+        forward: {
+          description:
+            'Bir e-postayı üstüne bir not yazarak ilet, “onlarla gelecek hafta bir saat bul” gibi, gerisini ajan halletsin.',
+          title: 'Ajana ilet',
+        },
+        handle: {
+          description:
+            'Bir yazışmayı bir hedefle devret, ajan onu sonuna kadar yürütsün ve her gönderimden önce sana sorsun.',
+          title: 'Bununla ilgilen',
+        },
+        reading: {
+          description:
+            'Günün bültenleri sakin tek bir listede, her biri birkaç cümleyle özetlenmiş.',
+          title: 'Okuma',
+        },
+        voice: {
+          description:
+            'Özeti Telegram’da, WhatsApp’ta ya da uygulamada dinle, bota da sesli mesajla yanıt ver.',
+          title: 'Özeti dinle',
+        },
+        wrapped: {
+          description:
+            'E-postada ayın ya da yılın: ne geldi, ne halledildi, ne kadar zaman kazandın. Paylaşabilirsin, hiçbir isim görünmez.',
+          title: 'E-postada yılın',
+        },
+      },
+      label: 'Ve gerisi',
+      title: 'Bir asistanın yapacağı diğer her şey.',
+    },
     footer: {
       legal: 'Yasal',
       product: 'Ürün',
@@ -1139,47 +1084,122 @@ export const tr: Messages = {
         'Gmail’ini okuyan ve sana yalnızca seni bekleyenleri gösteren e-posta ajanı.',
       versus: (name: string) => `vs ${name}`,
     },
-    hero: {
-      lead: 'Fewmail, Gmail için bir e-posta ajanı. Her e-postayı senin yerine okur, yanıtları senin üslubunla hazırlar ve önüne gerçekten seni bekleyenlerin kısa bir listesini koyar.',
-      start: 'Google ile ücretsiz başla',
+    gone: {
+      emphasis: 'artık geride.',
+      label: 'Geride kalanlar',
+      rows: [
+        {
+          fix: 'Temizlik, biriken her şeyi tek seferde kaldırır: eski reklamlar, okunmuş bildirimler, hiç açmadığın listeler. Tek tıkla her e-posta geri gelir.',
+          problem: 'Kimsenin asla okumayacağı binlerce e-posta.',
+        },
+        {
+          fix: 'Yanıtlar önceden, senin üslubunla ve onların dilinde hazırlanır. Benzer olanları ⇧⏎ ile birlikte onaylarsın, yine de her birine göz atmak sana kalır.',
+          problem: 'Gece yarısı e-posta yanıtlamak.',
+        },
+        {
+          fix: 'Tek bir tuş, bir insanın yapacağı gibi abonelikten çıkar: tek tık, abonelik sayfası ya da bir e-posta. Yazmayı sürdüren gönderenler doğrudan spama gider.',
+          problem: 'Hiç abone olmadığın bültenler.',
+        },
+        {
+          fix: 'Okuma, günün bültenlerini tek bir listede toplar, her biri birkaç cümleyle özetlenir.',
+          problem: 'Okumayı düşündüğün bültenler.',
+        },
+        {
+          fix: 'Değişen ödeme bilgileri, benzer alan adları ve bilinen oltalama siteleri, sen harekete geçmeden önce uyarı verir.',
+          problem: 'Yeni banka bilgileriyle gelen bir fatura.',
+        },
+        {
+          fix: 'Gönderdiğin postalarda verdiğin sözler zamanı gelince sana geri döner, kimsenin yanıtlamadığı yazışmalar da takip edilir.',
+          problem: 'Söz verip unuttuğun o şey.',
+        },
+        {
+          fix: 'Telegram’a ya da WhatsApp’a yalnızca acil postalar gelir. Gerisi sabah özetini bekler, onu dinleyebilirsin de.',
+          problem: 'Akşam yemeğinde, ne olur ne olmaz diye postalara bakmak.',
+        },
+      ],
+      title: 'E-posta dertlerin artık geride.',
     },
-    memory: {
-      ask: {
-        description:
-          '⌘K’de bir soru sor, yanıtı kendi postalarından, dayandığı e-postalarla birlikte al.',
-        title: 'Postalarına sor',
+    hero: {
+      brief: {
+        emphasis: 'seni bekliyor.',
+        lead: (handled: string) =>
+          `Anna sözleşmeyi bekliyor, Northwind’in faturasının son günü gelecek hafta ve Marco perşembeyi istiyor. ${handled} bülten ve bildirim halledildi.`,
+        tag: 'Perşembe özeti · 08:00',
+        title: 'Üç şey seni bekliyor.',
       },
-      boards: {
-        description:
-          'Neyin takip edileceğini anlat (para, seyahatler, siparişler), ajan bunları son altı aydan başlayarak postalarından toplasın ve grafiklere döksün.',
-        title: 'Panolar',
+      fates: {
+        archived: 'Arşivlendi',
+        markedRead: 'Okundu yapıldı',
+        spam: 'Spam',
+        summarised: 'Özetlendi',
+        unsubscribed: 'Abonelikten çıkıldı',
       },
-      followUps: {
-        description:
-          'Yanıt bekleyen postalar takip edilir, böylece hiçbir yazışma sessizce ölmez.',
-        title: 'Takipler',
+      handled: ((slots) => [
+        slots.count,
+        ' halledildi, her biri nedeniyle',
+      ]) as Rich<'count'>,
+      inbox: 'Gelen kutusu',
+      lead: 'Bültenler, makbuzlar, bildirimler, bir oltalama bağlantısı ve bir yerlerde gerçekten önemli olan üç e-posta. Fewmail, hepsini senin yerine okuyan ajan.',
+      needYou: ((slots) => [slots.count, ' seni bekliyor']) as Rich<'count'>,
+      queue: [
+        {
+          reason: 'Sözleşme yarın bekleniyor',
+          summary:
+            'İmzalı sözleşmenin cuma günkü başlangıç toplantısından önce geri gelmesi gerekiyor.',
+        },
+        {
+          reason: 'Fatura · $1,240, son gün 20 Kasım',
+          summary:
+            'Web sitesi yenilemesi için ekim faturası. Banka bilgileri geçen seferkiyle aynı.',
+        },
+        {
+          reason: 'Toplantı önerisi',
+          summary:
+            'Perşembe 15:00’i öneriyor. Sen 16:00’dan itibaren boşsun, bu yüzden taslak saat dördü soruyor.',
+        },
+      ],
+      reading: {
+        emphasis: 'her birini okur.',
+        lead: 'Gürültüyü arşivler, hiç açmadığın bültenlerden aboneliğini iptal eder ve dolandırıcılığı kapıda durdurur. Yaptığı her şey nedeniyle birlikte yazılır, böylece kontrol edebilirsin.',
+        title: 'Fewmail her birini okur.',
       },
-      handle: {
-        description:
-          '“Bununla ilgilen” de, ajan yazışmayı hedefine doğru yürütsün: her gönderimden önce sorarak ya da kendi başına göndererek.',
-        title: 'Bununla ilgilen',
-      },
-      people: {
-        description:
-          'Yazıştığın herkes hakkında, her hafta yenilenen kısa bir not, tam e-postalarının yanında.',
-        title: 'Kişiler',
-      },
-      promises: {
-        description:
-          'Gönderdiğin postalarda verdiğin sözler, zamanı gelince sana geri döner, kimse peşine düşmek zorunda kalmadan.',
-        title: 'Tutulan sözler',
-      },
+      remind: '19 Kasım’da hatırlat',
+      remindPlan: 'Faturalarına ekler ve 19 Kasım’da sana hatırlatır.',
+      start: 'Google ile ücretsiz başla',
+      title: 'E-posta senin işin değil.',
+      today: 'Bugün',
+      tryQueue: 'Kuyruğu dene',
+      unread: ((slots) => [slots.count, ' okunmamış']) as Rich<'count'>,
+      unreadInbox: ((slots) => [
+        'Gelen kutunda ',
+        slots.count,
+        ' okunmamış',
+      ]) as Rich<'count'>,
+      willDo: 'Fewmail ne yapacak',
     },
     nav: {
       compare: 'Karşılaştır',
       features: 'Özellikler',
+      mcp: 'MCP sunucusu',
       pricing: 'Fiyatlar',
       signIn: 'Giriş yap',
+    },
+    play: {
+      again: 'Yeniden temizle',
+      doneLead: (handled: string) =>
+        `Üç karar verdin. Fewmail geri kalan ${handled} tanesini halletti ve nedenini yazdı.`,
+      doneTitle: 'Bugünlük bu kadar.',
+      emphasis: 'iki dakikada.',
+      handled: [
+        'Lumen Weekly: son 30 sayının hiçbirini açmadın',
+        'paypa1-billing.com, paypal.com gibi görünüyor',
+        'Parcelhub: teslimat bildirimleri, “Makbuzlar ve kargo” kuralıyla',
+      ],
+      handledTitle: 'Sen uyurken halledilenler',
+      label: 'Dene',
+      lead: 'Artık sabahlar böyle görünüyor. Taslaklar yazıldı, nedenler ortada, kararı sen verirsin. Hadi, temizle.',
+      left: (count: number) => `${count} karar bekliyor`,
+      title: 'Tüm gelen kutun, iki dakikada.',
     },
     plans: {
       everythingIn: (plan: string) => `${plan} planındaki her şey, artı`,
@@ -1225,14 +1245,33 @@ export const tr: Messages = {
       otherTool: 'Başka bir araç mı düşünüyorsun?',
       title: 'Gelen kutusuna değil, ajana öde.',
     },
-    promises: [
-      'Onayın olmadan hiçbir şey gönderilmez',
-      'Postaların depolanırken şifrelenir',
-      'Asla model eğitmek için kullanılmaz',
-    ],
     startFree: 'Ücretsiz başla',
     trialNote: (days: number) =>
       `Kart gerekmeden ${days} gün Pro. Sonra istediğin kadar ücretsiz.`,
+    trust: {
+      emphasis: 'sorar.',
+      label: 'Postan, kararın',
+      places:
+        'Zaten kullandığın Gmail’in üzerinde çalışır ve sana şuralardan ulaşır',
+      title: 'Harekete geçmeden önce sorar.',
+      vows: [
+        {
+          description:
+            'Taslaklar seni bekler. Yalnızca senin oluşturduğun ya da tuttuğun kurallar kendi başına arşivleyebilir, okundu yapabilir veya abonelikten çıkabilir; yaptıkları her şey Halledilenler’de listelenir.',
+          title: 'Onayın olmadan hiçbir şey gönderilmez.',
+        },
+        {
+          description:
+            'Konular, içerikler, özetler ve taslaklar veritabanımızda şifrelenir. Kaydedilen taslaklar bizde değil, Gmail’de kalır.',
+          title: 'Depolanırken şifrelenir.',
+        },
+        {
+          description:
+            'Spam kalkanı herkesten anahtarlı hash’ler aracılığıyla öğrenir. Postandan tek bir adres ya da tek bir kelime bile paylaşılmaz.',
+          title: 'Asla model eğitmek için kullanılmaz.',
+        },
+      ],
+    },
   },
   skills: {
     bills: 'Yaklaşan faturalar ve ödemeler',
