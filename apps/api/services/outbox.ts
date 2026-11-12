@@ -3,6 +3,7 @@ import { actions, mailboxes, messages, outbox } from '@fewmail/db/schema'
 import type { OutboxMode } from '@fewmail/shared/agent'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import { forwardSubject, replySubject } from '@fewmail/shared/email'
+import { Result } from 'better-result'
 import { addSeconds, subMinutes } from 'date-fns'
 import { and, eq, inArray, isNull, lte } from 'drizzle-orm'
 
@@ -136,14 +137,15 @@ export const dispatchOutbox = async (id: string) => {
     return
   }
 
-  let sent: Awaited<ReturnType<typeof sendMail>>
-  try {
+  const sent = await Result.tryPromise(async () => {
     const [mailbox] = await db
       .select()
       .from(mailboxes)
       .where(eq(mailboxes.id, claimed.mailboxId))
-    sent = await sendMail(expectRow(mailbox), claimed)
-  } catch (error) {
+    return sendMail(expectRow(mailbox), claimed)
+  })
+  if (sent.isErr()) {
+    const error = sent.error.cause
     await markFailed(
       claimed,
       error instanceof Error ? error.message : String(error)
@@ -153,7 +155,7 @@ export const dispatchOutbox = async (id: string) => {
 
   // Gmail already sent it: a failure below must never mark it failed, or it is sent twice.
   await db.update(outbox).set({ status: 'sent' }).where(eq(outbox.id, id))
-  try {
+  const recorded = await Result.tryPromise(async () => {
     if (claimed.threadId) {
       await changeThreadLabels(claimed.userId, claimed.threadId, {
         remove: ['UNREAD'],
@@ -163,12 +165,13 @@ export const dispatchOutbox = async (id: string) => {
     if (claimed.remindAfterDays) {
       await scheduleFollowup(
         claimed.userId,
-        sent.threadId,
+        sent.value.threadId,
         claimed.remindAfterDays
       )
     }
-  } catch (error) {
-    logError('outbox after-send failed', error)
+  })
+  if (recorded.isErr()) {
+    logError('outbox after-send failed', recorded.error.cause)
   }
 }
 

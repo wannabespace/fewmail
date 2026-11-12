@@ -8,6 +8,7 @@ import {
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { replyRecipients, textToHtml } from '@fewmail/shared/email'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
+import { Result } from 'better-result'
 import { subHours } from 'date-fns'
 import {
   and,
@@ -550,26 +551,28 @@ export const approveAction = async (
     throw new NotFoundError('Action already handled')
   }
 
-  let outboxId: string | null = null
   const body = detail ?? action.detail
   const { gmail } = ACTION_KIND_TRAITS[action.kind]
-  try {
+  const applied = await Result.tryPromise(async () => {
     await applyActionSideEffects(userId, action)
     if (message && sendsDraft({ detail: body, kind: action.kind })) {
-      outboxId = await scheduleActionReply(userId, actionId, message, body)
-    } else if (message && gmail) {
+      return scheduleActionReply(userId, actionId, message, body)
+    }
+    if (message && gmail) {
       await applyThreadEffect(userId, message, gmail)
     }
-  } catch (error) {
+    return null
+  })
+  if (applied.isErr()) {
     await db
       .update(actions)
       .set({ resolvedAt: null, status: 'pending' })
       .where(eq(actions.id, actionId))
-    throw error
+    throw applied.error.cause
   }
 
   const [done] = await finish(actionId, 'done', detail)
-  return { ...expectRow(done), outboxId }
+  return { ...expectRow(done), outboxId: applied.value }
 }
 
 export const dismissAction = async (userId: string, actionId: string) => {

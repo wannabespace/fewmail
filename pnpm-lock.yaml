@@ -308,6 +308,9 @@ catalogs:
     better-auth:
       specifier: ^1.7.18
       version: 1.7.18
+    better-result:
+      specifier: ^3.0.1
+      version: 3.0.1
     blobatar:
       specifier: ^2.7.0
       version: 2.7.0
@@ -520,6 +523,9 @@ importers:
       better-auth:
         specifier: 'catalog:'
         version: 1.7.18(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@types/pg@8.23.1)(arktype@2.2.9)(bun-types@1.4.4)(pg@8.23.1)(zod@4.6.7))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      better-result:
+        specifier: 'catalog:'
+        version: 3.0.1
       bun:
         specifier: 'catalog:'
         version: 1.4.4
@@ -641,6 +647,9 @@ importers:
       better-auth:
         specifier: 'catalog:'
         version: 1.7.18(drizzle-kit@1.0.0-rc.5-ab785fc)(drizzle-orm@1.0.0-rc.5-ab785fc(@types/pg@8.23.1)(arktype@2.2.9)(bun-types@1.4.4)(pg@8.23.1)(zod@4.6.7))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      better-result:
+        specifier: 'catalog:'
+        version: 3.0.1
       date-fns:
         specifier: 'catalog:'
         version: 4.4.0
@@ -726,6 +735,9 @@ importers:
       '@fewmail/configs':
         specifier: workspace:*
         version: link:../configs
+      better-result:
+        specifier: 'catalog:'
+        version: 3.0.1
 
   packages/ui:
     dependencies:
@@ -786,6 +798,9 @@ importers:
       arktype:
         specifier: 'catalog:'
         version: 2.2.9
+      better-result:
+        specifier: 'catalog:'
+        version: 3.0.1
       blobatar:
         specifier: 'catalog:'
         version: 2.7.0(react@19.3.1)
@@ -3214,6 +3229,9 @@ packages:
     peerDependenciesMeta:
       zod:
         optional: true
+
+  better-result@3.0.1:
+    resolution: {integrity: sha512-rnCeqEXkKPHmz5MO5ZroPRDyHe4YvlNPyy7qj8cVcWs/GnvSvC3086G74/220W+wWcIWlXgzvcjskFV0A4blUQ==}
 
   blobatar@2.7.0:
     resolution: {integrity: sha512-tL1p2J3dXE/Z9U/ITwHqU7HBHmTH+Am+hif1J1hWAhvFT1VYC2HG+eXtN7081yuY+L2lrp9bs/VaF7dVH3S2jw==}
@@ -7656,6 +7674,8 @@ snapshots:
       set-cookie-parser: 3.2.2
     optionalDependencies:
       zod: 4.6.7
+
+  better-result@3.0.1: {}
 
   blobatar@2.7.0(react@19.3.1):
     optionalDependencies:

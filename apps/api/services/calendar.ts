@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { mailboxes } from '@fewmail/db/schema'
+import { Result } from 'better-result'
 import { and, asc, eq, isNull } from 'drizzle-orm'
 
 import type { CalendarEventFields } from '../lib/calendar'
@@ -71,15 +72,17 @@ export const listEvents = async (
   const perMailbox = await Promise.all(
     owned.map(async (mailbox) => {
       const calendar = { email: mailbox.email, mailboxId: mailbox.id }
-      try {
-        const events = await cachedEvents(mailbox, range)
-        return {
-          calendar,
-          events: events.map((event) => ({ ...event, mailboxId: mailbox.id })),
-        }
-      } catch (error) {
-        logError('calendar list failed', error)
+      const events = await Result.tryPromise(() => cachedEvents(mailbox, range))
+      if (events.isErr()) {
+        logError('calendar list failed', events.error.cause)
         return { calendar, events: [] }
+      }
+      return {
+        calendar,
+        events: events.value.map((event) => ({
+          ...event,
+          mailboxId: mailbox.id,
+        })),
       }
     })
   )

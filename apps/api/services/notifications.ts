@@ -2,6 +2,7 @@ import { db } from '@fewmail/db'
 import { devices } from '@fewmail/db/schema'
 import type { DeviceKind } from '@fewmail/shared/agent'
 import { messages } from '@fewmail/shared/i18n'
+import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 import webpush from 'web-push'
 
@@ -49,26 +50,30 @@ const sendWeb = async (device: Device, notification: Notification) => {
   if (!(env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && device.keys)) {
     return true
   }
-  try {
-    await webpush.sendNotification(
-      { endpoint: device.token, keys: device.keys },
-      JSON.stringify(notification),
-      {
-        TTL: TTL_SECONDS,
-        vapidDetails: {
-          privateKey: env.VAPID_PRIVATE_KEY,
-          publicKey: env.VAPID_PUBLIC_KEY,
-          subject: env.WEB_URL,
-        },
-      }
-    )
-    return true
-  } catch (error) {
-    if (error instanceof webpush.WebPushError && GONE.has(error.statusCode)) {
-      return false
-    }
-    throw error
+  const subscription = { endpoint: device.token, keys: device.keys }
+  const options = {
+    TTL: TTL_SECONDS,
+    vapidDetails: {
+      privateKey: env.VAPID_PRIVATE_KEY,
+      publicKey: env.VAPID_PUBLIC_KEY,
+      subject: env.WEB_URL,
+    },
   }
+  const sent = await Result.tryPromise(() =>
+    webpush.sendNotification(
+      subscription,
+      JSON.stringify(notification),
+      options
+    )
+  )
+  if (sent.isOk()) {
+    return true
+  }
+  const error = sent.error.cause
+  if (error instanceof webpush.WebPushError && GONE.has(error.statusCode)) {
+    return false
+  }
+  throw error
 }
 
 const senders: Record<
@@ -104,12 +109,13 @@ const deliver = async (userId: string, batch: Notification[]) => {
   const notification = await combine(userId, batch)
   await Promise.all(
     targets.map(async (device) => {
-      try {
+      const delivered = await Result.tryPromise(async () => {
         if (!(await senders[device.kind](device, notification))) {
           await db.delete(devices).where(eq(devices.id, device.id))
         }
-      } catch (error) {
-        logError(`notification to ${device.kind} failed`, error)
+      })
+      if (delivered.isErr()) {
+        logError(`notification to ${device.kind} failed`, delivered.error.cause)
       }
     })
   )

@@ -17,6 +17,7 @@ import { englishName } from '@fewmail/shared/i18n/locales'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
+import { Result } from 'better-result'
 import { and, desc, eq, gt, inArray, isNotNull, lt } from 'drizzle-orm'
 
 import { FAST_MODEL_ID, INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
@@ -379,8 +380,8 @@ const analyze = async (input: {
     return jevOnly(agent)
   }
 
-  try {
-    const { output: text } = await generateText({
+  const written = await Result.tryPromise(() =>
+    generateText({
       instructions: [
         `Write in ${englishName(input.settings.language)}: summary (one sentence, concrete names, amounts and dates), reason (why it matters, a few words) and actionTitle (a short imperative button label for: ${decisions.suggestedAction}).`,
         'extracted: an amount with currency, a due date (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null. Never invent anything.',
@@ -391,19 +392,21 @@ const analyze = async (input: {
       output: Output.object({ schema: textSchema }),
       prompt,
     })
-    return {
-      agent: true,
-      model: `${JEV_MODEL_ID}+${FAST_MODEL_ID}`,
-      output: {
-        ...decisions,
-        ...text,
-        reason: decisions.reason ?? text.reason,
-      },
-    }
-  } catch (error) {
+  )
+  if (written.isErr()) {
     allowance?.refund()
-    logError('analysis text failed, keeping Jev only', error)
+    logError('analysis text failed, keeping Jev only', written.error.cause)
     return jevOnly(false)
+  }
+  const { output: text } = written.value
+  return {
+    agent: true,
+    model: `${JEV_MODEL_ID}+${FAST_MODEL_ID}`,
+    output: {
+      ...decisions,
+      ...text,
+      reason: decisions.reason ?? text.reason,
+    },
   }
 }
 

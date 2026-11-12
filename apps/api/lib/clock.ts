@@ -1,3 +1,5 @@
+import { Result } from 'better-result'
+
 /** Local date (YYYY-MM-DD) and hour in a time zone, via Intl only. */
 export const localClock = (timezone: string, date = new Date()) => {
   const parts = Object.fromEntries(
@@ -19,11 +21,5 @@ export const localClock = (timezone: string, date = new Date()) => {
 }
 
 /** Intl throws on an unknown zone, which would fail every worker loop for that user. */
-export const isTimeZone = (timezone: string) => {
-  try {
-    localClock(timezone)
-    return true
-  } catch {
-    return false
-  }
-}
+export const isTimeZone = (timezone: string) =>
+  Result.try(() => localClock(timezone)).isOk()

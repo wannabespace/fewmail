@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
+import { Result } from 'better-result'
 import { addHours, isBefore } from 'date-fns'
 
 import { env } from './env'
@@ -179,7 +180,7 @@ const handle = async (inbound: Inbound) => {
     return
   }
   const { audio, context } = inbound
-  try {
+  const handled = await Result.tryPromise(async () => {
     const pressed =
       inbound.interactive?.button_reply?.id ?? inbound.button?.payload
     if (pressed) {
@@ -195,17 +196,20 @@ const handle = async (inbound: Inbound) => {
     } else if (text) {
       await send(to, await follow(chatOf(to), userId, text, context?.id))
     }
-  } catch (error) {
-    logError('whatsapp', error)
-    await say(to, failureText(await localeFor(userId), error, !!audio))
+  })
+  if (handled.isErr()) {
+    logError('whatsapp', handled.error.cause)
+    await say(
+      to,
+      failureText(await localeFor(userId), handled.error.cause, !!audio)
+    )
   }
 }
 
 const handleSafely = async (inbound: Inbound) => {
-  try {
-    await handle(inbound)
-  } catch (error) {
-    logError('whatsapp', error)
+  const handled = await Result.tryPromise(() => handle(inbound))
+  if (handled.isErr()) {
+    logError('whatsapp', handled.error.cause)
   }
 }
 

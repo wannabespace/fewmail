@@ -2,6 +2,7 @@ import { Buffer } from 'node:buffer'
 
 import { db } from '@fewmail/db'
 import { mailboxes } from '@fewmail/db/schema'
+import { Result } from 'better-result'
 import { addDays } from 'date-fns'
 import { eq, isNull, lt, or } from 'drizzle-orm'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
@@ -55,32 +56,28 @@ const isFromPubSub = async (request: Request) => {
   if (!token || !env.GMAIL_PUSH_SERVICE_ACCOUNT) {
     return false
   }
-  try {
-    const { payload } = await jwtVerify(token, GOOGLE_KEYS, {
+  const verified = await Result.tryPromise(() =>
+    jwtVerify(token, GOOGLE_KEYS, {
       audience: new URL('/gmail/push', env.API_URL).href,
       issuer: ['https://accounts.google.com', 'accounts.google.com'],
     })
-    return (
-      payload.email === env.GMAIL_PUSH_SERVICE_ACCOUNT &&
-      payload.email_verified === true
-    )
-  } catch {
-    return false
-  }
+  )
+  return (
+    verified.isOk() &&
+    verified.value.payload.email === env.GMAIL_PUSH_SERVICE_ACCOUNT &&
+    verified.value.payload.email_verified === true
+  )
 }
 
-const pushedAddress = (body: unknown) => {
-  try {
+const pushedAddress = (body: unknown) =>
+  Result.try(() => {
     const data = (body as { message?: { data?: string } }).message?.data
     return (
       JSON.parse(Buffer.from(data ?? '', 'base64').toString('utf-8')) as {
         emailAddress?: string
       }
     ).emailAddress
-  } catch {
-    return null
-  }
-}
+  }).unwrapOr(null)
 
 /** Answers before syncing: Pub/Sub redelivers anything not acknowledged within its deadline. */
 export const handleGmailPush = async (request: Request) => {

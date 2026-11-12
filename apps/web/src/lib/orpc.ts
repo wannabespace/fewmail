@@ -7,6 +7,7 @@ import { RPCLink } from '@orpc/client/fetch'
 import { BatchLinkPlugin } from '@orpc/client/plugins'
 import type { RouterClient } from '@orpc/server'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
+import { Result } from 'better-result'
 import { toast } from 'sonner'
 
 import { localeStore } from './i18n'
@@ -115,12 +116,13 @@ export const refetchChanged = (topics: string[] | null) => {
 /** The server says which parts changed; a dropped stream reconnects and refetches everything it may have missed. */
 export const listenForChanges = async (signal: AbortSignal) => {
   while (!signal.aborted) {
-    try {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- one stream at a time, reopened after it drops
+    // oxlint-disable-next-line eslint/no-await-in-loop -- one stream at a time, reopened after it drops
+    const streamed = await Result.tryPromise(async () => {
       for await (const { topics } of await client.live(undefined, { signal })) {
         refetchChanged(topics)
       }
-    } catch {
+    })
+    if (streamed.isErr()) {
       // oxlint-disable-next-line eslint/no-await-in-loop, promise/avoid-new -- waits before reconnecting
       await new Promise((resolve) => {
         setTimeout(resolve, LIVE_RECONNECT_MS)

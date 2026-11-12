@@ -1,6 +1,8 @@
 import { Buffer } from 'node:buffer'
 import * as crypto from 'node:crypto'
 
+import { Result } from 'better-result'
+
 const ALGORITHM = 'aes-256-gcm'
 const AUTH_TAG_LENGTH = 16
 const IV_LENGTH = 12
@@ -30,7 +32,7 @@ export const decrypt = ({
   encryptedText: string
   secret: string
 }) => {
-  try {
+  const decrypted = Result.try(() => {
     const [ivBase64, encryptedBase64, saltBase64] = encryptedText.split('.')
 
     if (!ivBase64 || !encryptedBase64 || !saltBase64) {
@@ -55,9 +57,11 @@ export const decrypt = ({
       decipher.update(ciphertext),
       decipher.final(),
     ]).toString('utf-8')
-  } catch {
+  })
+  if (decrypted.isErr()) {
     throw new Error('Failed to decrypt text')
   }
+  return decrypted.value
 }
 
 const searchableKeys = (secret: string) => {
@@ -100,7 +104,7 @@ export const decryptSearchable = ({
   encryptedText: string
   secret: string
 }) => {
-  try {
+  const decrypted = Result.try(() => {
     const [ivHex, encryptedHex] = encryptedText.split('.')
     if (!ivHex || !encryptedHex) {
       throw new Error('Failed to decrypt text')
@@ -117,7 +121,9 @@ export const decryptSearchable = ({
       decipher.update(encrypted.subarray(0, -AUTH_TAG_LENGTH)),
       decipher.final(),
     ]).toString('utf-8')
-  } catch {
+  })
+  if (decrypted.isErr()) {
     throw new Error('Failed to decrypt text')
   }
+  return decrypted.value
 }

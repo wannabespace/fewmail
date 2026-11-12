@@ -22,6 +22,7 @@ import { BubbleMenu } from '@tiptap/react/menus'
 import { StarterKit } from '@tiptap/starter-kit'
 import type { SuggestionProps } from '@tiptap/suggestion'
 import { Suggestion } from '@tiptap/suggestion'
+import { Result } from 'better-result'
 import type { Ref } from 'react'
 import {
   useImperativeHandle,
@@ -182,27 +183,26 @@ const createGhostExtension = (handlers: Handlers) =>
               timer = setTimeout(async () => {
                 const request = new AbortController()
                 controller = request
-                try {
-                  const text = await complete({
+                const completed = await Result.tryPromise(() =>
+                  complete({
                     prefix: prefix.slice(-PREFIX_LIMIT),
                     signal: request.signal,
                     suffix: suffix.slice(0, SUFFIX_LIMIT),
                   })
-                  if (
-                    request.signal.aborted ||
-                    !text.trim() ||
-                    view.isDestroyed ||
-                    view.state.doc !== doc ||
-                    view.state.selection.head !== $head.pos
-                  ) {
-                    return
-                  }
-                  view.dispatch(
-                    view.state.tr.setMeta(ghostKey, { pos: $head.pos, text })
-                  )
-                } catch {
-                  // An aborted or failed completion just shows nothing.
+                )
+                const text = completed.unwrapOr('')
+                if (
+                  request.signal.aborted ||
+                  !text.trim() ||
+                  view.isDestroyed ||
+                  view.state.doc !== doc ||
+                  view.state.selection.head !== $head.pos
+                ) {
+                  return
                 }
+                view.dispatch(
+                  view.state.tr.setMeta(ghostKey, { pos: $head.pos, text })
+                )
               }, COMPLETE_DELAY)
             }
             return {

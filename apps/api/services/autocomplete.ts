@@ -1,6 +1,7 @@
 import { db } from '@fewmail/db'
 import { messages, users } from '@fewmail/db/schema'
 import { generateText } from 'ai'
+import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 
 import { models, NO_EM_DASH } from '../lib/ai'
@@ -78,15 +79,14 @@ export const completeEmail = async (input: {
   userId: string
 }) => {
   const prompt = `${await preamble(input.userId, input.replyToMessageId)}\n${input.prefix}`
-  try {
-    const completion = await fim(prompt, input.suffix, input.signal)
-    if (completion !== null) {
-      return completion
-    }
-  } catch (error) {
-    if (input.signal?.aborted) {
-      throw error
-    }
+  const filled = await Result.tryPromise(() =>
+    fim(prompt, input.suffix, input.signal)
+  )
+  if (filled.isOk() && filled.value !== null) {
+    return filled.value
+  }
+  if (filled.isErr() && input.signal?.aborted) {
+    throw filled.error.cause
   }
   return chat(prompt, input.suffix, input.signal)
 }

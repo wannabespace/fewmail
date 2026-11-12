@@ -1,16 +1,15 @@
 import { execFileSync } from 'node:child_process'
 import process from 'node:process'
 
-const portlessUrl = (portlessName: string) => {
-  try {
-    return execFileSync('portless', ['get', portlessName], {
+import { Result } from 'better-result'
+
+const portlessUrl = (portlessName: string) =>
+  Result.try(() =>
+    execFileSync('portless', ['get', portlessName], {
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'inherit'],
     }).trim()
-  } catch {
-    return ''
-  }
-}
+  ).unwrapOr('')
 
 const setWhenMissing = (envKey: string, url: string | undefined) => {
   if (url && !process.env[envKey]) {

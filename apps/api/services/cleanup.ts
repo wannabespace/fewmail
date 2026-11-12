@@ -7,6 +7,7 @@ import {
 } from '@fewmail/db/schema'
 import type { CleanupSender } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
+import { Result } from 'better-result'
 import { subDays } from 'date-fns'
 import { and, eq, gte, isNotNull, sql } from 'drizzle-orm'
 
@@ -114,10 +115,11 @@ export const offerCleanup = async (
 export const runCleanup = (userId: string, senders: CleanupSender[]) =>
   Promise.all(
     senders.map(async ({ messageId }) => {
-      try {
-        await unsubscribeMessage(userId, messageId, 'sender')
-      } catch (error) {
-        logError('cleanup unsubscribe failed', error)
+      const unsubscribed = await Result.tryPromise(() =>
+        unsubscribeMessage(userId, messageId, 'sender')
+      )
+      if (unsubscribed.isErr()) {
+        logError('cleanup unsubscribe failed', unsubscribed.error.cause)
       }
     })
   )

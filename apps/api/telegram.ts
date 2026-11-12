@@ -2,6 +2,7 @@ import { SKILLS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
 import { LOCALES, matchLocale } from '@fewmail/shared/i18n/locales'
+import { Result } from 'better-result'
 import type { Api, Context } from 'grammy'
 import { Bot, InlineKeyboard, webhookCallback } from 'grammy'
 
@@ -176,7 +177,7 @@ const createBot = (token: string) => {
     const chatId = ctx.chat.id
     // Telegram takes one answer per press: a second one throws.
     let answered = false
-    try {
+    const pressed = await Result.tryPromise(async () => {
       const { buttons, notice, replies } = await press(
         chatOf(chatId),
         userId,
@@ -192,9 +193,14 @@ const createBot = (token: string) => {
       if (replies) {
         await sendAll(ctx.api, chatId, await replies())
       }
-    } catch (error) {
-      logError('telegram press', error)
-      const text = failureText(await localeFor(userId), error, false)
+    })
+    if (pressed.isErr()) {
+      logError('telegram press', pressed.error.cause)
+      const text = failureText(
+        await localeFor(userId),
+        pressed.error.cause,
+        false
+      )
       await (answered
         ? ctx.reply(text)
         : ctx.answerCallbackQuery({ show_alert: true, text }))
@@ -237,15 +243,15 @@ const createBot = (token: string) => {
     if (!ctx.message) {
       return
     }
-    try {
-      const userId = await userIdForChat(String(ctx.message.chat.id))
+    const { message } = ctx
+    // The chat may be gone; the error is already logged.
+    await Result.tryPromise(async () => {
+      const userId = await userIdForChat(String(message.chat.id))
       const locale = userId
         ? await localeFor(userId)
         : matchLocale([ctx.from?.language_code ?? 'en'])
-      await ctx.reply(failureText(locale, error, !!ctx.message.voice))
-    } catch {
-      // The chat may be gone; the error is already logged.
-    }
+      await ctx.reply(failureText(locale, error, !!message.voice))
+    })
   })
 
   return bot
@@ -268,8 +274,8 @@ export const startTelegram = async () => {
   if (!bot) {
     return
   }
-  try {
-    await Promise.all([
+  const commands = await Result.tryPromise(() =>
+    Promise.all([
       bot.api.setMyCommands(commandsFor(messages.en)),
       ...LOCALES.map(({ code }) =>
         bot.api.setMyCommands(commandsFor(messages[code]), {
@@ -277,18 +283,20 @@ export const startTelegram = async () => {
         })
       ),
     ])
-  } catch (error) {
-    logError('telegram commands', error)
+  )
+  if (commands.isErr()) {
+    logError('telegram commands', commands.error.cause)
   }
-  try {
-    await (env.TELEGRAM_WEBHOOK_SECRET
+  const started = await Result.tryPromise<unknown>(() =>
+    env.TELEGRAM_WEBHOOK_SECRET
       ? bot.api.setWebhook(`${env.API_URL}/telegram`, {
           secret_token: env.TELEGRAM_WEBHOOK_SECRET,
         })
-      : bot.start())
-  } catch (error) {
+      : bot.start()
+  )
+  if (started.isErr()) {
     // Only the message: grammy's error carries the request payload, webhook secret included.
-    logError('telegram start', error)
+    logError('telegram start', started.error.cause)
   }
 }
 

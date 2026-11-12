@@ -7,6 +7,7 @@ import {
   messages,
 } from '@fewmail/db/schema'
 import { ANALYZE_WINDOW_DAYS } from '@fewmail/shared/agent'
+import { Result } from 'better-result'
 import { subDays, subMinutes } from 'date-fns'
 import {
   and,
@@ -87,13 +88,14 @@ const isMissing = (error: unknown) =>
   error instanceof GmailError && error.status === 404
 
 const newMessageIds = async (mailbox: Mailbox) => {
-  if (mailbox.historyId) {
-    try {
-      return await listHistory(mailbox, mailbox.historyId)
-    } catch (error) {
-      if (!isMissing(error)) {
-        throw error
-      }
+  const { historyId: since } = mailbox
+  if (since) {
+    const history = await Result.tryPromise(() => listHistory(mailbox, since))
+    if (history.isOk()) {
+      return history.value
+    }
+    if (!isMissing(history.error.cause)) {
+      throw history.error.cause
     }
   }
 
@@ -247,8 +249,8 @@ export const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
   const knownIds = new Set(known.map(({ gmailId }) => gmailId))
 
   const inserted: Message[] = []
-  try {
-    await inBatches(
+  const stored = await Result.tryPromise(() =>
+    inBatches(
       ids.filter((id) => !knownIds.has(id)),
       ANALYZE_CONCURRENCY,
       async (id) => {
@@ -269,9 +271,10 @@ export const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
         inserted.push(...rows)
       }
     )
-  } catch (error) {
+  )
+  if (stored.isErr()) {
     await forget(inserted)
-    throw error
+    throw stored.error.cause
   }
   return inserted
 }
@@ -343,7 +346,7 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
   if (!mailbox) {
     return
   }
-  try {
+  const synced = await Result.tryPromise(async () => {
     const { historyId, ids, labelChanges } = await newMessageIds(mailbox)
     const byLabels = Map.groupBy(labelChanges, ([, labelIds]) =>
       labelIds.toSorted().join(' ')
@@ -367,15 +370,16 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
     )
     const inserted = await insertMessages(mailbox, ids)
     const hasChanges = inserted.length > 0 || labelChanges.size > 0
-    try {
+    const processed = await Result.tryPromise(async () => {
       await completeThreads(mailbox, inserted)
       if (hasChanges) {
         await announceChange(mailbox.userId, ['mail', 'mailboxes'])
       }
       await processIncoming(mailbox, inserted)
-    } catch (error) {
+    })
+    if (processed.isErr()) {
       await forget(inserted)
-      throw error
+      throw processed.error.cause
     }
     const [released] = await db
       .update(mailboxes)
@@ -395,7 +399,9 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
         logError('requested sync failed', error)
       )
     }
-  } catch (error) {
+  })
+  if (synced.isErr()) {
+    const error = synced.error.cause
     await db
       .update(mailboxes)
       .set({

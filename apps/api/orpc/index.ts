@@ -1,4 +1,5 @@
 import { ORPCError, os } from '@orpc/server'
+import { Result } from 'better-result'
 
 import { auth } from '../lib/auth'
 import { LimitReachedError } from '../services/limit-error'
@@ -9,30 +10,31 @@ import { AgentRequiredError, requireAgent } from '../services/plan'
 export const orpc = os.$context<{ headers: Headers }>()
 
 const notFoundToOrpc = orpc.middleware(async ({ next }) => {
-  try {
-    return await next()
-  } catch (error) {
-    if (error instanceof AlreadySentError) {
-      throw new ORPCError('CONFLICT', { message: error.message })
-    }
-    if (error instanceof NotFoundError) {
-      throw new ORPCError('NOT_FOUND', { message: error.message })
-    }
-    if (error instanceof AgentRequiredError) {
-      throw new ORPCError('FORBIDDEN', { message: error.message })
-    }
-    if (error instanceof LimitReachedError) {
-      throw new ORPCError('TOO_MANY_REQUESTS', {
-        data: {
-          limit: error.limit,
-          resetsAt: error.resetsAt,
-          total: error.total,
-        },
-        message: error.message,
-      })
-    }
-    throw error
+  const result = await Result.tryPromise(async () => await next())
+  if (result.isOk()) {
+    return result.value
   }
+  const error = result.error.cause
+  if (error instanceof AlreadySentError) {
+    throw new ORPCError('CONFLICT', { message: error.message })
+  }
+  if (error instanceof NotFoundError) {
+    throw new ORPCError('NOT_FOUND', { message: error.message })
+  }
+  if (error instanceof AgentRequiredError) {
+    throw new ORPCError('FORBIDDEN', { message: error.message })
+  }
+  if (error instanceof LimitReachedError) {
+    throw new ORPCError('TOO_MANY_REQUESTS', {
+      data: {
+        limit: error.limit,
+        resetsAt: error.resetsAt,
+        total: error.total,
+      },
+      message: error.message,
+    })
+  }
+  throw error
 })
 
 export const authed = orpc

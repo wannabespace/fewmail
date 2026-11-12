@@ -56,6 +56,7 @@ catalog:
   arktype: ^2.2.9
   babel-plugin-react-compiler: ^1.0.0
   better-auth: ^1.7.18
+  better-result: ^3.0.1
   blobatar: ^2.7.0
   bun: ^1.4.4
   class-variance-authority: ^0.7.1

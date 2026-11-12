@@ -14,6 +14,7 @@ import { IMPORTANCE } from '@fewmail/shared/agent'
 import { messages } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
+import { Result } from 'better-result'
 import { subMinutes } from 'date-fns'
 import { and, eq, gte, isNotNull, isNull, lt, lte, or } from 'drizzle-orm'
 
@@ -67,12 +68,10 @@ const once = async (key: string, run: () => Promise<unknown>) => {
     return
   }
   running.add(key)
-  try {
-    await run()
-  } catch (error) {
-    logError(`worker ${key}`, error)
-  } finally {
-    running.delete(key)
+  const ran = await Result.tryPromise(run)
+  running.delete(key)
+  if (ran.isErr()) {
+    logError(`worker ${key}`, ran.error.cause)
   }
 }
 
@@ -302,10 +301,11 @@ const runSchedule = async (schedule: Schedule) => {
     await deliverScheduleRun(schedule, t, text)
   }
 
-  let answer: string
-  try {
-    answer = await askAgent(userId, { id: chatId, text: instruction })
-  } catch (error) {
+  const answered = await Result.tryPromise(() =>
+    askAgent(userId, { id: chatId, text: instruction })
+  )
+  if (answered.isErr()) {
+    const error = answered.error.cause
     if (error instanceof AgentRequiredError) {
       await finish({ nextRunAt: await nextRunAt(userId, cron) })
       return
@@ -329,7 +329,7 @@ const runSchedule = async (schedule: Schedule) => {
     return
   }
   await finish({ failures: 0, nextRunAt: await nextRunAt(userId, cron) })
-  await deliverScheduleRun(schedule, t, answer)
+  await deliverScheduleRun(schedule, t, answered.value)
 }
 
 /** `runningSince` claims a run until it finishes; one older than `STALE_RUN_MINUTES` was cut off (a deploy, a crash) and runs again. */
@@ -358,8 +358,8 @@ const runDueSchedules = async () => {
 }
 
 const tick = async () => {
-  try {
-    await Promise.all([
+  const ticked = await Result.tryPromise(() =>
+    Promise.all([
       syncDueMailboxes(),
       renewWatches(),
       seedDueBoards(),
@@ -373,8 +373,9 @@ const tick = async () => {
       once('schedules', runDueSchedules),
       once('known-domains', refreshKnownDomains),
     ])
-  } catch (error) {
-    logError('worker tick', error)
+  )
+  if (ticked.isErr()) {
+    logError('worker tick', ticked.error.cause)
   }
 }
 

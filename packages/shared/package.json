@@ -10,6 +10,7 @@
     "check-types": "bun check"
   },
   "dependencies": {
-    "@fewmail/configs": "workspace:*"
+    "@fewmail/configs": "workspace:*",
+    "better-result": "catalog:"
   }
 }

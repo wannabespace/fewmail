@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { MemoryPublisher } from '@orpc/publisher/memory'
+import { Result } from 'better-result'
 import { sql } from 'drizzle-orm'
 
 import { logError } from './log'
@@ -43,12 +44,13 @@ export const announceChange = async (
   userId: string,
   topics?: readonly LiveTopic[]
 ) => {
-  try {
-    await db.execute(
+  const announced = await Result.tryPromise(() =>
+    db.execute(
       sql`select pg_notify(${CHANNEL}, ${[userId, ...(topics ?? [])].join(' ')})`
     )
-  } catch (error) {
-    logError('live announce failed', error)
+  )
+  if (announced.isErr()) {
+    logError('live announce failed', announced.error.cause)
   }
 }
 
