@@ -27,6 +27,8 @@ export const tr: Messages = {
     pending: 'Bugün’de bekliyor',
   },
   agent: {
+    voice: 'Ajana sesle söyle',
+    voiceStop: 'Durdur ve gönder',
     chats: 'Sohbetler',
     autonomy: {
       ask: 'Her e-postadan önce sana sorar',
@@ -111,6 +113,13 @@ export const tr: Messages = {
       mark_not_spam: 'Spamdan çıkarılıyor',
       move_to_inbox: 'Gelen kutusuna taşınıyor',
       create_board: 'Pano oluşturuluyor',
+      update_board: 'Pano değiştiriliyor',
+      delete_board: 'Pano siliniyor',
+      add_board_chart: 'Grafik ekleniyor',
+      add_to_board: 'Panoya ekleniyor',
+      edit_board_entry: 'Kayıt düzeltiliyor',
+      remove_board_entry: 'Panodan çıkarılıyor',
+      rename_board_group: 'Grubun adı değiştiriliyor',
     },
     stop: 'Durdur',
     thinking: 'Düşünüyor…',
@@ -144,8 +153,13 @@ export const tr: Messages = {
   },
   byRule: 'bir kuralla',
   boards: {
+    addTo: 'Panoya ekle',
+    added: (board: string) => `Eklendi: ${board}`,
+    cancel: 'İptal',
     chart: {
       add: 'Grafik ekle',
+      ask: 'Grafiği anlat',
+      askPlaceholder: 'Mağazaya göre harcama, duruma göre siparişler…',
       currency: 'Para birimi',
       edit: 'Grafik ayarları',
       empty: 'Henüz çizilecek bir şey yok',
@@ -158,6 +172,8 @@ export const tr: Messages = {
       },
       measure: 'Gösterilen',
       measures: { count: 'Adet', sum: 'Toplam tutar' },
+      moveEarlier: 'Öne al',
+      moveLater: 'Geriye al',
       other: 'Diğer',
       remove: 'Grafiği kaldır',
       skipped: (n: number) =>
@@ -176,22 +192,86 @@ export const tr: Messages = {
     charts: 'Grafikler',
     create: 'Pano oluştur',
     delete: 'Panoyu sil',
+    deleteConfirm: (name: string) => `“${name}” silinsin mi?`,
+    deleteHint:
+      'Kayıtları ve grafikleri de silinir. Postaların olduğu yerde kalır.',
+    describe: 'Neleri topladığını değiştir',
     description: 'Neleri topladığı',
     descriptionPlaceholder:
       'Seyahatler: uçuşlar, oteller ve araç kiralama, maliyetleriyle',
-    edit: 'Panoyu düzenle',
-    editHint: 'Neleri topladığını değiştirirsen son altı ay yeniden okunur.',
+    due: (when: string) => `Yaklaşıyor: ${when}`,
     empty: 'Henüz boş. Uygun e-postalar gelir gelmez burada görünür.',
+    emptyQuery: 'Şununla eşleşen postaları arar:',
     entries: (total: number) =>
       plural('tr', total, { other: (n) => `${n} kayıt` }),
+    entry: {
+      amount: 'Tutar',
+      currency: 'Para birimi',
+      date: 'Tarih',
+      edit: 'Kaydı düzenle',
+      edited: 'Senin düzenlemen',
+      group: 'Kim veya ne',
+      next: 'Sonraki tarih',
+      nextOn: (date: string) => `sonraki: ${date}`,
+      remove: 'Bu panoya ait değil',
+      removed: 'Panodan çıkarıldı. Bundan ders çıkarır.',
+      status: 'Durum',
+      title: 'Başlık',
+    },
+    expected: (when: string) => `Beklenen: ${when}`,
+    filter: {
+      clear: 'Filtreyi temizle',
+      nothing: 'Eşleşen kayıt yok.',
+      search: 'Kayıtlarda ara',
+    },
+    groups: {
+      every: {
+        month: 'her ay',
+        quarter: 'her çeyrek',
+        week: 'her hafta',
+        year: 'her yıl',
+      },
+      expected: (date: string) => `beklenen: ${date}`,
+      next: (date: string) => `sonraki: ${date}`,
+      perMonth: (amount: string) => `${amount} / ay`,
+      rename: 'Grubu yeniden adlandır',
+      renameHint: 'İkisini birleştirmek için başka bir grubun adını ver.',
+      showAll: (n: number) => `Tümünü göster (${n})`,
+      showFewer: 'Daha az göster',
+      title: 'Kim veya neye göre',
+    },
+    history: {
+      capped: (n: number) =>
+        `Son altı ayın eşleşen en yeni ${n} e-postası okundu.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Son altı ayın postalarına bakılıyor…'
+          : `Son altı aydan ${plural('tr', found, { other: (n) => `${n} e-posta` })} okunuyor · şimdiye kadar ${plural('tr', entries, { other: (n) => `${n} kayıt` })}`,
+    },
+    menu: 'Pano işlemleri',
+    moveDown: 'Aşağı taşı',
+    moveUp: 'Yukarı taşı',
     name: 'Ad',
     namePlaceholder: 'Seyahatler',
     new: 'Yeni pano',
     newHint:
       'Neyin toplanacağını kendi kelimelerinle anlat. Fewmail son altı ayın postalarında bulur, grafikleri seçer ve panoyu güncel tutar.',
     planning: 'Hazırlanıyor…',
-    readingHistory: 'Son altı ayın postaları okunuyor…',
+    redescribe: 'Kaydet ve yeniden oku',
+    redescribeHint:
+      'Son altı ay yeni açıklamayla yeniden okunur. Düzenlediğin veya çıkardığın kayıtlar olduğu gibi kalır.',
+    rename: 'Panoyu yeniden adlandır',
     save: 'Kaydet',
+    settings: {
+      bannerDays: 'Tarihten önce uyarı',
+      days: (n: number) =>
+        plural('tr', n, { other: (count) => `${count} gün önce` }),
+      hint: 'Panonun postalarını nasıl bulduğu ve seni ne zaman uyardığı.',
+      never: 'Hiçbir zaman',
+      query: 'Gmail araması',
+      queryHint: 'Değiştirirsen son altı ay yeniden okunur.',
+      title: 'Arama ve uyarılar',
+    },
     starter: {
       events: {
         description:
@@ -218,6 +298,14 @@ export const tr: Messages = {
           'Uçuşlar, trenler, oteller ve kiralamalar: nereye, ne zaman ve kaça gidiyorum.',
         name: 'Seyahatler',
       },
+    },
+    summary: {
+      lastMonth: 'Geçen ay',
+      perMonth: (amount: string) => `Ayda ${amount}`,
+      recurring: (n: number) =>
+        plural('tr', n, { other: (count) => `${count} düzenli` }),
+      thisMonth: 'Bu ay',
+      upcoming: '30 gün içinde ödenecek',
     },
   },
   bulk: {
@@ -327,6 +415,7 @@ export const tr: Messages = {
     done: 'İlettiğin e-posta',
   },
   reading: {
+    digest: (n: number) => `Bugünkü bültenler: ${n}`,
     empty: 'Son günde bülten gelmedi.',
     lead: 'Son günün bültenleri tek yerde, gelen kutusunu doldurmasınlar diye.',
     title: 'Okuma',
@@ -433,6 +522,9 @@ export const tr: Messages = {
     edit: 'düzenle',
     move: 'gezin',
     open: 'aç',
+    notOnBoard: 'bu panoya ait değil',
+    rename: 'yeniden adlandır',
+    clearFilter: 'filtreyi temizle',
     search: 'ara',
     send: 'gönder',
     skip: 'atla',
@@ -470,6 +562,9 @@ export const tr: Messages = {
     title: 'Yalnızca önemli olan.',
   },
   mail: {
+    openUnsubscribePage: 'Sayfayı aç',
+    unsubscribeYourself:
+      'Bu listeden çıkmayı kendi sayfasında tamamlaman gerekiyor. O zamana kadar e-postaları arşivde.',
     allMailboxes: 'Tüm posta kutuları',
     group: {
       category: 'Kategori',
@@ -699,6 +794,15 @@ export const tr: Messages = {
     whichEmails: 'Hangi e-postalar',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Özetten sonra günün bültenleri Telegram ve WhatsApp’a tek mesaj olarak gelir.',
+      title: 'Bülten özeti',
+    },
+    voiceBrief: {
+      description: 'Özet Telegram ve WhatsApp’a sesli mesaj olarak da gelir.',
+      title: 'Sesli özet',
+    },
     forward: {
       copy: 'Adresi kopyala',
       description:
@@ -1331,6 +1435,7 @@ export const tr: Messages = {
     started: 'Ajan ilgileniyor.',
   },
   telegram: {
+    approveAlike: 'Aynı türdeki tüm kartları birden onayla:',
     listen: '🔊 Dinle',
     heard: (text: string) => `Duyduğum: “${text}”`,
     voiceFailed: 'Anlayamadım. Tekrar dene ya da yaz.',

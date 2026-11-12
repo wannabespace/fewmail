@@ -41,6 +41,7 @@ import {
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
+import { AddToBoardItems } from './board-entries'
 import type { Draft } from './compose/compose-context'
 import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
@@ -666,6 +667,7 @@ export const ThreadView = ({
                         {t.tasks.handle}
                       </DropdownMenuItem>
                     )}
+                    <AddToBoardItems messageId={target.messageId} />
                     <DropdownMenuItem onClick={forward}>
                       {t.mail.forward}
                       <DropdownMenuShortcut>F</DropdownMenuShortcut>

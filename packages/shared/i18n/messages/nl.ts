@@ -27,6 +27,8 @@ export const nl: Messages = {
     pending: 'wacht in Vandaag',
   },
   agent: {
+    voice: 'Praat met de agent',
+    voiceStop: 'Stoppen en versturen',
     chats: 'Chats',
     autonomy: {
       ask: 'Vraagt het je vóór elke e-mail',
@@ -111,6 +113,13 @@ export const nl: Messages = {
       mark_not_spam: 'Uit spam halen',
       move_to_inbox: 'Naar de inbox verplaatsen',
       create_board: 'Bord maken',
+      update_board: 'Bord aanpassen',
+      delete_board: 'Bord verwijderen',
+      add_board_chart: 'Grafiek toevoegen',
+      add_to_board: 'Op het bord zetten',
+      edit_board_entry: 'Item corrigeren',
+      remove_board_entry: 'Van het bord halen',
+      rename_board_group: 'Groep hernoemen',
     },
     stop: 'Stoppen',
     thinking: 'Denken…',
@@ -144,8 +153,13 @@ export const nl: Messages = {
   },
   byRule: 'door een regel',
   boards: {
+    addTo: 'Aan bord toevoegen',
+    added: (board: string) => `Op ${board} gezet`,
+    cancel: 'Annuleren',
     chart: {
       add: 'Grafiek toevoegen',
+      ask: 'Beschrijf de grafiek',
+      askPlaceholder: 'Uitgaven per winkel, bestellingen per status…',
       currency: 'Valuta',
       edit: 'Grafiekinstellingen',
       empty: 'Nog niets om te tekenen',
@@ -158,6 +172,8 @@ export const nl: Messages = {
       },
       measure: 'Toont',
       measures: { count: 'Aantal', sum: 'Totaalbedrag' },
+      moveEarlier: 'Naar voren',
+      moveLater: 'Naar achteren',
       other: 'Overig',
       remove: 'Grafiek verwijderen',
       skipped: (n: number) =>
@@ -176,26 +192,93 @@ export const nl: Messages = {
     charts: 'Grafieken',
     create: 'Bord maken',
     delete: 'Bord verwijderen',
+    deleteConfirm: (name: string) => `“${name}” verwijderen?`,
+    deleteHint: 'De items en grafieken gaan mee. Je mail blijft waar hij is.',
+    describe: 'Aanpassen wat het verzamelt',
     description: 'Wat het verzamelt',
     descriptionPlaceholder:
       'Reizen: vluchten, hotels en huurauto’s, met wat ze kostten',
-    edit: 'Bord bewerken',
-    editHint:
-      'Als je verandert wat het verzamelt, worden de afgelopen zes maanden opnieuw gelezen.',
+    due: (when: string) => `Binnenkort: ${when}`,
     empty: 'Nog leeg. Passende e-mails verschijnen hier zodra ze binnenkomen.',
+    emptyQuery: 'Het zoekt naar mail die past bij',
     entries: (total: number) =>
       plural('nl', total, {
         one: () => 'Eén item',
         other: (n) => `${n} items`,
       }),
+    entry: {
+      amount: 'Bedrag',
+      currency: 'Valuta',
+      date: 'Datum',
+      edit: 'Item bewerken',
+      edited: 'Door jou bewerkt',
+      group: 'Wie of wat',
+      next: 'Volgende datum',
+      nextOn: (date: string) => `volgende: ${date}`,
+      remove: 'Niet op dit bord',
+      removed: 'Van het bord gehaald. Het leert ervan.',
+      status: 'Status',
+      title: 'Titel',
+    },
+    expected: (when: string) => `Verwacht ${when}`,
+    filter: {
+      clear: 'Filter wissen',
+      nothing: 'Geen items gevonden.',
+      search: 'Items zoeken',
+    },
+    groups: {
+      every: {
+        month: 'elke maand',
+        quarter: 'elk kwartaal',
+        week: 'elke week',
+        year: 'elk jaar',
+      },
+      expected: (date: string) => `verwacht ${date}`,
+      next: (date: string) => `volgende: ${date}`,
+      perMonth: (amount: string) => `${amount} / maand`,
+      rename: 'Groep hernoemen',
+      renameHint:
+        'Geef hem de naam van een andere groep om ze samen te voegen.',
+      showAll: (n: number) => `Alle ${n} tonen`,
+      showFewer: 'Minder tonen',
+      title: 'Per wie of wat',
+    },
+    history: {
+      capped: (n: number) =>
+        `De nieuwste ${n} passende e-mails van de afgelopen zes maanden gelezen.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Mail van de afgelopen zes maanden doorzoeken…'
+          : `${plural('nl', found, { one: () => 'Eén e-mail', other: (n) => `${n} e-mails` })} van de afgelopen zes maanden lezen · tot nu toe ${plural('nl', entries, { one: () => 'één item', other: (n) => `${n} items` })}`,
+    },
+    menu: 'Bordacties',
+    moveDown: 'Omlaag',
+    moveUp: 'Omhoog',
     name: 'Naam',
     namePlaceholder: 'Reizen',
     new: 'Nieuw bord',
     newHint:
       'Beschrijf in je eigen woorden wat er verzameld moet worden. Fewmail zoekt het op in de mail van de afgelopen zes maanden, kiest de grafieken en houdt het bij.',
     planning: 'Bezig met instellen…',
-    readingHistory: 'Mail van de afgelopen zes maanden lezen…',
+    redescribe: 'Opslaan en opnieuw lezen',
+    redescribeHint:
+      'Leest de afgelopen zes maanden opnieuw met de nieuwe beschrijving. Items die je bewerkte of weghaalde blijven.',
+    rename: 'Bord hernoemen',
     save: 'Opslaan',
+    settings: {
+      bannerDays: 'Seintje vóór een datum',
+      days: (n: number) =>
+        plural('nl', n, {
+          one: () => '1 dag van tevoren',
+          other: (count) => `${count} dagen van tevoren`,
+        }),
+      hint: 'Hoe het bord zijn mail vindt en wanneer het je waarschuwt.',
+      never: 'Nooit',
+      query: 'Gmail-zoekopdracht',
+      queryHint:
+        'Als je dit aanpast, worden de afgelopen zes maanden opnieuw gelezen.',
+      title: 'Zoeken en seintjes',
+    },
     starter: {
       events: {
         description:
@@ -222,6 +305,17 @@ export const nl: Messages = {
           'Vluchten, treinen, hotels en huur: waar ik heen ga, wanneer en wat het kost.',
         name: 'Reizen',
       },
+    },
+    summary: {
+      lastMonth: 'Vorige maand',
+      perMonth: (amount: string) => `${amount} per maand`,
+      recurring: (n: number) =>
+        plural('nl', n, {
+          one: () => 'Eén terugkerend',
+          other: (count) => `${count} terugkerend`,
+        }),
+      thisMonth: 'Deze maand',
+      upcoming: 'Binnen 30 dagen te betalen',
     },
   },
   bulk: {
@@ -335,6 +429,7 @@ export const nl: Messages = {
     done: 'Je doorgestuurde e-mail',
   },
   reading: {
+    digest: (n: number) => `Nieuwsbrieven vandaag: ${n}`,
     empty: 'Geen nieuwsbrieven in de afgelopen dag.',
     lead: 'De nieuwsbrieven van de afgelopen dag op één plek, zodat ze je inbox niet vullen.',
     title: 'Lezen',
@@ -445,6 +540,9 @@ export const nl: Messages = {
     edit: 'bewerken',
     move: 'bewegen',
     open: 'openen',
+    notOnBoard: 'niet op dit bord',
+    rename: 'hernoemen',
+    clearFilter: 'filter wissen',
     search: 'zoeken',
     send: 'versturen',
     skip: 'overslaan',
@@ -482,6 +580,9 @@ export const nl: Messages = {
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
+    openUnsubscribePage: 'Pagina openen',
+    unsubscribeYourself:
+      'Voor deze lijst moet je zelf afmelden op de pagina ervan. Tot dan is de mail gearchiveerd.',
     allMailboxes: 'Alle mailboxen',
     group: {
       category: 'Categorie',
@@ -723,6 +824,16 @@ export const nl: Messages = {
     whichEmails: 'Welke e-mails',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Na de briefing komen de nieuwsbrieven van de dag als één bericht in Telegram en WhatsApp.',
+      title: 'Nieuwsbriefoverzicht',
+    },
+    voiceBrief: {
+      description:
+        'De briefing komt in Telegram en WhatsApp ook als spraakbericht.',
+      title: 'Briefing als spraakbericht',
+    },
     forward: {
       copy: 'Adres kopiëren',
       description:
@@ -1354,6 +1465,7 @@ export const nl: Messages = {
     started: 'De agent is ermee bezig.',
   },
   telegram: {
+    approveAlike: 'Alle kaarten van één soort tegelijk goedkeuren:',
     listen: '🔊 Luisteren',
     heard: (text: string) => `Gehoord: “${text}”`,
     voiceFailed: 'Ik kon het niet verstaan. Probeer het opnieuw of typ het.',

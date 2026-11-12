@@ -28,6 +28,8 @@ export const zh: Messages = {
   },
   byRule: '按规则',
   agent: {
+    voice: '语音对话',
+    voiceStop: '停止并发送',
     chats: '对话',
     autonomy: {
       ask: '每封邮件发出前都会先问你',
@@ -111,6 +113,13 @@ export const zh: Messages = {
       mark_not_spam: '正在移出垃圾邮件',
       move_to_inbox: '正在移到收件箱',
       create_board: '正在创建看板',
+      update_board: '正在修改看板',
+      delete_board: '正在删除看板',
+      add_board_chart: '正在添加图表',
+      add_to_board: '正在加入看板',
+      edit_board_entry: '正在修正记录',
+      remove_board_entry: '正在从看板移除',
+      rename_board_group: '正在重命名分组',
     },
     stop: '停止',
     thinking: '思考中…',
@@ -279,6 +288,9 @@ export const zh: Messages = {
     edit: '编辑',
     move: '移动',
     open: '打开',
+    notOnBoard: '不属于此看板',
+    rename: '重命名',
+    clearFilter: '清除筛选',
     search: '搜索',
     send: '发送',
     skip: '跳过',
@@ -314,6 +326,9 @@ export const zh: Messages = {
     title: '只看重要的。',
   },
   mail: {
+    openUnsubscribePage: '打开页面',
+    unsubscribeYourself:
+      '这个列表需要你在它的页面上自己退订。在此之前，它的邮件已归档。',
     allMailboxes: '所有邮箱',
     group: {
       category: '类别',
@@ -513,6 +528,15 @@ export const zh: Messages = {
     whichEmails: '哪些邮件',
   },
   settings: {
+    readingDigest: {
+      description:
+        '简报之后，当天的订阅邮件会合成一条消息发到 Telegram 和 WhatsApp。',
+      title: '订阅邮件摘要',
+    },
+    voiceBrief: {
+      description: '简报也会以语音消息发到 Telegram 和 WhatsApp。',
+      title: '语音简报',
+    },
     forward: {
       copy: '复制地址',
       description:
@@ -1113,6 +1137,7 @@ export const zh: Messages = {
     receipts: '收据、订单确认和发货确认',
   },
   telegram: {
+    approveAlike: '一次批准同一类的全部卡片：',
     listen: '🔊 收听',
     heard: (text: string) => `听到的是：“${text}”`,
     voiceFailed: '我没听清。请再说一次，或直接输入。',
@@ -1185,8 +1210,13 @@ export const zh: Messages = {
     writing: '正在撰写…',
   },
   boards: {
+    addTo: '加入看板',
+    added: (board: string) => `已加入${board}`,
+    cancel: '取消',
     chart: {
       add: '添加图表',
+      ask: '描述图表',
+      askPlaceholder: '按商店统计支出、按状态统计订单…',
       currency: '货币',
       edit: '图表设置',
       empty: '暂时没有可显示的数据',
@@ -1199,6 +1229,8 @@ export const zh: Messages = {
       },
       measure: '显示',
       measures: { count: '数量', sum: '总金额' },
+      moveEarlier: '前移',
+      moveLater: '后移',
       other: '其他',
       remove: '移除图表',
       skipped: (n: number) => `未计入:${n} 条(其他货币或无金额)`,
@@ -1216,20 +1248,81 @@ export const zh: Messages = {
     charts: '图表',
     create: '创建看板',
     delete: '删除看板',
+    deleteConfirm: (name: string) => `删除“${name}”？`,
+    deleteHint: '其中的记录和图表会一并删除，邮件保持原样。',
+    describe: '更改收集内容',
     description: '收集什么',
     descriptionPlaceholder: '旅行：机票、酒店和租车，以及花费',
-    edit: '编辑看板',
-    editHint: '更改收集内容后，会重新读取最近六个月的邮件。',
+    due: (when: string) => `即将到来：${when}`,
     empty: '暂时为空。符合条件的邮件一到就会出现在这里。',
+    emptyQuery: '查找符合以下条件的邮件',
     entries: (n: number) => `${n} 条记录`,
+    entry: {
+      amount: '金额',
+      currency: '货币',
+      date: '日期',
+      edit: '编辑记录',
+      edited: '已由你编辑',
+      group: '对象',
+      next: '下次日期',
+      nextOn: (date: string) => `下次 ${date}`,
+      remove: '不属于此看板',
+      removed: '已从看板移除，之后会记住这一点。',
+      status: '状态',
+      title: '标题',
+    },
+    expected: (when: string) => `预计 ${when}`,
+    filter: {
+      clear: '清除筛选',
+      nothing: '没有匹配的记录。',
+      search: '搜索记录',
+    },
+    groups: {
+      every: {
+        month: '每月',
+        quarter: '每季度',
+        week: '每周',
+        year: '每年',
+      },
+      expected: (date: string) => `预计 ${date}`,
+      next: (date: string) => `下次 ${date}`,
+      perMonth: (amount: string) => `${amount} / 月`,
+      rename: '重命名分组',
+      renameHint: '改成另一个分组的名称，即可将两者合并。',
+      showAll: (n: number) => `显示全部 ${n} 项`,
+      showFewer: '收起',
+      title: '按对象',
+    },
+    history: {
+      capped: (n: number) => `已读取最近六个月中最新的 ${n} 封匹配邮件。`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? '正在查看最近六个月的邮件…'
+          : `正在读取最近六个月的 ${found} 封邮件 · 已有 ${entries} 条记录`,
+    },
+    menu: '看板操作',
+    moveDown: '下移',
+    moveUp: '上移',
     name: '名称',
     namePlaceholder: '旅行',
     new: '新建看板',
     newHint:
       '用你自己的话描述要收集什么。Fewmail 会在最近六个月的邮件中找到它，挑选图表，并持续更新。',
     planning: '正在设置…',
-    readingHistory: '正在读取最近六个月的邮件…',
+    redescribe: '保存并重新读取',
+    redescribeHint:
+      '按新的描述重新读取最近六个月的邮件。你编辑过或移除的记录会保留。',
+    rename: '重命名看板',
     save: '保存',
+    settings: {
+      bannerDays: '日期前提醒',
+      days: (n: number) => `提前 ${n} 天`,
+      hint: '看板如何查找邮件，以及何时提醒你。',
+      never: '从不',
+      query: 'Gmail 搜索',
+      queryHint: '更改后会重新读取最近六个月的邮件。',
+      title: '搜索与提醒',
+    },
     starter: {
       events: {
         description: '门票、预订和预约：我要去哪里、什么时候、和谁一起。',
@@ -1251,6 +1344,13 @@ export const zh: Messages = {
         description: '机票、火车、酒店和租车：去哪里、什么时候、花多少钱。',
         name: '出行',
       },
+    },
+    summary: {
+      lastMonth: '上月',
+      perMonth: (amount: string) => `每月 ${amount}`,
+      recurring: (n: number) => `${n} 项定期`,
+      thisMonth: '本月',
+      upcoming: '30 天内到期',
     },
   },
   bulk: {
@@ -1308,6 +1408,7 @@ export const zh: Messages = {
     done: '你转发的邮件',
   },
   reading: {
+    digest: (n: number) => `今日订阅邮件：${n} 封`,
     empty: '过去一天没有订阅邮件。',
     lead: '过去一天的订阅邮件集中在一处，不再挤满收件箱。',
     title: '阅读',

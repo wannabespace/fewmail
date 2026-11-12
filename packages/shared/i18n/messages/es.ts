@@ -4,6 +4,8 @@ import type { Messages } from './en'
 
 export const es: Messages = {
   agent: {
+    voice: 'Hablar con el agente',
+    voiceStop: 'Detener y enviar',
     chats: 'Chats',
     autonomy: {
       ask: 'Te pregunta antes de cada correo',
@@ -88,6 +90,13 @@ export const es: Messages = {
       mark_not_spam: 'Sacando del spam',
       move_to_inbox: 'Moviendo a la bandeja de entrada',
       create_board: 'Creando un tablero',
+      update_board: 'Cambiando el tablero',
+      delete_board: 'Eliminando el tablero',
+      add_board_chart: 'Añadiendo un gráfico',
+      add_to_board: 'Añadiendo al tablero',
+      edit_board_entry: 'Corrigiendo la entrada',
+      remove_board_entry: 'Quitando del tablero',
+      rename_board_group: 'Renombrando el grupo',
     },
     stop: 'Detener',
     thinking: 'Pensando…',
@@ -779,6 +788,9 @@ export const es: Messages = {
     edit: 'editar',
     move: 'mover',
     open: 'abrir',
+    notOnBoard: 'no es de este tablero',
+    rename: 'renombrar',
+    clearFilter: 'quitar filtro',
     search: 'buscar',
     send: 'enviar',
     skip: 'omitir',
@@ -816,6 +828,9 @@ export const es: Messages = {
     title: 'Solo lo que importa.',
   },
   mail: {
+    openUnsubscribePage: 'Abrir página',
+    unsubscribeYourself:
+      'Para dejar esta lista tienes que terminar en su página. Mientras tanto, su correo queda archivado.',
     allMailboxes: 'Todos los buzones',
     group: {
       category: 'Categoría',
@@ -1030,6 +1045,16 @@ export const es: Messages = {
     whichEmails: 'Qué correos',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Después del resumen, los boletines del día llegan a Telegram y WhatsApp en un solo mensaje.',
+      title: 'Resumen de boletines',
+    },
+    voiceBrief: {
+      description:
+        'El resumen también llega a Telegram y WhatsApp como nota de voz.',
+      title: 'Resumen en audio',
+    },
     forward: {
       copy: 'Copiar dirección',
       description:
@@ -1162,6 +1187,7 @@ export const es: Messages = {
     receipts: 'Recibos, confirmaciones de pedido y de envío',
   },
   telegram: {
+    approveAlike: 'Aprobar a la vez todas las tarjetas de un tipo:',
     listen: '🔊 Escuchar',
     heard: (text: string) => `He oído: «${text}»`,
     voiceFailed: 'No lo he entendido. Inténtalo de nuevo o escríbelo.',
@@ -1253,8 +1279,13 @@ export const es: Messages = {
     writing: 'Escribiendo…',
   },
   boards: {
+    addTo: 'Añadir a un tablero',
+    added: (board: string) => `Añadido a ${board}`,
+    cancel: 'Cancelar',
     chart: {
       add: 'Añadir gráfico',
+      ask: 'Describe el gráfico',
+      askPlaceholder: 'Gasto por tienda, pedidos por estado…',
       currency: 'Moneda',
       edit: 'Ajustes del gráfico',
       empty: 'Aún no hay nada que dibujar',
@@ -1267,6 +1298,8 @@ export const es: Messages = {
       },
       measure: 'Muestra',
       measures: { count: 'Cantidad', sum: 'Importe total' },
+      moveEarlier: 'Mover antes',
+      moveLater: 'Mover después',
       other: 'Otros',
       remove: 'Quitar gráfico',
       skipped: (n: number) => `Sin contar: ${n} en otra moneda o sin importe`,
@@ -1284,27 +1317,93 @@ export const es: Messages = {
     charts: 'Gráficos',
     create: 'Crear tablero',
     delete: 'Eliminar tablero',
+    deleteConfirm: (name: string) => `¿Eliminar «${name}»?`,
+    deleteHint:
+      'Sus entradas y gráficos se eliminan con él. Tu correo se queda donde está.',
+    describe: 'Cambiar qué recopila',
     description: 'Qué recopila',
     descriptionPlaceholder:
       'Viajes: vuelos, hoteles y alquiler de coches, con lo que costaron',
-    edit: 'Editar tablero',
-    editHint:
-      'Si cambias lo que recopila, se vuelven a leer los últimos seis meses.',
+    due: (when: string) => `Próximamente: ${when}`,
     empty:
       'Aún está vacío. Los correos que encajen aparecerán aquí en cuanto lleguen.',
+    emptyQuery: 'Busca correos que coincidan con',
     entries: (total: number) =>
       plural('es', total, {
         one: () => 'Una entrada',
         other: (n) => `${n} entradas`,
       }),
+    entry: {
+      amount: 'Importe',
+      currency: 'Moneda',
+      date: 'Fecha',
+      edit: 'Editar entrada',
+      edited: 'Editada por ti',
+      group: 'Quién o qué',
+      next: 'Próxima fecha',
+      nextOn: (date: string) => `próxima: ${date}`,
+      remove: 'No es de este tablero',
+      removed: 'Quitada del tablero. Aprende de ello.',
+      status: 'Estado',
+      title: 'Título',
+    },
+    expected: (when: string) => `Previsto ${when}`,
+    filter: {
+      clear: 'Quitar filtro',
+      nothing: 'Ninguna entrada coincide.',
+      search: 'Buscar entradas',
+    },
+    groups: {
+      every: {
+        month: 'cada mes',
+        quarter: 'cada trimestre',
+        week: 'cada semana',
+        year: 'cada año',
+      },
+      expected: (date: string) => `previsto ${date}`,
+      next: (date: string) => `próximo: ${date}`,
+      perMonth: (amount: string) => `${amount} / mes`,
+      rename: 'Renombrar grupo',
+      renameHint: 'Ponle el nombre de otro grupo para unirlos.',
+      showAll: (n: number) => `Ver los ${n}`,
+      showFewer: 'Ver menos',
+      title: 'Por quién o qué',
+    },
+    history: {
+      capped: (n: number) =>
+        `Leídos los ${n} correos coincidentes más recientes de los últimos seis meses.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Revisando el correo de los últimos seis meses…'
+          : `Leyendo ${plural('es', found, { one: () => 'un correo', other: (n) => `${n} correos` })} de los últimos seis meses · ${plural('es', entries, { one: () => 'una entrada', other: (n) => `${n} entradas` })} por ahora`,
+    },
+    menu: 'Acciones del tablero',
+    moveDown: 'Bajar',
+    moveUp: 'Subir',
     name: 'Nombre',
     namePlaceholder: 'Viajes',
     new: 'Nuevo tablero',
     newHint:
       'Describe con tus palabras qué recopilar. Fewmail lo busca en el correo de los últimos seis meses, elige los gráficos y lo mantiene al día.',
     planning: 'Preparándolo…',
-    readingHistory: 'Leyendo el correo de los últimos seis meses…',
+    redescribe: 'Guardar y volver a leer',
+    redescribeHint:
+      'Vuelve a leer los últimos seis meses con la nueva descripción. Las entradas que editaste o quitaste se mantienen.',
+    rename: 'Renombrar tablero',
     save: 'Guardar',
+    settings: {
+      bannerDays: 'Aviso antes de una fecha',
+      days: (n: number) =>
+        plural('es', n, {
+          one: () => '1 día antes',
+          other: (count) => `${count} días antes`,
+        }),
+      hint: 'Cómo encuentra el tablero su correo y cuándo te avisa.',
+      never: 'Nunca',
+      query: 'Búsqueda de Gmail',
+      queryHint: 'Al cambiarla se vuelven a leer los últimos seis meses.',
+      title: 'Búsqueda y avisos',
+    },
     starter: {
       events: {
         description:
@@ -1331,6 +1430,17 @@ export const es: Messages = {
           'Vuelos, trenes, hoteles y alquileres: adónde voy, cuándo y cuánto cuesta.',
         name: 'Viajes',
       },
+    },
+    summary: {
+      lastMonth: 'Mes pasado',
+      perMonth: (amount: string) => `${amount} al mes`,
+      recurring: (n: number) =>
+        plural('es', n, {
+          one: () => 'Uno recurrente',
+          other: (count) => `${count} recurrentes`,
+        }),
+      thisMonth: 'Este mes',
+      upcoming: 'Vence en 30 días',
     },
   },
   bulk: {
@@ -1403,6 +1513,7 @@ export const es: Messages = {
     done: 'Tu correo reenviado',
   },
   reading: {
+    digest: (n: number) => `Boletines de hoy: ${n}`,
     empty: 'No hubo boletines en el último día.',
     lead: 'Los boletines del último día en un solo lugar, para que no llenen la bandeja.',
     title: 'Lectura',

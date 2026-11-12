@@ -27,6 +27,8 @@ export const pl: Messages = {
     pending: 'czeka w Dziś',
   },
   agent: {
+    voice: 'Powiedz agentowi',
+    voiceStop: 'Zatrzymaj i wyślij',
     chats: 'Czaty',
     autonomy: {
       ask: 'Pyta cię przed każdym e-mailem',
@@ -111,6 +113,13 @@ export const pl: Messages = {
       mark_not_spam: 'Wyjmuję ze spamu',
       move_to_inbox: 'Przenoszę do odebranych',
       create_board: 'Tworzę tablicę',
+      update_board: 'Zmieniam tablicę',
+      delete_board: 'Usuwam tablicę',
+      add_board_chart: 'Dodaję wykres',
+      add_to_board: 'Dodaję do tablicy',
+      edit_board_entry: 'Poprawiam wpis',
+      remove_board_entry: 'Zdejmuję z tablicy',
+      rename_board_group: 'Zmieniam nazwę grupy',
     },
     stop: 'Zatrzymaj',
     thinking: 'Myślę…',
@@ -144,8 +153,13 @@ export const pl: Messages = {
   },
   byRule: 'przez regułę',
   boards: {
+    addTo: 'Dodaj do tablicy',
+    added: (board: string) => `Dodano do „${board}”`,
+    cancel: 'Anuluj',
     chart: {
       add: 'Dodaj wykres',
+      ask: 'Opisz wykres',
+      askPlaceholder: 'Wydatki według sklepów, zamówienia według statusu…',
       currency: 'Waluta',
       edit: 'Ustawienia wykresu',
       empty: 'Na razie nie ma czego narysować',
@@ -158,6 +172,8 @@ export const pl: Messages = {
       },
       measure: 'Pokazuje',
       measures: { count: 'Liczba', sum: 'Łączna kwota' },
+      moveEarlier: 'Przesuń wcześniej',
+      moveLater: 'Przesuń dalej',
       other: 'Inne',
       remove: 'Usuń wykres',
       skipped: (n: number) =>
@@ -176,13 +192,16 @@ export const pl: Messages = {
     charts: 'Wykresy',
     create: 'Utwórz tablicę',
     delete: 'Usuń tablicę',
+    deleteConfirm: (name: string) => `Usunąć „${name}”?`,
+    deleteHint:
+      'Wpisy i wykresy znikną razem z nią. Poczta zostaje tam, gdzie jest.',
+    describe: 'Zmień, co zbiera',
     description: 'Co zbiera',
     descriptionPlaceholder:
       'Podróże: loty, hotele i wynajem aut, razem z kosztami',
-    edit: 'Edytuj tablicę',
-    editHint:
-      'Jeśli zmienisz, co zbiera, ostatnie pół roku zostanie przeczytane od nowa.',
+    due: (when: string) => `Najbliższa data: ${when}`,
     empty: 'Na razie pusto. Pasujące maile pojawią się tu, gdy tylko przyjdą.',
+    emptyQuery: 'Szuka maili pasujących do',
     entries: (total: number) =>
       plural('pl', total, {
         one: () => 'Jeden wpis',
@@ -190,14 +209,77 @@ export const pl: Messages = {
         many: (n) => `${n} wpisów`,
         other: (n) => `${n} wpisu`,
       }),
+    entry: {
+      amount: 'Kwota',
+      currency: 'Waluta',
+      date: 'Data',
+      edit: 'Edytuj wpis',
+      edited: 'Poprawione przez ciebie',
+      group: 'Kto lub co',
+      next: 'Następna data',
+      nextOn: (date: string) => `następnie ${date}`,
+      remove: 'Nie z tej tablicy',
+      removed: 'Zdjęte z tablicy. Zapamięta to na przyszłość.',
+      status: 'Status',
+      title: 'Tytuł',
+    },
+    expected: (when: string) => `Spodziewane ${when}`,
+    filter: {
+      clear: 'Wyczyść filtr',
+      nothing: 'Brak pasujących wpisów.',
+      search: 'Szukaj we wpisach',
+    },
+    groups: {
+      every: {
+        month: 'co miesiąc',
+        quarter: 'co kwartał',
+        week: 'co tydzień',
+        year: 'co rok',
+      },
+      expected: (date: string) => `spodziewane ${date}`,
+      next: (date: string) => `następnie ${date}`,
+      perMonth: (amount: string) => `${amount} / mies.`,
+      rename: 'Zmień nazwę grupy',
+      renameHint: 'Nadaj jej nazwę innej grupy, a obie się połączą.',
+      showAll: (n: number) => `Pokaż wszystkie (${n})`,
+      showFewer: 'Pokaż mniej',
+      title: 'Według tego, kto lub co',
+    },
+    history: {
+      capped: (n: number) =>
+        `Przeczytano ${n} najnowszych pasujących maili z ostatniego pół roku.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Przeglądam pocztę z ostatniego pół roku…'
+          : `Czytam ${plural('pl', found, { one: () => 'jeden mail', few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} z ostatniego pół roku · na razie ${plural('pl', entries, { one: () => 'jeden wpis', few: (n) => `${n} wpisy`, many: (n) => `${n} wpisów`, other: (n) => `${n} wpisu` })}`,
+    },
+    menu: 'Działania na tablicy',
+    moveDown: 'Przesuń w dół',
+    moveUp: 'Przesuń w górę',
     name: 'Nazwa',
     namePlaceholder: 'Podróże',
     new: 'Nowa tablica',
     newHint:
       'Opisz własnymi słowami, co zbierać. Fewmail znajdzie to w poczcie z ostatniego pół roku, dobierze wykresy i będzie je aktualizować.',
     planning: 'Przygotowuję…',
-    readingHistory: 'Czytam pocztę z ostatniego pół roku…',
+    redescribe: 'Zapisz i przeczytaj ponownie',
+    redescribeHint:
+      'Ostatnie pół roku zostanie przeczytane od nowa według nowego opisu. Wpisy, które poprawiłeś lub zdjąłeś, zostają.',
+    rename: 'Zmień nazwę tablicy',
     save: 'Zapisz',
+    settings: {
+      bannerDays: 'Przypomnienie przed datą',
+      days: (n: number) =>
+        plural('pl', n, {
+          one: () => '1 dzień wcześniej',
+          other: (count) => `${count} dni wcześniej`,
+        }),
+      hint: 'Jak tablica znajduje maile i kiedy cię uprzedza.',
+      never: 'Nigdy',
+      query: 'Wyszukiwanie w Gmailu',
+      queryHint: 'Po zmianie ostatnie pół roku zostanie przeczytane od nowa.',
+      title: 'Wyszukiwanie i przypomnienia',
+    },
     starter: {
       events: {
         description:
@@ -224,6 +306,19 @@ export const pl: Messages = {
           'Loty, pociągi, hotele i wynajem: dokąd jadę, kiedy i ile to kosztuje.',
         name: 'Podróże',
       },
+    },
+    summary: {
+      lastMonth: 'Poprzedni miesiąc',
+      perMonth: (amount: string) => `${amount} miesięcznie`,
+      recurring: (n: number) =>
+        plural('pl', n, {
+          one: () => 'Jedna cykliczna',
+          few: (count) => `${count} cykliczne`,
+          many: (count) => `${count} cyklicznych`,
+          other: (count) => `${count} cyklicznej`,
+        }),
+      thisMonth: 'Ten miesiąc',
+      upcoming: 'Do zapłaty w 30 dni',
     },
   },
   bulk: {
@@ -343,6 +438,7 @@ export const pl: Messages = {
     done: 'Twój przekazany mail',
   },
   reading: {
+    digest: (n: number) => `Newslettery dziś: ${n}`,
     empty: 'W ostatniej dobie nie było newsletterów.',
     lead: 'Newslettery z ostatniej doby w jednym miejscu, żeby nie zaśmiecały skrzynki.',
     title: 'Czytanie',
@@ -455,6 +551,9 @@ export const pl: Messages = {
     edit: 'edytuj',
     move: 'przejdź',
     open: 'otwórz',
+    notOnBoard: 'nie z tej tablicy',
+    rename: 'zmień nazwę',
+    clearFilter: 'wyczyść filtr',
     search: 'szukaj',
     send: 'wyślij',
     skip: 'pomiń',
@@ -492,6 +591,9 @@ export const pl: Messages = {
     title: 'Tylko to, co ważne.',
   },
   mail: {
+    openUnsubscribePage: 'Otwórz stronę',
+    unsubscribeYourself:
+      'Z tej listy trzeba wypisać się samemu na jej stronie. Do tego czasu jej maile są w archiwum.',
     allMailboxes: 'Wszystkie skrzynki',
     group: {
       category: 'Kategoria',
@@ -740,6 +842,16 @@ export const pl: Messages = {
     whichEmails: 'Które maile',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Po podsumowaniu dnia newslettery przychodzą do Telegrama i WhatsAppa jedną wiadomością.',
+      title: 'Podsumowanie newsletterów',
+    },
+    voiceBrief: {
+      description:
+        'Podsumowanie przychodzi też do Telegrama i WhatsAppa jako wiadomość głosowa.',
+      title: 'Podsumowanie głosowe',
+    },
     forward: {
       copy: 'Kopiuj adres',
       description:
@@ -1376,6 +1488,7 @@ export const pl: Messages = {
     started: 'Agent się tym zajmuje.',
   },
   telegram: {
+    approveAlike: 'Zatwierdź naraz wszystkie karty jednego typu:',
     listen: '🔊 Posłuchaj',
     heard: (text: string) => `Usłyszałem: „${text}”`,
     voiceFailed:

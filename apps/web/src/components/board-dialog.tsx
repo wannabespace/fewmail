@@ -1,4 +1,14 @@
 import { BOARD_PRESETS } from '@fewmail/shared/agent'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@fewmail/ui/components/alert-dialog'
 import { Button } from '@fewmail/ui/components/button'
 import {
   Dialog,
@@ -9,6 +19,13 @@ import {
   DialogTitle,
 } from '@fewmail/ui/components/dialog'
 import { Input } from '@fewmail/ui/components/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@fewmail/ui/components/select'
 import { Textarea } from '@fewmail/ui/components/textarea'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
@@ -23,19 +40,22 @@ import { queryClient } from '~/lib/query-client'
 /** Opened from the sidebar and from ⌘K, so it lives outside both. */
 export const newBoardStore = createStore(false)
 
+/** Asked from the page, the sidebar and ⌘K; deleting has no undo, so it always confirms here. */
+export const deletingBoardStore = createStore<{
+  id: string
+  name: string
+} | null>(null)
+
 const refetchBoards = () => refetchChanged(['boards', 'today'])
 
-const BoardForm = ({
-  board,
-  onDone,
-}: {
-  board?: { description: string; id: string; name: string }
-  onDone: () => void
-}) => {
+const HEADS_UP_DAYS = [1, 2, 3, 5, 7, 14] as const
+const NEVER = 'never'
+
+const NewBoardForm = ({ onDone }: { onDone: () => void }) => {
   const t = useT()
   const navigate = useNavigate()
-  const [name, setName] = useState(board?.name ?? '')
-  const [description, setDescription] = useState(board?.description ?? '')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
 
   const create = useMutation(
     orpc.boards.create.mutationOptions({
@@ -46,60 +66,20 @@ const BoardForm = ({
       },
     })
   )
-  const update = useMutation(
-    orpc.boards.update.mutationOptions({
-      onMutate: ({ id, ...change }) => {
-        onDone()
-        queryClient.setQueryData(
-          orpc.boards.get.queryKey({ input: { id } }),
-          (old) =>
-            old && {
-              ...old,
-              description: change.description ?? old.description,
-              name: change.name ?? old.name,
-            }
-        )
-        queryClient.setQueryData(orpc.boards.list.queryKey(), (old) =>
-          old?.map((item) =>
-            item.id === id ? { ...item, name: change.name ?? item.name } : item
-          )
-        )
-      },
-      onSettled: refetchBoards,
-    })
-  )
-  const remove = useMutation(
-    orpc.boards.delete.mutationOptions({
-      onMutate: ({ id }) => {
-        onDone()
-        void navigate({ to: '/today' })
-        queryClient.setQueryData(orpc.boards.list.queryKey(), (old) =>
-          old?.filter((item) => item.id !== id)
-        )
-      },
-      onSettled: refetchBoards,
-    })
-  )
   const input = { description: description.trim(), name: name.trim() }
   const isFilled = Boolean(input.name) && input.description.length >= 3
-  const submitLabel = board ? t.boards.save : t.boards.create
 
   return (
     <form
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
-        if (!isFilled) {
-          return
-        }
-        if (board) {
-          update.mutate({ ...input, id: board.id })
-        } else {
+        if (isFilled) {
           create.mutate(input)
         }
       }}
     >
-      {!board && !name && (
+      {!name && (
         <div className="flex flex-wrap gap-2">
           {BOARD_PRESETS.map((preset) => (
             <Button
@@ -133,30 +113,134 @@ const BoardForm = ({
         data-mask
       />
       <DialogFooter>
-        {board && (
-          <Button
-            type="button"
-            variant="ghost-destructive"
-            className="mr-auto"
-            onClick={() => remove.mutate({ id: board.id })}
-          >
-            {t.boards.delete}
-          </Button>
-        )}
         <Button type="submit" disabled={!isFilled || create.isPending}>
-          {create.isPending ? t.boards.planning : submitLabel}
+          {create.isPending ? t.boards.planning : t.boards.create}
         </Button>
       </DialogFooter>
     </form>
   )
 }
 
-export const BoardDialog = ({
+export const NewBoardDialog = () => {
+  const t = useT()
+  const open = useSubscription(newBoardStore)
+  const [formKey, setFormKey] = useState(0)
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => newBoardStore.set(next)}
+      onOpenChangeComplete={(isOpen) => !isOpen && setFormKey(formKey + 1)}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t.boards.new}</DialogTitle>
+          <DialogDescription>{t.boards.newHint}</DialogDescription>
+        </DialogHeader>
+        <NewBoardForm key={formKey} onDone={() => newBoardStore.set(false)} />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+interface SearchSettings {
+  bannerDays: number | null
+  gmailQuery: string
+  id: string
+}
+
+const SettingsForm = ({
+  board,
+  onDone,
+}: {
+  board: SearchSettings
+  onDone: () => void
+}) => {
+  const t = useT()
+  const [query, setQuery] = useState(board.gmailQuery)
+  const [days, setDays] = useState(board.bannerDays)
+  const update = useMutation(
+    orpc.boards.update.mutationOptions({ onSettled: refetchBoards })
+  )
+  const isRequeried = query.trim() !== board.gmailQuery
+
+  return (
+    <form
+      className="flex flex-col gap-4"
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (!query.trim()) {
+          return
+        }
+        onDone()
+        update.mutate({
+          bannerDays: days,
+          id: board.id,
+          ...(isRequeried && { gmailQuery: query.trim() }),
+        })
+      }}
+    >
+      <div className="flex flex-col gap-1.5 text-sm">
+        <span className="text-muted-foreground">{t.boards.settings.query}</span>
+        <Textarea
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          aria-label={t.boards.settings.query}
+          data-mask
+        />
+        <span className="text-muted-foreground text-xs">
+          {t.boards.settings.queryHint}
+        </span>
+      </div>
+      <div className="grid grid-cols-[1fr_auto] items-center gap-2 text-sm">
+        <span className="text-muted-foreground">
+          {t.boards.settings.bannerDays}
+        </span>
+        <Select
+          items={[
+            { label: t.boards.settings.never, value: NEVER },
+            ...HEADS_UP_DAYS.map((count) => ({
+              label: t.boards.settings.days(count),
+              value: String(count),
+            })),
+          ]}
+          value={days === null ? NEVER : String(days)}
+          onValueChange={(next) =>
+            next && setDays(next === NEVER ? null : Number(next))
+          }
+        >
+          <SelectTrigger aria-label={t.boards.settings.bannerDays}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NEVER}>{t.boards.settings.never}</SelectItem>
+            {HEADS_UP_DAYS.map((count) => (
+              <SelectItem key={count} value={String(count)}>
+                {t.boards.settings.days(count)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <DialogFooter>
+        <Button
+          type="submit"
+          variant={isRequeried ? 'warning' : 'default'}
+          disabled={!query.trim()}
+        >
+          {isRequeried ? t.boards.redescribe : t.boards.save}
+        </Button>
+      </DialogFooter>
+    </form>
+  )
+}
+
+export const BoardSettingsDialog = ({
   board,
   onOpenChange,
   open,
 }: {
-  board?: { description: string; id: string; name: string }
+  board: SearchSettings
   onOpenChange: (open: boolean) => void
   open: boolean
 }) => {
@@ -171,12 +255,10 @@ export const BoardDialog = ({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{board ? t.boards.edit : t.boards.new}</DialogTitle>
-          <DialogDescription>
-            {board ? t.boards.editHint : t.boards.newHint}
-          </DialogDescription>
+          <DialogTitle>{t.boards.settings.title}</DialogTitle>
+          <DialogDescription>{t.boards.settings.hint}</DialogDescription>
         </DialogHeader>
-        <BoardForm
+        <SettingsForm
           key={formKey}
           board={board}
           onDone={() => onOpenChange(false)}
@@ -186,9 +268,53 @@ export const BoardDialog = ({
   )
 }
 
-export const NewBoardDialog = () => {
-  const open = useSubscription(newBoardStore)
+export const DeleteBoardDialog = () => {
+  const t = useT()
+  const navigate = useNavigate()
+  const deleting = useSubscription(deletingBoardStore)
+  // Keeps the name on screen while the dialog fades out after the store clears.
+  const [shown, setShown] = useState(deleting)
+  if (deleting && deleting !== shown) {
+    setShown(deleting)
+  }
+  const remove = useMutation(
+    orpc.boards.delete.mutationOptions({
+      onMutate: ({ id }) => {
+        deletingBoardStore.set(null)
+        if (window.location.pathname === `/boards/${id}`) {
+          void navigate({ to: '/today' })
+        }
+        queryClient.setQueryData(orpc.boards.list.queryKey(), (old) =>
+          old?.filter((item) => item.id !== id)
+        )
+      },
+      onSettled: refetchBoards,
+    })
+  )
+
   return (
-    <BoardDialog open={open} onOpenChange={(next) => newBoardStore.set(next)} />
+    <AlertDialog
+      open={Boolean(deleting)}
+      onOpenChange={(open) => !open && deletingBoardStore.set(null)}
+      onOpenChangeComplete={(open) => !open && setShown(null)}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle data-mask>
+            {shown && t.boards.deleteConfirm(shown.name)}
+          </AlertDialogTitle>
+          <AlertDialogDescription>{t.boards.deleteHint}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t.boards.cancel}</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={() => shown && remove.mutate({ id: shown.id })}
+          >
+            {t.boards.delete}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

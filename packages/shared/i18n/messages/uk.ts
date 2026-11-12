@@ -4,6 +4,8 @@ import type { Messages } from './en'
 
 export const uk: Messages = {
   agent: {
+    voice: 'Сказати голосом',
+    voiceStop: 'Зупинити й надіслати',
     chats: 'Чати',
     autonomy: {
       ask: 'Питає тебе перед кожним листом',
@@ -88,6 +90,13 @@ export const uk: Messages = {
       mark_not_spam: 'Повертаю зі спаму',
       move_to_inbox: 'Повертаю у вхідні',
       create_board: 'Створюю дошку',
+      update_board: 'Змінюю дошку',
+      delete_board: 'Видаляю дошку',
+      add_board_chart: 'Додаю графік',
+      add_to_board: 'Додаю на дошку',
+      edit_board_entry: 'Виправляю запис',
+      remove_board_entry: 'Прибираю з дошки',
+      rename_board_group: 'Перейменовую групу',
     },
     stop: 'Зупинити',
     thinking: 'Думаю…',
@@ -776,6 +785,9 @@ export const uk: Messages = {
     edit: 'змінити',
     move: 'рух',
     open: 'відкрити',
+    notOnBoard: 'не для цієї дошки',
+    rename: 'перейменувати',
+    clearFilter: 'скинути фільтр',
     search: 'пошук',
     send: 'надіслати',
     skip: 'пропустити',
@@ -813,6 +825,9 @@ export const uk: Messages = {
     title: 'Лише те, що важливо.',
   },
   mail: {
+    openUnsubscribePage: 'Відкрити сторінку',
+    unsubscribeYourself:
+      'Цю розсилку треба покинути на її сторінці самому. Поки що її листи в архіві.',
     allMailboxes: 'Усі скриньки',
     group: {
       category: 'Категорія',
@@ -1030,6 +1045,16 @@ export const uk: Messages = {
     whichEmails: 'Які листи',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Після брифу розсилки за день приходять у Telegram і WhatsApp одним повідомленням.',
+      title: 'Дайджест розсилок',
+    },
+    voiceBrief: {
+      description:
+        'Бриф також приходить у Telegram і WhatsApp голосовим повідомленням.',
+      title: 'Бриф голосом',
+    },
     forward: {
       copy: 'Скопіювати адресу',
       description:
@@ -1160,6 +1185,7 @@ export const uk: Messages = {
     receipts: 'Чеки, підтвердження замовлень і доставки',
   },
   telegram: {
+    approveAlike: 'Схвалити всі картки одного типу разом:',
     listen: '🔊 Прослухати',
     heard: (text: string) => `Почув: «${text}»`,
     voiceFailed: 'Не вдалося розібрати. Спробуй ще раз або напиши текстом.',
@@ -1261,8 +1287,13 @@ export const uk: Messages = {
     writing: 'Пишу…',
   },
   boards: {
+    addTo: 'Додати на дошку',
+    added: (board: string) => `Додано на «${board}»`,
+    cancel: 'Скасувати',
     chart: {
       add: 'Додати графік',
+      ask: 'Опиши графік',
+      askPlaceholder: 'Витрати за магазинами, замовлення за статусом…',
       currency: 'Валюта',
       edit: 'Налаштування графіка',
       empty: 'Поки нічого малювати',
@@ -1275,6 +1306,8 @@ export const uk: Messages = {
       },
       measure: 'Показує',
       measures: { count: 'Кількість', sum: 'Сума' },
+      moveEarlier: 'Посунути раніше',
+      moveLater: 'Посунути пізніше',
       other: 'Інше',
       remove: 'Прибрати графік',
       skipped: (n: number) => `Не враховано: ${n} (інша валюта або без суми)`,
@@ -1292,14 +1325,17 @@ export const uk: Messages = {
     charts: 'Графіки',
     create: 'Створити дошку',
     delete: 'Видалити дошку',
+    deleteConfirm: (name: string) => `Видалити «${name}»?`,
+    deleteHint:
+      'Її записи й графіки зникнуть разом із нею. Пошта лишиться на місці.',
+    describe: 'Змінити, що збирати',
     description: 'Що збирати',
     descriptionPlaceholder:
       'Подорожі: квитки, готелі й оренда авто, разом із вартістю',
-    edit: 'Змінити дошку',
-    editHint:
-      'Якщо змінити, що збирати, останні пів року буде прочитано заново.',
+    due: (when: string) => `Наступна дата ${when}`,
     empty:
       'Поки порожньо. Відповідні листи з’являтимуться тут, щойно надійдуть.',
+    emptyQuery: 'Шукає листи за запитом',
     entries: (total: number) =>
       plural('uk', total, {
         one: (n) => `${n} запис`,
@@ -1307,14 +1343,79 @@ export const uk: Messages = {
         many: (n) => `${n} записів`,
         other: (n) => `${n} запису`,
       }),
+    entry: {
+      amount: 'Сума',
+      currency: 'Валюта',
+      date: 'Дата',
+      edit: 'Змінити запис',
+      edited: 'Виправлено тобою',
+      group: 'Хто або що',
+      next: 'Наступна дата',
+      nextOn: (date: string) => `далі ${date}`,
+      remove: 'Не для цієї дошки',
+      removed: 'Прибрано з дошки. Вона це запам’ятає.',
+      status: 'Статус',
+      title: 'Назва',
+    },
+    expected: (when: string) => `Очікується ${when}`,
+    filter: {
+      clear: 'Скинути фільтр',
+      nothing: 'Нічого не знайдено.',
+      search: 'Шукати записи',
+    },
+    groups: {
+      every: {
+        month: 'щомісяця',
+        quarter: 'щокварталу',
+        week: 'щотижня',
+        year: 'щороку',
+      },
+      expected: (date: string) => `очікується ${date}`,
+      next: (date: string) => `далі ${date}`,
+      perMonth: (amount: string) => `${amount} / міс.`,
+      rename: 'Перейменувати групу',
+      renameHint: 'Дай їй назву іншої групи, і вони об’єднаються.',
+      showAll: (n: number) => `Показати всі ${n}`,
+      showFewer: 'Показати менше',
+      title: 'Хто або що',
+    },
+    history: {
+      capped: (n: number) =>
+        `Прочитано ${n} найновіших відповідних листів за останні пів року.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Переглядаю пошту за останні пів року…'
+          : `Читаю ${plural('uk', found, { one: (n) => `${n} лист`, few: (n) => `${n} листи`, many: (n) => `${n} листів`, other: (n) => `${n} листа` })} за останні пів року · поки ${plural('uk', entries, { one: (n) => `${n} запис`, few: (n) => `${n} записи`, many: (n) => `${n} записів`, other: (n) => `${n} запису` })}`,
+    },
+    menu: 'Дії з дошкою',
+    moveDown: 'Посунути нижче',
+    moveUp: 'Посунути вище',
     name: 'Назва',
     namePlaceholder: 'Подорожі',
     new: 'Нова дошка',
     newHint:
       'Опиши своїми словами, що збирати. Fewmail знайде це в пошті за останні пів року, підбере графіки й оновлюватиме дошку сам.',
     planning: 'Налаштовую…',
-    readingHistory: 'Читаю пошту за останні пів року…',
+    redescribe: 'Зберегти й перечитати',
+    redescribeHint:
+      'Перечитає останні пів року з новим описом. Записи, які ти виправив або прибрав, лишаться як є.',
+    rename: 'Перейменувати дошку',
     save: 'Зберегти',
+    settings: {
+      bannerDays: 'Нагадати перед датою',
+      days: (n: number) =>
+        plural('uk', n, {
+          one: (count) => `за ${count} день`,
+          few: (count) => `за ${count} дні`,
+          many: (count) => `за ${count} днів`,
+          other: (count) => `за ${count} дня`,
+        }),
+      hint: 'Як дошка знаходить листи і коли попереджає.',
+      never: 'Ніколи',
+      query: 'Пошук у Gmail',
+      queryHint: 'Після зміни останні пів року буде перечитано.',
+      title: 'Пошук і нагадування',
+    },
     starter: {
       events: {
         description:
@@ -1341,6 +1442,19 @@ export const uk: Messages = {
           'Перельоти, потяги, готелі й оренда: куди я їду, коли і скільки це коштує.',
         name: 'Подорожі',
       },
+    },
+    summary: {
+      lastMonth: 'Минулого місяця',
+      perMonth: (amount: string) => `${amount} на місяць`,
+      recurring: (n: number) =>
+        plural('uk', n, {
+          one: (count) => `${count} регулярний`,
+          few: (count) => `${count} регулярні`,
+          many: (count) => `${count} регулярних`,
+          other: (count) => `${count} регулярного`,
+        }),
+      thisMonth: 'Цього місяця',
+      upcoming: 'До сплати за 30 днів',
     },
   },
   bulk: {
@@ -1415,6 +1529,7 @@ export const uk: Messages = {
     done: 'Твій пересланий лист',
   },
   reading: {
+    digest: (n: number) => `Розсилок сьогодні: ${n}`,
     empty: 'За останню добу розсилок не було.',
     lead: 'Розсилки за останню добу в одному місці, щоб вони не захаращували inbox.',
     title: 'Читання',

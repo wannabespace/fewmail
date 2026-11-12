@@ -4,6 +4,8 @@ import type { Messages } from './en'
 
 export const it: Messages = {
   agent: {
+    voice: 'Parla con l’agente',
+    voiceStop: 'Ferma e invia',
     chats: 'Chat',
     autonomy: {
       ask: 'Ti chiede prima di ogni email',
@@ -89,6 +91,13 @@ export const it: Messages = {
       mark_not_spam: 'Tolgo dallo spam',
       move_to_inbox: 'Sposto nella posta in arrivo',
       create_board: 'Creo una bacheca',
+      update_board: 'Modifico la bacheca',
+      delete_board: 'Elimino la bacheca',
+      add_board_chart: 'Aggiungo un grafico',
+      add_to_board: 'Lo metto in bacheca',
+      edit_board_entry: 'Correggo la voce',
+      remove_board_entry: 'Lo tolgo dalla bacheca',
+      rename_board_group: 'Rinomino il gruppo',
     },
     stop: 'Ferma',
     thinking: 'Sto pensando…',
@@ -783,6 +792,9 @@ export const it: Messages = {
     edit: 'modifica',
     move: 'sposta',
     open: 'apri',
+    notOnBoard: 'non è di questa bacheca',
+    rename: 'rinomina',
+    clearFilter: 'azzera filtro',
     search: 'cerca',
     send: 'invia',
     skip: 'salta',
@@ -820,6 +832,9 @@ export const it: Messages = {
     title: 'Solo ciò che conta.',
   },
   mail: {
+    openUnsubscribePage: 'Apri pagina',
+    unsubscribeYourself:
+      'Per lasciare questa lista devi finire sulla sua pagina. Intanto la sua posta è archiviata.',
     allMailboxes: 'Tutte le caselle',
     group: {
       category: 'Categoria',
@@ -1035,6 +1050,16 @@ export const it: Messages = {
     whichEmails: 'Quali email',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Dopo il riepilogo, le newsletter del giorno arrivano su Telegram e WhatsApp in un solo messaggio.',
+      title: 'Riepilogo newsletter',
+    },
+    voiceBrief: {
+      description:
+        'Il riepilogo arriva anche su Telegram e WhatsApp come messaggio vocale.',
+      title: 'Riepilogo vocale',
+    },
     forward: {
       copy: 'Copia indirizzo',
       description:
@@ -1166,6 +1191,7 @@ export const it: Messages = {
     receipts: 'Ricevute, conferme d’ordine e di spedizione',
   },
   telegram: {
+    approveAlike: 'Approva insieme tutte le schede di un tipo:',
     listen: '🔊 Ascolta',
     heard: (text: string) => `Ho sentito: “${text}”`,
     voiceFailed: 'Non ho capito. Riprova o scrivilo.',
@@ -1254,8 +1280,13 @@ export const it: Messages = {
     writing: 'Scrivo…',
   },
   boards: {
+    addTo: 'Aggiungi a una bacheca',
+    added: (board: string) => `Aggiunta a ${board}`,
+    cancel: 'Annulla',
     chart: {
       add: 'Aggiungi grafico',
+      ask: 'Descrivi il grafico',
+      askPlaceholder: 'Spese per negozio, ordini per stato…',
       currency: 'Valuta',
       edit: 'Impostazioni del grafico',
       empty: 'Ancora niente da disegnare',
@@ -1268,6 +1299,8 @@ export const it: Messages = {
       },
       measure: 'Mostra',
       measures: { count: 'Numero', sum: 'Importo totale' },
+      moveEarlier: 'Sposta prima',
+      moveLater: 'Sposta dopo',
       other: 'Altro',
       remove: 'Rimuovi grafico',
       skipped: (n: number) =>
@@ -1286,26 +1319,93 @@ export const it: Messages = {
     charts: 'Grafici',
     create: 'Crea bacheca',
     delete: 'Elimina bacheca',
+    deleteConfirm: (name: string) => `Eliminare «${name}»?`,
+    deleteHint:
+      'Le sue voci e i suoi grafici vengono eliminati con lei. La tua posta resta dov’è.',
+    describe: 'Cambia cosa raccoglie',
     description: 'Cosa raccoglie',
     descriptionPlaceholder:
       'Viaggi: voli, hotel e noleggi auto, con quanto sono costati',
-    edit: 'Modifica bacheca',
-    editHint: 'Se cambi cosa raccoglie, gli ultimi sei mesi vengono riletti.',
+    due: (when: string) => `In arrivo: ${when}`,
     empty:
       'Ancora vuota. Le email pertinenti compariranno qui appena arrivano.',
+    emptyQuery: 'Cerca le email che corrispondono a',
     entries: (total: number) =>
       plural('it', total, {
         one: () => 'Una voce',
         other: (n) => `${n} voci`,
       }),
+    entry: {
+      amount: 'Importo',
+      currency: 'Valuta',
+      date: 'Data',
+      edit: 'Modifica voce',
+      edited: 'Modificata da te',
+      group: 'Chi o cosa',
+      next: 'Prossima data',
+      nextOn: (date: string) => `prossima: ${date}`,
+      remove: 'Non è di questa bacheca',
+      removed: 'Tolta dalla bacheca. Ne terrà conto.',
+      status: 'Stato',
+      title: 'Titolo',
+    },
+    expected: (when: string) => `Previsto ${when}`,
+    filter: {
+      clear: 'Azzera filtro',
+      nothing: 'Nessuna voce corrisponde.',
+      search: 'Cerca nelle voci',
+    },
+    groups: {
+      every: {
+        month: 'ogni mese',
+        quarter: 'ogni trimestre',
+        week: 'ogni settimana',
+        year: 'ogni anno',
+      },
+      expected: (date: string) => `previsto ${date}`,
+      next: (date: string) => `prossimo: ${date}`,
+      perMonth: (amount: string) => `${amount} / mese`,
+      rename: 'Rinomina gruppo',
+      renameHint: 'Dagli il nome di un altro gruppo per unirli.',
+      showAll: (n: number) => `Mostra tutti (${n})`,
+      showFewer: 'Mostra meno',
+      title: 'Per chi o cosa',
+    },
+    history: {
+      capped: (n: number) =>
+        `Lette le ${n} email corrispondenti più recenti degli ultimi sei mesi.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Guardo la posta degli ultimi sei mesi…'
+          : `Leggo ${plural('it', found, { one: () => 'un’email', other: (n) => `${n} email` })} degli ultimi sei mesi · ${plural('it', entries, { one: () => 'una voce', other: (n) => `${n} voci` })} finora`,
+    },
+    menu: 'Azioni della bacheca',
+    moveDown: 'Sposta giù',
+    moveUp: 'Sposta su',
     name: 'Nome',
     namePlaceholder: 'Viaggi',
     new: 'Nuova bacheca',
     newHint:
       'Descrivi con parole tue cosa raccogliere. Fewmail lo trova nella posta degli ultimi sei mesi, sceglie i grafici e la tiene aggiornata.',
     planning: 'Preparazione…',
-    readingHistory: 'Leggo la posta degli ultimi sei mesi…',
+    redescribe: 'Salva e rileggi',
+    redescribeHint:
+      'Rilegge gli ultimi sei mesi con la nuova descrizione. Le voci che hai modificato o tolto restano.',
+    rename: 'Rinomina bacheca',
     save: 'Salva',
+    settings: {
+      bannerDays: 'Avviso prima di una data',
+      days: (n: number) =>
+        plural('it', n, {
+          one: () => '1 giorno prima',
+          other: (count) => `${count} giorni prima`,
+        }),
+      hint: 'Come la bacheca trova la sua posta e quando ti avvisa.',
+      never: 'Mai',
+      query: 'Ricerca Gmail',
+      queryHint: 'Se la cambi, gli ultimi sei mesi vengono riletti.',
+      title: 'Ricerca e avvisi',
+    },
     starter: {
       events: {
         description:
@@ -1332,6 +1432,17 @@ export const it: Messages = {
           'Voli, treni, hotel e noleggi: dove vado, quando e quanto costa.',
         name: 'Viaggi',
       },
+    },
+    summary: {
+      lastMonth: 'Mese scorso',
+      perMonth: (amount: string) => `${amount} al mese`,
+      recurring: (n: number) =>
+        plural('it', n, {
+          one: () => 'Uno ricorrente',
+          other: (count) => `${count} ricorrenti`,
+        }),
+      thisMonth: 'Questo mese',
+      upcoming: 'In scadenza entro 30 giorni',
     },
   },
   bulk: {
@@ -1406,6 +1517,7 @@ export const it: Messages = {
     done: 'La tua email inoltrata',
   },
   reading: {
+    digest: (n: number) => `Newsletter di oggi: ${n}`,
     empty: 'Nessuna newsletter nell’ultimo giorno.',
     lead: 'Le newsletter dell’ultimo giorno in un solo posto, così non affollano la posta in arrivo.',
     title: 'Lettura',

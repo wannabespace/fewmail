@@ -28,6 +28,8 @@ export const ja: Messages = {
   },
   byRule: 'ルールによる',
   agent: {
+    voice: '声で話す',
+    voiceStop: '止めて送信',
     chats: 'チャット',
     autonomy: {
       ask: 'メールを送る前に毎回確認します',
@@ -113,6 +115,13 @@ export const ja: Messages = {
       mark_not_spam: '迷惑メールから戻し中',
       move_to_inbox: '受信トレイに移動中',
       create_board: 'ボードを作成中',
+      update_board: 'ボードを変更中',
+      delete_board: 'ボードを削除中',
+      add_board_chart: 'グラフを追加中',
+      add_to_board: 'ボードに追加中',
+      edit_board_entry: '項目を修正中',
+      remove_board_entry: 'ボードから外し中',
+      rename_board_group: 'グループ名を変更中',
     },
     stop: '停止',
     thinking: '考え中…',
@@ -285,6 +294,9 @@ export const ja: Messages = {
     edit: '編集',
     move: '移動',
     open: '開く',
+    notOnBoard: 'このボードに含めない',
+    rename: '名前を変更',
+    clearFilter: 'フィルターを解除',
     search: '検索',
     send: '送信',
     skip: 'スキップ',
@@ -321,6 +333,9 @@ export const ja: Messages = {
     title: '大切なメールだけを。',
   },
   mail: {
+    openUnsubscribePage: 'ページを開く',
+    unsubscribeYourself:
+      'このリストの配信停止はページで手続きが必要です。それまでメールはアーカイブします。',
     allMailboxes: 'すべてのメールボックス',
     group: {
       category: 'カテゴリ',
@@ -525,6 +540,16 @@ export const ja: Messages = {
     whichEmails: '対象のメール',
   },
   settings: {
+    readingDigest: {
+      description:
+        'ブリーフの後、その日のメルマガを Telegram と WhatsApp にひとつのメッセージで届けます。',
+      title: 'メルマガのダイジェスト',
+    },
+    voiceBrief: {
+      description:
+        'ブリーフを Telegram と WhatsApp に音声メッセージでも届けます。',
+      title: '音声ブリーフ',
+    },
     forward: {
       copy: 'アドレスをコピー',
       description:
@@ -1148,6 +1173,7 @@ export const ja: Messages = {
     receipts: '領収書、注文確認、発送通知',
   },
   telegram: {
+    approveAlike: '同じ種類のカードをまとめて承認：',
     listen: '🔊 聞く',
     heard: (text: string) => `聞き取った内容：「${text}」`,
     voiceFailed:
@@ -1227,8 +1253,13 @@ export const ja: Messages = {
     writing: '作成中…',
   },
   boards: {
+    addTo: 'ボードに追加',
+    added: (board: string) => `${board}に追加しました`,
+    cancel: 'キャンセル',
     chart: {
       add: 'グラフを追加',
+      ask: 'どんなグラフか説明',
+      askPlaceholder: 'ショップ別の支出、ステータス別の注文…',
       currency: '通貨',
       edit: 'グラフの設定',
       empty: 'まだ表示できるデータがありません',
@@ -1241,6 +1272,8 @@ export const ja: Messages = {
       },
       measure: '表示する値',
       measures: { count: '件数', sum: '合計金額' },
+      moveEarlier: '前へ移動',
+      moveLater: '後ろへ移動',
       other: 'その他',
       remove: 'グラフを削除',
       skipped: (n: number) => `集計外: ${n}件(別の通貨または金額なし)`,
@@ -1258,20 +1291,81 @@ export const ja: Messages = {
     charts: 'グラフ',
     create: 'ボードを作成',
     delete: 'ボードを削除',
+    deleteConfirm: (name: string) => `「${name}」を削除しますか？`,
+    deleteHint: '項目とグラフも一緒に削除されます。メールはそのまま残ります。',
+    describe: '集める内容を変更',
     description: '集める内容',
     descriptionPlaceholder: '旅行：航空券、ホテル、レンタカーとその費用',
-    edit: 'ボードを編集',
-    editHint: '集める内容を変えると、過去6か月分を読み直します。',
+    due: (when: string) => `次の日付: ${when}`,
     empty: 'まだ空です。当てはまるメールが届くとここに表示されます。',
+    emptyQuery: '次の条件に合うメールを探します',
     entries: (n: number) => `${n}件`,
+    entry: {
+      amount: '金額',
+      currency: '通貨',
+      date: '日付',
+      edit: '項目を編集',
+      edited: 'あなたが編集',
+      group: '相手・対象',
+      next: '次の日付',
+      nextOn: (date: string) => `次回 ${date}`,
+      remove: 'このボードに含めない',
+      removed: 'ボードから外しました。次からはこれを踏まえます。',
+      status: 'ステータス',
+      title: 'タイトル',
+    },
+    expected: (when: string) => `${when}予定`,
+    filter: {
+      clear: 'フィルターを解除',
+      nothing: '一致する項目はありません。',
+      search: '項目を検索',
+    },
+    groups: {
+      every: {
+        month: '毎月',
+        quarter: '四半期ごと',
+        week: '毎週',
+        year: '毎年',
+      },
+      expected: (date: string) => `${date}予定`,
+      next: (date: string) => `次回 ${date}`,
+      perMonth: (amount: string) => `${amount} / 月`,
+      rename: 'グループ名を変更',
+      renameHint: '別のグループと同じ名前にすると、2つがまとまります。',
+      showAll: (n: number) => `${n}件すべて表示`,
+      showFewer: '表示を減らす',
+      title: '相手・対象別',
+    },
+    history: {
+      capped: (n: number) => `過去6か月で条件に合う最新の${n}件を読みました。`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? '過去6か月のメールを確認しています…'
+          : `過去6か月のメール${found}件を読んでいます · これまでに${entries}件`,
+    },
+    menu: 'ボードの操作',
+    moveDown: '下へ移動',
+    moveUp: '上へ移動',
     name: '名前',
     namePlaceholder: '旅行',
     new: '新しいボード',
     newHint:
       '集めたいものを自分の言葉で書いてください。Fewmail が過去6か月のメールから探し出し、グラフを選び、最新の状態に保ちます。',
     planning: '準備しています…',
-    readingHistory: '過去6か月のメールを読んでいます…',
+    redescribe: '保存して読み直す',
+    redescribeHint:
+      '新しい説明で過去6か月を読み直します。編集した項目や外した項目はそのまま残ります。',
+    rename: 'ボード名を変更',
     save: '保存',
+    settings: {
+      bannerDays: '日付の前のお知らせ',
+      days: (n: number) => `${n}日前`,
+      hint: 'ボードがメールを探す方法と、お知らせするタイミング。',
+      never: 'なし',
+      query: 'Gmail の検索条件',
+      queryHint: '変更すると過去6か月を読み直します。',
+      title: '検索とお知らせ',
+    },
     starter: {
       events: {
         description: 'チケット、予約、アポイント：どこに、いつ、誰と行くか。',
@@ -1296,6 +1390,13 @@ export const ja: Messages = {
           'フライト、列車、ホテル、レンタル：どこへ、いつ、いくらかかるか。',
         name: '旅行',
       },
+    },
+    summary: {
+      lastMonth: '先月',
+      perMonth: (amount: string) => `月${amount}`,
+      recurring: (n: number) => `定期 ${n}件`,
+      thisMonth: '今月',
+      upcoming: '30日以内',
     },
   },
   bulk: {
@@ -1357,6 +1458,7 @@ export const ja: Messages = {
     done: '転送されたメール',
   },
   reading: {
+    digest: (n: number) => `今日のメルマガ: ${n}件`,
     empty: '直近1日にメルマガはありません。',
     lead: '直近1日のメルマガを1か所に。受信トレイを埋めません。',
     title: 'リーディング',

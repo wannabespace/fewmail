@@ -28,11 +28,17 @@ import { askMail } from '../services/ask'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
 import {
+  addChart,
+  addToBoard,
   createBoard,
   deleteBoard,
+  dismissEntry,
   getBoard,
   listBoards,
+  renameGroup,
+  reorderBoards,
   updateBoard,
+  updateEntry,
 } from '../services/boards'
 import { generateBrief, listTodayHandled, openToday } from '../services/brief'
 import {
@@ -191,16 +197,58 @@ export const router = {
       .input(id)
       .handler(({ context, input }) => getBoard(context.user.id, input.id)),
     list: agent.handler(({ context }) => listBoards(context.user.id)),
+    reorder: agent
+      .input(type({ ids: 'string.uuid[]' }))
+      .handler(async ({ context, input }) => {
+        await reorderBoards(context.user.id, input.ids)
+      }),
     update: agent
       .input(
         id.and({
+          'bannerDays?': '1 <= number.integer <= 14 | null',
           'charts?': boardChart.array(),
           'description?': boardText.description,
+          'gmailQuery?': 'string > 0',
           'name?': boardText.name,
         })
       )
       .handler(async ({ context, input: { id: boardId, ...input } }) => {
         await updateBoard(context.user.id, boardId, input)
+      }),
+    addChart: agent
+      .input(id.and({ ask: 'string' }))
+      .handler(({ context, input }) =>
+        addChart(context.user.id, input.id, input.ask)
+      ),
+    addEmail: agent
+      .input(id.and(messageId))
+      .handler(async ({ context, input }) => {
+        await addToBoard(context.user.id, input.id, input.messageId)
+      }),
+    renameGroup: agent
+      .input(id.and({ from: 'string', to: 'string' }))
+      .handler(async ({ context, input: { id: boardId, ...names } }) => {
+        await renameGroup(context.user.id, boardId, names)
+      }),
+    dismissEntry: agent
+      .input(id.and({ 'isDismissed?': 'boolean' }))
+      .handler(async ({ context, input }) => {
+        await dismissEntry(context.user.id, input.id, input.isDismissed)
+      }),
+    updateEntry: agent
+      .input(
+        id.and({
+          'amountCents?': 'number.integer | null',
+          'currency?': 'string | null',
+          'dueAt?': 'Date | null',
+          'group?': 'string | null',
+          'occurredAt?': 'Date',
+          'status?': 'string | null',
+          'title?': 'string > 0',
+        })
+      )
+      .handler(async ({ context, input: { id: entryId, ...input } }) => {
+        await updateEntry(context.user.id, entryId, input)
       }),
   },
   actions: {

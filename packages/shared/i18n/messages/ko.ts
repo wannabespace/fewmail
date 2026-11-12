@@ -28,6 +28,8 @@ export const ko: Messages = {
   },
   byRule: '규칙에 따라',
   agent: {
+    voice: '음성으로 말하기',
+    voiceStop: '멈추고 보내기',
     chats: '채팅',
     autonomy: {
       ask: '메일을 보내기 전에 매번 물어봐요',
@@ -111,6 +113,13 @@ export const ko: Messages = {
       mark_not_spam: '스팸에서 꺼내는 중',
       move_to_inbox: '받은편지함으로 옮기는 중',
       create_board: '보드 만드는 중',
+      update_board: '보드 바꾸는 중',
+      delete_board: '보드 삭제하는 중',
+      add_board_chart: '차트 추가하는 중',
+      add_to_board: '보드에 추가하는 중',
+      edit_board_entry: '항목 고치는 중',
+      remove_board_entry: '보드에서 빼는 중',
+      rename_board_group: '그룹 이름 바꾸는 중',
     },
     stop: '중지',
     thinking: '생각하는 중…',
@@ -283,6 +292,9 @@ export const ko: Messages = {
     edit: '편집',
     move: '이동',
     open: '열기',
+    notOnBoard: '이 보드에서 빼기',
+    rename: '이름 바꾸기',
+    clearFilter: '필터 지우기',
     search: '검색',
     send: '보내기',
     skip: '건너뛰기',
@@ -320,6 +332,9 @@ export const ko: Messages = {
     title: '중요한 것만.',
   },
   mail: {
+    openUnsubscribePage: '페이지 열기',
+    unsubscribeYourself:
+      '이 목록은 해당 페이지에서 직접 구독을 해지해야 해요. 그동안 메일은 보관해 둘게요.',
     allMailboxes: '모든 메일함',
     group: {
       category: '카테고리',
@@ -524,6 +539,15 @@ export const ko: Messages = {
     whichEmails: '대상 메일',
   },
   settings: {
+    readingDigest: {
+      description:
+        '브리핑 뒤에 그날의 뉴스레터를 Telegram과 WhatsApp으로 한 메시지에 모아 보내요.',
+      title: '뉴스레터 다이제스트',
+    },
+    voiceBrief: {
+      description: '브리핑을 Telegram과 WhatsApp에 음성 메시지로도 보내요.',
+      title: '음성 브리핑',
+    },
     forward: {
       copy: '주소 복사',
       description:
@@ -1134,6 +1158,7 @@ export const ko: Messages = {
     receipts: '영수증, 주문 및 배송 확인 메일',
   },
   telegram: {
+    approveAlike: '같은 종류의 카드를 한 번에 승인:',
     listen: '🔊 듣기',
     heard: (text: string) => `들은 내용: “${text}”`,
     voiceFailed: '잘 알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
@@ -1210,8 +1235,13 @@ export const ko: Messages = {
     writing: '작성 중…',
   },
   boards: {
+    addTo: '보드에 추가',
+    added: (board: string) => `${board}에 추가했어요`,
+    cancel: '취소',
     chart: {
       add: '차트 추가',
+      ask: '차트 설명하기',
+      askPlaceholder: '상점별 지출, 상태별 주문…',
       currency: '통화',
       edit: '차트 설정',
       empty: '아직 그릴 내용이 없어요',
@@ -1224,6 +1254,8 @@ export const ko: Messages = {
       },
       measure: '표시 값',
       measures: { count: '개수', sum: '총액' },
+      moveEarlier: '앞으로 이동',
+      moveLater: '뒤로 이동',
       other: '기타',
       remove: '차트 삭제',
       skipped: (n: number) => `집계 제외: ${n}건(다른 통화 또는 금액 없음)`,
@@ -1241,20 +1273,82 @@ export const ko: Messages = {
     charts: '차트',
     create: '보드 만들기',
     delete: '보드 삭제',
+    deleteConfirm: (name: string) => `“${name}” 보드를 삭제할까요?`,
+    deleteHint: '항목과 차트도 함께 삭제돼요. 메일은 그대로 남아요.',
+    describe: '모을 내용 바꾸기',
     description: '모을 내용',
     descriptionPlaceholder: '여행: 항공권, 호텔, 렌터카와 그 비용',
-    edit: '보드 편집',
-    editHint: '모을 내용을 바꾸면 최근 6개월을 다시 읽어요.',
+    due: (when: string) => `다가오는 날짜: ${when}`,
     empty: '아직 비어 있어요. 맞는 메일이 오면 바로 여기에 나타나요.',
+    emptyQuery: '다음 조건에 맞는 메일을 찾아요',
     entries: (n: number) => `${n}개 항목`,
+    entry: {
+      amount: '금액',
+      currency: '통화',
+      date: '날짜',
+      edit: '항목 편집',
+      edited: '직접 수정함',
+      group: '누구 또는 무엇',
+      next: '다음 날짜',
+      nextOn: (date: string) => `다음 ${date}`,
+      remove: '이 보드에서 빼기',
+      removed: '보드에서 뺐어요. 다음부터 참고할게요.',
+      status: '상태',
+      title: '제목',
+    },
+    expected: (when: string) => `${when} 예정`,
+    filter: {
+      clear: '필터 지우기',
+      nothing: '맞는 항목이 없어요.',
+      search: '항목 검색',
+    },
+    groups: {
+      every: {
+        month: '매월',
+        quarter: '분기마다',
+        week: '매주',
+        year: '매년',
+      },
+      expected: (date: string) => `${date} 예정`,
+      next: (date: string) => `다음 ${date}`,
+      perMonth: (amount: string) => `월 ${amount}`,
+      rename: '그룹 이름 바꾸기',
+      renameHint: '다른 그룹의 이름을 쓰면 두 그룹이 합쳐져요.',
+      showAll: (n: number) => `${n}개 모두 보기`,
+      showFewer: '접기',
+      title: '누구 또는 무엇별',
+    },
+    history: {
+      capped: (n: number) =>
+        `최근 6개월 중 조건에 맞는 최신 메일 ${n}개를 읽었어요.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? '최근 6개월 메일을 살펴보는 중…'
+          : `최근 6개월 메일 ${found}개 읽는 중 · 지금까지 ${entries}개 항목`,
+    },
+    menu: '보드 작업',
+    moveDown: '아래로 이동',
+    moveUp: '위로 이동',
     name: '이름',
     namePlaceholder: '여행',
     new: '새 보드',
     newHint:
       '모을 내용을 직접 설명해 주세요. Fewmail이 최근 6개월 메일에서 찾아내고, 차트를 고르고, 계속 최신으로 유지해요.',
     planning: '준비하는 중…',
-    readingHistory: '최근 6개월 메일을 읽는 중…',
+    redescribe: '저장하고 다시 읽기',
+    redescribeHint:
+      '새 설명으로 최근 6개월을 다시 읽어요. 직접 수정하거나 뺀 항목은 그대로 남아요.',
+    rename: '보드 이름 바꾸기',
     save: '저장',
+    settings: {
+      bannerDays: '날짜 전 미리 알림',
+      days: (n: number) => `${n}일 전`,
+      hint: '보드가 메일을 찾는 방법과 미리 알려 주는 시점이에요.',
+      never: '안 함',
+      query: 'Gmail 검색어',
+      queryHint: '바꾸면 최근 6개월을 다시 읽어요.',
+      title: '검색과 미리 알림',
+    },
     starter: {
       events: {
         description: '티켓, 예약, 약속: 어디에, 언제, 누구와 가야 하는지.',
@@ -1279,6 +1373,13 @@ export const ko: Messages = {
         description: '항공, 기차, 호텔, 렌터카: 어디로, 언제, 비용은 얼마인지.',
         name: '여행',
       },
+    },
+    summary: {
+      lastMonth: '지난달',
+      perMonth: (amount: string) => `월 ${amount}`,
+      recurring: (n: number) => `정기 ${n}개`,
+      thisMonth: '이번 달',
+      upcoming: '30일 내 예정',
     },
   },
   bulk: {
@@ -1340,6 +1441,7 @@ export const ko: Messages = {
     done: '전달한 메일',
   },
   reading: {
+    digest: (n: number) => `오늘의 뉴스레터: ${n}개`,
     empty: '지난 하루 동안 받은 뉴스레터가 없어요.',
     lead: '지난 하루의 뉴스레터를 한곳에 모아 받은편지함을 비워 둬요.',
     title: '읽을거리',

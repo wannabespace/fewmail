@@ -9,7 +9,18 @@ import type { AgentToolName } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { z } from 'zod'
 
-import { createBoard, getBoard, listBoards } from './boards'
+import {
+  addChart,
+  addToBoard,
+  createBoard,
+  deleteBoard,
+  dismissEntry,
+  getBoard,
+  listBoards,
+  renameGroup,
+  updateBoard,
+  updateEntry,
+} from './boards'
 import { generateBrief, getToday } from './brief'
 import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
 import {
@@ -57,6 +68,8 @@ const eventFields = {
   start: z.string(),
   title: z.string().min(1),
 }
+
+const BOARD_ENTRIES_SHOWN = 60
 
 const EVENT_TIMES =
   "start and end are ISO 8601 with the user's UTC offset, or yyyy-MM-dd when allDay (end exclusive: a one-day event ends the next day)."
@@ -292,9 +305,77 @@ export const agentTools = (
   }),
   get_board: define({
     description:
-      'One board: its description, the newest entries (title, group, status, amount, date) and the series behind its charts.',
+      'One board: its description and Gmail query, a summary (this month, last month, what repeats per month, what is due soon), its groups (total, how often they repeat, next date), the newest entries (id, title, group, status, amount, date, next date) and the series behind its charts.',
     input: { id: z.uuid() },
-    run: ({ id }) => getBoard(userId, id),
+    run: async ({ id }) => {
+      const board = await getBoard(userId, id)
+      return { ...board, entries: board.entries.slice(0, BOARD_ENTRIES_SHOWN) }
+    },
+  }),
+  update_board: define({
+    description:
+      "Change a board: its name, what it collects (a new description reads the last six months again; entries the user edited or removed stay), its Gmail query (also reads again), or how many days before an entry's next date it warns (1–14, null for never).",
+    input: {
+      bannerDays: z.number().int().min(1).max(14).nullable().optional(),
+      description: z.string().min(3).optional(),
+      gmailQuery: z.string().min(1).optional(),
+      id: z.uuid(),
+      name: z.string().min(1).optional(),
+    },
+    run: ({ id, ...input }) => updateBoard(userId, id, input),
+  }),
+  delete_board: define({
+    description:
+      'Delete a board and every entry on it. Only when the user asks to delete that board.',
+    input: { id: z.uuid() },
+    run: ({ id }) => deleteBoard(userId, id),
+  }),
+  add_board_chart: define({
+    description:
+      'Add a chart to a board from the user\'s words ("spending per shop", "orders by status").',
+    input: { ask: z.string().min(3), id: z.uuid() },
+    run: ({ ask, id }) => addChart(userId, id, ask),
+  }),
+  add_to_board: define({
+    description:
+      'Put an email on a board that its search missed; the entry is written from the email.',
+    input: { boardId: z.uuid(), messageId: z.uuid() },
+    run: ({ boardId, messageId }) => addToBoard(userId, boardId, messageId),
+  }),
+  edit_board_entry: define({
+    description:
+      "Correct an entry of a board (id from get_board). amount is in the currency's units, negative for a refund; dates are ISO; null clears a field.",
+    input: {
+      amount: z.number().nullable().optional(),
+      currency: z.string().length(3).nullable().optional(),
+      date: z.iso.date().optional(),
+      dueAt: z.iso.date().nullable().optional(),
+      group: z.string().nullable().optional(),
+      id: z.uuid(),
+      status: z.string().nullable().optional(),
+      title: z.string().min(1).optional(),
+    },
+    run: ({ amount, date, dueAt, id, ...input }) =>
+      updateEntry(userId, id, {
+        ...input,
+        ...(amount !== undefined && {
+          amountCents: amount === null ? null : Math.round(amount * 100),
+        }),
+        ...(date && { occurredAt: new Date(date) }),
+        ...(dueAt !== undefined && { dueAt: dueAt ? new Date(dueAt) : null }),
+      }),
+  }),
+  remove_board_entry: define({
+    description:
+      'Take an entry off its board because it does not belong; the board learns from it and never collects that email again.',
+    input: { id: z.uuid() },
+    run: ({ id }) => dismissEntry(userId, id),
+  }),
+  rename_board_group: define({
+    description:
+      'Rename a group on a board; renaming it to another group\'s name merges the two ("Netflix Inc." into "Netflix").',
+    input: { from: z.string(), id: z.uuid(), to: z.string().min(1) },
+    run: ({ from, id, to }) => renameGroup(userId, id, { from, to }),
   }),
   list_events: define({
     description:

@@ -4,6 +4,8 @@ import type { Messages } from './en'
 
 export const fr: Messages = {
   agent: {
+    voice: 'Parler à l’agent',
+    voiceStop: 'Arrêter et envoyer',
     chats: 'Discussions',
     autonomy: {
       ask: 'Vous demande avant chaque e-mail',
@@ -90,6 +92,13 @@ export const fr: Messages = {
       mark_not_spam: 'Sortie des spams',
       move_to_inbox: 'Remise dans la boîte de réception',
       create_board: 'Création d’un tableau',
+      update_board: 'Modification du tableau',
+      delete_board: 'Suppression du tableau',
+      add_board_chart: 'Ajout d’un graphique',
+      add_to_board: 'Ajout au tableau',
+      edit_board_entry: 'Correction de l’entrée',
+      remove_board_entry: 'Retrait du tableau',
+      rename_board_group: 'Renommage du groupe',
     },
     stop: 'Arrêter',
     thinking: 'Réflexion…',
@@ -789,6 +798,9 @@ export const fr: Messages = {
     edit: 'modifier',
     move: 'naviguer',
     open: 'ouvrir',
+    notOnBoard: 'pas sur ce tableau',
+    rename: 'renommer',
+    clearFilter: 'effacer le filtre',
     search: 'rechercher',
     send: 'envoyer',
     skip: 'passer',
@@ -826,6 +838,9 @@ export const fr: Messages = {
     title: 'L’essentiel, rien de plus.',
   },
   mail: {
+    openUnsubscribePage: 'Ouvrir la page',
+    unsubscribeYourself:
+      'Pour quitter cette liste, termine sur sa page. Ses e-mails sont archivés en attendant.',
     allMailboxes: 'Toutes les boîtes',
     group: {
       category: 'Catégorie',
@@ -1042,6 +1057,16 @@ export const fr: Messages = {
     whichEmails: 'Quels e-mails',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Après le brief, les newsletters du jour arrivent dans Telegram et WhatsApp en un seul message.',
+      title: 'Résumé des newsletters',
+    },
+    voiceBrief: {
+      description:
+        'Le brief arrive aussi dans Telegram et WhatsApp en message vocal.',
+      title: 'Brief en message vocal',
+    },
     forward: {
       copy: 'Copier l’adresse',
       description:
@@ -1177,6 +1202,7 @@ export const fr: Messages = {
     receipts: 'Reçus, confirmations de commande et d’expédition',
   },
   telegram: {
+    approveAlike: 'Approuver d’un coup toutes les cartes d’un même type :',
     listen: '🔊 Écouter',
     heard: (text: string) => `Entendu : « ${text} »`,
     voiceFailed: 'Je n’ai pas compris. Réessayez ou écrivez-le.',
@@ -1269,8 +1295,13 @@ export const fr: Messages = {
     writing: 'Rédaction…',
   },
   boards: {
+    addTo: 'Ajouter à un tableau',
+    added: (board: string) => `Ajouté à ${board}`,
+    cancel: 'Annuler',
     chart: {
       add: 'Ajouter un graphique',
+      ask: 'Décris le graphique',
+      askPlaceholder: 'Dépenses par boutique, commandes par statut…',
       currency: 'Devise',
       edit: 'Réglages du graphique',
       empty: 'Rien à afficher pour l’instant',
@@ -1283,6 +1314,8 @@ export const fr: Messages = {
       },
       measure: 'Affiche',
       measures: { count: 'Nombre', sum: 'Montant total' },
+      moveEarlier: 'Avancer',
+      moveLater: 'Reculer',
       other: 'Autres',
       remove: 'Retirer le graphique',
       skipped: (n: number) =>
@@ -1301,27 +1334,93 @@ export const fr: Messages = {
     charts: 'Graphiques',
     create: 'Créer le tableau',
     delete: 'Supprimer le tableau',
+    deleteConfirm: (name: string) => `Supprimer « ${name} » ?`,
+    deleteHint:
+      'Ses entrées et graphiques partent avec lui. Tes e-mails restent où ils sont.',
+    describe: 'Changer ce qu’il rassemble',
     description: 'Ce qu’il rassemble',
     descriptionPlaceholder:
       'Voyages : vols, hôtels et locations de voiture, avec leur coût',
-    edit: 'Modifier le tableau',
-    editHint:
-      'Si tu changes ce qu’il rassemble, les six derniers mois sont relus.',
+    due: (when: string) => `À venir : ${when}`,
     empty:
       'Encore vide. Les e-mails correspondants apparaîtront ici dès leur arrivée.',
+    emptyQuery: 'Il cherche les e-mails correspondant à',
     entries: (total: number) =>
       plural('fr', total, {
         one: () => 'Une entrée',
         other: (n) => `${n} entrées`,
       }),
+    entry: {
+      amount: 'Montant',
+      currency: 'Devise',
+      date: 'Date',
+      edit: 'Modifier l’entrée',
+      edited: 'Modifiée par toi',
+      group: 'Qui ou quoi',
+      next: 'Prochaine date',
+      nextOn: (date: string) => `prochaine : ${date}`,
+      remove: 'Pas sur ce tableau',
+      removed: 'Retirée du tableau. Il en tiendra compte.',
+      status: 'Statut',
+      title: 'Titre',
+    },
+    expected: (when: string) => `Prévu ${when}`,
+    filter: {
+      clear: 'Effacer le filtre',
+      nothing: 'Aucune entrée ne correspond.',
+      search: 'Rechercher des entrées',
+    },
+    groups: {
+      every: {
+        month: 'chaque mois',
+        quarter: 'chaque trimestre',
+        week: 'chaque semaine',
+        year: 'chaque année',
+      },
+      expected: (date: string) => `prévu ${date}`,
+      next: (date: string) => `prochain : ${date}`,
+      perMonth: (amount: string) => `${amount} / mois`,
+      rename: 'Renommer le groupe',
+      renameHint: 'Donne-lui le nom d’un autre groupe pour les fusionner.',
+      showAll: (n: number) => `Tout afficher (${n})`,
+      showFewer: 'Afficher moins',
+      title: 'Par qui ou quoi',
+    },
+    history: {
+      capped: (n: number) =>
+        `Les ${n} e-mails correspondants les plus récents des six derniers mois ont été lus.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Parcours des e-mails des six derniers mois…'
+          : `Lecture des six derniers mois : ${plural('fr', found, { one: () => 'un e-mail', other: (n) => `${n} e-mails` })} · ${plural('fr', entries, { one: () => 'une entrée', other: (n) => `${n} entrées` })} pour l’instant`,
+    },
+    menu: 'Actions du tableau',
+    moveDown: 'Descendre',
+    moveUp: 'Monter',
     name: 'Nom',
     namePlaceholder: 'Voyages',
     new: 'Nouveau tableau',
     newHint:
       'Décris avec tes mots ce qu’il faut rassembler. Fewmail le retrouve dans les e-mails des six derniers mois, choisit les graphiques et tient le tout à jour.',
     planning: 'Mise en place…',
-    readingHistory: 'Lecture des e-mails des six derniers mois…',
+    redescribe: 'Enregistrer et relire',
+    redescribeHint:
+      'Relit les six derniers mois avec la nouvelle description. Les entrées que tu as modifiées ou retirées restent.',
+    rename: 'Renommer le tableau',
     save: 'Enregistrer',
+    settings: {
+      bannerDays: 'Prévenir avant une date',
+      days: (n: number) =>
+        plural('fr', n, {
+          one: () => '1 jour avant',
+          other: (count) => `${count} jours avant`,
+        }),
+      hint: 'Comment le tableau trouve ses e-mails et quand il te prévient.',
+      never: 'Jamais',
+      query: 'Recherche Gmail',
+      queryHint: 'La modifier relit les six derniers mois.',
+      title: 'Recherche et alertes',
+    },
     starter: {
       events: {
         description:
@@ -1348,6 +1447,17 @@ export const fr: Messages = {
           'Vols, trains, hôtels et locations : où je vais, quand et combien ça coûte.',
         name: 'Voyages',
       },
+    },
+    summary: {
+      lastMonth: 'Mois dernier',
+      perMonth: (amount: string) => `${amount} par mois`,
+      recurring: (n: number) =>
+        plural('fr', n, {
+          one: () => 'Un récurrent',
+          other: (count) => `${count} récurrents`,
+        }),
+      thisMonth: 'Ce mois-ci',
+      upcoming: 'Échéance sous 30 jours',
     },
   },
   bulk: {
@@ -1425,6 +1535,7 @@ export const fr: Messages = {
     done: 'Ton e-mail transféré',
   },
   reading: {
+    digest: (n: number) => `Newsletters du jour : ${n}`,
     empty: 'Aucune newsletter ces dernières 24 heures.',
     lead: 'Les newsletters du dernier jour au même endroit, pour qu’elles n’encombrent pas la boîte de réception.',
     title: 'Lecture',

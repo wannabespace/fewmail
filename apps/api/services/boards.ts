@@ -13,13 +13,21 @@ import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import {
+  addDays,
+  addMonths,
+  addWeeks,
+  addYears,
+  differenceInCalendarDays,
   eachMonthOfInterval,
   eachWeekOfInterval,
   format,
+  startOfMonth,
   startOfWeek,
   subDays,
+  subMonths,
 } from 'date-fns'
-import { and, asc, desc, eq, gte, isNotNull, sql } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, isNotNull, isNull } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { announceChange } from '../lib/live'
@@ -35,13 +43,32 @@ type Board = typeof boards.$inferSelect
 type Entry = typeof boardEntries.$inferSelect
 type Message = typeof messages.$inferSelect
 
+/** A new board reads at most this many of its emails from the last half year, newest first. */
+export const BOARD_HISTORY_LIMIT = 300
+
 const EXTRACT_CONCURRENCY = 4
-const MAX_CHARTS = 4
+const MAX_PLANNED_CHARTS = 4
 const MAX_BANNER_DAYS = 14
-const ENTRIES_SHOWN = 200
+const ENTRIES_SHOWN = 1000
 const KNOWN_VALUES_SHOWN = 60
+const REJECTED_SHOWN = 20
 const TIME_BUCKETS_SHOWN = 12
 const SHARE_BUCKETS_SHOWN = 6
+const UPCOMING_DAYS = 30
+/** A predicted charge this late with no new receipt means the thing stopped (cancelled, moved to another card). */
+const OVERDUE_DAYS = 7
+const DAYS_PER_MONTH = 30.44
+
+const CADENCES = [
+  { days: 7, every: 'week', next: (date: Date) => addWeeks(date, 1) },
+  {
+    days: DAYS_PER_MONTH,
+    every: 'month',
+    next: (date: Date) => addMonths(date, 1),
+  },
+  { days: 91.3, every: 'quarter', next: (date: Date) => addMonths(date, 3) },
+  { days: 365.25, every: 'year', next: (date: Date) => addYears(date, 1) },
+] as const
 
 const chartSchema = type({
   groupBy: type.enumerated(...BOARD_GROUPINGS),
@@ -68,10 +95,18 @@ const entrySchema = type({
   title: 'string',
 })
 
+const chartRules = (language: Locale) =>
+  `measure "sum" only when the entries carry amounts. groupBy month or week for a trend, group for who or what (merchant, airline, company), status for the state. type: bar for anything per month or week, since entries are sparse and a line would draw slopes between them; pie only for shares (group or status). title: a few words in ${englishName(language)}.`
+
 const languageOf = async (userId: string) => {
   const settings = await getSettings(userId)
   return settings?.language ?? 'en'
 }
+
+const clampBannerDays = (days: number | null) =>
+  days === null
+    ? null
+    : Math.min(MAX_BANNER_DAYS, Math.max(1, Math.round(days)))
 
 const planBoard = async (
   board: { description: string; name: string },
@@ -82,19 +117,16 @@ const planBoard = async (
       'The user describes a board: a page that collects one kind of email (receipts, trips, job applications…) as entries with a title, a group, a status, an amount and a date.',
       'gmailQuery: a Gmail search query that finds these emails with high recall: OR-ed subject keywords in English and in the languages the description suggests, sender domains you are sure of, Gmail categories (category:purchases) where they fit. Never date operators (newer_than, after, before): they are added later.',
       'bannerDays: when entries carry a next date the user must not miss (a subscription renews, a bill is due, a flight leaves, an event starts), how many days before it they want a heads-up (renewals and bills 3, trips and events 2); null when the entries have no such date.',
-      `charts: 1–${MAX_CHARTS} charts that answer what the user most likely wants to see. measure "sum" only when the entries carry amounts. groupBy month or week for a trend, group for who or what (merchant, airline, company), status for the state. type: bar for anything per month or week, since entries are sparse and a line would draw slopes between them; pie only for shares (group or status). title: a few words in ${englishName(language)}.`,
+      `charts: 1–${MAX_PLANNED_CHARTS} charts that answer what the user most likely wants to see. ${chartRules(language)}`,
     ].join('\n'),
     model: models.writer,
     output: Output.object({ schema: planSchema }),
     prompt: `Name: ${board.name}\nDescription: ${board.description}`,
   })
   return {
-    bannerDays:
-      output.bannerDays === null
-        ? null
-        : Math.min(MAX_BANNER_DAYS, Math.max(1, Math.round(output.bannerDays))),
+    bannerDays: clampBannerDays(output.bannerDays),
     charts: output.charts
-      .slice(0, MAX_CHARTS)
+      .slice(0, MAX_PLANNED_CHARTS)
       .map((chart) => ({ ...chart, id: crypto.randomUUID() })),
     gmailQuery: output.gmailQuery,
   }
@@ -111,12 +143,43 @@ const getOwnBoard = async (userId: string, id: string) => {
   return board
 }
 
+const getOwnEntry = async (userId: string, id: string) => {
+  const [entry] = await db
+    .select()
+    .from(boardEntries)
+    .where(and(eq(boardEntries.id, id), eq(boardEntries.userId, userId)))
+  if (!entry) {
+    throw new NotFoundError('Entry not found')
+  }
+  return entry
+}
+
+/** What the user sees of a board: never the entries they took off it. */
+const shownEntries = (where: SQL | undefined) =>
+  db
+    .select({ entry: boardEntries, threadId: messages.threadId })
+    .from(boardEntries)
+    .innerJoin(messages, eq(messages.id, boardEntries.messageId))
+    .where(and(where, isNull(boardEntries.dismissedAt)))
+
 export const listBoards = (userId: string) =>
   db
     .select({ id: boards.id, name: boards.name })
     .from(boards)
     .where(eq(boards.userId, userId))
-    .orderBy(boards.createdAt)
+    .orderBy(boards.position, boards.createdAt)
+
+export const reorderBoards = async (userId: string, ids: string[]) => {
+  await Promise.all(
+    ids.map((id, position) =>
+      db
+        .update(boards)
+        .set({ position })
+        .where(and(eq(boards.id, id), eq(boards.userId, userId)))
+    )
+  )
+  await announceChange(userId, ['boards', 'today'])
+}
 
 const DIGEST_DAYS = 30
 
@@ -132,10 +195,11 @@ export const boardsDigest = async (userId: string) => {
     .where(
       and(
         eq(boardEntries.userId, userId),
+        isNull(boardEntries.dismissedAt),
         gte(boardEntries.occurredAt, subDays(new Date(), DIGEST_DAYS))
       )
     )
-    .orderBy(desc(boardEntries.createdAt))
+    .orderBy(desc(boardEntries.occurredAt))
   const byBoard = Map.groupBy(rows, ({ board }) => board.id)
   return [...byBoard.values()].flatMap((boardRows) => {
     const [newest] = boardRows
@@ -166,33 +230,195 @@ export const boardsDigest = async (userId: string) => {
   })
 }
 
-/** Entries whose next date falls within their board's `bannerDays`: a renewal, a bill, a departure coming up. */
-export const boardBanners = async (userId: string, boardId?: string) => {
-  const rows = await db
-    .select({
-      amountCents: boardEntries.amountCents,
-      boardId: boards.id,
-      boardName: boards.name,
-      currency: boardEntries.currency,
-      dueAt: boardEntries.dueAt,
-      id: boardEntries.id,
-      threadId: messages.threadId,
-      title: boardEntries.title,
-    })
-    .from(boardEntries)
-    .innerJoin(boards, eq(boards.id, boardEntries.boardId))
-    .innerJoin(messages, eq(messages.id, boardEntries.messageId))
-    .where(
-      and(
-        eq(boardEntries.userId, userId),
-        boardId ? eq(boards.id, boardId) : undefined,
-        isNotNull(boards.bannerDays),
-        gte(boardEntries.dueAt, new Date()),
-        sql`${boardEntries.dueAt} <= now() + make_interval(days => ${boards.bannerDays})`
+const centsIn = (entries: Entry[], currency: string) => {
+  let total = 0
+  for (const entry of entries) {
+    if (entry.currency === currency) {
+      total += entry.amountCents ?? 0
+    }
+  }
+  return total
+}
+
+const trimmed = (value: string | null | undefined) =>
+  value === undefined ? undefined : value?.trim() || null
+
+const median = (values: number[]) => {
+  const sorted = values.toSorted((left, right) => left - right)
+  return sorted[Math.floor(sorted.length / 2)] ?? 0
+}
+
+/** Charges of one group that repeat at a steady pace with a steady price: a subscription, rent, a monthly bill. Flights and orders vary in price, so they never read as one. */
+const cadenceOf = (oldestFirst: Entry[]) => {
+  const charges = oldestFirst.filter(
+    ({ amountCents }) => amountCents !== null && amountCents > 0
+  )
+  const last = charges.at(-1)
+  if (!last?.amountCents) {
+    return null
+  }
+  const price = last.amountCents
+  const alike = charges.filter(
+    ({ amountCents, currency }) =>
+      currency === last.currency &&
+      amountCents !== null &&
+      Math.abs(amountCents - price) <= price * 0.25
+  )
+  const gaps = alike
+    .slice(1)
+    .map((entry, index) =>
+      differenceInCalendarDays(
+        entry.occurredAt,
+        alike[index]?.occurredAt ?? entry.occurredAt
       )
     )
-    .orderBy(asc(boardEntries.dueAt))
-  return rows.flatMap(({ dueAt, ...row }) => (dueAt ? [{ ...row, dueAt }] : []))
+    .filter((days) => days > 2)
+  if (gaps.length === 0) {
+    return null
+  }
+  const gap = median(gaps)
+  const cadence = CADENCES.find(
+    ({ days }) => Math.abs(gap - days) <= days * 0.15
+  )
+  return cadence ? { cadence, last } : null
+}
+
+interface ShownEntry {
+  entry: Entry
+  threadId: string
+}
+
+/** Per group: what it adds up to, how often it comes back and when it is next due — stated in an email, else predicted from its pace. */
+const groupsOf = (rows: ShownEntry[]) => {
+  const now = new Date()
+  const byGroup = Map.groupBy(
+    rows.filter(({ entry }) => entry.group),
+    ({ entry }) => entry.group ?? ''
+  )
+  return [...byGroup]
+    .map(([name, groupRows]) => {
+      const oldestFirst = groupRows.toSorted(
+        (left, right) =>
+          left.entry.occurredAt.getTime() - right.entry.occurredAt.getTime()
+      )
+      const latest = oldestFirst.at(-1)
+      const currency =
+        oldestFirst.findLast(({ entry }) => entry.currency)?.entry.currency ??
+        null
+      const repeating = cadenceOf(oldestFirst.map(({ entry }) => entry))
+      const [stated] = oldestFirst
+        .flatMap(({ entry }) =>
+          entry.dueAt && entry.dueAt > now ? [entry.dueAt] : []
+        )
+        .toSorted((left, right) => left.getTime() - right.getTime())
+      const predicted =
+        repeating && repeating.cadence.next(repeating.last.occurredAt)
+      const isRunning = Boolean(
+        predicted && predicted >= subDays(now, OVERDUE_DAYS)
+      )
+      return {
+        count: groupRows.length,
+        currency,
+        every: repeating?.cadence.every ?? null,
+        isNextPredicted: !stated && isRunning,
+        lastAmountCents: repeating?.last.amountCents ?? null,
+        lastAt: latest?.entry.occurredAt ?? now,
+        monthlyCents:
+          repeating && isRunning
+            ? Math.round(
+                ((repeating.last.amountCents ?? 0) * DAYS_PER_MONTH) /
+                  repeating.cadence.days
+              )
+            : null,
+        name,
+        nextAt: stated ?? (isRunning ? predicted : null),
+        threadId: latest?.threadId ?? '',
+        totalCents: currency
+          ? centsIn(
+              groupRows.map(({ entry }) => entry),
+              currency
+            )
+          : null,
+      }
+    })
+    .toSorted(
+      (left, right) =>
+        Number(right.nextAt !== null) - Number(left.nextAt !== null) ||
+        (right.totalCents ?? 0) - (left.totalCents ?? 0) ||
+        right.count - left.count
+    )
+}
+
+/** Entries whose next date falls within their board's `bannerDays`: a renewal, a bill, a departure coming up — stated in an email, or predicted from a steady pace. */
+export const boardBanners = async (userId: string, boardId?: string) => {
+  const watched = await db
+    .select({
+      bannerDays: boards.bannerDays,
+      id: boards.id,
+      name: boards.name,
+    })
+    .from(boards)
+    .where(
+      and(
+        eq(boards.userId, userId),
+        boardId ? eq(boards.id, boardId) : undefined,
+        isNotNull(boards.bannerDays)
+      )
+    )
+  if (watched.length === 0) {
+    return []
+  }
+  const rows = await shownEntries(
+    inArray(
+      boardEntries.boardId,
+      watched.map(({ id }) => id)
+    )
+  )
+  const now = new Date()
+  const byBoard = Map.groupBy(rows, ({ entry }) => entry.boardId)
+  return watched
+    .flatMap((board) => {
+      const boardRows = byBoard.get(board.id) ?? []
+      const until = addDays(now, board.bannerDays ?? 0)
+      const isSoon = (date: Date | null): date is Date =>
+        date !== null && date >= now && date <= until
+      const stated = boardRows.flatMap(({ entry, threadId }) =>
+        isSoon(entry.dueAt)
+          ? [
+              {
+                amountCents: entry.amountCents,
+                boardId: board.id,
+                boardName: board.name,
+                currency: entry.currency,
+                dueAt: entry.dueAt,
+                id: entry.id,
+                isPredicted: false,
+                threadId,
+                title: entry.title,
+              },
+            ]
+          : []
+      )
+      const predicted = groupsOf(boardRows).flatMap((group) =>
+        group.isNextPredicted && isSoon(group.nextAt)
+          ? [
+              {
+                amountCents: group.lastAmountCents,
+                boardId: board.id,
+                boardName: board.name,
+                currency: group.currency,
+                dueAt: group.nextAt,
+                id: `${board.id}:${group.name}`,
+                isPredicted: true,
+                threadId: group.threadId,
+                title: group.name,
+              },
+            ]
+          : []
+      )
+      return [...stated, ...predicted]
+    })
+    .toSorted((left, right) => left.dueAt.getTime() - right.dueAt.getTime())
 }
 
 /** The worker reads the last half year next; the page fills in live. */
@@ -200,13 +426,12 @@ export const createBoard = async (
   userId: string,
   input: { description: string; name: string }
 ) => {
-  await requireRoom(userId, 'boards', () =>
-    db.$count(boards, eq(boards.userId, userId))
-  )
+  const count = () => db.$count(boards, eq(boards.userId, userId))
+  await requireRoom(userId, 'boards', count)
   const plan = await planBoard(input, await languageOf(userId))
   const [board] = await db
     .insert(boards)
-    .values({ ...input, ...plan, userId })
+    .values({ ...input, ...plan, position: await count(), userId })
     .returning()
   await announceChange(userId, ['boards', 'today'])
   return expectRow(board)
@@ -238,15 +463,27 @@ export const seedBoards = async (userId: string) => {
   }
 }
 
-/** A new description is a new board: its entries are dropped and the history read again. Charts stay as the user left them. */
+/**
+ * A new description or search makes the history read again: the entries go, except those the user edited, added or took off,
+ * which keep their place and their lesson. Charts stay as the user left them.
+ */
 export const updateBoard = async (
   userId: string,
   id: string,
-  input: { charts?: BoardChart[]; description?: string; name?: string }
+  input: {
+    bannerDays?: number | null
+    charts?: BoardChart[]
+    description?: string
+    gmailQuery?: string
+    name?: string
+  }
 ) => {
+  const { bannerDays, gmailQuery, ...rest } = input
   const board = await getOwnBoard(userId, id)
   const isRedescribed =
     input.description !== undefined && input.description !== board.description
+  const query = gmailQuery?.trim()
+  const isRequeried = Boolean(query) && query !== board.gmailQuery
   const plan = isRedescribed
     ? await planBoard(
         {
@@ -259,17 +496,26 @@ export const updateBoard = async (
   await db
     .update(boards)
     .set({
-      ...input,
-      ...(plan && {
-        bannerDays: plan.bannerDays,
-        gmailQuery: plan.gmailQuery,
-        historyReadAt: null,
+      ...rest,
+      ...(plan && { bannerDays: plan.bannerDays, gmailQuery: plan.gmailQuery }),
+      ...(bannerDays !== undefined && {
+        bannerDays: clampBannerDays(bannerDays),
       }),
+      ...(isRequeried && { gmailQuery: query }),
+      ...((plan || isRequeried) && { historyFound: null, historyReadAt: null }),
     })
     .where(eq(boards.id, id))
   // After the new description is stored: a read still running under the old one checks it before each write (`isUnchanged`).
-  if (isRedescribed) {
-    await db.delete(boardEntries).where(eq(boardEntries.boardId, id))
+  if (plan || isRequeried) {
+    await db
+      .delete(boardEntries)
+      .where(
+        and(
+          eq(boardEntries.boardId, id),
+          isNull(boardEntries.editedAt),
+          isNull(boardEntries.dismissedAt)
+        )
+      )
   }
   await announceChange(userId, ['boards', 'today'])
 }
@@ -281,13 +527,16 @@ export const deleteBoard = async (userId: string, id: string) => {
   await announceChange(userId, ['boards', 'today'])
 }
 
-/** A new description drops the entries and reads the history again; a read under the old one must stop writing. */
+/** A new description or search drops the entries and reads the history again; a read under the old one must stop writing. */
 export const isUnchanged = async (board: Board) => {
   const [current] = await db
-    .select({ description: boards.description })
+    .select({ description: boards.description, gmailQuery: boards.gmailQuery })
     .from(boards)
     .where(eq(boards.id, board.id))
-  return current?.description === board.description
+  return (
+    current?.description === board.description &&
+    current.gmailQuery === board.gmailQuery
+  )
 }
 
 const threadKey = (message: { mailboxId: string; threadId: string }) =>
@@ -298,7 +547,8 @@ const saveEntry = async (
   board: Board,
   message: Message,
   output: typeof entrySchema.infer,
-  earlier: Entry | undefined
+  earlier: Entry | undefined,
+  editedAt: Date | null
 ) => {
   const status = output.status?.trim() || null
   const amount =
@@ -329,6 +579,7 @@ const saveEntry = async (
       ...amount,
       boardId: board.id,
       dueAt,
+      editedAt,
       group: output.group?.trim() || null,
       messageId: message.id,
       occurredAt:
@@ -336,35 +587,47 @@ const saveEntry = async (
           ? occurredAt
           : message.receivedAt,
       status,
-      title: output.title.trim(),
+      title: output.title.trim() || message.subject,
       userId: board.userId,
     })
     .onConflictDoNothing()
 }
 
+interface KnownValues {
+  groups: string[]
+  rejected: { from: string; title: string }[]
+  statuses: string[]
+}
+
+/** `isAdded`: the user put this email on the board themselves, so it belongs and is its own entry. */
 const extractEntry = async (
   board: Board,
   message: Message,
-  context: { groups: string[]; language: Locale; statuses: string[] }
+  context: KnownValues & { isAdded?: boolean; language: Locale }
 ) => {
-  const [earlier] = await db
-    .select({ entry: boardEntries })
-    .from(boardEntries)
-    .innerJoin(messages, eq(messages.id, boardEntries.messageId))
-    .where(
-      and(
-        eq(boardEntries.boardId, board.id),
-        eq(messages.mailboxId, message.mailboxId),
-        eq(messages.threadId, message.threadId)
-      )
-    )
-    .orderBy(desc(messages.receivedAt))
-    .limit(1)
+  const [earlier] = context.isAdded
+    ? []
+    : await db
+        .select({ entry: boardEntries })
+        .from(boardEntries)
+        .innerJoin(messages, eq(messages.id, boardEntries.messageId))
+        .where(
+          and(
+            eq(boardEntries.boardId, board.id),
+            eq(messages.mailboxId, message.mailboxId),
+            eq(messages.threadId, message.threadId)
+          )
+        )
+        .orderBy(desc(messages.receivedAt))
+        .limit(1)
   const language = englishName(context.language)
   const { output } = await generateText({
     instructions: [
       `Board "${board.name}": ${board.description}`,
       'belongs: whether this email is an entry of that board. Marketing, newsletters and anything off-topic do not belong.',
+      context.rejected.length > 0
+        ? `The user took these off the board as not belonging; mail like them does not belong either: ${context.rejected.map(({ from, title }) => `"${title}" from ${from}`).join('; ')}.`
+        : '',
       `Write title and status in ${language}, even when the email is in another language.`,
       'title: what this entry is in a few words ("Lisbon → Kyiv", "Netflix Premium"), never the subject line.',
       `group: who or what it belongs to as people say it ("Netflix", "Ryanair"), or null.${context.groups.length > 0 ? ` Reuse one of these when it is the same: ${context.groups.join(', ')}.` : ''}`,
@@ -376,13 +639,25 @@ const extractEntry = async (
       earlier
         ? `isUpdate: this thread already holds the entry "${earlier.entry.title}"${earlier.entry.status ? ` (${earlier.entry.status})` : ''}. true when this email is news about that same thing (shipped, delivered, changed, cancelled), false when it is a new one (next month's receipt, a refund).`
         : 'isUpdate: false.',
-    ].join('\n'),
+    ]
+      .filter(Boolean)
+      .join('\n'),
     model: models.fast,
     output: Output.object({ schema: entrySchema }),
     prompt: `From: ${message.fromName ?? ''} <${message.fromEmail}>\nSubject: ${message.subject}\n\n${message.body.slice(0, 5000)}`,
   })
+  if (context.isAdded) {
+    await saveEntry(
+      board,
+      message,
+      { ...output, isUpdate: false },
+      undefined,
+      new Date()
+    )
+    return
+  }
   if (output.belongs && (await isUnchanged(board))) {
-    await saveEntry(board, message, output, earlier?.entry)
+    await saveEntry(board, message, output, earlier?.entry, null)
   }
 }
 
@@ -392,14 +667,18 @@ const distinct = (values: (string | null)[]) =>
     KNOWN_VALUES_SHOWN
   )
 
+/** Taken-off entries still count as read (their thread is never collected again) and teach the model, but their names are not suggested. */
 const knownValues = async (boardId: string) => {
   const rows = await db
     .select({
+      dismissedAt: boardEntries.dismissedAt,
+      fromEmail: messages.fromEmail,
       group: boardEntries.group,
       mailboxId: messages.mailboxId,
       receivedAt: messages.receivedAt,
       status: boardEntries.status,
       threadId: messages.threadId,
+      title: boardEntries.title,
     })
     .from(boardEntries)
     .innerJoin(messages, eq(messages.id, boardEntries.messageId))
@@ -414,10 +693,21 @@ const knownValues = async (boardId: string) => {
       )
     )
   }
+  const kept = rows.filter(({ dismissedAt }) => !dismissedAt)
   return {
-    groups: distinct(rows.map(({ group }) => group)),
+    groups: distinct(kept.map(({ group }) => group)),
     latestInThread,
-    statuses: distinct(rows.map(({ status }) => status)),
+    rejected: rows
+      .flatMap(({ dismissedAt, fromEmail, title }) =>
+        dismissedAt ? [{ dismissedAt, from: fromEmail, title }] : []
+      )
+      .toSorted(
+        (left, right) =>
+          right.dismissedAt.getTime() - left.dismissedAt.getTime()
+      )
+      .slice(0, REJECTED_SHOWN)
+      .map(({ from, title }) => ({ from, title })),
+    statuses: distinct(kept.map(({ status }) => status)),
   }
 }
 
@@ -439,28 +729,29 @@ export const collectEntries = async (board: Board, candidates: Message[]) => {
       (left, right) => left.receivedAt.getTime() - right.receivedAt.getTime()
     )
   )
+  const isLong = threads.length > EXTRACT_CONCURRENCY
   for (let index = 0; index < threads.length; index += EXTRACT_CONCURRENCY) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- stop once the board was described anew
     if (!(await isUnchanged(board))) {
       return
     }
     // oxlint-disable-next-line eslint/no-await-in-loop -- each batch sees the groups and statuses the previous one wrote, so spellings converge
-    const { groups, statuses } = await knownValues(board.id)
+    const known = await knownValues(board.id)
     // oxlint-disable-next-line eslint/no-await-in-loop -- batches cap concurrency
     await Promise.allSettled(
       threads.slice(index, index + EXTRACT_CONCURRENCY).map(async (thread) => {
         for (const message of thread) {
           // oxlint-disable-next-line eslint/no-await-in-loop -- in order: each message sees the entry the one before wrote
-          await extractEntry(board, message, {
-            groups,
-            language,
-            statuses,
-          }).catch((error) =>
-            logError(`board entry ${message.id} failed`, error)
+          await extractEntry(board, message, { ...known, language }).catch(
+            (error) => logError(`board entry ${message.id} failed`, error)
           )
         }
       })
     )
+    if (isLong) {
+      // oxlint-disable-next-line eslint/no-await-in-loop -- a long history read fills the page batch by batch
+      await announceChange(board.userId, ['boards'])
+    }
   }
 }
 
@@ -502,6 +793,148 @@ export const collectForNewMail = async (
   }
 }
 
+/** Puts an email the search missed on the board; one already there and taken off comes back. */
+export const addToBoard = async (
+  userId: string,
+  boardId: string,
+  messageId: string
+) => {
+  const board = await getOwnBoard(userId, boardId)
+  const [message] = await db
+    .select()
+    .from(messages)
+    .where(and(eq(messages.id, messageId), eq(messages.userId, userId)))
+  if (!message) {
+    throw new NotFoundError('Email not found')
+  }
+  const [present] = await db
+    .update(boardEntries)
+    .set({ dismissedAt: null, editedAt: new Date() })
+    .where(
+      and(
+        eq(boardEntries.boardId, boardId),
+        eq(boardEntries.messageId, messageId)
+      )
+    )
+    .returning({ id: boardEntries.id })
+  if (!present) {
+    const { groups, rejected, statuses } = await knownValues(boardId)
+    await extractEntry(board, message, {
+      groups,
+      isAdded: true,
+      language: await languageOf(userId),
+      rejected,
+      statuses,
+    })
+  }
+  await announceChange(userId, ['boards', 'today'])
+}
+
+/** The user's correction outranks the model: an edited entry survives a new description. */
+export const updateEntry = async (
+  userId: string,
+  id: string,
+  input: {
+    amountCents?: number | null
+    currency?: string | null
+    dueAt?: Date | null
+    group?: string | null
+    occurredAt?: Date
+    status?: string | null
+    title?: string
+  }
+) => {
+  await getOwnEntry(userId, id)
+  await db
+    .update(boardEntries)
+    .set({
+      ...input,
+      currency:
+        trimmed(input.currency)?.toUpperCase() ?? trimmed(input.currency),
+      editedAt: new Date(),
+      group: trimmed(input.group),
+      status: trimmed(input.status),
+      title: input.title?.trim() || undefined,
+    })
+    .where(eq(boardEntries.id, id))
+  await announceChange(userId, ['boards', 'today'])
+}
+
+/** Takes an entry off its board without forgetting it: the email is never collected again and the model learns from it. */
+export const dismissEntry = async (
+  userId: string,
+  id: string,
+  isDismissed = true
+) => {
+  await getOwnEntry(userId, id)
+  await db
+    .update(boardEntries)
+    .set({ dismissedAt: isDismissed ? new Date() : null })
+    .where(eq(boardEntries.id, id))
+  await announceChange(userId, ['boards', 'today'])
+}
+
+/** Renaming a group onto another one's name merges the two. */
+export const renameGroup = async (
+  userId: string,
+  boardId: string,
+  input: { from: string; to: string }
+) => {
+  await getOwnBoard(userId, boardId)
+  const rows = await db
+    .select({ group: boardEntries.group, id: boardEntries.id })
+    .from(boardEntries)
+    .where(eq(boardEntries.boardId, boardId))
+  const ids = rows
+    .filter(({ group }) => group === input.from)
+    .map(({ id }) => id)
+  if (ids.length > 0) {
+    await db
+      .update(boardEntries)
+      .set({ group: input.to.trim() || null })
+      .where(inArray(boardEntries.id, ids))
+  }
+  await announceChange(userId, ['boards', 'today'])
+}
+
+const chartFor = async (board: Board, ask: string, language: Locale) => {
+  const { output } = await generateText({
+    instructions: [
+      `Board "${board.name}": ${board.description}. Its entries carry a title, a group, a status, an amount and a date.`,
+      `Turn the user's ask into one chart. ${chartRules(language)}`,
+    ].join('\n'),
+    model: models.fast,
+    output: Output.object({ schema: chartSchema }),
+    prompt: ask,
+  })
+  return output
+}
+
+/** One more chart from the user's own words ("spending per shop this year"); an empty ask adds a count per month. */
+export const addChart = async (
+  userId: string,
+  boardId: string,
+  ask: string
+) => {
+  const board = await getOwnBoard(userId, boardId)
+  const language = await languageOf(userId)
+  const chart = ask.trim()
+    ? await chartFor(board, ask, language)
+    : {
+        groupBy: 'month' as const,
+        measure: 'count' as const,
+        title: dictionaries[language].boards.chart.untitled,
+        type: 'bar' as const,
+      }
+  const added = { ...chart, id: crypto.randomUUID() }
+  await db
+    .update(boards)
+    .set({ charts: [...board.charts, added] })
+    .where(eq(boards.id, boardId))
+  await announceChange(userId, ['boards'])
+  return added
+}
+
 const currenciesByUse = (entries: Entry[]) => {
   const counts = new Map<string, number>()
   for (const { currency } of entries) {
@@ -514,7 +947,7 @@ const currenciesByUse = (entries: Entry[]) => {
     .map(([currency]) => currency)
 }
 
-const bucketOf = (chart: BoardChart, entry: Entry) => {
+const bucketOf = (chart: { groupBy: BoardChart['groupBy'] }, entry: Entry) => {
   switch (chart.groupBy) {
     case 'month': {
       return format(entry.occurredAt, 'yyyy-MM')
@@ -608,18 +1041,69 @@ const chartSeries = (chart: BoardChart, entries: Entry[]) => {
   }
 }
 
+const monthlyCentsOf = (groups: { monthlyCents: number | null }[]) => {
+  let total = 0
+  for (const { monthlyCents } of groups) {
+    total += monthlyCents ?? 0
+  }
+  return total
+}
+
+/** The numbers above the charts, in the board's main currency: this month against the last, what repeats per month, what is due soon. */
+const summaryOf = (
+  entries: Entry[],
+  groups: ReturnType<typeof groupsOf>,
+  currency: string | null
+) => {
+  const now = new Date()
+  const thisMonth = startOfMonth(now)
+  const lastMonth = subMonths(thisMonth, 1)
+  const span = (from: Date, to: Date) => {
+    const inSpan = entries.filter(
+      ({ occurredAt }) => occurredAt >= from && occurredAt < to
+    )
+    return {
+      amountCents: currency ? centsIn(inSpan, currency) : null,
+      count: inSpan.length,
+    }
+  }
+  const recurring = groups.filter(
+    (group) => group.monthlyCents !== null && group.currency === currency
+  )
+  const soon = addDays(now, UPCOMING_DAYS)
+  const isSoon = (date: Date | null) =>
+    date !== null && date >= now && date <= soon
+  return {
+    currency,
+    lastMonth: span(lastMonth, thisMonth),
+    recurring:
+      recurring.length > 0
+        ? {
+            count: recurring.length,
+            monthlyCents: monthlyCentsOf(recurring),
+          }
+        : null,
+    thisMonth: span(thisMonth, addMonths(thisMonth, 1)),
+    upcoming:
+      entries.filter(({ dueAt }) => isSoon(dueAt)).length +
+      groups.filter((group) => group.isNextPredicted && isSoon(group.nextAt))
+        .length,
+  }
+}
+
 export const getBoard = async (userId: string, id: string) => {
   const board = await getOwnBoard(userId, id)
-  const rows = await db
-    .select({ entry: boardEntries, threadId: messages.threadId })
-    .from(boardEntries)
-    .innerJoin(messages, eq(messages.id, boardEntries.messageId))
-    .where(eq(boardEntries.boardId, id))
-    .orderBy(desc(boardEntries.occurredAt))
+  const rows = await shownEntries(eq(boardEntries.boardId, id)).orderBy(
+    desc(boardEntries.occurredAt)
+  )
   const entries = rows.map(({ entry }) => entry)
+  const currencies = currenciesByUse(entries)
+  const groups = groupsOf(rows)
   return {
+    bannerDays: board.bannerDays,
     banners: await boardBanners(userId, id),
     charts: board.charts.map((chart) => chartSeries(chart, entries)),
+    currencies,
     description: board.description,
     entries: rows.slice(0, ENTRIES_SHOWN).map(({ entry, threadId }) => ({
       amountCents: entry.amountCents,
@@ -627,14 +1111,25 @@ export const getBoard = async (userId: string, id: string) => {
       dueAt: entry.dueAt,
       group: entry.group,
       id: entry.id,
+      isEdited: entry.editedAt !== null,
+      keys: {
+        month: bucketOf({ groupBy: 'month' }, entry),
+        week: bucketOf({ groupBy: 'week' }, entry),
+      },
       occurredAt: entry.occurredAt,
       status: entry.status,
       threadId,
       title: entry.title,
     })),
+    gmailQuery: board.gmailQuery,
+    groups,
+    historyFound: board.historyFound,
     id: board.id,
+    isHistoryCapped: (board.historyFound ?? 0) >= BOARD_HISTORY_LIMIT,
     isReadingHistory: !board.historyReadAt,
     name: board.name,
+    statuses: distinct(entries.map(({ status }) => status)),
+    summary: summaryOf(entries, groups, currencies[0] ?? null),
     total: entries.length,
   }
 }

@@ -27,6 +27,8 @@ export const id: Messages = {
     pending: 'menunggu di Hari ini',
   },
   agent: {
+    voice: 'Bicara ke agen',
+    voiceStop: 'Berhenti dan kirim',
     chats: 'Obrolan',
     autonomy: {
       ask: 'Bertanya padamu sebelum setiap email',
@@ -111,6 +113,13 @@ export const id: Messages = {
       mark_not_spam: 'Mengeluarkan dari spam',
       move_to_inbox: 'Memindahkan ke kotak masuk',
       create_board: 'Membuat papan',
+      update_board: 'Mengubah papan',
+      delete_board: 'Menghapus papan',
+      add_board_chart: 'Menambah grafik',
+      add_to_board: 'Menaruh di papan',
+      edit_board_entry: 'Memperbaiki entri',
+      remove_board_entry: 'Mengeluarkan dari papan',
+      rename_board_group: 'Mengganti nama grup',
     },
     stop: 'Hentikan',
     thinking: 'Berpikir…',
@@ -144,8 +153,13 @@ export const id: Messages = {
   },
   byRule: 'oleh aturan',
   boards: {
+    addTo: 'Tambah ke papan',
+    added: (board: string) => `Ditaruh di ${board}`,
+    cancel: 'Batal',
     chart: {
       add: 'Tambah grafik',
+      ask: 'Jelaskan grafiknya',
+      askPlaceholder: 'Belanja per toko, pesanan per status…',
       currency: 'Mata uang',
       edit: 'Pengaturan grafik',
       empty: 'Belum ada yang bisa digambar',
@@ -158,6 +172,8 @@ export const id: Messages = {
       },
       measure: 'Menampilkan',
       measures: { count: 'Jumlah', sum: 'Total nominal' },
+      moveEarlier: 'Geser lebih awal',
+      moveLater: 'Geser lebih akhir',
       other: 'Lainnya',
       remove: 'Hapus grafik',
       skipped: (n: number) =>
@@ -176,23 +192,86 @@ export const id: Messages = {
     charts: 'Grafik',
     create: 'Buat papan',
     delete: 'Hapus papan',
+    deleteConfirm: (name: string) => `Hapus “${name}”?`,
+    deleteHint:
+      'Entri dan grafiknya ikut terhapus. Email kamu tetap di tempatnya.',
+    describe: 'Ubah apa yang dikumpulkan',
     description: 'Apa yang dikumpulkan',
     descriptionPlaceholder:
       'Perjalanan: tiket pesawat, hotel, dan sewa mobil, beserta biayanya',
-    edit: 'Ubah papan',
-    editHint:
-      'Jika kamu mengubah apa yang dikumpulkan, enam bulan terakhir dibaca ulang.',
+    due: (when: string) => `Segera: ${when}`,
     empty: 'Masih kosong. Email yang cocok akan muncul di sini begitu tiba.',
+    emptyQuery: 'Mencari email yang cocok dengan',
     entries: (total: number) =>
       plural('id', total, { other: (n) => `${n} entri` }),
+    entry: {
+      amount: 'Nominal',
+      currency: 'Mata uang',
+      date: 'Tanggal',
+      edit: 'Edit entri',
+      edited: 'Diedit olehmu',
+      group: 'Siapa atau apa',
+      next: 'Tanggal berikutnya',
+      nextOn: (date: string) => `berikutnya ${date}`,
+      remove: 'Bukan untuk papan ini',
+      removed: 'Dikeluarkan dari papan. Papan belajar dari situ.',
+      status: 'Status',
+      title: 'Judul',
+    },
+    expected: (when: string) => `Diperkirakan ${when}`,
+    filter: {
+      clear: 'Hapus filter',
+      nothing: 'Tidak ada entri yang cocok.',
+      search: 'Cari entri',
+    },
+    groups: {
+      every: {
+        month: 'tiap bulan',
+        quarter: 'tiap kuartal',
+        week: 'tiap minggu',
+        year: 'tiap tahun',
+      },
+      expected: (date: string) => `diperkirakan ${date}`,
+      next: (date: string) => `berikutnya ${date}`,
+      perMonth: (amount: string) => `${amount} / bulan`,
+      rename: 'Ganti nama grup',
+      renameHint: 'Beri nama grup lain untuk menggabungkan keduanya.',
+      showAll: (n: number) => `Tampilkan semua ${n}`,
+      showFewer: 'Tampilkan lebih sedikit',
+      title: 'Per siapa atau apa',
+    },
+    history: {
+      capped: (n: number) =>
+        `Sudah membaca ${n} email cocok terbaru dari enam bulan terakhir.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Menelusuri email enam bulan terakhir…'
+          : `Membaca ${plural('id', found, { other: (n) => `${n} email` })} dari enam bulan terakhir · sejauh ini ${plural('id', entries, { other: (n) => `${n} entri` })}`,
+    },
+    menu: 'Aksi papan',
+    moveDown: 'Pindah ke bawah',
+    moveUp: 'Pindah ke atas',
     name: 'Nama',
     namePlaceholder: 'Perjalanan',
     new: 'Papan baru',
     newHint:
       'Jelaskan dengan kata-katamu sendiri apa yang dikumpulkan. Fewmail mencarinya di email enam bulan terakhir, memilih grafik, dan terus memperbaruinya.',
     planning: 'Menyiapkan…',
-    readingHistory: 'Membaca email enam bulan terakhir…',
+    redescribe: 'Simpan dan baca ulang',
+    redescribeHint:
+      'Membaca ulang enam bulan terakhir dengan deskripsi baru. Entri yang kamu edit atau keluarkan tetap seperti itu.',
+    rename: 'Ganti nama papan',
     save: 'Simpan',
+    settings: {
+      bannerDays: 'Pengingat sebelum tanggal',
+      days: (n: number) =>
+        plural('id', n, { other: (count) => `${count} hari sebelumnya` }),
+      hint: 'Cara papan menemukan emailnya dan kapan memberi tahu kamu.',
+      never: 'Tidak pernah',
+      query: 'Pencarian Gmail',
+      queryHint: 'Jika diubah, enam bulan terakhir dibaca ulang.',
+      title: 'Pencarian dan pengingat',
+    },
     starter: {
       events: {
         description:
@@ -219,6 +298,14 @@ export const id: Messages = {
           'Penerbangan, kereta, hotel dan sewa: ke mana aku pergi, kapan dan berapa biayanya.',
         name: 'Perjalanan',
       },
+    },
+    summary: {
+      lastMonth: 'Bulan lalu',
+      perMonth: (amount: string) => `${amount} per bulan`,
+      recurring: (n: number) =>
+        plural('id', n, { other: (count) => `${count} berulang` }),
+      thisMonth: 'Bulan ini',
+      upcoming: 'Jatuh tempo dalam 30 hari',
     },
   },
   bulk: {
@@ -331,6 +418,7 @@ export const id: Messages = {
     done: 'Email yang kamu teruskan',
   },
   reading: {
+    digest: (n: number) => `Newsletter hari ini: ${n}`,
     empty: 'Tidak ada newsletter dalam sehari terakhir.',
     lead: 'Newsletter sehari terakhir di satu tempat, agar tidak memenuhi kotak masuk.',
     title: 'Bacaan',
@@ -437,6 +525,9 @@ export const id: Messages = {
     edit: 'edit',
     move: 'pindah',
     open: 'buka',
+    notOnBoard: 'bukan untuk papan ini',
+    rename: 'ganti nama',
+    clearFilter: 'hapus filter',
     search: 'cari',
     send: 'kirim',
     skip: 'lewati',
@@ -474,6 +565,9 @@ export const id: Messages = {
     title: 'Hanya yang penting.',
   },
   mail: {
+    openUnsubscribePage: 'Buka halaman',
+    unsubscribeYourself:
+      'Untuk keluar dari daftar ini, selesaikan di halamannya. Sementara itu emailnya diarsipkan.',
     allMailboxes: 'Semua kotak surat',
     group: {
       category: 'Kategori',
@@ -705,6 +799,16 @@ export const id: Messages = {
     whichEmails: 'Email yang mana',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Setelah ringkasan harian, newsletter hari itu datang ke Telegram dan WhatsApp dalam satu pesan.',
+      title: 'Ringkasan newsletter',
+    },
+    voiceBrief: {
+      description:
+        'Ringkasan juga datang ke Telegram dan WhatsApp sebagai pesan suara.',
+      title: 'Ringkasan suara',
+    },
     forward: {
       copy: 'Salin alamat',
       description:
@@ -1336,6 +1440,7 @@ export const id: Messages = {
     started: 'Agen sedang mengerjakannya.',
   },
   telegram: {
+    approveAlike: 'Setujui sekaligus semua kartu sejenis:',
     listen: '🔊 Dengarkan',
     heard: (text: string) => `Terdengar: “${text}”`,
     voiceFailed: 'Aku tidak bisa menangkapnya. Coba lagi atau ketik saja.',

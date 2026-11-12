@@ -27,6 +27,8 @@ export const en = {
     pending: 'waiting in Today',
   },
   agent: {
+    voice: 'Talk to the agent',
+    voiceStop: 'Stop and send',
     autonomy: {
       ask: 'Asks you before each email',
       auto: (most: number) =>
@@ -111,6 +113,13 @@ export const en = {
       mark_not_spam: 'Moving out of spam',
       move_to_inbox: 'Moving to the inbox',
       create_board: 'Creating a board',
+      update_board: 'Changing the board',
+      delete_board: 'Deleting the board',
+      add_board_chart: 'Adding a chart',
+      add_to_board: 'Putting it on the board',
+      edit_board_entry: 'Correcting the entry',
+      remove_board_entry: 'Taking it off the board',
+      rename_board_group: 'Renaming the group',
     } satisfies Record<AgentToolName, string>,
     stop: 'Stop',
     thinking: 'Thinking…',
@@ -143,8 +152,13 @@ export const en = {
     thinking: 'Looking through your mail…',
   },
   boards: {
+    addTo: 'Add to board',
+    added: (board: string) => `Put on ${board}`,
+    cancel: 'Cancel',
     chart: {
       add: 'Add chart',
+      ask: 'Describe the chart',
+      askPlaceholder: 'Spending per shop, orders by status…',
       currency: 'Currency',
       edit: 'Chart settings',
       empty: 'Nothing to draw yet',
@@ -157,6 +171,8 @@ export const en = {
       },
       measure: 'Shows',
       measures: { count: 'Count', sum: 'Total amount' },
+      moveEarlier: 'Move earlier',
+      moveLater: 'Move later',
       other: 'Other',
       remove: 'Remove chart',
       skipped: (n: number) =>
@@ -175,25 +191,92 @@ export const en = {
     charts: 'Charts',
     create: 'Create board',
     delete: 'Delete board',
+    deleteConfirm: (name: string) => `Delete “${name}”?`,
+    deleteHint:
+      'Its entries and charts go with it. Your mail stays where it is.',
+    describe: 'Change what it collects',
     description: 'What it collects',
     descriptionPlaceholder:
       'Trips: flights, hotels and car rentals, with what they cost',
-    edit: 'Edit board',
-    editHint: 'Changing what it collects reads the last six months again.',
+    due: (when: string) => `Coming up ${when}`,
     empty: 'Nothing here yet. Matching emails show up as they arrive.',
+    emptyQuery: 'It looks for mail matching',
     entries: (total: number) =>
       plural('en', total, {
         one: () => 'One entry',
         other: (n) => `${n} entries`,
       }),
+    entry: {
+      amount: 'Amount',
+      currency: 'Currency',
+      date: 'Date',
+      edit: 'Edit entry',
+      edited: 'Edited by you',
+      group: 'Who or what',
+      next: 'Next date',
+      nextOn: (date: string) => `next ${date}`,
+      remove: 'Not on this board',
+      removed: 'Taken off the board. It learns from that.',
+      status: 'Status',
+      title: 'Title',
+    },
+    expected: (when: string) => `Expected ${when}`,
+    filter: {
+      clear: 'Clear filter',
+      nothing: 'No entries match.',
+      search: 'Search entries',
+    },
+    groups: {
+      every: {
+        month: 'every month',
+        quarter: 'every quarter',
+        week: 'every week',
+        year: 'every year',
+      },
+      expected: (date: string) => `expected ${date}`,
+      next: (date: string) => `next ${date}`,
+      perMonth: (amount: string) => `${amount} / month`,
+      rename: 'Rename group',
+      renameHint: 'Give it another group’s name to merge the two.',
+      showAll: (n: number) => `Show all ${n}`,
+      showFewer: 'Show fewer',
+      title: 'By who or what',
+    },
+    history: {
+      capped: (n: number) =>
+        `Read the newest ${n} matching emails of the last six months.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Looking through the last six months of mail…'
+          : `Reading ${plural('en', found, { one: () => 'one email', other: (n) => `${n} emails` })} from the last six months · ${plural('en', entries, { one: () => 'one entry', other: (n) => `${n} entries` })} so far`,
+    },
+    menu: 'Board actions',
+    moveDown: 'Move down',
+    moveUp: 'Move up',
     name: 'Name',
     namePlaceholder: 'Travel',
     new: 'New board',
     newHint:
       'Describe what to collect in your own words. Fewmail finds it in the last six months of mail, picks the charts and keeps it up to date.',
     planning: 'Setting it up…',
-    readingHistory: 'Reading the last six months of mail…',
+    redescribe: 'Save and read again',
+    redescribeHint:
+      'Reads the last six months again with the new description. Entries you edited or took off stay.',
+    rename: 'Rename board',
     save: 'Save',
+    settings: {
+      bannerDays: 'Heads-up before a date',
+      days: (n: number) =>
+        plural('en', n, {
+          one: () => '1 day before',
+          other: (count) => `${count} days before`,
+        }),
+      hint: 'How the board finds its mail and when it warns you.',
+      never: 'Never',
+      query: 'Gmail search',
+      queryHint: 'Changing it reads the last six months again.',
+      title: 'Search and heads-ups',
+    },
     starter: {
       events: {
         description:
@@ -220,6 +303,17 @@ export const en = {
           'Flights, trains, hotels and rentals: where I go, when and what it costs.',
         name: 'Trips',
       },
+    },
+    summary: {
+      lastMonth: 'Last month',
+      perMonth: (amount: string) => `${amount} a month`,
+      recurring: (n: number) =>
+        plural('en', n, {
+          one: () => 'One repeating',
+          other: (count) => `${count} repeating`,
+        }),
+      thisMonth: 'This month',
+      upcoming: 'Due in 30 days',
     },
   },
   bulk: {
@@ -372,6 +466,7 @@ export const en = {
     done: 'Your forwarded email',
   },
   reading: {
+    digest: (n: number) => `${n} newsletters today`,
     empty: 'No newsletters in the last day.',
     lead: 'The last day of newsletters in one place, so they never crowd the inbox.',
     title: 'Reading',
@@ -440,6 +535,9 @@ export const en = {
     edit: 'edit',
     move: 'move',
     open: 'open',
+    notOnBoard: 'not on this board',
+    rename: 'rename',
+    clearFilter: 'clear filter',
     search: 'search',
     send: 'send',
     skip: 'skip',
@@ -477,6 +575,9 @@ export const en = {
     title: 'Only what matters.',
   },
   mail: {
+    openUnsubscribePage: 'Open page',
+    unsubscribeYourself:
+      'This list needs you to finish leaving on its own page. Its mail is archived meanwhile.',
     allMailboxes: 'All mailboxes',
     group: {
       category: 'Category',
@@ -717,6 +818,16 @@ export const en = {
     whichEmails: 'Which emails',
   },
   settings: {
+    readingDigest: {
+      description:
+        'After the brief, the day’s newsletters arrive in Telegram and WhatsApp as one message.',
+      title: 'Newsletter digest',
+    },
+    voiceBrief: {
+      description:
+        'The brief also arrives in Telegram and WhatsApp as a voice note you can listen to.',
+      title: 'Brief as a voice note',
+    },
     forward: {
       copy: 'Copy address',
       description:
@@ -1342,6 +1453,7 @@ export const en = {
     started: 'The agent is on it.',
   },
   telegram: {
+    approveAlike: 'Approve every card of one kind at once:',
     listen: '🔊 Listen',
     commands: { brief: 'Today’s brief', queue: 'What needs you' },
     connectFirst:

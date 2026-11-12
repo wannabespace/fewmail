@@ -27,6 +27,8 @@ export const pt: Messages = {
     pending: 'aguardando em Hoje',
   },
   agent: {
+    voice: 'Falar com o agente',
+    voiceStop: 'Parar e enviar',
     chats: 'Conversas',
     autonomy: {
       ask: 'Pergunta a você antes de cada e-mail',
@@ -112,6 +114,13 @@ export const pt: Messages = {
       mark_not_spam: 'Tirando do spam',
       move_to_inbox: 'Movendo para a caixa de entrada',
       create_board: 'Criando um quadro',
+      update_board: 'Alterando o painel',
+      delete_board: 'Excluindo o painel',
+      add_board_chart: 'Adicionando um gráfico',
+      add_to_board: 'Colocando no painel',
+      edit_board_entry: 'Corrigindo o registro',
+      remove_board_entry: 'Tirando do painel',
+      rename_board_group: 'Renomeando o grupo',
     },
     stop: 'Parar',
     thinking: 'Pensando…',
@@ -145,8 +154,13 @@ export const pt: Messages = {
   },
   byRule: 'por uma regra',
   boards: {
+    addTo: 'Adicionar ao painel',
+    added: (board: string) => `Adicionado a ${board}`,
+    cancel: 'Cancelar',
     chart: {
       add: 'Adicionar gráfico',
+      ask: 'Descreva o gráfico',
+      askPlaceholder: 'Gastos por loja, pedidos por status…',
       currency: 'Moeda',
       edit: 'Ajustes do gráfico',
       empty: 'Ainda não há nada para mostrar',
@@ -159,6 +173,8 @@ export const pt: Messages = {
       },
       measure: 'Mostra',
       measures: { count: 'Quantidade', sum: 'Valor total' },
+      moveEarlier: 'Mover para antes',
+      moveLater: 'Mover para depois',
       other: 'Outros',
       remove: 'Remover gráfico',
       skipped: (n: number) => `Não contados: ${n} em outra moeda ou sem valor`,
@@ -176,26 +192,92 @@ export const pt: Messages = {
     charts: 'Gráficos',
     create: 'Criar painel',
     delete: 'Excluir painel',
+    deleteConfirm: (name: string) => `Excluir “${name}”?`,
+    deleteHint:
+      'Os registros e gráficos vão junto. Seus e-mails ficam onde estão.',
+    describe: 'Mudar o que ele reúne',
     description: 'O que ele reúne',
     descriptionPlaceholder:
       'Viagens: voos, hotéis e aluguel de carro, com quanto custaram',
-    edit: 'Editar painel',
-    editHint:
-      'Se você mudar o que ele reúne, os últimos seis meses são lidos de novo.',
+    due: (when: string) => `Em breve: ${when}`,
     empty: 'Ainda vazio. E-mails que combinam aparecem aqui assim que chegam.',
+    emptyQuery: 'Ele procura e-mails que correspondem a',
     entries: (total: number) =>
       plural('pt', total, {
         one: () => 'Um registro',
         other: (n) => `${n} registros`,
       }),
+    entry: {
+      amount: 'Valor',
+      currency: 'Moeda',
+      date: 'Data',
+      edit: 'Editar registro',
+      edited: 'Editado por você',
+      group: 'Quem ou o quê',
+      next: 'Próxima data',
+      nextOn: (date: string) => `próximo: ${date}`,
+      remove: 'Não é deste painel',
+      removed: 'Tirado do painel. Ele aprende com isso.',
+      status: 'Status',
+      title: 'Título',
+    },
+    expected: (when: string) => `Previsto para ${when}`,
+    filter: {
+      clear: 'Limpar filtro',
+      nothing: 'Nenhum registro encontrado.',
+      search: 'Buscar registros',
+    },
+    groups: {
+      every: {
+        month: 'todo mês',
+        quarter: 'todo trimestre',
+        week: 'toda semana',
+        year: 'todo ano',
+      },
+      expected: (date: string) => `previsto para ${date}`,
+      next: (date: string) => `próximo: ${date}`,
+      perMonth: (amount: string) => `${amount} / mês`,
+      rename: 'Renomear grupo',
+      renameHint: 'Dê o nome de outro grupo para juntar os dois.',
+      showAll: (n: number) => `Mostrar todos os ${n}`,
+      showFewer: 'Mostrar menos',
+      title: 'Por quem ou o quê',
+    },
+    history: {
+      capped: (n: number) =>
+        `Lidos os ${n} e-mails correspondentes mais recentes dos últimos seis meses.`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'Olhando os e-mails dos últimos seis meses…'
+          : `Lendo ${plural('pt', found, { one: () => 'um e-mail', other: (n) => `${n} e-mails` })} dos últimos seis meses · ${plural('pt', entries, { one: () => 'um registro', other: (n) => `${n} registros` })} até agora`,
+    },
+    menu: 'Ações do painel',
+    moveDown: 'Mover para baixo',
+    moveUp: 'Mover para cima',
     name: 'Nome',
     namePlaceholder: 'Viagens',
     new: 'Novo painel',
     newHint:
       'Descreva com suas palavras o que reunir. O Fewmail encontra isso nos e-mails dos últimos seis meses, escolhe os gráficos e mantém tudo atualizado.',
     planning: 'Preparando…',
-    readingHistory: 'Lendo os e-mails dos últimos seis meses…',
+    redescribe: 'Salvar e ler de novo',
+    redescribeHint:
+      'Lê os últimos seis meses de novo com a nova descrição. Registros que você editou ou tirou continuam como estão.',
+    rename: 'Renomear painel',
     save: 'Salvar',
+    settings: {
+      bannerDays: 'Aviso antes de uma data',
+      days: (n: number) =>
+        plural('pt', n, {
+          one: () => '1 dia antes',
+          other: (count) => `${count} dias antes`,
+        }),
+      hint: 'Como o painel encontra seus e-mails e quando avisa você.',
+      never: 'Nunca',
+      query: 'Busca do Gmail',
+      queryHint: 'Mudar isso lê os últimos seis meses de novo.',
+      title: 'Busca e avisos',
+    },
     starter: {
       events: {
         description:
@@ -222,6 +304,17 @@ export const pt: Messages = {
           'Voos, trens, hotéis e aluguéis: para onde vou, quando e quanto custa.',
         name: 'Viagens',
       },
+    },
+    summary: {
+      lastMonth: 'Mês passado',
+      perMonth: (amount: string) => `${amount} por mês`,
+      recurring: (n: number) =>
+        plural('pt', n, {
+          one: () => 'Um recorrente',
+          other: (count) => `${count} recorrentes`,
+        }),
+      thisMonth: 'Este mês',
+      upcoming: 'Vence em 30 dias',
     },
   },
   bulk: {
@@ -335,6 +428,7 @@ export const pt: Messages = {
     done: 'Seu e-mail encaminhado',
   },
   reading: {
+    digest: (n: number) => `Newsletters de hoje: ${n}`,
     empty: 'Nenhuma newsletter no último dia.',
     lead: 'As newsletters do último dia num só lugar, para não lotarem a caixa de entrada.',
     title: 'Leitura',
@@ -445,6 +539,9 @@ export const pt: Messages = {
     edit: 'editar',
     move: 'mover',
     open: 'abrir',
+    notOnBoard: 'não é deste painel',
+    rename: 'renomear',
+    clearFilter: 'limpar filtro',
     search: 'buscar',
     send: 'enviar',
     skip: 'pular',
@@ -482,6 +579,9 @@ export const pt: Messages = {
     title: 'Só o que importa.',
   },
   mail: {
+    openUnsubscribePage: 'Abrir página',
+    unsubscribeYourself:
+      'Para sair desta lista, termine na página dela. Enquanto isso, o e-mail fica arquivado.',
     allMailboxes: 'Todas as caixas',
     group: {
       category: 'Categoria',
@@ -722,6 +822,16 @@ export const pt: Messages = {
     whichEmails: 'Quais e-mails',
   },
   settings: {
+    readingDigest: {
+      description:
+        'Depois do resumo, as newsletters do dia chegam ao Telegram e WhatsApp numa só mensagem.',
+      title: 'Resumo de newsletters',
+    },
+    voiceBrief: {
+      description:
+        'O resumo também chega ao Telegram e WhatsApp como mensagem de voz.',
+      title: 'Resumo em áudio',
+    },
     forward: {
       copy: 'Copiar endereço',
       description:
@@ -1353,6 +1463,7 @@ export const pt: Messages = {
     started: 'O agente está cuidando disso.',
   },
   telegram: {
+    approveAlike: 'Aprovar de uma vez todos os cartões de um tipo:',
     listen: '🔊 Ouvir',
     heard: (text: string) => `Entendi: “${text}”`,
     voiceFailed: 'Não consegui entender. Tente de novo ou digite.',

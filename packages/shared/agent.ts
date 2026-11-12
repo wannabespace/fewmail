@@ -184,6 +184,8 @@ export interface OpenThread {
  * the chat asks first and its card must show every input (`ConsentToolName`), MCP marks it destructive.
  */
 export const AGENT_TOOLS = {
+  add_board_chart: 'write',
+  add_to_board: 'write',
   approve_action: 'consent',
   archive_thread: 'consent',
   clear_out: 'consent',
@@ -192,10 +194,12 @@ export const AGENT_TOOLS = {
   create_event: 'consent',
   create_rule: 'consent',
   create_schedule: 'consent',
+  delete_board: 'write',
   delete_event: 'consent',
   delete_schedule: 'write',
   dismiss_action: 'write',
   draft_reply: 'write',
+  edit_board_entry: 'write',
   get_board: 'read',
   get_person: 'read',
   get_reading: 'read',
@@ -215,12 +219,15 @@ export const AGENT_TOOLS = {
   read_thread: 'read',
   redraft_action: 'write',
   refresh: 'write',
+  remove_board_entry: 'write',
+  rename_board_group: 'write',
   report_spam: 'consent',
   send_email: 'consent',
   snooze_thread: 'consent',
   trash_thread: 'consent',
   undo_clear_out: 'consent',
   unsubscribe: 'consent',
+  update_board: 'write',
   update_event: 'consent',
 } as const satisfies Record<string, 'read' | 'write' | 'consent'>
 export type AgentToolName = keyof typeof AGENT_TOOLS

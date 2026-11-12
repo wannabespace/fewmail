@@ -126,9 +126,12 @@ export const boards = d.snakeCase.table(
     bannerDays: d.smallint(),
     description: encryptedText().notNull(),
     gmailQuery: encryptedText().notNull(),
-    /** Null until the last half year was read; a new description resets it. */
+    /** How many emails the last history read found; at `BOARD_HISTORY_LIMIT` the oldest were left out. */
+    historyFound: d.integer(),
+    /** Null until the last half year was read; a new description or query resets it. */
     historyReadAt: d.timestamp({ withTimezone: true }),
     name: encryptedText().notNull(),
+    position: d.smallint().default(0).notNull(),
     userId: userId(),
   },
   (table) => [d.index('boards_user_idx').on(table.userId)]
@@ -144,8 +147,12 @@ export const boardEntries = d.snakeCase.table(
       .notNull()
       .references(() => boards.id, { onDelete: 'cascade' }),
     currency: d.text(),
+    /** The user took it off the board: hidden everywhere, kept so the same email is never collected again and the model learns what does not belong. */
+    dismissedAt: d.timestamp({ withTimezone: true }),
     /** The entry's next date that needs the user: a renewal, a payment due, a departure. */
     dueAt: d.timestamp({ withTimezone: true }),
+    /** The user edited or added it by hand; a new description keeps it. */
+    editedAt: d.timestamp({ withTimezone: true }),
     group: encryptedText(),
     messageId: d
       .uuid()

@@ -17,7 +17,7 @@ import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
-import { NewBoardDialog } from '~/components/board-dialog'
+import { DeleteBoardDialog, NewBoardDialog } from '~/components/board-dialog'
 import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
@@ -127,6 +127,7 @@ const AppLayout = () => {
           onOpenChange={setIsCommandMenuOpen}
         />
         <NewBoardDialog />
+        <DeleteBoardDialog />
         <ClearOutDialog />
       </div>
     </ComposeProvider>

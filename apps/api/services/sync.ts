@@ -35,7 +35,12 @@ import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage, retireStaleActions } from './agent'
-import { collectEntries, collectForNewMail, isUnchanged } from './boards'
+import {
+  BOARD_HISTORY_LIMIT,
+  collectEntries,
+  collectForNewMail,
+  isUnchanged,
+} from './boards'
 import { measureBulk } from './bulk'
 import { searchMailboxes } from './mailboxes'
 import { emailAllowance, getPlanInfo, hasAgent } from './plan'
@@ -52,7 +57,6 @@ const VOICE_SAMPLE_QUERY = 'in:sent newer_than:60d'
 const VOICE_SAMPLE_LIMIT = 15
 const ANALYZE_CONCURRENCY = 4
 const BOARD_HISTORY = 'newer_than:6m'
-const BOARD_HISTORY_LIMIT = 300
 /** A sync that died without releasing its claim (a crash, a deploy) is taken over after this. */
 const SYNC_CLAIM_MINUTES = 15
 
@@ -465,7 +469,16 @@ export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
         : []
     })
   )
-  await collectEntries(board, found.flat())
+  const candidates = found.flat()
+  if (!(await isUnchanged(board))) {
+    return
+  }
+  await db
+    .update(boards)
+    .set({ historyFound: candidates.length })
+    .where(eq(boards.id, board.id))
+  await announceChange(board.userId, ['boards'])
+  await collectEntries(board, candidates)
   if (!(await isUnchanged(board))) {
     return
   }

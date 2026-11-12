@@ -12,7 +12,7 @@ import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 
 type Banner = RouterOutputs['today']['get']['banners'][number]
 
-/** A board's heads-up: an entry whose next date (renewal, bill, departure) falls within the board's `bannerDays`. */
+/** A board's heads-up: an entry whose next date (renewal, bill, departure) falls within the board's `bannerDays`; a predicted one says "expected". */
 export const BoardBanners = ({
   banners,
   showBoard = true,
@@ -35,7 +35,9 @@ export const BoardBanners = ({
       </AlertTitle>
       <AlertDescription>
         {showBoard && <span data-mask>{banner.boardName} · </span>}
-        {t.boards.due(dates.ago(new Date(banner.dueAt)))}
+        {(banner.isPredicted ? t.boards.expected : t.boards.due)(
+          dates.ago(new Date(banner.dueAt))
+        )}
       </AlertDescription>
       <AlertAction>
         <Button

@@ -28,6 +28,8 @@ export const hi: Messages = {
   },
   byRule: 'एक नियम से',
   agent: {
+    voice: 'एजेंट से बोलें',
+    voiceStop: 'रोकें और भेजें',
     chats: 'चैट',
     autonomy: {
       ask: 'हर ईमेल से पहले आपसे पूछता है',
@@ -111,6 +113,13 @@ export const hi: Messages = {
       mark_not_spam: 'स्पैम से निकाल रहे हैं',
       move_to_inbox: 'इनबॉक्स में ले जा रहे हैं',
       create_board: 'बोर्ड बना रहे हैं',
+      update_board: 'बोर्ड बदल रहे हैं',
+      delete_board: 'बोर्ड हटा रहे हैं',
+      add_board_chart: 'चार्ट जोड़ रहे हैं',
+      add_to_board: 'बोर्ड पर रख रहे हैं',
+      edit_board_entry: 'एंट्री ठीक कर रहे हैं',
+      remove_board_entry: 'बोर्ड से हटा रहे हैं',
+      rename_board_group: 'समूह का नाम बदल रहे हैं',
     },
     stop: 'रोकें',
     thinking: 'सोच रहा है…',
@@ -283,6 +292,9 @@ export const hi: Messages = {
     edit: 'बदलें',
     move: 'चलें',
     open: 'खोलें',
+    notOnBoard: 'इस बोर्ड का नहीं',
+    rename: 'नाम बदलें',
+    clearFilter: 'फ़िल्टर हटाएँ',
     search: 'खोजें',
     send: 'भेजें',
     skip: 'छोड़ें',
@@ -319,6 +331,9 @@ export const hi: Messages = {
     title: 'सिर्फ़ वही, जो ज़रूरी है।',
   },
   mail: {
+    openUnsubscribePage: 'पेज खोलें',
+    unsubscribeYourself:
+      'इस सूची से निकलना आपको उसके पेज पर ख़ुद पूरा करना होगा। तब तक उसके ईमेल आर्काइव हैं।',
     allMailboxes: 'सभी मेलबॉक्स',
     group: {
       category: 'श्रेणी',
@@ -528,6 +543,15 @@ export const hi: Messages = {
     whichEmails: 'कौन-से ईमेल',
   },
   settings: {
+    readingDigest: {
+      description:
+        'ब्रीफ़ के बाद दिन के न्यूज़लेटर Telegram और WhatsApp में एक संदेश में आते हैं।',
+      title: 'न्यूज़लेटर सारांश',
+    },
+    voiceBrief: {
+      description: 'ब्रीफ़ Telegram और WhatsApp में वॉइस नोट के रूप में भी आता है।',
+      title: 'ब्रीफ़ आवाज़ में',
+    },
     forward: {
       copy: 'पता कॉपी करें',
       description:
@@ -1135,6 +1159,7 @@ export const hi: Messages = {
     receipts: 'रसीदें, ऑर्डर और शिपिंग की पुष्टि',
   },
   telegram: {
+    approveAlike: 'एक तरह के सभी कार्ड एक साथ मंज़ूर करें:',
     listen: '🔊 सुनें',
     heard: (text: string) => `सुना: “${text}”`,
     voiceFailed: 'मैं समझ नहीं पाया। फिर से कोशिश करें या टाइप करें।',
@@ -1221,8 +1246,13 @@ export const hi: Messages = {
     writing: 'लिखा जा रहा है…',
   },
   boards: {
+    addTo: 'बोर्ड में जोड़ें',
+    added: (board: string) => `${board} में जोड़ा गया`,
+    cancel: 'रद्द करें',
     chart: {
       add: 'चार्ट जोड़ें',
+      ask: 'चार्ट के बारे में बताएँ',
+      askPlaceholder: 'हर दुकान पर खर्च, स्थिति के हिसाब से ऑर्डर…',
       currency: 'मुद्रा',
       edit: 'चार्ट सेटिंग्स',
       empty: 'अभी दिखाने को कुछ नहीं',
@@ -1235,6 +1265,8 @@ export const hi: Messages = {
       },
       measure: 'दिखाता है',
       measures: { count: 'गिनती', sum: 'कुल राशि' },
+      moveEarlier: 'पहले ले जाएँ',
+      moveLater: 'बाद में ले जाएँ',
       other: 'अन्य',
       remove: 'चार्ट हटाएँ',
       skipped: (n: number) => `नहीं गिना गया: ${n} दूसरी मुद्रा में या बिना राशि के`,
@@ -1252,22 +1284,87 @@ export const hi: Messages = {
     charts: 'चार्ट',
     create: 'बोर्ड बनाएँ',
     delete: 'बोर्ड हटाएँ',
+    deleteConfirm: (name: string) => `“${name}” हटाएँ?`,
+    deleteHint: 'इसकी एंट्री और चार्ट भी हट जाएँगे। आपके मेल जहाँ हैं, वहीं रहेंगे।',
+    describe: 'क्या इकट्ठा करना है, बदलें',
     description: 'क्या इकट्ठा करना है',
     descriptionPlaceholder:
       'यात्राएँ: फ़्लाइट, होटल और किराये की कार, उनकी कीमत के साथ',
-    edit: 'बोर्ड बदलें',
-    editHint: 'क्या इकट्ठा करना है बदलने पर पिछले छह महीने फिर से पढ़े जाएँगे।',
+    due: (when: string) => `आगे: ${when}`,
     empty: 'अभी खाली है। मिलते-जुलते ईमेल आते ही यहाँ दिखेंगे।',
+    emptyQuery: 'यह इनसे मेल खाते ईमेल ढूँढता है',
     entries: (total: number) =>
       plural('hi', total, { one: () => 'एक एंट्री', other: (n) => `${n} एंट्री` }),
+    entry: {
+      amount: 'राशि',
+      currency: 'मुद्रा',
+      date: 'तारीख',
+      edit: 'एंट्री बदलें',
+      edited: 'आपने बदला',
+      group: 'कौन या क्या',
+      next: 'अगली तारीख',
+      nextOn: (date: string) => `अगली ${date}`,
+      remove: 'इस बोर्ड का नहीं',
+      removed: 'बोर्ड से हटा दिया। आगे से इसका ध्यान रखेगा।',
+      status: 'स्थिति',
+      title: 'शीर्षक',
+    },
+    expected: (when: string) => `अपेक्षित ${when}`,
+    filter: {
+      clear: 'फ़िल्टर हटाएँ',
+      nothing: 'कोई एंट्री मेल नहीं खाती।',
+      search: 'एंट्री खोजें',
+    },
+    groups: {
+      every: {
+        month: 'हर महीने',
+        quarter: 'हर तिमाही',
+        week: 'हर हफ़्ते',
+        year: 'हर साल',
+      },
+      expected: (date: string) => `अपेक्षित ${date}`,
+      next: (date: string) => `अगली ${date}`,
+      perMonth: (amount: string) => `${amount} / महीना`,
+      rename: 'समूह का नाम बदलें',
+      renameHint: 'इसे किसी दूसरे समूह का नाम दें, तो दोनों मिल जाएँगे।',
+      showAll: (n: number) => `सभी ${n} दिखाएँ`,
+      showFewer: 'कम दिखाएँ',
+      title: 'कौन या क्या के हिसाब से',
+    },
+    history: {
+      capped: (n: number) => `पिछले छह महीनों के ${n} सबसे नए मिलते-जुलते ईमेल पढ़े।`,
+      reading: (found: number | null, entries: number) =>
+        found === null
+          ? 'पिछले छह महीनों के मेल देख रहा हूँ…'
+          : `पिछले छह महीनों के ${plural('hi', found, { one: () => 'एक ईमेल', other: (n) => `${n} ईमेल` })} पढ़ रहा हूँ · अब तक ${plural('hi', entries, { one: () => 'एक एंट्री', other: (n) => `${n} एंट्री` })}`,
+    },
+    menu: 'बोर्ड के विकल्प',
+    moveDown: 'नीचे ले जाएँ',
+    moveUp: 'ऊपर ले जाएँ',
     name: 'नाम',
     namePlaceholder: 'यात्राएँ',
     new: 'नया बोर्ड',
     newHint:
       'अपने शब्दों में बताएँ क्या इकट्ठा करना है। Fewmail पिछले छह महीनों के मेल में उसे ढूँढेगा, चार्ट चुनेगा और बोर्ड को अपडेट रखेगा।',
     planning: 'तैयार कर रहा हूँ…',
-    readingHistory: 'पिछले छह महीनों के मेल पढ़ रहा हूँ…',
+    redescribe: 'सहेजें और फिर से पढ़ें',
+    redescribeHint:
+      'नए विवरण के साथ पिछले छह महीने फिर से पढ़े जाएँगे। आपकी बदली या हटाई गई एंट्री वैसी ही रहेंगी।',
+    rename: 'बोर्ड का नाम बदलें',
     save: 'सहेजें',
+    settings: {
+      bannerDays: 'तारीख से पहले सूचना',
+      days: (n: number) =>
+        plural('hi', n, {
+          one: () => '1 दिन पहले',
+          other: (count) => `${count} दिन पहले`,
+        }),
+      hint: 'बोर्ड अपने मेल कैसे ढूँढता है और आपको कब बताता है।',
+      never: 'कभी नहीं',
+      query: 'Gmail खोज',
+      queryHint: 'इसे बदलने पर पिछले छह महीने फिर से पढ़े जाएँगे।',
+      title: 'खोज और सूचनाएँ',
+    },
     starter: {
       events: {
         description: 'टिकट, बुकिंग और अपॉइंटमेंट: मुझे कहाँ, कब और किसके साथ होना है।',
@@ -1293,6 +1390,17 @@ export const hi: Messages = {
           'फ़्लाइट, ट्रेन, होटल और किराये: मैं कहाँ जा रहा हूँ, कब और कितना खर्च होगा।',
         name: 'यात्राएँ',
       },
+    },
+    summary: {
+      lastMonth: 'पिछला महीना',
+      perMonth: (amount: string) => `${amount} हर महीने`,
+      recurring: (n: number) =>
+        plural('hi', n, {
+          one: () => 'एक नियमित',
+          other: (count) => `${count} नियमित`,
+        }),
+      thisMonth: 'इस महीने',
+      upcoming: '30 दिनों में देय',
     },
   },
   bulk: {
@@ -1359,6 +1467,7 @@ export const hi: Messages = {
     done: 'आपका फ़ॉरवर्ड किया ईमेल',
   },
   reading: {
+    digest: (n: number) => `आज के न्यूज़लेटर: ${n}`,
     empty: 'पिछले दिन कोई न्यूज़लेटर नहीं आया।',
     lead: 'पिछले दिन के न्यूज़लेटर एक जगह, ताकि इनबॉक्स न भरे।',
     title: 'पढ़ना',
