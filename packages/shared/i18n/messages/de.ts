@@ -879,8 +879,7 @@ export const de: Messages = {
       open: 'Suchen',
       recent: 'Letzte Suchen',
       tips: 'Tipps',
-      combine:
-        'Kombiniere sie für eine genauere Suche: from:anna has:attachment',
+      clearRecent: 'Leeren',
       describeExample: 'Rechnungen von Anna letzten Monat',
       searching: 'Durchsuche deine Mails…',
       tip: {

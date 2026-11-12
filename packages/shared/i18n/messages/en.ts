@@ -646,7 +646,7 @@ export const en = {
       open: 'Search',
       recent: 'Recent searches',
       tips: 'Tips',
-      combine: 'Combine them for a sharper search: from:anna has:attachment',
+      clearRecent: 'Clear',
       describeExample: 'invoices from Anna last month',
       searching: 'Searching your mail…',
       tip: {

@@ -374,7 +374,7 @@ export const zh: Messages = {
       open: '搜索',
       recent: '最近搜索',
       tips: '提示',
-      combine: '组合使用，搜索更精准：from:anna has:attachment',
+      clearRecent: '清除',
       describeExample: 'Anna 上个月发来的发票',
       searching: '正在搜索你的邮件…',
       tip: {

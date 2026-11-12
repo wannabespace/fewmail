@@ -652,8 +652,7 @@ export const nl: Messages = {
       open: 'Zoeken',
       recent: 'Recente zoekopdrachten',
       tips: 'Tips',
-      combine:
-        'Combineer ze voor een scherpere zoekopdracht: from:anna has:attachment',
+      clearRecent: 'Wissen',
       describeExample: 'facturen van Anna van vorige maand',
       searching: 'Je mail doorzoeken…',
       tip: {

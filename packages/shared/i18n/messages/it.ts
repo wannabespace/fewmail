@@ -882,8 +882,7 @@ export const it: Messages = {
       open: 'Cerca',
       recent: 'Ricerche recenti',
       tips: 'Suggerimenti',
-      combine:
-        'Combinali per una ricerca più precisa: from:anna has:attachment',
+      clearRecent: 'Cancella',
       describeExample: 'fatture di Anna del mese scorso',
       searching: 'Cerco nella tua posta…',
       tip: {

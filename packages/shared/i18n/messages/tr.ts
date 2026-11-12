@@ -633,7 +633,7 @@ export const tr: Messages = {
       open: 'Ara',
       recent: 'Son aramalar',
       tips: 'İpuçları',
-      combine: 'Daha net sonuç için birleştir: from:anna has:attachment',
+      clearRecent: 'Temizle',
       describeExample: "Anna'dan geçen ayki faturalar",
       searching: 'E-postalarında arıyorum…',
       tip: {

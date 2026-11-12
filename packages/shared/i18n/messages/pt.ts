@@ -651,7 +651,7 @@ export const pt: Messages = {
       open: 'Buscar',
       recent: 'Buscas recentes',
       tips: 'Dicas',
-      combine: 'Combine para uma busca mais precisa: from:anna has:attachment',
+      clearRecent: 'Limpar',
       describeExample: 'faturas da Anna do mês passado',
       searching: 'Procurando no seu e-mail…',
       tip: {

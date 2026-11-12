@@ -379,7 +379,7 @@ export const hi: Messages = {
       open: 'खोजें',
       recent: 'हाल की खोजें',
       tips: 'सुझाव',
-      combine: 'सटीक खोज के लिए इन्हें मिलाएँ: from:anna has:attachment',
+      clearRecent: 'साफ़ करें',
       describeExample: 'पिछले महीने Anna के इनवॉइस',
       searching: 'आपके मेल में खोज रहा हूँ…',
       tip: {

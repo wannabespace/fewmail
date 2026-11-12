@@ -70,7 +70,14 @@ import {
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { differenceInMinutes, isToday } from 'date-fns'
-import { Fragment, useEffect, useEffectEvent, useRef, useState } from 'react'
+import {
+  Fragment,
+  startTransition,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from 'react'
 import { useSubscription } from 'seitu/react'
 import {
   createElementSize,
@@ -1197,6 +1204,80 @@ const useDrafts = ({
   return { isFetching, open, remove, rows }
 }
 
+const newestPerThread = <Row extends ListedRow>(newestFirst: Row[]) =>
+  [
+    ...Map.groupBy(newestFirst, ({ message }) => message.threadId).values(),
+  ].flatMap(([newest]) => (newest ? [newest] : []))
+
+const isRefinedFrom = (typed: string, answered: string) =>
+  typed.startsWith(answered) || answered.startsWith(typed)
+
+/** `from:` alone is a tip just picked, not a query: Gmail would answer it with everything. */
+const isIncompleteOperator = (typed: string) => typed.endsWith(':')
+
+const searchRowsOf = ({
+  answered,
+  listed,
+  typed,
+}: {
+  answered: ListedRow[]
+  listed: ListedRow[]
+  typed: string
+}) => {
+  if (!typed) {
+    return []
+  }
+  const needle = typed.toLowerCase()
+  const matching = listed.filter(({ message }) =>
+    [message.subject, message.fromName, message.fromEmail, message.snippet]
+      .join(' ')
+      .toLowerCase()
+      .includes(needle)
+  )
+  return newestPerThread(
+    [...answered, ...matching].toSorted(
+      (left, right) =>
+        right.message.receivedAt.getTime() - left.message.receivedAt.getTime()
+    )
+  )
+}
+
+/** The last answer stays while the query is refined, so the list grows and shrinks instead of blinking empty. */
+const useSearchAnswer = ({
+  isEnabled,
+  mailbox,
+  q,
+  typed,
+}: {
+  isEnabled: boolean
+  mailbox: string | undefined
+  q: string | undefined
+  typed: string
+}) => {
+  const found = useQuery(
+    orpc.mail.list.queryOptions({
+      input:
+        q && isEnabled
+          ? { filter: 'inbox', mailboxId: mailbox, search: q }
+          : skipToken,
+    })
+  )
+  const [answer, setAnswer] = useState<{
+    mailbox: string | undefined
+    q: string
+    rows: ListedRow[]
+  }>()
+  if (q && found.data && found.data !== answer?.rows) {
+    setAnswer({ mailbox, q, rows: found.data })
+  }
+  const isRelated =
+    !!answer && answer.mailbox === mailbox && isRefinedFrom(typed, answer.q)
+  return {
+    isFetching: found.isFetching,
+    rows: isRelated ? answer.rows : [],
+  }
+}
+
 const useListRows = ({
   expanded,
   filter,
@@ -1211,14 +1292,7 @@ const useListRows = ({
   typed: string
 }) => {
   const isDrafts = filter === 'drafts'
-  const found = useQuery(
-    orpc.mail.list.queryOptions({
-      input:
-        q && !isDrafts
-          ? { filter: 'inbox', mailboxId: mailbox, search: q }
-          : skipToken,
-    })
-  )
+  const found = useSearchAnswer({ isEnabled: !isDrafts, mailbox, q, typed })
   const listed = useLiveQuery((query) =>
     filter === 'drafts'
       ? undefined
@@ -1237,44 +1311,25 @@ const useListRows = ({
       : undefined
   )
   const drafts = useDrafts({ isEnabled: isDrafts, mailbox, q })
-  const needle = typed.toLowerCase()
-  const browsed =
-    q === undefined
-      ? [
-          ...Map.groupBy(
-            listed.data ?? [],
-            ({ message }) => message.threadId
-          ).values(),
-        ].flatMap(([newest]) =>
-          newest && (!showsPinned || !newest.message.isPinned) ? [newest] : []
-        )
-      : []
   const rows = collapseBursts(
-    (q === typed ? found.data : undefined) ??
-      (typed
-        ? listed.data?.filter(({ message }) =>
-            [
-              message.subject,
-              message.fromName,
-              message.fromEmail,
-              message.snippet,
-            ]
-              .join(' ')
-              .toLowerCase()
-              .includes(needle)
-          )
-        : browsed) ??
-      [],
+    q === undefined
+      ? newestPerThread(listed.data ?? []).filter(
+          ({ message }) => !showsPinned || !message.isPinned
+        )
+      : searchRowsOf({
+          answered: found.rows,
+          listed: listed.data ?? [],
+          typed,
+        }),
     expanded
   )
-  const isSearchPending = typed !== (q ?? '') || (!!q && found.isFetching)
+  const isSearchPending =
+    !!typed && !isIncompleteOperator(typed) && (typed !== q || found.isFetching)
   return {
     isSearchPending,
     drafts,
     isDrafts,
-    isFetching: isDrafts
-      ? drafts.isFetching
-      : listed.isLoading || isSearchPending,
+    isFetching: isDrafts ? drafts.isFetching : listed.isLoading,
     pinned: (showsPinned && pinned.data) || [],
     rows,
     total: isDrafts ? drafts.rows.length : rows.length,
@@ -1353,7 +1408,14 @@ const useSearchField = ({
 }) => {
   const navigate = useNavigate({ from: Route.fullPath })
   const searchRef = useRef<HTMLInputElement>(null)
+  // The field is uncontrolled and the list follows it in a transition, so a long list never holds a keystroke back.
   const [search, setSearch] = useState(q ?? '')
+  const fill = (value: string) => {
+    if (searchRef.current) {
+      searchRef.current.value = value
+    }
+    setSearch(value)
+  }
   const applySearch = (value: string) =>
     navigate({
       replace: isSearching,
@@ -1370,7 +1432,7 @@ const useSearchField = ({
   )
   const typedSearch = useDebouncedMemo(() => search.trim(), [search], 400)
   const onTyped = useEffectEvent((value: string) => {
-    if (isSearching && value !== q) {
+    if (isSearching && value !== q && !isIncompleteOperator(value)) {
       void applySearch(value)
     }
   })
@@ -1378,8 +1440,9 @@ const useSearchField = ({
   useHotkey(
     'Enter',
     () => {
-      rememberSearch(search)
-      void applySearch(search.trim())
+      const value = searchRef.current?.value ?? search
+      rememberSearch(value)
+      void applySearch(value.trim())
     },
     { ignoreInputs: false, target: searchRef }
   )
@@ -1392,8 +1455,8 @@ const useSearchField = ({
     () => {
       if (thread) {
         void onCloseThread()
-      } else if (q) {
-        setSearch('')
+      } else if (q || search.trim()) {
+        fill('')
         void applySearch('')
       } else {
         leaveSearch()
@@ -1403,20 +1466,23 @@ const useSearchField = ({
   )
   return {
     addToSearch: (text: string) => {
-      setSearch((current) => [current.trim(), text].filter(Boolean).join(' '))
+      const current = searchRef.current?.value.trim() ?? ''
+      fill(
+        `${[current, text].filter(Boolean).join(' ')}${isIncompleteOperator(text) ? '' : ' '}`
+      )
       searchRef.current?.focus()
     },
     applySearch,
     isSearchStart: isSearching && !search.trim(),
     leaveSearch,
+    onSearchInput: (value: string) => startTransition(() => setSearch(value)),
     search,
     searchFor: (query: string) => {
-      setSearch(query)
+      fill(query)
       rememberSearch(query)
       void applySearch(query)
     },
     searchRef,
-    setSearch,
   }
 }
 
@@ -1494,9 +1560,9 @@ const MailPage = () => {
     isSearchStart,
     leaveSearch,
     search,
+    onSearchInput,
     searchFor,
     searchRef,
-    setSearch,
   } = useSearchField({
     isSearching,
     onCloseThread: closeThread,
@@ -1637,6 +1703,11 @@ const MailPage = () => {
   useHotkey('ArrowUp', () => moveCursor(-1))
   useHotkey('Enter', () => open(cursor))
   useHotkey('O', () => open(cursor))
+  useHotkey('ArrowDown', () => moveCursor(1), {
+    enabled: total > 0,
+    ignoreInputs: false,
+    target: searchRef,
+  })
   const canShowRelated = related.canShowFor(rows[cursor])
   useHotkey('ArrowRight', () => {
     expandBurst(cursor)
@@ -1695,8 +1766,8 @@ const MailPage = () => {
                 <InputGroupInput
                   ref={searchRef}
                   autoFocus
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
+                  defaultValue={search}
+                  onChange={(event) => onSearchInput(event.target.value)}
                   placeholder={t.mail.search}
                   aria-label={t.mail.search}
                 />
@@ -1741,7 +1812,7 @@ const MailPage = () => {
           {total === 0 && !isSearchStart && (
             <MailListEmpty
               filter={filter}
-              isPending={isFetching}
+              isPending={isFetching || isSearchPending}
               isSearch={isSearching}
               mailboxes={mailboxes}
             />
@@ -1825,7 +1896,7 @@ const MailPage = () => {
       <ResizableSeparator />
       <ResizablePanel
         className="flex"
-        collapsed={(isNarrow || isSearching) && !thread}
+        collapsed={isNarrow && !thread}
         size={readerWidth}
         minSize={READER_WIDTH.min}
         maxSize={READER_WIDTH.max}

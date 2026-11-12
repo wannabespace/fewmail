@@ -637,7 +637,7 @@ export const id: Messages = {
       open: 'Cari',
       recent: 'Pencarian terakhir',
       tips: 'Tips',
-      combine: 'Gabungkan agar lebih tepat: from:anna has:attachment',
+      clearRecent: 'Hapus',
       describeExample: 'tagihan dari Anna bulan lalu',
       searching: 'Mencari di emailmu…',
       tip: {

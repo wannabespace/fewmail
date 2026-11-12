@@ -384,7 +384,7 @@ export const ja: Messages = {
       open: '検索',
       recent: '最近の検索',
       tips: 'ヒント',
-      combine: '組み合わせて絞り込めます：from:anna has:attachment',
+      clearRecent: 'クリア',
       describeExample: '先月の Anna からの請求書',
       searching: 'メールを検索中…',
       tip: {

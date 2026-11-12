@@ -874,7 +874,7 @@ export const uk: Messages = {
       open: 'Пошук',
       recent: 'Недавні пошуки',
       tips: 'Підказки',
-      combine: 'Поєднуй їх для точнішого пошуку: from:anna has:attachment',
+      clearRecent: 'Очистити',
       describeExample: 'рахунки від Анни за минулий місяць',
       searching: 'Шукаю у твоїй пошті…',
       tip: {

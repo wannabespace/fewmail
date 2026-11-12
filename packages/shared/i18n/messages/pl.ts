@@ -663,7 +663,7 @@ export const pl: Messages = {
       open: 'Szukaj',
       recent: 'Ostatnie wyszukiwania',
       tips: 'Wskazówki',
-      combine: 'Łącz je, by zawęzić wyniki: from:anna has:attachment',
+      clearRecent: 'Wyczyść',
       describeExample: 'faktury od Anny z zeszłego miesiąca',
       searching: 'Szukam w twojej poczcie…',
       tip: {

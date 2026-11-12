@@ -888,7 +888,7 @@ export const fr: Messages = {
       open: 'Rechercher',
       recent: 'Recherches récentes',
       tips: 'Astuces',
-      combine: 'Combinez-les pour affiner : from:anna has:attachment',
+      clearRecent: 'Effacer',
       describeExample: 'factures d’Anna le mois dernier',
       searching: 'Recherche dans tes e-mails…',
       tip: {

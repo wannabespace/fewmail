@@ -1,28 +1,23 @@
 import { Button } from '@fewmail/ui/components/button'
 import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from '@fewmail/ui/components/item'
-import {
   AiSearchIcon,
   Attachment01Icon,
   Calendar03Icon,
+  Clock01Icon,
   Mail01Icon,
   Pdf01Icon,
-  Search01Icon,
   TextIcon,
   UserIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { IconSvgElement } from '@hugeicons/react'
 import { type } from 'arktype'
+import type { ReactNode } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
 import { useT } from '~/lib/i18n'
+import { useHasAgent } from '~/lib/me'
 
 const RECENT_LIMIT = 6
 
@@ -62,6 +57,41 @@ const TIPS: {
   { icon: Calendar03Icon, id: 'week', query: 'newer_than:7d' },
 ]
 
+const SECTION_HEADER =
+  'bg-body text-muted-foreground sticky top-0 z-10 flex items-center gap-2 border-b px-5 py-1.5 pl-11 text-xs font-medium'
+
+const Suggestion = ({
+  children,
+  hint,
+  icon,
+  onPick,
+}: {
+  children: ReactNode
+  hint?: string
+  icon: IconSvgElement
+  onPick: () => void
+}) => (
+  <li className="border-b">
+    <button
+      type="button"
+      onClick={onPick}
+      className="hover:bg-accent focus-visible:bg-accent flex w-full cursor-pointer items-center gap-2 px-5 py-2 text-left text-sm outline-none"
+    >
+      <HugeiconsIcon
+        icon={icon}
+        strokeWidth={2}
+        className="text-muted-foreground size-4 shrink-0"
+      />
+      <span className="min-w-0 shrink-0 truncate font-medium">{children}</span>
+      {hint && (
+        <span className="text-muted-foreground ml-auto truncate pl-4 text-xs">
+          {hint}
+        </span>
+      )}
+    </button>
+  </li>
+)
+
 export const MailSearchStart = ({
   onAdd,
   onSearch,
@@ -70,77 +100,57 @@ export const MailSearchStart = ({
   onSearch: (query: string) => void
 }) => {
   const t = useT()
+  const hasAgent = useHasAgent()
   const recent = useSubscription(recentSearchesStore)
   return (
-    <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 py-5">
+    <ul className="flex-1 overflow-y-auto">
       {recent.length > 0 && (
-        <section className="flex flex-col gap-2.5">
-          <h2 className="text-muted-foreground text-xs font-medium">
+        <>
+          <li className={SECTION_HEADER}>
             {t.mail.find.recent}
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {recent.map((query) => (
-              <Button
-                key={query}
-                variant="outline"
-                size="sm"
-                onClick={() => onSearch(query)}
-              >
-                <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
-                <span data-mask className="max-w-60 truncate">
-                  {query}
-                </span>
-              </Button>
-            ))}
-          </div>
-        </section>
-      )}
-      <section className="flex flex-col gap-2.5">
-        <h2 className="text-muted-foreground text-xs font-medium">
-          {t.mail.find.tips}
-        </h2>
-        <div className="-mx-2.5 grid grid-cols-[repeat(auto-fill,minmax(13rem,1fr))]">
-          {TIPS.map(({ example, icon, id, query }) => (
-            <Item
-              key={id}
+            <Button
               size="xs"
-              render={<button type="button" aria-label={t.mail.find.tip[id]} />}
-              onClick={() => onAdd(query)}
+              variant="link-muted"
+              className="ml-auto"
+              onClick={() => recentSearchesStore.set([])}
             >
-              <ItemMedia variant="icon">
-                <HugeiconsIcon icon={icon} strokeWidth={2} />
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle>
-                  {query}
-                  {example && (
-                    <span className="text-muted-foreground font-normal">
-                      {example}
-                    </span>
-                  )}
-                </ItemTitle>
-                <ItemDescription>{t.mail.find.tip[id]}</ItemDescription>
-              </ItemContent>
-            </Item>
+              {t.mail.find.clearRecent}
+            </Button>
+          </li>
+          {recent.map((query) => (
+            <Suggestion
+              key={query}
+              icon={Clock01Icon}
+              onPick={() => onSearch(query)}
+            >
+              <span data-mask>{query}</span>
+            </Suggestion>
           ))}
-          <Item
-            size="xs"
-            render={
-              <button type="button" aria-label={t.mail.find.describeExample} />
-            }
-            onClick={() => onSearch(t.mail.find.describeExample)}
-          >
-            <ItemMedia variant="icon">
-              <HugeiconsIcon icon={AiSearchIcon} strokeWidth={2} />
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle>{t.mail.find.describeExample}</ItemTitle>
-              <ItemDescription>{t.mail.find.tip.describe}</ItemDescription>
-            </ItemContent>
-          </Item>
-        </div>
-        <p className="text-muted-foreground text-xs">{t.mail.find.combine}</p>
-      </section>
-    </div>
+        </>
+      )}
+      <li className={SECTION_HEADER}>{t.mail.find.tips}</li>
+      {TIPS.map(({ example, icon, id, query }) => (
+        <Suggestion
+          key={id}
+          icon={icon}
+          hint={t.mail.find.tip[id]}
+          onPick={() => onAdd(query)}
+        >
+          {query}
+          {example && (
+            <span className="text-muted-foreground font-normal">{example}</span>
+          )}
+        </Suggestion>
+      ))}
+      {hasAgent && (
+        <Suggestion
+          icon={AiSearchIcon}
+          hint={t.mail.find.tip.describe}
+          onPick={() => onSearch(t.mail.find.describeExample)}
+        >
+          {t.mail.find.describeExample}
+        </Suggestion>
+      )}
+    </ul>
   )
 }

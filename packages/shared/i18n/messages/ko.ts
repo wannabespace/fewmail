@@ -381,7 +381,7 @@ export const ko: Messages = {
       open: '검색',
       recent: '최근 검색',
       tips: '팁',
-      combine: '함께 쓰면 더 정확해요: from:anna has:attachment',
+      clearRecent: '지우기',
       describeExample: '지난달 Anna가 보낸 청구서',
       searching: '메일을 검색하는 중…',
       tip: {
