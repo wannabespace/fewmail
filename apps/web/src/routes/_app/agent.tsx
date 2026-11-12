@@ -15,7 +15,6 @@ import { Kbd } from '@fewmail/ui/components/kbd'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import {
   Add01Icon,
-  Cancel01Icon,
   Clock01Icon,
   Delete02Icon,
 } from '@hugeicons/core-free-icons'
@@ -164,21 +163,17 @@ const AgentPage = () => {
               className="scroll-fade-x max-w-full scrollbar-none justify-start overflow-x-auto"
             >
               {tabIds.map((id) => (
-                <div key={id} className="group/tab flex shrink-0 items-center">
-                  <TabsTrigger value={id} className="max-w-52">
-                    <span data-mask className="truncate">
-                      {titleOf(id)}
-                    </span>
-                  </TabsTrigger>
-                  <IconButton
-                    className="opacity-0 group-hover/tab:opacity-100 group-has-data-active/tab:opacity-100 data-popup-open:opacity-100"
-                    icon={Cancel01Icon}
-                    label={t.agent.closeChat}
-                    size="icon-2xs"
-                    variant="ghost-muted"
-                    onClick={() => closeChat(id)}
-                  />
-                </div>
+                <TabsTrigger
+                  key={id}
+                  value={id}
+                  className="max-w-52"
+                  closeLabel={t.agent.closeChat}
+                  onClose={() => closeChat(id)}
+                >
+                  <span data-mask className="truncate">
+                    {titleOf(id)}
+                  </span>
+                </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
@@ -223,10 +218,10 @@ const AgentPage = () => {
                       {dates.ago(item.updatedAt)}
                     </DropdownMenuShortcut>
                     <IconButton
-                      className="-my-1 -mr-1 opacity-0 group-hover/dropdown-menu-item:opacity-100 group-focus/dropdown-menu-item:opacity-100"
+                      className="-mr-1 opacity-0 group-hover/dropdown-menu-item:opacity-100 group-focus/dropdown-menu-item:opacity-100"
                       icon={Delete02Icon}
                       label={t.agent.deleteChat}
-                      size="icon-sm"
+                      size="icon-2xs"
                       variant="ghost-destructive"
                       onClick={(event) => {
                         event.stopPropagation()

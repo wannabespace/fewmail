@@ -26,6 +26,7 @@ export const buttonVariants = cva(
         default: `bg-primary text-primary-foreground hover:bg-[color-mix(in_oklab,var(--primary),var(--foreground)_12%)]`,
         destructive: `bg-destructive text-white shadow-xs hover:bg-[color-mix(in_oklab,var(--destructive),var(--foreground)_12%)]`,
         ghost: `[a]:text-foreground hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground aria-pressed:bg-foreground/10 aria-pressed:text-foreground transition-transform`,
+        'ghost-current': `transition-transform hover:bg-current/15 aria-expanded:bg-current/15`,
         'ghost-destructive': `text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-transform`,
         'ghost-faint': `hover:bg-foreground/5 hover:text-foreground aria-expanded:bg-foreground/5 aria-expanded:text-foreground aria-pressed:bg-foreground/10 aria-pressed:text-foreground transition-transform`,
         'ghost-faint-muted': `text-muted-foreground hover:bg-foreground/5 hover:text-foreground aria-expanded:bg-foreground/5 aria-expanded:text-foreground aria-pressed:bg-foreground/10 aria-pressed:text-foreground transition-transform`,
