@@ -43,7 +43,7 @@ import { AskAnswer } from './ask-answer'
 import { deletingBoardStore, newBoardStore } from './board-dialog'
 import { clearOutStore } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
-import { visibleNavItems } from './nav'
+import { useVisibleNavItems } from './nav'
 
 const THEME_ICONS = {
   dark: Moon02Icon,
@@ -66,6 +66,7 @@ export const CommandMenu = ({
 }) => {
   const t = useT()
   const hasAgent = useHasAgent()
+  const navItems = useVisibleNavItems()
   const [search, setSearch] = useState('')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -146,7 +147,7 @@ export const CommandMenu = ({
             />
           )}
           <CommandGroup heading={t.command.goTo}>
-            {visibleNavItems(hasAgent).map((item) => (
+            {navItems.map((item) => (
               <CommandItem
                 key={item.to}
                 onSelect={() => run(() => navigate({ to: item.to }))}

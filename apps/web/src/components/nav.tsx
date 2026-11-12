@@ -121,8 +121,15 @@ const usagePercent = (
     )
   )
 
-export const visibleNavItems = (hasAgent: boolean) =>
-  NAV_ITEMS.filter((item) => hasAgent || !AGENT_ONLY.has(item.key))
+export const useVisibleNavItems = () => {
+  const hasAgent = useHasAgent()
+  const { data: reading = 0 } = useQuery(orpc.reading.count.queryOptions())
+  return NAV_ITEMS.filter(
+    (item) =>
+      (hasAgent || !AGENT_ONLY.has(item.key)) &&
+      (item.key !== 'reading' || reading > 0)
+  )
+}
 
 const NAV_ROW =
   'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70 data-[status=active]:font-medium'
@@ -479,6 +486,7 @@ export const Sidebar = ({
   const { data: queued } = useQuery(
     orpc.today.count.queryOptions({ enabled: hasAgent })
   )
+  const navItems = useVisibleNavItems()
   const { data: mailboxes } = useQuery(
     orpc.mailboxes.list.queryOptions({ enabled: hasAgent })
   )
@@ -527,7 +535,7 @@ export const Sidebar = ({
           onClick={() => openCompose()}
         />
       </div>
-      {visibleNavItems(hasAgent).map((item) => (
+      {navItems.map((item) => (
         <NavLink
           key={item.to}
           item={item}

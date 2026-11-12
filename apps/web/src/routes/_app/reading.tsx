@@ -17,7 +17,9 @@ import { warmQuery } from '~/lib/query-client'
 const ReadingPage = () => {
   const t = useT()
   const navigate = useNavigate()
-  const { data: rows = [], isPending } = useQuery(orpc.reading.queryOptions())
+  const { data: rows = [], isPending } = useQuery(
+    orpc.reading.list.queryOptions()
+  )
   const [cursor, setCursor] = useState(0)
   const active = rows[Math.min(cursor, rows.length - 1)]
   const open = (threadId?: string) =>
@@ -94,5 +96,5 @@ const ReadingPage = () => {
 
 export const Route = createFileRoute('/_app/reading')({
   component: ReadingPage,
-  loader: () => warmQuery(orpc.reading.queryOptions()),
+  loader: () => warmQuery(orpc.reading.list.queryOptions()),
 })

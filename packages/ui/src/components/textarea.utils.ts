@@ -8,7 +8,7 @@ export const textareaVariants = cva(
     },
     variants: {
       variant: {
-        default: `bg-input focus-visible:focus-ring aria-invalid:invalid-ring min-h-16 rounded-xl border border-transparent px-2.5 py-2 text-base transition-[color,box-shadow] duration-200 md:text-sm`,
+        default: `bg-input border-foreground/4 focus-visible:focus-ring aria-invalid:invalid-ring min-h-16 rounded-xl border bg-clip-padding px-2.5 py-2 text-base shadow-xs transition-shadow duration-200 md:text-sm`,
         flat: `min-h-8 px-2 py-2 text-xs`,
       },
     },

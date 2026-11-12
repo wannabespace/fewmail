@@ -9,7 +9,10 @@ import {
   smallItemBleedClassName,
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
+import { InformationCircleIcon } from '@hugeicons/core-free-icons'
 import type { ReactNode } from 'react'
+
+import { IconButton } from './icon-button'
 
 export const SettingsGroup = ({
   children,
@@ -40,6 +43,7 @@ export const SettingsRow = ({
   children,
   dense,
   description,
+  hint,
   htmlFor,
   icon,
   iconVariant,
@@ -50,6 +54,8 @@ export const SettingsRow = ({
   children?: ReactNode
   dense?: boolean
   description?: ReactNode
+  /** What a long description would say, behind an info glyph so the row stays one line. */
+  hint?: string
   htmlFor?: string
   icon?: ReactNode
   iconVariant?: 'avatar'
@@ -65,7 +71,18 @@ export const SettingsRow = ({
   >
     {icon && <ItemMedia variant={iconVariant}>{icon}</ItemMedia>}
     <ItemContent>
-      <ItemTitle>{title}</ItemTitle>
+      <ItemTitle>
+        {title}
+        {hint && (
+          <IconButton
+            icon={InformationCircleIcon}
+            label={hint}
+            size="icon-2xs"
+            variant="ghost-muted"
+            className="-my-1"
+          />
+        )}
+      </ItemTitle>
       {description && <ItemDescription>{description}</ItemDescription>}
     </ItemContent>
     {children && <ItemActions>{children}</ItemActions>}

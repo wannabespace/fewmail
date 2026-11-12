@@ -74,7 +74,7 @@ export const AgentSettings = () => {
           </SettingsRow>
           <SettingsRow
             title={t.settings.forward.title}
-            description={t.settings.forward.description}
+            hint={t.settings.forward.description}
           >
             <div className="flex items-center gap-1">
               <span
