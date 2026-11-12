@@ -283,7 +283,6 @@ export const hi: Messages = {
     snooze: 'स्नूज़',
     trash: 'ट्रैश',
     ask: 'इसके बारे में पूछें',
-    anything: 'कुछ भी',
     archive: 'आर्काइव',
     approve: 'मंज़ूर करें',
     approveAll: (n: number) => `ऐसे सभी ${n} मंज़ूर करें`,

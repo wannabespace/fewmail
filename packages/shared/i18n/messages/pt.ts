@@ -555,7 +555,6 @@ export const pt: Messages = {
     snooze: 'adiar',
     trash: 'lixeira',
     ask: 'perguntar sobre ele',
-    anything: 'qualquer coisa',
     approve: 'aprovar',
     approveAll: (n: number) => `aprovar as ${n} deste tipo`,
     archive: 'arquivar',

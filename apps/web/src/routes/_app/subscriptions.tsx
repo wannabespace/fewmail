@@ -134,7 +134,6 @@ const SubscriptionsPage = () => {
           hints={[
             ['J / K', t.keys.move],
             ['U', t.keys.unsubscribe],
-            ['⌘K', t.keys.anything],
           ]}
         />
       )}

@@ -177,7 +177,6 @@ const AgentPage = () => {
               ? [['J', t.keys.open] as [string, string]]
               : []),
             ['⇧⌘O', t.agent.newChat],
-            ['⌘K', t.keys.anything],
           ]}
         />
       </ResizablePanel>

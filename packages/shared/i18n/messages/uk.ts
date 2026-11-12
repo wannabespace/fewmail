@@ -776,7 +776,6 @@ export const uk: Messages = {
     snooze: 'відкласти',
     trash: 'у кошик',
     ask: 'запитати про нього',
-    anything: 'будь-що',
     archive: 'архівувати',
     approve: 'схвалити',
     approveAll: (n: number) => `схвалити всі ${n} такі`,

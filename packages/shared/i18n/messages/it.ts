@@ -783,7 +783,6 @@ export const it: Messages = {
     snooze: 'posticipa',
     trash: 'cestino',
     ask: 'chiedi a riguardo',
-    anything: 'qualsiasi cosa',
     archive: 'archivia',
     approve: 'approva',
     approveAll: (n: number) => `approva tutte le ${n} di questo tipo`,

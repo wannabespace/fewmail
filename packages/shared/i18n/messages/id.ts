@@ -541,7 +541,6 @@ export const id: Messages = {
     snooze: 'tunda',
     trash: 'buang',
     ask: 'tanyakan tentang ini',
-    anything: 'apa saja',
     approve: 'setujui',
     approveAll: (n: number) => `setujui semua ${n} yang sejenis`,
     archive: 'arsipkan',

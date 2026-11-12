@@ -132,7 +132,6 @@ const WrappedPage = () => {
                 ['L', t.wrapped.copyLink],
               ] as [string, string][])
             : []),
-          ['⌘K', t.keys.anything],
         ]}
       />
     </main>

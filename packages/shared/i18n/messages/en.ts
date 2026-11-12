@@ -548,7 +548,6 @@ export const en = {
     unsubscribe: 'unsubscribe',
     filter: 'filter',
     ask: 'ask about it',
-    anything: 'anything',
     approve: 'approve',
     approveAll: (n: number) => `approve all ${n} like this`,
     archive: 'archive',

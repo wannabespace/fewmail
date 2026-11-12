@@ -85,7 +85,6 @@ const ReadingPage = () => {
           hints={[
             ['J / K', t.keys.move],
             ['⏎', t.keys.open],
-            ['⌘K', t.keys.anything],
           ]}
         />
       )}

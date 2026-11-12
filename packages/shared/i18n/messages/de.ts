@@ -779,7 +779,6 @@ export const de: Messages = {
     snooze: 'zurückstellen',
     trash: 'Papierkorb',
     ask: 'danach fragen',
-    anything: 'alles',
     archive: 'archivieren',
     approve: 'freigeben',
     approveAll: (n: number) => `alle ${n} dieser Art freigeben`,

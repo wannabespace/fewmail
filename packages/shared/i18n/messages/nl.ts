@@ -556,7 +556,6 @@ export const nl: Messages = {
     snooze: 'uitstellen',
     trash: 'prullenbak',
     ask: 'ernaar vragen',
-    anything: 'alles',
     approve: 'goedkeuren',
     approveAll: (n: number) => `alle ${n} van deze soort goedkeuren`,
     archive: 'archiveren',

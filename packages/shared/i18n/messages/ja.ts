@@ -285,7 +285,6 @@ export const ja: Messages = {
     snooze: 'スヌーズ',
     trash: 'ゴミ箱',
     ask: 'これについて聞く',
-    anything: '何でも',
     archive: 'アーカイブ',
     approve: '承認',
     approveAll: (n: number) => `同じ種類の${n}件をすべて承認`,

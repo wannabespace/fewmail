@@ -1,6 +1,7 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
+import { Accordion } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import {
   SettingsGroup,
@@ -340,7 +341,6 @@ const todayHints = (
         ...(state.hasHandled
           ? [['H', t.today.handled.review] as [string, string]]
           : []),
-        ['⌘K', t.keys.anything],
       ]
 
 /** Missing, or saying all is calm above emails that need the user (written before they were read). */
@@ -646,38 +646,44 @@ const TodayPage = () => {
                 {t.today.nothingNeedsYou}
               </p>
             )}
-            {queue.map((item, index) => (
-              <QueueCard
-                key={item.action.id}
-                item={item}
-                index={index}
-                draft={draftOf(item)}
-                isSelected={item === selected}
-                isEditing={editingId === item.action.id}
-                isBusy={
-                  redraft.isPending && redraft.variables.id === item.action.id
-                }
-                onSelect={() => setSelectedId(item.action.id)}
-                onApprove={approveSelected}
-                onEdit={() => setEditingId(item.action.id)}
-                onDraftChange={(draft) =>
-                  setDrafts((current) => ({
-                    ...current,
-                    [item.action.id]: draft,
-                  }))
-                }
-                onRedraft={() => shorten(item.action.id)}
-                onOpen={() =>
-                  item.message &&
-                  navigate({
-                    search: { thread: item.message.threadId },
-                    to: '/mail',
-                  })
-                }
-                onSkip={() => dismiss.mutate({ id: item.action.id })}
-                onStopEditing={() => setEditingId(null)}
-              />
-            ))}
+            <Accordion
+              variant="cards"
+              hidden={queue.length === 0}
+              value={selected ? [selected.action.id] : []}
+              onValueChange={([id]) => id && setSelectedId(id)}
+            >
+              {queue.map((item, index) => (
+                <QueueCard
+                  key={item.action.id}
+                  item={item}
+                  index={index}
+                  draft={draftOf(item)}
+                  isSelected={item === selected}
+                  isEditing={editingId === item.action.id}
+                  isBusy={
+                    redraft.isPending && redraft.variables.id === item.action.id
+                  }
+                  onApprove={approveSelected}
+                  onEdit={() => setEditingId(item.action.id)}
+                  onDraftChange={(draft) =>
+                    setDrafts((current) => ({
+                      ...current,
+                      [item.action.id]: draft,
+                    }))
+                  }
+                  onRedraft={() => shorten(item.action.id)}
+                  onOpen={() =>
+                    item.message &&
+                    navigate({
+                      search: { thread: item.message.threadId },
+                      to: '/mail',
+                    })
+                  }
+                  onSkip={() => dismiss.mutate({ id: item.action.id })}
+                  onStopEditing={() => setEditingId(null)}
+                />
+              ))}
+            </Accordion>
           </section>
 
           {data && <MailDigest today={data} />}

@@ -3,6 +3,11 @@ import { ACTION_KIND_TRAITS, sendsDraft } from '@fewmail/shared/agent'
 import type { CleanupSender } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
+import {
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -69,7 +74,7 @@ const QueueCardHeader = ({
   const dates = useDates()
 
   return (
-    <header className="flex items-center gap-3">
+    <AccordionTrigger>
       <span
         className={cn(
           'flex size-5.5 shrink-0 items-center justify-center rounded-md text-xs font-semibold tabular-nums',
@@ -93,7 +98,7 @@ const QueueCardHeader = ({
           {dates.ago(message.receivedAt)}
         </span>
       )}
-    </header>
+    </AccordionTrigger>
   )
 }
 
@@ -137,7 +142,6 @@ export const QueueCard = ({
   onEdit,
   onOpen,
   onRedraft,
-  onSelect,
   onSkip,
   onStopEditing,
 }: {
@@ -152,7 +156,6 @@ export const QueueCard = ({
   onEdit: () => void
   onOpen: () => void
   onRedraft: () => void
-  onSelect: () => void
   onSkip: () => void
   onStopEditing: () => void
 }) => {
@@ -161,7 +164,7 @@ export const QueueCard = ({
   const isReply = sendsDraft(action)
   const isSecurity = action.kind === 'security'
   const reason = action.reason || analysis?.reason
-  const ref = useRef<HTMLElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const editorRef = useRef<ComposerEditorHandle>(null)
   const hasAgent = useHasAgent()
 
@@ -178,22 +181,14 @@ export const QueueCard = ({
   }, [isEditing])
 
   return (
-    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- J/K select cards; the click only mirrors it for the mouse
-    <article
+    <AccordionItem
       ref={ref}
-      aria-current={isSelected}
-      onClick={onSelect}
-      className={cn(
-        'bg-popover flex flex-col gap-3 rounded-2xl px-4.5 py-4 ring transition-shadow',
-        isSelected
-          ? 'ring-foreground/10 shadow-sm'
-          : 'ring-foreground/6 hover:ring-foreground/10 cursor-pointer',
-        isSecurity && 'ring-destructive/40 hover:ring-destructive/60'
-      )}
+      value={action.id}
+      tone={isSecurity ? 'destructive' : 'default'}
     >
       <QueueCardHeader index={index} isSelected={isSelected} item={item} />
 
-      {isSelected && (
+      <AccordionContent>
         <div className="flex flex-col gap-3 pl-8.5">
           {isReply &&
             (isEditing ? (
@@ -265,7 +260,7 @@ export const QueueCard = ({
             </span>
           </div>
         </div>
-      )}
-    </article>
+      </AccordionContent>
+    </AccordionItem>
   )
 }

@@ -250,7 +250,6 @@ const CalendarPage = () => {
           ['← / →', t.keys.period],
           ['D W M Y', t.keys.view],
           ['N', t.keys.newEvent],
-          ['⌘K', t.keys.anything],
         ]}
       />
       <EventDialog

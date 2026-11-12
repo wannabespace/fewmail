@@ -538,7 +538,6 @@ export const tr: Messages = {
     snooze: 'ertele',
     trash: 'çöp',
     ask: 'bunu sor',
-    anything: 'her şey',
     approve: 'onayla',
     approveAll: (n: number) => `bu türdeki ${n} kartın hepsini onayla`,
     archive: 'arşivle',

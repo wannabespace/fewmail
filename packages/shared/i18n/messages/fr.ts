@@ -789,7 +789,6 @@ export const fr: Messages = {
     snooze: 'reporter',
     trash: 'corbeille',
     ask: 'poser une question',
-    anything: 'n’importe quoi',
     archive: 'archiver',
     approve: 'approuver',
     approveAll: (n: number) => `approuver les ${n} de ce type`,

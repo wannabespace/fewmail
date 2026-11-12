@@ -567,7 +567,6 @@ export const pl: Messages = {
     snooze: 'odłóż',
     trash: 'kosz',
     ask: 'zapytaj o niego',
-    anything: 'cokolwiek',
     approve: 'zatwierdź',
     approveAll: (n: number) => `zatwierdź wszystkie ${n} tego typu`,
     archive: 'archiwizuj',

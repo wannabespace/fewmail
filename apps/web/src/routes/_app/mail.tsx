@@ -1096,7 +1096,6 @@ const MailPage = () => {
                 ['[ / ]', t.keys.filter],
                 ['V', t.keys.group],
                 ['/', t.keys.search],
-                ['⌘K', t.keys.anything],
               ]}
             />
           )}

@@ -283,7 +283,6 @@ export const ko: Messages = {
     snooze: '다시 알림',
     trash: '휴지통',
     ask: '이것에 대해 묻기',
-    anything: '아무거나',
     archive: '보관',
     approve: '승인',
     approveAll: (n: number) => `같은 종류 ${n}개 모두 승인`,

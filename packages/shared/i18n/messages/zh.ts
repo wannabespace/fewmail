@@ -279,7 +279,6 @@ export const zh: Messages = {
     snooze: '稍后提醒',
     trash: '删除',
     ask: '询问这封邮件',
-    anything: '任意',
     archive: '归档',
     approve: '批准',
     approveAll: (n: number) => `批准同类的全部 ${n} 项`,
