@@ -1,6 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { BULK_THRESHOLD } from '@fewmail/shared/agent'
-import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   ResizableGroup,
@@ -54,7 +53,7 @@ import {
 } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
-import { isToday } from 'date-fns'
+import { differenceInMinutes, isToday } from 'date-fns'
 import { Fragment, useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
@@ -167,6 +166,47 @@ const groupRows = <Row extends ListedRow>(rows: Row[], grouping: Grouping) => {
   }
   return groups.map(([key, members]) => ({ key, rows: members }))
 }
+
+const BURST_MINUTES = 10
+
+/** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until opened. */
+const collapseBursts = <Row extends ListedRow>(
+  rows: Row[],
+  expanded: ReadonlySet<string>
+) => {
+  const collapsed: (Row & { messageIds: string[] })[] = []
+  let previous: Row | undefined
+  for (const row of rows) {
+    const head = collapsed.at(-1)
+    if (
+      head &&
+      previous &&
+      !expanded.has(head.message.id) &&
+      previous.message.fromEmail === row.message.fromEmail &&
+      differenceInMinutes(previous.message.receivedAt, row.message.receivedAt) <
+        BURST_MINUTES
+    ) {
+      head.messageIds.push(row.message.id)
+      head.message.isUnread ||= row.message.isUnread
+    } else {
+      collapsed.push({
+        ...row,
+        message: { ...row.message },
+        messageIds: [row.message.id],
+      })
+    }
+    previous = row
+  }
+  return collapsed
+}
+
+const onEach =
+  (messageIds: string[], mutate: (input: { messageId: string }) => void) =>
+  () => {
+    for (const messageId of messageIds) {
+      mutate({ messageId })
+    }
+  }
 
 const useGroupedRows = <Row extends ListedRow>(
   listedRows: Row[],
@@ -331,19 +371,18 @@ const MailRowActions = ({
   actions,
   canSnooze,
   isSnoozeOpen,
-  messageId,
+  messageIds,
   onSnoozeOpenChange,
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
   canSnooze: boolean
   isSnoozeOpen: boolean
-  messageId: string
+  messageIds: string[]
   onSnoozeOpenChange: (open: boolean) => void
   sweep: Sweep
 }) => {
   const t = useT()
-  const target = { messageId }
   return (
     <span
       className={cn(
@@ -356,24 +395,27 @@ const MailRowActions = ({
         label={sweep.label}
         size="icon-sm"
         variant="ghost-muted"
-        onClick={() => sweep.action.mutate(target)}
+        onClick={onEach(messageIds, sweep.action.mutate)}
       />
       {canSnooze && (
         <DropdownMenu open={isSnoozeOpen} onOpenChange={onSnoozeOpenChange}>
           <DropdownMenuTrigger
             render={
-              <Button
-                aria-label={t.snooze.title}
+              <IconButton
+                icon={Clock01Icon}
+                label={t.snooze.title}
                 size="icon-sm"
                 variant="ghost-muted"
               />
             }
-          >
-            <HugeiconsIcon icon={Clock01Icon} strokeWidth={2} />
-          </DropdownMenuTrigger>
+          />
           <DropdownMenuContent align="end">
             <SnoozeMenuItems
-              onSnooze={(until) => actions.snooze.mutate({ ...target, until })}
+              onSnooze={(until) =>
+                onEach(messageIds, ({ messageId }) =>
+                  actions.snooze.mutate({ messageId, until })
+                )()
+              }
             />
           </DropdownMenuContent>
         </DropdownMenu>
@@ -383,7 +425,7 @@ const MailRowActions = ({
         label={t.mail.trash}
         size="icon-sm"
         variant="ghost-destructive"
-        onClick={() => actions.trash.mutate(target)}
+        onClick={onEach(messageIds, actions.trash.mutate)}
       />
     </span>
   )
@@ -397,7 +439,7 @@ const MailRow = ({
   isSnoozeOpen,
   onOpen,
   onSnoozeOpenChange,
-  row: { analysis, message, threadSize },
+  row: { analysis, message, messageIds, threadSize },
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
@@ -407,7 +449,7 @@ const MailRow = ({
   isSnoozeOpen: boolean
   onOpen: () => void
   onSnoozeOpenChange: (open: boolean) => void
-  row: ListedRow
+  row: ListedRow & { messageIds: string[] }
   sweep: Sweep
 }) => {
   const t = useT()
@@ -452,6 +494,11 @@ const MailRow = ({
           <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
             {threadSize > 1 && threadSize}
           </span>
+          {messageIds.length > 1 && (
+            <span className="text-muted-foreground shrink-0 text-xs">
+              {t.cleanup.emails(messageIds.length)}
+            </span>
+          )}
           <MailRowMeta insight={analysis} message={message} />
           {analysis ? (
             <ImportanceDot
@@ -507,7 +554,7 @@ const MailRow = ({
         actions={actions}
         canSnooze={canSnooze}
         isSnoozeOpen={isSnoozeOpen}
-        messageId={message.id}
+        messageIds={messageIds}
         onSnoozeOpenChange={onSnoozeOpenChange}
         sweep={sweep}
       />
@@ -642,11 +689,13 @@ const useDrafts = ({
 }
 
 const useListRows = ({
+  expanded,
   filter,
   mailbox,
   q,
   typed,
 }: {
+  expanded: ReadonlySet<string>
   filter: Filter
   mailbox: string | undefined
   q: string | undefined
@@ -669,22 +718,24 @@ const useListRows = ({
   )
   const drafts = useDrafts({ isEnabled: isDrafts, mailbox, q })
   const needle = typed.toLowerCase()
-  const rows =
+  const rows = collapseBursts(
     (q === typed ? found.data : undefined) ??
-    (typed
-      ? listed.data?.filter(({ message }) =>
-          [
-            message.subject,
-            message.fromName,
-            message.fromEmail,
-            message.snippet,
-          ]
-            .join(' ')
-            .toLowerCase()
-            .includes(needle)
-        )
-      : listed.data) ??
-    []
+      (typed
+        ? listed.data?.filter(({ message }) =>
+            [
+              message.subject,
+              message.fromName,
+              message.fromEmail,
+              message.snippet,
+            ]
+              .join(' ')
+              .toLowerCase()
+              .includes(needle)
+          )
+        : listed.data) ??
+      [],
+    expanded
+  )
   const isSearchPending = typed !== (q ?? '') || (!!q && found.isFetching)
   return {
     isSearchPending,
@@ -701,32 +752,25 @@ const useListRows = ({
 const useListActions = ({
   filter,
   isEnabled,
-  messageId,
+  messageIds = [],
 }: {
   filter: Filter
   isEnabled: boolean
-  messageId: string | undefined
+  messageIds: string[] | undefined
 }) => {
   const t = useT()
   const actions = useMailActions()
   const [snoozeOpenId, setSnoozeOpenId] = useState<string | null>(null)
   const canSnooze = filter !== 'snoozed'
   const sweep = sweepOf(actions, t, OUT_OF_INBOX[filter] ?? 'inbox')
-  const keys = { enabled: isEnabled && !!messageId }
-  useHotkey('E', () => messageId && sweep.action.mutate({ messageId }), keys)
-  useHotkey('H', () => messageId && setSnoozeOpenId(messageId), {
+  const [head] = messageIds
+  const keys = { enabled: isEnabled && !!head }
+  useHotkey('E', onEach(messageIds, sweep.action.mutate), keys)
+  useHotkey('H', () => head && setSnoozeOpenId(head), {
     enabled: keys.enabled && canSnooze,
   })
-  useHotkey(
-    'Shift+3',
-    () => messageId && actions.trash.mutate({ messageId }),
-    keys
-  )
-  useHotkey(
-    'Shift+1',
-    () => messageId && actions.reportSpam.mutate({ messageId }),
-    keys
-  )
+  useHotkey('Shift+3', onEach(messageIds, actions.trash.mutate), keys)
+  useHotkey('Shift+1', onEach(messageIds, actions.reportSpam.mutate), keys)
   const sweepHint: [string, string] = [
     'E',
     filter in OUT_OF_INBOX ? t.keys.restore : t.keys.archive,
@@ -761,6 +805,9 @@ const MailPage = () => {
   const listRef = useRef<HTMLUListElement>(null)
   const [search, setSearch] = useState(q ?? '')
   const [cursor, setCursor] = useState(0)
+  const [expandedBursts, setExpandedBursts] = useState<ReadonlySet<string>>(
+    new Set()
+  )
   const listKey = `${filter}:${mailbox ?? ''}:${q ?? ''}`
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
@@ -782,7 +829,13 @@ const MailPage = () => {
     isSearchPending,
     rows: listedRows,
     total,
-  } = useListRows({ filter, mailbox, q, typed: search.trim() })
+  } = useListRows({
+    expanded: expandedBursts,
+    filter,
+    mailbox,
+    q,
+    typed: search.trim(),
+  })
   const { groupStarts, rows } = useGroupedRows(listedRows, grouping)
 
   const {
@@ -796,7 +849,7 @@ const MailPage = () => {
   } = useListActions({
     filter,
     isEnabled: !thread,
-    messageId: rows[cursor]?.message.id,
+    messageIds: rows[cursor]?.messageIds,
   })
 
   useEffect(() => {
@@ -813,6 +866,13 @@ const MailPage = () => {
     }
   }, [rows, cursor])
 
+  const expandBurst = (index: number) => {
+    const row = rows[index]
+    if (row && row.messageIds.length > 1) {
+      setExpandedBursts((expanded) => new Set(expanded).add(row.message.id))
+    }
+  }
+
   const open = (index: number) => {
     if (isDrafts) {
       setCursor(index)
@@ -822,6 +882,7 @@ const MailPage = () => {
     const row = rows[index]
     if (row) {
       setCursor(index)
+      expandBurst(index)
       void navigate({
         search: (prev) => ({ ...prev, thread: row.message.threadId }),
       })
@@ -839,6 +900,7 @@ const MailPage = () => {
   useHotkey('ArrowUp', () => moveCursor(-1))
   useHotkey('Enter', () => open(cursor))
   useHotkey('O', () => open(cursor))
+  useHotkey('ArrowRight', () => expandBurst(cursor))
   const showFilter = (next: Filter) =>
     navigate({
       search: (prev) => ({ ...prev, filter: next, thread: undefined }),

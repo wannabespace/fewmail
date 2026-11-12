@@ -98,8 +98,9 @@ type ThreadRow = NonNullable<
   ReturnType<typeof useThread>['data']
 >['messages'][number]
 
+// `overflow-wrap:anywhere` would collapse senders' table columns to one letter per line.
 const FRAME_HEAD =
-  '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:anywhere}img{max-width:100%;height:auto}</style>'
+  '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:break-word}img{max-width:100%;height:auto}</style>'
 
 // A frame starts empty on every open; the last measured height keeps a reopened mail from growing into place.
 const frameHeights = new Map<string, number>()
@@ -356,8 +357,9 @@ export const useMailActions = (onDone?: () => void) => {
       onDone?.()
     },
   }
+  // The id folds a burst's per-email answers into one toast.
   const finish = (message: string) => {
-    toast.success(message)
+    toast.success(message, { id: message })
     void refresh()
   }
   return {
