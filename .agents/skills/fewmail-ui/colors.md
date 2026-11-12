@@ -29,7 +29,7 @@ Shadows are tinted warm brown (`rgb(60 40 20 / …)`), never black, in light mod
 
 ## Selection & secondary fills
 
-`bg-secondary` (`#EFE7DA`-ish) is the warm chip/fill: secondary buttons, the active nav item, draft blocks (`bg-secondary/60`), agent analysis blocks (`bg-secondary/50`).
+`bg-secondary` (`#E6DDCE`-ish) is the warm chip/fill: secondary buttons, the active nav item, draft blocks (`bg-secondary/60`), agent analysis blocks (`bg-secondary/50`). On the canvas, hover/cursor (`bg-accent`, `#ECE4D8`) sits halfway between the canvas and `bg-secondary`, so the active item never reads as merely hovered — keep both steps visible when retuning.
 
 ## Charts
 
