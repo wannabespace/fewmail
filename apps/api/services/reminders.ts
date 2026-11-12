@@ -233,7 +233,7 @@ export const processDueReminders = async () => {
         .update(reminders)
         .set({ status })
         .where(eq(reminders.id, reminder.id))
-      await announceChange(reminder.userId)
+      await announceChange(reminder.userId, ['actions', 'mail', 'today'])
     })
   )
 }
@@ -311,7 +311,12 @@ export const processDueCommitments = async () => {
           title: dictionaries[language ?? 'en'].commitments.title,
           userId: commitment.userId,
         })
-        await announceChange(commitment.userId)
+        await announceChange(commitment.userId, [
+          'actions',
+          'person',
+          'tasks',
+          'today',
+        ])
       })
   )
 }

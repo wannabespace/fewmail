@@ -274,7 +274,7 @@ const deliverScheduleRun = async (
 ) => {
   const { chatId, instruction, userId } = schedule
   notify(userId, scheduleNotification(instruction, text, chatId))
-  await announceChange(userId)
+  await announceChange(userId, ['chats', 'schedules'])
   const run = {
     body: `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${chatId}`,
     headline: instruction,

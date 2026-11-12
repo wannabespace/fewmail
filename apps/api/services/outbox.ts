@@ -116,7 +116,7 @@ const markFailed = async (
       .set({ resolvedAt: null, status: 'pending' })
       .where(and(eq(actions.id, row.actionId), eq(actions.userId, row.userId)))
   }
-  await announceChange(row.userId)
+  await announceChange(row.userId, ['actions', 'mail', 'today'])
 }
 
 export const dispatchOutbox = async (id: string) => {

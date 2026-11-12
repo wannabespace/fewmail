@@ -106,7 +106,7 @@ export const offerCleanup = async (
     title: t.cleanup.title(senders.length),
     userId,
   })
-  await announceChange(userId)
+  await announceChange(userId, ['actions', 'today'])
 }
 
 export const runCleanup = (userId: string, senders: CleanupSender[]) =>

@@ -100,7 +100,7 @@ export const generateBrief = async (userId: string) => {
   if (!brief) {
     throw new Error('Brief upsert returned no row')
   }
-  await announceChange(userId)
+  await announceChange(userId, ['today'])
   return brief
 }
 

@@ -439,5 +439,5 @@ export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
     .update(boards)
     .set({ historyReadAt: new Date() })
     .where(eq(boards.id, board.id))
-  await announceChange(board.userId)
+  await announceChange(board.userId, ['boards', 'today'])
 }

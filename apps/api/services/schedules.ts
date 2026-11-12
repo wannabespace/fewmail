@@ -41,7 +41,7 @@ export const createSchedule = async (
       userId,
     })
     .returning()
-  await announceChange(userId)
+  await announceChange(userId, ['schedules'])
   return schedule
 }
 
@@ -62,5 +62,5 @@ export const deleteSchedule = async (userId: string, id: string) => {
   await db
     .delete(schedules)
     .where(and(eq(schedules.id, id), eq(schedules.userId, userId)))
-  await announceChange(userId)
+  await announceChange(userId, ['schedules'])
 }

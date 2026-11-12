@@ -6,21 +6,59 @@ import { logError } from './log'
 
 const CHANNEL = 'mail_changed'
 
-const publisher = new MemoryPublisher<Record<string, { at: number }>>()
+/** Router namespaces whose queries the web refetches; an announce without topics refetches every query. */
+export const LIVE_TOPICS = [
+  'actions',
+  'boards',
+  'chats',
+  'integrations',
+  'mail',
+  'mailboxes',
+  'person',
+  'schedules',
+  'subscriptions',
+  'tasks',
+  'today',
+] as const
+
+export type LiveTopic = (typeof LIVE_TOPICS)[number]
+
+export const MAIL_TOPICS = [
+  'actions',
+  'boards',
+  'mail',
+  'mailboxes',
+  'person',
+  'subscriptions',
+  'tasks',
+  'today',
+] as const satisfies readonly LiveTopic[]
+
+const publisher = new MemoryPublisher<
+  Record<string, { topics: LiveTopic[] | null }>
+>()
 
 /** Goes through Postgres, never straight to the publisher: the worker is another process and only the API holds the open tabs. */
-export const announceChange = async (userId: string) => {
+export const announceChange = async (
+  userId: string,
+  topics?: readonly LiveTopic[]
+) => {
   try {
-    await db.execute(sql`select pg_notify(${CHANNEL}, ${userId})`)
+    await db.execute(
+      sql`select pg_notify(${CHANNEL}, ${[userId, ...(topics ?? [])].join(' ')})`
+    )
   } catch (error) {
     logError('live announce failed', error)
   }
 }
 
 export const relayChanges = () =>
-  db.$client.listen(CHANNEL, (userId) =>
-    publisher.publish(userId, { at: Date.now() })
-  )
+  db.$client.listen(CHANNEL, (payload) => {
+    const [userId = '', ...topics] = payload.split(' ')
+    publisher.publish(userId, {
+      topics: topics.length > 0 ? (topics as LiveTopic[]) : null,
+    })
+  })
 
 export const watchChanges = (userId: string, signal?: AbortSignal) =>
   publisher.subscribe(userId, { signal })

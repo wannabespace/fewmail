@@ -96,7 +96,7 @@ export const linkTelegramChat = async (code: string, chatId: string) => {
     )
     .returning()
   if (link) {
-    await announceChange(link.userId)
+    await announceChange(link.userId, ['integrations'])
   }
   return link ?? null
 }
@@ -176,7 +176,7 @@ export const linkWhatsappPhone = async (text: string, phone: string) => {
     )
     .returning()
   if (link) {
-    await announceChange(link.userId)
+    await announceChange(link.userId, ['integrations'])
   }
   return link ?? null
 }

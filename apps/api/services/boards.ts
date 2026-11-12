@@ -168,7 +168,7 @@ export const createBoard = async (
     .insert(boards)
     .values({ ...input, ...plan, userId })
     .returning()
-  await announceChange(userId)
+  await announceChange(userId, ['boards', 'today'])
   return expectRow(board)
 }
 
@@ -227,14 +227,14 @@ export const updateBoard = async (
   if (isRedescribed) {
     await db.delete(boardEntries).where(eq(boardEntries.boardId, id))
   }
-  await announceChange(userId)
+  await announceChange(userId, ['boards', 'today'])
 }
 
 export const deleteBoard = async (userId: string, id: string) => {
   await db
     .delete(boards)
     .where(and(eq(boards.id, id), eq(boards.userId, userId)))
-  await announceChange(userId)
+  await announceChange(userId, ['boards', 'today'])
 }
 
 /** A new description drops the entries and reads the history again; a read under the old one must stop writing. */
@@ -447,7 +447,7 @@ export const collectForNewMail = async (
     })
   )
   if (ready.length > 0) {
-    await announceChange(userId)
+    await announceChange(userId, ['boards', 'today'])
   }
 }
 
