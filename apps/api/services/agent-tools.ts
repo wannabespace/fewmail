@@ -91,7 +91,7 @@ export const agentTools = (
   }),
   list_mail: define({
     description:
-      "List recent emails with the agent's analysis (category, importance 0–3, one-line summary, whether a reply is expected). filter: inbox (what is in the Gmail inbox now), important (importance ≥ 2), needs_reply and quiet (noise), all three within the inbox; snoozed, spam, archive (archived, out of the inbox) and trash. search takes plain language ('invoices from Anna last month') or Gmail search syntax (from:, subject:, newer_than:, has:attachment…).",
+      "List recent emails with the agent's analysis (category, importance 0–3, one-line summary, whether a reply is expected). filter: inbox (what is in the Gmail inbox now), important (importance ≥ 2), needs_reply and quiet (noise), all three within the inbox; pinned (threads the user pinned, starred in Gmail, that are still in the inbox; every email carries isPinned); snoozed, spam, archive (archived, out of the inbox) and trash. search takes plain language ('invoices from Anna last month') or Gmail search syntax (from:, subject:, newer_than:, has:attachment…).",
     input: {
       category: z.enum(MAIL_CATEGORIES).optional(),
       filter: z
@@ -100,6 +100,7 @@ export const agentTools = (
           'important',
           'needs_reply',
           'quiet',
+          'pinned',
           'snoozed',
           'spam',
           'archive',

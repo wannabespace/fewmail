@@ -532,6 +532,8 @@ export const tr: Messages = {
     reload: 'Yenile',
   },
   keys: {
+    pin: 'sabitle',
+    unpin: 'sabitlemeyi kaldır',
     copyCode: 'kodu kopyala',
     restore: 'gelen kutusuna',
     calendarToday: 'bugün',
@@ -601,6 +603,11 @@ export const tr: Messages = {
     title: 'Yalnızca önemli olan.',
   },
   mail: {
+    pin: 'Sabitle',
+    unpin: 'Sabitlemeyi kaldır',
+    pinned: 'Sabitlenenler',
+    allPinned: (n: number) => `${n} öğenin tümünü göster`,
+    fewerPinned: 'Daha az göster',
     oneTimeCode: {
       archive: 'Kopyala ve arşivle',
       copied: 'Kod kopyalandı',

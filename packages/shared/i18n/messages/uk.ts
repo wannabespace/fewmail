@@ -773,6 +773,8 @@ export const uk: Messages = {
     reload: 'Оновити',
   },
   keys: {
+    pin: 'закріпити',
+    unpin: 'відкріпити',
     copyCode: 'скопіювати код',
     restore: 'у вхідні',
     calendarToday: 'сьогодні',
@@ -842,6 +844,11 @@ export const uk: Messages = {
     title: 'Лише те, що важливо.',
   },
   mail: {
+    pin: 'Закріпити',
+    unpin: 'Відкріпити',
+    pinned: 'Закріплені',
+    allPinned: (n: number) => `Показати всі ${n}`,
+    fewerPinned: 'Згорнути',
     oneTimeCode: {
       archive: 'Скопіювати й архівувати',
       copied: 'Код скопійовано',

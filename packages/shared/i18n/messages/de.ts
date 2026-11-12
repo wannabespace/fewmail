@@ -776,6 +776,8 @@ export const de: Messages = {
     reload: 'Neu laden',
   },
   keys: {
+    pin: 'anheften',
+    unpin: 'lösen',
     copyCode: 'Code kopieren',
     restore: 'in den Posteingang',
     calendarToday: 'heute',
@@ -847,6 +849,11 @@ export const de: Messages = {
     title: 'Nur, was zählt.',
   },
   mail: {
+    pin: 'Anheften',
+    unpin: 'Lösen',
+    pinned: 'Angeheftet',
+    allPinned: (n: number) => `Alle ${n} zeigen`,
+    fewerPinned: 'Weniger zeigen',
     oneTimeCode: {
       archive: 'Kopieren und archivieren',
       copied: 'Code kopiert',

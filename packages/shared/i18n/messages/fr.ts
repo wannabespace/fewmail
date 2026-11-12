@@ -786,6 +786,8 @@ export const fr: Messages = {
     reload: 'Recharger',
   },
   keys: {
+    pin: 'épingler',
+    unpin: 'désépingler',
     copyCode: 'copier le code',
     restore: 'vers la boîte de réception',
     calendarToday: 'aujourd’hui',
@@ -856,6 +858,11 @@ export const fr: Messages = {
     title: 'L’essentiel, rien de plus.',
   },
   mail: {
+    pin: 'Épingler',
+    unpin: 'Désépingler',
+    pinned: 'Épinglés',
+    allPinned: (n: number) => `Tout afficher (${n})`,
+    fewerPinned: 'Afficher moins',
     oneTimeCode: {
       archive: 'Copier et archiver',
       copied: 'Code copié',

@@ -279,6 +279,8 @@ export const hi: Messages = {
     reload: 'रीलोड करें',
   },
   keys: {
+    pin: 'पिन करें',
+    unpin: 'अनपिन करें',
     copyCode: 'कोड कॉपी करें',
     restore: 'इनबॉक्स में',
     calendarToday: 'आज',
@@ -347,6 +349,11 @@ export const hi: Messages = {
     title: 'सिर्फ़ वही, जो ज़रूरी है।',
   },
   mail: {
+    pin: 'पिन करें',
+    unpin: 'अनपिन करें',
+    pinned: 'पिन किए गए',
+    allPinned: (n: number) => `सभी ${n} दिखाएँ`,
+    fewerPinned: 'कम दिखाएँ',
     oneTimeCode: {
       archive: 'कॉपी करें और संग्रहित करें',
       copied: 'कोड कॉपी हो गया',

@@ -535,6 +535,8 @@ export const id: Messages = {
     reload: 'Muat ulang',
   },
   keys: {
+    pin: 'sematkan',
+    unpin: 'lepas sematan',
     copyCode: 'salin kode',
     restore: 'ke kotak masuk',
     calendarToday: 'hari ini',
@@ -605,6 +607,11 @@ export const id: Messages = {
     title: 'Hanya yang penting.',
   },
   mail: {
+    pin: 'Sematkan',
+    unpin: 'Lepas sematan',
+    pinned: 'Disematkan',
+    allPinned: (n: number) => `Tampilkan semua ${n}`,
+    fewerPinned: 'Tampilkan lebih sedikit',
     oneTimeCode: {
       archive: 'Salin dan arsipkan',
       copied: 'Kode disalin',

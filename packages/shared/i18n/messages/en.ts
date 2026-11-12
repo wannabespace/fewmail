@@ -545,6 +545,8 @@ export const en = {
     reload: 'Reload',
   },
   keys: {
+    pin: 'pin',
+    unpin: 'unpin',
     copyCode: 'copy code',
     restore: 'back to inbox',
     calendarToday: 'today',
@@ -614,6 +616,11 @@ export const en = {
     title: 'Only what matters.',
   },
   mail: {
+    pin: 'Pin',
+    unpin: 'Unpin',
+    pinned: 'Pinned',
+    allPinned: (n: number) => `Show all ${n}`,
+    fewerPinned: 'Show fewer',
     oneTimeCode: {
       archive: 'Copy and archive',
       copied: 'Code copied',

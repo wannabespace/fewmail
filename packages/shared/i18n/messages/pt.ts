@@ -549,6 +549,8 @@ export const pt: Messages = {
     reload: 'Recarregar',
   },
   keys: {
+    pin: 'fixar',
+    unpin: 'desafixar',
     copyCode: 'copiar código',
     restore: 'para a caixa de entrada',
     calendarToday: 'hoje',
@@ -619,6 +621,11 @@ export const pt: Messages = {
     title: 'Só o que importa.',
   },
   mail: {
+    pin: 'Fixar',
+    unpin: 'Desafixar',
+    pinned: 'Fixados',
+    allPinned: (n: number) => `Mostrar todos os ${n}`,
+    fewerPinned: 'Mostrar menos',
     oneTimeCode: {
       archive: 'Copiar e arquivar',
       copied: 'Código copiado',

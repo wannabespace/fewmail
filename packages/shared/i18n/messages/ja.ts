@@ -282,6 +282,8 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
+    pin: 'ピン留め',
+    unpin: 'ピン留めを外す',
     copyCode: 'コードをコピー',
     restore: '受信トレイへ',
     calendarToday: '今日',
@@ -352,6 +354,11 @@ export const ja: Messages = {
     title: '大切なメールだけを。',
   },
   mail: {
+    pin: 'ピン留め',
+    unpin: 'ピン留めを外す',
+    pinned: 'ピン留め',
+    allPinned: (n: number) => `すべて表示（${n}）`,
+    fewerPinned: '折りたたむ',
     oneTimeCode: {
       archive: 'コピーしてアーカイブ',
       copied: 'コードをコピーしました',

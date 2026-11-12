@@ -54,6 +54,8 @@ import {
   Mail01Icon,
   MailReply01Icon,
   NotificationOff01Icon,
+  PinIcon,
+  PinOffIcon,
   Search01Icon,
   Shield01Icon,
   SpamIcon,
@@ -312,6 +314,39 @@ const onEach =
     }
   }
 
+const pinEach =
+  (
+    messageIds: string[],
+    pinned: boolean,
+    mutate: (input: { messageId: string; pinned: boolean }) => void
+  ) =>
+  () => {
+    for (const messageId of messageIds) {
+      mutate({ messageId, pinned })
+    }
+  }
+
+const pinHint = (
+  t: ReturnType<typeof useT>,
+  isPinned: boolean
+): [string, string] => ['S', isPinned ? t.keys.unpin : t.keys.pin]
+
+const usePinnedRows = <Row extends ListedRow & { messageIds: string[] }>(
+  pinned: ListedRow[],
+  listedRows: Row[]
+) => {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const shown = (isExpanded ? pinned : pinned.slice(0, PINNED_SHOWN)).map(
+    (row) => ({ ...row, messageIds: [row.message.id] })
+  )
+  return {
+    isExpanded,
+    rows: [...shown, ...listedRows],
+    shown: shown.length,
+    toggle: () => setIsExpanded((expanded) => !expanded),
+  }
+}
+
 const useGroupedRows = <Row extends ListedRow>(
   listedRows: Row[],
   grouping: Grouping,
@@ -332,6 +367,12 @@ const useGroupedRows = <Row extends ListedRow>(
   }
   return { groupStarts, rows: groups.flatMap((group) => group.rows) }
 }
+
+const GROUP_HEADER =
+  'bg-body text-muted-foreground sticky top-0 z-10 flex items-center gap-2 border-b px-5 py-1.5 pl-9 text-xs font-medium'
+
+/** Pins sit above the list in one line each, and only the first few until asked, so they never push the inbox away. */
+const PINNED_SHOWN = 3
 
 const GroupHeader = ({
   group,
@@ -355,7 +396,7 @@ const GroupHeader = ({
   }
   const label = grouping === 'none' ? null : labels[grouping]()
   return (
-    <li className="bg-body text-muted-foreground sticky top-0 z-10 flex items-center gap-2 border-b px-5 py-1.5 pl-9 text-xs font-medium">
+    <li className={GROUP_HEADER}>
       <span data-mask={grouping === 'sender' || undefined} className="truncate">
         {label}
       </span>
@@ -587,6 +628,8 @@ const MailRowMeta = ({
 const MailRowActions = ({
   actions,
   canSnooze,
+  className,
+  isPinned,
   isSnoozeOpen,
   messageIds,
   onSnoozeOpenChange,
@@ -594,6 +637,8 @@ const MailRowActions = ({
 }: {
   actions: ReturnType<typeof useMailActions>
   canSnooze: boolean
+  className?: string
+  isPinned: boolean
   isSnoozeOpen: boolean
   messageIds: string[]
   onSnoozeOpenChange: (open: boolean) => void
@@ -605,9 +650,17 @@ const MailRowActions = ({
       className={cn(
         ROW_ACTIONS,
         'has-data-popup-open:opacity-100',
-        isSnoozeOpen && 'opacity-100'
+        isSnoozeOpen && 'opacity-100',
+        className
       )}
     >
+      <IconButton
+        icon={isPinned ? PinOffIcon : PinIcon}
+        label={isPinned ? t.mail.unpin : t.mail.pin}
+        size="icon-sm"
+        variant="ghost-muted"
+        onClick={pinEach(messageIds, !isPinned, actions.pin.mutate)}
+      />
       <IconButton
         icon={sweep.icon}
         label={sweep.label}
@@ -863,6 +916,7 @@ const MailRow = ({
       <MailRowActions
         actions={actions}
         canSnooze={canSnooze}
+        isPinned={message.isPinned}
         isSnoozeOpen={isSnoozeOpen}
         messageIds={messageIds}
         onSnoozeOpenChange={onSnoozeOpenChange}
@@ -874,6 +928,126 @@ const MailRow = ({
         messageIds={messageIds}
         sweep={sweep}
       />
+    </li>
+  )
+}
+
+const PinnedRow = ({
+  actions,
+  canSnooze,
+  isCursor,
+  isOpen,
+  isSnoozeOpen,
+  onOpen,
+  onSnoozeOpenChange,
+  row: { message, messageIds },
+  sweep,
+}: Omit<Parameters<typeof MailRow>[0], 'row'> & {
+  row: ListedRow & { messageIds: string[] }
+}) => {
+  const t = useT()
+  const dates = useDates()
+  return (
+    <li
+      data-row
+      className={rowSurfaceOf({
+        isActive: isCursor || isSnoozeOpen,
+        isOpen,
+        isUnread: message.isUnread,
+      })}
+    >
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={onOpen}
+        onPointerEnter={() => {
+          void prefetchThread(message.threadId)
+        }}
+        aria-current={isOpen}
+        className="flex w-full cursor-pointer items-center gap-2 px-5 py-2 text-left text-sm outline-none"
+      >
+        <span
+          aria-label={message.isUnread ? t.mail.unread : undefined}
+          className={cn(
+            'size-2 shrink-0 rounded-full',
+            message.isUnread && 'bg-primary'
+          )}
+        />
+        <span
+          data-mask
+          className={cn(
+            'max-w-2/5 shrink-0 truncate',
+            message.isUnread ? 'font-semibold' : 'text-foreground/70'
+          )}
+        >
+          {message.fromName ?? message.fromEmail}
+        </span>
+        <span
+          data-mask
+          className={cn(
+            'min-w-0 flex-1 truncate',
+            message.isUnread ? 'text-foreground/90' : 'text-foreground/60'
+          )}
+        >
+          {message.subject}
+        </span>
+        <span
+          className={cn(
+            'shrink-0 text-xs tabular-nums',
+            message.isUnread
+              ? 'text-foreground font-medium'
+              : 'text-muted-foreground'
+          )}
+        >
+          {dates.format(
+            message.receivedAt,
+            isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
+          )}
+        </span>
+      </button>
+      <MailRowActions
+        actions={actions}
+        canSnooze={canSnooze}
+        className="top-1"
+        isPinned
+        isSnoozeOpen={isSnoozeOpen}
+        messageIds={messageIds}
+        onSnoozeOpenChange={onSnoozeOpenChange}
+        sweep={sweep}
+      />
+    </li>
+  )
+}
+
+const PinnedHeader = ({
+  hidden,
+  isExpanded,
+  onToggle,
+  total,
+}: {
+  hidden: number
+  isExpanded: boolean
+  onToggle: () => void
+  total: number
+}) => {
+  const t = useT()
+  if (total === 0) {
+    return null
+  }
+  return (
+    <li className={GROUP_HEADER}>
+      <span>{t.mail.pinned}</span>
+      <span className="tabular-nums opacity-60">{total}</span>
+      {(hidden > 0 || isExpanded) && (
+        <Button
+          size="xs"
+          variant="link-muted"
+          className="ml-auto"
+          onClick={onToggle}
+        >
+          {isExpanded ? t.mail.fewerPinned : t.mail.allPinned(total)}
+        </Button>
+      )}
     </li>
   )
 }
@@ -1032,9 +1206,22 @@ const useListRows = ({
           .where(({ row }) => eq(row.list, filter))
           .orderBy(({ row }) => row.message.receivedAt, 'desc')
   )
+  const showsPinned =
+    q === undefined && (INBOX_VIEWS as readonly Filter[]).includes(filter)
+  const pinned = useLiveQuery((query) =>
+    showsPinned
+      ? query
+          .from({ row: mailRowsOf(mailbox) })
+          .where(({ row }) => eq(row.list, 'pinned'))
+          .orderBy(({ row }) => row.message.receivedAt, 'desc')
+      : undefined
+  )
   const drafts = useDrafts({ isEnabled: isDrafts, mailbox, q })
   const needle = typed.toLowerCase()
-  const browsed = q === undefined ? listed.data : []
+  const browsed =
+    q === undefined
+      ? listed.data?.filter(({ message }) => !showsPinned || !message.isPinned)
+      : []
   const rows = collapseBursts(
     (q === typed ? found.data : undefined) ??
       (typed
@@ -1061,6 +1248,7 @@ const useListRows = ({
     isFetching: isDrafts
       ? drafts.isFetching
       : listed.isLoading || isSearchPending,
+    pinned: (showsPinned && pinned.data) || [],
     rows,
     total: isDrafts ? drafts.rows.length : rows.length,
   }
@@ -1073,10 +1261,16 @@ const useListActions = ({
 }: {
   filter: Filter
   isEnabled: boolean
-  row: { message: { code: string | null }; messageIds: string[] } | undefined
+  row:
+    | {
+        message: { code: string | null; isPinned: boolean }
+        messageIds: string[]
+      }
+    | undefined
 }) => {
   const messageIds = row?.messageIds ?? []
   const code = row?.message.code
+  const isPinned = !!row?.message.isPinned
   const t = useT()
   const actions = useMailActions()
   const [snoozeOpenId, setSnoozeOpenId] = useState<string | null>(null)
@@ -1090,6 +1284,7 @@ const useListActions = ({
   })
   useHotkey('Shift+3', onEach(messageIds, actions.trash.mutate), keys)
   useHotkey('Shift+1', onEach(messageIds, actions.reportSpam.mutate), keys)
+  useHotkey('S', pinEach(messageIds, !isPinned, actions.pin.mutate), keys)
   useHotkey('Y', () => code && copy(code, t.mail.oneTimeCode.copied), {
     enabled: keys.enabled && !!code,
   })
@@ -1103,6 +1298,7 @@ const useListActions = ({
       : [
           sweepHint,
           ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
+          pinHint(t, isPinned),
           ['#', t.keys.trash],
           ...(code ? [['Y', t.keys.copyCode] as [string, string]] : []),
         ]
@@ -1290,8 +1486,9 @@ const MailPage = () => {
     isDrafts,
     isFetching,
     isSearchPending,
+    pinned,
     rows: listedRows,
-    total,
+    total: listedTotal,
   } = useListRows({
     expanded: expandedBursts,
     filter,
@@ -1299,7 +1496,14 @@ const MailPage = () => {
     q,
     typed: search.trim(),
   })
-  const { groupStarts, rows } = useGroupedRows(listedRows, grouping, keptUnread)
+  const { groupStarts, rows: groupedRows } = useGroupedRows(
+    listedRows,
+    grouping,
+    keptUnread
+  )
+  const pinnedRows = usePinnedRows(pinned, groupedRows)
+  const { rows } = pinnedRows
+  const total = listedTotal + pinnedRows.shown
   useCursorOnOpenThread({ rows, setCursor, thread })
 
   const {
@@ -1477,27 +1681,36 @@ const MailPage = () => {
                 onDelete={() => drafts.remove(saved)}
               />
             ))}
-            {rows.map((row, index) => (
-              <Fragment key={row.message.id}>
-                <GroupHeader
-                  grouping={grouping}
-                  group={groupStarts.get(index)}
-                />
-                <MailRow
-                  row={row}
-                  actions={actions}
-                  canSnooze={canSnooze}
-                  isCursor={index === cursor}
-                  isOpen={row.message.threadId === thread}
-                  isSnoozeOpen={snoozeOpenId === row.message.id}
-                  onOpen={() => open(index)}
-                  onSnoozeOpenChange={(isOpen) =>
-                    setSnoozeOpenId(isOpen ? row.message.id : null)
-                  }
-                  sweep={sweep}
-                />
-              </Fragment>
-            ))}
+            <PinnedHeader
+              hidden={pinned.length - pinnedRows.shown}
+              isExpanded={pinnedRows.isExpanded}
+              total={pinned.length}
+              onToggle={() => pinnedRows.toggle()}
+            />
+            {rows.map((row, index) => {
+              const Row = index < pinnedRows.shown ? PinnedRow : MailRow
+              return (
+                <Fragment key={row.message.id}>
+                  <GroupHeader
+                    grouping={grouping}
+                    group={groupStarts.get(index - pinnedRows.shown)}
+                  />
+                  <Row
+                    row={row}
+                    actions={actions}
+                    canSnooze={canSnooze}
+                    isCursor={index === cursor}
+                    isOpen={row.message.threadId === thread}
+                    isSnoozeOpen={snoozeOpenId === row.message.id}
+                    onOpen={() => open(index)}
+                    onSnoozeOpenChange={(isOpen) =>
+                      setSnoozeOpenId(isOpen ? row.message.id : null)
+                    }
+                    sweep={sweep}
+                  />
+                </Fragment>
+              )
+            })}
           </ul>
           {!thread && (
             <KeyHints hints={listHintsOf({ hints, isSearching, t, total })} />
@@ -1525,6 +1738,13 @@ const MailPage = () => {
             <KeyHints
               hints={[
                 sweepHint,
+                pinHint(
+                  t,
+                  rows.some(
+                    ({ message }) =>
+                      message.threadId === thread && message.isPinned
+                  )
+                ),
                 ...(hasAgent
                   ? [['R', t.keys.draftReply] as [string, string]]
                   : []),

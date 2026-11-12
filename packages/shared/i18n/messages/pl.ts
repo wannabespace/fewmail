@@ -561,6 +561,8 @@ export const pl: Messages = {
     reload: 'Odśwież',
   },
   keys: {
+    pin: 'przypnij',
+    unpin: 'odepnij',
     copyCode: 'kopiuj kod',
     restore: 'do odebranych',
     calendarToday: 'dziś',
@@ -631,6 +633,11 @@ export const pl: Messages = {
     title: 'Tylko to, co ważne.',
   },
   mail: {
+    pin: 'Przypnij',
+    unpin: 'Odepnij',
+    pinned: 'Przypięte',
+    allPinned: (n: number) => `Pokaż wszystkie (${n})`,
+    fewerPinned: 'Pokaż mniej',
     oneTimeCode: {
       archive: 'Kopiuj i archiwizuj',
       copied: 'Skopiowano kod',

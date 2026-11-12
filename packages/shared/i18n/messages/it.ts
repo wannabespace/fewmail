@@ -780,6 +780,8 @@ export const it: Messages = {
     reload: 'Ricarica',
   },
   keys: {
+    pin: 'fissa',
+    unpin: 'sblocca',
     copyCode: 'copia codice',
     restore: 'nella posta in arrivo',
     calendarToday: 'oggi',
@@ -850,6 +852,11 @@ export const it: Messages = {
     title: 'Solo ciò che conta.',
   },
   mail: {
+    pin: 'Fissa in alto',
+    unpin: 'Togli dai fissati',
+    pinned: 'Fissati',
+    allPinned: (n: number) => `Mostra tutti e ${n}`,
+    fewerPinned: 'Mostra meno',
     oneTimeCode: {
       archive: 'Copia e archivia',
       copied: 'Codice copiato',

@@ -78,6 +78,7 @@ import {
   countUnread,
   markThreadRead,
   redraftAction,
+  pinMessage,
   snoozeMessage,
   trashMessage,
   unsnoozeMessage,
@@ -384,6 +385,11 @@ export const router = {
     send: authed
       .input(sendInput)
       .handler(({ context, input }) => scheduleMail(context.user.id, input)),
+    pin: authed
+      .input(messageId.and({ pinned: 'boolean' }))
+      .handler(async ({ context, input }) => {
+        await pinMessage(context.user.id, input.messageId, input.pinned)
+      }),
     snooze: authed
       .input(messageId.and({ until: 'Date' }))
       .handler(async ({ context, input }) => {
@@ -416,7 +422,7 @@ export const router = {
           'before?': 'Date',
           'category?': type.enumerated(...MAIL_CATEGORIES),
           filter:
-            "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'snoozed' | 'spam' | 'archive' | 'trash'",
+            "'inbox' | 'important' | 'needs_reply' | 'quiet' | 'pinned' | 'snoozed' | 'spam' | 'archive' | 'trash'",
           'mailboxId?': 'string.uuid',
           'search?': 'string',
         })

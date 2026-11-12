@@ -34,6 +34,7 @@ import { toast } from 'sonner'
 import { useDates, useT } from '~/lib/i18n'
 import {
   hideThread,
+  showThreadPinned,
   showThreadRead,
   threadOfMessage,
   threads,
@@ -66,6 +67,11 @@ export const useThread = (threadId: string | undefined) =>
   )
 
 const riskOf = (rows: { message: ThreadMessage }[]) =>
+const isThreadPinned = (
+  thread: ReturnType<typeof useThread>['data'] | undefined
+) =>
+  !!thread?.messages.some(({ message }) => message.labelIds.includes('STARRED'))
+
   rows.findLast(({ message }) => message.risk)?.message ?? null
 
 const riskText = (t: Messages, rows: { message: ThreadMessage }[]) => {
@@ -401,6 +407,17 @@ export const useMailActions = (onDone?: () => void) => {
       })
     ),
     reportSpam: useMutation(
+    pin: useMutation(
+      orpc.mail.pin.mutationOptions({
+        onMutate: ({ messageId, pinned }) => {
+          const threadId = threadOfMessage(messageId)
+          if (threadId) {
+            showThreadPinned(threadId, pinned)
+          }
+        },
+        onSettled: refresh,
+      })
+    ),
       orpc.mail.reportSpam.mutationOptions({
         ...leave,
         onSuccess: () => finish(t.mail.reportedSpam),
@@ -557,13 +574,15 @@ export const ThreadView = ({
   const { folded, unfold } = useFolding(data)
   useMarkRead(threadId, data)
   const actions = useMailActions(onDone)
-  const { reportSpam, snooze, trash, unsnooze, unsubscribe } = actions
+  const { pin, reportSpam, snooze, trash, unsnooze, unsubscribe } = actions
 
   const target = latest ? { messageId: latest.message.id } : null
   const labelIds = latest?.message.labelIds ?? []
   const sweep = sweepOf(actions, t, placeOf(labelIds, isSnoozed))
   const reply = () =>
     latest &&
+  const isPinned = isThreadPinned(data)
+  const togglePin = () => target && pin.mutate({ ...target, pinned: !isPinned })
     setComposing({
       ...EMPTY_DRAFT,
       mode: 'reply',
@@ -587,6 +606,7 @@ export const ThreadView = ({
   useHotkey('H', () => setIsSnoozeOpen(true), keys)
   useHotkey('Shift+3', () => target && trash.mutate(target), keys)
   useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
+  useHotkey('S', togglePin, keys)
 
   if (!data) {
     return null
@@ -674,6 +694,10 @@ export const ThreadView = ({
                       <DropdownMenuShortcut>F</DropdownMenuShortcut>
                     </DropdownMenuItem>
                     {latest?.message.listUnsubscribe && (
+                    <DropdownMenuItem onClick={togglePin}>
+                      {isPinned ? t.mail.unpin : t.mail.pin}
+                      <DropdownMenuShortcut>S</DropdownMenuShortcut>
+                    </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => unsubscribe.mutate(target)}
                       >

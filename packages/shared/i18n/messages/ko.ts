@@ -280,6 +280,8 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
+    pin: '고정',
+    unpin: '고정 해제',
     copyCode: '코드 복사',
     restore: '받은편지함으로',
     calendarToday: '오늘',
@@ -349,6 +351,11 @@ export const ko: Messages = {
     title: '중요한 것만.',
   },
   mail: {
+    pin: '고정',
+    unpin: '고정 해제',
+    pinned: '고정됨',
+    allPinned: (n: number) => `${n}개 모두 보기`,
+    fewerPinned: '접기',
     oneTimeCode: {
       archive: '복사 후 보관',
       copied: '코드를 복사했습니다',

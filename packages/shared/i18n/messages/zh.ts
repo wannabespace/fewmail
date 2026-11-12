@@ -275,6 +275,8 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
+    pin: '置顶',
+    unpin: '取消置顶',
     copyCode: '复制验证码',
     restore: '移回收件箱',
     calendarToday: '今天',
@@ -342,6 +344,11 @@ export const zh: Messages = {
     title: '只看重要的。',
   },
   mail: {
+    pin: '置顶',
+    unpin: '取消置顶',
+    pinned: '已置顶',
+    allPinned: (n: number) => `显示全部 ${n} 封`,
+    fewerPinned: '收起',
     oneTimeCode: {
       archive: '复制并归档',
       copied: '已复制验证码',

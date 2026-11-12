@@ -776,6 +776,8 @@ export const es: Messages = {
     reload: 'Recargar',
   },
   keys: {
+    pin: 'fijar',
+    unpin: 'desfijar',
     copyCode: 'copiar código',
     restore: 'a la bandeja de entrada',
     calendarToday: 'hoy',
@@ -846,6 +848,11 @@ export const es: Messages = {
     title: 'Solo lo que importa.',
   },
   mail: {
+    pin: 'Fijar',
+    unpin: 'Desfijar',
+    pinned: 'Fijados',
+    allPinned: (n: number) => `Ver los ${n}`,
+    fewerPinned: 'Ver menos',
     oneTimeCode: {
       archive: 'Copiar y archivar',
       copied: 'Código copiado',

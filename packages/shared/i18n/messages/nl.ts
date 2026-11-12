@@ -549,6 +549,8 @@ export const nl: Messages = {
     reload: 'Herladen',
   },
   keys: {
+    pin: 'vastzetten',
+    unpin: 'losmaken',
     copyCode: 'code kopiëren',
     restore: 'naar inbox',
     calendarToday: 'vandaag',
@@ -620,6 +622,11 @@ export const nl: Messages = {
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
+    pin: 'Vastzetten',
+    unpin: 'Losmaken',
+    pinned: 'Vastgezet',
+    allPinned: (n: number) => `Alle ${n} tonen`,
+    fewerPinned: 'Minder tonen',
     oneTimeCode: {
       archive: 'Kopiëren en archiveren',
       copied: 'Code gekopieerd',

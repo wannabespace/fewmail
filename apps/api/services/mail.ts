@@ -190,13 +190,30 @@ export const timeSaved = async (userId: string, since: Date) => {
         inArray(actions.status, ['auto_done', 'done']),
         gte(actions.updatedAt, since)
       )
+  | 'pinned'
     )
   const { handled, replies } = expectRow(row)
   return {
     handled,
     minutes: Math.round(
+const starredInThread = alias(messages, 'starred_in_thread')
       (handled * SECONDS_SAVED.handled + replies * SECONDS_SAVED.reply) / 60
     ),
+/** A pin is Gmail's star on any email of the thread, so it follows the thread whoever starred it. */
+const isPinned = (message: MessageTable) =>
+  exists(
+    db
+      .select({ id: starredInThread.id })
+      .from(starredInThread)
+      .where(
+        and(
+          eq(starredInThread.userId, message.userId),
+          eq(starredInThread.threadId, message.threadId),
+          arrayContains(starredInThread.labelIds, ['STARRED'])
+        )
+      )
+  )
+
     replies,
   }
 }
@@ -207,6 +224,7 @@ const HANDLED_SHOWN = 100
 export const listHandled = (
   userId: string,
   since = subHours(new Date(), HANDLED_HOURS)
+  'pinned',
 ) =>
   db
     .select({
@@ -219,6 +237,7 @@ export const listHandled = (
       },
       message: {
         fromEmail: messages.fromEmail,
+  pinned: isPinned,
         fromName: messages.fromName,
         id: messages.id,
         subject: messages.subject,
@@ -318,6 +337,7 @@ export const listMail = async (
     before?: Date
     category?: MailCategory
     filter: MailFilter
+        isPinned: sql<boolean>`${isPinned(messages)}`,
     mailboxId?: string
     search?: string
   }
@@ -772,6 +792,19 @@ export const mailPulse = async (userId: string, since: Date) => {
       .reduce((sum, { count }) => sum + count, 0)
   return {
     lists: countOf(LIST_CATEGORIES),
+export const pinMessage = async (
+  userId: string,
+  messageId: string,
+  pinned: boolean
+) => {
+  const message = await ownMessage(userId, messageId)
+  await changeThreadLabels(
+    userId,
+    message.threadId,
+    pinned ? { add: ['STARRED'] } : { remove: ['STARRED'] }
+  )
+}
+
     people: countOf(PEOPLE_CATEGORIES),
     total: rows.reduce((sum, { count }) => sum + count, 0),
   }
