@@ -5,7 +5,7 @@
 - Operating scale: `text-sm` rows, buttons, nav; `text-xs` metadata, key hints, section labels (`text-muted-foreground text-xs font-medium`, sentence case — no uppercase tracking headers); `text-2xs` micro only.
 - Content column: reading screens (Today, Rules, Settings) cap at `max-w-3xl` with `px-10 pt-12`; the thread reader caps at `max-w-2xl`.
 - Heights: nav rows `h-8`; key-hint footer `h-11`; buttons through size props (`sm` inside cards, default in forms, `lg` on login/onboarding).
-- Radius: `--radius` 0.55rem (rounder than Tamery). Queue and choice cards `rounded-2xl`; inner blocks (draft, analysis) `rounded-xl`; nav items and inputs `rounded-lg`.
+- Radius: `--radius` 0.55rem (rounder than Tamery). Queue and choice cards `rounded-2xl` (a dense grid of small choice cards, like onboarding's board presets, `rounded-xl` with `p-3`); inner blocks (draft, analysis) `rounded-xl`; nav items and inputs `rounded-lg`.
 - `tabular-nums` on counts and times in lists.
 - CJK: Newsreader and Inter have no CJK glyphs, so ja/zh/ko fall back to system fonts; `globals.css` sets `word-break: auto-phrase` on `:lang(ja|zh|ko)` so display headlines break at phrase boundaries. `<html lang>` follows `localeStore`.
 - Every user-visible string comes from `useT()`; never hard-code copy in a component. Labels must survive ~40% longer text (German) and stay short in key hints.

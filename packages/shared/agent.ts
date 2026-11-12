@@ -282,6 +282,11 @@ export const BOARD_PRESETS = [
   'trips',
   'orders',
   'events',
+  'invoices',
+  'jobs',
+  'health',
+  'home',
+  'learning',
 ] as const
 export type BoardPreset = (typeof BOARD_PRESETS)[number]
 

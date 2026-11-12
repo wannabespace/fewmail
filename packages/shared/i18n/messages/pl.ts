@@ -286,6 +286,31 @@ export const pl: Messages = {
           'Bilety, rezerwacje i wizyty: gdzie mam być, kiedy i z kim.',
         name: 'Wydarzenia',
       },
+      health: {
+        description:
+          'Wizyty lekarskie, recepty, wyniki badań i zwroty z ubezpieczenia: u kogo byłem, kiedy i ile to kosztowało.',
+        name: 'Zdrowie',
+      },
+      home: {
+        description:
+          'Czynsz, media, naprawy i umowy dotyczące mieszkania: co trzeba zapłacić, komu i ile.',
+        name: 'Dom',
+      },
+      invoices: {
+        description:
+          'Faktury, które wystawiam i otrzymuję w pracy: klient lub dostawca, kwota, termin i czy jest opłacona.',
+        name: 'Faktury',
+      },
+      jobs: {
+        description:
+          'Aplikacje, rozmowy i oferty: która firma, jakie stanowisko i na jakim etapie jest każda.',
+        name: 'Szukanie pracy',
+      },
+      learning: {
+        description:
+          'Kursy, zajęcia i poczta ze szkoły lub uczelni: terminy, oceny, certyfikaty i ich koszt.',
+        name: 'Nauka',
+      },
       money: {
         description:
           'Płatności, subskrypcje, rachunki i zwroty: za co płacę, komu i ile.',

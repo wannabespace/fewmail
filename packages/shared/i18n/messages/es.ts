@@ -1410,6 +1410,31 @@ export const es: Messages = {
           'Entradas, reservas y citas: dónde tengo que estar, cuándo y con quién.',
         name: 'Eventos',
       },
+      health: {
+        description:
+          'Citas médicas, recetas, resultados y reembolsos del seguro: a quién vi, cuándo y cuánto costó.',
+        name: 'Salud',
+      },
+      home: {
+        description:
+          'Alquiler, suministros, reparaciones y contratos de mi vivienda: qué vence, a quién y cuánto.',
+        name: 'Hogar',
+      },
+      invoices: {
+        description:
+          'Facturas que emito y recibo por mi trabajo: cliente o proveedor, importe, vencimiento y si está pagada.',
+        name: 'Facturas',
+      },
+      jobs: {
+        description:
+          'Candidaturas, entrevistas y ofertas: qué empresa, qué puesto y en qué punto está cada una.',
+        name: 'Búsqueda de empleo',
+      },
+      learning: {
+        description:
+          'Cursos, clases y correo del colegio o la universidad: plazos, notas, certificados y lo que cuestan.',
+        name: 'Formación',
+      },
       money: {
         description:
           'Pagos, suscripciones, facturas y reembolsos: qué pago, a quién y cuánto.',

@@ -1354,6 +1354,30 @@ export const ko: Messages = {
         description: '티켓, 예약, 약속: 어디에, 언제, 누구와 가야 하는지.',
         name: '일정',
       },
+      health: {
+        description:
+          '진료, 처방전, 검사 결과, 보험 청구: 누구에게, 언제 진료받았고 얼마가 들었는지.',
+        name: '건강',
+      },
+      home: {
+        description:
+          '월세, 공과금, 수리, 집 관련 계약: 무엇을 누구에게 얼마 내야 하는지.',
+        name: '집',
+      },
+      invoices: {
+        description:
+          '업무로 보내고 받는 인보이스: 고객 또는 공급업체, 금액, 기한, 결제 여부.',
+        name: '인보이스',
+      },
+      jobs: {
+        description:
+          '지원, 면접, 제안: 어느 회사, 어떤 직무이고 각각 어느 단계인지.',
+        name: '구직',
+      },
+      learning: {
+        description: '강의, 수업, 학교 메일: 마감일, 성적, 수료증, 비용.',
+        name: '학습',
+      },
       money: {
         description:
           '결제, 구독, 청구서, 환불: 무엇에, 누구에게, 얼마를 내는지.',

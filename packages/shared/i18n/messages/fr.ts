@@ -1427,6 +1427,31 @@ export const fr: Messages = {
           'Billets, réservations et rendez-vous : où je dois être, quand et avec qui.',
         name: 'Événements',
       },
+      health: {
+        description:
+          'Rendez-vous médicaux, ordonnances, résultats et remboursements : qui j’ai vu, quand et combien ça a coûté.',
+        name: 'Santé',
+      },
+      home: {
+        description:
+          'Loyer, charges, travaux et contrats pour mon logement : ce qui est dû, à qui et combien.',
+        name: 'Logement',
+      },
+      invoices: {
+        description:
+          'Factures que j’émets et reçois pour mon travail : client ou fournisseur, montant, échéance et si elle est payée.',
+        name: 'Factures pro',
+      },
+      jobs: {
+        description:
+          'Candidatures, entretiens et offres : quelle entreprise, quel poste et où en est chacune.',
+        name: 'Recherche d’emploi',
+      },
+      learning: {
+        description:
+          'Cours, formations et courriers de l’école ou de la fac : échéances, notes, certificats et ce qu’ils coûtent.',
+        name: 'Formation',
+      },
       money: {
         description:
           'Paiements, abonnements, factures et remboursements : ce que je paie, à qui et combien.',

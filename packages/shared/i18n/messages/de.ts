@@ -1415,6 +1415,31 @@ export const de: Messages = {
           'Tickets, Reservierungen und Termine: wo ich sein muss, wann und mit wem.',
         name: 'Termine',
       },
+      health: {
+        description:
+          'Arzttermine, Rezepte, Befunde und Versicherungserstattungen: bei wem ich war, wann und was es gekostet hat.',
+        name: 'Gesundheit',
+      },
+      home: {
+        description:
+          'Miete, Nebenkosten, Reparaturen und Verträge für meine Wohnung: was fällig ist, an wen und wie viel.',
+        name: 'Zuhause',
+      },
+      invoices: {
+        description:
+          'Rechnungen, die ich für meine Arbeit schreibe und bekomme: Kunde oder Lieferant, Betrag, Fälligkeit und ob sie bezahlt ist.',
+        name: 'Geschäftsrechnungen',
+      },
+      jobs: {
+        description:
+          'Bewerbungen, Vorstellungsgespräche und Angebote: welche Firma, welche Stelle und wo jede gerade steht.',
+        name: 'Jobsuche',
+      },
+      learning: {
+        description:
+          'Kurse, Unterricht und Post von Schule oder Uni: Fristen, Noten, Zertifikate und was es kostet.',
+        name: 'Lernen',
+      },
       money: {
         description:
           'Zahlungen, Abos, Rechnungen und Erstattungen: wofür ich zahle, an wen und wie viel.',

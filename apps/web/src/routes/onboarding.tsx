@@ -40,7 +40,7 @@ const BoardPresetChoice = ({
   const isFull = value.length >= MAX_STARTER_BOARDS
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
       {BOARD_PRESETS.map((preset) => {
         const isChecked = value.includes(preset)
         return (
@@ -59,14 +59,16 @@ const BoardPresetChoice = ({
               )
             }
             className={cn(
-              'bg-popover focus-visible:focus-ring flex cursor-pointer flex-col gap-1.5 rounded-2xl p-4 text-left shadow-xs ring transition-[box-shadow,background-color,opacity] outline-none disabled:cursor-not-allowed disabled:opacity-50',
+              'bg-popover focus-visible:focus-ring flex cursor-pointer flex-col gap-1 rounded-xl p-3 text-left shadow-xs ring transition-[box-shadow,background-color,opacity] outline-none disabled:cursor-not-allowed disabled:opacity-50',
               isChecked
                 ? 'ring-primary ring-2'
                 : 'ring-foreground/6 hover:enabled:ring-foreground/14'
             )}
           >
-            <span className="font-medium">{t.boards.starter[preset].name}</span>
-            <span className="text-muted-foreground text-sm">
+            <span className="text-sm font-medium">
+              {t.boards.starter[preset].name}
+            </span>
+            <span className="text-muted-foreground line-clamp-3 text-xs">
               {t.boards.starter[preset].description}
             </span>
           </button>

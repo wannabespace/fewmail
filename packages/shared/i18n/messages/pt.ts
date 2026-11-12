@@ -284,6 +284,31 @@ export const pt: Messages = {
           'Ingressos, reservas e compromissos: onde preciso estar, quando e com quem.',
         name: 'Eventos',
       },
+      health: {
+        description:
+          'Consultas, receitas, resultados de exames e reembolsos do seguro: com quem, quando e quanto custou.',
+        name: 'Saúde',
+      },
+      home: {
+        description:
+          'Aluguel, contas de consumo, reparos e contratos da casa: o que vence, para quem e quanto.',
+        name: 'Casa',
+      },
+      invoices: {
+        description:
+          'Faturas que emito e recebo pelo trabalho: cliente ou fornecedor, valor, vencimento e se está paga.',
+        name: 'Faturas',
+      },
+      jobs: {
+        description:
+          'Candidaturas, entrevistas e ofertas: qual empresa, qual vaga e em que etapa está cada uma.',
+        name: 'Busca de emprego',
+      },
+      learning: {
+        description:
+          'Cursos, aulas e e-mails da escola ou faculdade: prazos, notas, certificados e quanto custam.',
+        name: 'Estudos',
+      },
       money: {
         description:
           'Pagamentos, assinaturas, contas e reembolsos: pelo que pago, a quem e quanto.',

@@ -285,6 +285,31 @@ export const nl: Messages = {
           'Tickets, reserveringen en afspraken: waar ik moet zijn, wanneer en met wie.',
         name: 'Afspraken',
       },
+      health: {
+        description:
+          'Doktersafspraken, recepten, uitslagen en declaraties: bij wie ik was, wanneer en wat het kostte.',
+        name: 'Gezondheid',
+      },
+      home: {
+        description:
+          'Huur, energie, reparaties en contracten voor mijn woning: wat er betaald moet worden, aan wie en hoeveel.',
+        name: 'Wonen',
+      },
+      invoices: {
+        description:
+          'Facturen die ik voor werk verstuur en ontvang: klant of leverancier, bedrag, vervaldatum en of hij betaald is.',
+        name: 'Facturen',
+      },
+      jobs: {
+        description:
+          'Sollicitaties, gesprekken en aanbiedingen: welk bedrijf, welke functie en hoe ver elke staat.',
+        name: 'Sollicitaties',
+      },
+      learning: {
+        description:
+          'Cursussen, lessen en mail van school of studie: deadlines, cijfers, certificaten en wat ze kosten.',
+        name: 'Leren',
+      },
       money: {
         description:
           'Betalingen, abonnementen, rekeningen en terugbetalingen: waarvoor ik betaal, aan wie en hoeveel.',

@@ -278,6 +278,31 @@ export const tr: Messages = {
           'Biletler, rezervasyonlar ve randevular: nerede, ne zaman ve kiminle olmam gerektiği.',
         name: 'Etkinlikler',
       },
+      health: {
+        description:
+          'Doktor randevuları, reçeteler, tahlil sonuçları ve sigorta talepleri: kime, ne zaman gittim ve ne kadar tuttu.',
+        name: 'Sağlık',
+      },
+      home: {
+        description:
+          'Kira, faturalar, tamirler ve evle ilgili sözleşmeler: neyin vadesi geldi, kime ve ne kadar.',
+        name: 'Ev',
+      },
+      invoices: {
+        description:
+          'İş için kestiğim ve aldığım faturalar: müşteri ya da tedarikçi, tutar, son tarih ve ödenip ödenmediği.',
+        name: 'İş faturaları',
+      },
+      jobs: {
+        description:
+          'Başvurular, mülakatlar ve teklifler: hangi şirket, hangi pozisyon ve her biri ne aşamada.',
+        name: 'İş arama',
+      },
+      learning: {
+        description:
+          'Kurslar, dersler ve okul ya da üniversite e-postaları: son tarihler, notlar, sertifikalar ve ücretleri.',
+        name: 'Eğitim',
+      },
       money: {
         description:
           'Ödemeler, abonelikler, faturalar ve iadeler: neye, kime ve ne kadar ödediğim.',

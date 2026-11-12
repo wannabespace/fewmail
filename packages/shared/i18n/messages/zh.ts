@@ -1328,6 +1328,30 @@ export const zh: Messages = {
         description: '门票、预订和预约：我要去哪里、什么时候、和谁一起。',
         name: '活动',
       },
+      health: {
+        description:
+          '看病、处方、检查结果和保险理赔：看了谁、什么时候、花了多少。',
+        name: '健康',
+      },
+      home: {
+        description:
+          '房租、水电燃气、维修和住房合同：要付什么、付给谁、付多少。',
+        name: '住房',
+      },
+      invoices: {
+        description:
+          '工作中开出和收到的发票：客户或供应商、金额、到期日以及是否已付。',
+        name: '工作发票',
+      },
+      jobs: {
+        description:
+          '投递、面试和录用通知：哪家公司、什么职位、各自进行到哪一步。',
+        name: '求职',
+      },
+      learning: {
+        description: '课程、上课和学校的邮件：截止日期、成绩、证书和费用。',
+        name: '学习',
+      },
       money: {
         description: '付款、订阅、账单和退款：我为什么付钱、付给谁、付多少。',
         name: '钱',

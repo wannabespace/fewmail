@@ -283,6 +283,31 @@ export const en = {
           'Tickets, reservations and appointments: where I need to be, when and with whom.',
         name: 'Events',
       },
+      health: {
+        description:
+          'Doctor visits, prescriptions, test results and insurance claims: who I saw, when, and what it cost.',
+        name: 'Health',
+      },
+      home: {
+        description:
+          'Rent, utilities, repairs and contracts for where I live: what is due, to whom and how much.',
+        name: 'Home',
+      },
+      invoices: {
+        description:
+          'Invoices I send and receive for work: client or supplier, amount, due date and whether it is paid.',
+        name: 'Invoices',
+      },
+      jobs: {
+        description:
+          'Applications, interviews and offers: which company, what role, and where each one stands.',
+        name: 'Job search',
+      },
+      learning: {
+        description:
+          'Courses, classes and school mail: deadlines, grades, certificates and what they cost.',
+        name: 'Courses and school',
+      },
       money: {
         description:
           'Payments, subscriptions, bills and refunds: what I pay for, to whom and how much.',

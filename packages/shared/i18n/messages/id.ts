@@ -278,6 +278,31 @@ export const id: Messages = {
           'Tiket, reservasi, dan janji temu: di mana saya harus berada, kapan, dan dengan siapa.',
         name: 'Acara',
       },
+      health: {
+        description:
+          'Kunjungan dokter, resep, hasil tes, dan klaim asuransi: siapa yang saya temui, kapan, dan berapa biayanya.',
+        name: 'Kesehatan',
+      },
+      home: {
+        description:
+          'Sewa, tagihan utilitas, perbaikan, dan kontrak tempat tinggal: apa yang jatuh tempo, kepada siapa, dan berapa.',
+        name: 'Rumah',
+      },
+      invoices: {
+        description:
+          'Faktur yang saya kirim dan terima untuk pekerjaan: klien atau pemasok, jumlah, jatuh tempo, dan apakah sudah dibayar.',
+        name: 'Faktur',
+      },
+      jobs: {
+        description:
+          'Lamaran, wawancara, dan tawaran: perusahaan mana, posisi apa, dan sampai mana masing-masing.',
+        name: 'Cari kerja',
+      },
+      learning: {
+        description:
+          'Kursus, kelas, dan email dari sekolah atau kampus: tenggat, nilai, sertifikat, dan biayanya.',
+        name: 'Belajar',
+      },
       money: {
         description:
           'Pembayaran, langganan, tagihan, dan pengembalian dana: untuk apa saya membayar, kepada siapa, dan berapa.',
