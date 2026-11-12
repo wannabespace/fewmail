@@ -27,6 +27,7 @@ export const pt: Messages = {
     pending: 'aguardando no Início',
   },
   agent: {
+    collapse: 'Recolher',
     voice: 'Falar com o agente',
     voiceStop: 'Parar e enviar',
     chats: 'Conversas',
@@ -63,10 +64,7 @@ export const pt: Messages = {
     detach: 'Não anexar este e-mail',
     deleteChat: 'Excluir conversa',
     failed: 'O agente não conseguiu terminar. Tente de novo.',
-    lead: 'Pergunte sobre seus e-mails ou diga o que fazer. Tudo o que envia ou altera o Gmail espera o seu sim.',
     newChat: 'Nova conversa',
-    closeChat: 'Fechar aba',
-    switchChat: 'Trocar de conversa',
     noChats: 'Nenhuma conversa ainda',
     cancelEdit: 'Cancelar edição',
     copy: 'Copiar',
@@ -126,7 +124,6 @@ export const pt: Messages = {
     },
     stop: 'Parar',
     thinking: 'Pensando…',
-    title: 'O que posso fazer por você?',
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Até ${time}`,
     yes: {
@@ -548,6 +545,7 @@ export const pt: Messages = {
     reload: 'Recarregar',
   },
   keys: {
+    askAgent: 'perguntar ao agente',
     approvePicked: (n: number) => `aprovar ${n} selecionados`,
     pick: 'selecionar',
     pickAll: 'selecionar tudo',
@@ -735,7 +733,6 @@ export const pt: Messages = {
     folders: 'Pastas',
     calendar: 'Calendário',
     subscriptions: 'Inscrições',
-    agent: 'Agente',
     boards: 'Painéis',
     newBoard: 'Novo painel',
     mail: 'E-mail',

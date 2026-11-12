@@ -28,6 +28,7 @@ export const ja: Messages = {
   },
   byRule: 'ルールによる',
   agent: {
+    collapse: '折りたたむ',
     voice: '声で話す',
     voiceStop: '止めて送信',
     chats: 'チャット',
@@ -64,10 +65,7 @@ export const ja: Messages = {
     deleteChat: 'チャットを削除',
     failed:
       'エージェントが最後まで完了できませんでした。もう一度お試しください。',
-    lead: 'メールについて質問したり、してほしいことを伝えてください。送信や Gmail の変更は、必ずあなたの確認を待ちます。',
     newChat: '新しいチャット',
-    closeChat: 'タブを閉じる',
-    switchChat: 'チャットを切り替え',
     noChats: 'チャットはまだありません',
     cancelEdit: '編集をキャンセル',
     copy: 'コピー',
@@ -127,7 +125,6 @@ export const ja: Messages = {
     },
     stop: '停止',
     thinking: '考え中…',
-    title: '何をお手伝いしましょうか？',
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
     yes: {
@@ -281,6 +278,7 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
+    askAgent: 'エージェントに聞く',
     approvePicked: (n: number) => `選択した${n}件を承認`,
     pick: '選択',
     pickAll: 'すべて選択',
@@ -467,7 +465,6 @@ export const ja: Messages = {
     folders: 'フォルダ',
     calendar: 'カレンダー',
     subscriptions: '購読',
-    agent: 'エージェント',
     boards: 'ボード',
     newBoard: '新しいボード',
     mail: 'メール',

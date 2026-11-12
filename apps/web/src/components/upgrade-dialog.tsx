@@ -17,7 +17,7 @@ import { useSubscription } from 'seitu/react'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 
-type ProFeature = 'agent' | 'ask' | 'boards' | 'drafts' | 'home' | 'tasks'
+type ProFeature = 'ask' | 'boards' | 'drafts' | 'home' | 'tasks'
 
 /** Free sees every Pro control; using one opens this instead (`domain.md` → Free). */
 export const upgradeStore = createStore<ProFeature | null>(null)
@@ -43,7 +43,6 @@ export const UpgradeDialog = () => {
     setShown(feature)
   }
   const titles = {
-    agent: t.nav.agent,
     ask: t.upgrade.ask,
     boards: t.nav.boards,
     drafts: t.compose.writeForMe,

@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const uk: Messages = {
   agent: {
+    collapse: 'Згорнути',
     voice: 'Сказати голосом',
     voiceStop: 'Зупинити й надіслати',
     chats: 'Чати',
@@ -39,10 +40,7 @@ export const uk: Messages = {
     detach: 'Не додавати цей лист',
     deleteChat: 'Видалити чат',
     failed: 'Агент не зміг завершити. Спробуй ще раз.',
-    lead: 'Питай про пошту або кажи, що зробити. Усе, що надсилає листи чи змінює Gmail, чекає на твоє «так».',
     newChat: 'Новий чат',
-    closeChat: 'Закрити вкладку',
-    switchChat: 'Перемкнути чат',
     noChats: 'Чатів ще немає',
     cancelEdit: 'Скасувати редагування',
     copy: 'Копіювати',
@@ -102,7 +100,6 @@ export const uk: Messages = {
     },
     stop: 'Зупинити',
     thinking: 'Думаю…',
-    title: 'Чим допомогти?',
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
     yes: {
@@ -772,6 +769,7 @@ export const uk: Messages = {
     reload: 'Оновити',
   },
   keys: {
+    askAgent: 'запитати агента',
     approvePicked: (n: number) => `схвалити вибрані (${n})`,
     pick: 'вибрати',
     pickAll: 'вибрати всі',
@@ -958,7 +956,6 @@ export const uk: Messages = {
     folders: 'Папки',
     calendar: 'Календар',
     subscriptions: 'Підписки',
-    agent: 'Агент',
     boards: 'Дошки',
     newBoard: 'Нова дошка',
     mail: 'Пошта',

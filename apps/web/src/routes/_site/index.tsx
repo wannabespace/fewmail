@@ -35,7 +35,7 @@ import {
   PlanCards,
   Reveal,
 } from '~/components/site'
-import { agentModeStore, signedInStore } from '~/lib/auth'
+import { signedInStore } from '~/lib/auth'
 import { useT } from '~/lib/i18n'
 import { TRIAL_DAYS } from '~/lib/marketing'
 
@@ -130,7 +130,7 @@ const LandingPage = () => {
 export const Route = createFileRoute('/_site/')({
   beforeLoad: () => {
     if (signedInStore.get()) {
-      throw redirect({ to: agentModeStore.get() ? '/agent' : '/home' })
+      throw redirect({ to: '/home' })
     }
   },
   component: LandingPage,

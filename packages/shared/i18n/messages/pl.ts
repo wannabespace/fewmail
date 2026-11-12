@@ -27,6 +27,7 @@ export const pl: Messages = {
     pending: 'czeka na stronie głównej',
   },
   agent: {
+    collapse: 'Zwiń',
     voice: 'Powiedz agentowi',
     voiceStop: 'Zatrzymaj i wyślij',
     chats: 'Czaty',
@@ -62,10 +63,7 @@ export const pl: Messages = {
     detach: 'Nie dołączaj tego e-maila',
     deleteChat: 'Usuń czat',
     failed: 'Agent nie dał rady dokończyć. Spróbuj ponownie.',
-    lead: 'Pytaj o swoją pocztę albo powiedz, co zrobić. Wszystko, co wysyła lub zmienia Gmaila, czeka na twoje „tak”.',
     newChat: 'Nowy czat',
-    closeChat: 'Zamknij kartę',
-    switchChat: 'Przełącz czat',
     noChats: 'Nie ma jeszcze czatów',
     cancelEdit: 'Anuluj edycję',
     copy: 'Kopiuj',
@@ -125,7 +123,6 @@ export const pl: Messages = {
     },
     stop: 'Zatrzymaj',
     thinking: 'Myślę…',
-    title: 'W czym mogę pomóc?',
     to: (recipients: string) => `Do: ${recipients}`,
     until: (time: string) => `Do ${time}`,
     yes: {
@@ -560,6 +557,7 @@ export const pl: Messages = {
     reload: 'Odśwież',
   },
   keys: {
+    askAgent: 'zapytaj agenta',
     approvePicked: (n: number) => `zatwierdź wybrane (${n})`,
     pick: 'wybierz',
     pickAll: 'wybierz wszystkie',
@@ -748,7 +746,6 @@ export const pl: Messages = {
     folders: 'Foldery',
     calendar: 'Kalendarz',
     subscriptions: 'Subskrypcje',
-    agent: 'Agent',
     boards: 'Tablice',
     newBoard: 'Nowa tablica',
     mail: 'Poczta',

@@ -3,10 +3,23 @@ import { sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Accordion } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
+import {
+  ResizableGroup,
+  ResizablePanel,
+  ResizableSeparator,
+} from '@fewmail/ui/components/custom/resizable'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
@@ -15,7 +28,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
-import { PlayIcon, StopIcon } from '@hugeicons/core-free-icons'
+import {
+  Add01Icon,
+  ArrowDown01Icon,
+  Clock01Icon,
+  Delete02Icon,
+  PlayIcon,
+  StopIcon,
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -25,16 +45,21 @@ import {
   redirect,
   useNavigate,
 } from '@tanstack/react-router'
+import { type } from 'arktype'
 import { endOfTomorrow, format, isTomorrow, max, startOfToday } from 'date-fns'
 import { useEffect, useRef, useState } from 'react'
+import { useSubscription } from 'seitu/react'
+import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
+import { AgentChat } from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
 import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
+import { ThreadView } from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
@@ -332,10 +357,19 @@ const homeHints = (
   state: {
     alike: number
     hasHandled: boolean
+    isAsking: boolean
     isEditing: boolean
     picked: number
   }
 ): [string, string][] => {
+  if (state.isAsking) {
+    return [
+      ['⏎', t.keys.send],
+      ['⌘⏎', t.keys.approve],
+      ['⇧⌘O', t.agent.newChat],
+      ['esc', t.agent.collapse],
+    ]
+  }
   if (state.isEditing) {
     return [
       ['⌘⏎', t.keys.send],
@@ -353,6 +387,7 @@ const homeHints = (
     ]
   }
   return [
+    ['/', t.keys.askAgent],
     ['J / K', t.keys.move],
     ['⏎', t.keys.approve],
     ...(state.alike > 1
@@ -369,6 +404,174 @@ const homeHints = (
   ]
 }
 
+const READER_WIDTH = { default: 560, max: '60%', min: 420 } as const
+
+const readerWidthStore = createWebStorageValue({
+  defaultValue: READER_WIDTH.default as number,
+  key: 'fewmail.home-reader-width',
+  schema: type('number'),
+  type: 'localStorage',
+})
+
+const ChatHistory = ({
+  chatId,
+  onOpen,
+  onRemoved,
+}: {
+  chatId: string
+  onOpen: (id: string) => void
+  onRemoved: () => void
+}) => {
+  const t = useT()
+  const dates = useDates()
+  const queryClient = useQueryClient()
+  const { data: chats = [] } = useQuery(orpc.chats.list.queryOptions())
+  const remove = useMutation(
+    orpc.chats.delete.mutationOptions({
+      onMutate: ({ id }) => {
+        if (id === chatId) {
+          onRemoved()
+        }
+        queryClient.setQueryData(orpc.chats.list.queryKey(), (old) =>
+          old?.filter((item) => item.id !== id)
+        )
+      },
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.chats.list.key() }),
+    })
+  )
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <IconButton
+            icon={Clock01Icon}
+            label={t.agent.chats}
+            size="icon-sm"
+            variant="ghost-muted"
+          />
+        }
+      />
+      <DropdownMenuContent align="start" side="top" className="w-80">
+        {chats.length === 0 && (
+          <DropdownMenuItem disabled>{t.agent.noChats}</DropdownMenuItem>
+        )}
+        {chats.map((item) => (
+          <DropdownMenuItem key={item.id} onClick={() => onOpen(item.id)}>
+            <span data-mask className="min-w-0 truncate">
+              {item.title}
+            </span>
+            <DropdownMenuShortcut>
+              {dates.ago(item.updatedAt)}
+            </DropdownMenuShortcut>
+            <IconButton
+              className="-mr-1 opacity-0 group-hover/dropdown-menu-item:opacity-100 group-focus/dropdown-menu-item:opacity-100"
+              icon={Delete02Icon}
+              label={t.agent.deleteChat}
+              size="icon-2xs"
+              variant="ghost-destructive"
+              onClick={(event) => {
+                event.stopPropagation()
+                remove.mutate({ id: item.id })
+              }}
+            />
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+/** The agent lives under Home: a chat opened from a link (`?chat=`) starts unfolded. */
+const ChatDock = ({
+  chat,
+  onFocusChange,
+  thread,
+}: {
+  chat: string | undefined
+  onFocusChange: (isFocused: boolean) => void
+  thread: string | undefined
+}) => {
+  const t = useT()
+  const navigate = useNavigate()
+  const [draftId, setDraftId] = useState(() => crypto.randomUUID())
+  const [isOpen, setIsOpen] = useState(chat !== undefined)
+  const chatId = chat ?? draftId
+  const isSaved = chat !== undefined && chat !== draftId
+  const { data: saved } = useQuery(
+    orpc.chats.get.queryOptions({ enabled: isSaved, input: { id: chatId } })
+  )
+  const { data: chats = [] } = useQuery(orpc.chats.list.queryOptions())
+  const title = chats.find(({ id }) => id === chatId)?.title ?? t.agent.newChat
+
+  const showChat = (id: string | undefined) =>
+    navigate({ search: (prev) => ({ ...prev, chat: id }), to: '/home' })
+  const startChat = () => {
+    setDraftId(crypto.randomUUID())
+    void showChat(undefined)
+  }
+  useHotkey('Mod+Shift+O', startChat, { ignoreInputs: false })
+
+  if (isSaved && !saved) {
+    return null
+  }
+  return (
+    <AgentChat
+      key={chatId}
+      chatId={chatId}
+      initialMessages={saved?.messages ?? []}
+      isOpen={isOpen}
+      thread={thread}
+      onFocusChange={onFocusChange}
+      onOpenChange={setIsOpen}
+      onSend={() => {
+        if (!chat) {
+          void navigate({
+            replace: true,
+            search: (prev) => ({ ...prev, chat: chatId }),
+            to: '/home',
+          })
+        }
+      }}
+      composerActions={
+        <ChatHistory
+          chatId={chatId}
+          onOpen={(id) => {
+            setIsOpen(true)
+            void showChat(id)
+          }}
+          onRemoved={startChat}
+        />
+      }
+      header={
+        <div className="flex h-11 shrink-0 items-center gap-1 border-b pr-2 pl-5">
+          <span data-mask className="min-w-0 truncate text-sm font-medium">
+            {title}
+          </span>
+          <IconButton
+            className="ml-auto"
+            icon={Add01Icon}
+            label={t.agent.newChat}
+            shortcut={<Kbd>⇧⌘O</Kbd>}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={startChat}
+          />
+          <IconButton
+            icon={ArrowDown01Icon}
+            label={t.agent.collapse}
+            shortcut={<Kbd>esc</Kbd>}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={() => setIsOpen(false)}
+          />
+        </div>
+      }
+    />
+  )
+}
+
 const HomeHeader = ({
   data,
   isFirstRead,
@@ -382,32 +585,37 @@ const HomeHeader = ({
   const dates = useDates()
 
   return (
-    <header className="flex flex-col gap-3">
-      <p className="text-muted-foreground text-sm first-letter:uppercase">
-        {updatedAt > 0 && dates.format(updatedAt, 'EEEE, d MMMM')}
-      </p>
-      {data ? (
-        <h1 className="text-display font-serif tracking-tight">
-          {isFirstRead ? t.nav.syncing : t.today.headline(data.queue.length)}
-        </h1>
-      ) : (
-        <Skeleton className="my-1 h-9 w-3/5" />
-      )}
-      {isFirstRead && (
-        <p className="text-muted-foreground flex items-center gap-2 text-sm">
-          <Spinner />
-          {t.today.firstRead}
+    <>
+      <header className="flex flex-col gap-3">
+        <p className="text-muted-foreground text-sm first-letter:uppercase">
+          {updatedAt > 0 && dates.format(updatedAt, 'EEEE, d MMMM')}
         </p>
+        {data ? (
+          <h1 className="text-display font-serif tracking-tight">
+            {isFirstRead ? t.nav.syncing : t.today.headline(data.queue.length)}
+          </h1>
+        ) : (
+          <Skeleton className="my-1 h-9 w-3/5" />
+        )}
+        {isFirstRead && (
+          <p className="text-muted-foreground flex items-center gap-2 text-sm">
+            <Spinner />
+            {t.today.firstRead}
+          </p>
+        )}
+        {data && !isFirstRead && data.pulse.total > 0 && (
+          <Pulse days={data.days} handled={data.handled} pulse={data.pulse} />
+        )}
+        {data && data.queue.length > 0 && (
+          <div>
+            <ListenButton />
+          </div>
+        )}
+      </header>
+      {data && data.banners.length > 0 && (
+        <BoardBanners banners={data.banners} />
       )}
-      {data && !isFirstRead && data.pulse.total > 0 && (
-        <Pulse days={data.days} handled={data.handled} pulse={data.pulse} />
-      )}
-      {data && data.queue.length > 0 && (
-        <div>
-          <ListenButton />
-        </div>
-      )}
-    </header>
+    </>
   )
 }
 
@@ -507,10 +715,85 @@ const CalendarAhead = () => {
   )
 }
 
+const PickedActions = ({
+  onApprove,
+  onClear,
+  onSkip,
+  onTrash,
+}: {
+  onApprove: () => void
+  onClear: () => void
+  onSkip: () => void
+  onTrash: () => void
+}) => {
+  const t = useT()
+
+  return (
+    <>
+      <Button size="sm" onClick={onApprove}>
+        {t.queue.approve} <Kbd>⏎</Kbd>
+      </Button>
+      <Button size="sm" variant="secondary" onClick={onTrash}>
+        {t.queue.delete} <Kbd>⌫</Kbd>
+      </Button>
+      <Button size="sm" variant="ghost-muted" onClick={onSkip}>
+        {t.queue.skip} <Kbd>S</Kbd>
+      </Button>
+      <Button size="sm" variant="ghost-muted" onClick={onClear}>
+        {t.queue.unpick} <Kbd>esc</Kbd>
+      </Button>
+    </>
+  )
+}
+
+const ThreadReader = ({
+  onClose,
+  thread,
+}: {
+  onClose: () => void
+  thread: string
+}) => {
+  const t = useT()
+  const readerWidth = useSubscription(readerWidthStore)
+
+  return (
+    <>
+      <ResizableSeparator />
+      <ResizablePanel
+        className="flex"
+        size={readerWidth}
+        minSize={READER_WIDTH.min}
+        maxSize={READER_WIDTH.max}
+        onSizeChange={(width) => readerWidthStore.set(width)}
+      >
+        <div className="bg-background flex min-w-0 flex-1 flex-col">
+          <ThreadView
+            key={thread}
+            isSnoozed={false}
+            threadId={thread}
+            onClose={onClose}
+            onDone={onClose}
+          />
+          <KeyHints
+            hints={[
+              ['R', t.keys.reply],
+              ['E', t.keys.archive],
+              ['/', t.keys.ask],
+              ['esc', t.keys.close],
+            ]}
+          />
+        </div>
+      </ResizablePanel>
+    </>
+  )
+}
+
 const HomePage = () => {
   const t = useT()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { chat, thread } = Route.useSearch()
+  const [isAsking, setIsAsking] = useState(false)
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
   const queue = data?.queue ?? []
@@ -687,7 +970,11 @@ const HomePage = () => {
       ? skipMany.mutate(pickedActionIds)
       : selected && dismiss.mutate({ id: selected.action.id })
 
-  const listKeys = { enabled: !isEditing && !!selected }
+  const showThread = (id: string | undefined) =>
+    navigate({ search: (prev) => ({ ...prev, thread: id }), to: '/home' })
+  // The open thread brings its own R, E, S, H and ⌫.
+  const isWalking = !isEditing && !thread
+  const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), listKeys)
   useHotkey('ArrowDown', () => move(1), listKeys)
   useHotkey('K', () => move(-1), listKeys)
@@ -708,8 +995,9 @@ const HomePage = () => {
     listKeys
   )
   useHotkey('Escape', () => setPickedIds([]), {
-    enabled: !isEditing && picked.length > 0,
+    enabled: isWalking && picked.length > 0,
   })
+  useHotkey('Escape', () => showThread(undefined), { enabled: !!thread })
   useHotkey(
     'E',
     () =>
@@ -726,133 +1014,123 @@ const HomePage = () => {
   )
   const hasHandled = !!data?.handled.total
   const reviewHandled = () => setIsReviewing((current) => !current)
-  useHotkey('H', reviewHandled, { enabled: !isEditing && hasHandled })
+  useHotkey('H', reviewHandled, {
+    enabled: isWalking && hasHandled,
+  })
   useHotkey(
     'O',
-    () =>
-      selected?.message &&
-      navigate({ search: { thread: selected.message.threadId }, to: '/mail' }),
+    () => selected?.message && showThread(selected.message.threadId),
     listKeys
   )
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
-          <HomeHeader
-            data={data}
-            isFirstRead={isFirstRead}
-            updatedAt={dataUpdatedAt}
-          />
+    <ResizableGroup className="flex-1">
+      <ResizablePanel className="flex min-w-0 flex-col">
+        <main className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 overflow-y-auto">
+            <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-10">
+              <HomeHeader
+                data={data}
+                isFirstRead={isFirstRead}
+                updatedAt={dataUpdatedAt}
+              />
 
-          {data && data.banners.length > 0 && (
-            <BoardBanners banners={data.banners} />
-          )}
+              <section
+                aria-label={t.today.worthAttention}
+                hidden={isFirstRead && queue.length === 0}
+                className="flex flex-col gap-2.5"
+              >
+                <div className="flex min-h-7 items-center gap-1.5">
+                  <h2 className="text-muted-foreground mr-auto text-xs font-medium">
+                    {picked.length > 0
+                      ? t.queue.picked(picked.length)
+                      : t.today.worthAttention}
+                  </h2>
+                  {picked.length > 0 && (
+                    <PickedActions
+                      onApprove={approveTargets}
+                      onClear={() => setPickedIds([])}
+                      onSkip={skipTargets}
+                      onTrash={() => trashMany.mutate(picked)}
+                    />
+                  )}
+                </div>
+                {!!data && queue.length === 0 && (
+                  <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">
+                    {t.today.nothingNeedsYou}
+                  </p>
+                )}
+                <Accordion
+                  variant="cards"
+                  hidden={queue.length === 0}
+                  value={selected ? [selected.action.id] : []}
+                  onValueChange={([id]) => id && setSelectedId(id)}
+                >
+                  {queue.map((item, index) => (
+                    <QueueCard
+                      key={item.action.id}
+                      item={item}
+                      index={index}
+                      draft={draftOf(item)}
+                      isPicked={pickedIds.includes(item.action.id)}
+                      isSelected={item === selected}
+                      isEditing={editingId === item.action.id}
+                      isBusy={
+                        redraft.isPending &&
+                        redraft.variables.id === item.action.id
+                      }
+                      onApprove={approveSelected}
+                      onEdit={() => setEditingId(item.action.id)}
+                      onDraftChange={(draft) =>
+                        setDrafts((current) => ({
+                          ...current,
+                          [item.action.id]: draft,
+                        }))
+                      }
+                      onRedraft={() => shorten(item.action.id)}
+                      onOpen={() =>
+                        item.message && showThread(item.message.threadId)
+                      }
+                      onPick={() => togglePick(item.action.id)}
+                      onSkip={() => dismiss.mutate({ id: item.action.id })}
+                      onStopEditing={() => setEditingId(null)}
+                    />
+                  ))}
+                </Accordion>
+              </section>
 
-          <section
-            aria-label={t.today.worthAttention}
-            hidden={isFirstRead && queue.length === 0}
-            className="flex flex-col gap-2.5"
-          >
-            <div className="flex min-h-7 items-center gap-1.5">
-              <h2 className="text-muted-foreground mr-auto text-xs font-medium">
-                {picked.length > 0
-                  ? t.queue.picked(picked.length)
-                  : t.today.worthAttention}
-              </h2>
-              {picked.length > 0 && (
+              <CalendarAhead />
+              {data && (
                 <>
-                  <Button size="sm" onClick={approveTargets}>
-                    {t.queue.approve} <Kbd>⏎</Kbd>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => trashMany.mutate(picked)}
-                  >
-                    {t.queue.delete} <Kbd>⌫</Kbd>
-                  </Button>
-                  <Button size="sm" variant="ghost-muted" onClick={skipTargets}>
-                    {t.queue.skip} <Kbd>S</Kbd>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost-muted"
-                    onClick={() => setPickedIds([])}
-                  >
-                    {t.queue.unpick} <Kbd>esc</Kbd>
-                  </Button>
+                  <MailDigest today={data} />
+                  <DayTally
+                    today={data}
+                    isReviewing={isReviewing}
+                    onReview={reviewHandled}
+                  />
                 </>
               )}
+              <ConnectHint />
             </div>
-            {!!data && queue.length === 0 && (
-              <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">
-                {t.today.nothingNeedsYou}
-              </p>
-            )}
-            <Accordion
-              variant="cards"
-              hidden={queue.length === 0}
-              value={selected ? [selected.action.id] : []}
-              onValueChange={([id]) => id && setSelectedId(id)}
-            >
-              {queue.map((item, index) => (
-                <QueueCard
-                  key={item.action.id}
-                  item={item}
-                  index={index}
-                  draft={draftOf(item)}
-                  isPicked={pickedIds.includes(item.action.id)}
-                  isSelected={item === selected}
-                  isEditing={editingId === item.action.id}
-                  isBusy={
-                    redraft.isPending && redraft.variables.id === item.action.id
-                  }
-                  onApprove={approveSelected}
-                  onEdit={() => setEditingId(item.action.id)}
-                  onDraftChange={(draft) =>
-                    setDrafts((current) => ({
-                      ...current,
-                      [item.action.id]: draft,
-                    }))
-                  }
-                  onRedraft={() => shorten(item.action.id)}
-                  onOpen={() =>
-                    item.message &&
-                    navigate({
-                      search: { thread: item.message.threadId },
-                      to: '/mail',
-                    })
-                  }
-                  onPick={() => togglePick(item.action.id)}
-                  onSkip={() => dismiss.mutate({ id: item.action.id })}
-                  onStopEditing={() => setEditingId(null)}
-                />
-              ))}
-            </Accordion>
-          </section>
-
-          <CalendarAhead />
-          {data && <MailDigest today={data} />}
-          {data && (
-            <DayTally
-              today={data}
-              isReviewing={isReviewing}
-              onReview={reviewHandled}
-            />
-          )}
-          <ConnectHint />
-        </div>
-      </div>
-      <KeyHints
-        hints={homeHints(t, {
-          alike: alike.length,
-          hasHandled,
-          isEditing,
-          picked: picked.length,
-        })}
-      />
-    </main>
+          </div>
+          <div className="mx-auto w-full max-w-3xl px-10 pb-3">
+            <ChatDock chat={chat} thread={thread} onFocusChange={setIsAsking} />
+          </div>
+          <KeyHints
+            hints={homeHints(t, {
+              alike: alike.length,
+              hasHandled,
+              isAsking,
+              isEditing,
+              picked: picked.length,
+            })}
+          />
+        </main>
+      </ResizablePanel>
+      {thread && (
+        <ThreadReader thread={thread} onClose={() => showThread(undefined)} />
+      )}
+    </ResizableGroup>
   )
 }
 
@@ -866,5 +1144,16 @@ export const Route = createFileRoute('/_app/home')({
     }
   },
   component: HomePage,
-  loader: () => warmQuery(orpc.today.get.queryOptions()),
+  validateSearch: type({ 'chat?': 'string.uuid', 'thread?': 'string' }),
+  loaderDeps: ({ search }) => ({ chat: search.chat }),
+  loader: async ({ deps: { chat } }) => {
+    const [, chats] = await Promise.all([
+      warmQuery(orpc.today.get.queryOptions()),
+      warmQuery(orpc.chats.list.queryOptions()),
+    ])
+    // A chat that is still being started is not saved yet: asking for it would answer "not found".
+    if (chat && chats?.some(({ id }) => id === chat)) {
+      await warmQuery(orpc.chats.get.queryOptions({ input: { id: chat } }))
+    }
+  },
 })

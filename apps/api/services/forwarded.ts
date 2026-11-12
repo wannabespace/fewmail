@@ -42,7 +42,7 @@ const deliver = async (userId: string, chatId: string, text: string) => {
   const settings = await getSettings(userId)
   const t = dictionaries[settings?.language ?? 'en']
   const run = {
-    body: `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${chatId}`,
+    body: `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/home?chat=${chatId}`,
     headline: t.forward.done,
   }
   const telegramChat = await chatIdForUser(userId)

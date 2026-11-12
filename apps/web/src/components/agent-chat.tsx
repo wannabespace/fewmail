@@ -614,7 +614,7 @@ const ThreadLink = ({ children, className, href }: ComponentProps<'a'>) => {
   const thread = new URLSearchParams(href?.split('?')[1]).get('thread')
   return thread ? (
     <Link
-      to="/agent"
+      to="/home"
       search={(prev) => ({ ...prev, thread })}
       className={cn(
         'data-[status=active]:bg-foreground/5 -mx-0.5 rounded-sm px-0.5',
@@ -631,33 +631,6 @@ const ThreadLink = ({ children, className, href }: ComponentProps<'a'>) => {
 }
 
 const RESPONSE_COMPONENTS = { a: ThreadLink }
-
-const THREAD_HREF = /\]\(\?thread=(?<thread>[^)\s]+)\)/gu
-
-const linkedThreads = (message: UIMessage) => [
-  ...new Set(
-    message.parts.flatMap((part) =>
-      part.type === 'text'
-        ? [...part.text.matchAll(THREAD_HREF)].map(
-            (match) => match.groups?.thread ?? ''
-          )
-        : []
-    )
-  ),
-]
-
-/** The emails J/K walks: the answer that linked the open one, else the newest answer with links. */
-const threadListOf = (messages: UIMessage[], thread: string | undefined) => {
-  const lists = messages
-    .filter(({ role }) => role === 'assistant')
-    .map(linkedThreads)
-    .filter((list) => list.length > 0)
-  return (
-    lists.findLast((list) => !!thread && list.includes(thread)) ??
-    lists.at(-1) ??
-    []
-  )
-}
 
 const useOpenThread = (thread: string | undefined) => {
   const { data } = useThread(thread)
@@ -676,7 +649,7 @@ const useOpenThread = (thread: string | undefined) => {
 
 const ThreadChip = ({ thread }: { thread: OpenThread }) => (
   <Link
-    to="/agent"
+    to="/home"
     search={(prev) => ({ ...prev, thread: thread.threadId })}
     className="text-muted-foreground hover:text-foreground flex max-w-full items-center gap-1.5 self-end text-sm transition-colors"
   >
@@ -687,30 +660,25 @@ const ThreadChip = ({ thread }: { thread: OpenThread }) => (
   </Link>
 )
 
-const EmptyChat = ({ onPick }: { onPick: (skill: Skill) => void }) => {
+/** Home already is the `today` skill, so it is never suggested there. */
+const SUGGESTED_SKILLS = SKILLS.filter((skill) => skill !== 'today')
+
+const Suggestions = ({ onPick }: { onPick: (skill: Skill) => void }) => {
   const t = useT()
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-6 pb-4">
-      <h1 className="text-display font-serif tracking-tight">
-        {t.agent.title}
-      </h1>
-      <p className="text-muted-foreground text-brief font-serif">
-        {t.agent.lead}
-      </p>
-      <div className="flex flex-wrap gap-2 pt-2">
-        {SKILLS.map((skill) => (
-          <Button
-            key={skill}
-            size="sm"
-            variant="secondary"
-            onClick={() => onPick(skill)}
-          >
-            <HugeiconsIcon icon={SKILL_ICONS[skill]} strokeWidth={2} />
-            {t.skills[skill]}
-          </Button>
-        ))}
-      </div>
+    <div className="scroll-fade-x flex scrollbar-none gap-1.5 overflow-x-auto">
+      {SUGGESTED_SKILLS.map((skill) => (
+        <Button
+          key={skill}
+          size="sm"
+          variant="secondary"
+          onClick={() => onPick(skill)}
+        >
+          <HugeiconsIcon icon={SKILL_ICONS[skill]} strokeWidth={2} />
+          {t.skills[skill]}
+        </Button>
+      ))}
     </div>
   )
 }
@@ -727,7 +695,7 @@ const SkillMenu = ({
   const t = useT()
 
   return (
-    <div className="bg-popover ring-foreground/6 absolute bottom-full left-6 mb-2 w-80 rounded-xl p-1 shadow-xl ring">
+    <div className="bg-popover ring-foreground/6 absolute bottom-full left-0 mb-2 w-80 rounded-xl p-1 shadow-xl ring">
       <Command value={active} shouldFilter={false} variant="transparent">
         <CommandList>
           {skills.map((skill) => (
@@ -911,7 +879,6 @@ const MessageActions = ({
           <IconButton
             icon={RefreshIcon}
             label={t.agent.regenerate}
-            shortcut={<Kbd>R</Kbd>}
             side="bottom"
             size="icon-xs"
             variant="ghost-muted"
@@ -923,17 +890,26 @@ const MessageActions = ({
   )
 }
 
+/** Docked under Home: the conversation grows upward over the page while the composer stays put. */
 export const AgentChat = ({
   chatId,
+  composerActions,
+  header,
   initialMessages,
+  isOpen,
+  onFocusChange,
+  onOpenChange,
   onSend,
-  onThreadList,
   thread,
 }: {
   chatId: string
+  composerActions: ReactNode
+  header: ReactNode
   initialMessages: UIMessage[]
+  isOpen: boolean
+  onFocusChange: (isFocused: boolean) => void
+  onOpenChange: (isOpen: boolean) => void
   onSend: () => void
-  onThreadList: (threads: string[]) => void
   thread: string | undefined
 }) => {
   const t = useT()
@@ -1005,6 +981,7 @@ export const AgentChat = ({
       return
     }
     onSend()
+    onOpenChange(true)
     void sendMessage({
       messageId: editingId ?? undefined,
       metadata: { createdAt: Date.now() },
@@ -1030,10 +1007,13 @@ export const AgentChat = ({
     }
     return true
   }
-  /** Escape is a ladder here: the menu above, then the edit. */
+  /** Escape is a ladder here: the menu above, then the edit, then folding the chat away. */
   const handleComposerKey = (key: string) => {
     if (key === 'Escape' && editingId) {
       reset()
+    } else if (key === 'Escape') {
+      onOpenChange(false)
+      composerRef.current?.blur()
     } else if (key === 'ArrowUp' && !text && lastUser && !isBusy) {
       edit(lastUser)
     } else {
@@ -1067,140 +1047,133 @@ export const AgentChat = ({
   })
   useHotkey('Mod+Shift+Space', voice.toggle, { ignoreInputs: false })
   useHotkey('/', () => composerRef.current?.focus())
-  useHotkey(
-    'R',
-    () => {
-      void regenerate()
-    },
-    { enabled: canRegenerate && !thread }
-  )
-  const threadList = threadListOf(messages, thread).join(' ')
-  useEffect(() => {
-    onThreadList(threadList ? threadList.split(' ') : [])
-  }, [onThreadList, threadList])
-  useEffect(() => {
-    composerRef.current?.focus()
-  }, [])
-
   return (
-    <div
-      className={cn(
-        'flex min-h-0 flex-1 flex-col',
-        messages.length === 0 && 'justify-center pb-14'
-      )}
-    >
-      {messages.length === 0 ? (
-        <EmptyChat onPick={pick} />
-      ) : (
-        <MessageScrollerProvider autoScroll>
-          <MessageScroller>
-            <MessageScrollerViewport>
-              <MessageScrollerContent className="mx-auto w-full max-w-2xl px-6 pt-10 pb-6">
-                {messages.map((message) => (
-                  <MessageScrollerItem key={message.id} messageId={message.id}>
-                    <Message align={message.role === 'user' ? 'end' : 'start'}>
-                      <MessageContent>
-                        {message.parts.map((part, index) => {
-                          const key = `${message.id}-${index}`
-                          if (part.type === 'data-thread') {
-                            return (
-                              <ThreadChip
-                                key={key}
-                                thread={part.data as OpenThread}
-                              />
-                            )
-                          }
-                          if (part.type === 'text' && message.role === 'user') {
-                            return <UserBubble key={key} text={part.text} />
-                          }
-                          if (part.type === 'text') {
-                            return (
-                              <div key={key} data-mask>
-                                <Response
-                                  variant="reading"
-                                  components={RESPONSE_COMPONENTS}
-                                >
-                                  {part.text}
-                                </Response>
-                              </div>
-                            )
-                          }
-                          if (isToolUIPart(part)) {
-                            return (
-                              <ToolStep
-                                key={key}
-                                part={part}
-                                messages={messages}
-                                isAnswerable={message.id === lastId && !isBusy}
-                                onAnswer={answer}
-                              />
-                            )
-                          }
-                          return null
-                        })}
-                        {!(isBusy && message.id === lastId) && (
-                          <MessageActions
-                            message={message}
-                            onEdit={
-                              message.role === 'user' && !isBusy
-                                ? () => edit(message)
-                                : undefined
+    <div className="flex flex-col gap-2">
+      {isOpen && messages.length > 0 ? (
+        <div className="bg-popover ring-foreground/6 flex h-[min(26rem,45vh)] flex-col overflow-hidden rounded-2xl shadow-sm ring">
+          {header}
+          <MessageScrollerProvider autoScroll>
+            <MessageScroller>
+              <MessageScrollerViewport>
+                <MessageScrollerContent className="w-full px-5 pt-4 pb-3">
+                  {messages.map((message) => (
+                    <MessageScrollerItem
+                      key={message.id}
+                      messageId={message.id}
+                    >
+                      <Message
+                        align={message.role === 'user' ? 'end' : 'start'}
+                      >
+                        <MessageContent>
+                          {message.parts.map((part, index) => {
+                            const key = `${message.id}-${index}`
+                            if (part.type === 'data-thread') {
+                              return (
+                                <ThreadChip
+                                  key={key}
+                                  thread={part.data as OpenThread}
+                                />
+                              )
                             }
-                            onRegenerate={
-                              canRegenerate && message.id === lastId
-                                ? () => {
-                                    void regenerate()
+                            if (
+                              part.type === 'text' &&
+                              message.role === 'user'
+                            ) {
+                              return <UserBubble key={key} text={part.text} />
+                            }
+                            if (part.type === 'text') {
+                              return (
+                                <div key={key} data-mask>
+                                  <Response
+                                    variant="reading"
+                                    components={RESPONSE_COMPONENTS}
+                                  >
+                                    {part.text}
+                                  </Response>
+                                </div>
+                              )
+                            }
+                            if (isToolUIPart(part)) {
+                              return (
+                                <ToolStep
+                                  key={key}
+                                  part={part}
+                                  messages={messages}
+                                  isAnswerable={
+                                    message.id === lastId && !isBusy
                                   }
-                                : undefined
+                                  onAnswer={answer}
+                                />
+                              )
                             }
-                          />
+                            return null
+                          })}
+                          {!(isBusy && message.id === lastId) && (
+                            <MessageActions
+                              message={message}
+                              onEdit={
+                                message.role === 'user' && !isBusy
+                                  ? () => edit(message)
+                                  : undefined
+                              }
+                              onRegenerate={
+                                canRegenerate && message.id === lastId
+                                  ? () => {
+                                      void regenerate()
+                                    }
+                                  : undefined
+                              }
+                            />
+                          )}
+                        </MessageContent>
+                      </Message>
+                    </MessageScrollerItem>
+                  ))}
+                  {status === 'submitted' && (
+                    <MessageScrollerItem>
+                      <Marker render={<output />}>
+                        <MarkerIcon>
+                          <Spinner />
+                        </MarkerIcon>
+                        <MarkerContent>{t.agent.thinking}</MarkerContent>
+                      </Marker>
+                    </MessageScrollerItem>
+                  )}
+                  {error && (
+                    <MessageScrollerItem>
+                      <Marker role="alert">
+                        <MarkerIcon>
+                          <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
+                        </MarkerIcon>
+                        <MarkerContent>
+                          {limitText(error) ?? t.agent.failed}
+                        </MarkerContent>
+                        {!limitText(error) && (
+                          <Button
+                            size="xs"
+                            variant="ghost-muted"
+                            onClick={() => {
+                              void regenerate()
+                            }}
+                          >
+                            {t.agent.retry}
+                          </Button>
                         )}
-                      </MessageContent>
-                    </Message>
-                  </MessageScrollerItem>
-                ))}
-                {status === 'submitted' && (
-                  <MessageScrollerItem>
-                    <Marker render={<output />}>
-                      <MarkerIcon>
-                        <Spinner />
-                      </MarkerIcon>
-                      <MarkerContent>{t.agent.thinking}</MarkerContent>
-                    </Marker>
-                  </MessageScrollerItem>
-                )}
-                {error && (
-                  <MessageScrollerItem>
-                    <Marker role="alert">
-                      <MarkerIcon>
-                        <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
-                      </MarkerIcon>
-                      <MarkerContent>
-                        {limitText(error) ?? t.agent.failed}
-                      </MarkerContent>
-                      {!limitText(error) && (
-                        <Button
-                          size="xs"
-                          variant="ghost-muted"
-                          onClick={() => {
-                            void regenerate()
-                          }}
-                        >
-                          {t.agent.retry}
-                        </Button>
-                      )}
-                    </Marker>
-                  </MessageScrollerItem>
-                )}
-              </MessageScrollerContent>
-            </MessageScrollerViewport>
-            <MessageRail messages={messages} />
-            <MessageScrollerButton />
-          </MessageScroller>
-        </MessageScrollerProvider>
+                      </Marker>
+                    </MessageScrollerItem>
+                  )}
+                </MessageScrollerContent>
+              </MessageScrollerViewport>
+              <MessageRail messages={messages} />
+              <MessageScrollerButton />
+            </MessageScroller>
+          </MessageScrollerProvider>
+        </div>
+      ) : (
+        !text && <Suggestions onPick={(skill) => send(`/${skill}`)} />
       )}
       <form
-        className="relative mx-auto w-full max-w-2xl px-6 pb-5"
+        className="relative"
         onSubmit={(event) => {
           event.preventDefault()
           send()
@@ -1247,6 +1220,11 @@ export const AgentChat = ({
             placeholder={t.agent.placeholder}
             rows={1}
             value={text}
+            onFocus={() => {
+              onFocusChange(true)
+              onOpenChange(true)
+            }}
+            onBlur={() => onFocusChange(false)}
             onChange={(event) => {
               setText(event.target.value)
               setSkillIndex(0)
@@ -1283,6 +1261,7 @@ export const AgentChat = ({
               <HugeiconsIcon icon={SlashIcon} strokeWidth={2} />
               {t.agent.skills}
             </InputGroupButton>
+            {composerActions}
             <VoiceButton isBusy={isBusy} voice={voice} />
             {isBusy ? (
               <IconButton

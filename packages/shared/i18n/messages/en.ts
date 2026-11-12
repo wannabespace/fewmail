@@ -27,6 +27,7 @@ export const en = {
     pending: 'waiting on Home',
   },
   agent: {
+    collapse: 'Collapse',
     voice: 'Talk to the agent',
     voiceStop: 'Stop and send',
     autonomy: {
@@ -62,10 +63,7 @@ export const en = {
     detach: 'Don’t attach this email',
     deleteChat: 'Delete chat',
     failed: 'The agent could not finish. Try again.',
-    lead: 'Ask about your mail or say what to do. Anything that sends or changes Gmail waits for your yes.',
     newChat: 'New chat',
-    closeChat: 'Close tab',
-    switchChat: 'Switch chat',
     noChats: 'No chats yet',
     cancelEdit: 'Cancel editing',
     copy: 'Copy',
@@ -125,7 +123,6 @@ export const en = {
     } satisfies Record<AgentToolName, string>,
     stop: 'Stop',
     thinking: 'Thinking…',
-    title: 'What can I do for you?',
     to: (recipients: string) => `To ${recipients}`,
     until: (time: string) => `Until ${time}`,
     yes: {
@@ -544,6 +541,7 @@ export const en = {
     reload: 'Reload',
   },
   keys: {
+    askAgent: 'ask the agent',
     pin: 'pin',
     unpin: 'unpin',
     copyCode: 'copy code',
@@ -734,7 +732,6 @@ export const en = {
     folders: 'Folders',
     calendar: 'Calendar',
     subscriptions: 'Subscriptions',
-    agent: 'Agent',
     boards: 'Boards',
     newBoard: 'New board',
     mail: 'Mail',

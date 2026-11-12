@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const it: Messages = {
   agent: {
+    collapse: 'Comprimi',
     voice: 'Parla con l’agente',
     voiceStop: 'Ferma e invia',
     chats: 'Chat',
@@ -40,10 +41,7 @@ export const it: Messages = {
     detach: 'Non allegare questa email',
     deleteChat: 'Elimina chat',
     failed: 'L’agente non è riuscito a finire. Riprova.',
-    lead: 'Chiedi della tua posta o di’ cosa fare. Tutto ciò che invia o modifica Gmail aspetta il tuo sì.',
     newChat: 'Nuova chat',
-    closeChat: 'Chiudi scheda',
-    switchChat: 'Cambia chat',
     noChats: 'Ancora nessuna chat',
     cancelEdit: 'Annulla modifica',
     copy: 'Copia',
@@ -103,7 +101,6 @@ export const it: Messages = {
     },
     stop: 'Ferma',
     thinking: 'Sto pensando…',
-    title: 'Cosa posso fare per te?',
     to: (recipients: string) => `A ${recipients}`,
     until: (time: string) => `Fino a ${time}`,
     yes: {
@@ -779,6 +776,7 @@ export const it: Messages = {
     reload: 'Ricarica',
   },
   keys: {
+    askAgent: 'chiedi all’agente',
     approvePicked: (n: number) => `approva ${n} selezionati`,
     pick: 'seleziona',
     pickAll: 'seleziona tutto',
@@ -968,7 +966,6 @@ export const it: Messages = {
     folders: 'Cartelle',
     calendar: 'Calendario',
     subscriptions: 'Iscrizioni',
-    agent: 'Agente',
     boards: 'Bacheche',
     newBoard: 'Nuova bacheca',
     mail: 'Posta',

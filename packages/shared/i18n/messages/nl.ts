@@ -27,6 +27,7 @@ export const nl: Messages = {
     pending: 'wacht op Home',
   },
   agent: {
+    collapse: 'Inklappen',
     voice: 'Praat met de agent',
     voiceStop: 'Stoppen en versturen',
     chats: 'Chats',
@@ -62,10 +63,7 @@ export const nl: Messages = {
     detach: 'Deze e-mail niet bijvoegen',
     deleteChat: 'Chat verwijderen',
     failed: 'De agent kon het niet afmaken. Probeer het opnieuw.',
-    lead: 'Vraag iets over je mail of zeg wat er moet gebeuren. Alles wat verstuurt of Gmail wijzigt, wacht op jouw ja.',
     newChat: 'Nieuwe chat',
-    closeChat: 'Tabblad sluiten',
-    switchChat: 'Andere chat',
     noChats: 'Nog geen chats',
     cancelEdit: 'Bewerken annuleren',
     copy: 'Kopiëren',
@@ -125,7 +123,6 @@ export const nl: Messages = {
     },
     stop: 'Stoppen',
     thinking: 'Denken…',
-    title: 'Wat kan ik voor je doen?',
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
     yes: {
@@ -548,6 +545,7 @@ export const nl: Messages = {
     reload: 'Herladen',
   },
   keys: {
+    askAgent: 'agent vragen',
     approvePicked: (n: number) => `${n} gekozen goedkeuren`,
     pick: 'kiezen',
     pickAll: 'alles kiezen',
@@ -737,7 +735,6 @@ export const nl: Messages = {
     folders: 'Mappen',
     calendar: 'Agenda',
     subscriptions: 'Abonnementen',
-    agent: 'Agent',
     boards: 'Borden',
     newBoard: 'Nieuw bord',
     mail: 'Mail',

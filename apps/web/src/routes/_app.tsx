@@ -9,7 +9,6 @@ import {
   Outlet,
   redirect,
   useRouter,
-  useRouterState,
 } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { useEffect, useState } from 'react'
@@ -24,7 +23,7 @@ import { ComposeProvider } from '~/components/compose/compose-context'
 import { Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
-import { agentModeStore, signedInStore } from '~/lib/auth'
+import { signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
 import { listenForChanges, orpc } from '~/lib/orpc'
@@ -75,9 +74,6 @@ const AppLayout = () => {
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   const sidebarWidth = useSubscription(sidebarWidthStore)
   const router = useRouter()
-  const isAgentMode = useRouterState({
-    select: ({ location }) => location.pathname === '/agent',
-  })
 
   useEffect(() => {
     // Charts and the AI SDK would otherwise compete with the first page's own requests.
@@ -90,9 +86,6 @@ const AppLayout = () => {
     })
     return () => cancelIdleCallback(idle)
   }, [router])
-  useEffect(() => {
-    agentModeStore.set(isAgentMode)
-  }, [isAgentMode])
   useEffect(() => {
     void mailRowsOf().preload()
   }, [])

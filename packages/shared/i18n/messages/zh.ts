@@ -28,6 +28,7 @@ export const zh: Messages = {
   },
   byRule: '按规则',
   agent: {
+    collapse: '收起',
     voice: '语音对话',
     voiceStop: '停止并发送',
     chats: '对话',
@@ -62,10 +63,7 @@ export const zh: Messages = {
     detach: '不附上这封邮件',
     deleteChat: '删除对话',
     failed: '助手没能完成。请再试一次。',
-    lead: '问问你的邮件，或者告诉我要做什么。任何发送或改动 Gmail 的操作都会先等你确认。',
     newChat: '新对话',
-    closeChat: '关闭标签页',
-    switchChat: '切换对话',
     noChats: '还没有对话',
     cancelEdit: '取消编辑',
     copy: '复制',
@@ -125,7 +123,6 @@ export const zh: Messages = {
     },
     stop: '停止',
     thinking: '思考中…',
-    title: '我能帮你做什么？',
     to: (recipients: string) => `收件人：${recipients}`,
     until: (time: string) => `推迟到：${time}`,
     yes: {
@@ -274,6 +271,7 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
+    askAgent: '问助手',
     approvePicked: (n: number) => `批准已选的 ${n} 项`,
     pick: '选择',
     pickAll: '全选',
@@ -457,7 +455,6 @@ export const zh: Messages = {
     folders: '文件夹',
     calendar: '日历',
     subscriptions: '订阅',
-    agent: '助手',
     boards: '看板',
     newBoard: '新建看板',
     mail: '邮件',

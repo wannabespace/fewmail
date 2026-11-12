@@ -31,10 +31,3 @@ export const signOut = () => {
     .finally(() => authClient.signOut())
     .then(() => location.assign('/login'))
 }
-
-export const agentModeStore = createWebStorageValue({
-  defaultValue: false,
-  key: 'fewmail.agent-mode',
-  schema: type('boolean'),
-  type: 'localStorage',
-})

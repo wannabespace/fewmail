@@ -28,6 +28,7 @@ export const ko: Messages = {
   },
   byRule: '규칙에 따라',
   agent: {
+    collapse: '접기',
     voice: '음성으로 말하기',
     voiceStop: '멈추고 보내기',
     chats: '채팅',
@@ -62,10 +63,7 @@ export const ko: Messages = {
     detach: '이 이메일 첨부 안 함',
     deleteChat: '채팅 삭제',
     failed: '에이전트가 끝내지 못했어요. 다시 시도해 주세요.',
-    lead: '메일에 대해 묻거나 할 일을 말해 주세요. 보내거나 Gmail을 바꾸는 일은 모두 당신의 확인을 기다려요.',
     newChat: '새 채팅',
-    closeChat: '탭 닫기',
-    switchChat: '채팅 전환',
     noChats: '아직 채팅이 없어요',
     cancelEdit: '편집 취소',
     copy: '복사',
@@ -125,7 +123,6 @@ export const ko: Messages = {
     },
     stop: '중지',
     thinking: '생각하는 중…',
-    title: '무엇을 도와드릴까요?',
     to: (recipients: string) => `받는 사람: ${recipients}`,
     until: (time: string) => `다시 표시: ${time}`,
     yes: {
@@ -279,6 +276,7 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
+    askAgent: '에이전트에게 묻기',
     approvePicked: (n: number) => `선택한 ${n}개 승인`,
     pick: '선택',
     pickAll: '모두 선택',
@@ -465,7 +463,6 @@ export const ko: Messages = {
     folders: '폴더',
     calendar: '캘린더',
     subscriptions: '구독',
-    agent: '에이전트',
     boards: '보드',
     newBoard: '새 보드',
     mail: '메일',

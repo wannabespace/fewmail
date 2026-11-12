@@ -312,7 +312,7 @@ const deliverScheduleRun = async (
   notify(userId, scheduleNotification(instruction, text, chatId))
   await announceChange(userId, ['chats', 'schedules'])
   const run = {
-    body: `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${chatId}`,
+    body: `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/home?chat=${chatId}`,
     headline: instruction,
   }
   const telegramChat = await chatIdForUser(userId)

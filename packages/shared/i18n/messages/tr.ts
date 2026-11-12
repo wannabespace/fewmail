@@ -27,6 +27,7 @@ export const tr: Messages = {
     pending: 'Ana Sayfa’da bekliyor',
   },
   agent: {
+    collapse: 'Daralt',
     voice: 'Ajana sesle söyle',
     voiceStop: 'Durdur ve gönder',
     chats: 'Sohbetler',
@@ -62,10 +63,7 @@ export const tr: Messages = {
     detach: 'Bu e-postayı ekleme',
     deleteChat: 'Sohbeti sil',
     failed: 'Ajan işi bitiremedi. Tekrar dene.',
-    lead: 'E-postaların hakkında sor ya da ne yapılacağını söyle. Gönderen ya da Gmail’i değiştiren her şey senin onayını bekler.',
     newChat: 'Yeni sohbet',
-    closeChat: 'Sekmeyi kapat',
-    switchChat: 'Sohbet değiştir',
     noChats: 'Henüz sohbet yok',
     cancelEdit: 'Düzenlemeyi iptal et',
     copy: 'Kopyala',
@@ -125,7 +123,6 @@ export const tr: Messages = {
     },
     stop: 'Durdur',
     thinking: 'Düşünüyor…',
-    title: 'Senin için ne yapabilirim?',
     to: (recipients: string) => `Kime: ${recipients}`,
     until: (time: string) => `Şu zamana kadar: ${time}`,
     yes: {
@@ -531,6 +528,7 @@ export const tr: Messages = {
     reload: 'Yenile',
   },
   keys: {
+    askAgent: 'ajana sor',
     approvePicked: (n: number) => `seçili ${n} öğeyi onayla`,
     pick: 'seç',
     pickAll: 'tümünü seç',
@@ -717,7 +715,6 @@ export const tr: Messages = {
     folders: 'Klasörler',
     calendar: 'Takvim',
     subscriptions: 'Abonelikler',
-    agent: 'Ajan',
     boards: 'Panolar',
     newBoard: 'Yeni pano',
     mail: 'Posta',

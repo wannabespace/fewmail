@@ -167,5 +167,5 @@ export const scheduleNotification = (
 ): Notification => ({
   body: answer.slice(0, BODY_LIMIT),
   title: instruction,
-  url: `/agent?chat=${chatId}`,
+  url: `/home?chat=${chatId}`,
 })

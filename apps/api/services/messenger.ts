@@ -209,7 +209,7 @@ const chatLinkReply = (
   chatId: string
 ): Reply => ({
   text: chat.channel.plain(
-    `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/agent?chat=${chatId}`
+    `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/home?chat=${chatId}`
   ),
 })
 

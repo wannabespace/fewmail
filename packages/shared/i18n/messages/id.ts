@@ -27,6 +27,7 @@ export const id: Messages = {
     pending: 'menunggu di Beranda',
   },
   agent: {
+    collapse: 'Ciutkan',
     voice: 'Bicara ke agen',
     voiceStop: 'Berhenti dan kirim',
     chats: 'Obrolan',
@@ -62,10 +63,7 @@ export const id: Messages = {
     detach: 'Jangan lampirkan email ini',
     deleteChat: 'Hapus obrolan',
     failed: 'Agen tidak bisa menyelesaikannya. Coba lagi.',
-    lead: 'Tanyakan soal email kamu atau bilang apa yang harus dilakukan. Semua yang mengirim atau mengubah Gmail menunggu persetujuanmu.',
     newChat: 'Obrolan baru',
-    closeChat: 'Tutup tab',
-    switchChat: 'Ganti obrolan',
     noChats: 'Belum ada obrolan',
     cancelEdit: 'Batalkan edit',
     copy: 'Salin',
@@ -125,7 +123,6 @@ export const id: Messages = {
     },
     stop: 'Hentikan',
     thinking: 'Berpikir…',
-    title: 'Apa yang bisa aku bantu?',
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
     yes: {
@@ -534,6 +531,7 @@ export const id: Messages = {
     reload: 'Muat ulang',
   },
   keys: {
+    askAgent: 'tanya agen',
     approvePicked: (n: number) => `setujui ${n} yang dipilih`,
     pick: 'pilih',
     pickAll: 'pilih semua',
@@ -722,7 +720,6 @@ export const id: Messages = {
     folders: 'Folder',
     calendar: 'Kalender',
     subscriptions: 'Langganan',
-    agent: 'Agen',
     boards: 'Papan',
     newBoard: 'Papan baru',
     mail: 'Email',

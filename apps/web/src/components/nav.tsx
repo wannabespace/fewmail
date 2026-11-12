@@ -38,7 +38,6 @@ import type { Theme } from '@fewmail/ui/theme-store'
 import { themeStore, useTheme } from '@fewmail/ui/theme-store'
 import {
   Add01Icon,
-  AiChat02Icon,
   ArrowDown01Icon,
   ArrowUp01Icon,
   Calendar03Icon,
@@ -84,7 +83,6 @@ import { useWithAgent } from './upgrade-dialog'
 
 export const NAV_ITEMS = [
   { icon: Home01Icon, key: 'home', sequence: ['G', 'H'], to: '/home' },
-  { icon: AiChat02Icon, key: 'agent', sequence: ['G', 'A'], to: '/agent' },
   { icon: Mail01Icon, key: 'mail', sequence: ['G', 'M'], to: '/mail' },
   {
     icon: Calendar03Icon,
@@ -108,8 +106,7 @@ export const NAV_ITEMS = [
   },
 ] as const
 
-const isAgentOnly = (key: string): key is 'agent' | 'home' =>
-  key === 'home' || key === 'agent'
+const isAgentOnly = (key: string): key is 'home' => key === 'home'
 
 /** Home and Agent show on Free too; opening one there asks for Pro instead. */
 export const useGoTo = () => {

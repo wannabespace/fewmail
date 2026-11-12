@@ -28,6 +28,7 @@ export const hi: Messages = {
   },
   byRule: 'एक नियम से',
   agent: {
+    collapse: 'समेटें',
     voice: 'एजेंट से बोलें',
     voiceStop: 'रोकें और भेजें',
     chats: 'चैट',
@@ -62,10 +63,7 @@ export const hi: Messages = {
     detach: 'यह ईमेल न जोड़ें',
     deleteChat: 'चैट हटाएँ',
     failed: 'एजेंट काम पूरा नहीं कर पाया। फिर से कोशिश करें।',
-    lead: 'अपने मेल के बारे में पूछें या बताएँ क्या करना है। जो कुछ भी भेजता है या Gmail बदलता है, वह आपकी हाँ का इंतज़ार करता है।',
     newChat: 'नई चैट',
-    closeChat: 'टैब बंद करें',
-    switchChat: 'चैट बदलें',
     noChats: 'अभी कोई चैट नहीं',
     cancelEdit: 'संपादन रद्द करें',
     copy: 'कॉपी करें',
@@ -125,7 +123,6 @@ export const hi: Messages = {
     },
     stop: 'रोकें',
     thinking: 'सोच रहा है…',
-    title: 'मैं आपके लिए क्या करूँ?',
     to: (recipients: string) => `प्रति: ${recipients}`,
     until: (time: string) => `तक: ${time}`,
     yes: {
@@ -278,6 +275,7 @@ export const hi: Messages = {
     reload: 'रीलोड करें',
   },
   keys: {
+    askAgent: 'एजेंट से पूछें',
     approvePicked: (n: number) => `${n} चुने हुए मंज़ूर करें`,
     pick: 'चुनें',
     pickAll: 'सब चुनें',
@@ -463,7 +461,6 @@ export const hi: Messages = {
     folders: 'फ़ोल्डर',
     calendar: 'कैलेंडर',
     subscriptions: 'सब्सक्रिप्शन',
-    agent: 'एजेंट',
     boards: 'बोर्ड',
     newBoard: 'नया बोर्ड',
     mail: 'मेल',
