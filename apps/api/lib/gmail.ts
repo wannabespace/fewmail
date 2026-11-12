@@ -204,11 +204,15 @@ export const listMessageIds = async (
   const ids: string[] = []
   let pageToken: string | undefined
   do {
+    // A search with no match comes back as an empty 204, not `{}`.
     // oxlint-disable-next-line eslint/no-await-in-loop -- pages chain via nextPageToken
-    const page = await gmail<{
-      messages?: { id: string }[]
-      nextPageToken?: string
-    }>(
+    const page = await gmail<
+      | {
+          messages?: { id: string }[]
+          nextPageToken?: string
+        }
+      | undefined
+    >(
       account,
       `/messages?${new URLSearchParams({
         fields: 'messages/id,nextPageToken',
@@ -217,8 +221,8 @@ export const listMessageIds = async (
         ...(pageToken && { pageToken }),
       })}`
     )
-    ids.push(...(page.messages ?? []).map(({ id }) => id))
-    pageToken = page.nextPageToken
+    ids.push(...(page?.messages ?? []).map(({ id }) => id))
+    pageToken = page?.nextPageToken
   } while (pageToken && ids.length < max)
   return ids
 }
