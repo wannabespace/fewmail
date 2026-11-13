@@ -457,9 +457,6 @@ export const pt: Messages = {
     title: { month: 'Seu mês em e-mails', year: 'Seu ano em e-mails' },
     unsubscribed: 'newsletters deixadas',
   },
-  forward: {
-    done: 'Seu e-mail encaminhado',
-  },
   reading: {
     summary: 'O que as suas newsletters disseram',
     worth: 'Vale a pena ler inteira',
@@ -939,12 +936,6 @@ export const pt: Messages = {
         'Toda manhã, as newsletters do último dia chegam ao Telegram e WhatsApp numa só mensagem.',
       title: 'Resumo de newsletters',
     },
-    forward: {
-      copy: 'Copiar endereço',
-      description:
-        'Envie ou encaminhe qualquer e-mail para este endereço a partir da sua caixa, com uma nota no topo dizendo o que fazer. A resposta chega no Telegram ou WhatsApp e num chat aqui.',
-      title: 'Encaminhar para o agente',
-    },
     account: 'Conta',
     agent: 'Agente',
     morningDescription: (timezone: string) =>
@@ -1292,11 +1283,6 @@ export const pt: Messages = {
           description:
             'Todo o acúmulo fora de uma vez, até 50.000 e-mails por caixa, todos sob um mesmo marcador para que um clique traga cada um de volta. Grátis.',
           title: 'Limpar a caixa de entrada',
-        },
-        forward: {
-          description:
-            'Encaminhe um e-mail com uma nota em cima, “marque um horário com eles semana que vem”, e o agente cuida do resto.',
-          title: 'Encaminhar para o agente',
         },
         reading: {
           description:

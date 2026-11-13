@@ -435,11 +435,6 @@ export const fr: Messages = {
             'Tout l’arriéré dégagé d’un coup, jusqu’à 50 000 e-mails par boîte, rangés sous un seul libellé pour qu’une seule annulation les ramène tous. Gratuit.',
           title: 'Faire le ménage',
         },
-        forward: {
-          description:
-            'Transférez un e-mail avec une note en haut, « trouve un créneau avec eux la semaine prochaine », et l’agent prend le relais.',
-          title: 'Transférer à l’agent',
-        },
         reading: {
           description:
             'Les newsletters du jour dans une seule liste au calme, chacune résumée en quelques phrases.',
@@ -1137,12 +1132,6 @@ export const fr: Messages = {
         'Chaque matin, les newsletters de la veille arrivent dans Telegram et WhatsApp en un seul message.',
       title: 'Résumé des newsletters',
     },
-    forward: {
-      copy: 'Copier l’adresse',
-      description:
-        'Envoie ou transfère n’importe quel e-mail à cette adresse depuis ta propre boîte, avec une note en haut qui dit quoi faire. La réponse arrive dans Telegram ou WhatsApp et dans une conversation ici.',
-      title: 'Transférer à l’agent',
-    },
     knowledge: {
       description:
         'Tarifs, adresses, disponibilités, votre façon de répondre. L’agent s’en sert dans les brouillons et l’autocomplétion.',
@@ -1631,9 +1620,6 @@ export const fr: Messages = {
       `${people} de personnes · ${lists} de newsletters`,
     title: { month: 'Ton mois en e-mails', year: 'Ton année en e-mails' },
     unsubscribed: 'newsletters quittées',
-  },
-  forward: {
-    done: 'Ton e-mail transféré',
   },
   reading: {
     summary: 'Ce que disent vos newsletters',

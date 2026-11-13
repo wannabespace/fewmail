@@ -35,7 +35,6 @@ import { logError } from './lib/log'
 import { seedBoards } from './services/boards'
 import { askAgent, postToChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
-import { followForwarded } from './services/forwarded'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { savedThisWeek } from './services/home'
 import {
@@ -70,7 +69,6 @@ import {
   ensureMailbox,
   HELD_MONTHS,
   holdEarlierMail,
-  onNewMail,
   readBoardHistory,
   syncMailbox,
 } from './services/sync'
@@ -458,7 +456,6 @@ const tick = async () => {
 /** Railway sends SIGTERM on deploy and waits `drainingSeconds`: finish the jobs in flight, start no new ones. */
 const DRAIN_MS = 25_000
 
-onNewMail(followForwarded)
 const interval = setInterval(tick, TICK_MS)
 void tick()
 console.log('worker started')

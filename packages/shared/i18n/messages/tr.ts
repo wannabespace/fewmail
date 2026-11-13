@@ -438,9 +438,6 @@ export const tr: Messages = {
     title: { month: 'E-postada ayın', year: 'E-postada yılın' },
     unsubscribed: 'bülten bırakıldı',
   },
-  forward: {
-    done: 'İlettiğin e-posta',
-  },
   reading: {
     summary: 'Bültenleriniz ne dedi',
     worth: 'Tamamını okumaya değer',
@@ -905,12 +902,6 @@ export const tr: Messages = {
         'Her sabah son bir günün bültenleri Telegram ve WhatsApp’a tek mesaj olarak gelir.',
       title: 'Bülten özeti',
     },
-    forward: {
-      copy: 'Adresi kopyala',
-      description:
-        'Kendi posta kutundan bu adrese herhangi bir e-postayı gönder ya da ilet, en üste ne yapılacağını yazan bir not ekle. Yanıt Telegram veya WhatsApp’a ve buradaki bir sohbete gelir.',
-      title: 'Ajana ilet',
-    },
     account: 'Hesap',
     agent: 'Ajan',
     morningDescription: (timezone: string) =>
@@ -1258,11 +1249,6 @@ export const tr: Messages = {
           description:
             'Biriken her şey tek seferde gider: posta kutusu başına 50.000 e-postaya kadar, hepsi tek bir etiket altında, böylece tek tıkla hepsi geri gelir. Ücretsiz.',
           title: 'Gelen kutusunu temizle',
-        },
-        forward: {
-          description:
-            'Bir e-postayı üstüne bir not yazarak ilet, “onlarla gelecek hafta bir saat bul” gibi, gerisini ajan halletsin.',
-          title: 'Ajana ilet',
         },
         reading: {
           description:

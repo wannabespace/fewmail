@@ -619,12 +619,6 @@ export const ko: Messages = {
         '매일 아침, 지난 하루의 뉴스레터를 Telegram과 WhatsApp으로 한 메시지에 모아 보내요.',
       title: '뉴스레터 다이제스트',
     },
-    forward: {
-      copy: '주소 복사',
-      description:
-        '내 메일함에서 이 주소로 메일을 보내거나 전달하고, 맨 위에 할 일을 메모로 적어 주세요. 답은 Telegram이나 WhatsApp, 그리고 여기 채팅으로 와요.',
-      title: '에이전트에게 전달',
-    },
     knowledge: {
       description:
         '가격, 주소, 가능한 일정, 선호하는 답장 방식 등. 에이전트가 초안과 자동 완성에 사용해요.',
@@ -968,11 +962,6 @@ export const ko: Messages = {
           description:
             '쌓인 메일을 한 번에 정리해요. 메일함마다 최대 50,000통, 모두 라벨 하나로 묶어 두니 되돌리기 한 번이면 전부 돌아와요. 무료.',
           title: '받은편지함 정리',
-        },
-        forward: {
-          description:
-            '“다음 주에 이분들과 시간 좀 잡아 줘” 같은 메모를 위에 달아 메일을 전달하면, 그다음은 에이전트가 맡아요.',
-          title: '에이전트에게 전달',
         },
         reading: {
           description:
@@ -1534,9 +1523,6 @@ export const ko: Messages = {
       `사람에게서 ${people} · 뉴스레터에서 ${lists}`,
     title: { month: '메일로 본 이번 달', year: '메일로 본 올해' },
     unsubscribed: '떠난 뉴스레터',
-  },
-  forward: {
-    done: '전달한 메일',
   },
   reading: {
     summary: '뉴스레터 내용 요약',

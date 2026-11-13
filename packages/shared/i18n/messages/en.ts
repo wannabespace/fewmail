@@ -496,9 +496,6 @@ export const en = {
     title: { month: 'Your month in email', year: 'Your year in email' },
     unsubscribed: 'mailing lists left',
   },
-  forward: {
-    done: 'Your forwarded email',
-  },
   reading: {
     summary: 'What your newsletters said',
     worth: 'Worth reading in full',
@@ -933,12 +930,6 @@ export const en = {
         'Each morning, the last day’s newsletters arrive in Telegram and WhatsApp as one message.',
       title: 'Newsletter digest',
     },
-    forward: {
-      copy: 'Copy address',
-      description:
-        'Forward an email here from your own mailbox with a note on what to do. The answer comes in a chat of its own.',
-      title: 'Forward to the agent',
-    },
     account: 'Account',
     agent: 'Agent',
     deleteAccount: 'Delete account',
@@ -1285,11 +1276,6 @@ export const en = {
           description:
             'The whole backlog out in one go, up to 50,000 emails per mailbox, all under one label so Undo brings every one back. Free.',
           title: 'Clear-out',
-        },
-        forward: {
-          description:
-            'Forward an email with a note on top, “find a time with them next week”, and the agent takes it from there.',
-          title: 'Forward to the agent',
         },
         reading: {
           description:

@@ -16,13 +16,12 @@ import { logError, logErrorAs } from './lib/log'
 import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
-import { followForwarded } from './services/forwarded'
 import { handleGmailPush } from './services/gmail-push'
 import { LimitReachedError } from './services/limit-error'
 import { finishAddingMailbox } from './services/mailboxes'
 import { hear, speakFor, spokenHome, spokenReading } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
-import { onNewMail, syncMailbox } from './services/sync'
+import { syncMailbox } from './services/sync'
 import { readSharedWrapped } from './services/wrapped'
 import { wrappedImage, wrappedPreviewHtml } from './services/wrapped-image'
 import { startTelegram, telegramWebhook } from './telegram'
@@ -179,7 +178,6 @@ const app = new Hono()
       : c.text('another commit', 503)
   )
 
-onNewMail(followForwarded)
 await runMigrations()
 await relayChanges()
 void startTelegram()

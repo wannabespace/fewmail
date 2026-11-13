@@ -442,9 +442,6 @@ export const id: Messages = {
     title: { month: 'Bulanmu dalam email', year: 'Tahunmu dalam email' },
     unsubscribed: 'newsletter ditinggalkan',
   },
-  forward: {
-    done: 'Email yang kamu teruskan',
-  },
   reading: {
     summary: 'Isi newsletter Anda',
     worth: 'Layak dibaca utuh',
@@ -912,12 +909,6 @@ export const id: Messages = {
         'Setiap pagi, newsletter sehari terakhir datang ke Telegram dan WhatsApp dalam satu pesan.',
       title: 'Ringkasan newsletter',
     },
-    forward: {
-      copy: 'Salin alamat',
-      description:
-        'Kirim atau teruskan email apa pun ke alamat ini dari kotak suratmu sendiri, dengan catatan di atas tentang apa yang harus dilakukan. Jawabannya datang di Telegram atau WhatsApp dan di obrolan di sini.',
-      title: 'Teruskan ke agen',
-    },
     account: 'Akun',
     agent: 'Agen',
     morningDescription: (timezone: string) =>
@@ -1264,11 +1255,6 @@ export const id: Messages = {
           description:
             'Semua tumpukan lama keluar sekaligus, hingga 50.000 email per kotak surat, semuanya di bawah satu label sehingga satu klik mengembalikan semuanya. Gratis.',
           title: 'Bersihkan kotak masuk',
-        },
-        forward: {
-          description:
-            'Teruskan email dengan catatan di atasnya, misalnya “carikan waktu dengan mereka minggu depan”, dan agen yang melanjutkan.',
-          title: 'Teruskan ke agen',
         },
         reading: {
           description:

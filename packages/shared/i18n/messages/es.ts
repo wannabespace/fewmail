@@ -431,11 +431,6 @@ export const es: Messages = {
             'Todo lo acumulado fuera de una vez, hasta 50.000 correos por buzón, bajo una misma etiqueta para que un solo clic los devuelva todos. Gratis.',
           title: 'Limpiar la bandeja',
         },
-        forward: {
-          description:
-            'Reenvía un correo con una nota encima, «búscame un hueco con ellos la semana que viene», y el agente se encarga del resto.',
-          title: 'Reenviar al agente',
-        },
         reading: {
           description:
             'Los boletines del día en una lista tranquila, cada uno resumido en unas pocas frases.',
@@ -1126,12 +1121,6 @@ export const es: Messages = {
         'Cada mañana, los boletines del último día llegan a Telegram y WhatsApp en un solo mensaje.',
       title: 'Resumen de boletines',
     },
-    forward: {
-      copy: 'Copiar dirección',
-      description:
-        'Envía o reenvía cualquier correo a esta dirección desde tu propio buzón, con una nota arriba diciendo qué hacer. La respuesta llega por Telegram o WhatsApp y a un chat aquí.',
-      title: 'Reenviar al agente',
-    },
     knowledge: {
       description:
         'Precios, direcciones, disponibilidad, cómo te gusta responder. El agente lo usa en borradores y autocompletado.',
@@ -1610,9 +1599,6 @@ export const es: Messages = {
       `${people} de personas · ${lists} de boletines`,
     title: { month: 'Tu mes en el correo', year: 'Tu año en el correo' },
     unsubscribed: 'boletines abandonados',
-  },
-  forward: {
-    done: 'Tu correo reenviado',
   },
   reading: {
     summary: 'Lo que dicen tus boletines',

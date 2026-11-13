@@ -433,11 +433,6 @@ export const it: Messages = {
             'Tutto l’arretrato via in un colpo, fino a 50.000 email per casella, tutte sotto un’unica etichetta, così con «Riporta tutto» tornano tutte indietro. Gratis.',
           title: 'Fai pulizia',
         },
-        forward: {
-          description:
-            'Inoltra un’email con una nota in cima, «trova un momento con loro la settimana prossima», e l’agente pensa al resto.',
-          title: 'Inoltra all’agente',
-        },
         reading: {
           description:
             'Le newsletter del giorno in un’unica lista tranquilla, ognuna riassunta in poche frasi.',
@@ -1130,12 +1125,6 @@ export const it: Messages = {
         'Ogni mattina, le newsletter dell’ultimo giorno arrivano su Telegram e WhatsApp in un solo messaggio.',
       title: 'Riepilogo newsletter',
     },
-    forward: {
-      copy: 'Copia indirizzo',
-      description:
-        'Invia o inoltra qualsiasi email a questo indirizzo dalla tua casella, con una nota in alto su cosa fare. La risposta arriva su Telegram o WhatsApp e in una chat qui.',
-      title: 'Inoltra all’agente',
-    },
     knowledge: {
       description:
         'Prezzi, indirizzi, disponibilità, come ti piace rispondere. L’agente lo usa nelle bozze e nel completamento automatico.',
@@ -1612,9 +1601,6 @@ export const it: Messages = {
       `${people} da persone · ${lists} da newsletter`,
     title: { month: 'Il tuo mese in email', year: 'Il tuo anno in email' },
     unsubscribed: 'newsletter abbandonate',
-  },
-  forward: {
-    done: 'La tua email inoltrata',
   },
   reading: {
     summary: 'Cosa dicono le tue newsletter',

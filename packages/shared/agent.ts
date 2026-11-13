@@ -285,17 +285,6 @@ export interface WrappedStats {
   unsubscribed: number
 }
 
-export const FORWARD_TAG = 'fewmail'
-
-/** `anna@gmail.com` → `anna+fewmail@gmail.com`: Gmail delivers it to the same inbox, so no other mail service is needed. */
-export const isForwardToAgent = (to: string[]) =>
-  to.some((address) => address.includes(`+${FORWARD_TAG}@`))
-
-export const forwardAddress = (email: string) => {
-  const [local, domain] = email.toLowerCase().split('@')
-  return `${local}+${FORWARD_TAG}@${domain}`
-}
-
 /** Ready-made boards offered at onboarding; names and descriptions come from `boards.starter`. */
 export const BOARD_PRESETS = [
   'money',

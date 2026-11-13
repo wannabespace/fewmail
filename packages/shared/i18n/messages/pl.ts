@@ -468,9 +468,6 @@ export const pl: Messages = {
     title: { month: 'Twój miesiąc w mailach', year: 'Twój rok w mailach' },
     unsubscribed: 'newsletterów porzuconych',
   },
-  forward: {
-    done: 'Twój przekazany mail',
-  },
   reading: {
     summary: 'Co piszą twoje newslettery',
     worth: 'Warto przeczytać w całości',
@@ -961,12 +958,6 @@ export const pl: Messages = {
         'Co rano newslettery z ostatniej doby przychodzą do Telegrama i WhatsAppa jedną wiadomością.',
       title: 'Podsumowanie newsletterów',
     },
-    forward: {
-      copy: 'Kopiuj adres',
-      description:
-        'Wyślij lub przekaż dowolny mail na ten adres ze swojej skrzynki, z notatką na górze, co zrobić. Odpowiedź przyjdzie w Telegramie lub WhatsAppie i w osobnym czacie tutaj.',
-      title: 'Przekaż agentowi',
-    },
     account: 'Konto',
     agent: 'Agent',
     deleteAccount: 'Usuń konto',
@@ -1316,11 +1307,6 @@ export const pl: Messages = {
           description:
             'Cały zaległy bałagan za jednym razem, do 50 000 maili na skrzynkę, wszystko pod jedną etykietą, więc „Przywróć wszystko” przywraca każdy z nich. Za darmo.',
           title: 'Sprzątanie skrzynki',
-        },
-        forward: {
-          description:
-            'Przekaż maila z notatką na górze, na przykład „znajdź z nimi termin w przyszłym tygodniu”, a agent zajmie się resztą.',
-          title: 'Przekaż agentowi',
         },
         reading: {
           description:

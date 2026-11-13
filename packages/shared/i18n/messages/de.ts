@@ -429,11 +429,6 @@ export const de: Messages = {
             'Der ganze Rückstau auf einmal raus, bis zu 50.000 Mails pro Postfach, alle unter einem Label, sodass Rückgängig jede einzelne zurückholt. Kostenlos.',
           title: 'Aufräumen',
         },
-        forward: {
-          description:
-            'Leite eine Mail mit einer Notiz obendrauf weiter, „finde nächste Woche einen Termin mit ihnen“, und der Agent übernimmt.',
-          title: 'An den Agenten weiterleiten',
-        },
         reading: {
           description:
             'Die Newsletter des Tages in einer ruhigen Liste, jeder in ein paar Sätzen zusammengefasst.',
@@ -1126,12 +1121,6 @@ export const de: Messages = {
         'Jeden Morgen kommen die Newsletter des letzten Tages als eine Nachricht in Telegram und WhatsApp.',
       title: 'Newsletter-Digest',
     },
-    forward: {
-      copy: 'Adresse kopieren',
-      description:
-        'Sende oder leite eine E-Mail aus deinem eigenen Postfach an diese Adresse, mit einer Notiz oben, was zu tun ist. Die Antwort kommt in Telegram oder WhatsApp und in einen Chat hier.',
-      title: 'An den Agenten weiterleiten',
-    },
     knowledge: {
       description:
         'Preise, Adressen, Verfügbarkeit, wie du gern antwortest. Der Agent nutzt das in Entwürfen und der Autovervollständigung.',
@@ -1614,9 +1603,6 @@ export const de: Messages = {
       `${people} von Menschen · ${lists} von Newslettern`,
     title: { month: 'Dein Monat in E-Mails', year: 'Dein Jahr in E-Mails' },
     unsubscribed: 'Newsletter verlassen',
-  },
-  forward: {
-    done: 'Deine weitergeleitete E-Mail',
   },
   reading: {
     summary: 'Was deine Newsletter schreiben',

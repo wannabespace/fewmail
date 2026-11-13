@@ -272,7 +272,7 @@ export interface Run {
   headline: string
 }
 
-/** A schedule run's or a forwarded email's answer. */
+/** A schedule run's answer. */
 export const runReply = (chat: Chat, run: Run): Reply => ({
   text: `${chat.channel.bold(run.headline)}\n\n${chat.channel.plain(run.body)}`,
 })

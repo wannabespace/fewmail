@@ -456,9 +456,6 @@ export const nl: Messages = {
     title: { month: 'Jouw maand in e-mail', year: 'Jouw jaar in e-mail' },
     unsubscribed: 'nieuwsbrieven verlaten',
   },
-  forward: {
-    done: 'Je doorgestuurde e-mail',
-  },
   reading: {
     summary: 'Wat je nieuwsbrieven zeiden',
     worth: 'De moeite waard om helemaal te lezen',
@@ -941,12 +938,6 @@ export const nl: Messages = {
         'Elke ochtend komen de nieuwsbrieven van de afgelopen dag als één bericht in Telegram en WhatsApp.',
       title: 'Nieuwsbriefoverzicht',
     },
-    forward: {
-      copy: 'Adres kopiëren',
-      description:
-        'Stuur of forward elke e-mail vanuit je eigen mailbox naar dit adres, met bovenaan een notitie wat er moet gebeuren. Het antwoord komt in Telegram of WhatsApp en in een chat hier.',
-      title: 'Doorsturen naar de agent',
-    },
     account: 'Account',
     agent: 'Agent',
     deleteAccount: 'Account verwijderen',
@@ -1294,11 +1285,6 @@ export const nl: Messages = {
           description:
             'De hele achterstand in één keer weg, tot 50.000 e-mails per mailbox, allemaal onder één label, zodat Ongedaan maken ze stuk voor stuk terugzet. Gratis.',
           title: 'Opruimen',
-        },
-        forward: {
-          description:
-            'Stuur een e-mail door met een notitie erboven, “zoek volgende week een moment met ze”, en de agent neemt het over.',
-          title: 'Doorsturen naar de agent',
         },
         reading: {
           description:

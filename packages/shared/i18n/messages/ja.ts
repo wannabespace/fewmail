@@ -620,12 +620,6 @@ export const ja: Messages = {
         '毎朝、前日のメルマガを Telegram と WhatsApp にひとつのメッセージで届けます。',
       title: 'メルマガのダイジェスト',
     },
-    forward: {
-      copy: 'アドレスをコピー',
-      description:
-        '自分のメールボックスからこのアドレスにメールを送信または転送し、上にやってほしいことをメモしてください。返事は Telegram か WhatsApp と、ここのチャットに届きます。',
-      title: 'エージェントに転送',
-    },
     knowledge: {
       description:
         '料金、住所、対応可能な日時、返信のスタイルなど。エージェントが下書きや自動補完に使います。',
@@ -974,11 +968,6 @@ export const ja: Messages = {
           description:
             '溜まったメールを一度にまとめて片付けます。メールボックスごとに最大 50,000 通、すべてひとつのラベルにまとめるので、「元に戻す」で全部戻せます。無料。',
           title: '受信トレイの片付け',
-        },
-        forward: {
-          description:
-            '「来週、この人たちと時間を合わせて」とひとこと添えてメールを転送すれば、あとはエージェントが引き受けます。',
-          title: 'エージェントに転送',
         },
         reading: {
           description:
@@ -1553,9 +1542,6 @@ export const ja: Messages = {
       `人から ${people} · メルマガから ${lists}`,
     title: { month: 'メールで振り返る今月', year: 'メールで振り返る今年' },
     unsubscribed: 'やめたメルマガ',
-  },
-  forward: {
-    done: '転送されたメール',
   },
   reading: {
     summary: 'メルマガの内容まとめ',

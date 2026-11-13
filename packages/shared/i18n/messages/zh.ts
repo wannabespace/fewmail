@@ -610,12 +610,6 @@ export const zh: Messages = {
         '每天早上，过去一天的订阅邮件会合成一条消息发到 Telegram 和 WhatsApp。',
       title: '订阅邮件摘要',
     },
-    forward: {
-      copy: '复制地址',
-      description:
-        '从你自己的邮箱把任何邮件发送或转发到这个地址，并在顶部写一句要做什么。回复会发到 Telegram 或 WhatsApp，以及这里的一个对话中。',
-      title: '转发给代理',
-    },
     knowledge: {
       description:
         '价格、地址、空闲时间、你喜欢的回复方式。助手会在草稿和自动补全中使用。',
@@ -952,11 +946,6 @@ export const zh: Messages = {
           description:
             '一次清掉全部积压，每个邮箱最多 50,000 封，全都带着同一个标签，一键撤销就能全部放回。免费。',
           title: '清理收件箱',
-        },
-        forward: {
-          description:
-            '转发一封邮件，在顶部写一句“下周和他们约个时间”，剩下的交给助手。',
-          title: '转发给代理',
         },
         reading: {
           description: '当天的订阅邮件汇成一份安静的清单，每封用几句话概括。',
@@ -1505,9 +1494,6 @@ export const zh: Messages = {
       `来自真人 ${people} · 来自订阅 ${lists}`,
     title: { month: '你的一个月邮件', year: '你的一年邮件' },
     unsubscribed: '退出的订阅',
-  },
-  forward: {
-    done: '你转发的邮件',
   },
   reading: {
     summary: '订阅邮件说了什么',

@@ -6,7 +6,7 @@ import {
   mailboxes,
   messages,
 } from '@fewmail/db/schema'
-import { ANALYZE_WINDOW_DAYS, isForwardToAgent } from '@fewmail/shared/agent'
+import { ANALYZE_WINDOW_DAYS } from '@fewmail/shared/agent'
 import { Result } from 'better-result'
 import { max, subDays, subMinutes, subMonths } from 'date-fns'
 import {
@@ -172,14 +172,6 @@ const analyzePending = async (userId: string, inserted: Message[]) => {
  * Order matters: risk and bulk facts are on the message before anything judges it, zombie and
  * spam moves win over rules, and the agent only sees what is left.
  */
-type NewMailHandler = (userId: string, inserted: Message[]) => Promise<void>
-const newMailHandlers: NewMailHandler[] = []
-
-/** For agent features that import sync back through the chat (a cycle): the entry points register them. */
-export const onNewMail = (handler: NewMailHandler) => {
-  newMailHandlers.push(handler)
-}
-
 const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   const { userId } = mailbox
   await assessRisks(userId, inserted)
@@ -203,10 +195,7 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   )
   await Promise.all(
     inserted
-      .filter(
-        (message) =>
-          message.isFromMe && mailbox.historyId && !isForwardToAgent(message.to)
-      )
+      .filter((message) => message.isFromMe && mailbox.historyId)
       .map((message) =>
         watchSentMail(userId, {
           messageId: message.id,
@@ -224,10 +213,6 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   await collectForNewMail(userId, inserted).catch((error) =>
     logError('board collection failed', error)
   )
-  for (const handler of newMailHandlers) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- handlers run in the order they registered
-    await handler(userId, inserted)
-  }
 }
 
 /**
