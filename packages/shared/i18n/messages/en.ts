@@ -811,10 +811,11 @@ export const en = {
     freeDescription:
       'Fast, calm mail with simple rules. Free for as long as you like.',
     includes:
-      'Pro adds the agent: every email read and summarized, replies drafted in your voice, rules in plain words, Telegram and MCP.',
+      'Every paid plan adds the agent: every email read and summarized, replies drafted in your voice, rules in plain words, Telegram and MCP.',
     manage: 'Manage billing',
     price: (usd: number) => `$${usd} / month`,
     priceYearly: (usd: number) => `$${usd} / year`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} emails and ${messages} messages a month; boards and handed-over threads without limit.`,
@@ -1041,7 +1042,7 @@ export const en = {
     chapters: {
       pricing: {
         description:
-          'The sorting, rules and protection are free forever. Pro and Max add everything that reads and writes for you; Max simply does more of it.',
+          'The sorting, rules and protection are free forever. Lite, Pro and Max add everything that reads and writes for you; the bigger plans simply do more of it.',
         label: 'Pricing',
         title: (usd: number) =>
           `Free for the sorting. From $${usd} for the agent.`,
@@ -1455,7 +1456,7 @@ export const en = {
       },
       monthly: 'Monthly',
       per: { month: 'a month', year: 'a year' },
-      pro: {
+      lite: {
         description: 'The whole agent: it reads, writes and remembers.',
         features: [
           'Home: one live queue of decisions, approved one by one or in batches',
@@ -1465,8 +1466,13 @@ export const en = {
           'Promises and people remembered, boards with charts for money or anything you track',
           'Ask your mail anything, plus MCP for your own tools',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} emails read and ${messages} messages to the agent a month; noise never counts`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} emails read and ${messages} messages to the agent a month; noise never counts`,
+      pro: {
+        description: 'The same agent with room for more mail.',
+        room: (boards: number, tasks: number) =>
+          `Up to ${boards} boards and ${tasks} handed-over threads at a time`,
       },
       tryFree: (days: number) => `Try free for ${days} days`,
       yearly: 'Yearly · 2 months free',

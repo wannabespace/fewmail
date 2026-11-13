@@ -787,10 +787,11 @@ export const tr: Messages = {
     freeDescription:
       'Basit kurallarla hızlı ve sakin e-posta. İstediğin kadar ücretsiz.',
     includes:
-      'Pro, ajanı ekler: her e-postanın okunup özetlenmesi, senin üslubunla yazılan yanıt taslakları, sade sözcüklerle kurallar, Telegram ve MCP.',
+      'Her ücretli plan ajanı ekler: her e-postanın okunup özetlenmesi, senin üslubunla yazılan yanıt taslakları, sade sözcüklerle kurallar, Telegram ve MCP.',
     manage: 'Faturalandırmayı yönet',
     price: (usd: number) => `$${usd} / ay`,
     priceYearly: (usd: number) => `$${usd} / yıl`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `Ayda ${emails} e-posta ve ${messages} mesaj; panolar ve devredilen yazışmalar sınırsız.`,
@@ -1015,7 +1016,7 @@ export const tr: Messages = {
     chapters: {
       pricing: {
         description:
-          'Sıralama, kurallar ve koruma sonsuza dek ücretsiz. Pro ve Max, senin için okuyan ve yazan her şeyi ekler; Max sadece bunu daha çok yapar.',
+          'Sıralama, kurallar ve koruma sonsuza dek ücretsiz. Lite, Pro ve Max, senin için okuyan ve yazan her şeyi ekler; büyük planlar sadece bunu daha çok yapar.',
         label: 'Fiyatlar',
         title: (usd: number) =>
           `Sıralama ücretsiz. Ajan için başlangıç fiyatı $${usd}.`,
@@ -1429,7 +1430,7 @@ export const tr: Messages = {
       },
       monthly: 'Aylık',
       per: { month: '/ ay', year: '/ yıl' },
-      pro: {
+      lite: {
         description: 'Ajanın tamamı: okur, yazar ve hatırlar.',
         features: [
           'Ana Sayfa: canlı tek bir karar kuyruğu, tek tek ya da toplu onay',
@@ -1439,8 +1440,13 @@ export const tr: Messages = {
           'Sözler ve kişiler hatırlanır; para ya da takip ettiğin her şey için grafikli panolar',
           'Postalarına her şeyi sor, ayrıca kendi araçların için MCP',
         ],
-        limits: (emails: string, messages: number) =>
-          `Ayda ${emails} e-posta okunur ve ajana ${messages} mesaj; gürültü asla sayılmaz`,
+      },
+      limits: (emails: string, messages: number) =>
+        `Ayda ${emails} e-posta okunur ve ajana ${messages} mesaj; gürültü asla sayılmaz`,
+      pro: {
+        description: 'Aynı ajan, daha çok posta için yer.',
+        room: (boards: number, tasks: number) =>
+          `Aynı anda ${boards} pano ve ${tasks} devredilen yazışmaya kadar`,
       },
       tryFree: (days: number) => `${days} gün ücretsiz dene`,
       yearly: 'Yıllık · 2 ay ücretsiz',

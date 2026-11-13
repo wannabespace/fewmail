@@ -4,7 +4,8 @@ export const TRIAL_DAYS = 14
 
 export const PLANS = [
   { id: 'free', price: { month: 0, year: 0 } },
-  { id: 'pro', includes: 'free', price: PRICE_USD.pro },
+  { id: 'lite', includes: 'free', price: PRICE_USD.lite },
+  { id: 'pro', includes: 'lite', price: PRICE_USD.pro },
   { id: 'max', includes: 'pro', price: PRICE_USD.max },
 ] as const
 

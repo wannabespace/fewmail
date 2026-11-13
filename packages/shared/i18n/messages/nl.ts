@@ -815,10 +815,11 @@ export const nl: Messages = {
     freeDescription:
       'Snelle, rustige mail met eenvoudige regels. Gratis zo lang je wilt.',
     includes:
-      'Pro voegt de agent toe: elke e-mail gelezen en samengevat, antwoorden in jouw stijl, regels in gewone woorden, Telegram en MCP.',
+      'Elk betaald abonnement voegt de agent toe: elke e-mail gelezen en samengevat, antwoorden in jouw stijl, regels in gewone woorden, Telegram en MCP.',
     manage: 'Facturering beheren',
     price: (usd: number) => `$${usd} / maand`,
     priceYearly: (usd: number) => `$${usd} / jaar`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} e-mails en ${messages} berichten per maand; borden en overgedragen threads zonder limiet.`,
@@ -1050,7 +1051,7 @@ export const nl: Messages = {
     chapters: {
       pricing: {
         description:
-          'Sorteren, regels en bescherming zijn voor altijd gratis. Pro en Max voegen alles toe wat voor je leest en schrijft; Max doet er gewoon meer van.',
+          'Sorteren, regels en bescherming zijn voor altijd gratis. Lite, Pro en Max voegen alles toe wat voor je leest en schrijft; de grotere abonnementen doen er gewoon meer van.',
         label: 'Prijzen',
         title: (usd: number) =>
           `Gratis voor het sorteren. Vanaf $${usd} voor de agent.`,
@@ -1465,7 +1466,7 @@ export const nl: Messages = {
       },
       monthly: 'Maandelijks',
       per: { month: 'per maand', year: 'per jaar' },
-      pro: {
+      lite: {
         description: 'De hele agent: hij leest, schrijft en onthoudt.',
         features: [
           'Home: één live wachtrij met beslissingen, los of in één keer goedgekeurd',
@@ -1475,8 +1476,13 @@ export const nl: Messages = {
           'Beloftes en mensen onthouden, borden met grafieken voor geld of alles wat je bijhoudt',
           'Vraag je mail alles, plus MCP voor je eigen tools',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} gelezen e-mails en ${messages} berichten aan de agent per maand; ruis telt nooit mee`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} gelezen e-mails en ${messages} berichten aan de agent per maand; ruis telt nooit mee`,
+      pro: {
+        description: 'Dezelfde agent met ruimte voor meer mail.',
+        room: (boards: number, tasks: number) =>
+          `Tot ${boards} borden en ${tasks} overgedragen threads tegelijk`,
       },
       tryFree: (days: number) => `${days} dagen gratis proberen`,
       yearly: 'Jaarlijks · 2 maanden gratis',

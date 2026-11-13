@@ -252,9 +252,13 @@ export const PlanCards = () => {
       plans.max.messages(PLAN_LIMITS.max.messages),
       plans.max.unlimited,
     ],
+    lite: [
+      plans.limits(count(PLAN_LIMITS.lite.emails), PLAN_LIMITS.lite.messages),
+      ...plans.lite.features,
+    ],
     pro: [
-      plans.pro.limits(count(PLAN_LIMITS.pro.emails), PLAN_LIMITS.pro.messages),
-      ...plans.pro.features,
+      plans.limits(count(PLAN_LIMITS.pro.emails), PLAN_LIMITS.pro.messages),
+      plans.pro.room(PLAN_LIMITS.pro.boards, PLAN_LIMITS.pro.tasks),
     ],
   }
   return (
@@ -268,7 +272,7 @@ export const PlanCards = () => {
           <TabsTrigger value="year">{plans.yearly}</TabsTrigger>
         </TabsList>
       </Tabs>
-      <Reveal className="grid w-full gap-4 md:grid-cols-3">
+      <Reveal className="grid w-full gap-4 md:grid-cols-2 xl:grid-cols-4">
         {PLANS.map((plan) => {
           const isPro = plan.id === 'pro'
           const isFree = plan.id === 'free'

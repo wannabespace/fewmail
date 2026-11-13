@@ -200,7 +200,7 @@ export const es: Messages = {
     chapters: {
       pricing: {
         description:
-          'Ordenar el correo, las reglas y la protección son gratis para siempre. Pro y Max añaden todo lo que lee y escribe por ti; Max simplemente hace más.',
+          'Ordenar el correo, las reglas y la protección son gratis para siempre. Lite, Pro y Max añaden todo lo que lee y escribe por ti; los planes mayores simplemente hacen más.',
         label: 'Precios',
         title: (usd: number) => `Ordenar es gratis. El agente, desde $${usd}.`,
       },
@@ -614,7 +614,7 @@ export const es: Messages = {
       },
       monthly: 'Mensual',
       per: { month: 'al mes', year: 'al año' },
-      pro: {
+      lite: {
         description: 'El agente completo: lee, escribe y recuerda.',
         features: [
           'Inicio: una sola cola de decisiones en vivo, aprobadas de una en una o en lote',
@@ -624,8 +624,13 @@ export const es: Messages = {
           'Promesas y personas recordadas, tableros con gráficos para el dinero o lo que quieras seguir',
           'Pregunta lo que quieras a tu correo, y MCP para tus propias herramientas',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} correos leídos y ${messages} mensajes al agente al mes; el ruido nunca cuenta`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} correos leídos y ${messages} mensajes al agente al mes; el ruido nunca cuenta`,
+      pro: {
+        description: 'El mismo agente con espacio para más correo.',
+        room: (boards: number, tasks: number) =>
+          `Hasta ${boards} tableros y ${tasks} conversaciones delegadas a la vez`,
       },
       tryFree: (days: number) => `Pruébalo gratis ${days} días`,
       yearly: 'Anual · 2 meses gratis',
@@ -1042,10 +1047,11 @@ export const es: Messages = {
     freeDescription:
       'Correo rápido y tranquilo con reglas simples. Gratis todo el tiempo que quieras.',
     includes:
-      'Pro añade el agente: cada correo leído y resumido, respuestas redactadas con tu voz, reglas en palabras sencillas, Telegram y MCP.',
+      'Cada plan de pago añade el agente: cada correo leído y resumido, respuestas redactadas con tu voz, reglas en palabras sencillas, Telegram y MCP.',
     manage: 'Gestionar facturación',
     price: (usd: number) => `$${usd} / mes`,
     priceYearly: (usd: number) => `$${usd} / año`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} correos y ${messages} mensajes al mes; tableros e hilos delegados sin límite.`,

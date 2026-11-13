@@ -201,7 +201,7 @@ export const it: Messages = {
     chapters: {
       pricing: {
         description:
-          'Smistamento, regole e protezione sono gratis per sempre. Pro e Max aggiungono tutto ciò che legge e scrive per te; Max semplicemente ne fa di più.',
+          'Smistamento, regole e protezione sono gratis per sempre. Lite, Pro e Max aggiungono tutto ciò che legge e scrive per te; i piani più grandi semplicemente ne fanno di più.',
         label: 'Prezzi',
         title: (usd: number) =>
           `Lo smistamento è gratis. L’agente, da $${usd}.`,
@@ -618,7 +618,7 @@ export const it: Messages = {
       },
       monthly: 'Mensile',
       per: { month: 'al mese', year: 'all’anno' },
-      pro: {
+      lite: {
         description: 'L’agente completo: legge, scrive e ricorda.',
         features: [
           'Home: una sola coda di decisioni in tempo reale, da approvare una alla volta o in blocco',
@@ -628,8 +628,13 @@ export const it: Messages = {
           'Promesse e persone ricordate, bacheche con grafici per i soldi o qualsiasi cosa tu segua',
           'Chiedi qualsiasi cosa alla tua posta, più MCP per i tuoi strumenti',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} email lette e ${messages} messaggi all’agente al mese; il rumore non conta mai`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} email lette e ${messages} messaggi all’agente al mese; il rumore non conta mai`,
+      pro: {
+        description: 'Lo stesso agente, con spazio per più posta.',
+        room: (boards: number, tasks: number) =>
+          `Fino a ${boards} bacheche e ${tasks} thread affidati alla volta`,
       },
       tryFree: (days: number) => `Prova gratis per ${days} giorni`,
       yearly: 'Annuale · 2 mesi gratis',
@@ -1047,10 +1052,11 @@ export const it: Messages = {
     freeDescription:
       'Email veloce e tranquilla con regole semplici. Gratis per tutto il tempo che vuoi.',
     includes:
-      'Pro aggiunge l’agente: ogni email letta e riassunta, risposte scritte con la tua voce, regole a parole semplici, Telegram e MCP.',
+      'Ogni piano a pagamento aggiunge l’agente: ogni email letta e riassunta, risposte scritte con la tua voce, regole a parole semplici, Telegram e MCP.',
     manage: 'Gestisci fatturazione',
     price: (usd: number) => `$${usd} / mese`,
     priceYearly: (usd: number) => `$${usd} / anno`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} email e ${messages} messaggi al mese; bacheche e thread affidati senza limiti.`,

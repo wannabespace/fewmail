@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { subscriptions, users } from '@fewmail/db/schema'
+import { isPaidPlan } from '@fewmail/shared/agent'
 import type { BillingInterval, PaidPlan } from '@fewmail/shared/agent'
 import { and, eq, isNull } from 'drizzle-orm'
 import { Stripe } from 'stripe'
@@ -15,6 +16,10 @@ const PRICE_IDS: Record<
   PaidPlan,
   Record<BillingInterval, string | undefined>
 > = {
+  lite: {
+    month: env.STRIPE_LITE_MONTHLY_PRICE_ID,
+    year: env.STRIPE_LITE_YEARLY_PRICE_ID,
+  },
   max: {
     month: env.STRIPE_MAX_MONTHLY_PRICE_ID,
     year: env.STRIPE_MAX_YEARLY_PRICE_ID,
@@ -76,7 +81,7 @@ export const createCheckout = async (
     throw new Error('Payments are not configured on this server')
   }
   const { kind } = await getPlanInfo(userId)
-  if (kind === 'pro' || kind === 'max') {
+  if (isPaidPlan(kind)) {
     return createBillingPortal(userId)
   }
   const session = await client.checkout.sessions.create({

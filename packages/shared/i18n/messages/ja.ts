@@ -532,10 +532,11 @@ export const ja: Messages = {
     freeDescription:
       'シンプルなルールで、速く落ち着いたメールを。好きなだけ無料で使えます。',
     includes:
-      'Pro ではエージェントが加わります：すべてのメールの読み取りと要約、あなたの口調での返信の下書き、自然な言葉で書けるルール、Telegram と MCP。',
+      '有料プランではエージェントが加わります：すべてのメールの読み取りと要約、あなたの口調での返信の下書き、自然な言葉で書けるルール、Telegram と MCP。',
     manage: '支払いを管理',
     price: (usd: number) => `$${usd} / 月`,
     priceYearly: (usd: number) => `$${usd} / 年`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `毎月 ${emails} 通のメールと ${messages} 件のメッセージ。ボードと任せたスレッドは無制限。`,
@@ -742,7 +743,7 @@ export const ja: Messages = {
     chapters: {
       pricing: {
         description:
-          '仕分け、ルール、保護機能はずっと無料。Pro と Max では、メールを読み、書いてくれる機能がすべて加わります。Max は、それをもっとたくさんこなすだけです。',
+          '仕分け、ルール、保護機能はずっと無料。Lite、Pro、Max では、メールを読み、書いてくれる機能がすべて加わります。上のプランほど、それをたくさんこなすだけです。',
         label: '料金',
         title: (usd: number) => `仕分けは無料。エージェントは $${usd} から。`,
       },
@@ -1161,7 +1162,7 @@ export const ja: Messages = {
       },
       monthly: '月払い',
       per: { month: '/ 月', year: '/ 年' },
-      pro: {
+      lite: {
         description: 'エージェントのすべて：読み、書き、覚える。',
         features: [
           'ホーム：リアルタイムで更新される判断のキュー、1 件ずつでもまとめてでも承認',
@@ -1171,8 +1172,13 @@ export const ja: Messages = {
           '約束と相手のことを記憶。お金など追跡したいものはグラフ付きのボードに',
           'メールに何でも質問。自分のツール向けの MCP も',
         ],
-        limits: (emails: string, messages: number) =>
-          `毎月 ${emails} 通のメール読み取りと、エージェントへの ${messages} 件のメッセージ。ノイズはカウントされません`,
+      },
+      limits: (emails: string, messages: number) =>
+        `毎月 ${emails} 通のメール読み取りと、エージェントへの ${messages} 件のメッセージ。ノイズはカウントされません`,
+      pro: {
+        description: '同じエージェントで、より多くのメールに対応。',
+        room: (boards: number, tasks: number) =>
+          `ボード ${boards} 個と任せたスレッド ${tasks} 件まで同時に`,
       },
       tryFree: (days: number) => `${days} 日間無料で試す`,
       yearly: '年払い · 2 か月分無料',

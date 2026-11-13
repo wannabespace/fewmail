@@ -202,7 +202,7 @@ export const fr: Messages = {
     chapters: {
       pricing: {
         description:
-          'Le tri, les règles et la protection sont gratuits pour toujours. Pro et Max ajoutent tout ce qui lit et écrit à votre place ; Max en fait simplement plus.',
+          'Le tri, les règles et la protection sont gratuits pour toujours. Lite, Pro et Max ajoutent tout ce qui lit et écrit à votre place ; les plus grandes formules en font simplement plus.',
         label: 'Tarifs',
         title: (usd: number) =>
           `Le tri est gratuit. L’agent, à partir de $${usd}.`,
@@ -623,7 +623,7 @@ export const fr: Messages = {
       },
       monthly: 'Mensuel',
       per: { month: 'par mois', year: 'par an' },
-      pro: {
+      lite: {
         description: 'L’agent complet : il lit, écrit et se souvient.',
         features: [
           'Accueil : une seule file de décisions en direct, à approuver une par une ou d’un coup',
@@ -633,8 +633,13 @@ export const fr: Messages = {
           'Promesses et contacts mémorisés, tableaux avec graphiques pour l’argent ou tout ce que vous suivez',
           'Interrogez vos e-mails sur tout, et MCP pour vos propres outils',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} e-mails lus et ${messages} messages à l’agent par mois ; le bruit ne compte jamais`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} e-mails lus et ${messages} messages à l’agent par mois ; le bruit ne compte jamais`,
+      pro: {
+        description: 'Le même agent, avec de la place pour plus de mails.',
+        room: (boards: number, tasks: number) =>
+          `Jusqu’à ${boards} tableaux et ${tasks} fils confiés à la fois`,
       },
       tryFree: (days: number) => `Essai gratuit de ${days} jours`,
       yearly: 'Annuel · 2 mois offerts',
@@ -1054,10 +1059,11 @@ export const fr: Messages = {
     freeDescription:
       'Des e-mails rapides et sereins avec des règles simples. Gratuit aussi longtemps que vous le souhaitez.',
     includes:
-      'Pro ajoute l’agent : chaque e-mail lu et résumé, des réponses rédigées à votre façon, des règles en langage courant, Telegram et MCP.',
+      'Chaque formule payante ajoute l’agent : chaque e-mail lu et résumé, des réponses rédigées à votre façon, des règles en langage courant, Telegram et MCP.',
     manage: 'Gérer la facturation',
     price: (usd: number) => `$${usd} / mois`,
     priceYearly: (usd: number) => `$${usd} / an`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} e-mails et ${messages} messages par mois ; tableaux et fils confiés sans limite.`,

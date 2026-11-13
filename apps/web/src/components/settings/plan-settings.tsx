@@ -1,5 +1,10 @@
 import type { BillingInterval, PaidPlan, Plan } from '@fewmail/shared/agent'
-import { PAID_PLANS, PLAN_LIMITS, PRICE_USD } from '@fewmail/shared/agent'
+import {
+  isPaidPlan,
+  PAID_PLANS,
+  PLAN_LIMITS,
+  PRICE_USD,
+} from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { Button } from '@fewmail/ui/components/button'
@@ -16,9 +21,6 @@ import { useLocale, useT } from '~/lib/i18n'
 import { useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
-const isPaid = (kind: Plan): kind is PaidPlan =>
-  (PAID_PLANS as readonly Plan[]).includes(kind)
-
 const planDescription = (
   t: Messages,
   plan: {
@@ -32,7 +34,7 @@ const planDescription = (
   if (plan.kind === 'trial' && plan.trialEndsAt) {
     return t.plan.trialDescription(formatDate(plan.trialEndsAt))
   }
-  if (isPaid(plan.kind) && plan.periodEnd) {
+  if (isPaidPlan(plan.kind) && plan.periodEnd) {
     return plan.cancelAtPeriodEnd
       ? t.plan.cancels(t.plan[plan.kind], formatDate(plan.periodEnd))
       : t.plan.proRenews(formatDate(plan.periodEnd))
@@ -80,10 +82,9 @@ export const PlanSettings = () => {
   const formatPrice =
     billingInterval === 'year' ? t.plan.priceYearly : t.plan.price
   const limits = plan.kind === 'free' ? null : PLAN_LIMITS[plan.kind]
-  const choices =
-    plan.kind === 'max'
-      ? []
-      : PAID_PLANS.filter((choice) => choice !== plan.kind)
+  const choices = isPaidPlan(plan.kind)
+    ? PAID_PLANS.slice(PAID_PLANS.indexOf(plan.kind) + 1)
+    : PAID_PLANS
   const limitsText = (choice: PaidPlan) => {
     const { emails, messages } = PLAN_LIMITS[choice]
     const describe = choice === 'max' ? t.plan.maxLimits : t.plan.proLimits
@@ -99,7 +100,7 @@ export const PlanSettings = () => {
             formatResetDay(locale, date)
           )}
         >
-          {isPaid(plan.kind) && (
+          {isPaidPlan(plan.kind) && (
             <Button
               size="sm"
               variant="outline"
@@ -132,7 +133,7 @@ export const PlanSettings = () => {
       </SettingsGroup>
       {choices.length > 0 && (
         <SettingsGroup title={t.plan.upgrade}>
-          {!isPaid(plan.kind) && (
+          {!isPaidPlan(plan.kind) && (
             <SettingsRow
               title={t.plan.yearly}
               description={t.plan.yearlyHint}
@@ -162,7 +163,7 @@ export const PlanSettings = () => {
                 }
                 disabled={checkout.isPending || portal.isPending}
                 onClick={() =>
-                  isPaid(plan.kind)
+                  isPaidPlan(plan.kind)
                     ? portal.mutate()
                     : checkout.mutate({
                         interval: billingInterval,

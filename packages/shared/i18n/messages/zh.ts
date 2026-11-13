@@ -519,10 +519,11 @@ export const zh: Messages = {
     free: 'Free',
     freeDescription: '快速、安静的邮件，配合简单规则。想用多久就免费用多久。',
     includes:
-      'Pro 会加入助手：每封邮件都会被阅读和总结、用你的语气起草回复、用日常语言写规则，以及 Telegram 和 MCP。',
+      '付费套餐会加入助手：每封邮件都会被阅读和总结、用你的语气起草回复、用日常语言写规则，以及 Telegram 和 MCP。',
     manage: '管理账单',
     price: (usd: number) => `$${usd} / 月`,
     priceYearly: (usd: number) => `$${usd} / 年`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `每月 ${emails} 封邮件和 ${messages} 条消息；看板和托付的会话不限。`,
@@ -716,7 +717,7 @@ export const zh: Messages = {
     chapters: {
       pricing: {
         description:
-          '分类、规则和防护永久免费。Pro 和 Max 加上所有替你阅读和撰写的功能；Max 只是能做得更多。',
+          '分类、规则和防护永久免费。Lite、Pro 和 Max 加上所有替你阅读和撰写的功能；更高的套餐只是能做得更多。',
         label: '价格',
         title: (usd: number) => `分类免费。助手 $${usd} 起。`,
       },
@@ -1123,7 +1124,7 @@ export const zh: Messages = {
       },
       monthly: '按月',
       per: { month: '/ 月', year: '/ 年' },
-      pro: {
+      lite: {
         description: '完整的助手：阅读、撰写、记忆。',
         features: [
           '首页：实时更新的决定队列，可逐条或批量批准',
@@ -1133,8 +1134,13 @@ export const zh: Messages = {
           '记住承诺和联系人，用带图表的看板追踪钱或任何你关心的东西',
           '随意问你的邮件，还有供你自己的工具使用的 MCP',
         ],
-        limits: (emails: string, messages: number) =>
-          `每月阅读 ${emails} 封邮件、给助手发 ${messages} 条消息；无用邮件从不计入`,
+      },
+      limits: (emails: string, messages: number) =>
+        `每月阅读 ${emails} 封邮件、给助手发 ${messages} 条消息；无用邮件从不计入`,
+      pro: {
+        description: '同样的助手，能处理更多邮件。',
+        room: (boards: number, tasks: number) =>
+          `同时最多 ${boards} 个看板和 ${tasks} 个托付的会话`,
       },
       tryFree: (days: number) => `免费试用 ${days} 天`,
       yearly: '按年 · 免费两个月',

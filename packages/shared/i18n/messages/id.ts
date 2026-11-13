@@ -793,10 +793,11 @@ export const id: Messages = {
     freeDescription:
       'Email yang cepat dan tenang dengan aturan sederhana. Gratis selama kamu mau.',
     includes:
-      'Pro menambahkan agen: setiap email dibaca dan diringkas, balasan disusun dengan gayamu, aturan dalam kata-kata biasa, Telegram, dan MCP.',
+      'Setiap paket berbayar menambahkan agen: setiap email dibaca dan diringkas, balasan disusun dengan gayamu, aturan dalam kata-kata biasa, Telegram, dan MCP.',
     manage: 'Kelola tagihan',
     price: (usd: number) => `$${usd} / bulan`,
     priceYearly: (usd: number) => `$${usd} / tahun`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} email dan ${messages} pesan per bulan; papan dan utas yang diserahkan tanpa batas.`,
@@ -1020,7 +1021,7 @@ export const id: Messages = {
     chapters: {
       pricing: {
         description:
-          'Penyortiran, aturan, dan perlindungan gratis selamanya. Pro dan Max menambahkan semua yang membaca dan menulis untukmu; Max hanya melakukannya lebih banyak.',
+          'Penyortiran, aturan, dan perlindungan gratis selamanya. Lite, Pro, dan Max menambahkan semua yang membaca dan menulis untukmu; paket yang lebih besar hanya melakukannya lebih banyak.',
         label: 'Harga',
         title: (usd: number) =>
           `Gratis untuk penyortiran. Mulai $${usd} untuk agennya.`,
@@ -1434,7 +1435,7 @@ export const id: Messages = {
       },
       monthly: 'Bulanan',
       per: { month: 'per bulan', year: 'per tahun' },
-      pro: {
+      lite: {
         description: 'Agen seutuhnya: membaca, menulis, dan mengingat.',
         features: [
           'Beranda: satu antrean keputusan yang selalu terbaru, disetujui satu per satu atau sekaligus',
@@ -1444,8 +1445,13 @@ export const id: Messages = {
           'Janji dan orang diingat, papan dengan grafik untuk uang atau apa pun yang kamu lacak',
           'Tanyakan apa saja pada emailmu, plus MCP untuk alatmu sendiri',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} email dibaca dan ${messages} pesan ke agen per bulan; email yang tak penting tidak pernah dihitung`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} email dibaca dan ${messages} pesan ke agen per bulan; email yang tak penting tidak pernah dihitung`,
+      pro: {
+        description: 'Agen yang sama dengan ruang untuk lebih banyak email.',
+        room: (boards: number, tasks: number) =>
+          `Hingga ${boards} papan dan ${tasks} percakapan yang diserahkan sekaligus`,
       },
       tryFree: (days: number) => `Coba gratis ${days} hari`,
       yearly: 'Tahunan · gratis 2 bulan',

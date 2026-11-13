@@ -198,7 +198,7 @@ export const de: Messages = {
     chapters: {
       pricing: {
         description:
-          'Sortieren, Regeln und Schutz sind für immer kostenlos. Pro und Max bringen alles dazu, was für dich liest und schreibt; Max macht einfach mehr davon.',
+          'Sortieren, Regeln und Schutz sind für immer kostenlos. Lite, Pro und Max bringen alles dazu, was für dich liest und schreibt; die größeren Pläne machen einfach mehr davon.',
         label: 'Preise',
         title: (usd: number) => `Sortieren kostenlos. Der Agent ab $${usd}.`,
       },
@@ -612,7 +612,7 @@ export const de: Messages = {
       },
       monthly: 'Monatlich',
       per: { month: 'im Monat', year: 'im Jahr' },
-      pro: {
+      lite: {
         description:
           'Der ganze Agent: Er liest, schreibt und merkt sich alles.',
         features: [
@@ -623,8 +623,13 @@ export const de: Messages = {
           'Versprechen und Personen im Gedächtnis, Boards mit Diagrammen für Geld oder alles, was du erfasst',
           'Frag deine Mails alles, dazu MCP für deine eigenen Tools',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} gelesene Mails und ${messages} Nachrichten an den Agenten im Monat; Rauschen zählt nie mit`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} gelesene Mails und ${messages} Nachrichten an den Agenten im Monat; Rauschen zählt nie mit`,
+      pro: {
+        description: 'Derselbe Agent mit Platz für mehr Mail.',
+        room: (boards: number, tasks: number) =>
+          `Bis zu ${boards} Boards und ${tasks} übergebene Threads gleichzeitig`,
       },
       tryFree: (days: number) => `${days} Tage kostenlos testen`,
       yearly: 'Jährlich · 2 Monate gratis',
@@ -1042,10 +1047,11 @@ export const de: Messages = {
     freeDescription:
       'Schnelle, ruhige Mail mit einfachen Regeln. Kostenlos, so lange du willst.',
     includes:
-      'Pro bringt den Agenten: jede Mail gelesen und zusammengefasst, Antworten in deinem Ton, Regeln in einfachen Worten, Telegram und MCP.',
+      'Jeder bezahlte Plan bringt den Agenten: jede Mail gelesen und zusammengefasst, Antworten in deinem Ton, Regeln in einfachen Worten, Telegram und MCP.',
     manage: 'Abrechnung verwalten',
     price: (usd: number) => `$${usd} / Monat`,
     priceYearly: (usd: number) => `$${usd} / Jahr`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} Mails und ${messages} Nachrichten im Monat; Boards und übergebene Threads ohne Limit.`,

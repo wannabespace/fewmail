@@ -38,6 +38,7 @@ Fewmail relies on Google (Gmail, Google Calendar), OpenRouter and the AI provide
 ## 8. Plans and payment
 
 - **Free:** the mail view, simple rules, sorting and importance of every email, plain-language rules that archive, mark as read, unsubscribe or trash, spam and fraud warnings and automatic follow-ups, free for as long as you like.
+- **Lite:** the full agent for $5 per month or $50 per year, with up to 300 emails read by the agent and 30 messages to it each calendar month, 1 board and 1 thread handled at a time.
 - **Pro:** the full agent (Home, summaries, drafts in your voice, Ask, handling threads for you, Telegram, WhatsApp and MCP) for $10 per month or $100 per year, with up to 1,000 emails read by the agent and 100 messages to it (chat, Ask, Telegram and WhatsApp) each calendar month, 3 boards and 5 threads handled at a time.
 - **Max:** the same agent for $30 per month or $300 per year, with up to 6,000 emails and 500 messages each calendar month and no limit on boards or handled threads.
 - Both are billed in advance through Stripe; on yearly billing the limits still apply per calendar month; taxes may apply depending on where you live. Mail the agent sorts as noise does not count toward the email limit. Past it, new mail is still sorted, protected and handled by your rules as on Free, and urgent mail is still read; monthly limits reset on the first day of each month (UTC).

@@ -814,10 +814,11 @@ export const pt: Messages = {
     freeDescription:
       'E-mail rápido e tranquilo com regras simples. Grátis pelo tempo que você quiser.',
     includes:
-      'O Pro adiciona o agente: cada e-mail lido e resumido, respostas redigidas no seu estilo, regras em palavras simples, Telegram e MCP.',
+      'Todo plano pago adiciona o agente: cada e-mail lido e resumido, respostas redigidas no seu estilo, regras em palavras simples, Telegram e MCP.',
     manage: 'Gerenciar cobrança',
     price: (usd: number) => `$${usd} / mês`,
     priceYearly: (usd: number) => `$${usd} / ano`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} e-mails e ${messages} mensagens por mês; quadros e conversas entregues sem limite.`,
@@ -1049,7 +1050,7 @@ export const pt: Messages = {
     chapters: {
       pricing: {
         description:
-          'A organização, as regras e a proteção são grátis para sempre. Pro e Max adicionam tudo o que lê e escreve por você; o Max simplesmente faz mais.',
+          'A organização, as regras e a proteção são grátis para sempre. Lite, Pro e Max adicionam tudo o que lê e escreve por você; os planos maiores simplesmente fazem mais.',
         label: 'Preços',
         title: (usd: number) =>
           `Organizar é grátis. O agente, a partir de $${usd}.`,
@@ -1463,7 +1464,7 @@ export const pt: Messages = {
       },
       monthly: 'Mensal',
       per: { month: 'por mês', year: 'por ano' },
-      pro: {
+      lite: {
         description: 'O agente completo: ele lê, escreve e lembra.',
         features: [
           'Início: uma única fila de decisões ao vivo, aprovadas uma a uma ou em lote',
@@ -1473,8 +1474,13 @@ export const pt: Messages = {
           'Promessas e pessoas lembradas, painéis com gráficos para dinheiro ou o que você quiser acompanhar',
           'Pergunte qualquer coisa aos seus e-mails, e MCP para suas próprias ferramentas',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} e-mails lidos e ${messages} mensagens ao agente por mês; ruído nunca conta`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} e-mails lidos e ${messages} mensagens ao agente por mês; ruído nunca conta`,
+      pro: {
+        description: 'O mesmo agente, com espaço para mais e-mails.',
+        room: (boards: number, tasks: number) =>
+          `Até ${boards} painéis e ${tasks} conversas entregues ao mesmo tempo`,
       },
       tryFree: (days: number) => `Teste grátis por ${days} dias`,
       yearly: 'Anual · 2 meses grátis',

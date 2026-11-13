@@ -530,10 +530,11 @@ export const ko: Messages = {
     freeDescription:
       '간단한 규칙으로 빠르고 차분한 메일을. 원하는 만큼 무료로 쓸 수 있어요.',
     includes:
-      'Pro에서는 에이전트가 함께해요: 모든 메일 읽기와 요약, 내 말투로 작성하는 답장 초안, 평소 말로 쓰는 규칙, Telegram과 MCP.',
+      '유료 요금제에서는 에이전트가 함께해요: 모든 메일 읽기와 요약, 내 말투로 작성하는 답장 초안, 평소 말로 쓰는 규칙, Telegram과 MCP.',
     manage: '결제 관리',
     price: (usd: number) => `$${usd} / 월`,
     priceYearly: (usd: number) => `$${usd} / 년`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `매달 메일 ${emails}통과 메시지 ${messages}개, 보드와 맡긴 스레드는 무제한이에요.`,
@@ -735,7 +736,7 @@ export const ko: Messages = {
     chapters: {
       pricing: {
         description:
-          '분류, 규칙, 보호 기능은 평생 무료예요. Pro와 Max에는 대신 읽고 써 주는 모든 기능이 더해져요. Max는 그걸 더 많이 할 뿐이에요.',
+          '분류, 규칙, 보호 기능은 평생 무료예요. Lite, Pro, Max에는 대신 읽고 써 주는 모든 기능이 더해져요. 큰 요금제일수록 그걸 더 많이 할 뿐이에요.',
         label: '요금',
         title: (usd: number) => `분류는 무료. 에이전트는 $${usd}부터.`,
       },
@@ -1146,7 +1147,7 @@ export const ko: Messages = {
       },
       monthly: '월간',
       per: { month: '/ 월', year: '/ 년' },
-      pro: {
+      lite: {
         description: '에이전트의 모든 것: 읽고, 쓰고, 기억해요.',
         features: [
           '홈: 실시간으로 바뀌는 결정 대기열, 하나씩 또는 한 번에 승인',
@@ -1156,8 +1157,13 @@ export const ko: Messages = {
           '약속과 사람을 기억하고, 돈이든 무엇이든 추적할 것은 차트가 있는 보드로',
           '메일에 무엇이든 묻기, 내 도구를 위한 MCP까지',
         ],
-        limits: (emails: string, messages: number) =>
-          `매달 메일 ${emails}통 읽기와 에이전트에게 메시지 ${messages}개. 쓸모없는 메일은 세지 않아요`,
+      },
+      limits: (emails: string, messages: number) =>
+        `매달 메일 ${emails}통 읽기와 에이전트에게 메시지 ${messages}개. 쓸모없는 메일은 세지 않아요`,
+      pro: {
+        description: '같은 에이전트, 더 많은 메일을 위한 여유.',
+        room: (boards: number, tasks: number) =>
+          `보드 ${boards}개와 맡긴 스레드 ${tasks}개까지 동시에`,
       },
       tryFree: (days: number) => `${days}일 무료 체험`,
       yearly: '연간 · 두 달 무료',

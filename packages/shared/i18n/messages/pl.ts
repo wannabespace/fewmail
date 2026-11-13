@@ -833,10 +833,11 @@ export const pl: Messages = {
     freeDescription:
       'Szybka, spokojna poczta z prostymi regułami. Za darmo, jak długo chcesz.',
     includes:
-      'Pro dodaje agenta: każdy e-mail przeczytany i streszczony, odpowiedzi pisane twoim stylem, reguły zwykłymi słowami, Telegram i MCP.',
+      'Każdy płatny plan dodaje agenta: każdy e-mail przeczytany i streszczony, odpowiedzi pisane twoim stylem, reguły zwykłymi słowami, Telegram i MCP.',
     manage: 'Zarządzaj płatnościami',
     price: (usd: number) => `$${usd} / miesiąc`,
     priceYearly: (usd: number) => `$${usd} / rok`,
+    lite: 'Lite',
     max: 'Max',
     maxLimits: (emails: string, messages: string) =>
       `${emails} e-maili i ${messages} wiadomości miesięcznie; tablice i przekazane wątki bez limitu.`,
@@ -1072,7 +1073,7 @@ export const pl: Messages = {
     chapters: {
       pricing: {
         description:
-          'Sortowanie, reguły i ochrona są za darmo na zawsze. Pro i Max dodają wszystko, co czyta i pisze za ciebie; Max po prostu robi tego więcej.',
+          'Sortowanie, reguły i ochrona są za darmo na zawsze. Lite, Pro i Max dodają wszystko, co czyta i pisze za ciebie; większe plany po prostu robią tego więcej.',
         label: 'Cennik',
         title: (usd: number) => `Sortowanie za darmo. Agent od $${usd}.`,
       },
@@ -1489,7 +1490,7 @@ export const pl: Messages = {
       },
       monthly: 'Miesięcznie',
       per: { month: 'miesięcznie', year: 'rocznie' },
-      pro: {
+      lite: {
         description: 'Cały agent: czyta, pisze i pamięta.',
         features: [
           'Strona główna: jedna kolejka decyzji na żywo, zatwierdzanych pojedynczo lub hurtem',
@@ -1499,8 +1500,13 @@ export const pl: Messages = {
           'Zapamiętane obietnice i ludzie, tablice z wykresami dla pieniędzy lub czegokolwiek, co śledzisz',
           'Pytaj swoją pocztę o wszystko, plus MCP dla twoich narzędzi',
         ],
-        limits: (emails: string, messages: number) =>
-          `${emails} przeczytanych e-maili i ${messages} wiadomości do agenta miesięcznie; szum nigdy się nie liczy`,
+      },
+      limits: (emails: string, messages: number) =>
+        `${emails} przeczytanych e-maili i ${messages} wiadomości do agenta miesięcznie; szum nigdy się nie liczy`,
+      pro: {
+        description: 'Ten sam agent z miejscem na więcej poczty.',
+        room: (boards: number, tasks: number) =>
+          `Do ${boards} tablic i ${tasks} przekazanych wątków naraz`,
       },
       tryFree: (days: number) => `Wypróbuj za darmo przez ${days} dni`,
       yearly: 'Rocznie · 2 miesiące gratis',

@@ -106,7 +106,7 @@ const LandingPage = () => {
       <Chapter
         id="pricing"
         {...chapters.pricing}
-        title={chapters.pricing.title(PRICE_USD.pro.month)}
+        title={chapters.pricing.title(PRICE_USD.lite.month)}
       >
         <PlanCards />
       </Chapter>
