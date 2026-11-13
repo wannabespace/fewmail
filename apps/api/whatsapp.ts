@@ -61,6 +61,7 @@ const config =
 const channel: Channel = {
   bold: (text) => `*${text}*`,
   italic: (text) => `_${text}_`,
+  link: (text, url) => `${text}\n${url}`,
   name: 'whatsapp',
   plain: (text) => text,
   shorter: false,

@@ -58,6 +58,7 @@ export interface Pressed {
 export interface Channel {
   bold: (text: string) => string
   italic: (text: string) => string
+  link: (text: string, url: string) => string
   name: 'telegram' | 'whatsapp'
   /** Every piece of mail or user text goes through it: Telegram parses HTML. */
   plain: (text: string) => string
@@ -445,7 +446,7 @@ export const follow = async (
   replyTo?: string
 ): Promise<Reply> => {
   const t = await messagesFor(userId)
-  const { italic, plain } = chat.channel
+  const { italic, link, plain } = chat.channel
   const editing = await takeEdit(chat)
   if (editing) {
     if (text.startsWith('/')) {
@@ -474,7 +475,18 @@ export const follow = async (
     return chatLinkReply(chat, t, skill.text, skill.chatId)
   }
   if (answer) {
-    return { text: plain(answer.answer) }
+    return {
+      text: [
+        plain(answer.answer),
+        ...(answer.sources.length ? [''] : []),
+        ...answer.sources.map((source) =>
+          link(
+            `${source.from}: ${source.subject}`,
+            `${env.WEB_URL}/mail?thread=${source.threadId}`
+          )
+        ),
+      ].join('\n'),
+    }
   }
   return draft ? draftReply(chat, t, draft) : helpReply(chat, t)
 }

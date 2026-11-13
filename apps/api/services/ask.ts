@@ -70,7 +70,7 @@ const CITED = [
 ]
 const TEXTED = [
   'Write it like a friend texting back: the answer itself in one to three short sentences, no [n] markers, no account numbers or ids, no retelling of email subjects.',
-  'sources: the numbers of the emails you relied on.',
+  'sources: the emails the user asked to see (to find, show or list them), else none; they arrive as links under your answer, so do not describe them.',
 ]
 
 /** Ask AI: the question becomes a Gmail search, the writer answers from what it finds, citing [n] unless `texted` (Telegram, WhatsApp). */

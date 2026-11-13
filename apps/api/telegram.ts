@@ -32,6 +32,7 @@ import { getPlanInfo, hasAgent } from './services/plan'
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
 
 const MESSAGE_LIMIT = 4096
+const NO_PREVIEW = { is_disabled: true }
 
 const escapeHtml = (text: string) =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -39,6 +40,7 @@ const escapeHtml = (text: string) =>
 const channel: Channel = {
   bold: (text) => `<b>${escapeHtml(text)}</b>`,
   italic: (text) => `<i>${escapeHtml(text)}</i>`,
+  link: (text, url) => `<a href="${escapeHtml(url)}">${escapeHtml(text)}</a>`,
   name: 'telegram',
   plain: escapeHtml,
   shorter: true,
@@ -80,9 +82,13 @@ const send = async (
   const last = parts.pop() ?? ''
   for (const part of parts) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- parts must arrive in order
-    await api.sendMessage(chatId, part, { parse_mode: 'HTML' })
+    await api.sendMessage(chatId, part, {
+      link_preview_options: NO_PREVIEW,
+      parse_mode: 'HTML',
+    })
   }
   const sent = await api.sendMessage(chatId, last, {
+    link_preview_options: NO_PREVIEW,
     parse_mode: 'HTML',
     ...(buttons?.length ? { reply_markup: keyboard(buttons) } : {}),
   })
