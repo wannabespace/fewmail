@@ -556,8 +556,9 @@ const ROW_REVEAL =
 export const ROW_ACTIONS = `${ROW_REVEAL} absolute top-1.5 right-4 bg-inherit before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-inherit before:[mask-image:linear-gradient(to_right,transparent,black)]`
 
 // The meta and the actions share one cell, so the cell is always as wide as the actions and hovering never shifts the row.
+// The actions must stay last and `relative`: the faded meta (opacity < 1) paints above unpositioned siblings and would swallow their clicks.
 export const ROW_SWAP =
-  'grid items-center justify-items-end *:[grid-area:1/1] *:transition-opacity *:duration-150 *:ease-house'
+  'grid items-center justify-items-end *:[grid-area:1/1] *:transition-opacity *:duration-150 *:ease-house *:last:relative'
 
 export const onEach =
   (messageIds: string[], mutate: (input: { messageId: string }) => void) =>
