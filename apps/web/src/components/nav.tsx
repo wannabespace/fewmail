@@ -43,6 +43,7 @@ import {
   Add01Icon,
   Archive02Icon,
   ArrowDown01Icon,
+  ArrowRight01Icon,
   ArrowUp01Icon,
   Calendar03Icon,
   Clock01Icon,
@@ -321,11 +322,87 @@ export const FOLDER_ITEMS = [
 
 const LABELS_SHOWN = 5
 
+interface LabelNode {
+  children: LabelNode[]
+  name: string
+  query: string
+  title: string
+}
+
+/** Gmail nests `Grok/GCP-seen` under `Grok`; a child whose parent is missing stays at the top under its full name. */
+const toLabelTree = (labels: { name: string; query: string }[]) => {
+  const nodes = new Map<string, LabelNode>(
+    labels.map((label) => [
+      label.name,
+      { ...label, children: [], title: label.name },
+    ])
+  )
+  const roots: LabelNode[] = []
+  for (const node of nodes.values()) {
+    const cut = node.name.lastIndexOf('/')
+    const parent = nodes.get(node.name.slice(0, cut))
+    if (cut > 0 && parent) {
+      node.title = node.name.slice(cut + 1)
+      parent.children.push(node)
+    } else {
+      roots.push(node)
+    }
+  }
+  return roots
+}
+
+const LabelRow = ({ label }: { label: LabelNode }) => {
+  const t = useT()
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <div className="relative flex flex-col">
+        <Link
+          to="/mail"
+          search={{ q: label.query }}
+          className={cn(NAV_SUBROW, label.children.length > 0 && 'pe-8')}
+        >
+          <HugeiconsIcon icon={Tag01Icon} strokeWidth={2} />
+          <span className="flex-1 truncate" data-mask>
+            {label.title}
+          </span>
+        </Link>
+        {label.children.length > 0 && (
+          <IconButton
+            icon={isOpen ? ArrowDown01Icon : ArrowRight01Icon}
+            label={
+              isOpen ? t.mail.showFewer : t.mail.showAll(label.children.length)
+            }
+            aria-expanded={isOpen}
+            size="icon-xs"
+            variant="ghost-muted"
+            className="absolute inset-e-0.5 top-0.5"
+            onClick={() => setIsOpen(!isOpen)}
+          />
+        )}
+      </div>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <MotionCollapse key="children">
+            <div className="ms-4.5 flex flex-col gap-0.5 border-s ps-1.5">
+              {label.children.map((child) => (
+                <LabelRow key={child.name} label={child} />
+              ))}
+            </div>
+          </MotionCollapse>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
 /** Gmail's folders, then the user's own labels, each opening the Mail search for it: a branch of Mail, open while Mail is. */
 const MailFolders = () => {
   const t = useT()
   const [isShowingAll, setIsShowingAll] = useState(false)
   const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
+  const tree = toLabelTree(labels)
 
   return (
     <section
@@ -348,22 +425,10 @@ const MailFolders = () => {
           {t.nav.labels}
         </h2>
       )}
-      {(isShowingAll ? labels : labels.slice(0, LABELS_SHOWN)).map(
-        ({ name, query }) => (
-          <Link
-            key={name}
-            to="/mail"
-            search={{ q: query }}
-            className={NAV_SUBROW}
-          >
-            <HugeiconsIcon icon={Tag01Icon} strokeWidth={2} />
-            <span className="flex-1 truncate" data-mask>
-              {name}
-            </span>
-          </Link>
-        )
-      )}
-      {labels.length > LABELS_SHOWN && (
+      {(isShowingAll ? tree : tree.slice(0, LABELS_SHOWN)).map((label) => (
+        <LabelRow key={label.name} label={label} />
+      ))}
+      {tree.length > LABELS_SHOWN && (
         <button
           type="button"
           className={NAV_SUBROW}
@@ -374,7 +439,7 @@ const MailFolders = () => {
             strokeWidth={2}
           />
           <span className="text-muted-foreground">
-            {isShowingAll ? t.mail.showFewer : t.mail.showAll(labels.length)}
+            {isShowingAll ? t.mail.showFewer : t.mail.showAll(tree.length)}
           </span>
         </button>
       )}
