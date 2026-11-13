@@ -1238,8 +1238,8 @@ export const ko: Messages = {
     sendingIn: (seconds: number) => `${seconds}초 후 전송`,
     undo: '실행 취소',
     commands: { queue: '확인이 필요한 것' },
-    connectFirst:
-      '먼저 Fewmail → 설정 → 연동을 열고 “Telegram 연결”을 누르세요.',
+    connectFirst: (url: string) =>
+      `안녕하세요! Fewmail이에요. 여기 Telegram에서 급한 메일이 오면 알려 드리고, 확인이 필요한 것을 보여 드리고, 승인한 답장을 보내 드려요.\n\n이 채팅은 아직 Fewmail에 연결되지 않았어요. 1분이면 돼요:\n1. Fewmail 설정 열기: ${url}\n2. 연동에서 “Telegram 연결”을 누르세요 (Fewmail Pro 기능이에요).\n3. Telegram이 여기로 다시 데려와요. 시작을 누르면 끝이에요.`,
     connected:
       '연결됐어요. 긴급한 메일이 오면 바로 알려드릴게요.\n\n/queue: 확인이 필요한 것',
     done: '완료',

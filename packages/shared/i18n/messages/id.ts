@@ -1542,8 +1542,8 @@ export const id: Messages = {
     sendingIn: (seconds: number) => `Mengirim dalam ${seconds} dtk`,
     undo: 'Urungkan',
     commands: { queue: 'Yang butuh kamu' },
-    connectFirst:
-      'Buka dulu Fewmail → Pengaturan → Integrasi lalu ketuk “Hubungkan Telegram”.',
+    connectFirst: (url: string) =>
+      `Hai! Aku Fewmail. Di Telegram ini aku memberi tahu saat email penting masuk, menunjukkan apa yang perlu kamu tangani, dan mengirim balasan yang kamu setujui.\n\nChat ini belum terhubung ke Fewmail-mu. Cuma butuh semenit:\n1. Buka pengaturan Fewmail: ${url}\n2. Di Integrasi, ketuk “Hubungkan Telegram” (bagian dari Fewmail Pro).\n3. Telegram akan membawamu kembali ke sini — tekan Mulai, dan selesai.`,
     connected:
       'Terhubung. Aku akan memberi tahu saat ada yang mendesak.\n\n/queue: yang butuh kamu',
     done: 'Selesai',

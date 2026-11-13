@@ -1569,8 +1569,8 @@ export const nl: Messages = {
     sendingIn: (seconds: number) => `Versturen over ${seconds} s`,
     undo: 'Ongedaan maken',
     commands: { queue: 'Wat jou nodig heeft' },
-    connectFirst:
-      'Open eerst Fewmail → Instellingen → Integraties en tik op “Telegram koppelen”.',
+    connectFirst: (url: string) =>
+      `Hoi! Ik ben Fewmail. Hier in Telegram laat ik je weten wanneer er dringende mail binnenkomt, laat ik zien wat jou nodig heeft en verstuur ik de antwoorden die je goedkeurt.\n\nDeze chat is nog niet gekoppeld aan je Fewmail. Het kost een minuutje:\n1. Open de instellingen van Fewmail: ${url}\n2. Tik onder Integraties op “Telegram koppelen” (onderdeel van Fewmail Pro).\n3. Telegram brengt je hier terug: druk op Start en je bent klaar.`,
     connected:
       'Gekoppeld. Ik laat het weten als er iets dringends binnenkomt.\n\n/queue: wat jou nodig heeft',
     done: 'Klaar',

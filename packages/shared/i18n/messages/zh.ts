@@ -1214,7 +1214,8 @@ export const zh: Messages = {
     sendingIn: (seconds: number) => `${seconds} 秒后发送`,
     undo: '撤销',
     commands: { queue: '需要你处理的事' },
-    connectFirst: '请先打开 Fewmail → 设置 → 集成，然后点按“连接 Telegram”。',
+    connectFirst: (url: string) =>
+      `你好！我是 Fewmail。在 Telegram 里，有紧急邮件时我会提醒你，告诉你哪些事需要你处理，并发送你批准的回复。\n\n这个聊天还没有连接到你的 Fewmail，一分钟就能搞定：\n1. 打开 Fewmail 设置：${url}\n2. 在“集成”中点按“连接 Telegram”（Fewmail Pro 功能）。\n3. Telegram 会带你回到这里，点“开始”就好了。`,
     connected: '已连接。有紧急邮件时我会立即提醒你。\n\n/queue：需要你处理的事',
     done: '完成',
     draft: '草稿：',

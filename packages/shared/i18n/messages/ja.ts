@@ -1255,8 +1255,8 @@ export const ja: Messages = {
     sendingIn: (seconds: number) => `${seconds}秒後に送信`,
     undo: '元に戻す',
     commands: { queue: '対応が必要なもの' },
-    connectFirst:
-      '先に Fewmail → 設定 → 連携 を開き、「Telegram を接続」をタップしてください。',
+    connectFirst: (url: string) =>
+      `こんにちは、Fewmail です。この Telegram で、急ぎのメールが届いたらお知らせし、あなたの対応が必要なものを見せ、承認した返信を送ります。\n\nこのチャットはまだ Fewmail とつながっていません。1分で終わります：\n1. Fewmail の設定を開く：${url}\n2. 「連携」で「Telegram を接続」をタップ（Fewmail Pro の機能です）。\n3. Telegram がここに戻してくれるので、「開始」を押せば完了です。`,
     connected:
       '接続しました。緊急の連絡が届いたらすぐにお知らせします。\n\n/queue：対応が必要なもの',
     done: '完了',

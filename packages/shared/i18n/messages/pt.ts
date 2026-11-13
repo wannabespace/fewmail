@@ -1566,8 +1566,8 @@ export const pt: Messages = {
     sendingIn: (seconds: number) => `Enviando em ${seconds} s`,
     undo: 'Desfazer',
     commands: { queue: 'O que precisa de você' },
-    connectFirst:
-      'Abra Fewmail → Configurações → Integrações e toque em “Conectar Telegram” primeiro.',
+    connectFirst: (url: string) =>
+      `Olá! Eu sou o Fewmail. Aqui no Telegram eu aviso quando chega e-mail urgente, mostro o que precisa de você e envio as respostas que você aprovar.\n\nEste chat ainda não está conectado ao seu Fewmail. Leva um minuto:\n1. Abra as configurações do Fewmail: ${url}\n2. Em Integrações, toque em “Conectar Telegram” (faz parte do Fewmail Pro).\n3. O Telegram traz você de volta para cá: toque em Iniciar e pronto.`,
     connected:
       'Conectado. Vou avisar quando chegar algo urgente.\n\n/queue: o que precisa de você',
     done: 'Feito',

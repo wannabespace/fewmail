@@ -1538,8 +1538,8 @@ export const tr: Messages = {
     sendingIn: (seconds: number) => `${seconds} sn içinde gönderiliyor`,
     undo: 'Geri al',
     commands: { queue: 'Seni bekleyenler' },
-    connectFirst:
-      'Önce Fewmail → Ayarlar → Entegrasyonlar’ı aç ve “Telegram’ı bağla”ya dokun.',
+    connectFirst: (url: string) =>
+      `Merhaba! Ben Fewmail. Burada, Telegram’da acil bir e-posta geldiğinde haber veririm, seni bekleyenleri gösteririm ve onayladığın yanıtları gönderirim.\n\nBu sohbet henüz Fewmail’ine bağlı değil. Bir dakika sürer:\n1. Fewmail ayarlarını aç: ${url}\n2. Entegrasyonlar’da “Telegram’ı bağla”ya dokun (Fewmail Pro’nun parçası).\n3. Telegram seni buraya geri getirir: Başlat’a bas, hepsi bu.`,
     connected:
       'Bağlandı. Acil bir şey gelince haber vereceğim.\n\n/queue: seni bekleyenler',
     done: 'Tamam',

@@ -1592,8 +1592,8 @@ export const pl: Messages = {
     sendingIn: (seconds: number) => `Wysyłanie za ${seconds} s`,
     undo: 'Cofnij',
     commands: { queue: 'Co czeka na ciebie' },
-    connectFirst:
-      'Najpierw otwórz Fewmail → Ustawienia → Integracje i stuknij „Połącz Telegram”.',
+    connectFirst: (url: string) =>
+      `Cześć! Jestem Fewmail. Tutaj, w Telegramie, daję znać, gdy przychodzi pilna poczta, pokazuję, co czeka na ciebie, i wysyłam odpowiedzi, które zatwierdzisz.\n\nTen czat nie jest jeszcze połączony z twoim Fewmail. To zajmie minutę:\n1. Otwórz ustawienia Fewmail: ${url}\n2. W sekcji Integracje stuknij „Połącz Telegram” (to część Fewmail Pro).\n3. Telegram przeniesie cię z powrotem tutaj — naciśnij Start i gotowe.`,
     connected:
       'Połączono. Dam znać, gdy przyjdzie coś pilnego.\n\n/queue: co czeka na ciebie',
     done: 'Gotowe',

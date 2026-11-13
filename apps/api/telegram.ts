@@ -107,6 +107,9 @@ const sendAll = async (api: Api, chatId: number, replies: Reply[]) => {
 const messagesForChat = (ctx: Context) =>
   messages[matchLocale([ctx.from?.language_code ?? 'en'])]
 
+const connectFirst = (ctx: Context) =>
+  messagesForChat(ctx).telegram.connectFirst(`${env.WEB_URL}/settings`)
+
 const commandsFor = (t: Messages) => [
   { command: 'queue', description: t.telegram.commands.queue },
   ...SKILLS.map((skill) => ({ command: skill, description: t.skills[skill] })),
@@ -143,10 +146,7 @@ const createBot = (token: string) => {
     const chatId = ctx.chat?.id
     const userId = chatId ? await userIdForChat(String(chatId)) : null
     if (chatId && !userId) {
-      await bot.api.sendMessage(
-        chatId,
-        messagesForChat(ctx).telegram.connectFirst
-      )
+      await bot.api.sendMessage(chatId, connectFirst(ctx))
       return null
     }
     if (chatId && userId && !hasAgent(await getPlanInfo(userId))) {
@@ -171,7 +171,7 @@ const createBot = (token: string) => {
     const userId = await userIdForChat(String(ctx.chat.id))
     await (userId
       ? sendHelp(ctx.chat.id, userId)
-      : ctx.reply(messagesForChat(ctx).telegram.connectFirst))
+      : ctx.reply(connectFirst(ctx)))
   })
 
   bot.command('help', async (ctx) => {

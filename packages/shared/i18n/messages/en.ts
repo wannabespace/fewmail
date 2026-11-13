@@ -1549,8 +1549,8 @@ export const en = {
   telegram: {
     approveAlike: 'Approve every card of one kind at once:',
     commands: { queue: 'What needs you' },
-    connectFirst:
-      'Open Fewmail → Settings → Integrations and tap “Connect Telegram” first.',
+    connectFirst: (url: string) =>
+      `Hi! I’m Fewmail. Here in Telegram I tell you when urgent mail arrives, show what needs you and send the replies you approve.\n\nThis chat isn’t connected to your Fewmail yet. It takes a minute:\n1. Open Fewmail settings: ${url}\n2. Under Integrations, tap “Connect Telegram” (it’s part of Fewmail Pro).\n3. Telegram brings you back here — press Start and you’re set.`,
     connected:
       'Connected. I will ping you when something urgent arrives.\n\n/queue: what needs you',
     done: 'Done',
