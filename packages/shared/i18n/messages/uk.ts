@@ -580,6 +580,10 @@ export const uk: Messages = {
       title: 'Уся пошта за дві хвилини.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Близько ${emails} прочитаних листів або ${messages} повідомлень агенту на місяць`,
+      oneAllowance:
+        'Один обсяг на все, що робить агент: платиш за те, чим користуєшся, а шум не рахується',
       everythingIn: (plan: string) => `Усе з «${plan}», а також`,
       forever: 'назавжди',
       free: {
@@ -595,10 +599,6 @@ export const uk: Messages = {
       },
       max: {
         description: 'Той самий агент для завантаженої пошти.',
-        emails: (emails: string) => `${emails} прочитаних листів на місяць`,
-        messages: (messages: number) =>
-          `${messages} повідомлень агенту на місяць`,
-        unlimited: 'Дошки й передані агенту треди без обмежень',
       },
       monthly: 'Щомісяця',
       per: { month: 'на місяць', year: 'на рік' },
@@ -612,11 +612,8 @@ export const uk: Messages = {
           'Питай свою пошту про будь-що, плюс MCP для власних інструментів',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} прочитаних листів і ${messages} повідомлень агенту на місяць; шум ніколи не враховується`,
       pro: {
         description: 'Той самий агент, і місця для пошти більше.',
-        room: (boards: number) => `До ${boards} дошок водночас`,
       },
       tryFree: (days: number) => `Спробувати ${days} днів безкоштовно`,
       yearly: 'Щороку · 2 місяці безкоштовно',
@@ -825,12 +822,8 @@ export const uk: Messages = {
     updated: (date: string) => `Оновлено ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Твій план вміщує ${total} дошки. Видали одну або перейди на Max у Налаштуваннях → План.`,
-    messages: (date: string) =>
-      `Повідомлення агенту на цей місяць закінчилися. Вони повернуться ${date}.`,
-    speech: (date: string) =>
-      `Озвучення на цей місяць вичерпано. Воно повернеться ${date}.`,
+    usage: (date: string) =>
+      `Обсяг агента на цей місяць вичерпано. Він повернеться ${date}.`,
   },
   notices: {
     freeUpSpace: 'Звільнити місце',
@@ -1007,7 +1000,7 @@ export const uk: Messages = {
       'Я пропустив цей запуск: попередній ще чекає на твою відповідь у цьому чаті.',
     failed: 'Цей запуск за розкладом не вдався. Спробую знову наступного разу.',
     limitReached: (day: string) =>
-      `Повідомлення на цей місяць вичерпано, тому розклад пропускає запуски до ${day}.`,
+      `Обсяг агента на цей місяць вичерпано, тому розклад пропускає запуски до ${day}.`,
     open: 'Відкрити у Fewmail',
     stopped:
       'Розклад не вдався тричі поспіль, тому я його зупинив. Попроси мене налаштувати його знову, коли захочеш.',
@@ -1033,6 +1026,9 @@ export const uk: Messages = {
     title: 'Налаштуймо твого агента.',
   },
   plan: {
+    used: (percent: number) => `Використано ${percent}%`,
+    about: (emails: string, messages: string) =>
+      `Близько ${emails} прочитаних листів або ${messages} повідомлень агенту на місяць, у будь-якому поєднанні.`,
     free: 'Безкоштовний',
     freeDescription:
       'Швидка й спокійна пошта з простими правилами. Безкоштовно, скільки забажаєш.',
@@ -1043,11 +1039,7 @@ export const uk: Messages = {
     priceYearly: (usd: number) => `$${usd} / рік`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} листів і ${messages} повідомлень на місяць; дошки й передані агенту треди без обмежень.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} листів і ${messages} повідомлень на місяць.`,
     cancels: (plan: string, date: string) =>
       `${plan} до ${date}, далі безкоштовний.`,
     choose: (plan: string) => `Обрати ${plan}`,
@@ -1058,11 +1050,6 @@ export const uk: Messages = {
     welcome: (plan: string) => `Вітаємо в ${plan}. Агент знову до роботи.`,
     yearly: 'Платити щороку',
     yearlyHint: 'Два місяці безкоштовно.',
-    emailsUsed: (used: string, total: string) => `${used} з ${total} листів`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} з ${total} повідомлень`,
-    speechUsed: (used: string, total: string) =>
-      `${used} з ${total} символів, прочитаних уголос`,
     trialDescription: (date: string) =>
       `Усе з Pro до ${date}, потім безкоштовний. Картка не потрібна.`,
     upgrade: 'Інші плани',
@@ -1645,7 +1632,7 @@ export const uk: Messages = {
     done: 'Твій пересланий лист',
   },
   reading: {
-    summary: 'Що написали ваші розсилки',
+    summary: 'Що написали твої розсилки',
     worth: 'Варто прочитати повністю',
     leftOut: (n: number) => `Не увійшли до зведення: ${n}, нічого нового.`,
     since: (n: number) =>

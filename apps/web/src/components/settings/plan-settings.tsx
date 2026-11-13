@@ -1,9 +1,10 @@
 import type { BillingInterval, PaidPlan, Plan } from '@fewmail/shared/agent'
 import {
+  allowanceIn,
   isPaidPlan,
   PAID_PLANS,
-  PLAN_LIMITS,
   PRICE_USD,
+  usedPercent,
 } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
@@ -44,29 +45,6 @@ const planDescription = (
 
 const redirectTo = ({ url }: { url: string }) => location.assign(url)
 
-const UsageMeter = ({
-  label,
-  total,
-  used,
-}: {
-  label: (used: string, total: string) => string
-  total: number
-  used: number
-}) => {
-  const locale = useLocale()
-  return (
-    <div className="flex w-40 flex-col items-end gap-1.5">
-      <span className="text-muted-foreground text-xs tabular-nums">
-        {label(used.toLocaleString(locale), total.toLocaleString(locale))}
-      </span>
-      <Progress
-        value={Math.min(100, (used / total) * 100)}
-        variant={used >= total ? 'destructive' : 'default'}
-      />
-    </div>
-  )
-}
-
 export const PlanSettings = () => {
   const t = useT()
   const locale = useLocale()
@@ -81,14 +59,17 @@ export const PlanSettings = () => {
     useState<BillingInterval>('month')
   const formatPrice =
     billingInterval === 'year' ? t.plan.priceYearly : t.plan.price
-  const limits = plan.kind === 'free' ? null : PLAN_LIMITS[plan.kind]
+  const percent =
+    plan.kind === 'free' ? null : usedPercent(plan.kind, usage.spent)
   const choices = isPaidPlan(plan.kind)
     ? PAID_PLANS.slice(PAID_PLANS.indexOf(plan.kind) + 1)
     : PAID_PLANS
-  const limitsText = (choice: PaidPlan) => {
-    const { emails, messages } = PLAN_LIMITS[choice]
-    const describe = choice === 'max' ? t.plan.maxLimits : t.plan.proLimits
-    return describe(emails.toLocaleString(locale), String(messages))
+  const allowanceText = (choice: PaidPlan) => {
+    const { emails, messages } = allowanceIn(choice)
+    return t.plan.about(
+      emails.toLocaleString(locale),
+      messages.toLocaleString(locale)
+    )
   }
 
   return (
@@ -111,26 +92,18 @@ export const PlanSettings = () => {
             </Button>
           )}
         </SettingsRow>
-        {limits && (
+        {percent !== null && (
           <SettingsRow
             title={t.plan.usage}
             description={t.plan.resets(formatResetDay(locale, usage.resetsAt))}
           >
-            <div className="flex flex-col gap-3">
-              <UsageMeter
-                label={t.plan.emailsUsed}
-                used={usage.emails}
-                total={limits.emails}
-              />
-              <UsageMeter
-                label={t.plan.messagesUsed}
-                used={usage.messages}
-                total={limits.messages}
-              />
-              <UsageMeter
-                label={t.plan.speechUsed}
-                used={usage.speech}
-                total={limits.speech}
+            <div className="flex w-40 flex-col items-end gap-1.5">
+              <span className="text-muted-foreground text-xs tabular-nums">
+                {t.plan.used(percent)}
+              </span>
+              <Progress
+                value={percent}
+                variant={percent >= 100 ? 'destructive' : 'default'}
               />
             </div>
           </SettingsRow>
@@ -157,7 +130,7 @@ export const PlanSettings = () => {
             <SettingsRow
               key={choice}
               title={`${t.plan[choice]} · ${formatPrice(PRICE_USD[choice][billingInterval])}`}
-              description={limitsText(choice)}
+              description={allowanceText(choice)}
             >
               <Button
                 size="sm"

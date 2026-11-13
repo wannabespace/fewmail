@@ -1,10 +1,13 @@
 import { env } from '../env'
+import { charge } from '../services/plan'
 
 const SPEECH_API = 'https://api.elevenlabs.io/v1/text-to-speech'
 /** Multilingual and fast enough for a reply in a chat. */
 export const SPEECH_MODEL = 'eleven_flash_v2_5'
 const DEFAULT_VOICE = 'JBFqnCBsd6RMkjVDRZzb'
 export const SPEECH_CHARS = 2500
+/** `economics.test.ts` keeps it equal to LiteLLM's price. */
+export const SPEECH_USD_PER_CHAR = 0.00004
 /** Messengers want Ogg Opus voice notes; Safari plays only MP3 of the two. */
 const FORMATS = { messenger: 'opus_48000_64', web: 'mp3_44100_64' } as const
 
@@ -20,14 +23,19 @@ export const spokenText = (text: string) =>
     .replaceAll('&amp;', '&')
     .slice(0, SPEECH_CHARS)
 
-export const speak = async (text: string, format: keyof typeof FORMATS) => {
+export const speak = async (
+  userId: string,
+  text: string,
+  format: keyof typeof FORMATS
+) => {
   if (!env.ELEVENLABS_API_KEY) {
     throw new Error('Speaking needs ELEVENLABS_API_KEY')
   }
+  const spoken = spokenText(text)
   const response = await fetch(
     `${SPEECH_API}/${env.ELEVENLABS_VOICE_ID ?? DEFAULT_VOICE}?output_format=${FORMATS[format]}`,
     {
-      body: JSON.stringify({ model_id: SPEECH_MODEL, text: spokenText(text) }),
+      body: JSON.stringify({ model_id: SPEECH_MODEL, text: spoken }),
       headers: {
         'content-type': 'application/json',
         'xi-api-key': env.ELEVENLABS_API_KEY,
@@ -38,5 +46,6 @@ export const speak = async (text: string, format: keyof typeof FORMATS) => {
   if (!response.ok) {
     throw new Error(`ElevenLabs ${response.status}: ${await response.text()}`)
   }
+  await charge(userId, spoken.length * SPEECH_USD_PER_CHAR)
   return response.arrayBuffer()
 }

@@ -585,12 +585,8 @@ export const tr: Messages = {
     updated: (date: string) => `Son güncelleme: ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Planın ${total} pano içeriyor. Birini sil ya da Ayarlar → Plan’dan Max’e geç.`,
-    messages: (date: string) =>
-      `Bu ayki ajan mesajların bitti. ${date} tarihinde yenilenecek.`,
-    speech: (date: string) =>
-      `Bu ayki sesli okuma hakkın doldu. ${date} tarihinde yenilenir.`,
+    usage: (date: string) =>
+      `Ajanın bu ayki kullanım hakkı bitti. ${date} tarihinde yenilenecek.`,
   },
   notices: {
     freeUpSpace: 'Yer aç',
@@ -762,7 +758,7 @@ export const tr: Messages = {
     failed:
       'Bu zamanlanmış çalışma başarısız oldu. Bir sonrakinde yeniden deneyeceğim.',
     limitReached: (day: string) =>
-      `Bu ayın mesajları bitti, bu yüzden zamanlama şu tarihe kadar çalışmaları atlıyor: ${day}`,
+      `Ajanın bu ayki kullanım hakkı bitti, bu yüzden zamanlama şu tarihe kadar çalışmaları atlıyor: ${day}`,
     open: 'Fewmail’de aç',
     stopped:
       'Bu zamanlama üst üste üç kez başarısız oldu, bu yüzden durdurdum. Geri istediğinizde yeniden kurmamı isteyin.',
@@ -786,6 +782,9 @@ export const tr: Messages = {
     title: 'Ajanını kuralım.',
   },
   plan: {
+    used: (percent: number) => `%${percent} kullanıldı`,
+    about: (emails: string, messages: string) =>
+      `Ayda yaklaşık ${emails} okunan e-posta ya da ajana ${messages} mesaj, istediğin karışımla.`,
     free: 'Ücretsiz',
     freeDescription:
       'Basit kurallarla hızlı ve sakin e-posta. İstediğin kadar ücretsiz.',
@@ -796,11 +795,7 @@ export const tr: Messages = {
     priceYearly: (usd: number) => `$${usd} / yıl`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `Ayda ${emails} e-posta ve ${messages} mesaj; panolar ve devredilen yazışmalar sınırsız.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `Ayda ${emails} e-posta ve ${messages} mesaj.`,
     cancels: (plan: string, date: string) =>
       `${date} tarihine kadar ${plan}, sonra Ücretsiz.`,
     choose: (plan: string) => `${plan} seç`,
@@ -812,10 +807,6 @@ export const tr: Messages = {
       `${plan} planına hoş geldin. Ajan yeniden görevde.`,
     yearly: 'Yıllık öde',
     yearlyHint: 'İki ay ücretsiz.',
-    emailsUsed: (used: string, total: string) => `${used} / ${total} e-posta`,
-    messagesUsed: (used: string, total: string) => `${used} / ${total} mesaj`,
-    speechUsed: (used: string, total: string) =>
-      `${used} / ${total} sesli okunan karakter`,
     trialDescription: (date: string) =>
       `${date} tarihine kadar Pro’nun tamamı, sonra ücretsiz. Kart gerekmez.`,
     upgrade: 'Diğer planlar',
@@ -1417,6 +1408,10 @@ export const tr: Messages = {
       title: 'Tüm gelen kutun, iki dakikada.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Ayda yaklaşık ${emails} okunan e-posta ya da ajana ${messages} mesaj`,
+      oneAllowance:
+        'Ajanın yaptığı her şey için tek bir kullanım hakkı: kullandığın kadar ödersin, gereksiz e-postalar hiç sayılmaz',
       everythingIn: (plan: string) => `${plan} planındaki her şey, artı`,
       forever: 'sonsuza dek',
       free: {
@@ -1432,9 +1427,6 @@ export const tr: Messages = {
       },
       max: {
         description: 'Yoğun bir gelen kutusu için aynı ajan.',
-        emails: (emails: string) => `Ayda ${emails} e-posta okunur`,
-        messages: (messages: number) => `Ajana ayda ${messages} mesaj`,
-        unlimited: 'Sınırsız pano ve devredilen yazışma',
       },
       monthly: 'Aylık',
       per: { month: '/ ay', year: '/ yıl' },
@@ -1448,11 +1440,8 @@ export const tr: Messages = {
           'Postalarına her şeyi sor, ayrıca kendi araçların için MCP',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `Ayda ${emails} e-posta okunur ve ajana ${messages} mesaj; gürültü asla sayılmaz`,
       pro: {
         description: 'Aynı ajan, daha çok posta için yer.',
-        room: (boards: number) => `Aynı anda ${boards} panoya kadar`,
       },
       tryFree: (days: number) => `${days} gün ücretsiz dene`,
       yearly: 'Yıllık · 2 ay ücretsiz',

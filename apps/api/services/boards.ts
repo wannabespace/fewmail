@@ -45,7 +45,7 @@ import { expectRow } from '../lib/rows'
 import { LimitReachedError } from './limit-error'
 import { NotFoundError } from './mail-errors'
 import { searchMailboxes } from './mailboxes'
-import { requireRoom } from './plan'
+import { requireBudget } from './plan'
 import { getSettings } from './settings'
 import { keptIdOf } from './stored-mail'
 import type { ReadMessage } from './stored-mail'
@@ -448,12 +448,16 @@ export const createBoard = async (
   userId: string,
   input: { description: string; name: string; periodDays?: BoardPeriod }
 ) => {
-  const count = () => db.$count(boards, eq(boards.userId, userId))
-  await requireRoom(userId, count)
+  await requireBudget(userId)
   const plan = await planBoard(userId, input)
   const [board] = await db
     .insert(boards)
-    .values({ ...input, ...plan, position: await count(), userId })
+    .values({
+      ...input,
+      ...plan,
+      position: await db.$count(boards, eq(boards.userId, userId)),
+      userId,
+    })
     .returning()
   await announceChange(userId, ['boards', 'today'])
   return expectRow(board)
@@ -472,7 +476,7 @@ export const seedBoards = async (userId: string) => {
     if (names.has(input.name)) {
       continue
     }
-    // oxlint-disable-next-line no-await-in-loop -- one at a time: createBoard counts boards against the plan, parallel calls would all pass the limit
+    // oxlint-disable-next-line no-await-in-loop -- one at a time: each board's plan is paid from the allowance, so seeding stops where it runs out
     const created = await createBoard(userId, input).catch((error) => {
       if (error instanceof LimitReachedError) {
         return null

@@ -604,12 +604,8 @@ export const en = {
     updated: (date: string) => `Last updated ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Your plan holds ${total} boards. Delete one, or switch to Max in Settings → Plan.`,
-    messages: (date: string) =>
-      `This month’s messages to the agent are used up. They come back on ${date}.`,
-    speech: (date: string) =>
-      `This month’s reading aloud is used up. It comes back on ${date}.`,
+    usage: (date: string) =>
+      `This month’s agent allowance is spent. It comes back on ${date}.`,
   },
   notices: {
     freeUpSpace: 'Free up space',
@@ -787,7 +783,7 @@ export const en = {
       'I skipped this run: the last one still waits for your answer in this chat.',
     failed: 'This scheduled run failed. I’ll try again at the next one.',
     limitReached: (day: string) =>
-      `This month’s messages are used up, so the schedule skips runs until ${day}.`,
+      `This month’s agent allowance is spent, so the schedule skips runs until ${day}.`,
     open: 'Open in Fewmail',
     stopped:
       'This schedule failed three times in a row, so I stopped it. Ask me to set it up again when you want it back.',
@@ -811,6 +807,9 @@ export const en = {
     title: 'Let’s set up your agent.',
   },
   plan: {
+    used: (percent: number) => `${percent}% used`,
+    about: (emails: string, messages: string) =>
+      `About ${emails} emails read or ${messages} messages to the agent a month, in any mix.`,
     free: 'Free',
     freeDescription:
       'Fast, calm mail with simple rules. Free for as long as you like.',
@@ -821,11 +820,7 @@ export const en = {
     priceYearly: (usd: number) => `$${usd} / year`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} emails and ${messages} messages a month; boards and handed-over threads without limit.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} emails and ${messages} messages a month.`,
     cancels: (plan: string, date: string) =>
       `${plan} until ${date}, then Free.`,
     choose: (plan: string) => `Choose ${plan}`,
@@ -836,11 +831,6 @@ export const en = {
     welcome: (plan: string) => `Welcome to ${plan}. The agent is back on duty.`,
     yearly: 'Pay yearly',
     yearlyHint: 'Two months free.',
-    emailsUsed: (used: string, total: string) => `${used} of ${total} emails`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} of ${total} messages`,
-    speechUsed: (used: string, total: string) =>
-      `${used} of ${total} characters read aloud`,
     trialDescription: (date: string) =>
       `Everything in Pro until ${date}, then Free. No card needed.`,
     upgrade: 'Other plans',
@@ -1443,6 +1433,10 @@ export const en = {
       title: 'Your whole inbox, in two minutes.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `About ${emails} emails read or ${messages} messages to the agent a month`,
+      oneAllowance:
+        'One allowance for everything the agent does: you pay for what you use, and noise never counts',
       everythingIn: (plan: string) => `Everything in ${plan}, plus`,
       forever: 'forever',
       free: {
@@ -1458,10 +1452,6 @@ export const en = {
       },
       max: {
         description: 'The same agent for a busy inbox.',
-        emails: (emails: string) => `${emails} emails read a month`,
-        messages: (messages: number) =>
-          `${messages} messages to the agent a month`,
-        unlimited: 'Boards and handed-over threads without limit',
       },
       monthly: 'Monthly',
       per: { month: 'a month', year: 'a year' },
@@ -1475,11 +1465,8 @@ export const en = {
           'Ask your mail anything, plus MCP for your own tools',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} emails read and ${messages} messages to the agent a month; noise never counts`,
       pro: {
         description: 'The same agent with room for more mail.',
-        room: (boards: number) => `Up to ${boards} boards at a time`,
       },
       tryFree: (days: number) => `Try free for ${days} days`,
       yearly: 'Yearly · 2 months free',

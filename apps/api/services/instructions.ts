@@ -13,7 +13,7 @@ import type { Exchange } from './ask'
 import { askMail, earlierLines } from './ask'
 import { askAgent } from './chat'
 import { draftReply, redraftAction } from './mail'
-import { requireAgent, spendMessage } from './plan'
+import { requireBudget } from './plan'
 
 const RECENT_DAYS = 7
 const CANDIDATES = 15
@@ -102,12 +102,12 @@ const inNewChat = async (userId: string, text: string) => {
 
 /** ⌘K: a question is answered from the mail; anything else goes to the agent in a new chat, where its approvals wait. */
 export const askFewmail = async (userId: string, text: string) => {
+  await requireBudget(userId)
   const { intent } = await understand(userId, text)
   if (intent !== 'question') {
     const { chatId, text: answer } = await inNewChat(userId, text)
     return { answer, chatId, query: null, sources: [] }
   }
-  await spendMessage(userId)
   return { ...(await askMail(userId, text)), chatId: null }
 }
 
@@ -122,16 +122,14 @@ export const followMessage = async (
     return { skill: await inNewChat(userId, text) }
   }
   if (actionId) {
-    await spendMessage(userId)
+    await requireBudget(userId)
     return { draft: await redraftAction(userId, actionId, text) }
   }
-  await requireAgent(userId)
+  await requireBudget(userId)
   const { intent, target } = await understand(userId, text, earlier)
-  // The agent's chat spends the message itself; spending here too would count it twice.
   if (intent === 'request') {
     return { skill: await inNewChat(userId, text) }
   }
-  await spendMessage(userId)
   if (intent === 'question') {
     return { answer: await askMail(userId, text, true, earlier) }
   }

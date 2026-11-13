@@ -583,6 +583,10 @@ export const it: Messages = {
       title: 'Tutta la tua posta, in due minuti.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Circa ${emails} email lette o ${messages} messaggi all’agente al mese`,
+      oneAllowance:
+        'Una sola quota per tutto ciò che fa l’agente: paghi quello che usi e il rumore non conta mai',
       everythingIn: (plan: string) => `Tutto di ${plan}, in più`,
       forever: 'per sempre',
       free: {
@@ -598,10 +602,6 @@ export const it: Messages = {
       },
       max: {
         description: 'Lo stesso agente per una casella piena.',
-        emails: (emails: string) => `${emails} email lette al mese`,
-        messages: (messages: number) =>
-          `${messages} messaggi all’agente al mese`,
-        unlimited: 'Bacheche e thread affidati senza limiti',
       },
       monthly: 'Mensile',
       per: { month: 'al mese', year: 'all’anno' },
@@ -615,11 +615,8 @@ export const it: Messages = {
           'Chiedi qualsiasi cosa alla tua posta, più MCP per i tuoi strumenti',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} email lette e ${messages} messaggi all’agente al mese; il rumore non conta mai`,
       pro: {
         description: 'Lo stesso agente, con spazio per più posta.',
-        room: (boards: number) => `Fino a ${boards} bacheche alla volta`,
       },
       tryFree: (days: number) => `Prova gratis per ${days} giorni`,
       yearly: 'Annuale · 2 mesi gratis',
@@ -827,12 +824,8 @@ export const it: Messages = {
     updated: (date: string) => `Ultimo aggiornamento: ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Il tuo piano include ${total} bacheche. Eliminane una o passa a Max in Impostazioni → Piano.`,
-    messages: (date: string) =>
-      `I messaggi all’agente di questo mese sono finiti. Tornano il ${date}.`,
-    speech: (date: string) =>
-      `La lettura ad alta voce di questo mese è esaurita. Torna il ${date}.`,
+    usage: (date: string) =>
+      `La quota dell’agente di questo mese è finita. Torna il ${date}.`,
   },
   notices: {
     freeUpSpace: 'Libera spazio',
@@ -1011,7 +1004,7 @@ export const it: Messages = {
     failed:
       'Questa esecuzione pianificata non è riuscita. Riproverò alla prossima.',
     limitReached: (day: string) =>
-      `I messaggi di questo mese sono esauriti, quindi la pianificazione salta le esecuzioni fino al ${day}.`,
+      `La quota dell’agente di questo mese è esaurita, quindi la pianificazione salta le esecuzioni fino al ${day}.`,
     open: 'Apri in Fewmail',
     stopped:
       'Questa pianificazione è fallita tre volte di seguito, quindi l’ho fermata. Chiedimi di reimpostarla quando la vuoi.',
@@ -1035,6 +1028,9 @@ export const it: Messages = {
     title: 'Configuriamo il tuo agente.',
   },
   plan: {
+    used: (percent: number) => `${percent}% usato`,
+    about: (emails: string, messages: string) =>
+      `Circa ${emails} email lette o ${messages} messaggi all’agente al mese, in qualsiasi combinazione.`,
     free: 'Gratis',
     freeDescription:
       'Email veloce e tranquilla con regole semplici. Gratis per tutto il tempo che vuoi.',
@@ -1045,11 +1041,7 @@ export const it: Messages = {
     priceYearly: (usd: number) => `$${usd} / anno`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} email e ${messages} messaggi al mese; bacheche e thread affidati senza limiti.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} email e ${messages} messaggi al mese.`,
     cancels: (plan: string, date: string) =>
       `${plan} fino al ${date}, poi Gratis.`,
     choose: (plan: string) => `Scegli ${plan}`,
@@ -1061,11 +1053,6 @@ export const it: Messages = {
       `Benvenuto in ${plan}. L’agente è di nuovo al lavoro.`,
     yearly: 'Paga annualmente',
     yearlyHint: 'Due mesi gratis.',
-    emailsUsed: (used: string, total: string) => `${used} di ${total} email`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} di ${total} messaggi`,
-    speechUsed: (used: string, total: string) =>
-      `${used} di ${total} caratteri letti ad alta voce`,
     trialDescription: (date: string) =>
       `Tutto Pro fino al ${date}, poi gratis. Nessuna carta.`,
     upgrade: 'Altri piani',

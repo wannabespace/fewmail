@@ -10,7 +10,7 @@ import { and, count, desc, eq, gte } from 'drizzle-orm'
 import { FAST_MODEL_ID, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { expectRow } from '../lib/rows'
-import { getPlanInfo, hasAgent } from './plan'
+import { getPlanInfo, hasAgent, hasBudget } from './plan'
 import { getSettings } from './settings'
 
 const READING_HOURS = 24
@@ -100,7 +100,7 @@ export const getReading = async (userId: string) => {
     .limit(READING_SHOWN)
   const unwritten = rows.filter(({ model }) => model === JEV_MODEL_ID)
   const written =
-    unwritten.length > 0 && hasAgent(await getPlanInfo(userId))
+    unwritten.length > 0 && (await hasBudget(userId))
       ? await summarize(userId, unwritten)
       : new Map<string, string>()
   return rows.map(({ body: _body, model: _model, ...row }) => ({
@@ -164,9 +164,13 @@ const writeReadingSummary = async (
   }
 }
 
+/** The page, the bot and Listen may ask at once; one call writes the summary for all of them. */
+const writing = new Map<string, Promise<ReadingSummary>>()
+
 /**
  * The day's newsletters with the agent's summary of all of them (null without the agent or newsletters).
- * Newsletters that arrived since the summary are left out of it until it is `SUMMARY_EVERY_HOURS` old.
+ * Newsletters that arrived since the summary are left out of it until it is `SUMMARY_EVERY_HOURS` old, and
+ * once the month's allowance is spent the last summary stays.
  */
 export const getReadingSummary = async (userId: string) => {
   const rows = await getReading(userId)
@@ -183,10 +187,18 @@ export const getReadingSummary = async (userId: string) => {
     (kept.updatedAt > subHours(new Date(), SUMMARY_EVERY_HOURS) ||
       (kept.messageIds.length === messageIds.length &&
         messageIds.every((id) => kept.messageIds.includes(id))))
-  if (isCurrent) {
-    return { rows, summary: { ...kept.summary, messageIds: kept.messageIds } }
+  const canWrite = !isCurrent && (await hasBudget(userId))
+  if (!canWrite) {
+    return {
+      rows,
+      summary: kept ? { ...kept.summary, messageIds: kept.messageIds } : null,
+    }
   }
-  const summary = await writeReadingSummary(userId, rows)
+  const pending =
+    writing.get(userId) ??
+    writeReadingSummary(userId, rows).finally(() => writing.delete(userId))
+  writing.set(userId, pending)
+  const summary = await pending
   await db
     .insert(readingSummaries)
     .values({ messageIds, summary, userId })

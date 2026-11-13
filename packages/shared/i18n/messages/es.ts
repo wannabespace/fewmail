@@ -579,6 +579,10 @@ export const es: Messages = {
       title: 'Toda tu bandeja, en dos minutos.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Unos ${emails} correos leídos o ${messages} mensajes al agente al mes`,
+      oneAllowance:
+        'Un solo saldo para todo lo que hace el agente: pagas lo que usas y el ruido nunca cuenta',
       everythingIn: (plan: string) => `Todo lo de ${plan}, y además`,
       forever: 'para siempre',
       free: {
@@ -595,9 +599,6 @@ export const es: Messages = {
       },
       max: {
         description: 'El mismo agente para una bandeja con mucho movimiento.',
-        emails: (emails: string) => `${emails} correos leídos al mes`,
-        messages: (messages: number) => `${messages} mensajes al agente al mes`,
-        unlimited: 'Tableros y conversaciones delegadas sin límite',
       },
       monthly: 'Mensual',
       per: { month: 'al mes', year: 'al año' },
@@ -611,11 +612,8 @@ export const es: Messages = {
           'Pregunta lo que quieras a tu correo, y MCP para tus propias herramientas',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} correos leídos y ${messages} mensajes al agente al mes; el ruido nunca cuenta`,
       pro: {
         description: 'El mismo agente con espacio para más correo.',
-        room: (boards: number) => `Hasta ${boards} tableros a la vez`,
       },
       tryFree: (days: number) => `Pruébalo gratis ${days} días`,
       yearly: 'Anual · 2 meses gratis',
@@ -823,12 +821,8 @@ export const es: Messages = {
     updated: (date: string) => `Última actualización: ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Tu plan incluye ${total} tableros. Borra uno o cámbiate a Max en Ajustes → Plan.`,
-    messages: (date: string) =>
-      `Se acabaron los mensajes al agente de este mes. Vuelven el ${date}.`,
-    speech: (date: string) =>
-      `La lectura en voz alta de este mes se ha agotado. Vuelve el ${date}.`,
+    usage: (date: string) =>
+      `Se acabó el uso del agente de este mes. Vuelve el ${date}.`,
   },
   notices: {
     freeUpSpace: 'Liberar espacio',
@@ -1006,7 +1000,7 @@ export const es: Messages = {
     failed:
       'Esta ejecución programada falló. Lo intentaré de nuevo en la siguiente.',
     limitReached: (day: string) =>
-      `Los mensajes de este mes se han agotado, así que la programación omite ejecuciones hasta el ${day}.`,
+      `El uso del agente de este mes se ha agotado, así que la programación omite ejecuciones hasta el ${day}.`,
     open: 'Abrir en Fewmail',
     stopped:
       'Esta programación falló tres veces seguidas, así que la detuve. Pídeme que la configure de nuevo cuando la quieras.',
@@ -1030,6 +1024,9 @@ export const es: Messages = {
     title: 'Configuremos tu agente.',
   },
   plan: {
+    used: (percent: number) => `${percent} % usado`,
+    about: (emails: string, messages: string) =>
+      `Unos ${emails} correos leídos o ${messages} mensajes al agente al mes, en cualquier combinación.`,
     free: 'Gratis',
     freeDescription:
       'Correo rápido y tranquilo con reglas simples. Gratis todo el tiempo que quieras.',
@@ -1040,11 +1037,7 @@ export const es: Messages = {
     priceYearly: (usd: number) => `$${usd} / año`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} correos y ${messages} mensajes al mes; tableros e hilos delegados sin límite.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} correos y ${messages} mensajes al mes.`,
     cancels: (plan: string, date: string) =>
       `${plan} hasta el ${date}, después Gratis.`,
     choose: (plan: string) => `Elegir ${plan}`,
@@ -1056,11 +1049,6 @@ export const es: Messages = {
       `Te damos la bienvenida a ${plan}. El agente vuelve a estar en marcha.`,
     yearly: 'Pagar anualmente',
     yearlyHint: 'Dos meses gratis.',
-    emailsUsed: (used: string, total: string) => `${used} de ${total} correos`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} de ${total} mensajes`,
-    speechUsed: (used: string, total: string) =>
-      `${used} de ${total} caracteres leídos en voz alta`,
     trialDescription: (date: string) =>
       `Todo Pro hasta el ${date}, luego gratis. Sin tarjeta.`,
     upgrade: 'Otros planes',

@@ -590,12 +590,8 @@ export const id: Messages = {
     updated: (date: string) => `Terakhir diperbarui ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Paketmu mencakup ${total} papan. Hapus satu, atau beralih ke Max di Pengaturan → Paket.`,
-    messages: (date: string) =>
-      `Pesan ke agen untuk bulan ini sudah habis. Akan tersedia lagi pada ${date}.`,
-    speech: (date: string) =>
-      `Jatah membacakan bulan ini sudah habis. Kembali pada ${date}.`,
+    usage: (date: string) =>
+      `Jatah agen untuk bulan ini sudah habis. Akan tersedia lagi pada ${date}.`,
   },
   notices: {
     freeUpSpace: 'Kosongkan ruang',
@@ -769,7 +765,7 @@ export const id: Messages = {
     failed:
       'Jalannya jadwal ini gagal. Saya akan mencoba lagi di jadwal berikutnya.',
     limitReached: (day: string) =>
-      `Pesan bulan ini sudah habis, jadi jadwal melewatkan jalannya hingga ${day}.`,
+      `Jatah agen bulan ini sudah habis, jadi jadwal melewatkan jalannya hingga ${day}.`,
     open: 'Buka di Fewmail',
     stopped:
       'Jadwal ini gagal tiga kali berturut-turut, jadi saya menghentikannya. Minta saya menyiapkannya lagi kapan pun Anda mau.',
@@ -793,6 +789,9 @@ export const id: Messages = {
     title: 'Ayo siapkan agenmu.',
   },
   plan: {
+    used: (percent: number) => `${percent}% terpakai`,
+    about: (emails: string, messages: string) =>
+      `Sekitar ${emails} email dibaca atau ${messages} pesan ke agen sebulan, dalam campuran apa pun.`,
     free: 'Gratis',
     freeDescription:
       'Email yang cepat dan tenang dengan aturan sederhana. Gratis selama kamu mau.',
@@ -803,11 +802,7 @@ export const id: Messages = {
     priceYearly: (usd: number) => `$${usd} / tahun`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} email dan ${messages} pesan per bulan; papan dan utas yang diserahkan tanpa batas.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} email dan ${messages} pesan per bulan.`,
     cancels: (plan: string, date: string) =>
       `${plan} sampai ${date}, lalu Gratis.`,
     choose: (plan: string) => `Pilih ${plan}`,
@@ -819,11 +814,6 @@ export const id: Messages = {
       `Selamat datang di ${plan}. Agen kembali bertugas.`,
     yearly: 'Bayar tahunan',
     yearlyHint: 'Gratis dua bulan.',
-    emailsUsed: (used: string, total: string) => `${used} dari ${total} email`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} dari ${total} pesan`,
-    speechUsed: (used: string, total: string) =>
-      `${used} dari ${total} karakter dibacakan`,
     trialDescription: (date: string) =>
       `Semua fitur Pro sampai ${date}, lalu gratis. Tanpa kartu.`,
     upgrade: 'Paket lain',
@@ -1423,6 +1413,10 @@ export const id: Messages = {
       title: 'Seluruh kotak masukmu, dalam dua menit.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Sekitar ${emails} email dibaca atau ${messages} pesan ke agen sebulan`,
+      oneAllowance:
+        'Satu jatah untuk semua yang dikerjakan agen: bayar sesuai pemakaian, dan email tak penting tidak pernah dihitung',
       everythingIn: (plan: string) => `Semua yang ada di ${plan}, plus`,
       forever: 'selamanya',
       free: {
@@ -1438,9 +1432,6 @@ export const id: Messages = {
       },
       max: {
         description: 'Agen yang sama untuk kotak masuk yang sibuk.',
-        emails: (emails: string) => `${emails} email dibaca per bulan`,
-        messages: (messages: number) => `${messages} pesan ke agen per bulan`,
-        unlimited: 'Papan dan percakapan yang diserahkan tanpa batas',
       },
       monthly: 'Bulanan',
       per: { month: 'per bulan', year: 'per tahun' },
@@ -1454,11 +1445,8 @@ export const id: Messages = {
           'Tanyakan apa saja pada emailmu, plus MCP untuk alatmu sendiri',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} email dibaca dan ${messages} pesan ke agen per bulan; email yang tak penting tidak pernah dihitung`,
       pro: {
         description: 'Agen yang sama dengan ruang untuk lebih banyak email.',
-        room: (boards: number) => `Hingga ${boards} papan sekaligus`,
       },
       tryFree: (days: number) => `Coba gratis ${days} hari`,
       yearly: 'Tahunan · gratis 2 bulan',

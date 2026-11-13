@@ -588,6 +588,10 @@ export const fr: Messages = {
       title: 'Toute votre boîte, en deux minutes.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Environ ${emails} e-mails lus ou ${messages} messages à l’agent par mois`,
+      oneAllowance:
+        'Une seule enveloppe pour tout ce que fait l’agent : vous payez ce que vous utilisez, et le bruit ne compte jamais',
       everythingIn: (plan: string) => `Tout ce qu’offre ${plan}, plus`,
       forever: 'pour toujours',
       free: {
@@ -603,10 +607,6 @@ export const fr: Messages = {
       },
       max: {
         description: 'Le même agent, pour une boîte très chargée.',
-        emails: (emails: string) => `${emails} e-mails lus par mois`,
-        messages: (messages: number) =>
-          `${messages} messages à l’agent par mois`,
-        unlimited: 'Tableaux et fils confiés sans limite',
       },
       monthly: 'Mensuel',
       per: { month: 'par mois', year: 'par an' },
@@ -620,11 +620,8 @@ export const fr: Messages = {
           'Interrogez vos e-mails sur tout, et MCP pour vos propres outils',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} e-mails lus et ${messages} messages à l’agent par mois ; le bruit ne compte jamais`,
       pro: {
         description: 'Le même agent, avec de la place pour plus de mails.',
-        room: (boards: number) => `Jusqu’à ${boards} tableaux à la fois`,
       },
       tryFree: (days: number) => `Essai gratuit de ${days} jours`,
       yearly: 'Annuel · 2 mois offerts',
@@ -833,12 +830,8 @@ export const fr: Messages = {
     updated: (date: string) => `Dernière mise à jour : ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Votre forfait comprend ${total} tableaux. Supprimez-en un ou passez à Max dans Réglages → Forfait.`,
-    messages: (date: string) =>
-      `Les messages à l’agent de ce mois sont épuisés. Ils reviennent le ${date}.`,
-    speech: (date: string) =>
-      `La lecture à voix haute de ce mois est épuisée. Elle revient le ${date}.`,
+    usage: (date: string) =>
+      `L’enveloppe de l’agent pour ce mois est épuisée. Elle revient le ${date}.`,
   },
   notices: {
     freeUpSpace: 'Libérer de l’espace',
@@ -1018,7 +1011,7 @@ export const fr: Messages = {
     failed:
       'Cette exécution planifiée a échoué. Je réessaierai à la prochaine.',
     limitReached: (day: string) =>
-      `Les messages de ce mois sont épuisés, la planification saute donc les exécutions jusqu’au ${day}.`,
+      `L’enveloppe de l’agent pour ce mois est épuisée, la planification saute donc les exécutions jusqu’au ${day}.`,
     open: 'Ouvrir dans Fewmail',
     stopped:
       'Cette planification a échoué trois fois de suite, je l’ai donc arrêtée. Demandez-moi de la recréer quand vous la voulez.',
@@ -1042,6 +1035,9 @@ export const fr: Messages = {
     title: 'Configurons votre agent.',
   },
   plan: {
+    used: (percent: number) => `${percent} % utilisé`,
+    about: (emails: string, messages: string) =>
+      `Environ ${emails} e-mails lus ou ${messages} messages à l’agent par mois, dans n’importe quelle proportion.`,
     free: 'Gratuit',
     freeDescription:
       'Des e-mails rapides et sereins avec des règles simples. Gratuit aussi longtemps que vous le souhaitez.',
@@ -1052,11 +1048,7 @@ export const fr: Messages = {
     priceYearly: (usd: number) => `$${usd} / an`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} e-mails et ${messages} messages par mois ; tableaux et fils confiés sans limite.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} e-mails et ${messages} messages par mois.`,
     cancels: (plan: string, date: string) =>
       `${plan} jusqu’au ${date}, puis Gratuit.`,
     choose: (plan: string) => `Choisir ${plan}`,
@@ -1068,11 +1060,6 @@ export const fr: Messages = {
       `Bienvenue dans ${plan}. L’agent reprend du service.`,
     yearly: 'Payer à l’année',
     yearlyHint: 'Deux mois offerts.',
-    emailsUsed: (used: string, total: string) => `${used} sur ${total} e-mails`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} sur ${total} messages`,
-    speechUsed: (used: string, total: string) =>
-      `${used} sur ${total} caractères lus à voix haute`,
     trialDescription: (date: string) =>
       `Tout Pro jusqu’au ${date}, puis gratuit. Sans carte.`,
     upgrade: 'Autres formules',

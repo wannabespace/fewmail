@@ -8,7 +8,7 @@ import process from 'node:process'
 
 import {
   PAID_PLANS,
-  PLAN_LIMITS,
+  PLAN_ALLOWANCE_USD,
   PRICE_USD,
   TRIAL_DAYS,
 } from '@fewmail/shared/agent'
@@ -39,7 +39,6 @@ import {
   IMPORTANCE_LEVELS,
   NEEDS_REPLY,
 } from '../services/classify'
-import { URGENT_RESERVE } from '../services/plan'
 import {
   READING_SHOWN,
   BODY_CHARS as READING_BODY_CHARS,
@@ -425,44 +424,40 @@ export const backgroundCost = (use: Use, agent: boolean) => {
   }
 }
 
-type AgentPlan = keyof typeof PLAN_LIMITS
+type AgentPlan = keyof typeof PLAN_ALLOWANCE_USD
 
-/** A month of `plan` used as `use` says, its emails and messages held to the plan's limits. */
-export const monthCost = (plan: AgentPlan, use: Use) => {
-  const limits = PLAN_LIMITS[plan]
-  const emails = Math.min(
-    use.inbound * use.analyzedShare,
-    limits.emails * URGENT_RESERVE
-  )
-  const messages = Math.min(use.messages, limits.messages)
-  const background = backgroundCost(use, true).total
+/** What `use` costs with nothing to stop it: the mail the agent writes for, the messages, reading aloud and the background work, Jev apart. */
+export const agentCost = (use: Use) => {
+  const emails = use.inbound * use.analyzedShare
+  const { jev, total } = backgroundCost(use, true)
   const mail = emails * analyzedEmailCost(use).total
-  const talk = messages * messageCost(use)
+  const talk = use.messages * messageCost(use)
   const speech =
-    Math.min(
-      use.spokenReplies * Math.min(use.spokenChars, SPEECH_CHARS),
-      limits.speech
-    ) * priceOf(SPEECH_MODEL, 'input_cost_per_character')
+    use.spokenReplies *
+    Math.min(use.spokenChars, SPEECH_CHARS) *
+    priceOf(SPEECH_MODEL, 'input_cost_per_character')
+  const background = total - jev
   return {
     background,
     emails,
     mail,
-    messages,
     speech,
     talk,
     total: background + mail + talk + speech,
   }
 }
 
-/** A trial lasts `TRIAL_DAYS` but its limits are a month's, so all of them can go in it. */
+/** A month of `plan`: the agent stops where the allowance runs out; Jev reads all mail on every plan and is never stopped. */
+export const monthCost = (plan: AgentPlan, use: Use) => {
+  const agent = Math.min(agentCost(use).total, PLAN_ALLOWANCE_USD[plan])
+  const { jev } = backgroundCost(use, true)
+  return { agent, jev, total: agent + jev }
+}
+
+/** A trial's allowance is a month's, so all of it can go in its `TRIAL_DAYS`. */
 export const trialCost = (use: Use) => {
   const month = monthCost('trial', use)
-  return (
-    month.mail +
-    month.talk +
-    month.speech +
-    (month.background * TRIAL_DAYS) / DAYS
-  )
+  return month.agent + (month.jev * TRIAL_DAYS) / DAYS
 }
 
 export const freeMonthCost = (use: Use) => backgroundCost(use, false).total
@@ -489,6 +484,15 @@ export const margin = (
   interval: BillingInterval,
   aiUsd: number
 ) => (netRevenue(plan, interval) - aiUsd) / grossRevenue(plan, interval)
+
+/** What a yearly plan keeps after Stripe and AI when its allowance is spent and a busy inbox runs through Jev. */
+export const TARGET_MARGIN = 0.2
+
+/** The largest allowance that keeps `TARGET_MARGIN` on a yearly plan; `PLAN_ALLOWANCE_USD` follows it. */
+export const fairAllowance = (plan: PaidPlan) =>
+  netRevenue(plan, 'year') -
+  TARGET_MARGIN * grossRevenue(plan, 'year') -
+  backgroundCost(FULL, true).jev
 
 const usd = (n: number) => `$${n < 0.01 ? n.toFixed(4) : n.toFixed(2)}`
 const pct = (n: number) => `${Math.round(n * 100)}%`
@@ -517,27 +521,29 @@ const printReport = () => {
   printUnits(lines, 'Heavy use (every size at its cap)', HEAVY)
   lines.push(
     '',
-    'Plans: AI a month, margin after Stripe and AI (monthly / yearly)'
+    `Plans: the allowance (fair at ${pct(TARGET_MARGIN)} yearly), what it buys at typical sizes, AI a month and the margin after Stripe and AI (monthly / yearly)`
   )
   for (const plan of PAID_PLANS) {
-    const limits = PLAN_LIMITS[plan]
+    const allowance = PLAN_ALLOWANCE_USD[plan]
     lines.push(
-      `  ${plan} $${PRICE_USD[plan].month}/mo, ${limits.emails} emails, ${limits.messages} messages: net ${usd(netRevenue(plan, 'month'))} / ${usd(netRevenue(plan, 'year'))}`
+      `  ${plan} $${PRICE_USD[plan].month}/mo: allowance ${usd(allowance)} (fair ${usd(fairAllowance(plan))}), about ${Math.round(allowance / analyzedEmailCost(TYPICAL).total)} emails or ${Math.round(allowance / messageCost(TYPICAL))} messages; net ${usd(netRevenue(plan, 'month'))} / ${usd(netRevenue(plan, 'year'))}`
     )
     for (const [name, use] of [
       ['typical', TYPICAL],
-      ['limits spent, typical sizes', FULL],
+      ['allowance spent, busy inbox', FULL],
       ['heavy', HEAVY],
     ] as const) {
       const month = monthCost(plan, use)
       lines.push(
-        `    ${name}: ${usd(month.total)} (${Math.round(month.emails)} emails ${usd(month.mail)}, ${month.messages} messages ${usd(month.talk)}, speech ${usd(month.speech)}, background ${usd(month.background)}), margin ${pct(margin(plan, 'month', month.total))} / ${pct(margin(plan, 'year', month.total))}`
+        `    ${name}: ${usd(month.total)} (agent ${usd(month.agent)}, Jev ${usd(month.jev)}), margin ${pct(margin(plan, 'month', month.total))} / ${pct(margin(plan, 'year', month.total))}`
       )
     }
   }
+  const typical = agentCost(TYPICAL)
   lines.push(
     '',
-    `Trial (${TRIAL_DAYS} days, ${PLAN_LIMITS.trial.emails} emails, ${PLAN_LIMITS.trial.messages} messages): typical ${usd(trialCost(TYPICAL))}, heavy ${usd(trialCost(HEAVY))}`,
+    `Typical use uncapped: ${usd(typical.total)} (${Math.round(typical.emails)} emails ${usd(typical.mail)}, ${TYPICAL.messages} messages ${usd(typical.talk)}, speech ${usd(typical.speech)}, background ${usd(typical.background)})`,
+    `Trial (${TRIAL_DAYS} days, allowance ${usd(PLAN_ALLOWANCE_USD.trial)}): typical ${usd(trialCost(TYPICAL))}, heavy ${usd(trialCost(HEAVY))}`,
     `Free (Jev only): typical ${usd(freeMonthCost(TYPICAL))} a month, heavy ${usd(freeMonthCost(HEAVY))}`
   )
   process.stdout.write(`${lines.join('\n')}\n`)

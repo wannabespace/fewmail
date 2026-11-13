@@ -10,7 +10,7 @@ import { eq } from 'drizzle-orm'
 import { models, trackUsage } from '../lib/ai'
 import { localClock } from '../lib/clock'
 import { jev } from '../lib/jev'
-import { getPlanInfo, hasAgent } from './plan'
+import { hasBudget } from './plan'
 import { watchForReply } from './reminders'
 import { getSettings } from './settings'
 
@@ -85,7 +85,7 @@ export const watchSentMail = async (
   if (answers.expectsReply.noul >= SIGNAL) {
     await watchForReply(userId, sent.threadId, AUTO_FOLLOWUP_DAYS)
   }
-  if (answers.promises.noul < SIGNAL || !hasAgent(await getPlanInfo(userId))) {
+  if (answers.promises.noul < SIGNAL || !(await hasBudget(userId))) {
     return
   }
   const [message] = await db

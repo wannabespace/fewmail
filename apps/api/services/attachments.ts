@@ -37,7 +37,7 @@ const readAll = async (message: Message) => {
   const texts = await Promise.all(
     readable.map(async ({ attachmentId, filename, mimeType }) => {
       const data = await getAttachment(mailbox, message.gmailId, attachmentId)
-      const text = await readDocument(data, mimeType)
+      const text = await readDocument(message.userId, data, mimeType)
       return text
         ? `Attachment "${filename}":\n${text.slice(0, TEXT_CHARS)}`
         : ''

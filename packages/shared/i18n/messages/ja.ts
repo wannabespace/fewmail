@@ -324,12 +324,8 @@ export const ja: Messages = {
     updated: (date: string) => `最終更新日：${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `現在のプランのボードは ${total} 個までです。1 つ削除するか、設定 → プランで Max に切り替えてください。`,
-    messages: (date: string) =>
-      `今月のエージェントへのメッセージを使い切りました。${date} に戻ります。`,
-    speech: (date: string) =>
-      `今月の読み上げは上限に達しました。${date}に戻ります。`,
+    usage: (date: string) =>
+      `今月のエージェント利用枠を使い切りました。${date} に戻ります。`,
   },
   notices: {
     freeUpSpace: '空き容量を増やす',
@@ -501,7 +497,7 @@ export const ja: Messages = {
       '今回の実行はスキップしました。前回の実行がこのチャットであなたの返答を待っています。',
     failed: 'このスケジュール実行は失敗しました。次回もう一度試します。',
     limitReached: (day: string) =>
-      `今月のメッセージを使い切ったため、次の日付まで実行をスキップします: ${day}`,
+      `今月のエージェント利用枠を使い切ったため、次の日付まで実行をスキップします: ${day}`,
     open: 'Fewmail で開く',
     stopped:
       'このスケジュールは3回連続で失敗したため停止しました。また必要になったら設定し直すよう頼んでください。',
@@ -522,6 +518,9 @@ export const ja: Messages = {
     title: 'エージェントを設定しましょう。',
   },
   plan: {
+    used: (percent: number) => `${percent}% 使用`,
+    about: (emails: string, messages: string) =>
+      `月に約 ${emails} 通のメール読み取り、またはエージェントへの ${messages} 件のメッセージ（組み合わせ自由）。`,
     free: 'Free',
     freeDescription:
       'シンプルなルールで、速く落ち着いたメールを。好きなだけ無料で使えます。',
@@ -532,11 +531,7 @@ export const ja: Messages = {
     priceYearly: (usd: number) => `$${usd} / 年`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `毎月 ${emails} 通のメールと ${messages} 件のメッセージ。ボードと任せたスレッドは無制限。`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `毎月 ${emails} 通のメールと ${messages} 件のメッセージ。`,
     cancels: (plan: string, date: string) =>
       `${date} まで ${plan}、その後は Free になります。`,
     choose: (plan: string) => `${plan} を選ぶ`,
@@ -548,11 +543,6 @@ export const ja: Messages = {
       `${plan} へようこそ。エージェントが再び動き始めました。`,
     yearly: '年払いにする',
     yearlyHint: '2 か月分無料。',
-    emailsUsed: (used: string, total: string) => `メール ${used} / ${total}`,
-    messagesUsed: (used: string, total: string) =>
-      `メッセージ ${used} / ${total}`,
-    speechUsed: (used: string, total: string) =>
-      `読み上げ ${used} / ${total} 文字`,
     trialDescription: (date: string) =>
       `${date}までProの全機能、その後は無料。カード不要。`,
     upgrade: '他のプラン',
@@ -1139,6 +1129,10 @@ export const ja: Messages = {
       title: '受信トレイのすべてを、2 分で。',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `月に約 ${emails} 通のメール読み取り、またはエージェントへの ${messages} 件のメッセージ`,
+      oneAllowance:
+        'エージェントのすべての作業に共通の利用枠: 使った分だけ、ノイズは数えません',
       everythingIn: (plan: string) => `${plan} のすべてに加えて`,
       forever: 'ずっと',
       free: {
@@ -1154,10 +1148,6 @@ export const ja: Messages = {
       },
       max: {
         description: '同じエージェントを、忙しい受信トレイのために。',
-        emails: (emails: string) => `毎月 ${emails} 通のメールを読む`,
-        messages: (messages: number) =>
-          `エージェントへのメッセージ 毎月 ${messages} 件`,
-        unlimited: 'ボードと任せたスレッドは無制限',
       },
       monthly: '月払い',
       per: { month: '/ 月', year: '/ 年' },
@@ -1171,11 +1161,8 @@ export const ja: Messages = {
           'メールに何でも質問。自分のツール向けの MCP も',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `毎月 ${emails} 通のメール読み取りと、エージェントへの ${messages} 件のメッセージ。ノイズはカウントされません`,
       pro: {
         description: '同じエージェントで、より多くのメールに対応。',
-        room: (boards: number) => `ボード ${boards} 個まで同時に`,
       },
       tryFree: (days: number) => `${days} 日間無料で試す`,
       yearly: '年払い · 2 か月分無料',

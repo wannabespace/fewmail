@@ -1,11 +1,6 @@
 import { db } from '@fewmail/db'
 import { botMessages } from '@fewmail/db/schema'
-import {
-  parseSkill,
-  PLAN_LIMITS,
-  SKILLS,
-  UNDO_SEND_SECONDS,
-} from '@fewmail/shared/agent'
+import { parseSkill, SKILLS, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
@@ -14,7 +9,7 @@ import { isAfter, subDays, subMinutes } from 'date-fns'
 import { eq, lt } from 'drizzle-orm'
 
 import { env } from '../env'
-import { speak, spokenText } from '../lib/elevenlabs'
+import { speak } from '../lib/elevenlabs'
 import { transcribe } from '../lib/mistral'
 import { getChat } from './chat'
 import { savedThisWeek } from './home'
@@ -29,7 +24,7 @@ import {
   updateDraft,
 } from './mail'
 import { cancelMail } from './outbox'
-import { getUsage, requireAgent, spendSpeech } from './plan'
+import { requireBudget } from './plan'
 import { getReadingSummary } from './reading'
 import { getSettings } from './settings'
 
@@ -89,7 +84,7 @@ export const messagesFor = async (userId: string) =>
 export const failureText = (locale: Locale, error: unknown, voice: boolean) => {
   const t = messages[locale]
   if (error instanceof LimitReachedError) {
-    return t.limits.messages(formatResetDay(locale, error.resetsAt))
+    return t.limits.usage(formatResetDay(locale, error.resetsAt))
   }
   return voice ? t.telegram.voiceFailed : t.telegram.somethingWrong
 }
@@ -462,35 +457,24 @@ export const press = async (
   return {}
 }
 
-/** Checked before transcribing, which costs money whatever the message turns out to be. */
-const requireMessageRoom = async (userId: string) => {
-  const [plan, usage] = await Promise.all([
-    requireAgent(userId),
-    getUsage(userId),
-  ])
-  const total = PLAN_LIMITS[plan.kind].messages
-  if (usage.messages >= total) {
-    throw new LimitReachedError('messages', total)
-  }
-}
-
 export const hear = async (
   userId: string,
   audio: () => Promise<ArrayBuffer>,
   fileName = 'voice.ogg'
 ) => {
-  await requireMessageRoom(userId)
-  return transcribe(await audio(), fileName)
+  // Checked before transcribing, which costs money whatever the message turns out to be.
+  await requireBudget(userId)
+  return transcribe(userId, await audio(), fileName)
 }
 
-/** Text read aloud in the agent's voice, counted against the month's speech before it is paid for. */
+/** Text read aloud in the agent's voice, paid from the month's allowance. */
 export const speakFor = async (
   userId: string,
   text: string,
-  format: Parameters<typeof speak>[1]
+  format: Parameters<typeof speak>[2]
 ) => {
-  await spendSpeech(userId, spokenText(text).length)
-  return speak(text, format)
+  await requireBudget(userId)
+  return speak(userId, text, format)
 }
 
 /** A typed or spoken message: the replacement for a draft in edit mode, else whatever `followMessage` makes of it; `replyTo` is the bot message it answers. */

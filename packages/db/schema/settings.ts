@@ -94,15 +94,16 @@ export const devices = d.snakeCase.table('devices', {
     .references(() => users.id, { onDelete: 'cascade' }),
 })
 
-/** Agent usage per user and calendar month (UTC), against `PLAN_LIMITS`. */
+/** What the agent cost per user and calendar month (UTC), in USD, against `PLAN_ALLOWANCE_USD`. */
 export const usage = d.snakeCase.table(
   'usage',
   {
     ...baseTable,
-    emails: d.integer().default(0).notNull(),
-    messages: d.integer().default(0).notNull(),
     month: d.date({ mode: 'string' }).notNull(),
-    speech: d.integer().default(0).notNull(),
+    spent: d
+      .numeric({ mode: 'number', precision: 12, scale: 8 })
+      .default(0)
+      .notNull(),
     userId: d
       .uuid()
       .notNull()
@@ -129,7 +130,7 @@ export type AiFeature =
   | 'reading_summary'
   | 'understand'
 
-/** `cost` (USD) is null, not 0, when OpenRouter did not report it. */
+/** `cost` (USD) is the call at `MODEL_PRICES`, or OpenRouter's own report for a model missing there; null when neither. */
 export const aiUsage = d.snakeCase.table(
   'ai_usage',
   {

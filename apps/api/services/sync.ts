@@ -43,7 +43,7 @@ import {
 } from './boards'
 import { measureBulk } from './bulk'
 import { searchMailboxes, watchStorage } from './mailboxes'
-import { emailAllowance, getPlanInfo, hasAgent } from './plan'
+import { emailAllowance, hasBudget } from './plan'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
 import { applySimpleRules } from './simple-rules'
@@ -124,7 +124,7 @@ const analyzePending = async (userId: string, inserted: Message[]) => {
   if (inserted.length === 0) {
     return
   }
-  const { allowance, save } = await emailAllowance(userId)
+  const allowance = await emailAllowance(userId)
   const pending = await db
     .select({ address: mailboxes.email, message: messages })
     .from(messages)
@@ -166,7 +166,6 @@ const analyzePending = async (userId: string, inserted: Message[]) => {
       logError(`analyze ${message.id} failed`, error)
     )
   )
-  await save()
 }
 
 /**
@@ -219,7 +218,7 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   await watchStorage(mailbox, inserted).catch((error) =>
     logError('storage watch failed', error)
   )
-  if (!hasAgent(await getPlanInfo(userId))) {
+  if (!(await hasBudget(userId))) {
     return
   }
   await collectForNewMail(userId, inserted).catch((error) =>
@@ -412,6 +411,10 @@ export const holdEarlierMail = async (mailbox: Mailbox) => {
 
 /** Pro: a new board starts with its period's mail, not only what arrives from now on; what Fewmail does not hold is read in memory. */
 export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
+  // Unread, the board is picked again on a later tick: the history waits for next month's allowance.
+  if (!(await hasBudget(board.userId))) {
+    return
+  }
   const searchedAt = new Date()
   const results = await searchMailboxes(
     board.userId,

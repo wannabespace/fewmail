@@ -577,6 +577,10 @@ export const de: Messages = {
       title: 'Dein ganzer Posteingang, in zwei Minuten.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Etwa ${emails} gelesene E-Mails oder ${messages} Nachrichten an den Agenten im Monat`,
+      oneAllowance:
+        'Ein Kontingent für alles, was der Agent tut: Du zahlst nur, was du nutzt, und Rauschen zählt nie',
       everythingIn: (plan: string) => `Alles aus ${plan}, plus`,
       forever: 'für immer',
       free: {
@@ -592,10 +596,6 @@ export const de: Messages = {
       },
       max: {
         description: 'Derselbe Agent für ein volles Postfach.',
-        emails: (emails: string) => `${emails} gelesene Mails im Monat`,
-        messages: (messages: number) =>
-          `${messages} Nachrichten an den Agenten im Monat`,
-        unlimited: 'Boards und übergebene Threads ohne Limit',
       },
       monthly: 'Monatlich',
       per: { month: 'im Monat', year: 'im Jahr' },
@@ -610,11 +610,8 @@ export const de: Messages = {
           'Frag deine Mails alles, dazu MCP für deine eigenen Tools',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} gelesene Mails und ${messages} Nachrichten an den Agenten im Monat; Rauschen zählt nie mit`,
       pro: {
         description: 'Derselbe Agent mit Platz für mehr Mail.',
-        room: (boards: number) => `Bis zu ${boards} Boards gleichzeitig`,
       },
       tryFree: (days: number) => `${days} Tage kostenlos testen`,
       yearly: 'Jährlich · 2 Monate gratis',
@@ -822,12 +819,8 @@ export const de: Messages = {
     updated: (date: string) => `Zuletzt aktualisiert am ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Dein Plan umfasst ${total} Boards. Lösche eins oder wechsle zu Max unter Einstellungen → Plan.`,
-    messages: (date: string) =>
-      `Die Nachrichten an den Agenten sind für diesen Monat aufgebraucht. Ab ${date} gibt es neue.`,
-    speech: (date: string) =>
-      `Das Vorlesen ist für diesen Monat aufgebraucht. Es ist am ${date} wieder da.`,
+    usage: (date: string) =>
+      `Das Kontingent des Agenten ist für diesen Monat aufgebraucht. Ab ${date} gibt es neues.`,
   },
   notices: {
     freeUpSpace: 'Speicher freigeben',
@@ -1006,7 +999,7 @@ export const de: Messages = {
     failed:
       'Dieser geplante Lauf ist fehlgeschlagen. Ich versuche es beim nächsten erneut.',
     limitReached: (day: string) =>
-      `Die Nachrichten dieses Monats sind aufgebraucht, daher überspringt der Zeitplan Läufe bis zum ${day}.`,
+      `Das Kontingent des Agenten ist für diesen Monat aufgebraucht, daher überspringt der Zeitplan Läufe bis zum ${day}.`,
     open: 'In Fewmail öffnen',
     stopped:
       'Dieser Zeitplan ist dreimal hintereinander fehlgeschlagen, deshalb habe ich ihn gestoppt. Bitte mich, ihn neu einzurichten, wenn du ihn zurück willst.',
@@ -1030,6 +1023,9 @@ export const de: Messages = {
     title: 'Richten wir deinen Agenten ein.',
   },
   plan: {
+    used: (percent: number) => `${percent} % verbraucht`,
+    about: (emails: string, messages: string) =>
+      `Etwa ${emails} gelesene E-Mails oder ${messages} Nachrichten an den Agenten im Monat, beliebig gemischt.`,
     free: 'Free',
     freeDescription:
       'Schnelle, ruhige Mail mit einfachen Regeln. Kostenlos, so lange du willst.',
@@ -1040,11 +1036,7 @@ export const de: Messages = {
     priceYearly: (usd: number) => `$${usd} / Jahr`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} Mails und ${messages} Nachrichten im Monat; Boards und übergebene Threads ohne Limit.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} Mails und ${messages} Nachrichten im Monat.`,
     cancels: (plan: string, date: string) =>
       `${plan} bis ${date}, danach Free.`,
     choose: (plan: string) => `${plan} wählen`,
@@ -1056,11 +1048,6 @@ export const de: Messages = {
       `Willkommen bei ${plan}. Der Agent ist wieder im Einsatz.`,
     yearly: 'Jährlich zahlen',
     yearlyHint: 'Zwei Monate gratis.',
-    emailsUsed: (used: string, total: string) => `${used} von ${total} E-Mails`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} von ${total} Nachrichten`,
-    speechUsed: (used: string, total: string) =>
-      `${used} von ${total} vorgelesenen Zeichen`,
     trialDescription: (date: string) =>
       `Alles aus Pro bis ${date}, danach kostenlos. Keine Karte nötig.`,
     upgrade: 'Andere Pläne',
@@ -1632,7 +1619,7 @@ export const de: Messages = {
     done: 'Deine weitergeleitete E-Mail',
   },
   reading: {
-    summary: 'Was Ihre Newsletter schreiben',
+    summary: 'Was deine Newsletter schreiben',
     worth: 'Lohnt sich ganz zu lesen',
     leftOut: (n: number) => `Ausgelassen: ${n}, nichts Neues darin.`,
     since: (n: number) =>

@@ -1,5 +1,5 @@
-import type { BillingInterval } from '@fewmail/shared/agent'
-import { PLAN_LIMITS } from '@fewmail/shared/agent'
+import type { BillingInterval, PaidPlan } from '@fewmail/shared/agent'
+import { allowanceIn } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -243,23 +243,19 @@ export const PlanCards = () => {
   const locale = useLocale()
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('month')
-  const count = (total: number) => total.toLocaleString(locale)
   const { plans } = t.site
+  const about = (plan: PaidPlan) => {
+    const { emails, messages } = allowanceIn(plan)
+    return plans.about(
+      emails.toLocaleString(locale),
+      messages.toLocaleString(locale)
+    )
+  }
   const features = {
     free: plans.free.features,
-    max: [
-      plans.max.emails(count(PLAN_LIMITS.max.emails)),
-      plans.max.messages(PLAN_LIMITS.max.messages),
-      plans.max.unlimited,
-    ],
-    lite: [
-      plans.limits(count(PLAN_LIMITS.lite.emails), PLAN_LIMITS.lite.messages),
-      ...plans.lite.features,
-    ],
-    pro: [
-      plans.limits(count(PLAN_LIMITS.pro.emails), PLAN_LIMITS.pro.messages),
-      plans.pro.room(PLAN_LIMITS.pro.boards),
-    ],
+    lite: [about('lite'), plans.oneAllowance, ...plans.lite.features],
+    max: [about('max'), plans.oneAllowance],
+    pro: [about('pro'), plans.oneAllowance],
   }
   return (
     <div className="mt-12 flex flex-col items-center gap-6">

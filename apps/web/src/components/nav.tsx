@@ -1,4 +1,4 @@
-import { PLAN_LIMITS } from '@fewmail/shared/agent'
+import { usedPercent } from '@fewmail/shared/agent'
 import {
   Avatar,
   AvatarBadge,
@@ -161,18 +161,6 @@ export const useGoTo = () => {
 
 /** Quiet until the month is nearly spent: never push. */
 const USAGE_SHOWN_FROM = 90
-
-const usagePercent = (
-  limits: { emails: number; messages: number },
-  usage: { emails: number; messages: number }
-) =>
-  Math.min(
-    100,
-    Math.floor(
-      Math.max(usage.emails / limits.emails, usage.messages / limits.messages) *
-        100
-    )
-  )
 
 export const useVisibleNavItems = () => {
   const { data: reading = 0 } = useQuery(orpc.reading.count.queryOptions())
@@ -482,8 +470,7 @@ const useAccountStatus = (
   const t = useT()
   const { plan, usage } = useMe()
   const hasAgent = useHasAgent()
-  const percent =
-    plan.kind === 'free' ? 0 : usagePercent(PLAN_LIMITS[plan.kind], usage)
+  const percent = plan.kind === 'free' ? 0 : usedPercent(plan.kind, usage.spent)
   const isSyncing =
     !mailboxes?.length || mailboxes.some(({ lastSyncedAt }) => !lastSyncedAt)
 

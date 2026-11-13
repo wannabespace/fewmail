@@ -324,7 +324,7 @@ const withNetworkFacts = <
 
 /**
  * Jev decides for every plan; the LLM writes text only for the agent and only for mail that
- * matters, while the month's email allowance lasts. Without Jev the LLM does both, never for free.
+ * matters, while the month's allowance lasts. Without Jev the LLM does both, never for free.
  * `agent` says whether this email gets the agent at all — past the allowance it is treated as Free.
  * Network facts apply before the allowance: bulk mail must not pay for text, flagged mail needs the urgent reserve.
  */
@@ -361,9 +361,6 @@ const analyze = async (input: {
       output: Output.object({ schema: analysisSchema }),
       prompt,
       telemetry: trackUsage(input.message.userId, 'analysis'),
-    }).catch((error: unknown) => {
-      allowance.refund()
-      throw error
     })
     return {
       agent: true,
@@ -417,7 +414,6 @@ const analyze = async (input: {
     })
   )
   if (written.isErr()) {
-    allowance?.refund()
     logError('analysis text failed, keeping Jev only', written.error.cause)
     return jevOnly(false)
   }

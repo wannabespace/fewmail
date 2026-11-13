@@ -61,10 +61,7 @@ const spokenResponse = async (userId: string, text: () => Promise<string>) => {
   }
   const { cause } = spoken.error
   if (cause instanceof LimitReachedError) {
-    return Response.json(
-      { limit: cause.limit, resetsAt: cause.resetsAt, total: cause.total },
-      { status: 429 }
-    )
+    return Response.json({ resetsAt: cause.resetsAt }, { status: 429 })
   }
   logError('voice speak', cause)
   return new Response(null, { status: 500 })

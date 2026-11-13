@@ -15,7 +15,7 @@ import { and, arrayContains, desc, eq, inArray, or, sql } from 'drizzle-orm'
 import { models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { announceChange } from '../lib/live'
 import { logErrorAs } from '../lib/log'
-import { getPlanInfo, hasAgent } from './plan'
+import { hasBudget } from './plan'
 import { getSettings } from './settings'
 
 const NOTE_MAX_AGE_DAYS = 7
@@ -63,7 +63,7 @@ const refreshNote = async (
   email: string,
   recent: { receivedAt: Date; subject: string; summary: string | null }[]
 ) => {
-  if (!hasAgent(await getPlanInfo(userId))) {
+  if (!(await hasBudget(userId))) {
     return
   }
   await writeNote(

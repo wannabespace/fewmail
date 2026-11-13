@@ -8,7 +8,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { getMessage } from '../lib/gmail'
 import { searchMailboxes } from './mailboxes'
-import { getPlanInfo, hasAgent } from './plan'
+import { hasBudget } from './plan'
 import { getSettings } from './settings'
 
 export const SOURCE_LIMIT = 12
@@ -42,7 +42,7 @@ export const toGmailQueries = async (
   if (
     (!earlier && ONE_WORD.test(text.trim())) ||
     GMAIL_OPERATOR.test(text) ||
-    !hasAgent(await getPlanInfo(userId))
+    !(await hasBudget(userId))
   ) {
     return [text]
   }

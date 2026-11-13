@@ -608,12 +608,8 @@ export const nl: Messages = {
     updated: (date: string) => `Laatst bijgewerkt op ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Je abonnement bevat ${total} borden. Verwijder er een of stap over op Max via Instellingen → Abonnement.`,
-    messages: (date: string) =>
-      `De berichten aan de agent zijn op voor deze maand. Ze komen terug op ${date}.`,
-    speech: (date: string) =>
-      `Voorlezen is voor deze maand op. Het komt terug op ${date}.`,
+    usage: (date: string) =>
+      `Het tegoed van de agent is op voor deze maand. Het komt terug op ${date}.`,
   },
   notices: {
     freeUpSpace: 'Ruimte vrijmaken',
@@ -791,7 +787,7 @@ export const nl: Messages = {
     failed:
       'Deze geplande run is mislukt. Ik probeer het bij de volgende opnieuw.',
     limitReached: (day: string) =>
-      `De berichten van deze maand zijn op, dus de planning slaat runs over tot ${day}.`,
+      `Het tegoed van de agent is op voor deze maand, dus de planning slaat runs over tot ${day}.`,
     open: 'Openen in Fewmail',
     stopped:
       'Deze planning is drie keer achter elkaar mislukt, dus ik heb haar gestopt. Vraag me haar opnieuw in te stellen als je haar terug wilt.',
@@ -815,6 +811,9 @@ export const nl: Messages = {
     title: 'Laten we je agent instellen.',
   },
   plan: {
+    used: (percent: number) => `${percent}% gebruikt`,
+    about: (emails: string, messages: string) =>
+      `Ongeveer ${emails} gelezen e-mails of ${messages} berichten aan de agent per maand, in elke verhouding.`,
     free: 'Gratis',
     freeDescription:
       'Snelle, rustige mail met eenvoudige regels. Gratis zo lang je wilt.',
@@ -825,11 +824,7 @@ export const nl: Messages = {
     priceYearly: (usd: number) => `$${usd} / jaar`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} e-mails en ${messages} berichten per maand; borden en overgedragen threads zonder limiet.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} e-mails en ${messages} berichten per maand.`,
     cancels: (plan: string, date: string) =>
       `${plan} tot ${date}, daarna Gratis.`,
     choose: (plan: string) => `Kies ${plan}`,
@@ -841,11 +836,6 @@ export const nl: Messages = {
       `Welkom bij ${plan}. De agent is weer aan het werk.`,
     yearly: 'Jaarlijks betalen',
     yearlyHint: 'Twee maanden gratis.',
-    emailsUsed: (used: string, total: string) => `${used} van ${total} e-mails`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} van ${total} berichten`,
-    speechUsed: (used: string, total: string) =>
-      `${used} van ${total} voorgelezen tekens`,
     trialDescription: (date: string) =>
       `Alles van Pro tot ${date}, daarna gratis. Geen kaart nodig.`,
     upgrade: 'Andere abonnementen',
@@ -1453,6 +1443,10 @@ export const nl: Messages = {
       title: 'Je hele inbox, in twee minuten.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Ongeveer ${emails} gelezen e-mails of ${messages} berichten aan de agent per maand`,
+      oneAllowance:
+        'Eén tegoed voor alles wat de agent doet: je betaalt voor wat je gebruikt, en ruis telt nooit mee',
       everythingIn: (plan: string) => `Alles uit ${plan}, plus`,
       forever: 'voor altijd',
       free: {
@@ -1468,10 +1462,6 @@ export const nl: Messages = {
       },
       max: {
         description: 'Dezelfde agent voor een drukke inbox.',
-        emails: (emails: string) => `${emails} gelezen e-mails per maand`,
-        messages: (messages: number) =>
-          `${messages} berichten aan de agent per maand`,
-        unlimited: 'Borden en overgedragen threads zonder limiet',
       },
       monthly: 'Maandelijks',
       per: { month: 'per maand', year: 'per jaar' },
@@ -1485,11 +1475,8 @@ export const nl: Messages = {
           'Vraag je mail alles, plus MCP voor je eigen tools',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} gelezen e-mails en ${messages} berichten aan de agent per maand; ruis telt nooit mee`,
       pro: {
         description: 'Dezelfde agent met ruimte voor meer mail.',
-        room: (boards: number) => `Tot ${boards} borden tegelijk`,
       },
       tryFree: (days: number) => `${days} dagen gratis proberen`,
       yearly: 'Jaarlijks · 2 maanden gratis',

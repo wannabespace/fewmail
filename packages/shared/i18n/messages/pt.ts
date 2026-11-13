@@ -608,12 +608,8 @@ export const pt: Messages = {
     updated: (date: string) => `Atualizado em ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `Seu plano inclui ${total} quadros. Exclua um ou mude para o Max em Configurações → Plano.`,
-    messages: (date: string) =>
-      `As mensagens ao agente deste mês acabaram. Elas voltam em ${date}.`,
-    speech: (date: string) =>
-      `A leitura em voz alta deste mês acabou. Volta em ${date}.`,
+    usage: (date: string) =>
+      `A cota do agente deste mês acabou. Ela volta em ${date}.`,
   },
   notices: {
     freeUpSpace: 'Liberar espaço',
@@ -789,7 +785,7 @@ export const pt: Messages = {
       'Pulei esta execução: a anterior ainda espera sua resposta neste chat.',
     failed: 'Esta execução agendada falhou. Vou tentar de novo na próxima.',
     limitReached: (day: string) =>
-      `As mensagens deste mês acabaram, então o agendamento pula execuções até ${day}.`,
+      `A cota do agente deste mês acabou, então o agendamento pula execuções até ${day}.`,
     open: 'Abrir no Fewmail',
     stopped:
       'Este agendamento falhou três vezes seguidas, então eu o parei. Peça para eu configurá-lo de novo quando quiser.',
@@ -813,6 +809,9 @@ export const pt: Messages = {
     title: 'Vamos configurar seu agente.',
   },
   plan: {
+    used: (percent: number) => `${percent}% usado`,
+    about: (emails: string, messages: string) =>
+      `Cerca de ${emails} emails lidos ou ${messages} mensagens ao agente por mês, em qualquer combinação.`,
     free: 'Grátis',
     freeDescription:
       'E-mail rápido e tranquilo com regras simples. Grátis pelo tempo que você quiser.',
@@ -823,11 +822,7 @@ export const pt: Messages = {
     priceYearly: (usd: number) => `$${usd} / ano`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `${emails} e-mails e ${messages} mensagens por mês; quadros e conversas entregues sem limite.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `${emails} e-mails e ${messages} mensagens por mês.`,
     cancels: (plan: string, date: string) =>
       `${plan} até ${date}, depois Grátis.`,
     choose: (plan: string) => `Escolher ${plan}`,
@@ -839,11 +834,6 @@ export const pt: Messages = {
       `Boas-vindas ao ${plan}. O agente está de volta ao trabalho.`,
     yearly: 'Pagar anualmente',
     yearlyHint: 'Dois meses grátis.',
-    emailsUsed: (used: string, total: string) => `${used} de ${total} e-mails`,
-    messagesUsed: (used: string, total: string) =>
-      `${used} de ${total} mensagens`,
-    speechUsed: (used: string, total: string) =>
-      `${used} de ${total} caracteres lidos em voz alta`,
     trialDescription: (date: string) =>
       `Tudo do Pro até ${date}, depois grátis. Sem cartão.`,
     upgrade: 'Outros planos',
@@ -1450,6 +1440,10 @@ export const pt: Messages = {
       title: 'Sua caixa de entrada inteira, em dois minutos.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `Cerca de ${emails} emails lidos ou ${messages} mensagens ao agente por mês`,
+      oneAllowance:
+        'Uma só cota para tudo o que o agente faz: você paga pelo que usa, e ruído nunca conta',
       everythingIn: (plan: string) => `Tudo do ${plan}, e mais`,
       forever: 'para sempre',
       free: {
@@ -1465,10 +1459,6 @@ export const pt: Messages = {
       },
       max: {
         description: 'O mesmo agente para uma caixa de entrada movimentada.',
-        emails: (emails: string) => `${emails} e-mails lidos por mês`,
-        messages: (messages: number) =>
-          `${messages} mensagens ao agente por mês`,
-        unlimited: 'Painéis e conversas entregues sem limite',
       },
       monthly: 'Mensal',
       per: { month: 'por mês', year: 'por ano' },
@@ -1482,11 +1472,8 @@ export const pt: Messages = {
           'Pergunte qualquer coisa aos seus e-mails, e MCP para suas próprias ferramentas',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `${emails} e-mails lidos e ${messages} mensagens ao agente por mês; ruído nunca conta`,
       pro: {
         description: 'O mesmo agente, com espaço para mais e-mails.',
-        room: (boards: number) => `Até ${boards} painéis ao mesmo tempo`,
       },
       tryFree: (days: number) => `Teste grátis por ${days} dias`,
       yearly: 'Anual · 2 meses grátis',

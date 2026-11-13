@@ -6,11 +6,14 @@ import { and, eq } from 'drizzle-orm'
 
 import { models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { mistral } from '../lib/mistral'
+import { charge, hasBudget } from './plan'
 import { getSettings } from './settings'
 
 export const FIM_MODEL = 'codestral-latest'
 export const MAX_TOKENS = 32
 export const CONTEXT_LIMIT = 1500
+/** USD per token; `economics.test.ts` keeps it equal to LiteLLM's price. */
+export const FIM_PRICE = { input: 3e-7, output: 9e-7 }
 
 const preamble = async (userId: string, replyToMessageId?: string) => {
   const [[user], settings, [original]] = await Promise.all([
@@ -40,11 +43,16 @@ const preamble = async (userId: string, replyToMessageId?: string) => {
     .join('\n')
 }
 
-const fim = async (prompt: string, suffix: string, signal?: AbortSignal) => {
+const fim = async (
+  userId: string,
+  prompt: string,
+  suffix: string,
+  signal?: AbortSignal
+) => {
   if (!mistral) {
     return null
   }
-  const { choices } = await mistral.fim.complete(
+  const { choices, usage } = await mistral.fim.complete(
     {
       maxTokens: MAX_TOKENS,
       model: FIM_MODEL,
@@ -54,6 +62,11 @@ const fim = async (prompt: string, suffix: string, signal?: AbortSignal) => {
       temperature: 0.2,
     },
     { signal }
+  )
+  await charge(
+    userId,
+    (usage.promptTokens ?? 0) * FIM_PRICE.input +
+      (usage.completionTokens ?? 0) * FIM_PRICE.output
   )
   const content = choices[0]?.message?.content
   return typeof content === 'string' ? content : ''
@@ -84,9 +97,12 @@ export const completeEmail = async (input: {
   suffix: string
   userId: string
 }) => {
+  if (!(await hasBudget(input.userId))) {
+    return ''
+  }
   const prompt = `${await preamble(input.userId, input.replyToMessageId)}\n${input.prefix}`
   const filled = await Result.tryPromise(() =>
-    fim(prompt, input.suffix, input.signal)
+    fim(input.userId, prompt, input.suffix, input.signal)
   )
   if (filled.isOk() && filled.value !== null) {
     return filled.value

@@ -30,11 +30,7 @@ const notFoundToOrpc = orpc.middleware(async ({ next }) => {
   }
   if (error instanceof LimitReachedError) {
     throw new ORPCError('TOO_MANY_REQUESTS', {
-      data: {
-        limit: error.limit,
-        resetsAt: error.resetsAt,
-        total: error.total,
-      },
+      data: { resetsAt: error.resetsAt },
       message: error.message,
     })
   }

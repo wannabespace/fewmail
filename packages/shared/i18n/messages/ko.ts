@@ -324,12 +324,8 @@ export const ko: Messages = {
     updated: (date: string) => `최종 업데이트: ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `현재 플랜은 보드를 ${total}개까지 쓸 수 있어요. 하나를 삭제하거나 설정 → 플랜에서 Max로 바꾸세요.`,
-    messages: (date: string) =>
-      `이번 달 에이전트 메시지를 모두 썼어요. ${date}에 다시 채워져요.`,
-    speech: (date: string) =>
-      `이번 달 읽어 주기를 모두 사용했어요. ${date}에 다시 사용할 수 있어요.`,
+    usage: (date: string) =>
+      `이번 달 에이전트 사용량을 모두 썼어요. ${date}에 다시 채워져요.`,
   },
   notices: {
     freeUpSpace: '공간 확보하기',
@@ -500,7 +496,7 @@ export const ko: Messages = {
       '이번 실행은 건너뛰었어요. 지난 실행이 이 채팅에서 아직 답을 기다리고 있어요.',
     failed: '이번 예약 실행이 실패했습니다. 다음 실행 때 다시 시도할게요.',
     limitReached: (day: string) =>
-      `이번 달 메시지를 모두 사용해 다음 날짜까지 실행을 건너뜁니다: ${day}`,
+      `이번 달 에이전트 사용량을 모두 사용해 다음 날짜까지 실행을 건너뜁니다: ${day}`,
     open: 'Fewmail에서 열기',
     stopped:
       '이 일정이 세 번 연속 실패해서 중지했습니다. 다시 원하시면 설정해 달라고 말씀해 주세요.',
@@ -521,6 +517,9 @@ export const ko: Messages = {
     title: '에이전트를 설정해 볼게요.',
   },
   plan: {
+    used: (percent: number) => `${percent}% 사용`,
+    about: (emails: string, messages: string) =>
+      `한 달에 메일 약 ${emails}통 읽기 또는 에이전트 메시지 ${messages}개, 원하는 대로 섞어서.`,
     free: 'Free',
     freeDescription:
       '간단한 규칙으로 빠르고 차분한 메일을. 원하는 만큼 무료로 쓸 수 있어요.',
@@ -531,11 +530,7 @@ export const ko: Messages = {
     priceYearly: (usd: number) => `$${usd} / 년`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `매달 메일 ${emails}통과 메시지 ${messages}개, 보드와 맡긴 스레드는 무제한이에요.`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `매달 메일 ${emails}통과 메시지 ${messages}개.`,
     cancels: (plan: string, date: string) =>
       `${date}까지 ${plan}, 그 후에는 Free로 바뀌어요.`,
     choose: (plan: string) => `${plan} 선택`,
@@ -547,10 +542,6 @@ export const ko: Messages = {
       `${plan}에 오신 걸 환영해요. 에이전트가 다시 일을 시작했어요.`,
     yearly: '연간 결제',
     yearlyHint: '두 달 무료예요.',
-    emailsUsed: (used: string, total: string) => `메일 ${used} / ${total}`,
-    messagesUsed: (used: string, total: string) => `메시지 ${used} / ${total}`,
-    speechUsed: (used: string, total: string) =>
-      `읽어 주기 ${used} / ${total}자`,
     trialDescription: (date: string) =>
       `${date}까지 Pro의 모든 기능, 이후 무료. 카드 필요 없음.`,
     upgrade: '다른 요금제',
@@ -1125,6 +1116,10 @@ export const ko: Messages = {
       title: '받은편지함 전체, 2분이면 끝.',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `한 달에 메일 약 ${emails}통 읽기 또는 에이전트 메시지 ${messages}개`,
+      oneAllowance:
+        '에이전트가 하는 모든 일에 하나의 사용량: 쓴 만큼만, 잡음은 세지 않아요',
       everythingIn: (plan: string) => `${plan}의 모든 기능, 그리고`,
       forever: '평생',
       free: {
@@ -1140,10 +1135,6 @@ export const ko: Messages = {
       },
       max: {
         description: '바쁜 받은편지함을 위한, 같은 에이전트.',
-        emails: (emails: string) => `매달 메일 ${emails}통 읽기`,
-        messages: (messages: number) =>
-          `매달 에이전트에게 메시지 ${messages}개`,
-        unlimited: '보드와 맡긴 스레드 무제한',
       },
       monthly: '월간',
       per: { month: '/ 월', year: '/ 년' },
@@ -1157,11 +1148,8 @@ export const ko: Messages = {
           '메일에 무엇이든 묻기, 내 도구를 위한 MCP까지',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `매달 메일 ${emails}통 읽기와 에이전트에게 메시지 ${messages}개. 쓸모없는 메일은 세지 않아요`,
       pro: {
         description: '같은 에이전트, 더 많은 메일을 위한 여유.',
-        room: (boards: number) => `보드 ${boards}개까지 동시에`,
       },
       tryFree: (days: number) => `${days}일 무료 체험`,
       yearly: '연간 · 두 달 무료',

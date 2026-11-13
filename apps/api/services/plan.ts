@@ -1,8 +1,8 @@
 import { db } from '@fewmail/db'
 import { subscriptions, usage, userSettings } from '@fewmail/db/schema'
-import { PLAN_LIMITS } from '@fewmail/shared/agent'
+import { PLAN_ALLOWANCE_USD } from '@fewmail/shared/agent'
 import type { Plan } from '@fewmail/shared/agent'
-import { and, desc, eq, gt, inArray, lt, or, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, inArray, or, sql } from 'drizzle-orm'
 import type { Column } from 'drizzle-orm'
 
 import { env } from '../env'
@@ -19,7 +19,7 @@ const DAY_MS = 86_400_000
 
 const currentMonth = () => `${new Date().toISOString().slice(0, 7)}-01`
 
-/** Urgent mail may run this far past the email limit, so the limit never hides it. */
+/** Urgent mail may run this far past the month's allowance, so the allowance never hides it. */
 export const URGENT_RESERVE = 1.1
 
 const paidPlan = (priceId: string): Plan => {
@@ -112,115 +112,58 @@ export const requireAgent = async (userId: string) => {
 
 export const getUsage = async (userId: string) => {
   const [row] = await db
-    .select({
-      emails: usage.emails,
-      messages: usage.messages,
-      speech: usage.speech,
-    })
+    .select({ spent: usage.spent })
     .from(usage)
     .where(and(eq(usage.userId, userId), eq(usage.month, currentMonth())))
-  return {
-    emails: row?.emails ?? 0,
-    messages: row?.messages ?? 0,
-    resetsAt: usageResetsAt(),
-    speech: row?.speech ?? 0,
+  return { resetsAt: usageResetsAt(), spent: row?.spent ?? 0 }
+}
+
+/** Pays for one model call (or voice, or OCR) from the month's allowance, at what it really cost. */
+export const charge = async (userId: string, usd: number) => {
+  if (usd > 0) {
+    await db
+      .insert(usage)
+      .values({ month: currentMonth(), spent: usd, userId })
+      .onConflictDoUpdate({
+        set: { spent: sql`${usage.spent} + ${usd}` },
+        target: [usage.userId, usage.month],
+      })
   }
 }
 
-const countUsage = (
-  userId: string,
-  kind: 'emails' | 'messages',
-  amount: number
-) =>
-  db
-    .insert(usage)
-    .values({ [kind]: amount, month: currentMonth(), userId })
-    .onConflictDoUpdate({
-      set: { [kind]: sql`${usage[kind]} + ${amount}` },
-      target: [usage.userId, usage.month],
-    })
-
-/** One message to the agent — chat, Ask, Telegram or WhatsApp — counted, or refused once the month's are used. */
-export const spendMessage = async (userId: string) => {
-  const plan = await requireAgent(userId)
-  const total = PLAN_LIMITS[plan.kind].messages
-  const [counted] = await db
-    .insert(usage)
-    .values({ messages: 1, month: currentMonth(), userId })
-    .onConflictDoUpdate({
-      set: { messages: sql`${usage.messages} + 1` },
-      setWhere: lt(usage.messages, total),
-      target: [usage.userId, usage.month],
-    })
-    .returning({ messages: usage.messages })
-  if (!counted) {
-    throw new LimitReachedError('messages', total)
+/** Whether the agent may still spend this month; `reserve` lets urgent mail run past the allowance. */
+export const hasBudget = async (userId: string, reserve = 1) => {
+  const plan = await getPlanInfo(userId)
+  if (!hasAgent(plan)) {
+    return false
   }
+  const { spent } = await getUsage(userId)
+  return spent < PLAN_ALLOWANCE_USD[plan.kind] * reserve
 }
 
-/** Characters read aloud, counted before ElevenLabs is paid, or refused once the month's are used. */
-export const spendSpeech = async (userId: string, chars: number) => {
-  const plan = await requireAgent(userId)
-  const total = PLAN_LIMITS[plan.kind].speech
-  const [counted] = await db
-    .insert(usage)
-    .values({ month: currentMonth(), speech: chars, userId })
-    .onConflictDoUpdate({
-      set: { speech: sql`${usage.speech} + ${chars}` },
-      setWhere: lt(usage.speech, total),
-      target: [usage.userId, usage.month],
-    })
-    .returning({ speech: usage.speech })
-  if (!counted) {
-    throw new LimitReachedError('speech', total)
-  }
-}
-
-/** Boards are limited by how many exist at once, not per month. */
-export const requireRoom = async (
-  userId: string,
-  count: () => Promise<number>
-) => {
-  const plan = await requireAgent(userId)
-  const total = PLAN_LIMITS[plan.kind].boards
-  if (total !== null && (await count()) >= total) {
-    throw new LimitReachedError('boards', total)
+/** Anything the user asks of the agent (a message, a voice note, reading aloud, a board, a task) is refused once the month's allowance is spent. */
+export const requireBudget = async (userId: string) => {
+  await requireAgent(userId)
+  if (!(await hasBudget(userId))) {
+    throw new LimitReachedError()
   }
 }
 
 export interface EmailAllowance {
-  /** Reserves one email; `refund` gives it back when the LLM failed, so only written emails count. */
   take: (urgent: boolean) => boolean
-  refund: () => void
 }
 
-/** Whether the agent may write for one more email this month; `save` records what was spent. */
-export const emailAllowance = async (userId: string) => {
+/** Whether the agent may write for one more email this sync; what it writes is charged call by call. */
+export const emailAllowance = async (
+  userId: string
+): Promise<EmailAllowance | null> => {
   const plan = await getPlanInfo(userId)
   if (!hasAgent(plan)) {
-    return { allowance: null, save: () => Promise.resolve() }
+    return null
   }
-  const limit = PLAN_LIMITS[plan.kind].emails
-  const { emails } = await getUsage(userId)
-  let spent = 0
-  const allowance: EmailAllowance = {
-    refund: () => {
-      spent -= 1
-    },
-    take: (urgent) => {
-      if (emails + spent >= (urgent ? limit * URGENT_RESERVE : limit)) {
-        return false
-      }
-      spent += 1
-      return true
-    },
-  }
+  const allowance = PLAN_ALLOWANCE_USD[plan.kind]
+  const { spent } = await getUsage(userId)
   return {
-    allowance,
-    save: async () => {
-      if (spent > 0) {
-        await countUsage(userId, 'emails', spent)
-      }
-    },
+    take: (urgent) => spent < allowance * (urgent ? URGENT_RESERVE : 1),
   }
 }

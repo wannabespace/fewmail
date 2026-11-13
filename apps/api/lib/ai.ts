@@ -5,6 +5,7 @@ import { openrouter } from '@openrouter/ai-sdk-provider'
 import type { TelemetryOptions } from 'ai'
 import { createRetryableModel } from 'ai-retry/language-model'
 
+import { charge } from '../services/plan'
 import { logError } from './log'
 
 export const FAST_MODEL_ID = 'anthropic/claude-haiku-5.5'
@@ -31,27 +32,79 @@ export const INFORMAL_ADDRESS =
 export const NO_EM_DASH =
   'Never use em dashes (—): a comma, colon, period or parentheses instead.'
 
+/**
+ * USD per token, so every call is paid from the allowance at its real price whatever OpenRouter reports (a key
+ * of our own makes it report 0). `economics.test.ts` keeps it equal to LiteLLM's table.
+ */
+export const MODEL_PRICES: Record<
+  string,
+  { cacheRead: number; cacheWrite: number; input: number; output: number }
+> = {
+  [FAST_FALLBACK_ID]: {
+    cacheRead: 7.5e-8,
+    cacheWrite: 7.5e-7,
+    input: 7.5e-7,
+    output: 3.75e-6,
+  },
+  [FAST_MODEL_ID]: {
+    cacheRead: 1e-8,
+    cacheWrite: 1.25e-7,
+    input: 1e-7,
+    output: 5e-7,
+  },
+  [WRITER_FALLBACK_ID]: {
+    cacheRead: 5e-7,
+    cacheWrite: 2e-6,
+    input: 2e-6,
+    output: 6e-6,
+  },
+  [WRITER_MODEL_ID]: {
+    cacheRead: 1e-7,
+    cacheWrite: 2.5e-6,
+    input: 2e-6,
+    output: 1e-5,
+  },
+}
+
+const reportedCost = (metadata: unknown) => {
+  const billed = (metadata as { openrouter?: { usage?: unknown } } | undefined)
+    ?.openrouter?.usage
+  return billed && typeof billed === 'object' && 'cost' in billed
+    ? Number(billed.cost)
+    : null
+}
+
 export const trackUsage = (
   userId: string,
   feature: AiFeature
 ): TelemetryOptions => ({
   integrations: {
     onLanguageModelCallEnd: async ({ modelId, providerMetadata, usage }) => {
-      const billed = providerMetadata?.openrouter?.usage
+      const { cacheReadTokens = 0, cacheWriteTokens = 0 } =
+        usage.inputTokenDetails
+      const inputTokens = usage.inputTokens ?? 0
+      const outputTokens = usage.outputTokens ?? 0
+      const price = MODEL_PRICES[modelId]
+      const cost = price
+        ? (inputTokens - cacheReadTokens - cacheWriteTokens) * price.input +
+          cacheReadTokens * price.cacheRead +
+          cacheWriteTokens * price.cacheWrite +
+          outputTokens * price.output
+        : reportedCost(providerMetadata)
       try {
-        await db.insert(aiUsage).values({
-          cacheReadTokens: usage.inputTokenDetails.cacheReadTokens ?? 0,
-          cacheWriteTokens: usage.inputTokenDetails.cacheWriteTokens ?? 0,
-          cost:
-            billed && typeof billed === 'object' && 'cost' in billed
-              ? Number(billed.cost)
-              : null,
-          feature,
-          inputTokens: usage.inputTokens ?? 0,
-          model: modelId,
-          outputTokens: usage.outputTokens ?? 0,
-          userId,
-        })
+        await Promise.all([
+          db.insert(aiUsage).values({
+            cacheReadTokens,
+            cacheWriteTokens,
+            cost,
+            feature,
+            inputTokens,
+            model: modelId,
+            outputTokens,
+            userId,
+          }),
+          charge(userId, cost ?? 0),
+        ])
       } catch (error) {
         logError('ai usage record failed', error)
       }

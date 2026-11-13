@@ -1,5 +1,4 @@
 import type { Router } from '@fewmail/api/router'
-import type { Limit } from '@fewmail/shared/agent'
 import { messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { createORPCClient, onError, ORPCError } from '@orpc/client'
@@ -13,22 +12,16 @@ import { toast } from 'sonner'
 import { localeStore } from './i18n'
 import { queryClient } from './query-client'
 
-/** A plan limit the server refused with, in the user's language; `null` for any other error. */
+/** The spent allowance the server refused with, in the user's language; `null` for any other error. */
 export const limitText = (error: unknown) => {
   if (!(error instanceof ORPCError) || error.code !== 'TOO_MANY_REQUESTS') {
     return null
   }
-  const { limit, resetsAt, total } = error.data as {
-    limit: Limit
-    resetsAt: Date
-    total: number
-  }
+  const { resetsAt } = error.data as { resetsAt: Date }
   const locale = localeStore.get()
-  const t = messages[locale].limits
-  if (limit === 'messages' || limit === 'speech') {
-    return t[limit](formatResetDay(locale, new Date(resetsAt)))
-  }
-  return t[limit](total)
+  return messages[locale].limits.usage(
+    formatResetDay(locale, new Date(resetsAt))
+  )
 }
 
 const ERROR_TEXT_BY_CODE = {

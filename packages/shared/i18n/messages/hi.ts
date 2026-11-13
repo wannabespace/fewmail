@@ -326,12 +326,8 @@ export const hi: Messages = {
     updated: (date: string) => `अंतिम अपडेट: ${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `आपके प्लान में ${total} बोर्ड हैं। एक हटाएं, या सेटिंग्स → प्लान में Max पर जाएं।`,
-    messages: (date: string) =>
-      `इस महीने एजेंट को भेजे जाने वाले संदेश खत्म हो गए। ये ${date} को फिर मिलेंगे।`,
-    speech: (date: string) =>
-      `इस महीने पढ़कर सुनाने की सीमा पूरी हो गई। यह ${date} को फिर मिलेगी।`,
+    usage: (date: string) =>
+      `इस महीने एजेंट का कोटा खत्म हो गया। यह ${date} को फिर मिलेगा।`,
   },
   notices: {
     freeUpSpace: 'जगह खाली करें',
@@ -505,7 +501,7 @@ export const hi: Messages = {
       'यह रन छोड़ दिया: पिछला रन अभी भी इस चैट में आपके जवाब का इंतज़ार कर रहा है।',
     failed: 'यह शेड्यूल्ड रन विफल रहा। अगली बार फिर कोशिश करूँगा।',
     limitReached: (day: string) =>
-      `इस महीने के संदेश खत्म हो गए हैं, इसलिए शेड्यूल इस तारीख तक रन छोड़ेगा: ${day}`,
+      `इस महीने एजेंट का कोटा खत्म हो गया है, इसलिए शेड्यूल इस तारीख तक रन छोड़ेगा: ${day}`,
     open: 'Fewmail में खोलें',
     stopped:
       'यह शेड्यूल लगातार तीन बार विफल रहा, इसलिए मैंने इसे रोक दिया। जब चाहें, मुझसे इसे फिर से सेट करने को कहें।',
@@ -529,6 +525,9 @@ export const hi: Messages = {
     title: 'चलिए, आपका एजेंट सेट करते हैं।',
   },
   plan: {
+    used: (percent: number) => `${percent}% इस्तेमाल हुआ`,
+    about: (emails: string, messages: string) =>
+      `महीने में लगभग ${emails} पढ़े गए ईमेल या एजेंट को ${messages} संदेश, किसी भी मेल में।`,
     free: 'Free',
     freeDescription: 'आसान नियमों के साथ तेज़ और शांत मेल। जब तक चाहें, मुफ़्त।',
     includes:
@@ -538,11 +537,7 @@ export const hi: Messages = {
     priceYearly: (usd: number) => `$${usd} / वर्ष`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `हर महीने ${emails} ईमेल और ${messages} संदेश; बोर्ड और सौंपे गए थ्रेड बिना सीमा।`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `हर महीने ${emails} ईमेल और ${messages} संदेश।`,
     cancels: (plan: string, date: string) => `${date} तक ${plan}, फिर Free।`,
     choose: (plan: string) => `${plan} चुनें`,
     proRenews: (date: string) => `${date} को रिन्यू होगा।`,
@@ -552,10 +547,6 @@ export const hi: Messages = {
     welcome: (plan: string) => `${plan} में आपका स्वागत है। एजेंट फिर से काम पर है।`,
     yearly: 'सालाना भुगतान करें',
     yearlyHint: 'दो महीने मुफ़्त।',
-    emailsUsed: (used: string, total: string) => `${total} में से ${used} ईमेल`,
-    messagesUsed: (used: string, total: string) => `${total} में से ${used} संदेश`,
-    speechUsed: (used: string, total: string) =>
-      `${total} में से ${used} अक्षर पढ़कर सुनाए`,
     trialDescription: (date: string) =>
       `${date} तक Pro की हर सुविधा, फिर मुफ़्त। कार्ड की ज़रूरत नहीं।`,
     upgrade: 'अन्य प्लान',
@@ -1127,6 +1118,10 @@ export const hi: Messages = {
       title: 'आपका पूरा इनबॉक्स, दो मिनट में।',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `महीने में लगभग ${emails} पढ़े गए ईमेल या एजेंट को ${messages} संदेश`,
+      oneAllowance:
+        'एजेंट के हर काम के लिए एक ही कोटा: जितना इस्तेमाल, उतना भुगतान, और फालतू मेल कभी नहीं गिना जाता',
       everythingIn: (plan: string) => `${plan} की हर चीज़, और साथ में`,
       forever: 'हमेशा के लिए',
       free: {
@@ -1142,9 +1137,6 @@ export const hi: Messages = {
       },
       max: {
         description: 'व्यस्त इनबॉक्स के लिए वही एजेंट।',
-        emails: (emails: string) => `हर महीने ${emails} ईमेल पढ़े जाते हैं`,
-        messages: (messages: number) => `हर महीने एजेंट को ${messages} संदेश`,
-        unlimited: 'बोर्ड और सौंपे गए थ्रेड बिना सीमा',
       },
       monthly: 'मासिक',
       per: { month: 'प्रति माह', year: 'प्रति वर्ष' },
@@ -1158,11 +1150,8 @@ export const hi: Messages = {
           'अपने मेल से कुछ भी पूछें, साथ में आपके अपने टूल के लिए MCP',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `हर महीने ${emails} ईमेल पढ़े जाते हैं और एजेंट को ${messages} संदेश; शोर कभी नहीं गिना जाता`,
       pro: {
         description: 'वही एजेंट, ज़्यादा मेल के लिए जगह के साथ।',
-        room: (boards: number) => `एक साथ ${boards} बोर्ड तक`,
       },
       tryFree: (days: number) => `${days} दिन मुफ़्त आज़माएँ`,
       yearly: 'सालाना · 2 महीने मुफ़्त',

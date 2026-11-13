@@ -1,5 +1,5 @@
 import type { BoardPreset } from '@fewmail/shared/agent'
-import { BOARD_PRESETS, PLAN_LIMITS } from '@fewmail/shared/agent'
+import { BOARD_PRESETS } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -26,7 +26,7 @@ const Step = ({
   </section>
 )
 
-const MAX_STARTER_BOARDS = PLAN_LIMITS.trial.boards
+const MAX_STARTER_BOARDS = 3
 
 const BoardPresetChoice = ({
   onChange,

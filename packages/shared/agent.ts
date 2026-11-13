@@ -137,26 +137,34 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
 }
 
 /**
- * What the agent may do per calendar month (UTC); `null` is unlimited. `emails` counts only mail the
- * agent wrote for — noise Jev settles costs nothing. `speech` counts characters read aloud, about 600 for each
- * message (an answer runs a few sentences). Every plan has every feature; only these differ.
+ * What the agent may cost per calendar month (UTC), in USD of AI: everything it does (writing for an email, a
+ * message, a summary, a board entry, reading aloud) is paid from it at its real price, so a feature left unused
+ * costs nothing. Sized so a yearly plan keeps 20% after Stripe, the allowance and Jev (`economics.test.ts`).
+ * Noise Jev settles costs nothing. Every plan has every feature; only this differs.
  */
-export const PLAN_LIMITS = {
-  lite: { boards: 1, emails: 200, messages: 20, speech: 12_000 },
-  max: {
-    boards: null,
-    emails: 2000,
-    messages: 200,
-    speech: 120_000,
-  },
-  pro: { boards: 3, emails: 500, messages: 60, speech: 36_000 },
-  trial: { boards: 3, emails: 200, messages: 20, speech: 12_000 },
-} satisfies Record<
-  Exclude<Plan, 'free'>,
-  Record<'boards' | 'emails' | 'messages' | 'speech', number | null>
->
+export const PLAN_ALLOWANCE_USD = {
+  lite: 2.6,
+  max: 18.5,
+  pro: 5.8,
+  trial: 2.6,
+} satisfies Record<Exclude<Plan, 'free'>, number>
 
-export type Limit = 'boards' | 'messages' | 'speech'
+/** What one email the agent writes for and one message to it cost on typical use, to tell an allowance in both. */
+export const TYPICAL_COST_USD = { email: 0.0044, message: 0.045 }
+
+type AgentPlan = keyof typeof PLAN_ALLOWANCE_USD
+
+/** An allowance told in round numbers: about this many emails, or this many messages, at typical use. */
+export const allowanceIn = (plan: AgentPlan) => ({
+  emails:
+    Math.round(PLAN_ALLOWANCE_USD[plan] / TYPICAL_COST_USD.email / 10) * 10,
+  messages:
+    Math.round(PLAN_ALLOWANCE_USD[plan] / TYPICAL_COST_USD.message / 10) * 10,
+})
+
+/** How much of the month's allowance is spent, 0 to 100. */
+export const usedPercent = (plan: AgentPlan, spent: number) =>
+  Math.min(100, Math.floor((spent / PLAN_ALLOWANCE_USD[plan]) * 100))
 
 /** Where a notification is delivered; mobile and desktop apps join as new kinds with their own sender in `services/notifications.ts`. */
 export const DEVICE_KINDS = ['web'] as const
@@ -351,7 +359,6 @@ export interface MessageRisk {
   imitates: string | null
   kind: RiskKind
 }
-
 
 export const BOARD_CHART_TYPES = ['bar', 'line', 'area', 'pie'] as const
 export type BoardChartType = (typeof BOARD_CHART_TYPES)[number]

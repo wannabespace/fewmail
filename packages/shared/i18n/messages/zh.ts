@@ -322,10 +322,7 @@ export const zh: Messages = {
     updated: (date: string) => `最后更新：${date}`,
   },
   limits: {
-    boards: (total: number) =>
-      `你的套餐最多 ${total} 个看板。删除一个，或在设置 → 套餐中切换到 Max。`,
-    messages: (date: string) => `本月发给代理的消息已用完，将于 ${date} 恢复。`,
-    speech: (date: string) => `本月的朗读额度已用完，将于 ${date} 恢复。`,
+    usage: (date: string) => `本月的代理额度已用完，将于 ${date} 恢复。`,
   },
   notices: {
     freeUpSpace: '释放空间',
@@ -493,7 +490,7 @@ export const zh: Messages = {
     awaitsAnswer: '这次运行已跳过：上一次运行仍在此聊天中等待你的回复。',
     failed: '这次定时运行失败了。下次运行时我会再试。',
     limitReached: (day: string) =>
-      `本月的消息已用完，定时任务将跳过运行，直到 ${day}。`,
+      `本月的代理额度已用完，定时任务将跳过运行，直到 ${day}。`,
     open: '在 Fewmail 中打开',
     stopped:
       '这个定时任务连续失败了三次，所以我停止了它。需要时让我重新设置即可。',
@@ -514,6 +511,9 @@ export const zh: Messages = {
     title: '来设置你的助手吧。',
   },
   plan: {
+    used: (percent: number) => `已用 ${percent}%`,
+    about: (emails: string, messages: string) =>
+      `每月约可读取 ${emails} 封邮件或向代理发送 ${messages} 条消息，可任意组合。`,
     free: 'Free',
     freeDescription: '快速、安静的邮件，配合简单规则。想用多久就免费用多久。',
     includes:
@@ -523,11 +523,7 @@ export const zh: Messages = {
     priceYearly: (usd: number) => `$${usd} / 年`,
     lite: 'Lite',
     max: 'Max',
-    maxLimits: (emails: string, messages: string) =>
-      `每月 ${emails} 封邮件和 ${messages} 条消息；看板和托付的会话不限。`,
     pro: 'Pro',
-    proLimits: (emails: string, messages: string) =>
-      `每月 ${emails} 封邮件和 ${messages} 条消息。`,
     cancels: (plan: string, date: string) =>
       `${plan} 有效至 ${date}，之后转为 Free。`,
     choose: (plan: string) => `选择 ${plan}`,
@@ -538,9 +534,6 @@ export const zh: Messages = {
     welcome: (plan: string) => `欢迎使用 ${plan}，助手已重新开始工作。`,
     yearly: '按年付费',
     yearlyHint: '免费两个月。',
-    emailsUsed: (used: string, total: string) => `邮件 ${used} / ${total}`,
-    messagesUsed: (used: string, total: string) => `消息 ${used} / ${total}`,
-    speechUsed: (used: string, total: string) => `朗读 ${used} / ${total} 字`,
     trialDescription: (date: string) =>
       `${date} 前可用 Pro 全部功能，之后免费。无需绑卡。`,
     upgrade: '其他方案',
@@ -1105,6 +1098,10 @@ export const zh: Messages = {
       title: '整个收件箱，两分钟搞定。',
     },
     plans: {
+      about: (emails: string, messages: string) =>
+        `每月约可读取 ${emails} 封邮件或向代理发送 ${messages} 条消息`,
+      oneAllowance:
+        '代理所做的一切共用一份额度：用多少付多少，无关邮件从不计入',
       everythingIn: (plan: string) => `${plan} 的全部功能，外加`,
       forever: '永久',
       free: {
@@ -1120,9 +1117,6 @@ export const zh: Messages = {
       },
       max: {
         description: '同一个助手，为繁忙的收件箱准备。',
-        emails: (emails: string) => `每月阅读 ${emails} 封邮件`,
-        messages: (messages: number) => `每月给助手发 ${messages} 条消息`,
-        unlimited: '看板和托付的会话不限',
       },
       monthly: '按月',
       per: { month: '/ 月', year: '/ 年' },
@@ -1136,11 +1130,8 @@ export const zh: Messages = {
           '随意问你的邮件，还有供你自己的工具使用的 MCP',
         ],
       },
-      limits: (emails: string, messages: number) =>
-        `每月阅读 ${emails} 封邮件、给助手发 ${messages} 条消息；无用邮件从不计入`,
       pro: {
         description: '同样的助手，能处理更多邮件。',
-        room: (boards: number) => `同时最多 ${boards} 个看板`,
       },
       tryFree: (days: number) => `免费试用 ${days} 天`,
       yearly: '按年 · 免费两个月',

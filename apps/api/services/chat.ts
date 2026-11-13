@@ -19,7 +19,7 @@ import { z } from 'zod'
 import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { agentTools, toolAccess } from './agent-tools'
 import { NotFoundError } from './mail-errors'
-import { spendMessage } from './plan'
+import { requireBudget } from './plan'
 import { getSettings } from './settings'
 import { expandSkills } from './skills'
 
@@ -181,7 +181,7 @@ export const streamChat = async (
   const tools = chatTools(userId)
   const known = stored.findIndex(({ id: storedId }) => storedId === message.id)
   if (message.role === 'user' || known === -1) {
-    await spendMessage(userId)
+    await requireBudget(userId)
   }
   const sent =
     message.role === 'user'
