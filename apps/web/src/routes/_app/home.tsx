@@ -1,7 +1,10 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
-import { Accordion } from '@fewmail/ui/components/accordion'
+import {
+  Accordion,
+  cardsBleedClassName,
+} from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
@@ -28,6 +31,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
+import { cn } from '@fewmail/ui/lib/utils'
 import {
   Add01Icon,
   ArrowDown01Icon,
@@ -1083,7 +1087,12 @@ const HomePage = () => {
                     )}
                   </div>
                   {!!data && queue.length === 0 && (
-                    <p className="text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm">
+                    <p
+                      className={cn(
+                        'text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm',
+                        cardsBleedClassName
+                      )}
+                    >
                       {t.today.nothingNeedsYou}
                     </p>
                   )}

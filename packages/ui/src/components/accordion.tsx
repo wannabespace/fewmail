@@ -7,6 +7,9 @@ import type { ReactNode } from 'react'
 
 type AccordionVariant = 'default' | 'cards'
 
+// Keep in step with the cards trigger's inset (its 1px border + px-4.5): the bleed lines its content up with the text above.
+const cardsBleedClassName = '-mx-4.75'
+
 const VariantContext = createContext<AccordionVariant>('default')
 
 const Accordion = ({
@@ -18,8 +21,10 @@ const Accordion = ({
     <AccordionPrimitive.Root
       data-slot="accordion"
       className={cn(
-        'flex w-full flex-col',
-        variant === 'cards' ? 'gap-2.5' : 'overflow-hidden rounded-2xl border',
+        'flex flex-col',
+        variant === 'cards'
+          ? `gap-2.5 ${cardsBleedClassName}`
+          : 'w-full overflow-hidden rounded-2xl border',
         className
       )}
       {...props}
@@ -131,4 +136,10 @@ const AccordionContent = ({
   )
 }
 
-export { Accordion, AccordionContent, AccordionItem, AccordionTrigger }
+export {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  cardsBleedClassName,
+}
