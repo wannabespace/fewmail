@@ -75,6 +75,7 @@ export const getTelegramLink = async (userId: string) => {
       : null,
     linked: !!current.chatId,
     linkedAt: current.linkedAt,
+    urgentPush: current.urgentPush,
   }
 }
 
@@ -140,6 +141,7 @@ export const getWhatsappLink = async (userId: string) => {
       : null,
     linked: !!current.phone,
     linkedAt: current.linkedAt,
+    urgentPush: current.urgentPush,
   }
 }
 
@@ -202,4 +204,40 @@ export const whatsappForUser = async (userId: string) => {
   return link?.phone
     ? { lastInboundAt: link.lastInboundAt, phone: link.phone }
     : null
+}
+
+const MESSENGER_LINKS = { telegram: telegramLinks, whatsapp: whatsappLinks }
+
+export const setUrgentPush = async (
+  userId: string,
+  channel: keyof typeof MESSENGER_LINKS,
+  urgentPush: boolean
+) => {
+  const table = MESSENGER_LINKS[channel]
+  await db.update(table).set({ urgentPush }).where(eq(table.userId, userId))
+}
+
+/** Where urgent mail may be pushed: a linked chat whose user has not turned it off. */
+export const urgentPushTargets = async (userId: string) => {
+  const [[telegram], [whatsapp]] = await Promise.all([
+    db
+      .select({ chatId: telegramLinks.chatId })
+      .from(telegramLinks)
+      .where(
+        and(
+          eq(telegramLinks.userId, userId),
+          eq(telegramLinks.urgentPush, true)
+        )
+      ),
+    db
+      .select({ userId: whatsappLinks.userId })
+      .from(whatsappLinks)
+      .where(
+        and(
+          eq(whatsappLinks.userId, userId),
+          eq(whatsappLinks.urgentPush, true)
+        )
+      ),
+  ])
+  return { telegramChat: telegram?.chatId ?? null, whatsapp: !!whatsapp }
 }

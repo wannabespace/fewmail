@@ -715,6 +715,8 @@ export const ja: Messages = {
       blocked:
         '通知がブロックされています。ブラウザのサイト設定で許可してください。',
       browser: 'このブラウザ',
+      messengerOff: '緊急のメールは Fewmail の中だけに表示します。',
+      messengerOn: '緊急のメールをすぐにチャットへ送ります。',
       notConfigured: 'このサーバーではブラウザ通知が設定されていません。',
       off: 'Fewmail を閉じていても、緊急のメールをここで受け取れます。',
       on: '緊急のメールがここに届きます。同時に複数届いたときは 1 件にまとめます。',
@@ -726,6 +728,7 @@ export const ja: Messages = {
       disconnect: '接続を解除',
       linked:
         '緊急のメールはすぐに届きます。下書きの承認や編集もチャットからできます。',
+      linkedQuiet: '下書きの承認や編集はチャットからできます。',
       notConfigured: 'このサーバーでは Telegram ボットが設定されていません。',
       unlinked: 'Telegram で緊急のメールを受け取り、下書きを承認できます。',
     },
@@ -734,6 +737,7 @@ export const ja: Messages = {
       disconnect: '接続を解除',
       linked:
         '緊急のメールはすぐに届きます。下書きの承認や編集もチャットからできます。',
+      linkedQuiet: '下書きの承認や編集はチャットからできます。',
       notConfigured: 'このサーバーでは WhatsApp ボットが設定されていません。',
       unlinked: 'WhatsApp で緊急のメールを受け取り、下書きを承認できます。',
     },

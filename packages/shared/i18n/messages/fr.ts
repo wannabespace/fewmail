@@ -1241,6 +1241,8 @@ export const fr: Messages = {
       blocked:
         'Les notifications sont bloquées. Autorisez-les dans les paramètres du site du navigateur.',
       browser: 'Ce navigateur',
+      messengerOff: 'Les e-mails urgents restent dans Fewmail.',
+      messengerOn: 'Les e-mails urgents arrivent aussitôt dans le chat.',
       notConfigured:
         'Les notifications du navigateur ne sont pas configurées sur ce serveur.',
       off: 'Recevez ici les e-mails urgents, même quand Fewmail est fermé.',
@@ -1253,6 +1255,7 @@ export const fr: Messages = {
       disconnect: 'Déconnecter',
       linked:
         'Les e-mails urgents arrivent tout de suite. Approuvez et modifiez les brouillons depuis le chat.',
+      linkedQuiet: 'Approuvez et modifiez les brouillons depuis le chat.',
       notConfigured: 'Le bot Telegram n’est pas configuré sur ce serveur.',
       unlinked:
         'Recevez les e-mails urgents et approuvez les brouillons depuis Telegram.',
@@ -1262,6 +1265,7 @@ export const fr: Messages = {
       disconnect: 'Déconnecter',
       linked:
         'Les e-mails urgents arrivent tout de suite. Approuvez et modifiez les brouillons depuis le chat.',
+      linkedQuiet: 'Approuvez et modifiez les brouillons depuis le chat.',
       notConfigured: 'Le bot WhatsApp n’est pas configuré sur ce serveur.',
       unlinked:
         'Recevez les e-mails urgents et approuvez les brouillons depuis WhatsApp.',

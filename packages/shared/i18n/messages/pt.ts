@@ -1021,6 +1021,8 @@ export const pt: Messages = {
       blocked:
         'As notificações estão bloqueadas. Permita-as nas configurações do site no navegador.',
       browser: 'Este navegador',
+      messengerOff: 'E-mails urgentes ficam no Fewmail.',
+      messengerOn: 'E-mails urgentes chegam ao chat na hora.',
       notConfigured:
         'As notificações do navegador não estão configuradas neste servidor.',
       off: 'Receba aqui e-mails urgentes, mesmo com o Fewmail fechado.',
@@ -1033,6 +1035,7 @@ export const pt: Messages = {
       disconnect: 'Desconectar',
       linked:
         'E-mails urgentes chegam na hora. Aprove e edite rascunhos pelo chat.',
+      linkedQuiet: 'Aprove e edite rascunhos pelo chat.',
       notConfigured: 'O bot do Telegram não está configurado neste servidor.',
       unlinked: 'Receba e-mails urgentes e aprove rascunhos pelo Telegram.',
     },
@@ -1041,6 +1044,7 @@ export const pt: Messages = {
       disconnect: 'Desconectar',
       linked:
         'E-mails urgentes chegam na hora. Aprove e edite rascunhos pelo chat.',
+      linkedQuiet: 'Aprove e edite rascunhos pelo chat.',
       notConfigured: 'O bot do WhatsApp não está configurado neste servidor.',
       unlinked: 'Receba e-mails urgentes e aprove rascunhos pelo WhatsApp.',
     },

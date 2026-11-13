@@ -1044,6 +1044,8 @@ export const pl: Messages = {
       blocked:
         'Powiadomienia są zablokowane. Zezwól na nie w ustawieniach witryny w przeglądarce.',
       browser: 'Ta przeglądarka',
+      messengerOff: 'Pilne maile zostają w Fewmail.',
+      messengerOn: 'Pilne maile od razu trafiają na czat.',
       notConfigured:
         'Powiadomienia przeglądarki nie są skonfigurowane na tym serwerze.',
       off: 'Odbieraj tutaj pilne maile, nawet gdy Fewmail jest zamknięty.',
@@ -1056,6 +1058,7 @@ export const pl: Messages = {
       disconnect: 'Rozłącz',
       linked:
         'Pilne maile przychodzą od razu. Zatwierdzaj i edytuj szkice na czacie.',
+      linkedQuiet: 'Zatwierdzaj i edytuj szkice na czacie.',
       notConfigured: 'Bot Telegram nie jest skonfigurowany na tym serwerze.',
       unlinked: 'Odbieraj pilne maile i zatwierdzaj szkice w Telegramie.',
     },
@@ -1064,6 +1067,7 @@ export const pl: Messages = {
       disconnect: 'Rozłącz',
       linked:
         'Pilne maile przychodzą od razu. Zatwierdzaj i edytuj szkice na czacie.',
+      linkedQuiet: 'Zatwierdzaj i edytuj szkice na czacie.',
       notConfigured: 'Bot WhatsApp nie jest skonfigurowany na tym serwerze.',
       unlinked: 'Odbieraj pilne maile i zatwierdzaj szkice w WhatsAppie.',
     },

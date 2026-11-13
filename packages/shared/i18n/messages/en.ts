@@ -1014,6 +1014,8 @@ export const en = {
       blocked:
         'Notifications are blocked. Allow them in this site’s browser settings.',
       browser: 'This browser',
+      messengerOff: 'Urgent mail stays in Fewmail.',
+      messengerOn: 'Urgent mail arrives in the chat right away.',
       notConfigured: 'Browser notifications are not configured on this server.',
       off: 'Get urgent mail here, even with Fewmail closed.',
       on: 'Urgent mail shows up here. Several at once arrive as one.',
@@ -1025,6 +1027,7 @@ export const en = {
       disconnect: 'Disconnect',
       linked:
         'Urgent mail arrives right away. Approve and edit drafts from the chat.',
+      linkedQuiet: 'Approve and edit drafts from the chat.',
       notConfigured: 'The Telegram bot is not configured on this server.',
       unlinked: 'Get urgent mail and approve drafts from Telegram.',
     },
@@ -1033,6 +1036,7 @@ export const en = {
       disconnect: 'Disconnect',
       linked:
         'Urgent mail arrives right away. Approve and edit drafts from the chat.',
+      linkedQuiet: 'Approve and edit drafts from the chat.',
       notConfigured: 'The WhatsApp bot is not configured on this server.',
       unlinked: 'Get urgent mail and approve drafts from WhatsApp.',
     },

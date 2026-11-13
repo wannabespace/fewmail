@@ -1023,6 +1023,8 @@ export const nl: Messages = {
       blocked:
         'Meldingen zijn geblokkeerd. Sta ze toe in de site-instellingen van de browser.',
       browser: 'Deze browser',
+      messengerOff: 'Dringende mail blijft in Fewmail.',
+      messengerOn: 'Dringende mail komt meteen in de chat.',
       notConfigured: 'Browsermeldingen zijn niet ingesteld op deze server.',
       off: 'Ontvang dringende mail hier, ook als Fewmail dicht is.',
       on: 'Dringende mail verschijnt hier. Meerdere tegelijk komen als één.',
@@ -1034,6 +1036,7 @@ export const nl: Messages = {
       disconnect: 'Ontkoppelen',
       linked:
         'Dringende mail komt meteen binnen. Keur concepten goed en bewerk ze in de chat.',
+      linkedQuiet: 'Keur concepten goed en bewerk ze in de chat.',
       notConfigured: 'De Telegram-bot is niet ingesteld op deze server.',
       unlinked: 'Ontvang dringende mail en keur concepten goed via Telegram.',
     },
@@ -1042,6 +1045,7 @@ export const nl: Messages = {
       disconnect: 'Ontkoppelen',
       linked:
         'Dringende mail komt meteen binnen. Keur concepten goed en bewerk ze in de chat.',
+      linkedQuiet: 'Keur concepten goed en bewerk ze in de chat.',
       notConfigured: 'De WhatsApp-bot is niet ingesteld op deze server.',
       unlinked: 'Ontvang dringende mail en keur concepten goed via WhatsApp.',
     },

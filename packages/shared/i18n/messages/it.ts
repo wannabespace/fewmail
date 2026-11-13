@@ -1232,6 +1232,8 @@ export const it: Messages = {
       blocked:
         'Le notifiche sono bloccate. Consentile nelle impostazioni del sito del browser.',
       browser: 'Questo browser',
+      messengerOff: 'Le email urgenti restano in Fewmail.',
+      messengerOn: 'Le email urgenti arrivano subito in chat.',
       notConfigured:
         'Le notifiche del browser non sono configurate su questo server.',
       off: 'Ricevi qui le email urgenti, anche con Fewmail chiuso.',
@@ -1244,6 +1246,7 @@ export const it: Messages = {
       disconnect: 'Scollega',
       linked:
         'La posta urgente arriva subito. Approva e modifica le bozze dalla chat.',
+      linkedQuiet: 'Approva e modifica le bozze dalla chat.',
       notConfigured: 'Il bot Telegram non è configurato su questo server.',
       unlinked: 'Ricevi la posta urgente e approva le bozze da Telegram.',
     },
@@ -1252,6 +1255,7 @@ export const it: Messages = {
       disconnect: 'Scollega',
       linked:
         'La posta urgente arriva subito. Approva e modifica le bozze dalla chat.',
+      linkedQuiet: 'Approva e modifica le bozze dalla chat.',
       notConfigured: 'Il bot WhatsApp non è configurato su questo server.',
       unlinked: 'Ricevi la posta urgente e approva le bozze da WhatsApp.',
     },

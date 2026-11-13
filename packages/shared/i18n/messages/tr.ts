@@ -988,6 +988,8 @@ export const tr: Messages = {
       blocked:
         'Bildirimler engellendi. Tarayıcının site ayarlarından izin ver.',
       browser: 'Bu tarayıcı',
+      messengerOff: "Acil e-postalar Fewmail'de kalır.",
+      messengerOn: 'Acil e-postalar hemen sohbete gelir.',
       notConfigured: 'Tarayıcı bildirimleri bu sunucuda yapılandırılmamış.',
       off: 'Fewmail kapalıyken bile acil e-postaları burada al.',
       on: 'Acil e-postalar burada görünür. Aynı anda gelenler tek bildirimde toplanır.',
@@ -999,6 +1001,7 @@ export const tr: Messages = {
       disconnect: 'Bağlantıyı kes',
       linked:
         'Acil postalar hemen gelir. Taslakları sohbetten onayla ve düzenle.',
+      linkedQuiet: 'Taslakları sohbetten onayla ve düzenle.',
       notConfigured: 'Telegram botu bu sunucuda yapılandırılmamış.',
       unlinked: 'Acil postaları al ve taslakları Telegram’dan onayla.',
     },
@@ -1007,6 +1010,7 @@ export const tr: Messages = {
       disconnect: 'Bağlantıyı kes',
       linked:
         'Acil postalar hemen gelir. Taslakları sohbetten onayla ve düzenle.',
+      linkedQuiet: 'Taslakları sohbetten onayla ve düzenle.',
       notConfigured: 'WhatsApp botu bu sunucuda yapılandırılmamış.',
       unlinked: 'Acil postaları al ve taslakları WhatsApp’tan onayla.',
     },

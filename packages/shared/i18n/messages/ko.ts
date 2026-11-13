@@ -708,6 +708,8 @@ export const ko: Messages = {
       blocked:
         '알림이 차단되어 있어요. 브라우저의 사이트 설정에서 허용해 주세요.',
       browser: '이 브라우저',
+      messengerOff: '긴급 메일은 Fewmail에만 표시돼요.',
+      messengerOn: '긴급 메일이 바로 채팅으로 와요.',
       notConfigured: '이 서버에는 브라우저 알림이 설정되어 있지 않아요.',
       off: 'Fewmail을 닫아 두어도 긴급 메일을 여기서 받아요.',
       on: '긴급 메일이 여기에 표시돼요. 한꺼번에 여러 개가 오면 하나로 묶어요.',
@@ -719,6 +721,7 @@ export const ko: Messages = {
       disconnect: '연결 해제',
       linked:
         '긴급 메일은 바로 도착해요. 채팅에서 초안을 승인하고 편집할 수 있어요.',
+      linkedQuiet: '채팅에서 초안을 승인하고 편집할 수 있어요.',
       notConfigured: '이 서버에는 Telegram 봇이 설정되어 있지 않아요.',
       unlinked: 'Telegram에서 긴급 메일을 받고 초안을 승인하세요.',
     },
@@ -727,6 +730,7 @@ export const ko: Messages = {
       disconnect: '연결 해제',
       linked:
         '긴급 메일은 바로 도착해요. 채팅에서 초안을 승인하고 편집할 수 있어요.',
+      linkedQuiet: '채팅에서 초안을 승인하고 편집할 수 있어요.',
       notConfigured: '이 서버에는 WhatsApp 봇이 설정되어 있지 않아요.',
       unlinked: 'WhatsApp에서 긴급 메일을 받고 초안을 승인하세요.',
     },

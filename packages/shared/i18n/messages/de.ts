@@ -1230,6 +1230,8 @@ export const de: Messages = {
       blocked:
         'Benachrichtigungen sind blockiert. Erlaube sie in den Website-Einstellungen des Browsers.',
       browser: 'Dieser Browser',
+      messengerOff: 'Dringende Mails bleiben in Fewmail.',
+      messengerOn: 'Dringende Mails kommen sofort in den Chat.',
       notConfigured:
         'Browser-Benachrichtigungen sind auf diesem Server nicht eingerichtet.',
       off: 'Erhalte dringende Mails hier, auch wenn Fewmail geschlossen ist.',
@@ -1242,6 +1244,7 @@ export const de: Messages = {
       disconnect: 'Trennen',
       linked:
         'Dringende Mails kommen sofort. Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
+      linkedQuiet: 'Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
       notConfigured:
         'Der Telegram-Bot ist auf diesem Server nicht eingerichtet.',
       unlinked: 'Erhalte dringende Mails und gib Entwürfe in Telegram frei.',
@@ -1251,6 +1254,7 @@ export const de: Messages = {
       disconnect: 'Trennen',
       linked:
         'Dringende Mails kommen sofort. Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
+      linkedQuiet: 'Gib Entwürfe direkt im Chat frei oder bearbeite sie.',
       notConfigured:
         'Der WhatsApp-Bot ist auf diesem Server nicht eingerichtet.',
       unlinked: 'Erhalte dringende Mails und gib Entwürfe in WhatsApp frei.',

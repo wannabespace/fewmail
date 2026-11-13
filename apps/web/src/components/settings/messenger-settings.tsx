@@ -6,14 +6,19 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 
-const MESSENGERS = { telegram: 'Telegram', whatsapp: 'WhatsApp' } as const
+export const MESSENGERS = {
+  telegram: 'Telegram',
+  whatsapp: 'WhatsApp',
+} as const
 
 const messengerDescription = (
   copy: Messages['settings']['telegram'],
-  link: { botUrl: string | null; linked: boolean } | undefined
+  link:
+    | { botUrl: string | null; linked: boolean; urgentPush: boolean }
+    | undefined
 ) => {
   if (link?.linked) {
-    return copy.linked
+    return link.urgentPush ? copy.linked : copy.linkedQuiet
   }
   return link?.botUrl ? copy.unlinked : copy.notConfigured
 }

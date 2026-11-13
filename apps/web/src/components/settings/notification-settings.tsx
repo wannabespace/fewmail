@@ -5,7 +5,9 @@ import {
 import { Switch } from '@fewmail/ui/components/switch'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { MESSENGERS } from '~/components/settings/messenger-settings'
 import { useT } from '~/lib/i18n'
+import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 import {
   disablePush,
@@ -14,8 +16,43 @@ import {
   pushSupported,
 } from '~/lib/push'
 
+const MessengerPush = ({ channel }: { channel: keyof typeof MESSENGERS }) => {
+  const copy = useT().settings.notifications
+  const queryClient = useQueryClient()
+  const procedures = orpc.integrations[channel]
+  const { data: link } = useQuery(procedures.get.queryOptions())
+  const toggle = useMutation(
+    procedures.setUrgentPush.mutationOptions({
+      onMutate: ({ on }) =>
+        queryClient.setQueryData(
+          procedures.get.queryKey(),
+          (old) => old && { ...old, urgentPush: on }
+        ),
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: procedures.key() }),
+    })
+  )
+  if (!link?.linked) {
+    return null
+  }
+  return (
+    <SettingsRow
+      title={MESSENGERS[channel]}
+      description={link.urgentPush ? copy.messengerOn : copy.messengerOff}
+      htmlFor={`${channel}-urgent`}
+    >
+      <Switch
+        id={`${channel}-urgent`}
+        checked={link.urgentPush}
+        onCheckedChange={(on) => toggle.mutate({ on })}
+      />
+    </SettingsRow>
+  )
+}
+
 export const NotificationSettings = () => {
   const copy = useT().settings.notifications
+  const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
   const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
   const { data: state } = useQuery(pushStateQuery)
@@ -57,6 +94,12 @@ export const NotificationSettings = () => {
           />
         )}
       </SettingsRow>
+      {hasAgent && (
+        <>
+          <MessengerPush channel="telegram" />
+          <MessengerPush channel="whatsapp" />
+        </>
+      )}
     </SettingsGroup>
   )
 }

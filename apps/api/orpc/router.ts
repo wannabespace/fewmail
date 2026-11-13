@@ -61,6 +61,7 @@ import {
   getWhatsappLink,
   disconnectApp,
   listConnectedApps,
+  setUrgentPush,
   unlinkTelegram,
   unlinkWhatsapp,
 } from '../services/integrations'
@@ -313,12 +314,22 @@ export const router = {
       unlink: authed.handler(async ({ context }) => {
         await unlinkTelegram(context.user.id)
       }),
+      setUrgentPush: authed
+        .input(type({ on: 'boolean' }))
+        .handler(async ({ context, input }) => {
+          await setUrgentPush(context.user.id, 'telegram', input.on)
+        }),
     },
     whatsapp: {
       get: agent.handler(({ context }) => getWhatsappLink(context.user.id)),
       unlink: authed.handler(async ({ context }) => {
         await unlinkWhatsapp(context.user.id)
       }),
+      setUrgentPush: authed
+        .input(type({ on: 'boolean' }))
+        .handler(async ({ context, input }) => {
+          await setUrgentPush(context.user.id, 'whatsapp', input.on)
+        }),
     },
   },
   mailboxes: {

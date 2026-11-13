@@ -38,7 +38,11 @@ import { offerCleanup } from './services/cleanup'
 import { followForwarded } from './services/forwarded'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { savedThisWeek } from './services/home'
-import { chatIdForUser, whatsappForUser } from './services/integrations'
+import {
+  chatIdForUser,
+  urgentPushTargets,
+  whatsappForUser,
+} from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
 import { LimitReachedError } from './services/limit-error'
 import { listQueue } from './services/mail'
@@ -285,10 +289,10 @@ const sendUrgentEverywhere = async (id: string, userId: string) => {
   if (!hasAgent(await getPlanInfo(userId))) {
     return
   }
-  const chatId = await chatIdForUser(userId)
+  const { telegramChat, whatsapp } = await urgentPushTargets(userId)
   const sent = await Promise.allSettled([
-    chatId && sendUrgent(chatId, userId, item),
-    sendWhatsappUrgent(userId, item),
+    telegramChat && sendUrgent(telegramChat, userId, item),
+    whatsapp && sendWhatsappUrgent(userId, item),
   ])
   for (const result of sent) {
     if (result.status === 'rejected') {

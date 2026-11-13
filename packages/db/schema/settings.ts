@@ -49,6 +49,7 @@ export const telegramLinks = d.snakeCase.table('telegram_links', {
   createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   linkCode: d.text().notNull().unique(),
   linkedAt: d.timestamp({ withTimezone: true }),
+  urgentPush: d.boolean().default(true).notNull(),
   userId: d
     .uuid()
     .primaryKey()
@@ -62,6 +63,7 @@ export const whatsappLinks = d.snakeCase.table('whatsapp_links', {
   linkCode: d.text().notNull().unique(),
   linkedAt: d.timestamp({ withTimezone: true }),
   phone: searchableText().unique(),
+  urgentPush: d.boolean().default(true).notNull(),
   userId: d
     .uuid()
     .primaryKey()
