@@ -1,0 +1,1 @@
+ALTER TABLE "analyses" ADD COLUMN "suggested_action" text;

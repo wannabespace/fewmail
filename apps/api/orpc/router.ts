@@ -78,6 +78,7 @@ import {
   listMail,
   countUnread,
   markThreadRead,
+  settleTidy,
   pinMessage,
   redraftAction,
   snoozeMessage,
@@ -588,6 +589,16 @@ export const router = {
     count: agent.handler(({ context }) => countQueue(context.user.id)),
     get: agent.handler(({ context }) => openToday(context.user.id)),
     handled: agent.handler(({ context }) => listTodayHandled(context.user.id)),
+    keep: agent
+      .input(type({ messageIds: 'string.uuid[] > 0' }))
+      .handler(({ context, input }) =>
+        settleTidy(context.user.id, input.messageIds, 'dismissed')
+      ),
+    tidy: agent
+      .input(type({ messageIds: 'string.uuid[] > 0' }))
+      .handler(({ context, input }) =>
+        settleTidy(context.user.id, input.messageIds, 'done')
+      ),
   },
   reading: {
     count: authed.handler(({ context }) => countReading(context.user.id)),

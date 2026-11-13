@@ -126,6 +126,7 @@ type ToolPart = ToolUIPart | DynamicToolUIPart
 
 interface Known {
   allDay?: boolean
+  analysis?: { suggestedAction?: keyof Messages['rules']['effect'] | null }
   detail?: string | null
   email?: string
   end?: string
@@ -134,6 +135,7 @@ interface Known {
   id?: string
   kind?: string
   mailboxId?: string
+  message?: Known
   messageId?: string | null
   start?: string
   subject?: string
@@ -156,6 +158,7 @@ interface ToolInput {
   location?: string
   mailboxId?: string
   messageId?: string
+  messageIds?: string[]
   search?: string
   start?: string
   subject?: string
@@ -173,6 +176,7 @@ interface ConsentDetails {
   email?: Known
   event?: Known
   input: ToolInput
+  tidy?: Known[]
   t: Messages
   text?: string | null
 }
@@ -507,6 +511,16 @@ const CONSENT_DETAILS: Record<
   move_to_inbox: ({ email }) => <EmailLine email={email} />,
   report_spam: ({ email }) => <EmailLine email={email} />,
   trash_thread: ({ email }) => <EmailLine email={email} />,
+  tidy_mail: ({ t, tidy }) =>
+    tidy?.map(({ analysis, message }) => (
+      <p key={message?.id} className="truncate text-sm">
+        {analysis?.suggestedAction && t.rules.effect[analysis.suggestedAction]}
+        <span data-mask className="text-muted-foreground">
+          {' · '}
+          {message?.fromName ?? message?.fromEmail} · {message?.subject}
+        </span>
+      </p>
+    )),
   undo_clear_out: () => null,
   unsubscribe: ({ email }) => <EmailLine email={email} />,
   update_event: ({ calendar, event, input }) => (
@@ -555,6 +569,9 @@ const Confirmation = ({
         input,
         t,
         text,
+        tidy: input.messageIds?.flatMap(
+          (id) => findKnown(outputs, (known) => known.message?.id === id) ?? []
+        ),
       })}
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={() => onAnswer(true)}>

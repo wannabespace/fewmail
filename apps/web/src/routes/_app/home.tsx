@@ -1,5 +1,9 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import {
+  sendsDraft,
+  TIDY_KINDS,
+  UNDO_SEND_SECONDS,
+} from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
   Accordion,
@@ -62,6 +66,7 @@ import {
 import { type } from 'arktype'
 import { endOfTomorrow, format, isTomorrow, max, startOfToday } from 'date-fns'
 import { useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
@@ -92,6 +97,12 @@ import {
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
 
+const TallyBox = ({ children }: { children: ReactNode }) => (
+  <div className="text-foreground/75 flex items-center gap-3 rounded-2xl border border-dashed px-4.5 py-3.5 text-sm">
+    {children}
+  </div>
+)
+
 const HandledSummary = ({
   handled,
   onReview,
@@ -102,7 +113,7 @@ const HandledSummary = ({
   const t = useT().today.handled
 
   return (
-    <div className="text-foreground/75 flex items-center gap-3 rounded-2xl border border-dashed px-4.5 py-3.5 text-sm">
+    <TallyBox>
       <span>
         <strong className="text-foreground font-semibold">
           {t.total(handled.total)}
@@ -116,7 +127,112 @@ const HandledSummary = ({
       <Button size="sm" variant="link" className="ml-auto" onClick={onReview}>
         {t.review} <Kbd>H</Kbd>
       </Button>
-    </div>
+    </TallyBox>
+  )
+}
+
+const Tidy = ({
+  canUseKeys,
+  today,
+}: {
+  canUseKeys: boolean
+  today: Today | undefined
+}) => {
+  const t = useT()
+  const tidy = today?.tidy ?? []
+  const queryClient = useQueryClient()
+  const [isOpen, setIsOpen] = useState(false)
+  const dropFromTidy = ({ messageIds }: { messageIds: string[] }) =>
+    queryClient.setQueryData(
+      orpc.today.get.queryKey(),
+      (old) =>
+        old && {
+          ...old,
+          tidy: old.tidy.filter(
+            ({ message }) => !messageIds.includes(message.id)
+          ),
+        }
+    )
+  const refetch = () =>
+    queryClient.invalidateQueries({ queryKey: orpc.today.key() })
+  const runTidy = useMutation(
+    orpc.today.tidy.mutationOptions({
+      onMutate: dropFromTidy,
+      onSettled: () =>
+        Promise.all([
+          refetch(),
+          queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+        ]),
+      onSuccess: ({ settled }) => toast.success(t.today.tidy.done(settled)),
+    })
+  )
+  const keep = useMutation(
+    orpc.today.keep.mutationOptions({
+      onMutate: dropFromTidy,
+      onSettled: refetch,
+    })
+  )
+  const run = () =>
+    runTidy.mutate({ messageIds: tidy.map(({ message }) => message.id) })
+  const toggle = () => setIsOpen((current) => !current)
+  const keys = { enabled: canUseKeys && tidy.length > 0 }
+  useHotkey('T', run, keys)
+  useHotkey('D', toggle, keys)
+
+  if (tidy.length === 0) {
+    return null
+  }
+  return (
+    <section aria-label={t.today.tidy.run} className="flex flex-col gap-2.5">
+      <TallyBox>
+        <span>
+          <strong className="text-foreground font-semibold">
+            {t.today.tidy.total(tidy.length)}
+          </strong>
+          {TIDY_KINDS.map((kind) => {
+            const count = tidy.filter(
+              ({ analysis }) => analysis.suggestedAction === kind
+            ).length
+            return count > 0 && ` · ${t.today.tidy[kind](count)}`
+          })}
+        </span>
+        <Button size="sm" variant="link" className="ml-auto" onClick={toggle}>
+          {t.today.tidy.details} <Kbd>D</Kbd>
+        </Button>
+        <Button size="sm" variant="secondary" onClick={run}>
+          {t.today.tidy.run} <Kbd>T</Kbd>
+        </Button>
+      </TallyBox>
+      {isOpen && (
+        <SettingsGroup title={t.today.tidy.total(tidy.length)}>
+          {tidy.map(({ analysis, message }) => (
+            <SettingsRow
+              key={message.id}
+              title={
+                <ThreadLink
+                  threadId={message.threadId}
+                  text={message.fromName ?? message.fromEmail}
+                />
+              }
+              description={
+                <>
+                  {t.rules.effect[analysis.suggestedAction]} ·{' '}
+                  <span data-mask>{analysis.reason || analysis.summary}</span>
+                </>
+              }
+            >
+              <Button
+                size="sm"
+                variant="ghost-muted"
+                onClick={() => keep.mutate({ messageIds: [message.id] })}
+              >
+                {t.today.tidy.keep}
+              </Button>
+            </SettingsRow>
+          ))}
+        </SettingsGroup>
+      )}
+    </section>
   )
 }
 
@@ -396,6 +512,7 @@ const homeHints = (
   state: {
     alike: number
     hasHandled: boolean
+    hasTidy: boolean
     isAsking: boolean
     isEditing: boolean
     picked: number
@@ -437,6 +554,12 @@ const homeHints = (
     ['⌫', t.keys.trash],
     ['X', t.keys.pick],
     ['⌘A', t.keys.pickAll],
+    ...(state.hasTidy
+      ? [
+          ['T', t.today.tidy.run] as [string, string],
+          ['D', t.today.tidy.details] as [string, string],
+        ]
+      : []),
     ...(state.hasHandled
       ? [['H', t.today.handled.review] as [string, string]]
       : []),
@@ -1179,6 +1302,8 @@ const HomePage = () => {
                   </Accordion>
                 </section>
 
+                <Tidy today={data} canUseKeys={isWalking} />
+
                 <CalendarAhead />
                 {data && (
                   <>
@@ -1207,6 +1332,7 @@ const HomePage = () => {
             hints={homeHints(t, {
               alike: alike.length,
               hasHandled,
+              hasTidy: !!data?.tidy.length,
               isAsking,
               isEditing,
               picked: picked.length,

@@ -116,6 +116,9 @@ export const GMAIL_EFFECTS = [
 ] as const
 export type GmailEffect = (typeof GMAIL_EFFECTS)[number]
 
+/** What Home's Tidy offers to do with quiet mail no rule covers. */
+export const TIDY_KINDS = ['archive', 'mark_read', 'unsubscribe'] as const
+
 export const isGmailEffect = (effect: RuleEffect): effect is GmailEffect =>
   (GMAIL_EFFECTS as readonly RuleEffect[]).includes(effect)
 
@@ -228,6 +231,7 @@ export const AGENT_TOOLS = {
   report_spam: 'consent',
   send_email: 'consent',
   snooze_thread: 'consent',
+  tidy_mail: 'consent',
   trash_thread: 'consent',
   undo_clear_out: 'consent',
   unsubscribe: 'consent',

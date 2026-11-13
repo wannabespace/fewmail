@@ -9,6 +9,7 @@ import {
   handledSince,
   listHandled,
   listQueue,
+  listTidy,
   mailPulse,
   mailWithDates,
   recentImportant,
@@ -62,6 +63,7 @@ export const getToday = async (userId: string) => {
     boards,
     saved,
     banners,
+    tidy,
   ] = await Promise.all([
     listQueue(userId),
     handledSince(userId, since),
@@ -73,6 +75,7 @@ export const getToday = async (userId: string) => {
     boardsDigest(userId),
     savedThisWeek(userId),
     boardBanners(userId),
+    listTidy(userId),
   ])
   const queued = new Set(queue.map(({ message }) => message?.id))
   return {
@@ -89,6 +92,7 @@ export const getToday = async (userId: string) => {
       .filter(({ message }) => !queued.has(message.id))
       .slice(0, RECENT_SHOWN_PER_DAY * days),
     saved,
+    tidy,
   }
 }
 

@@ -34,6 +34,7 @@ import { getToday } from './home'
 import {
   approveAction,
   archiveMessage,
+  settleTidy,
   moveToInbox,
   dismissAction,
   draftReply,
@@ -87,7 +88,7 @@ export const agentTools = (
 ): Record<AgentToolName, AgentTool> => ({
   get_today: define({
     description:
-      "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other mail worth knowing from those days (recent), mail naming a due date or meeting time (dates), sent mail still waiting for an answer (awaiting), what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts).",
+      "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other mail worth knowing from those days (recent), mail naming a due date or meeting time (dates), sent mail still waiting for an answer (awaiting), what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts) and quiet inbox mail no rule covers that the agent would archive, mark read or unsubscribe from (tidy: each email with its suggestedAction; carry them out with tidy_mail).",
     run: () => getToday(userId),
   }),
   list_mail: define({
@@ -188,6 +189,12 @@ export const agentTools = (
       await archiveMessage(userId, messageId)
       return { archived: true }
     },
+  }),
+  tidy_mail: define({
+    description:
+      "Do what the agent suggested for quiet inbox mail (get_today's tidy): archive, mark read or unsubscribe, each email as its suggestedAction says. messageIds are emails from tidy; anything else is ignored. settled counts the emails done.",
+    input: { messageIds: z.array(z.uuid()).min(1) },
+    run: ({ messageIds }) => settleTidy(userId, messageIds, 'done'),
   }),
   trash_thread: define({
     description:

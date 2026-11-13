@@ -525,20 +525,25 @@ const queueForAgent = async (
     return
   }
 
-  if (
-    output.suggestedAction !== 'none' &&
-    !NOISE_ACTIONS.has(output.suggestedAction) &&
-    output.importance >= 2
-  ) {
-    await db.insert(actions).values({
-      ...base,
-      autonomous: false,
-      kind: output.suggestedAction,
-      reason: output.reason,
-      ruleId: rule?.id ?? null,
-      status: 'pending',
-    })
+  if (output.importance < IMPORTANCE.high) {
+    return
   }
+  const step =
+    output.suggestedAction === 'none' ||
+    NOISE_ACTIONS.has(output.suggestedAction)
+      ? null
+      : output.suggestedAction
+  await db.insert(actions).values({
+    ...base,
+    autonomous: false,
+    kind: step ?? 'read',
+    reason: output.reason,
+    ruleId: rule?.id ?? null,
+    status: 'pending',
+    title: step
+      ? base.title
+      : dictionaries[context.settings.language].actionKind.read,
+  })
 }
 
 export const analyzeMessage = async (
@@ -591,6 +596,8 @@ export const analyzeMessage = async (
       needsReply: output.needsReply,
       reason: output.reason,
       ruleId: rule?.id ?? null,
+      suggestedAction:
+        output.suggestedAction === 'none' ? null : output.suggestedAction,
       summary: output.summary,
     })
     .onConflictDoNothing()

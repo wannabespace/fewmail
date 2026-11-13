@@ -8,10 +8,12 @@ import {
 } from '@fewmail/db/schema'
 import {
   ACTION_KIND_TRAITS,
+  IMPORTANCE,
   LIST_CATEGORIES,
   PEOPLE_CATEGORIES,
   SECONDS_SAVED,
   sendsDraft,
+  TIDY_KINDS,
 } from '@fewmail/shared/agent'
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { replyRecipients, textToHtml } from '@fewmail/shared/email'
@@ -28,6 +30,7 @@ import {
   gte,
   inArray,
   lt,
+  ne,
   notExists,
   notInArray,
   or,
@@ -38,6 +41,7 @@ import { alias } from 'drizzle-orm/pg-core'
 
 import { getMessage } from '../lib/gmail'
 import type { ParsedMessage } from '../lib/gmail'
+import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
 import { searchByQuestion } from './ask'
@@ -920,6 +924,113 @@ export const mailWithDates = async (userId: string) => {
         analysis.extracted.dueDate || analysis.extracted.meetingTime
     )
     .slice(0, DATES_SHOWN)
+}
+
+const TIDY_SHOWN = 200
+
+/**
+ * Quiet mail the agent would archive, mark read or unsubscribe from that no rule covers: it waits on Home for one yes.
+ * Only a thread's newest email, and never a thread with a card or anything already done to that email.
+ */
+const tidyCandidates = (userId: string, where?: SQL) =>
+  db
+    .select({
+      analysis: {
+        ...analysisSummary,
+        suggestedAction: sql<
+          (typeof TIDY_KINDS)[number]
+        >`${analyses.suggestedAction}`,
+      },
+      message: messageSummary,
+    })
+    .from(messages)
+    .innerJoin(analyses, eq(analyses.messageId, messages.id))
+    .where(
+      and(
+        eq(messages.userId, userId),
+        arrayContains(messages.labelIds, ['INBOX']),
+        lt(analyses.importance, IMPORTANCE.high),
+        inArray(analyses.suggestedAction, [...TIDY_KINDS]),
+        or(
+          ne(analyses.suggestedAction, 'mark_read'),
+          eq(messages.isUnread, true)
+        ),
+        notExists(
+          db
+            .select({ id: newerInThread.id })
+            .from(newerInThread)
+            .where(
+              and(
+                eq(newerInThread.userId, messages.userId),
+                eq(newerInThread.threadId, messages.threadId),
+                gt(newerInThread.receivedAt, messages.receivedAt)
+              )
+            )
+        ),
+        notExists(
+          db
+            .select({ id: actions.id })
+            .from(actions)
+            .where(
+              and(
+                eq(actions.userId, messages.userId),
+                or(
+                  eq(actions.messageId, messages.id),
+                  and(
+                    eq(actions.threadId, messages.threadId),
+                    eq(actions.status, 'pending')
+                  )
+                )
+              )
+            )
+        ),
+        where
+      )
+    )
+    .orderBy(desc(messages.receivedAt))
+    .limit(TIDY_SHOWN)
+
+export const listTidy = (userId: string) => tidyCandidates(userId)
+
+/** `done` carries out what the agent suggested for each email, `dismissed` keeps it as it is; either way it leaves the list. */
+export const settleTidy = async (
+  userId: string,
+  messageIds: string[],
+  status: 'done' | 'dismissed'
+) => {
+  const [rows, settings] = await Promise.all([
+    tidyCandidates(userId, inArray(messages.id, messageIds)),
+    getSettings(userId),
+  ])
+  const t = dictionaries[settings?.language ?? 'en']
+  let settled = 0
+  for (const { analysis, message } of rows) {
+    const kind = analysis.suggestedAction
+    if (status === 'done') {
+      // oxlint-disable-next-line eslint/no-await-in-loop -- one Gmail change at a time, like approveActions
+      const applied = await Result.tryPromise(async () =>
+        applyThreadEffect(userId, await ownMessage(userId, message.id), kind)
+      )
+      if (applied.isErr()) {
+        logError('tidy failed', applied.error.cause)
+        continue
+      }
+    }
+    // oxlint-disable-next-line eslint/no-await-in-loop -- recorded right after its own Gmail change
+    await db.insert(actions).values({
+      autonomous: false,
+      kind,
+      messageId: message.id,
+      reason: analysis.reason,
+      resolvedAt: new Date(),
+      status,
+      threadId: message.threadId,
+      title: t.rules.effect[kind],
+      userId,
+    })
+    settled += 1
+  }
+  return { settled }
 }
 
 export const archiveMessage = async (userId: string, messageId: string) =>

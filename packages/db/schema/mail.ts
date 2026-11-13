@@ -169,6 +169,7 @@ export const analyses = d.snakeCase.table('analyses', {
   needsReply: d.boolean().notNull(),
   reason: encryptedText().notNull(),
   ruleId: d.uuid().references(() => rules.id, { onDelete: 'set null' }),
+  suggestedAction: d.text().$type<ActionKind>(),
   summary: encryptedText().notNull(),
 })
 
