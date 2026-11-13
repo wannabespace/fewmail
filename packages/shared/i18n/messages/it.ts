@@ -4,7 +4,11 @@ import type { Messages } from './en'
 
 export const it: Messages = {
   agent: {
-    collapse: 'Comprimi',
+    allChats: 'Tutte le chat',
+    chatsLead:
+      'Ogni conversazione con l’agente e ciò che fa per te a intervalli regolari.',
+    waiting: 'In attesa del tuo sì',
+    waitingShort: 'aspetta il tuo sì',
     voice: 'Parla con l’agente',
     voiceStop: 'Ferma e invia',
     chats: 'Chat',

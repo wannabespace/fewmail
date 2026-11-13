@@ -9,16 +9,6 @@ import {
   Accordion,
   cardsBleedClassName,
 } from '@fewmail/ui/components/accordion'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@fewmail/ui/components/alert-dialog'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
@@ -30,13 +20,6 @@ import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
@@ -47,12 +30,7 @@ import {
 } from '@fewmail/ui/components/tooltip'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
-import {
-  Add01Icon,
-  ArrowDown01Icon,
-  Clock01Icon,
-  Delete02Icon,
-} from '@hugeicons/core-free-icons'
+import { Add01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -78,7 +56,7 @@ import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
-import { AgentChat } from '~/components/agent-chat'
+import { AgentChat, newChatStore } from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
@@ -641,7 +619,7 @@ const homeHints = (
       ['⏎', t.keys.send],
       ['⌘⏎', t.keys.approve],
       ['⇧⌘O', t.agent.newChat],
-      ['esc', t.agent.collapse],
+      ['esc', t.keys.stopEditing],
     ]
   }
   if (state.isEditing) {
@@ -738,124 +716,30 @@ const readerWidthStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-const ChatHistory = ({
-  chatId,
-  onOpen,
-  onRemoved,
-}: {
-  chatId: string
-  onOpen: (id: string) => void
-  onRemoved: () => void
-}) => {
-  const t = useT()
-  const dates = useDates()
-  const queryClient = useQueryClient()
-  const { data: chats = [] } = useQuery(orpc.chats.list.queryOptions())
-  const [isOpen, setIsOpen] = useState(false)
-  const [deleting, setDeleting] = useState<string | null>(null)
-  const remove = useMutation(
-    orpc.chats.delete.mutationOptions({
-      onMutate: ({ id }) => {
-        if (id === chatId) {
-          onRemoved()
-        }
-        queryClient.setQueryData(orpc.chats.list.queryKey(), (old) =>
-          old?.filter((item) => item.id !== id)
-        )
-      },
-      onSettled: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.chats.list.key() }),
-    })
-  )
-
-  return (
-    <>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger
-          render={
-            <IconButton
-              icon={Clock01Icon}
-              label={t.agent.chats}
-              size="icon-round"
-              variant="ghost-muted"
-            />
-          }
-        />
-        <DropdownMenuContent align="start" side="top" className="w-80">
-          {chats.length === 0 && (
-            <DropdownMenuItem disabled>{t.agent.noChats}</DropdownMenuItem>
-          )}
-          {chats.map((item) => (
-            <DropdownMenuItem key={item.id} onClick={() => onOpen(item.id)}>
-              <span data-mask className="min-w-0 flex-1 truncate">
-                {item.title}
-              </span>
-              <span className={cn(ROW_SWAP, 'shrink-0 whitespace-nowrap')}>
-                <DropdownMenuShortcut className="group-hover/dropdown-menu-item:opacity-0 group-focus/dropdown-menu-item:opacity-0">
-                  {dates.ago(item.updatedAt)}
-                </DropdownMenuShortcut>
-                <IconButton
-                  className="-mr-1 opacity-0 group-hover/dropdown-menu-item:opacity-100 group-focus/dropdown-menu-item:opacity-100"
-                  icon={Delete02Icon}
-                  label={t.agent.deleteChat}
-                  size="icon-2xs"
-                  variant="ghost-destructive"
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    setIsOpen(false)
-                    setDeleting(item.id)
-                  }}
-                />
-              </span>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <AlertDialog
-        open={deleting !== null}
-        onOpenChange={(open) => !open && setDeleting(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.agent.deleteChatConfirm}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.agent.deleteChatHint}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.boards.cancel}</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={() => {
-                if (deleting) {
-                  remove.mutate({ id: deleting })
-                }
-                setDeleting(null)
-              }}
-            >
-              {t.agent.deleteChat}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  )
-}
-
-/** The agent lives under Home: a chat opened from a link (`?chat=`) starts unfolded. */
 const ChatDock = ({
   chat,
   onFocusChange,
+  panel,
   thread,
 }: {
   chat: string | undefined
   onFocusChange: (isFocused: boolean) => void
+  panel: HTMLElement | null
   thread: string | undefined
 }) => {
   const t = useT()
   const navigate = useNavigate()
-  const [draftId, setDraftId] = useState(() => crypto.randomUUID())
-  const [isOpen, setIsOpen] = useState(chat !== undefined)
+  const [draftId, setDraftId] = useState<string>(() => crypto.randomUUID())
+  const [focusId, setFocusId] = useState<string>()
+  const [shownChat, setShownChat] = useState(chat)
+  const newChat = useSubscription(newChatStore)
+  // The draft that became the closed chat must not take the next question.
+  if (chat !== shownChat) {
+    setShownChat(chat)
+    if (shownChat === draftId) {
+      setDraftId(crypto.randomUUID())
+    }
+  }
   const chatId = chat ?? draftId
   const isSaved = chat !== undefined && chat !== draftId
   const { data: saved } = useQuery(
@@ -867,10 +751,22 @@ const ChatDock = ({
   const showChat = (id: string | undefined) =>
     navigate({ search: (prev) => ({ ...prev, chat: id }), to: '/home' })
   const startChat = () => {
-    setDraftId(crypto.randomUUID())
+    newChatStore.set(crypto.randomUUID())
     void showChat(undefined)
   }
+  if (newChat && newChat !== focusId) {
+    setDraftId(newChat)
+    setFocusId(newChat)
+  }
+  useEffect(() => {
+    if (newChat) {
+      newChatStore.set(null)
+    }
+  }, [newChat])
   useHotkey('Mod+Shift+O', startChat, { ignoreInputs: false })
+  useHotkey('Escape', () => showChat(undefined), {
+    enabled: !!chat && !thread,
+  })
 
   if (isSaved && !saved) {
     return null
@@ -878,31 +774,35 @@ const ChatDock = ({
   return (
     <AgentChat
       key={chatId}
+      autoFocus={chatId === focusId}
       chatId={chatId}
       initialMessages={saved?.messages ?? []}
-      isOpen={isOpen}
+      panel={panel}
       thread={thread}
       onFocusChange={onFocusChange}
-      onOpenChange={setIsOpen}
-      onSend={() => {
-        if (!chat) {
-          void navigate({
-            replace: true,
-            search: (prev) => ({ ...prev, chat: chatId }),
-            to: '/home',
-          })
-        }
-      }}
-      composerActions={
-        <ChatHistory
-          chatId={chatId}
-          onOpen={(id) => {
-            setIsOpen(true)
-            void showChat(id)
-          }}
-          onRemoved={startChat}
-        />
+      onSend={() =>
+        navigate({
+          replace: !chat,
+          search: (prev) => ({ ...prev, chat: chatId, thread: undefined }),
+          to: '/home',
+        })
       }
+      waiting={chats
+        .filter((item) => item.waiting && item.id !== chat)
+        .map((item) => (
+          <Button
+            key={item.id}
+            size="sm"
+            variant="outline"
+            onClick={() => showChat(item.id)}
+          >
+            <span className="bg-primary size-1.5 shrink-0 rounded-full" />
+            <span data-mask>{item.title}</span>
+            <span className="text-muted-foreground">
+              {t.agent.waitingShort}
+            </span>
+          </Button>
+        ))}
       header={
         <div className="flex h-11 shrink-0 items-center gap-1 border-b pr-2 pl-5">
           <span data-mask className="min-w-0 truncate text-sm font-medium">
@@ -918,12 +818,12 @@ const ChatDock = ({
             onClick={startChat}
           />
           <IconButton
-            icon={ArrowDown01Icon}
-            label={t.agent.collapse}
+            icon={Cancel01Icon}
+            label={t.mail.close}
             shortcut={<Kbd>esc</Kbd>}
             size="icon-sm"
             variant="ghost-muted"
-            onClick={() => setIsOpen(false)}
+            onClick={() => showChat(undefined)}
           />
         </div>
       }
@@ -1075,14 +975,14 @@ const PickedActions = ({
   )
 }
 
-const ThreadReader = ({
-  onClose,
-  thread,
+/** The thread reader and the open chat share one place beside Home; a thread opened from a chat covers it until `esc`. */
+const SidePanel = ({
+  children,
+  hints,
 }: {
-  onClose: () => void
-  thread: string
+  children: ReactNode
+  hints: [string, string][]
 }) => {
-  const t = useT()
   const readerWidth = useSubscription(readerWidthStore)
 
   return (
@@ -1096,24 +996,59 @@ const ThreadReader = ({
         onSizeChange={(width) => readerWidthStore.set(width)}
       >
         <div className="bg-background flex min-w-0 flex-1 flex-col border-l">
-          <ThreadView
-            key={thread}
-            isSnoozed={false}
-            threadId={thread}
-            onClose={onClose}
-            onDone={onClose}
-          />
-          <KeyHints
-            hints={[
-              ['R', t.keys.reply],
-              ['E', t.keys.archive],
-              ['/', t.keys.ask],
-              ['esc', t.keys.close],
-            ]}
-          />
+          {children}
+          <KeyHints hints={hints} />
         </div>
       </ResizablePanel>
     </>
+  )
+}
+
+/** Beside Home: the open thread, else the open chat. */
+const Beside = ({
+  chat,
+  onCloseThread,
+  onPanel,
+  thread,
+}: {
+  chat: string | undefined
+  onCloseThread: () => void
+  onPanel: (panel: HTMLElement | null) => void
+  thread: string | undefined
+}) => {
+  const t = useT()
+
+  if (thread) {
+    return (
+      <SidePanel
+        hints={[
+          ['R', t.keys.reply],
+          ['E', t.keys.archive],
+          ['/', t.keys.ask],
+          ['esc', t.keys.close],
+        ]}
+      >
+        <ThreadView
+          key={thread}
+          isSnoozed={false}
+          threadId={thread}
+          onClose={onCloseThread}
+          onDone={onCloseThread}
+        />
+      </SidePanel>
+    )
+  }
+  return (
+    chat && (
+      <SidePanel
+        hints={[
+          ['⇧⌘O', t.agent.newChat],
+          ['esc', t.keys.close],
+        ]}
+      >
+        <div ref={onPanel} className="flex min-h-0 flex-1 flex-col" />
+      </SidePanel>
+    )
   )
 }
 
@@ -1175,6 +1110,7 @@ const HomePage = () => {
   const queryClient = useQueryClient()
   const { chat, thread } = Route.useSearch()
   const [isAsking, setIsAsking] = useState(false)
+  const [panel, setPanel] = useState<HTMLElement | null>(null)
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
   const queue = data?.queue ?? []
@@ -1460,11 +1396,17 @@ const HomePage = () => {
         <main className="flex min-h-0 flex-1 flex-col">
           <div className="relative min-h-0 flex-1">
             <div className="h-full overflow-y-auto">
-              <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-40">
+              <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
                 <HomeHeader
                   data={data}
                   isFirstRead={isFirstRead}
                   updatedAt={dataUpdatedAt}
+                />
+                <ChatDock
+                  chat={chat}
+                  panel={panel}
+                  thread={thread}
+                  onFocusChange={setIsAsking}
                 />
                 <ConnectHint />
                 <FreshCodes today={data} canUseKeys={isWalking} />
@@ -1564,16 +1506,6 @@ const HomePage = () => {
                 )}
               </div>
             </div>
-            {/* Over the page, never beside it: opening or folding the chat must not move what is under it. */}
-            <div className="from-body pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-50% to-transparent pt-12">
-              <div className="pointer-events-auto mx-auto w-full max-w-3xl px-10 pb-3">
-                <ChatDock
-                  chat={chat}
-                  thread={thread}
-                  onFocusChange={setIsAsking}
-                />
-              </div>
-            </div>
           </div>
           <KeyHints
             hints={homeHints(t, {
@@ -1590,9 +1522,12 @@ const HomePage = () => {
           />
         </main>
       </ResizablePanel>
-      {thread && (
-        <ThreadReader thread={thread} onClose={() => showThread(undefined)} />
-      )}
+      <Beside
+        chat={chat}
+        thread={thread}
+        onPanel={setPanel}
+        onCloseThread={() => showThread(undefined)}
+      />
     </ResizableGroup>
   )
 }

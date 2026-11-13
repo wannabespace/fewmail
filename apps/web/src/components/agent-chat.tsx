@@ -102,14 +102,11 @@ import type {
   ToolUIPart,
   UIMessage,
 } from 'ai'
-import { type } from 'arktype'
 import { isSameDay, isToday, parseISO, subDays } from 'date-fns'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import type { MotionStyle } from 'motion/react'
 import type { ComponentProps, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { useSubscription } from 'seitu/react'
-import { createWebStorageValue } from 'seitu/web'
+import { createPortal } from 'react-dom'
+import { createStore } from 'seitu'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -764,66 +761,24 @@ const ThreadChip = ({ thread }: { thread: OpenThread }) => (
   </Link>
 )
 
+/** Asked from Home and the sidebar: Home starts a new chat and puts the caret in the composer. */
+export const newChatStore = createStore<string | null>(null)
+
 /** Home already is the `today` skill, so it is never suggested there. */
 const SUGGESTED_SKILLS = SKILLS.filter((skill) => skill !== 'today')
 
-const RISE = {
-  animate: { opacity: 1, scale: 1, transition: { duration: 0.15 }, y: 0 },
-  exit: { opacity: 0, scale: 0.98, transition: { duration: 0.1 }, y: 8 },
-  initial: { opacity: 0, scale: 0.98, y: 12 },
-  transition: { ease: [0.32, 0.72, 0, 1] },
-} as const
-
-const CHAT_HEIGHT = { default: 416, min: 240 }
-
-const chatHeightStore = createWebStorageValue({
-  defaultValue: CHAT_HEIGHT.default,
-  key: 'fewmail.chat-height',
-  schema: type('number'),
-  type: 'localStorage',
-})
-
-const ChatHeightGrip = () => {
-  const start = useRef<{ height: number; y: number } | null>(null)
-  return (
-    <div
-      aria-hidden
-      className="group/grip absolute inset-x-6 top-0 z-10 flex h-2 cursor-row-resize"
-      onDoubleClick={() => chatHeightStore.set(CHAT_HEIGHT.default)}
-      onPointerDown={(event) => {
-        event.preventDefault()
-        event.currentTarget.setPointerCapture(event.pointerId)
-        start.current = {
-          height:
-            event.currentTarget.parentElement?.offsetHeight ??
-            CHAT_HEIGHT.default,
-          y: event.clientY,
-        }
-      }}
-      onPointerMove={(event) => {
-        if (start.current) {
-          chatHeightStore.set(
-            Math.max(
-              CHAT_HEIGHT.min,
-              start.current.height + start.current.y - event.clientY
-            )
-          )
-        }
-      }}
-      onLostPointerCapture={() => {
-        start.current = null
-      }}
-    >
-      <div className="via-primary h-[2px] w-full rounded-xs bg-linear-to-r from-transparent to-transparent opacity-0 transition-opacity group-hover/grip:opacity-40 group-active/grip:opacity-100" />
-    </div>
-  )
-}
-
-const Suggestions = ({ onPick }: { onPick: (skill: Skill) => void }) => {
+const Suggestions = ({
+  children,
+  onPick,
+}: {
+  children: ReactNode
+  onPick: (skill: Skill) => void
+}) => {
   const t = useT()
 
   return (
     <div className="scroll-fade-x flex scrollbar-none gap-1.5 overflow-x-auto">
+      {children}
       {SUGGESTED_SKILLS.map((skill) => (
         <Button
           key={skill}
@@ -1142,25 +1097,26 @@ const Thinking = ({ last }: { last?: UIMessage }) => {
 
 /** Docked under Home: the conversation grows upward over the page while the composer stays put. */
 export const AgentChat = ({
+  autoFocus,
   chatId,
-  composerActions,
   header,
   initialMessages,
-  isOpen,
   onFocusChange,
-  onOpenChange,
   onSend,
+  panel,
   thread,
+  waiting,
 }: {
+  autoFocus: boolean
   chatId: string
-  composerActions: ReactNode
   header: ReactNode
   initialMessages: UIMessage[]
-  isOpen: boolean
   onFocusChange: (isFocused: boolean) => void
-  onOpenChange: (isOpen: boolean) => void
   onSend: () => void
+  /** Where the conversation shows; none while the chat is closed. */
+  panel: HTMLElement | null
   thread: string | undefined
+  waiting: ReactNode
 }) => {
   const t = useT()
   const [text, setText] = useState('')
@@ -1233,7 +1189,6 @@ export const AgentChat = ({
       return
     }
     onSend()
-    onOpenChange(true)
     void sendMessage({
       messageId: editingId ?? undefined,
       metadata: { createdAt: Date.now() },
@@ -1259,12 +1214,11 @@ export const AgentChat = ({
     }
     return true
   }
-  /** Escape is a ladder here: the menu above, then the edit, then folding the chat away. */
+  /** Escape is a ladder here: the menu above, then the edit, then giving the page its keys back. */
   const handleComposerKey = (key: string) => {
     if (key === 'Escape' && editingId) {
       reset()
     } else if (key === 'Escape') {
-      onOpenChange(false)
       composerRef.current?.blur()
     } else if (key === 'ArrowUp' && !text && lastUser && !isBusy) {
       edit(lastUser)
@@ -1299,21 +1253,11 @@ export const AgentChat = ({
   })
   useHotkey('Mod+Shift+Space', voice.toggle, { ignoreInputs: false })
   useHotkey('/', () => composerRef.current?.focus())
-  const reduceMotion = useReducedMotion()
-  const rise = reduceMotion ? { transition: { duration: 0 } } : RISE
-  const chatHeight = useSubscription(chatHeightStore)
   return (
     <div className="flex flex-col gap-2">
-      {/* popLayout from the bottom: the dock is bottom-anchored, so a top-anchored pop drops the leaving card by the height it frees. */}
-      <AnimatePresence mode="popLayout" anchorY="bottom" initial={false}>
-        {isOpen && messages.length > 0 ? (
-          <motion.div
-            key="chat"
-            {...rise}
-            style={{ '--chat-height': `${chatHeight}px` } as MotionStyle}
-            className="bg-popover ring-foreground/6 relative flex h-(--chat-height) max-h-[calc(100dvh-14rem)] origin-bottom flex-col overflow-hidden rounded-2xl shadow-sm ring"
-          >
-            <ChatHeightGrip />
+      {panel &&
+        createPortal(
+          <>
             {header}
             <MessageScrollerProvider autoScroll>
               <MessageScroller>
@@ -1388,15 +1332,9 @@ export const AgentChat = ({
                 <MessageScrollerButton />
               </MessageScroller>
             </MessageScrollerProvider>
-          </motion.div>
-        ) : (
-          !text && (
-            <motion.div key="suggestions" {...rise}>
-              <Suggestions onPick={(skill) => send(`/${skill}`)} />
-            </motion.div>
-          )
+          </>,
+          panel
         )}
-      </AnimatePresence>
       <form
         className="relative"
         onSubmit={(event) => {
@@ -1441,14 +1379,12 @@ export const AgentChat = ({
           )}
           <InputGroupTextarea
             ref={composerRef}
+            autoFocus={autoFocus}
             aria-label={t.agent.placeholder}
             placeholder={t.agent.placeholder}
             rows={1}
             value={text}
-            onFocus={() => {
-              onFocusChange(true)
-              onOpenChange(true)
-            }}
+            onFocus={() => onFocusChange(true)}
             onBlur={() => onFocusChange(false)}
             onChange={(event) => {
               setText(event.target.value)
@@ -1488,7 +1424,6 @@ export const AgentChat = ({
                 composerRef.current?.focus()
               }}
             />
-            {composerActions}
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">
             <VoiceButton isBusy={isBusy} voice={voice} />
@@ -1516,6 +1451,7 @@ export const AgentChat = ({
           </InputGroupAddon>
         </InputGroup>
       </form>
+      <Suggestions onPick={(skill) => send(`/${skill}`)}>{waiting}</Suggestions>
     </div>
   )
 }

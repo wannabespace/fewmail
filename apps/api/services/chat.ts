@@ -1,5 +1,5 @@
 import { db } from '@fewmail/db'
-import { chats } from '@fewmail/db/schema'
+import { chats, schedules } from '@fewmail/db/schema'
 import type { OpenThread } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
@@ -13,10 +13,11 @@ import {
   validateUIMessages,
 } from 'ai'
 import type { UIMessage } from 'ai'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
+import { announceChange } from '../lib/live'
 import { agentTools, toolAccess } from './agent-tools'
 import { NotFoundError } from './mail-errors'
 import { requireBudget } from './plan'
@@ -125,8 +126,15 @@ const ownChat = async (userId: string, id: string) => {
 
 export const listChats = (userId: string) =>
   db
-    .select({ id: chats.id, title: chats.title, updatedAt: chats.updatedAt })
+    .select({
+      id: chats.id,
+      isScheduled: sql<boolean>`${schedules.id} is not null`,
+      title: chats.title,
+      updatedAt: chats.updatedAt,
+      waiting: chats.waiting,
+    })
     .from(chats)
+    .leftJoin(schedules, eq(schedules.chatId, chats.id))
     .where(eq(chats.userId, userId))
     .orderBy(desc(chats.updatedAt))
     .limit(50)
@@ -142,6 +150,11 @@ export const getChat = async (userId: string, id: string) => {
 export const deleteChat = async (userId: string, id: string) => {
   await db.delete(chats).where(and(eq(chats.id, id), eq(chats.userId, userId)))
 }
+
+const awaitsAnswer = (message: UIMessage | undefined) =>
+  !!message?.parts.some(
+    (part) => isToolUIPart(part) && part.state === 'approval-requested'
+  )
 
 /** A note from Fewmail itself rather than the model, such as a scheduled run that could not happen. */
 export const postToChat = async (
@@ -166,6 +179,7 @@ export const postToChat = async (
         title: title.slice(0, TITLE_LENGTH),
         userId,
       }))
+  await announceChange(userId, ['chats'])
 }
 
 /**
@@ -198,7 +212,7 @@ export const streamChat = async (
   const save = (all: UIMessage[]) =>
     db
       .update(chats)
-      .set({ messages: all })
+      .set({ messages: all, waiting: awaitsAnswer(all.at(-1)) })
       .where(and(eq(chats.id, id), eq(chats.userId, userId)))
   await (chat
     ? save(messages)
@@ -234,17 +248,13 @@ export const streamChat = async (
         : undefined,
     onFinish: async ({ messages: all }) => {
       await save(all)
+      await announceChange(userId, ['chats'])
     },
     originalMessages: messages,
   })
 }
 
 const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu
-
-const awaitsAnswer = (message: UIMessage | undefined) =>
-  !!message?.parts.some(
-    (part) => isToolUIPart(part) && part.state === 'approval-requested'
-  )
 
 /**
  * Runs one message through the agent outside the web chat; the answer is plain text, since its thread links only work in the app. The model's own errors arrive as stream chunks, not exceptions.

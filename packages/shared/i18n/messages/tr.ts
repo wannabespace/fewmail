@@ -26,7 +26,10 @@ export const tr: Messages = {
     pending: 'Ana Sayfa’da bekliyor',
   },
   agent: {
-    collapse: 'Daralt',
+    allChats: 'Tüm sohbetler',
+    chatsLead: 'Ajanla her konuşma ve senin için düzenli olarak yaptıkları.',
+    waiting: 'Onayını bekleyenler',
+    waitingShort: 'onayını bekliyor',
     voice: 'Ajana sesle söyle',
     voiceStop: 'Durdur ve gönder',
     chats: 'Sohbetler',

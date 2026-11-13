@@ -26,7 +26,11 @@ export const nl: Messages = {
     pending: 'wacht op Home',
   },
   agent: {
-    collapse: 'Inklappen',
+    allChats: 'Alle chats',
+    chatsLead:
+      'Elk gesprek met de agent, en wat hij volgens schema voor je doet.',
+    waiting: 'Wachten op je ja',
+    waitingShort: 'wacht op je ja',
     voice: 'Praat met de agent',
     voiceStop: 'Stoppen en versturen',
     chats: 'Chats',

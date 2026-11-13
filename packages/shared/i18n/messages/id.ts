@@ -26,7 +26,11 @@ export const id: Messages = {
     pending: 'menunggu di Beranda',
   },
   agent: {
-    collapse: 'Ciutkan',
+    allChats: 'Semua obrolan',
+    chatsLead:
+      'Setiap percakapan dengan agen, dan yang ia kerjakan untuk Anda secara terjadwal.',
+    waiting: 'Menunggu persetujuan Anda',
+    waitingShort: 'menunggu persetujuan Anda',
     voice: 'Bicara ke agen',
     voiceStop: 'Berhenti dan kirim',
     chats: 'Obrolan',

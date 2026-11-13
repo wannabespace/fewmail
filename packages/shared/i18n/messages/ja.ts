@@ -27,7 +27,10 @@ export const ja: Messages = {
   },
   byRule: 'ルールによる',
   agent: {
-    collapse: '折りたたむ',
+    allChats: 'すべてのチャット',
+    chatsLead: 'エージェントとのすべての会話と、スケジュールで行っていること。',
+    waiting: 'あなたの承認待ち',
+    waitingShort: '承認待ち',
     voice: '声で話す',
     voiceStop: '止めて送信',
     chats: 'チャット',

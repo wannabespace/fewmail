@@ -26,7 +26,11 @@ export const pt: Messages = {
     pending: 'aguardando no Início',
   },
   agent: {
-    collapse: 'Recolher',
+    allChats: 'Todas as conversas',
+    chatsLead:
+      'Cada conversa com o agente e o que ele faz por você de forma agendada.',
+    waiting: 'Aguardando seu sim',
+    waitingShort: 'aguarda seu sim',
     voice: 'Falar com o agente',
     voiceStop: 'Parar e enviar',
     chats: 'Conversas',

@@ -4,7 +4,11 @@ import type { Messages } from './en'
 
 export const uk: Messages = {
   agent: {
-    collapse: 'Згорнути',
+    allChats: 'Усі чати',
+    chatsLead:
+      'Усі розмови з агентом і те, що він робить для тебе за розкладом.',
+    waiting: 'Чекають на твоє «так»',
+    waitingShort: 'чекає на «так»',
     voice: 'Сказати голосом',
     voiceStop: 'Зупинити й надіслати',
     chats: 'Чати',

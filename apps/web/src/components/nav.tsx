@@ -45,6 +45,7 @@ import {
   ArrowDown01Icon,
   ArrowRight01Icon,
   ArrowUp01Icon,
+  BubbleChatIcon,
   Calendar03Icon,
   Clock01Icon,
   ComputerIcon,
@@ -57,9 +58,11 @@ import {
   Logout01Icon,
   Mail01Icon,
   MailRemove01Icon,
+  MessageMultiple01Icon,
   News01Icon,
   Moon02Icon,
   PencilEdit02Icon,
+  RepeatIcon,
   Search01Icon,
   Settings01Icon,
   SpamIcon,
@@ -89,6 +92,7 @@ import { orpc, refetchChanged } from '~/lib/orpc'
 import { queryClient } from '~/lib/query-client'
 import { SITE_NAME } from '~/lib/seo'
 
+import { newChatStore } from './agent-chat'
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
 import { useWithAgent } from './upgrade-dialog'
@@ -256,6 +260,82 @@ const BoardLink = ({
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
+  )
+}
+
+const CHATS_SHOWN = 5
+
+/** What waits for the user first, then the latest; the rest are one row away under All chats. */
+const Chats = ({ showKeys }: { showKeys: boolean }) => {
+  const t = useT()
+  const navigate = useNavigate()
+  const hasAgent = useHasAgent()
+  const withAgent = useWithAgent()
+  const { data: chats = [] } = useQuery(
+    orpc.chats.list.queryOptions({ enabled: hasAgent })
+  )
+  const shown = chats
+    .toSorted((a, b) => Number(b.waiting) - Number(a.waiting))
+    .slice(0, CHATS_SHOWN)
+  const openAll = () => withAgent('home', () => navigate({ to: '/agent' }))
+  useHotkey(['G', 'C'], openAll)
+
+  return (
+    <section aria-label={t.agent.chats} className="mt-4 flex flex-col gap-1">
+      <div className="flex items-center justify-between ps-2.5">
+        <h2 className="text-muted-foreground text-xs font-medium">
+          {t.agent.chats}
+        </h2>
+        <IconButton
+          icon={Add01Icon}
+          label={t.agent.newChat}
+          shortcut={<Kbd>⇧⌘O</Kbd>}
+          size="icon-xs"
+          variant="ghost-muted"
+          onClick={() =>
+            withAgent('home', () => {
+              newChatStore.set(crypto.randomUUID())
+              void navigate({ to: '/home' })
+            })
+          }
+        />
+      </div>
+      {shown.map((chat) => (
+        <Link
+          key={chat.id}
+          to="/home"
+          search={{ chat: chat.id }}
+          className={NAV_ROW}
+        >
+          <HugeiconsIcon
+            icon={chat.isScheduled ? RepeatIcon : BubbleChatIcon}
+            strokeWidth={2}
+          />
+          <span className="flex-1 truncate" data-mask>
+            {chat.title}
+          </span>
+          {chat.waiting && (
+            <span className="bg-primary size-1.5 shrink-0 rounded-full">
+              <span className="sr-only">{t.agent.waitingShort}</span>
+            </span>
+          )}
+        </Link>
+      ))}
+      <Link
+        to="/agent"
+        className={NAV_ROW}
+        onClick={(event) => {
+          if (!hasAgent) {
+            event.preventDefault()
+            openAll()
+          }
+        }}
+      >
+        <HugeiconsIcon icon={MessageMultiple01Icon} strokeWidth={2} />
+        <span className="flex-1">{t.agent.allChats}</span>
+        {showKeys && <Kbd>G C</Kbd>}
+      </Link>
+    </section>
   )
 }
 
@@ -575,7 +655,8 @@ const useDocumentTitle = ({
   const title = [
     count ? `(${count})` : '',
     [
-      board?.name ?? (page && t.nav[page]),
+      board?.name ??
+        (page ? t.nav[page] : pathname === '/agent' && t.agent.chats),
       status?.isTitled && status.text,
       SITE_NAME,
     ]
@@ -767,6 +848,7 @@ export const Sidebar = ({
               )}
             </Fragment>
           ))}
+        <Chats showKeys={isModifierHeld} />
         <Boards showKeys={isModifierHeld} />
         <div className="mt-auto flex flex-col gap-1 pt-4">
           {navItems

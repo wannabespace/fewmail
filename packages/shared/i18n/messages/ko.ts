@@ -27,7 +27,10 @@ export const ko: Messages = {
   },
   byRule: '규칙에 따라',
   agent: {
-    collapse: '접기',
+    allChats: '모든 채팅',
+    chatsLead: '에이전트와 나눈 모든 대화, 그리고 일정에 따라 하는 일.',
+    waiting: '승인을 기다리는 중',
+    waitingShort: '승인 대기 중',
     voice: '음성으로 말하기',
     voiceStop: '멈추고 보내기',
     chats: '채팅',

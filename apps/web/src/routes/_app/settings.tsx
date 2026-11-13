@@ -16,7 +16,6 @@ import { McpSettings } from '~/components/settings/mcp-settings'
 import { MessengerSettings } from '~/components/settings/messenger-settings'
 import { NotificationSettings } from '~/components/settings/notification-settings'
 import { PlanSettings } from '~/components/settings/plan-settings'
-import { ScheduleSettings } from '~/components/settings/schedule-settings'
 import { SnippetsSettings } from '~/components/settings/snippets-settings'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
@@ -58,13 +57,10 @@ const SettingsPage = () => {
         <AgentSettings />
         <NotificationSettings />
         {hasAgent && (
-          <>
-            <SettingsGroup title={t.settings.integrations}>
-              <MessengerSettings channel="telegram" />
-              <MessengerSettings channel="whatsapp" />
-            </SettingsGroup>
-            <ScheduleSettings />
-          </>
+          <SettingsGroup title={t.settings.integrations}>
+            <MessengerSettings channel="telegram" />
+            <MessengerSettings channel="whatsapp" />
+          </SettingsGroup>
         )}
         <McpSettings />
         <SnippetsSettings />
@@ -94,7 +90,6 @@ export const Route = createFileRoute('/_app/settings')({
             warmQuery(orpc.integrations.telegram.get.queryOptions()),
             warmQuery(orpc.integrations.whatsapp.get.queryOptions()),
             warmQuery(orpc.integrations.apps.list.queryOptions()),
-            warmQuery(orpc.schedules.list.queryOptions()),
           ]),
     ]),
   validateSearch: type({

@@ -258,6 +258,8 @@ export const chats = d.snakeCase.table(
     messages: encryptedJson<unknown[]>().notNull(),
     title: encryptedText().notNull(),
     userId: userId(),
+    /** Its last turn holds an approval the user has not answered. */
+    waiting: d.boolean().default(false).notNull(),
   },
   (table) => [d.index('chats_user_idx').on(table.userId, table.updatedAt)]
 )

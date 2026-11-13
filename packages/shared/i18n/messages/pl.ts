@@ -26,7 +26,11 @@ export const pl: Messages = {
     pending: 'czeka na stronie głównej',
   },
   agent: {
-    collapse: 'Zwiń',
+    allChats: 'Wszystkie czaty',
+    chatsLead:
+      'Każda rozmowa z agentem i to, co robi dla ciebie według harmonogramu.',
+    waiting: 'Czekają na twoje „tak”',
+    waitingShort: 'czeka na twoje „tak”',
     voice: 'Powiedz agentowi',
     voiceStop: 'Zatrzymaj i wyślij',
     chats: 'Czaty',

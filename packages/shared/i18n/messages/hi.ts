@@ -27,7 +27,10 @@ export const hi: Messages = {
   },
   byRule: 'एक नियम से',
   agent: {
-    collapse: 'समेटें',
+    allChats: 'सभी चैट',
+    chatsLead: 'एजेंट के साथ हर बातचीत, और वह आपके लिए तय समय पर क्या करता है।',
+    waiting: 'आपकी हाँ का इंतज़ार',
+    waitingShort: 'हाँ का इंतज़ार',
     voice: 'एजेंट से बोलें',
     voiceStop: 'रोकें और भेजें',
     chats: 'चैट',
