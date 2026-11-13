@@ -352,11 +352,9 @@ const RollingCount = ({ flash, value }: { flash?: boolean; value: number }) => {
 
 const NavLink = ({
   item,
-  badge,
   count,
   showKeys,
 }: {
-  badge?: number
   count?: number
   item: (typeof NAV_ITEMS)[number]
   showKeys: boolean
@@ -380,12 +378,7 @@ const NavLink = ({
       <HugeiconsIcon icon={item.icon} strokeWidth={2} />
       <span className="flex-1">{t.nav[item.key]}</span>
       {showKeys && <Kbd>{item.sequence.join(' ')}</Kbd>}
-      {!showKeys && Boolean(badge) && (
-        <span className="bg-primary text-primary-foreground flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums">
-          <RollingCount value={badge ?? 0} />
-        </span>
-      )}
-      {!showKeys && !badge && Boolean(count) && (
+      {!showKeys && Boolean(count) && (
         <span className="text-muted-foreground text-xs tabular-nums">
           <RollingCount flash value={count ?? 0} />
         </span>
@@ -553,6 +546,10 @@ export const Sidebar = ({
   const { data: unread } = useQuery(
     orpc.mail.unread.queryOptions({ input: {} })
   )
+  const counts: Partial<Record<(typeof NAV_ITEMS)[number]['to'], number>> = {
+    '/home': queued,
+    '/mail': unread?.inbox,
+  }
   useDocumentTitle({
     count: hasAgent ? queued : unread?.inbox,
     mailboxes,
@@ -600,8 +597,7 @@ export const Sidebar = ({
           key={item.to}
           item={item}
           showKeys={isModifierHeld}
-          badge={item.to === '/home' ? queued : undefined}
-          count={item.to === '/mail' ? unread?.inbox : undefined}
+          count={counts[item.to]}
         />
       ))}
       <div className="-mx-1 flex min-h-0 flex-1 flex-col overflow-y-auto px-1 pb-3">

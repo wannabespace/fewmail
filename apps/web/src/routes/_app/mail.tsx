@@ -5,6 +5,7 @@ import {
   isAutomatedSender,
 } from '@fewmail/shared/agent'
 import type { MailCategory } from '@fewmail/shared/agent'
+import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
 import { CopyButton } from '@fewmail/ui/components/custom/copy-button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
@@ -627,7 +628,9 @@ const MailRowMeta = ({
 }) => {
   const t = useT()
   return (
-    <span className="text-muted-foreground flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-xs whitespace-nowrap">
+    // Wrapping onto a clipped second line drops what does not fit whole; a clipped single line cut a chip in half.
+    <span className="text-muted-foreground flex h-5 min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-5 overflow-hidden text-xs whitespace-nowrap">
+      {insight && <ExtractedChips extracted={insight.extracted} />}
       {insight?.category === 'security' ? (
         <span className="text-destructive flex items-center gap-1 font-medium">
           <HugeiconsIcon
@@ -647,7 +650,6 @@ const MailRowMeta = ({
       {(message.bulkCount ?? 0) >= BULK_THRESHOLD && (
         <span>· {t.bulk.badge(message.bulkCount ?? 0)}</span>
       )}
-      {insight && <ExtractedChips extracted={insight.extracted} />}
     </span>
   )
 }
@@ -673,7 +675,7 @@ const MailRowCode = ({
     onEach(messageIds, mutate)()
   }
   return (
-    <span className="absolute top-12.5 right-4 flex items-center gap-0.5 bg-inherit">
+    <span className="absolute top-7.5 right-4 flex items-center gap-0.5 bg-inherit">
       <span className="flex bg-inherit opacity-0 group-hover:opacity-100 has-focus-visible:opacity-100">
         {sweep.action === actions.archive && (
           <IconButton
@@ -904,9 +906,11 @@ const MailRow = ({
           >
             {message.fromName ?? message.fromEmail}
           </span>
-          <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
-            {threadSize > 1 && threadSize}
-          </span>
+          {threadSize > 1 && (
+            <Badge size="sm" variant="outline">
+              {threadSize}
+            </Badge>
+          )}
           {messageIds.length > 1 && (
             <span className="text-muted-foreground shrink-0 text-xs">
               {t.cleanup.emails(messageIds.length)}
@@ -946,15 +950,6 @@ const MailRow = ({
           )}
         >
           {message.subject}
-        </span>
-        <span
-          data-mask
-          className={cn(
-            'text-muted-foreground/80 truncate pl-4 text-xs',
-            codeRoom
-          )}
-        >
-          {analysis?.summary ?? message.snippet}
         </span>
         {message.risk && (
           <span className="text-destructive pl-4 text-xs font-medium">
