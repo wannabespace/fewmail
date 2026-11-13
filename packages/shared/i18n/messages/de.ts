@@ -37,6 +37,11 @@ export const de: Messages = {
     },
     decline: 'Nein',
     declined: 'Abgelehnt',
+    stepCount: (count: number) =>
+      plural('de', count, {
+        one: () => 'Ein Schritt',
+        other: (n) => `${n} Schritte`,
+      }),
     detach: 'Diese E-Mail nicht anhängen',
     deleteChat: 'Chat löschen',
     failed: 'Der Agent konnte nicht fertig werden. Versuch es noch einmal.',

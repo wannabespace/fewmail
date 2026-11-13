@@ -60,6 +60,11 @@ export const nl: Messages = {
     },
     decline: 'Nee',
     declined: 'Je zei nee',
+    stepCount: (count: number) =>
+      plural('nl', count, {
+        one: () => 'Eén stap',
+        other: (n) => `${n} stappen`,
+      }),
     detach: 'Deze e-mail niet bijvoegen',
     deleteChat: 'Chat verwijderen',
     failed: 'De agent kon het niet afmaken. Probeer het opnieuw.',

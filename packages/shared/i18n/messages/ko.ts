@@ -60,6 +60,7 @@ export const ko: Messages = {
     },
     decline: '아니요',
     declined: '거절했어요',
+    stepCount: (count: number) => `${count}단계`,
     detach: '이 이메일 첨부 안 함',
     deleteChat: '채팅 삭제',
     failed: '에이전트가 끝내지 못했어요. 다시 시도해 주세요.',

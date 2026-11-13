@@ -38,6 +38,12 @@ export const fr: Messages = {
     },
     decline: 'Non',
     declined: 'Vous avez refusé',
+    stepCount: (count: number) =>
+      plural('fr', count, {
+        one: () => 'Une étape',
+        many: (n) => `${n} étapes`,
+        other: (n) => `${n} étapes`,
+      }),
     detach: 'Ne pas joindre cet e-mail',
     deleteChat: 'Supprimer la discussion',
     failed: 'L’agent n’a pas pu terminer. Réessayez.',

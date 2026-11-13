@@ -60,6 +60,7 @@ export const id: Messages = {
     },
     decline: 'Jangan',
     declined: 'Kamu menolak',
+    stepCount: (count: number) => `${count} langkah`,
     detach: 'Jangan lampirkan email ini',
     deleteChat: 'Hapus obrolan',
     failed: 'Agen tidak bisa menyelesaikannya. Coba lagi.',

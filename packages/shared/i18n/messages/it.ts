@@ -38,6 +38,12 @@ export const it: Messages = {
     },
     decline: 'No',
     declined: 'Hai detto di no',
+    stepCount: (count: number) =>
+      plural('it', count, {
+        one: () => 'Un passaggio',
+        many: (n) => `${n} passaggi`,
+        other: (n) => `${n} passaggi`,
+      }),
     detach: 'Non allegare questa email',
     deleteChat: 'Elimina chat',
     failed: 'L’agente non è riuscito a finire. Riprova.',

@@ -61,6 +61,7 @@ export const ja: Messages = {
     },
     decline: 'やめる',
     declined: 'キャンセルしました',
+    stepCount: (count: number) => `${count}ステップ`,
     detach: 'このメールを添付しない',
     deleteChat: 'チャットを削除',
     failed:

@@ -37,6 +37,13 @@ export const uk: Messages = {
     },
     decline: 'Ні',
     declined: 'Відхилено',
+    stepCount: (count: number) =>
+      plural('uk', count, {
+        one: (n) => `${n} крок`,
+        few: (n) => `${n} кроки`,
+        many: (n) => `${n} кроків`,
+        other: (n) => `${n} кроку`,
+      }),
     detach: 'Не додавати цей лист',
     deleteChat: 'Видалити чат',
     failed: 'Агент не зміг завершити. Спробуй ще раз.',

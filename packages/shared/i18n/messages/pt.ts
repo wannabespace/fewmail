@@ -61,6 +61,12 @@ export const pt: Messages = {
     },
     decline: 'Não',
     declined: 'Você recusou',
+    stepCount: (count: number) =>
+      plural('pt', count, {
+        one: () => 'Um passo',
+        many: (n) => `${n} passos`,
+        other: (n) => `${n} passos`,
+      }),
     detach: 'Não anexar este e-mail',
     deleteChat: 'Excluir conversa',
     failed: 'O agente não conseguiu terminar. Tente de novo.',

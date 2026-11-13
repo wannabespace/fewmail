@@ -60,6 +60,7 @@ export const hi: Messages = {
     },
     decline: 'नहीं',
     declined: 'आपने मना किया',
+    stepCount: (count: number) => `${count} चरण`,
     detach: 'यह ईमेल न जोड़ें',
     deleteChat: 'चैट हटाएँ',
     failed: 'एजेंट काम पूरा नहीं कर पाया। फिर से कोशिश करें।',

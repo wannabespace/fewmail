@@ -60,6 +60,7 @@ export const zh: Messages = {
     },
     decline: '不了',
     declined: '你拒绝了',
+    stepCount: (count: number) => `${count} 个步骤`,
     detach: '不附上这封邮件',
     deleteChat: '删除对话',
     failed: '助手没能完成。请再试一次。',

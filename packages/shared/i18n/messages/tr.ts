@@ -60,6 +60,7 @@ export const tr: Messages = {
     },
     decline: 'Hayır',
     declined: 'Hayır dedin',
+    stepCount: (count: number) => `${count} adım`,
     detach: 'Bu e-postayı ekleme',
     deleteChat: 'Sohbeti sil',
     failed: 'Ajan işi bitiremedi. Tekrar dene.',

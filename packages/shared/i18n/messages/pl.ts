@@ -60,6 +60,13 @@ export const pl: Messages = {
     },
     decline: 'Nie',
     declined: 'Odmówiono',
+    stepCount: (count: number) =>
+      plural('pl', count, {
+        one: () => 'Jeden krok',
+        few: (n) => `${n} kroki`,
+        many: (n) => `${n} kroków`,
+        other: (n) => `${n} kroku`,
+      }),
     detach: 'Nie dołączaj tego e-maila',
     deleteChat: 'Usuń czat',
     failed: 'Agent nie dał rady dokończyć. Spróbuj ponownie.',

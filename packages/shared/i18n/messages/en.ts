@@ -60,6 +60,11 @@ export const en = {
     } satisfies Record<ConsentToolName | 'reply', string>,
     decline: 'Don’t',
     declined: 'You said no',
+    stepCount: (count: number) =>
+      plural('en', count, {
+        one: () => 'One step',
+        other: (n) => `${n} steps`,
+      }),
     detach: 'Don’t attach this email',
     deleteChat: 'Delete chat',
     failed: 'The agent could not finish. Try again.',

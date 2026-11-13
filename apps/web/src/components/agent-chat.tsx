@@ -18,6 +18,11 @@ import type { Messages } from '@fewmail/shared/i18n'
 import { Bubble, BubbleContent } from '@fewmail/ui/components/bubble'
 import { Button } from '@fewmail/ui/components/button'
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@fewmail/ui/components/collapsible'
+import {
   Command,
   CommandItem,
   CommandList,
@@ -66,6 +71,7 @@ import {
   CancelCircleIcon,
   News01Icon,
   Alert02Icon,
+  ArrowRight01Icon,
   ArrowUp02Icon,
   Calendar03Icon,
   Cancel01Icon,
@@ -224,6 +230,7 @@ const toolOutputs = (messages: UIMessage[]) =>
 
 const DRAFTS = new Set(['draft_reply', 'redraft_action'])
 const SENDS = new Set(['approve_action', 'send_email'])
+const STEP_OUTCOMES = ['failed', 'declined'] as const
 const STEP_ICONS = {
   declined: Cancel01Icon,
   done: Tick02Icon,
@@ -561,6 +568,36 @@ const Confirmation = ({
   )
 }
 
+const StepIcon = ({ state }: { state: ReturnType<typeof stepState> }) => (
+  <MarkerIcon>
+    {state === 'running' ? (
+      <Spinner />
+    ) : (
+      <HugeiconsIcon icon={STEP_ICONS[state]} strokeWidth={2} />
+    )}
+  </MarkerIcon>
+)
+
+const StepLabel = ({
+  part,
+  state,
+}: {
+  part: ToolPart
+  state: ReturnType<typeof stepState>
+}) => {
+  const t = useT()
+  const input = (part.input ?? {}) as ToolInput
+  const output = part.state === 'output-available' ? part.output : undefined
+  return (
+    <>
+      {t.agent.steps[getToolName(part) as AgentToolName]}
+      {input.search && <span data-mask> · {input.search}</span>}
+      {Array.isArray(output) && ` · ${output.length}`}
+      {state === 'declined' && ` · ${t.agent.declined}`}
+    </>
+  )
+}
+
 const ToolStep = ({
   isAnswerable,
   messages,
@@ -572,7 +609,6 @@ const ToolStep = ({
   onAnswer: (part: ToolPart, approved: boolean) => void
   part: ToolPart
 }) => {
-  const t = useT()
   const name = getToolName(part)
   const input = (part.input ?? {}) as ToolInput
   useUndoToast(part)
@@ -589,27 +625,78 @@ const ToolStep = ({
   }
 
   const state = stepState(part, isAnswerable)
-  const output = part.state === 'output-available' ? part.output : undefined
-  const draft = (output as Known | undefined)?.detail
+
+  return (
+    <Marker>
+      <StepIcon state={state} />
+      <MarkerContent>
+        <StepLabel part={part} state={state} />
+      </MarkerContent>
+    </Marker>
+  )
+}
+
+const draftOf = (part: ToolPart) =>
+  DRAFTS.has(getToolName(part)) && part.state === 'output-available'
+    ? (part.output as Known | undefined)?.detail
+    : undefined
+
+const StepGroup = ({
+  isLive,
+  parts,
+  ...step
+}: Omit<ComponentProps<typeof ToolStep>, 'part'> & {
+  isLive: boolean
+  parts: ToolPart[]
+}) => {
+  const t = useT()
+  const states = parts.map((part) => stepState(part, step.isAnswerable))
+  const last = parts.at(-1) as ToolPart
+  const drafts = parts.flatMap((part) => {
+    const draft = draftOf(part)
+    return draft ? [<DraftText key={part.toolCallId} text={draft} />] : []
+  })
+
+  if (parts.length === 1 && !isLive) {
+    return (
+      <>
+        <ToolStep part={last} {...step} />
+        {drafts}
+      </>
+    )
+  }
+
+  const state = isLive
+    ? 'running'
+    : (STEP_OUTCOMES.find((outcome) => states.includes(outcome)) ?? 'done')
 
   return (
     <>
-      <Marker>
-        <MarkerIcon>
-          {state === 'running' ? (
-            <Spinner />
-          ) : (
-            <HugeiconsIcon icon={STEP_ICONS[state]} strokeWidth={2} />
-          )}
-        </MarkerIcon>
-        <MarkerContent>
-          {t.agent.steps[name as AgentToolName]}
-          {input.search && <span data-mask> · {input.search}</span>}
-          {Array.isArray(output) && ` · ${output.length}`}
-          {state === 'declined' && ` · ${t.agent.declined}`}
-        </MarkerContent>
-      </Marker>
-      {DRAFTS.has(name) && draft && <DraftText text={draft} />}
+      <Collapsible>
+        <Marker render={<CollapsibleTrigger />}>
+          <StepIcon state={state} />
+          <MarkerContent>
+            {isLive ? (
+              <StepLabel part={last} state={states.at(-1) ?? 'running'} />
+            ) : (
+              t.agent.stepCount(parts.length)
+            )}
+          </MarkerContent>
+          <HugeiconsIcon
+            icon={ArrowRight01Icon}
+            strokeWidth={2}
+            className="size-3.5 shrink-0 transition-transform group-aria-expanded/marker:rotate-90"
+          />
+        </Marker>
+        <CollapsibleContent variant="disclosure" keepMounted className="ml-2">
+          <div className="flex flex-col gap-2.5 pt-2.5">
+            {parts.map((part) => (
+              <ToolStep key={part.toolCallId} part={part} {...step} />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+      {drafts}
     </>
   )
 }
@@ -951,6 +1038,95 @@ const wraps = (field: HTMLTextAreaElement) => {
   return textHeight > px(style.lineHeight) * 1.5
 }
 
+type Block =
+  | { index: number; part: UIMessage['parts'][number] }
+  | { index: number; steps: ToolPart[] }
+
+const toBlocks = (parts: UIMessage['parts'], isAnswerable: boolean) => {
+  const blocks: Block[] = []
+  for (const [index, part] of parts.entries()) {
+    const last = blocks.at(-1)
+    if (
+      isToolUIPart(part) &&
+      !(part.state === 'approval-requested' && isAnswerable)
+    ) {
+      if (last && 'steps' in last) {
+        last.steps.push(part)
+      } else {
+        blocks.push({ index, steps: [part] })
+      }
+    } else if (
+      isToolUIPart(part) ||
+      part.type === 'data-thread' ||
+      (part.type === 'text' && part.text.trim())
+    ) {
+      blocks.push({ index, part })
+    }
+  }
+  return blocks
+}
+
+const MessageParts = ({
+  isBusy,
+  isLast,
+  message,
+  ...props
+}: Omit<ComponentProps<typeof ToolStep>, 'isAnswerable' | 'part'> & {
+  isBusy: boolean
+  isLast: boolean
+  message: UIMessage
+}) => {
+  const step = { ...props, isAnswerable: isLast && !isBusy }
+  const blocks = toBlocks(message.parts, step.isAnswerable)
+  return blocks.map((block, index) => {
+    const key = `${message.id}-${block.index}`
+    if ('steps' in block) {
+      return (
+        <StepGroup
+          key={key}
+          parts={block.steps}
+          isLive={isBusy && isLast && index === blocks.length - 1}
+          {...step}
+        />
+      )
+    }
+    const { part } = block
+    if (part.type === 'data-thread') {
+      return <ThreadChip key={key} thread={part.data as OpenThread} />
+    }
+    if (part.type === 'text' && message.role === 'user') {
+      return <UserBubble key={key} text={part.text} />
+    }
+    if (part.type === 'text') {
+      return (
+        <div key={key} data-mask>
+          <Response variant="reading" components={RESPONSE_COMPONENTS}>
+            {part.text}
+          </Response>
+        </div>
+      )
+    }
+    return isToolUIPart(part) ? (
+      <ToolStep key={key} part={part} {...step} />
+    ) : null
+  })
+}
+
+/** Only before the first step: after it, the live step line already says what the agent is doing. */
+const Thinking = ({ last }: { last?: UIMessage }) => {
+  const t = useT()
+  return last?.role === 'user' ? (
+    <MessageScrollerItem>
+      <Marker render={<output />}>
+        <MarkerIcon>
+          <Spinner />
+        </MarkerIcon>
+        <MarkerContent>{t.agent.thinking}</MarkerContent>
+      </Marker>
+    </MessageScrollerItem>
+  ) : null
+}
+
 /** Docked under Home: the conversation grows upward over the page while the composer stays put. */
 export const AgentChat = ({
   chatId,
@@ -1139,49 +1315,13 @@ export const AgentChat = ({
                           align={message.role === 'user' ? 'end' : 'start'}
                         >
                           <MessageContent>
-                            {message.parts.map((part, index) => {
-                              const key = `${message.id}-${index}`
-                              if (part.type === 'data-thread') {
-                                return (
-                                  <ThreadChip
-                                    key={key}
-                                    thread={part.data as OpenThread}
-                                  />
-                                )
-                              }
-                              if (
-                                part.type === 'text' &&
-                                message.role === 'user'
-                              ) {
-                                return <UserBubble key={key} text={part.text} />
-                              }
-                              if (part.type === 'text') {
-                                return (
-                                  <div key={key} data-mask>
-                                    <Response
-                                      variant="reading"
-                                      components={RESPONSE_COMPONENTS}
-                                    >
-                                      {part.text}
-                                    </Response>
-                                  </div>
-                                )
-                              }
-                              if (isToolUIPart(part)) {
-                                return (
-                                  <ToolStep
-                                    key={key}
-                                    part={part}
-                                    messages={messages}
-                                    isAnswerable={
-                                      message.id === lastId && !isBusy
-                                    }
-                                    onAnswer={answer}
-                                  />
-                                )
-                              }
-                              return null
-                            })}
+                            <MessageParts
+                              message={message}
+                              messages={messages}
+                              isBusy={isBusy}
+                              isLast={message.id === lastId}
+                              onAnswer={answer}
+                            />
                             {!(isBusy && message.id === lastId) && (
                               <MessageActions
                                 message={message}
@@ -1204,14 +1344,7 @@ export const AgentChat = ({
                       </MessageScrollerItem>
                     ))}
                     {status === 'submitted' && (
-                      <MessageScrollerItem>
-                        <Marker render={<output />}>
-                          <MarkerIcon>
-                            <Spinner />
-                          </MarkerIcon>
-                          <MarkerContent>{t.agent.thinking}</MarkerContent>
-                        </Marker>
-                      </MessageScrollerItem>
+                      <Thinking last={messages.at(-1)} />
                     )}
                     {error && (
                       <MessageScrollerItem>
