@@ -691,7 +691,7 @@ export const Sidebar = ({
           onClick={() => openCompose()}
         />
       </div>
-      <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-1 pb-3">
+      <div className="scroll-fade -mx-1 flex min-h-0 flex-1 scrollbar-none flex-col gap-1 overflow-y-auto px-1 pb-3">
         {navItems
           .filter(({ place }) => place === 'top')
           .map((item) => (
