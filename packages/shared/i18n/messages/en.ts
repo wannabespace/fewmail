@@ -605,6 +605,8 @@ export const en = {
       `Your plan holds ${total} boards. Delete one, or switch to Max in Settings → Plan.`,
     messages: (date: string) =>
       `This month’s messages to the agent are used up. They come back on ${date}.`,
+    speech: (date: string) =>
+      `This month’s reading aloud is used up. It comes back on ${date}.`,
     tasks: (total: number) =>
       `Your plan hands over ${total} threads at a time. Let one finish, or switch to Max in Settings → Plan.`,
   },
@@ -835,6 +837,8 @@ export const en = {
     emailsUsed: (used: string, total: string) => `${used} of ${total} emails`,
     messagesUsed: (used: string, total: string) =>
       `${used} of ${total} messages`,
+    speechUsed: (used: string, total: string) =>
+      `${used} of ${total} characters read aloud`,
     trialDescription: (date: string) =>
       `Everything in Pro until ${date}, then Free. No card needed.`,
     upgrade: 'Other plans',

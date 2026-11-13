@@ -587,6 +587,8 @@ export const tr: Messages = {
       `Planın ${total} pano içeriyor. Birini sil ya da Ayarlar → Plan’dan Max’e geç.`,
     messages: (date: string) =>
       `Bu ayki ajan mesajların bitti. ${date} tarihinde yenilenecek.`,
+    speech: (date: string) =>
+      `Bu ayki sesli okuma hakkın doldu. ${date} tarihinde yenilenir.`,
     tasks: (total: number) =>
       `Planın aynı anda ${total} yazışmayı devralır. Birinin bitmesini bekle ya da Ayarlar → Plan’dan Max’e geç.`,
   },
@@ -811,6 +813,8 @@ export const tr: Messages = {
     yearlyHint: 'İki ay ücretsiz.',
     emailsUsed: (used: string, total: string) => `${used} / ${total} e-posta`,
     messagesUsed: (used: string, total: string) => `${used} / ${total} mesaj`,
+    speechUsed: (used: string, total: string) =>
+      `${used} / ${total} sesli okunan karakter`,
     trialDescription: (date: string) =>
       `${date} tarihine kadar Pro’nun tamamı, sonra ücretsiz. Kart gerekmez.`,
     upgrade: 'Diğer planlar',

@@ -845,6 +845,8 @@ export const it: Messages = {
       `Il tuo piano include ${total} bacheche. Eliminane una o passa a Max in Impostazioni → Piano.`,
     messages: (date: string) =>
       `I messaggi all’agente di questo mese sono finiti. Tornano il ${date}.`,
+    speech: (date: string) =>
+      `La lettura ad alta voce di questo mese è esaurita. Torna il ${date}.`,
     tasks: (total: number) =>
       `Il tuo piano gestisce ${total} thread alla volta. Lascia che uno finisca o passa a Max in Impostazioni → Piano.`,
   },
@@ -1077,6 +1079,8 @@ export const it: Messages = {
     emailsUsed: (used: string, total: string) => `${used} di ${total} email`,
     messagesUsed: (used: string, total: string) =>
       `${used} di ${total} messaggi`,
+    speechUsed: (used: string, total: string) =>
+      `${used} di ${total} caratteri letti ad alta voce`,
     trialDescription: (date: string) =>
       `Tutto Pro fino al ${date}, poi gratis. Nessuna carta.`,
     upgrade: 'Altri piani',

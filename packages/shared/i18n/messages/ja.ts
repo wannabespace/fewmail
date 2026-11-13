@@ -335,6 +335,8 @@ export const ja: Messages = {
       `現在のプランのボードは ${total} 個までです。1 つ削除するか、設定 → プランで Max に切り替えてください。`,
     messages: (date: string) =>
       `今月のエージェントへのメッセージを使い切りました。${date} に戻ります。`,
+    speech: (date: string) =>
+      `今月の読み上げは上限に達しました。${date}に戻ります。`,
     tasks: (total: number) =>
       `現在のプランで同時に任せられるスレッドは ${total} 件です。1 件終わるのを待つか、設定 → プランで Max に切り替えてください。`,
   },
@@ -557,6 +559,8 @@ export const ja: Messages = {
     emailsUsed: (used: string, total: string) => `メール ${used} / ${total}`,
     messagesUsed: (used: string, total: string) =>
       `メッセージ ${used} / ${total}`,
+    speechUsed: (used: string, total: string) =>
+      `読み上げ ${used} / ${total} 文字`,
     trialDescription: (date: string) =>
       `${date}までProの全機能、その後は無料。カード不要。`,
     upgrade: '他のプラン',

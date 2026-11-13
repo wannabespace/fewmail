@@ -840,6 +840,8 @@ export const de: Messages = {
       `Dein Plan umfasst ${total} Boards. Lösche eins oder wechsle zu Max unter Einstellungen → Plan.`,
     messages: (date: string) =>
       `Die Nachrichten an den Agenten sind für diesen Monat aufgebraucht. Ab ${date} gibt es neue.`,
+    speech: (date: string) =>
+      `Das Vorlesen ist für diesen Monat aufgebraucht. Es ist am ${date} wieder da.`,
     tasks: (total: number) =>
       `Dein Plan übernimmt ${total} Threads gleichzeitig. Lass einen abschließen oder wechsle zu Max unter Einstellungen → Plan.`,
   },
@@ -1072,6 +1074,8 @@ export const de: Messages = {
     emailsUsed: (used: string, total: string) => `${used} von ${total} E-Mails`,
     messagesUsed: (used: string, total: string) =>
       `${used} von ${total} Nachrichten`,
+    speechUsed: (used: string, total: string) =>
+      `${used} von ${total} vorgelesenen Zeichen`,
     trialDescription: (date: string) =>
       `Alles aus Pro bis ${date}, danach kostenlos. Keine Karte nötig.`,
     upgrade: 'Andere Pläne',

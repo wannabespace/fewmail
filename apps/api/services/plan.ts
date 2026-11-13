@@ -112,13 +112,18 @@ export const requireAgent = async (userId: string) => {
 
 export const getUsage = async (userId: string) => {
   const [row] = await db
-    .select({ emails: usage.emails, messages: usage.messages })
+    .select({
+      emails: usage.emails,
+      messages: usage.messages,
+      speech: usage.speech,
+    })
     .from(usage)
     .where(and(eq(usage.userId, userId), eq(usage.month, currentMonth())))
   return {
     emails: row?.emails ?? 0,
     messages: row?.messages ?? 0,
     resetsAt: usageResetsAt(),
+    speech: row?.speech ?? 0,
   }
 }
 
@@ -150,6 +155,24 @@ export const spendMessage = async (userId: string) => {
     .returning({ messages: usage.messages })
   if (!counted) {
     throw new LimitReachedError('messages', total)
+  }
+}
+
+/** Characters read aloud, counted before ElevenLabs is paid, or refused once the month's are used. */
+export const spendSpeech = async (userId: string, chars: number) => {
+  const plan = await requireAgent(userId)
+  const total = PLAN_LIMITS[plan.kind].speech
+  const [counted] = await db
+    .insert(usage)
+    .values({ month: currentMonth(), speech: chars, userId })
+    .onConflictDoUpdate({
+      set: { speech: sql`${usage.speech} + ${chars}` },
+      setWhere: lt(usage.speech, total),
+      target: [usage.userId, usage.month],
+    })
+    .returning({ speech: usage.speech })
+  if (!counted) {
+    throw new LimitReachedError('speech', total)
   }
 }
 

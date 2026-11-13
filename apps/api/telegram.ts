@@ -7,9 +7,10 @@ import type { Api, Context } from 'grammy'
 import { Bot, InlineKeyboard, InputFile, webhookCallback } from 'grammy'
 
 import { env } from './env'
-import { canSpeak, speak } from './lib/elevenlabs'
+import { canSpeak } from './lib/elevenlabs'
 import { logError } from './lib/log'
 import { linkTelegramChat, userIdForChat } from './services/integrations'
+import { LimitReachedError } from './services/limit-error'
 import type { listQueue } from './services/mail'
 import type { Button, Channel, Reply, Run } from './services/messenger'
 import {
@@ -24,6 +25,7 @@ import {
   press,
   remember,
   runReply,
+  speakFor,
   splitText,
   weekReply,
 } from './services/messenger'
@@ -54,15 +56,19 @@ const keyboard = (buttons: Button[]) =>
   ])
 
 /** A failed voice never takes the text answer with it. */
-const sendVoice = async (api: Api, chatId: number | string, voice: string) => {
+const sendVoice = async (
+  api: Api,
+  chatId: number | string,
+  voice: NonNullable<Reply['voice']>
+) => {
   const sent = await Result.tryPromise(async () => {
-    const audio = await speak(voice, 'messenger')
+    const audio = await speakFor(voice.userId, voice.text, 'messenger')
     await api.sendVoice(
       chatId,
       new InputFile(new Uint8Array(audio), 'voice.ogg')
     )
   })
-  if (sent.isErr()) {
+  if (sent.isErr() && !(sent.error.cause instanceof LimitReachedError)) {
     logError('telegram voice', sent.error.cause)
   }
 }
@@ -135,7 +141,7 @@ const followText = async (
   )
   await send(ctx.api, ctx.chat.id, {
     ...reply,
-    voice: spoken && canSpeak ? reply.text : undefined,
+    voice: spoken && canSpeak ? { text: reply.text, userId } : undefined,
   })
 }
 

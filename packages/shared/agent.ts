@@ -146,19 +146,26 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
 
 /**
  * What the agent may do per calendar month (UTC); `null` is unlimited. `emails` counts only mail the
- * agent wrote for — noise Jev settles costs nothing. Every plan has every feature; only these differ.
+ * agent wrote for — noise Jev settles costs nothing. `speech` counts characters read aloud, about 600 for each
+ * message (an answer runs a few sentences). Every plan has every feature; only these differ.
  */
 export const PLAN_LIMITS = {
-  lite: { boards: 1, emails: 300, messages: 30, tasks: 1 },
-  max: { boards: null, emails: 6000, messages: 500, tasks: null },
-  pro: { boards: 3, emails: 1000, messages: 100, tasks: 5 },
-  trial: { boards: 3, emails: 500, messages: 50, tasks: 5 },
+  lite: { boards: 1, emails: 300, messages: 30, speech: 18_000, tasks: 1 },
+  max: {
+    boards: null,
+    emails: 6000,
+    messages: 500,
+    speech: 300_000,
+    tasks: null,
+  },
+  pro: { boards: 3, emails: 1000, messages: 100, speech: 60_000, tasks: 5 },
+  trial: { boards: 3, emails: 500, messages: 50, speech: 30_000, tasks: 5 },
 } satisfies Record<
   Exclude<Plan, 'free'>,
-  Record<'boards' | 'emails' | 'messages' | 'tasks', number | null>
+  Record<'boards' | 'emails' | 'messages' | 'speech' | 'tasks', number | null>
 >
 
-export type Limit = 'boards' | 'messages' | 'tasks'
+export type Limit = 'boards' | 'messages' | 'speech' | 'tasks'
 
 /** Where a notification is delivered; mobile and desktop apps join as new kinds with their own sender in `services/notifications.ts`. */
 export const DEVICE_KINDS = ['web'] as const

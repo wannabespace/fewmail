@@ -6,13 +6,14 @@ import { Result } from 'better-result'
 import { addHours, isBefore } from 'date-fns'
 
 import { env } from './env'
-import { canSpeak, speak } from './lib/elevenlabs'
+import { canSpeak } from './lib/elevenlabs'
 import { logError } from './lib/log'
 import {
   linkWhatsappPhone,
   userIdForPhone,
   whatsappForUser,
 } from './services/integrations'
+import { LimitReachedError } from './services/limit-error'
 import type { listQueue } from './services/mail'
 import type { Button, Channel, Chat, Reply, Run } from './services/messenger'
 import {
@@ -27,6 +28,7 @@ import {
   press,
   remember,
   runReply,
+  speakFor,
   splitText,
   weekReply,
 } from './services/messenger'
@@ -138,9 +140,9 @@ const ask = async (to: string, text: string, buttons: Button[]) => {
 }
 
 /** Media upload is multipart, so it skips `graph`'s JSON header. A failed voice never takes the text answer with it. */
-const sendVoice = async (to: string, voice: string) => {
+const sendVoice = async (to: string, voice: NonNullable<Reply['voice']>) => {
   const sent = await Result.tryPromise(async () => {
-    const audio = await speak(voice, 'messenger')
+    const audio = await speakFor(voice.userId, voice.text, 'messenger')
     const form = new FormData()
     form.append('messaging_product', 'whatsapp')
     form.append('type', 'audio/ogg')
@@ -158,7 +160,7 @@ const sendVoice = async (to: string, voice: string) => {
     const { id } = (await uploaded.json()) as { id: string }
     await post(to, { audio: { id }, type: 'audio' })
   })
-  if (sent.isErr()) {
+  if (sent.isErr() && !(sent.error.cause instanceof LimitReachedError)) {
     logError('whatsapp voice', sent.error.cause)
   }
 }
@@ -229,7 +231,10 @@ const handle = async (inbound: Inbound) => {
       }
       await say(to, t.telegram.heard(heard))
       const reply = await follow(chatOf(to), userId, heard, context?.id)
-      await send(to, { ...reply, voice: canSpeak ? reply.text : undefined })
+      await send(to, {
+        ...reply,
+        voice: canSpeak ? { text: reply.text, userId } : undefined,
+      })
     } else if (text) {
       await send(to, await follow(chatOf(to), userId, text, context?.id))
     }

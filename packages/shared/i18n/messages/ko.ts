@@ -334,6 +334,8 @@ export const ko: Messages = {
       `현재 플랜은 보드를 ${total}개까지 쓸 수 있어요. 하나를 삭제하거나 설정 → 플랜에서 Max로 바꾸세요.`,
     messages: (date: string) =>
       `이번 달 에이전트 메시지를 모두 썼어요. ${date}에 다시 채워져요.`,
+    speech: (date: string) =>
+      `이번 달 읽어 주기를 모두 사용했어요. ${date}에 다시 사용할 수 있어요.`,
     tasks: (total: number) =>
       `현재 플랜은 스레드를 한 번에 ${total}개까지 맡길 수 있어요. 하나가 끝나길 기다리거나 설정 → 플랜에서 Max로 바꾸세요.`,
   },
@@ -554,6 +556,8 @@ export const ko: Messages = {
     yearlyHint: '두 달 무료예요.',
     emailsUsed: (used: string, total: string) => `메일 ${used} / ${total}`,
     messagesUsed: (used: string, total: string) => `메시지 ${used} / ${total}`,
+    speechUsed: (used: string, total: string) =>
+      `읽어 주기 ${used} / ${total}자`,
     trialDescription: (date: string) =>
       `${date}까지 Pro의 모든 기능, 이후 무료. 카드 필요 없음.`,
     upgrade: '다른 요금제',

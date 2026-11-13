@@ -352,7 +352,7 @@ export const messageCost = (use: Use) =>
     use.voiceSeconds *
     priceOf(TRANSCRIBE_MODEL, 'input_cost_per_second')
 
-/** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, board entries, autocomplete and speech. */
+/** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, board entries and autocomplete. */
 export const backgroundCost = (use: Use, agent: boolean) => {
   const jev = use.inbound * inboundJevCost(use) + use.sent * sentJevCost(use)
   if (!agent) {
@@ -400,10 +400,6 @@ export const backgroundCost = (use: Use, agent: boolean) => {
       ),
       FIM_OUTPUT_TOKENS
     )
-  const speech =
-    use.spokenReplies *
-    Math.min(use.spokenChars, SPEECH_CHARS) *
-    priceOf(SPEECH_MODEL, 'input_cost_per_character')
   return {
     completions,
     digest,
@@ -411,8 +407,7 @@ export const backgroundCost = (use: Use, agent: boolean) => {
     jev,
     notes,
     promises,
-    speech,
-    total: jev + promises + digest + notes + entries + completions + speech,
+    total: jev + promises + digest + notes + entries + completions,
   }
 }
 
@@ -429,20 +424,31 @@ export const monthCost = (plan: AgentPlan, use: Use) => {
   const background = backgroundCost(use, true).total
   const mail = emails * analyzedEmailCost(use).total
   const talk = messages * messageCost(use)
+  const speech =
+    Math.min(
+      use.spokenReplies * Math.min(use.spokenChars, SPEECH_CHARS),
+      limits.speech
+    ) * priceOf(SPEECH_MODEL, 'input_cost_per_character')
   return {
     background,
     emails,
     mail,
     messages,
+    speech,
     talk,
-    total: background + mail + talk,
+    total: background + mail + talk + speech,
   }
 }
 
 /** A trial lasts `TRIAL_DAYS` but its limits are a month's, so all of them can go in it. */
 export const trialCost = (use: Use) => {
   const month = monthCost('trial', use)
-  return month.mail + month.talk + (month.background * TRIAL_DAYS) / DAYS
+  return (
+    month.mail +
+    month.talk +
+    month.speech +
+    (month.background * TRIAL_DAYS) / DAYS
+  )
 }
 
 export const freeMonthCost = (use: Use) => backgroundCost(use, false).total
@@ -511,7 +517,7 @@ const printReport = () => {
     ] as const) {
       const month = monthCost(plan, use)
       lines.push(
-        `    ${name}: ${usd(month.total)} (${Math.round(month.emails)} emails ${usd(month.mail)}, ${month.messages} messages ${usd(month.talk)}, background ${usd(month.background)}), margin ${pct(margin(plan, 'month', month.total))} / ${pct(margin(plan, 'year', month.total))}`
+        `    ${name}: ${usd(month.total)} (${Math.round(month.emails)} emails ${usd(month.mail)}, ${month.messages} messages ${usd(month.talk)}, speech ${usd(month.speech)}, background ${usd(month.background)}), margin ${pct(margin(plan, 'month', month.total))} / ${pct(margin(plan, 'year', month.total))}`
       )
     }
   }

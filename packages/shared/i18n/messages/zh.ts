@@ -331,6 +331,7 @@ export const zh: Messages = {
     boards: (total: number) =>
       `你的套餐最多 ${total} 个看板。删除一个，或在设置 → 套餐中切换到 Max。`,
     messages: (date: string) => `本月发给代理的消息已用完，将于 ${date} 恢复。`,
+    speech: (date: string) => `本月的朗读额度已用完，将于 ${date} 恢复。`,
     tasks: (total: number) =>
       `你的套餐一次可托付 ${total} 个会话。等其中一个完成，或在设置 → 套餐中切换到 Max。`,
   },
@@ -546,6 +547,7 @@ export const zh: Messages = {
     yearlyHint: '免费两个月。',
     emailsUsed: (used: string, total: string) => `邮件 ${used} / ${total}`,
     messagesUsed: (used: string, total: string) => `消息 ${used} / ${total}`,
+    speechUsed: (used: string, total: string) => `朗读 ${used} / ${total} 字`,
     trialDescription: (date: string) =>
       `${date} 前可用 Pro 全部功能，之后免费。无需绑卡。`,
     upgrade: '其他方案',

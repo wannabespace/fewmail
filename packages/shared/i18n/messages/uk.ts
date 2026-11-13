@@ -843,6 +843,8 @@ export const uk: Messages = {
       `Твій план вміщує ${total} дошки. Видали одну або перейди на Max у Налаштуваннях → План.`,
     messages: (date: string) =>
       `Повідомлення агенту на цей місяць закінчилися. Вони повернуться ${date}.`,
+    speech: (date: string) =>
+      `Озвучення на цей місяць вичерпано. Воно повернеться ${date}.`,
     tasks: (total: number) =>
       `Твій план веде ${total} тредів одночасно. Дочекайся, поки один завершиться, або перейди на Max у Налаштуваннях → План.`,
   },
@@ -1074,6 +1076,8 @@ export const uk: Messages = {
     emailsUsed: (used: string, total: string) => `${used} з ${total} листів`,
     messagesUsed: (used: string, total: string) =>
       `${used} з ${total} повідомлень`,
+    speechUsed: (used: string, total: string) =>
+      `${used} з ${total} символів, прочитаних уголос`,
     trialDescription: (date: string) =>
       `Усе з Pro до ${date}, потім безкоштовний. Картка не потрібна.`,
     upgrade: 'Інші плани',

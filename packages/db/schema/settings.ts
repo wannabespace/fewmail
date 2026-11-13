@@ -102,6 +102,7 @@ export const usage = d.snakeCase.table(
     emails: d.integer().default(0).notNull(),
     messages: d.integer().default(0).notNull(),
     month: d.date({ mode: 'string' }).notNull(),
+    speech: d.integer().default(0).notNull(),
     userId: d
       .uuid()
       .notNull()

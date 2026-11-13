@@ -851,6 +851,8 @@ export const fr: Messages = {
       `Votre forfait comprend ${total} tableaux. Supprimez-en un ou passez à Max dans Réglages → Forfait.`,
     messages: (date: string) =>
       `Les messages à l’agent de ce mois sont épuisés. Ils reviennent le ${date}.`,
+    speech: (date: string) =>
+      `La lecture à voix haute de ce mois est épuisée. Elle revient le ${date}.`,
     tasks: (total: number) =>
       `Votre forfait gère ${total} fils à la fois. Laissez-en un se terminer ou passez à Max dans Réglages → Forfait.`,
   },
@@ -1084,6 +1086,8 @@ export const fr: Messages = {
     emailsUsed: (used: string, total: string) => `${used} sur ${total} e-mails`,
     messagesUsed: (used: string, total: string) =>
       `${used} sur ${total} messages`,
+    speechUsed: (used: string, total: string) =>
+      `${used} sur ${total} caractères lus à voix haute`,
     trialDescription: (date: string) =>
       `Tout Pro jusqu’au ${date}, puis gratuit. Sans carte.`,
     upgrade: 'Autres formules',

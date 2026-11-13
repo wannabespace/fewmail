@@ -127,6 +127,11 @@ export const PlanSettings = () => {
                 used={usage.messages}
                 total={limits.messages}
               />
+              <UsageMeter
+                label={t.plan.speechUsed}
+                used={usage.speech}
+                total={limits.speech}
+              />
             </div>
           </SettingsRow>
         )}

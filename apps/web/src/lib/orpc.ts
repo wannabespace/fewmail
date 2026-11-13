@@ -25,9 +25,10 @@ export const limitText = (error: unknown) => {
   }
   const locale = localeStore.get()
   const t = messages[locale].limits
-  return limit === 'messages'
-    ? t.messages(formatResetDay(locale, new Date(resetsAt)))
-    : t[limit](total)
+  if (limit === 'messages' || limit === 'speech') {
+    return t[limit](formatResetDay(locale, new Date(resetsAt)))
+  }
+  return t[limit](total)
 }
 
 const ERROR_TEXT_BY_CODE = {

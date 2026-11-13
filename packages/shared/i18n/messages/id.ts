@@ -591,6 +591,8 @@ export const id: Messages = {
       `Paketmu mencakup ${total} papan. Hapus satu, atau beralih ke Max di Pengaturan → Paket.`,
     messages: (date: string) =>
       `Pesan ke agen untuk bulan ini sudah habis. Akan tersedia lagi pada ${date}.`,
+    speech: (date: string) =>
+      `Jatah membacakan bulan ini sudah habis. Kembali pada ${date}.`,
     tasks: (total: number) =>
       `Paketmu menangani ${total} utas sekaligus. Tunggu satu selesai, atau beralih ke Max di Pengaturan → Paket.`,
   },
@@ -818,6 +820,8 @@ export const id: Messages = {
     emailsUsed: (used: string, total: string) => `${used} dari ${total} email`,
     messagesUsed: (used: string, total: string) =>
       `${used} dari ${total} pesan`,
+    speechUsed: (used: string, total: string) =>
+      `${used} dari ${total} karakter dibacakan`,
     trialDescription: (date: string) =>
       `Semua fitur Pro sampai ${date}, lalu gratis. Tanpa kartu.`,
     upgrade: 'Paket lain',

@@ -609,6 +609,8 @@ export const nl: Messages = {
       `Je abonnement bevat ${total} borden. Verwijder er een of stap over op Max via Instellingen → Abonnement.`,
     messages: (date: string) =>
       `De berichten aan de agent zijn op voor deze maand. Ze komen terug op ${date}.`,
+    speech: (date: string) =>
+      `Voorlezen is voor deze maand op. Het komt terug op ${date}.`,
     tasks: (total: number) =>
       `Je abonnement neemt ${total} threads tegelijk over. Laat er een afronden of stap over op Max via Instellingen → Abonnement.`,
   },
@@ -840,6 +842,8 @@ export const nl: Messages = {
     emailsUsed: (used: string, total: string) => `${used} van ${total} e-mails`,
     messagesUsed: (used: string, total: string) =>
       `${used} van ${total} berichten`,
+    speechUsed: (used: string, total: string) =>
+      `${used} van ${total} voorgelezen tekens`,
     trialDescription: (date: string) =>
       `Alles van Pro tot ${date}, daarna gratis. Geen kaart nodig.`,
     upgrade: 'Andere abonnementen',

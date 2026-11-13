@@ -623,6 +623,8 @@ export const pl: Messages = {
       `Twój plan obejmuje ${total} tablice. Usuń jedną albo przejdź na Max w Ustawieniach → Plan.`,
     messages: (date: string) =>
       `Wiadomości do agenta na ten miesiąc się skończyły. Wrócą ${date}.`,
+    speech: (date: string) =>
+      `Czytanie na głos w tym miesiącu się wyczerpało. Wróci ${date}.`,
     tasks: (total: number) =>
       `Twój plan prowadzi ${total} wątków naraz. Poczekaj, aż jeden się skończy, albo przejdź na Max w Ustawieniach → Plan.`,
   },
@@ -856,6 +858,8 @@ export const pl: Messages = {
     emailsUsed: (used: string, total: string) => `${used} z ${total} e-maili`,
     messagesUsed: (used: string, total: string) =>
       `${used} z ${total} wiadomości`,
+    speechUsed: (used: string, total: string) =>
+      `${used} z ${total} znaków przeczytanych na głos`,
     trialDescription: (date: string) =>
       `Wszystko z Pro do ${date}, potem za darmo. Bez karty.`,
     upgrade: 'Inne plany',

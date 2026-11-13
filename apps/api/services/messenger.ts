@@ -14,6 +14,7 @@ import { isAfter, subDays, subMinutes } from 'date-fns'
 import { eq, lt } from 'drizzle-orm'
 
 import { env } from '../env'
+import { speak, spokenText } from '../lib/elevenlabs'
 import { transcribe } from '../lib/mistral'
 import { getChat } from './chat'
 import { savedThisWeek } from './home'
@@ -28,7 +29,7 @@ import {
   updateDraft,
 } from './mail'
 import { cancelMail } from './outbox'
-import { getUsage, requireAgent } from './plan'
+import { getUsage, requireAgent, spendSpeech } from './plan'
 import { getReading } from './reading'
 import { getSettings } from './settings'
 
@@ -44,8 +45,8 @@ export interface Reply {
   actionId?: string
   buttons?: Button[]
   text: string
-  /** Also sent as a voice note, spoken from this text; a reply with only a voice has empty `text`. */
-  voice?: string
+  /** Also sent as a voice note, spoken from this text and counted against the user's speech; a reply with only a voice has empty `text`. */
+  voice?: { text: string; userId: string }
 }
 
 /** What a button press changes: a short notice, the pressed message's new buttons (`[]` removes them) and slower replies after. */
@@ -461,6 +462,16 @@ export const hear = async (
 ) => {
   await requireMessageRoom(userId)
   return transcribe(await audio(), fileName)
+}
+
+/** Text read aloud in the agent's voice, counted against the month's speech before it is paid for. */
+export const speakFor = async (
+  userId: string,
+  text: string,
+  format: Parameters<typeof speak>[1]
+) => {
+  await spendSpeech(userId, spokenText(text).length)
+  return speak(text, format)
 }
 
 /** A typed or spoken message: the replacement for a draft in edit mode, else whatever `followMessage` makes of it; `replyTo` is the bot message it answers. */

@@ -841,6 +841,8 @@ export const es: Messages = {
       `Tu plan incluye ${total} tableros. Borra uno o cámbiate a Max en Ajustes → Plan.`,
     messages: (date: string) =>
       `Se acabaron los mensajes al agente de este mes. Vuelven el ${date}.`,
+    speech: (date: string) =>
+      `La lectura en voz alta de este mes se ha agotado. Vuelve el ${date}.`,
     tasks: (total: number) =>
       `Tu plan gestiona ${total} hilos a la vez. Deja que termine uno o cámbiate a Max en Ajustes → Plan.`,
   },
@@ -1072,6 +1074,8 @@ export const es: Messages = {
     emailsUsed: (used: string, total: string) => `${used} de ${total} correos`,
     messagesUsed: (used: string, total: string) =>
       `${used} de ${total} mensajes`,
+    speechUsed: (used: string, total: string) =>
+      `${used} de ${total} caracteres leídos en voz alta`,
     trialDescription: (date: string) =>
       `Todo Pro hasta el ${date}, luego gratis. Sin tarjeta.`,
     upgrade: 'Otros planes',

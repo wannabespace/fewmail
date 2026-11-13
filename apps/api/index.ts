@@ -10,7 +10,7 @@ import { cors } from 'hono/cors'
 
 import { env } from './env'
 import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
-import { canSpeak, speak } from './lib/elevenlabs'
+import { canSpeak } from './lib/elevenlabs'
 import { relayChanges } from './lib/live'
 import { logError, logErrorAs } from './lib/log'
 import { handleMcp, mcpResourceMetadata } from './mcp'
@@ -20,7 +20,7 @@ import { followForwarded } from './services/forwarded'
 import { handleGmailPush } from './services/gmail-push'
 import { LimitReachedError } from './services/limit-error'
 import { finishAddingMailbox } from './services/mailboxes'
-import { hear, spokenHome } from './services/messenger'
+import { hear, speakFor, spokenHome } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { onNewMail, syncMailbox } from './services/sync'
 import { readSharedWrapped } from './services/wrapped'
@@ -47,6 +47,27 @@ const voiceUser = async (headers: Headers) => {
   return session && canSpeak && hasAgent(await getPlanInfo(session.user.id))
     ? session.user.id
     : null
+}
+
+/** The month's speech used up answers 429 with when it comes back; the web then stays silent. */
+const spokenResponse = async (userId: string, text: () => Promise<string>) => {
+  const spoken = await Result.tryPromise(async () =>
+    speakFor(userId, await text(), 'web')
+  )
+  if (spoken.isOk()) {
+    return new Response(spoken.value, {
+      headers: { 'cache-control': 'no-store', 'content-type': 'audio/mpeg' },
+    })
+  }
+  const { cause } = spoken.error
+  if (cause instanceof LimitReachedError) {
+    return Response.json(
+      { limit: cause.limit, resetsAt: cause.resetsAt, total: cause.total },
+      { status: 429 }
+    )
+  }
+  logError('voice speak', cause)
+  return new Response(null, { status: 500 })
 }
 
 const app = new Hono()
@@ -119,19 +140,14 @@ const app = new Hono()
       return c.notFound()
     }
     const { text } = await c.req.json<{ text: string }>()
-    return new Response(await speak(text, 'web'), {
-      headers: { 'cache-control': 'no-store', 'content-type': 'audio/mpeg' },
-    })
+    return spokenResponse(userId, () => Promise.resolve(text))
   })
   .get('/voice/home', async (c) => {
     const userId = await voiceUser(c.req.raw.headers)
     if (!userId) {
       return c.notFound()
     }
-    const audio = await speak(await spokenHome(userId), 'web')
-    return new Response(audio, {
-      headers: { 'cache-control': 'no-store', 'content-type': 'audio/mpeg' },
-    })
+    return spokenResponse(userId, () => spokenHome(userId))
   })
   .get('/og/w/:token', (c) => {
     const token = c.req.param('token')

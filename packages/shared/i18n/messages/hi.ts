@@ -336,6 +336,8 @@ export const hi: Messages = {
       `आपके प्लान में ${total} बोर्ड हैं। एक हटाएं, या सेटिंग्स → प्लान में Max पर जाएं।`,
     messages: (date: string) =>
       `इस महीने एजेंट को भेजे जाने वाले संदेश खत्म हो गए। ये ${date} को फिर मिलेंगे।`,
+    speech: (date: string) =>
+      `इस महीने पढ़कर सुनाने की सीमा पूरी हो गई। यह ${date} को फिर मिलेगी।`,
     tasks: (total: number) =>
       `आपका प्लान एक साथ ${total} थ्रेड संभालता है। किसी एक के पूरा होने दें, या सेटिंग्स → प्लान में Max पर जाएं।`,
   },
@@ -559,6 +561,8 @@ export const hi: Messages = {
     yearlyHint: 'दो महीने मुफ़्त।',
     emailsUsed: (used: string, total: string) => `${total} में से ${used} ईमेल`,
     messagesUsed: (used: string, total: string) => `${total} में से ${used} संदेश`,
+    speechUsed: (used: string, total: string) =>
+      `${total} में से ${used} अक्षर पढ़कर सुनाए`,
     trialDescription: (date: string) =>
       `${date} तक Pro की हर सुविधा, फिर मुफ़्त। कार्ड की ज़रूरत नहीं।`,
     upgrade: 'अन्य प्लान',
