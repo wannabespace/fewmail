@@ -31,6 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@fewmail/ui/components/popover'
+import { ScrollArea } from '@fewmail/ui/components/scroll-area'
 import {
   Select,
   SelectContent,
@@ -355,12 +356,15 @@ const groupRows = <Row extends ListedRow>(
 
 const BURST_MINUTES = 10
 
+type ListedMessage = ListedRow['message']
+
 /** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until opened. */
 const collapseBursts = <Row extends ListedRow>(
   rows: Row[],
   expanded: ReadonlySet<string>
 ) => {
-  const collapsed: (Row & { messageIds: string[] })[] = []
+  const collapsed: (Row & { burst: ListedMessage[]; messageIds: string[] })[] =
+    []
   let previous: Row | undefined
   for (const row of rows) {
     const head = collapsed.at(-1)
@@ -372,11 +376,13 @@ const collapseBursts = <Row extends ListedRow>(
       differenceInMinutes(previous.message.receivedAt, row.message.receivedAt) <
         BURST_MINUTES
     ) {
+      head.burst.push(row.message)
       head.messageIds.push(row.message.id)
       head.message.isUnread ||= row.message.isUnread
     } else {
       collapsed.push({
         ...row,
+        burst: [row.message],
         message: { ...row.message },
         messageIds: [row.message.id],
       })
@@ -859,6 +865,53 @@ const RelatedRow = ({
   )
 }
 
+const BurstList = ({
+  burst,
+  onOpenEmail,
+}: {
+  burst: ListedMessage[]
+  onOpenEmail: (message: ListedMessage) => void
+}) => {
+  const dates = useDates()
+  return (
+    <ScrollArea viewportClassName="scroll-fade max-h-28 pb-2">
+      <ul>
+        {burst.map((email) => (
+          <li key={email.id}>
+            <button
+              type="button"
+              tabIndex={-1}
+              onClick={() => onOpenEmail(email)}
+              onPointerEnter={() => {
+                void warmThread(email.threadId)
+              }}
+              className="hover:bg-secondary mr-3 ml-7 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-sm outline-none"
+            >
+              <span
+                data-mask
+                className={cn(
+                  'min-w-0 flex-1 truncate',
+                  email.isUnread
+                    ? 'text-foreground/90 font-medium'
+                    : 'text-foreground/60'
+                )}
+              >
+                {email.subject}
+              </span>
+              <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+                {dates.format(
+                  email.receivedAt,
+                  isToday(email.receivedAt) ? 'HH:mm' : 'd MMM'
+                )}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </ScrollArea>
+  )
+}
+
 const MailRow = ({
   actions,
   canSnooze,
@@ -866,8 +919,9 @@ const MailRow = ({
   isOpen,
   isSnoozeOpen,
   onOpen,
+  onOpenEmail,
   onSnoozeOpenChange,
-  row: { analysis, message, messageIds, threadSize },
+  row: { analysis, burst, message, messageIds, threadSize },
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
@@ -876,13 +930,15 @@ const MailRow = ({
   isOpen: boolean
   isSnoozeOpen: boolean
   onOpen: () => void
+  onOpenEmail: (message: ListedMessage) => void
   onSnoozeOpenChange: (open: boolean) => void
-  row: ListedRow & { messageIds: string[] }
+  row: ListedRow & { burst?: ListedMessage[]; messageIds: string[] }
   sweep: Sweep
 }) => {
   const t = useT()
   const dates = useDates()
   const codeRoom = message.code ? 'pr-28' : undefined
+  const isBurst = messageIds.length > 1
 
   return (
     <LeavingRow
@@ -924,7 +980,7 @@ const MailRow = ({
               {threadSize}
             </Badge>
           )}
-          {messageIds.length > 1 && (
+          {isBurst && (
             <span className="text-muted-foreground shrink-0 text-xs">
               {t.cleanup.emails(messageIds.length)}
             </span>
@@ -952,18 +1008,20 @@ const MailRow = ({
             )}
           </span>
         </span>
-        <span
-          data-mask
-          className={cn(
-            'truncate pl-4 text-sm',
-            codeRoom,
-            message.isUnread
-              ? 'text-foreground/90 font-medium'
-              : 'text-foreground/60'
-          )}
-        >
-          {message.subject}
-        </span>
+        {!isBurst && (
+          <span
+            data-mask
+            className={cn(
+              'truncate pl-4 text-sm',
+              codeRoom,
+              message.isUnread
+                ? 'text-foreground/90 font-medium'
+                : 'text-foreground/60'
+            )}
+          >
+            {message.subject}
+          </span>
+        )}
         {message.risk && (
           <span className="text-destructive pl-4 text-xs font-medium">
             {t.risk.title}
@@ -975,6 +1033,9 @@ const MailRow = ({
           </span>
         )}
       </button>
+      {isBurst && burst && (
+        <BurstList burst={burst} onOpenEmail={onOpenEmail} />
+      )}
       <MailRowActions
         actions={actions}
         canSnooze={canSnooze}
@@ -1763,7 +1824,7 @@ const MailPage = () => {
     }
   }
 
-  const open = (index: number) => {
+  const open = (index: number, email?: ListedMessage) => {
     if (isDrafts) {
       setCursor(index)
       drafts.open(index)
@@ -1771,19 +1832,20 @@ const MailPage = () => {
     }
     const row = rows[index]
     if (row) {
+      const message = email ?? row.message
       setCursor(index)
       expandBurst(index)
       if (!('isRelated' in row)) {
-        setRelatedOf(row.message.threadId)
+        setRelatedOf(message.threadId)
       }
-      if (row.message.isUnread) {
-        setKeptUnread((kept) => new Set(kept).add(row.message.threadId))
+      if (message.isUnread) {
+        setKeptUnread((kept) => new Set(kept).add(message.threadId))
       }
       if (q) {
         rememberSearch(q)
       }
       void navigate({
-        search: (prev) => ({ ...prev, thread: row.message.threadId }),
+        search: (prev) => ({ ...prev, thread: message.threadId }),
       })
     }
   }
@@ -1970,6 +2032,7 @@ const MailPage = () => {
                     isOpen={row.message.threadId === thread}
                     isSnoozeOpen={snoozeOpenId === row.message.id}
                     onOpen={() => open(index)}
+                    onOpenEmail={(message) => open(index, message)}
                     onSnoozeOpenChange={(isOpen) =>
                       setSnoozeOpenId(isOpen ? row.message.id : null)
                     }
