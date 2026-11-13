@@ -19,6 +19,7 @@ export const badgeVariants = cva(
         link: `text-primary underline-offset-4 hover:underline`,
         outline: `border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground`,
         secondary: `bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80`,
+        source: `bg-secondary/70 text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer rounded-full font-sans`,
       },
     },
   }

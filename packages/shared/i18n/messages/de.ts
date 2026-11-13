@@ -791,6 +791,7 @@ export const de: Messages = {
     reload: 'Neu laden',
   },
   keys: {
+    summary: 'Zusammenfassung',
     askAgent: 'Agent fragen',
     fromSender: 'mehr vom Absender',
     approvePicked: (n: number) => `${n} ausgewählte genehmigen`,
@@ -1649,6 +1650,16 @@ export const de: Messages = {
     done: 'Deine weitergeleitete E-Mail',
   },
   reading: {
+    summary: 'Was Ihre Newsletter schreiben',
+    worth: 'Lohnt sich ganz zu lesen',
+    leftOut: (n: number) => `Ausgelassen: ${n}, nichts Neues darin.`,
+    since: (n: number) =>
+      `Nach der Zusammenfassung gekommen: ${n}, sie stehen in der nächsten.`,
+    note: {
+      inSummary: 'In der Zusammenfassung',
+      leftOut: 'Ausgelassen',
+      since: 'Nach der Zusammenfassung',
+    },
     digest: (n: number) => `Newsletter heute: ${n}`,
     empty: 'Keine Newsletter am letzten Tag.',
     lead: 'Die Newsletter des letzten Tages an einem Ort, damit sie den Posteingang nicht füllen.',

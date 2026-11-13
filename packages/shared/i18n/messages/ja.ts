@@ -287,6 +287,7 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
+    summary: 'まとめ',
     askAgent: 'エージェントに聞く',
     fromSender: '同じ差出人のメール',
     approvePicked: (n: number) => `選択した${n}件を承認`,
@@ -1588,6 +1589,16 @@ export const ja: Messages = {
     done: '転送されたメール',
   },
   reading: {
+    summary: 'メルマガの内容まとめ',
+    worth: '全文を読む価値あり',
+    leftOut: (n: number) => `まとめから除外: ${n}件（新しい内容なし）`,
+    since: (n: number) =>
+      `まとめの後に届いたもの: ${n}件（次のまとめに入ります）`,
+    note: {
+      inSummary: 'まとめに含む',
+      leftOut: '除外',
+      since: 'まとめの後',
+    },
     digest: (n: number) => `今日のメルマガ: ${n}件`,
     empty: '直近1日にメルマガはありません。',
     lead: '直近1日のメルマガを1か所に。受信トレイを埋めません。',

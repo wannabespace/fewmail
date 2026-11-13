@@ -126,6 +126,7 @@ export type AiFeature =
   | 'draft'
   | 'person_note'
   | 'promises'
+  | 'reading_summary'
   | 'task_step'
   | 'understand'
 

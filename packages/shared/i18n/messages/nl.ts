@@ -469,6 +469,16 @@ export const nl: Messages = {
     done: 'Je doorgestuurde e-mail',
   },
   reading: {
+    summary: 'Wat je nieuwsbrieven zeiden',
+    worth: 'De moeite waard om helemaal te lezen',
+    leftOut: (n: number) => `Weggelaten: ${n}, niets nieuws.`,
+    since: (n: number) =>
+      `Na de samenvatting binnengekomen: ${n}, ze komen in de volgende.`,
+    note: {
+      inSummary: 'In de samenvatting',
+      leftOut: 'Weggelaten',
+      since: 'Na de samenvatting',
+    },
     digest: (n: number) => `Nieuwsbrieven vandaag: ${n}`,
     empty: 'Geen nieuwsbrieven in de afgelopen dag.',
     lead: 'De nieuwsbrieven van de afgelopen dag op één plek, zodat ze je inbox niet vullen.',
@@ -560,6 +570,7 @@ export const nl: Messages = {
     reload: 'Herladen',
   },
   keys: {
+    summary: 'samenvatting',
     askAgent: 'agent vragen',
     fromSender: 'meer van afzender',
     approvePicked: (n: number) => `${n} gekozen goedkeuren`,

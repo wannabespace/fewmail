@@ -355,11 +355,14 @@ export const sendWhatsappWeek = async (userId: string, minutes: number) => {
 /** Outside the 24-hour window the template's button fetches the digest (`reading`). */
 export const sendWhatsappReading = async (
   userId: string,
-  rows: Parameters<typeof readingReply>[2]
+  reading: Parameters<typeof readingReply>[2]
 ) => {
   const t = await messagesFor(userId)
-  await push(userId, t.reading.digest(rows.length), 'reading', (chat, chatT) =>
-    readingReply(chat, chatT, rows)
+  await push(
+    userId,
+    t.reading.digest(reading.rows.length),
+    'reading',
+    (chat, chatT) => readingReply(chat, chatT, reading)
   )
 }
 

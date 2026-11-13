@@ -20,7 +20,7 @@ import { followForwarded } from './services/forwarded'
 import { handleGmailPush } from './services/gmail-push'
 import { LimitReachedError } from './services/limit-error'
 import { finishAddingMailbox } from './services/mailboxes'
-import { hear, speakFor, spokenHome } from './services/messenger'
+import { hear, speakFor, spokenHome, spokenReading } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { onNewMail, syncMailbox } from './services/sync'
 import { readSharedWrapped } from './services/wrapped'
@@ -148,6 +148,13 @@ const app = new Hono()
       return c.notFound()
     }
     return spokenResponse(userId, () => spokenHome(userId))
+  })
+  .get('/voice/reading', async (c) => {
+    const userId = await voiceUser(c.req.raw.headers)
+    if (!userId) {
+      return c.notFound()
+    }
+    return spokenResponse(userId, () => spokenReading(userId))
   })
   .get('/og/w/:token', (c) => {
     const token = c.req.param('token')

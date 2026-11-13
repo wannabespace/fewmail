@@ -43,6 +43,7 @@ import { URGENT_RESERVE } from '../services/plan'
 import {
   READING_SHOWN,
   BODY_CHARS as READING_BODY_CHARS,
+  SUMMARY_EVERY_HOURS,
 } from '../services/reading'
 import { RISK_BODY_CHARS } from '../services/risk'
 import { PROMISE_BODY_CHARS, SENT_JEV_CHARS } from '../services/sent-mail'
@@ -127,6 +128,9 @@ const CHAT_STEP_OUTPUT_TOKENS = 150
 const CHAT_ANSWER_TOKENS = 300
 const READING_INSTRUCTION_CHARS = 500
 const READING_OUTPUT_TOKENS_EACH = 80
+const READING_SUMMARY_INSTRUCTION_CHARS = 900
+const READING_SUMMARY_CHARS_EACH = 450
+const READING_SUMMARY_OUTPUT_TOKENS = 600
 const NOTE_PROMPT_CHARS = 12 * 200 + 400
 const NOTE_OUTPUT_TOKENS = 120
 const ENTRY_INSTRUCTION_CHARS = 1500
@@ -151,6 +155,7 @@ export interface Use {
   messages: number
   newslettersPerDay: number
   notes: number
+  readingSummariesPerDay: number
   promisedShare: number
   ruleChars: number
   rules: number
@@ -179,6 +184,7 @@ export const TYPICAL: Use = {
   messages: 30,
   newslettersPerDay: 8,
   notes: 20,
+  readingSummariesPerDay: 2,
   promisedShare: 0.2,
   ruleChars: 80,
   rules: 5,
@@ -208,6 +214,7 @@ export const HEAVY: Use = {
   messages: Number.POSITIVE_INFINITY,
   newslettersPerDay: READING_SHOWN,
   notes: 100,
+  readingSummariesPerDay: 24 / SUMMARY_EVERY_HOURS,
   promisedShare: 0.5,
   ruleChars: 200,
   rules: 30,
@@ -368,15 +375,22 @@ export const backgroundCost = (use: Use, agent: boolean) => {
         mailTokens(Math.min(use.bodyChars, PROMISE_BODY_CHARS)),
       PROMISE_OUTPUT_TOKENS
     )
+  const newsletterSummaries = llm(
+    FAST_MODEL_ID,
+    instructionTokens(READING_INSTRUCTION_CHARS) +
+      STRUCTURED_OUTPUT_TOKENS +
+      mailTokens(use.newslettersPerDay * READING_BODY_CHARS),
+    use.newslettersPerDay * READING_OUTPUT_TOKENS_EACH
+  )
+  const readingSummary = llm(
+    FAST_MODEL_ID,
+    instructionTokens(READING_SUMMARY_INSTRUCTION_CHARS) +
+      STRUCTURED_OUTPUT_TOKENS +
+      mailTokens(use.newslettersPerDay * READING_SUMMARY_CHARS_EACH),
+    READING_SUMMARY_OUTPUT_TOKENS
+  )
   const digest =
-    DAYS *
-    llm(
-      FAST_MODEL_ID,
-      instructionTokens(READING_INSTRUCTION_CHARS) +
-        STRUCTURED_OUTPUT_TOKENS +
-        mailTokens(use.newslettersPerDay * READING_BODY_CHARS),
-      use.newslettersPerDay * READING_OUTPUT_TOKENS_EACH
-    )
+    DAYS * (newsletterSummaries + use.readingSummariesPerDay * readingSummary)
   const notes =
     use.notes *
     llm(WRITER_MODEL_ID, mailTokens(NOTE_PROMPT_CHARS), NOTE_OUTPUT_TOKENS)

@@ -58,7 +58,7 @@ Quick decisions about each email (its category, importance, whether someone wait
 | Google (Gmail API, OAuth, Cloud Pub/Sub) | Sign-in and access to your mailbox; Pub/Sub tells us that your mailbox changed (only your address and a change number, no mail content) so new mail and changes you make in Gmail show up in seconds |
 | OpenRouter → Anthropic, Google, xAI | Reading emails, drafting replies, answering questions about your mail, autocomplete fallback |
 | TypeSafe (Jev) | Classifying each email, on every plan |
-| ElevenLabs | Reading aloud, only when you ask: a summary of what needs you and the first items of your queue, and the bot’s answer to a voice message you sent (paid plans) |
+| ElevenLabs | Reading aloud, only when you ask: a summary of what needs you and the first items of your queue, the summary of your newsletters, and the bot’s answer to a voice message you sent (paid plans) |
 | Mistral | Autocomplete while you write, transcribing Telegram and WhatsApp voice messages, reading the text of PDFs and images attached to email that matters (paid plans) |
 | Stripe | Payments and subscriptions for Pro |
 | Telegram | Delivering urgent emails, drafts, the newsletter digest and the weekly report, only if you connect it |

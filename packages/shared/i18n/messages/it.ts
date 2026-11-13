@@ -796,6 +796,7 @@ export const it: Messages = {
     reload: 'Ricarica',
   },
   keys: {
+    summary: 'riassunto',
     askAgent: 'chiedi all’agente',
     fromSender: 'altro dal mittente',
     approvePicked: (n: number) => `approva ${n} selezionati`,
@@ -1647,6 +1648,16 @@ export const it: Messages = {
     done: 'La tua email inoltrata',
   },
   reading: {
+    summary: 'Cosa dicono le tue newsletter',
+    worth: 'Da leggere per intero',
+    leftOut: (n: number) => `Escluse dal riassunto: ${n}, niente di nuovo.`,
+    since: (n: number) =>
+      `Arrivate dopo il riassunto: ${n}, saranno nel prossimo.`,
+    note: {
+      inSummary: 'Nel riassunto',
+      leftOut: 'Esclusa',
+      since: 'Dopo il riassunto',
+    },
     digest: (n: number) => `Newsletter di oggi: ${n}`,
     empty: 'Nessuna newsletter nell’ultimo giorno.',
     lead: 'Le newsletter dell’ultimo giorno in un solo posto, così non affollano la posta in arrivo.',

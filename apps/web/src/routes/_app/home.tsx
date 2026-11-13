@@ -52,10 +52,7 @@ import {
   ArrowDown01Icon,
   Clock01Icon,
   Delete02Icon,
-  PlayIcon,
-  StopIcon,
 } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -75,7 +72,7 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
@@ -85,6 +82,7 @@ import { AgentChat } from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
 import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
+import { ListenButton } from '~/components/listen-button'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
@@ -926,7 +924,7 @@ const HomeHeader = ({
         )}
         {data && data.queue.length > 0 && (
           <div>
-            <ListenButton />
+            <ListenButton path="/voice/home" />
           </div>
         )}
       </header>
@@ -934,53 +932,6 @@ const HomeHeader = ({
         <BoardBanners banners={data.banners} />
       )}
     </>
-  )
-}
-
-/** Spoken by the API on demand, which takes a few seconds; the audio element carries the session cookie (same site). */
-const ListenButton = () => {
-  const t = useT()
-  const audio = useRef<HTMLAudioElement | null>(null)
-  const [state, setState] = useState<'idle' | 'loading' | 'playing'>('idle')
-  useEffect(() => () => audio.current?.pause(), [])
-
-  const toggle = () => {
-    if (audio.current) {
-      audio.current.pause()
-      audio.current = null
-      setState('idle')
-      return
-    }
-    const player = new Audio(`${import.meta.env.API_URL}/voice/home`)
-    audio.current = player
-    setState('loading')
-    player.addEventListener('playing', () => setState('playing'))
-    const stop = () => {
-      if (audio.current === player) {
-        audio.current = null
-        setState('idle')
-      }
-    }
-    player.addEventListener('ended', stop)
-    player.addEventListener('error', () => {
-      stop()
-      toast.error(t.errors.failed)
-    })
-    void player.play().catch(stop)
-  }
-
-  return (
-    <Button size="sm" variant="secondary" onClick={toggle}>
-      {state === 'loading' ? (
-        <Spinner />
-      ) : (
-        <HugeiconsIcon
-          icon={state === 'playing' ? StopIcon : PlayIcon}
-          strokeWidth={2}
-        />
-      )}
-      {state === 'idle' ? t.today.listen : t.today.stopListening}
-    </Button>
   )
 }
 

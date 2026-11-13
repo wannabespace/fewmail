@@ -509,6 +509,16 @@ export const en = {
     done: 'Your forwarded email',
   },
   reading: {
+    summary: 'What your newsletters said',
+    worth: 'Worth reading in full',
+    leftOut: (n: number) => `${n} left out: nothing new in them.`,
+    since: (n: number) =>
+      `${n} came after the summary and go into the next one.`,
+    note: {
+      inSummary: 'In the summary',
+      leftOut: 'Left out',
+      since: 'Since the summary',
+    },
     digest: (n: number) => `${n} newsletters today`,
     empty: 'No newsletters in the last day.',
     lead: 'The last day of newsletters in one place, so they never crowd the inbox.',
@@ -556,6 +566,7 @@ export const en = {
     reload: 'Reload',
   },
   keys: {
+    summary: 'summary',
     askAgent: 'ask the agent',
     fromSender: 'more from sender',
     pin: 'pin',

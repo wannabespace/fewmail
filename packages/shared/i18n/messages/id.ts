@@ -455,6 +455,16 @@ export const id: Messages = {
     done: 'Email yang kamu teruskan',
   },
   reading: {
+    summary: 'Isi newsletter Anda',
+    worth: 'Layak dibaca utuh',
+    leftOut: (n: number) => `Tidak masuk ringkasan: ${n}, tidak ada yang baru.`,
+    since: (n: number) =>
+      `Datang setelah ringkasan: ${n}, akan masuk ringkasan berikutnya.`,
+    note: {
+      inSummary: 'Di ringkasan',
+      leftOut: 'Dilewati',
+      since: 'Setelah ringkasan',
+    },
     digest: (n: number) => `Newsletter hari ini: ${n}`,
     empty: 'Tidak ada newsletter dalam sehari terakhir.',
     lead: 'Newsletter sehari terakhir di satu tempat, agar tidak memenuhi kotak masuk.',
@@ -542,6 +552,7 @@ export const id: Messages = {
     reload: 'Muat ulang',
   },
   keys: {
+    summary: 'ringkasan',
     askAgent: 'tanya agen',
     fromSender: 'lainnya dari pengirim',
     approvePicked: (n: number) => `setujui ${n} yang dipilih`,

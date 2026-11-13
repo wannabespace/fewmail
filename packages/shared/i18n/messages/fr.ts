@@ -802,6 +802,7 @@ export const fr: Messages = {
     reload: 'Recharger',
   },
   keys: {
+    summary: 'résumé',
     askAgent: 'demander à l’agent',
     fromSender: 'plus de cet expéditeur',
     approvePicked: (n: number) => `approuver les ${n} choisis`,
@@ -1666,6 +1667,16 @@ export const fr: Messages = {
     done: 'Ton e-mail transféré',
   },
   reading: {
+    summary: 'Ce que disent vos newsletters',
+    worth: 'À lire en entier',
+    leftOut: (n: number) => `Laissées de côté : ${n}, rien de nouveau.`,
+    since: (n: number) =>
+      `Arrivées après le résumé : ${n}, elles seront dans le prochain.`,
+    note: {
+      inSummary: 'Dans le résumé',
+      leftOut: 'Laissée de côté',
+      since: 'Après le résumé',
+    },
     digest: (n: number) => `Newsletters du jour : ${n}`,
     empty: 'Aucune newsletter ces dernières 24 heures.',
     lead: 'Les newsletters du dernier jour au même endroit, pour qu’elles n’encombrent pas la boîte de réception.',

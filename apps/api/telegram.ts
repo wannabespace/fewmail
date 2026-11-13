@@ -358,11 +358,11 @@ export const sendWeek = async (
 export const sendReading = async (
   chatId: string,
   userId: string,
-  rows: Parameters<typeof readingReply>[2]
+  reading: Parameters<typeof readingReply>[2]
 ) => {
   if (bot) {
     const t = await messagesFor(userId)
-    await send(bot.api, chatId, readingReply(chatOf(chatId), t, rows))
+    await send(bot.api, chatId, readingReply(chatOf(chatId), t, reading))
   }
 }
 

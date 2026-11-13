@@ -24,6 +24,7 @@ export {
   snippets,
 } from './mail'
 export type { Extracted, SimpleMatch } from './mail'
+export type { ReadingSummary } from './insight'
 export type { AiFeature } from './settings'
 export {
   aiUsage,
@@ -47,6 +48,7 @@ export {
   paymentDetails,
   patternReports,
   people,
+  readingSummaries,
   schedules,
   tasks,
   templateReports,

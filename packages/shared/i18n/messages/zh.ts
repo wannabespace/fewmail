@@ -284,6 +284,7 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
+    summary: '摘要',
     askAgent: '问助手',
     fromSender: '同一发件人的邮件',
     approvePicked: (n: number) => `批准已选的 ${n} 项`,
@@ -1535,6 +1536,15 @@ export const zh: Messages = {
     done: '你转发的邮件',
   },
   reading: {
+    summary: '订阅邮件说了什么',
+    worth: '值得读全文',
+    leftOut: (n: number) => `未写入摘要：${n} 封，没有新内容。`,
+    since: (n: number) => `摘要之后到达：${n} 封，会写进下一份摘要。`,
+    note: {
+      inSummary: '已写入摘要',
+      leftOut: '未写入',
+      since: '摘要之后',
+    },
     digest: (n: number) => `今日订阅邮件：${n} 封`,
     empty: '过去一天没有订阅邮件。',
     lead: '过去一天的订阅邮件集中在一处，不再挤满收件箱。',

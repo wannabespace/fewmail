@@ -288,6 +288,7 @@ export const hi: Messages = {
     reload: 'रीलोड करें',
   },
   keys: {
+    summary: 'सारांश',
     askAgent: 'एजेंट से पूछें',
     fromSender: 'इस प्रेषक से और',
     approvePicked: (n: number) => `${n} चुने हुए मंज़ूर करें`,
@@ -1593,6 +1594,15 @@ export const hi: Messages = {
     done: 'आपका फ़ॉरवर्ड किया ईमेल',
   },
   reading: {
+    summary: 'आपके न्यूज़लेटर में क्या था',
+    worth: 'पूरा पढ़ने लायक',
+    leftOut: (n: number) => `सारांश से बाहर: ${n}, इनमें कुछ नया नहीं।`,
+    since: (n: number) => `सारांश के बाद आए: ${n}, ये अगले सारांश में होंगे।`,
+    note: {
+      inSummary: 'सारांश में',
+      leftOut: 'छोड़ा गया',
+      since: 'सारांश के बाद',
+    },
     digest: (n: number) => `आज के न्यूज़लेटर: ${n}`,
     empty: 'पिछले दिन कोई न्यूज़लेटर नहीं आया।',
     lead: 'पिछले दिन के न्यूज़लेटर एक जगह, ताकि इनबॉक्स न भरे।',

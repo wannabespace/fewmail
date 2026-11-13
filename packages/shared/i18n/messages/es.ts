@@ -792,6 +792,7 @@ export const es: Messages = {
     reload: 'Recargar',
   },
   keys: {
+    summary: 'resumen',
     askAgent: 'preguntar al agente',
     fromSender: 'más del remitente',
     approvePicked: (n: number) => `aprobar ${n} seleccionados`,
@@ -1644,6 +1645,16 @@ export const es: Messages = {
     done: 'Tu correo reenviado',
   },
   reading: {
+    summary: 'Lo que dicen tus boletines',
+    worth: 'Vale la pena leerlo entero',
+    leftOut: (n: number) => `Fuera del resumen: ${n}, nada nuevo.`,
+    since: (n: number) =>
+      `Llegaron después del resumen: ${n}, irán en el siguiente.`,
+    note: {
+      inSummary: 'En el resumen',
+      leftOut: 'Fuera del resumen',
+      since: 'Después del resumen',
+    },
     digest: (n: number) => `Boletines de hoy: ${n}`,
     empty: 'No hubo boletines en el último día.',
     lead: 'Los boletines del último día en un solo lugar, para que no llenen la bandeja.',

@@ -30,7 +30,7 @@ import {
 } from './mail'
 import { cancelMail } from './outbox'
 import { getUsage, requireAgent, spendSpeech } from './plan'
-import { getReading } from './reading'
+import { getReadingSummary } from './reading'
 import { getSettings } from './settings'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
@@ -287,25 +287,42 @@ export const weekReply = (chat: Chat, t: Messages, minutes: number): Reply => ({
   text: `${chat.channel.bold(t.today.saved(minutes))}\n\n${env.WEB_URL}/wrapped`,
 })
 
-const DIGEST_SHOWN = 10
+type Reading = Awaited<ReturnType<typeof getReadingSummary>>
 
-/** The day's newsletters as one message: sender in bold, what it says, then the page for the rest. */
+/** The day's newsletters as one message: the agent's summary of all of them, topic titles in bold, then the page. */
 export const readingReply = (
   chat: Chat,
   t: Messages,
-  rows: Awaited<ReturnType<typeof getReading>>
+  { rows, summary }: Reading
 ): Reply => ({
   text: [
     chat.channel.bold(t.reading.digest(rows.length)),
-    ...rows
-      .slice(0, DIGEST_SHOWN)
-      .map(
-        ({ fromEmail, fromName, summary }) =>
-          `${chat.channel.bold(fromName ?? fromEmail)}: ${chat.channel.plain(summary)}`
-      ),
+    ...(summary
+      ? [
+          chat.channel.plain(summary.intro),
+          ...summary.sections.map(
+            ({ sentences, title }) =>
+              `${chat.channel.bold(title)}\n${chat.channel.plain(sentences.map(({ text }) => text).join(' '))}`
+          ),
+        ]
+      : []),
     `${env.WEB_URL}/reading`,
   ].join('\n\n'),
 })
+
+/** Read aloud on Reading: the summary as it is written, titles as their own sentences. */
+export const spokenReading = async (userId: string) => {
+  const { summary } = await getReadingSummary(userId)
+  return summary
+    ? [
+        summary.intro,
+        ...summary.sections.flatMap(({ sentences, title }) => [
+          title,
+          ...sentences.map(({ text }) => text),
+        ]),
+      ].join('\n')
+    : ''
+}
 
 const SPOKEN_ITEMS = 5
 
@@ -377,7 +394,9 @@ export const press = async (
   const [command, id = ''] = pressed.split(':')
   if (command === 'reading') {
     return {
-      replies: async () => [readingReply(chat, t, await getReading(userId))],
+      replies: async () => [
+        readingReply(chat, t, await getReadingSummary(userId)),
+      ],
     }
   }
   if (command === 'week') {

@@ -470,6 +470,15 @@ export const pt: Messages = {
     done: 'Seu e-mail encaminhado',
   },
   reading: {
+    summary: 'O que as suas newsletters disseram',
+    worth: 'Vale a pena ler inteira',
+    leftOut: (n: number) => `Fora do resumo: ${n}, nada de novo.`,
+    since: (n: number) => `Chegaram depois do resumo: ${n}, entram no próximo.`,
+    note: {
+      inSummary: 'No resumo',
+      leftOut: 'Fora do resumo',
+      since: 'Depois do resumo',
+    },
     digest: (n: number) => `Newsletters de hoje: ${n}`,
     empty: 'Nenhuma newsletter no último dia.',
     lead: 'As newsletters do último dia num só lugar, para não lotarem a caixa de entrada.',
@@ -561,6 +570,7 @@ export const pt: Messages = {
     reload: 'Recarregar',
   },
   keys: {
+    summary: 'resumo',
     askAgent: 'perguntar ao agente',
     fromSender: 'mais do remetente',
     approvePicked: (n: number) => `aprovar ${n} selecionados`,

@@ -285,6 +285,7 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
+    summary: '요약',
     askAgent: '에이전트에게 묻기',
     fromSender: '같은 발신자의 메일',
     approvePicked: (n: number) => `선택한 ${n}개 승인`,
@@ -1567,6 +1568,15 @@ export const ko: Messages = {
     done: '전달한 메일',
   },
   reading: {
+    summary: '뉴스레터 내용 요약',
+    worth: '전문을 읽어 볼 만해요',
+    leftOut: (n: number) => `요약에서 뺀 것: ${n}개, 새로운 내용이 없어요.`,
+    since: (n: number) => `요약 후에 온 것: ${n}개, 다음 요약에 들어가요.`,
+    note: {
+      inSummary: '요약에 포함',
+      leftOut: '제외',
+      since: '요약 후 도착',
+    },
     digest: (n: number) => `오늘의 뉴스레터: ${n}개`,
     empty: '지난 하루 동안 받은 뉴스레터가 없어요.',
     lead: '지난 하루의 뉴스레터를 한곳에 모아 받은편지함을 비워 둬요.',

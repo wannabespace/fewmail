@@ -59,7 +59,7 @@ import {
   hasAgent,
   hasAgentSql,
 } from './services/plan'
-import { getReading } from './services/reading'
+import { getReadingSummary } from './services/reading'
 import {
   processDueCommitments,
   processDueReminders,
@@ -211,13 +211,13 @@ const isMorningDue = (settings: typeof userSettings.$inferSelect) => {
 }
 
 const sendReadingDigest = async (userId: string, chatId: string | null) => {
-  const rows = await getReading(userId)
-  if (rows.length === 0) {
+  const reading = await getReadingSummary(userId)
+  if (reading.rows.length === 0) {
     return
   }
   await Promise.all([
-    chatId && sendReading(chatId, userId, rows),
-    sendWhatsappReading(userId, rows),
+    chatId && sendReading(chatId, userId, reading),
+    sendWhatsappReading(userId, reading),
   ])
 }
 

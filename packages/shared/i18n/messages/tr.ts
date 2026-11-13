@@ -451,6 +451,15 @@ export const tr: Messages = {
     done: 'İlettiğin e-posta',
   },
   reading: {
+    summary: 'Bültenleriniz ne dedi',
+    worth: 'Tamamını okumaya değer',
+    leftOut: (n: number) => `Özete alınmayan: ${n}, yeni bir şey yok.`,
+    since: (n: number) => `Özetten sonra gelen: ${n}, bir sonrakine girecek.`,
+    note: {
+      inSummary: 'Özette',
+      leftOut: 'Alınmadı',
+      since: 'Özetten sonra',
+    },
     digest: (n: number) => `Bugünkü bültenler: ${n}`,
     empty: 'Son günde bülten gelmedi.',
     lead: 'Son günün bültenleri tek yerde, gelen kutusunu doldurmasınlar diye.',
@@ -538,6 +547,7 @@ export const tr: Messages = {
     reload: 'Yenile',
   },
   keys: {
+    summary: 'özet',
     askAgent: 'ajana sor',
     fromSender: 'gönderenden diğerleri',
     approvePicked: (n: number) => `seçili ${n} öğeyi onayla`,

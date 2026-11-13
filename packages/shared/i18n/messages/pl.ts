@@ -481,6 +481,16 @@ export const pl: Messages = {
     done: 'Twój przekazany mail',
   },
   reading: {
+    summary: 'Co piszą twoje newslettery',
+    worth: 'Warto przeczytać w całości',
+    leftOut: (n: number) => `Pominięte w podsumowaniu: ${n}, nic nowego.`,
+    since: (n: number) =>
+      `Przyszły po podsumowaniu: ${n}, trafią do następnego.`,
+    note: {
+      inSummary: 'W podsumowaniu',
+      leftOut: 'Pominięty',
+      since: 'Po podsumowaniu',
+    },
     digest: (n: number) => `Newslettery dziś: ${n}`,
     empty: 'W ostatniej dobie nie było newsletterów.',
     lead: 'Newslettery z ostatniej doby w jednym miejscu, żeby nie zaśmiecały skrzynki.',
@@ -574,6 +584,7 @@ export const pl: Messages = {
     reload: 'Odśwież',
   },
   keys: {
+    summary: 'podsumowanie',
     askAgent: 'zapytaj agenta',
     fromSender: 'więcej od nadawcy',
     approvePicked: (n: number) => `zatwierdź wybrane (${n})`,

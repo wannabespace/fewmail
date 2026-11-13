@@ -103,6 +103,27 @@ export const commitments = d.snakeCase.table(
   (table) => [d.index('commitments_due_idx').on(table.status, table.dueAt)]
 )
 
+export interface ReadingSummary {
+  intro: string
+  sections: {
+    sentences: { messageIds: string[]; text: string }[]
+    title: string
+  }[]
+  worth: { messageId: string; why: string }[]
+}
+
+/** The agent's summary of the day's newsletters, one per user; `messageIds` are the emails it was written from. */
+export const readingSummaries = d.snakeCase.table(
+  'reading_summaries',
+  {
+    ...baseTable,
+    messageIds: d.uuid().array().notNull(),
+    summary: encryptedJson<ReadingSummary>().notNull(),
+    userId: userId(),
+  },
+  (table) => [d.uniqueIndex('reading_summaries_user_idx').on(table.userId)]
+)
+
 export const people = d.snakeCase.table(
   'people',
   {
