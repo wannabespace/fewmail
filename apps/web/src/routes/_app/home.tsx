@@ -1060,6 +1060,7 @@ const HomePage = () => {
                   isFirstRead={isFirstRead}
                   updatedAt={dataUpdatedAt}
                 />
+                <ConnectHint />
 
                 <section
                   aria-label={t.today.worthAttention}
@@ -1136,7 +1137,6 @@ const HomePage = () => {
                     />
                   </>
                 )}
-                <ConnectHint />
               </div>
             </div>
             {/* Over the page, never beside it: opening or folding the chat must not move what is under it. */}
