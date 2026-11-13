@@ -98,7 +98,7 @@ export const messages = d.snakeCase.table(
     fromName: encryptedText(),
     gmailId: d.text().notNull(),
     hasAttachments: d.boolean().notNull(),
-    /** Empty when the email has no HTML part; null for mail synced before HTML was kept, filled on first open. */
+    /** Empty when the email has no HTML part; null until first opened for held mail stored without it (`keepsHtml: false`). */
     html: encryptedText(),
     isFromMe: d.boolean().notNull(),
     isUnread: d.boolean().notNull(),

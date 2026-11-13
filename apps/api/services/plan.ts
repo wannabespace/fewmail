@@ -22,12 +22,11 @@ const currentMonth = () => `${new Date().toISOString().slice(0, 7)}-01`
 /** Urgent mail may run this far past the email limit, so the limit never hides it. */
 const URGENT_RESERVE = 1.1
 
-/** Any price but Pro's two is Max: subscribers of the old $15 Pro keep Max limits. */
 const paidPlan = (priceId: string): Plan =>
-  priceId === env.STRIPE_PRO_MONTHLY_PRICE_ID ||
-  priceId === env.STRIPE_PRO_YEARLY_PRICE_ID
-    ? 'pro'
-    : 'max'
+  priceId === env.STRIPE_MAX_MONTHLY_PRICE_ID ||
+  priceId === env.STRIPE_MAX_YEARLY_PRICE_ID
+    ? 'max'
+    : 'pro'
 
 const planKind = (
   subscription: { stripePriceId: string } | undefined,
