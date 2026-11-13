@@ -16,7 +16,7 @@ import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { and, desc, eq, gte, inArray, ne } from 'drizzle-orm'
 
-import { models, NO_EM_DASH } from '../lib/ai'
+import { models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
@@ -86,6 +86,7 @@ const decideStep = async (
       )
       .join('\n\n---\n\n')
       .replaceAll('</thread>', '')}\n</thread>`,
+    telemetry: trackUsage(task.userId, 'task_step'),
   })
   return output
 }

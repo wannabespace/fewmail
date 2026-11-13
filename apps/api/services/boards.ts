@@ -38,7 +38,7 @@ import {
   sql,
 } from 'drizzle-orm'
 
-import { models } from '../lib/ai'
+import { models, trackUsage } from '../lib/ai'
 import { announceChange } from '../lib/live'
 import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
@@ -120,9 +120,10 @@ const clampBannerDays = (days: number | null) =>
     : Math.min(MAX_BANNER_DAYS, Math.max(1, Math.round(days)))
 
 const planBoard = async (
-  board: { description: string; name: string },
-  language: Locale
+  userId: string,
+  board: { description: string; name: string }
 ) => {
+  const language = await languageOf(userId)
   const { output } = await generateText({
     instructions: [
       'The user describes a board: a page that collects one kind of email (receipts, trips, job applications…) as entries with a title, a group, a status, an amount and a date.',
@@ -133,6 +134,7 @@ const planBoard = async (
     model: models.writer,
     output: Output.object({ schema: planSchema }),
     prompt: `Name: ${board.name}\nDescription: ${board.description}`,
+    telemetry: trackUsage(userId, 'board_plan'),
   })
   return {
     bannerDays: clampBannerDays(output.bannerDays),
@@ -447,7 +449,7 @@ export const createBoard = async (
 ) => {
   const count = () => db.$count(boards, eq(boards.userId, userId))
   await requireRoom(userId, 'boards', count)
-  const plan = await planBoard(input, await languageOf(userId))
+  const plan = await planBoard(userId, input)
   const [board] = await db
     .insert(boards)
     .values({ ...input, ...plan, position: await count(), userId })
@@ -504,13 +506,10 @@ export const updateBoard = async (
   const isRedescribed =
     input.description !== undefined && input.description !== board.description
   const plan = isRedescribed
-    ? await planBoard(
-        {
-          description: input.description ?? board.description,
-          name: input.name ?? board.name,
-        },
-        await languageOf(userId)
-      )
+    ? await planBoard(userId, {
+        description: input.description ?? board.description,
+        name: input.name ?? board.name,
+      })
     : null
   await db
     .update(boards)
@@ -672,6 +671,7 @@ const extractEntry = async (
     model: models.fast,
     output: Output.object({ schema: entrySchema }),
     prompt: `From: ${message.fromName ?? ''} <${message.fromEmail}>\nSubject: ${message.subject}\n\n${message.body.slice(0, 5000)}`,
+    telemetry: trackUsage(board.userId, 'board_entry'),
   })
   if (context.isAdded) {
     await saveEntry(
@@ -940,6 +940,7 @@ const chartFor = async (board: Board, ask: string, language: Locale) => {
     model: models.fast,
     output: Output.object({ schema: chartSchema }),
     prompt: ask,
+    telemetry: trackUsage(board.userId, 'board_chart'),
   })
   return output
 }

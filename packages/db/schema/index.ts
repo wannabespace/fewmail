@@ -24,7 +24,9 @@ export {
   snippets,
 } from './mail'
 export type { Extracted, SimpleMatch } from './mail'
+export type { AiFeature } from './settings'
 export {
+  aiUsage,
   botMessages,
   devices,
   subscriptions,

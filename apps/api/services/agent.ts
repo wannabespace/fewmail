@@ -23,7 +23,13 @@ import { type } from 'arktype'
 import { Result } from 'better-result'
 import { and, desc, eq, gt, inArray, isNotNull, lt } from 'drizzle-orm'
 
-import { FAST_MODEL_ID, INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
+import {
+  FAST_MODEL_ID,
+  INFORMAL_ADDRESS,
+  models,
+  NO_EM_DASH,
+  trackUsage,
+} from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
 import { oneTimeCode } from '../lib/one-time-code'
@@ -218,6 +224,7 @@ const draftReply = async (
     ]
       .filter(Boolean)
       .join('\n'),
+    telemetry: trackUsage(input.userId, 'draft'),
   })
 
   return text.trim()
@@ -351,6 +358,7 @@ const analyze = async (input: {
       model: models.fast,
       output: Output.object({ schema: analysisSchema }),
       prompt,
+      telemetry: trackUsage(input.message.userId, 'analysis'),
     }).catch((error: unknown) => {
       allowance.refund()
       throw error
@@ -401,6 +409,7 @@ const analyze = async (input: {
       model: models.fast,
       output: Output.object({ schema: textSchema }),
       prompt: attached ? `${prompt}\n\n${attached}` : prompt,
+      telemetry: trackUsage(input.message.userId, 'analysis'),
     })
   )
   if (written.isErr()) {

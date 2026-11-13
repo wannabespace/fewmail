@@ -111,6 +111,42 @@ export const usage = d.snakeCase.table(
   ]
 )
 
+export type AiFeature =
+  | 'analysis'
+  | 'ask_answer'
+  | 'ask_query'
+  | 'autocomplete'
+  | 'board_chart'
+  | 'board_entry'
+  | 'board_plan'
+  | 'chat'
+  | 'digest'
+  | 'draft'
+  | 'person_note'
+  | 'promises'
+  | 'task_step'
+  | 'understand'
+
+/** `cost` (USD) is null, not 0, when OpenRouter did not report it. */
+export const aiUsage = d.snakeCase.table(
+  'ai_usage',
+  {
+    ...baseTable,
+    cacheReadTokens: d.integer().default(0).notNull(),
+    cacheWriteTokens: d.integer().default(0).notNull(),
+    cost: d.numeric({ mode: 'number', precision: 12, scale: 8 }),
+    feature: d.text().$type<AiFeature>().notNull(),
+    inputTokens: d.integer().default(0).notNull(),
+    model: d.text().notNull(),
+    outputTokens: d.integer().default(0).notNull(),
+    userId: d
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => [d.index().on(table.userId, table.createdAt)]
+)
+
 export const subscriptions = d.snakeCase.table(
   'subscriptions',
   {

@@ -6,7 +6,7 @@ import { type } from 'arktype'
 import { subHours } from 'date-fns'
 import { and, count, desc, eq, gte } from 'drizzle-orm'
 
-import { FAST_MODEL_ID, models, NO_EM_DASH } from '../lib/ai'
+import { FAST_MODEL_ID, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { expectRow } from '../lib/rows'
 import { getPlanInfo, hasAgent } from './plan'
@@ -41,6 +41,7 @@ const summarize = async (
         subject,
       }))
     ),
+    telemetry: trackUsage(userId, 'digest'),
   })
   const written = new Map(output.items.map(({ id, summary }) => [id, summary]))
   await Promise.all(

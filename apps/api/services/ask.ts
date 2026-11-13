@@ -5,7 +5,7 @@ import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { and, eq, inArray } from 'drizzle-orm'
 
-import { INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
+import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { getMessage } from '../lib/gmail'
 import { searchMailboxes } from './mailboxes'
 import { getPlanInfo, hasAgent } from './plan'
@@ -59,6 +59,7 @@ export const toGmailQueries = async (
     model: models.fast,
     output: Output.object({ schema: querySchema }),
     prompt: [...earlierLines(earlier), `Question: ${text}`].join('\n'),
+    telemetry: trackUsage(userId, 'ask_query'),
   })
   const queries = output.gmailQueries.filter(Boolean)
   return queries.length > 0 ? queries : [text]
@@ -146,6 +147,7 @@ export const askMail = async (
           `[${index + 1}] ${mail.receivedAt.toISOString()} · ${mail.fromName ?? mail.fromEmail} → ${mail.to.join(', ')}\nSubject: ${mail.subject}\n${mail.body.slice(0, BODY_LIMIT)}`
       ),
     ].join('\n\n'),
+    telemetry: trackUsage(userId, 'ask_answer'),
   })
 
   return {

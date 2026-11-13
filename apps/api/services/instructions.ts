@@ -8,7 +8,7 @@ import { type } from 'arktype'
 import { subDays } from 'date-fns'
 import { and, desc, eq, gte } from 'drizzle-orm'
 
-import { models } from '../lib/ai'
+import { models, trackUsage } from '../lib/ai'
 import type { Exchange } from './ask'
 import { askMail, earlierLines } from './ask'
 import { askAgent } from './chat'
@@ -87,6 +87,7 @@ const understand = async (
           `${index}. ${candidate.from ?? candidate.fromEmail}: ${candidate.subject}${'summary' in candidate && candidate.summary ? `. ${candidate.summary}` : ''}`
       ),
     ].join('\n'),
+    telemetry: trackUsage(userId, 'understand'),
   })
   return {
     intent: output.intent,

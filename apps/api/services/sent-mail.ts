@@ -7,7 +7,7 @@ import { type } from 'arktype'
 import { addDays } from 'date-fns'
 import { eq } from 'drizzle-orm'
 
-import { models } from '../lib/ai'
+import { models, trackUsage } from '../lib/ai'
 import { localClock } from '../lib/clock'
 import { jev } from '../lib/jev'
 import { getPlanInfo, hasAgent } from './plan'
@@ -44,6 +44,7 @@ const extractPromises = async (
     model: models.fast,
     output: Output.object({ schema: promisesSchema }),
     prompt: `To: ${sent.to.join(', ')}\n\n${sent.text.slice(0, 6000)}`,
+    telemetry: trackUsage(userId, 'promises'),
   })
   return output.promises.map(({ due, promise, recipient }) => ({
     dueAt:

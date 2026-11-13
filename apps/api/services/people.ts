@@ -12,7 +12,7 @@ import { generateText } from 'ai'
 import { subDays } from 'date-fns'
 import { and, arrayContains, desc, eq, inArray, or, sql } from 'drizzle-orm'
 
-import { models, NO_EM_DASH } from '../lib/ai'
+import { models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { announceChange } from '../lib/live'
 import { logErrorAs } from '../lib/log'
 import { getPlanInfo, hasAgent } from './plan'
@@ -43,6 +43,7 @@ const writeNote = async (
     instructions: `In ${englishName(settings?.language ?? 'en')}, write 2–3 short sentences for the user about this person: who they are to the user, what they usually write about, and anything still open. Plain prose, no lists, nothing invented. ${NO_EM_DASH}`,
     model: models.writer,
     prompt: `Person: ${email}\nRecent emails, newest first:\n${summaries.join('\n')}`,
+    telemetry: trackUsage(userId, 'person_note'),
   })
   const note = text.trim()
   await db

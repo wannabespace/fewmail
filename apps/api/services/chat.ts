@@ -16,7 +16,7 @@ import type { UIMessage } from 'ai'
 import { and, desc, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-import { INFORMAL_ADDRESS, models, NO_EM_DASH } from '../lib/ai'
+import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { agentTools, toolAccess } from './agent-tools'
 import { NotFoundError } from './mail-errors'
 import { spendMessage } from './plan'
@@ -203,6 +203,7 @@ export const streamChat = async (
     }),
     model: models.writer,
     stopWhen: stepCountIs(MAX_STEPS),
+    telemetry: trackUsage(userId, 'chat'),
     tools,
   })
   return result.toUIMessageStream({
