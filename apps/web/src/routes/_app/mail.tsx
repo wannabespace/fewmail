@@ -73,13 +73,20 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { differenceInMinutes, isToday, subDays } from 'date-fns'
 import {
-  Fragment,
+  AnimatePresence,
+  MotionConfig,
+  motion,
+  useIsPresent,
+  useReducedMotion,
+} from 'motion/react'
+import {
   startTransition,
   useEffect,
   useEffectEvent,
   useRef,
   useState,
 } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createElementSize, createWebStorageValue } from 'seitu/web'
 
@@ -717,6 +724,50 @@ const rowSurfaceOf = ({
     isOpen && 'bg-secondary hover:bg-secondary'
   )
 
+const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
+
+// A leaving row drops `data-row`: the cursor finds its row by index among them, and a folding row would shift it by one.
+const LeavingRow = ({
+  className,
+  ...props
+}: ComponentProps<typeof motion.li>) => {
+  const isPresent = useIsPresent()
+  return (
+    <motion.li
+      data-row={isPresent || undefined}
+      initial={false}
+      exit={{ borderBottomWidth: 0, height: 0, opacity: 0 }}
+      className={cn(
+        className,
+        !isPresent && 'pointer-events-none overflow-hidden'
+      )}
+      {...props}
+    />
+  )
+}
+
+// Keyed by the list: a view, mailbox or search swap replaces every row at once, so nothing folds out; typing in search churns rows, so they leave at once.
+const LeavingRows = ({
+  children,
+  isSearching,
+  listKey,
+}: {
+  children: ReactNode
+  isSearching: boolean
+  listKey: string
+}) => {
+  const isReducedMotion = useReducedMotion()
+  return (
+    <MotionConfig
+      transition={isSearching || isReducedMotion ? { duration: 0 } : ROW_LEAVE}
+    >
+      <AnimatePresence key={listKey} initial={false}>
+        {children}
+      </AnimatePresence>
+    </MotionConfig>
+  )
+}
+
 const HIDDEN_CURSOR = -1
 
 const useCursorOnOpenThread = ({
@@ -864,8 +915,7 @@ const MailRow = ({
   const codeRoom = message.code ? 'pr-28' : undefined
 
   return (
-    <li
-      data-row
+    <LeavingRow
       className={rowSurfaceOf({
         isActive: isCursor || isSnoozeOpen,
         isOpen,
@@ -971,7 +1021,7 @@ const MailRow = ({
         messageIds={messageIds}
         sweep={sweep}
       />
-    </li>
+    </LeavingRow>
   )
 }
 
@@ -991,8 +1041,7 @@ const PinnedRow = ({
   const t = useT()
   const dates = useDates()
   return (
-    <li
-      data-row
+    <LeavingRow
       className={rowSurfaceOf({
         isActive: isCursor || isSnoozeOpen,
         isOpen,
@@ -1058,7 +1107,7 @@ const PinnedRow = ({
         onSnoozeOpenChange={onSnoozeOpenChange}
         sweep={sweep}
       />
-    </li>
+    </LeavingRow>
   )
 }
 
@@ -1918,30 +1967,32 @@ const MailPage = () => {
               total={pinned.length}
               onToggle={() => pinnedRows.toggle()}
             />
-            {rows.map((row, index) => {
-              if ('isRelated' in row) {
-                return (
-                  <RelatedRow
-                    key={`related:${row.message.id}`}
-                    row={row}
-                    isCursor={index === cursor}
-                    isOpen={row.message.threadId === thread}
-                    onOpen={() => open(index)}
-                  />
-                )
-              }
-              const Row = index < pinnedRows.shown ? PinnedRow : MailRow
-              const group = groupStarts.get(row.message.id)
-              return (
-                <Fragment key={row.message.id}>
-                  {group && (
+            <LeavingRows listKey={listKey} isSearching={isSearching}>
+              {rows.map((row, index) => {
+                if ('isRelated' in row) {
+                  return (
+                    <RelatedRow
+                      key={`related:${row.message.id}`}
+                      row={row}
+                      isCursor={index === cursor}
+                      isOpen={row.message.threadId === thread}
+                      onOpen={() => open(index)}
+                    />
+                  )
+                }
+                const Row = index < pinnedRows.shown ? PinnedRow : MailRow
+                const group = groupStarts.get(row.message.id)
+                return [
+                  group && (
                     <GroupHeader
+                      key={`group:${group.key}`}
                       group={group}
                       isUnfolded={unfolded.has(group.key)}
                       onToggle={() => toggleGroup(group.key)}
                     />
-                  )}
+                  ),
                   <Row
+                    key={row.message.id}
                     row={row}
                     actions={actions}
                     canSnooze={canSnooze}
@@ -1953,10 +2004,10 @@ const MailPage = () => {
                       setSnoozeOpenId(isOpen ? row.message.id : null)
                     }
                     sweep={sweep}
-                  />
-                </Fragment>
-              )
-            })}
+                  />,
+                ]
+              })}
+            </LeavingRows>
             <OlderRowsLoader {...older} />
           </ul>
           {!thread && (
