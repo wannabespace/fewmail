@@ -63,6 +63,9 @@ export const tr: Messages = {
     stepCount: (count: number) => `${count} adım`,
     detach: 'Bu e-postayı ekleme',
     deleteChat: 'Sohbeti sil',
+    deleteChatConfirm: 'Bu sohbet silinsin mi?',
+    deleteChatHint:
+      'Konuşma kalıcı olarak silinir. E-postaların olduğu yerde kalır.',
     failed: 'Ajan işi bitiremedi. Tekrar dene.',
     newChat: 'Yeni sohbet',
     noChats: 'Henüz sohbet yok',

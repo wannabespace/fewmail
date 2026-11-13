@@ -64,6 +64,8 @@ export const ja: Messages = {
     stepCount: (count: number) => `${count}ステップ`,
     detach: 'このメールを添付しない',
     deleteChat: 'チャットを削除',
+    deleteChatConfirm: 'このチャットを削除しますか？',
+    deleteChatHint: '会話は元に戻せません。メールはそのまま残ります。',
     failed:
       'エージェントが最後まで完了できませんでした。もう一度お試しください。',
     newChat: '新しいチャット',

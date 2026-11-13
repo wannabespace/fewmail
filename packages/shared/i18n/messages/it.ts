@@ -46,6 +46,9 @@ export const it: Messages = {
       }),
     detach: 'Non allegare questa email',
     deleteChat: 'Elimina chat',
+    deleteChatConfirm: 'Eliminare questa chat?',
+    deleteChatHint:
+      'La conversazione sparisce per sempre. La tua posta resta dov’è.',
     failed: 'L’agente non è riuscito a finire. Riprova.',
     newChat: 'Nuova chat',
     noChats: 'Ancora nessuna chat',

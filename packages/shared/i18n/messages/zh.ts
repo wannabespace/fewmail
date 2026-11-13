@@ -63,6 +63,8 @@ export const zh: Messages = {
     stepCount: (count: number) => `${count} 个步骤`,
     detach: '不附上这封邮件',
     deleteChat: '删除对话',
+    deleteChatConfirm: '删除这个对话？',
+    deleteChatHint: '对话将无法恢复，邮件保持原样。',
     failed: '助手没能完成。请再试一次。',
     newChat: '新对话',
     noChats: '还没有对话',

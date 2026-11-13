@@ -67,6 +67,9 @@ export const en = {
       }),
     detach: 'Don’t attach this email',
     deleteChat: 'Delete chat',
+    deleteChatConfirm: 'Delete this chat?',
+    deleteChatHint:
+      'The conversation is gone for good. Your mail stays where it is.',
     failed: 'The agent could not finish. Try again.',
     newChat: 'New chat',
     noChats: 'No chats yet',

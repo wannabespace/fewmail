@@ -46,6 +46,9 @@ export const uk: Messages = {
       }),
     detach: 'Не додавати цей лист',
     deleteChat: 'Видалити чат',
+    deleteChatConfirm: 'Видалити цей чат?',
+    deleteChatHint:
+      'Розмову не можна буде повернути. Ваша пошта залишиться як є.',
     failed: 'Агент не зміг завершити. Спробуй ще раз.',
     newChat: 'Новий чат',
     noChats: 'Чатів ще немає',

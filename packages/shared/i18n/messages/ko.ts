@@ -63,6 +63,8 @@ export const ko: Messages = {
     stepCount: (count: number) => `${count}단계`,
     detach: '이 이메일 첨부 안 함',
     deleteChat: '채팅 삭제',
+    deleteChatConfirm: '이 채팅을 삭제할까요?',
+    deleteChatHint: '대화는 되돌릴 수 없어요. 메일은 그대로 남아요.',
     failed: '에이전트가 끝내지 못했어요. 다시 시도해 주세요.',
     newChat: '새 채팅',
     noChats: '아직 채팅이 없어요',

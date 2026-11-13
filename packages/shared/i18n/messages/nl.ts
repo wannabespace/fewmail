@@ -67,6 +67,9 @@ export const nl: Messages = {
       }),
     detach: 'Deze e-mail niet bijvoegen',
     deleteChat: 'Chat verwijderen',
+    deleteChatConfirm: 'Deze chat verwijderen?',
+    deleteChatHint:
+      'Het gesprek is dan voorgoed weg. Je mail blijft waar hij is.',
     failed: 'De agent kon het niet afmaken. Probeer het opnieuw.',
     newChat: 'Nieuwe chat',
     noChats: 'Nog geen chats',

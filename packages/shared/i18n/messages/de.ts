@@ -44,6 +44,9 @@ export const de: Messages = {
       }),
     detach: 'Diese E-Mail nicht anhängen',
     deleteChat: 'Chat löschen',
+    deleteChatConfirm: 'Diesen Chat löschen?',
+    deleteChatHint:
+      'Die Unterhaltung ist dann endgültig weg. Deine Mails bleiben, wo sie sind.',
     failed: 'Der Agent konnte nicht fertig werden. Versuch es noch einmal.',
     newChat: 'Neuer Chat',
     noChats: 'Noch keine Chats',

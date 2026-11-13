@@ -63,6 +63,8 @@ export const hi: Messages = {
     stepCount: (count: number) => `${count} चरण`,
     detach: 'यह ईमेल न जोड़ें',
     deleteChat: 'चैट हटाएँ',
+    deleteChatConfirm: 'यह चैट हटाएँ?',
+    deleteChatHint: 'बातचीत हमेशा के लिए हट जाएगी। आपके मेल जहाँ हैं, वहीं रहेंगे।',
     failed: 'एजेंट काम पूरा नहीं कर पाया। फिर से कोशिश करें।',
     newChat: 'नई चैट',
     noChats: 'अभी कोई चैट नहीं',

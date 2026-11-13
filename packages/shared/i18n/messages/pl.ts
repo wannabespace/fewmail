@@ -69,6 +69,9 @@ export const pl: Messages = {
       }),
     detach: 'Nie dołączaj tego e-maila',
     deleteChat: 'Usuń czat',
+    deleteChatConfirm: 'Usunąć ten czat?',
+    deleteChatHint:
+      'Rozmowa zniknie na zawsze. Twoja poczta zostaje tam, gdzie jest.',
     failed: 'Agent nie dał rady dokończyć. Spróbuj ponownie.',
     newChat: 'Nowy czat',
     noChats: 'Nie ma jeszcze czatów',

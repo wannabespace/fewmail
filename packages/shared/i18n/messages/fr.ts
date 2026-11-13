@@ -46,6 +46,9 @@ export const fr: Messages = {
       }),
     detach: 'Ne pas joindre cet e-mail',
     deleteChat: 'Supprimer la discussion',
+    deleteChatConfirm: 'Supprimer cette discussion ?',
+    deleteChatHint:
+      'La conversation disparaît pour de bon. Vos e-mails restent où ils sont.',
     failed: 'L’agent n’a pas pu terminer. Réessayez.',
     newChat: 'Nouvelle discussion',
     noChats: 'Aucune discussion pour l’instant',

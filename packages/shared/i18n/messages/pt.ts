@@ -69,6 +69,9 @@ export const pt: Messages = {
       }),
     detach: 'Não anexar este e-mail',
     deleteChat: 'Excluir conversa',
+    deleteChatConfirm: 'Excluir esta conversa?',
+    deleteChatHint:
+      'A conversa some para sempre. Seus e-mails ficam onde estão.',
     failed: 'O agente não conseguiu terminar. Tente de novo.',
     newChat: 'Nova conversa',
     noChats: 'Nenhuma conversa ainda',

@@ -63,6 +63,9 @@ export const id: Messages = {
     stepCount: (count: number) => `${count} langkah`,
     detach: 'Jangan lampirkan email ini',
     deleteChat: 'Hapus obrolan',
+    deleteChatConfirm: 'Hapus obrolan ini?',
+    deleteChatHint:
+      'Percakapan akan hilang selamanya. Email Anda tetap di tempatnya.',
     failed: 'Agen tidak bisa menyelesaikannya. Coba lagi.',
     newChat: 'Obrolan baru',
     noChats: 'Belum ada obrolan',

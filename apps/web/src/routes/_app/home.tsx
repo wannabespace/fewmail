@@ -5,6 +5,16 @@ import {
   Accordion,
   cardsBleedClassName,
 } from '@fewmail/ui/components/accordion'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@fewmail/ui/components/alert-dialog'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
@@ -455,6 +465,8 @@ const ChatHistory = ({
   const dates = useDates()
   const queryClient = useQueryClient()
   const { data: chats = [] } = useQuery(orpc.chats.list.queryOptions())
+  const [isOpen, setIsOpen] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
   const remove = useMutation(
     orpc.chats.delete.mutationOptions({
       onMutate: ({ id }) => {
@@ -471,44 +483,76 @@ const ChatHistory = ({
   )
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <IconButton
-            icon={Clock01Icon}
-            label={t.agent.chats}
-            size="icon-round"
-            variant="ghost-muted"
-          />
-        }
-      />
-      <DropdownMenuContent align="start" side="top" className="w-80">
-        {chats.length === 0 && (
-          <DropdownMenuItem disabled>{t.agent.noChats}</DropdownMenuItem>
-        )}
-        {chats.map((item) => (
-          <DropdownMenuItem key={item.id} onClick={() => onOpen(item.id)}>
-            <span data-mask className="min-w-0 truncate">
-              {item.title}
-            </span>
-            <DropdownMenuShortcut>
-              {dates.ago(item.updatedAt)}
-            </DropdownMenuShortcut>
+    <>
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger
+          render={
             <IconButton
-              className="-mr-1 opacity-0 group-hover/dropdown-menu-item:opacity-100 group-focus/dropdown-menu-item:opacity-100"
-              icon={Delete02Icon}
-              label={t.agent.deleteChat}
-              size="icon-2xs"
-              variant="ghost-destructive"
-              onClick={(event) => {
-                event.stopPropagation()
-                remove.mutate({ id: item.id })
-              }}
+              icon={Clock01Icon}
+              label={t.agent.chats}
+              size="icon-round"
+              variant="ghost-muted"
             />
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          }
+        />
+        <DropdownMenuContent align="start" side="top" className="w-80">
+          {chats.length === 0 && (
+            <DropdownMenuItem disabled>{t.agent.noChats}</DropdownMenuItem>
+          )}
+          {chats.map((item) => (
+            <DropdownMenuItem key={item.id} onClick={() => onOpen(item.id)}>
+              <span data-mask className="min-w-0 flex-1 truncate">
+                {item.title}
+              </span>
+              <span className={cn(ROW_SWAP, 'shrink-0 whitespace-nowrap')}>
+                <DropdownMenuShortcut className="group-hover/dropdown-menu-item:opacity-0 group-focus/dropdown-menu-item:opacity-0">
+                  {dates.ago(item.updatedAt)}
+                </DropdownMenuShortcut>
+                <IconButton
+                  className="-mr-1 opacity-0 group-hover/dropdown-menu-item:opacity-100 group-focus/dropdown-menu-item:opacity-100"
+                  icon={Delete02Icon}
+                  label={t.agent.deleteChat}
+                  size="icon-2xs"
+                  variant="ghost-destructive"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setIsOpen(false)
+                    setDeleting(item.id)
+                  }}
+                />
+              </span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.agent.deleteChatConfirm}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.agent.deleteChatHint}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.boards.cancel}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                if (deleting) {
+                  remove.mutate({ id: deleting })
+                }
+                setDeleting(null)
+              }}
+            >
+              {t.agent.deleteChat}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 
@@ -795,7 +839,7 @@ const ThreadReader = ({
         maxSize={READER_WIDTH.max}
         onSizeChange={(width) => readerWidthStore.set(width)}
       >
-        <div className="bg-background flex min-w-0 flex-1 flex-col">
+        <div className="bg-background flex min-w-0 flex-1 flex-col border-l">
           <ThreadView
             key={thread}
             isSnoozed={false}
