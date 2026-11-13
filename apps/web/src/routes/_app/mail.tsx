@@ -1979,6 +1979,7 @@ const MailPage = () => {
       <ResizablePanel
         className="flex"
         collapsed={!thread}
+        transition={{ duration: 0 }}
         size={readerWidth}
         minSize={READER_WIDTH.min}
         maxSize={READER_WIDTH.max}
