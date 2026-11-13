@@ -610,6 +610,7 @@ export const pl: Messages = {
     send: 'wyślij',
     skip: 'pomiń',
     stopEditing: 'zakończ edycję',
+    rewrite: 'przepisz',
   },
   legal: {
     privacy: 'Polityka prywatności',
@@ -890,8 +891,12 @@ export const pl: Messages = {
     edit: 'Edytuj',
     open: 'Otwórz',
     send: 'Wyślij',
-    shorter: 'Krócej',
+    rewrite: 'Przepisz',
     shorterInstruction: 'Skróć to.',
+    new: 'Nowe',
+    skipStale: 'Pomiń je',
+    skipped: (n: number) => `Pominięte: ${n}`,
+    stale: (n: number) => `Starsze niż tydzień: ${n}`,
     skip: 'Pomiń',
   },
   reminders: {

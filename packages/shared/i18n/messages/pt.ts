@@ -597,6 +597,7 @@ export const pt: Messages = {
     send: 'enviar',
     skip: 'pular',
     stopEditing: 'parar de editar',
+    rewrite: 'reescrever',
   },
   legal: {
     privacy: 'Política de Privacidade',
@@ -871,8 +872,12 @@ export const pt: Messages = {
     edit: 'Editar',
     open: 'Abrir',
     send: 'Enviar',
-    shorter: 'Mais curto',
+    rewrite: 'Reescrever',
     shorterInstruction: 'Deixe mais curto.',
+    new: 'Novo',
+    skipStale: 'Pular todas',
+    skipped: (n: number) => `Puladas: ${n}`,
+    stale: (n: number) => `Com mais de uma semana: ${n}`,
     skip: 'Pular',
   },
   reminders: {

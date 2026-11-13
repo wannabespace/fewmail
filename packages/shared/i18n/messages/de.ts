@@ -827,6 +827,7 @@ export const de: Messages = {
     send: 'senden',
     skip: 'überspringen',
     stopEditing: 'fertig',
+    rewrite: 'umschreiben',
   },
   legal: {
     privacy: 'Datenschutzerklärung',
@@ -1093,8 +1094,12 @@ export const de: Messages = {
     edit: 'Bearbeiten',
     open: 'Öffnen',
     send: 'Senden',
-    shorter: 'Kürzer',
+    rewrite: 'Umschreiben',
     shorterInstruction: 'Mach es kürzer.',
+    new: 'Neu',
+    skipStale: 'Alle überspringen',
+    skipped: (n: number) => `Übersprungen: ${n}`,
+    stale: (n: number) => `Älter als eine Woche: ${n}`,
     skip: 'Überspringen',
   },
   rules: {

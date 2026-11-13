@@ -828,6 +828,7 @@ export const es: Messages = {
     send: 'enviar',
     skip: 'omitir',
     stopEditing: 'dejar de editar',
+    rewrite: 'reescribir',
   },
   legal: {
     privacy: 'Política de privacidad',
@@ -1093,8 +1094,12 @@ export const es: Messages = {
     edit: 'Editar',
     open: 'Abrir',
     send: 'Enviar',
-    shorter: 'Más corto',
+    rewrite: 'Reescribir',
     shorterInstruction: 'Hazlo más corto.',
+    new: 'Nuevo',
+    skipStale: 'Omitirlas',
+    skipped: (n: number) => `Omitidas: ${n}`,
+    stale: (n: number) => `De hace más de una semana: ${n}`,
     skip: 'Omitir',
   },
   rules: {

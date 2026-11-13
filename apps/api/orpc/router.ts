@@ -54,7 +54,7 @@ import {
   undoClearOut,
 } from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
-import { listTodayHandled, openToday } from '../services/home'
+import { getToday, listTodayHandled, openToday } from '../services/home'
 import { askFewmail } from '../services/instructions'
 import {
   getTelegramLink,
@@ -82,6 +82,7 @@ import {
   settleTidy,
   pinMessage,
   redraftAction,
+  restoreAction,
   snoozeMessage,
   trashMessage,
   unsnoozeMessage,
@@ -258,6 +259,11 @@ export const router = {
       .input(id)
       .handler(({ context, input }) =>
         dismissAction(context.user.id, input.id)
+      ),
+    restore: agent
+      .input(id)
+      .handler(({ context, input }) =>
+        restoreAction(context.user.id, input.id)
       ),
     redraft: agent
       .input(id.and({ 'instruction?': 'string' }))
@@ -598,13 +604,14 @@ export const router = {
   },
   today: {
     count: agent.handler(({ context }) => countQueue(context.user.id)),
-    get: agent.handler(({ context }) => openToday(context.user.id)),
+    get: agent.handler(({ context }) => getToday(context.user.id)),
     handled: agent.handler(({ context }) => listTodayHandled(context.user.id)),
     keep: agent
       .input(type({ messageIds: 'string.uuid[] > 0' }))
       .handler(({ context, input }) =>
         settleTidy(context.user.id, input.messageIds, 'dismissed')
       ),
+    open: agent.handler(({ context }) => openToday(context.user.id)),
     tidy: agent
       .input(type({ messageIds: 'string.uuid[] > 0' }))
       .handler(({ context, input }) =>

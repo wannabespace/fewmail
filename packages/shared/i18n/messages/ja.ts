@@ -323,6 +323,7 @@ export const ja: Messages = {
     send: '送信',
     skip: 'スキップ',
     stopEditing: '編集を終了',
+    rewrite: '書き直す',
   },
   legal: {
     privacy: 'プライバシーポリシー',
@@ -578,8 +579,12 @@ export const ja: Messages = {
     edit: '編集',
     open: '開く',
     send: '送信',
-    shorter: '短く',
+    rewrite: '書き直す',
     shorterInstruction: 'もっと短くしてください。',
+    new: '新着',
+    skipStale: 'まとめてスキップ',
+    skipped: (n: number) => `${n}件をスキップ`,
+    stale: (n: number) => `1週間以上前: ${n}件`,
     skip: 'スキップ',
   },
   reminders: {

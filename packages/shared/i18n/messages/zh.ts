@@ -320,6 +320,7 @@ export const zh: Messages = {
     send: '发送',
     skip: '跳过',
     stopEditing: '结束编辑',
+    rewrite: '重写',
   },
   legal: {
     privacy: '隐私政策',
@@ -565,8 +566,12 @@ export const zh: Messages = {
     edit: '编辑',
     open: '打开',
     send: '发送',
-    shorter: '更短',
+    rewrite: '重写',
     shorterInstruction: '写短一点。',
+    new: '新',
+    skipStale: '全部跳过',
+    skipped: (n: number) => `已跳过 ${n} 项`,
+    stale: (n: number) => `超过一周：${n} 项`,
     skip: '跳过',
   },
   reminders: {

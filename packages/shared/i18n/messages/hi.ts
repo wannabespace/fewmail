@@ -324,6 +324,7 @@ export const hi: Messages = {
     send: 'भेजें',
     skip: 'छोड़ें',
     stopEditing: 'बदलाव बंद करें',
+    rewrite: 'दोबारा लिखें',
   },
   legal: {
     privacy: 'गोपनीयता नीति',
@@ -580,8 +581,12 @@ export const hi: Messages = {
     edit: 'बदलें',
     open: 'खोलें',
     send: 'भेजें',
-    shorter: 'छोटा करें',
+    rewrite: 'दोबारा लिखें',
     shorterInstruction: 'इसे छोटा करें।',
+    new: 'नया',
+    skipStale: 'सब छोड़ें',
+    skipped: (n: number) => `छोड़े गए: ${n}`,
+    stale: (n: number) => `एक हफ़्ते से पुराने: ${n}`,
     skip: 'छोड़ें',
   },
   reminders: {

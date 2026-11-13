@@ -574,6 +574,7 @@ export const tr: Messages = {
     send: 'gönder',
     skip: 'atla',
     stopEditing: 'düzenlemeyi bitir',
+    rewrite: 'yeniden yaz',
   },
   legal: {
     privacy: 'Gizlilik Politikası',
@@ -839,8 +840,12 @@ export const tr: Messages = {
     edit: 'Düzenle',
     open: 'Aç',
     send: 'Gönder',
-    shorter: 'Kısalt',
+    rewrite: 'Yeniden yaz',
     shorterInstruction: 'Daha kısa yap.',
+    new: 'Yeni',
+    skipStale: 'Hepsini atla',
+    skipped: (n: number) => `Atlandı: ${n}`,
+    stale: (n: number) => `Bir haftadan eski: ${n}`,
     skip: 'Atla',
   },
   reminders: {

@@ -832,6 +832,7 @@ export const it: Messages = {
     send: 'invia',
     skip: 'salta',
     stopEditing: 'fine modifica',
+    rewrite: 'riscrivi',
   },
   legal: {
     privacy: 'Informativa sulla privacy',
@@ -1098,8 +1099,12 @@ export const it: Messages = {
     edit: 'Modifica',
     open: 'Apri',
     send: 'Invia',
-    shorter: 'Più breve',
+    rewrite: 'Riscrivi',
     shorterInstruction: 'Rendila più breve.',
+    new: 'Nuovo',
+    skipStale: 'Saltale',
+    skipped: (n: number) => `Saltate: ${n}`,
+    stale: (n: number) => `Più vecchie di una settimana: ${n}`,
     skip: 'Salta',
   },
   rules: {

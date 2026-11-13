@@ -96,7 +96,11 @@ export const listQueue = (userId: string) =>
     .select({
       action: actions,
       analysis: analysisSummary,
-      message: messageSummary,
+      message: {
+        ...messageSummary,
+        isFromMe: messages.isFromMe,
+        to: messages.to,
+      },
     })
     .from(actions)
     .leftJoin(messages, eq(messages.id, actions.messageId))
@@ -772,6 +776,20 @@ export const dismissAction = async (userId: string, actionId: string) => {
   return dismissed
 }
 
+/** Undo of a skip: the card goes back to the queue. */
+export const restoreAction = async (userId: string, actionId: string) => {
+  await getAction(userId, actionId)
+  const [restored] = await db
+    .update(actions)
+    .set({ resolvedAt: null, status: 'pending' })
+    .where(and(eq(actions.id, actionId), eq(actions.status, 'dismissed')))
+    .returning()
+  if (!restored) {
+    throw new NotFoundError('Action is not skipped')
+  }
+  return restored
+}
+
 export const redraftAction = async (
   userId: string,
   actionId: string,
@@ -878,7 +896,14 @@ const worthKnowingSince = (userId: string, since: Date, where?: SQL) =>
     )
 
 export const recentImportant = (userId: string, since: Date) =>
-  worthKnowingSince(userId, since, arrayContains(messages.labelIds, ['INBOX']))
+  worthKnowingSince(
+    userId,
+    since,
+    and(
+      arrayContains(messages.labelIds, ['INBOX']),
+      eq(messages.isUnread, true)
+    )
+  )
     .orderBy(desc(analyses.importance), desc(messages.receivedAt))
     .limit(40)
 
@@ -927,7 +952,6 @@ export const mailPulse = async (userId: string, since: Date) => {
 
 const DATES_WINDOW_HOURS = 7 * 24
 const DATES_SCANNED = 200
-const DATES_SHOWN = 6
 
 /** Recent mail that names a due date or a meeting time, newest first; the dates stay as written. */
 export const mailWithDates = async (userId: string) => {
@@ -937,12 +961,10 @@ export const mailWithDates = async (userId: string) => {
   )
     .orderBy(desc(messages.receivedAt))
     .limit(DATES_SCANNED)
-  return rows
-    .filter(
-      ({ analysis }) =>
-        analysis.extracted.dueDate || analysis.extracted.meetingTime
-    )
-    .slice(0, DATES_SHOWN)
+  return rows.filter(
+    ({ analysis }) =>
+      analysis.extracted.dueDate || analysis.extracted.meetingTime
+  )
 }
 
 const TIDY_SHOWN = 200

@@ -596,6 +596,7 @@ export const nl: Messages = {
     send: 'versturen',
     skip: 'overslaan',
     stopEditing: 'stop bewerken',
+    rewrite: 'herschrijven',
   },
   legal: {
     privacy: 'Privacybeleid',
@@ -872,8 +873,12 @@ export const nl: Messages = {
     edit: 'Bewerken',
     open: 'Openen',
     send: 'Versturen',
-    shorter: 'Korter',
+    rewrite: 'Herschrijven',
     shorterInstruction: 'Maak het korter.',
+    new: 'Nieuw',
+    skipStale: 'Alle overslaan',
+    skipped: (n: number) => `Overgeslagen: ${n}`,
+    stale: (n: number) => `Ouder dan een week: ${n}`,
     skip: 'Overslaan',
   },
   reminders: {

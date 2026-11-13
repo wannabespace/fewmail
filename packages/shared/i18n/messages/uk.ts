@@ -830,6 +830,7 @@ export const uk: Messages = {
     send: 'надіслати',
     skip: 'пропустити',
     stopEditing: 'готово',
+    rewrite: 'переписати',
   },
   legal: {
     privacy: 'Політика конфіденційності',
@@ -1095,8 +1096,12 @@ export const uk: Messages = {
     edit: 'Змінити',
     open: 'Відкрити',
     send: 'Надіслати',
-    shorter: 'Коротше',
+    rewrite: 'Переписати',
     shorterInstruction: 'Зроби коротше.',
+    new: 'Нове',
+    skipStale: 'Пропустити їх',
+    skipped: (n: number) => `Пропущено: ${n}`,
+    stale: (n: number) => `Старші за тиждень: ${n}`,
     skip: 'Пропустити',
   },
   rules: {

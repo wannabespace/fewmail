@@ -65,7 +65,16 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import { type } from 'arktype'
-import { endOfTomorrow, format, isTomorrow, max, startOfToday } from 'date-fns'
+import {
+  differenceInMinutes,
+  endOfTomorrow,
+  format,
+  isToday,
+  isTomorrow,
+  max,
+  startOfToday,
+  subDays,
+} from 'date-fns'
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useSubscription } from 'seitu/react'
@@ -242,6 +251,13 @@ const HandledList = () => {
   const t = useT()
   const queryClient = useQueryClient()
   const { data: handled = [] } = useQuery(orpc.today.handled.queryOptions())
+  const toInbox = useMutation(
+    orpc.mail.moveToInbox.mutationOptions({
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+      onSuccess: () => toast(t.mail.backInInbox),
+    })
+  )
   const notSpam = useMutation(
     orpc.mail.notSpam.mutationOptions({
       onMutate: ({ messageId }) => {
@@ -255,6 +271,19 @@ const HandledList = () => {
       onSuccess: () => toast(t.mail.movedToInbox),
     })
   )
+
+  const undos: Partial<
+    Record<string, { label: string; run: (messageId: string) => void }>
+  > = {
+    archive: {
+      label: t.mail.moveToInbox,
+      run: (messageId) => toInbox.mutate({ messageId }),
+    },
+    spam: {
+      label: t.mail.notSpam,
+      run: (messageId) => notSpam.mutate({ messageId }),
+    },
+  }
 
   return (
     <SettingsGroup title={t.today.handled.total(handled.length)}>
@@ -282,13 +311,13 @@ const HandledList = () => {
             </span>
           }
         >
-          {action.kind === 'spam' && message ? (
+          {message && undos[action.kind] ? (
             <Button
               size="sm"
               variant="ghost-muted"
-              onClick={() => notSpam.mutate({ messageId: message.id })}
+              onClick={() => undos[action.kind]?.run(message.id)}
             >
-              {t.mail.notSpam}
+              {undos[action.kind]?.label}
             </Button>
           ) : (
             <Ago date={action.createdAt} />
@@ -301,10 +330,11 @@ const HandledList = () => {
 
 type Today = RouterOutputs['today']['get']
 
+/** Opens in the reader beside Home, never in Mail: Home and the chat stay where they were. */
 const ThreadLink = ({ text, threadId }: { text: string; threadId: string }) => (
   <Link
-    to="/mail"
-    search={{ thread: threadId }}
+    to="/home"
+    search={(prev) => ({ ...prev, thread: threadId })}
     onPointerEnter={() => {
       void prefetchThread(threadId)
     }}
@@ -441,26 +471,6 @@ const MailDigest = ({ today }: { today: Today }) => {
           ))}
         </SettingsGroup>
       )}
-      {today.dates.length > 0 && (
-        <SettingsGroup title={t.today.dates}>
-          {today.dates.map(({ analysis, message }) => (
-            <SettingsRow
-              key={message.id}
-              title={
-                <ThreadLink
-                  threadId={message.threadId}
-                  text={message.fromName ?? message.fromEmail}
-                />
-              }
-              description={<span data-mask>{analysis.summary}</span>}
-            >
-              <ExtractedChips
-                extracted={{ ...analysis.extracted, amount: null }}
-              />
-            </SettingsRow>
-          ))}
-        </SettingsGroup>
-      )}
       {today.boards.length > 0 && (
         <SettingsGroup title={t.nav.boards}>
           {today.boards.map((board) => (
@@ -571,9 +581,18 @@ const homeHints = (
     today: Today | undefined
     isAsking: boolean
     isEditing: boolean
+    isRewriting: boolean
     picked: number
+    selected: QueueItem | undefined
+    stale: number
   }
 ): [string, string][] => {
+  if (state.isRewriting) {
+    return [
+      ['⏎', t.keys.rewrite],
+      ['esc', t.keys.stopEditing],
+    ]
+  }
   if (state.isAsking) {
     return [
       ['⏎', t.keys.send],
@@ -605,11 +624,17 @@ const homeHints = (
     ...(state.alike > 1
       ? [['⇧⏎', t.keys.approveAll(state.alike)] as [string, string]]
       : []),
-    ['E', t.keys.edit],
+    ...(state.selected && sendsDraft(state.selected.action)
+      ? [
+          ['E', t.keys.edit] as [string, string],
+          ['R', t.keys.rewrite] as [string, string],
+        ]
+      : []),
     ['S', t.keys.skip],
     ['⌫', t.keys.trash],
     ['X', t.keys.pick],
     ['⌘A', t.keys.pickAll],
+    ...(state.stale > 0 ? [['⇧S', t.queue.skipStale] as [string, string]] : []),
     ...(state.today?.tidy.length
       ? [
           ['T', t.today.tidy.run] as [string, string],
@@ -626,6 +651,42 @@ const homeHints = (
 }
 
 const READER_WIDTH = { default: 560, max: '60%', min: 420 } as const
+const STALE_DAYS = 7
+/** Coming back to the tab after this long is a new look at Home: what came since is marked new. */
+const AWAY_MINUTES = 10
+
+/** Records each real look at Home (opening it, or coming back to the tab after a while) and hands back the look before it. */
+const useVisits = (onVisit: () => Promise<unknown>) => {
+  const [seenAt, setSeenAt] = useState<Date | null>(null)
+  const { mutate: open } = useMutation(
+    orpc.today.open.mutationOptions({
+      onSuccess: (visit) => {
+        setSeenAt(visit.seenAt)
+        // The first look on a new day moves the catch-up window.
+        if (visit.seenAt && !isToday(visit.seenAt)) {
+          void onVisit()
+        }
+      },
+    })
+  )
+  useEffect(() => {
+    open()
+    let hiddenAt: Date | null = null
+    const onVisibility = () => {
+      if (document.hidden) {
+        hiddenAt = new Date()
+      } else if (
+        hiddenAt &&
+        differenceInMinutes(new Date(), hiddenAt) >= AWAY_MINUTES
+      ) {
+        open()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [open])
+  return seenAt
+}
 
 const readerWidthStore = createWebStorageValue({
   defaultValue: READER_WIDTH.default as number,
@@ -847,7 +908,9 @@ const HomeHeader = ({
         </p>
         {data ? (
           <h1 className="text-display font-serif tracking-tight">
-            {isFirstRead ? t.nav.syncing : t.today.headline(data.queue.length)}
+            {isFirstRead
+              ? t.nav.syncing
+              : t.today.headline(data.queue.length + data.banners.length)}
           </h1>
         ) : (
           <Skeleton className="my-1 h-9 w-3/5" />
@@ -921,7 +984,8 @@ const ListenButton = () => {
   )
 }
 
-const CalendarAhead = () => {
+/** What is coming: the calendar's events left today and tomorrow, then mail naming a date (soonest first, from the server). */
+const Ahead = ({ dated }: { dated: Today['dates'] }) => {
   const t = useT()
   const dates = useDates()
   const { data: events = [] } = useQuery(
@@ -931,12 +995,12 @@ const CalendarAhead = () => {
         calendar.events.filter((event) => eventTimes(event).end > new Date()),
     })
   )
-  if (events.length === 0) {
+  if (events.length === 0 && dated.length === 0) {
     return null
   }
 
   return (
-    <SettingsGroup title={t.nav.calendar}>
+    <SettingsGroup title={t.today.dates}>
       {events.map((event) => {
         const { start } = eventTimes(event)
         const day = max([start, startOfToday()])
@@ -966,6 +1030,20 @@ const CalendarAhead = () => {
           />
         )
       })}
+      {dated.map(({ analysis, message }) => (
+        <SettingsRow
+          key={message.id}
+          title={
+            <ThreadLink
+              threadId={message.threadId}
+              text={message.fromName ?? message.fromEmail}
+            />
+          }
+          description={<span data-mask>{analysis.summary}</span>}
+        >
+          <ExtractedChips extracted={{ ...analysis.extracted, amount: null }} />
+        </SettingsRow>
+      ))}
     </SettingsGroup>
   )
 }
@@ -1043,6 +1121,58 @@ const ThreadReader = ({
   )
 }
 
+/**
+ * The cursor holds a card, not a position: a card arriving above it live must never take ⏎ from the one being read.
+ * A card that leaves hands the cursor to whichever card takes its place.
+ */
+const useCursor = (queue: QueueItem[]) => {
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [lastIndex, setLastIndex] = useState(0)
+  const foundIndex = queue.findIndex(({ action }) => action.id === selectedId)
+  const selectedIndex =
+    foundIndex === -1
+      ? Math.max(0, Math.min(lastIndex, queue.length - 1))
+      : foundIndex
+  const selected = queue.at(selectedIndex)
+  if (foundIndex === -1 && selected) {
+    setSelectedId(selected.action.id)
+  }
+  if (foundIndex !== -1 && foundIndex !== lastIndex) {
+    setLastIndex(foundIndex)
+  }
+  return { selected, selectedIndex, setSelectedId }
+}
+
+const StaleCards = ({
+  canUseKeys,
+  count,
+  onSkip,
+}: {
+  canUseKeys: boolean
+  count: number
+  onSkip: () => void
+}) => {
+  const t = useT()
+  useHotkey('Shift+S', onSkip, { enabled: canUseKeys && count > 0 })
+
+  if (count === 0) {
+    return null
+  }
+  return (
+    <TallyBox>
+      <span>{t.queue.stale(count)}</span>
+      <Button
+        size="sm"
+        variant="secondary"
+        className="ml-auto"
+        onClick={onSkip}
+      >
+        {t.queue.skipStale} <Kbd>⇧S</Kbd>
+      </Button>
+    </TallyBox>
+  )
+}
+
 const HomePage = () => {
   const t = useT()
   const navigate = useNavigate()
@@ -1053,23 +1183,41 @@ const HomePage = () => {
 
   const queue = data?.queue ?? []
   const isFirstRead = !!data && isReadingFirstTime(data.mailboxes)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const { selected, selectedIndex, setSelectedId } = useCursor(queue)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [rewritingId, setRewritingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [isReviewing, setIsReviewing] = useState(false)
   const [pickedIds, setPickedIds] = useState<string[]>([])
 
-  const selectedIndex = Math.max(
-    0,
-    queue.findIndex(({ action }) => action.id === selectedId)
-  )
-  const selected = queue[selectedIndex]
   const picked = queue.filter(({ action }) => pickedIds.includes(action.id))
   const targets =
     picked.length > 0 ? picked : queue.slice(selectedIndex, selectedIndex + 1)
+  const staleBefore = subDays(dataUpdatedAt, STALE_DAYS)
+  const stale = queue.filter(({ action }) => action.createdAt < staleBefore)
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
+  const seenAt = useVisits(invalidate)
+  const refreshMail = () =>
+    Promise.all([
+      invalidate(),
+      queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+    ])
+  const undoable = (message: string, undo: () => Promise<unknown>) =>
+    toast(message, {
+      action: {
+        label: t.compose.undo,
+        onClick: () => {
+          void undo().finally(refreshMail)
+        },
+      },
+    })
+  const undoSkip = (ids: string[]) =>
+    undoable(
+      ids.length === 1 ? t.telegram.skipped : t.queue.skipped(ids.length),
+      () => Promise.all(ids.map((id) => client.actions.restore({ id })))
+    )
   const removeAndAdvance = (actionId: string) => {
     if (actionId === selected?.action.id) {
       const next = queue[selectedIndex + 1] ?? queue[selectedIndex - 1]
@@ -1140,6 +1288,7 @@ const HomePage = () => {
     orpc.actions.dismiss.mutationOptions({
       onMutate: ({ id }) => removeAndAdvance(id),
       onSettled: invalidate,
+      onSuccess: (_, { id }) => undoSkip([id]),
     })
   )
   const skipMany = useMutation({
@@ -1147,7 +1296,9 @@ const HomePage = () => {
       Promise.all(ids.map((id) => client.actions.dismiss({ id }))),
     onMutate: dropFromQueue,
     onSettled: invalidate,
+    onSuccess: (_, ids) => undoSkip(ids),
   })
+  const skipStale = () => skipMany.mutate(stale.map(({ action }) => action.id))
   const trashMany = useMutation({
     mutationFn: (items: QueueItem[]) =>
       Promise.all(
@@ -1159,12 +1310,18 @@ const HomePage = () => {
         })
       ),
     onMutate: (items) => dropFromQueue(items.map(({ action }) => action.id)),
-    onSettled: () =>
-      Promise.all([
-        invalidate(),
-        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
-      ]),
-    onSuccess: () => toast(t.mail.trashed),
+    onSettled: refreshMail,
+    onSuccess: (_, items) =>
+      undoable(t.mail.trashed, () =>
+        Promise.all(
+          items.map(async ({ action, message }) => {
+            if (message) {
+              await client.mail.moveToInbox({ messageId: message.id })
+            }
+            await client.actions.restore({ id: action.id })
+          })
+        )
+      ),
   })
   const redraft = useMutation(
     orpc.actions.redraft.mutationOptions({
@@ -1181,8 +1338,11 @@ const HomePage = () => {
   const draftOf = (item: (typeof queue)[number]) =>
     drafts[item.action.id] ?? item.action.detail ?? ''
   const isEditing = !!selected && editingId === selected.action.id
-  const shorten = (id: string) =>
-    redraft.mutate({ id, instruction: t.queue.shorterInstruction })
+  const isRewriting = !!selected && rewritingId === selected.action.id
+  const rewrite = (id: string, instruction: string) => {
+    setRewritingId(null)
+    redraft.mutate({ id, instruction })
+  }
 
   const approveItem = ({ action }: QueueItem) => {
     const edited = drafts[action.id]
@@ -1206,6 +1366,7 @@ const HomePage = () => {
     if (next) {
       setSelectedId(next.action.id)
       setEditingId(null)
+      setRewritingId(null)
     }
   }
 
@@ -1264,7 +1425,9 @@ const HomePage = () => {
   useHotkey(
     'R',
     () =>
-      selected && sendsDraft(selected.action) && shorten(selected.action.id),
+      selected &&
+      sendsDraft(selected.action) &&
+      setRewritingId(selected.action.id),
     listKeys
   )
   const hasHandled = !!data?.handled.total
@@ -1335,7 +1498,9 @@ const HomePage = () => {
                         item={item}
                         index={index}
                         draft={draftOf(item)}
+                        isNew={!!seenAt && item.action.createdAt > seenAt}
                         isPicked={pickedIds.includes(item.action.id)}
+                        isRewriting={rewritingId === item.action.id}
                         isSelected={item === selected}
                         isEditing={editingId === item.action.id}
                         isBusy={
@@ -1350,7 +1515,12 @@ const HomePage = () => {
                             [item.action.id]: draft,
                           }))
                         }
-                        onRedraft={() => shorten(item.action.id)}
+                        onRewrite={(instruction) =>
+                          rewrite(item.action.id, instruction)
+                        }
+                        onRewriteChange={(isOn) =>
+                          setRewritingId(isOn ? item.action.id : null)
+                        }
                         onOpen={() =>
                           item.message && showThread(item.message.threadId)
                         }
@@ -1360,14 +1530,18 @@ const HomePage = () => {
                       />
                     ))}
                   </Accordion>
+                  <StaleCards
+                    canUseKeys={isWalking}
+                    count={stale.length}
+                    onSkip={skipStale}
+                  />
                 </section>
 
-                <Tidy today={data} canUseKeys={isWalking} />
-
-                <CalendarAhead />
                 {data && (
                   <>
+                    <Ahead dated={data.dates} />
                     <MailDigest today={data} />
+                    <Tidy today={data} canUseKeys={isWalking} />
                     <DayTally
                       today={data}
                       isReviewing={isReviewing}
@@ -1394,7 +1568,10 @@ const HomePage = () => {
               hasHandled,
               isAsking,
               isEditing,
+              selected,
+              isRewriting,
               picked: picked.length,
+              stale: stale.length,
               today: data,
             })}
           />

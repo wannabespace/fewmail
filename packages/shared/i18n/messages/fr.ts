@@ -838,6 +838,7 @@ export const fr: Messages = {
     send: 'envoyer',
     skip: 'passer',
     stopEditing: 'terminer',
+    rewrite: 'réécrire',
   },
   legal: {
     privacy: 'Politique de confidentialité',
@@ -1105,8 +1106,12 @@ export const fr: Messages = {
     edit: 'Modifier',
     open: 'Ouvrir',
     send: 'Envoyer',
-    shorter: 'Plus court',
+    rewrite: 'Réécrire',
     shorterInstruction: 'Fais plus court.',
+    new: 'Nouveau',
+    skipStale: 'Les passer',
+    skipped: (n: number) => `Passées : ${n}`,
+    stale: (n: number) => `Plus d’une semaine : ${n}`,
     skip: 'Passer',
   },
   rules: {

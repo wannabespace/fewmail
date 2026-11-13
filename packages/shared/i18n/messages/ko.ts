@@ -321,6 +321,7 @@ export const ko: Messages = {
     send: '보내기',
     skip: '건너뛰기',
     stopEditing: '편집 종료',
+    rewrite: '다시 쓰기',
   },
   legal: {
     privacy: '개인정보 처리방침',
@@ -575,8 +576,12 @@ export const ko: Messages = {
     edit: '편집',
     open: '열기',
     send: '보내기',
-    shorter: '더 짧게',
+    rewrite: '다시 쓰기',
     shorterInstruction: '더 짧게 써 줘.',
+    new: '새 항목',
+    skipStale: '모두 건너뛰기',
+    skipped: (n: number) => `${n}개 건너뜀`,
+    stale: (n: number) => `일주일 넘음: ${n}개`,
     skip: '건너뛰기',
   },
   reminders: {

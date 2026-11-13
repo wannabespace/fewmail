@@ -578,6 +578,7 @@ export const id: Messages = {
     send: 'kirim',
     skip: 'lewati',
     stopEditing: 'selesai edit',
+    rewrite: 'tulis ulang',
   },
   legal: {
     privacy: 'Kebijakan Privasi',
@@ -846,8 +847,12 @@ export const id: Messages = {
     edit: 'Edit',
     open: 'Buka',
     send: 'Kirim',
-    shorter: 'Persingkat',
+    rewrite: 'Tulis ulang',
     shorterInstruction: 'Buat lebih singkat.',
+    new: 'Baru',
+    skipStale: 'Lewati semua',
+    skipped: (n: number) => `Dilewati: ${n}`,
+    stale: (n: number) => `Lebih dari seminggu: ${n}`,
     skip: 'Lewati',
   },
   reminders: {

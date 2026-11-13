@@ -24,6 +24,8 @@ const CATCH_UP_MIN_HOURS = 24
 const CATCH_UP_MAX_DAYS = 7
 const RECENT_SHOWN_PER_DAY = 8
 const SAVED_WINDOW_DAYS = 7
+const DATES_SHOWN = 6
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/u
 
 type Settings = typeof userSettings.$inferSelect
 
@@ -51,8 +53,28 @@ const catchUp = (settings: Settings | null, now = new Date()) => {
 export const savedThisWeek = (userId: string) =>
   timeSaved(userId, subDays(new Date(), SAVED_WINDOW_DAYS))
 
+type Dated = Awaited<ReturnType<typeof mailWithDates>>[number]
+
+const isoDue = ({ analysis }: Dated) =>
+  analysis.extracted.dueDate && ISO_DATE.test(analysis.extracted.dueDate)
+    ? analysis.extracted.dueDate
+    : null
+
+/** A due date the model wrote as ISO sorts soonest first and drops once passed; any other date stays as written, newest mail first. */
+const upcoming = (dated: Dated[], today: string) =>
+  dated
+    .filter((item) => (isoDue(item) ?? today) >= today)
+    .toSorted((a, b) => {
+      const [dueA, dueB] = [isoDue(a), isoDue(b)]
+      if (dueA && dueB) {
+        return dueA.localeCompare(dueB)
+      }
+      return Number(!dueA) - Number(!dueB)
+    })
+
 export const getToday = async (userId: string) => {
-  const { days, since } = catchUp(await getSettings(userId))
+  const settings = await getSettings(userId)
+  const { days, since } = catchUp(settings)
   const [
     queue,
     handled,
@@ -84,12 +106,19 @@ export const getToday = async (userId: string) => {
     ...queue.map(({ message }) => message?.id),
     ...codes.map(({ id }) => id),
   ])
+  const datesShown = upcoming(
+    dates.filter(({ message }) => !shown.has(message.id)),
+    localClock(settings?.timezone ?? 'UTC').date
+  ).slice(0, DATES_SHOWN)
+  for (const { message } of datesShown) {
+    shown.add(message.id)
+  }
   return {
     awaiting,
     banners,
     boards,
     codes,
-    dates,
+    dates: datesShown,
     days,
     handled,
     mailboxes,
@@ -103,16 +132,18 @@ export const getToday = async (userId: string) => {
   }
 }
 
+/** Only the person looking at Home is a visit (never a live refetch or the agent); `seenAt` is the one before, so the page can mark what came since. */
 export const openToday = async (userId: string) => {
   const settings = await getSettings(userId)
-  if (settings) {
-    const now = new Date()
-    await db
-      .update(userSettings)
-      .set({ todayOpenedAt: now, todaySince: lastVisit(settings, now) })
-      .where(eq(userSettings.userId, userId))
+  if (!settings) {
+    return { seenAt: null }
   }
-  return getToday(userId)
+  const now = new Date()
+  await db
+    .update(userSettings)
+    .set({ todayOpenedAt: now, todaySince: lastVisit(settings, now) })
+    .where(eq(userSettings.userId, userId))
+  return { seenAt: settings.todayOpenedAt }
 }
 
 export const listTodayHandled = async (userId: string) =>

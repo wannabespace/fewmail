@@ -1,7 +1,7 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { sendsDraft } from '@fewmail/shared/agent'
 import type { CleanupSender } from '@fewmail/shared/agent'
-import { textToHtml } from '@fewmail/shared/email'
+import { replyRecipients, textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
   AccordionContent,
@@ -11,6 +11,11 @@ import {
 import { Button } from '@fewmail/ui/components/button'
 import { Checkbox } from '@fewmail/ui/components/checkbox'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
@@ -18,7 +23,9 @@ import {
   NextIcon,
   Tick02Icon,
 } from '@hugeicons/core-free-icons'
-import { useEffect, useRef } from 'react'
+import { useHotkey } from '@tanstack/react-hotkeys'
+import { useEffect, useRef, useState } from 'react'
+import type { RefObject } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
@@ -126,6 +133,7 @@ const QuickActions = ({
 
 const QueueCardHeader = ({
   index,
+  isNew,
   isPicked,
   isSelected,
   item: { action, analysis, message },
@@ -135,6 +143,7 @@ const QueueCardHeader = ({
   onSkip,
 }: {
   index: number
+  isNew: boolean
   isPicked: boolean
   isSelected: boolean
   item: QueueItem
@@ -150,6 +159,11 @@ const QueueCardHeader = ({
     <AccordionTrigger
       trailing={
         <>
+          {!isSelected && (
+            <span className="text-muted-foreground mr-3 text-xs whitespace-nowrap">
+              {approveLabel(t, action, sendsDraft(action))}
+            </span>
+          )}
           <span className={cn(ROW_SWAP, 'mr-3')}>
             {message && (
               <span
@@ -189,6 +203,11 @@ const QueueCardHeader = ({
       >
         {index + 1}
       </span>
+      {isNew && (
+        <span className="bg-primary size-1.5 shrink-0 rounded-full">
+          <span className="sr-only">{t.queue.new}</span>
+        </span>
+      )}
       <strong data-mask className="truncate font-semibold">
         {action.kind === 'cleanup'
           ? 'Fewmail'
@@ -198,6 +217,41 @@ const QueueCardHeader = ({
         {headline({ action, analysis, message })}
       </span>
     </AccordionTrigger>
+  )
+}
+
+const RewriteField = ({
+  onCancel,
+  onSubmit,
+}: {
+  onCancel: () => void
+  onSubmit: (instruction: string) => void
+}) => {
+  const t = useT()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [instruction, setInstruction] = useState('')
+  const submit = () =>
+    onSubmit(instruction.trim() || t.queue.shorterInstruction)
+  const keys = { ignoreInputs: false, target: inputRef }
+  useHotkey('Enter', submit, keys)
+  useHotkey('Escape', onCancel, keys)
+  useEffect(() => inputRef.current?.focus(), [])
+
+  return (
+    <InputGroup size="sm">
+      <InputGroupInput
+        ref={inputRef}
+        value={instruction}
+        onChange={(event) => setInstruction(event.target.value)}
+        onBlur={() => !instruction && onCancel()}
+        placeholder={t.queue.shorterInstruction}
+        aria-label={t.queue.rewrite}
+        data-mask
+      />
+      <InputGroupAddon align="inline-end">
+        <Kbd>⏎</Kbd>
+      </InputGroupAddon>
+    </InputGroup>
   )
 }
 
@@ -220,12 +274,76 @@ const completerFor = (hasAgent: boolean, message: QueueItem['message']) =>
           .then(({ text }) => text)
     : undefined
 
+/** What they wrote, then the draft (or its editor) and the rewrite field: a reply is judged against the email, never alone. */
+const ReplyBody = ({
+  draft,
+  editorRef,
+  hasAgent,
+  isEditing,
+  isRewriting,
+  message,
+  onApprove,
+  onDraftChange,
+  onRewrite,
+  onRewriteChange,
+  onStopEditing,
+}: {
+  draft: string
+  editorRef: RefObject<ComposerEditorHandle | null>
+  hasAgent: boolean
+  isEditing: boolean
+  isRewriting: boolean
+  message: QueueItem['message']
+  onApprove: () => void
+  onDraftChange: (draft: string) => void
+  onRewrite: (instruction: string) => void
+  onRewriteChange: (isRewriting: boolean) => void
+  onStopEditing: () => void
+}) => {
+  const t = useT()
+
+  return (
+    <>
+      {message?.snippet && (
+        <p
+          data-mask
+          className="text-muted-foreground line-clamp-3 border-l-2 pl-3 font-serif text-sm/relaxed"
+        >
+          {message.snippet}
+        </p>
+      )}
+      {isEditing ? (
+        <ComposerEditor
+          ref={editorRef}
+          aria-label={t.actionKind.reply}
+          placeholder={t.compose.placeholder}
+          initialHtml={textToHtml(draft)}
+          onChange={({ text }) => onDraftChange(text)}
+          onSubmit={onApprove}
+          onEscape={onStopEditing}
+          complete={completerFor(hasAgent, message)}
+        />
+      ) : (
+        <DraftText text={draft} />
+      )}
+      {isRewriting && (
+        <RewriteField
+          onCancel={() => onRewriteChange(false)}
+          onSubmit={onRewrite}
+        />
+      )}
+    </>
+  )
+}
+
 export const QueueCard = ({
   draft,
   index,
   isBusy,
   isEditing,
+  isNew,
   isPicked,
+  isRewriting,
   isSelected,
   item,
   onApprove,
@@ -233,7 +351,8 @@ export const QueueCard = ({
   onEdit,
   onOpen,
   onPick,
-  onRedraft,
+  onRewrite,
+  onRewriteChange,
   onSkip,
   onStopEditing,
 }: {
@@ -241,7 +360,9 @@ export const QueueCard = ({
   index: number
   isBusy: boolean
   isEditing: boolean
+  isNew: boolean
   isPicked: boolean
+  isRewriting: boolean
   isSelected: boolean
   item: QueueItem
   onApprove: () => void
@@ -249,7 +370,8 @@ export const QueueCard = ({
   onEdit: () => void
   onOpen: () => void
   onPick: () => void
-  onRedraft: () => void
+  onRewrite: (instruction: string) => void
+  onRewriteChange: (isRewriting: boolean) => void
   onSkip: () => void
   onStopEditing: () => void
 }) => {
@@ -283,6 +405,7 @@ export const QueueCard = ({
     >
       <QueueCardHeader
         index={index}
+        isNew={isNew}
         isPicked={isPicked}
         isSelected={isSelected}
         item={item}
@@ -294,21 +417,21 @@ export const QueueCard = ({
 
       <AccordionContent>
         <div className="flex flex-col gap-3 pl-8.5">
-          {isReply &&
-            (isEditing ? (
-              <ComposerEditor
-                ref={editorRef}
-                aria-label={t.actionKind.reply}
-                placeholder={t.compose.placeholder}
-                initialHtml={textToHtml(draft)}
-                onChange={({ text }) => onDraftChange(text)}
-                onSubmit={onApprove}
-                onEscape={onStopEditing}
-                complete={completerFor(hasAgent, message)}
-              />
-            ) : (
-              <DraftText text={draft} />
-            ))}
+          {isReply && (
+            <ReplyBody
+              draft={draft}
+              editorRef={editorRef}
+              hasAgent={hasAgent}
+              isEditing={isEditing}
+              isRewriting={isRewriting}
+              message={message}
+              onApprove={onApprove}
+              onDraftChange={onDraftChange}
+              onRewrite={onRewrite}
+              onRewriteChange={onRewriteChange}
+              onStopEditing={onStopEditing}
+            />
+          )}
           {action.kind === 'cleanup' && <CleanupList action={action} />}
           {!isReply && action.kind !== 'cleanup' && reason && (
             <p
@@ -336,14 +459,14 @@ export const QueueCard = ({
                 {t.queue.edit} <Kbd>E</Kbd>
               </Button>
             )}
-            {isReply && (
+            {isReply && !isRewriting && (
               <Button
                 size="sm"
                 variant="ghost-muted"
                 disabled={isBusy}
-                onClick={onRedraft}
+                onClick={() => onRewriteChange(true)}
               >
-                {t.queue.shorter} <Kbd>R</Kbd>
+                {t.queue.rewrite} <Kbd>R</Kbd>
               </Button>
             )}
             {message && (
@@ -359,9 +482,14 @@ export const QueueCard = ({
             >
               {t.queue.skip} <Kbd>S</Kbd>
             </Button>
-            <span className="text-muted-foreground ml-auto text-xs">
-              {isReply ? t.queue.draftedInVoice : null}
-            </span>
+            {isReply && message && (
+              <span className="text-muted-foreground ml-auto truncate text-xs">
+                <span data-mask>
+                  {t.agent.to(replyRecipients(message).join(', '))}
+                </span>
+                {` · ${t.queue.draftedInVoice}`}
+              </span>
+            )}
           </div>
         </div>
       </AccordionContent>
