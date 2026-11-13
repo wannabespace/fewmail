@@ -838,11 +838,18 @@ export const fr: Messages = {
       `Votre forfait gère ${total} fils à la fois. Laissez-en un se terminer ou passez à Max dans Réglages → Forfait.`,
   },
   notices: {
+    freeUpSpace: 'Libérer de l’espace',
     mailLost:
       'Fewmail a perdu l’accès à votre Gmail et ne lit plus les nouveaux e-mails.',
     mailboxLost: (email: string) => `Fewmail a perdu l’accès à ${email}.`,
     reconnect: 'Reconnecter',
+    sendLimit: (email: string, when: string) =>
+      `${email} a atteint la limite d’envoi quotidienne de Gmail. L’envoi refonctionnera ${when}.`,
     signInAgain: 'Se reconnecter',
+    storageFull: (email: string) =>
+      `${email} n’a plus de stockage Google, donc Gmail refuse les nouveaux e-mails.`,
+    storageFullHint:
+      'Libère de l’espace ou prends plus de stockage pour recevoir à nouveau des e-mails.',
   },
   login: {
     needsGmail:

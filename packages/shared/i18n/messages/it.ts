@@ -832,11 +832,18 @@ export const it: Messages = {
       `Il tuo piano gestisce ${total} thread alla volta. Lascia che uno finisca o passa a Max in Impostazioni → Piano.`,
   },
   notices: {
+    freeUpSpace: 'Libera spazio',
     mailLost:
       'Fewmail ha perso l’accesso al tuo Gmail e non legge la posta nuova.',
     mailboxLost: (email: string) => `Fewmail ha perso l’accesso a ${email}.`,
     reconnect: 'Ricollega',
+    sendLimit: (email: string, when: string) =>
+      `${email} ha raggiunto il limite giornaliero di invio di Gmail. Potrai inviare di nuovo ${when}.`,
     signInAgain: 'Accedi di nuovo',
+    storageFull: (email: string) =>
+      `${email} ha finito lo spazio Google, quindi Gmail rifiuta le nuove email.`,
+    storageFullHint:
+      'Libera spazio o prendi più archiviazione per ricevere di nuovo la posta.',
   },
   login: {
     needsGmail:

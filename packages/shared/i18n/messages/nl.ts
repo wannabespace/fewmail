@@ -602,12 +602,19 @@ export const nl: Messages = {
       `Je abonnement neemt ${total} threads tegelijk over. Laat er een afronden of stap over op Max via Instellingen → Abonnement.`,
   },
   notices: {
+    freeUpSpace: 'Ruimte vrijmaken',
     mailLost:
       'Fewmail heeft geen toegang meer tot je Gmail en leest geen nieuwe mail.',
     mailboxLost: (email: string) =>
       `Fewmail heeft geen toegang meer tot ${email}.`,
     reconnect: 'Opnieuw verbinden',
+    sendLimit: (email: string, when: string) =>
+      `${email} heeft de dagelijkse verzendlimiet van Gmail bereikt. Versturen werkt weer ${when}.`,
     signInAgain: 'Opnieuw inloggen',
+    storageFull: (email: string) =>
+      `${email} heeft geen Google-opslag meer, dus Gmail weigert nieuwe mail.`,
+    storageFullHint:
+      'Maak ruimte vrij of neem meer opslag om weer mail te ontvangen.',
   },
   login: {
     needsGmail:

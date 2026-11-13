@@ -825,10 +825,17 @@ export const uk: Messages = {
       `Твій план веде ${total} тредів одночасно. Дочекайся, поки один завершиться, або перейди на Max у Налаштуваннях → План.`,
   },
   notices: {
+    freeUpSpace: 'Звільнити місце',
     mailLost: 'Fewmail втратив доступ до твого Gmail і не читає нову пошту.',
     mailboxLost: (email: string) => `Fewmail втратив доступ до ${email}.`,
     reconnect: 'Підключити знову',
+    sendLimit: (email: string, when: string) =>
+      `${email} вичерпав денний ліміт відправки Gmail. Надсилати знову можна буде ${when}.`,
     signInAgain: 'Увійти ще раз',
+    storageFull: (email: string) =>
+      `У ${email} закінчилось місце в Google, тож Gmail повертає нові листи відправникам.`,
+    storageFullHint:
+      'Звільни місце або докупи сховище, щоб знову отримувати пошту.',
   },
   login: {
     needsGmail:

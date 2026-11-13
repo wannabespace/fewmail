@@ -332,10 +332,17 @@ export const ko: Messages = {
       `현재 플랜은 스레드를 한 번에 ${total}개까지 맡길 수 있어요. 하나가 끝나길 기다리거나 설정 → 플랜에서 Max로 바꾸세요.`,
   },
   notices: {
+    freeUpSpace: '공간 확보하기',
     mailLost: 'Fewmail이 Gmail에 접근할 수 없어 새 메일을 읽지 못하고 있어요.',
     mailboxLost: (email: string) => `Fewmail이 ${email}에 접근할 수 없어요.`,
     reconnect: '다시 연결',
+    sendLimit: (email: string, when: string) =>
+      `${email}이 Gmail 일일 발송 한도에 도달했어요. ${when} 다시 보낼 수 있어요.`,
     signInAgain: '다시 로그인',
+    storageFull: (email: string) =>
+      `${email}의 Google 저장공간이 가득 차서 Gmail이 새 메일을 반송하고 있어요.`,
+    storageFullHint:
+      '메일을 다시 받으려면 공간을 확보하거나 저장공간을 늘리세요.',
   },
   login: {
     needsGmail:

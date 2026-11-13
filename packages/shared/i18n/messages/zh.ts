@@ -325,10 +325,16 @@ export const zh: Messages = {
       `你的套餐一次可托付 ${total} 个会话。等其中一个完成，或在设置 → 套餐中切换到 Max。`,
   },
   notices: {
+    freeUpSpace: '释放空间',
     mailLost: 'Fewmail 已无法访问你的 Gmail，暂时无法读取新邮件。',
     mailboxLost: (email: string) => `Fewmail 已无法访问 ${email}。`,
     reconnect: '重新连接',
+    sendLimit: (email: string, when: string) =>
+      `${email} 已达到 Gmail 每日发送上限，${when}可以再次发送。`,
     signInAgain: '重新登录',
+    storageFull: (email: string) =>
+      `${email} 的 Google 存储空间已满，Gmail 正在退回新邮件。`,
+    storageFullHint: '释放空间或购买更多存储空间，才能再次收到邮件。',
   },
   login: {
     needsGmail:

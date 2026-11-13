@@ -828,11 +828,18 @@ export const es: Messages = {
       `Tu plan gestiona ${total} hilos a la vez. Deja que termine uno o cámbiate a Max en Ajustes → Plan.`,
   },
   notices: {
+    freeUpSpace: 'Liberar espacio',
     mailLost:
       'Fewmail perdió el acceso a tu Gmail y no está leyendo el correo nuevo.',
     mailboxLost: (email: string) => `Fewmail perdió el acceso a ${email}.`,
     reconnect: 'Volver a conectar',
+    sendLimit: (email: string, when: string) =>
+      `${email} alcanzó el límite diario de envío de Gmail. Podrás enviar de nuevo ${when}.`,
     signInAgain: 'Volver a entrar',
+    storageFull: (email: string) =>
+      `${email} se quedó sin almacenamiento de Google, así que Gmail rechaza el correo nuevo.`,
+    storageFullHint:
+      'Libera espacio o consigue más almacenamiento para volver a recibir correo.',
   },
   login: {
     needsGmail:

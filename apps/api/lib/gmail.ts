@@ -15,10 +15,13 @@ const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 export class GmailError extends Error {
   override name = 'GmailError'
   readonly status: number
+  /** Set when Gmail refuses for longer than a retry can wait: the daily sending limit lifts only at this time. */
+  readonly blockedUntil: Date | null
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, blockedUntil: Date | null) {
     super(message)
     this.status = status
+    this.blockedUntil = blockedUntil
   }
 }
 
@@ -31,6 +34,13 @@ const RATE_LIMIT_RETRIES = 6
 /** The per-user quota answers 429 or a 403 `rateLimitExceeded`/`userRateLimitExceeded`; it refills within a minute. */
 const isRateLimited = (status: number, body: string) =>
   status === 429 || (status === 403 && /ratelimitexceeded/iu.test(body))
+
+/** A spent daily sending limit answers the same rate-limit error, with a "Retry after" hours away. */
+const blockedUntilOf = (body: string) => {
+  const at = body.match(/Retry after (?<at>\S+Z)/u)?.groups?.at
+  const until = at ? new Date(at) : null
+  return until && until.getTime() - Date.now() > 60_000 ? until : null
+}
 
 const gmail = async <T>(
   account: GmailAccount,
@@ -48,13 +58,19 @@ const gmail = async <T>(
 
   if (!response.ok) {
     const body = await response.text()
-    if (isRateLimited(response.status, body) && attempt < RATE_LIMIT_RETRIES) {
+    const blockedUntil = blockedUntilOf(body)
+    if (
+      isRateLimited(response.status, body) &&
+      !blockedUntil &&
+      attempt < RATE_LIMIT_RETRIES
+    ) {
       await Bun.sleep(1000 * 2 ** attempt + Math.random() * 1000)
       return gmail<T>(account, path, init, attempt + 1)
     }
     throw new GmailError(
       response.status,
-      `Gmail ${path} failed: ${response.status} ${body}`
+      `Gmail ${path} failed: ${response.status} ${body}`,
+      blockedUntil
     )
   }
 

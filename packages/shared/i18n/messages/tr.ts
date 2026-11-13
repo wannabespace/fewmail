@@ -584,10 +584,17 @@ export const tr: Messages = {
       `Planın aynı anda ${total} yazışmayı devralır. Birinin bitmesini bekle ya da Ayarlar → Plan’dan Max’e geç.`,
   },
   notices: {
+    freeUpSpace: 'Yer aç',
     mailLost: 'Fewmail Gmail erişimini kaybetti ve yeni postaları okumuyor.',
     mailboxLost: (email: string) => `Fewmail ${email} erişimini kaybetti.`,
     reconnect: 'Yeniden bağla',
+    sendLimit: (email: string, when: string) =>
+      `${email} Gmail’in günlük gönderme sınırına ulaştı. Gönderme ${when} yeniden çalışacak.`,
     signInAgain: 'Yeniden giriş yap',
+    storageFull: (email: string) =>
+      `${email} için Google depolama alanı doldu, bu yüzden Gmail yeni e-postaları geri çeviriyor.`,
+    storageFullHint:
+      'Yeniden e-posta almak için yer aç ya da daha fazla depolama al.',
   },
   login: {
     needsGmail:

@@ -614,11 +614,18 @@ export const pl: Messages = {
       `Twój plan prowadzi ${total} wątków naraz. Poczekaj, aż jeden się skończy, albo przejdź na Max w Ustawieniach → Plan.`,
   },
   notices: {
+    freeUpSpace: 'Zwolnij miejsce',
     mailLost:
       'Fewmail stracił dostęp do Twojego Gmaila i nie czyta nowej poczty.',
     mailboxLost: (email: string) => `Fewmail stracił dostęp do ${email}.`,
     reconnect: 'Połącz ponownie',
+    sendLimit: (email: string, when: string) =>
+      `${email} osiągnął dzienny limit wysyłki Gmaila. Wysyłanie znów zadziała ${when}.`,
     signInAgain: 'Zaloguj się ponownie',
+    storageFull: (email: string) =>
+      `Na ${email} skończyło się miejsce w Google, więc Gmail odrzuca nowe maile.`,
+    storageFullHint:
+      'Zwolnij miejsce albo dokup przestrzeń, żeby znów odbierać pocztę.',
   },
   login: {
     needsGmail:

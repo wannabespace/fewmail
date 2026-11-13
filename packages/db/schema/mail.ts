@@ -57,6 +57,10 @@ export const mailboxes = d.snakeCase.table(
     /** Null until the default boards were created; set once the agent is on, so an upgrade gets them too. Sign-in mailbox only. */
     boardsSeededAt: d.timestamp({ withTimezone: true }),
     refreshToken: encryptedText(),
+    /** Gmail's daily sending limit was hit; Gmail refuses every send until then. */
+    sendBlockedUntil: d.timestamp({ withTimezone: true }),
+    /** When Google wrote that the account's storage is full: Gmail bounces incoming mail until any non-Google email arrives again. */
+    storageFullAt: d.timestamp({ withTimezone: true }),
     syncError: encryptedText(),
     /** Claimed atomically: the API and the worker both sync, and a doubled sync would analyze mail twice. */
     syncStartedAt: d.timestamp({ withTimezone: true }),

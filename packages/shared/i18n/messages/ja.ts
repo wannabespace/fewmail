@@ -333,12 +333,19 @@ export const ja: Messages = {
       `現在のプランで同時に任せられるスレッドは ${total} 件です。1 件終わるのを待つか、設定 → プランで Max に切り替えてください。`,
   },
   notices: {
+    freeUpSpace: '空き容量を増やす',
     mailLost:
       'Fewmail が Gmail にアクセスできなくなり、新しいメールを読めていません。',
     mailboxLost: (email: string) =>
       `Fewmail が ${email} にアクセスできなくなりました。`,
     reconnect: '再接続',
+    sendLimit: (email: string, when: string) =>
+      `${email} は Gmail の 1 日の送信上限に達しました。${when}に再び送信できます。`,
     signInAgain: 'もう一度ログイン',
+    storageFull: (email: string) =>
+      `${email} の Google ストレージがいっぱいのため、Gmail が新しいメールを差し戻しています。`,
+    storageFullHint:
+      'メールを再び受信するには、空き容量を増やすかストレージを追加してください。',
   },
   login: {
     needsGmail:

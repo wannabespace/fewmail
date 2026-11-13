@@ -588,11 +588,18 @@ export const id: Messages = {
       `Paketmu menangani ${total} utas sekaligus. Tunggu satu selesai, atau beralih ke Max di Pengaturan → Paket.`,
   },
   notices: {
+    freeUpSpace: 'Kosongkan ruang',
     mailLost:
       'Fewmail kehilangan akses ke Gmail-mu dan tidak membaca email baru.',
     mailboxLost: (email: string) => `Fewmail kehilangan akses ke ${email}.`,
     reconnect: 'Hubungkan lagi',
+    sendLimit: (email: string, when: string) =>
+      `${email} mencapai batas kirim harian Gmail. Bisa mengirim lagi ${when}.`,
     signInAgain: 'Masuk lagi',
+    storageFull: (email: string) =>
+      `Penyimpanan Google ${email} penuh, jadi Gmail menolak email baru.`,
+    storageFullHint:
+      'Kosongkan ruang atau tambah penyimpanan agar bisa menerima email lagi.',
   },
   login: {
     needsGmail:

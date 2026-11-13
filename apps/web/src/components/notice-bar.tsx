@@ -11,22 +11,27 @@ import {
 import {
   Calendar03Icon,
   Cancel01Icon,
+  CloudIcon,
   MailAccount01Icon,
+  MailSend01Icon,
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRouterState } from '@tanstack/react-router'
 import { type } from 'arktype'
+import { isFuture } from 'date-fns'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
 import { signInWithGoogle } from '~/lib/auth'
-import { useT } from '~/lib/i18n'
+import { useDates, useT } from '~/lib/i18n'
 import { useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
-const NOTICES = ['mail', 'mailbox', 'calendar'] as const
+const NOTICES = ['mail', 'mailbox', 'storage', 'send', 'calendar'] as const
+
+const GOOGLE_STORAGE_URL = 'https://one.google.com/storage/management'
 
 const dismissedStore = createWebStorageValue({
   defaultValue: [],
@@ -36,7 +41,7 @@ const dismissedStore = createWebStorageValue({
 })
 
 interface Notice {
-  action: { label: string; onClick: () => void }
+  action?: { label: string; onClick: () => void }
   description?: string
   icon: IconSvgElement
   id: (typeof NOTICES)[number]
@@ -48,6 +53,7 @@ interface Notice {
 /** The one place for what the user must act on, above every page; the most pressing shows first, one at a time. */
 export const NoticeBar = () => {
   const t = useT()
+  const dates = useDates()
   const { hasCalendar } = useMe()
   const dismissed = useSubscription(dismissedStore)
   const pathname = useRouterState({
@@ -64,6 +70,10 @@ export const NoticeBar = () => {
   )
   const addedLost = mailboxes.find(
     ({ hasLostAccess, signIn }) => hasLostAccess && !signIn
+  )
+  const storageFull = mailboxes.find(({ storageFullAt }) => storageFullAt)
+  const sendBlocked = mailboxes.find(
+    ({ sendBlockedUntil }) => sendBlockedUntil && isFuture(sendBlockedUntil)
   )
   const isCalendarPage = pathname === '/calendar'
 
@@ -84,6 +94,26 @@ export const NoticeBar = () => {
       id: 'mailbox',
       isOptional: false,
       title: t.notices.mailboxLost(addedLost.email),
+    },
+    !!storageFull && {
+      action: {
+        label: t.notices.freeUpSpace,
+        onClick: () => window.open(GOOGLE_STORAGE_URL, '_blank', 'noopener'),
+      },
+      description: t.notices.storageFullHint,
+      icon: CloudIcon,
+      id: 'storage',
+      isOptional: false,
+      title: t.notices.storageFull(storageFull.email),
+    },
+    !!sendBlocked?.sendBlockedUntil && {
+      icon: MailSend01Icon,
+      id: 'send',
+      isOptional: false,
+      title: t.notices.sendLimit(
+        sendBlocked.email,
+        dates.ago(sendBlocked.sendBlockedUntil)
+      ),
     },
     !hasCalendar && {
       action: {
@@ -111,22 +141,22 @@ export const NoticeBar = () => {
         <HugeiconsIcon icon={notice.icon} strokeWidth={2} />
       </ItemMedia>
       <ItemContent>
-        <ItemTitle data-mask={notice.id === 'mailbox' || undefined}>
-          {notice.title}
-        </ItemTitle>
+        <ItemTitle data-mask>{notice.title}</ItemTitle>
         {notice.description && (
           <ItemDescription>{notice.description}</ItemDescription>
         )}
       </ItemContent>
       <ItemActions>
-        <Button
-          size="sm"
-          variant="secondary"
-          disabled={reconnect.isPending}
-          onClick={() => notice.action.onClick()}
-        >
-          {notice.action.label}
-        </Button>
+        {notice.action && (
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={reconnect.isPending}
+            onClick={() => notice.action?.onClick()}
+          >
+            {notice.action.label}
+          </Button>
+        )}
         {notice.isOptional && (
           <IconButton
             icon={Cancel01Icon}

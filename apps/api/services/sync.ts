@@ -42,7 +42,7 @@ import {
   isUnchanged,
 } from './boards'
 import { measureBulk } from './bulk'
-import { searchMailboxes } from './mailboxes'
+import { searchMailboxes, watchStorage } from './mailboxes'
 import { emailAllowance, getPlanInfo, hasAgent } from './plan'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
@@ -216,6 +216,9 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
           threadId: message.threadId,
         }).catch((error) => logError('follow-up watch failed', error))
       )
+  )
+  await watchStorage(mailbox, inserted).catch((error) =>
+    logError('storage watch failed', error)
   )
   if (!hasAgent(await getPlanInfo(userId))) {
     return

@@ -330,10 +330,16 @@ export const hi: Messages = {
       `आपका प्लान एक साथ ${total} थ्रेड संभालता है। किसी एक के पूरा होने दें, या सेटिंग्स → प्लान में Max पर जाएं।`,
   },
   notices: {
+    freeUpSpace: 'जगह खाली करें',
     mailLost: 'Fewmail की आपके Gmail तक पहुँच खो गई है और वह नए मेल नहीं पढ़ रहा।',
     mailboxLost: (email: string) => `Fewmail की ${email} तक पहुँच खो गई है।`,
     reconnect: 'फिर से जोड़ें',
+    sendLimit: (email: string, when: string) =>
+      `${email} ने Gmail की रोज़ की भेजने की सीमा पूरी कर ली है। भेजना फिर से ${when} काम करेगा।`,
     signInAgain: 'फिर से साइन इन करें',
+    storageFull: (email: string) =>
+      `${email} का Google स्टोरेज भर गया है, इसलिए Gmail नए ईमेल वापस भेज रहा है।`,
+    storageFullHint: 'फिर से ईमेल पाने के लिए जगह खाली करें या ज़्यादा स्टोरेज लें।',
   },
   login: {
     needsGmail:

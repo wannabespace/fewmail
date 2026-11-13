@@ -598,10 +598,16 @@ export const en = {
       `Your plan hands over ${total} threads at a time. Let one finish, or switch to Max in Settings → Plan.`,
   },
   notices: {
+    freeUpSpace: 'Free up space',
     mailLost: 'Fewmail lost access to your Gmail and is not reading new mail.',
     mailboxLost: (email: string) => `Fewmail lost access to ${email}.`,
     reconnect: 'Reconnect',
+    sendLimit: (email: string, when: string) =>
+      `${email} hit Gmail’s daily sending limit. Sending works again ${when}.`,
     signInAgain: 'Sign in again',
+    storageFull: (email: string) =>
+      `${email} is out of Google storage, so Gmail is bouncing new mail.`,
+    storageFullHint: 'Free up space or get more storage to receive mail again.',
   },
   login: {
     needsGmail:

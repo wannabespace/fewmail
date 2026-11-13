@@ -7,7 +7,7 @@ import { Result } from 'better-result'
 import { addSeconds, subMinutes } from 'date-fns'
 import { and, eq, inArray, isNull, lte } from 'drizzle-orm'
 
-import { deleteDraft, sendMail } from '../lib/gmail'
+import { deleteDraft, GmailError, sendMail } from '../lib/gmail'
 import { announceChange } from '../lib/live'
 import { logError, logErrorAs } from '../lib/log'
 import { expectRow } from '../lib/rows'
@@ -146,6 +146,13 @@ export const dispatchOutbox = async (id: string) => {
   })
   if (sent.isErr()) {
     const error = sent.error.cause
+    if (error instanceof GmailError && error.blockedUntil) {
+      await db
+        .update(mailboxes)
+        .set({ sendBlockedUntil: error.blockedUntil })
+        .where(eq(mailboxes.id, claimed.mailboxId))
+      await announceChange(claimed.userId, ['mailboxes'])
+    }
     await markFailed(
       claimed,
       error instanceof Error ? error.message : String(error)

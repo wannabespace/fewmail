@@ -828,12 +828,19 @@ export const de: Messages = {
       `Dein Plan übernimmt ${total} Threads gleichzeitig. Lass einen abschließen oder wechsle zu Max unter Einstellungen → Plan.`,
   },
   notices: {
+    freeUpSpace: 'Speicher freigeben',
     mailLost:
       'Fewmail hat den Zugriff auf dein Gmail verloren und liest keine neue Post.',
     mailboxLost: (email: string) =>
       `Fewmail hat den Zugriff auf ${email} verloren.`,
     reconnect: 'Neu verbinden',
+    sendLimit: (email: string, when: string) =>
+      `${email} hat das tägliche Sendelimit von Gmail erreicht. Senden geht wieder ${when}.`,
     signInAgain: 'Neu anmelden',
+    storageFull: (email: string) =>
+      `${email} hat keinen Google-Speicher mehr, deshalb weist Gmail neue Mails ab.`,
+    storageFullHint:
+      'Gib Speicher frei oder hol dir mehr, um wieder Mails zu empfangen.',
   },
   login: {
     needsGmail:
