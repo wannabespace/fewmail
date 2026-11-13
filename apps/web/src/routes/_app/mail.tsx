@@ -529,19 +529,6 @@ const ViewPicker = ({
             </button>
           ))}
         </div>
-        <div className="flex justify-center gap-1">
-          {FOLDERS.map((value) => (
-            <IconButton
-              key={value}
-              icon={FILTER_ICONS[value]}
-              label={t.mail.filter[value]}
-              variant="ghost-muted"
-              size="icon"
-              aria-pressed={value === filter}
-              onClick={() => pick(value)}
-            />
-          ))}
-        </div>
       </PopoverContent>
     </Popover>
   )

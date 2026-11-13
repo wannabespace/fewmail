@@ -38,14 +38,17 @@ import type { Theme } from '@fewmail/ui/theme-store'
 import { themeStore, useTheme } from '@fewmail/ui/theme-store'
 import {
   Add01Icon,
+  Archive02Icon,
   ArrowDown01Icon,
   ArrowUp01Icon,
   Calendar03Icon,
+  Clock01Icon,
   ComputerIcon,
   CrownIcon,
   DashboardSquare01Icon,
   Delete02Icon,
   Edit02Icon,
+  FileEditIcon,
   Home01Icon,
   Logout01Icon,
   Mail01Icon,
@@ -276,11 +279,14 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
 }
 
 export const FOLDER_ITEMS = [
+  { filter: 'snoozed', icon: Clock01Icon },
+  { filter: 'drafts', icon: FileEditIcon },
+  { filter: 'archive', icon: Archive02Icon },
   { filter: 'spam', icon: SpamIcon },
   { filter: 'trash', icon: Delete02Icon },
 ] as const
 
-/** Gmail's folders the view picker tucks away, then the user's own labels, each opening the Mail search for it. */
+/** Gmail's folders, then the user's own labels, each opening the Mail search for it. */
 const Folders = () => {
   const t = useT()
   const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
