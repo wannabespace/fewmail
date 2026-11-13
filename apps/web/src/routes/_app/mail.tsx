@@ -428,8 +428,11 @@ const useGroupedRows = <Row extends ListedRow>(
   return { groupStarts, rows: groups.flatMap((group) => group.rows) }
 }
 
-const GROUP_HEADER =
-  'bg-body text-muted-foreground sticky top-0 z-10 flex items-center gap-2 border-b px-5 py-1.5 pl-9 text-xs font-medium'
+// Not sticky: pins share the list's <ul>, so a sticky pinned header would ride over every row below it.
+const LIST_HEADER =
+  'bg-body text-muted-foreground flex items-center gap-2 border-b px-5 py-1.5 pl-9 text-xs font-medium'
+
+const GROUP_HEADER = cn(LIST_HEADER, 'sticky top-0 z-10')
 
 /** Pins sit above the list in one line each, and only the first few until asked, so they never push the inbox away. */
 const PINNED_SHOWN = 3
@@ -1127,7 +1130,7 @@ const PinnedHeader = ({
     return null
   }
   return (
-    <li className={GROUP_HEADER}>
+    <li className={LIST_HEADER}>
       <span>{t.mail.pinned}</span>
       <span className="tabular-nums opacity-60">{total}</span>
       {(hidden > 0 || isExpanded) && (
