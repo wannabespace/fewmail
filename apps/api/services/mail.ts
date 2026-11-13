@@ -626,7 +626,7 @@ export const getThread = async (userId: string, threadId: string) => {
 
   const latest = rows.findLast(({ message }) => !message.isFromMe)?.message
   const [zombie] = await Promise.all([
-    latest?.listUnsubscribe ? zombieStats(latest.fromEmail) : null,
+    latest?.listUnsubscribe ? zombieStats(latest) : null,
     fillMissingHtml(userId, threadId, rows),
   ])
 

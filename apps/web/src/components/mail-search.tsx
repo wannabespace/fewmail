@@ -28,10 +28,6 @@ const recentSearchesStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-/** A mailing list's mail as Subscriptions and the cleanup card count it: what it sent in the last 30 days. */
-export const listSearch = (fromEmail: string) =>
-  `from:${fromEmail} newer_than:30d`
-
 export const rememberSearch = (query: string) => {
   const trimmed = query.trim()
   if (trimmed) {

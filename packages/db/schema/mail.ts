@@ -103,6 +103,8 @@ export const messages = d.snakeCase.table(
     isFromMe: d.boolean().notNull(),
     isUnread: d.boolean().notNull(),
     labelIds: d.text().array().notNull(),
+    /** The List-Id header when it has a title (`titledListId`). Lists are left and caught as zombies by it, not by sender: notifications@github.com sends one list per repository. */
+    listId: searchableText(),
     listUnsubscribe: encryptedText(),
     listUnsubscribePost: encryptedText(),
     mailboxId: d

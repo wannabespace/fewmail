@@ -6,12 +6,17 @@ import {
   unsubscribes,
   userSettings,
 } from '@fewmail/db/schema'
-import { CLEAR_OUT_GROUPS } from '@fewmail/shared/agent'
+import {
+  CLEAR_OUT_GROUPS,
+  listLabelOf,
+  listTitleOf,
+} from '@fewmail/shared/agent'
 import type { CleanupSender, ClearOutGroup } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { Result } from 'better-result'
 import { subDays } from 'date-fns'
 import { and, eq, gte, inArray, isNotNull, sql } from 'drizzle-orm'
+import type { AnyColumn } from 'drizzle-orm'
 
 import { inBatches } from '../lib/batches'
 import { localClock } from '../lib/clock'
@@ -22,42 +27,70 @@ import {
   listMessageIds,
   modifyMessages,
 } from '../lib/gmail'
-import { senderHashOf } from '../lib/keyed-hash'
 import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { findOrCreateLabel } from './labels'
 import { insertMessages } from './stored-mail'
 import { unsubscribe, unsubscribeMessage } from './thread-effects'
+import { listHashOf } from './zombies'
 
 const LOOKBACK_DAYS = 30
 const MIN_UNOPENED = 3
 const MAX_SENDERS = 25
 const WEEKDAY_SUNDAY = 0
 
+const latest = <T>(column: AnyColumn) =>
+  sql`(array_agg(${column} order by ${messages.receivedAt} desc))[1]`.mapWith(
+    (value) => column.mapFromDriverValue(value) as T
+  )
+
+/** Lists the user got in the last month, by List-Id (mail without one by sender), with the latest email of each. */
+const receivedLists = (userId: string) =>
+  db
+    .select({
+      count: sql<number>`count(*)::int`,
+      fromEmail: latest<string>(messages.fromEmail),
+      fromName: latest<string | null>(messages.fromName),
+      listId: latest<string | null>(messages.listId),
+      messageId: latest<string>(messages.id),
+      // An autonomous archive or mark-read clears UNREAD too: counted as opened, every list a starter rule handled looked read and was never offered for cleanup.
+      opened: sql<number>`count(*) filter (where not ${messages.isUnread} and not exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id} and ${actions.status} = 'auto_done' and ${actions.kind} in ('archive', 'mark_read')))::int`,
+    })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.isFromMe, false),
+        isNotNull(messages.listUnsubscribe),
+        gte(messages.receivedAt, subDays(new Date(), LOOKBACK_DAYS))
+      )
+    )
+    .groupBy(sql`coalesce(${messages.listId}, ${messages.fromEmail})`)
+
+/** A sender of several lists (notifications@github.com) names each by its List-Id title, not by whoever wrote its latest email. */
+const namedLists = <
+  T extends {
+    fromEmail: string
+    fromName: string | null
+    listId: string | null
+  },
+>(
+  lists: T[]
+) => {
+  const bySender = Map.groupBy(lists, ({ fromEmail }) => fromEmail)
+  return lists.map((list) => ({
+    ...list,
+    fromName:
+      list.listId && (bySender.get(list.fromEmail)?.length ?? 0) > 1
+        ? listTitleOf(list.listId)
+        : list.fromName,
+  }))
+}
+
 /** Every mailing list that wrote in the last month and the user has not left, busiest first. */
 export const listSubscriptions = async (userId: string) => {
   const [rows, unsubscribedRows] = await Promise.all([
-    db
-      .select({
-        count: sql<number>`count(*)::int`,
-        fromEmail: messages.fromEmail,
-        fromName: sql<string | null>`max(${messages.fromName})`.mapWith(
-          messages.fromName
-        ),
-        messageId: sql<string>`(array_agg(${messages.id} order by ${messages.receivedAt} desc))[1]`,
-        // An autonomous archive or mark-read clears UNREAD too: counted as opened, every list a starter rule handled looked read and was never offered for cleanup.
-        opened: sql<number>`count(*) filter (where not ${messages.isUnread} and not exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id} and ${actions.status} = 'auto_done' and ${actions.kind} in ('archive', 'mark_read')))::int`,
-      })
-      .from(messages)
-      .where(
-        and(
-          eq(messages.userId, userId),
-          eq(messages.isFromMe, false),
-          isNotNull(messages.listUnsubscribe),
-          gte(messages.receivedAt, subDays(new Date(), LOOKBACK_DAYS))
-        )
-      )
-      .groupBy(messages.fromEmail),
+    receivedLists(userId),
     db
       .select({ senderHash: unsubscribes.senderHash })
       .from(unsubscribes)
@@ -66,8 +99,8 @@ export const listSubscriptions = async (userId: string) => {
   const unsubscribed = new Set(
     unsubscribedRows.map(({ senderHash }) => senderHash)
   )
-  return rows
-    .filter(({ fromEmail }) => !unsubscribed.has(senderHashOf(fromEmail)))
+  return namedLists(rows)
+    .filter((row) => !unsubscribed.has(listHashOf(row)))
     .toSorted((left, right) => right.count - left.count)
 }
 
@@ -77,10 +110,11 @@ const unopenedSenders = async (userId: string): Promise<CleanupSender[]> => {
   return subscriptions
     .filter(({ count, opened }) => count >= MIN_UNOPENED && opened === 0)
     .slice(0, MAX_SENDERS)
-    .map(({ count, fromEmail, fromName, messageId }) => ({
+    .map(({ count, fromEmail, fromName, listId, messageId }) => ({
       count,
       fromEmail,
       fromName,
+      listId,
       messageId,
     }))
 }
@@ -129,7 +163,7 @@ export const runCleanup = (userId: string, senders: CleanupSender[]) =>
   Promise.all(
     senders.map(async ({ messageId }) => {
       const unsubscribed = await Result.tryPromise(() =>
-        unsubscribeMessage(userId, messageId, 'sender')
+        unsubscribeMessage(userId, messageId, 'list')
       )
       if (unsubscribed.isErr()) {
         logError('cleanup unsubscribe failed', unsubscribed.error.cause)
@@ -161,8 +195,12 @@ const ownedMailboxes = (userId: string) =>
 
 type Headers = Awaited<ReturnType<typeof getMessageHeaders>>
 
-const listsQuery = (senderEmails: string[]) =>
-  `${INBOX_QUERY} {${senderEmails.map((email) => `from:${email}`).join(' ')}}`
+type ListSender = Awaited<ReturnType<typeof unopenedListSenders>>[number]
+
+const listTerm = ({ from, listId }: ListSender) =>
+  listId ? `list:${listLabelOf(listId)}` : `from:${from.email}`
+
+const listsQuery = (terms: string[]) => `${INBOX_QUERY} {${terms.join(' ')}}`
 
 /** Mailing lists among the newest inbox mail that sent at least three emails, none of them opened. */
 const unopenedListSenders = async (mailbox: Mailbox, inboxIds: string[]) => {
@@ -182,22 +220,29 @@ const unopenedListSenders = async (mailbox: Mailbox, inboxIds: string[]) => {
       }
     }
   )
-  const bySender = Map.groupBy(sample, ({ from }) => from.email)
-  return [...bySender.values()].flatMap((mail) => {
-    const [latest] = mail
-    return latest &&
+  const byList = Map.groupBy(sample, ({ from, listId }) => listId ?? from.email)
+  return [...byList.values()].flatMap((mail) => {
+    const [newest] = mail
+    return newest &&
       mail.length >= MIN_UNOPENED &&
       mail.every(({ isUnread }) => isUnread)
-      ? [{ count: mail.length, from: latest.from, gmailId: latest.gmailId }]
+      ? [
+          {
+            count: mail.length,
+            from: newest.from,
+            gmailId: newest.gmailId,
+            listId: newest.listId,
+          },
+        ]
       : []
   })
 }
 
-const sendersInboxIds = async (mailbox: Mailbox, emails: string[]) => {
+const sendersInboxIds = async (mailbox: Mailbox, terms: string[]) => {
   const chunks = Array.from(
-    { length: Math.ceil(emails.length / SENDERS_PER_QUERY) },
+    { length: Math.ceil(terms.length / SENDERS_PER_QUERY) },
     (_, index) =>
-      emails.slice(index * SENDERS_PER_QUERY, (index + 1) * SENDERS_PER_QUERY)
+      terms.slice(index * SENDERS_PER_QUERY, (index + 1) * SENDERS_PER_QUERY)
   )
   const pages = await Promise.all(
     chunks.map((chunk) =>
@@ -210,19 +255,19 @@ const sendersInboxIds = async (mailbox: Mailbox, emails: string[]) => {
 const groupIds = (
   mailbox: Mailbox,
   group: ClearOutGroup,
-  senderEmails: string[]
+  listTerms: string[]
 ) =>
   group === 'lists'
-    ? sendersInboxIds(mailbox, senderEmails)
+    ? sendersInboxIds(mailbox, listTerms)
     : listMessageIds(mailbox, CLEAR_OUT_QUERIES[group], CLEAR_OUT_CAP)
 
 const scanMailbox = async (mailbox: Mailbox) => {
   const inbox = await listMessageIds(mailbox, INBOX_QUERY, CLEAR_OUT_CAP)
   const senders = await unopenedListSenders(mailbox, inbox)
-  const emails = senders.map(({ from }) => from.email)
   const groups = await Promise.all(
     CLEAR_OUT_GROUPS.map(
-      async (group) => new Set(await groupIds(mailbox, group, emails))
+      async (group) =>
+        new Set(await groupIds(mailbox, group, senders.map(listTerm)))
     )
   )
   return { inbox, groups, mailbox, senders }
@@ -258,15 +303,16 @@ export const scanClearOut = async (userId: string) => {
     overlaps: [...overlaps.values()],
     searches: {
       ...CLEAR_OUT_QUERIES,
-      lists: listsQuery([...new Set(senders.map(({ from }) => from.email))]),
+      lists: listsQuery([...new Set(senders.map(listTerm))]),
     } satisfies Record<ClearOutGroup, string>,
-    senders: senders
-      .toSorted((left, right) => right.count - left.count)
-      .map(({ count, from }) => ({
+    senders: namedLists(
+      senders.map(({ count, from, listId }) => ({
         count,
         fromEmail: from.email,
         fromName: from.name,
-      })),
+        listId,
+      }))
+    ).toSorted((left, right) => right.count - left.count),
   }
 }
 
@@ -274,7 +320,7 @@ export const scanClearOut = async (userId: string) => {
 const leaveLists = async (
   userId: string,
   mailbox: Mailbox,
-  senders: Awaited<ReturnType<typeof unopenedListSenders>>
+  senders: ListSender[]
 ) => {
   const gmailIds = senders.map(({ gmailId }) => gmailId)
   await insertMessages(mailbox, gmailIds)
@@ -309,9 +355,8 @@ const clearMailbox = async (
     ? await listMessageIds(mailbox, INBOX_QUERY, SENDER_SAMPLE)
     : []
   const senders = await unopenedListSenders(mailbox, newest)
-  const emails = senders.map(({ from }) => from.email)
   const matched = await Promise.all(
-    groups.map((group) => groupIds(mailbox, group, emails))
+    groups.map((group) => groupIds(mailbox, group, senders.map(listTerm)))
   )
   const ids = new Set(matched.flat())
   const label = await findOrCreateLabel(mailbox, CLEARED_LABEL)

@@ -1,4 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import { listSearch } from '@fewmail/shared/agent'
 import { Avatar, AvatarFallback } from '@fewmail/ui/components/avatar'
 import { Button } from '@fewmail/ui/components/button'
 import { LoadingContent } from '@fewmail/ui/components/custom/loading-content'
@@ -21,7 +22,6 @@ import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import { KeyHints } from '~/components/key-hints'
-import { listSearch } from '~/components/mail-search'
 import { useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
@@ -92,7 +92,7 @@ const SubscriptionsPage = () => {
       variant: 'warning',
     })
   const show = (row?: Subscription) =>
-    row && navigate({ search: { q: listSearch(row.fromEmail) }, to: '/mail' })
+    row && navigate({ search: { q: listSearch(row) }, to: '/mail' })
 
   const listKeys = { enabled: Boolean(active) }
   useHotkey(
@@ -137,7 +137,7 @@ const SubscriptionsPage = () => {
             <SettingsGroup title={t.subscriptions.count(rows.length)}>
               {rows.map((row) => (
                 <SettingsRow
-                  key={row.fromEmail}
+                  key={row.messageId}
                   active={row === active}
                   iconVariant="avatar"
                   icon={
@@ -148,11 +148,7 @@ const SubscriptionsPage = () => {
                     </Avatar>
                   }
                   title={
-                    <Link
-                      to="/mail"
-                      search={{ q: listSearch(row.fromEmail) }}
-                      data-mask
-                    >
+                    <Link to="/mail" search={{ q: listSearch(row) }} data-mask>
                       {row.fromName ?? row.fromEmail}
                     </Link>
                   }

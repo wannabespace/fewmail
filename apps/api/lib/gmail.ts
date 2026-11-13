@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer'
 import { isIP } from 'node:net'
 
+import { titledListId } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 
 import type { GmailAccount } from './auth'
@@ -199,6 +200,7 @@ export const parseMessage = (message: GmailMessage) => {
     isFromMe,
     isUnread: labelIds.includes('UNREAD'),
     labelIds,
+    listId: titledListId(headers.get('list-id')),
     listUnsubscribe: headers.get('list-unsubscribe') ?? null,
     listUnsubscribePost: headers.get('list-unsubscribe-post') ?? null,
     messageIdHeader: headers.get('message-id') ?? null,
@@ -259,6 +261,7 @@ export const getMessageHeaders = async (account: GmailAccount, id: string) => {
     `/messages/${id}?${new URLSearchParams([
       ['format', 'metadata'],
       ['metadataHeaders', 'From'],
+      ['metadataHeaders', 'List-Id'],
       ['metadataHeaders', 'List-Unsubscribe'],
       ['fields', 'labelIds,payload/headers'],
     ])}`
@@ -273,6 +276,7 @@ export const getMessageHeaders = async (account: GmailAccount, id: string) => {
     from: parseAddress(headers.get('from') ?? ''),
     gmailId: id,
     isList: headers.has('list-unsubscribe'),
+    listId: titledListId(headers.get('list-id')),
     isUnread: (message.labelIds ?? []).includes('UNREAD'),
   }
 }

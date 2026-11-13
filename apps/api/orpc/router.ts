@@ -561,7 +561,7 @@ export const router = {
     unsubscribe: authed
       .input(messageId)
       .handler(({ context, input }) =>
-        unsubscribeMessage(context.user.id, input.messageId, 'sender')
+        unsubscribeMessage(context.user.id, input.messageId, 'list')
       ),
   },
   person: agent

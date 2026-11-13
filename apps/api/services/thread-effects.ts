@@ -1,7 +1,7 @@
 import { db } from '@fewmail/db'
 import { mailboxes, messages } from '@fewmail/db/schema'
 import type { GmailEffect } from '@fewmail/shared/agent'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 
 import { sendMail, unsubscribeOneClick } from '../lib/gmail'
 import { logError } from '../lib/log'
@@ -32,11 +32,21 @@ const blockSenderOnce = async (userId: string, fromEmail: string) => {
   }
 }
 
-const senderThreadIds = async (userId: string, fromEmail: string) => {
+const listThreadIds = async (userId: string, message: Message) => {
   const rows = await db
     .selectDistinct({ threadId: messages.threadId })
     .from(messages)
-    .where(and(eq(messages.userId, userId), eq(messages.fromEmail, fromEmail)))
+    .where(
+      and(
+        eq(messages.userId, userId),
+        message.listId
+          ? eq(messages.listId, message.listId)
+          : and(
+              eq(messages.fromEmail, message.fromEmail),
+              isNull(messages.listId)
+            )
+      )
+    )
   return rows.map(({ threadId }) => threadId)
 }
 
@@ -97,13 +107,14 @@ const leaveList = async (message: Message) => {
 
 /**
  * Leaves the list `message` came from (RFC 8058 one-click, its page or its mailto) and archives its thread or everything the
- * sender sent. Only an unsubscribe that went out is remembered: later mail then makes the sender a
- * zombie, so a failed one must not. A sender the network already knows ignores unsubscribes is blocked.
+ * list sent. Only an unsubscribe that went out is remembered: later mail then makes the list a
+ * zombie, so a failed one must not. A list the network already knows ignores unsubscribes has its sender blocked, unless it
+ * has a List-Id: such a sender may send other lists too, and a `from` rule would take them with it.
  */
 export const unsubscribe = async (
   userId: string,
   message: Message,
-  scope: 'thread' | 'sender'
+  scope: 'thread' | 'list'
 ) => {
   const unsubscribed = message.listUnsubscribe
     ? await leaveList(message).catch((error: unknown) => {
@@ -112,22 +123,23 @@ export const unsubscribe = async (
       })
     : false
   if (unsubscribed) {
-    await recordUnsubscribe(userId, message.fromEmail)
+    await recordUnsubscribe(userId, message)
   }
-  const { isZombie } = await zombieStats(message.fromEmail)
-  if (isZombie) {
+  const { isZombie } = await zombieStats(message)
+  const isBlocked = isZombie && !message.listId
+  if (isBlocked) {
     await blockSenderOnce(userId, message.fromEmail)
   }
   const threadIds =
     scope === 'thread'
       ? [message.threadId]
-      : await senderThreadIds(userId, message.fromEmail)
+      : await listThreadIds(userId, message)
   await Promise.all(
     threadIds.map((threadId) => changeThreadLabels(userId, threadId, ARCHIVE))
   )
   // A page that needs a person (JavaScript, a choice, a login) is left to the user: they get its link.
   return {
-    blocked: isZombie,
+    blocked: isBlocked,
     link: unsubscribed ? null : pageOf(message),
     unsubscribed,
   }
@@ -136,7 +148,7 @@ export const unsubscribe = async (
 export const unsubscribeMessage = async (
   userId: string,
   messageId: string,
-  scope: 'thread' | 'sender'
+  scope: 'thread' | 'list'
 ) => {
   const [message] = await db
     .select()

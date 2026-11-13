@@ -242,9 +242,9 @@ export const agentTools = (
   }),
   unsubscribe: define({
     description:
-      "Unsubscribe from the mailing list an email came from (through its own one-click unsubscribe link, when it has one) and archive everything that sender sent. unsubscribed says whether the sender's list was actually left.",
+      'Unsubscribe from the mailing list an email came from (through its own one-click unsubscribe link, when it has one) and archive everything that list sent (a sender like notifications@github.com sends a list per repository). unsubscribed says whether the list was actually left.',
     input: { messageId: z.uuid() },
-    run: ({ messageId }) => unsubscribeMessage(userId, messageId, 'sender'),
+    run: ({ messageId }) => unsubscribeMessage(userId, messageId, 'list'),
   }),
   preview_clear_out: define({
     description:
@@ -282,7 +282,7 @@ export const agentTools = (
   }),
   list_subscriptions: define({
     description:
-      'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender, how many emails, how many were opened, and the messageId of the latest one to pass to unsubscribe.',
+      'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender (a sender of several lists has one row per list, named by its title), how many emails, how many were opened, and the messageId of the latest one to pass to unsubscribe.',
     run: () => listSubscriptions(userId),
   }),
   get_person: define({

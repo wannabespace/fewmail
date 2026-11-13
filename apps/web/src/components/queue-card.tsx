@@ -1,5 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { sendsDraft } from '@fewmail/shared/agent'
+import { listSearch, sendsDraft } from '@fewmail/shared/agent'
 import type { CleanupSender } from '@fewmail/shared/agent'
 import { replyRecipients, textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
@@ -34,7 +34,6 @@ import { client } from '~/lib/orpc'
 
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
-import { listSearch } from './mail-search'
 import { ROW_SWAP } from './thread-view'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
@@ -66,10 +65,10 @@ const CleanupList = ({ action }: { action: Action }) => {
   return (
     <ul className="flex flex-col gap-1 text-sm">
       {senders.map((sender) => (
-        <li key={sender.fromEmail} className="flex items-center gap-2">
+        <li key={sender.messageId} className="flex items-center gap-2">
           <Link
             to="/mail"
-            search={{ q: listSearch(sender.fromEmail) }}
+            search={{ q: listSearch(sender) }}
             data-mask
             className="truncate underline-offset-3 hover:underline"
           >

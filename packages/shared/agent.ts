@@ -372,8 +372,39 @@ export interface CleanupSender {
   count: number
   fromEmail: string
   fromName: string | null
+  /** Absent on cards offered before lists were told apart by List-Id. */
+  listId?: string | null
   messageId: string
 }
+
+/** RFC 2919: the label in angle brackets names the list, the phrase before it titles it. */
+export const listLabelOf = (listId: string) =>
+  (/<(?<label>[^>]+)>/u.exec(listId)?.groups?.label ?? listId)
+    .trim()
+    .toLowerCase()
+
+export const listTitleOf = (listId: string) =>
+  listId.split('<')[0]?.trim().replaceAll('"', '') ?? ''
+
+/**
+ * Only a List-Id with a title in words is a list of its own (a GitHub repository, a Mailman list). A bare one, or one
+ * titled with an address, is often an email service's id per campaign, which would split one newsletter into a list per send.
+ */
+export const titledListId = (header: string | undefined) => {
+  const listId = header?.trim()
+  const title = listId ? listTitleOf(listId) : ''
+  return listId && /\p{L}/u.test(title) && !title.includes('@') ? listId : null
+}
+
+/** A mailing list's mail as Subscriptions and the cleanup card count it: what it sent in the last 30 days. */
+export const listSearch = ({
+  fromEmail,
+  listId,
+}: {
+  fromEmail: string
+  listId?: string | null
+}) =>
+  `${listId ? `list:${listLabelOf(listId)}` : `from:${fromEmail}`} newer_than:30d`
 
 /** "Personal" mail that this many different Fewmail users got is a mass send, whatever it pretends. */
 export const BULK_THRESHOLD = 5
