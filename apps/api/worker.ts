@@ -447,6 +447,7 @@ const tick = async () => {
       once('commitments', processDueCommitments),
       once('schedules', runDueSchedules),
       once('known-domains', refreshKnownDomains),
+      once('fill-list-ids', fillListIds),
     ])
   )
   if (ticked.isErr()) {
@@ -459,7 +460,6 @@ const DRAIN_MS = 25_000
 
 const interval = setInterval(tick, TICK_MS)
 void tick()
-void once('fill-list-ids', fillListIds)
 console.log('worker started')
 
 process.on('SIGTERM', async () => {

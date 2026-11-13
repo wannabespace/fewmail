@@ -13,8 +13,10 @@ type Mailbox = typeof mailboxes.$inferSelect
 
 /** As far back as Subscriptions looks. */
 const LOOKBACK_DAYS = 30
-/** Gmail allows 250 quota units a second per user, five per read. */
+/** Gmail allows 250 quota units a second per user, five per read: this uses 50, the rest stays for the user's own searches. */
 const CONCURRENCY = 10
+/** Concurrency alone does not pace: an unpaced batch returns in ~100 ms and runs Gmail into 429s that stall live search for minutes. */
+const READ_MS = 1000
 
 const fillMailbox = async (mailbox: Mailbox) => {
   const unfilled = await db
@@ -29,14 +31,15 @@ const fillMailbox = async (mailbox: Mailbox) => {
       )
     )
   await inBatches(unfilled, CONCURRENCY, async ({ gmailId, id }) => {
-    const headers = await getMessageHeaders(mailbox, gmailId).catch(
-      (error: unknown) => {
+    const [headers] = await Promise.all([
+      getMessageHeaders(mailbox, gmailId).catch((error: unknown) => {
         if (error instanceof GmailError && error.status === 404) {
           return null
         }
         throw error
-      }
-    )
+      }),
+      Bun.sleep(READ_MS),
+    ])
     if (headers?.listId) {
       await db
         .update(messages)
@@ -82,8 +85,13 @@ const rekeyUnsubscribes = async (userId: string) => {
   return moved
 }
 
-/** Run by the worker on start, until every mailbox has been through it once; then this file goes. */
+let isFilled = false
+
+/** Every worker tick until one run gets through: the API applies the `list_id` migration on its own boot, which may come after the worker's. Then this file goes. */
 export const fillListIds = async () => {
+  if (isFilled) {
+    return
+  }
   const owned = await db.select().from(mailboxes)
   let filled = 0
   for (const mailbox of owned) {
@@ -98,5 +106,6 @@ export const fillListIds = async () => {
     // oxlint-disable-next-line eslint/no-await-in-loop -- per user, after every mailbox is filled
     rekeyed += await rekeyUnsubscribes(userId)
   }
+  isFilled = true
   console.log('fill list ids', { filled, mailboxes: owned.length, rekeyed })
 }
