@@ -658,6 +658,7 @@ export const pt: Messages = {
     },
     group: {
       read: 'Lidos',
+      earlier: 'Anteriores',
       important: 'Importantes',
       people: 'Pessoas',
       plans: 'Agenda e viagens',

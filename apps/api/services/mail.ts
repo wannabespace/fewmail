@@ -1,5 +1,11 @@
 import { db } from '@fewmail/db'
-import { actions, analyses, commitments, messages } from '@fewmail/db/schema'
+import {
+  actions,
+  analyses,
+  commitments,
+  mailboxes,
+  messages,
+} from '@fewmail/db/schema'
 import {
   ACTION_KIND_TRAITS,
   LIST_CATEGORIES,
@@ -31,17 +37,22 @@ import type { SQL } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
 import { getMessage } from '../lib/gmail'
-import { logError } from '../lib/log'
+import type { ParsedMessage } from '../lib/gmail'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
 import { searchByQuestion } from './ask'
 import { runCleanup } from './cleanup'
 import { NotFoundError } from './mail-errors'
+import {
+  listOlderThreads,
+  liveMessageId,
+  readOlderMessages,
+} from './older-mail'
 import { scheduleMail } from './outbox'
 import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
 import { createRule } from './rules'
 import { getSettings } from './settings'
-import { insertMessages } from './sync'
+import { holdThread, ownMessage } from './stored-mail'
 import { activeTask } from './tasks'
 import { applyThreadEffect } from './thread-effects'
 import { changeThreadLabels, MARK_READ, mailboxOfThread } from './thread-labels'
@@ -183,6 +194,8 @@ export const listHandled = (
     .orderBy(desc(actions.createdAt))
     .limit(HANDLED_SHOWN)
 
+const PAGE_SIZE = 50
+
 export type MailFilter =
   | 'spam'
   | 'inbox'
@@ -195,7 +208,6 @@ export type MailFilter =
   | 'trash'
   | 'pinned'
 
-const PAGE_SIZE = 50
 const inThread = alias(messages, 'in_thread')
 const newerInThread = alias(messages, 'newer_in_thread')
 const newerAnalysis = alias(analyses, 'newer_analysis')
@@ -246,56 +258,114 @@ const FILTER_WHERE: Partial<
 }
 
 // Snoozed threads are out of the inbox too, so Archive must leave them to Snoozed.
-const snoozedWhere = async (userId: string, filter: MailFilter) => {
+const snoozedOf = async (userId: string, filter: MailFilter) => {
   if (filter !== 'snoozed' && filter !== 'archive') {
     return
   }
-  const snoozedIds = await snoozedThreadIds(userId)
-  const snoozed = [...snoozedIds.keys()]
-  return filter === 'snoozed'
-    ? inArray(messages.threadId, snoozed)
-    : notInArray(messages.threadId, snoozed)
+  const snoozed = await snoozedThreadIds(userId)
+  const threadIds = [...snoozed.keys()]
+  return {
+    isListed: (threadId: string) =>
+      snoozed.has(threadId) === (filter === 'snoozed'),
+    where:
+      filter === 'snoozed'
+        ? inArray(messages.threadId, threadIds)
+        : notInArray(messages.threadId, threadIds),
+  }
 }
 
+const isReceivedMail = (message: ParsedMessage) =>
+  !message.isFromMe || message.labelIds.includes('INBOX')
+
+const labelled =
+  (...labels: string[]) =>
+  (message: ParsedMessage) =>
+    isReceivedMail(message) &&
+    labels.every((label) => message.labelIds.includes(label))
+
+const OUT_OF_ARCHIVE = new Set(['INBOX', 'SPAM', 'TRASH'])
+
+/** Lists that go on past the held mail, read live from Gmail; the rest need analysis or reminders, which only held mail has. */
+const OLDER_LISTS: Partial<
+  Record<
+    MailFilter,
+    { isListed: (message: ParsedMessage) => boolean; query: string }
+  >
+> = {
+  archive: {
+    isListed: (message) =>
+      isReceivedMail(message) &&
+      !message.labelIds.some((label) => OUT_OF_ARCHIVE.has(label)),
+    query: '-in:inbox -in:spam -in:trash',
+  },
+  inbox: { isListed: labelled('INBOX'), query: 'in:inbox' },
+  pinned: { isListed: labelled('INBOX'), query: 'in:inbox is:starred' },
+  spam: { isListed: labelled('SPAM'), query: 'in:spam' },
+  trash: { isListed: labelled('TRASH'), query: 'in:trash' },
+  unread: {
+    isListed: labelled('INBOX', 'UNREAD'),
+    query: 'in:inbox is:unread',
+  },
+}
+
+type OlderThread = Awaited<ReturnType<typeof listOlderThreads>>[number]
+
+/** Found mail Fewmail holds is listed from the database; the rest is read live, never stored. */
 const searchMail = async (
   userId: string,
   search: string,
   mailboxId?: string
 ) => {
-  const { results: found } = await searchByQuestion(
+  const { results } = await searchByQuestion(
     userId,
     search,
     PAGE_SIZE,
     mailboxId
   )
-  await Promise.all(
-    found.map(({ ids, mailbox }) =>
-      insertMessages(mailbox, ids).catch((error) =>
-        logError('storing found mail failed', error)
-      )
-    )
+  const ids = results.flatMap((result) => result.ids)
+  const held = ids.length
+    ? await db
+        .select({ gmailId: messages.gmailId, mailboxId: messages.mailboxId })
+        .from(messages)
+        .where(and(eq(messages.userId, userId), inArray(messages.gmailId, ids)))
+    : []
+  const heldKeys = new Set(
+    held.map((message) => `${message.mailboxId}:${message.gmailId}`)
   )
-  return found.flatMap(({ ids }) => ids)
+  const older = await Promise.all(
+    results.map(async ({ ids: found, mailbox }) => {
+      const read = await Result.tryPromise(() =>
+        readOlderMessages(
+          mailbox,
+          found.filter((id) => !heldKeys.has(`${mailbox.id}:${id}`))
+        )
+      )
+      return read.unwrapOr([])
+    })
+  )
+  return {
+    heldIds: held.map(({ gmailId }) => gmailId),
+    older: older.flat().filter(({ message }) => isReceivedMail(message)),
+  }
 }
 
-export const listMail = async (
-  userId: string,
-  input: {
-    before?: Date
-    category?: MailCategory
-    filter: MailFilter
-    mailboxId?: string
-    search?: string
-  }
-) => {
-  const [searchIds, snoozed] = await Promise.all([
-    input.search ? searchMail(userId, input.search, input.mailboxId) : null,
-    snoozedWhere(userId, input.filter),
-  ])
-  if (searchIds?.length === 0) {
-    return []
-  }
+interface ListInput {
+  before?: Date
+  category?: MailCategory
+  filter: MailFilter
+  mailboxId?: string
+  search?: string
+}
 
+const listHeldMail = (
+  userId: string,
+  input: ListInput,
+  {
+    isBounded,
+    searchIds,
+    snoozed,
+  }: { isBounded: boolean; searchIds?: string[]; snoozed?: SQL }
+) => {
   const matches = (message: MessageTable, analysis: AnalysisTable) =>
     and(
       eq(message.userId, userId),
@@ -350,17 +420,118 @@ export const listMail = async (
         .where(sameThread)})`.mapWith(Number),
     })
     .from(messages)
+    .innerJoin(mailboxes, eq(mailboxes.id, messages.mailboxId))
     .leftJoin(analyses, eq(analyses.messageId, messages.id))
     .where(
       and(
         matches(messages, analyses),
         snoozed,
+        // Older mail a thread opened from the live list left behind is listed live with the rest of its age.
+        isBounded ? gte(messages.receivedAt, mailboxes.heldSince) : undefined,
         input.before ? lt(messages.receivedAt, input.before) : undefined,
         notExists(newerMatch)
       )
     )
     .orderBy(desc(messages.receivedAt))
     .limit(PAGE_SIZE)
+}
+
+type MailRow = Awaited<ReturnType<typeof listHeldMail>>[number]
+
+const olderRowOf = ({ mailbox, message, thread }: OlderThread): MailRow => ({
+  analysis: null,
+  message: {
+    bulkCount: null,
+    code: message.code,
+    fromEmail: message.fromEmail,
+    fromName: message.fromName,
+    gmailId: message.gmailId,
+    hasAttachments: message.hasAttachments,
+    id: liveMessageId(mailbox.id, message.gmailId),
+    isPinned: thread.some(({ labelIds }) => labelIds.includes('STARRED')),
+    isUnread: thread.some(({ isUnread }) => isUnread),
+    receivedAt: message.receivedAt,
+    risk: null,
+    snippet: message.snippet,
+    subject: message.subject,
+    suspicion: null,
+    threadId: message.threadId,
+  },
+  threadSize: thread.length,
+})
+
+/** A full page of held mail ends at its oldest row: Gmail is asked only for what lies between that and where each mailbox's held mail begins. */
+const listOlderMail = async (
+  userId: string,
+  input: ListInput,
+  list: NonNullable<(typeof OLDER_LISTS)[MailFilter]>,
+  held: MailRow[]
+) => {
+  const floor =
+    held.length === PAGE_SIZE ? held.at(-1)?.message.receivedAt : undefined
+  const owned = await db
+    .select()
+    .from(mailboxes)
+    .where(
+      and(
+        eq(mailboxes.userId, userId),
+        input.mailboxId ? eq(mailboxes.id, input.mailboxId) : undefined
+      )
+    )
+  const read = await Promise.all(
+    owned
+      .filter(({ heldSince }) => !floor || heldSince > floor)
+      .map(async (mailbox) => {
+        const threads = await Result.tryPromise(() =>
+          listOlderThreads(
+            mailbox,
+            list,
+            { after: floor, before: input.before },
+            PAGE_SIZE
+          )
+        )
+        return threads.unwrapOr([])
+      })
+  )
+  return read.flat()
+}
+
+export const listMail = async (userId: string, input: ListInput) => {
+  const older =
+    input.search || input.category ? undefined : OLDER_LISTS[input.filter]
+  const [found, snoozed] = await Promise.all([
+    input.search ? searchMail(userId, input.search, input.mailboxId) : null,
+    snoozedOf(userId, input.filter),
+  ])
+  if (found?.heldIds.length === 0 && found.older.length === 0) {
+    return []
+  }
+  const held = await listHeldMail(userId, input, {
+    isBounded: !!older,
+    searchIds: found?.heldIds,
+    snoozed: snoozed?.where,
+  })
+  // The first page is held mail only: Gmail is read when a list is scrolled, never for every list on every refresh.
+  const fromGmail =
+    older && input.before
+      ? await listOlderMail(userId, input, older, held)
+      : (found?.older ?? [])
+  const threadIds = new Set<string>()
+  return [
+    ...held,
+    ...fromGmail
+      .filter(({ message }) => snoozed?.isListed(message.threadId) ?? true)
+      .map(olderRowOf),
+  ]
+    .toSorted(
+      (left, right) =>
+        right.message.receivedAt.getTime() - left.message.receivedAt.getTime()
+    )
+    .filter(
+      ({ message }) =>
+        !threadIds.has(message.threadId) && !!threadIds.add(message.threadId)
+    )
+    .slice(0, PAGE_SIZE)
 }
 
 /** Unread threads still in the inbox. */
@@ -411,17 +582,30 @@ const fillMissingHtml = async (
   )
 }
 
+const threadRows = (userId: string, threadId: string) =>
+  db
+    .select({
+      analysis: analyses,
+      message: messages,
+    })
+    .from(messages)
+    .leftJoin(analyses, eq(analyses.messageId, messages.id))
+    .where(and(eq(messages.userId, userId), eq(messages.threadId, threadId)))
+    .orderBy(messages.receivedAt)
+
+/** A thread listed live from Gmail is stored when it is first opened, a hover's prefetch included. */
+const heldThreadRows = async (userId: string, threadId: string) => {
+  const rows = await threadRows(userId, threadId)
+  if (rows.length > 0) {
+    return rows
+  }
+  await holdThread(userId, threadId)
+  return threadRows(userId, threadId)
+}
+
 export const getThread = async (userId: string, threadId: string) => {
   const [rows, threadActions, task] = await Promise.all([
-    db
-      .select({
-        analysis: analyses,
-        message: messages,
-      })
-      .from(messages)
-      .leftJoin(analyses, eq(analyses.messageId, messages.id))
-      .where(and(eq(messages.userId, userId), eq(messages.threadId, threadId)))
-      .orderBy(messages.receivedAt),
+    heldThreadRows(userId, threadId),
     db
       .select()
       .from(actions)
@@ -618,17 +802,6 @@ export const updateDraft = async (
     .where(eq(actions.id, actionId))
     .returning()
   return expectRow(updated)
-}
-
-const ownMessage = async (userId: string, messageId: string) => {
-  const [message] = await db
-    .select()
-    .from(messages)
-    .where(and(eq(messages.id, messageId), eq(messages.userId, userId)))
-  if (!message) {
-    throw new NotFoundError('Email not found')
-  }
-  return message
 }
 
 /** A reply for the composer to edit; nothing is queued. */

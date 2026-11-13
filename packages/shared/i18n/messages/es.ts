@@ -893,6 +893,7 @@ export const es: Messages = {
     },
     group: {
       read: 'Leídos',
+      earlier: 'Anteriores',
       important: 'Importantes',
       people: 'Personas',
       plans: 'Agenda y viajes',

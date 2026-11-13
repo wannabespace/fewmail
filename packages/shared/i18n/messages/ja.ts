@@ -399,6 +399,7 @@ export const ja: Messages = {
     },
     group: {
       read: '既読',
+      earlier: '以前',
       important: '重要',
       people: '人',
       plans: '予定と旅行',

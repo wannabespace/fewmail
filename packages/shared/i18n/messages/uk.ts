@@ -889,6 +889,7 @@ export const uk: Messages = {
     },
     group: {
       read: 'Прочитані',
+      earlier: 'Раніше',
       important: 'Важливе',
       people: 'Люди',
       plans: 'Календар і подорожі',

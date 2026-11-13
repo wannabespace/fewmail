@@ -894,6 +894,7 @@ export const de: Messages = {
     },
     group: {
       read: 'Gelesen',
+      earlier: 'Früher',
       important: 'Wichtig',
       people: 'Menschen',
       plans: 'Termine und Reisen',

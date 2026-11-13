@@ -389,6 +389,7 @@ export const zh: Messages = {
     },
     group: {
       read: '已读',
+      earlier: '更早',
       important: '重要',
       people: '联系人',
       plans: '日程和出行',

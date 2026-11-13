@@ -15,7 +15,18 @@ import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { Result } from 'better-result'
 import { subMinutes } from 'date-fns'
-import { and, eq, gte, isNotNull, isNull, lt, lte, or } from 'drizzle-orm'
+import {
+  and,
+  eq,
+  gt,
+  gte,
+  isNotNull,
+  isNull,
+  lt,
+  lte,
+  or,
+  sql,
+} from 'drizzle-orm'
 
 import { env } from './env'
 import { localClock } from './lib/clock'
@@ -53,6 +64,8 @@ import { nextRunAt } from './services/schedules'
 import { getSettings } from './services/settings'
 import {
   ensureMailbox,
+  HELD_MONTHS,
+  holdEarlierMail,
   onNewMail,
   readBoardHistory,
   syncMailbox,
@@ -113,6 +126,27 @@ const syncDueMailboxes = async () => {
       )
     ),
   ])
+}
+
+/** After the first sync, so the inbox is read before any history; a week per mailbox per tick. */
+const holdDueMail = async () => {
+  const due = await db
+    .select()
+    .from(mailboxes)
+    .where(
+      and(
+        isNotNull(mailboxes.lastSyncedAt),
+        gt(
+          mailboxes.heldSince,
+          sql`${mailboxes.createdAt} - make_interval(months => ${HELD_MONTHS})`
+        )
+      )
+    )
+  await Promise.all(
+    due.map((mailbox) =>
+      once(`held:${mailbox.id}`, () => holdEarlierMail(mailbox))
+    )
+  )
 }
 
 /** After the first sync, so the inbox is read before any history. */
@@ -401,6 +435,7 @@ const tick = async () => {
       renewWatches(),
       seedDueBoards(),
       readDueBoardHistory(),
+      holdDueMail(),
       once('mornings', sendDueMornings),
       once('cleanups', offerDueCleanups),
       once('urgent', pushUrgent),

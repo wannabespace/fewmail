@@ -34,6 +34,39 @@ export const isReadingFirstTime = (mailboxes: { hasSynced: boolean }[]) =>
 // Keys sit under `orpc.mail.key()` so every existing mail invalidation (and the live stream) refreshes them too.
 const [mailKey] = orpc.mail.key()
 
+const readPage = async (
+  list: MailList,
+  mailboxId: string | undefined,
+  before?: Date
+): Promise<MailRow[]> => {
+  const rows = await client.mail.list({ before, filter: list, mailboxId })
+  return rows.map((row) => ({
+    ...row,
+    key: `${list}:${row.message.id}`,
+    list,
+  }))
+}
+
+const oldestOf = (rows: MailRow[]) =>
+  rows
+    .map(({ message }) => message.receivedAt)
+    .toSorted((left, right) => left.getTime() - right.getTime())[0]
+
+const mailRowsByMailbox = new Map<string, ReturnType<typeof createMailRows>>()
+
+/** Pages past the first stay through a refetch as the collection holds them now, acted-on rows included; only the first is read again. */
+const keptOlderRows = (
+  mailboxId: string | undefined,
+  list: MailList,
+  firstPage: MailRow[]
+): MailRow[] => {
+  const oldest = oldestOf(firstPage)
+  const rows = mailRowsByMailbox.get(mailboxId ?? '')
+  return [...(rows?.values() ?? [])].filter(
+    (row) => row.list === list && (!oldest || row.message.receivedAt < oldest)
+  )
+}
+
 /** Every list of a mailbox in one collection, so switching tabs and acting on mail never waits for the network. */
 const createMailRows = (mailboxId: string | undefined) =>
   createCollection(
@@ -41,15 +74,11 @@ const createMailRows = (mailboxId: string | undefined) =>
       getKey: (row: MailRow) => row.key,
       id: `mail-rows:${mailboxId ?? 'all'}`,
       queryClient,
-      queryFn: async () => {
+      queryFn: async (): Promise<MailRow[]> => {
         const lists = await Promise.all(
           MAIL_LISTS.map(async (list) => {
-            const rows = await client.mail.list({ filter: list, mailboxId })
-            return rows.map((row) => ({
-              ...row,
-              key: `${list}:${row.message.id}`,
-              list,
-            }))
+            const firstPage = await readPage(list, mailboxId)
+            return [...firstPage, ...keptOlderRows(mailboxId, list, firstPage)]
           })
         )
         return lists.flat()
@@ -57,8 +86,6 @@ const createMailRows = (mailboxId: string | undefined) =>
       queryKey: [[...mailKey, 'rows'], mailboxId ?? null],
     })
   )
-
-const mailRowsByMailbox = new Map<string, ReturnType<typeof createMailRows>>()
 
 export const mailRowsOf = (mailboxId?: string) => {
   const key = mailboxId ?? ''
@@ -69,6 +96,30 @@ export const mailRowsOf = (mailboxId?: string) => {
   const created = createMailRows(mailboxId)
   mailRowsByMailbox.set(key, created)
   return created
+}
+
+const endedLists = new Set<string>()
+
+export const hasOlderRows = (mailboxId: string | undefined, list: MailList) =>
+  !endedLists.has(`${mailboxId ?? ''}:${list}`)
+
+/** The next page of a list after its oldest row; an empty page ends the list. */
+export const loadOlderRows = async (
+  mailboxId: string | undefined,
+  list: MailList
+) => {
+  const rows = mailRowsOf(mailboxId)
+  if (!hasOlderRows(mailboxId, list)) {
+    return
+  }
+  const oldest = oldestOf([...rows.values()].filter((row) => row.list === list))
+  const page = await readPage(list, mailboxId, oldest ?? new Date())
+  const fresh = page.filter((row) => !rows.has(row.key))
+  if (fresh.length === 0) {
+    endedLists.add(`${mailboxId ?? ''}:${list}`)
+    return
+  }
+  rows.utils.writeInsert(fresh)
 }
 
 const threadKey = (threadId?: string) =>
@@ -110,6 +161,40 @@ export const prefetchThread = (threadId: string) =>
     queryFn: () => fetchThread(threadId),
     queryKey: threadKey(threadId),
   })
+
+const warmedImages = new Set<string>()
+
+const isPixel = (image: HTMLImageElement) =>
+  ['width', 'height'].some((side) => {
+    const size = image.getAttribute(side)
+    return size !== null && Number(size) <= 2
+  })
+
+/**
+ * A pointer on a row loads the thread and the newest email's images, so the reader's frame takes them from the browser
+ * cache. Tracking pixels wait for the open: a hover must never tell a sender the email was read.
+ */
+export const warmThread = async (threadId: string) => {
+  await prefetchThread(threadId)
+  const [thread] = queryClient.getQueryData<Thread[]>(threadKey(threadId)) ?? []
+  const html = thread?.messages.at(-1)?.message.html
+  if (!html) {
+    return
+  }
+  // A parsed document is inert: its images load only through the `Image` below.
+  const { images } = new DOMParser().parseFromString(html, 'text/html')
+  for (const image of images) {
+    const src = image.getAttribute('src') ?? ''
+    if (
+      src.startsWith('https://') &&
+      !isPixel(image) &&
+      !warmedImages.has(src)
+    ) {
+      warmedImages.add(src)
+      new Image().src = src
+    }
+  }
+}
 
 const rowsOfThread = (threadId: string) =>
   [...mailRowsByMailbox.values()].map((rows) => ({

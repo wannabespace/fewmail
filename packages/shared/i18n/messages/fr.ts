@@ -903,6 +903,7 @@ export const fr: Messages = {
     },
     group: {
       read: 'Lus',
+      earlier: 'Plus anciens',
       important: 'Importants',
       people: 'Personnes',
       plans: 'Agenda et voyages',

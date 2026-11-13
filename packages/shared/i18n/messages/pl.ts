@@ -670,6 +670,7 @@ export const pl: Messages = {
     },
     group: {
       read: 'Przeczytane',
+      earlier: 'Wcześniejsze',
       important: 'Ważne',
       people: 'Ludzie',
       plans: 'Kalendarz i podróże',

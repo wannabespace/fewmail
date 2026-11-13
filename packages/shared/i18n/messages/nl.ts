@@ -659,6 +659,7 @@ export const nl: Messages = {
     },
     group: {
       read: 'Gelezen',
+      earlier: 'Eerder',
       important: 'Belangrijk',
       people: 'Mensen',
       plans: 'Agenda en reizen',

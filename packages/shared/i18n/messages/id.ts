@@ -644,6 +644,7 @@ export const id: Messages = {
     },
     group: {
       read: 'Sudah dibaca',
+      earlier: 'Sebelumnya',
       important: 'Penting',
       people: 'Orang',
       plans: 'Kalender dan perjalanan',

@@ -26,7 +26,7 @@ import { senderHashOf } from '../lib/keyed-hash'
 import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { findOrCreateLabel } from './labels'
-import { insertMessages } from './sync'
+import { insertMessages } from './stored-mail'
 import { unsubscribe, unsubscribeMessage } from './thread-effects'
 
 const LOOKBACK_DAYS = 30

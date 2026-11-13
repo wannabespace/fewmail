@@ -8,7 +8,7 @@ import {
 } from '@fewmail/db/schema'
 import { ANALYZE_WINDOW_DAYS, isForwardToAgent } from '@fewmail/shared/agent'
 import { Result } from 'better-result'
-import { subDays, subMinutes } from 'date-fns'
+import { max, subDays, subMinutes, subMonths } from 'date-fns'
 import {
   and,
   eq,
@@ -24,9 +24,8 @@ import { alias } from 'drizzle-orm/pg-core'
 
 import { inBatches } from '../lib/batches'
 import {
-  getMessage,
   getProfile,
-  GmailError,
+  isMissing,
   listHistory,
   listMessageIds,
   listThreadMessageIds,
@@ -49,6 +48,7 @@ import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
 import { applySimpleRules } from './simple-rules'
 import { applySpamShield } from './spam'
+import { forget, insertMessages, readMessages } from './stored-mail'
 import { advanceTasksFor } from './tasks'
 import { catchZombies } from './zombies'
 
@@ -58,6 +58,9 @@ const VOICE_SAMPLE_QUERY = 'in:sent newer_than:60d'
 const VOICE_SAMPLE_LIMIT = 15
 const ANALYZE_CONCURRENCY = 4
 const BOARD_HISTORY = 'newer_than:6m'
+export const HELD_MONTHS = 3
+const HELD_STEP_DAYS = 7
+const HELD_STEP_LIMIT = 5000
 /** A sync that died without releasing its claim (a crash, a deploy) is taken over after this. */
 const SYNC_CLAIM_MINUTES = 15
 
@@ -87,10 +90,6 @@ export const ensureMailbox = async (userId: string) => {
   const [raced] = await db.select().from(mailboxes).where(signInMailbox(userId))
   return expectRow(raced)
 }
-
-/** Also an expired history id, when it comes from `listHistory`. */
-const isMissing = (error: unknown) =>
-  error instanceof GmailError && error.status === 404
 
 const newMessageIds = async (mailbox: Mailbox) => {
   const { historyId: since } = mailbox
@@ -236,67 +235,6 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
         .map(({ threadId }) => threadId)
     ),
   ]).catch((error) => logError('task advance failed', error))
-}
-
-/**
- * A failed sync keeps its history id, so the same mail comes back next time; forgetting what it
- * stored lets that mail be processed then instead of being skipped as known.
- */
-const forget = async (inserted: Message[]) => {
-  if (inserted.length > 0) {
-    await db.delete(messages).where(
-      inArray(
-        messages.id,
-        inserted.map(({ id }) => id)
-      )
-    )
-  }
-}
-
-/** Only stores: mail found by search or for a board must never reach `processIncoming`. */
-export const insertMessages = async (mailbox: Mailbox, ids: string[]) => {
-  const known = ids.length
-    ? await db
-        .select({ gmailId: messages.gmailId })
-        .from(messages)
-        .where(
-          and(
-            eq(messages.mailboxId, mailbox.id),
-            inArray(messages.gmailId, ids)
-          )
-        )
-    : []
-  const knownIds = new Set(known.map(({ gmailId }) => gmailId))
-
-  const inserted: Message[] = []
-  const stored = await Result.tryPromise(() =>
-    inBatches(
-      ids.filter((id) => !knownIds.has(id)),
-      ANALYZE_CONCURRENCY,
-      async (id) => {
-        const parsed = await getMessage(mailbox, id).catch((error) => {
-          if (isMissing(error)) {
-            return null
-          }
-          throw error
-        })
-        if (!parsed || parsed.labelIds.includes('DRAFT')) {
-          return
-        }
-        const rows = await db
-          .insert(messages)
-          .values({ ...parsed, mailboxId: mailbox.id, userId: mailbox.userId })
-          .onConflictDoNothing()
-          .returning()
-        inserted.push(...rows)
-      }
-    )
-  )
-  if (stored.isErr()) {
-    await forget(inserted)
-    throw stored.error.cause
-  }
-  return inserted
 }
 
 /**
@@ -447,7 +385,38 @@ export const syncMailboxes = async (userId: string) => {
   await Promise.allSettled(owned.map((mailbox) => syncMailbox(mailbox)))
 }
 
-/** Pro: a new board starts with half a year of its mail, not only what arrives from now on. */
+const seconds = (date: Date) => Math.floor(date.getTime() / 1000)
+
+const gmailKey = (message: { gmailId: string; mailboxId: string }) =>
+  `${message.mailboxId}:${message.gmailId}`
+
+/**
+ * Stores a week of the mail before `heldSince` per call, back to `HELD_MONTHS` before the mailbox was added. Reading
+ * only, never `processIncoming`; `heldSince` moves once the week is stored, so a run cut off is read again.
+ */
+export const holdEarlierMail = async (mailbox: Mailbox) => {
+  const from = max([
+    subMonths(mailbox.createdAt, HELD_MONTHS),
+    subDays(mailbox.heldSince, HELD_STEP_DAYS),
+  ])
+  if (from >= mailbox.heldSince) {
+    return
+  }
+  // A second of overlap keeps an email on the boundary from falling between two weeks; it is stored once either way.
+  const ids = await listMessageIds(
+    mailbox,
+    `in:anywhere after:${seconds(from) - 1} before:${seconds(mailbox.heldSince)}`,
+    HELD_STEP_LIMIT
+  )
+  await insertMessages(mailbox, ids, { keepsHtml: false })
+  await db
+    .update(mailboxes)
+    .set({ heldSince: from })
+    .where(eq(mailboxes.id, mailbox.id))
+  await announceChange(mailbox.userId, ['mail'])
+}
+
+/** Pro: a new board starts with half a year of its mail, not only what arrives from now on; what Fewmail does not hold is read in memory. */
 export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
   const searchedAt = new Date()
   const results = await searchMailboxes(
@@ -456,20 +425,7 @@ export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
     BOARD_HISTORY_LIMIT
   )
   const found = await Promise.all(
-    results.map(async ({ ids, mailbox }) => {
-      await insertMessages(mailbox, ids)
-      return ids.length
-        ? db
-            .select()
-            .from(messages)
-            .where(
-              and(
-                eq(messages.mailboxId, mailbox.id),
-                inArray(messages.gmailId, ids)
-              )
-            )
-        : []
-    })
+    results.map(({ ids, mailbox }) => readMessages(mailbox, ids))
   )
   const candidates = found.flat()
   if (!(await isUnchanged(board))) {
@@ -491,7 +447,7 @@ export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
     .where(eq(boards.id, board.id))
   await announceChange(board.userId, ['boards', 'today'])
   // Only after `historyReadAt` is set: from then on `collectForNewMail` takes new mail, so nothing falls between the two.
-  const read = new Set(candidates.map(({ id }) => id))
+  const read = new Set(candidates.map(gmailKey))
   const arrived = await db
     .select()
     .from(messages)
@@ -503,7 +459,7 @@ export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
         lt(messages.createdAt, readAt)
       )
     )
-  const missed = arrived.filter(({ id }) => !read.has(id))
+  const missed = arrived.filter((message) => !read.has(gmailKey(message)))
   if (missed.length > 0) {
     await collectMatching(board, missed)
     await announceChange(board.userId, ['boards', 'today'])

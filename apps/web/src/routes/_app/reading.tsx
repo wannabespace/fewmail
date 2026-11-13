@@ -11,7 +11,7 @@ import { createMediaQuery } from 'seitu/web'
 import { KeyHints } from '~/components/key-hints'
 import { ThreadView } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
-import { prefetchThread } from '~/lib/mail-db'
+import { prefetchThread, warmThread } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
 
@@ -89,7 +89,7 @@ const ReadingPage = () => {
                 tabIndex={-1}
                 aria-current={row === active && isReading}
                 onPointerEnter={() => {
-                  void prefetchThread(row.threadId)
+                  void warmThread(row.threadId)
                 }}
                 onClick={() => {
                   setCursor(index)

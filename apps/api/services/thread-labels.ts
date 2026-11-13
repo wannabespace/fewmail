@@ -5,6 +5,7 @@ import { and, eq, sql } from 'drizzle-orm'
 
 import { modifyThread, trashThread } from '../lib/gmail'
 import { NotFoundError } from './mail-errors'
+import { forgetOlderMail } from './older-mail'
 
 /** Thread ids belong to one Gmail account, so every change goes to the mailbox the thread was synced from. */
 export const mailboxOfThread = async (userId: string, threadId: string) => {
@@ -57,6 +58,7 @@ export const changeThreadLabels = async (
   change: LabelChange
 ) => {
   await modifyThread(await mailboxOfThread(userId, threadId), threadId, change)
+  forgetOlderMail(userId)
   await mirrorThreadLabels(userId, threadId, change)
 }
 
@@ -90,6 +92,7 @@ export const moveToSpam = async (
 
 export const trashThreadOf = async (userId: string, threadId: string) => {
   await trashThread(await mailboxOfThread(userId, threadId), threadId)
+  forgetOlderMail(userId)
   await mirrorThreadLabels(userId, threadId, {
     add: ['TRASH'],
     remove: ['INBOX'],

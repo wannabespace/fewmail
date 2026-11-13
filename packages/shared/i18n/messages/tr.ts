@@ -640,6 +640,7 @@ export const tr: Messages = {
     },
     group: {
       read: 'Okunanlar',
+      earlier: 'Daha eski',
       important: 'Önemli',
       people: 'Kişiler',
       plans: 'Takvim ve seyahat',

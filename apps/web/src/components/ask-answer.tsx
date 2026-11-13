@@ -5,7 +5,7 @@ import { AiChat02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { useDates, useT } from '~/lib/i18n'
-import { prefetchThread } from '~/lib/mail-db'
+import { warmThread } from '~/lib/mail-db'
 
 export const AskAnswer = ({
   onOpenChat,
@@ -45,7 +45,7 @@ export const AskAnswer = ({
           value={`source ${source.number} ${source.subject}`}
           onSelect={() => onOpenThread(source.threadId)}
           onPointerEnter={() => {
-            void prefetchThread(source.threadId)
+            void warmThread(source.threadId)
           }}
         >
           <span className="text-muted-foreground tabular-nums">

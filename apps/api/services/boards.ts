@@ -38,6 +38,8 @@ import { NotFoundError } from './mail-errors'
 import { searchMailboxes } from './mailboxes'
 import { requireRoom } from './plan'
 import { getSettings } from './settings'
+import { keptIdOf } from './stored-mail'
+import type { ReadMessage } from './stored-mail'
 
 type Board = typeof boards.$inferSelect
 type Entry = typeof boardEntries.$inferSelect
@@ -541,7 +543,7 @@ const threadKey = (message: { mailboxId: string; threadId: string }) =>
 /** A later email of the same thing (shipped after ordered) updates its entry, so its amount is not counted twice. */
 const saveEntry = async (
   board: Board,
-  message: Message,
+  message: ReadMessage,
   output: typeof entrySchema.infer,
   earlier: Entry | undefined,
   editedAt: Date | null
@@ -556,11 +558,12 @@ const saveEntry = async (
       : { amountCents: null, currency: null }
   const due = output.dueAt ? new Date(output.dueAt) : null
   const dueAt = due && due.getTime() > Date.now() ? due : null
+  const messageId = await keptIdOf(message)
   if (earlier && output.isUpdate) {
     await db
       .update(boardEntries)
       .set({
-        messageId: message.id,
+        messageId,
         ...(dueAt && { dueAt }),
         ...(status && { status }),
         ...(earlier.amountCents === null && amount),
@@ -577,7 +580,7 @@ const saveEntry = async (
       dueAt,
       editedAt,
       group: output.group?.trim() || null,
-      messageId: message.id,
+      messageId,
       occurredAt:
         occurredAt && !Number.isNaN(occurredAt.getTime())
           ? occurredAt
@@ -598,7 +601,7 @@ interface KnownValues {
 /** `isAdded`: the user put this email on the board themselves, so it belongs and is its own entry. */
 const extractEntry = async (
   board: Board,
-  message: Message,
+  message: ReadMessage,
   context: KnownValues & { isAdded?: boolean; language: Locale }
 ) => {
   const [earlier] = context.isAdded
@@ -708,7 +711,10 @@ const knownValues = async (boardId: string) => {
 }
 
 /** Each message is read once per board, a thread's oldest first so a later one updates its entry instead of adding one; mail the user sent is never an entry. */
-export const collectEntries = async (board: Board, candidates: Message[]) => {
+export const collectEntries = async (
+  board: Board,
+  candidates: ReadMessage[]
+) => {
   if (candidates.length === 0) {
     return
   }

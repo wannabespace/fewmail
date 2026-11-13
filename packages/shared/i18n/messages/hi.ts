@@ -394,6 +394,7 @@ export const hi: Messages = {
     },
     group: {
       read: 'पढ़े हुए',
+      earlier: 'पहले के',
       important: 'ज़रूरी',
       people: 'लोग',
       plans: 'कैलेंडर और यात्रा',

@@ -5,7 +5,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
-import { prefetchThread } from '~/lib/mail-db'
+import { warmThread } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
 
 const ThreadLink = ({
@@ -19,7 +19,7 @@ const ThreadLink = ({
     to="/mail"
     search={(prev) => ({ ...prev, thread: threadId })}
     onPointerEnter={() => {
-      void prefetchThread(threadId)
+      void warmThread(threadId)
     }}
     data-mask
     className="text-foreground underline-offset-3 hover:underline"

@@ -653,6 +653,7 @@ export const en = {
     },
     group: {
       read: 'Read',
+      earlier: 'Earlier',
       important: 'Important',
       people: 'People',
       plans: 'Calendar and travel',

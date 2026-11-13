@@ -44,6 +44,8 @@ export const mailboxes = d.snakeCase.table(
     email: encryptedText().notNull(),
     /** Null for the sign-in mailbox. */
     googleAccountId: searchableText(),
+    /** Every email received since then is in `messages`; older mail is read live from Gmail. The worker moves it back to `HELD_MONTHS` before `createdAt`. */
+    heldSince: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     historyId: d.text(),
     /** Category → Gmail label id, created on demand when the user turns on agent labels. */
     labelIds: d

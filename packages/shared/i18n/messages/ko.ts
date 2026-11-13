@@ -396,6 +396,7 @@ export const ko: Messages = {
     },
     group: {
       read: '읽음',
+      earlier: '이전',
       important: '중요',
       people: '사람',
       plans: '일정과 여행',

@@ -22,6 +22,10 @@ export class GmailError extends Error {
   }
 }
 
+/** Also an expired history id, when it comes from `listHistory`. */
+export const isMissing = (error: unknown) =>
+  error instanceof GmailError && error.status === 404
+
 const RATE_LIMIT_RETRIES = 6
 
 /** The per-user quota answers 429 or a 403 `rateLimitExceeded`/`userRateLimitExceeded`; it refills within a minute. */
@@ -381,6 +385,50 @@ export const getMessage = async (account: GmailAccount, id: string) =>
   parseMessage(
     await gmail<GmailMessage>(account, `/messages/${id}?format=full`)
   )
+
+// Without a body the parsed `body` is the snippet and `html` is empty: enough for a list row, never for reading.
+const SUMMARY_FORMAT = [
+  ['format', 'metadata'],
+  ['metadataHeaders', 'From'],
+  ['metadataHeaders', 'Subject'],
+]
+
+export const getMessageSummary = async (account: GmailAccount, id: string) =>
+  parseMessage(
+    await gmail<GmailMessage>(
+      account,
+      `/messages/${id}?${new URLSearchParams(SUMMARY_FORMAT)}`
+    )
+  )
+
+export const getThreadSummary = async (
+  account: GmailAccount,
+  threadId: string
+) => {
+  const { messages = [] } = await gmail<{ messages?: GmailMessage[] }>(
+    account,
+    `/threads/${threadId}?${new URLSearchParams(SUMMARY_FORMAT)}`
+  )
+  return messages.map(parseMessage)
+}
+
+/** One page of threads, newest first. */
+export const listThreadIds = async (
+  account: GmailAccount,
+  query: string,
+  max: number
+) => {
+  // A search with no match comes back as an empty 204, not `{}`.
+  const page = await gmail<{ threads?: { id: string }[] } | undefined>(
+    account,
+    `/threads?${new URLSearchParams({
+      fields: 'threads/id',
+      maxResults: String(max),
+      q: query,
+    })}`
+  )
+  return (page?.threads ?? []).map(({ id }) => id)
+}
 
 export const modifyMessage = (
   account: GmailAccount,

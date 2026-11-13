@@ -6,9 +6,9 @@ import { and, eq, inArray, or } from 'drizzle-orm'
 
 import { domainHashOf, domainOf, senderHashOf } from '../lib/keyed-hash'
 import { FREEMAIL_DOMAINS, listedDomains } from './known-domains'
-import { NotFoundError } from './mail-errors'
 import { isSpammy, readPatterns, voteCounts, votePatterns } from './patterns'
 import { getSettings } from './settings'
+import { ownMessage } from './stored-mail'
 import { changeThreadLabels, moveToSpam, SPAM } from './thread-labels'
 
 type Message = typeof messages.$inferSelect
@@ -203,17 +203,6 @@ const vote = async (userId: string, message: Message, verdict: SpamVerdict) => {
       })
     await votePatterns(tx, userId, message, verdict)
   })
-}
-
-const ownMessage = async (userId: string, messageId: string) => {
-  const [message] = await db
-    .select()
-    .from(messages)
-    .where(and(eq(messages.id, messageId), eq(messages.userId, userId)))
-  if (!message) {
-    throw new NotFoundError('Email not found')
-  }
-  return message
 }
 
 export const reportSpam = async (userId: string, messageId: string) => {

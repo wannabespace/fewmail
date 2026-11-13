@@ -1,5 +1,9 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { BULK_THRESHOLD, isAutomatedSender } from '@fewmail/shared/agent'
+import {
+  ANALYZE_WINDOW_DAYS,
+  BULK_THRESHOLD,
+  isAutomatedSender,
+} from '@fewmail/shared/agent'
 import type { MailCategory } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { CopyButton } from '@fewmail/ui/components/custom/copy-button'
@@ -66,7 +70,7 @@ import {
 } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
-import { differenceInMinutes, isToday } from 'date-fns'
+import { differenceInMinutes, isToday, subDays } from 'date-fns'
 import {
   Fragment,
   startTransition,
@@ -97,7 +101,14 @@ import {
 } from '~/components/thread-view'
 import type { Place, Sweep } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
-import { isReadingFirstTime, mailRowsOf, prefetchThread } from '~/lib/mail-db'
+import {
+  hasOlderRows,
+  isReadingFirstTime,
+  loadOlderRows,
+  mailRowsOf,
+  prefetchThread,
+  warmThread,
+} from '~/lib/mail-db'
 import type { MailList, MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
@@ -148,17 +159,23 @@ const ARRIVING = new Set<Filter>([...INBOX_VIEWS, 'spam'])
 
 const MailListEmpty = ({
   filter,
+  hasOlder,
   isPending,
   isSearch,
   mailboxes,
 }: {
   filter: Filter
+  hasOlder: boolean
   isPending: boolean
   isSearch: boolean
   mailboxes: { hasSynced: boolean }[]
 }) => {
   const t = useT()
   const isFirstRead = mailboxes.length > 0 && isReadingFirstTime(mailboxes)
+  // Nothing held is not an empty list: the loader below is reading older mail from Gmail.
+  if (hasOlder && !isSearch) {
+    return null
+  }
   if (isSearch && isPending) {
     return (
       <Empty size="sm">
@@ -245,6 +262,7 @@ const GROUPS = [
   'updates',
   'newsletters',
   'promotions',
+  'earlier',
   'read',
 ] as const
 
@@ -293,7 +311,13 @@ const groupKeyOf = (
   if (analysis && analysis.importance >= 2) {
     return 'important'
   }
-  // Mail not analysed yet stays with people's, never folded out of sight.
+  // Mail on its way to analysis stays with people's, never folded out of sight; older mail is never analysed.
+  if (
+    !analysis &&
+    message.receivedAt <= subDays(new Date(), ANALYZE_WINDOW_DAYS)
+  ) {
+    return 'earlier'
+  }
   const group = analysis ? GROUP_OF[analysis.category] : 'people'
   // Mail analysed before senders were checked may still call a service a person.
   return group === 'people' && isAutomatedSender(message.fromEmail)
@@ -797,7 +821,7 @@ const RelatedRow = ({
         tabIndex={-1}
         onClick={onOpen}
         onPointerEnter={() => {
-          void prefetchThread(message.threadId)
+          void warmThread(message.threadId)
         }}
         aria-current={isOpen}
         className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-9 text-left text-sm outline-none"
@@ -858,7 +882,7 @@ const MailRow = ({
         tabIndex={-1}
         onClick={onOpen}
         onPointerEnter={() => {
-          void prefetchThread(message.threadId)
+          void warmThread(message.threadId)
         }}
         aria-current={isOpen}
         className="flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none"
@@ -992,7 +1016,7 @@ const PinnedRow = ({
         tabIndex={-1}
         onClick={onOpen}
         onPointerEnter={() => {
-          void prefetchThread(message.threadId)
+          void warmThread(message.threadId)
         }}
         aria-current={isOpen}
         className="flex w-full cursor-pointer items-center gap-2 px-5 py-2 text-left text-sm outline-none"
@@ -1341,6 +1365,66 @@ const useListRows = ({
   }
 }
 
+/**
+ * Scrolling near the end reads the next page of the view's own list (Unread's Read group stays as loaded); past the
+ * held mail the server reads Gmail, one list at a time, which keeps inside Gmail's per-user quota.
+ */
+const useOlderRows = ({
+  filter,
+  isLoading,
+  mailbox,
+  q,
+}: {
+  filter: Filter
+  isLoading: boolean
+  mailbox: string | undefined
+  q: string | undefined
+}) => {
+  const [list] = filter === 'drafts' || q !== undefined ? [] : LISTS_OF[filter]
+  const load = useMutation({
+    mutationFn: () => (list ? loadOlderRows(mailbox, list) : Promise.resolve()),
+  })
+  return {
+    hasMore: !isLoading && !!list && hasOlderRows(mailbox, list),
+    isLoading: load.isPending,
+    load: () => {
+      if (!load.isPending) {
+        load.mutate()
+      }
+    },
+  }
+}
+
+/** Watches the list's end inside its own scroller; the spinner holds the place while the page comes. */
+const OlderRowsLoader = ({
+  hasMore,
+  isLoading,
+  load,
+}: ReturnType<typeof useOlderRows>) => {
+  const ref = useRef<HTMLLIElement>(null)
+  useEffect(() => {
+    const node = ref.current
+    if (!node || !hasMore || isLoading) {
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          load()
+        }
+      },
+      { root: node.closest('ul'), rootMargin: '0px 0px 600px 0px' }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [hasMore, isLoading, load])
+  return (
+    <li ref={ref} hidden={!hasMore} className="flex justify-center py-3">
+      {isLoading && <Spinner />}
+    </li>
+  )
+}
+
 const useListActions = ({
   filter,
   isEnabled,
@@ -1613,6 +1697,7 @@ const MailPage = () => {
     q,
     typed: search.trim(),
   })
+  const older = useOlderRows({ filter, isLoading: isFetching, mailbox, q })
   const { groupStarts, rows: groupedRows } = useGroupedRows(
     listedRows,
     grouping,
@@ -1816,6 +1901,7 @@ const MailPage = () => {
           )}
           {total === 0 && !isSearchStart && (
             <MailListEmpty
+              hasOlder={older.hasMore}
               filter={filter}
               isPending={isFetching || isSearchPending}
               isSearch={isSearching}
@@ -1884,6 +1970,7 @@ const MailPage = () => {
                 </Fragment>
               )
             })}
+            <OlderRowsLoader {...older} />
           </ul>
           {!thread && (
             <KeyHints

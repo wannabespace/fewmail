@@ -897,6 +897,7 @@ export const it: Messages = {
     },
     group: {
       read: 'Letti',
+      earlier: 'Precedenti',
       important: 'Importanti',
       people: 'Persone',
       plans: 'Calendario e viaggi',
