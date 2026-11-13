@@ -1253,88 +1253,8 @@ export const AgentChat = ({
   })
   useHotkey('Mod+Shift+Space', voice.toggle, { ignoreInputs: false })
   useHotkey('/', () => composerRef.current?.focus())
-  return (
+  const composer = (
     <div className="flex flex-col gap-2">
-      {panel &&
-        createPortal(
-          <>
-            {header}
-            <MessageScrollerProvider autoScroll>
-              <MessageScroller>
-                <MessageScrollerViewport>
-                  <MessageScrollerContent className="w-full px-5 pt-4 pb-3">
-                    {messages.map((message) => (
-                      <MessageScrollerItem
-                        key={message.id}
-                        messageId={message.id}
-                      >
-                        <Message
-                          align={message.role === 'user' ? 'end' : 'start'}
-                        >
-                          <MessageContent>
-                            <MessageParts
-                              message={message}
-                              messages={messages}
-                              isBusy={isBusy}
-                              isLast={message.id === lastId}
-                              onAnswer={answer}
-                            />
-                            {!(isBusy && message.id === lastId) && (
-                              <MessageActions
-                                message={message}
-                                onEdit={
-                                  message.role === 'user' && !isBusy
-                                    ? () => edit(message)
-                                    : undefined
-                                }
-                                onRegenerate={
-                                  canRegenerate && message.id === lastId
-                                    ? () => {
-                                        void regenerate()
-                                      }
-                                    : undefined
-                                }
-                              />
-                            )}
-                          </MessageContent>
-                        </Message>
-                      </MessageScrollerItem>
-                    ))}
-                    {status === 'submitted' && (
-                      <Thinking last={messages.at(-1)} />
-                    )}
-                    {error && (
-                      <MessageScrollerItem>
-                        <Marker role="alert">
-                          <MarkerIcon>
-                            <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
-                          </MarkerIcon>
-                          <MarkerContent>
-                            {limitText(error) ?? t.agent.failed}
-                          </MarkerContent>
-                          {!limitText(error) && (
-                            <Button
-                              size="xs"
-                              variant="ghost-muted"
-                              onClick={() => {
-                                void regenerate()
-                              }}
-                            >
-                              {t.agent.retry}
-                            </Button>
-                          )}
-                        </Marker>
-                      </MessageScrollerItem>
-                    )}
-                  </MessageScrollerContent>
-                </MessageScrollerViewport>
-                <MessageRail messages={messages} />
-                <MessageScrollerButton />
-              </MessageScroller>
-            </MessageScrollerProvider>
-          </>,
-          panel
-        )}
       <form
         className="relative"
         onSubmit={(event) => {
@@ -1379,7 +1299,7 @@ export const AgentChat = ({
           )}
           <InputGroupTextarea
             ref={composerRef}
-            autoFocus={autoFocus}
+            autoFocus={autoFocus || !!panel}
             aria-label={t.agent.placeholder}
             placeholder={t.agent.placeholder}
             rows={1}
@@ -1453,5 +1373,81 @@ export const AgentChat = ({
       </form>
       <Suggestions onPick={(skill) => send(`/${skill}`)}>{waiting}</Suggestions>
     </div>
+  )
+  if (!panel) {
+    return composer
+  }
+  return createPortal(
+    <>
+      {header}
+      <MessageScrollerProvider autoScroll>
+        <MessageScroller>
+          <MessageScrollerViewport>
+            <MessageScrollerContent className="w-full px-5 pt-4 pb-3">
+              {messages.map((message) => (
+                <MessageScrollerItem key={message.id} messageId={message.id}>
+                  <Message align={message.role === 'user' ? 'end' : 'start'}>
+                    <MessageContent>
+                      <MessageParts
+                        message={message}
+                        messages={messages}
+                        isBusy={isBusy}
+                        isLast={message.id === lastId}
+                        onAnswer={answer}
+                      />
+                      {!(isBusy && message.id === lastId) && (
+                        <MessageActions
+                          message={message}
+                          onEdit={
+                            message.role === 'user' && !isBusy
+                              ? () => edit(message)
+                              : undefined
+                          }
+                          onRegenerate={
+                            canRegenerate && message.id === lastId
+                              ? () => {
+                                  void regenerate()
+                                }
+                              : undefined
+                          }
+                        />
+                      )}
+                    </MessageContent>
+                  </Message>
+                </MessageScrollerItem>
+              ))}
+              {status === 'submitted' && <Thinking last={messages.at(-1)} />}
+              {error && (
+                <MessageScrollerItem>
+                  <Marker role="alert">
+                    <MarkerIcon>
+                      <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
+                    </MarkerIcon>
+                    <MarkerContent>
+                      {limitText(error) ?? t.agent.failed}
+                    </MarkerContent>
+                    {!limitText(error) && (
+                      <Button
+                        size="xs"
+                        variant="ghost-muted"
+                        onClick={() => {
+                          void regenerate()
+                        }}
+                      >
+                        {t.agent.retry}
+                      </Button>
+                    )}
+                  </Marker>
+                </MessageScrollerItem>
+              )}
+            </MessageScrollerContent>
+          </MessageScrollerViewport>
+          <MessageRail messages={messages} />
+          <MessageScrollerButton />
+        </MessageScroller>
+      </MessageScrollerProvider>
+      <div className="px-4 pb-4">{composer}</div>
+    </>,
+    panel
   )
 }
