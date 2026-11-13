@@ -82,19 +82,21 @@ const rekeyUnsubscribes = async (userId: string) => {
   return moved
 }
 
-const owned = await db.select().from(mailboxes)
-let filled = 0
-for (const mailbox of owned) {
-  // oxlint-disable-next-line eslint/no-await-in-loop -- one mailbox at a time keeps within Gmail's quota
-  filled += await fillMailbox(mailbox).catch((error: unknown) => {
-    logError('fill list ids failed', error)
-    return 0
-  })
+/** Run by the worker on start, until every mailbox has been through it once; then this file goes. */
+export const fillListIds = async () => {
+  const owned = await db.select().from(mailboxes)
+  let filled = 0
+  for (const mailbox of owned) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- one mailbox at a time keeps within Gmail's quota
+    filled += await fillMailbox(mailbox).catch((error: unknown) => {
+      logError('fill list ids failed', error)
+      return 0
+    })
+  }
+  let rekeyed = 0
+  for (const userId of new Set(owned.map((mailbox) => mailbox.userId))) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- per user, after every mailbox is filled
+    rekeyed += await rekeyUnsubscribes(userId)
+  }
+  console.log('fill list ids', { filled, mailboxes: owned.length, rekeyed })
 }
-let rekeyed = 0
-for (const userId of new Set(owned.map((mailbox) => mailbox.userId))) {
-  // oxlint-disable-next-line eslint/no-await-in-loop -- per user, after every mailbox is filled
-  rekeyed += await rekeyUnsubscribes(userId)
-}
-console.log({ filled, mailboxes: owned.length, rekeyed })
-process.exit(0)

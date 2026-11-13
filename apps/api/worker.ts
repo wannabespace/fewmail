@@ -32,6 +32,7 @@ import { env } from './env'
 import { localClock } from './lib/clock'
 import { announceChange } from './lib/live'
 import { logError } from './lib/log'
+import { fillListIds } from './scripts/fill-list-ids'
 import { seedBoards } from './services/boards'
 import { askAgent, postToChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
@@ -458,6 +459,7 @@ const DRAIN_MS = 25_000
 
 const interval = setInterval(tick, TICK_MS)
 void tick()
+void once('fill-list-ids', fillListIds)
 console.log('worker started')
 
 process.on('SIGTERM', async () => {

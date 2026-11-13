@@ -13,7 +13,6 @@
     "check-types": "bun check",
     "economics": "bun run --preload ./lib/offline-env.ts ./lib/economics.ts",
     "test": "bun test",
-    "fill:list-ids": "bun --env-file=../../.env run ./scripts/fill-list-ids.ts",
     "seed:domains": "bun --env-file=../../.env run ./scripts/seed-known-domains.ts"
   },
   "dependencies": {
