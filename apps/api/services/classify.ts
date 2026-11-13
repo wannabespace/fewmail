@@ -53,15 +53,12 @@ export const NEEDS_REPLY =
 
 const NO_RULE = 'none'
 
-/** Every decision about an email in one Jev call; null when Jev is not configured, so the LLM path decides. */
+/** Every decision about an email in one Jev call. */
 export const decideWithJev = async (input: {
   prompt: string
   rules: Rule[]
   userEmail: string
 }) => {
-  if (!jev) {
-    return null
-  }
   const ruleIds = new Map(
     input.rules.map((rule, index) => [`rule_${index}`, rule.id])
   )

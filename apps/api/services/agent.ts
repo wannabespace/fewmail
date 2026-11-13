@@ -324,7 +324,7 @@ const withNetworkFacts = <
 
 /**
  * Jev decides for every plan; the LLM writes text only for the agent and only for mail that
- * matters, while the month's allowance lasts. Without Jev the LLM does both, never for free.
+ * matters, while the month's allowance lasts. When Jev fails the LLM does both, never for free.
  * `agent` says whether this email gets the agent at all — past the allowance it is treated as Free.
  * Network facts apply before the allowance: bulk mail must not pay for text, flagged mail needs the urgent reserve.
  */

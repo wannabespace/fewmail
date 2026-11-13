@@ -2,9 +2,10 @@ import type { choice, noul, score } from '@typesafe-ai/sdk'
 
 import { env } from '../env'
 
-export const JEV_MODEL_ID = 'jev-latest'
+/** OpenRouter lists Jev only under this alias and serves it only from the decisions endpoint, never chat completions. */
+export const JEV_MODEL_ID = '~typesafe/jev-latest'
 
-const ENDPOINT = 'https://api.typesafe.ai/v1/systemone'
+const ENDPOINT = 'https://openrouter.ai/api/alpha/decisions'
 
 type ChoiceQuestion = ReturnType<typeof choice>
 type Question =
@@ -29,7 +30,7 @@ const systemOne = async <Questions extends Record<string, Question>>(input: {
   const response = await fetch(ENDPOINT, {
     body: JSON.stringify({ model: JEV_MODEL_ID, ...input }),
     headers: {
-      authorization: `Bearer ${env.TYPESAFE_API_KEY}`,
+      authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
       'content-type': 'application/json',
     },
     method: 'POST',
@@ -42,5 +43,5 @@ const systemOne = async <Questions extends Record<string, Question>>(input: {
   }
 }
 
-/** Typed yes/no, choice and score decisions in ~100 ms for a fraction of an LLM call; null when no key is set. */
-export const jev = env.TYPESAFE_API_KEY ? { systemOne } : null
+/** Typed yes/no, choice and score decisions in ~300 ms for a fraction of an LLM call. */
+export const jev = { systemOne }

@@ -73,6 +73,7 @@ interface Price {
 /** LiteLLM lists each model under its provider's own id, not OpenRouter's or the SDK's alias: a new model goes here, or every estimate throws. */
 const LITELLM_KEYS: Record<string, string> = {
   [FAST_FALLBACK_ID]: 'gemini/gemini-3.8-flash',
+  // Jev Router has no list price; on an email's analysis it cost within 5% of Haiku (2026-11-13).
   [FAST_MODEL_ID]: 'claude-haiku-5-5',
   [FIM_MODEL]: 'mistral/codestral-latest',
   [JEV_MODEL_ID]: 'typesafe/jev-latest',

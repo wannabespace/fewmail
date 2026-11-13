@@ -55,9 +55,6 @@ const isGoogleAccountMail = ({ auth, fromDomain }: Message) =>
 
 /** Google's notices are written in the user's language, so Jev reads them instead of a subject match; Jev runs on every plan. */
 const saysStorageFull = async (message: Message) => {
-  if (!jev) {
-    return false
-  }
   const { answers } = await jev.systemOne({
     questions: {
       isFull: noul(

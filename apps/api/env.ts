@@ -34,7 +34,6 @@ export const env = type({
   'STRIPE_SECRET_KEY?': 'string',
   'STRIPE_WEBHOOK_SECRET?': 'string',
   'TELEGRAM_BOT_TOKEN?': 'string',
-  'TYPESAFE_API_KEY?': 'string',
   'TELEGRAM_BOT_USERNAME?': 'string',
   'TELEGRAM_WEBHOOK_SECRET?': 'string',
   'VAPID_PRIVATE_KEY?': 'string',

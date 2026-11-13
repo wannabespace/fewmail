@@ -178,9 +178,6 @@ const knownSender = async (userId: string, domain: string, before: Date) => {
 export const RISK_BODY_CHARS = 6000
 
 const jevSignals = async (body: string) => {
-  if (!jev) {
-    return null
-  }
   const { answers } = await jev.systemOne({
     questions: {
       detailsChanged: noul(
@@ -253,7 +250,7 @@ const assess = async (
   )
   const signals = await jevSignals(message.body)
 
-  if ((known.length > 0 && newDetails.length > 0) || signals?.detailsChanged) {
+  if ((known.length > 0 && newDetails.length > 0) || signals.detailsChanged) {
     return { imitates: null, kind: 'payment_change' }
   }
   const throwaway = await listedDomains('disposable', [domain, replyDomain])
@@ -264,7 +261,7 @@ const assess = async (
     isThrowaway || !(await knownSender(userId, domain, message.receivedAt))
   if (
     isNewSender &&
-    (signals?.urgentPayment || replyDomain !== domain || isThrowaway) &&
+    (signals.urgentPayment || replyDomain !== domain || isThrowaway) &&
     details.length > 0
   ) {
     return { imitates: null, kind: 'new_sender_payment' }

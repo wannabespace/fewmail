@@ -68,9 +68,6 @@ export const watchSentMail = async (
   userId: string,
   sent: { messageId: string; text: string; threadId: string }
 ) => {
-  if (!jev) {
-    return
-  }
   const { answers } = await jev.systemOne({
     questions: {
       expectsReply: noul(

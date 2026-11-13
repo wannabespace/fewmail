@@ -8,15 +8,18 @@ import { createRetryableModel } from 'ai-retry/language-model'
 import { charge } from '../services/plan'
 import { logError } from './log'
 
-export const FAST_MODEL_ID = 'anthropic/claude-haiku-5.5'
+export const FAST_MODEL_ID = 'typesafe/jev-router'
 export const FAST_FALLBACK_ID = 'google/gemini-3.8-flash'
 export const WRITER_MODEL_ID = 'anthropic/claude-sonnet-5.5'
 export const WRITER_FALLBACK_ID = 'x-ai/grok-4.7'
 
 export const models = {
-  /** Every incoming message goes through it, so it must stay cheap. */
+  /**
+   * Every incoming message goes through it, so it must stay cheap. Jev Router picks the model per request;
+   * without `data_collection: 'deny'` it may pick a provider that trains on mail, which the privacy policy forbids.
+   */
   fast: createRetryableModel({
-    model: openrouter(FAST_MODEL_ID, { reasoning: { effort: 'low' } }),
+    model: openrouter(FAST_MODEL_ID, { provider: { data_collection: 'deny' } }),
     retries: [openrouter(FAST_FALLBACK_ID)],
   }),
   /** Drafts: the text a person reads or sends. */
@@ -34,7 +37,8 @@ export const NO_EM_DASH =
 
 /**
  * USD per token, so every call is paid from the allowance at its real price whatever OpenRouter reports (a key
- * of our own makes it report 0). `economics.test.ts` keeps it equal to LiteLLM's table.
+ * of our own makes it report 0). `economics.test.ts` keeps it equal to LiteLLM's table. Jev Router has no price
+ * of its own and is charged at OpenRouter's report, so it must never run on a key of our own.
  */
 export const MODEL_PRICES: Record<
   string,
@@ -45,12 +49,6 @@ export const MODEL_PRICES: Record<
     cacheWrite: 7.5e-7,
     input: 7.5e-7,
     output: 3.75e-6,
-  },
-  [FAST_MODEL_ID]: {
-    cacheRead: 1e-8,
-    cacheWrite: 1.25e-7,
-    input: 1e-7,
-    output: 5e-7,
   },
   [WRITER_FALLBACK_ID]: {
     cacheRead: 5e-7,
