@@ -185,16 +185,23 @@ const MessageSection = ({
   analysis,
   hasAgent,
   message,
+  subject,
 }: {
   actions: ThreadAction[]
   analysis: ThreadRow['analysis']
   hasAgent: boolean
   message: ThreadMessage
+  subject?: string
 }) => {
   const t = useT()
   const dates = useDates()
   return (
     <section className="flex flex-col gap-3 not-first:mt-6 not-first:border-t not-first:pt-8">
+      {subject && (
+        <h2 data-mask className="font-serif text-lg tracking-tight">
+          {subject}
+        </h2>
+      )}
       <header className="flex flex-wrap items-center gap-2 text-sm">
         {hasAgent && analysis && (
           <ImportanceDot
@@ -792,6 +799,21 @@ const DiscardItems = ({
   )
 }
 
+const settledActionsOf = (
+  data: NonNullable<ReturnType<typeof useThread>['data']>,
+  hasAgent: boolean
+) => {
+  const settled = hasAgent
+    ? data.actions.filter(
+        ({ status }) => status !== 'dismissed' && status !== 'pending'
+      )
+    : []
+  return (messageId: string, isLatest: boolean) =>
+    settled.filter((action) =>
+      action.messageId ? action.messageId === messageId : isLatest
+    )
+}
+
 const revealComposer = (node: HTMLElement | null) =>
   node?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 
@@ -857,15 +879,7 @@ export const ThreadView = ({
   }
 
   const subject = data.messages[0]?.message.subject
-  const settled = hasAgent
-    ? data.actions.filter(
-        ({ status }) => status !== 'dismissed' && status !== 'pending'
-      )
-    : []
-  const actionsOf = (messageId: string, isLatest: boolean) =>
-    settled.filter((action) =>
-      action.messageId ? action.messageId === messageId : isLatest
-    )
+  const actionsOf = settledActionsOf(data, hasAgent)
 
   return (
     <article className="flex min-h-0 flex-1 flex-col">
@@ -1027,6 +1041,141 @@ export const ThreadView = ({
               />
             </section>
           )}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+interface StackEmail {
+  fromEmail: string
+  fromName: string | null
+  id: string
+  threadId: string
+}
+
+/** One email of a stack, as it was listed, whatever came after it in its thread. */
+const StackedEmail = ({ email }: { email: StackEmail }) => {
+  const hasAgent = useHasAgent()
+  const { data } = useThread(email.threadId)
+  useMarkRead(email.threadId, data)
+  const index =
+    data?.messages.findIndex(({ message }) => message.id === email.id) ?? -1
+  const entry = data?.messages[index]
+  if (!data || !entry) {
+    return null
+  }
+  return (
+    <MessageSection
+      actions={settledActionsOf(data, hasAgent)(
+        entry.message.id,
+        index === data.messages.length - 1
+      )}
+      analysis={entry.analysis}
+      hasAgent={hasAgent}
+      message={entry.message}
+      subject={entry.message.subject}
+    />
+  )
+}
+
+/** A whole burst read at once, newest first; its actions take every email in it, as the row's do. */
+export const StackView = ({
+  emails,
+  isSnoozed,
+  onClose,
+  onDone,
+  place,
+}: {
+  emails: StackEmail[]
+  isSnoozed: boolean
+  onClose: () => void
+  onDone: () => void
+  place: Place
+}) => {
+  const t = useT()
+  const actions = useMailActions(onDone)
+  const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
+  const [head] = emails
+  const messageIds = emails.map(({ id }) => id)
+  const sweep = sweepOf(actions, t, place)
+  const archiveAll = onEach(messageIds, sweep.action.mutate)
+  const trashAll = onEach(messageIds, actions.trash.mutate)
+  useHotkey('E', archiveAll)
+  useHotkey('H', () => setIsSnoozeOpen(true), { enabled: !isSnoozed })
+  useHotkey('Backspace', trashAll)
+
+  return (
+    <article className="flex min-h-0 flex-1 flex-col">
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 py-8">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-start gap-2">
+              <div className="flex flex-1 flex-col gap-1">
+                <h1 data-mask className="font-serif text-2xl tracking-tight">
+                  {head?.fromName ?? head?.fromEmail}
+                </h1>
+                <p className="text-muted-foreground text-sm">
+                  {t.cleanup.emails(emails.length)}
+                </p>
+              </div>
+              <IconButton
+                icon={Cancel01Icon}
+                label={t.mail.close}
+                shortcut={<Kbd>esc</Kbd>}
+                size="icon-sm"
+                variant="ghost-muted"
+                onClick={onClose}
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={sweep.action.isPending}
+                onClick={archiveAll}
+              >
+                {sweep.label} <Kbd>E</Kbd>
+              </Button>
+              {isSnoozed ? (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={onEach(messageIds, actions.unsnooze.mutate)}
+                >
+                  {t.snooze.unsnooze}
+                </Button>
+              ) : (
+                <DropdownMenu
+                  open={isSnoozeOpen}
+                  onOpenChange={setIsSnoozeOpen}
+                >
+                  <DropdownMenuTrigger
+                    render={<Button size="sm" variant="secondary" />}
+                  >
+                    {t.snooze.title} <Kbd>H</Kbd>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <SnoozeMenuItems
+                      onSnooze={(until) =>
+                        onEach(messageIds, ({ messageId }) =>
+                          actions.snooze.mutate({ messageId, until })
+                        )()
+                      }
+                    />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              <Button size="sm" variant="ghost-muted" onClick={trashAll}>
+                {t.mail.trash} <Kbd>⌫</Kbd>
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            {emails.map((email) => (
+              <StackedEmail key={email.id} email={email} />
+            ))}
+          </div>
         </div>
       </div>
     </article>

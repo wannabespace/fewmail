@@ -101,6 +101,7 @@ import {
   pinEach,
   ROW_ACTIONS,
   sweepOf,
+  StackView,
   ThreadView,
   useMailActions,
 } from '~/components/thread-view'
@@ -1690,6 +1691,36 @@ const listHintsOf = ({
     : [...walk, ['[ / ]', t.keys.filter], ['/', t.keys.search]]
 }
 
+/** A stack has no one email to pin or answer, so only what takes all of it. */
+const readerHintsOf = ({
+  canSnooze,
+  hasAgent,
+  isPinned,
+  isStack,
+  sweepHint,
+  t,
+}: {
+  canSnooze: boolean
+  hasAgent: boolean
+  isPinned: boolean
+  isStack: boolean
+  sweepHint: [string, string]
+  t: ReturnType<typeof useT>
+}): [string, string][] => [
+  sweepHint,
+  ...(isStack
+    ? [
+        ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
+        ['⌫', t.keys.trash] as [string, string],
+      ]
+    : [
+        pinHint(t, isPinned),
+        ...(hasAgent ? [['R', t.keys.draftReply] as [string, string]] : []),
+      ]),
+  ['esc', t.keys.close],
+  ['J / K', t.keys.move],
+]
+
 const MailPage = () => {
   const t = useT()
   const rememberedWidth = useSubscription(readerWidthStore)
@@ -1739,6 +1770,7 @@ const MailPage = () => {
   const [keptUnread, setKeptUnread] = useState<KeptUnread>(new Set())
   const [unfolded, setUnfolded] = useState<ReadonlySet<GroupKey>>(new Set())
   const [relatedOf, setRelatedOf] = useState<string | null>(null)
+  const [stackOf, setStackOf] = useState<string | null>(null)
   const listKey = `${filter}:${mailbox ?? ''}:${q ?? ''}`
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
@@ -1793,6 +1825,10 @@ const MailPage = () => {
     rows: pinnedRows.rows,
   })
   const { rows } = related
+  const stack = listedRows.find(
+    ({ message, messageIds }) =>
+      stackOf === thread && message.threadId === thread && messageIds.length > 1
+  )
   const total = isDrafts ? listedTotal : rows.length
   useCursorOnOpenThread({ rows, setCursor, thread })
 
@@ -1844,6 +1880,7 @@ const MailPage = () => {
       if (!('isRelated' in row)) {
         setRelatedOf(message.threadId)
       }
+      setStackOf(!email && row.messageIds.length > 1 ? message.threadId : null)
       if (message.isUnread) {
         setKeptUnread((kept) => new Set(kept).add(message.threadId))
       }
@@ -2074,29 +2111,36 @@ const MailPage = () => {
       >
         {thread && (
           <div className="bg-background flex min-w-0 flex-1 flex-col">
-            <ThreadView
-              key={thread}
-              isSnoozed={filter === 'snoozed'}
-              threadId={thread}
-              onClose={closeThread}
-              onDone={closeThread}
-            />
+            {stack ? (
+              <StackView
+                key={stack.message.id}
+                emails={stack.burst}
+                isSnoozed={filter === 'snoozed'}
+                place={OUT_OF_INBOX[filter] ?? 'inbox'}
+                onClose={closeThread}
+                onDone={closeThread}
+              />
+            ) : (
+              <ThreadView
+                key={thread}
+                isSnoozed={filter === 'snoozed'}
+                threadId={thread}
+                onClose={closeThread}
+                onDone={closeThread}
+              />
+            )}
             <KeyHints
-              hints={[
-                sweepHint,
-                pinHint(
-                  t,
-                  rows.some(
-                    ({ message }) =>
-                      message.threadId === thread && message.isPinned
-                  )
+              hints={readerHintsOf({
+                canSnooze,
+                hasAgent,
+                isPinned: rows.some(
+                  ({ message }) =>
+                    message.threadId === thread && message.isPinned
                 ),
-                ...(hasAgent
-                  ? [['R', t.keys.draftReply] as [string, string]]
-                  : []),
-                ['esc', t.keys.close],
-                ['J / K', t.keys.move],
-              ]}
+                isStack: !!stack,
+                sweepHint,
+                t,
+              })}
             />
           </div>
         )}
