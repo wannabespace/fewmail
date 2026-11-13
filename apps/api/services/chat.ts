@@ -24,6 +24,10 @@ import { getSettings } from './settings'
 import { expandSkills } from './skills'
 
 export const MAX_STEPS = 12
+/** Every step resends the tools, instructions and chat: Anthropic reads the prefix the previous step wrote at a tenth of the price. */
+const CACHE_PREFIX = {
+  openrouter: { cacheControl: { type: 'ephemeral' } },
+} as const
 const TITLE_LENGTH = 80
 
 const chatTools = (userId: string) =>
@@ -206,6 +210,7 @@ export const streamChat = async (
       tools,
     }),
     model: models.writer,
+    providerOptions: CACHE_PREFIX,
     stopWhen: stepCountIs(MAX_STEPS),
     telemetry: trackUsage(userId, 'chat'),
     tools,

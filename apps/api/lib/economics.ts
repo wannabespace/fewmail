@@ -61,6 +61,8 @@ const LITELLM_PRICES_URL =
 const PRICES_TIMEOUT_MS = 10_000
 
 interface Price {
+  cache_creation_input_token_cost?: number
+  cache_read_input_token_cost?: number
   input_cost_per_character?: number
   input_cost_per_second?: number
   input_cost_per_token?: number
@@ -301,7 +303,11 @@ const toolsChars = JSON.stringify(
   }))
 ).length
 
-/** Every step sends the instructions, every tool, the whole chat and this turn's tool results again. */
+/**
+ * Every step sends the instructions, every tool, the whole chat and this turn's tool results again. The first
+ * step writes all of it to Anthropic's cache, each later one reads what the step before wrote and writes what
+ * it added. Instructions carry the minute, so the cache is taken to last one message, never the next.
+ */
 const chatCost = (use: Use) => {
   const instructions = chatInstructions({
     knowledge: 'x'.repeat(use.knowledgeChars),
@@ -312,10 +318,16 @@ const chatCost = (use: Use) => {
     instructionTokens(instructions.length + toolsChars) + use.chatHistoryTokens
   const growth = use.toolResultTokens + CHAT_STEP_OUTPUT_TOKENS
   const steps = use.chatSteps
-  return llm(
-    WRITER_MODEL_ID,
-    steps * perStep + (growth * steps * (steps - 1)) / 2,
-    steps * CHAT_STEP_OUTPUT_TOKENS + CHAT_ANSWER_TOKENS
+  const written = perStep + growth * (steps - 1)
+  const read = (steps - 1) * perStep + (growth * (steps - 1) * (steps - 2)) / 2
+  return (
+    written * priceOf(WRITER_MODEL_ID, 'cache_creation_input_token_cost') +
+    read * priceOf(WRITER_MODEL_ID, 'cache_read_input_token_cost') +
+    llm(
+      WRITER_MODEL_ID,
+      0,
+      steps * CHAT_STEP_OUTPUT_TOKENS + CHAT_ANSWER_TOKENS
+    )
   )
 }
 
