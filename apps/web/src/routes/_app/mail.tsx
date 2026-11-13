@@ -92,7 +92,7 @@ import { createElementSize, createWebStorageValue } from 'seitu/web'
 
 import { useCompose } from '~/components/compose/compose-context'
 import { KeyHints } from '~/components/key-hints'
-import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
+import { ExtractedChips } from '~/components/mail-meta'
 import { MailSearchStart, rememberSearch } from '~/components/mail-search'
 import {
   CodeActions,
@@ -989,14 +989,6 @@ const MailRow = ({
             </span>
           )}
           <MailRowMeta insight={analysis} message={message} />
-          {analysis ? (
-            <ImportanceDot
-              importance={analysis.importance}
-              reason={analysis.reason}
-            />
-          ) : (
-            <span className="bg-foreground/10 size-2 shrink-0 animate-pulse rounded-full" />
-          )}
           <span
             className={cn(
               'shrink-0 text-xs tabular-nums',
