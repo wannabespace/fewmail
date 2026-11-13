@@ -776,6 +776,7 @@ export const pl: Messages = {
     unsubscribed: 'Wypisano',
   },
   nav: {
+    labels: 'Etykiety',
     folders: 'Foldery',
     calendar: 'Kalendarz',
     subscriptions: 'Subskrypcje',

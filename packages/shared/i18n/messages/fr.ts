@@ -1005,6 +1005,7 @@ export const fr: Messages = {
     unsubscribed: 'Désabonné',
   },
   nav: {
+    labels: 'Libellés',
     folders: 'Dossiers',
     calendar: 'Calendrier',
     subscriptions: 'Abonnements',

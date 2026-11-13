@@ -485,6 +485,7 @@ export const ko: Messages = {
     unsubscribed: '구독을 취소했어요',
   },
   nav: {
+    labels: '라벨',
     folders: '폴더',
     calendar: '캘린더',
     subscriptions: '구독',

@@ -759,6 +759,7 @@ export const en = {
     unsubscribed: 'Unsubscribed',
   },
   nav: {
+    labels: 'Labels',
     folders: 'Folders',
     calendar: 'Calendar',
     subscriptions: 'Subscriptions',

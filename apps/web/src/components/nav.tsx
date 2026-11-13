@@ -5,6 +5,7 @@ import {
   AvatarFallback,
 } from '@fewmail/ui/components/avatar'
 import { Button } from '@fewmail/ui/components/button'
+import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -22,6 +23,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -34,6 +36,7 @@ import {
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
+import { cn } from '@fewmail/ui/lib/utils'
 import type { Theme } from '@fewmail/ui/theme-store'
 import { themeStore, useTheme } from '@fewmail/ui/theme-store'
 import {
@@ -68,9 +71,14 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
+import {
+  Link,
+  useNavigate,
+  useRouterState,
+  useSearch,
+} from '@tanstack/react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 import { deletingBoardStore, newBoardStore } from '~/components/board-dialog'
 import { signOut } from '~/lib/auth'
@@ -84,29 +92,59 @@ import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
 import { useWithAgent } from './upgrade-dialog'
 
+const SETTINGS_ITEM = {
+  icon: Settings01Icon,
+  key: 'settings',
+  place: 'account',
+  sequence: ['G', 'S'],
+  to: '/settings',
+} as const
+
+/** `place` is where the sidebar shows it: daily places on top, set-up tools at the bottom, Settings in the account menu. */
 export const NAV_ITEMS = [
-  { icon: Home01Icon, key: 'home', sequence: ['G', 'H'], to: '/home' },
-  { icon: Mail01Icon, key: 'mail', sequence: ['G', 'M'], to: '/mail' },
+  {
+    icon: Home01Icon,
+    key: 'home',
+    place: 'top',
+    sequence: ['G', 'H'],
+    to: '/home',
+  },
+  {
+    icon: Mail01Icon,
+    key: 'mail',
+    place: 'top',
+    sequence: ['G', 'M'],
+    to: '/mail',
+  },
   {
     icon: Calendar03Icon,
     key: 'calendar',
+    place: 'top',
     sequence: ['G', 'L'],
     to: '/calendar',
   },
-  { icon: News01Icon, key: 'reading', sequence: ['G', 'N'], to: '/reading' },
-  { icon: ZapIcon, key: 'rules', sequence: ['G', 'R'], to: '/rules' },
+  {
+    icon: News01Icon,
+    key: 'reading',
+    place: 'top',
+    sequence: ['G', 'N'],
+    to: '/reading',
+  },
+  {
+    icon: ZapIcon,
+    key: 'rules',
+    place: 'bottom',
+    sequence: ['G', 'R'],
+    to: '/rules',
+  },
   {
     icon: MailRemove01Icon,
     key: 'subscriptions',
+    place: 'bottom',
     sequence: ['G', 'U'],
     to: '/subscriptions',
   },
-  {
-    icon: Settings01Icon,
-    key: 'settings',
-    sequence: ['G', 'S'],
-    to: '/settings',
-  },
+  SETTINGS_ITEM,
 ] as const
 
 const isAgentOnly = (key: string): key is 'home' => key === 'home'
@@ -143,6 +181,12 @@ export const useVisibleNavItems = () => {
 
 const NAV_ROW =
   'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70 data-[status=active]:font-medium'
+
+const NAV_SUBROW = cn(NAV_ROW, 'h-7')
+
+/** Mail's row stays plain while a folder or label under it is the one open. */
+const QUIET_ROW =
+  'data-[status=active]:bg-transparent data-[status=active]:font-normal'
 
 const BOARD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 
@@ -253,9 +297,18 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
 
   return (
     <section aria-label={t.nav.boards} className="mt-4 flex flex-col gap-1">
-      <h2 className="text-muted-foreground px-2.5 pb-1 text-xs font-medium">
-        {t.nav.boards}
-      </h2>
+      <div className="flex items-center justify-between ps-2.5">
+        <h2 className="text-muted-foreground text-xs font-medium">
+          {t.nav.boards}
+        </h2>
+        <IconButton
+          icon={Add01Icon}
+          label={t.nav.newBoard}
+          size="icon-xs"
+          variant="ghost-muted"
+          onClick={() => withAgent('boards', () => newBoardStore.set(true))}
+        />
+      </div>
       {boards.map((board, index) => (
         <BoardLink
           key={board.id}
@@ -266,14 +319,6 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
           onMove={(by) => move(index, by)}
         />
       ))}
-      <button
-        type="button"
-        className={NAV_ROW}
-        onClick={() => withAgent('boards', () => newBoardStore.set(true))}
-      >
-        <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
-        <span className="text-muted-foreground">{t.nav.newBoard}</span>
-      </button>
     </section>
   )
 }
@@ -286,30 +331,65 @@ export const FOLDER_ITEMS = [
   { filter: 'trash', icon: Delete02Icon },
 ] as const
 
-/** Gmail's folders, then the user's own labels, each opening the Mail search for it. */
-const Folders = () => {
+const LABELS_SHOWN = 5
+
+/** Gmail's folders, then the user's own labels, each opening the Mail search for it: a branch of Mail, open while Mail is. */
+const MailFolders = () => {
   const t = useT()
+  const [isShowingAll, setIsShowingAll] = useState(false)
   const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
 
   return (
-    <section aria-label={t.nav.folders} className="mt-4 flex flex-col gap-1">
-      <h2 className="text-muted-foreground px-2.5 pb-1 text-xs font-medium">
-        {t.nav.folders}
-      </h2>
+    <section
+      aria-label={t.nav.folders}
+      className="my-0.5 ms-4.5 flex flex-col gap-0.5 border-s ps-1.5"
+    >
       {FOLDER_ITEMS.map(({ filter, icon }) => (
-        <Link key={filter} to="/mail" search={{ filter }} className={NAV_ROW}>
+        <Link
+          key={filter}
+          to="/mail"
+          search={{ filter }}
+          className={NAV_SUBROW}
+        >
           <HugeiconsIcon icon={icon} strokeWidth={2} />
           <span className="flex-1">{t.mail.filter[filter]}</span>
         </Link>
       ))}
-      {labels.map(({ name, query }) => (
-        <Link key={name} to="/mail" search={{ q: query }} className={NAV_ROW}>
-          <HugeiconsIcon icon={Tag01Icon} strokeWidth={2} />
-          <span className="flex-1 truncate" data-mask>
-            {name}
+      {labels.length > 0 && (
+        <h2 className="text-muted-foreground px-2.5 pt-2 pb-0.5 text-xs font-medium">
+          {t.nav.labels}
+        </h2>
+      )}
+      {(isShowingAll ? labels : labels.slice(0, LABELS_SHOWN)).map(
+        ({ name, query }) => (
+          <Link
+            key={name}
+            to="/mail"
+            search={{ q: query }}
+            className={NAV_SUBROW}
+          >
+            <HugeiconsIcon icon={Tag01Icon} strokeWidth={2} />
+            <span className="flex-1 truncate" data-mask>
+              {name}
+            </span>
+          </Link>
+        )
+      )}
+      {labels.length > LABELS_SHOWN && (
+        <button
+          type="button"
+          className={NAV_SUBROW}
+          onClick={() => setIsShowingAll(!isShowingAll)}
+        >
+          <HugeiconsIcon
+            icon={isShowingAll ? ArrowUp01Icon : ArrowDown01Icon}
+            strokeWidth={2}
+          />
+          <span className="text-muted-foreground">
+            {isShowingAll ? t.mail.showFewer : t.mail.showAll(labels.length)}
           </span>
-        </Link>
-      ))}
+        </button>
+      )}
     </section>
   )
 }
@@ -351,10 +431,12 @@ const RollingCount = ({ flash, value }: { flash?: boolean; value: number }) => {
 }
 
 const NavLink = ({
+  className,
   item,
   count,
   showKeys,
 }: {
+  className?: string
   count?: number
   item: (typeof NAV_ITEMS)[number]
   showKeys: boolean
@@ -367,7 +449,7 @@ const NavLink = ({
   return (
     <Link
       to={item.to}
-      className={NAV_ROW}
+      className={cn(NAV_ROW, className)}
       onClick={(event) => {
         if (!hasAgent && isAgentOnly(item.key)) {
           event.preventDefault()
@@ -465,9 +547,11 @@ const AccountMenu = ({
 }) => {
   const t = useT()
   const navigate = useNavigate()
+  const goTo = useGoTo()
   const { plan } = useMe()
   const theme = useTheme()
   const status = useAccountStatus(mailboxes)
+  useHotkey(SETTINGS_ITEM.sequence, () => goTo(SETTINGS_ITEM))
 
   return (
     <DropdownMenu>
@@ -491,6 +575,13 @@ const AccountMenu = ({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => goTo(SETTINGS_ITEM)}>
+          <HugeiconsIcon icon={SETTINGS_ITEM.icon} strokeWidth={2} />
+          {t.nav.settings}
+          <DropdownMenuShortcut>
+            {SETTINGS_ITEM.sequence.join(' ')}
+          </DropdownMenuShortcut>
+        </DropdownMenuItem>
         {(plan.kind === 'free' || Boolean(plan.trialDaysLeft)) && (
           <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
             <HugeiconsIcon icon={CrownIcon} strokeWidth={2} />
@@ -537,6 +628,14 @@ export const Sidebar = ({
   const isModifierHeld = useModifierHold()
   const { openCompose } = useCompose()
   const navItems = useVisibleNavItems()
+  const pathname = useRouterState({
+    select: ({ location }) => location.pathname,
+  })
+  const { filter, q } = useSearch({ strict: false })
+  const isOnMail = pathname.startsWith('/mail')
+  const isInFolder =
+    FOLDER_ITEMS.some((item) => item.filter === filter) ||
+    Boolean(q?.startsWith('label:'))
   const { data: queued } = useQuery(
     orpc.today.count.queryOptions({ enabled: hasAgent })
   )
@@ -592,17 +691,38 @@ export const Sidebar = ({
           onClick={() => openCompose()}
         />
       </div>
-      {navItems.map((item) => (
-        <NavLink
-          key={item.to}
-          item={item}
-          showKeys={isModifierHeld}
-          count={counts[item.to]}
-        />
-      ))}
-      <div className="-mx-1 flex min-h-0 flex-1 flex-col overflow-y-auto px-1 pb-3">
+      <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-1 pb-3">
+        {navItems
+          .filter(({ place }) => place === 'top')
+          .map((item) => (
+            <Fragment key={item.to}>
+              <NavLink
+                item={item}
+                showKeys={isModifierHeld}
+                count={counts[item.to]}
+                className={
+                  item.key === 'mail' && isInFolder ? QUIET_ROW : undefined
+                }
+              />
+              {item.key === 'mail' && (
+                <AnimatePresence initial={false}>
+                  {isOnMail && (
+                    <MotionCollapse key="folders">
+                      <MailFolders />
+                    </MotionCollapse>
+                  )}
+                </AnimatePresence>
+              )}
+            </Fragment>
+          ))}
         <Boards showKeys={isModifierHeld} />
-        <Folders />
+        <div className="mt-auto flex flex-col gap-1 pt-4">
+          {navItems
+            .filter(({ place }) => place === 'bottom')
+            .map((item) => (
+              <NavLink key={item.to} item={item} showKeys={isModifierHeld} />
+            ))}
+        </div>
       </div>
       <AccountMenu email={email} mailboxes={mailboxes} />
     </nav>

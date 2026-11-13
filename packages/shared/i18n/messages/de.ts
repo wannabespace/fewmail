@@ -994,6 +994,7 @@ export const de: Messages = {
     unsubscribed: 'Abbestellt',
   },
   nav: {
+    labels: 'Labels',
     folders: 'Ordner',
     calendar: 'Kalender',
     subscriptions: 'Abos',

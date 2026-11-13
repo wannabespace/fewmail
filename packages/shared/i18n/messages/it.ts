@@ -998,6 +998,7 @@ export const it: Messages = {
     unsubscribed: 'Disiscritto',
   },
   nav: {
+    labels: 'Etichette',
     folders: 'Cartelle',
     calendar: 'Calendario',
     subscriptions: 'Iscrizioni',

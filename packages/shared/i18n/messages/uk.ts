@@ -994,6 +994,7 @@ export const uk: Messages = {
     unsubscribed: 'Відписано',
   },
   nav: {
+    labels: 'Ярлики',
     folders: 'Папки',
     calendar: 'Календар',
     subscriptions: 'Підписки',

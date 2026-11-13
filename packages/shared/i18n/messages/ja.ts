@@ -487,6 +487,7 @@ export const ja: Messages = {
     unsubscribed: '配信停止しました',
   },
   nav: {
+    labels: 'ラベル',
     folders: 'フォルダ',
     calendar: 'カレンダー',
     subscriptions: '購読',

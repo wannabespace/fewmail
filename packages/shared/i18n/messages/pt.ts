@@ -762,6 +762,7 @@ export const pt: Messages = {
     unsubscribed: 'Inscrição cancelada',
   },
   nav: {
+    labels: 'Marcadores',
     folders: 'Pastas',
     calendar: 'Calendário',
     subscriptions: 'Inscrições',

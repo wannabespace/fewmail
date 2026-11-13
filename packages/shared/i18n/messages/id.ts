@@ -744,6 +744,7 @@ export const id: Messages = {
     unsubscribed: 'Berhenti berlangganan',
   },
   nav: {
+    labels: 'Label',
     folders: 'Folder',
     calendar: 'Kalender',
     subscriptions: 'Langganan',
