@@ -1552,7 +1552,8 @@ export const zh: Messages = {
     },
   },
   whatsapp: {
-    connectFirst: '请先打开 Fewmail → 设置 → 集成，然后点按“连接 WhatsApp”。',
+    connectFirst: (url: string) =>
+      `你好！我是 Fewmail。在 WhatsApp 里，我会在紧急邮件到达时提醒你，告诉你哪些事需要你处理，并发送你批准的回复。\n\n这个号码还没有连接到你的 Fewmail，只需一分钟：\n1. 打开 Fewmail 设置：${url}\n2. 在“集成”中点按“连接 WhatsApp”（Fewmail Pro 功能）。\n3. WhatsApp 会打开并附上一条准备好的消息，发送即可。`,
     connected:
       '已连接。有紧急邮件时我会立即通知你。发送文字或语音即可回复任何邮件。',
     proOnly:

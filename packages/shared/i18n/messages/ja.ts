@@ -1608,8 +1608,8 @@ export const ja: Messages = {
     },
   },
   whatsapp: {
-    connectFirst:
-      '先に Fewmail → 設定 → 連携 を開き、「WhatsApp を接続」をタップしてください。',
+    connectFirst: (url: string) =>
+      `こんにちは、Fewmail です。この WhatsApp で、急ぎのメールが届いたらお知らせし、対応が必要なものを見せ、承認した返信を送ります。\n\nこの番号はまだ Fewmail に接続されていません。1 分で終わります:\n1. Fewmail の設定を開く: ${url}\n2. 連携で「WhatsApp を接続」をタップ(Fewmail Pro の機能です)。\n3. 用意されたメッセージ付きで WhatsApp が開くので、送信すれば完了です。`,
     connected:
       '接続しました。緊急のメールが届いたらお知らせします。テキストや音声メッセージで、どのメールにも返信できます。',
     proOnly:

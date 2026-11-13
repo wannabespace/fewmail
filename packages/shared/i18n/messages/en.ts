@@ -1646,8 +1646,8 @@ export const en = {
     },
   },
   whatsapp: {
-    connectFirst:
-      'Open Fewmail → Settings → Integrations and tap “Connect WhatsApp” first.',
+    connectFirst: (url: string) =>
+      `Hi! I’m Fewmail. Here in WhatsApp I tell you when urgent mail arrives, show what needs you and send the replies you approve.\n\nThis number isn’t connected to your Fewmail yet. It takes a minute:\n1. Open Fewmail settings: ${url}\n2. Under Integrations, tap “Connect WhatsApp” (it’s part of Fewmail Pro).\n3. WhatsApp opens with a message ready — send it and you’re set.`,
     connected:
       'Connected. I will message you when something urgent arrives. Send text or a voice message to answer any email.',
     proOnly:

@@ -1587,8 +1587,8 @@ export const ko: Messages = {
     },
   },
   whatsapp: {
-    connectFirst:
-      '먼저 Fewmail → 설정 → 연동을 열고 “WhatsApp 연결”을 누르세요.',
+    connectFirst: (url: string) =>
+      `안녕하세요! Fewmail입니다. 여기 WhatsApp에서 급한 메일이 오면 알려 드리고, 처리할 일을 보여 드리고, 승인한 답장을 보내 드려요.\n\n이 번호는 아직 Fewmail에 연결되지 않았어요. 1분이면 됩니다:\n1. Fewmail 설정 열기: ${url}\n2. 연동에서 “WhatsApp 연결”을 누르세요(Fewmail Pro 기능).\n3. 준비된 메시지와 함께 WhatsApp이 열리면 보내기만 하면 끝이에요.`,
     connected:
       '연결됐어요. 긴급한 메일이 오면 바로 알려 드릴게요. 텍스트나 음성 메시지로 어떤 메일에도 답장할 수 있어요.',
     proOnly:

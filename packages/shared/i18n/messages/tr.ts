@@ -1625,8 +1625,8 @@ export const tr: Messages = {
     },
   },
   whatsapp: {
-    connectFirst:
-      'Önce Fewmail → Ayarlar → Entegrasyonlar’ı aç ve “WhatsApp’ı bağla”ya dokun.',
+    connectFirst: (url: string) =>
+      `Merhaba! Ben Fewmail. Burada, WhatsApp’ta acil bir e-posta geldiğinde haber veririm, seni bekleyenleri gösteririm ve onayladığın yanıtları gönderirim.\n\nBu numara henüz Fewmail’ine bağlı değil. Bir dakika sürer:\n1. Fewmail ayarlarını aç: ${url}\n2. Entegrasyonlar’da “WhatsApp’ı bağla”ya dokun (Fewmail Pro’nun parçası).\n3. WhatsApp hazır bir mesajla açılır — gönder, hepsi bu.`,
     connected:
       'Bağlandı. Acil bir şey geldiğinde yazacağım. Herhangi bir e-postayı yanıtlamak için metin ya da sesli mesaj gönder.',
     proOnly:

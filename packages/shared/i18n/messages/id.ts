@@ -1626,8 +1626,8 @@ export const id: Messages = {
     },
   },
   whatsapp: {
-    connectFirst:
-      'Buka dulu Fewmail → Pengaturan → Integrasi lalu ketuk “Hubungkan WhatsApp”.',
+    connectFirst: (url: string) =>
+      `Hai! Aku Fewmail. Di WhatsApp ini aku memberi tahu saat ada email penting, menunjukkan apa yang butuh kamu, dan mengirim balasan yang kamu setujui.\n\nNomor ini belum terhubung ke Fewmail-mu. Cuma butuh semenit:\n1. Buka pengaturan Fewmail: ${url}\n2. Di Integrasi, ketuk “Hubungkan WhatsApp” (bagian dari Fewmail Pro).\n3. WhatsApp terbuka dengan pesan yang sudah siap — kirim, dan selesai.`,
     connected:
       'Terhubung. Aku akan mengabari saat ada yang mendesak. Kirim teks atau pesan suara untuk membalas email apa pun.',
     proOnly:

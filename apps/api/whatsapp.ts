@@ -207,7 +207,7 @@ const handle = async (inbound: Inbound) => {
       await ask(to, t.whatsapp.connected, menuButtons(t))
       return
     }
-    await say(to, messages.en.whatsapp.connectFirst)
+    await say(to, messages.en.whatsapp.connectFirst(`${env.WEB_URL}/settings`))
     return
   }
   const t = await messagesFor(userId)
