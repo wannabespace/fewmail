@@ -630,7 +630,7 @@ const MailRowMeta = ({
   return (
     // Wrapping onto a clipped second line drops what does not fit whole; a clipped single line cut a chip in half.
     <span className="text-muted-foreground flex h-5 min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-5 overflow-hidden text-xs whitespace-nowrap">
-      {insight && <ExtractedChips extracted={insight.extracted} />}
+      {insight && <ExtractedChips extracted={insight.extracted} size="sm" />}
       {insight?.category === 'security' ? (
         <span className="text-destructive flex items-center gap-1 font-medium">
           <HugeiconsIcon

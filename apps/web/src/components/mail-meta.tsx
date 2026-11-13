@@ -43,12 +43,14 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/u
 
 export const ExtractedChips = ({
   extracted,
+  size,
 }: {
   extracted: {
     amount: string | null
     dueDate: string | null
     meetingTime: string | null
   }
+  size?: 'sm'
 }) => {
   const t = useT()
   const dates = useDates()
@@ -56,13 +58,15 @@ export const ExtractedChips = ({
   return (
     <>
       {extracted.amount && (
-        <Badge variant="secondary" data-mask>
+        <Badge variant="secondary" size={size} data-mask>
           {extracted.amount}
         </Badge>
       )}
       {extracted.dueDate && (
         <Tooltip>
-          <TooltipTrigger render={<Badge variant="secondary" data-mask />}>
+          <TooltipTrigger
+            render={<Badge variant="secondary" size={size} data-mask />}
+          >
             {t.mail.due(
               ISO_DATE.test(extracted.dueDate)
                 ? dates.format(parseISO(extracted.dueDate), 'd MMM')
@@ -73,7 +77,7 @@ export const ExtractedChips = ({
         </Tooltip>
       )}
       {extracted.meetingTime && (
-        <Badge variant="secondary" data-mask>
+        <Badge variant="secondary" size={size} data-mask>
           {extracted.meetingTime}
         </Badge>
       )}
