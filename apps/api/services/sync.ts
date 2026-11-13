@@ -57,7 +57,6 @@ const INITIAL_INBOX_LIMIT = 60
 const VOICE_SAMPLE_QUERY = 'in:sent newer_than:60d'
 const VOICE_SAMPLE_LIMIT = 15
 const ANALYZE_CONCURRENCY = 4
-const BOARD_HISTORY = 'newer_than:6m'
 export const HELD_MONTHS = 3
 const HELD_STEP_DAYS = 7
 const HELD_STEP_LIMIT = 5000
@@ -416,12 +415,12 @@ export const holdEarlierMail = async (mailbox: Mailbox) => {
   await announceChange(mailbox.userId, ['mail'])
 }
 
-/** Pro: a new board starts with half a year of its mail, not only what arrives from now on; what Fewmail does not hold is read in memory. */
+/** Pro: a new board starts with its period's mail, not only what arrives from now on; what Fewmail does not hold is read in memory. */
 export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
   const searchedAt = new Date()
   const results = await searchMailboxes(
     board.userId,
-    `(${board.gmailQuery}) ${BOARD_HISTORY}`,
+    `(${board.gmailQuery}) newer_than:${board.periodDays}d`,
     BOARD_HISTORY_LIMIT
   )
   const found = await Promise.all(

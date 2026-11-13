@@ -1,5 +1,6 @@
 import type {
   BoardChart,
+  BoardPeriod,
   DomainList,
   PatternKind,
   SpamVerdict,
@@ -128,9 +129,11 @@ export const boards = d.snakeCase.table(
     gmailQuery: encryptedText().notNull(),
     /** How many emails the last history read found; at `BOARD_HISTORY_LIMIT` the oldest were left out. */
     historyFound: d.integer(),
-    /** Null until the last half year was read; a new description or query resets it. */
+    /** Null until the board's period was read; a new description, query or a longer period resets it. */
     historyReadAt: d.timestamp({ withTimezone: true }),
     name: encryptedText().notNull(),
+    /** Days back the board collects (`BOARD_PERIODS`); entries that happened before then are not shown. */
+    periodDays: d.smallint().$type<BoardPeriod>().default(90).notNull(),
     position: d.smallint().default(0).notNull(),
     userId: userId(),
   },

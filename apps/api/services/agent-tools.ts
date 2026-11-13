@@ -1,5 +1,6 @@
 import {
   AGENT_TOOLS,
+  BOARD_PERIODS,
   MAIL_CATEGORIES,
   RULE_EFFECTS,
   CLEAR_OUT_GROUPS,
@@ -301,9 +302,13 @@ export const agentTools = (
   }),
   create_board: define({
     description:
-      'Create a board that collects one kind of email as entries. description says what belongs on it ("receipts and refunds with their amounts"), at least 3 characters; it fills from mail the user already has.',
-    input: { description: z.string().min(3), name: z.string().min(1) },
-    run: ({ description, name }) => createBoard(userId, { description, name }),
+      'Create a board that collects one kind of email as entries. description says what belongs on it ("receipts and refunds with their amounts"), at least 3 characters; it fills from mail the user already has, as far back as periodDays (default 90; entries older than the period leave the board).',
+    input: {
+      description: z.string().min(3),
+      name: z.string().min(1),
+      periodDays: z.literal([...BOARD_PERIODS]).optional(),
+    },
+    run: (input) => createBoard(userId, input),
   }),
   get_board: define({
     description:
@@ -316,12 +321,13 @@ export const agentTools = (
   }),
   update_board: define({
     description:
-      "Change a board: its name, what it collects (a new description reads the last six months again; entries the user edited or removed stay), or how many days before an entry's next date it warns (1–14, null for never).",
+      "Change a board: its name, what it collects (a new description reads its period again; entries the user edited or removed stay), how far back it collects (periodDays: a longer period reads the extra mail, a shorter one hides older entries) or how many days before an entry's next date it warns (1–14, null for never).",
     input: {
       bannerDays: z.number().int().min(1).max(14).nullable().optional(),
       description: z.string().min(3).optional(),
       id: z.uuid(),
       name: z.string().min(1).optional(),
+      periodDays: z.literal([...BOARD_PERIODS]).optional(),
     },
     run: ({ id, ...input }) => updateBoard(userId, id, input),
   }),

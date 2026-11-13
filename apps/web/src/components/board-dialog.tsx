@@ -1,4 +1,9 @@
-import { BOARD_PRESETS } from '@fewmail/shared/agent'
+import {
+  BOARD_PERIODS,
+  BOARD_PRESETS,
+  DEFAULT_BOARD_PERIOD,
+} from '@fewmail/shared/agent'
+import type { BoardPeriod } from '@fewmail/shared/agent'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,11 +56,54 @@ const refetchBoards = () => refetchChanged(['boards', 'today'])
 const HEADS_UP_DAYS = [1, 2, 3, 5, 7, 14] as const
 const NEVER = 'never'
 
+const SETTING_ROW = 'grid grid-cols-[1fr_auto] items-center gap-2 text-sm'
+
+/** How far back the board collects: its history read stops there and older entries leave it. */
+const PeriodRow = ({
+  onChange,
+  value,
+}: {
+  onChange: (period: BoardPeriod) => void
+  value: BoardPeriod
+}) => {
+  const t = useT()
+  return (
+    <div className={SETTING_ROW}>
+      <span className="text-muted-foreground">{t.boards.period}</span>
+      <Select
+        items={BOARD_PERIODS.map((days) => ({
+          label: t.boards.periods[days],
+          value: String(days),
+        }))}
+        value={String(value)}
+        onValueChange={(next) => {
+          const period = BOARD_PERIODS.find((days) => String(days) === next)
+          if (period) {
+            onChange(period)
+          }
+        }}
+      >
+        <SelectTrigger aria-label={t.boards.period}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {BOARD_PERIODS.map((days) => (
+            <SelectItem key={days} value={String(days)}>
+              {t.boards.periods[days]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
+
 const NewBoardForm = ({ onDone }: { onDone: () => void }) => {
   const t = useT()
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [period, setPeriod] = useState<BoardPeriod>(DEFAULT_BOARD_PERIOD)
 
   const create = useMutation(
     orpc.boards.create.mutationOptions({
@@ -75,7 +123,7 @@ const NewBoardForm = ({ onDone }: { onDone: () => void }) => {
       onSubmit={(event) => {
         event.preventDefault()
         if (isFilled) {
-          create.mutate(input)
+          create.mutate({ ...input, periodDays: period })
         }
       }}
     >
@@ -112,6 +160,7 @@ const NewBoardForm = ({ onDone }: { onDone: () => void }) => {
         aria-label={t.boards.description}
         data-mask
       />
+      <PeriodRow value={period} onChange={setPeriod} />
       <DialogFooter>
         <Button type="submit" disabled={!isFilled || create.isPending}>
           {create.isPending ? t.boards.planning : t.boards.create}
@@ -143,20 +192,22 @@ export const NewBoardDialog = () => {
   )
 }
 
-interface HeadsUpSettings {
+interface BoardSettings {
   bannerDays: number | null
   id: string
+  periodDays: BoardPeriod
 }
 
 const SettingsForm = ({
   board,
   onDone,
 }: {
-  board: HeadsUpSettings
+  board: BoardSettings
   onDone: () => void
 }) => {
   const t = useT()
   const [days, setDays] = useState(board.bannerDays)
+  const [period, setPeriod] = useState(board.periodDays)
   const update = useMutation(
     orpc.boards.update.mutationOptions({ onSettled: refetchBoards })
   )
@@ -167,10 +218,11 @@ const SettingsForm = ({
       onSubmit={(event) => {
         event.preventDefault()
         onDone()
-        update.mutate({ bannerDays: days, id: board.id })
+        update.mutate({ bannerDays: days, id: board.id, periodDays: period })
       }}
     >
-      <div className="grid grid-cols-[1fr_auto] items-center gap-2 text-sm">
+      <PeriodRow value={period} onChange={setPeriod} />
+      <div className={SETTING_ROW}>
         <span className="text-muted-foreground">
           {t.boards.settings.bannerDays}
         </span>
@@ -212,7 +264,7 @@ export const BoardSettingsDialog = ({
   onOpenChange,
   open,
 }: {
-  board: HeadsUpSettings
+  board: BoardSettings
   onOpenChange: (open: boolean) => void
   open: boolean
 }) => {

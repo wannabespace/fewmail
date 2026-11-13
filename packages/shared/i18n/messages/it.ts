@@ -416,7 +416,7 @@ export const it: Messages = {
         },
         boards: {
           description:
-            'Soldi, abbonamenti a pagamento, viaggi, ordini: descrivi cosa tenere d’occhio e l’agente lo raccoglie da sei mesi di posta, con grafici.',
+            'Soldi, abbonamenti a pagamento, viaggi, ordini: descrivi cosa tenere d’occhio e l’agente lo raccoglie da fino a un anno di posta, con grafici.',
           title: 'Bacheche',
         },
         calendar: {
@@ -1013,7 +1013,7 @@ export const it: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Pagine che l’agente riempie con la tua posta, a partire dagli ultimi sei mesi. Scegline fino a ${max}; le tue puoi aggiungerle dopo.`,
+      `Pagine che l’agente riempie con la tua posta, a partire dagli ultimi tre mesi. Scegline fino a ${max}; le tue puoi aggiungerle dopo.`,
     boardsTitle: 'Cosa deve raccogliere l’agente per te?',
     languageHint:
       'App, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
@@ -1421,11 +1421,11 @@ export const it: Messages = {
     },
     history: {
       capped: (n: number) =>
-        `Lette le ${n} email corrispondenti più recenti degli ultimi sei mesi.`,
+        `Lette le ${n} email corrispondenti più recenti del periodo.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Guardo la posta degli ultimi sei mesi…'
-          : `Leggo ${plural('it', found, { one: () => 'un’email', other: (n) => `${n} email` })} degli ultimi sei mesi · ${plural('it', entries, { one: () => 'una voce', other: (n) => `${n} voci` })} finora`,
+          ? 'Guardo la posta del periodo…'
+          : `Leggo ${plural('it', found, { one: () => 'un’email', other: (n) => `${n} email` })} · ${plural('it', entries, { one: () => 'una voce', other: (n) => `${n} voci` })} finora`,
     },
     menu: 'Azioni della bacheca',
     moveDown: 'Sposta giù',
@@ -1434,11 +1434,20 @@ export const it: Messages = {
     namePlaceholder: 'Viaggi',
     new: 'Nuova bacheca',
     newHint:
-      'Descrivi con parole tue cosa raccogliere. Fewmail lo trova nella posta degli ultimi sei mesi, sceglie i grafici e la tiene aggiornata.',
+      'Descrivi con parole tue cosa raccogliere. Fewmail lo trova nella posta fin dove scegli, sceglie i grafici e la tiene aggiornata.',
+    period: 'Periodo',
+    periods: {
+      1: 'Ultimo giorno',
+      7: 'Ultima settimana',
+      30: 'Ultimo mese',
+      90: 'Ultimi 3 mesi',
+      180: 'Ultimi 6 mesi',
+      365: 'Ultimo anno',
+    },
     planning: 'Preparazione…',
     redescribe: 'Salva e rileggi',
     redescribeHint:
-      'Rilegge gli ultimi sei mesi con la nuova descrizione. Le voci che hai modificato o tolto restano.',
+      'Rilegge il periodo con la nuova descrizione. Le voci che hai modificato o tolto restano.',
     rename: 'Rinomina bacheca',
     save: 'Salva',
     settings: {
@@ -1448,9 +1457,9 @@ export const it: Messages = {
           one: () => '1 giorno prima',
           other: (count) => `${count} giorni prima`,
         }),
-      hint: 'Quando la bacheca ti avvisa prima di una data.',
+      hint: 'Fin dove raccoglie la bacheca e quando ti avvisa prima di una data.',
       never: 'Mai',
-      title: 'Avvisi',
+      title: 'Impostazioni della bacheca',
     },
     starter: {
       events: {

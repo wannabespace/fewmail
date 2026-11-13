@@ -3,6 +3,7 @@ import {
   BOARD_CHART_TYPES,
   BOARD_GROUPINGS,
   BOARD_MEASURES,
+  BOARD_PERIODS,
   BOARD_PRESETS,
   CLEAR_OUT_GROUPS,
   DEVICE_KINDS,
@@ -124,6 +125,7 @@ const boardChart = type({
   type: type.enumerated(...BOARD_CHART_TYPES),
 })
 const boardText = { description: 'string > 2', name: 'string > 0' } as const
+const boardPeriod = type.enumerated(...BOARD_PERIODS)
 
 const settingsInput = type({
   'briefHour?': '0 <= number.integer <= 23',
@@ -187,10 +189,12 @@ const eventInput = type({
 
 export const router = {
   boards: {
-    create: agent.input(type(boardText)).handler(async ({ context, input }) => {
-      const board = await createBoard(context.user.id, input)
-      return { id: board.id }
-    }),
+    create: agent
+      .input(type({ ...boardText, 'periodDays?': boardPeriod }))
+      .handler(async ({ context, input }) => {
+        const board = await createBoard(context.user.id, input)
+        return { id: board.id }
+      }),
     delete: agent.input(id).handler(async ({ context, input }) => {
       await deleteBoard(context.user.id, input.id)
     }),
@@ -210,6 +214,7 @@ export const router = {
           'charts?': boardChart.array(),
           'description?': boardText.description,
           'name?': boardText.name,
+          'periodDays?': boardPeriod,
         })
       )
       .handler(async ({ context, input: { id: boardId, ...input } }) => {

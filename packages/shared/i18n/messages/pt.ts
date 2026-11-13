@@ -236,11 +236,11 @@ export const pt: Messages = {
     },
     history: {
       capped: (n: number) =>
-        `Lidos os ${n} e-mails correspondentes mais recentes dos últimos seis meses.`,
+        `Lidos os ${n} e-mails correspondentes mais recentes do período.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Olhando os e-mails dos últimos seis meses…'
-          : `Lendo ${plural('pt', found, { one: () => 'um e-mail', other: (n) => `${n} e-mails` })} dos últimos seis meses · ${plural('pt', entries, { one: () => 'um registro', other: (n) => `${n} registros` })} até agora`,
+          ? 'Olhando os e-mails do período…'
+          : `Lendo ${plural('pt', found, { one: () => 'um e-mail', other: (n) => `${n} e-mails` })} · ${plural('pt', entries, { one: () => 'um registro', other: (n) => `${n} registros` })} até agora`,
     },
     menu: 'Ações do painel',
     moveDown: 'Mover para baixo',
@@ -249,11 +249,20 @@ export const pt: Messages = {
     namePlaceholder: 'Viagens',
     new: 'Novo painel',
     newHint:
-      'Descreva com suas palavras o que reunir. O Fewmail encontra isso nos e-mails dos últimos seis meses, escolhe os gráficos e mantém tudo atualizado.',
+      'Descreva com suas palavras o que reunir. O Fewmail encontra isso nos e-mails do período que você escolher, escolhe os gráficos e mantém tudo atualizado.',
+    period: 'Período',
+    periods: {
+      1: 'Último dia',
+      7: 'Última semana',
+      30: 'Último mês',
+      90: 'Últimos 3 meses',
+      180: 'Últimos 6 meses',
+      365: 'Último ano',
+    },
     planning: 'Preparando…',
     redescribe: 'Salvar e ler de novo',
     redescribeHint:
-      'Lê os últimos seis meses de novo com a nova descrição. Registros que você editou ou tirou continuam como estão.',
+      'Lê o período de novo com a nova descrição. Registros que você editou ou tirou continuam como estão.',
     rename: 'Renomear painel',
     save: 'Salvar',
     settings: {
@@ -263,9 +272,9 @@ export const pt: Messages = {
           one: () => '1 dia antes',
           other: (count) => `${count} dias antes`,
         }),
-      hint: 'Quando o painel avisa você antes de uma data.',
+      hint: 'Até quando o painel reúne e quando avisa você antes de uma data.',
       never: 'Nunca',
-      title: 'Avisos',
+      title: 'Ajustes do painel',
     },
     starter: {
       events: {
@@ -771,7 +780,7 @@ export const pt: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Páginas que o agente preenche com seus e-mails, começando pelo último meio ano. Escolha até ${max}; você pode criar as suas depois.`,
+      `Páginas que o agente preenche com seus e-mails, começando pelos últimos três meses. Escolha até ${max}; você pode criar as suas depois.`,
     boardsTitle: 'O que o agente deve juntar para você?',
     languageHint:
       'O app, os resumos e as explicações usam este idioma. As respostas sempre seguem o idioma do e-mail que você responde.',
@@ -1248,7 +1257,7 @@ export const pt: Messages = {
         },
         boards: {
           description:
-            'Dinheiro, assinaturas pagas, viagens, pedidos: descreva o que acompanhar e o agente reúne tudo de meio ano de e-mails, com gráficos.',
+            'Dinheiro, assinaturas pagas, viagens, pedidos: descreva o que acompanhar e o agente reúne tudo de até um ano de e-mails, com gráficos.',
           title: 'Painéis',
         },
         calendar: {

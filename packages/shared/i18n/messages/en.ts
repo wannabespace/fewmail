@@ -235,11 +235,11 @@ export const en = {
     },
     history: {
       capped: (n: number) =>
-        `Read the newest ${n} matching emails of the last six months.`,
+        `Read the newest ${n} matching emails of the board’s period.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Looking through the last six months of mail…'
-          : `Reading ${plural('en', found, { one: () => 'one email', other: (n) => `${n} emails` })} from the last six months · ${plural('en', entries, { one: () => 'one entry', other: (n) => `${n} entries` })} so far`,
+          ? 'Looking through the board’s period…'
+          : `Reading ${plural('en', found, { one: () => 'one email', other: (n) => `${n} emails` })} · ${plural('en', entries, { one: () => 'one entry', other: (n) => `${n} entries` })} so far`,
     },
     menu: 'Board actions',
     moveDown: 'Move down',
@@ -248,11 +248,20 @@ export const en = {
     namePlaceholder: 'Travel',
     new: 'New board',
     newHint:
-      'Describe what to collect in your own words. Fewmail finds it in the last six months of mail, picks the charts and keeps it up to date.',
+      'Describe what to collect in your own words. Fewmail finds it in your mail as far back as you choose, picks the charts and keeps it up to date.',
+    period: 'Period',
+    periods: {
+      1: 'Last day',
+      7: 'Last week',
+      30: 'Last month',
+      90: 'Last 3 months',
+      180: 'Last 6 months',
+      365: 'Last year',
+    },
     planning: 'Setting it up…',
     redescribe: 'Save and read again',
     redescribeHint:
-      'Reads the last six months again with the new description. Entries you edited or took off stay.',
+      'Reads the board’s period again with the new description. Entries you edited or took off stay.',
     rename: 'Rename board',
     save: 'Save',
     settings: {
@@ -262,9 +271,9 @@ export const en = {
           one: () => '1 day before',
           other: (count) => `${count} days before`,
         }),
-      hint: 'When the board warns you before a date.',
+      hint: 'How far back the board collects and when it warns you before a date.',
       never: 'Never',
-      title: 'Heads-ups',
+      title: 'Board settings',
     },
     starter: {
       events: {
@@ -770,7 +779,7 @@ export const en = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Pages the agent fills from your mail, starting with the last half year. Pick up to ${max}; you can add your own later.`,
+      `Pages the agent fills from your mail, starting with the last three months. Pick up to ${max}; you can add your own later.`,
     boardsTitle: 'What should the agent collect for you?',
     languageHint:
       'The app, summaries and explanations use this language. Replies always match the language of the email you answer.',
@@ -1242,7 +1251,7 @@ export const en = {
         },
         boards: {
           description:
-            'Money, paid subscriptions, trips, orders: describe what to track and the agent collects it from half a year of mail, with charts.',
+            'Money, paid subscriptions, trips, orders: describe what to track and the agent collects it from up to a year of mail, with charts.',
           title: 'Boards',
         },
         calendar: {

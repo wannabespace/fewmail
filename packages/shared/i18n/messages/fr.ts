@@ -418,7 +418,7 @@ export const fr: Messages = {
         },
         boards: {
           description:
-            'Argent, abonnements payants, voyages, commandes : décrivez ce que vous voulez suivre et l’agent le rassemble à partir de six mois d’e-mails, avec des graphiques.',
+            'Argent, abonnements payants, voyages, commandes : décrivez ce que vous voulez suivre et l’agent le rassemble à partir d’un an d’e-mails au plus, avec des graphiques.',
           title: 'Tableaux',
         },
         calendar: {
@@ -1020,7 +1020,7 @@ export const fr: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Des pages que l’agent remplit à partir de vos e-mails, en commençant par les six derniers mois. Choisissez-en jusqu’à ${max} ; vous pourrez ajouter les vôtres plus tard.`,
+      `Des pages que l’agent remplit à partir de vos e-mails, en commençant par les trois derniers mois. Choisissez-en jusqu’à ${max} ; vous pourrez ajouter les vôtres plus tard.`,
     boardsTitle: 'Que doit rassembler l’agent pour vous ?',
     languageHint:
       'L’app, les résumés et les explications utilisent cette langue. Les réponses suivent toujours la langue de l’e-mail auquel vous répondez.',
@@ -1437,11 +1437,11 @@ export const fr: Messages = {
     },
     history: {
       capped: (n: number) =>
-        `Les ${n} e-mails correspondants les plus récents des six derniers mois ont été lus.`,
+        `Les ${n} e-mails correspondants les plus récents de la période ont été lus.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Parcours des e-mails des six derniers mois…'
-          : `Lecture des six derniers mois : ${plural('fr', found, { one: () => 'un e-mail', other: (n) => `${n} e-mails` })} · ${plural('fr', entries, { one: () => 'une entrée', other: (n) => `${n} entrées` })} pour l’instant`,
+          ? 'Parcours des e-mails de la période…'
+          : `Lecture : ${plural('fr', found, { one: () => 'un e-mail', other: (n) => `${n} e-mails` })} · ${plural('fr', entries, { one: () => 'une entrée', other: (n) => `${n} entrées` })} pour l’instant`,
     },
     menu: 'Actions du tableau',
     moveDown: 'Descendre',
@@ -1450,11 +1450,20 @@ export const fr: Messages = {
     namePlaceholder: 'Voyages',
     new: 'Nouveau tableau',
     newHint:
-      'Décris avec tes mots ce qu’il faut rassembler. Fewmail le retrouve dans les e-mails des six derniers mois, choisit les graphiques et tient le tout à jour.',
+      'Décris avec tes mots ce qu’il faut rassembler. Fewmail le retrouve dans tes e-mails aussi loin que tu choisis, choisit les graphiques et tient le tout à jour.',
+    period: 'Période',
+    periods: {
+      1: 'Dernier jour',
+      7: 'Dernière semaine',
+      30: 'Dernier mois',
+      90: '3 derniers mois',
+      180: '6 derniers mois',
+      365: 'Dernière année',
+    },
     planning: 'Mise en place…',
     redescribe: 'Enregistrer et relire',
     redescribeHint:
-      'Relit les six derniers mois avec la nouvelle description. Les entrées que tu as modifiées ou retirées restent.',
+      'Relit la période avec la nouvelle description. Les entrées que tu as modifiées ou retirées restent.',
     rename: 'Renommer le tableau',
     save: 'Enregistrer',
     settings: {
@@ -1464,9 +1473,9 @@ export const fr: Messages = {
           one: () => '1 jour avant',
           other: (count) => `${count} jours avant`,
         }),
-      hint: 'Quand le tableau te prévient avant une date.',
+      hint: 'Jusqu’où le tableau remonte et quand il te prévient avant une date.',
       never: 'Jamais',
-      title: 'Alertes',
+      title: 'Réglages du tableau',
     },
     starter: {
       events: {

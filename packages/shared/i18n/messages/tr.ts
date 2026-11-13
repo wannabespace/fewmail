@@ -232,12 +232,11 @@ export const tr: Messages = {
       title: 'Kim veya neye göre',
     },
     history: {
-      capped: (n: number) =>
-        `Son altı ayın eşleşen en yeni ${n} e-postası okundu.`,
+      capped: (n: number) => `Dönemin eşleşen en yeni ${n} e-postası okundu.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Son altı ayın postalarına bakılıyor…'
-          : `Son altı aydan ${plural('tr', found, { other: (n) => `${n} e-posta` })} okunuyor · şimdiye kadar ${plural('tr', entries, { other: (n) => `${n} kayıt` })}`,
+          ? 'Dönemin postalarına bakılıyor…'
+          : `${plural('tr', found, { other: (n) => `${n} e-posta` })} okunuyor · şimdiye kadar ${plural('tr', entries, { other: (n) => `${n} kayıt` })}`,
     },
     menu: 'Pano işlemleri',
     moveDown: 'Aşağı taşı',
@@ -246,20 +245,29 @@ export const tr: Messages = {
     namePlaceholder: 'Seyahatler',
     new: 'Yeni pano',
     newHint:
-      'Neyin toplanacağını kendi kelimelerinle anlat. Fewmail son altı ayın postalarında bulur, grafikleri seçer ve panoyu güncel tutar.',
+      'Neyin toplanacağını kendi kelimelerinle anlat. Fewmail seçtiğin dönemin postalarında bulur, grafikleri seçer ve panoyu güncel tutar.',
+    period: 'Dönem',
+    periods: {
+      1: 'Son 1 gün',
+      7: 'Son 1 hafta',
+      30: 'Son 1 ay',
+      90: 'Son 3 ay',
+      180: 'Son 6 ay',
+      365: 'Son 1 yıl',
+    },
     planning: 'Hazırlanıyor…',
     redescribe: 'Kaydet ve yeniden oku',
     redescribeHint:
-      'Son altı ay yeni açıklamayla yeniden okunur. Düzenlediğin veya çıkardığın kayıtlar olduğu gibi kalır.',
+      'Dönem yeni açıklamayla yeniden okunur. Düzenlediğin veya çıkardığın kayıtlar olduğu gibi kalır.',
     rename: 'Panoyu yeniden adlandır',
     save: 'Kaydet',
     settings: {
       bannerDays: 'Tarihten önce uyarı',
       days: (n: number) =>
         plural('tr', n, { other: (count) => `${count} gün önce` }),
-      hint: 'Panonun seni bir tarihten ne kadar önce uyaracağı.',
+      hint: 'Panonun ne kadar geriye kadar topladığı ve seni bir tarihten ne kadar önce uyaracağı.',
       never: 'Hiçbir zaman',
-      title: 'Uyarılar',
+      title: 'Pano ayarları',
     },
     starter: {
       events: {
@@ -750,7 +758,7 @@ export const tr: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Ajanın e-postalarından doldurduğu sayfalar; son altı aydan başlar. En fazla ${max} tane seç; kendi panolarını sonra ekleyebilirsin.`,
+      `Ajanın e-postalarından doldurduğu sayfalar; son üç aydan başlar. En fazla ${max} tane seç; kendi panolarını sonra ekleyebilirsin.`,
     boardsTitle: 'Ajan senin için neleri toplasın?',
     languageHint:
       'Uygulama, özetler ve açıklamalar bu dili kullanır. Yanıtlar her zaman yanıtladığın e-postanın dilinde olur.',
@@ -1219,7 +1227,7 @@ export const tr: Messages = {
         },
         boards: {
           description:
-            'Para, ücretli abonelikler, seyahatler, siparişler: neyin takip edileceğini anlat, ajan bunları son altı ayın postalarından grafiklerle toplasın.',
+            'Para, ücretli abonelikler, seyahatler, siparişler: neyin takip edileceğini anlat, ajan bunları bir yıla kadar postalardan grafiklerle toplasın.',
           title: 'Panolar',
         },
         calendar: {

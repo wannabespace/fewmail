@@ -502,7 +502,7 @@ export const ko: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `에이전트가 메일에서 채워 주는 페이지예요. 최근 6개월부터 시작해요. 최대 ${max}개까지 고를 수 있고, 직접 만든 보드는 나중에 추가할 수 있어요.`,
+      `에이전트가 메일에서 채워 주는 페이지예요. 최근 3개월부터 시작해요. 최대 ${max}개까지 고를 수 있고, 직접 만든 보드는 나중에 추가할 수 있어요.`,
     boardsTitle: '에이전트가 무엇을 모아 둘까요?',
     languageHint:
       '앱, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
@@ -946,7 +946,7 @@ export const ko: Messages = {
         },
         boards: {
           description:
-            '돈, 유료 구독, 여행, 주문. 추적할 것을 설명하면 에이전트가 반년 치 메일에서 모아 차트로 보여줘요.',
+            '돈, 유료 구독, 여행, 주문. 추적할 것을 설명하면 에이전트가 최대 1년 치 메일에서 모아 차트로 보여줘요.',
           title: '보드',
         },
         calendar: {
@@ -1371,12 +1371,11 @@ export const ko: Messages = {
       title: '누구 또는 무엇별',
     },
     history: {
-      capped: (n: number) =>
-        `최근 6개월 중 조건에 맞는 최신 메일 ${n}개를 읽었어요.`,
+      capped: (n: number) => `기간 내 조건에 맞는 최신 메일 ${n}개를 읽었어요.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? '최근 6개월 메일을 살펴보는 중…'
-          : `최근 6개월 메일 ${found}개 읽는 중 · 지금까지 ${entries}개 항목`,
+          ? '기간 내 메일을 살펴보는 중…'
+          : `메일 ${found}개 읽는 중 · 지금까지 ${entries}개 항목`,
     },
     menu: '보드 작업',
     moveDown: '아래로 이동',
@@ -1385,19 +1384,28 @@ export const ko: Messages = {
     namePlaceholder: '여행',
     new: '새 보드',
     newHint:
-      '모을 내용을 직접 설명해 주세요. Fewmail이 최근 6개월 메일에서 찾아내고, 차트를 고르고, 계속 최신으로 유지해요.',
+      '모을 내용을 직접 설명해 주세요. Fewmail이 고른 기간의 메일에서 찾아내고, 차트를 고르고, 계속 최신으로 유지해요.',
+    period: '기간',
+    periods: {
+      1: '최근 1일',
+      7: '최근 1주',
+      30: '최근 1개월',
+      90: '최근 3개월',
+      180: '최근 6개월',
+      365: '최근 1년',
+    },
     planning: '준비하는 중…',
     redescribe: '저장하고 다시 읽기',
     redescribeHint:
-      '새 설명으로 최근 6개월을 다시 읽어요. 직접 수정하거나 뺀 항목은 그대로 남아요.',
+      '새 설명으로 기간 내 메일을 다시 읽어요. 직접 수정하거나 뺀 항목은 그대로 남아요.',
     rename: '보드 이름 바꾸기',
     save: '저장',
     settings: {
       bannerDays: '날짜 전 미리 알림',
       days: (n: number) => `${n}일 전`,
-      hint: '보드가 날짜 며칠 전에 알려 줄지 정해요.',
+      hint: '보드가 얼마나 이전까지 모을지, 날짜 며칠 전에 알려 줄지 정해요.',
       never: '안 함',
-      title: '미리 알림',
+      title: '보드 설정',
     },
     starter: {
       events: {

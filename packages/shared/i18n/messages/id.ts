@@ -233,11 +233,11 @@ export const id: Messages = {
     },
     history: {
       capped: (n: number) =>
-        `Sudah membaca ${n} email cocok terbaru dari enam bulan terakhir.`,
+        `Sudah membaca ${n} email cocok terbaru dalam periode papan.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Menelusuri email enam bulan terakhir…'
-          : `Membaca ${plural('id', found, { other: (n) => `${n} email` })} dari enam bulan terakhir · sejauh ini ${plural('id', entries, { other: (n) => `${n} entri` })}`,
+          ? 'Menelusuri email dalam periode papan…'
+          : `Membaca ${plural('id', found, { other: (n) => `${n} email` })} · sejauh ini ${plural('id', entries, { other: (n) => `${n} entri` })}`,
     },
     menu: 'Aksi papan',
     moveDown: 'Pindah ke bawah',
@@ -246,20 +246,29 @@ export const id: Messages = {
     namePlaceholder: 'Perjalanan',
     new: 'Papan baru',
     newHint:
-      'Jelaskan dengan kata-katamu sendiri apa yang dikumpulkan. Fewmail mencarinya di email enam bulan terakhir, memilih grafik, dan terus memperbaruinya.',
+      'Jelaskan dengan kata-katamu sendiri apa yang dikumpulkan. Fewmail mencarinya di email sejauh periode yang kamu pilih, memilih grafik, dan terus memperbaruinya.',
+    period: 'Periode',
+    periods: {
+      1: 'Sehari terakhir',
+      7: 'Seminggu terakhir',
+      30: 'Sebulan terakhir',
+      90: '3 bulan terakhir',
+      180: '6 bulan terakhir',
+      365: 'Setahun terakhir',
+    },
     planning: 'Menyiapkan…',
     redescribe: 'Simpan dan baca ulang',
     redescribeHint:
-      'Membaca ulang enam bulan terakhir dengan deskripsi baru. Entri yang kamu edit atau keluarkan tetap seperti itu.',
+      'Membaca ulang periode papan dengan deskripsi baru. Entri yang kamu edit atau keluarkan tetap seperti itu.',
     rename: 'Ganti nama papan',
     save: 'Simpan',
     settings: {
       bannerDays: 'Pengingat sebelum tanggal',
       days: (n: number) =>
         plural('id', n, { other: (count) => `${count} hari sebelumnya` }),
-      hint: 'Kapan papan memberi tahu kamu sebelum suatu tanggal.',
+      hint: 'Seberapa jauh papan mengumpulkan dan kapan memberi tahu kamu sebelum suatu tanggal.',
       never: 'Tidak pernah',
-      title: 'Pengingat',
+      title: 'Pengaturan papan',
     },
     starter: {
       events: {
@@ -755,7 +764,7 @@ export const id: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Halaman yang diisi agen dari email kamu, mulai dari setengah tahun terakhir. Pilih sampai ${max}; kamu bisa menambah sendiri nanti.`,
+      `Halaman yang diisi agen dari email kamu, mulai dari tiga bulan terakhir. Pilih sampai ${max}; kamu bisa menambah sendiri nanti.`,
     boardsTitle: 'Apa yang perlu dikumpulkan agen untukmu?',
     languageHint:
       'Aplikasi, ikhtisar, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
@@ -1224,7 +1233,7 @@ export const id: Messages = {
         },
         boards: {
           description:
-            'Uang, langganan berbayar, perjalanan, pesanan: jelaskan apa yang ingin dilacak dan agen mengumpulkannya dari email enam bulan terakhir, lengkap dengan grafik.',
+            'Uang, langganan berbayar, perjalanan, pesanan: jelaskan apa yang ingin dilacak dan agen mengumpulkannya dari email hingga setahun terakhir, lengkap dengan grafik.',
           title: 'Papan',
         },
         calendar: {

@@ -413,7 +413,7 @@ export const de: Messages = {
         },
         boards: {
           description:
-            'Geld, bezahlte Abos, Reisen, Bestellungen: Beschreib, was erfasst werden soll, und der Agent sammelt es aus einem halben Jahr Mails, mit Diagrammen.',
+            'Geld, bezahlte Abos, Reisen, Bestellungen: Beschreib, was erfasst werden soll, und der Agent sammelt es aus bis zu einem Jahr Mails, mit Diagrammen.',
           title: 'Boards',
         },
         calendar: {
@@ -1009,7 +1009,7 @@ export const de: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Seiten, die der Agent aus deinen Mails füllt, beginnend mit dem letzten halben Jahr. Wähle bis zu ${max}; eigene kannst du später hinzufügen.`,
+      `Seiten, die der Agent aus deinen Mails füllt, beginnend mit den letzten drei Monaten. Wähle bis zu ${max}; eigene kannst du später hinzufügen.`,
     boardsTitle: 'Was soll der Agent für dich sammeln?',
     languageHint:
       'App, Zusammenfassungen und Erklärungen nutzen diese Sprache. Antworten folgen immer der Sprache der Mail, auf die du antwortest.',
@@ -1427,11 +1427,11 @@ export const de: Messages = {
     },
     history: {
       capped: (n: number) =>
-        `Die neuesten ${n} passenden Mails der letzten sechs Monate gelesen.`,
+        `Die neuesten ${n} passenden Mails des Zeitraums gelesen.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Durchsuche die Mails der letzten sechs Monate…'
-          : `Lese ${plural('de', found, { one: () => 'eine Mail', other: (n) => `${n} Mails` })} der letzten sechs Monate · bisher ${plural('de', entries, { one: () => 'ein Eintrag', other: (n) => `${n} Einträge` })}`,
+          ? 'Durchsuche die Mails des Zeitraums…'
+          : `Lese ${plural('de', found, { one: () => 'eine Mail', other: (n) => `${n} Mails` })} · bisher ${plural('de', entries, { one: () => 'ein Eintrag', other: (n) => `${n} Einträge` })}`,
     },
     menu: 'Board-Aktionen',
     moveDown: 'Nach unten',
@@ -1440,11 +1440,20 @@ export const de: Messages = {
     namePlaceholder: 'Reisen',
     new: 'Neues Board',
     newHint:
-      'Beschreibe in eigenen Worten, was gesammelt werden soll. Fewmail findet es in den Mails der letzten sechs Monate, wählt die Diagramme und hält alles aktuell.',
+      'Beschreibe in eigenen Worten, was gesammelt werden soll. Fewmail findet es in deinen Mails so weit zurück, wie du wählst, wählt die Diagramme und hält alles aktuell.',
+    period: 'Zeitraum',
+    periods: {
+      1: 'Letzter Tag',
+      7: 'Letzte Woche',
+      30: 'Letzter Monat',
+      90: 'Letzte 3 Monate',
+      180: 'Letzte 6 Monate',
+      365: 'Letztes Jahr',
+    },
     planning: 'Wird eingerichtet…',
     redescribe: 'Speichern und neu lesen',
     redescribeHint:
-      'Liest die letzten sechs Monate mit der neuen Beschreibung neu. Von dir bearbeitete oder entfernte Einträge bleiben.',
+      'Liest den Zeitraum mit der neuen Beschreibung neu. Von dir bearbeitete oder entfernte Einträge bleiben.',
     rename: 'Board umbenennen',
     save: 'Speichern',
     settings: {
@@ -1454,9 +1463,9 @@ export const de: Messages = {
           one: () => '1 Tag vorher',
           other: (count) => `${count} Tage vorher`,
         }),
-      hint: 'Wann das Board dich vor einem Datum warnt.',
+      hint: 'Wie weit das Board zurück sammelt und wann es dich vor einem Datum warnt.',
       never: 'Nie',
-      title: 'Hinweise',
+      title: 'Board-Einstellungen',
     },
     starter: {
       events: {

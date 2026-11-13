@@ -414,7 +414,7 @@ export const es: Messages = {
         },
         boards: {
           description:
-            'Dinero, suscripciones de pago, viajes, pedidos: describe qué quieres seguir y el agente lo reúne de medio año de correo, con gráficos.',
+            'Dinero, suscripciones de pago, viajes, pedidos: describe qué quieres seguir y el agente lo reúne de hasta un año de correo, con gráficos.',
           title: 'Tableros',
         },
         calendar: {
@@ -1008,7 +1008,7 @@ export const es: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Páginas que el agente llena con tu correo, empezando por el último medio año. Elige hasta ${max}; luego puedes añadir las tuyas.`,
+      `Páginas que el agente llena con tu correo, empezando por los últimos tres meses. Elige hasta ${max}; luego puedes añadir las tuyas.`,
     boardsTitle: '¿Qué debe reunir el agente para ti?',
     languageHint:
       'La app, los resúmenes y las explicaciones usan este idioma. Las respuestas siempre siguen el idioma del correo que contestas.',
@@ -1420,11 +1420,11 @@ export const es: Messages = {
     },
     history: {
       capped: (n: number) =>
-        `Leídos los ${n} correos coincidentes más recientes de los últimos seis meses.`,
+        `Leídos los ${n} correos coincidentes más recientes del periodo.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Revisando el correo de los últimos seis meses…'
-          : `Leyendo ${plural('es', found, { one: () => 'un correo', other: (n) => `${n} correos` })} de los últimos seis meses · ${plural('es', entries, { one: () => 'una entrada', other: (n) => `${n} entradas` })} por ahora`,
+          ? 'Revisando el correo del periodo…'
+          : `Leyendo ${plural('es', found, { one: () => 'un correo', other: (n) => `${n} correos` })} · ${plural('es', entries, { one: () => 'una entrada', other: (n) => `${n} entradas` })} por ahora`,
     },
     menu: 'Acciones del tablero',
     moveDown: 'Bajar',
@@ -1433,11 +1433,20 @@ export const es: Messages = {
     namePlaceholder: 'Viajes',
     new: 'Nuevo tablero',
     newHint:
-      'Describe con tus palabras qué recopilar. Fewmail lo busca en el correo de los últimos seis meses, elige los gráficos y lo mantiene al día.',
+      'Describe con tus palabras qué recopilar. Fewmail lo busca en tu correo hasta donde elijas, elige los gráficos y lo mantiene al día.',
+    period: 'Periodo',
+    periods: {
+      1: 'Último día',
+      7: 'Última semana',
+      30: 'Último mes',
+      90: 'Últimos 3 meses',
+      180: 'Últimos 6 meses',
+      365: 'Último año',
+    },
     planning: 'Preparándolo…',
     redescribe: 'Guardar y volver a leer',
     redescribeHint:
-      'Vuelve a leer los últimos seis meses con la nueva descripción. Las entradas que editaste o quitaste se mantienen.',
+      'Vuelve a leer el periodo con la nueva descripción. Las entradas que editaste o quitaste se mantienen.',
     rename: 'Renombrar tablero',
     save: 'Guardar',
     settings: {
@@ -1447,9 +1456,9 @@ export const es: Messages = {
           one: () => '1 día antes',
           other: (count) => `${count} días antes`,
         }),
-      hint: 'Cuándo te avisa el tablero antes de una fecha.',
+      hint: 'Hasta dónde recopila el tablero y cuándo te avisa antes de una fecha.',
       never: 'Nunca',
-      title: 'Avisos',
+      title: 'Ajustes del tablero',
     },
     starter: {
       events: {

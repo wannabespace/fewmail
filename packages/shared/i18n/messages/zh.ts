@@ -493,7 +493,7 @@ export const zh: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `助手会用你的邮件填充这些页面，从最近半年开始。最多选 ${max} 个；之后可以添加你自己的。`,
+      `助手会用你的邮件填充这些页面，从最近三个月开始。最多选 ${max} 个；之后可以添加你自己的。`,
     boardsTitle: '要让助手为你收集什么？',
     languageHint:
       '应用、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
@@ -927,7 +927,7 @@ export const zh: Messages = {
         },
         boards: {
           description:
-            '钱、付费订阅、行程、订单：描述你想追踪什么，助手就会从半年的邮件里收集起来，并配上图表。',
+            '钱、付费订阅、行程、订单：描述你想追踪什么，助手就会从最多一年的邮件里收集起来，并配上图表。',
           title: '看板',
         },
         calendar: {
@@ -1344,11 +1344,11 @@ export const zh: Messages = {
       title: '按对象',
     },
     history: {
-      capped: (n: number) => `已读取最近六个月中最新的 ${n} 封匹配邮件。`,
+      capped: (n: number) => `已读取所选时段内最新的 ${n} 封匹配邮件。`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? '正在查看最近六个月的邮件…'
-          : `正在读取最近六个月的 ${found} 封邮件 · 已有 ${entries} 条记录`,
+          ? '正在查看所选时段的邮件…'
+          : `正在读取${found} 封邮件 · 已有 ${entries} 条记录`,
     },
     menu: '看板操作',
     moveDown: '下移',
@@ -1357,19 +1357,28 @@ export const zh: Messages = {
     namePlaceholder: '旅行',
     new: '新建看板',
     newHint:
-      '用你自己的话描述要收集什么。Fewmail 会在最近六个月的邮件中找到它，挑选图表，并持续更新。',
+      '用你自己的话描述要收集什么。Fewmail 会在你选择的时段内的邮件中找到它，挑选图表，并持续更新。',
+    period: '时段',
+    periods: {
+      1: '最近 1 天',
+      7: '最近 1 周',
+      30: '最近 1 个月',
+      90: '最近 3 个月',
+      180: '最近 6 个月',
+      365: '最近 1 年',
+    },
     planning: '正在设置…',
     redescribe: '保存并重新读取',
     redescribeHint:
-      '按新的描述重新读取最近六个月的邮件。你编辑过或移除的记录会保留。',
+      '按新的描述重新读取所选时段的邮件。你编辑过或移除的记录会保留。',
     rename: '重命名看板',
     save: '保存',
     settings: {
       bannerDays: '日期前提醒',
       days: (n: number) => `提前 ${n} 天`,
-      hint: '看板在日期前多久提醒你。',
+      hint: '看板收集多久以前的邮件，以及在日期前多久提醒你。',
       never: '从不',
-      title: '提醒',
+      title: '看板设置',
     },
     starter: {
       events: {

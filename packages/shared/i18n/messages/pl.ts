@@ -238,11 +238,11 @@ export const pl: Messages = {
     },
     history: {
       capped: (n: number) =>
-        `Przeczytano ${n} najnowszych pasujących maili z ostatniego pół roku.`,
+        `Przeczytano ${n} najnowszych pasujących maili z wybranego okresu.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Przeglądam pocztę z ostatniego pół roku…'
-          : `Czytam ${plural('pl', found, { one: () => 'jeden mail', few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} z ostatniego pół roku · na razie ${plural('pl', entries, { one: () => 'jeden wpis', few: (n) => `${n} wpisy`, many: (n) => `${n} wpisów`, other: (n) => `${n} wpisu` })}`,
+          ? 'Przeglądam pocztę z wybranego okresu…'
+          : `Czytam ${plural('pl', found, { one: () => 'jeden mail', few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} · na razie ${plural('pl', entries, { one: () => 'jeden wpis', few: (n) => `${n} wpisy`, many: (n) => `${n} wpisów`, other: (n) => `${n} wpisu` })}`,
     },
     menu: 'Działania na tablicy',
     moveDown: 'Przesuń w dół',
@@ -251,11 +251,20 @@ export const pl: Messages = {
     namePlaceholder: 'Podróże',
     new: 'Nowa tablica',
     newHint:
-      'Opisz własnymi słowami, co zbierać. Fewmail znajdzie to w poczcie z ostatniego pół roku, dobierze wykresy i będzie je aktualizować.',
+      'Opisz własnymi słowami, co zbierać. Fewmail znajdzie to w poczcie z wybranego okresu, dobierze wykresy i będzie je aktualizować.',
+    period: 'Okres',
+    periods: {
+      1: 'Ostatni dzień',
+      7: 'Ostatni tydzień',
+      30: 'Ostatni miesiąc',
+      90: 'Ostatnie 3 miesiące',
+      180: 'Ostatnie pół roku',
+      365: 'Ostatni rok',
+    },
     planning: 'Przygotowuję…',
     redescribe: 'Zapisz i przeczytaj ponownie',
     redescribeHint:
-      'Ostatnie pół roku zostanie przeczytane od nowa według nowego opisu. Wpisy, które poprawiłeś lub zdjąłeś, zostają.',
+      'Wybrany okres zostanie przeczytany od nowa według nowego opisu. Wpisy, które poprawiłeś lub zdjąłeś, zostają.',
     rename: 'Zmień nazwę tablicy',
     save: 'Zapisz',
     settings: {
@@ -265,9 +274,9 @@ export const pl: Messages = {
           one: () => '1 dzień wcześniej',
           other: (count) => `${count} dni wcześniej`,
         }),
-      hint: 'Kiedy tablica uprzedza cię przed terminem.',
+      hint: 'Jak daleko wstecz tablica zbiera i kiedy uprzedza cię przed terminem.',
       never: 'Nigdy',
-      title: 'Przypomnienia',
+      title: 'Ustawienia tablicy',
     },
     starter: {
       events: {
@@ -789,7 +798,7 @@ export const pl: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Strony, które agent wypełnia z twojej poczty, zaczynając od ostatniego pół roku. Wybierz do ${max}; własne dodasz później.`,
+      `Strony, które agent wypełnia z twojej poczty, zaczynając od ostatnich trzech miesięcy. Wybierz do ${max}; własne dodasz później.`,
     boardsTitle: 'Co agent ma dla ciebie zbierać?',
     languageHint:
       'W tym języku działa aplikacja, podsumowania i wyjaśnienia. Odpowiedzi zawsze są w języku maila, na który odpowiadasz.',
@@ -1270,7 +1279,7 @@ export const pl: Messages = {
         },
         boards: {
           description:
-            'Pieniądze, płatne subskrypcje, podróże, zamówienia: opisz, co śledzić, a agent zbierze to z pół roku poczty, z wykresami.',
+            'Pieniądze, płatne subskrypcje, podróże, zamówienia: opisz, co śledzić, a agent zbierze to z maksymalnie roku poczty, z wykresami.',
           title: 'Tablice',
         },
         calendar: {

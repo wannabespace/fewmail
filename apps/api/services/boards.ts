@@ -1,6 +1,6 @@
 import { db } from '@fewmail/db'
 import { boardEntries, boards, messages } from '@fewmail/db/schema'
-import type { BoardChart } from '@fewmail/shared/agent'
+import type { BoardChart, BoardPeriod } from '@fewmail/shared/agent'
 import {
   ANALYZE_WINDOW_DAYS,
   BOARD_CHART_TYPES,
@@ -27,7 +27,16 @@ import {
   subMonths,
 } from 'date-fns'
 import type { SQL } from 'drizzle-orm'
-import { and, desc, eq, gte, inArray, isNotNull, isNull } from 'drizzle-orm'
+import {
+  and,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  isNull,
+  sql,
+} from 'drizzle-orm'
 
 import { models } from '../lib/ai'
 import { announceChange } from '../lib/live'
@@ -156,13 +165,20 @@ const getOwnEntry = async (userId: string, id: string) => {
   return entry
 }
 
-/** What the user sees of a board: never the entries they took off it. */
+/** Entries before the board's period leave it, but stay stored: a longer period brings them back without asking the model again. */
+const isInPeriod = gte(
+  boardEntries.occurredAt,
+  sql`now() - make_interval(days => ${boards.periodDays}::int)`
+)
+
+/** What the user sees of a board: never the entries they took off it, nor those before its period. */
 const shownEntries = (where: SQL | undefined) =>
   db
     .select({ entry: boardEntries, threadId: messages.threadId })
     .from(boardEntries)
     .innerJoin(messages, eq(messages.id, boardEntries.messageId))
-    .where(and(where, isNull(boardEntries.dismissedAt)))
+    .innerJoin(boards, eq(boards.id, boardEntries.boardId))
+    .where(and(where, isNull(boardEntries.dismissedAt), isInPeriod))
 
 export const listBoards = (userId: string) =>
   db
@@ -198,7 +214,8 @@ export const boardsDigest = async (userId: string) => {
       and(
         eq(boardEntries.userId, userId),
         isNull(boardEntries.dismissedAt),
-        gte(boardEntries.occurredAt, subDays(new Date(), DIGEST_DAYS))
+        gte(boardEntries.occurredAt, subDays(new Date(), DIGEST_DAYS)),
+        isInPeriod
       )
     )
     .orderBy(desc(boardEntries.occurredAt))
@@ -423,10 +440,10 @@ export const boardBanners = async (userId: string, boardId?: string) => {
     .toSorted((left, right) => left.dueAt.getTime() - right.dueAt.getTime())
 }
 
-/** The worker reads the last half year next; the page fills in live. */
+/** The worker reads the board's period next; the page fills in live. */
 export const createBoard = async (
   userId: string,
-  input: { description: string; name: string }
+  input: { description: string; name: string; periodDays?: BoardPeriod }
 ) => {
   const count = () => db.$count(boards, eq(boards.userId, userId))
   await requireRoom(userId, 'boards', count)
@@ -467,7 +484,7 @@ export const seedBoards = async (userId: string) => {
 
 /**
  * A new description or search makes the history read again: the entries go, except those the user edited, added or took off,
- * which keep their place and their lesson. Charts stay as the user left them.
+ * which keep their place and their lesson. A longer period reads it again too, keeping every entry. Charts stay as the user left them.
  */
 export const updateBoard = async (
   userId: string,
@@ -477,10 +494,13 @@ export const updateBoard = async (
     charts?: BoardChart[]
     description?: string
     name?: string
+    periodDays?: BoardPeriod
   }
 ) => {
   const { bannerDays, ...rest } = input
   const board = await getOwnBoard(userId, id)
+  const isLengthened =
+    input.periodDays !== undefined && input.periodDays > board.periodDays
   const isRedescribed =
     input.description !== undefined && input.description !== board.description
   const plan = isRedescribed
@@ -500,7 +520,10 @@ export const updateBoard = async (
       ...(bannerDays !== undefined && {
         bannerDays: clampBannerDays(bannerDays),
       }),
-      ...(plan && { historyFound: null, historyReadAt: null }),
+      ...((plan || isLengthened) && {
+        historyFound: null,
+        historyReadAt: null,
+      }),
     })
     .where(eq(boards.id, id))
   // After the new description is stored: a read still running under the old one checks it before each write (`isUnchanged`).
@@ -525,15 +548,20 @@ export const deleteBoard = async (userId: string, id: string) => {
   await announceChange(userId, ['boards', 'today'])
 }
 
-/** A new description drops the entries and reads the history again; a read under the old one must stop writing. */
+/** A new description or period reads the history again; a read under the old one must stop writing. */
 export const isUnchanged = async (board: Board) => {
   const [current] = await db
-    .select({ description: boards.description, gmailQuery: boards.gmailQuery })
+    .select({
+      description: boards.description,
+      gmailQuery: boards.gmailQuery,
+      periodDays: boards.periodDays,
+    })
     .from(boards)
     .where(eq(boards.id, board.id))
   return (
     current?.description === board.description &&
-    current.gmailQuery === board.gmailQuery
+    current.gmailQuery === board.gmailQuery &&
+    current.periodDays === board.periodDays
   )
 }
 
@@ -1134,6 +1162,7 @@ export const getBoard = async (userId: string, id: string) => {
     isHistoryCapped: (board.historyFound ?? 0) >= BOARD_HISTORY_LIMIT,
     isReadingHistory: !board.historyReadAt,
     name: board.name,
+    periodDays: board.periodDays,
     statuses: distinct(entries.map(({ status }) => status)),
     summary: summaryOf(entries, groups, currencies[0] ?? null),
     total: entries.length,

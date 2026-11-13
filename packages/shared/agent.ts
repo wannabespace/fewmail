@@ -302,6 +302,13 @@ export const BOARD_PRESETS = [
 ] as const
 export type BoardPreset = (typeof BOARD_PRESETS)[number]
 
+/** How far back a board collects, in days: its history read stops there and older entries leave it. */
+export const BOARD_PERIODS = [1, 7, 30, 90, 180, 365] as const
+
+export type BoardPeriod = (typeof BOARD_PERIODS)[number]
+
+export const DEFAULT_BOARD_PERIOD: BoardPeriod = 90
+
 export const IMPORTANCE = {
   critical: 3,
   high: 2,

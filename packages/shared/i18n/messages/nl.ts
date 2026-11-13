@@ -236,11 +236,11 @@ export const nl: Messages = {
     },
     history: {
       capped: (n: number) =>
-        `De nieuwste ${n} passende e-mails van de afgelopen zes maanden gelezen.`,
+        `De nieuwste ${n} passende e-mails van de periode gelezen.`,
       reading: (found: number | null, entries: number) =>
         found === null
-          ? 'Mail van de afgelopen zes maanden doorzoeken…'
-          : `${plural('nl', found, { one: () => 'Eén e-mail', other: (n) => `${n} e-mails` })} van de afgelopen zes maanden lezen · tot nu toe ${plural('nl', entries, { one: () => 'één item', other: (n) => `${n} items` })}`,
+          ? 'Mail van de periode doorzoeken…'
+          : `${plural('nl', found, { one: () => 'Eén e-mail', other: (n) => `${n} e-mails` })} lezen · tot nu toe ${plural('nl', entries, { one: () => 'één item', other: (n) => `${n} items` })}`,
     },
     menu: 'Bordacties',
     moveDown: 'Omlaag',
@@ -249,11 +249,20 @@ export const nl: Messages = {
     namePlaceholder: 'Reizen',
     new: 'Nieuw bord',
     newHint:
-      'Beschrijf in je eigen woorden wat er verzameld moet worden. Fewmail zoekt het op in de mail van de afgelopen zes maanden, kiest de grafieken en houdt het bij.',
+      'Beschrijf in je eigen woorden wat er verzameld moet worden. Fewmail zoekt het op in je mail zo ver terug als je kiest, kiest de grafieken en houdt het bij.',
+    period: 'Periode',
+    periods: {
+      1: 'Afgelopen dag',
+      7: 'Afgelopen week',
+      30: 'Afgelopen maand',
+      90: 'Afgelopen 3 maanden',
+      180: 'Afgelopen 6 maanden',
+      365: 'Afgelopen jaar',
+    },
     planning: 'Bezig met instellen…',
     redescribe: 'Opslaan en opnieuw lezen',
     redescribeHint:
-      'Leest de afgelopen zes maanden opnieuw met de nieuwe beschrijving. Items die je bewerkte of weghaalde blijven.',
+      'Leest de periode opnieuw met de nieuwe beschrijving. Items die je bewerkte of weghaalde blijven.',
     rename: 'Bord hernoemen',
     save: 'Opslaan',
     settings: {
@@ -263,9 +272,9 @@ export const nl: Messages = {
           one: () => '1 dag van tevoren',
           other: (count) => `${count} dagen van tevoren`,
         }),
-      hint: 'Wanneer het bord je vóór een datum waarschuwt.',
+      hint: 'Hoe ver het bord terug verzamelt en wanneer het je vóór een datum waarschuwt.',
       never: 'Nooit',
-      title: 'Seintjes',
+      title: 'Bordinstellingen',
     },
     starter: {
       events: {
@@ -773,7 +782,7 @@ export const nl: Messages = {
   },
   onboarding: {
     boardsHint: (max: number) =>
-      `Pagina’s die de agent uit je mail vult, te beginnen met het laatste halfjaar. Kies er tot ${max}; eigen pagina’s kun je later toevoegen.`,
+      `Pagina’s die de agent uit je mail vult, te beginnen met de laatste drie maanden. Kies er tot ${max}; eigen pagina’s kun je later toevoegen.`,
     boardsTitle: 'Wat moet de agent voor je verzamelen?',
     languageHint:
       'De app, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
@@ -1250,7 +1259,7 @@ export const nl: Messages = {
         },
         boards: {
           description:
-            'Geld, betaalde abonnementen, reizen, bestellingen: beschrijf wat je wilt bijhouden en de agent verzamelt het uit een halfjaar mail, met grafieken.',
+            'Geld, betaalde abonnementen, reizen, bestellingen: beschrijf wat je wilt bijhouden en de agent verzamelt het uit tot een jaar mail, met grafieken.',
           title: 'Borden',
         },
         calendar: {
