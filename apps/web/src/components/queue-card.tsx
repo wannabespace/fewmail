@@ -87,12 +87,14 @@ const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
 const QuickActions = ({
   action,
   hasMessage,
+  isSelected,
   onApprove,
   onOpen,
   onSkip,
 }: {
   action: Action
   hasMessage: boolean
+  isSelected: boolean
   onApprove: () => void
   onOpen: () => void
   onSkip: () => void
@@ -102,7 +104,7 @@ const QuickActions = ({
   return (
     <span className="flex opacity-0 group-hover:opacity-100">
       {/* A reply is never sent unread: it needs the open card. */}
-      {!sendsDraft(action) && (
+      {!isSelected && !sendsDraft(action) && (
         <IconButton
           icon={Tick02Icon}
           label={approveLabel(t, action, false)}
@@ -115,6 +117,7 @@ const QuickActions = ({
         <IconButton
           icon={MailOpen01Icon}
           label={t.queue.open}
+          shortcut={isSelected && <Kbd>O</Kbd>}
           size="icon-sm"
           variant="ghost-muted"
           onClick={onOpen}
@@ -123,6 +126,7 @@ const QuickActions = ({
       <IconButton
         icon={NextIcon}
         label={t.queue.skip}
+        shortcut={isSelected && <Kbd>S</Kbd>}
         size="icon-sm"
         variant="ghost-muted"
         onClick={onSkip}
@@ -166,24 +170,18 @@ const QueueCardHeader = ({
           )}
           <span className={cn(ROW_SWAP, 'mr-3')}>
             {message && (
-              <span
-                className={cn(
-                  'text-muted-foreground text-xs',
-                  !isSelected && 'group-hover:opacity-0'
-                )}
-              >
+              <span className="text-muted-foreground text-xs group-hover:opacity-0">
                 {dates.ago(message.receivedAt)}
               </span>
             )}
-            {!isSelected && (
-              <QuickActions
-                action={action}
-                hasMessage={!!message}
-                onApprove={onApprove}
-                onOpen={onOpen}
-                onSkip={onSkip}
-              />
-            )}
+            <QuickActions
+              action={action}
+              hasMessage={!!message}
+              isSelected={isSelected}
+              onApprove={onApprove}
+              onOpen={onOpen}
+              onSkip={onSkip}
+            />
           </span>
           <Checkbox
             aria-label={t.queue.pick}
@@ -469,19 +467,6 @@ export const QueueCard = ({
                 {t.queue.rewrite} <Kbd>R</Kbd>
               </Button>
             )}
-            {message && (
-              <Button size="sm" variant="ghost-muted" onClick={onOpen}>
-                {t.queue.open} <Kbd>O</Kbd>
-              </Button>
-            )}
-            <Button
-              size="sm"
-              variant="ghost-muted"
-              disabled={isBusy}
-              onClick={onSkip}
-            >
-              {t.queue.skip} <Kbd>S</Kbd>
-            </Button>
             {isReply && message && (
               <span className="text-muted-foreground ml-auto truncate text-xs">
                 <span data-mask>
