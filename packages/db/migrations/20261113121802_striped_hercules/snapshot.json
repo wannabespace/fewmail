@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "e31be277-58e9-4466-b5f9-a7658c78fa91",
+  "id": "6ee50279-2f55-4777-87f6-4cce96c41622",
   "prevIds": [
-    "c4b6afdb-d8f7-4548-a203-c52a8c67c25b"
+    "884c4907-b2ff-44be-b0cf-37f3cb4d95fd"
   ],
   "ddl": [
     {
@@ -5367,6 +5367,19 @@
       "table": "telegram_links"
     },
     {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "true",
+      "generated": null,
+      "identity": null,
+      "name": "urgent_push",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "telegram_links"
+    },
+    {
       "type": "uuid",
       "typeSchema": null,
       "notNull": true,
@@ -6103,6 +6116,19 @@
       "generated": null,
       "identity": null,
       "name": "phone",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "whatsapp_links"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "true",
+      "generated": null,
+      "identity": null,
+      "name": "urgent_push",
       "entityType": "columns",
       "schema": "public",
       "table": "whatsapp_links"
