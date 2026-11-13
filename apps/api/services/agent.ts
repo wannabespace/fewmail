@@ -489,25 +489,33 @@ const queueForAgent = async (
     title: string
     userId: string
   },
-  context: { settings: Settings; thread: string }
+  context: { settings: Settings; thread: string; writes: boolean }
 ) => {
   const wantsReply =
     rule?.effect === 'draft_reply' ||
     (output.needsReply && output.importance >= 1)
 
+  const readTitle = dictionaries[context.settings.language].actionKind.read
+
   if (wantsReply) {
+    const draft = context.writes
+      ? await draftReply({ ...context, message, userId: message.userId }).catch(
+          (error: unknown) => {
+            logError('draft failed, queueing a read card instead', error)
+            return null
+          }
+        )
+      : null
+    // A reply card always sends: without a draft it would send an empty email, so it asks to read instead.
     await db.insert(actions).values({
       ...base,
       autonomous: false,
-      detail: await draftReply({
-        ...context,
-        message,
-        userId: message.userId,
-      }),
-      kind: 'reply',
+      detail: draft,
+      kind: draft ? 'reply' : 'read',
       reason: output.reason,
       ruleId: rule?.id ?? null,
       status: 'pending',
+      title: draft ? base.title : readTitle,
     })
     return
   }
@@ -540,9 +548,7 @@ const queueForAgent = async (
     reason: output.reason,
     ruleId: rule?.id ?? null,
     status: 'pending',
-    title: step
-      ? base.title
-      : dictionaries[context.settings.language].actionKind.read,
+    title: step ? base.title : readTitle,
   })
 }
 
@@ -583,14 +589,15 @@ export const analyzeMessage = async (
   const { agent, model, output } = analysis
 
   const matched = userRules.find(({ id }) => id === output.ruleId) ?? null
-  const rule = matched && (agent || actsOnGmail(matched)) ? matched : null
+  const rule = matched && (allowance || actsOnGmail(matched)) ? matched : null
+  const importance = ruleImportance(rule, output.importance)
 
   const [saved] = await db
     .insert(analyses)
     .values({
       category: output.category,
       extracted: output.extracted,
-      importance: ruleImportance(rule, output.importance),
+      importance,
       messageId: message.id,
       model,
       needsReply: output.needsReply,
@@ -626,13 +633,18 @@ export const analyzeMessage = async (
     })
     return
   }
+  // Past the allowance the agent writes nothing, but the email still gets its card.
   if (
-    !agent ||
+    !allowance ||
     oneTimeCode(message.subject, message.body) ||
     (await hasNewerMail(message))
   ) {
     return
   }
 
-  await queueForAgent(message, output, rule, base, { settings, thread })
+  await queueForAgent(message, { ...output, importance }, rule, base, {
+    settings,
+    thread,
+    writes: agent,
+  })
 }
