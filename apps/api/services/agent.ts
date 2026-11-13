@@ -4,6 +4,7 @@ import {
   GMAIL_EFFECTS,
   IMPORTANCE,
   isAutomatedSender,
+  isBulk,
   isGmailEffect,
   MAIL_CATEGORIES,
   PEOPLE_CATEGORIES,
@@ -267,8 +268,6 @@ const recordRuleAction = async (
 
 const NO_EXTRACTED = { amount: null, dueDate: null, meetingTime: null }
 
-const isBulk = (message: Message) => (message.bulkCount ?? 0) >= BULK_THRESHOLD
-
 /** What the network knows beats what one email claims: mass mail and no-reply senders are never personal, flagged mail is always urgent. */
 const withNetworkFacts = <
   Output extends {
@@ -292,7 +291,7 @@ const withNetworkFacts = <
       reason: t.spam.suspect,
     }
   }
-  if (!isBulk(message)) {
+  if (!isBulk(message.bulkCount, output.category)) {
     return isAutomatedSender(message.fromEmail) &&
       PEOPLE_CATEGORIES.has(output.category)
       ? { ...output, category: 'notification', needsReply: false }

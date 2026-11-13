@@ -385,6 +385,20 @@ export interface CleanupSender {
 /** "Personal" mail that this many different Fewmail users got is a mass send, whatever it pretends. */
 export const BULK_THRESHOLD = 5
 
+/** Every customer of a service gets the same 2FA notice or receipt by design: that is not a mass send. */
+const SYSTEM_CATEGORIES: ReadonlySet<MailCategory> = new Set([
+  'calendar',
+  'finance',
+  'notification',
+  'receipt',
+  'security',
+  'travel',
+])
+
+export const isBulk = (bulkCount: number | null, category?: MailCategory) =>
+  (bulkCount ?? 0) >= BULK_THRESHOLD &&
+  !(category && SYSTEM_CATEGORIES.has(category))
+
 /** Seeded from public feeds, never from users: popular sites to imitate, live phishing, spammer domains, throwaway mailboxes. */
 export const DOMAIN_LISTS = [
   'popular',

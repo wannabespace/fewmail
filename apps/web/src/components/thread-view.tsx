@@ -1,4 +1,4 @@
-import { BULK_THRESHOLD } from '@fewmail/shared/agent'
+import { isBulk } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
@@ -210,7 +210,7 @@ const MessageSection = ({
           </span>
         )}
         {message.suspicion && <Badge variant="outline">{t.spam.suspect}</Badge>}
-        {(message.bulkCount ?? 0) >= BULK_THRESHOLD && (
+        {isBulk(message.bulkCount, analysis?.category) && (
           <Badge variant="outline">
             {t.bulk.badge(message.bulkCount ?? 0)}
           </Badge>

@@ -1,7 +1,7 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import {
   ANALYZE_WINDOW_DAYS,
-  BULK_THRESHOLD,
+  isBulk,
   isAutomatedSender,
 } from '@fewmail/shared/agent'
 import type { MailCategory } from '@fewmail/shared/agent'
@@ -81,10 +81,7 @@ import {
   useState,
 } from 'react'
 import { useSubscription } from 'seitu/react'
-import {
-  createElementSize,
-  createWebStorageValue,
-} from 'seitu/web'
+import { createElementSize, createWebStorageValue } from 'seitu/web'
 
 import { useCompose } from '~/components/compose/compose-context'
 import { KeyHints } from '~/components/key-hints'
@@ -643,7 +640,7 @@ const MailRowMeta = ({
         <span className="text-primary">· {t.mail.expectsReply}</span>
       )}
       {message.hasAttachments && <span>· {t.mail.attachment}</span>}
-      {(message.bulkCount ?? 0) >= BULK_THRESHOLD && (
+      {isBulk(message.bulkCount, insight?.category) && (
         <span>· {t.bulk.badge(message.bulkCount ?? 0)}</span>
       )}
     </span>
