@@ -125,7 +125,7 @@ export const followMessage = async (
   }
   await spendMessage(userId)
   if (intent === 'question') {
-    return { answer: await askMail(userId, text) }
+    return { answer: await askMail(userId, text, true) }
   }
   if (!target) {
     return { help: true as const }

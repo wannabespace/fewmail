@@ -64,8 +64,21 @@ export const searchByQuestion = async (
   return { query: queries.at(-1) ?? text, results: [] }
 }
 
-/** Ask AI: the question becomes a Gmail search, the writer answers from what it finds, citing [n]. */
-export const askMail = async (userId: string, question: string) => {
+const CITED = [
+  'Cite the emails inline as [n].',
+  'sources: the numbers you cited, in order.',
+]
+const TEXTED = [
+  'Write it like a friend texting back: the answer itself in one to three short sentences, no [n] markers, no account numbers or ids, no retelling of email subjects.',
+  'sources: the numbers of the emails you relied on.',
+]
+
+/** Ask AI: the question becomes a Gmail search, the writer answers from what it finds, citing [n] unless `texted` (Telegram, WhatsApp). */
+export const askMail = async (
+  userId: string,
+  question: string,
+  texted = false
+) => {
   const settings = await getSettings(userId)
   const { query: gmailQuery, results } = await searchByQuestion(
     userId,
@@ -96,8 +109,8 @@ export const askMail = async (userId: string, question: string) => {
   const { output } = await generateText({
     instructions: [
       `Answer the user's question about their email in ${englishName(settings?.language ?? 'en')}, briefly and concretely.`,
-      'Use only the emails below. Cite them inline as [n]. If they do not answer the question, say so plainly.',
-      'sources: the numbers you cited, in order.',
+      'Use only the emails below. Lead with the answer. When they do not state it outright but point to it (a billing period, past charge dates, a renewal notice), give your best estimate and say it is one; only when they say nothing about it, say so plainly.',
+      ...(texted ? TEXTED : CITED),
       INFORMAL_ADDRESS,
       NO_EM_DASH,
     ].join('\n'),

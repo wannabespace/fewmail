@@ -474,14 +474,7 @@ export const follow = async (
     return chatLinkReply(chat, t, skill.text, skill.chatId)
   }
   if (answer) {
-    return {
-      text: [
-        plain(answer.answer),
-        ...answer.sources.map((source) =>
-          italic(`[${source.number}] ${source.from} · ${source.subject}`)
-        ),
-      ].join('\n'),
-    }
+    return { text: plain(answer.answer) }
   }
   return draft ? draftReply(chat, t, draft) : helpReply(chat, t)
 }
