@@ -150,16 +150,16 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
  * message (an answer runs a few sentences). Every plan has every feature; only these differ.
  */
 export const PLAN_LIMITS = {
-  lite: { boards: 1, emails: 300, messages: 30, speech: 18_000, tasks: 1 },
+  lite: { boards: 1, emails: 200, messages: 20, speech: 12_000, tasks: 1 },
   max: {
     boards: null,
-    emails: 6000,
-    messages: 500,
-    speech: 300_000,
+    emails: 2000,
+    messages: 200,
+    speech: 120_000,
     tasks: null,
   },
-  pro: { boards: 3, emails: 1000, messages: 100, speech: 60_000, tasks: 5 },
-  trial: { boards: 3, emails: 500, messages: 50, speech: 30_000, tasks: 5 },
+  pro: { boards: 3, emails: 500, messages: 60, speech: 36_000, tasks: 5 },
+  trial: { boards: 3, emails: 200, messages: 20, speech: 12_000, tasks: 5 },
 } satisfies Record<
   Exclude<Plan, 'free'>,
   Record<'boards' | 'emails' | 'messages' | 'speech' | 'tasks', number | null>

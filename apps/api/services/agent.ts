@@ -33,7 +33,7 @@ import {
 import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
 import { oneTimeCode } from '../lib/one-time-code'
-import { attachmentText } from './attachments'
+import { attachmentText, worthReading } from './attachments'
 import { BULK_THRESHOLD } from './bulk'
 import {
   ACTION_CRITERIA,
@@ -399,7 +399,9 @@ const analyze = async (input: {
     return jevOnly(agent)
   }
 
-  const attached = await attachmentText(input.message)
+  const attached = worthReading(decisions)
+    ? await attachmentText(input.message)
+    : ''
   const written = await Result.tryPromise(() =>
     generateText({
       instructions: [

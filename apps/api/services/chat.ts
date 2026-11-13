@@ -24,7 +24,7 @@ import { getSettings } from './settings'
 import { expandSkills } from './skills'
 
 export const MAX_STEPS = 12
-/** Every step resends the tools, instructions and chat: Anthropic reads the prefix the previous step wrote at a tenth of the price. */
+/** Every step resends the tools, instructions and chat: Anthropic reads the prefix the previous step wrote at a tenth of the price. The instructions carry their own mark, so the next message within five minutes reads the tools and instructions too. */
 const CACHE_PREFIX = {
   openrouter: { cacheControl: { type: 'ephemeral' } },
 } as const
@@ -43,25 +43,19 @@ const chatTools = (userId: string) =>
     ])
   )
 
-export const chatInstructions = (
-  settings: Pick<
-    NonNullable<Awaited<ReturnType<typeof getSettings>>>,
-    'knowledge' | 'language' | 'timezone'
-  > | null
-) => {
-  const timezone = settings?.timezone ?? 'UTC'
-  const now = new Date().toLocaleString('en-GB', {
-    dateStyle: 'full',
-    timeStyle: 'short',
-    timeZone: timezone,
-  })
-  return [
+type ChatSettings = Pick<
+  NonNullable<Awaited<ReturnType<typeof getSettings>>>,
+  'knowledge' | 'language' | 'timezone'
+> | null
+
+/** Never put anything that changes between messages here: it would rewrite the cached tools and instructions on every message. */
+export const chatInstructions = (settings: ChatSettings) =>
+  [
     "You are Fewmail, the user's email agent, talking with them in a chat. You read all of their mail so they do not have to.",
     `Write in ${englishName(settings?.language ?? 'en')}, or in the language the user writes in. Replies to an email are written in the language of that email.`,
     INFORMAL_ADDRESS,
     NO_EM_DASH,
     'The user wants calm and nothing important lost: people waiting for them come first.',
-    `Now: ${now} (${timezone}).`,
     settings?.knowledge
       ? `What the user told you to know:\n${settings.knowledge}`
       : '',
@@ -73,6 +67,15 @@ export const chatInstructions = (
   ]
     .filter(Boolean)
     .join('\n')
+
+const clock = (settings: ChatSettings) => {
+  const timezone = settings?.timezone ?? 'UTC'
+  const now = new Date().toLocaleString('en-GB', {
+    dateStyle: 'full',
+    timeStyle: 'short',
+    timeZone: timezone,
+  })
+  return `Now: ${now} (${timezone}).`
 }
 
 /** History keeps the email that was open, so "this" and "reply to it" still mean that one later in the chat. */
@@ -203,8 +206,16 @@ export const streamChat = async (
         .insert(chats)
         .values({ id, messages, title: titleOf(message), userId }))
 
+  const settings = await getSettings(userId)
   const result = streamText({
-    instructions: chatInstructions(await getSettings(userId)),
+    instructions: [
+      {
+        content: chatInstructions(settings),
+        providerOptions: CACHE_PREFIX,
+        role: 'system',
+      },
+      { content: clock(settings), role: 'system' },
+    ],
     messages: await convertToModelMessages(expandSkills(messages), {
       convertDataPart: openThreadText,
       tools,

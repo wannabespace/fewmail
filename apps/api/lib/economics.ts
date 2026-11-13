@@ -73,7 +73,7 @@ interface Price {
 /** LiteLLM lists each model under its provider's own id, not OpenRouter's or the SDK's alias: a new model goes here, or every estimate throws. */
 const LITELLM_KEYS: Record<string, string> = {
   [FAST_FALLBACK_ID]: 'gemini/gemini-3.8-flash',
-  [FAST_MODEL_ID]: 'claude-haiku-4-5',
+  [FAST_MODEL_ID]: 'claude-haiku-5-5',
   [FIM_MODEL]: 'mistral/codestral-latest',
   [JEV_MODEL_ID]: 'typesafe/jev-latest',
   [OCR_MODEL]: 'mistral/mistral-ocr-latest',
@@ -165,7 +165,7 @@ export interface Use {
 
 export const TYPICAL: Use = {
   analyzedShare: 0.3,
-  attachedShare: 0.15,
+  attachedShare: 0.08,
   bodyChars: 1500,
   chatHistoryTokens: 3000,
   chatSteps: 3,
@@ -306,7 +306,7 @@ const toolsChars = JSON.stringify(
 /**
  * Every step sends the instructions, every tool, the whole chat and this turn's tool results again. The first
  * step writes all of it to Anthropic's cache, each later one reads what the step before wrote and writes what
- * it added. Instructions carry the minute, so the cache is taken to last one message, never the next.
+ * it added. The cache lasts five minutes, so a message after a pause writes the tools and instructions again; every message is taken to be one.
  */
 const chatCost = (use: Use) => {
   const instructions = chatInstructions({

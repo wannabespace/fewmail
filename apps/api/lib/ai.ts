@@ -7,7 +7,7 @@ import { createRetryableModel } from 'ai-retry/language-model'
 
 import { logError } from './log'
 
-export const FAST_MODEL_ID = 'anthropic/claude-haiku-4.5'
+export const FAST_MODEL_ID = 'anthropic/claude-haiku-5.5'
 export const FAST_FALLBACK_ID = 'google/gemini-3.8-flash'
 export const WRITER_MODEL_ID = 'anthropic/claude-sonnet-5.5'
 export const WRITER_FALLBACK_ID = 'x-ai/grok-4.7'
@@ -15,7 +15,7 @@ export const WRITER_FALLBACK_ID = 'x-ai/grok-4.7'
 export const models = {
   /** Every incoming message goes through it, so it must stay cheap. */
   fast: createRetryableModel({
-    model: openrouter(FAST_MODEL_ID),
+    model: openrouter(FAST_MODEL_ID, { reasoning: { effort: 'low' } }),
     retries: [openrouter(FAST_FALLBACK_ID)],
   }),
   /** Drafts: the text a person reads or sends. */

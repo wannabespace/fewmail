@@ -19,27 +19,26 @@ import {
 /**
  * Raising a number here costs money: rethink the change, or raise it on purpose and say why in the commit.
  * Each was measured on 2026-11-13, with the chat's prompt cache (in brackets), with a little room for LiteLLM's prices moving.
- * Lite loses money even at typical use, and Pro and Max once their limits are spent: these keep it from
- * getting worse, they do not say it is fine.
+ * Every plan keeps about 28% even with its limits spent at typical sizes; heavy use (every size at its cap) still loses.
  */
 const BUDGET = {
-  // Every email and message the plan allows, at typical sizes (Lite $6.21, Pro $16.64, Max $80.92).
-  fullMonthUsd: { lite: 6.5, max: 85, pro: 17.5 },
-  // A trial spending all its emails, messages and speech in 14 days ($8.52).
-  fullTrialUsd: 8.9,
-  // One counted email at every cap: four earlier emails, two 3-page attachments, a draft ($0.049).
-  heaviestEmailUsd: 0.052,
+  // Every email and message the plan allows, at typical sizes (Lite $3.11, Pro $6.40, Max $20.09).
+  fullMonthUsd: { lite: 3.3, max: 21, pro: 6.7 },
+  // A trial spending all its emails, messages and speech in 14 days ($2.71).
+  fullTrialUsd: 2.9,
+  // One counted email at every cap: four earlier emails, two 3-page attachments, a draft ($0.040).
+  heaviestEmailUsd: 0.042,
   // One message at 12 steps over a 30k-token chat ($0.27; $1.37 before the cache).
   heaviestMessageUsd: 0.29,
   // A free account with 6,000 incoming and 600 sent emails a month, Jev only ($1.66).
   heavyFreeMonthUsd: 1.75,
-  // The month's speech read aloud whole (Lite $0.72, Pro $2.40, Max $12; $30 before the limit).
-  speechMonthUsd: { lite: 0.75, max: 12.5, pro: 2.5 },
-  // 450 counted emails (Lite: its 330) and 30 messages a month (Lite -26% / -44%, Pro 24% / 13%, Max 72% / 69%).
+  // The month's speech read aloud whole (Lite $0.48, Pro $1.44, Max $4.80; $30 before the limit).
+  speechMonthUsd: { lite: 0.5, max: 5, pro: 1.5 },
+  // 450 counted emails (Lite: its 220) and 30 messages a month (Lite: its 20) (Lite 36% / 31%, Pro 52% / 46%, Max 81% / 80%).
   typicalMargin: {
-    lite: { month: -0.3, year: -0.48 },
-    max: { month: 0.7, year: 0.66 },
-    pro: { month: 0.21, year: 0.1 },
+    lite: { month: 0.34, year: 0.29 },
+    max: { month: 0.8, year: 0.78 },
+    pro: { month: 0.5, year: 0.44 },
   },
 }
 

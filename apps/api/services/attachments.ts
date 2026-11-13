@@ -1,6 +1,8 @@
 import { db } from '@fewmail/db'
 import { mailboxes } from '@fewmail/db/schema'
 import type { messages } from '@fewmail/db/schema'
+import { IMPORTANCE } from '@fewmail/shared/agent'
+import type { MailCategory } from '@fewmail/shared/agent'
 import { Result } from 'better-result'
 import { eq } from 'drizzle-orm'
 
@@ -43,6 +45,20 @@ const readAll = async (message: Message) => {
   )
   return texts.filter(Boolean).join('\n\n')
 }
+
+const DOCUMENT_CATEGORIES: ReadonlySet<MailCategory> = new Set([
+  'finance',
+  'travel',
+])
+
+/** Reading a file costs as much as writing the email's text, so only mail that needs the user, bills and tickets get it. */
+export const worthReading = ({
+  category,
+  importance,
+}: {
+  category: MailCategory
+  importance: number
+}) => importance >= IMPORTANCE.high || DOCUMENT_CATEGORIES.has(category)
 
 /**
  * The text of an email's PDFs and images (invoices, contracts, tickets), read for the analysis only and
