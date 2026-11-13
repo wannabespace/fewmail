@@ -83,7 +83,6 @@ import {
 import { useSubscription } from 'seitu/react'
 import {
   createElementSize,
-  createMediaQuery,
   createWebStorageValue,
 } from 'seitu/web'
 
@@ -239,9 +238,6 @@ const PREFETCHED_ROWS = 10
 /** At most 60%: a wider reader squeezed the list into unreadable initials on a 1024px screen. */
 const READER_WIDTH = { default: 640, max: '60%', min: 420 } as const
 const READER_SHARE = 0.6
-
-/** Too narrow for both panes: the reader folds away while no thread is open. */
-const narrowScreen = createMediaQuery({ query: '(max-width: 1100px)' })
 
 const readerWidthStore = createWebStorageValue({
   defaultValue: READER_WIDTH.default as number,
@@ -1612,7 +1608,6 @@ const listHintsOf = ({
 
 const MailPage = () => {
   const t = useT()
-  const isNarrow = useSubscription(narrowScreen)
   const rememberedWidth = useSubscription(readerWidthStore)
   const [panes, setPanes] = useState<HTMLElement | null>(null)
   const { width: panesWidth } = useSubscription(
@@ -1983,13 +1978,13 @@ const MailPage = () => {
       <ResizableSeparator />
       <ResizablePanel
         className="flex"
-        collapsed={isNarrow && !thread}
+        collapsed={!thread}
         size={readerWidth}
         minSize={READER_WIDTH.min}
         maxSize={READER_WIDTH.max}
         onSizeChange={(width) => readerWidthStore.set(width)}
       >
-        {thread ? (
+        {thread && (
           <div className="bg-background flex min-w-0 flex-1 flex-col">
             <ThreadView
               key={thread}
@@ -2015,12 +2010,6 @@ const MailPage = () => {
                 ['J / K', t.keys.move],
               ]}
             />
-          </div>
-        ) : (
-          <div className="bg-background flex min-w-0 flex-1">
-            <Empty>
-              <EmptyDescription>{t.mail.noThread}</EmptyDescription>
-            </Empty>
           </div>
         )}
       </ResizablePanel>
