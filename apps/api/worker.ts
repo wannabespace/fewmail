@@ -32,7 +32,6 @@ import { env } from './env'
 import { localClock } from './lib/clock'
 import { announceChange } from './lib/live'
 import { logError } from './lib/log'
-import { fillListIds } from './scripts/fill-list-ids'
 import { seedBoards } from './services/boards'
 import { askAgent, postToChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
@@ -447,7 +446,6 @@ const tick = async () => {
       once('commitments', processDueCommitments),
       once('schedules', runDueSchedules),
       once('known-domains', refreshKnownDomains),
-      once('fill-list-ids', fillListIds),
     ])
   )
   if (ticked.isErr()) {
