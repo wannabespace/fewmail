@@ -507,9 +507,9 @@ export const tr: Messages = {
     teachRule: 'Yeni kural öğret',
     upgrade: "Pro'ya geç",
     theme: {
-      dark: 'Koyu tema',
-      light: 'Açık tema',
-      system: 'Sistem temasını kullan',
+      dark: 'Koyu',
+      light: 'Açık',
+      system: 'Sistem',
     },
   },
   composer: {

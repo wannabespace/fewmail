@@ -770,9 +770,9 @@ export const de: Messages = {
     upgrade: 'Auf Pro upgraden',
     teachRule: 'Neue Regel beibringen',
     theme: {
-      dark: 'Dunkles Design',
-      light: 'Helles Design',
-      system: 'Wie das System',
+      dark: 'Dunkel',
+      light: 'Hell',
+      system: 'System',
     },
   },
   importance: ['Rauschen', 'Gut zu wissen', 'Braucht dich bald', 'Dringend'],

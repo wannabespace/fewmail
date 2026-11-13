@@ -525,9 +525,9 @@ export const en = {
     teachRule: 'Teach a new rule',
     upgrade: 'Upgrade to Pro',
     theme: {
-      dark: 'Use dark theme',
-      light: 'Use light theme',
-      system: 'Match system theme',
+      dark: 'Dark',
+      light: 'Light',
+      system: 'System',
     },
   },
   composer: {

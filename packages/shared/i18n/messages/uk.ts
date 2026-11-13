@@ -772,7 +772,11 @@ export const uk: Messages = {
     placeholder: 'Спитай про пошту або введи команду…',
     upgrade: 'Перейти на Pro',
     teachRule: 'Навчити нового правила',
-    theme: { dark: 'Темна тема', light: 'Світла тема', system: 'Як у системі' },
+    theme: {
+      dark: 'Темна',
+      light: 'Світла',
+      system: 'Системна',
+    },
   },
   importance: ['Шум', 'Варто знати', 'Скоро знадобишся', 'Терміново'],
   justNow: 'щойно',

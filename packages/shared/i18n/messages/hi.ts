@@ -267,7 +267,11 @@ export const hi: Messages = {
     placeholder: 'अपने मेल के बारे में पूछें या कोई कमांड चलाएँ…',
     teachRule: 'नया नियम सिखाएँ',
     upgrade: 'Pro में अपग्रेड करें',
-    theme: { dark: 'डार्क थीम', light: 'लाइट थीम', system: 'सिस्टम थीम के अनुसार' },
+    theme: {
+      dark: 'डार्क',
+      light: 'लाइट',
+      system: 'सिस्टम',
+    },
   },
   importance: ['शोर', 'जानने लायक', 'जल्द ध्यान दें', 'ज़रूरी'],
   justNow: 'अभी',

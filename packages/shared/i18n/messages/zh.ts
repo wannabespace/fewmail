@@ -263,7 +263,11 @@ export const zh: Messages = {
     placeholder: '询问邮件或运行命令…',
     teachRule: '教一条新规则',
     upgrade: '升级到 Pro',
-    theme: { dark: '使用深色主题', light: '使用浅色主题', system: '跟随系统' },
+    theme: {
+      dark: '深色',
+      light: '浅色',
+      system: '跟随系统',
+    },
   },
   importance: ['噪音', '值得了解', '需尽快处理', '紧急'],
   justNow: '刚刚',

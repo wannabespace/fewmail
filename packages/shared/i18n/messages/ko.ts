@@ -264,9 +264,9 @@ export const ko: Messages = {
     teachRule: '새 규칙 가르치기',
     upgrade: 'Pro로 업그레이드',
     theme: {
-      dark: '다크 테마',
-      light: '라이트 테마',
-      system: '시스템 테마 따르기',
+      dark: '다크',
+      light: '라이트',
+      system: '시스템',
     },
   },
   importance: ['잡음', '알아두면 좋음', '곧 확인 필요', '긴급'],

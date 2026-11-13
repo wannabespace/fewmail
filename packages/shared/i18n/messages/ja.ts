@@ -266,9 +266,9 @@ export const ja: Messages = {
     teachRule: '新しいルールを教える',
     upgrade: 'Pro にアップグレード',
     theme: {
-      dark: 'ダークテーマ',
-      light: 'ライトテーマ',
-      system: 'システムに合わせる',
+      dark: 'ダーク',
+      light: 'ライト',
+      system: 'システム',
     },
   },
   importance: ['ノイズ', '知っておくと良い', '近いうちに対応', '緊急'],

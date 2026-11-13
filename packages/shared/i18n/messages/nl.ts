@@ -529,9 +529,9 @@ export const nl: Messages = {
     teachRule: 'Nieuwe regel aanleren',
     upgrade: 'Overstappen op Pro',
     theme: {
-      dark: 'Donker thema',
-      light: 'Licht thema',
-      system: 'Systeemthema volgen',
+      dark: 'Donker',
+      light: 'Licht',
+      system: 'Systeem',
     },
   },
   composer: {

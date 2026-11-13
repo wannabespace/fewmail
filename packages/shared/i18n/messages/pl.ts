@@ -543,9 +543,9 @@ export const pl: Messages = {
     teachRule: 'Naucz nowej reguły',
     upgrade: 'Przejdź na Pro',
     theme: {
-      dark: 'Motyw ciemny',
-      light: 'Motyw jasny',
-      system: 'Motyw systemowy',
+      dark: 'Ciemny',
+      light: 'Jasny',
+      system: 'Systemowy',
     },
   },
   composer: {

@@ -511,9 +511,9 @@ export const id: Messages = {
     teachRule: 'Ajarkan aturan baru',
     upgrade: 'Beralih ke Pro',
     theme: {
-      dark: 'Tema gelap',
-      light: 'Tema terang',
-      system: 'Ikuti tema sistem',
+      dark: 'Gelap',
+      light: 'Terang',
+      system: 'Sistem',
     },
   },
   composer: {

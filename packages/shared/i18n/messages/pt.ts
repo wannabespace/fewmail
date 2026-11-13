@@ -530,9 +530,9 @@ export const pt: Messages = {
     teachRule: 'Ensinar uma nova regra',
     upgrade: 'Assinar o Pro',
     theme: {
-      dark: 'Usar tema escuro',
-      light: 'Usar tema claro',
-      system: 'Seguir o sistema',
+      dark: 'Escuro',
+      light: 'Claro',
+      system: 'Sistema',
     },
   },
   composer: {

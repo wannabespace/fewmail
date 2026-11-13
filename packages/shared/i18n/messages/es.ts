@@ -771,9 +771,9 @@ export const es: Messages = {
     upgrade: 'Pasar a Pro',
     teachRule: 'Enseñar una regla nueva',
     theme: {
-      dark: 'Usar tema oscuro',
-      light: 'Usar tema claro',
-      system: 'Igual que el sistema',
+      dark: 'Oscuro',
+      light: 'Claro',
+      system: 'Sistema',
     },
   },
   importance: ['Ruido', 'Bueno saberlo', 'Te necesita pronto', 'Urgente'],

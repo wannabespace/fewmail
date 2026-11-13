@@ -477,7 +477,7 @@ const AccountMenu = ({
           {status?.isAlert && <AvatarBadge />}
         </Avatar>
         <span className="flex-1 truncate text-left" data-mask>
-          {email}
+          {email.split('@')[0]}
         </span>
         <HugeiconsIcon icon={UnfoldMoreIcon} strokeWidth={2} />
       </DropdownMenuTrigger>
