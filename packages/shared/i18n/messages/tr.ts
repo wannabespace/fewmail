@@ -204,18 +204,10 @@ export const tr: Messages = {
     entries: (total: number) =>
       plural('tr', total, { other: (n) => `${n} kayıt` }),
     entry: {
-      amount: 'Tutar',
-      currency: 'Para birimi',
-      date: 'Tarih',
-      edit: 'Kaydı düzenle',
       edited: 'Senin düzenlemen',
-      group: 'Kim veya ne',
-      next: 'Sonraki tarih',
       nextOn: (date: string) => `sonraki: ${date}`,
       remove: 'Bu panoya ait değil',
       removed: 'Panodan çıkarıldı. Bundan ders çıkarır.',
-      status: 'Durum',
-      title: 'Başlık',
     },
     expected: (when: string) => `Beklenen: ${when}`,
     filter: {

@@ -1404,18 +1404,10 @@ export const fr: Messages = {
         other: (n) => `${n} entrées`,
       }),
     entry: {
-      amount: 'Montant',
-      currency: 'Devise',
-      date: 'Date',
-      edit: 'Modifier l’entrée',
       edited: 'Modifiée par toi',
-      group: 'Qui ou quoi',
-      next: 'Prochaine date',
       nextOn: (date: string) => `prochaine : ${date}`,
       remove: 'Pas sur ce tableau',
       removed: 'Retirée du tableau. Il en tiendra compte.',
-      status: 'Statut',
-      title: 'Titre',
     },
     expected: (when: string) => `Prévu ${when}`,
     filter: {

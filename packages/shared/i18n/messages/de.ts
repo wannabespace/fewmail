@@ -1393,18 +1393,10 @@ export const de: Messages = {
         other: (n) => `${n} Einträge`,
       }),
     entry: {
-      amount: 'Betrag',
-      currency: 'Währung',
-      date: 'Datum',
-      edit: 'Eintrag bearbeiten',
       edited: 'Von dir bearbeitet',
-      group: 'Wer oder was',
-      next: 'Nächstes Datum',
       nextOn: (date: string) => `nächstes: ${date}`,
       remove: 'Nicht auf diesem Board',
       removed: 'Vom Board genommen. Es lernt daraus.',
-      status: 'Status',
-      title: 'Titel',
     },
     expected: (when: string) => `Erwartet ${when}`,
     filter: {

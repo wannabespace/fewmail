@@ -6,13 +6,6 @@ import {
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@fewmail/ui/components/dialog'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -39,7 +32,6 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { format } from 'date-fns'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -93,211 +85,14 @@ export const useEntryActions = (boardId: string) => {
   }
 }
 
-const dayOf = (date: Date | null) => (date ? format(date, 'yyyy-MM-dd') : '')
-const fromDay = (day: string) => (day ? new Date(`${day}T12:00:00`) : null)
-const centsOf = (amount: string) => {
-  const value = Number(amount.replace(',', '.').replaceAll(/\s/gu, ''))
-  return amount.trim() && Number.isFinite(value)
-    ? Math.round(value * 100)
-    : null
-}
-
-const EntryForm = ({
-  board,
-  entry,
-  onDone,
-}: {
-  board: Board
-  entry: Entry
-  onDone: () => void
-}) => {
-  const t = useT()
-  const [title, setTitle] = useState(entry.title)
-  const [group, setGroup] = useState(entry.group ?? '')
-  const [status, setStatus] = useState(entry.status ?? '')
-  const [amount, setAmount] = useState(
-    entry.amountCents === null ? '' : String(entry.amountCents / 100)
-  )
-  const [currency, setCurrency] = useState(
-    entry.currency ?? board.summary.currency ?? ''
-  )
-  const [date, setDate] = useState(dayOf(entry.occurredAt))
-  const [due, setDue] = useState(dayOf(entry.dueAt))
-  const update = useMutation(
-    orpc.boards.updateEntry.mutationOptions({ onSettled: refetchBoards })
-  )
-  const amountCents = centsOf(amount)
-  const change = {
-    amountCents,
-    currency:
-      amountCents === null ? null : currency.trim().toUpperCase() || null,
-    dueAt: fromDay(due),
-    group: group.trim() || null,
-    status: status.trim() || null,
-    title: title.trim(),
-    ...(date && { occurredAt: fromDay(date) ?? entry.occurredAt }),
-  }
-  const fields = [
-    [t.boards.entry.group, group, setGroup, 'groups'],
-    [t.boards.entry.status, status, setStatus, 'statuses'],
-  ] as const
-
-  return (
-    <form
-      className="flex flex-col gap-3"
-      onSubmit={(event) => {
-        event.preventDefault()
-        if (!change.title) {
-          return
-        }
-        onDone()
-        patchBoard(board.id, (old) => ({
-          ...old,
-          entries: old.entries.map((item) =>
-            item.id === entry.id
-              ? {
-                  ...item,
-                  ...change,
-                  isEdited: true,
-                  occurredAt: change.occurredAt ?? item.occurredAt,
-                }
-              : item
-          ),
-        }))
-        update.mutate({ id: entry.id, ...change })
-      }}
-    >
-      <Input
-        autoFocus
-        value={title}
-        onChange={(event) => setTitle(event.target.value)}
-        aria-label={t.boards.entry.title}
-        data-mask
-      />
-      {fields.map(([label, value, onChange, list]) => (
-        <label
-          key={list}
-          className="grid grid-cols-[7rem_1fr] items-center gap-2 text-sm"
-        >
-          <span className="text-muted-foreground">{label}</span>
-          <Input
-            value={value}
-            aria-label={label}
-            list={`board-${list}`}
-            onChange={(event) => onChange(event.target.value)}
-            data-mask
-          />
-        </label>
-      ))}
-      <datalist id="board-groups">
-        {board.groups.map(({ name }) => (
-          <option key={name} value={name}>
-            {name}
-          </option>
-        ))}
-      </datalist>
-      <datalist id="board-statuses">
-        {board.statuses.map((name) => (
-          <option key={name} value={name}>
-            {name}
-          </option>
-        ))}
-      </datalist>
-      <div className="grid grid-cols-[7rem_1fr_5rem] items-center gap-2 text-sm">
-        <span className="text-muted-foreground">{t.boards.entry.amount}</span>
-        <Input
-          value={amount}
-          inputMode="decimal"
-          onChange={(event) => setAmount(event.target.value)}
-          aria-label={t.boards.entry.amount}
-          data-mask
-        />
-        <Input
-          value={currency}
-          maxLength={3}
-          onChange={(event) => setCurrency(event.target.value)}
-          aria-label={t.boards.entry.currency}
-          data-mask
-        />
-      </div>
-      {(
-        [
-          [t.boards.entry.date, date, setDate],
-          [t.boards.entry.next, due, setDue],
-        ] as const
-      ).map(([label, value, onChange]) => (
-        <label
-          key={label}
-          className="grid grid-cols-[7rem_1fr] items-center gap-2 text-sm"
-        >
-          <span className="text-muted-foreground">{label}</span>
-          <Input
-            type="date"
-            value={value}
-            aria-label={label}
-            onChange={(event) => onChange(event.target.value)}
-            data-mask
-          />
-        </label>
-      ))}
-      <DialogFooter>
-        <Button type="submit" disabled={!change.title}>
-          {t.boards.save}
-        </Button>
-      </DialogFooter>
-    </form>
-  )
-}
-
-export const EntryDialog = ({
-  board,
-  entry,
-  onClose,
-}: {
-  board: Board
-  entry: Entry | null
-  onClose: () => void
-}) => {
-  const t = useT()
-  // Keeps the form on screen while the dialog fades out after `entry` clears.
-  const [shown, setShown] = useState(entry)
-  if (entry && entry !== shown) {
-    setShown(entry)
-  }
-
-  return (
-    <Dialog
-      open={Boolean(entry)}
-      onOpenChange={(open) => !open && onClose()}
-      onOpenChangeComplete={(open) => !open && setShown(null)}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t.boards.entry.edit}</DialogTitle>
-        </DialogHeader>
-        {shown && (
-          <EntryForm
-            key={shown.id}
-            board={board}
-            entry={shown}
-            onDone={onClose}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  )
-}
-
 export const EntryRow = ({
   entry,
   isActive,
-  onEdit,
   onOpen,
   onRemove,
 }: {
   entry: Entry
   isActive: boolean
-  onEdit: () => void
   onOpen: () => void
   onRemove: () => void
 }) => {
@@ -350,11 +145,6 @@ export const EntryRow = ({
             <HugeiconsIcon icon={Mail01Icon} strokeWidth={2} />
             {t.mail.open}
             <DropdownMenuShortcut>↵</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onEdit}>
-            <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
-            {t.boards.entry.edit}
-            <DropdownMenuShortcut>E</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={onRemove}>

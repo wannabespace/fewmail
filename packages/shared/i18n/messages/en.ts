@@ -206,18 +206,10 @@ export const en = {
         other: (n) => `${n} entries`,
       }),
     entry: {
-      amount: 'Amount',
-      currency: 'Currency',
-      date: 'Date',
-      edit: 'Edit entry',
       edited: 'Edited by you',
-      group: 'Who or what',
-      next: 'Next date',
       nextOn: (date: string) => `next ${date}`,
       remove: 'Not on this board',
       removed: 'Taken off the board. It learns from that.',
-      status: 'Status',
-      title: 'Title',
     },
     expected: (when: string) => `Expected ${when}`,
     filter: {

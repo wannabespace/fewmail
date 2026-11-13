@@ -1,5 +1,6 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { Button } from '@fewmail/ui/components/button'
+import { DatePicker } from '@fewmail/ui/components/custom/date-picker'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   Dialog,
@@ -32,7 +33,7 @@ import { toast } from 'sonner'
 
 import type { CalendarEvent } from '~/lib/calendar'
 import { eventTimes } from '~/lib/calendar'
-import { useT } from '~/lib/i18n'
+import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import { queryClient } from '~/lib/query-client'
 
@@ -87,6 +88,7 @@ const EventForm = ({
   onDone: () => void
 }) => {
   const t = useT()
+  const { locale, weekStartsOn } = useDates()
   const [title, setTitle] = useState(draft.title)
   const [allDay, setAllDay] = useState(draft.allDay)
   const [start, setStart] = useState(draft.start)
@@ -191,15 +193,14 @@ const EventForm = ({
           className="grid grid-cols-[5rem_1fr_7rem] items-center gap-2 text-sm"
         >
           <span className="text-muted-foreground">{label}</span>
-          <Input
-            type="date"
-            required
+          <DatePicker
             aria-label={label}
-            value={format(value, DAY)}
-            onChange={(change) =>
-              change.target.value &&
-              onChange(at(change.target.value, format(value, TIME)))
+            value={value}
+            onChange={(day) =>
+              onChange(at(format(day, DAY), format(value, TIME)))
             }
+            locale={locale}
+            weekStartsOn={weekStartsOn}
             className={allDay ? 'col-span-2' : undefined}
           />
           {!allDay && (

@@ -1394,18 +1394,10 @@ export const uk: Messages = {
         other: (n) => `${n} запису`,
       }),
     entry: {
-      amount: 'Сума',
-      currency: 'Валюта',
-      date: 'Дата',
-      edit: 'Змінити запис',
       edited: 'Виправлено тобою',
-      group: 'Хто або що',
-      next: 'Наступна дата',
       nextOn: (date: string) => `далі ${date}`,
       remove: 'Не для цієї дошки',
       removed: 'Прибрано з дошки. Вона це запам’ятає.',
-      status: 'Статус',
-      title: 'Назва',
     },
     expected: (when: string) => `Очікується ${when}`,
     filter: {

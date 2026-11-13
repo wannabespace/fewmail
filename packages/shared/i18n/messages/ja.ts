@@ -1359,18 +1359,10 @@ export const ja: Messages = {
     empty: 'まだ空です。当てはまるメールが届くとここに表示されます。',
     entries: (n: number) => `${n}件`,
     entry: {
-      amount: '金額',
-      currency: '通貨',
-      date: '日付',
-      edit: '項目を編集',
       edited: 'あなたが編集',
-      group: '相手・対象',
-      next: '次の日付',
       nextOn: (date: string) => `次回 ${date}`,
       remove: 'このボードに含めない',
       removed: 'ボードから外しました。次からはこれを踏まえます。',
-      status: 'ステータス',
-      title: 'タイトル',
     },
     expected: (when: string) => `${when}予定`,
     filter: {

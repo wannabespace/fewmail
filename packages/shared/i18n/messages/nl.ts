@@ -206,18 +206,10 @@ export const nl: Messages = {
         other: (n) => `${n} items`,
       }),
     entry: {
-      amount: 'Bedrag',
-      currency: 'Valuta',
-      date: 'Datum',
-      edit: 'Item bewerken',
       edited: 'Door jou bewerkt',
-      group: 'Wie of wat',
-      next: 'Volgende datum',
       nextOn: (date: string) => `volgende: ${date}`,
       remove: 'Niet op dit bord',
       removed: 'Van het bord gehaald. Het leert ervan.',
-      status: 'Status',
-      title: 'Titel',
     },
     expected: (when: string) => `Verwacht ${when}`,
     filter: {

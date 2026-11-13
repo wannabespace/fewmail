@@ -207,18 +207,10 @@ export const pt: Messages = {
         other: (n) => `${n} registros`,
       }),
     entry: {
-      amount: 'Valor',
-      currency: 'Moeda',
-      date: 'Data',
-      edit: 'Editar registro',
       edited: 'Editado por você',
-      group: 'Quem ou o quê',
-      next: 'Próxima data',
       nextOn: (date: string) => `próximo: ${date}`,
       remove: 'Não é deste painel',
       removed: 'Tirado do painel. Ele aprende com isso.',
-      status: 'Status',
-      title: 'Título',
     },
     expected: (when: string) => `Previsto para ${when}`,
     filter: {

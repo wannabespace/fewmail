@@ -1339,18 +1339,10 @@ export const ko: Messages = {
     empty: '아직 비어 있어요. 맞는 메일이 오면 바로 여기에 나타나요.',
     entries: (n: number) => `${n}개 항목`,
     entry: {
-      amount: '금액',
-      currency: '통화',
-      date: '날짜',
-      edit: '항목 편집',
       edited: '직접 수정함',
-      group: '누구 또는 무엇',
-      next: '다음 날짜',
       nextOn: (date: string) => `다음 ${date}`,
       remove: '이 보드에서 빼기',
       removed: '보드에서 뺐어요. 다음부터 참고할게요.',
-      status: '상태',
-      title: '제목',
     },
     expected: (when: string) => `${when} 예정`,
     filter: {

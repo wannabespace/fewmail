@@ -38,7 +38,6 @@ import {
   renameGroup,
   reorderBoards,
   updateBoard,
-  updateEntry,
 } from '../services/boards'
 import {
   createEvent,
@@ -235,21 +234,6 @@ export const router = {
       .input(id.and({ 'isDismissed?': 'boolean' }))
       .handler(async ({ context, input }) => {
         await dismissEntry(context.user.id, input.id, input.isDismissed)
-      }),
-    updateEntry: agent
-      .input(
-        id.and({
-          'amountCents?': 'number.integer | null',
-          'currency?': 'string | null',
-          'dueAt?': 'Date | null',
-          'group?': 'string | null',
-          'occurredAt?': 'Date',
-          'status?': 'string | null',
-          'title?': 'string > 0',
-        })
-      )
-      .handler(async ({ context, input: { id: entryId, ...input } }) => {
-        await updateEntry(context.user.id, entryId, input)
       }),
   },
   actions: {

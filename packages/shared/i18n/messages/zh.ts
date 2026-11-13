@@ -1312,18 +1312,10 @@ export const zh: Messages = {
     empty: '暂时为空。符合条件的邮件一到就会出现在这里。',
     entries: (n: number) => `${n} 条记录`,
     entry: {
-      amount: '金额',
-      currency: '货币',
-      date: '日期',
-      edit: '编辑记录',
       edited: '已由你编辑',
-      group: '对象',
-      next: '下次日期',
       nextOn: (date: string) => `下次 ${date}`,
       remove: '不属于此看板',
       removed: '已从看板移除，之后会记住这一点。',
-      status: '状态',
-      title: '标题',
     },
     expected: (when: string) => `预计 ${when}`,
     filter: {

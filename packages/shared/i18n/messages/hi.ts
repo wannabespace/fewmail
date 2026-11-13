@@ -1347,18 +1347,10 @@ export const hi: Messages = {
     entries: (total: number) =>
       plural('hi', total, { one: () => 'एक एंट्री', other: (n) => `${n} एंट्री` }),
     entry: {
-      amount: 'राशि',
-      currency: 'मुद्रा',
-      date: 'तारीख',
-      edit: 'एंट्री बदलें',
       edited: 'आपने बदला',
-      group: 'कौन या क्या',
-      next: 'अगली तारीख',
       nextOn: (date: string) => `अगली ${date}`,
       remove: 'इस बोर्ड का नहीं',
       removed: 'बोर्ड से हटा दिया। आगे से इसका ध्यान रखेगा।',
-      status: 'स्थिति',
-      title: 'शीर्षक',
     },
     expected: (when: string) => `अपेक्षित ${when}`,
     filter: {

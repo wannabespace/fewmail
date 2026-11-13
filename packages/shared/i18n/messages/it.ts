@@ -1388,18 +1388,10 @@ export const it: Messages = {
         other: (n) => `${n} voci`,
       }),
     entry: {
-      amount: 'Importo',
-      currency: 'Valuta',
-      date: 'Data',
-      edit: 'Modifica voce',
       edited: 'Modificata da te',
-      group: 'Chi o cosa',
-      next: 'Prossima data',
       nextOn: (date: string) => `prossima: ${date}`,
       remove: 'Non è di questa bacheca',
       removed: 'Tolta dalla bacheca. Ne terrà conto.',
-      status: 'Stato',
-      title: 'Titolo',
     },
     expected: (when: string) => `Previsto ${when}`,
     filter: {

@@ -209,18 +209,10 @@ export const pl: Messages = {
         other: (n) => `${n} wpisu`,
       }),
     entry: {
-      amount: 'Kwota',
-      currency: 'Waluta',
-      date: 'Data',
-      edit: 'Edytuj wpis',
       edited: 'Poprawione przez ciebie',
-      group: 'Kto lub co',
-      next: 'Następna data',
       nextOn: (date: string) => `następnie ${date}`,
       remove: 'Nie z tej tablicy',
       removed: 'Zdjęte z tablicy. Zapamięta to na przyszłość.',
-      status: 'Status',
-      title: 'Tytuł',
     },
     expected: (when: string) => `Spodziewane ${when}`,
     filter: {

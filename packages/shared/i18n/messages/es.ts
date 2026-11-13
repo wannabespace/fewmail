@@ -1387,18 +1387,10 @@ export const es: Messages = {
         other: (n) => `${n} entradas`,
       }),
     entry: {
-      amount: 'Importe',
-      currency: 'Moneda',
-      date: 'Fecha',
-      edit: 'Editar entrada',
       edited: 'Editada por ti',
-      group: 'Quién o qué',
-      next: 'Próxima fecha',
       nextOn: (date: string) => `próxima: ${date}`,
       remove: 'No es de este tablero',
       removed: 'Quitada del tablero. Aprende de ello.',
-      status: 'Estado',
-      title: 'Título',
     },
     expected: (when: string) => `Previsto ${when}`,
     filter: {

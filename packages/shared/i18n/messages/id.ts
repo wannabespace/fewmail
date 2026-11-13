@@ -204,18 +204,10 @@ export const id: Messages = {
     entries: (total: number) =>
       plural('id', total, { other: (n) => `${n} entri` }),
     entry: {
-      amount: 'Nominal',
-      currency: 'Mata uang',
-      date: 'Tanggal',
-      edit: 'Edit entri',
       edited: 'Diedit olehmu',
-      group: 'Siapa atau apa',
-      next: 'Tanggal berikutnya',
       nextOn: (date: string) => `berikutnya ${date}`,
       remove: 'Bukan untuk papan ini',
       removed: 'Dikeluarkan dari papan. Papan belajar dari situ.',
-      status: 'Status',
-      title: 'Judul',
     },
     expected: (when: string) => `Diperkirakan ${when}`,
     filter: {

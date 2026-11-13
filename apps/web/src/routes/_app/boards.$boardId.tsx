@@ -45,7 +45,6 @@ import {
 import type { Board, Entry } from '~/components/board-entries'
 import {
   BoardGroups,
-  EntryDialog,
   EntryRow,
   useEntryActions,
 } from '~/components/board-entries'
@@ -484,7 +483,6 @@ const BoardEntries = ({
   active,
   board,
   filter,
-  onEdit,
   onPick,
   onSearch,
   search,
@@ -494,7 +492,6 @@ const BoardEntries = ({
   active: Entry | undefined
   board: Board
   filter: Filter | null
-  onEdit: (entry: Entry) => void
   onPick: (filter: Filter | null) => void
   onSearch: (search: string) => void
   search: string
@@ -555,7 +552,6 @@ const BoardEntries = ({
               entry={entry}
               isActive={entry === active}
               onOpen={() => entryActions.open(entry)}
-              onEdit={() => onEdit(entry)}
               onRemove={() => entryActions.remove(entry)}
             />
           ))}
@@ -593,11 +589,9 @@ const useHints = ({
     hints.push(['J / K', t.keys.move])
   }
   if (isActive) {
-    hints.push(['↵', t.keys.open], ['E', t.keys.edit], ['⌫', t.keys.notOnBoard])
-  } else {
-    hints.push(['E', t.keys.rename])
+    hints.push(['↵', t.keys.open], ['⌫', t.keys.notOnBoard])
   }
-  hints.push(['/', t.keys.search])
+  hints.push(['E', t.keys.rename], ['/', t.keys.search])
   if (isNarrowed) {
     hints.push(['esc', t.keys.clearFilter])
   }
@@ -662,7 +656,6 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
   const [filter, setFilter] = useState<Filter | null>(null)
   const [search, setSearch] = useState('')
   const [cursor, setCursor] = useState<number | null>(null)
-  const [editingEntry, setEditingEntry] = useState<Entry | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
   const update = useBoardUpdate(boardId)
   const entryActions = useEntryActions(boardId)
@@ -678,7 +671,7 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
   })
 
   const { active, query, visible } = narrow(board, { cursor, filter, search })
-  const isFree = !editing && !editingEntry && !isSettingsOpen
+  const isFree = !editing && !isSettingsOpen
   const listKeys = { enabled: isFree && visible.length > 0 }
   const rowKeys = { enabled: isFree && Boolean(active) }
   const step = (by: number) =>
@@ -702,11 +695,7 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
   useHotkey('Enter', () => active && entryActions.open(active), rowKeys)
   useHotkey('O', () => active && entryActions.open(active), rowKeys)
   useHotkey('Backspace', () => active && entryActions.remove(active), rowKeys)
-  useHotkey(
-    'E',
-    () => (active ? setEditingEntry(active) : setEditing('name')),
-    { enabled: isFree }
-  )
+  useHotkey('E', () => setEditing('name'), { enabled: isFree })
   useHotkey('/', () => searchRef.current?.focus(), { enabled: isFree })
   useHotkey('N', () => newBoardStore.set(true), { enabled: isFree })
   useHotkey('Escape', () => searchRef.current?.blur(), {
@@ -774,7 +763,6 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
               search={search}
               searchRef={searchRef}
               visible={visible}
-              onEdit={setEditingEntry}
               onPick={pick}
               onSearch={(next) => {
                 setSearch(next)
@@ -789,11 +777,6 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
         board={board}
         open={isSettingsOpen}
         onOpenChange={setIsSettingsOpen}
-      />
-      <EntryDialog
-        board={board}
-        entry={editingEntry}
-        onClose={() => setEditingEntry(null)}
       />
     </main>
   )
