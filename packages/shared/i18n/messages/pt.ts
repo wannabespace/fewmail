@@ -33,6 +33,8 @@ export const pt: Messages = {
     calendar: (email: string) => `Na agenda de ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      delete_board: 'Excluir este painel e tudo o que há nele?',
+      delete_schedule: 'Parar este agendamento?',
       create_schedule: 'Executar isto de forma agendada?',
       create_event: 'Adicionar este evento?',
       delete_event: 'Eliminar este evento?',
@@ -130,6 +132,8 @@ export const pt: Messages = {
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Até ${time}`,
     yes: {
+      delete_board: 'Excluir',
+      delete_schedule: 'Parar',
       create_schedule: 'Agendar',
       create_event: 'Adicionar',
       delete_event: 'Eliminar',
@@ -157,6 +161,7 @@ export const pt: Messages = {
   },
   byRule: 'por uma regra',
   boards: {
+    chartRemoved: 'Gráfico removido',
     addTo: 'Adicionar ao painel',
     added: (board: string) => `Adicionado a ${board}`,
     cancel: 'Cancelar',
@@ -476,6 +481,7 @@ export const pt: Messages = {
     title: 'Você prometeu',
   },
   compose: {
+    discarded: 'Rascunho descartado',
     backInQueue: 'Cancelado. O rascunho voltou para o Início.',
     canceled: 'Cancelado. Seu e-mail voltou para o editor.',
     cc: 'Cc',
@@ -641,6 +647,11 @@ export const pt: Messages = {
     title: 'Só o que importa.',
   },
   mail: {
+    draftDeleted: 'Rascunho excluído',
+    unsubscribeConfirm: (name: string) => `Cancelar inscrição de ${name}?`,
+    unsubscribeHint:
+      'O Fewmail cancela sua inscrição na lista e arquiva esta conversa. Cancelar uma inscrição não pode ser desfeito.',
+    unsubscribing: 'Cancelando inscrição…',
     pin: 'Fixar',
     unpin: 'Desafixar',
     pinned: 'Fixados',
@@ -743,6 +754,8 @@ export const pt: Messages = {
     you: 'Você',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `O Fewmail cancela sua inscrição na lista e arquiva tudo o que ela enviou (${emails} este mês). Cancelar uma inscrição não pode ser desfeito.`,
     archivedOnly:
       'Este remetente não tem cancelamento com um clique, então os e-mails foram arquivados. Se continuarem chegando, vão para o spam.',
     count: (total: number) => `Listas de e-mail: ${total}`,
@@ -931,6 +944,9 @@ export const pt: Messages = {
     whichEmails: 'Quais e-mails',
   },
   settings: {
+    disconnectConfirm: (name: string) => `Desconectar ${name}?`,
+    messengerDisconnectHint:
+      'O bot vai parar de escrever para você. Para conectar de novo, será preciso um novo link desta página.',
     readingDigest: {
       description:
         'Toda manhã, as newsletters do último dia chegam ao Telegram e WhatsApp numa só mensagem.',
@@ -964,6 +980,9 @@ export const pt: Messages = {
     languageDescription: 'App, bot e resumos. As respostas seguem o e-mail.',
     legal: 'Jurídico',
     mailboxes: {
+      removeConfirm: (email: string) => `Remover ${email}?`,
+      removeHint:
+        'O Fewmail para de ler esta caixa e esquece o que leu nela. Nada muda no Gmail.',
       add: 'Adicionar Gmail',
       addDescription:
         'O e-mail de outra conta do Gmail chega ao mesmo Início e à mesma caixa de entrada. Ela nunca entra aqui: entrar com ela abre um Fewmail separado.',
@@ -979,6 +998,8 @@ export const pt: Messages = {
       title: 'Caixas de e-mail',
     },
     mcp: {
+      disconnectHint:
+        'Ele não poderá mais ler seus e-mails até você conectá-lo de novo.',
       allow: 'Permitir',
       connected: (ago: string) => `Conectado ${ago}`,
       copy: 'Copiar URL',
@@ -994,12 +1015,14 @@ export const pt: Messages = {
     signedInWithGoogle: 'Conectado com o Google',
     signOut: 'Sair',
     schedules: {
+      deleted: 'Agendamento excluído',
       delete: 'Excluir',
       description:
         'Peça ao agente no chat para fazer algo com regularidade, como “toda sexta às 17:00 junte as faturas da semana”. Cada execução chega no próprio chat, onde você aprova o que ele quiser enviar.',
       title: 'Agendamentos',
     },
     snippets: {
+      deleted: 'Snippet excluído',
       add: 'Adicionar snippet',
       body: 'Texto',
       delete: 'Excluir',
@@ -1575,7 +1598,12 @@ export const pt: Messages = {
     willSend: 'Vou enviar:',
   },
   today: {
+    working: 'Fazendo…',
     tidy: {
+      confirm: (emails: string) => `Arrumar ${emails}?`,
+      running: 'Arrumando…',
+      unsubscribeHint:
+        'Alguns são listas das quais o Fewmail vai cancelar sua inscrição, e isso não pode ser desfeito. Detalhes (D) mostra cada e-mail antes.',
       archive: (n: number) => `${n} para arquivar`,
       details: 'Detalhes',
       done: (n: number) => `${n} arrumados`,

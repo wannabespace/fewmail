@@ -33,6 +33,8 @@ export const pl: Messages = {
     calendar: (email: string) => `W kalendarzu ${email}`,
     cc: (recipients: string) => `DW: ${recipients}`,
     confirm: {
+      delete_board: 'Usunąć tę tablicę ze wszystkim, co na niej jest?',
+      delete_schedule: 'Zatrzymać ten harmonogram?',
       create_schedule: 'Uruchamiać to według harmonogramu?',
       create_event: 'Dodać to wydarzenie?',
       delete_event: 'Usunąć to wydarzenie?',
@@ -130,6 +132,8 @@ export const pl: Messages = {
     to: (recipients: string) => `Do: ${recipients}`,
     until: (time: string) => `Do ${time}`,
     yes: {
+      delete_board: 'Usuń',
+      delete_schedule: 'Zatrzymaj',
       create_schedule: 'Zaplanuj',
       create_event: 'Dodaj',
       delete_event: 'Usuń',
@@ -157,6 +161,7 @@ export const pl: Messages = {
   },
   byRule: 'przez regułę',
   boards: {
+    chartRemoved: 'Wykres usunięty',
     addTo: 'Dodaj do tablicy',
     added: (board: string) => `Dodano do „${board}”`,
     cancel: 'Anuluj',
@@ -488,6 +493,7 @@ export const pl: Messages = {
     title: 'Obiecałeś',
   },
   compose: {
+    discarded: 'Wersja robocza odrzucona',
     backInQueue: 'Anulowano. Szkic wrócił na stronę główną.',
     canceled: 'Anulowano. Twój e-mail wrócił do edytora.',
     cc: 'DW',
@@ -655,6 +661,11 @@ export const pl: Messages = {
     title: 'Tylko to, co ważne.',
   },
   mail: {
+    draftDeleted: 'Wersja robocza usunięta',
+    unsubscribeConfirm: (name: string) => `Wypisać się z ${name}?`,
+    unsubscribeHint:
+      'Fewmail wypisze cię z listy i zarchiwizuje ten wątek. Wypisania nie można cofnąć.',
+    unsubscribing: 'Wypisywanie…',
     pin: 'Przypnij',
     unpin: 'Odepnij',
     pinned: 'Przypięte',
@@ -758,6 +769,8 @@ export const pl: Messages = {
     you: 'Ty',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail wypisze cię z listy i zarchiwizuje wszystko, co wysłała (${emails} w tym miesiącu). Wypisania nie można cofnąć.`,
     archivedOnly:
       'Ten nadawca nie ma wypisania jednym kliknięciem, więc jego poczta została zarchiwizowana. Jeśli dalej będzie przychodzić, trafi do spamu.',
     count: (total: number) => `Listy mailingowe: ${total}`,
@@ -953,6 +966,9 @@ export const pl: Messages = {
     whichEmails: 'Które maile',
   },
   settings: {
+    disconnectConfirm: (name: string) => `Odłączyć ${name}?`,
+    messengerDisconnectHint:
+      'Bot przestanie do ciebie pisać. Ponowne połączenie wymaga nowego linku z tej strony.',
     readingDigest: {
       description:
         'Co rano newslettery z ostatniej doby przychodzą do Telegrama i WhatsAppa jedną wiadomością.',
@@ -984,6 +1000,9 @@ export const pl: Messages = {
       'Aplikacja, bot i streszczenia. Odpowiedzi w języku maila.',
     legal: 'Informacje prawne',
     mailboxes: {
+      removeConfirm: (email: string) => `Usunąć ${email}?`,
+      removeHint:
+        'Fewmail przestanie czytać tę skrzynkę i zapomni, co w niej przeczytał. W Gmailu nic się nie zmieni.',
       add: 'Dodaj Gmail',
       addDescription:
         'Poczta z innego konta Gmail trafia na tę samą stronę główną i do skrzynki odbiorczej. Nie da się nim tu zalogować: logowanie nim otwiera osobny Fewmail.',
@@ -999,6 +1018,8 @@ export const pl: Messages = {
       title: 'Skrzynki',
     },
     mcp: {
+      disconnectHint:
+        'Nie będzie mogła czytać twojej poczty, dopóki nie połączysz jej ponownie.',
       allow: 'Zezwól',
       connected: (ago: string) => `Połączono ${ago}`,
       copy: 'Kopiuj URL',
@@ -1018,12 +1039,14 @@ export const pl: Messages = {
     signedInWithGoogle: 'Zalogowano przez Google',
     signOut: 'Wyloguj się',
     schedules: {
+      deleted: 'Harmonogram usunięty',
       delete: 'Usuń',
       description:
         'Poproś agenta na czacie, by robił coś regularnie, np. „w każdy piątek o 17:00 zbierz faktury z tygodnia”. Każde uruchomienie trafia do osobnego czatu, gdzie zatwierdzasz wszystko, co chce wysłać.',
       title: 'Harmonogramy',
     },
     snippets: {
+      deleted: 'Fragment usunięty',
       add: 'Dodaj fragment',
       body: 'Tekst',
       delete: 'Usuń',
@@ -1602,7 +1625,12 @@ export const pl: Messages = {
     willSend: 'Wyślę:',
   },
   today: {
+    working: 'W toku…',
     tidy: {
+      confirm: (emails: string) => `Uporządkować ${emails}?`,
+      running: 'Porządkowanie…',
+      unsubscribeHint:
+        'Wśród nich są listy, z których Fewmail cię wypisze, a wypisania nie można cofnąć. Szczegóły (D) najpierw pokażą każdy e-mail.',
       archive: (n: number) => `do archiwizacji: ${n}`,
       details: 'Szczegóły',
       done: (n: number) => `Uporządkowane: ${n}`,

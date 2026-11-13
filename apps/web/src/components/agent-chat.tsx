@@ -131,10 +131,12 @@ interface Known {
   fromEmail?: string
   fromName?: string | null
   id?: string
+  instruction?: string
   kind?: string
   mailboxId?: string
   message?: Known
   messageId?: string | null
+  name?: string
   start?: string
   subject?: string
   title?: string
@@ -170,7 +172,8 @@ interface ConsentDetails {
   calendar?: Known
   dates: ReturnType<typeof useDates>
   email?: Known
-  event?: Known
+  /** What `input.id` names, from an earlier tool's output: the event, board or schedule. */
+  target?: Known
   input: ToolInput
   tidy?: Known[]
   t: Messages
@@ -465,8 +468,20 @@ const CONSENT_DETAILS: Record<
       </p>
     </>
   ),
-  delete_event: ({ calendar, event }) =>
-    event && <EventDetails calendar={calendar} event={event} />,
+  delete_board: ({ target }) =>
+    target?.name && (
+      <p data-mask className="text-sm">
+        {target.name}
+      </p>
+    ),
+  delete_event: ({ calendar, target }) =>
+    target && <EventDetails calendar={calendar} event={target} />,
+  delete_schedule: ({ target }) =>
+    target?.instruction && (
+      <p data-mask className="text-sm whitespace-pre-wrap">
+        {target.instruction}
+      </p>
+    ),
   send_email: ({ input }) => (
     <>
       <Recipients cc={input.cc} to={input.to} />
@@ -504,8 +519,8 @@ const CONSENT_DETAILS: Record<
     )),
   undo_clear_out: () => null,
   unsubscribe: ({ email }) => <EmailLine email={email} />,
-  update_event: ({ calendar, event, input }) => (
-    <EventDetails calendar={calendar} event={input} previous={event} />
+  update_event: ({ calendar, input, target }) => (
+    <EventDetails calendar={calendar} event={input} previous={target} />
   ),
 }
 
@@ -546,7 +561,7 @@ const Confirmation = ({
           : undefined,
         dates,
         email,
-        event: byId(input.id),
+        target: byId(input.id),
         input,
         t,
         text,

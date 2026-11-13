@@ -11,6 +11,8 @@ export const uk: Messages = {
     calendar: (email: string) => `У календарі ${email}`,
     cc: (recipients: string) => `Копія: ${recipients}`,
     confirm: {
+      delete_board: 'Видалити цю дошку з усім, що на ній?',
+      delete_schedule: 'Зупинити цей розклад?',
       create_schedule: 'Запускати це за розкладом?',
       create_event: 'Додати цю подію?',
       delete_event: 'Видалити цю подію?',
@@ -108,6 +110,8 @@ export const uk: Messages = {
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
     yes: {
+      delete_board: 'Видалити',
+      delete_schedule: 'Зупинити',
       create_schedule: 'Запланувати',
       create_event: 'Додати',
       delete_event: 'Видалити',
@@ -134,6 +138,7 @@ export const uk: Messages = {
     thinking: 'Шукаю у твоїй пошті…',
   },
   compose: {
+    discarded: 'Чернетку видалено',
     backInQueue: 'Скасовано. Чернетка знову на «Головній».',
     canceled: 'Скасовано. Лист знову в редакторі.',
     cc: 'Копія',
@@ -852,6 +857,11 @@ export const uk: Messages = {
     title: 'Лише те, що важливо.',
   },
   mail: {
+    draftDeleted: 'Чернетку видалено',
+    unsubscribeConfirm: (name: string) => `Відписатися від ${name}?`,
+    unsubscribeHint:
+      'Fewmail відпишеться від розсилки й заархівує цей лист. Відписку не можна скасувати.',
+    unsubscribing: 'Відписуємося…',
     pin: 'Закріпити',
     unpin: 'Відкріпити',
     pinned: 'Закріплені',
@@ -954,6 +964,8 @@ export const uk: Messages = {
     you: 'Ти',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail відпишеться від розсилки й заархівує все, що вона надіслала (${emails} цього місяця). Відписку не можна скасувати.`,
     archivedOnly:
       'У цього відправника немає відписки в один клік, тому його листи заархівовано. Якщо вони надходитимуть далі, то підуть у спам.',
     count: (total: number) => `Розсилок: ${total}`,
@@ -1119,6 +1131,9 @@ export const uk: Messages = {
     whichEmails: 'Які листи',
   },
   settings: {
+    disconnectConfirm: (name: string) => `Відключити ${name}?`,
+    messengerDisconnectHint:
+      'Бот перестане тобі писати. Щоб підключити його знову, знадобиться нове посилання з цієї сторінки.',
     readingDigest: {
       description:
         'Щоранку розсилки за останню добу приходять у Telegram і WhatsApp одним повідомленням.',
@@ -1137,12 +1152,14 @@ export const uk: Messages = {
       title: 'Мітки агента в Gmail',
     },
     schedules: {
+      deleted: 'Розклад видалено',
       delete: 'Видалити',
       description:
         'Попроси агента в чаті робити щось регулярно, наприклад «щоп’ятниці о 17:00 збери рахунки за тиждень». Кожен запуск приходить в окремий чат, де ти підтверджуєш усе, що він хоче надіслати.',
       title: 'Розклади',
     },
     snippets: {
+      deleted: 'Шаблон видалено',
       add: 'Додати шаблон',
       body: 'Текст',
       delete: 'Видалити',
@@ -1163,6 +1180,9 @@ export const uk: Messages = {
     languageDescription: 'Застосунок, бот і підсумки. Відповіді мовою листа.',
     legal: 'Правова інформація',
     mailboxes: {
+      removeConfirm: (email: string) => `Видалити ${email}?`,
+      removeHint:
+        'Fewmail перестане читати цю скриньку й забуде прочитане. У Gmail нічого не зміниться.',
       add: 'Додати Gmail',
       addDescription:
         'Пошта з іншого акаунта Gmail потрапляє на ту саму «Головну» і у вхідні. Ним не можна увійти сюди: вхід із ним відкриває окремий Fewmail.',
@@ -1178,6 +1198,8 @@ export const uk: Messages = {
       title: 'Скриньки',
     },
     mcp: {
+      disconnectHint:
+        'Він більше не читатиме твою пошту, доки ти не підключиш його знову.',
       allow: 'Дозволити',
       connected: (ago: string) => `Підключено ${ago}`,
       copy: 'Скопіювати URL',
@@ -1286,7 +1308,12 @@ export const uk: Messages = {
     willSend: 'Надішлю:',
   },
   today: {
+    working: 'Виконується…',
     tidy: {
+      confirm: (emails: string) => `Прибрати ${emails}?`,
+      running: 'Прибираємо…',
+      unsubscribeHint:
+        'Серед них є розсилки, від яких Fewmail відпишеться, а відписку не можна скасувати. «Деталі» (D) спершу покажуть кожен лист.',
       archive: (n: number) => `архівувати: ${n}`,
       details: 'Деталі',
       done: (n: number) => `Прибрано: ${n}`,
@@ -1356,6 +1383,7 @@ export const uk: Messages = {
     worthAttention: 'Варто уваги',
   },
   boards: {
+    chartRemoved: 'Графік прибрано',
     addTo: 'Додати на дошку',
     added: (board: string) => `Додано на «${board}»`,
     cancel: 'Скасувати',

@@ -33,6 +33,8 @@ export const tr: Messages = {
     calendar: (email: string) => `${email} takviminde`,
     cc: (recipients: string) => `Bilgi: ${recipients}`,
     confirm: {
+      delete_board: 'Bu pano ve içindeki her şey silinsin mi?',
+      delete_schedule: 'Bu zamanlama durdurulsun mu?',
       create_schedule: 'Bu bir zamanlamayla çalıştırılsın mı?',
       create_event: 'Bu etkinlik eklensin mi?',
       delete_event: 'Bu etkinlik silinsin mi?',
@@ -124,6 +126,8 @@ export const tr: Messages = {
     to: (recipients: string) => `Kime: ${recipients}`,
     until: (time: string) => `Şu zamana kadar: ${time}`,
     yes: {
+      delete_board: 'Sil',
+      delete_schedule: 'Durdur',
       create_schedule: 'Zamanla',
       create_event: 'Ekle',
       delete_event: 'Sil',
@@ -151,6 +155,7 @@ export const tr: Messages = {
   },
   byRule: 'bir kuralla',
   boards: {
+    chartRemoved: 'Grafik kaldırıldı',
     addTo: 'Panoya ekle',
     added: (board: string) => `Eklendi: ${board}`,
     cancel: 'İptal',
@@ -457,6 +462,7 @@ export const tr: Messages = {
     title: 'Söz verdin',
   },
   compose: {
+    discarded: 'Taslak silindi',
     backInQueue: 'İptal edildi. Taslak Ana Sayfa’ya geri döndü.',
     canceled: 'İptal edildi. E-postan düzenleyiciye geri döndü.',
     cc: 'Bilgi',
@@ -617,6 +623,11 @@ export const tr: Messages = {
     title: 'Yalnızca önemli olan.',
   },
   mail: {
+    draftDeleted: 'Taslak silindi',
+    unsubscribeConfirm: (name: string) => `${name} aboneliğinden çıkılsın mı?`,
+    unsubscribeHint:
+      'Fewmail listeden çıkar ve bu yazışmayı arşivler. Abonelikten çıkma geri alınamaz.',
+    unsubscribing: 'Abonelikten çıkılıyor…',
     pin: 'Sabitle',
     unpin: 'Sabitlemeyi kaldır',
     pinned: 'Sabitlenenler',
@@ -719,6 +730,8 @@ export const tr: Messages = {
     you: 'Sen',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail listeden çıkar ve gönderdiği her şeyi arşivler (bu ay ${emails}). Abonelikten çıkma geri alınamaz.`,
     archivedOnly:
       'Bu gönderenin tek tıkla abonelikten çıkma seçeneği yok, bu yüzden e-postaları arşivlendi. Gelmeye devam ederse spama gider.',
     count: (total: number) => `E-posta listesi: ${total}`,
@@ -897,6 +910,9 @@ export const tr: Messages = {
     whichEmails: 'Hangi e-postalar',
   },
   settings: {
+    disconnectConfirm: (name: string) => `${name} bağlantısı kesilsin mi?`,
+    messengerDisconnectHint:
+      'Bot sana yazmayı bırakır. Yeniden bağlamak için bu sayfadan yeni bir bağlantı gerekir.',
     readingDigest: {
       description:
         'Her sabah son bir günün bültenleri Telegram ve WhatsApp’a tek mesaj olarak gelir.',
@@ -931,6 +947,9 @@ export const tr: Messages = {
       'Uygulama, bot ve özetler. Yanıtlar e-postanın dilini izler.',
     legal: 'Yasal',
     mailboxes: {
+      removeConfirm: (email: string) => `${email} kaldırılsın mı?`,
+      removeHint:
+        'Fewmail bu kutuyu okumayı bırakır ve orada okuduklarını unutur. Gmail’de hiçbir şey değişmez.',
       add: 'Gmail ekle',
       addDescription:
         'Başka bir Gmail hesabının postaları aynı Ana Sayfa’ya ve gelen kutusuna gelir. Bu hesapla buraya kimse giriş yapamaz: onunla giriş yapmak ayrı bir Fewmail açar.',
@@ -946,6 +965,7 @@ export const tr: Messages = {
       title: 'Posta kutuları',
     },
     mcp: {
+      disconnectHint: 'Yeniden bağlayana kadar postanı okuyamaz.',
       allow: 'İzin ver',
       connected: (ago: string) => `${ago} bağlandı`,
       copy: 'URL’yi kopyala',
@@ -962,12 +982,14 @@ export const tr: Messages = {
     signedInWithGoogle: 'Google ile giriş yapıldı',
     signOut: 'Çıkış yap',
     schedules: {
+      deleted: 'Zamanlama silindi',
       delete: 'Sil',
       description:
         'Sohbette ajandan düzenli olarak bir şey yapmasını isteyin, örneğin “her cuma 17:00’de haftanın faturalarını topla”. Her çalışma kendi sohbetine gelir; göndermek istediği her şeyi orada onaylarsınız.',
       title: 'Zamanlamalar',
     },
     snippets: {
+      deleted: 'Parça silindi',
       add: 'Parça ekle',
       body: 'Metin',
       delete: 'Sil',
@@ -1543,7 +1565,12 @@ export const tr: Messages = {
     willSend: 'Gönderilecek:',
   },
   today: {
+    working: 'Yapılıyor…',
     tidy: {
+      confirm: (emails: string) => `${emails} toplansın mı?`,
+      running: 'Toplanıyor…',
+      unsubscribeHint:
+        'Bazıları Fewmail’in çıkacağı e-posta listeleri ve abonelikten çıkma geri alınamaz. Ayrıntılar (D) önce her e-postayı gösterir.',
       archive: (n: number) => `${n} arşivlenecek`,
       details: 'Ayrıntılar',
       done: (n: number) => `${n} toplandı`,

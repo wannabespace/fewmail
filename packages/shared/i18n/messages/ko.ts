@@ -34,6 +34,8 @@ export const ko: Messages = {
     calendar: (email: string) => `${email}의 캘린더`,
     cc: (recipients: string) => `참조: ${recipients}`,
     confirm: {
+      delete_board: '이 보드와 안의 모든 항목을 삭제할까요?',
+      delete_schedule: '이 일정을 중지할까요?',
       create_schedule: '이 작업을 일정에 따라 실행할까요?',
       create_event: '이 일정을 추가할까요?',
       delete_event: '이 일정을 삭제할까요?',
@@ -124,6 +126,8 @@ export const ko: Messages = {
     to: (recipients: string) => `받는 사람: ${recipients}`,
     until: (time: string) => `다시 표시: ${time}`,
     yes: {
+      delete_board: '삭제',
+      delete_schedule: '중지',
       create_schedule: '예약하기',
       create_event: '추가',
       delete_event: '삭제',
@@ -150,6 +154,7 @@ export const ko: Messages = {
     thinking: '메일을 살펴보는 중…',
   },
   compose: {
+    discarded: '임시 보관 메일을 삭제했어요',
     backInQueue: '취소했어요. 초안이 홈으로 돌아갔어요.',
     canceled: '취소했어요. 이메일이 편집기로 돌아갔어요.',
     cc: '참조',
@@ -359,6 +364,11 @@ export const ko: Messages = {
     title: '중요한 것만.',
   },
   mail: {
+    draftDeleted: '임시 보관 메일을 삭제했어요',
+    unsubscribeConfirm: (name: string) => `${name} 구독을 취소할까요?`,
+    unsubscribeHint:
+      'Fewmail이 리스트 구독을 취소하고 이 스레드를 보관해요. 구독 취소는 되돌릴 수 없어요.',
+    unsubscribing: '구독 취소 중…',
     pin: '고정',
     unpin: '고정 해제',
     pinned: '고정됨',
@@ -461,6 +471,8 @@ export const ko: Messages = {
     you: '나',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail이 리스트 구독을 취소하고 보낸 메일을 모두 보관해요(이번 달 ${emails}). 구독 취소는 되돌릴 수 없어요.`,
     archivedOnly:
       '이 발신자는 원클릭 구독 취소를 지원하지 않아 메일을 보관했어요. 계속 오면 스팸으로 보내요.',
     count: (total: number) => `메일링 리스트 ${total}개`,
@@ -614,6 +626,9 @@ export const ko: Messages = {
     whichEmails: '대상 메일',
   },
   settings: {
+    disconnectConfirm: (name: string) => `${name} 연결을 해제할까요?`,
+    messengerDisconnectHint:
+      '봇이 더 이상 메시지를 보내지 않아요. 다시 연결하려면 이 페이지의 새 링크가 필요해요.',
     readingDigest: {
       description:
         '매일 아침, 지난 하루의 뉴스레터를 Telegram과 WhatsApp으로 한 메시지에 모아 보내요.',
@@ -632,12 +647,14 @@ export const ko: Messages = {
       title: 'Gmail 에이전트 라벨',
     },
     schedules: {
+      deleted: '일정을 삭제했어요',
       delete: '삭제',
       description:
         '“매주 금요일 17:00에 이번 주 청구서를 모아 줘”처럼 정기적으로 할 일을 채팅에서 에이전트에게 요청하세요. 실행할 때마다 전용 채팅으로 오고, 보내려는 것은 그곳에서 승인합니다.',
       title: '일정',
     },
     snippets: {
+      deleted: '스니펫을 삭제했어요',
       add: '스니펫 추가',
       body: '텍스트',
       delete: '삭제',
@@ -658,6 +675,9 @@ export const ko: Messages = {
     languageDescription: '앱, 봇, 요약에 사용해요. 답장은 메일 언어를 따라요.',
     legal: '법적 고지',
     mailboxes: {
+      removeConfirm: (email: string) => `${email}을(를) 삭제할까요?`,
+      removeHint:
+        'Fewmail이 이 메일함을 더 이상 읽지 않고 읽은 내용을 잊어요. Gmail에서는 아무것도 바뀌지 않아요.',
       add: 'Gmail 추가',
       addDescription:
         '다른 Gmail 계정의 메일이 같은 홈과 받은편지함에 모입니다. 이 계정으로는 여기에 로그인할 수 없으며, 로그인하면 별도의 Fewmail이 열립니다.',
@@ -673,6 +693,7 @@ export const ko: Messages = {
       title: '메일함',
     },
     mcp: {
+      disconnectHint: '다시 연결할 때까지 메일을 읽을 수 없어요.',
       allow: '허용',
       connected: (ago: string) => `${ago} 연결됨`,
       copy: 'URL 복사',
@@ -1251,7 +1272,12 @@ export const ko: Messages = {
     willSend: '보낼 내용:',
   },
   today: {
+    working: '처리 중…',
     tidy: {
+      confirm: (emails: string) => `${emails}를 정리할까요?`,
+      running: '정리 중…',
+      unsubscribeHint:
+        'Fewmail이 구독을 취소할 메일링 리스트가 포함되어 있고, 구독 취소는 되돌릴 수 없어요. 자세히(D)에서 각 메일을 먼저 볼 수 있어요.',
       archive: (n: number) => `보관 ${n}개`,
       details: '자세히',
       done: (n: number) => `${n}개 정리함`,
@@ -1301,6 +1327,7 @@ export const ko: Messages = {
     worthAttention: '살펴볼 만한 것',
   },
   boards: {
+    chartRemoved: '차트를 삭제했어요',
     addTo: '보드에 추가',
     added: (board: string) => `${board}에 추가했어요`,
     cancel: '취소',

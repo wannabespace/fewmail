@@ -11,6 +11,8 @@ export const it: Messages = {
     calendar: (email: string) => `Nel calendario di ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      delete_board: 'Eliminare questa bacheca e tutto ciò che contiene?',
+      delete_schedule: 'Fermare questa pianificazione?',
       create_schedule: 'Eseguire questo in modo pianificato?',
       create_event: 'Aggiungere questo evento?',
       delete_event: 'Eliminare questo evento?',
@@ -108,6 +110,8 @@ export const it: Messages = {
     to: (recipients: string) => `A ${recipients}`,
     until: (time: string) => `Fino a ${time}`,
     yes: {
+      delete_board: 'Elimina',
+      delete_schedule: 'Ferma',
       create_schedule: 'Pianifica',
       create_event: 'Aggiungi',
       delete_event: 'Elimina',
@@ -134,6 +138,7 @@ export const it: Messages = {
     thinking: 'Sto cercando nella tua posta…',
   },
   compose: {
+    discarded: 'Bozza eliminata',
     backInQueue: 'Annullato. La bozza è di nuovo in Home.',
     canceled: 'Annullato. La tua email è di nuovo nell’editor.',
     cc: 'Cc',
@@ -855,6 +860,11 @@ export const it: Messages = {
     title: 'Solo ciò che conta.',
   },
   mail: {
+    draftDeleted: 'Bozza eliminata',
+    unsubscribeConfirm: (name: string) => `Annullare l’iscrizione a ${name}?`,
+    unsubscribeHint:
+      'Fewmail annulla l’iscrizione alla lista e archivia questa conversazione. L’annullamento dell’iscrizione non si può revocare.',
+    unsubscribing: 'Annullamento iscrizione…',
     pin: 'Fissa in alto',
     unpin: 'Togli dai fissati',
     pinned: 'Fissati',
@@ -958,6 +968,8 @@ export const it: Messages = {
     you: 'Tu',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail annulla l’iscrizione alla lista e archivia tutto ciò che ha inviato (${emails} questo mese). L’annullamento dell’iscrizione non si può revocare.`,
     archivedOnly:
       'Questo mittente non ha la disiscrizione con un clic, quindi la sua posta è stata archiviata. Se continua ad arrivare, finirà nello spam.',
     count: (total: number) => `Mailing list: ${total}`,
@@ -1120,6 +1132,9 @@ export const it: Messages = {
     whichEmails: 'Quali email',
   },
   settings: {
+    disconnectConfirm: (name: string) => `Scollegare ${name}?`,
+    messengerDisconnectHint:
+      'Il bot smetterà di scriverti. Per ricollegarlo servirà un nuovo link da questa pagina.',
     readingDigest: {
       description:
         'Ogni mattina, le newsletter dell’ultimo giorno arrivano su Telegram e WhatsApp in un solo messaggio.',
@@ -1138,12 +1153,14 @@ export const it: Messages = {
       title: 'Etichette dell’agente in Gmail',
     },
     schedules: {
+      deleted: 'Pianificazione eliminata',
       delete: 'Elimina',
       description:
         'Chiedi all’agente in chat di fare qualcosa regolarmente, come «ogni venerdì alle 17:00 raccogli le fatture della settimana». Ogni esecuzione arriva in una chat dedicata, dove approvi ciò che vuole inviare.',
       title: 'Pianificazioni',
     },
     snippets: {
+      deleted: 'Snippet eliminato',
       add: 'Aggiungi snippet',
       body: 'Testo',
       delete: 'Elimina',
@@ -1167,6 +1184,9 @@ export const it: Messages = {
     languageDescription: 'App, bot e riepiloghi. Le risposte seguono l’email.',
     legal: 'Note legali',
     mailboxes: {
+      removeConfirm: (email: string) => `Rimuovere ${email}?`,
+      removeHint:
+        'Fewmail smette di leggerla e dimentica ciò che ha letto. In Gmail non cambia nulla.',
       add: 'Aggiungi Gmail',
       addDescription:
         'La posta di un altro account Gmail arriva nella stessa Home e nella stessa casella. Non fa mai accedere nessuno qui: accedere con quell’account apre un Fewmail separato.',
@@ -1182,6 +1202,8 @@ export const it: Messages = {
       title: 'Caselle di posta',
     },
     mcp: {
+      disconnectHint:
+        'Non potrà più leggere la tua posta finché non la ricolleghi.',
       allow: 'Consenti',
       connected: (ago: string) => `Collegato ${ago}`,
       copy: 'Copia URL',
@@ -1288,7 +1310,12 @@ export const it: Messages = {
     willSend: 'Invierò:',
   },
   today: {
+    working: 'In corso…',
     tidy: {
+      confirm: (emails: string) => `Riordinare ${emails}?`,
+      running: 'Riordino in corso…',
+      unsubscribeHint:
+        'Alcune sono liste da cui Fewmail annullerà l’iscrizione, e questo non si può revocare. Dettagli (D) mostra prima ogni email.',
       archive: (n: number) => `${n} da archiviare`,
       details: 'Dettagli',
       done: (n: number) => `${n} riordinate`,
@@ -1346,6 +1373,7 @@ export const it: Messages = {
     worthAttention: 'Merita attenzione',
   },
   boards: {
+    chartRemoved: 'Grafico rimosso',
     addTo: 'Aggiungi a una bacheca',
     added: (board: string) => `Aggiunta a ${board}`,
     cancel: 'Annulla',

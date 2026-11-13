@@ -1,6 +1,7 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { Avatar, AvatarFallback } from '@fewmail/ui/components/avatar'
 import { Button } from '@fewmail/ui/components/button'
+import { LoadingContent } from '@fewmail/ui/components/custom/loading-content'
 import {
   SettingsGroup,
   SettingsRow,
@@ -8,12 +9,19 @@ import {
 import { Empty, EmptyDescription } from '@fewmail/ui/components/empty'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import {
+  useMutation,
+  useMutationState,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { confirm } from '~/components/confirm-dialog'
 import { KeyHints } from '~/components/key-hints'
+import { listSearch } from '~/components/mail-search'
 import { useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
@@ -31,33 +39,60 @@ const SubscriptionsPage = () => {
   const rows = subscriptions ?? []
   const active = rows[Math.min(cursor, rows.length - 1)]
 
+  const navigate = useNavigate()
   const unsubscribe = useMutation(
     orpc.subscriptions.unsubscribe.mutationOptions({
-      onMutate: ({ messageId }) =>
+      // Leaving a list can take a while (its page, a mailto): the row stays, spinning, until the answer.
+      onMutate: ({ messageId }) => {
+        toast.loading(t.mail.unsubscribing, { id: messageId })
+      },
+      onError: (_, { messageId }) => toast.dismiss(messageId),
+      onSuccess: ({ link, unsubscribed }, { messageId }) => {
         queryClient.setQueryData<Subscription[]>(listKey, (previous) =>
           previous?.filter((row) => row.messageId !== messageId)
-        ),
-      onSuccess: ({ link, unsubscribed }) => {
+        )
         if (link) {
           toast(t.mail.unsubscribeYourself, {
             action: {
               label: t.mail.openUnsubscribePage,
               onClick: () => window.open(link, '_blank', 'noopener'),
             },
+            id: messageId,
           })
           return
         }
         toast.success(
           unsubscribed
             ? t.subscriptions.unsubscribed
-            : t.subscriptions.archivedOnly
+            : t.subscriptions.archivedOnly,
+          { id: messageId }
         )
       },
       onSettled: () => refetchChanged(['subscriptions', 'mail', 'rules']),
     })
   )
+  const leaving = new Set(
+    useMutationState({
+      filters: {
+        mutationKey: orpc.subscriptions.unsubscribe.mutationKey(),
+        status: 'pending',
+      },
+      select: ({ state }) =>
+        (state.variables as { messageId: string } | undefined)?.messageId,
+    })
+  )
   const leave = (row?: Subscription) =>
-    row && unsubscribe.mutate({ messageId: row.messageId })
+    row &&
+    !leaving.has(row.messageId) &&
+    confirm({
+      action: t.subscriptions.unsubscribe,
+      description: t.subscriptions.unsubscribeHint(t.cleanup.emails(row.count)),
+      onConfirm: () => unsubscribe.mutate({ messageId: row.messageId }),
+      title: t.mail.unsubscribeConfirm(row.fromName ?? row.fromEmail),
+      variant: 'warning',
+    })
+  const show = (row?: Subscription) =>
+    row && navigate({ search: { q: listSearch(row.fromEmail) }, to: '/mail' })
 
   const listKeys = { enabled: Boolean(active) }
   useHotkey(
@@ -77,6 +112,8 @@ const SubscriptionsPage = () => {
     listKeys
   )
   useHotkey('U', () => leave(active), listKeys)
+  useHotkey('O', () => show(active), listKeys)
+  useHotkey('Enter', () => show(active), listKeys)
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden">
@@ -110,7 +147,15 @@ const SubscriptionsPage = () => {
                       </AvatarFallback>
                     </Avatar>
                   }
-                  title={<span data-mask>{row.fromName ?? row.fromEmail}</span>}
+                  title={
+                    <Link
+                      to="/mail"
+                      search={{ q: listSearch(row.fromEmail) }}
+                      data-mask
+                    >
+                      {row.fromName ?? row.fromEmail}
+                    </Link>
+                  }
                   description={
                     <>
                       <span data-mask>{row.fromEmail}</span> ·{' '}
@@ -119,8 +164,15 @@ const SubscriptionsPage = () => {
                     </>
                   }
                 >
-                  <Button size="sm" variant="ghost" onClick={() => leave(row)}>
-                    {t.subscriptions.unsubscribe}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={leaving.has(row.messageId)}
+                    onClick={() => leave(row)}
+                  >
+                    <LoadingContent loading={leaving.has(row.messageId)}>
+                      {t.subscriptions.unsubscribe}
+                    </LoadingContent>
                     {row === active && <Kbd>U</Kbd>}
                   </Button>
                 </SettingsRow>
@@ -133,6 +185,7 @@ const SubscriptionsPage = () => {
         <KeyHints
           hints={[
             ['J / K', t.keys.move],
+            ['⏎', t.keys.open],
             ['U', t.keys.unsubscribe],
           ]}
         />

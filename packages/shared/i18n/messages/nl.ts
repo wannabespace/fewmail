@@ -33,6 +33,8 @@ export const nl: Messages = {
     calendar: (email: string) => `In de agenda van ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      delete_board: 'Dit bord met alles erop verwijderen?',
+      delete_schedule: 'Deze planning stoppen?',
       create_schedule: 'Dit volgens een planning uitvoeren?',
       create_event: 'Deze afspraak toevoegen?',
       delete_event: 'Deze afspraak verwijderen?',
@@ -128,6 +130,8 @@ export const nl: Messages = {
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
     yes: {
+      delete_board: 'Verwijderen',
+      delete_schedule: 'Stoppen',
       create_schedule: 'Inplannen',
       create_event: 'Toevoegen',
       delete_event: 'Verwijderen',
@@ -155,6 +159,7 @@ export const nl: Messages = {
   },
   byRule: 'door een regel',
   boards: {
+    chartRemoved: 'Grafiek verwijderd',
     addTo: 'Aan bord toevoegen',
     added: (board: string) => `Op ${board} gezet`,
     cancel: 'Annuleren',
@@ -476,6 +481,7 @@ export const nl: Messages = {
     title: 'Je hebt beloofd',
   },
   compose: {
+    discarded: 'Concept verworpen',
     backInQueue: 'Geannuleerd. Het concept staat weer op Home.',
     canceled: 'Geannuleerd. Je e-mail staat weer in de editor.',
     cc: 'Cc',
@@ -642,6 +648,11 @@ export const nl: Messages = {
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
+    draftDeleted: 'Concept verwijderd',
+    unsubscribeConfirm: (name: string) => `Afmelden bij ${name}?`,
+    unsubscribeHint:
+      'Fewmail meldt je af bij de lijst en archiveert dit gesprek. Afmelden kan niet ongedaan worden gemaakt.',
+    unsubscribing: 'Afmelden…',
     pin: 'Vastzetten',
     unpin: 'Losmaken',
     pinned: 'Vastgezet',
@@ -744,6 +755,8 @@ export const nl: Messages = {
     you: 'Jij',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail meldt je af bij de lijst en archiveert alles wat die stuurde (${emails} deze maand). Afmelden kan niet ongedaan worden gemaakt.`,
     archivedOnly:
       'Deze afzender heeft geen afmelding met één klik, dus de mail is gearchiveerd. Blijft die komen, dan gaat ze naar spam.',
     count: (total: number) => `Mailinglijsten: ${total}`,
@@ -933,6 +946,9 @@ export const nl: Messages = {
     whichEmails: 'Welke e-mails',
   },
   settings: {
+    disconnectConfirm: (name: string) => `${name} ontkoppelen?`,
+    messengerDisconnectHint:
+      'De bot stuurt je dan geen berichten meer. Opnieuw koppelen kan met een nieuwe link van deze pagina.',
     readingDigest: {
       description:
         'Elke ochtend komen de nieuwsbrieven van de afgelopen dag als één bericht in Telegram en WhatsApp.',
@@ -964,6 +980,9 @@ export const nl: Messages = {
       'App, bot en samenvattingen. Antwoorden volgen de e-mail.',
     legal: 'Juridisch',
     mailboxes: {
+      removeConfirm: (email: string) => `${email} verwijderen?`,
+      removeHint:
+        'Fewmail leest deze mailbox niet meer en vergeet wat het er las. In Gmail verandert niets.',
       add: 'Gmail toevoegen',
       addDescription:
         'Mail van een ander Gmail-account komt ook op Home en in dezelfde inbox. Er logt nooit iemand mee in: inloggen ermee opent een aparte Fewmail.',
@@ -979,6 +998,8 @@ export const nl: Messages = {
       title: 'Mailboxen',
     },
     mcp: {
+      disconnectHint:
+        'De app kan je mail dan niet meer lezen tot je hem opnieuw koppelt.',
       allow: 'Toestaan',
       connected: (ago: string) => `Verbonden ${ago}`,
       copy: 'URL kopiëren',
@@ -997,12 +1018,14 @@ export const nl: Messages = {
     signedInWithGoogle: 'Ingelogd met Google',
     signOut: 'Uitloggen',
     schedules: {
+      deleted: 'Planning verwijderd',
       delete: 'Verwijderen',
       description:
         'Vraag de agent in de chat om iets regelmatig te doen, zoals „elke vrijdag om 17:00 de facturen van de week verzamelen”. Elke run komt in een eigen chat, waar je goedkeurt wat hij wil versturen.',
       title: 'Planningen',
     },
     snippets: {
+      deleted: 'Snippet verwijderd',
       add: 'Snippet toevoegen',
       body: 'Tekst',
       delete: 'Verwijderen',
@@ -1577,7 +1600,12 @@ export const nl: Messages = {
     willSend: 'Ik verstuur:',
   },
   today: {
+    working: 'Bezig…',
     tidy: {
+      confirm: (emails: string) => `${emails} opruimen?`,
+      running: 'Opruimen…',
+      unsubscribeHint:
+        'Een deel zijn mailinglijsten waarvoor Fewmail je afmeldt, en dat kan niet ongedaan worden gemaakt. Details (D) toont eerst elke e-mail.',
       archive: (n: number) => `${n} archiveren`,
       details: 'Details',
       done: (n: number) => `${n} opgeruimd`,

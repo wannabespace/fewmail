@@ -49,7 +49,7 @@ import {
   threads,
 } from '~/lib/mail-db'
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
-import { orpc } from '~/lib/orpc'
+import { client, orpc } from '~/lib/orpc'
 
 import { AddToBoardItems } from './board-entries'
 import type { Draft } from './compose/compose-context'
@@ -57,6 +57,7 @@ import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
 import { SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
+import { confirm } from './confirm-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { PersonPanel } from './person-panel'
 
@@ -358,6 +359,9 @@ const useMarkRead = (
 }
 
 const LEAVE_YOURSELF_MS = 15_000
+/** Emails acted on under one toast, so its Undo brings back every one of them. */
+const bursts = new Map<string, string[]>()
+const toInbox = (messageId: string) => client.mail.moveToInbox({ messageId })
 
 export const useMailActions = (onDone?: (messageId: string) => void) => {
   const t = useT()
@@ -379,32 +383,85 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
       onDone?.(messageId)
     },
   }
-  // The id folds a burst's per-email answers into one toast.
-  const finish = (message: string) => {
-    toast.success(message, { id: message })
+  // The id folds a burst's per-email answers into one toast, and its Undo takes back the whole burst.
+  const finish = (
+    message: string,
+    messageId?: string,
+    undo?: (messageId: string) => Promise<unknown>
+  ) => {
     void refresh()
+    if (!messageId || !undo) {
+      toast.success(message, { id: message })
+      return
+    }
+    const burst = [...(bursts.get(message) ?? []), messageId]
+    bursts.set(message, burst)
+    toast.success(message, {
+      action: {
+        label: t.compose.undo,
+        onClick: () => {
+          bursts.delete(message)
+          void Promise.all(burst.map(undo)).finally(refresh)
+        },
+      },
+      id: message,
+      onAutoClose: () => bursts.delete(message),
+      onDismiss: () => bursts.delete(message),
+    })
   }
-  const leaveYourself = (link: string) => {
+  const leaveYourself = (link: string, id: string) => {
     toast(t.mail.unsubscribeYourself, {
       action: {
         label: t.mail.openUnsubscribePage,
         onClick: () => window.open(link, '_blank', 'noopener'),
       },
       duration: LEAVE_YOURSELF_MS,
+      id,
     })
     void refresh()
   }
+  const unsubscribe = useMutation(
+    orpc.mail.unsubscribe.mutationOptions({
+      onError: (_, { messageId }) => {
+        toast.dismiss(messageId)
+        void refresh()
+      },
+      onMutate: ({ messageId }) => {
+        leave.onMutate({ messageId })
+        toast.loading(t.mail.unsubscribing, { id: messageId })
+      },
+      onSuccess: ({ link, unsubscribed }, { messageId }) => {
+        if (link) {
+          leaveYourself(link, messageId)
+          return
+        }
+        void refresh()
+        toast.success(
+          unsubscribed ? t.mail.unsubscribed : t.mail.unsubscribeFailed,
+          { id: messageId }
+        )
+      },
+    })
+  )
   return {
     archive: useMutation(
       orpc.mail.archive.mutationOptions({
         ...leave,
-        onSuccess: () => finish(t.mail.archived),
+        onSuccess: (_, { messageId }) =>
+          finish(t.mail.archived, messageId, toInbox),
       })
     ),
     block: useMutation(
       orpc.mail.block.mutationOptions({
         ...leave,
-        onSuccess: () => finish(t.mail.blocked),
+        onSuccess: ({ ruleId }, { messageId }) =>
+          finish(t.mail.blocked, messageId, async () => {
+            await client.rules.delete({ id: ruleId })
+            await toInbox(messageId)
+            void queryClient.invalidateQueries({
+              queryKey: orpc.rules.key(),
+            })
+          }),
       })
     ),
     moveToInbox: useMutation(
@@ -433,20 +490,28 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     reportSpam: useMutation(
       orpc.mail.reportSpam.mutationOptions({
         ...leave,
-        onSuccess: () => finish(t.mail.reportedSpam),
+        onSuccess: (_, { messageId }) =>
+          finish(t.mail.reportedSpam, messageId, (id) =>
+            client.mail.notSpam({ messageId: id })
+          ),
       })
     ),
     snooze: useMutation(
       orpc.mail.snooze.mutationOptions({
         ...leave,
-        onSuccess: (_, { until }) =>
-          finish(t.snooze.until(dates.format(until, 'EEE p'))),
+        onSuccess: (_, { messageId, until }) =>
+          finish(
+            t.snooze.until(dates.format(until, 'EEE p')),
+            messageId,
+            (id) => client.mail.unsnooze({ messageId: id })
+          ),
       })
     ),
     trash: useMutation(
       orpc.mail.trash.mutationOptions({
         ...leave,
-        onSuccess: () => finish(t.mail.trashed),
+        onSuccess: (_, { messageId }) =>
+          finish(t.mail.trashed, messageId, toInbox),
       })
     ),
     unsnooze: useMutation(
@@ -455,17 +520,15 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
         onSuccess: () => finish(t.mail.backInInbox),
       })
     ),
-    unsubscribe: useMutation(
-      orpc.mail.unsubscribe.mutationOptions({
-        ...leave,
-        onSuccess: ({ link, unsubscribed }) =>
-          link
-            ? leaveYourself(link)
-            : finish(
-                unsubscribed ? t.mail.unsubscribed : t.mail.unsubscribeFailed
-              ),
-      })
-    ),
+    /** Leaving a list has no undo, so it always asks first. */
+    unsubscribe: (target: { messageId: string }, sender: string) =>
+      confirm({
+        action: t.mail.unsubscribe,
+        description: t.mail.unsubscribeHint,
+        onConfirm: () => unsubscribe.mutate(target),
+        title: t.mail.unsubscribeConfirm(sender),
+        variant: 'warning',
+      }),
   }
 }
 
@@ -883,7 +946,12 @@ export const ThreadView = ({
                     </DropdownMenuItem>
                     {latest?.message.listUnsubscribe && (
                       <DropdownMenuItem
-                        onClick={() => unsubscribe.mutate(target)}
+                        onClick={() =>
+                          unsubscribe(
+                            target,
+                            latest.message.fromName ?? latest.message.fromEmail
+                          )
+                        }
                       >
                         {t.mail.unsubscribe}
                       </DropdownMenuItem>

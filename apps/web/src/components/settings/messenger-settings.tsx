@@ -3,6 +3,7 @@ import { Button } from '@fewmail/ui/components/button'
 import { SettingsRow } from '@fewmail/ui/components/custom/settings-group'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { confirm } from '~/components/confirm-dialog'
 import { useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 
@@ -54,7 +55,15 @@ export const MessengerSettings = ({
         <Button
           size="sm"
           variant="ghost-destructive"
-          onClick={() => unlink.mutate()}
+          onClick={() =>
+            confirm({
+              action: copy.disconnect,
+              description: t.settings.messengerDisconnectHint,
+              onConfirm: () => unlink.mutate(),
+              title: t.settings.disconnectConfirm(MESSENGERS[channel]),
+              variant: 'destructive',
+            })
+          }
         >
           {copy.disconnect}
         </Button>

@@ -11,6 +11,7 @@ import { useState } from 'react'
 
 import { useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
+import { toastDeferred } from '~/lib/undo'
 
 export const SnippetsSettings = () => {
   const t = useT()
@@ -36,14 +37,18 @@ export const SnippetsSettings = () => {
     })
   )
   const remove = useMutation(
-    orpc.snippets.delete.mutationOptions({
-      onMutate: ({ id }) =>
-        queryClient.setQueryData(listKey, (old) =>
-          old?.filter((snippet) => snippet.id !== id)
-        ),
-      onSettled: invalidate,
-    })
+    orpc.snippets.delete.mutationOptions({ onSettled: invalidate })
   )
+  const deleteSnippet = (id: string) => {
+    queryClient.setQueryData(listKey, (old) =>
+      old?.filter((snippet) => snippet.id !== id)
+    )
+    toastDeferred(
+      t.settings.snippets.deleted,
+      () => remove.mutate({ id }),
+      invalidate
+    )
+  }
   const isFilled = Boolean(name.trim() && body.trim())
 
   return (
@@ -91,7 +96,7 @@ export const SnippetsSettings = () => {
           <Button
             size="sm"
             variant="ghost-destructive"
-            onClick={() => remove.mutate({ id: snippet.id })}
+            onClick={() => deleteSnippet(snippet.id)}
           >
             {t.settings.snippets.delete}
           </Button>

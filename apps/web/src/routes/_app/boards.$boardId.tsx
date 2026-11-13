@@ -53,6 +53,7 @@ import { upgradeStore } from '~/components/upgrade-dialog'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import { queryClient, warmQuery } from '~/lib/query-client'
+import { toastUndo } from '~/lib/undo'
 
 const BOARD_INTENTS = ['chart', 'describe', 'rename', 'settings'] as const
 type BoardIntent = (typeof BOARD_INTENTS)[number]
@@ -448,9 +449,10 @@ const BoardCharts = ({
               )
             )
           }
-          onRemove={() =>
+          onRemove={() => {
             saveCharts(charts.filter((current) => current.id !== series.id))
-          }
+            toastUndo(t.boards.chartRemoved, () => saveCharts(charts))
+          }}
         />
       ))}
       <AddChart

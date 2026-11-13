@@ -24,6 +24,7 @@ import {
   Tick02Icon,
 } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
+import { Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 
@@ -33,6 +34,7 @@ import { client } from '~/lib/orpc'
 
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
+import { listSearch } from './mail-search'
 import { ROW_SWAP } from './thread-view'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
@@ -65,9 +67,14 @@ const CleanupList = ({ action }: { action: Action }) => {
     <ul className="flex flex-col gap-1 text-sm">
       {senders.map((sender) => (
         <li key={sender.fromEmail} className="flex items-center gap-2">
-          <span data-mask className="truncate">
+          <Link
+            to="/mail"
+            search={{ q: listSearch(sender.fromEmail) }}
+            data-mask
+            className="truncate underline-offset-3 hover:underline"
+          >
             {sender.fromName ?? sender.fromEmail}
-          </span>
+          </Link>
           <span className="text-muted-foreground ml-auto shrink-0 text-xs tabular-nums">
             {t.cleanup.emails(sender.count)}
           </span>

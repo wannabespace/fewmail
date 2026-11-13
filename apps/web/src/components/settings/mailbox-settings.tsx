@@ -6,6 +6,7 @@ import {
 } from '@fewmail/ui/components/custom/settings-group'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { confirm } from '~/components/confirm-dialog'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 
@@ -60,7 +61,15 @@ export const MailboxSettings = () => {
             <Button
               size="sm"
               variant="ghost-destructive"
-              onClick={() => remove.mutate({ id: mailbox.id })}
+              onClick={() =>
+                confirm({
+                  action: copy.remove,
+                  description: copy.removeHint,
+                  onConfirm: () => remove.mutate({ id: mailbox.id }),
+                  title: copy.removeConfirm(mailbox.email),
+                  variant: 'destructive',
+                })
+              }
             >
               {copy.remove}
             </Button>

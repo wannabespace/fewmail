@@ -161,6 +161,9 @@ const ownedMailboxes = (userId: string) =>
 
 type Headers = Awaited<ReturnType<typeof getMessageHeaders>>
 
+const listsQuery = (senderEmails: string[]) =>
+  `${INBOX_QUERY} {${senderEmails.map((email) => `from:${email}`).join(' ')}}`
+
 /** Mailing lists among the newest inbox mail that sent at least three emails, none of them opened. */
 const unopenedListSenders = async (mailbox: Mailbox, inboxIds: string[]) => {
   const sample: Headers[] = []
@@ -198,11 +201,7 @@ const sendersInboxIds = async (mailbox: Mailbox, emails: string[]) => {
   )
   const pages = await Promise.all(
     chunks.map((chunk) =>
-      listMessageIds(
-        mailbox,
-        `${INBOX_QUERY} {${chunk.map((email) => `from:${email}`).join(' ')}}`,
-        CLEAR_OUT_CAP
-      )
+      listMessageIds(mailbox, listsQuery(chunk), CLEAR_OUT_CAP)
     )
   )
   return pages.flat()
@@ -252,12 +251,16 @@ export const scanClearOut = async (userId: string) => {
       }
     }
   }
+  const senders = scans.flatMap(({ senders: found }) => found)
   return {
     inbox: scans.reduce((sum, { inbox }) => sum + inbox.length, 0),
     isCapped: scans.some(({ inbox }) => inbox.length >= CLEAR_OUT_CAP),
     overlaps: [...overlaps.values()],
-    senders: scans
-      .flatMap(({ senders }) => senders)
+    searches: {
+      ...CLEAR_OUT_QUERIES,
+      lists: listsQuery([...new Set(senders.map(({ from }) => from.email))]),
+    } satisfies Record<ClearOutGroup, string>,
+    senders: senders
       .toSorted((left, right) => right.count - left.count)
       .map(({ count, from }) => ({
         count,

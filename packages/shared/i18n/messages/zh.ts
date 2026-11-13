@@ -34,6 +34,8 @@ export const zh: Messages = {
     calendar: (email: string) => `在 ${email} 的日历中`,
     cc: (recipients: string) => `抄送：${recipients}`,
     confirm: {
+      delete_board: '删除这个看板及其所有内容？',
+      delete_schedule: '停止这个定时任务？',
       create_schedule: '按计划运行这个吗？',
       create_event: '添加此日程？',
       delete_event: '删除此日程？',
@@ -124,6 +126,8 @@ export const zh: Messages = {
     to: (recipients: string) => `收件人：${recipients}`,
     until: (time: string) => `推迟到：${time}`,
     yes: {
+      delete_board: '删除',
+      delete_schedule: '停止',
       create_schedule: '设定',
       create_event: '添加',
       delete_event: '删除',
@@ -150,6 +154,7 @@ export const zh: Messages = {
     thinking: '正在查看你的邮件…',
   },
   compose: {
+    discarded: '草稿已丢弃',
     backInQueue: '已取消。草稿已回到“首页”。',
     canceled: '已取消。你的邮件已回到编辑器。',
     cc: '抄送',
@@ -355,6 +360,10 @@ export const zh: Messages = {
     title: '只看重要的。',
   },
   mail: {
+    draftDeleted: '草稿已删除',
+    unsubscribeConfirm: (name: string) => `退订 ${name}？`,
+    unsubscribeHint: 'Fewmail 会退出该列表并归档这个会话。退订无法撤销。',
+    unsubscribing: '正在退订…',
     pin: '置顶',
     unpin: '取消置顶',
     pinned: '已置顶',
@@ -456,6 +465,8 @@ export const zh: Messages = {
     you: '你',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail 会退出该列表并归档它发来的所有邮件（本月 ${emails}）。退订无法撤销。`,
     archivedOnly:
       '这个发件人不支持一键退订，所以已归档其邮件。如果继续发来，会进入垃圾邮件。',
     count: (total: number) => `邮件列表：${total} 个`,
@@ -605,6 +616,9 @@ export const zh: Messages = {
     whichEmails: '哪些邮件',
   },
   settings: {
+    disconnectConfirm: (name: string) => `断开 ${name}？`,
+    messengerDisconnectHint:
+      '机器人将不再给你发消息。重新连接需要从此页面获取新链接。',
     readingDigest: {
       description:
         '每天早上，过去一天的订阅邮件会合成一条消息发到 Telegram 和 WhatsApp。',
@@ -622,12 +636,14 @@ export const zh: Messages = {
       title: 'Gmail 中的助手标签',
     },
     schedules: {
+      deleted: '定时任务已删除',
       delete: '删除',
       description:
         '在聊天中让代理定期做某件事，例如“每周五 17:00 汇总本周的发票”。每次运行都会出现在它自己的聊天中，你在那里批准它想发送的内容。',
       title: '定时任务',
     },
     snippets: {
+      deleted: '片段已删除',
       add: '添加片段',
       body: '文本',
       delete: '删除',
@@ -648,6 +664,9 @@ export const zh: Messages = {
     languageDescription: '用于应用、机器人和摘要。回复跟随邮件的语言。',
     legal: '法律信息',
     mailboxes: {
+      removeConfirm: (email: string) => `移除 ${email}？`,
+      removeHint:
+        'Fewmail 会停止读取这个邮箱，并忘记从中读到的内容。Gmail 中不会有任何变化。',
       add: '添加 Gmail',
       addDescription:
         '另一个 Gmail 账号的邮件会进入同一个“首页”和收件箱。它永远不能登录这里：用它登录会打开一个独立的 Fewmail。',
@@ -662,6 +681,7 @@ export const zh: Messages = {
       title: '邮箱',
     },
     mcp: {
+      disconnectHint: '在你重新连接之前，它无法再读取你的邮件。',
       allow: '允许',
       connected: (ago: string) => `${ago}连接`,
       copy: '复制 URL',
@@ -1230,7 +1250,12 @@ export const zh: Messages = {
     willSend: '将发送：',
   },
   today: {
+    working: '处理中…',
     tidy: {
+      confirm: (emails: string) => `整理 ${emails}？`,
+      running: '正在整理…',
+      unsubscribeHint:
+        '其中有 Fewmail 将退订的邮件列表，退订无法撤销。详情（D）会先列出每封邮件。',
       archive: (n: number) => `${n} 封归档`,
       details: '详情',
       done: (n: number) => `已整理 ${n} 封`,
@@ -1279,6 +1304,7 @@ export const zh: Messages = {
     worthAttention: '值得关注',
   },
   boards: {
+    chartRemoved: '图表已移除',
     addTo: '加入看板',
     added: (board: string) => `已加入${board}`,
     cancel: '取消',

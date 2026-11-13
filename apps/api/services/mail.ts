@@ -751,13 +751,15 @@ export const approveAction = async (
 
 /** One by one, so each send keeps its own undo window and a failure leaves the rest approved. */
 export const approveActions = async (userId: string, actionIds: string[]) => {
-  let sending = 0
+  const outboxIds: string[] = []
   for (const actionId of actionIds) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- approvals share the thread and outbox state
     const { outboxId } = await approveAction(userId, actionId)
-    sending += outboxId ? 1 : 0
+    if (outboxId) {
+      outboxIds.push(outboxId)
+    }
   }
-  return { approved: actionIds.length, sending }
+  return { approved: actionIds.length, outboxIds }
 }
 
 export const dismissAction = async (userId: string, actionId: string) => {
@@ -1088,11 +1090,12 @@ export const moveToInbox = async (userId: string, messageId: string) => {
 /** Blocking is a simple rule: future mail from the sender goes to the trash on every plan. */
 export const blockSender = async (userId: string, messageId: string) => {
   const message = await ownMessage(userId, messageId)
-  await createRule(userId, {
+  const rule = await createRule(userId, {
     effect: 'trash',
     match: { field: 'from', value: message.fromEmail },
   })
   await trashMessage(userId, messageId)
+  return { ruleId: rule.id }
 }
 
 export const snoozeMessage = async (

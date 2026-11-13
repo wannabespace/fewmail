@@ -33,6 +33,8 @@ export const id: Messages = {
     calendar: (email: string) => `Di kalender ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      delete_board: 'Hapus papan ini beserta semua isinya?',
+      delete_schedule: 'Hentikan jadwal ini?',
       create_schedule: 'Jalankan ini sesuai jadwal?',
       create_event: 'Tambahkan acara ini?',
       delete_event: 'Hapus acara ini?',
@@ -124,6 +126,8 @@ export const id: Messages = {
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
     yes: {
+      delete_board: 'Hapus',
+      delete_schedule: 'Hentikan',
       create_schedule: 'Jadwalkan',
       create_event: 'Tambah',
       delete_event: 'Hapus',
@@ -151,6 +155,7 @@ export const id: Messages = {
   },
   byRule: 'oleh aturan',
   boards: {
+    chartRemoved: 'Grafik dihapus',
     addTo: 'Tambah ke papan',
     added: (board: string) => `Ditaruh di ${board}`,
     cancel: 'Batal',
@@ -462,6 +467,7 @@ export const id: Messages = {
     title: 'Kamu sudah berjanji',
   },
   compose: {
+    discarded: 'Draf dibuang',
     backInQueue: 'Dibatalkan. Draf kembali ke Beranda.',
     canceled: 'Dibatalkan. Email kamu kembali ke editor.',
     cc: 'Cc',
@@ -623,6 +629,11 @@ export const id: Messages = {
     title: 'Hanya yang penting.',
   },
   mail: {
+    draftDeleted: 'Draf dihapus',
+    unsubscribeConfirm: (name: string) => `Berhenti berlangganan dari ${name}?`,
+    unsubscribeHint:
+      'Fewmail keluar dari milis ini dan mengarsipkan percakapan ini. Berhenti berlangganan tidak bisa dibatalkan.',
+    unsubscribing: 'Berhenti berlangganan…',
     pin: 'Sematkan',
     unpin: 'Lepas sematan',
     pinned: 'Disematkan',
@@ -726,6 +737,8 @@ export const id: Messages = {
     you: 'Kamu',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail keluar dari milis ini dan mengarsipkan semua yang dikirimnya (${emails} bulan ini). Berhenti berlangganan tidak bisa dibatalkan.`,
     archivedOnly:
       'Pengirim ini tidak punya berhenti langganan sekali klik, jadi emailnya diarsipkan. Jika terus datang, akan masuk spam.',
     count: (total: number) => `Milis: ${total}`,
@@ -904,6 +917,9 @@ export const id: Messages = {
     whichEmails: 'Email yang mana',
   },
   settings: {
+    disconnectConfirm: (name: string) => `Putuskan ${name}?`,
+    messengerDisconnectHint:
+      'Bot berhenti mengirimimu pesan. Untuk menghubungkan lagi, perlu tautan baru dari halaman ini.',
     readingDigest: {
       description:
         'Setiap pagi, newsletter sehari terakhir datang ke Telegram dan WhatsApp dalam satu pesan.',
@@ -938,6 +954,9 @@ export const id: Messages = {
       'Aplikasi, bot, dan ikhtisar. Balasan mengikuti email.',
     legal: 'Legal',
     mailboxes: {
+      removeConfirm: (email: string) => `Hapus ${email}?`,
+      removeHint:
+        'Fewmail berhenti membacanya dan melupakan apa yang dibacanya di sana. Tidak ada yang berubah di Gmail.',
       add: 'Tambah Gmail',
       addDescription:
         'Email dari akun Gmail lain masuk ke Beranda dan kotak masuk yang sama. Akun itu tidak bisa dipakai masuk ke sini: masuk dengannya membuka Fewmail terpisah.',
@@ -953,6 +972,8 @@ export const id: Messages = {
       title: 'Kotak surat',
     },
     mcp: {
+      disconnectHint:
+        'Aplikasi ini tidak bisa lagi membaca emailmu sampai kamu menghubungkannya lagi.',
       allow: 'Izinkan',
       connected: (ago: string) => `Terhubung ${ago}`,
       copy: 'Salin URL',
@@ -969,12 +990,14 @@ export const id: Messages = {
     signedInWithGoogle: 'Masuk dengan Google',
     signOut: 'Keluar',
     schedules: {
+      deleted: 'Jadwal dihapus',
       delete: 'Hapus',
       description:
         'Minta agen di chat untuk melakukan sesuatu secara rutin, misalnya “setiap Jumat pukul 17.00 kumpulkan tagihan minggu ini”. Setiap jalannya masuk ke chat tersendiri, tempat Anda menyetujui apa pun yang ingin dikirimnya.',
       title: 'Jadwal',
     },
     snippets: {
+      deleted: 'Snippet dihapus',
       add: 'Tambah snippet',
       body: 'Teks',
       delete: 'Hapus',
@@ -1548,7 +1571,12 @@ export const id: Messages = {
     willSend: 'Akan dikirim:',
   },
   today: {
+    working: 'Sedang dikerjakan…',
     tidy: {
+      confirm: (emails: string) => `Rapikan ${emails}?`,
+      running: 'Merapikan…',
+      unsubscribeHint:
+        'Sebagian adalah milis yang akan ditinggalkan Fewmail, dan itu tidak bisa dibatalkan. Detail (D) menampilkan setiap email lebih dulu.',
       archive: (n: number) => `${n} untuk diarsipkan`,
       details: 'Detail',
       done: (n: number) => `${n} dirapikan`,

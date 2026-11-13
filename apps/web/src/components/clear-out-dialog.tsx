@@ -12,6 +12,7 @@ import {
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { Switch } from '@fewmail/ui/components/switch'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -122,7 +123,14 @@ const ClearOutForm = ({
           <span className="flex flex-col gap-0.5">
             <span>{t.clearOut.groups[group]}</span>
             <span className="text-muted-foreground text-xs">
-              {t.cleanup.emails(countOf([group]))}
+              <Link
+                to="/mail"
+                search={{ q: scan.searches[group] }}
+                className="hover:text-foreground cursor-pointer underline underline-offset-3"
+                onClick={() => clearOutStore.set(false)}
+              >
+                {t.cleanup.emails(countOf([group]))}
+              </Link>
               {group === 'lists' && (
                 <span data-mask>
                   {' · '}

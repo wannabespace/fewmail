@@ -6,6 +6,7 @@ import {
 } from '@fewmail/ui/components/custom/settings-group'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { confirm } from '~/components/confirm-dialog'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 
@@ -54,7 +55,17 @@ export const McpSettings = () => {
           <Button
             size="sm"
             variant="ghost-destructive"
-            onClick={() => disconnect.mutate({ clientId: app.clientId })}
+            onClick={() =>
+              confirm({
+                action: t.settings.mcp.disconnect,
+                description: t.settings.mcp.disconnectHint,
+                onConfirm: () => disconnect.mutate({ clientId: app.clientId }),
+                title: t.settings.disconnectConfirm(
+                  app.name ?? t.settings.mcp.defaultName
+                ),
+                variant: 'destructive',
+              })
+            }
           >
             {t.settings.mcp.disconnect}
           </Button>

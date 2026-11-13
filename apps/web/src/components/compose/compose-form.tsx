@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
+import { toastDeferred } from '~/lib/undo'
 
 import type { ComposerEditorHandle } from '../composer/composer-editor'
 import { ComposerEditor } from '../composer/composer-editor'
@@ -48,7 +49,7 @@ export const ComposeForm = ({
   const t = useT()
   const hasAgent = useHasAgent()
   const withAgent = useWithAgent()
-  const { send } = useCompose()
+  const { openCompose, send } = useCompose()
   const editorRef = useRef<ComposerEditorHandle>(null)
   const [to, setTo] = useState(draft.to.join(', '))
   const [cc, setCc] = useState(draft.cc.join(', '))
@@ -125,8 +126,29 @@ export const ComposeForm = ({
   }
   const discard = () => {
     isLeaving.current = true
+    if (![to, cc, subject, body.current.text].some((text) => text.trim())) {
+      onDone()
+      void saving.current.then(removeDraft)
+      return
+    }
+    const kept = {
+      ...draft,
+      cc: parseRecipients(cc),
+      html: body.current.html,
+      mailboxId,
+      remindAfterDays,
+      subject,
+      to: parseRecipients(to),
+    }
     onDone()
-    void saving.current.then(removeDraft)
+    toastDeferred(
+      t.compose.discarded,
+      () => saving.current.then(removeDraft),
+      () =>
+        saving.current.then(() =>
+          openCompose({ ...kept, gmailDraft: gmailDraft.current ?? null })
+        )
+    )
   }
   const fillEditor = ({ html }: { html: string }) => {
     editorRef.current?.setContent(html)

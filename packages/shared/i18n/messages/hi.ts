@@ -34,6 +34,8 @@ export const hi: Messages = {
     calendar: (email: string) => `${email} के कैलेंडर में`,
     cc: (recipients: string) => `Cc: ${recipients}`,
     confirm: {
+      delete_board: 'यह बोर्ड और उस पर सब कुछ हटाएँ?',
+      delete_schedule: 'यह शेड्यूल रोकें?',
       create_schedule: 'इसे शेड्यूल पर चलाएँ?',
       create_event: 'यह इवेंट जोड़ें?',
       delete_event: 'यह इवेंट हटाएं?',
@@ -124,6 +126,8 @@ export const hi: Messages = {
     to: (recipients: string) => `प्रति: ${recipients}`,
     until: (time: string) => `तक: ${time}`,
     yes: {
+      delete_board: 'हटाएँ',
+      delete_schedule: 'रोकें',
       create_schedule: 'शेड्यूल करें',
       create_event: 'जोड़ें',
       delete_event: 'हटाएं',
@@ -150,6 +154,7 @@ export const hi: Messages = {
     thinking: 'आपके मेल देखे जा रहे हैं…',
   },
   compose: {
+    discarded: 'ड्राफ़्ट हटाया गया',
     backInQueue: 'रद्द किया गया। ड्राफ़्ट वापस होम पर है।',
     canceled: 'रद्द किया गया। आपका ईमेल वापस एडिटर में है।',
     cc: 'Cc',
@@ -360,6 +365,11 @@ export const hi: Messages = {
     title: 'सिर्फ़ वही, जो ज़रूरी है।',
   },
   mail: {
+    draftDeleted: 'ड्राफ़्ट हटाया गया',
+    unsubscribeConfirm: (name: string) => `${name} से अनसब्सक्राइब करें?`,
+    unsubscribeHint:
+      'Fewmail लिस्ट छोड़ देगा और यह थ्रेड आर्काइव करेगा। अनसब्सक्राइब को वापस नहीं लिया जा सकता।',
+    unsubscribing: 'अनसब्सक्राइब हो रहा है…',
     pin: 'पिन करें',
     unpin: 'अनपिन करें',
     pinned: 'पिन किए गए',
@@ -462,6 +472,8 @@ export const hi: Messages = {
     you: 'आप',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail लिस्ट छोड़ देगा और उसका भेजा सब कुछ आर्काइव करेगा (इस महीने ${emails})। अनसब्सक्राइब को वापस नहीं लिया जा सकता।`,
     archivedOnly:
       'इस भेजने वाले के पास एक-क्लिक अनसब्सक्राइब नहीं है, इसलिए उसका मेल आर्काइव कर दिया गया। अगर आता रहा, तो स्पैम में जाएगा।',
     count: (total: number) => `मेलिंग लिस्ट: ${total}`,
@@ -620,6 +632,9 @@ export const hi: Messages = {
     whichEmails: 'कौन-से ईमेल',
   },
   settings: {
+    disconnectConfirm: (name: string) => `${name} डिस्कनेक्ट करें?`,
+    messengerDisconnectHint:
+      'बॉट आपको लिखना बंद कर देगा। फिर से जोड़ने के लिए इस पेज से नया लिंक चाहिए होगा।',
     readingDigest: {
       description:
         'हर सुबह, पिछले दिन के न्यूज़लेटर Telegram और WhatsApp में एक संदेश में आते हैं।',
@@ -637,12 +652,14 @@ export const hi: Messages = {
       title: 'Gmail में एजेंट लेबल',
     },
     schedules: {
+      deleted: 'शेड्यूल हटाया गया',
       delete: 'हटाएँ',
       description:
         'चैट में एजेंट से कुछ नियमित रूप से करने को कहें, जैसे “हर शुक्रवार 17:00 बजे हफ़्ते के इनवॉइस इकट्ठा करो”। हर रन अपनी अलग चैट में आता है, जहाँ आप वह सब मंज़ूर करते हैं जो वह भेजना चाहता है।',
       title: 'शेड्यूल',
     },
     snippets: {
+      deleted: 'स्निपेट हटाया गया',
       add: 'स्निपेट जोड़ें',
       body: 'टेक्स्ट',
       delete: 'हटाएँ',
@@ -663,6 +680,9 @@ export const hi: Messages = {
     languageDescription: 'ऐप, बॉट और सारांश। जवाब ईमेल की भाषा में होते हैं।',
     legal: 'कानूनी',
     mailboxes: {
+      removeConfirm: (email: string) => `${email} हटाएँ?`,
+      removeHint:
+        'Fewmail इसे पढ़ना बंद कर देगा और वहाँ पढ़ी बातें भूल जाएगा। Gmail में कुछ नहीं बदलेगा।',
       add: 'Gmail जोड़ें',
       addDescription:
         'दूसरे Gmail खाते की मेल उसी होम और इनबॉक्स में आती है। इससे यहाँ कोई साइन इन नहीं कर सकता: इससे साइन इन करने पर अलग Fewmail खुलता है।',
@@ -677,6 +697,7 @@ export const hi: Messages = {
       title: 'मेलबॉक्स',
     },
     mcp: {
+      disconnectHint: 'जब तक आप इसे फिर से नहीं जोड़ते, यह आपका मेल नहीं पढ़ पाएगा।',
       allow: 'अनुमति दें',
       connected: (ago: string) => `${ago} जुड़ा`,
       copy: 'URL कॉपी करें',
@@ -1254,7 +1275,12 @@ export const hi: Messages = {
     willSend: 'यह भेजा जाएगा:',
   },
   today: {
+    working: 'काम चल रहा है…',
     tidy: {
+      confirm: (emails: string) => `${emails} समेटें?`,
+      running: 'समेटा जा रहा है…',
+      unsubscribeHint:
+        'इनमें कुछ मेलिंग लिस्ट हैं जिन्हें Fewmail छोड़ देगा, और इसे वापस नहीं लिया जा सकता। विवरण (D) पहले हर ईमेल दिखाता है।',
       archive: (n: number) => `आर्काइव करने को: ${n}`,
       details: 'विवरण',
       done: (n: number) => `समेटे गए: ${n}`,
@@ -1311,6 +1337,7 @@ export const hi: Messages = {
     worthAttention: 'ध्यान देने लायक',
   },
   boards: {
+    chartRemoved: 'चार्ट हटाया गया',
     addTo: 'बोर्ड में जोड़ें',
     added: (board: string) => `${board} में जोड़ा गया`,
     cancel: 'रद्द करें',

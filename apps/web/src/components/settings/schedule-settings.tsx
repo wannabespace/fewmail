@@ -7,22 +7,28 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
+import { toastDeferred } from '~/lib/undo'
 
 export const ScheduleSettings = () => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
   const { data: schedules = [] } = useQuery(orpc.schedules.list.queryOptions())
+  const refetch = () =>
+    queryClient.invalidateQueries({ queryKey: orpc.schedules.key() })
   const remove = useMutation(
-    orpc.schedules.delete.mutationOptions({
-      onMutate: ({ id }) =>
-        queryClient.setQueryData(orpc.schedules.list.queryKey(), (old) =>
-          old?.filter((schedule) => schedule.id !== id)
-        ),
-      onSettled: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.schedules.key() }),
-    })
+    orpc.schedules.delete.mutationOptions({ onSettled: refetch })
   )
+  const deleteSchedule = (id: string) => {
+    queryClient.setQueryData(orpc.schedules.list.queryKey(), (old) =>
+      old?.filter((schedule) => schedule.id !== id)
+    )
+    toastDeferred(
+      t.settings.schedules.deleted,
+      () => remove.mutate({ id }),
+      refetch
+    )
+  }
 
   return (
     <SettingsGroup title={t.settings.schedules.title}>
@@ -43,7 +49,7 @@ export const ScheduleSettings = () => {
           <Button
             size="sm"
             variant="ghost-destructive"
-            onClick={() => remove.mutate({ id: schedule.id })}
+            onClick={() => deleteSchedule(schedule.id)}
           >
             {t.settings.schedules.delete}
           </Button>

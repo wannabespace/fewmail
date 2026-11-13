@@ -36,6 +36,7 @@ import { eventTimes } from '~/lib/calendar'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
 import { queryClient } from '~/lib/query-client'
+import { toastDeferred } from '~/lib/undo'
 
 /** `end` is the last day itself for all-day drafts, not Google's exclusive next day. */
 export interface EventDraft {
@@ -134,15 +135,14 @@ const EventForm = ({
     })
   )
   const remove = useMutation(
-    orpc.calendar.delete.mutationOptions({
-      onMutate: ({ id }) => {
-        onDone()
-        changeEvents((events) => events.filter((event) => event.id !== id))
-      },
-      onSettled: invalidate,
-      onSuccess: () => toast.success(t.calendar.deleted),
-    })
+    orpc.calendar.delete.mutationOptions({ onSettled: invalidate })
   )
+  // Google sends guests a cancellation on delete, so the event goes only once the toast closes without Undo.
+  const deleteEvent = (event: { id: string; mailboxId: string }) => {
+    onDone()
+    changeEvents((events) => events.filter(({ id }) => id !== event.id))
+    toastDeferred(t.calendar.deleted, () => remove.mutate(event), invalidate)
+  }
 
   const moveStart = (next: Date) => {
     setEnd(addMinutes(next, differenceInMinutes(end, start)))
@@ -266,7 +266,7 @@ const EventForm = ({
             onClick={() =>
               draft.id &&
               draft.mailboxId &&
-              remove.mutate({ id: draft.id, mailboxId: draft.mailboxId })
+              deleteEvent({ id: draft.id, mailboxId: draft.mailboxId })
             }
           >
             {t.calendar.delete}

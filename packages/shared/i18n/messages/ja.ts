@@ -34,6 +34,8 @@ export const ja: Messages = {
     calendar: (email: string) => `${email} のカレンダー`,
     cc: (recipients: string) => `CC: ${recipients}`,
     confirm: {
+      delete_board: 'このボードと中身をすべて削除しますか？',
+      delete_schedule: 'このスケジュールを停止しますか？',
       create_schedule: 'これをスケジュールで実行しますか？',
       create_event: 'この予定を追加しますか？',
       delete_event: 'この予定を削除しますか？',
@@ -125,6 +127,8 @@ export const ja: Messages = {
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
     yes: {
+      delete_board: '削除',
+      delete_schedule: '停止',
       create_schedule: 'スケジュールする',
       create_event: '追加',
       delete_event: '削除',
@@ -151,6 +155,7 @@ export const ja: Messages = {
     thinking: 'メールを確認しています…',
   },
   compose: {
+    discarded: '下書きを破棄しました',
     backInQueue: 'キャンセルしました。下書きは「ホーム」に戻りました。',
     canceled: 'キャンセルしました。メールはエディタに戻りました。',
     cc: 'Cc',
@@ -361,6 +366,11 @@ export const ja: Messages = {
     title: '大切なメールだけを。',
   },
   mail: {
+    draftDeleted: '下書きを削除しました',
+    unsubscribeConfirm: (name: string) => `${name}の配信を停止しますか？`,
+    unsubscribeHint:
+      'Fewmailがリストから登録解除し、このスレッドをアーカイブします。配信停止は元に戻せません。',
+    unsubscribing: '配信停止中…',
     pin: 'ピン留め',
     unpin: 'ピン留めを外す',
     pinned: 'ピン留め',
@@ -463,6 +473,8 @@ export const ja: Messages = {
     you: 'あなた',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmailがリストから登録解除し、送られたメールをすべてアーカイブします（今月は${emails}）。配信停止は元に戻せません。`,
     archivedOnly:
       'この送信者はワンクリック配信停止に対応していないため、メールをアーカイブしました。今後も届く場合は迷惑メールに移動します。',
     count: (total: number) => `メーリングリスト${total}件`,
@@ -615,6 +627,9 @@ export const ja: Messages = {
     whichEmails: '対象のメール',
   },
   settings: {
+    disconnectConfirm: (name: string) => `${name}の接続を解除しますか？`,
+    messengerDisconnectHint:
+      'ボットからのメッセージが届かなくなります。再接続にはこのページの新しいリンクが必要です。',
     readingDigest: {
       description:
         '毎朝、前日のメルマガを Telegram と WhatsApp にひとつのメッセージで届けます。',
@@ -633,12 +648,14 @@ export const ja: Messages = {
       title: 'Gmail のエージェントラベル',
     },
     schedules: {
+      deleted: 'スケジュールを削除しました',
       delete: '削除',
       description:
         '「毎週金曜 17:00 に今週の請求書をまとめて」のように、定期的に行うことをチャットでエージェントに頼めます。実行のたびに専用のチャットに届き、送信したいものはそこで承認します。',
       title: 'スケジュール',
     },
     snippets: {
+      deleted: 'スニペットを削除しました',
       add: 'スニペットを追加',
       body: 'テキスト',
       delete: '削除',
@@ -661,6 +678,9 @@ export const ja: Messages = {
       'アプリ、ボット、要約に使います。返信はメールの言語に合わせます。',
     legal: '法的情報',
     mailboxes: {
+      removeConfirm: (email: string) => `${email}を削除しますか？`,
+      removeHint:
+        'Fewmailはこのメールボックスを読むのをやめ、読んだ内容を忘れます。Gmailでは何も変わりません。',
       add: 'Gmailを追加',
       addDescription:
         '別のGmailアカウントのメールも同じ「ホーム」と受信トレイに届きます。このアカウントでここにログインすることはできません。ログインすると別のFewmailが開きます。',
@@ -677,6 +697,7 @@ export const ja: Messages = {
       title: 'メールボックス',
     },
     mcp: {
+      disconnectHint: '再接続するまで、メールを読めなくなります。',
       allow: '許可',
       connected: (ago: string) => `${ago}に接続`,
       copy: 'URLをコピー',
@@ -1266,7 +1287,12 @@ export const ja: Messages = {
     willSend: '送信内容：',
   },
   today: {
+    working: '処理中…',
     tidy: {
+      confirm: (emails: string) => `${emails}を片付けますか？`,
+      running: '片付け中…',
+      unsubscribeHint:
+        'Fewmailが配信停止するメーリングリストが含まれており、配信停止は元に戻せません。詳細（D）で先に各メールを確認できます。',
       archive: (n: number) => `アーカイブ ${n} 件`,
       details: '詳細',
       done: (n: number) => `${n} 件を片付けました`,
@@ -1319,6 +1345,7 @@ export const ja: Messages = {
     worthAttention: '目を通す価値あり',
   },
   boards: {
+    chartRemoved: 'グラフを削除しました',
     addTo: 'ボードに追加',
     added: (board: string) => `${board}に追加しました`,
     cancel: 'キャンセル',

@@ -117,6 +117,7 @@ import {
 import type { MailList, MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
+import { toastDeferred } from '~/lib/undo'
 
 const INBOX_VIEWS = ['focused', 'unread', 'inbox'] as const
 
@@ -1247,6 +1248,7 @@ const useDrafts = ({
   mailbox: string | undefined
   q: string | undefined
 }) => {
+  const t = useT()
   const { openCompose } = useCompose()
   const queryClient = useQueryClient()
   const { data: rows = [], isFetching } = useQuery(
@@ -1259,17 +1261,19 @@ const useDrafts = ({
   )
   const refetchDrafts = () =>
     queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
-  const leave = {
-    onMutate: ({ id }: { id: string }) =>
-      queryClient.setQueriesData<DraftRowData[]>(
-        { queryKey: orpc.mail.drafts.key() },
-        (old) => old?.filter((draft) => draft.id !== id)
-      ),
-    onSettled: refetchDrafts,
-  }
-  const deleteDraft = useMutation(orpc.mail.deleteDraft.mutationOptions(leave))
+  const hide = (id: string) =>
+    queryClient.setQueriesData<DraftRowData[]>(
+      { queryKey: orpc.mail.drafts.key() },
+      (old) => old?.filter((draft) => draft.id !== id)
+    )
+  const deleteDraft = useMutation(
+    orpc.mail.deleteDraft.mutationOptions({ onSettled: refetchDrafts })
+  )
   const takeBackFailed = useMutation(
-    orpc.mail.cancelSend.mutationOptions(leave)
+    orpc.mail.cancelSend.mutationOptions({
+      onMutate: ({ id }) => hide(id),
+      onSettled: refetchDrafts,
+    })
   )
   const open = (index: number) => {
     const saved = rows[index]
@@ -1289,10 +1293,18 @@ const useDrafts = ({
       })
     }
   }
-  const remove = ({ id, isFailed, mailboxId }: DraftRowData) =>
-    isFailed
-      ? takeBackFailed.mutate({ id })
-      : deleteDraft.mutate({ id, mailboxId })
+  // Gmail deletes a draft for good, so it goes only once the toast closes without Undo.
+  const remove = ({ id, isFailed, mailboxId }: DraftRowData) => {
+    hide(id)
+    toastDeferred(
+      t.mail.draftDeleted,
+      () =>
+        isFailed
+          ? takeBackFailed.mutate({ id })
+          : deleteDraft.mutate({ id, mailboxId }),
+      refetchDrafts
+    )
+  }
   return { isFetching, open, remove, rows }
 }
 

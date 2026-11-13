@@ -80,6 +80,7 @@ import { toast } from 'sonner'
 
 import { AgentChat } from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
+import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
 import { ListenButton } from '~/components/listen-button'
@@ -105,6 +106,7 @@ import {
 } from '~/lib/mail-db'
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
+import { toastUndo } from '~/lib/undo'
 
 const TallyBox = ({ children }: { children: ReactNode }) => (
   <div className="text-foreground/75 flex items-center gap-3 rounded-2xl border border-dashed px-4.5 py-3.5 text-sm">
@@ -140,6 +142,8 @@ const HandledSummary = ({
   )
 }
 
+const TIDY_TOAST = 'tidy'
+
 const Tidy = ({
   canUseKeys,
   today,
@@ -164,15 +168,19 @@ const Tidy = ({
     )
   const refetch = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
+  const refetchMail = () =>
+    Promise.all([
+      refetch(),
+      queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+    ])
   const runTidy = useMutation(
     orpc.today.tidy.mutationOptions({
-      onMutate: dropFromTidy,
-      onSettled: () =>
-        Promise.all([
-          refetch(),
-          queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
-        ]),
-      onSuccess: ({ settled }) => toast.success(t.today.tidy.done(settled)),
+      onError: () => toast.dismiss(TIDY_TOAST),
+      onMutate: (input) => {
+        dropFromTidy(input)
+        toast.loading(t.today.tidy.running, { id: TIDY_TOAST })
+      },
+      onSettled: refetchMail,
     })
   )
   const keep = useMutation(
@@ -181,8 +189,45 @@ const Tidy = ({
       onSettled: refetch,
     })
   )
-  const run = () =>
-    runTidy.mutate({ messageIds: tidy.map(({ message }) => message.id) })
+  const run = () => {
+    const idsOf = (kind?: (typeof TIDY_KINDS)[number]) =>
+      tidy
+        .filter(({ analysis }) => !kind || analysis.suggestedAction === kind)
+        .map(({ message }) => message.id)
+    const archived = idsOf('archive')
+    const isLeavingLists = idsOf('unsubscribe').length > 0
+    const tidyAll = () =>
+      runTidy.mutate(
+        { messageIds: idsOf() },
+        {
+          // Archived mail comes back; a list left or a read mark does not.
+          onSuccess: ({ settled }) =>
+            archived.length > 0
+              ? toastUndo(
+                  t.today.tidy.done(settled),
+                  () =>
+                    Promise.all(
+                      archived.map((messageId) =>
+                        client.mail.moveToInbox({ messageId })
+                      )
+                    ).finally(refetchMail),
+                  TIDY_TOAST
+                )
+              : toast.success(t.today.tidy.done(settled), { id: TIDY_TOAST }),
+        }
+      )
+    if (!isLeavingLists) {
+      tidyAll()
+      return
+    }
+    confirm({
+      action: t.today.tidy.run,
+      description: t.today.tidy.unsubscribeHint,
+      onConfirm: tidyAll,
+      title: t.today.tidy.confirm(t.cleanup.emails(tidy.length)),
+      variant: 'warning',
+    })
+  }
   const toggle = () => setIsOpen((current) => !current)
   const keys = { enabled: canUseKeys && tidy.length > 0 }
   useHotkey('T', run, keys)
@@ -1156,14 +1201,7 @@ const HomePage = () => {
       queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
     ])
   const undoable = (message: string, undo: () => Promise<unknown>) =>
-    toast(message, {
-      action: {
-        label: t.compose.undo,
-        onClick: () => {
-          void undo().finally(refreshMail)
-        },
-      },
-    })
+    toastUndo(message, () => undo().finally(refreshMail))
   const undoSkip = (ids: string[]) =>
     undoable(
       ids.length === 1 ? t.telegram.skipped : t.queue.skipped(ids.length),
@@ -1185,32 +1223,48 @@ const HomePage = () => {
     )
   }
 
+  // A card's work can take seconds (leaving a list, a Gmail change): the toast says so until it is done.
+  const working = (toastId: string) =>
+    toast.loading(t.today.working, { id: toastId })
+  const finishApproval = (
+    toastId: string,
+    approved: string,
+    outboxIds: string[]
+  ) => {
+    if (outboxIds.length === 0) {
+      toast.success(approved, { id: toastId })
+      return
+    }
+    toast.success(t.compose.sendingIn(UNDO_SEND_SECONDS), {
+      action: {
+        label: t.compose.undo,
+        onClick: async () => {
+          // The client's error toast already says it was sent.
+          const canceled = await Promise.all(
+            outboxIds.map((id) =>
+              client.mail.cancelSend({ id }).catch(() => null)
+            )
+          )
+          if (canceled.some(Boolean)) {
+            void invalidate()
+            toast(t.compose.backInQueue)
+          }
+        },
+      },
+      duration: UNDO_SEND_SECONDS * 1000,
+      id: toastId,
+    })
+  }
   const approve = useMutation(
     orpc.actions.approve.mutationOptions({
-      onMutate: ({ id }) => removeAndAdvance(id),
-      onSettled: invalidate,
-      onSuccess: ({ outboxId }) => {
-        if (!outboxId) {
-          toast.success(t.today.done)
-          return
-        }
-        toast.success(t.compose.sendingIn(UNDO_SEND_SECONDS), {
-          action: {
-            label: t.compose.undo,
-            onClick: async () => {
-              // The client's error toast already says it was sent.
-              const canceled = await client.mail
-                .cancelSend({ id: outboxId })
-                .catch(() => null)
-              if (canceled) {
-                void invalidate()
-                toast(t.compose.backInQueue)
-              }
-            },
-          },
-          duration: UNDO_SEND_SECONDS * 1000,
-        })
+      onError: (_, { id }) => toast.dismiss(id),
+      onMutate: ({ id }) => {
+        removeAndAdvance(id)
+        working(id)
       },
+      onSettled: invalidate,
+      onSuccess: ({ outboxId }, { id }) =>
+        finishApproval(id, t.today.done, outboxId ? [outboxId] : []),
     })
   )
   const dropFromQueue = (ids: string[]) => {
@@ -1229,10 +1283,18 @@ const HomePage = () => {
 
   const approveMany = useMutation(
     orpc.actions.approveMany.mutationOptions({
-      onMutate: ({ ids }) => dropFromQueue(ids),
+      onError: (_, { ids }) => toast.dismiss(ids.join(',')),
+      onMutate: ({ ids }) => {
+        dropFromQueue(ids)
+        working(ids.join(','))
+      },
       onSettled: invalidate,
-      onSuccess: ({ approved }) =>
-        toast.success(t.today.approvedMany(approved)),
+      onSuccess: ({ approved, outboxIds }, { ids }) =>
+        finishApproval(
+          ids.join(','),
+          t.today.approvedMany(approved),
+          outboxIds
+        ),
     })
   )
   const dismiss = useMutation(

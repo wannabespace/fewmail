@@ -11,6 +11,8 @@ export const es: Messages = {
     calendar: (email: string) => `En el calendario de ${email}`,
     cc: (recipients: string) => `CC ${recipients}`,
     confirm: {
+      delete_board: '¿Eliminar este tablero y todo lo que contiene?',
+      delete_schedule: '¿Detener esta programación?',
       create_schedule: '¿Ejecutar esto de forma programada?',
       create_event: '¿Añadir este evento?',
       delete_event: '¿Eliminar este evento?',
@@ -107,6 +109,8 @@ export const es: Messages = {
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Hasta ${time}`,
     yes: {
+      delete_board: 'Eliminar',
+      delete_schedule: 'Detener',
       create_schedule: 'Programar',
       create_event: 'Añadir',
       delete_event: 'Eliminar',
@@ -133,6 +137,7 @@ export const es: Messages = {
     thinking: 'Buscando en tu correo…',
   },
   compose: {
+    discarded: 'Borrador descartado',
     backInQueue: 'Cancelado. El borrador vuelve a estar en Inicio.',
     canceled: 'Cancelado. Tu correo vuelve a estar en el editor.',
     cc: 'Cc',
@@ -852,6 +857,11 @@ export const es: Messages = {
     title: 'Solo lo que importa.',
   },
   mail: {
+    draftDeleted: 'Borrador eliminado',
+    unsubscribeConfirm: (name: string) => `¿Darte de baja de ${name}?`,
+    unsubscribeHint:
+      'Fewmail te da de baja de la lista y archiva esta conversación. Darse de baja no se puede deshacer.',
+    unsubscribing: 'Dándote de baja…',
     pin: 'Fijar',
     unpin: 'Desfijar',
     pinned: 'Fijados',
@@ -954,6 +964,8 @@ export const es: Messages = {
     you: 'Tú',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail te da de baja de la lista y archiva todo lo que envió (${emails} este mes). Darse de baja no se puede deshacer.`,
     archivedOnly:
       'Este remitente no permite darse de baja con un clic, así que se archivó su correo. Si sigue llegando, irá a spam.',
     count: (total: number) => `Listas de correo: ${total}`,
@@ -1116,6 +1128,9 @@ export const es: Messages = {
     whichEmails: 'Qué correos',
   },
   settings: {
+    disconnectConfirm: (name: string) => `¿Desconectar ${name}?`,
+    messengerDisconnectHint:
+      'El bot dejará de escribirte. Para volver a conectarlo hará falta un enlace nuevo de esta página.',
     readingDigest: {
       description:
         'Cada mañana, los boletines del último día llegan a Telegram y WhatsApp en un solo mensaje.',
@@ -1134,12 +1149,14 @@ export const es: Messages = {
       title: 'Etiquetas del agente en Gmail',
     },
     schedules: {
+      deleted: 'Programación eliminada',
       delete: 'Eliminar',
       description:
         'Pide al agente en el chat que haga algo con regularidad, como «cada viernes a las 17:00 reúne las facturas de la semana». Cada ejecución llega a su propio chat, donde apruebas lo que quiera enviar.',
       title: 'Programaciones',
     },
     snippets: {
+      deleted: 'Fragmento eliminado',
       add: 'Añadir fragmento',
       body: 'Texto',
       delete: 'Eliminar',
@@ -1165,6 +1182,9 @@ export const es: Messages = {
       'App, bot y resúmenes. Las respuestas siguen al correo.',
     legal: 'Legal',
     mailboxes: {
+      removeConfirm: (email: string) => `¿Quitar ${email}?`,
+      removeHint:
+        'Fewmail deja de leer este buzón y olvida lo que leyó. En Gmail no cambia nada.',
       add: 'Añadir Gmail',
       addDescription:
         'El correo de otra cuenta de Gmail llega al mismo Inicio y a la misma bandeja. Nunca sirve para entrar aquí: iniciar sesión con ella abre un Fewmail aparte.',
@@ -1180,6 +1200,8 @@ export const es: Messages = {
       title: 'Buzones',
     },
     mcp: {
+      disconnectHint:
+        'Dejará de poder leer tu correo hasta que lo vuelvas a conectar.',
       allow: 'Permitir',
       connected: (ago: string) => `Conectado ${ago}`,
       copy: 'Copiar URL',
@@ -1286,7 +1308,12 @@ export const es: Messages = {
     willSend: 'Enviaré:',
   },
   today: {
+    working: 'En ello…',
     tidy: {
+      confirm: (emails: string) => `¿Ordenar ${emails}?`,
+      running: 'Ordenando…',
+      unsubscribeHint:
+        'Algunos son listas de las que Fewmail te dará de baja, y eso no se puede deshacer. Detalles (D) muestra antes cada correo.',
       archive: (n: number) => `${n} para archivar`,
       details: 'Detalles',
       done: (n: number) => `${n} ordenados`,
@@ -1347,6 +1374,7 @@ export const es: Messages = {
     worthAttention: 'Merece tu atención',
   },
   boards: {
+    chartRemoved: 'Gráfico quitado',
     addTo: 'Añadir a un tablero',
     added: (board: string) => `Añadido a ${board}`,
     cancel: 'Cancelar',

@@ -352,9 +352,11 @@ export const router = {
     archive: authed.input(messageId).handler(async ({ context, input }) => {
       await archiveMessage(context.user.id, input.messageId)
     }),
-    block: authed.input(messageId).handler(async ({ context, input }) => {
-      await blockSender(context.user.id, input.messageId)
-    }),
+    block: authed
+      .input(messageId)
+      .handler(({ context, input }) =>
+        blockSender(context.user.id, input.messageId)
+      ),
     cancelSend: authed
       .input(id)
       .handler(({ context, input }) => cancelMail(context.user.id, input.id)),

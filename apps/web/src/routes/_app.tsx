@@ -20,6 +20,7 @@ import { DeleteBoardDialog, NewBoardDialog } from '~/components/board-dialog'
 import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
+import { ConfirmDialog } from '~/components/confirm-dialog'
 import { Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
@@ -125,6 +126,7 @@ const AppLayout = () => {
         <UpgradeDialog />
         <DeleteBoardDialog />
         <ClearOutDialog />
+        <ConfirmDialog />
       </div>
     </ComposeProvider>
   )

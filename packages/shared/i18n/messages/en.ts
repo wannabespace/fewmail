@@ -33,6 +33,8 @@ export const en = {
     cc: (recipients: string) => `Cc ${recipients}`,
     chats: 'Chats',
     confirm: {
+      delete_board: 'Delete this board and everything on it?',
+      delete_schedule: 'Stop this schedule?',
       create_schedule: 'Run this on a schedule?',
       create_event: 'Add this event?',
       delete_event: 'Delete this event?',
@@ -128,6 +130,8 @@ export const en = {
     to: (recipients: string) => `To ${recipients}`,
     until: (time: string) => `Until ${time}`,
     yes: {
+      delete_board: 'Delete',
+      delete_schedule: 'Stop',
       create_schedule: 'Schedule it',
       create_event: 'Add',
       delete_event: 'Delete',
@@ -154,6 +158,7 @@ export const en = {
     thinking: 'Looking through your mail…',
   },
   boards: {
+    chartRemoved: 'Chart removed',
     addTo: 'Add to board',
     added: (board: string) => `Put on ${board}`,
     cancel: 'Cancel',
@@ -399,6 +404,7 @@ export const en = {
     title: 'You promised',
   },
   compose: {
+    discarded: 'Draft discarded',
     backInQueue: 'Canceled. The draft is back on Home.',
     canceled: 'Canceled. Your email is back in the editor.',
     cc: 'Cc',
@@ -635,6 +641,11 @@ export const en = {
     title: 'Only what matters.',
   },
   mail: {
+    draftDeleted: 'Draft deleted',
+    unsubscribeConfirm: (name: string) => `Unsubscribe from ${name}?`,
+    unsubscribeHint:
+      'Fewmail leaves the list and archives this thread. Leaving a list cannot be undone.',
+    unsubscribing: 'Unsubscribing…',
     pin: 'Pin',
     unpin: 'Unpin',
     pinned: 'Pinned',
@@ -737,6 +748,8 @@ export const en = {
     you: 'You',
   },
   subscriptions: {
+    unsubscribeHint: (emails: string) =>
+      `Fewmail leaves the list and archives everything it sent (${emails} this month). Leaving a list cannot be undone.`,
     archivedOnly:
       'This sender has no one-click unsubscribe, so its mail was archived. If it keeps coming, it goes to spam.',
     count: (total: number) =>
@@ -925,6 +938,9 @@ export const en = {
     whichEmails: 'Which emails',
   },
   settings: {
+    disconnectConfirm: (name: string) => `Disconnect ${name}?`,
+    messengerDisconnectHint:
+      'The bot stops writing to you. Connecting again takes a new link from this page.',
     readingDigest: {
       description:
         'Each morning, the last day’s newsletters arrive in Telegram and WhatsApp as one message.',
@@ -955,6 +971,9 @@ export const en = {
     languageDescription: 'App, bot and summaries. Replies follow the email.',
     legal: 'Legal',
     mailboxes: {
+      removeConfirm: (email: string) => `Remove ${email}?`,
+      removeHint:
+        'Fewmail stops reading it and forgets what it read there. Nothing changes in Gmail.',
       add: 'Add Gmail',
       addDescription:
         'Another Gmail account’s mail joins the same Home and inbox. It never signs anyone in here: signing in with it opens a separate Fewmail.',
@@ -969,6 +988,8 @@ export const en = {
       title: 'Mailboxes',
     },
     mcp: {
+      disconnectHint:
+        'It can no longer read your mail until you connect it again.',
       allow: 'Allow',
       connected: (ago: string) => `Connected ${ago}`,
       copy: 'Copy URL',
@@ -988,12 +1009,14 @@ export const en = {
     signedInWithGoogle: 'Signed in with Google',
     signOut: 'Sign out',
     schedules: {
+      deleted: 'Schedule deleted',
       delete: 'Delete',
       description:
         'Ask the agent in chat to do something regularly, like “every Friday at 17:00 collect the week’s invoices”. Each run arrives in its own chat, where you approve anything it wants to send.',
       title: 'Schedules',
     },
     snippets: {
+      deleted: 'Snippet deleted',
       add: 'Add snippet',
       body: 'Text',
       delete: 'Delete',
@@ -1565,7 +1588,12 @@ export const en = {
     willSend: 'Will send:',
   },
   today: {
+    working: 'Working on it…',
     tidy: {
+      confirm: (emails: string) => `Tidy up ${emails}?`,
+      running: 'Tidying up…',
+      unsubscribeHint:
+        'Some are mailing lists Fewmail will leave, and leaving a list cannot be undone. Details (D) shows each email first.',
       archive: (n: number) => `${n} to archive`,
       details: 'Details',
       done: (n: number) => `${n} tidied`,
