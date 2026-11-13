@@ -504,6 +504,19 @@ const queueForAgent = async (
     return
   }
 
+  if (rule && actsOnGmail(rule)) {
+    await db.insert(actions).values({
+      ...base,
+      autonomous: false,
+      kind: rule.effect,
+      reason: output.reason,
+      ruleId: rule.id,
+      status: 'pending',
+      title: dictionaries[context.settings.language].rules.effect[rule.effect],
+    })
+    return
+  }
+
   if (
     output.suggestedAction !== 'none' &&
     !NOISE_ACTIONS.has(output.suggestedAction) &&
@@ -590,7 +603,8 @@ export const analyzeMessage = async (
     userId: message.userId,
   }
 
-  if (rule && actsOnGmail(rule)) {
+  // A rule never touches mail that needs the user: it waits on Home for a yes (on Free it stays in the inbox).
+  if (rule && actsOnGmail(rule) && output.importance < IMPORTANCE.high) {
     await recordRuleAction(message, rule, {
       ...base,
       title: dictionaries[settings.language].rules.effect[rule.effect],

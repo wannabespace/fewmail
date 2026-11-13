@@ -42,7 +42,7 @@ export const SUGGESTED_ACTIONS = Object.keys(ACTION_CRITERIA) as [
 export const IMPORTANCE_LEVELS = [
   'Noise: nobody needs to see it',
   'Worth knowing, no rush',
-  'Needs the user soon',
+  'Needs the user soon: something failed or broke, a deadline, a decision to make',
   'Urgent: security, money due very soon, or a person blocked on the user',
 ]
 
