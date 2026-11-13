@@ -9,7 +9,8 @@ import { subDays } from 'date-fns'
 import { and, desc, eq, gte } from 'drizzle-orm'
 
 import { models } from '../lib/ai'
-import { askMail } from './ask'
+import type { Exchange } from './ask'
+import { askMail, earlierLines } from './ask'
 import { askAgent } from './chat'
 import { draftReply, redraftAction } from './mail'
 import { requireAgent, spendMessage } from './plan'
@@ -23,7 +24,11 @@ const understandingSchema = type({
 })
 
 /** "Tell Anna I'll sign tomorrow" names an email among open drafts and recent mail; "when does Netflix renew?" asks about the mail; "make a board for trips" is work for the agent. */
-const understand = async (userId: string, text: string) => {
+const understand = async (
+  userId: string,
+  text: string,
+  earlier: Exchange | null = null
+) => {
   const [openDrafts, recent] = await Promise.all([
     db
       .select({
@@ -75,6 +80,7 @@ const understand = async (userId: string, text: string) => {
     model: models.fast,
     output: Output.object({ schema: understandingSchema }),
     prompt: [
+      ...earlierLines(earlier),
       `Message: ${text}`,
       ...candidates.map(
         (candidate, index) =>
@@ -108,7 +114,8 @@ export const askFewmail = async (userId: string, text: string) => {
 export const followMessage = async (
   userId: string,
   text: string,
-  actionId?: string | null
+  actionId?: string | null,
+  earlier: Exchange | null = null
 ) => {
   if (parseSkill(text)) {
     return { skill: await inNewChat(userId, text) }
@@ -118,14 +125,14 @@ export const followMessage = async (
     return { draft: await redraftAction(userId, actionId, text) }
   }
   await requireAgent(userId)
-  const { intent, target } = await understand(userId, text)
+  const { intent, target } = await understand(userId, text, earlier)
   // The agent's chat spends the message itself; spending here too would count it twice.
   if (intent === 'request') {
     return { skill: await inNewChat(userId, text) }
   }
   await spendMessage(userId)
   if (intent === 'question') {
-    return { answer: await askMail(userId, text, true) }
+    return { answer: await askMail(userId, text, true, earlier) }
   }
   if (!target) {
     return { help: true as const }

@@ -14,6 +14,19 @@ import { getSettings } from './settings'
 const SOURCE_LIMIT = 12
 const BODY_LIMIT = 1500
 
+export interface Exchange {
+  answer: string
+  question: string
+}
+
+export const earlierLines = (earlier: Exchange | null) =>
+  earlier
+    ? [
+        `Earlier in this chat the user asked: ${earlier.question}`,
+        `You answered: ${earlier.answer}`,
+      ]
+    : []
+
 const querySchema = type({ gmailQueries: 'string[]' })
 const answerSchema = type({ answer: 'string', sources: 'number[]' })
 
@@ -21,9 +34,13 @@ const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
 const ONE_WORD = /^\S+$/u
 
 /** Plain language goes through the fast model (agent only) as a few queries, strictest first; one word or text already in Gmail syntax is used as typed. */
-export const toGmailQueries = async (userId: string, text: string) => {
+export const toGmailQueries = async (
+  userId: string,
+  text: string,
+  earlier: Exchange | null = null
+) => {
   if (
-    ONE_WORD.test(text.trim()) ||
+    (!earlier && ONE_WORD.test(text.trim())) ||
     GMAIL_OPERATOR.test(text) ||
     !hasAgent(await getPlanInfo(userId))
   ) {
@@ -37,10 +54,11 @@ export const toGmailQueries = async (userId: string, text: string) => {
       `Prefer few precise terms. Add a time filter only when the question names a past period, written as after:YYYY/MM/DD or newer_than:7d / 2m / 1y, nothing else. Today is ${new Date()
         .toISOString()
         .slice(0, 10)}.`,
+      'A follow-up ("when did it arrive?") is about what the earlier exchange was about: search for that.',
     ].join('\n'),
     model: models.fast,
     output: Output.object({ schema: querySchema }),
-    prompt: text,
+    prompt: [...earlierLines(earlier), `Question: ${text}`].join('\n'),
   })
   const queries = output.gmailQueries.filter(Boolean)
   return queries.length > 0 ? queries : [text]
@@ -51,9 +69,10 @@ export const searchByQuestion = async (
   userId: string,
   text: string,
   limit: number,
-  mailboxId?: string
+  mailboxId?: string,
+  earlier: Exchange | null = null
 ) => {
-  const queries = await toGmailQueries(userId, text)
+  const queries = await toGmailQueries(userId, text, earlier)
   for (const query of queries) {
     // oxlint-disable-next-line eslint/no-await-in-loop -- the next query runs only when this one found nothing
     const results = await searchMailboxes(userId, query, limit, mailboxId)
@@ -77,13 +96,16 @@ const TEXTED = [
 export const askMail = async (
   userId: string,
   question: string,
-  texted = false
+  texted = false,
+  earlier: Exchange | null = null
 ) => {
   const settings = await getSettings(userId)
   const { query: gmailQuery, results } = await searchByQuestion(
     userId,
     question,
-    SOURCE_LIMIT
+    SOURCE_LIMIT,
+    undefined,
+    earlier
   )
   const ids = results.flatMap((result) => result.ids)
   const stored = ids.length
@@ -117,6 +139,7 @@ export const askMail = async (
     model: models.writer,
     output: Output.object({ schema: answerSchema }),
     prompt: [
+      ...earlierLines(earlier),
       `Question: ${question}`,
       ...found.map(
         (mail, index) =>

@@ -74,6 +74,7 @@ export interface Chat {
 const DRAFT_LIMIT = 3500
 const KEEP_DAYS = 30
 const EDIT_MINUTES = 30
+const EXCHANGE_MINUTES = 30
 const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu
 
 export const localeFor = async (userId: string): Promise<Locale> => {
@@ -162,6 +163,30 @@ const takeEdit = async (chat: Chat) => {
   return edit?.actionId &&
     isAfter(edit.createdAt, subMinutes(new Date(), EDIT_MINUTES))
     ? edit.actionId
+    : null
+}
+
+const rememberExchange = (
+  chat: Chat,
+  exchange: { answer: string; question: string }
+) =>
+  db
+    .insert(botMessages)
+    .values({ exchange, key: keyOf(chat, 'exchange') })
+    .onConflictDoUpdate({
+      set: { createdAt: new Date(), exchange },
+      target: botMessages.key,
+    })
+
+/** "When did this one arrive?" only makes sense after the question before it, so the last exchange is kept for `EXCHANGE_MINUTES`. */
+const lastExchange = async (chat: Chat) => {
+  const [last] = await db
+    .select()
+    .from(botMessages)
+    .where(eq(botMessages.key, keyOf(chat, 'exchange')))
+  return last?.exchange &&
+    isAfter(last.createdAt, subMinutes(new Date(), EXCHANGE_MINUTES))
+    ? last.exchange
     : null
 }
 
@@ -470,11 +495,17 @@ export const follow = async (
     return helpReply(chat, t)
   }
   const targetId = replyTo ? await shownAction(chat, replyTo) : null
-  const { answer, draft, skill } = await followMessage(userId, text, targetId)
+  const { answer, draft, skill } = await followMessage(
+    userId,
+    text,
+    targetId,
+    await lastExchange(chat)
+  )
   if (skill) {
     return chatLinkReply(chat, t, skill.text, skill.chatId)
   }
   if (answer) {
+    await rememberExchange(chat, { answer: answer.answer, question: text })
     return {
       text: [
         plain(answer.answer),
