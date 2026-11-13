@@ -110,10 +110,11 @@ const QuickActions = ({
   return (
     <span className="flex opacity-0 group-hover:opacity-100">
       {/* A reply is never sent unread: it needs the open card. */}
-      {!isSelected && !sendsDraft(action) && (
+      {!sendsDraft(action) && (
         <IconButton
           icon={Tick02Icon}
           label={approveLabel(t, action, false)}
+          shortcut={isSelected && <Kbd>⏎</Kbd>}
           size="icon-sm"
           variant="ghost-muted"
           onClick={onApprove}
