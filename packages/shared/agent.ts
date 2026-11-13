@@ -50,36 +50,28 @@ export type ActionKind = (typeof ACTION_KINDS)[number]
 interface ActionKindTraits {
   /** What approving does to the thread in Gmail; `null` leaves it as it is. */
   gmail: GmailEffect | null
-  /** The approve button names the kind instead of the agent's label for this email. */
-  ownLabel: boolean
   /** Approving sends the draft: always, only once one is written, or never. */
   sends: 'always' | 'drafted' | null
 }
 
 const quiet = (gmail: GmailEffect | null): ActionKindTraits => ({
   gmail,
-  ownLabel: false,
   sends: null,
 })
-const own: ActionKindTraits = {
-  gmail: null,
-  ownLabel: true,
-  sends: null,
-}
 
 export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
   archive: quiet('archive'),
-  cleanup: own,
-  commitment: own,
+  cleanup: quiet(null),
+  commitment: quiet(null),
   follow_up: quiet('mark_read'),
   mark_read: quiet('mark_read'),
   pay: quiet('mark_read'),
   read: quiet('mark_read'),
   reply: { ...quiet(null), sends: 'always' },
   schedule: quiet('mark_read'),
-  security: own,
+  security: quiet(null),
   spam: quiet('mark_read'),
-  task: { ...own, sends: 'drafted' },
+  task: { ...quiet(null), sends: 'drafted' },
   trash: quiet('trash'),
   unsubscribe: quiet('unsubscribe'),
 }

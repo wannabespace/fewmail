@@ -74,6 +74,11 @@ const listed = (criteria: Record<string, string>) =>
     .map(([key, meaning]) => `${key} = ${meaning}`)
     .join('; ')
 
+const labelExamples = (language: Locale) => {
+  const { actionKind } = dictionaries[language]
+  return `"${actionKind.reply}", "${actionKind.pay}", "${actionKind.schedule}"`
+}
+
 const analyzeInstructions = (input: {
   language: Locale
   rules: Rule[]
@@ -87,7 +92,7 @@ const analyzeInstructions = (input: {
     `importance: ${listed(Object.fromEntries(IMPORTANCE_LEVELS.entries()))}.`,
     `needsReply is true only when: ${NEEDS_REPLY}.`,
     `suggestedAction: ${listed(ACTION_CRITERIA)}.`,
-    `Write summary (one sentence), reason (why this importance, a few words) and actionTitle (a short imperative button label) in ${englishName(input.language)}.`,
+    `Write summary (one sentence), reason (why this importance, a few words) and actionTitle (a short label of what to do, phrased like ${labelExamples(input.language)}) in ${englishName(input.language)}.`,
     INFORMAL_ADDRESS,
     NO_EM_DASH,
     'extracted: an amount with currency, a due date (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null.',
@@ -388,7 +393,7 @@ const analyze = async (input: {
   const written = await Result.tryPromise(() =>
     generateText({
       instructions: [
-        `Write in ${englishName(input.settings.language)}: summary (one sentence, concrete names, amounts and dates), reason (why it matters, a few words) and actionTitle (a short imperative button label for: ${decisions.suggestedAction}).`,
+        `Write in ${englishName(input.settings.language)}: summary (one sentence, concrete names, amounts and dates), reason (why it matters, a few words) and actionTitle (a short label of what to do for: ${decisions.suggestedAction}, phrased like ${labelExamples(input.settings.language)}).`,
         'extracted: an amount with currency, a due date (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null. Never invent anything.',
         INFORMAL_ADDRESS,
         NO_EM_DASH,

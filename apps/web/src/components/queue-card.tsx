@@ -1,5 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { ACTION_KIND_TRAITS, sendsDraft } from '@fewmail/shared/agent'
+import { sendsDraft } from '@fewmail/shared/agent'
 import type { CleanupSender } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
@@ -74,9 +74,7 @@ const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
   if (isReply) {
     return t.queue.send
   }
-  return ACTION_KIND_TRAITS[action.kind].ownLabel
-    ? t.actionKind[action.kind]
-    : action.title || t.actionKind[action.kind]
+  return t.actionKind[action.kind]
 }
 
 const QuickActions = ({
