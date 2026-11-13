@@ -358,7 +358,7 @@ const BURST_MINUTES = 10
 
 type ListedMessage = ListedRow['message']
 
-/** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until opened. */
+/** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until → expands it. */
 const collapseBursts = <Row extends ListedRow>(
   rows: Row[],
   expanded: ReadonlySet<string>
@@ -1837,7 +1837,6 @@ const MailPage = () => {
     if (row) {
       const message = email ?? row.message
       setCursor(index)
-      expandBurst(index)
       if (!('isRelated' in row)) {
         setRelatedOf(message.threadId)
       }
