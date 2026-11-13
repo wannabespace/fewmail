@@ -7,7 +7,6 @@ export const pt: Messages = {
     cleanup: 'Cancelar todas',
     commitment: 'Feito',
     security: 'Já verifiquei',
-    task: 'Enviar',
     spam: 'Movido para spam',
     archive: 'Arquivar',
     follow_up: 'Acompanhar',
@@ -31,11 +30,6 @@ export const pt: Messages = {
     voice: 'Falar com o agente',
     voiceStop: 'Parar e enviar',
     chats: 'Conversas',
-    autonomy: {
-      ask: 'Pergunta a você antes de cada e-mail',
-      auto: (most: number) =>
-        `Envia os e-mails sozinho, sem perguntar a você (até ${most})`,
-    },
     calendar: (email: string) => `Na agenda de ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
@@ -49,7 +43,6 @@ export const pt: Messages = {
       undo_clear_out:
         'Trazer de volta para a caixa de entrada tudo o que foi limpo?',
       create_rule: 'Adicionar esta regra?',
-      handle_thread: 'Entregar esta conversa ao agente?',
       reply: 'Enviar esta resposta?',
       send_email: 'Enviar este e-mail?',
       snooze_thread: 'Adiar esta conversa?',
@@ -108,7 +101,6 @@ export const pt: Messages = {
       get_board: 'Lendo o quadro',
       get_person: 'Procurando a pessoa',
       get_today: 'Vendo o dia',
-      handle_thread: 'Entregando a conversa',
       list_boards: 'Abrindo quadros',
       list_handled: 'Conferindo o que foi tratado',
       list_mail: 'Buscando nos e-mails',
@@ -147,7 +139,6 @@ export const pt: Messages = {
       clear_out: 'Limpar',
       undo_clear_out: 'Trazer de volta',
       create_rule: 'Adicionar',
-      handle_thread: 'Entregar',
       reply: 'Enviar',
       send_email: 'Enviar',
       snooze_thread: 'Adiar',
@@ -623,8 +614,6 @@ export const pt: Messages = {
       `As mensagens ao agente deste mês acabaram. Elas voltam em ${date}.`,
     speech: (date: string) =>
       `A leitura em voz alta deste mês acabou. Volta em ${date}.`,
-    tasks: (total: number) =>
-      `Seu plano cuida de ${total} conversas por vez. Espere uma terminar ou mude para o Max em Configurações → Plano.`,
   },
   notices: {
     freeUpSpace: 'Liberar espaço',
@@ -1319,11 +1308,6 @@ export const pt: Messages = {
             'Encaminhe um e-mail com uma nota em cima, “marque um horário com eles semana que vem”, e o agente cuida do resto.',
           title: 'Encaminhar para o agente',
         },
-        handle: {
-          description:
-            'Entregue uma conversa com um objetivo e o agente leva até o fim, perguntando antes de cada envio.',
-          title: 'Cuidar disso',
-        },
         reading: {
           description:
             'As newsletters do dia numa lista tranquila, cada uma resumida em poucas frases.',
@@ -1494,7 +1478,6 @@ export const pt: Messages = {
           'Início: uma única fila de decisões ao vivo, aprovadas uma a uma ou em lote',
           'Respostas escritas com a sua voz, enviadas só quando você aprova',
           'Telegram: e-mails urgentes, aprovações e instruções por voz',
-          '“Cuidar disso”: o agente leva uma conversa até o objetivo',
           'Promessas e pessoas lembradas, painéis com gráficos para dinheiro ou o que você quiser acompanhar',
           'Pergunte qualquer coisa aos seus e-mails, e MCP para suas próprias ferramentas',
         ],
@@ -1503,8 +1486,7 @@ export const pt: Messages = {
         `${emails} e-mails lidos e ${messages} mensagens ao agente por mês; ruído nunca conta`,
       pro: {
         description: 'O mesmo agente, com espaço para mais e-mails.',
-        room: (boards: number, tasks: number) =>
-          `Até ${boards} painéis e ${tasks} conversas entregues ao mesmo tempo`,
+        room: (boards: number) => `Até ${boards} painéis ao mesmo tempo`,
       },
       tryFree: (days: number) => `Teste grátis por ${days} dias`,
       yearly: 'Anual · 2 meses grátis',
@@ -1584,20 +1566,6 @@ export const pt: Messages = {
     notifications: 'Notificações automáticas de ferramentas e serviços',
     promotions: 'Promoções, marketing e e-mails de vendas não solicitados',
     receipts: 'Recibos, confirmações de pedido e de envio',
-  },
-  tasks: {
-    active: (goal: string) => `O agente está cuidando disso: ${goal}`,
-    auto: 'Enviar e-mails sem me perguntar',
-    autoHint:
-      'Cada e-mail ainda espera alguns segundos para você poder desfazer.',
-    cancel: 'Parar',
-    done: 'Tarefa concluída',
-    goal: 'O que o agente deve conseguir?',
-    goalPlaceholder: 'ex.: Pedir a fatura de novo com nosso endereço novo',
-    handle: 'Cuidar disso…',
-    next: 'Próximo passo',
-    start: 'Começar',
-    started: 'O agente está cuidando disso.',
   },
   telegram: {
     approveAlike: 'Aprovar de uma vez todos os cartões de um tipo:',
@@ -1725,8 +1693,6 @@ export const pt: Messages = {
       drafts:
         'Parte do Fewmail Pro: o agente escreve a resposta no seu estilo, e você edita e envia.',
       home: 'Parte do Fewmail Pro: os e-mails que precisam de você, com respostas já redigidas, atualizados conforme os e-mails chegam.',
-      tasks:
-        'Parte do Fewmail Pro: entregue a conversa ao agente e ele a leva até o fim, perguntando antes de cada e-mail que envia.',
     },
   },
   whatsapp: {

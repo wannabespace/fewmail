@@ -8,11 +8,6 @@ export const fr: Messages = {
     voice: 'Parler à l’agent',
     voiceStop: 'Arrêter et envoyer',
     chats: 'Discussions',
-    autonomy: {
-      ask: 'Vous demande avant chaque e-mail',
-      auto: (most: number) =>
-        `Envoie les e-mails seul, sans vous demander (jusqu’à ${most})`,
-    },
     calendar: (email: string) => `Dans l’agenda de ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
@@ -26,7 +21,6 @@ export const fr: Messages = {
       undo_clear_out:
         'Remettre dans la boîte de réception tout ce qui a été rangé ?',
       create_rule: 'Ajouter cette règle ?',
-      handle_thread: 'Confier cette conversation à l’agent ?',
       reply: 'Envoyer cette réponse ?',
       send_email: 'Envoyer cet e-mail ?',
       snooze_thread: 'Reporter cette conversation ?',
@@ -86,7 +80,6 @@ export const fr: Messages = {
       get_board: 'Lecture du tableau',
       get_person: 'Recherche de la personne',
       get_today: 'Point sur aujourd’hui',
-      handle_thread: 'Transmission de la conversation',
       list_boards: 'Ouverture des tableaux',
       list_handled: 'Lecture de ce qui a été traité',
       list_mail: 'Recherche dans les e-mails',
@@ -125,7 +118,6 @@ export const fr: Messages = {
       clear_out: 'Faire le ménage',
       undo_clear_out: 'Remettre',
       create_rule: 'Ajouter',
-      handle_thread: 'Confier',
       reply: 'Envoyer',
       send_email: 'Envoyer',
       snooze_thread: 'Reporter',
@@ -448,11 +440,6 @@ export const fr: Messages = {
             'Transférez un e-mail avec une note en haut, « trouve un créneau avec eux la semaine prochaine », et l’agent prend le relais.',
           title: 'Transférer à l’agent',
         },
-        handle: {
-          description:
-            'Confiez un fil avec un objectif et l’agent le mène jusqu’au bout, en demandant avant chaque envoi.',
-          title: 'S’en occuper',
-        },
         reading: {
           description:
             'Les newsletters du jour dans une seule liste au calme, chacune résumée en quelques phrases.',
@@ -629,7 +616,6 @@ export const fr: Messages = {
           'Accueil : une seule file de décisions en direct, à approuver une par une ou d’un coup',
           'Réponses rédigées à votre façon, envoyées seulement avec votre accord',
           'Telegram : les e-mails urgents, les approbations et les consignes vocales',
-          '« S’en occuper » : l’agent mène un fil jusqu’à son objectif',
           'Promesses et contacts mémorisés, tableaux avec graphiques pour l’argent ou tout ce que vous suivez',
           'Interrogez vos e-mails sur tout, et MCP pour vos propres outils',
         ],
@@ -638,8 +624,7 @@ export const fr: Messages = {
         `${emails} e-mails lus et ${messages} messages à l’agent par mois ; le bruit ne compte jamais`,
       pro: {
         description: 'Le même agent, avec de la place pour plus de mails.',
-        room: (boards: number, tasks: number) =>
-          `Jusqu’à ${boards} tableaux et ${tasks} fils confiés à la fois`,
+        room: (boards: number) => `Jusqu’à ${boards} tableaux à la fois`,
       },
       tryFree: (days: number) => `Essai gratuit de ${days} jours`,
       yearly: 'Annuel · 2 mois offerts',
@@ -701,7 +686,6 @@ export const fr: Messages = {
     cleanup: 'Se désabonner de tout',
     commitment: 'Fait',
     security: 'J’ai vérifié',
-    task: 'Envoyer',
     spam: 'Mis en spam',
     trash: 'Mettre à la corbeille',
     archive: 'Archiver',
@@ -855,8 +839,6 @@ export const fr: Messages = {
       `Les messages à l’agent de ce mois sont épuisés. Ils reviennent le ${date}.`,
     speech: (date: string) =>
       `La lecture à voix haute de ce mois est épuisée. Elle revient le ${date}.`,
-    tasks: (total: number) =>
-      `Votre forfait gère ${total} fils à la fois. Laissez-en un se terminer ou passez à Max dans Réglages → Forfait.`,
   },
   notices: {
     freeUpSpace: 'Libérer de l’espace',
@@ -1710,21 +1692,6 @@ export const fr: Messages = {
       `Nouvelles coordonnées de paiement de ${domain}. Confirmez par téléphone avant de payer.`,
     title: 'Vérifiez avant d’agir',
   },
-  tasks: {
-    active: (goal: string) => `L’agent s’en occupe : ${goal}`,
-    auto: 'Envoyer les e-mails sans me demander',
-    autoHint:
-      'Chaque e-mail attend quand même quelques secondes pour que vous puissiez annuler.',
-    cancel: 'Arrêter',
-    done: 'Tâche terminée',
-    goal: 'Que doit obtenir l’agent ?',
-    goalPlaceholder:
-      'ex. Faire renvoyer la facture avec notre nouvelle adresse',
-    handle: 'S’en occuper…',
-    next: 'Étape suivante',
-    start: 'Démarrer',
-    started: 'L’agent s’en occupe.',
-  },
   upgrade: {
     ask: 'Interroge tes e-mails',
     hints: {
@@ -1736,8 +1703,6 @@ export const fr: Messages = {
       drafts:
         'Inclus dans Fewmail Pro : l’agent rédige la réponse dans ton style, tu la modifies et l’envoies.',
       home: 'Inclus dans Fewmail Pro : les e-mails qui ont besoin de toi, avec des réponses déjà rédigées, mis à jour à chaque nouvel e-mail.',
-      tasks:
-        'Inclus dans Fewmail Pro : confie le fil à l’agent, il le mène à bien en te demandant avant chaque e-mail envoyé.',
     },
   },
   whatsapp: {

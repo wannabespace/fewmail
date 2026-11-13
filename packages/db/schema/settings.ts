@@ -127,7 +127,6 @@ export type AiFeature =
   | 'person_note'
   | 'promises'
   | 'reading_summary'
-  | 'task_step'
   | 'understand'
 
 /** `cost` (USD) is null, not 0, when OpenRouter did not report it. */

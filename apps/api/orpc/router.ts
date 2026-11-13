@@ -117,7 +117,6 @@ import { deleteSchedule, listSchedules } from '../services/schedules'
 import { getSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
 import { markNotSpam, reportSpam } from '../services/spam'
-import { cancelTask, createTask } from '../services/tasks'
 import { unsubscribeMessage } from '../services/thread-effects'
 import { getWrapped, readSharedWrapped } from '../services/wrapped'
 
@@ -566,23 +565,6 @@ export const router = {
   person: agent
     .input(type({ email: 'string.email' }))
     .handler(({ context, input }) => getPerson(context.user.id, input.email)),
-  tasks: {
-    cancel: agent.input(id).handler(async ({ context, input }) => {
-      await cancelTask(context.user.id, input.id)
-    }),
-    create: agent
-      .input(
-        type({
-          autonomy: "'ask' | 'auto'",
-          goal: 'string > 3',
-          messageId: 'string.uuid',
-        })
-      )
-      .handler(async ({ context, input }) => {
-        const task = await createTask(context.user.id, input)
-        return { id: task.id }
-      }),
-  },
   schedules: {
     delete: agent.input(id).handler(async ({ context, input }) => {
       await deleteSchedule(context.user.id, input.id)

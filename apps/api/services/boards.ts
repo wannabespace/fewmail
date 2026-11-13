@@ -449,7 +449,7 @@ export const createBoard = async (
   input: { description: string; name: string; periodDays?: BoardPeriod }
 ) => {
   const count = () => db.$count(boards, eq(boards.userId, userId))
-  await requireRoom(userId, 'boards', count)
+  await requireRoom(userId, count)
   const plan = await planBoard(userId, input)
   const [board] = await db
     .insert(boards)

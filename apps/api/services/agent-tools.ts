@@ -52,7 +52,6 @@ import { createRule, listRules } from './rules'
 import { createSchedule, deleteSchedule, listSchedules } from './schedules'
 import { markNotSpam, reportSpam } from './spam'
 import { syncMailboxes } from './sync'
-import { createTask } from './tasks'
 import { unsubscribeMessage } from './thread-effects'
 import { getWrapped } from './wrapped'
 
@@ -285,16 +284,6 @@ export const agentTools = (
     description:
       'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender, how many emails, how many were opened, and the messageId of the latest one to pass to unsubscribe.',
     run: () => listSubscriptions(userId),
-  }),
-  handle_thread: define({
-    description:
-      'Hand an email thread to the agent with a goal ("get the invoice resent", "find a time next week"). It writes and, depending on autonomy, sends the emails until the goal is reached. autonomy "ask" (default) queues each email for the user to approve on Home; only use "auto" when the user explicitly asked the agent to send on their behalf.',
-    input: {
-      autonomy: z.enum(['ask', 'auto']).default('ask'),
-      goal: z.string().min(4),
-      messageId: z.uuid(),
-    },
-    run: (input) => createTask(userId, input),
   }),
   get_person: define({
     description:

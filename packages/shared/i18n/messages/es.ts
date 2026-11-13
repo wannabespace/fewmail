@@ -8,11 +8,6 @@ export const es: Messages = {
     voice: 'Hablar con el agente',
     voiceStop: 'Detener y enviar',
     chats: 'Chats',
-    autonomy: {
-      ask: 'Te pregunta antes de cada correo',
-      auto: (most: number) =>
-        `Envía los correos por su cuenta, sin preguntarte (hasta ${most})`,
-    },
     calendar: (email: string) => `En el calendario de ${email}`,
     cc: (recipients: string) => `CC ${recipients}`,
     confirm: {
@@ -25,7 +20,6 @@ export const es: Messages = {
       clear_out: '¿Limpiar estos grupos de correo de la bandeja?',
       undo_clear_out: '¿Devolver a la bandeja todo lo limpiado?',
       create_rule: '¿Añadir esta regla?',
-      handle_thread: '¿Dejar esta conversación al agente?',
       reply: '¿Enviar esta respuesta?',
       send_email: '¿Enviar este correo?',
       snooze_thread: '¿Posponer esta conversación?',
@@ -84,7 +78,6 @@ export const es: Messages = {
       get_board: 'Leyendo el tablero',
       get_person: 'Buscando a la persona',
       get_today: 'Revisando hoy',
-      handle_thread: 'Pasando la conversación',
       list_boards: 'Abriendo tableros',
       list_handled: 'Revisando lo gestionado',
       list_mail: 'Buscando en el correo',
@@ -123,7 +116,6 @@ export const es: Messages = {
       clear_out: 'Limpiar',
       undo_clear_out: 'Devolver',
       create_rule: 'Añadir',
-      handle_thread: 'Dejar al agente',
       reply: 'Enviar',
       send_email: 'Enviar',
       snooze_thread: 'Posponer',
@@ -444,11 +436,6 @@ export const es: Messages = {
             'Reenvía un correo con una nota encima, «búscame un hueco con ellos la semana que viene», y el agente se encarga del resto.',
           title: 'Reenviar al agente',
         },
-        handle: {
-          description:
-            'Delega una conversación con un objetivo y el agente la lleva hasta el final, preguntándote antes de cada envío.',
-          title: 'Encárgate de esto',
-        },
         reading: {
           description:
             'Los boletines del día en una lista tranquila, cada uno resumido en unas pocas frases.',
@@ -620,7 +607,6 @@ export const es: Messages = {
           'Inicio: una sola cola de decisiones en vivo, aprobadas de una en una o en lote',
           'Respuestas redactadas con tu voz, enviadas solo cuando las apruebas',
           'Telegram: el correo urgente, las aprobaciones y las instrucciones por voz',
-          '«Encárgate de esto»: el agente lleva una conversación hasta su objetivo',
           'Promesas y personas recordadas, tableros con gráficos para el dinero o lo que quieras seguir',
           'Pregunta lo que quieras a tu correo, y MCP para tus propias herramientas',
         ],
@@ -629,8 +615,7 @@ export const es: Messages = {
         `${emails} correos leídos y ${messages} mensajes al agente al mes; el ruido nunca cuenta`,
       pro: {
         description: 'El mismo agente con espacio para más correo.',
-        room: (boards: number, tasks: number) =>
-          `Hasta ${boards} tableros y ${tasks} conversaciones delegadas a la vez`,
+        room: (boards: number) => `Hasta ${boards} tableros a la vez`,
       },
       tryFree: (days: number) => `Pruébalo gratis ${days} días`,
       yearly: 'Anual · 2 meses gratis',
@@ -691,7 +676,6 @@ export const es: Messages = {
     cleanup: 'Darse de baja de todos',
     commitment: 'Hecho',
     security: 'Ya lo comprobé',
-    task: 'Enviar',
     spam: 'Movido a spam',
     trash: 'Mover a la papelera',
     archive: 'Archivar',
@@ -845,8 +829,6 @@ export const es: Messages = {
       `Se acabaron los mensajes al agente de este mes. Vuelven el ${date}.`,
     speech: (date: string) =>
       `La lectura en voz alta de este mes se ha agotado. Vuelve el ${date}.`,
-    tasks: (total: number) =>
-      `Tu plan gestiona ${total} hilos a la vez. Deja que termine uno o cámbiate a Max en Ajustes → Plan.`,
   },
   notices: {
     freeUpSpace: 'Liberar espacio',
@@ -1688,20 +1670,6 @@ export const es: Messages = {
       `Nuevos datos de pago de ${domain}. Confírmalo por teléfono antes de pagar.`,
     title: 'Compruébalo antes de actuar',
   },
-  tasks: {
-    active: (goal: string) => `El agente se encarga: ${goal}`,
-    auto: 'Enviar correos sin preguntarme',
-    autoHint: 'Cada correo espera unos segundos para que puedas deshacerlo.',
-    cancel: 'Detener',
-    done: 'Tarea completada',
-    goal: '¿Qué debe conseguir el agente?',
-    goalPlaceholder:
-      'p. ej. Que reenvíen la factura con nuestra nueva dirección',
-    handle: 'Encárgate de esto…',
-    next: 'Siguiente paso',
-    start: 'Empezar',
-    started: 'El agente se encarga.',
-  },
   upgrade: {
     ask: 'Pregunta a tu correo',
     hints: {
@@ -1713,8 +1681,6 @@ export const es: Messages = {
       drafts:
         'Parte de Fewmail Pro: el agente escribe la respuesta con tu estilo, y tú la editas y la envías.',
       home: 'Parte de Fewmail Pro: los correos que te necesitan, con las respuestas ya redactadas, al día a medida que llega el correo.',
-      tasks:
-        'Parte de Fewmail Pro: pásale el hilo al agente y lo lleva hasta el final, preguntando antes de cada correo que envía.',
     },
   },
   whatsapp: {

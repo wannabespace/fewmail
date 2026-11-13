@@ -43,20 +43,19 @@ export const ACTION_KINDS = [
   'security',
   'commitment',
   'cleanup',
-  'task',
 ] as const
 export type ActionKind = (typeof ACTION_KINDS)[number]
 
 interface ActionKindTraits {
   /** What approving does to the thread in Gmail; `null` leaves it as it is. */
   gmail: GmailEffect | null
-  /** Approving sends the draft: always, only once one is written, or never. */
-  sends: 'always' | 'drafted' | null
+  /** Approving sends the draft. */
+  sends: boolean
 }
 
 const quiet = (gmail: GmailEffect | null): ActionKindTraits => ({
   gmail,
-  sends: null,
+  sends: false,
 })
 
 export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
@@ -67,23 +66,16 @@ export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
   mark_read: quiet('mark_read'),
   pay: quiet('mark_read'),
   read: quiet('mark_read'),
-  reply: { ...quiet(null), sends: 'always' },
+  reply: { ...quiet(null), sends: true },
   schedule: quiet('mark_read'),
   security: quiet(null),
   spam: quiet('mark_read'),
-  task: { ...quiet(null), sends: 'drafted' },
   trash: quiet('trash'),
   unsubscribe: quiet('unsubscribe'),
 }
 
-/** A reply, or a task step the agent wrote an email for: approving sends it. */
-export const sendsDraft = (action: {
-  detail: string | null
-  kind: ActionKind
-}) => {
-  const { sends } = ACTION_KIND_TRAITS[action.kind]
-  return sends === 'always' || (sends === 'drafted' && !!action.detail)
-}
+export const sendsDraft = (action: { kind: ActionKind }) =>
+  ACTION_KIND_TRAITS[action.kind].sends
 
 export const ACTION_STATUSES = [
   'pending',
@@ -150,22 +142,21 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
  * message (an answer runs a few sentences). Every plan has every feature; only these differ.
  */
 export const PLAN_LIMITS = {
-  lite: { boards: 1, emails: 200, messages: 20, speech: 12_000, tasks: 1 },
+  lite: { boards: 1, emails: 200, messages: 20, speech: 12_000 },
   max: {
     boards: null,
     emails: 2000,
     messages: 200,
     speech: 120_000,
-    tasks: null,
   },
-  pro: { boards: 3, emails: 500, messages: 60, speech: 36_000, tasks: 5 },
-  trial: { boards: 3, emails: 200, messages: 20, speech: 12_000, tasks: 5 },
+  pro: { boards: 3, emails: 500, messages: 60, speech: 36_000 },
+  trial: { boards: 3, emails: 200, messages: 20, speech: 12_000 },
 } satisfies Record<
   Exclude<Plan, 'free'>,
-  Record<'boards' | 'emails' | 'messages' | 'speech' | 'tasks', number | null>
+  Record<'boards' | 'emails' | 'messages' | 'speech', number | null>
 >
 
-export type Limit = 'boards' | 'messages' | 'speech' | 'tasks'
+export type Limit = 'boards' | 'messages' | 'speech'
 
 /** Where a notification is delivered; mobile and desktop apps join as new kinds with their own sender in `services/notifications.ts`. */
 export const DEVICE_KINDS = ['web'] as const
@@ -227,7 +218,6 @@ export const AGENT_TOOLS = {
   get_reading: 'read',
   get_today: 'read',
   get_wrapped: 'read',
-  handle_thread: 'consent',
   list_boards: 'read',
   list_events: 'read',
   list_handled: 'read',
@@ -362,10 +352,6 @@ export interface MessageRisk {
   kind: RiskKind
 }
 
-export type TaskAutonomy = 'ask' | 'auto'
-/** A runaway loop with an auto-replying sender must stop and ask the user. */
-export const MAX_EMAILS_PER_TASK = 6
-export type TaskStatus = 'active' | 'done' | 'canceled'
 
 export const BOARD_CHART_TYPES = ['bar', 'line', 'area', 'pie'] as const
 export type BoardChartType = (typeof BOARD_CHART_TYPES)[number]

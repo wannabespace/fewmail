@@ -3,7 +3,6 @@ import { textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
   Alert,
-  AlertAction,
   AlertDescription,
   AlertTitle,
 } from '@fewmail/ui/components/alert'
@@ -58,10 +57,8 @@ import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
 import { SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
-import { HandleDialog } from './handle-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { PersonPanel } from './person-panel'
-import { useWithAgent } from './upgrade-dialog'
 
 type ThreadMessage = NonNullable<
   ReturnType<typeof useThread>['data']
@@ -320,13 +317,6 @@ const ThreadNotices = ({
   data: NonNullable<ReturnType<typeof useThread>['data']>
 }) => {
   const t = useT()
-  const queryClient = useQueryClient()
-  const cancelTask = useMutation(
-    orpc.tasks.cancel.mutationOptions({
-      onSuccess: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
-    })
-  )
 
   return (
     <>
@@ -336,25 +326,6 @@ const ThreadNotices = ({
           <AlertDescription data-mask>
             {riskText(t, data.messages)}
           </AlertDescription>
-        </Alert>
-      )}
-      {data.task && (
-        <Alert>
-          <AlertTitle data-mask>{t.tasks.active(data.task.goal)}</AlertTitle>
-          {data.task.summary && (
-            <AlertDescription data-mask>{data.task.summary}</AlertDescription>
-          )}
-          <AlertAction>
-            <Button
-              size="xs"
-              variant="ghost-muted"
-              onClick={() =>
-                data.task && cancelTask.mutate({ id: data.task.id })
-              }
-            >
-              {t.tasks.cancel}
-            </Button>
-          </AlertAction>
         </Alert>
       )}
       {data.zombieShare !== null && data.zombieShare >= 30 && (
@@ -779,8 +750,6 @@ export const ThreadView = ({
   const { data } = useThread(threadId)
   const [composing, setComposing] = useState<Draft | null>(null)
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
-  const [isHandleOpen, setIsHandleOpen] = useState(false)
-  const withAgent = useWithAgent()
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
   const { folded, unfold } = useFolding(data)
@@ -903,15 +872,6 @@ export const ThreadView = ({
                     {t.mail.more}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    {!data.task && (
-                      <DropdownMenuItem
-                        onClick={() =>
-                          withAgent('tasks', () => setIsHandleOpen(true))
-                        }
-                      >
-                        {t.tasks.handle}
-                      </DropdownMenuItem>
-                    )}
                     <DropdownMenuItem onClick={togglePin}>
                       {isPinned ? t.mail.unpin : t.mail.pin}
                       <DropdownMenuShortcut>S</DropdownMenuShortcut>
@@ -1001,13 +961,6 @@ export const ThreadView = ({
           )}
         </div>
       </div>
-      {latest && (
-        <HandleDialog
-          messageId={latest.message.id}
-          open={isHandleOpen}
-          onOpenChange={setIsHandleOpen}
-        />
-      )}
     </article>
   )
 }

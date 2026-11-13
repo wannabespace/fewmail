@@ -49,7 +49,6 @@ import { watchSentMail } from './sent-mail'
 import { applySimpleRules } from './simple-rules'
 import { applySpamShield } from './spam'
 import { forget, insertMessages, readMessages } from './stored-mail'
-import { advanceTasksFor } from './tasks'
 import { catchZombies } from './zombies'
 
 const INITIAL_INBOX_QUERY = 'in:inbox newer_than:3d'
@@ -230,13 +229,6 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
     // oxlint-disable-next-line eslint/no-await-in-loop -- handlers run in the order they registered
     await handler(userId, inserted)
   }
-  await advanceTasksFor(userId, [
-    ...new Set(
-      inserted
-        .filter((message) => !message.isFromMe)
-        .map(({ threadId }) => threadId)
-    ),
-  ]).catch((error) => logError('task advance failed', error))
 }
 
 /**

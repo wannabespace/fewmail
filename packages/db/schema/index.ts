@@ -50,7 +50,6 @@ export {
   people,
   readingSummaries,
   schedules,
-  tasks,
   templateReports,
   unsubscribes,
 } from './insight'

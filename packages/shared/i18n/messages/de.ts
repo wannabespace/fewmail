@@ -8,11 +8,6 @@ export const de: Messages = {
     voice: 'Mit dem Agenten sprechen',
     voiceStop: 'Stoppen und senden',
     chats: 'Chats',
-    autonomy: {
-      ask: 'Fragt dich vor jeder E-Mail',
-      auto: (most: number) =>
-        `Sendet die E-Mails selbst, ohne dich zu fragen (bis zu ${most})`,
-    },
     calendar: (email: string) => `Im Kalender von ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
@@ -25,7 +20,6 @@ export const de: Messages = {
       clear_out: 'Diese Gruppen aus dem Posteingang aufräumen?',
       undo_clear_out: 'Alle aufgeräumten E-Mails zurück in den Posteingang?',
       create_rule: 'Diese Regel hinzufügen?',
-      handle_thread: 'Diese Unterhaltung dem Agenten übergeben?',
       reply: 'Diese Antwort senden?',
       send_email: 'Diese E-Mail senden?',
       snooze_thread: 'Diese Unterhaltung zurückstellen?',
@@ -83,7 +77,6 @@ export const de: Messages = {
       get_board: 'Board wird gelesen',
       get_person: 'Person wird nachgeschlagen',
       get_today: 'Heute wird geprüft',
-      handle_thread: 'Unterhaltung wird übergeben',
       list_boards: 'Boards werden geöffnet',
       list_handled: 'Erledigtes wird geprüft',
       list_mail: 'Mails werden durchsucht',
@@ -122,7 +115,6 @@ export const de: Messages = {
       clear_out: 'Aufräumen',
       undo_clear_out: 'Zurückholen',
       create_rule: 'Hinzufügen',
-      handle_thread: 'Übergeben',
       reply: 'Senden',
       send_email: 'Senden',
       snooze_thread: 'Zurückstellen',
@@ -442,11 +434,6 @@ export const de: Messages = {
             'Leite eine Mail mit einer Notiz obendrauf weiter, „finde nächste Woche einen Termin mit ihnen“, und der Agent übernimmt.',
           title: 'An den Agenten weiterleiten',
         },
-        handle: {
-          description:
-            'Gib einen Thread mit einem Ziel ab, und der Agent bringt ihn zu Ende und fragt vor jedem Senden.',
-          title: 'Darum kümmern',
-        },
         reading: {
           description:
             'Die Newsletter des Tages in einer ruhigen Liste, jeder in ein paar Sätzen zusammengefasst.',
@@ -619,7 +606,6 @@ export const de: Messages = {
           'Startseite: eine Live-Warteschlange von Entscheidungen, einzeln oder gesammelt freigegeben',
           'Antworten in deinem Ton, gesendet erst nach deiner Freigabe',
           'Telegram: dringende Mails, Freigaben und Sprachbefehle',
-          '„Darum kümmern“: Der Agent bringt einen Thread ans Ziel',
           'Versprechen und Personen im Gedächtnis, Boards mit Diagrammen für Geld oder alles, was du erfasst',
           'Frag deine Mails alles, dazu MCP für deine eigenen Tools',
         ],
@@ -628,8 +614,7 @@ export const de: Messages = {
         `${emails} gelesene Mails und ${messages} Nachrichten an den Agenten im Monat; Rauschen zählt nie mit`,
       pro: {
         description: 'Derselbe Agent mit Platz für mehr Mail.',
-        room: (boards: number, tasks: number) =>
-          `Bis zu ${boards} Boards und ${tasks} übergebene Threads gleichzeitig`,
+        room: (boards: number) => `Bis zu ${boards} Boards gleichzeitig`,
       },
       tryFree: (days: number) => `${days} Tage kostenlos testen`,
       yearly: 'Jährlich · 2 Monate gratis',
@@ -690,7 +675,6 @@ export const de: Messages = {
     cleanup: 'Alle abbestellen',
     commitment: 'Erledigt',
     security: 'Geprüft',
-    task: 'Senden',
     spam: 'In Spam verschoben',
     trash: 'In den Papierkorb',
     archive: 'Archivieren',
@@ -844,8 +828,6 @@ export const de: Messages = {
       `Die Nachrichten an den Agenten sind für diesen Monat aufgebraucht. Ab ${date} gibt es neue.`,
     speech: (date: string) =>
       `Das Vorlesen ist für diesen Monat aufgebraucht. Es ist am ${date} wieder da.`,
-    tasks: (total: number) =>
-      `Dein Plan übernimmt ${total} Threads gleichzeitig. Lass einen abschließen oder wechsle zu Max unter Einstellungen → Plan.`,
   },
   notices: {
     freeUpSpace: 'Speicher freigeben',
@@ -1692,21 +1674,6 @@ export const de: Messages = {
       `Neue Zahlungsdaten von ${domain}. Bestätige sie telefonisch, bevor du zahlst.`,
     title: 'Erst prüfen, dann handeln',
   },
-  tasks: {
-    active: (goal: string) => `Der Agent kümmert sich: ${goal}`,
-    auto: 'Mails senden, ohne mich zu fragen',
-    autoHint:
-      'Jede Mail wartet trotzdem ein paar Sekunden, damit du sie zurücknehmen kannst.',
-    cancel: 'Stoppen',
-    done: 'Aufgabe erledigt',
-    goal: 'Was soll der Agent erreichen?',
-    goalPlaceholder:
-      'z. B. Die Rechnung mit unserer neuen Adresse neu ausstellen lassen',
-    handle: 'Darum kümmern…',
-    next: 'Nächster Schritt',
-    start: 'Starten',
-    started: 'Der Agent kümmert sich darum.',
-  },
   upgrade: {
     ask: 'Frag deine Mails',
     hints: {
@@ -1718,8 +1685,6 @@ export const de: Messages = {
       drafts:
         'Teil von Fewmail Pro: Der Agent schreibt die Antwort in deinem Stil, du bearbeitest und sendest sie.',
       home: 'Teil von Fewmail Pro: die Mails, die dich brauchen, mit fertigen Antwortentwürfen, aktualisiert, sobald Mail ankommt.',
-      tasks:
-        'Teil von Fewmail Pro: Übergib den Thread dem Agenten, er bringt ihn zu Ende und fragt vor jeder Mail, die er sendet.',
     },
   },
   whatsapp: {

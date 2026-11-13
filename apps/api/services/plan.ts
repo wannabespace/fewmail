@@ -176,16 +176,15 @@ export const spendSpeech = async (userId: string, chars: number) => {
   }
 }
 
-/** Boards and tasks are limited by how many exist at once, not per month. */
+/** Boards are limited by how many exist at once, not per month. */
 export const requireRoom = async (
   userId: string,
-  limit: 'boards' | 'tasks',
   count: () => Promise<number>
 ) => {
   const plan = await requireAgent(userId)
-  const total = PLAN_LIMITS[plan.kind][limit]
+  const total = PLAN_LIMITS[plan.kind].boards
   if (total !== null && (await count()) >= total) {
-    throw new LimitReachedError(limit, total)
+    throw new LimitReachedError('boards', total)
   }
 }
 

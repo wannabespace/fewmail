@@ -19,7 +19,6 @@ export const LIVE_TOPICS = [
   'reading',
   'schedules',
   'subscriptions',
-  'tasks',
   'today',
 ] as const
 
@@ -33,7 +32,6 @@ export const MAIL_TOPICS = [
   'person',
   'reading',
   'subscriptions',
-  'tasks',
   'today',
 ] as const satisfies readonly LiveTopic[]
 

@@ -1,7 +1,6 @@
 import { useChat } from '@ai-sdk/react'
 import {
   AGENT_TOOLS,
-  MAX_EMAILS_PER_TASK,
   parseSkill,
   SKILLS,
   UNDO_SEND_SECONDS,
@@ -12,7 +11,6 @@ import type {
   ConsentToolName,
   OpenThread,
   Skill,
-  TaskAutonomy,
 } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Bubble, BubbleContent } from '@fewmail/ui/components/bubble'
@@ -145,13 +143,11 @@ interface Known {
 interface ToolInput {
   actionId?: string
   allDay?: boolean
-  autonomy?: TaskAutonomy
   cc?: string[]
   cron?: string
   description?: string
   effect?: keyof Messages['rules']['effect']
   end?: string
-  goal?: string
   groups?: ClearOutGroup[]
   id?: string
   instruction?: string
@@ -471,21 +467,6 @@ const CONSENT_DETAILS: Record<
   ),
   delete_event: ({ calendar, event }) =>
     event && <EventDetails calendar={calendar} event={event} />,
-  handle_thread: ({ email, input, t }) => (
-    <>
-      <EmailLine email={email} />
-      <p data-mask className="text-sm">
-        {input.goal}
-      </p>
-      {input.autonomy === 'auto' ? (
-        <p className="text-sm font-medium">
-          {t.agent.autonomy.auto(MAX_EMAILS_PER_TASK)}
-        </p>
-      ) : (
-        <p className="text-muted-foreground text-sm">{t.agent.autonomy.ask}</p>
-      )}
-    </>
-  ),
   send_email: ({ input }) => (
     <>
       <Recipients cc={input.cc} to={input.to} />
@@ -546,7 +527,7 @@ const Confirmation = ({
     id ? findKnown(outputs, (known) => known.id === id) : undefined
   const action = byId(input.actionId)
   const email = byId(input.messageId ?? action?.messageId)
-  const isReply = action?.kind === 'reply' || action?.kind === 'task'
+  const isReply = action?.kind === 'reply'
   const text = input.text ?? (isReply ? action?.detail : undefined)
   const key = name === 'approve_action' && text ? 'reply' : name
 

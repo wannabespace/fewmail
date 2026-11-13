@@ -7,7 +7,6 @@ export const ja: Messages = {
     cleanup: 'すべて配信停止',
     commitment: '完了',
     security: '確認しました',
-    task: '送信',
     spam: '迷惑メールに移動',
     trash: 'ゴミ箱に移動',
     archive: 'アーカイブ',
@@ -32,11 +31,6 @@ export const ja: Messages = {
     voice: '声で話す',
     voiceStop: '止めて送信',
     chats: 'チャット',
-    autonomy: {
-      ask: 'メールを送る前に毎回確認します',
-      auto: (most: number) =>
-        `確認せずに自分でメールを送ります（最大 ${most} 通）`,
-    },
     calendar: (email: string) => `${email} のカレンダー`,
     cc: (recipients: string) => `CC: ${recipients}`,
     confirm: {
@@ -49,7 +43,6 @@ export const ja: Messages = {
       clear_out: '受信トレイからこれらのメールを片付けますか？',
       undo_clear_out: '片付けたメールをすべて受信トレイに戻しますか？',
       create_rule: 'このルールを追加しますか？',
-      handle_thread: 'このスレッドをエージェントに任せますか？',
       reply: 'この返信を送信しますか？',
       send_email: 'このメールを送信しますか？',
       snooze_thread: 'このスレッドをスヌーズしますか？',
@@ -103,7 +96,6 @@ export const ja: Messages = {
       get_board: 'ボードを読込中',
       get_person: '相手を確認中',
       get_today: '今日の状況を確認中',
-      handle_thread: 'スレッドを引き渡し中',
       list_boards: 'ボードを開いています',
       list_handled: '処理済みを確認中',
       list_mail: 'メールを検索中',
@@ -142,7 +134,6 @@ export const ja: Messages = {
       clear_out: '片付ける',
       undo_clear_out: '戻す',
       create_rule: '追加',
-      handle_thread: '任せる',
       reply: '送信',
       send_email: '送信',
       snooze_thread: 'スヌーズ',
@@ -339,8 +330,6 @@ export const ja: Messages = {
       `今月のエージェントへのメッセージを使い切りました。${date} に戻ります。`,
     speech: (date: string) =>
       `今月の読み上げは上限に達しました。${date}に戻ります。`,
-    tasks: (total: number) =>
-      `現在のプランで同時に任せられるスレッドは ${total} 件です。1 件終わるのを待つか、設定 → プランで Max に切り替えてください。`,
   },
   notices: {
     freeUpSpace: '空き容量を増やす',
@@ -1001,11 +990,6 @@ export const ja: Messages = {
             '「来週、この人たちと時間を合わせて」とひとこと添えてメールを転送すれば、あとはエージェントが引き受けます。',
           title: 'エージェントに転送',
         },
-        handle: {
-          description:
-            'ゴールを伝えてスレッドを任せれば、エージェントが最後まで進めます。送信の前には毎回確認します。',
-          title: 'これを任せる',
-        },
         reading: {
           description:
             'その日のメルマガを静かなリストひとつにまとめ、それぞれ数文で要約します。',
@@ -1183,7 +1167,6 @@ export const ja: Messages = {
           'ホーム：リアルタイムで更新される判断のキュー、1 件ずつでもまとめてでも承認',
           'あなたの口調で返信を下書きし、承認したときだけ送信',
           'Telegram：急ぎのメール、承認、音声での指示',
-          '「これを任せる」：エージェントがスレッドを目的まで進める',
           '約束と相手のことを記憶。お金など追跡したいものはグラフ付きのボードに',
           'メールに何でも質問。自分のツール向けの MCP も',
         ],
@@ -1192,8 +1175,7 @@ export const ja: Messages = {
         `毎月 ${emails} 通のメール読み取りと、エージェントへの ${messages} 件のメッセージ。ノイズはカウントされません`,
       pro: {
         description: '同じエージェントで、より多くのメールに対応。',
-        room: (boards: number, tasks: number) =>
-          `ボード ${boards} 個と任せたスレッド ${tasks} 件まで同時に`,
+        room: (boards: number) => `ボード ${boards} 個まで同時に`,
       },
       tryFree: (days: number) => `${days} 日間無料で試す`,
       yearly: '年払い · 2 か月分無料',
@@ -1627,19 +1609,6 @@ export const ja: Messages = {
       `${domain}から新しい支払い先の連絡です。支払う前に電話で確認してください。`,
     title: '対応する前に確認してください',
   },
-  tasks: {
-    active: (goal: string) => `エージェントが対応中：${goal}`,
-    auto: '確認なしでメールを送信',
-    autoHint: '各メールは数秒待機するので、取り消せます。',
-    cancel: '停止',
-    done: 'タスク完了',
-    goal: 'エージェントに何を達成してほしいですか？',
-    goalPlaceholder: '例：新しい住所で請求書を再送してもらう',
-    handle: 'これを任せる…',
-    next: '次のステップ',
-    start: '開始',
-    started: 'エージェントが対応中です。',
-  },
   upgrade: {
     ask: 'メールに聞く',
     hints: {
@@ -1651,8 +1620,6 @@ export const ja: Messages = {
       drafts:
         'Fewmail Pro の機能です。エージェントがあなたの文体で返信を書き、あなたが編集して送信します。',
       home: 'Fewmail Pro の機能です。あなたが対応すべきメールが、下書き済みの返信付きで、メールが届くたびに更新されます。',
-      tasks:
-        'Fewmail Pro の機能です。スレッドをエージェントに任せると、メールを送る前に毎回確認しながら最後までやり遂げます。',
     },
   },
   whatsapp: {

@@ -315,12 +315,7 @@ export const processDueCommitments = async () => {
           title: dictionaries[language ?? 'en'].commitments.title,
           userId: commitment.userId,
         })
-        await announceChange(commitment.userId, [
-          'actions',
-          'person',
-          'tasks',
-          'today',
-        ])
+        await announceChange(commitment.userId, ['actions', 'person', 'today'])
       })
   )
 }

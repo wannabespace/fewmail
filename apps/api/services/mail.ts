@@ -58,7 +58,6 @@ import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
 import { createRule } from './rules'
 import { getSettings } from './settings'
 import { holdThread, ownMessage } from './stored-mail'
-import { activeTask } from './tasks'
 import { applyThreadEffect } from './thread-effects'
 import { changeThreadLabels, MARK_READ, mailboxOfThread } from './thread-labels'
 import { zombieStats } from './zombies'
@@ -613,14 +612,13 @@ const heldThreadRows = async (userId: string, threadId: string) => {
 }
 
 export const getThread = async (userId: string, threadId: string) => {
-  const [rows, threadActions, task] = await Promise.all([
+  const [rows, threadActions] = await Promise.all([
     heldThreadRows(userId, threadId),
     db
       .select()
       .from(actions)
       .where(and(eq(actions.userId, userId), eq(actions.threadId, threadId)))
       .orderBy(desc(actions.createdAt)),
-    activeTask(userId, threadId),
   ])
   if (rows.length === 0) {
     throw new NotFoundError('Thread not found')
@@ -635,7 +633,6 @@ export const getThread = async (userId: string, threadId: string) => {
   return {
     actions: threadActions,
     messages: rows,
-    task: task && { goal: task.goal, id: task.id, summary: task.summary },
     zombieShare:
       zombie && zombie.total >= 3 ? Math.round(zombie.share * 100) : null,
   }
@@ -732,7 +729,7 @@ export const approveAction = async (
   const { gmail } = ACTION_KIND_TRAITS[action.kind]
   const applied = await Result.tryPromise(async () => {
     await applyActionSideEffects(userId, action)
-    if (message && sendsDraft({ detail: body, kind: action.kind })) {
+    if (message && sendsDraft(action)) {
       return scheduleActionReply(userId, actionId, message, body)
     }
     if (message && gmail) {

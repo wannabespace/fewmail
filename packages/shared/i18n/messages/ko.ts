@@ -7,7 +7,6 @@ export const ko: Messages = {
     cleanup: '모두 구독 취소',
     commitment: '완료',
     security: '확인했어요',
-    task: '보내기',
     spam: '스팸으로 이동',
     trash: '휴지통으로 이동',
     archive: '보관',
@@ -32,10 +31,6 @@ export const ko: Messages = {
     voice: '음성으로 말하기',
     voiceStop: '멈추고 보내기',
     chats: '채팅',
-    autonomy: {
-      ask: '메일을 보내기 전에 매번 물어봐요',
-      auto: (most: number) => `묻지 않고 직접 메일을 보내요 (최대 ${most}통)`,
-    },
     calendar: (email: string) => `${email}의 캘린더`,
     cc: (recipients: string) => `참조: ${recipients}`,
     confirm: {
@@ -48,7 +43,6 @@ export const ko: Messages = {
       clear_out: '받은편지함에서 이 메일들을 정리할까요?',
       undo_clear_out: '정리한 메일을 모두 받은편지함으로 되돌릴까요?',
       create_rule: '이 규칙을 추가할까요?',
-      handle_thread: '이 스레드를 에이전트에게 맡길까요?',
       reply: '이 답장을 보낼까요?',
       send_email: '이 이메일을 보낼까요?',
       snooze_thread: '이 스레드를 다시 알림으로 미룰까요?',
@@ -101,7 +95,6 @@ export const ko: Messages = {
       get_board: '보드 읽는 중',
       get_person: '사람 찾는 중',
       get_today: '오늘 확인하는 중',
-      handle_thread: '스레드 맡기는 중',
       list_boards: '보드 여는 중',
       list_handled: '처리한 항목 확인 중',
       list_mail: '메일 검색하는 중',
@@ -140,7 +133,6 @@ export const ko: Messages = {
       clear_out: '정리',
       undo_clear_out: '되돌리기',
       create_rule: '추가',
-      handle_thread: '맡기기',
       reply: '보내기',
       send_email: '보내기',
       snooze_thread: '미루기',
@@ -338,8 +330,6 @@ export const ko: Messages = {
       `이번 달 에이전트 메시지를 모두 썼어요. ${date}에 다시 채워져요.`,
     speech: (date: string) =>
       `이번 달 읽어 주기를 모두 사용했어요. ${date}에 다시 사용할 수 있어요.`,
-    tasks: (total: number) =>
-      `현재 플랜은 스레드를 한 번에 ${total}개까지 맡길 수 있어요. 하나가 끝나길 기다리거나 설정 → 플랜에서 Max로 바꾸세요.`,
   },
   notices: {
     freeUpSpace: '공간 확보하기',
@@ -993,11 +983,6 @@ export const ko: Messages = {
             '“다음 주에 이분들과 시간 좀 잡아 줘” 같은 메모를 위에 달아 메일을 전달하면, 그다음은 에이전트가 맡아요.',
           title: '에이전트에게 전달',
         },
-        handle: {
-          description:
-            '목표와 함께 스레드를 맡기면 에이전트가 끝까지 처리해요. 보내기 전에는 매번 물어봐요.',
-          title: '이거 맡기기',
-        },
         reading: {
           description:
             '오늘의 뉴스레터를 조용한 목록 하나에 모으고, 하나하나 몇 문장으로 요약해요.',
@@ -1168,7 +1153,6 @@ export const ko: Messages = {
           '홈: 실시간으로 바뀌는 결정 대기열, 하나씩 또는 한 번에 승인',
           '내 말투로 쓴 답장 초안, 승인할 때만 전송',
           'Telegram: 급한 메일, 승인, 음성 지시',
-          '“이거 맡기기”: 에이전트가 스레드를 목표까지 진행',
           '약속과 사람을 기억하고, 돈이든 무엇이든 추적할 것은 차트가 있는 보드로',
           '메일에 무엇이든 묻기, 내 도구를 위한 MCP까지',
         ],
@@ -1177,8 +1161,7 @@ export const ko: Messages = {
         `매달 메일 ${emails}통 읽기와 에이전트에게 메시지 ${messages}개. 쓸모없는 메일은 세지 않아요`,
       pro: {
         description: '같은 에이전트, 더 많은 메일을 위한 여유.',
-        room: (boards: number, tasks: number) =>
-          `보드 ${boards}개와 맡긴 스레드 ${tasks}개까지 동시에`,
+        room: (boards: number) => `보드 ${boards}개까지 동시에`,
       },
       tryFree: (days: number) => `${days}일 무료 체험`,
       yearly: '연간 · 두 달 무료',
@@ -1605,19 +1588,6 @@ export const ko: Messages = {
       `${domain}에서 새 결제 정보를 보냈어요. 결제하기 전에 전화로 확인하세요.`,
     title: '행동하기 전에 확인하세요',
   },
-  tasks: {
-    active: (goal: string) => `에이전트가 처리 중이에요: ${goal}`,
-    auto: '묻지 않고 이메일 보내기',
-    autoHint: '각 이메일은 몇 초 기다리니 취소할 수 있어요.',
-    cancel: '중지',
-    done: '작업 완료',
-    goal: '에이전트가 무엇을 해내면 될까요?',
-    goalPlaceholder: '예: 새 주소로 청구서를 다시 받기',
-    handle: '이거 맡기기…',
-    next: '다음 단계',
-    start: '시작',
-    started: '에이전트가 처리 중이에요.',
-  },
   upgrade: {
     ask: '메일에 물어보기',
     hints: {
@@ -1629,8 +1599,6 @@ export const ko: Messages = {
       drafts:
         'Fewmail Pro 기능이에요. 에이전트가 내 말투로 답장을 쓰고, 나는 고쳐서 보내기만 하면 돼요.',
       home: 'Fewmail Pro 기능이에요. 내가 챙겨야 할 메일을 미리 써 둔 답장과 함께 보여 주고, 메일이 올 때마다 업데이트해요.',
-      tasks:
-        'Fewmail Pro 기능이에요. 스레드를 에이전트에게 맡기면 메일을 보낼 때마다 먼저 물어보며 끝까지 처리해요.',
     },
   },
   whatsapp: {

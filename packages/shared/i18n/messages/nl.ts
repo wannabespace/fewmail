@@ -7,7 +7,6 @@ export const nl: Messages = {
     cleanup: 'Overal afmelden',
     commitment: 'Klaar',
     security: 'Gecontroleerd',
-    task: 'Versturen',
     spam: 'Naar spam verplaatst',
     archive: 'Archiveren',
     follow_up: 'Opvolgen',
@@ -31,11 +30,6 @@ export const nl: Messages = {
     voice: 'Praat met de agent',
     voiceStop: 'Stoppen en versturen',
     chats: 'Chats',
-    autonomy: {
-      ask: 'Vraagt het je vóór elke e-mail',
-      auto: (most: number) =>
-        `Verstuurt de e-mails zelf, zonder het je te vragen (tot ${most})`,
-    },
     calendar: (email: string) => `In de agenda van ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
@@ -48,7 +42,6 @@ export const nl: Messages = {
       clear_out: 'Deze groepen mail uit je inbox opruimen?',
       undo_clear_out: 'Alle opgeruimde mail terug naar de inbox?',
       create_rule: 'Deze regel toevoegen?',
-      handle_thread: 'Dit gesprek aan de agent overlaten?',
       reply: 'Dit antwoord versturen?',
       send_email: 'Deze e-mail versturen?',
       snooze_thread: 'Dit gesprek uitstellen?',
@@ -106,7 +99,6 @@ export const nl: Messages = {
       get_board: 'Bord lezen',
       get_person: 'Persoon opzoeken',
       get_today: 'Vandaag bekijken',
-      handle_thread: 'Gesprek overdragen',
       list_boards: 'Borden openen',
       list_handled: 'Afgehandelde mail bekijken',
       list_mail: 'Mail doorzoeken',
@@ -145,7 +137,6 @@ export const nl: Messages = {
       clear_out: 'Opruimen',
       undo_clear_out: 'Terugzetten',
       create_rule: 'Toevoegen',
-      handle_thread: 'Overlaten',
       reply: 'Versturen',
       send_email: 'Versturen',
       snooze_thread: 'Uitstellen',
@@ -623,8 +614,6 @@ export const nl: Messages = {
       `De berichten aan de agent zijn op voor deze maand. Ze komen terug op ${date}.`,
     speech: (date: string) =>
       `Voorlezen is voor deze maand op. Het komt terug op ${date}.`,
-    tasks: (total: number) =>
-      `Je abonnement neemt ${total} threads tegelijk over. Laat er een afronden of stap over op Max via Instellingen → Abonnement.`,
   },
   notices: {
     freeUpSpace: 'Ruimte vrijmaken',
@@ -1321,11 +1310,6 @@ export const nl: Messages = {
             'Stuur een e-mail door met een notitie erboven, “zoek volgende week een moment met ze”, en de agent neemt het over.',
           title: 'Doorsturen naar de agent',
         },
-        handle: {
-          description:
-            'Draag een thread over met een doel en de agent werkt hem af tot het einde, en vraagt het vóór elke verzending.',
-          title: 'Regel dit',
-        },
         reading: {
           description:
             'De nieuwsbrieven van de dag in één rustige lijst, elk samengevat in een paar zinnen.',
@@ -1497,7 +1481,6 @@ export const nl: Messages = {
           'Home: één live wachtrij met beslissingen, los of in één keer goedgekeurd',
           'Antwoorden in jouw stijl, pas verstuurd als jij akkoord geeft',
           'Telegram: dringende mail, goedkeuringen en spraakopdrachten',
-          '“Regel dit”: de agent werkt een thread af tot het doel',
           'Beloftes en mensen onthouden, borden met grafieken voor geld of alles wat je bijhoudt',
           'Vraag je mail alles, plus MCP voor je eigen tools',
         ],
@@ -1506,8 +1489,7 @@ export const nl: Messages = {
         `${emails} gelezen e-mails en ${messages} berichten aan de agent per maand; ruis telt nooit mee`,
       pro: {
         description: 'Dezelfde agent met ruimte voor meer mail.',
-        room: (boards: number, tasks: number) =>
-          `Tot ${boards} borden en ${tasks} overgedragen threads tegelijk`,
+        room: (boards: number) => `Tot ${boards} borden tegelijk`,
       },
       tryFree: (days: number) => `${days} dagen gratis proberen`,
       yearly: 'Jaarlijks · 2 maanden gratis',
@@ -1586,21 +1568,6 @@ export const nl: Messages = {
     notifications: 'Automatische meldingen van tools en diensten',
     promotions: 'Aanbiedingen, marketing en ongevraagde verkoopmails',
     receipts: 'Bonnen, bestel- en verzendbevestigingen',
-  },
-  tasks: {
-    active: (goal: string) => `De agent is ermee bezig: ${goal}`,
-    auto: 'E-mails versturen zonder te vragen',
-    autoHint:
-      'Elke e-mail wacht nog steeds een paar seconden zodat je hem kunt terugdraaien.',
-    cancel: 'Stoppen',
-    done: 'Taak klaar',
-    goal: 'Wat moet de agent bereiken?',
-    goalPlaceholder:
-      'bijv. De factuur opnieuw laten sturen met ons nieuwe adres',
-    handle: 'Regel dit…',
-    next: 'Volgende stap',
-    start: 'Starten',
-    started: 'De agent is ermee bezig.',
   },
   telegram: {
     approveAlike: 'Alle kaarten van één soort tegelijk goedkeuren:',
@@ -1708,8 +1675,6 @@ export const nl: Messages = {
       drafts:
         'Onderdeel van Fewmail Pro: de agent schrijft het antwoord in jouw stijl, jij past het aan en verstuurt het.',
       home: 'Onderdeel van Fewmail Pro: de mail die jou nodig heeft, met antwoorden die al klaarstaan, bijgewerkt zodra er mail binnenkomt.',
-      tasks:
-        'Onderdeel van Fewmail Pro: geef de thread aan de agent en hij handelt het af, en vraagt het je vóór elke mail die hij verstuurt.',
     },
   },
   whatsapp: {

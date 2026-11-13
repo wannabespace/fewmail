@@ -4,8 +4,6 @@ import type {
   DomainList,
   PatternKind,
   SpamVerdict,
-  TaskAutonomy,
-  TaskStatus,
 } from '@fewmail/shared/agent'
 import * as d from 'drizzle-orm/pg-core'
 
@@ -192,21 +190,6 @@ export const boardEntries = d.snakeCase.table(
       .uniqueIndex('board_entries_board_message_idx')
       .on(table.boardId, table.messageId),
   ]
-)
-
-/** "Handle this": the agent carries a thread toward a goal, asking before each email unless autonomy is `auto`. */
-export const tasks = d.snakeCase.table(
-  'tasks',
-  {
-    ...baseTable,
-    autonomy: d.text().$type<TaskAutonomy>().notNull(),
-    goal: encryptedText().notNull(),
-    status: d.text().$type<TaskStatus>().notNull(),
-    summary: encryptedText(),
-    threadId: d.text().notNull(),
-    userId: userId(),
-  },
-  (table) => [d.index('tasks_user_thread_idx').on(table.userId, table.threadId)]
 )
 
 export const knownDomains = d.snakeCase.table(

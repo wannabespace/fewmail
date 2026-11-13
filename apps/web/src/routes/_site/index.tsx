@@ -15,7 +15,6 @@ import {
   Mic01Icon,
   News01Icon,
   Search01Icon,
-  Task01Icon,
 } from '@hugeicons/core-free-icons'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
@@ -43,7 +42,6 @@ const FEATURE_ICONS = {
   clearOut: CleanIcon,
   reading: News01Icon,
   boards: ChartBarLineIcon,
-  handle: Task01Icon,
   voice: Mic01Icon,
   forward: Forward01Icon,
   calendar: Calendar03Icon,

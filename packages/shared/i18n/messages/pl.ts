@@ -7,7 +7,6 @@ export const pl: Messages = {
     cleanup: 'Wypisz ze wszystkich',
     commitment: 'Gotowe',
     security: 'Sprawdziłem',
-    task: 'Wyślij',
     spam: 'Przeniesiono do spamu',
     archive: 'Archiwizuj',
     follow_up: 'Przypomnij się',
@@ -31,11 +30,6 @@ export const pl: Messages = {
     voice: 'Powiedz agentowi',
     voiceStop: 'Zatrzymaj i wyślij',
     chats: 'Czaty',
-    autonomy: {
-      ask: 'Pyta cię przed każdym e-mailem',
-      auto: (most: number) =>
-        `Wysyła e-maile sam, bez pytania cię (maksymalnie ${most})`,
-    },
     calendar: (email: string) => `W kalendarzu ${email}`,
     cc: (recipients: string) => `DW: ${recipients}`,
     confirm: {
@@ -48,7 +42,6 @@ export const pl: Messages = {
       clear_out: 'Uprzątnąć te grupy maili ze skrzynki?',
       undo_clear_out: 'Przywrócić do skrzynki wszystko, co uprzątnięto?',
       create_rule: 'Dodać tę regułę?',
-      handle_thread: 'Przekazać ten wątek agentowi?',
       reply: 'Wysłać tę odpowiedź?',
       send_email: 'Wysłać tego e-maila?',
       snooze_thread: 'Odłożyć ten wątek?',
@@ -108,7 +101,6 @@ export const pl: Messages = {
       get_board: 'Czytam tablicę',
       get_person: 'Szukam osoby',
       get_today: 'Sprawdzam dzisiejsze',
-      handle_thread: 'Przekazuję wątek',
       list_boards: 'Otwieram tablice',
       list_handled: 'Sprawdzam, co załatwiono',
       list_mail: 'Przeszukuję pocztę',
@@ -147,7 +139,6 @@ export const pl: Messages = {
       clear_out: 'Uprzątnij',
       undo_clear_out: 'Przywróć',
       create_rule: 'Dodaj',
-      handle_thread: 'Przekaż',
       reply: 'Wyślij',
       send_email: 'Wyślij',
       snooze_thread: 'Odłóż',
@@ -637,8 +628,6 @@ export const pl: Messages = {
       `Wiadomości do agenta na ten miesiąc się skończyły. Wrócą ${date}.`,
     speech: (date: string) =>
       `Czytanie na głos w tym miesiącu się wyczerpało. Wróci ${date}.`,
-    tasks: (total: number) =>
-      `Twój plan prowadzi ${total} wątków naraz. Poczekaj, aż jeden się skończy, albo przejdź na Max w Ustawieniach → Plan.`,
   },
   notices: {
     freeUpSpace: 'Zwolnij miejsce',
@@ -1343,11 +1332,6 @@ export const pl: Messages = {
             'Przekaż maila z notatką na górze, na przykład „znajdź z nimi termin w przyszłym tygodniu”, a agent zajmie się resztą.',
           title: 'Przekaż agentowi',
         },
-        handle: {
-          description:
-            'Przekaż wątek z celem, a agent doprowadzi go do końca, pytając przed każdą wysyłką.',
-          title: 'Zajmij się tym',
-        },
         reading: {
           description:
             'Newslettery z dnia na jednej spokojnej liście, każdy streszczony w kilku zdaniach.',
@@ -1521,7 +1505,6 @@ export const pl: Messages = {
           'Strona główna: jedna kolejka decyzji na żywo, zatwierdzanych pojedynczo lub hurtem',
           'Odpowiedzi pisane twoim głosem, wysyłane dopiero po twojej zgodzie',
           'Telegram: pilne e-maile, zatwierdzanie i polecenia głosowe',
-          '„Zajmij się tym”: agent prowadzi wątek do celu',
           'Zapamiętane obietnice i ludzie, tablice z wykresami dla pieniędzy lub czegokolwiek, co śledzisz',
           'Pytaj swoją pocztę o wszystko, plus MCP dla twoich narzędzi',
         ],
@@ -1530,8 +1513,7 @@ export const pl: Messages = {
         `${emails} przeczytanych e-maili i ${messages} wiadomości do agenta miesięcznie; szum nigdy się nie liczy`,
       pro: {
         description: 'Ten sam agent z miejscem na więcej poczty.',
-        room: (boards: number, tasks: number) =>
-          `Do ${boards} tablic i ${tasks} przekazanych wątków naraz`,
+        room: (boards: number) => `Do ${boards} tablic naraz`,
       },
       tryFree: (days: number) => `Wypróbuj za darmo przez ${days} dni`,
       yearly: 'Rocznie · 2 miesiące gratis',
@@ -1611,20 +1593,6 @@ export const pl: Messages = {
     notifications: 'Automatyczne powiadomienia z narzędzi i serwisów',
     promotions: 'Promocje, marketing i niezamówione oferty sprzedażowe',
     receipts: 'Paragony, potwierdzenia zamówień i wysyłek',
-  },
-  tasks: {
-    active: (goal: string) => `Agent się tym zajmuje: ${goal}`,
-    auto: 'Wysyłaj e-maile bez pytania',
-    autoHint: 'Każdy e-mail i tak czeka kilka sekund, żebyś mógł go cofnąć.',
-    cancel: 'Zatrzymaj',
-    done: 'Zadanie wykonane',
-    goal: 'Co agent ma osiągnąć?',
-    goalPlaceholder:
-      'np. Poproś o ponowne wysłanie faktury z naszym nowym adresem',
-    handle: 'Zajmij się tym…',
-    next: 'Następny krok',
-    start: 'Zacznij',
-    started: 'Agent się tym zajmuje.',
   },
   telegram: {
     approveAlike: 'Zatwierdź naraz wszystkie karty jednego typu:',
@@ -1767,8 +1735,6 @@ export const pl: Messages = {
       drafts:
         'Część Fewmail Pro: agent napisze odpowiedź w twoim stylu, a ty ją poprawisz i wyślesz.',
       home: 'Część Fewmail Pro: maile, które cię potrzebują, z gotowymi szkicami odpowiedzi, aktualizowane, gdy przychodzi poczta.',
-      tasks:
-        'Część Fewmail Pro: przekaż wątek agentowi, a on doprowadzi sprawę do końca, pytając przed każdym wysłanym mailem.',
     },
   },
   whatsapp: {

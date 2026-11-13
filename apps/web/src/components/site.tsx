@@ -258,7 +258,7 @@ export const PlanCards = () => {
     ],
     pro: [
       plans.limits(count(PLAN_LIMITS.pro.emails), PLAN_LIMITS.pro.messages),
-      plans.pro.room(PLAN_LIMITS.pro.boards, PLAN_LIMITS.pro.tasks),
+      plans.pro.room(PLAN_LIMITS.pro.boards),
     ],
   }
   return (

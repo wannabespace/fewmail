@@ -15,7 +15,6 @@ export const en = {
     schedule: 'Schedule',
     security: 'I checked it',
     spam: 'Moved to spam',
-    task: 'Send',
     trash: 'Move to trash',
     unsubscribe: 'Unsubscribe',
   },
@@ -30,11 +29,6 @@ export const en = {
     collapse: 'Collapse',
     voice: 'Talk to the agent',
     voiceStop: 'Stop and send',
-    autonomy: {
-      ask: 'Asks you before each email',
-      auto: (most: number) =>
-        `Sends the emails on its own, without asking you (up to ${most})`,
-    },
     calendar: (email: string) => `In the calendar of ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     chats: 'Chats',
@@ -48,7 +42,6 @@ export const en = {
       clear_out: 'Clear out these groups of inbox mail?',
       undo_clear_out: 'Bring every cleared email back to the inbox?',
       create_rule: 'Add this rule?',
-      handle_thread: 'Hand this thread to the agent?',
       reply: 'Send this reply?',
       send_email: 'Send this email?',
       snooze_thread: 'Snooze this thread?',
@@ -106,7 +99,6 @@ export const en = {
       get_board: 'Reading the board',
       get_person: 'Looking up the person',
       get_today: 'Checking today',
-      handle_thread: 'Handing the thread over',
       list_boards: 'Opening boards',
       list_handled: 'Checking what was handled',
       list_mail: 'Searching mail',
@@ -145,7 +137,6 @@ export const en = {
       clear_out: 'Clear out',
       undo_clear_out: 'Bring back',
       create_rule: 'Add rule',
-      handle_thread: 'Hand over',
       reply: 'Send',
       send_email: 'Send',
       snooze_thread: 'Snooze',
@@ -619,8 +610,6 @@ export const en = {
       `This month’s messages to the agent are used up. They come back on ${date}.`,
     speech: (date: string) =>
       `This month’s reading aloud is used up. It comes back on ${date}.`,
-    tasks: (total: number) =>
-      `Your plan hands over ${total} threads at a time. Let one finish, or switch to Max in Settings → Plan.`,
   },
   notices: {
     freeUpSpace: 'Free up space',
@@ -1312,11 +1301,6 @@ export const en = {
             'Forward an email with a note on top, “find a time with them next week”, and the agent takes it from there.',
           title: 'Forward to the agent',
         },
-        handle: {
-          description:
-            'Hand a thread over with a goal and the agent works it to the end, asking before each send.',
-          title: 'Handle this',
-        },
         reading: {
           description:
             'The day’s newsletters in one quiet list, each summed up in a few sentences.',
@@ -1487,7 +1471,6 @@ export const en = {
           'Home: one live queue of decisions, approved one by one or in batches',
           'Replies drafted in your voice, sent only when you approve',
           'Telegram: urgent mail, approvals and voice instructions',
-          '“Handle this”: the agent works a thread to its goal',
           'Promises and people remembered, boards with charts for money or anything you track',
           'Ask your mail anything, plus MCP for your own tools',
         ],
@@ -1496,8 +1479,7 @@ export const en = {
         `${emails} emails read and ${messages} messages to the agent a month; noise never counts`,
       pro: {
         description: 'The same agent with room for more mail.',
-        room: (boards: number, tasks: number) =>
-          `Up to ${boards} boards and ${tasks} handed-over threads at a time`,
+        room: (boards: number) => `Up to ${boards} boards at a time`,
       },
       tryFree: (days: number) => `Try free for ${days} days`,
       yearly: 'Yearly · 2 months free',
@@ -1574,19 +1556,6 @@ export const en = {
     notifications: 'Automated notifications from tools and services',
     promotions: 'Promotions, marketing and cold sales emails',
     receipts: 'Receipts, order and shipping confirmations',
-  },
-  tasks: {
-    active: (goal: string) => `The agent is on it: ${goal}`,
-    auto: 'Send emails without asking me',
-    autoHint: 'Each email still waits a few seconds so you can undo it.',
-    cancel: 'Stop',
-    done: 'Task done',
-    goal: 'What should the agent achieve?',
-    goalPlaceholder: 'e.g. Get the invoice resent with our new address',
-    handle: 'Handle this…',
-    next: 'Next step',
-    start: 'Start',
-    started: 'The agent is on it.',
   },
   telegram: {
     approveAlike: 'Approve every card of one kind at once:',
@@ -1698,8 +1667,6 @@ export const en = {
       drafts:
         'Part of Fewmail Pro: the agent writes the reply in your style, and you edit and send it.',
       home: 'Part of Fewmail Pro: the emails that need you, with replies already drafted, updated as mail arrives.',
-      tasks:
-        'Part of Fewmail Pro: hand the thread to the agent and it sees it through, asking before each email it sends.',
     },
   },
   whatsapp: {

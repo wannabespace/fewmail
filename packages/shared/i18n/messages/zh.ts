@@ -7,7 +7,6 @@ export const zh: Messages = {
     cleanup: '全部退订',
     commitment: '完成',
     security: '我已核实',
-    task: '发送',
     spam: '已移到垃圾邮件',
     trash: '移到废纸篓',
     archive: '归档',
@@ -32,10 +31,6 @@ export const zh: Messages = {
     voice: '语音对话',
     voiceStop: '停止并发送',
     chats: '对话',
-    autonomy: {
-      ask: '每封邮件发出前都会先问你',
-      auto: (most: number) => `不问你，自己发送邮件（最多 ${most} 封）`,
-    },
     calendar: (email: string) => `在 ${email} 的日历中`,
     cc: (recipients: string) => `抄送：${recipients}`,
     confirm: {
@@ -48,7 +43,6 @@ export const zh: Messages = {
       clear_out: '要从收件箱清理这些邮件吗？',
       undo_clear_out: '要把清理的邮件全部放回收件箱吗？',
       create_rule: '添加这条规则？',
-      handle_thread: '把这个会话交给助手？',
       reply: '发送这条回复？',
       send_email: '发送这封邮件？',
       snooze_thread: '稍后提醒这个会话？',
@@ -101,7 +95,6 @@ export const zh: Messages = {
       get_board: '正在读取看板',
       get_person: '正在查找此人',
       get_today: '正在查看今天',
-      handle_thread: '正在移交会话',
       list_boards: '正在打开看板',
       list_handled: '正在查看已处理的邮件',
       list_mail: '正在搜索邮件',
@@ -140,7 +133,6 @@ export const zh: Messages = {
       clear_out: '清理',
       undo_clear_out: '放回',
       create_rule: '添加',
-      handle_thread: '交给助手',
       reply: '发送',
       send_email: '发送',
       snooze_thread: '推迟',
@@ -334,8 +326,6 @@ export const zh: Messages = {
       `你的套餐最多 ${total} 个看板。删除一个，或在设置 → 套餐中切换到 Max。`,
     messages: (date: string) => `本月发给代理的消息已用完，将于 ${date} 恢复。`,
     speech: (date: string) => `本月的朗读额度已用完，将于 ${date} 恢复。`,
-    tasks: (total: number) =>
-      `你的套餐一次可托付 ${total} 个会话。等其中一个完成，或在设置 → 套餐中切换到 Max。`,
   },
   notices: {
     freeUpSpace: '释放空间',
@@ -975,11 +965,6 @@ export const zh: Messages = {
             '转发一封邮件，在顶部写一句“下周和他们约个时间”，剩下的交给助手。',
           title: '转发给代理',
         },
-        handle: {
-          description:
-            '把一段对话连同目标交给代理，它会一直处理到底，每次发送前都先问你。',
-          title: '交给代理',
-        },
         reading: {
           description: '当天的订阅邮件汇成一份安静的清单，每封用几句话概括。',
           title: '阅读',
@@ -1147,7 +1132,6 @@ export const zh: Messages = {
           '首页：实时更新的决定队列，可逐条或批量批准',
           '用你的语气起草回复，经你批准才发送',
           'Telegram：紧急邮件、批准和语音指令',
-          '“交给代理”：代理把一段对话推进到目标',
           '记住承诺和联系人，用带图表的看板追踪钱或任何你关心的东西',
           '随意问你的邮件，还有供你自己的工具使用的 MCP',
         ],
@@ -1156,8 +1140,7 @@ export const zh: Messages = {
         `每月阅读 ${emails} 封邮件、给助手发 ${messages} 条消息；无用邮件从不计入`,
       pro: {
         description: '同样的助手，能处理更多邮件。',
-        room: (boards: number, tasks: number) =>
-          `同时最多 ${boards} 个看板和 ${tasks} 个托付的会话`,
+        room: (boards: number) => `同时最多 ${boards} 个看板`,
       },
       tryFree: (days: number) => `免费试用 ${days} 天`,
       yearly: '按年 · 免费两个月',
@@ -1573,19 +1556,6 @@ export const zh: Messages = {
       `${domain} 发来了新的付款信息。付款前请先电话确认。`,
     title: '操作前请先核实',
   },
-  tasks: {
-    active: (goal: string) => `代理正在处理：${goal}`,
-    auto: '无需询问直接发送邮件',
-    autoHint: '每封邮件仍会等待几秒，方便你撤销。',
-    cancel: '停止',
-    done: '任务完成',
-    goal: '你希望代理达成什么？',
-    goalPlaceholder: '例如：让对方按新地址重新发送发票',
-    handle: '交给代理…',
-    next: '下一步',
-    start: '开始',
-    started: '代理正在处理。',
-  },
   upgrade: {
     ask: '问问你的邮件',
     hints: {
@@ -1596,8 +1566,6 @@ export const zh: Messages = {
         'Fewmail Pro 的功能：描述要收集什么，代理会在你的邮件中找到它并持续更新。',
       drafts: 'Fewmail Pro 的功能：代理用你的风格写好回复，你修改后发送。',
       home: 'Fewmail Pro 的功能：需要你处理的邮件，附带已写好的回复草稿，随新邮件到达实时更新。',
-      tasks:
-        'Fewmail Pro 的功能：把这个会话交给代理，它会处理到底，每发一封邮件前都会先问你。',
     },
   },
   whatsapp: {

@@ -7,7 +7,6 @@ export const tr: Messages = {
     cleanup: 'Hepsinden çık',
     commitment: 'Tamam',
     security: 'Kontrol ettim',
-    task: 'Gönder',
     spam: 'Spama taşındı',
     archive: 'Arşivle',
     follow_up: 'Takip et',
@@ -31,11 +30,6 @@ export const tr: Messages = {
     voice: 'Ajana sesle söyle',
     voiceStop: 'Durdur ve gönder',
     chats: 'Sohbetler',
-    autonomy: {
-      ask: 'Her e-postadan önce sana sorar',
-      auto: (most: number) =>
-        `E-postaları sana sormadan kendisi gönderir (en fazla ${most})`,
-    },
     calendar: (email: string) => `${email} takviminde`,
     cc: (recipients: string) => `Bilgi: ${recipients}`,
     confirm: {
@@ -48,7 +42,6 @@ export const tr: Messages = {
       clear_out: 'Bu e-posta grupları gelen kutusundan temizlensin mi?',
       undo_clear_out: 'Temizlenen her şey gelen kutusuna geri dönsün mü?',
       create_rule: 'Bu kural eklensin mi?',
-      handle_thread: 'Bu yazışma ajana bırakılsın mı?',
       reply: 'Bu yanıt gönderilsin mi?',
       send_email: 'Bu e-posta gönderilsin mi?',
       snooze_thread: 'Bu yazışma ertelensin mi?',
@@ -102,7 +95,6 @@ export const tr: Messages = {
       get_board: 'Pano okunuyor',
       get_person: 'Kişi aranıyor',
       get_today: 'Bugün kontrol ediliyor',
-      handle_thread: 'Yazışma devrediliyor',
       list_boards: 'Panolar açılıyor',
       list_handled: 'Halledilenlere bakılıyor',
       list_mail: 'E-postalarda aranıyor',
@@ -141,7 +133,6 @@ export const tr: Messages = {
       clear_out: 'Temizle',
       undo_clear_out: 'Geri getir',
       create_rule: 'Ekle',
-      handle_thread: 'Devret',
       reply: 'Gönder',
       send_email: 'Gönder',
       snooze_thread: 'Ertele',
@@ -600,8 +591,6 @@ export const tr: Messages = {
       `Bu ayki ajan mesajların bitti. ${date} tarihinde yenilenecek.`,
     speech: (date: string) =>
       `Bu ayki sesli okuma hakkın doldu. ${date} tarihinde yenilenir.`,
-    tasks: (total: number) =>
-      `Planın aynı anda ${total} yazışmayı devralır. Birinin bitmesini bekle ya da Ayarlar → Plan’dan Max’e geç.`,
   },
   notices: {
     freeUpSpace: 'Yer aç',
@@ -1284,11 +1273,6 @@ export const tr: Messages = {
             'Bir e-postayı üstüne bir not yazarak ilet, “onlarla gelecek hafta bir saat bul” gibi, gerisini ajan halletsin.',
           title: 'Ajana ilet',
         },
-        handle: {
-          description:
-            'Bir yazışmayı bir hedefle devret, ajan onu sonuna kadar yürütsün ve her gönderimden önce sana sorsun.',
-          title: 'Bununla ilgilen',
-        },
         reading: {
           description:
             'Günün bültenleri sakin tek bir listede, her biri birkaç cümleyle özetlenmiş.',
@@ -1460,7 +1444,6 @@ export const tr: Messages = {
           'Ana Sayfa: canlı tek bir karar kuyruğu, tek tek ya da toplu onay',
           'Senin üslubunla hazırlanan, yalnızca sen onaylayınca gönderilen yanıtlar',
           'Telegram: acil postalar, onaylar ve sesli talimatlar',
-          '“Bununla ilgilen”: ajan bir yazışmayı hedefine ulaştırır',
           'Sözler ve kişiler hatırlanır; para ya da takip ettiğin her şey için grafikli panolar',
           'Postalarına her şeyi sor, ayrıca kendi araçların için MCP',
         ],
@@ -1469,8 +1452,7 @@ export const tr: Messages = {
         `Ayda ${emails} e-posta okunur ve ajana ${messages} mesaj; gürültü asla sayılmaz`,
       pro: {
         description: 'Aynı ajan, daha çok posta için yer.',
-        room: (boards: number, tasks: number) =>
-          `Aynı anda ${boards} pano ve ${tasks} devredilen yazışmaya kadar`,
+        room: (boards: number) => `Aynı anda ${boards} panoya kadar`,
       },
       tryFree: (days: number) => `${days} gün ücretsiz dene`,
       yearly: 'Yıllık · 2 ay ücretsiz',
@@ -1550,21 +1532,6 @@ export const tr: Messages = {
     notifications: 'Araç ve hizmetlerden gelen otomatik bildirimler',
     promotions: 'Promosyonlar, pazarlama ve istenmeyen satış e-postaları',
     receipts: 'Makbuzlar, sipariş ve kargo onayları',
-  },
-  tasks: {
-    active: (goal: string) => `Ajan ilgileniyor: ${goal}`,
-    auto: 'E-postaları bana sormadan gönder',
-    autoHint:
-      'Her e-posta yine de birkaç saniye bekler, böylece geri alabilirsin.',
-    cancel: 'Durdur',
-    done: 'Görev tamamlandı',
-    goal: 'Ajan neyi başarmalı?',
-    goalPlaceholder:
-      'ör. Faturanın yeni adresimizle tekrar gönderilmesini sağla',
-    handle: 'Bununla ilgilen…',
-    next: 'Sonraki adım',
-    start: 'Başlat',
-    started: 'Ajan ilgileniyor.',
   },
   telegram: {
     approveAlike: 'Aynı türdeki tüm kartları birden onayla:',
@@ -1668,8 +1635,6 @@ export const tr: Messages = {
       drafts:
         "Fewmail Pro'nun parçası: ajan yanıtı senin üslubunla yazar, sen düzenleyip gönderirsin.",
       home: "Fewmail Pro'nun parçası: seni bekleyen e-postalar, yanıt taslakları hazır, posta geldikçe güncellenir.",
-      tasks:
-        "Fewmail Pro'nun parçası: konuyu ajana devret, o da gönderdiği her e-postadan önce sorarak işi bitirsin.",
     },
   },
   whatsapp: {

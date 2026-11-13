@@ -7,7 +7,6 @@ export const id: Messages = {
     cleanup: 'Berhenti dari semua',
     commitment: 'Selesai',
     security: 'Sudah saya cek',
-    task: 'Kirim',
     spam: 'Dipindahkan ke spam',
     archive: 'Arsipkan',
     follow_up: 'Tindak lanjuti',
@@ -31,11 +30,6 @@ export const id: Messages = {
     voice: 'Bicara ke agen',
     voiceStop: 'Berhenti dan kirim',
     chats: 'Obrolan',
-    autonomy: {
-      ask: 'Bertanya padamu sebelum setiap email',
-      auto: (most: number) =>
-        `Mengirim email sendiri tanpa bertanya padamu (hingga ${most})`,
-    },
     calendar: (email: string) => `Di kalender ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
@@ -48,7 +42,6 @@ export const id: Messages = {
       clear_out: 'Bersihkan grup email ini dari kotak masuk?',
       undo_clear_out: 'Kembalikan semua yang dibersihkan ke kotak masuk?',
       create_rule: 'Tambahkan aturan ini?',
-      handle_thread: 'Serahkan percakapan ini ke agen?',
       reply: 'Kirim balasan ini?',
       send_email: 'Kirim email ini?',
       snooze_thread: 'Tunda percakapan ini?',
@@ -102,7 +95,6 @@ export const id: Messages = {
       get_board: 'Membaca papan',
       get_person: 'Mencari orangnya',
       get_today: 'Memeriksa hari ini',
-      handle_thread: 'Menyerahkan percakapan',
       list_boards: 'Membuka papan',
       list_handled: 'Memeriksa yang sudah ditangani',
       list_mail: 'Mencari di email',
@@ -141,7 +133,6 @@ export const id: Messages = {
       clear_out: 'Bersihkan',
       undo_clear_out: 'Kembalikan',
       create_rule: 'Tambahkan',
-      handle_thread: 'Serahkan',
       reply: 'Kirim',
       send_email: 'Kirim',
       snooze_thread: 'Tunda',
@@ -605,8 +596,6 @@ export const id: Messages = {
       `Pesan ke agen untuk bulan ini sudah habis. Akan tersedia lagi pada ${date}.`,
     speech: (date: string) =>
       `Jatah membacakan bulan ini sudah habis. Kembali pada ${date}.`,
-    tasks: (total: number) =>
-      `Paketmu menangani ${total} utas sekaligus. Tunggu satu selesai, atau beralih ke Max di Pengaturan → Paket.`,
   },
   notices: {
     freeUpSpace: 'Kosongkan ruang',
@@ -1291,11 +1280,6 @@ export const id: Messages = {
             'Teruskan email dengan catatan di atasnya, misalnya “carikan waktu dengan mereka minggu depan”, dan agen yang melanjutkan.',
           title: 'Teruskan ke agen',
         },
-        handle: {
-          description:
-            'Serahkan percakapan beserta tujuannya, dan agen menuntaskannya sampai akhir, selalu bertanya sebelum mengirim.',
-          title: 'Urus ini',
-        },
         reading: {
           description:
             'Newsletter hari ini dalam satu daftar yang tenang, masing-masing diringkas dalam beberapa kalimat.',
@@ -1466,7 +1450,6 @@ export const id: Messages = {
           'Beranda: satu antrean keputusan yang selalu terbaru, disetujui satu per satu atau sekaligus',
           'Balasan disusun dengan gayamu, dikirim hanya setelah kamu setujui',
           'Telegram: email mendesak, persetujuan, dan perintah suara',
-          '“Urus ini”: agen menggarap percakapan sampai tujuannya tercapai',
           'Janji dan orang diingat, papan dengan grafik untuk uang atau apa pun yang kamu lacak',
           'Tanyakan apa saja pada emailmu, plus MCP untuk alatmu sendiri',
         ],
@@ -1475,8 +1458,7 @@ export const id: Messages = {
         `${emails} email dibaca dan ${messages} pesan ke agen per bulan; email yang tak penting tidak pernah dihitung`,
       pro: {
         description: 'Agen yang sama dengan ruang untuk lebih banyak email.',
-        room: (boards: number, tasks: number) =>
-          `Hingga ${boards} papan dan ${tasks} percakapan yang diserahkan sekaligus`,
+        room: (boards: number) => `Hingga ${boards} papan sekaligus`,
       },
       tryFree: (days: number) => `Coba gratis ${days} hari`,
       yearly: 'Tahunan · gratis 2 bulan',
@@ -1556,20 +1538,6 @@ export const id: Messages = {
     notifications: 'Notifikasi otomatis dari alat dan layanan',
     promotions: 'Promosi, pemasaran, dan email penjualan yang tidak diminta',
     receipts: 'Tanda terima, konfirmasi pesanan dan pengiriman',
-  },
-  tasks: {
-    active: (goal: string) => `Agen sedang mengerjakannya: ${goal}`,
-    auto: 'Kirim email tanpa bertanya',
-    autoHint:
-      'Setiap email tetap menunggu beberapa detik agar kamu bisa mengurungkannya.',
-    cancel: 'Hentikan',
-    done: 'Tugas selesai',
-    goal: 'Apa yang harus dicapai agen?',
-    goalPlaceholder: 'mis. Minta tagihan dikirim ulang dengan alamat baru kami',
-    handle: 'Urus ini…',
-    next: 'Langkah berikutnya',
-    start: 'Mulai',
-    started: 'Agen sedang mengerjakannya.',
   },
   telegram: {
     approveAlike: 'Setujui sekaligus semua kartu sejenis:',
@@ -1670,8 +1638,6 @@ export const id: Messages = {
       drafts:
         'Bagian dari Fewmail Pro: agen menulis balasan dengan gayamu, lalu kamu edit dan kirim.',
       home: 'Bagian dari Fewmail Pro: email yang butuh kamu, dengan balasan yang sudah dirancang, diperbarui begitu email tiba.',
-      tasks:
-        'Bagian dari Fewmail Pro: serahkan utas ke agen dan ia menyelesaikannya, bertanya dulu sebelum setiap email yang dikirim.',
     },
   },
   whatsapp: {
