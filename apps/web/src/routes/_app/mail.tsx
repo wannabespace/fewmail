@@ -1,9 +1,6 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import {
-  BULK_THRESHOLD,
-  LIST_CATEGORIES,
-  PEOPLE_CATEGORIES,
-} from '@fewmail/shared/agent'
+import { BULK_THRESHOLD, isAutomatedSender } from '@fewmail/shared/agent'
+import type { MailCategory } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { CopyButton } from '@fewmail/ui/components/custom/copy-button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
@@ -243,15 +240,37 @@ const groupingOf = (filter: Filter): Grouping =>
 const GROUPS = [
   'important',
   'people',
+  'plans',
+  'money',
   'updates',
   'newsletters',
+  'promotions',
   'read',
 ] as const
 
 type GroupKey = (typeof GROUPS)[number]
 
-/** Folded groups show their newest few until asked, so notifications never push people's mail away. */
-const FOLDED = new Set<GroupKey>(['updates', 'newsletters'])
+const GROUP_OF: Record<MailCategory, GroupKey> = {
+  calendar: 'plans',
+  finance: 'money',
+  newsletter: 'newsletters',
+  notification: 'updates',
+  other: 'updates',
+  person: 'people',
+  promotion: 'promotions',
+  receipt: 'money',
+  security: 'updates',
+  travel: 'plans',
+  work: 'people',
+}
+
+/** Folded groups show their newest few until asked, so receipts and notifications never push people's mail away. */
+const FOLDED = new Set<GroupKey>([
+  'money',
+  'updates',
+  'newsletters',
+  'promotions',
+])
 const FOLDED_SHOWN = 3
 
 type ListedRow = Omit<MailRowData, 'key' | 'list'>
@@ -271,17 +290,15 @@ const groupKeyOf = (
   ) {
     return 'read'
   }
-  // Mail not analysed yet stays with people's, never folded out of sight.
-  if (!analysis) {
-    return 'people'
-  }
-  if (analysis.importance >= 2) {
+  if (analysis && analysis.importance >= 2) {
     return 'important'
   }
-  if (PEOPLE_CATEGORIES.has(analysis.category)) {
-    return 'people'
-  }
-  return LIST_CATEGORIES.has(analysis.category) ? 'newsletters' : 'updates'
+  // Mail not analysed yet stays with people's, never folded out of sight.
+  const group = analysis ? GROUP_OF[analysis.category] : 'people'
+  // Mail analysed before senders were checked may still call a service a person.
+  return group === 'people' && isAutomatedSender(message.fromEmail)
+    ? 'updates'
+    : group
 }
 
 const groupRows = <Row extends ListedRow>(

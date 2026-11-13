@@ -8,17 +8,19 @@ type Rule = typeof rules.$inferSelect
 
 export const CATEGORY_CRITERIA = {
   calendar: 'Meeting invitations, scheduling, calendar updates',
-  finance: 'Bills, invoices, payments due, bank and money matters',
+  finance: 'Bills, invoices, failed or due payments, bank and money matters',
   newsletter: 'Newsletters, digests, blog posts the user subscribed to',
-  notification: 'Automated notifications from apps, tools and services',
+  notification:
+    'Automated mail from apps, tools and services: alerts, account and billing notices, status updates',
   other: 'Anything else',
-  person: 'A real person writing personally to the user',
+  person:
+    'A real person writing personally to the user, never a company or an automated service',
   promotion: 'Marketing, sales offers, discounts, cold outreach',
   receipt: 'Receipts, order confirmations, shipping updates',
   security:
     'Sign-in alerts, password resets, verification codes, security warnings',
   travel: 'Flights, hotels, bookings, itineraries',
-  work: 'Work discussions, projects, colleagues, clients',
+  work: 'A colleague, client or partner writing about work in their own words, never a tool or service the user works with',
 } satisfies Record<MailCategory, string>
 
 export const ACTION_CRITERIA = {

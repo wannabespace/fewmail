@@ -22,6 +22,13 @@ export const LIST_CATEGORIES: ReadonlySet<MailCategory> = new Set([
   'promotion',
 ])
 
+const AUTOMATED_ADDRESS =
+  /(?:^|[._+-])(?:no-?reply|do-?not-?reply|notifications?|notify|alerts?|alerting|billing|payments?|receipts?|invoices?|orders?|newsletters?|marketing|updates?|mailer-daemon|mailer|bounces?|postmaster|automated|security)(?:[._+-]|$)/iu
+
+/** Addresses no person writes from (`cloudplatform-noreply@`, `notifications@`): their mail is never People, whatever the email reads like. */
+export const isAutomatedSender = (email: string) =>
+  AUTOMATED_ADDRESS.test(email.split('@')[0] ?? '')
+
 export const ACTION_KINDS = [
   'reply',
   'pay',

@@ -3,6 +3,7 @@ import { actions, analyses, messages, rules, users } from '@fewmail/db/schema'
 import {
   GMAIL_EFFECTS,
   IMPORTANCE,
+  isAutomatedSender,
   isGmailEffect,
   MAIL_CATEGORIES,
   PEOPLE_CATEGORIES,
@@ -268,7 +269,7 @@ const NO_EXTRACTED = { amount: null, dueDate: null, meetingTime: null }
 
 const isBulk = (message: Message) => (message.bulkCount ?? 0) >= BULK_THRESHOLD
 
-/** What the network knows beats what one email claims: mass mail is never personal, flagged mail is always urgent. */
+/** What the network knows beats what one email claims: mass mail and no-reply senders are never personal, flagged mail is always urgent. */
 const withNetworkFacts = <
   Output extends {
     category: MailCategory
@@ -292,7 +293,10 @@ const withNetworkFacts = <
     }
   }
   if (!isBulk(message)) {
-    return output
+    return isAutomatedSender(message.fromEmail) &&
+      PEOPLE_CATEGORIES.has(output.category)
+      ? { ...output, category: 'notification', needsReply: false }
+      : output
   }
   return {
     ...output,
