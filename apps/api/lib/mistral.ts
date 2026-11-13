@@ -18,7 +18,7 @@ export const mistral = env.MISTRAL_API_KEY
     })
   : null
 
-const TRANSCRIBE_MODEL = 'voxtral-mini-latest'
+export const TRANSCRIBE_MODEL = 'voxtral-mini-latest'
 
 export const transcribe = async (audio: ArrayBuffer, fileName: string) => {
   if (!mistral) {
@@ -31,9 +31,9 @@ export const transcribe = async (audio: ArrayBuffer, fileName: string) => {
   return text.trim()
 }
 
-const OCR_MODEL = 'mistral-ocr-latest'
+export const OCR_MODEL = 'mistral-ocr-latest'
 /** Invoices and contracts state what matters on their first pages; more only costs. */
-const OCR_PAGES = [0, 1, 2]
+export const OCR_PAGES = [0, 1, 2]
 
 /** A PDF's or an image's text as Markdown; null without a Mistral key. */
 export const readDocument = async (base64: string, mimeType: string) => {

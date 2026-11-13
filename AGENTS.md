@@ -18,4 +18,5 @@ Index only — rules live in `.agents/rules/`, one file per topic. `CLAUDE.md` s
 - **No user data in clear text in the database** — every text column from a user or their mail is `encryptedText` / `encryptedJson`, or `searchableText` when it is queried (see `architecture.md` → Database). Never log bodies, subjects, addresses or drafts.
 - **A comment is a warning or it does not exist.** Keep a comment only when an innocent-looking edit would break something; everything else goes into names.
 - **Write as little code as possible.** Reuse before adding, extend a file before creating one, no speculative options.
+- **Every change to a model, a prompt, a size limit, a plan limit or a price changes what Fewmail costs.** Run `bun run economics` in `apps/api` before and after, report the cost per email and message and the plan margins, and run `bun test` there (see `architecture.md` → AI cost).
 - **Design decisions go in the `fewmail-ui` skill** (`.agents/skills/fewmail-ui/`), in the matching topic file, in the same task.

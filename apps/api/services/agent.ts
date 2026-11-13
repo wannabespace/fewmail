@@ -48,9 +48,11 @@ import type { EmailAllowance } from './plan'
 import { getSettings } from './settings'
 import { applyThreadEffect } from './thread-effects'
 
-const BODY_LIMIT = 4000
-const EARLIER_LIMIT = 4
-const EARLIER_BODY_LIMIT = 1000
+export const BODY_LIMIT = 4000
+export const EARLIER_LIMIT = 4
+export const EARLIER_BODY_LIMIT = 1000
+export const SENT_EXAMPLES = 5
+export const SENT_EXAMPLE_CHARS = 600
 
 type Message = typeof messages.$inferSelect
 type Rule = typeof rules.$inferSelect
@@ -85,9 +87,9 @@ const labelExamples = (language: Locale) => {
   return `"${actionKind.reply}", "${actionKind.pay}", "${actionKind.schedule}"`
 }
 
-const analyzeInstructions = (input: {
+export const analyzeInstructions = (input: {
   language: Locale
-  rules: Rule[]
+  rules: Pick<Rule, 'id' | 'instruction'>[]
   userEmail: string
 }) =>
   [
@@ -169,10 +171,10 @@ const recentSentExamples = async (userId: string) => {
     .from(messages)
     .where(and(eq(messages.userId, userId), eq(messages.isFromMe, true)))
     .orderBy(desc(messages.receivedAt))
-    .limit(5)
+    .limit(SENT_EXAMPLES)
   return sent.map(({ body }) => {
     const [quoted = ''] = body.split(/\n\s*On .+wrote:/u)
-    return quoted.trim().slice(0, 600)
+    return quoted.trim().slice(0, SENT_EXAMPLE_CHARS)
   })
 }
 

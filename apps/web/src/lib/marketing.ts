@@ -1,6 +1,6 @@
 import { PRICE_USD } from '@fewmail/shared/agent'
 
-export const TRIAL_DAYS = 14
+export { TRIAL_DAYS } from '@fewmail/shared/agent'
 
 export const PLANS = [
   { id: 'free', price: { month: 0, year: 0 } },

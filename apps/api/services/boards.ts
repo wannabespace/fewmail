@@ -58,6 +58,7 @@ type Message = typeof messages.$inferSelect
 export const BOARD_HISTORY_LIMIT = 300
 
 const EXTRACT_CONCURRENCY = 4
+export const ENTRY_BODY_CHARS = 5000
 const MAX_PLANNED_CHARTS = 4
 const MAX_BANNER_DAYS = 14
 const ENTRIES_SHOWN = 1000
@@ -670,7 +671,7 @@ const extractEntry = async (
       .join('\n'),
     model: models.fast,
     output: Output.object({ schema: entrySchema }),
-    prompt: `From: ${message.fromName ?? ''} <${message.fromEmail}>\nSubject: ${message.subject}\n\n${message.body.slice(0, 5000)}`,
+    prompt: `From: ${message.fromName ?? ''} <${message.fromEmail}>\nSubject: ${message.subject}\n\n${message.body.slice(0, ENTRY_BODY_CHARS)}`,
     telemetry: trackUsage(board.userId, 'board_entry'),
   })
   if (context.isAdded) {

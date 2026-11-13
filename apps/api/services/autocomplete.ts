@@ -8,9 +8,9 @@ import { models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { mistral } from '../lib/mistral'
 import { getSettings } from './settings'
 
-const FIM_MODEL = 'codestral-latest'
-const MAX_TOKENS = 32
-const CONTEXT_LIMIT = 1500
+export const FIM_MODEL = 'codestral-latest'
+export const MAX_TOKENS = 32
+export const CONTEXT_LIMIT = 1500
 
 const preamble = async (userId: string, replyToMessageId?: string) => {
   const [[user], settings, [original]] = await Promise.all([

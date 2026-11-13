@@ -2,9 +2,9 @@ import { env } from '../env'
 
 const SPEECH_API = 'https://api.elevenlabs.io/v1/text-to-speech'
 /** Multilingual and fast enough for a reply in a chat. */
-const SPEECH_MODEL = 'eleven_flash_v2_5'
+export const SPEECH_MODEL = 'eleven_flash_v2_5'
 const DEFAULT_VOICE = 'JBFqnCBsd6RMkjVDRZzb'
-const SPEECH_CHARS = 2500
+export const SPEECH_CHARS = 2500
 /** Messengers want Ogg Opus voice notes; Safari plays only MP3 of the two. */
 const FORMATS = { messenger: 'opus_48000_64', web: 'mp3_44100_64' } as const
 

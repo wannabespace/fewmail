@@ -11,8 +11,8 @@ import { searchMailboxes } from './mailboxes'
 import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 
-const SOURCE_LIMIT = 12
-const BODY_LIMIT = 1500
+export const SOURCE_LIMIT = 12
+export const BODY_LIMIT = 1500
 
 export interface Exchange {
   answer: string

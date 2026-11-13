@@ -16,9 +16,9 @@ const READABLE = new Set([
   'image/png',
   'image/webp',
 ])
-const MAX_FILES = 2
+export const MAX_FILES = 2
 const MAX_BYTES = 10_000_000
-const TEXT_CHARS = 4000
+export const TEXT_CHARS = 4000
 
 const readAll = async (message: Message) => {
   const [mailbox] = await db

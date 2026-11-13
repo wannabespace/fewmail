@@ -13,8 +13,8 @@ import { getPlanInfo, hasAgent } from './plan'
 import { getSettings } from './settings'
 
 const READING_HOURS = 24
-const READING_SHOWN = 30
-const BODY_CHARS = 3000
+export const READING_SHOWN = 30
+export const BODY_CHARS = 3000
 
 const summariesSchema = type({
   items: type({ id: 'string', summary: 'string' }).array(),

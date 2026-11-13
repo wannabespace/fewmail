@@ -175,6 +175,8 @@ const knownSender = async (userId: string, domain: string, before: Date) => {
   return !!previous
 }
 
+export const RISK_BODY_CHARS = 6000
+
 const jevSignals = async (body: string) => {
   if (!jev) {
     return null
@@ -188,7 +190,7 @@ const jevSignals = async (body: string) => {
         'The email pressures the reader to pay, transfer money or share credentials urgently'
       ),
     },
-    state: body.slice(0, 6000),
+    state: body.slice(0, RISK_BODY_CHARS),
   })
   return {
     detailsChanged: answers.detailsChanged.noul >= 0.7,

@@ -11,6 +11,8 @@
     "start": "cross-env NODE_ENV=production bun run ./index.ts",
     "start:worker": "cross-env NODE_ENV=production bun run ./worker.ts",
     "check-types": "bun check",
+    "economics": "bun run --preload ./lib/offline-env.ts ./lib/economics.ts",
+    "test": "bun test",
     "seed:domains": "bun --env-file=../../.env run ./scripts/seed-known-domains.ts"
   },
   "dependencies": {
@@ -19,11 +21,11 @@
     "@fewmail/db": "workspace:*",
     "@fewmail/shared": "workspace:*",
     "@mistralai/mistralai": "catalog:",
-    "@resvg/resvg-wasm": "catalog:",
     "@modelcontextprotocol/sdk": "catalog:",
     "@openrouter/ai-sdk-provider": "catalog:",
     "@orpc/publisher": "catalog:",
     "@orpc/server": "catalog:",
+    "@resvg/resvg-wasm": "catalog:",
     "@typesafe-ai/sdk": "catalog:",
     "ai": "catalog:",
     "ai-retry": "catalog:",

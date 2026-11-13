@@ -1,4 +1,5 @@
 import type { BoardPreset, DeviceKind } from '@fewmail/shared/agent'
+import { TRIAL_DAYS } from '@fewmail/shared/agent'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { sql } from 'drizzle-orm'
 import * as d from 'drizzle-orm/pg-core'
@@ -30,7 +31,7 @@ export const userSettings = d.snakeCase.table('user_settings', {
   todaySince: d.timestamp({ withTimezone: true }),
   trialEndsAt: d
     .timestamp({ withTimezone: true })
-    .default(sql`now() + interval '14 days'`)
+    .default(sql`now() + interval '${sql.raw(String(TRIAL_DAYS))} days'`)
     .notNull(),
   updatedAt: d
     .timestamp({ withTimezone: true })

@@ -20,7 +20,7 @@ const DAY_MS = 86_400_000
 const currentMonth = () => `${new Date().toISOString().slice(0, 7)}-01`
 
 /** Urgent mail may run this far past the email limit, so the limit never hides it. */
-const URGENT_RESERVE = 1.1
+export const URGENT_RESERVE = 1.1
 
 const paidPlan = (priceId: string): Plan => {
   if (

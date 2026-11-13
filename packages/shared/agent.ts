@@ -135,6 +135,8 @@ export const isPaidPlan = (plan: Plan): plan is PaidPlan =>
 export const BILLING_INTERVALS = ['month', 'year'] as const
 export type BillingInterval = (typeof BILLING_INTERVALS)[number]
 
+export const TRIAL_DAYS = 14
+
 /** A year costs ten months; limits stay monthly either way. */
 export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
   lite: { month: 5, year: 50 },

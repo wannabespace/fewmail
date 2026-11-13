@@ -23,7 +23,7 @@ import { spendMessage } from './plan'
 import { getSettings } from './settings'
 import { expandSkills } from './skills'
 
-const MAX_STEPS = 12
+export const MAX_STEPS = 12
 const TITLE_LENGTH = 80
 
 const chatTools = (userId: string) =>
@@ -39,8 +39,12 @@ const chatTools = (userId: string) =>
     ])
   )
 
-const instructionsFor = async (userId: string) => {
-  const settings = await getSettings(userId)
+export const chatInstructions = (
+  settings: Pick<
+    NonNullable<Awaited<ReturnType<typeof getSettings>>>,
+    'knowledge' | 'language' | 'timezone'
+  > | null
+) => {
   const timezone = settings?.timezone ?? 'UTC'
   const now = new Date().toLocaleString('en-GB', {
     dateStyle: 'full',
@@ -196,7 +200,7 @@ export const streamChat = async (
         .values({ id, messages, title: titleOf(message), userId }))
 
   const result = streamText({
-    instructions: await instructionsFor(userId),
+    instructions: chatInstructions(await getSettings(userId)),
     messages: await convertToModelMessages(expandSkills(messages), {
       convertDataPart: openThreadText,
       tools,

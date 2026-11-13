@@ -18,6 +18,8 @@ const AUTO_FOLLOWUP_DAYS = 3
 const SIGNAL = 0.7
 /** A promise without a date is still due soon; nobody writes "I'll send it" meaning next quarter. */
 const DEFAULT_PROMISE_DAYS = 2
+export const SENT_JEV_CHARS = 4000
+export const PROMISE_BODY_CHARS = 6000
 
 const promisesSchema = type({
   promises: type({
@@ -43,7 +45,7 @@ const extractPromises = async (
     ].join('\n'),
     model: models.fast,
     output: Output.object({ schema: promisesSchema }),
-    prompt: `To: ${sent.to.join(', ')}\n\n${sent.text.slice(0, 6000)}`,
+    prompt: `To: ${sent.to.join(', ')}\n\n${sent.text.slice(0, PROMISE_BODY_CHARS)}`,
     telemetry: trackUsage(userId, 'promises'),
   })
   return output.promises.map(({ due, promise, recipient }) => ({
@@ -78,7 +80,7 @@ export const watchSentMail = async (
         'The writer promises to do something themselves later, like sending, signing, calling or paying'
       ),
     },
-    state: sent.text.slice(0, 4000),
+    state: sent.text.slice(0, SENT_JEV_CHARS),
   })
   if (answers.expectsReply.noul >= SIGNAL) {
     await watchForReply(userId, sent.threadId, AUTO_FOLLOWUP_DAYS)
