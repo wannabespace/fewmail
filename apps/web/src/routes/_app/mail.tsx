@@ -885,7 +885,7 @@ const BurstList = ({
               onPointerEnter={() => {
                 void warmThread(email.threadId)
               }}
-              className="hover:bg-secondary mr-3 ml-7 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-sm outline-none"
+              className="hover:bg-secondary mr-3 ml-7 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
             >
               <span
                 data-mask
@@ -956,7 +956,10 @@ const MailRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className="flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none"
+        className={cn(
+          'flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none',
+          isBurst && 'pb-1'
+        )}
       >
         <span className="flex items-center gap-2 text-sm">
           <span
