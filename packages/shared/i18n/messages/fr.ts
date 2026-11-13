@@ -1393,6 +1393,7 @@ export const fr: Messages = {
       `Traités tout seul : ${handled} · Réponses envoyées depuis les brouillons : ${replies}`,
     recent: (period: string) => `Aussi ${period}`,
     sent: 'Envoyé',
+    codes: 'Codes de connexion',
     worthAttention: 'Mérite votre attention',
   },
   boards: {

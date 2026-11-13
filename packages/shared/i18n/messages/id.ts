@@ -1639,6 +1639,7 @@ export const id: Messages = {
       `Ditangani sendiri: ${handled} · Balasan terkirim dari draf: ${replies}`,
     recent: (period: string) => `Juga ${period}`,
     sent: 'Terkirim',
+    codes: 'Kode masuk',
     worthAttention: 'Layak diperhatikan',
   },
   upgrade: {

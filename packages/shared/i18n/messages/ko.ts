@@ -1330,6 +1330,7 @@ export const ko: Messages = {
       `알아서 처리: ${handled} · 초안으로 보낸 답장: ${replies}`,
     recent: (period: string) => `${period}의 다른 메일`,
     sent: '보냄',
+    codes: '인증 코드',
     worthAttention: '살펴볼 만한 것',
   },
   boards: {

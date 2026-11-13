@@ -7,7 +7,6 @@ import {
 import type { MailCategory } from '@fewmail/shared/agent'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
-import { CopyButton } from '@fewmail/ui/components/custom/copy-button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   ResizableGroup,
@@ -15,19 +14,12 @@ import {
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@fewmail/ui/components/dropdown-menu'
-import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from '@fewmail/ui/components/empty'
-import { ButtonGroup, ButtonGroupSeparator } from '@fewmail/ui/components/group'
 import {
   InputGroup,
   InputGroupAddon,
@@ -102,6 +94,7 @@ import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { MailSearchStart, rememberSearch } from '~/components/mail-search'
 import {
+  CodeActions,
   MailRowActions,
   onEach,
   pinEach,
@@ -664,7 +657,6 @@ const MailRowMeta = ({
   )
 }
 
-/** Like iOS's verification codes: copied without opening the email, then the email goes away in the same click. */
 const MailRowCode = ({
   actions,
   code,
@@ -675,55 +667,16 @@ const MailRowCode = ({
   code: string | null
   messageIds: string[]
   sweep: Sweep
-}) => {
-  const t = useT()
-  if (!code) {
-    return null
-  }
-  const copyThen = (mutate: (input: { messageId: string }) => void) => () => {
-    void copy(code)
-    onEach(messageIds, mutate)()
-  }
-  return (
-    <ButtonGroup className="absolute top-7.5 right-4">
-      <CopyButton
-        text={code}
-        size="xs"
-        variant="outline"
-        aria-label={t.mail.oneTimeCode.copy}
-      >
-        <span data-mask className="font-mono tracking-wider tabular-nums">
-          {code}
-        </span>
-      </CopyButton>
-      <ButtonGroupSeparator />
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button size="icon-xs" variant="outline" aria-label={t.mail.more} />
-          }
-        >
-          <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {sweep.action === actions.archive && (
-            <DropdownMenuItem onClick={copyThen(actions.archive.mutate)}>
-              <HugeiconsIcon icon={sweep.icon} strokeWidth={2} />
-              {t.mail.oneTimeCode.archive}
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={copyThen(actions.trash.mutate)}
-          >
-            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-            {t.mail.oneTimeCode.trash}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </ButtonGroup>
+}) =>
+  code && (
+    <CodeActions
+      actions={actions}
+      className="absolute top-7.5 right-4"
+      code={code}
+      messageIds={messageIds}
+      sweep={sweep}
+    />
   )
-}
 
 const rowSurfaceOf = ({
   isActive,

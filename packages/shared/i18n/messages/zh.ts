@@ -1305,6 +1305,7 @@ export const zh: Messages = {
       `自动处理：${handled} · 用草稿发出的回复：${replies}`,
     recent: (period: string) => `${period}的其他邮件`,
     sent: '已发送',
+    codes: '验证码',
     worthAttention: '值得关注',
   },
   boards: {

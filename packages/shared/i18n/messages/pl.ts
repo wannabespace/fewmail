@@ -1736,6 +1736,7 @@ export const pl: Messages = {
       `Załatwione samodzielnie: ${handled} · Odpowiedzi wysłane z wersji roboczych: ${replies}`,
     recent: (period: string) => `Też ${period}`,
     sent: 'Wysłano',
+    codes: 'Kody logowania',
     worthAttention: 'Warte uwagi',
   },
   upgrade: {

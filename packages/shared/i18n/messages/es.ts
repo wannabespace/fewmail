@@ -1377,6 +1377,7 @@ export const es: Messages = {
       `Gestionados por su cuenta: ${handled} · Respuestas enviadas desde borradores: ${replies}`,
     recent: (period: string) => `También ${period}`,
     sent: 'Enviado',
+    codes: 'Códigos de acceso',
     worthAttention: 'Merece tu atención',
   },
   boards: {

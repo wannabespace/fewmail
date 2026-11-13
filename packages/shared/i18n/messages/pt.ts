@@ -1695,6 +1695,7 @@ export const pt: Messages = {
       `Resolvidos sozinho: ${handled} · Respostas enviadas a partir de rascunhos: ${replies}`,
     recent: (period: string) => `Também ${period}`,
     sent: 'Enviado',
+    codes: 'Códigos de acesso',
     worthAttention: 'Merece sua atenção',
   },
   upgrade: {

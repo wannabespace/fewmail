@@ -1350,6 +1350,7 @@ export const ja: Messages = {
       `自動で処理: ${handled} · 下書きから送信した返信: ${replies}`,
     recent: (period: string) => `${period}のその他`,
     sent: '送信済み',
+    codes: '認証コード',
     worthAttention: '目を通す価値あり',
   },
   boards: {

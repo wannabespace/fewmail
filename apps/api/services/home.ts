@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm'
 import { localClock } from '../lib/clock'
 import { boardBanners, boardsDigest } from './boards'
 import {
+  freshCodes,
   handledSince,
   listHandled,
   listQueue,
@@ -64,6 +65,7 @@ export const getToday = async (userId: string) => {
     saved,
     banners,
     tidy,
+    codes,
   ] = await Promise.all([
     listQueue(userId),
     handledSince(userId, since),
@@ -76,12 +78,17 @@ export const getToday = async (userId: string) => {
     savedThisWeek(userId),
     boardBanners(userId),
     listTidy(userId),
+    freshCodes(userId),
   ])
-  const queued = new Set(queue.map(({ message }) => message?.id))
+  const shown = new Set([
+    ...queue.map(({ message }) => message?.id),
+    ...codes.map(({ id }) => id),
+  ])
   return {
     awaiting,
     banners,
     boards,
+    codes,
     dates,
     days,
     handled,
@@ -89,7 +96,7 @@ export const getToday = async (userId: string) => {
     pulse,
     queue,
     recent: important
-      .filter(({ message }) => !queued.has(message.id))
+      .filter(({ message }) => !shown.has(message.id))
       .slice(0, RECENT_SHOWN_PER_DAY * days),
     saved,
     tidy,

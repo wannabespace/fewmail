@@ -1667,6 +1667,7 @@ export const en = {
       `Handled on its own: ${handled} · Replies sent from drafts: ${replies}`,
     recent: (period: string) => `Also ${period}`,
     sent: 'Sent',
+    codes: 'Sign-in codes',
     worthAttention: 'Worth your attention',
   },
   upgrade: {

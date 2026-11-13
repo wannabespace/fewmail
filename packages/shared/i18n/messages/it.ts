@@ -1377,6 +1377,7 @@ export const it: Messages = {
       `Gestite da solo: ${handled} · Risposte inviate dalle bozze: ${replies}`,
     recent: (period: string) => `Anche ${period}`,
     sent: 'Inviata',
+    codes: 'Codici di accesso',
     worthAttention: 'Merita attenzione',
   },
   boards: {

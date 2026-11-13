@@ -1677,6 +1677,7 @@ export const nl: Messages = {
       `Zelf afgehandeld: ${handled} · Antwoorden verstuurd vanuit concepten: ${replies}`,
     recent: (period: string) => `Ook ${period}`,
     sent: 'Verstuurd',
+    codes: 'Inlogcodes',
     worthAttention: 'Verdient je aandacht',
   },
   upgrade: {

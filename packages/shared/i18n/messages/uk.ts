@@ -1387,6 +1387,7 @@ export const uk: Messages = {
       `Розібрав сам: ${handled} · Відповіді з чернеток: ${replies}`,
     recent: (period: string) => `Ще ${period}`,
     sent: 'Надіслано',
+    codes: 'Коди для входу',
     worthAttention: 'Варто уваги',
   },
   boards: {

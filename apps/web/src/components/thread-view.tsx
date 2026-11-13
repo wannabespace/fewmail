@@ -9,6 +9,7 @@ import {
 } from '@fewmail/ui/components/alert'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
+import { CopyButton } from '@fewmail/ui/components/custom/copy-button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   DropdownMenu,
@@ -18,10 +19,13 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
+import { ButtonGroup, ButtonGroupSeparator } from '@fewmail/ui/components/group'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Archive02Icon,
+  ArrowDown01Icon,
   Cancel01Icon,
   Clock01Icon,
   Delete02Icon,
@@ -29,6 +33,7 @@ import {
   PinIcon,
   PinOffIcon,
 } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -579,6 +584,66 @@ export const pinEach =
       mutate({ messageId, pinned })
     }
   }
+
+/** Like iOS's verification codes: copied without opening the email, then the email goes away in the same click. */
+export const CodeActions = ({
+  actions,
+  className,
+  code,
+  messageIds,
+  sweep,
+}: {
+  actions: ReturnType<typeof useMailActions>
+  className?: string
+  code: string
+  messageIds: string[]
+  sweep: Sweep
+}) => {
+  const t = useT()
+  const copyThen = (mutate: (input: { messageId: string }) => void) => () => {
+    void copy(code)
+    onEach(messageIds, mutate)()
+  }
+  return (
+    <ButtonGroup className={className}>
+      <CopyButton
+        text={code}
+        size="xs"
+        variant="outline"
+        aria-label={t.mail.oneTimeCode.copy}
+      >
+        <span data-mask className="font-mono tracking-wider tabular-nums">
+          {code}
+        </span>
+      </CopyButton>
+      <ButtonGroupSeparator />
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button size="icon-xs" variant="outline" aria-label={t.mail.more} />
+          }
+        >
+          <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {sweep.action === actions.archive && (
+            <DropdownMenuItem onClick={copyThen(actions.archive.mutate)}>
+              <HugeiconsIcon icon={sweep.icon} strokeWidth={2} />
+              {t.mail.oneTimeCode.archive}
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={copyThen(actions.trash.mutate)}
+          >
+            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+            {t.mail.oneTimeCode.trash}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </ButtonGroup>
+  )
+}
 
 export const MailRowActions = ({
   actions,

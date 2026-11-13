@@ -1339,6 +1339,7 @@ export const hi: Messages = {
       `ख़ुद संभाले: ${handled} · ड्राफ़्ट से भेजे जवाब: ${replies}`,
     recent: (period: string) => `${period} और`,
     sent: 'भेजा गया',
+    codes: 'साइन-इन कोड',
     worthAttention: 'ध्यान देने लायक',
   },
   boards: {

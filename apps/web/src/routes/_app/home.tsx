@@ -45,6 +45,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
+import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   Add01Icon,
@@ -79,6 +80,7 @@ import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import {
+  CodeActions,
   MailRowActions,
   ROW_SWAP,
   sweepOf,
@@ -316,6 +318,60 @@ const Ago = ({ date }: { date: Date }) => (
   <span className="text-muted-foreground text-xs">{useDates().ago(date)}</span>
 )
 
+const FreshCodes = ({
+  canUseKeys,
+  today,
+}: {
+  canUseKeys: boolean
+  today: Today | undefined
+}) => {
+  const t = useT()
+  const codes = today?.codes ?? []
+  const queryClient = useQueryClient()
+  const actions = useMailActions((messageId) =>
+    queryClient.setQueryData(
+      orpc.today.get.queryKey(),
+      (old) =>
+        old && { ...old, codes: old.codes.filter(({ id }) => id !== messageId) }
+    )
+  )
+  const sweep = sweepOf(actions, t, 'inbox')
+  const newest = codes[0]?.code
+  useHotkey('Y', () => newest && copy(newest, t.mail.oneTimeCode.copied), {
+    enabled: canUseKeys && !!newest,
+  })
+
+  if (!newest) {
+    return null
+  }
+  return (
+    <SettingsGroup title={t.today.codes}>
+      {codes.map(
+        (message) =>
+          message.code && (
+            <SettingsRow
+              key={message.id}
+              title={
+                <ThreadLink
+                  threadId={message.threadId}
+                  text={message.fromName ?? message.fromEmail}
+                />
+              }
+              description={<span data-mask>{message.subject}</span>}
+            >
+              <CodeActions
+                actions={actions}
+                code={message.code}
+                messageIds={[message.id]}
+                sweep={sweep}
+              />
+            </SettingsRow>
+          )
+      )}
+    </SettingsGroup>
+  )
+}
+
 const MailDigest = ({ today }: { today: Today }) => {
   const t = useT()
   const money = useMoneyFormat()
@@ -512,7 +568,7 @@ const homeHints = (
   state: {
     alike: number
     hasHandled: boolean
-    hasTidy: boolean
+    today: Today | undefined
     isAsking: boolean
     isEditing: boolean
     picked: number
@@ -554,7 +610,7 @@ const homeHints = (
     ['⌫', t.keys.trash],
     ['X', t.keys.pick],
     ['⌘A', t.keys.pickAll],
-    ...(state.hasTidy
+    ...(state.today?.tidy.length
       ? [
           ['T', t.today.tidy.run] as [string, string],
           ['D', t.today.tidy.details] as [string, string],
@@ -562,6 +618,9 @@ const homeHints = (
       : []),
     ...(state.hasHandled
       ? [['H', t.today.handled.review] as [string, string]]
+      : []),
+    ...(state.today?.codes.length
+      ? [['Y', t.mail.oneTimeCode.copy] as [string, string]]
       : []),
   ]
 }
@@ -1232,6 +1291,7 @@ const HomePage = () => {
                   updatedAt={dataUpdatedAt}
                 />
                 <ConnectHint />
+                <FreshCodes today={data} canUseKeys={isWalking} />
 
                 <section
                   aria-label={t.today.worthAttention}
@@ -1332,10 +1392,10 @@ const HomePage = () => {
             hints={homeHints(t, {
               alike: alike.length,
               hasHandled,
-              hasTidy: !!data?.tidy.length,
               isAsking,
               isEditing,
               picked: picked.length,
+              today: data,
             })}
           />
         </main>

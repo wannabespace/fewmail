@@ -1382,6 +1382,7 @@ export const de: Messages = {
       `Selbst erledigt: ${handled} · Antworten aus Entwürfen: ${replies}`,
     recent: (period: string) => `Außerdem ${period}`,
     sent: 'Gesendet',
+    codes: 'Anmeldecodes',
     worthAttention: 'Einen Blick wert',
   },
   boards: {

@@ -1638,6 +1638,7 @@ export const tr: Messages = {
       `Kendi hallettiği: ${handled} · Taslaktan gönderilen yanıtlar: ${replies}`,
     recent: (period: string) => `${period} ayrıca`,
     sent: 'Gönderildi',
+    codes: 'Giriş kodları',
     worthAttention: 'İlgini hak ediyor',
   },
   upgrade: {

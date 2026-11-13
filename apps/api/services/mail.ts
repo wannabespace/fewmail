@@ -19,7 +19,7 @@ import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import { replyRecipients, textToHtml } from '@fewmail/shared/email'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { Result } from 'better-result'
-import { subHours } from 'date-fns'
+import { subHours, subMinutes } from 'date-fns'
 import {
   and,
   arrayContains,
@@ -29,6 +29,7 @@ import {
   gt,
   gte,
   inArray,
+  isNotNull,
   lt,
   ne,
   notExists,
@@ -880,6 +881,24 @@ export const recentImportant = (userId: string, since: Date) =>
   worthKnowingSince(userId, since, arrayContains(messages.labelIds, ['INBOX']))
     .orderBy(desc(analyses.importance), desc(messages.receivedAt))
     .limit(40)
+
+const CODE_FRESH_MINUTES = 15
+const CODES_SHOWN = 3
+
+export const freshCodes = (userId: string) =>
+  db
+    .select(messageSummary)
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, userId),
+        isNotNull(messages.code),
+        arrayContains(messages.labelIds, ['INBOX']),
+        gte(messages.receivedAt, subMinutes(new Date(), CODE_FRESH_MINUTES))
+      )
+    )
+    .orderBy(desc(messages.receivedAt))
+    .limit(CODES_SHOWN)
 
 /** How much mail came in since `since`, split into people and mailing lists. */
 export const mailPulse = async (userId: string, since: Date) => {
