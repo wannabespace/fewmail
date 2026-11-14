@@ -1046,7 +1046,8 @@ const HomePage = () => {
     setIsOpen(!!id)
   }
   const selectedIndex = queue.findIndex(({ action }) => action.id === cursorId)
-  const selected = queue.at(selectedIndex)
+  // Not `at`: on the proposals the index is -1, and `at(-1)` would hand the keys to the last card.
+  const selected = queue[selectedIndex]
   const [editingId, setEditingId] = useState<string | null>(null)
   const [rewritingId, setRewritingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
