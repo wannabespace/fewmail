@@ -4,24 +4,14 @@ import type { Messages } from './en'
 
 export const de: Messages = {
   agent: {
+    decideOnHome: 'Auf der Startseite entscheiden',
+    fromAgent: 'Der Agent fragt',
     mcpAsks: (client: string) => `${client} bittet über MCP`,
-    allChats: 'Alle Chats',
-    chatsLead:
-      'Jede Unterhaltung mit dem Agenten und was er regelmäßig für dich erledigt.',
-    waiting: 'Warten auf dein Ja',
-    waitingShort: 'wartet auf dein Ja',
-    hide: 'Agenten ausblenden',
-    show: 'Agenten einblenden',
-    voice: 'Mit dem Agenten sprechen',
-    voiceStop: 'Stoppen und senden',
-    chats: 'Chats',
     calendar: (email: string) => `Im Kalender von ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Diese Karte überspringen?',
       delete_board: 'Dieses Board mit allem darauf löschen?',
-      delete_schedule: 'Diesen Zeitplan stoppen?',
-      create_schedule: 'Das regelmäßig ausführen?',
       create_event: 'Diesen Termin hinzufügen?',
       delete_event: 'Diesen Termin löschen?',
       update_event: 'Diesen Termin ändern?',
@@ -40,34 +30,8 @@ export const de: Messages = {
       mark_not_spam: 'Diesen Verlauf aus dem Spam holen?',
       move_to_inbox: 'Diesen Verlauf zurück in den Posteingang verschieben?',
     },
-    decline: 'Nein',
-    declined: 'Abgelehnt',
-    stepCount: (count: number) =>
-      plural('de', count, {
-        one: () => 'Ein Schritt',
-        other: (n) => `${n} Schritte`,
-      }),
-    detach: 'Diese E-Mail nicht anhängen',
-    deleteChat: 'Chat löschen',
-    deleteChatConfirm: 'Diesen Chat löschen?',
-    deleteChatHint:
-      'Die Unterhaltung ist dann endgültig weg. Deine Mails bleiben, wo sie sind.',
-    failed: 'Der Agent konnte nicht fertig werden. Versuch es noch einmal.',
-    newChat: 'Neuer Chat',
-    noChats: 'Noch keine Chats',
-    cancelEdit: 'Bearbeiten abbrechen',
-    copy: 'Kopieren',
-    edit: 'Bearbeiten',
-    editing: 'Du bearbeitest deine Nachricht',
-    regenerate: 'Neu antworten',
-    skills: 'Skills',
-    placeholder: 'Frag nach deinen Mails oder tipp / für Skills',
     retry: 'Erneut versuchen',
-    send: 'Senden',
     steps: {
-      create_schedule: 'Zeitplan wird eingerichtet',
-      delete_schedule: 'Zeitplan wird beendet',
-      list_schedules: 'Zeitpläne werden gelesen',
       create_event: 'Termin wird hinzugefügt',
       delete_event: 'Termin wird gelöscht',
       list_events: 'Kalender wird geprüft',
@@ -111,15 +75,11 @@ export const de: Messages = {
       remove_board_entry: 'Entferne es vom Board',
       rename_board_group: 'Benenne die Gruppe um',
     },
-    stop: 'Stopp',
-    thinking: 'Denke nach…',
     to: (recipients: string) => `An ${recipients}`,
     until: (time: string) => `Bis ${time}`,
     yes: {
       dismiss_action: 'Überspringen',
       delete_board: 'Löschen',
-      delete_schedule: 'Stoppen',
-      create_schedule: 'Einplanen',
       create_event: 'Hinzufügen',
       delete_event: 'Löschen',
       update_event: 'Speichern',
@@ -141,7 +101,6 @@ export const de: Messages = {
   },
   ask: {
     label: (question: string) => `Fewmail fragen: „${question}“`,
-    openChat: 'Im Chat öffnen',
     thinking: 'Durchsuche deine Mails…',
   },
   compose: {
@@ -695,6 +654,7 @@ export const de: Messages = {
   },
   actionKind: {
     cleanup: 'Alle abbestellen',
+    consent: 'Zustimmen',
     commitment: 'Erledigt',
     security: 'Geprüft',
     spam: 'In den Spam',
@@ -801,7 +761,6 @@ export const de: Messages = {
     openLink: 'Link öffnen',
     writeReminder: 'Erinnerung schreiben',
     summary: 'Zusammenfassung',
-    askAgent: 'Agent fragen',
     fromSender: 'mehr vom Absender',
     approvePicked: (n: number) => `${n} ausgewählte genehmigen`,
     pick: 'auswählen',
@@ -1038,17 +997,6 @@ export const de: Messages = {
     usage: (percent: number) => `Agent · ${percent} % des Monats verbraucht`,
     watching: 'Der Agent behält deinen Posteingang im Blick',
   },
-  schedule: {
-    awaitsAnswer:
-      'Diesen Lauf habe ich übersprungen: Der letzte wartet in diesem Chat noch auf deine Antwort.',
-    failed:
-      'Dieser geplante Lauf ist fehlgeschlagen. Ich versuche es beim nächsten erneut.',
-    limitReached: (day: string) =>
-      `Das Kontingent des Agenten ist für diesen Monat aufgebraucht, daher überspringt der Zeitplan Läufe bis zum ${day}.`,
-    open: 'In Fewmail öffnen',
-    stopped:
-      'Dieser Zeitplan ist dreimal hintereinander fehlgeschlagen, deshalb habe ich ihn gestoppt. Bitte mich, ihn neu einzurichten, wenn du ihn zurück willst.',
-  },
   notifications: {
     many: (total: number) =>
       plural('de', total, {
@@ -1187,13 +1135,6 @@ export const de: Messages = {
       description:
         'Sortiert Mails in Fewmail/…-Labels, damit Gmail auf deinem Handy dieselbe Ordnung zeigt.',
       title: 'Agent-Labels in Gmail',
-    },
-    schedules: {
-      deleted: 'Zeitplan gelöscht',
-      delete: 'Löschen',
-      description:
-        'Bitte den Agenten im Chat, etwas regelmäßig zu tun, etwa „jeden Freitag um 17:00 die Rechnungen der Woche sammeln“. Jeder Lauf landet in einem eigenen Chat, wo du alles bestätigst, was er senden möchte.',
-      title: 'Zeitpläne',
     },
     snippets: {
       deleted: 'Textbaustein gelöscht',
@@ -1382,7 +1323,6 @@ export const de: Messages = {
     allDone: 'Alles erledigt. Nichts braucht dich.',
     allDoneLead:
       'Ich lese neue Mails weiter, und alles, was dich braucht, erscheint hier.',
-    ask: 'Frag den Agenten oder sag ihm, was er tun soll…',
     byRules: (n: number) => `Deine Regeln haben ${n} erledigt.`,
     decisions: 'Entscheidungen',
     journal: {
@@ -1763,8 +1703,6 @@ export const de: Messages = {
   upgrade: {
     ask: 'Frag deine Mails',
     hints: {
-      agent:
-        'Teil von Fewmail Pro: Frag nach deinen Mails oder sag, was zu tun ist – der Agent erledigt es und wartet auf dein Ja, bevor sich in Gmail etwas ändert.',
       ask: 'Teil von Fewmail Pro: Frag alles in eigenen Worten und bekomm die Antwort aus deinen eigenen Mails.',
       boards:
         'Teil von Fewmail Pro: Beschreibe, was gesammelt werden soll, und der Agent findet es in deinen Mails und hält es aktuell.',

@@ -40,7 +40,6 @@ export {
   boardEntries,
   boards,
   bulkPrints,
-  chats,
   commitments,
   domainAges,
   domainSightings,
@@ -49,7 +48,6 @@ export {
   patternReports,
   people,
   readingSummaries,
-  schedules,
   templateReports,
   unsubscribes,
 } from './insight'

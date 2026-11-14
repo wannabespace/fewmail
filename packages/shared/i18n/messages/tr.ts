@@ -21,6 +21,7 @@ export const tr: Messages = {
   },
   actionKind: {
     cleanup: 'Hepsinden çık',
+    consent: 'Onayla',
     commitment: 'Tamam',
     security: 'Kontrol ettim',
     spam: 'Spama taşı',
@@ -42,23 +43,14 @@ export const tr: Messages = {
     pending: 'Ana Sayfa’da bekliyor',
   },
   agent: {
+    decideOnHome: 'Ana sayfada karar ver',
+    fromAgent: 'Ajan soruyor',
     mcpAsks: (client: string) => `${client} MCP üzerinden istiyor`,
-    allChats: 'Tüm sohbetler',
-    chatsLead: 'Ajanla her konuşma ve senin için düzenli olarak yaptıkları.',
-    waiting: 'Onayını bekleyenler',
-    waitingShort: 'onayını bekliyor',
-    hide: 'Ajanı gizle',
-    show: 'Ajanı göster',
-    voice: 'Ajana sesle söyle',
-    voiceStop: 'Durdur ve gönder',
-    chats: 'Sohbetler',
     calendar: (email: string) => `${email} takviminde`,
     cc: (recipients: string) => `Bilgi: ${recipients}`,
     confirm: {
       dismiss_action: 'Bu kart atlansın mı?',
       delete_board: 'Bu pano ve içindeki her şey silinsin mi?',
-      delete_schedule: 'Bu zamanlama durdurulsun mu?',
-      create_schedule: 'Bu bir zamanlamayla çalıştırılsın mı?',
       create_event: 'Bu etkinlik eklensin mi?',
       delete_event: 'Bu etkinlik silinsin mi?',
       update_event: 'Bu etkinlik değiştirilsin mi?',
@@ -77,30 +69,8 @@ export const tr: Messages = {
       mark_not_spam: 'Bu ileti dizisi spamdan çıkarılsın mı?',
       move_to_inbox: 'Bu ileti dizisi gelen kutusuna geri taşınsın mı?',
     },
-    decline: 'Hayır',
-    declined: 'Hayır dedin',
-    stepCount: (count: number) => `${count} adım`,
-    detach: 'Bu e-postayı ekleme',
-    deleteChat: 'Sohbeti sil',
-    deleteChatConfirm: 'Bu sohbet silinsin mi?',
-    deleteChatHint:
-      'Konuşma kalıcı olarak silinir. E-postaların olduğu yerde kalır.',
-    failed: 'Ajan işi bitiremedi. Tekrar dene.',
-    newChat: 'Yeni sohbet',
-    noChats: 'Henüz sohbet yok',
-    cancelEdit: 'Düzenlemeyi iptal et',
-    copy: 'Kopyala',
-    edit: 'Düzenle',
-    editing: 'Mesajını düzenliyorsun',
-    regenerate: 'Yeniden yanıtla',
-    skills: 'Beceriler',
-    placeholder: 'E-postaların hakkında sor ya da beceriler için / yaz',
     retry: 'Tekrar dene',
-    send: 'Gönder',
     steps: {
-      create_schedule: 'Zamanlama kuruluyor',
-      delete_schedule: 'Zamanlama durduruluyor',
-      list_schedules: 'Zamanlamalar okunuyor',
       create_event: 'Etkinlik ekleniyor',
       delete_event: 'Etkinlik siliniyor',
       list_events: 'Takvime bakılıyor',
@@ -144,15 +114,11 @@ export const tr: Messages = {
       remove_board_entry: 'Panodan çıkarılıyor',
       rename_board_group: 'Grubun adı değiştiriliyor',
     },
-    stop: 'Durdur',
-    thinking: 'Düşünüyor…',
     to: (recipients: string) => `Kime: ${recipients}`,
     until: (time: string) => `Şu zamana kadar: ${time}`,
     yes: {
       dismiss_action: 'Atla',
       delete_board: 'Sil',
-      delete_schedule: 'Durdur',
-      create_schedule: 'Zamanla',
       create_event: 'Ekle',
       delete_event: 'Sil',
       update_event: 'Kaydet',
@@ -174,7 +140,6 @@ export const tr: Messages = {
   },
   ask: {
     label: (question: string) => `Fewmail'e sor: “${question}”`,
-    openChat: 'Sohbette aç',
     thinking: 'E-postalarına bakılıyor…',
   },
   byRule: 'bir kuralla',
@@ -569,7 +534,6 @@ export const tr: Messages = {
     openLink: 'bağlantıyı aç',
     writeReminder: 'hatırlatma yaz',
     summary: 'özet',
-    askAgent: 'ajana sor',
     fromSender: 'gönderenden diğerleri',
     approvePicked: (n: number) => `seçili ${n} öğeyi onayla`,
     pick: 'seç',
@@ -800,17 +764,6 @@ export const tr: Messages = {
     usage: (percent: number) => `Ajan · bu ayın %${percent} kadarı kullanıldı`,
     watching: 'Ajan gelen kutunu izliyor',
   },
-  schedule: {
-    awaitsAnswer:
-      'Bu çalışmayı atladım: bir önceki hâlâ bu sohbette yanıtını bekliyor.',
-    failed:
-      'Bu zamanlanmış çalışma başarısız oldu. Bir sonrakinde yeniden deneyeceğim.',
-    limitReached: (day: string) =>
-      `Ajanın bu ayki kullanım hakkı bitti, bu yüzden zamanlama şu tarihe kadar çalışmaları atlıyor: ${day}`,
-    open: 'Fewmail’de aç',
-    stopped:
-      'Bu zamanlama üst üste üç kez başarısız oldu, bu yüzden durdurdum. Geri istediğinizde yeniden kurmamı isteyin.',
-  },
   notifications: {
     many: (total: number) =>
       plural('tr', total, {
@@ -1021,13 +974,6 @@ export const tr: Messages = {
     },
     signedInWithGoogle: 'Google ile giriş yapıldı',
     signOut: 'Çıkış yap',
-    schedules: {
-      deleted: 'Zamanlama silindi',
-      delete: 'Sil',
-      description:
-        'Sohbette ajandan düzenli olarak bir şey yapmasını isteyin, örneğin “her cuma 17:00’de haftanın faturalarını topla”. Her çalışma kendi sohbetine gelir; göndermek istediği her şeyi orada onaylarsınız.',
-      title: 'Zamanlamalar',
-    },
     snippets: {
       deleted: 'Parça silindi',
       add: 'Parça ekle',
@@ -1633,7 +1579,6 @@ export const tr: Messages = {
     allDone: 'Hepsi tamam. Seni bekleyen bir şey yok.',
     allDoneLead:
       'Yeni e-postaları okumaya devam ediyorum, ilgilenmen gereken her şey burada görünecek.',
-    ask: 'Ajana sor ya da ne yapacağını söyle…',
     byRules: (n: number) => `Kuralların ${n} tanesini halletti.`,
     decisions: 'Kararlar',
     journal: {
@@ -1711,8 +1656,6 @@ export const tr: Messages = {
   upgrade: {
     ask: 'Postana sor',
     hints: {
-      agent:
-        "Fewmail Pro'nun parçası: postaların hakkında sor ya da ne yapılacağını söyle; ajan yapar ve Gmail'de bir şey değişmeden önce onayını bekler.",
       ask: "Fewmail Pro'nun parçası: istediğini kendi kelimelerinle sor, yanıtı kendi postalarından al.",
       boards:
         "Fewmail Pro'nun parçası: neyin toplanacağını anlat, ajan postalarında bulsun ve güncel tutsun.",

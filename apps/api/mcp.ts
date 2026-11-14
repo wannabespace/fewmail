@@ -9,10 +9,10 @@ import { APIError, isAPIError } from 'better-auth/api'
 import { createAuthClient } from 'better-auth/client'
 import { z } from 'zod'
 
-import { deliverChatLink } from './chat-link'
+import { deliverHomeLink } from './home-link'
 import { auth, AUTH_ISSUER, MCP_RESOURCE } from './lib/auth'
+import { proposeConsent } from './services/agent-run'
 import { agentTools, toolAccess } from './services/agent-tools'
-import { requestConsent } from './services/chat'
 import { isAppConnected } from './services/integrations'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { getSettings } from './services/settings'
@@ -44,17 +44,17 @@ const waitForYes = async (
   name: ConsentToolName,
   input: unknown
 ) => {
-  const request = await requestConsent(userId, {
-    client: server.server.getClientVersion()?.name,
+  const settings = await getSettings(userId)
+  const t = messages[settings?.language ?? 'en']
+  const from = t.agent.mcpAsks(
+    server.server.getClientVersion()?.name ?? t.settings.mcp.defaultName
+  )
+  const { question } = await proposeConsent(userId, {
+    from,
     input: input as Record<string, unknown>,
     name,
   })
-  const settings = await getSettings(userId)
-  await deliverChatLink(userId, messages[settings?.language ?? 'en'], {
-    chatId: request.chatId,
-    headline: request.title,
-    text: request.question,
-  })
+  await deliverHomeLink(userId, t, { headline: from, text: question })
   return {
     note: 'Nothing happened yet. The user answers this in Fewmail (Home and a notification); the yes carries it out there. Tell them so, and do not call it again.',
     status: 'waiting_for_approval',

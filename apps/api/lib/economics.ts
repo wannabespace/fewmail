@@ -26,6 +26,7 @@ import {
   SENT_EXAMPLE_CHARS,
   SENT_EXAMPLES,
 } from '../services/agent'
+import { agentInstructions, MAX_STEPS } from '../services/agent-run'
 import { agentTools } from '../services/agent-tools'
 import { BODY_LIMIT as ASK_BODY_LIMIT, SOURCE_LIMIT } from '../services/ask'
 import { MAX_FILES, TEXT_CHARS } from '../services/attachments'
@@ -35,7 +36,6 @@ import {
   MAX_TOKENS as FIM_OUTPUT_TOKENS,
 } from '../services/autocomplete'
 import { ENTRY_BODY_CHARS } from '../services/boards'
-import { chatInstructions, MAX_STEPS } from '../services/chat'
 import {
   ACTION_CRITERIA,
   CATEGORY_CRITERIA,
@@ -342,7 +342,7 @@ const toolsChars = JSON.stringify(
  * it added. The cache lasts five minutes, so a message after a pause writes the tools and instructions again; every message is taken to be one.
  */
 const chatCost = (use: Use) => {
-  const instructions = chatInstructions({
+  const instructions = agentInstructions({
     knowledge: 'x'.repeat(use.knowledgeChars),
     language: 'en',
     timezone: 'UTC',

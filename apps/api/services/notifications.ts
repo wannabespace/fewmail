@@ -160,12 +160,11 @@ export const urgentNotification = ({
   url: '/home',
 })
 
-export const scheduleNotification = (
-  instruction: string,
-  answer: string,
-  chatId: string
+export const homeNotification = (
+  title: string,
+  body: string
 ): Notification => ({
-  body: answer.slice(0, BODY_LIMIT),
-  title: instruction,
-  url: `/home?chat=${chatId}`,
+  body: body.slice(0, BODY_LIMIT),
+  title,
+  url: '/home',
 })

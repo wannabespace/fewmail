@@ -4,24 +4,14 @@ import type { Messages } from './en'
 
 export const it: Messages = {
   agent: {
+    decideOnHome: 'Decidi nella Home',
+    fromAgent: 'L’agente chiede',
     mcpAsks: (client: string) => `${client} chiede tramite MCP`,
-    allChats: 'Tutte le chat',
-    chatsLead:
-      'Ogni conversazione con l’agente e ciò che fa per te a intervalli regolari.',
-    waiting: 'In attesa del tuo sì',
-    waitingShort: 'aspetta il tuo sì',
-    hide: 'Nascondi l’agente',
-    show: 'Mostra l’agente',
-    voice: 'Parla con l’agente',
-    voiceStop: 'Ferma e invia',
-    chats: 'Chat',
     calendar: (email: string) => `Nel calendario di ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Saltare questa scheda?',
       delete_board: 'Eliminare questa bacheca e tutto ciò che contiene?',
-      delete_schedule: 'Fermare questa pianificazione?',
-      create_schedule: 'Eseguire questo in modo pianificato?',
       create_event: 'Aggiungere questo evento?',
       delete_event: 'Eliminare questo evento?',
       update_event: 'Modificare questo evento?',
@@ -41,35 +31,8 @@ export const it: Messages = {
       mark_not_spam: 'Togliere questa conversazione dallo spam?',
       move_to_inbox: 'Riportare questa conversazione nella posta in arrivo?',
     },
-    decline: 'No',
-    declined: 'Hai detto di no',
-    stepCount: (count: number) =>
-      plural('it', count, {
-        one: () => 'Un passaggio',
-        many: (n) => `${n} passaggi`,
-        other: (n) => `${n} passaggi`,
-      }),
-    detach: 'Non allegare questa email',
-    deleteChat: 'Elimina chat',
-    deleteChatConfirm: 'Eliminare questa chat?',
-    deleteChatHint:
-      'La conversazione sparisce per sempre. La tua posta resta dov’è.',
-    failed: 'L’agente non è riuscito a finire. Riprova.',
-    newChat: 'Nuova chat',
-    noChats: 'Ancora nessuna chat',
-    cancelEdit: 'Annulla modifica',
-    copy: 'Copia',
-    edit: 'Modifica',
-    editing: 'Stai modificando il messaggio',
-    regenerate: 'Rispondi di nuovo',
-    skills: 'Skill',
-    placeholder: 'Chiedi della tua posta o digita / per le skill',
     retry: 'Riprova',
-    send: 'Invia',
     steps: {
-      create_schedule: 'Imposto la pianificazione',
-      delete_schedule: 'Fermo la pianificazione',
-      list_schedules: 'Leggo le pianificazioni',
       create_event: 'Aggiungo un evento',
       delete_event: 'Elimino l’evento',
       list_events: 'Controllo il calendario',
@@ -113,15 +76,11 @@ export const it: Messages = {
       remove_board_entry: 'Lo tolgo dalla bacheca',
       rename_board_group: 'Rinomino il gruppo',
     },
-    stop: 'Ferma',
-    thinking: 'Sto pensando…',
     to: (recipients: string) => `A ${recipients}`,
     until: (time: string) => `Fino a ${time}`,
     yes: {
       dismiss_action: 'Salta',
       delete_board: 'Elimina',
-      delete_schedule: 'Ferma',
-      create_schedule: 'Pianifica',
       create_event: 'Aggiungi',
       delete_event: 'Elimina',
       update_event: 'Salva',
@@ -143,7 +102,6 @@ export const it: Messages = {
   },
   ask: {
     label: (question: string) => `Chiedi a Fewmail: «${question}»`,
-    openChat: 'Apri nella chat',
     thinking: 'Sto cercando nella tua posta…',
   },
   compose: {
@@ -700,6 +658,7 @@ export const it: Messages = {
   },
   actionKind: {
     cleanup: 'Disiscriviti da tutte',
+    consent: 'Approva',
     commitment: 'Fatto',
     security: 'Ho controllato',
     spam: 'Sposta nello spam',
@@ -806,7 +765,6 @@ export const it: Messages = {
     openLink: 'apri link',
     writeReminder: 'scrivi un sollecito',
     summary: 'riassunto',
-    askAgent: 'chiedi all’agente',
     fromSender: 'altro dal mittente',
     approvePicked: (n: number) => `approva ${n} selezionati`,
     pick: 'seleziona',
@@ -1043,17 +1001,6 @@ export const it: Messages = {
     usage: (percent: number) => `Agente · ${percent}% del mese usato`,
     watching: 'L’agente tiene d’occhio la tua posta',
   },
-  schedule: {
-    awaitsAnswer:
-      'Ho saltato questa esecuzione: la precedente aspetta ancora la tua risposta in questa chat.',
-    failed:
-      'Questa esecuzione pianificata non è riuscita. Riproverò alla prossima.',
-    limitReached: (day: string) =>
-      `La quota dell’agente di questo mese è esaurita, quindi la pianificazione salta le esecuzioni fino al ${day}.`,
-    open: 'Apri in Fewmail',
-    stopped:
-      'Questa pianificazione è fallita tre volte di seguito, quindi l’ho fermata. Chiedimi di reimpostarla quando la vuoi.',
-  },
   notifications: {
     many: (total: number) =>
       plural('it', total, {
@@ -1191,13 +1138,6 @@ export const it: Messages = {
       description:
         'Ordina la posta in etichette Fewmail/… così Gmail sul telefono mostra lo stesso ordine.',
       title: 'Etichette dell’agente in Gmail',
-    },
-    schedules: {
-      deleted: 'Pianificazione eliminata',
-      delete: 'Elimina',
-      description:
-        'Chiedi all’agente in chat di fare qualcosa regolarmente, come «ogni venerdì alle 17:00 raccogli le fatture della settimana». Ogni esecuzione arriva in una chat dedicata, dove approvi ciò che vuole inviare.',
-      title: 'Pianificazioni',
     },
     snippets: {
       deleted: 'Snippet eliminato',
@@ -1382,7 +1322,6 @@ export const it: Messages = {
     allDone: 'Tutto fatto. Niente ha bisogno di te.',
     allDoneLead:
       'Continuo a leggere la posta nuova, e ciò che ha bisogno di te comparirà qui.',
-    ask: 'Chiedi all’agente o digli cosa fare…',
     byRules: (n: number) => `Le tue regole ne hanno gestite ${n}.`,
     decisions: 'Decisioni',
     journal: {
@@ -1764,8 +1703,6 @@ export const it: Messages = {
   upgrade: {
     ask: 'Chiedi alla tua posta',
     hints: {
-      agent:
-        'Incluso in Fewmail Pro: chiedi della tua posta o di’ cosa fare, e l’agente lo fa, aspettando il tuo sì prima di cambiare qualcosa in Gmail.',
       ask: 'Incluso in Fewmail Pro: chiedi qualsiasi cosa con parole tue e ricevi la risposta dalla tua posta.',
       boards:
         'Incluso in Fewmail Pro: descrivi cosa raccogliere e l’agente lo trova nella tua posta e lo tiene aggiornato.',

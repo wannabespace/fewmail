@@ -11,13 +11,11 @@ const CHANNEL = 'mail_changed'
 export const LIVE_TOPICS = [
   'actions',
   'boards',
-  'chats',
   'integrations',
   'mail',
   'mailboxes',
   'person',
   'reading',
-  'schedules',
   'subscriptions',
   'today',
 ] as const

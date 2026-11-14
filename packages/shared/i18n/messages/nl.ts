@@ -21,6 +21,7 @@ export const nl: Messages = {
   },
   actionKind: {
     cleanup: 'Overal afmelden',
+    consent: 'Goedkeuren',
     commitment: 'Klaar',
     security: 'Gecontroleerd',
     spam: 'Naar spam',
@@ -42,24 +43,14 @@ export const nl: Messages = {
     pending: 'wacht op Home',
   },
   agent: {
+    decideOnHome: 'Beslis op Home',
+    fromAgent: 'De agent vraagt',
     mcpAsks: (client: string) => `${client} vraagt via MCP`,
-    allChats: 'Alle chats',
-    chatsLead:
-      'Elk gesprek met de agent, en wat hij volgens schema voor je doet.',
-    waiting: 'Wachten op je ja',
-    waitingShort: 'wacht op je ja',
-    hide: 'Agent verbergen',
-    show: 'Agent tonen',
-    voice: 'Praat met de agent',
-    voiceStop: 'Stoppen en versturen',
-    chats: 'Chats',
     calendar: (email: string) => `In de agenda van ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Deze kaart overslaan?',
       delete_board: 'Dit bord met alles erop verwijderen?',
-      delete_schedule: 'Deze planning stoppen?',
-      create_schedule: 'Dit volgens een planning uitvoeren?',
       create_event: 'Deze afspraak toevoegen?',
       delete_event: 'Deze afspraak verwijderen?',
       update_event: 'Deze afspraak wijzigen?',
@@ -78,34 +69,8 @@ export const nl: Messages = {
       mark_not_spam: 'Deze thread uit spam halen?',
       move_to_inbox: 'Deze thread terugzetten naar de inbox?',
     },
-    decline: 'Nee',
-    declined: 'Je zei nee',
-    stepCount: (count: number) =>
-      plural('nl', count, {
-        one: () => 'Eén stap',
-        other: (n) => `${n} stappen`,
-      }),
-    detach: 'Deze e-mail niet bijvoegen',
-    deleteChat: 'Chat verwijderen',
-    deleteChatConfirm: 'Deze chat verwijderen?',
-    deleteChatHint:
-      'Het gesprek is dan voorgoed weg. Je mail blijft waar hij is.',
-    failed: 'De agent kon het niet afmaken. Probeer het opnieuw.',
-    newChat: 'Nieuwe chat',
-    noChats: 'Nog geen chats',
-    cancelEdit: 'Bewerken annuleren',
-    copy: 'Kopiëren',
-    edit: 'Bewerken',
-    editing: 'Je bewerkt je bericht',
-    regenerate: 'Opnieuw antwoorden',
-    skills: 'Skills',
-    placeholder: 'Vraag iets over je mail of typ / voor skills',
     retry: 'Opnieuw proberen',
-    send: 'Versturen',
     steps: {
-      create_schedule: 'Planning instellen',
-      delete_schedule: 'Planning stoppen',
-      list_schedules: 'Planningen lezen',
       create_event: 'Afspraak toevoegen',
       delete_event: 'Afspraak verwijderen',
       list_events: 'Agenda bekijken',
@@ -149,15 +114,11 @@ export const nl: Messages = {
       remove_board_entry: 'Van het bord halen',
       rename_board_group: 'Groep hernoemen',
     },
-    stop: 'Stoppen',
-    thinking: 'Denken…',
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
     yes: {
       dismiss_action: 'Overslaan',
       delete_board: 'Verwijderen',
-      delete_schedule: 'Stoppen',
-      create_schedule: 'Inplannen',
       create_event: 'Toevoegen',
       delete_event: 'Verwijderen',
       update_event: 'Opslaan',
@@ -179,7 +140,6 @@ export const nl: Messages = {
   },
   ask: {
     label: (question: string) => `Vraag Fewmail: “${question}”`,
-    openChat: 'Openen in chat',
     thinking: 'Je mail doorzoeken…',
   },
   byRule: 'door een regel',
@@ -593,7 +553,6 @@ export const nl: Messages = {
     openLink: 'link openen',
     writeReminder: 'herinnering schrijven',
     summary: 'samenvatting',
-    askAgent: 'agent vragen',
     fromSender: 'meer van afzender',
     approvePicked: (n: number) => `${n} gekozen goedkeuren`,
     pick: 'kiezen',
@@ -829,17 +788,6 @@ export const nl: Messages = {
     usage: (percent: number) => `Agent · ${percent}% van deze maand gebruikt`,
     watching: 'De agent houdt je inbox in de gaten',
   },
-  schedule: {
-    awaitsAnswer:
-      'Deze run heb ik overgeslagen: de vorige wacht in deze chat nog op je antwoord.',
-    failed:
-      'Deze geplande run is mislukt. Ik probeer het bij de volgende opnieuw.',
-    limitReached: (day: string) =>
-      `Het tegoed van de agent is op voor deze maand, dus de planning slaat runs over tot ${day}.`,
-    open: 'Openen in Fewmail',
-    stopped:
-      'Deze planning is drie keer achter elkaar mislukt, dus ik heb haar gestopt. Vraag me haar opnieuw in te stellen als je haar terug wilt.',
-  },
   notifications: {
     many: (total: number) =>
       plural('nl', total, {
@@ -1057,13 +1005,6 @@ export const nl: Messages = {
     morningTitle: 'Ochtendberichten',
     signedInWithGoogle: 'Ingelogd met Google',
     signOut: 'Uitloggen',
-    schedules: {
-      deleted: 'Planning verwijderd',
-      delete: 'Verwijderen',
-      description:
-        'Vraag de agent in de chat om iets regelmatig te doen, zoals „elke vrijdag om 17:00 de facturen van de week verzamelen”. Elke run komt in een eigen chat, waar je goedkeurt wat hij wil versturen.',
-      title: 'Planningen',
-    },
     snippets: {
       deleted: 'Snippet verwijderd',
       add: 'Snippet toevoegen',
@@ -1670,7 +1611,6 @@ export const nl: Messages = {
     allDone: 'Alles klaar. Niets heeft je nodig.',
     allDoneLead:
       'Ik blijf nieuwe mail lezen, en wat jou nodig heeft, verschijnt hier.',
-    ask: 'Vraag de agent iets of zeg wat hij moet doen…',
     byRules: (n: number) => `Je regels hebben er ${n} afgehandeld.`,
     decisions: 'Beslissingen',
     journal: {
@@ -1753,8 +1693,6 @@ export const nl: Messages = {
   upgrade: {
     ask: 'Vraag het je mail',
     hints: {
-      agent:
-        'Onderdeel van Fewmail Pro: vraag iets over je mail of zeg wat er moet gebeuren, en de agent doet het en wacht op je ja voordat er iets in Gmail verandert.',
       ask: 'Onderdeel van Fewmail Pro: vraag alles in je eigen woorden en krijg het antwoord uit je eigen mail.',
       boards:
         'Onderdeel van Fewmail Pro: beschrijf wat er verzameld moet worden, en de agent vindt het in je mail en houdt het bij.',

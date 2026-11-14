@@ -21,6 +21,7 @@ export const pt: Messages = {
   },
   actionKind: {
     cleanup: 'Cancelar todas',
+    consent: 'Aprovar',
     commitment: 'Feito',
     security: 'Já verifiquei',
     spam: 'Mover para spam',
@@ -42,24 +43,14 @@ export const pt: Messages = {
     pending: 'aguardando no Início',
   },
   agent: {
+    decideOnHome: 'Decida no Início',
+    fromAgent: 'O agente pede',
     mcpAsks: (client: string) => `${client} pede via MCP`,
-    allChats: 'Todas as conversas',
-    chatsLead:
-      'Cada conversa com o agente e o que ele faz por você de forma agendada.',
-    waiting: 'Aguardando seu sim',
-    waitingShort: 'aguarda seu sim',
-    hide: 'Ocultar o agente',
-    show: 'Mostrar o agente',
-    voice: 'Falar com o agente',
-    voiceStop: 'Parar e enviar',
-    chats: 'Conversas',
     calendar: (email: string) => `Na agenda de ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Pular este cartão?',
       delete_board: 'Excluir este painel e tudo o que há nele?',
-      delete_schedule: 'Parar este agendamento?',
-      create_schedule: 'Executar isto de forma agendada?',
       create_event: 'Adicionar este evento?',
       delete_event: 'Eliminar este evento?',
       update_event: 'Alterar este evento?',
@@ -79,35 +70,8 @@ export const pt: Messages = {
       mark_not_spam: 'Tirar esta conversa do spam?',
       move_to_inbox: 'Devolver esta conversa à caixa de entrada?',
     },
-    decline: 'Não',
-    declined: 'Você recusou',
-    stepCount: (count: number) =>
-      plural('pt', count, {
-        one: () => 'Um passo',
-        many: (n) => `${n} passos`,
-        other: (n) => `${n} passos`,
-      }),
-    detach: 'Não anexar este e-mail',
-    deleteChat: 'Excluir conversa',
-    deleteChatConfirm: 'Excluir esta conversa?',
-    deleteChatHint:
-      'A conversa some para sempre. Seus e-mails ficam onde estão.',
-    failed: 'O agente não conseguiu terminar. Tente de novo.',
-    newChat: 'Nova conversa',
-    noChats: 'Nenhuma conversa ainda',
-    cancelEdit: 'Cancelar edição',
-    copy: 'Copiar',
-    edit: 'Editar',
-    editing: 'Editando sua mensagem',
-    regenerate: 'Responder de novo',
-    skills: 'Habilidades',
-    placeholder: 'Pergunte sobre seus e-mails ou digite / para habilidades',
     retry: 'Tentar de novo',
-    send: 'Enviar',
     steps: {
-      create_schedule: 'Criando o agendamento',
-      delete_schedule: 'Parando o agendamento',
-      list_schedules: 'Lendo os agendamentos',
       create_event: 'A adicionar um evento',
       delete_event: 'A eliminar o evento',
       list_events: 'A ver o calendário',
@@ -151,15 +115,11 @@ export const pt: Messages = {
       remove_board_entry: 'Tirando do painel',
       rename_board_group: 'Renomeando o grupo',
     },
-    stop: 'Parar',
-    thinking: 'Pensando…',
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Até ${time}`,
     yes: {
       dismiss_action: 'Pular',
       delete_board: 'Excluir',
-      delete_schedule: 'Parar',
-      create_schedule: 'Agendar',
       create_event: 'Adicionar',
       delete_event: 'Eliminar',
       update_event: 'Guardar',
@@ -181,7 +141,6 @@ export const pt: Messages = {
   },
   ask: {
     label: (question: string) => `Perguntar ao Fewmail: “${question}”`,
-    openChat: 'Abrir no chat',
     thinking: 'Procurando nos seus e-mails…',
   },
   byRule: 'por uma regra',
@@ -593,7 +552,6 @@ export const pt: Messages = {
     openLink: 'abrir link',
     writeReminder: 'escrever um lembrete',
     summary: 'resumo',
-    askAgent: 'perguntar ao agente',
     fromSender: 'mais do remetente',
     approvePicked: (n: number) => `aprovar ${n} selecionados`,
     pick: 'selecionar',
@@ -829,16 +787,6 @@ export const pt: Messages = {
     usage: (percent: number) => `Agente · ${percent}% do mês usado`,
     watching: 'O agente está de olho na sua caixa de entrada',
   },
-  schedule: {
-    awaitsAnswer:
-      'Pulei esta execução: a anterior ainda espera sua resposta neste chat.',
-    failed: 'Esta execução agendada falhou. Vou tentar de novo na próxima.',
-    limitReached: (day: string) =>
-      `A cota do agente deste mês acabou, então o agendamento pula execuções até ${day}.`,
-    open: 'Abrir no Fewmail',
-    stopped:
-      'Este agendamento falhou três vezes seguidas, então eu o parei. Peça para eu configurá-lo de novo quando quiser.',
-  },
   notifications: {
     many: (total: number) =>
       plural('pt', total, {
@@ -1055,13 +1003,6 @@ export const pt: Messages = {
     },
     signedInWithGoogle: 'Conectado com o Google',
     signOut: 'Sair',
-    schedules: {
-      deleted: 'Agendamento excluído',
-      delete: 'Excluir',
-      description:
-        'Peça ao agente no chat para fazer algo com regularidade, como “toda sexta às 17:00 junte as faturas da semana”. Cada execução chega no próprio chat, onde você aprova o que ele quiser enviar.',
-      title: 'Agendamentos',
-    },
     snippets: {
       deleted: 'Snippet excluído',
       add: 'Adicionar snippet',
@@ -1671,7 +1612,6 @@ export const pt: Messages = {
     allDone: 'Tudo pronto. Nada precisa de você.',
     allDoneLead:
       'Continuo lendo os e-mails novos, e o que precisar de você aparece aqui.',
-    ask: 'Pergunte ao agente ou diga o que fazer…',
     byRules: (n: number) => `Suas regras cuidaram de ${n}.`,
     decisions: 'Decisões',
     journal: {
@@ -1773,8 +1713,6 @@ export const pt: Messages = {
   upgrade: {
     ask: 'Pergunte ao seu e-mail',
     hints: {
-      agent:
-        'Parte do Fewmail Pro: pergunte sobre seus e-mails ou diga o que fazer, e o agente faz, esperando seu sim antes de mudar qualquer coisa no Gmail.',
       ask: 'Parte do Fewmail Pro: pergunte o que quiser com suas palavras e receba a resposta dos seus próprios e-mails.',
       boards:
         'Parte do Fewmail Pro: descreva o que reunir e o agente encontra isso nos seus e-mails e mantém tudo atualizado.',

@@ -21,6 +21,7 @@ export const hi: Messages = {
   },
   actionKind: {
     cleanup: 'सभी से अनसब्सक्राइब करें',
+    consent: 'मंज़ूर करें',
     commitment: 'हो गया',
     security: 'मैंने जाँच लिया',
     spam: 'स्पैम में डालें',
@@ -43,23 +44,14 @@ export const hi: Messages = {
   },
   byRule: 'एक नियम से',
   agent: {
+    decideOnHome: 'होम पर तय करें',
+    fromAgent: 'एजेंट पूछ रहा है',
     mcpAsks: (client: string) => `${client} MCP के ज़रिए पूछ रहा है`,
-    allChats: 'सभी चैट',
-    chatsLead: 'एजेंट के साथ हर बातचीत, और वह आपके लिए तय समय पर क्या करता है।',
-    waiting: 'आपकी हाँ का इंतज़ार',
-    waitingShort: 'हाँ का इंतज़ार',
-    hide: 'एजेंट छिपाएँ',
-    show: 'एजेंट दिखाएँ',
-    voice: 'एजेंट से बोलें',
-    voiceStop: 'रोकें और भेजें',
-    chats: 'चैट',
     calendar: (email: string) => `${email} के कैलेंडर में`,
     cc: (recipients: string) => `Cc: ${recipients}`,
     confirm: {
       dismiss_action: 'यह कार्ड छोड़ें?',
       delete_board: 'यह बोर्ड और उस पर सब कुछ हटाएँ?',
-      delete_schedule: 'यह शेड्यूल रोकें?',
-      create_schedule: 'इसे शेड्यूल पर चलाएँ?',
       create_event: 'यह इवेंट जोड़ें?',
       delete_event: 'यह इवेंट हटाएं?',
       update_event: 'यह इवेंट बदलें?',
@@ -78,29 +70,8 @@ export const hi: Messages = {
       mark_not_spam: 'इस थ्रेड को स्पैम से निकालें?',
       move_to_inbox: 'इस थ्रेड को इनबॉक्स में वापस ले जाएँ?',
     },
-    decline: 'नहीं',
-    declined: 'आपने मना किया',
-    stepCount: (count: number) => `${count} चरण`,
-    detach: 'यह ईमेल न जोड़ें',
-    deleteChat: 'चैट हटाएँ',
-    deleteChatConfirm: 'यह चैट हटाएँ?',
-    deleteChatHint: 'बातचीत हमेशा के लिए हट जाएगी। आपके मेल जहाँ हैं, वहीं रहेंगे।',
-    failed: 'एजेंट काम पूरा नहीं कर पाया। फिर से कोशिश करें।',
-    newChat: 'नई चैट',
-    noChats: 'अभी कोई चैट नहीं',
-    cancelEdit: 'संपादन रद्द करें',
-    copy: 'कॉपी करें',
-    edit: 'संपादित करें',
-    editing: 'आप अपना संदेश संपादित कर रहे हैं',
-    regenerate: 'फिर से जवाब दें',
-    skills: 'स्किल',
-    placeholder: 'अपने मेल के बारे में पूछें या स्किल के लिए / लिखें',
     retry: 'फिर कोशिश करें',
-    send: 'भेजें',
     steps: {
-      create_schedule: 'शेड्यूल सेट हो रहा है',
-      delete_schedule: 'शेड्यूल रोका जा रहा है',
-      list_schedules: 'शेड्यूल पढ़े जा रहे हैं',
       create_event: 'इवेंट जोड़ रहा है',
       delete_event: 'इवेंट हटा रहा है',
       list_events: 'कैलेंडर देख रहा है',
@@ -144,15 +115,11 @@ export const hi: Messages = {
       remove_board_entry: 'बोर्ड से हटा रहे हैं',
       rename_board_group: 'समूह का नाम बदल रहे हैं',
     },
-    stop: 'रोकें',
-    thinking: 'सोच रहा है…',
     to: (recipients: string) => `प्रति: ${recipients}`,
     until: (time: string) => `तक: ${time}`,
     yes: {
       dismiss_action: 'छोड़ें',
       delete_board: 'हटाएँ',
-      delete_schedule: 'रोकें',
-      create_schedule: 'शेड्यूल करें',
       create_event: 'जोड़ें',
       delete_event: 'हटाएं',
       update_event: 'सेव करें',
@@ -174,7 +141,6 @@ export const hi: Messages = {
   },
   ask: {
     label: (question: string) => `Fewmail से पूछें: “${question}”`,
-    openChat: 'चैट में खोलें',
     thinking: 'आपके मेल देखे जा रहे हैं…',
   },
   compose: {
@@ -313,7 +279,6 @@ export const hi: Messages = {
     openLink: 'लिंक खोलें',
     writeReminder: 'रिमाइंडर लिखें',
     summary: 'सारांश',
-    askAgent: 'एजेंट से पूछें',
     fromSender: 'इस प्रेषक से और',
     approvePicked: (n: number) => `${n} चुने हुए मंज़ूर करें`,
     pick: 'चुनें',
@@ -545,16 +510,6 @@ export const hi: Messages = {
     usage: (percent: number) => `एजेंट · इस महीने का ${percent}% इस्तेमाल हुआ`,
     watching: 'एजेंट आपके इनबॉक्स पर नज़र रख रहा है',
   },
-  schedule: {
-    awaitsAnswer:
-      'यह रन छोड़ दिया: पिछला रन अभी भी इस चैट में आपके जवाब का इंतज़ार कर रहा है।',
-    failed: 'यह शेड्यूल्ड रन विफल रहा। अगली बार फिर कोशिश करूँगा।',
-    limitReached: (day: string) =>
-      `इस महीने एजेंट का कोटा खत्म हो गया है, इसलिए शेड्यूल इस तारीख तक रन छोड़ेगा: ${day}`,
-    open: 'Fewmail में खोलें',
-    stopped:
-      'यह शेड्यूल लगातार तीन बार विफल रहा, इसलिए मैंने इसे रोक दिया। जब चाहें, मुझसे इसे फिर से सेट करने को कहें।',
-  },
   notifications: {
     many: (total: number) =>
       plural('hi', total, {
@@ -689,13 +644,6 @@ export const hi: Messages = {
       description:
         'मेल को Fewmail/… लेबल में बाँटें ताकि आपके फ़ोन के Gmail में भी वही क्रम दिखे।',
       title: 'Gmail में एजेंट लेबल',
-    },
-    schedules: {
-      deleted: 'शेड्यूल हटाया गया',
-      delete: 'हटाएँ',
-      description:
-        'चैट में एजेंट से कुछ नियमित रूप से करने को कहें, जैसे “हर शुक्रवार 17:00 बजे हफ़्ते के इनवॉइस इकट्ठा करो”। हर रन अपनी अलग चैट में आता है, जहाँ आप वह सब मंज़ूर करते हैं जो वह भेजना चाहता है।',
-      title: 'शेड्यूल',
     },
     snippets: {
       deleted: 'स्निपेट हटाया गया',
@@ -1342,7 +1290,6 @@ export const hi: Messages = {
       }),
     allDone: 'सब हो गया। आपके लिए कुछ बाकी नहीं।',
     allDoneLead: 'मैं नए मेल पढ़ता रहूँगा, और जिस पर आपका ध्यान चाहिए, वह यहाँ दिखेगा।',
-    ask: 'एजेंट से पूछें या बताएँ कि क्या करना है…',
     byRules: (n: number) => `आपके नियमों ने ${n} संभाल लिए।`,
     decisions: 'फ़ैसले',
     journal: {
@@ -1704,8 +1651,6 @@ export const hi: Messages = {
   upgrade: {
     ask: 'अपने मेल से पूछें',
     hints: {
-      agent:
-        'Fewmail Pro का हिस्सा: अपने मेल के बारे में पूछें या बताएँ क्या करना है, एजेंट कर देगा और Gmail में कुछ भी बदलने से पहले आपकी हाँ का इंतज़ार करेगा।',
       ask: 'Fewmail Pro का हिस्सा: अपने शब्दों में कुछ भी पूछें और जवाब अपने ही मेल से पाएँ।',
       boards:
         'Fewmail Pro का हिस्सा: बताएँ क्या इकट्ठा करना है, एजेंट उसे आपके मेल में ढूँढेगा और अपडेट रखेगा।',

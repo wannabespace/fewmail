@@ -4,24 +4,14 @@ import type { Messages } from './en'
 
 export const uk: Messages = {
   agent: {
+    decideOnHome: 'Вирішити на Головній',
+    fromAgent: 'Просить агент',
     mcpAsks: (client: string) => `${client} просить через MCP`,
-    allChats: 'Усі чати',
-    chatsLead:
-      'Усі розмови з агентом і те, що він робить для тебе за розкладом.',
-    waiting: 'Чекають на твоє «так»',
-    waitingShort: 'чекає на «так»',
-    hide: 'Сховати агента',
-    show: 'Показати агента',
-    voice: 'Сказати голосом',
-    voiceStop: 'Зупинити й надіслати',
-    chats: 'Чати',
     calendar: (email: string) => `У календарі ${email}`,
     cc: (recipients: string) => `Копія: ${recipients}`,
     confirm: {
       dismiss_action: 'Пропустити цю картку?',
       delete_board: 'Видалити цю дошку з усім, що на ній?',
-      delete_schedule: 'Зупинити цей розклад?',
-      create_schedule: 'Запускати це за розкладом?',
       create_event: 'Додати цю подію?',
       delete_event: 'Видалити цю подію?',
       update_event: 'Змінити цю подію?',
@@ -40,36 +30,8 @@ export const uk: Messages = {
       mark_not_spam: 'Повернути цей тред зі спаму?',
       move_to_inbox: 'Повернути цей тред у вхідні?',
     },
-    decline: 'Ні',
-    declined: 'Відхилено',
-    stepCount: (count: number) =>
-      plural('uk', count, {
-        one: (n) => `${n} крок`,
-        few: (n) => `${n} кроки`,
-        many: (n) => `${n} кроків`,
-        other: (n) => `${n} кроку`,
-      }),
-    detach: 'Не додавати цей лист',
-    deleteChat: 'Видалити чат',
-    deleteChatConfirm: 'Видалити цей чат?',
-    deleteChatHint:
-      'Розмову не можна буде повернути. Ваша пошта залишиться як є.',
-    failed: 'Агент не зміг завершити. Спробуй ще раз.',
-    newChat: 'Новий чат',
-    noChats: 'Чатів ще немає',
-    cancelEdit: 'Скасувати редагування',
-    copy: 'Копіювати',
-    edit: 'Редагувати',
-    editing: 'Редагуєте повідомлення',
-    regenerate: 'Відповісти ще раз',
-    skills: 'Навички',
-    placeholder: 'Спитай про пошту або введи / для навичок',
     retry: 'Спробувати ще',
-    send: 'Надіслати',
     steps: {
-      create_schedule: 'Налаштовую розклад',
-      delete_schedule: 'Зупиняю розклад',
-      list_schedules: 'Читаю розклади',
       create_event: 'Додаю подію',
       delete_event: 'Видаляю подію',
       list_events: 'Дивлюся календар',
@@ -113,15 +75,11 @@ export const uk: Messages = {
       remove_board_entry: 'Прибираю з дошки',
       rename_board_group: 'Перейменовую групу',
     },
-    stop: 'Зупинити',
-    thinking: 'Думаю…',
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
     yes: {
       dismiss_action: 'Пропустити',
       delete_board: 'Видалити',
-      delete_schedule: 'Зупинити',
-      create_schedule: 'Запланувати',
       create_event: 'Додати',
       delete_event: 'Видалити',
       update_event: 'Зберегти',
@@ -143,7 +101,6 @@ export const uk: Messages = {
   },
   ask: {
     label: (question: string) => `Спитати Fewmail: «${question}»`,
-    openChat: 'Відкрити в чаті',
     thinking: 'Шукаю у твоїй пошті…',
   },
   compose: {
@@ -698,6 +655,7 @@ export const uk: Messages = {
   },
   actionKind: {
     cleanup: 'Відписатися від усіх',
+    consent: 'Підтвердити',
     commitment: 'Готово',
     security: 'Я перевірив',
     spam: 'У спам',
@@ -804,7 +762,6 @@ export const uk: Messages = {
     openLink: 'відкрити посилання',
     writeReminder: 'написати нагадування',
     summary: 'зведення',
-    askAgent: 'запитати агента',
     fromSender: 'ще від відправника',
     approvePicked: (n: number) => `схвалити вибрані (${n})`,
     pick: 'вибрати',
@@ -1040,16 +997,6 @@ export const uk: Messages = {
     usage: (percent: number) => `Агент · використано ${percent}% місяця`,
     watching: 'Агент стежить за поштою',
   },
-  schedule: {
-    awaitsAnswer:
-      'Я пропустив цей запуск: попередній ще чекає на твою відповідь у цьому чаті.',
-    failed: 'Цей запуск за розкладом не вдався. Спробую знову наступного разу.',
-    limitReached: (day: string) =>
-      `Обсяг агента на цей місяць вичерпано, тому розклад пропускає запуски до ${day}.`,
-    open: 'Відкрити у Fewmail',
-    stopped:
-      'Розклад не вдався тричі поспіль, тому я його зупинив. Попроси мене налаштувати його знову, коли захочеш.',
-  },
   notifications: {
     many: (total: number) =>
       plural('uk', total, {
@@ -1190,13 +1137,6 @@ export const uk: Messages = {
       description:
         'Сортує пошту за мітками Fewmail/…, щоб Gmail на телефоні показував той самий порядок.',
       title: 'Мітки агента в Gmail',
-    },
-    schedules: {
-      deleted: 'Розклад видалено',
-      delete: 'Видалити',
-      description:
-        'Попроси агента в чаті робити щось регулярно, наприклад «щоп’ятниці о 17:00 збери рахунки за тиждень». Кожен запуск приходить в окремий чат, де ти підтверджуєш усе, що він хоче надіслати.',
-      title: 'Розклади',
     },
     snippets: {
       deleted: 'Шаблон видалено',
@@ -1382,7 +1322,6 @@ export const uk: Messages = {
     allDone: 'Усе. Нічого не чекає на тебе.',
     allDoneLead:
       'Я далі читаю нові листи, і все, що потребує тебе, з’явиться тут.',
-    ask: 'Запитай агента або дай доручення…',
     byRules: (n: number) => `Твої правила розібрали ще ${n}.`,
     decisions: 'Рішення',
     journal: {
@@ -1781,8 +1720,6 @@ export const uk: Messages = {
   upgrade: {
     ask: 'Запитай пошту',
     hints: {
-      agent:
-        'Входить у Fewmail Pro: питай про пошту або скажи, що зробити, і агент зробить, а перед будь-якою зміною в Gmail дочекається твого «так».',
       ask: 'Входить у Fewmail Pro: питай що завгодно звичайними словами й отримуй відповідь із власної пошти.',
       boards:
         'Входить у Fewmail Pro: опиши, що збирати, і агент знайде це в пошті та оновлюватиме сам.',

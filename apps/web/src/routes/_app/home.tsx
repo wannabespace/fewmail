@@ -11,21 +11,10 @@ import {
   cardsBleedClassName,
 } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
-import { IconButton } from '@fewmail/ui/components/custom/icon-button'
-import {
-  ResizableGroup,
-  ResizablePanel,
-  ResizableSeparator,
-} from '@fewmail/ui/components/custom/resizable'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@fewmail/ui/components/input-group'
 import {
   Item,
   ItemActions,
@@ -46,13 +35,9 @@ import {
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
-  Add01Icon,
-  BubbleChatIcon,
   Calendar03Icon,
   Clock01Icon,
   MailRemove01Icon,
-  PanelRightCloseIcon,
-  PanelRightOpenIcon,
   RepeatIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -67,7 +52,6 @@ import {
 } from '@tanstack/react-router'
 import { type } from 'arktype'
 import {
-  addDays,
   differenceInMinutes,
   endOfTomorrow,
   format,
@@ -77,18 +61,10 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useSubscription } from 'seitu/react'
-import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
-import {
-  AgentChat,
-  agentHiddenStore,
-  askAgent,
-  questionStore,
-} from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
@@ -130,7 +106,7 @@ const TallyBox = ({ children }: { children: ReactNode }) => (
   </div>
 )
 
-/** Opens in the reader beside Home, never in Mail: Home and the chat stay where they were. */
+/** Opens in the reader over Home, never in Mail: Home stays where it was. */
 const ThreadLink = ({ text, threadId }: { text: string; threadId: string }) => (
   <Link
     to="/home"
@@ -543,39 +519,6 @@ const RuleOffers = ({
   ))
 }
 
-/** A chat whose last turn asks for a yes is a decision like any card: it opens in the agent's column. */
-const WaitingChats = ({ chats }: { chats: RouterOutputs['chats']['list'] }) => {
-  const t = useT()
-
-  return chats.map((chat) => (
-    <Item
-      key={chat.id}
-      variant="card"
-      size="sm"
-      render={
-        <Link
-          to="/home"
-          search={(prev) => ({ ...prev, chat: chat.id })}
-          onClick={() => agentHiddenStore.set(false)}
-        />
-      }
-    >
-      <ItemMedia variant="icon">
-        <HugeiconsIcon
-          icon={chat.isScheduled ? RepeatIcon : BubbleChatIcon}
-          strokeWidth={2}
-        />
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle data-mask>{chat.title}</ItemTitle>
-      </ItemContent>
-      <ItemActions>
-        <span className="text-primary text-xs">{t.agent.waitingShort}</span>
-      </ItemActions>
-    </Item>
-  ))
-}
-
 const FreshCodes = ({
   canUseKeys,
   today,
@@ -738,10 +681,13 @@ const Saved = ({ saved }: { saved: Today['saved'] }) => {
 }
 
 /** One line for what the agent did in the catch-up window; the journal has each of them. */
+const hasTally = (today: Today | undefined): today is Today =>
+  !!today && (today.acted > 0 || today.saved.minutes > 0)
+
 const Tally = ({ today }: { today: Today | undefined }) => {
   const t = useT()
 
-  if (!today || (today.acted === 0 && today.saved.minutes === 0)) {
+  if (!hasTally(today)) {
     return null
   }
   return (
@@ -788,12 +734,6 @@ const Journal = () => {
   )
   const { data: reading = 0 } = useQuery(
     orpc.today.get.queryOptions({ select: (today) => today.reading })
-  )
-  const { data: upcoming = [] } = useQuery(
-    orpc.schedules.list.queryOptions({
-      select: (schedules) =>
-        schedules.filter(({ nextRunAt }) => nextRunAt < addDays(new Date(), 1)),
-    })
   )
   const refresh = () =>
     Promise.all([
@@ -897,7 +837,7 @@ const Journal = () => {
           {t.today.journal.lead}
         </p>
       </header>
-      {(reading > 0 || upcoming.length > 0) && (
+      {reading > 0 && (
         <SettingsGroup title={t.today.journal.now}>
           {reading > 0 && (
             <SettingsRow
@@ -909,30 +849,6 @@ const Journal = () => {
               }
             />
           )}
-          {upcoming.map((schedule) => (
-            <SettingsRow
-              key={schedule.id}
-              title={
-                <Link
-                  to="/home"
-                  search={(prev) => ({
-                    ...prev,
-                    chat: schedule.chatId,
-                    page: undefined,
-                  })}
-                  onClick={() => agentHiddenStore.set(false)}
-                  data-mask
-                >
-                  {schedule.instruction}
-                </Link>
-              }
-              description={<span data-mask>{schedule.when}</span>}
-            >
-              <span className="text-muted-foreground text-xs">
-                {dates.ago(schedule.nextRunAt)}
-              </span>
-            </SettingsRow>
-          ))}
         </SettingsGroup>
       )}
       {!isPending && entries?.length === 0 && (
@@ -970,7 +886,6 @@ const pageHints = (
 ): [string, string][] =>
   page === 'journal'
     ? [
-        ['/', t.keys.askAgent],
         ['H', t.nav.home],
         ['esc', t.keys.close],
       ]
@@ -1005,7 +920,6 @@ const homeHints = (
     alike: number
     hasFilter: boolean
     today: Today | undefined
-    isAsking: boolean
     isEditing: boolean
     isRewriting: boolean
     newsletters: number
@@ -1018,14 +932,6 @@ const homeHints = (
   if (state.isRewriting) {
     return [
       ['⏎', t.keys.rewrite],
-      ['esc', t.keys.stopEditing],
-    ]
-  }
-  if (state.isAsking) {
-    return [
-      ['⏎', t.keys.send],
-      ['⌘⏎', t.keys.approve],
-      ['⇧⌘O', t.agent.newChat],
       ['esc', t.keys.stopEditing],
     ]
   }
@@ -1049,7 +955,6 @@ const homeHints = (
     ]
   }
   return [
-    ['/', t.keys.askAgent],
     ...(state.selected
       ? [
           ['J / K', t.keys.move] as [string, string],
@@ -1095,7 +1000,6 @@ const homeHints = (
   ]
 }
 
-const AGENT_WIDTH = { default: 440, max: '50%', min: 360 } as const
 const STALE_DAYS = 7
 /** Coming back to the tab after this long is a new look at Home: what came since is marked new. */
 const AWAY_MINUTES = 10
@@ -1131,170 +1035,6 @@ const useVisits = (onVisit: () => Promise<unknown>) => {
     return () => document.removeEventListener('visibilitychange', onVisibility)
   }, [open])
   return seenAt
-}
-
-const columnWidthStore = createWebStorageValue({
-  defaultValue: AGENT_WIDTH.default as number,
-  key: 'fewmail.home-agent-width',
-  schema: type('number'),
-  type: 'localStorage',
-})
-
-const CHATS_SHOWN = 4
-const CHAT_ROW =
-  'text-foreground/75 hover:bg-accent focus-visible:focus-ring flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70'
-
-/** The agent's own column on Home: its chats on top, the open one under them, the composer at the bottom. */
-const AgentColumn = ({
-  chat,
-  onFocusChange,
-  thread,
-}: {
-  chat: string | undefined
-  onFocusChange: (isFocused: boolean) => void
-  thread: string | undefined
-}) => {
-  const t = useT()
-  const navigate = useNavigate()
-  const columnWidth = useSubscription(columnWidthStore)
-  const isHidden = useSubscription(agentHiddenStore)
-  const [draftId, setDraftId] = useState<string>(() => crypto.randomUUID())
-  const [focusId, setFocusId] = useState<string>()
-  const [shownChat, setShownChat] = useState(chat)
-  // The draft that became the left chat must not take the next question.
-  if (chat !== shownChat) {
-    setShownChat(chat)
-    if (shownChat === draftId) {
-      setDraftId(crypto.randomUUID())
-    }
-  }
-  const question = useSubscription(questionStore)
-  // Home's field names the new chat; the chat with that id sends the question once it mounts.
-  if (question && question.chatId !== draftId) {
-    setDraftId(question.chatId)
-  }
-  const chatId = chat ?? draftId
-  const isSaved = chat !== undefined && chat !== draftId
-  const { data: saved } = useQuery(
-    orpc.chats.get.queryOptions({ enabled: isSaved, input: { id: chatId } })
-  )
-  const { data: chats = [] } = useQuery(orpc.chats.list.queryOptions())
-  const shown = chats
-    .toSorted((a, b) => Number(b.waiting) - Number(a.waiting))
-    .filter((item, index) => index < CHATS_SHOWN || item.id === chat)
-
-  const showChat = (id: string | undefined) =>
-    navigate({ search: (prev) => ({ ...prev, chat: id }), to: '/home' })
-  const startChat = () => {
-    const id = crypto.randomUUID()
-    setDraftId(id)
-    setFocusId(id)
-    agentHiddenStore.set(false)
-    void showChat(undefined)
-  }
-  useHotkey('Mod+Shift+O', startChat, { ignoreInputs: false })
-  useHotkey('Mod+.', () => agentHiddenStore.set(!isHidden), {
-    ignoreInputs: false,
-  })
-  useHotkey(['G', 'C'], () => navigate({ to: '/agent' }))
-
-  return (
-    <>
-      <ResizableSeparator />
-      <ResizablePanel
-        className="flex"
-        collapsed={isHidden}
-        size={columnWidth}
-        minSize={AGENT_WIDTH.min}
-        maxSize={AGENT_WIDTH.max}
-        onCollapsedChange={(isCollapsed) => agentHiddenStore.set(isCollapsed)}
-        onSizeChange={(width) => columnWidthStore.set(width)}
-      >
-        <aside
-          aria-label={t.agent.chats}
-          className="bg-background flex min-w-0 flex-1 flex-col border-l"
-        >
-          <section className="flex flex-col gap-0.5 border-b p-2">
-            <div className="flex h-7 items-center gap-1 ps-2.5">
-              <h2 className="text-muted-foreground mr-auto text-xs font-medium">
-                {t.agent.chats}
-              </h2>
-              <Button
-                size="xs"
-                variant="ghost-muted"
-                render={<Link to="/agent" />}
-              >
-                {t.agent.allChats} <Kbd>G C</Kbd>
-              </Button>
-              <IconButton
-                icon={Add01Icon}
-                label={t.agent.newChat}
-                shortcut={<Kbd>⇧⌘O</Kbd>}
-                size="icon-xs"
-                variant="ghost-muted"
-                onClick={startChat}
-              />
-              <IconButton
-                icon={PanelRightCloseIcon}
-                label={t.agent.hide}
-                shortcut={<Kbd>⌘.</Kbd>}
-                size="icon-xs"
-                variant="ghost-muted"
-                onClick={() => agentHiddenStore.set(true)}
-              />
-            </div>
-            {shown.map((item) => (
-              <Link
-                key={item.id}
-                to="/home"
-                search={(prev) => ({ ...prev, chat: item.id })}
-                className={cn(
-                  CHAT_ROW,
-                  item.id === chat && 'bg-secondary text-foreground font-medium'
-                )}
-              >
-                {item.waiting ? (
-                  <span className="bg-primary mx-[5px] size-1.5 shrink-0 rounded-full" />
-                ) : (
-                  <HugeiconsIcon
-                    icon={item.isScheduled ? RepeatIcon : BubbleChatIcon}
-                    strokeWidth={2}
-                  />
-                )}
-                <span className="min-w-0 flex-1 truncate" data-mask>
-                  {item.title}
-                </span>
-                {item.waiting && (
-                  <span className="text-primary shrink-0 text-xs">
-                    {t.agent.waitingShort}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </section>
-          {isSaved && !saved ? (
-            <div className="flex-1" />
-          ) : (
-            <AgentChat
-              key={chatId}
-              autoFocus={chatId === focusId}
-              chatId={chatId}
-              initialMessages={saved?.messages ?? []}
-              thread={thread}
-              onFocusChange={onFocusChange}
-              onSend={() =>
-                navigate({
-                  replace: !chat,
-                  search: (prev) => ({ ...prev, chat: chatId }),
-                  to: '/home',
-                })
-              }
-            />
-          )}
-        </aside>
-      </ResizablePanel>
-    </>
-  )
 }
 
 /** Today's strip under the headline: the calendar's events left today and tomorrow. */
@@ -1395,7 +1135,7 @@ const HomeHeader = ({
             {t.today.readingNow(data.reading)}
           </span>
         )}
-        <JournalLink />
+        {!hasTally(data) && <JournalLink />}
       </div>
       {data ? (
         <h1 className="text-display font-serif tracking-tight">
@@ -1416,53 +1156,6 @@ const HomeHeader = ({
       )}
       <DayStrip canListen={decisions > 0} />
     </header>
-  )
-}
-
-/** Home's question to the agent while its column is hidden: ⏎ starts a new chat there, and the column opens with the answer. */
-const AskField = () => {
-  const t = useT()
-  const navigate = useNavigate()
-  const isHidden = useSubscription(agentHiddenStore)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [text, setText] = useState('')
-  const ask = () => {
-    const question = text.trim()
-    if (!question) {
-      return
-    }
-    setText('')
-    void navigate({
-      search: (prev) => ({ ...prev, chat: undefined }),
-      to: '/home',
-    })
-    askAgent(question)
-  }
-  useHotkey('/', () => inputRef.current?.focus(), { enabled: isHidden })
-  const keys = { ignoreInputs: false, target: inputRef }
-  useHotkey('Enter', ask, keys)
-  useHotkey('Escape', () => inputRef.current?.blur(), keys)
-
-  if (!isHidden) {
-    return null
-  }
-  return (
-    <InputGroup variant="composer">
-      <InputGroupAddon>
-        <HugeiconsIcon icon={BubbleChatIcon} strokeWidth={2} />
-      </InputGroupAddon>
-      <InputGroupInput
-        ref={inputRef}
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-        placeholder={t.today.ask}
-        aria-label={t.today.ask}
-        data-mask
-      />
-      <InputGroupAddon align="inline-end">
-        <Kbd>{text.trim() ? '⏎' : '/'}</Kbd>
-      </InputGroupAddon>
-    </InputGroup>
   )
 }
 
@@ -1531,25 +1224,6 @@ const DecisionsHeader = ({
         </>
       )}
     </div>
-  )
-}
-
-const ShowAgent = () => {
-  const t = useT()
-  const isHidden = useSubscription(agentHiddenStore)
-
-  return (
-    isHidden && (
-      <IconButton
-        className="absolute top-3 right-3 z-10"
-        icon={PanelRightOpenIcon}
-        label={t.agent.show}
-        shortcut={<Kbd>⌘.</Kbd>}
-        size="icon-sm"
-        variant="ghost-muted"
-        onClick={() => agentHiddenStore.set(false)}
-      />
-    )
   )
 }
 
@@ -1701,18 +1375,13 @@ const StaleCards = ({
   )
 }
 
-/** Every card, banner and waiting chat is one decision; all the quiet mail to tidy is one more. */
-const countDecisions = (
-  data: Today | undefined,
-  cards: number,
-  waitingChats: number
-) =>
+/** Every card and banner is one decision; all the quiet mail to tidy is one more. */
+const countDecisions = (data: Today | undefined, cards: number) =>
   data
     ? cards +
       data.banners.length +
       data.newSenders.length +
       data.ruleOffers.length +
-      waitingChats +
       Math.min(data.tidy.length, 1)
     : 0
 
@@ -1734,15 +1403,9 @@ const HomePage = () => {
   const t = useT()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { chat, page, thread } = Route.useSearch()
+  const { page, thread } = Route.useSearch()
   const { rows: newsletters } = useReading()
-  const [isAsking, setIsAsking] = useState(false)
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
-  const { data: waitingChats = [] } = useQuery(
-    orpc.chats.list.queryOptions({
-      select: (chats) => chats.filter(({ waiting }) => waiting),
-    })
-  )
 
   const { data: cards } = useLiveQuery((query) =>
     query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
@@ -1764,7 +1427,7 @@ const HomePage = () => {
     picked.length > 0 ? picked : queue.slice(selectedIndex, selectedIndex + 1)
   const staleBefore = subDays(dataUpdatedAt, STALE_DAYS)
   const stale = queue.filter(({ action }) => action.createdAt < staleBefore)
-  const decisions = countDecisions(data, cards.length, waitingChats.length)
+  const decisions = countDecisions(data, cards.length)
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
@@ -2034,157 +1697,148 @@ const HomePage = () => {
   )
 
   return (
-    <ResizableGroup className="flex-1">
-      <ResizablePanel className="flex min-w-0 flex-col">
-        {thread && (
-          <Reader
-            isReading={page === 'reading'}
-            thread={thread}
-            onClose={() => showThread(undefined)}
-          />
-        )}
-        <main hidden={!!thread} className="flex min-h-0 flex-1 flex-col">
-          <div className="relative min-h-0 flex-1">
-            <ShowAgent />
-            <div className="h-full overflow-y-auto">
-              <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
-                {page === 'journal' && <Journal />}
-                {page === 'reading' && <ReadingView thread={thread} />}
-                {!page && (
-                  <>
-                    <HomeHeader
-                      data={data}
+    <div className="flex min-w-0 flex-1 flex-col">
+      {thread && (
+        <Reader
+          isReading={page === 'reading'}
+          thread={thread}
+          onClose={() => showThread(undefined)}
+        />
+      )}
+      <main hidden={!!thread} className="flex min-h-0 flex-1 flex-col">
+        <div className="relative min-h-0 flex-1">
+          <div className="h-full overflow-y-auto">
+            <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
+              {page === 'journal' && <Journal />}
+              {page === 'reading' && <ReadingView thread={thread} />}
+              {!page && (
+                <>
+                  <HomeHeader
+                    data={data}
+                    decisions={decisions}
+                    isFirstRead={isFirstRead}
+                    updatedAt={dataUpdatedAt}
+                  />
+                  <Tally today={data} />
+                  <ConnectHint />
+                  <ReadingBrief />
+
+                  <section
+                    aria-label={t.today.decisions}
+                    hidden={isAllClear(data, decisions)}
+                    className="flex flex-col gap-2.5"
+                  >
+                    <DecisionsHeader
                       decisions={decisions}
-                      isFirstRead={isFirstRead}
-                      updatedAt={dataUpdatedAt}
-                    />
-                    <AskField />
-                    <ConnectHint />
-
-                    <section
-                      aria-label={t.today.decisions}
-                      hidden={isAllClear(data, decisions)}
-                      className="flex flex-col gap-2.5"
+                      picked={picked.length}
+                      settled={settled}
                     >
-                      <DecisionsHeader
-                        decisions={decisions}
-                        picked={picked.length}
-                        settled={settled}
-                      >
-                        <PickedActions
-                          onApprove={approveTargets}
-                          onClear={() => setPickedIds([])}
-                          onSkip={skipTargets}
-                          onTrash={() => trashMany.mutate(picked)}
-                        />
-                      </DecisionsHeader>
-                      <KindFilter
-                        canUseKeys={isWalking}
-                        filter={filter}
-                        queue={cards}
+                      <PickedActions
+                        onApprove={approveTargets}
+                        onClear={() => setPickedIds([])}
+                        onSkip={skipTargets}
+                        onTrash={() => trashMany.mutate(picked)}
                       />
-                      <FreshCodes today={data} canUseKeys={isWalking} />
-                      <Accordion
-                        variant="cards"
-                        hidden={queue.length === 0}
-                        value={selected ? [selected.action.id] : []}
-                        onValueChange={([id]) => id && setSelectedId(id)}
-                      >
-                        {queue.map((item, index) => (
-                          <QueueCard
-                            key={item.action.id}
-                            item={item}
-                            index={index}
-                            draft={draftOf(item)}
-                            isNew={!!seenAt && item.action.createdAt > seenAt}
-                            isPicked={pickedIds.includes(item.action.id)}
-                            isRewriting={rewritingId === item.action.id}
-                            isSelected={item === selected}
-                            isEditing={editingId === item.action.id}
-                            isBusy={
-                              redraft.isPending &&
-                              redraft.variables.id === item.action.id
-                            }
-                            onApprove={() => approveItem(item)}
-                            onEdit={() => setEditingId(item.action.id)}
-                            onDraftChange={(draft) =>
-                              setDrafts((current) => ({
-                                ...current,
-                                [item.action.id]: draft,
-                              }))
-                            }
-                            onRewrite={(instruction) =>
-                              rewrite(item.action.id, instruction)
-                            }
-                            onRewriteChange={(isOn) =>
-                              setRewritingId(isOn ? item.action.id : null)
-                            }
-                            onOpen={() =>
-                              item.message && showThread(item.message.threadId)
-                            }
-                            onPick={() => togglePick(item.action.id)}
-                            onRemind={() => remind(item.action.id)}
-                            onSkip={() =>
-                              dismiss.mutate({ id: item.action.id })
-                            }
-                            onStopEditing={() => setEditingId(null)}
-                          />
-                        ))}
-                      </Accordion>
-                      <div
-                        className={cn(
-                          'flex flex-col gap-2.5 empty:hidden',
-                          cardsBleedClassName
-                        )}
-                      >
-                        <WaitingChats chats={waitingChats} />
-                        <Tidy
-                          today={data}
-                          canUseKeys={isWalking}
-                          onSettle={() => settle()}
+                    </DecisionsHeader>
+                    <KindFilter
+                      canUseKeys={isWalking}
+                      filter={filter}
+                      queue={cards}
+                    />
+                    <FreshCodes today={data} canUseKeys={isWalking} />
+                    <Accordion
+                      variant="cards"
+                      hidden={queue.length === 0}
+                      value={selected ? [selected.action.id] : []}
+                      onValueChange={([id]) => id && setSelectedId(id)}
+                    >
+                      {queue.map((item, index) => (
+                        <QueueCard
+                          key={item.action.id}
+                          item={item}
+                          index={index}
+                          draft={draftOf(item)}
+                          isNew={!!seenAt && item.action.createdAt > seenAt}
+                          isPicked={pickedIds.includes(item.action.id)}
+                          isRewriting={rewritingId === item.action.id}
+                          isSelected={item === selected}
+                          isEditing={editingId === item.action.id}
+                          isBusy={
+                            redraft.isPending &&
+                            redraft.variables.id === item.action.id
+                          }
+                          onApprove={() => approveItem(item)}
+                          onEdit={() => setEditingId(item.action.id)}
+                          onDraftChange={(draft) =>
+                            setDrafts((current) => ({
+                              ...current,
+                              [item.action.id]: draft,
+                            }))
+                          }
+                          onRewrite={(instruction) =>
+                            rewrite(item.action.id, instruction)
+                          }
+                          onRewriteChange={(isOn) =>
+                            setRewritingId(isOn ? item.action.id : null)
+                          }
+                          onOpen={() =>
+                            item.message && showThread(item.message.threadId)
+                          }
+                          onPick={() => togglePick(item.action.id)}
+                          onRemind={() => remind(item.action.id)}
+                          onSkip={() => dismiss.mutate({ id: item.action.id })}
+                          onStopEditing={() => setEditingId(null)}
                         />
-                        <NewSenders
-                          senders={data?.newSenders ?? []}
-                          canUseKeys={isWalking}
-                          onSettle={() => settle()}
-                        />
-                        <RuleOffers today={data} onSettle={() => settle()} />
-                      </div>
-                      <BoardBanners banners={data?.banners ?? []} />
-                      <StaleCards
+                      ))}
+                    </Accordion>
+                    <div
+                      className={cn(
+                        'flex flex-col gap-2.5 empty:hidden',
+                        cardsBleedClassName
+                      )}
+                    >
+                      <Tidy
+                        today={data}
                         canUseKeys={isWalking}
-                        count={stale.length}
-                        onSkip={skipStale}
+                        onSettle={() => settle()}
                       />
-                    </section>
+                      <NewSenders
+                        senders={data?.newSenders ?? []}
+                        canUseKeys={isWalking}
+                        onSettle={() => settle()}
+                      />
+                      <RuleOffers today={data} onSettle={() => settle()} />
+                    </div>
+                    <BoardBanners banners={data?.banners ?? []} />
+                    <StaleCards
+                      canUseKeys={isWalking}
+                      count={stale.length}
+                      onSkip={skipStale}
+                    />
+                  </section>
 
-                    <WorthKnowing today={data} />
-                    <ReadingBrief />
-                    <Tally today={data} />
-                  </>
-                )}
-              </div>
+                  <WorthKnowing today={data} />
+                </>
+              )}
             </div>
           </div>
-          <KeyHints
-            hints={homeHints(t, {
-              alike: alike.length,
-              hasFilter: filter.isOffered,
-              isAsking,
-              isEditing,
-              newsletters: newsletters.length,
-              page,
-              selected,
-              isRewriting,
-              picked: picked.length,
-              stale: stale.length,
-              today: data,
-            })}
-          />
-        </main>
-      </ResizablePanel>
-      <AgentColumn chat={chat} thread={thread} onFocusChange={setIsAsking} />
-    </ResizableGroup>
+        </div>
+        <KeyHints
+          hints={homeHints(t, {
+            alike: alike.length,
+            hasFilter: filter.isOffered,
+            isEditing,
+            newsletters: newsletters.length,
+            page,
+            selected,
+            isRewriting,
+            picked: picked.length,
+            stale: stale.length,
+            today: data,
+          })}
+        />
+      </main>
+    </div>
   )
 }
 
@@ -2199,21 +1853,14 @@ export const Route = createFileRoute('/_app/home')({
   },
   component: HomePage,
   validateSearch: type({
-    'chat?': 'string.uuid',
     'thread?': 'string',
     'page?': "'journal' | 'reading'",
   }),
-  loaderDeps: ({ search }) => ({ chat: search.chat }),
-  loader: async ({ deps: { chat } }) => {
-    const [, chats] = await Promise.all([
+  loader: async () => {
+    await Promise.all([
       warmQuery(orpc.today.get.queryOptions()),
-      warmQuery(orpc.chats.list.queryOptions()),
       warmQuery(orpc.reading.list.queryOptions()),
       queueCards.preload(),
     ])
-    // A chat that is still being started is not saved yet: asking for it would answer "not found".
-    if (chat && chats?.some(({ id }) => id === chat)) {
-      await warmQuery(orpc.chats.get.queryOptions({ input: { id: chat } }))
-    }
   },
 })

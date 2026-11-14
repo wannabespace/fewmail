@@ -18,7 +18,6 @@ import {
 } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { LOCALES } from '@fewmail/shared/i18n/locales'
-import { streamToEventIterator } from '@orpc/server'
 import type { InferRouterOutputs } from '@orpc/server'
 import { type } from 'arktype'
 
@@ -26,6 +25,7 @@ import { agent, authed, visitor } from '.'
 import { CALENDAR_SCOPE, GMAIL_SCOPE, hasSignInScope } from '../lib/auth'
 import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
+import { approveCard, approveCards } from '../services/approve'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
 import {
@@ -46,7 +46,6 @@ import {
   listEvents,
   updateEvent,
 } from '../services/calendar'
-import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
 import {
   keepSender,
   listSubscriptions,
@@ -68,8 +67,6 @@ import {
 } from '../services/integrations'
 import { listUserLabels } from '../services/labels'
 import {
-  approveAction,
-  approveActions,
   archiveMessage,
   moveToInbox,
   blockSender,
@@ -111,7 +108,6 @@ import {
   updateRule,
 } from '../services/rules'
 import { saveSettings } from '../services/save-settings'
-import { deleteSchedule, listSchedules } from '../services/schedules'
 import { getSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
 import { markNotSpam, reportSpam } from '../services/spam'
@@ -249,12 +245,12 @@ export const router = {
     approve: agent
       .input(id.and({ 'detail?': 'string' }))
       .handler(({ context, input }) =>
-        approveAction(context.user.id, input.id, input.detail)
+        approveCard(context.user.id, input.id, input.detail)
       ),
     approveMany: agent
       .input(type({ ids: 'string.uuid[] > 0' }))
       .handler(({ context, input }) =>
-        approveActions(context.user.id, input.ids)
+        approveCards(context.user.id, input.ids)
       ),
     dismiss: agent
       .input(id)
@@ -460,35 +456,7 @@ export const router = {
         unsubscribeMessage(context.user.id, input.messageId, 'thread')
       ),
   },
-  chats: {
-    delete: agent.input(id).handler(async ({ context, input }) => {
-      await deleteChat(context.user.id, input.id)
-    }),
-    get: agent
-      .input(id)
-      .handler(({ context, input }) => getChat(context.user.id, input.id)),
-    list: agent.handler(({ context }) => listChats(context.user.id)),
-    send: agent
-      .input(
-        id.and({
-          message: {
-            id: 'string',
-            parts: 'object[]',
-            role: "'user' | 'assistant'",
-          },
-        })
-      )
-      .handler(async ({ context, input }) =>
-        streamToEventIterator(
-          await streamChat(context.user.id, {
-            id: input.id,
-            message: input.message as Parameters<
-              typeof streamChat
-            >[1]['message'],
-          })
-        )
-      ),
-  },
+
   ask: agent
     .input(type({ question: 'string > 2' }))
     .handler(({ context, input }) =>
@@ -565,12 +533,7 @@ export const router = {
   person: agent
     .input(type({ email: 'string.email' }))
     .handler(({ context, input }) => getPerson(context.user.id, input.email)),
-  schedules: {
-    delete: agent.input(id).handler(async ({ context, input }) => {
-      await deleteSchedule(context.user.id, input.id)
-    }),
-    list: agent.handler(({ context }) => listSchedules(context.user.id)),
-  },
+
   settings: {
     save: authed
       .input(settingsInput)

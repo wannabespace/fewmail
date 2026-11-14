@@ -42,7 +42,10 @@ type Card = Parameters<typeof cardPayload>[0] & { kind: ActionKind }
 
 /** Fewmail can't pay, read or sign for the user: there the yes only says they did it. */
 export const approveTitle = (t: Messages, action: Card) => {
-  const { event, link } = cardPayload(action)
+  const { event, link, tool } = cardPayload(action)
+  if (tool) {
+    return t.agent.yes[tool]
+  }
   if (event) {
     return t.queue.addToCalendar
   }

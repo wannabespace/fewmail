@@ -21,6 +21,7 @@ export const ko: Messages = {
   },
   actionKind: {
     cleanup: '모두 구독 취소',
+    consent: '승인',
     commitment: '완료',
     security: '확인했어요',
     spam: '스팸으로 이동',
@@ -43,23 +44,14 @@ export const ko: Messages = {
   },
   byRule: '규칙에 따라',
   agent: {
+    decideOnHome: '홈에서 결정하기',
+    fromAgent: '에이전트가 요청함',
     mcpAsks: (client: string) => `${client}이(가) MCP로 요청합니다`,
-    allChats: '모든 채팅',
-    chatsLead: '에이전트와 나눈 모든 대화, 그리고 일정에 따라 하는 일.',
-    waiting: '승인을 기다리는 중',
-    waitingShort: '승인 대기 중',
-    hide: '에이전트 숨기기',
-    show: '에이전트 표시',
-    voice: '음성으로 말하기',
-    voiceStop: '멈추고 보내기',
-    chats: '채팅',
     calendar: (email: string) => `${email}의 캘린더`,
     cc: (recipients: string) => `참조: ${recipients}`,
     confirm: {
       dismiss_action: '이 카드를 건너뛸까요?',
       delete_board: '이 보드와 안의 모든 항목을 삭제할까요?',
-      delete_schedule: '이 일정을 중지할까요?',
-      create_schedule: '이 작업을 일정에 따라 실행할까요?',
       create_event: '이 일정을 추가할까요?',
       delete_event: '이 일정을 삭제할까요?',
       update_event: '이 일정을 변경할까요?',
@@ -78,29 +70,8 @@ export const ko: Messages = {
       mark_not_spam: '이 스레드를 스팸에서 꺼낼까요?',
       move_to_inbox: '이 스레드를 받은편지함으로 되돌릴까요?',
     },
-    decline: '아니요',
-    declined: '거절했어요',
-    stepCount: (count: number) => `${count}단계`,
-    detach: '이 이메일 첨부 안 함',
-    deleteChat: '채팅 삭제',
-    deleteChatConfirm: '이 채팅을 삭제할까요?',
-    deleteChatHint: '대화는 되돌릴 수 없어요. 메일은 그대로 남아요.',
-    failed: '에이전트가 끝내지 못했어요. 다시 시도해 주세요.',
-    newChat: '새 채팅',
-    noChats: '아직 채팅이 없어요',
-    cancelEdit: '편집 취소',
-    copy: '복사',
-    edit: '편집',
-    editing: '메시지 편집 중',
-    regenerate: '다시 답변',
-    skills: '스킬',
-    placeholder: '메일에 대해 묻거나 / 를 입력해 스킬을 고르세요',
     retry: '다시 시도',
-    send: '보내기',
     steps: {
-      create_schedule: '일정 설정 중',
-      delete_schedule: '일정 중지 중',
-      list_schedules: '일정 읽는 중',
       create_event: '일정 추가 중',
       delete_event: '일정 삭제 중',
       list_events: '캘린더 확인 중',
@@ -144,15 +115,11 @@ export const ko: Messages = {
       remove_board_entry: '보드에서 빼는 중',
       rename_board_group: '그룹 이름 바꾸는 중',
     },
-    stop: '중지',
-    thinking: '생각하는 중…',
     to: (recipients: string) => `받는 사람: ${recipients}`,
     until: (time: string) => `다시 표시: ${time}`,
     yes: {
       dismiss_action: '건너뛰기',
       delete_board: '삭제',
-      delete_schedule: '중지',
-      create_schedule: '예약하기',
       create_event: '추가',
       delete_event: '삭제',
       update_event: '저장',
@@ -174,7 +141,6 @@ export const ko: Messages = {
   },
   ask: {
     label: (question: string) => `Fewmail에 묻기: “${question}”`,
-    openChat: '채팅에서 열기',
     thinking: '메일을 살펴보는 중…',
   },
   compose: {
@@ -310,7 +276,6 @@ export const ko: Messages = {
     openLink: '링크 열기',
     writeReminder: '리마인더 쓰기',
     summary: '요약',
-    askAgent: '에이전트에게 묻기',
     fromSender: '같은 발신자의 메일',
     approvePicked: (n: number) => `선택한 ${n}개 승인`,
     pick: '선택',
@@ -539,16 +504,6 @@ export const ko: Messages = {
     usage: (percent: number) => `에이전트 · 이번 달 ${percent}% 사용`,
     watching: '에이전트가 받은편지함을 지켜보고 있어요',
   },
-  schedule: {
-    awaitsAnswer:
-      '이번 실행은 건너뛰었어요. 지난 실행이 이 채팅에서 아직 답을 기다리고 있어요.',
-    failed: '이번 예약 실행이 실패했습니다. 다음 실행 때 다시 시도할게요.',
-    limitReached: (day: string) =>
-      `이번 달 에이전트 사용량을 모두 사용해 다음 날짜까지 실행을 건너뜁니다: ${day}`,
-    open: 'Fewmail에서 열기',
-    stopped:
-      '이 일정이 세 번 연속 실패해서 중지했습니다. 다시 원하시면 설정해 달라고 말씀해 주세요.',
-  },
   notifications: {
     many: (n: number) => `Fewmail 새 알림 ${n}개`,
   },
@@ -683,13 +638,6 @@ export const ko: Messages = {
       description:
         '메일을 Fewmail/… 라벨로 분류해서 휴대폰의 Gmail에서도 같은 순서로 보여요.',
       title: 'Gmail 에이전트 라벨',
-    },
-    schedules: {
-      deleted: '일정을 삭제했어요',
-      delete: '삭제',
-      description:
-        '“매주 금요일 17:00에 이번 주 청구서를 모아 줘”처럼 정기적으로 할 일을 채팅에서 에이전트에게 요청하세요. 실행할 때마다 전용 채팅으로 오고, 보내려는 것은 그곳에서 승인합니다.',
-      title: '일정',
     },
     snippets: {
       deleted: '스니펫을 삭제했어요',
@@ -1333,7 +1281,6 @@ export const ko: Messages = {
     allDone: '모두 끝났어요. 확인할 게 없어요.',
     allDoneLead:
       '새 메일을 계속 읽고 있어요. 확인할 게 생기면 여기에 나타나요.',
-    ask: '에이전트에게 묻거나 할 일을 맡겨 보세요…',
     byRules: (n: number) => `${n}개는 규칙이 처리했어요.`,
     decisions: '결정할 일',
     journal: {
@@ -1667,8 +1614,6 @@ export const ko: Messages = {
   upgrade: {
     ask: '메일에 물어보기',
     hints: {
-      agent:
-        'Fewmail Pro 기능이에요. 메일에 대해 묻거나 할 일을 말하면 에이전트가 처리하고, Gmail에서 무언가를 바꾸기 전에는 내 승인을 기다려요.',
       ask: 'Fewmail Pro 기능이에요. 평소 말로 무엇이든 물으면 내 메일에서 답을 찾아 줘요.',
       boards:
         'Fewmail Pro 기능이에요. 모을 내용을 설명하면 에이전트가 메일에서 찾아내고 계속 최신으로 유지해요.',

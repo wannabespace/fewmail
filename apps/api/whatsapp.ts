@@ -366,12 +366,9 @@ export const sendWhatsappReading = async (
   )
 }
 
-/** The template's button brings back this run's answer. */
-export const sendWhatsappSchedule = (
-  userId: string,
-  run: Run,
-  chatId: string
-) => push(userId, run.headline, `chat:${chatId}`, (chat) => runReply(chat, run))
+/** The template's button brings back the queue, where the card waits. */
+export const sendWhatsappRun = (userId: string, run: Run) =>
+  push(userId, run.headline, 'queue', (chat) => runReply(chat, run))
 
 export const sendWhatsappUrgent = (userId: string, item: QueueItem) =>
   push(

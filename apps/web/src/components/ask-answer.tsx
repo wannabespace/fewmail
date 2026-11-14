@@ -1,19 +1,19 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { CommandGroup, CommandItem } from '@fewmail/ui/components/command'
 import { Spinner } from '@fewmail/ui/components/spinner'
-import { AiChat02Icon } from '@hugeicons/core-free-icons'
+import { Home01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { useDates, useT } from '~/lib/i18n'
 import { warmThread } from '~/lib/mail-db'
 
 export const AskAnswer = ({
-  onOpenChat,
+  onOpenHome,
   onOpenThread,
   question,
   result,
 }: {
-  onOpenChat: (chatId: string) => void
+  onOpenHome: () => void
   onOpenThread: (threadId: string) => void
   question: string
   result: RouterOutputs['ask'] | undefined
@@ -59,14 +59,10 @@ export const AskAnswer = ({
           </span>
         </CommandItem>
       ))}
-      {result?.chatId && (
-        <CommandItem
-          forceMount
-          value="open chat"
-          onSelect={() => onOpenChat(result.chatId)}
-        >
-          <HugeiconsIcon icon={AiChat02Icon} strokeWidth={2} />
-          {t.ask.openChat}
+      {!!result?.waiting && (
+        <CommandItem forceMount value="decide on home" onSelect={onOpenHome}>
+          <HugeiconsIcon icon={Home01Icon} strokeWidth={2} />
+          {t.agent.decideOnHome}
         </CommandItem>
       )}
     </CommandGroup>

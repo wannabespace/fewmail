@@ -21,6 +21,7 @@ export const zh: Messages = {
   },
   actionKind: {
     cleanup: '全部退订',
+    consent: '批准',
     commitment: '完成',
     security: '我已核实',
     spam: '移到垃圾邮件',
@@ -43,23 +44,14 @@ export const zh: Messages = {
   },
   byRule: '按规则',
   agent: {
+    decideOnHome: '在主页决定',
+    fromAgent: '助手请求',
     mcpAsks: (client: string) => `${client}通过 MCP 请求`,
-    allChats: '所有对话',
-    chatsLead: '与代理的每一次对话，以及它按计划为你做的事。',
-    waiting: '等你确认',
-    waitingShort: '等你确认',
-    hide: '隐藏助手',
-    show: '显示助手',
-    voice: '语音对话',
-    voiceStop: '停止并发送',
-    chats: '对话',
     calendar: (email: string) => `在 ${email} 的日历中`,
     cc: (recipients: string) => `抄送：${recipients}`,
     confirm: {
       dismiss_action: '跳过这张卡片?',
       delete_board: '删除这个看板及其所有内容？',
-      delete_schedule: '停止这个定时任务？',
-      create_schedule: '按计划运行这个吗？',
       create_event: '添加此日程？',
       delete_event: '删除此日程？',
       update_event: '修改此日程？',
@@ -78,29 +70,8 @@ export const zh: Messages = {
       mark_not_spam: '将此会话移出垃圾邮件？',
       move_to_inbox: '将此会话移回收件箱？',
     },
-    decline: '不了',
-    declined: '你拒绝了',
-    stepCount: (count: number) => `${count} 个步骤`,
-    detach: '不附上这封邮件',
-    deleteChat: '删除对话',
-    deleteChatConfirm: '删除这个对话？',
-    deleteChatHint: '对话将无法恢复，邮件保持原样。',
-    failed: '助手没能完成。请再试一次。',
-    newChat: '新对话',
-    noChats: '还没有对话',
-    cancelEdit: '取消编辑',
-    copy: '复制',
-    edit: '编辑',
-    editing: '正在编辑你的消息',
-    regenerate: '重新回答',
-    skills: '技能',
-    placeholder: '问问你的邮件，或输入 / 选择技能',
     retry: '重试',
-    send: '发送',
     steps: {
-      create_schedule: '正在设置定时任务',
-      delete_schedule: '正在停止定时任务',
-      list_schedules: '正在读取定时任务',
       create_event: '正在添加日程',
       delete_event: '正在删除日程',
       list_events: '正在查看日历',
@@ -144,15 +115,11 @@ export const zh: Messages = {
       remove_board_entry: '正在从看板移除',
       rename_board_group: '正在重命名分组',
     },
-    stop: '停止',
-    thinking: '思考中…',
     to: (recipients: string) => `收件人：${recipients}`,
     until: (time: string) => `推迟到：${time}`,
     yes: {
       dismiss_action: '跳过',
       delete_board: '删除',
-      delete_schedule: '停止',
-      create_schedule: '设定',
       create_event: '添加',
       delete_event: '删除',
       update_event: '保存',
@@ -174,7 +141,6 @@ export const zh: Messages = {
   },
   ask: {
     label: (question: string) => `问 Fewmail：“${question}”`,
-    openChat: '在聊天中打开',
     thinking: '正在查看你的邮件…',
   },
   compose: {
@@ -309,7 +275,6 @@ export const zh: Messages = {
     openLink: '打开链接',
     writeReminder: '写一封提醒',
     summary: '摘要',
-    askAgent: '问助手',
     fromSender: '同一发件人的邮件',
     approvePicked: (n: number) => `批准已选的 ${n} 项`,
     pick: '选择',
@@ -533,15 +498,6 @@ export const zh: Messages = {
     usage: (percent: number) => `代理 · 本月已用 ${percent}%`,
     watching: '助手正在留意你的收件箱',
   },
-  schedule: {
-    awaitsAnswer: '这次运行已跳过：上一次运行仍在此聊天中等待你的回复。',
-    failed: '这次定时运行失败了。下次运行时我会再试。',
-    limitReached: (day: string) =>
-      `本月的代理额度已用完，定时任务将跳过运行，直到 ${day}。`,
-    open: '在 Fewmail 中打开',
-    stopped:
-      '这个定时任务连续失败了三次，所以我停止了它。需要时让我重新设置即可。',
-  },
   notifications: {
     many: (n: number) => `Fewmail 有 ${n} 条新通知`,
   },
@@ -672,13 +628,6 @@ export const zh: Messages = {
       description:
         '将邮件分到 Fewmail/… 标签中，让手机上的 Gmail 显示相同的顺序。',
       title: 'Gmail 中的助手标签',
-    },
-    schedules: {
-      deleted: '定时任务已删除',
-      delete: '删除',
-      description:
-        '在聊天中让代理定期做某件事，例如“每周五 17:00 汇总本周的发票”。每次运行都会出现在它自己的聊天中，你在那里批准它想发送的内容。',
-      title: '定时任务',
     },
     snippets: {
       deleted: '片段已删除',
@@ -1308,7 +1257,6 @@ export const zh: Messages = {
     acted: (total: number) => `助手为你处理了 ${total} 件事`,
     allDone: '都处理好了。没有需要你的事。',
     allDoneLead: '我会继续读新邮件，需要你处理的事会出现在这里。',
-    ask: '问问助手，或告诉它要做什么…',
     byRules: (n: number) => `你的规则处理了 ${n} 件。`,
     decisions: '待你决定',
     journal: {
@@ -1635,8 +1583,6 @@ export const zh: Messages = {
   upgrade: {
     ask: '问问你的邮件',
     hints: {
-      agent:
-        'Fewmail Pro 的功能：询问你的邮件或说出要做的事，代理就会去做，在 Gmail 中做任何更改前都会等你同意。',
       ask: 'Fewmail Pro 的功能：用自己的话随便问，答案来自你自己的邮件。',
       boards:
         'Fewmail Pro 的功能：描述要收集什么，代理会在你的邮件中找到它并持续更新。',

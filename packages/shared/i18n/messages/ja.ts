@@ -21,6 +21,7 @@ export const ja: Messages = {
   },
   actionKind: {
     cleanup: 'すべて配信停止',
+    consent: '承認',
     commitment: '完了',
     security: '確認しました',
     spam: '迷惑メールに移動',
@@ -43,23 +44,14 @@ export const ja: Messages = {
   },
   byRule: 'ルールによる',
   agent: {
+    decideOnHome: 'ホームで決める',
+    fromAgent: 'エージェントからの確認',
     mcpAsks: (client: string) => `${client}が MCP 経由で依頼しています`,
-    allChats: 'すべてのチャット',
-    chatsLead: 'エージェントとのすべての会話と、スケジュールで行っていること。',
-    waiting: 'あなたの承認待ち',
-    waitingShort: '承認待ち',
-    hide: 'エージェントを隠す',
-    show: 'エージェントを表示',
-    voice: '声で話す',
-    voiceStop: '止めて送信',
-    chats: 'チャット',
     calendar: (email: string) => `${email} のカレンダー`,
     cc: (recipients: string) => `CC: ${recipients}`,
     confirm: {
       dismiss_action: 'このカードをスキップしますか?',
       delete_board: 'このボードと中身をすべて削除しますか？',
-      delete_schedule: 'このスケジュールを停止しますか？',
-      create_schedule: 'これをスケジュールで実行しますか？',
       create_event: 'この予定を追加しますか？',
       delete_event: 'この予定を削除しますか？',
       update_event: 'この予定を変更しますか？',
@@ -78,30 +70,8 @@ export const ja: Messages = {
       mark_not_spam: 'このスレッドを迷惑メールから戻しますか？',
       move_to_inbox: 'このスレッドを受信トレイに戻しますか？',
     },
-    decline: 'やめる',
-    declined: 'キャンセルしました',
-    stepCount: (count: number) => `${count}ステップ`,
-    detach: 'このメールを添付しない',
-    deleteChat: 'チャットを削除',
-    deleteChatConfirm: 'このチャットを削除しますか？',
-    deleteChatHint: '会話は元に戻せません。メールはそのまま残ります。',
-    failed:
-      'エージェントが最後まで完了できませんでした。もう一度お試しください。',
-    newChat: '新しいチャット',
-    noChats: 'チャットはまだありません',
-    cancelEdit: '編集をキャンセル',
-    copy: 'コピー',
-    edit: '編集',
-    editing: 'メッセージを編集中',
-    regenerate: 'もう一度回答',
-    skills: 'スキル',
-    placeholder: 'メールについて質問するか、/ でスキルを選択',
     retry: '再試行',
-    send: '送信',
     steps: {
-      create_schedule: 'スケジュールを設定中',
-      delete_schedule: 'スケジュールを停止中',
-      list_schedules: 'スケジュールを確認中',
       create_event: '予定を追加中',
       delete_event: '予定を削除中',
       list_events: 'カレンダーを確認中',
@@ -145,15 +115,11 @@ export const ja: Messages = {
       remove_board_entry: 'ボードから外し中',
       rename_board_group: 'グループ名を変更中',
     },
-    stop: '停止',
-    thinking: '考え中…',
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
     yes: {
       dismiss_action: 'スキップ',
       delete_board: '削除',
-      delete_schedule: '停止',
-      create_schedule: 'スケジュールする',
       create_event: '追加',
       delete_event: '削除',
       update_event: '保存',
@@ -175,7 +141,6 @@ export const ja: Messages = {
   },
   ask: {
     label: (question: string) => `Fewmail に質問：「${question}」`,
-    openChat: 'チャットで開く',
     thinking: 'メールを確認しています…',
   },
   compose: {
@@ -311,7 +276,6 @@ export const ja: Messages = {
     openLink: 'リンクを開く',
     writeReminder: 'リマインドを書く',
     summary: 'まとめ',
-    askAgent: 'エージェントに聞く',
     fromSender: '同じ差出人のメール',
     approvePicked: (n: number) => `選択した${n}件を承認`,
     pick: '選択',
@@ -540,16 +504,6 @@ export const ja: Messages = {
     usage: (percent: number) => `エージェント · 今月の ${percent}% を使用`,
     watching: 'エージェントが受信トレイを見守っています',
   },
-  schedule: {
-    awaitsAnswer:
-      '今回の実行はスキップしました。前回の実行がこのチャットであなたの返答を待っています。',
-    failed: 'このスケジュール実行は失敗しました。次回もう一度試します。',
-    limitReached: (day: string) =>
-      `今月のエージェント利用枠を使い切ったため、次の日付まで実行をスキップします: ${day}`,
-    open: 'Fewmail で開く',
-    stopped:
-      'このスケジュールは3回連続で失敗したため停止しました。また必要になったら設定し直すよう頼んでください。',
-  },
   notifications: {
     many: (n: number) => `Fewmail から ${n} 件のお知らせ`,
   },
@@ -684,13 +638,6 @@ export const ja: Messages = {
       description:
         'メールを Fewmail/… ラベルに分類し、スマホの Gmail でも同じ順序で表示します。',
       title: 'Gmail のエージェントラベル',
-    },
-    schedules: {
-      deleted: 'スケジュールを削除しました',
-      delete: '削除',
-      description:
-        '「毎週金曜 17:00 に今週の請求書をまとめて」のように、定期的に行うことをチャットでエージェントに頼めます。実行のたびに専用のチャットに届き、送信したいものはそこで承認します。',
-      title: 'スケジュール',
     },
     snippets: {
       deleted: 'スニペットを削除しました',
@@ -1348,7 +1295,6 @@ export const ja: Messages = {
     allDone: 'すべて完了。対応が必要なものはありません。',
     allDoneLead:
       '新しいメールは引き続き読んでいます。対応が必要なものはここに表示されます。',
-    ask: 'エージェントに質問するか、やってほしいことを伝えてください…',
     byRules: (n: number) => `${n}件はルールで処理しました。`,
     decisions: '決めること',
     journal: {
@@ -1689,8 +1635,6 @@ export const ja: Messages = {
   upgrade: {
     ask: 'メールに聞く',
     hints: {
-      agent:
-        'Fewmail Pro の機能です。メールについて質問したり、してほしいことを伝えたりすると、エージェントが実行します。Gmail で何かを変える前には必ずあなたの承認を待ちます。',
       ask: 'Fewmail Pro の機能です。普段の言葉で何でも質問すると、あなた自身のメールから答えが返ってきます。',
       boards:
         'Fewmail Pro の機能です。集めたいものを書くと、エージェントがメールから探し出し、最新の状態に保ちます。',

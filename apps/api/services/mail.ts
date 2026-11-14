@@ -765,6 +765,10 @@ export const approveAction = async (
   detail?: string
 ) => {
   const { action, message } = await getAction(userId, actionId)
+  // A consent card runs an agent tool: only `approveCard` (the user's yes) may, never a tool approving it.
+  if (action.kind === 'consent') {
+    throw new NotFoundError('Only the user approves this card')
+  }
   const [claimed] = await db
     .update(actions)
     .set({ resolvedAt: new Date(), status: 'done' })

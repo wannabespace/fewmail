@@ -43,6 +43,7 @@ export const ACTION_KINDS = [
   'security',
   'commitment',
   'cleanup',
+  'consent',
 ] as const
 export type ActionKind = (typeof ACTION_KINDS)[number]
 
@@ -61,6 +62,7 @@ const quiet = (gmail: GmailEffect | null): ActionKindTraits => ({
 export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
   archive: quiet('archive'),
   cleanup: quiet(null),
+  consent: quiet(null),
   commitment: quiet(null),
   follow_up: quiet('mark_read'),
   mark_read: quiet('mark_read'),
@@ -100,8 +102,12 @@ export interface CardEvent {
 }
 
 interface CardPayload {
+  /** A `consent` card: what the server read for it, so the card shows exactly what the yes does. */
+  context?: unknown[]
   event?: CardEvent
+  input?: Record<string, unknown>
   link?: CardLink
+  tool?: ConsentToolName
 }
 
 export const cardPayload = (action: {
@@ -226,17 +232,9 @@ export const parseSkill = (text: string) => {
   return skill ? { details: groups?.details?.trim() ?? '', skill } : undefined
 }
 
-/** The email open beside the agent chat when the user wrote, sent as a `data-thread` part of their message. */
-export interface OpenThread {
-  from: string
-  messageId: string
-  subject: string
-  threadId: string
-}
-
 /**
  * Every tool of `apps/api/services/agent-tools.ts` with its access. `consent` changes Gmail, sends, settles a card in the user's place or lets the agent act alone:
- * the chat asks first and its card must show every input (`ConsentToolName`); through MCP it only waits for that yes in a chat (`requestConsent`).
+ * it never runs on the agent's or an MCP client's word: it waits as a `consent` card on Home (`proposeConsent`), whose details must show every input (`ConsentToolName`), and the yes runs it.
  */
 export const AGENT_TOOLS = {
   add_board_chart: 'write',
@@ -248,10 +246,8 @@ export const AGENT_TOOLS = {
   create_draft: 'write',
   create_event: 'consent',
   create_rule: 'consent',
-  create_schedule: 'consent',
   delete_board: 'consent',
   delete_event: 'consent',
-  delete_schedule: 'consent',
   dismiss_action: 'consent',
   draft_reply: 'write',
   edit_board_entry: 'write',
@@ -265,7 +261,6 @@ export const AGENT_TOOLS = {
   list_handled: 'read',
   list_mail: 'read',
   list_rules: 'read',
-  list_schedules: 'read',
   list_subscriptions: 'read',
   mark_not_spam: 'consent',
   move_to_inbox: 'consent',

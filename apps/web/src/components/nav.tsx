@@ -578,8 +578,7 @@ const useDocumentTitle = ({
   const title = [
     count ? `(${count})` : '',
     [
-      board?.name ??
-        (page ? t.nav[page] : pathname === '/agent' && t.agent.chats),
+      board?.name ?? (page && t.nav[page]),
       status?.isTitled && status.text,
       SITE_NAME,
     ]

@@ -6,34 +6,16 @@ import {
   analyses,
   boards,
   mailboxes,
-  schedules,
   userSettings,
 } from '@fewmail/db/schema'
 import { IMPORTANCE } from '@fewmail/shared/agent'
-import { messages } from '@fewmail/shared/i18n'
-import type { Messages } from '@fewmail/shared/i18n'
-import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { Result } from 'better-result'
 import { subMinutes } from 'date-fns'
-import {
-  and,
-  eq,
-  gt,
-  gte,
-  isNotNull,
-  isNull,
-  lt,
-  lte,
-  or,
-  sql,
-} from 'drizzle-orm'
+import { and, eq, gt, gte, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
 
-import { deliverChatLink } from './chat-link'
 import { localClock } from './lib/clock'
-import { announceChange } from './lib/live'
 import { logError } from './lib/log'
 import { seedBoards } from './services/boards'
-import { askAgent, postToChat } from './services/chat'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { savedThisWeek } from './services/home'
@@ -43,7 +25,6 @@ import {
   whatsappForUser,
 } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
-import { LimitReachedError } from './services/limit-error'
 import { listQueue } from './services/mail'
 import {
   flushNotifications,
@@ -51,19 +32,12 @@ import {
   urgentNotification,
 } from './services/notifications'
 import { dispatchDueOutbox } from './services/outbox'
-import {
-  AgentRequiredError,
-  getPlanInfo,
-  hasAgent,
-  hasAgentSql,
-} from './services/plan'
+import { getPlanInfo, hasAgent, hasAgentSql } from './services/plan'
 import { getReadingSummary } from './services/reading'
 import {
   processDueCommitments,
   processDueReminders,
 } from './services/reminders'
-import { nextRunAt } from './services/schedules'
-import { getSettings } from './services/settings'
 import {
   ensureMailbox,
   HELD_MONTHS,
@@ -331,93 +305,6 @@ const pushUrgent = async () => {
   }
 }
 
-type Schedule = typeof schedules.$inferSelect
-
-const STALE_RUN_MINUTES = 15
-const MAX_SCHEDULE_FAILURES = 3
-
-const deliverScheduleRun = async (
-  schedule: Schedule,
-  t: Messages,
-  text: string
-) => {
-  const { chatId, instruction, userId } = schedule
-  await announceChange(userId, ['chats', 'schedules'])
-  await deliverChatLink(userId, t, { chatId, headline: instruction, text })
-}
-
-const runSchedule = async (schedule: Schedule) => {
-  const { chatId, cron, id, instruction, userId } = schedule
-  const settings = await getSettings(userId)
-  const language = settings?.language ?? 'en'
-  const t = messages[language]
-  const finish = async (change: Partial<Schedule>) => {
-    await db
-      .update(schedules)
-      .set({ runningSince: null, ...change })
-      .where(eq(schedules.id, id))
-  }
-  const report = async (text: string) => {
-    await postToChat(userId, { id: chatId, text, title: instruction })
-    await deliverScheduleRun(schedule, t, text)
-  }
-
-  const answered = await Result.tryPromise(() =>
-    askAgent(userId, { id: chatId, text: instruction })
-  )
-  if (answered.isErr()) {
-    const error = answered.error.cause
-    if (error instanceof AgentRequiredError) {
-      await finish({ nextRunAt: await nextRunAt(userId, cron) })
-      return
-    }
-    if (error instanceof LimitReachedError) {
-      await finish({ nextRunAt: await nextRunAt(userId, cron, error.resetsAt) })
-      await report(
-        t.schedule.limitReached(formatResetDay(language, error.resetsAt))
-      )
-      return
-    }
-    logError(`schedule ${id}`, error)
-    const failures = schedule.failures + 1
-    if (failures >= MAX_SCHEDULE_FAILURES) {
-      await db.delete(schedules).where(eq(schedules.id, id))
-      await report(t.schedule.stopped)
-      return
-    }
-    await finish({ failures, nextRunAt: await nextRunAt(userId, cron) })
-    await report(t.schedule.failed)
-    return
-  }
-  await finish({ failures: 0, nextRunAt: await nextRunAt(userId, cron) })
-  await deliverScheduleRun(schedule, t, answered.value)
-}
-
-/** `runningSince` claims a run until it finishes; one older than `STALE_RUN_MINUTES` was cut off (a deploy, a crash) and runs again. */
-const runDueSchedules = async () => {
-  const now = new Date()
-  const claimed = await db
-    .update(schedules)
-    .set({ runningSince: now })
-    .where(
-      and(
-        lte(schedules.nextRunAt, now),
-        or(
-          isNull(schedules.runningSince),
-          lt(schedules.runningSince, subMinutes(now, STALE_RUN_MINUTES))
-        )
-      )
-    )
-    .returning()
-  await Promise.all(
-    claimed.map((schedule) =>
-      runSchedule(schedule).catch((error) =>
-        logError(`schedule ${schedule.id}`, error)
-      )
-    )
-  )
-}
-
 const tick = async () => {
   const ticked = await Result.tryPromise(() =>
     Promise.all([
@@ -432,7 +319,6 @@ const tick = async () => {
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),
       once('commitments', processDueCommitments),
-      once('schedules', runDueSchedules),
       once('known-domains', refreshKnownDomains),
     ])
   )

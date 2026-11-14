@@ -42,33 +42,28 @@ import { client } from '~/lib/orpc'
 
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
+import { ConsentDetails, DraftText } from './consent-details'
 import { ExtractedChips } from './mail-meta'
 import { ROW_SWAP } from './thread-view'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
 type Action = QueueItem['action']
 
-export const DraftText = ({ text }: { text: string }) => (
-  <p
-    data-mask
-    className="bg-secondary/60 text-foreground/90 rounded-xl px-4 py-3 font-serif text-base/relaxed whitespace-pre-wrap"
-  >
-    {text}
-  </p>
-)
-
 const headline = ({ action, analysis, message }: QueueItem) => {
   if (action.kind === 'commitment') {
     return action.detail ?? action.title
   }
-  if (action.kind === 'cleanup') {
+  if (action.kind === 'cleanup' || action.kind === 'consent') {
     return action.title
   }
   return analysis?.summary ?? message?.subject ?? action.title
 }
 
 const showsGist = ({ action, analysis }: QueueItem) =>
-  !!analysis && !sendsDraft(action) && action.kind !== 'cleanup'
+  !!analysis &&
+  !sendsDraft(action) &&
+  action.kind !== 'cleanup' &&
+  action.kind !== 'consent'
 
 /** The open card says the email whole, so its title gives the subject instead of repeating it. */
 const titleOf = (item: QueueItem, isSelected: boolean) =>
@@ -89,6 +84,14 @@ const Gist = ({
     <ExtractedChips extracted={analysis.extracted} />
   </>
 )
+
+/** A request from the agent or an MCP client: every input of what the yes does, then who asked (the reason). */
+const ConsentBody = ({ action }: { action: Action }) => {
+  const { context, input, tool } = cardPayload(action)
+  return (
+    tool && <ConsentDetails context={context} input={input ?? {}} name={tool} />
+  )
+}
 
 const CleanupList = ({ action }: { action: Action }) => {
   const t = useT()
@@ -542,6 +545,7 @@ export const QueueCard = ({
             />
           )}
           {action.kind === 'cleanup' && <CleanupList action={action} />}
+          {action.kind === 'consent' && <ConsentBody action={action} />}
           {analysis && showsGist(item) && <Gist analysis={analysis} />}
           {!isReply && action.kind !== 'cleanup' && reason && (
             <p

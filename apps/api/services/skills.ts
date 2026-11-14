@@ -1,6 +1,5 @@
 import { parseSkill } from '@fewmail/shared/agent'
 import type { Skill } from '@fewmail/shared/agent'
-import type { UIMessage } from 'ai'
 
 const INSTRUCTIONS: Record<Skill, string> = {
   bills:
@@ -33,18 +32,3 @@ export const skillPrompt = (text: string) => {
     .filter(Boolean)
     .join('\n')
 }
-
-/** History keeps what the user typed (`/bills`); only the model sees the skill's instructions. */
-export const expandSkills = (messages: UIMessage[]) =>
-  messages.map((message) =>
-    message.role === 'user'
-      ? {
-          ...message,
-          parts: message.parts.map((part) =>
-            part.type === 'text'
-              ? { ...part, text: skillPrompt(part.text) ?? part.text }
-              : part
-          ),
-        }
-      : message
-  )

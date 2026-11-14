@@ -21,6 +21,7 @@ export const pl: Messages = {
   },
   actionKind: {
     cleanup: 'Wypisz ze wszystkich',
+    consent: 'Zatwierdź',
     commitment: 'Gotowe',
     security: 'Sprawdziłem',
     spam: 'Przenieś do spamu',
@@ -42,24 +43,14 @@ export const pl: Messages = {
     pending: 'czeka na stronie głównej',
   },
   agent: {
+    decideOnHome: 'Zdecyduj na stronie głównej',
+    fromAgent: 'Prosi agent',
     mcpAsks: (client: string) => `${client} prosi przez MCP`,
-    allChats: 'Wszystkie czaty',
-    chatsLead:
-      'Każda rozmowa z agentem i to, co robi dla ciebie według harmonogramu.',
-    waiting: 'Czekają na twoje „tak”',
-    waitingShort: 'czeka na twoje „tak”',
-    hide: 'Ukryj agenta',
-    show: 'Pokaż agenta',
-    voice: 'Powiedz agentowi',
-    voiceStop: 'Zatrzymaj i wyślij',
-    chats: 'Czaty',
     calendar: (email: string) => `W kalendarzu ${email}`,
     cc: (recipients: string) => `DW: ${recipients}`,
     confirm: {
       dismiss_action: 'Pominąć tę kartę?',
       delete_board: 'Usunąć tę tablicę ze wszystkim, co na niej jest?',
-      delete_schedule: 'Zatrzymać ten harmonogram?',
-      create_schedule: 'Uruchamiać to według harmonogramu?',
       create_event: 'Dodać to wydarzenie?',
       delete_event: 'Usunąć to wydarzenie?',
       update_event: 'Zmienić to wydarzenie?',
@@ -78,36 +69,8 @@ export const pl: Messages = {
       mark_not_spam: 'Wyjąć ten wątek ze spamu?',
       move_to_inbox: 'Przenieść ten wątek z powrotem do odebranych?',
     },
-    decline: 'Nie',
-    declined: 'Odmówiono',
-    stepCount: (count: number) =>
-      plural('pl', count, {
-        one: () => 'Jeden krok',
-        few: (n) => `${n} kroki`,
-        many: (n) => `${n} kroków`,
-        other: (n) => `${n} kroku`,
-      }),
-    detach: 'Nie dołączaj tego e-maila',
-    deleteChat: 'Usuń czat',
-    deleteChatConfirm: 'Usunąć ten czat?',
-    deleteChatHint:
-      'Rozmowa zniknie na zawsze. Twoja poczta zostaje tam, gdzie jest.',
-    failed: 'Agent nie dał rady dokończyć. Spróbuj ponownie.',
-    newChat: 'Nowy czat',
-    noChats: 'Nie ma jeszcze czatów',
-    cancelEdit: 'Anuluj edycję',
-    copy: 'Kopiuj',
-    edit: 'Edytuj',
-    editing: 'Edytujesz wiadomość',
-    regenerate: 'Odpowiedz ponownie',
-    skills: 'Umiejętności',
-    placeholder: 'Zapytaj o pocztę albo wpisz /, by wybrać umiejętność',
     retry: 'Spróbuj ponownie',
-    send: 'Wyślij',
     steps: {
-      create_schedule: 'Ustawiam harmonogram',
-      delete_schedule: 'Zatrzymuję harmonogram',
-      list_schedules: 'Czytam harmonogramy',
       create_event: 'Dodaję wydarzenie',
       delete_event: 'Usuwam wydarzenie',
       list_events: 'Sprawdzam kalendarz',
@@ -151,15 +114,11 @@ export const pl: Messages = {
       remove_board_entry: 'Zdejmuję z tablicy',
       rename_board_group: 'Zmieniam nazwę grupy',
     },
-    stop: 'Zatrzymaj',
-    thinking: 'Myślę…',
     to: (recipients: string) => `Do: ${recipients}`,
     until: (time: string) => `Do ${time}`,
     yes: {
       dismiss_action: 'Pomiń',
       delete_board: 'Usuń',
-      delete_schedule: 'Zatrzymaj',
-      create_schedule: 'Zaplanuj',
       create_event: 'Dodaj',
       delete_event: 'Usuń',
       update_event: 'Zapisz',
@@ -181,7 +140,6 @@ export const pl: Messages = {
   },
   ask: {
     label: (question: string) => `Zapytaj Fewmail: „${question}”`,
-    openChat: 'Otwórz w czacie',
     thinking: 'Przeglądam twoją pocztę…',
   },
   byRule: 'przez regułę',
@@ -607,7 +565,6 @@ export const pl: Messages = {
     openLink: 'otwórz link',
     writeReminder: 'napisz przypomnienie',
     summary: 'podsumowanie',
-    askAgent: 'zapytaj agenta',
     fromSender: 'więcej od nadawcy',
     approvePicked: (n: number) => `zatwierdź wybrane (${n})`,
     pick: 'wybierz',
@@ -845,17 +802,6 @@ export const pl: Messages = {
     usage: (percent: number) => `Agent · wykorzystano ${percent}% miesiąca`,
     watching: 'Agent pilnuje twojej skrzynki',
   },
-  schedule: {
-    awaitsAnswer:
-      'Pominąłem to uruchomienie: poprzednie wciąż czeka w tym czacie na twoją odpowiedź.',
-    failed:
-      'To zaplanowane uruchomienie się nie powiodło. Spróbuję ponownie przy następnym.',
-    limitReached: (day: string) =>
-      `Limit agenta na ten miesiąc się skończył, więc harmonogram pomija uruchomienia do ${day}.`,
-    open: 'Otwórz w Fewmail',
-    stopped:
-      'Ten harmonogram zawiódł trzy razy z rzędu, więc go zatrzymałem. Poproś mnie o ponowne ustawienie, gdy będziesz chcieć.',
-  },
   notifications: {
     many: (total: number) =>
       plural('pl', total, {
@@ -1078,13 +1024,6 @@ export const pl: Messages = {
     morningTitle: 'Poranne wiadomości',
     signedInWithGoogle: 'Zalogowano przez Google',
     signOut: 'Wyloguj się',
-    schedules: {
-      deleted: 'Harmonogram usunięty',
-      delete: 'Usuń',
-      description:
-        'Poproś agenta na czacie, by robił coś regularnie, np. „w każdy piątek o 17:00 zbierz faktury z tygodnia”. Każde uruchomienie trafia do osobnego czatu, gdzie zatwierdzasz wszystko, co chce wysłać.',
-      title: 'Harmonogramy',
-    },
     snippets: {
       deleted: 'Fragment usunięty',
       add: 'Dodaj fragment',
@@ -1699,7 +1638,6 @@ export const pl: Messages = {
     allDone: 'Gotowe. Nic na ciebie nie czeka.',
     allDoneLead:
       'Dalej czytam nową pocztę, a wszystko, co wymaga twojej uwagi, pojawi się tutaj.',
-    ask: 'Zapytaj agenta lub powiedz mu, co zrobić…',
     byRules: (n: number) => `Twoje reguły zajęły się ${n}.`,
     decisions: 'Decyzje',
     journal: {
@@ -1816,8 +1754,6 @@ export const pl: Messages = {
   upgrade: {
     ask: 'Zapytaj swoją pocztę',
     hints: {
-      agent:
-        'Część Fewmail Pro: pytaj o pocztę albo powiedz, co zrobić, a agent to zrobi i poczeka na twoje „tak”, zanim cokolwiek zmieni w Gmailu.',
       ask: 'Część Fewmail Pro: pytaj o cokolwiek własnymi słowami i dostawaj odpowiedź z własnej poczty.',
       boards:
         'Część Fewmail Pro: opisz, co zbierać, a agent znajdzie to w poczcie i będzie aktualizować.',

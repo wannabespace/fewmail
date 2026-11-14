@@ -17,18 +17,11 @@ import { eq, lt } from 'drizzle-orm'
 import { env } from '../env'
 import { speak } from '../lib/elevenlabs'
 import { transcribe } from '../lib/mistral'
-import { getChat } from './chat'
+import { approveCard, approveCards } from './approve'
 import { savedThisWeek } from './home'
 import { followMessage } from './instructions'
 import { LimitReachedError } from './limit-error'
-import {
-  approveAction,
-  approveActions,
-  dismissAction,
-  listQueue,
-  redraftAction,
-  updateDraft,
-} from './mail'
+import { dismissAction, listQueue, redraftAction, updateDraft } from './mail'
 import { cancelMail } from './outbox'
 import { requireBudget } from './plan'
 import { getReadingSummary } from './reading'
@@ -77,7 +70,6 @@ const DRAFT_LIMIT = 3500
 const KEEP_DAYS = 30
 const EDIT_MINUTES = 30
 const EXCHANGE_MINUTES = 30
-const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu
 
 export const localeFor = async (userId: string): Promise<Locale> => {
   const settings = await getSettings(userId)
@@ -230,14 +222,16 @@ export const helpReply = (chat: Chat, t: Messages): Reply => ({
   ),
 })
 
-const chatLinkReply = (
+/** The agent's answer; when it left cards waiting for a yes, the link to Home where they are. */
+const agentReply = (
   chat: Chat,
   t: Messages,
-  text: string,
-  chatId: string
+  { text, waiting }: { text: string; waiting: number }
 ): Reply => ({
   text: chat.channel.plain(
-    `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/home?chat=${chatId}`
+    waiting > 0
+      ? `${text}\n\n${t.agent.decideOnHome}: ${env.WEB_URL}/home`
+      : text
   ),
 })
 
@@ -379,23 +373,7 @@ const queueReplies = async (chat: Chat, userId: string, t: Messages) => {
       ]
 }
 
-const scheduleAnswer = async (
-  chat: Chat,
-  t: Messages,
-  userId: string,
-  chatId: string
-) => {
-  const { messages: history } = await getChat(userId, chatId)
-  const answer =
-    history
-      .at(-1)
-      ?.parts.flatMap((part) => (part.type === 'text' ? [part.text] : []))
-      .join('\n')
-      .replaceAll(THREAD_LINK, '$<label>') ?? ''
-  return chatLinkReply(chat, t, answer, chatId)
-}
-
-/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `w:` write a reminder, `e:` edit, `queue`, `reading`, `week`, `chat:` a schedule run's answer. */
+/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `w:` write a reminder, `e:` edit, `queue`, `reading`, `week`. */
 export const press = async (
   chat: Chat,
   userId: string,
@@ -421,11 +399,8 @@ export const press = async (
   if (command === 'queue') {
     return { replies: () => queueReplies(chat, userId, t) }
   }
-  if (command === 'chat') {
-    return { replies: async () => [await scheduleAnswer(chat, t, userId, id)] }
-  }
   if (command === 'a') {
-    const { outboxId } = await approveAction(userId, id)
+    const { outboxId } = await approveCard(userId, id)
     return outboxId
       ? {
           buttons: [{ id: `u:${outboxId}`, title: t.telegram.undo }],
@@ -435,7 +410,7 @@ export const press = async (
   }
   if (command === 'all') {
     const queue = await listQueue(userId)
-    const { approved } = await approveActions(
+    const { approved } = await approveCards(
       userId,
       queue
         .filter(({ action }) => action.kind === id)
@@ -540,7 +515,7 @@ export const follow = async (
     await lastExchange(chat)
   )
   if (skill) {
-    return chatLinkReply(chat, t, skill.text, skill.chatId)
+    return agentReply(chat, t, skill)
   }
   if (answer) {
     await rememberExchange(chat, { answer: answer.answer, question: text })

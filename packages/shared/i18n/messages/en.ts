@@ -22,6 +22,7 @@ export const en = {
   actionKind: {
     archive: 'Archive',
     cleanup: 'Unsubscribe from all',
+    consent: 'Approve',
     commitment: 'Done',
     follow_up: 'Follow up',
     mark_read: 'Mark read',
@@ -42,24 +43,14 @@ export const en = {
     pending: 'waiting on Home',
   },
   agent: {
+    decideOnHome: 'Decide on Home',
+    fromAgent: 'The agent asks',
     mcpAsks: (client: string) => `${client} asks through MCP`,
-    allChats: 'All chats',
-    chatsLead:
-      'Every conversation with the agent, and what it does for you on a schedule.',
-    waiting: 'Waiting for your yes',
-    waitingShort: 'needs your yes',
-    hide: 'Hide the agent',
-    show: 'Show the agent',
-    voice: 'Talk to the agent',
-    voiceStop: 'Stop and send',
     calendar: (email: string) => `In the calendar of ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
-    chats: 'Chats',
     confirm: {
       dismiss_action: 'Skip this card?',
       delete_board: 'Delete this board and everything on it?',
-      delete_schedule: 'Stop this schedule?',
-      create_schedule: 'Run this on a schedule?',
       create_event: 'Add this event?',
       delete_event: 'Delete this event?',
       update_event: 'Change this event?',
@@ -78,34 +69,8 @@ export const en = {
       mark_not_spam: 'Move this thread out of spam?',
       move_to_inbox: 'Move this thread back to the inbox?',
     } satisfies Record<ConsentToolName | 'reply', string>,
-    decline: 'Don’t',
-    declined: 'You said no',
-    stepCount: (count: number) =>
-      plural('en', count, {
-        one: () => 'One step',
-        other: (n) => `${n} steps`,
-      }),
-    detach: 'Don’t attach this email',
-    deleteChat: 'Delete chat',
-    deleteChatConfirm: 'Delete this chat?',
-    deleteChatHint:
-      'The conversation is gone for good. Your mail stays where it is.',
-    failed: 'The agent could not finish. Try again.',
-    newChat: 'New chat',
-    noChats: 'No chats yet',
-    cancelEdit: 'Cancel editing',
-    copy: 'Copy',
-    edit: 'Edit',
-    editing: 'Editing your message',
-    regenerate: 'Answer again',
-    skills: 'Skills',
-    placeholder: 'Ask about your mail, or type / for skills',
     retry: 'Try again',
-    send: 'Send',
     steps: {
-      create_schedule: 'Setting up a schedule',
-      delete_schedule: 'Stopping the schedule',
-      list_schedules: 'Reading schedules',
       create_event: 'Adding an event',
       delete_event: 'Deleting the event',
       list_events: 'Checking the calendar',
@@ -149,15 +114,11 @@ export const en = {
       remove_board_entry: 'Taking it off the board',
       rename_board_group: 'Renaming the group',
     } satisfies Record<AgentToolName, string>,
-    stop: 'Stop',
-    thinking: 'Thinking…',
     to: (recipients: string) => `To ${recipients}`,
     until: (time: string) => `Until ${time}`,
     yes: {
       dismiss_action: 'Skip',
       delete_board: 'Delete',
-      delete_schedule: 'Stop',
-      create_schedule: 'Schedule it',
       create_event: 'Add',
       delete_event: 'Delete',
       update_event: 'Save',
@@ -179,7 +140,6 @@ export const en = {
   },
   ask: {
     label: (question: string) => `Ask Fewmail: “${question}”`,
-    openChat: 'Open in chat',
     thinking: 'Looking through your mail…',
   },
   boards: {
@@ -589,7 +549,6 @@ export const en = {
     openLink: 'open link',
     writeReminder: 'write a reminder',
     summary: 'summary',
-    askAgent: 'ask the agent',
     fromSender: 'more from sender',
     pin: 'pin',
     unpin: 'unpin',
@@ -825,16 +784,6 @@ export const en = {
     usage: (percent: number) => `Agent · ${percent}% of this month used`,
     watching: 'Agent is watching your inbox',
   },
-  schedule: {
-    awaitsAnswer:
-      'I skipped this run: the last one still waits for your answer in this chat.',
-    failed: 'This scheduled run failed. I’ll try again at the next one.',
-    limitReached: (day: string) =>
-      `This month’s agent allowance is spent, so the schedule skips runs until ${day}.`,
-    open: 'Open in Fewmail',
-    stopped:
-      'This schedule failed three times in a row, so I stopped it. Ask me to set it up again when you want it back.',
-  },
   notifications: {
     many: (total: number) =>
       plural('en', total, {
@@ -1047,13 +996,6 @@ export const en = {
     morningTitle: 'Morning messages',
     signedInWithGoogle: 'Signed in with Google',
     signOut: 'Sign out',
-    schedules: {
-      deleted: 'Schedule deleted',
-      delete: 'Delete',
-      description:
-        'Ask the agent in chat to do something regularly, like “every Friday at 17:00 collect the week’s invoices”. Each run arrives in its own chat, where you approve anything it wants to send.',
-      title: 'Schedules',
-    },
     snippets: {
       deleted: 'Snippet deleted',
       add: 'Add snippet',
@@ -1657,7 +1599,6 @@ export const en = {
     allDone: 'All done. Nothing needs you.',
     allDoneLead:
       'I keep reading new mail, and anything that needs you shows up here.',
-    ask: 'Ask the agent or tell it what to do…',
     byRules: (n: number) => `Your rules took care of ${n}.`,
     decisions: 'Decisions',
     journal: {
@@ -1744,8 +1685,6 @@ export const en = {
   upgrade: {
     ask: 'Ask your mail',
     hints: {
-      agent:
-        'Part of Fewmail Pro: ask about your mail or say what to do, and the agent does it, waiting for your yes before anything changes in Gmail.',
       ask: 'Part of Fewmail Pro: ask anything in plain words and get the answer from your own mail.',
       boards:
         'Part of Fewmail Pro: describe what to collect, and the agent finds it in your mail and keeps it up to date.',

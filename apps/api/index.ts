@@ -19,7 +19,7 @@ import { handleStripeWebhook } from './services/billing'
 import { handleGmailPush } from './services/gmail-push'
 import { LimitReachedError } from './services/limit-error'
 import { finishAddingMailbox } from './services/mailboxes'
-import { hear, speakFor, spokenHome, spokenReading } from './services/messenger'
+import { speakFor, spokenHome, spokenReading } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { syncMailbox } from './services/sync'
 import { readSharedWrapped } from './services/wrapped'
@@ -107,36 +107,6 @@ const app = new Hono()
       void syncMailbox({ id: mailboxId }).catch(logErrorAs('first sync'))
     }
     return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
-  })
-  .post('/voice/hear', async (c) => {
-    const userId = await voiceUser(c.req.raw.headers)
-    if (!userId) {
-      return c.notFound()
-    }
-    const type = c.req.header('content-type') ?? ''
-    const heard = await Result.tryPromise(() =>
-      hear(
-        userId,
-        () => c.req.arrayBuffer(),
-        `voice.${type.includes('mp4') ? 'mp4' : 'webm'}`
-      )
-    )
-    if (heard.isErr()) {
-      logError('voice hear', heard.error.cause)
-      return c.json(
-        { text: '' },
-        heard.error.cause instanceof LimitReachedError ? 429 : 500
-      )
-    }
-    return c.json({ text: heard.value })
-  })
-  .post('/voice/speak', async (c) => {
-    const userId = await voiceUser(c.req.raw.headers)
-    if (!userId) {
-      return c.notFound()
-    }
-    const { text } = await c.req.json<{ text: string }>()
-    return spokenResponse(userId, () => Promise.resolve(text))
   })
   .get('/voice/home', async (c) => {
     const userId = await voiceUser(c.req.raw.headers)

@@ -21,6 +21,7 @@ export const id: Messages = {
   },
   actionKind: {
     cleanup: 'Berhenti dari semua',
+    consent: 'Setujui',
     commitment: 'Selesai',
     security: 'Sudah saya cek',
     spam: 'Pindahkan ke spam',
@@ -42,24 +43,14 @@ export const id: Messages = {
     pending: 'menunggu di Beranda',
   },
   agent: {
+    decideOnHome: 'Putuskan di Beranda',
+    fromAgent: 'Agen meminta',
     mcpAsks: (client: string) => `${client} meminta lewat MCP`,
-    allChats: 'Semua obrolan',
-    chatsLead:
-      'Setiap percakapan dengan agen, dan yang ia kerjakan untuk Anda secara terjadwal.',
-    waiting: 'Menunggu persetujuan Anda',
-    waitingShort: 'menunggu persetujuan Anda',
-    hide: 'Sembunyikan agen',
-    show: 'Tampilkan agen',
-    voice: 'Bicara ke agen',
-    voiceStop: 'Berhenti dan kirim',
-    chats: 'Obrolan',
     calendar: (email: string) => `Di kalender ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Lewati kartu ini?',
       delete_board: 'Hapus papan ini beserta semua isinya?',
-      delete_schedule: 'Hentikan jadwal ini?',
-      create_schedule: 'Jalankan ini sesuai jadwal?',
       create_event: 'Tambahkan acara ini?',
       delete_event: 'Hapus acara ini?',
       update_event: 'Ubah acara ini?',
@@ -78,30 +69,8 @@ export const id: Messages = {
       mark_not_spam: 'Keluarkan utas ini dari spam?',
       move_to_inbox: 'Kembalikan utas ini ke kotak masuk?',
     },
-    decline: 'Jangan',
-    declined: 'Kamu menolak',
-    stepCount: (count: number) => `${count} langkah`,
-    detach: 'Jangan lampirkan email ini',
-    deleteChat: 'Hapus obrolan',
-    deleteChatConfirm: 'Hapus obrolan ini?',
-    deleteChatHint:
-      'Percakapan akan hilang selamanya. Email Anda tetap di tempatnya.',
-    failed: 'Agen tidak bisa menyelesaikannya. Coba lagi.',
-    newChat: 'Obrolan baru',
-    noChats: 'Belum ada obrolan',
-    cancelEdit: 'Batalkan edit',
-    copy: 'Salin',
-    edit: 'Edit',
-    editing: 'Mengedit pesan Anda',
-    regenerate: 'Jawab ulang',
-    skills: 'Skill',
-    placeholder: 'Tanya soal email kamu, atau ketik / untuk skill',
     retry: 'Coba lagi',
-    send: 'Kirim',
     steps: {
-      create_schedule: 'Menyiapkan jadwal',
-      delete_schedule: 'Menghentikan jadwal',
-      list_schedules: 'Membaca jadwal',
       create_event: 'Menambahkan acara',
       delete_event: 'Menghapus acara',
       list_events: 'Memeriksa kalender',
@@ -145,15 +114,11 @@ export const id: Messages = {
       remove_board_entry: 'Mengeluarkan dari papan',
       rename_board_group: 'Mengganti nama grup',
     },
-    stop: 'Hentikan',
-    thinking: 'Berpikir…',
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
     yes: {
       dismiss_action: 'Lewati',
       delete_board: 'Hapus',
-      delete_schedule: 'Hentikan',
-      create_schedule: 'Jadwalkan',
       create_event: 'Tambah',
       delete_event: 'Hapus',
       update_event: 'Simpan',
@@ -175,7 +140,6 @@ export const id: Messages = {
   },
   ask: {
     label: (question: string) => `Tanya Fewmail: “${question}”`,
-    openChat: 'Buka di chat',
     thinking: 'Menelusuri email kamu…',
   },
   byRule: 'oleh aturan',
@@ -575,7 +539,6 @@ export const id: Messages = {
     openLink: 'buka tautan',
     writeReminder: 'tulis pengingat',
     summary: 'ringkasan',
-    askAgent: 'tanya agen',
     fromSender: 'lainnya dari pengirim',
     approvePicked: (n: number) => `setujui ${n} yang dipilih`,
     pick: 'pilih',
@@ -808,17 +771,6 @@ export const id: Messages = {
     usage: (percent: number) => `Agen · ${percent}% bulan ini terpakai`,
     watching: 'Agen sedang memantau kotak masukmu',
   },
-  schedule: {
-    awaitsAnswer:
-      'Saya melewati jalannya kali ini: yang sebelumnya masih menunggu jawabanmu di chat ini.',
-    failed:
-      'Jalannya jadwal ini gagal. Saya akan mencoba lagi di jadwal berikutnya.',
-    limitReached: (day: string) =>
-      `Jatah agen bulan ini sudah habis, jadi jadwal melewatkan jalannya hingga ${day}.`,
-    open: 'Buka di Fewmail',
-    stopped:
-      'Jadwal ini gagal tiga kali berturut-turut, jadi saya menghentikannya. Minta saya menyiapkannya lagi kapan pun Anda mau.',
-  },
   notifications: {
     many: (total: number) =>
       plural('id', total, {
@@ -1030,13 +982,6 @@ export const id: Messages = {
     },
     signedInWithGoogle: 'Masuk dengan Google',
     signOut: 'Keluar',
-    schedules: {
-      deleted: 'Jadwal dihapus',
-      delete: 'Hapus',
-      description:
-        'Minta agen di chat untuk melakukan sesuatu secara rutin, misalnya “setiap Jumat pukul 17.00 kumpulkan tagihan minggu ini”. Setiap jalannya masuk ke chat tersendiri, tempat Anda menyetujui apa pun yang ingin dikirimnya.',
-      title: 'Jadwal',
-    },
     snippets: {
       deleted: 'Snippet dihapus',
       add: 'Tambah snippet',
@@ -1639,7 +1584,6 @@ export const id: Messages = {
     allDone: 'Semua beres. Tidak ada yang butuh kamu.',
     allDoneLead:
       'Aku terus membaca email baru, dan yang butuh perhatianmu akan muncul di sini.',
-    ask: 'Tanya agen atau minta ia melakukan sesuatu…',
     byRules: (n: number) => `Aturanmu sudah mengurus ${n}.`,
     decisions: 'Keputusan',
     journal: {
@@ -1715,8 +1659,6 @@ export const id: Messages = {
   upgrade: {
     ask: 'Tanya email-mu',
     hints: {
-      agent:
-        'Bagian dari Fewmail Pro: tanyakan soal email-mu atau katakan apa yang harus dilakukan, dan agen mengerjakannya, menunggu persetujuanmu sebelum mengubah apa pun di Gmail.',
       ask: 'Bagian dari Fewmail Pro: tanyakan apa saja dengan kata-katamu sendiri dan dapatkan jawaban dari email-mu.',
       boards:
         'Bagian dari Fewmail Pro: jelaskan apa yang dikumpulkan, dan agen mencarinya di email-mu serta terus memperbaruinya.',

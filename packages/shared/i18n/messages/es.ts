@@ -4,24 +4,14 @@ import type { Messages } from './en'
 
 export const es: Messages = {
   agent: {
+    decideOnHome: 'Decide en Inicio',
+    fromAgent: 'Lo pide el agente',
     mcpAsks: (client: string) => `${client} pide a través de MCP`,
-    allChats: 'Todos los chats',
-    chatsLead:
-      'Cada conversación con el agente y lo que hace por ti de forma programada.',
-    waiting: 'Esperan tu sí',
-    waitingShort: 'espera tu sí',
-    hide: 'Ocultar el agente',
-    show: 'Mostrar el agente',
-    voice: 'Hablar con el agente',
-    voiceStop: 'Detener y enviar',
-    chats: 'Chats',
     calendar: (email: string) => `En el calendario de ${email}`,
     cc: (recipients: string) => `CC ${recipients}`,
     confirm: {
       dismiss_action: '¿Omitir esta tarjeta?',
       delete_board: '¿Eliminar este tablero y todo lo que contiene?',
-      delete_schedule: '¿Detener esta programación?',
-      create_schedule: '¿Ejecutar esto de forma programada?',
       create_event: '¿Añadir este evento?',
       delete_event: '¿Eliminar este evento?',
       update_event: '¿Cambiar este evento?',
@@ -40,35 +30,8 @@ export const es: Messages = {
       mark_not_spam: '¿Sacar este hilo del spam?',
       move_to_inbox: '¿Devolver este hilo a la bandeja de entrada?',
     },
-    decline: 'No',
-    declined: 'Dijiste que no',
-    stepCount: (count: number) =>
-      plural('es', count, {
-        one: () => 'Un paso',
-        many: (n) => `${n} pasos`,
-        other: (n) => `${n} pasos`,
-      }),
-    detach: 'No adjuntar este correo',
-    deleteChat: 'Eliminar chat',
-    deleteChatConfirm: '¿Eliminar este chat?',
-    deleteChatHint:
-      'La conversación se borra para siempre. Tu correo se queda donde está.',
-    failed: 'El agente no pudo terminar. Inténtalo de nuevo.',
-    newChat: 'Nuevo chat',
-    noChats: 'Aún no hay chats',
-    cancelEdit: 'Cancelar edición',
-    copy: 'Copiar',
-    edit: 'Editar',
-    editing: 'Editando tu mensaje',
-    regenerate: 'Responder de nuevo',
-    skills: 'Habilidades',
-    placeholder: 'Pregunta por tu correo o escribe / para ver habilidades',
     retry: 'Reintentar',
-    send: 'Enviar',
     steps: {
-      create_schedule: 'Creando la programación',
-      delete_schedule: 'Deteniendo la programación',
-      list_schedules: 'Leyendo las programaciones',
       create_event: 'Añadiendo un evento',
       delete_event: 'Eliminando el evento',
       list_events: 'Mirando el calendario',
@@ -112,15 +75,11 @@ export const es: Messages = {
       remove_board_entry: 'Quitando del tablero',
       rename_board_group: 'Renombrando el grupo',
     },
-    stop: 'Detener',
-    thinking: 'Pensando…',
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Hasta ${time}`,
     yes: {
       dismiss_action: 'Omitir',
       delete_board: 'Eliminar',
-      delete_schedule: 'Detener',
-      create_schedule: 'Programar',
       create_event: 'Añadir',
       delete_event: 'Eliminar',
       update_event: 'Guardar',
@@ -142,7 +101,6 @@ export const es: Messages = {
   },
   ask: {
     label: (question: string) => `Preguntar a Fewmail: «${question}»`,
-    openChat: 'Abrir en el chat',
     thinking: 'Buscando en tu correo…',
   },
   compose: {
@@ -697,6 +655,7 @@ export const es: Messages = {
   },
   actionKind: {
     cleanup: 'Darse de baja de todos',
+    consent: 'Aprobar',
     commitment: 'Hecho',
     security: 'Ya lo comprobé',
     spam: 'Mover a spam',
@@ -803,7 +762,6 @@ export const es: Messages = {
     openLink: 'abrir enlace',
     writeReminder: 'escribir un recordatorio',
     summary: 'resumen',
-    askAgent: 'preguntar al agente',
     fromSender: 'más del remitente',
     approvePicked: (n: number) => `aprobar ${n} seleccionados`,
     pick: 'seleccionar',
@@ -1039,17 +997,6 @@ export const es: Messages = {
     usage: (percent: number) => `Agente · ${percent} % del mes usado`,
     watching: 'El agente vigila tu bandeja',
   },
-  schedule: {
-    awaitsAnswer:
-      'Me salté esta ejecución: la anterior aún espera tu respuesta en este chat.',
-    failed:
-      'Esta ejecución programada falló. Lo intentaré de nuevo en la siguiente.',
-    limitReached: (day: string) =>
-      `El uso del agente de este mes se ha agotado, así que la programación omite ejecuciones hasta el ${day}.`,
-    open: 'Abrir en Fewmail',
-    stopped:
-      'Esta programación falló tres veces seguidas, así que la detuve. Pídeme que la configure de nuevo cuando la quieras.',
-  },
   notifications: {
     many: (total: number) =>
       plural('es', total, {
@@ -1187,13 +1134,6 @@ export const es: Messages = {
       description:
         'Ordena el correo en etiquetas Fewmail/… para que Gmail en tu móvil muestre el mismo orden.',
       title: 'Etiquetas del agente en Gmail',
-    },
-    schedules: {
-      deleted: 'Programación eliminada',
-      delete: 'Eliminar',
-      description:
-        'Pide al agente en el chat que haga algo con regularidad, como «cada viernes a las 17:00 reúne las facturas de la semana». Cada ejecución llega a su propio chat, donde apruebas lo que quiera enviar.',
-      title: 'Programaciones',
     },
     snippets: {
       deleted: 'Fragmento eliminado',
@@ -1380,7 +1320,6 @@ export const es: Messages = {
     allDone: 'Todo listo. Nada te necesita.',
     allDoneLead:
       'Sigo leyendo el correo nuevo, y lo que te necesite aparecerá aquí.',
-    ask: 'Pregunta al agente o dile qué hacer…',
     byRules: (n: number) => `Tus reglas se encargaron de ${n}.`,
     decisions: 'Decisiones',
     journal: {
@@ -1761,8 +1700,6 @@ export const es: Messages = {
   upgrade: {
     ask: 'Pregunta a tu correo',
     hints: {
-      agent:
-        'Parte de Fewmail Pro: pregunta por tu correo o di qué hacer, y el agente lo hace, esperando tu sí antes de cambiar nada en Gmail.',
       ask: 'Parte de Fewmail Pro: pregunta lo que quieras con tus palabras y obtén la respuesta de tu propio correo.',
       boards:
         'Parte de Fewmail Pro: describe qué recopilar y el agente lo encuentra en tu correo y lo mantiene al día.',

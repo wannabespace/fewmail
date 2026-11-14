@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto'
-
 import { db } from '@fewmail/db'
 import { actions, analyses, messages } from '@fewmail/db/schema'
 import { parseSkill } from '@fewmail/shared/agent'
@@ -9,9 +7,9 @@ import { subDays } from 'date-fns'
 import { and, desc, eq, gte } from 'drizzle-orm'
 
 import { models, trackUsage } from '../lib/ai'
+import { askAgent } from './agent-run'
 import type { Exchange } from './ask'
 import { askMail, earlierLines } from './ask'
-import { askAgent } from './chat'
 import { draftReply, redraftAction } from './mail'
 import { requireBudget } from './plan'
 
@@ -95,23 +93,18 @@ const understand = async (
   }
 }
 
-const inNewChat = async (userId: string, text: string) => {
-  const chatId = randomUUID()
-  return { chatId, text: await askAgent(userId, { id: chatId, text }) }
-}
-
-/** ⌘K: a question is answered from the mail; anything else goes to the agent in a new chat, where its approvals wait. */
+/** ⌘K: a question is answered from the mail; anything else goes to the agent, whose approvals wait as cards on Home. */
 export const askFewmail = async (userId: string, text: string) => {
   await requireBudget(userId)
   const { intent } = await understand(userId, text)
   if (intent !== 'question') {
-    const { chatId, text: answer } = await inNewChat(userId, text)
-    return { answer, chatId, query: null, sources: [] }
+    const { text: answer, waiting } = await askAgent(userId, text)
+    return { answer, query: null, sources: [], waiting }
   }
-  return { ...(await askMail(userId, text)), chatId: null }
+  return { ...(await askMail(userId, text)), waiting: 0 }
 }
 
-/** A typed or spoken chat message: a skill or a request run in its own agent chat, a reply draft, an answer about the mail, or `help` when it is none of them. */
+/** A typed or spoken message: a skill or a request run by the agent (its approvals wait on Home), a reply draft, an answer about the mail, or `help` when it is none of them. */
 export const followMessage = async (
   userId: string,
   text: string,
@@ -119,7 +112,7 @@ export const followMessage = async (
   earlier: Exchange | null = null
 ) => {
   if (parseSkill(text)) {
-    return { skill: await inNewChat(userId, text) }
+    return { skill: await askAgent(userId, text) }
   }
   if (actionId) {
     await requireBudget(userId)
@@ -128,7 +121,7 @@ export const followMessage = async (
   await requireBudget(userId)
   const { intent, target } = await understand(userId, text, earlier)
   if (intent === 'request') {
-    return { skill: await inNewChat(userId, text) }
+    return { skill: await askAgent(userId, text) }
   }
   if (intent === 'question') {
     return { answer: await askMail(userId, text, true, earlier) }

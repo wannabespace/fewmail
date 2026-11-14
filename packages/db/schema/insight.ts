@@ -249,36 +249,3 @@ export const domainAges = d.snakeCase.table('domain_ages', {
   domain: d.text().primaryKey(),
   registeredAt: d.timestamp({ withTimezone: true }),
 })
-
-/** Agent mode conversations; `messages` are the AI SDK UI messages, tool results included. */
-export const chats = d.snakeCase.table(
-  'chats',
-  {
-    ...baseTable,
-    messages: encryptedJson<unknown[]>().notNull(),
-    title: encryptedText().notNull(),
-    userId: userId(),
-    /** Its last turn holds an approval the user has not answered. */
-    waiting: d.boolean().default(false).notNull(),
-  },
-  (table) => [d.index('chats_user_idx').on(table.userId, table.updatedAt)]
-)
-
-/** A standing instruction the worker sends to the agent on `cron`, in the user's timezone; every run lands in `chatId`. */
-export const schedules = d.snakeCase.table(
-  'schedules',
-  {
-    ...baseTable,
-    chatId: d.uuid().notNull(),
-    cron: d.text().notNull(),
-    /** Failed runs in a row; the schedule is deleted at `MAX_SCHEDULE_FAILURES`. */
-    failures: d.smallint().default(0).notNull(),
-    instruction: encryptedText().notNull(),
-    nextRunAt: d.timestamp({ withTimezone: true }).notNull(),
-    /** Set while a worker runs it; an old one means the run was cut off and is retried. */
-    runningSince: d.timestamp({ withTimezone: true }),
-    when: encryptedText().notNull(),
-    userId: userId(),
-  },
-  (table) => [d.index('schedules_next_run_idx').on(table.nextRunAt)]
-)
