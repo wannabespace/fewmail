@@ -1316,11 +1316,6 @@ export const de: Messages = {
         one: () => 'Der Agent liest eine neue Mail',
         other: (n) => `Der Agent liest ${n} neue Mails`,
       }),
-    acted: (total: number) =>
-      plural('de', total, {
-        one: () => 'Der Agent hat eine Sache für dich erledigt',
-        other: (n) => `Der Agent hat ${n} Dinge für dich erledigt`,
-      }),
     allDone: 'Alles erledigt. Nichts braucht dich.',
     allDoneLead:
       'Ich lese neue Mails weiter, und alles, was dich braucht, erscheint hier.',
@@ -1401,8 +1396,6 @@ export const de: Messages = {
     },
     saved: (minutes: number) =>
       `Fewmail hat dir diese Woche etwa ${formatMinutes('de', minutes)} gespart`,
-    savedHow: (handled: number, replies: number) =>
-      `Selbst erledigt: ${handled} · Antworten aus Entwürfen: ${replies}`,
     recent: (period: string) => `Außerdem ${period}`,
     sent: 'Gesendet',
     codes: 'Anmeldecodes',

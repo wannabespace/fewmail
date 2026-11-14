@@ -1577,10 +1577,6 @@ export const id: Messages = {
       plural('id', total, {
         other: (n) => `Agen sedang membaca ${n} email baru`,
       }),
-    acted: (total: number) =>
-      plural('id', total, {
-        other: (n) => `Agen melakukan ${n} hal untukmu`,
-      }),
     allDone: 'Semua beres. Tidak ada yang butuh kamu.',
     allDoneLead:
       'Aku terus membaca email baru, dan yang butuh perhatianmu akan muncul di sini.',
@@ -1654,8 +1650,6 @@ export const id: Messages = {
     },
     saved: (minutes: number) =>
       `Fewmail menghemat sekitar ${formatMinutes('id', minutes)} untukmu minggu ini`,
-    savedHow: (handled: number, replies: number) =>
-      `Ditangani sendiri: ${handled} · Balasan terkirim dari draf: ${replies}`,
     recent: (period: string) => `Juga ${period}`,
     sent: 'Terkirim',
     codes: 'Kode masuk',

@@ -217,20 +217,6 @@ export const listHandled = (
     .orderBy(desc(actedAt))
     .limit(HANDLED_SHOWN)
 
-export const countActed = async (userId: string, since: Date) => {
-  const [row] = await db
-    .select({ total: sql<number>`count(*)::int` })
-    .from(actions)
-    .where(
-      and(
-        eq(actions.userId, userId),
-        inArray(actions.status, ['done', 'auto_done']),
-        gte(actedAt, since)
-      )
-    )
-  return expectRow(row).total
-}
-
 const PAGE_SIZE = 50
 
 export type MailFilter =

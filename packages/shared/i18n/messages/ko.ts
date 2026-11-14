@@ -1278,7 +1278,6 @@ export const ko: Messages = {
     },
     readingNow: (total: number) =>
       `에이전트가 새 메일 ${total}통을 읽는 중이에요`,
-    acted: (total: number) => `에이전트가 ${total}가지 일을 처리했어요`,
     allDone: '모두 끝났어요. 확인할 게 없어요.',
     allDoneLead:
       '새 메일을 계속 읽고 있어요. 확인할 게 생기면 여기에 나타나요.',
@@ -1346,8 +1345,6 @@ export const ko: Messages = {
     },
     saved: (minutes: number) =>
       `이번 주 Fewmail이 아껴 준 시간: 약 ${formatMinutes('ko', minutes)}`,
-    savedHow: (handled: number, replies: number) =>
-      `알아서 처리: ${handled} · 초안으로 보낸 답장: ${replies}`,
     recent: (period: string) => `${period}의 다른 메일`,
     sent: '보냄',
     codes: '인증 코드',

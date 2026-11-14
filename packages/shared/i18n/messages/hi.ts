@@ -1284,11 +1284,6 @@ export const hi: Messages = {
         one: (n) => `एजेंट ${n} नया मेल पढ़ रहा है`,
         other: (n) => `एजेंट ${n} नए मेल पढ़ रहा है`,
       }),
-    acted: (total: number) =>
-      plural('hi', total, {
-        one: (n) => `एजेंट ने आपके लिए ${n} काम किया`,
-        other: (n) => `एजेंट ने आपके लिए ${n} काम किए`,
-      }),
     allDone: 'सब हो गया। आपके लिए कुछ बाकी नहीं।',
     allDoneLead: 'मैं नए मेल पढ़ता रहूँगा, और जिस पर आपका ध्यान चाहिए, वह यहाँ दिखेगा।',
     byRules: (n: number) => `आपके नियमों ने ${n} संभाल लिए।`,
@@ -1362,8 +1357,6 @@ export const hi: Messages = {
     },
     saved: (minutes: number) =>
       `इस हफ़्ते Fewmail ने आपके लगभग ${formatMinutes('hi', minutes)} बचाए`,
-    savedHow: (handled: number, replies: number) =>
-      `ख़ुद संभाले: ${handled} · ड्राफ़्ट से भेजे जवाब: ${replies}`,
     recent: (period: string) => `${period} और`,
     sent: 'भेजा गया',
     codes: 'साइन-इन कोड',

@@ -1255,7 +1255,6 @@ export const zh: Messages = {
         `两周内 ${count} 封，${opened === 0 ? '一封都没打开' : `打开了 ${opened} 封`}`,
     },
     readingNow: (total: number) => `助手正在读 ${total} 封新邮件`,
-    acted: (total: number) => `助手为你处理了 ${total} 件事`,
     allDone: '都处理好了。没有需要你的事。',
     allDoneLead: '我会继续读新邮件，需要你处理的事会出现在这里。',
     byRules: (n: number) => `你的规则处理了 ${n} 件。`,
@@ -1321,8 +1320,6 @@ export const zh: Messages = {
     },
     saved: (minutes: number) =>
       `本周 Fewmail 为你节省了约 ${formatMinutes('zh', minutes)}`,
-    savedHow: (handled: number, replies: number) =>
-      `自动处理：${handled} · 用草稿发出的回复：${replies}`,
     recent: (period: string) => `${period}的其他邮件`,
     sent: '已发送',
     codes: '验证码',

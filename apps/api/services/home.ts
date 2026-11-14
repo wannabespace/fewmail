@@ -23,7 +23,6 @@ import { expectRow } from '../lib/rows'
 import { boardBanners, boardsDigest } from './boards'
 import { newSenders } from './cleanup'
 import {
-  countActed,
   freshCodes,
   handledSince,
   listHandled,
@@ -147,7 +146,6 @@ export const getToday = async (userId: string) => {
     banners,
     tidy,
     codes,
-    acted,
     senders,
     reading,
     ruleOffers,
@@ -164,7 +162,6 @@ export const getToday = async (userId: string) => {
     boardBanners(userId),
     listTidy(userId),
     freshCodes(userId),
-    countActed(userId, since),
     newSenders(userId),
     readingNow(userId),
     listRuleOffers(userId),
@@ -181,7 +178,6 @@ export const getToday = async (userId: string) => {
     shown.add(message.id)
   }
   return {
-    acted,
     awaiting,
     banners,
     boards,

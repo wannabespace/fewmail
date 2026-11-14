@@ -27,11 +27,6 @@ import { Kbd } from '@fewmail/ui/components/kbd'
 import { Progress } from '@fewmail/ui/components/progress'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@fewmail/ui/components/tooltip'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
@@ -744,88 +739,50 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
   )
 }
 
-const Saved = ({ saved }: { saved: Today['saved'] }) => {
-  const t = useT().today
-
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={<Link to="/wrapped" />}
-        className="text-foreground/75 hover:text-foreground w-fit cursor-pointer"
-      >
-        {t.saved(saved.minutes)}
-      </TooltipTrigger>
-      <TooltipContent>
-        {t.savedHow(saved.handled, saved.replies)}
-      </TooltipContent>
-    </Tooltip>
-  )
-}
-
-/** One line for what the agent did in the catch-up window; the journal has each of them. */
-const hasTally = (today: Today | undefined): today is Today =>
-  !!today && (today.acted > 0 || today.saved.minutes > 0)
-
-/** What waits for the user's yes above what the agent already did: the review (D) and the journal (H) list each of them. */
-const Tally = ({
+/** What the agent proposes on its own waits here for the yes; what rules did needs none and lives in the journal (H). */
+const TidyCard = ({
   canUseKeys,
   tidy,
-  today,
 }: {
   canUseKeys: boolean
   tidy: Tidy
-  today: Today | undefined
 }) => {
   const t = useT()
   useHotkey('T', () => tidy.approve(tidy.tidy), {
     enabled: canUseKeys && tidy.tidy.length > 0,
+  if (tidy.tidy.length === 0) {
+    return null
+  }
   })
 
   return (
-    <div className="flex flex-col gap-2.5 empty:hidden">
-      {tidy.tidy.length > 0 && (
-        <Item variant="card" size="sm">
-          <ItemContent>
-            <ItemTitle>{t.today.tidy.total(tidy.tidy.length)}</ItemTitle>
-            <p className="text-muted-foreground text-sm first-letter:uppercase">
-              {tidyKinds(t, tidy.tidy)}. {t.today.tidy.untilYouApprove}
-            </p>
-          </ItemContent>
-          <ItemActions>
-            <Button
-              size="sm"
-              variant="secondary"
-              render={
-                <Link
-                  to="/home"
-                  search={(prev) => ({ ...prev, page: 'tidy' })}
-                />
-              }
-              shortcut={<Kbd>D</Kbd>}
-            >
-              {t.today.tidy.review}
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => tidy.approve(tidy.tidy)}
-              shortcut={<Kbd>T</Kbd>}
-            >
-              {t.today.tidy.run}
-            </Button>
-          </ItemActions>
-        </Item>
-      )}
-      {hasTally(today) && (
-        <TallyBox>
-          <span>
-            {today.acted > 0 && t.today.acted(today.acted)}
-            {today.acted > 0 && today.saved.minutes > 0 && ' · '}
-            {today.saved.minutes > 0 && <Saved saved={today.saved} />}
-          </span>
-          <JournalLink />
-        </TallyBox>
-      )}
-    </div>
+    <Item variant="card" size="sm">
+      <ItemContent>
+        <ItemTitle>{t.today.tidy.total(tidy.tidy.length)}</ItemTitle>
+        <p className="text-muted-foreground text-sm first-letter:uppercase">
+          {tidyKinds(t, tidy.tidy)}. {t.today.tidy.untilYouApprove}
+        </p>
+      </ItemContent>
+      <ItemActions>
+        <Button
+          size="sm"
+          variant="secondary"
+          render={
+            <Link to="/home" search={(prev) => ({ ...prev, page: 'tidy' })} />
+          }
+          shortcut={<Kbd>D</Kbd>}
+        >
+          {t.today.tidy.review}
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => tidy.approve(tidy.tidy)}
+          shortcut={<Kbd>T</Kbd>}
+        >
+          {t.today.tidy.run}
+        </Button>
+      </ItemActions>
+    </Item>
   )
 }
 
@@ -1271,9 +1228,7 @@ const HomeHeader = ({
             {t.today.readingNow(data.reading)}
           </span>
         )}
-        <div className="ml-auto flex items-center gap-1">
-          {!hasTally(data) && <JournalLink />}
-        </div>
+        <JournalLink />
       </div>
       {data ? (
         <h1 className="text-display font-serif tracking-tight">
@@ -1895,7 +1850,7 @@ const HomePage = () => {
                     isFirstRead={isFirstRead}
                     updatedAt={dataUpdatedAt}
                   />
-                  <Tally canUseKeys={isWalking} tidy={tidy} today={data} />
+                  <TidyCard canUseKeys={isWalking} tidy={tidy} />
                   <ConnectHint />
                   <ReadingSection isOpen={isReadingOpen} />
 

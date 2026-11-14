@@ -1292,7 +1292,6 @@ export const ja: Messages = {
     },
     readingNow: (total: number) =>
       `エージェントが新着メール${total}通を読んでいます`,
-    acted: (total: number) => `エージェントが${total}件の対応をしました`,
     allDone: 'すべて完了。対応が必要なものはありません。',
     allDoneLead:
       '新しいメールは引き続き読んでいます。対応が必要なものはここに表示されます。',
@@ -1365,8 +1364,6 @@ export const ja: Messages = {
     },
     saved: (minutes: number) =>
       `今週 Fewmail が節約した時間: 約${formatMinutes('ja', minutes)}`,
-    savedHow: (handled: number, replies: number) =>
-      `自動で処理: ${handled} · 下書きから送信した返信: ${replies}`,
     recent: (period: string) => `${period}のその他`,
     sent: '送信済み',
     codes: '認証コード',

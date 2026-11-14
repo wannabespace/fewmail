@@ -1325,12 +1325,6 @@ export const fr: Messages = {
         many: (n) => `L’agent lit ${n} nouveaux e-mails`,
         other: (n) => `L’agent lit ${n} nouveaux e-mails`,
       }),
-    acted: (total: number) =>
-      plural('fr', total, {
-        one: () => 'L’agent a fait une chose pour toi',
-        many: (n) => `L’agent a fait ${n} choses pour toi`,
-        other: (n) => `L’agent a fait ${n} choses pour toi`,
-      }),
     allDone: 'Tout est fait. Rien ne t’attend.',
     allDoneLead:
       'Je continue à lire les nouveaux e-mails, et ce qui demande ton attention apparaîtra ici.',
@@ -1413,8 +1407,6 @@ export const fr: Messages = {
     },
     saved: (minutes: number) =>
       `Fewmail t’a fait gagner environ ${formatMinutes('fr', minutes)} cette semaine`,
-    savedHow: (handled: number, replies: number) =>
-      `Traités tout seul : ${handled} · Réponses envoyées depuis les brouillons : ${replies}`,
     recent: (period: string) => `Aussi ${period}`,
     sent: 'Envoyé',
     codes: 'Codes de connexion',

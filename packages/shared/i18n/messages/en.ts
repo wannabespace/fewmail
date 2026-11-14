@@ -1591,11 +1591,6 @@ export const en = {
         one: () => 'The agent is reading a new email',
         other: (n) => `The agent is reading ${n} new emails`,
       }),
-    acted: (total: number) =>
-      plural('en', total, {
-        one: () => 'The agent did one thing for you',
-        other: (n) => `The agent did ${n} things for you`,
-      }),
     allDone: 'All done. Nothing needs you.',
     allDoneLead:
       'I keep reading new mail, and anything that needs you shows up here.',
@@ -1679,8 +1674,6 @@ export const en = {
     },
     saved: (minutes: number) =>
       `Fewmail saved you about ${formatMinutes('en', minutes)} this week`,
-    savedHow: (handled: number, replies: number) =>
-      `Handled on its own: ${handled} · Replies sent from drafts: ${replies}`,
     recent: (period: string) => `Also ${period}`,
     sent: 'Sent',
     codes: 'Sign-in codes',

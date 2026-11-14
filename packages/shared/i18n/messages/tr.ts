@@ -1572,10 +1572,6 @@ export const tr: Messages = {
       plural('tr', total, {
         other: (n) => `Ajan ${n} yeni e-postayı okuyor`,
       }),
-    acted: (total: number) =>
-      plural('tr', total, {
-        other: (n) => `Ajan senin için ${n} iş yaptı`,
-      }),
     allDone: 'Hepsi tamam. Seni bekleyen bir şey yok.',
     allDoneLead:
       'Yeni e-postaları okumaya devam ediyorum, ilgilenmen gereken her şey burada görünecek.',
@@ -1650,8 +1646,6 @@ export const tr: Messages = {
     },
     saved: (minutes: number) =>
       `Fewmail bu hafta sana yaklaşık ${formatMinutes('tr', minutes)} kazandırdı`,
-    savedHow: (handled: number, replies: number) =>
-      `Kendi hallettiği: ${handled} · Taslaktan gönderilen yanıtlar: ${replies}`,
     recent: (period: string) => `${period} ayrıca`,
     sent: 'Gönderildi',
     codes: 'Giriş kodları',

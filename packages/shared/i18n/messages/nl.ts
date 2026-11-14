@@ -1603,11 +1603,6 @@ export const nl: Messages = {
         one: () => 'De agent leest een nieuwe e-mail',
         other: (n) => `De agent leest ${n} nieuwe e-mails`,
       }),
-    acted: (total: number) =>
-      plural('nl', total, {
-        one: () => 'De agent deed één ding voor je',
-        other: (n) => `De agent deed ${n} dingen voor je`,
-      }),
     allDone: 'Alles klaar. Niets heeft je nodig.',
     allDoneLead:
       'Ik blijf nieuwe mail lezen, en wat jou nodig heeft, verschijnt hier.',
@@ -1687,8 +1682,6 @@ export const nl: Messages = {
     },
     saved: (minutes: number) =>
       `Fewmail heeft je deze week ongeveer ${formatMinutes('nl', minutes)} bespaard`,
-    savedHow: (handled: number, replies: number) =>
-      `Zelf afgehandeld: ${handled} · Antwoorden verstuurd vanuit concepten: ${replies}`,
     recent: (period: string) => `Ook ${period}`,
     sent: 'Verstuurd',
     codes: 'Inlogcodes',

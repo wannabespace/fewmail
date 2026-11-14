@@ -1313,13 +1313,6 @@ export const uk: Messages = {
         many: (n) => `Агент читає ${n} нових листів`,
         other: (n) => `Агент читає ${n} нового листа`,
       }),
-    acted: (total: number) =>
-      plural('uk', total, {
-        one: (n) => `Агент зробив для тебе ${n} дію`,
-        few: (n) => `Агент зробив для тебе ${n} дії`,
-        many: (n) => `Агент зробив для тебе ${n} дій`,
-        other: (n) => `Агент зробив для тебе ${n} дії`,
-      }),
     allDone: 'Усе. Нічого не чекає на тебе.',
     allDoneLead:
       'Я далі читаю нові листи, і все, що потребує тебе, з’явиться тут.',
@@ -1343,14 +1336,14 @@ export const uk: Messages = {
       unsubscribeHint:
         'Серед них є розсилки, від яких Fewmail відпишеться, а відписку не можна скасувати.',
       archive: (n: number) => `архівувати: ${n}`,
-      review: 'Перевірити',
+      review: 'Подивитись',
       reviewLead:
         'Кожен лист із тим, що агент зробив би, і чому. Підтверди те, що виглядає правильно, і залиш те, що має лишитися як є.',
       reviewTitle: 'Перевір, що розібрав агент',
       done: (n: number) => `Прибрано: ${n}`,
       keep: 'Залишити',
       mark_read: (n: number) => `позначити прочитаними: ${n}`,
-      run: 'Підтвердити все',
+      run: 'Погодити',
       total: (total: number) =>
         plural('uk', total, {
           one: (n) => `Агент розібрав для тебе ${n} тихий лист`,
@@ -1413,8 +1406,6 @@ export const uk: Messages = {
     },
     saved: (minutes: number) =>
       `Цього тижня Fewmail зберіг тобі близько ${formatMinutes('uk', minutes)}`,
-    savedHow: (handled: number, replies: number) =>
-      `Розібрав сам: ${handled} · Відповіді з чернеток: ${replies}`,
     recent: (period: string) => `Ще ${period}`,
     sent: 'Надіслано',
     codes: 'Коди для входу',

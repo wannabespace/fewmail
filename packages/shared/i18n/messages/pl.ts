@@ -1628,13 +1628,6 @@ export const pl: Messages = {
         many: (n) => `Agent czyta ${n} nowych wiadomości`,
         other: (n) => `Agent czyta ${n} nowej wiadomości`,
       }),
-    acted: (total: number) =>
-      plural('pl', total, {
-        one: () => 'Agent zrobił dla ciebie jedną rzecz',
-        few: (n) => `Agent zrobił dla ciebie ${n} rzeczy`,
-        many: (n) => `Agent zrobił dla ciebie ${n} rzeczy`,
-        other: (n) => `Agent zrobił dla ciebie ${n} rzeczy`,
-      }),
     allDone: 'Gotowe. Nic na ciebie nie czeka.',
     allDoneLead:
       'Dalej czytam nową pocztę, a wszystko, co wymaga twojej uwagi, pojawi się tutaj.',
@@ -1749,8 +1742,6 @@ export const pl: Messages = {
     },
     saved: (minutes: number) =>
       `W tym tygodniu Fewmail zaoszczędził ci około ${formatMinutes('pl', minutes)}`,
-    savedHow: (handled: number, replies: number) =>
-      `Załatwione samodzielnie: ${handled} · Odpowiedzi wysłane z wersji roboczych: ${replies}`,
     recent: (period: string) => `Też ${period}`,
     sent: 'Wysłano',
     codes: 'Kody logowania',
