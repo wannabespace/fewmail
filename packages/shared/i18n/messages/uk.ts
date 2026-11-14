@@ -1371,7 +1371,8 @@ export const uk: Messages = {
       spam: (n: number) => `у спам: ${n}`,
       trash: (n: number) => `видалити: ${n}`,
     },
-    stopListening: 'Зупинити',
+    pauseListening: 'Пауза',
+    resumeListening: 'Продовжити',
     awaiting: 'Чекаєш на відповідь',
     hint: {
       notNow: 'Не зараз',

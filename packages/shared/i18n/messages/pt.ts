@@ -1656,7 +1656,8 @@ export const pt: Messages = {
       spam: (n: number) => `${n} para o spam`,
       trash: (n: number) => `${n} para apagar`,
     },
-    stopListening: 'Parar',
+    pauseListening: 'Pausar',
+    resumeListening: 'Retomar',
     awaiting: 'Aguardando resposta',
     hint: {
       notNow: 'Agora não',

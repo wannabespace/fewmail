@@ -4,6 +4,7 @@ import {
   cardPayload,
   hostOf,
   parseSkill,
+  readingSpeech,
   SKILLS,
   UNDO_SEND_SECONDS,
 } from '@fewmail/shared/agent'
@@ -322,15 +323,7 @@ export const readingReply = (
 /** Read aloud on Reading: the summary as it is written, titles as their own sentences. */
 export const spokenReading = async (userId: string) => {
   const { summary } = await getReadingSummary(userId)
-  return summary
-    ? [
-        summary.intro,
-        ...summary.sections.flatMap(({ sentences, title }) => [
-          title,
-          ...sentences.map(({ text }) => text),
-        ]),
-      ].join('\n')
-    : ''
+  return summary ? readingSpeech(summary) : ''
 }
 
 /** WhatsApp shows three buttons at most. */

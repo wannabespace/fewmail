@@ -1625,7 +1625,8 @@ export const tr: Messages = {
       spam: (n: number) => `${n} spama taşınacak`,
       trash: (n: number) => `${n} silinecek`,
     },
-    stopListening: 'Durdur',
+    pauseListening: 'Duraklat',
+    resumeListening: 'Devam et',
     awaiting: 'Yanıt bekleniyor',
     hint: {
       notNow: 'Şimdi değil',

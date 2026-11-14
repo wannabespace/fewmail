@@ -1657,7 +1657,8 @@ export const nl: Messages = {
       spam: (n: number) => `${n} naar spam`,
       trash: (n: number) => `${n} verwijderen`,
     },
-    stopListening: 'Stoppen',
+    pauseListening: 'Pauzeren',
+    resumeListening: 'Hervatten',
     awaiting: 'Wacht op antwoord',
     hint: {
       notNow: 'Niet nu',

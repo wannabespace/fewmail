@@ -1330,7 +1330,8 @@ export const ko: Messages = {
       spam: (n: number) => `스팸으로 ${n}개`,
       trash: (n: number) => `삭제 ${n}개`,
     },
-    stopListening: '정지',
+    pauseListening: '일시정지',
+    resumeListening: '이어 듣기',
     awaiting: '답장 대기 중',
     hint: {
       notNow: '나중에',

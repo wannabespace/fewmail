@@ -1335,7 +1335,8 @@ export const hi: Messages = {
       spam: (n: number) => `स्पैम में: ${n}`,
       trash: (n: number) => `हटाने को: ${n}`,
     },
-    stopListening: 'रोकें',
+    pauseListening: 'रोकें',
+    resumeListening: 'जारी रखें',
     awaiting: 'जवाब का इंतज़ार',
     hint: {
       notNow: 'अभी नहीं',

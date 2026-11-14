@@ -1367,7 +1367,8 @@ export const it: Messages = {
       spam: (n: number) => `${n} nello spam`,
       trash: (n: number) => `${n} da eliminare`,
     },
-    stopListening: 'Interrompi',
+    pauseListening: 'Pausa',
+    resumeListening: 'Riprendi',
     awaiting: 'In attesa di risposta',
     hint: {
       notNow: 'Non ora',

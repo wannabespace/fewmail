@@ -1,3 +1,5 @@
+import { SPEECH_CHARS } from '@fewmail/shared/agent'
+
 import { env } from '../env'
 import { charge } from '../services/plan'
 
@@ -5,7 +7,6 @@ const SPEECH_API = 'https://api.elevenlabs.io/v1/text-to-speech'
 /** Multilingual and fast enough for a reply in a chat. */
 export const SPEECH_MODEL = 'eleven_flash_v2_5'
 const DEFAULT_VOICE = 'JBFqnCBsd6RMkjVDRZzb'
-export const SPEECH_CHARS = 2500
 /** `economics.test.ts` keeps it equal to LiteLLM's price. */
 export const SPEECH_USD_PER_CHAR = 0.00004
 /** Messengers want Ogg Opus voice notes; Safari plays only MP3 of the two. */

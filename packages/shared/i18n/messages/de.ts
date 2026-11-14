@@ -1370,7 +1370,8 @@ export const de: Messages = {
       spam: (n: number) => `${n} in Spam`,
       trash: (n: number) => `${n} löschen`,
     },
-    stopListening: 'Stopp',
+    pauseListening: 'Pause',
+    resumeListening: 'Weiter',
     awaiting: 'Wartet auf Antwort',
     hint: {
       notNow: 'Nicht jetzt',

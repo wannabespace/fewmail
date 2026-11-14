@@ -1632,7 +1632,8 @@ export const id: Messages = {
       spam: (n: number) => `${n} ke spam`,
       trash: (n: number) => `${n} untuk dihapus`,
     },
-    stopListening: 'Hentikan',
+    pauseListening: 'Jeda',
+    resumeListening: 'Lanjutkan',
     awaiting: 'Menunggu balasan',
     hint: {
       notNow: 'Nanti saja',

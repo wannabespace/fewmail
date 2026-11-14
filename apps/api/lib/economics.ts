@@ -10,6 +10,7 @@ import {
   PAID_PLANS,
   PLAN_ALLOWANCE_USD,
   PRICE_USD,
+  SPEECH_CHARS,
   TRIAL_DAYS,
 } from '@fewmail/shared/agent'
 import type { BillingInterval } from '@fewmail/shared/agent'
@@ -55,7 +56,7 @@ import {
   WRITER_FALLBACK_ID,
   WRITER_MODEL_ID,
 } from './ai'
-import { SPEECH_CHARS, SPEECH_MODEL } from './elevenlabs'
+import { SPEECH_MODEL } from './elevenlabs'
 import { JEV_MODEL_ID } from './jev'
 import { OCR_MODEL, OCR_PAGES, TRANSCRIBE_MODEL } from './mistral'
 

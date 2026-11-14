@@ -1345,7 +1345,8 @@ export const ja: Messages = {
       spam: (n: number) => `迷惑メールへ ${n} 件`,
       trash: (n: number) => `削除 ${n} 件`,
     },
-    stopListening: '停止',
+    pauseListening: '一時停止',
+    resumeListening: '再開',
     awaiting: '返信待ち',
     hint: {
       notNow: '今はしない',

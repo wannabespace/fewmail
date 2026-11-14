@@ -1304,7 +1304,8 @@ export const zh: Messages = {
       spam: (n: number) => `${n} 封移到垃圾邮件`,
       trash: (n: number) => `${n} 封删除`,
     },
-    stopListening: '停止',
+    pauseListening: '暂停',
+    resumeListening: '继续',
     awaiting: '等待回复',
     hint: {
       notNow: '暂不',

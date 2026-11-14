@@ -1,4 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import { readingSpeech } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { cardsBleedClassName } from '@fewmail/ui/components/accordion'
 import { Badge } from '@fewmail/ui/components/badge'
@@ -20,7 +21,6 @@ import { cn } from '@fewmail/ui/lib/utils'
 import {
   ArrowExpand01Icon,
   Cancel01Icon,
-  News01Icon,
   TickDouble02Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -340,7 +340,13 @@ const SummaryGaps = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
 const MARK_READ_TOAST = 'reading-read'
 
 /** Ends Reading: every newsletter on it marked read in one yes (⇧I), with an Undo that marks them unread again. */
-const MarkAllRead = ({ rows }: { rows: Row[] }) => {
+const MarkAllRead = ({
+  rows,
+  variant,
+}: {
+  rows: Row[]
+  variant: 'ghost-muted' | 'secondary'
+}) => {
   const t = useT()
   const queryClient = useQueryClient()
   const refetch = () =>
@@ -370,7 +376,7 @@ const MarkAllRead = ({ rows }: { rows: Row[] }) => {
   return (
     <Button
       size="sm"
-      variant="secondary"
+      variant={variant}
       className="self-start"
       disabled={!canMark}
       onClick={() => markRead.mutate()}
@@ -420,8 +426,8 @@ const ReadingIntro = ({
 }
 
 /**
- * What your newsletters said, a card on Home under the header: the opening and the topics. `N` (`?page=reading`) grows
- * it into `ReadingPane` (one `layoutId`); while the pane is open the card keeps its place, unseen, so it shrinks back
+ * What your newsletters said, a card on Home under the header: the opening and the topics. A click anywhere on it or
+ * `N` (`?page=reading`) grows it into `ReadingPane` (one `layoutId`); while the pane is open the card keeps its place, unseen, so it shrinks back
  * into the same spot.
  */
 export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
@@ -442,26 +448,11 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
         <h2 className="text-muted-foreground text-xs font-medium">
           {t.reading.summary}
         </h2>
-        <div className="ml-auto flex gap-2">
-          {summary && <ListenButton path="/voice/reading" />}
-          <Button
-            size="sm"
-            variant="ghost-muted"
-            render={
-              <Link
-                to="/home"
-                search={(prev) => ({ ...prev, page: 'reading' })}
-              />
-            }
-            shortcut={<Kbd>N</Kbd>}
-          >
-            <HugeiconsIcon
-              icon={News01Icon}
-              strokeWidth={2}
-              data-icon="inline-start"
-            />
-            {t.reading.digest(rows.length)}
-          </Button>
+        <div className="pointer-events-auto ml-auto flex gap-2">
+          {summary && (
+            <ListenButton path="/voice/reading" text={readingSpeech(summary)} />
+          )}
+          {!isOpen && <MarkAllRead rows={rows} variant="ghost-muted" />}
         </div>
       </div>
       <ReadingIntro isWriting={isWriting} summary={summary} />
@@ -493,13 +484,23 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
       aria-label={t.reading.title}
       initial={false}
       animate={{ borderRadius: CARD_RADIUS }}
-      className={cn(cardClassName, 'relative z-10 overflow-hidden')}
+      className={cn(
+        cardClassName,
+        'hover:ring-foreground/10 relative z-10 overflow-hidden'
+      )}
     >
+      <Link
+        to="/home"
+        search={(prev) => ({ ...prev, page: 'reading' })}
+        aria-label={t.reading.digest(rows.length)}
+        className="focus-visible:focus-ring absolute inset-0 cursor-pointer rounded-2xl outline-none focus-visible:ring-inset"
+      />
+      {/* The text lets clicks through to the card's link; only the head's buttons take their own. */}
       <motion.div
         layout="position"
         layoutId="reading-content"
         transition={transition}
-        className="flex flex-col gap-3"
+        className="pointer-events-none flex flex-col gap-3"
       >
         {content}
       </motion.div>
@@ -541,7 +542,12 @@ export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
                 {t.reading.summary}
               </h2>
               <div className="ml-auto flex gap-2">
-                {summary && <ListenButton path="/voice/reading" />}
+                {summary && (
+                  <ListenButton
+                    path="/voice/reading"
+                    text={readingSpeech(summary)}
+                  />
+                )}
                 <IconButton
                   icon={Cancel01Icon}
                   label={t.mail.close}
@@ -571,7 +577,7 @@ export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
                 rows={rows}
                 summary={summary}
               />
-              <MarkAllRead rows={rows} />
+              <MarkAllRead rows={rows} variant="secondary" />
               <NewsletterPeek onOpenChange={setIsPeeking} />
             </motion.div>
           </motion.div>

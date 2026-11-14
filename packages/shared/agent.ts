@@ -484,3 +484,19 @@ export type PatternKind = (typeof PATTERN_KINDS)[number]
 
 /** Weak signals add up: one makes mail "maybe spam", this many move it to spam. */
 export const SUSPICION_SPAM = 2
+
+/** What one listen speaks at most; the API cuts the rest. Raising it raises what every listen costs. */
+export const SPEECH_CHARS = 2500
+
+/** Reading's summary as it is spoken: the intro, then each topic's title and sentences. */
+export const readingSpeech = (summary: {
+  intro: string
+  sections: { sentences: { text: string }[]; title: string }[]
+}) =>
+  [
+    summary.intro,
+    ...summary.sections.flatMap(({ sentences, title }) => [
+      title,
+      ...sentences.map(({ text }) => text),
+    ]),
+  ].join('\n')
