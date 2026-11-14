@@ -37,7 +37,7 @@ import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -863,6 +863,42 @@ const settledActionsOf = (
 const revealComposer = (node: HTMLElement | null) =>
   node?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 
+/** Sticks to the top of the reader and shrinks as the email scrolls under it. */
+const ReaderHeader = ({
+  children,
+  note,
+  onClose,
+  title,
+}: {
+  children?: ReactNode
+  note?: ReactNode
+  onClose: () => void
+  title: ReactNode
+}) => {
+  const t = useT()
+  return (
+    <header className="shrink-on-scroll bg-background sticky top-0 z-10 -mb-3 flex flex-col">
+      <div className="flex items-start gap-2">
+        <div className="flex flex-1 flex-col gap-1">
+          <h1 data-mask className="font-serif text-2xl tracking-tight">
+            {title}
+          </h1>
+          {note && <p className="text-muted-foreground text-sm">{note}</p>}
+        </div>
+        <IconButton
+          icon={Cancel01Icon}
+          label={t.mail.close}
+          shortcut={<Kbd>esc</Kbd>}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={onClose}
+        />
+      </div>
+      {children}
+    </header>
+  )
+}
+
 export const ThreadView = ({
   isSnoozed,
   onClose,
@@ -930,24 +966,8 @@ export const ThreadView = ({
   return (
     <article className="flex min-h-0 flex-1 flex-col">
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 py-8">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-start gap-2">
-              <h1
-                data-mask
-                className="flex-1 font-serif text-2xl tracking-tight"
-              >
-                {subject}
-              </h1>
-              <IconButton
-                icon={Cancel01Icon}
-                label={t.mail.close}
-                shortcut={<Kbd>esc</Kbd>}
-                size="icon-sm"
-                variant="ghost-muted"
-                onClick={onClose}
-              />
-            </div>
+        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
+          <ReaderHeader title={subject} onClose={onClose}>
             {target && (
               <div className="flex flex-wrap items-center gap-2">
                 <Button size="sm" onClick={reply}>
@@ -1038,7 +1058,7 @@ export const ThreadView = ({
                 </DropdownMenu>
               </div>
             )}
-          </div>
+          </ReaderHeader>
 
           <ThreadNotices data={data} />
 
@@ -1154,26 +1174,12 @@ export const StackView = ({
   return (
     <article className="flex min-h-0 flex-1 flex-col">
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 py-8">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-start gap-2">
-              <div className="flex flex-1 flex-col gap-1">
-                <h1 data-mask className="font-serif text-2xl tracking-tight">
-                  {head?.fromName ?? head?.fromEmail}
-                </h1>
-                <p className="text-muted-foreground text-sm">
-                  {t.cleanup.emails(emails.length)}
-                </p>
-              </div>
-              <IconButton
-                icon={Cancel01Icon}
-                label={t.mail.close}
-                shortcut={<Kbd>esc</Kbd>}
-                size="icon-sm"
-                variant="ghost-muted"
-                onClick={onClose}
-              />
-            </div>
+        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
+          <ReaderHeader
+            note={t.cleanup.emails(emails.length)}
+            title={head?.fromName ?? head?.fromEmail}
+            onClose={onClose}
+          >
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 size="sm"
@@ -1216,7 +1222,7 @@ export const StackView = ({
                 {t.mail.trash} <Kbd>⌫</Kbd>
               </Button>
             </div>
-          </div>
+          </ReaderHeader>
           <div className="flex flex-col gap-2">
             {emails.map((email) => (
               <StackedEmail key={email.id} email={email} />

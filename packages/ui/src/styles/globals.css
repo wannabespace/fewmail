@@ -362,6 +362,40 @@
   );
 }
 
+/* The open email's sticky header, shrinking over the first 4rem of scroll. Gated on support: without a scroll timeline the animation would end at once and leave the header shrunk. */
+@utility shrink-on-scroll {
+  padding-top: --spacing(8);
+  padding-bottom: --spacing(3);
+  row-gap: --spacing(3);
+  border-bottom: 1px solid transparent;
+
+  @supports (animation-timeline: scroll()) {
+    animation: shrink-header linear both;
+    animation-range: 0 4rem;
+    animation-timeline: scroll();
+
+    & h1 {
+      animation: shrink-title linear both;
+      animation-range: 0 4rem;
+      animation-timeline: scroll();
+    }
+  }
+}
+
+@keyframes shrink-header {
+  to {
+    padding-top: 0.75rem;
+    row-gap: 0.5rem;
+    border-bottom-color: var(--border);
+  }
+}
+
+@keyframes shrink-title {
+  to {
+    font-size: var(--text-lg);
+  }
+}
+
 /* The landing's struck-through problems. Without scroll timelines the animation ends at once, so the line shows struck. */
 @utility strike-on-scroll {
   background-image: linear-gradient(var(--primary), var(--primary));
