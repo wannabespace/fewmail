@@ -2403,9 +2403,10 @@ const MailPage = () => {
         </section>
       </ResizablePanel>
       <ResizableSeparator />
+      {/* Held shut until the panes are measured: opening at the remembered width and then clamping it springs the width. */}
       <ResizablePanel
         className="flex"
-        collapsed={!thread}
+        collapsed={!thread || panesWidth === 0}
         transition={{ duration: 0 }}
         size={readerWidth}
         minSize={READER_WIDTH.min}
