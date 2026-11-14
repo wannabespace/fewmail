@@ -1,6 +1,8 @@
+import { randomUUID } from 'node:crypto'
+
 import { db } from '@fewmail/db'
 import { chats, schedules } from '@fewmail/db/schema'
-import type { OpenThread } from '@fewmail/shared/agent'
+import type { ConsentToolName, OpenThread } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import {
@@ -13,6 +15,7 @@ import {
   validateUIMessages,
 } from 'ai'
 import type { UIMessage } from 'ai'
+import { addDays, subDays } from 'date-fns'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
@@ -23,6 +26,7 @@ import { NotFoundError } from './mail-errors'
 import { requireBudget } from './plan'
 import { getSettings } from './settings'
 import { expandSkills } from './skills'
+import { ownMessage } from './stored-mail'
 
 export const MAX_STEPS = 12
 /** Every step resends the tools, instructions and chat: Anthropic reads the prefix the previous step wrote at a tenth of the price. The instructions carry their own mark, so the next message within five minutes reads the tools and instructions too. */
@@ -290,4 +294,104 @@ export const askAgent = async (
       .join('\n')
       .replaceAll(THREAD_LINK, '$<label>') ?? ''
   )
+}
+
+type ToolInput = Record<string, unknown>
+
+const EVENTS_AROUND = (now: Date) => ({
+  from: subDays(now, 30).toISOString(),
+  to: addDays(now, 365).toISOString(),
+})
+
+/** The reads the confirmation card finds its email, card, board or event in; without them the user would say yes blind. */
+const consentReads = async (
+  userId: string,
+  name: ConsentToolName,
+  input: ToolInput
+): Promise<
+  { input: ToolInput; name: keyof ReturnType<typeof agentTools> }[]
+> => {
+  if (typeof input.messageId === 'string') {
+    const { threadId } = await ownMessage(userId, input.messageId)
+    return [{ input: { threadId }, name: 'read_thread' }]
+  }
+  if (
+    name === 'approve_action' ||
+    name === 'dismiss_action' ||
+    name === 'tidy_mail'
+  ) {
+    return [{ input: {}, name: 'get_today' }]
+  }
+  if (name === 'delete_board') {
+    return [{ input: {}, name: 'list_boards' }]
+  }
+  if (name === 'delete_schedule') {
+    return [{ input: {}, name: 'list_schedules' }]
+  }
+  if (
+    name === 'create_event' ||
+    name === 'update_event' ||
+    name === 'delete_event'
+  ) {
+    return [{ input: EVENTS_AROUND(new Date()), name: 'list_events' }]
+  }
+  return []
+}
+
+/**
+ * MCP never runs a consent tool, whatever its client allows: the call waits in a chat of its own for the same yes as the
+ * agent's (Home lists it among the decisions), and the yes runs it there.
+ */
+export const requestConsent = async (
+  userId: string,
+  {
+    client,
+    input,
+    name,
+  }: {
+    client: string | undefined
+    input: ToolInput
+    name: ConsentToolName
+  }
+) => {
+  const settings = await getSettings(userId)
+  const t = dictionaries[settings?.language ?? 'en']
+  const tools = agentTools(userId)
+  const reads = await consentReads(userId, name, input)
+  const outputs = await Promise.all(
+    reads.map((read) => tools[read.name].run(read.input as never))
+  )
+  const id = randomUUID()
+  const title = t.agent.mcpAsks(client ?? t.settings.mcp.defaultName)
+  const messages: UIMessage[] = [
+    {
+      id: generateId(),
+      metadata: { createdAt: Date.now() },
+      parts: [{ text: title, type: 'text' }],
+      role: 'user',
+    },
+    {
+      id: generateId(),
+      parts: [
+        ...reads.map((read, index) => ({
+          input: read.input,
+          output: outputs[index],
+          state: 'output-available' as const,
+          toolCallId: generateId(),
+          type: `tool-${read.name}` as const,
+        })),
+        {
+          approval: { id: generateId() },
+          input,
+          state: 'approval-requested' as const,
+          toolCallId: generateId(),
+          type: `tool-${name}` as const,
+        },
+      ],
+      role: 'assistant',
+    },
+  ]
+  await db.insert(chats).values({ id, messages, title, userId, waiting: true })
+  await announceChange(userId, ['chats'])
+  return { chatId: id, question: t.agent.confirm[name], title }
 }

@@ -26,6 +26,7 @@ export const tr: Messages = {
     pending: 'Ana Sayfa’da bekliyor',
   },
   agent: {
+    mcpAsks: (client: string) => `${client} MCP üzerinden istiyor`,
     allChats: 'Tüm sohbetler',
     chatsLead: 'Ajanla her konuşma ve senin için düzenli olarak yaptıkları.',
     waiting: 'Onayını bekleyenler',

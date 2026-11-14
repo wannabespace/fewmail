@@ -202,7 +202,7 @@ export interface OpenThread {
 
 /**
  * Every tool of `apps/api/services/agent-tools.ts` with its access. `consent` changes Gmail, sends, settles a card in the user's place or lets the agent act alone:
- * the chat asks first and its card must show every input (`ConsentToolName`), MCP marks it destructive.
+ * the chat asks first and its card must show every input (`ConsentToolName`); through MCP it only waits for that yes in a chat (`requestConsent`).
  */
 export const AGENT_TOOLS = {
   add_board_chart: 'write',

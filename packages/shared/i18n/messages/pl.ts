@@ -26,6 +26,7 @@ export const pl: Messages = {
     pending: 'czeka na stronie głównej',
   },
   agent: {
+    mcpAsks: (client: string) => `${client} prosi przez MCP`,
     allChats: 'Wszystkie czaty',
     chatsLead:
       'Każda rozmowa z agentem i to, co robi dla ciebie według harmonogramu.',

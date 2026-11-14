@@ -27,6 +27,7 @@ export const ko: Messages = {
   },
   byRule: '규칙에 따라',
   agent: {
+    mcpAsks: (client: string) => `${client}이(가) MCP로 요청합니다`,
     allChats: '모든 채팅',
     chatsLead: '에이전트와 나눈 모든 대화, 그리고 일정에 따라 하는 일.',
     waiting: '승인을 기다리는 중',

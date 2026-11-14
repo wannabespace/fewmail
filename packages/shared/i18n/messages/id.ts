@@ -26,6 +26,7 @@ export const id: Messages = {
     pending: 'menunggu di Beranda',
   },
   agent: {
+    mcpAsks: (client: string) => `${client} meminta lewat MCP`,
     allChats: 'Semua obrolan',
     chatsLead:
       'Setiap percakapan dengan agen, dan yang ia kerjakan untuk Anda secara terjadwal.',

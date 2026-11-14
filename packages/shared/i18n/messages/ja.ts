@@ -27,6 +27,7 @@ export const ja: Messages = {
   },
   byRule: 'ルールによる',
   agent: {
+    mcpAsks: (client: string) => `${client}が MCP 経由で依頼しています`,
     allChats: 'すべてのチャット',
     chatsLead: 'エージェントとのすべての会話と、スケジュールで行っていること。',
     waiting: 'あなたの承認待ち',

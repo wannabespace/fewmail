@@ -26,6 +26,7 @@ export const pt: Messages = {
     pending: 'aguardando no Início',
   },
   agent: {
+    mcpAsks: (client: string) => `${client} pede via MCP`,
     allChats: 'Todas as conversas',
     chatsLead:
       'Cada conversa com o agente e o que ele faz por você de forma agendada.',

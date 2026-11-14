@@ -27,6 +27,7 @@ export const zh: Messages = {
   },
   byRule: '按规则',
   agent: {
+    mcpAsks: (client: string) => `${client}通过 MCP 请求`,
     allChats: '所有对话',
     chatsLead: '与代理的每一次对话，以及它按计划为你做的事。',
     waiting: '等你确认',

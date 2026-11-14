@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const fr: Messages = {
   agent: {
+    mcpAsks: (client: string) => `${client} demande via MCP`,
     allChats: 'Toutes les discussions',
     chatsLead:
       'Chaque discussion avec l’agent, et ce qu’il fait pour vous à intervalles réguliers.',

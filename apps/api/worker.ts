@@ -28,7 +28,7 @@ import {
   sql,
 } from 'drizzle-orm'
 
-import { env } from './env'
+import { deliverChatLink } from './chat-link'
 import { localClock } from './lib/clock'
 import { announceChange } from './lib/live'
 import { logError } from './lib/log'
@@ -48,7 +48,6 @@ import { listQueue } from './services/mail'
 import {
   flushNotifications,
   notify,
-  scheduleNotification,
   urgentNotification,
 } from './services/notifications'
 import { dispatchDueOutbox } from './services/outbox'
@@ -72,10 +71,9 @@ import {
   readBoardHistory,
   syncMailbox,
 } from './services/sync'
-import { sendReading, sendRun, sendUrgent, sendWeek } from './telegram'
+import { sendReading, sendUrgent, sendWeek } from './telegram'
 import {
   sendWhatsappReading,
-  sendWhatsappSchedule,
   sendWhatsappUrgent,
   sendWhatsappWeek,
 } from './whatsapp'
@@ -338,24 +336,14 @@ type Schedule = typeof schedules.$inferSelect
 const STALE_RUN_MINUTES = 15
 const MAX_SCHEDULE_FAILURES = 3
 
-/** Messengers get a link because approvals for a scheduled run happen in its web chat. */
 const deliverScheduleRun = async (
   schedule: Schedule,
   t: Messages,
   text: string
 ) => {
   const { chatId, instruction, userId } = schedule
-  notify(userId, scheduleNotification(instruction, text, chatId))
   await announceChange(userId, ['chats', 'schedules'])
-  const run = {
-    body: `${text}\n\n${t.schedule.open}: ${env.WEB_URL}/home?chat=${chatId}`,
-    headline: instruction,
-  }
-  const telegramChat = await chatIdForUser(userId)
-  await Promise.all([
-    telegramChat && sendRun(telegramChat, run),
-    sendWhatsappSchedule(userId, run, chatId),
-  ])
+  await deliverChatLink(userId, t, { chatId, headline: instruction, text })
 }
 
 const runSchedule = async (schedule: Schedule) => {

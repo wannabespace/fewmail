@@ -1,6 +1,7 @@
 import { createResourceServerChallenge } from '@better-auth/oauth-provider'
 import { oauthProviderResourceClient } from '@better-auth/oauth-provider/resource-client'
 import { SKILLS } from '@fewmail/shared/agent'
+import type { ConsentToolName } from '@fewmail/shared/agent'
 import { messages } from '@fewmail/shared/i18n'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
@@ -8,10 +9,13 @@ import { APIError, isAPIError } from 'better-auth/api'
 import { createAuthClient } from 'better-auth/client'
 import { z } from 'zod'
 
+import { deliverChatLink } from './chat-link'
 import { auth, AUTH_ISSUER, MCP_RESOURCE } from './lib/auth'
 import { agentTools, toolAccess } from './services/agent-tools'
+import { requestConsent } from './services/chat'
 import { isAppConnected } from './services/integrations'
 import { getPlanInfo, hasAgent } from './services/plan'
+import { getSettings } from './services/settings'
 import { skillPrompt } from './services/skills'
 
 const json = (value: unknown) => ({
@@ -31,6 +35,30 @@ const LLM_READS = new Set(['get_person'])
 const titleOf = (name: string) => {
   const words = name.replaceAll('_', ' ')
   return `${words.charAt(0).toUpperCase()}${words.slice(1)}`
+}
+
+/** The client's own approval is not the user's yes: nothing happens until they answer in Fewmail. */
+const waitForYes = async (
+  userId: string,
+  server: McpServer,
+  name: ConsentToolName,
+  input: unknown
+) => {
+  const request = await requestConsent(userId, {
+    client: server.server.getClientVersion()?.name,
+    input: input as Record<string, unknown>,
+    name,
+  })
+  const settings = await getSettings(userId)
+  await deliverChatLink(userId, messages[settings?.language ?? 'en'], {
+    chatId: request.chatId,
+    headline: request.title,
+    text: request.question,
+  })
+  return {
+    note: 'Nothing happened yet. The user answers this in Fewmail (Home and a notification); the yes carries it out there. Tell them so, and do not call it again.',
+    status: 'waiting_for_approval',
+  }
 }
 
 const createServer = (userId: string, withAgent: boolean) => {
@@ -53,7 +81,12 @@ const createServer = (userId: string, withAgent: boolean) => {
         inputSchema: tool.input,
         title: titleOf(name),
       },
-      async (input: unknown) => json(await tool.run(input as never))
+      async (input: unknown) =>
+        json(
+          access === 'consent'
+            ? await waitForYes(userId, server, name as ConsentToolName, input)
+            : await tool.run(input as never)
+        )
     )
   }
   if (!withAgent) {

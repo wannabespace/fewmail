@@ -14,7 +14,7 @@ Index only — rules live in `.agents/rules/`, one file per topic. `CLAUDE.md` s
 ## Always applies
 
 - **One service layer, many clients.** Everything the agent or the user can do lives in `apps/api/services/*` and takes a `userId`. The web (oRPC), MCP and Telegram are thin adapters over it; a feature is not done until it is reachable from each surface it belongs to.
-- **Nothing changes in Gmail without consent.** Only an approved action or a rule the user turned on themselves (starter rules with a Gmail effect start off) may archive, mark read, unsubscribe, move to spam or send; the spam shield only proposes, except for senders the user reported. Sending always needs an explicit approval.
+- **Nothing changes in Gmail without consent.** Only an approved action or a rule the user turned on themselves (starter rules with a Gmail effect start off) may archive, mark read, unsubscribe, move to spam or send; the spam shield only proposes, except for senders the user reported. Sending always needs an explicit approval. An MCP client's own approval is not the user's yes: its consent tools wait in Fewmail.
 - **No user data in clear text in the database** — every text column from a user or their mail is `encryptedText` / `encryptedJson`, or `searchableText` when it is queried (see `architecture.md` → Database). Never log bodies, subjects, addresses or drafts.
 - **A comment is a warning or it does not exist.** Keep a comment only when an innocent-looking edit would break something; everything else goes into names.
 - **Write as little code as possible.** Reuse before adding, extend a file before creating one, no speculative options.

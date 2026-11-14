@@ -27,6 +27,7 @@ export const hi: Messages = {
   },
   byRule: 'एक नियम से',
   agent: {
+    mcpAsks: (client: string) => `${client} MCP के ज़रिए पूछ रहा है`,
     allChats: 'सभी चैट',
     chatsLead: 'एजेंट के साथ हर बातचीत, और वह आपके लिए तय समय पर क्या करता है।',
     waiting: 'आपकी हाँ का इंतज़ार',
