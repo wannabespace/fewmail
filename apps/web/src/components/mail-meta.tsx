@@ -80,9 +80,21 @@ export const ExtractedChips = ({
         </Tooltip>
       )}
       {extracted.meetingTime && (
-        <Badge variant="secondary" size={size} data-mask>
-          {extracted.meetingTime}
-        </Badge>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Badge
+                variant="secondary"
+                size={size}
+                className="max-w-48"
+                data-mask
+              />
+            }
+          >
+            <span className="truncate">{extracted.meetingTime}</span>
+          </TooltipTrigger>
+          <TooltipContent data-mask>{extracted.meetingTime}</TooltipContent>
+        </Tooltip>
       )}
     </>
   )
