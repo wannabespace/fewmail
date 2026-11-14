@@ -10,6 +10,7 @@ export const pt: Messages = {
     read: 'Já li',
     renew: 'Já renovei',
     schedule: 'Já agendei',
+    security: 'Já verifiquei',
     sign: 'Já assinei',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const pt: Messages = {
     cleanup: 'Cancelar todas',
     consent: 'Aprovar',
     commitment: 'Feito',
-    security: 'Já verifiquei',
+    security: 'Verificar',
     spam: 'Mover para spam',
     archive: 'Arquivar',
     follow_up: 'Acompanhar',

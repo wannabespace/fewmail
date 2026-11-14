@@ -644,6 +644,7 @@ export const es: Messages = {
     read: 'Ya lo leí',
     renew: 'Ya lo renové',
     schedule: 'Ya lo agendé',
+    security: 'Ya lo comprobé',
     sign: 'Ya lo firmé',
   },
   actionLink: {
@@ -657,7 +658,7 @@ export const es: Messages = {
     cleanup: 'Darse de baja de todos',
     consent: 'Aprobar',
     commitment: 'Hecho',
-    security: 'Ya lo comprobé',
+    security: 'Compruébalo',
     spam: 'Mover a spam',
     trash: 'Mover a la papelera',
     archive: 'Archivar',

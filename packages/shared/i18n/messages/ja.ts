@@ -10,6 +10,7 @@ export const ja: Messages = {
     read: '読みました',
     renew: '更新しました',
     schedule: '予定に入れました',
+    security: '確認しました',
     sign: '署名しました',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const ja: Messages = {
     cleanup: 'すべて配信停止',
     consent: '承認',
     commitment: '完了',
-    security: '確認しました',
+    security: '確認する',
     spam: '迷惑メールに移動',
     trash: 'ゴミ箱に移動',
     archive: 'アーカイブ',

@@ -10,6 +10,7 @@ export const en = {
     read: 'I read it',
     renew: 'I renewed it',
     schedule: 'I scheduled it',
+    security: 'I checked it',
     sign: 'I signed it',
   },
   actionLink: {
@@ -30,7 +31,7 @@ export const en = {
     read: 'Worth reading',
     reply: 'Reply',
     schedule: 'Schedule',
-    security: 'I checked it',
+    security: 'Check it',
     spam: 'Move to spam',
     trash: 'Move to trash',
     unsubscribe: 'Unsubscribe',

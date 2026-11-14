@@ -10,6 +10,7 @@ export const pl: Messages = {
     read: 'Przeczytałem',
     renew: 'Przedłużyłem',
     schedule: 'Zaplanowałem',
+    security: 'Sprawdziłem',
     sign: 'Podpisałem',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const pl: Messages = {
     cleanup: 'Wypisz ze wszystkich',
     consent: 'Zatwierdź',
     commitment: 'Gotowe',
-    security: 'Sprawdziłem',
+    security: 'Sprawdź',
     spam: 'Przenieś do spamu',
     archive: 'Archiwizuj',
     follow_up: 'Przypomnij się',

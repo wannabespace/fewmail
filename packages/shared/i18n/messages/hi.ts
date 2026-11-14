@@ -10,6 +10,7 @@ export const hi: Messages = {
     read: 'मैंने पढ़ लिया',
     renew: 'मैंने रिन्यू कर दिया',
     schedule: 'मैंने शेड्यूल कर लिया',
+    security: 'मैंने जाँच लिया',
     sign: 'मैंने साइन कर दिया',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const hi: Messages = {
     cleanup: 'सभी से अनसब्सक्राइब करें',
     consent: 'मंज़ूर करें',
     commitment: 'हो गया',
-    security: 'मैंने जाँच लिया',
+    security: 'जाँच करें',
     spam: 'स्पैम में डालें',
     trash: 'ट्रैश में डालें',
     archive: 'आर्काइव करें',

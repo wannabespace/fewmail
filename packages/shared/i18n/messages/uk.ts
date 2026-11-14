@@ -644,6 +644,7 @@ export const uk: Messages = {
     read: 'Я прочитав',
     renew: 'Я продовжив',
     schedule: 'Я запланував',
+    security: 'Я перевірив',
     sign: 'Я підписав',
   },
   actionLink: {
@@ -657,7 +658,7 @@ export const uk: Messages = {
     cleanup: 'Відписатися від усіх',
     consent: 'Підтвердити',
     commitment: 'Готово',
-    security: 'Я перевірив',
+    security: 'Перевірити',
     spam: 'У спам',
     trash: 'У кошик',
     archive: 'В архів',

@@ -652,6 +652,7 @@ export const fr: Messages = {
     read: 'J’ai lu',
     renew: 'J’ai renouvelé',
     schedule: 'J’ai planifié',
+    security: 'J’ai vérifié',
     sign: 'J’ai signé',
   },
   actionLink: {
@@ -665,7 +666,7 @@ export const fr: Messages = {
     cleanup: 'Se désabonner de tout',
     consent: 'Approuver',
     commitment: 'Fait',
-    security: 'J’ai vérifié',
+    security: 'Vérifier',
     spam: 'Mettre en spam',
     trash: 'Mettre à la corbeille',
     archive: 'Archiver',

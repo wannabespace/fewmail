@@ -10,6 +10,7 @@ export const tr: Messages = {
     read: 'Okudum',
     renew: 'Yeniledim',
     schedule: 'Planladım',
+    security: 'Kontrol ettim',
     sign: 'İmzaladım',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const tr: Messages = {
     cleanup: 'Hepsinden çık',
     consent: 'Onayla',
     commitment: 'Tamam',
-    security: 'Kontrol ettim',
+    security: 'Kontrol et',
     spam: 'Spama taşı',
     archive: 'Arşivle',
     follow_up: 'Takip et',

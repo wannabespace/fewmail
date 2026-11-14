@@ -10,6 +10,7 @@ export const zh: Messages = {
     read: '我已读过',
     renew: '我已续订',
     schedule: '我已安排',
+    security: '我已核实',
     sign: '我已签署',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const zh: Messages = {
     cleanup: '全部退订',
     consent: '批准',
     commitment: '完成',
-    security: '我已核实',
+    security: '核实',
     spam: '移到垃圾邮件',
     trash: '移到废纸篓',
     archive: '归档',

@@ -10,6 +10,7 @@ export const nl: Messages = {
     read: 'Gelezen',
     renew: 'Verlengd',
     schedule: 'Ingepland',
+    security: 'Gecontroleerd',
     sign: 'Ondertekend',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const nl: Messages = {
     cleanup: 'Overal afmelden',
     consent: 'Goedkeuren',
     commitment: 'Klaar',
-    security: 'Gecontroleerd',
+    security: 'Controleren',
     spam: 'Naar spam',
     archive: 'Archiveren',
     follow_up: 'Opvolgen',

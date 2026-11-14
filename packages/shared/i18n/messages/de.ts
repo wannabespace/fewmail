@@ -643,6 +643,7 @@ export const de: Messages = {
     read: 'Gelesen',
     renew: 'Verlängert',
     schedule: 'Eingeplant',
+    security: 'Geprüft',
     sign: 'Unterschrieben',
   },
   actionLink: {
@@ -656,7 +657,7 @@ export const de: Messages = {
     cleanup: 'Alle abbestellen',
     consent: 'Zustimmen',
     commitment: 'Erledigt',
-    security: 'Geprüft',
+    security: 'Prüfen',
     spam: 'In den Spam',
     trash: 'In den Papierkorb',
     archive: 'Archivieren',

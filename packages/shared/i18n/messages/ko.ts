@@ -10,6 +10,7 @@ export const ko: Messages = {
     read: '읽었어요',
     renew: '갱신했어요',
     schedule: '일정 잡았어요',
+    security: '확인했어요',
     sign: '서명했어요',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const ko: Messages = {
     cleanup: '모두 구독 취소',
     consent: '승인',
     commitment: '완료',
-    security: '확인했어요',
+    security: '확인하기',
     spam: '스팸으로 이동',
     trash: '휴지통으로 이동',
     archive: '보관',

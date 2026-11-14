@@ -10,6 +10,7 @@ export const id: Messages = {
     read: 'Sudah saya baca',
     renew: 'Sudah saya perpanjang',
     schedule: 'Sudah saya jadwalkan',
+    security: 'Sudah saya cek',
     sign: 'Sudah saya tanda tangani',
   },
   actionLink: {
@@ -23,7 +24,7 @@ export const id: Messages = {
     cleanup: 'Berhenti dari semua',
     consent: 'Setujui',
     commitment: 'Selesai',
-    security: 'Sudah saya cek',
+    security: 'Periksa',
     spam: 'Pindahkan ke spam',
     archive: 'Arsipkan',
     follow_up: 'Tindak lanjuti',
