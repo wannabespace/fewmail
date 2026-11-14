@@ -39,6 +39,13 @@ const AUTOSAVE_MS = 1000
 
 const isValid = (recipient: string) => validRecipients([recipient])
 
+const focusAtEnd = (field: { focus: () => void } | null) => {
+  field?.focus()
+  if (field instanceof HTMLInputElement) {
+    field.setSelectionRange(field.value.length, field.value.length)
+  }
+}
+
 export const ComposeForm = ({
   draft,
   onDone,
@@ -51,6 +58,8 @@ export const ComposeForm = ({
   const withAgent = useWithAgent()
   const { openCompose, send } = useCompose()
   const editorRef = useRef<ComposerEditorHandle>(null)
+  const toRef = useRef<HTMLInputElement>(null)
+  const subjectRef = useRef<HTMLInputElement>(null)
   const [to, setTo] = useState(draft.to.join(', '))
   const [cc, setCc] = useState(draft.cc.join(', '))
   const [showCc, setShowCc] = useState(draft.cc.length > 0)
@@ -156,11 +165,13 @@ export const ComposeForm = ({
   }
 
   const isReply = draft.mode === 'reply'
-  useEffect(() => {
-    if (isReply) {
-      editorRef.current?.focus()
-    }
-  }, [isReply])
+  const focusFirstEmpty = useEffectEvent(() => {
+    const empty = [toRef, subjectRef].find(
+      ({ current }) => current && !current.value.trim()
+    )
+    focusAtEnd((empty ?? editorRef).current)
+  })
+  useEffect(() => focusFirstEmpty(), [])
   const submit = (sendAt?: Date) => {
     const recipients = parseRecipients(to)
     const copies = parseRecipients(cc)
@@ -234,6 +245,7 @@ export const ComposeForm = ({
       )}
       <div className="flex items-center gap-2">
         <Input
+          ref={toRef}
           value={to}
           onChange={(event) => {
             setTo(event.target.value)
@@ -267,6 +279,7 @@ export const ComposeForm = ({
       )}
       {!isReply && (
         <Input
+          ref={subjectRef}
           value={subject}
           onChange={(event) => {
             setSubject(event.target.value)
