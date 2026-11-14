@@ -448,7 +448,7 @@ const useGroupedRows = <Row extends ListedRow>(
 
 // Not sticky: pins share the list's <ul>, so a sticky pinned header would ride over every row below it.
 const LIST_HEADER =
-  'bg-body text-muted-foreground flex items-center gap-2 border-b px-5 py-1.5 pl-9 text-xs font-medium'
+  'bg-body text-muted-foreground flex items-center gap-2 border-b py-1.5 pr-5 pl-11 text-xs font-medium'
 
 const GROUP_HEADER = cn(LIST_HEADER, 'sticky top-0 z-10')
 
@@ -745,7 +745,7 @@ const RowPick = ({
 
 const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
   cn(
-    'size-2 shrink-0 rounded-full',
+    'mr-2 ml-1 size-2 shrink-0 rounded-full',
     isUnread && 'bg-primary',
     isPicking ? 'invisible' : 'group-hover:invisible'
   )
@@ -902,7 +902,7 @@ const RelatedRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-9 text-left text-sm outline-none"
+        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-11 text-left text-sm outline-none"
       >
         <span
           data-mask
@@ -944,7 +944,7 @@ const BurstList = ({
                 void warmThread(email.threadId)
               }}
               aria-current={email.threadId === openThread}
-              className="hover:bg-secondary aria-current:bg-secondary mr-3 ml-7 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
+              className="hover:bg-secondary aria-current:bg-secondary mr-3 ml-9 flex w-[calc(100%-3rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
             >
               <span
                 data-mask
@@ -1024,7 +1024,7 @@ const MailRow = ({
         }}
         aria-current={isOpen}
         className={cn(
-          'flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none',
+          'flex w-full cursor-pointer flex-col gap-0.5 py-2.5 pr-5 pl-4 text-left outline-none',
           isBurst && 'pb-1'
         )}
       >
@@ -1071,7 +1071,7 @@ const MailRow = ({
           <span
             data-mask
             className={cn(
-              'truncate pl-4 text-sm',
+              'truncate pl-7 text-sm',
               codeRoom,
               message.isUnread
                 ? 'text-foreground/90 font-medium'
@@ -1082,12 +1082,12 @@ const MailRow = ({
           </span>
         )}
         {message.risk && (
-          <span className="text-destructive pl-4 text-xs font-medium">
+          <span className="text-destructive pl-7 text-xs font-medium">
             {t.risk.title}
           </span>
         )}
         {!message.risk && message.suspicion && (
-          <span className="text-muted-foreground pl-4 text-xs">
+          <span className="text-muted-foreground pl-7 text-xs">
             {t.spam.suspect}
           </span>
         )}
@@ -1159,7 +1159,7 @@ const PinnedRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className="flex w-full cursor-pointer items-center gap-2 px-5 py-2 text-left text-sm outline-none"
+        className="flex w-full cursor-pointer items-center gap-2 py-2 pr-5 pl-4 text-left text-sm outline-none"
       >
         <span
           aria-label={message.isUnread ? t.mail.unread : undefined}
@@ -1279,7 +1279,7 @@ const DraftRow = ({
         onClick={onOpen}
         className="flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none"
       >
-        <span className="flex items-center gap-2 pl-4 text-sm">
+        <span className="flex items-center gap-2 pl-6 text-sm">
           <span
             data-mask
             className="text-foreground/70 min-w-0 flex-1 truncate"
@@ -1293,14 +1293,14 @@ const DraftRow = ({
             )}
           </span>
         </span>
-        <span data-mask className="text-foreground/60 truncate pl-4 text-sm">
+        <span data-mask className="text-foreground/60 truncate pl-6 text-sm">
           {draft.subject}
         </span>
-        <span data-mask className="text-muted-foreground truncate pl-4 text-sm">
+        <span data-mask className="text-muted-foreground truncate pl-6 text-sm">
           {draft.snippet}
         </span>
         {draft.isFailed && (
-          <span className="text-destructive pl-4 text-xs font-medium">
+          <span className="text-destructive pl-6 text-xs font-medium">
             {t.mail.notSent}
           </span>
         )}
