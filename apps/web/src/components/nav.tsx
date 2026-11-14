@@ -57,7 +57,6 @@ import {
   Logout01Icon,
   Mail01Icon,
   MailRemove01Icon,
-  News01Icon,
   Moon02Icon,
   PencilEdit02Icon,
   Search01Icon,
@@ -125,13 +124,6 @@ export const NAV_ITEMS = [
     to: '/calendar',
   },
   {
-    icon: News01Icon,
-    key: 'reading',
-    place: 'top',
-    sequence: ['G', 'N'],
-    to: '/reading',
-  },
-  {
     icon: ZapIcon,
     key: 'rules',
     place: 'bottom',
@@ -162,11 +154,6 @@ export const useGoTo = () => {
 
 /** Quiet until the month is nearly spent: never push. */
 const USAGE_SHOWN_FROM = 90
-
-export const useVisibleNavItems = () => {
-  const { data: reading = 0 } = useQuery(orpc.reading.count.queryOptions())
-  return NAV_ITEMS.filter((item) => item.key !== 'reading' || reading > 0)
-}
 
 const NAV_ROW =
   'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70 data-[status=active]:font-medium'
@@ -700,7 +687,6 @@ export const Sidebar = ({
   const hasAgent = useHasAgent()
   const isModifierHeld = useModifierHold()
   const { openCompose } = useCompose()
-  const navItems = useVisibleNavItems()
   const pathname = useRouterState({
     select: ({ location }) => location.pathname,
   })
@@ -765,36 +751,32 @@ export const Sidebar = ({
         />
       </div>
       <div className="scroll-fade -mx-1 flex min-h-0 flex-1 scrollbar-none flex-col gap-1 overflow-y-auto px-1 pb-3">
-        {navItems
-          .filter(({ place }) => place === 'top')
-          .map((item) => (
-            <Fragment key={item.to}>
-              <NavLink
-                item={item}
-                showKeys={isModifierHeld}
-                count={counts[item.to]}
-                className={
-                  item.key === 'mail' && isInFolder ? QUIET_ROW : undefined
-                }
-              />
-              {item.key === 'mail' && (
-                <AnimatePresence initial={false}>
-                  {isOnMail && (
-                    <MotionCollapse key="folders">
-                      <MailFolders />
-                    </MotionCollapse>
-                  )}
-                </AnimatePresence>
-              )}
-            </Fragment>
-          ))}
+        {NAV_ITEMS.filter(({ place }) => place === 'top').map((item) => (
+          <Fragment key={item.to}>
+            <NavLink
+              item={item}
+              showKeys={isModifierHeld}
+              count={counts[item.to]}
+              className={
+                item.key === 'mail' && isInFolder ? QUIET_ROW : undefined
+              }
+            />
+            {item.key === 'mail' && (
+              <AnimatePresence initial={false}>
+                {isOnMail && (
+                  <MotionCollapse key="folders">
+                    <MailFolders />
+                  </MotionCollapse>
+                )}
+              </AnimatePresence>
+            )}
+          </Fragment>
+        ))}
         <Boards showKeys={isModifierHeld} />
         <div className="mt-auto flex flex-col gap-1 pt-4">
-          {navItems
-            .filter(({ place }) => place === 'bottom')
-            .map((item) => (
-              <NavLink key={item.to} item={item} showKeys={isModifierHeld} />
-            ))}
+          {NAV_ITEMS.filter(({ place }) => place === 'bottom').map((item) => (
+            <NavLink key={item.to} item={item} showKeys={isModifierHeld} />
+          ))}
         </div>
       </div>
       <AccountMenu email={email} mailboxes={mailboxes} />

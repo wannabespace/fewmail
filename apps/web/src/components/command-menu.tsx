@@ -22,6 +22,7 @@ import {
   Edit02Icon,
   GiftIcon,
   Moon02Icon,
+  News01Icon,
   PencilEdit02Icon,
   Settings01Icon,
   Sun03Icon,
@@ -43,7 +44,7 @@ import { AskAnswer } from './ask-answer'
 import { deletingBoardStore, newBoardStore } from './board-dialog'
 import { clearOutStore } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
-import { FOLDER_ITEMS, useGoTo, useVisibleNavItems } from './nav'
+import { FOLDER_ITEMS, NAV_ITEMS, useGoTo } from './nav'
 import { upgradeStore, useWithAgent } from './upgrade-dialog'
 
 const THEME_ICONS = {
@@ -67,7 +68,6 @@ export const CommandMenu = ({
 }) => {
   const t = useT()
   const hasAgent = useHasAgent()
-  const navItems = useVisibleNavItems()
   const [search, setSearch] = useState('')
   const navigate = useNavigate()
 
@@ -110,6 +110,11 @@ export const CommandMenu = ({
   }
 
   useHotkey('C', () => openCompose())
+  const openReading = () =>
+    withAgent('home', () =>
+      navigate({ search: { page: 'reading' }, to: '/home' })
+    )
+  useHotkey(['G', 'N'], openReading)
 
   return (
     <CommandDialog
@@ -141,13 +146,18 @@ export const CommandMenu = ({
             />
           )}
           <CommandGroup heading={t.command.goTo}>
-            {navItems.map((item) => (
+            {NAV_ITEMS.map((item) => (
               <CommandItem key={item.to} onSelect={() => run(() => goTo(item))}>
                 <HugeiconsIcon icon={item.icon} strokeWidth={2} />
                 {t.nav[item.key]}
                 <CommandShortcut>{item.sequence.join(' ')}</CommandShortcut>
               </CommandItem>
             ))}
+            <CommandItem onSelect={() => run(openReading)}>
+              <HugeiconsIcon icon={News01Icon} strokeWidth={2} />
+              {t.nav.reading}
+              <CommandShortcut>G N</CommandShortcut>
+            </CommandItem>
           </CommandGroup>
           {board && (
             <CommandGroup heading={t.boards.menu}>

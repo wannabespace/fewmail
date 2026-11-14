@@ -97,6 +97,7 @@ import { ListenButton } from '~/components/listen-button'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
+import { ReadingBrief, ReadingView, useReading } from '~/components/reading'
 import {
   CodeActions,
   MailRowActions,
@@ -152,7 +153,7 @@ const JournalLink = () => {
       variant="link"
       className="ml-auto"
       render={
-        <Link to="/home" search={(prev) => ({ ...prev, journal: true })} />
+        <Link to="/home" search={(prev) => ({ ...prev, page: 'journal' })} />
       }
     >
       <HugeiconsIcon
@@ -917,7 +918,7 @@ const Journal = () => {
                   search={(prev) => ({
                     ...prev,
                     chat: schedule.chatId,
-                    journal: undefined,
+                    page: undefined,
                   })}
                   onClick={() => agentHiddenStore.set(false)}
                   data-mask
@@ -960,6 +961,30 @@ const Journal = () => {
   )
 }
 
+type HomeSubpage = 'journal' | 'reading'
+
+const pageHints = (
+  t: Messages,
+  page: HomeSubpage,
+  newsletters: number
+): [string, string][] =>
+  page === 'journal'
+    ? [
+        ['/', t.keys.askAgent],
+        ['H', t.nav.home],
+        ['esc', t.keys.close],
+      ]
+    : [
+        ...(newsletters > 0
+          ? ([
+              ['J / K', t.keys.move],
+              ['⏎', t.keys.open],
+            ] as [string, string][])
+          : []),
+        ['N', t.nav.home],
+        ['esc', t.keys.close],
+      ]
+
 const homeHints = (
   t: Messages,
   state: {
@@ -968,11 +993,12 @@ const homeHints = (
     today: Today | undefined
     isAsking: boolean
     isEditing: boolean
-    isJournal: boolean
     isRewriting: boolean
+    newsletters: number
     picked: number
     selected: QueueItem | undefined
     stale: number
+    page: HomeSubpage | undefined
   }
 ): [string, string][] => {
   if (state.isRewriting) {
@@ -995,12 +1021,8 @@ const homeHints = (
       ['esc', t.keys.stopEditing],
     ]
   }
-  if (state.isJournal) {
-    return [
-      ['/', t.keys.askAgent],
-      ['H', t.nav.home],
-      ['esc', t.keys.close],
-    ]
+  if (state.page) {
+    return pageHints(t, state.page, state.newsletters)
   }
   if (state.picked > 0) {
     return [
@@ -1052,6 +1074,7 @@ const homeHints = (
         ]
       : []),
     ['H', t.today.journal.title],
+    ['N', t.reading.title],
     ...(state.today?.codes.length
       ? [['Y', t.mail.oneTimeCode.copy] as [string, string]]
       : []),
@@ -1518,9 +1541,11 @@ const ShowAgent = () => {
 
 /** An email opens over the queue; the agent's column stays beside it. */
 const Reader = ({
+  isReading,
   onClose,
   thread,
 }: {
+  isReading: boolean
   onClose: () => void
   thread: string
 }) => {
@@ -1537,6 +1562,7 @@ const Reader = ({
       />
       <KeyHints
         hints={[
+          ...(isReading ? [['J / K', t.keys.move] as [string, string]] : []),
           ['R', t.keys.reply],
           ['E', t.keys.archive],
           ['/', t.keys.ask],
@@ -1676,6 +1702,17 @@ const countDecisions = (
       Math.min(data.tidy.length, 1)
     : 0
 
+/** Journal (`H`) and Reading (`N`) take Home's column in turn; the same key or esc brings Home back. */
+const useHomeSubpage = (page: HomeSubpage | undefined, canSwitch: boolean) => {
+  const navigate = useNavigate()
+  const show = (next: HomeSubpage | undefined) =>
+    navigate({ search: (prev) => ({ ...prev, page: next }), to: '/home' })
+  const toggle = (next: HomeSubpage) => show(page === next ? undefined : next)
+  useHotkey('Escape', () => show(undefined), { enabled: canSwitch && !!page })
+  useHotkey('H', () => toggle('journal'), { enabled: canSwitch })
+  useHotkey('N', () => toggle('reading'), { enabled: canSwitch })
+}
+
 const isAllClear = (data: Today | undefined, decisions: number) =>
   decisions === 0 && !data?.codes.length
 
@@ -1683,7 +1720,8 @@ const HomePage = () => {
   const t = useT()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { chat, journal: isJournal = false, thread } = Route.useSearch()
+  const { chat, page, thread } = Route.useSearch()
+  const { rows: newsletters } = useReading()
   const [isAsking, setIsAsking] = useState(false)
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
   const { data: waitingChats = [] } = useQuery(
@@ -1911,13 +1949,9 @@ const HomePage = () => {
 
   const showThread = (id: string | undefined) =>
     navigate({ search: (prev) => ({ ...prev, thread: id }), to: '/home' })
-  const showJournal = (isOn: boolean) =>
-    navigate({
-      search: (prev) => ({ ...prev, journal: isOn || undefined }),
-      to: '/home',
-    })
   // The open thread brings its own R, E, S, H and ⌫.
-  const isWalking = !isEditing && !thread && !isJournal
+  const isWalking = !isEditing && !thread && !page
+  useHomeSubpage(page, !isEditing && !thread)
   const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), listKeys)
   useHotkey('ArrowDown', () => move(1), listKeys)
@@ -1942,12 +1976,6 @@ const HomePage = () => {
     enabled: isWalking && picked.length > 0,
   })
   useHotkey('Escape', () => showThread(undefined), { enabled: !!thread })
-  useHotkey('Escape', () => showJournal(false), {
-    enabled: isJournal && !thread,
-  })
-  useHotkey('H', () => showJournal(!isJournal), {
-    enabled: !isEditing && !thread,
-  })
   useHotkey(
     'E',
     () =>
@@ -1974,16 +2002,20 @@ const HomePage = () => {
     <ResizableGroup className="flex-1">
       <ResizablePanel className="flex min-w-0 flex-col">
         {thread && (
-          <Reader thread={thread} onClose={() => showThread(undefined)} />
+          <Reader
+            isReading={page === 'reading'}
+            thread={thread}
+            onClose={() => showThread(undefined)}
+          />
         )}
         <main hidden={!!thread} className="flex min-h-0 flex-1 flex-col">
           <div className="relative min-h-0 flex-1">
             <ShowAgent />
             <div className="h-full overflow-y-auto">
               <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
-                {isJournal ? (
-                  <Journal />
-                ) : (
+                {page === 'journal' && <Journal />}
+                {page === 'reading' && <ReadingView thread={thread} />}
+                {!page && (
                   <>
                     <HomeHeader
                       data={data}
@@ -2091,6 +2123,7 @@ const HomePage = () => {
                     </section>
 
                     <WorthKnowing today={data} />
+                    <ReadingBrief />
                     <Tally today={data} />
                   </>
                 )}
@@ -2103,7 +2136,8 @@ const HomePage = () => {
               hasFilter: filter.isOffered,
               isAsking,
               isEditing,
-              isJournal,
+              newsletters: newsletters.length,
+              page,
               selected,
               isRewriting,
               picked: picked.length,
@@ -2131,13 +2165,14 @@ export const Route = createFileRoute('/_app/home')({
   validateSearch: type({
     'chat?': 'string.uuid',
     'thread?': 'string',
-    'journal?': 'boolean',
+    'page?': "'journal' | 'reading'",
   }),
   loaderDeps: ({ search }) => ({ chat: search.chat }),
   loader: async ({ deps: { chat } }) => {
     const [, chats] = await Promise.all([
       warmQuery(orpc.today.get.queryOptions()),
       warmQuery(orpc.chats.list.queryOptions()),
+      warmQuery(orpc.reading.list.queryOptions()),
       queueCards.preload(),
     ])
     // A chat that is still being started is not saved yet: asking for it would answer "not found".

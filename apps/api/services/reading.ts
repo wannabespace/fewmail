@@ -5,11 +5,10 @@ import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { subHours } from 'date-fns'
-import { and, count, desc, eq, gte } from 'drizzle-orm'
+import { and, desc, eq, gte } from 'drizzle-orm'
 
 import { FAST_MODEL_ID, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
-import { expectRow } from '../lib/rows'
 import { getPlanInfo, hasAgent, hasBudget } from './plan'
 import { getSettings } from './settings'
 
@@ -65,16 +64,6 @@ const isReading = (userId: string) =>
     eq(analyses.category, 'newsletter'),
     gte(messages.receivedAt, subHours(new Date(), READING_HOURS))
   )
-
-/** Lets the nav hide Reading when there is nothing in it, without writing any summaries. */
-export const countReading = async (userId: string) => {
-  const [row] = await db
-    .select({ total: count() })
-    .from(messages)
-    .innerJoin(analyses, eq(analyses.messageId, messages.id))
-    .where(isReading(userId))
-  return expectRow(row).total
-}
 
 /**
  * Reading: the last day's newsletters in one place, out of the inbox (the starter rule archives them).

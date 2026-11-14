@@ -301,7 +301,7 @@ export const readingReply = (
           ),
         ]
       : []),
-    `${env.WEB_URL}/reading`,
+    `${env.WEB_URL}/home?page=reading`,
   ].join('\n\n'),
 })
 
