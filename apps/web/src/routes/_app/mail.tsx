@@ -870,9 +870,11 @@ const RelatedRow = ({
 const BurstList = ({
   burst,
   onOpenEmail,
+  openThread,
 }: {
   burst: ListedMessage[]
   onOpenEmail: (message: ListedMessage) => void
+  openThread: string | undefined
 }) => {
   const dates = useDates()
   return (
@@ -887,7 +889,8 @@ const BurstList = ({
               onPointerEnter={() => {
                 void warmThread(email.threadId)
               }}
-              className="hover:bg-secondary mr-3 ml-7 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
+              aria-current={email.threadId === openThread}
+              className="hover:bg-secondary aria-current:bg-secondary mr-3 ml-7 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
             >
               <span
                 data-mask
@@ -923,6 +926,7 @@ const MailRow = ({
   onOpen,
   onOpenEmail,
   onSnoozeOpenChange,
+  openEmailThread,
   row: { analysis, burst, message, messageIds, threadSize },
   sweep,
 }: {
@@ -934,6 +938,7 @@ const MailRow = ({
   onOpen: () => void
   onOpenEmail: (message: ListedMessage) => void
   onSnoozeOpenChange: (open: boolean) => void
+  openEmailThread: string | undefined
   row: ListedRow & { burst?: ListedMessage[]; messageIds: string[] }
   sweep: Sweep
 }) => {
@@ -1031,7 +1036,11 @@ const MailRow = ({
         )}
       </button>
       {isBurst && burst && (
-        <BurstList burst={burst} onOpenEmail={onOpenEmail} />
+        <BurstList
+          burst={burst}
+          onOpenEmail={onOpenEmail}
+          openThread={openEmailThread}
+        />
       )}
       <MailRowActions
         actions={actions}
@@ -2072,10 +2081,15 @@ const MailPage = () => {
                     actions={actions}
                     canSnooze={canSnooze}
                     isCursor={index === cursor}
-                    isOpen={row.message.threadId === thread}
+                    isOpen={
+                      row.messageIds.length > 1
+                        ? stack?.message.id === row.message.id
+                        : row.message.threadId === thread
+                    }
                     isSnoozeOpen={snoozeOpenId === row.message.id}
                     onOpen={() => open(index)}
                     onOpenEmail={(message) => open(index, message)}
+                    openEmailThread={stack ? undefined : thread}
                     onSnoozeOpenChange={(isOpen) =>
                       setSnoozeOpenId(isOpen ? row.message.id : null)
                     }
