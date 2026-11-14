@@ -585,6 +585,8 @@ export const en = {
     keep: 'keep',
     stopEditing: 'stop editing',
     rewrite: 'rewrite',
+    save: 'save',
+    deleteEvent: 'delete',
   },
   legal: {
     privacy: 'Privacy Policy',

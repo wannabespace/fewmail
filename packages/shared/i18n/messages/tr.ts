@@ -570,6 +570,8 @@ export const tr: Messages = {
     keep: 'kalsın',
     stopEditing: 'düzenlemeyi bitir',
     rewrite: 'yeniden yaz',
+    save: 'kaydet',
+    deleteEvent: 'sil',
   },
   legal: {
     privacy: 'Gizlilik Politikası',

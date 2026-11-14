@@ -317,6 +317,8 @@ export const ja: Messages = {
     keep: '残す',
     stopEditing: '編集を終了',
     rewrite: '書き直す',
+    save: '保存',
+    deleteEvent: '削除',
   },
   legal: {
     privacy: 'プライバシーポリシー',

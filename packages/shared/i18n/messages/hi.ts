@@ -320,6 +320,8 @@ export const hi: Messages = {
     keep: 'रखें',
     stopEditing: 'बदलाव बंद करें',
     rewrite: 'दोबारा लिखें',
+    save: 'सहेजें',
+    deleteEvent: 'हटाएँ',
   },
   legal: {
     privacy: 'गोपनीयता नीति',

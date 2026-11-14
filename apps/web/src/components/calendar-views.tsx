@@ -32,19 +32,23 @@ const SCROLL_TO_HOUR = 8
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 
 const EVENT_SURFACE =
-  'bg-primary/12 hover:bg-primary/20 focus-visible:focus-ring cursor-pointer rounded-md text-left text-xs outline-none'
+  'bg-primary/12 hover:bg-primary/20 data-selected:bg-primary/24 data-selected:ring-primary/40 focus-visible:focus-ring cursor-pointer rounded-md text-left text-xs outline-none data-selected:ring-1 data-selected:ring-inset'
 
 interface ViewProps {
   date: Date
   events: CalendarEvent[]
   onOpenEvent: (event: CalendarEvent) => void
+  /** The event open in the pane, drawn with its unsaved changes. */
+  selected?: CalendarEvent
 }
 
 const EventChip = ({
   event,
+  isSelected,
   onOpen,
 }: {
   event: CalendarEvent
+  isSelected: boolean
   onOpen: (event: CalendarEvent) => void
 }) => {
   const t = useT()
@@ -57,6 +61,7 @@ const EventChip = ({
         EVENT_SURFACE,
         'relative flex w-full min-w-0 items-center gap-1.5 px-1.5 py-0.5'
       )}
+      data-selected={isSelected || undefined}
       onClick={() => onOpen(event)}
     >
       {!event.allDay && (
@@ -101,6 +106,7 @@ export const MonthView = ({
   onOpenEvent,
   onPickDay,
   onShowDay,
+  selected,
 }: ViewProps & {
   onPickDay: (day: Date) => void
   onShowDay: (day: Date) => void
@@ -151,6 +157,7 @@ export const MonthView = ({
                 <EventChip
                   key={`${event.mailboxId}:${event.id}`}
                   event={event}
+                  isSelected={event === selected}
                   onOpen={onOpenEvent}
                 />
               ))}
@@ -243,6 +250,7 @@ export const TimeGrid = ({
   events,
   onOpenEvent,
   onPickTime,
+  selected,
 }: Omit<ViewProps, 'date'> & {
   days: Date[]
   onPickTime: (start: Date, allDay: boolean) => void
@@ -292,6 +300,7 @@ export const TimeGrid = ({
                 <EventChip
                   key={`${event.mailboxId}:${event.id}`}
                   event={event}
+                  isSelected={event === selected}
                   onOpen={onOpenEvent}
                 />
               ))}
@@ -363,6 +372,7 @@ export const TimeGrid = ({
                       '--width': `calc(${100 / lanes}% - 4px)`,
                     } as CSSProperties
                   }
+                  data-selected={event === selected || undefined}
                   onClick={() => onOpenEvent(event)}
                 >
                   <span className="truncate font-medium" data-mask>
@@ -385,7 +395,9 @@ export const YearView = ({
   date,
   events,
   onShowDay,
-}: Omit<ViewProps, 'onOpenEvent'> & { onShowDay: (day: Date) => void }) => {
+}: Omit<ViewProps, 'onOpenEvent' | 'selected'> & {
+  onShowDay: (day: Date) => void
+}) => {
   const { locale, weekStartsOn } = useDates()
   const busy = new Set(
     events.flatMap((event) => {

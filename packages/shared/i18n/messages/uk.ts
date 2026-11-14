@@ -815,6 +815,8 @@ export const uk: Messages = {
     keep: 'залишити',
     stopEditing: 'готово',
     rewrite: 'переписати',
+    save: 'зберегти',
+    deleteEvent: 'видалити',
   },
   legal: {
     privacy: 'Політика конфіденційності',

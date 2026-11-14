@@ -1,5 +1,10 @@
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
+import {
+  ResizableGroup,
+  ResizablePanel,
+  ResizableSeparator,
+} from '@fewmail/ui/components/custom/resizable'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import {
@@ -33,12 +38,19 @@ import {
   startOfYear,
 } from 'date-fns'
 import { useState } from 'react'
+import { useSubscription } from 'seitu/react'
+import { createWebStorageValue } from 'seitu/web'
 
 import { MonthView, TimeGrid, YearView } from '~/components/calendar-views'
-import type { EventDraft } from '~/components/event-dialog'
-import { draftOf, EventDialog } from '~/components/event-dialog'
+import type { EventDraft } from '~/components/event-pane'
+import {
+  draftOf,
+  EventPane,
+  isValidDraft,
+  previewOf,
+} from '~/components/event-pane'
 import { KeyHints } from '~/components/key-hints'
-import type { CalendarView } from '~/lib/calendar'
+import type { CalendarEvent, CalendarView } from '~/lib/calendar'
 import { CALENDAR_VIEWS } from '~/lib/calendar'
 import { localeStore, useDates, useLocale, useT, weekStartOf } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
@@ -49,6 +61,15 @@ const STEP = {
   week: 'weeks',
   year: 'years',
 } as const
+
+const PANE_WIDTH = { default: 380, max: '50%', min: 320 } as const
+
+const paneWidthStore = createWebStorageValue({
+  defaultValue: PANE_WIDTH.default as number,
+  key: 'fewmail.event-pane-width',
+  schema: type('number'),
+  type: 'localStorage',
+})
 
 const visibleRange = (
   view: CalendarView,
@@ -123,6 +144,42 @@ const periodOf = (search: { date?: string; view?: CalendarView }) => {
   }
 }
 
+/** The open event is drawn with its unsaved changes in place of the saved one. */
+const useEventPane = (saved: CalendarEvent[]) => {
+  // Kept after closing, so the pane folds shut with its content instead of emptying first.
+  const [editing, setEditing] = useState<{
+    draft: EventDraft
+    value: EventDraft
+  } | null>(null)
+  const [isPaneOpen, setIsPaneOpen] = useState(false)
+  const openDraft = (draft: EventDraft) => {
+    setEditing({ draft, value: draft })
+    setIsPaneOpen(true)
+  }
+  const preview =
+    isPaneOpen && editing && isValidDraft(editing.value)
+      ? previewOf(editing.value)
+      : undefined
+  const events = preview
+    ? [
+        ...saved.filter(
+          (event) =>
+            event.id !== preview.id || event.mailboxId !== preview.mailboxId
+        ),
+        preview,
+      ].toSorted((a, b) => a.start.localeCompare(b.start))
+    : saved
+  return {
+    editing,
+    events,
+    isPaneOpen,
+    openDraft,
+    preview,
+    setEditing,
+    setIsPaneOpen,
+  }
+}
+
 const CalendarPage = () => {
   const t = useT()
   const { weekStartsOn } = useDates()
@@ -140,16 +197,19 @@ const CalendarPage = () => {
       placeholderData: keepPreviousData,
     })
   )
-  const events = data?.events ?? []
   const connected = data?.calendars.filter((calendar) => calendar.connected)
   const canAdd = connected === undefined || connected.length > 0
+  const paneWidth = useSubscription(paneWidthStore)
 
-  const [draft, setDraft] = useState<EventDraft | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const openDraft = (next: EventDraft) => {
-    setDraft(next)
-    setIsDialogOpen(true)
-  }
+  const {
+    editing,
+    events,
+    isPaneOpen,
+    openDraft,
+    preview,
+    setEditing,
+    setIsPaneOpen,
+  } = useEventPane(data?.events ?? [])
   const newEvent = (start: Date, allDay: boolean) =>
     openDraft({
       allDay,
@@ -174,20 +234,19 @@ const CalendarPage = () => {
     show({ date: add(date, { [STEP[view]]: direction }) })
   const showDay = (day: Date) => show({ date: day, view: 'day' })
 
-  const keys = { enabled: !isDialogOpen }
   useHotkey('T', () => show({ date: new Date() }), {
-    enabled: keys.enabled && !isCurrentPeriod,
+    enabled: !isCurrentPeriod,
   })
-  useHotkey('ArrowLeft', () => step(-1), keys)
-  useHotkey('ArrowRight', () => step(1), keys)
-  useHotkey('N', newEventNow, { enabled: keys.enabled && canAdd })
-  useHotkey('D', () => show({ view: 'day' }), keys)
-  useHotkey('W', () => show({ view: 'week' }), keys)
-  useHotkey('M', () => show({ view: 'month' }), keys)
-  useHotkey('Y', () => show({ view: 'year' }), keys)
+  useHotkey('ArrowLeft', () => step(-1))
+  useHotkey('ArrowRight', () => step(1))
+  useHotkey('N', newEventNow, { enabled: canAdd })
+  useHotkey('D', () => show({ view: 'day' }))
+  useHotkey('W', () => show({ view: 'week' }))
+  useHotkey('M', () => show({ view: 'month' }))
+  useHotkey('Y', () => show({ view: 'year' }))
 
   const openEvent = (event: (typeof events)[number]) =>
-    openDraft(draftOf(event))
+    event !== preview && openDraft(draftOf(event))
   const pickDay = (day: Date) =>
     newEvent(
       set(day, { hours: 9, milliseconds: 0, minutes: 0, seconds: 0 }),
@@ -195,96 +254,118 @@ const CalendarPage = () => {
     )
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col">
-      <header className="flex flex-wrap items-center gap-x-6 gap-y-3 px-10 pt-10 pb-5">
-        <h1 className="text-display flex-1 font-serif tracking-tight whitespace-nowrap">
-          {label}
-        </h1>
-        <div className="flex items-center gap-2">
-          {!isCurrentPeriod && (
-            <Button
-              variant="outline"
-              onClick={() => show({ date: new Date() })}
-              shortcut={<Kbd>T</Kbd>}
-            >
-              {t.calendar.today}
-            </Button>
-          )}
-          <IconButton
-            icon={ArrowLeft01Icon}
-            label={t.calendar.previous}
-            shortcut={<Kbd>←</Kbd>}
-            variant="ghost-muted"
-            onClick={() => step(-1)}
-          />
-          <IconButton
-            icon={ArrowRight01Icon}
-            label={t.calendar.next}
-            shortcut={<Kbd>→</Kbd>}
-            variant="ghost-muted"
-            onClick={() => step(1)}
-          />
-          <Tabs
-            value={view}
-            onValueChange={(next: CalendarView) => show({ view: next })}
-          >
-            <TabsList>
-              {CALENDAR_VIEWS.map((option) => (
-                <TabsTrigger key={option} value={option}>
-                  {t.calendar.views[option]}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-          {canAdd && (
-            <Button onClick={newEventNow} shortcut={<Kbd>N</Kbd>}>
-              <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
-              {t.calendar.newEvent}
-            </Button>
-          )}
-        </div>
-      </header>
+    <ResizableGroup className="flex min-h-0 flex-1">
+      <ResizablePanel className="flex min-w-0">
+        <main className="flex min-w-0 flex-1 flex-col">
+          <header className="flex items-center gap-6 px-10 pt-10 pb-5">
+            <h1 className="text-display min-w-0 flex-1 truncate font-serif tracking-tight">
+              {label}
+            </h1>
+            <div className="flex shrink-0 items-center gap-2">
+              {!isCurrentPeriod && (
+                <Button
+                  variant="outline"
+                  onClick={() => show({ date: new Date() })}
+                  shortcut={<Kbd>T</Kbd>}
+                >
+                  {t.calendar.today}
+                </Button>
+              )}
+              <IconButton
+                icon={ArrowLeft01Icon}
+                label={t.calendar.previous}
+                shortcut={<Kbd>←</Kbd>}
+                variant="ghost-muted"
+                onClick={() => step(-1)}
+              />
+              <IconButton
+                icon={ArrowRight01Icon}
+                label={t.calendar.next}
+                shortcut={<Kbd>→</Kbd>}
+                variant="ghost-muted"
+                onClick={() => step(1)}
+              />
+              <Tabs
+                value={view}
+                onValueChange={(next: CalendarView) => show({ view: next })}
+              >
+                <TabsList>
+                  {CALENDAR_VIEWS.map((option) => (
+                    <TabsTrigger key={option} value={option}>
+                      {t.calendar.views[option]}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+              {canAdd && (
+                <Button onClick={newEventNow} shortcut={<Kbd>N</Kbd>}>
+                  <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
+                  {t.calendar.newEvent}
+                </Button>
+              )}
+            </div>
+          </header>
 
-      <div className="flex min-h-0 flex-1 flex-col border-t">
-        {view === 'month' && (
-          <MonthView
-            date={date}
-            events={events}
-            onOpenEvent={openEvent}
-            onPickDay={pickDay}
-            onShowDay={showDay}
-          />
-        )}
-        {(view === 'week' || view === 'day') && (
-          <TimeGrid
-            days={eachDayOfInterval({ end: range.to, start: range.from })}
-            events={events}
-            onOpenEvent={openEvent}
-            onPickTime={newEvent}
-          />
-        )}
-        {view === 'year' && (
-          <YearView date={date} events={events} onShowDay={showDay} />
-        )}
-      </div>
+          <div className="flex min-h-0 flex-1 flex-col border-t">
+            {view === 'month' && (
+              <MonthView
+                date={date}
+                events={events}
+                selected={preview}
+                onOpenEvent={openEvent}
+                onPickDay={pickDay}
+                onShowDay={showDay}
+              />
+            )}
+            {(view === 'week' || view === 'day') && (
+              <TimeGrid
+                days={eachDayOfInterval({ end: range.to, start: range.from })}
+                events={events}
+                selected={preview}
+                onOpenEvent={openEvent}
+                onPickTime={newEvent}
+              />
+            )}
+            {view === 'year' && (
+              <YearView date={date} events={events} onShowDay={showDay} />
+            )}
+          </div>
 
-      <KeyHints
-        hints={[
-          ...(isCurrentPeriod
-            ? []
-            : [['T', t.keys.calendarToday] as [string, string]]),
-          ['← / →', t.keys.period],
-          ['D W M Y', t.keys.view],
-          ...(canAdd ? [['N', t.keys.newEvent] as [string, string]] : []),
-        ]}
-      />
-      <EventDialog
-        calendars={connected ?? []}
-        draft={draft}
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-      />
-    </main>
+          <KeyHints
+            hints={[
+              ...(isCurrentPeriod
+                ? []
+                : [['T', t.keys.calendarToday] as [string, string]]),
+              ['← / →', t.keys.period],
+              ['D W M Y', t.keys.view],
+              ...(canAdd ? [['N', t.keys.newEvent] as [string, string]] : []),
+            ]}
+          />
+        </main>
+      </ResizablePanel>
+      <ResizableSeparator />
+      <ResizablePanel
+        className="flex"
+        collapsed={!isPaneOpen}
+        size={paneWidth}
+        minSize={PANE_WIDTH.min}
+        maxSize={PANE_WIDTH.max}
+        onSizeChange={(width) => paneWidthStore.set(width)}
+      >
+        {editing && (
+          <aside className="bg-background flex min-w-0 flex-1 flex-col border-l">
+            <EventPane
+              key={`${editing.draft.id}${editing.draft.start.toISOString()}`}
+              calendars={connected ?? []}
+              draft={editing.draft}
+              value={editing.value}
+              onChange={(value) => setEditing({ ...editing, value })}
+              onClose={() => setIsPaneOpen(false)}
+            />
+          </aside>
+        )}
+      </ResizablePanel>
+    </ResizableGroup>
   )
 }
 

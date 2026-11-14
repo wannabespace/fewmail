@@ -588,6 +588,8 @@ export const pt: Messages = {
     keep: 'manter',
     stopEditing: 'parar de editar',
     rewrite: 'reescrever',
+    save: 'salvar',
+    deleteEvent: 'excluir',
   },
   legal: {
     privacy: 'Política de Privacidade',

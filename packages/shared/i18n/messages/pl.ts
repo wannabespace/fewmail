@@ -601,6 +601,8 @@ export const pl: Messages = {
     keep: 'zostaw',
     stopEditing: 'zakończ edycję',
     rewrite: 'przepisz',
+    save: 'zapisz',
+    deleteEvent: 'usuń',
   },
   legal: {
     privacy: 'Polityka prywatności',

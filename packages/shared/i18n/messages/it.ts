@@ -818,6 +818,8 @@ export const it: Messages = {
     keep: 'tieni',
     stopEditing: 'fine modifica',
     rewrite: 'riscrivi',
+    save: 'salva',
+    deleteEvent: 'elimina',
   },
   legal: {
     privacy: 'Informativa sulla privacy',

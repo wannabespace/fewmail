@@ -815,6 +815,8 @@ export const es: Messages = {
     keep: 'conservar',
     stopEditing: 'dejar de editar',
     rewrite: 'reescribir',
+    save: 'guardar',
+    deleteEvent: 'eliminar',
   },
   legal: {
     privacy: 'Política de privacidad',

@@ -589,6 +589,8 @@ export const nl: Messages = {
     keep: 'houden',
     stopEditing: 'stop bewerken',
     rewrite: 'herschrijven',
+    save: 'opslaan',
+    deleteEvent: 'verwijderen',
   },
   legal: {
     privacy: 'Privacybeleid',

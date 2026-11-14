@@ -823,6 +823,8 @@ export const fr: Messages = {
     keep: 'garder',
     stopEditing: 'terminer',
     rewrite: 'réécrire',
+    save: 'enregistrer',
+    deleteEvent: 'supprimer',
   },
   legal: {
     privacy: 'Politique de confidentialité',

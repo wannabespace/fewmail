@@ -317,6 +317,8 @@ export const ko: Messages = {
     keep: '남기기',
     stopEditing: '편집 종료',
     rewrite: '다시 쓰기',
+    save: '저장',
+    deleteEvent: '삭제',
   },
   legal: {
     privacy: '개인정보 처리방침',

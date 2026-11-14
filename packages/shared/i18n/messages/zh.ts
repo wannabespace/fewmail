@@ -316,6 +316,8 @@ export const zh: Messages = {
     keep: '保留',
     stopEditing: '结束编辑',
     rewrite: '重写',
+    save: '保存',
+    deleteEvent: '删除',
   },
   legal: {
     privacy: '隐私政策',

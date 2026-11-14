@@ -10,6 +10,7 @@ export const textareaVariants = cva(
       variant: {
         default: `bg-input border-foreground/4 focus-visible:focus-ring aria-invalid:invalid-ring min-h-16 rounded-xl border bg-clip-padding px-2.5 py-2 text-base shadow-xs transition-shadow duration-200 md:text-sm`,
         flat: `min-h-8 px-2 py-2 text-xs`,
+        heading: `font-serif text-2xl tracking-tight`,
       },
     },
   }

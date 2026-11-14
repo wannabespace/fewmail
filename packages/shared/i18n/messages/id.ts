@@ -575,6 +575,8 @@ export const id: Messages = {
     keep: 'simpan',
     stopEditing: 'selesai edit',
     rewrite: 'tulis ulang',
+    save: 'simpan',
+    deleteEvent: 'hapus',
   },
   legal: {
     privacy: 'Kebijakan Privasi',
