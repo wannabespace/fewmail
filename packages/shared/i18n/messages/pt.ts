@@ -764,7 +764,7 @@ export const pt: Messages = {
     unsubscribeHint: (emails: string) =>
       `O Fewmail cancela sua inscrição na lista e arquiva tudo o que ela enviou (${emails} este mês). Cancelar uma inscrição não pode ser desfeito.`,
     archivedOnly:
-      'Este remetente não tem cancelamento com um clique, então os e-mails foram arquivados. Se continuarem chegando, vão para o spam.',
+      'Este remetente não tem um cancelamento que o Fewmail consiga usar, então os e-mails foram arquivados, mas você continua na lista e novos e-mails vão continuar chegando.',
     count: (total: number) => `Listas de e-mail: ${total}`,
     empty: 'Nenhuma lista de e-mail escreveu para você este mês.',
     lead: 'Listas de e-mail que escreveram para você este mês, as mais ativas primeiro. Cancelar a inscrição arquiva tudo o que enviaram; se ainda chegarem e-mails duas semanas depois, proponho movê-los para o spam e só movo depois do seu sim.',

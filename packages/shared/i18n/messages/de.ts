@@ -987,7 +987,7 @@ export const de: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail meldet dich vom Verteiler ab und archiviert alles, was er geschickt hat (${emails} diesen Monat). Eine Abmeldung lässt sich nicht rückgängig machen.`,
     archivedOnly:
-      'Dieser Absender bietet kein Abbestellen per Klick, daher wurden seine Mails archiviert. Kommen weiter welche, gehen sie in den Spam.',
+      'Dieser Absender bietet keine Abmeldung, die Fewmail nutzen kann, daher wurden seine Mails archiviert. Du bleibst aber im Verteiler, neue Mails kommen weiter.',
     count: (total: number) => `Verteiler: ${total}`,
     empty: 'Diesen Monat hat dir kein Verteiler geschrieben.',
     lead: 'Verteiler, die dir diesen Monat geschrieben haben, die aktivsten zuerst. Abbestellen archiviert alles, was sie geschickt haben; Kommen zwei Wochen später noch Mails, schlage ich vor, sie in den Spam zu verschieben, und verschiebe sie erst nach deinem Ja.',

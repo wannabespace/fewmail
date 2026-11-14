@@ -990,7 +990,7 @@ export const es: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail te da de baja de la lista y archiva todo lo que envió (${emails} este mes). Darse de baja no se puede deshacer.`,
     archivedOnly:
-      'Este remitente no permite darse de baja con un clic, así que se archivó su correo. Si sigue llegando, irá a spam.',
+      'Este remitente no ofrece una baja que Fewmail pueda usar, así que se archivó su correo, pero sigues en la lista y seguirán llegando correos nuevos.',
     count: (total: number) => `Listas de correo: ${total}`,
     empty: 'Ninguna lista de correo te escribió este mes.',
     lead: 'Listas de correo que te escribieron este mes, las más activas primero. Darte de baja archiva todo lo que enviaron; si dos semanas después siguen llegando correos, te propongo moverlos a spam y solo los muevo cuando digas que sí.',

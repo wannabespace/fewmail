@@ -1000,7 +1000,7 @@ export const fr: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail vous désabonne de la liste et archive tout ce qu’elle a envoyé (${emails} ce mois-ci). Un désabonnement ne peut pas être annulé.`,
     archivedOnly:
-      'Cet expéditeur n’a pas de désabonnement en un clic, ses e-mails ont donc été archivés. S’ils continuent d’arriver, ils iront en spam.',
+      'Cet expéditeur n’offre pas de désabonnement que Fewmail puisse utiliser, ses e-mails ont donc été archivés, mais tu restes sur la liste et les nouveaux continueront d’arriver.',
     count: (total: number) => `Listes de diffusion : ${total}`,
     empty: 'Aucune liste de diffusion ne vous a écrit ce mois-ci.',
     lead: 'Les listes de diffusion qui vous ont écrit ce mois-ci, les plus actives d’abord. Se désabonner archive tout ce qu’elles ont envoyé ; si des e-mails arrivent encore deux semaines plus tard, je propose de les mettre en spam et ne les déplace qu’après votre accord.',

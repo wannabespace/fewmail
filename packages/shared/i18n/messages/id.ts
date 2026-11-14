@@ -748,7 +748,7 @@ export const id: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail keluar dari milis ini dan mengarsipkan semua yang dikirimnya (${emails} bulan ini). Berhenti berlangganan tidak bisa dibatalkan.`,
     archivedOnly:
-      'Pengirim ini tidak punya berhenti langganan sekali klik, jadi emailnya diarsipkan. Jika terus datang, akan masuk spam.',
+      'Pengirim ini tidak punya cara berhenti langganan yang bisa dipakai Fewmail, jadi emailnya diarsipkan, tetapi kamu masih di milis dan email baru akan terus datang.',
     count: (total: number) => `Milis: ${total}`,
     empty: 'Tidak ada milis yang mengirimimu email bulan ini.',
     lead: 'Milis yang mengirimimu email bulan ini, yang paling aktif lebih dulu. Berhenti langganan mengarsipkan semua kirimannya; jika email masih datang dua minggu kemudian, aku menyarankan memindahkannya ke spam dan baru memindahkannya setelah kamu setuju.',

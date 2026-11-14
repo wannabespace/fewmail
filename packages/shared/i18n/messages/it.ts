@@ -994,7 +994,7 @@ export const it: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail annulla l’iscrizione alla lista e archivia tutto ciò che ha inviato (${emails} questo mese). L’annullamento dell’iscrizione non si può revocare.`,
     archivedOnly:
-      'Questo mittente non ha la disiscrizione con un clic, quindi la sua posta è stata archiviata. Se continua ad arrivare, finirà nello spam.',
+      'Questo mittente non offre una disiscrizione che Fewmail possa usare, quindi la sua posta è stata archiviata, ma sei ancora nella lista e le nuove email continueranno ad arrivare.',
     count: (total: number) => `Mailing list: ${total}`,
     empty: 'Nessuna mailing list ti ha scritto questo mese.',
     lead: 'Le mailing list che ti hanno scritto questo mese, le più attive prima. Disiscriversi archivia tutto ciò che hanno inviato; se due settimane dopo arriva ancora posta, ti propongo di spostarla nello spam e la sposto solo dopo il tuo sì.',

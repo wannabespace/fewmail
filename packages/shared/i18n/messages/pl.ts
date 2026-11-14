@@ -777,7 +777,7 @@ export const pl: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail wypisze cię z listy i zarchiwizuje wszystko, co wysłała (${emails} w tym miesiącu). Wypisania nie można cofnąć.`,
     archivedOnly:
-      'Ten nadawca nie ma wypisania jednym kliknięciem, więc jego poczta została zarchiwizowana. Jeśli dalej będzie przychodzić, trafi do spamu.',
+      'Ten nadawca nie ma wypisania, z którego Fewmail może skorzystać, więc jego poczta została zarchiwizowana, ale nadal jesteś na liście i nowe wiadomości będą przychodzić.',
     count: (total: number) => `Listy mailingowe: ${total}`,
     empty: 'W tym miesiącu nie pisała do ciebie żadna lista mailingowa.',
     lead: 'Listy mailingowe, które pisały do ciebie w tym miesiącu, od najaktywniejszych. Wypisanie archiwizuje wszystko, co wysłały; jeśli po dwóch tygodniach poczta wciąż przychodzi, proponuję przenieść ją do spamu i przenoszę dopiero po twojej zgodzie.',

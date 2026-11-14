@@ -481,7 +481,7 @@ export const zh: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail 会退出该列表并归档它发来的所有邮件（本月 ${emails}）。退订无法撤销。`,
     archivedOnly:
-      '这个发件人不支持一键退订，所以已归档其邮件。如果继续发来，会进入垃圾邮件。',
+      '这个发件人没有 Fewmail 能用的退订方式，所以已归档其邮件，但你仍在列表中，新邮件还会继续发来。',
     count: (total: number) => `邮件列表：${total} 个`,
     empty: '本月没有邮件列表给你发信。',
     lead: '本月给你发信的邮件列表，最活跃的在前。退订会归档它们发来的所有邮件；如果两周后仍有邮件发来，我会建议移入垃圾邮件，并在你同意后才移动。',

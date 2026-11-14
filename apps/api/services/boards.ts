@@ -645,6 +645,16 @@ const extractEntry = async (
   message: ReadMessage,
   context: KnownValues & { isAdded?: boolean; language: Locale }
 ) => {
+  const [stored] = context.isAdded
+    ? []
+    : await db
+        .select({ risk: messages.risk })
+        .from(messages)
+        .where(eq(messages.id, message.id))
+  // A "new IBAN, pay today" email is a fraud warning, never a bill on a money board.
+  if (stored?.risk) {
+    return
+  }
   const [earlier] = context.isAdded
     ? []
     : await db

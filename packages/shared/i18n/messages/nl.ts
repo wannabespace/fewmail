@@ -761,7 +761,7 @@ export const nl: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail meldt je af bij de lijst en archiveert alles wat die stuurde (${emails} deze maand). Afmelden kan niet ongedaan worden gemaakt.`,
     archivedOnly:
-      'Deze afzender heeft geen afmelding met één klik, dus de mail is gearchiveerd. Blijft die komen, dan gaat ze naar spam.',
+      'Deze afzender heeft geen afmelding die Fewmail kan gebruiken, dus de mail is gearchiveerd, maar je staat nog op de lijst en nieuwe mail blijft komen.',
     count: (total: number) => `Mailinglijsten: ${total}`,
     empty: 'Geen mailinglijst heeft je deze maand gemaild.',
     lead: 'Mailinglijsten die je deze maand mailden, de drukste eerst. Afmelden archiveert alles wat ze stuurden; komt er twee weken later nog mail, dan stel ik voor die naar spam te verplaatsen en doe ik dat pas na je ja.',

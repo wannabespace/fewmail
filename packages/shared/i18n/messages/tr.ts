@@ -742,7 +742,7 @@ export const tr: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail listeden çıkar ve gönderdiği her şeyi arşivler (bu ay ${emails}). Abonelikten çıkma geri alınamaz.`,
     archivedOnly:
-      'Bu gönderenin tek tıkla abonelikten çıkma seçeneği yok, bu yüzden e-postaları arşivlendi. Gelmeye devam ederse spama gider.',
+      "Bu gönderenin Fewmail'in kullanabileceği bir abonelikten çıkma yolu yok, bu yüzden e-postaları arşivlendi, ama hâlâ listedesin ve yeni e-postalar gelmeye devam edecek.",
     count: (total: number) => `E-posta listesi: ${total}`,
     empty: 'Bu ay sana hiçbir e-posta listesi yazmadı.',
     lead: 'Bu ay sana yazan e-posta listeleri, en etkin olanlar önce. Abonelikten çıkınca gönderdikleri her şey arşivlenir; iki hafta sonra hâlâ e-posta gelirse spama taşımayı önerir, ancak sen onaylayınca taşırım.',

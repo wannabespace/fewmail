@@ -755,7 +755,7 @@ export const en = {
     unsubscribeHint: (emails: string) =>
       `Fewmail leaves the list and archives everything it sent (${emails} this month). Leaving a list cannot be undone.`,
     archivedOnly:
-      'This sender has no one-click unsubscribe, so its mail was archived. If it keeps coming, it goes to spam.',
+      'This sender has no unsubscribe Fewmail can use, so its mail was archived, but you are still on the list and new mail will keep arriving.',
     count: (total: number) =>
       plural('en', total, {
         one: () => '1 mailing list',
