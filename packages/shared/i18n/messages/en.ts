@@ -3,6 +3,22 @@ import type { Rich } from '../locales'
 import { formatMinutes, plural } from '../locales'
 
 export const en = {
+  actionDone: {
+    confirm: 'I confirmed',
+    follow_up: 'I followed up',
+    pay: 'I paid it',
+    read: 'I read it',
+    renew: 'I renewed it',
+    schedule: 'I scheduled it',
+    sign: 'I signed it',
+  },
+  actionLink: {
+    confirm: 'Confirm',
+    pay: 'Pay',
+    read: 'Read',
+    renew: 'Renew',
+    sign: 'Sign',
+  },
   actionKind: {
     archive: 'Archive',
     cleanup: 'Unsubscribe from all',
@@ -569,6 +585,9 @@ export const en = {
     reload: 'Reload',
   },
   keys: {
+    done: 'done',
+    openLink: 'open link',
+    writeReminder: 'write a reminder',
     summary: 'summary',
     askAgent: 'ask the agent',
     fromSender: 'more from sender',
@@ -876,6 +895,8 @@ export const en = {
       }),
   },
   queue: {
+    addToCalendar: 'Add to calendar',
+    writeReminder: 'Write a reminder',
     askedByYou: 'Asked by you',
     approve: 'Approve',
     delete: 'Delete',

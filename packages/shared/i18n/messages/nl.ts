@@ -3,6 +3,22 @@ import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const nl: Messages = {
+  actionDone: {
+    confirm: 'Bevestigd',
+    follow_up: 'Opgevolgd',
+    pay: 'Betaald',
+    read: 'Gelezen',
+    renew: 'Verlengd',
+    schedule: 'Ingepland',
+    sign: 'Ondertekend',
+  },
+  actionLink: {
+    confirm: 'Bevestigen',
+    pay: 'Betalen',
+    read: 'Lezen',
+    renew: 'Verlengen',
+    sign: 'Ondertekenen',
+  },
   actionKind: {
     cleanup: 'Overal afmelden',
     commitment: 'Klaar',
@@ -573,6 +589,9 @@ export const nl: Messages = {
     reload: 'Herladen',
   },
   keys: {
+    done: 'klaar',
+    openLink: 'link openen',
+    writeReminder: 'herinnering schrijven',
     summary: 'samenvatting',
     askAgent: 'agent vragen',
     fromSender: 'meer van afzender',
@@ -882,6 +901,8 @@ export const nl: Messages = {
       }),
   },
   queue: {
+    addToCalendar: 'Aan agenda toevoegen',
+    writeReminder: 'Herinnering schrijven',
     approve: 'Goedkeuren',
     delete: 'Verwijderen',
     pick: 'Kiezen',

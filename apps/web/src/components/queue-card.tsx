@@ -1,7 +1,13 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { listSearch, sendsDraft } from '@fewmail/shared/agent'
+import {
+  cardPayload,
+  hostOf,
+  listSearch,
+  sendsDraft,
+} from '@fewmail/shared/agent'
 import type { CleanupSender } from '@fewmail/shared/agent'
 import { replyRecipients, textToHtml } from '@fewmail/shared/email'
+import { approveTitle } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
   AccordionContent,
@@ -19,10 +25,12 @@ import {
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
+  LinkSquare02Icon,
   MailOpen01Icon,
   NextIcon,
   Tick02Icon,
 } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
@@ -83,11 +91,80 @@ const CleanupList = ({ action }: { action: Action }) => {
   )
 }
 
+/** What ⏎ does on a card: open the email's own link, draft the reminder, or say yes; the yes then moves to M. */
+export const primaryStep = (action: Action) => {
+  if (cardPayload(action).link) {
+    return 'link' as const
+  }
+  return action.kind === 'follow_up'
+    ? ('remind' as const)
+    : ('approve' as const)
+}
+
+export const openCardLink = (action: Action) => {
+  const { link } = cardPayload(action)
+  if (link) {
+    window.open(link.url, '_blank', 'noopener,noreferrer')
+  }
+}
+
+const approveKey = (
+  step: ReturnType<typeof primaryStep>,
+  isEditing: boolean
+) => {
+  if (isEditing) {
+    return '⌘⏎'
+  }
+  return step === 'approve' ? '⏎' : 'M'
+}
+
+/** The card's own step before its yes: the email's link, or drafting the reminder. */
+const StepButton = ({
+  action,
+  isBusy,
+  onRemind,
+}: {
+  action: Action
+  isBusy: boolean
+  onRemind: () => void
+}) => {
+  const t = useT()
+  const { link } = cardPayload(action)
+  if (link) {
+    const host = hostOf(link.url)
+    return (
+      <Button
+        size="sm"
+        render={
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${t.actionLink[link.purpose]} · ${host}`}
+          />
+        }
+      >
+        <HugeiconsIcon icon={LinkSquare02Icon} strokeWidth={2} />
+        {t.actionLink[link.purpose]} · <span data-mask>{host}</span>
+        <Kbd>⏎</Kbd>
+      </Button>
+    )
+  }
+  if (action.kind !== 'follow_up') {
+    return null
+  }
+  return (
+    <Button size="sm" disabled={isBusy} onClick={onRemind}>
+      {t.queue.writeReminder} <Kbd>⏎</Kbd>
+    </Button>
+  )
+}
+
 const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
   if (isReply) {
     return t.queue.send
   }
-  return t.actionKind[action.kind]
+  return approveTitle(t, action)
 }
 
 const QuickActions = ({
@@ -356,6 +433,7 @@ export const QueueCard = ({
   onEdit,
   onOpen,
   onPick,
+  onRemind,
   onRewrite,
   onRewriteChange,
   onSkip,
@@ -375,6 +453,7 @@ export const QueueCard = ({
   onEdit: () => void
   onOpen: () => void
   onPick: () => void
+  onRemind: () => void
   onRewrite: (instruction: string) => void
   onRewriteChange: (isRewriting: boolean) => void
   onSkip: () => void
@@ -383,6 +462,7 @@ export const QueueCard = ({
   const t = useT()
   const { action, analysis, message } = item
   const isReply = sendsDraft(action)
+  const step = primaryStep(action)
   const isSecurity = action.kind === 'security'
   const reason = action.reason || analysis?.reason
   const ref = useRef<HTMLDivElement>(null)
@@ -450,9 +530,15 @@ export const QueueCard = ({
             </p>
           )}
           <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" disabled={isBusy} onClick={onApprove}>
+            <StepButton action={action} isBusy={isBusy} onRemind={onRemind} />
+            <Button
+              size="sm"
+              variant={step === 'approve' ? 'default' : 'secondary'}
+              disabled={isBusy}
+              onClick={onApprove}
+            >
               {approveLabel(t, action, isReply)}
-              <Kbd>{isEditing ? '⌘⏎' : '⏎'}</Kbd>
+              <Kbd>{approveKey(step, isEditing)}</Kbd>
             </Button>
             {isReply && !isEditing && (
               <Button

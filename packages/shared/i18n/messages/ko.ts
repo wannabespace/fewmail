@@ -3,6 +3,22 @@ import { formatMinutes } from '../locales'
 import type { Messages } from './en'
 
 export const ko: Messages = {
+  actionDone: {
+    confirm: '확인했어요',
+    follow_up: '후속 조치했어요',
+    pay: '결제했어요',
+    read: '읽었어요',
+    renew: '갱신했어요',
+    schedule: '일정 잡았어요',
+    sign: '서명했어요',
+  },
+  actionLink: {
+    confirm: '확인',
+    pay: '결제',
+    read: '읽기',
+    renew: '갱신',
+    sign: '서명',
+  },
   actionKind: {
     cleanup: '모두 구독 취소',
     commitment: '완료',
@@ -290,6 +306,9 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
+    done: '완료',
+    openLink: '링크 열기',
+    writeReminder: '리마인더 쓰기',
     summary: '요약',
     askAgent: '에이전트에게 묻기',
     fromSender: '같은 발신자의 메일',
@@ -577,6 +596,8 @@ export const ko: Messages = {
     usage: '이번 달',
   },
   queue: {
+    addToCalendar: '캘린더에 추가',
+    writeReminder: '리마인더 쓰기',
     approve: '승인',
     delete: '삭제',
     pick: '선택',

@@ -95,7 +95,7 @@ import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
 import { ListenButton } from '~/components/listen-button'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
-import { QueueCard } from '~/components/queue-card'
+import { openCardLink, primaryStep, QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import { ReadingBrief, ReadingView, useReading } from '~/components/reading'
 import {
@@ -985,6 +985,20 @@ const pageHints = (
         ['esc', t.keys.close],
       ]
 
+const primaryHints = (
+  t: Messages,
+  action: QueueItem['action']
+): [string, string][] => {
+  const step = primaryStep(action)
+  if (step === 'approve') {
+    return [['⏎', t.keys.approve]]
+  }
+  return [
+    ['⏎', step === 'link' ? t.keys.openLink : t.keys.writeReminder],
+    ['M', t.keys.done],
+  ]
+}
+
 const homeHints = (
   t: Messages,
   state: {
@@ -1039,7 +1053,7 @@ const homeHints = (
     ...(state.selected
       ? [
           ['J / K', t.keys.move] as [string, string],
-          ['⏎', t.keys.approve] as [string, string],
+          ...primaryHints(t, state.selected.action),
         ]
       : []),
     ...(state.alike > 1
@@ -1912,7 +1926,20 @@ const HomePage = () => {
       ...(edited !== undefined && { detail: edited }),
     })
   }
-  const approveSelected = () => selected && approveItem(selected)
+  const remind = (id: string) => redraft.mutate({ id })
+  const runSelected = () => {
+    if (!selected) {
+      return
+    }
+    const step = primaryStep(selected.action)
+    if (step === 'link') {
+      openCardLink(selected.action)
+    } else if (step === 'remind') {
+      remind(selected.action.id)
+    } else {
+      approveItem(selected)
+    }
+  }
 
   const alike = queue.filter(
     ({ action }) => action.kind === selected?.action.kind
@@ -1941,7 +1968,7 @@ const HomePage = () => {
   const approveTargets = () =>
     picked.length > 0
       ? approveMany.mutate({ ids: pickedActionIds })
-      : approveSelected()
+      : runSelected()
   const skipTargets = () =>
     picked.length > 0
       ? skipMany.mutate(pickedActionIds)
@@ -1959,6 +1986,14 @@ const HomePage = () => {
   useHotkey('ArrowUp', () => move(-1), listKeys)
   useHotkey('Enter', approveTargets, listKeys)
   useHotkey('Shift+Enter', approveAlike, listKeys)
+  useHotkey(
+    'M',
+    () =>
+      selected &&
+      primaryStep(selected.action) !== 'approve' &&
+      approveItem(selected),
+    listKeys
+  )
   useHotkey('S', skipTargets, listKeys)
   useHotkey('Backspace', () => trashMany.mutate(targets), listKeys)
   useHotkey('X', () => selected && togglePick(selected.action.id), listKeys)
@@ -2088,6 +2123,7 @@ const HomePage = () => {
                               item.message && showThread(item.message.threadId)
                             }
                             onPick={() => togglePick(item.action.id)}
+                            onRemind={() => remind(item.action.id)}
                             onSkip={() =>
                               dismiss.mutate({ id: item.action.id })
                             }

@@ -680,6 +680,22 @@ export const uk: Messages = {
     until: (date: string) => `Відкладено до ${date}`,
     weekend: 'На вихідних',
   },
+  actionDone: {
+    confirm: 'Я підтвердив',
+    follow_up: 'Я нагадав',
+    pay: 'Я оплатив',
+    read: 'Я прочитав',
+    renew: 'Я продовжив',
+    schedule: 'Я запланував',
+    sign: 'Я підписав',
+  },
+  actionLink: {
+    confirm: 'Підтвердити',
+    pay: 'Оплатити',
+    read: 'Читати',
+    renew: 'Продовжити',
+    sign: 'Підписати',
+  },
   actionKind: {
     cleanup: 'Відписатися від усіх',
     commitment: 'Готово',
@@ -784,6 +800,9 @@ export const uk: Messages = {
     reload: 'Оновити',
   },
   keys: {
+    done: 'готово',
+    openLink: 'відкрити посилання',
+    writeReminder: 'написати нагадування',
     summary: 'зведення',
     askAgent: 'запитати агента',
     fromSender: 'ще від відправника',
@@ -1082,6 +1101,8 @@ export const uk: Messages = {
     usage: 'Цього місяця',
   },
   queue: {
+    addToCalendar: 'Додати в календар',
+    writeReminder: 'Написати нагадування',
     approve: 'Схвалити',
     delete: 'Видалити',
     pick: 'Вибрати',

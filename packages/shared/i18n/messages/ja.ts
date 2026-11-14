@@ -3,6 +3,22 @@ import { formatMinutes } from '../locales'
 import type { Messages } from './en'
 
 export const ja: Messages = {
+  actionDone: {
+    confirm: '確認しました',
+    follow_up: 'フォローしました',
+    pay: '支払いました',
+    read: '読みました',
+    renew: '更新しました',
+    schedule: '予定に入れました',
+    sign: '署名しました',
+  },
+  actionLink: {
+    confirm: '確認する',
+    pay: '支払う',
+    read: '読む',
+    renew: '更新する',
+    sign: '署名する',
+  },
   actionKind: {
     cleanup: 'すべて配信停止',
     commitment: '完了',
@@ -291,6 +307,9 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
+    done: '完了',
+    openLink: 'リンクを開く',
+    writeReminder: 'リマインドを書く',
     summary: 'まとめ',
     askAgent: 'エージェントに聞く',
     fromSender: '同じ差出人のメール',
@@ -578,6 +597,8 @@ export const ja: Messages = {
     usage: '今月',
   },
   queue: {
+    addToCalendar: 'カレンダーに追加',
+    writeReminder: 'リマインドを書く',
     approve: '承認',
     delete: '削除',
     pick: '選択',

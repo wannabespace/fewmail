@@ -20,6 +20,9 @@ import {
   BODY_LIMIT,
   EARLIER_BODY_LIMIT,
   EARLIER_LIMIT,
+  LINK_INSTRUCTIONS,
+  LINK_LIMIT,
+  LINK_TEXT_CHARS,
   SENT_EXAMPLE_CHARS,
   SENT_EXAMPLES,
 } from '../services/agent'
@@ -113,7 +116,9 @@ const mailTokens = (chars: number) => chars / MAIL_CHARS_PER_TOKEN
 
 const HEADER_CHARS = 250
 const STRUCTURED_OUTPUT_TOKENS = 300
-const ANALYSIS_OUTPUT_TOKENS = 250
+const ANALYSIS_OUTPUT_TOKENS = 260
+const LINK_HOST_CHARS = 25
+const LINK_OUTPUT_TOKENS = 20
 const DRAFT_INSTRUCTION_CHARS = 800
 const DRAFT_OUTPUT_TOKENS = 400
 const JEV_QUESTION_CHARS = 400
@@ -152,6 +157,9 @@ export interface Use {
   entries: number
   inbound: number
   knowledgeChars: number
+  linkChars: number
+  linkedShare: number
+  links: number
   messages: number
   newslettersPerDay: number
   notes: number
@@ -181,6 +189,9 @@ export const TYPICAL: Use = {
   entries: 100,
   inbound: 1500,
   knowledgeChars: 500,
+  linkChars: 30,
+  linkedShare: 0.1,
+  links: 20,
   messages: 30,
   newslettersPerDay: 8,
   notes: 20,
@@ -211,6 +222,9 @@ export const HEAVY: Use = {
   entries: 600,
   inbound: 6000,
   knowledgeChars: 4000,
+  linkChars: LINK_TEXT_CHARS,
+  linkedShare: 1,
+  links: LINK_LIMIT,
   messages: Number.POSITIVE_INFINITY,
   newslettersPerDay: READING_SHOWN,
   notes: 100,
@@ -278,11 +292,22 @@ const draftCost = (use: Use) =>
     DRAFT_OUTPUT_TOKENS
   )
 
-/** One email counted against the plan: the text Jev cannot write, its attachments read, and a draft where it wants a reply. */
+/** A pay or read card points at the email's own link: subject, summary and each link's text and host. */
+const linkCost = (use: Use) =>
+  llm(
+    FAST_MODEL_ID,
+    instructionTokens(LINK_INSTRUCTIONS.length) +
+      STRUCTURED_OUTPUT_TOKENS +
+      mailTokens(HEADER_CHARS + use.links * (use.linkChars + LINK_HOST_CHARS)),
+    LINK_OUTPUT_TOKENS
+  )
+
+/** One email counted against the plan: the text Jev cannot write, its attachments read, a draft where it wants a reply and the link of its card. */
 export const analyzedEmailCost = (use: Use) => {
   const instructions = analyzeInstructions({
     language: 'en',
     rules: fakeRules(use),
+    timezone: 'Europe/Kyiv',
     userEmail: 'someone@example.com',
   })
   const attachedChars = use.attachedShare * MAX_FILES * TEXT_CHARS
@@ -299,7 +324,8 @@ export const analyzedEmailCost = (use: Use) => {
     OCR_PAGES.length *
     priceOf(OCR_MODEL, 'ocr_cost_per_page')
   const draft = use.draftedShare * draftCost(use)
-  return { draft, ocr, text, total: text + ocr + draft }
+  const link = use.linkedShare * linkCost(use)
+  return { draft, link, ocr, text, total: text + ocr + draft + link }
 }
 
 const toolsChars = JSON.stringify(
@@ -503,7 +529,7 @@ const printUnits = (lines: string[], name: string, use: Use) => {
   lines.push(
     `${name}`,
     `  incoming email, Jev (every plan): ${usd(inboundJevCost(use))}`,
-    `  counted email: ${usd(email.total)} (text ${usd(email.text)}, attachments ${usd(email.ocr)}, draft ${usd(email.draft)})`,
+    `  counted email: ${usd(email.total)} (text ${usd(email.text)}, attachments ${usd(email.ocr)}, draft ${usd(email.draft)}, link ${usd(email.link)})`,
     `  counted message: ${usd(messageCost(use))} (chat ${usd(chatCost(use))}, Ask ${usd(askCost())})`
   )
   for (const [what, cost] of Object.entries(backgroundCost(use, true))) {

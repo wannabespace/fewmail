@@ -3,6 +3,22 @@ import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const tr: Messages = {
+  actionDone: {
+    confirm: 'Onayladım',
+    follow_up: 'Takip ettim',
+    pay: 'Ödedim',
+    read: 'Okudum',
+    renew: 'Yeniledim',
+    schedule: 'Planladım',
+    sign: 'İmzaladım',
+  },
+  actionLink: {
+    confirm: 'Onayla',
+    pay: 'Öde',
+    read: 'Oku',
+    renew: 'Yenile',
+    sign: 'İmzala',
+  },
   actionKind: {
     cleanup: 'Hepsinden çık',
     commitment: 'Tamam',
@@ -549,6 +565,9 @@ export const tr: Messages = {
     reload: 'Yenile',
   },
   keys: {
+    done: 'tamam',
+    openLink: 'bağlantıyı aç',
+    writeReminder: 'hatırlatma yaz',
     summary: 'özet',
     askAgent: 'ajana sor',
     fromSender: 'gönderenden diğerleri',
@@ -849,6 +868,8 @@ export const tr: Messages = {
     threads: (total: number) => `${total} yazışma`,
   },
   queue: {
+    addToCalendar: 'Takvime ekle',
+    writeReminder: 'Hatırlatma yaz',
     approve: 'Onayla',
     delete: 'Sil',
     pick: 'Seç',

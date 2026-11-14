@@ -677,6 +677,22 @@ export const de: Messages = {
     until: (date: string) => `Zurückgestellt bis ${date}`,
     weekend: 'Am Wochenende',
   },
+  actionDone: {
+    confirm: 'Bestätigt',
+    follow_up: 'Nachgefasst',
+    pay: 'Bezahlt',
+    read: 'Gelesen',
+    renew: 'Verlängert',
+    schedule: 'Eingeplant',
+    sign: 'Unterschrieben',
+  },
+  actionLink: {
+    confirm: 'Bestätigen',
+    pay: 'Bezahlen',
+    read: 'Lesen',
+    renew: 'Verlängern',
+    sign: 'Unterschreiben',
+  },
   actionKind: {
     cleanup: 'Alle abbestellen',
     commitment: 'Erledigt',
@@ -781,6 +797,9 @@ export const de: Messages = {
     reload: 'Neu laden',
   },
   keys: {
+    done: 'erledigt',
+    openLink: 'Link öffnen',
+    writeReminder: 'Erinnerung schreiben',
     summary: 'Zusammenfassung',
     askAgent: 'Agent fragen',
     fromSender: 'mehr vom Absender',
@@ -1080,6 +1099,8 @@ export const de: Messages = {
     usage: 'Diesen Monat',
   },
   queue: {
+    addToCalendar: 'In den Kalender',
+    writeReminder: 'Erinnerung schreiben',
     approve: 'Genehmigen',
     delete: 'Löschen',
     pick: 'Auswählen',

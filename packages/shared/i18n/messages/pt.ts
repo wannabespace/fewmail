@@ -3,6 +3,22 @@ import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const pt: Messages = {
+  actionDone: {
+    confirm: 'Já confirmei',
+    follow_up: 'Já acompanhei',
+    pay: 'Já paguei',
+    read: 'Já li',
+    renew: 'Já renovei',
+    schedule: 'Já agendei',
+    sign: 'Já assinei',
+  },
+  actionLink: {
+    confirm: 'Confirmar',
+    pay: 'Pagar',
+    read: 'Ler',
+    renew: 'Renovar',
+    sign: 'Assinar',
+  },
   actionKind: {
     cleanup: 'Cancelar todas',
     commitment: 'Feito',
@@ -573,6 +589,9 @@ export const pt: Messages = {
     reload: 'Recarregar',
   },
   keys: {
+    done: 'feito',
+    openLink: 'abrir link',
+    writeReminder: 'escrever um lembrete',
     summary: 'resumo',
     askAgent: 'perguntar ao agente',
     fromSender: 'mais do remetente',
@@ -881,6 +900,8 @@ export const pt: Messages = {
       }),
   },
   queue: {
+    addToCalendar: 'Adicionar à agenda',
+    writeReminder: 'Escrever um lembrete',
     approve: 'Aprovar',
     delete: 'Excluir',
     pick: 'Selecionar',

@@ -77,6 +77,40 @@ export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
 export const sendsDraft = (action: { kind: ActionKind }) =>
   ACTION_KIND_TRAITS[action.kind].sends
 
+export const LINK_PURPOSES = [
+  'pay',
+  'sign',
+  'renew',
+  'confirm',
+  'read',
+] as const
+export type LinkPurpose = (typeof LINK_PURPOSES)[number]
+
+/** A link from the email itself that does what the card asks; Fewmail only opens it. */
+export interface CardLink {
+  purpose: LinkPurpose
+  url: string
+}
+
+/** `start` is the wall time `yyyy-MM-ddTHH:mm` in `timeZone`, as the email named it. */
+export interface CardEvent {
+  start: string
+  timeZone: string
+  title: string
+}
+
+interface CardPayload {
+  event?: CardEvent
+  link?: CardLink
+}
+
+export const cardPayload = (action: {
+  payload: Record<string, unknown> | null
+}) => (action.payload ?? {}) as CardPayload
+
+export const hostOf = (url: string) =>
+  new URL(url).hostname.replace(/^www\./u, '')
+
 export const ACTION_STATUSES = [
   'pending',
   'done',

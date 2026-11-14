@@ -48,18 +48,22 @@ export interface CalendarEventFields {
   end: string
   location?: string
   start: string
+  /** Read `start` and `end` as wall times there; without it they carry their own offset. */
+  timeZone?: string
   title: string
 }
 
 /** PATCH merges `start` and `end`: the other key must be cleared or switching all-day ↔ timed keeps both and Google rejects it. */
-const toGoogleTime = (value: string, allDay: boolean) =>
-  allDay ? { date: value, dateTime: null } : { date: null, dateTime: value }
+const toGoogleTime = (value: string, event: CalendarEventFields) =>
+  event.allDay
+    ? { date: value, dateTime: null }
+    : { date: null, dateTime: value, timeZone: event.timeZone }
 
 const toGoogleEvent = (event: CalendarEventFields) => ({
   description: event.description ?? '',
-  end: toGoogleTime(event.end, event.allDay),
+  end: toGoogleTime(event.end, event),
   location: event.location ?? '',
-  start: toGoogleTime(event.start, event.allDay),
+  start: toGoogleTime(event.start, event),
   summary: event.title,
 })
 

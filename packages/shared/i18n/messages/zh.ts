@@ -3,6 +3,22 @@ import { formatMinutes } from '../locales'
 import type { Messages } from './en'
 
 export const zh: Messages = {
+  actionDone: {
+    confirm: '我已确认',
+    follow_up: '我已跟进',
+    pay: '我已付款',
+    read: '我已读过',
+    renew: '我已续订',
+    schedule: '我已安排',
+    sign: '我已签署',
+  },
+  actionLink: {
+    confirm: '确认',
+    pay: '付款',
+    read: '阅读',
+    renew: '续订',
+    sign: '签署',
+  },
   actionKind: {
     cleanup: '全部退订',
     commitment: '完成',
@@ -289,6 +305,9 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
+    done: '完成',
+    openLink: '打开链接',
+    writeReminder: '写一封提醒',
     summary: '摘要',
     askAgent: '问助手',
     fromSender: '同一发件人的邮件',
@@ -568,6 +587,8 @@ export const zh: Messages = {
     usage: '本月',
   },
   queue: {
+    addToCalendar: '加入日历',
+    writeReminder: '写一封提醒',
     approve: '批准',
     delete: '删除',
     pick: '选择',

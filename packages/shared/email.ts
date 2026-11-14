@@ -321,6 +321,34 @@ export const htmlToText = (html: string) =>
     .replaceAll(/\n{3,}/gu, '\n\n')
     .trim()
 
+const URL_IN_TEXT = /https?:\/\/[^\s<>()"']+[^\s<>()"'.,;:!?]/giu
+
+/** Every web link once, with what the reader sees on it: the anchor's text, an image's alt, or nothing for a bare URL in plain text. */
+export const emailLinks = (email: { body: string; html: string | null }) => {
+  if (!email.html) {
+    return [...new Set(email.body.match(URL_IN_TEXT))].map((url) => ({
+      text: '',
+      url,
+    }))
+  }
+  const links = new Map<string, string>()
+  const walk = (nodes: Node[]) => {
+    for (const node of nodes) {
+      if (typeof node === 'string') {
+        continue
+      }
+      const url = node.tag === 'a' ? attr(node, 'href').trim() : ''
+      if (!url) {
+        walk(node.children)
+      } else if (/^https?:/iu.test(url) && !links.has(url)) {
+        links.set(url, render.nodes(node.children, ' ').trim())
+      }
+    }
+  }
+  walk(parse(email.html).children)
+  return [...links].map(([url, text]) => ({ text, url }))
+}
+
 export const replySubject = (subject: string) =>
   /^re:/iu.test(subject) ? subject : `Re: ${subject}`
 

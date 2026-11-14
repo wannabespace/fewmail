@@ -679,6 +679,22 @@ export const es: Messages = {
     until: (date: string) => `Pospuesto hasta el ${date}`,
     weekend: 'Este fin de semana',
   },
+  actionDone: {
+    confirm: 'Ya lo confirmé',
+    follow_up: 'Ya hice seguimiento',
+    pay: 'Ya lo pagué',
+    read: 'Ya lo leí',
+    renew: 'Ya lo renové',
+    schedule: 'Ya lo agendé',
+    sign: 'Ya lo firmé',
+  },
+  actionLink: {
+    confirm: 'Confirmar',
+    pay: 'Pagar',
+    read: 'Leer',
+    renew: 'Renovar',
+    sign: 'Firmar',
+  },
   actionKind: {
     cleanup: 'Darse de baja de todos',
     commitment: 'Hecho',
@@ -783,6 +799,9 @@ export const es: Messages = {
     reload: 'Recargar',
   },
   keys: {
+    done: 'hecho',
+    openLink: 'abrir enlace',
+    writeReminder: 'escribir un recordatorio',
     summary: 'resumen',
     askAgent: 'preguntar al agente',
     fromSender: 'más del remitente',
@@ -1081,6 +1100,8 @@ export const es: Messages = {
     usage: 'Este mes',
   },
   queue: {
+    addToCalendar: 'Añadir al calendario',
+    writeReminder: 'Escribir un recordatorio',
     approve: 'Aprobar',
     delete: 'Eliminar',
     pick: 'Seleccionar',

@@ -144,6 +144,8 @@ export interface SimpleMatch {
 export interface Extracted {
   amount: string | null
   dueDate: string | null
+  /** Absent on analyses written before it existed. */
+  meetingStart?: string | null
   meetingTime: string | null
 }
 

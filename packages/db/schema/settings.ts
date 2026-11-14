@@ -122,6 +122,7 @@ export type AiFeature =
   | 'board_chart'
   | 'board_entry'
   | 'board_plan'
+  | 'card_link'
   | 'chat'
   | 'digest'
   | 'draft'

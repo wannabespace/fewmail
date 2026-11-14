@@ -1,8 +1,14 @@
 import { db } from '@fewmail/db'
 import { botMessages } from '@fewmail/db/schema'
-import { parseSkill, SKILLS, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import {
+  cardPayload,
+  hostOf,
+  parseSkill,
+  SKILLS,
+  UNDO_SEND_SECONDS,
+} from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
-import { messages } from '@fewmail/shared/i18n'
+import { approveTitle, messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { isAfter, subDays, subMinutes } from 'date-fns'
@@ -244,14 +250,21 @@ export const itemReply = (
   const { bold, plain } = chat.channel
   const { action, analysis, message } = item
   const isReply = action.kind === 'reply'
+  const { link } = cardPayload(action)
   return {
     actionId: action.id,
     buttons: [
-      { id: `a:${action.id}`, title: isReply ? t.telegram.send : action.title },
+      {
+        id: `a:${action.id}`,
+        title: isReply ? t.telegram.send : approveTitle(t, action),
+      },
       ...(isReply && chat.channel.shorter
         ? [{ id: `r:${action.id}`, title: t.telegram.shorter }]
         : []),
       ...(isReply ? [{ id: `e:${action.id}`, title: t.telegram.edit }] : []),
+      ...(action.kind === 'follow_up'
+        ? [{ id: `w:${action.id}`, title: t.queue.writeReminder }]
+        : []),
       { id: `d:${action.id}`, title: t.telegram.skip },
     ],
     text: [
@@ -260,6 +273,9 @@ export const itemReply = (
       analysis?.summary ? plain(analysis.summary) : null,
       isReply && action.detail
         ? `\n${chat.channel.italic(t.telegram.draft)}\n${clipped(chat, t, action.detail)}`
+        : null,
+      link
+        ? `\n${plain(`${t.actionLink[link.purpose]} · ${hostOf(link.url)}`)}\n${link.url}`
         : null,
     ]
       .filter(Boolean)
@@ -379,7 +395,7 @@ const scheduleAnswer = async (
   return chatLinkReply(chat, t, answer, chatId)
 }
 
-/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `e:` edit, `queue`, `reading`, `week`, `chat:` a schedule run's answer. */
+/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `w:` write a reminder, `e:` edit, `queue`, `reading`, `week`, `chat:` a schedule run's answer. */
 export const press = async (
   chat: Chat,
   userId: string,
@@ -434,6 +450,14 @@ export const press = async (
   if (command === 'd') {
     await dismissAction(userId, id)
     return { buttons: [], notice: t.telegram.skipped }
+  }
+  if (command === 'w') {
+    return {
+      notice: t.telegram.rewriting,
+      replies: async () => [
+        draftReply(chat, t, await redraftAction(userId, id)),
+      ],
+    }
   }
   if (command === 'r') {
     return {

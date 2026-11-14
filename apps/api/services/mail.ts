@@ -9,6 +9,7 @@ import {
 } from '@fewmail/db/schema'
 import {
   ACTION_KIND_TRAITS,
+  cardPayload,
   IMPORTANCE,
   LIST_CATEGORIES,
   PEOPLE_CATEGORIES,
@@ -48,6 +49,7 @@ import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
 import { searchByQuestion } from './ask'
+import { createEvent } from './calendar'
 import { runCleanup } from './cleanup'
 import { NotFoundError } from './mail-errors'
 import {
@@ -692,10 +694,30 @@ const finish = (
     .where(eq(actions.id, actionId))
     .returning()
 
+const MEETING_MINUTES = 60
+
+/** Adds wall-clock minutes without passing through any zone: Google reads both ends in `timeZone`. */
+const wallTimeAfter = (start: string, minutes: number) =>
+  new Date(Date.parse(`${start}:00Z`) + minutes * 60_000)
+    .toISOString()
+    .slice(0, 19)
+
 const applyActionSideEffects = async (
   userId: string,
-  action: typeof actions.$inferSelect
+  action: typeof actions.$inferSelect,
+  message: typeof messages.$inferSelect | null
 ) => {
+  const { event } = cardPayload(action)
+  if (event) {
+    await createEvent(userId, {
+      allDay: false,
+      end: wallTimeAfter(event.start, MEETING_MINUTES),
+      mailboxId: message?.mailboxId,
+      start: `${event.start}:00`,
+      timeZone: event.timeZone,
+      title: event.title,
+    })
+  }
   if (action.kind === 'cleanup') {
     const senders = (action.payload?.senders ?? []) as CleanupSender[]
     await runCleanup(userId, senders)
@@ -755,7 +777,7 @@ export const approveAction = async (
   const body = detail ?? action.detail
   const { gmail } = ACTION_KIND_TRAITS[action.kind]
   const applied = await Result.tryPromise(async () => {
-    await applyActionSideEffects(userId, action)
+    await applyActionSideEffects(userId, action, message)
     if (message && sendsDraft(action)) {
       return scheduleActionReply(userId, actionId, message, body)
     }
@@ -822,6 +844,9 @@ export const restoreAction = async (userId: string, actionId: string) => {
   return restored
 }
 
+const FOLLOW_UP_INSTRUCTION =
+  'Nobody has answered the last email yet: write a short, friendly nudge to the same people that brings it back up, without repeating it.'
+
 export const redraftAction = async (
   userId: string,
   actionId: string,
@@ -831,15 +856,19 @@ export const redraftAction = async (
   if (!message) {
     throw new NotFoundError('This action has no email to answer')
   }
+  const isFollowUp = action.kind === 'follow_up'
   const detail = await writeReply({
-    instruction,
+    instruction: isFollowUp
+      ? (instruction ?? FOLLOW_UP_INSTRUCTION)
+      : instruction,
     message,
     previousDraft: action.detail ?? undefined,
     userId,
   })
+  // The reminder becomes a reply card in place: sending it still waits for its own yes.
   const [updated] = await db
     .update(actions)
-    .set({ detail })
+    .set({ detail, ...(isFollowUp && { kind: 'reply' as const }) })
     .where(eq(actions.id, actionId))
     .returning()
   await announceChange(userId, ACTION_TOPICS)

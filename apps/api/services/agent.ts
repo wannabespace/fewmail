@@ -5,15 +5,20 @@ import {
   IMPORTANCE,
   isAutomatedSender,
   isBulk,
+  hostOf,
   isGmailEffect,
+  LINK_PURPOSES,
   MAIL_CATEGORIES,
   PEOPLE_CATEGORIES,
 } from '@fewmail/shared/agent'
 import type {
   ActionKind,
+  CardEvent,
+  CardLink,
   GmailEffect,
   MailCategory,
 } from '@fewmail/shared/agent'
+import { emailLinks } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
@@ -63,6 +68,7 @@ const textSchema = type({
   extracted: {
     amount: 'string | null',
     dueDate: 'string | null',
+    meetingStart: 'string | null',
     meetingTime: 'string | null',
   },
   reason: 'string',
@@ -87,9 +93,14 @@ const labelExamples = (language: Locale) => {
   return `"${actionKind.reply}", "${actionKind.pay}", "${actionKind.schedule}"`
 }
 
+/** `meetingStart` is what a schedule card puts in the calendar, so it must be the time the email names. */
+const extractedInstruction = (timezone: string) =>
+  `extracted: an amount with currency, a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect), the first proposed meeting time as a short date and start time in the language of the email ("18 Nov, 18:00"), never a sentence, and that meeting's start as YYYY-MM-DDTHH:mm in the user's time zone (${timezone}), converted only when the email names another zone, else null. Never invent anything.`
+
 export const analyzeInstructions = (input: {
   language: Locale
   rules: Pick<Rule, 'id' | 'instruction'>[]
+  timezone: string
   userEmail: string
 }) =>
   [
@@ -103,7 +114,7 @@ export const analyzeInstructions = (input: {
     `Write summary (one sentence), reason (why this importance, a few words) and actionTitle (a short label of what to do, phrased like ${labelExamples(input.language)}) in ${englishName(input.language)}.`,
     INFORMAL_ADDRESS,
     NO_EM_DASH,
-    'extracted: an amount with currency, a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null.',
+    extractedInstruction(input.timezone),
     '',
     input.rules.length > 0
       ? `User rules. Set ruleId to the id of the first rule this email clearly matches, else null:\n${input.rules
@@ -280,7 +291,12 @@ const recordRuleAction = async (
   })
 }
 
-const NO_EXTRACTED = { amount: null, dueDate: null, meetingTime: null }
+const NO_EXTRACTED = {
+  amount: null,
+  dueDate: null,
+  meetingStart: null,
+  meetingTime: null,
+}
 
 /** What the network knows beats what one email claims: mass mail and no-reply senders are never personal, flagged mail is always urgent. */
 const withNetworkFacts = <
@@ -403,7 +419,7 @@ const analyze = async (input: {
     generateText({
       instructions: [
         `Write in ${englishName(input.settings.language)}: summary (one sentence, concrete names, amounts and dates), reason (why it matters, a few words) and actionTitle (a short label of what to do for: ${decisions.suggestedAction}, phrased like ${labelExamples(input.settings.language)}).`,
-        'extracted: an amount with currency, a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null. Never invent anything.',
+        extractedInstruction(input.settings.timezone),
         INFORMAL_ADDRESS,
         NO_EM_DASH,
       ].join('\n'),
@@ -471,6 +487,88 @@ export const retireStaleActions = (
       )
     )
 
+export const LINK_LIMIT = 40
+export const LINK_TEXT_CHARS = 80
+export const LINK_INSTRUCTIONS =
+  'Pick the one link of this email that does what it asks the user to do: pay a bill, sign a document, renew a subscription, confirm something, or read what it is about. Answer its number and what it does. index is null when no link does that; never a logo, a social profile, an unsubscribe, settings or help link.'
+
+const linkSchema = type({
+  index: 'number | null',
+  purpose: type.enumerated(...LINK_PURPOSES),
+})
+
+/** The model only points at one of the email's own links by number, so it can never hand the user an address the email does not hold. */
+const pickLink = async (
+  message: Message,
+  summary: string
+): Promise<CardLink | null> => {
+  const links = emailLinks(message)
+    .filter(({ url }) => URL.canParse(url))
+    .slice(0, LINK_LIMIT)
+  if (message.risk || message.suspicion || links.length === 0) {
+    return null
+  }
+  const picked = await Result.tryPromise(() =>
+    generateText({
+      instructions: LINK_INSTRUCTIONS,
+      model: models.fast,
+      output: Output.object({ schema: linkSchema }),
+      prompt: [
+        `Subject: ${message.subject}`,
+        `About: ${summary}`,
+        '',
+        ...links.map(
+          ({ text, url }, index) =>
+            `${index}. ${text.slice(0, LINK_TEXT_CHARS) || '(no text)'} → ${hostOf(url)}`
+        ),
+      ].join('\n'),
+      telemetry: trackUsage(message.userId, 'card_link'),
+    })
+  )
+  if (picked.isErr()) {
+    logError(
+      'card link failed, the card keeps its yes only',
+      picked.error.cause
+    )
+    return null
+  }
+  const { index, purpose } = picked.value.output
+  const link = index === null ? undefined : links[index]
+  return link ? { purpose, url: link.url } : null
+}
+
+/** What a card can do besides its yes: open the email's own link, or put its meeting in the calendar. */
+const cardPayload = async (
+  message: Message,
+  kind: ActionKind,
+  output: {
+    actionTitle: string
+    extracted: { meetingStart?: string | null }
+    summary: string
+  },
+  context: { settings: Settings; writes: boolean }
+): Promise<{ event: CardEvent } | { link: CardLink } | null> => {
+  const start = output.extracted.meetingStart
+  if (
+    kind === 'schedule' &&
+    start &&
+    /^\d{4}-\d\d-\d\dT\d\d:\d\d$/u.test(start)
+  ) {
+    return {
+      event: {
+        start,
+        timeZone: context.settings.timezone,
+        title: message.subject || output.actionTitle,
+      },
+    }
+  }
+  if (!context.writes || (kind !== 'pay' && kind !== 'read')) {
+    return null
+  }
+  const link = await pickLink(message, output.summary)
+  return link && { link }
+}
+
 /** Its newer email carries the conversation's card, even when this one's analysis finishes later. */
 const hasNewerMail = async (message: Message) =>
   (await db.$count(
@@ -486,10 +584,13 @@ const hasNewerMail = async (message: Message) =>
 const queueForAgent = async (
   message: Message,
   output: {
+    actionTitle: string
+    extracted: { meetingStart?: string | null }
     importance: number
     needsReply: boolean
     reason: string
     suggestedAction: (typeof analysisSchema.infer)['suggestedAction']
+    summary: string
   },
   rule: Rule | null,
   base: {
@@ -516,11 +617,13 @@ const queueForAgent = async (
         )
       : null
     // A reply card always sends: without a draft it would send an empty email, so it asks to read instead.
+    const kind = draft ? 'reply' : 'read'
     await db.insert(actions).values({
       ...base,
       autonomous: false,
       detail: draft,
-      kind: draft ? 'reply' : 'read',
+      kind,
+      payload: await cardPayload(message, kind, output, context),
       reason: output.reason,
       ruleId: rule?.id ?? null,
       status: 'pending',
@@ -550,10 +653,12 @@ const queueForAgent = async (
     NOISE_ACTIONS.has(output.suggestedAction)
       ? null
       : output.suggestedAction
+  const kind = step ?? 'read'
   await db.insert(actions).values({
     ...base,
     autonomous: false,
-    kind: step ?? 'read',
+    kind,
+    payload: await cardPayload(message, kind, output, context),
     reason: output.reason,
     ruleId: rule?.id ?? null,
     status: 'pending',

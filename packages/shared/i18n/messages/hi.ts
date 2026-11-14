@@ -3,6 +3,22 @@ import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const hi: Messages = {
+  actionDone: {
+    confirm: 'मैंने पुष्टि कर दी',
+    follow_up: 'मैंने फ़ॉलो-अप किया',
+    pay: 'मैंने भुगतान कर दिया',
+    read: 'मैंने पढ़ लिया',
+    renew: 'मैंने रिन्यू कर दिया',
+    schedule: 'मैंने शेड्यूल कर लिया',
+    sign: 'मैंने साइन कर दिया',
+  },
+  actionLink: {
+    confirm: 'पुष्टि करें',
+    pay: 'भुगतान करें',
+    read: 'पढ़ें',
+    renew: 'रिन्यू करें',
+    sign: 'साइन करें',
+  },
   actionKind: {
     cleanup: 'सभी से अनसब्सक्राइब करें',
     commitment: 'हो गया',
@@ -293,6 +309,9 @@ export const hi: Messages = {
     reload: 'रीलोड करें',
   },
   keys: {
+    done: 'हो गया',
+    openLink: 'लिंक खोलें',
+    writeReminder: 'रिमाइंडर लिखें',
     summary: 'सारांश',
     askAgent: 'एजेंट से पूछें',
     fromSender: 'इस प्रेषक से और',
@@ -583,6 +602,8 @@ export const hi: Messages = {
     usage: 'इस महीने',
   },
   queue: {
+    addToCalendar: 'कैलेंडर में जोड़ें',
+    writeReminder: 'रिमाइंडर लिखें',
     approve: 'मंज़ूर करें',
     delete: 'हटाएँ',
     pick: 'चुनें',

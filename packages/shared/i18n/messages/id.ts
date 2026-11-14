@@ -3,6 +3,22 @@ import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const id: Messages = {
+  actionDone: {
+    confirm: 'Sudah saya konfirmasi',
+    follow_up: 'Sudah saya tindak lanjuti',
+    pay: 'Sudah saya bayar',
+    read: 'Sudah saya baca',
+    renew: 'Sudah saya perpanjang',
+    schedule: 'Sudah saya jadwalkan',
+    sign: 'Sudah saya tanda tangani',
+  },
+  actionLink: {
+    confirm: 'Konfirmasi',
+    pay: 'Bayar',
+    read: 'Baca',
+    renew: 'Perpanjang',
+    sign: 'Tanda tangani',
+  },
   actionKind: {
     cleanup: 'Berhenti dari semua',
     commitment: 'Selesai',
@@ -555,6 +571,9 @@ export const id: Messages = {
     reload: 'Muat ulang',
   },
   keys: {
+    done: 'selesai',
+    openLink: 'buka tautan',
+    writeReminder: 'tulis pengingat',
     summary: 'ringkasan',
     askAgent: 'tanya agen',
     fromSender: 'lainnya dari pengirim',
@@ -857,6 +876,8 @@ export const id: Messages = {
     threads: (total: number) => `${total} percakapan`,
   },
   queue: {
+    addToCalendar: 'Tambah ke kalender',
+    writeReminder: 'Tulis pengingat',
     approve: 'Setujui',
     delete: 'Hapus',
     pick: 'Pilih',

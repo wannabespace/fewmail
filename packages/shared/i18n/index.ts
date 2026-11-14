@@ -1,3 +1,5 @@
+import { cardPayload } from '../agent'
+import type { ActionKind } from '../agent'
 import type { Locale } from './locales'
 import { de } from './messages/de'
 import { en } from './messages/en'
@@ -34,4 +36,20 @@ export const messages: Record<Locale, Messages> = {
   tr,
   uk,
   zh,
+}
+
+type Card = Parameters<typeof cardPayload>[0] & { kind: ActionKind }
+
+/** Fewmail can't pay, read or sign for the user: there the yes only says they did it. */
+export const approveTitle = (t: Messages, action: Card) => {
+  const { event, link } = cardPayload(action)
+  if (event) {
+    return t.queue.addToCalendar
+  }
+  if (link) {
+    return t.actionDone[link.purpose]
+  }
+  return action.kind in t.actionDone
+    ? t.actionDone[action.kind as keyof Messages['actionDone']]
+    : t.actionKind[action.kind]
 }
