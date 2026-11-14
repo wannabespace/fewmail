@@ -22,6 +22,11 @@ import {
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@fewmail/ui/components/input-group'
+import {
   Item,
   ItemActions,
   ItemContent,
@@ -72,13 +77,18 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
-import { AgentChat, agentHiddenStore, askAgent } from '~/components/agent-chat'
+import {
+  AgentChat,
+  agentHiddenStore,
+  askAgent,
+  questionStore,
+} from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
@@ -1121,6 +1131,11 @@ const AgentColumn = ({
       setDraftId(crypto.randomUUID())
     }
   }
+  const question = useSubscription(questionStore)
+  // Home's field names the new chat; the chat with that id sends the question once it mounts.
+  if (question && question.chatId !== draftId) {
+    setDraftId(question.chatId)
+  }
   const chatId = chat ?? draftId
   const isSaved = chat !== undefined && chat !== draftId
   const { data: saved } = useQuery(
@@ -1367,30 +1382,50 @@ const HomeHeader = ({
   )
 }
 
-/** Home's way into the agent while its column is hidden: the same as `/`. */
-const AskBar = () => {
+/** Home's question to the agent while its column is hidden: ⏎ starts a new chat there, and the column opens with the answer. */
+const AskField = () => {
   const t = useT()
+  const navigate = useNavigate()
   const isHidden = useSubscription(agentHiddenStore)
-  // The chat registers `/` itself, but a column hidden since the page opened has not mounted it yet.
-  useHotkey('/', askAgent, { enabled: isHidden })
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [text, setText] = useState('')
+  const ask = () => {
+    const question = text.trim()
+    if (!question) {
+      return
+    }
+    setText('')
+    void navigate({
+      search: (prev) => ({ ...prev, chat: undefined }),
+      to: '/home',
+    })
+    askAgent(question)
+  }
+  useHotkey('/', () => inputRef.current?.focus(), { enabled: isHidden })
+  const keys = { ignoreInputs: false, target: inputRef }
+  useHotkey('Enter', ask, keys)
+  useHotkey('Escape', () => inputRef.current?.blur(), keys)
 
+  if (!isHidden) {
+    return null
+  }
   return (
-    isHidden && (
-      <Button
-        size="lg"
-        variant="outline-muted"
-        className="w-full justify-start"
-        onClick={askAgent}
-      >
-        <HugeiconsIcon
-          icon={BubbleChatIcon}
-          strokeWidth={2}
-          data-icon="inline-start"
-        />
-        <span className="mr-auto">{t.today.ask}</span>
-        <Kbd>/</Kbd>
-      </Button>
-    )
+    <InputGroup variant="composer">
+      <InputGroupAddon>
+        <HugeiconsIcon icon={BubbleChatIcon} strokeWidth={2} />
+      </InputGroupAddon>
+      <InputGroupInput
+        ref={inputRef}
+        value={text}
+        onChange={(event) => setText(event.target.value)}
+        placeholder={t.today.ask}
+        aria-label={t.today.ask}
+        data-mask
+      />
+      <InputGroupAddon align="inline-end">
+        <Kbd>{text.trim() ? '⏎' : '/'}</Kbd>
+      </InputGroupAddon>
+    </InputGroup>
   )
 }
 
@@ -1956,7 +1991,7 @@ const HomePage = () => {
                       isFirstRead={isFirstRead}
                       updatedAt={dataUpdatedAt}
                     />
-                    <AskBar />
+                    <AskField />
                     <ConnectHint />
 
                     <section

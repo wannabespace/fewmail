@@ -106,6 +106,8 @@ import { type } from 'arktype'
 import { isSameDay, isToday, parseISO, subDays } from 'date-fns'
 import type { ComponentProps, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { createStore } from 'seitu'
+import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
@@ -779,16 +781,15 @@ export const agentHiddenStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-let askMounted: (() => void) | undefined
-let isAskWaiting = false
-/** Home's ask bar does what `/` does. A column hidden since the page opened has no chat mounted yet: its composer takes the focus once it mounts. */
-export const askAgent = () => {
+/** A question asked in Home's field: the column starts a new chat with this id, and that chat sends it once mounted. */
+export const questionStore = createStore<{
+  chatId: string
+  text: string
+} | null>(null)
+
+export const askAgent = (text: string) => {
   agentHiddenStore.set(false)
-  if (askMounted) {
-    askMounted()
-  } else {
-    isAskWaiting = true
-  }
+  questionStore.set({ chatId: crypto.randomUUID(), text })
 }
 
 /** Home already is the `today` skill, so it is never suggested there. */
@@ -1264,20 +1265,18 @@ export const AgentChat = ({
     send(heard)
   })
   useHotkey('Mod+Shift+Space', voice.toggle, { ignoreInputs: false })
-  const ask = () => {
-    agentHiddenStore.set(false)
-    // The hidden column is inert until it has rendered open.
-    requestAnimationFrame(() => composerRef.current?.focus())
-  }
-  useHotkey('/', ask)
+  // While the column is hidden, `/` belongs to Home's own field.
+  const isHidden = useSubscription(agentHiddenStore)
+  useHotkey('/', () => composerRef.current?.focus(), { enabled: !isHidden })
   useEffect(() => {
-    askMounted = ask
-    if (isAskWaiting) {
-      isAskWaiting = false
-      ask()
-    }
-    return () => {
-      askMounted = undefined
+    const question = questionStore.get()
+    if (question?.chatId === chatId) {
+      questionStore.set(null)
+      onSend()
+      void sendMessage({
+        metadata: { createdAt: Date.now() },
+        parts: [{ text: question.text, type: 'text' }],
+      })
     }
   })
   const composer = (
