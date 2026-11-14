@@ -459,6 +459,7 @@ export const ko: Messages = {
     instruction: '어떻게 답장할지 알려주거나, 그냥 Enter를 누르세요',
     open: '열기',
     openInGmail: 'Gmail에서 열기',
+    openFullPage: '전체 페이지로 열기',
     search: '검색하거나 설명하세요: 지난달 Anna가 보낸 청구서',
     unsubscribe: '구독 취소',
     unsubscribed: '구독을 취소했어요',

@@ -72,7 +72,7 @@ export const useEntryActions = (boardId: string) => {
   )
   return {
     open: (entry: Entry) =>
-      navigate({ search: { thread: entry.threadId }, to: '/mail' }),
+      navigate({ params: { threadId: entry.threadId }, to: '/mail/$threadId' }),
     remove: (entry: Entry) => {
       dismiss.mutate({ id: entry.id })
       toast(t.boards.entry.removed, {
@@ -104,7 +104,11 @@ export const EntryRow = ({
     <SettingsRow
       active={isActive}
       title={
-        <Link to="/mail" search={{ thread: entry.threadId }} data-mask>
+        <Link
+          to="/mail/$threadId"
+          params={{ threadId: entry.threadId }}
+          data-mask
+        >
           {entry.title}
         </Link>
       }

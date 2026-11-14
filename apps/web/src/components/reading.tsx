@@ -71,10 +71,7 @@ const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
           variant="source"
           className="mx-0.5 align-[0.15em]"
           render={
-            <Link
-              to="/home"
-              search={(prev) => ({ ...prev, thread: row.threadId })}
-            />
+            <Link to="/mail/$threadId" params={{ threadId: row.threadId }} />
           }
           onPointerEnter={() => {
             void warmThread(row.threadId)
@@ -113,8 +110,8 @@ const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
                     key={messageId}
                     title={
                       <Link
-                        to="/home"
-                        search={(prev) => ({ ...prev, thread: row.threadId })}
+                        to="/mail/$threadId"
+                        params={{ threadId: row.threadId }}
                         data-mask
                       >
                         {senderOf(row)}
@@ -150,15 +147,16 @@ const useNoteOf = (summary: Summary | undefined) => {
   }
 }
 
-/** Every newsletter under the whole summary; J / K walk them, also while one is open in the reader. */
+// Back from an email, the cursor is on the newsletter that was opened.
+let lastOpened: string | undefined
+
+/** Every newsletter under the whole summary; J / K walk them, ⏎ opens one. */
 const NewsletterList = ({
   rows,
   summary,
-  thread,
 }: {
   rows: Row[]
   summary: Summary | undefined
-  thread: string | undefined
 }) => {
   const t = useT()
   const dates = useDates()
@@ -166,39 +164,32 @@ const NewsletterList = ({
   const noteOf = useNoteOf(summary)
   const listRef = useRef<HTMLDivElement>(null)
   const [cursor, setCursor] = useState<number | null>(null)
-  const openIndex = rows.findIndex(({ threadId }) => threadId === thread)
-  const current = cursor ?? openIndex
+  const current =
+    cursor ?? rows.findIndex(({ threadId }) => threadId === lastOpened)
 
   useEffect(() => {
     const row = listRef.current?.querySelectorAll('[data-slot="item"]')[current]
     row?.scrollIntoView({ block: 'nearest' })
   }, [current])
 
-  const open = (threadId: string | undefined) =>
-    navigate({
-      replace: !!thread,
-      search: (prev) => ({ ...prev, thread: threadId }),
-      to: '/home',
-    })
+  const open = (threadId: string) => {
+    lastOpened = threadId
+    void navigate({ params: { threadId }, to: '/mail/$threadId' })
+  }
   const move = (step: number) => {
     const next = Math.max(0, Math.min(rows.length - 1, current + step))
     const threadId = rows[next]?.threadId
     setCursor(next)
     if (threadId) {
       void prefetchThread(threadId)
-      if (thread) {
-        void open(threadId)
-      }
     }
   }
-  // A thread opened from elsewhere on Home is not walked through the newsletters.
-  const keys = { enabled: !thread || openIndex !== -1 }
-  useHotkey('J', () => move(1), keys)
-  useHotkey('ArrowDown', () => move(1), keys)
-  useHotkey('K', () => move(-1), keys)
-  useHotkey('ArrowUp', () => move(-1), keys)
-  useHotkey('Enter', () => open(rows[current]?.threadId), {
-    enabled: current !== -1 && !thread,
+  useHotkey('J', () => move(1))
+  useHotkey('ArrowDown', () => move(1))
+  useHotkey('K', () => move(-1))
+  useHotkey('ArrowUp', () => move(-1))
+  useHotkey('Enter', () => rows[current] && open(rows[current].threadId), {
+    enabled: current !== -1,
   })
 
   return (
@@ -210,12 +201,15 @@ const NewsletterList = ({
             active={index === current}
             render={
               <Link
-                to="/home"
-                search={(prev) => ({ ...prev, thread: row.threadId })}
+                to="/mail/$threadId"
+                params={{ threadId: row.threadId }}
                 onPointerEnter={() => {
                   void warmThread(row.threadId)
                 }}
-                onClick={() => setCursor(index)}
+                onClick={() => {
+                  lastOpened = row.threadId
+                  setCursor(index)
+                }}
               />
             }
             title={<span data-mask>{senderOf(row)}</span>}
@@ -347,13 +341,7 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
 }
 
 /** The whole summary and every newsletter, over Home's column: it grows out of `ReadingSection` like an App Store card. */
-export const ReadingPane = ({
-  isOpen,
-  thread,
-}: {
-  isOpen: boolean
-  thread: string | undefined
-}) => {
+export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
   const t = useT()
   const navigate = useNavigate()
   const transition = useMorph()
@@ -393,7 +381,7 @@ export const ReadingPane = ({
           <div className="flex flex-col gap-6 pt-2">
             {summary && <SummaryText rows={rows} summary={summary} />}
             {summary && <SummaryGaps rows={rows} summary={summary} />}
-            <NewsletterList rows={rows} summary={summary} thread={thread} />
+            <NewsletterList rows={rows} summary={summary} />
           </div>
         </section>
       </div>

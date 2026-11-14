@@ -513,7 +513,7 @@ export const follow = async (
         ...answer.sources.map((source) =>
           link(
             `${source.from}: ${source.subject}`,
-            `${env.WEB_URL}/mail?thread=${source.threadId}`
+            `${env.WEB_URL}/mail/${source.threadId}`
           )
         ),
       ].join('\n'),

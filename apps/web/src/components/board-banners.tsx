@@ -44,7 +44,10 @@ export const BoardBanners = ({
           size="xs"
           variant="ghost-muted"
           onClick={() =>
-            navigate({ search: { thread: banner.threadId }, to: '/mail' })
+            navigate({
+              params: { threadId: banner.threadId },
+              to: '/mail/$threadId',
+            })
           }
         >
           {t.mail.open}

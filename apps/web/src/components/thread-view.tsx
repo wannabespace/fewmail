@@ -30,6 +30,7 @@ import { cn } from '@fewmail/ui/lib/utils'
 import {
   Archive02Icon,
   ArrowDown01Icon,
+  ArrowExpand01Icon,
   Cancel01Icon,
   Clock01Icon,
   Delete02Icon,
@@ -41,6 +42,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { Fragment, useEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { toast } from 'sonner'
@@ -948,11 +950,13 @@ const ReaderHeader = ({
   children?: ReactNode
   note?: ReactNode
   onClose: () => void
+  onOpenFullPage,
   title: ReactNode
 }) => {
   const t = useT()
   return (
     <header className="shrink-on-scroll bg-background sticky top-0 z-10 -mb-3 flex flex-col">
+  onOpenFullPage?: () => void
       <div className="flex items-start gap-2">
         <div className="flex flex-1 flex-col gap-1">
           <h1 data-mask className="font-serif text-2xl tracking-tight">
@@ -965,6 +969,16 @@ const ReaderHeader = ({
           label={t.mail.close}
           shortcut={<Kbd>esc</Kbd>}
           size="icon-sm"
+        {onOpenFullPage && (
+          <IconButton
+            icon={ArrowExpand01Icon}
+            label={t.mail.openFullPage}
+            shortcut={<Kbd>⇧O</Kbd>}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={onOpenFullPage}
+          />
+        )}
           variant="ghost-muted"
           onClick={onClose}
         />
@@ -979,18 +993,25 @@ export const ThreadView = ({
   onClose,
   onDone,
   threadId,
+/** `canOpenFullPage`: a reader beside a list offers the email on its own page (`/mail/$threadId`, ⇧O). */
 }: {
+  canOpenFullPage = false,
   isSnoozed: boolean
   onClose: () => void
   onDone: () => void
   threadId: string
 }) => {
+  canOpenFullPage?: boolean
   const t = useT()
   const dates = useDates()
   const { user } = useMe()
   const hasAgent = useHasAgent()
   const { data } = useThread(threadId)
   const [composing, setComposing] = useState<Draft | null>(null)
+  const navigate = useNavigate()
+  const openFullPage = () =>
+    navigate({ params: { threadId }, to: '/mail/$threadId' })
+  useHotkey('Shift+O', openFullPage, { enabled: canOpenFullPage })
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
@@ -1042,7 +1063,11 @@ export const ThreadView = ({
     <article className="flex min-h-0 flex-1 flex-col">
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
-          <ReaderHeader title={subject} onClose={onClose}>
+          <ReaderHeader
+            title={subject}
+            onClose={onClose}
+            onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
+          >
             {target && (
               <div className="flex flex-wrap items-center gap-2">
                 <Button size="sm" onClick={reply} shortcut={<Kbd>R</Kbd>}>

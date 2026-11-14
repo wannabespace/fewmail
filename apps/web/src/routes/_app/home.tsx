@@ -73,7 +73,6 @@ import {
   MailRowActions,
   ROW_SWAP,
   sweepOf,
-  ThreadView,
   useMailActions,
 } from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
@@ -100,11 +99,10 @@ const TallyBox = ({ children }: { children: ReactNode }) => (
   </div>
 )
 
-/** Opens in the reader over Home, never in Mail: Home stays where it was. */
 const ThreadLink = ({ text, threadId }: { text: string; threadId: string }) => (
   <Link
-    to="/home"
-    search={(prev) => ({ ...prev, thread: threadId })}
+    to="/mail/$threadId"
+    params={{ threadId }}
     onPointerEnter={() => {
       void prefetchThread(threadId)
     }}
@@ -288,8 +286,8 @@ const TidyReview = ({
     () =>
       selected &&
       navigate({
-        search: (prev) => ({ ...prev, thread: selected.message.threadId }),
-        to: '/home',
+        params: { threadId: selected.message.threadId },
+        to: '/mail/$threadId',
       }),
     keys
   )
@@ -1335,40 +1333,6 @@ const DecisionsHeader = ({
   )
 }
 
-/** An email opens over the queue; the agent's column stays beside it. */
-const Reader = ({
-  isReading,
-  onClose,
-  thread,
-}: {
-  isReading: boolean
-  onClose: () => void
-  thread: string
-}) => {
-  const t = useT()
-
-  return (
-    <div className="bg-background flex min-h-0 min-w-0 flex-1 flex-col">
-      <ThreadView
-        key={thread}
-        isSnoozed={false}
-        threadId={thread}
-        onClose={onClose}
-        onDone={onClose}
-      />
-      <KeyHints
-        hints={[
-          ...(isReading ? [['J / K', t.keys.move] as [string, string]] : []),
-          ['R', t.keys.reply],
-          ['E', t.keys.archive],
-          ['/', t.keys.ask],
-          ['esc', t.keys.close],
-        ]}
-      />
-    </div>
-  )
-}
-
 const KIND_FILTER_FROM = 5
 
 /** Narrows the queue to one kind of card (F cycles); a kind that empties falls back to all. */
@@ -1522,7 +1486,7 @@ const HomePage = () => {
   const t = useT()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { page, thread } = Route.useSearch()
+  const { page } = Route.useSearch()
   // Router state commits synchronously and never starts a view transition; the deferred re-render is what morphs Reading.
   const isReadingOpen = useDeferredValue(page === 'reading')
   const { rows: newsletters } = useReading()
@@ -1759,10 +1723,9 @@ const HomePage = () => {
       ? skipMany.mutate(pickedActionIds)
       : selected && dismiss.mutate({ id: selected.action.id })
 
-  const showThread = (id: string | undefined) =>
-    navigate({ search: (prev) => ({ ...prev, thread: id }), to: '/home' })
-  // The open thread brings its own R, E, S, H and ⌫.
-  const isFocused = !isEditing && !thread
+  const showThread = (threadId: string) =>
+    navigate({ params: { threadId }, to: '/mail/$threadId' })
+  const isFocused = !isEditing
   const isWalking = isFocused && !page
   useHomeSubpage(page, isFocused, {
     hasNewsletters: newsletters.length > 0,
@@ -1799,7 +1762,6 @@ const HomePage = () => {
   useHotkey('Escape', () => setPickedIds([]), {
     enabled: isWalking && picked.length > 0,
   })
-  useHotkey('Escape', () => showThread(undefined), { enabled: !!thread })
   useHotkey(
     'E',
     () =>
@@ -1824,17 +1786,7 @@ const HomePage = () => {
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      {thread && (
-        <Reader
-          isReading={
-            page === 'reading' &&
-            newsletters.some(({ threadId }) => threadId === thread)
-          }
-          thread={thread}
-          onClose={() => showThread(undefined)}
-        />
-      )}
-      <main hidden={!!thread} className="flex min-h-0 flex-1 flex-col">
+      <main className="flex min-h-0 flex-1 flex-col">
         <div className="relative min-h-0 flex-1">
           <div className="h-full overflow-y-auto">
             <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
@@ -1948,7 +1900,7 @@ const HomePage = () => {
               )}
             </div>
           </div>
-          <ReadingPane isOpen={isReadingOpen} thread={thread} />
+          <ReadingPane isOpen={isReadingOpen} />
         </div>
         <KeyHints
           hints={homeHints(t, {
@@ -1971,7 +1923,14 @@ const HomePage = () => {
 }
 
 export const Route = createFileRoute('/_app/home')({
-  beforeLoad: ({ context, preload }) => {
+  beforeLoad: ({ context, preload, search }) => {
+    // Agent answers and older links still open an email with `?thread=`.
+    if (search.thread) {
+      throw redirect({
+        params: { threadId: search.thread },
+        to: '/mail/$threadId',
+      })
+    }
     if (context.me.plan.kind === 'free') {
       if (!preload) {
         upgradeStore.set('home')

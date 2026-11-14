@@ -738,6 +738,7 @@ export const nl: Messages = {
     open: 'Openen',
     search: 'Zoek of beschrijf: facturen van Anna van vorige maand',
     openInGmail: 'Openen in Gmail',
+    openFullPage: 'Op volledige pagina openen',
     unsubscribe: 'Afmelden',
     unsubscribed: 'Afgemeld',
     unsubscribeFailed:

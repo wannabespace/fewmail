@@ -138,7 +138,7 @@ export const CommandMenu = ({
               onOpenHome={() => run(() => navigate({ to: '/home' }))}
               onOpenThread={(threadId) =>
                 run(() =>
-                  navigate({ search: { thread: threadId }, to: '/mail' })
+                  navigate({ params: { threadId }, to: '/mail/$threadId' })
                 )
               }
             />

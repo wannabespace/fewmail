@@ -725,6 +725,7 @@ export const id: Messages = {
     open: 'Buka',
     search: 'Cari atau jelaskan: tagihan dari Anna bulan lalu',
     openInGmail: 'Buka di Gmail',
+    openFullPage: 'Buka satu halaman penuh',
     unsubscribe: 'Berhenti berlangganan',
     unsubscribed: 'Berhenti berlangganan',
     unsubscribeFailed:

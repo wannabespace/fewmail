@@ -460,6 +460,7 @@ export const ja: Messages = {
     instruction: '返信の方針を伝えるか、そのまま Enter を押してください',
     open: '開く',
     openInGmail: 'Gmail で開く',
+    openFullPage: '全画面で開く',
     search: '検索または説明：先月の Anna からの請求書',
     unsubscribe: '配信停止',
     unsubscribed: '配信を停止しました',

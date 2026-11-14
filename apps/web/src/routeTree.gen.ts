@@ -31,6 +31,7 @@ import { Route as SiteMcpRouteImport } from './routes/_site/mcp'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as WTokenRouteImport } from './routes/w.$token'
 import { Route as AppBoardsBoardIdRouteImport } from './routes/_app/boards.$boardId'
+import { Route as AppMailThreadIdRouteImport } from './routes/_app/mail_.$threadId'
 import { Route as SiteCompareIndexRouteImport } from './routes/_site/compare.index'
 import { Route as SiteCompareSlugRouteImport } from './routes/_site/compare.$slug'
 
@@ -142,6 +143,11 @@ const AppBoardsBoardIdRoute = AppBoardsBoardIdRouteImport.update({
   path: '/boards/$boardId',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMailThreadIdRoute = AppMailThreadIdRouteImport.update({
+  id: '/mail_/$threadId',
+  path: '/mail/$threadId',
+  getParentRoute: () => AppRoute,
+} as any)
 const SiteCompareIndexRoute = SiteCompareIndexRouteImport.update({
   id: '/compare/',
   path: '/compare/',
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
+  '/mail/$threadId': typeof AppMailThreadIdRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare/': typeof SiteCompareIndexRoute
 }
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
+  '/mail/$threadId': typeof AppMailThreadIdRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare': typeof SiteCompareIndexRoute
 }
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/w/$token': typeof WTokenRoute
   '/_site/': typeof SiteIndexRoute
   '/_app/boards/$boardId': typeof AppBoardsBoardIdRoute
+  '/_app/mail_/$threadId': typeof AppMailThreadIdRoute
   '/_site/compare/$slug': typeof SiteCompareSlugRoute
   '/_site/compare/': typeof SiteCompareIndexRoute
 }
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/w/$token'
     | '/boards/$boardId'
+    | '/mail/$threadId'
     | '/compare/$slug'
     | '/compare/'
   fileRoutesByTo: FileRoutesByTo
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/w/$token'
     | '/boards/$boardId'
+    | '/mail/$threadId'
     | '/compare/$slug'
     | '/compare'
   id:
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/w/$token'
     | '/_site/'
     | '/_app/boards/$boardId'
+    | '/_app/mail_/$threadId'
     | '/_site/compare/$slug'
     | '/_site/compare/'
   fileRoutesById: FileRoutesById
@@ -472,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBoardsBoardIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/mail_/$threadId': {
+      id: '/_app/mail_/$threadId'
+      path: '/mail/$threadId'
+      fullPath: '/mail/$threadId'
+      preLoaderRoute: typeof AppMailThreadIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_site/compare/': {
       id: '/_site/compare/'
       path: '/compare'
@@ -501,6 +520,7 @@ interface AppRouteChildren {
   AppTodayRoute: typeof AppTodayRoute
   AppWrappedRoute: typeof AppWrappedRoute
   AppBoardsBoardIdRoute: typeof AppBoardsBoardIdRoute
+  AppMailThreadIdRoute: typeof AppMailThreadIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -515,6 +535,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppTodayRoute: AppTodayRoute,
   AppWrappedRoute: AppWrappedRoute,
   AppBoardsBoardIdRoute: AppBoardsBoardIdRoute,
+  AppMailThreadIdRoute: AppMailThreadIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
