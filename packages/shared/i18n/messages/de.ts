@@ -170,13 +170,13 @@ export const de: Messages = {
       mcp: 'Verbinde Fewmail als MCP-Server mit Claude, ChatGPT, Claude Code oder Cursor: Lies und sortiere dein Gmail aus der KI, die du schon nutzt.',
       motto: 'nur was in deinem Postfach zählt',
       pricing: (trialDays: number) =>
-        `Fewmail ist für Sortierung, Regeln und Spamschutz für immer kostenlos. Pro, der ganze Agent, beginnt mit ${trialDays} kostenlosen Tagen ohne Karte.`,
+        `Fewmail ist für Startseite, Sortierung, Regeln und Spamschutz für immer kostenlos. Pro, der ganze Agent, beginnt mit ${trialDays} kostenlosen Tagen ohne Karte.`,
       tagline: 'der E-Mail-Agent für Gmail',
     },
     chapters: {
       pricing: {
         description:
-          'Sortieren, Regeln und Schutz sind für immer kostenlos. Lite, Pro und Max bringen alles dazu, was für dich liest und schreibt; die größeren Pläne machen einfach mehr davon.',
+          'Startseite, Sortieren, Regeln und Schutz sind für immer kostenlos. Lite, Pro und Max bringen alles dazu, was für dich liest und schreibt; die größeren Pläne machen einfach mehr davon.',
         label: 'Preise',
         title: (usd: number) => `Sortieren kostenlos. Der Agent ab $${usd}.`,
       },
@@ -395,6 +395,16 @@ export const de: Messages = {
       description:
         'Die Teile von E-Mail, die früher einen Nachmittag gekostet haben, erledigt im Hintergrund und aufgelistet, wo du sie prüfen kannst.',
       items: {
+        codes: {
+          description:
+            'Ein frischer Code wartet oben auf der Startseite und neben seiner Mail, zum Kopieren, ohne etwas zu öffnen. Kostenlos.',
+          title: 'Anmeldecodes',
+        },
+        subscriptions: {
+          description:
+            'Jede Mailingliste, die diesen Monat geschrieben hat, und wie viele ihrer Mails du wirklich geöffnet hast. Mit einer Taste abbestellt. Kostenlos.',
+          title: 'Abos',
+        },
         ask: {
           description:
             'Frag in einfachen Worten, was du willst, und bekomm die Antwort aus deinen eigenen Mails, samt den Mails, aus denen sie stammt.',
@@ -417,13 +427,13 @@ export const de: Messages = {
         },
         reading: {
           description:
-            'Die Newsletter des Tages in einer ruhigen Liste, jeder in ein paar Sätzen zusammengefasst.',
+            'Eine Zusammenfassung der Newsletter des Tages: die Neuigkeiten nach Thema, jeder Satz mit seiner Quelle, und die, die sich ganz zu lesen lohnen.',
           title: 'Lesen',
         },
         voice: {
           description:
-            'Tippe auf der Startseite auf „Anhören“ und hör, was dich braucht. Sprich mit dem Agenten in der App, in Telegram oder WhatsApp, und er antwortet laut.',
-          title: 'Hör, was dich braucht',
+            'Lass dir die Zusammenfassung deiner Newsletter vorlesen. Schick in Telegram oder WhatsApp eine Sprachnachricht, und der Agent antwortet laut.',
+          title: 'Hören statt lesen',
         },
         wrapped: {
           description:
@@ -454,11 +464,11 @@ export const de: Messages = {
           problem: 'Mails beantworten um Mitternacht.',
         },
         {
-          fix: 'Eine Taste meldet dich ab, so wie es ein Mensch tun würde: ein Klick, die Abmeldeseite oder eine Mail. Absender, die trotzdem weiterschreiben, landen direkt im Spam.',
+          fix: 'Eine Taste meldet dich ab, wie es ein Mensch täte: ein Klick, die Abmeldeseite oder eine E-Mail. Wer trotzdem weiterschreibt, wird erkannt und als Spam vorgeschlagen.',
           problem: 'Newsletter, die du nie abonniert hast.',
         },
         {
-          fix: 'Lesen sammelt die Newsletter des Tages in einer Liste, jeder in ein paar Sätzen zusammengefasst.',
+          fix: 'Die Newsletter des Tages werden zu einer Zusammenfassung nach Thema, die lesenswerten sind markiert.',
           problem: 'Newsletter, die du eigentlich lesen wolltest.',
         },
         {
@@ -558,23 +568,15 @@ export const de: Messages = {
       title: 'Dein ganzer Posteingang, in zwei Minuten.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `Etwa ${emails} gelesene E-Mails oder ${messages} Nachrichten an den Agenten im Monat`,
+      agent: 'Der Agent',
+      emails: 'E-Mails, die der Agent im Monat liest',
+      everyPlan: 'In jedem Plan',
+      messages: 'oder Nachrichten an den Agenten',
       oneAllowance:
         'Ein Kontingent für alles, was der Agent tut: Du zahlst nur, was du nutzt, und Rauschen zählt nie',
-      everythingIn: (plan: string) => `Alles aus ${plan}, plus`,
       forever: 'für immer',
       free: {
-        description: 'Sortieren, Regeln und Schutz. Für immer.',
-        features: [
-          'Startseite: eine Live-Warteschlange von Entscheidungen, einzeln oder gesammelt freigegeben',
-          'Jede Mail sortiert und nach Wichtigkeit bewertet',
-          'Regeln in einfachen Worten, die archivieren, als gelesen markieren oder abmelden',
-          'Community-Spamschutz und Phishing-Warnungen',
-          'Zombie-Absender, die nach dem Abmelden weiterschreiben, werden erkannt',
-          'Automatisches Nachfassen bei Mails, die eine Antwort erwarten',
-          'Zurückstellen, Textbausteine und Fewmail-Labels in Gmail',
-        ],
+        description: 'Startseite, Sortieren, Regeln und Schutz. Für immer.',
       },
       max: {
         description: 'Derselbe Agent für ein volles Postfach.',
@@ -584,12 +586,6 @@ export const de: Messages = {
       lite: {
         description:
           'Der ganze Agent: Er liest, schreibt und merkt sich alles.',
-        features: [
-          'Antworten in deinem Ton, gesendet erst nach deiner Freigabe',
-          'Telegram: dringende Mails, Freigaben und Sprachbefehle',
-          'Versprechen und Personen im Gedächtnis, Boards mit Diagrammen für Geld oder alles, was du erfasst',
-          'Frag deine Mails alles, dazu MCP für deine eigenen Tools',
-        ],
       },
       pro: {
         description: 'Derselbe Agent mit Platz für mehr Mail.',
@@ -599,7 +595,7 @@ export const de: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Sortieren, Regeln in einfachen Worten und Schutz sind für immer kostenlos. Pro ist der Agent, der für dich liest, schreibt und sich alles merkt; Max ist derselbe Agent mit Platz für ein volles Postfach. Jedes Konto startet mit ${trialDays} Tagen Pro, und danach bleibst du einfach bei Free.`,
+        `Startseite, Sortieren, Regeln in einfachen Worten und Schutz sind für immer kostenlos. Pro ist der Agent, der für dich liest, schreibt und sich alles merkt; Max ist derselbe Agent mit Platz für ein volles Postfach. Jedes Konto startet mit ${trialDays} Tagen Pro, und danach bleibst du einfach bei Free.`,
       otherTool: 'Denkst du über ein anderes Tool nach?',
       title: 'Zahl für den Agenten, nicht fürs Postfach.',
     },

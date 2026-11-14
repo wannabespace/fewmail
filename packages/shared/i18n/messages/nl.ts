@@ -1064,13 +1064,13 @@ export const nl: Messages = {
       mcp: 'Koppel Fewmail als MCP-server aan Claude, ChatGPT, Claude Code of Cursor: lees en sorteer je Gmail vanuit de AI die je al gebruikt.',
       motto: 'alleen wat telt in je inbox',
       pricing: (trialDays: number) =>
-        `Fewmail is voor altijd gratis voor sorteren, regels en spambescherming. Pro, de hele agent, begint met ${trialDays} gratis dagen en zonder kaart.`,
+        `Fewmail is voor altijd gratis voor Home, sorteren, regels en spambescherming. Pro, de hele agent, begint met ${trialDays} gratis dagen en zonder kaart.`,
       tagline: 'de e-mailagent voor Gmail',
     },
     chapters: {
       pricing: {
         description:
-          'Sorteren, regels en bescherming zijn voor altijd gratis. Lite, Pro en Max voegen alles toe wat voor je leest en schrijft; de grotere abonnementen doen er gewoon meer van.',
+          'Home, sorteren, regels en bescherming zijn voor altijd gratis. Lite, Pro en Max voegen alles toe wat voor je leest en schrijft; de grotere abonnementen doen er gewoon meer van.',
         label: 'Prijzen',
         title: (usd: number) =>
           `Gratis voor het sorteren. Vanaf $${usd} voor de agent.`,
@@ -1290,6 +1290,16 @@ export const nl: Messages = {
       description:
         'De stukken e-mail die vroeger een middag kostten, gedaan op de achtergrond en op een rij gezet waar je ze kunt nakijken.',
       items: {
+        codes: {
+          description:
+            'Een verse code staat bovenaan Home en naast de e-mail, klaar om te kopiëren zonder iets te openen. Gratis.',
+          title: 'Inlogcodes',
+        },
+        subscriptions: {
+          description:
+            'Elke mailinglijst die deze maand schreef, met hoeveel van haar e-mails je echt hebt geopend. Meld je met één toets af. Gratis.',
+          title: 'Abonnementen',
+        },
         ask: {
           description:
             'Vraag wat je wilt in gewone woorden en krijg het antwoord uit je eigen mail, met de e-mails waar het vandaan komt.',
@@ -1312,13 +1322,13 @@ export const nl: Messages = {
         },
         reading: {
           description:
-            'De nieuwsbrieven van de dag in één rustige lijst, elk samengevat in een paar zinnen.',
+            'Eén samenvatting van de nieuwsbrieven van vandaag: het nieuws per onderwerp, elke zin gekoppeld aan de bron, en welke het lezen waard zijn.',
           title: 'Lezen',
         },
         voice: {
           description:
-            'Tik op Home op Luisteren en hoor wat jou nodig heeft. Praat met de agent in de app, Telegram of WhatsApp en hij antwoordt hardop.',
-          title: 'Hoor wat jou nodig heeft',
+            'Laat de samenvatting van je nieuwsbrieven voorlezen. Stuur een spraakbericht in Telegram of WhatsApp en de agent antwoordt hardop.',
+          title: 'Luisteren in plaats van lezen',
         },
         wrapped: {
           description:
@@ -1349,11 +1359,11 @@ export const nl: Messages = {
           problem: 'Om middernacht nog e-mail beantwoorden.',
         },
         {
-          fix: 'Eén toets meldt je af zoals een mens dat zou doen: één klik, de afmeldpagina of een e-mail. Afzenders die blijven mailen, gaan direct naar spam.',
+          fix: 'Eén toets meldt je af zoals een mens dat zou doen: één klik, de afmeldpagina of een e-mail. Afzenders die blijven mailen worden betrapt en als spam voorgesteld.',
           problem: 'Nieuwsbrieven waarvoor je je nooit hebt aangemeld.',
         },
         {
-          fix: 'Lezen zet de nieuwsbrieven van de dag in één lijst, elk samengevat in een paar zinnen.',
+          fix: 'De nieuwsbrieven van vandaag worden één samenvatting per onderwerp, met de exemplaren die het lezen waard zijn erbij.',
           problem: 'Nieuwsbrieven die je nog wilde lezen.',
         },
         {
@@ -1453,23 +1463,15 @@ export const nl: Messages = {
       title: 'Je hele inbox, in twee minuten.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `Ongeveer ${emails} gelezen e-mails of ${messages} berichten aan de agent per maand`,
+      agent: 'De agent',
+      emails: 'E-mails die de agent per maand leest',
+      everyPlan: 'In elk abonnement',
+      messages: 'of berichten aan de agent',
       oneAllowance:
         'Eén tegoed voor alles wat de agent doet: je betaalt voor wat je gebruikt, en ruis telt nooit mee',
-      everythingIn: (plan: string) => `Alles uit ${plan}, plus`,
       forever: 'voor altijd',
       free: {
-        description: 'Het sorteren, de regels en de bescherming. Voor altijd.',
-        features: [
-          'Home: één live wachtrij met beslissingen, los of in één keer goedgekeurd',
-          'Elke e-mail gesorteerd en beoordeeld op belangrijkheid',
-          'Regels in gewone woorden die archiveren, als gelezen markeren of afmelden',
-          'Spamschild van de community en phishingwaarschuwingen',
-          'Zombie-afzenders betrapt nadat je je hebt afgemeld',
-          'Automatisch opvolgen van mail die een antwoord verwacht',
-          'Uitstellen, snippets en Fewmail-labels in Gmail',
-        ],
+        description: 'Home, sorteren, regels en bescherming. Voor altijd.',
       },
       max: {
         description: 'Dezelfde agent voor een drukke inbox.',
@@ -1478,12 +1480,6 @@ export const nl: Messages = {
       per: { month: 'per maand', year: 'per jaar' },
       lite: {
         description: 'De hele agent: hij leest, schrijft en onthoudt.',
-        features: [
-          'Antwoorden in jouw stijl, pas verstuurd als jij akkoord geeft',
-          'Telegram: dringende mail, goedkeuringen en spraakopdrachten',
-          'Beloftes en mensen onthouden, borden met grafieken voor geld of alles wat je bijhoudt',
-          'Vraag je mail alles, plus MCP voor je eigen tools',
-        ],
       },
       pro: {
         description: 'Dezelfde agent met ruimte voor meer mail.',
@@ -1493,7 +1489,7 @@ export const nl: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Sorteren, regels in gewone woorden en bescherming zijn voor altijd gratis. Pro is de agent die voor je leest, schrijft en onthoudt; Max is dezelfde agent met ruimte voor een drukke inbox. Elk account begint met ${trialDays} dagen Pro, en daarna blijf je gewoon op Gratis.`,
+        `Home, sorteren, regels in gewone woorden en bescherming zijn voor altijd gratis. Pro is de agent die voor je leest, schrijft en onthoudt; Max is dezelfde agent met ruimte voor een drukke inbox. Elk account begint met ${trialDays} dagen Pro, en daarna blijf je gewoon op Gratis.`,
       otherTool: 'Denk je aan een andere tool?',
       title: 'Betaal voor de agent, niet voor de inbox.',
     },

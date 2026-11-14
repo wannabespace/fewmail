@@ -1034,13 +1034,13 @@ export const tr: Messages = {
       mcp: 'Fewmail’i MCP sunucusu olarak Claude, ChatGPT, Claude Code veya Cursor’a bağla: Gmail’ini zaten kullandığın yapay zekâdan oku ve düzenle.',
       motto: 'gelen kutunda yalnızca önemli olan',
       pricing: (trialDays: number) =>
-        `Fewmail sıralama, kurallar ve spam koruması için sonsuza dek ücretsiz. Pro, ajanın tamamı, ${trialDays} ücretsiz günle ve kart olmadan başlar.`,
+        `Fewmail Ana Sayfa, sıralama, kurallar ve spam koruması için sonsuza dek ücretsiz. Pro, ajanın tamamı, ${trialDays} ücretsiz günle ve kart olmadan başlar.`,
       tagline: 'Gmail için e-posta ajanı',
     },
     chapters: {
       pricing: {
         description:
-          'Sıralama, kurallar ve koruma sonsuza dek ücretsiz. Lite, Pro ve Max, senin için okuyan ve yazan her şeyi ekler; büyük planlar sadece bunu daha çok yapar.',
+          'Ana Sayfa, sıralama, kurallar ve koruma sonsuza dek ücretsiz. Lite, Pro ve Max, senin için okuyan ve yazan her şeyi ekler; büyük planlar sadece bunu daha çok yapar.',
         label: 'Fiyatlar',
         title: (usd: number) =>
           `Sıralama ücretsiz. Ajan için başlangıç fiyatı $${usd}.`,
@@ -1259,6 +1259,16 @@ export const tr: Messages = {
       description:
         'E-postanın eskiden bir öğleden sonranı alan işleri arka planda yapılır ve kontrol edebileceğin bir yerde listelenir.',
       items: {
+        codes: {
+          description:
+            'Yeni bir kod Ana Sayfa’nın en üstünde ve e-postasının yanında, hiçbir şey açmadan kopyalanmaya hazır bekler. Ücretsiz.',
+          title: 'Giriş kodları',
+        },
+        subscriptions: {
+          description:
+            'Bu ay yazan her e-posta listesi ve gerçekten kaç e-postasını açtığın. Herhangi birinden tek tuşla çık. Ücretsiz.',
+          title: 'Abonelikler',
+        },
         ask: {
           description:
             'Sade bir dille her şeyi sor, yanıtı kendi postalarından, dayandığı e-postalarla birlikte al.',
@@ -1281,13 +1291,13 @@ export const tr: Messages = {
         },
         reading: {
           description:
-            'Günün bültenleri sakin tek bir listede, her biri birkaç cümleyle özetlenmiş.',
+            'Günün bültenlerinden tek bir özet: konulara göre haberler, her cümle kaynağına bağlı ve baştan sona okumaya değenler.',
           title: 'Okuma',
         },
         voice: {
           description:
-            'Ana Sayfa’da Dinle’ye bas, seni bekleyenleri duy. Uygulamada, Telegram’da ya da WhatsApp’ta ajanla konuş, sana sesli yanıt versin.',
-          title: 'Seni bekleyenleri dinle',
+            'Bültenlerinin özetini sesli dinle. Telegram veya WhatsApp’tan sesli mesaj gönder, ajan sesli yanıt versin.',
+          title: 'Okumak yerine dinle',
         },
         wrapped: {
           description:
@@ -1318,11 +1328,11 @@ export const tr: Messages = {
           problem: 'Gece yarısı e-posta yanıtlamak.',
         },
         {
-          fix: 'Tek bir tuş, bir insanın yapacağı gibi abonelikten çıkar: tek tık, abonelik sayfası ya da bir e-posta. Yazmayı sürdüren gönderenler doğrudan spama gider.',
+          fix: 'Tek tuş, bir insanın yapacağı gibi abonelikten çıkarır: tek tık, abonelikten çıkma sayfası ya da bir e-posta. Yazmaya devam eden göndericiler yakalanır ve spam olarak önerilir.',
           problem: 'Hiç abone olmadığın bültenler.',
         },
         {
-          fix: 'Okuma, günün bültenlerini tek bir listede toplar, her biri birkaç cümleyle özetlenir.',
+          fix: 'Günün bültenleri konulara göre tek bir özete dönüşür, okumaya değenler de belirtilir.',
           problem: 'Okumayı düşündüğün bültenler.',
         },
         {
@@ -1423,23 +1433,15 @@ export const tr: Messages = {
       title: 'Tüm gelen kutun, iki dakikada.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `Ayda yaklaşık ${emails} okunan e-posta ya da ajana ${messages} mesaj`,
+      agent: 'Ajan',
+      emails: 'Ajanın ayda okuduğu e-posta',
+      everyPlan: 'Her planda',
+      messages: 'ya da ajana mesaj',
       oneAllowance:
         'Ajanın yaptığı her şey için tek bir kullanım hakkı: kullandığın kadar ödersin, gereksiz e-postalar hiç sayılmaz',
-      everythingIn: (plan: string) => `${plan} planındaki her şey, artı`,
       forever: 'sonsuza dek',
       free: {
-        description: 'Sıralama, kurallar ve koruma. Sonsuza dek.',
-        features: [
-          'Ana Sayfa: canlı tek bir karar kuyruğu, tek tek ya da toplu onay',
-          'Her e-posta sıralanır ve önemine göre puanlanır',
-          'Arşivleyen, okundu yapan ya da abonelikten çıkan sade dille kurallar',
-          'Topluluk spam kalkanı ve oltalama uyarıları',
-          'Abonelikten çıktıktan sonra yazmayı sürdüren zombi gönderenler yakalanır',
-          'Yanıt bekleyen postalar için otomatik takip',
-          'Gmail’de erteleme, parçalar ve Fewmail etiketleri',
-        ],
+        description: 'Ana Sayfa, sıralama, kurallar ve koruma. Sonsuza dek.',
       },
       max: {
         description: 'Yoğun bir gelen kutusu için aynı ajan.',
@@ -1448,12 +1450,6 @@ export const tr: Messages = {
       per: { month: '/ ay', year: '/ yıl' },
       lite: {
         description: 'Ajanın tamamı: okur, yazar ve hatırlar.',
-        features: [
-          'Senin üslubunla hazırlanan, yalnızca sen onaylayınca gönderilen yanıtlar',
-          'Telegram: acil postalar, onaylar ve sesli talimatlar',
-          'Sözler ve kişiler hatırlanır; para ya da takip ettiğin her şey için grafikli panolar',
-          'Postalarına her şeyi sor, ayrıca kendi araçların için MCP',
-        ],
       },
       pro: {
         description: 'Aynı ajan, daha çok posta için yer.',
@@ -1463,7 +1459,7 @@ export const tr: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Sıralama, sade dille kurallar ve koruma sonsuza dek ücretsiz. Pro, senin için okuyan, yazan ve hatırlayan ajan; Max ise yoğun bir gelen kutusuna yetecek kapasiteye sahip aynı ajan. Her hesap ${trialDays} gün Pro ile başlar, süre bitince de Ücretsiz planda kalırsın.`,
+        `Ana Sayfa, sıralama, sade dille kurallar ve koruma sonsuza dek ücretsiz. Pro, senin için okuyan, yazan ve hatırlayan ajan; Max ise yoğun bir gelen kutusuna yetecek kapasiteye sahip aynı ajan. Her hesap ${trialDays} gün Pro ile başlar, süre bitince de Ücretsiz planda kalırsın.`,
       otherTool: 'Başka bir araç mı düşünüyorsun?',
       title: 'Gelen kutusuna değil, ajana öde.',
     },

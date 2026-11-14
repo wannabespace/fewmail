@@ -736,13 +736,13 @@ export const zh: Messages = {
       mcp: '把 Fewmail 作为 MCP 服务器连接到 Claude、ChatGPT、Claude Code 或 Cursor：在你已经在用的 AI 里读和整理 Gmail。',
       motto: '收件箱里只留重要的',
       pricing: (trialDays: number) =>
-        `Fewmail 的分拣、规则和垃圾邮件防护永久免费。完整助手 Pro 可免费试用 ${trialDays} 天，无需绑卡。`,
+        `Fewmail 的首页、分拣、规则和垃圾邮件防护永久免费。完整助手 Pro 可免费试用 ${trialDays} 天，无需绑卡。`,
       tagline: 'Gmail 的邮件助手',
     },
     chapters: {
       pricing: {
         description:
-          '分类、规则和防护永久免费。Lite、Pro 和 Max 加上所有替你阅读和撰写的功能；更高的套餐只是能做得更多。',
+          '首页、分类、规则和防护永久免费。Lite、Pro 和 Max 加上所有替你阅读和撰写的功能；更高的套餐只是能做得更多。',
         label: '价格',
         title: (usd: number) => `分类免费。助手 $${usd} 起。`,
       },
@@ -958,6 +958,16 @@ export const zh: Messages = {
       description:
         '邮件里那些过去要花一下午的事，如今都在后台完成，并列在你随时能查看的地方。',
       items: {
+        codes: {
+          description:
+            '新验证码会出现在首页顶部和对应邮件旁，无需打开任何内容即可复制。免费。',
+          title: '登录验证码',
+        },
+        subscriptions: {
+          description:
+            '本月给你发过信的每个邮件列表，以及你真正打开了其中多少封。任何一个都能一键退订。免费。',
+          title: '订阅',
+        },
         ask: {
           description:
             '用平常的话随便问，答案来自你自己的邮件，并附上出处邮件。',
@@ -979,13 +989,14 @@ export const zh: Messages = {
           title: '清理收件箱',
         },
         reading: {
-          description: '当天的订阅邮件汇成一份安静的清单，每封用几句话概括。',
+          description:
+            '当天订阅邮件的一份摘要：按主题整理的新闻，每句话都链接到出处，还有值得完整阅读的那几封。',
           title: '阅读',
         },
         voice: {
           description:
-            '在“首页”点“收听”，就能听到需要你处理的事。在应用、Telegram 或 WhatsApp 里和助手说话，它会用语音回答。',
-          title: '听听需要你的事',
+            '把订阅邮件的摘要读给你听。在 Telegram 或 WhatsApp 发语音消息，代理会用语音回答。',
+          title: '用听代替读',
         },
         wrapped: {
           description:
@@ -1015,11 +1026,11 @@ export const zh: Messages = {
           problem: '半夜还在回邮件。',
         },
         {
-          fix: '一个键就能像真人一样退订：点一下链接、打开退订页面或发一封邮件。还继续发信的发件人直接进垃圾邮件。',
+          fix: '一个按键就像真人一样退订：一键退订、退订页面或一封邮件。仍继续发信的发件人会被识别并建议标为垃圾邮件。',
           problem: '从没订阅过的订阅邮件。',
         },
         {
-          fix: '“阅读”把当天的订阅邮件汇成一份清单，每封用几句话概括。',
+          fix: '当天的订阅邮件变成一份按主题整理的摘要，并标出值得完整阅读的那几封。',
           problem: '本想读却没读的订阅邮件。',
         },
         {
@@ -1118,23 +1129,15 @@ export const zh: Messages = {
       title: '整个收件箱，两分钟搞定。',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `每月约可读取 ${emails} 封邮件或向代理发送 ${messages} 条消息`,
+      agent: '代理',
+      emails: '代理每月阅读的邮件',
+      everyPlan: '所有方案都包含',
+      messages: '或发给代理的消息',
       oneAllowance:
         '代理所做的一切共用一份额度：用多少付多少，无关邮件从不计入',
-      everythingIn: (plan: string) => `${plan} 的全部功能，外加`,
       forever: '永久',
       free: {
-        description: '分类、规则和防护。永久免费。',
-        features: [
-          '首页：实时更新的决定队列，可逐条或批量批准',
-          '每封邮件都被分类并按重要程度评分',
-          '用平常的话写规则，自动归档、标为已读或退订',
-          '社区垃圾邮件防护盾和钓鱼警告',
-          '揪出退订后仍在发信的僵尸发件人',
-          '对等待回复的邮件自动跟进',
-          '延后、片段，以及 Gmail 中的 Fewmail 标签',
-        ],
+        description: '首页、分类、规则和防护。永久免费。',
       },
       max: {
         description: '同一个助手，为繁忙的收件箱准备。',
@@ -1143,12 +1146,6 @@ export const zh: Messages = {
       per: { month: '/ 月', year: '/ 年' },
       lite: {
         description: '完整的助手：阅读、撰写、记忆。',
-        features: [
-          '用你的语气起草回复，经你批准才发送',
-          'Telegram：紧急邮件、批准和语音指令',
-          '记住承诺和联系人，用带图表的看板追踪钱或任何你关心的东西',
-          '随意问你的邮件，还有供你自己的工具使用的 MCP',
-        ],
       },
       pro: {
         description: '同样的助手，能处理更多邮件。',
@@ -1158,7 +1155,7 @@ export const zh: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `分类、用平常的话写的规则和防护永久免费。Pro 是替你阅读、撰写和记忆的助手；Max 是同一个助手，为繁忙的收件箱留出更多空间。每个账户都从 ${trialDays} 天 Pro 开始，结束后自动留在 Free。`,
+        `首页、分类、用平常的话写的规则和防护永久免费。Pro 是替你阅读、撰写和记忆的助手；Max 是同一个助手，为繁忙的收件箱留出更多空间。每个账户都从 ${trialDays} 天 Pro 开始，结束后自动留在 Free。`,
       otherTool: '还在考虑其他工具？',
       title: '为助手付费，而不是为收件箱。',
     },

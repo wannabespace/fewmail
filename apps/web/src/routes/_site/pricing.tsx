@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { Closing, CompareCards, CONTAINER, PlanCards } from '~/components/site'
+import { Closing, CompareCards, CONTAINER, PlanTable } from '~/components/site'
 import { useT } from '~/lib/i18n'
 import { TRIAL_DAYS } from '~/lib/marketing'
 
@@ -15,7 +15,7 @@ const PricingPage = () => {
         <p className="text-brief text-foreground/75 max-w-2xl font-serif text-pretty">
           {t.lead(TRIAL_DAYS)}
         </p>
-        <PlanCards />
+        <PlanTable />
       </section>
       <section className={`${CONTAINER} py-16 sm:py-24`}>
         <h2 className="text-display font-serif tracking-tight">

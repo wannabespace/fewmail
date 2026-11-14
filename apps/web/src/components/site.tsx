@@ -1,9 +1,13 @@
-import type { BillingInterval, PaidPlan } from '@fewmail/shared/agent'
-import { allowanceIn } from '@fewmail/shared/agent'
+import type { BillingInterval } from '@fewmail/shared/agent'
+import { allowanceIn, PAID_PLANS } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
-import { ArrowRight01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import {
+  ArrowRight01Icon,
+  MinusSignIcon,
+  Tick02Icon,
+} from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Link } from '@tanstack/react-router'
@@ -11,7 +15,15 @@ import type { ComponentProps, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { localeStore, useLocale, useT } from '~/lib/i18n'
-import { COMPARISONS, PLANS, TRIAL_DAYS } from '~/lib/marketing'
+import type { ComparisonFeature } from '~/lib/marketing'
+import {
+  AGENT_FEATURES,
+  COMPARISON_GROUPS,
+  COMPARISONS,
+  FEWMAIL_LACKS,
+  PLANS,
+  TRIAL_DAYS,
+} from '~/lib/marketing'
 
 import { LanguageSelect } from './agent-fields'
 import { Logo } from './logo'
@@ -54,7 +66,7 @@ export const SiteHeader = () => {
     <header className="bg-body/85 sticky top-0 z-20 backdrop-blur-md">
       <div className={cn(CONTAINER, 'flex h-16 items-center gap-8')}>
         <Logo />
-        <nav className="hidden items-center gap-1 sm:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           <Button
             variant="ghost-muted"
             render={<Link to="/" hash="features" />}
@@ -69,7 +81,11 @@ export const SiteHeader = () => {
           </Button>
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" render={<Link to="/login" />}>
+          <Button
+            variant="ghost"
+            render={<Link to="/login" />}
+            className="max-sm:hidden"
+          >
             {t.nav.signIn}
           </Button>
           <Button render={<Link to="/login" />}>{t.startFree}</Button>
@@ -238,25 +254,85 @@ export const FeatureGrid = ({
   </Reveal>
 )
 
-export const PlanCards = () => {
+/** Below xl the plans stack and every cell names its plan; from xl the plans head the columns. */
+const PLAN_ROW =
+  'grid grid-cols-[1.4fr_repeat(3,1fr)] gap-x-2 gap-y-2 border-t px-6 py-4 lg:grid-cols-4 xl:col-span-5 xl:grid-cols-subgrid xl:gap-0 xl:border-t-0 xl:p-0 xl:*:border-t xl:*:px-6 xl:*:py-4'
+
+const PlanCell = ({
+  children,
+  className,
+  name,
+}: {
+  children: ReactNode
+  className?: string
+  name: string
+}) => (
+  <span className={cn('flex flex-col gap-1 xl:justify-center', className)}>
+    <span className="text-muted-foreground truncate text-xs xl:hidden">
+      {name}
+    </span>
+    {children}
+  </span>
+)
+
+const Lacks = () => (
+  <HugeiconsIcon
+    icon={MinusSignIcon}
+    strokeWidth={2}
+    className="text-muted-foreground size-4"
+  />
+)
+
+const featureList = (features: readonly ComparisonFeature[]) =>
+  features.filter((feature) => !FEWMAIL_LACKS.includes(feature))
+
+const EVERY_PLAN = featureList(
+  Object.values(COMPARISON_GROUPS)
+    .flat()
+    .filter((feature) => !AGENT_FEATURES.includes(feature))
+)
+
+const Ticked = ({ labels }: { labels: string[] }) => (
+  <ul className="flex flex-wrap gap-x-5 gap-y-1.5">
+    {labels.map((label) => (
+      <li key={label} className="flex items-center gap-1.5">
+        <HugeiconsIcon
+          icon={Tick02Icon}
+          strokeWidth={2}
+          className="text-primary size-4 shrink-0"
+        />
+        {label}
+      </li>
+    ))}
+  </ul>
+)
+
+/** The plans differ only in what the agent may do a month, so the table shows only that and what Free lacks. */
+export const PlanTable = () => {
   const t = useT()
   const locale = useLocale()
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('month')
-  const { plans } = t.site
-  const about = (plan: PaidPlan) => {
-    const { emails, messages } = allowanceIn(plan)
-    return plans.about(
-      emails.toLocaleString(locale),
-      messages.toLocaleString(locale)
-    )
-  }
-  const features = {
-    free: plans.free.features,
-    lite: [about('lite'), plans.oneAllowance, ...plans.lite.features],
-    max: [about('max'), plans.oneAllowance],
-    pro: [about('pro'), plans.oneAllowance],
-  }
+  const { comparison, plans } = t.site
+  const paidName = PAID_PLANS.map((plan) => t.plan[plan]).join(' · ')
+  const allowanceRow = (label: string, unit: 'emails' | 'messages') => (
+    <div className={PLAN_ROW}>
+      <span className="text-muted-foreground col-span-4 text-sm xl:col-span-1">
+        {label}
+      </span>
+      {PLANS.map((plan) => (
+        <PlanCell key={plan.id} name={t.plan[plan.id]}>
+          {plan.id === 'free' ? (
+            <Lacks />
+          ) : (
+            <span className="font-medium tabular-nums">
+              {allowanceIn(plan.id)[unit].toLocaleString(locale)}
+            </span>
+          )}
+        </PlanCell>
+      ))}
+    </div>
+  )
   return (
     <div className="mt-12 flex flex-col items-center gap-6">
       <Tabs
@@ -268,64 +344,70 @@ export const PlanCards = () => {
           <TabsTrigger value="year">{plans.yearly}</TabsTrigger>
         </TabsList>
       </Tabs>
-      <Reveal className="grid w-full gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {PLANS.map((plan) => {
-          const isPro = plan.id === 'pro'
-          const isFree = plan.id === 'free'
-          return (
-            <article
-              key={plan.id}
-              className={cn(
-                'flex flex-col rounded-3xl p-8 ring',
-                isPro
-                  ? 'bg-popover ring-foreground/10 shadow-sm'
-                  : 'bg-background ring-foreground/6'
-              )}
-            >
-              <h3 className="font-medium">{t.plan[plan.id]}</h3>
-              <p className="text-muted-foreground mt-1 text-sm">
-                {plans[plan.id].description}
-              </p>
-              <p className="mt-6 flex items-baseline gap-1.5">
-                <span className="text-display font-serif tabular-nums">
-                  ${plan.price[billingInterval]}
-                </span>
-                <span className="text-muted-foreground text-sm">
-                  {isFree ? plans.forever : plans.per[billingInterval]}
-                </span>
-              </p>
-              <div className="mt-6 grid">
+      <Reveal className="bg-background ring-foreground/6 grid w-full rounded-3xl ring xl:grid-cols-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 xl:col-span-5 xl:grid-cols-subgrid xl:grid-rows-[repeat(3,auto)]">
+          <span className="hidden xl:row-span-3 xl:block" />
+          {PLANS.map((plan) => {
+            const isFree = plan.id === 'free'
+            return (
+              <div
+                key={plan.id}
+                className="grid content-start gap-4 px-6 py-6 xl:row-span-3 xl:grid-rows-subgrid"
+              >
+                <div>
+                  <h3 className="font-medium">{t.plan[plan.id]}</h3>
+                  <p className="text-muted-foreground mt-1 text-sm text-pretty">
+                    {plans[plan.id].description}
+                  </p>
+                </div>
+                <p className="flex items-baseline gap-1.5">
+                  <span className="text-display font-serif tabular-nums">
+                    ${plan.price[billingInterval]}
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    {isFree ? plans.forever : plans.per[billingInterval]}
+                  </span>
+                </p>
                 <Button
                   size="lg"
-                  variant={isPro ? 'default' : 'secondary'}
+                  variant={plan.id === 'pro' ? 'default' : 'secondary'}
                   render={<Link to="/login" />}
                 >
                   {isFree ? t.site.startFree : plans.tryFree(TRIAL_DAYS)}
                 </Button>
               </div>
-              <div className="mt-8 flex flex-col gap-3 border-t pt-6 text-sm">
-                {'includes' in plan && (
-                  <p className="text-muted-foreground">
-                    {plans.everythingIn(t.plan[plan.includes])}
-                  </p>
-                )}
-                <ul className="flex flex-col gap-3">
-                  {features[plan.id].map((feature) => (
-                    <li key={feature} className="flex gap-2.5">
-                      <HugeiconsIcon
-                        icon={Tick02Icon}
-                        strokeWidth={2}
-                        className="text-primary mt-0.5 size-4 shrink-0"
-                      />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          )
-        })}
+            )
+          })}
+        </div>
+        {allowanceRow(plans.emails, 'emails')}
+        {allowanceRow(plans.messages, 'messages')}
+        <div className={PLAN_ROW}>
+          <span className="text-muted-foreground col-span-4 text-sm xl:col-span-1">
+            {plans.agent}
+          </span>
+          <PlanCell name={t.plan.free}>
+            <Lacks />
+          </PlanCell>
+          <PlanCell name={paidName} className="col-span-3 text-sm">
+            <Ticked
+              labels={featureList(AGENT_FEATURES).map(
+                (feature) => comparison.labels[feature]
+              )}
+            />
+          </PlanCell>
+        </div>
+        <div className="flex flex-col gap-3 border-t px-6 py-5 text-sm xl:col-span-5 xl:grid xl:grid-cols-subgrid xl:gap-0 xl:px-0 xl:*:px-6">
+          <span className="text-muted-foreground">{plans.everyPlan}</span>
+          <div className="xl:col-span-4">
+            <Ticked
+              labels={EVERY_PLAN.map((feature) => comparison.labels[feature])}
+            />
+          </div>
+        </div>
       </Reveal>
+      <p className="text-muted-foreground self-start text-xs">
+        {plans.oneAllowance}
+      </p>
     </div>
   )
 }

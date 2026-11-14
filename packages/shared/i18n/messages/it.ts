@@ -172,13 +172,13 @@ export const it: Messages = {
       mcp: 'Collega Fewmail a Claude, ChatGPT, Claude Code o Cursor come server MCP: leggi e smista Gmail dall’IA che usi già.',
       motto: 'solo ciò che conta nella tua casella',
       pricing: (trialDays: number) =>
-        `Fewmail è gratis per sempre per smistamento, regole e protezione dallo spam. Pro, l’agente completo, parte con ${trialDays} giorni gratis e senza carta.`,
+        `Fewmail è gratis per sempre per Home, smistamento, regole e protezione dallo spam. Pro, l’agente completo, parte con ${trialDays} giorni gratis e senza carta.`,
       tagline: "l'agente email per Gmail",
     },
     chapters: {
       pricing: {
         description:
-          'Smistamento, regole e protezione sono gratis per sempre. Lite, Pro e Max aggiungono tutto ciò che legge e scrive per te; i piani più grandi semplicemente ne fanno di più.',
+          'Home, smistamento, regole e protezione sono gratis per sempre. Lite, Pro e Max aggiungono tutto ciò che legge e scrive per te; i piani più grandi semplicemente ne fanno di più.',
         label: 'Prezzi',
         title: (usd: number) =>
           `Lo smistamento è gratis. L’agente, da $${usd}.`,
@@ -398,6 +398,16 @@ export const it: Messages = {
       description:
         'Le parti della posta che prima ti rubavano un pomeriggio, fatte in background ed elencate dove puoi controllarle.',
       items: {
+        codes: {
+          description:
+            'Un codice recente ti aspetta in cima alla Home e accanto alla sua email, pronto da copiare senza aprire nulla. Gratis.',
+          title: 'Codici di accesso',
+        },
+        subscriptions: {
+          description:
+            'Ogni mailing list che ti ha scritto questo mese, con quante delle sue email hai davvero aperto. Disiscriviti da qualsiasi con un tasto. Gratis.',
+          title: 'Iscrizioni',
+        },
         ask: {
           description:
             'Chiedi qualsiasi cosa a parole tue e ottieni la risposta dalla tua posta, con le email da cui proviene.',
@@ -420,13 +430,13 @@ export const it: Messages = {
         },
         reading: {
           description:
-            'Le newsletter del giorno in un’unica lista tranquilla, ognuna riassunta in poche frasi.',
+            'Un riassunto delle newsletter del giorno: le notizie per tema, ogni frase collegata alla sua fonte, e quelle da leggere per intero.',
           title: 'Lettura',
         },
         voice: {
           description:
-            'Premi Ascolta in Home e senti ciò che ha bisogno di te. Parla con l’agente nell’app, su Telegram o su WhatsApp e ti risponde a voce.',
-          title: 'Ascolta ciò che ha bisogno di te',
+            'Fatti leggere il riassunto delle tue newsletter. Manda un vocale su Telegram o WhatsApp e l’agente risponde ad alta voce.',
+          title: 'Ascolta invece di leggere',
         },
         wrapped: {
           description:
@@ -457,11 +467,11 @@ export const it: Messages = {
           problem: 'Rispondere alle email a mezzanotte.',
         },
         {
-          fix: 'Un tasto ti disiscrive come farebbe una persona: un clic, la pagina di disiscrizione o un’email. Chi continua a scrivere finisce dritto nello spam.',
+          fix: 'Un tasto ti disiscrive come farebbe una persona: un clic, la pagina di disiscrizione o un’email. Chi continua a scrivere viene individuato e proposto come spam.',
           problem: 'Newsletter a cui non ti sei mai iscritto.',
         },
         {
-          fix: 'Lettura raccoglie le newsletter del giorno in un’unica lista, ognuna riassunta in poche frasi.',
+          fix: 'Le newsletter del giorno diventano un riassunto per tema, con quelle da leggere per intero segnalate.',
           problem: 'Newsletter che volevi leggere.',
         },
         {
@@ -563,23 +573,15 @@ export const it: Messages = {
       title: 'Tutta la tua posta, in due minuti.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `Circa ${emails} email lette o ${messages} messaggi all’agente al mese`,
+      agent: 'L’agente',
+      emails: 'Email lette dall’agente al mese',
+      everyPlan: 'In ogni piano',
+      messages: 'o messaggi all’agente',
       oneAllowance:
         'Una sola quota per tutto ciò che fa l’agente: paghi quello che usi e il rumore non conta mai',
-      everythingIn: (plan: string) => `Tutto di ${plan}, in più`,
       forever: 'per sempre',
       free: {
-        description: 'Smistamento, regole e protezione. Per sempre.',
-        features: [
-          'Home: una sola coda di decisioni in tempo reale, da approvare una alla volta o in blocco',
-          'Ogni email smistata e valutata per importanza',
-          'Regole a parole semplici che archiviano, segnano come lette o disiscrivono',
-          'Scudo antispam della community e avvisi di phishing',
-          'Mittenti zombie scovati dopo la disiscrizione',
-          'Solleciti automatici sulla posta che attende risposta',
-          'Posticipa, snippet ed etichette Fewmail in Gmail',
-        ],
+        description: 'Home, smistamento, regole e protezione. Per sempre.',
       },
       max: {
         description: 'Lo stesso agente per una casella piena.',
@@ -588,12 +590,6 @@ export const it: Messages = {
       per: { month: 'al mese', year: 'all’anno' },
       lite: {
         description: 'L’agente completo: legge, scrive e ricorda.',
-        features: [
-          'Risposte scritte con la tua voce, inviate solo quando approvi',
-          'Telegram: la posta urgente, le approvazioni e le istruzioni vocali',
-          'Promesse e persone ricordate, bacheche con grafici per i soldi o qualsiasi cosa tu segua',
-          'Chiedi qualsiasi cosa alla tua posta, più MCP per i tuoi strumenti',
-        ],
       },
       pro: {
         description: 'Lo stesso agente, con spazio per più posta.',
@@ -603,7 +599,7 @@ export const it: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Smistamento, regole a parole semplici e protezione sono gratis per sempre. Pro è l’agente che legge, scrive e ricorda per te; Max è lo stesso agente con spazio per una casella piena. Ogni account parte con ${trialDays} giorni di Pro, e alla fine resti semplicemente su Gratis.`,
+        `Home, smistamento, regole a parole semplici e protezione sono gratis per sempre. Pro è l’agente che legge, scrive e ricorda per te; Max è lo stesso agente con spazio per una casella piena. Ogni account parte con ${trialDays} giorni di Pro, e alla fine resti semplicemente su Gratis.`,
       otherTool: 'Stai valutando un altro strumento?',
       title: 'Paghi l’agente, non la casella.',
     },

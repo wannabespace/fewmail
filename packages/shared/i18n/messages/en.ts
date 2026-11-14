@@ -1056,13 +1056,13 @@ export const en = {
       mcp: 'Connect Fewmail to Claude, ChatGPT, Claude Code or Cursor as an MCP server: read and triage your Gmail from the AI you already use.',
       motto: 'only what matters in your inbox',
       pricing: (trialDays: number) =>
-        `Fewmail is free forever for sorting, rules and spam protection. Pro, the whole agent, starts with ${trialDays} free days and no card.`,
+        `Fewmail is free forever for Home, sorting, rules and spam protection. Pro, the whole agent, starts with ${trialDays} free days and no card.`,
       tagline: 'the email agent for Gmail',
     },
     chapters: {
       pricing: {
         description:
-          'The sorting, rules and protection are free forever. Lite, Pro and Max add everything that reads and writes for you; the bigger plans simply do more of it.',
+          'Home, the sorting, rules and protection are free forever. Lite, Pro and Max add everything that reads and writes for you; the bigger plans simply do more of it.',
         label: 'Pricing',
         title: (usd: number) =>
           `Free for the sorting. From $${usd} for the agent.`,
@@ -1282,6 +1282,16 @@ export const en = {
       description:
         'The parts of email that used to take an afternoon, done in the background and listed where you can check them.',
       items: {
+        codes: {
+          description:
+            'A fresh code waits at the top of Home and beside its email, ready to copy without opening anything. Free.',
+          title: 'Sign-in codes',
+        },
+        subscriptions: {
+          description:
+            'Every mailing list that wrote this month, with how many of its emails you actually opened. Leave any of them with one key. Free.',
+          title: 'Subscriptions',
+        },
         ask: {
           description:
             'Ask anything in plain words and get the answer from your own mail, with the emails it came from.',
@@ -1304,13 +1314,13 @@ export const en = {
         },
         reading: {
           description:
-            'The day’s newsletters in one quiet list, each summed up in a few sentences.',
+            'One summary of the day’s newsletters: the news by topic, each sentence linked to where it came from, and the ones worth reading in full.',
           title: 'Reading',
         },
         voice: {
           description:
-            'Press Listen on Home and hear what needs you. Talk to the agent in the app, Telegram or WhatsApp and it answers out loud.',
-          title: 'Hear what needs you',
+            'Have your newsletters’ summary read out to you. Send a voice message in Telegram or WhatsApp and the agent answers out loud.',
+          title: 'Listen instead of reading',
         },
         wrapped: {
           description:
@@ -1341,11 +1351,11 @@ export const en = {
           problem: 'Answering email at midnight.',
         },
         {
-          fix: 'One key unsubscribes the way a person would: one click, the unsubscribe page or an email. Senders who keep writing go straight to spam.',
+          fix: 'One key unsubscribes the way a person would: one click, the unsubscribe page or an email. Senders who keep writing are caught and offered for spam.',
           problem: 'Newsletters you never signed up for.',
         },
         {
-          fix: 'Reading gathers the day’s newsletters into one list, each summed up in a few sentences.',
+          fix: 'The day’s newsletters become one summary by topic, with the ones worth reading in full pointed out.',
           problem: 'Newsletters you meant to read.',
         },
         {
@@ -1444,23 +1454,16 @@ export const en = {
       title: 'Your whole inbox, in two minutes.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `About ${emails} emails read or ${messages} messages to the agent a month`,
+      agent: 'The agent',
+      emails: 'Emails the agent reads, a month',
+      everyPlan: 'On every plan',
+      messages: 'or messages to the agent',
       oneAllowance:
         'One allowance for everything the agent does: you pay for what you use, and noise never counts',
-      everythingIn: (plan: string) => `Everything in ${plan}, plus`,
       forever: 'forever',
       free: {
-        description: 'The sorting, the rules and the protection. Forever.',
-        features: [
-          'Home: one live queue of decisions, approved one by one or in batches',
-          'Every email sorted and scored by importance',
-          'Plain-language rules that archive, mark read or unsubscribe',
-          'Community spam shield and phishing warnings',
-          'Zombie senders caught after you unsubscribe',
-          'Automatic follow-ups on mail that expects a reply',
-          'Snooze, snippets and Fewmail labels in Gmail',
-        ],
+        description:
+          'Home, the sorting, the rules and the protection. Forever.',
       },
       max: {
         description: 'The same agent for a busy inbox.',
@@ -1469,12 +1472,6 @@ export const en = {
       per: { month: 'a month', year: 'a year' },
       lite: {
         description: 'The whole agent: it reads, writes and remembers.',
-        features: [
-          'Replies drafted in your voice, sent only when you approve',
-          'Telegram: urgent mail, approvals and voice instructions',
-          'Promises and people remembered, boards with charts for money or anything you track',
-          'Ask your mail anything, plus MCP for your own tools',
-        ],
       },
       pro: {
         description: 'The same agent with room for more mail.',
@@ -1484,7 +1481,7 @@ export const en = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Sorting, plain-language rules and protection are free forever. Pro is the agent that reads, writes and remembers for you; Max is the same agent with room for a busy inbox. Every account starts with ${trialDays} days of Pro, and when they end you simply stay on Free.`,
+        `Home, sorting, plain-language rules and protection are free forever. Pro is the agent that reads, writes and remembers for you; Max is the same agent with room for a busy inbox. Every account starts with ${trialDays} days of Pro, and when they end you simply stay on Free.`,
       otherTool: 'Thinking about another tool?',
       title: 'Pay for the agent, not the inbox.',
     },

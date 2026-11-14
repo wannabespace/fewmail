@@ -25,6 +25,17 @@ export const FEWMAIL_LACKS: readonly ComparisonFeature[] = [
   'teams',
 ]
 
+/** The pricing table's rows are the comparison's features Fewmail has; these need the agent, so Free lacks them. */
+export const AGENT_FEATURES: readonly ComparisonFeature[] = [
+  'drafts',
+  'summaries',
+  'ask',
+  'handOver',
+  'memory',
+  'mcp',
+  'phone',
+]
+
 /**
  * Their side (`site.comparisons` in the messages) is only what the product publicly offers, checked in
  * `COMPARISONS_CHECKED_AT`. Prices are USD a month (the plan note says per seat or billed yearly); `null` is quoted by sales.

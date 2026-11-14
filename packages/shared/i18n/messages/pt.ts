@@ -1067,13 +1067,13 @@ export const pt: Messages = {
       mcp: 'Conecte o Fewmail ao Claude, ChatGPT, Claude Code ou Cursor como servidor MCP: leia e organize seu Gmail pela IA que você já usa.',
       motto: 'só o que importa na sua caixa',
       pricing: (trialDays: number) =>
-        `O Fewmail é grátis para sempre para organizar, criar regras e proteger contra spam. O Pro, o agente completo, começa com ${trialDays} dias grátis e sem cartão.`,
+        `O Fewmail é grátis para sempre para o Início, organizar, criar regras e proteger contra spam. O Pro, o agente completo, começa com ${trialDays} dias grátis e sem cartão.`,
       tagline: 'o agente de e-mail para o Gmail',
     },
     chapters: {
       pricing: {
         description:
-          'A organização, as regras e a proteção são grátis para sempre. Lite, Pro e Max adicionam tudo o que lê e escreve por você; os planos maiores simplesmente fazem mais.',
+          'O Início, a organização, as regras e a proteção são grátis para sempre. Lite, Pro e Max adicionam tudo o que lê e escreve por você; os planos maiores simplesmente fazem mais.',
         label: 'Preços',
         title: (usd: number) =>
           `Organizar é grátis. O agente, a partir de $${usd}.`,
@@ -1293,6 +1293,16 @@ export const pt: Messages = {
       description:
         'As partes do e-mail que antes tomavam uma tarde, feitas em segundo plano e listadas onde você pode conferir.',
       items: {
+        codes: {
+          description:
+            'Um código recente espera no topo do Início e ao lado do e-mail, pronto para copiar sem abrir nada. Grátis.',
+          title: 'Códigos de acesso',
+        },
+        subscriptions: {
+          description:
+            'Cada lista que escreveu este mês, com quantos dos seus e-mails você realmente abriu. Cancele qualquer uma com uma tecla. Grátis.',
+          title: 'Inscrições',
+        },
         ask: {
           description:
             'Pergunte qualquer coisa com suas palavras e receba a resposta a partir dos seus próprios e-mails, com os e-mails de onde ela veio.',
@@ -1315,13 +1325,13 @@ export const pt: Messages = {
         },
         reading: {
           description:
-            'As newsletters do dia numa lista tranquila, cada uma resumida em poucas frases.',
+            'Um resumo das newsletters do dia: as notícias por tema, cada frase ligada à fonte, e as que valem a leitura completa.',
           title: 'Leitura',
         },
         voice: {
           description:
-            'Toque em Ouvir no Início e escute o que precisa de você. Fale com o agente no app, no Telegram ou no WhatsApp e ele responde em voz alta.',
-          title: 'Ouça o que precisa de você',
+            'Ouça o resumo das suas newsletters em voz alta. Mande uma mensagem de voz no Telegram ou WhatsApp e o agente responde falando.',
+          title: 'Ouça em vez de ler',
         },
         wrapped: {
           description:
@@ -1352,11 +1362,11 @@ export const pt: Messages = {
           problem: 'Responder e-mails à meia-noite.',
         },
         {
-          fix: 'Uma tecla cancela a inscrição como uma pessoa faria: um clique, a página de cancelamento ou um e-mail. Quem continua escrevendo vai direto para o spam.',
+          fix: 'Uma tecla cancela a inscrição como uma pessoa faria: um clique, a página de cancelamento ou um e-mail. Quem continua escrevendo é detectado e sugerido como spam.',
           problem: 'Newsletters que você nunca assinou.',
         },
         {
-          fix: 'A Leitura reúne as newsletters do dia numa lista, cada uma resumida em poucas frases.',
+          fix: 'As newsletters do dia viram um resumo por tema, com as que valem a leitura completa indicadas.',
           problem: 'Newsletters que você queria ler.',
         },
         {
@@ -1455,23 +1465,15 @@ export const pt: Messages = {
       title: 'Sua caixa de entrada inteira, em dois minutos.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `Cerca de ${emails} emails lidos ou ${messages} mensagens ao agente por mês`,
+      agent: 'O agente',
+      emails: 'E-mails lidos pelo agente por mês',
+      everyPlan: 'Em todos os planos',
+      messages: 'ou mensagens ao agente',
       oneAllowance:
         'Uma só cota para tudo o que o agente faz: você paga pelo que usa, e ruído nunca conta',
-      everythingIn: (plan: string) => `Tudo do ${plan}, e mais`,
       forever: 'para sempre',
       free: {
-        description: 'A organização, as regras e a proteção. Para sempre.',
-        features: [
-          'Início: uma única fila de decisões ao vivo, aprovadas uma a uma ou em lote',
-          'Cada e-mail organizado e classificado por importância',
-          'Regras em palavras simples que arquivam, marcam como lido ou cancelam inscrições',
-          'Escudo antispam comunitário e alertas de phishing',
-          'Remetentes zumbis pegos depois que você cancela a inscrição',
-          'Cobranças automáticas de resposta em e-mails que aguardam retorno',
-          'Adiar, snippets e marcadores Fewmail no Gmail',
-        ],
+        description: 'Início, organização, regras e proteção. Para sempre.',
       },
       max: {
         description: 'O mesmo agente para uma caixa de entrada movimentada.',
@@ -1480,12 +1482,6 @@ export const pt: Messages = {
       per: { month: 'por mês', year: 'por ano' },
       lite: {
         description: 'O agente completo: ele lê, escreve e lembra.',
-        features: [
-          'Respostas escritas com a sua voz, enviadas só quando você aprova',
-          'Telegram: e-mails urgentes, aprovações e instruções por voz',
-          'Promessas e pessoas lembradas, painéis com gráficos para dinheiro ou o que você quiser acompanhar',
-          'Pergunte qualquer coisa aos seus e-mails, e MCP para suas próprias ferramentas',
-        ],
       },
       pro: {
         description: 'O mesmo agente, com espaço para mais e-mails.',
@@ -1495,7 +1491,7 @@ export const pt: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `A organização, as regras em palavras simples e a proteção são grátis para sempre. O Pro é o agente que lê, escreve e lembra por você; o Max é o mesmo agente com espaço para uma caixa de entrada movimentada. Toda conta começa com ${trialDays} dias de Pro e, quando eles terminam, você simplesmente fica no Grátis.`,
+        `O Início, a organização, as regras em palavras simples e a proteção são grátis para sempre. O Pro é o agente que lê, escreve e lembra por você; o Max é o mesmo agente com espaço para uma caixa de entrada movimentada. Toda conta começa com ${trialDays} dias de Pro e, quando eles terminam, você simplesmente fica no Grátis.`,
       otherTool: 'Pensando em outra ferramenta?',
       title: 'Pague pelo agente, não pela caixa de entrada.',
     },

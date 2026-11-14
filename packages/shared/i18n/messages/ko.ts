@@ -752,13 +752,13 @@ export const ko: Messages = {
       mcp: 'Fewmail을 MCP 서버로 Claude, ChatGPT, Claude Code, Cursor에 연결하세요. 이미 쓰는 AI에서 Gmail을 읽고 정리할 수 있어요.',
       motto: '받은편지함에서 중요한 것만',
       pricing: (trialDays: number) =>
-        `Fewmail의 분류, 규칙, 스팸 보호는 계속 무료예요. 에이전트 전체를 쓰는 Pro는 카드 없이 ${trialDays}일 무료로 시작해요.`,
+        `Fewmail의 홈, 분류, 규칙, 스팸 보호는 계속 무료예요. 에이전트 전체를 쓰는 Pro는 카드 없이 ${trialDays}일 무료로 시작해요.`,
       tagline: 'Gmail을 위한 이메일 에이전트',
     },
     chapters: {
       pricing: {
         description:
-          '분류, 규칙, 보호 기능은 평생 무료예요. Lite, Pro, Max에는 대신 읽고 써 주는 모든 기능이 더해져요. 큰 요금제일수록 그걸 더 많이 할 뿐이에요.',
+          '홈, 분류, 규칙, 보호 기능은 평생 무료예요. Lite, Pro, Max에는 대신 읽고 써 주는 모든 기능이 더해져요. 큰 요금제일수록 그걸 더 많이 할 뿐이에요.',
         label: '요금',
         title: (usd: number) => `분류는 무료. 에이전트는 $${usd}부터.`,
       },
@@ -975,6 +975,16 @@ export const ko: Messages = {
       description:
         '예전엔 오후 내내 걸리던 메일 일을 뒤에서 처리하고, 확인할 수 있는 곳에 정리해 둬요.',
       items: {
+        codes: {
+          description:
+            '새 코드는 홈 맨 위와 해당 이메일 옆에 있어 아무것도 열지 않고 복사할 수 있습니다. 무료.',
+          title: '로그인 코드',
+        },
+        subscriptions: {
+          description:
+            '이번 달 메일을 보낸 모든 메일링 리스트와 실제로 연 메일 수. 어떤 것이든 키 하나로 해지. 무료.',
+          title: '구독',
+        },
         ask: {
           description:
             '평소 말로 무엇이든 물어보면, 내 메일에서 찾은 답을 근거가 된 메일과 함께 보여줘요.',
@@ -997,13 +1007,13 @@ export const ko: Messages = {
         },
         reading: {
           description:
-            '오늘의 뉴스레터를 조용한 목록 하나에 모으고, 하나하나 몇 문장으로 요약해요.',
+            '오늘의 뉴스레터를 하나의 요약으로: 주제별 소식, 문장마다 출처 링크, 끝까지 읽을 만한 것까지.',
           title: '읽을거리',
         },
         voice: {
           description:
-            '홈에서 듣기를 누르면 나를 기다리는 일을 읽어 줘요. 앱, Telegram, WhatsApp에서 에이전트에게 말하면 소리 내어 답해요.',
-          title: '나를 기다리는 일 듣기',
+            '뉴스레터 요약을 소리로 들어 보세요. Telegram이나 WhatsApp에서 음성 메시지를 보내면 에이전트가 소리 내어 답합니다.',
+          title: '읽지 말고 들으세요',
         },
         wrapped: {
           description:
@@ -1033,11 +1043,11 @@ export const ko: Messages = {
           problem: '한밤중에 메일 답장하기.',
         },
         {
-          fix: '키 하나로 사람이 하듯 구독을 취소해요. 원클릭, 구독 취소 페이지, 또는 메일로. 그래도 계속 보내는 발신자는 바로 스팸으로 가요.',
+          fix: '키 하나로 사람처럼 구독을 해지합니다: 원클릭, 구독 해지 페이지 또는 이메일. 그래도 계속 보내는 발신자는 잡아내 스팸으로 제안합니다.',
           problem: '구독한 적도 없는 뉴스레터.',
         },
         {
-          fix: '읽을거리가 오늘의 뉴스레터를 목록 하나에 모으고, 하나하나 몇 문장으로 요약해요.',
+          fix: '오늘의 뉴스레터가 주제별 요약 하나가 되고, 끝까지 읽을 만한 것도 알려 줍니다.',
           problem: '읽으려고 했던 뉴스레터.',
         },
         {
@@ -1137,23 +1147,15 @@ export const ko: Messages = {
       title: '받은편지함 전체, 2분이면 끝.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `한 달에 메일 약 ${emails}통 읽기 또는 에이전트 메시지 ${messages}개`,
+      agent: '에이전트',
+      emails: '에이전트가 한 달에 읽는 이메일',
+      everyPlan: '모든 플랜에 포함',
+      messages: '또는 에이전트에게 보내는 메시지',
       oneAllowance:
         '에이전트가 하는 모든 일에 하나의 사용량: 쓴 만큼만, 잡음은 세지 않아요',
-      everythingIn: (plan: string) => `${plan}의 모든 기능, 그리고`,
       forever: '평생',
       free: {
-        description: '분류, 규칙, 보호. 평생 무료.',
-        features: [
-          '홈: 실시간으로 바뀌는 결정 대기열, 하나씩 또는 한 번에 승인',
-          '모든 메일을 분류하고 중요도 점수 매기기',
-          '보관, 읽음 처리, 구독 취소를 하는 평소 말 규칙',
-          '커뮤니티 스팸 방패와 피싱 경고',
-          '구독 취소 후에도 보내는 좀비 발신자 잡아내기',
-          '답장을 기다리는 메일에 자동 후속 연락',
-          '다시 알림, 스니펫, Gmail의 Fewmail 라벨',
-        ],
+        description: '홈, 분류, 규칙, 보호. 평생 무료.',
       },
       max: {
         description: '바쁜 받은편지함을 위한, 같은 에이전트.',
@@ -1162,12 +1164,6 @@ export const ko: Messages = {
       per: { month: '/ 월', year: '/ 년' },
       lite: {
         description: '에이전트의 모든 것: 읽고, 쓰고, 기억해요.',
-        features: [
-          '내 말투로 쓴 답장 초안, 승인할 때만 전송',
-          'Telegram: 급한 메일, 승인, 음성 지시',
-          '약속과 사람을 기억하고, 돈이든 무엇이든 추적할 것은 차트가 있는 보드로',
-          '메일에 무엇이든 묻기, 내 도구를 위한 MCP까지',
-        ],
       },
       pro: {
         description: '같은 에이전트, 더 많은 메일을 위한 여유.',
@@ -1177,7 +1173,7 @@ export const ko: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `분류, 평소 말로 쓰는 규칙, 보호 기능은 평생 무료예요. Pro는 대신 읽고, 쓰고, 기억하는 에이전트이고, Max는 바쁜 받은편지함을 위해 여유를 더한 같은 에이전트예요. 모든 계정은 Pro ${trialDays}일로 시작하고, 끝나면 그냥 Free로 남아요.`,
+        `홈, 분류, 평소 말로 쓰는 규칙, 보호 기능은 평생 무료예요. Pro는 대신 읽고, 쓰고, 기억하는 에이전트이고, Max는 바쁜 받은편지함을 위해 여유를 더한 같은 에이전트예요. 모든 계정은 Pro ${trialDays}일로 시작하고, 끝나면 그냥 Free로 남아요.`,
       otherTool: '다른 도구를 고민 중인가요?',
       title: '받은편지함이 아니라 에이전트에 돈을 내세요.',
     },

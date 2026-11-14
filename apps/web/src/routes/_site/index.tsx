@@ -11,8 +11,10 @@ import {
   ChartBarLineIcon,
   Calendar03Icon,
   GiftIcon,
+  MailRemove01Icon,
   Mic01Icon,
   News01Icon,
+  PasswordValidationIcon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
 import { createFileRoute, redirect } from '@tanstack/react-router'
@@ -30,7 +32,7 @@ import {
   Closing,
   CONTAINER,
   FeatureGrid,
-  PlanCards,
+  PlanTable,
   Reveal,
 } from '~/components/site'
 import { signedInStore } from '~/lib/auth'
@@ -44,6 +46,8 @@ const FEATURE_ICONS = {
   voice: Mic01Icon,
   calendar: Calendar03Icon,
   ask: Search01Icon,
+  subscriptions: MailRemove01Icon,
+  codes: PasswordValidationIcon,
   wrapped: GiftIcon,
 }
 
@@ -104,7 +108,7 @@ const LandingPage = () => {
         {...chapters.pricing}
         title={chapters.pricing.title(PRICE_USD.lite.month)}
       >
-        <PlanCards />
+        <PlanTable />
       </Chapter>
       <Chapter {...chapters.questions}>
         <Reveal className="mt-12 max-w-3xl">

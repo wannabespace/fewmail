@@ -172,13 +172,13 @@ export const fr: Messages = {
       mcp: "Connectez Fewmail à Claude, ChatGPT, Claude Code ou Cursor comme serveur MCP : lisez et triez votre Gmail depuis l'IA que vous utilisez déjà.",
       motto: "seulement l'essentiel de votre boîte",
       pricing: (trialDays: number) =>
-        `Fewmail est gratuit pour toujours pour le tri, les règles et la protection anti-spam. Pro, l'agent complet, commence par ${trialDays} jours gratuits, sans carte.`,
+        `Fewmail est gratuit pour toujours pour l’Accueil, le tri, les règles et la protection anti-spam. Pro, l'agent complet, commence par ${trialDays} jours gratuits, sans carte.`,
       tagline: "l'agent e-mail pour Gmail",
     },
     chapters: {
       pricing: {
         description:
-          'Le tri, les règles et la protection sont gratuits pour toujours. Lite, Pro et Max ajoutent tout ce qui lit et écrit à votre place ; les plus grandes formules en font simplement plus.',
+          'L’Accueil, le tri, les règles et la protection sont gratuits pour toujours. Lite, Pro et Max ajoutent tout ce qui lit et écrit à votre place ; les plus grandes formules en font simplement plus.',
         label: 'Tarifs',
         title: (usd: number) =>
           `Le tri est gratuit. L’agent, à partir de $${usd}.`,
@@ -399,6 +399,16 @@ export const fr: Messages = {
       description:
         'Ce qui vous prenait tout un après-midi, fait en arrière-plan et listé là où vous pouvez le vérifier.',
       items: {
+        codes: {
+          description:
+            'Un code récent attend en haut de l’Accueil et à côté de son e-mail, prêt à copier sans rien ouvrir. Gratuit.',
+          title: 'Codes de connexion',
+        },
+        subscriptions: {
+          description:
+            'Chaque liste qui vous a écrit ce mois-ci, avec le nombre de ses e-mails vraiment ouverts. Désabonnez-vous de n’importe laquelle d’une touche. Gratuit.',
+          title: 'Abonnements',
+        },
         ask: {
           description:
             'Posez une question avec vos mots et obtenez la réponse tirée de vos propres e-mails, avec les messages d’où elle vient.',
@@ -421,13 +431,13 @@ export const fr: Messages = {
         },
         reading: {
           description:
-            'Les newsletters du jour dans une seule liste au calme, chacune résumée en quelques phrases.',
+            'Un résumé des newsletters du jour : l’actualité par thème, chaque phrase reliée à sa source, et celles qui méritent d’être lues en entier.',
           title: 'Lecture',
         },
         voice: {
           description:
-            'Appuyez sur Écouter dans Accueil pour entendre ce qui vous attend. Parlez à l’agent dans l’app, Telegram ou WhatsApp : il vous répond à voix haute.',
-          title: 'Écoutez ce qui vous attend',
+            'Faites-vous lire le résumé de vos newsletters. Envoyez un message vocal sur Telegram ou WhatsApp et l’agent répond à voix haute.',
+          title: 'Écouter plutôt que lire',
         },
         wrapped: {
           description:
@@ -458,12 +468,12 @@ export const fr: Messages = {
           problem: 'Répondre à ses e-mails à minuit.',
         },
         {
-          fix: 'Une touche vous désabonne comme le ferait une personne : un clic, la page de désabonnement ou un e-mail. Les expéditeurs qui continuent d’écrire partent directement en spam.',
+          fix: 'Une touche vous désabonne comme le ferait une personne : un clic, la page de désabonnement ou un e-mail. Les expéditeurs qui continuent sont repérés et proposés comme spam.',
           problem:
             'Des newsletters auxquelles vous ne vous êtes jamais inscrit.',
         },
         {
-          fix: 'Lecture rassemble les newsletters du jour dans une seule liste, chacune résumée en quelques phrases.',
+          fix: 'Les newsletters du jour deviennent un résumé par thème, avec celles qui méritent une lecture complète signalées.',
           problem: 'Les newsletters que vous comptiez lire.',
         },
         {
@@ -567,23 +577,16 @@ export const fr: Messages = {
       title: 'Toute votre boîte, en deux minutes.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `Environ ${emails} e-mails lus ou ${messages} messages à l’agent par mois`,
+      agent: 'L’agent',
+      emails: 'E-mails lus par l’agent chaque mois',
+      everyPlan: 'Dans chaque formule',
+      messages: 'ou messages à l’agent',
       oneAllowance:
         'Une seule enveloppe pour tout ce que fait l’agent : vous payez ce que vous utilisez, et le bruit ne compte jamais',
-      everythingIn: (plan: string) => `Tout ce qu’offre ${plan}, plus`,
       forever: 'pour toujours',
       free: {
-        description: 'Le tri, les règles et la protection. Pour toujours.',
-        features: [
-          'Accueil : une seule file de décisions en direct, à approuver une par une ou d’un coup',
-          'Chaque e-mail trié et noté selon son importance',
-          'Des règles en langage courant qui archivent, marquent comme lu ou désabonnent',
-          'Bouclier anti-spam communautaire et alertes de phishing',
-          'Expéditeurs zombies repérés après votre désabonnement',
-          'Relances automatiques des e-mails qui attendent une réponse',
-          'Reporter, extraits et libellés Fewmail dans Gmail',
-        ],
+        description:
+          'L’Accueil, le tri, les règles et la protection. Pour toujours.',
       },
       max: {
         description: 'Le même agent, pour une boîte très chargée.',
@@ -592,12 +595,6 @@ export const fr: Messages = {
       per: { month: 'par mois', year: 'par an' },
       lite: {
         description: 'L’agent complet : il lit, écrit et se souvient.',
-        features: [
-          'Réponses rédigées à votre façon, envoyées seulement avec votre accord',
-          'Telegram : les e-mails urgents, les approbations et les consignes vocales',
-          'Promesses et contacts mémorisés, tableaux avec graphiques pour l’argent ou tout ce que vous suivez',
-          'Interrogez vos e-mails sur tout, et MCP pour vos propres outils',
-        ],
       },
       pro: {
         description: 'Le même agent, avec de la place pour plus de mails.',
@@ -607,7 +604,7 @@ export const fr: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Le tri, les règles en langage courant et la protection sont gratuits pour toujours. Pro, c’est l’agent qui lit, écrit et se souvient pour vous ; Max, c’est le même agent avec de la marge pour une boîte très chargée. Chaque compte démarre avec ${trialDays} jours de Pro, et ensuite vous restez simplement en Gratuit.`,
+        `L’Accueil, le tri, les règles en langage courant et la protection sont gratuits pour toujours. Pro, c’est l’agent qui lit, écrit et se souvient pour vous ; Max, c’est le même agent avec de la marge pour une boîte très chargée. Chaque compte démarre avec ${trialDays} jours de Pro, et ensuite vous restez simplement en Gratuit.`,
       otherTool: 'Vous hésitez avec un autre outil ?',
       title: 'Payez pour l’agent, pas pour la boîte.',
     },

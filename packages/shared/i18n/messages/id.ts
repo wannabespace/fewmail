@@ -1039,13 +1039,13 @@ export const id: Messages = {
       mcp: 'Hubungkan Fewmail ke Claude, ChatGPT, Claude Code, atau Cursor sebagai server MCP: baca dan pilah Gmail dari AI yang sudah kamu pakai.',
       motto: 'hanya yang penting di kotak masukmu',
       pricing: (trialDays: number) =>
-        `Fewmail gratis selamanya untuk memilah, aturan, dan perlindungan spam. Pro, agen lengkapnya, dimulai dengan ${trialDays} hari gratis tanpa kartu.`,
+        `Fewmail gratis selamanya untuk Beranda, memilah, aturan, dan perlindungan spam. Pro, agen lengkapnya, dimulai dengan ${trialDays} hari gratis tanpa kartu.`,
       tagline: 'agen email untuk Gmail',
     },
     chapters: {
       pricing: {
         description:
-          'Penyortiran, aturan, dan perlindungan gratis selamanya. Lite, Pro, dan Max menambahkan semua yang membaca dan menulis untukmu; paket yang lebih besar hanya melakukannya lebih banyak.',
+          'Beranda, penyortiran, aturan, dan perlindungan gratis selamanya. Lite, Pro, dan Max menambahkan semua yang membaca dan menulis untukmu; paket yang lebih besar hanya melakukannya lebih banyak.',
         label: 'Harga',
         title: (usd: number) =>
           `Gratis untuk penyortiran. Mulai $${usd} untuk agennya.`,
@@ -1265,6 +1265,16 @@ export const id: Messages = {
       description:
         'Urusan email yang dulu menghabiskan satu sore, kini dikerjakan di latar belakang dan dicatat di tempat yang bisa kamu periksa.',
       items: {
+        codes: {
+          description:
+            'Kode terbaru menunggu di atas Beranda dan di samping emailnya, siap disalin tanpa membuka apa pun. Gratis.',
+          title: 'Kode masuk',
+        },
+        subscriptions: {
+          description:
+            'Setiap milis yang menulis bulan ini, dengan berapa emailnya yang benar-benar kamu buka. Berhenti langganan dari mana saja dengan satu tombol. Gratis.',
+          title: 'Langganan',
+        },
         ask: {
           description:
             'Tanyakan apa saja dengan kata-kata biasa dan dapatkan jawaban dari emailmu sendiri, lengkap dengan email sumbernya.',
@@ -1287,13 +1297,13 @@ export const id: Messages = {
         },
         reading: {
           description:
-            'Newsletter hari ini dalam satu daftar yang tenang, masing-masing diringkas dalam beberapa kalimat.',
+            'Satu ringkasan newsletter hari ini: berita per topik, tiap kalimat tertaut ke sumbernya, dan yang layak dibaca utuh.',
           title: 'Bacaan',
         },
         voice: {
           description:
-            'Tekan Dengarkan di Beranda dan dengar apa yang butuh kamu. Bicara dengan agen di aplikasi, Telegram, atau WhatsApp, dan ia menjawab dengan suara.',
-          title: 'Dengarkan yang butuh kamu',
+            'Dengarkan ringkasan newsletter kamu dibacakan. Kirim pesan suara di Telegram atau WhatsApp dan agen menjawab dengan suara.',
+          title: 'Dengarkan, bukan baca',
         },
         wrapped: {
           description:
@@ -1324,11 +1334,11 @@ export const id: Messages = {
           problem: 'Membalas email tengah malam.',
         },
         {
-          fix: 'Satu tombol berhenti berlangganan seperti yang dilakukan orang: satu klik, halaman berhenti langganan, atau sebuah email. Pengirim yang terus menulis langsung masuk spam.',
+          fix: 'Satu tombol berhenti langganan seperti yang dilakukan manusia: satu klik, halaman berhenti langganan, atau email. Pengirim yang tetap menulis ketahuan dan diusulkan sebagai spam.',
           problem: 'Newsletter yang tak pernah kamu daftari.',
         },
         {
-          fix: 'Bacaan mengumpulkan newsletter hari ini dalam satu daftar, masing-masing diringkas dalam beberapa kalimat.',
+          fix: 'Newsletter hari ini jadi satu ringkasan per topik, dengan yang layak dibaca utuh ditandai.',
           problem: 'Newsletter yang ingin kamu baca.',
         },
         {
@@ -1428,23 +1438,16 @@ export const id: Messages = {
       title: 'Seluruh kotak masukmu, dalam dua menit.',
     },
     plans: {
-      about: (emails: string, messages: string) =>
-        `Sekitar ${emails} email dibaca atau ${messages} pesan ke agen sebulan`,
+      agent: 'Agen',
+      emails: 'Email yang dibaca agen per bulan',
+      everyPlan: 'Di setiap paket',
+      messages: 'atau pesan ke agen',
       oneAllowance:
         'Satu jatah untuk semua yang dikerjakan agen: bayar sesuai pemakaian, dan email tak penting tidak pernah dihitung',
-      everythingIn: (plan: string) => `Semua yang ada di ${plan}, plus`,
       forever: 'selamanya',
       free: {
-        description: 'Penyortiran, aturan, dan perlindungan. Selamanya.',
-        features: [
-          'Beranda: satu antrean keputusan yang selalu terbaru, disetujui satu per satu atau sekaligus',
-          'Setiap email disortir dan dinilai menurut kepentingannya',
-          'Aturan dengan kata-kata biasa yang mengarsipkan, menandai dibaca, atau berhenti langganan',
-          'Perisai spam komunitas dan peringatan phishing',
-          'Pengirim zombie tertangkap setelah kamu berhenti langganan',
-          'Tindak lanjut otomatis untuk email yang menunggu balasan',
-          'Tunda, snippet, dan label Fewmail di Gmail',
-        ],
+        description:
+          'Beranda, penyortiran, aturan, dan perlindungan. Selamanya.',
       },
       max: {
         description: 'Agen yang sama untuk kotak masuk yang sibuk.',
@@ -1453,12 +1456,6 @@ export const id: Messages = {
       per: { month: 'per bulan', year: 'per tahun' },
       lite: {
         description: 'Agen seutuhnya: membaca, menulis, dan mengingat.',
-        features: [
-          'Balasan disusun dengan gayamu, dikirim hanya setelah kamu setujui',
-          'Telegram: email mendesak, persetujuan, dan perintah suara',
-          'Janji dan orang diingat, papan dengan grafik untuk uang atau apa pun yang kamu lacak',
-          'Tanyakan apa saja pada emailmu, plus MCP untuk alatmu sendiri',
-        ],
       },
       pro: {
         description: 'Agen yang sama dengan ruang untuk lebih banyak email.',
@@ -1468,7 +1465,7 @@ export const id: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Penyortiran, aturan dengan kata-kata biasa, dan perlindungan gratis selamanya. Pro adalah agen yang membaca, menulis, dan mengingat untukmu; Max adalah agen yang sama dengan ruang lebih untuk kotak masuk yang sibuk. Setiap akun dimulai dengan ${trialDays} hari Pro, dan setelah selesai kamu cukup tetap di paket Gratis.`,
+        `Beranda, penyortiran, aturan dengan kata-kata biasa, dan perlindungan gratis selamanya. Pro adalah agen yang membaca, menulis, dan mengingat untukmu; Max adalah agen yang sama dengan ruang lebih untuk kotak masuk yang sibuk. Setiap akun dimulai dengan ${trialDays} hari Pro, dan setelah selesai kamu cukup tetap di paket Gratis.`,
       otherTool: 'Sedang mempertimbangkan aplikasi lain?',
       title: 'Bayar untuk agennya, bukan kotak masuknya.',
     },
