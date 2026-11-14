@@ -33,22 +33,28 @@ const Accordion = ({
 )
 
 const AccordionItem = ({
+  active,
   className,
   tone = 'default',
   ...props
-}: AccordionPrimitive.Item.Props & { tone?: 'default' | 'destructive' }) => {
+}: AccordionPrimitive.Item.Props & {
+  /** The keyboard cursor: a ring stronger than hover, so a folded card reads as "here" without looking open. */
+  active?: boolean
+  tone?: 'default' | 'destructive'
+}) => {
   const variant = useContext(VariantContext)
 
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
+      data-active={active || undefined}
       className={cn(
         variant === 'cards'
           ? cn(
               'bg-popover data-open:ring-foreground/10 rounded-2xl ring transition-shadow data-open:shadow-sm',
               tone === 'destructive'
-                ? 'ring-destructive/40 hover:ring-destructive/60 data-open:ring-destructive/40'
-                : 'ring-foreground/6 hover:ring-foreground/10'
+                ? 'ring-destructive/40 hover:ring-destructive/60 data-active:ring-destructive/80 data-open:ring-destructive/40'
+                : 'ring-foreground/6 hover:ring-foreground/10 data-active:ring-foreground/25'
             )
           : 'data-open:bg-muted/50 not-last:border-b',
         className

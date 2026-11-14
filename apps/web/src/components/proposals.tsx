@@ -221,7 +221,7 @@ const ProposalsQueueCard = ({
   })
 
   return (
-    <AccordionItem value={PROPOSALS_ID} className="group">
+    <AccordionItem value={PROPOSALS_ID} active={isSelected} className="group">
       <AccordionTrigger
         trailing={
           !isOpen && (
@@ -234,7 +234,7 @@ const ProposalsQueueCard = ({
         <span
           className={cn(
             'flex size-5.5 shrink-0 items-center justify-center rounded-md',
-            isSelected
+            isOpen
               ? 'bg-primary text-primary-foreground'
               : 'bg-secondary text-foreground/70'
           )}

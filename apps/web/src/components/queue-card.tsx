@@ -327,7 +327,7 @@ const QueueCardHeader = ({
       <span
         className={cn(
           'flex size-5.5 shrink-0 items-center justify-center rounded-md text-xs font-semibold tabular-nums',
-          isSelected
+          isOpen
             ? 'bg-primary text-primary-foreground'
             : 'bg-secondary text-foreground/70'
         )}
@@ -562,6 +562,7 @@ export const QueueCard = ({
         ref={ref}
         value={action.id}
         tone={isSecurity ? 'destructive' : 'default'}
+        active={isSelected}
         className="group"
       >
         <QueueCardHeader
