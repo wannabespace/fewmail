@@ -49,6 +49,7 @@ export const it: Messages = {
       dismiss_action: 'Salto',
       draft_reply: 'Scrivo una risposta',
       create_draft: 'Salvo una bozza',
+      find_people: "Cerco l'indirizzo",
       get_board: 'Leggo la bacheca',
       get_person: 'Cerco la persona',
       get_today: 'Controllo oggi',

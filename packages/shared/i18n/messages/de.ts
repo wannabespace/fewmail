@@ -48,6 +48,7 @@ export const de: Messages = {
       dismiss_action: 'Wird übersprungen',
       draft_reply: 'Antwort wird entworfen',
       create_draft: 'Entwurf wird gespeichert',
+      find_people: 'Adresse wird gesucht',
       get_board: 'Board wird gelesen',
       get_person: 'Person wird nachgeschlagen',
       get_today: 'Heute wird geprüft',

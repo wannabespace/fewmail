@@ -89,6 +89,7 @@ export const ko: Messages = {
       dismiss_action: '건너뛰는 중',
       draft_reply: '답장 작성하는 중',
       create_draft: '초안 저장하는 중',
+      find_people: '주소 찾는 중',
       get_board: '보드 읽는 중',
       get_person: '사람 찾는 중',
       get_today: '오늘 확인하는 중',

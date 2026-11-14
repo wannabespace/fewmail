@@ -48,6 +48,7 @@ export const es: Messages = {
       dismiss_action: 'Omitiendo',
       draft_reply: 'Redactando una respuesta',
       create_draft: 'Guardando un borrador',
+      find_people: 'Buscando la dirección',
       get_board: 'Leyendo el tablero',
       get_person: 'Buscando a la persona',
       get_today: 'Revisando hoy',

@@ -88,6 +88,7 @@ export const tr: Messages = {
       dismiss_action: 'Atlanıyor',
       draft_reply: 'Yanıt yazılıyor',
       create_draft: 'Taslak kaydediliyor',
+      find_people: 'Adres aranıyor',
       get_board: 'Pano okunuyor',
       get_person: 'Kişi aranıyor',
       get_today: 'Bugün kontrol ediliyor',

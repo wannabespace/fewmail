@@ -89,6 +89,7 @@ export const pt: Messages = {
       dismiss_action: 'Pulando',
       draft_reply: 'Escrevendo uma resposta',
       create_draft: 'Salvando um rascunho',
+      find_people: 'Procurando o endereço',
       get_board: 'Lendo o quadro',
       get_person: 'Procurando a pessoa',
       get_today: 'Vendo o dia',

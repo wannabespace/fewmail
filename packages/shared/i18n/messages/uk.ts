@@ -48,6 +48,7 @@ export const uk: Messages = {
       dismiss_action: 'Пропускаю',
       draft_reply: 'Пишу чернетку',
       create_draft: 'Зберігаю чернетку',
+      find_people: 'Шукаю адресу',
       get_board: 'Читаю дошку',
       get_person: 'Шукаю людину',
       get_today: 'Дивлюся сьогоднішнє',

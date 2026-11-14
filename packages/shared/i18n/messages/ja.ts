@@ -89,6 +89,7 @@ export const ja: Messages = {
       dismiss_action: 'スキップ中',
       draft_reply: '返信を作成中',
       create_draft: '下書きを保存中',
+      find_people: 'アドレスを検索中',
       get_board: 'ボードを読込中',
       get_person: '相手を確認中',
       get_today: '今日の状況を確認中',

@@ -261,6 +261,7 @@ export const AGENT_TOOLS = {
   dismiss_action: 'consent',
   draft_reply: 'write',
   edit_board_entry: 'write',
+  find_people: 'read',
   get_board: 'read',
   get_person: 'read',
   get_reading: 'read',

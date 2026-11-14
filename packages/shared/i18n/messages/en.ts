@@ -88,6 +88,7 @@ export const en = {
       dismiss_action: 'Skipping',
       draft_reply: 'Drafting a reply',
       create_draft: 'Saving a draft',
+      find_people: 'Finding the address',
       get_board: 'Reading the board',
       get_person: 'Looking up the person',
       get_today: 'Checking today',

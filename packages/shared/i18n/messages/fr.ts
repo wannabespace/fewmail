@@ -49,6 +49,7 @@ export const fr: Messages = {
       dismiss_action: 'Ignorer',
       draft_reply: 'Rédaction d’une réponse',
       create_draft: 'Enregistrement du brouillon',
+      find_people: "Recherche de l'adresse",
       get_board: 'Lecture du tableau',
       get_person: 'Recherche de la personne',
       get_today: 'Point sur aujourd’hui',

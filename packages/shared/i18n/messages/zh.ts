@@ -89,6 +89,7 @@ export const zh: Messages = {
       dismiss_action: '正在跳过',
       draft_reply: '正在起草回复',
       create_draft: '正在保存草稿',
+      find_people: '正在查找地址',
       get_board: '正在读取看板',
       get_person: '正在查找此人',
       get_today: '正在查看今天',

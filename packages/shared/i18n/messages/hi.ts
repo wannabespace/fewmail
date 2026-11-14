@@ -89,6 +89,7 @@ export const hi: Messages = {
       dismiss_action: 'छोड़ा जा रहा है',
       draft_reply: 'जवाब लिखा जा रहा है',
       create_draft: 'ड्राफ़्ट सहेजा जा रहा है',
+      find_people: 'पता खोजा जा रहा है',
       get_board: 'बोर्ड पढ़ा जा रहा है',
       get_person: 'व्यक्ति की जानकारी देखी जा रही है',
       get_today: 'आज का हाल देखा जा रहा है',

@@ -88,6 +88,7 @@ export const id: Messages = {
       dismiss_action: 'Melewati',
       draft_reply: 'Menulis balasan',
       create_draft: 'Menyimpan draf',
+      find_people: 'Mencari alamatnya',
       get_board: 'Membaca papan',
       get_person: 'Mencari orangnya',
       get_today: 'Memeriksa hari ini',

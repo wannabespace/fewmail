@@ -88,6 +88,7 @@ export const nl: Messages = {
       dismiss_action: 'Overslaan',
       draft_reply: 'Antwoord opstellen',
       create_draft: 'Concept wordt opgeslagen',
+      find_people: 'Adres zoeken',
       get_board: 'Bord lezen',
       get_person: 'Persoon opzoeken',
       get_today: 'Vandaag bekijken',
