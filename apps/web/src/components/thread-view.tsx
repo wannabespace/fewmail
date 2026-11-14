@@ -140,6 +140,51 @@ const ActionNote = ({ actions }: { actions: ThreadAction[] }) => {
 const FRAME_HEAD =
   '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:break-word}img{max-width:100%;height:auto}</style>'
 
+const OPENABLE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tel:'])
+// A plain `#id` resolves against our page (srcdoc borrows the parent's base) and loads Fewmail inside the frame.
+const IN_MAIL = 'about:srcdoc#'
+
+const inMailTarget = (mail: Document, id: string) =>
+  mail.querySelector(`[id="${CSS.escape(id)}"], a[name="${CSS.escape(id)}"]`)
+
+/** A link's own `target` beats our `<base>`, and a page opened inside the frame refuses to be framed: every link leaves for a new tab, jumps within the mail, or stops being a link. */
+const pinLinks = (html: string) => {
+  const mail = new DOMParser().parseFromString(FRAME_HEAD + html, 'text/html')
+  for (const meta of mail.querySelectorAll('meta[http-equiv="refresh" i]')) {
+    meta.remove()
+  }
+  const senderBase =
+    mail.querySelector('base[href]')?.getAttribute('href') ?? undefined
+  for (const link of mail.querySelectorAll('a[href], area[href]')) {
+    const href = link.getAttribute('href')?.trim() ?? ''
+    const fragment = href.startsWith('#') ? href.slice(1) : null
+    const url = fragment === null ? URL.parse(href, senderBase) : null
+    if (url && OPENABLE_PROTOCOLS.has(url.protocol)) {
+      link.setAttribute('href', url.href)
+      link.setAttribute('target', '_blank')
+      link.setAttribute('rel', 'noopener noreferrer')
+    } else if (fragment && inMailTarget(mail, fragment)) {
+      link.setAttribute('href', IN_MAIL + fragment)
+      link.setAttribute('target', '_self')
+    } else {
+      link.removeAttribute('href')
+    }
+  }
+  return mail.documentElement.outerHTML
+}
+
+const jumpWithinMail = (event: MouseEvent) => {
+  const link = (event.target as Element).closest?.(
+    `a[href^="${IN_MAIL}"], area[href^="${IN_MAIL}"]`
+  )
+  if (!link) {
+    return
+  }
+  event.preventDefault()
+  const id = link.getAttribute('href')?.slice(IN_MAIL.length) ?? ''
+  inMailTarget(link.ownerDocument, id)?.scrollIntoView({ behavior: 'smooth' })
+}
+
 // A frame starts empty on every open; the last measured height keeps a reopened mail from growing into place.
 const frameHeights = new Map<string, number>()
 
@@ -156,6 +201,7 @@ const HtmlBody = ({ html, id }: { html: string; id: string }) => {
       setHeight(measured)
     })
     const observeBody = () => {
+      frame.contentDocument?.addEventListener('click', jumpWithinMail)
       const body = frame.contentDocument?.body
       if (body) {
         observer.observe(body)
@@ -172,7 +218,7 @@ const HtmlBody = ({ html, id }: { html: string; id: string }) => {
       ref={watch}
       data-mask
       title="email"
-      srcDoc={FRAME_HEAD + html}
+      srcDoc={pinLinks(html)}
       sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
       style={{ '--frame-height': `${height}px` } as CSSProperties}
       className="h-(--frame-height) w-full rounded-xl bg-white"

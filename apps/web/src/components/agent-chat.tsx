@@ -105,8 +105,6 @@ import type {
 import { isSameDay, isToday, parseISO, subDays } from 'date-fns'
 import type { ComponentProps, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { createStore } from 'seitu'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -761,24 +759,14 @@ const ThreadChip = ({ thread }: { thread: OpenThread }) => (
   </Link>
 )
 
-/** Asked from Home and the sidebar: Home starts a new chat and puts the caret in the composer. */
-export const newChatStore = createStore<string | null>(null)
-
 /** Home already is the `today` skill, so it is never suggested there. */
 const SUGGESTED_SKILLS = SKILLS.filter((skill) => skill !== 'today')
 
-const Suggestions = ({
-  children,
-  onPick,
-}: {
-  children: ReactNode
-  onPick: (skill: Skill) => void
-}) => {
+const Suggestions = ({ onPick }: { onPick: (skill: Skill) => void }) => {
   const t = useT()
 
   return (
     <div className="scroll-fade-x flex scrollbar-none gap-1.5 overflow-x-auto">
-      {children}
       {SUGGESTED_SKILLS.map((skill) => (
         <Button
           key={skill}
@@ -1095,28 +1083,20 @@ const Thinking = ({ last }: { last?: UIMessage }) => {
   ) : null
 }
 
-/** Docked under Home: the conversation grows upward over the page while the composer stays put. */
 export const AgentChat = ({
   autoFocus,
   chatId,
-  header,
   initialMessages,
   onFocusChange,
   onSend,
-  panel,
   thread,
-  waiting,
 }: {
   autoFocus: boolean
   chatId: string
-  header: ReactNode
   initialMessages: UIMessage[]
   onFocusChange: (isFocused: boolean) => void
   onSend: () => void
-  /** Where the conversation shows; none while the chat is closed. */
-  panel: HTMLElement | null
   thread: string | undefined
-  waiting: ReactNode
 }) => {
   const t = useT()
   const [text, setText] = useState('')
@@ -1299,7 +1279,7 @@ export const AgentChat = ({
           )}
           <InputGroupTextarea
             ref={composerRef}
-            autoFocus={autoFocus || !!panel}
+            autoFocus={autoFocus}
             aria-label={t.agent.placeholder}
             placeholder={t.agent.placeholder}
             rows={1}
@@ -1371,15 +1351,11 @@ export const AgentChat = ({
           </InputGroupAddon>
         </InputGroup>
       </form>
-      <Suggestions onPick={(skill) => send(`/${skill}`)}>{waiting}</Suggestions>
+      <Suggestions onPick={(skill) => send(`/${skill}`)} />
     </div>
   )
-  if (!panel) {
-    return composer
-  }
-  return createPortal(
+  return (
     <>
-      {header}
       <MessageScrollerProvider autoScroll>
         <MessageScroller>
           <MessageScrollerViewport>
@@ -1447,7 +1423,6 @@ export const AgentChat = ({
         </MessageScroller>
       </MessageScrollerProvider>
       <div className="px-4 pb-4">{composer}</div>
-    </>,
-    panel
+    </>
   )
 }

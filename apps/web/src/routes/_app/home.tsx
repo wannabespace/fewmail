@@ -30,7 +30,12 @@ import {
 } from '@fewmail/ui/components/tooltip'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
-import { Add01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
+import {
+  Add01Icon,
+  BubbleChatIcon,
+  RepeatIcon,
+} from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -56,7 +61,7 @@ import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
-import { AgentChat, newChatStore } from '~/components/agent-chat'
+import { AgentChat } from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
@@ -671,7 +676,7 @@ const homeHints = (
   ]
 }
 
-const READER_WIDTH = { default: 560, max: '60%', min: 420 } as const
+const AGENT_WIDTH = { default: 440, max: '50%', min: 360 } as const
 const STALE_DAYS = 7
 /** Coming back to the tab after this long is a new look at Home: what came since is marked new. */
 const AWAY_MINUTES = 10
@@ -709,31 +714,34 @@ const useVisits = (onVisit: () => Promise<unknown>) => {
   return seenAt
 }
 
-const readerWidthStore = createWebStorageValue({
-  defaultValue: READER_WIDTH.default as number,
-  key: 'fewmail.home-reader-width',
+const columnWidthStore = createWebStorageValue({
+  defaultValue: AGENT_WIDTH.default as number,
+  key: 'fewmail.home-agent-width',
   schema: type('number'),
   type: 'localStorage',
 })
 
-const ChatDock = ({
+const CHATS_SHOWN = 4
+const CHAT_ROW =
+  'text-foreground/75 hover:bg-accent focus-visible:focus-ring flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70'
+
+/** The agent's own column on Home: its chats on top, the open one under them, the composer at the bottom. */
+const AgentColumn = ({
   chat,
   onFocusChange,
-  panel,
   thread,
 }: {
   chat: string | undefined
   onFocusChange: (isFocused: boolean) => void
-  panel: HTMLElement | null
   thread: string | undefined
 }) => {
   const t = useT()
   const navigate = useNavigate()
+  const columnWidth = useSubscription(columnWidthStore)
   const [draftId, setDraftId] = useState<string>(() => crypto.randomUUID())
   const [focusId, setFocusId] = useState<string>()
   const [shownChat, setShownChat] = useState(chat)
-  const newChat = useSubscription(newChatStore)
-  // The draft that became the closed chat must not take the next question.
+  // The draft that became the left chat must not take the next question.
   if (chat !== shownChat) {
     setShownChat(chat)
     if (shownChat === draftId) {
@@ -746,88 +754,107 @@ const ChatDock = ({
     orpc.chats.get.queryOptions({ enabled: isSaved, input: { id: chatId } })
   )
   const { data: chats = [] } = useQuery(orpc.chats.list.queryOptions())
-  const title = chats.find(({ id }) => id === chatId)?.title ?? t.agent.newChat
+  const shown = chats
+    .toSorted((a, b) => Number(b.waiting) - Number(a.waiting))
+    .filter((item, index) => index < CHATS_SHOWN || item.id === chat)
 
   const showChat = (id: string | undefined) =>
     navigate({ search: (prev) => ({ ...prev, chat: id }), to: '/home' })
   const startChat = () => {
-    newChatStore.set(crypto.randomUUID())
+    const id = crypto.randomUUID()
+    setDraftId(id)
+    setFocusId(id)
     void showChat(undefined)
   }
-  if (newChat && newChat !== focusId) {
-    setDraftId(newChat)
-    setFocusId(newChat)
-  }
-  useEffect(() => {
-    if (newChat) {
-      newChatStore.set(null)
-    }
-  }, [newChat])
   useHotkey('Mod+Shift+O', startChat, { ignoreInputs: false })
-  useHotkey('Escape', () => showChat(undefined), {
-    enabled: !!chat && !thread,
-  })
+  useHotkey(['G', 'C'], () => navigate({ to: '/agent' }))
 
-  if (isSaved && !saved) {
-    return null
-  }
   return (
-    <AgentChat
-      key={chatId}
-      autoFocus={chatId === focusId}
-      chatId={chatId}
-      initialMessages={saved?.messages ?? []}
-      panel={panel}
-      thread={thread}
-      onFocusChange={onFocusChange}
-      onSend={() =>
-        navigate({
-          replace: !chat,
-          search: (prev) => ({ ...prev, chat: chatId, thread: undefined }),
-          to: '/home',
-        })
-      }
-      waiting={chats
-        .filter((item) => item.waiting && item.id !== chat)
-        .map((item) => (
-          <Button
-            key={item.id}
-            size="sm"
-            variant="outline"
-            onClick={() => showChat(item.id)}
-          >
-            <span className="bg-primary size-1.5 shrink-0 rounded-full" />
-            <span data-mask>{item.title}</span>
-            <span className="text-muted-foreground">
-              {t.agent.waitingShort}
-            </span>
-          </Button>
-        ))}
-      header={
-        <div className="flex h-11 shrink-0 items-center gap-1 border-b pr-2 pl-5">
-          <span data-mask className="min-w-0 truncate text-sm font-medium">
-            {title}
-          </span>
-          <IconButton
-            className="ml-auto"
-            icon={Add01Icon}
-            label={t.agent.newChat}
-            shortcut={<Kbd>⇧⌘O</Kbd>}
-            size="icon-sm"
-            variant="ghost-muted"
-            onClick={startChat}
-          />
-          <IconButton
-            icon={Cancel01Icon}
-            label={t.mail.close}
-            shortcut={<Kbd>esc</Kbd>}
-            size="icon-sm"
-            variant="ghost-muted"
-            onClick={() => showChat(undefined)}
-          />
-        </div>
-      }
-    />
+    <>
+      <ResizableSeparator />
+      <ResizablePanel
+        className="flex"
+        size={columnWidth}
+        minSize={AGENT_WIDTH.min}
+        maxSize={AGENT_WIDTH.max}
+        onSizeChange={(width) => columnWidthStore.set(width)}
+      >
+        <aside
+          aria-label={t.agent.chats}
+          className="bg-background flex min-w-0 flex-1 flex-col border-l"
+        >
+          <section className="flex flex-col gap-0.5 border-b p-2">
+            <div className="flex h-7 items-center gap-1 ps-2.5">
+              <h2 className="text-muted-foreground mr-auto text-xs font-medium">
+                {t.agent.chats}
+              </h2>
+              <Button
+                size="xs"
+                variant="ghost-muted"
+                render={<Link to="/agent" />}
+              >
+                {t.agent.allChats} <Kbd>G C</Kbd>
+              </Button>
+              <IconButton
+                icon={Add01Icon}
+                label={t.agent.newChat}
+                shortcut={<Kbd>⇧⌘O</Kbd>}
+                size="icon-xs"
+                variant="ghost-muted"
+                onClick={startChat}
+              />
+            </div>
+            {shown.map((item) => (
+              <Link
+                key={item.id}
+                to="/home"
+                search={(prev) => ({ ...prev, chat: item.id })}
+                className={cn(
+                  CHAT_ROW,
+                  item.id === chat && 'bg-secondary text-foreground font-medium'
+                )}
+              >
+                {item.waiting ? (
+                  <span className="bg-primary mx-[5px] size-1.5 shrink-0 rounded-full" />
+                ) : (
+                  <HugeiconsIcon
+                    icon={item.isScheduled ? RepeatIcon : BubbleChatIcon}
+                    strokeWidth={2}
+                  />
+                )}
+                <span className="min-w-0 flex-1 truncate" data-mask>
+                  {item.title}
+                </span>
+                {item.waiting && (
+                  <span className="text-primary shrink-0 text-xs">
+                    {t.agent.waitingShort}
+                  </span>
+                )}
+              </Link>
+            ))}
+          </section>
+          {isSaved && !saved ? (
+            <div className="flex-1" />
+          ) : (
+            <AgentChat
+              key={chatId}
+              autoFocus={chatId === focusId}
+              chatId={chatId}
+              initialMessages={saved?.messages ?? []}
+              thread={thread}
+              onFocusChange={onFocusChange}
+              onSend={() =>
+                navigate({
+                  replace: !chat,
+                  search: (prev) => ({ ...prev, chat: chatId }),
+                  to: '/home',
+                })
+              }
+            />
+          )}
+        </aside>
+      </ResizablePanel>
+    </>
   )
 }
 
@@ -975,80 +1002,34 @@ const PickedActions = ({
   )
 }
 
-/** The thread reader and the open chat share one place beside Home; a thread opened from a chat covers it until `esc`. */
-const SidePanel = ({
-  children,
-  hints,
-}: {
-  children: ReactNode
-  hints: [string, string][]
-}) => {
-  const readerWidth = useSubscription(readerWidthStore)
-
-  return (
-    <>
-      <ResizableSeparator />
-      <ResizablePanel
-        className="flex"
-        size={readerWidth}
-        minSize={READER_WIDTH.min}
-        maxSize={READER_WIDTH.max}
-        onSizeChange={(width) => readerWidthStore.set(width)}
-      >
-        <div className="bg-background flex min-w-0 flex-1 flex-col border-l">
-          {children}
-          <KeyHints hints={hints} />
-        </div>
-      </ResizablePanel>
-    </>
-  )
-}
-
-/** Beside Home: the open thread, else the open chat. */
-const Beside = ({
-  chat,
-  onCloseThread,
-  onPanel,
+/** An email opens over the queue; the agent's column stays beside it. */
+const Reader = ({
+  onClose,
   thread,
 }: {
-  chat: string | undefined
-  onCloseThread: () => void
-  onPanel: (panel: HTMLElement | null) => void
-  thread: string | undefined
+  onClose: () => void
+  thread: string
 }) => {
   const t = useT()
 
-  if (thread) {
-    return (
-      <SidePanel
+  return (
+    <div className="bg-background flex min-h-0 min-w-0 flex-1 flex-col">
+      <ThreadView
+        key={thread}
+        isSnoozed={false}
+        threadId={thread}
+        onClose={onClose}
+        onDone={onClose}
+      />
+      <KeyHints
         hints={[
           ['R', t.keys.reply],
           ['E', t.keys.archive],
           ['/', t.keys.ask],
           ['esc', t.keys.close],
         ]}
-      >
-        <ThreadView
-          key={thread}
-          isSnoozed={false}
-          threadId={thread}
-          onClose={onCloseThread}
-          onDone={onCloseThread}
-        />
-      </SidePanel>
-    )
-  }
-  return (
-    chat && (
-      <SidePanel
-        hints={[
-          ['⇧⌘O', t.agent.newChat],
-          ['esc', t.keys.close],
-        ]}
-      >
-        <div ref={onPanel} className="flex min-h-0 flex-1 flex-col" />
-      </SidePanel>
-    )
+      />
+    </div>
   )
 }
 
@@ -1110,7 +1091,6 @@ const HomePage = () => {
   const queryClient = useQueryClient()
   const { chat, thread } = Route.useSearch()
   const [isAsking, setIsAsking] = useState(false)
-  const [panel, setPanel] = useState<HTMLElement | null>(null)
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
   const queue = data?.queue ?? []
@@ -1393,7 +1373,10 @@ const HomePage = () => {
   return (
     <ResizableGroup className="flex-1">
       <ResizablePanel className="flex min-w-0 flex-col">
-        <main className="flex min-h-0 flex-1 flex-col">
+        {thread && (
+          <Reader thread={thread} onClose={() => showThread(undefined)} />
+        )}
+        <main hidden={!!thread} className="flex min-h-0 flex-1 flex-col">
           <div className="relative min-h-0 flex-1">
             <div className="h-full overflow-y-auto">
               <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
@@ -1401,12 +1384,6 @@ const HomePage = () => {
                   data={data}
                   isFirstRead={isFirstRead}
                   updatedAt={dataUpdatedAt}
-                />
-                <ChatDock
-                  chat={chat}
-                  panel={panel}
-                  thread={thread}
-                  onFocusChange={setIsAsking}
                 />
                 <ConnectHint />
                 <FreshCodes today={data} canUseKeys={isWalking} />
@@ -1522,12 +1499,7 @@ const HomePage = () => {
           />
         </main>
       </ResizablePanel>
-      <Beside
-        chat={chat}
-        thread={thread}
-        onPanel={setPanel}
-        onCloseThread={() => showThread(undefined)}
-      />
+      <AgentColumn chat={chat} thread={thread} onFocusChange={setIsAsking} />
     </ResizableGroup>
   )
 }
