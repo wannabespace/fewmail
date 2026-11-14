@@ -7,6 +7,7 @@ import { Stripe } from 'stripe'
 
 import { env } from '../env'
 import { announceChange } from '../lib/live'
+import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
 import { getPlanInfo } from './plan'
 
@@ -146,6 +147,12 @@ export const handleStripeWebhook = async (request: Request) => {
       target: subscriptions.stripeSubscriptionId,
     })
   await announceChange(userId)
+  const plan = await getPlanInfo(userId)
+  capture(userId, 'subscription_changed', {
+    cancel_at_period_end: values.cancelAtPeriodEnd,
+    plan: plan.kind,
+    status: values.status,
+  })
 
   return new Response('ok')
 }

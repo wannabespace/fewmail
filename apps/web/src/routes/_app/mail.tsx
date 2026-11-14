@@ -1473,6 +1473,7 @@ const useOlderRows = ({
 }) => {
   const [list] = filter === 'drafts' || q !== undefined ? [] : LISTS_OF[filter]
   const load = useMutation({
+    meta: { event: 'mail_older_loaded' },
     mutationFn: () => (list ? loadOlderRows(mailbox, list) : Promise.resolve()),
   })
   return {

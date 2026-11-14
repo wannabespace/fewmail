@@ -82,6 +82,7 @@ export const ConnectHint = () => {
   const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
   const { data: push } = useQuery(pushStateQuery)
   const turnOnPush = useMutation({
+    meta: { event: 'push_enabled' },
     mutationFn: () => enablePush(publicKey ?? ''),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: pushStateQuery.queryKey }),

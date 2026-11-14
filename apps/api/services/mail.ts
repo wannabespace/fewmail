@@ -46,6 +46,7 @@ import { getMessage } from '../lib/gmail'
 import type { ParsedMessage } from '../lib/gmail'
 import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { logError } from '../lib/log'
+import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
 import { searchByQuestion } from './ask'
@@ -816,6 +817,7 @@ export const dismissAction = async (userId: string, actionId: string) => {
     throw new NotFoundError('Action already handled')
   }
   await announceChange(userId, ACTION_TOPICS)
+  capture(userId, 'card_skipped', { kind: dismissed.kind })
   return dismissed
 }
 

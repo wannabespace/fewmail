@@ -3,6 +3,7 @@ import { actions } from '@fewmail/db/schema'
 import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 
+import { capture } from '../lib/posthog'
 import { runConsent } from './agent-run'
 import { approveAction } from './mail'
 import { NotFoundError } from './mail-errors'
@@ -58,10 +59,16 @@ export const approveCard = async (
     .select({ kind: actions.kind, payload: actions.payload })
     .from(actions)
     .where(and(eq(actions.id, actionId), eq(actions.userId, userId)))
-  if (action?.kind === 'consent') {
-    return approveConsent(userId, actionId, action.payload)
-  }
-  return approveAction(userId, actionId, detail)
+  const approved =
+    action?.kind === 'consent'
+      ? await approveConsent(userId, actionId, action.payload)
+      : await approveAction(userId, actionId, detail)
+  capture(userId, 'card_approved', {
+    kind: action?.kind ?? null,
+    tool:
+      action?.kind === 'consent' ? String(action.payload?.tool ?? '') : null,
+  })
+  return approved
 }
 
 /** One by one, so each send keeps its own undo window and a failure leaves the rest approved. */

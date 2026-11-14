@@ -7,7 +7,7 @@ Index only — rules live in `.agents/rules/`, one file per topic. `CLAUDE.md` s
 | File | Read before / update when |
 | --- | --- |
 | [`domain.md`](.agents/rules/domain.md) | Naming anything user-facing; core concepts — Home, queue, actions, rules, autonomy, handled mail |
-| [`architecture.md`](.agents/rules/architecture.md) | Adding a feature, a procedure, a table, an integration (web, MCP, Telegram), anything touching Gmail or the AI models |
+| [`architecture.md`](.agents/rules/architecture.md) | Adding a feature, a procedure, a table, an integration (web, MCP, Telegram), anything touching Gmail or the AI models, analytics events |
 | [`monorepo.md`](.agents/rules/monorepo.md) | Commands, env vars, local URLs, adding a package |
 | [`ui.md`](.agents/rules/ui.md) | Any UI — before the first className |
 
@@ -18,5 +18,6 @@ Index only — rules live in `.agents/rules/`, one file per topic. `CLAUDE.md` s
 - **No user data in clear text in the database** — every text column from a user or their mail is `encryptedText` / `encryptedJson`, or `searchableText` when it is queried (see `architecture.md` → Database). Never log bodies, subjects, addresses or drafts.
 - **A comment is a warning or it does not exist.** Keep a comment only when an innocent-looking edit would break something; everything else goes into names.
 - **Write as little code as possible.** Reuse before adding, extend a file before creating one, no speculative options.
+- **Everything a user does is an event.** A new mutation, command, tool, bot button or anything else a user can do ships its PostHog event in the same task, on every surface it reaches (web, MCP, Telegram, WhatsApp) — oRPC mutations are captured on their own, the rest is not; conventions and privacy limits in `architecture.md` → Analytics.
 - **Every change to a model, a prompt, a size limit, a plan limit or a price changes what Fewmail costs.** Run `bun run economics` in `apps/api` before and after, report the cost per email and message and the plan margins, and run `bun test` there (see `architecture.md` → AI cost).
 - **Design decisions go in the `fewmail-ui` skill** (`.agents/skills/fewmail-ui/`), in the matching topic file, in the same task.

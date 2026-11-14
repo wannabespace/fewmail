@@ -27,7 +27,9 @@ import { UpgradeDialog } from '~/components/upgrade-dialog'
 import { signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
+import { useMe } from '~/lib/me'
 import { listenForChanges, orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 
 const SIDEBAR_WIDTH = { default: 232, max: 320, min: 200 }
 
@@ -69,9 +71,22 @@ const useNewVersionToast = () => {
   }, [liveCommit, t])
 }
 
+const useIdentify = () => {
+  const { plan, settings, user } = useMe()
+  useEffect(() => {
+    posthog.identify(user.id, {
+      email: user.email,
+      language: settings.language,
+      name: user.name,
+      plan: plan.kind,
+    })
+  }, [user.id, user.email, user.name, settings.language, plan.kind])
+}
+
 const AppLayout = () => {
   const { me } = Route.useRouteContext()
   useNewVersionToast()
+  useIdentify()
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   const sidebarWidth = useSubscription(sidebarWidthStore)
   const router = useRouter()

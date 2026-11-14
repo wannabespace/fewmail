@@ -18,6 +18,7 @@ import { createWebStorageValue } from 'seitu/web'
 
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
+import { posthog } from '~/lib/posthog'
 
 const RECENT_LIMIT = 6
 
@@ -31,6 +32,7 @@ const recentSearchesStore = createWebStorageValue({
 export const rememberSearch = (query: string) => {
   const trimmed = query.trim()
   if (trimmed) {
+    posthog.capture('mail_searched')
     recentSearchesStore.set(
       [
         trimmed,

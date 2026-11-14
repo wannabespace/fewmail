@@ -2,12 +2,18 @@ import { messages } from '@fewmail/shared/i18n'
 import { toast } from 'sonner'
 
 import { localeStore } from './i18n'
+import { posthog } from './posthog'
 
 const undoLabel = () => messages[localeStore.get()].compose.undo
 
+const undoing = (undo: () => unknown) => () => {
+  posthog.capture('undo_clicked')
+  return undo()
+}
+
 export const toastUndo = (message: string, undo: () => unknown, id?: string) =>
   toast.success(message, {
-    action: { label: undoLabel(), onClick: () => undo() },
+    action: { label: undoLabel(), onClick: undoing(undo) },
     id,
   })
 
@@ -21,7 +27,7 @@ export const toastDeferred = (
   undo: () => unknown
 ) =>
   toast.success(message, {
-    action: { label: undoLabel(), onClick: () => undo() },
+    action: { label: undoLabel(), onClick: undoing(undo) },
     onAutoClose: () => commit(),
     onDismiss: () => commit(),
   })

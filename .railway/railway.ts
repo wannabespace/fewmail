@@ -20,6 +20,7 @@ const SECRETS = [
   'ELEVENLABS_API_KEY',
   'ELEVENLABS_VOICE_ID',
   'OPENROUTER_API_KEY',
+  'POSTHOG_TOKEN',
   'STRIPE_MAX_MONTHLY_PRICE_ID',
   'STRIPE_MAX_YEARLY_PRICE_ID',
   'STRIPE_PRO_MONTHLY_PRICE_ID',
@@ -105,7 +106,7 @@ export default defineRailway(() => {
     start: 'env NODE_ENV=production bun run ./worker.ts',
   })
 
-  /** Static `dist` behind Caddy (`apps/web/Dockerfile`); API_URL reaches the build as a build arg. */
+  /** Static `dist` behind Caddy (`apps/web/Dockerfile`); API_URL and the PostHog variables reach the build as build args. */
   const web = service('@fewmail/web', {
     build: {
       builder: 'DOCKERFILE',
@@ -115,6 +116,9 @@ export default defineRailway(() => {
     domains: ['fewmail.app'],
     env: {
       API_URL: api.env.API_URL,
+      POSTHOG_PERSONAL_API_KEY: preserve(),
+      POSTHOG_PROJECT_ID: preserve(),
+      POSTHOG_TOKEN: api.env.POSTHOG_TOKEN,
       WEB_URL: api.env.WEB_URL,
     },
     healthcheck: '/health',

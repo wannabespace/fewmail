@@ -17,6 +17,7 @@ import { eq, lt } from 'drizzle-orm'
 import { env } from '../env'
 import { speak } from '../lib/elevenlabs'
 import { transcribe } from '../lib/mistral'
+import { capture } from '../lib/posthog'
 import { approveCard, approveCards } from './approve'
 import { savedThisWeek } from './home'
 import { followMessage } from './instructions'
@@ -368,6 +369,7 @@ export const press = async (
 ): Promise<Pressed> => {
   const t = await messagesFor(userId)
   const [command, id = ''] = pressed.split(':')
+  capture(userId, 'bot_pressed', { channel: chat.channel.name, command })
   if (command === 'reading') {
     return {
       replies: async () => [
@@ -473,6 +475,10 @@ export const follow = async (
   const t = await messagesFor(userId)
   const { italic, link, plain } = chat.channel
   const editing = await takeEdit(chat)
+  capture(userId, 'bot_messaged', {
+    channel: chat.channel.name,
+    editing: Boolean(editing),
+  })
   if (editing) {
     if (text.startsWith('/')) {
       return draftReply(

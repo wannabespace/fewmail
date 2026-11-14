@@ -3,6 +3,7 @@ import { type } from 'arktype'
 import { createAuthClient } from 'better-auth/react'
 import { createWebStorageValue } from 'seitu/web'
 
+import { posthog } from './posthog'
 import { disablePush } from './push'
 
 export const authClient = createAuthClient({
@@ -11,11 +12,13 @@ export const authClient = createAuthClient({
   plugins: [oauthProviderClient()],
 })
 
-export const signInWithGoogle = (path = '/home') =>
-  authClient.signIn.social({
+export const signInWithGoogle = (path = '/home') => {
+  posthog.capture('sign_in_started')
+  return authClient.signIn.social({
     callbackURL: `${location.origin}${path}`,
     provider: 'google',
   })
+}
 
 /** Lets `/` send a returning user straight into the app without waiting for the API; `/_app` corrects it either way. */
 export const signedInStore = createWebStorageValue({
@@ -27,6 +30,8 @@ export const signedInStore = createWebStorageValue({
 
 export const signOut = () => {
   signedInStore.set(false)
+  posthog.capture('signed_out')
+  void posthog.reset()
   void disablePush()
     .finally(() => authClient.signOut())
     .then(() => location.assign('/login'))

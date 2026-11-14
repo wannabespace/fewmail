@@ -11,6 +11,7 @@ import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 
 import { env } from '../env'
+import { capture } from './posthog'
 
 export const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
 export const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events'
@@ -42,6 +43,15 @@ export const auth = betterAuth({
         // A new sign-in can grant scopes (Calendar) the cached token lacks.
         after: (account) => {
           signInAccessTokens.delete(account.userId)
+          return Promise.resolve()
+        },
+      },
+    },
+    user: {
+      create: {
+        // Not on the web: an MCP client's sign-in creates users too.
+        after: (user) => {
+          capture(user.id, 'signed_up')
           return Promise.resolve()
         },
       },

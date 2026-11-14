@@ -1616,6 +1616,7 @@ const HomePage = () => {
     })
   )
   const skipMany = useMutation({
+    meta: { event: 'cards_skipped' },
     mutationFn: (ids: string[]) =>
       Promise.all(ids.map((id) => client.actions.dismiss({ id }))),
     onMutate: dropFromQueue,
@@ -1624,6 +1625,7 @@ const HomePage = () => {
   })
   const skipStale = () => skipMany.mutate(stale.map(({ action }) => action.id))
   const trashMany = useMutation({
+    meta: { event: 'cards_trashed' },
     mutationFn: (items: QueueItem[]) =>
       Promise.all(
         items.map(async ({ action, message }) => {

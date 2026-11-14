@@ -2,17 +2,22 @@ import './globals.css'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { createRoot } from 'react-dom/client'
 
+import { posthog } from './lib/posthog'
 import { queryClient } from './lib/query-client'
 import { pageTitle } from './lib/seo'
 import { routeTree } from './routeTree.gen'
 
 const router = createRouter({
   context: { queryClient },
+  defaultOnCatch: (error) => posthog.captureException(error),
   defaultPreload: 'intent',
   routeTree,
 })
 
-router.subscribe('onResolved', ({ toLocation }) => {
+router.subscribe('onResolved', ({ fromLocation, toLocation }) => {
+  if (fromLocation?.pathname !== toLocation.pathname) {
+    posthog.capture('$pageview')
+  }
   // The signed-in app owns its title: the sidebar adds counts and status.
   if (!router.state.matches.some(({ routeId }) => routeId === '/_app')) {
     document.title = pageTitle(toLocation.pathname)

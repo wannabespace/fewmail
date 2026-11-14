@@ -57,6 +57,7 @@ export const NotificationSettings = () => {
   const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
   const { data: state } = useQuery(pushStateQuery)
   const toggle = useMutation({
+    meta: { event: 'push_toggled' },
     mutationFn: (on: boolean) =>
       on && publicKey ? enablePush(publicKey) : disablePush(),
     onSettled: () =>

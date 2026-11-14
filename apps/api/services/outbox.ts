@@ -10,6 +10,7 @@ import { and, eq, inArray, isNull, lte } from 'drizzle-orm'
 import { deleteDraft, GmailError, sendMail } from '../lib/gmail'
 import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { logError, logErrorAs } from '../lib/log'
+import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
 import { ownMailbox } from './mailboxes'
@@ -162,6 +163,7 @@ export const dispatchOutbox = async (id: string) => {
 
   // Gmail already sent it: a failure below must never mark it failed, or it is sent twice.
   await db.update(outbox).set({ status: 'sent' }).where(eq(outbox.id, id))
+  capture(claimed.userId, 'mail_sent', { approved: Boolean(claimed.actionId) })
   const recorded = await Result.tryPromise(async () => {
     if (claimed.threadId) {
       await changeThreadLabels(claimed.userId, claimed.threadId, {

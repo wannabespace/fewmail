@@ -11,6 +11,7 @@ import { z } from 'zod'
 
 import { deliverHomeLink } from './home-link'
 import { auth, AUTH_ISSUER, MCP_RESOURCE } from './lib/auth'
+import { capture } from './lib/posthog'
 import { proposeConsent } from './services/agent-run'
 import { agentTools, toolAccess } from './services/agent-tools'
 import { isAppConnected } from './services/integrations'
@@ -81,12 +82,14 @@ const createServer = (userId: string, withAgent: boolean) => {
         inputSchema: tool.input,
         title: titleOf(name),
       },
-      async (input: unknown) =>
-        json(
+      async (input: unknown) => {
+        capture(userId, 'mcp_tool_called', { access, tool: name })
+        return json(
           access === 'consent'
             ? await waitForYes(userId, server, name as ConsentToolName, input)
             : await tool.run(input as never)
         )
+      }
     )
   }
   if (!withAgent) {

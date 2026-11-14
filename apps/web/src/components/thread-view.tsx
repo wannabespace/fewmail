@@ -58,6 +58,7 @@ import {
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 
 import { AddToBoardItems } from './board-entries'
 import type { Draft } from './compose/compose-context'
@@ -464,7 +465,7 @@ const ThreadNotices = ({
   )
 }
 
-const useMarkRead = (
+const useThreadOpen = (
   threadId: string,
   thread?: { messages: { message: { isUnread: boolean } }[] }
 ) => {
@@ -477,6 +478,10 @@ const useMarkRead = (
         queryClient.invalidateQueries({ queryKey: orpc.mail.unread.key() }),
     })
   )
+  useEffect(() => {
+    posthog.capture('thread_opened')
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- one event per thread opened
+  }, [threadId])
   useEffect(() => {
     if (hasUnread) {
       markRead({ threadId })
@@ -1016,7 +1021,7 @@ export const ThreadView = ({
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
   const { folded, unfold } = useFolding(data)
-  useMarkRead(threadId, data)
+  useThreadOpen(threadId, data)
   const actions = useMailActions(onDone)
   const { pin, reportSpam, snooze, trash, unsnooze, unsubscribe } = actions
 
@@ -1231,7 +1236,7 @@ interface StackEmail {
 const StackedEmail = ({ email }: { email: StackEmail }) => {
   const hasAgent = useHasAgent()
   const { data } = useThread(email.threadId)
-  useMarkRead(email.threadId, data)
+  useThreadOpen(email.threadId, data)
   const index =
     data?.messages.findIndex(({ message }) => message.id === email.id) ?? -1
   const entry = data?.messages[index]

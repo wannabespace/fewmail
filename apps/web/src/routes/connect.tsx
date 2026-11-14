@@ -24,6 +24,7 @@ const ConnectPage = () => {
     queryKey: ['oauth-client', clientId],
   })
   const answer = useMutation({
+    meta: { event: 'mcp_consent_answered' },
     mutationFn: (accept: boolean) => authClient.oauth2.consent({ accept }),
   })
   const reply = (accept: boolean) => {

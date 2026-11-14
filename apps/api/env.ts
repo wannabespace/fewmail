@@ -24,6 +24,7 @@ export const env = type({
   'MISTRAL_API_KEY?': 'string',
   OPENROUTER_API_KEY: 'string',
   'PORT?': 'string.numeric.parse',
+  'POSTHOG_TOKEN?': 'string',
   'RAILWAY_GIT_COMMIT_SHA?': 'string',
   'STRIPE_LITE_MONTHLY_PRICE_ID?': 'string',
   'STRIPE_LITE_YEARLY_PRICE_ID?': 'string',

@@ -44,7 +44,7 @@ Fewmail's use and transfer to any other app of information received from Google 
 
 - **Public domain lists:** to catch phishing, spam and lookalike senders we also check sender and link domains against public lists we download: [Phishing.Database](https://github.com/Phishing-Database/Phishing.Database) (MIT), [StopForumSpam](https://www.stopforumspam.com/license) toxic domains, [disposable-email-domains](https://github.com/disposable-email-domains/disposable-email-domains) (CC0) and the [Majestic Million](https://majestic.com/reports/majestic-million) (CC BY 3.0). The check happens on our servers; nothing about your mail is sent to these projects. To tell whether a new sender's domain was registered only days ago, we look up that domain (the domain alone, never the address or the email) in the public registration database (RDAP) through rdap.org.
 
-We do not use third-party analytics, advertising or tracking tools.
+We use **PostHog** (servers in the EU) for product analytics and error reports: which pages you open and which features you use (for example that an email was archived or a card approved, never which email), your plan and language, errors the app runs into and, while you use the app, screen recordings in which every text, input, email and picture is hidden, so they show only layout and clicks. PostHog receives your account's email address and name to link this to your account and keeps an identifier in your browser. No email content, subject, address of anyone you correspond with, search, draft or link from your mail is sent to PostHog. We do not use advertising or cross-site tracking tools.
 
 ## 5. AI processing
 
@@ -60,6 +60,7 @@ Quick decisions about each email (its category, importance, whether someone wait
 | ElevenLabs | Reading aloud, only when you ask: a summary of what needs you and the first items of your queue, the summary of your newsletters, and the bot’s answer to a voice message you sent (paid plans) |
 | Mistral | Autocomplete while you write, transcribing Telegram and WhatsApp voice messages, reading the text of PDFs and images attached to email that matters (paid plans) |
 | Stripe | Payments and subscriptions for Pro |
+| PostHog (EU) | Product analytics, error reports and recordings with every text and picture hidden: what you use in Fewmail, never what your mail says |
 | Telegram | Delivering urgent emails, drafts, the newsletter digest and the weekly report, only if you connect it |
 | WhatsApp (Meta) | Delivering urgent emails, drafts, the newsletter digest and the weekly report, only if you connect it |
 | Your browser’s push service (Google, Mozilla, Apple or Microsoft) | Delivering browser notifications with the sender, subject and summary of urgent emails, end-to-end encrypted so the push service cannot read them, only if you turn them on |

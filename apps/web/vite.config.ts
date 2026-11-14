@@ -1,6 +1,7 @@
 import process from 'node:process'
 
 import { setupPortlessEnvs } from '@fewmail/shared/portless-env'
+import posthog from '@posthog/rollup-plugin'
 import babel from '@rolldown/plugin-babel'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
@@ -140,7 +141,8 @@ const seo = (): Plugin => ({
 
 export default defineConfig({
   envDir: '../..',
-  envPrefix: ['VITE_', 'API_URL', 'RAILWAY_GIT_COMMIT_SHA'],
+  // Exact names: a `POSTHOG_` prefix would inline the personal API key too.
+  envPrefix: ['VITE_', 'API_URL', 'POSTHOG_TOKEN', 'RAILWAY_GIT_COMMIT_SHA'],
   plugins: [
     tailwindcss(),
     tanstackRouter({
@@ -151,6 +153,14 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
     seo(),
+    process.env.POSTHOG_PERSONAL_API_KEY && process.env.POSTHOG_PROJECT_ID
+      ? posthog({
+          host: 'https://eu.posthog.com',
+          personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
+          projectId: process.env.POSTHOG_PROJECT_ID,
+          sourcemaps: { releaseName: 'fewmail-web', releaseVersion: COMMIT },
+        })
+      : null,
   ],
   resolve: { tsconfigPaths: true },
 })

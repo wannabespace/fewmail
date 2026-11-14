@@ -6,6 +6,7 @@ import { useSyncExternalStore } from 'react'
 import { toast } from 'sonner'
 
 import { useT } from '~/lib/i18n'
+import { posthog } from '~/lib/posthog'
 
 interface Playback {
   audio: HTMLAudioElement
@@ -52,6 +53,7 @@ export const ListenButton = ({ path }: { path: string }) => {
     if (isThis) {
       return
     }
+    posthog.capture('listen_played', { path })
     const audio = new Audio(`${import.meta.env.API_URL}${path}`)
     publish({ audio, isPlaying: false, path })
     const end = () => {

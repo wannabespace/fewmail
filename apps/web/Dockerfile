@@ -9,8 +9,11 @@ COPY --parents package.json pnpm-lock.yaml pnpm-workspace.yaml apps/*/package.js
 RUN pnpm install --frozen-lockfile --ignore-scripts --filter @fewmail/web...
 RUN pnpm rebuild --filter @fewmail/web...
 COPY . .
-# Railway passes service variables to the build only when they are declared here; Vite inlines API_URL.
+# Railway passes service variables to the build only when they are declared here; Vite inlines API_URL and POSTHOG_TOKEN.
 ARG API_URL
+ARG POSTHOG_PERSONAL_API_KEY
+ARG POSTHOG_PROJECT_ID
+ARG POSTHOG_TOKEN
 ARG WEB_URL
 ARG RAILWAY_GIT_COMMIT_SHA
 RUN pnpm --dir apps/web run build

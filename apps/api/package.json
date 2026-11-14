@@ -40,6 +40,7 @@
     "hono": "catalog:",
     "jose": "catalog:",
     "nanoid": "catalog:",
+    "posthog-node": "catalog:",
     "stripe": "catalog:",
     "web-push": "catalog:",
     "zod": "catalog:"

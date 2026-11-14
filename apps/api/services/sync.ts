@@ -32,6 +32,7 @@ import {
 } from '../lib/gmail'
 import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
+import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage, retireStaleActions } from './agent'
 import {
@@ -330,6 +331,12 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
       .returning({ syncRequested: mailboxes.syncRequested })
     if (hasChanges || !mailbox.lastSyncedAt || mailbox.syncError) {
       await announceChange(mailbox.userId, MAIL_TOPICS)
+    }
+    if (!mailbox.historyId) {
+      capture(mailbox.userId, 'mailbox_first_synced', {
+        added: Boolean(mailbox.googleAccountId),
+        messages: inserted.length,
+      })
     }
     if (released?.syncRequested) {
       await syncMailbox(mailbox).catch((error) =>
