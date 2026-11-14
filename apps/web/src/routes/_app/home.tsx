@@ -69,7 +69,6 @@ import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import { KeyHints } from '~/components/key-hints'
-import { ListenButton } from '~/components/listen-button'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { openCardLink, primaryStep, QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
@@ -1145,7 +1144,6 @@ const HomeHeader = ({
         )}
         <div className="ml-auto flex items-center gap-1">
           {!hasTally(data) && <JournalLink />}
-          {decisions > 0 && <ListenButton path="/voice/home" />}
         </div>
       </div>
       {data ? (

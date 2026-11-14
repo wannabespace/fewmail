@@ -329,19 +329,6 @@ export const spokenReading = async (userId: string) => {
     : ''
 }
 
-const SPOKEN_ITEMS = 5
-
-/** Read aloud on Home: how many things need the user, then the first cards of the queue by title. */
-export const spokenHome = async (userId: string) => {
-  const [t, queue] = await Promise.all([messagesFor(userId), listQueue(userId)])
-  return [
-    t.today.headline(queue.length),
-    ...queue
-      .slice(0, SPOKEN_ITEMS)
-      .map(({ action, analysis }) => analysis?.summary ?? action.title),
-  ].join('\n')
-}
-
 /** WhatsApp shows three buttons at most. */
 const ALIKE_BUTTONS = 3
 

@@ -19,7 +19,7 @@ import { handleStripeWebhook } from './services/billing'
 import { handleGmailPush } from './services/gmail-push'
 import { LimitReachedError } from './services/limit-error'
 import { finishAddingMailbox } from './services/mailboxes'
-import { speakFor, spokenHome, spokenReading } from './services/messenger'
+import { speakFor, spokenReading } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { syncMailbox } from './services/sync'
 import { readSharedWrapped } from './services/wrapped'
@@ -107,13 +107,6 @@ const app = new Hono()
       void syncMailbox({ id: mailboxId }).catch(logErrorAs('first sync'))
     }
     return c.redirect(`${env.WEB_URL}/settings?mailbox=${result}`)
-  })
-  .get('/voice/home', async (c) => {
-    const userId = await voiceUser(c.req.raw.headers)
-    if (!userId) {
-      return c.notFound()
-    }
-    return spokenResponse(userId, () => spokenHome(userId))
   })
   .get('/voice/reading', async (c) => {
     const userId = await voiceUser(c.req.raw.headers)

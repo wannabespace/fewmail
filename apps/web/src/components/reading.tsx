@@ -297,7 +297,7 @@ export const ReadingSection = ({
           {t.reading.summary}
         </h2>
         <div className="ml-auto flex gap-2">
-          {isOpen && summary && <ListenButton path="/voice/reading" />}
+          {summary && <ListenButton path="/voice/reading" />}
           <Button
             size="sm"
             variant="ghost-muted"
