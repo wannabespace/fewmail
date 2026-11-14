@@ -741,6 +741,7 @@ export const pt: Messages = {
     search: 'Busque ou descreva: faturas da Anna do mês passado',
     openInGmail: 'Abrir no Gmail',
     openFullPage: 'Abrir em página inteira',
+    collapseFullPage: 'Voltar à lista',
     unsubscribe: 'Cancelar inscrição',
     unsubscribed: 'Inscrição cancelada',
     unsubscribeFailed:

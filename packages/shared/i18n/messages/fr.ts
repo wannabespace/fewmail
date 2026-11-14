@@ -972,6 +972,7 @@ export const fr: Messages = {
     search: 'Recherchez ou décrivez : factures d’Anna le mois dernier',
     openInGmail: 'Ouvrir dans Gmail',
     openFullPage: 'Ouvrir en pleine page',
+    collapseFullPage: 'Revenir à la liste',
     unsubscribe: 'Se désabonner',
     unsubscribed: 'Désabonné',
     unsubscribeFailed:

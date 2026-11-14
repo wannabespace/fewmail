@@ -754,6 +754,7 @@ export const pl: Messages = {
     search: 'Szukaj lub opisz: faktury od Anny z zeszłego miesiąca',
     openInGmail: 'Otwórz w Gmailu',
     openFullPage: 'Otwórz na całej stronie',
+    collapseFullPage: 'Wróć do listy',
     unsubscribe: 'Wypisz się',
     unsubscribed: 'Wypisano',
     unsubscribeFailed:

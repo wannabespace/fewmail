@@ -31,6 +31,7 @@ import {
   Archive02Icon,
   ArrowDown01Icon,
   ArrowExpand01Icon,
+  ArrowShrink01Icon,
   Cancel01Icon,
   Clock01Icon,
   Delete02Icon,
@@ -659,6 +660,14 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
           }),
       })
     ),
+    markRead: useMutation(
+      orpc.mail.markRead.mutationOptions({
+        onSuccess: (_, { threadId }) =>
+          finish(t.mail.markedRead, threadId, (id) =>
+            client.mail.markUnread({ threadId: id })
+          ),
+      })
+    ),
     moveToInbox: useMutation(
       orpc.mail.moveToInbox.mutationOptions({
         ...leave,
@@ -1012,12 +1021,14 @@ const revealComposer = (node: HTMLElement | null) =>
 /** Sticks to the top of the reader and shrinks as the email scrolls under it. */
 const ReaderHeader = ({
   children,
+  isFullPage,
   note,
   onClose,
   onOpenFullPage,
   title,
 }: {
   children?: ReactNode
+  isFullPage?: boolean
   note?: ReactNode
   onClose: () => void
   onOpenFullPage?: () => void
@@ -1044,8 +1055,8 @@ const ReaderHeader = ({
           />
         )}
         <IconButton
-          icon={Cancel01Icon}
-          label={t.mail.close}
+          icon={isFullPage ? ArrowShrink01Icon : Cancel01Icon}
+          label={isFullPage ? t.mail.collapseFullPage : t.mail.close}
           shortcut={<Kbd>esc</Kbd>}
           size="icon-sm"
           variant="ghost-muted"
@@ -1057,15 +1068,17 @@ const ReaderHeader = ({
   )
 }
 
-/** `canOpenFullPage`: a reader beside a list offers the email on its own page (`/mail/$threadId`, ⇧O). */
+/** `canOpenFullPage`: a reader beside a list offers the email on its own page (`/mail/$threadId`, ⇧O), where `isFullPage` turns its ✕ into a collapse. */
 export const ThreadView = ({
   canOpenFullPage = false,
+  isFullPage,
   isSnoozed,
   onClose,
   onDone,
   threadId,
 }: {
   canOpenFullPage?: boolean
+  isFullPage?: boolean
   isSnoozed: boolean
   onClose: () => void
   onDone: () => void
@@ -1134,6 +1147,7 @@ export const ThreadView = ({
         <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
           <ReaderHeader
             title={subject}
+            isFullPage={isFullPage}
             onClose={onClose}
             onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
           >

@@ -463,6 +463,7 @@ export const ja: Messages = {
     open: '開く',
     openInGmail: 'Gmail で開く',
     openFullPage: '全画面で開く',
+    collapseFullPage: 'リストに戻る',
     search: '検索または説明：先月の Anna からの請求書',
     unsubscribe: '配信停止',
     unsubscribed: '配信を停止しました',
