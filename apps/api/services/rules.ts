@@ -3,7 +3,7 @@ import { rules } from '@fewmail/db/schema'
 import type { SimpleMatch } from '@fewmail/db/schema'
 import { isGmailEffect } from '@fewmail/shared/agent'
 import type { RuleEffect } from '@fewmail/shared/agent'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
@@ -25,6 +25,22 @@ export const listRules = (userId: string) =>
     .from(rules)
     .where(eq(rules.userId, userId))
     .orderBy(...RULE_ORDER)
+
+/** Starter rules that change Gmail start off and untouched: Home offers each once; turning it on or saying no touches it. */
+export const listRuleOffers = async (userId: string) => {
+  const untouched = await db
+    .select()
+    .from(rules)
+    .where(
+      and(
+        eq(rules.userId, userId),
+        eq(rules.enabled, false),
+        sql`${rules.updatedAt} = ${rules.createdAt}`
+      )
+    )
+    .orderBy(...RULE_ORDER)
+  return untouched.filter(({ effect }) => isGmailEffect(effect))
+}
 
 const sameText = (a: string, b: string) =>
   a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase()

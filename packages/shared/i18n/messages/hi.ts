@@ -39,6 +39,7 @@ export const hi: Messages = {
     calendar: (email: string) => `${email} के कैलेंडर में`,
     cc: (recipients: string) => `Cc: ${recipients}`,
     confirm: {
+      dismiss_action: 'यह कार्ड छोड़ें?',
       delete_board: 'यह बोर्ड और उस पर सब कुछ हटाएँ?',
       delete_schedule: 'यह शेड्यूल रोकें?',
       create_schedule: 'इसे शेड्यूल पर चलाएँ?',
@@ -131,6 +132,7 @@ export const hi: Messages = {
     to: (recipients: string) => `प्रति: ${recipients}`,
     until: (time: string) => `तक: ${time}`,
     yes: {
+      dismiss_action: 'छोड़ें',
       delete_board: 'हटाएँ',
       delete_schedule: 'रोकें',
       create_schedule: 'शेड्यूल करें',
@@ -426,6 +428,10 @@ export const hi: Messages = {
     },
     unread: 'अपठित',
     block: 'भेजने वाले को ब्लॉक करें',
+    ignoresUnsubscribe: (name: string) =>
+      `${name} अनसब्सक्राइब को नज़रअंदाज़ करता है`,
+    ignoresUnsubscribeHint:
+      'Fewmail ने अनसब्सक्राइब करने को कहा, लेकिन यह भेजने वाला फिर भी लिखता रहता है। अब से इसके ईमेल ट्रैश में भेजें? इसे नियमों में वापस बदल सकते हैं।',
     blocked: 'ब्लॉक किया गया। उनके मेल अब ट्रैश में जाएँगे।',
     forward: 'फ़ॉरवर्ड करें',
     more: 'और',
@@ -1288,6 +1294,12 @@ export const hi: Messages = {
   today: {
     working: 'काम चल रहा है…',
     allKinds: 'सभी',
+    ruleOffer: {
+      lead: 'एजेंट मिलते-जुलते ईमेल के लिए यह खुद कर सकता है। जब तक आप हाँ नहीं कहते, यह बंद रहेगा।',
+      no: 'बंद रहने दें',
+      turnedOn: 'चालू हो गया। नियमों में बदलें।',
+      yes: 'चालू करें',
+    },
     newSender: {
       archive: 'हमेशा आर्काइव करें',
       archived: 'इस भेजने वाले के नए मेल आर्काइव होंगे। इसे नियम में बदल सकते हैं।',

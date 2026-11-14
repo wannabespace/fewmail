@@ -242,7 +242,7 @@ export const agentTools = (
   }),
   unsubscribe: define({
     description:
-      'Unsubscribe from the mailing list an email came from (through its own one-click unsubscribe link, when it has one) and archive everything that list sent (a sender like notifications@github.com sends a list per repository). unsubscribed says whether the list was actually left.',
+      'Unsubscribe from the mailing list an email came from (through its own one-click unsubscribe link, when it has one) and archive everything that list sent (a sender like notifications@github.com sends a list per repository). unsubscribed says whether the list was actually left. ignoresUnsubscribe means the sender is known to keep writing after an unsubscribe: tell the user and offer a trash rule for that sender (create_rule), never make one unasked.',
     input: { messageId: z.uuid() },
     run: ({ messageId }) => unsubscribeMessage(userId, messageId, 'list'),
   }),

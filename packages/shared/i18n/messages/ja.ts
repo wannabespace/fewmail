@@ -39,6 +39,7 @@ export const ja: Messages = {
     calendar: (email: string) => `${email} のカレンダー`,
     cc: (recipients: string) => `CC: ${recipients}`,
     confirm: {
+      dismiss_action: 'このカードをスキップしますか?',
       delete_board: 'このボードと中身をすべて削除しますか？',
       delete_schedule: 'このスケジュールを停止しますか？',
       create_schedule: 'これをスケジュールで実行しますか？',
@@ -132,6 +133,7 @@ export const ja: Messages = {
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
     yes: {
+      dismiss_action: 'スキップ',
       delete_board: '削除',
       delete_schedule: '停止',
       create_schedule: 'スケジュールする',
@@ -427,6 +429,9 @@ export const ja: Messages = {
     },
     unread: '未読',
     block: '送信者をブロック',
+    ignoresUnsubscribe: (name: string) => `${name} は配信停止を無視します`,
+    ignoresUnsubscribeHint:
+      'Fewmail は配信停止を依頼しましたが、この送信者はそれでも送り続けることで知られています。今後このメールをゴミ箱に送りますか?ルールで元に戻せます。',
     blocked: 'ブロックしました。今後のメールはゴミ箱に移動します。',
     forward: '転送',
     more: 'その他',
@@ -1300,6 +1305,12 @@ export const ja: Messages = {
   today: {
     working: '処理中…',
     allKinds: 'すべて',
+    ruleOffer: {
+      lead: 'エージェントが該当するメールに自動でこれを行えます。「はい」と言うまでオフのままです。',
+      no: 'オフのまま',
+      turnedOn: 'オンにしました。ルールで変更できます。',
+      yes: 'オンにする',
+    },
     newSender: {
       archive: '常にアーカイブ',
       archived:

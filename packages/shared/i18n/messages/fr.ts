@@ -17,6 +17,7 @@ export const fr: Messages = {
     calendar: (email: string) => `Dans l’agenda de ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      dismiss_action: 'Passer cette carte ?',
       delete_board: 'Supprimer ce tableau et tout son contenu ?',
       delete_schedule: 'Arrêter cette planification ?',
       create_schedule: 'Lancer ceci de façon planifiée ?',
@@ -117,6 +118,7 @@ export const fr: Messages = {
     to: (recipients: string) => `À ${recipients}`,
     until: (time: string) => `Jusqu’à ${time}`,
     yes: {
+      dismiss_action: 'Passer',
       delete_board: 'Supprimer',
       delete_schedule: 'Arrêter',
       create_schedule: 'Planifier',
@@ -928,6 +930,9 @@ export const fr: Messages = {
     },
     unread: 'Non lu',
     block: 'Bloquer l’expéditeur',
+    ignoresUnsubscribe: (name: string) => `${name} ignore les désabonnements`,
+    ignoresUnsubscribeHint:
+      'Fewmail a demandé le désabonnement, mais cet expéditeur est connu pour continuer d’écrire. Envoyer ses e-mails à la corbeille désormais ? Tu peux l’annuler dans Règles.',
     blocked: 'Bloqué. Ses e-mails vont désormais à la corbeille.',
     forward: 'Transférer',
     more: 'Plus',
@@ -1337,6 +1342,12 @@ export const fr: Messages = {
   today: {
     working: 'En cours…',
     allKinds: 'Tous',
+    ruleOffer: {
+      lead: 'L’agent peut s’en charger seul pour les e-mails concernés. La règle reste désactivée tant que tu ne dis pas oui.',
+      no: 'Laisser désactivée',
+      turnedOn: 'Activée. Modifiable dans Règles.',
+      yes: 'Activer',
+    },
     newSender: {
       archive: 'Toujours archiver',
       archived:

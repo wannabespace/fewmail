@@ -38,6 +38,7 @@ export const tr: Messages = {
     calendar: (email: string) => `${email} takviminde`,
     cc: (recipients: string) => `Bilgi: ${recipients}`,
     confirm: {
+      dismiss_action: 'Bu kart atlansın mı?',
       delete_board: 'Bu pano ve içindeki her şey silinsin mi?',
       delete_schedule: 'Bu zamanlama durdurulsun mu?',
       create_schedule: 'Bu bir zamanlamayla çalıştırılsın mı?',
@@ -131,6 +132,7 @@ export const tr: Messages = {
     to: (recipients: string) => `Kime: ${recipients}`,
     until: (time: string) => `Şu zamana kadar: ${time}`,
     yes: {
+      dismiss_action: 'Atla',
       delete_board: 'Sil',
       delete_schedule: 'Durdur',
       create_schedule: 'Zamanla',
@@ -684,6 +686,10 @@ export const tr: Messages = {
     },
     unread: 'Okunmamış',
     block: 'Göndereni engelle',
+    ignoresUnsubscribe: (name: string) =>
+      `${name} abonelikten çıkmayı yok sayıyor`,
+    ignoresUnsubscribeHint:
+      "Fewmail abonelikten çıkmayı istedi ama bu gönderenin yine de yazmaya devam ettiği biliniyor. Postaları bundan sonra çöp kutusuna gitsin mi? Kurallar'dan geri alabilirsin.",
     blocked: 'Engellendi. E-postaları artık çöpe gidiyor.',
     forward: 'İlet',
     more: 'Daha fazla',
@@ -1579,6 +1585,12 @@ export const tr: Messages = {
   today: {
     working: 'Yapılıyor…',
     allKinds: 'Tümü',
+    ruleOffer: {
+      lead: 'Ajan bunu eşleşen postalar için kendisi yapabilir. Sen evet diyene kadar kapalı kalır.',
+      no: 'Kapalı kalsın',
+      turnedOn: "Açıldı. Kurallar'dan değiştirebilirsin.",
+      yes: 'Aç',
+    },
     newSender: {
       archive: 'Her zaman arşivle',
       archived:

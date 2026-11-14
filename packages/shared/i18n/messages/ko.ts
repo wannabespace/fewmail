@@ -39,6 +39,7 @@ export const ko: Messages = {
     calendar: (email: string) => `${email}의 캘린더`,
     cc: (recipients: string) => `참조: ${recipients}`,
     confirm: {
+      dismiss_action: '이 카드를 건너뛸까요?',
       delete_board: '이 보드와 안의 모든 항목을 삭제할까요?',
       delete_schedule: '이 일정을 중지할까요?',
       create_schedule: '이 작업을 일정에 따라 실행할까요?',
@@ -131,6 +132,7 @@ export const ko: Messages = {
     to: (recipients: string) => `받는 사람: ${recipients}`,
     until: (time: string) => `다시 표시: ${time}`,
     yes: {
+      dismiss_action: '건너뛰기',
       delete_board: '삭제',
       delete_schedule: '중지',
       create_schedule: '예약하기',
@@ -425,6 +427,9 @@ export const ko: Messages = {
     },
     unread: '읽지 않음',
     block: '발신자 차단',
+    ignoresUnsubscribe: (name: string) => `${name} 님은 수신 거부를 무시합니다`,
+    ignoresUnsubscribeHint:
+      'Fewmail이 수신 거부를 요청했지만 이 발신자는 그래도 계속 보내는 것으로 알려져 있습니다. 앞으로 이 발신자의 메일을 휴지통으로 보낼까요? 규칙에서 되돌릴 수 있습니다.',
     blocked: '차단했어요. 이제 이 발신자의 메일은 휴지통으로 가요.',
     forward: '전달',
     more: '더 보기',
@@ -1285,6 +1290,12 @@ export const ko: Messages = {
   today: {
     working: '처리 중…',
     allKinds: '전체',
+    ruleOffer: {
+      lead: '에이전트가 해당 메일에 이 작업을 직접 할 수 있습니다. 승인하기 전까지는 꺼져 있습니다.',
+      no: '끈 채로 두기',
+      turnedOn: '켰습니다. 규칙에서 바꿀 수 있습니다.',
+      yes: '켜기',
+    },
     newSender: {
       archive: '항상 보관',
       archived:

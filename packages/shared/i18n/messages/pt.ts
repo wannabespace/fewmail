@@ -39,6 +39,7 @@ export const pt: Messages = {
     calendar: (email: string) => `Na agenda de ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      dismiss_action: 'Pular este cartão?',
       delete_board: 'Excluir este painel e tudo o que há nele?',
       delete_schedule: 'Parar este agendamento?',
       create_schedule: 'Executar isto de forma agendada?',
@@ -138,6 +139,7 @@ export const pt: Messages = {
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Até ${time}`,
     yes: {
+      dismiss_action: 'Pular',
       delete_board: 'Excluir',
       delete_schedule: 'Parar',
       create_schedule: 'Agendar',
@@ -709,6 +711,10 @@ export const pt: Messages = {
     },
     unread: 'Não lido',
     block: 'Bloquear remetente',
+    ignoresUnsubscribe: (name: string) =>
+      `${name} ignora cancelamentos de inscrição`,
+    ignoresUnsubscribeHint:
+      'O Fewmail pediu o cancelamento, mas este remetente é conhecido por continuar escrevendo. Mandar os e-mails dele para a lixeira daqui em diante? Dá para desfazer em Regras.',
     blocked: 'Bloqueado. Os e-mails dele agora vão para a lixeira.',
     forward: 'Encaminhar',
     more: 'Mais',
@@ -1613,6 +1619,12 @@ export const pt: Messages = {
   today: {
     working: 'Fazendo…',
     allKinds: 'Todos',
+    ruleOffer: {
+      lead: 'O agente pode fazer isso sozinho com os e-mails correspondentes. Fica desligada até você dizer sim.',
+      no: 'Deixar desligada',
+      turnedOn: 'Ligada. Altere em Regras.',
+      yes: 'Ligar',
+    },
     newSender: {
       archive: 'Sempre arquivar',
       archived:

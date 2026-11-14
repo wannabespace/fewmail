@@ -105,6 +105,7 @@ import {
   prefetchThread,
   threadOfMessage,
 } from '~/lib/mail-db'
+import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
 import { toastUndo } from '~/lib/undo'
@@ -403,7 +404,18 @@ const NewSenders = ({
         ),
         onConfirm: () => {
           answered(sender)
-          unsubscribe.mutate({ messageId: sender.messageId })
+          unsubscribe.mutate(
+            { messageId: sender.messageId },
+            {
+              onSuccess: ({ ignoresUnsubscribe }) =>
+                ignoresUnsubscribe &&
+                offerBlock(
+                  t,
+                  sender.fromName ?? sender.fromEmail,
+                  sender.messageId
+                ),
+            }
+          )
         },
         title: t.mail.unsubscribeConfirm(sender.fromName ?? sender.fromEmail),
         variant: 'warning',
@@ -452,6 +464,72 @@ const NewSenders = ({
       </Item>
     )
   })
+}
+
+/** A starter rule that changes Gmail starts off: it acts only once the user says yes here (or turns it on in Rules). */
+const RuleOffers = ({
+  onSettle,
+  today,
+}: {
+  onSettle: () => void
+  today: Today | undefined
+}) => {
+  const t = useT()
+  const queryClient = useQueryClient()
+  const answer = useMutation(
+    orpc.rules.update.mutationOptions({
+      onMutate: ({ id }) => {
+        onSettle()
+        queryClient.setQueryData(
+          orpc.today.get.queryKey(),
+          (old) =>
+            old && {
+              ...old,
+              ruleOffers: old.ruleOffers.filter((rule) => rule.id !== id),
+            }
+        )
+      },
+      onSettled: () =>
+        Promise.all([
+          queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
+          queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
+        ]),
+      onSuccess: ({ enabled }) =>
+        enabled && toast.success(t.today.ruleOffer.turnedOn),
+    })
+  )
+
+  return today?.ruleOffers.map((rule) => (
+    <Item key={rule.id} variant="card" size="sm">
+      <ItemMedia variant="icon">
+        <HugeiconsIcon icon={RepeatIcon} strokeWidth={2} />
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>
+          <span data-mask>{rule.instruction}</span>
+          <span className="text-muted-foreground text-xs font-normal">
+            {t.rules.effect[rule.effect]}
+          </span>
+        </ItemTitle>
+        <ItemDescription>{t.today.ruleOffer.lead}</ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        <Button
+          size="sm"
+          variant="ghost-muted"
+          onClick={() => answer.mutate({ enabled: false, id: rule.id })}
+        >
+          {t.today.ruleOffer.no}
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => answer.mutate({ enabled: true, id: rule.id })}
+        >
+          {t.today.ruleOffer.yes}
+        </Button>
+      </ItemActions>
+    </Item>
+  ))
 }
 
 /** A chat whose last turn asks for a yes is a decision like any card: it opens in the agent's column. */
@@ -1556,6 +1634,7 @@ const countDecisions = (
     ? cards +
       data.banners.length +
       data.newSenders.length +
+      data.ruleOffers.length +
       waitingChats +
       Math.min(data.tidy.length, 1)
     : 0
@@ -1964,6 +2043,7 @@ const HomePage = () => {
                           canUseKeys={isWalking}
                           onSettle={() => settle()}
                         />
+                        <RuleOffers today={data} onSettle={() => settle()} />
                       </div>
                       <BoardBanners banners={data?.banners ?? []} />
                       <StaleCards

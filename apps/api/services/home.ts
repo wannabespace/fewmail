@@ -36,6 +36,7 @@ import {
 } from './mail'
 import { listMailboxes } from './mailboxes'
 import { awaitingReplies } from './reminders'
+import { listRuleOffers } from './rules'
 import { getSettings } from './settings'
 
 const CATCH_UP_MIN_HOURS = 24
@@ -149,6 +150,7 @@ export const getToday = async (userId: string) => {
     acted,
     senders,
     reading,
+    ruleOffers,
   ] = await Promise.all([
     listQueue(userId),
     handledSince(userId, since),
@@ -165,6 +167,7 @@ export const getToday = async (userId: string) => {
     countActed(userId, since),
     newSenders(userId),
     readingNow(userId),
+    listRuleOffers(userId),
   ])
   const shown = new Set([
     ...queue.map(({ message }) => message?.id),
@@ -194,6 +197,7 @@ export const getToday = async (userId: string) => {
     recent: important
       .filter(({ message }) => !shown.has(message.id))
       .slice(0, RECENT_SHOWN_PER_DAY * days),
+    ruleOffers,
     saved,
     tidy,
   }

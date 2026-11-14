@@ -54,6 +54,7 @@ import {
   threads,
 } from '~/lib/mail-db'
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
+import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
 
 import { AddToBoardItems } from './board-entries'
@@ -648,7 +649,11 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
       confirm({
         action: t.mail.unsubscribe,
         description: t.mail.unsubscribeHint,
-        onConfirm: () => unsubscribe.mutate(target),
+        onConfirm: () =>
+          unsubscribe.mutate(target, {
+            onSuccess: ({ ignoresUnsubscribe }) =>
+              ignoresUnsubscribe && offerBlock(t, sender, target.messageId),
+          }),
         title: t.mail.unsubscribeConfirm(sender),
         variant: 'warning',
       }),

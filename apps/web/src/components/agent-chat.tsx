@@ -465,6 +465,16 @@ const CONSENT_DETAILS: Record<
       </p>
     </>
   ),
+  dismiss_action: ({ action, email }) => (
+    <>
+      <EmailLine email={email} />
+      {action?.title && (
+        <p data-mask className="text-muted-foreground text-sm">
+          {action.title}
+        </p>
+      )}
+    </>
+  ),
   delete_board: ({ target }) =>
     target?.name && (
       <p data-mask className="text-sm">

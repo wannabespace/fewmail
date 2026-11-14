@@ -39,6 +39,7 @@ export const en = {
     cc: (recipients: string) => `Cc ${recipients}`,
     chats: 'Chats',
     confirm: {
+      dismiss_action: 'Skip this card?',
       delete_board: 'Delete this board and everything on it?',
       delete_schedule: 'Stop this schedule?',
       create_schedule: 'Run this on a schedule?',
@@ -136,6 +137,7 @@ export const en = {
     to: (recipients: string) => `To ${recipients}`,
     until: (time: string) => `Until ${time}`,
     yes: {
+      dismiss_action: 'Skip',
       delete_board: 'Delete',
       delete_schedule: 'Stop',
       create_schedule: 'Schedule it',
@@ -705,6 +707,9 @@ export const en = {
     archive: 'Archive',
     archived: 'Archived',
     block: 'Block sender',
+    ignoresUnsubscribe: (name: string) => `${name} ignores unsubscribes`,
+    ignoresUnsubscribeHint:
+      'Fewmail asked to leave, but this sender is known to keep writing anyway. Send their mail to the trash from now on? You can undo it in Rules.',
     blocked: 'Blocked. Their mail now goes to the trash.',
     forward: 'Forward',
     more: 'More',
@@ -1602,6 +1607,12 @@ export const en = {
   today: {
     working: 'Working on it…',
     allKinds: 'All',
+    ruleOffer: {
+      lead: 'The agent can do this for matching mail on its own. It stays off until you say yes.',
+      no: 'Keep off',
+      turnedOn: 'Turned on. Change it in Rules.',
+      yes: 'Turn on',
+    },
     newSender: {
       archive: 'Always archive',
       archived:

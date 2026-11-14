@@ -39,6 +39,7 @@ export const pl: Messages = {
     calendar: (email: string) => `W kalendarzu ${email}`,
     cc: (recipients: string) => `DW: ${recipients}`,
     confirm: {
+      dismiss_action: 'Pominąć tę kartę?',
       delete_board: 'Usunąć tę tablicę ze wszystkim, co na niej jest?',
       delete_schedule: 'Zatrzymać ten harmonogram?',
       create_schedule: 'Uruchamiać to według harmonogramu?',
@@ -138,6 +139,7 @@ export const pl: Messages = {
     to: (recipients: string) => `Do: ${recipients}`,
     until: (time: string) => `Do ${time}`,
     yes: {
+      dismiss_action: 'Pomiń',
       delete_board: 'Usuń',
       delete_schedule: 'Zatrzymaj',
       create_schedule: 'Zaplanuj',
@@ -723,6 +725,9 @@ export const pl: Messages = {
     },
     unread: 'Nieprzeczytane',
     block: 'Zablokuj nadawcę',
+    ignoresUnsubscribe: (name: string) => `${name} ignoruje wypisania`,
+    ignoresUnsubscribeHint:
+      'Fewmail poprosił o wypisanie, ale ten nadawca znany jest z tego, że i tak pisze dalej. Przenosić jego maile do kosza od teraz? Możesz to cofnąć w Regułach.',
     blocked: 'Zablokowano. Jego poczta trafia teraz do kosza.',
     forward: 'Przekaż',
     more: 'Więcej',
@@ -1640,6 +1645,12 @@ export const pl: Messages = {
   today: {
     working: 'W toku…',
     allKinds: 'Wszystkie',
+    ruleOffer: {
+      lead: 'Agent może robić to sam z pasującymi mailami. Reguła jest wyłączona, dopóki nie powiesz „tak”.',
+      no: 'Zostaw wyłączoną',
+      turnedOn: 'Włączono. Zmienisz to w Regułach.',
+      yes: 'Włącz',
+    },
     newSender: {
       archive: 'Zawsze archiwizuj',
       archived:

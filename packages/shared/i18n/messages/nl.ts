@@ -39,6 +39,7 @@ export const nl: Messages = {
     calendar: (email: string) => `In de agenda van ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      dismiss_action: 'Deze kaart overslaan?',
       delete_board: 'Dit bord met alles erop verwijderen?',
       delete_schedule: 'Deze planning stoppen?',
       create_schedule: 'Dit volgens een planning uitvoeren?',
@@ -136,6 +137,7 @@ export const nl: Messages = {
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
     yes: {
+      dismiss_action: 'Overslaan',
       delete_board: 'Verwijderen',
       delete_schedule: 'Stoppen',
       create_schedule: 'Inplannen',
@@ -710,6 +712,9 @@ export const nl: Messages = {
     },
     unread: 'Ongelezen',
     block: 'Afzender blokkeren',
+    ignoresUnsubscribe: (name: string) => `${name} negeert afmeldingen`,
+    ignoresUnsubscribeHint:
+      'Fewmail heeft om afmelding gevraagd, maar deze afzender blijft bekend genoeg toch mailen. Zijn mail voortaan naar de prullenbak? Terugdraaien kan in Regels.',
     blocked: 'Geblokkeerd. Hun mail gaat nu naar de prullenbak.',
     forward: 'Doorsturen',
     more: 'Meer',
@@ -1615,6 +1620,12 @@ export const nl: Messages = {
   today: {
     working: 'Bezig…',
     allKinds: 'Alle',
+    ruleOffer: {
+      lead: 'De agent kan dit zelf doen voor passende mail. De regel blijft uit tot je ja zegt.',
+      no: 'Uit laten',
+      turnedOn: 'Aangezet. Wijzig het in Regels.',
+      yes: 'Aanzetten',
+    },
     newSender: {
       archive: 'Altijd archiveren',
       archived:

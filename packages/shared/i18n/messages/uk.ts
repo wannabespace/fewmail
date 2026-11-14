@@ -17,6 +17,7 @@ export const uk: Messages = {
     calendar: (email: string) => `У календарі ${email}`,
     cc: (recipients: string) => `Копія: ${recipients}`,
     confirm: {
+      dismiss_action: 'Пропустити цю картку?',
       delete_board: 'Видалити цю дошку з усім, що на ній?',
       delete_schedule: 'Зупинити цей розклад?',
       create_schedule: 'Запускати це за розкладом?',
@@ -116,6 +117,7 @@ export const uk: Messages = {
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
     yes: {
+      dismiss_action: 'Пропустити',
       delete_board: 'Видалити',
       delete_schedule: 'Зупинити',
       create_schedule: 'Запланувати',
@@ -919,6 +921,9 @@ export const uk: Messages = {
     },
     unread: 'Непрочитане',
     block: 'Заблокувати',
+    ignoresUnsubscribe: (name: string) => `${name} ігнорує відписки`,
+    ignoresUnsubscribeHint:
+      'Fewmail попросив відписати тебе, але цей відправник відомий тим, що пише все одно. Відправляти його листи в кошик відтепер? Скасувати можна в Правилах.',
     blocked: 'Заблоковано. Їхні листи тепер ідуть у кошик.',
     forward: 'Переслати',
     more: 'Ще',
@@ -1323,6 +1328,12 @@ export const uk: Messages = {
   today: {
     working: 'Виконується…',
     allKinds: 'Усі',
+    ruleOffer: {
+      lead: 'Агент може робити це сам із такими листами. Правило вимкнене, поки ти не скажеш «так».',
+      no: 'Не вмикати',
+      turnedOn: 'Увімкнено. Змінити можна в Правилах.',
+      yes: 'Увімкнути',
+    },
     newSender: {
       archive: 'Завжди в архів',
       archived:

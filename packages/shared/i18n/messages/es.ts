@@ -17,6 +17,7 @@ export const es: Messages = {
     calendar: (email: string) => `En el calendario de ${email}`,
     cc: (recipients: string) => `CC ${recipients}`,
     confirm: {
+      dismiss_action: '¿Omitir esta tarjeta?',
       delete_board: '¿Eliminar este tablero y todo lo que contiene?',
       delete_schedule: '¿Detener esta programación?',
       create_schedule: '¿Ejecutar esto de forma programada?',
@@ -115,6 +116,7 @@ export const es: Messages = {
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Hasta ${time}`,
     yes: {
+      dismiss_action: 'Omitir',
       delete_board: 'Eliminar',
       delete_schedule: 'Detener',
       create_schedule: 'Programar',
@@ -919,6 +921,9 @@ export const es: Messages = {
     },
     unread: 'No leído',
     block: 'Bloquear remitente',
+    ignoresUnsubscribe: (name: string) => `${name} ignora las bajas`,
+    ignoresUnsubscribeHint:
+      'Fewmail pidió la baja, pero se sabe que este remitente sigue escribiendo. ¿Enviar su correo a la papelera a partir de ahora? Puedes deshacerlo en Reglas.',
     blocked: 'Bloqueado. Sus correos ahora van a la papelera.',
     forward: 'Reenviar',
     more: 'Más',
@@ -1323,6 +1328,12 @@ export const es: Messages = {
   today: {
     working: 'En ello…',
     allKinds: 'Todos',
+    ruleOffer: {
+      lead: 'El agente puede hacer esto solo con el correo que coincida. Sigue desactivada hasta que digas que sí.',
+      no: 'Dejar desactivada',
+      turnedOn: 'Activada. Cámbiala en Reglas.',
+      yes: 'Activar',
+    },
     newSender: {
       archive: 'Archivar siempre',
       archived:

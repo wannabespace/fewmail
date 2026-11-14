@@ -39,6 +39,7 @@ export const zh: Messages = {
     calendar: (email: string) => `在 ${email} 的日历中`,
     cc: (recipients: string) => `抄送：${recipients}`,
     confirm: {
+      dismiss_action: '跳过这张卡片?',
       delete_board: '删除这个看板及其所有内容？',
       delete_schedule: '停止这个定时任务？',
       create_schedule: '按计划运行这个吗？',
@@ -131,6 +132,7 @@ export const zh: Messages = {
     to: (recipients: string) => `收件人：${recipients}`,
     until: (time: string) => `推迟到：${time}`,
     yes: {
+      dismiss_action: '跳过',
       delete_board: '删除',
       delete_schedule: '停止',
       create_schedule: '设定',
@@ -420,6 +422,9 @@ export const zh: Messages = {
     },
     unread: '未读',
     block: '屏蔽发件人',
+    ignoresUnsubscribe: (name: string) => `${name} 会无视退订`,
+    ignoresUnsubscribeHint:
+      'Fewmail 已请求退订,但这个发件人以退订后仍继续发信而闻名。从现在起把它的邮件移到垃圾箱?可以在规则中撤销。',
     blocked: '已屏蔽。对方的邮件将进入废纸篓。',
     forward: '转发',
     more: '更多',
@@ -1263,6 +1268,12 @@ export const zh: Messages = {
   today: {
     working: '处理中…',
     allKinds: '全部',
+    ruleOffer: {
+      lead: '代理可以自动处理符合的邮件。在你同意之前它保持关闭。',
+      no: '保持关闭',
+      turnedOn: '已开启。可在规则中更改。',
+      yes: '开启',
+    },
     newSender: {
       archive: '总是归档',
       archived: '此发件人的新邮件将被归档。可在“规则”中更改。',

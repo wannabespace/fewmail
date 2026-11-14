@@ -17,6 +17,7 @@ export const de: Messages = {
     calendar: (email: string) => `Im Kalender von ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      dismiss_action: 'Diese Karte überspringen?',
       delete_board: 'Dieses Board mit allem darauf löschen?',
       delete_schedule: 'Diesen Zeitplan stoppen?',
       create_schedule: 'Das regelmäßig ausführen?',
@@ -114,6 +115,7 @@ export const de: Messages = {
     to: (recipients: string) => `An ${recipients}`,
     until: (time: string) => `Bis ${time}`,
     yes: {
+      dismiss_action: 'Überspringen',
       delete_board: 'Löschen',
       delete_schedule: 'Stoppen',
       create_schedule: 'Einplanen',
@@ -918,6 +920,9 @@ export const de: Messages = {
     },
     unread: 'Ungelesen',
     block: 'Absender blockieren',
+    ignoresUnsubscribe: (name: string) => `${name} ignoriert Abmeldungen`,
+    ignoresUnsubscribeHint:
+      'Fewmail hat um die Abmeldung gebeten, aber dieser Absender schreibt bekanntlich trotzdem weiter. Seine Mails ab jetzt in den Papierkorb? Rückgängig in Regeln.',
     blocked: 'Blockiert. Ihre Mails landen jetzt im Papierkorb.',
     forward: 'Weiterleiten',
     more: 'Mehr',
@@ -1327,6 +1332,12 @@ export const de: Messages = {
   today: {
     working: 'Wird erledigt…',
     allKinds: 'Alle',
+    ruleOffer: {
+      lead: 'Der Agent kann das bei passenden Mails selbst erledigen. Die Regel bleibt aus, bis du Ja sagst.',
+      no: 'Aus lassen',
+      turnedOn: 'Eingeschaltet. Ändern in Regeln.',
+      yes: 'Einschalten',
+    },
     newSender: {
       archive: 'Immer archivieren',
       archived:

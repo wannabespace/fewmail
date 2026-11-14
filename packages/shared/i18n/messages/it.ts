@@ -17,6 +17,7 @@ export const it: Messages = {
     calendar: (email: string) => `Nel calendario di ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      dismiss_action: 'Saltare questa scheda?',
       delete_board: 'Eliminare questa bacheca e tutto ciò che contiene?',
       delete_schedule: 'Fermare questa pianificazione?',
       create_schedule: 'Eseguire questo in modo pianificato?',
@@ -116,6 +117,7 @@ export const it: Messages = {
     to: (recipients: string) => `A ${recipients}`,
     until: (time: string) => `Fino a ${time}`,
     yes: {
+      dismiss_action: 'Salta',
       delete_board: 'Elimina',
       delete_schedule: 'Ferma',
       create_schedule: 'Pianifica',
@@ -922,6 +924,9 @@ export const it: Messages = {
     },
     unread: 'Non letto',
     block: 'Blocca mittente',
+    ignoresUnsubscribe: (name: string) => `${name} ignora le disiscrizioni`,
+    ignoresUnsubscribeHint:
+      'Fewmail ha chiesto la disiscrizione, ma questo mittente è noto per continuare a scrivere. Mandare le sue email nel cestino d’ora in poi? Puoi annullarlo in Regole.',
     blocked: 'Bloccato. Le sue email ora finiscono nel cestino.',
     forward: 'Inoltra',
     more: 'Altro',
@@ -1325,6 +1330,12 @@ export const it: Messages = {
   today: {
     working: 'In corso…',
     allKinds: 'Tutte',
+    ruleOffer: {
+      lead: 'L’agente può farlo da solo con le email corrispondenti. Resta spenta finché non dici sì.',
+      no: 'Lascia spenta',
+      turnedOn: 'Attivata. Puoi cambiarla in Regole.',
+      yes: 'Attiva',
+    },
     newSender: {
       archive: 'Archivia sempre',
       archived:

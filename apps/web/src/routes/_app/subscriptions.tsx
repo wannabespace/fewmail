@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { confirm } from '~/components/confirm-dialog'
 import { KeyHints } from '~/components/key-hints'
 import { useT } from '~/lib/i18n'
+import { offerBlock } from '~/lib/offer-block'
 import { orpc, refetchChanged } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
 
@@ -87,7 +88,15 @@ const SubscriptionsPage = () => {
     confirm({
       action: t.subscriptions.unsubscribe,
       description: t.subscriptions.unsubscribeHint(t.cleanup.emails(row.count)),
-      onConfirm: () => unsubscribe.mutate({ messageId: row.messageId }),
+      onConfirm: () =>
+        unsubscribe.mutate(
+          { messageId: row.messageId },
+          {
+            onSuccess: ({ ignoresUnsubscribe }) =>
+              ignoresUnsubscribe &&
+              offerBlock(t, row.fromName ?? row.fromEmail, row.messageId),
+          }
+        ),
       title: t.mail.unsubscribeConfirm(row.fromName ?? row.fromEmail),
       variant: 'warning',
     })

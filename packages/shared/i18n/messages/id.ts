@@ -39,6 +39,7 @@ export const id: Messages = {
     calendar: (email: string) => `Di kalender ${email}`,
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
+      dismiss_action: 'Lewati kartu ini?',
       delete_board: 'Hapus papan ini beserta semua isinya?',
       delete_schedule: 'Hentikan jadwal ini?',
       create_schedule: 'Jalankan ini sesuai jadwal?',
@@ -132,6 +133,7 @@ export const id: Messages = {
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
     yes: {
+      dismiss_action: 'Lewati',
       delete_board: 'Hapus',
       delete_schedule: 'Hentikan',
       create_schedule: 'Jadwalkan',
@@ -691,6 +693,10 @@ export const id: Messages = {
     },
     unread: 'Belum dibaca',
     block: 'Blokir pengirim',
+    ignoresUnsubscribe: (name: string) =>
+      `${name} mengabaikan berhenti berlangganan`,
+    ignoresUnsubscribeHint:
+      'Fewmail sudah meminta berhenti berlangganan, tetapi pengirim ini dikenal tetap mengirim email. Kirim emailnya ke sampah mulai sekarang? Kamu bisa membatalkannya di Aturan.',
     blocked: 'Diblokir. Email mereka kini masuk ke sampah.',
     forward: 'Teruskan',
     more: 'Lainnya',
@@ -1586,6 +1592,12 @@ export const id: Messages = {
   today: {
     working: 'Sedang dikerjakan…',
     allKinds: 'Semua',
+    ruleOffer: {
+      lead: 'Agen bisa melakukan ini sendiri untuk email yang cocok. Aturan tetap mati sampai kamu bilang ya.',
+      no: 'Biarkan mati',
+      turnedOn: 'Dinyalakan. Ubah di Aturan.',
+      yes: 'Nyalakan',
+    },
     newSender: {
       archive: 'Selalu arsipkan',
       archived: 'Email baru dari pengirim ini akan diarsipkan. Ubah di Aturan.',

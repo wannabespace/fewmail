@@ -7,7 +7,6 @@ import { sendMail, unsubscribeOneClick } from '../lib/gmail'
 import { logError } from '../lib/log'
 import { unsubscribeByPage } from '../lib/unsubscribe-page'
 import { NotFoundError } from './mail-errors'
-import { createRule, listRules } from './rules'
 import {
   ARCHIVE,
   changeThreadLabels,
@@ -17,20 +16,6 @@ import {
 import { recordUnsubscribe, zombieStats } from './zombies'
 
 type Message = typeof messages.$inferSelect
-
-const blockSenderOnce = async (userId: string, fromEmail: string) => {
-  const existing = await listRules(userId)
-  const isBlocked = existing.some(
-    ({ effect, match }) =>
-      effect === 'trash' && match?.field === 'from' && match.value === fromEmail
-  )
-  if (!isBlocked) {
-    await createRule(userId, {
-      effect: 'trash',
-      match: { field: 'from', value: fromEmail },
-    })
-  }
-}
 
 const listThreadIds = async (userId: string, message: Message) => {
   const rows = await db
@@ -108,8 +93,9 @@ const leaveList = async (message: Message) => {
 /**
  * Leaves the list `message` came from (RFC 8058 one-click, its page or its mailto) and archives its thread or everything the
  * list sent. Only an unsubscribe that went out is remembered: later mail then makes the list a
- * zombie, so a failed one must not. A list the network already knows ignores unsubscribes has its sender blocked, unless it
- * has a List-Id: such a sender may send other lists too, and a `from` rule would take them with it.
+ * zombie, so a failed one must not. A list the network already knows ignores unsubscribes comes back as `ignoresUnsubscribe`
+ * (unless it has a List-Id: such a sender may send other lists too, and a `from` rule would take them with it), so the user can
+ * say yes to a trash rule for the sender; never one made for them.
  */
 export const unsubscribe = async (
   userId: string,
@@ -126,10 +112,6 @@ export const unsubscribe = async (
     await recordUnsubscribe(userId, message)
   }
   const { isZombie } = await zombieStats(message)
-  const isBlocked = isZombie && !message.listId
-  if (isBlocked) {
-    await blockSenderOnce(userId, message.fromEmail)
-  }
   const threadIds =
     scope === 'thread'
       ? [message.threadId]
@@ -139,7 +121,7 @@ export const unsubscribe = async (
   )
   // A page that needs a person (JavaScript, a choice, a login) is left to the user: they get its link.
   return {
-    blocked: isBlocked,
+    ignoresUnsubscribe: isZombie && !message.listId,
     link: unsubscribed ? null : pageOf(message),
     unsubscribed,
   }
