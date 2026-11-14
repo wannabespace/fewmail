@@ -1371,6 +1371,8 @@ const HomeHeader = ({
 const AskBar = () => {
   const t = useT()
   const isHidden = useSubscription(agentHiddenStore)
+  // The chat registers `/` itself, but a column hidden since the page opened has not mounted it yet.
+  useHotkey('/', askAgent, { enabled: isHidden })
 
   return (
     isHidden && (

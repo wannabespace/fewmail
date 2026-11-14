@@ -780,8 +780,16 @@ export const agentHiddenStore = createWebStorageValue({
 })
 
 let askMounted: (() => void) | undefined
-/** Home's ask bar does what `/` does in the chat that is mounted. */
-export const askAgent = () => askMounted?.()
+let isAskWaiting = false
+/** Home's ask bar does what `/` does. A column hidden since the page opened has no chat mounted yet: its composer takes the focus once it mounts. */
+export const askAgent = () => {
+  agentHiddenStore.set(false)
+  if (askMounted) {
+    askMounted()
+  } else {
+    isAskWaiting = true
+  }
+}
 
 /** Home already is the `today` skill, so it is never suggested there. */
 const SUGGESTED_SKILLS = SKILLS.filter((skill) => skill !== 'today')
@@ -1264,6 +1272,13 @@ export const AgentChat = ({
   useHotkey('/', ask)
   useEffect(() => {
     askMounted = ask
+    if (isAskWaiting) {
+      isAskWaiting = false
+      ask()
+    }
+    return () => {
+      askMounted = undefined
+    }
   })
   const composer = (
     <div className="flex flex-col gap-2">
