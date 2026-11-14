@@ -153,6 +153,29 @@ const writeReadingSummary = async (
   }
 }
 
+const SOURCE_MARKERS = /\s*\[\d+(?:\s*,\s*\d+)*\]/gu
+const withoutMarkers = (text: string) => text.replaceAll(SOURCE_MARKERS, '')
+
+/** The model also numbers its sources in the text ("[2]") and opens a topic with its title, though the sources show as chips and the title as a heading. */
+const withoutEchoes = ({ intro, sections, worth }: ReadingSummary) => ({
+  intro: withoutMarkers(intro),
+  sections: sections.map(({ sentences, title }) => ({
+    sentences: sentences.map(({ messageIds, text }) => ({
+      messageIds,
+      text: withoutMarkers(
+        text.toLowerCase().startsWith(`${title.toLowerCase()}:`)
+          ? text.slice(title.length + 1).trimStart()
+          : text
+      ),
+    })),
+    title,
+  })),
+  worth: worth.map(({ messageId, why }) => ({
+    messageId,
+    why: withoutMarkers(why),
+  })),
+})
+
 /** The page, the bot and Listen may ask at once; one call writes the summary for all of them. */
 const writing = new Map<string, Promise<ReadingSummary>>()
 
@@ -180,7 +203,9 @@ export const getReadingSummary = async (userId: string) => {
   if (!canWrite) {
     return {
       rows,
-      summary: kept ? { ...kept.summary, messageIds: kept.messageIds } : null,
+      summary: kept
+        ? { ...withoutEchoes(kept.summary), messageIds: kept.messageIds }
+        : null,
     }
   }
   const pending =
@@ -195,5 +220,5 @@ export const getReadingSummary = async (userId: string) => {
       set: { messageIds, summary, updatedAt: new Date() },
       target: readingSummaries.userId,
     })
-  return { rows, summary: { ...summary, messageIds } }
+  return { rows, summary: { ...withoutEchoes(summary), messageIds } }
 }
