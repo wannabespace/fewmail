@@ -33,6 +33,7 @@ import {
 } from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import {
+  createPopoverHandle,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -66,6 +67,7 @@ import {
   Search01Icon,
   Shield01Icon,
   SpamIcon,
+  ViewIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { IconSvgElement } from '@hugeicons/react'
@@ -116,6 +118,7 @@ import {
   SnoozeMenuItems,
   sweepOf,
   StackView,
+  ThreadPeek,
   ThreadView,
   useMailActions,
 } from '~/components/thread-view'
@@ -373,6 +376,108 @@ const groupRows = <Row extends ListedRow>(
 const BURST_MINUTES = 10
 
 type ListedMessage = ListedRow['message']
+
+const mailPeek = createPopoverHandle<ListedMessage>()
+const peekIdOf = (messageId: string) => `peek-${messageId}`
+
+const PeekButton = ({
+  message,
+  onClick,
+}: {
+  message: ListedMessage
+  onClick: () => void
+}) => {
+  const t = useT()
+  return (
+    <PopoverTrigger
+      handle={mailPeek}
+      id={peekIdOf(message.id)}
+      payload={message}
+      render={
+        <IconButton
+          icon={ViewIcon}
+          label={t.mail.peek}
+          shortcut={<Kbd>Space</Kbd>}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={onClick}
+        />
+      }
+    />
+  )
+}
+
+const peekAt = (messageId: string | undefined) => {
+  const trigger = messageId && peekIdOf(messageId)
+  // A row without the button (related, or scrolled out of the window) has no trigger, and `open` throws without one.
+  if (trigger && document.querySelector(`#${CSS.escape(trigger)}`)) {
+    mailPeek.open(trigger)
+  } else {
+    mailPeek.close()
+  }
+}
+
+/** Space peeks at the cursor row, and an open peek follows the cursor. */
+const usePeek = ({
+  cursorRow,
+  isDrafts,
+  thread,
+}: {
+  cursorRow: ListedRow | undefined
+  isDrafts: boolean
+  thread: string | undefined
+}) => {
+  const cursorId = cursorRow?.message.id
+  useHotkey(
+    'Space',
+    () => {
+      ;(document.activeElement as HTMLElement | null)?.blur()
+      if (mailPeek.isOpen) {
+        mailPeek.close()
+      } else {
+        peekAt(cursorId)
+      }
+    },
+    { enabled: !thread && !isDrafts && !!cursorId }
+  )
+  useEffect(() => {
+    if (mailPeek.isOpen) {
+      peekAt(cursorId)
+    }
+  }, [cursorId])
+}
+
+/** One popover for the whole list, so J / K carry it from row to row; focus stays on the list for them, also after it closes. */
+const MailPeek = () => {
+  const navigate = useNavigate()
+  return (
+    <Popover handle={mailPeek}>
+      {({ payload }) => (
+        <PopoverContent
+          align="end"
+          finalFocus={false}
+          initialFocus={false}
+          padding="none"
+          className="w-160"
+        >
+          {payload && (
+            <ThreadPeek
+              key={payload.id}
+              from="mail"
+              message={payload}
+              onOpen={() =>
+                navigate({
+                  params: { threadId: payload.threadId },
+                  to: '/mail/$threadId',
+                })
+              }
+            />
+          )}
+        </PopoverContent>
+      )}
+    </Popover>
+  )
+}
 
 /** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until → expands it. */
 const collapseBursts = <Row extends ListedRow>(
@@ -1078,6 +1183,7 @@ const MailRow = ({
   onPick,
   onSnoozeOpenChange,
   openEmailThread,
+  peek,
   row: { analysis, burst, message, messageIds, threadSize },
   sweep,
 }: {
@@ -1094,6 +1200,7 @@ const MailRow = ({
   onPick: () => void
   onSnoozeOpenChange: (open: boolean) => void
   openEmailThread: string | undefined
+  peek: ReactNode
   row: ListedRow & { burst?: ListedMessage[]; messageIds: string[] }
   sweep: Sweep
 }) => {
@@ -1203,6 +1310,7 @@ const MailRow = ({
         isSnoozeOpen={isSnoozeOpen}
         messageIds={messageIds}
         onSnoozeOpenChange={onSnoozeOpenChange}
+        peek={peek}
         sweep={sweep}
       />
       <MailRowCode
@@ -1233,6 +1341,7 @@ const PinnedRow = ({
   onOpen,
   onPick,
   onSnoozeOpenChange,
+  peek,
   row: { message, messageIds },
   sweep,
 }: Omit<Parameters<typeof MailRow>[0], 'row'> & {
@@ -1303,6 +1412,7 @@ const PinnedRow = ({
         isSnoozeOpen={isSnoozeOpen}
         messageIds={messageIds}
         onSnoozeOpenChange={onSnoozeOpenChange}
+        peek={peek}
         sweep={sweep}
       />
       <RowPick
@@ -2109,6 +2219,9 @@ const listHintsOf = ({
       ? [
           ['J / K', t.keys.move],
           ['⏎', t.keys.open],
+          ...(hints.length > 0
+            ? [['Space', t.mail.peek] as [string, string]]
+            : []),
           ...(canShowRelated
             ? [['→', t.keys.fromSender] as [string, string]]
             : []),
@@ -2316,6 +2429,7 @@ const MailPage = () => {
     if (row) {
       const message = email ?? row.message
       setCursor(index)
+      mailPeek.close()
       if (!('isRelated' in row)) {
         setRelatedOf(message.threadId)
       }
@@ -2343,6 +2457,7 @@ const MailPage = () => {
   useHotkey('ArrowUp', () => moveCursor(-1))
   useHotkey('Enter', () => open(cursor))
   useHotkey('O', () => open(cursor))
+  usePeek({ cursorRow: rows[cursor], isDrafts, thread })
   useHotkey('ArrowDown', () => moveCursor(1), {
     enabled: total > 0,
     ignoreInputs: false,
@@ -2439,6 +2554,14 @@ const MailPage = () => {
             openEmailThread={stack ? undefined : thread}
             onSnoozeOpenChange={(isOpen) =>
               setSnoozeOpenId(isOpen ? row.message.id : null)
+            }
+            peek={
+              !thread && (
+                <PeekButton
+                  message={row.message}
+                  onClick={() => setCursor(index)}
+                />
+              )
             }
             sweep={sweep}
           />
@@ -2561,6 +2684,7 @@ const MailPage = () => {
             />
             <OlderRowsLoader {...older} />
           </ul>
+          <MailPeek />
           {!thread && (
             <KeyHints
               hints={listHintsOf({

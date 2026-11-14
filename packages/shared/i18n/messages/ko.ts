@@ -467,6 +467,7 @@ export const ko: Messages = {
     open: '열기',
     openInGmail: 'Gmail에서 열기',
     openFullPage: '전체 페이지로 열기',
+    peek: '미리 보기',
     collapseFullPage: '목록으로 돌아가기',
     search: '검색하거나 설명하세요: 지난달 Anna가 보낸 청구서',
     unsubscribe: '구독 취소',

@@ -968,6 +968,7 @@ export const de: Messages = {
     search: 'Suchen oder beschreiben: Rechnungen von Anna letzten Monat',
     openInGmail: 'In Gmail öffnen',
     openFullPage: 'Ganzseitig öffnen',
+    peek: 'Kurz ansehen',
     collapseFullPage: 'Zurück zur Liste',
     unsubscribe: 'Abmelden',
     unsubscribed: 'Abgemeldet',

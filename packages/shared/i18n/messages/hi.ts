@@ -469,6 +469,7 @@ export const hi: Messages = {
     open: 'खोलें',
     openInGmail: 'Gmail में खोलें',
     openFullPage: 'पूरे पेज पर खोलें',
+    peek: 'झलक देखें',
     collapseFullPage: 'सूची पर वापस जाएँ',
     search: 'खोजें या बताएँ: पिछले महीने Anna के इनवॉइस',
     unsubscribe: 'अनसब्सक्राइब करें',

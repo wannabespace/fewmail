@@ -971,6 +971,7 @@ export const it: Messages = {
     search: 'Cerca o descrivi: fatture di Anna del mese scorso',
     openInGmail: 'Apri in Gmail',
     openFullPage: 'Apri a pagina intera',
+    peek: 'Anteprima',
     collapseFullPage: 'Torna all’elenco',
     unsubscribe: 'Annulla iscrizione',
     unsubscribed: 'Iscrizione annullata',

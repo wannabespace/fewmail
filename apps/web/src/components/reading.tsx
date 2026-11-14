@@ -1,6 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { readingSpeech } from '@fewmail/shared/agent'
-import { textToHtml } from '@fewmail/shared/email'
 import { cardsBleedClassName } from '@fewmail/ui/components/accordion'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
@@ -19,7 +18,6 @@ import {
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
-  ArrowExpand01Icon,
   Cancel01Icon,
   TickDouble02Icon,
 } from '@hugeicons/core-free-icons'
@@ -34,11 +32,10 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { ListenButton } from '~/components/listen-button'
-import { HtmlBody, useThread } from '~/components/thread-view'
+import { ThreadPeek } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
 import { client, orpc } from '~/lib/orpc'
-import { posthog } from '~/lib/posthog'
 import { toastUndo } from '~/lib/undo'
 
 type Row = RouterOutputs['reading']['list'][number]
@@ -79,6 +76,9 @@ const SummarySkeleton = () => (
 
 // Back from an email, the cursor is on the newsletter that was opened.
 let lastOpened: string | undefined
+const rememberOpened = (threadId: string) => {
+  lastOpened = threadId
+}
 
 interface Peek {
   cite: string
@@ -86,76 +86,35 @@ interface Peek {
 }
 const peek = createPopoverHandle<Peek>()
 
-const PeekBody = ({ cite, row }: Peek) => {
-  const t = useT()
-  const navigate = useNavigate()
-  const { data: thread } = useThread(row.threadId)
-  const message = thread?.messages.find(
-    (entry) => entry.message.id === row.id
-  )?.message
-  const openFullPage = () => {
-    lastOpened = row.threadId
-    void navigate({ params: { threadId: row.threadId }, to: '/mail/$threadId' })
-  }
-  useHotkey('Shift+O', openFullPage)
-  useEffect(() => {
-    posthog.capture('thread_peeked')
-  }, [])
-  return (
-    <div className="flex max-h-[min(40rem,var(--available-height))] flex-col">
-      <div className="flex items-center gap-3 border-b py-2.5 pr-2.5 pl-4">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span data-mask className="truncate font-medium">
-            {senderOf(row)}
-          </span>
-          <span data-mask className="text-muted-foreground truncate text-xs">
-            {row.subject}
-          </span>
-        </div>
-        <IconButton
-          icon={ArrowExpand01Icon}
-          label={t.mail.openFullPage}
-          shortcut={<Kbd>⇧O</Kbd>}
-          size="icon-sm"
-          variant="ghost-muted"
-          onClick={openFullPage}
-        />
-      </div>
-      <div className="min-h-0 overflow-y-auto p-2">
-        {message ? (
-          <HtmlBody
-            cite={cite}
-            html={message.html ?? textToHtml(message.body)}
-            id={message.id}
-          />
-        ) : (
-          <SummarySkeleton />
-        )}
-      </div>
-    </div>
-  )
-}
-
 /** A cited newsletter over Reading, opened on the passage the sentence came from, so the summary stays in place. */
 const NewsletterPeek = ({
   onOpenChange,
 }: {
   onOpenChange: (isOpen: boolean) => void
-}) => (
-  <Popover handle={peek} onOpenChange={onOpenChange}>
-    {({ payload }) => (
-      <PopoverContent padding="none" className="w-160">
-        {payload && (
-          <PeekBody
-            key={`${payload.row.id} ${payload.cite}`}
-            cite={payload.cite}
-            row={payload.row}
-          />
-        )}
-      </PopoverContent>
-    )}
-  </Popover>
-)
+}) => {
+  const navigate = useNavigate()
+  const openFullPage = (threadId: string) => {
+    rememberOpened(threadId)
+    void navigate({ params: { threadId }, to: '/mail/$threadId' })
+  }
+  return (
+    <Popover handle={peek} onOpenChange={onOpenChange}>
+      {({ payload }) => (
+        <PopoverContent padding="none" className="w-160">
+          {payload && (
+            <ThreadPeek
+              key={`${payload.row.id} ${payload.cite}`}
+              cite={payload.cite}
+              from="reading"
+              message={payload.row}
+              onOpen={() => openFullPage(payload.row.threadId)}
+            />
+          )}
+        </PopoverContent>
+      )}
+    </Popover>
+  )
+}
 
 /** The agent's one text over every newsletter; each sentence ends on the newsletters it came from. */
 const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {

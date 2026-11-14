@@ -25,6 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@fewmail/ui/components/popover'
+import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
@@ -55,6 +56,7 @@ import {
   showThreadRead,
   threadOfMessage,
   threads,
+  withoutPixels,
 } from '~/lib/mail-db'
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
@@ -297,6 +299,72 @@ export const HtmlBody = ({
       style={{ '--frame-height': `${height}px` } as CSSProperties}
       className="h-(--frame-height) w-full rounded-xl bg-white"
     />
+  )
+}
+
+/** One email over its list, read without opening the thread: nothing is marked read and no tracking pixel loads. */
+export const ThreadPeek = ({
+  cite,
+  from,
+  message: { fromEmail, fromName, id, subject, threadId },
+  onOpen,
+}: {
+  cite?: string
+  from: 'home' | 'journal' | 'mail' | 'reading'
+  message: {
+    fromEmail: string
+    fromName: string | null
+    id: string
+    subject: string
+    threadId: string
+  }
+  onOpen: () => void
+}) => {
+  const t = useT()
+  const { data: thread } = useThread(threadId)
+  const message = thread?.messages.find(
+    (entry) => entry.message.id === id
+  )?.message
+  useHotkey('Shift+O', onOpen)
+  useEffect(() => {
+    posthog.capture('thread_peeked', { from })
+  }, [from])
+  return (
+    <div className="flex max-h-[min(40rem,var(--available-height))] flex-col">
+      <div className="flex items-center gap-3 border-b py-2.5 pr-2.5 pl-4">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span data-mask className="truncate font-medium">
+            {fromName ?? fromEmail}
+          </span>
+          <span data-mask className="text-muted-foreground truncate text-xs">
+            {subject}
+          </span>
+        </div>
+        <IconButton
+          icon={ArrowExpand01Icon}
+          label={t.mail.openFullPage}
+          shortcut={<Kbd>⇧O</Kbd>}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={onOpen}
+        />
+      </div>
+      <div className="min-h-0 overflow-y-auto p-2">
+        {message ? (
+          <HtmlBody
+            cite={cite}
+            html={withoutPixels(message.html ?? textToHtml(message.body))}
+            id={message.id}
+          />
+        ) : (
+          <div className="flex flex-col gap-3 p-2">
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-11/12" />
+            <Skeleton className="h-5 w-3/5" />
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -901,6 +969,7 @@ export const MailRowActions = ({
   isSnoozeOpen,
   messageIds,
   onSnoozeOpenChange,
+  peek,
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
@@ -910,6 +979,7 @@ export const MailRowActions = ({
   isSnoozeOpen?: boolean
   messageIds: string[]
   onSnoozeOpenChange?: (open: boolean) => void
+  peek?: ReactNode
   sweep: Sweep
 }) => {
   const t = useT()
@@ -922,6 +992,7 @@ export const MailRowActions = ({
         className
       )}
     >
+      {peek}
       {isPinned !== undefined && (
         <IconButton
           icon={isPinned ? PinOffIcon : PinIcon}

@@ -462,6 +462,7 @@ export const zh: Messages = {
     open: '打开',
     openInGmail: '在 Gmail 中打开',
     openFullPage: '全页打开',
+    peek: '快速查看',
     collapseFullPage: '返回列表',
     search: '搜索或描述：Anna 上个月发来的发票',
     unsubscribe: '退订',
