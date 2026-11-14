@@ -15,6 +15,7 @@ import {
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { ScrollArea } from '@fewmail/ui/components/scroll-area'
 import { cn } from '@fewmail/ui/lib/utils'
 import { SparklesIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -199,9 +200,7 @@ const kindsLine = (t: Messages, proposals: Proposal[]) =>
 
 export const PROPOSALS_ID = 'proposals'
 
-const ROWS_SHOWN = 3
-
-/** The first stop of Home's decisions: what the agent proposes, approved in one yes (⏎ or T) or looked at one by one (D). */
+/** The first stop of Home's decisions: every email the agent proposes to move, in a scroller of its own, approved in one yes (⏎ or T) or looked at one by one (D). */
 const ProposalsQueueCard = ({
   canUseKeys,
   isSelected,
@@ -253,34 +252,38 @@ const ProposalsQueueCard = ({
       </AccordionTrigger>
       <AccordionContent>
         <div className="flex flex-col gap-3 pl-8.5">
-          {byKind(rows).map(({ kind, rows: group }) => (
-            <div key={kind} className="flex flex-col gap-1">
-              <h4 className="text-muted-foreground text-xs font-medium first-letter:uppercase">
-                {t.today.tidy[kind](group.length)}
-              </h4>
-              <ul className="flex flex-col gap-1">
-                {group.slice(0, ROWS_SHOWN).map(({ id, message }) => (
-                  <li key={id} className="flex min-w-0 gap-2">
-                    {message ? (
-                      <>
-                        <span data-mask className="shrink-0 font-medium">
-                          {message.fromName ?? message.fromEmail}
-                        </span>
-                        <span
-                          data-mask
-                          className="text-muted-foreground truncate"
-                        >
-                          {message.subject}
-                        </span>
-                      </>
-                    ) : (
-                      t.actionKind[kind]
-                    )}
-                  </li>
-                ))}
-              </ul>
+          <ScrollArea viewportClassName="scroll-fade max-h-60">
+            <div className="flex flex-col gap-3">
+              {byKind(rows).map(({ kind, rows: group }) => (
+                <div key={kind} className="flex flex-col gap-1">
+                  <h4 className="text-muted-foreground text-xs font-medium first-letter:uppercase">
+                    {t.today.tidy[kind](group.length)}
+                  </h4>
+                  <ul className="flex flex-col gap-1">
+                    {group.map(({ id, message }) => (
+                      <li key={id} className="flex min-w-0 gap-2">
+                        {message ? (
+                          <>
+                            <span data-mask className="shrink-0 font-medium">
+                              {message.fromName ?? message.fromEmail}
+                            </span>
+                            <span
+                              data-mask
+                              className="text-muted-foreground truncate"
+                            >
+                              {message.subject}
+                            </span>
+                          </>
+                        ) : (
+                          t.actionKind[kind]
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-          ))}
+          </ScrollArea>
           <p className="text-muted-foreground text-sm">
             {t.today.tidy.untilYouApprove}
           </p>
