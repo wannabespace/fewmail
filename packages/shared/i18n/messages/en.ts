@@ -14,7 +14,7 @@ export const en = {
     reply: 'Reply',
     schedule: 'Schedule',
     security: 'I checked it',
-    spam: 'Moved to spam',
+    spam: 'Move to spam',
     trash: 'Move to trash',
     unsubscribe: 'Unsubscribe',
   },
@@ -1601,6 +1601,45 @@ export const en = {
   },
   today: {
     working: 'Working on it…',
+    allKinds: 'All',
+    newSender: {
+      archive: 'Always archive',
+      archived:
+        'New mail from this sender will be archived. Change it in Rules.',
+      keep: 'Keep as usual',
+      label: 'New sender',
+      lead: (count: number, opened: number) =>
+        `${count} emails in two weeks, ${opened === 0 ? 'none opened' : `${opened} opened`}`,
+    },
+    readingNow: (total: number) =>
+      plural('en', total, {
+        one: () => 'The agent is reading a new email',
+        other: (n) => `The agent is reading ${n} new emails`,
+      }),
+    acted: (total: number) =>
+      plural('en', total, {
+        one: () => 'The agent did one thing for you',
+        other: (n) => `The agent did ${n} things for you`,
+      }),
+    allDone: 'All done. Nothing needs you.',
+    allDoneLead:
+      'I keep reading new mail, and anything that needs you shows up here.',
+    ask: 'Ask the agent or tell it what to do…',
+    byRules: (n: number) => `Your rules took care of ${n}.`,
+    decisions: 'Decisions',
+    journal: {
+      approved: 'You said yes',
+      byRule: (rule: string) => `Your rule: ${rule}`,
+      empty: 'Nothing yet. Until you say yes, the agent only reads.',
+      failed: 'Did not work',
+      now: 'Now',
+      lead: 'The last 7 days. Every change in your mail, calendar or boards had your yes or a rule you turned on.',
+      title: 'What the agent did',
+    },
+    progress: (done: number, total: number) => `${done} of ${total}`,
+    readAll:
+      'I read every one, and nothing changes in your mail without your yes.',
+    worthKnowing: 'Worth knowing',
     tidy: {
       confirm: (emails: string) => `Tidy up ${emails}?`,
       running: 'Tidying up…',
@@ -1624,7 +1663,7 @@ export const en = {
     dates: 'Dates and meetings',
     done: 'Done',
     firstRead:
-      'Reading the last three days of your mail. What needs you shows up here on its own.',
+      'Reading the last three days of your mail. What needs you shows up here on its own, and nothing changes until you say yes.',
     approvedMany: (n: number) => `${n} approved`,
     listen: 'Listen',
     handled: {

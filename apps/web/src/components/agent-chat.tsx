@@ -761,12 +761,17 @@ const ThreadChip = ({ thread }: { thread: OpenThread }) => (
   </Link>
 )
 
+/** Hidden until the user asks: Home is the decisions, the agent opens when there is something to say to it. */
 export const agentHiddenStore = createWebStorageValue({
-  defaultValue: false,
+  defaultValue: true,
   key: 'fewmail.home-agent-hidden',
   schema: type('boolean'),
   type: 'localStorage',
 })
+
+let askMounted: (() => void) | undefined
+/** Home's ask bar does what `/` does in the chat that is mounted. */
+export const askAgent = () => askMounted?.()
 
 /** Home already is the `today` skill, so it is never suggested there. */
 const SUGGESTED_SKILLS = SKILLS.filter((skill) => skill !== 'today')
@@ -1241,10 +1246,14 @@ export const AgentChat = ({
     send(heard)
   })
   useHotkey('Mod+Shift+Space', voice.toggle, { ignoreInputs: false })
-  useHotkey('/', () => {
+  const ask = () => {
     agentHiddenStore.set(false)
     // The hidden column is inert until it has rendered open.
     requestAnimationFrame(() => composerRef.current?.focus())
+  }
+  useHotkey('/', ask)
+  useEffect(() => {
+    askMounted = ask
   })
   const composer = (
     <div className="flex flex-col gap-2">

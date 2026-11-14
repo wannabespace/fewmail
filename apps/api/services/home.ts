@@ -1,11 +1,29 @@
 import { db } from '@fewmail/db'
-import { userSettings } from '@fewmail/db/schema'
+import {
+  actions,
+  analyses,
+  mailboxes as mailboxRows,
+  messages,
+  userSettings,
+} from '@fewmail/db/schema'
 import { differenceInHours, max, min, subDays, subHours } from 'date-fns'
-import { eq } from 'drizzle-orm'
+import {
+  and,
+  arrayContains,
+  eq,
+  exists,
+  gte,
+  isNotNull,
+  notExists,
+  sql,
+} from 'drizzle-orm'
 
 import { localClock } from '../lib/clock'
+import { expectRow } from '../lib/rows'
 import { boardBanners, boardsDigest } from './boards'
+import { newSenders } from './cleanup'
 import {
+  countActed,
   freshCodes,
   handledSince,
   listHandled,
@@ -25,6 +43,7 @@ const CATCH_UP_MAX_DAYS = 7
 const RECENT_SHOWN_PER_DAY = 8
 const SAVED_WINDOW_DAYS = 7
 const DATES_SHOWN = 6
+const JOURNAL_DAYS = 7
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}/u
 
 type Settings = typeof userSettings.$inferSelect
@@ -72,6 +91,45 @@ const upcoming = (dated: Dated[], today: string) =>
       return Number(!dueA) - Number(!dueB)
     })
 
+/** Unanalysed inbox mail of the last day, counted only while a sync is under way, so a failed analysis never reads forever. */
+const readingNow = async (userId: string) => {
+  const [row] = await db
+    .select({ total: sql<number>`count(*)::int` })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, userId),
+        eq(messages.isFromMe, false),
+        arrayContains(messages.labelIds, ['INBOX']),
+        gte(messages.receivedAt, subDays(new Date(), 1)),
+        exists(
+          db
+            .select({ id: mailboxRows.id })
+            .from(mailboxRows)
+            .where(
+              and(
+                eq(mailboxRows.userId, userId),
+                isNotNull(mailboxRows.syncStartedAt)
+              )
+            )
+        ),
+        notExists(
+          db
+            .select({ id: analyses.messageId })
+            .from(analyses)
+            .where(eq(analyses.messageId, messages.id))
+        ),
+        notExists(
+          db
+            .select({ id: actions.id })
+            .from(actions)
+            .where(eq(actions.messageId, messages.id))
+        )
+      )
+    )
+  return expectRow(row).total
+}
+
 export const getToday = async (userId: string) => {
   const settings = await getSettings(userId)
   const { days, since } = catchUp(settings)
@@ -88,6 +146,9 @@ export const getToday = async (userId: string) => {
     banners,
     tidy,
     codes,
+    acted,
+    senders,
+    reading,
   ] = await Promise.all([
     listQueue(userId),
     handledSince(userId, since),
@@ -101,6 +162,9 @@ export const getToday = async (userId: string) => {
     boardBanners(userId),
     listTidy(userId),
     freshCodes(userId),
+    countActed(userId, since),
+    newSenders(userId),
+    readingNow(userId),
   ])
   const shown = new Set([
     ...queue.map(({ message }) => message?.id),
@@ -114,6 +178,7 @@ export const getToday = async (userId: string) => {
     shown.add(message.id)
   }
   return {
+    acted,
     awaiting,
     banners,
     boards,
@@ -123,7 +188,9 @@ export const getToday = async (userId: string) => {
     handled,
     mailboxes,
     pulse,
+    newSenders: senders,
     queue,
+    reading,
     recent: important
       .filter(({ message }) => !shown.has(message.id))
       .slice(0, RECENT_SHOWN_PER_DAY * days),
@@ -146,5 +213,5 @@ export const openToday = async (userId: string) => {
   return { seenAt: settings.todayOpenedAt }
 }
 
-export const listTodayHandled = async (userId: string) =>
-  listHandled(userId, catchUp(await getSettings(userId)).since)
+export const listJournal = (userId: string) =>
+  listHandled(userId, subDays(new Date(), JOURNAL_DAYS))

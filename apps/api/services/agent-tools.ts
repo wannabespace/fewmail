@@ -275,7 +275,7 @@ export const agentTools = (
   }),
   list_handled: define({
     description:
-      'What the agent did on its own (archived, marked read, unsubscribed, trashed, moved to spam), newest first, with the email each was about: since is ISO 8601, the last 24 hours by default.',
+      'What the agent did, newest first, with the email each was about: status done (after the user said yes), auto_done (by a rule the user turned on, named in rule) or failed. since is ISO 8601, the last 24 hours by default.',
     input: { since: z.iso.datetime({ offset: true }).optional() },
     run: ({ since }) =>
       listHandled(userId, since ? new Date(since) : undefined),

@@ -9,7 +9,12 @@ import { FREEMAIL_DOMAINS, listedDomains } from './known-domains'
 import { isSpammy, readPatterns, voteCounts, votePatterns } from './patterns'
 import { getSettings } from './settings'
 import { ownMessage } from './stored-mail'
-import { changeThreadLabels, moveToSpam, SPAM } from './thread-labels'
+import {
+  changeThreadLabels,
+  moveToSpam,
+  proposeSpam,
+  SPAM,
+} from './thread-labels'
 
 type Message = typeof messages.$inferSelect
 
@@ -185,7 +190,12 @@ export const applySpamShield = async (userId: string, incoming: Message[]) => {
         return
       }
       moved.add(entry.message.id)
-      await moveToSpam(userId, entry.message, reason, t)
+      await (reason === t.spam.reasonYou ? moveToSpam : proposeSpam)(
+        userId,
+        entry.message,
+        reason,
+        t
+      )
     })
   )
   return moved

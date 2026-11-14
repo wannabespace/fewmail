@@ -7,7 +7,7 @@ export const pl: Messages = {
     cleanup: 'Wypisz ze wszystkich',
     commitment: 'Gotowe',
     security: 'Sprawdziłem',
-    spam: 'Przeniesiono do spamu',
+    spam: 'Przenieś do spamu',
     archive: 'Archiwizuj',
     follow_up: 'Przypomnij się',
     mark_read: 'Oznacz jako przeczytane',
@@ -1639,6 +1639,49 @@ export const pl: Messages = {
   },
   today: {
     working: 'W toku…',
+    allKinds: 'Wszystkie',
+    newSender: {
+      archive: 'Zawsze archiwizuj',
+      archived:
+        'Nowe wiadomości od tego nadawcy będą archiwizowane. Zmienisz to w Regułach.',
+      keep: 'Zostaw jak zwykle',
+      label: 'Nowy nadawca',
+      lead: (count: number, opened: number) =>
+        `${count} wiadomości w dwa tygodnie, ${opened === 0 ? 'żadnej nie otwarto' : `otwarte: ${opened}`}`,
+    },
+    readingNow: (total: number) =>
+      plural('pl', total, {
+        one: () => 'Agent czyta nową wiadomość',
+        few: (n) => `Agent czyta ${n} nowe wiadomości`,
+        many: (n) => `Agent czyta ${n} nowych wiadomości`,
+        other: (n) => `Agent czyta ${n} nowej wiadomości`,
+      }),
+    acted: (total: number) =>
+      plural('pl', total, {
+        one: () => 'Agent zrobił dla ciebie jedną rzecz',
+        few: (n) => `Agent zrobił dla ciebie ${n} rzeczy`,
+        many: (n) => `Agent zrobił dla ciebie ${n} rzeczy`,
+        other: (n) => `Agent zrobił dla ciebie ${n} rzeczy`,
+      }),
+    allDone: 'Gotowe. Nic na ciebie nie czeka.',
+    allDoneLead:
+      'Dalej czytam nową pocztę, a wszystko, co wymaga twojej uwagi, pojawi się tutaj.',
+    ask: 'Zapytaj agenta lub powiedz mu, co zrobić…',
+    byRules: (n: number) => `Twoje reguły zajęły się ${n}.`,
+    decisions: 'Decyzje',
+    journal: {
+      approved: 'Twoje „tak”',
+      byRule: (rule: string) => `Twoja reguła: ${rule}`,
+      empty: 'Na razie nic. Dopóki nie powiesz „tak”, agent tylko czyta.',
+      failed: 'Nie udało się',
+      now: 'Teraz',
+      lead: 'Ostatnie 7 dni. Każda zmiana w poczcie, kalendarzu czy tablicach miała twoje „tak” albo włączoną przez ciebie regułę.',
+      title: 'Co zrobił agent',
+    },
+    progress: (done: number, total: number) => `${done} z ${total}`,
+    readAll:
+      'Przeczytałem wszystkie, a bez twojego „tak” w poczcie nic się nie zmienia.',
+    worthKnowing: 'Warto wiedzieć',
     tidy: {
       confirm: (emails: string) => `Uporządkować ${emails}?`,
       running: 'Porządkowanie…',
@@ -1663,7 +1706,7 @@ export const pl: Messages = {
     dates: 'Terminy i spotkania',
     done: 'Gotowe',
     firstRead:
-      'Czytam Twoją pocztę z ostatnich trzech dni. To, co wymaga Twojej uwagi, pojawi się tu samo.',
+      'Czytam Twoją pocztę z ostatnich trzech dni. To, co wymaga Twojej uwagi, pojawi się tu samo, a bez Twojego „tak” nic się nie zmieni.',
     approvedMany: (n: number) => `Zatwierdzono: ${n}`,
     listen: 'Odsłuchaj',
     handled: {

@@ -1284,6 +1284,37 @@ export const ko: Messages = {
   },
   today: {
     working: '처리 중…',
+    allKinds: '전체',
+    newSender: {
+      archive: '항상 보관',
+      archived:
+        '이 보낸 사람의 새 메일은 보관 처리돼요. 규칙에서 바꿀 수 있어요.',
+      keep: '평소대로 두기',
+      label: '새 보낸 사람',
+      lead: (count: number, opened: number) =>
+        `2주 동안 ${count}통, ${opened === 0 ? '열어 본 메일 없음' : `${opened}통 열어 봄`}`,
+    },
+    readingNow: (total: number) =>
+      `에이전트가 새 메일 ${total}통을 읽는 중이에요`,
+    acted: (total: number) => `에이전트가 ${total}가지 일을 처리했어요`,
+    allDone: '모두 끝났어요. 확인할 게 없어요.',
+    allDoneLead:
+      '새 메일을 계속 읽고 있어요. 확인할 게 생기면 여기에 나타나요.',
+    ask: '에이전트에게 묻거나 할 일을 맡겨 보세요…',
+    byRules: (n: number) => `${n}개는 규칙이 처리했어요.`,
+    decisions: '결정할 일',
+    journal: {
+      approved: '승인함',
+      byRule: (rule: string) => `내 규칙: ${rule}`,
+      empty: '아직 없어요. 승인하기 전까지 에이전트는 읽기만 해요.',
+      failed: '실패함',
+      now: '지금',
+      lead: '최근 7일. 메일, 캘린더, 보드의 모든 변경은 승인을 받았거나 직접 켠 규칙에 따른 거예요.',
+      title: '에이전트가 한 일',
+    },
+    progress: (done: number, total: number) => `${done}/${total}`,
+    readAll: '모두 읽었어요. 승인 없이는 메일에서 아무것도 바뀌지 않아요.',
+    worthKnowing: '알아 두면 좋은 것',
     tidy: {
       confirm: (emails: string) => `${emails}를 정리할까요?`,
       running: '정리 중…',
@@ -1308,7 +1339,7 @@ export const ko: Messages = {
     dates: '날짜와 일정',
     done: '완료',
     firstRead:
-      '최근 3일간의 메일을 읽고 있어요. 확인할 게 생기면 여기에 바로 나타나요.',
+      '최근 3일간의 메일을 읽고 있어요. 확인할 게 생기면 여기에 바로 나타나요. 승인하기 전까지는 아무것도 바뀌지 않아요.',
     approvedMany: (n: number) => `${n}개 승인됨`,
     listen: '듣기',
     handled: {

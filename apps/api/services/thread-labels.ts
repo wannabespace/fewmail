@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { actions, mailboxes, messages } from '@fewmail/db/schema'
+import { SUSPICION_SPAM } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { and, eq, sql } from 'drizzle-orm'
 
@@ -66,7 +67,33 @@ export const ARCHIVE = { remove: ['INBOX', 'UNREAD'] }
 export const MARK_READ = { remove: ['UNREAD'] }
 export const SPAM = { add: ['SPAM'], remove: ['INBOX', 'UNREAD'] }
 
-/** Spam shield and zombie moves: an autonomous `spam` action records each, for review in the Spam tab. */
+/**
+ * The shield and zombies only propose: the email stays in the inbox marked "Looks like spam"
+ * and a `spam` card waits for the user's yes, which moves it (and votes) through `approveAction`.
+ */
+export const proposeSpam = async (
+  userId: string,
+  message: typeof messages.$inferSelect,
+  reason: string,
+  t: Messages
+) => {
+  await db
+    .update(messages)
+    .set({ suspicion: SUSPICION_SPAM })
+    .where(eq(messages.id, message.id))
+  await db.insert(actions).values({
+    autonomous: false,
+    kind: 'spam',
+    messageId: message.id,
+    reason,
+    status: 'pending',
+    threadId: message.threadId,
+    title: t.actionKind.spam,
+    userId,
+  })
+}
+
+/** Only for a sender the user reported themselves: that report was their yes, so the move is autonomous and reviewable in the journal. */
 export const moveToSpam = async (
   userId: string,
   message: typeof messages.$inferSelect,

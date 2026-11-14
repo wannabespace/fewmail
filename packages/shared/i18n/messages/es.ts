@@ -680,7 +680,7 @@ export const es: Messages = {
     cleanup: 'Darse de baja de todos',
     commitment: 'Hecho',
     security: 'Ya lo comprobé',
-    spam: 'Movido a spam',
+    spam: 'Mover a spam',
     trash: 'Mover a la papelera',
     archive: 'Archivar',
     follow_up: 'Hacer seguimiento',
@@ -1322,6 +1322,46 @@ export const es: Messages = {
   },
   today: {
     working: 'En ello…',
+    allKinds: 'Todos',
+    newSender: {
+      archive: 'Archivar siempre',
+      archived:
+        'El correo nuevo de este remitente se archivará. Puedes cambiarlo en Reglas.',
+      keep: 'Mantener como siempre',
+      label: 'Remitente nuevo',
+      lead: (count: number, opened: number) =>
+        `${count} correos en dos semanas, ${opened === 0 ? 'ninguno abierto' : `${opened} abiertos`}`,
+    },
+    readingNow: (total: number) =>
+      plural('es', total, {
+        one: () => 'El agente está leyendo un correo nuevo',
+        many: (n) => `El agente está leyendo ${n} correos nuevos`,
+        other: (n) => `El agente está leyendo ${n} correos nuevos`,
+      }),
+    acted: (total: number) =>
+      plural('es', total, {
+        one: () => 'El agente hizo una cosa por ti',
+        many: (n) => `El agente hizo ${n} cosas por ti`,
+        other: (n) => `El agente hizo ${n} cosas por ti`,
+      }),
+    allDone: 'Todo listo. Nada te necesita.',
+    allDoneLead:
+      'Sigo leyendo el correo nuevo, y lo que te necesite aparecerá aquí.',
+    ask: 'Pregunta al agente o dile qué hacer…',
+    byRules: (n: number) => `Tus reglas se encargaron de ${n}.`,
+    decisions: 'Decisiones',
+    journal: {
+      approved: 'Dijiste que sí',
+      byRule: (rule: string) => `Tu regla: ${rule}`,
+      empty: 'Nada todavía. Hasta que digas que sí, el agente solo lee.',
+      failed: 'No funcionó',
+      now: 'Ahora',
+      lead: 'Los últimos 7 días. Cada cambio en tu correo, calendario o tableros tuvo tu sí o una regla que activaste.',
+      title: 'Lo que hizo el agente',
+    },
+    progress: (done: number, total: number) => `${done} de ${total}`,
+    readAll: 'Leí cada uno, y nada cambia en tu correo sin tu sí.',
+    worthKnowing: 'Para tener en cuenta',
     tidy: {
       confirm: (emails: string) => `¿Ordenar ${emails}?`,
       running: 'Ordenando…',
@@ -1346,7 +1386,7 @@ export const es: Messages = {
     dates: 'Fechas y reuniones',
     done: 'Hecho',
     firstRead:
-      'Leyendo tu correo de los últimos tres días. Lo que te necesite aparecerá aquí solo.',
+      'Leyendo tu correo de los últimos tres días. Lo que te necesite aparecerá aquí solo, y nada cambia hasta que digas que sí.',
     approvedMany: (n: number) => `${n} aprobadas`,
     listen: 'Escuchar',
     handled: {

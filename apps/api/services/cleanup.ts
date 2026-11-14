@@ -3,6 +3,7 @@ import {
   actions,
   mailboxes,
   messages,
+  rules,
   unsubscribes,
   userSettings,
 } from '@fewmail/db/schema'
@@ -30,7 +31,8 @@ import {
 import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { findOrCreateLabel } from './labels'
-import { insertMessages } from './stored-mail'
+import { getSettings } from './settings'
+import { ownMessage, insertMessages } from './stored-mail'
 import { unsubscribe, unsubscribeMessage } from './thread-effects'
 import { listHashOf } from './zombies'
 
@@ -117,6 +119,90 @@ const unopenedSenders = async (userId: string): Promise<CleanupSender[]> => {
       listId,
       messageId,
     }))
+}
+
+const NEW_SENDER_DAYS = 14
+const NEW_SENDER_MIN = 3
+const NEW_SENDERS_SHOWN = 3
+
+/**
+ * Lists that started writing in the last two weeks, at least three times, opened at most once: the agent asks once
+ * how to treat each (always archive, unsubscribe, keep). Any action on any of its emails (a rule, a tidy, a kept
+ * answer) means the user already decided, so it is never asked again.
+ */
+export const newSenders = async (userId: string) => {
+  const since = subDays(new Date(), NEW_SENDER_DAYS)
+  const [lists, ownRules, unsubscribedRows] = await Promise.all([
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        fromEmail: latest<string>(messages.fromEmail),
+        fromName: latest<string | null>(messages.fromName),
+        listId: latest<string | null>(messages.listId),
+        messageId: latest<string>(messages.id),
+        opened: sql<number>`count(*) filter (where not ${messages.isUnread})::int`,
+      })
+      .from(messages)
+      .where(
+        and(
+          eq(messages.userId, userId),
+          eq(messages.isFromMe, false),
+          isNotNull(messages.listUnsubscribe)
+        )
+      )
+      .groupBy(sql`coalesce(${messages.listId}, ${messages.fromEmail})`)
+      .having(
+        and(
+          sql`min(${messages.receivedAt}) >= ${since}`,
+          sql`count(*) >= ${NEW_SENDER_MIN}`,
+          sql`count(*) filter (where not ${messages.isUnread}) <= 1`,
+          sql`count(*) filter (where exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id})) = 0`
+        )
+      ),
+    db
+      .select({ match: rules.match })
+      .from(rules)
+      .where(and(eq(rules.userId, userId), eq(rules.enabled, true))),
+    db
+      .select({ senderHash: unsubscribes.senderHash })
+      .from(unsubscribes)
+      .where(eq(unsubscribes.userId, userId)),
+  ])
+  if (ownRules.some(({ match }) => match?.field === 'mailingList')) {
+    return []
+  }
+  const unsubscribed = new Set(
+    unsubscribedRows.map(({ senderHash }) => senderHash)
+  )
+  const fromRules = ownRules.flatMap(({ match }) =>
+    match?.field === 'from' ? [match.value.toLowerCase()] : []
+  )
+  return namedLists(lists)
+    .filter(
+      (list) =>
+        !unsubscribed.has(listHashOf(list)) &&
+        !fromRules.some((value) => list.fromEmail.toLowerCase().includes(value))
+    )
+    .toSorted((left, right) => right.count - left.count)
+    .slice(0, NEW_SENDERS_SHOWN)
+}
+
+/** "Keep as usual": a dismissed action on its latest email is the answer, so the sender is never asked about again. */
+export const keepSender = async (userId: string, messageId: string) => {
+  const message = await ownMessage(userId, messageId)
+  const settings = await getSettings(userId)
+  const t = dictionaries[settings?.language ?? 'en']
+  await db.insert(actions).values({
+    autonomous: false,
+    kind: 'archive',
+    messageId,
+    reason: '',
+    resolvedAt: new Date(),
+    status: 'dismissed',
+    threadId: message.threadId,
+    title: t.rules.effect.archive,
+    userId,
+  })
 }
 
 const CLEANUP_EVERY_DAYS = 6

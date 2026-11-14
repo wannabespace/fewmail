@@ -8,7 +8,7 @@ import { and, eq, inArray, isNull, lt, sql } from 'drizzle-orm'
 
 import { keyedHash, senderHashOf } from '../lib/keyed-hash'
 import { getSettings } from './settings'
-import { moveToSpam } from './thread-labels'
+import { proposeSpam } from './thread-labels'
 
 type Message = typeof messages.$inferSelect
 
@@ -98,7 +98,7 @@ export const catchZombies = async (userId: string, incoming: Message[]) => {
   const t = dictionaries[settings?.language ?? 'en']
 
   await Promise.all(
-    zombies.map((message) => moveToSpam(userId, message, t.zombie.reason, t))
+    zombies.map((message) => proposeSpam(userId, message, t.zombie.reason, t))
   )
   await db
     .update(unsubscribes)

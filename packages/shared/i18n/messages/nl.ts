@@ -7,7 +7,7 @@ export const nl: Messages = {
     cleanup: 'Overal afmelden',
     commitment: 'Klaar',
     security: 'Gecontroleerd',
-    spam: 'Naar spam verplaatst',
+    spam: 'Naar spam',
     archive: 'Archiveren',
     follow_up: 'Opvolgen',
     mark_read: 'Markeer gelezen',
@@ -1614,6 +1614,45 @@ export const nl: Messages = {
   },
   today: {
     working: 'Bezig…',
+    allKinds: 'Alle',
+    newSender: {
+      archive: 'Altijd archiveren',
+      archived:
+        'Nieuwe mail van deze afzender wordt gearchiveerd. Wijzig dit bij Regels.',
+      keep: 'Gewoon houden',
+      label: 'Nieuwe afzender',
+      lead: (count: number, opened: number) =>
+        `${count} e-mails in twee weken, ${opened === 0 ? 'geen geopend' : `${opened} geopend`}`,
+    },
+    readingNow: (total: number) =>
+      plural('nl', total, {
+        one: () => 'De agent leest een nieuwe e-mail',
+        other: (n) => `De agent leest ${n} nieuwe e-mails`,
+      }),
+    acted: (total: number) =>
+      plural('nl', total, {
+        one: () => 'De agent deed één ding voor je',
+        other: (n) => `De agent deed ${n} dingen voor je`,
+      }),
+    allDone: 'Alles klaar. Niets heeft je nodig.',
+    allDoneLead:
+      'Ik blijf nieuwe mail lezen, en wat jou nodig heeft, verschijnt hier.',
+    ask: 'Vraag de agent iets of zeg wat hij moet doen…',
+    byRules: (n: number) => `Je regels hebben er ${n} afgehandeld.`,
+    decisions: 'Beslissingen',
+    journal: {
+      approved: 'Je zei ja',
+      byRule: (rule: string) => `Je regel: ${rule}`,
+      empty: 'Nog niets. Tot je ja zegt, leest de agent alleen.',
+      failed: 'Mislukt',
+      now: 'Nu',
+      lead: 'De afgelopen 7 dagen. Elke wijziging in je mail, agenda of borden had je ja of een regel die je aanzette.',
+      title: 'Wat de agent deed',
+    },
+    progress: (done: number, total: number) => `${done} van ${total}`,
+    readAll:
+      'Ik heb ze allemaal gelezen, en zonder je ja verandert er niets in je mail.',
+    worthKnowing: 'Goed om te weten',
     tidy: {
       confirm: (emails: string) => `${emails} opruimen?`,
       running: 'Opruimen…',
@@ -1638,7 +1677,7 @@ export const nl: Messages = {
     dates: 'Data en afspraken',
     done: 'Klaar',
     firstRead:
-      'Ik lees je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf.',
+      'Ik lees je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf, en er verandert niets tot je ja zegt.',
     approvedMany: (n: number) => `${n} goedgekeurd`,
     listen: 'Luisteren',
     handled: {

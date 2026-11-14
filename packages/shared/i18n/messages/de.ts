@@ -678,7 +678,7 @@ export const de: Messages = {
     cleanup: 'Alle abbestellen',
     commitment: 'Erledigt',
     security: 'Geprüft',
-    spam: 'In Spam verschoben',
+    spam: 'In den Spam',
     trash: 'In den Papierkorb',
     archive: 'Archivieren',
     follow_up: 'Nachfassen',
@@ -1326,6 +1326,45 @@ export const de: Messages = {
   },
   today: {
     working: 'Wird erledigt…',
+    allKinds: 'Alle',
+    newSender: {
+      archive: 'Immer archivieren',
+      archived:
+        'Neue Mails von diesem Absender werden archiviert. Ändern kannst du das unter Regeln.',
+      keep: 'Wie gewohnt behalten',
+      label: 'Neuer Absender',
+      lead: (count: number, opened: number) =>
+        `${count} Mails in zwei Wochen, ${opened === 0 ? 'keine geöffnet' : `${opened} geöffnet`}`,
+    },
+    readingNow: (total: number) =>
+      plural('de', total, {
+        one: () => 'Der Agent liest eine neue Mail',
+        other: (n) => `Der Agent liest ${n} neue Mails`,
+      }),
+    acted: (total: number) =>
+      plural('de', total, {
+        one: () => 'Der Agent hat eine Sache für dich erledigt',
+        other: (n) => `Der Agent hat ${n} Dinge für dich erledigt`,
+      }),
+    allDone: 'Alles erledigt. Nichts braucht dich.',
+    allDoneLead:
+      'Ich lese neue Mails weiter, und alles, was dich braucht, erscheint hier.',
+    ask: 'Frag den Agenten oder sag ihm, was er tun soll…',
+    byRules: (n: number) => `Deine Regeln haben ${n} erledigt.`,
+    decisions: 'Entscheidungen',
+    journal: {
+      approved: 'Du hast Ja gesagt',
+      byRule: (rule: string) => `Deine Regel: ${rule}`,
+      empty: 'Noch nichts. Bis du Ja sagst, liest der Agent nur.',
+      failed: 'Hat nicht geklappt',
+      now: 'Jetzt',
+      lead: 'Die letzten 7 Tage. Jede Änderung in deiner Mail, deinem Kalender oder deinen Boards hatte dein Ja oder eine Regel, die du eingeschaltet hast.',
+      title: 'Was der Agent getan hat',
+    },
+    progress: (done: number, total: number) => `${done} von ${total}`,
+    readAll:
+      'Ich habe jede gelesen, und ohne dein Ja ändert sich nichts in deiner Mail.',
+    worthKnowing: 'Gut zu wissen',
     tidy: {
       confirm: (emails: string) => `${emails} aufräumen?`,
       running: 'Wird aufgeräumt…',
@@ -1350,7 +1389,7 @@ export const de: Messages = {
     dates: 'Termine und Fristen',
     done: 'Erledigt',
     firstRead:
-      'Ich lese die Mails der letzten drei Tage. Was dich braucht, erscheint hier von selbst.',
+      'Ich lese die Mails der letzten drei Tage. Was dich braucht, erscheint hier von selbst, und nichts ändert sich, bevor du Ja sagst.',
     approvedMany: (n: number) => `${n} freigegeben`,
     listen: 'Anhören',
     handled: {

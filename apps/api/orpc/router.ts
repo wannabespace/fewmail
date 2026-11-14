@@ -48,13 +48,14 @@ import {
 } from '../services/calendar'
 import { deleteChat, getChat, listChats, streamChat } from '../services/chat'
 import {
+  keepSender,
   listSubscriptions,
   runClearOut,
   scanClearOut,
   undoClearOut,
 } from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
-import { getToday, listTodayHandled, openToday } from '../services/home'
+import { getToday, listJournal, openToday } from '../services/home'
 import { askFewmail } from '../services/instructions'
 import {
   getTelegramLink,
@@ -73,6 +74,7 @@ import {
   moveToInbox,
   blockSender,
   countQueue,
+  listQueue,
   dismissAction,
   draftReply,
   getThread,
@@ -593,13 +595,19 @@ export const router = {
   today: {
     count: agent.handler(({ context }) => countQueue(context.user.id)),
     get: agent.handler(({ context }) => getToday(context.user.id)),
-    handled: agent.handler(({ context }) => listTodayHandled(context.user.id)),
+    handled: agent.handler(({ context }) => listJournal(context.user.id)),
+    keepSender: agent
+      .input(messageId)
+      .handler(({ context, input }) =>
+        keepSender(context.user.id, input.messageId)
+      ),
     keep: agent
       .input(type({ messageIds: 'string.uuid[] > 0' }))
       .handler(({ context, input }) =>
         settleTidy(context.user.id, input.messageIds, 'dismissed')
       ),
     open: agent.handler(({ context }) => openToday(context.user.id)),
+    queue: agent.handler(({ context }) => listQueue(context.user.id)),
     tidy: agent
       .input(type({ messageIds: 'string.uuid[] > 0' }))
       .handler(({ context, input }) =>

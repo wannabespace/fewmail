@@ -4,6 +4,7 @@ import {
   TIDY_KINDS,
   UNDO_SEND_SECONDS,
 } from '@fewmail/shared/agent'
+import type { ActionKind } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
   Accordion,
@@ -20,7 +21,16 @@ import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { Progress } from '@fewmail/ui/components/progress'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import {
@@ -33,11 +43,15 @@ import { cn } from '@fewmail/ui/lib/utils'
 import {
   Add01Icon,
   BubbleChatIcon,
+  Calendar03Icon,
+  Clock01Icon,
+  MailRemove01Icon,
   PanelRightCloseIcon,
   PanelRightOpenIcon,
   RepeatIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -48,6 +62,7 @@ import {
 } from '@tanstack/react-router'
 import { type } from 'arktype'
 import {
+  addDays,
   differenceInMinutes,
   endOfTomorrow,
   format,
@@ -63,7 +78,7 @@ import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
-import { AgentChat, agentHiddenStore } from '~/components/agent-chat'
+import { AgentChat, agentHiddenStore, askAgent } from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
@@ -82,7 +97,8 @@ import {
 } from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
-import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
+import { queueCards } from '~/lib/home-db'
+import { useDates, useT } from '~/lib/i18n'
 import {
   hideThread,
   isReadingFirstTime,
@@ -93,47 +109,65 @@ import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
 import { toastUndo } from '~/lib/undo'
 
+type Today = RouterOutputs['today']['get']
+type JournalEntry = RouterOutputs['today']['handled'][number]
+
 const TallyBox = ({ children }: { children: ReactNode }) => (
   <div className="text-foreground/75 flex items-center gap-3 rounded-2xl border border-dashed px-4.5 py-3.5 text-sm">
     {children}
   </div>
 )
 
-const HandledSummary = ({
-  handled,
-  onReview,
-}: {
-  handled: Today['handled']
-  onReview: () => void
-}) => {
-  const t = useT().today.handled
+/** Opens in the reader beside Home, never in Mail: Home and the chat stay where they were. */
+const ThreadLink = ({ text, threadId }: { text: string; threadId: string }) => (
+  <Link
+    to="/home"
+    search={(prev) => ({ ...prev, thread: threadId })}
+    onPointerEnter={() => {
+      void prefetchThread(threadId)
+    }}
+    data-mask
+  >
+    {text}
+  </Link>
+)
+
+const JournalLink = () => {
+  const t = useT()
 
   return (
-    <TallyBox>
-      <span>
-        <strong className="text-foreground font-semibold">
-          {t.total(handled.total)}
-        </strong>
-        {handled.archived > 0 && ` · ${t.archived(handled.archived)}`}
-        {handled.markedRead > 0 && ` · ${t.markedRead(handled.markedRead)}`}
-        {handled.spam > 0 && ` · ${t.spam(handled.spam)}`}
-        {handled.unsubscribed > 0 &&
-          ` · ${t.unsubscribed(handled.unsubscribed)}`}
-      </span>
-      <Button size="sm" variant="link" className="ml-auto" onClick={onReview}>
-        {t.review} <Kbd>H</Kbd>
-      </Button>
-    </TallyBox>
+    <Button
+      size="sm"
+      variant="link"
+      className="ml-auto"
+      render={
+        <Link to="/home" search={(prev) => ({ ...prev, journal: true })} />
+      }
+    >
+      <HugeiconsIcon
+        icon={Clock01Icon}
+        strokeWidth={2}
+        data-icon="inline-start"
+      />
+      {t.today.journal.title} <Kbd>H</Kbd>
+    </Button>
   )
 }
 
+const Ago = ({ date }: { date: Date }) => (
+  <span className="text-muted-foreground text-xs">{useDates().ago(date)}</span>
+)
+
 const TIDY_TOAST = 'tidy'
 
+/** The agent's suggestions for quiet mail as one decision: one yes does them all. */
 const Tidy = ({
   canUseKeys,
+  onSettle,
   today,
 }: {
   canUseKeys: boolean
+  onSettle: () => void
   today: Today | undefined
 }) => {
   const t = useT()
@@ -163,6 +197,7 @@ const Tidy = ({
       onError: () => toast.dismiss(TIDY_TOAST),
       onMutate: (input) => {
         dropFromTidy(input)
+        onSettle()
         toast.loading(t.today.tidy.running, { id: TIDY_TOAST })
       },
       onSettled: refetchMail,
@@ -222,28 +257,32 @@ const Tidy = ({
     return null
   }
   return (
-    <section aria-label={t.today.tidy.run} className="flex flex-col gap-2.5">
-      <TallyBox>
-        <span>
-          <strong className="text-foreground font-semibold">
-            {t.today.tidy.total(tidy.length)}
-          </strong>
-          {TIDY_KINDS.map((kind) => {
-            const count = tidy.filter(
-              ({ analysis }) => analysis.suggestedAction === kind
-            ).length
-            return count > 0 && ` · ${t.today.tidy[kind](count)}`
-          })}
-        </span>
-        <Button size="sm" variant="link" className="ml-auto" onClick={toggle}>
-          {t.today.tidy.details} <Kbd>D</Kbd>
-        </Button>
-        <Button size="sm" variant="secondary" onClick={run}>
-          {t.today.tidy.run} <Kbd>T</Kbd>
-        </Button>
-      </TallyBox>
+    <>
+      <Item variant="card" size="sm">
+        <ItemContent>
+          <ItemTitle>{t.today.tidy.total(tidy.length)}</ItemTitle>
+          <p className="text-muted-foreground text-sm">
+            {TIDY_KINDS.map((kind) => {
+              const count = tidy.filter(
+                ({ analysis }) => analysis.suggestedAction === kind
+              ).length
+              return count > 0 && t.today.tidy[kind](count)
+            })
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+        </ItemContent>
+        <ItemActions>
+          <Button size="sm" variant="ghost-muted" onClick={toggle}>
+            {t.today.tidy.details} <Kbd>D</Kbd>
+          </Button>
+          <Button size="sm" onClick={run}>
+            {t.today.tidy.run} <Kbd>T</Kbd>
+          </Button>
+        </ItemActions>
+      </Item>
       {isOpen && (
-        <SettingsGroup title={t.today.tidy.total(tidy.length)}>
+        <SettingsGroup>
           {tidy.map(({ analysis, message }) => (
             <SettingsRow
               key={message.id}
@@ -271,110 +310,182 @@ const Tidy = ({
           ))}
         </SettingsGroup>
       )}
-    </section>
+    </>
   )
 }
 
-const HandledList = () => {
+/** A list that started writing often and is barely opened: the agent asks once how to treat it. A, U and I answer the first. */
+const NewSenders = ({
+  canUseKeys,
+  onSettle,
+  senders,
+}: {
+  canUseKeys: boolean
+  onSettle: () => void
+  senders: Today['newSenders']
+}) => {
   const t = useT()
   const queryClient = useQueryClient()
-  const { data: handled = [] } = useQuery(orpc.today.handled.queryOptions())
-  const toInbox = useMutation(
-    orpc.mail.moveToInbox.mutationOptions({
-      onSettled: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
-      onSuccess: () => toast(t.mail.backInInbox),
-    })
-  )
-  const notSpam = useMutation(
-    orpc.mail.notSpam.mutationOptions({
-      onMutate: ({ messageId }) => {
-        const threadId = threadOfMessage(messageId)
-        if (threadId) {
-          hideThread(threadId)
+  const answered = (sender: Today['newSenders'][number]) => {
+    onSettle()
+    queryClient.setQueryData(
+      orpc.today.get.queryKey(),
+      (old) =>
+        old && {
+          ...old,
+          newSenders: old.newSenders.filter(
+            ({ messageId }) => messageId !== sender.messageId
+          ),
         }
-      },
+    )
+  }
+  const refetch = () =>
+    queryClient.invalidateQueries({ queryKey: orpc.today.key() })
+  const archive = useMutation(
+    orpc.rules.createSimple.mutationOptions({
       onSettled: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
-      onSuccess: () => toast(t.mail.movedToInbox),
+        Promise.all([
+          refetch(),
+          queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
+        ]),
+      onSuccess: () => toast.success(t.today.newSender.archived),
     })
   )
-
-  const undos: Partial<
-    Record<string, { label: string; run: (messageId: string) => void }>
-  > = {
-    archive: {
-      label: t.mail.moveToInbox,
-      run: (messageId) => toInbox.mutate({ messageId }),
-    },
-    spam: {
-      label: t.mail.notSpam,
-      run: (messageId) => notSpam.mutate({ messageId }),
-    },
-  }
-
-  return (
-    <SettingsGroup title={t.today.handled.total(handled.length)}>
-      {handled.map(({ action, message, summary }) => (
-        <SettingsRow
-          key={action.id}
-          title={
-            message ? (
-              <ThreadLink
-                threadId={message.threadId}
-                text={message.fromName ?? message.fromEmail}
-              />
-            ) : (
-              action.title
-            )
-          }
-          description={
-            <span data-mask>
-              {[
-                action.title || t.actionKind[action.kind],
-                action.reason || summary,
-              ]
-                .filter(Boolean)
-                .join(' · ')}
-            </span>
-          }
-        >
-          {message && undos[action.kind] ? (
-            <Button
-              size="sm"
-              variant="ghost-muted"
-              onClick={() => undos[action.kind]?.run(message.id)}
-            >
-              {undos[action.kind]?.label}
-            </Button>
-          ) : (
-            <Ago date={action.createdAt} />
-          )}
-        </SettingsRow>
-      ))}
-    </SettingsGroup>
+  const keep = useMutation(
+    orpc.today.keepSender.mutationOptions({ onSettled: refetch })
   )
+  const unsubscribe = useMutation(
+    orpc.subscriptions.unsubscribe.mutationOptions({
+      // Leaving a list can take a while (its page, a mailto): the toast says so until the answer.
+      onMutate: ({ messageId }) => {
+        toast.loading(t.mail.unsubscribing, { id: messageId })
+      },
+      onError: (_, { messageId }) => toast.dismiss(messageId),
+      onSettled: () =>
+        Promise.all([
+          refetch(),
+          queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+        ]),
+      onSuccess: ({ link, unsubscribed }, { messageId }) =>
+        link
+          ? toast(t.mail.unsubscribeYourself, {
+              action: {
+                label: t.mail.openUnsubscribePage,
+                onClick: () => window.open(link, '_blank', 'noopener'),
+              },
+              id: messageId,
+            })
+          : toast.success(
+              unsubscribed
+                ? t.subscriptions.unsubscribed
+                : t.subscriptions.archivedOnly,
+              { id: messageId }
+            ),
+    })
+  )
+  const answers = (sender: Today['newSenders'][number]) => ({
+    handleArchive: () => {
+      answered(sender)
+      archive.mutate({
+        effect: 'archive',
+        match: { field: 'from', value: sender.fromEmail },
+      })
+    },
+    handleKeep: () => {
+      answered(sender)
+      keep.mutate({ messageId: sender.messageId })
+    },
+    handleUnsubscribe: () =>
+      confirm({
+        action: t.subscriptions.unsubscribe,
+        description: t.subscriptions.unsubscribeHint(
+          t.cleanup.emails(sender.count)
+        ),
+        onConfirm: () => {
+          answered(sender)
+          unsubscribe.mutate({ messageId: sender.messageId })
+        },
+        title: t.mail.unsubscribeConfirm(sender.fromName ?? sender.fromEmail),
+        variant: 'warning',
+      }),
+  })
+  const first = senders[0] && answers(senders[0])
+  const keys = { enabled: canUseKeys && !!first }
+  useHotkey('A', () => first?.handleArchive(), keys)
+  useHotkey('U', () => first?.handleUnsubscribe(), keys)
+  useHotkey('I', () => first?.handleKeep(), keys)
+
+  return senders.map((sender, index) => {
+    const answer = answers(sender)
+    const key = (letter: string) => index === 0 && <Kbd>{letter}</Kbd>
+    return (
+      <Item key={sender.messageId} variant="card" size="sm">
+        <ItemMedia variant="icon">
+          <HugeiconsIcon icon={MailRemove01Icon} strokeWidth={2} />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>
+            <span data-mask>{sender.fromName ?? sender.fromEmail}</span>
+            <span className="text-muted-foreground text-xs font-normal">
+              {t.today.newSender.label}
+            </span>
+          </ItemTitle>
+          <ItemDescription>
+            {t.today.newSender.lead(sender.count, sender.opened)}
+          </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <Button size="sm" variant="ghost-muted" onClick={answer.handleKeep}>
+            {t.today.newSender.keep} {key('I')}
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={answer.handleUnsubscribe}
+          >
+            {t.actionKind.unsubscribe} {key('U')}
+          </Button>
+          <Button size="sm" onClick={answer.handleArchive}>
+            {t.today.newSender.archive} {key('A')}
+          </Button>
+        </ItemActions>
+      </Item>
+    )
+  })
 }
 
-type Today = RouterOutputs['today']['get']
+/** A chat whose last turn asks for a yes is a decision like any card: it opens in the agent's column. */
+const WaitingChats = ({ chats }: { chats: RouterOutputs['chats']['list'] }) => {
+  const t = useT()
 
-/** Opens in the reader beside Home, never in Mail: Home and the chat stay where they were. */
-const ThreadLink = ({ text, threadId }: { text: string; threadId: string }) => (
-  <Link
-    to="/home"
-    search={(prev) => ({ ...prev, thread: threadId })}
-    onPointerEnter={() => {
-      void prefetchThread(threadId)
-    }}
-    data-mask
-  >
-    {text}
-  </Link>
-)
-
-const Ago = ({ date }: { date: Date }) => (
-  <span className="text-muted-foreground text-xs">{useDates().ago(date)}</span>
-)
+  return chats.map((chat) => (
+    <Item
+      key={chat.id}
+      variant="card"
+      size="sm"
+      render={
+        <Link
+          to="/home"
+          search={(prev) => ({ ...prev, chat: chat.id })}
+          onClick={() => agentHiddenStore.set(false)}
+        />
+      }
+    >
+      <ItemMedia variant="icon">
+        <HugeiconsIcon
+          icon={chat.isScheduled ? RepeatIcon : BubbleChatIcon}
+          strokeWidth={2}
+        />
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle data-mask>{chat.title}</ItemTitle>
+      </ItemContent>
+      <ItemActions>
+        <span className="text-primary text-xs">{t.agent.waitingShort}</span>
+      </ItemActions>
+    </Item>
+  ))
+}
 
 const FreshCodes = ({
   canUseKeys,
@@ -403,7 +514,7 @@ const FreshCodes = ({
     return null
   }
   return (
-    <SettingsGroup title={t.today.codes}>
+    <SettingsGroup>
       {codes.map(
         (message) =>
           message.code && (
@@ -430,9 +541,9 @@ const FreshCodes = ({
   )
 }
 
-const MailDigest = ({ today }: { today: Today }) => {
+/** Mail that needs no decision: important unread, dated mail no card shows, and sent mail still waiting for an answer. */
+const WorthKnowing = ({ today }: { today: Today | undefined }) => {
   const t = useT()
-  const money = useMoneyFormat()
   const queryClient = useQueryClient()
   const actions = useMailActions((messageId) =>
     queryClient.setQueryData(
@@ -446,114 +557,76 @@ const MailDigest = ({ today }: { today: Today }) => {
   )
   const sweep = sweepOf(actions, t, 'inbox')
 
+  if (
+    !today ||
+    today.recent.length + today.dates.length + today.awaiting.length === 0
+  ) {
+    return null
+  }
   return (
-    <>
-      {today.awaiting.length > 0 && (
-        <SettingsGroup title={t.today.awaiting}>
-          {today.awaiting.map((sent) => (
-            <SettingsRow
-              key={sent.threadId}
-              title={
-                <ThreadLink
-                  threadId={sent.threadId}
-                  text={sent.to[0] ?? sent.subject}
-                />
-              }
-              description={<span data-mask>{sent.subject}</span>}
-            >
-              <Ago date={sent.receivedAt} />
-            </SettingsRow>
-          ))}
-        </SettingsGroup>
-      )}
-      {today.recent.length > 0 && (
-        <SettingsGroup title={t.today.recent(t.today.period(today.days))}>
-          {today.recent.map(({ analysis, message }) => (
-            <SettingsRow
-              key={message.id}
-              title={
-                <ThreadLink
-                  threadId={message.threadId}
-                  text={message.fromName ?? message.fromEmail}
-                />
-              }
-              description={<span data-mask>{analysis.summary}</span>}
-            >
-              <span className={`${ROW_SWAP} group/swap`}>
-                <span className="flex items-center gap-2 group-hover/item:opacity-0 group-has-data-popup-open/swap:opacity-0">
-                  <Ago date={message.receivedAt} />
-                  <ImportanceDot
-                    importance={analysis.importance}
-                    reason={analysis.reason}
-                  />
-                </span>
-                <MailRowActions
-                  actions={actions}
-                  canSnooze
-                  className="group-hover/item:opacity-100"
-                  messageIds={[message.id]}
-                  sweep={sweep}
-                />
-              </span>
-            </SettingsRow>
-          ))}
-        </SettingsGroup>
-      )}
-      {today.boards.length > 0 && (
-        <SettingsGroup title={t.nav.boards}>
-          {today.boards.map((board) => (
-            <SettingsRow
-              key={board.id}
-              title={
-                <Link
-                  to="/boards/$boardId"
-                  params={{ boardId: board.id }}
-                  data-mask
-                >
-                  {board.name}
-                </Link>
-              }
-              description={
-                <span data-mask>
-                  {t.boards.entries(board.count)} · {board.newest}
-                </span>
-              }
-            >
-              {board.totals.length > 0 && (
-                <span className="tabular-nums" data-mask>
-                  {board.totals
-                    .map(({ amountCents, currency }) =>
-                      money(amountCents, currency)
-                    )
-                    .join(' · ')}
-                </span>
-              )}
-            </SettingsRow>
-          ))}
-        </SettingsGroup>
-      )}
-    </>
-  )
-}
-
-const Pulse = ({
-  days,
-  handled,
-  pulse,
-}: Pick<Today, 'days' | 'handled' | 'pulse'>) => {
-  const t = useT().today
-
-  return (
-    <p className="text-muted-foreground text-sm">
-      {[
-        t.pulse.total(pulse.total, t.period(days)),
-        pulse.people > 0 && t.pulse.people(pulse.people),
-        pulse.lists > 0 && t.pulse.lists(pulse.lists),
-        handled.total > 0 && t.handled.total(handled.total),
-      ]
-        .filter(Boolean)
-        .join(' · ')}
-    </p>
+    <SettingsGroup title={t.today.worthKnowing}>
+      {today.recent.map(({ analysis, message }) => (
+        <SettingsRow
+          key={message.id}
+          title={
+            <ThreadLink
+              threadId={message.threadId}
+              text={message.fromName ?? message.fromEmail}
+            />
+          }
+          description={<span data-mask>{analysis.summary}</span>}
+        >
+          <span className={`${ROW_SWAP} group/swap`}>
+            <span className="flex items-center gap-2 group-hover/item:opacity-0 group-has-data-popup-open/swap:opacity-0">
+              <Ago date={message.receivedAt} />
+              <ImportanceDot
+                importance={analysis.importance}
+                reason={analysis.reason}
+              />
+            </span>
+            <MailRowActions
+              actions={actions}
+              canSnooze
+              className="group-hover/item:opacity-100"
+              messageIds={[message.id]}
+              sweep={sweep}
+            />
+          </span>
+        </SettingsRow>
+      ))}
+      {today.dates.map(({ analysis, message }) => (
+        <SettingsRow
+          key={message.id}
+          title={
+            <ThreadLink
+              threadId={message.threadId}
+              text={message.fromName ?? message.fromEmail}
+            />
+          }
+          description={<span data-mask>{analysis.summary}</span>}
+        >
+          <ExtractedChips extracted={{ ...analysis.extracted, amount: null }} />
+        </SettingsRow>
+      ))}
+      {today.awaiting.map((sent) => (
+        <SettingsRow
+          key={sent.threadId}
+          title={
+            <ThreadLink
+              threadId={sent.threadId}
+              text={sent.to[0] ?? sent.subject}
+            />
+          }
+          description={
+            <>
+              {t.today.awaiting} · <span data-mask>{sent.subject}</span>
+            </>
+          }
+        >
+          <Ago date={sent.receivedAt} />
+        </SettingsRow>
+      ))}
+    </SettingsGroup>
   )
 }
 
@@ -564,7 +637,7 @@ const Saved = ({ saved }: { saved: Today['saved'] }) => {
     <Tooltip>
       <TooltipTrigger
         render={<Link to="/wrapped" />}
-        className="text-muted-foreground hover:text-foreground w-fit cursor-pointer text-sm"
+        className="text-foreground/75 hover:text-foreground w-fit cursor-pointer"
       >
         {t.saved(saved.minutes)}
       </TooltipTrigger>
@@ -575,40 +648,239 @@ const Saved = ({ saved }: { saved: Today['saved'] }) => {
   )
 }
 
-/** Module-level so the ref stays the same function and scrolls once, when H opens the list below the fold. */
-const revealOnMount = (node: HTMLElement | null) =>
-  node?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+/** One line for what the agent did in the catch-up window; the journal has each of them. */
+const Tally = ({ today }: { today: Today | undefined }) => {
+  const t = useT()
 
-const DayTally = ({
-  isReviewing,
-  onReview,
-  today,
-}: {
-  isReviewing: boolean
-  onReview: () => void
-  today: Today
-}) => (
-  <>
-    {today.saved.minutes > 0 && <Saved saved={today.saved} />}
-    {today.handled.total > 0 && (
-      <HandledSummary handled={today.handled} onReview={onReview} />
-    )}
-    {isReviewing && (
-      <div ref={revealOnMount}>
-        <HandledList />
-      </div>
-    )}
-  </>
-)
+  if (!today || (today.acted === 0 && today.saved.minutes === 0)) {
+    return null
+  }
+  return (
+    <TallyBox>
+      <span>
+        {today.acted > 0 && t.today.acted(today.acted)}
+        {today.acted > 0 && today.saved.minutes > 0 && ' · '}
+        {today.saved.minutes > 0 && <Saved saved={today.saved} />}
+      </span>
+      <JournalLink />
+    </TallyBox>
+  )
+}
+
+/** Newest first in, newest day first out: each day keeps the moment of its first entry for its title. */
+const groupByDay = (entries: JournalEntry[]) => {
+  const days: { day: Date; key: string; rows: JournalEntry[] }[] = []
+  for (const entry of entries) {
+    const key = format(entry.action.actedAt, 'yyyy-MM-dd')
+    const last = days.at(-1)
+    if (last?.key === key) {
+      last.rows.push(entry)
+    } else {
+      days.push({ day: entry.action.actedAt, key, rows: [entry] })
+    }
+  }
+  return days
+}
+
+const whoAllowed = (t: Messages, { action, rule }: JournalEntry) => {
+  if (action.status === 'failed') {
+    return t.today.journal.failed
+  }
+  return rule ? t.today.journal.byRule(rule) : t.today.journal.approved
+}
+
+/** Everything the agent did, each with who allowed it: the user's yes or a rule they turned on. */
+const Journal = () => {
+  const t = useT()
+  const dates = useDates()
+  const queryClient = useQueryClient()
+  const { data: entries, isPending } = useQuery(
+    orpc.today.handled.queryOptions()
+  )
+  const { data: reading = 0 } = useQuery(
+    orpc.today.get.queryOptions({ select: (today) => today.reading })
+  )
+  const { data: upcoming = [] } = useQuery(
+    orpc.schedules.list.queryOptions({
+      select: (schedules) =>
+        schedules.filter(({ nextRunAt }) => nextRunAt < addDays(new Date(), 1)),
+    })
+  )
+  const refresh = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
+      queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+    ])
+  const toInbox = useMutation(
+    orpc.mail.moveToInbox.mutationOptions({
+      onSettled: refresh,
+      onSuccess: () => toast(t.mail.backInInbox),
+    })
+  )
+  const notSpam = useMutation(
+    orpc.mail.notSpam.mutationOptions({
+      onMutate: ({ messageId }) => {
+        const threadId = threadOfMessage(messageId)
+        if (threadId) {
+          hideThread(threadId)
+        }
+      },
+      onSettled: refresh,
+      onSuccess: () => toast(t.mail.movedToInbox),
+    })
+  )
+  const undos: Partial<
+    Record<string, { label: string; run: (messageId: string) => void }>
+  > = {
+    archive: {
+      label: t.mail.moveToInbox,
+      run: (messageId) => toInbox.mutate({ messageId }),
+    },
+    spam: {
+      label: t.mail.notSpam,
+      run: (messageId) => notSpam.mutate({ messageId }),
+    },
+  }
+
+  const row = (entry: JournalEntry) => {
+    const { action, message, rule, summary } = entry
+    const undo = action.status === 'failed' ? undefined : undos[action.kind]
+    const who = whoAllowed(t, entry)
+    return (
+      <SettingsRow
+        key={action.id}
+        title={
+          message ? (
+            <ThreadLink
+              threadId={message.threadId}
+              text={message.fromName ?? message.fromEmail}
+            />
+          ) : (
+            <span data-mask>{action.title}</span>
+          )
+        }
+        description={
+          <>
+            <span data-mask>
+              {[
+                action.title || t.actionKind[action.kind],
+                // A rule's action carries the rule as its reason: `who` already names it.
+                !rule && (action.reason || summary),
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
+            {' · '}
+            <span data-mask={!!rule && action.status !== 'failed'}>{who}</span>
+          </>
+        }
+      >
+        {message && undo ? (
+          <Button
+            size="sm"
+            variant="ghost-muted"
+            onClick={() => undo.run(message.id)}
+          >
+            {undo.label}
+          </Button>
+        ) : (
+          <span className="text-muted-foreground text-xs tabular-nums">
+            {dates.format(action.actedAt, 'p')}
+          </span>
+        )}
+      </SettingsRow>
+    )
+  }
+  const failed = (entries ?? []).filter(
+    ({ action }) => action.status === 'failed'
+  )
+  const days = groupByDay(
+    (entries ?? []).filter(({ action }) => action.status !== 'failed')
+  )
+
+  return (
+    <>
+      <header className="flex flex-col gap-3">
+        <h1 className="text-display font-serif tracking-tight">
+          {t.today.journal.title}
+        </h1>
+        <p className="text-brief text-foreground/80 font-serif">
+          {t.today.journal.lead}
+        </p>
+      </header>
+      {(reading > 0 || upcoming.length > 0) && (
+        <SettingsGroup title={t.today.journal.now}>
+          {reading > 0 && (
+            <SettingsRow
+              title={
+                <span className="flex items-center gap-2">
+                  <Spinner />
+                  {t.today.readingNow(reading)}
+                </span>
+              }
+            />
+          )}
+          {upcoming.map((schedule) => (
+            <SettingsRow
+              key={schedule.id}
+              title={
+                <Link
+                  to="/home"
+                  search={(prev) => ({
+                    ...prev,
+                    chat: schedule.chatId,
+                    journal: undefined,
+                  })}
+                  onClick={() => agentHiddenStore.set(false)}
+                  data-mask
+                >
+                  {schedule.instruction}
+                </Link>
+              }
+              description={<span data-mask>{schedule.when}</span>}
+            >
+              <span className="text-muted-foreground text-xs">
+                {dates.ago(schedule.nextRunAt)}
+              </span>
+            </SettingsRow>
+          ))}
+        </SettingsGroup>
+      )}
+      {!isPending && entries?.length === 0 && (
+        <TallyBox>{t.today.journal.empty}</TallyBox>
+      )}
+      {failed.length > 0 && (
+        <SettingsGroup title={t.today.journal.failed}>
+          {failed.map(row)}
+        </SettingsGroup>
+      )}
+      {days.map(({ day, key, rows }) => (
+        <SettingsGroup
+          key={key}
+          title={
+            <span className="inline-block first-letter:uppercase">
+              {isToday(day)
+                ? t.calendar.today
+                : dates.format(day, 'EEEE, d MMMM')}
+            </span>
+          }
+        >
+          {rows.map(row)}
+        </SettingsGroup>
+      ))}
+    </>
+  )
+}
 
 const homeHints = (
   t: Messages,
   state: {
     alike: number
-    hasHandled: boolean
+    hasFilter: boolean
     today: Today | undefined
     isAsking: boolean
     isEditing: boolean
+    isJournal: boolean
     isRewriting: boolean
     picked: number
     selected: QueueItem | undefined
@@ -635,6 +907,13 @@ const homeHints = (
       ['esc', t.keys.stopEditing],
     ]
   }
+  if (state.isJournal) {
+    return [
+      ['/', t.keys.askAgent],
+      ['H', t.nav.home],
+      ['esc', t.keys.close],
+    ]
+  }
   if (state.picked > 0) {
     return [
       ['J / K', t.keys.move],
@@ -647,8 +926,12 @@ const homeHints = (
   }
   return [
     ['/', t.keys.askAgent],
-    ['J / K', t.keys.move],
-    ['⏎', t.keys.approve],
+    ...(state.selected
+      ? [
+          ['J / K', t.keys.move] as [string, string],
+          ['⏎', t.keys.approve] as [string, string],
+        ]
+      : []),
     ...(state.alike > 1
       ? [['⇧⏎', t.keys.approveAll(state.alike)] as [string, string]]
       : []),
@@ -658,10 +941,13 @@ const homeHints = (
           ['R', t.keys.rewrite] as [string, string],
         ]
       : []),
-    ['S', t.keys.skip],
-    ['⌫', t.keys.trash],
-    ['X', t.keys.pick],
-    ['⌘A', t.keys.pickAll],
+    ...(state.selected
+      ? [
+          ['S', t.keys.skip] as [string, string],
+          ['⌫', t.keys.trash] as [string, string],
+          ['X', t.keys.pick] as [string, string],
+        ]
+      : []),
     ...(state.stale > 0 ? [['⇧S', t.queue.skipStale] as [string, string]] : []),
     ...(state.today?.tidy.length
       ? [
@@ -669,9 +955,15 @@ const homeHints = (
           ['D', t.today.tidy.details] as [string, string],
         ]
       : []),
-    ...(state.hasHandled
-      ? [['H', t.today.handled.review] as [string, string]]
+    ...(state.hasFilter ? [['F', t.keys.filter] as [string, string]] : []),
+    ...(state.today?.newSenders.length
+      ? [
+          ['A', t.today.newSender.archive] as [string, string],
+          ['U', t.actionKind.unsubscribe] as [string, string],
+          ['I', t.today.newSender.keep] as [string, string],
+        ]
       : []),
+    ['H', t.today.journal.title],
     ...(state.today?.codes.length
       ? [['Y', t.mail.oneTimeCode.copy] as [string, string]]
       : []),
@@ -875,57 +1167,8 @@ const AgentColumn = ({
   )
 }
 
-const HomeHeader = ({
-  data,
-  isFirstRead,
-  updatedAt,
-}: {
-  data?: Today
-  isFirstRead: boolean
-  updatedAt: number
-}) => {
-  const t = useT()
-  const dates = useDates()
-
-  return (
-    <>
-      <header className="flex flex-col gap-3">
-        <p className="text-muted-foreground text-sm first-letter:uppercase">
-          {updatedAt > 0 && dates.format(updatedAt, 'EEEE, d MMMM')}
-        </p>
-        {data ? (
-          <h1 className="text-display font-serif tracking-tight">
-            {isFirstRead
-              ? t.nav.syncing
-              : t.today.headline(data.queue.length + data.banners.length)}
-          </h1>
-        ) : (
-          <Skeleton className="my-1 h-9 w-3/5" />
-        )}
-        {isFirstRead && (
-          <p className="text-muted-foreground flex items-center gap-2 text-sm">
-            <Spinner />
-            {t.today.firstRead}
-          </p>
-        )}
-        {data && !isFirstRead && data.pulse.total > 0 && (
-          <Pulse days={data.days} handled={data.handled} pulse={data.pulse} />
-        )}
-        {data && data.queue.length > 0 && (
-          <div>
-            <ListenButton path="/voice/home" />
-          </div>
-        )}
-      </header>
-      {data && data.banners.length > 0 && (
-        <BoardBanners banners={data.banners} />
-      )}
-    </>
-  )
-}
-
-/** What is coming: the calendar's events left today and tomorrow, then mail naming a date (soonest first, from the server). */
-const Ahead = ({ dated }: { dated: Today['dates'] }) => {
+/** Today's strip under the headline: the calendar's events left today and tomorrow. */
+const DayStrip = ({ canListen }: { canListen: boolean }) => {
   const t = useT()
   const dates = useDates()
   const { data: events = [] } = useQuery(
@@ -935,56 +1178,139 @@ const Ahead = ({ dated }: { dated: Today['dates'] }) => {
         calendar.events.filter((event) => eventTimes(event).end > new Date()),
     })
   )
-  if (events.length === 0 && dated.length === 0) {
+  if (events.length === 0 && !canListen) {
     return null
   }
 
   return (
-    <SettingsGroup title={t.today.dates}>
+    <div className="flex flex-wrap items-center gap-2">
       {events.map((event) => {
         const { start } = eventTimes(event)
         const day = max([start, startOfToday()])
         return (
-          <SettingsRow
+          <Button
             key={`${event.mailboxId}:${event.id}`}
-            title={
+            size="sm"
+            variant="secondary"
+            render={
               <Link
                 to="/calendar"
                 search={{ date: format(day, 'yyyy-MM-dd'), view: 'day' }}
-                data-mask
-              >
-                {event.title || t.calendar.untitled}
-              </Link>
+              />
             }
-            description={
-              <span data-mask>
-                {[
-                  isTomorrow(day) ? t.calendar.tomorrow : t.calendar.today,
-                  event.allDay ? t.calendar.allDay : dates.format(start, 'p'),
-                  event.location,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </span>
-            }
-          />
+          >
+            <HugeiconsIcon
+              icon={Calendar03Icon}
+              strokeWidth={2}
+              data-icon="inline-start"
+            />
+            {isTomorrow(day) && `${t.calendar.tomorrow} `}
+            {event.allDay ? t.calendar.allDay : dates.format(start, 'p')}{' '}
+            <span data-mask>{event.title || t.calendar.untitled}</span>
+          </Button>
         )
       })}
-      {dated.map(({ analysis, message }) => (
-        <SettingsRow
-          key={message.id}
-          title={
-            <ThreadLink
-              threadId={message.threadId}
-              text={message.fromName ?? message.fromEmail}
-            />
-          }
-          description={<span data-mask>{analysis.summary}</span>}
-        >
-          <ExtractedChips extracted={{ ...analysis.extracted, amount: null }} />
-        </SettingsRow>
-      ))}
-    </SettingsGroup>
+      {canListen && (
+        <span className="ml-auto">
+          <ListenButton path="/voice/home" />
+        </span>
+      )}
+    </div>
+  )
+}
+
+const headlineOf = (t: Messages, isFirstRead: boolean, decisions: number) => {
+  if (isFirstRead) {
+    return t.nav.syncing
+  }
+  return decisions === 0 ? t.today.allDone : t.today.headline(decisions)
+}
+
+/** What happened, in one sentence computed here from the counts (no model text), then what is ahead today. */
+const HomeHeader = ({
+  data,
+  decisions,
+  isFirstRead,
+  updatedAt,
+}: {
+  data?: Today
+  decisions: number
+  isFirstRead: boolean
+  updatedAt: number
+}) => {
+  const t = useT()
+  const dates = useDates()
+  const lead =
+    decisions === 0
+      ? t.today.allDoneLead
+      : [
+          data &&
+            data.pulse.total > 0 &&
+            `${t.today.pulse.total(data.pulse.total, t.today.period(data.days))}.`,
+          t.today.readAll,
+          data && data.handled.total > 0 && t.today.byRules(data.handled.total),
+        ]
+          .filter(Boolean)
+          .join(' ')
+
+  return (
+    <header className="flex flex-col gap-3">
+      <div className="text-muted-foreground flex min-h-8 items-center gap-3 text-sm">
+        <p className="first-letter:uppercase">
+          {updatedAt > 0 && dates.format(updatedAt, 'EEEE, d MMMM')}
+        </p>
+        {!!data?.reading && (
+          <span className="flex items-center gap-1.5">
+            <Spinner />
+            {t.today.readingNow(data.reading)}
+          </span>
+        )}
+        <JournalLink />
+      </div>
+      {data ? (
+        <h1 className="text-display font-serif tracking-tight">
+          {headlineOf(t, isFirstRead, decisions)}
+        </h1>
+      ) : (
+        <Skeleton className="my-1 h-9 w-3/5" />
+      )}
+      {isFirstRead ? (
+        <p className="text-muted-foreground flex items-center gap-2 text-sm">
+          <Spinner />
+          {t.today.firstRead}
+        </p>
+      ) : (
+        data && (
+          <p className="text-brief text-foreground/80 font-serif">{lead}</p>
+        )
+      )}
+      <DayStrip canListen={decisions > 0} />
+    </header>
+  )
+}
+
+/** Home's way into the agent while its column is hidden: the same as `/`. */
+const AskBar = () => {
+  const t = useT()
+  const isHidden = useSubscription(agentHiddenStore)
+
+  return (
+    isHidden && (
+      <Button
+        size="lg"
+        variant="outline-muted"
+        className="w-full justify-start"
+        onClick={askAgent}
+      >
+        <HugeiconsIcon
+          icon={BubbleChatIcon}
+          strokeWidth={2}
+          data-icon="inline-start"
+        />
+        <span className="mr-auto">{t.today.ask}</span>
+        <Kbd>/</Kbd>
+      </Button>
+    )
   )
 }
 
@@ -1016,6 +1342,43 @@ const PickedActions = ({
         {t.queue.unpick} <Kbd>esc</Kbd>
       </Button>
     </>
+  )
+}
+
+/** Picked cards swap the progress for what can be done to all of them at once. */
+const DecisionsHeader = ({
+  children,
+  decisions,
+  picked,
+  settled,
+}: {
+  children: ReactNode
+  decisions: number
+  picked: number
+  settled: number
+}) => {
+  const t = useT()
+
+  return (
+    <div className="flex min-h-7 items-center gap-3">
+      <h2 className="text-muted-foreground text-xs font-medium">
+        {picked > 0 ? t.queue.picked(picked) : t.today.decisions}
+      </h2>
+      {picked > 0 && (
+        <span className="ml-auto flex items-center gap-1.5">{children}</span>
+      )}
+      {picked === 0 && decisions > 0 && (
+        <>
+          <Progress
+            className="flex-1"
+            value={(settled / (settled + decisions)) * 100}
+          />
+          <span className="text-muted-foreground text-xs font-medium tabular-nums">
+            {t.today.progress(settled, settled + decisions)}
+          </span>
+        </>
+      )}
+    </div>
   )
 }
 
@@ -1066,6 +1429,68 @@ const Reader = ({
         ]}
       />
     </div>
+  )
+}
+
+const KIND_FILTER_FROM = 5
+
+/** Narrows the queue to one kind of card (F cycles); a kind that empties falls back to all. */
+const useKindFilter = (queue: QueueItem[]) => {
+  const [kind, setKind] = useState<ActionKind | null>(null)
+  const kinds = [...new Set(queue.map(({ action }) => action.kind))]
+  const active = kind && kinds.includes(kind) ? kind : null
+  const isOffered = kinds.length > 1 && queue.length >= KIND_FILTER_FROM
+  const cycle = () =>
+    setKind(kinds[(active ? kinds.indexOf(active) : -1) + 1] ?? null)
+  return {
+    active,
+    cycle,
+    isOffered,
+    kinds,
+    setKind,
+    shown: active
+      ? queue.filter(({ action }) => action.kind === active)
+      : queue,
+  }
+}
+
+const KindFilter = ({
+  canUseKeys,
+  filter,
+  queue,
+}: {
+  canUseKeys: boolean
+  filter: ReturnType<typeof useKindFilter>
+  queue: QueueItem[]
+}) => {
+  const t = useT()
+  useHotkey('F', filter.cycle, { enabled: canUseKeys && filter.isOffered })
+  const pill = (kind: ActionKind | null, label: string, count: number) => (
+    <Button
+      key={kind ?? 'all'}
+      size="xs"
+      variant={filter.active === kind ? 'secondary' : 'ghost-muted'}
+      onClick={() => filter.setKind(kind)}
+    >
+      {label}
+      <span className="text-muted-foreground tabular-nums">{count}</span>
+    </Button>
+  )
+
+  return (
+    filter.isOffered && (
+      <div className="flex flex-wrap items-center gap-1">
+        {pill(null, t.today.allKinds, queue.length)}
+        {filter.kinds.map((kind) =>
+          pill(
+            kind,
+            t.actionKind[kind],
+            queue.filter(({ action }) => action.kind === kind).length
+          )
+        )}
+        <Kbd>F</Kbd>
+      </div>
+    )
   )
 }
 
@@ -1121,28 +1546,57 @@ const StaleCards = ({
   )
 }
 
+/** Every card, banner and waiting chat is one decision; all the quiet mail to tidy is one more. */
+const countDecisions = (
+  data: Today | undefined,
+  cards: number,
+  waitingChats: number
+) =>
+  data
+    ? cards +
+      data.banners.length +
+      data.newSenders.length +
+      waitingChats +
+      Math.min(data.tidy.length, 1)
+    : 0
+
+const isAllClear = (data: Today | undefined, decisions: number) =>
+  decisions === 0 && !data?.codes.length
+
 const HomePage = () => {
   const t = useT()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { chat, thread } = Route.useSearch()
+  const { chat, journal: isJournal = false, thread } = Route.useSearch()
   const [isAsking, setIsAsking] = useState(false)
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
+  const { data: waitingChats = [] } = useQuery(
+    orpc.chats.list.queryOptions({
+      select: (chats) => chats.filter(({ waiting }) => waiting),
+    })
+  )
 
-  const queue = data?.queue ?? []
+  const { data: cards } = useLiveQuery((query) =>
+    query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
+  )
+  const filter = useKindFilter(cards)
+  const queue = filter.shown
   const isFirstRead = !!data && isReadingFirstTime(data.mailboxes)
   const { selected, selectedIndex, setSelectedId } = useCursor(queue)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [rewritingId, setRewritingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
-  const [isReviewing, setIsReviewing] = useState(false)
   const [pickedIds, setPickedIds] = useState<string[]>([])
+  // Decisions closed since the page opened: the progress counts them against what is left.
+  const [settled, setSettled] = useState(0)
+  const settle = (count = 1) => setSettled((current) => current + count)
 
   const picked = queue.filter(({ action }) => pickedIds.includes(action.id))
   const targets =
     picked.length > 0 ? picked : queue.slice(selectedIndex, selectedIndex + 1)
   const staleBefore = subDays(dataUpdatedAt, STALE_DAYS)
   const stale = queue.filter(({ action }) => action.createdAt < staleBefore)
+  const decisions = countDecisions(data, cards.length, waitingChats.length)
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
@@ -1165,14 +1619,8 @@ const HomePage = () => {
       setSelectedId(next?.action.id ?? null)
       setEditingId(null)
     }
-    queryClient.setQueryData(
-      orpc.today.get.queryKey(),
-      (old) =>
-        old && {
-          ...old,
-          queue: old.queue.filter(({ action }) => action.id !== actionId),
-        }
-    )
+    settle()
+    queueCards.utils.writeDelete(actionId)
   }
 
   // A card's work can take seconds (leaving a list, a Gmail change): the toast says so until it is done.
@@ -1223,14 +1671,8 @@ const HomePage = () => {
     setSelectedId(null)
     setEditingId(null)
     setPickedIds([])
-    queryClient.setQueryData(
-      orpc.today.get.queryKey(),
-      (old) =>
-        old && {
-          ...old,
-          queue: old.queue.filter(({ action }) => !ids.includes(action.id)),
-        }
-    )
+    settle(ids.length)
+    queueCards.utils.writeDelete(ids)
   }
 
   const approveMany = useMutation(
@@ -1353,8 +1795,13 @@ const HomePage = () => {
 
   const showThread = (id: string | undefined) =>
     navigate({ search: (prev) => ({ ...prev, thread: id }), to: '/home' })
+  const showJournal = (isOn: boolean) =>
+    navigate({
+      search: (prev) => ({ ...prev, journal: isOn || undefined }),
+      to: '/home',
+    })
   // The open thread brings its own R, E, S, H and ⌫.
-  const isWalking = !isEditing && !thread
+  const isWalking = !isEditing && !thread && !isJournal
   const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), listKeys)
   useHotkey('ArrowDown', () => move(1), listKeys)
@@ -1379,6 +1826,12 @@ const HomePage = () => {
     enabled: isWalking && picked.length > 0,
   })
   useHotkey('Escape', () => showThread(undefined), { enabled: !!thread })
+  useHotkey('Escape', () => showJournal(false), {
+    enabled: isJournal && !thread,
+  })
+  useHotkey('H', () => showJournal(!isJournal), {
+    enabled: !isEditing && !thread,
+  })
   useHotkey(
     'E',
     () =>
@@ -1395,11 +1848,6 @@ const HomePage = () => {
       setRewritingId(selected.action.id),
     listKeys
   )
-  const hasHandled = !!data?.handled.total
-  const reviewHandled = () => setIsReviewing((current) => !current)
-  useHotkey('H', reviewHandled, {
-    enabled: isWalking && hasHandled,
-  })
   useHotkey(
     'O',
     () => selected?.message && showThread(selected.message.threadId),
@@ -1417,105 +1865,116 @@ const HomePage = () => {
             <ShowAgent />
             <div className="h-full overflow-y-auto">
               <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
-                <HomeHeader
-                  data={data}
-                  isFirstRead={isFirstRead}
-                  updatedAt={dataUpdatedAt}
-                />
-                <ConnectHint />
-                <FreshCodes today={data} canUseKeys={isWalking} />
-
-                <section
-                  aria-label={t.today.worthAttention}
-                  hidden={isFirstRead && queue.length === 0}
-                  className="flex flex-col gap-2.5"
-                >
-                  <div className="flex min-h-7 items-center gap-1.5">
-                    <h2 className="text-muted-foreground mr-auto text-xs font-medium">
-                      {picked.length > 0
-                        ? t.queue.picked(picked.length)
-                        : t.today.worthAttention}
-                    </h2>
-                    {picked.length > 0 && (
-                      <PickedActions
-                        onApprove={approveTargets}
-                        onClear={() => setPickedIds([])}
-                        onSkip={skipTargets}
-                        onTrash={() => trashMany.mutate(picked)}
-                      />
-                    )}
-                  </div>
-                  {!!data && queue.length === 0 && (
-                    <p
-                      className={cn(
-                        'text-muted-foreground rounded-2xl border border-dashed px-4.5 py-4 text-sm',
-                        cardsBleedClassName
-                      )}
-                    >
-                      {t.today.nothingNeedsYou}
-                    </p>
-                  )}
-                  <Accordion
-                    variant="cards"
-                    hidden={queue.length === 0}
-                    value={selected ? [selected.action.id] : []}
-                    onValueChange={([id]) => id && setSelectedId(id)}
-                  >
-                    {queue.map((item, index) => (
-                      <QueueCard
-                        key={item.action.id}
-                        item={item}
-                        index={index}
-                        draft={draftOf(item)}
-                        isNew={!!seenAt && item.action.createdAt > seenAt}
-                        isPicked={pickedIds.includes(item.action.id)}
-                        isRewriting={rewritingId === item.action.id}
-                        isSelected={item === selected}
-                        isEditing={editingId === item.action.id}
-                        isBusy={
-                          redraft.isPending &&
-                          redraft.variables.id === item.action.id
-                        }
-                        onApprove={() => approveItem(item)}
-                        onEdit={() => setEditingId(item.action.id)}
-                        onDraftChange={(draft) =>
-                          setDrafts((current) => ({
-                            ...current,
-                            [item.action.id]: draft,
-                          }))
-                        }
-                        onRewrite={(instruction) =>
-                          rewrite(item.action.id, instruction)
-                        }
-                        onRewriteChange={(isOn) =>
-                          setRewritingId(isOn ? item.action.id : null)
-                        }
-                        onOpen={() =>
-                          item.message && showThread(item.message.threadId)
-                        }
-                        onPick={() => togglePick(item.action.id)}
-                        onSkip={() => dismiss.mutate({ id: item.action.id })}
-                        onStopEditing={() => setEditingId(null)}
-                      />
-                    ))}
-                  </Accordion>
-                  <StaleCards
-                    canUseKeys={isWalking}
-                    count={stale.length}
-                    onSkip={skipStale}
-                  />
-                </section>
-
-                {data && (
+                {isJournal ? (
+                  <Journal />
+                ) : (
                   <>
-                    <Ahead dated={data.dates} />
-                    <MailDigest today={data} />
-                    <Tidy today={data} canUseKeys={isWalking} />
-                    <DayTally
-                      today={data}
-                      isReviewing={isReviewing}
-                      onReview={reviewHandled}
+                    <HomeHeader
+                      data={data}
+                      decisions={decisions}
+                      isFirstRead={isFirstRead}
+                      updatedAt={dataUpdatedAt}
                     />
+                    <AskBar />
+                    <ConnectHint />
+
+                    <section
+                      aria-label={t.today.decisions}
+                      hidden={isAllClear(data, decisions)}
+                      className="flex flex-col gap-2.5"
+                    >
+                      <DecisionsHeader
+                        decisions={decisions}
+                        picked={picked.length}
+                        settled={settled}
+                      >
+                        <PickedActions
+                          onApprove={approveTargets}
+                          onClear={() => setPickedIds([])}
+                          onSkip={skipTargets}
+                          onTrash={() => trashMany.mutate(picked)}
+                        />
+                      </DecisionsHeader>
+                      <KindFilter
+                        canUseKeys={isWalking}
+                        filter={filter}
+                        queue={cards}
+                      />
+                      <FreshCodes today={data} canUseKeys={isWalking} />
+                      <Accordion
+                        variant="cards"
+                        hidden={queue.length === 0}
+                        value={selected ? [selected.action.id] : []}
+                        onValueChange={([id]) => id && setSelectedId(id)}
+                      >
+                        {queue.map((item, index) => (
+                          <QueueCard
+                            key={item.action.id}
+                            item={item}
+                            index={index}
+                            draft={draftOf(item)}
+                            isNew={!!seenAt && item.action.createdAt > seenAt}
+                            isPicked={pickedIds.includes(item.action.id)}
+                            isRewriting={rewritingId === item.action.id}
+                            isSelected={item === selected}
+                            isEditing={editingId === item.action.id}
+                            isBusy={
+                              redraft.isPending &&
+                              redraft.variables.id === item.action.id
+                            }
+                            onApprove={() => approveItem(item)}
+                            onEdit={() => setEditingId(item.action.id)}
+                            onDraftChange={(draft) =>
+                              setDrafts((current) => ({
+                                ...current,
+                                [item.action.id]: draft,
+                              }))
+                            }
+                            onRewrite={(instruction) =>
+                              rewrite(item.action.id, instruction)
+                            }
+                            onRewriteChange={(isOn) =>
+                              setRewritingId(isOn ? item.action.id : null)
+                            }
+                            onOpen={() =>
+                              item.message && showThread(item.message.threadId)
+                            }
+                            onPick={() => togglePick(item.action.id)}
+                            onSkip={() =>
+                              dismiss.mutate({ id: item.action.id })
+                            }
+                            onStopEditing={() => setEditingId(null)}
+                          />
+                        ))}
+                      </Accordion>
+                      <div
+                        className={cn(
+                          'flex flex-col gap-2.5 empty:hidden',
+                          cardsBleedClassName
+                        )}
+                      >
+                        <WaitingChats chats={waitingChats} />
+                        <Tidy
+                          today={data}
+                          canUseKeys={isWalking}
+                          onSettle={() => settle()}
+                        />
+                        <NewSenders
+                          senders={data?.newSenders ?? []}
+                          canUseKeys={isWalking}
+                          onSettle={() => settle()}
+                        />
+                      </div>
+                      <BoardBanners banners={data?.banners ?? []} />
+                      <StaleCards
+                        canUseKeys={isWalking}
+                        count={stale.length}
+                        onSkip={skipStale}
+                      />
+                    </section>
+
+                    <WorthKnowing today={data} />
+                    <Tally today={data} />
                   </>
                 )}
               </div>
@@ -1524,9 +1983,10 @@ const HomePage = () => {
           <KeyHints
             hints={homeHints(t, {
               alike: alike.length,
-              hasHandled,
+              hasFilter: filter.isOffered,
               isAsking,
               isEditing,
+              isJournal,
               selected,
               isRewriting,
               picked: picked.length,
@@ -1551,12 +2011,17 @@ export const Route = createFileRoute('/_app/home')({
     }
   },
   component: HomePage,
-  validateSearch: type({ 'chat?': 'string.uuid', 'thread?': 'string' }),
+  validateSearch: type({
+    'chat?': 'string.uuid',
+    'thread?': 'string',
+    'journal?': 'boolean',
+  }),
   loaderDeps: ({ search }) => ({ chat: search.chat }),
   loader: async ({ deps: { chat } }) => {
     const [, chats] = await Promise.all([
       warmQuery(orpc.today.get.queryOptions()),
       warmQuery(orpc.chats.list.queryOptions()),
+      queueCards.preload(),
     ])
     // A chat that is still being started is not saved yet: asking for it would answer "not found".
     if (chat && chats?.some(({ id }) => id === chat)) {

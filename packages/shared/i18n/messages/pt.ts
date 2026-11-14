@@ -7,7 +7,7 @@ export const pt: Messages = {
     cleanup: 'Cancelar todas',
     commitment: 'Feito',
     security: 'Já verifiquei',
-    spam: 'Movido para spam',
+    spam: 'Mover para spam',
     archive: 'Arquivar',
     follow_up: 'Acompanhar',
     mark_read: 'Marcar como lido',
@@ -1612,6 +1612,46 @@ export const pt: Messages = {
   },
   today: {
     working: 'Fazendo…',
+    allKinds: 'Todos',
+    newSender: {
+      archive: 'Sempre arquivar',
+      archived:
+        'Os e-mails novos deste remetente serão arquivados. Mude isso em Regras.',
+      keep: 'Manter como sempre',
+      label: 'Remetente novo',
+      lead: (count: number, opened: number) =>
+        `${count} e-mails em duas semanas, ${opened === 0 ? 'nenhum aberto' : `${opened} abertos`}`,
+    },
+    readingNow: (total: number) =>
+      plural('pt', total, {
+        one: () => 'O agente está lendo um e-mail novo',
+        many: (n) => `O agente está lendo ${n} e-mails novos`,
+        other: (n) => `O agente está lendo ${n} e-mails novos`,
+      }),
+    acted: (total: number) =>
+      plural('pt', total, {
+        one: () => 'O agente fez uma coisa por você',
+        many: (n) => `O agente fez ${n} coisas por você`,
+        other: (n) => `O agente fez ${n} coisas por você`,
+      }),
+    allDone: 'Tudo pronto. Nada precisa de você.',
+    allDoneLead:
+      'Continuo lendo os e-mails novos, e o que precisar de você aparece aqui.',
+    ask: 'Pergunte ao agente ou diga o que fazer…',
+    byRules: (n: number) => `Suas regras cuidaram de ${n}.`,
+    decisions: 'Decisões',
+    journal: {
+      approved: 'Você disse sim',
+      byRule: (rule: string) => `Sua regra: ${rule}`,
+      empty: 'Nada ainda. Até você dizer sim, o agente só lê.',
+      failed: 'Não deu certo',
+      now: 'Agora',
+      lead: 'Os últimos 7 dias. Cada mudança no seu e-mail, agenda ou quadros teve o seu sim ou uma regra que você ativou.',
+      title: 'O que o agente fez',
+    },
+    progress: (done: number, total: number) => `${done} de ${total}`,
+    readAll: 'Li cada um, e nada muda nos seus e-mails sem o seu sim.',
+    worthKnowing: 'Bom saber',
     tidy: {
       confirm: (emails: string) => `Arrumar ${emails}?`,
       running: 'Arrumando…',
@@ -1636,7 +1676,7 @@ export const pt: Messages = {
     dates: 'Datas e reuniões',
     done: 'Feito',
     firstRead:
-      'Lendo seus e-mails dos últimos três dias. O que precisar de você aparece aqui sozinho.',
+      'Lendo seus e-mails dos últimos três dias. O que precisar de você aparece aqui sozinho, e nada muda até você dizer sim.',
     approvedMany: (n: number) => `${n} aprovadas`,
     listen: 'Ouvir',
     handled: {

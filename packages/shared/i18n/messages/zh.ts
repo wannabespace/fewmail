@@ -7,7 +7,7 @@ export const zh: Messages = {
     cleanup: '全部退订',
     commitment: '完成',
     security: '我已核实',
-    spam: '已移到垃圾邮件',
+    spam: '移到垃圾邮件',
     trash: '移到废纸篓',
     archive: '归档',
     follow_up: '跟进',
@@ -1262,6 +1262,34 @@ export const zh: Messages = {
   },
   today: {
     working: '处理中…',
+    allKinds: '全部',
+    newSender: {
+      archive: '总是归档',
+      archived: '此发件人的新邮件将被归档。可在“规则”中更改。',
+      keep: '照常保留',
+      label: '新发件人',
+      lead: (count: number, opened: number) =>
+        `两周内 ${count} 封，${opened === 0 ? '一封都没打开' : `打开了 ${opened} 封`}`,
+    },
+    readingNow: (total: number) => `助手正在读 ${total} 封新邮件`,
+    acted: (total: number) => `助手为你处理了 ${total} 件事`,
+    allDone: '都处理好了。没有需要你的事。',
+    allDoneLead: '我会继续读新邮件，需要你处理的事会出现在这里。',
+    ask: '问问助手，或告诉它要做什么…',
+    byRules: (n: number) => `你的规则处理了 ${n} 件。`,
+    decisions: '待你决定',
+    journal: {
+      approved: '你已同意',
+      byRule: (rule: string) => `你的规则：${rule}`,
+      empty: '暂时没有。在你同意之前，助手只会阅读。',
+      failed: '没有成功',
+      now: '现在',
+      lead: '最近 7 天。邮件、日历或看板中的每一项更改，都经过你的同意，或来自你开启的规则。',
+      title: '助手做了什么',
+    },
+    progress: (done: number, total: number) => `${done}/${total}`,
+    readAll: '每一封我都读过了。没有你的同意，邮件里什么都不会改变。',
+    worthKnowing: '值得了解',
     tidy: {
       confirm: (emails: string) => `整理 ${emails}？`,
       running: '正在整理…',
@@ -1285,7 +1313,8 @@ export const zh: Messages = {
     },
     dates: '日期和会议',
     done: '完成',
-    firstRead: '正在读取你最近三天的邮件。需要你处理的事会自动出现在这里。',
+    firstRead:
+      '正在读取你最近三天的邮件。需要你处理的事会自动出现在这里，没有你的同意，什么都不会改变。',
     approvedMany: (n: number) => `已批准 ${n} 项`,
     listen: '收听',
     handled: {

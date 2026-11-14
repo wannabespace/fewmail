@@ -1299,6 +1299,39 @@ export const ja: Messages = {
   },
   today: {
     working: '処理中…',
+    allKinds: 'すべて',
+    newSender: {
+      archive: '常にアーカイブ',
+      archived:
+        'この送信者からの新しいメールはアーカイブされます。「ルール」で変更できます。',
+      keep: 'いつも通り残す',
+      label: '新しい送信者',
+      lead: (count: number, opened: number) =>
+        `2週間で${count}通、${opened === 0 ? '開封なし' : `${opened}通を開封`}`,
+    },
+    readingNow: (total: number) =>
+      `エージェントが新着メール${total}通を読んでいます`,
+    acted: (total: number) => `エージェントが${total}件の対応をしました`,
+    allDone: 'すべて完了。対応が必要なものはありません。',
+    allDoneLead:
+      '新しいメールは引き続き読んでいます。対応が必要なものはここに表示されます。',
+    ask: 'エージェントに質問するか、やってほしいことを伝えてください…',
+    byRules: (n: number) => `${n}件はルールで処理しました。`,
+    decisions: '決めること',
+    journal: {
+      approved: 'あなたが承認',
+      byRule: (rule: string) => `あなたのルール：${rule}`,
+      empty:
+        'まだありません。あなたが承認するまで、エージェントは読むだけです。',
+      failed: 'うまくいきませんでした',
+      now: 'いま',
+      lead: '直近7日間。メール、カレンダー、ボードの変更はすべて、あなたの承認か、あなたがオンにしたルールによるものです。',
+      title: 'エージェントがしたこと',
+    },
+    progress: (done: number, total: number) => `${done} / ${total}`,
+    readAll:
+      'すべて読みました。あなたの承認なしにメールが変わることはありません。',
+    worthKnowing: '知っておきたいこと',
     tidy: {
       confirm: (emails: string) => `${emails}を片付けますか？`,
       running: '片付け中…',
@@ -1323,7 +1356,7 @@ export const ja: Messages = {
     dates: '日付と予定',
     done: '完了',
     firstRead:
-      '直近3日分のメールを読んでいます。対応が必要なものはここに自動で表示されます。',
+      '直近3日分のメールを読んでいます。対応が必要なものはここに自動で表示されます。あなたが承認するまで何も変わりません。',
     approvedMany: (n: number) => `${n}件を承認しました`,
     listen: '聞く',
     handled: {

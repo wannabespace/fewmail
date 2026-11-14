@@ -7,7 +7,7 @@ export const tr: Messages = {
     cleanup: 'Hepsinden çık',
     commitment: 'Tamam',
     security: 'Kontrol ettim',
-    spam: 'Spama taşındı',
+    spam: 'Spama taşı',
     archive: 'Arşivle',
     follow_up: 'Takip et',
     mark_read: 'Okundu yap',
@@ -1578,6 +1578,42 @@ export const tr: Messages = {
   },
   today: {
     working: 'Yapılıyor…',
+    allKinds: 'Tümü',
+    newSender: {
+      archive: 'Her zaman arşivle',
+      archived:
+        'Bu göndericiden gelen yeni e-postalar arşivlenecek. Kurallar bölümünden değiştirebilirsin.',
+      keep: 'Her zamanki gibi tut',
+      label: 'Yeni gönderici',
+      lead: (count: number, opened: number) =>
+        `İki haftada ${count} e-posta, ${opened === 0 ? 'hiçbiri açılmadı' : `${opened} tanesi açıldı`}`,
+    },
+    readingNow: (total: number) =>
+      plural('tr', total, {
+        other: (n) => `Ajan ${n} yeni e-postayı okuyor`,
+      }),
+    acted: (total: number) =>
+      plural('tr', total, {
+        other: (n) => `Ajan senin için ${n} iş yaptı`,
+      }),
+    allDone: 'Hepsi tamam. Seni bekleyen bir şey yok.',
+    allDoneLead:
+      'Yeni e-postaları okumaya devam ediyorum, ilgilenmen gereken her şey burada görünecek.',
+    ask: 'Ajana sor ya da ne yapacağını söyle…',
+    byRules: (n: number) => `Kuralların ${n} tanesini halletti.`,
+    decisions: 'Kararlar',
+    journal: {
+      approved: 'Evet dedin',
+      byRule: (rule: string) => `Kuralın: ${rule}`,
+      empty: 'Henüz bir şey yok. Sen “evet” diyene kadar ajan yalnızca okur.',
+      failed: 'Olmadı',
+      now: 'Şimdi',
+      lead: 'Son 7 gün. E-postandaki, takvimindeki ya da panolarındaki her değişiklik senin onayınla ya da açtığın bir kuralla yapıldı.',
+      title: 'Ajanın yaptıkları',
+    },
+    progress: (done: number, total: number) => `${done}/${total}`,
+    readAll: 'Hepsini okudum. Onayın olmadan e-postanda hiçbir şey değişmez.',
+    worthKnowing: 'Bilmekte fayda var',
     tidy: {
       confirm: (emails: string) => `${emails} toplansın mı?`,
       running: 'Toplanıyor…',
@@ -1602,7 +1638,7 @@ export const tr: Messages = {
     dates: 'Tarihler ve toplantılar',
     done: 'Tamam',
     firstRead:
-      'Son üç günün e-postalarını okuyorum. İlgilenmen gerekenler burada kendiliğinden görünecek.',
+      'Son üç günün e-postalarını okuyorum. İlgilenmen gerekenler burada kendiliğinden görünecek. Sen “evet” demeden hiçbir şey değişmez.',
     approvedMany: (n: number) => `${n} onaylandı`,
     listen: 'Dinle',
     handled: {

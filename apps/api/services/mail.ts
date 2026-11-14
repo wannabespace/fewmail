@@ -5,6 +5,7 @@ import {
   commitments,
   mailboxes,
   messages,
+  rules,
 } from '@fewmail/db/schema'
 import {
   ACTION_KIND_TRAITS,
@@ -57,6 +58,7 @@ import { scheduleMail } from './outbox'
 import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
 import { createRule } from './rules'
 import { getSettings } from './settings'
+import { reportSpam } from './spam'
 import { holdThread, ownMessage } from './stored-mail'
 import { applyThreadEffect } from './thread-effects'
 import { changeThreadLabels, MARK_READ, mailboxOfThread } from './thread-labels'
@@ -166,7 +168,12 @@ export const timeSaved = async (userId: string, since: Date) => {
 
 const HANDLED_HOURS = 24
 const HANDLED_SHOWN = 100
+const actedAt =
+  sql<Date>`coalesce(${actions.resolvedAt}, ${actions.createdAt})`.mapWith(
+    actions.createdAt
+  )
 
+/** The journal: everything the agent did after the user's yes (`done`) or by a rule they turned on (`auto_done`, `rule`), and what failed. */
 export const listHandled = (
   userId: string,
   since = subHours(new Date(), HANDLED_HOURS)
@@ -174,12 +181,16 @@ export const listHandled = (
   db
     .select({
       action: {
+        actedAt,
         createdAt: actions.createdAt,
+        detail: actions.detail,
         id: actions.id,
         kind: actions.kind,
         reason: actions.reason,
+        status: actions.status,
         title: actions.title,
       },
+      rule: rules.instruction,
       message: {
         fromEmail: messages.fromEmail,
         fromName: messages.fromName,
@@ -192,15 +203,30 @@ export const listHandled = (
     .from(actions)
     .leftJoin(messages, eq(messages.id, actions.messageId))
     .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
+    .leftJoin(rules, eq(rules.id, actions.ruleId))
     .where(
       and(
         eq(actions.userId, userId),
-        eq(actions.status, 'auto_done'),
-        gte(actions.createdAt, since)
+        inArray(actions.status, ['done', 'auto_done', 'failed']),
+        gte(actedAt, since)
       )
     )
-    .orderBy(desc(actions.createdAt))
+    .orderBy(desc(actedAt))
     .limit(HANDLED_SHOWN)
+
+export const countActed = async (userId: string, since: Date) => {
+  const [row] = await db
+    .select({ total: sql<number>`count(*)::int` })
+    .from(actions)
+    .where(
+      and(
+        eq(actions.userId, userId),
+        inArray(actions.status, ['done', 'auto_done']),
+        gte(actedAt, since)
+      )
+    )
+  return expectRow(row).total
+}
 
 const PAGE_SIZE = 50
 
@@ -731,6 +757,9 @@ export const approveAction = async (
     await applyActionSideEffects(userId, action)
     if (message && sendsDraft(action)) {
       return scheduleActionReply(userId, actionId, message, body)
+    }
+    if (message && action.kind === 'spam') {
+      await reportSpam(userId, message.id)
     }
     if (message && gmail) {
       await applyThreadEffect(userId, message, gmail)

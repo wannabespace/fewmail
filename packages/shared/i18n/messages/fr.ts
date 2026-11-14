@@ -689,7 +689,7 @@ export const fr: Messages = {
     cleanup: 'Se désabonner de tout',
     commitment: 'Fait',
     security: 'J’ai vérifié',
-    spam: 'Mis en spam',
+    spam: 'Mettre en spam',
     trash: 'Mettre à la corbeille',
     archive: 'Archiver',
     follow_up: 'Relancer',
@@ -1336,6 +1336,48 @@ export const fr: Messages = {
   },
   today: {
     working: 'En cours…',
+    allKinds: 'Tous',
+    newSender: {
+      archive: 'Toujours archiver',
+      archived:
+        'Les nouveaux e-mails de cet expéditeur seront archivés. Tu peux changer ça dans Règles.',
+      keep: 'Garder comme d’habitude',
+      label: 'Nouvel expéditeur',
+      lead: (count: number, opened: number) =>
+        `${count} e-mails en deux semaines, ${opened === 0 ? 'aucun ouvert' : `${opened} ouverts`}`,
+    },
+    readingNow: (total: number) =>
+      plural('fr', total, {
+        one: () => 'L’agent lit un nouvel e-mail',
+        many: (n) => `L’agent lit ${n} nouveaux e-mails`,
+        other: (n) => `L’agent lit ${n} nouveaux e-mails`,
+      }),
+    acted: (total: number) =>
+      plural('fr', total, {
+        one: () => 'L’agent a fait une chose pour toi',
+        many: (n) => `L’agent a fait ${n} choses pour toi`,
+        other: (n) => `L’agent a fait ${n} choses pour toi`,
+      }),
+    allDone: 'Tout est fait. Rien ne t’attend.',
+    allDoneLead:
+      'Je continue à lire les nouveaux e-mails, et ce qui demande ton attention apparaîtra ici.',
+    ask: 'Pose une question à l’agent ou dis-lui quoi faire…',
+    byRules: (n: number) => `Tes règles se sont occupées de ${n}.`,
+    decisions: 'Décisions',
+    journal: {
+      approved: 'Tu as dit oui',
+      byRule: (rule: string) => `Ta règle : ${rule}`,
+      empty:
+        'Rien pour l’instant. Tant que tu ne dis pas oui, l’agent se contente de lire.',
+      failed: 'N’a pas fonctionné',
+      now: 'Maintenant',
+      lead: 'Les 7 derniers jours. Chaque changement dans tes e-mails, ton agenda ou tes tableaux a eu ton oui ou une règle que tu as activée.',
+      title: 'Ce que l’agent a fait',
+    },
+    progress: (done: number, total: number) => `${done} sur ${total}`,
+    readAll:
+      'Je les ai tous lus, et rien ne change dans tes e-mails sans ton oui.',
+    worthKnowing: 'Bon à savoir',
     tidy: {
       confirm: (emails: string) => `Ranger ${emails} ?`,
       running: 'Rangement…',
@@ -1360,7 +1402,7 @@ export const fr: Messages = {
     dates: 'Dates et rendez-vous',
     done: 'Fait',
     firstRead:
-      'Je lis tes e-mails des trois derniers jours. Ce qui demande ton attention apparaîtra ici tout seul.',
+      'Je lis tes e-mails des trois derniers jours. Ce qui demande ton attention apparaîtra ici tout seul, et rien ne change tant que tu ne dis pas oui.',
     approvedMany: (n: number) => `${n} approuvées`,
     listen: 'Écouter',
     handled: {

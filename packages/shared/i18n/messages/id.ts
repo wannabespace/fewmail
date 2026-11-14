@@ -7,7 +7,7 @@ export const id: Messages = {
     cleanup: 'Berhenti dari semua',
     commitment: 'Selesai',
     security: 'Sudah saya cek',
-    spam: 'Dipindahkan ke spam',
+    spam: 'Pindahkan ke spam',
     archive: 'Arsipkan',
     follow_up: 'Tindak lanjuti',
     mark_read: 'Tandai dibaca',
@@ -1585,6 +1585,42 @@ export const id: Messages = {
   },
   today: {
     working: 'Sedang dikerjakan…',
+    allKinds: 'Semua',
+    newSender: {
+      archive: 'Selalu arsipkan',
+      archived: 'Email baru dari pengirim ini akan diarsipkan. Ubah di Aturan.',
+      keep: 'Biarkan seperti biasa',
+      label: 'Pengirim baru',
+      lead: (count: number, opened: number) =>
+        `${count} email dalam dua minggu, ${opened === 0 ? 'tidak ada yang dibuka' : `${opened} dibuka`}`,
+    },
+    readingNow: (total: number) =>
+      plural('id', total, {
+        other: (n) => `Agen sedang membaca ${n} email baru`,
+      }),
+    acted: (total: number) =>
+      plural('id', total, {
+        other: (n) => `Agen melakukan ${n} hal untukmu`,
+      }),
+    allDone: 'Semua beres. Tidak ada yang butuh kamu.',
+    allDoneLead:
+      'Aku terus membaca email baru, dan yang butuh perhatianmu akan muncul di sini.',
+    ask: 'Tanya agen atau minta ia melakukan sesuatu…',
+    byRules: (n: number) => `Aturanmu sudah mengurus ${n}.`,
+    decisions: 'Keputusan',
+    journal: {
+      approved: 'Kamu bilang ya',
+      byRule: (rule: string) => `Aturanmu: ${rule}`,
+      empty: 'Belum ada. Sampai kamu bilang ya, agen hanya membaca.',
+      failed: 'Tidak berhasil',
+      now: 'Sekarang',
+      lead: '7 hari terakhir. Setiap perubahan di email, kalender, atau papanmu terjadi dengan persetujuanmu atau aturan yang kamu aktifkan.',
+      title: 'Yang dilakukan agen',
+    },
+    progress: (done: number, total: number) => `${done} dari ${total}`,
+    readAll:
+      'Aku membaca semuanya, dan tidak ada yang berubah di emailmu tanpa persetujuanmu.',
+    worthKnowing: 'Perlu diketahui',
     tidy: {
       confirm: (emails: string) => `Rapikan ${emails}?`,
       running: 'Merapikan…',
@@ -1609,7 +1645,7 @@ export const id: Messages = {
     dates: 'Tanggal dan rapat',
     done: 'Selesai',
     firstRead:
-      'Membaca email tiga hari terakhir. Yang butuh perhatianmu akan muncul di sini dengan sendirinya.',
+      'Membaca email tiga hari terakhir. Yang butuh perhatianmu akan muncul di sini dengan sendirinya, dan tidak ada yang berubah sampai kamu bilang ya.',
     approvedMany: (n: number) => `${n} disetujui`,
     listen: 'Dengarkan',
     handled: {

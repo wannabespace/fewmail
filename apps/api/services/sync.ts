@@ -309,7 +309,8 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
     const processed = await Result.tryPromise(async () => {
       await completeThreads(mailbox, inserted)
       if (hasChanges) {
-        await announceChange(mailbox.userId, ['mail', 'mailboxes'])
+        // 'today' too: Home says the agent is reading while processIncoming runs.
+        await announceChange(mailbox.userId, ['mail', 'mailboxes', 'today'])
       }
       await processIncoming(mailbox, inserted)
     })

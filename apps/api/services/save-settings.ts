@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { rules, userSettings } from '@fewmail/db/schema'
+import { isGmailEffect } from '@fewmail/shared/agent'
 import type { BoardPreset, RuleEffect } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
@@ -50,6 +51,8 @@ export const saveSettings = async (
     await db.insert(rules).values(
       STARTER_RULES.map((rule) => ({
         ...rule,
+        // Nobody said yes to a starter rule yet: one that changes Gmail waits switched off until the user turns it on.
+        enabled: !isGmailEffect(rule.effect),
         instruction: messages[input.language].starterRules[rule.instruction],
         userId,
       }))

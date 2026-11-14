@@ -69,7 +69,7 @@ export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
   reply: { ...quiet(null), sends: true },
   schedule: quiet('mark_read'),
   security: quiet(null),
-  spam: quiet('mark_read'),
+  spam: quiet(null),
   trash: quiet('trash'),
   unsubscribe: quiet('unsubscribe'),
 }
