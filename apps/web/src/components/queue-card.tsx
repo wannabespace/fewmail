@@ -45,6 +45,7 @@ import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
 import { ConsentDetails, DraftText } from './consent-details'
 import { ExtractedChips } from './mail-meta'
+import { SenderAvatar } from './sender-avatar'
 import { PeekTrigger, peekIdOf } from './thread-link'
 import { ROW_SWAP } from './thread-view'
 
@@ -103,6 +104,7 @@ const CleanupList = ({ action }: { action: Action }) => {
     <ul className="flex flex-col gap-1 text-sm">
       {senders.map((sender) => (
         <li key={sender.messageId} className="flex items-center gap-2">
+          <SenderAvatar sender={sender} />
           <Link
             to="/mail"
             search={{ q: listSearch(sender) }}
@@ -339,6 +341,9 @@ const QueueCardHeader = ({
         <span className="bg-primary size-1.5 shrink-0 rounded-full">
           <span className="sr-only">{t.queue.new}</span>
         </span>
+      )}
+      {message && action.kind !== 'cleanup' && (
+        <SenderAvatar sender={message} />
       )}
       <strong data-mask className="truncate font-semibold">
         {action.kind === 'cleanup'

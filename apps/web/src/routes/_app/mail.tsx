@@ -109,6 +109,7 @@ import { useCompose } from '~/components/compose/compose-context'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips } from '~/components/mail-meta'
 import { MailSearchStart, rememberSearch } from '~/components/mail-search'
+import { SenderAvatar } from '~/components/sender-avatar'
 import {
   CodeActions,
   MailRowActions,
@@ -1100,7 +1101,7 @@ const RelatedRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-11 text-left text-sm outline-none"
+        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-17 text-left text-sm outline-none"
       >
         <span
           data-mask
@@ -1142,7 +1143,7 @@ const BurstList = ({
                 void warmThread(email.threadId)
               }}
               aria-current={email.threadId === openThread}
-              className="hover:bg-secondary aria-current:bg-secondary mr-3 ml-9 flex w-[calc(100%-3rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
+              className="hover:bg-secondary aria-current:bg-secondary mr-3 ml-15 flex w-[calc(100%-4.5rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
             >
               <span
                 data-mask
@@ -1263,6 +1264,7 @@ const MailRow = ({
                 ? 'text-foreground font-medium'
                 : 'text-muted-foreground'
             )}
+          <SenderAvatar sender={message} />
           >
             {dates.format(
               message.receivedAt,
@@ -1274,7 +1276,7 @@ const MailRow = ({
           <span
             data-mask
             className={cn(
-              'truncate pl-7 text-sm',
+              'truncate pl-13 text-sm',
               codeRoom,
               message.isUnread
                 ? 'text-foreground/90 font-medium'
@@ -1285,12 +1287,12 @@ const MailRow = ({
           </span>
         )}
         {message.risk && (
-          <span className="text-destructive pl-7 text-xs font-medium">
+          <span className="text-destructive pl-13 text-xs font-medium">
             {t.risk.title}
           </span>
         )}
         {!message.risk && message.suspicion && (
-          <span className="text-muted-foreground pl-7 text-xs">
+          <span className="text-muted-foreground pl-13 text-xs">
             {t.spam.suspect}
           </span>
         )}
@@ -1399,6 +1401,7 @@ const PinnedRow = ({
           )}
         >
           {dates.format(
+        <SenderAvatar sender={message} />
             message.receivedAt,
             isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
           )}

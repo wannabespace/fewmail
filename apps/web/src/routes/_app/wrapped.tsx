@@ -16,6 +16,7 @@ import { type } from 'arktype'
 import { toast } from 'sonner'
 
 import { KeyHints } from '~/components/key-hints'
+import { SenderAvatar } from '~/components/sender-avatar'
 import { WrappedCard, wrappedImage } from '~/components/wrapped-card'
 import { useLocale, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
@@ -92,6 +93,8 @@ const WrappedPage = () => {
                   {data.people.map((person) => (
                     <SettingsRow
                       key={person.fromEmail}
+                      iconVariant="avatar"
+                      icon={<SenderAvatar sender={person} size="sm" />}
                       title={
                         <span data-mask>
                           {person.fromName ?? person.fromEmail}

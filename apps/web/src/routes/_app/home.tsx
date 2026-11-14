@@ -25,11 +25,7 @@ import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
-import {
-  Calendar03Icon,
-  MailRemove01Icon,
-  RepeatIcon,
-} from '@hugeicons/core-free-icons'
+import { Calendar03Icon, RepeatIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -71,6 +67,7 @@ import {
 import { openCardLink, primaryStep, QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import { ReadingPane, ReadingSection, useReading } from '~/components/reading'
+import { SenderAvatar } from '~/components/sender-avatar'
 import { PeekTrigger, usePeekKey } from '~/components/thread-link'
 import {
   CodeActions,
@@ -218,8 +215,8 @@ const NewSenders = ({
     const key = (letter: string) => index === 0 && <Kbd>{letter}</Kbd>
     return (
       <Item key={sender.messageId} variant="card" size="sm">
-        <ItemMedia variant="icon">
-          <HugeiconsIcon icon={MailRemove01Icon} strokeWidth={2} />
+        <ItemMedia variant="avatar">
+          <SenderAvatar sender={sender} size="sm" />
         </ItemMedia>
         <ItemContent>
           <ItemTitle>
@@ -338,7 +335,10 @@ const FreshCodes = ({
     queryClient.setQueryData(
       orpc.today.get.queryKey(),
       (old) =>
-        old && { ...old, codes: old.codes.filter(({ id }) => id !== messageId) }
+        old && {
+          ...old,
+          codes: old.codes.filter(({ id }) => id !== messageId),
+        }
     )
   )
   const sweep = sweepOf(actions, t, 'inbox')
@@ -358,6 +358,8 @@ const FreshCodes = ({
             <SettingsRow
               key={message.id}
               trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
+              iconVariant="avatar"
+              icon={<SenderAvatar sender={message} size="sm" />}
               title={
                 <span data-mask>{message.fromName ?? message.fromEmail}</span>
               }
@@ -404,6 +406,8 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
         <SettingsRow
           key={message.id}
           trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
+          iconVariant="avatar"
+          icon={<SenderAvatar sender={message} size="sm" />}
           title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
           description={<span data-mask>{analysis.summary}</span>}
         >
@@ -429,6 +433,8 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
         <SettingsRow
           key={message.id}
           trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
+          iconVariant="avatar"
+          icon={<SenderAvatar sender={message} size="sm" />}
           title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
           description={<span data-mask>{analysis.summary}</span>}
         >
@@ -447,6 +453,10 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
                 fromName: null,
               }}
             />
+          }
+          iconVariant="avatar"
+          icon={
+            <SenderAvatar sender={{ fromEmail: sent.to[0] ?? '' }} size="sm" />
           }
           title={<span data-mask>{sent.to[0] ?? sent.subject}</span>}
           description={

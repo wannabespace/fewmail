@@ -1,6 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { listSearch } from '@fewmail/shared/agent'
-import { Avatar, AvatarFallback } from '@fewmail/ui/components/avatar'
 import { Button } from '@fewmail/ui/components/button'
 import { LoadingContent } from '@fewmail/ui/components/custom/loading-content'
 import {
@@ -24,6 +23,7 @@ import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import { KeyHints } from '~/components/key-hints'
+import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 import { offerBlock } from '~/lib/offer-block'
 import { orpc, refetchChanged } from '~/lib/orpc'
@@ -242,15 +242,7 @@ const SubscriptionsPage = () => {
                         data-index={item.index}
                         active={row === active}
                         iconVariant="avatar"
-                        icon={
-                          <Avatar size="sm">
-                            <AvatarFallback data-mask>
-                              {(
-                                row.fromName ?? row.fromEmail
-                              )[0]?.toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        }
+                        icon={<SenderAvatar sender={row} size="sm" />}
                         title={
                           <Link
                             to="/mail"

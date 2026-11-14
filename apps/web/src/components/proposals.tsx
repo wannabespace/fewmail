@@ -30,6 +30,7 @@ import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import type { QueueItem } from '~/components/queue-card'
+import { SenderAvatar } from '~/components/sender-avatar'
 import { PeekTrigger, peekIdOf, usePeekKey } from '~/components/thread-link'
 import { queueCards } from '~/lib/home-db'
 import { useT } from '~/lib/i18n'
@@ -284,6 +285,7 @@ const ProposalsQueueCard = ({
                               />
                             }
                           >
+                            <SenderAvatar sender={message} />
                             <span data-mask className="shrink-0 font-medium">
                               {message.fromName ?? message.fromEmail}
                             </span>
@@ -475,6 +477,8 @@ export const ProposalsReview = ({
                       />
                     ) : undefined
                   }
+                  iconVariant="avatar"
+                  icon={message && <SenderAvatar sender={message} size="sm" />}
                   title={
                     message ? (
                       <span data-mask>

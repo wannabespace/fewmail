@@ -72,6 +72,7 @@ import type { SnoozePreset } from './compose/schedule'
 import { confirm } from './confirm-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { PersonPanel } from './person-panel'
+import { SenderAvatar } from './sender-avatar'
 
 type ThreadMessage = NonNullable<
   ReturnType<typeof useThread>['data']
@@ -332,6 +333,7 @@ export const ThreadPeek = ({
   return (
     <div className="flex max-h-[min(40rem,var(--available-height))] flex-col">
       <div className="flex items-center gap-3 border-b py-2.5 pr-2.5 pl-4">
+        <SenderAvatar sender={{ fromEmail, fromName }} size="sm" />
         <div className="flex min-w-0 flex-1 flex-col">
           <span data-mask className="truncate font-medium">
             {fromName ?? fromEmail}
@@ -458,6 +460,7 @@ const MessageSection = ({
               reason={analysis.reason}
             />
           )}
+          <SenderAvatar sender={message} />
           <strong data-mask className="font-semibold">
             {message.isFromMe
               ? t.mail.you
@@ -537,6 +540,7 @@ const CollapsedMessage = ({
       onClick={onExpand}
       className="hover:bg-accent -mx-3 flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 text-left text-sm"
     >
+      <SenderAvatar sender={message} />
       <strong data-mask className="shrink-0 font-semibold">
         {message.isFromMe
           ? t.mail.you

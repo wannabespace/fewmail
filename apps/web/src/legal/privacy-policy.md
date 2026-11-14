@@ -55,6 +55,7 @@ Quick decisions about each email (its category, importance, whether someone wait
 | Service | Purpose |
 | --- | --- |
 | Google (Gmail API, OAuth, Cloud Pub/Sub) | Sign-in and access to your mailbox; Pub/Sub tells us that your mailbox changed (only your address and a change number, no mail content) so new mail and changes you make in Gmail show up in seconds |
+| Google favicon service | Showing the icon of the website a sender writes from: our server asks for it by the site's domain name alone (e.g. github.com), never with your address or anything about you, and your browser only loads it from Fewmail |
 | OpenRouter → Anthropic, Google, xAI and the providers Jev Router picks | Reading emails, drafting replies, answering questions about your mail, autocomplete fallback |
 | OpenRouter → TypeSafe (Jev) | Classifying each email, on every plan |
 | ElevenLabs | Reading aloud, only when you ask: a summary of what needs you and the first items of your queue, the summary of your newsletters, and the bot’s answer to a voice message you sent (paid plans) |

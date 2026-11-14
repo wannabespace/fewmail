@@ -17,10 +17,7 @@ import {
 } from '@fewmail/ui/components/popover'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { cn } from '@fewmail/ui/lib/utils'
-import {
-  Cancel01Icon,
-  TickDouble02Icon,
-} from '@hugeicons/core-free-icons'
+import { Cancel01Icon, TickDouble02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -32,6 +29,7 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { ListenButton } from '~/components/listen-button'
+import { SenderAvatar } from '~/components/sender-avatar'
 import { ThreadPeek } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
@@ -247,6 +245,8 @@ const NewsletterList = ({
                 }}
               />
             }
+            iconVariant="avatar"
+            icon={<SenderAvatar sender={row} size="sm" />}
             title={<span data-mask>{senderOf(row)}</span>}
             description={
               <>

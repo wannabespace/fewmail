@@ -13,6 +13,7 @@ import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
 import { canSpeak } from './lib/elevenlabs'
 import { relayChanges } from './lib/live'
 import { logError, logErrorAs } from './lib/log'
+import { siteIcon } from './lib/site-icon'
 import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
 import { handleStripeWebhook } from './services/billing'
@@ -66,6 +67,8 @@ const spokenResponse = async (userId: string, text: () => Promise<string>) => {
   return new Response(null, { status: 500 })
 }
 
+const ICON_CACHE_SECONDS = 7 * 86_400
+
 const app = new Hono()
   .use(compress())
   .use('/auth/*', webCors)
@@ -114,6 +117,19 @@ const app = new Hono()
       return c.notFound()
     }
     return spokenResponse(userId, () => spokenReading(userId))
+  })
+  .get('/site-icon/:domain', async (c) => {
+    if (!(await auth.api.getSession({ headers: c.req.raw.headers }))) {
+      return c.notFound()
+    }
+    const icon = await siteIcon(c.req.param('domain').toLowerCase())
+    return new Response(icon?.bytes ?? null, {
+      headers: {
+        'cache-control': `private, max-age=${ICON_CACHE_SECONDS}`,
+        ...(icon && { 'content-type': icon.type }),
+      },
+      status: icon ? 200 : 404,
+    })
   })
   .get('/og/w/:token', (c) => {
     const token = c.req.param('token')

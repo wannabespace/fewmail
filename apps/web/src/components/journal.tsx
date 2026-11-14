@@ -10,6 +10,7 @@ import { format, isToday } from 'date-fns'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { SenderAvatar } from '~/components/sender-avatar'
 import { PeekTrigger } from '~/components/thread-link'
 import { useDates, useT } from '~/lib/i18n'
 import { hideThread, threadOfMessage } from '~/lib/mail-db'
@@ -96,6 +97,8 @@ export const Journal = () => {
             <PeekTrigger message={{ ...message, from: 'journal' }} />
           ) : undefined
         }
+        iconVariant="avatar"
+        icon={message && <SenderAvatar sender={message} size="sm" />}
         title={
           message ? (
             <span data-mask>{message.fromName ?? message.fromEmail}</span>
