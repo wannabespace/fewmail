@@ -844,7 +844,6 @@ export const id: Messages = {
     askedByYou: 'Atas permintaanmu',
     draftedInVoice: 'Ditulis dengan gayamu',
     edit: 'Edit',
-    open: 'Buka',
     send: 'Kirim',
     rewrite: 'Tulis ulang',
     shorterInstruction: 'Buat lebih singkat.',

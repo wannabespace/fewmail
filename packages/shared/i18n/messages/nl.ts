@@ -865,7 +865,6 @@ export const nl: Messages = {
     askedByYou: 'Op jouw verzoek',
     draftedInVoice: 'Opgesteld in jouw stijl',
     edit: 'Bewerken',
-    open: 'Openen',
     send: 'Versturen',
     rewrite: 'Herschrijven',
     shorterInstruction: 'Maak het korter.',

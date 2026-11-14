@@ -881,7 +881,6 @@ export const pl: Messages = {
     askedByYou: 'Na twoją prośbę',
     draftedInVoice: 'Napisane twoim głosem',
     edit: 'Edytuj',
-    open: 'Otwórz',
     send: 'Wyślij',
     rewrite: 'Przepisz',
     shorterInstruction: 'Skróć to.',

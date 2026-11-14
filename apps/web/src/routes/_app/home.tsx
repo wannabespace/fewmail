@@ -71,7 +71,7 @@ import {
 import { openCardLink, primaryStep, QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import { ReadingPane, ReadingSection, useReading } from '~/components/reading'
-import { ThreadLink } from '~/components/thread-link'
+import { PeekTrigger, usePeekKey } from '~/components/thread-link'
 import {
   CodeActions,
   MailRowActions,
@@ -357,11 +357,9 @@ const FreshCodes = ({
           message.code && (
             <SettingsRow
               key={message.id}
+              trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
               title={
-                <ThreadLink
-                  threadId={message.threadId}
-                  text={message.fromName ?? message.fromEmail}
-                />
+                <span data-mask>{message.fromName ?? message.fromEmail}</span>
               }
               description={<span data-mask>{message.subject}</span>}
             >
@@ -405,12 +403,8 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.recent.map(({ analysis, message }) => (
         <SettingsRow
           key={message.id}
-          title={
-            <ThreadLink
-              threadId={message.threadId}
-              text={message.fromName ?? message.fromEmail}
-            />
-          }
+          trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
+          title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
           description={<span data-mask>{analysis.summary}</span>}
         >
           <span className={`${ROW_SWAP} group/swap`}>
@@ -434,12 +428,8 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.dates.map(({ analysis, message }) => (
         <SettingsRow
           key={message.id}
-          title={
-            <ThreadLink
-              threadId={message.threadId}
-              text={message.fromName ?? message.fromEmail}
-            />
-          }
+          trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
+          title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
           description={<span data-mask>{analysis.summary}</span>}
         >
           <ExtractedChips extracted={{ ...analysis.extracted, amount: null }} />
@@ -448,12 +438,17 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.awaiting.map((sent) => (
         <SettingsRow
           key={sent.threadId}
-          title={
-            <ThreadLink
-              threadId={sent.threadId}
-              text={sent.to[0] ?? sent.subject}
+          trigger={
+            <PeekTrigger
+              message={{
+                ...sent,
+                from: 'home',
+                fromEmail: sent.to[0] ?? '',
+                fromName: null,
+              }}
             />
           }
+          title={<span data-mask>{sent.to[0] ?? sent.subject}</span>}
           description={
             <>
               {t.today.awaiting} · <span data-mask>{sent.subject}</span>
@@ -1006,7 +1001,6 @@ const showsHome = (page: HomeSubpage | undefined) => !page || page === 'reading'
 
 const HomePage = () => {
   const t = useT()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { page } = Route.useSearch()
   const isReadingOpen = page === 'reading'
@@ -1281,8 +1275,6 @@ const HomePage = () => {
       ? skipMany.mutate(pickedActionIds)
       : selected && dismiss.mutate({ id: selected.action.id })
 
-  const showThread = (threadId: string) =>
-    navigate({ params: { threadId }, to: '/mail/$threadId' })
   const isFocused = !isEditing
   const isWalking = isFocused && !page
   useHomeSubpage(page, isFocused, {
@@ -1332,11 +1324,7 @@ const HomePage = () => {
   useHotkey('E', openAnd(setEditingId), listKeys)
   useHotkey('R', openAnd(setRewritingId), listKeys)
   useHotkey('Space', () => cursorId && setIsOpen((open) => !open), walkKeys)
-  useHotkey(
-    'O',
-    () => selected?.message && showThread(selected.message.threadId),
-    listKeys
-  )
+  usePeekKey(cursorId, isWalking)
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -1426,9 +1414,6 @@ const HomePage = () => {
                             }
                             onRewriteChange={(isOn) =>
                               setRewritingId(isOn ? item.action.id : null)
-                            }
-                            onOpen={() =>
-                              item.message && showThread(item.message.threadId)
                             }
                             onPick={() => togglePick(item.action.id)}
                             onRemind={() => remind(item.action.id)}

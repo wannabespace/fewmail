@@ -23,6 +23,7 @@ import { ComposeProvider } from '~/components/compose/compose-context'
 import { ConfirmDialog } from '~/components/confirm-dialog'
 import { Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
+import { ThreadPeekPopover } from '~/components/thread-link'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
 import { signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
@@ -142,6 +143,7 @@ const AppLayout = () => {
         <DeleteBoardDialog />
         <ClearOutDialog />
         <ConfirmDialog />
+        <ThreadPeekPopover />
       </div>
     </ComposeProvider>
   )

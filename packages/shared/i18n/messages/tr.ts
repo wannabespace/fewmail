@@ -837,7 +837,6 @@ export const tr: Messages = {
     askedByYou: 'Senin isteğinle',
     draftedInVoice: 'Senin üslubunla yazıldı',
     edit: 'Düzenle',
-    open: 'Aç',
     send: 'Gönder',
     rewrite: 'Yeniden yaz',
     shorterInstruction: 'Daha kısa yap.',

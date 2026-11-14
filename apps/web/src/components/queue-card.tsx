@@ -26,9 +26,9 @@ import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   LinkSquare02Icon,
-  MailOpen01Icon,
   NextIcon,
   Tick02Icon,
+  ViewIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -45,6 +45,7 @@ import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
 import { ConsentDetails, DraftText } from './consent-details'
 import { ExtractedChips } from './mail-meta'
+import { PeekTrigger, peekIdOf } from './thread-link'
 import { ROW_SWAP } from './thread-view'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
@@ -214,25 +215,23 @@ const foldedVerb = (t: Messages, action: Action) => {
 
 const QuickActions = ({
   action,
-  hasMessage,
   isOpen,
   isSelected,
+  message,
   onApprove,
-  onOpen,
   onSkip,
 }: {
   action: Action
-  hasMessage: boolean
   isOpen: boolean
   isSelected: boolean
+  message: QueueItem['message']
   onApprove: () => void
-  onOpen: () => void
   onSkip: () => void
 }) => {
   const t = useT()
 
   return (
-    <span className="flex opacity-0 group-hover:opacity-100">
+    <span className="flex opacity-0 group-hover:opacity-100 has-data-popup-open:opacity-100">
       {/* A reply is never sent unread: it needs the open card. The open card's own yes button is the ✓. */}
       {!isOpen && !sendsDraft(action) && (
         <IconButton
@@ -243,14 +242,19 @@ const QuickActions = ({
           onClick={onApprove}
         />
       )}
-      {hasMessage && (
-        <IconButton
-          icon={MailOpen01Icon}
-          label={t.queue.open}
-          shortcut={isSelected && <Kbd>O</Kbd>}
-          size="icon-sm"
-          variant="ghost-muted"
-          onClick={onOpen}
+      {message && (
+        <PeekTrigger
+          id={peekIdOf(action.id)}
+          message={{ ...message, from: 'home' }}
+          render={
+            <IconButton
+              icon={ViewIcon}
+              label={t.mail.peek}
+              shortcut={isSelected && <Kbd>O</Kbd>}
+              size="icon-sm"
+              variant="ghost-muted"
+            />
+          }
         />
       )}
       <IconButton
@@ -273,7 +277,6 @@ const QueueCardHeader = ({
   isSelected,
   item: { action, analysis, message },
   onApprove,
-  onOpen,
   onPick,
   onSkip,
 }: {
@@ -284,7 +287,6 @@ const QueueCardHeader = ({
   isSelected: boolean
   item: QueueItem
   onApprove: () => void
-  onOpen: () => void
   onPick: () => void
   onSkip: () => void
 }) => {
@@ -308,11 +310,10 @@ const QueueCardHeader = ({
             )}
             <QuickActions
               action={action}
-              hasMessage={!!message}
               isOpen={isOpen}
               isSelected={isSelected}
+              message={message}
               onApprove={onApprove}
-              onOpen={onOpen}
               onSkip={onSkip}
             />
           </span>
@@ -505,7 +506,6 @@ export const QueueCard = ({
   onApprove,
   onDraftChange,
   onEdit,
-  onOpen,
   onPick,
   onRemind,
   onRewrite,
@@ -526,7 +526,6 @@ export const QueueCard = ({
   onApprove: () => void
   onDraftChange: (draft: string) => void
   onEdit: () => void
-  onOpen: () => void
   onPick: () => void
   onRemind: () => void
   onRewrite: (instruction: string) => void
@@ -573,7 +572,6 @@ export const QueueCard = ({
           isSelected={isSelected}
           item={item}
           onApprove={onApprove}
-          onOpen={onOpen}
           onPick={onPick}
           onSkip={onSkip}
         />

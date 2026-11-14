@@ -1,3 +1,4 @@
+import { useRender } from '@base-ui/react/use-render'
 import { cardClass } from '@fewmail/ui/components/card.utils'
 import {
   Item,
@@ -10,6 +11,7 @@ import {
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
 import { InformationCircleIcon } from '@hugeicons/core-free-icons'
+import { useId } from 'react'
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 
 import { IconButton } from './icon-button'
@@ -37,7 +39,27 @@ export const SettingsGroup = ({
   </section>
 )
 
-/** `htmlFor`: makes the whole row the control's label, for a `Switch`; leave it out for a control that opens a popup. `render`: the whole row as a link. */
+/** Laid over the whole row; the row's actions are positioned after it, so they stay above it. */
+const RowTrigger = ({
+  labelledBy,
+  render,
+}: {
+  labelledBy: string
+  render: ReactElement
+}) =>
+  useRender({
+    props: {
+      'aria-labelledby': labelledBy,
+      className: 'absolute inset-0 cursor-pointer outline-none',
+      'data-slot': 'row-trigger',
+    },
+    render,
+  })
+
+/**
+ * `htmlFor`: makes the whole row the control's label, for a `Switch`; leave it out for a control that opens a popup. `render`: the whole row as a link.
+ * `trigger`: the whole row as a button (a popover's trigger) that can still hold actions, which a link or a label cannot.
+ */
 export const SettingsRow = ({
   active,
   children,
@@ -51,6 +73,7 @@ export const SettingsRow = ({
   ref,
   render,
   title,
+  trigger,
 }: Pick<ComponentProps<'div'>, 'ref'> & {
   /** The keyboard cursor's row in a list walked with J / K. */
   active?: boolean
@@ -65,33 +88,46 @@ export const SettingsRow = ({
   iconVariant?: 'avatar'
   render?: ReactElement
   title: ReactNode
-}) => (
-  <Item
-    size="sm"
-    variant="grouped"
-    className={cn(dense && 'py-2')}
-    data-active={active || undefined}
-    data-index={dataIndex}
-    ref={ref}
-    // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- Item renders the title and description into this label
-    render={htmlFor ? <label htmlFor={htmlFor} /> : render}
-  >
-    {icon && <ItemMedia variant={iconVariant}>{icon}</ItemMedia>}
-    <ItemContent>
-      <ItemTitle>
-        {title}
-        {hint && (
-          <IconButton
-            icon={InformationCircleIcon}
-            label={hint}
-            size="icon-2xs"
-            variant="ghost-muted"
-            className="-my-1"
-          />
-        )}
-      </ItemTitle>
-      {description && <ItemDescription>{description}</ItemDescription>}
-    </ItemContent>
-    {children && <ItemActions>{children}</ItemActions>}
-  </Item>
-)
+  trigger?: ReactElement
+}) => {
+  const titleId = useId()
+  return (
+    <Item
+      size="sm"
+      variant="grouped"
+      className={cn(
+        dense && 'py-2',
+        trigger &&
+          'has-data-popup-open:bg-accent hover:bg-accent has-[[data-slot=row-trigger]:focus-visible]:focus-ring relative cursor-pointer'
+      )}
+      data-active={active || undefined}
+      data-index={dataIndex}
+      ref={ref}
+      // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- Item renders the title and description into this label
+      render={htmlFor ? <label htmlFor={htmlFor} /> : render}
+    >
+      {trigger && <RowTrigger labelledBy={titleId} render={trigger} />}
+      {icon && <ItemMedia variant={iconVariant}>{icon}</ItemMedia>}
+      <ItemContent>
+        <ItemTitle id={titleId}>
+          {title}
+          {hint && (
+            <IconButton
+              icon={InformationCircleIcon}
+              label={hint}
+              size="icon-2xs"
+              variant="ghost-muted"
+              className="-my-1"
+            />
+          )}
+        </ItemTitle>
+        {description && <ItemDescription>{description}</ItemDescription>}
+      </ItemContent>
+      {children && (
+        <ItemActions className={cn(trigger && 'relative')}>
+          {children}
+        </ItemActions>
+      )}
+    </Item>
+  )
+}

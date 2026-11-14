@@ -1090,7 +1090,6 @@ export const fr: Messages = {
     askedByYou: 'Demandé par vous',
     draftedInVoice: 'Rédigé avec votre style',
     edit: 'Modifier',
-    open: 'Ouvrir',
     send: 'Envoyer',
     rewrite: 'Réécrire',
     shorterInstruction: 'Fais plus court.',

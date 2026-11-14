@@ -30,7 +30,7 @@ import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import type { QueueItem } from '~/components/queue-card'
-import { ThreadLink } from '~/components/thread-link'
+import { PeekTrigger, peekIdOf, usePeekKey } from '~/components/thread-link'
 import { queueCards } from '~/lib/home-db'
 import { useT } from '~/lib/i18n'
 import { warmThread } from '~/lib/mail-db'
@@ -428,16 +428,7 @@ export const ProposalsReview = ({
   useHotkey('Enter', () => selected && proposals.approve([selected]), keys)
   useHotkey('S', () => selected && proposals.keep(selected), keys)
   useHotkey('T', () => proposals.approve(rows), listKeys)
-  useHotkey(
-    'O',
-    () =>
-      selected?.message &&
-      navigate({
-        params: { threadId: selected.message.threadId },
-        to: '/mail/$threadId',
-      }),
-    keys
-  )
+  usePeekKey(selected?.id, canUseKeys)
 
   return (
     <>
@@ -476,12 +467,19 @@ export const ProposalsReview = ({
                 <SettingsRow
                   key={proposal.id}
                   active={isActive}
+                  trigger={
+                    message ? (
+                      <PeekTrigger
+                        id={peekIdOf(proposal.id)}
+                        message={{ ...message, from: 'home' }}
+                      />
+                    ) : undefined
+                  }
                   title={
                     message ? (
-                      <ThreadLink
-                        threadId={message.threadId}
-                        text={message.fromName ?? message.fromEmail}
-                      />
+                      <span data-mask>
+                        {message.fromName ?? message.fromEmail}
+                      </span>
                     ) : (
                       t.actionKind[kind]
                     )

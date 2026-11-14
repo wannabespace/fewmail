@@ -564,7 +564,6 @@ export const zh: Messages = {
     askedByYou: '你要求的',
     draftedInVoice: '已用你的语气起草',
     edit: '编辑',
-    open: '打开',
     send: '发送',
     rewrite: '重写',
     shorterInstruction: '写短一点。',

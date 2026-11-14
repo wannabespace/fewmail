@@ -864,7 +864,6 @@ export const pt: Messages = {
     askedByYou: 'Pedido por você',
     draftedInVoice: 'Escrito com a sua voz',
     edit: 'Editar',
-    open: 'Abrir',
     send: 'Enviar',
     rewrite: 'Reescrever',
     shorterInstruction: 'Deixe mais curto.',

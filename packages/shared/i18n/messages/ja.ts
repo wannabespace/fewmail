@@ -572,7 +572,6 @@ export const ja: Messages = {
     askedByYou: 'あなたの依頼',
     draftedInVoice: 'あなたらしい文面で下書きしました',
     edit: '編集',
-    open: '開く',
     send: '送信',
     rewrite: '書き直す',
     shorterInstruction: 'もっと短くしてください。',

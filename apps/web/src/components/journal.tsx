@@ -10,7 +10,7 @@ import { format, isToday } from 'date-fns'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { ThreadLink } from '~/components/thread-link'
+import { PeekTrigger } from '~/components/thread-link'
 import { useDates, useT } from '~/lib/i18n'
 import { hideThread, threadOfMessage } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
@@ -91,12 +91,14 @@ export const Journal = () => {
     return (
       <SettingsRow
         key={action.id}
+        trigger={
+          message ? (
+            <PeekTrigger message={{ ...message, from: 'journal' }} />
+          ) : undefined
+        }
         title={
           message ? (
-            <ThreadLink
-              threadId={message.threadId}
-              text={message.fromName ?? message.fromEmail}
-            />
+            <span data-mask>{message.fromName ?? message.fromEmail}</span>
           ) : (
             <span data-mask>{action.title}</span>
           )

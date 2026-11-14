@@ -115,6 +115,7 @@ export const awaitingReplies = async (userId: string) => {
   }
   const sent = await db
     .select({
+      id: messages.id,
       receivedAt: messages.receivedAt,
       subject: messages.subject,
       threadId: messages.threadId,

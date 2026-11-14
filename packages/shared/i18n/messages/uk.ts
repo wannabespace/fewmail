@@ -1081,7 +1081,6 @@ export const uk: Messages = {
     askedByYou: 'На твоє прохання',
     draftedInVoice: 'Написано твоїм голосом',
     edit: 'Змінити',
-    open: 'Відкрити',
     send: 'Надіслати',
     rewrite: 'Переписати',
     shorterInstruction: 'Зроби коротше.',

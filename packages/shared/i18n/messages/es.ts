@@ -1080,7 +1080,6 @@ export const es: Messages = {
     askedByYou: 'Lo pediste tú',
     draftedInVoice: 'Redactado con tu voz',
     edit: 'Editar',
-    open: 'Abrir',
     send: 'Enviar',
     rewrite: 'Reescribir',
     shorterInstruction: 'Hazlo más corto.',

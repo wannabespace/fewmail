@@ -1080,7 +1080,6 @@ export const de: Messages = {
     askedByYou: 'Von dir angefragt',
     draftedInVoice: 'In deinem Ton entworfen',
     edit: 'Bearbeiten',
-    open: 'Öffnen',
     send: 'Senden',
     rewrite: 'Umschreiben',
     shorterInstruction: 'Mach es kürzer.',

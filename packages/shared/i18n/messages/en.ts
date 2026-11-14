@@ -857,7 +857,6 @@ export const en = {
     delete: 'Delete',
     draftedInVoice: 'Drafted in your voice',
     edit: 'Edit',
-    open: 'Open',
     pick: 'Pick',
     picked: (n: number) => `${n} picked`,
     send: 'Send',
