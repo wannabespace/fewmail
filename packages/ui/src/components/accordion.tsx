@@ -126,7 +126,7 @@ const AccordionContent = ({
     >
       <div
         className={cn(
-          `[&_a:not([data-slot=button])]:hover:text-foreground pt-0 pb-4 [&_a:not([data-slot=button])]:underline [&_a:not([data-slot=button])]:underline-offset-3 [&_p:not(:last-child)]:mb-4`,
+          `[&_a:not([data-slot])]:hover:text-foreground pt-0 pb-4 [&_a:not([data-slot])]:underline [&_a:not([data-slot])]:underline-offset-3 [&_p:not(:last-child)]:mb-4`,
           className
         )}
       >

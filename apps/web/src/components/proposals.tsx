@@ -14,6 +14,7 @@ import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import { Item } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { ScrollArea } from '@fewmail/ui/components/scroll-area'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -32,6 +33,7 @@ import type { QueueItem } from '~/components/queue-card'
 import { ThreadLink } from '~/components/thread-link'
 import { queueCards } from '~/lib/home-db'
 import { useT } from '~/lib/i18n'
+import { warmThread } from '~/lib/mail-db'
 import { client, orpc } from '~/lib/orpc'
 import { toastUndo } from '~/lib/undo'
 
@@ -259,21 +261,33 @@ const ProposalsQueueCard = ({
                   <h4 className="text-muted-foreground text-xs font-medium first-letter:uppercase">
                     {t.today.tidy[kind](group.length)}
                   </h4>
-                  <ul className="flex flex-col gap-1">
+                  <ul className="flex flex-col">
                     {group.map(({ id, message }) => (
-                      <li key={id} className="flex min-w-0 gap-2">
+                      <li key={id}>
                         {message ? (
-                          <>
+                          <Item
+                            size="xs"
+                            className="-mx-2.5 flex-nowrap"
+                            render={
+                              <Link
+                                to="/mail/$threadId"
+                                params={{ threadId: message.threadId }}
+                                onPointerEnter={() => {
+                                  void warmThread(message.threadId)
+                                }}
+                              />
+                            }
+                          >
                             <span data-mask className="shrink-0 font-medium">
                               {message.fromName ?? message.fromEmail}
                             </span>
                             <span
                               data-mask
-                              className="text-muted-foreground truncate"
+                              className="text-muted-foreground min-w-0 truncate"
                             >
                               {message.subject}
                             </span>
-                          </>
+                          </Item>
                         ) : (
                           t.actionKind[kind]
                         )}
