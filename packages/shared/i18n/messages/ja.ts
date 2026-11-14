@@ -667,7 +667,11 @@ export const ja: Messages = {
     deleteAccount: 'アカウントを削除',
     deleteConfirm: 'すべて削除',
     deleteDescription:
-      'アカウント、同期したメール、下書き、ルールを Fewmail からすぐに削除します。Gmail 自体には影響しません。',
+      'アカウント、同期したメール、下書き、ルールを Fewmail からすぐに削除します。Gmail 自体には影響しません。有料プランはすぐに解約されます。',
+    deleteFailed:
+      'アカウントは削除されませんでした。少し待ってからもう一度お試しください。',
+    deleteSignIn:
+      '本人確認のため、もう一度 Google でログインしてからアカウントを削除してください。',
     deleteTitle: 'Fewmail アカウントを削除しますか？',
     cancel: 'キャンセル',
     integrations: '連携',
@@ -688,9 +692,13 @@ export const ja: Messages = {
       lost: 'Gmailへのアクセスが失われました。再接続するにはもう一度追加してください。',
       reading: 'メールを読み込み中…',
       remove: '削除',
+      retrying:
+        'Gmail が今は応答していません。Fewmail が自動でもう一度試します。',
       signIn: 'ログインに使うアカウント',
       signInChosen:
         'それはログインに使っているアカウントです。別のアカウントを選んでください。',
+      signInLost:
+        'Gmailへのアクセスが失われました。再接続するにはもう一度ログインしてください。',
       synced: (ago: string) => `${ago}に同期`,
       title: 'メールボックス',
     },
@@ -1259,6 +1267,10 @@ export const ja: Messages = {
   },
   telegram: {
     approveAlike: '同じ種類のカードをまとめて承認：',
+    chatTaken:
+      'このチャットはすでに別の Fewmail アカウントに接続されています。先にそちらで Telegram の接続を解除してから（設定 → 連携）、もう一度リンクを開いてください。',
+    queueChanged:
+      'その後カードが変わりました。今対応が必要なものはこちらです：',
     heard: (text: string) => `聞き取った内容：「${text}」`,
     voiceFailed:
       'うまく聞き取れませんでした。もう一度話すか、入力してください。',
@@ -1331,6 +1343,8 @@ export const ja: Messages = {
     quick: 'すぐ済むもの',
     needsLook: '目を通すもの',
     tidy: {
+      failed: (emails: string) =>
+        `Gmail で${emails}を変更できませんでした。少ししてからもう一度お試しください。`,
       confirm: (emails: string) => `${emails}を片付けますか？`,
       running: '片付け中…',
       unsubscribeHint:
@@ -1554,7 +1568,7 @@ export const ja: Messages = {
       perMonth: (amount: string) => `月${amount}`,
       recurring: (n: number) => `定期 ${n}件`,
       thisMonth: '今月',
-      upcoming: '30日以内',
+      upcoming: '今後30日',
     },
   },
   bulk: {
@@ -1568,6 +1582,8 @@ export const ja: Messages = {
     title: (total: number) => `開いていないニュースレター${total}件を配信停止`,
   },
   clearOut: {
+    partial:
+      'Gmail が片付けの一部を止めました。すでに移動したメールは戻せます。',
     groups: {
       lists: '一度も開いていないメルマガ',
       notifications: '既読の通知（1か月より前）',
@@ -1662,6 +1678,8 @@ export const ja: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'この番号はすでに別の Fewmail アカウントに接続されています。先にそちらで WhatsApp の接続を解除してから（設定 → 連携）、もう一度メッセージを送ってください。',
     connectFirst: (url: string) =>
       `こんにちは、Fewmail です。この WhatsApp で、急ぎのメールが届いたらお知らせし、対応が必要なものを見せ、承認した返信を送ります。\n\nこの番号はまだ Fewmail に接続されていません。1 分で終わります:\n1. Fewmail の設定を開く: ${url}\n2. 連携で「WhatsApp を接続」をタップ(Fewmail Pro の機能です)。\n3. 用意されたメッセージ付きで WhatsApp が開くので、送信すれば完了です。`,
     connected:

@@ -47,6 +47,7 @@ import {
   updateEvent,
 } from '../services/calendar'
 import {
+  CLEAR_OUT_RUN,
   keepSender,
   pageSubscriptions,
   runClearOut,
@@ -532,9 +533,19 @@ export const router = {
   },
   subscriptions: {
     clearOut: authed
-      .input(type({ groups: type.enumerated(...CLEAR_OUT_GROUPS).array() }))
+      .input(
+        type({
+          groups: type.enumerated(...CLEAR_OUT_GROUPS).array(),
+          lists: type({
+            fromEmail: 'string',
+            gmailId: 'string',
+            listId: 'string | null',
+            mailboxId: 'string.uuid',
+          }).array(),
+        })
+      )
       .handler(({ context, input }) =>
-        runClearOut(context.user.id, input.groups)
+        runClearOut(context.user.id, input.groups, input.lists)
       ),
     list: authed
       .input(type({ offset: 'number.integer >= 0' }))
@@ -544,9 +555,11 @@ export const router = {
     scanClearOut: authed.handler(({ context }) =>
       scanClearOut(context.user.id)
     ),
-    undoClearOut: authed.handler(({ context }) =>
-      undoClearOut(context.user.id)
-    ),
+    undoClearOut: authed
+      .input(type({ run: CLEAR_OUT_RUN }))
+      .handler(({ context, input }) =>
+        undoClearOut(context.user.id, input.run)
+      ),
     unsubscribe: authed
       .input(messageId)
       .handler(({ context, input }) =>

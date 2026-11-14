@@ -1,0 +1,1 @@
+ALTER TABLE "messages" ADD COLUMN "read_by_archive" boolean DEFAULT false NOT NULL;

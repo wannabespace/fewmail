@@ -5,6 +5,7 @@ import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, stepCountIs, tool } from 'ai'
 import { addDays, subDays } from 'date-fns'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
@@ -95,6 +96,29 @@ const consentReads = async (
   return []
 }
 
+/** The same request again (an MCP client retrying a call) is the card already waiting, or one yes would run it twice. */
+const isWaiting = async (
+  userId: string,
+  name: ConsentToolName,
+  input: ToolInput
+) => {
+  const pending = await db
+    .select({ payload: actions.payload })
+    .from(actions)
+    .where(
+      and(
+        eq(actions.userId, userId),
+        eq(actions.kind, 'consent'),
+        eq(actions.status, 'pending')
+      )
+    )
+  const asked = JSON.stringify(input)
+  return pending.some(
+    ({ payload }) =>
+      payload?.tool === name && JSON.stringify(payload.input) === asked
+  )
+}
+
 /**
  * A consent tool never runs on the agent's or an MCP client's word: it waits as a `consent` card on Home carrying the
  * tool, its input and what the reads found (`context`), so the card shows exactly what the yes does; `runConsent` does it.
@@ -109,6 +133,9 @@ export const proposeConsent = async (
 ) => {
   const settings = await getSettings(userId)
   const t = dictionaries[settings?.language ?? 'en']
+  if (await isWaiting(userId, name, input)) {
+    return { isNew: false, question: t.agent.confirm[name] }
+  }
   const tools = agentTools(userId)
   const reads = await consentReads(userId, name, input)
   const context = await Promise.all(
@@ -125,7 +152,7 @@ export const proposeConsent = async (
     userId,
   })
   await announceChange(userId, ['actions', 'today'])
-  return { question: t.agent.confirm[name] }
+  return { isNew: true, question: t.agent.confirm[name] }
 }
 
 export const runConsent = (

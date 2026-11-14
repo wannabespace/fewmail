@@ -13,14 +13,18 @@ import { orpc } from '~/lib/orpc'
 const mailboxStatus = (
   copy: Messages['settings']['mailboxes'],
   mailbox: {
+    hasLostAccess: boolean
     lastSyncedAt: Date | null
     signIn: boolean
     syncError: string | null
   },
   ago: (date: Date) => string
 ) => {
+  if (mailbox.hasLostAccess) {
+    return mailbox.signIn ? copy.signInLost : copy.lost
+  }
   if (mailbox.syncError) {
-    return mailbox.signIn ? mailbox.syncError : copy.lost
+    return copy.retrying
   }
   if (!mailbox.lastSyncedAt) {
     return copy.reading

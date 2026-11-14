@@ -12,10 +12,11 @@ export const authClient = createAuthClient({
   plugins: [oauthProviderClient()],
 })
 
-export const signInWithGoogle = (path = '/home') => {
+export const signInWithGoogle = (path = '/home', loginHint?: string) => {
   posthog.capture('sign_in_started')
   return authClient.signIn.social({
     callbackURL: `${location.origin}${path}`,
+    loginHint,
     provider: 'google',
   })
 }

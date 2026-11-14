@@ -27,10 +27,10 @@ const SettingsPage = () => {
   const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
   const navigate = Route.useNavigate()
-  const { mailbox, upgraded } = Route.useSearch()
+  const { deleteAccount, mailbox, upgraded } = Route.useSearch()
 
   useEffect(() => {
-    if (!mailbox && !upgraded) {
+    if (!deleteAccount && !mailbox && !upgraded) {
       return
     }
     const copy = t.settings.mailboxes
@@ -44,7 +44,7 @@ const SettingsPage = () => {
       void queryClient.invalidateQueries({ queryKey: orpc.me.key() })
     }
     void navigate({ replace: true, search: {} })
-  }, [mailbox, upgraded, navigate, queryClient, t])
+  }, [deleteAccount, mailbox, upgraded, navigate, queryClient, t])
 
   return (
     <main className="flex-1 overflow-y-auto">
@@ -64,7 +64,7 @@ const SettingsPage = () => {
         )}
         <McpSettings />
         <SnippetsSettings />
-        <AccountSettings />
+        <AccountSettings isConfirmingDelete={deleteAccount === 'confirm'} />
         <SettingsGroup title={t.settings.legal}>
           <SettingsRow
             title={t.legal.privacy}
@@ -93,6 +93,7 @@ export const Route = createFileRoute('/_app/settings')({
           ]),
     ]),
   validateSearch: type({
+    'deleteAccount?': "'confirm'",
     'mailbox?': "'added' | 'failed' | 'sign_in'",
     'upgraded?': type.enumerated(...PAID_PLANS),
   }),

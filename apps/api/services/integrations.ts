@@ -12,6 +12,7 @@ import { customAlphabet } from 'nanoid'
 
 import { env } from '../env'
 import { announceChange } from '../lib/live'
+import { capture } from '../lib/posthog'
 
 /** Apps the user allowed into MCP through OAuth; consent is what keeps one connected. */
 export const listConnectedApps = (userId: string) =>
@@ -52,6 +53,42 @@ export const disconnectApp = (userId: string, clientId: string) =>
 
 const linkCode = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 10)
 
+const MESSENGER_LINKS = { telegram: telegramLinks, whatsapp: whatsappLinks }
+
+type Messenger = keyof typeof MESSENGER_LINKS
+
+/** The owner of `code` when the chat or phone is already `holder`'s: refused, never moved, since switching means Disconnect there first. */
+const takenFrom = async (
+  channel: Messenger,
+  code: string,
+  holder: string | null
+) => {
+  if (!holder) {
+    return null
+  }
+  const table = MESSENGER_LINKS[channel]
+  const [owner] = await db
+    .select({ userId: table.userId })
+    .from(table)
+    .where(eq(table.linkCode, code))
+  return owner && owner.userId !== holder ? owner.userId : null
+}
+
+const linked = async (
+  channel: Messenger,
+  userId: string | undefined,
+  taken: boolean
+) => {
+  if (!userId) {
+    return null
+  }
+  capture(userId, 'messenger_linked', { channel, taken })
+  if (!taken) {
+    await announceChange(userId, ['integrations'])
+  }
+  return { taken, userId }
+}
+
 const createTelegramLink = async (userId: string) => {
   const [created] = await db
     .insert(telegramLinks)
@@ -85,7 +122,19 @@ export const unlinkTelegram = (userId: string) =>
     .set({ chatId: null, linkCode: linkCode(), linkedAt: null })
     .where(eq(telegramLinks.userId, userId))
 
+export const userIdForChat = async (chatId: string) => {
+  const [link] = await db
+    .select({ userId: telegramLinks.userId })
+    .from(telegramLinks)
+    .where(eq(telegramLinks.chatId, chatId))
+  return link?.userId ?? null
+}
+
 export const linkTelegramChat = async (code: string, chatId: string) => {
+  const taken = await takenFrom('telegram', code, await userIdForChat(chatId))
+  if (taken) {
+    return linked('telegram', taken, true)
+  }
   const [link] = await db
     .update(telegramLinks)
     .set({ chatId, linkCode: linkCode(), linkedAt: new Date() })
@@ -96,18 +145,7 @@ export const linkTelegramChat = async (code: string, chatId: string) => {
       )
     )
     .returning()
-  if (link) {
-    await announceChange(link.userId, ['integrations'])
-  }
-  return link ?? null
-}
-
-export const userIdForChat = async (chatId: string) => {
-  const [link] = await db
-    .select({ userId: telegramLinks.userId })
-    .from(telegramLinks)
-    .where(eq(telegramLinks.chatId, chatId))
-  return link?.userId ?? null
+  return linked('telegram', link?.userId, false)
 }
 
 export const chatIdForUser = async (userId: string) => {
@@ -156,11 +194,25 @@ export const unlinkWhatsapp = (userId: string) =>
     })
     .where(eq(whatsappLinks.userId, userId))
 
+/** Records the inbound message that opens WhatsApp's 24 h window and returns who sent it. */
+export const userIdForPhone = async (phone: string) => {
+  const [link] = await db
+    .update(whatsappLinks)
+    .set({ lastInboundAt: new Date() })
+    .where(eq(whatsappLinks.phone, phone))
+    .returning({ userId: whatsappLinks.userId })
+  return link?.userId ?? null
+}
+
 /** The code arrives inside the prefilled "Fewmail <code>" message the user sends from the wa.me link. */
 export const linkWhatsappPhone = async (text: string, phone: string) => {
   const code = /\b[A-Z2-9]{10}\b/u.exec(text.toUpperCase())?.[0]
   if (!code) {
     return null
+  }
+  const taken = await takenFrom('whatsapp', code, await userIdForPhone(phone))
+  if (taken) {
+    return linked('whatsapp', taken, true)
   }
   const [link] = await db
     .update(whatsappLinks)
@@ -177,20 +229,7 @@ export const linkWhatsappPhone = async (text: string, phone: string) => {
       )
     )
     .returning()
-  if (link) {
-    await announceChange(link.userId, ['integrations'])
-  }
-  return link ?? null
-}
-
-/** Records the inbound message that opens WhatsApp's 24 h window and returns who sent it. */
-export const userIdForPhone = async (phone: string) => {
-  const [link] = await db
-    .update(whatsappLinks)
-    .set({ lastInboundAt: new Date() })
-    .where(eq(whatsappLinks.phone, phone))
-    .returning({ userId: whatsappLinks.userId })
-  return link?.userId ?? null
+  return linked('whatsapp', link?.userId, false)
 }
 
 export const whatsappForUser = async (userId: string) => {
@@ -206,11 +245,9 @@ export const whatsappForUser = async (userId: string) => {
     : null
 }
 
-const MESSENGER_LINKS = { telegram: telegramLinks, whatsapp: whatsappLinks }
-
 export const setUrgentPush = async (
   userId: string,
-  channel: keyof typeof MESSENGER_LINKS,
+  channel: Messenger,
   urgentPush: boolean
 ) => {
   const table = MESSENGER_LINKS[channel]

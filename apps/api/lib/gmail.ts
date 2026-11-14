@@ -593,6 +593,9 @@ export const getLabelCounts = (account: GmailAccount, id: string) =>
     `/labels/${id}?${new URLSearchParams({ fields: 'threadsTotal' })}`
   )
 
+export const deleteLabel = (account: GmailAccount, id: string) =>
+  gmail(account, `/labels/${id}`, { method: 'DELETE' })
+
 export const createLabel = (account: GmailAccount, name: string) =>
   gmail<{ id: string; name: string }>(account, '/labels', {
     body: JSON.stringify({

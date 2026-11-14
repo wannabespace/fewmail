@@ -188,7 +188,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   tidy_mail: define({
     description:
-      "Do what the agent suggested for quiet inbox mail (get_today's tidy): archive, mark read or unsubscribe, each email as its suggestedAction says. messageIds are emails from tidy; anything else is ignored. settled counts the emails done.",
+      "Do what the agent suggested for quiet inbox mail (get_today's tidy): archive, mark read or unsubscribe, each email as its suggestedAction says. messageIds are emails from tidy; anything else is ignored. settled counts the emails done, failed those Gmail refused.",
     input: { messageIds: z.array(z.uuid()).min(1) },
     run: ({ messageIds }) => settleTidy(userId, messageIds, 'done'),
   }),
@@ -250,14 +250,25 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   clear_out: define({
     description:
-      'Archive the chosen groups of inbox mail (see preview_clear_out) under the Gmail label Fewmail/Cleared, and for lists also unsubscribe from them. Nothing is deleted; undo_clear_out brings every cleared email back.',
-    input: { groups: z.array(z.enum(CLEAR_OUT_GROUPS)).min(1) },
-    run: ({ groups }) => runClearOut(userId, groups),
+      "Archive the chosen groups of inbox mail (see preview_clear_out) under this run's label in Fewmail/Cleared; for lists also unsubscribe. lists: preview_clear_out's senders the user saw, as returned (empty without the lists group). Nothing is deleted; undo_clear_out with the returned run brings it back, also when failed (Gmail refused part).",
+    input: {
+      groups: z.array(z.enum(CLEAR_OUT_GROUPS)).min(1),
+      lists: z.array(
+        z.object({
+          fromEmail: z.string(),
+          gmailId: z.string(),
+          listId: z.string().nullable(),
+          mailboxId: z.string(),
+        })
+      ),
+    },
+    run: ({ groups, lists }) => runClearOut(userId, groups, lists),
   }),
   undo_clear_out: define({
     description:
-      'Move every email a clear-out archived back to the inbox. Unsubscribes are not undone.',
-    run: () => undoClearOut(userId),
+      "Move one clear-out's emails back to the inbox: run from clear_out, else the latest. Unsubscribes stay.",
+    input: { run: z.string().optional() },
+    run: ({ run }) => undoClearOut(userId, run),
   }),
   get_reading: define({
     description:

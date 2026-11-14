@@ -1178,7 +1178,10 @@ export const es: Messages = {
     deleteAccount: 'Eliminar cuenta',
     deleteConfirm: 'Eliminar todo',
     deleteDescription:
-      'Elimina de inmediato tu cuenta, el correo sincronizado, borradores y reglas de Fewmail. Tu Gmail no se toca.',
+      'Elimina de inmediato tu cuenta, el correo sincronizado, borradores y reglas de Fewmail. Tu Gmail no se toca. Un plan de pago se cancela de inmediato.',
+    deleteFailed: 'La cuenta no se eliminó. Inténtalo de nuevo en un minuto.',
+    deleteSignIn:
+      'Para confirmar que eres tú, vuelve a iniciar sesión con Google y luego elimina la cuenta.',
     deleteTitle: '¿Eliminar tu cuenta de Fewmail?',
     cancel: 'Cancelar',
     integrations: 'Integraciones',
@@ -1199,8 +1202,12 @@ export const es: Messages = {
       lost: 'Se perdió el acceso a Gmail. Añádelo de nuevo para reconectarlo.',
       reading: 'Leyendo el correo…',
       remove: 'Quitar',
+      retrying:
+        'Gmail no responde ahora mismo. Fewmail lo volverá a intentar solo.',
       signIn: 'Inicias sesión con esta',
       signInChosen: 'Es la cuenta con la que inicias sesión. Elige otra.',
+      signInLost:
+        'Se perdió el acceso a Gmail. Vuelve a iniciar sesión para reconectarlo.',
       synced: (ago: string) => `Sincronizado ${ago}`,
       title: 'Buzones',
     },
@@ -1280,6 +1287,10 @@ export const es: Messages = {
   },
   telegram: {
     approveAlike: 'Aprobar a la vez todas las tarjetas de un tipo:',
+    chatTaken:
+      'Este chat ya está conectado a otra cuenta de Fewmail. Desconecta Telegram allí primero (Ajustes → Integraciones) y vuelve a abrir el enlace.',
+    queueChanged:
+      'Las tarjetas cambiaron desde entonces. Esto es lo que te necesita ahora:',
     heard: (text: string) => `He oído: «${text}»`,
     voiceFailed: 'No lo he entendido. Inténtalo de nuevo o escríbelo.',
     help: 'Escribe o di lo que necesitas:\n• pregunta por tu correo: «¿cuándo se renueva Netflix?»\n• di qué responder: «dile a Ana que firmo mañana»\n• pídeme algo: «crea un tablero para viajes»\n• responde a uno de mis borradores para cambiarlo',
@@ -1354,6 +1365,8 @@ export const es: Messages = {
     quick: 'Rápido',
     needsLook: 'Míralo tú',
     tidy: {
+      failed: (emails: string) =>
+        `Gmail no cambió ${emails}. Inténtalo de nuevo en un momento.`,
       confirm: (emails: string) => `¿Ordenar ${emails}?`,
       running: 'Ordenando…',
       unsubscribeHint:
@@ -1603,7 +1616,7 @@ export const es: Messages = {
           other: (count) => `${count} recurrentes`,
         }),
       thisMonth: 'Este mes',
-      upcoming: 'Vence en 30 días',
+      upcoming: 'Próximos 30 días',
     },
   },
   bulk: {
@@ -1627,6 +1640,8 @@ export const es: Messages = {
       }),
   },
   clearOut: {
+    partial:
+      'Gmail detuvo parte de la limpieza. Lo que ya se movió puede volver.',
     groups: {
       lists: 'Boletines que nunca abres',
       notifications: 'Notificaciones leídas, de más de un mes',
@@ -1727,6 +1742,8 @@ export const es: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'Este número ya está conectado a otra cuenta de Fewmail. Desconecta WhatsApp allí primero (Ajustes → Integraciones) y vuelve a enviar el mensaje.',
     connectFirst: (url: string) =>
       `¡Hola! Soy Fewmail. Aquí en WhatsApp te aviso cuando llega correo urgente, te muestro lo que te necesita y envío las respuestas que apruebes.\n\nEste número aún no está conectado a tu Fewmail. Lleva un minuto:\n1. Abre los ajustes de Fewmail: ${url}\n2. En Integraciones, toca «Conectar WhatsApp» (es parte de Fewmail Pro).\n3. WhatsApp se abre con un mensaje listo: envíalo y listo.`,
     connected:

@@ -3,6 +3,7 @@ import { actions, mailboxes, messages } from '@fewmail/db/schema'
 import { SUSPICION_SPAM } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { and, eq, sql } from 'drizzle-orm'
+import type { AnyColumn } from 'drizzle-orm'
 
 import { modifyThread, trashThread } from '../lib/gmail'
 import { NotFoundError } from './mail-errors'
@@ -41,13 +42,20 @@ const mirrorThreadLabels = async (
 ) => {
   const add = change.add ?? []
   const remove = change.remove ?? []
+  const isArchivingUnread =
+    remove.includes('INBOX') && remove.includes('UNREAD')
+  const isMarkingUnread = add.includes('UNREAD')
   await db
     .update(messages)
     .set({
       isUnread:
-        add.includes('UNREAD') || remove.includes('UNREAD')
-          ? add.includes('UNREAD')
+        isMarkingUnread || remove.includes('UNREAD')
+          ? isMarkingUnread
           : undefined,
+      ...(isArchivingUnread && {
+        readByArchive: sql`${messages.readByArchive} or ${messages.isUnread}`,
+      }),
+      ...(isMarkingUnread && { readByArchive: false }),
       labelIds: sql`array(select distinct label from unnest(${messages.labelIds} || ${textArray(add)}) as label where label <> all(${textArray(remove)}))`,
     })
     .where(and(eq(messages.userId, userId), eq(messages.threadId, threadId)))
@@ -66,6 +74,14 @@ export const changeThreadLabels = async (
 export const ARCHIVE = { remove: ['INBOX', 'UNREAD'] }
 export const MARK_READ = { remove: ['UNREAD'] }
 export const SPAM = { add: ['SPAM'], remove: ['INBOX', 'UNREAD'] }
+
+/** Opened by the user. Never just `not isUnread`: `ARCHIVE` (`readByArchive`) and a rule's mark-read clear UNREAD too, and every list Fewmail moved would read as opened and never be offered for cleanup. */
+export const isOpened = (message: {
+  id: AnyColumn
+  isUnread: AnyColumn
+  readByArchive: AnyColumn
+}) =>
+  sql`(not ${message.isUnread} and not ${message.readByArchive} and not exists (select 1 from ${actions} where ${actions.messageId} = ${message.id} and ${actions.status} = 'auto_done' and ${actions.kind} in ('archive', 'mark_read')))`
 
 /**
  * The shield and zombies only propose: the email stays in the inbox marked "Looks like spam"

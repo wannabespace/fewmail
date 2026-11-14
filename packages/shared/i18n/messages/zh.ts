@@ -656,7 +656,9 @@ export const zh: Messages = {
     deleteAccount: '删除账户',
     deleteConfirm: '全部删除',
     deleteDescription:
-      '立即从 Fewmail 删除你的账户、已同步的邮件、草稿和规则。你的 Gmail 本身不会受影响。',
+      '立即从 Fewmail 删除你的账户、已同步的邮件、草稿和规则。你的 Gmail 本身不会受影响。付费方案会立即取消。',
+    deleteFailed: '账户未删除。请过一分钟再试。',
+    deleteSignIn: '为确认是你本人，请重新用 Google 登录，然后再删除账户。',
     deleteTitle: '删除你的 Fewmail 账户？',
     cancel: '取消',
     integrations: '集成',
@@ -675,8 +677,10 @@ export const zh: Messages = {
       lost: 'Gmail 访问已失效。请重新添加以重新连接。',
       reading: '正在读取邮件…',
       remove: '移除',
+      retrying: 'Gmail 暂时没有响应，Fewmail 会自动重试。',
       signIn: '你用这个账号登录',
       signInChosen: '这是你登录用的账号，请选择另一个。',
+      signInLost: 'Gmail 访问已失效。请重新登录以重新连接。',
       synced: (ago: string) => `${ago}已同步`,
       title: '邮箱',
     },
@@ -1227,6 +1231,9 @@ export const zh: Messages = {
   },
   telegram: {
     approveAlike: '一次批准同一类的全部卡片：',
+    chatTaken:
+      '这个聊天已连接到另一个 Fewmail 账号。请先在那个账号中断开 Telegram（设置 → 集成），再重新打开链接。',
+    queueChanged: '卡片在此期间有变化。现在需要你处理的是：',
     heard: (text: string) => `听到的是：“${text}”`,
     voiceFailed: '我没听清。请再说一次，或直接输入。',
     help: '写下或说出你需要什么：\n• 询问邮件：“Netflix 什么时候续费？”\n• 告诉我回复什么：“告诉安娜我明天签字”\n• 交给我一件事：“建一个旅行看板”\n• 回复我的某个草稿来修改它',
@@ -1292,6 +1299,7 @@ export const zh: Messages = {
     quick: '快速处理',
     needsLook: '需要你看',
     tidy: {
+      failed: (emails: string) => `Gmail 未能更改 ${emails}，请稍后再试。`,
       confirm: (emails: string) => `整理 ${emails}？`,
       running: '正在整理…',
       unsubscribeHint: '其中有 Fewmail 将退订的邮件列表，退订无法撤销。',
@@ -1509,7 +1517,7 @@ export const zh: Messages = {
       perMonth: (amount: string) => `每月 ${amount}`,
       recurring: (n: number) => `${n} 项定期`,
       thisMonth: '本月',
-      upcoming: '30 天内到期',
+      upcoming: '未来 30 天',
     },
   },
   bulk: {
@@ -1522,6 +1530,7 @@ export const zh: Messages = {
     title: (total: number) => `退订 ${total} 个你从不打开的简报`,
   },
   clearOut: {
+    partial: 'Gmail 中止了部分清理。已移走的邮件可以放回。',
     groups: {
       lists: '你从不打开的订阅邮件',
       notifications: '已读通知，超过一个月',
@@ -1612,6 +1621,8 @@ export const zh: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      '这个号码已连接到另一个 Fewmail 账号。请先在那个账号中断开 WhatsApp（设置 → 集成），再重新发送消息。',
     connectFirst: (url: string) =>
       `你好！我是 Fewmail。在 WhatsApp 里，我会在紧急邮件到达时提醒你，告诉你哪些事需要你处理，并发送你批准的回复。\n\n这个号码还没有连接到你的 Fewmail，只需一分钟：\n1. 打开 Fewmail 设置：${url}\n2. 在“集成”中点按“连接 WhatsApp”（Fewmail Pro 功能）。\n3. WhatsApp 会打开并附上一条准备好的消息，发送即可。`,
     connected:

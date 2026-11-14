@@ -228,5 +228,11 @@ export const markNotSpam = async (userId: string, messageId: string) => {
     add: ['INBOX'],
     remove: ['SPAM'],
   })
+  await db
+    .update(messages)
+    .set({ suspicion: null })
+    .where(
+      and(eq(messages.userId, userId), eq(messages.threadId, message.threadId))
+    )
   await vote(userId, message, 'not_spam')
 }

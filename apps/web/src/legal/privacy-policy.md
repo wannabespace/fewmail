@@ -76,7 +76,7 @@ We share data with these services only as needed to run Fewmail, and we may disc
 - **Remove an added mailbox** in Settings → Mailboxes. Its synced mail is deleted from our database right away; to also end the Google permission, revoke it at [myaccount.google.com/permissions](https://myaccount.google.com/permissions) (we do not revoke it ourselves, since the same permission may also serve that account's own Fewmail).
 - **Disconnect** Telegram or WhatsApp, turn off browser notifications, or disconnect MCP clients in Settings.
 - **Revoke access** to your Google account at any time at [myaccount.google.com/permissions](https://myaccount.google.com/permissions). Fewmail stops syncing immediately.
-- **Delete your account** in Settings → Account. This deletes your account, synced mail, drafts, rules, settings and integrations from our database right away and revokes our Google access to the account you sign in with. Your Gmail itself is not changed.
+- **Delete your account** in Settings → Account. This deletes your account, synced mail, drafts, rules, settings and integrations from our database right away, revokes our Google access to the account you sign in with, cancels a paid plan at once and deletes your customer record at Stripe (Stripe keeps past invoices and payments). Your Gmail itself is not changed.
 - **Access or export** your data by contacting us.
 
 ## 8. Data retention

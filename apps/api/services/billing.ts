@@ -2,6 +2,7 @@ import { db } from '@fewmail/db'
 import { subscriptions, users } from '@fewmail/db/schema'
 import { isPaidPlan } from '@fewmail/shared/agent'
 import type { BillingInterval, PaidPlan } from '@fewmail/shared/agent'
+import { Result } from 'better-result'
 import { and, eq, isNull } from 'drizzle-orm'
 import { Stripe } from 'stripe'
 
@@ -97,6 +98,34 @@ export const createCheckout = async (
   return expectRow(session.url ?? undefined)
 }
 
+/** Deleting the customer cancels its subscriptions at once and drops the email and name Stripe holds. */
+export const deleteStripeCustomer = async (userId: string) => {
+  const [user] = await db
+    .select({ stripeCustomerId: users.stripeCustomerId })
+    .from(users)
+    .where(eq(users.id, userId))
+  const customerId = user?.stripeCustomerId
+  if (!stripe || !customerId) {
+    return
+  }
+  const client = stripe
+  const deleted = await Result.tryPromise(() =>
+    client.customers.del(customerId)
+  )
+  if (deleted.isErr()) {
+    const { cause } = deleted.error
+    // A customer already removed in the Stripe dashboard must not block deleting the account.
+    if (
+      !(
+        cause instanceof Stripe.errors.StripeInvalidRequestError &&
+        cause.code === 'resource_missing'
+      )
+    ) {
+      throw cause
+    }
+  }
+}
+
 const SUBSCRIPTION_EVENTS = new Set<Stripe.Event.Type>([
   'customer.subscription.created',
   'customer.subscription.deleted',
@@ -131,6 +160,14 @@ export const handleStripeWebhook = async (request: Request) => {
   const [item] = subscription.items.data
   if (!userId || !item) {
     return new Response('Not a Fewmail subscription')
+  }
+  // A deleted account's subscription still sends events (its own cancellation among them); a 500 here makes Stripe retry for days.
+  const [owner] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.id, userId))
+  if (!owner) {
+    return new Response('Account deleted')
   }
 
   const values = {

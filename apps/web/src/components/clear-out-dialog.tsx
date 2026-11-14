@@ -1,3 +1,4 @@
+import type { RouterOutputs } from '@fewmail/api/router'
 import { CLEAR_OUT_GROUPS } from '@fewmail/shared/agent'
 import type { ClearOutGroup } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
@@ -29,10 +30,12 @@ const UNDO_TOAST_MS = 30_000
 
 const refetchMail = () => refetchChanged(['mail', 'subscriptions', 'today'])
 
+type ListShown = RouterOutputs['subscriptions']['scanClearOut']['senders']
+
 const ClearOutForm = ({
   onRun,
 }: {
-  onRun: (groups: ClearOutGroup[]) => void
+  onRun: (input: { groups: ClearOutGroup[]; lists: ListShown }) => void
 }) => {
   const t = useT()
   const {
@@ -100,7 +103,10 @@ const ClearOutForm = ({
       onSubmit={(event) => {
         event.preventDefault()
         if (clearing > 0) {
-          onRun(selected)
+          onRun({
+            groups: selected,
+            lists: selected.includes('lists') ? scan.senders : [],
+          })
         }
       }}
     >
@@ -172,12 +178,20 @@ export const ClearOutDialog = () => {
       onMutate: () => toast.loading(t.agent.steps.clear_out),
       onError: (_error, _input, toastId) => toast.dismiss(toastId),
       onSettled: refetchMail,
-      onSuccess: ({ cleared }, _input, toastId) =>
-        toast.success(t.clearOut.done(t.cleanup.emails(cleared)), {
-          action: { label: t.clearOut.undo, onClick: () => undo.mutate() },
-          duration: UNDO_TOAST_MS,
-          id: toastId,
-        }),
+      onSuccess: ({ cleared, failed, run: ran }, _input, toastId) =>
+        (failed ? toast.error : toast.success)(
+          failed
+            ? t.clearOut.partial
+            : t.clearOut.done(t.cleanup.emails(cleared)),
+          {
+            action: {
+              label: t.clearOut.undo,
+              onClick: () => undo.mutate({ run: ran }),
+            },
+            duration: UNDO_TOAST_MS,
+            id: toastId,
+          }
+        ),
     })
   )
 
@@ -190,8 +204,8 @@ export const ClearOutDialog = () => {
         </DialogHeader>
         {open && (
           <ClearOutForm
-            onRun={(groups) => {
-              run.mutate({ groups })
+            onRun={(input) => {
+              run.mutate(input)
               clearOutStore.set(false)
             }}
           />

@@ -12,19 +12,21 @@ import type { Messages } from '@fewmail/shared/i18n'
 import { approveTitle, messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
+import { Result } from 'better-result'
 import { isAfter, subDays, subMinutes } from 'date-fns'
 import { eq, lt } from 'drizzle-orm'
 
 import { env } from '../env'
 import { speak } from '../lib/elevenlabs'
+import { keyedHash } from '../lib/keyed-hash'
 import { transcribe } from '../lib/mistral'
 import { capture } from '../lib/posthog'
-import { approveCard, approveCards } from './approve'
+import { approveCard } from './approve'
 import { savedThisWeek } from './home'
 import { followMessage } from './instructions'
 import { LimitReachedError } from './limit-error'
 import { dismissAction, listQueue, redraftAction, updateDraft } from './mail'
-import { cancelMail } from './outbox'
+import { AlreadySentError, cancelMail } from './outbox'
 import { requireBudget } from './plan'
 import { getReadingSummary, markReadingRead } from './reading'
 import { getSettings } from './settings'
@@ -237,14 +239,17 @@ const agentReply = (
   ),
 })
 
+const senderLine = ({ channel }: Chat, { action, message }: QueueItem) =>
+  `${channel.bold(message?.fromName ?? message?.fromEmail ?? 'Fewmail')} · ${channel.plain(message?.subject ?? action.title)}`
+
 export const itemReply = (
   chat: Chat,
   t: Messages,
   item: QueueItem,
   urgent = false
 ): Reply => {
-  const { bold, plain } = chat.channel
-  const { action, analysis, message } = item
+  const { plain } = chat.channel
+  const { action, analysis } = item
   const isReply = action.kind === 'reply'
   const { link } = cardPayload(action)
   return {
@@ -265,7 +270,7 @@ export const itemReply = (
     ],
     text: [
       urgent ? plain(t.telegram.urgent) : null,
-      `${bold(message?.fromName ?? message?.fromEmail ?? 'Fewmail')} · ${plain(message?.subject ?? action.title)}`,
+      senderLine(chat, item),
       analysis?.summary ? plain(analysis.summary) : null,
       isReply && action.detail
         ? `\n${chat.channel.italic(t.telegram.draft)}\n${clipped(chat, t, action.detail)}`
@@ -329,6 +334,15 @@ export const spokenReading = async (userId: string) => {
 /** WhatsApp shows three buttons at most. */
 const ALIKE_BUTTONS = 3
 
+/** Carried by `all:` (Telegram allows 64 bytes), so it approves exactly the cards shown: one that arrived, left or was redrafted since refuses. */
+const shownOf = (items: QueueItem[]) =>
+  keyedHash(
+    `alike:${items
+      .map(({ action }) => `${action.id}:${action.detail ?? ''}`)
+      .toSorted()
+      .join(',')}`
+  ).slice(0, 16)
+
 /** After the cards, one button per kind with two or more of them: approving them all is still the user's yes. */
 const alikeReply = (chat: Chat, t: Messages, queue: QueueItem[]): Reply[] => {
   const kinds = [...Map.groupBy(queue, ({ action }) => action.kind)]
@@ -339,7 +353,7 @@ const alikeReply = (chat: Chat, t: Messages, queue: QueueItem[]): Reply[] => {
     : [
         {
           buttons: kinds.map(([kind, items]) => ({
-            id: `all:${kind}`,
+            id: `all:${kind}:${shownOf(items)}`,
             title: `${t.actionKind[kind]} · ${items.length}`,
           })),
           text: chat.channel.italic(t.telegram.approveAlike),
@@ -357,14 +371,24 @@ const queueReplies = async (chat: Chat, userId: string, t: Messages) => {
       ]
 }
 
-/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `w:` write a reminder, `e:` edit, `queue`, `reading`, `readall` (mark Reading read), `week`. */
+const sendingReply = (
+  chat: Chat,
+  t: Messages,
+  item: QueueItem,
+  outboxId: string
+): Reply => ({
+  buttons: [{ id: `u:${outboxId}`, title: t.telegram.undo }],
+  text: `${senderLine(chat, item)}\n${chat.channel.italic(t.telegram.sendingIn(UNDO_SEND_SECONDS))}`,
+})
+
+/** Buttons and commands: `a:` approve, `all:<kind>:<shown>` approve the kind's cards shown, `u:` undo a send, `d:` skip, `r:` shorter, `w:` write a reminder, `e:` edit, `queue`, `reading`, `readall` (mark Reading read), `week`. */
 export const press = async (
   chat: Chat,
   userId: string,
   pressed: string
 ): Promise<Pressed> => {
   const t = await messagesFor(userId)
-  const [command, id = ''] = pressed.split(':')
+  const [command, id = '', shown] = pressed.split(':')
   capture(userId, 'bot_pressed', { channel: chat.channel.name, command })
   if (command === 'reading') {
     return {
@@ -389,6 +413,7 @@ export const press = async (
     }
   }
   if (command === 'queue') {
+    await takeEdit(chat)
     return { replies: () => queueReplies(chat, userId, t) }
   }
   if (command === 'a') {
@@ -402,17 +427,40 @@ export const press = async (
   }
   if (command === 'all') {
     const queue = await listQueue(userId)
-    const { approved } = await approveCards(
-      userId,
-      queue
-        .filter(({ action }) => action.kind === id)
-        .map(({ action }) => action.id)
-    )
-    return { buttons: [], notice: t.today.approvedMany(approved) }
+    const alike = queue.filter(({ action }) => action.kind === id)
+    if (shownOf(alike) !== shown) {
+      return {
+        buttons: [],
+        notice: t.telegram.queueChanged,
+        replies: () => queueReplies(chat, userId, t),
+      }
+    }
+    const sending: Reply[] = []
+    for (const item of alike) {
+      // oxlint-disable-next-line eslint/no-await-in-loop -- one by one, so each send gets its own undo window
+      const { outboxId } = await approveCard(userId, item.action.id)
+      if (outboxId) {
+        sending.push(sendingReply(chat, t, item, outboxId))
+      }
+    }
+    return {
+      buttons: [],
+      notice: t.today.approvedMany(alike.length),
+      replies: () => Promise.resolve(sending),
+    }
   }
   if (command === 'u') {
-    await cancelMail(userId, id)
-    return { buttons: [], notice: t.telegram.canceled }
+    const canceled = await Result.tryPromise(() => cancelMail(userId, id))
+    if (
+      canceled.isErr() &&
+      !(canceled.error.cause instanceof AlreadySentError)
+    ) {
+      throw canceled.error.cause
+    }
+    return {
+      buttons: [],
+      notice: canceled.isOk() ? t.telegram.canceled : t.errors.alreadySent,
+    }
   }
   if (command === 'd') {
     await dismissAction(userId, id)
@@ -468,7 +516,7 @@ export const speakFor = async (
   return speak(userId, text, format)
 }
 
-/** A typed or spoken message: the replacement for a draft in edit mode, else whatever `followMessage` makes of it; `replyTo` is the bot message it answers. */
+/** A typed or spoken message: the replacement for a draft in edit mode (a `/skill` leaves it and runs), else whatever `followMessage` makes of it; `replyTo` is the bot message it answers. */
 export const follow = async (
   chat: Chat,
   userId: string,
@@ -477,7 +525,8 @@ export const follow = async (
 ): Promise<Reply> => {
   const t = await messagesFor(userId)
   const { italic, link, plain } = chat.channel
-  const editing = await takeEdit(chat)
+  const edited = await takeEdit(chat)
+  const editing = parseSkill(text) ? null : edited
   capture(userId, 'bot_messaged', {
     channel: chat.channel.name,
     editing: Boolean(editing),

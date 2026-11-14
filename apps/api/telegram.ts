@@ -171,7 +171,7 @@ const createBot = (token: string) => {
     const link = code ? await linkTelegramChat(code, String(ctx.chat.id)) : null
     if (link) {
       const t = await messagesFor(link.userId)
-      await ctx.reply(t.telegram.connected)
+      await ctx.reply(link.taken ? t.telegram.chatTaken : t.telegram.connected)
       return
     }
     const userId = await userIdForChat(String(ctx.chat.id))

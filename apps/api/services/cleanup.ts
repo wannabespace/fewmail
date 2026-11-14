@@ -23,6 +23,7 @@ import { inBatches } from '../lib/batches'
 import { localClock } from '../lib/clock'
 import {
   GmailError,
+  deleteLabel,
   getMessageHeaders,
   listLabels,
   listMessageIds,
@@ -34,6 +35,7 @@ import { findOrCreateLabel } from './labels'
 import { getSettings } from './settings'
 import { ownMessage, insertMessages } from './stored-mail'
 import { unsubscribe, unsubscribeMessage } from './thread-effects'
+import { isOpened } from './thread-labels'
 import { listHashOf } from './zombies'
 
 const LOOKBACK_DAYS = 30
@@ -56,8 +58,7 @@ const receivedLists = (userId: string) =>
       fromName: latest<string | null>(messages.fromName),
       listId: latest<string | null>(messages.listId),
       messageId: latest<string>(messages.id),
-      // An autonomous archive or mark-read clears UNREAD too: counted as opened, every list a starter rule handled looked read and was never offered for cleanup.
-      opened: sql<number>`count(*) filter (where not ${messages.isUnread} and not exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id} and ${actions.status} = 'auto_done' and ${actions.kind} in ('archive', 'mark_read')))::int`,
+      opened: sql<number>`count(*) filter (where ${isOpened(messages)})::int`,
     })
     .from(messages)
     .where(
@@ -156,7 +157,7 @@ export const newSenders = async (userId: string) => {
         fromName: latest<string | null>(messages.fromName),
         listId: latest<string | null>(messages.listId),
         messageId: latest<string>(messages.id),
-        opened: sql<number>`count(*) filter (where not ${messages.isUnread})::int`,
+        opened: sql<number>`count(*) filter (where ${isOpened(messages)})::int`,
       })
       .from(messages)
       .where(
@@ -171,7 +172,7 @@ export const newSenders = async (userId: string) => {
         and(
           sql`min(${messages.receivedAt}) >= ${since}`,
           sql`count(*) >= ${NEW_SENDER_MIN}`,
-          sql`count(*) filter (where not ${messages.isUnread}) <= 1`,
+          sql`count(*) filter (where ${isOpened(messages)}) <= 1`,
           sql`count(*) filter (where exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id})) = 0`
         )
       ),
@@ -288,19 +289,29 @@ const SENDER_SAMPLE = 600
 /** Header reads at once: Gmail allows 250 quota units a second per user, five per read. */
 const SAMPLE_CONCURRENCY = 10
 const SENDERS_PER_QUERY = 20
-/** Gmail turns the slash into a hyphen in search. */
+/** Each run gets its own label under it (`Fewmail/Cleared/2026-11-15-140327`, UTC), so Undo brings back that run only. */
 const CLEARED_LABEL = 'Fewmail/Cleared'
-const CLEARED_QUERY = 'label:fewmail-cleared'
+/** Digits and hyphens only: Gmail search finds a label by its name with each slash turned into a hyphen. */
+export const CLEAR_OUT_RUN = /^\d{4}-\d{2}-\d{2}-\d{6}$/u
+const runLabelOf = (run: string) => `${CLEARED_LABEL}/${run}`
+const labelQueryOf = (name: string) =>
+  `label:${name.toLowerCase().replaceAll('/', '-')}`
 
 const ownedMailboxes = (userId: string) =>
   db.select().from(mailboxes).where(eq(mailboxes.userId, userId))
 
 type Headers = Awaited<ReturnType<typeof getMessageHeaders>>
 
-type ListSender = Awaited<ReturnType<typeof unopenedListSenders>>[number]
+/** A list as the scan showed it: the run leaves exactly these, never lists it finds on its own. */
+export interface ClearOutList {
+  fromEmail: string
+  gmailId: string
+  listId: string | null
+  mailboxId: string
+}
 
-const listTerm = ({ from, listId }: ListSender) =>
-  listId ? `list:${listLabelOf(listId)}` : `from:${from.email}`
+const listTerm = ({ fromEmail, listId }: Omit<ClearOutList, 'gmailId'>) =>
+  listId ? `list:${listLabelOf(listId)}` : `from:${fromEmail}`
 
 const listsQuery = (terms: string[]) => `${INBOX_QUERY} {${terms.join(' ')}}`
 
@@ -331,9 +342,11 @@ const unopenedListSenders = async (mailbox: Mailbox, inboxIds: string[]) => {
       ? [
           {
             count: mail.length,
-            from: newest.from,
+            fromEmail: newest.from.email,
+            fromName: newest.from.name,
             gmailId: newest.gmailId,
             listId: newest.listId,
+            mailboxId: mailbox.id,
           },
         ]
       : []
@@ -407,14 +420,9 @@ export const scanClearOut = async (userId: string) => {
       ...CLEAR_OUT_QUERIES,
       lists: listsQuery([...new Set(senders.map(listTerm))]),
     } satisfies Record<ClearOutGroup, string>,
-    senders: namedLists(
-      senders.map(({ count, from, listId }) => ({
-        count,
-        fromEmail: from.email,
-        fromName: from.name,
-        listId,
-      }))
-    ).toSorted((left, right) => right.count - left.count),
+    senders: namedLists(senders).toSorted(
+      (left, right) => right.count - left.count
+    ),
   }
 }
 
@@ -422,7 +430,7 @@ export const scanClearOut = async (userId: string) => {
 const leaveLists = async (
   userId: string,
   mailbox: Mailbox,
-  senders: ListSender[]
+  senders: ClearOutList[]
 ) => {
   const gmailIds = senders.map(({ gmailId }) => gmailId)
   await insertMessages(mailbox, gmailIds)
@@ -451,56 +459,100 @@ const leaveLists = async (
 const clearMailbox = async (
   userId: string,
   mailbox: Mailbox,
-  groups: ClearOutGroup[]
+  groups: ClearOutGroup[],
+  lists: ClearOutList[],
+  run: string
 ) => {
-  const newest = groups.includes('lists')
-    ? await listMessageIds(mailbox, INBOX_QUERY, SENDER_SAMPLE)
+  const leaving = groups.includes('lists')
+    ? lists.filter(({ mailboxId }) => mailboxId === mailbox.id)
     : []
-  const senders = await unopenedListSenders(mailbox, newest)
   const matched = await Promise.all(
-    groups.map((group) => groupIds(mailbox, group, senders.map(listTerm)))
+    groups.map((group) => groupIds(mailbox, group, leaving.map(listTerm)))
   )
-  const ids = new Set(matched.flat())
-  const label = await findOrCreateLabel(mailbox, CLEARED_LABEL)
-  await modifyMessages(mailbox, [...ids], {
-    add: [label.id],
-    remove: ['INBOX'],
-  })
-  const unsubscribed = await leaveLists(userId, mailbox, senders)
-  return { cleared: ids.size, unsubscribed }
+  const ids = [...new Set(matched.flat())]
+  if (ids.length > 0) {
+    await findOrCreateLabel(mailbox, CLEARED_LABEL)
+    const label = await findOrCreateLabel(mailbox, runLabelOf(run))
+    await modifyMessages(mailbox, ids, { add: [label.id], remove: ['INBOX'] })
+  }
+  const unsubscribed = await leaveLists(userId, mailbox, leaving)
+  return { cleared: ids.length, unsubscribed }
 }
 
-/** Archives the chosen groups under `Fewmail/Cleared`, so `undoClearOut` can bring every one back. */
-export const runClearOut = async (userId: string, groups: ClearOutGroup[]) => {
+/**
+ * Archives the chosen groups under this run's label, so `undoClearOut` brings back this run and nothing earlier, and
+ * leaves only the `lists` the scan showed. A mailbox Gmail refused does not stop the others: `failed` says so, and
+ * what moved before the refusal is under the label too.
+ */
+export const runClearOut = async (
+  userId: string,
+  groups: ClearOutGroup[],
+  lists: ClearOutList[]
+) => {
   const owned = await ownedMailboxes(userId)
+  const run = new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replace('T', '-')
+    .replaceAll(':', '')
   const results = await Promise.all(
-    owned.map((mailbox) => clearMailbox(userId, mailbox, groups))
+    owned.map(async (mailbox) => {
+      const cleared = await Result.tryPromise(() =>
+        clearMailbox(userId, mailbox, groups, lists, run)
+      )
+      if (cleared.isErr()) {
+        logError('clear-out failed', cleared.error.cause)
+        return null
+      }
+      return cleared.value
+    })
   )
   await announceChange(userId, MAIL_TOPICS)
+  const done = results.filter((result) => result !== null)
   return {
-    cleared: results.reduce((sum, { cleared }) => sum + cleared, 0),
-    unsubscribed: results.reduce(
-      (sum, { unsubscribed }) => sum + unsubscribed,
-      0
-    ),
+    cleared: done.reduce((sum, { cleared }) => sum + cleared, 0),
+    failed: done.length < results.length,
+    run,
+    unsubscribed: done.reduce((sum, { unsubscribed }) => sum + unsubscribed, 0),
   }
 }
 
-/** Unsubscribes stay: a list once left cannot be rejoined from here. */
-export const undoClearOut = async (userId: string) => {
+/** Brings back one run, the latest unless `run` names it, and drops its label. Unsubscribes stay: a list once left cannot be rejoined from here. */
+export const undoClearOut = async (userId: string, run?: string) => {
   const owned = await ownedMailboxes(userId)
-  const restored = await Promise.all(
+  const labelled = await Promise.all(
     owned.map(async (mailbox) => {
       const labels = await listLabels(mailbox)
-      const label = labels.find(({ name }) => name === CLEARED_LABEL)
+      return {
+        labels: labels.filter(({ name }) =>
+          name.startsWith(`${CLEARED_LABEL}/`)
+        ),
+        mailbox,
+      }
+    })
+  )
+  const name = run
+    ? runLabelOf(run)
+    : labelled
+        .flatMap(({ labels }) => labels.map((label) => label.name))
+        .toSorted()
+        .at(-1)
+  const restored = await Promise.all(
+    labelled.map(async ({ labels, mailbox }) => {
+      const label = labels.find((each) => each.name === name)
       if (!label) {
         return 0
       }
-      const ids = await listMessageIds(mailbox, CLEARED_QUERY, CLEAR_OUT_CAP)
+      const ids = await listMessageIds(
+        mailbox,
+        labelQueryOf(label.name),
+        CLEAR_OUT_CAP
+      )
       await modifyMessages(mailbox, ids, {
         add: ['INBOX'],
         remove: [label.id],
       })
+      await deleteLabel(mailbox, label.id)
       return ids.length
     })
   )

@@ -326,7 +326,7 @@ export const en = {
           other: (count) => `${count} repeating`,
         }),
       thisMonth: 'This month',
-      upcoming: 'Due in 30 days',
+      upcoming: 'Next 30 days',
     },
   },
   bulk: {
@@ -442,6 +442,8 @@ export const en = {
       }),
   },
   clearOut: {
+    partial:
+      'Gmail stopped part of the clear-out. What was already moved can come back.',
     groups: {
       lists: 'Mailing lists you never open',
       notifications: 'Read notifications, older than a month',
@@ -948,7 +950,10 @@ export const en = {
     deleteAccount: 'Delete account',
     deleteConfirm: 'Delete everything',
     deleteDescription:
-      'Deletes your account, synced mail, drafts and rules from Fewmail right away. Your Gmail itself is not touched.',
+      'Deletes your account, synced mail, drafts and rules from Fewmail right away. Your Gmail itself is not touched. A paid plan is canceled at once.',
+    deleteFailed: 'The account was not deleted. Try again in a minute.',
+    deleteSignIn:
+      'To confirm it is you, sign in with Google again, then delete the account.',
     deleteTitle: 'Delete your Fewmail account?',
     cancel: 'Cancel',
     integrations: 'Integrations',
@@ -979,8 +984,11 @@ export const en = {
       lost: 'Gmail access was lost. Add it again to reconnect.',
       reading: 'Reading mail…',
       remove: 'Remove',
+      retrying:
+        'Gmail is not answering right now. Fewmail tries again on its own.',
       signIn: 'You sign in with this one',
       signInChosen: 'That is the account you sign in with. Choose another one.',
+      signInLost: 'Gmail access was lost. Sign in again to reconnect.',
       synced: (ago: string) => `Synced ${ago}`,
       title: 'Mailboxes',
     },
@@ -1554,6 +1562,9 @@ export const en = {
   },
   telegram: {
     approveAlike: 'Approve every card of one kind at once:',
+    chatTaken:
+      'This chat is already connected to another Fewmail account. Disconnect Telegram there first (Settings → Integrations), then open the link again.',
+    queueChanged: 'The cards changed since. Here is what needs you now:',
     commands: { queue: 'What needs you' },
     connectFirst: (url: string) =>
       `Hi! I’m Fewmail. Here in Telegram I tell you when urgent mail arrives, show what needs you and send the replies you approve.\n\nThis chat isn’t connected to your Fewmail yet. It takes a minute:\n1. Open Fewmail settings: ${url}\n2. Under Integrations, tap “Connect Telegram” (it’s part of Fewmail Pro).\n3. Telegram brings you back here — press Start and you’re set.`,
@@ -1628,6 +1639,8 @@ export const en = {
     quick: 'Quick',
     needsLook: 'Needs a look',
     tidy: {
+      failed: (emails: string) =>
+        `Gmail did not change ${emails}. Try again in a moment.`,
       confirm: (emails: string) => `Tidy up ${emails}?`,
       running: 'Tidying up…',
       unsubscribeHint:
@@ -1711,6 +1724,8 @@ export const en = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'This number is already connected to another Fewmail account. Disconnect WhatsApp there first (Settings → Integrations), then send the message again.',
     connectFirst: (url: string) =>
       `Hi! I’m Fewmail. Here in WhatsApp I tell you when urgent mail arrives, show what needs you and send the replies you approve.\n\nThis number isn’t connected to your Fewmail yet. It takes a minute:\n1. Open Fewmail settings: ${url}\n2. Under Integrations, tap “Connect WhatsApp” (it’s part of Fewmail Pro).\n3. WhatsApp opens with a message ready — send it and you’re set.`,
     connected:

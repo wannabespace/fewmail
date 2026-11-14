@@ -201,14 +201,17 @@ const download = async (mediaId: string) => {
 const handle = async (inbound: Inbound) => {
   const to = inbound.from
   const text = inbound.text?.body
+  // Before the phone's own account: a link code sent from a linked phone is never a request to its agent.
+  const link = text ? await linkWhatsappPhone(text, to) : null
+  if (link) {
+    const t = await messagesFor(link.userId)
+    await (link.taken
+      ? say(to, t.whatsapp.phoneTaken)
+      : ask(to, t.whatsapp.connected, menuButtons(t)))
+    return
+  }
   const userId = await userIdForPhone(to)
   if (!userId) {
-    const link = text ? await linkWhatsappPhone(text, to) : null
-    if (link) {
-      const t = await messagesFor(link.userId)
-      await ask(to, t.whatsapp.connected, menuButtons(t))
-      return
-    }
     await say(to, messages.en.whatsapp.connectFirst(`${env.WEB_URL}/settings`))
     return
   }

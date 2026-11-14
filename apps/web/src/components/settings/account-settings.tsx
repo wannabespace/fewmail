@@ -17,27 +17,50 @@ import {
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { authClient, signOut } from '~/lib/auth'
+import {
+  authClient,
+  signedInStore,
+  signInWithGoogle,
+  signOut,
+} from '~/lib/auth'
 import { useT } from '~/lib/i18n'
 import { useMe } from '~/lib/me'
+import { posthog } from '~/lib/posthog'
+import { currentPushSubscription, pushSupported } from '~/lib/push'
 
-const DeleteAccount = () => {
+const DeleteAccount = ({ isConfirming }: { isConfirming: boolean }) => {
   const t = useT()
+  const { user } = useMe()
   const [isDeleting, setIsDeleting] = useState(false)
+  const [needsSignIn, setNeedsSignIn] = useState(false)
 
   const deleteAccount = async () => {
     setIsDeleting(true)
     const { error } = await authClient.deleteUser()
+    posthog.capture('account_deleted', {
+      error: error?.code ?? null,
+      success: !error,
+    })
     if (error) {
       setIsDeleting(false)
-      toast.error(t.errors.failed)
+      // Better Auth deletes only from a session younger than a day; a Google user proves it is them by signing in again.
+      if (error.code === 'SESSION_EXPIRED') {
+        setNeedsSignIn(true)
+      } else {
+        toast.error(t.settings.deleteFailed)
+      }
       return
     }
-    location.assign('/login')
+    signedInStore.set(false)
+    void posthog.reset()
+    // The server dropped the account's devices with it; only the browser's own subscription is left.
+    void (pushSupported ? currentPushSubscription() : Promise.resolve(null))
+      .then((subscription) => subscription?.unsubscribe())
+      .finally(() => location.assign('/login'))
   }
 
   return (
-    <AlertDialog>
+    <AlertDialog defaultOpen={isConfirming}>
       <AlertDialogTrigger
         render={<Button size="sm" variant="ghost-destructive" />}
       >
@@ -47,7 +70,9 @@ const DeleteAccount = () => {
         <AlertDialogHeader>
           <AlertDialogTitle>{t.settings.deleteTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t.settings.deleteDescription}
+            {needsSignIn
+              ? t.settings.deleteSignIn
+              : t.settings.deleteDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -55,9 +80,17 @@ const DeleteAccount = () => {
           <AlertDialogAction
             variant="destructive"
             disabled={isDeleting}
-            onClick={deleteAccount}
+            onClick={
+              needsSignIn
+                ? () =>
+                    signInWithGoogle(
+                      '/settings?deleteAccount=confirm',
+                      user.email
+                    )
+                : deleteAccount
+            }
           >
-            {t.settings.deleteConfirm}
+            {needsSignIn ? t.notices.signInAgain : t.settings.deleteConfirm}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -65,7 +98,11 @@ const DeleteAccount = () => {
   )
 }
 
-export const AccountSettings = () => {
+export const AccountSettings = ({
+  isConfirmingDelete,
+}: {
+  isConfirmingDelete: boolean
+}) => {
   const t = useT()
   const { user } = useMe()
 
@@ -83,7 +120,7 @@ export const AccountSettings = () => {
         title={t.settings.deleteAccount}
         description={t.settings.deleteDescription}
       >
-        <DeleteAccount />
+        <DeleteAccount isConfirming={isConfirmingDelete} />
       </SettingsRow>
     </SettingsGroup>
   )

@@ -1189,7 +1189,10 @@ export const fr: Messages = {
     deleteAccount: 'Supprimer le compte',
     deleteConfirm: 'Tout supprimer',
     deleteDescription:
-      'Supprime immédiatement de Fewmail votre compte, les e-mails synchronisés, les brouillons et les règles. Votre Gmail lui-même n’est pas touché.',
+      'Supprime immédiatement de Fewmail votre compte, les e-mails synchronisés, les brouillons et les règles. Votre Gmail lui-même n’est pas touché. Un forfait payant est résilié immédiatement.',
+    deleteFailed: 'Le compte n’a pas été supprimé. Réessayez dans une minute.',
+    deleteSignIn:
+      'Pour confirmer que c’est bien vous, reconnectez-vous avec Google, puis supprimez le compte.',
     deleteTitle: 'Supprimer votre compte Fewmail ?',
     cancel: 'Annuler',
     integrations: 'Intégrations',
@@ -1209,9 +1212,13 @@ export const fr: Messages = {
       lost: 'L’accès à Gmail a été perdu. Ajoutez-la de nouveau pour la reconnecter.',
       reading: 'Lecture du courrier…',
       remove: 'Retirer',
+      retrying:
+        'Gmail ne répond pas pour le moment. Fewmail réessaiera de lui-même.',
       signIn: 'Vous vous connectez avec celle-ci',
       signInChosen:
         'C’est le compte avec lequel vous vous connectez. Choisissez-en un autre.',
+      signInLost:
+        'L’accès à Gmail a été perdu. Reconnectez-vous pour le rétablir.',
       synced: (ago: string) => `Synchronisé ${ago}`,
       title: 'Boîtes mail',
     },
@@ -1294,6 +1301,10 @@ export const fr: Messages = {
   },
   telegram: {
     approveAlike: 'Approuver d’un coup toutes les cartes d’un même type :',
+    chatTaken:
+      'Ce chat est déjà relié à un autre compte Fewmail. Déconnectez d’abord Telegram de ce compte (Réglages → Intégrations), puis rouvrez le lien.',
+    queueChanged:
+      'Les cartes ont changé entre-temps. Voici ce qui vous attend maintenant :',
     heard: (text: string) => `Entendu : « ${text} »`,
     voiceFailed: 'Je n’ai pas compris. Réessayez ou écrivez-le.',
     help: 'Écrivez ou dites ce qu’il vous faut :\n• une question sur vos e-mails : « quand Netflix se renouvelle-t-il ? »\n• quoi répondre : « dis à Anna que je signe demain »\n• une tâche : « crée un tableau pour les voyages »\n• répondez à l’un de mes brouillons pour le modifier',
@@ -1369,6 +1380,8 @@ export const fr: Messages = {
     quick: 'Rapide',
     needsLook: 'À regarder',
     tidy: {
+      failed: (emails: string) =>
+        `Gmail n’a pas modifié ${emails}. Réessaie dans un instant.`,
       confirm: (emails: string) => `Ranger ${emails} ?`,
       running: 'Rangement…',
       unsubscribeHint:
@@ -1621,7 +1634,7 @@ export const fr: Messages = {
           other: (count) => `${count} récurrents`,
         }),
       thisMonth: 'Ce mois-ci',
-      upcoming: 'Échéance sous 30 jours',
+      upcoming: '30 prochains jours',
     },
   },
   bulk: {
@@ -1647,6 +1660,8 @@ export const fr: Messages = {
       }),
   },
   clearOut: {
+    partial:
+      'Gmail a interrompu une partie du ménage. Ce qui a déjà été rangé peut revenir.',
     groups: {
       lists: 'Newsletters que tu n’ouvres jamais',
       notifications: 'Notifications lues, de plus d’un mois',
@@ -1750,6 +1765,8 @@ export const fr: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'Ce numéro est déjà relié à un autre compte Fewmail. Déconnectez d’abord WhatsApp de ce compte (Réglages → Intégrations), puis renvoyez le message.',
     connectFirst: (url: string) =>
       `Bonjour ! Je suis Fewmail. Ici, sur WhatsApp, je vous préviens quand un e-mail urgent arrive, je vous montre ce qui vous attend et j’envoie les réponses que vous approuvez.\n\nCe numéro n’est pas encore connecté à votre Fewmail. Ça prend une minute :\n1. Ouvrez les réglages de Fewmail : ${url}\n2. Dans Intégrations, touchez « Connecter WhatsApp » (inclus dans Fewmail Pro).\n3. WhatsApp s’ouvre avec un message prêt : envoyez-le, et c’est fait.`,
     connected:

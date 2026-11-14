@@ -44,6 +44,7 @@ export interface ToolInput {
   groups?: ClearOutGroup[]
   id?: string
   instruction?: string
+  lists?: { fromEmail: string }[]
   location?: string
   mailboxId?: string
   messageId?: string
@@ -210,6 +211,11 @@ const CONSENT_DETAILS: Record<
   clear_out: ({ input, t }) => (
     <p className="text-sm">
       {input.groups?.map((group) => t.clearOut.groups[group]).join(' · ')}
+      {input.lists && input.lists.length > 0 && (
+        <span data-mask className="text-muted-foreground block">
+          {input.lists.map(({ fromEmail }) => fromEmail).join(', ')}
+        </span>
+      )}
     </p>
   ),
   create_event: ({ calendar, input }) => (

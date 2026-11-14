@@ -113,6 +113,11 @@ export const useProposals = (
       queueCards.utils.writeDelete(cardIds)
     }
   }
+  // Not before the refetch lands, or settled rows flash back for a moment.
+  const show = (items: Proposal[]) =>
+    setGoneIds((current) =>
+      current.filter((id) => !items.some((item) => item.id === id))
+    )
   const refetch = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
   const refetchMail = () =>
@@ -129,15 +134,27 @@ export const useProposals = (
           : null,
         messageIds.length > 0 ? client.today.tidy({ messageIds }) : null,
       ])
-      return (approved?.approved ?? 0) + (tidied?.settled ?? 0)
+      return {
+        done: (approved?.approved ?? 0) + (tidied?.settled ?? 0),
+        failed: tidied?.failed ?? 0,
+      }
     },
+    meta: { event: 'proposals_approved' },
     onError: () => toast.dismiss(PROPOSALS_TOAST),
     onMutate: (items) => {
       hide(items)
       toast.loading(t.today.tidy.running, { id: PROPOSALS_TOAST })
     },
-    onSettled: refetchMail,
-    onSuccess: (done, items) => {
+    onSettled: (_data, _error, items) => refetchMail().then(() => show(items)),
+    onSuccess: ({ done, failed }, items) => {
+      if (failed > 0) {
+        toast.error(t.today.tidy.failed(t.cleanup.emails(failed)), {
+          id: done === 0 ? PROPOSALS_TOAST : undefined,
+        })
+        if (done === 0) {
+          return
+        }
+      }
       const undos = items.flatMap(undoOf)
       if (undos.length === 0) {
         toast.success(t.today.tidy.done(done), { id: PROPOSALS_TOAST })
@@ -158,8 +175,9 @@ export const useProposals = (
         messageIds.length > 0 ? client.today.keep({ messageIds }) : null,
       ])
     },
+    meta: { event: 'proposal_kept' },
     onMutate: hide,
-    onSettled: refetch,
+    onSettled: (_data, _error, items) => refetch().then(() => show(items)),
   })
   // All of it is one decision on Home: it is settled once none is left.
   const settleIfLast = (count: number) =>

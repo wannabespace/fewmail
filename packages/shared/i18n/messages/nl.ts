@@ -327,7 +327,7 @@ export const nl: Messages = {
           other: (count) => `${count} terugkerend`,
         }),
       thisMonth: 'Deze maand',
-      upcoming: 'Binnen 30 dagen te betalen',
+      upcoming: 'Komende 30 dagen',
     },
   },
   bulk: {
@@ -399,6 +399,8 @@ export const nl: Messages = {
       }),
   },
   clearOut: {
+    partial:
+      'Gmail heeft een deel van het opruimen gestopt. Wat al verplaatst is, kan terug.',
     groups: {
       lists: 'Nieuwsbrieven die je nooit opent',
       notifications: 'Gelezen meldingen, ouder dan een maand',
@@ -955,7 +957,11 @@ export const nl: Messages = {
     deleteAccount: 'Account verwijderen',
     deleteConfirm: 'Alles verwijderen',
     deleteDescription:
-      'Verwijdert direct je account, gesynchroniseerde mail, concepten en regels uit Fewmail. Je Gmail zelf blijft onaangeroerd.',
+      'Verwijdert direct je account, gesynchroniseerde mail, concepten en regels uit Fewmail. Je Gmail zelf blijft onaangeroerd. Een betaald abonnement wordt direct opgezegd.',
+    deleteFailed:
+      'Het account is niet verwijderd. Probeer het over een minuut opnieuw.',
+    deleteSignIn:
+      'Log ter bevestiging opnieuw in met Google en verwijder daarna het account.',
     deleteTitle: 'Je Fewmail-account verwijderen?',
     cancel: 'Annuleren',
     integrations: 'Integraties',
@@ -988,8 +994,11 @@ export const nl: Messages = {
       lost: 'Gmail-toegang is verloren. Voeg hem opnieuw toe om opnieuw te verbinden.',
       reading: 'Mail wordt gelezen…',
       remove: 'Verwijderen',
+      retrying: 'Gmail reageert nu niet. Fewmail probeert het vanzelf opnieuw.',
       signIn: 'Je logt hiermee in',
       signInChosen: 'Met dit account log je in. Kies een ander.',
+      signInLost:
+        'Gmail-toegang is verloren. Log opnieuw in om opnieuw te verbinden.',
       synced: (ago: string) => `Gesynchroniseerd ${ago}`,
       title: 'Mailboxen',
     },
@@ -1564,6 +1573,9 @@ export const nl: Messages = {
   },
   telegram: {
     approveAlike: 'Alle kaarten van één soort tegelijk goedkeuren:',
+    chatTaken:
+      'Deze chat is al gekoppeld aan een ander Fewmail-account. Ontkoppel Telegram daar eerst (Instellingen → Integraties) en open de link dan opnieuw.',
+    queueChanged: 'De kaarten zijn intussen veranderd. Dit heeft je nu nodig:',
     heard: (text: string) => `Gehoord: “${text}”`,
     voiceFailed: 'Ik kon het niet verstaan. Probeer het opnieuw of typ het.',
     help: 'Schrijf of zeg wat je nodig hebt:\n• vraag iets over je mail: ‘wanneer verlengt Netflix?’\n• zeg wat ik moet antwoorden: ‘zeg Anna dat ik morgen teken’\n• geef me een taak: ‘maak een bord voor reizen’\n• antwoord op een van mijn concepten om het aan te passen',
@@ -1638,6 +1650,8 @@ export const nl: Messages = {
     quick: 'Snel',
     needsLook: 'Zelf bekijken',
     tidy: {
+      failed: (emails: string) =>
+        `Gmail heeft ${emails} niet aangepast. Probeer het zo opnieuw.`,
       confirm: (emails: string) => `${emails} opruimen?`,
       running: 'Opruimen…',
       unsubscribeHint:
@@ -1717,6 +1731,8 @@ export const nl: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'Dit nummer is al gekoppeld aan een ander Fewmail-account. Ontkoppel WhatsApp daar eerst (Instellingen → Integraties) en stuur het bericht dan opnieuw.',
     connectFirst: (url: string) =>
       `Hoi! Ik ben Fewmail. Hier in WhatsApp laat ik weten wanneer er dringende mail binnenkomt, toon ik wat jou nodig heeft en verstuur ik de antwoorden die je goedkeurt.\n\nDit nummer is nog niet gekoppeld aan je Fewmail. Het kost een minuutje:\n1. Open de Fewmail-instellingen: ${url}\n2. Tik onder Integraties op “WhatsApp koppelen” (onderdeel van Fewmail Pro).\n3. WhatsApp opent met een klaargezet bericht — verstuur het en je bent klaar.`,
     connected:

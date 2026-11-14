@@ -327,7 +327,7 @@ export const pt: Messages = {
           other: (count) => `${count} recorrentes`,
         }),
       thisMonth: 'Este mês',
-      upcoming: 'Vence em 30 dias',
+      upcoming: 'Próximos 30 dias',
     },
   },
   bulk: {
@@ -399,6 +399,8 @@ export const pt: Messages = {
       }),
   },
   clearOut: {
+    partial:
+      'O Gmail interrompeu parte da limpeza. O que já foi movido pode voltar.',
     groups: {
       lists: 'Newsletters que você nunca abre',
       notifications: 'Notificações lidas, com mais de um mês',
@@ -961,7 +963,10 @@ export const pt: Messages = {
     deleteAccount: 'Excluir conta',
     deleteConfirm: 'Excluir tudo',
     deleteDescription:
-      'Exclui na hora sua conta, e-mails sincronizados, rascunhos e regras do Fewmail. Seu Gmail não é afetado.',
+      'Exclui na hora sua conta, e-mails sincronizados, rascunhos e regras do Fewmail. Seu Gmail não é afetado. Um plano pago é cancelado na hora.',
+    deleteFailed: 'A conta não foi excluída. Tente de novo em um minuto.',
+    deleteSignIn:
+      'Para confirmar que é você, entre de novo com o Google e depois exclua a conta.',
     deleteTitle: 'Excluir sua conta do Fewmail?',
     cancel: 'Cancelar',
     integrations: 'Integrações',
@@ -993,8 +998,12 @@ export const pt: Messages = {
       lost: 'O acesso ao Gmail foi perdido. Adicione de novo para reconectar.',
       reading: 'Lendo os e-mails…',
       remove: 'Remover',
+      retrying:
+        'O Gmail não está respondendo agora. O Fewmail tenta de novo sozinho.',
       signIn: 'Você entra com esta',
       signInChosen: 'Essa é a conta com que você entra. Escolha outra.',
+      signInLost:
+        'O acesso ao Gmail foi perdido. Entre de novo para reconectar.',
       synced: (ago: string) => `Sincronizada ${ago}`,
       title: 'Caixas de e-mail',
     },
@@ -1567,6 +1576,10 @@ export const pt: Messages = {
   },
   telegram: {
     approveAlike: 'Aprovar de uma vez todos os cartões de um tipo:',
+    chatTaken:
+      'Este chat já está conectado a outra conta do Fewmail. Desconecte o Telegram de lá primeiro (Configurações → Integrações) e abra o link de novo.',
+    queueChanged:
+      'Os cartões mudaram desde então. Isto é o que precisa de você agora:',
     heard: (text: string) => `Entendi: “${text}”`,
     voiceFailed: 'Não consegui entender. Tente de novo ou digite.',
     help: 'Escreva ou diga o que precisa:\n• pergunte sobre seus e-mails: “quando a Netflix renova?”\n• diga o que responder: “diga à Ana que assino amanhã”\n• peça uma tarefa: “crie um quadro para viagens”\n• responda a um dos meus rascunhos para mudá-lo',
@@ -1641,6 +1654,8 @@ export const pt: Messages = {
     quick: 'Rápido',
     needsLook: 'Para você ver',
     tidy: {
+      failed: (emails: string) =>
+        `O Gmail não alterou ${emails}. Tente novamente em instantes.`,
       confirm: (emails: string) => `Arrumar ${emails}?`,
       running: 'Arrumando…',
       unsubscribeHint:
@@ -1740,6 +1755,8 @@ export const pt: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'Este número já está conectado a outra conta do Fewmail. Desconecte o WhatsApp de lá primeiro (Configurações → Integrações) e envie a mensagem de novo.',
     connectFirst: (url: string) =>
       `Oi! Eu sou o Fewmail. Aqui no WhatsApp eu aviso quando chega e-mail urgente, mostro o que precisa de você e envio as respostas que você aprovar.\n\nEste número ainda não está conectado ao seu Fewmail. Leva um minuto:\n1. Abra as configurações do Fewmail: ${url}\n2. Em Integrações, toque em “Conectar WhatsApp” (faz parte do Fewmail Pro).\n3. O WhatsApp abre com uma mensagem pronta — envie e pronto.`,
     connected:

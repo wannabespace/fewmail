@@ -102,6 +102,8 @@ export const messages = d.snakeCase.table(
     html: encryptedText(),
     isFromMe: d.boolean().notNull(),
     isUnread: d.boolean().notNull(),
+    /** Fewmail's archive took UNREAD off with the inbox (`ARCHIVE`): read in Gmail, yet never opened, so no opened count may take it. */
+    readByArchive: d.boolean().default(false).notNull(),
     labelIds: d.text().array().notNull(),
     /** The List-Id header when it has a title (`titledListId`). Lists are left and caught as zombies by it, not by sender: notifications@github.com sends one list per repository. */
     listId: searchableText(),

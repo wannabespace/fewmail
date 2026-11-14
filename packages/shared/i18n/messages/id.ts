@@ -318,7 +318,7 @@ export const id: Messages = {
       recurring: (n: number) =>
         plural('id', n, { other: (count) => `${count} berulang` }),
       thisMonth: 'Bulan ini',
-      upcoming: 'Jatuh tempo dalam 30 hari',
+      upcoming: '30 hari ke depan',
     },
   },
   bulk: {
@@ -388,6 +388,8 @@ export const id: Messages = {
       }),
   },
   clearOut: {
+    partial:
+      'Gmail menghentikan sebagian pembersihan. Yang sudah dipindahkan bisa dikembalikan.',
     groups: {
       lists: 'Newsletter yang tidak pernah kamu buka',
       notifications: 'Notifikasi yang sudah dibaca, lebih dari sebulan',
@@ -934,7 +936,10 @@ export const id: Messages = {
     deleteAccount: 'Hapus akun',
     deleteConfirm: 'Hapus semuanya',
     deleteDescription:
-      'Langsung menghapus akun, email yang disinkronkan, draf, dan aturanmu dari Fewmail. Gmail-mu sendiri tidak disentuh.',
+      'Langsung menghapus akun, email yang disinkronkan, draf, dan aturanmu dari Fewmail. Gmail-mu sendiri tidak disentuh. Paket berbayar langsung dibatalkan.',
+    deleteFailed: 'Akun tidak terhapus. Coba lagi sebentar lagi.',
+    deleteSignIn:
+      'Untuk memastikan ini kamu, masuk lagi dengan Google, lalu hapus akunnya.',
     deleteTitle: 'Hapus akun Fewmail-mu?',
     cancel: 'Batal',
     integrations: 'Integrasi',
@@ -967,8 +972,11 @@ export const id: Messages = {
       lost: 'Akses Gmail hilang. Tambahkan lagi untuk menyambungkan ulang.',
       reading: 'Membaca email…',
       remove: 'Hapus',
+      retrying:
+        'Gmail sedang tidak merespons. Fewmail akan mencoba lagi sendiri.',
       signIn: 'Anda masuk dengan akun ini',
       signInChosen: 'Itu akun yang Anda pakai untuk masuk. Pilih akun lain.',
+      signInLost: 'Akses Gmail hilang. Masuk lagi untuk menyambungkan ulang.',
       synced: (ago: string) => `Disinkronkan ${ago}`,
       title: 'Kotak surat',
     },
@@ -1541,6 +1549,10 @@ export const id: Messages = {
   },
   telegram: {
     approveAlike: 'Setujui sekaligus semua kartu sejenis:',
+    chatTaken:
+      'Chat ini sudah terhubung ke akun Fewmail lain. Putuskan Telegram di sana dulu (Pengaturan → Integrasi), lalu buka tautannya lagi.',
+    queueChanged:
+      'Kartunya sudah berubah sejak tadi. Ini yang perlu kamu tangani sekarang:',
     heard: (text: string) => `Terdengar: “${text}”`,
     voiceFailed: 'Aku tidak bisa menangkapnya. Coba lagi atau ketik saja.',
     help: 'Tulis atau ucapkan apa yang kamu perlukan:\n• tanya soal email: “kapan Netflix diperpanjang?”\n• bilang apa balasannya: “bilang ke Anna aku tanda tangan besok”\n• kasih tugas: “buat papan untuk perjalanan”\n• balas salah satu drafku untuk mengubahnya',
@@ -1613,6 +1625,8 @@ export const id: Messages = {
     quick: 'Cepat',
     needsLook: 'Perlu kamu lihat',
     tidy: {
+      failed: (emails: string) =>
+        `Gmail tidak mengubah ${emails}. Coba lagi sebentar lagi.`,
       confirm: (emails: string) => `Rapikan ${emails}?`,
       running: 'Merapikan…',
       unsubscribeHint:
@@ -1686,6 +1700,8 @@ export const id: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'Nomor ini sudah terhubung ke akun Fewmail lain. Putuskan WhatsApp di sana dulu (Pengaturan → Integrasi), lalu kirim pesannya lagi.',
     connectFirst: (url: string) =>
       `Hai! Aku Fewmail. Di WhatsApp ini aku memberi tahu saat ada email penting, menunjukkan apa yang butuh kamu, dan mengirim balasan yang kamu setujui.\n\nNomor ini belum terhubung ke Fewmail-mu. Cuma butuh semenit:\n1. Buka pengaturan Fewmail: ${url}\n2. Di Integrasi, ketuk “Hubungkan WhatsApp” (bagian dari Fewmail Pro).\n3. WhatsApp terbuka dengan pesan yang sudah siap — kirim, dan selesai.`,
     connected:

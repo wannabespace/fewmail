@@ -128,25 +128,26 @@ const NewBoardForm = ({ onDone }: { onDone: () => void }) => {
         }
       }}
     >
-      {!name && (
-        <div className="flex flex-wrap gap-2">
-          {BOARD_PRESETS.map((preset) => (
-            <Button
-              key={preset}
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                setName(t.boards.starter[preset].name)
-                setDescription(t.boards.starter[preset].description)
-                setPeriod(BOARD_PRESET_PERIODS[preset] ?? DEFAULT_BOARD_PERIOD)
-              }}
-            >
-              {t.boards.starter[preset].name}
-            </Button>
-          ))}
-        </div>
-      )}
+      {/* Stays after a pick: the row leaving slid the fields and Create under the pointer. */}
+      <div className="flex flex-wrap gap-2">
+        {BOARD_PRESETS.map((preset) => (
+          <Button
+            key={preset}
+            type="button"
+            size="sm"
+            variant={
+              name === t.boards.starter[preset].name ? 'secondary' : 'outline'
+            }
+            onClick={() => {
+              setName(t.boards.starter[preset].name)
+              setDescription(t.boards.starter[preset].description)
+              setPeriod(BOARD_PRESET_PERIODS[preset] ?? DEFAULT_BOARD_PERIOD)
+            }}
+          >
+            {t.boards.starter[preset].name}
+          </Button>
+        ))}
+      </div>
       <Input
         autoFocus
         value={name}

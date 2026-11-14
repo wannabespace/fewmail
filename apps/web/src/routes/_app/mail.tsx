@@ -473,6 +473,9 @@ const MailPeek = () => {
   )
 }
 
+const burstWeightOf = ({ analysis, message }: ListedRow) =>
+  message.risk ? Infinity : (analysis?.importance ?? -1)
+
 /** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until → expands it. */
 const collapseBursts = <Row extends ListedRow>(
   rows: Row[],
@@ -494,11 +497,10 @@ const collapseBursts = <Row extends ListedRow>(
       head.burst.push(row.message)
       head.messageIds.push(row.message.id)
       head.message.isUnread ||= row.message.isUnread
-      // The stack's group and label are its most important email's, or an urgent one hides under a newer newsletter.
-      if (
-        (row.analysis?.importance ?? -1) > (head.analysis?.importance ?? -1)
-      ) {
+      // The stack's group, label and warning are its most important email's, or an urgent or fraud one hides under a newer one.
+      if (burstWeightOf(row) > burstWeightOf(head)) {
         head.analysis = row.analysis
+        head.message.risk = row.message.risk
       }
     } else {
       collapsed.push({

@@ -666,7 +666,10 @@ export const ko: Messages = {
     deleteAccount: '계정 삭제',
     deleteConfirm: '모두 삭제',
     deleteDescription:
-      '계정, 동기화된 메일, 초안, 규칙을 Fewmail에서 즉시 삭제해요. Gmail 자체는 건드리지 않아요.',
+      '계정, 동기화된 메일, 초안, 규칙을 Fewmail에서 즉시 삭제해요. Gmail 자체는 건드리지 않아요. 유료 요금제는 즉시 해지돼요.',
+    deleteFailed: '계정이 삭제되지 않았어요. 잠시 후 다시 시도하세요.',
+    deleteSignIn:
+      '본인 확인을 위해 Google로 다시 로그인한 뒤 계정을 삭제하세요.',
     deleteTitle: 'Fewmail 계정을 삭제할까요?',
     cancel: '취소',
     integrations: '연동',
@@ -686,8 +689,10 @@ export const ko: Messages = {
       lost: 'Gmail 접근이 끊겼습니다. 다시 연결하려면 다시 추가하세요.',
       reading: '메일을 읽는 중…',
       remove: '삭제',
+      retrying: 'Gmail이 지금 응답하지 않아요. Fewmail이 알아서 다시 시도해요.',
       signIn: '로그인에 사용하는 계정',
       signInChosen: '로그인에 사용하는 계정입니다. 다른 계정을 선택하세요.',
+      signInLost: 'Gmail 접근이 끊겼습니다. 다시 연결하려면 다시 로그인하세요.',
       synced: (ago: string) => `${ago} 동기화됨`,
       title: '메일함',
     },
@@ -1246,6 +1251,9 @@ export const ko: Messages = {
   },
   telegram: {
     approveAlike: '같은 종류의 카드를 한 번에 승인:',
+    chatTaken:
+      '이 채팅은 이미 다른 Fewmail 계정에 연결되어 있어요. 먼저 그 계정에서 Telegram 연결을 해제한 뒤(설정 → 연동) 링크를 다시 여세요.',
+    queueChanged: '그사이 카드가 바뀌었어요. 지금 확인이 필요한 것은 이거예요:',
     heard: (text: string) => `들은 내용: “${text}”`,
     voiceFailed: '잘 알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
     help: '필요한 것을 쓰거나 말해 주세요:\n• 메일에 대해 묻기: “넷플릭스 갱신일이 언제야?”\n• 답장 내용 말하기: “안나에게 내일 서명한다고 전해 줘”\n• 일 맡기기: “여행 보드 만들어 줘”\n• 초안을 바꾸려면 그 초안에 답장하기',
@@ -1316,6 +1324,8 @@ export const ko: Messages = {
     quick: '빠르게',
     needsLook: '직접 확인',
     tidy: {
+      failed: (emails: string) =>
+        `Gmail에서 ${emails}를 바꾸지 못했어요. 잠시 후 다시 시도해 주세요.`,
       confirm: (emails: string) => `${emails}를 정리할까요?`,
       running: '정리 중…',
       unsubscribeHint:
@@ -1535,7 +1545,7 @@ export const ko: Messages = {
       perMonth: (amount: string) => `월 ${amount}`,
       recurring: (n: number) => `정기 ${n}개`,
       thisMonth: '이번 달',
-      upcoming: '30일 내 예정',
+      upcoming: '향후 30일',
     },
   },
   bulk: {
@@ -1549,6 +1559,7 @@ export const ko: Messages = {
     title: (total: number) => `열지 않는 뉴스레터 ${total}개 구독 취소`,
   },
   clearOut: {
+    partial: 'Gmail이 정리 일부를 멈췄어요. 이미 옮긴 메일은 되돌릴 수 있어요.',
     groups: {
       lists: '한 번도 열지 않은 뉴스레터',
       notifications: '읽은 알림, 한 달 지난 메일',
@@ -1643,6 +1654,8 @@ export const ko: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      '이 번호는 이미 다른 Fewmail 계정에 연결되어 있어요. 먼저 그 계정에서 WhatsApp 연결을 해제한 뒤(설정 → 연동) 메시지를 다시 보내세요.',
     connectFirst: (url: string) =>
       `안녕하세요! Fewmail입니다. 여기 WhatsApp에서 급한 메일이 오면 알려 드리고, 처리할 일을 보여 드리고, 승인한 답장을 보내 드려요.\n\n이 번호는 아직 Fewmail에 연결되지 않았어요. 1분이면 됩니다:\n1. Fewmail 설정 열기: ${url}\n2. 연동에서 “WhatsApp 연결”을 누르세요(Fewmail Pro 기능).\n3. 준비된 메시지와 함께 WhatsApp이 열리면 보내기만 하면 끝이에요.`,
     connected:

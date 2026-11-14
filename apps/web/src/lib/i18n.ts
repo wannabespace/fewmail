@@ -59,13 +59,20 @@ const DATE_LOCALES: Record<Locale, DateLocale> = {
   zh: zhCN,
 }
 
-/** Before sign-in the browser decides; afterwards the agent language from settings does. */
-export const localeStore = createWebStorageValue({
+/** Before sign-in the browser decides, or the public site's pick; it seeds onboarding and the next visit. */
+const savedLocale = createWebStorageValue({
   defaultValue: matchLocale(navigator.languages),
   key: 'fewmail.locale',
   schema: type.enumerated(...LOCALES.map(({ code }) => code)),
   type: 'localStorage',
 })
+
+/**
+ * This tab's language; signed in, the account's setting (`_app.tsx`). Never read the storage directly: it is shared by
+ * every tab, so the public site's footer in another tab would switch a signed-in app away from the account's language.
+ */
+export const localeStore = createStore<Locale>(savedLocale.get())
+localeStore.subscribe((locale) => savedLocale.set(locale))
 
 /** A copy for the server: `Caddyfile` sends a public page to this language's URL by it. */
 const localeCookie = createCookieValue({

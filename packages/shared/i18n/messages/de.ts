@@ -1172,7 +1172,11 @@ export const de: Messages = {
     deleteAccount: 'Konto löschen',
     deleteConfirm: 'Alles löschen',
     deleteDescription:
-      'Löscht dein Konto, synchronisierte Mails, Entwürfe und Regeln sofort aus Fewmail. Dein Gmail selbst bleibt unberührt.',
+      'Löscht dein Konto, synchronisierte Mails, Entwürfe und Regeln sofort aus Fewmail. Dein Gmail selbst bleibt unberührt. Ein bezahlter Plan endet sofort.',
+    deleteFailed:
+      'Das Konto wurde nicht gelöscht. Versuch es in einer Minute noch einmal.',
+    deleteSignIn:
+      'Melde dich zur Bestätigung noch einmal mit Google an und lösche das Konto dann.',
     deleteTitle: 'Fewmail-Konto löschen?',
     cancel: 'Abbrechen',
     integrations: 'Integrationen',
@@ -1193,8 +1197,12 @@ export const de: Messages = {
       lost: 'Der Gmail-Zugriff ging verloren. Füge es erneut hinzu, um es wieder zu verbinden.',
       reading: 'Mails werden gelesen…',
       remove: 'Entfernen',
+      retrying:
+        'Gmail antwortet gerade nicht. Fewmail versucht es von selbst erneut.',
       signIn: 'Damit meldest du dich an',
       signInChosen: 'Mit diesem Konto meldest du dich an. Wähle ein anderes.',
+      signInLost:
+        'Der Gmail-Zugriff ging verloren. Melde dich erneut an, um ihn wiederherzustellen.',
       synced: (ago: string) => `Synchronisiert ${ago}`,
       title: 'Postfächer',
     },
@@ -1280,6 +1288,10 @@ export const de: Messages = {
   },
   telegram: {
     approveAlike: 'Alle Karten einer Art auf einmal freigeben:',
+    chatTaken:
+      'Dieser Chat ist schon mit einem anderen Fewmail-Konto verbunden. Trenne Telegram zuerst dort (Einstellungen → Integrationen) und öffne den Link dann noch einmal.',
+    queueChanged:
+      'Die Karten haben sich inzwischen geändert. Das braucht dich jetzt:',
     heard: (text: string) => `Verstanden: „${text}“`,
     voiceFailed:
       'Das konnte ich nicht verstehen. Versuch es noch mal oder schreib es.',
@@ -1355,6 +1367,8 @@ export const de: Messages = {
     quick: 'Schnell',
     needsLook: 'Schau selbst',
     tidy: {
+      failed: (emails: string) =>
+        `Gmail hat ${emails} nicht geändert. Versuch es gleich noch einmal.`,
       confirm: (emails: string) => `${emails} aufräumen?`,
       running: 'Wird aufgeräumt…',
       unsubscribeHint:
@@ -1606,7 +1620,7 @@ export const de: Messages = {
           other: (count) => `${count} wiederkehrende`,
         }),
       thisMonth: 'Dieser Monat',
-      upcoming: 'Fällig in 30 Tagen',
+      upcoming: 'Nächste 30 Tage',
     },
   },
   bulk: {
@@ -1628,6 +1642,8 @@ export const de: Messages = {
       }),
   },
   clearOut: {
+    partial:
+      'Gmail hat einen Teil des Aufräumens abgebrochen. Was schon verschoben wurde, kann zurück.',
     groups: {
       lists: 'Newsletter, die du nie öffnest',
       notifications: 'Gelesene Benachrichtigungen, älter als ein Monat',
@@ -1728,6 +1744,8 @@ export const de: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'Diese Nummer ist schon mit einem anderen Fewmail-Konto verbunden. Trenne WhatsApp zuerst dort (Einstellungen → Integrationen) und sende die Nachricht dann noch einmal.',
     connectFirst: (url: string) =>
       `Hi! Ich bin Fewmail. Hier in WhatsApp sage ich dir, wenn dringende Mail kommt, zeige, was dich braucht, und sende die Antworten, die du freigibst.\n\nDiese Nummer ist noch nicht mit deinem Fewmail verbunden. Das dauert eine Minute:\n1. Öffne die Fewmail-Einstellungen: ${url}\n2. Tippe unter Integrationen auf „WhatsApp verbinden“ (Teil von Fewmail Pro).\n3. WhatsApp öffnet sich mit einer fertigen Nachricht – sende sie, und fertig.`,
     connected:

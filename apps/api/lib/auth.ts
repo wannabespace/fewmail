@@ -11,6 +11,7 @@ import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 
 import { env } from '../env'
+import { deleteStripeCustomer } from '../services/billing'
 import { capture } from './posthog'
 
 export const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
@@ -96,6 +97,8 @@ export const auth = betterAuth({
   user: {
     deleteUser: {
       beforeDelete: async (user) => {
+        // First, and allowed to throw: a failure here keeps the account, which beats a subscription still billing nobody.
+        await deleteStripeCustomer(user.id)
         // Google drops the whole grant, refresh token included, when any of its tokens is revoked.
         // oxlint-disable-next-line eslint/no-use-before-define -- runs per request, long after auth is built; the helper needs auth itself
         const token = await googleAccessToken(user.id).catch(() => null)

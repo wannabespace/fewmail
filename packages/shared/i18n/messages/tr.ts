@@ -317,7 +317,7 @@ export const tr: Messages = {
       recurring: (n: number) =>
         plural('tr', n, { other: (count) => `${count} düzenli` }),
       thisMonth: 'Bu ay',
-      upcoming: '30 gün içinde ödenecek',
+      upcoming: 'Önümüzdeki 30 gün',
     },
   },
   bulk: {
@@ -384,6 +384,8 @@ export const tr: Messages = {
       }),
   },
   clearOut: {
+    partial:
+      'Gmail temizliğin bir kısmını durdurdu. Taşınanlar geri getirilebilir.',
     groups: {
       lists: 'Hiç açmadığın bültenler',
       notifications: 'Okunmuş bildirimler, bir aydan eski',
@@ -928,7 +930,10 @@ export const tr: Messages = {
     deleteAccount: 'Hesabı sil',
     deleteConfirm: 'Her şeyi sil',
     deleteDescription:
-      'Hesabını, eşitlenen postaları, taslakları ve kuralları Fewmail’den hemen siler. Gmail’ine dokunulmaz.',
+      'Hesabını, eşitlenen postaları, taslakları ve kuralları Fewmail’den hemen siler. Gmail’ine dokunulmaz. Ücretli plan hemen iptal edilir.',
+    deleteFailed: 'Hesap silinmedi. Bir dakika sonra yeniden dene.',
+    deleteSignIn:
+      'Sen olduğunu doğrulamak için Google ile yeniden giriş yap, sonra hesabı sil.',
     deleteTitle: 'Fewmail hesabın silinsin mi?',
     cancel: 'İptal',
     integrations: 'Entegrasyonlar',
@@ -961,8 +966,12 @@ export const tr: Messages = {
       lost: 'Gmail erişimi kesildi. Yeniden bağlamak için tekrar ekleyin.',
       reading: 'Postalar okunuyor…',
       remove: 'Kaldır',
+      retrying:
+        'Gmail şu anda yanıt vermiyor. Fewmail kendiliğinden yeniden deneyecek.',
       signIn: 'Bu hesapla giriş yapıyorsunuz',
       signInChosen: 'Bu, giriş yaptığınız hesap. Başka birini seçin.',
+      signInLost:
+        'Gmail erişimi kesildi. Yeniden bağlamak için tekrar giriş yapın.',
       synced: (ago: string) => `${ago} eşitlendi`,
       title: 'Posta kutuları',
     },
@@ -1535,6 +1544,9 @@ export const tr: Messages = {
   },
   telegram: {
     approveAlike: 'Aynı türdeki tüm kartları birden onayla:',
+    chatTaken:
+      'Bu sohbet zaten başka bir Fewmail hesabına bağlı. Önce oradan Telegram bağlantısını kes (Ayarlar → Entegrasyonlar), sonra bağlantıyı yeniden aç.',
+    queueChanged: 'Kartlar bu arada değişti. Şu an seni bekleyenler:',
     heard: (text: string) => `Duyduğum: “${text}”`,
     voiceFailed: 'Anlayamadım. Tekrar dene ya da yaz.',
     help: 'Ne istediğini yaz ya da söyle:\n• e-postaların hakkında sor: “Netflix ne zaman yenileniyor?”\n• ne yanıtlanacağını söyle: “Anna’ya yarın imzalayacağımı yaz”\n• bana bir iş ver: “seyahatler için bir pano oluştur”\n• değiştirmek için taslaklarımdan birini yanıtla',
@@ -1607,6 +1619,8 @@ export const tr: Messages = {
     quick: 'Hızlı',
     needsLook: 'Kendin bak',
     tidy: {
+      failed: (emails: string) =>
+        `${emails} Gmail’de değiştirilemedi. Birazdan tekrar dene.`,
       confirm: (emails: string) => `${emails} toplansın mı?`,
       running: 'Toplanıyor…',
       unsubscribeHint:
@@ -1682,6 +1696,8 @@ export const tr: Messages = {
     },
   },
   whatsapp: {
+    phoneTaken:
+      'Bu numara zaten başka bir Fewmail hesabına bağlı. Önce oradan WhatsApp bağlantısını kes (Ayarlar → Entegrasyonlar), sonra mesajı yeniden gönder.',
     connectFirst: (url: string) =>
       `Merhaba! Ben Fewmail. Burada, WhatsApp’ta acil bir e-posta geldiğinde haber veririm, seni bekleyenleri gösteririm ve onayladığın yanıtları gönderirim.\n\nBu numara henüz Fewmail’ine bağlı değil. Bir dakika sürer:\n1. Fewmail ayarlarını aç: ${url}\n2. Entegrasyonlar’da “WhatsApp’ı bağla”ya dokun (Fewmail Pro’nun parçası).\n3. WhatsApp hazır bir mesajla açılır — gönder, hepsi bu.`,
     connected:

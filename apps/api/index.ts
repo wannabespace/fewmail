@@ -13,6 +13,7 @@ import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
 import { canSpeak } from './lib/elevenlabs'
 import { relayChanges } from './lib/live'
 import { logError, logErrorAs } from './lib/log'
+import { capture } from './lib/posthog'
 import { siteIcon } from './lib/site-icon'
 import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
@@ -99,13 +100,17 @@ const app = new Hono()
   .post('/gmail/push', (c) => handleGmailPush(c.req.raw))
   .get(MAILBOX_CALLBACK_PATH, async (c) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers })
+    const userId = session?.user.id ?? null
     const { mailboxId, result } = await finishAddingMailbox(
-      session?.user.id ?? null,
+      userId,
       new URL(c.req.url).searchParams
     ).catch((error: unknown) => {
       logError('add mailbox failed', error)
       return { mailboxId: undefined, result: 'failed' as const }
     })
+    if (userId) {
+      capture(userId, 'mailbox_add_finished', { result })
+    }
     if (mailboxId) {
       void syncMailbox({ id: mailboxId }).catch(logErrorAs('first sync'))
     }

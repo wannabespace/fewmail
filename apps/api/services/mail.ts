@@ -66,7 +66,12 @@ import { getSettings } from './settings'
 import { reportSpam } from './spam'
 import { holdThread, ownMessage } from './stored-mail'
 import { applyThreadEffect } from './thread-effects'
-import { changeThreadLabels, MARK_READ, mailboxOfThread } from './thread-labels'
+import {
+  changeThreadLabels,
+  isOpened,
+  MARK_READ,
+  mailboxOfThread,
+} from './thread-labels'
 import { zombieStats } from './zombies'
 
 export { NotFoundError } from './mail-errors'
@@ -1109,7 +1114,7 @@ const TIDY_SHOWN = 200
 const IGNORED_SENDER_EMAILS = 3
 
 /** Leaving a list cannot be undone, so it is offered only for a sender the user plainly ignores: three emails or more, at most one opened. */
-const ignoredSender = sql`${messages.listUnsubscribe} is not null and (select count(*) >= ${IGNORED_SENDER_EMAILS} and count(*) filter (where not ${sameSender.isUnread}) <= 1 from ${messages} ${sameSender} where ${sameSender.userId} = ${messages.userId} and coalesce(${sameSender.listId}, ${sameSender.fromEmail}) = coalesce(${messages.listId}, ${messages.fromEmail}))`
+const ignoredSender = sql`${messages.listUnsubscribe} is not null and (select count(*) >= ${IGNORED_SENDER_EMAILS} and count(*) filter (where ${isOpened(sameSender)}) <= 1 from ${messages} ${sameSender} where ${sameSender.userId} = ${messages.userId} and coalesce(${sameSender.listId}, ${sameSender.fromEmail}) = coalesce(${messages.listId}, ${messages.fromEmail}))`
 
 /**
  * Quiet mail the agent would archive, mark read or unsubscribe from that no rule covers: it waits on Home for one yes;
@@ -1176,7 +1181,7 @@ const tidyCandidates = (userId: string, where?: SQL) =>
 
 export const listTidy = (userId: string) => tidyCandidates(userId)
 
-/** `done` carries out what the agent suggested for each email, `dismissed` keeps it as it is; either way it leaves the list. */
+/** `done` carries out what the agent suggested for each email, `dismissed` keeps it as it is; either way it leaves the list, except an email Gmail refused (`failed`), which stays. */
 export const settleTidy = async (
   userId: string,
   messageIds: string[],
@@ -1188,6 +1193,7 @@ export const settleTidy = async (
   ])
   const t = dictionaries[settings?.language ?? 'en']
   let settled = 0
+  let failed = 0
   for (const { analysis, message } of rows) {
     const kind = analysis.suggestedAction
     if (status === 'done') {
@@ -1197,6 +1203,7 @@ export const settleTidy = async (
       )
       if (applied.isErr()) {
         logError('tidy failed', applied.error.cause)
+        failed += 1
         continue
       }
     }
@@ -1214,7 +1221,8 @@ export const settleTidy = async (
     })
     settled += 1
   }
-  return { settled }
+  capture(userId, 'tidy_settled', { failed, settled, status })
+  return { failed, settled }
 }
 
 export const archiveMessage = async (userId: string, messageId: string) =>

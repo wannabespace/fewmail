@@ -50,12 +50,14 @@ const waitForYes = async (
   const from = t.agent.mcpAsks(
     server.server.getClientVersion()?.name ?? t.settings.mcp.defaultName
   )
-  const { question } = await proposeConsent(userId, {
+  const { isNew, question } = await proposeConsent(userId, {
     from,
     input: input as Record<string, unknown>,
     name,
   })
-  await deliverHomeLink(userId, t, { headline: from, text: question })
+  if (isNew) {
+    await deliverHomeLink(userId, t, { headline: from, text: question })
+  }
   return {
     note: 'Nothing happened yet. The user answers this in Fewmail (Home and a notification); the yes carries it out there. Tell them so, and do not call it again.',
     status: 'waiting_for_approval',
