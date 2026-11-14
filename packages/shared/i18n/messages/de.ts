@@ -873,7 +873,7 @@ export const de: Messages = {
     showAll: (n: number) => `Alle ${n} zeigen`,
     showFewer: 'Weniger zeigen',
     inGmail: (count: string) => `${count} in Gmail`,
-    markShownRead: 'Diese als gelesen markieren',
+    markShownRead: (n: number) => `${n} als gelesen markieren`,
     oneTimeCode: {
       archive: 'Kopieren und archivieren',
       copied: 'Code kopiert',

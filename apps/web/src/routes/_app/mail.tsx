@@ -551,7 +551,7 @@ const useGroupedRows = <Row extends ListedRow>(
 
 // Not sticky: pins share the list's <ul>, so a sticky pinned header would ride over every row below it.
 const LIST_HEADER =
-  'bg-body text-muted-foreground flex items-center gap-2 border-b py-1.5 pr-5 pl-11 text-xs font-medium'
+  'bg-body text-muted-foreground flex items-center gap-2 border-b py-1.5 pr-5 pl-9 text-xs font-medium'
 
 const GROUP_HEADER = cn(LIST_HEADER, 'sticky top-0 z-10')
 
@@ -584,7 +584,7 @@ const GroupHeader = ({
             strokeWidth={2}
             data-icon="inline-start"
           />
-          {t.mail.markShownRead}
+          {t.mail.markShownRead(unreadOf(group.rows).length)}
         </Button>
       )}
       {(group.rows.length < group.total || isUnfolded) && (
@@ -870,7 +870,7 @@ const RowPick = ({
   return (
     <span
       className={cn(
-        'absolute left-4 flex',
+        'absolute left-3 flex',
         className,
         !isPicking &&
           'ease-house opacity-0 transition-opacity duration-150 group-hover:opacity-100'
@@ -887,7 +887,7 @@ const RowPick = ({
 
 const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
   cn(
-    'mr-2 ml-1 size-2 shrink-0 rounded-full',
+    'mr-1 size-2 shrink-0 rounded-full',
     isUnread && 'bg-primary',
     isPicking ? 'invisible' : 'group-hover:invisible'
   )
@@ -1128,7 +1128,7 @@ const RelatedRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-17 text-left text-sm outline-none"
+        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-15 text-left text-sm outline-none"
       >
         <span
           data-mask
@@ -1170,7 +1170,7 @@ const BurstList = ({
                 void warmThread(email.threadId)
               }}
               aria-current={email.threadId === openThread}
-              className="hover:bg-secondary aria-current:bg-secondary mr-3 ml-15 flex w-[calc(100%-4.5rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
+              className="hover:bg-secondary aria-current:bg-secondary mr-3 ml-13 flex w-[calc(100%-4rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
             >
               <span
                 data-mask
@@ -1303,7 +1303,7 @@ const MailRow = ({
           <span
             data-mask
             className={cn(
-              'truncate pl-13 text-sm',
+              'truncate pl-11 text-sm',
               codeRoom,
               message.isUnread
                 ? 'text-foreground/90 font-medium'
@@ -1314,12 +1314,12 @@ const MailRow = ({
           </span>
         )}
         {message.risk && (
-          <span className="text-destructive pl-13 text-xs font-medium">
+          <span className="text-destructive pl-11 text-xs font-medium">
             {t.risk.title}
           </span>
         )}
         {!message.risk && message.suspicion && (
-          <span className="text-muted-foreground pl-13 text-xs">
+          <span className="text-muted-foreground pl-11 text-xs">
             {t.spam.suspect}
           </span>
         )}
@@ -1889,18 +1889,17 @@ interface ActedRow {
   messageIds: string[]
 }
 
+const unreadOf = (rows: Pick<ActedRow, 'burst' | 'message'>[]) =>
+  rows.flatMap(({ burst, message }) =>
+    (burst ?? [message]).filter(({ isUnread }) => isUnread)
+  )
+
 /** Undefined when nothing in the rows is unread, so the control that marks them can hide. */
 const markReadOf = (
   rows: ActedRow[],
   mutate: (input: { threadId: string }) => void
 ) => {
-  const threadIds = new Set(
-    rows.flatMap(({ burst, message }) =>
-      (burst ?? [message])
-        .filter(({ isUnread }) => isUnread)
-        .map(({ threadId }) => threadId)
-    )
-  )
+  const threadIds = new Set(unreadOf(rows).map(({ threadId }) => threadId))
   return threadIds.size > 0
     ? () => {
         for (const threadId of threadIds) {

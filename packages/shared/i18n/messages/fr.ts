@@ -881,7 +881,11 @@ export const fr: Messages = {
     showAll: (n: number) => `Tout afficher (${n})`,
     showFewer: 'Afficher moins',
     inGmail: (count: string) => `${count} dans Gmail`,
-    markShownRead: 'Marquer ceux-ci comme lus',
+    markShownRead: (total: number) =>
+      plural('fr', total, {
+        one: (n) => `Marquer ${n} comme lu`,
+        other: (n) => `Marquer ${n} comme lus`,
+      }),
     oneTimeCode: {
       archive: 'Copier et archiver',
       copied: 'Code copié',

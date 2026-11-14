@@ -659,7 +659,11 @@ export const pl: Messages = {
     showAll: (n: number) => `Pokaż wszystkie (${n})`,
     showFewer: 'Pokaż mniej',
     inGmail: (count: string) => `${count} w Gmailu`,
-    markShownRead: 'Oznacz widoczne jako przeczytane',
+    markShownRead: (total: number) =>
+      plural('pl', total, {
+        one: (n) => `Oznacz ${n} jako przeczytaną`,
+        other: (n) => `Oznacz ${n} jako przeczytane`,
+      }),
     oneTimeCode: {
       archive: 'Kopiuj i archiwizuj',
       copied: 'Skopiowano kod',

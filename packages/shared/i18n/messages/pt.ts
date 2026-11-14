@@ -646,7 +646,11 @@ export const pt: Messages = {
     showAll: (n: number) => `Mostrar todos os ${n}`,
     showFewer: 'Mostrar menos',
     inGmail: (count: string) => `${count} no Gmail`,
-    markShownRead: 'Marcar estes como lidos',
+    markShownRead: (total: number) =>
+      plural('pt', total, {
+        one: (n) => `Marcar ${n} como lido`,
+        other: (n) => `Marcar ${n} como lidos`,
+      }),
     oneTimeCode: {
       archive: 'Copiar e arquivar',
       copied: 'Código copiado',

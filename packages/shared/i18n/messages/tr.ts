@@ -627,7 +627,7 @@ export const tr: Messages = {
     showAll: (n: number) => `${n} öğenin tümünü göster`,
     showFewer: 'Daha az göster',
     inGmail: (count: string) => `${count} Gmail’de`,
-    markShownRead: 'Bunları okundu işaretle',
+    markShownRead: (n: number) => `${n} tanesini okundu işaretle`,
     oneTimeCode: {
       archive: 'Kopyala ve arşivle',
       copied: 'Kod kopyalandı',

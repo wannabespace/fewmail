@@ -633,7 +633,7 @@ export const id: Messages = {
     showAll: (n: number) => `Tampilkan semua ${n}`,
     showFewer: 'Tampilkan lebih sedikit',
     inGmail: (count: string) => `${count} di Gmail`,
-    markShownRead: 'Tandai ini sudah dibaca',
+    markShownRead: (n: number) => `Tandai ${n} sudah dibaca`,
     oneTimeCode: {
       archive: 'Salin dan arsipkan',
       copied: 'Kode disalin',

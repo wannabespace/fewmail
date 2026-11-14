@@ -873,7 +873,11 @@ export const es: Messages = {
     showAll: (n: number) => `Ver los ${n}`,
     showFewer: 'Ver menos',
     inGmail: (count: string) => `${count} en Gmail`,
-    markShownRead: 'Marcar estos como leídos',
+    markShownRead: (total: number) =>
+      plural('es', total, {
+        one: (n) => `Marcar ${n} como leído`,
+        other: (n) => `Marcar ${n} como leídos`,
+      }),
     oneTimeCode: {
       archive: 'Copiar y archivar',
       copied: 'Código copiado',
