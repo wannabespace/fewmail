@@ -103,7 +103,7 @@ export const analyzeInstructions = (input: {
     `Write summary (one sentence), reason (why this importance, a few words) and actionTitle (a short label of what to do, phrased like ${labelExamples(input.language)}) in ${englishName(input.language)}.`,
     INFORMAL_ADDRESS,
     NO_EM_DASH,
-    'extracted: an amount with currency, a due date (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null.',
+    'extracted: an amount with currency, a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null.',
     '',
     input.rules.length > 0
       ? `User rules. Set ruleId to the id of the first rule this email clearly matches, else null:\n${input.rules
@@ -403,7 +403,7 @@ const analyze = async (input: {
     generateText({
       instructions: [
         `Write in ${englishName(input.settings.language)}: summary (one sentence, concrete names, amounts and dates), reason (why it matters, a few words) and actionTitle (a short label of what to do for: ${decisions.suggestedAction}, phrased like ${labelExamples(input.settings.language)}).`,
-        'extracted: an amount with currency, a due date (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null. Never invent anything.',
+        'extracted: an amount with currency, a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect) and a proposed meeting time as written in the email, else null. Never invent anything.',
         INFORMAL_ADDRESS,
         NO_EM_DASH,
       ].join('\n'),

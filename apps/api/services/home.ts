@@ -25,7 +25,7 @@ const CATCH_UP_MAX_DAYS = 7
 const RECENT_SHOWN_PER_DAY = 8
 const SAVED_WINDOW_DAYS = 7
 const DATES_SHOWN = 6
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/u
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}/u
 
 type Settings = typeof userSettings.$inferSelect
 
@@ -57,7 +57,7 @@ type Dated = Awaited<ReturnType<typeof mailWithDates>>[number]
 
 const isoDue = ({ analysis }: Dated) =>
   analysis.extracted.dueDate && ISO_DATE.test(analysis.extracted.dueDate)
-    ? analysis.extracted.dueDate
+    ? analysis.extracted.dueDate.slice(0, 10)
     : null
 
 /** A due date the model wrote as ISO sorts soonest first and drops once passed; any other date stays as written, newest mail first. */
