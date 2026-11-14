@@ -788,6 +788,7 @@ export const de: Messages = {
     close: 'schließen',
     draftReply: 'Entwurf',
     edit: 'bearbeiten',
+    expand: 'aufklappen / zuklappen',
     move: 'bewegen',
     open: 'öffnen',
     notOnBoard: 'nicht auf diesem Board',

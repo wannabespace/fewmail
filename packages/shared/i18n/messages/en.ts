@@ -573,6 +573,7 @@ export const en = {
     close: 'close',
     draftReply: 'draft reply',
     edit: 'edit',
+    expand: 'expand / collapse',
     move: 'move',
     open: 'open',
     pick: 'pick',

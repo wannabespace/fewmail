@@ -789,6 +789,7 @@ export const uk: Messages = {
     close: 'закрити',
     draftReply: 'чернетка',
     edit: 'змінити',
+    expand: 'розгорнути / згорнути',
     move: 'рух',
     open: 'відкрити',
     notOnBoard: 'не для цієї дошки',

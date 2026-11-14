@@ -303,6 +303,7 @@ export const ko: Messages = {
     close: '닫기',
     draftReply: '답장 초안',
     edit: '편집',
+    expand: '펼치기 / 접기',
     move: '이동',
     open: '열기',
     notOnBoard: '이 보드에서 빼기',

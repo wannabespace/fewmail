@@ -67,8 +67,8 @@ const showsGist = ({ action, analysis }: QueueItem) =>
   action.kind !== 'consent'
 
 /** The open card says the email whole, so its title gives the subject instead of repeating it. */
-const titleOf = (item: QueueItem, isSelected: boolean) =>
-  isSelected && showsGist(item)
+const titleOf = (item: QueueItem, isOpen: boolean) =>
+  isOpen && showsGist(item)
     ? (item.message?.subject ?? headline(item))
     : headline(item)
 
@@ -215,6 +215,7 @@ const foldedVerb = (t: Messages, action: Action) => {
 const QuickActions = ({
   action,
   hasMessage,
+  isOpen,
   isSelected,
   onApprove,
   onOpen,
@@ -222,6 +223,7 @@ const QuickActions = ({
 }: {
   action: Action
   hasMessage: boolean
+  isOpen: boolean
   isSelected: boolean
   onApprove: () => void
   onOpen: () => void
@@ -232,7 +234,7 @@ const QuickActions = ({
   return (
     <span className="flex opacity-0 group-hover:opacity-100">
       {/* A reply is never sent unread: it needs the open card. The open card's own yes button is the ✓. */}
-      {!isSelected && !sendsDraft(action) && (
+      {!isOpen && !sendsDraft(action) && (
         <IconButton
           icon={Tick02Icon}
           label={approveLabel(t, action, false)}
@@ -266,6 +268,7 @@ const QuickActions = ({
 const QueueCardHeader = ({
   index,
   isNew,
+  isOpen,
   isPicked,
   isSelected,
   item: { action, analysis, message },
@@ -276,6 +279,7 @@ const QueueCardHeader = ({
 }: {
   index: number
   isNew: boolean
+  isOpen: boolean
   isPicked: boolean
   isSelected: boolean
   item: QueueItem
@@ -291,7 +295,7 @@ const QueueCardHeader = ({
     <AccordionTrigger
       trailing={
         <>
-          {!isSelected && (
+          {!isOpen && (
             <span className="text-muted-foreground mr-3 text-xs whitespace-nowrap">
               {foldedVerb(t, action)}
             </span>
@@ -305,6 +309,7 @@ const QueueCardHeader = ({
             <QuickActions
               action={action}
               hasMessage={!!message}
+              isOpen={isOpen}
               isSelected={isSelected}
               onApprove={onApprove}
               onOpen={onOpen}
@@ -340,7 +345,7 @@ const QueueCardHeader = ({
           : (message?.fromName ?? message?.fromEmail ?? 'Fewmail')}
       </strong>
       <span data-mask className="text-muted-foreground min-w-0 flex-1 truncate">
-        {titleOf({ action, analysis, message }, isSelected)}
+        {titleOf({ action, analysis, message }, isOpen)}
       </span>
     </AccordionTrigger>
   )
@@ -492,6 +497,7 @@ export const QueueCard = ({
   isBusy,
   isEditing,
   isNew,
+  isOpen,
   isPicked,
   isRewriting,
   isSelected,
@@ -512,6 +518,7 @@ export const QueueCard = ({
   isBusy: boolean
   isEditing: boolean
   isNew: boolean
+  isOpen: boolean
   isPicked: boolean
   isRewriting: boolean
   isSelected: boolean
@@ -560,6 +567,7 @@ export const QueueCard = ({
         <QueueCardHeader
           index={index}
           isNew={isNew}
+          isOpen={isOpen}
           isPicked={isPicked}
           isSelected={isSelected}
           item={item}

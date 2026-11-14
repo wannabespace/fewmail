@@ -45,6 +45,7 @@ const itemVariants = cva(
         default: 'gap-3.5 px-4 py-3.5',
         sm: `gap-3.5 ${smallItemInsetClassName} py-3`,
         xs: `gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0`,
+        '2xs': 'gap-2 rounded-lg px-2.5 py-1',
       },
       variant: {
         card: `bg-popover ring-foreground/4 [a]:hover:ring-foreground/12 rounded-xl border-transparent shadow-xs ring [a]:transition-[color,background-color,box-shadow]`,

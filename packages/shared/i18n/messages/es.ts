@@ -789,6 +789,7 @@ export const es: Messages = {
     close: 'cerrar',
     draftReply: 'borrador',
     edit: 'editar',
+    expand: 'desplegar / plegar',
     move: 'mover',
     open: 'abrir',
     notOnBoard: 'no es de este tablero',

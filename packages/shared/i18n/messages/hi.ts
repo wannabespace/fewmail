@@ -306,6 +306,7 @@ export const hi: Messages = {
     close: 'बंद करें',
     draftReply: 'जवाब ड्राफ़्ट करें',
     edit: 'बदलें',
+    expand: 'खोलें / बंद करें',
     move: 'चलें',
     open: 'खोलें',
     notOnBoard: 'इस बोर्ड का नहीं',

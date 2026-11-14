@@ -792,6 +792,7 @@ export const it: Messages = {
     close: 'chiudi',
     draftReply: 'bozza',
     edit: 'modifica',
+    expand: 'espandi / comprimi',
     move: 'sposta',
     open: 'apri',
     notOnBoard: 'non è di questa bacheca',

@@ -566,6 +566,7 @@ export const id: Messages = {
     close: 'tutup',
     draftReply: 'draf balasan',
     edit: 'edit',
+    expand: 'buka / tutup',
     move: 'pindah',
     open: 'buka',
     notOnBoard: 'bukan untuk papan ini',

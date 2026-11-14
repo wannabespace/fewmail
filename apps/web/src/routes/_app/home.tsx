@@ -525,7 +525,7 @@ const homeHints = (
     newsletters: Newsletters
     picked: number
     selected: QueueItem | undefined
-    isProposalsOpen: boolean
+    isOnProposals: boolean
     stale: number
     page: HomeSubpage | undefined
     tidy: number
@@ -560,12 +560,14 @@ const homeHints = (
     ...(state.selected
       ? [
           ['J / K', t.keys.move] as [string, string],
+          ['Space', t.keys.expand] as [string, string],
           ...primaryHints(t, state.selected.action),
         ]
       : []),
-    ...(state.isProposalsOpen
+    ...(state.isOnProposals
       ? [
           ['J / K', t.keys.move] as [string, string],
+          ['Space', t.keys.expand] as [string, string],
           ['⏎', t.today.tidy.run] as [string, string],
         ]
       : []),
@@ -1033,7 +1035,16 @@ const HomePage = () => {
     ...queue.map(({ action }) => action.id),
   ]
   const { cursorId, cursorIndex, setSelectedId } = useCursor(stops)
-  const isProposalsOpen = cursorId === PROPOSALS_ID
+  const isOnProposals = cursorId === PROPOSALS_ID
+  // Cards open only when asked (a header click, Space, E or R); while one is open, the card under the cursor opens instead.
+  const [isOpen, setIsOpen] = useState(false)
+  const openIds = isOpen && cursorId ? [cursorId] : []
+  const toggleCard = ([id]: string[]) => {
+    if (id) {
+      setSelectedId(id)
+    }
+    setIsOpen(!!id)
+  }
   const selectedIndex = queue.findIndex(({ action }) => action.id === cursorId)
   const selected = queue.at(selectedIndex)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -1260,7 +1271,7 @@ const HomePage = () => {
   const approveTargets = () => {
     if (picked.length > 0) {
       approveMany.mutate({ ids: pickedActionIds })
-    } else if (isProposalsOpen) {
+    } else if (isOnProposals) {
       proposals.approve(proposals.proposals)
     } else {
       runSelected()
@@ -1313,22 +1324,15 @@ const HomePage = () => {
   useHotkey('Escape', () => setPickedIds([]), {
     enabled: isWalking && picked.length > 0,
   })
-  useHotkey(
-    'E',
-    () =>
-      selected &&
-      sendsDraft(selected.action) &&
-      setEditingId(selected.action.id),
-    listKeys
-  )
-  useHotkey(
-    'R',
-    () =>
-      selected &&
-      sendsDraft(selected.action) &&
-      setRewritingId(selected.action.id),
-    listKeys
-  )
+  const openAnd = (start: (id: string) => void) => () => {
+    if (selected && sendsDraft(selected.action)) {
+      setIsOpen(true)
+      start(selected.action.id)
+    }
+  }
+  useHotkey('E', openAnd(setEditingId), listKeys)
+  useHotkey('R', openAnd(setRewritingId), listKeys)
+  useHotkey('Space', () => setIsOpen((open) => !open), walkKeys)
   useHotkey(
     'O',
     () => selected?.message && showThread(selected.message.threadId),
@@ -1377,8 +1381,9 @@ const HomePage = () => {
                       canUseKeys={isWalking}
                       cursorId={cursorId}
                       hasCards={queue.length > 0}
+                      openIds={openIds}
                       proposals={proposals}
-                      onSelect={setSelectedId}
+                      onValueChange={toggleCard}
                     />
                     <KindFilter
                       canUseKeys={isWalking}
@@ -1388,8 +1393,8 @@ const HomePage = () => {
                     <Accordion
                       variant="cards"
                       hidden={queue.length === 0}
-                      value={cursorId ? [cursorId] : []}
-                      onValueChange={([id]) => id && setSelectedId(id)}
+                      value={openIds}
+                      onValueChange={toggleCard}
                     >
                       {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
                       <AnimatePresence key={filter.active} initial={false}>
@@ -1402,6 +1407,7 @@ const HomePage = () => {
                             isNew={!!seenAt && item.action.createdAt > seenAt}
                             isPicked={pickedIds.includes(item.action.id)}
                             isRewriting={rewritingId === item.action.id}
+                            isOpen={isOpen && item === selected}
                             isSelected={item === selected}
                             isEditing={editingId === item.action.id}
                             isBusy={
@@ -1481,7 +1487,7 @@ const HomePage = () => {
             newsletters,
             page,
             selected,
-            isProposalsOpen,
+            isOnProposals,
             isRewriting,
             picked: picked.length,
             stale: stale.length,

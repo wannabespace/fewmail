@@ -579,6 +579,7 @@ export const pt: Messages = {
     close: 'fechar',
     draftReply: 'rascunhar',
     edit: 'editar',
+    expand: 'expandir / recolher',
     move: 'mover',
     open: 'abrir',
     notOnBoard: 'não é deste painel',

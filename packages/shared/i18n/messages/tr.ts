@@ -561,6 +561,7 @@ export const tr: Messages = {
     close: 'kapat',
     draftReply: 'taslak yanıt',
     edit: 'düzenle',
+    expand: 'aç / kapat',
     move: 'gezin',
     open: 'aç',
     notOnBoard: 'bu panoya ait değil',

@@ -580,6 +580,7 @@ export const nl: Messages = {
     close: 'sluiten',
     draftReply: 'concept',
     edit: 'bewerken',
+    expand: 'uitklappen / inklappen',
     move: 'bewegen',
     open: 'openen',
     notOnBoard: 'niet op dit bord',

@@ -797,6 +797,7 @@ export const fr: Messages = {
     close: 'fermer',
     draftReply: 'brouillon',
     edit: 'modifier',
+    expand: 'déplier / replier',
     move: 'naviguer',
     open: 'ouvrir',
     notOnBoard: 'pas sur ce tableau',

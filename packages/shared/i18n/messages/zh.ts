@@ -302,6 +302,7 @@ export const zh: Messages = {
     close: '关闭',
     draftReply: '起草回复',
     edit: '编辑',
+    expand: '展开 / 收起',
     move: '移动',
     open: '打开',
     notOnBoard: '不属于此看板',

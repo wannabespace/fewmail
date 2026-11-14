@@ -303,6 +303,7 @@ export const ja: Messages = {
     close: '閉じる',
     draftReply: '返信を下書き',
     edit: '編集',
+    expand: '開く / 閉じる',
     move: '移動',
     open: '開く',
     notOnBoard: 'このボードに含めない',

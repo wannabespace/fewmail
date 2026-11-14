@@ -205,10 +205,12 @@ export const PROPOSALS_ID = 'proposals'
 /** The first stop of Home's decisions: every email the agent proposes to move, in a scroller of its own, approved in one yes (⏎ or T) or looked at one by one (D). */
 const ProposalsQueueCard = ({
   canUseKeys,
+  isOpen,
   isSelected,
   proposals,
 }: {
   canUseKeys: boolean
+  isOpen: boolean
   isSelected: boolean
   proposals: Proposals
 }) => {
@@ -222,7 +224,7 @@ const ProposalsQueueCard = ({
     <AccordionItem value={PROPOSALS_ID} className="group">
       <AccordionTrigger
         trailing={
-          !isSelected && (
+          !isOpen && (
             <span className="text-muted-foreground text-xs whitespace-nowrap">
               {t.today.tidy.run}
             </span>
@@ -246,7 +248,7 @@ const ProposalsQueueCard = ({
         <strong className="truncate font-semibold">
           {t.today.tidy.total(rows.length)}
         </strong>
-        {!isSelected && (
+        {!isOpen && (
           <span className="text-muted-foreground min-w-0 flex-1 truncate first-letter:uppercase">
             {kindsLine(t, rows)}
           </span>
@@ -254,8 +256,12 @@ const ProposalsQueueCard = ({
       </AccordionTrigger>
       <AccordionContent>
         <div className="flex flex-col gap-3 pl-8.5">
-          <ScrollArea viewportClassName="scroll-fade max-h-60">
-            <div className="flex flex-col gap-3">
+          {/* The scroller clips, so it bleeds by the rows' inset and pads back in, or a row's hover is cut on the left. */}
+          <ScrollArea
+            className="-mx-2.5"
+            viewportClassName="scroll-fade max-h-60"
+          >
+            <div className="flex flex-col gap-3 px-2.5">
               {byKind(rows).map(({ kind, rows: group }) => (
                 <div key={kind} className="flex flex-col gap-1">
                   <h4 className="text-muted-foreground text-xs font-medium first-letter:uppercase">
@@ -266,7 +272,7 @@ const ProposalsQueueCard = ({
                       <li key={id}>
                         {message ? (
                           <Item
-                            size="xs"
+                            size="2xs"
                             className="-mx-2.5 flex-nowrap"
                             render={
                               <Link
@@ -338,13 +344,15 @@ export const ProposalsGroup = ({
   canUseKeys,
   cursorId,
   hasCards,
-  onSelect,
+  onValueChange,
+  openIds,
   proposals,
 }: {
   canUseKeys: boolean
   cursorId: string | undefined
   hasCards: boolean
-  onSelect: (id: string) => void
+  onValueChange: (ids: string[]) => void
+  openIds: string[]
   proposals: Proposals
 }) => {
   const t = useT()
@@ -358,11 +366,12 @@ export const ProposalsGroup = ({
             {hasCards && <GroupLabel>{t.today.quick}</GroupLabel>}
             <Accordion
               variant="cards"
-              value={cursorId ? [cursorId] : []}
-              onValueChange={([id]) => id && onSelect(id)}
+              value={openIds}
+              onValueChange={onValueChange}
             >
               <ProposalsQueueCard
                 canUseKeys={canUseKeys}
+                isOpen={openIds.includes(PROPOSALS_ID)}
                 isSelected={cursorId === PROPOSALS_ID}
                 proposals={proposals}
               />

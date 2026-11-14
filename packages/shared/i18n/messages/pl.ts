@@ -592,6 +592,7 @@ export const pl: Messages = {
     close: 'zamknij',
     draftReply: 'szkic odpowiedzi',
     edit: 'edytuj',
+    expand: 'rozwiń / zwiń',
     move: 'przejdź',
     open: 'otwórz',
     notOnBoard: 'nie z tej tablicy',
