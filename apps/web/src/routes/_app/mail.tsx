@@ -769,7 +769,9 @@ const RELATED_SHOWN = 5
 const UNRELATED_LISTS = new Set<MailList>(['pinned', 'spam', 'trash'])
 
 /** Under the open row, the sender's other threads from every list as real rows (J / K, ⏎ and E reach them); never one the list already shows. */
-const useRelatedRows = <Row extends ListedRow & { messageIds: string[] }>({
+const useRelatedRows = <
+  Row extends ListedRow & { burst?: ListedMessage[]; messageIds: string[] },
+>({
   anchor,
   mailbox,
   rows,
@@ -783,7 +785,11 @@ const useRelatedRows = <Row extends ListedRow & { messageIds: string[] }>({
       .from({ row: mailRowsOf(mailbox) })
       .orderBy(({ row }) => row.message.receivedAt, 'desc')
   )
-  const seen = new Set(rows.map(({ message }) => message.threadId))
+  const seen = new Set(
+    rows.flatMap(({ burst, message }) =>
+      (burst ?? [message]).map(({ threadId }) => threadId)
+    )
+  )
   const others = (everything.data ?? []).filter(({ list, message }) => {
     if (UNRELATED_LISTS.has(list) || seen.has(message.threadId)) {
       return false
