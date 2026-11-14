@@ -483,7 +483,7 @@ export const zh: Messages = {
       '这个发件人不支持一键退订，所以已归档其邮件。如果继续发来，会进入垃圾邮件。',
     count: (total: number) => `邮件列表：${total} 个`,
     empty: '本月没有邮件列表给你发信。',
-    lead: '本月给你发信的邮件列表，最活跃的在前。退订会归档它们发来的所有邮件；两周后仍在发来的邮件会进入垃圾邮件。',
+    lead: '本月给你发信的邮件列表，最活跃的在前。退订会归档它们发来的所有邮件；如果两周后仍有邮件发来，我会建议移入垃圾邮件，并在你同意后才移动。',
     opened: (total: number) =>
       total === 0 ? '一封都没打开' : `打开了 ${total} 封`,
     title: '订阅',
@@ -823,7 +823,7 @@ export const zh: Messages = {
       noFreePlan: '无免费方案',
       ours: {
         ask: 'Pro 方案',
-        home: '实时更新，可批量批准，Pro 方案',
+        home: '实时更新，可批量批准，免费',
         drafts: '用你的语气，经你批准才发送，Pro 方案',
         followUps: '对等待回复的邮件自动提醒',
         handOver: '助手一直处理到达成目标，Pro 方案',
@@ -1126,6 +1126,7 @@ export const zh: Messages = {
       free: {
         description: '分类、规则和防护。永久免费。',
         features: [
+          '首页：实时更新的决定队列，可逐条或批量批准',
           '每封邮件都被分类并按重要程度评分',
           '用平常的话写规则，自动归档、标为已读或退订',
           '社区垃圾邮件防护盾和钓鱼警告',
@@ -1142,7 +1143,6 @@ export const zh: Messages = {
       lite: {
         description: '完整的助手：阅读、撰写、记忆。',
         features: [
-          '首页：实时更新的决定队列，可逐条或批量批准',
           '用你的语气起草回复，经你批准才发送',
           'Telegram：紧急邮件、批准和语音指令',
           '记住承诺和联系人，用带图表的看板追踪钱或任何你关心的东西',
@@ -1545,7 +1545,8 @@ export const zh: Messages = {
     undone: (emails: string) => `${emails} 已回到收件箱`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) => `最忙的时候：${day} ${hour} 左右`,
+    busiest: (day: string, hours: string) =>
+      `最忙的一天：${day} · 最忙的时段：${hours}`,
     copied: '链接已复制',
     copyLink: '复制链接',
     cta: '用 Fewmail 生成你的',
@@ -1560,8 +1561,8 @@ export const zh: Messages = {
     shareNote: '链接和图片只显示这些数字，绝不包含姓名或地址。',
     shared: { month: '一个月的邮件', year: '一年的邮件' },
     spam: '拦下的垃圾邮件',
-    split: (people: string, lists: string) =>
-      `来自真人 ${people} · 来自订阅 ${lists}`,
+    split: (people: string, lists: string, other: string) =>
+      `来自真人 ${people} · 来自订阅 ${lists} · 其他 ${other}`,
     title: { month: '你的一个月邮件', year: '你的一年邮件' },
     unsubscribed: '退出的订阅',
   },
@@ -1610,7 +1611,6 @@ export const zh: Messages = {
       boards:
         'Fewmail Pro 的功能：描述要收集什么，代理会在你的邮件中找到它并持续更新。',
       drafts: 'Fewmail Pro 的功能：代理用你的风格写好回复，你修改后发送。',
-      home: 'Fewmail Pro 的功能：需要你处理的邮件，附带已写好的回复草稿，随新邮件到达实时更新。',
     },
   },
   whatsapp: {

@@ -32,6 +32,7 @@ import {
   FAST_MODEL_ID,
   INFORMAL_ADDRESS,
   models,
+  NEWSLETTER_SUMMARY,
   NO_EM_DASH,
   trackUsage,
 } from '../lib/ai'
@@ -49,6 +50,7 @@ import {
   SUGGESTED_ACTIONS,
 } from './classify'
 import { applyAgentLabel } from './labels'
+import { listMailboxes } from './mailboxes'
 import type { EmailAllowance } from './plan'
 import { getSettings } from './settings'
 import { applyThreadEffect } from './thread-effects'
@@ -93,9 +95,18 @@ const labelExamples = (language: Locale) => {
   return `"${actionKind.reply}", "${actionKind.pay}", "${actionKind.schedule}"`
 }
 
-/** `meetingStart` is what a schedule card puts in the calendar, so it must be the time the email names. */
+/** `meetingStart` is what a schedule card puts in the calendar, so it must be the time the email names; the web formats `amount` only in exactly this shape. */
 const extractedInstruction = (timezone: string) =>
-  `extracted: an amount with currency, a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect), the first proposed meeting time as a short date and start time in the language of the email ("18 Nov, 18:00"), never a sentence, and that meeting's start as YYYY-MM-DDTHH:mm in the user's time zone (${timezone}), converted only when the email names another zone, else null. Never invent anything.`
+  `extracted: the amount as a plain number and its ISO 4217 code ("1250.00 USD", "2499 UAH"), a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect), the first proposed meeting time as a short date and start time in the language of the email ("18 Nov, 18:00"), never a sentence, and that meeting's start as YYYY-MM-DDTHH:mm in the user's time zone (${timezone}), converted only when the email names another zone, else null. Never invent anything.`
+
+/** A summary that reads as a to-do must never pass a fraudster's instructions on. */
+const summaryStyle = (language: Locale) =>
+  `Never open the summary with a date; write dates and amounts the way ${englishName(language)} writes them, never as YYYY-MM-DD. When the email is flagged as a risk or asks to pay to new or changed payment details, summary and reason warn that it may be fraud and never tell the user to pay or follow it.`
+
+const flagged = (message: Message, prompt: string) =>
+  message.risk
+    ? `Flagged as a risk: ${message.risk.kind}.\n\n${prompt}`
+    : prompt
 
 export const analyzeInstructions = (input: {
   language: Locale
@@ -112,6 +123,8 @@ export const analyzeInstructions = (input: {
     `needsReply is true only when: ${NEEDS_REPLY}.`,
     `suggestedAction: ${listed(ACTION_CRITERIA)}.`,
     `Write summary (one sentence), reason (why this importance, a few words) and actionTitle (a short label of what to do, phrased like ${labelExamples(input.language)}) in ${englishName(input.language)}.`,
+    NEWSLETTER_SUMMARY,
+    summaryStyle(input.language),
     INFORMAL_ADDRESS,
     NO_EM_DASH,
     extractedInstruction(input.timezone),
@@ -200,26 +213,28 @@ const draftReply = async (
   input: ReplyInput & { settings: Settings | null; thread: string }
 ) => {
   const { settings } = input
-  const [examples, [user]] = await Promise.all([
+  const [examples, [user], mailboxes] = await Promise.all([
     recentSentExamples(input.userId),
     db
       .select({ name: users.name })
       .from(users)
       .where(eq(users.id, input.userId)),
+    listMailboxes(input.userId),
   ])
 
   const { text } = await generateText({
     instructions: [
       'You write email replies as the user, in their own voice. Output only the reply body: no subject, no quoted text, no placeholders.',
       'Reply in the language of the email you are answering.',
-      'Be brief and concrete. Never invent facts, dates or commitments the user did not make; when a decision is needed, propose the most likely one in a way the user can easily change.',
+      `The user is ${mailboxes.map(({ email }) => email).join(', ')}. The email you answer is from ${input.message.fromEmail}, another person even when the names match: what it proposes or asks is theirs, and the user answers it.`,
+      'Be brief and concrete. Never invent facts, dates or commitments the user did not make. When the email asks the user to choose between options and nothing here settles it, never pick one: acknowledge it and say their decision follows. Any other decision: propose the most likely one in a way the user can easily change.',
       NO_EM_DASH,
       user?.name
-        ? `The user's name is ${user.name}; sign with it unless their own emails sign differently, never with another name.`
+        ? `The user's name is ${user.name}. Sign with it written in the script of the reply's language (transliterated when needed), the same way every time, never with another name.`
         : null,
       settings?.voice ? `How the user writes: ${settings.voice}` : null,
       settings?.knowledge
-        ? `Facts the user wants you to know and use when relevant (never contradict them):\n${settings.knowledge}`
+        ? `Facts the user wants you to know. Use one only when the email is about it, never mention it otherwise, never contradict it:\n${settings.knowledge}`
         : null,
       examples.length > 0
         ? `Emails the user wrote recently, for tone and sign-off only:\n${examples.map((example) => `---\n${example}`).join('\n')}`
@@ -311,7 +326,7 @@ const withNetworkFacts = <
   t: Messages
 ): Output & { reason?: string } => {
   if (message.risk) {
-    return { ...output, importance: 3 }
+    return { ...output, importance: 3, needsReply: false, reason: t.risk.title }
   }
   if (message.suspicion) {
     return {
@@ -375,7 +390,7 @@ const analyze = async (input: {
       }),
       model: models.fast,
       output: Output.object({ schema: analysisSchema }),
-      prompt,
+      prompt: flagged(input.message, prompt),
       telemetry: trackUsage(input.message.userId, 'analysis'),
     })
     return {
@@ -419,13 +434,18 @@ const analyze = async (input: {
     generateText({
       instructions: [
         `Write in ${englishName(input.settings.language)}: summary (one sentence, concrete names, amounts and dates), reason (why it matters, a few words) and actionTitle (a short label of what to do for: ${decisions.suggestedAction}, phrased like ${labelExamples(input.settings.language)}).`,
+        ...(decisions.category === 'newsletter' ? [NEWSLETTER_SUMMARY] : []),
+        summaryStyle(input.settings.language),
         extractedInstruction(input.settings.timezone),
         INFORMAL_ADDRESS,
         NO_EM_DASH,
       ].join('\n'),
       model: models.fast,
       output: Output.object({ schema: textSchema }),
-      prompt: attached ? `${prompt}\n\n${attached}` : prompt,
+      prompt: flagged(
+        input.message,
+        attached ? `${prompt}\n\n${attached}` : prompt
+      ),
       telemetry: trackUsage(input.message.userId, 'analysis'),
     })
   )
@@ -550,7 +570,7 @@ const cardPayload = async (
 ): Promise<{ event: CardEvent } | { link: CardLink } | null> => {
   const start = output.extracted.meetingStart
   if (
-    kind === 'schedule' &&
+    (kind === 'schedule' || kind === 'reply') &&
     start &&
     /^\d{4}-\d\d-\d\dT\d\d:\d\d$/u.test(start)
   ) {
@@ -739,7 +759,7 @@ export const analyzeMessage = async (
     userId: message.userId,
   }
 
-  // A rule never touches mail that needs the user: it waits on Home for a yes (on Free it stays in the inbox).
+  // A rule never touches mail that needs the user: it waits on Home for a yes.
   if (rule && actsOnGmail(rule) && output.importance < IMPORTANCE.high) {
     await recordRuleAction(message, rule, {
       ...base,
@@ -747,9 +767,9 @@ export const analyzeMessage = async (
     })
     return
   }
-  // Past the allowance the agent writes nothing, but the email still gets its card.
+  // On Free or past the allowance the agent writes nothing, but the email still gets its card. Risky mail already has its security card.
   if (
-    !allowance ||
+    message.risk ||
     oneTimeCode(message.subject, message.body) ||
     (await hasNewerMail(message))
   ) {

@@ -9,7 +9,7 @@ import {
 import type { ReminderKind } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { addDays, addHours } from 'date-fns'
-import { and, asc, desc, eq, gt, inArray, lte } from 'drizzle-orm'
+import { and, asc, desc, eq, gt, inArray, isNotNull, lte } from 'drizzle-orm'
 
 import { localClock } from '../lib/clock'
 import { GmailError } from '../lib/gmail'
@@ -133,9 +133,31 @@ export const awaitingReplies = async (userId: string) => {
       )
     )
     .orderBy(desc(messages.receivedAt))
+  const recipients = [
+    ...new Set(sent.flatMap(({ to: [first] }) => (first ? [first] : []))),
+  ]
+  const named =
+    recipients.length > 0
+      ? await db
+          .selectDistinctOn([messages.fromEmail], {
+            email: messages.fromEmail,
+            name: messages.fromName,
+          })
+          .from(messages)
+          .where(
+            and(
+              eq(messages.userId, userId),
+              inArray(messages.fromEmail, recipients),
+              isNotNull(messages.fromName)
+            )
+          )
+          .orderBy(messages.fromEmail, desc(messages.receivedAt))
+      : []
   return watched.flatMap(({ threadId }) => {
     const last = sent.find((message) => message.threadId === threadId)
-    return last ? [last] : []
+    const toName =
+      named.find(({ email }) => email === last?.to[0])?.name ?? null
+    return last ? [{ ...last, toName }] : []
   })
 }
 

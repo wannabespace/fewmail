@@ -3,10 +3,19 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 
 import { db } from '@fewmail/db'
 import { analyses, messages, unsubscribes } from '@fewmail/db/schema'
-import { PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
+import { LIST_CATEGORIES, PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
 import type { WrappedPeriod, WrappedStats } from '@fewmail/shared/agent'
 import type { Locale } from '@fewmail/shared/i18n/locales'
-import { and, count, desc, eq, gte, inArray, sql } from 'drizzle-orm'
+import {
+  and,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  notInArray,
+  sql,
+} from 'drizzle-orm'
 
 import { env } from '../env'
 import { localClock } from '../lib/clock'
@@ -51,28 +60,31 @@ const busiest = async (
   return row?.bucket ?? null
 }
 
-const topPeople = (userId: string, since: Date) =>
-  db
+/** Counted the way `mailPulse` counts people: all a person sent except mailing-list mail. */
+const topPeople = (userId: string, since: Date) => {
+  const sent = sql<number>`count(*) filter (where ${analyses.category} is null or ${notInArray(analyses.category, [...LIST_CATEGORIES])})::int`
+  return db
     .select({
-      count: count(),
+      count: sent,
       fromEmail: messages.fromEmail,
       fromName: sql<string | null>`max(${messages.fromName})`.mapWith(
         messages.fromName
       ),
     })
     .from(messages)
-    .innerJoin(analyses, eq(analyses.messageId, messages.id))
+    .leftJoin(analyses, eq(analyses.messageId, messages.id))
     .where(
       and(
         eq(messages.userId, userId),
         eq(messages.isFromMe, false),
-        gte(messages.receivedAt, since),
-        inArray(analyses.category, [...PEOPLE_CATEGORIES])
+        gte(messages.receivedAt, since)
       )
     )
     .groupBy(messages.fromEmail)
-    .orderBy(desc(count()))
+    .having(sql`bool_or(${inArray(analyses.category, [...PEOPLE_CATEGORIES])})`)
+    .orderBy(desc(sent))
     .limit(TOP_PEOPLE)
+}
 
 const unsubscribedSince = async (userId: string, since: Date) => {
   const [row] = await db

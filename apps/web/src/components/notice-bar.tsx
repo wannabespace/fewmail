@@ -112,7 +112,7 @@ export const NoticeBar = () => {
       isOptional: false,
       title: t.notices.sendLimit(
         sendBlocked.email,
-        dates.ago(sendBlocked.sendBlockedUntil)
+        dates.fromNow(sendBlocked.sendBlockedUntil)
       ),
     },
     !hasCalendar && {

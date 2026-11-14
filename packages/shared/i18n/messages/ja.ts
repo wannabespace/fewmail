@@ -490,7 +490,7 @@ export const ja: Messages = {
       'この送信者はワンクリック配信停止に対応していないため、メールをアーカイブしました。今後も届く場合は迷惑メールに移動します。',
     count: (total: number) => `メーリングリスト${total}件`,
     empty: '今月メールを送ってきたメーリングリストはありません。',
-    lead: '今月メールを送ってきたメーリングリスト（多い順）。配信停止すると送られたメールはすべてアーカイブされ、2週間後も届くメールは迷惑メールに移動します。',
+    lead: '今月メールを送ってきたメーリングリスト（多い順）。配信停止すると送られたメールはすべてアーカイブされ、2週間後も届く場合は迷惑メールへの移動を提案し、あなたが承認してから移動します。',
     opened: (total: number) => (total === 0 ? '開封なし' : `${total}件開封`),
     title: '購読',
     unsubscribe: '配信停止',
@@ -845,7 +845,7 @@ export const ja: Messages = {
       noFreePlan: '無料プランなし',
       ours: {
         ask: 'Pro で',
-        home: 'リアルタイムで更新、まとめて承認、Pro で',
+        home: 'リアルタイムで更新、まとめて承認、無料',
         drafts: 'あなたの口調で。送信は承認したときだけ、Pro で',
         followUps: '返信を待っているメールに自動で',
         handOver: 'エージェントが目的まで進める、Pro で',
@@ -1157,6 +1157,7 @@ export const ja: Messages = {
       free: {
         description: '仕分け、ルール、保護。ずっと無料。',
         features: [
+          'ホーム：リアルタイムで更新される判断のキュー、1 件ずつでもまとめてでも承認',
           'すべてのメールを仕分けし、重要度を判定',
           'アーカイブ、既読、配信停止をこなす、普段の言葉で書くルール',
           'コミュニティ迷惑メールシールドとフィッシング警告',
@@ -1173,7 +1174,6 @@ export const ja: Messages = {
       lite: {
         description: 'エージェントのすべて：読み、書き、覚える。',
         features: [
-          'ホーム：リアルタイムで更新される判断のキュー、1 件ずつでもまとめてでも承認',
           'あなたの口調で返信を下書きし、承認したときだけ送信',
           'Telegram：急ぎのメール、承認、音声での指示',
           '約束と相手のことを記憶。お金など追跡したいものはグラフ付きのボードに',
@@ -1593,8 +1593,8 @@ export const ja: Messages = {
     undone: (emails: string) => `${emails}を受信トレイに戻しました`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) =>
-      `いちばん多いのは${day}の${hour}ごろ`,
+    busiest: (day: string, hours: string) =>
+      `いちばん多い曜日: ${day} · 時間帯: ${hours}`,
     copied: 'リンクをコピーしました',
     copyLink: 'リンクをコピー',
     cta: 'Fewmail で自分のものを',
@@ -1610,8 +1610,8 @@ export const ja: Messages = {
       'リンクと画像にはこの数字だけが表示され、名前やアドレスは含まれません。',
     shared: { month: 'メールで振り返る1か月', year: 'メールで振り返る1年' },
     spam: '止めたスパム',
-    split: (people: string, lists: string) =>
-      `人から ${people} · メルマガから ${lists}`,
+    split: (people: string, lists: string, other: string) =>
+      `人から ${people} · メルマガから ${lists} · その他 ${other}`,
     title: { month: 'メールで振り返る今月', year: 'メールで振り返る今年' },
     unsubscribed: 'やめたメルマガ',
   },
@@ -1662,7 +1662,6 @@ export const ja: Messages = {
         'Fewmail Pro の機能です。集めたいものを書くと、エージェントがメールから探し出し、最新の状態に保ちます。',
       drafts:
         'Fewmail Pro の機能です。エージェントがあなたの文体で返信を書き、あなたが編集して送信します。',
-      home: 'Fewmail Pro の機能です。あなたが対応すべきメールが、下書き済みの返信付きで、メールが届くたびに更新されます。',
     },
   },
   whatsapp: {

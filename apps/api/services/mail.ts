@@ -107,14 +107,20 @@ export const listQueue = (userId: string) =>
         isFromMe: messages.isFromMe,
         to: messages.to,
       },
+      rule: rules.instruction,
     })
     .from(actions)
     .leftJoin(messages, eq(messages.id, actions.messageId))
     .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
+    .leftJoin(rules, eq(rules.id, actions.ruleId))
     .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
-    .orderBy(sql`${analyses.importance} desc nulls last`, actions.createdAt)
+    .orderBy(
+      sql`${analyses.importance} desc nulls last`,
+      sql`${analyses.needsReply} desc nulls last`,
+      actions.createdAt
+    )
 
-/** Home's decisions, as its headline counts them: the agent's proposals are one. */
+/** Pending cards, the agent's proposals apart: Home counts those as one decision (`countToday`). */
 export const countQueue = async (userId: string) => {
   const isProposal = inArray(actions.kind, [...PROPOSAL_KINDS])
   const [row] = await db
@@ -124,8 +130,7 @@ export const countQueue = async (userId: string) => {
     })
     .from(actions)
     .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
-  const { cards, proposals } = expectRow(row)
-  return cards + Math.min(proposals, 1)
+  return expectRow(row)
 }
 
 export const handledSince = async (userId: string, since: Date) => {
@@ -306,8 +311,10 @@ const snoozedOf = async (userId: string, filter: MailFilter) => {
   }
 }
 
+// A draft may have no From yet, so it reads as received; it is never stored, so opening it would answer Thread not found.
 const isReceivedMail = (message: ParsedMessage) =>
-  !message.isFromMe || message.labelIds.includes('INBOX')
+  !message.labelIds.includes('DRAFT') &&
+  (!message.isFromMe || message.labelIds.includes('INBOX'))
 
 const labelled =
   (...labels: string[]) =>
@@ -725,14 +732,15 @@ const wallTimeAfter = (start: string, minutes: number) =>
     .toISOString()
     .slice(0, 19)
 
-const applyActionSideEffects = async (
+const addEventOf = (
   userId: string,
   action: typeof actions.$inferSelect,
   message: typeof messages.$inferSelect | null
 ) => {
   const { event } = cardPayload(action)
-  if (event) {
-    await createEvent(userId, {
+  return (
+    event &&
+    createEvent(userId, {
       allDay: false,
       end: wallTimeAfter(event.start, MEETING_MINUTES),
       mailboxId: message?.mailboxId,
@@ -740,6 +748,29 @@ const applyActionSideEffects = async (
       timeZone: event.timeZone,
       title: event.title,
     })
+  )
+}
+
+/** A reply card's meeting goes in the calendar on its own button: the reply still waits for its own yes. */
+export const addCardEvent = async (userId: string, actionId: string) => {
+  const { action, message } = await getAction(userId, actionId)
+  const { event, ...payload } = cardPayload(action)
+  if (action.status !== 'pending' || !event) {
+    throw new NotFoundError('No event on this card')
+  }
+  await addEventOf(userId, action, message)
+  await db.update(actions).set({ payload }).where(eq(actions.id, actionId))
+  await announceChange(userId, ACTION_TOPICS)
+}
+
+const applyActionSideEffects = async (
+  userId: string,
+  action: typeof actions.$inferSelect,
+  message: typeof messages.$inferSelect | null
+) => {
+  // A reply's event is added only by its own button (`addCardEvent`), never by Send.
+  if (action.kind === 'schedule') {
+    await addEventOf(userId, action, message)
   }
   if (action.kind === 'cleanup') {
     const senders = (action.payload?.senders ?? []) as CleanupSender[]
@@ -1017,10 +1048,17 @@ export const freshCodes = (userId: string) =>
     .orderBy(desc(messages.receivedAt))
     .limit(CODES_SHOWN)
 
-/** How much mail came in since `since`, split into people and mailing lists. */
+/**
+ * How much mail came in since `since`, split into people, mailing lists and the rest. People is by sender: everything
+ * someone wrote who wrote at least one personal email, so their invoice or invite counts with their letters.
+ */
 export const mailPulse = async (userId: string, since: Date) => {
   const rows = await db
-    .select({ category: analyses.category, count: sql<number>`count(*)::int` })
+    .select({
+      category: analyses.category,
+      count: sql<number>`count(*)::int`,
+      sealedSender: sql<string>`${messages.fromEmail}`,
+    })
     .from(messages)
     .leftJoin(analyses, eq(analyses.messageId, messages.id))
     .where(
@@ -1030,15 +1068,23 @@ export const mailPulse = async (userId: string, since: Date) => {
         gte(messages.receivedAt, since)
       )
     )
-    .groupBy(analyses.category)
-  const countOf = (categories: ReadonlySet<string>) =>
+    .groupBy(analyses.category, messages.fromEmail)
+  const isList = (category: (typeof rows)[number]['category']) =>
+    !!category && LIST_CATEGORIES.has(category)
+  const people = new Set(
     rows
-      .filter(({ category }) => category && categories.has(category))
-      .reduce((sum, { count }) => sum + count, 0)
+      .filter(({ category }) => category && PEOPLE_CATEGORIES.has(category))
+      .map(({ sealedSender }) => sealedSender)
+  )
+  const countOf = (keep: (row: (typeof rows)[number]) => boolean) =>
+    rows.filter(keep).reduce((sum, { count }) => sum + count, 0)
   return {
-    lists: countOf(LIST_CATEGORIES),
-    people: countOf(PEOPLE_CATEGORIES),
-    total: rows.reduce((sum, { count }) => sum + count, 0),
+    lists: countOf(({ category }) => isList(category)),
+    people: countOf(
+      ({ category, sealedSender }) =>
+        people.has(sealedSender) && !isList(category)
+    ),
+    total: countOf(() => true),
   }
 }
 

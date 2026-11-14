@@ -8,6 +8,7 @@ import {
   paymentDetails,
 } from '@fewmail/db/schema'
 import type { MessageRisk } from '@fewmail/shared/agent'
+import { FREEMAIL_DOMAINS, senderDomainOrAddress } from '@fewmail/shared/email'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { noul } from '@typesafe-ai/sdk'
 import { and, eq, lt, sql } from 'drizzle-orm'
@@ -15,11 +16,7 @@ import { and, eq, lt, sql } from 'drizzle-orm'
 import { jev } from '../lib/jev'
 import { domainOf, paymentHashOf, userHashOf } from '../lib/keyed-hash'
 import { logError } from '../lib/log'
-import {
-  FREEMAIL_DOMAINS,
-  listedDomains,
-  popularDomains,
-} from './known-domains'
+import { listedDomains, popularDomains } from './known-domains'
 import {
   domainAgeDays,
   linkHostsOf,
@@ -228,8 +225,13 @@ const assess = async (
     return pretends
   }
   const mentionsMoney = MONEY_WORDS.test(`${message.subject}\n${message.body}`)
-  if (!mentionsMoney || FREEMAIL_DOMAINS.has(domain)) {
+  if (!mentionsMoney) {
     return null
+  }
+  // A freemail domain is shared by strangers: its stored details and senders say nothing about this one.
+  if (FREEMAIL_DOMAINS.has(domain)) {
+    const { detailsChanged } = await jevSignals(message.body)
+    return detailsChanged ? { imitates: null, kind: 'payment_change' } : null
   }
 
   const details = paymentDetailsIn(message.body)
@@ -321,7 +323,9 @@ export const assessRisks = async (userId: string, incoming: Message[]) => {
       autonomous: false,
       kind: 'security',
       messageId: message.id,
-      reason: t.risk[risk.kind](risk.imitates ?? domainOf(message.fromEmail)),
+      reason: t.risk[risk.kind](
+        risk.imitates ?? senderDomainOrAddress(message.fromEmail)
+      ),
       status: 'pending',
       threadId: message.threadId,
       title: t.risk.title,

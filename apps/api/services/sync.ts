@@ -43,7 +43,7 @@ import {
   isUnchanged,
 } from './boards'
 import { measureBulk } from './bulk'
-import { searchMailboxes, watchStorage } from './mailboxes'
+import { listMailboxes, searchMailboxes, watchStorage } from './mailboxes'
 import { emailAllowance, hasBudget } from './plan'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
@@ -162,10 +162,16 @@ const analyzePending = async (userId: string, inserted: Message[]) => {
       )
     )
 
-  await inBatches(pending, ANALYZE_CONCURRENCY, ({ address, message }) =>
-    analyzeMessage(message, address, allowance).catch((error) =>
-      logError(`analyze ${message.id} failed`, error)
-    )
+  // Mail between the user's own mailboxes is theirs, not a stranger's: Gmail marks it SENT only in the one that sent it.
+  const mailboxList = await listMailboxes(userId)
+  const own = new Set(mailboxList.map(({ email }) => email.toLowerCase()))
+  await inBatches(
+    pending.filter(({ message }) => !own.has(message.fromEmail.toLowerCase())),
+    ANALYZE_CONCURRENCY,
+    ({ address, message }) =>
+      analyzeMessage(message, address, allowance).catch((error) =>
+        logError(`analyze ${message.id} failed`, error)
+      )
   )
 }
 

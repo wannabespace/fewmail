@@ -38,7 +38,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@fewmail/ui/components/popover'
-import { ScrollArea } from '@fewmail/ui/components/scroll-area'
 import {
   Select,
   SelectContent,
@@ -136,6 +135,7 @@ import {
 import type { MailList, MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
+import { STILL_POINTER_GUARD } from '~/lib/still-pointer'
 import { toastDeferred } from '~/lib/undo'
 
 const INBOX_VIEWS = ['focused', 'unread', 'inbox'] as const
@@ -494,6 +494,12 @@ const collapseBursts = <Row extends ListedRow>(
       head.burst.push(row.message)
       head.messageIds.push(row.message.id)
       head.message.isUnread ||= row.message.isUnread
+      // The stack's group and label are its most important email's, or an urgent one hides under a newer newsletter.
+      if (
+        (row.analysis?.importance ?? -1) > (head.analysis?.importance ?? -1)
+      ) {
+        head.analysis = row.analysis
+      }
     } else {
       collapsed.push({
         ...row,
@@ -923,6 +929,7 @@ const ListRow = ({
       initial={false}
       exit={isScrolledPast ? undefined : ROW_FOLD}
       className={cn(
+        STILL_POINTER_GUARD,
         className,
         !isPresent && 'pointer-events-none overflow-hidden'
       )}
@@ -1040,18 +1047,27 @@ const useCursorOnOpenThread = ({
 const RELATED_SHOWN = 5
 const UNRELATED_LISTS = new Set<MailList>(['pinned', 'spam', 'trash'])
 
-/** Under the open row, the sender's other threads from every list as real rows (J / K, ⏎ and E reach them); never one the list already shows. */
+/**
+ * Under the open row, the sender's other threads from every list as real rows (J / K, ⏎ and E reach them); never one
+ * the list already shows. Never under a pin (`pinnedCount` rows lead the list) or in search, which shows only matches.
+ */
 const useRelatedRows = <
   Row extends ListedRow & { burst?: ListedMessage[]; messageIds: string[] },
 >({
   anchor,
+  isEnabled,
   mailbox,
+  pinnedCount,
   rows,
 }: {
   anchor: string | null
+  isEnabled: boolean
   mailbox: string | undefined
+  pinnedCount: number
   rows: Row[]
 }) => {
+  const pinned = new Set<ListedRow>(rows.slice(0, pinnedCount))
+  const isAnchor = (row: ListedRow) => isEnabled && !pinned.has(row)
   const everything = useLiveQuery((query) =>
     query
       .from({ row: mailRowsOf(mailbox) })
@@ -1071,7 +1087,7 @@ const useRelatedRows = <
   })
   const bySender = Map.groupBy(others, ({ message }) => message.fromEmail)
   const anchorIndex = rows.findIndex(
-    ({ message }) => message.threadId === anchor
+    (row) => isAnchor(row) && row.message.threadId === anchor
   )
   const related = (
     bySender.get(rows[anchorIndex]?.message.fromEmail ?? '') ?? []
@@ -1087,6 +1103,7 @@ const useRelatedRows = <
     canShowFor: (row: ListedRow | undefined) =>
       !!row &&
       !('isRelated' in row) &&
+      isAnchor(row) &&
       row.message.threadId !== anchor &&
       bySender.has(row.message.fromEmail),
     rows: [
@@ -1147,53 +1164,83 @@ const RelatedRow = ({
   )
 }
 
+/** Folded to its newest few like a group, never a scroller of its own: a wheel over the row must scroll the list. */
 const BurstList = ({
+  actions,
   burst,
   onOpenEmail,
   openThread,
+  sweep,
 }: {
+  actions: ReturnType<typeof useMailActions>
   burst: ListedMessage[]
   onOpenEmail: (message: ListedMessage) => void
   openThread: string | undefined
+  sweep: Sweep
 }) => {
+  const t = useT()
   const dates = useDates()
+  const [isUnfolded, setIsUnfolded] = useState(false)
   return (
-    <ScrollArea viewportClassName="scroll-fade max-h-28 pb-2">
-      <ul>
-        {burst.map((email) => (
-          <li key={email.id}>
-            <button
-              type="button"
-              tabIndex={-1}
-              onClick={() => onOpenEmail(email)}
-              onPointerEnter={() => {
-                void warmThread(email.threadId)
-              }}
-              aria-current={email.threadId === openThread}
-              className="hover:bg-secondary aria-current:bg-secondary mr-3 ml-13 flex w-[calc(100%-4rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none"
+    <ul className="pb-2">
+      {(isUnfolded ? burst : burst.slice(0, GROUP_SHOWN)).map((email) => (
+        <li key={email.id} className="relative">
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => onOpenEmail(email)}
+            onPointerEnter={() => {
+              void warmThread(email.threadId)
+            }}
+            aria-current={email.threadId === openThread}
+            className={cn(
+              'hover:bg-secondary aria-current:bg-secondary mr-3 ml-13 flex w-[calc(100%-4rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none',
+              email.code && 'pr-28'
+            )}
+          >
+            <span
+              data-mask
+              className={cn(
+                'min-w-0 flex-1 truncate',
+                email.isUnread
+                  ? 'text-foreground/90 font-medium'
+                  : 'text-foreground/60'
+              )}
             >
-              <span
-                data-mask
-                className={cn(
-                  'min-w-0 flex-1 truncate',
-                  email.isUnread
-                    ? 'text-foreground/90 font-medium'
-                    : 'text-foreground/60'
-                )}
-              >
-                {email.subject}
-              </span>
+              {email.subject}
+            </span>
+            {!email.code && (
               <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
                 {dates.format(
                   email.receivedAt,
                   isToday(email.receivedAt) ? 'HH:mm' : 'd MMM'
                 )}
               </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </ScrollArea>
+            )}
+          </button>
+          {email.code && (
+            <CodeActions
+              actions={actions}
+              className="absolute top-0 right-3"
+              code={email.code}
+              messageIds={[email.id]}
+              sweep={sweep}
+            />
+          )}
+        </li>
+      ))}
+      {burst.length > GROUP_SHOWN && (
+        <li className="ml-13">
+          <Button
+            size="xs"
+            variant="link-muted"
+            onClick={() => setIsUnfolded((unfolded) => !unfolded)}
+          >
+            {isUnfolded ? t.mail.showFewer : t.mail.showAll(burst.length)}
+          </Button>
+        </li>
+      )}
+    </ul>
   )
 }
 
@@ -1326,9 +1373,11 @@ const MailRow = ({
       </button>
       {isBurst && burst && (
         <BurstList
+          actions={actions}
           burst={burst}
           onOpenEmail={onOpenEmail}
           openThread={openEmailThread}
+          sweep={sweep}
         />
       )}
       <MailRowActions
@@ -1344,7 +1393,7 @@ const MailRow = ({
       />
       <MailRowCode
         actions={actions}
-        code={message.code}
+        code={isBurst ? null : message.code}
         messageIds={messageIds}
         sweep={sweep}
       />
@@ -1965,7 +2014,11 @@ const useListActions = ({
   const cursorRows = row ? [row] : []
   const targets = isPicking ? picked : cursorRows
   const messageIds = targets.flatMap((target) => target.messageIds)
-  const code = isPicking ? null : row?.message.code
+  const code = isPicking
+    ? null
+    : (row?.burst ?? cursorRows.map(({ message }) => message)).find(
+        (email) => email.code
+      )?.code
   const isPinned =
     targets.length > 0 && targets.every(({ message }) => message.isPinned)
   const t = useT()
@@ -2312,8 +2365,7 @@ const readerHintsOf = ({
   ['J / K', t.keys.move],
 ]
 
-const MailPage = () => {
-  const t = useT()
+const useReaderWidth = () => {
   const rememberedWidth = useSubscription(readerWidthStore)
   const [panes, setPanes] = useState<HTMLElement | null>(null)
   const { width: panesWidth } = useSubscription(
@@ -2328,6 +2380,12 @@ const MailPage = () => {
           Math.max(READER_WIDTH.min, Math.round(panesWidth * READER_SHARE))
         )
       : rememberedWidth
+  return { panesWidth, readerWidth, setPanes }
+}
+
+const MailPage = () => {
+  const t = useT()
+  const { panesWidth, readerWidth, setPanes } = useReaderWidth()
   const hasAgent = useHasAgent()
   const { filter: picked, mailbox, q, thread } = Route.useSearch()
   const inboxView = useSubscription(inboxViewStore)
@@ -2415,7 +2473,9 @@ const MailPage = () => {
   const pinnedRows = usePinnedRows(pinned, groupedRows)
   const related = useRelatedRows({
     anchor: relatedOf,
+    isEnabled: !isSearching,
     mailbox,
+    pinnedCount: pinnedRows.shown,
     rows: pinnedRows.rows,
   })
   const { rows } = related

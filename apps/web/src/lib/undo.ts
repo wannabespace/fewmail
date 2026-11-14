@@ -1,7 +1,11 @@
+import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import { toast } from 'sonner'
 
 import { getT } from './i18n'
 import { posthog } from './posthog'
+
+/** Every Undo stays as long as a send's, so none closes while the pointer is still on its way to it. */
+export const UNDO_TOAST_MS = UNDO_SEND_SECONDS * 1000
 
 const undoLabel = () => getT().compose.undo
 
@@ -13,6 +17,7 @@ const undoing = (undo: () => unknown) => () => {
 export const toastUndo = (message: string, undo: () => unknown, id?: string) =>
   toast.success(message, {
     action: { label: undoLabel(), onClick: undoing(undo) },
+    duration: UNDO_TOAST_MS,
     id,
   })
 
@@ -27,6 +32,7 @@ export const toastDeferred = (
 ) =>
   toast.success(message, {
     action: { label: undoLabel(), onClick: undoing(undo) },
+    duration: UNDO_TOAST_MS,
     onAutoClose: () => commit(),
     onDismiss: () => commit(),
   })

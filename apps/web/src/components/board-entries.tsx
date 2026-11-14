@@ -39,6 +39,7 @@ import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { orpc, refetchChanged } from '~/lib/orpc'
 import { queryClient } from '~/lib/query-client'
+import { toastUndo } from '~/lib/undo'
 
 export type Board = RouterOutputs['boards']['get']
 export type Entry = Board['entries'][number]
@@ -75,12 +76,9 @@ export const useEntryActions = (boardId: string) => {
       navigate({ params: { threadId: entry.threadId }, to: '/mail/$threadId' }),
     remove: (entry: Entry) => {
       dismiss.mutate({ id: entry.id })
-      toast(t.boards.entry.removed, {
-        action: {
-          label: t.compose.undo,
-          onClick: () => dismiss.mutate({ id: entry.id, isDismissed: false }),
-        },
-      })
+      toastUndo(t.boards.entry.removed, () =>
+        dismiss.mutate({ id: entry.id, isDismissed: false })
+      )
     },
   }
 }

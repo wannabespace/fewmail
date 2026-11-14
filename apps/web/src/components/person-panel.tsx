@@ -49,9 +49,9 @@ export const PersonPanel = ({
 
   const elsewhere = [
     ...new Map(
-      person.open.flatMap(({ id, threadId: itemThreadId, title }) =>
-        itemThreadId && itemThreadId !== threadId
-          ? [[title, { id, threadId: itemThreadId, title }] as const]
+      person.open.flatMap((item) =>
+        item.threadId && item.threadId !== threadId
+          ? [[item.threadId, { ...item, threadId: item.threadId }] as const]
           : []
       )
     ).values(),
@@ -79,7 +79,7 @@ export const PersonPanel = ({
           </span>
         )}
         {person.lastContact && (
-          <span>{t.people.lastContact(dates.ago(person.lastContact))}</span>
+          <span>{t.people.lastContact(dates.fromNow(person.lastContact))}</span>
         )}
       </div>
       {isListed && (
@@ -132,7 +132,10 @@ export const PersonPanel = ({
           {elsewhere.map((item, index) => (
             <span key={item.id}>
               {index > 0 && ', '}
-              <ThreadLink threadId={item.threadId}>{item.title}</ThreadLink>
+              <ThreadLink threadId={item.threadId}>
+                {item.subject || t.actionKind[item.kind]}
+              </ThreadLink>
+              {item.subject && ` · ${t.actionKind[item.kind]}`}
             </span>
           ))}
         </p>

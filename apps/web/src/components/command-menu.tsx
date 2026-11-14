@@ -74,8 +74,12 @@ export const CommandMenu = ({
 
   const { openCompose } = useCompose()
   const ask = useMutation(orpc.ask.mutationOptions())
-  const askedQuestion = ask.variables?.question
   const canAsk = Boolean(search.trim())
+  // The answer's sources are forced to the top of the list, so once the text changes they would take Enter from the new request.
+  const askedQuestion =
+    ask.variables?.question === search.trim()
+      ? ask.variables.question
+      : undefined
   const withAgent = useWithAgent()
   const goTo = useGoTo()
 
@@ -117,9 +121,7 @@ export const CommandMenu = ({
 
   useHotkey('C', () => openCompose())
   const openReading = () =>
-    withAgent('home', () =>
-      navigate({ search: { page: 'reading' }, to: '/home' })
-    )
+    navigate({ search: { page: 'reading' }, to: '/home' })
   useHotkey(['G', 'N'], openReading)
 
   return (

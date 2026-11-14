@@ -8,9 +8,16 @@ import { Button } from '../button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../tooltip'
 import { ContentSwitch } from './content-switch'
 
-const defaultCopyIcon = <HugeiconsIcon icon={Copy01Icon} strokeWidth={2} />
+const defaultCopyIcon = (
+  <HugeiconsIcon icon={Copy01Icon} strokeWidth={2} data-icon="inline-start" />
+)
 const defaultSuccessIcon = (
-  <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="text-success" />
+  <HugeiconsIcon
+    icon={Tick02Icon}
+    strokeWidth={2}
+    className="text-success"
+    data-icon="inline-start"
+  />
 )
 
 export const CopyButton = ({

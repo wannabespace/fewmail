@@ -149,6 +149,7 @@ export const EventPane = ({
       : undefined
   const mailboxId = value.mailboxId ?? calendars[0]?.mailboxId
   const isChanged = !ref || !isSameDraft(draft, value)
+  const hasTitle = Boolean(value.title.trim())
   const change = (fields: Partial<EventDraft>) =>
     onChange({ ...value, ...fields })
 
@@ -201,6 +202,10 @@ export const EventPane = ({
   const save = () => {
     if (!isChanged) {
       onClose()
+      return
+    }
+    if (!hasTitle) {
+      titleRef.current?.focus()
       return
     }
     if (!isValidDraft(value)) {
@@ -418,7 +423,11 @@ export const EventPane = ({
       </div>
 
       <footer className="flex justify-end border-t px-6 py-4">
-        <Button type="submit" disabled={!isChanged} shortcut={<Kbd>⌘⏎</Kbd>}>
+        <Button
+          type="submit"
+          disabled={!isChanged || !hasTitle}
+          shortcut={<Kbd>⌘⏎</Kbd>}
+        >
           {ref ? t.calendar.save : t.calendar.create}
         </Button>
       </footer>

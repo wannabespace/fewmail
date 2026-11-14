@@ -150,8 +150,8 @@ export const useDates = () => {
   const t = useT()
   const locale = DATE_LOCALES[code]
   return {
-    ago: (date: Date) =>
-      Date.now() - date.getTime() < 60_000
+    fromNow: (date: Date) =>
+      Math.abs(Date.now() - date.getTime()) < 60_000
         ? t.justNow
         : formatDistanceToNowStrict(date, { addSuffix: true, locale }),
     format: (date: Date | number, pattern: string) =>

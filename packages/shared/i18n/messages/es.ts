@@ -261,7 +261,7 @@ export const es: Messages = {
       noFreePlan: 'Sin plan gratuito',
       ours: {
         ask: 'Con Pro',
-        home: 'En vivo, con aprobación en lote, con Pro',
+        home: 'En vivo, con aprobación en lote, gratis',
         drafts: 'Con tu voz, enviadas solo cuando las apruebas, con Pro',
         followUps: 'Automáticos, en correos que esperan respuesta',
         handOver: 'El agente lo lleva hasta su objetivo, con Pro',
@@ -569,6 +569,7 @@ export const es: Messages = {
         description:
           'La clasificación, las reglas y la protección. Para siempre.',
         features: [
+          'Inicio: una sola cola de decisiones en vivo, aprobadas de una en una o en lote',
           'Cada correo clasificado y puntuado por importancia',
           'Reglas en palabras sencillas que archivan, marcan como leído o dan de baja',
           'Escudo antispam comunitario y avisos de phishing',
@@ -585,7 +586,6 @@ export const es: Messages = {
       lite: {
         description: 'El agente completo: lee, escribe y recuerda.',
         features: [
-          'Inicio: una sola cola de decisiones en vivo, aprobadas de una en una o en lote',
           'Respuestas redactadas con tu voz, enviadas solo cuando las apruebas',
           'Telegram: el correo urgente, las aprobaciones y las instrucciones por voz',
           'Promesas y personas recordadas, tableros con gráficos para el dinero o lo que quieras seguir',
@@ -992,7 +992,7 @@ export const es: Messages = {
       'Este remitente no permite darse de baja con un clic, así que se archivó su correo. Si sigue llegando, irá a spam.',
     count: (total: number) => `Listas de correo: ${total}`,
     empty: 'Ninguna lista de correo te escribió este mes.',
-    lead: 'Listas de correo que te escribieron este mes, las más activas primero. Darte de baja archiva todo lo que enviaron; lo que siga llegando dos semanas después va a spam.',
+    lead: 'Listas de correo que te escribieron este mes, las más activas primero. Darte de baja archiva todo lo que enviaron; si dos semanas después siguen llegando correos, te propongo moverlos a spam y solo los muevo cuando digas que sí.',
     opened: (total: number) =>
       total === 0 ? 'ninguno abierto' : `${total} abiertos`,
     title: 'Suscripciones',
@@ -1652,8 +1652,8 @@ export const es: Messages = {
     undone: (emails: string) => `${emails} de vuelta en la bandeja`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) =>
-      `Más ajetreo: ${day}, hacia las ${hour}`,
+    busiest: (day: string, hours: string) =>
+      `Día con más correo: ${day} · hora con más correo: ${hours}`,
     copied: 'Enlace copiado',
     copyLink: 'Copiar enlace',
     cta: 'Consigue el tuyo con Fewmail',
@@ -1670,8 +1670,8 @@ export const es: Messages = {
       'El enlace y la imagen muestran solo estas cifras, nunca nombres ni direcciones.',
     shared: { month: 'Un mes en el correo', year: 'Un año en el correo' },
     spam: 'correos de spam frenados',
-    split: (people: string, lists: string) =>
-      `${people} de personas · ${lists} de boletines`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} de personas · ${lists} de boletines · ${other} otros`,
     title: { month: 'Tu mes en el correo', year: 'Tu año en el correo' },
     unsubscribed: 'boletines abandonados',
   },
@@ -1727,7 +1727,6 @@ export const es: Messages = {
         'Parte de Fewmail Pro: describe qué recopilar y el agente lo encuentra en tu correo y lo mantiene al día.',
       drafts:
         'Parte de Fewmail Pro: el agente escribe la respuesta con tu estilo, y tú la editas y la envías.',
-      home: 'Parte de Fewmail Pro: los correos que te necesitan, con las respuestas ya redactadas, al día a medida que llega el correo.',
     },
   },
   whatsapp: {

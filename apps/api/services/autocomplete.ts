@@ -32,7 +32,7 @@ const preamble = async (userId: string, replyToMessageId?: string) => {
     `Email written by ${user?.name ?? 'the user'}.`,
     settings?.voice ? `Their style: ${settings.voice}` : null,
     settings?.knowledge
-      ? `Facts they use: ${settings.knowledge.slice(0, CONTEXT_LIMIT)}`
+      ? `True facts about them (never write the opposite, never bring one up unless the email is about it): ${settings.knowledge.slice(0, CONTEXT_LIMIT)}`
       : null,
     original
       ? `Replying to ${original.fromName ?? original.fromEmail}, subject "${original.subject}":\n${original.body.slice(0, CONTEXT_LIMIT)}`
@@ -80,7 +80,7 @@ const chat = async (
 ) => {
   const { text } = await generateText({
     abortSignal: signal,
-    instructions: `You are an inline autocomplete inside an email editor. Continue the text at <CARET> with the next few words the author would most likely write, in their language and tone. Return only the continuation, never repeat text, never more than one sentence. Return an empty string when the thought is complete. ${NO_EM_DASH}`,
+    instructions: `You are an inline autocomplete inside an email editor. Continue the text at <CARET> with the next few words the author would most likely write, in their language and tone. Return only the continuation, never repeat text, never more than one sentence. Never contradict the facts given about the author. Return an empty string when the thought is complete. ${NO_EM_DASH}`,
     maxOutputTokens: MAX_TOKENS,
     model: models.fast,
     prompt: `${prompt}<CARET>${suffix}`,

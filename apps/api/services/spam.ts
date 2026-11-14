@@ -1,11 +1,12 @@
 import { db } from '@fewmail/db'
 import { messages, senderReports } from '@fewmail/db/schema'
 import type { SpamVerdict } from '@fewmail/shared/agent'
+import { FREEMAIL_DOMAINS } from '@fewmail/shared/email'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { and, eq, inArray, or } from 'drizzle-orm'
 
 import { domainHashOf, domainOf, senderHashOf } from '../lib/keyed-hash'
-import { FREEMAIL_DOMAINS, listedDomains } from './known-domains'
+import { listedDomains } from './known-domains'
 import { isSpammy, readPatterns, voteCounts, votePatterns } from './patterns'
 import { getSettings } from './settings'
 import { ownMessage } from './stored-mail'

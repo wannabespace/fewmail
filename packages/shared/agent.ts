@@ -189,12 +189,12 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
 /**
  * What the agent may cost per calendar month (UTC), in USD of AI: everything it does (writing for an email, a
  * message, a summary, a board entry, reading aloud) is paid from it at its real price, so a feature left unused
- * costs nothing. Sized so a yearly plan keeps 20% after Stripe, the allowance and Jev (`economics.test.ts`).
+ * costs nothing. Sized so a yearly plan keeps 20% (Max 10%) after Stripe, the allowance and Jev (`economics.test.ts`).
  * Noise Jev settles costs nothing. Every plan has every feature; only this differs.
  */
 export const PLAN_ALLOWANCE_USD = {
   lite: 2.6,
-  max: 18.5,
+  max: 21,
   pro: 5.8,
   trial: 2.6,
 } satisfies Record<Exclude<Plan, 'free'>, number>
@@ -443,7 +443,7 @@ export const titledListId = (header: string | undefined) => {
   return listId && /\p{L}/u.test(title) && !title.includes('@') ? listId : null
 }
 
-/** A mailing list's mail as Subscriptions and the cleanup card count it: what it sent in the last 30 days. */
+/** A mailing list's mail as Subscriptions and the cleanup card count it: what it sent in the last 30 days, trashed and spam included, since Gmail's search leaves those out by default. */
 export const listSearch = ({
   fromEmail,
   listId,
@@ -451,7 +451,7 @@ export const listSearch = ({
   fromEmail: string
   listId?: string | null
 }) =>
-  `${listId ? `list:${listLabelOf(listId)}` : `from:${fromEmail}`} newer_than:30d`
+  `${listId ? `list:${listLabelOf(listId)}` : `from:${fromEmail}`} newer_than:30d in:anywhere`
 
 /** "Personal" mail that this many different Fewmail users got is a mass send, whatever it pretends. */
 export const BULK_THRESHOLD = 5

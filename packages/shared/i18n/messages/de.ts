@@ -260,7 +260,7 @@ export const de: Messages = {
       noFreePlan: 'Kein kostenloser Tarif',
       ours: {
         ask: 'Mit Pro',
-        home: 'Live, mit Sammelfreigabe, mit Pro',
+        home: 'Live, mit Sammelfreigabe, kostenlos',
         drafts: 'In deinem Ton, gesendet erst nach deiner Freigabe, mit Pro',
         followUps: 'Automatisch, bei Mails, die eine Antwort erwarten',
         handOver: 'Der Agent bringt ihn ans Ziel, mit Pro',
@@ -567,6 +567,7 @@ export const de: Messages = {
       free: {
         description: 'Sortieren, Regeln und Schutz. Für immer.',
         features: [
+          'Startseite: eine Live-Warteschlange von Entscheidungen, einzeln oder gesammelt freigegeben',
           'Jede Mail sortiert und nach Wichtigkeit bewertet',
           'Regeln in einfachen Worten, die archivieren, als gelesen markieren oder abmelden',
           'Community-Spamschutz und Phishing-Warnungen',
@@ -584,7 +585,6 @@ export const de: Messages = {
         description:
           'Der ganze Agent: Er liest, schreibt und merkt sich alles.',
         features: [
-          'Startseite: eine Live-Warteschlange von Entscheidungen, einzeln oder gesammelt freigegeben',
           'Antworten in deinem Ton, gesendet erst nach deiner Freigabe',
           'Telegram: dringende Mails, Freigaben und Sprachbefehle',
           'Versprechen und Personen im Gedächtnis, Boards mit Diagrammen für Geld oder alles, was du erfasst',
@@ -989,7 +989,7 @@ export const de: Messages = {
       'Dieser Absender bietet kein Abbestellen per Klick, daher wurden seine Mails archiviert. Kommen weiter welche, gehen sie in den Spam.',
     count: (total: number) => `Verteiler: ${total}`,
     empty: 'Diesen Monat hat dir kein Verteiler geschrieben.',
-    lead: 'Verteiler, die dir diesen Monat geschrieben haben, die aktivsten zuerst. Abbestellen archiviert alles, was sie geschickt haben; Mails, die zwei Wochen später noch kommen, landen im Spam.',
+    lead: 'Verteiler, die dir diesen Monat geschrieben haben, die aktivsten zuerst. Abbestellen archiviert alles, was sie geschickt haben; Kommen zwei Wochen später noch Mails, schlage ich vor, sie in den Spam zu verschieben, und verschiebe sie erst nach deinem Ja.',
     opened: (total: number) =>
       total === 0 ? 'keine geöffnet' : `${total} geöffnet`,
     title: 'Abos',
@@ -1654,8 +1654,8 @@ export const de: Messages = {
     undone: (emails: string) => `${emails} wieder im Posteingang`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) =>
-      `Am meisten los: ${day}, gegen ${hour}`,
+    busiest: (day: string, hours: string) =>
+      `Aktivster Tag: ${day} · aktivste Stunde: ${hours}`,
     copied: 'Link kopiert',
     copyLink: 'Link kopieren',
     cta: 'Hol dir deins mit Fewmail',
@@ -1672,8 +1672,8 @@ export const de: Messages = {
       'Link und Bild zeigen nur diese Zahlen, nie Namen oder Adressen.',
     shared: { month: 'Ein Monat in E-Mails', year: 'Ein Jahr in E-Mails' },
     spam: 'Spam-Mails gestoppt',
-    split: (people: string, lists: string) =>
-      `${people} von Menschen · ${lists} von Newslettern`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} von Menschen · ${lists} von Newslettern · ${other} sonstige`,
     title: { month: 'Dein Monat in E-Mails', year: 'Dein Jahr in E-Mails' },
     unsubscribed: 'Newsletter verlassen',
   },
@@ -1728,7 +1728,6 @@ export const de: Messages = {
         'Teil von Fewmail Pro: Beschreibe, was gesammelt werden soll, und der Agent findet es in deinen Mails und hält es aktuell.',
       drafts:
         'Teil von Fewmail Pro: Der Agent schreibt die Antwort in deinem Stil, du bearbeitest und sendest sie.',
-      home: 'Teil von Fewmail Pro: die Mails, die dich brauchen, mit fertigen Antwortentwürfen, aktualisiert, sobald Mail ankommt.',
     },
   },
   whatsapp: {

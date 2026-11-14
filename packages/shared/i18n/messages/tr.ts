@@ -407,7 +407,8 @@ export const tr: Messages = {
     undone: (emails: string) => `${emails} yeniden gelen kutusunda`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) => `En yoğun: ${day}, ${hour} civarı`,
+    busiest: (day: string, hours: string) =>
+      `En yoğun gün: ${day} · en yoğun saat: ${hours}`,
     copied: 'Bağlantı kopyalandı',
     copyLink: 'Bağlantıyı kopyala',
     cta: 'Seninkini Fewmail ile al',
@@ -424,8 +425,8 @@ export const tr: Messages = {
       'Bağlantı ve görsel yalnızca bu sayıları gösterir, asla isim veya adres göstermez.',
     shared: { month: 'E-postada bir ay', year: 'E-postada bir yıl' },
     spam: 'spam e-posta durduruldu',
-    split: (people: string, lists: string) =>
-      `${people} kişilerden · ${lists} bültenlerden`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} kişilerden · ${lists} bültenlerden · ${other} diğer`,
     title: { month: 'E-postada ayın', year: 'E-postada yılın' },
     unsubscribed: 'bülten bırakıldı',
   },
@@ -743,7 +744,7 @@ export const tr: Messages = {
       'Bu gönderenin tek tıkla abonelikten çıkma seçeneği yok, bu yüzden e-postaları arşivlendi. Gelmeye devam ederse spama gider.',
     count: (total: number) => `E-posta listesi: ${total}`,
     empty: 'Bu ay sana hiçbir e-posta listesi yazmadı.',
-    lead: 'Bu ay sana yazan e-posta listeleri, en etkin olanlar önce. Abonelikten çıkınca gönderdikleri her şey arşivlenir; iki hafta sonra hâlâ gelen e-postalar spama gider.',
+    lead: 'Bu ay sana yazan e-posta listeleri, en etkin olanlar önce. Abonelikten çıkınca gönderdikleri her şey arşivlenir; iki hafta sonra hâlâ e-posta gelirse spama taşımayı önerir, ancak sen onaylayınca taşırım.',
     opened: (total: number) =>
       total === 0 ? 'hiçbiri açılmadı' : `${total} açıldı`,
     title: 'Abonelikler',
@@ -1122,7 +1123,7 @@ export const tr: Messages = {
       noFreePlan: 'Ücretsiz plan yok',
       ours: {
         ask: 'Pro’da',
-        home: 'Canlı güncellenir, toplu onay, Pro’da',
+        home: 'Canlı güncellenir, toplu onay, ücretsiz',
         drafts: 'Senin üslubunla, yalnızca sen onaylayınca gönderilir, Pro’da',
         followUps: 'Yanıt bekleyen postalarda otomatik',
         handOver: 'Ajan hedefe ulaşana dek yürütür, Pro’da',
@@ -1430,6 +1431,7 @@ export const tr: Messages = {
       free: {
         description: 'Sıralama, kurallar ve koruma. Sonsuza dek.',
         features: [
+          'Ana Sayfa: canlı tek bir karar kuyruğu, tek tek ya da toplu onay',
           'Her e-posta sıralanır ve önemine göre puanlanır',
           'Arşivleyen, okundu yapan ya da abonelikten çıkan sade dille kurallar',
           'Topluluk spam kalkanı ve oltalama uyarıları',
@@ -1446,7 +1448,6 @@ export const tr: Messages = {
       lite: {
         description: 'Ajanın tamamı: okur, yazar ve hatırlar.',
         features: [
-          'Ana Sayfa: canlı tek bir karar kuyruğu, tek tek ya da toplu onay',
           'Senin üslubunla hazırlanan, yalnızca sen onaylayınca gönderilen yanıtlar',
           'Telegram: acil postalar, onaylar ve sesli talimatlar',
           'Sözler ve kişiler hatırlanır; para ya da takip ettiğin her şey için grafikli panolar',
@@ -1681,7 +1682,6 @@ export const tr: Messages = {
         "Fewmail Pro'nun parçası: neyin toplanacağını anlat, ajan postalarında bulsun ve güncel tutsun.",
       drafts:
         "Fewmail Pro'nun parçası: ajan yanıtı senin üslubunla yazar, sen düzenleyip gönderirsin.",
-      home: "Fewmail Pro'nun parçası: seni bekleyen e-postalar, yanıt taslakları hazır, posta geldikçe güncellenir.",
     },
   },
   whatsapp: {

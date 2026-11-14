@@ -22,18 +22,71 @@ import { LATER_PRESETS, presetTimes } from './schedule'
 
 const LATER_OPTIONS: LaterPreset[] = ['inHour', 'tomorrow', 'monday']
 
+export const PickTime = ({
+  action,
+  onPick,
+}: {
+  action: string
+  onPick: (at: Date) => void
+}) => {
+  const t = useT()
+  const { locale, weekStartsOn } = useDates()
+  const [day, setDay] = useState(() => addDays(startOfToday(), 1))
+  const [time, setTime] = useState('08:00')
+  const [isPast, setIsPast] = useState(false)
+  return (
+    <>
+      <Calendar
+        mode="single"
+        required
+        selected={day}
+        onSelect={(next) => {
+          setDay(next)
+          setIsPast(false)
+        }}
+        defaultMonth={day}
+        disabled={{ before: startOfToday() }}
+        locale={locale}
+        weekStartsOn={weekStartsOn}
+      />
+      <form
+        className="flex gap-2"
+        onSubmit={(event) => {
+          event.preventDefault()
+          const at = parse(time, 'HH:mm', day)
+          if (!isAfter(at, new Date())) {
+            setIsPast(true)
+            return
+          }
+          onPick(at)
+        }}
+      >
+        <Input
+          type="time"
+          required
+          value={time}
+          onChange={(event) => {
+            setTime(event.target.value)
+            setIsPast(false)
+          }}
+          aria-invalid={isPast}
+          aria-label={t.compose.later.time}
+        />
+        <Button type="submit">{action}</Button>
+      </form>
+    </>
+  )
+}
+
 export const SendLater = ({
   onSchedule,
 }: {
   onSchedule: (sendAt: Date) => void
 }) => {
   const t = useT()
-  const { format, locale, weekStartsOn } = useDates()
+  const { format } = useDates()
   const trigger = useRef<HTMLButtonElement>(null)
   const [isPicking, setIsPicking] = useState(false)
-  const [day, setDay] = useState(() => addDays(startOfToday(), 1))
-  const [time, setTime] = useState('08:00')
-  const [isPast, setIsPast] = useState(false)
 
   return (
     <>
@@ -64,45 +117,13 @@ export const SendLater = ({
       </DropdownMenu>
       <Popover open={isPicking} onOpenChange={setIsPicking}>
         <PopoverContent anchor={trigger} align="start">
-          <Calendar
-            mode="single"
-            required
-            selected={day}
-            onSelect={(next) => {
-              setDay(next)
-              setIsPast(false)
-            }}
-            defaultMonth={day}
-            disabled={{ before: startOfToday() }}
-            locale={locale}
-            weekStartsOn={weekStartsOn}
-          />
-          <form
-            className="flex gap-2"
-            onSubmit={(event) => {
-              event.preventDefault()
-              const sendAt = parse(time, 'HH:mm', day)
-              if (!isAfter(sendAt, new Date())) {
-                setIsPast(true)
-                return
-              }
+          <PickTime
+            action={t.compose.later.schedule}
+            onPick={(sendAt) => {
               setIsPicking(false)
               onSchedule(sendAt)
             }}
-          >
-            <Input
-              type="time"
-              required
-              value={time}
-              onChange={(event) => {
-                setTime(event.target.value)
-                setIsPast(false)
-              }}
-              aria-invalid={isPast}
-              aria-label={t.compose.later.time}
-            />
-            <Button type="submit">{t.compose.later.schedule}</Button>
-          </form>
+          />
         </PopoverContent>
       </Popover>
     </>

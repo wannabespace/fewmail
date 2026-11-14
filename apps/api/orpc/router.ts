@@ -54,7 +54,7 @@ import {
   undoClearOut,
 } from '../services/cleanup'
 import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
-import { getToday, listJournal, openToday } from '../services/home'
+import { countToday, getToday, listJournal, openToday } from '../services/home'
 import { askFewmail } from '../services/instructions'
 import {
   getTelegramLink,
@@ -67,10 +67,10 @@ import {
 } from '../services/integrations'
 import { listUserLabels } from '../services/labels'
 import {
+  addCardEvent,
   archiveMessage,
   moveToInbox,
   blockSender,
-  countQueue,
   listQueue,
   dismissAction,
   draftReply,
@@ -248,22 +248,25 @@ export const router = {
       }),
   },
   actions: {
-    approve: agent
+    addEvent: authed.input(id).handler(async ({ context, input }) => {
+      await addCardEvent(context.user.id, input.id)
+    }),
+    approve: authed
       .input(id.and({ 'detail?': 'string' }))
       .handler(({ context, input }) =>
         approveCard(context.user.id, input.id, input.detail)
       ),
-    approveMany: agent
+    approveMany: authed
       .input(type({ ids: 'string.uuid[] > 0' }))
       .handler(({ context, input }) =>
         approveCards(context.user.id, input.ids)
       ),
-    dismiss: agent
+    dismiss: authed
       .input(id)
       .handler(({ context, input }) =>
         dismissAction(context.user.id, input.id)
       ),
-    restore: agent
+    restore: authed
       .input(id)
       .handler(({ context, input }) =>
         restoreAction(context.user.id, input.id)
@@ -573,22 +576,22 @@ export const router = {
       .handler(({ context, input }) => saveSnippet(context.user.id, input)),
   },
   today: {
-    count: agent.handler(({ context }) => countQueue(context.user.id)),
-    get: agent.handler(({ context }) => getToday(context.user.id)),
-    handled: agent.handler(({ context }) => listJournal(context.user.id)),
-    keepSender: agent
+    count: authed.handler(({ context }) => countToday(context.user.id)),
+    get: authed.handler(({ context }) => getToday(context.user.id)),
+    handled: authed.handler(({ context }) => listJournal(context.user.id)),
+    keepSender: authed
       .input(messageId)
       .handler(({ context, input }) =>
         keepSender(context.user.id, input.messageId)
       ),
-    keep: agent
+    keep: authed
       .input(type({ messageIds: 'string.uuid[] > 0' }))
       .handler(({ context, input }) =>
         settleTidy(context.user.id, input.messageIds, 'dismissed')
       ),
-    open: agent.handler(({ context }) => openToday(context.user.id)),
-    queue: agent.handler(({ context }) => listQueue(context.user.id)),
-    tidy: agent
+    open: authed.handler(({ context }) => openToday(context.user.id)),
+    queue: authed.handler(({ context }) => listQueue(context.user.id)),
+    tidy: authed
       .input(type({ messageIds: 'string.uuid[] > 0' }))
       .handler(({ context, input }) =>
         settleTidy(context.user.id, input.messageIds, 'done')

@@ -463,7 +463,8 @@ export const en = {
     undone: (emails: string) => `${emails} back in the inbox`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) => `Busiest: ${day}, around ${hour}`,
+    busiest: (day: string, hours: string) =>
+      `Busiest day: ${day} · busiest hour: ${hours}`,
     copied: 'Link copied',
     copyLink: 'Copy link',
     cta: 'Get yours with Fewmail',
@@ -479,8 +480,8 @@ export const en = {
       'The link and the image show only these numbers, never names or emails.',
     shared: { month: 'A month in email', year: 'A year in email' },
     spam: 'spam emails stopped',
-    split: (people: string, lists: string) =>
-      `${people} from people · ${lists} from mailing lists`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} from people · ${lists} from mailing lists · ${other} other`,
     title: { month: 'Your month in email', year: 'Your year in email' },
     unsubscribed: 'mailing lists left',
   },
@@ -760,7 +761,7 @@ export const en = {
         other: (n) => `${n} mailing lists`,
       }),
     empty: 'No mailing lists wrote to you this month.',
-    lead: 'Mailing lists that wrote to you this month, busiest first. Unsubscribing archives everything they sent; mail that still comes two weeks later goes to spam.',
+    lead: 'Mailing lists that wrote to you this month, busiest first. Unsubscribing archives everything they sent; if mail still comes two weeks later, I suggest moving it to spam and move it only after your yes.',
     opened: (total: number) =>
       total === 0 ? 'none opened' : `${total} opened`,
     title: 'Subscriptions',
@@ -1145,7 +1146,7 @@ export const en = {
       noFreePlan: 'No free plan',
       ours: {
         ask: 'On Pro',
-        home: 'Live, approved in batches, on Pro',
+        home: 'Live, approved in batches, free',
         drafts: 'In your voice, sent only when you approve, on Pro',
         followUps: 'Automatic, on mail that expects a reply',
         handOver: 'The agent works it to its goal, on Pro',
@@ -1451,6 +1452,7 @@ export const en = {
       free: {
         description: 'The sorting, the rules and the protection. Forever.',
         features: [
+          'Home: one live queue of decisions, approved one by one or in batches',
           'Every email sorted and scored by importance',
           'Plain-language rules that archive, mark read or unsubscribe',
           'Community spam shield and phishing warnings',
@@ -1467,7 +1469,6 @@ export const en = {
       lite: {
         description: 'The whole agent: it reads, writes and remembers.',
         features: [
-          'Home: one live queue of decisions, approved one by one or in batches',
           'Replies drafted in your voice, sent only when you approve',
           'Telegram: urgent mail, approvals and voice instructions',
           'Promises and people remembered, boards with charts for money or anything you track',
@@ -1709,7 +1710,6 @@ export const en = {
         'Part of Fewmail Pro: describe what to collect, and the agent finds it in your mail and keeps it up to date.',
       drafts:
         'Part of Fewmail Pro: the agent writes the reply in your style, and you edit and send it.',
-      home: 'Part of Fewmail Pro: the emails that need you, with replies already drafted, updated as mail arrives.',
     },
   },
   whatsapp: {

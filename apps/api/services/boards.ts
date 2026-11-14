@@ -671,10 +671,10 @@ const extractEntry = async (
       `Write title and status in ${language}, even when the email is in another language.`,
       'title: what this entry is in a few words ("Lisbon → Kyiv", "Netflix Premium"), never the subject line.',
       `group: who or what it belongs to as people say it ("Netflix", "Ryanair"), or null.${context.groups.length > 0 ? ` Reuse one of these when it is the same: ${context.groups.join(', ')}.` : ''}`,
-      `status: its state in one or two lowercase words (paid, refunded, cancelled, shipped, booked, rejected…), or null.${context.statuses.length > 0 ? ` Reuse one of these when it means the same: ${context.statuses.join(', ')}.` : ''}`,
+      `status: its state as this board tracks it, in one or two lowercase words, or null: a board about money tracks payment (paid, due, refunded, cancelled), so a paid order on it stays paid when it ships; orders track delivery (ordered, shipped, delivered), trips a booking (booked, cancelled), applications their stage (applied, rejected).${context.statuses.length > 0 ? ` Reuse one of these when it means the same: ${context.statuses.join(', ')}.` : ''}`,
       board.bannerDays === null
         ? 'dueAt: null.'
-        : 'dueAt: ISO date of the next thing this entry asks of the user that the email states (the next renewal or charge, a payment due date, a departure, an event start), else null. Never a date that has passed, never a guess.',
+        : 'dueAt: ISO date the email states for the next thing of this board the user must not miss: on a board about money only a date money is due by or a renewal or next charge, else its own event (a departure, an event start, a delivery on a board of orders). null for something already paid that does not renew, for a delivery on any other board, for a date that has passed, for a guess.',
       `amount and currency (ISO 4217): the total charged or due, negative when money goes back to the user (refund, chargeback, credit), else null. occurredAt: ISO date of the event itself (today is ${new Date().toISOString().slice(0, 10)}), else null.`,
       earlier
         ? `isUpdate: this thread already holds the entry "${earlier.entry.title}"${earlier.entry.status ? ` (${earlier.entry.status})` : ''}. true when this email is news about that same thing (shipped, delivered, changed, cancelled), false when it is a new one (next month's receipt, a refund).`

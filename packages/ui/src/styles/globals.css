@@ -89,7 +89,7 @@
   --text-2xs--line-height: 0.875rem;
   --font-heading: var(--font-serif);
   --font-sans: 'Inter Variable', sans-serif;
-  --font-serif: 'Newsreader Variable', Georgia, serif;
+  --font-serif: var(--serif);
   --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
   --text-brief: 1.1875rem;
   --text-brief--line-height: 1.55;
@@ -171,6 +171,12 @@
   --input: oklch(0.995 0.005 90);
   --ring: var(--primary);
   --radius: 0.55rem;
+  --serif: 'Newsreader Variable', Georgia, serif;
+}
+
+/* Newsreader has no Cyrillic: a fallback per glyph sets Latin words in another face and weight inside one heading. */
+:root:lang(uk) {
+  --serif: Georgia, serif;
 }
 
 .dark {

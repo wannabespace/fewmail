@@ -43,6 +43,7 @@ export type ChartConfig = Record<
     label?: React.ReactNode
     icon?: React.ComponentType
     colors?: AtLeastOneThemeColor
+    formatValue?: (value: number) => string
   }
 >
 

@@ -420,8 +420,8 @@ export const nl: Messages = {
     undone: (emails: string) => `${emails} terug in de inbox`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) =>
-      `Drukste moment: ${day}, rond ${hour}`,
+    busiest: (day: string, hours: string) =>
+      `Drukste dag: ${day} · drukste uur: ${hours}`,
     copied: 'Link gekopieerd',
     copyLink: 'Link kopiëren',
     cta: 'Haal de jouwe met Fewmail',
@@ -438,8 +438,8 @@ export const nl: Messages = {
       'De link en de afbeelding tonen alleen deze cijfers, nooit namen of adressen.',
     shared: { month: 'Een maand in e-mail', year: 'Een jaar in e-mail' },
     spam: 'spammails tegengehouden',
-    split: (people: string, lists: string) =>
-      `${people} van mensen · ${lists} van nieuwsbrieven`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} van mensen · ${lists} van nieuwsbrieven · ${other} overige`,
     title: { month: 'Jouw maand in e-mail', year: 'Jouw jaar in e-mail' },
     unsubscribed: 'nieuwsbrieven verlaten',
   },
@@ -763,7 +763,7 @@ export const nl: Messages = {
       'Deze afzender heeft geen afmelding met één klik, dus de mail is gearchiveerd. Blijft die komen, dan gaat ze naar spam.',
     count: (total: number) => `Mailinglijsten: ${total}`,
     empty: 'Geen mailinglijst heeft je deze maand gemaild.',
-    lead: 'Mailinglijsten die je deze maand mailden, de drukste eerst. Afmelden archiveert alles wat ze stuurden; mail die twee weken later nog komt, gaat naar spam.',
+    lead: 'Mailinglijsten die je deze maand mailden, de drukste eerst. Afmelden archiveert alles wat ze stuurden; komt er twee weken later nog mail, dan stel ik voor die naar spam te verplaatsen en doe ik dat pas na je ja.',
     opened: (total: number) =>
       total === 0 ? 'geen enkele geopend' : `${total} geopend`,
     title: 'Abonnementen',
@@ -1154,7 +1154,7 @@ export const nl: Messages = {
       noFreePlan: 'Geen gratis abonnement',
       ours: {
         ask: 'In Pro',
-        home: 'Live, in één keer goed te keuren, in Pro',
+        home: 'Live, in één keer goed te keuren, gratis',
         drafts: 'In jouw stijl, pas verstuurd als jij akkoord geeft, in Pro',
         followUps: 'Automatisch, bij mail die een antwoord verwacht',
         handOver: 'De agent werkt het af tot het doel, in Pro',
@@ -1461,6 +1461,7 @@ export const nl: Messages = {
       free: {
         description: 'Het sorteren, de regels en de bescherming. Voor altijd.',
         features: [
+          'Home: één live wachtrij met beslissingen, los of in één keer goedgekeurd',
           'Elke e-mail gesorteerd en beoordeeld op belangrijkheid',
           'Regels in gewone woorden die archiveren, als gelezen markeren of afmelden',
           'Spamschild van de community en phishingwaarschuwingen',
@@ -1477,7 +1478,6 @@ export const nl: Messages = {
       lite: {
         description: 'De hele agent: hij leest, schrijft en onthoudt.',
         features: [
-          'Home: één live wachtrij met beslissingen, los of in één keer goedgekeurd',
           'Antwoorden in jouw stijl, pas verstuurd als jij akkoord geeft',
           'Telegram: dringende mail, goedkeuringen en spraakopdrachten',
           'Beloftes en mensen onthouden, borden met grafieken voor geld of alles wat je bijhoudt',
@@ -1717,7 +1717,6 @@ export const nl: Messages = {
         'Onderdeel van Fewmail Pro: beschrijf wat er verzameld moet worden, en de agent vindt het in je mail en houdt het bij.',
       drafts:
         'Onderdeel van Fewmail Pro: de agent schrijft het antwoord in jouw stijl, jij past het aan en verstuurt het.',
-      home: 'Onderdeel van Fewmail Pro: de mail die jou nodig heeft, met antwoorden die al klaarstaan, bijgewerkt zodra er mail binnenkomt.',
     },
   },
   whatsapp: {

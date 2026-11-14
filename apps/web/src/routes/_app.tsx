@@ -24,6 +24,7 @@ import { ConfirmDialog } from '~/components/confirm-dialog'
 import { Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
 import { ThreadPeekPopover } from '~/components/thread-link'
+import { SnoozePicker } from '~/components/thread-view'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
 import { signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
@@ -144,6 +145,7 @@ const AppLayout = () => {
         <ClearOutDialog />
         <ConfirmDialog />
         <ThreadPeekPopover />
+        <SnoozePicker />
       </div>
     </ComposeProvider>
   )

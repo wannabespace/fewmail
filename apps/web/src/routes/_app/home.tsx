@@ -1,5 +1,9 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import {
+  cardPayload,
+  sendsDraft,
+  UNDO_SEND_SECONDS,
+} from '@fewmail/shared/agent'
 import type { ActionKind } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
@@ -64,7 +68,12 @@ import {
   ProposalsReview,
   useProposals,
 } from '~/components/proposals'
-import { openCardLink, primaryStep, QueueCard } from '~/components/queue-card'
+import {
+  foldedVerb,
+  openCardLink,
+  primaryStep,
+  QueueCard,
+} from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import { ReadingPane, ReadingSection, useReading } from '~/components/reading'
 import { SenderAvatar } from '~/components/sender-avatar'
@@ -76,7 +85,7 @@ import {
   sweepOf,
   useMailActions,
 } from '~/components/thread-view'
-import { upgradeStore } from '~/components/upgrade-dialog'
+import { useWithAgent } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
 import { queueCards } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
@@ -84,6 +93,7 @@ import { isReadingFirstTime } from '~/lib/mail-db'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
+import { holdClicksUntilMove, STILL_POINTER_GUARD } from '~/lib/still-pointer'
 import { toastUndo } from '~/lib/undo'
 
 type Today = RouterOutputs['today']['get']
@@ -95,7 +105,9 @@ const TallyBox = ({ children }: { children: ReactNode }) => (
 )
 
 const Ago = ({ date }: { date: Date }) => (
-  <span className="text-muted-foreground text-xs">{useDates().ago(date)}</span>
+  <span className="text-muted-foreground text-xs">
+    {useDates().fromNow(date)}
+  </span>
 )
 
 /** A list that started writing often and is barely opened: the agent asks once how to treat it. A, U and I answer the first. */
@@ -450,15 +462,20 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
                 ...sent,
                 from: 'home',
                 fromEmail: sent.to[0] ?? '',
-                fromName: null,
+                fromName: sent.toName,
               }}
             />
           }
           iconVariant="avatar"
           icon={
-            <SenderAvatar sender={{ fromEmail: sent.to[0] ?? '' }} size="sm" />
+            <SenderAvatar
+              sender={{ fromEmail: sent.to[0] ?? '', fromName: sent.toName }}
+              size="sm"
+            />
           }
-          title={<span data-mask>{sent.to[0] ?? sent.subject}</span>}
+          title={
+            <span data-mask>{sent.toName ?? sent.to[0] ?? sent.subject}</span>
+          }
           description={
             <>
               {t.today.awaiting} · <span data-mask>{sent.subject}</span>
@@ -505,11 +522,18 @@ const pageHints = (
   ]
 }
 
-const primaryHints = (
-  t: Messages,
-  action: QueueItem['action']
-): [string, string][] => {
-  const step = primaryStep(action)
+/** A reply card whose email names a meeting also adds it to the calendar (`L`), apart from Send. */
+const hasEvent = (item: QueueItem | undefined) =>
+  !!item && sendsDraft(item.action) && !!cardPayload(item.action).event
+
+const primaryHints = (t: Messages, item: QueueItem): [string, string][] => {
+  const step = primaryStep(item.action)
+  if (hasEvent(item)) {
+    return [
+      ['⏎', t.keys.approve],
+      ['L', t.queue.addToCalendar],
+    ]
+  }
   if (step === 'approve') {
     return [['⏎', t.keys.approve]]
   }
@@ -566,7 +590,7 @@ const homeHints = (
       ? [
           ['J / K', t.keys.move] as [string, string],
           ['Space', t.keys.expand] as [string, string],
-          ...primaryHints(t, state.selected.action),
+          ...primaryHints(t, state.selected),
         ]
       : []),
     ...(state.isOnProposals
@@ -902,13 +926,18 @@ const KindFilter = ({
     filter.isOffered && (
       <div className="flex flex-wrap items-center gap-1">
         {pill(null, t.today.allKinds, queue.length)}
-        {filter.kinds.map((kind) =>
-          pill(
-            kind,
-            t.actionKind[kind],
-            queue.filter(({ action }) => action.kind === kind).length
+        {filter.kinds.map((kind) => {
+          const cards = queue.filter(({ action }) => action.kind === kind)
+          const verbs = new Set(
+            cards.map(({ action }) => foldedVerb(t, action))
           )
-        )}
+          const [verb] = verbs
+          return pill(
+            kind,
+            verbs.size === 1 && verb ? verb : t.actionKind[kind],
+            cards.length
+          )
+        })}
         <Kbd>F</Kbd>
       </div>
     )
@@ -970,7 +999,7 @@ const StaleCards = ({
   )
 }
 
-/** Every card and banner is one decision; all the agent's proposals are one more. */
+/** Every card is one decision and all the agent's proposals one more, as `today.count` (the sidebar) counts them; a board's heads-up asks nothing. */
 const countDecisions = (
   data: Today | undefined,
   cards: number,
@@ -978,11 +1007,48 @@ const countDecisions = (
 ) =>
   data
     ? cards +
-      data.banners.length +
       data.newSenders.length +
       data.ruleOffers.length +
       Math.min(proposals, 1)
     : 0
+
+/** A board's heads-up asks nothing but still shows under the decisions. */
+const isEmpty = (data: Today | undefined, decisions: number) =>
+  decisions === 0 && !data?.banners.length
+
+/** A reply card's meeting goes in the calendar apart from Send (`L` on the cursor card). */
+const useAddEvent = (selected: QueueItem | undefined, canUseKeys: boolean) => {
+  const t = useT()
+  const queryClient = useQueryClient()
+  const addEvent = useMutation(
+    orpc.actions.addEvent.mutationOptions({
+      onSettled: () =>
+        Promise.all([
+          queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
+          queryClient.invalidateQueries({ queryKey: orpc.calendar.key() }),
+        ]),
+      onSuccess: () => toast.success(t.calendar.saved),
+    })
+  )
+  // The button leaves on the press, so a second press never adds the meeting twice.
+  const addEventOf = (id: string) => {
+    const card = queueCards.get(id)
+    if (card) {
+      queueCards.utils.writeUpdate({
+        ...card,
+        action: {
+          ...card.action,
+          payload: { ...card.action.payload, event: undefined },
+        },
+      })
+    }
+    addEvent.mutate({ id })
+  }
+  useHotkey('L', () => selected && addEventOf(selected.action.id), {
+    enabled: canUseKeys && hasEvent(selected),
+  })
+  return addEventOf
+}
 
 /** The proposals' review (`D`) takes Home's column and Reading (`N`) opens over it; the same key or esc brings Home back. */
 const useHomeSubpage = (
@@ -1029,7 +1095,12 @@ const HomePage = () => {
   const isFirstRead = !!data && isReadingFirstTime(data.mailboxes)
   // Decisions closed since the page opened: the progress counts them against what is left.
   const [settled, setSettled] = useState(0)
-  const settle = (count = 1) => setSettled((current) => current + count)
+  const settle = (count = 1) => {
+    holdClicksUntilMove()
+    setSettled((current) => current + count)
+  }
+  const unsettle = (count: number) =>
+    setSettled((current) => Math.max(0, current - count))
   const proposals = useProposals(data, cards, settle)
   const hasProposals = proposals.proposals.length > 0
   // The cursor walks the agent's proposals first, then the cards.
@@ -1077,11 +1148,19 @@ const HomePage = () => {
       invalidate(),
       queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
     ])
-  const undoable = (message: string, undo: () => Promise<unknown>) =>
-    toastUndo(message, () => undo().finally(refreshMail))
+  const undoable = (
+    message: string,
+    count: number,
+    undo: () => Promise<unknown>
+  ) =>
+    toastUndo(message, () => {
+      unsettle(count)
+      return undo().finally(refreshMail)
+    })
   const undoSkip = (ids: string[]) =>
     undoable(
       ids.length === 1 ? t.telegram.skipped : t.queue.skipped(ids.length),
+      ids.length,
       () => Promise.all(ids.map((id) => client.actions.restore({ id })))
     )
   const removeAndAdvance = (actionId: string) => {
@@ -1116,6 +1195,7 @@ const HomePage = () => {
             )
           )
           if (canceled.some(Boolean)) {
+            unsettle(canceled.filter(Boolean).length)
             void invalidate()
             toast(t.compose.backInQueue)
           }
@@ -1190,7 +1270,7 @@ const HomePage = () => {
     onMutate: (items) => dropFromQueue(items.map(({ action }) => action.id)),
     onSettled: refreshMail,
     onSuccess: (_, items) =>
-      undoable(t.mail.trashed, () =>
+      undoable(t.mail.trashed, items.length, () =>
         Promise.all(
           items.map(async ({ action, message }) => {
             if (message) {
@@ -1217,9 +1297,11 @@ const HomePage = () => {
     drafts[item.action.id] ?? item.action.detail ?? ''
   const isEditing = !!selected && editingId === selected.action.id
   const isRewriting = !!selected && rewritingId === selected.action.id
+  // A draft written before the plan ended stays on Free; writing it again needs the agent.
+  const withAgent = useWithAgent()
   const rewrite = (id: string, instruction: string) => {
     setRewritingId(null)
-    redraft.mutate({ id, instruction })
+    withAgent('drafts', () => redraft.mutate({ id, instruction }))
   }
 
   const approveItem = ({ action }: QueueItem) => {
@@ -1229,7 +1311,8 @@ const HomePage = () => {
       ...(edited !== undefined && { detail: edited }),
     })
   }
-  const remind = (id: string) => redraft.mutate({ id })
+  const remind = (id: string) =>
+    withAgent('drafts', () => redraft.mutate({ id }))
   const runSelected = () => {
     if (!selected) {
       return
@@ -1310,6 +1393,7 @@ const HomePage = () => {
   useHotkey('S', skipTargets, listKeys)
   useHotkey('Backspace', () => trashMany.mutate(targets), listKeys)
   useHotkey('X', () => selected && togglePick(selected.action.id), listKeys)
+  const addEventOf = useAddEvent(selected, isWalking)
   useHotkey(
     'Mod+A',
     () => {
@@ -1341,7 +1425,12 @@ const HomePage = () => {
       <main className="flex min-h-0 flex-1 flex-col">
         <div className="relative min-h-0 flex-1">
           <motion.div layoutScroll className="h-full overflow-y-auto">
-            <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
+            <div
+              className={cn(
+                'mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16',
+                STILL_POINTER_GUARD
+              )}
+            >
               {page === 'tidy' && (
                 <ProposalsReview canUseKeys={isFocused} proposals={proposals} />
               )}
@@ -1359,7 +1448,7 @@ const HomePage = () => {
 
                   <section
                     aria-label={t.today.decisions}
-                    hidden={decisions === 0}
+                    hidden={isEmpty(data, decisions)}
                     className="flex flex-col gap-2.5"
                   >
                     <DecisionsHeader
@@ -1411,6 +1500,7 @@ const HomePage = () => {
                               redraft.isPending &&
                               redraft.variables.id === item.action.id
                             }
+                            onAddEvent={() => addEventOf(item.action.id)}
                             onApprove={() => approveItem(item)}
                             onEdit={() => setEditingId(item.action.id)}
                             onDraftChange={(draft) =>
@@ -1495,19 +1585,13 @@ const HomePage = () => {
 }
 
 export const Route = createFileRoute('/_app/home')({
-  beforeLoad: ({ context, preload, search }) => {
+  beforeLoad: ({ search }) => {
     // Agent answers and older links still open an email with `?thread=`.
     if (search.thread) {
       throw redirect({
         params: { threadId: search.thread },
         to: '/mail/$threadId',
       })
-    }
-    if (context.me.plan.kind === 'free') {
-      if (!preload) {
-        upgradeStore.set('home')
-      }
-      throw redirect({ to: '/mail' })
     }
   },
   component: HomePage,

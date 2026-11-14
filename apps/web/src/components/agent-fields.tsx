@@ -16,24 +16,28 @@ export const LanguageSelect = ({
 }: {
   onChange: (language: Locale) => void
   value: Locale
-}) => (
-  <Select
-    items={LOCALES.map(({ code, label }) => ({ label, value: code }))}
-    value={value}
-    onValueChange={(next) => next && onChange(next)}
-  >
-    <SelectTrigger aria-label="Language" className="w-48">
-      <SelectValue />
-    </SelectTrigger>
-    <SelectContent>
-      {LOCALES.map(({ code, label }) => (
-        <SelectItem key={code} value={code} lang={code}>
-          {label}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-)
+}) => {
+  const t = useT()
+
+  return (
+    <Select
+      items={LOCALES.map(({ code, label }) => ({ label, value: code }))}
+      value={value}
+      onValueChange={(next) => next && onChange(next)}
+    >
+      <SelectTrigger aria-label={t.settings.language} className="w-48">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {LOCALES.map(({ code, label }) => (
+          <SelectItem key={code} value={code} lang={code}>
+            {label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 

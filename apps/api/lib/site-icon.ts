@@ -1,6 +1,6 @@
+import { FREEMAIL_DOMAINS } from '@fewmail/shared/email'
 import { Result } from 'better-result'
 
-import { FREEMAIL_DOMAINS } from '../services/known-domains'
 import { registrable } from '../services/patterns'
 import { logError } from './log'
 

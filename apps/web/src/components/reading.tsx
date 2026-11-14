@@ -33,6 +33,7 @@ import { SenderAvatar } from '~/components/sender-avatar'
 import { ThreadPeek } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
+import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { toastUndo } from '~/lib/undo'
 
@@ -44,14 +45,16 @@ const senderOf = (row: Row) => row.fromName ?? row.fromEmail
 // The card's `rounded-2xl` as a motion value: motion keeps only its own radius round while the card scales.
 const CARD_RADIUS = 16
 
-/** The day's newsletters and the agent's one summary of them, written only when there are newsletters. */
+/** The day's newsletters and the agent's one summary of them, written only when there are newsletters; Free gets the list alone. */
 export const useReading = () => {
+  const hasAgent = useHasAgent()
   const { data: rows = [] } = useQuery(orpc.reading.list.queryOptions())
+  const isSummarized = hasAgent && rows.length > 0
   const summary = useQuery(
-    orpc.reading.summary.queryOptions({ enabled: rows.length > 0 })
+    orpc.reading.summary.queryOptions({ enabled: isSummarized })
   )
   return {
-    isWriting: summary.isPending,
+    isWriting: isSummarized && summary.isPending,
     rows,
     summary: summary.data ?? undefined,
   }

@@ -2,6 +2,7 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import {
   cardPayload,
   hostOf,
+  IMPORTANCE,
   listSearch,
   sendsDraft,
 } from '@fewmail/shared/agent'
@@ -25,6 +26,7 @@ import {
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
+  Calendar03Icon,
   LinkSquare02Icon,
   NextIcon,
   Tick02Icon,
@@ -44,7 +46,7 @@ import { client } from '~/lib/orpc'
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
 import { ConsentDetails, DraftText } from './consent-details'
-import { ExtractedChips } from './mail-meta'
+import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { SenderAvatar } from './sender-avatar'
 import { PeekTrigger, peekIdOf } from './thread-link'
 import { ROW_SWAP } from './thread-view'
@@ -203,8 +205,8 @@ const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
   return approveTitle(t, action)
 }
 
-/** What the card asks, never its yes: "I paid it" there repeats the ✓ beside it. */
-const foldedVerb = (t: Messages, action: Action) => {
+/** What the card asks, never its yes: "I paid it" there repeats the ✓ beside it. A link that does the card's own kind keeps the kind's word, so one kind reads the same on every card. */
+export const foldedVerb = (t: Messages, action: Action) => {
   if (sendsDraft(action)) {
     return t.queue.send
   }
@@ -212,7 +214,9 @@ const foldedVerb = (t: Messages, action: Action) => {
   if (tool || event) {
     return approveTitle(t, action)
   }
-  return link ? t.actionLink[link.purpose] : t.actionKind[action.kind]
+  return link && link.purpose !== action.kind
+    ? t.actionLink[link.purpose]
+    : t.actionKind[action.kind]
 }
 
 const QuickActions = ({
@@ -277,7 +281,7 @@ const QueueCardHeader = ({
   isOpen,
   isPicked,
   isSelected,
-  item: { action, analysis, message },
+  item,
   onApprove,
   onPick,
   onSkip,
@@ -294,6 +298,7 @@ const QueueCardHeader = ({
 }) => {
   const t = useT()
   const dates = useDates()
+  const { action, analysis, message } = item
 
   return (
     <AccordionTrigger
@@ -304,10 +309,18 @@ const QueueCardHeader = ({
               {foldedVerb(t, action)}
             </span>
           )}
+          {analysis && analysis.importance >= IMPORTANCE.critical && (
+            <span className="mr-3 flex">
+              <ImportanceDot
+                importance={analysis.importance}
+                reason={action.reason || analysis.reason}
+              />
+            </span>
+          )}
           <span className={cn(ROW_SWAP, 'mr-3')}>
             {message && (
               <span className="text-muted-foreground text-xs group-hover:opacity-0">
-                {dates.ago(message.receivedAt)}
+                {dates.fromNow(message.receivedAt)}
               </span>
             )}
             <QuickActions
@@ -351,7 +364,7 @@ const QueueCardHeader = ({
           : (message?.fromName ?? message?.fromEmail ?? 'Fewmail')}
       </strong>
       <span data-mask className="text-muted-foreground min-w-0 flex-1 truncate">
-        {titleOf({ action, analysis, message }, isOpen)}
+        {titleOf(item, isOpen)}
       </span>
     </AccordionTrigger>
   )
@@ -497,8 +510,73 @@ const ReplyBody = ({
   )
 }
 
+/** Why the card is here: the agent's reason, and the user's rule when one made it. */
+const Why = ({ item: { action, analysis, rule } }: { item: QueueItem }) => {
+  const t = useT()
+  const why = [
+    action.reason || analysis?.reason,
+    rule && t.today.journal.byRule(rule),
+  ].filter(Boolean)
+  return (
+    why.length > 0 && (
+      <p
+        data-mask
+        className={cn(
+          'text-sm',
+          action.kind === 'security'
+            ? 'text-destructive'
+            : 'text-muted-foreground'
+        )}
+      >
+        {why.join(' · ')}
+      </p>
+    )
+  )
+}
+
+/** A meeting the email names goes in the calendar on its own (`L`), and the row ends with who the reply goes to and why it was drafted. */
+const ReplyExtras = ({
+  item: { action, message, rule },
+  onAddEvent,
+}: {
+  item: QueueItem
+  onAddEvent: () => void
+}) => {
+  const t = useT()
+  return (
+    <>
+      {cardPayload(action).event && (
+        <Button
+          size="sm"
+          variant="ghost-muted"
+          onClick={onAddEvent}
+          shortcut={<Kbd>L</Kbd>}
+        >
+          <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />
+          {t.queue.addToCalendar}
+        </Button>
+      )}
+      {message && (
+        <span className="text-muted-foreground ml-auto truncate text-xs">
+          <span data-mask>
+            {t.agent.to(replyRecipients(message).join(', '))}
+          </span>
+          {` · ${t.queue.draftedInVoice}`}
+          {rule && (
+            <>
+              {' · '}
+              <span data-mask>{t.today.journal.byRule(rule)}</span>
+            </>
+          )}
+        </span>
+      )}
+    </>
+  )
+}
+
 export const QueueCard = ({
   draft,
+  onAddEvent,
   index,
   isBusy,
   isEditing,
@@ -519,6 +597,7 @@ export const QueueCard = ({
   onStopEditing,
 }: {
   draft: string
+  onAddEvent: () => void
   index: number
   isBusy: boolean
   isEditing: boolean
@@ -543,7 +622,6 @@ export const QueueCard = ({
   const isReply = sendsDraft(action)
   const step = primaryStep(action)
   const isSecurity = action.kind === 'security'
-  const reason = action.reason || analysis?.reason
   const ref = useRef<HTMLDivElement>(null)
   const editorRef = useRef<ComposerEditorHandle>(null)
   const hasAgent = useHasAgent()
@@ -601,17 +679,7 @@ export const QueueCard = ({
             {action.kind === 'cleanup' && <CleanupList action={action} />}
             {action.kind === 'consent' && <ConsentBody action={action} />}
             {analysis && showsGist(item) && <Gist analysis={analysis} />}
-            {!isReply && action.kind !== 'cleanup' && reason && (
-              <p
-                data-mask
-                className={cn(
-                  'text-sm',
-                  isSecurity ? 'text-destructive' : 'text-muted-foreground'
-                )}
-              >
-                {reason}
-              </p>
-            )}
+            {!isReply && action.kind !== 'cleanup' && <Why item={item} />}
             <div className="flex flex-wrap items-center gap-2">
               <StepButton action={action} isBusy={isBusy} onRemind={onRemind} />
               <Button
@@ -645,14 +713,7 @@ export const QueueCard = ({
                   {t.queue.rewrite}
                 </Button>
               )}
-              {isReply && message && (
-                <span className="text-muted-foreground ml-auto truncate text-xs">
-                  <span data-mask>
-                    {t.agent.to(replyRecipients(message).join(', '))}
-                  </span>
-                  {` · ${t.queue.draftedInVoice}`}
-                </span>
-              )}
+              {isReply && <ReplyExtras item={item} onAddEvent={onAddEvent} />}
             </div>
           </div>
         </AccordionContent>

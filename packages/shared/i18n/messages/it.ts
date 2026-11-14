@@ -263,7 +263,7 @@ export const it: Messages = {
       noFreePlan: 'Nessun piano gratuito',
       ours: {
         ask: 'Con Pro',
-        home: 'In tempo reale, approvazione in blocco, con Pro',
+        home: 'In tempo reale, approvazione in blocco, gratis',
         drafts: 'Con la tua voce, inviate solo quando approvi, con Pro',
         followUps: 'Automatici, sulle email che attendono risposta',
         handOver: 'L’agente la porta al suo obiettivo, con Pro',
@@ -572,6 +572,7 @@ export const it: Messages = {
       free: {
         description: 'Smistamento, regole e protezione. Per sempre.',
         features: [
+          'Home: una sola coda di decisioni in tempo reale, da approvare una alla volta o in blocco',
           'Ogni email smistata e valutata per importanza',
           'Regole a parole semplici che archiviano, segnano come lette o disiscrivono',
           'Scudo antispam della community e avvisi di phishing',
@@ -588,7 +589,6 @@ export const it: Messages = {
       lite: {
         description: 'L’agente completo: legge, scrive e ricorda.',
         features: [
-          'Home: una sola coda di decisioni in tempo reale, da approvare una alla volta o in blocco',
           'Risposte scritte con la tua voce, inviate solo quando approvi',
           'Telegram: la posta urgente, le approvazioni e le istruzioni vocali',
           'Promesse e persone ricordate, bacheche con grafici per i soldi o qualsiasi cosa tu segua',
@@ -996,7 +996,7 @@ export const it: Messages = {
       'Questo mittente non ha la disiscrizione con un clic, quindi la sua posta è stata archiviata. Se continua ad arrivare, finirà nello spam.',
     count: (total: number) => `Mailing list: ${total}`,
     empty: 'Nessuna mailing list ti ha scritto questo mese.',
-    lead: 'Le mailing list che ti hanno scritto questo mese, le più attive prima. Disiscriversi archivia tutto ciò che hanno inviato; la posta che arriva ancora due settimane dopo va nello spam.',
+    lead: 'Le mailing list che ti hanno scritto questo mese, le più attive prima. Disiscriversi archivia tutto ciò che hanno inviato; se due settimane dopo arriva ancora posta, ti propongo di spostarla nello spam e la sposto solo dopo il tuo sì.',
     opened: (total: number) =>
       total === 0 ? 'nessuna aperta' : `${total} aperte`,
     title: 'Iscrizioni',
@@ -1655,8 +1655,8 @@ export const it: Messages = {
     undone: (emails: string) => `${emails} di nuovo nella posta in arrivo`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) =>
-      `Il momento più pieno: ${day}, verso le ${hour}`,
+    busiest: (day: string, hours: string) =>
+      `Giorno più pieno: ${day} · ora più piena: ${hours}`,
     copied: 'Link copiato',
     copyLink: 'Copia link',
     cta: 'Ottieni il tuo con Fewmail',
@@ -1673,8 +1673,8 @@ export const it: Messages = {
       'Link e immagine mostrano solo questi numeri, mai nomi o indirizzi.',
     shared: { month: 'Un mese in email', year: 'Un anno in email' },
     spam: 'email di spam fermate',
-    split: (people: string, lists: string) =>
-      `${people} da persone · ${lists} da newsletter`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} da persone · ${lists} da newsletter · ${other} altre`,
     title: { month: 'Il tuo mese in email', year: 'Il tuo anno in email' },
     unsubscribed: 'newsletter abbandonate',
   },
@@ -1730,7 +1730,6 @@ export const it: Messages = {
         'Incluso in Fewmail Pro: descrivi cosa raccogliere e l’agente lo trova nella tua posta e lo tiene aggiornato.',
       drafts:
         'Incluso in Fewmail Pro: l’agente scrive la risposta nel tuo stile, tu la modifichi e la invii.',
-      home: 'Incluso in Fewmail Pro: le email che hanno bisogno di te, con le risposte già scritte, aggiornate man mano che arriva la posta.',
     },
   },
   whatsapp: {

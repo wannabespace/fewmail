@@ -7,6 +7,7 @@ import { createCollection } from '@tanstack/react-db'
 
 import { client, orpc } from './orpc'
 import { queryClient } from './query-client'
+import { holdClicksUntilMove } from './still-pointer'
 
 export const MAIL_LISTS = [
   'inbox',
@@ -31,7 +32,8 @@ export type Thread = RouterOutputs['mail']['thread'] & { threadId: string }
 export const isReadingFirstTime = (mailboxes: { hasSynced: boolean }[]) =>
   mailboxes.every(({ hasSynced }) => !hasSynced)
 
-// Keys sit under `orpc.mail.key()` so every existing mail invalidation (and the live stream) refreshes them too.
+// Keys sit under `orpc.mail.key()` so every existing mail invalidation (and the live stream) refreshes them too. Their
+// second part must stay an object: `orpc.mail.key()` ends in `{}`, which never matches a string or null there.
 const [mailKey] = orpc.mail.key()
 
 const readPage = async (
@@ -83,7 +85,7 @@ const createMailRows = (mailboxId: string | undefined) =>
         )
         return lists.flat()
       },
-      queryKey: [[...mailKey, 'rows'], mailboxId ?? null],
+      queryKey: [[...mailKey, 'rows'], { mailboxId: mailboxId ?? null }],
     })
   )
 
@@ -123,7 +125,7 @@ export const loadOlderRows = async (
 }
 
 const threadKey = (threadId?: string) =>
-  threadId ? [[...mailKey, 'thread'], threadId] : [[...mailKey, 'thread']]
+  threadId ? [[...mailKey, 'thread'], { threadId }] : [[...mailKey, 'thread']]
 
 /** The reader's person panel asks next, so its answer is on the way before the thread renders. */
 const fetchThread = async (threadId: string): Promise<Thread[]> => {
@@ -144,8 +146,10 @@ export const threads = createCollection(
     getKey: (thread: Thread) => thread.threadId,
     id: 'threads',
     queryClient,
-    queryFn: ({ queryKey: [, threadId] }) =>
-      typeof threadId === 'string' ? fetchThread(threadId) : [],
+    queryFn: ({ queryKey: [, key] }) => {
+      const threadId = (key as { threadId?: string } | undefined)?.threadId
+      return threadId ? fetchThread(threadId) : []
+    },
     queryKey: (options) =>
       threadKey(
         parseLoadSubsetOptions(options).filters.find(
@@ -217,6 +221,7 @@ const rowsOfThread = (threadId: string) =>
 
 /** Takes a thread out of every list at once; the server's answer (or a refetch after a failure) settles it. */
 export const hideThread = (threadId: string) => {
+  holdClicksUntilMove()
   for (const { keys, rows } of rowsOfThread(threadId)) {
     if (keys.length > 0) {
       void rows.utils.writeDelete(keys)

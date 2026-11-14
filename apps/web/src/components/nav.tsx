@@ -140,16 +140,9 @@ export const NAV_ITEMS = [
   SETTINGS_ITEM,
 ] as const
 
-const isAgentOnly = (key: string): key is 'home' => key === 'home'
-
-/** Home and Agent show on Free too; opening one there asks for Pro instead. */
 export const useGoTo = () => {
   const navigate = useNavigate()
-  const withAgent = useWithAgent()
-  return (item: (typeof NAV_ITEMS)[number]) =>
-    isAgentOnly(item.key)
-      ? withAgent(item.key, () => navigate({ to: item.to }))
-      : navigate({ to: item.to })
+  return (item: (typeof NAV_ITEMS)[number]) => navigate({ to: item.to })
 }
 
 /** Quiet until the month is nearly spent: never push. */
@@ -482,21 +475,11 @@ const NavLink = ({
   showKeys: boolean
 }) => {
   const t = useT()
-  const hasAgent = useHasAgent()
   const goTo = useGoTo()
   useHotkey(item.sequence, () => goTo(item))
 
   return (
-    <Link
-      to={item.to}
-      className={cn(NAV_ROW, className)}
-      onClick={(event) => {
-        if (!hasAgent && isAgentOnly(item.key)) {
-          event.preventDefault()
-          goTo(item)
-        }
-      }}
-    >
+    <Link to={item.to} className={cn(NAV_ROW, className)}>
       <HugeiconsIcon icon={item.icon} strokeWidth={2} />
       <span className="flex-1">{t.nav[item.key]}</span>
       {showKeys && <Kbd>{item.sequence.join(' ')}</Kbd>}
@@ -573,15 +556,20 @@ const useDocumentTitle = ({
   const { data: boards } = useQuery(
     orpc.boards.list.queryOptions({ enabled: pathname.startsWith('/boards/') })
   )
-  const page = NAV_ITEMS.find(({ to }) => pathname.startsWith(to))?.key ?? null
+  const navPage = NAV_ITEMS.find(({ to }) => pathname.startsWith(to))?.key
+  const page = navPage
+    ? t.nav[navPage]
+    : (
+        [
+          ['/compose', t.command.compose],
+          ['/settings', t.nav.settings],
+          ['/wrapped', t.wrapped.title.year],
+        ] as const
+      ).find(([to]) => pathname.startsWith(to))?.[1]
   const board = boards?.find(({ id }) => pathname === `/boards/${id}`)
   const title = [
     count ? `(${count})` : '',
-    [
-      board?.name ?? (page && t.nav[page]),
-      status?.isTitled && status.text,
-      SITE_NAME,
-    ]
+    [board?.name ?? page, status?.isTitled && status.text, SITE_NAME]
       .filter(Boolean)
       .join(' · '),
   ]
@@ -694,9 +682,7 @@ export const Sidebar = ({
   const isInFolder =
     FOLDER_ITEMS.some((item) => item.filter === filter) ||
     Boolean(q?.startsWith('label:'))
-  const { data: queued } = useQuery(
-    orpc.today.count.queryOptions({ enabled: hasAgent })
-  )
+  const { data: queued } = useQuery(orpc.today.count.queryOptions())
   const { data: mailboxes } = useQuery(
     orpc.mailboxes.list.queryOptions({ enabled: hasAgent })
   )
@@ -708,7 +694,7 @@ export const Sidebar = ({
     '/mail': unread?.inbox,
   }
   useDocumentTitle({
-    count: hasAgent ? queued : unread?.inbox,
+    count: queued,
     mailboxes,
   })
 
@@ -718,7 +704,7 @@ export const Sidebar = ({
       className="flex w-full flex-col gap-1 border-r px-3.5 py-5"
     >
       <div className="px-2.5 pb-4">
-        <Logo to={hasAgent ? '/home' : '/mail'} />
+        <Logo to="/home" />
       </div>
       <div className="mb-3 flex items-center gap-1.5">
         <Tooltip shortcut={<Kbd>⌘K</Kbd>}>

@@ -46,7 +46,7 @@ export const approveTitle = (t: Messages, action: Card) => {
   if (tool) {
     return t.agent.yes[tool]
   }
-  if (event) {
+  if (event && action.kind === 'schedule') {
     return t.queue.addToCalendar
   }
   if (link) {

@@ -264,7 +264,7 @@ export const fr: Messages = {
       noFreePlan: 'Pas de formule gratuite',
       ours: {
         ask: 'Avec Pro',
-        home: 'En direct, approbation groupée, avec Pro',
+        home: 'En direct, approbation groupée, gratuit',
         drafts: 'À votre façon, envoyées seulement avec votre accord, avec Pro',
         followUps: 'Automatiques, sur les e-mails qui attendent une réponse',
         handOver: 'L’agent la mène à son but, avec Pro',
@@ -576,6 +576,7 @@ export const fr: Messages = {
       free: {
         description: 'Le tri, les règles et la protection. Pour toujours.',
         features: [
+          'Accueil : une seule file de décisions en direct, à approuver une par une ou d’un coup',
           'Chaque e-mail trié et noté selon son importance',
           'Des règles en langage courant qui archivent, marquent comme lu ou désabonnent',
           'Bouclier anti-spam communautaire et alertes de phishing',
@@ -592,7 +593,6 @@ export const fr: Messages = {
       lite: {
         description: 'L’agent complet : il lit, écrit et se souvient.',
         features: [
-          'Accueil : une seule file de décisions en direct, à approuver une par une ou d’un coup',
           'Réponses rédigées à votre façon, envoyées seulement avec votre accord',
           'Telegram : les e-mails urgents, les approbations et les consignes vocales',
           'Promesses et contacts mémorisés, tableaux avec graphiques pour l’argent ou tout ce que vous suivez',
@@ -1002,7 +1002,7 @@ export const fr: Messages = {
       'Cet expéditeur n’a pas de désabonnement en un clic, ses e-mails ont donc été archivés. S’ils continuent d’arriver, ils iront en spam.',
     count: (total: number) => `Listes de diffusion : ${total}`,
     empty: 'Aucune liste de diffusion ne vous a écrit ce mois-ci.',
-    lead: 'Les listes de diffusion qui vous ont écrit ce mois-ci, les plus actives d’abord. Se désabonner archive tout ce qu’elles ont envoyé ; ce qui arrive encore deux semaines plus tard part en spam.',
+    lead: 'Les listes de diffusion qui vous ont écrit ce mois-ci, les plus actives d’abord. Se désabonner archive tout ce qu’elles ont envoyé ; si des e-mails arrivent encore deux semaines plus tard, je propose de les mettre en spam et ne les déplace qu’après votre accord.',
     opened: (total: number) =>
       total === 0 ? 'aucun ouvert' : `${total} ouverts`,
     title: 'Abonnements',
@@ -1674,8 +1674,8 @@ export const fr: Messages = {
       `${emails} de retour dans la boîte de réception`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) =>
-      `Pic d’activité : ${day}, vers ${hour}`,
+    busiest: (day: string, hours: string) =>
+      `Jour le plus chargé : ${day} · heure la plus chargée : ${hours}`,
     copied: 'Lien copié',
     copyLink: 'Copier le lien',
     cta: 'Obtiens le tien avec Fewmail',
@@ -1692,8 +1692,8 @@ export const fr: Messages = {
       'Le lien et l’image ne montrent que ces chiffres, jamais de noms ni d’adresses.',
     shared: { month: 'Un mois en e-mails', year: 'Une année en e-mails' },
     spam: 'spams arrêtés',
-    split: (people: string, lists: string) =>
-      `${people} de personnes · ${lists} de newsletters`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} de personnes · ${lists} de newsletters · ${other} autres`,
     title: { month: 'Ton mois en e-mails', year: 'Ton année en e-mails' },
     unsubscribed: 'newsletters quittées',
   },
@@ -1749,7 +1749,6 @@ export const fr: Messages = {
         'Inclus dans Fewmail Pro : décris ce qu’il faut rassembler, l’agent le retrouve dans tes e-mails et le tient à jour.',
       drafts:
         'Inclus dans Fewmail Pro : l’agent rédige la réponse dans ton style, tu la modifies et l’envoies.',
-      home: 'Inclus dans Fewmail Pro : les e-mails qui ont besoin de toi, avec des réponses déjà rédigées, mis à jour à chaque nouvel e-mail.',
     },
   },
   whatsapp: {

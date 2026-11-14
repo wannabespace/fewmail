@@ -23,8 +23,8 @@ test('a list is searched by its label, other mail by sender', () => {
       fromEmail: 'notifications@github.com',
       listId: 'letstri/fewmail <Fewmail.letstri.github.com>',
     })
-  ).toBe('list:fewmail.letstri.github.com newer_than:30d')
+  ).toBe('list:fewmail.letstri.github.com newer_than:30d in:anywhere')
   expect(listSearch({ fromEmail: 'news@example.com', listId: null })).toBe(
-    'from:news@example.com newer_than:30d'
+    'from:news@example.com newer_than:30d in:anywhere'
   )
 })

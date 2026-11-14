@@ -1,5 +1,7 @@
 import { db } from '@fewmail/db'
 import { actions } from '@fewmail/db/schema'
+import type { ActionKind, ConsentToolName } from '@fewmail/shared/agent'
+import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 
@@ -7,6 +9,33 @@ import { capture } from '../lib/posthog'
 import { runConsent } from './agent-run'
 import { approveAction } from './mail'
 import { NotFoundError } from './mail-errors'
+import { getSettings } from './settings'
+
+/** A Gmail move asked through consent is journaled as that move, so it reads like a rule's and gets the same undo. */
+const CONSENT_KINDS: Partial<Record<ConsentToolName, ActionKind>> = {
+  archive_thread: 'archive',
+  report_spam: 'spam',
+  trash_thread: 'trash',
+  unsubscribe: 'unsubscribe',
+}
+
+/** The card's title was the question; once answered it says what was done. */
+const recordDone = async (
+  userId: string,
+  actionId: string,
+  tool: ConsentToolName
+) => {
+  const settings = await getSettings(userId)
+  const t = dictionaries[settings?.language ?? 'en']
+  const kind = CONSENT_KINDS[tool]
+  await db
+    .update(actions)
+    .set({
+      kind: kind ?? 'consent',
+      title: kind ? t.actionKind[kind] : t.agent.yes[tool],
+    })
+    .where(eq(actions.id, actionId))
+}
 
 /** The outbox row a consent's send left (`send_email` returns it, `approve_action` its id), so the yes gets the same Undo as a card's send. */
 const outboxOf = (output: unknown) => {
@@ -43,6 +72,7 @@ const approveConsent = async (
       .where(eq(actions.id, actionId))
     throw ran.error.cause
   }
+  await recordDone(userId, actionId, payload?.tool as ConsentToolName)
   return { outboxId: outboxOf(ran.value) }
 }
 

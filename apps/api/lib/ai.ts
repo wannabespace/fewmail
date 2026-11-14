@@ -35,6 +35,10 @@ export const INFORMAL_ADDRESS =
 export const NO_EM_DASH =
   'Never use em dashes (—): a comma, colon, period or parentheses instead.'
 
+/** Reading's summary is written from these alone, so a fact left out here is lost and one added here is repeated as the newsletter's. */
+export const NEWSLETTER_SUMMARY =
+  "A newsletter's summary is two or three short sentences naming every item it carries with the facts and numbers it gives (what changed, by how much), as written: never add a detail, never say one is missing."
+
 /**
  * USD per token, so every call is paid from the allowance at its real price whatever OpenRouter reports (a key
  * of our own makes it report 0). `economics.test.ts` keeps it equal to LiteLLM's table. Jev Router has no price

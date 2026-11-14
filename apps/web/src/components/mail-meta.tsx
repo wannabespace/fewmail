@@ -7,7 +7,7 @@ import {
 import { cn } from '@fewmail/ui/lib/utils'
 import { parseISO } from 'date-fns'
 
-import { useDates, useT } from '~/lib/i18n'
+import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 
 export const ImportanceDot = ({
   importance,
@@ -40,6 +40,7 @@ export const ImportanceDot = ({
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}/u
+const AMOUNT = /^(?<value>-?\d+(?:\.\d+)?) (?<currency>[A-Z]{3})$/u
 
 export const ExtractedChips = ({
   extracted,
@@ -54,12 +55,16 @@ export const ExtractedChips = ({
 }) => {
   const t = useT()
   const dates = useDates()
+  const money = useMoneyFormat()
+  const { currency, value } = AMOUNT.exec(extracted.amount ?? '')?.groups ?? {}
 
   return (
     <>
       {extracted.amount && (
         <Badge variant="secondary" size={size} data-mask>
-          {extracted.amount}
+          {value && currency
+            ? money(Math.round(Number(value) * 100), currency)
+            : extracted.amount}
         </Badge>
       )}
       {extracted.dueDate && (

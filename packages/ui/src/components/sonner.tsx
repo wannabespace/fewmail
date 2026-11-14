@@ -31,7 +31,7 @@ const Toaster = () => {
     <div data-mask className="contents [&_ol]:z-60!">
       <Sonner
         theme={theme}
-        position="top-center"
+        position="bottom-right"
         className="group"
         icons={{
           error: (

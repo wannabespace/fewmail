@@ -489,7 +489,7 @@ export const ko: Messages = {
       '이 발신자는 원클릭 구독 취소를 지원하지 않아 메일을 보관했어요. 계속 오면 스팸으로 보내요.',
     count: (total: number) => `메일링 리스트 ${total}개`,
     empty: '이번 달 메일을 보낸 메일링 리스트가 없어요.',
-    lead: '이번 달 메일을 보낸 메일링 리스트예요. 많이 보낸 순서예요. 구독을 취소하면 보낸 메일이 모두 보관되고, 2주 뒤에도 오는 메일은 스팸으로 가요.',
+    lead: '이번 달 메일을 보낸 메일링 리스트예요. 많이 보낸 순서예요. 구독을 취소하면 보낸 메일이 모두 보관되고, 2주 뒤에도 메일이 오면 스팸으로 옮기자고 제안하고, 승인한 뒤에만 옮겨요.',
     opened: (total: number) =>
       total === 0 ? '하나도 안 열었어요' : `${total}개 열었어요`,
     title: '구독',
@@ -840,7 +840,7 @@ export const ko: Messages = {
       noFreePlan: '무료 요금제 없음',
       ours: {
         ask: 'Pro에서',
-        home: '실시간, 한 번에 승인, Pro에서',
+        home: '실시간, 한 번에 승인, 무료',
         drafts: '내 말투로, 승인할 때만 전송, Pro에서',
         followUps: '답장을 기다리는 메일에 자동으로',
         handOver: '에이전트가 목표까지 처리, Pro에서',
@@ -1145,6 +1145,7 @@ export const ko: Messages = {
       free: {
         description: '분류, 규칙, 보호. 평생 무료.',
         features: [
+          '홈: 실시간으로 바뀌는 결정 대기열, 하나씩 또는 한 번에 승인',
           '모든 메일을 분류하고 중요도 점수 매기기',
           '보관, 읽음 처리, 구독 취소를 하는 평소 말 규칙',
           '커뮤니티 스팸 방패와 피싱 경고',
@@ -1161,7 +1162,6 @@ export const ko: Messages = {
       lite: {
         description: '에이전트의 모든 것: 읽고, 쓰고, 기억해요.',
         features: [
-          '홈: 실시간으로 바뀌는 결정 대기열, 하나씩 또는 한 번에 승인',
           '내 말투로 쓴 답장 초안, 승인할 때만 전송',
           'Telegram: 급한 메일, 승인, 음성 지시',
           '약속과 사람을 기억하고, 돈이든 무엇이든 추적할 것은 차트가 있는 보드로',
@@ -1575,7 +1575,8 @@ export const ko: Messages = {
     undone: (emails: string) => `받은편지함으로 돌아온 메일: ${emails}`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) => `가장 바쁜 때: ${day}, ${hour}쯤`,
+    busiest: (day: string, hours: string) =>
+      `가장 바쁜 요일: ${day} · 시간대: ${hours}`,
     copied: '링크를 복사했어요',
     copyLink: '링크 복사',
     cta: 'Fewmail로 나만의 기록 받기',
@@ -1591,8 +1592,8 @@ export const ko: Messages = {
       '링크와 이미지에는 이 숫자만 담기고, 이름이나 주소는 담기지 않아요.',
     shared: { month: '메일로 본 한 달', year: '메일로 본 한 해' },
     spam: '막은 스팸',
-    split: (people: string, lists: string) =>
-      `사람에게서 ${people} · 뉴스레터에서 ${lists}`,
+    split: (people: string, lists: string, other: string) =>
+      `사람에게서 ${people} · 뉴스레터에서 ${lists} · 기타 ${other}`,
     title: { month: '메일로 본 이번 달', year: '메일로 본 올해' },
     unsubscribed: '떠난 뉴스레터',
   },
@@ -1642,7 +1643,6 @@ export const ko: Messages = {
         'Fewmail Pro 기능이에요. 모을 내용을 설명하면 에이전트가 메일에서 찾아내고 계속 최신으로 유지해요.',
       drafts:
         'Fewmail Pro 기능이에요. 에이전트가 내 말투로 답장을 쓰고, 나는 고쳐서 보내기만 하면 돼요.',
-      home: 'Fewmail Pro 기능이에요. 내가 챙겨야 할 메일을 미리 써 둔 답장과 함께 보여 주고, 메일이 올 때마다 업데이트해요.',
     },
   },
   whatsapp: {

@@ -27,6 +27,7 @@ import {
   endOfYear,
   format,
   isThisYear,
+  isToday,
   isValid,
   parseISO,
   set,
@@ -219,8 +220,20 @@ const CalendarPage = () => {
       start,
       title: '',
     })
-  const newEventNow = () =>
-    newEvent(startOfHour(addHours(new Date(), 1)), false)
+  const pickDay = (day: Date) =>
+    newEvent(
+      set(day, { hours: 9, milliseconds: 0, minutes: 0, seconds: 0 }),
+      false
+    )
+  const newEventNow = () => {
+    if (!isCurrentPeriod) {
+      pickDay(date)
+      return
+    }
+    const now = new Date()
+    const nextHour = startOfHour(addHours(now, 1))
+    newEvent(isToday(nextHour) ? nextHour : startOfHour(now), false)
+  }
 
   const show = (next: { date?: Date; view?: CalendarView }) =>
     navigate({
@@ -247,18 +260,13 @@ const CalendarPage = () => {
 
   const openEvent = (event: (typeof events)[number]) =>
     event !== preview && openDraft(draftOf(event))
-  const pickDay = (day: Date) =>
-    newEvent(
-      set(day, { hours: 9, milliseconds: 0, minutes: 0, seconds: 0 }),
-      false
-    )
 
   return (
     <ResizableGroup className="flex min-h-0 flex-1">
       <ResizablePanel className="flex min-w-0">
         <main className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center gap-6 px-10 pt-10 pb-5">
-            <h1 className="text-display min-w-0 flex-1 truncate font-serif tracking-tight">
+          <header className="flex flex-wrap items-center gap-x-6 gap-y-4 px-10 pt-10 pb-5">
+            <h1 className="text-display min-w-0 grow truncate font-serif tracking-tight">
               {label}
             </h1>
             <div className="flex shrink-0 items-center gap-2">

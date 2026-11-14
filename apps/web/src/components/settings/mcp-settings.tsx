@@ -50,7 +50,7 @@ export const McpSettings = () => {
         <SettingsRow
           key={app.clientId}
           title={app.name ?? t.settings.mcp.defaultName}
-          description={t.settings.mcp.connected(dates.ago(app.connectedAt))}
+          description={t.settings.mcp.connected(dates.fromNow(app.connectedAt))}
         >
           <Button
             size="sm"

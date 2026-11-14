@@ -23,6 +23,7 @@ import { expectRow } from '../lib/rows'
 import { boardBanners, boardsDigest } from './boards'
 import { newSenders } from './cleanup'
 import {
+  countQueue,
   freshCodes,
   handledSince,
   listHandled,
@@ -78,6 +79,20 @@ const isoDue = ({ analysis }: Dated) =>
   analysis.extracted.dueDate && ISO_DATE.test(analysis.extracted.dueDate)
     ? analysis.extracted.dueDate.slice(0, 10)
     : null
+
+/** A thread's newest dated email is the one that holds: a moved meeting leaves the old time behind. */
+const newestPerThread = (dated: Dated[]) => {
+  const threads = new Set<string>()
+  return dated.filter(({ message }) => {
+    const isNewest = !threads.has(message.threadId)
+    threads.add(message.threadId)
+    return isNewest
+  })
+}
+
+/** A code has its own block while fresh and means nothing once it expired. */
+const hasCode = ({ message }: { message: { code: string | null } }) =>
+  !!message.code
 
 /** A due date the model wrote as ISO sorts soonest first and drops once passed; any other date stays as written, newest mail first. */
 const upcoming = (dated: Dated[], today: string) =>
@@ -173,7 +188,9 @@ export const getToday = async (userId: string) => {
     ...tidy.map(({ message }) => message.id),
   ])
   const datesShown = upcoming(
-    dates.filter(({ message }) => !shown.has(message.id)),
+    newestPerThread(dates).filter(
+      (item) => !shown.has(item.message.id) && !hasCode(item)
+    ),
     localClock(settings?.timezone ?? 'UTC').date
   ).slice(0, DATES_SHOWN)
   for (const { message } of datesShown) {
@@ -193,12 +210,24 @@ export const getToday = async (userId: string) => {
     queue,
     reading,
     recent: important
-      .filter(({ message }) => !shown.has(message.id))
+      .filter((item) => !shown.has(item.message.id) && !hasCode(item))
       .slice(0, RECENT_SHOWN_PER_DAY * days),
     ruleOffers,
     saved,
     tidy,
   }
+}
+
+/** The sidebar's number, counted as Home's headline counts its decisions: the proposals and Tidy are one, each new sender and rule offer one more. */
+export const countToday = async (userId: string) => {
+  const [{ cards, proposals }, senders, ruleOffers] = await Promise.all([
+    countQueue(userId),
+    newSenders(userId),
+    listRuleOffers(userId),
+  ])
+  const tidy = proposals > 0 ? [] : await listTidy(userId)
+  const hasProposals = proposals > 0 || tidy.length > 0
+  return cards + Number(hasProposals) + senders.length + ruleOffers.length
 }
 
 /** Only the person looking at Home is a visit (never a live refetch or the agent); `seenAt` is the one before, so the page can mark what came since. */

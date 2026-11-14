@@ -55,7 +55,7 @@ export const MailboxSettings = () => {
         <SettingsRow
           key={mailbox.id}
           title={<span data-mask>{mailbox.email}</span>}
-          description={mailboxStatus(copy, mailbox, dates.ago)}
+          description={mailboxStatus(copy, mailbox, dates.fromNow)}
         >
           {!mailbox.signIn && (
             <Button

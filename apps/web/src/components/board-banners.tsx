@@ -36,7 +36,7 @@ export const BoardBanners = ({
       <AlertDescription>
         {showBoard && <span data-mask>{banner.boardName} · </span>}
         {(banner.isPredicted ? t.boards.expected : t.boards.due)(
-          dates.ago(new Date(banner.dueAt))
+          dates.format(new Date(banner.dueAt), 'd MMM')
         )}
       </AlertDescription>
       <AlertAction>

@@ -22,18 +22,20 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { Switch } from '@fewmail/ui/components/switch'
+import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
 
 import { Journal } from '~/components/journal'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
+import { holdClicksUntilMove, STILL_POINTER_GUARD } from '~/lib/still-pointer'
+import { toastUndo } from '~/lib/undo'
 
 type Rule = RouterOutputs['rules']['list'][number]
 type GmailEffect = (typeof GMAIL_EFFECTS)[number]
@@ -130,14 +132,10 @@ const RuleRow = ({ rule }: { rule: Rule }) => {
     })
   )
   const deleteRule = () => {
+    holdClicksUntilMove()
     remove.mutate({ id: rule.id })
-    toast(t.rules.deleted, {
-      action: {
-        label: t.compose.undo,
-        // The row is gone by now, so this cannot be a mutation of its own.
-        onClick: () => restoreRule(rule).then(invalidate),
-      },
-    })
+    // The row is gone by now, so the undo cannot be a mutation of its own.
+    toastUndo(t.rules.deleted, () => restoreRule(rule).then(invalidate))
   }
 
   return (
@@ -199,8 +197,9 @@ const AgentRuleForm = () => {
       },
     })
   )
+  const canAdd = instruction.trim().length > 2
   const submit = () =>
-    instruction.trim().length > 2 &&
+    canAdd &&
     create.mutate({
       effect,
       instruction: instruction.trim(),
@@ -225,7 +224,7 @@ const AgentRuleForm = () => {
         />
         <Button
           className="ml-auto"
-          disabled={create.isPending}
+          disabled={!canAdd || create.isPending}
           onClick={submit}
           shortcut={<Kbd>⏎</Kbd>}
         >
@@ -253,9 +252,9 @@ const SimpleRuleForm = () => {
     })
   )
   const needsValue = field !== 'mailingList'
+  const canAdd = !needsValue || Boolean(value.trim())
   const submit = () =>
-    (!needsValue || value.trim()) &&
-    create.mutate({ effect, match: { field, value: value.trim() } })
+    canAdd && create.mutate({ effect, match: { field, value: value.trim() } })
 
   useHotkey('Enter', submit, { ignoreInputs: false, target: inputRef })
 
@@ -297,7 +296,7 @@ const SimpleRuleForm = () => {
       />
       <Button
         className="ml-auto"
-        disabled={create.isPending}
+        disabled={!canAdd || create.isPending}
         onClick={submit}
         shortcut={<Kbd>⏎</Kbd>}
       >
@@ -314,7 +313,12 @@ const RulesPage = () => {
 
   return (
     <main className="flex-1 overflow-y-auto">
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
+      <div
+        className={cn(
+          'mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16',
+          STILL_POINTER_GUARD
+        )}
+      >
         <header className="flex flex-col gap-3">
           <h1 className="text-display font-serif tracking-tight">
             {t.rules.title}

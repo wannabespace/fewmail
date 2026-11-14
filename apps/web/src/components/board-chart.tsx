@@ -31,7 +31,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { ComponentProps } from 'react'
 import { useState } from 'react'
 
-import { useDates, useT } from '~/lib/i18n'
+import { useDates, useLocale, useMoneyFormat, useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 
 export type ChartSeries = RouterOutputs['boards']['get']['charts'][number]
@@ -266,11 +266,21 @@ const ChartBody = ({
   series: ChartSeries
 }) => {
   const t = useT()
+  const locale = useLocale()
+  const money = useMoneyFormat()
   const rows = useRows(series)
+  const { sumCurrency } = series
+  const formatValue = (value: number) =>
+    sumCurrency
+      ? money(Math.round(value * 100), sumCurrency)
+      : value.toLocaleString(locale)
   const config = {
     value: {
       colors: PRIMARY,
-      label: series.sumCurrency ?? t.boards.chart.measures.count,
+      formatValue,
+      label: sumCurrency
+        ? t.boards.chart.measures.sum
+        : t.boards.chart.measures.count,
     },
   } satisfies ChartConfig
   const pickAt = (index: number | undefined) => {
@@ -305,7 +315,10 @@ const ChartBody = ({
     const sectorConfig = Object.fromEntries(
       sectors.map(({ key, label }, index) => {
         const color = `color-mix(in oklch, var(--primary) ${SHARE_STRENGTHS[index] ?? 15}%, transparent)`
-        return [key, { colors: { dark: [color], light: [color] }, label }]
+        return [
+          key,
+          { colors: { dark: [color], light: [color] }, formatValue, label },
+        ]
       })
     ) satisfies ChartConfig
     const pickedIndex = series.points.findIndex(({ key }) => key === picked)

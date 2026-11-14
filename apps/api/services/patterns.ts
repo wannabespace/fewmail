@@ -9,13 +9,14 @@ import {
 } from '@fewmail/db/schema'
 import type { PatternKind, SpamVerdict } from '@fewmail/shared/agent'
 import { SUSPICION_SPAM } from '@fewmail/shared/agent'
+import { FREEMAIL_DOMAINS } from '@fewmail/shared/email'
 import { differenceInDays, subDays } from 'date-fns'
 import type { AnyColumn } from 'drizzle-orm'
 import { and, eq, inArray, isNotNull, lt, sql } from 'drizzle-orm'
 
 import { domainOf, linkHashOf, userHashOf } from '../lib/keyed-hash'
 import { fingerprint, isNear, personalWords, sharesBand } from './bulk'
-import { FREEMAIL_DOMAINS, popularDomainSet } from './known-domains'
+import { popularDomainSet } from './known-domains'
 
 type Message = typeof messages.$inferSelect
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]

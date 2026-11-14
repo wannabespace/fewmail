@@ -420,8 +420,8 @@ export const pt: Messages = {
     undone: (emails: string) => `${emails} de volta na caixa de entrada`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) =>
-      `Mais movimento: ${day}, por volta das ${hour}`,
+    busiest: (day: string, hours: string) =>
+      `Dia mais movimentado: ${day} · hora mais movimentada: ${hours}`,
     copied: 'Link copiado',
     copyLink: 'Copiar link',
     cta: 'Tenha o seu com o Fewmail',
@@ -438,8 +438,8 @@ export const pt: Messages = {
       'O link e a imagem mostram só estes números, nunca nomes ou endereços.',
     shared: { month: 'Um mês em e-mails', year: 'Um ano em e-mails' },
     spam: 'e-mails de spam barrados',
-    split: (people: string, lists: string) =>
-      `${people} de pessoas · ${lists} de newsletters`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} de pessoas · ${lists} de newsletters · ${other} outros`,
     title: { month: 'Seu mês em e-mails', year: 'Seu ano em e-mails' },
     unsubscribed: 'newsletters deixadas',
   },
@@ -766,7 +766,7 @@ export const pt: Messages = {
       'Este remetente não tem cancelamento com um clique, então os e-mails foram arquivados. Se continuarem chegando, vão para o spam.',
     count: (total: number) => `Listas de e-mail: ${total}`,
     empty: 'Nenhuma lista de e-mail escreveu para você este mês.',
-    lead: 'Listas de e-mail que escreveram para você este mês, as mais ativas primeiro. Cancelar a inscrição arquiva tudo o que enviaram; o que ainda chegar duas semanas depois vai para o spam.',
+    lead: 'Listas de e-mail que escreveram para você este mês, as mais ativas primeiro. Cancelar a inscrição arquiva tudo o que enviaram; se ainda chegarem e-mails duas semanas depois, proponho movê-los para o spam e só movo depois do seu sim.',
     opened: (total: number) =>
       total === 0 ? 'nenhum aberto' : `${total} abertos`,
     title: 'Inscrições',
@@ -1157,7 +1157,7 @@ export const pt: Messages = {
       noFreePlan: 'Sem plano gratuito',
       ours: {
         ask: 'No Pro',
-        home: 'Ao vivo, com aprovação em lote, no Pro',
+        home: 'Ao vivo, com aprovação em lote, grátis',
         drafts: 'Com a sua voz, enviadas só quando você aprova, no Pro',
         followUps: 'Automáticos, em e-mails que esperam resposta',
         handOver: 'O agente conduz até o objetivo, no Pro',
@@ -1463,6 +1463,7 @@ export const pt: Messages = {
       free: {
         description: 'A organização, as regras e a proteção. Para sempre.',
         features: [
+          'Início: uma única fila de decisões ao vivo, aprovadas uma a uma ou em lote',
           'Cada e-mail organizado e classificado por importância',
           'Regras em palavras simples que arquivam, marcam como lido ou cancelam inscrições',
           'Escudo antispam comunitário e alertas de phishing',
@@ -1479,7 +1480,6 @@ export const pt: Messages = {
       lite: {
         description: 'O agente completo: ele lê, escreve e lembra.',
         features: [
-          'Início: uma única fila de decisões ao vivo, aprovadas uma a uma ou em lote',
           'Respostas escritas com a sua voz, enviadas só quando você aprova',
           'Telegram: e-mails urgentes, aprovações e instruções por voz',
           'Promessas e pessoas lembradas, painéis com gráficos para dinheiro ou o que você quiser acompanhar',
@@ -1740,7 +1740,6 @@ export const pt: Messages = {
         'Parte do Fewmail Pro: descreva o que reunir e o agente encontra isso nos seus e-mails e mantém tudo atualizado.',
       drafts:
         'Parte do Fewmail Pro: o agente escreve a resposta no seu estilo, e você edita e envia.',
-      home: 'Parte do Fewmail Pro: os e-mails que precisam de você, com respostas já redigidas, atualizados conforme os e-mails chegam.',
     },
   },
   whatsapp: {

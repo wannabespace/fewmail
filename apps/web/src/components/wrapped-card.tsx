@@ -12,8 +12,13 @@ const weekdayName = (locale: Locale, isoWeekday: number) =>
   )
 
 const hourName = (locale: Locale, hour: number) =>
-  new Intl.DateTimeFormat(locale, { hour: 'numeric', timeZone: 'UTC' }).format(
-    new Date(Date.UTC(2024, 0, 1, hour))
+  new Intl.DateTimeFormat(locale, {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'UTC',
+  }).formatRange(
+    new Date(Date.UTC(2024, 0, 1, hour)),
+    new Date(Date.UTC(2024, 0, 1, hour + 1))
   )
 
 /** One list for the page and the image, so both always tell the same story. */
@@ -24,7 +29,8 @@ const tilesOf = (t: Messages, locale: Locale, stats: WrappedStats) => {
       caption: t.wrapped.emails,
       detail: t.wrapped.split(
         number(stats.fromPeople),
-        number(stats.fromLists)
+        number(stats.fromLists),
+        number(stats.emails - stats.fromPeople - stats.fromLists)
       ),
       value: number(stats.emails),
     },

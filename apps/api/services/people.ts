@@ -18,6 +18,7 @@ import {
   eq,
   inArray,
   isNull,
+  ne,
   not,
   or,
   sql,
@@ -173,14 +174,16 @@ export const getPerson = async (userId: string, rawEmail: string) => {
         .select({
           id: actions.id,
           kind: actions.kind,
+          subject: messages.subject,
           threadId: actions.threadId,
-          title: actions.title,
         })
         .from(actions)
+        .leftJoin(messages, eq(messages.id, actions.messageId))
         .where(
           and(
             eq(actions.userId, userId),
             eq(actions.status, 'pending'),
+            ne(actions.kind, 'commitment'),
             inArray(
               actions.threadId,
               db

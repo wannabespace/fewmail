@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 
 import { SenderAvatar } from '~/components/sender-avatar'
 import { PeekTrigger } from '~/components/thread-link'
+import { ROW_SWAP } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { hideThread, threadOfMessage } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
@@ -48,6 +49,7 @@ export const Journal = () => {
   const dates = useDates()
   const queryClient = useQueryClient()
   const [openDays, setOpenDays] = useState<string[]>([])
+  const [undoneIds, setUndoneIds] = useState<string[]>([])
   const { data: entries = [] } = useQuery(orpc.today.handled.queryOptions())
   const refresh = () =>
     Promise.all([
@@ -87,8 +89,16 @@ export const Journal = () => {
 
   const row = (entry: JournalEntry) => {
     const { action, message, rule, summary } = entry
-    const undo = action.status === 'failed' ? undefined : undos[action.kind]
+    const undo =
+      action.status === 'failed' || undoneIds.includes(action.id)
+        ? undefined
+        : undos[action.kind]
     const who = whoAllowed(t, entry)
+    const time = (
+      <span className="text-muted-foreground text-xs tabular-nums">
+        {dates.format(action.actedAt, 'p')}
+      </span>
+    )
     return (
       <SettingsRow
         key={action.id}
@@ -111,8 +121,11 @@ export const Journal = () => {
             <span data-mask>
               {[
                 action.title || t.actionKind[action.kind],
-                // A rule's action carries the rule as its reason: `who` already names it.
-                !rule && (action.reason || summary),
+                // A rule's action carries the rule as its reason: `who` already names it. A promise's reason is only its recipient.
+                !rule &&
+                  (action.kind === 'commitment'
+                    ? action.detail
+                    : action.reason || summary),
               ]
                 .filter(Boolean)
                 .join(' · ')}
@@ -123,17 +136,25 @@ export const Journal = () => {
         }
       >
         {message && undo ? (
-          <Button
-            size="sm"
-            variant="ghost-muted"
-            onClick={() => undo.run(message.id)}
-          >
-            {undo.label}
-          </Button>
-        ) : (
-          <span className="text-muted-foreground text-xs tabular-nums">
-            {dates.format(action.actedAt, 'p')}
+          <span className={ROW_SWAP}>
+            <span className="flex group-focus-within/item:opacity-0 group-hover/item:opacity-0">
+              {time}
+            </span>
+            <span className="opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100">
+              <Button
+                size="sm"
+                variant="ghost-muted"
+                onClick={() => {
+                  setUndoneIds((ids) => [...ids, action.id])
+                  undo.run(message.id)
+                }}
+              >
+                {undo.label}
+              </Button>
+            </span>
           </span>
+        ) : (
+          time
         )}
       </SettingsRow>
     )

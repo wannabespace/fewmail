@@ -1,5 +1,5 @@
 import { isBulk } from '@fewmail/shared/agent'
-import { textToHtml } from '@fewmail/shared/email'
+import { senderDomainOrAddress, textToHtml } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
   Alert,
@@ -33,6 +33,7 @@ import {
   ArrowDown01Icon,
   ArrowExpand01Icon,
   ArrowShrink01Icon,
+  Calendar03Icon,
   Cancel01Icon,
   Clock01Icon,
   Delete02Icon,
@@ -47,6 +48,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { Fragment, useEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
+import { createStore } from 'seitu'
+import { useSubscription } from 'seitu/react'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -60,8 +63,9 @@ import {
 } from '~/lib/mail-db'
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
-import { client, orpc } from '~/lib/orpc'
+import { client, orpc, refetchChanged } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
+import { UNDO_TOAST_MS } from '~/lib/undo'
 
 import { AddToBoardItems } from './board-entries'
 import type { Draft } from './compose/compose-context'
@@ -69,6 +73,7 @@ import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
 import { presetTimes, SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
+import { PickTime } from './compose/send-later'
 import { confirm } from './confirm-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { PersonPanel } from './person-panel'
@@ -102,9 +107,7 @@ const riskText = (t: Messages, rows: { message: ThreadMessage }[]) => {
     return ''
   }
   return t.risk[message.risk.kind](
-    message.risk.imitates ??
-      message.fromEmail.split('@')[1] ??
-      message.fromEmail
+    message.risk.imitates ?? senderDomainOrAddress(message.fromEmail)
   )
 }
 
@@ -629,17 +632,32 @@ const useThreadOpen = (
 const LEAVE_YOURSELF_MS = 15_000
 /** Emails acted on under one toast, so its Undo brings back every one of them. */
 const bursts = new Map<string, string[]>()
+let burstCount = 0
+let openBurst: string | undefined
+/**
+ * A burst is what one click or key acts on (a stack, the picks): all its emails start in the same task. Never the
+ * toast's text as its id: a later action would update an earlier toast that is closing, or that sits behind a newer
+ * one with its content hidden, and no Undo would show.
+ */
+const joinBurst = () => {
+  if (!openBurst) {
+    burstCount += 1
+    openBurst = `burst-${burstCount}`
+    setTimeout(() => {
+      openBurst = undefined
+    }, 0)
+  }
+  return openBurst
+}
 const toInbox = (messageId: string) => client.mail.moveToInbox({ messageId })
+
+// Settled together like live events: a refetch after a burst's first answer would put its other emails back for a moment.
+const refresh = () => refetchChanged(['mail', 'today'])
 
 export const useMailActions = (onDone?: (messageId: string) => void) => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
-  const refresh = () =>
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
-      queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
-    ])
   // Every action takes the thread out of the current list, so it leaves before the server answers.
   const leave = {
     onError: refresh,
@@ -649,32 +667,38 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
         hideThread(threadId)
       }
       onDone?.(messageId)
+      return joinBurst()
     },
   }
-  // The id folds a burst's per-email answers into one toast, and its Undo takes back the whole burst.
+  // The burst's id folds its per-email answers into one toast, and its Undo takes back the whole burst.
   const finish = (
     message: string,
-    messageId?: string,
-    undo?: (messageId: string) => Promise<unknown>
+    done?: {
+      burst: string
+      messageId: string
+      undo: (messageId: string) => Promise<unknown>
+    }
   ) => {
     void refresh()
-    if (!messageId || !undo) {
+    if (!done) {
       toast.success(message, { id: message })
       return
     }
-    const burst = [...(bursts.get(message) ?? []), messageId]
-    bursts.set(message, burst)
+    const { burst: id, messageId, undo } = done
+    const burst = [...(bursts.get(id) ?? []), messageId]
+    bursts.set(id, burst)
     toast.success(message, {
       action: {
         label: t.compose.undo,
         onClick: () => {
-          bursts.delete(message)
+          bursts.delete(id)
           void Promise.all(burst.map(undo)).finally(refresh)
         },
       },
-      id: message,
-      onAutoClose: () => bursts.delete(message),
-      onDismiss: () => bursts.delete(message),
+      duration: UNDO_TOAST_MS,
+      id,
+      onAutoClose: () => bursts.delete(id),
+      onDismiss: () => bursts.delete(id),
     })
   }
   const leaveYourself = (link: string, id: string) => {
@@ -715,31 +739,42 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     archive: useMutation(
       orpc.mail.archive.mutationOptions({
         ...leave,
-        onSuccess: (_, { messageId }) =>
-          finish(t.mail.archived, messageId, toInbox),
+        onSuccess: (_, { messageId }, burst) =>
+          finish(t.mail.archived, { burst, messageId, undo: toInbox }),
       })
     ),
     block: useMutation(
       orpc.mail.block.mutationOptions({
         ...leave,
-        onSuccess: ({ ruleId }, { messageId }) =>
-          finish(t.mail.blocked, messageId, async () => {
-            await client.rules.delete({ id: ruleId })
-            await toInbox(messageId)
-            void queryClient.invalidateQueries({
-              queryKey: orpc.rules.key(),
-            })
+        onSuccess: ({ ruleId }, { messageId }, burst) =>
+          finish(t.mail.blocked, {
+            burst,
+            messageId,
+            undo: async () => {
+              await client.rules.delete({ id: ruleId })
+              await toInbox(messageId)
+              void queryClient.invalidateQueries({
+                queryKey: orpc.rules.key(),
+              })
+            },
           }),
       })
     ),
     markRead: useMutation(
       orpc.mail.markRead.mutationOptions({
         onError: refresh,
-        onMutate: ({ threadId }) => showThreadRead(threadId),
-        onSuccess: (_, { threadId }) =>
-          finish(t.mail.markedRead, threadId, (id) => {
-            showThreadRead(id, false)
-            return client.mail.markUnread({ threadId: id })
+        onMutate: ({ threadId }) => {
+          showThreadRead(threadId)
+          return joinBurst()
+        },
+        onSuccess: (_, { threadId }, burst) =>
+          finish(t.mail.markedRead, {
+            burst,
+            messageId: threadId,
+            undo: (id) => {
+              showThreadRead(id, false)
+              return client.mail.markUnread({ threadId: id })
+            },
           }),
       })
     ),
@@ -769,28 +804,30 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     reportSpam: useMutation(
       orpc.mail.reportSpam.mutationOptions({
         ...leave,
-        onSuccess: (_, { messageId }) =>
-          finish(t.mail.reportedSpam, messageId, (id) =>
-            client.mail.notSpam({ messageId: id })
-          ),
+        onSuccess: (_, { messageId }, burst) =>
+          finish(t.mail.reportedSpam, {
+            burst,
+            messageId,
+            undo: (id) => client.mail.notSpam({ messageId: id }),
+          }),
       })
     ),
     snooze: useMutation(
       orpc.mail.snooze.mutationOptions({
         ...leave,
-        onSuccess: (_, { messageId, until }) =>
-          finish(
-            t.snooze.until(dates.format(until, 'EEE p')),
+        onSuccess: (_, { messageId, until }, burst) =>
+          finish(t.snooze.until(dates.format(until, 'EEE p')), {
+            burst,
             messageId,
-            (id) => client.mail.unsnooze({ messageId: id })
-          ),
+            undo: (id) => client.mail.unsnooze({ messageId: id }),
+          }),
       })
     ),
     trash: useMutation(
       orpc.mail.trash.mutationOptions({
         ...leave,
-        onSuccess: (_, { messageId }) =>
-          finish(t.mail.trashed, messageId, toInbox),
+        onSuccess: (_, { messageId }, burst) =>
+          finish(t.mail.trashed, { burst, messageId, undo: toInbox }),
       })
     ),
     unsnooze: useMutation(
@@ -852,6 +889,11 @@ const placeOf = (labelIds: string[], isSnoozed: boolean): Place => {
   return labelIds.includes('SPAM') ? 'spam' : 'elsewhere'
 }
 
+const snoozePick = createStore<{
+  anchor: DOMRect
+  onSnooze: (until: Date) => void
+} | null>(null)
+
 export const SnoozeMenuItems = ({
   onSnooze,
 }: {
@@ -859,15 +901,61 @@ export const SnoozeMenuItems = ({
 }) => {
   const t = useT()
   const dates = useDates()
-  return presetTimes(SNOOZE_PRESETS, SNOOZE_OPTIONS).map(
-    ({ preset, until }) => (
-      <DropdownMenuItem key={preset} onClick={() => onSnooze(until)}>
-        {t.snooze[preset]}
-        <DropdownMenuShortcut>
-          {dates.format(until, 'EEE p')}
-        </DropdownMenuShortcut>
+  return (
+    <>
+      {presetTimes(SNOOZE_PRESETS, SNOOZE_OPTIONS).map(({ preset, until }) => (
+        <DropdownMenuItem key={preset} onClick={() => onSnooze(until)}>
+          {t.snooze[preset]}
+          <DropdownMenuShortcut>
+            {dates.format(until, 'EEE p')}
+          </DropdownMenuShortcut>
+        </DropdownMenuItem>
+      ))}
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        onClick={(event) =>
+          snoozePick.set({
+            anchor: event.currentTarget.getBoundingClientRect(),
+            onSnooze,
+          })
+        }
+      >
+        <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />
+        {t.compose.later.pick}
       </DropdownMenuItem>
-    )
+    </>
+  )
+}
+
+/** One picker for every snooze menu, mounted once: the menu that asked is gone by then, so it opens where its item was. */
+export const SnoozePicker = () => {
+  const t = useT()
+  const asked = useSubscription(snoozePick)
+  const [shown, setShown] = useState(asked)
+  if (asked && asked !== shown) {
+    setShown(asked)
+  }
+  return (
+    <Popover
+      open={!!asked}
+      onOpenChange={(open) => !open && snoozePick.set(null)}
+      onOpenChangeComplete={(open) => !open && setShown(null)}
+    >
+      <PopoverContent
+        anchor={shown && { getBoundingClientRect: () => shown.anchor }}
+        align="end"
+      >
+        {shown && (
+          <PickTime
+            action={t.snooze.title}
+            onPick={(until) => {
+              snoozePick.set(null)
+              shown.onSnooze(until)
+            }}
+          />
+        )}
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -927,7 +1015,6 @@ export const CodeActions = ({
         size="xs"
         variant="outline"
         aria-label={t.mail.oneTimeCode.copy}
-        className="pl-1.5"
       >
         <span
           data-mask

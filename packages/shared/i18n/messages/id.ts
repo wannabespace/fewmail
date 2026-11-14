@@ -411,8 +411,8 @@ export const id: Messages = {
     undone: (emails: string) => `${emails} kembali di kotak masuk`,
   },
   wrapped: {
-    busiest: (day: string, hour: string) =>
-      `Paling sibuk: ${day}, sekitar ${hour}`,
+    busiest: (day: string, hours: string) =>
+      `Hari tersibuk: ${day} · jam tersibuk: ${hours}`,
     copied: 'Tautan disalin',
     copyLink: 'Salin tautan',
     cta: 'Dapatkan punyamu dengan Fewmail',
@@ -428,8 +428,8 @@ export const id: Messages = {
       'Tautan dan gambar hanya menampilkan angka ini, tanpa nama atau alamat.',
     shared: { month: 'Sebulan dalam email', year: 'Setahun dalam email' },
     spam: 'email spam dihentikan',
-    split: (people: string, lists: string) =>
-      `${people} dari orang · ${lists} dari newsletter`,
+    split: (people: string, lists: string, other: string) =>
+      `${people} dari orang · ${lists} dari newsletter · ${other} lainnya`,
     title: { month: 'Bulanmu dalam email', year: 'Tahunmu dalam email' },
     unsubscribed: 'newsletter ditinggalkan',
   },
@@ -750,7 +750,7 @@ export const id: Messages = {
       'Pengirim ini tidak punya berhenti langganan sekali klik, jadi emailnya diarsipkan. Jika terus datang, akan masuk spam.',
     count: (total: number) => `Milis: ${total}`,
     empty: 'Tidak ada milis yang mengirimimu email bulan ini.',
-    lead: 'Milis yang mengirimimu email bulan ini, yang paling aktif lebih dulu. Berhenti langganan mengarsipkan semua kirimannya; email yang masih datang dua minggu kemudian masuk spam.',
+    lead: 'Milis yang mengirimimu email bulan ini, yang paling aktif lebih dulu. Berhenti langganan mengarsipkan semua kirimannya; jika email masih datang dua minggu kemudian, aku menyarankan memindahkannya ke spam dan baru memindahkannya setelah kamu setuju.',
     opened: (total: number) =>
       total === 0 ? 'tidak ada yang dibuka' : `${total} dibuka`,
     title: 'Langganan',
@@ -1129,7 +1129,7 @@ export const id: Messages = {
       noFreePlan: 'Tanpa paket gratis',
       ours: {
         ask: 'Di Pro',
-        home: 'Langsung diperbarui, setujui sekaligus, di Pro',
+        home: 'Langsung diperbarui, setujui sekaligus, gratis',
         drafts: 'Dengan gayamu, dikirim hanya setelah kamu setujui, di Pro',
         followUps: 'Otomatis, untuk email yang menunggu balasan',
         handOver: 'Agen menuntaskannya sampai tujuan, di Pro',
@@ -1436,6 +1436,7 @@ export const id: Messages = {
       free: {
         description: 'Penyortiran, aturan, dan perlindungan. Selamanya.',
         features: [
+          'Beranda: satu antrean keputusan yang selalu terbaru, disetujui satu per satu atau sekaligus',
           'Setiap email disortir dan dinilai menurut kepentingannya',
           'Aturan dengan kata-kata biasa yang mengarsipkan, menandai dibaca, atau berhenti langganan',
           'Perisai spam komunitas dan peringatan phishing',
@@ -1452,7 +1453,6 @@ export const id: Messages = {
       lite: {
         description: 'Agen seutuhnya: membaca, menulis, dan mengingat.',
         features: [
-          'Beranda: satu antrean keputusan yang selalu terbaru, disetujui satu per satu atau sekaligus',
           'Balasan disusun dengan gayamu, dikirim hanya setelah kamu setujui',
           'Telegram: email mendesak, persetujuan, dan perintah suara',
           'Janji dan orang diingat, papan dengan grafik untuk uang atau apa pun yang kamu lacak',
@@ -1685,7 +1685,6 @@ export const id: Messages = {
         'Bagian dari Fewmail Pro: jelaskan apa yang dikumpulkan, dan agen mencarinya di email-mu serta terus memperbaruinya.',
       drafts:
         'Bagian dari Fewmail Pro: agen menulis balasan dengan gayamu, lalu kamu edit dan kirim.',
-      home: 'Bagian dari Fewmail Pro: email yang butuh kamu, dengan balasan yang sudah dirancang, diperbarui begitu email tiba.',
     },
   },
   whatsapp: {
