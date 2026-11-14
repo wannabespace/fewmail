@@ -61,7 +61,7 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { useDeferredValue, useEffect, useState } from 'react'
+import { useDeferredValue, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
@@ -148,31 +148,19 @@ const Ago = ({ date }: { date: Date }) => (
 
 const TIDY_TOAST = 'tidy'
 
-/** The agent's suggestions for quiet mail as one decision: one yes does them all. */
-const Tidy = ({
-  canUseKeys,
-  onSettle,
-  today,
-}: {
-  canUseKeys: boolean
-  onSettle: () => void
-  today: Today | undefined
-}) => {
+type TidyItem = Today['tidy'][number]
+
+/** The agent's suggestions for quiet mail: nothing changes in Gmail until the user approves them, all at once or one by one. */
+const useTidy = (today: Today | undefined, onSettle: () => void) => {
   const t = useT()
-  const tidy = today?.tidy ?? []
   const queryClient = useQueryClient()
-  const [isOpen, setIsOpen] = useState(false)
-  const dropFromTidy = ({ messageIds }: { messageIds: string[] }) =>
-    queryClient.setQueryData(
-      orpc.today.get.queryKey(),
-      (old) =>
-        old && {
-          ...old,
-          tidy: old.tidy.filter(
-            ({ message }) => !messageIds.includes(message.id)
-          ),
-        }
-    )
+  // A refetch that lands while the next approval still runs would bring its row back under the cursor.
+  const [goneIds, setGoneIds] = useState<string[]>([])
+  const tidy = (today?.tidy ?? []).filter(
+    ({ message }) => !goneIds.includes(message.id)
+  )
+  const hide = ({ messageIds }: { messageIds: string[] }) =>
+    setGoneIds((current) => [...current, ...messageIds])
   const refetch = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
   const refetchMail = () =>
@@ -184,27 +172,25 @@ const Tidy = ({
     orpc.today.tidy.mutationOptions({
       onError: () => toast.dismiss(TIDY_TOAST),
       onMutate: (input) => {
-        dropFromTidy(input)
-        onSettle()
+        hide(input)
         toast.loading(t.today.tidy.running, { id: TIDY_TOAST })
       },
       onSettled: refetchMail,
     })
   )
-  const keep = useMutation(
-    orpc.today.keep.mutationOptions({
-      onMutate: dropFromTidy,
-      onSettled: refetch,
-    })
+  const keepMutation = useMutation(
+    orpc.today.keep.mutationOptions({ onMutate: hide, onSettled: refetch })
   )
-  const run = () => {
+  // All the quiet mail is one decision on Home: it is settled once none is left.
+  const settleIfLast = (count: number) => count === tidy.length && onSettle()
+  const approve = (items: TidyItem[]) => {
     const idsOf = (kind?: (typeof TIDY_KINDS)[number]) =>
-      tidy
+      items
         .filter(({ analysis }) => !kind || analysis.suggestedAction === kind)
         .map(({ message }) => message.id)
     const archived = idsOf('archive')
-    const isLeavingLists = idsOf('unsubscribe').length > 0
-    const tidyAll = () =>
+    const approveThem = () => {
+      settleIfLast(items.length)
       runTidy.mutate(
         { messageIds: idsOf() },
         {
@@ -224,85 +210,170 @@ const Tidy = ({
               : toast.success(t.today.tidy.done(settled), { id: TIDY_TOAST }),
         }
       )
-    if (!isLeavingLists) {
-      tidyAll()
+    }
+    if (idsOf('unsubscribe').length === 0) {
+      approveThem()
       return
     }
     confirm({
-      action: t.today.tidy.run,
+      action: t.rules.effect.unsubscribe,
       description: t.today.tidy.unsubscribeHint,
-      onConfirm: tidyAll,
-      title: t.today.tidy.confirm(t.cleanup.emails(tidy.length)),
+      onConfirm: approveThem,
+      title: t.today.tidy.confirm(t.cleanup.emails(items.length)),
       variant: 'warning',
     })
   }
-  const toggle = () => setIsOpen((current) => !current)
-  const keys = { enabled: canUseKeys && tidy.length > 0 }
-  useHotkey('T', run, keys)
-  useHotkey('D', toggle, keys)
-
-  if (tidy.length === 0) {
-    return null
+  const keep = (item: TidyItem) => {
+    settleIfLast(1)
+    keepMutation.mutate({ messageIds: [item.message.id] })
   }
+  return { approve, isLoaded: !!today, keep, tidy }
+}
+
+type Tidy = ReturnType<typeof useTidy>
+
+const tidyKinds = (t: Messages, tidy: TidyItem[]) =>
+  TIDY_KINDS.map((kind) => {
+    const count = tidy.filter(
+      ({ analysis }) => analysis.suggestedAction === kind
+    ).length
+    return count > 0 && t.today.tidy[kind](count)
+  })
+    .filter(Boolean)
+    .join(' · ')
+
+/** Every email the agent would tidy, by what it would do: ⏎ approves the cursor's, S keeps it as it is. */
+const TidyReview = ({
+  canUseKeys,
+  tidy,
+}: {
+  canUseKeys: boolean
+  tidy: Tidy
+}) => {
+  const t = useT()
+  const navigate = useNavigate()
+  const listRef = useRef<HTMLDivElement>(null)
+  const [cursor, setCursor] = useState(0)
+  const groups = TIDY_KINDS.map((kind) => ({
+    kind,
+    rows: tidy.tidy.filter(({ analysis }) => analysis.suggestedAction === kind),
+  })).filter(({ rows }) => rows.length > 0)
+  const rows = groups.flatMap(({ rows: group }) => group)
+  // The cursor keeps its place as rows leave: the next one slides under it.
+  const current = Math.min(cursor, rows.length - 1)
+  const selected = rows[current]
+
+  useEffect(() => {
+    const row = listRef.current?.querySelectorAll('[data-slot="item"]')[current]
+    row?.scrollIntoView({ block: 'nearest' })
+  }, [current])
+
+  const isDone = tidy.isLoaded && rows.length === 0
+  useEffect(() => {
+    if (isDone) {
+      void navigate({
+        search: (prev) => ({ ...prev, page: undefined }),
+        to: '/home',
+      })
+    }
+  }, [isDone, navigate])
+
+  const move = (step: number) =>
+    setCursor(Math.max(0, Math.min(rows.length - 1, current + step)))
+  const keys = { enabled: canUseKeys && !!selected }
+  useHotkey('J', () => move(1), keys)
+  useHotkey('ArrowDown', () => move(1), keys)
+  useHotkey('K', () => move(-1), keys)
+  useHotkey('ArrowUp', () => move(-1), keys)
+  useHotkey('Enter', () => selected && tidy.approve([selected]), keys)
+  useHotkey('S', () => selected && tidy.keep(selected), keys)
+  useHotkey('T', () => tidy.approve(rows), keys)
+  useHotkey(
+    'O',
+    () =>
+      selected &&
+      navigate({
+        search: (prev) => ({ ...prev, thread: selected.message.threadId }),
+        to: '/home',
+      }),
+    keys
+  )
+
   return (
     <>
-      <Item variant="card" size="sm">
-        <ItemContent>
-          <ItemTitle>{t.today.tidy.total(tidy.length)}</ItemTitle>
-          <p className="text-muted-foreground text-sm">
-            {TIDY_KINDS.map((kind) => {
-              const count = tidy.filter(
-                ({ analysis }) => analysis.suggestedAction === kind
-              ).length
-              return count > 0 && t.today.tidy[kind](count)
-            })
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        </ItemContent>
-        <ItemActions>
+      <header className="flex flex-col gap-3">
+        <div className="flex items-end justify-between gap-4">
+          <h1 className="text-display font-serif tracking-tight">
+            {t.today.tidy.reviewTitle}
+          </h1>
           <Button
             size="sm"
-            variant="ghost-muted"
-            onClick={toggle}
-            shortcut={<Kbd>D</Kbd>}
+            disabled={rows.length === 0}
+            onClick={() => tidy.approve(rows)}
+            shortcut={<Kbd>T</Kbd>}
           >
-            {t.today.tidy.details}
-          </Button>
-          <Button size="sm" onClick={run} shortcut={<Kbd>T</Kbd>}>
             {t.today.tidy.run}
           </Button>
-        </ItemActions>
-      </Item>
-      {isOpen && (
-        <SettingsGroup>
-          {tidy.map(({ analysis, message }) => (
-            <SettingsRow
-              key={message.id}
-              title={
-                <ThreadLink
-                  threadId={message.threadId}
-                  text={message.fromName ?? message.fromEmail}
-                />
-              }
-              description={
-                <>
-                  {t.rules.effect[analysis.suggestedAction]} ·{' '}
-                  <span data-mask>{analysis.reason || analysis.summary}</span>
-                </>
-              }
-            >
-              <Button
-                size="sm"
-                variant="ghost-muted"
-                onClick={() => keep.mutate({ messageIds: [message.id] })}
-              >
-                {t.today.tidy.keep}
-              </Button>
-            </SettingsRow>
-          ))}
-        </SettingsGroup>
-      )}
+        </div>
+        <p className="text-brief text-foreground/80 font-serif">
+          {t.today.tidy.reviewLead}
+        </p>
+      </header>
+      <div ref={listRef} className="flex flex-col gap-8">
+        {groups.map(({ kind, rows: group }) => (
+          <SettingsGroup
+            key={kind}
+            title={
+              <span className="inline-block first-letter:uppercase">
+                {t.today.tidy[kind](group.length)}
+              </span>
+            }
+          >
+            {group.map((item) => {
+              const isActive = item === selected
+              return (
+                <SettingsRow
+                  key={item.message.id}
+                  active={isActive}
+                  title={
+                    <ThreadLink
+                      threadId={item.message.threadId}
+                      text={item.message.fromName ?? item.message.fromEmail}
+                    />
+                  }
+                  description={
+                    <span data-mask>
+                      {[
+                        item.message.subject,
+                        item.analysis.reason || item.analysis.summary,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                  }
+                >
+                  <Button
+                    size="sm"
+                    variant="ghost-muted"
+                    onClick={() => tidy.keep(item)}
+                    shortcut={isActive ? <Kbd>S</Kbd> : undefined}
+                  >
+                    {t.today.tidy.keep}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => tidy.approve([item])}
+                    shortcut={isActive ? <Kbd>⏎</Kbd> : undefined}
+                  >
+                    {t.rules.effect[kind]}
+                  </Button>
+                </SettingsRow>
+              )
+            })}
+          </SettingsGroup>
+        ))}
+      </div>
     </>
   )
 }
@@ -695,21 +766,66 @@ const Saved = ({ saved }: { saved: Today['saved'] }) => {
 const hasTally = (today: Today | undefined): today is Today =>
   !!today && (today.acted > 0 || today.saved.minutes > 0)
 
-const Tally = ({ today }: { today: Today | undefined }) => {
+/** What waits for the user's yes above what the agent already did: the review (D) and the journal (H) list each of them. */
+const Tally = ({
+  canUseKeys,
+  tidy,
+  today,
+}: {
+  canUseKeys: boolean
+  tidy: Tidy
+  today: Today | undefined
+}) => {
   const t = useT()
+  useHotkey('T', () => tidy.approve(tidy.tidy), {
+    enabled: canUseKeys && tidy.tidy.length > 0,
+  })
 
-  if (!hasTally(today)) {
-    return null
-  }
   return (
-    <TallyBox>
-      <span>
-        {today.acted > 0 && t.today.acted(today.acted)}
-        {today.acted > 0 && today.saved.minutes > 0 && ' · '}
-        {today.saved.minutes > 0 && <Saved saved={today.saved} />}
-      </span>
-      <JournalLink />
-    </TallyBox>
+    <div className="flex flex-col gap-2.5 empty:hidden">
+      {tidy.tidy.length > 0 && (
+        <Item variant="card" size="sm">
+          <ItemContent>
+            <ItemTitle>{t.today.tidy.total(tidy.tidy.length)}</ItemTitle>
+            <p className="text-muted-foreground text-sm first-letter:uppercase">
+              {tidyKinds(t, tidy.tidy)}. {t.today.tidy.untilYouApprove}
+            </p>
+          </ItemContent>
+          <ItemActions>
+            <Button
+              size="sm"
+              variant="secondary"
+              render={
+                <Link
+                  to="/home"
+                  search={(prev) => ({ ...prev, page: 'tidy' })}
+                />
+              }
+              shortcut={<Kbd>D</Kbd>}
+            >
+              {t.today.tidy.review}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => tidy.approve(tidy.tidy)}
+              shortcut={<Kbd>T</Kbd>}
+            >
+              {t.today.tidy.run}
+            </Button>
+          </ItemActions>
+        </Item>
+      )}
+      {hasTally(today) && (
+        <TallyBox>
+          <span>
+            {today.acted > 0 && t.today.acted(today.acted)}
+            {today.acted > 0 && today.saved.minutes > 0 && ' · '}
+            {today.saved.minutes > 0 && <Saved saved={today.saved} />}
+          </span>
+          <JournalLink />
+        </TallyBox>
+      )}
+    </div>
   )
 }
 
@@ -888,27 +1004,39 @@ const Journal = () => {
   )
 }
 
-type HomeSubpage = 'journal' | 'reading'
+type HomeSubpage = 'journal' | 'reading' | 'tidy'
 
 const pageHints = (
   t: Messages,
   page: HomeSubpage,
   newsletters: number
-): [string, string][] =>
-  page === 'journal'
-    ? [
-        ['H', t.nav.home],
-        ['esc', t.keys.close],
-      ]
-    : [
-        ...(newsletters > 0
-          ? ([
-              ['J / K', t.keys.move],
-              ['⏎', t.keys.open],
-            ] as [string, string][])
-          : []),
-        ['esc', t.keys.close],
-      ]
+): [string, string][] => {
+  if (page === 'journal') {
+    return [
+      ['H', t.nav.home],
+      ['esc', t.keys.close],
+    ]
+  }
+  if (page === 'tidy') {
+    return [
+      ['J / K', t.keys.move],
+      ['⏎', t.keys.approve],
+      ['S', t.keys.keep],
+      ['O', t.keys.open],
+      ['T', t.today.tidy.run],
+      ['esc', t.keys.close],
+    ]
+  }
+  return [
+    ...(newsletters > 0
+      ? ([
+          ['J / K', t.keys.move],
+          ['⏎', t.keys.open],
+        ] as [string, string][])
+      : []),
+    ['esc', t.keys.close],
+  ]
+}
 
 const primaryHints = (
   t: Messages,
@@ -937,6 +1065,7 @@ const homeHints = (
     selected: QueueItem | undefined
     stale: number
     page: HomeSubpage | undefined
+    tidy: number
   }
 ): [string, string][] => {
   if (state.isRewriting) {
@@ -988,10 +1117,10 @@ const homeHints = (
         ]
       : []),
     ...(state.stale > 0 ? [['⇧S', t.queue.skipStale] as [string, string]] : []),
-    ...(state.today?.tidy.length
+    ...(state.tidy > 0
       ? [
           ['T', t.today.tidy.run] as [string, string],
-          ['D', t.today.tidy.details] as [string, string],
+          ['D', t.today.tidy.review] as [string, string],
         ]
       : []),
     ...(state.hasFilter ? [['F', t.keys.filter] as [string, string]] : []),
@@ -1401,20 +1530,20 @@ const StaleCards = ({
 }
 
 /** Every card and banner is one decision; all the quiet mail to tidy is one more. */
-const countDecisions = (data: Today | undefined, cards: number) =>
+const countDecisions = (data: Today | undefined, cards: number, tidy: number) =>
   data
     ? cards +
       data.banners.length +
       data.newSenders.length +
       data.ruleOffers.length +
-      Math.min(data.tidy.length, 1)
+      Math.min(tidy, 1)
     : 0
 
-/** The journal (`H`) takes Home's column and Reading (`N`) opens over it; the same key or esc brings Home back. */
+/** The journal (`H`) and the tidy review (`D`) take Home's column and Reading (`N`) opens over it; the same key or esc brings Home back. */
 const useHomeSubpage = (
   page: HomeSubpage | undefined,
   canSwitch: boolean,
-  hasNewsletters: boolean
+  { hasNewsletters, hasTidy }: { hasNewsletters: boolean; hasTidy: boolean }
 ) => {
   const navigate = useNavigate()
   const show = (next: HomeSubpage | undefined) =>
@@ -1425,7 +1554,11 @@ const useHomeSubpage = (
   useHotkey('N', () => toggle('reading'), {
     enabled: canSwitch && hasNewsletters,
   })
+  useHotkey('D', () => toggle('tidy'), { enabled: canSwitch && hasTidy })
 }
+
+/** Reading opens over Home; the journal and the tidy review take its place. */
+const showsHome = (page: HomeSubpage | undefined) => !page || page === 'reading'
 
 const isAllClear = (data: Today | undefined, decisions: number) =>
   decisions === 0 && !data?.codes.length
@@ -1460,7 +1593,8 @@ const HomePage = () => {
     picked.length > 0 ? picked : queue.slice(selectedIndex, selectedIndex + 1)
   const staleBefore = subDays(dataUpdatedAt, STALE_DAYS)
   const stale = queue.filter(({ action }) => action.createdAt < staleBefore)
-  const decisions = countDecisions(data, cards.length)
+  const tidy = useTidy(data, settle)
+  const decisions = countDecisions(data, cards.length, tidy.tidy.length)
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
@@ -1673,8 +1807,12 @@ const HomePage = () => {
   const showThread = (id: string | undefined) =>
     navigate({ search: (prev) => ({ ...prev, thread: id }), to: '/home' })
   // The open thread brings its own R, E, S, H and ⌫.
-  const isWalking = !isEditing && !thread && !page
-  useHomeSubpage(page, !isEditing && !thread, newsletters.length > 0)
+  const isFocused = !isEditing && !thread
+  const isWalking = isFocused && !page
+  useHomeSubpage(page, isFocused, {
+    hasNewsletters: newsletters.length > 0,
+    hasTidy: tidy.tidy.length > 0,
+  })
   const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), listKeys)
   useHotkey('ArrowDown', () => move(1), listKeys)
@@ -1746,7 +1884,10 @@ const HomePage = () => {
           <div className="h-full overflow-y-auto">
             <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
               {page === 'journal' && <Journal />}
-              {page !== 'journal' && (
+              {page === 'tidy' && (
+                <TidyReview canUseKeys={isFocused} tidy={tidy} />
+              )}
+              {showsHome(page) && (
                 <>
                   <HomeHeader
                     data={data}
@@ -1754,7 +1895,7 @@ const HomePage = () => {
                     isFirstRead={isFirstRead}
                     updatedAt={dataUpdatedAt}
                   />
-                  <Tally today={data} />
+                  <Tally canUseKeys={isWalking} tidy={tidy} today={data} />
                   <ConnectHint />
                   <ReadingSection isOpen={isReadingOpen} />
 
@@ -1832,11 +1973,6 @@ const HomePage = () => {
                         cardsBleedClassName
                       )}
                     >
-                      <Tidy
-                        today={data}
-                        canUseKeys={isWalking}
-                        onSettle={() => settle()}
-                      />
                       <NewSenders
                         senders={data?.newSenders ?? []}
                         canUseKeys={isWalking}
@@ -1870,6 +2006,7 @@ const HomePage = () => {
             isRewriting,
             picked: picked.length,
             stale: stale.length,
+            tidy: tidy.tidy.length,
             today: data,
           })}
         />
@@ -1890,7 +2027,7 @@ export const Route = createFileRoute('/_app/home')({
   component: HomePage,
   validateSearch: type({
     'thread?': 'string',
-    'page?': "'journal' | 'reading'",
+    'page?': "'journal' | 'reading' | 'tidy'",
   }),
   loader: async () => {
     await Promise.all([
