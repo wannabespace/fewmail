@@ -61,7 +61,7 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { useDeferredValue, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
@@ -72,7 +72,7 @@ import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { openCardLink, primaryStep, QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
-import { ReadingSection, useReading } from '~/components/reading'
+import { ReadingPane, ReadingSection, useReading } from '~/components/reading'
 import {
   CodeActions,
   MailRowActions,
@@ -1410,7 +1410,7 @@ const countDecisions = (data: Today | undefined, cards: number) =>
       Math.min(data.tidy.length, 1)
     : 0
 
-/** The journal (`H`) takes Home's column and Reading (`N`) unfolds in it; the same key or esc brings Home back. */
+/** The journal (`H`) takes Home's column and Reading (`N`) opens over it; the same key or esc brings Home back. */
 const useHomeSubpage = (
   page: HomeSubpage | undefined,
   canSwitch: boolean,
@@ -1435,6 +1435,8 @@ const HomePage = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { page, thread } = Route.useSearch()
+  // Router state commits synchronously and never starts a view transition; the deferred re-render is what morphs Reading.
+  const isReadingOpen = useDeferredValue(page === 'reading')
   const { rows: newsletters } = useReading()
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
@@ -1754,7 +1756,7 @@ const HomePage = () => {
                   />
                   <Tally today={data} />
                   <ConnectHint />
-                  <ReadingSection isOpen={page === 'reading'} thread={thread} />
+                  <ReadingSection isOpen={isReadingOpen} />
 
                   <section
                     aria-label={t.today.decisions}
@@ -1855,6 +1857,7 @@ const HomePage = () => {
               )}
             </div>
           </div>
+          <ReadingPane isOpen={isReadingOpen} thread={thread} />
         </div>
         <KeyHints
           hints={homeHints(t, {

@@ -1,24 +1,22 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
-import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
-import {
-  ArrowDown01Icon,
-  ArrowUp01Icon,
-  News01Icon,
-} from '@hugeicons/core-free-icons'
+import { cn } from '@fewmail/ui/lib/utils'
+import { Cancel01Icon, News01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { isToday } from 'date-fns'
-import { AnimatePresence } from 'motion/react'
+import { useReducedMotion } from 'motion/react'
+import { AnimateView } from 'motion/react-animate-view'
 import { Fragment, useEffect, useRef, useState } from 'react'
 
 import { ListenButton } from '~/components/listen-button'
@@ -263,34 +261,47 @@ const SummaryGaps = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
   )
 }
 
-/**
- * What your newsletters said, on Home under the header: the opening and the topics, and `N` (`?page=reading`) unfolds
- * the whole summary and every newsletter in place, so reading them never leaves Home.
- */
-export const ReadingSection = ({
-  isOpen,
-  thread,
+// One clock for the folded head and the open pane, so the pane grows out of the section and shrinks back into it.
+const useMorph = () =>
+  useReducedMotion()
+    ? { duration: 0 }
+    : { duration: 0.4, ease: [0.32, 0.72, 0, 1] as const }
+
+const ReadingIntro = ({
+  isWriting,
+  summary,
 }: {
-  isOpen: boolean
-  thread: string | undefined
+  isWriting: boolean
+  summary: Summary | undefined
 }) => {
   const t = useT()
-  const { isWriting, rows, summary } = useReading()
-  const sectionRef = useRef<HTMLElement>(null)
-  useEffect(() => {
-    if (isOpen) {
-      sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }, [isOpen])
+  return isWriting ? (
+    <SummarySkeleton />
+  ) : (
+    <p
+      data-mask={!!summary || undefined}
+      className="text-brief text-foreground/80 font-serif"
+    >
+      {summary?.intro ?? t.reading.lead}
+    </p>
+  )
+}
 
+/**
+ * What your newsletters said, on Home under the header: the opening and the topics. `N` (`?page=reading`) grows it
+ * into `ReadingPane`; while the pane is open the section keeps its place, unseen, so it shrinks back into the same spot.
+ */
+export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
+  const t = useT()
+  const transition = useMorph()
+  const { isWriting, rows, summary } = useReading()
   if (rows.length === 0) {
     return null
   }
-  return (
+  const section = (
     <section
-      ref={sectionRef}
       aria-label={t.reading.title}
-      className="flex scroll-mt-12 flex-col gap-3"
+      className={cn('flex flex-col gap-3', isOpen && 'invisible')}
     >
       <div className="flex min-h-8 items-center gap-2">
         <h2 className="text-muted-foreground text-xs font-medium">
@@ -304,10 +315,7 @@ export const ReadingSection = ({
             render={
               <Link
                 to="/home"
-                search={(prev) => ({
-                  ...prev,
-                  page: isOpen ? undefined : 'reading',
-                })}
+                search={(prev) => ({ ...prev, page: 'reading' })}
               />
             }
             shortcut={<Kbd>N</Kbd>}
@@ -318,42 +326,77 @@ export const ReadingSection = ({
               data-icon="inline-start"
             />
             {t.reading.digest(rows.length)}
-            <HugeiconsIcon
-              icon={isOpen ? ArrowUp01Icon : ArrowDown01Icon}
-              strokeWidth={2}
-              data-icon="inline-end"
-            />
           </Button>
         </div>
       </div>
-      {isWriting ? (
-        <SummarySkeleton />
-      ) : (
-        <p
-          data-mask={!!summary || undefined}
-          className="text-brief text-foreground/80 font-serif"
-        >
-          {summary?.intro ?? t.reading.lead}
+      <ReadingIntro isWriting={isWriting} summary={summary} />
+      {!!summary?.sections.length && (
+        <p data-mask className="text-muted-foreground font-serif">
+          {summary.sections.map(({ title }) => title).join(' · ')}
         </p>
       )}
-      <AnimatePresence initial={false}>
-        {!isOpen && !!summary?.sections.length && (
-          <MotionCollapse key="topics">
-            <p data-mask className="text-muted-foreground font-serif">
-              {summary.sections.map(({ title }) => title).join(' · ')}
-            </p>
-          </MotionCollapse>
-        )}
-        {isOpen && (
-          <MotionCollapse key="whole">
-            <div className="flex flex-col gap-6 pt-2">
-              {summary && <SummaryText rows={rows} summary={summary} />}
-              {summary && <SummaryGaps rows={rows} summary={summary} />}
-              <NewsletterList rows={rows} summary={summary} thread={thread} />
-            </div>
-          </MotionCollapse>
-        )}
-      </AnimatePresence>
     </section>
+  )
+  return isOpen ? (
+    section
+  ) : (
+    <AnimateView name="reading" transition={transition}>
+      {section}
+    </AnimateView>
+  )
+}
+
+/** The whole summary and every newsletter, over Home's column: it grows out of `ReadingSection` like an App Store card. */
+export const ReadingPane = ({
+  isOpen,
+  thread,
+}: {
+  isOpen: boolean
+  thread: string | undefined
+}) => {
+  const t = useT()
+  const navigate = useNavigate()
+  const transition = useMorph()
+  const { isWriting, rows, summary } = useReading()
+  if (!isOpen || rows.length === 0) {
+    return null
+  }
+  return (
+    <AnimateView name="reading" transition={transition}>
+      <div className="bg-background absolute inset-0 overflow-y-auto">
+        <section
+          aria-label={t.reading.title}
+          className="mx-auto flex max-w-3xl flex-col gap-3 px-10 pt-12 pb-16"
+        >
+          <div className="flex min-h-8 items-center gap-2">
+            <h2 className="text-muted-foreground text-xs font-medium">
+              {t.reading.summary}
+            </h2>
+            <div className="ml-auto flex gap-2">
+              {summary && <ListenButton path="/voice/reading" />}
+              <IconButton
+                icon={Cancel01Icon}
+                label={t.mail.close}
+                shortcut={<Kbd>esc</Kbd>}
+                size="icon-sm"
+                variant="ghost-muted"
+                onClick={() =>
+                  navigate({
+                    search: (prev) => ({ ...prev, page: undefined }),
+                    to: '/home',
+                  })
+                }
+              />
+            </div>
+          </div>
+          <ReadingIntro isWriting={isWriting} summary={summary} />
+          <div className="flex flex-col gap-6 pt-2">
+            {summary && <SummaryText rows={rows} summary={summary} />}
+            {summary && <SummaryGaps rows={rows} summary={summary} />}
+            <NewsletterList rows={rows} summary={summary} thread={thread} />
+          </div>
+        </section>
+      </div>
+    </AnimateView>
   )
 }
