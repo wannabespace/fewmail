@@ -13,6 +13,7 @@ import {
   IMPORTANCE,
   LIST_CATEGORIES,
   PEOPLE_CATEGORIES,
+  PROPOSAL_KINDS,
   SECONDS_SAVED,
   sendsDraft,
   TIDY_KINDS,
@@ -113,12 +114,18 @@ export const listQueue = (userId: string) =>
     .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
     .orderBy(sql`${analyses.importance} desc nulls last`, actions.createdAt)
 
+/** Home's decisions, as its headline counts them: the agent's proposals are one. */
 export const countQueue = async (userId: string) => {
+  const isProposal = inArray(actions.kind, [...PROPOSAL_KINDS])
   const [row] = await db
-    .select({ total: sql<number>`count(*)::int` })
+    .select({
+      cards: sql<number>`count(*) filter (where not ${isProposal})::int`,
+      proposals: sql<number>`count(*) filter (where ${isProposal})::int`,
+    })
     .from(actions)
     .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
-  return expectRow(row).total
+  const { cards, proposals } = expectRow(row)
+  return cards + Math.min(proposals, 1)
 }
 
 export const handledSince = async (userId: string, since: Date) => {

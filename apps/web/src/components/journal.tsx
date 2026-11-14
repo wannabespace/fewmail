@@ -1,0 +1,167 @@
+import type { RouterOutputs } from '@fewmail/api/router'
+import type { Messages } from '@fewmail/shared/i18n'
+import { Button } from '@fewmail/ui/components/button'
+import {
+  SettingsGroup,
+  SettingsRow,
+} from '@fewmail/ui/components/custom/settings-group'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { format, isToday } from 'date-fns'
+import { toast } from 'sonner'
+
+import { ThreadLink } from '~/components/thread-link'
+import { useDates, useT } from '~/lib/i18n'
+import { hideThread, threadOfMessage } from '~/lib/mail-db'
+import { orpc } from '~/lib/orpc'
+
+type JournalEntry = RouterOutputs['today']['handled'][number]
+
+/** Newest first in, newest day first out: each day keeps the moment of its first entry for its title. */
+const groupByDay = (entries: JournalEntry[]) => {
+  const days: { day: Date; key: string; rows: JournalEntry[] }[] = []
+  for (const entry of entries) {
+    const key = format(entry.action.actedAt, 'yyyy-MM-dd')
+    const last = days.at(-1)
+    if (last?.key === key) {
+      last.rows.push(entry)
+    } else {
+      days.push({ day: entry.action.actedAt, key, rows: [entry] })
+    }
+  }
+  return days
+}
+
+const whoAllowed = (t: Messages, { action, rule }: JournalEntry) => {
+  if (action.status === 'failed') {
+    return t.today.journal.failed
+  }
+  return rule ? t.today.journal.byRule(rule) : t.today.journal.approved
+}
+
+/** Everything done in the mail, each with who allowed it: a rule the user turned on or their yes. Lives under Rules, since rules do most of it. */
+export const Journal = () => {
+  const t = useT()
+  const dates = useDates()
+  const queryClient = useQueryClient()
+  const { data: entries = [] } = useQuery(orpc.today.handled.queryOptions())
+  const refresh = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
+      queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+    ])
+  const toInbox = useMutation(
+    orpc.mail.moveToInbox.mutationOptions({
+      onSettled: refresh,
+      onSuccess: () => toast(t.mail.backInInbox),
+    })
+  )
+  const notSpam = useMutation(
+    orpc.mail.notSpam.mutationOptions({
+      onMutate: ({ messageId }) => {
+        const threadId = threadOfMessage(messageId)
+        if (threadId) {
+          hideThread(threadId)
+        }
+      },
+      onSettled: refresh,
+      onSuccess: () => toast(t.mail.movedToInbox),
+    })
+  )
+  const undos: Partial<
+    Record<string, { label: string; run: (messageId: string) => void }>
+  > = {
+    archive: {
+      label: t.mail.moveToInbox,
+      run: (messageId) => toInbox.mutate({ messageId }),
+    },
+    spam: {
+      label: t.mail.notSpam,
+      run: (messageId) => notSpam.mutate({ messageId }),
+    },
+  }
+
+  const row = (entry: JournalEntry) => {
+    const { action, message, rule, summary } = entry
+    const undo = action.status === 'failed' ? undefined : undos[action.kind]
+    const who = whoAllowed(t, entry)
+    return (
+      <SettingsRow
+        key={action.id}
+        title={
+          message ? (
+            <ThreadLink
+              threadId={message.threadId}
+              text={message.fromName ?? message.fromEmail}
+            />
+          ) : (
+            <span data-mask>{action.title}</span>
+          )
+        }
+        description={
+          <>
+            <span data-mask>
+              {[
+                action.title || t.actionKind[action.kind],
+                // A rule's action carries the rule as its reason: `who` already names it.
+                !rule && (action.reason || summary),
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
+            {' · '}
+            <span data-mask={!!rule && action.status !== 'failed'}>{who}</span>
+          </>
+        }
+      >
+        {message && undo ? (
+          <Button
+            size="sm"
+            variant="ghost-muted"
+            onClick={() => undo.run(message.id)}
+          >
+            {undo.label}
+          </Button>
+        ) : (
+          <span className="text-muted-foreground text-xs tabular-nums">
+            {dates.format(action.actedAt, 'p')}
+          </span>
+        )}
+      </SettingsRow>
+    )
+  }
+  const failed = entries.filter(({ action }) => action.status === 'failed')
+  const days = groupByDay(
+    entries.filter(({ action }) => action.status !== 'failed')
+  )
+
+  if (entries.length === 0) {
+    return null
+  }
+  return (
+    <section className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <h2 className="text-brief font-serif">{t.today.journal.title}</h2>
+        <p className="text-muted-foreground text-sm">{t.today.journal.lead}</p>
+      </header>
+      {failed.length > 0 && (
+        <SettingsGroup title={t.today.journal.failed}>
+          {failed.map(row)}
+        </SettingsGroup>
+      )}
+      {days.map(({ day, key, rows }) => (
+        <SettingsGroup
+          key={key}
+          title={
+            <span className="inline-block first-letter:uppercase">
+              {isToday(day)
+                ? t.calendar.today
+                : dates.format(day, 'EEEE, d MMMM')}
+            </span>
+          }
+        >
+          {rows.map(row)}
+        </SettingsGroup>
+      ))}
+    </section>
+  )
+}

@@ -148,6 +148,16 @@ export const GMAIL_EFFECTS = [
 ] as const
 export type GmailEffect = (typeof GMAIL_EFFECTS)[number]
 
+/** Cards that only move mail around: the agent proposes them on its own, so Home asks for them together as one decision. */
+export const PROPOSAL_KINDS = [
+  'archive',
+  'mark_read',
+  'unsubscribe',
+  'spam',
+  'trash',
+] as const
+export type ProposalKind = (typeof PROPOSAL_KINDS)[number]
+
 /** What Home's Tidy offers to do with quiet mail no rule covers. */
 export const TIDY_KINDS = ['archive', 'mark_read', 'unsubscribe'] as const
 

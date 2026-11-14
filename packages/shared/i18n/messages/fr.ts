@@ -1334,12 +1334,9 @@ export const fr: Messages = {
     journal: {
       approved: 'Tu as dit oui',
       byRule: (rule: string) => `Ta règle : ${rule}`,
-      empty:
-        'Rien pour l’instant. Tant que tu ne dis pas oui, l’agent se contente de lire.',
       failed: 'N’a pas fonctionné',
-      now: 'Maintenant',
       lead: 'Les 7 derniers jours. Chaque changement dans tes e-mails, ton agenda ou tes tableaux a eu ton oui ou une règle que tu as activée.',
-      title: 'Ce que l’agent a fait',
+      title: 'Fait dans votre boîte',
     },
     progress: (done: number, total: number) => `${done} sur ${total}`,
     readAll:
@@ -1359,10 +1356,12 @@ export const fr: Messages = {
       keep: 'Garder',
       mark_read: (n: number) => `${n} à marquer comme lus`,
       run: 'Tout approuver',
-      total: (n: number) => `E-mails calmes triés par l’agent : ${n}`,
+      total: (n: number) => `E-mails triés par l’agent : ${n}`,
       unsubscribe: (n: number) => `${n} à désabonner`,
       untilYouApprove:
         'Rien ne change dans votre boîte tant que vous n’approuvez pas',
+      spam: (n: number) => `${n} en spam`,
+      trash: (n: number) => `${n} à supprimer`,
     },
     stopListening: 'Arrêter',
     awaiting: 'En attente de réponse',

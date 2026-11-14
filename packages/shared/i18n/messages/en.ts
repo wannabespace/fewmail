@@ -1600,11 +1600,9 @@ export const en = {
     journal: {
       approved: 'You said yes',
       byRule: (rule: string) => `Your rule: ${rule}`,
-      empty: 'Nothing yet. Until you say yes, the agent only reads.',
       failed: 'Did not work',
-      now: 'Now',
       lead: 'The last 7 days. Every change in your mail, calendar or boards had your yes or a rule you turned on.',
-      title: 'What the agent did',
+      title: 'Done in your mail',
     },
     progress: (done: number, total: number) => `${done} of ${total}`,
     readAll:
@@ -1626,11 +1624,13 @@ export const en = {
       run: 'Approve all',
       total: (total: number) =>
         plural('en', total, {
-          one: () => 'The agent sorted one quiet email for you',
-          other: (n) => `The agent sorted ${n} quiet emails for you`,
+          one: () => 'The agent sorted one email for you',
+          other: (n) => `The agent sorted ${n} emails for you`,
         }),
       unsubscribe: (n: number) => `${n} to unsubscribe`,
       untilYouApprove: 'Nothing changes in your mail until you approve',
+      spam: (n: number) => `${n} to move to spam`,
+      trash: (n: number) => `${n} to delete`,
     },
     stopListening: 'Stop',
     awaiting: 'Waiting for a reply',

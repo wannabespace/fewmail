@@ -1301,12 +1301,9 @@ export const ja: Messages = {
     journal: {
       approved: 'あなたが承認',
       byRule: (rule: string) => `あなたのルール：${rule}`,
-      empty:
-        'まだありません。あなたが承認するまで、エージェントは読むだけです。',
       failed: 'うまくいきませんでした',
-      now: 'いま',
       lead: '直近7日間。メール、カレンダー、ボードの変更はすべて、あなたの承認か、あなたがオンにしたルールによるものです。',
-      title: 'エージェントがしたこと',
+      title: 'メールで行ったこと',
     },
     progress: (done: number, total: number) => `${done} / ${total}`,
     readAll:
@@ -1326,9 +1323,11 @@ export const ja: Messages = {
       keep: '残す',
       mark_read: (n: number) => `既読にする ${n} 件`,
       run: 'すべて承認',
-      total: (n: number) => `エージェントが仕分けた静かなメール ${n} 件`,
+      total: (n: number) => `エージェントが仕分けたメール ${n} 件`,
       unsubscribe: (n: number) => `配信停止 ${n} 件`,
       untilYouApprove: '承認するまでメールは何も変わりません',
+      spam: (n: number) => `迷惑メールへ ${n} 件`,
+      trash: (n: number) => `削除 ${n} 件`,
     },
     stopListening: '停止',
     awaiting: '返信待ち',

@@ -29,6 +29,7 @@ import { type } from 'arktype'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
+import { Journal } from '~/components/journal'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
@@ -335,6 +336,8 @@ const RulesPage = () => {
             ))}
           </SettingsGroup>
         )}
+
+        <Journal />
       </div>
     </main>
   )

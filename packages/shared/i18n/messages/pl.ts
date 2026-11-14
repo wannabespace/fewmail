@@ -1637,11 +1637,9 @@ export const pl: Messages = {
     journal: {
       approved: 'Twoje „tak”',
       byRule: (rule: string) => `Twoja reguła: ${rule}`,
-      empty: 'Na razie nic. Dopóki nie powiesz „tak”, agent tylko czyta.',
       failed: 'Nie udało się',
-      now: 'Teraz',
       lead: 'Ostatnie 7 dni. Każda zmiana w poczcie, kalendarzu czy tablicach miała twoje „tak” albo włączoną przez ciebie regułę.',
-      title: 'Co zrobił agent',
+      title: 'Zrobione w twojej poczcie',
     },
     progress: (done: number, total: number) => `${done} z ${total}`,
     readAll:
@@ -1661,10 +1659,12 @@ export const pl: Messages = {
       keep: 'Zostaw',
       mark_read: (n: number) => `do oznaczenia jako przeczytane: ${n}`,
       run: 'Zatwierdź wszystko',
-      total: (n: number) => `Spokojne e-maile posortowane przez agenta: ${n}`,
+      total: (n: number) => `E-maile posortowane przez agenta: ${n}`,
       unsubscribe: (n: number) => `do wypisania się: ${n}`,
       untilYouApprove:
         'Nic w twojej poczcie się nie zmieni, dopóki nie zatwierdzisz',
+      spam: (n: number) => `do spamu: ${n}`,
+      trash: (n: number) => `do usunięcia: ${n}`,
     },
     stopListening: 'Zatrzymaj',
     awaiting: 'Czekasz na odpowiedź',

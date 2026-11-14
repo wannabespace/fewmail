@@ -1586,11 +1586,9 @@ export const id: Messages = {
     journal: {
       approved: 'Kamu bilang ya',
       byRule: (rule: string) => `Aturanmu: ${rule}`,
-      empty: 'Belum ada. Sampai kamu bilang ya, agen hanya membaca.',
       failed: 'Tidak berhasil',
-      now: 'Sekarang',
       lead: '7 hari terakhir. Setiap perubahan di email, kalender, atau papanmu terjadi dengan persetujuanmu atau aturan yang kamu aktifkan.',
-      title: 'Yang dilakukan agen',
+      title: 'Yang sudah dilakukan di email kamu',
     },
     progress: (done: number, total: number) => `${done} dari ${total}`,
     readAll:
@@ -1610,10 +1608,12 @@ export const id: Messages = {
       keep: 'Simpan',
       mark_read: (n: number) => `${n} untuk ditandai dibaca`,
       run: 'Setujui semua',
-      total: (n: number) => `Email tenang yang dipilah agen: ${n}`,
+      total: (n: number) => `Email yang dipilah agen: ${n}`,
       unsubscribe: (n: number) => `${n} untuk berhenti langganan`,
       untilYouApprove:
         'Tidak ada yang berubah di email kamu sampai kamu menyetujuinya',
+      spam: (n: number) => `${n} ke spam`,
+      trash: (n: number) => `${n} untuk dihapus`,
     },
     stopListening: 'Hentikan',
     awaiting: 'Menunggu balasan',

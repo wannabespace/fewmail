@@ -1325,11 +1325,9 @@ export const de: Messages = {
     journal: {
       approved: 'Du hast Ja gesagt',
       byRule: (rule: string) => `Deine Regel: ${rule}`,
-      empty: 'Noch nichts. Bis du Ja sagst, liest der Agent nur.',
       failed: 'Hat nicht geklappt',
-      now: 'Jetzt',
       lead: 'Die letzten 7 Tage. Jede Änderung in deiner Mail, deinem Kalender oder deinen Boards hatte dein Ja oder eine Regel, die du eingeschaltet hast.',
-      title: 'Was der Agent getan hat',
+      title: 'In deinem Postfach erledigt',
     },
     progress: (done: number, total: number) => `${done} von ${total}`,
     readAll:
@@ -1349,10 +1347,12 @@ export const de: Messages = {
       keep: 'Behalten',
       mark_read: (n: number) => `${n} als gelesen markieren`,
       run: 'Alle bestätigen',
-      total: (n: number) => `Vom Agenten sortierte ruhige E-Mails: ${n}`,
+      total: (n: number) => `Vom Agenten sortierte E-Mails: ${n}`,
       unsubscribe: (n: number) => `${n} abbestellen`,
       untilYouApprove:
         'In deinem Postfach ändert sich nichts, bis du zustimmst',
+      spam: (n: number) => `${n} in Spam`,
+      trash: (n: number) => `${n} löschen`,
     },
     stopListening: 'Stopp',
     awaiting: 'Wartet auf Antwort',
