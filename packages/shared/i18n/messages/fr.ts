@@ -659,6 +659,7 @@ export const fr: Messages = {
     weekend: 'Ce week-end',
   },
   actionDone: {
+    commitment: 'Fait',
     confirm: 'J’ai confirmé',
     follow_up: 'J’ai relancé',
     pay: 'J’ai payé',
@@ -678,7 +679,7 @@ export const fr: Messages = {
   actionKind: {
     cleanup: 'Se désabonner de tout',
     consent: 'Approuver',
-    commitment: 'Fait',
+    commitment: 'Promis',
     security: 'Vérifier',
     spam: 'Mettre en spam',
     trash: 'Mettre à la corbeille',

@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const pl: Messages = {
   actionDone: {
+    commitment: 'Gotowe',
     confirm: 'Potwierdziłem',
     follow_up: 'Przypomniałem się',
     pay: 'Zapłaciłem',
@@ -23,7 +24,7 @@ export const pl: Messages = {
   actionKind: {
     cleanup: 'Wypisz ze wszystkich',
     consent: 'Zatwierdź',
-    commitment: 'Gotowe',
+    commitment: 'Obiecane',
     security: 'Sprawdź',
     spam: 'Przenieś do spamu',
     archive: 'Archiwizuj',
@@ -760,7 +761,7 @@ export const pl: Messages = {
     search: 'Szukaj lub opisz: faktury od Anny z zeszłego miesiąca',
     openInGmail: 'Otwórz w Gmailu',
     openFullPage: 'Otwórz na całej stronie',
-    peek: 'Podejrzyj',
+    peek: 'Podgląd',
     collapseFullPage: 'Wróć do listy',
     unsubscribe: 'Wypisz się',
     unsubscribed: 'Wypisano',

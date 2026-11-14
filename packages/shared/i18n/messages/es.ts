@@ -651,6 +651,7 @@ export const es: Messages = {
     weekend: 'Este fin de semana',
   },
   actionDone: {
+    commitment: 'Hecho',
     confirm: 'Ya lo confirmé',
     follow_up: 'Ya hice seguimiento',
     pay: 'Ya lo pagué',
@@ -670,7 +671,7 @@ export const es: Messages = {
   actionKind: {
     cleanup: 'Darse de baja de todos',
     consent: 'Aprobar',
-    commitment: 'Hecho',
+    commitment: 'Prometido',
     security: 'Compruébalo',
     spam: 'Mover a spam',
     trash: 'Mover a la papelera',

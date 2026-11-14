@@ -650,6 +650,7 @@ export const de: Messages = {
     weekend: 'Am Wochenende',
   },
   actionDone: {
+    commitment: 'Erledigt',
     confirm: 'Bestätigt',
     follow_up: 'Nachgefasst',
     pay: 'Bezahlt',
@@ -669,7 +670,7 @@ export const de: Messages = {
   actionKind: {
     cleanup: 'Alle abbestellen',
     consent: 'Zustimmen',
-    commitment: 'Erledigt',
+    commitment: 'Versprochen',
     security: 'Prüfen',
     spam: 'In den Spam',
     trash: 'In den Papierkorb',
@@ -970,7 +971,7 @@ export const de: Messages = {
     search: 'Suchen oder beschreiben: Rechnungen von Anna letzten Monat',
     openInGmail: 'In Gmail öffnen',
     openFullPage: 'Ganzseitig öffnen',
-    peek: 'Kurz ansehen',
+    peek: 'Vorschau',
     collapseFullPage: 'Zurück zur Liste',
     unsubscribe: 'Abmelden',
     unsubscribed: 'Abgemeldet',

@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const ko: Messages = {
   actionDone: {
+    commitment: '완료',
     confirm: '확인했어요',
     follow_up: '후속 조치했어요',
     pay: '결제했어요',
@@ -23,7 +24,7 @@ export const ko: Messages = {
   actionKind: {
     cleanup: '모두 구독 취소',
     consent: '승인',
-    commitment: '완료',
+    commitment: '약속',
     security: '확인하기',
     spam: '스팸으로 이동',
     trash: '휴지통으로 이동',

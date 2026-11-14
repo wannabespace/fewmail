@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const tr: Messages = {
   actionDone: {
+    commitment: 'Tamam',
     confirm: 'Onayladım',
     follow_up: 'Takip ettim',
     pay: 'Ödedim',
@@ -23,7 +24,7 @@ export const tr: Messages = {
   actionKind: {
     cleanup: 'Hepsinden çık',
     consent: 'Onayla',
-    commitment: 'Tamam',
+    commitment: 'Söz verildi',
     security: 'Kontrol et',
     spam: 'Spama taşı',
     archive: 'Arşivle',
@@ -725,7 +726,7 @@ export const tr: Messages = {
     search: "Ara ya da anlat: Anna'dan geçen ayki faturalar",
     openInGmail: "Gmail'de aç",
     openFullPage: 'Tam sayfada aç',
-    peek: 'Göz at',
+    peek: 'Önizle',
     collapseFullPage: 'Listeye dön',
     unsubscribe: 'Abonelikten çık',
     unsubscribed: 'Abonelikten çıkıldı',

@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const ja: Messages = {
   actionDone: {
+    commitment: '完了',
     confirm: '確認しました',
     follow_up: 'フォローしました',
     pay: '支払いました',
@@ -23,7 +24,7 @@ export const ja: Messages = {
   actionKind: {
     cleanup: 'すべて配信停止',
     consent: '承認',
-    commitment: '完了',
+    commitment: '約束',
     security: '確認する',
     spam: '迷惑メールに移動',
     trash: 'ゴミ箱に移動',
@@ -470,7 +471,7 @@ export const ja: Messages = {
     open: '開く',
     openInGmail: 'Gmail で開く',
     openFullPage: '全画面で開く',
-    peek: 'のぞき見',
+    peek: 'プレビュー',
     collapseFullPage: 'リストに戻る',
     search: '検索または説明：先月の Anna からの請求書',
     unsubscribe: '配信停止',

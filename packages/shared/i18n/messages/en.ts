@@ -4,6 +4,7 @@ import { formatMinutes, plural } from '../locales'
 
 export const en = {
   actionDone: {
+    commitment: 'Done',
     confirm: 'I confirmed',
     follow_up: 'I followed up',
     pay: 'I paid it',
@@ -24,7 +25,7 @@ export const en = {
     archive: 'Archive',
     cleanup: 'Unsubscribe from all',
     consent: 'Approve',
-    commitment: 'Done',
+    commitment: 'Promised',
     follow_up: 'Follow up',
     mark_read: 'Mark read',
     pay: 'Pay',
@@ -737,7 +738,7 @@ export const en = {
     open: 'Open',
     openInGmail: 'Open in Gmail',
     openFullPage: 'Open full page',
-    peek: 'Peek',
+    peek: 'Preview',
     collapseFullPage: 'Back to the list',
     search: 'Search or describe: invoices from Anna last month',
     unsubscribe: 'Unsubscribe',

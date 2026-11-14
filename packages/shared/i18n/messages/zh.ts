@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const zh: Messages = {
   actionDone: {
+    commitment: '完成',
     confirm: '我已确认',
     follow_up: '我已跟进',
     pay: '我已付款',
@@ -23,7 +24,7 @@ export const zh: Messages = {
   actionKind: {
     cleanup: '全部退订',
     consent: '批准',
-    commitment: '完成',
+    commitment: '已承诺',
     security: '核实',
     spam: '移到垃圾邮件',
     trash: '移到废纸篓',

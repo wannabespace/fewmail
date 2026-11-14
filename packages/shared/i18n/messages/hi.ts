@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const hi: Messages = {
   actionDone: {
+    commitment: 'हो गया',
     confirm: 'मैंने पुष्टि कर दी',
     follow_up: 'मैंने फ़ॉलो-अप किया',
     pay: 'मैंने भुगतान कर दिया',
@@ -23,7 +24,7 @@ export const hi: Messages = {
   actionKind: {
     cleanup: 'सभी से अनसब्सक्राइब करें',
     consent: 'मंज़ूर करें',
-    commitment: 'हो गया',
+    commitment: 'वादा किया',
     security: 'जाँच करें',
     spam: 'स्पैम में डालें',
     trash: 'ट्रैश में डालें',
@@ -471,7 +472,7 @@ export const hi: Messages = {
     open: 'खोलें',
     openInGmail: 'Gmail में खोलें',
     openFullPage: 'पूरे पेज पर खोलें',
-    peek: 'झलक देखें',
+    peek: 'पूर्वावलोकन',
     collapseFullPage: 'सूची पर वापस जाएँ',
     search: 'खोजें या बताएँ: पिछले महीने Anna के इनवॉइस',
     unsubscribe: 'अनसब्सक्राइब करें',

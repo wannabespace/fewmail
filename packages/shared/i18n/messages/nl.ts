@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const nl: Messages = {
   actionDone: {
+    commitment: 'Klaar',
     confirm: 'Bevestigd',
     follow_up: 'Opgevolgd',
     pay: 'Betaald',
@@ -23,7 +24,7 @@ export const nl: Messages = {
   actionKind: {
     cleanup: 'Overal afmelden',
     consent: 'Goedkeuren',
-    commitment: 'Klaar',
+    commitment: 'Beloofd',
     security: 'Controleren',
     spam: 'Naar spam',
     archive: 'Archiveren',

@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const id: Messages = {
   actionDone: {
+    commitment: 'Selesai',
     confirm: 'Sudah saya konfirmasi',
     follow_up: 'Sudah saya tindak lanjuti',
     pay: 'Sudah saya bayar',
@@ -23,7 +24,7 @@ export const id: Messages = {
   actionKind: {
     cleanup: 'Berhenti dari semua',
     consent: 'Setujui',
-    commitment: 'Selesai',
+    commitment: 'Dijanjikan',
     security: 'Periksa',
     spam: 'Pindahkan ke spam',
     archive: 'Arsipkan',
@@ -731,7 +732,7 @@ export const id: Messages = {
     search: 'Cari atau jelaskan: tagihan dari Anna bulan lalu',
     openInGmail: 'Buka di Gmail',
     openFullPage: 'Buka satu halaman penuh',
-    peek: 'Intip',
+    peek: 'Pratinjau',
     collapseFullPage: 'Kembali ke daftar',
     unsubscribe: 'Berhenti berlangganan',
     unsubscribed: 'Berhenti berlangganan',

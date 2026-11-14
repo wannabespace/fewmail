@@ -651,6 +651,7 @@ export const uk: Messages = {
     weekend: 'На вихідних',
   },
   actionDone: {
+    commitment: 'Готово',
     confirm: 'Я підтвердив',
     follow_up: 'Я нагадав',
     pay: 'Я оплатив',
@@ -670,7 +671,7 @@ export const uk: Messages = {
   actionKind: {
     cleanup: 'Відписатися від усіх',
     consent: 'Підтвердити',
-    commitment: 'Готово',
+    commitment: 'Обіцяно',
     security: 'Перевірити',
     spam: 'У спам',
     trash: 'У кошик',
@@ -968,7 +969,7 @@ export const uk: Messages = {
     search: 'Шукай або опиши: рахунки від Анни за минулий місяць',
     openInGmail: 'Відкрити в Gmail',
     openFullPage: 'Відкрити на всю сторінку',
-    peek: 'Підглянути',
+    peek: 'Швидкий перегляд',
     collapseFullPage: 'Згорнути до списку',
     unsubscribe: 'Відписатися',
     unsubscribed: 'Відписано',
