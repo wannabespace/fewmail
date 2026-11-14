@@ -310,6 +310,7 @@ export const ReadingSection = ({
                 })}
               />
             }
+            shortcut={<Kbd>N</Kbd>}
           >
             <HugeiconsIcon
               icon={News01Icon}
@@ -322,7 +323,6 @@ export const ReadingSection = ({
               strokeWidth={2}
               data-icon="inline-end"
             />
-            <Kbd>N</Kbd>
           </Button>
         </div>
       </div>

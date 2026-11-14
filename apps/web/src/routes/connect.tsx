@@ -55,17 +55,17 @@ const ConnectPage = () => {
             variant="outline"
             disabled={answer.isPending}
             onClick={() => reply(false)}
+            shortcut={<Kbd>Esc</Kbd>}
           >
             {copy.deny}
-            <Kbd>Esc</Kbd>
           </Button>
           <Button
             size="lg"
             disabled={answer.isPending}
             onClick={() => reply(true)}
+            shortcut={<Kbd>⏎</Kbd>}
           >
             {copy.allow}
-            <Kbd>⏎</Kbd>
           </Button>
         </div>
       </div>

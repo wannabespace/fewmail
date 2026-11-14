@@ -133,9 +133,13 @@ const OnboardingPage = () => {
           />
         </Step>
 
-        <Button size="lg" disabled={save.isPending} onClick={submit}>
+        <Button
+          size="lg"
+          disabled={save.isPending}
+          onClick={submit}
+          shortcut={<Kbd>⌘⏎</Kbd>}
+        >
           {save.isPending ? t.onboarding.reading : t.onboarding.start}
-          <Kbd>⌘⏎</Kbd>
         </Button>
       </div>
     </main>

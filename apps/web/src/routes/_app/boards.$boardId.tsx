@@ -215,11 +215,17 @@ const DescriptionField = ({
           disabled={!isChanged}
           onMouseDown={(event) => event.preventDefault()}
           onClick={save}
+          shortcut={<Kbd>⌘⏎</Kbd>}
         >
-          {t.boards.redescribe} <Kbd>⌘⏎</Kbd>
+          {t.boards.redescribe}
         </Button>
-        <Button size="sm" variant="ghost-muted" onClick={onDone}>
-          {t.boards.cancel} <Kbd>esc</Kbd>
+        <Button
+          size="sm"
+          variant="ghost-muted"
+          onClick={onDone}
+          shortcut={<Kbd>esc</Kbd>}
+        >
+          {t.boards.cancel}
         </Button>
         <span className="text-muted-foreground text-xs">
           {t.boards.redescribeHint}

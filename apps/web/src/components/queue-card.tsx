@@ -170,10 +170,10 @@ const StepButton = ({
             aria-label={`${t.actionLink[link.purpose]} · ${host}`}
           />
         }
+        shortcut={<Kbd>⏎</Kbd>}
       >
         <HugeiconsIcon icon={LinkSquare02Icon} strokeWidth={2} />
         {t.actionLink[link.purpose]} · <span data-mask>{host}</span>
-        <Kbd>⏎</Kbd>
       </Button>
     )
   }
@@ -181,8 +181,13 @@ const StepButton = ({
     return null
   }
   return (
-    <Button size="sm" disabled={isBusy} onClick={onRemind}>
-      {t.queue.writeReminder} <Kbd>⏎</Kbd>
+    <Button
+      size="sm"
+      disabled={isBusy}
+      onClick={onRemind}
+      shortcut={<Kbd>⏎</Kbd>}
+    >
+      {t.queue.writeReminder}
     </Button>
   )
 }
@@ -565,9 +570,9 @@ export const QueueCard = ({
               variant={step === 'approve' ? 'default' : 'secondary'}
               disabled={isBusy}
               onClick={onApprove}
+              shortcut={<Kbd>{approveKey(step, isEditing)}</Kbd>}
             >
               {approveLabel(t, action, isReply)}
-              <Kbd>{approveKey(step, isEditing)}</Kbd>
             </Button>
             {isReply && !isEditing && (
               <Button
@@ -575,8 +580,9 @@ export const QueueCard = ({
                 variant="secondary"
                 disabled={isBusy}
                 onClick={onEdit}
+                shortcut={<Kbd>E</Kbd>}
               >
-                {t.queue.edit} <Kbd>E</Kbd>
+                {t.queue.edit}
               </Button>
             )}
             {isReply && !isRewriting && (
@@ -585,8 +591,9 @@ export const QueueCard = ({
                 variant="ghost-muted"
                 disabled={isBusy}
                 onClick={() => onRewriteChange(true)}
+                shortcut={<Kbd>R</Kbd>}
               >
-                {t.queue.rewrite} <Kbd>R</Kbd>
+                {t.queue.rewrite}
               </Button>
             )}
             {isReply && message && (

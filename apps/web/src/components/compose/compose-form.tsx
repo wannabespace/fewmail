@@ -357,8 +357,8 @@ export const ComposeForm = ({
         }
       />
       <div className="flex items-center gap-2">
-        <Button size="sm" onClick={() => submit()}>
-          {t.compose.send} <Kbd>⌘⏎</Kbd>
+        <Button size="sm" onClick={() => submit()} shortcut={<Kbd>⌘⏎</Kbd>}>
+          {t.compose.send}
         </Button>
         <SendLater onSchedule={submit} />
         <DropdownMenu>

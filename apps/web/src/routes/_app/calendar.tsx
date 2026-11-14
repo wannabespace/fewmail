@@ -205,9 +205,9 @@ const CalendarPage = () => {
             <Button
               variant="outline"
               onClick={() => show({ date: new Date() })}
+              shortcut={<Kbd>T</Kbd>}
             >
               {t.calendar.today}
-              <Kbd>T</Kbd>
             </Button>
           )}
           <IconButton
@@ -237,10 +237,9 @@ const CalendarPage = () => {
             </TabsList>
           </Tabs>
           {canAdd && (
-            <Button onClick={newEventNow}>
+            <Button onClick={newEventNow} shortcut={<Kbd>N</Kbd>}>
               <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
               {t.calendar.newEvent}
-              <Kbd>N</Kbd>
             </Button>
           )}
         </div>

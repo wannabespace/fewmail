@@ -131,13 +131,14 @@ const JournalLink = () => {
       render={
         <Link to="/home" search={(prev) => ({ ...prev, page: 'journal' })} />
       }
+      shortcut={<Kbd>H</Kbd>}
     >
       <HugeiconsIcon
         icon={Clock01Icon}
         strokeWidth={2}
         data-icon="inline-start"
       />
-      {t.today.journal.title} <Kbd>H</Kbd>
+      {t.today.journal.title}
     </Button>
   )
 }
@@ -261,11 +262,16 @@ const Tidy = ({
           </p>
         </ItemContent>
         <ItemActions>
-          <Button size="sm" variant="ghost-muted" onClick={toggle}>
-            {t.today.tidy.details} <Kbd>D</Kbd>
+          <Button
+            size="sm"
+            variant="ghost-muted"
+            onClick={toggle}
+            shortcut={<Kbd>D</Kbd>}
+          >
+            {t.today.tidy.details}
           </Button>
-          <Button size="sm" onClick={run}>
-            {t.today.tidy.run} <Kbd>T</Kbd>
+          <Button size="sm" onClick={run} shortcut={<Kbd>T</Kbd>}>
+            {t.today.tidy.run}
           </Button>
         </ItemActions>
       </Item>
@@ -434,18 +440,24 @@ const NewSenders = ({
           </ItemDescription>
         </ItemContent>
         <ItemActions>
-          <Button size="sm" variant="ghost-muted" onClick={answer.handleKeep}>
-            {t.today.newSender.keep} {key('I')}
+          <Button
+            size="sm"
+            variant="ghost-muted"
+            onClick={answer.handleKeep}
+            shortcut={key('I')}
+          >
+            {t.today.newSender.keep}
           </Button>
           <Button
             size="sm"
             variant="secondary"
             onClick={answer.handleUnsubscribe}
+            shortcut={key('U')}
           >
-            {t.actionKind.unsubscribe} {key('U')}
+            {t.actionKind.unsubscribe}
           </Button>
-          <Button size="sm" onClick={answer.handleArchive}>
-            {t.today.newSender.archive} {key('A')}
+          <Button size="sm" onClick={answer.handleArchive} shortcut={key('A')}>
+            {t.today.newSender.archive}
           </Button>
         </ItemActions>
       </Item>
@@ -1173,17 +1185,32 @@ const PickedActions = ({
 
   return (
     <>
-      <Button size="sm" onClick={onApprove}>
-        {t.queue.approve} <Kbd>⏎</Kbd>
+      <Button size="sm" onClick={onApprove} shortcut={<Kbd>⏎</Kbd>}>
+        {t.queue.approve}
       </Button>
-      <Button size="sm" variant="secondary" onClick={onTrash}>
-        {t.queue.delete} <Kbd>⌫</Kbd>
+      <Button
+        size="sm"
+        variant="secondary"
+        onClick={onTrash}
+        shortcut={<Kbd>⌫</Kbd>}
+      >
+        {t.queue.delete}
       </Button>
-      <Button size="sm" variant="ghost-muted" onClick={onSkip}>
-        {t.queue.skip} <Kbd>S</Kbd>
+      <Button
+        size="sm"
+        variant="ghost-muted"
+        onClick={onSkip}
+        shortcut={<Kbd>S</Kbd>}
+      >
+        {t.queue.skip}
       </Button>
-      <Button size="sm" variant="ghost-muted" onClick={onClear}>
-        {t.queue.unpick} <Kbd>esc</Kbd>
+      <Button
+        size="sm"
+        variant="ghost-muted"
+        onClick={onClear}
+        shortcut={<Kbd>esc</Kbd>}
+      >
+        {t.queue.unpick}
       </Button>
     </>
   )
@@ -1367,8 +1394,9 @@ const StaleCards = ({
         variant="secondary"
         className="ml-auto"
         onClick={onSkip}
+        shortcut={<Kbd>⇧S</Kbd>}
       >
-        {t.queue.skipStale} <Kbd>⇧S</Kbd>
+        {t.queue.skipStale}
       </Button>
     </TallyBox>
   )

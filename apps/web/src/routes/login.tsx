@@ -91,10 +91,14 @@ const LoginPage = () => {
                 <AlertDescription>{t.login.needsGmail}</AlertDescription>
               </Alert>
             )}
-            <Button size="lg" disabled={isRedirecting} onClick={signIn}>
+            <Button
+              size="lg"
+              disabled={isRedirecting}
+              onClick={signIn}
+              shortcut={<Kbd>⏎</Kbd>}
+            >
               <GoogleMark />
               {t.login.continue}
-              <Kbd>⏎</Kbd>
             </Button>
             <p className="text-muted-foreground text-xs/relaxed text-pretty">
               {t.login.consent}

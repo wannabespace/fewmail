@@ -352,13 +352,11 @@ const ImportantRow = ({
             {hero.queue[index]?.summary}
           </p>
           <div className="flex gap-2">
-            <Button size="sm">
+            <Button size="sm" shortcut={<Kbd>⏎</Kbd>}>
               {mail.draft ? t.queue.send : hero.remind}
-              <Kbd>⏎</Kbd>
             </Button>
-            <Button size="sm" variant="secondary">
+            <Button size="sm" variant="secondary" shortcut={<Kbd>S</Kbd>}>
               {t.queue.skip}
-              <Kbd>S</Kbd>
             </Button>
           </div>
         </div>
@@ -677,17 +675,20 @@ export const PlayQueue = () => {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" onClick={() => decide('send')}>
+                  <Button
+                    size="sm"
+                    onClick={() => decide('send')}
+                    shortcut={<Kbd>⏎</Kbd>}
+                  >
                     {mail.draft ? t.queue.send : hero.remind}
-                    <Kbd>⏎</Kbd>
                   </Button>
                   <Button
                     size="sm"
                     variant="secondary"
                     onClick={() => decide('skip')}
+                    shortcut={<Kbd>S</Kbd>}
                   >
                     {t.queue.skip}
-                    <Kbd>S</Kbd>
                   </Button>
                 </div>
               </div>

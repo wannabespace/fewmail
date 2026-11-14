@@ -106,13 +106,15 @@ const WrappedPage = () => {
               )}
               <div className="flex flex-col gap-3">
                 <div className="flex gap-2">
-                  <Button onClick={() => saveImage()}>
+                  <Button onClick={() => saveImage()} shortcut={<Kbd>I</Kbd>}>
                     {t.wrapped.saveImage}
-                    <Kbd>I</Kbd>
                   </Button>
-                  <Button variant="ghost" onClick={() => copyLink()}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => copyLink()}
+                    shortcut={<Kbd>L</Kbd>}
+                  >
                     {t.wrapped.copyLink}
-                    <Kbd>L</Kbd>
                   </Button>
                 </div>
                 <p className="text-muted-foreground text-xs">

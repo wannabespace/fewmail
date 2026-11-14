@@ -226,8 +226,9 @@ const AgentRuleForm = () => {
           className="ml-auto"
           disabled={create.isPending}
           onClick={submit}
+          shortcut={<Kbd>⏎</Kbd>}
         >
-          {t.rules.add} <Kbd>⏎</Kbd>
+          {t.rules.add}
         </Button>
       </div>
     </div>
@@ -293,8 +294,13 @@ const SimpleRuleForm = () => {
         value={effect}
         onChange={setEffect}
       />
-      <Button className="ml-auto" disabled={create.isPending} onClick={submit}>
-        {t.rules.add} <Kbd>⏎</Kbd>
+      <Button
+        className="ml-auto"
+        disabled={create.isPending}
+        onClick={submit}
+        shortcut={<Kbd>⏎</Kbd>}
+      >
+        {t.rules.add}
       </Button>
     </div>
   )

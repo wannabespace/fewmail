@@ -215,11 +215,11 @@ const SubscriptionsPage = () => {
                     variant="ghost"
                     disabled={leaving.has(row.messageId)}
                     onClick={() => leave(row)}
+                    shortcut={row === active && <Kbd>U</Kbd>}
                   >
                     <LoadingContent loading={leaving.has(row.messageId)}>
                       {t.subscriptions.unsubscribe}
                     </LoadingContent>
-                    {row === active && <Kbd>U</Kbd>}
                   </Button>
                 </SettingsRow>
               ))}

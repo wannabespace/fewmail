@@ -1045,16 +1045,17 @@ export const ThreadView = ({
           <ReaderHeader title={subject} onClose={onClose}>
             {target && (
               <div className="flex flex-wrap items-center gap-2">
-                <Button size="sm" onClick={reply}>
-                  {t.mail.reply} <Kbd>R</Kbd>
+                <Button size="sm" onClick={reply} shortcut={<Kbd>R</Kbd>}>
+                  {t.mail.reply}
                 </Button>
                 <Button
                   size="sm"
                   variant="secondary"
                   disabled={sweep.action.isPending}
                   onClick={() => sweep.action.mutate(target)}
+                  shortcut={<Kbd>E</Kbd>}
                 >
-                  {sweep.label} <Kbd>E</Kbd>
+                  {sweep.label}
                 </Button>
                 {isSnoozed ? (
                   <Button
@@ -1070,9 +1071,15 @@ export const ThreadView = ({
                     onOpenChange={setIsSnoozeOpen}
                   >
                     <DropdownMenuTrigger
-                      render={<Button size="sm" variant="secondary" />}
+                      render={
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          shortcut={<Kbd>H</Kbd>}
+                        />
+                      }
                     >
-                      {t.snooze.title} <Kbd>H</Kbd>
+                      {t.snooze.title}
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <SnoozeMenuItems
@@ -1261,8 +1268,9 @@ export const StackView = ({
                 variant="secondary"
                 disabled={sweep.action.isPending}
                 onClick={archiveAll}
+                shortcut={<Kbd>E</Kbd>}
               >
-                {sweep.label} <Kbd>E</Kbd>
+                {sweep.label}
               </Button>
               {isSnoozed ? (
                 <Button
@@ -1278,9 +1286,15 @@ export const StackView = ({
                   onOpenChange={setIsSnoozeOpen}
                 >
                   <DropdownMenuTrigger
-                    render={<Button size="sm" variant="secondary" />}
+                    render={
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        shortcut={<Kbd>H</Kbd>}
+                      />
+                    }
                   >
-                    {t.snooze.title} <Kbd>H</Kbd>
+                    {t.snooze.title}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <SnoozeMenuItems
@@ -1293,8 +1307,13 @@ export const StackView = ({
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-              <Button size="sm" variant="ghost-muted" onClick={trashAll}>
-                {t.mail.trash} <Kbd>⌫</Kbd>
+              <Button
+                size="sm"
+                variant="ghost-muted"
+                onClick={trashAll}
+                shortcut={<Kbd>⌫</Kbd>}
+              >
+                {t.mail.trash}
               </Button>
             </div>
           </ReaderHeader>
