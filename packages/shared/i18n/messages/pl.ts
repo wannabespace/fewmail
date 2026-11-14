@@ -1074,6 +1074,18 @@ export const pl: Messages = {
     chapters: {
       pricing: {
         description:
+    meta: {
+      compare:
+        'Fewmail w porównaniu z Superhuman, Shortwave i SaneBox: agent, który czyta pocztę za ciebie, zamiast szybszego sposobu, by czytać ją samemu.',
+      home: 'Fewmail to agent poczty dla Gmaila: czyta każdy e-mail, pisze odpowiedzi twoim głosem i pokazuje tylko to, co wymaga ciebie.',
+      login:
+        'Fewmail czyta twojego Gmaila za ciebie, odpowiada twoim głosem i pokazuje tylko to, co naprawdę wymaga ciebie.',
+      mcp: 'Połącz Fewmail z Claude, ChatGPT, Claude Code lub Cursorem jako serwer MCP: czytaj i porządkuj Gmaila z AI, której już używasz.',
+      motto: 'tylko to, co ważne w twojej skrzynce',
+      pricing: (trialDays: number) =>
+        `Fewmail jest na zawsze darmowy do sortowania, reguł i ochrony przed spamem. Pro, cały agent, zaczyna się od ${trialDays} darmowych dni bez karty.`,
+      tagline: 'agent poczty dla Gmaila',
+    },
           'Sortowanie, reguły i ochrona są za darmo na zawsze. Lite, Pro i Max dodają wszystko, co czyta i pisze za ciebie; większe plany po prostu robią tego więcej.',
         label: 'Cennik',
         title: (usd: number) => `Sortowanie za darmo. Agent od $${usd}.`,

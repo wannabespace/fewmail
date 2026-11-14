@@ -33,6 +33,20 @@
 		}
 	}
 
+	# A public page opens in the visitor's language: the one they picked (the `fewmail.locale` cookie the app writes), else their browser's first. English stays unprefixed; crawlers send neither, so they reach every language through hreflang. Keep the paths in step with LOCALIZED_PATHS in `src/lib/seo.ts`.
+	@pickedLanguage {
+		path / /pricing /compare /compare/* /mcp /login
+		header_regexp picked Cookie (?:^|;\s*)fewmail\.locale=%22(de|es|fr|hi|id|it|ja|ko|nl|pl|pt|tr|uk|zh)%22
+	}
+	redir @pickedLanguage /{re.picked.1}{uri} 302
+
+	@browserLanguage {
+		path / /pricing /compare /compare/* /mcp /login
+		not header Cookie *fewmail.locale=*
+		header_regexp browser Accept-Language (?i)^\s*(de|es|fr|hi|id|it|ja|ko|nl|pl|pt|tr|uk|zh)(?:[-;,]|$)
+	}
+	redir @browserLanguage /{re.browser.1}{uri} 302
+
 	# A missing asset is a 404, never the app shell: a stale chunk must fail loudly, not parse HTML as JS.
 	handle /assets/* {
 		file_server

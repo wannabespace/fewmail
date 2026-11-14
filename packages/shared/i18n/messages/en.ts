@@ -1045,6 +1045,18 @@ export const en = {
     chapters: {
       pricing: {
         description:
+    meta: {
+      compare:
+        'How Fewmail compares to Superhuman, Shortwave and SaneBox: an agent that reads your mail instead of a faster way to read it yourself.',
+      home: 'Fewmail is an email agent for Gmail: it reads every email, drafts replies in your voice and shows you only what needs you.',
+      login:
+        'Fewmail reads your Gmail for you, answers in your voice and only shows you what actually needs you.',
+      mcp: 'Connect Fewmail to Claude, ChatGPT, Claude Code or Cursor as an MCP server: read and triage your Gmail from the AI you already use.',
+      motto: 'only what matters in your inbox',
+      pricing: (trialDays: number) =>
+        `Fewmail is free forever for sorting, rules and spam protection. Pro, the whole agent, starts with ${trialDays} free days and no card.`,
+      tagline: 'the email agent for Gmail',
+    },
           'The sorting, rules and protection are free forever. Lite, Pro and Max add everything that reads and writes for you; the bigger plans simply do more of it.',
         label: 'Pricing',
         title: (usd: number) =>

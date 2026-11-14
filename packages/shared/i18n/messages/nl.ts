@@ -1054,6 +1054,18 @@ export const nl: Messages = {
     chapters: {
       pricing: {
         description:
+    meta: {
+      compare:
+        'Fewmail vergeleken met Superhuman, Shortwave en SaneBox: een agent die je mail leest in plaats van een snellere manier om hem zelf te lezen.',
+      home: 'Fewmail is een e-mailagent voor Gmail: hij leest elke mail, schrijft antwoorden in jouw stijl en laat je alleen zien wat jou nodig heeft.',
+      login:
+        'Fewmail leest je Gmail voor je, antwoordt in jouw stijl en laat je alleen zien wat jou echt nodig heeft.',
+      mcp: 'Koppel Fewmail als MCP-server aan Claude, ChatGPT, Claude Code of Cursor: lees en sorteer je Gmail vanuit de AI die je al gebruikt.',
+      motto: 'alleen wat telt in je inbox',
+      pricing: (trialDays: number) =>
+        `Fewmail is voor altijd gratis voor sorteren, regels en spambescherming. Pro, de hele agent, begint met ${trialDays} gratis dagen en zonder kaart.`,
+      tagline: 'de e-mailagent voor Gmail',
+    },
           'Sorteren, regels en bescherming zijn voor altijd gratis. Lite, Pro en Max voegen alles toe wat voor je leest en schrijft; de grotere abonnementen doen er gewoon meer van.',
         label: 'Prijzen',
         title: (usd: number) =>

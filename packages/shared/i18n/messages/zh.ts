@@ -722,6 +722,17 @@ export const zh: Messages = {
     chapters: {
       pricing: {
         description:
+    meta: {
+      compare:
+        'Fewmail 与 Superhuman、Shortwave、SaneBox 的对比：一个替你读邮件的助手，而不是让你自己读得更快的工具。',
+      home: 'Fewmail 是 Gmail 的邮件助手：它读每一封邮件，用你的口吻起草回复，只把需要你的事给你看。',
+      login: 'Fewmail 替你读 Gmail，用你的口吻回复，只给你看真正需要你的事。',
+      mcp: '把 Fewmail 作为 MCP 服务器连接到 Claude、ChatGPT、Claude Code 或 Cursor：在你已经在用的 AI 里读和整理 Gmail。',
+      motto: '收件箱里只留重要的',
+      pricing: (trialDays: number) =>
+        `Fewmail 的分拣、规则和垃圾邮件防护永久免费。完整助手 Pro 可免费试用 ${trialDays} 天，无需绑卡。`,
+      tagline: 'Gmail 的邮件助手',
+    },
           '分类、规则和防护永久免费。Lite、Pro 和 Max 加上所有替你阅读和撰写的功能；更高的套餐只是能做得更多。',
         label: '价格',
         title: (usd: number) => `分类免费。助手 $${usd} 起。`,

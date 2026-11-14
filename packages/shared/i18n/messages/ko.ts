@@ -737,6 +737,18 @@ export const ko: Messages = {
     chapters: {
       pricing: {
         description:
+    meta: {
+      compare:
+        'Superhuman, Shortwave, SaneBox와 Fewmail 비교: 직접 더 빨리 읽는 도구가 아니라 대신 메일을 읽어 주는 에이전트예요.',
+      home: 'Fewmail은 Gmail을 위한 이메일 에이전트예요. 모든 메일을 읽고, 내 말투로 답장 초안을 쓰고, 나에게 필요한 것만 보여 줘요.',
+      login:
+        'Fewmail이 대신 Gmail을 읽고, 내 말투로 답하고, 정말 나에게 필요한 것만 보여 줘요.',
+      mcp: 'Fewmail을 MCP 서버로 Claude, ChatGPT, Claude Code, Cursor에 연결하세요. 이미 쓰는 AI에서 Gmail을 읽고 정리할 수 있어요.',
+      motto: '받은편지함에서 중요한 것만',
+      pricing: (trialDays: number) =>
+        `Fewmail의 분류, 규칙, 스팸 보호는 계속 무료예요. 에이전트 전체를 쓰는 Pro는 카드 없이 ${trialDays}일 무료로 시작해요.`,
+      tagline: 'Gmail을 위한 이메일 에이전트',
+    },
           '분류, 규칙, 보호 기능은 평생 무료예요. Lite, Pro, Max에는 대신 읽고 써 주는 모든 기능이 더해져요. 큰 요금제일수록 그걸 더 많이 할 뿐이에요.',
         label: '요금',
         title: (usd: number) => `분류는 무료. 에이전트는 $${usd}부터.`,

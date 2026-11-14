@@ -162,6 +162,18 @@ export const uk: Messages = {
     noReply: 'Ще без відповіді',
   },
   site: {
+    meta: {
+      compare:
+        'Чим Fewmail відрізняється від Superhuman, Shortwave і SaneBox: агент, який читає пошту за тебе, а не швидший спосіб читати її самому.',
+      home: 'Fewmail — поштовий агент для Gmail: читає кожен лист, пише відповіді твоїм голосом і показує лише те, що потребує тебе.',
+      login:
+        'Fewmail читає твій Gmail за тебе, відповідає твоїм голосом і показує лише те, що справді потребує тебе.',
+      mcp: 'Підключи Fewmail до Claude, ChatGPT, Claude Code чи Cursor як MCP-сервер: читай і розбирай Gmail з AI, яким уже користуєшся.',
+      motto: 'лише те, що важливо у твоїй пошті',
+      pricing: (trialDays: number) =>
+        `Fewmail назавжди безкоштовний для сортування, правил і захисту від спаму. Pro, весь агент, починається з ${trialDays} безкоштовних днів без картки.`,
+      tagline: 'поштовий агент для Gmail',
+    },
     chapters: {
       pricing: {
         description:

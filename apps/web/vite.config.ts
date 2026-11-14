@@ -1,5 +1,8 @@
 import process from 'node:process'
 
+import { messages } from '@fewmail/shared/i18n'
+import type { Locale } from '@fewmail/shared/i18n/locales'
+import { LOCALES } from '@fewmail/shared/i18n/locales'
 import { setupPortlessEnvs } from '@fewmail/shared/portless-env'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import posthog from '@posthog/rollup-plugin'
@@ -11,8 +14,11 @@ import type { Plugin } from 'vite'
 import { createServer, defineConfig } from 'vite'
 
 import {
+  LOCALIZED_PATHS,
+  localizedPath,
   OG_IMAGE,
-  PUBLIC_PAGES,
+  pageMeta,
+  PUBLIC_PATHS,
   SITE_NAME,
   structuredData,
 } from './src/lib/seo'
@@ -35,19 +41,50 @@ const escape = (value: string) =>
 const meta = (key: 'name' | 'property', name: string, content: string) =>
   `<meta ${key}="${name}" content="${escape(content)}" />`
 
-const pageHead = (
-  path: string,
-  { description, title }: { description: string; title: string }
-) => {
-  const url = `${WEB_URL}${path}`
-  const data = structuredData(path, WEB_URL)
+/** Every page to emit: each localized path in every language, the legal documents in English. */
+const PAGES = PUBLIC_PATHS.flatMap((path) =>
+  (LOCALIZED_PATHS.includes(path)
+    ? LOCALES.map(({ code }) => code)
+    : (['en'] satisfies Locale[])
+  ).map((locale) => ({
+    locale,
+    path,
+    url: localizedPath(locale, path),
+    ...(pageMeta(path, messages[locale]) ?? {
+      description: '',
+      title: SITE_NAME,
+    }),
+  }))
+)
+
+type Page = (typeof PAGES)[number]
+
+/** hreflang alternates: every language of a localized page, English as the default. */
+const alternates = (path: string) =>
+  LOCALIZED_PATHS.includes(path)
+    ? [
+        ...LOCALES.map(({ code }) => [code, localizedPath(code, path)]),
+        ['x-default', path],
+      ]
+    : []
+
+const pageHead = ({ description, locale, path, title, url }: Page) => {
+  const data = structuredData(path, {
+    locale,
+    origin: WEB_URL,
+    t: messages[locale],
+  })
   return [
     `<title>${escape(title)}</title>`,
     meta('name', 'description', description),
-    `<link rel="canonical" href="${url}" />`,
+    `<link rel="canonical" href="${WEB_URL}${url}" />`,
+    ...alternates(path).map(
+      ([hreflang, href]) =>
+        `<link rel="alternate" hreflang="${hreflang}" href="${WEB_URL}${href}" />`
+    ),
     meta('property', 'og:title', title),
     meta('property', 'og:description', description),
-    meta('property', 'og:url', url),
+    meta('property', 'og:url', `${WEB_URL}${url}`),
     data &&
       `<script type="application/ld+json">${JSON.stringify(data).replaceAll('<', String.raw`\u003c`)}</script>`,
   ]
@@ -59,12 +96,12 @@ const COMMIT = process.env.RAILWAY_GIT_COMMIT_SHA
 
 const siteFiles = (): Record<string, string> => ({
   ...(COMMIT && { 'version.txt': COMMIT }),
-  'llms.txt': `# ${SITE_NAME}\n\n> ${PUBLIC_PAGES['/']?.description}\n\n${Object.entries(
-    PUBLIC_PAGES
+  'llms.txt': `# ${SITE_NAME}\n\n> ${messages.en.site.meta.home}\n\n${PAGES.filter(
+    ({ locale }) => locale === 'en'
   )
     .map(
-      ([path, { description, title }]) =>
-        `- [${title}](${WEB_URL}${path}): ${description}`
+      ({ description, title, url }) =>
+        `- [${title}](${WEB_URL}${url}): ${description}`
     )
     .join('\n')}\n`,
   'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${WEB_URL}/sitemap.xml\n`,
@@ -80,13 +117,18 @@ const siteFiles = (): Record<string, string> => ({
     theme_color: THEME_COLOR,
   }),
   'sitemap.xml': `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${Object.entries(PUBLIC_PAGES)
-  .map(
-    ([path, { updatedAt }]) =>
-      `  <url><loc>${WEB_URL}${path}</loc>${updatedAt ? `<lastmod>${updatedAt.toLocaleDateString('sv')}</lastmod>` : ''}</url>`
-  )
-  .join('\n')}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${PAGES.map(
+  ({ path, updatedAt, url }) =>
+    `  <url><loc>${WEB_URL}${url}</loc>${updatedAt ? `<lastmod>${updatedAt.toLocaleDateString('sv')}</lastmod>` : ''}${alternates(
+      path
+    )
+      .map(
+        ([hreflang, href]) =>
+          `<xhtml:link rel="alternate" hreflang="${hreflang}" href="${WEB_URL}${href}"/>`
+      )
+      .join('')}</url>`
+).join('\n')}
 </urlset>
 `,
 })
@@ -96,7 +138,7 @@ ${Object.entries(PUBLIC_PAGES)
  * text; `main.tsx` loads the route before replacing it. The app touches `localStorage`, `navigator` and `document`
  * as it imports, hence happy-dom — registered only after Vite's own server is up, which it would otherwise confuse.
  */
-const prerender = async (paths: string[]) => {
+const prerender = async (urls: string[]) => {
   const server = await createServer({
     appType: 'custom',
     configLoader: 'runner',
@@ -109,11 +151,12 @@ const prerender = async (paths: string[]) => {
     const app = (await server.ssrLoadModule('/src/prerender.tsx')) as {
       render: typeof render
     }
-    return Object.fromEntries(
-      await Promise.all(
-        paths.map(async (path) => [path, await app.render(path)] as const)
-      )
-    )
+    const pages: Record<string, string> = {}
+    for (const url of urls) {
+      // oxlint-disable-next-line no-await-in-loop -- the language lives in global stores, so pages render one at a time
+      pages[url] = await app.render(url)
+    }
+    return pages
   } finally {
     await GlobalRegistrator.unregister()
     await server.close()
@@ -123,23 +166,19 @@ const prerender = async (paths: string[]) => {
 // A returning user on `/` is redirected into the app: drop the landing before it paints.
 const SIGNED_IN_GUARD = `<script>if (localStorage.getItem('fewmail.signed-in') === 'true') document.getElementById('root').replaceChildren()</script>`
 
-const withPage = (html: string, path: string, body: string) =>
+const withPage = (html: string, page: Page, body: string) =>
   html
+    .replace('<html lang="en">', `<html lang="${page.locale}">`)
     .replace(/<meta name="robots"[^>]*>\s*/u, '')
-    .replace(
-      /<title>.*?<\/title>/u,
-      pageHead(
-        path,
-        PUBLIC_PAGES[path] ?? { description: '', title: SITE_NAME }
-      )
-    )
+    .replace(/<title>.*?<\/title>/u, pageHead(page))
     .replace(
       /(?<root><div id="root"[^>]*>)<\/div>/u,
-      `$<root>${body}</div>${path === '/' ? SIGNED_IN_GUARD : ''}`
+      `$<root>${body}</div>${page.path === '/' ? SIGNED_IN_GUARD : ''}`
     )
 
 /**
- * Each public page is emitted as `<path>/index.html` with its own head, structured data and prerendered body, so
+ * Each public page is emitted as `<path>/index.html` (in every language, `/<locale><path>`) with its own head,
+ * hreflang alternates, structured data and prerendered body, so
  * crawlers and link previews that never run JS still see them. `/` is `index.html` itself, so the
  * `noindex` app shell moves to `app.html`, which `Caddyfile` serves for every other route.
  */
@@ -164,14 +203,15 @@ const seo = (): Plugin => ({
     }
     const html = String(shell.source)
     this.emitFile({ fileName: 'app.html', source: html, type: 'asset' })
-    const pages = await prerender(Object.keys(PUBLIC_PAGES))
-    for (const [path, body] of Object.entries(pages)) {
-      if (path === '/') {
-        shell.source = withPage(html, path, body)
+    const bodies = await prerender(PAGES.map(({ url }) => url))
+    for (const page of PAGES) {
+      const source = withPage(html, page, bodies[page.url] ?? '')
+      if (page.url === '/') {
+        shell.source = source
       } else {
         this.emitFile({
-          fileName: `${path.slice(1)}/index.html`,
-          source: withPage(html, path, body),
+          fileName: `${page.url.slice(1).replace(/\/$/u, '')}/index.html`,
+          source,
           type: 'asset',
         })
       }

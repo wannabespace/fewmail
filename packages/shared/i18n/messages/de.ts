@@ -160,6 +160,18 @@ export const de: Messages = {
     noReply: 'Noch keine Antwort',
   },
   site: {
+    meta: {
+      compare:
+        'Fewmail im Vergleich zu Superhuman, Shortwave und SaneBox: ein Agent, der deine Mails liest, statt dich schneller selbst lesen zu lassen.',
+      home: 'Fewmail ist ein E-Mail-Agent für Gmail: Er liest jede Mail, entwirft Antworten in deinem Ton und zeigt dir nur, was dich braucht.',
+      login:
+        'Fewmail liest dein Gmail für dich, antwortet in deinem Ton und zeigt dir nur, was dich wirklich braucht.',
+      mcp: 'Verbinde Fewmail als MCP-Server mit Claude, ChatGPT, Claude Code oder Cursor: Lies und sortiere dein Gmail aus der KI, die du schon nutzt.',
+      motto: 'nur was in deinem Postfach zählt',
+      pricing: (trialDays: number) =>
+        `Fewmail ist für Sortierung, Regeln und Spamschutz für immer kostenlos. Pro, der ganze Agent, beginnt mit ${trialDays} kostenlosen Tagen ohne Karte.`,
+      tagline: 'der E-Mail-Agent für Gmail',
+    },
     chapters: {
       pricing: {
         description:

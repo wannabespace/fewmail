@@ -24,7 +24,7 @@ import {
 } from 'date-fns/locale'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
-import { createWebStorageValue } from 'seitu/web'
+import { createCookieValue, createWebStorageValue } from 'seitu/web'
 
 /** date-fns abbreviates Ukrainian weekdays as "пон", "чтв"; people write "пн", "чт", its short width. */
 const ukrainian: DateLocale = {
@@ -67,6 +67,13 @@ export const localeStore = createWebStorageValue({
   type: 'localStorage',
 })
 
+/** A copy for the server: `Caddyfile` sends a public page to this language's URL by it. */
+const localeCookie = createCookieValue({
+  defaultValue: localeStore.get(),
+  key: 'fewmail.locale',
+  schema: type.enumerated(...LOCALES.map(({ code }) => code)),
+})
+
 /** Only English ships in the main bundle (crawlers and the prerender read it); every other language is its own chunk. */
 const LOAD_MESSAGES: Record<Exclude<Locale, 'en'>, () => Promise<Messages>> = {
   de: () =>
@@ -101,7 +108,7 @@ const LOAD_MESSAGES: Record<Exclude<Locale, 'en'>, () => Promise<Messages>> = {
 
 const messagesStore = createStore<Messages>(en)
 
-const loadMessages = async (locale: Locale) => {
+export const loadMessages = async (locale: Locale) => {
   const loaded = locale === 'en' ? en : await LOAD_MESSAGES[locale]()
   // A slower chunk for an earlier pick must not overwrite a later one.
   if (localeStore.get() === locale) {
@@ -109,12 +116,10 @@ const loadMessages = async (locale: Locale) => {
   }
 }
 
-/** `main.tsx` waits for it, so the first render is already in the visitor's language. */
-export const messagesLoaded = loadMessages(localeStore.get())
-
 localeStore.subscribe(
   (locale) => {
     document.documentElement.lang = locale
+    localeCookie.set(locale)
   },
   { immediate: true }
 )

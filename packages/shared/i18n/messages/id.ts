@@ -1029,6 +1029,18 @@ export const id: Messages = {
     chapters: {
       pricing: {
         description:
+    meta: {
+      compare:
+        'Perbandingan Fewmail dengan Superhuman, Shortwave, dan SaneBox: agen yang membaca email untukmu, bukan cara lebih cepat untuk membacanya sendiri.',
+      home: 'Fewmail adalah agen email untuk Gmail: membaca setiap email, menulis draf balasan dengan gayamu, dan hanya menunjukkan yang butuh kamu.',
+      login:
+        'Fewmail membaca Gmail-mu untukmu, membalas dengan gayamu, dan hanya menunjukkan yang benar-benar butuh kamu.',
+      mcp: 'Hubungkan Fewmail ke Claude, ChatGPT, Claude Code, atau Cursor sebagai server MCP: baca dan pilah Gmail dari AI yang sudah kamu pakai.',
+      motto: 'hanya yang penting di kotak masukmu',
+      pricing: (trialDays: number) =>
+        `Fewmail gratis selamanya untuk memilah, aturan, dan perlindungan spam. Pro, agen lengkapnya, dimulai dengan ${trialDays} hari gratis tanpa kartu.`,
+      tagline: 'agen email untuk Gmail',
+    },
           'Penyortiran, aturan, dan perlindungan gratis selamanya. Lite, Pro, dan Max menambahkan semua yang membaca dan menulis untukmu; paket yang lebih besar hanya melakukannya lebih banyak.',
         label: 'Harga',
         title: (usd: number) =>

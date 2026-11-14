@@ -741,6 +741,18 @@ export const ja: Messages = {
     chapters: {
       pricing: {
         description:
+    meta: {
+      compare:
+        'Fewmail と Superhuman、Shortwave、SaneBox の比較：自分で速く読むための道具ではなく、代わりにメールを読むエージェントです。',
+      home: 'Fewmail は Gmail のためのメールエージェントです。すべてのメールを読み、あなたらしい返信を下書きし、あなたが必要なものだけを見せます。',
+      login:
+        'Fewmail はあなたの代わりに Gmail を読み、あなたらしく返信し、本当にあなたが必要なものだけを見せます。',
+      mcp: 'Fewmail を MCP サーバーとして Claude、ChatGPT、Claude Code、Cursor に接続し、使い慣れた AI から Gmail を読んで整理できます。',
+      motto: '受信トレイの大事なことだけ',
+      pricing: (trialDays: number) =>
+        `Fewmail の仕分け、ルール、スパム対策はずっと無料。エージェントのすべてが使える Pro は、カード不要の ${trialDays} 日間無料から始められます。`,
+      tagline: 'Gmail のためのメールエージェント',
+    },
           '仕分け、ルール、保護機能はずっと無料。Lite、Pro、Max では、メールを読み、書いてくれる機能がすべて加わります。上のプランほど、それをたくさんこなすだけです。',
         label: '料金',
         title: (usd: number) => `仕分けは無料。エージェントは $${usd} から。`,

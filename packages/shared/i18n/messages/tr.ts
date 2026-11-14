@@ -1023,6 +1023,18 @@ export const tr: Messages = {
     chapters: {
       pricing: {
         description:
+    meta: {
+      compare:
+        'Fewmail ile Superhuman, Shortwave ve SaneBox karşılaştırması: postanı senin yerine okuyan bir ajan, kendin daha hızlı okumanın bir yolu değil.',
+      home: 'Fewmail, Gmail için bir e-posta ajanıdır: her e-postayı okur, yanıtları senin üslubunla yazar ve sana yalnızca seni bekleyenleri gösterir.',
+      login:
+        'Fewmail Gmail’ini senin yerine okur, senin üslubunla yanıtlar ve sana yalnızca gerçekten seni bekleyenleri gösterir.',
+      mcp: 'Fewmail’i MCP sunucusu olarak Claude, ChatGPT, Claude Code veya Cursor’a bağla: Gmail’ini zaten kullandığın yapay zekâdan oku ve düzenle.',
+      motto: 'gelen kutunda yalnızca önemli olan',
+      pricing: (trialDays: number) =>
+        `Fewmail sıralama, kurallar ve spam koruması için sonsuza dek ücretsiz. Pro, ajanın tamamı, ${trialDays} ücretsiz günle ve kart olmadan başlar.`,
+      tagline: 'Gmail için e-posta ajanı',
+    },
           'Sıralama, kurallar ve koruma sonsuza dek ücretsiz. Lite, Pro ve Max, senin için okuyan ve yazan her şeyi ekler; büyük planlar sadece bunu daha çok yapar.',
         label: 'Fiyatlar',
         title: (usd: number) =>
