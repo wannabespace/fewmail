@@ -25,7 +25,7 @@ import { LimitReachedError } from './limit-error'
 import { dismissAction, listQueue, redraftAction, updateDraft } from './mail'
 import { cancelMail } from './outbox'
 import { requireBudget } from './plan'
-import { getReadingSummary } from './reading'
+import { getReadingSummary, markReadingRead } from './reading'
 import { getSettings } from './settings'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
@@ -295,12 +295,15 @@ export const weekReply = (chat: Chat, t: Messages, minutes: number): Reply => ({
 
 type Reading = Awaited<ReturnType<typeof getReadingSummary>>
 
-/** The day's newsletters as one message: the agent's summary of all of them, topic titles in bold, then the page. */
+/** The day's newsletters as one message: the agent's summary of all of them, topic titles in bold, then the page; one button marks them read. */
 export const readingReply = (
   chat: Chat,
   t: Messages,
   { rows, summary }: Reading
 ): Reply => ({
+  buttons: rows.some(({ isUnread }) => isUnread)
+    ? [{ id: 'readall', title: t.reading.markAllRead }]
+    : [],
   text: [
     chat.channel.bold(t.reading.digest(rows.length)),
     ...(summary
@@ -361,7 +364,7 @@ const queueReplies = async (chat: Chat, userId: string, t: Messages) => {
       ]
 }
 
-/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `w:` write a reminder, `e:` edit, `queue`, `reading`, `week`. */
+/** Buttons and commands: `a:` approve, `u:` undo a send, `d:` skip, `r:` shorter, `w:` write a reminder, `e:` edit, `queue`, `reading`, `readall` (mark Reading read), `week`. */
 export const press = async (
   chat: Chat,
   userId: string,
@@ -375,6 +378,13 @@ export const press = async (
       replies: async () => [
         readingReply(chat, t, await getReadingSummary(userId)),
       ],
+    }
+  }
+  if (command === 'readall') {
+    const { threadIds } = await markReadingRead(userId)
+    return {
+      buttons: [],
+      notice: t.today.handled.markedRead(threadIds.length),
     }
   }
   if (command === 'week') {

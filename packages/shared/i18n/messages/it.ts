@@ -1331,6 +1331,8 @@ export const it: Messages = {
     readAll:
       'Le ho lette tutte, e niente cambia nella tua posta senza il tuo sì.',
     worthKnowing: 'Da sapere',
+    quick: 'Veloce',
+    needsLook: 'Da guardare',
     tidy: {
       confirm: (emails: string) => `Riordinare ${emails}?`,
       running: 'Riordino in corso…',
@@ -1655,6 +1657,7 @@ export const it: Messages = {
     unsubscribed: 'newsletter abbandonate',
   },
   reading: {
+    markAllRead: 'Segna tutte come lette',
     summary: 'Cosa dicono le tue newsletter',
     worth: 'Da leggere per intero',
     leftOut: (n: number) => `Escluse dal riassunto: ${n}, niente di nuovo.`,

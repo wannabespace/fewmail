@@ -437,6 +437,7 @@ export const id: Messages = {
     unsubscribed: 'newsletter ditinggalkan',
   },
   reading: {
+    markAllRead: 'Tandai semua sudah dibaca',
     summary: 'Isi newsletter Anda',
     worth: 'Layak dibaca utuh',
     leftOut: (n: number) => `Tidak masuk ringkasan: ${n}, tidak ada yang baru.`,
@@ -1594,6 +1595,8 @@ export const id: Messages = {
     readAll:
       'Aku membaca semuanya, dan tidak ada yang berubah di emailmu tanpa persetujuanmu.',
     worthKnowing: 'Perlu diketahui',
+    quick: 'Cepat',
+    needsLook: 'Perlu kamu lihat',
     tidy: {
       confirm: (emails: string) => `Rapikan ${emails}?`,
       running: 'Merapikan…',

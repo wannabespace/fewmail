@@ -101,7 +101,11 @@ import {
 import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
 import { getPerson } from '../services/people'
 import { getPlanInfo, getUsage } from '../services/plan'
-import { getReading, getReadingSummary } from '../services/reading'
+import {
+  getReading,
+  getReadingSummary,
+  markReadingRead,
+} from '../services/reading'
 import {
   createRule,
   deleteRule,
@@ -585,6 +589,7 @@ export const router = {
   },
   reading: {
     list: authed.handler(({ context }) => getReading(context.user.id)),
+    markRead: authed.handler(({ context }) => markReadingRead(context.user.id)),
     summary: agent.handler(async ({ context }) => {
       const { summary } = await getReadingSummary(context.user.id)
       return summary

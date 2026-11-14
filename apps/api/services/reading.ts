@@ -11,6 +11,7 @@ import { FAST_MODEL_ID, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { getPlanInfo, hasAgent, hasBudget } from './plan'
 import { getSettings } from './settings'
+import { changeThreadLabels, MARK_READ } from './thread-labels'
 
 const READING_HOURS = 24
 export const READING_SHOWN = 30
@@ -76,6 +77,7 @@ export const getReading = async (userId: string) => {
       fromEmail: messages.fromEmail,
       fromName: messages.fromName,
       id: messages.id,
+      isUnread: messages.isUnread,
       model: analyses.model,
       receivedAt: messages.receivedAt,
       subject: messages.subject,
@@ -96,6 +98,27 @@ export const getReading = async (userId: string) => {
     ...row,
     summary: written.get(row.id) ?? row.summary,
   }))
+}
+
+/** The user's own yes on Reading: every newsletter the page shows is marked read, one thread at a time like a tidy. */
+export const markReadingRead = async (userId: string) => {
+  const rows = await db
+    .select({ isUnread: messages.isUnread, threadId: messages.threadId })
+    .from(messages)
+    .innerJoin(analyses, eq(analyses.messageId, messages.id))
+    .where(isReading(userId))
+    .orderBy(desc(messages.receivedAt))
+    .limit(READING_SHOWN)
+  const threadIds = [
+    ...new Set(
+      rows.filter(({ isUnread }) => isUnread).map(({ threadId }) => threadId)
+    ),
+  ]
+  for (const threadId of threadIds) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- one Gmail change at a time, like settleTidy
+    await changeThreadLabels(userId, threadId, MARK_READ)
+  }
+  return { threadIds }
 }
 
 const readingSummarySchema = type({

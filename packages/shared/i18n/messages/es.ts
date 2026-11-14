@@ -1328,6 +1328,8 @@ export const es: Messages = {
     progress: (done: number, total: number) => `${done} de ${total}`,
     readAll: 'Leí cada uno, y nada cambia en tu correo sin tu sí.',
     worthKnowing: 'Para tener en cuenta',
+    quick: 'Rápido',
+    needsLook: 'Míralo tú',
     tidy: {
       confirm: (emails: string) => `¿Ordenar ${emails}?`,
       running: 'Ordenando…',
@@ -1652,6 +1654,7 @@ export const es: Messages = {
     unsubscribed: 'boletines abandonados',
   },
   reading: {
+    markAllRead: 'Marcar todo como leído',
     summary: 'Lo que dicen tus boletines',
     worth: 'Vale la pena leerlo entero',
     leftOut: (n: number) => `Fuera del resumen: ${n}, nada nuevo.`,

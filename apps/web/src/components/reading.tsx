@@ -10,20 +10,26 @@ import {
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { cn } from '@fewmail/ui/lib/utils'
-import { Cancel01Icon, News01Icon } from '@hugeicons/core-free-icons'
+import {
+  Cancel01Icon,
+  News01Icon,
+  TickDouble02Icon,
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { isToday } from 'date-fns'
 import { motion, useReducedMotion } from 'motion/react'
 import type { Transition } from 'motion/react'
 import { Fragment, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { ListenButton } from '~/components/listen-button'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
-import { orpc } from '~/lib/orpc'
+import { client, orpc } from '~/lib/orpc'
+import { toastUndo } from '~/lib/undo'
 
 type Row = RouterOutputs['reading']['list'][number]
 type Summary = NonNullable<RouterOutputs['reading']['summary']>
@@ -259,6 +265,56 @@ const SummaryGaps = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
   )
 }
 
+const MARK_READ_TOAST = 'reading-read'
+
+/** Ends Reading: every newsletter on it marked read in one yes (⇧I), with an Undo that marks them unread again. */
+const MarkAllRead = ({ rows }: { rows: Row[] }) => {
+  const t = useT()
+  const queryClient = useQueryClient()
+  const refetch = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: orpc.reading.key() }),
+      queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+    ])
+  const markRead = useMutation(
+    orpc.reading.markRead.mutationOptions({
+      onError: () => toast.dismiss(MARK_READ_TOAST),
+      onMutate: () => toast.loading(t.today.working, { id: MARK_READ_TOAST }),
+      onSettled: refetch,
+      onSuccess: ({ threadIds }) =>
+        toastUndo(
+          t.today.handled.markedRead(threadIds.length),
+          () =>
+            Promise.all(
+              threadIds.map((threadId) => client.mail.markUnread({ threadId }))
+            ).finally(refetch),
+          MARK_READ_TOAST
+        ),
+    })
+  )
+  const canMark = rows.some(({ isUnread }) => isUnread) && !markRead.isPending
+  useHotkey('Shift+I', () => markRead.mutate(), { enabled: canMark })
+
+  return (
+    canMark && (
+      <Button
+        size="sm"
+        variant="secondary"
+        className="self-start"
+        onClick={() => markRead.mutate()}
+        shortcut={<Kbd>⇧I</Kbd>}
+      >
+        <HugeiconsIcon
+          icon={TickDouble02Icon}
+          strokeWidth={2}
+          data-icon="inline-start"
+        />
+        {t.reading.markAllRead}
+      </Button>
+    )
+  )
+}
+
 // One spring for the card and the pane, so the pane grows out of the card and shrinks back into it; what only one of
 // them has (the topic line, the whole summary) fades in once the box is on its way.
 const useMorph = (): { morph: Transition; reveal: Transition } =>
@@ -439,6 +495,7 @@ export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
               {summary && <SummaryText rows={rows} summary={summary} />}
               {summary && <SummaryGaps rows={rows} summary={summary} />}
               <NewsletterList rows={rows} summary={summary} />
+              <MarkAllRead rows={rows} />
             </motion.div>
           </motion.div>
         </section>

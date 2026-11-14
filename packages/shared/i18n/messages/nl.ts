@@ -447,6 +447,7 @@ export const nl: Messages = {
     unsubscribed: 'nieuwsbrieven verlaten',
   },
   reading: {
+    markAllRead: 'Alles als gelezen markeren',
     summary: 'Wat je nieuwsbrieven zeiden',
     worth: 'De moeite waard om helemaal te lezen',
     leftOut: (n: number) => `Weggelaten: ${n}, niets nieuws.`,
@@ -1620,6 +1621,8 @@ export const nl: Messages = {
     readAll:
       'Ik heb ze allemaal gelezen, en zonder je ja verandert er niets in je mail.',
     worthKnowing: 'Goed om te weten',
+    quick: 'Snel',
+    needsLook: 'Zelf bekijken',
     tidy: {
       confirm: (emails: string) => `${emails} opruimen?`,
       running: 'Opruimen…',

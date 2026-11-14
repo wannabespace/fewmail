@@ -63,7 +63,8 @@ import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
   isProposal,
-  ProposalsCard,
+  PROPOSALS_ID,
+  ProposalsGroup,
   ProposalsReview,
   useProposals,
 } from '~/components/proposals'
@@ -468,10 +469,12 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
 
 type HomeSubpage = 'reading' | 'tidy'
 
+type Newsletters = ReturnType<typeof useReading>['rows']
+
 const pageHints = (
   t: Messages,
   page: HomeSubpage,
-  newsletters: number
+  newsletters: Newsletters
 ): [string, string][] => {
   if (page === 'tidy') {
     return [
@@ -484,11 +487,14 @@ const pageHints = (
     ]
   }
   return [
-    ...(newsletters > 0
+    ...(newsletters.length > 0
       ? ([
           ['J / K', t.keys.move],
           ['⏎', t.keys.open],
         ] as [string, string][])
+      : []),
+    ...(newsletters.some(({ isUnread }) => isUnread)
+      ? [['⇧I', t.reading.markAllRead] as [string, string]]
       : []),
     ['esc', t.keys.close],
   ]
@@ -516,9 +522,10 @@ const homeHints = (
     today: Today | undefined
     isEditing: boolean
     isRewriting: boolean
-    newsletters: number
+    newsletters: Newsletters
     picked: number
     selected: QueueItem | undefined
+    isProposalsOpen: boolean
     stale: number
     page: HomeSubpage | undefined
     tidy: number
@@ -556,6 +563,12 @@ const homeHints = (
           ...primaryHints(t, state.selected.action),
         ]
       : []),
+    ...(state.isProposalsOpen
+      ? [
+          ['J / K', t.keys.move] as [string, string],
+          ['⏎', t.today.tidy.run] as [string, string],
+        ]
+      : []),
     ...(state.alike > 1
       ? [['⇧⏎', t.keys.approveAll(state.alike)] as [string, string]]
       : []),
@@ -587,7 +600,7 @@ const homeHints = (
           ['I', t.today.newSender.keep] as [string, string],
         ]
       : []),
-    ...(state.newsletters > 0
+    ...(state.newsletters.length > 0
       ? [['N', t.reading.title] as [string, string]]
       : []),
     ...(state.today?.codes.length
@@ -899,22 +912,22 @@ const KindFilter = ({
  * The cursor holds a card, not a position: a card arriving above it live must never take ⏎ from the one being read.
  * A card that leaves hands the cursor to whichever card takes its place.
  */
-const useCursor = (queue: QueueItem[]) => {
+const useCursor = (stops: string[]) => {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [lastIndex, setLastIndex] = useState(0)
-  const foundIndex = queue.findIndex(({ action }) => action.id === selectedId)
-  const selectedIndex =
+  const foundIndex = selectedId === null ? -1 : stops.indexOf(selectedId)
+  const cursorIndex =
     foundIndex === -1
-      ? Math.max(0, Math.min(lastIndex, queue.length - 1))
+      ? Math.max(0, Math.min(lastIndex, stops.length - 1))
       : foundIndex
-  const selected = queue.at(selectedIndex)
-  if (foundIndex === -1 && selected) {
-    setSelectedId(selected.action.id)
+  const cursorId = stops.at(cursorIndex)
+  if (foundIndex === -1 && cursorId) {
+    setSelectedId(cursorId)
   }
   if (foundIndex !== -1 && foundIndex !== lastIndex) {
     setLastIndex(foundIndex)
   }
-  return { selected, selectedIndex, setSelectedId }
+  return { cursorId, cursorIndex, setSelectedId }
 }
 
 const StaleCards = ({
@@ -1009,14 +1022,24 @@ const HomePage = () => {
   const queue = isQueueOpen ? filter.shown : filter.shown.slice(0, QUEUE_SHOWN)
   const hiddenCards = filter.shown.length - queue.length
   const isFirstRead = !!data && isReadingFirstTime(data.mailboxes)
-  const { selected, selectedIndex, setSelectedId } = useCursor(queue)
+  // Decisions closed since the page opened: the progress counts them against what is left.
+  const [settled, setSettled] = useState(0)
+  const settle = (count = 1) => setSettled((current) => current + count)
+  const proposals = useProposals(data, cards, settle)
+  const hasProposals = proposals.proposals.length > 0
+  // The cursor walks the agent's proposals first, then the cards.
+  const stops = [
+    ...(hasProposals ? [PROPOSALS_ID] : []),
+    ...queue.map(({ action }) => action.id),
+  ]
+  const { cursorId, cursorIndex, setSelectedId } = useCursor(stops)
+  const isProposalsOpen = cursorId === PROPOSALS_ID
+  const selectedIndex = queue.findIndex(({ action }) => action.id === cursorId)
+  const selected = queue.at(selectedIndex)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [rewritingId, setRewritingId] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [pickedIds, setPickedIds] = useState<string[]>([])
-  // Decisions closed since the page opened: the progress counts them against what is left.
-  const [settled, setSettled] = useState(0)
-  const settle = (count = 1) => setSettled((current) => current + count)
 
   const picked = queue.filter(({ action }) => pickedIds.includes(action.id))
   const targets =
@@ -1025,7 +1048,6 @@ const HomePage = () => {
   const stale = filter.shown.filter(
     ({ action }) => action.createdAt < staleBefore
   )
-  const proposals = useProposals(data, cards, settle)
   const decisions = countDecisions(
     data,
     decisionCards.length,
@@ -1048,9 +1070,8 @@ const HomePage = () => {
       () => Promise.all(ids.map((id) => client.actions.restore({ id })))
     )
   const removeAndAdvance = (actionId: string) => {
-    if (actionId === selected?.action.id) {
-      const next = queue[selectedIndex + 1] ?? queue[selectedIndex - 1]
-      setSelectedId(next?.action.id ?? null)
+    if (actionId === cursorId) {
+      setSelectedId(stops[cursorIndex + 1] ?? stops[cursorIndex - 1] ?? null)
       setEditingId(null)
     }
     settle()
@@ -1217,13 +1238,13 @@ const HomePage = () => {
     approveMany.mutate({ ids: alike.map(({ action }) => action.id) })
 
   const move = (step: number) => {
-    if (step > 0 && selectedIndex === queue.length - 1 && hiddenCards > 0) {
+    if (step > 0 && cursorIndex === stops.length - 1 && hiddenCards > 0) {
       setIsQueueOpen(true)
     }
     const next =
-      queue[Math.min(queue.length - 1, Math.max(0, selectedIndex + step))]
+      stops[Math.min(stops.length - 1, Math.max(0, cursorIndex + step))]
     if (next) {
-      setSelectedId(next.action.id)
+      setSelectedId(next)
       setEditingId(null)
       setRewritingId(null)
     }
@@ -1236,10 +1257,15 @@ const HomePage = () => {
         ? current.filter((id) => id !== actionId)
         : [...current, actionId]
     )
-  const approveTargets = () =>
-    picked.length > 0
-      ? approveMany.mutate({ ids: pickedActionIds })
-      : runSelected()
+  const approveTargets = () => {
+    if (picked.length > 0) {
+      approveMany.mutate({ ids: pickedActionIds })
+    } else if (isProposalsOpen) {
+      proposals.approve(proposals.proposals)
+    } else {
+      runSelected()
+    }
+  }
   const skipTargets = () =>
     picked.length > 0
       ? skipMany.mutate(pickedActionIds)
@@ -1251,14 +1277,15 @@ const HomePage = () => {
   const isWalking = isFocused && !page
   useHomeSubpage(page, isFocused, {
     hasNewsletters: newsletters.length > 0,
-    hasProposals: proposals.proposals.length > 0,
+    hasProposals,
   })
+  const walkKeys = { enabled: isWalking && !!cursorId }
   const listKeys = { enabled: isWalking && !!selected }
-  useHotkey('J', () => move(1), listKeys)
-  useHotkey('ArrowDown', () => move(1), listKeys)
-  useHotkey('K', () => move(-1), listKeys)
-  useHotkey('ArrowUp', () => move(-1), listKeys)
-  useHotkey('Enter', approveTargets, listKeys)
+  useHotkey('J', () => move(1), walkKeys)
+  useHotkey('ArrowDown', () => move(1), walkKeys)
+  useHotkey('K', () => move(-1), walkKeys)
+  useHotkey('ArrowUp', () => move(-1), walkKeys)
+  useHotkey('Enter', approveTargets, walkKeys)
   useHotkey('Shift+Enter', approveAlike, listKeys)
   useHotkey(
     'M',
@@ -1325,7 +1352,6 @@ const HomePage = () => {
                     isFirstRead={isFirstRead}
                     updatedAt={dataUpdatedAt}
                   />
-                  <ProposalsCard canUseKeys={isWalking} proposals={proposals} />
                   <ConnectHint />
                   <ReadingSection isOpen={isReadingOpen} />
 
@@ -1346,16 +1372,23 @@ const HomePage = () => {
                         onTrash={() => trashMany.mutate(picked)}
                       />
                     </DecisionsHeader>
+                    <FreshCodes today={data} canUseKeys={isWalking} />
+                    <ProposalsGroup
+                      canUseKeys={isWalking}
+                      cursorId={cursorId}
+                      hasCards={queue.length > 0}
+                      proposals={proposals}
+                      onSelect={setSelectedId}
+                    />
                     <KindFilter
                       canUseKeys={isWalking}
                       filter={filter}
                       queue={decisionCards}
                     />
-                    <FreshCodes today={data} canUseKeys={isWalking} />
                     <Accordion
                       variant="cards"
                       hidden={queue.length === 0}
-                      value={selected ? [selected.action.id] : []}
+                      value={cursorId ? [cursorId] : []}
                       onValueChange={([id]) => id && setSelectedId(id)}
                     >
                       {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
@@ -1445,9 +1478,10 @@ const HomePage = () => {
             alike: alike.length,
             hasFilter: filter.isOffered,
             isEditing,
-            newsletters: newsletters.length,
+            newsletters,
             page,
             selected,
+            isProposalsOpen,
             isRewriting,
             picked: picked.length,
             stale: stale.length,

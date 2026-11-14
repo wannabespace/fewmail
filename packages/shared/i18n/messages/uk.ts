@@ -1329,6 +1329,8 @@ export const uk: Messages = {
     progress: (done: number, total: number) => `${done} з ${total}`,
     readAll: 'Я прочитав усі, і без твого «так» у пошті нічого не змінюється.',
     worthKnowing: 'Варто знати',
+    quick: 'Швидко',
+    needsLook: 'Подивись сам',
     tidy: {
       confirm: (emails: string) => `Прибрати ${emails}?`,
       running: 'Прибираємо…',
@@ -1676,6 +1678,7 @@ export const uk: Messages = {
     unsubscribed: 'розсилок покинуто',
   },
   reading: {
+    markAllRead: 'Позначити всі прочитаними',
     summary: 'Що написали твої розсилки',
     worth: 'Варто прочитати повністю',
     leftOut: (n: number) => `Не увійшли до зведення: ${n}, нічого нового.`,

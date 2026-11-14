@@ -7,6 +7,7 @@ import {
 } from '@fewmail/ui/components/custom/settings-group'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format, isToday } from 'date-fns'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { ThreadLink } from '~/components/thread-link'
@@ -15,6 +16,8 @@ import { hideThread, threadOfMessage } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
 
 type JournalEntry = RouterOutputs['today']['handled'][number]
+
+const ROWS_PER_DAY = 5
 
 /** Newest first in, newest day first out: each day keeps the moment of its first entry for its title. */
 const groupByDay = (entries: JournalEntry[]) => {
@@ -43,6 +46,7 @@ export const Journal = () => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
+  const [openDays, setOpenDays] = useState<string[]>([])
   const { data: entries = [] } = useQuery(orpc.today.handled.queryOptions())
   const refresh = () =>
     Promise.all([
@@ -148,20 +152,38 @@ export const Journal = () => {
           {failed.map(row)}
         </SettingsGroup>
       )}
-      {days.map(({ day, key, rows }) => (
-        <SettingsGroup
-          key={key}
-          title={
-            <span className="inline-block first-letter:uppercase">
-              {isToday(day)
-                ? t.calendar.today
-                : dates.format(day, 'EEEE, d MMMM')}
-            </span>
-          }
-        >
-          {rows.map(row)}
-        </SettingsGroup>
-      ))}
+      {days.map(({ day, key, rows }) => {
+        const isOpen = openDays.includes(key)
+        return (
+          <div key={key} className="flex flex-col gap-2">
+            <SettingsGroup
+              title={
+                <span className="inline-block first-letter:uppercase">
+                  {isToday(day)
+                    ? t.calendar.today
+                    : dates.format(day, 'EEEE, d MMMM')}
+                </span>
+              }
+            >
+              {(isOpen ? rows : rows.slice(0, ROWS_PER_DAY)).map(row)}
+            </SettingsGroup>
+            {rows.length > ROWS_PER_DAY && (
+              <Button
+                size="sm"
+                variant="ghost-muted"
+                className="self-start"
+                onClick={() =>
+                  setOpenDays((open) =>
+                    isOpen ? open.filter((k) => k !== key) : [...open, key]
+                  )
+                }
+              >
+                {isOpen ? t.mail.showFewer : t.mail.showAll(rows.length)}
+              </Button>
+            )}
+          </div>
+        )
+      })}
     </section>
   )
 }

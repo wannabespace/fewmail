@@ -1333,6 +1333,8 @@ export const de: Messages = {
     readAll:
       'Ich habe jede gelesen, und ohne dein Ja ändert sich nichts in deiner Mail.',
     worthKnowing: 'Gut zu wissen',
+    quick: 'Schnell',
+    needsLook: 'Schau selbst',
     tidy: {
       confirm: (emails: string) => `${emails} aufräumen?`,
       running: 'Wird aufgeräumt…',
@@ -1658,6 +1660,7 @@ export const de: Messages = {
     unsubscribed: 'Newsletter verlassen',
   },
   reading: {
+    markAllRead: 'Alle als gelesen markieren',
     summary: 'Was deine Newsletter schreiben',
     worth: 'Lohnt sich ganz zu lesen',
     leftOut: (n: number) => `Ausgelassen: ${n}, nichts Neues darin.`,

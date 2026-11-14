@@ -1294,6 +1294,8 @@ export const ko: Messages = {
     progress: (done: number, total: number) => `${done}/${total}`,
     readAll: '모두 읽었어요. 승인 없이는 메일에서 아무것도 바뀌지 않아요.',
     worthKnowing: '알아 두면 좋은 것',
+    quick: '빠르게',
+    needsLook: '직접 확인',
     tidy: {
       confirm: (emails: string) => `${emails}를 정리할까요?`,
       running: '정리 중…',
@@ -1577,6 +1579,7 @@ export const ko: Messages = {
     unsubscribed: '떠난 뉴스레터',
   },
   reading: {
+    markAllRead: '모두 읽음으로 표시',
     summary: '뉴스레터 내용 요약',
     worth: '전문을 읽어 볼 만해요',
     leftOut: (n: number) => `요약에서 뺀 것: ${n}개, 새로운 내용이 없어요.`,

@@ -1299,6 +1299,8 @@ export const hi: Messages = {
     progress: (done: number, total: number) => `${total} में से ${done}`,
     readAll: 'मैंने हर एक पढ़ा, और आपकी हाँ के बिना आपके मेल में कुछ नहीं बदलता।',
     worthKnowing: 'जानने लायक',
+    quick: 'झटपट',
+    needsLook: 'खुद देखें',
     tidy: {
       confirm: (emails: string) => `${emails} समेटें?`,
       running: 'समेटा जा रहा है…',
@@ -1606,6 +1608,7 @@ export const hi: Messages = {
     unsubscribed: 'न्यूज़लेटर छोड़े',
   },
   reading: {
+    markAllRead: 'सभी को पढ़ा हुआ चिह्नित करें',
     summary: 'आपके न्यूज़लेटर में क्या था',
     worth: 'पूरा पढ़ने लायक',
     leftOut: (n: number) => `सारांश से बाहर: ${n}, इनमें कुछ नया नहीं।`,

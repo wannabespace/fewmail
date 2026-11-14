@@ -1309,6 +1309,8 @@ export const ja: Messages = {
     readAll:
       'すべて読みました。あなたの承認なしにメールが変わることはありません。',
     worthKnowing: '知っておきたいこと',
+    quick: 'すぐ済むもの',
+    needsLook: '目を通すもの',
     tidy: {
       confirm: (emails: string) => `${emails}を片付けますか？`,
       running: '片付け中…',
@@ -1596,6 +1598,7 @@ export const ja: Messages = {
     unsubscribed: 'やめたメルマガ',
   },
   reading: {
+    markAllRead: 'すべて既読にする',
     summary: 'メルマガの内容まとめ',
     worth: '全文を読む価値あり',
     leftOut: (n: number) => `まとめから除外: ${n}件（新しい内容なし）`,

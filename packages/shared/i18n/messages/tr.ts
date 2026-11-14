@@ -433,6 +433,7 @@ export const tr: Messages = {
     unsubscribed: 'bülten bırakıldı',
   },
   reading: {
+    markAllRead: 'Tümünü okundu işaretle',
     summary: 'Bültenleriniz ne dedi',
     worth: 'Tamamını okumaya değer',
     leftOut: (n: number) => `Özete alınmayan: ${n}, yeni bir şey yok.`,
@@ -1588,6 +1589,8 @@ export const tr: Messages = {
     progress: (done: number, total: number) => `${done}/${total}`,
     readAll: 'Hepsini okudum. Onayın olmadan e-postanda hiçbir şey değişmez.',
     worthKnowing: 'Bilmekte fayda var',
+    quick: 'Hızlı',
+    needsLook: 'Kendin bak',
     tidy: {
       confirm: (emails: string) => `${emails} toplansın mı?`,
       running: 'Toplanıyor…',

@@ -2,22 +2,28 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import { PROPOSAL_KINDS } from '@fewmail/shared/agent'
 import type { ProposalKind } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
+import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemTitle,
-} from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { cn } from '@fewmail/ui/lib/utils'
+import { SparklesIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
+import { AnimatePresence } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
@@ -191,12 +197,18 @@ const kindsLine = (t: Messages, proposals: Proposal[]) =>
     .map(({ kind, rows }) => t.today.tidy[kind](rows.length))
     .join(' · ')
 
-/** Under Home's header: what the agent proposes, waiting for one yes (T) or a look at each (D). */
-export const ProposalsCard = ({
+export const PROPOSALS_ID = 'proposals'
+
+const ROWS_SHOWN = 3
+
+/** The first stop of Home's decisions: what the agent proposes, approved in one yes (⏎ or T) or looked at one by one (D). */
+const ProposalsQueueCard = ({
   canUseKeys,
+  isSelected,
   proposals,
 }: {
   canUseKeys: boolean
+  isSelected: boolean
   proposals: Proposals
 }) => {
   const t = useT()
@@ -205,37 +217,144 @@ export const ProposalsCard = ({
     enabled: canUseKeys && rows.length > 0,
   })
 
-  if (rows.length === 0) {
-    return null
-  }
   return (
-    <Item variant="card" size="sm">
-      <ItemContent>
-        <ItemTitle>{t.today.tidy.total(rows.length)}</ItemTitle>
-        <p className="text-muted-foreground text-sm first-letter:uppercase">
-          {kindsLine(t, rows)}. {t.today.tidy.untilYouApprove}
-        </p>
-      </ItemContent>
-      <ItemActions>
-        <Button
-          size="sm"
-          variant="secondary"
-          render={
-            <Link to="/home" search={(prev) => ({ ...prev, page: 'tidy' })} />
-          }
-          shortcut={<Kbd>D</Kbd>}
+    <AccordionItem value={PROPOSALS_ID} className="group">
+      <AccordionTrigger
+        trailing={
+          !isSelected && (
+            <span className="text-muted-foreground text-xs whitespace-nowrap">
+              {t.today.tidy.run}
+            </span>
+          )
+        }
+      >
+        <span
+          className={cn(
+            'flex size-5.5 shrink-0 items-center justify-center rounded-md',
+            isSelected
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-secondary text-foreground/70'
+          )}
         >
-          {t.today.tidy.review}
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => proposals.approve(rows)}
-          shortcut={<Kbd>T</Kbd>}
-        >
-          {t.today.tidy.run}
-        </Button>
-      </ItemActions>
-    </Item>
+          <HugeiconsIcon
+            icon={SparklesIcon}
+            strokeWidth={2}
+            className="size-3.5"
+          />
+        </span>
+        <strong className="truncate font-semibold">
+          {t.today.tidy.total(rows.length)}
+        </strong>
+        {!isSelected && (
+          <span className="text-muted-foreground min-w-0 flex-1 truncate first-letter:uppercase">
+            {kindsLine(t, rows)}
+          </span>
+        )}
+      </AccordionTrigger>
+      <AccordionContent>
+        <div className="flex flex-col gap-3 pl-8.5">
+          {byKind(rows).map(({ kind, rows: group }) => (
+            <div key={kind} className="flex flex-col gap-1">
+              <h4 className="text-muted-foreground text-xs font-medium first-letter:uppercase">
+                {t.today.tidy[kind](group.length)}
+              </h4>
+              <ul className="flex flex-col gap-1">
+                {group.slice(0, ROWS_SHOWN).map(({ id, message }) => (
+                  <li key={id} className="flex min-w-0 gap-2">
+                    {message ? (
+                      <>
+                        <span data-mask className="shrink-0 font-medium">
+                          {message.fromName ?? message.fromEmail}
+                        </span>
+                        <span
+                          data-mask
+                          className="text-muted-foreground truncate"
+                        >
+                          {message.subject}
+                        </span>
+                      </>
+                    ) : (
+                      t.actionKind[kind]
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <p className="text-muted-foreground text-sm">
+            {t.today.tidy.untilYouApprove}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() => proposals.approve(rows)}
+              shortcut={<Kbd>⏎</Kbd>}
+            >
+              {t.today.tidy.run}
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              render={
+                <Link
+                  to="/home"
+                  search={(prev) => ({ ...prev, page: 'tidy' })}
+                />
+              }
+              shortcut={<Kbd>D</Kbd>}
+            >
+              {t.today.tidy.review}
+            </Button>
+          </div>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  )
+}
+
+const GroupLabel = ({ children }: { children: ReactNode }) => (
+  <h3 className="text-muted-foreground text-xs font-medium">{children}</h3>
+)
+
+/** Heads Home's decisions: the proposals card, labelled apart from the cards only when there are both, folding away once settled. */
+export const ProposalsGroup = ({
+  canUseKeys,
+  cursorId,
+  hasCards,
+  onSelect,
+  proposals,
+}: {
+  canUseKeys: boolean
+  cursorId: string | undefined
+  hasCards: boolean
+  onSelect: (id: string) => void
+  proposals: Proposals
+}) => {
+  const t = useT()
+
+  return (
+    <AnimatePresence initial={false}>
+      {proposals.proposals.length > 0 && (
+        // The collapse clips, so it bleeds out like the cards (cardsBleedClassName) and pads back in, or it cuts the card's sides off.
+        <MotionCollapse key={PROPOSALS_ID} className="-mx-4.75">
+          <div className="flex flex-col gap-2.5 px-4.75">
+            {hasCards && <GroupLabel>{t.today.quick}</GroupLabel>}
+            <Accordion
+              variant="cards"
+              value={cursorId ? [cursorId] : []}
+              onValueChange={([id]) => id && onSelect(id)}
+            >
+              <ProposalsQueueCard
+                canUseKeys={canUseKeys}
+                isSelected={cursorId === PROPOSALS_ID}
+                proposals={proposals}
+              />
+            </Accordion>
+            {hasCards && <GroupLabel>{t.today.needsLook}</GroupLabel>}
+          </div>
+        </MotionCollapse>
+      )}
+    </AnimatePresence>
   )
 }
 

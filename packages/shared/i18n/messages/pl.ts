@@ -457,6 +457,7 @@ export const pl: Messages = {
     unsubscribed: 'newsletterów porzuconych',
   },
   reading: {
+    markAllRead: 'Oznacz wszystkie jako przeczytane',
     summary: 'Co piszą twoje newslettery',
     worth: 'Warto przeczytać w całości',
     leftOut: (n: number) => `Pominięte w podsumowaniu: ${n}, nic nowego.`,
@@ -1645,6 +1646,8 @@ export const pl: Messages = {
     readAll:
       'Przeczytałem wszystkie, a bez twojego „tak” w poczcie nic się nie zmienia.',
     worthKnowing: 'Warto wiedzieć',
+    quick: 'Szybko',
+    needsLook: 'Zobacz sam',
     tidy: {
       confirm: (emails: string) => `Uporządkować ${emails}?`,
       running: 'Porządkowanie…',

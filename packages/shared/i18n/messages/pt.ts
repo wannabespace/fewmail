@@ -447,6 +447,7 @@ export const pt: Messages = {
     unsubscribed: 'newsletters deixadas',
   },
   reading: {
+    markAllRead: 'Marcar tudo como lido',
     summary: 'O que as suas newsletters disseram',
     worth: 'Vale a pena ler inteira',
     leftOut: (n: number) => `Fora do resumo: ${n}, nada de novo.`,
@@ -1619,6 +1620,8 @@ export const pt: Messages = {
     progress: (done: number, total: number) => `${done} de ${total}`,
     readAll: 'Li cada um, e nada muda nos seus e-mails sem o seu sim.',
     worthKnowing: 'Bom saber',
+    quick: 'Rápido',
+    needsLook: 'Para você ver',
     tidy: {
       confirm: (emails: string) => `Arrumar ${emails}?`,
       running: 'Arrumando…',

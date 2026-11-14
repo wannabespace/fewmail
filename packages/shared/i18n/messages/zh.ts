@@ -1270,6 +1270,8 @@ export const zh: Messages = {
     progress: (done: number, total: number) => `${done}/${total}`,
     readAll: '每一封我都读过了。没有你的同意，邮件里什么都不会改变。',
     worthKnowing: '值得了解',
+    quick: '快速处理',
+    needsLook: '需要你看',
     tidy: {
       confirm: (emails: string) => `整理 ${emails}？`,
       running: '正在整理…',
@@ -1545,6 +1547,7 @@ export const zh: Messages = {
     unsubscribed: '退出的订阅',
   },
   reading: {
+    markAllRead: '全部标为已读',
     summary: '订阅邮件说了什么',
     worth: '值得读全文',
     leftOut: (n: number) => `未写入摘要：${n} 封，没有新内容。`,

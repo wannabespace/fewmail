@@ -1342,6 +1342,8 @@ export const fr: Messages = {
     readAll:
       'Je les ai tous lus, et rien ne change dans tes e-mails sans ton oui.',
     worthKnowing: 'Bon à savoir',
+    quick: 'Rapide',
+    needsLook: 'À regarder',
     tidy: {
       confirm: (emails: string) => `Ranger ${emails} ?`,
       running: 'Rangement…',
@@ -1674,6 +1676,7 @@ export const fr: Messages = {
     unsubscribed: 'newsletters quittées',
   },
   reading: {
+    markAllRead: 'Tout marquer comme lu',
     summary: 'Ce que disent vos newsletters',
     worth: 'À lire en entier',
     leftOut: (n: number) => `Laissées de côté : ${n}, rien de nouveau.`,

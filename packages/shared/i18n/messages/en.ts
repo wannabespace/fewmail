@@ -488,6 +488,7 @@ export const en = {
     unsubscribed: 'mailing lists left',
   },
   reading: {
+    markAllRead: 'Mark all read',
     summary: 'What your newsletters said',
     worth: 'Worth reading in full',
     leftOut: (n: number) => `${n} left out: nothing new in them.`,
@@ -1608,6 +1609,8 @@ export const en = {
     readAll:
       'I read every one, and nothing changes in your mail without your yes.',
     worthKnowing: 'Worth knowing',
+    quick: 'Quick',
+    needsLook: 'Needs a look',
     tidy: {
       confirm: (emails: string) => `Tidy up ${emails}?`,
       running: 'Tidying up…',
