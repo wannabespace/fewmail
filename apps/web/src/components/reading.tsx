@@ -259,11 +259,18 @@ const SummaryGaps = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
   )
 }
 
-// One spring for the card and the pane, so the pane grows out of the card and shrinks back into it.
-const useMorph = (): Transition =>
+// One spring for the card and the pane, so the pane grows out of the card and shrinks back into it; what only one of
+// them has (the topic line, the whole summary) fades in once the box is on its way.
+const useMorph = (): { morph: Transition; reveal: Transition } =>
   useReducedMotion()
-    ? { duration: 0 }
-    : { bounce: 0.15, type: 'spring', visualDuration: 0.5 }
+    ? { morph: { duration: 0 }, reveal: { duration: 0 } }
+    : {
+        morph: { bounce: 0.1, type: 'spring', visualDuration: 0.3 },
+        reveal: { delay: 0.05, duration: 0.2, ease: [0.32, 0.72, 0, 1] },
+      }
+
+const HIDDEN = { opacity: 0, y: 6 }
+const SHOWN = { opacity: 1, y: 0 }
 
 const ReadingIntro = ({
   isWriting,
@@ -292,8 +299,13 @@ const ReadingIntro = ({
  */
 export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
   const t = useT()
-  const transition = useMorph()
+  const { morph: transition, reveal } = useMorph()
   const { isWriting, rows, summary } = useReading()
+  // Only a card coming back from the pane fades its topics in; on Home's first render they are simply there.
+  const [hasOpened, setHasOpened] = useState(isOpen)
+  if (isOpen && !hasOpened) {
+    setHasOpened(true)
+  }
   if (rows.length === 0) {
     return null
   }
@@ -327,9 +339,15 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
       </div>
       <ReadingIntro isWriting={isWriting} summary={summary} />
       {!!summary?.sections.length && (
-        <p data-mask className="text-muted-foreground font-serif">
+        <motion.p
+          initial={hasOpened ? HIDDEN : false}
+          animate={SHOWN}
+          transition={reveal}
+          data-mask
+          className="text-muted-foreground font-serif"
+        >
           {summary.sections.map(({ title }) => title).join(' · ')}
-        </p>
+        </motion.p>
       )}
     </>
   )
@@ -366,7 +384,7 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
 export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
   const t = useT()
   const navigate = useNavigate()
-  const transition = useMorph()
+  const { morph: transition, reveal } = useMorph()
   const { isWriting, rows, summary } = useReading()
   if (!isOpen || rows.length === 0) {
     return null
@@ -412,11 +430,16 @@ export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
               </div>
             </div>
             <ReadingIntro isWriting={isWriting} summary={summary} />
-            <div className="flex flex-col gap-6 pt-2">
+            <motion.div
+              initial={HIDDEN}
+              animate={SHOWN}
+              transition={reveal}
+              className="flex flex-col gap-6 pt-2"
+            >
               {summary && <SummaryText rows={rows} summary={summary} />}
               {summary && <SummaryGaps rows={rows} summary={summary} />}
               <NewsletterList rows={rows} summary={summary} />
-            </div>
+            </motion.div>
           </motion.div>
         </section>
       </div>
