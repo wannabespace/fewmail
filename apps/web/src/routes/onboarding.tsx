@@ -1,15 +1,17 @@
 import type { BoardPreset } from '@fewmail/shared/agent'
 import { BOARD_PRESETS } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
+import { SettingsGroup } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { LanguageSelect } from '~/components/agent-fields'
 import { Logo } from '~/components/logo'
+import { MessengerSettings } from '~/components/settings/messenger-settings'
 import { localeStore, useLocale, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
 
@@ -77,6 +79,40 @@ const BoardPresetChoice = ({
   )
 }
 
+/** No live updates before `/_app`, so a chat linked in the other tab shows once this one is back in focus. */
+const MessengerStep = () => {
+  const t = useT()
+  const links = {
+    telegram: useQuery({
+      ...orpc.integrations.telegram.get.queryOptions(),
+      refetchOnWindowFocus: 'always',
+    }).data,
+    whatsapp: useQuery({
+      ...orpc.integrations.whatsapp.get.queryOptions(),
+      refetchOnWindowFocus: 'always',
+    }).data,
+  }
+  const channels = (['telegram', 'whatsapp'] as const).filter(
+    (channel) => links[channel]?.botUrl
+  )
+  if (channels.length === 0) {
+    return null
+  }
+
+  return (
+    <Step title={t.onboarding.messengerTitle}>
+      <p className="text-muted-foreground text-sm">
+        {t.onboarding.messengerHint}
+      </p>
+      <SettingsGroup>
+        {channels.map((channel) => (
+          <MessengerSettings key={channel} channel={channel} />
+        ))}
+      </SettingsGroup>
+    </Step>
+  )
+}
+
 const OnboardingPage = () => {
   const t = useT()
   const language = useLocale()
@@ -132,6 +168,8 @@ const OnboardingPage = () => {
             onChange={setStarterBoards}
           />
         </Step>
+
+        <MessengerStep />
 
         <Button size="lg" disabled={save.isPending} onClick={submit}>
           {save.isPending ? t.onboarding.reading : t.onboarding.start}

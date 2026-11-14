@@ -1043,6 +1043,8 @@ export const it: Messages = {
       'App, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
     languageTitle: 'In che lingua deve parlare Fewmail?',
     lead: 'Due risposte veloci. Puoi cambiare tutto più tardi nelle Impostazioni.',
+    messengerHint: 'Facoltativo. Puoi collegarla più tardi nelle Impostazioni.',
+    messengerTitle: 'Vuoi l’agente nella tua app di messaggi?',
     reading: 'Leggo la tua posta…',
     start: 'Inizia',
     title: 'Configuriamo il tuo agente.',

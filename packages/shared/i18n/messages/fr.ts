@@ -1050,6 +1050,9 @@ export const fr: Messages = {
       'L’app, les résumés et les explications utilisent cette langue. Les réponses suivent toujours la langue de l’e-mail auquel vous répondez.',
     languageTitle: 'Dans quelle langue Fewmail doit-il parler ?',
     lead: 'Deux réponses rapides. Vous pourrez tout modifier plus tard dans les Réglages.',
+    messengerHint:
+      'Facultatif. Vous pourrez la connecter plus tard dans les Réglages.',
+    messengerTitle: 'Voulez-vous l’agent dans votre messagerie ?',
     reading: 'Lecture de votre boîte…',
     start: 'Commencer',
     title: 'Configurons votre agent.',

@@ -528,6 +528,8 @@ export const zh: Messages = {
       '应用、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
     languageTitle: 'Fewmail 应该说哪种语言？',
     lead: '两个简单的问题。之后都可以在设置里修改。',
+    messengerHint: '可选。之后也可以在设置里连接。',
+    messengerTitle: '想在聊天应用里使用助手吗？',
     reading: '正在读取收件箱…',
     start: '开始',
     title: '来设置你的助手吧。',
