@@ -1014,6 +1014,7 @@ export const it: Messages = {
     settings: 'Impostazioni',
     syncFailed: 'Sincronizzazione Gmail non riuscita, riprovo',
     syncing: 'Leggo la tua posta…',
+    loading: 'Caricamento',
     syncFailedIn: (email: string) =>
       `Sincronizzazione di ${email} non riuscita, riprovo`,
     syncingIn: (email: string) => `Leggo ${email}…`,

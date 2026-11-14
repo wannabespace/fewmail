@@ -790,6 +790,7 @@ export const pt: Messages = {
     settings: 'Configurações',
     syncFailed: 'Falha ao sincronizar o Gmail, tentando de novo',
     syncing: 'Lendo sua caixa de entrada…',
+    loading: 'Carregando',
     syncFailedIn: (email: string) =>
       `Falha ao sincronizar ${email}, tentando de novo`,
     syncingIn: (email: string) => `Lendo ${email}…`,

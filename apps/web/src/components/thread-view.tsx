@@ -962,7 +962,17 @@ export const SnoozePicker = () => {
 const ROW_REVEAL =
   'flex opacity-0 transition-opacity duration-150 ease-house group-hover:opacity-100'
 
-export const ROW_ACTIONS = `${ROW_REVEAL} absolute top-1.5 right-4 bg-inherit before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-inherit before:[mask-image:linear-gradient(to_right,transparent,black)]`
+const FADING_EDGE =
+  'before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-inherit before:[mask-image:linear-gradient(to_right,transparent,black)]'
+
+export const ROW_ACTIONS = `${ROW_REVEAL} absolute top-1.5 right-4 bg-inherit ${FADING_EDGE}`
+
+// Keyed to its own line (`group/line`): the row's `group-hover` would light every line of a stack at once.
+const LINE_ACTIONS = `flex opacity-0 transition-opacity duration-150 ease-house group-hover/line:opacity-100 relative rounded-r-md bg-secondary ${FADING_EDGE}`
+
+// The row's facts must leave while its hover actions lie over them, or a chip half under them reads as cut ("due" of "due 14 Nov").
+export const UNDER_ROW_ACTIONS =
+  'transition-opacity duration-150 ease-house group-hover:opacity-0 group-has-data-popup-open:opacity-0'
 
 // The meta and the actions share one cell, so the cell is always as wide as the actions and hovering never shifts the row.
 // The actions must stay last and `relative`: the faded meta (opacity < 1) paints above unpositioned siblings and would swallow their clicks.
@@ -1061,6 +1071,7 @@ export const MailRowActions = ({
   messageIds,
   onSnoozeOpenChange,
   peek,
+  reveal = 'row',
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
@@ -1071,13 +1082,15 @@ export const MailRowActions = ({
   messageIds: string[]
   onSnoozeOpenChange?: (open: boolean) => void
   peek?: ReactNode
+  reveal?: 'line' | 'row'
   sweep: Sweep
 }) => {
   const t = useT()
+  const size = reveal === 'line' ? 'icon-xs' : 'icon-sm'
   return (
     <span
       className={cn(
-        ROW_REVEAL,
+        reveal === 'line' ? LINE_ACTIONS : ROW_REVEAL,
         'has-data-popup-open:opacity-100',
         isSnoozeOpen && 'opacity-100',
         className
@@ -1088,7 +1101,7 @@ export const MailRowActions = ({
         <IconButton
           icon={isPinned ? PinOffIcon : PinIcon}
           label={isPinned ? t.mail.unpin : t.mail.pin}
-          size="icon-sm"
+          size={size}
           variant="ghost-muted"
           onClick={pinEach(messageIds, !isPinned, actions.pin.mutate)}
         />
@@ -1096,7 +1109,7 @@ export const MailRowActions = ({
       <IconButton
         icon={sweep.icon}
         label={sweep.label}
-        size="icon-sm"
+        size={size}
         variant="ghost-muted"
         onClick={onEach(messageIds, sweep.action.mutate)}
       />
@@ -1107,7 +1120,7 @@ export const MailRowActions = ({
               <IconButton
                 icon={Clock01Icon}
                 label={t.snooze.title}
-                size="icon-sm"
+                size={size}
                 variant="ghost-muted"
               />
             }
@@ -1126,7 +1139,7 @@ export const MailRowActions = ({
       <IconButton
         icon={Delete02Icon}
         label={t.mail.trash}
-        size="icon-sm"
+        size={size}
         variant="ghost-destructive"
         onClick={onEach(messageIds, actions.trash.mutate)}
       />

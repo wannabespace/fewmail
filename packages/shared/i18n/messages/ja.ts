@@ -511,6 +511,7 @@ export const ja: Messages = {
     settings: '設定',
     syncFailed: 'Gmail の同期に失敗しました。再試行中',
     syncing: '受信トレイを読んでいます…',
+    loading: '読み込み中',
     syncFailedIn: (email: string) => `${email} の同期に失敗しました。再試行中`,
     syncingIn: (email: string) => `${email} を読んでいます…`,
     home: 'ホーム',

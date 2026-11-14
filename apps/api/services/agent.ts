@@ -98,7 +98,7 @@ const labelExamples = (language: Locale) => {
 
 /** `meetingStart` is what a schedule card puts in the calendar, so it must be the time the email names; the web formats `amount` only in exactly this shape. */
 const extractedInstruction = (timezone: string) =>
-  `extracted: the amount as a plain number and its ISO 4217 code ("1250.00 USD", "2499 UAH"), a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect), the first proposed meeting time as a short date and start time in the language of the email ("18 Nov, 18:00"), never a sentence, and that meeting's start as YYYY-MM-DDTHH:mm in the user's time zone (${timezone}), converted only when the email names another zone, else null. Never invent anything.`
+  `extracted: the amount the user pays or is paid (never a promotion's price or threshold) as a plain number and its ISO 4217 code ("1250.00 USD", "2499 UAH"), a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect or a sale ends), the first proposed meeting time as a short date and start time in the language of the email ("18 Nov, 18:00"), never a sentence, and that meeting's start as YYYY-MM-DDTHH:mm in the user's time zone (${timezone}), converted only when the email names another zone, else null. Never invent anything.`
 
 /** A summary that reads as a to-do must never pass a fraudster's instructions on. */
 const summaryStyle = (language: Locale) =>

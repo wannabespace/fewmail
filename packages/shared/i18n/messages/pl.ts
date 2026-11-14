@@ -803,6 +803,7 @@ export const pl: Messages = {
     settings: 'Ustawienia',
     syncFailed: 'Synchronizacja z Gmailem nie powiodła się, ponawiam',
     syncing: 'Czytam twoją skrzynkę…',
+    loading: 'Wczytywanie',
     syncFailedIn: (email: string) =>
       `Synchronizacja ${email} nie powiodła się, ponawiam`,
     syncingIn: (email: string) => `Czytam ${email}…`,

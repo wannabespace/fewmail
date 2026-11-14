@@ -1007,6 +1007,7 @@ export const de: Messages = {
     settings: 'Einstellungen',
     syncFailed: 'Gmail-Sync fehlgeschlagen, neuer Versuch',
     syncing: 'Lese deinen Posteingang…',
+    loading: 'Wird geladen',
     syncFailedIn: (email: string) =>
       `Sync von ${email} fehlgeschlagen, neuer Versuch`,
     syncingIn: (email: string) => `Lese ${email}…`,

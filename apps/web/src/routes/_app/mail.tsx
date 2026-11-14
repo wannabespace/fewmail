@@ -115,6 +115,7 @@ import {
   onEach,
   pinEach,
   ROW_ACTIONS,
+  UNDER_ROW_ACTIONS,
   SnoozeMenuItems,
   sweepOf,
   StackView,
@@ -324,7 +325,7 @@ const groupKeyOf = (
   ) {
     return 'read'
   }
-  if (analysis && analysis.importance >= 2) {
+  if (message.risk || (analysis && analysis.importance >= 2)) {
     return 'important'
   }
   // Mail on its way to analysis stays with people's, never folded out of sight; older mail is never analysed.
@@ -353,17 +354,18 @@ const groupRows = <Row extends ListedRow>(
   const byKey = Map.groupBy(rows, (row) =>
     groupKeyOf(grouping, row, keptUnread)
   )
-  return GROUPS.flatMap((key) => {
+  const keys = GROUPS.filter((key) => byKey.has(key))
+  // The last group never folds: the list pages on as it scrolls, and a folded last group ended it at Show all.
+  return keys.map((key) => {
     const members = byKey.get(key) ?? []
-    return members.length > 0
-      ? [
-          {
-            key,
-            rows: unfolded.has(key) ? members : members.slice(0, GROUP_SHOWN),
-            total: members.length,
-          },
-        ]
-      : []
+    return {
+      key,
+      rows:
+        unfolded.has(key) || key === keys.at(-1)
+          ? members
+          : members.slice(0, GROUP_SHOWN),
+      total: members.length,
+    }
   })
 }
 
@@ -377,9 +379,11 @@ const peekIdOf = (messageId: string) => `peek-${messageId}`
 const PeekButton = ({
   message,
   onClick,
+  size = 'icon-sm',
 }: {
   message: ListedMessage
-  onClick: () => void
+  onClick?: () => void
+  size?: 'icon-sm' | 'icon-xs'
 }) => {
   const t = useT()
   return (
@@ -392,7 +396,7 @@ const PeekButton = ({
           icon={ViewIcon}
           label={t.mail.peek}
           shortcut={<Kbd>Space</Kbd>}
-          size="icon-sm"
+          size={size}
           variant="ghost-muted"
           onClick={onClick}
         />
@@ -800,7 +804,12 @@ const MailRowMeta = ({
   const t = useT()
   return (
     // Wrapping onto a clipped second line drops what does not fit whole; a clipped single line cut a chip in half.
-    <span className="text-muted-foreground flex h-5 min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-5 overflow-hidden text-xs whitespace-nowrap">
+    <span
+      className={cn(
+        'text-muted-foreground flex h-5 min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-5 overflow-hidden text-xs whitespace-nowrap',
+        UNDER_ROW_ACTIONS
+      )}
+    >
       {insight && <ExtractedChips extracted={insight.extracted} size="sm" />}
       {insight?.category === 'security' ? (
         <span className="text-destructive flex items-center gap-1 font-medium">
@@ -1170,12 +1179,16 @@ const RelatedRow = ({
 const BurstList = ({
   actions,
   burst,
+  canPeek,
+  canSnooze,
   onOpenEmail,
   openThread,
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
   burst: ListedMessage[]
+  canPeek: boolean
+  canSnooze: boolean
   onOpenEmail: (message: ListedMessage) => void
   openThread: string | undefined
   sweep: Sweep
@@ -1186,7 +1199,7 @@ const BurstList = ({
   return (
     <ul className="pb-2">
       {(isUnfolded ? burst : burst.slice(0, GROUP_SHOWN)).map((email) => (
-        <li key={email.id} className="relative">
+        <li key={email.id} className="group/line relative">
           <button
             type="button"
             tabIndex={-1}
@@ -1196,17 +1209,29 @@ const BurstList = ({
             }}
             aria-current={email.threadId === openThread}
             className={cn(
-              'hover:bg-secondary aria-current:bg-secondary mr-3 ml-13 flex w-[calc(100%-4rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none',
+              'group-hover/line:bg-secondary aria-current:bg-secondary mr-3 ml-13 flex w-[calc(100%-4rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none',
               email.code && 'pr-28'
             )}
           >
+            {email.risk && (
+              <>
+                <HugeiconsIcon
+                  icon={Shield01Icon}
+                  strokeWidth={2}
+                  className="text-destructive size-3 shrink-0"
+                />
+                <span className="sr-only">{t.risk.title}</span>
+              </>
+            )}
             <span
               data-mask
               className={cn(
                 'min-w-0 flex-1 truncate',
-                email.isUnread
-                  ? 'text-foreground/90 font-medium'
-                  : 'text-foreground/60'
+                email.risk && 'text-destructive font-medium',
+                !email.risk &&
+                  (email.isUnread
+                    ? 'text-foreground/90 font-medium'
+                    : 'text-foreground/60')
               )}
             >
               {email.subject}
@@ -1220,15 +1245,25 @@ const BurstList = ({
               </span>
             )}
           </button>
-          {email.code && (
-            <CodeActions
+          <span className="absolute top-0 right-3 flex">
+            <MailRowActions
               actions={actions}
-              className="absolute top-0 right-3"
-              code={email.code}
+              canSnooze={canSnooze}
+              isPinned={email.isPinned}
               messageIds={[email.id]}
+              peek={canPeek && <PeekButton message={email} size="icon-xs" />}
+              reveal="line"
               sweep={sweep}
             />
-          )}
+            {email.code && (
+              <CodeActions
+                actions={actions}
+                code={email.code}
+                messageIds={[email.id]}
+                sweep={sweep}
+              />
+            )}
+          </span>
         </li>
       ))}
       {burst.length > GROUP_SHOWN && (
@@ -1243,6 +1278,24 @@ const BurstList = ({
         </li>
       )}
     </ul>
+  )
+}
+
+const RowWarning = ({ message }: { message: ListedMessage }) => {
+  const t = useT()
+  if (message.risk) {
+    return (
+      <span className="text-destructive pl-11 text-xs font-medium">
+        {t.risk.title}
+      </span>
+    )
+  }
+  return (
+    message.suspicion && (
+      <span className="text-muted-foreground pl-11 text-xs">
+        {t.spam.suspect}
+      </span>
+    )
   )
 }
 
@@ -1323,7 +1376,7 @@ const MailRow = ({
           >
             {message.fromName ?? message.fromEmail}
           </span>
-          {threadSize > 1 && (
+          {threadSize > 1 && !isBurst && (
             <Badge size="sm" variant="outline">
               {threadSize}
             </Badge>
@@ -1337,6 +1390,7 @@ const MailRow = ({
           <span
             className={cn(
               'shrink-0 text-xs tabular-nums',
+              UNDER_ROW_ACTIONS,
               message.isUnread
                 ? 'text-foreground font-medium'
                 : 'text-muted-foreground'
@@ -1362,21 +1416,14 @@ const MailRow = ({
             {message.subject}
           </span>
         )}
-        {message.risk && (
-          <span className="text-destructive pl-11 text-xs font-medium">
-            {t.risk.title}
-          </span>
-        )}
-        {!message.risk && message.suspicion && (
-          <span className="text-muted-foreground pl-11 text-xs">
-            {t.spam.suspect}
-          </span>
-        )}
+        <RowWarning message={message} />
       </button>
       {isBurst && burst && (
         <BurstList
           actions={actions}
           burst={burst}
+          canPeek={!!peek}
+          canSnooze={canSnooze}
           onOpenEmail={onOpenEmail}
           openThread={openEmailThread}
           sweep={sweep}
@@ -1390,7 +1437,7 @@ const MailRow = ({
         isSnoozeOpen={isSnoozeOpen}
         messageIds={messageIds}
         onSnoozeOpenChange={onSnoozeOpenChange}
-        peek={peek}
+        peek={!isBurst && peek}
         sweep={sweep}
       />
       <MailRowCode
@@ -1924,7 +1971,7 @@ const OlderRowsLoader = ({
   }, [hasMore, isFailed, isLoading, load])
   return (
     <li ref={ref} hidden={!hasMore} className="flex justify-center py-3">
-      {isLoading && <Spinner />}
+      {isLoading && <Spinner label={t.nav.loading} />}
       {isFailed && !isLoading && (
         <Button size="xs" variant="link-muted" onClick={load}>
           {t.agent.retry}
@@ -2112,7 +2159,9 @@ const PickedBar = ({
             onCheckedChange={isAllPicked ? onUnpick : onPickAll}
           />
           <span className="ml-2 text-sm font-medium tabular-nums">
-            {t.queue.picked(picked.length)}
+            {t.queue.picked(
+              picked.flatMap(({ messageIds }) => messageIds).length
+            )}
           </span>
           <span className="ml-auto flex items-center gap-1">
             <IconButton
@@ -2732,7 +2781,10 @@ const MailPage = () => {
                   />
                   {isSearchPending && (
                     <InputGroupAddon align="inline-end">
-                      <Spinner className="text-muted-foreground" />
+                      <Spinner
+                        className="text-muted-foreground"
+                        label={t.mail.find.searching}
+                      />
                     </InputGroupAddon>
                   )}
                 </InputGroup>

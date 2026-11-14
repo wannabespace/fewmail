@@ -1,11 +1,12 @@
 import { db } from '@fewmail/db'
-import { messages, senderReports } from '@fewmail/db/schema'
+import { actions, messages, senderReports } from '@fewmail/db/schema'
 import type { SpamVerdict } from '@fewmail/shared/agent'
 import { FREEMAIL_DOMAINS } from '@fewmail/shared/email'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { and, eq, inArray, or } from 'drizzle-orm'
 
 import { domainHashOf, domainOf, senderHashOf } from '../lib/keyed-hash'
+import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { listedDomains } from './known-domains'
 import { isSpammy, readPatterns, voteCounts, votePatterns } from './patterns'
 import { getSettings } from './settings'
@@ -234,5 +235,17 @@ export const markNotSpam = async (userId: string, messageId: string) => {
     .where(
       and(eq(messages.userId, userId), eq(messages.threadId, message.threadId))
     )
+  await db
+    .update(actions)
+    .set({ resolvedAt: new Date(), status: 'dismissed' })
+    .where(
+      and(
+        eq(actions.userId, userId),
+        eq(actions.threadId, message.threadId),
+        eq(actions.kind, 'spam'),
+        eq(actions.status, 'pending')
+      )
+    )
   await vote(userId, message, 'not_spam')
+  await announceChange(userId, ACTION_TOPICS)
 }

@@ -1005,6 +1005,7 @@ export const uk: Messages = {
     settings: 'Налаштування',
     syncFailed: 'Помилка синхронізації Gmail, пробую ще',
     syncing: 'Читаю твою пошту…',
+    loading: 'Завантаження',
     syncFailedIn: (email: string) =>
       `Не вдалося синхронізувати ${email}, пробую ще`,
     syncingIn: (email: string) => `Читаю ${email}…`,

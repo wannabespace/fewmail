@@ -787,6 +787,7 @@ export const nl: Messages = {
     settings: 'Instellingen',
     syncFailed: 'Gmail-synchronisatie mislukt, opnieuw proberen',
     syncing: 'Je inbox wordt gelezen…',
+    loading: 'Laden',
     syncFailedIn: (email: string) =>
       `Synchronisatie van ${email} mislukt, opnieuw proberen`,
     syncingIn: (email: string) => `${email} wordt gelezen…`,

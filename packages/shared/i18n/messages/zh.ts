@@ -505,6 +505,7 @@ export const zh: Messages = {
     settings: '设置',
     syncFailed: 'Gmail 同步失败，正在重试',
     syncing: '正在读取收件箱…',
+    loading: '正在加载',
     syncFailedIn: (email: string) => `${email} 同步失败，正在重试`,
     syncingIn: (email: string) => `正在读取 ${email}…`,
     home: '首页',

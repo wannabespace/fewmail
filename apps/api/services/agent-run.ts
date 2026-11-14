@@ -5,12 +5,14 @@ import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, stepCountIs, tool } from 'ai'
 import { addDays, subDays } from 'date-fns'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
+import { keyedHash } from '../lib/keyed-hash'
 import { announceChange } from '../lib/live'
 import { agentTools, toolAccess } from './agent-tools'
+import type { Transaction } from './patterns'
 import { requireBudget } from './plan'
 import { getSettings } from './settings'
 import { skillPrompt } from './skills'
@@ -98,11 +100,12 @@ const consentReads = async (
 
 /** The same request again (an MCP client retrying a call) is the card already waiting, or one yes would run it twice. */
 const isWaiting = async (
+  tx: Transaction,
   userId: string,
   name: ConsentToolName,
-  input: ToolInput
+  asked: string
 ) => {
-  const pending = await db
+  const pending = await tx
     .select({ payload: actions.payload })
     .from(actions)
     .where(
@@ -112,7 +115,6 @@ const isWaiting = async (
         eq(actions.status, 'pending')
       )
     )
-  const asked = JSON.stringify(input)
   return pending.some(
     ({ payload }) =>
       payload?.tool === name && JSON.stringify(payload.input) === asked
@@ -133,26 +135,36 @@ export const proposeConsent = async (
 ) => {
   const settings = await getSettings(userId)
   const t = dictionaries[settings?.language ?? 'en']
-  if (await isWaiting(userId, name, input)) {
-    return { isNew: false, question: t.agent.confirm[name] }
-  }
   const tools = agentTools(userId)
   const reads = await consentReads(userId, name, input)
   const context = await Promise.all(
     reads.map((read) => tools[read.name].run(read.input as never))
   )
-  await db.insert(actions).values({
-    autonomous: false,
-    kind: 'consent',
-    messageId: typeof input.messageId === 'string' ? input.messageId : null,
-    payload: { context, input, tool: name },
-    reason: from,
-    status: 'pending',
-    title: t.agent.confirm[name],
-    userId,
+  const asked = JSON.stringify(input)
+  // Two identical calls at the same moment (a client retrying in parallel) must queue here, or both see no card and add one each.
+  const isNew = await db.transaction(async (tx) => {
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtextextended(${keyedHash(`consent:${userId}:${name}:${asked}`)}, 0))`
+    )
+    if (await isWaiting(tx, userId, name, asked)) {
+      return false
+    }
+    await tx.insert(actions).values({
+      autonomous: false,
+      kind: 'consent',
+      messageId: typeof input.messageId === 'string' ? input.messageId : null,
+      payload: { context, input, tool: name },
+      reason: from,
+      status: 'pending',
+      title: t.agent.confirm[name],
+      userId,
+    })
+    return true
   })
-  await announceChange(userId, ['actions', 'today'])
-  return { isNew: true, question: t.agent.confirm[name] }
+  if (isNew) {
+    await announceChange(userId, ['actions', 'today'])
+  }
+  return { isNew, question: t.agent.confirm[name] }
 }
 
 export const runConsent = (

@@ -47,6 +47,7 @@ const NextPageLoader = ({
   isLoading: boolean
   load: () => unknown
 }) => {
+  const t = useT()
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const node = ref.current
@@ -66,7 +67,7 @@ const NextPageLoader = ({
   }, [hasMore, isLoading, load])
   return (
     <div ref={ref} hidden={!hasMore} className="flex justify-center py-3">
-      {isLoading && <Spinner />}
+      {isLoading && <Spinner label={t.nav.loading} />}
     </div>
   )
 }

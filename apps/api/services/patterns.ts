@@ -19,7 +19,7 @@ import { fingerprint, isNear, personalWords, sharesBand } from './bulk'
 import { popularDomainSet } from './known-domains'
 
 type Message = typeof messages.$inferSelect
-type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
+export type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
 export type PatternReason = 'auth' | 'infra' | 'link' | 'signals' | 'template'
 

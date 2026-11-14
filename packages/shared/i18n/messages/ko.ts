@@ -511,6 +511,7 @@ export const ko: Messages = {
     settings: '설정',
     syncFailed: 'Gmail 동기화 실패, 다시 시도 중',
     syncing: '받은편지함을 읽는 중…',
+    loading: '불러오는 중',
     syncFailedIn: (email: string) => `${email} 동기화 실패, 다시 시도 중`,
     syncingIn: (email: string) => `${email} 읽는 중…`,
     home: '홈',
