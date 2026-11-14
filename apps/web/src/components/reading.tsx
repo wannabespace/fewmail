@@ -404,6 +404,18 @@ const useMorph = (): { morph: Transition; reveal: Transition } =>
 
 const HIDDEN = { opacity: 0, y: 6 }
 const SHOWN = { opacity: 1, y: 0 }
+const HEAD_HIDDEN = { opacity: 0, scale: 0.9 }
+const HEAD_SHOWN = { opacity: 1, scale: 1 }
+
+/** One Listen for the card and the pane, so it slides to its new spot in the head instead of jumping. */
+const ReadingListen = ({ summary }: { summary: Summary }) => {
+  const { morph } = useMorph()
+  return (
+    <motion.div layout="position" layoutId="reading-listen" transition={morph}>
+      <ListenButton path="/voice/reading" text={readingSpeech(summary)} />
+    </motion.div>
+  )
+}
 
 const ReadingIntro = ({
   isWriting,
@@ -449,10 +461,16 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
           {t.reading.summary}
         </h2>
         <div className="pointer-events-auto ml-auto flex gap-2">
-          {summary && (
-            <ListenButton path="/voice/reading" text={readingSpeech(summary)} />
+          {summary && !isOpen && <ReadingListen summary={summary} />}
+          {!isOpen && (
+            <motion.div
+              initial={hasOpened ? HEAD_HIDDEN : false}
+              animate={HEAD_SHOWN}
+              transition={reveal}
+            >
+              <MarkAllRead rows={rows} variant="ghost-muted" />
+            </motion.div>
           )}
-          {!isOpen && <MarkAllRead rows={rows} variant="ghost-muted" />}
         </div>
       </div>
       <ReadingIntro isWriting={isWriting} summary={summary} />
@@ -495,12 +513,12 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
         aria-label={t.reading.digest(rows.length)}
         className="focus-visible:focus-ring absolute inset-0 cursor-pointer rounded-2xl outline-none focus-visible:ring-inset"
       />
-      {/* The text lets clicks through to the card's link; only the head's buttons take their own. */}
+      {/* Positioned to paint over the card's link, and lets clicks through to it; only the head's buttons take their own. */}
       <motion.div
         layout="position"
         layoutId="reading-content"
         transition={transition}
-        className="pointer-events-none flex flex-col gap-3"
+        className="pointer-events-none relative flex flex-col gap-3"
       >
         {content}
       </motion.div>
@@ -542,25 +560,26 @@ export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
                 {t.reading.summary}
               </h2>
               <div className="ml-auto flex gap-2">
-                {summary && (
-                  <ListenButton
-                    path="/voice/reading"
-                    text={readingSpeech(summary)}
+                {summary && <ReadingListen summary={summary} />}
+                <motion.div
+                  initial={HEAD_HIDDEN}
+                  animate={HEAD_SHOWN}
+                  transition={reveal}
+                >
+                  <IconButton
+                    icon={Cancel01Icon}
+                    label={t.mail.close}
+                    shortcut={<Kbd>esc</Kbd>}
+                    size="icon-sm"
+                    variant="ghost-muted"
+                    onClick={() =>
+                      navigate({
+                        search: (prev) => ({ ...prev, page: undefined }),
+                        to: '/home',
+                      })
+                    }
                   />
-                )}
-                <IconButton
-                  icon={Cancel01Icon}
-                  label={t.mail.close}
-                  shortcut={<Kbd>esc</Kbd>}
-                  size="icon-sm"
-                  variant="ghost-muted"
-                  onClick={() =>
-                    navigate({
-                      search: (prev) => ({ ...prev, page: undefined }),
-                      to: '/home',
-                    })
-                  }
-                />
+                </motion.div>
               </div>
             </div>
             <ReadingIntro isWriting={isWriting} summary={summary} />
