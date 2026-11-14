@@ -759,6 +759,10 @@ export const nl: Messages = {
     unsubscribeFailed:
       'Deze afzender heeft geen afmelding met één klik, dus de e-mail is gearchiveerd.',
     you: 'Jij',
+    replyTo: 'Antwoord aan',
+    date: 'Datum',
+    authentication: 'Authenticatie',
+    toLine: (recipients: string) => `aan ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

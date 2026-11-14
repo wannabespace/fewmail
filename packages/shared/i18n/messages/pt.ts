@@ -758,6 +758,10 @@ export const pt: Messages = {
     unsubscribeFailed:
       'Este remetente não tem cancelamento de inscrição com um clique, então o e-mail foi arquivado.',
     you: 'Você',
+    replyTo: 'Responder para',
+    date: 'Data',
+    authentication: 'Autenticação',
+    toLine: (recipients: string) => `para ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

@@ -773,6 +773,10 @@ export const pl: Messages = {
     unsubscribeFailed:
       'Ten nadawca nie obsługuje wypisania jednym kliknięciem, więc e-mail został zarchiwizowany.',
     you: 'Ty',
+    replyTo: 'Odpowiedz do',
+    date: 'Data',
+    authentication: 'Uwierzytelnienie',
+    toLine: (recipients: string) => `do ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

@@ -741,6 +741,10 @@ export const id: Messages = {
     unsubscribeFailed:
       'Pengirim ini tidak mendukung berhenti berlangganan sekali klik, jadi email-nya diarsipkan.',
     you: 'Kamu',
+    replyTo: 'Balas ke',
+    date: 'Tanggal',
+    authentication: 'Autentikasi',
+    toLine: (recipients: string) => `kepada ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

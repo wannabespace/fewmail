@@ -979,6 +979,10 @@ export const fr: Messages = {
     unsubscribeFailed:
       'Cet expéditeur ne propose pas de désabonnement en un clic, l’e-mail a donc été archivé.',
     you: 'Vous',
+    replyTo: 'Répondre à',
+    date: 'Date',
+    authentication: 'Authentification',
+    toLine: (recipients: string) => `à ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

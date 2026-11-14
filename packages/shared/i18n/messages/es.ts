@@ -968,6 +968,10 @@ export const es: Messages = {
     unsubscribeFailed:
       'Este remitente no permite darse de baja con un clic, así que el correo se archivó.',
     you: 'Tú',
+    replyTo: 'Responder a',
+    date: 'Fecha',
+    authentication: 'Autenticación',
+    toLine: (recipients: string) => `para ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

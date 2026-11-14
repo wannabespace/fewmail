@@ -476,6 +476,10 @@ export const ja: Messages = {
     unsubscribeFailed:
       'この送信者はワンクリック配信停止に対応していないため、メールをアーカイブしました。',
     you: 'あなた',
+    replyTo: '返信先',
+    date: '日付',
+    authentication: '認証',
+    toLine: (recipients: string) => `宛先: ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

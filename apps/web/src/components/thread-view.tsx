@@ -20,6 +20,11 @@ import {
 } from '@fewmail/ui/components/dropdown-menu'
 import { ButtonGroup, ButtonGroupSeparator } from '@fewmail/ui/components/group'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@fewmail/ui/components/popover'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
@@ -36,7 +41,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { toast } from 'sonner'
 
@@ -226,6 +231,66 @@ const HtmlBody = ({ html, id }: { html: string; id: string }) => {
   )
 }
 
+/** Gmail's "to me ▾": who else got it, which of the user's addresses it reached, and whether the sender checked out. */
+const MessageDetails = ({ message }: { message: ThreadMessage }) => {
+  const t = useT()
+  const dates = useDates()
+  const rows = [
+    [
+      t.compose.from,
+      message.fromName
+        ? `${message.fromName} <${message.fromEmail}>`
+        : message.fromEmail,
+    ],
+    [
+      t.mail.replyTo,
+      message.replyTo === message.fromEmail ? null : message.replyTo,
+    ],
+    [t.compose.to, message.to.join(', ')],
+    [t.compose.cc, message.cc.join(', ')],
+    [t.mail.date, dates.format(message.receivedAt, 'PPpp')],
+    [t.compose.subject, message.subject],
+    [
+      t.mail.authentication,
+      message.auth &&
+        `SPF ${message.auth.spf} · DKIM ${message.auth.dkim} · DMARC ${message.auth.dmarc}`,
+    ],
+  ] as const
+  return (
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="ghost-muted"
+            size="xs"
+            className="-ml-2 max-w-full"
+          />
+        }
+      >
+        <span data-mask className="truncate">
+          {t.mail.toLine(message.to.join(', ') || t.mail.noRecipients)}
+        </span>
+        <HugeiconsIcon icon={ArrowDown01Icon} data-icon="inline-end" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto max-w-md">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
+          {rows.map(
+            ([label, value]) =>
+              value && (
+                <Fragment key={label}>
+                  <dt className="text-muted-foreground">{label}</dt>
+                  <dd data-mask className="wrap-break-word">
+                    {value}
+                  </dd>
+                </Fragment>
+              )
+          )}
+        </dl>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 const MessageSection = ({
   actions,
   analysis,
@@ -248,33 +313,38 @@ const MessageSection = ({
           {subject}
         </h2>
       )}
-      <header className="flex flex-wrap items-center gap-2 text-sm">
-        {hasAgent && analysis && (
-          <ImportanceDot
-            importance={analysis.importance}
-            reason={analysis.reason}
-          />
-        )}
-        <strong data-mask className="font-semibold">
-          {message.isFromMe
-            ? t.mail.you
-            : (message.fromName ?? message.fromEmail)}
-        </strong>
-        {!message.isFromMe && (
-          <span data-mask className="text-muted-foreground">
-            {message.fromEmail}
+      <header className="flex flex-col items-start gap-0.5">
+        <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+          {hasAgent && analysis && (
+            <ImportanceDot
+              importance={analysis.importance}
+              reason={analysis.reason}
+            />
+          )}
+          <strong data-mask className="font-semibold">
+            {message.isFromMe
+              ? t.mail.you
+              : (message.fromName ?? message.fromEmail)}
+          </strong>
+          {!message.isFromMe && (
+            <span data-mask className="text-muted-foreground">
+              {message.fromEmail}
+            </span>
+          )}
+          {message.suspicion && (
+            <Badge variant="outline">{t.spam.suspect}</Badge>
+          )}
+          {isBulk(message.bulkCount, analysis?.category) && (
+            <Badge variant="outline">
+              {t.bulk.badge(message.bulkCount ?? 0)}
+            </Badge>
+          )}
+          <span className="text-muted-foreground ml-auto flex items-center gap-2 text-xs">
+            <ActionNote actions={actions} />
+            {dates.format(message.receivedAt, 'd MMM, HH:mm')}
           </span>
-        )}
-        {message.suspicion && <Badge variant="outline">{t.spam.suspect}</Badge>}
-        {isBulk(message.bulkCount, analysis?.category) && (
-          <Badge variant="outline">
-            {t.bulk.badge(message.bulkCount ?? 0)}
-          </Badge>
-        )}
-        <span className="text-muted-foreground ml-auto flex items-center gap-2 text-xs">
-          <ActionNote actions={actions} />
-          {dates.format(message.receivedAt, 'd MMM, HH:mm')}
-        </span>
+        </div>
+        <MessageDetails message={message} />
       </header>
       {hasAgent && analysis && (
         <div className="bg-secondary/50 flex flex-col gap-2 rounded-xl px-4 py-3">

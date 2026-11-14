@@ -972,6 +972,10 @@ export const it: Messages = {
     unsubscribeFailed:
       'Questo mittente non permette di annullare l’iscrizione con un clic, quindi l’email è stata archiviata.',
     you: 'Tu',
+    replyTo: 'Rispondi a',
+    date: 'Data',
+    authentication: 'Autenticazione',
+    toLine: (recipients: string) => `a ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

@@ -752,6 +752,10 @@ export const en = {
     unsubscribeFailed:
       'This sender has no one-click unsubscribe, so the email was archived.',
     you: 'You',
+    replyTo: 'Reply to',
+    date: 'Date',
+    authentication: 'Authentication',
+    toLine: (recipients: string) => `to ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

@@ -968,6 +968,10 @@ export const de: Messages = {
     unsubscribeFailed:
       'Dieser Absender bietet keine Abmeldung per Klick, daher wurde die Mail archiviert.',
     you: 'Du',
+    replyTo: 'Antwort an',
+    date: 'Datum',
+    authentication: 'Authentifizierung',
+    toLine: (recipients: string) => `an ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>

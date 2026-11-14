@@ -968,6 +968,10 @@ export const uk: Messages = {
     unsubscribeFailed:
       'У цього відправника немає відписки в один клік, тому лист заархівовано.',
     you: 'Ти',
+    replyTo: 'Відповідати',
+    date: 'Дата',
+    authentication: 'Перевірка',
+    toLine: (recipients: string) => `кому: ${recipients}`,
   },
   subscriptions: {
     unsubscribeHint: (emails: string) =>
