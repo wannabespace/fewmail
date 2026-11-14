@@ -17,7 +17,9 @@ import {
   useMutationState,
 } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
@@ -69,6 +71,17 @@ const NextPageLoader = ({
   )
 }
 
+const RowsGap = ({ height }: { height: number }) => (
+  <div
+    aria-hidden
+    className="h-(--gap)"
+    style={{ '--gap': `${height}px` } as CSSProperties}
+  />
+)
+
+/** A row's height until it is measured. */
+const ROW_SIZE = 68
+
 const SubscriptionsPage = () => {
   const t = useT()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } =
@@ -76,8 +89,40 @@ const SubscriptionsPage = () => {
   const [cursor, setCursor] = useState<number | null>(null)
   const rows = data?.pages.flatMap((page) => page.rows) ?? []
   const total = data?.pages[0]?.total ?? 0
-  const active =
-    cursor === null ? undefined : rows[Math.min(cursor, rows.length - 1)]
+  const activeIndex = cursor === null ? -1 : Math.min(cursor, rows.length - 1)
+  const active = rows[activeIndex]
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const [listTop, setListTop] = useState(0)
+  const hasRows = rows.length > 0
+  useLayoutEffect(() => {
+    const list = listRef.current
+    const scroller = scrollerRef.current
+    if (list && scroller) {
+      setListTop(
+        list.getBoundingClientRect().top -
+          scroller.getBoundingClientRect().top +
+          scroller.scrollTop
+      )
+    }
+  }, [hasRows])
+  // oxlint-disable-next-line react/incompatible-library -- the compiler skips this page, which re-renders on every scroll
+  const virtualizer = useVirtualizer({
+    count: rows.length,
+    estimateSize: () => ROW_SIZE,
+    getItemKey: (index) => rows[index]?.messageId ?? index,
+    getScrollElement: () => scrollerRef.current,
+    overscan: 10,
+    scrollMargin: listTop,
+  })
+  useEffect(() => {
+    if (activeIndex !== -1) {
+      virtualizer.scrollToIndex(activeIndex)
+    }
+  }, [activeIndex, virtualizer])
+  const shown = virtualizer.getVirtualItems()
+  const belowHeight =
+    virtualizer.getTotalSize() - ((shown.at(-1)?.end ?? listTop) - listTop)
 
   const navigate = useNavigate()
   const unsubscribe = useMutation(
@@ -167,7 +212,7 @@ const SubscriptionsPage = () => {
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollerRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
           <header className="flex flex-col gap-3">
             <h1 className="text-display font-serif tracking-tight">
@@ -185,44 +230,62 @@ const SubscriptionsPage = () => {
           )}
           {rows.length > 0 && (
             <SettingsGroup title={t.subscriptions.count(total)}>
-              {rows.map((row) => (
-                <SettingsRow
-                  key={row.messageId}
-                  active={row === active}
-                  iconVariant="avatar"
-                  icon={
-                    <Avatar size="sm">
-                      <AvatarFallback data-mask>
-                        {(row.fromName ?? row.fromEmail)[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  }
-                  title={
-                    <Link to="/mail" search={{ q: listSearch(row) }} data-mask>
-                      {row.fromName ?? row.fromEmail}
-                    </Link>
-                  }
-                  description={
-                    <>
-                      <span data-mask>{row.fromEmail}</span> ·{' '}
-                      {t.cleanup.emails(row.count)},{' '}
-                      {t.subscriptions.opened(row.opened)}
-                    </>
-                  }
-                >
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={leaving.has(row.messageId)}
-                    onClick={() => leave(row)}
-                    shortcut={row === active && <Kbd>U</Kbd>}
-                  >
-                    <LoadingContent loading={leaving.has(row.messageId)}>
-                      {t.subscriptions.unsubscribe}
-                    </LoadingContent>
-                  </Button>
-                </SettingsRow>
-              ))}
+              <div ref={listRef} className="flex flex-col">
+                <RowsGap height={(shown[0]?.start ?? listTop) - listTop} />
+                {shown.map((item) => {
+                  const row = rows[item.index]
+                  return (
+                    row && (
+                      <SettingsRow
+                        key={item.key}
+                        ref={virtualizer.measureElement}
+                        data-index={item.index}
+                        active={row === active}
+                        iconVariant="avatar"
+                        icon={
+                          <Avatar size="sm">
+                            <AvatarFallback data-mask>
+                              {(
+                                row.fromName ?? row.fromEmail
+                              )[0]?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        }
+                        title={
+                          <Link
+                            to="/mail"
+                            search={{ q: listSearch(row) }}
+                            data-mask
+                          >
+                            {row.fromName ?? row.fromEmail}
+                          </Link>
+                        }
+                        description={
+                          <>
+                            <span data-mask>{row.fromEmail}</span> ·{' '}
+                            {t.cleanup.emails(row.count)},{' '}
+                            {t.subscriptions.opened(row.opened)}
+                          </>
+                        }
+                      >
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={leaving.has(row.messageId)}
+                          onClick={() => leave(row)}
+                          shortcut={row === active && <Kbd>U</Kbd>}
+                        >
+                          <LoadingContent loading={leaving.has(row.messageId)}>
+                            {t.subscriptions.unsubscribe}
+                          </LoadingContent>
+                        </Button>
+                      </SettingsRow>
+                    )
+                  )
+                })}
+                {/* Only while rows are left below: after the last row, the spacer would take its last:border-b-0. */}
+                {belowHeight > 0 && <RowsGap height={belowHeight} />}
+              </div>
             </SettingsGroup>
           )}
           <NextPageLoader

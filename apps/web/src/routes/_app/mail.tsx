@@ -79,6 +79,8 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { defaultRangeExtractor, useVirtualizer } from '@tanstack/react-virtual'
+import type { VirtualItem } from '@tanstack/react-virtual'
 import { type } from 'arktype'
 import { differenceInMinutes, isToday, subDays } from 'date-fns'
 import {
@@ -89,13 +91,15 @@ import {
   useReducedMotion,
 } from 'motion/react'
 import {
+  createContext,
   startTransition,
+  use,
   useEffect,
   useEffectEvent,
   useRef,
   useState,
 } from 'react'
-import type { ComponentProps, ReactNode } from 'react'
+import type { ComponentProps, CSSProperties, ReactNode, RefObject } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createElementSize, createWebStorageValue } from 'seitu/web'
 
@@ -458,15 +462,17 @@ const PINNED_SHOWN = 3
 const GroupHeader = ({
   group,
   isUnfolded,
+  item,
   onToggle,
 }: {
   group: ReturnType<typeof groupRows>[number]
   isUnfolded: boolean
+  item: VirtualItem
   onToggle: () => void
 }) => {
   const t = useT()
   return (
-    <li className={GROUP_HEADER}>
+    <ListRow item={item} className={GROUP_HEADER}>
       <span className="truncate">{t.mail.group[group.key]}</span>
       <span className="tabular-nums opacity-60">{group.total}</span>
       {(group.rows.length < group.total || isUnfolded) && (
@@ -479,7 +485,7 @@ const GroupHeader = ({
           {isUnfolded ? t.mail.showFewer : t.mail.showAll(group.total)}
         </Button>
       )}
-    </li>
+    </ListRow>
   )
 }
 
@@ -755,17 +761,34 @@ const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
 
 const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
 
-// A leaving row drops `data-row`: the cursor finds its row by index among them, and a folding row would shift it by one.
-const LeavingRow = ({
+const HIDDEN_CURSOR = -1
+
+/** First guesses, until a row is measured; near them, the scrollbar barely jumps. */
+const ROW_SIZE = { draft: 82, header: 29, line: 37, mail: 63 }
+
+const ROW_FOLD = { borderBottomWidth: 0, height: 0, opacity: 0 }
+
+const ListWindowContext = createContext<{
+  keys: ReadonlySet<VirtualItem['key']>
+  measure: (node: Element | null) => void
+}>({ keys: new Set(), measure: () => null })
+
+// A row gone from the list folds; a row the window scrolled past is still listed and goes at once, taking no room, or the rows below jump by its height. Either way its index is stale, so it stops being measured (-1 is out of range).
+const ListRow = ({
   className,
+  item,
   ...props
-}: ComponentProps<typeof motion.li>) => {
+}: ComponentProps<typeof motion.li> & { item: VirtualItem }) => {
   const isPresent = useIsPresent()
+  const { keys, measure } = use(ListWindowContext)
+  const isScrolledPast = !isPresent && keys.has(item.key)
   return (
     <motion.li
-      data-row={isPresent || undefined}
+      ref={isPresent ? measure : undefined}
+      data-index={isPresent ? item.index : -1}
+      hidden={isScrolledPast}
       initial={false}
-      exit={{ borderBottomWidth: 0, height: 0, opacity: 0 }}
+      exit={isScrolledPast ? undefined : ROW_FOLD}
       className={cn(
         className,
         !isPresent && 'pointer-events-none overflow-hidden'
@@ -775,29 +798,94 @@ const LeavingRow = ({
   )
 }
 
-// Keyed by the list: a view, mailbox or search swap replaces every row at once, so nothing folds out; typing in search churns rows, so they leave at once.
-const LeavingRows = ({
-  children,
-  isSearching,
-  listKey,
-}: {
-  children: ReactNode
-  isSearching: boolean
-  listKey: string
-}) => {
-  const isReducedMotion = useReducedMotion()
-  return (
-    <MotionConfig
-      transition={isSearching || isReducedMotion ? { duration: 0 } : ROW_LEAVE}
-    >
-      <AnimatePresence key={listKey} initial={false}>
-        {children}
-      </AnimatePresence>
-    </MotionConfig>
-  )
+const ListGap = ({ height }: { height: number }) => (
+  <li
+    aria-hidden
+    className="h-(--gap)"
+    style={{ '--gap': `${height}px` } as CSSProperties}
+  />
+)
+
+interface ListWindowItem {
+  isCursor?: boolean
+  isSticky?: boolean
+  key: string
+  render: (item: VirtualItem) => ReactNode
+  size: number
 }
 
-const HIDDEN_CURSOR = -1
+/**
+ * Renders the rows in and near view between spacers that hold the rest of the list's height, so the rows stay in the flow: a folding row pulls up the ones below and group headers stick.
+ * Keyed by the list: a view, mailbox or search swap replaces every row at once, so nothing folds out; typing in search churns rows, so they leave at once.
+ */
+const ListWindow = ({
+  isSearching,
+  items,
+  listKey,
+  scroller,
+}: {
+  isSearching: boolean
+  items: ListWindowItem[]
+  listKey: string
+  scroller: RefObject<HTMLElement | null>
+}) => {
+  const isReducedMotion = useReducedMotion()
+  const stickyIndexes = items.flatMap(({ isSticky }, index) =>
+    isSticky ? [index] : []
+  )
+  // oxlint-disable-next-line react/incompatible-library -- the compiler skips this component, which re-renders on every scroll; keep it small
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    estimateSize: (index) => items[index]?.size ?? 0,
+    getItemKey: (index) => items[index]?.key ?? index,
+    getScrollElement: () => scroller.current,
+    overscan: 10,
+    // A sticky header out of the DOM no longer sticks, so the one over the rows in view stays rendered.
+    rangeExtractor: (range) => {
+      const indexes = defaultRangeExtractor(range)
+      const sticky = stickyIndexes.findLast(
+        (index) => index <= range.startIndex
+      )
+      return sticky === undefined || indexes.includes(sticky)
+        ? indexes
+        : [sticky, ...indexes]
+    },
+  })
+  const cursorIndex = items.findIndex(({ isCursor }) => isCursor)
+  useEffect(() => {
+    if (cursorIndex !== HIDDEN_CURSOR) {
+      virtualizer.scrollToIndex(cursorIndex)
+    }
+  }, [cursorIndex, virtualizer])
+  const shown = virtualizer.getVirtualItems()
+  const [head, second] = shown
+  const sticky =
+    head && second && second.index !== head.index + 1 ? head : undefined
+  const flowing = sticky ? shown.slice(1) : shown
+  const render = (item: VirtualItem) => items[item.index]?.render(item)
+  return (
+    <ListWindowContext
+      value={{
+        keys: new Set(items.map(({ key }) => key)),
+        measure: virtualizer.measureElement,
+      }}
+    >
+      <ListGap height={head?.start ?? 0} />
+      {sticky && render(sticky)}
+      {sticky && <ListGap height={(flowing[0]?.start ?? 0) - sticky.end} />}
+      <MotionConfig
+        transition={
+          isSearching || isReducedMotion ? { duration: 0 } : ROW_LEAVE
+        }
+      >
+        <AnimatePresence key={listKey} initial={false}>
+          {flowing.map(render)}
+        </AnimatePresence>
+      </MotionConfig>
+      <ListGap height={virtualizer.getTotalSize() - (shown.at(-1)?.end ?? 0)} />
+    </ListWindowContext>
+  )
+}
 
 const useCursorOnOpenThread = ({
   rows,
@@ -879,18 +967,20 @@ const useRelatedRows = <
 const RelatedRow = ({
   isCursor,
   isOpen,
+  item,
   onOpen,
   row: { message },
 }: {
   isCursor: boolean
   isOpen: boolean
+  item: VirtualItem
   onOpen: () => void
   row: ListedRow
 }) => {
   const dates = useDates()
   return (
-    <li
-      data-row
+    <ListRow
+      item={item}
       className={rowSurfaceOf({
         isActive: isCursor,
         isOpen,
@@ -920,7 +1010,7 @@ const RelatedRow = ({
           {dates.format(message.receivedAt, 'd MMM')}
         </span>
       </button>
-    </li>
+    </ListRow>
   )
 }
 
@@ -982,6 +1072,7 @@ const MailRow = ({
   isPicked,
   isPicking,
   isSnoozeOpen,
+  item,
   onOpen,
   onOpenEmail,
   onPick,
@@ -997,6 +1088,7 @@ const MailRow = ({
   isPicked: boolean
   isPicking: boolean
   isSnoozeOpen: boolean
+  item: VirtualItem
   onOpen: () => void
   onOpenEmail: (message: ListedMessage) => void
   onPick: () => void
@@ -1011,7 +1103,8 @@ const MailRow = ({
   const isBurst = messageIds.length > 1
 
   return (
-    <LeavingRow
+    <ListRow
+      item={item}
       className={rowSurfaceOf({
         isActive: isCursor || isPicked || isSnoozeOpen,
         isOpen,
@@ -1124,7 +1217,7 @@ const MailRow = ({
         isPicking={isPicking}
         onPick={onPick}
       />
-    </LeavingRow>
+    </ListRow>
   )
 }
 
@@ -1136,6 +1229,7 @@ const PinnedRow = ({
   isPicked,
   isPicking,
   isSnoozeOpen,
+  item,
   onOpen,
   onPick,
   onSnoozeOpenChange,
@@ -1147,7 +1241,8 @@ const PinnedRow = ({
   const t = useT()
   const dates = useDates()
   return (
-    <LeavingRow
+    <ListRow
+      item={item}
       className={rowSurfaceOf({
         isActive: isCursor || isPicked || isSnoozeOpen,
         isOpen,
@@ -1216,27 +1311,26 @@ const PinnedRow = ({
         isPicking={isPicking}
         onPick={onPick}
       />
-    </LeavingRow>
+    </ListRow>
   )
 }
 
 const PinnedHeader = ({
   hidden,
   isExpanded,
+  item,
   onToggle,
   total,
 }: {
   hidden: number
   isExpanded: boolean
+  item: VirtualItem
   onToggle: () => void
   total: number
 }) => {
   const t = useT()
-  if (total === 0) {
-    return null
-  }
   return (
-    <li className={LIST_HEADER}>
+    <ListRow item={item} className={LIST_HEADER}>
       <span>{t.mail.pinned}</span>
       <span className="tabular-nums opacity-60">{total}</span>
       {(hidden > 0 || isExpanded) && (
@@ -1249,7 +1343,7 @@ const PinnedHeader = ({
           {isExpanded ? t.mail.showFewer : t.mail.showAll(total)}
         </Button>
       )}
-    </li>
+    </ListRow>
   )
 }
 
@@ -1258,19 +1352,21 @@ type DraftRowData = RouterOutputs['mail']['drafts'][number]
 const DraftRow = ({
   draft,
   isCursor,
+  item,
   onDelete,
   onOpen,
 }: {
   draft: DraftRowData
   isCursor: boolean
+  item: VirtualItem
   onDelete: () => void
   onOpen: () => void
 }) => {
   const t = useT()
   const dates = useDates()
   return (
-    <li
-      data-row
+    <ListRow
+      item={item}
       className={cn(
         'group relative border-b',
         isCursor ? 'bg-accent' : 'hover:bg-accent'
@@ -1317,9 +1413,61 @@ const DraftRow = ({
           onClick={onDelete}
         />
       </span>
-    </li>
+    </ListRow>
   )
 }
+
+/** The drafts, or the pinned header: what comes before the mail rows. */
+const headItemsOf = ({
+  cursor,
+  drafts,
+  open,
+  pinnedCount,
+  pinnedRows,
+}: {
+  cursor: number
+  drafts: Pick<ReturnType<typeof useDrafts>, 'remove' | 'rows'>
+  open: (index: number) => void
+  pinnedCount: number
+  pinnedRows: Pick<
+    ReturnType<typeof usePinnedRows>,
+    'isExpanded' | 'shown' | 'toggle'
+  >
+}): ListWindowItem[] => [
+  ...drafts.rows.map((saved, index) => ({
+    isCursor: index === cursor,
+    key: `draft:${saved.id}`,
+    render: (item: VirtualItem) => (
+      <DraftRow
+        key={item.key}
+        draft={saved}
+        isCursor={index === cursor}
+        item={item}
+        onOpen={() => open(index)}
+        onDelete={() => drafts.remove(saved)}
+      />
+    ),
+    size: ROW_SIZE.draft,
+  })),
+  ...(pinnedCount > 0
+    ? [
+        {
+          key: 'pinned',
+          render: (item: VirtualItem) => (
+            <PinnedHeader
+              key={item.key}
+              hidden={pinnedCount - pinnedRows.shown}
+              isExpanded={pinnedRows.isExpanded}
+              item={item}
+              total={pinnedCount}
+              onToggle={() => pinnedRows.toggle()}
+            />
+          ),
+          size: ROW_SIZE.header,
+        },
+      ]
+    : []),
+]
 
 const useDrafts = ({
   isEnabled,
@@ -2142,10 +2290,6 @@ const MailPage = () => {
   } = list
 
   useEffect(() => {
-    const row = listRef.current?.querySelectorAll('[data-row]')[cursor]
-    row?.scrollIntoView({ block: 'nearest' })
-  }, [cursor])
-  useEffect(() => {
     const ahead = [
       ...rows.slice(0, PREFETCHED_ROWS),
       ...rows.slice(Math.max(0, cursor - 1), cursor + 2),
@@ -2239,6 +2383,91 @@ const MailPage = () => {
       search: (prev) => ({ ...prev, mailbox: next, thread: undefined }),
     })
 
+  const listItems: ListWindowItem[] = [
+    ...headItemsOf({
+      cursor,
+      drafts,
+      open,
+      pinnedCount: pinned.length,
+      pinnedRows,
+    }),
+    ...rows.flatMap((row, index): ListWindowItem[] => {
+      if ('isRelated' in row) {
+        return [
+          {
+            isCursor: index === cursor,
+            key: `related:${row.message.id}`,
+            render: (item) => (
+              <RelatedRow
+                key={item.key}
+                row={row}
+                isCursor={index === cursor}
+                isOpen={row.message.threadId === thread}
+                item={item}
+                onOpen={() => open(index)}
+              />
+            ),
+            size: ROW_SIZE.line,
+          },
+        ]
+      }
+      const isPinnedRow = index < pinnedRows.shown
+      const Row = isPinnedRow ? PinnedRow : MailRow
+      const group = groupStarts.get(row.message.id)
+      const mailItem: ListWindowItem = {
+        isCursor: index === cursor,
+        key: row.message.id,
+        render: (item) => (
+          <Row
+            key={item.key}
+            row={row}
+            actions={actions}
+            canSnooze={canSnooze}
+            isCursor={index === cursor}
+            isOpen={
+              row.messageIds.length > 1
+                ? stack?.message.id === row.message.id
+                : row.message.threadId === thread
+            }
+            isPicked={picks.pickedIds.has(row.message.id)}
+            isPicking={isPicking}
+            isSnoozeOpen={snoozeOpenId === row.message.id}
+            item={item}
+            onOpen={() => open(index)}
+            onOpenEmail={(message) => open(index, message)}
+            onPick={() => picks.onToggle(row.message.id)}
+            openEmailThread={stack ? undefined : thread}
+            onSnoozeOpenChange={(isOpen) =>
+              setSnoozeOpenId(isOpen ? row.message.id : null)
+            }
+            sweep={sweep}
+          />
+        ),
+        size: isPinnedRow ? ROW_SIZE.line : ROW_SIZE.mail,
+      }
+      if (!group) {
+        return [mailItem]
+      }
+      return [
+        {
+          isSticky: true,
+          key: `group:${group.key}`,
+          render: (item) => (
+            <GroupHeader
+              key={item.key}
+              group={group}
+              isUnfolded={unfolded.has(group.key)}
+              item={item}
+              onToggle={() => toggleGroup(group.key)}
+            />
+          ),
+          size: ROW_SIZE.header,
+        },
+        mailItem,
+      ]
+    }),
+  ]
+
   return (
     <ResizableGroup ref={setPanes} className="flex min-h-0 flex-1">
       <ResizablePanel className="flex min-w-0">
@@ -2324,71 +2553,12 @@ const MailPage = () => {
               isFetching && 'opacity-70'
             )}
           >
-            {drafts.rows.map((saved, index) => (
-              <DraftRow
-                key={saved.id}
-                draft={saved}
-                isCursor={index === cursor}
-                onOpen={() => open(index)}
-                onDelete={() => drafts.remove(saved)}
-              />
-            ))}
-            <PinnedHeader
-              hidden={pinned.length - pinnedRows.shown}
-              isExpanded={pinnedRows.isExpanded}
-              total={pinned.length}
-              onToggle={() => pinnedRows.toggle()}
+            <ListWindow
+              isSearching={isSearching}
+              items={listItems}
+              listKey={listKey}
+              scroller={listRef}
             />
-            <LeavingRows listKey={listKey} isSearching={isSearching}>
-              {rows.map((row, index) => {
-                if ('isRelated' in row) {
-                  return (
-                    <RelatedRow
-                      key={`related:${row.message.id}`}
-                      row={row}
-                      isCursor={index === cursor}
-                      isOpen={row.message.threadId === thread}
-                      onOpen={() => open(index)}
-                    />
-                  )
-                }
-                const Row = index < pinnedRows.shown ? PinnedRow : MailRow
-                const group = groupStarts.get(row.message.id)
-                return [
-                  group && (
-                    <GroupHeader
-                      key={`group:${group.key}`}
-                      group={group}
-                      isUnfolded={unfolded.has(group.key)}
-                      onToggle={() => toggleGroup(group.key)}
-                    />
-                  ),
-                  <Row
-                    key={row.message.id}
-                    row={row}
-                    actions={actions}
-                    canSnooze={canSnooze}
-                    isCursor={index === cursor}
-                    isOpen={
-                      row.messageIds.length > 1
-                        ? stack?.message.id === row.message.id
-                        : row.message.threadId === thread
-                    }
-                    isPicked={picks.pickedIds.has(row.message.id)}
-                    isPicking={isPicking}
-                    isSnoozeOpen={snoozeOpenId === row.message.id}
-                    onOpen={() => open(index)}
-                    onOpenEmail={(message) => open(index, message)}
-                    onPick={() => picks.onToggle(row.message.id)}
-                    openEmailThread={stack ? undefined : thread}
-                    onSnoozeOpenChange={(isOpen) =>
-                      setSnoozeOpenId(isOpen ? row.message.id : null)
-                    }
-                    sweep={sweep}
-                  />,
-                ]
-              })}
-            </LeavingRows>
             <OlderRowsLoader {...older} />
           </ul>
           {!thread && (

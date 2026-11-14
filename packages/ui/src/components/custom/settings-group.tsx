@@ -10,7 +10,7 @@ import {
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
 import { InformationCircleIcon } from '@hugeicons/core-free-icons'
-import type { ReactElement, ReactNode } from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
 
 import { IconButton } from './icon-button'
 
@@ -41,18 +41,21 @@ export const SettingsGroup = ({
 export const SettingsRow = ({
   active,
   children,
+  'data-index': dataIndex,
   dense,
   description,
   hint,
   htmlFor,
   icon,
   iconVariant,
+  ref,
   render,
   title,
-}: {
+}: Pick<ComponentProps<'div'>, 'ref'> & {
   /** The keyboard cursor's row in a list walked with J / K. */
   active?: boolean
   children?: ReactNode
+  'data-index'?: number
   dense?: boolean
   description?: ReactNode
   /** What a long description would say, behind an info glyph so the row stays one line. */
@@ -68,6 +71,8 @@ export const SettingsRow = ({
     variant="grouped"
     className={cn(dense && 'py-2')}
     data-active={active || undefined}
+    data-index={dataIndex}
+    ref={ref}
     // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- Item renders the title and description into this label
     render={htmlFor ? <label htmlFor={htmlFor} /> : render}
   >
