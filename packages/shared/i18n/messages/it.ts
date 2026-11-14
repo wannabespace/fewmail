@@ -875,6 +875,7 @@ export const it: Messages = {
     pinned: 'Fissati',
     showAll: (n: number) => `Mostra tutti e ${n}`,
     showFewer: 'Mostra meno',
+    inGmail: (count: string) => `${count} in Gmail`,
     oneTimeCode: {
       archive: 'Copia e archivia',
       copied: 'Codice copiato',

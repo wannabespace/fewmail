@@ -124,7 +124,7 @@ import {
   useMailActions,
 } from '~/components/thread-view'
 import type { Place, Sweep } from '~/components/thread-view'
-import { useDates, useT } from '~/lib/i18n'
+import { useDates, useLocale, useT } from '~/lib/i18n'
 import {
   hasOlderRows,
   isReadingFirstTime,
@@ -608,6 +608,32 @@ const UnreadCount = ({
       {unread?.inbox}
     </span>
   )
+
+/** The inbox as Gmail counts it: Fewmail holds only recent mail and reads the rest as the list scrolls. */
+const InGmailCount = ({
+  filter,
+  mailbox,
+}: {
+  filter: Filter
+  mailbox: string | undefined
+}) => {
+  const t = useT()
+  const locale = useLocale()
+  const { data: total } = useQuery(
+    orpc.mail.inGmail.queryOptions({
+      input: isInboxView(filter) ? { mailboxId: mailbox } : skipToken,
+      placeholderData: keepPreviousData,
+    })
+  )
+  return (
+    isInboxView(filter) &&
+    total !== undefined && (
+      <span className="text-muted-foreground text-xs tabular-nums">
+        {t.mail.inGmail(total.toLocaleString(locale))}
+      </span>
+    )
+  )
+}
 
 type SketchLine = 'group' | 'unread' | 'read' | 'urgent' | 'quiet'
 
@@ -1802,9 +1828,11 @@ const useOlderRows = ({
   const load = useMutation({
     meta: { event: 'mail_older_loaded' },
     mutationFn: () => (list ? loadOlderRows(mailbox, list) : Promise.resolve()),
+    retry: 2,
   })
   return {
     hasMore: !isLoading && !!list && hasOlderRows(mailbox, list),
+    isFailed: load.isError,
     isLoading: load.isPending,
     load: () => {
       if (!load.isPending) {
@@ -1814,16 +1842,21 @@ const useOlderRows = ({
   }
 }
 
-/** Watches the list's end inside its own scroller; the spinner holds the place while the page comes. */
+/**
+ * Watches the list's end inside its own scroller; the spinner holds the place while the page comes. A failed page waits
+ * for Try again: read again on every render, it hammered Gmail's quota.
+ */
 const OlderRowsLoader = ({
   hasMore,
+  isFailed,
   isLoading,
   load,
 }: ReturnType<typeof useOlderRows>) => {
+  const t = useT()
   const ref = useRef<HTMLLIElement>(null)
   useEffect(() => {
     const node = ref.current
-    if (!node || !hasMore || isLoading) {
+    if (!node || !hasMore || isLoading || isFailed) {
       return
     }
     const observer = new IntersectionObserver(
@@ -1836,10 +1869,15 @@ const OlderRowsLoader = ({
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [hasMore, isLoading, load])
+  }, [hasMore, isFailed, isLoading, load])
   return (
     <li ref={ref} hidden={!hasMore} className="flex justify-center py-3">
       {isLoading && <Spinner />}
+      {isFailed && !isLoading && (
+        <Button size="xs" variant="link-muted" onClick={load}>
+          {t.agent.retry}
+        </Button>
+      )}
     </li>
   )
 }
@@ -2647,15 +2685,17 @@ const MailPage = () => {
                   mailboxes={mailboxes}
                   onChange={pickMailbox}
                 />
-                <IconButton
-                  icon={Search01Icon}
-                  label={t.mail.find.open}
-                  shortcut={<Kbd>/</Kbd>}
-                  variant="outline"
-                  size="icon-sm"
-                  className="ml-auto"
-                  onClick={() => applySearch('')}
-                />
+                <div className="ml-auto flex items-center gap-3">
+                  <InGmailCount filter={shownFilter} mailbox={mailbox} />
+                  <IconButton
+                    icon={Search01Icon}
+                    label={t.mail.find.open}
+                    shortcut={<Kbd>/</Kbd>}
+                    variant="outline"
+                    size="icon-sm"
+                    onClick={() => applySearch('')}
+                  />
+                </div>
               </div>
             )}
           </PickedBar>

@@ -373,6 +373,7 @@ export const ko: Messages = {
     pinned: '고정됨',
     showAll: (n: number) => `${n}개 모두 보기`,
     showFewer: '접기',
+    inGmail: (count: string) => `Gmail에 ${count}개`,
     oneTimeCode: {
       archive: '복사 후 보관',
       copied: '코드를 복사했습니다',

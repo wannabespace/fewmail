@@ -76,6 +76,7 @@ import {
   draftReply,
   getThread,
   listMail,
+  countInboxInGmail,
   countUnread,
   markThreadRead,
   markThreadUnread,
@@ -454,6 +455,11 @@ export const router = {
       .input(type({ 'mailboxId?': 'string.uuid' }))
       .handler(({ context, input }) =>
         countUnread(context.user.id, input.mailboxId)
+      ),
+    inGmail: authed
+      .input(type({ 'mailboxId?': 'string.uuid' }))
+      .handler(({ context, input }) =>
+        countInboxInGmail(context.user.id, input.mailboxId)
       ),
     thread: authed
       .input(type({ threadId: 'string' }))

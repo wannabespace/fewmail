@@ -374,6 +374,7 @@ export const hi: Messages = {
     pinned: 'पिन किए गए',
     showAll: (n: number) => `सभी ${n} दिखाएँ`,
     showFewer: 'कम दिखाएँ',
+    inGmail: (count: string) => `Gmail में ${count}`,
     oneTimeCode: {
       archive: 'कॉपी करें और संग्रहित करें',
       copied: 'कोड कॉपी हो गया',

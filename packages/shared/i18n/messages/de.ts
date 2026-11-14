@@ -872,6 +872,7 @@ export const de: Messages = {
     pinned: 'Angeheftet',
     showAll: (n: number) => `Alle ${n} zeigen`,
     showFewer: 'Weniger zeigen',
+    inGmail: (count: string) => `${count} in Gmail`,
     oneTimeCode: {
       archive: 'Kopieren und archivieren',
       copied: 'Code kopiert',

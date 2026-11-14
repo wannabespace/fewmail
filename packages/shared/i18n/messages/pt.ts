@@ -645,6 +645,7 @@ export const pt: Messages = {
     pinned: 'Fixados',
     showAll: (n: number) => `Mostrar todos os ${n}`,
     showFewer: 'Mostrar menos',
+    inGmail: (count: string) => `${count} no Gmail`,
     oneTimeCode: {
       archive: 'Copiar e arquivar',
       copied: 'Código copiado',

@@ -368,6 +368,7 @@ export const zh: Messages = {
     pinned: '已置顶',
     showAll: (n: number) => `显示全部 ${n} 封`,
     showFewer: '收起',
+    inGmail: (count: string) => `Gmail 中共 ${count} 个`,
     oneTimeCode: {
       archive: '复制并归档',
       copied: '已复制验证码',

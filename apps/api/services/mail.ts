@@ -43,7 +43,7 @@ import {
 import type { SQL } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
-import { getMessage } from '../lib/gmail'
+import { getLabelCounts, getMessage } from '../lib/gmail'
 import type { ParsedMessage } from '../lib/gmail'
 import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { logError } from '../lib/log'
@@ -340,7 +340,9 @@ const OLDER_LISTS: Partial<
   },
 }
 
-type OlderThread = Awaited<ReturnType<typeof listOlderThreads>>[number]
+type OlderThread = Awaited<
+  ReturnType<typeof listOlderThreads>
+>['threads'][number]
 
 /** Found mail Fewmail holds is listed from the database; the rest is read live, never stored. */
 const searchMail = async (
@@ -492,40 +494,51 @@ const olderRowOf = ({ mailbox, message, thread }: OlderThread): MailRow => ({
   threadSize: thread.length,
 })
 
-/** A full page of held mail ends at its oldest row: Gmail is asked only for what lies between that and where each mailbox's held mail begins. */
+const mailboxesOf = (userId: string, mailboxId?: string) =>
+  db
+    .select()
+    .from(mailboxes)
+    .where(
+      and(
+        eq(mailboxes.userId, userId),
+        mailboxId ? eq(mailboxes.id, mailboxId) : undefined
+      )
+    )
+
+/**
+ * A full page of held mail ends at its oldest row: Gmail is asked only for what lies between that and where each
+ * mailbox's held mail begins. `floor` is where every source is still whole: a row below it may have older neighbours
+ * a source has not read yet, and the web's next page starts after the oldest row it got.
+ */
 const listOlderMail = async (
   userId: string,
   input: ListInput,
   list: NonNullable<(typeof OLDER_LISTS)[MailFilter]>,
   held: MailRow[]
 ) => {
-  const floor =
+  const heldFloor =
     held.length === PAGE_SIZE ? held.at(-1)?.message.receivedAt : undefined
-  const owned = await db
-    .select()
-    .from(mailboxes)
-    .where(
-      and(
-        eq(mailboxes.userId, userId),
-        input.mailboxId ? eq(mailboxes.id, input.mailboxId) : undefined
-      )
-    )
+  const owned = await mailboxesOf(userId, input.mailboxId)
+  // A failed mailbox fails the page: an empty answer for it let the next page start past all of its older mail.
   const read = await Promise.all(
     owned
-      .filter(({ heldSince }) => !floor || heldSince > floor)
-      .map(async (mailbox) => {
-        const threads = await Result.tryPromise(() =>
-          listOlderThreads(
-            mailbox,
-            list,
-            { after: floor, before: input.before },
-            PAGE_SIZE
-          )
-        )
-        return threads.unwrapOr([])
-      })
+      .filter(({ heldSince }) => !heldFloor || heldSince > heldFloor)
+      .map((mailbox) =>
+        listOlderThreads(mailbox, list, {
+          after: heldFloor,
+          before: input.before,
+        })
+      )
   )
-  return read.flat()
+  const floors = [heldFloor, ...read.map(({ floor }) => floor)].filter(
+    (floor) => floor !== undefined
+  )
+  return {
+    floor: floors.length
+      ? new Date(Math.max(...floors.map(Number)))
+      : undefined,
+    threads: read.flatMap(({ threads }) => threads),
+  }
 }
 
 export const listMail = async (userId: string, input: ListInput) => {
@@ -547,14 +560,17 @@ export const listMail = async (userId: string, input: ListInput) => {
   const fromGmail =
     older && input.before
       ? await listOlderMail(userId, input, older, held)
-      : (found?.older ?? [])
+      : { floor: undefined, threads: found?.older ?? [] }
   const threadIds = new Set<string>()
   return [
     ...held,
-    ...fromGmail
+    ...fromGmail.threads
       .filter(({ message }) => snoozed?.isListed(message.threadId) ?? true)
       .map(olderRowOf),
   ]
+    .filter(
+      ({ message }) => !fromGmail.floor || message.receivedAt >= fromGmail.floor
+    )
     .toSorted(
       (left, right) =>
         right.message.receivedAt.getTime() - left.message.receivedAt.getTime()
@@ -564,6 +580,15 @@ export const listMail = async (userId: string, input: ListInput) => {
         !threadIds.has(message.threadId) && !!threadIds.add(message.threadId)
     )
     .slice(0, PAGE_SIZE)
+}
+
+/** Conversations in the inbox as Gmail counts them, held by Fewmail or not. */
+export const countInboxInGmail = async (userId: string, mailboxId?: string) => {
+  const owned = await mailboxesOf(userId, mailboxId)
+  const counts = await Promise.all(
+    owned.map((mailbox) => getLabelCounts(mailbox, 'INBOX'))
+  )
+  return counts.reduce((total, { threadsTotal }) => total + threadsTotal, 0)
 }
 
 /** Unread threads still in the inbox. */

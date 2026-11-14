@@ -222,6 +222,32 @@ export const getProfile = (account: GmailAccount) =>
 
 const LIST_PAGE_MAX = 500
 
+/** One page of emails, newest first by their own date (a thread's emails each count, unlike `threads.list`). */
+export const listMessagePage = async (
+  account: GmailAccount,
+  query: string,
+  max: number,
+  pageToken?: string
+) => {
+  // A search with no match comes back as an empty 204, not `{}`.
+  const page = await gmail<
+    | {
+        messages?: { id: string; threadId: string }[]
+        nextPageToken?: string
+      }
+    | undefined
+  >(
+    account,
+    `/messages?${new URLSearchParams({
+      fields: 'messages(id,threadId),nextPageToken',
+      maxResults: String(Math.min(LIST_PAGE_MAX, max)),
+      q: query,
+      ...(pageToken && { pageToken }),
+    })}`
+  )
+  return { messages: page?.messages ?? [], nextPageToken: page?.nextPageToken }
+}
+
 /** Newest first; pages past Gmail's 500 a request until `max`. */
 export const listMessageIds = async (
   account: GmailAccount,
@@ -231,25 +257,15 @@ export const listMessageIds = async (
   const ids: string[] = []
   let pageToken: string | undefined
   do {
-    // A search with no match comes back as an empty 204, not `{}`.
     // oxlint-disable-next-line eslint/no-await-in-loop -- pages chain via nextPageToken
-    const page = await gmail<
-      | {
-          messages?: { id: string }[]
-          nextPageToken?: string
-        }
-      | undefined
-    >(
+    const page = await listMessagePage(
       account,
-      `/messages?${new URLSearchParams({
-        fields: 'messages/id,nextPageToken',
-        maxResults: String(Math.min(LIST_PAGE_MAX, max - ids.length)),
-        q: query,
-        ...(pageToken && { pageToken }),
-      })}`
+      query,
+      max - ids.length,
+      pageToken
     )
-    ids.push(...(page?.messages ?? []).map(({ id }) => id))
-    pageToken = page?.nextPageToken
+    ids.push(...page.messages.map(({ id }) => id))
+    pageToken = page.nextPageToken
   } while (pageToken && ids.length < max)
   return ids
 }
@@ -432,24 +448,6 @@ export const getThreadSummary = async (
   return messages.map(parseMessage)
 }
 
-/** One page of threads, newest first. */
-export const listThreadIds = async (
-  account: GmailAccount,
-  query: string,
-  max: number
-) => {
-  // A search with no match comes back as an empty 204, not `{}`.
-  const page = await gmail<{ threads?: { id: string }[] } | undefined>(
-    account,
-    `/threads?${new URLSearchParams({
-      fields: 'threads/id',
-      maxResults: String(max),
-      q: query,
-    })}`
-  )
-  return (page?.threads ?? []).map(({ id }) => id)
-}
-
 export const modifyMessage = (
   account: GmailAccount,
   id: string,
@@ -587,6 +585,13 @@ export const listLabels = async (account: GmailAccount) => {
   }>(account, '/labels')
   return labels
 }
+
+/** Gmail's own counts, whatever Fewmail holds. */
+export const getLabelCounts = (account: GmailAccount, id: string) =>
+  gmail<{ threadsTotal: number }>(
+    account,
+    `/labels/${id}?${new URLSearchParams({ fields: 'threadsTotal' })}`
+  )
 
 export const createLabel = (account: GmailAccount, name: string) =>
   gmail<{ id: string; name: string }>(account, '/labels', {

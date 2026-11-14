@@ -880,6 +880,7 @@ export const fr: Messages = {
     pinned: 'Épinglés',
     showAll: (n: number) => `Tout afficher (${n})`,
     showFewer: 'Afficher moins',
+    inGmail: (count: string) => `${count} dans Gmail`,
     oneTimeCode: {
       archive: 'Copier et archiver',
       copied: 'Code copié',

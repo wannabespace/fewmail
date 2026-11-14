@@ -647,6 +647,7 @@ export const nl: Messages = {
     pinned: 'Vastgezet',
     showAll: (n: number) => `Alle ${n} tonen`,
     showFewer: 'Minder tonen',
+    inGmail: (count: string) => `${count} in Gmail`,
     oneTimeCode: {
       archive: 'Kopiëren en archiveren',
       copied: 'Code gekopieerd',

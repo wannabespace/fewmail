@@ -5,7 +5,7 @@ import {
   getMessageSummary,
   getThreadSummary,
   isMissing,
-  listThreadIds,
+  listMessagePage,
 } from '../lib/gmail'
 import type { ParsedMessage } from '../lib/gmail'
 
@@ -13,6 +13,8 @@ type Mailbox = typeof mailboxes.$inferSelect
 
 const OLDER_MAIL_CACHE_MS = 60_000
 const READ_CONCURRENCY = 8
+const MAX_PAGES_READ = 4
+const PAGE_READ = 50
 
 /**
  * A live row's id is a version-8 UUID, which Postgres never generates, holding the mailbox (the first 48 bits of its
@@ -67,49 +69,90 @@ export const forgetOlderMail = (userId: string) => {
 
 const seconds = (date: Date) => Math.floor(date.getTime() / 1000)
 
+interface OlderList {
+  isListed: (message: ParsedMessage) => boolean
+  query: string
+}
+
+/** One page of emails as rows: a thread whose row is newer than `before` is listed already, held or live. */
+const readOlderPage = async (
+  mailbox: Mailbox,
+  { isListed, query }: OlderList,
+  before: Date,
+  pageToken?: string
+) => {
+  const listed = await listMessagePage(mailbox, query, PAGE_READ, pageToken)
+  const threads: ParsedMessage[][] = []
+  await inBatches(
+    [...new Set(listed.messages.map(({ threadId }) => threadId))],
+    READ_CONCURRENCY,
+    async (threadId) => {
+      threads.push(await getThreadSummary(mailbox, threadId))
+    }
+  )
+  const last = listed.messages.at(-1)?.id
+  return {
+    floor: listed.nextPageToken
+      ? threads.flat().find(({ gmailId }) => gmailId === last)?.receivedAt
+      : undefined,
+    nextPageToken: listed.nextPageToken,
+    threads: threads.flatMap((thread) => {
+      // Gmail matches a thread by any of its emails, so its row can be an older email or none.
+      const message = thread.findLast(isListed)
+      return message && message.receivedAt < before
+        ? [{ mailbox, message, thread }]
+        : []
+    }),
+  }
+}
+
 /**
  * A list's threads from before the mailbox's held mail, newest first, each with the newest email `isListed` keeps (its
- * row). Read live from Gmail, cached for a minute, never stored.
+ * row), and `floor`: every thread whose row is from `floor` on is in, older ones are not promised (undefined when Gmail
+ * has nothing older). Read live from Gmail, cached for a minute, never stored.
  */
-export const listOlderThreads = async (
+export const listOlderThreads = (
   mailbox: Mailbox,
-  list: { isListed: (message: ParsedMessage) => boolean; query: string },
-  range: { after?: Date; before?: Date },
-  max: number
+  list: OlderList,
+  range: { after?: Date; before?: Date }
 ) => {
   const before =
     range.before && range.before < mailbox.heldSince
       ? range.before
       : mailbox.heldSince
+  // Gmail's `before:` takes whole seconds: rounded down, it skipped emails from earlier in the cursor's own second.
   const query = [
     list.query,
-    `before:${seconds(before)}`,
+    `before:${seconds(before) + 1}`,
     range.after && `after:${seconds(range.after)}`,
   ]
     .filter(Boolean)
     .join(' ')
-  const threads = await cached(
+  const pageList = { ...list, query }
+  // Emails, not threads: `threads.list` orders by a thread's newest email, so a thread replied to today stood in for a
+  // years-old row and the next page started past every thread between. A page that yields no row would end the list in
+  // the web, so a few more are read.
+  return cached(
     mailbox.userId,
-    `${mailbox.id} ${query}`,
+    `${mailbox.id} ${query} ${before.getTime()}`,
     async () => {
-      const read: ParsedMessage[][] = []
-      await inBatches(
-        await listThreadIds(mailbox, query, max),
-        READ_CONCURRENCY,
-        async (threadId) => {
-          read.push(await getThreadSummary(mailbox, threadId))
-        }
-      )
-      return read
+      let page = await readOlderPage(mailbox, pageList, before)
+      for (
+        let left = MAX_PAGES_READ - 1;
+        left > 0 && page.threads.length === 0 && page.nextPageToken;
+        left -= 1
+      ) {
+        // oxlint-disable-next-line eslint/no-await-in-loop -- pages chain via nextPageToken
+        page = await readOlderPage(
+          mailbox,
+          pageList,
+          before,
+          page.nextPageToken
+        )
+      }
+      return { floor: page.floor, threads: page.threads }
     }
   )
-  // Gmail matches a thread by any of its emails: one whose row is held mail is listed from the database instead.
-  return threads.flatMap((thread) => {
-    const message = thread.findLast(list.isListed)
-    return message && message.receivedAt < before
-      ? [{ mailbox, message, thread }]
-      : []
-  })
 }
 
 /** Found mail Fewmail does not hold, read live and cached like the lists. */

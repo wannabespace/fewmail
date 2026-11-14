@@ -374,6 +374,7 @@ export const ja: Messages = {
     pinned: 'ピン留め',
     showAll: (n: number) => `すべて表示（${n}）`,
     showFewer: '折りたたむ',
+    inGmail: (count: string) => `Gmail に ${count} 件`,
     oneTimeCode: {
       archive: 'コピーしてアーカイブ',
       copied: 'コードをコピーしました',

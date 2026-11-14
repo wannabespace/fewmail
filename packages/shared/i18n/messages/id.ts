@@ -632,6 +632,7 @@ export const id: Messages = {
     pinned: 'Disematkan',
     showAll: (n: number) => `Tampilkan semua ${n}`,
     showFewer: 'Tampilkan lebih sedikit',
+    inGmail: (count: string) => `${count} di Gmail`,
     oneTimeCode: {
       archive: 'Salin dan arsipkan',
       copied: 'Kode disalin',

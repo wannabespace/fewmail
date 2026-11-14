@@ -626,6 +626,7 @@ export const tr: Messages = {
     pinned: 'Sabitlenenler',
     showAll: (n: number) => `${n} öğenin tümünü göster`,
     showFewer: 'Daha az göster',
+    inGmail: (count: string) => `${count} Gmail’de`,
     oneTimeCode: {
       archive: 'Kopyala ve arşivle',
       copied: 'Kod kopyalandı',

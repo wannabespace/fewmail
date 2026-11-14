@@ -658,6 +658,7 @@ export const pl: Messages = {
     pinned: 'Przypięte',
     showAll: (n: number) => `Pokaż wszystkie (${n})`,
     showFewer: 'Pokaż mniej',
+    inGmail: (count: string) => `${count} w Gmailu`,
     oneTimeCode: {
       archive: 'Kopiuj i archiwizuj',
       copied: 'Skopiowano kod',
