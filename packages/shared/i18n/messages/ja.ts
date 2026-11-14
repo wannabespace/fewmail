@@ -1605,7 +1605,6 @@ export const ja: Messages = {
       since: 'まとめの後',
     },
     digest: (n: number) => `今日のメルマガ: ${n}件`,
-    empty: '直近1日にメルマガはありません。',
     lead: '直近1日のメルマガを1か所に。受信トレイを埋めません。',
     title: 'リーディング',
   },

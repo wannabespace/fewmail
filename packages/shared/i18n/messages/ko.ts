@@ -1584,7 +1584,6 @@ export const ko: Messages = {
       since: '요약 후 도착',
     },
     digest: (n: number) => `오늘의 뉴스레터: ${n}개`,
-    empty: '지난 하루 동안 받은 뉴스레터가 없어요.',
     lead: '지난 하루의 뉴스레터를 한곳에 모아 받은편지함을 비워 둬요.',
     title: '읽을거리',
   },

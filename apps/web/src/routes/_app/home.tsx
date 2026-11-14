@@ -73,7 +73,7 @@ import { ListenButton } from '~/components/listen-button'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { openCardLink, primaryStep, QueueCard } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
-import { ReadingBrief, ReadingView, useReading } from '~/components/reading'
+import { ReadingSection, useReading } from '~/components/reading'
 import {
   CodeActions,
   MailRowActions,
@@ -896,7 +896,6 @@ const pageHints = (
               ['⏎', t.keys.open],
             ] as [string, string][])
           : []),
-        ['N', t.nav.home],
         ['esc', t.keys.close],
       ]
 
@@ -993,7 +992,9 @@ const homeHints = (
         ]
       : []),
     ['H', t.today.journal.title],
-    ['N', t.reading.title],
+    ...(state.newsletters > 0
+      ? [['N', t.reading.title] as [string, string]]
+      : []),
     ...(state.today?.codes.length
       ? [['Y', t.mail.oneTimeCode.copy] as [string, string]]
       : []),
@@ -1038,7 +1039,7 @@ const useVisits = (onVisit: () => Promise<unknown>) => {
 }
 
 /** Today's strip under the headline: the calendar's events left today and tomorrow. */
-const DayStrip = ({ canListen }: { canListen: boolean }) => {
+const DayStrip = () => {
   const t = useT()
   const dates = useDates()
   const { data: events = [] } = useQuery(
@@ -1048,7 +1049,7 @@ const DayStrip = ({ canListen }: { canListen: boolean }) => {
         calendar.events.filter((event) => eventTimes(event).end > new Date()),
     })
   )
-  if (events.length === 0 && !canListen) {
+  if (events.length === 0) {
     return null
   }
 
@@ -1080,11 +1081,6 @@ const DayStrip = ({ canListen }: { canListen: boolean }) => {
           </Button>
         )
       })}
-      {canListen && (
-        <span className="ml-auto">
-          <ListenButton path="/voice/home" />
-        </span>
-      )}
     </div>
   )
 }
@@ -1135,7 +1131,10 @@ const HomeHeader = ({
             {t.today.readingNow(data.reading)}
           </span>
         )}
-        {!hasTally(data) && <JournalLink />}
+        <div className="ml-auto flex items-center gap-1">
+          {!hasTally(data) && <JournalLink />}
+          {decisions > 0 && <ListenButton path="/voice/home" />}
+        </div>
       </div>
       {data ? (
         <h1 className="text-display font-serif tracking-tight">
@@ -1154,7 +1153,7 @@ const HomeHeader = ({
           <p className="text-brief text-foreground/80 font-serif">{lead}</p>
         )
       )}
-      <DayStrip canListen={decisions > 0} />
+      <DayStrip />
     </header>
   )
 }
@@ -1385,15 +1384,21 @@ const countDecisions = (data: Today | undefined, cards: number) =>
       Math.min(data.tidy.length, 1)
     : 0
 
-/** Journal (`H`) and Reading (`N`) take Home's column in turn; the same key or esc brings Home back. */
-const useHomeSubpage = (page: HomeSubpage | undefined, canSwitch: boolean) => {
+/** The journal (`H`) takes Home's column and Reading (`N`) unfolds in it; the same key or esc brings Home back. */
+const useHomeSubpage = (
+  page: HomeSubpage | undefined,
+  canSwitch: boolean,
+  hasNewsletters: boolean
+) => {
   const navigate = useNavigate()
   const show = (next: HomeSubpage | undefined) =>
     navigate({ search: (prev) => ({ ...prev, page: next }), to: '/home' })
   const toggle = (next: HomeSubpage) => show(page === next ? undefined : next)
   useHotkey('Escape', () => show(undefined), { enabled: canSwitch && !!page })
   useHotkey('H', () => toggle('journal'), { enabled: canSwitch })
-  useHotkey('N', () => toggle('reading'), { enabled: canSwitch })
+  useHotkey('N', () => toggle('reading'), {
+    enabled: canSwitch && hasNewsletters,
+  })
 }
 
 const isAllClear = (data: Today | undefined, decisions: number) =>
@@ -1641,7 +1646,7 @@ const HomePage = () => {
     navigate({ search: (prev) => ({ ...prev, thread: id }), to: '/home' })
   // The open thread brings its own R, E, S, H and ⌫.
   const isWalking = !isEditing && !thread && !page
-  useHomeSubpage(page, !isEditing && !thread)
+  useHomeSubpage(page, !isEditing && !thread, newsletters.length > 0)
   const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), listKeys)
   useHotkey('ArrowDown', () => move(1), listKeys)
@@ -1697,10 +1702,13 @@ const HomePage = () => {
   )
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       {thread && (
         <Reader
-          isReading={page === 'reading'}
+          isReading={
+            page === 'reading' &&
+            newsletters.some(({ threadId }) => threadId === thread)
+          }
           thread={thread}
           onClose={() => showThread(undefined)}
         />
@@ -1710,8 +1718,7 @@ const HomePage = () => {
           <div className="h-full overflow-y-auto">
             <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
               {page === 'journal' && <Journal />}
-              {page === 'reading' && <ReadingView thread={thread} />}
-              {!page && (
+              {page !== 'journal' && (
                 <>
                   <HomeHeader
                     data={data}
@@ -1721,7 +1728,7 @@ const HomePage = () => {
                   />
                   <Tally today={data} />
                   <ConnectHint />
-                  <ReadingBrief />
+                  <ReadingSection isOpen={page === 'reading'} thread={thread} />
 
                   <section
                     aria-label={t.today.decisions}

@@ -1665,7 +1665,6 @@ export const es: Messages = {
       since: 'Después del resumen',
     },
     digest: (n: number) => `Boletines de hoy: ${n}`,
-    empty: 'No hubo boletines en el último día.',
     lead: 'Los boletines del último día en un solo lugar, para que no llenen la bandeja.',
     title: 'Lectura',
   },

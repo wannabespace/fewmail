@@ -448,7 +448,6 @@ export const id: Messages = {
       since: 'Setelah ringkasan',
     },
     digest: (n: number) => `Newsletter hari ini: ${n}`,
-    empty: 'Tidak ada newsletter dalam sehari terakhir.',
     lead: 'Newsletter sehari terakhir di satu tempat, agar tidak memenuhi kotak masuk.',
     title: 'Bacaan',
   },

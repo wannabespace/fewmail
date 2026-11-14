@@ -1687,7 +1687,6 @@ export const fr: Messages = {
       since: 'Après le résumé',
     },
     digest: (n: number) => `Newsletters du jour : ${n}`,
-    empty: 'Aucune newsletter ces dernières 24 heures.',
     lead: 'Les newsletters du dernier jour au même endroit, pour qu’elles n’encombrent pas la boîte de réception.',
     title: 'Lecture',
   },

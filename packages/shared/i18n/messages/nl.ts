@@ -458,7 +458,6 @@ export const nl: Messages = {
       since: 'Na de samenvatting',
     },
     digest: (n: number) => `Nieuwsbrieven vandaag: ${n}`,
-    empty: 'Geen nieuwsbrieven in de afgelopen dag.',
     lead: 'De nieuwsbrieven van de afgelopen dag op één plek, zodat ze je inbox niet vullen.',
     title: 'Lezen',
   },

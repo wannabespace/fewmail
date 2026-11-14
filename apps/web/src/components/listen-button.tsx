@@ -40,7 +40,7 @@ export const ListenButton = ({ path }: { path: string }) => {
   }
 
   return (
-    <Button size="sm" variant="secondary" onClick={toggle}>
+    <Button size="sm" variant="ghost-muted" onClick={toggle}>
       {state === 'loading' ? (
         <Spinner />
       ) : (

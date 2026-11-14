@@ -499,7 +499,6 @@ export const en = {
       since: 'Since the summary',
     },
     digest: (n: number) => `${n} newsletters today`,
-    empty: 'No newsletters in the last day.',
     lead: 'The last day of newsletters in one place, so they never crowd the inbox.',
     title: 'Reading',
   },

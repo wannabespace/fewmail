@@ -468,7 +468,6 @@ export const pl: Messages = {
       since: 'Po podsumowaniu',
     },
     digest: (n: number) => `Newslettery dziś: ${n}`,
-    empty: 'W ostatniej dobie nie było newsletterów.',
     lead: 'Newslettery z ostatniej doby w jednym miejscu, żeby nie zaśmiecały skrzynki.',
     title: 'Czytanie',
   },

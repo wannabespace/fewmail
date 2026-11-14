@@ -1553,7 +1553,6 @@ export const zh: Messages = {
       since: '摘要之后',
     },
     digest: (n: number) => `今日订阅邮件：${n} 封`,
-    empty: '过去一天没有订阅邮件。',
     lead: '过去一天的订阅邮件集中在一处，不再挤满收件箱。',
     title: '阅读',
   },

@@ -443,7 +443,6 @@ export const tr: Messages = {
       since: 'Özetten sonra',
     },
     digest: (n: number) => `Bugünkü bültenler: ${n}`,
-    empty: 'Son günde bülten gelmedi.',
     lead: 'Son günün bültenleri tek yerde, gelen kutusunu doldurmasınlar diye.',
     title: 'Okuma',
   },
