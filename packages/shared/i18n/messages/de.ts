@@ -860,6 +860,8 @@ export const de: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} in dieser Unterhaltung`,
+    burstHint: (emails: string) =>
+      `Keine Unterhaltung: ${emails} von diesem Absender, zusammengefasst, weil sie kurz nacheinander kamen`,
     draftDeleted: 'Entwurf gelöscht',
     unsubscribeConfirm: (name: string) => `Von ${name} abmelden?`,
     unsubscribeHint:
@@ -885,6 +887,7 @@ export const de: Messages = {
     filterAbout: {
       focused: 'Wichtiges und Menschen zuerst, Hinweise eingeklappt',
       unread: 'Was du noch nicht gelesen hast, nach Art',
+      categories: 'Der ganze Posteingang nach Art, was dich braucht zuerst',
       inbox: 'Alles, Neuestes zuerst',
     },
     find: {
@@ -953,6 +956,7 @@ export const de: Messages = {
     noResultsHint: 'Versuch andere Wörter oder einen anderen Ordner.',
     expectsReply: 'Erwartet Antwort',
     filter: {
+      categories: 'Kategorien',
       archive: 'Archiv',
       trash: 'Papierkorb',
       drafts: 'Entwürfe',

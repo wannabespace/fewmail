@@ -366,6 +366,8 @@ export const hi: Messages = {
   },
   mail: {
     inThread: (emails: string) => `इस बातचीत में ${emails}`,
+    burstHint: (emails: string) =>
+      `यह एक बातचीत नहीं है: इस भेजने वाले के ${emails}, साथ रखे गए क्योंकि लगभग एक साथ आए`,
     draftDeleted: 'ड्राफ़्ट हटाया गया',
     unsubscribeConfirm: (name: string) => `${name} से अनसब्सक्राइब करें?`,
     unsubscribeHint:
@@ -391,6 +393,7 @@ export const hi: Messages = {
     filterAbout: {
       focused: 'पहले ज़रूरी मेल और लोग, सूचनाएँ समेटी हुई',
       unread: 'जो आपने अभी नहीं पढ़ा, प्रकार के अनुसार',
+      categories: 'पूरा इनबॉक्स प्रकार के अनुसार, जिसे आपकी ज़रूरत है वह पहले',
       inbox: 'सब कुछ, नया सबसे ऊपर',
     },
     find: {
@@ -460,6 +463,7 @@ export const hi: Messages = {
     noResultsHint: 'दूसरे शब्द या दूसरा फ़ोल्डर आज़माएँ।',
     expectsReply: 'जवाब की उम्मीद है',
     filter: {
+      categories: 'श्रेणियाँ',
       archive: 'संग्रह',
       trash: 'ट्रैश',
       drafts: 'ड्राफ़्ट',

@@ -626,6 +626,8 @@ export const id: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} dalam percakapan ini`,
+    burstHint: (emails: string) =>
+      `Bukan satu percakapan: ${emails} dari pengirim ini, dikelompokkan karena datang hampir bersamaan`,
     draftDeleted: 'Draf dihapus',
     unsubscribeConfirm: (name: string) => `Berhenti berlangganan dari ${name}?`,
     unsubscribeHint:
@@ -651,6 +653,7 @@ export const id: Messages = {
     filterAbout: {
       focused: 'Yang penting dan orang dulu, pemberitahuan dilipat',
       unread: 'Yang belum kamu baca, per jenis',
+      categories: 'Seluruh kotak masuk per jenis, yang butuh kamu dulu',
       inbox: 'Semua, terbaru di atas',
     },
     find: {
@@ -721,6 +724,7 @@ export const id: Messages = {
     noResultsHint: 'Coba kata lain atau folder lain.',
     expectsReply: 'Menunggu balasan',
     filter: {
+      categories: 'Kategori',
       archive: 'Arsip',
       trash: 'Sampah',
       drafts: 'Draf',

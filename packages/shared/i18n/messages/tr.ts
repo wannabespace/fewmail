@@ -621,6 +621,8 @@ export const tr: Messages = {
   },
   mail: {
     inThread: (emails: string) => `Bu konuşmada ${emails}`,
+    burstHint: (emails: string) =>
+      `Tek bir konuşma değil: bu göndericiden neredeyse aynı anda gelen ${emails}, kolaylık için gruplandı`,
     draftDeleted: 'Taslak silindi',
     unsubscribeConfirm: (name: string) => `${name} aboneliğinden çıkılsın mı?`,
     unsubscribeHint:
@@ -646,6 +648,7 @@ export const tr: Messages = {
     filterAbout: {
       focused: 'Önce önemli postalar ve kişiler, bildirimler katlanmış',
       unread: 'Henüz okumadıkların, türe göre',
+      categories: 'Tüm gelen kutusu türe göre, seni bekleyenler önce',
       inbox: 'Hepsi, en yenisi üstte',
     },
     find: {
@@ -715,6 +718,7 @@ export const tr: Messages = {
     noResultsHint: 'Başka kelimeler ya da başka bir klasör dene.',
     expectsReply: 'Yanıt bekliyor',
     filter: {
+      categories: 'Kategoriler',
       archive: 'Arşiv',
       trash: 'Çöp kutusu',
       drafts: 'Taslaklar',

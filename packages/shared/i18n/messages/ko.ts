@@ -365,6 +365,8 @@ export const ko: Messages = {
   },
   mail: {
     inThread: (emails: string) => `이 대화에 ${emails}`,
+    burstHint: (emails: string) =>
+      `하나의 대화가 아니에요: 거의 동시에 도착한 이 발신자의 ${emails}를 묶었어요`,
     draftDeleted: '임시 보관 메일을 삭제했어요',
     unsubscribeConfirm: (name: string) => `${name} 구독을 취소할까요?`,
     unsubscribeHint:
@@ -390,6 +392,7 @@ export const ko: Messages = {
     filterAbout: {
       focused: '중요한 메일과 사람 먼저, 알림은 접어서',
       unread: '아직 읽지 않은 메일을 종류별로',
+      categories: '받은편지함 전체를 종류별로, 확인이 필요한 메일 먼저',
       inbox: '전체, 최신순',
     },
     find: {
@@ -458,6 +461,7 @@ export const ko: Messages = {
     noResultsHint: '다른 단어나 다른 폴더로 찾아보세요.',
     expectsReply: '답장을 기다림',
     filter: {
+      categories: '카테고리',
       archive: '보관함',
       trash: '휴지통',
       drafts: '임시보관함',

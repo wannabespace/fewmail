@@ -859,6 +859,8 @@ export const uk: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} у цій розмові`,
+    burstHint: (emails: string) =>
+      `Не одна розмова: ${emails} від цього відправника, згруповано, бо прийшли майже разом`,
     draftDeleted: 'Чернетку видалено',
     unsubscribeConfirm: (name: string) => `Відписатися від ${name}?`,
     unsubscribeHint:
@@ -884,6 +886,7 @@ export const uk: Messages = {
     filterAbout: {
       focused: 'Спершу важливе й люди, сповіщення згорнуті',
       unread: 'Ще не прочитане, за видами',
+      categories: 'Уся пошта за видами, спершу та, що чекає на тебе',
       inbox: 'Усе, найновіше зверху',
     },
     find: {
@@ -952,6 +955,7 @@ export const uk: Messages = {
     noResultsHint: 'Спробуй інші слова або іншу папку.',
     expectsReply: 'Чекає на відповідь',
     filter: {
+      categories: 'Категорії',
       archive: 'Архів',
       trash: 'Кошик',
       drafts: 'Чернетки',

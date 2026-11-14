@@ -361,6 +361,8 @@ export const zh: Messages = {
   },
   mail: {
     inThread: (emails: string) => `此会话共 ${emails}`,
+    burstHint: (emails: string) =>
+      `这不是一个会话：这位发件人几乎同时发来的 ${emails}，为方便归在一起`,
     draftDeleted: '草稿已删除',
     unsubscribeConfirm: (name: string) => `退订 ${name}？`,
     unsubscribeHint: 'Fewmail 会退出该列表并归档这个会话。退订无法撤销。',
@@ -385,6 +387,7 @@ export const zh: Messages = {
     filterAbout: {
       focused: '重要邮件和联系人优先，通知折叠',
       unread: '还没读的邮件，按类型分组',
+      categories: '整个收件箱按类型分组，需要你处理的在前',
       inbox: '全部，最新在前',
     },
     find: {
@@ -453,6 +456,7 @@ export const zh: Messages = {
     noResultsHint: '换个词或换个文件夹试试。',
     expectsReply: '等待回复',
     filter: {
+      categories: '分类',
       archive: '归档',
       trash: '回收站',
       drafts: '草稿',

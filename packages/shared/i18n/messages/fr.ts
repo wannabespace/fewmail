@@ -869,6 +869,8 @@ export const fr: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} dans cette conversation`,
+    burstHint: (emails: string) =>
+      `Pas une conversation : ${emails} de cet expéditeur, regroupés car ils sont arrivés presque ensemble`,
     draftDeleted: 'Brouillon supprimé',
     unsubscribeConfirm: (name: string) => `Se désabonner de ${name} ?`,
     unsubscribeHint:
@@ -898,6 +900,7 @@ export const fr: Messages = {
     filterAbout: {
       focused: 'L’important et les personnes d’abord, notifications repliées',
       unread: 'Ce que tu n’as pas encore lu, par type',
+      categories: 'Toute la boîte par type, ce qui t’attend d’abord',
       inbox: 'Tout, le plus récent en haut',
     },
     find: {
@@ -967,6 +970,7 @@ export const fr: Messages = {
     noResultsHint: 'Essayez d’autres mots ou un autre dossier.',
     expectsReply: 'Attend une réponse',
     filter: {
+      categories: 'Catégories',
       archive: 'Archives',
       trash: 'Corbeille',
       drafts: 'Brouillons',

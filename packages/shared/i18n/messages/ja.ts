@@ -366,6 +366,8 @@ export const ja: Messages = {
   },
   mail: {
     inThread: (emails: string) => `この会話に${emails}`,
+    burstHint: (emails: string) =>
+      `1つの会話ではありません: 近い時間に届いた、この送信者からの${emails}をまとめています`,
     draftDeleted: '下書きを削除しました',
     unsubscribeConfirm: (name: string) => `${name}の配信を停止しますか？`,
     unsubscribeHint:
@@ -391,6 +393,7 @@ export const ja: Messages = {
     filterAbout: {
       focused: '重要なメールと人を先に、通知はまとめて',
       unread: 'まだ読んでいないメールを種類別に',
+      categories: '受信トレイ全体を種類別に、対応が必要なものを先に',
       inbox: 'すべて、新しい順',
     },
     find: {
@@ -459,6 +462,7 @@ export const ja: Messages = {
     noResultsHint: '別の言葉や別のフォルダーで試してください。',
     expectsReply: '返信待ち',
     filter: {
+      categories: 'カテゴリ',
       archive: 'アーカイブ',
       trash: 'ゴミ箱',
       drafts: '下書き',

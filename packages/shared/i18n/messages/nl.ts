@@ -641,6 +641,8 @@ export const nl: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} in dit gesprek`,
+    burstHint: (emails: string) =>
+      `Geen gesprek: ${emails} van deze afzender, gebundeld omdat ze kort na elkaar kwamen`,
     draftDeleted: 'Concept verwijderd',
     unsubscribeConfirm: (name: string) => `Afmelden bij ${name}?`,
     unsubscribeHint:
@@ -666,6 +668,7 @@ export const nl: Messages = {
     filterAbout: {
       focused: 'Belangrijk en mensen eerst, meldingen ingeklapt',
       unread: 'Wat je nog niet hebt gelezen, per soort',
+      categories: 'De hele inbox per soort, wat jou nodig heeft eerst',
       inbox: 'Alles, nieuwste eerst',
     },
     find: {
@@ -734,6 +737,7 @@ export const nl: Messages = {
     noResultsHint: 'Probeer andere woorden of een andere map.',
     expectsReply: 'Verwacht antwoord',
     filter: {
+      categories: 'Categorieën',
       archive: 'Archief',
       trash: 'Prullenbak',
       drafts: 'Concepten',

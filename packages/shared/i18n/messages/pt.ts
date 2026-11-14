@@ -639,6 +639,8 @@ export const pt: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} nesta conversa`,
+    burstHint: (emails: string) =>
+      `Não é uma conversa: ${emails} deste remetente, agrupados porque chegaram quase juntos`,
     draftDeleted: 'Rascunho excluído',
     unsubscribeConfirm: (name: string) => `Cancelar inscrição de ${name}?`,
     unsubscribeHint:
@@ -668,6 +670,7 @@ export const pt: Messages = {
     filterAbout: {
       focused: 'O importante e as pessoas primeiro, avisos recolhidos',
       unread: 'O que você ainda não leu, por tipo',
+      categories: 'A caixa inteira por tipo, o que precisa de você primeiro',
       inbox: 'Tudo, mais recentes primeiro',
     },
     find: {
@@ -737,6 +740,7 @@ export const pt: Messages = {
     noResultsHint: 'Tente outras palavras ou outra pasta.',
     expectsReply: 'Aguarda resposta',
     filter: {
+      categories: 'Categorias',
       archive: 'Arquivo',
       trash: 'Lixeira',
       drafts: 'Rascunhos',

@@ -635,6 +635,8 @@ export const en = {
   },
   mail: {
     inThread: (emails: string) => `${emails} in this conversation`,
+    burstHint: (emails: string) =>
+      `Not one conversation: ${emails} from this sender, grouped because they came close together`,
     draftDeleted: 'Draft deleted',
     unsubscribeConfirm: (name: string) => `Unsubscribe from ${name}?`,
     unsubscribeHint:
@@ -660,6 +662,7 @@ export const en = {
     filterAbout: {
       focused: 'Important mail and people first, notifications folded away',
       unread: 'What you have not read yet, sorted by kind',
+      categories: 'The whole inbox by kind, mail that needs you first',
       inbox: 'Everything, newest first',
     },
     find: {
@@ -728,6 +731,7 @@ export const en = {
     noResultsHint: 'Try other words, or look in another folder.',
     expectsReply: 'Expects a reply',
     filter: {
+      categories: 'Categories',
       archive: 'Archive',
       trash: 'Trash',
       drafts: 'Drafts',

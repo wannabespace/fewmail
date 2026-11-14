@@ -59,6 +59,7 @@ import {
   ArrowDown01Icon,
   ArrowLeft01Icon,
   Clock01Icon,
+  DashboardSquare01Icon,
   Delete02Icon,
   FileEditIcon,
   FlashIcon,
@@ -141,10 +142,11 @@ import {
 import type { MailList, MailRow as MailRowData } from '~/lib/mail-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 import { STILL_POINTER_GUARD } from '~/lib/still-pointer'
 import { toastDeferred } from '~/lib/undo'
 
-const INBOX_VIEWS = ['focused', 'unread', 'inbox'] as const
+const INBOX_VIEWS = ['focused', 'unread', 'categories', 'inbox'] as const
 
 type InboxView = (typeof INBOX_VIEWS)[number]
 
@@ -159,6 +161,7 @@ const isInboxView = (filter: Filter): filter is InboxView =>
 
 const FILTER_ICONS: Record<Filter, IconSvgElement> = {
   archive: Archive02Icon,
+  categories: DashboardSquare01Icon,
   drafts: FileEditIcon,
   focused: FlashIcon,
   inbox: InboxIcon,
@@ -171,6 +174,7 @@ const FILTER_ICONS: Record<Filter, IconSvgElement> = {
 /** Unread also lists the inbox's read mail, under Read, and reaches unread threads older than the inbox's newest page. */
 const LISTS_OF: Record<Exclude<Filter, 'drafts'>, MailList[]> = {
   archive: ['archive'],
+  categories: ['inbox'],
   focused: ['inbox'],
   inbox: ['inbox'],
   snoozed: ['snoozed'],
@@ -182,7 +186,7 @@ const LISTS_OF: Record<Exclude<Filter, 'drafts'>, MailList[]> = {
 const inboxViewStore = createWebStorageValue({
   defaultValue: 'focused' as InboxView,
   key: 'fewmail.inbox-view',
-  schema: type("'focused' | 'unread' | 'inbox'"),
+  schema: type("'focused' | 'unread' | 'categories' | 'inbox'"),
   type: 'localStorage',
 })
 
@@ -277,10 +281,12 @@ const readerWidthStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-type Grouping = 'focused' | 'unread' | 'none'
+type Grouping = 'focused' | 'unread' | 'categories' | 'none'
 
 const groupingOf = (filter: Filter): Grouping =>
-  filter === 'focused' || filter === 'unread' ? filter : 'none'
+  filter === 'focused' || filter === 'unread' || filter === 'categories'
+    ? filter
+    : 'none'
 
 const GROUPS = [
   'important',
@@ -294,7 +300,22 @@ const GROUPS = [
   'read',
 ] as const
 
-type GroupKey = (typeof GROUPS)[number]
+/** Mail that needs the user leads; `other` also holds mail never analysed. */
+const CATEGORY_GROUPS = [
+  'security',
+  'person',
+  'work',
+  'finance',
+  'receipt',
+  'calendar',
+  'travel',
+  'notification',
+  'newsletter',
+  'promotion',
+  'other',
+] as const satisfies readonly MailCategory[]
+
+type GroupKey = (typeof GROUPS)[number] | MailCategory
 
 const GROUP_OF: Record<MailCategory, GroupKey> = {
   calendar: 'plans',
@@ -323,6 +344,9 @@ const groupKeyOf = (
   { analysis, message }: ListedRow,
   keptUnread: KeptUnread
 ): GroupKey => {
+  if (grouping === 'categories') {
+    return message.risk ? 'security' : (analysis?.category ?? 'other')
+  }
   if (
     grouping === 'unread' &&
     !message.isUnread &&
@@ -359,7 +383,9 @@ const groupRows = <Row extends ListedRow>(
   const byKey = Map.groupBy(rows, (row) =>
     groupKeyOf(grouping, row, keptUnread)
   )
-  const keys = GROUPS.filter((key) => byKey.has(key))
+  const order: readonly GroupKey[] =
+    grouping === 'categories' ? CATEGORY_GROUPS : GROUPS
+  const keys = order.filter((key) => byKey.has(key))
   // The last group never folds: the list pages on as it scrolls, and a folded last group ended it at Show all.
   return keys.map((key) => {
     const members = byKey.get(key) ?? []
@@ -482,6 +508,16 @@ const MailPeek = () => {
   )
 }
 
+/** Each email of a stack keeps its own chips: the stack's header shows none, or one email's amount reads as the whole stack's. */
+type BurstEmail = ListedMessage & {
+  extracted?: NonNullable<ListedRow['analysis']>['extracted']
+}
+
+const burstEmailOf = ({ analysis, message }: ListedRow): BurstEmail => ({
+  ...message,
+  extracted: analysis?.extracted,
+})
+
 const burstWeightOf = ({ analysis, message }: ListedRow) =>
   message.risk ? Infinity : (analysis?.importance ?? -1)
 
@@ -490,8 +526,7 @@ const collapseBursts = <Row extends ListedRow>(
   rows: Row[],
   expanded: ReadonlySet<string>
 ) => {
-  const collapsed: (Row & { burst: ListedMessage[]; messageIds: string[] })[] =
-    []
+  const collapsed: (Row & { burst: BurstEmail[]; messageIds: string[] })[] = []
   let previous: Row | undefined
   for (const row of rows) {
     const head = collapsed.at(-1)
@@ -503,7 +538,7 @@ const collapseBursts = <Row extends ListedRow>(
       differenceInMinutes(previous.message.receivedAt, row.message.receivedAt) <
         BURST_MINUTES
     ) {
-      head.burst.push(row.message)
+      head.burst.push(burstEmailOf(row))
       head.messageIds.push(row.message.id)
       head.message.isUnread ||= row.message.isUnread
       // The stack's group, label and warning are its most important email's, or an urgent or fraud one hides under a newer one.
@@ -514,7 +549,7 @@ const collapseBursts = <Row extends ListedRow>(
     } else {
       collapsed.push({
         ...row,
-        burst: [row.message],
+        burst: [burstEmailOf(row)],
         message: { ...row.message },
         messageIds: [row.message.id],
       })
@@ -591,7 +626,9 @@ const GroupHeader = ({
   const t = useT()
   return (
     <ListRow item={item} className={GROUP_HEADER}>
-      <span className="truncate">{t.mail.group[group.key]}</span>
+      <span className="truncate">
+        {{ ...t.category, ...t.mail.group }[group.key]}
+      </span>
       <span className="tabular-nums opacity-60">{group.total}</span>
       <span className="ml-auto" />
       {onMarkRead && (
@@ -656,6 +693,7 @@ const InGmailCount = ({
 type SketchLine = 'group' | 'unread' | 'read' | 'urgent' | 'quiet'
 
 const VIEW_SKETCHES: Record<InboxView, SketchLine[]> = {
+  categories: ['group', 'urgent', 'group', 'unread', 'group', 'read', 'group'],
   focused: ['group', 'urgent', 'unread', 'group', 'quiet', 'quiet'],
   inbox: ['unread', 'read', 'unread', 'read', 'read'],
   unread: ['group', 'unread', 'unread', 'group', 'unread', 'group', 'read'],
@@ -727,8 +765,8 @@ const ViewPicker = ({
         />
       </PopoverTrigger>
       {/* Focus lands on the picked view: a focus ring on the first card read as a second pick. */}
-      <PopoverContent align="start" className="w-120" initialFocus={active}>
-        <div className="grid grid-cols-3 gap-2">
+      <PopoverContent align="start" className="w-160" initialFocus={active}>
+        <div className="grid grid-cols-4 gap-2">
           {INBOX_VIEWS.map((value) => (
             <button
               key={value}
@@ -800,13 +838,16 @@ const MailboxSelect = ({
 }
 
 const MailRowMeta = ({
+  hidesCategory,
   insight,
   message,
 }: {
+  hidesCategory: boolean
   insight: MailRowData['analysis']
   message: MailRowData['message']
 }) => {
   const t = useT()
+  const category = hidesCategory ? undefined : insight?.category
   return (
     // Wrapping onto a clipped second line drops what does not fit whole; a clipped single line cut a chip in half.
     <span
@@ -816,7 +857,7 @@ const MailRowMeta = ({
       )}
     >
       {insight && <ExtractedChips extracted={insight.extracted} size="sm" />}
-      {insight?.category === 'security' ? (
+      {category === 'security' ? (
         <span className="text-destructive flex items-center gap-1 font-medium">
           <HugeiconsIcon
             icon={Shield01Icon}
@@ -826,7 +867,7 @@ const MailRowMeta = ({
           {t.category.security}
         </span>
       ) : (
-        insight && <span>{t.category[insight.category]}</span>
+        category && <span>{t.category[category]}</span>
       )}
       {insight?.needsReply && (
         <span className="text-primary">· {t.mail.expectsReply}</span>
@@ -1191,7 +1232,7 @@ const BurstList = ({
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
-  burst: ListedMessage[]
+  burst: BurstEmail[]
   canPeek: boolean
   canSnooze: boolean
   onOpenEmail: (message: ListedMessage) => void
@@ -1241,6 +1282,11 @@ const BurstList = ({
             >
               {email.subject}
             </span>
+            {email.extracted && (
+              <span className="ease-house flex shrink-0 items-center gap-1.5 transition-opacity duration-150 group-hover/line:opacity-0 group-has-data-popup-open/line:opacity-0 empty:hidden">
+                <ExtractedChips extracted={email.extracted} size="sm" />
+              </span>
+            )}
             {!email.code && (
               <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
                 {dates.format(
@@ -1307,6 +1353,7 @@ const RowWarning = ({ message }: { message: ListedMessage }) => {
 const MailRow = ({
   actions,
   canSnooze,
+  hidesCategory = false,
   isCursor,
   isOpen,
   isPicked,
@@ -1324,6 +1371,7 @@ const MailRow = ({
 }: {
   actions: ReturnType<typeof useMailActions>
   canSnooze: boolean
+  hidesCategory?: boolean
   isCursor: boolean
   isOpen: boolean
   isPicked: boolean
@@ -1336,7 +1384,7 @@ const MailRow = ({
   onSnoozeOpenChange: (open: boolean) => void
   openEmailThread: string | undefined
   peek: ReactNode
-  row: ListedRow & { burst?: ListedMessage[]; messageIds: string[] }
+  row: ListedRow & { burst?: BurstEmail[]; messageIds: string[] }
   sweep: Sweep
 }) => {
   const t = useT()
@@ -1391,12 +1439,29 @@ const MailRow = ({
               </TooltipContent>
             </Tooltip>
           )}
-          {isBurst && (
-            <span className="text-muted-foreground shrink-0 text-xs">
-              {t.cleanup.emails(messageIds.length)}
-            </span>
+          {isBurst ? (
+            <>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <span className="text-muted-foreground shrink-0 text-xs" />
+                  }
+                >
+                  {t.cleanup.emails(messageIds.length)}
+                </TooltipTrigger>
+                <TooltipContent>
+                  {t.mail.burstHint(t.cleanup.emails(messageIds.length))}
+                </TooltipContent>
+              </Tooltip>
+              <span className="flex-1" />
+            </>
+          ) : (
+            <MailRowMeta
+              hidesCategory={hidesCategory}
+              insight={analysis}
+              message={message}
+            />
           )}
-          <MailRowMeta insight={analysis} message={message} />
           <span
             className={cn(
               'shrink-0 text-xs tabular-nums',
@@ -2649,6 +2714,7 @@ const MailPage = () => {
   const showFilter = (next: Filter) => {
     if (isInboxView(next)) {
       inboxViewStore.set(next)
+      posthog.capture('mail_view_picked', { view: next })
     }
     return navigate({
       search: (prev) => ({
@@ -2706,6 +2772,7 @@ const MailPage = () => {
             row={row}
             actions={actions}
             canSnooze={canSnooze}
+            hidesCategory={grouping === 'categories'}
             isCursor={index === cursor}
             isOpen={
               row.messageIds.length > 1
@@ -2929,7 +2996,7 @@ export const Route = createFileRoute('/_app/mail')({
   component: MailPage,
   validateSearch: type({
     'filter?':
-      "'focused' | 'unread' | 'inbox' | 'snoozed' | 'drafts' | 'archive' | 'spam' | 'trash'",
+      "'focused' | 'unread' | 'categories' | 'inbox' | 'snoozed' | 'drafts' | 'archive' | 'spam' | 'trash'",
     'mailbox?': 'string.uuid',
     'q?': 'string',
     'thread?': 'string',
