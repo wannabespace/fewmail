@@ -1,4 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import { textToHtml } from '@fewmail/shared/email'
 import { cardsBleedClassName } from '@fewmail/ui/components/accordion'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
@@ -8,9 +9,16 @@ import {
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import {
+  createPopoverHandle,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@fewmail/ui/components/popover'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
+  ArrowExpand01Icon,
   Cancel01Icon,
   News01Icon,
   TickDouble02Icon,
@@ -26,9 +34,11 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { ListenButton } from '~/components/listen-button'
+import { HtmlBody, useThread } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
 import { client, orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 import { toastUndo } from '~/lib/undo'
 
 type Row = RouterOutputs['reading']['list'][number]
@@ -67,11 +77,90 @@ const SummarySkeleton = () => (
   </div>
 )
 
+// Back from an email, the cursor is on the newsletter that was opened.
+let lastOpened: string | undefined
+
+interface Peek {
+  cite: string
+  row: Row
+}
+const peek = createPopoverHandle<Peek>()
+
+const PeekBody = ({ cite, row }: Peek) => {
+  const t = useT()
+  const navigate = useNavigate()
+  const { data: thread } = useThread(row.threadId)
+  const message = thread?.messages.find(
+    (entry) => entry.message.id === row.id
+  )?.message
+  const openFullPage = () => {
+    lastOpened = row.threadId
+    void navigate({ params: { threadId: row.threadId }, to: '/mail/$threadId' })
+  }
+  useHotkey('Shift+O', openFullPage)
+  useEffect(() => {
+    posthog.capture('thread_peeked')
+  }, [])
+  return (
+    <div className="flex max-h-[min(40rem,var(--available-height))] flex-col">
+      <div className="flex items-center gap-3 border-b py-2.5 pr-2.5 pl-4">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span data-mask className="truncate font-medium">
+            {senderOf(row)}
+          </span>
+          <span data-mask className="text-muted-foreground truncate text-xs">
+            {row.subject}
+          </span>
+        </div>
+        <IconButton
+          icon={ArrowExpand01Icon}
+          label={t.mail.openFullPage}
+          shortcut={<Kbd>⇧O</Kbd>}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={openFullPage}
+        />
+      </div>
+      <div className="min-h-0 overflow-y-auto p-2">
+        {message ? (
+          <HtmlBody
+            cite={cite}
+            html={message.html ?? textToHtml(message.body)}
+            id={message.id}
+          />
+        ) : (
+          <SummarySkeleton />
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** A cited newsletter over Reading, opened on the passage the sentence came from, so the summary stays in place. */
+const NewsletterPeek = ({
+  onOpenChange,
+}: {
+  onOpenChange: (isOpen: boolean) => void
+}) => (
+  <Popover handle={peek} onOpenChange={onOpenChange}>
+    {({ payload }) => (
+      <PopoverContent padding="none" className="w-160">
+        {payload && (
+          <PeekBody
+            key={`${payload.row.id} ${payload.cite}`}
+            cite={payload.cite}
+            row={payload.row}
+          />
+        )}
+      </PopoverContent>
+    )}
+  </Popover>
+)
+
 /** The agent's one text over every newsletter; each sentence ends on the newsletters it came from. */
 const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
-  const t = useT()
   const byId = new Map(rows.map((row) => [row.id, row]))
-  const source = (rowId: string) => {
+  const source = (cite: string, rowId: string) => {
     const row = byId.get(rowId)
     return (
       row && (
@@ -80,9 +169,7 @@ const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
           data-mask
           variant="source"
           className="mx-0.5 align-[0.15em]"
-          render={
-            <Link to="/mail/$threadId" params={{ threadId: row.threadId }} />
-          }
+          render={<PopoverTrigger handle={peek} payload={{ cite, row }} />}
           onPointerEnter={() => {
             void warmThread(row.threadId)
           }}
@@ -104,36 +191,12 @@ const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
             {sentences.map(({ messageIds, text }) => (
               <Fragment key={text}>
                 {text}
-                {messageIds.map(source)}{' '}
+                {messageIds.map((rowId) => source(text, rowId))}{' '}
               </Fragment>
             ))}
           </p>
         </section>
       ))}
-      {summary.worth.length > 0 && (
-        <SettingsGroup title={t.reading.worth}>
-          {summary.worth.flatMap(({ messageId, why }) => {
-            const row = byId.get(messageId)
-            return row
-              ? [
-                  <SettingsRow
-                    key={messageId}
-                    title={
-                      <Link
-                        to="/mail/$threadId"
-                        params={{ threadId: row.threadId }}
-                        data-mask
-                      >
-                        {senderOf(row)}
-                      </Link>
-                    }
-                    description={<span data-mask>{why}</span>}
-                  />,
-                ]
-              : []
-          })}
-        </SettingsGroup>
-      )}
     </>
   )
 }
@@ -157,14 +220,13 @@ const useNoteOf = (summary: Summary | undefined) => {
   }
 }
 
-// Back from an email, the cursor is on the newsletter that was opened.
-let lastOpened: string | undefined
-
 /** Every newsletter under the whole summary; J / K walk them, ⏎ opens one. */
 const NewsletterList = ({
+  isPeeking,
   rows,
   summary,
 }: {
+  isPeeking: boolean
   rows: Row[]
   summary: Summary | undefined
 }) => {
@@ -172,6 +234,9 @@ const NewsletterList = ({
   const dates = useDates()
   const navigate = useNavigate()
   const noteOf = useNoteOf(summary)
+  const whyOf = new Map(
+    summary?.worth.map(({ messageId, why }) => [messageId, why])
+  )
   const listRef = useRef<HTMLDivElement>(null)
   const [cursor, setCursor] = useState<number | null>(null)
   const current =
@@ -194,12 +259,13 @@ const NewsletterList = ({
       void prefetchThread(threadId)
     }
   }
-  useHotkey('J', () => move(1))
-  useHotkey('ArrowDown', () => move(1))
-  useHotkey('K', () => move(-1))
-  useHotkey('ArrowUp', () => move(-1))
+  const keys = { enabled: !isPeeking }
+  useHotkey('J', () => move(1), keys)
+  useHotkey('ArrowDown', () => move(1), keys)
+  useHotkey('K', () => move(-1), keys)
+  useHotkey('ArrowUp', () => move(-1), keys)
   useHotkey('Enter', () => rows[current] && open(rows[current].threadId), {
-    enabled: current !== -1,
+    enabled: !isPeeking && current !== -1,
   })
 
   return (
@@ -228,6 +294,12 @@ const NewsletterList = ({
                 <span data-mask>{row.subject}</span>
                 {' · '}
                 <span data-mask={!summary || undefined}>{noteOf(row)}</span>
+                {whyOf.has(row.id) && (
+                  <>
+                    <br />
+                    <span data-mask>{whyOf.get(row.id)}</span>
+                  </>
+                )}
               </>
             }
           >
@@ -296,22 +368,21 @@ const MarkAllRead = ({ rows }: { rows: Row[] }) => {
   useHotkey('Shift+I', () => markRead.mutate(), { enabled: canMark })
 
   return (
-    canMark && (
-      <Button
-        size="sm"
-        variant="secondary"
-        className="self-start"
-        onClick={() => markRead.mutate()}
-        shortcut={<Kbd>⇧I</Kbd>}
-      >
-        <HugeiconsIcon
-          icon={TickDouble02Icon}
-          strokeWidth={2}
-          data-icon="inline-start"
-        />
-        {t.reading.markAllRead}
-      </Button>
-    )
+    <Button
+      size="sm"
+      variant="secondary"
+      className="self-start"
+      disabled={!canMark}
+      onClick={() => markRead.mutate()}
+      shortcut={<Kbd>⇧I</Kbd>}
+    >
+      <HugeiconsIcon
+        icon={TickDouble02Icon}
+        strokeWidth={2}
+        data-icon="inline-start"
+      />
+      {t.reading.markAllRead}
+    </Button>
   )
 }
 
@@ -442,6 +513,7 @@ export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
   const navigate = useNavigate()
   const { morph: transition, reveal } = useMorph()
   const { isWriting, rows, summary } = useReading()
+  const [isPeeking, setIsPeeking] = useState(false)
   if (!isOpen || rows.length === 0) {
     return null
   }
@@ -494,8 +566,13 @@ export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
             >
               {summary && <SummaryText rows={rows} summary={summary} />}
               {summary && <SummaryGaps rows={rows} summary={summary} />}
-              <NewsletterList rows={rows} summary={summary} />
+              <NewsletterList
+                isPeeking={isPeeking}
+                rows={rows}
+                summary={summary}
+              />
               <MarkAllRead rows={rows} />
+              <NewsletterPeek onOpenChange={setIsPeeking} />
             </motion.div>
           </motion.div>
         </section>

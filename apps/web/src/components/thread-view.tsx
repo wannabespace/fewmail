@@ -147,7 +147,7 @@ const ActionNote = ({ actions }: { actions: ThreadAction[] }) => {
 
 // `overflow-wrap:anywhere` would collapse senders' table columns to one letter per line.
 const FRAME_HEAD =
-  '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:break-word}img{max-width:100%;height:auto}</style>'
+  '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:break-word}img{max-width:100%;height:auto}[data-cited]{border-radius:4px;animation:cited 3s cubic-bezier(.32,.72,0,1)}@keyframes cited{0%,50%{box-shadow:0 0 0 4px oklch(.55 .15 38/.18),inset 0 0 0 100vmax oklch(.55 .15 38/.18)}to{box-shadow:0 0 0 4px transparent,inset 0 0 0 100vmax transparent}}</style>'
 
 const OPENABLE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tel:'])
 // A plain `#id` resolves against our page (srcdoc borrows the parent's base) and loads Fewmail inside the frame.
@@ -194,12 +194,68 @@ const jumpWithinMail = (event: MouseEvent) => {
   inMailTarget(link.ownerDocument, id)?.scrollIntoView({ behavior: 'smooth' })
 }
 
+// Acronyms and numbers count however short: "SDK", "#538" are what a summary keeps verbatim.
+const KEY_WORD = /[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu
+const stemsOf = (text: string) =>
+  new Set(
+    text
+      .match(KEY_WORD)
+      ?.filter((word) => word.length > 4 || /\d|\p{Lu}.*\p{Lu}/u.test(word))
+      .map((word) => word.toLowerCase().slice(0, 6))
+  )
+const PASSAGE_CHARS = 1000
+
+/** The passage a summary sentence came from: the smallest block sharing the most word stems with it, two at least. */
+const citedPassage = (mail: Document, cite: string) => {
+  const wanted = [...stemsOf(cite)]
+  let passage: HTMLElement | undefined
+  let best = 1
+  for (const block of mail.body.querySelectorAll<HTMLElement>(
+    'p, li, td, blockquote, h1, h2, h3, h4, div'
+  )) {
+    const text = block.textContent ?? ''
+    // Senders hide a preview line at the top that repeats the subject.
+    const isSeen = block.checkVisibility({
+      opacityProperty: true,
+      visibilityProperty: true,
+    })
+    const stems =
+      isSeen && block.offsetHeight > 1 && text.length <= PASSAGE_CHARS
+        ? stemsOf(text)
+        : null
+    const score = stems ? wanted.filter((stem) => stems.has(stem)).length : 0
+    if (score > best || (score === best && passage?.contains(block))) {
+      passage = block
+      best = score
+    }
+  }
+  return passage
+}
+
 // A frame starts empty on every open; the last measured height keeps a reopened mail from growing into place.
 const frameHeights = new Map<string, number>()
 
-/** Senders' HTML is laid out for a white page, so it keeps one. No `allow-scripts`: with it, `allow-same-origin` would hand the mail our session. */
-const HtmlBody = ({ html, id }: { html: string; id: string }) => {
+/**
+ * Senders' HTML is laid out for a white page, so it keeps one. No `allow-scripts`: with it, `allow-same-origin` would hand the mail our session.
+ * With `cite`, the passage it came from is centred and lit for a moment.
+ */
+export const HtmlBody = ({
+  cite,
+  html,
+  id,
+}: {
+  cite?: string
+  html: string
+  id: string
+}) => {
   const [height, setHeight] = useState(frameHeights.get(id) ?? 0)
+  const [cited, setCited] = useState<HTMLElement>()
+  useEffect(() => {
+    // Images load after the first centring and push the passage down; it follows them while it is lit.
+    if (height > 0 && cited?.getAnimations().length) {
+      cited.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [cited, height])
   const watch = (frame: HTMLIFrameElement | null) => {
     if (!frame) {
       return
@@ -214,6 +270,14 @@ const HtmlBody = ({ html, id }: { html: string; id: string }) => {
       const body = frame.contentDocument?.body
       if (body) {
         observer.observe(body)
+      }
+      const passage =
+        cite &&
+        frame.contentDocument &&
+        citedPassage(frame.contentDocument, cite)
+      if (passage) {
+        passage.dataset.cited = ''
+        setCited(passage)
       }
     }
     frame.addEventListener('load', observeBody)
