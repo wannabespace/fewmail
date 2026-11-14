@@ -8,7 +8,7 @@ import { addSeconds, subMinutes } from 'date-fns'
 import { and, eq, inArray, isNull, lte } from 'drizzle-orm'
 
 import { deleteDraft, GmailError, sendMail } from '../lib/gmail'
-import { announceChange } from '../lib/live'
+import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { logError, logErrorAs } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
@@ -117,7 +117,7 @@ const markFailed = async (
       .set({ resolvedAt: null, status: 'pending' })
       .where(and(eq(actions.id, row.actionId), eq(actions.userId, row.userId)))
   }
-  await announceChange(row.userId, ['actions', 'mail', 'today'])
+  await announceChange(row.userId, ACTION_TOPICS)
 }
 
 export const dispatchOutbox = async (id: string) => {
@@ -253,6 +253,7 @@ export const cancelMail = async (userId: string, id: string) => {
       .update(actions)
       .set({ resolvedAt: null, status: 'pending' })
       .where(and(eq(actions.id, canceled.actionId), eq(actions.userId, userId)))
+    await announceChange(userId, ACTION_TOPICS)
   }
   return {
     bcc: canceled.bcc,

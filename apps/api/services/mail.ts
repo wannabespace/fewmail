@@ -43,6 +43,7 @@ import { alias } from 'drizzle-orm/pg-core'
 
 import { getMessage } from '../lib/gmail'
 import type { ParsedMessage } from '../lib/gmail'
+import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { writeReply } from './agent'
@@ -775,6 +776,7 @@ export const approveAction = async (
   }
 
   const [done] = await finish(actionId, 'done', detail)
+  await announceChange(userId, ACTION_TOPICS)
   return { ...expectRow(done), outboxId: applied.value }
 }
 
@@ -801,6 +803,7 @@ export const dismissAction = async (userId: string, actionId: string) => {
   if (!dismissed) {
     throw new NotFoundError('Action already handled')
   }
+  await announceChange(userId, ACTION_TOPICS)
   return dismissed
 }
 
@@ -815,6 +818,7 @@ export const restoreAction = async (userId: string, actionId: string) => {
   if (!restored) {
     throw new NotFoundError('Action is not skipped')
   }
+  await announceChange(userId, ACTION_TOPICS)
   return restored
 }
 
@@ -838,6 +842,7 @@ export const redraftAction = async (
     .set({ detail })
     .where(eq(actions.id, actionId))
     .returning()
+  await announceChange(userId, ACTION_TOPICS)
   return expectRow(updated)
 }
 
@@ -852,6 +857,7 @@ export const updateDraft = async (
     .set({ detail })
     .where(eq(actions.id, actionId))
     .returning()
+  await announceChange(userId, ACTION_TOPICS)
   return expectRow(updated)
 }
 
@@ -906,6 +912,7 @@ export const draftReply = async (
       userId,
     })
     .returning()
+  await announceChange(userId, ACTION_TOPICS)
   return expectRow(created)
 }
 

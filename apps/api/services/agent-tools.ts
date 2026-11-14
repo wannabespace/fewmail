@@ -10,6 +10,7 @@ import type { AgentToolName } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
 import { z } from 'zod'
 
+import { announceChange } from '../lib/live'
 import {
   addChart,
   addToBoard,
@@ -81,10 +82,7 @@ interface AgentTool {
   run: (input: never) => Promise<unknown>
 }
 
-/** Everything the agent can do for a user, shared by MCP and the agent chat; their access comes from `AGENT_TOOLS`. */
-export const agentTools = (
-  userId: string
-): Record<AgentToolName, AgentTool> => ({
+const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   get_today: define({
     description:
       "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other unread mail worth knowing from those days (recent), mail naming a due date or meeting time, soonest first and none already passed (dates), sent mail still waiting for an answer (awaiting), what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts) and quiet inbox mail no rule covers that the agent would archive, mark read or unsubscribe from (tidy: each email with its suggestedAction; carry them out with tidy_mail) and sign-in or verification codes from the last 15 minutes still in the inbox (codes).",
@@ -455,5 +453,23 @@ export const agentTools = (
     },
   }),
 })
+
+/** Everything the agent can do for a user, shared by MCP and the agent chat; their access comes from `AGENT_TOOLS`. A write refreshes every open tab, since a tool can touch any part of the app. */
+export const agentTools = (userId: string) =>
+  Object.fromEntries(
+    Object.entries(toolsOf(userId)).map(([name, tool]) => [
+      name,
+      AGENT_TOOLS[name as AgentToolName] === 'read'
+        ? tool
+        : {
+            ...tool,
+            run: async (input: never) => {
+              const result = await tool.run(input)
+              await announceChange(userId)
+              return result
+            },
+          },
+    ])
+  ) as Record<AgentToolName, AgentTool>
 
 export const toolAccess = (name: string) => AGENT_TOOLS[name as AgentToolName]

@@ -13,7 +13,7 @@ import { and, asc, desc, eq, gt, inArray, lte } from 'drizzle-orm'
 
 import { localClock } from '../lib/clock'
 import { GmailError } from '../lib/gmail'
-import { announceChange } from '../lib/live'
+import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { NotFoundError } from './mail-errors'
 import { getPlanInfo, hasAgent, hasAgentSql } from './plan'
 import { getSettings } from './settings'
@@ -237,7 +237,7 @@ export const processDueReminders = async () => {
         .update(reminders)
         .set({ status })
         .where(eq(reminders.id, reminder.id))
-      await announceChange(reminder.userId, ['actions', 'mail', 'today'])
+      await announceChange(reminder.userId, ACTION_TOPICS)
     })
   )
 }

@@ -35,6 +35,13 @@ export const MAIL_TOPICS = [
   'today',
 ] as const satisfies readonly LiveTopic[]
 
+/** What a queued action touches: Home's cards, the actions list and the thread it belongs to. */
+export const ACTION_TOPICS = [
+  'actions',
+  'mail',
+  'today',
+] as const satisfies readonly LiveTopic[]
+
 const publisher = new MemoryPublisher<
   Record<string, { topics: LiveTopic[] | null }>
 >()
