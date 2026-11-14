@@ -23,6 +23,7 @@
     "@tanstack/react-hotkeys": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
+    "@tanstack/react-virtual": "catalog:",
     "@tanstack/router-plugin": "catalog:",
     "@tiptap/core": "catalog:",
     "@tiptap/extensions": "catalog:",
