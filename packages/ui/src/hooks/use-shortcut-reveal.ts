@@ -57,3 +57,17 @@ export const useShortcutReveal = (trigger: HTMLElement | null) => {
   const isHeld = useModifierHold(trigger ?? undefined)
   return isEnabled && !!trigger && isHeld
 }
+
+export const ShortcutRevealObserver = () => {
+  const isEnabled = useSubscription(shortcutRevealStore)
+  const isRevealed = useModifierHold() && isEnabled
+
+  useEffect(() => {
+    document.documentElement.toggleAttribute(
+      'data-shortcuts-revealed',
+      isRevealed
+    )
+  }, [isRevealed])
+
+  return null
+}

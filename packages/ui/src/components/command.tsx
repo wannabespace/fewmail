@@ -165,7 +165,7 @@ export const CommandPaletteFooter = ({
 }: {
   labels: { close: string; move: string; open: string }
 }) => (
-  <div className="text-2xs text-muted-foreground/70 flex shrink-0 items-center gap-3 border-t px-4 py-2">
+  <div className="text-2xs text-muted-foreground/70 hidden shrink-0 items-center gap-3 border-t px-4 py-2 in-data-shortcuts-revealed:flex">
     <CommandPaletteHint label={labels.move}>
       <Kbd>
         <HugeiconsIcon
