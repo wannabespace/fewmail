@@ -33,6 +33,8 @@ import { cn } from '@fewmail/ui/lib/utils'
 import {
   Add01Icon,
   BubbleChatIcon,
+  PanelRightCloseIcon,
+  PanelRightOpenIcon,
   RepeatIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -61,7 +63,7 @@ import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
-import { AgentChat } from '~/components/agent-chat'
+import { AgentChat, agentHiddenStore } from '~/components/agent-chat'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
@@ -738,6 +740,7 @@ const AgentColumn = ({
   const t = useT()
   const navigate = useNavigate()
   const columnWidth = useSubscription(columnWidthStore)
+  const isHidden = useSubscription(agentHiddenStore)
   const [draftId, setDraftId] = useState<string>(() => crypto.randomUUID())
   const [focusId, setFocusId] = useState<string>()
   const [shownChat, setShownChat] = useState(chat)
@@ -764,9 +767,13 @@ const AgentColumn = ({
     const id = crypto.randomUUID()
     setDraftId(id)
     setFocusId(id)
+    agentHiddenStore.set(false)
     void showChat(undefined)
   }
   useHotkey('Mod+Shift+O', startChat, { ignoreInputs: false })
+  useHotkey('Mod+.', () => agentHiddenStore.set(!isHidden), {
+    ignoreInputs: false,
+  })
   useHotkey(['G', 'C'], () => navigate({ to: '/agent' }))
 
   return (
@@ -774,9 +781,11 @@ const AgentColumn = ({
       <ResizableSeparator />
       <ResizablePanel
         className="flex"
+        collapsed={isHidden}
         size={columnWidth}
         minSize={AGENT_WIDTH.min}
         maxSize={AGENT_WIDTH.max}
+        onCollapsedChange={(isCollapsed) => agentHiddenStore.set(isCollapsed)}
         onSizeChange={(width) => columnWidthStore.set(width)}
       >
         <aside
@@ -802,6 +811,14 @@ const AgentColumn = ({
                 size="icon-xs"
                 variant="ghost-muted"
                 onClick={startChat}
+              />
+              <IconButton
+                icon={PanelRightCloseIcon}
+                label={t.agent.hide}
+                shortcut={<Kbd>⌘.</Kbd>}
+                size="icon-xs"
+                variant="ghost-muted"
+                onClick={() => agentHiddenStore.set(true)}
               />
             </div>
             {shown.map((item) => (
@@ -999,6 +1016,25 @@ const PickedActions = ({
         {t.queue.unpick} <Kbd>esc</Kbd>
       </Button>
     </>
+  )
+}
+
+const ShowAgent = () => {
+  const t = useT()
+  const isHidden = useSubscription(agentHiddenStore)
+
+  return (
+    isHidden && (
+      <IconButton
+        className="absolute top-3 right-3 z-10"
+        icon={PanelRightOpenIcon}
+        label={t.agent.show}
+        shortcut={<Kbd>⌘.</Kbd>}
+        size="icon-sm"
+        variant="ghost-muted"
+        onClick={() => agentHiddenStore.set(false)}
+      />
+    )
   )
 }
 
@@ -1378,6 +1414,7 @@ const HomePage = () => {
         )}
         <main hidden={!!thread} className="flex min-h-0 flex-1 flex-col">
           <div className="relative min-h-0 flex-1">
+            <ShowAgent />
             <div className="h-full overflow-y-auto">
               <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
                 <HomeHeader

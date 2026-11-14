@@ -31,6 +31,8 @@ export const id: Messages = {
       'Setiap percakapan dengan agen, dan yang ia kerjakan untuk Anda secara terjadwal.',
     waiting: 'Menunggu persetujuan Anda',
     waitingShort: 'menunggu persetujuan Anda',
+    hide: 'Sembunyikan agen',
+    show: 'Tampilkan agen',
     voice: 'Bicara ke agen',
     voiceStop: 'Berhenti dan kirim',
     chats: 'Obrolan',

@@ -9,6 +9,8 @@ export const es: Messages = {
       'Cada conversación con el agente y lo que hace por ti de forma programada.',
     waiting: 'Esperan tu sí',
     waitingShort: 'espera tu sí',
+    hide: 'Ocultar el agente',
+    show: 'Mostrar el agente',
     voice: 'Hablar con el agente',
     voiceStop: 'Detener y enviar',
     chats: 'Chats',

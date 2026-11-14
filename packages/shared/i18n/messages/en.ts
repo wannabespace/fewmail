@@ -31,6 +31,8 @@ export const en = {
       'Every conversation with the agent, and what it does for you on a schedule.',
     waiting: 'Waiting for your yes',
     waitingShort: 'needs your yes',
+    hide: 'Hide the agent',
+    show: 'Show the agent',
     voice: 'Talk to the agent',
     voiceStop: 'Stop and send',
     calendar: (email: string) => `In the calendar of ${email}`,

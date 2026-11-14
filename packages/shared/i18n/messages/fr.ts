@@ -9,6 +9,8 @@ export const fr: Messages = {
       'Chaque discussion avec l’agent, et ce qu’il fait pour vous à intervalles réguliers.',
     waiting: 'En attente de votre accord',
     waitingShort: 'attend votre accord',
+    hide: 'Masquer l’agent',
+    show: 'Afficher l’agent',
     voice: 'Parler à l’agent',
     voiceStop: 'Arrêter et envoyer',
     chats: 'Discussions',

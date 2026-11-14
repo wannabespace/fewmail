@@ -102,9 +102,11 @@ import type {
   ToolUIPart,
   UIMessage,
 } from 'ai'
+import { type } from 'arktype'
 import { isSameDay, isToday, parseISO, subDays } from 'date-fns'
 import type { ComponentProps, ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -759,6 +761,13 @@ const ThreadChip = ({ thread }: { thread: OpenThread }) => (
   </Link>
 )
 
+export const agentHiddenStore = createWebStorageValue({
+  defaultValue: false,
+  key: 'fewmail.home-agent-hidden',
+  schema: type('boolean'),
+  type: 'localStorage',
+})
+
 /** Home already is the `today` skill, so it is never suggested there. */
 const SUGGESTED_SKILLS = SKILLS.filter((skill) => skill !== 'today')
 
@@ -1232,7 +1241,11 @@ export const AgentChat = ({
     send(heard)
   })
   useHotkey('Mod+Shift+Space', voice.toggle, { ignoreInputs: false })
-  useHotkey('/', () => composerRef.current?.focus())
+  useHotkey('/', () => {
+    agentHiddenStore.set(false)
+    // The hidden column is inert until it has rendered open.
+    requestAnimationFrame(() => composerRef.current?.focus())
+  })
   const composer = (
     <div className="flex flex-col gap-2">
       <form

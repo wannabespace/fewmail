@@ -31,6 +31,8 @@ export const zh: Messages = {
     chatsLead: '与代理的每一次对话，以及它按计划为你做的事。',
     waiting: '等你确认',
     waitingShort: '等你确认',
+    hide: '隐藏助手',
+    show: '显示助手',
     voice: '语音对话',
     voiceStop: '停止并发送',
     chats: '对话',

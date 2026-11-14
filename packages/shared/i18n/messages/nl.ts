@@ -31,6 +31,8 @@ export const nl: Messages = {
       'Elk gesprek met de agent, en wat hij volgens schema voor je doet.',
     waiting: 'Wachten op je ja',
     waitingShort: 'wacht op je ja',
+    hide: 'Agent verbergen',
+    show: 'Agent tonen',
     voice: 'Praat met de agent',
     voiceStop: 'Stoppen en versturen',
     chats: 'Chats',

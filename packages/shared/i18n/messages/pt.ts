@@ -31,6 +31,8 @@ export const pt: Messages = {
       'Cada conversa com o agente e o que ele faz por você de forma agendada.',
     waiting: 'Aguardando seu sim',
     waitingShort: 'aguarda seu sim',
+    hide: 'Ocultar o agente',
+    show: 'Mostrar o agente',
     voice: 'Falar com o agente',
     voiceStop: 'Parar e enviar',
     chats: 'Conversas',

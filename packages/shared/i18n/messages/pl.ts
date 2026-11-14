@@ -31,6 +31,8 @@ export const pl: Messages = {
       'Każda rozmowa z agentem i to, co robi dla ciebie według harmonogramu.',
     waiting: 'Czekają na twoje „tak”',
     waitingShort: 'czeka na twoje „tak”',
+    hide: 'Ukryj agenta',
+    show: 'Pokaż agenta',
     voice: 'Powiedz agentowi',
     voiceStop: 'Zatrzymaj i wyślij',
     chats: 'Czaty',

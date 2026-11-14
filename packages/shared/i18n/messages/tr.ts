@@ -30,6 +30,8 @@ export const tr: Messages = {
     chatsLead: 'Ajanla her konuşma ve senin için düzenli olarak yaptıkları.',
     waiting: 'Onayını bekleyenler',
     waitingShort: 'onayını bekliyor',
+    hide: 'Ajanı gizle',
+    show: 'Ajanı göster',
     voice: 'Ajana sesle söyle',
     voiceStop: 'Durdur ve gönder',
     chats: 'Sohbetler',

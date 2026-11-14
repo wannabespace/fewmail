@@ -31,6 +31,8 @@ export const ja: Messages = {
     chatsLead: 'エージェントとのすべての会話と、スケジュールで行っていること。',
     waiting: 'あなたの承認待ち',
     waitingShort: '承認待ち',
+    hide: 'エージェントを隠す',
+    show: 'エージェントを表示',
     voice: '声で話す',
     voiceStop: '止めて送信',
     chats: 'チャット',
