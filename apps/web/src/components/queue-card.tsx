@@ -42,6 +42,7 @@ import { client } from '~/lib/orpc'
 
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
+import { ExtractedChips } from './mail-meta'
 import { ROW_SWAP } from './thread-view'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
@@ -65,6 +66,29 @@ const headline = ({ action, analysis, message }: QueueItem) => {
   }
   return analysis?.summary ?? message?.subject ?? action.title
 }
+
+const showsGist = ({ action, analysis }: QueueItem) =>
+  !!analysis && !sendsDraft(action) && action.kind !== 'cleanup'
+
+/** The open card says the email whole, so its title gives the subject instead of repeating it. */
+const titleOf = (item: QueueItem, isSelected: boolean) =>
+  isSelected && showsGist(item)
+    ? (item.message?.subject ?? headline(item))
+    : headline(item)
+
+/** What the email says and the facts in it, so the card can be settled without opening the email. */
+const Gist = ({
+  analysis,
+}: {
+  analysis: NonNullable<QueueItem['analysis']>
+}) => (
+  <>
+    <p data-mask className="font-serif text-base/relaxed">
+      {analysis.summary}
+    </p>
+    <ExtractedChips extracted={analysis.extracted} />
+  </>
+)
 
 const CleanupList = ({ action }: { action: Action }) => {
   const t = useT()
@@ -296,7 +320,7 @@ const QueueCardHeader = ({
           : (message?.fromName ?? message?.fromEmail ?? 'Fewmail')}
       </strong>
       <span data-mask className="text-muted-foreground min-w-0 flex-1 truncate">
-        {headline({ action, analysis, message })}
+        {titleOf({ action, analysis, message }, isSelected)}
       </span>
     </AccordionTrigger>
   )
@@ -518,6 +542,7 @@ export const QueueCard = ({
             />
           )}
           {action.kind === 'cleanup' && <CleanupList action={action} />}
+          {analysis && showsGist(item) && <Gist analysis={analysis} />}
           {!isReply && action.kind !== 'cleanup' && reason && (
             <p
               data-mask
