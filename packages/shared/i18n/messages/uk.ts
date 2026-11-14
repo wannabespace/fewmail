@@ -581,7 +581,7 @@ export const uk: Messages = {
       pro: {
         description: 'Той самий агент, і місця для пошти більше.',
       },
-      tryFree: (days: number) => `Спробувати ${days} днів безкоштовно`,
+      tryFree: (days: number) => `${days} днів безкоштовно`,
       yearly: 'Щороку · 2 місяці безкоштовно',
     },
     pricingPage: {

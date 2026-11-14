@@ -1493,7 +1493,7 @@ export const pl: Messages = {
       pro: {
         description: 'Ten sam agent z miejscem na więcej poczty.',
       },
-      tryFree: (days: number) => `Wypróbuj za darmo przez ${days} dni`,
+      tryFree: (days: number) => `${days} dni za darmo`,
       yearly: 'Rocznie · 2 miesiące gratis',
     },
     pricingPage: {

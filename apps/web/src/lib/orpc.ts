@@ -1,5 +1,4 @@
 import type { Router } from '@fewmail/api/router'
-import { messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import { createORPCClient, onError, ORPCError } from '@orpc/client'
 import { RPCLink } from '@orpc/client/fetch'
@@ -9,7 +8,7 @@ import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import { Result } from 'better-result'
 import { toast } from 'sonner'
 
-import { localeStore } from './i18n'
+import { getT, localeStore } from './i18n'
 import { queryClient } from './query-client'
 
 /** The spent allowance the server refused with, in the user's language; `null` for any other error. */
@@ -19,9 +18,7 @@ export const limitText = (error: unknown) => {
   }
   const { resetsAt } = error.data as { resetsAt: Date }
   const locale = localeStore.get()
-  return messages[locale].limits.usage(
-    formatResetDay(locale, new Date(resetsAt))
-  )
+  return getT().limits.usage(formatResetDay(locale, new Date(resetsAt)))
 }
 
 const ERROR_TEXT_BY_CODE = {
@@ -33,7 +30,7 @@ const ERROR_TEXT_BY_CODE = {
 
 /** The server's own messages are English and meant for logs; the user reads what went wrong in their language. */
 export const errorText = (error: unknown) => {
-  const t = messages[localeStore.get()].errors
+  const t = getT().errors
   if (error instanceof TypeError) {
     return t.offline
   }

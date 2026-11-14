@@ -1,7 +1,12 @@
-import { messages } from '@fewmail/shared/i18n'
+import { en } from '@fewmail/shared/i18n/messages/en'
 
 import { LEGAL_UPDATED_AT } from '../legal/updated-at'
-import { COMPARISONS, TRIAL_DAYS } from './marketing'
+import {
+  COMPARISONS,
+  COMPARISONS_CHECKED_AT,
+  PLANS,
+  TRIAL_DAYS,
+} from './marketing'
 
 export const SITE_NAME = 'Fewmail'
 
@@ -31,8 +36,9 @@ export const PUBLIC_PAGES: Record<
     COMPARISONS.map(({ name, slug }) => [
       `/compare/${slug}`,
       {
-        description: messages.en.site.comparisons[slug].summary,
-        title: messages.en.site.comparison.title(name),
+        description: en.site.comparisons[slug].summary,
+        title: en.site.comparison.title(name),
+        updatedAt: COMPARISONS_CHECKED_AT,
       },
     ])
   ),
@@ -66,3 +72,67 @@ export const PUBLIC_PAGES: Record<
 
 export const pageTitle = (pathname: string) =>
   PUBLIC_PAGES[pathname]?.title ?? SITE_NAME
+
+/** schema.org JSON-LD for a public page. `WebSite` on `/` is what makes Google name the result "Fewmail" instead of the domain. */
+export const structuredData = (path: string, origin: string) => {
+  const { site } = en
+  const prices = PLANS.map(({ price }) => price.month)
+  const app = {
+    '@type': 'SoftwareApplication',
+    applicationCategory: 'CommunicationApplication',
+    description: PUBLIC_PAGES['/']?.description,
+    name: SITE_NAME,
+    offers: {
+      '@type': 'AggregateOffer',
+      highPrice: Math.max(...prices),
+      lowPrice: Math.min(...prices),
+      offerCount: PLANS.length,
+      priceCurrency: 'USD',
+    },
+    operatingSystem: 'Web',
+    url: `${origin}/`,
+  }
+  const comparison = COMPARISONS.find(({ slug }) => path === `/compare/${slug}`)
+  const graph =
+    {
+      '/': [
+        {
+          '@type': 'WebSite',
+          name: SITE_NAME,
+          url: `${origin}/`,
+        },
+        {
+          '@type': 'Organization',
+          legalName: 'Wannabe Space, LLC',
+          logo: `${origin}/apple-touch-icon.png`,
+          name: SITE_NAME,
+          url: `${origin}/`,
+        },
+        app,
+        {
+          '@type': 'FAQPage',
+          mainEntity: site.faq(TRIAL_DAYS).map(({ answer, question }) => ({
+            '@type': 'Question',
+            acceptedAnswer: { '@type': 'Answer', text: answer },
+            name: question,
+          })),
+        },
+      ],
+      '/pricing': [app],
+    }[path] ??
+    (comparison && [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          [site.nav.compare, `${origin}/compare`],
+          [comparison.name, `${origin}${path}`],
+        ].map(([name, item], index) => ({
+          '@type': 'ListItem',
+          item,
+          name,
+          position: index + 1,
+        })),
+      },
+    ])
+  return graph && { '@context': 'https://schema.org', '@graph': graph }
+}

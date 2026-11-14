@@ -1,10 +1,9 @@
-import { messages } from '@fewmail/shared/i18n'
 import { toast } from 'sonner'
 
-import { localeStore } from './i18n'
+import { getT } from './i18n'
 import { posthog } from './posthog'
 
-const undoLabel = () => messages[localeStore.get()].compose.undo
+const undoLabel = () => getT().compose.undo
 
 const undoing = (undo: () => unknown) => () => {
   posthog.capture('undo_clicked')

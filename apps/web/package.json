@@ -45,6 +45,7 @@
   "devDependencies": {
     "@fewmail/api": "workspace:*",
     "@fewmail/configs": "workspace:*",
+    "@happy-dom/global-registrator": "catalog:",
     "@orpc/server": "catalog:",
     "@posthog/rollup-plugin": "catalog:",
     "@rolldown/plugin-babel": "catalog:",

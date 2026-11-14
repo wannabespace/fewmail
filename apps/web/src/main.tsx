@@ -2,6 +2,7 @@ import './globals.css'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { createRoot } from 'react-dom/client'
 
+import { messagesLoaded } from './lib/i18n'
 import { posthog } from './lib/posthog'
 import { queryClient } from './lib/query-client'
 import { pageTitle } from './lib/seo'
@@ -33,6 +34,12 @@ declare module '@tanstack/react-router' {
 const root = document.querySelector('#root')
 if (!root) {
   throw new Error('Missing #root element')
+}
+
+await messagesLoaded
+// A prerendered public page (vite.config.ts) would blank while its route chunk loads.
+if (root.hasChildNodes()) {
+  await router.load()
 }
 
 createRoot(root).render(<RouterProvider router={router} />)

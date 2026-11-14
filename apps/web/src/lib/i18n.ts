@@ -1,6 +1,7 @@
-import { messages } from '@fewmail/shared/i18n'
+import type { Messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { LOCALES, matchLocale } from '@fewmail/shared/i18n/locales'
+import { en } from '@fewmail/shared/i18n/messages/en'
 import { type } from 'arktype'
 import type { Locale as DateLocale } from 'date-fns'
 import { format, formatDistanceToNowStrict } from 'date-fns'
@@ -21,6 +22,7 @@ import {
   uk,
   zhCN,
 } from 'date-fns/locale'
+import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
@@ -65,16 +67,67 @@ export const localeStore = createWebStorageValue({
   type: 'localStorage',
 })
 
+/** Only English ships in the main bundle (crawlers and the prerender read it); every other language is its own chunk. */
+const LOAD_MESSAGES: Record<Exclude<Locale, 'en'>, () => Promise<Messages>> = {
+  de: () =>
+    import('@fewmail/shared/i18n/messages/de').then((module) => module.de),
+  es: () =>
+    import('@fewmail/shared/i18n/messages/es').then((module) => module.es),
+  fr: () =>
+    import('@fewmail/shared/i18n/messages/fr').then((module) => module.fr),
+  hi: () =>
+    import('@fewmail/shared/i18n/messages/hi').then((module) => module.hi),
+  id: () =>
+    import('@fewmail/shared/i18n/messages/id').then((module) => module.id),
+  it: () =>
+    import('@fewmail/shared/i18n/messages/it').then((module) => module.it),
+  ja: () =>
+    import('@fewmail/shared/i18n/messages/ja').then((module) => module.ja),
+  ko: () =>
+    import('@fewmail/shared/i18n/messages/ko').then((module) => module.ko),
+  nl: () =>
+    import('@fewmail/shared/i18n/messages/nl').then((module) => module.nl),
+  pl: () =>
+    import('@fewmail/shared/i18n/messages/pl').then((module) => module.pl),
+  pt: () =>
+    import('@fewmail/shared/i18n/messages/pt').then((module) => module.pt),
+  tr: () =>
+    import('@fewmail/shared/i18n/messages/tr').then((module) => module.tr),
+  uk: () =>
+    import('@fewmail/shared/i18n/messages/uk').then((module) => module.uk),
+  zh: () =>
+    import('@fewmail/shared/i18n/messages/zh').then((module) => module.zh),
+}
+
+const messagesStore = createStore<Messages>(en)
+
+const loadMessages = async (locale: Locale) => {
+  const loaded = locale === 'en' ? en : await LOAD_MESSAGES[locale]()
+  // A slower chunk for an earlier pick must not overwrite a later one.
+  if (localeStore.get() === locale) {
+    messagesStore.set(loaded)
+  }
+}
+
+/** `main.tsx` waits for it, so the first render is already in the visitor's language. */
+export const messagesLoaded = loadMessages(localeStore.get())
+
 localeStore.subscribe(
   (locale) => {
     document.documentElement.lang = locale
   },
   { immediate: true }
 )
+localeStore.subscribe((locale) => {
+  void loadMessages(locale)
+})
 
 export const useLocale = () => useSubscription(localeStore)
 
-export const useT = () => messages[useLocale()]
+export const useT = () => useSubscription(messagesStore)
+
+/** Outside React: toasts and errors raised by the API client. */
+export const getT = () => messagesStore.get()
 
 export const useMoneyFormat = () => {
   const locale = useLocale()
@@ -89,11 +142,12 @@ export const weekStartOf = (code: Locale) =>
 
 export const useDates = () => {
   const code = useLocale()
+  const t = useT()
   const locale = DATE_LOCALES[code]
   return {
     ago: (date: Date) =>
       Date.now() - date.getTime() < 60_000
-        ? messages[code].justNow
+        ? t.justNow
         : formatDistanceToNowStrict(date, { addSuffix: true, locale }),
     format: (date: Date | number, pattern: string) =>
       format(date, pattern, { locale }),
