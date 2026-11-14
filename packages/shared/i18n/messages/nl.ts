@@ -648,6 +648,7 @@ export const nl: Messages = {
     showAll: (n: number) => `Alle ${n} tonen`,
     showFewer: 'Minder tonen',
     inGmail: (count: string) => `${count} in Gmail`,
+    markShownRead: 'Deze als gelezen markeren',
     oneTimeCode: {
       archive: 'Kopiëren en archiveren',
       copied: 'Code gekopieerd',

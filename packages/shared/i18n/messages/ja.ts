@@ -375,6 +375,7 @@ export const ja: Messages = {
     showAll: (n: number) => `すべて表示（${n}）`,
     showFewer: '折りたたむ',
     inGmail: (count: string) => `Gmail に ${count} 件`,
+    markShownRead: '表示中を既読にする',
     oneTimeCode: {
       archive: 'コピーしてアーカイブ',
       copied: 'コードをコピーしました',

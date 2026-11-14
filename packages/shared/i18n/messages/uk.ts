@@ -872,6 +872,7 @@ export const uk: Messages = {
     showAll: (n: number) => `Показати всі ${n}`,
     showFewer: 'Згорнути',
     inGmail: (count: string) => `${count} у Gmail`,
+    markShownRead: 'Прочитати видимі',
     oneTimeCode: {
       archive: 'Скопіювати й архівувати',
       copied: 'Код скопійовано',

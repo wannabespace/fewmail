@@ -641,6 +641,7 @@ export const en = {
     showAll: (n: number) => `Show all ${n}`,
     showFewer: 'Show fewer',
     inGmail: (count: string) => `${count} in Gmail`,
+    markShownRead: 'Mark these read',
     oneTimeCode: {
       archive: 'Copy and archive',
       copied: 'Code copied',

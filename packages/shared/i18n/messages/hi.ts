@@ -375,6 +375,7 @@ export const hi: Messages = {
     showAll: (n: number) => `सभी ${n} दिखाएँ`,
     showFewer: 'कम दिखाएँ',
     inGmail: (count: string) => `Gmail में ${count}`,
+    markShownRead: 'इन्हें पढ़ा हुआ चिह्नित करें',
     oneTimeCode: {
       archive: 'कॉपी करें और संग्रहित करें',
       copied: 'कोड कॉपी हो गया',

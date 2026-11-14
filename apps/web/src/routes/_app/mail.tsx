@@ -304,14 +304,8 @@ const GROUP_OF: Record<MailCategory, GroupKey> = {
   work: 'people',
 }
 
-/** Folded groups show their newest few until asked, so receipts and notifications never push people's mail away. */
-const FOLDED = new Set<GroupKey>([
-  'money',
-  'updates',
-  'newsletters',
-  'promotions',
-])
-const FOLDED_SHOWN = 3
+/** Groups show their newest few rows until asked (a stack is one row), so no group pushes the next one away. */
+const GROUP_SHOWN = 5
 
 type ListedRow = Omit<MailRowData, 'key' | 'list'>
 
@@ -361,12 +355,11 @@ const groupRows = <Row extends ListedRow>(
   )
   return GROUPS.flatMap((key) => {
     const members = byKey.get(key) ?? []
-    const isFolded = FOLDED.has(key) && !unfolded.has(key)
     return members.length > 0
       ? [
           {
             key,
-            rows: isFolded ? members.slice(0, FOLDED_SHOWN) : members,
+            rows: unfolded.has(key) ? members : members.slice(0, GROUP_SHOWN),
             total: members.length,
           },
         ]
@@ -569,11 +562,13 @@ const GroupHeader = ({
   group,
   isUnfolded,
   item,
+  onMarkRead,
   onToggle,
 }: {
   group: ReturnType<typeof groupRows>[number]
   isUnfolded: boolean
   item: VirtualItem
+  onMarkRead: (() => void) | undefined
   onToggle: () => void
 }) => {
   const t = useT()
@@ -581,13 +576,19 @@ const GroupHeader = ({
     <ListRow item={item} className={GROUP_HEADER}>
       <span className="truncate">{t.mail.group[group.key]}</span>
       <span className="tabular-nums opacity-60">{group.total}</span>
+      <span className="ml-auto" />
+      {onMarkRead && (
+        <Button size="xs" variant="link-muted" onClick={onMarkRead}>
+          <HugeiconsIcon
+            icon={MailOpenIcon}
+            strokeWidth={2}
+            data-icon="inline-start"
+          />
+          {t.mail.markShownRead}
+        </Button>
+      )}
       {(group.rows.length < group.total || isUnfolded) && (
-        <Button
-          size="xs"
-          variant="link-muted"
-          className="ml-auto"
-          onClick={onToggle}
-        >
+        <Button size="xs" variant="link-muted" onClick={onToggle}>
           {isUnfolded ? t.mail.showFewer : t.mail.showAll(group.total)}
         </Button>
       )}
@@ -1263,6 +1264,7 @@ const MailRow = ({
             aria-label={message.isUnread ? t.mail.unread : undefined}
             className={unreadDotOf(message.isUnread, isPicking)}
           />
+          <SenderAvatar sender={message} />
           <span
             data-mask
             className={cn(
@@ -1290,7 +1292,6 @@ const MailRow = ({
                 ? 'text-foreground font-medium'
                 : 'text-muted-foreground'
             )}
-          <SenderAvatar sender={message} />
           >
             {dates.format(
               message.receivedAt,
@@ -1400,6 +1401,7 @@ const PinnedRow = ({
           aria-label={message.isUnread ? t.mail.unread : undefined}
           className={unreadDotOf(message.isUnread, isPicking)}
         />
+        <SenderAvatar sender={message} />
         <span
           data-mask
           className={cn(
@@ -1427,7 +1429,6 @@ const PinnedRow = ({
           )}
         >
           {dates.format(
-        <SenderAvatar sender={message} />
             message.receivedAt,
             isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
           )}
@@ -1888,6 +1889,27 @@ interface ActedRow {
   messageIds: string[]
 }
 
+/** Undefined when nothing in the rows is unread, so the control that marks them can hide. */
+const markReadOf = (
+  rows: ActedRow[],
+  mutate: (input: { threadId: string }) => void
+) => {
+  const threadIds = new Set(
+    rows.flatMap(({ burst, message }) =>
+      (burst ?? [message])
+        .filter(({ isUnread }) => isUnread)
+        .map(({ threadId }) => threadId)
+    )
+  )
+  return threadIds.size > 0
+    ? () => {
+        for (const threadId of threadIds) {
+          mutate({ threadId })
+        }
+      }
+    : undefined
+}
+
 const NONE_PICKED: ReadonlySet<string> = new Set()
 const PICKED_SNOOZE = 'picked'
 
@@ -1944,15 +1966,6 @@ const useListActions = ({
   const cursorRows = row ? [row] : []
   const targets = isPicking ? picked : cursorRows
   const messageIds = targets.flatMap((target) => target.messageIds)
-  const unreadThreadIds = [
-    ...new Set(
-      targets.flatMap(({ burst, message }) =>
-        (burst ?? [message])
-          .filter(({ isUnread }) => isUnread)
-          .map(({ threadId }) => threadId)
-      )
-    ),
-  ]
   const code = isPicking ? null : row?.message.code
   const isPinned =
     targets.length > 0 && targets.every(({ message }) => message.isPinned)
@@ -1969,16 +1982,10 @@ const useListActions = ({
   }
   const each = (mutate: (input: { messageId: string }) => void) =>
     thenUnpick(onEach(messageIds, mutate))
+  const markRead = markReadOf(targets, actions.markRead.mutate)
   const onTargets = {
     isPinned,
-    onMarkRead:
-      unreadThreadIds.length > 0
-        ? thenUnpick(() => {
-            for (const threadId of unreadThreadIds) {
-              actions.markRead.mutate({ threadId })
-            }
-          })
-        : undefined,
+    onMarkRead: markRead && thenUnpick(markRead),
     onPin: thenUnpick(pinEach(messageIds, !isPinned, actions.pin.mutate)),
     onSnooze: (until: Date) =>
       each(({ messageId }) => actions.snooze.mutate({ messageId, until }))(),
@@ -2622,6 +2629,7 @@ const MailPage = () => {
               group={group}
               isUnfolded={unfolded.has(group.key)}
               item={item}
+              onMarkRead={markReadOf(group.rows, actions.markRead.mutate)}
               onToggle={() => toggleGroup(group.key)}
             />
           ),
