@@ -1,4 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import { cardsBleedClassName } from '@fewmail/ui/components/accordion'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
@@ -15,8 +16,8 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { isToday } from 'date-fns'
-import { useReducedMotion } from 'motion/react'
-import { AnimateView } from 'motion/react-animate-view'
+import { motion, useReducedMotion } from 'motion/react'
+import type { Transition } from 'motion/react'
 import { Fragment, useEffect, useRef, useState } from 'react'
 
 import { ListenButton } from '~/components/listen-button'
@@ -28,6 +29,9 @@ type Row = RouterOutputs['reading']['list'][number]
 type Summary = NonNullable<RouterOutputs['reading']['summary']>
 
 const senderOf = (row: Row) => row.fromName ?? row.fromEmail
+
+// The card's `rounded-2xl` as a motion value: motion keeps only its own radius round while the card scales.
+const CARD_RADIUS = 16
 
 /** The day's newsletters and the agent's one summary of them, written only when there are newsletters. */
 export const useReading = () => {
@@ -255,11 +259,11 @@ const SummaryGaps = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
   )
 }
 
-// One clock for the folded head and the open pane, so the pane grows out of the section and shrinks back into it.
-const useMorph = () =>
+// One spring for the card and the pane, so the pane grows out of the card and shrinks back into it.
+const useMorph = (): Transition =>
   useReducedMotion()
     ? { duration: 0 }
-    : { duration: 0.4, ease: [0.32, 0.72, 0, 1] as const }
+    : { bounce: 0.15, type: 'spring', visualDuration: 0.5 }
 
 const ReadingIntro = ({
   isWriting,
@@ -282,8 +286,9 @@ const ReadingIntro = ({
 }
 
 /**
- * What your newsletters said, on Home under the header: the opening and the topics. `N` (`?page=reading`) grows it
- * into `ReadingPane`; while the pane is open the section keeps its place, unseen, so it shrinks back into the same spot.
+ * What your newsletters said, a card on Home under the header: the opening and the topics. `N` (`?page=reading`) grows
+ * it into `ReadingPane` (one `layoutId`); while the pane is open the card keeps its place, unseen, so it shrinks back
+ * into the same spot.
  */
 export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
   const t = useT()
@@ -292,11 +297,8 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
   if (rows.length === 0) {
     return null
   }
-  const section = (
-    <section
-      aria-label={t.reading.title}
-      className={cn('flex flex-col gap-3', isOpen && 'invisible')}
-    >
+  const content = (
+    <>
       <div className="flex min-h-8 items-center gap-2">
         <h2 className="text-muted-foreground text-xs font-medium">
           {t.reading.summary}
@@ -329,14 +331,34 @@ export const ReadingSection = ({ isOpen }: { isOpen: boolean }) => {
           {summary.sections.map(({ title }) => title).join(' · ')}
         </p>
       )}
-    </section>
+    </>
+  )
+  const cardClassName = cn(
+    'bg-card ring-foreground/6 flex flex-col gap-3 px-4.75 py-4 ring',
+    cardsBleedClassName
   )
   return isOpen ? (
-    section
+    <section aria-hidden className={cn(cardClassName, 'invisible rounded-2xl')}>
+      {content}
+    </section>
   ) : (
-    <AnimateView name="reading" transition={transition}>
-      {section}
-    </AnimateView>
+    <motion.section
+      layoutId="reading"
+      transition={transition}
+      aria-label={t.reading.title}
+      initial={false}
+      animate={{ borderRadius: CARD_RADIUS }}
+      className={cn(cardClassName, 'relative z-10 overflow-hidden')}
+    >
+      <motion.div
+        layout="position"
+        layoutId="reading-content"
+        transition={transition}
+        className="flex flex-col gap-3"
+      >
+        {content}
+      </motion.div>
+    </motion.section>
   )
 }
 
@@ -350,41 +372,54 @@ export const ReadingPane = ({ isOpen }: { isOpen: boolean }) => {
     return null
   }
   return (
-    <AnimateView name="reading" transition={transition}>
-      <div className="bg-background absolute inset-0 overflow-y-auto">
+    <motion.div
+      layoutId="reading"
+      transition={transition}
+      initial={false}
+      animate={{ borderRadius: 0 }}
+      className="bg-background absolute inset-0 z-10 overflow-hidden"
+    >
+      <div className="h-full overflow-y-auto">
         <section
           aria-label={t.reading.title}
-          className="mx-auto flex max-w-3xl flex-col gap-3 px-10 pt-12 pb-16"
+          className="mx-auto max-w-3xl px-10 pt-12 pb-16"
         >
-          <div className="flex min-h-8 items-center gap-2">
-            <h2 className="text-muted-foreground text-xs font-medium">
-              {t.reading.summary}
-            </h2>
-            <div className="ml-auto flex gap-2">
-              {summary && <ListenButton path="/voice/reading" />}
-              <IconButton
-                icon={Cancel01Icon}
-                label={t.mail.close}
-                shortcut={<Kbd>esc</Kbd>}
-                size="icon-sm"
-                variant="ghost-muted"
-                onClick={() =>
-                  navigate({
-                    search: (prev) => ({ ...prev, page: undefined }),
-                    to: '/home',
-                  })
-                }
-              />
+          <motion.div
+            layout="position"
+            layoutId="reading-content"
+            transition={transition}
+            className="flex flex-col gap-3"
+          >
+            <div className="flex min-h-8 items-center gap-2">
+              <h2 className="text-muted-foreground text-xs font-medium">
+                {t.reading.summary}
+              </h2>
+              <div className="ml-auto flex gap-2">
+                {summary && <ListenButton path="/voice/reading" />}
+                <IconButton
+                  icon={Cancel01Icon}
+                  label={t.mail.close}
+                  shortcut={<Kbd>esc</Kbd>}
+                  size="icon-sm"
+                  variant="ghost-muted"
+                  onClick={() =>
+                    navigate({
+                      search: (prev) => ({ ...prev, page: undefined }),
+                      to: '/home',
+                    })
+                  }
+                />
+              </div>
             </div>
-          </div>
-          <ReadingIntro isWriting={isWriting} summary={summary} />
-          <div className="flex flex-col gap-6 pt-2">
-            {summary && <SummaryText rows={rows} summary={summary} />}
-            {summary && <SummaryGaps rows={rows} summary={summary} />}
-            <NewsletterList rows={rows} summary={summary} />
-          </div>
+            <ReadingIntro isWriting={isWriting} summary={summary} />
+            <div className="flex flex-col gap-6 pt-2">
+              {summary && <SummaryText rows={rows} summary={summary} />}
+              {summary && <SummaryGaps rows={rows} summary={summary} />}
+              <NewsletterList rows={rows} summary={summary} />
+            </div>
+          </motion.div>
         </section>
       </div>
-    </AnimateView>
+    </motion.div>
   )
 }

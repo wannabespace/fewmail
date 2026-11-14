@@ -56,7 +56,8 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { useDeferredValue, useEffect, useRef, useState } from 'react'
+import { motion } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
@@ -1487,8 +1488,7 @@ const HomePage = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { page } = Route.useSearch()
-  // Router state commits synchronously and never starts a view transition; the deferred re-render is what morphs Reading.
-  const isReadingOpen = useDeferredValue(page === 'reading')
+  const isReadingOpen = page === 'reading'
   const { rows: newsletters } = useReading()
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
@@ -1790,7 +1790,7 @@ const HomePage = () => {
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <main className="flex min-h-0 flex-1 flex-col">
         <div className="relative min-h-0 flex-1">
-          <div className="h-full overflow-y-auto">
+          <motion.div layoutScroll className="h-full overflow-y-auto">
             <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
               {page === 'journal' && <Journal />}
               {page === 'tidy' && (
@@ -1901,7 +1901,7 @@ const HomePage = () => {
                 </>
               )}
             </div>
-          </div>
+          </motion.div>
           <ReadingPane isOpen={isReadingOpen} />
         </div>
         <KeyHints

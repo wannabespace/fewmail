@@ -1,17 +1,3 @@
 @import '@fewmail/ui/globals.css';
 
 @source "./**/*.{ts,tsx}";
-
-/* Reading's pane grows out of its section on Home (`ReadingPane`): the box clips and carries the pane's paper, and both snapshots keep their own size, so the text slides instead of stretching. */
-::view-transition-group(reading) {
-  overflow: clip;
-  background: var(--background);
-}
-
-::view-transition-old(reading),
-::view-transition-new(reading) {
-  width: 100%;
-  height: 100%;
-  object-fit: none;
-  object-position: top;
-}
