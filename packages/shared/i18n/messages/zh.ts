@@ -13,7 +13,7 @@ export const zh: Messages = {
     follow_up: '跟进',
     mark_read: '标为已读',
     pay: '付款',
-    read: '阅读',
+    read: '值得一读',
     reply: '回复',
     schedule: '安排',
     unsubscribe: '退订',

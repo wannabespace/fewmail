@@ -687,7 +687,7 @@ export const uk: Messages = {
     follow_up: 'Нагадати',
     mark_read: 'Прочитано',
     pay: 'Оплатити',
-    read: 'Прочитати',
+    read: 'Варто прочитати',
     reply: 'Відповісти',
     schedule: 'Запланувати',
     unsubscribe: 'Відписатися',

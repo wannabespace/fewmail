@@ -684,7 +684,7 @@ export const de: Messages = {
     follow_up: 'Nachfassen',
     mark_read: 'Gelesen',
     pay: 'Bezahlen',
-    read: 'Lesen',
+    read: 'Lesenswert',
     reply: 'Antworten',
     schedule: 'Planen',
     unsubscribe: 'Abmelden',

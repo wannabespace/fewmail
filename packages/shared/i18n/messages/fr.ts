@@ -695,7 +695,7 @@ export const fr: Messages = {
     follow_up: 'Relancer',
     mark_read: 'Marquer lu',
     pay: 'Payer',
-    read: 'Lire',
+    read: 'À lire',
     reply: 'Répondre',
     schedule: 'Planifier',
     unsubscribe: 'Se désabonner',

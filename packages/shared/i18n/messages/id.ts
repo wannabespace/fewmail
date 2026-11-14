@@ -12,7 +12,7 @@ export const id: Messages = {
     follow_up: 'Tindak lanjuti',
     mark_read: 'Tandai dibaca',
     pay: 'Bayar',
-    read: 'Baca',
+    read: 'Layak dibaca',
     reply: 'Balas',
     schedule: 'Jadwalkan',
     trash: 'Pindahkan ke sampah',

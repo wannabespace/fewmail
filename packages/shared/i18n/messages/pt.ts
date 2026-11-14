@@ -12,7 +12,7 @@ export const pt: Messages = {
     follow_up: 'Acompanhar',
     mark_read: 'Marcar como lido',
     pay: 'Pagar',
-    read: 'Ler',
+    read: 'Vale a pena ler',
     reply: 'Responder',
     schedule: 'Agendar',
     trash: 'Mover para lixeira',

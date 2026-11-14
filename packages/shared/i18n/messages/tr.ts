@@ -12,7 +12,7 @@ export const tr: Messages = {
     follow_up: 'Takip et',
     mark_read: 'Okundu yap',
     pay: 'Öde',
-    read: 'Oku',
+    read: 'Okumaya değer',
     reply: 'Yanıtla',
     schedule: 'Planla',
     trash: 'Çöpe taşı',

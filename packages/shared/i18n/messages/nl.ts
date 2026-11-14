@@ -12,7 +12,7 @@ export const nl: Messages = {
     follow_up: 'Opvolgen',
     mark_read: 'Markeer gelezen',
     pay: 'Betalen',
-    read: 'Lezen',
+    read: 'Het lezen waard',
     reply: 'Beantwoorden',
     schedule: 'Inplannen',
     trash: 'Naar prullenbak',

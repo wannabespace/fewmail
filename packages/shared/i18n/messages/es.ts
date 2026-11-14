@@ -686,7 +686,7 @@ export const es: Messages = {
     follow_up: 'Hacer seguimiento',
     mark_read: 'Marcar leído',
     pay: 'Pagar',
-    read: 'Leer',
+    read: 'Vale la pena leer',
     reply: 'Responder',
     schedule: 'Agendar',
     unsubscribe: 'Darse de baja',

@@ -10,7 +10,7 @@ export const en = {
     follow_up: 'Follow up',
     mark_read: 'Mark read',
     pay: 'Pay',
-    read: 'Read',
+    read: 'Worth reading',
     reply: 'Reply',
     schedule: 'Schedule',
     security: 'I checked it',

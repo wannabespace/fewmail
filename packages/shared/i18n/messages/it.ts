@@ -689,7 +689,7 @@ export const it: Messages = {
     follow_up: 'Sollecita',
     mark_read: 'Segna letto',
     pay: 'Paga',
-    read: 'Leggi',
+    read: 'Da leggere',
     reply: 'Rispondi',
     schedule: 'Pianifica',
     unsubscribe: 'Disiscriviti',

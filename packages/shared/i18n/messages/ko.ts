@@ -13,7 +13,7 @@ export const ko: Messages = {
     follow_up: '후속 조치',
     mark_read: '읽음 표시',
     pay: '결제',
-    read: '읽기',
+    read: '읽어볼 만함',
     reply: '답장',
     schedule: '일정 잡기',
     unsubscribe: '구독 취소',

@@ -13,7 +13,7 @@ export const ja: Messages = {
     follow_up: 'フォローアップ',
     mark_read: '既読にする',
     pay: '支払う',
-    read: '読む',
+    read: '読む価値あり',
     reply: '返信',
     schedule: '予定に入れる',
     unsubscribe: '配信停止',

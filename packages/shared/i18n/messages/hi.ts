@@ -13,7 +13,7 @@ export const hi: Messages = {
     follow_up: 'फ़ॉलो-अप',
     mark_read: 'पढ़ा हुआ मार्क करें',
     pay: 'भुगतान करें',
-    read: 'पढ़ें',
+    read: 'पढ़ने लायक',
     reply: 'जवाब दें',
     schedule: 'शेड्यूल करें',
     unsubscribe: 'अनसब्सक्राइब करें',
