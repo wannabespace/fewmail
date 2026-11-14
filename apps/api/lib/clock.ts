@@ -20,6 +20,19 @@ export const localClock = (timezone: string, date = new Date()) => {
   }
 }
 
+/** "2026-11-15 00:43 GMT+02:00": the model resolves "today" and "tonight" from it, so it must be the user's clock, not UTC. */
+export const localStamp = (timezone: string, date: Date) =>
+  new Intl.DateTimeFormat('sv-SE', {
+    day: '2-digit',
+    hour: '2-digit',
+    hourCycle: 'h23',
+    minute: '2-digit',
+    month: '2-digit',
+    timeZone: timezone,
+    timeZoneName: 'longOffset',
+    year: 'numeric',
+  }).format(date)
+
 /** Intl throws on an unknown zone, which would fail every worker loop for that user. */
 export const isTimeZone = (timezone: string) =>
   Result.try(() => localClock(timezone)).isOk()

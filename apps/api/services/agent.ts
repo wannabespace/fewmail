@@ -36,6 +36,7 @@ import {
   NO_EM_DASH,
   trackUsage,
 } from '../lib/ai'
+import { localStamp } from '../lib/clock'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
 import { oneTimeCode } from '../lib/one-time-code'
@@ -141,12 +142,12 @@ const senderOf = (message: Message) =>
     ? `${message.fromName} <${message.fromEmail}>`
     : message.fromEmail
 
-const messagePrompt = (message: Message) =>
+const messagePrompt = (message: Message, timezone: string) =>
   [
     `From: ${senderOf(message)}`,
     `To: ${message.to.join(', ')}`,
     message.cc.length > 0 ? `Cc: ${message.cc.join(', ')}` : null,
-    `Date: ${message.receivedAt.toISOString()}`,
+    `Date: ${localStamp(timezone, message.receivedAt)}`,
     `Subject: ${message.subject}`,
     message.listUnsubscribe
       ? 'Has List-Unsubscribe header (bulk sender).'
@@ -159,7 +160,7 @@ const messagePrompt = (message: Message) =>
     .join('\n')
 
 /** The email with what came before it in its thread, so a judgement or a reply knows the conversation. */
-const threadPrompt = async (message: Message) => {
+const threadPrompt = async (message: Message, timezone: string) => {
   const earlier = await db
     .select()
     .from(messages)
@@ -173,7 +174,7 @@ const threadPrompt = async (message: Message) => {
     .orderBy(desc(messages.receivedAt))
     .limit(EARLIER_LIMIT)
   if (earlier.length === 0) {
-    return messagePrompt(message)
+    return messagePrompt(message, timezone)
   }
   return [
     'Earlier in this thread, oldest first:',
@@ -181,11 +182,11 @@ const threadPrompt = async (message: Message) => {
       .toReversed()
       .map(
         (previous) =>
-          `---\nFrom: ${previous.isFromMe ? 'the user' : senderOf(previous)}\nDate: ${previous.receivedAt.toISOString()}\n\n${previous.body.slice(0, EARLIER_BODY_LIMIT)}`
+          `---\nFrom: ${previous.isFromMe ? 'the user' : senderOf(previous)}\nDate: ${localStamp(timezone, previous.receivedAt)}\n\n${previous.body.slice(0, EARLIER_BODY_LIMIT)}`
       ),
     '---',
     'The email to handle:',
-    messagePrompt(message),
+    messagePrompt(message, timezone),
   ].join('\n')
 }
 
@@ -259,10 +260,8 @@ const draftReply = async (
 }
 
 export const writeReply = async (input: ReplyInput) => {
-  const [settings, thread] = await Promise.all([
-    getSettings(input.userId),
-    threadPrompt(input.message),
-  ])
+  const settings = await getSettings(input.userId)
+  const thread = await threadPrompt(input.message, settings?.timezone ?? 'UTC')
   return draftReply({ ...input, settings, thread })
 }
 
@@ -691,7 +690,7 @@ export const analyzeMessage = async (
   userEmail: string,
   allowance: EmailAllowance | null
 ) => {
-  const [settings, userRules, thread] = await Promise.all([
+  const [settings, userRules] = await Promise.all([
     getSettings(message.userId),
     db
       .select()
@@ -703,11 +702,11 @@ export const analyzeMessage = async (
           isNotNull(rules.instruction)
         )
       ),
-    threadPrompt(message),
   ])
   if (!settings) {
     return
   }
+  const thread = await threadPrompt(message, settings.timezone)
 
   const analysis = await analyze({
     allowance,
