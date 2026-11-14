@@ -682,7 +682,7 @@ export const de: Messages = {
     trash: 'In den Papierkorb',
     archive: 'Archivieren',
     follow_up: 'Nachfassen',
-    mark_read: 'Gelesen',
+    mark_read: 'Als gelesen markieren',
     pay: 'Bezahlen',
     read: 'Lesenswert',
     reply: 'Antworten',

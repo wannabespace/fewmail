@@ -685,7 +685,7 @@ export const uk: Messages = {
     trash: 'У кошик',
     archive: 'В архів',
     follow_up: 'Нагадати',
-    mark_read: 'Прочитано',
+    mark_read: 'Позначити прочитаним',
     pay: 'Оплатити',
     read: 'Варто прочитати',
     reply: 'Відповісти',
