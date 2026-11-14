@@ -209,7 +209,9 @@ export const ReadingView = ({ thread }: { thread: string | undefined }) => {
   const navigate = useNavigate()
   const { isPending, isWriting, rows, summary } = useReading()
   const noteOf = useNoteOf(summary)
-  const [cursor, setCursor] = useState(0)
+  const [cursor, setCursor] = useState<number | null>(null)
+  const current =
+    cursor ?? rows.findIndex(({ threadId }) => threadId === thread)
 
   const open = (threadId: string | undefined) =>
     navigate({
@@ -218,7 +220,7 @@ export const ReadingView = ({ thread }: { thread: string | undefined }) => {
       to: '/home',
     })
   const move = (step: number) => {
-    const next = Math.max(0, Math.min(rows.length - 1, cursor + step))
+    const next = Math.max(0, Math.min(rows.length - 1, current + step))
     const threadId = rows[next]?.threadId
     setCursor(next)
     if (threadId) {
@@ -233,8 +235,8 @@ export const ReadingView = ({ thread }: { thread: string | undefined }) => {
   useHotkey('ArrowDown', () => move(1), keys)
   useHotkey('K', () => move(-1), keys)
   useHotkey('ArrowUp', () => move(-1), keys)
-  useHotkey('Enter', () => open(rows[cursor]?.threadId), {
-    enabled: keys.enabled && !thread,
+  useHotkey('Enter', () => open(rows[current]?.threadId), {
+    enabled: current !== -1 && !thread,
   })
 
   const cited = citedIn(summary)
@@ -282,7 +284,7 @@ export const ReadingView = ({ thread }: { thread: string | undefined }) => {
           {rows.map((row, index) => (
             <SettingsRow
               key={row.id}
-              active={index === cursor}
+              active={index === current}
               render={
                 <Link
                   to="/home"

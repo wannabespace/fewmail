@@ -36,9 +36,10 @@ const SubscriptionsPage = () => {
   const { data: subscriptions, isPending } = useQuery(
     orpc.subscriptions.list.queryOptions()
   )
-  const [cursor, setCursor] = useState(0)
+  const [cursor, setCursor] = useState<number | null>(null)
   const rows = subscriptions ?? []
-  const active = rows[Math.min(cursor, rows.length - 1)]
+  const active =
+    cursor === null ? undefined : rows[Math.min(cursor, rows.length - 1)]
 
   const navigate = useNavigate()
   const unsubscribe = useMutation(
@@ -103,26 +104,19 @@ const SubscriptionsPage = () => {
   const show = (row?: Subscription) =>
     row && navigate({ search: { q: listSearch(row) }, to: '/mail' })
 
-  const listKeys = { enabled: Boolean(active) }
-  useHotkey(
-    'J',
-    () => setCursor((index) => Math.min(rows.length - 1, index + 1)),
-    listKeys
-  )
-  useHotkey(
-    'ArrowDown',
-    () => setCursor((index) => Math.min(rows.length - 1, index + 1)),
-    listKeys
-  )
-  useHotkey('K', () => setCursor((index) => Math.max(0, index - 1)), listKeys)
-  useHotkey(
-    'ArrowUp',
-    () => setCursor((index) => Math.max(0, index - 1)),
-    listKeys
-  )
-  useHotkey('U', () => leave(active), listKeys)
-  useHotkey('O', () => show(active), listKeys)
-  useHotkey('Enter', () => show(active), listKeys)
+  const listKeys = { enabled: rows.length > 0 }
+  const rowKeys = { enabled: Boolean(active) }
+  const step = (by: number) =>
+    setCursor((index) =>
+      Math.max(0, Math.min(rows.length - 1, (index ?? -1) + by))
+    )
+  useHotkey('J', () => step(1), listKeys)
+  useHotkey('ArrowDown', () => step(1), listKeys)
+  useHotkey('K', () => step(-1), listKeys)
+  useHotkey('ArrowUp', () => step(-1), listKeys)
+  useHotkey('U', () => leave(active), rowKeys)
+  useHotkey('O', () => show(active), rowKeys)
+  useHotkey('Enter', () => show(active), rowKeys)
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden">
@@ -186,13 +180,17 @@ const SubscriptionsPage = () => {
           )}
         </div>
       </div>
-      {active && (
+      {rows.length > 0 && (
         <KeyHints
-          hints={[
-            ['J / K', t.keys.move],
-            ['⏎', t.keys.open],
-            ['U', t.keys.unsubscribe],
-          ]}
+          hints={
+            active
+              ? [
+                  ['J / K', t.keys.move],
+                  ['⏎', t.keys.open],
+                  ['U', t.keys.unsubscribe],
+                ]
+              : [['J / K', t.keys.move]]
+          }
         />
       )}
     </main>
