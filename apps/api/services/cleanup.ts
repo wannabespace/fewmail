@@ -39,6 +39,7 @@ import { listHashOf } from './zombies'
 const LOOKBACK_DAYS = 30
 const MIN_UNOPENED = 3
 const MAX_SENDERS = 25
+const SUBSCRIPTIONS_PAGE = 100
 const WEEKDAY_SUNDAY = 0
 
 const latest = <T>(column: AnyColumn) =>
@@ -103,7 +104,22 @@ export const listSubscriptions = async (userId: string) => {
   )
   return namedLists(rows)
     .filter((row) => !unsubscribed.has(listHashOf(row)))
-    .toSorted((left, right) => right.count - left.count)
+    .toSorted(
+      (left, right) =>
+        right.count - left.count ||
+        left.messageId.localeCompare(right.messageId)
+    )
+}
+
+/** The order is total (ties by messageId), or an offset would repeat or skip lists of equal count between pages. */
+export const pageSubscriptions = async (userId: string, offset: number) => {
+  const subscriptions = await listSubscriptions(userId)
+  const nextOffset = offset + SUBSCRIPTIONS_PAGE
+  return {
+    nextOffset: nextOffset < subscriptions.length ? nextOffset : null,
+    rows: subscriptions.slice(offset, nextOffset),
+    total: subscriptions.length,
+  }
 }
 
 /** Mailing lists the user got at least three times in a month and never opened. */

@@ -9,15 +9,15 @@ import {
 } from '@fewmail/ui/components/custom/settings-group'
 import { Empty, EmptyDescription } from '@fewmail/ui/components/empty'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import {
+  useInfiniteQuery,
   useMutation,
   useMutationState,
-  useQuery,
-  useQueryClient,
 } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
@@ -25,19 +25,57 @@ import { KeyHints } from '~/components/key-hints'
 import { useT } from '~/lib/i18n'
 import { offerBlock } from '~/lib/offer-block'
 import { orpc, refetchChanged } from '~/lib/orpc'
-import { warmQuery } from '~/lib/query-client'
+import { queryClient } from '~/lib/query-client'
 
-type Subscription = RouterOutputs['subscriptions']['list'][number]
+type Subscription = RouterOutputs['subscriptions']['list']['rows'][number]
+
+const subscriptionPages = orpc.subscriptions.list.infiniteOptions({
+  getNextPageParam: ({ nextOffset }) => nextOffset ?? undefined,
+  initialPageParam: 0,
+  input: (offset: number) => ({ offset }),
+})
+
+/** Watches the list's end inside the page's scroller and asks for the next page before it shows. */
+const NextPageLoader = ({
+  hasMore,
+  isLoading,
+  load,
+}: {
+  hasMore: boolean
+  isLoading: boolean
+  load: () => unknown
+}) => {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const node = ref.current
+    if (!node || !hasMore || isLoading) {
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          load()
+        }
+      },
+      { root: node.closest('main > div'), rootMargin: '0px 0px 600px 0px' }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [hasMore, isLoading, load])
+  return (
+    <div ref={ref} hidden={!hasMore} className="flex justify-center py-3">
+      {isLoading && <Spinner />}
+    </div>
+  )
+}
 
 const SubscriptionsPage = () => {
   const t = useT()
-  const queryClient = useQueryClient()
-  const listKey = orpc.subscriptions.list.queryKey()
-  const { data: subscriptions, isPending } = useQuery(
-    orpc.subscriptions.list.queryOptions()
-  )
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } =
+    useInfiniteQuery(subscriptionPages)
   const [cursor, setCursor] = useState<number | null>(null)
-  const rows = subscriptions ?? []
+  const rows = data?.pages.flatMap((page) => page.rows) ?? []
+  const total = data?.pages[0]?.total ?? 0
   const active =
     cursor === null ? undefined : rows[Math.min(cursor, rows.length - 1)]
 
@@ -50,8 +88,17 @@ const SubscriptionsPage = () => {
       },
       onError: (_, { messageId }) => toast.dismiss(messageId),
       onSuccess: ({ link, unsubscribed }, { messageId }) => {
-        queryClient.setQueryData<Subscription[]>(listKey, (previous) =>
-          previous?.filter((row) => row.messageId !== messageId)
+        queryClient.setQueryData(
+          subscriptionPages.queryKey,
+          (previous) =>
+            previous && {
+              ...previous,
+              pages: previous.pages.map((page) => ({
+                ...page,
+                rows: page.rows.filter((row) => row.messageId !== messageId),
+                total: page.total - 1,
+              })),
+            }
         )
         if (link) {
           toast(t.mail.unsubscribeYourself, {
@@ -137,7 +184,7 @@ const SubscriptionsPage = () => {
             </Empty>
           )}
           {rows.length > 0 && (
-            <SettingsGroup title={t.subscriptions.count(rows.length)}>
+            <SettingsGroup title={t.subscriptions.count(total)}>
               {rows.map((row) => (
                 <SettingsRow
                   key={row.messageId}
@@ -178,6 +225,11 @@ const SubscriptionsPage = () => {
               ))}
             </SettingsGroup>
           )}
+          <NextPageLoader
+            hasMore={hasNextPage}
+            isLoading={isFetchingNextPage}
+            load={fetchNextPage}
+          />
         </div>
       </div>
       {rows.length > 0 && (
@@ -199,5 +251,11 @@ const SubscriptionsPage = () => {
 
 export const Route = createFileRoute('/_app/subscriptions')({
   component: SubscriptionsPage,
-  loader: () => warmQuery(orpc.subscriptions.list.queryOptions()),
+  loader: () =>
+    queryClient
+      .ensureInfiniteQueryData({
+        ...subscriptionPages,
+        revalidateIfStale: true,
+      })
+      .catch(() => null),
 })

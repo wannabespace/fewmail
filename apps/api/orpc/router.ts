@@ -48,7 +48,7 @@ import {
 } from '../services/calendar'
 import {
   keepSender,
-  listSubscriptions,
+  pageSubscriptions,
   runClearOut,
   scanClearOut,
   undoClearOut,
@@ -517,7 +517,11 @@ export const router = {
       .handler(({ context, input }) =>
         runClearOut(context.user.id, input.groups)
       ),
-    list: authed.handler(({ context }) => listSubscriptions(context.user.id)),
+    list: authed
+      .input(type({ offset: 'number.integer >= 0' }))
+      .handler(({ context, input }) =>
+        pageSubscriptions(context.user.id, input.offset)
+      ),
     scanClearOut: authed.handler(({ context }) =>
       scanClearOut(context.user.id)
     ),
