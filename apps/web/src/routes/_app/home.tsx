@@ -748,11 +748,11 @@ const TidyCard = ({
   const t = useT()
   useHotkey('T', () => tidy.approve(tidy.tidy), {
     enabled: canUseKeys && tidy.tidy.length > 0,
+  })
+
   if (tidy.tidy.length === 0) {
     return null
   }
-  })
-
   return (
     <Item variant="card" size="sm">
       <ItemContent>

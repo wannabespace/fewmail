@@ -1732,8 +1732,8 @@ const readerHintsOf = ({
     : [
         pinHint(t, isPinned),
         ...(hasAgent ? [['R', t.keys.draftReply] as [string, string]] : []),
-      ]),
         ['⇧O', t.mail.openFullPage] as [string, string],
+      ]),
   ['esc', t.keys.close],
   ['J / K', t.keys.move],
 ]
@@ -2145,8 +2145,8 @@ const MailPage = () => {
             ) : (
               <ThreadView
                 key={thread}
-                isSnoozed={filter === 'snoozed'}
                 canOpenFullPage
+                isSnoozed={filter === 'snoozed'}
                 threadId={thread}
                 onClose={closeThread}
                 onDone={closeThread}

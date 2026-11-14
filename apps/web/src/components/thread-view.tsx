@@ -950,18 +950,18 @@ const ReaderHeader = ({
   children,
   note,
   onClose,
+  onOpenFullPage,
   title,
 }: {
   children?: ReactNode
   note?: ReactNode
   onClose: () => void
-  onOpenFullPage,
+  onOpenFullPage?: () => void
   title: ReactNode
 }) => {
   const t = useT()
   return (
     <header className="shrink-on-scroll bg-background sticky top-0 z-10 -mb-3 flex flex-col">
-  onOpenFullPage?: () => void
       <div className="flex items-start gap-2">
         <div className="flex flex-1 flex-col gap-1">
           <h1 data-mask className="font-serif text-2xl tracking-tight">
@@ -969,11 +969,6 @@ const ReaderHeader = ({
           </h1>
           {note && <p className="text-muted-foreground text-sm">{note}</p>}
         </div>
-        <IconButton
-          icon={Cancel01Icon}
-          label={t.mail.close}
-          shortcut={<Kbd>esc</Kbd>}
-          size="icon-sm"
         {onOpenFullPage && (
           <IconButton
             icon={ArrowExpand01Icon}
@@ -984,6 +979,11 @@ const ReaderHeader = ({
             onClick={onOpenFullPage}
           />
         )}
+        <IconButton
+          icon={Cancel01Icon}
+          label={t.mail.close}
+          shortcut={<Kbd>esc</Kbd>}
+          size="icon-sm"
           variant="ghost-muted"
           onClick={onClose}
         />
@@ -993,30 +993,30 @@ const ReaderHeader = ({
   )
 }
 
+/** `canOpenFullPage`: a reader beside a list offers the email on its own page (`/mail/$threadId`, ⇧O). */
 export const ThreadView = ({
+  canOpenFullPage = false,
   isSnoozed,
   onClose,
   onDone,
   threadId,
-/** `canOpenFullPage`: a reader beside a list offers the email on its own page (`/mail/$threadId`, ⇧O). */
 }: {
-  canOpenFullPage = false,
+  canOpenFullPage?: boolean
   isSnoozed: boolean
   onClose: () => void
   onDone: () => void
   threadId: string
 }) => {
-  canOpenFullPage?: boolean
   const t = useT()
+  const navigate = useNavigate()
+  const openFullPage = () =>
+    navigate({ params: { threadId }, to: '/mail/$threadId' })
+  useHotkey('Shift+O', openFullPage, { enabled: canOpenFullPage })
   const dates = useDates()
   const { user } = useMe()
   const hasAgent = useHasAgent()
   const { data } = useThread(threadId)
   const [composing, setComposing] = useState<Draft | null>(null)
-  const navigate = useNavigate()
-  const openFullPage = () =>
-    navigate({ params: { threadId }, to: '/mail/$threadId' })
-  useHotkey('Shift+O', openFullPage, { enabled: canOpenFullPage })
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
