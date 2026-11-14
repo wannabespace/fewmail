@@ -1574,18 +1574,13 @@ export const es: Messages = {
       },
       money: {
         description:
-          'Pagos, suscripciones, facturas y reembolsos: qué pago, a quién y cuánto.',
-        name: 'Dinero',
+          'Pagos, suscripciones, facturas y reembolsos: qué pago, a quién, cuánto y cuándo se renueva.',
+        name: 'Finanzas',
       },
       orders: {
         description:
           'Pedidos en línea y entregas: qué compré, a quién y dónde está.',
         name: 'Pedidos',
-      },
-      subscriptions: {
-        description:
-          'Servicios que pago con regularidad: cuánto cuesta cada uno, cada cuánto y cuándo se renueva.',
-        name: 'Suscripciones de pago',
       },
       trips: {
         description:

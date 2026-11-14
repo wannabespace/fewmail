@@ -1488,16 +1488,13 @@ export const zh: Messages = {
         name: '学习',
       },
       money: {
-        description: '付款、订阅、账单和退款：我为什么付钱、付给谁、付多少。',
-        name: '钱',
+        description:
+          '付款、订阅、账单和退款：我为什么付钱、付给谁、付多少、下次何时续费。',
+        name: '财务',
       },
       orders: {
         description: '网购订单和快递：买了什么、在哪家买的、现在到哪了。',
         name: '订单',
-      },
-      subscriptions: {
-        description: '我定期付费的服务：每项多少钱、多久一次、下次何时续费。',
-        name: '付费订阅',
       },
       trips: {
         description: '机票、火车、酒店和租车：去哪里、什么时候、花多少钱。',

@@ -1515,18 +1515,13 @@ export const ko: Messages = {
       },
       money: {
         description:
-          '결제, 구독, 청구서, 환불: 무엇에, 누구에게, 얼마를 내는지.',
-        name: '돈',
+          '결제, 구독, 청구서, 환불: 무엇에, 누구에게, 얼마를 내는지, 다음 갱신일.',
+        name: '재정',
       },
       orders: {
         description:
           '온라인 주문과 배송: 무엇을 어디서 샀고 지금 어디에 있는지.',
         name: '주문',
-      },
-      subscriptions: {
-        description:
-          '정기적으로 결제하는 서비스: 각각의 금액, 주기, 다음 갱신일.',
-        name: '유료 구독',
       },
       trips: {
         description: '항공, 기차, 호텔, 렌터카: 어디로, 언제, 비용은 얼마인지.',

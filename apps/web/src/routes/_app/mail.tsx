@@ -553,6 +553,7 @@ const ViewPicker = ({
 }) => {
   const t = useT()
   const [isOpen, setIsOpen] = useState(false)
+  const active = useRef<HTMLButtonElement>(null)
   const pick = (next: Filter) => {
     setIsOpen(false)
     onChange(next)
@@ -569,11 +570,13 @@ const ViewPicker = ({
           className="text-muted-foreground"
         />
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-120">
+      {/* Focus lands on the picked view: a focus ring on the first card read as a second pick. */}
+      <PopoverContent align="start" className="w-120" initialFocus={active}>
         <div className="grid grid-cols-3 gap-2">
           {INBOX_VIEWS.map((value) => (
             <button
               key={value}
+              ref={value === filter ? active : undefined}
               type="button"
               aria-current={value === filter || undefined}
               onClick={() => pick(value)}
@@ -585,7 +588,7 @@ const ViewPicker = ({
               <ViewSketch lines={VIEW_SKETCHES[value]} />
               <span className="flex flex-col gap-0.5 px-1 pb-0.5">
                 <span className="font-medium">{t.mail.filter[value]}</span>
-                <span className="text-muted-foreground line-clamp-3 text-xs">
+                <span className="text-muted-foreground text-xs">
                   {t.mail.filterAbout[value]}
                 </span>
               </span>

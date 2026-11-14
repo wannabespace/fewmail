@@ -1,5 +1,6 @@
 import {
   BOARD_PERIODS,
+  BOARD_PRESET_PERIODS,
   BOARD_PRESETS,
   DEFAULT_BOARD_PERIOD,
 } from '@fewmail/shared/agent'
@@ -138,6 +139,7 @@ const NewBoardForm = ({ onDone }: { onDone: () => void }) => {
               onClick={() => {
                 setName(t.boards.starter[preset].name)
                 setDescription(t.boards.starter[preset].description)
+                setPeriod(BOARD_PRESET_PERIODS[preset] ?? DEFAULT_BOARD_PERIOD)
               }}
             >
               {t.boards.starter[preset].name}

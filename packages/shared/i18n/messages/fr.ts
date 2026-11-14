@@ -1591,18 +1591,13 @@ export const fr: Messages = {
       },
       money: {
         description:
-          'Paiements, abonnements, factures et remboursements : ce que je paie, à qui et combien.',
-        name: 'Argent',
+          'Paiements, abonnements, factures et remboursements : ce que je paie, à qui, combien et quand ça se renouvelle.',
+        name: 'Finances',
       },
       orders: {
         description:
           'Commandes en ligne et livraisons : ce que j’ai acheté, chez qui et où en est le colis.',
         name: 'Commandes',
-      },
-      subscriptions: {
-        description:
-          'Les services que je paie régulièrement : combien coûte chacun, à quelle fréquence et quand il se renouvelle.',
-        name: 'Abonnements payants',
       },
       trips: {
         description:

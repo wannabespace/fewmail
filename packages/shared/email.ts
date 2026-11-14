@@ -361,3 +361,12 @@ export const replyRecipients = (message: {
 
 export const forwardSubject = (subject: string) =>
   /^fwd?:/iu.test(subject) ? subject : `Fwd: ${subject}`
+
+/** "olena", "Olena K" and "olena@" all find Olena Koval <olena.k@acme.com>. */
+export const matchesContact = (
+  { email, name }: { email: string; name: string | null },
+  query: string
+) => {
+  const needle = query.trim().toLowerCase()
+  return email.includes(needle) || Boolean(name?.toLowerCase().includes(needle))
+}

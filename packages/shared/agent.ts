@@ -327,7 +327,6 @@ export interface WrappedStats {
 /** Ready-made boards offered at onboarding; names and descriptions come from `boards.starter`. */
 export const BOARD_PRESETS = [
   'money',
-  'subscriptions',
   'trips',
   'orders',
   'events',
@@ -345,6 +344,14 @@ export const BOARD_PERIODS = [1, 7, 30, 90, 180, 365] as const
 export type BoardPeriod = (typeof BOARD_PERIODS)[number]
 
 export const DEFAULT_BOARD_PERIOD: BoardPeriod = 90
+
+/** Mail that comes once a year (a renewal, a contract, a checkup) is found only with a year of history. */
+export const BOARD_PRESET_PERIODS: Partial<Record<BoardPreset, BoardPeriod>> = {
+  health: 365,
+  home: 365,
+  learning: 180,
+  money: 365,
+}
 
 export const IMPORTANCE = {
   critical: 3,

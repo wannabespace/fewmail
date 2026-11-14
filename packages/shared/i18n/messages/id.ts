@@ -296,18 +296,13 @@ export const id: Messages = {
       },
       money: {
         description:
-          'Pembayaran, langganan, tagihan, dan pengembalian dana: untuk apa saya membayar, kepada siapa, dan berapa.',
-        name: 'Uang',
+          'Pembayaran, langganan, tagihan, dan pengembalian dana: untuk apa saya membayar, kepada siapa, berapa, dan kapan diperpanjang.',
+        name: 'Keuangan',
       },
       orders: {
         description:
           'Pesanan online dan pengiriman: apa yang kubeli, dari siapa dan di mana sekarang.',
         name: 'Pesanan',
-      },
-      subscriptions: {
-        description:
-          'Layanan yang rutin kubayar: berapa biayanya, seberapa sering, dan kapan diperpanjang berikutnya.',
-        name: 'Langganan berbayar',
       },
       trips: {
         description:

@@ -302,18 +302,13 @@ export const pt: Messages = {
       },
       money: {
         description:
-          'Pagamentos, assinaturas, contas e reembolsos: pelo que pago, a quem e quanto.',
-        name: 'Dinheiro',
+          'Pagamentos, assinaturas, contas e reembolsos: pelo que pago, a quem, quanto e quando renova.',
+        name: 'Finanças',
       },
       orders: {
         description:
           'Pedidos online e entregas: o que comprei, de quem e onde está.',
         name: 'Pedidos',
-      },
-      subscriptions: {
-        description:
-          'Serviços que pago com regularidade: quanto custa cada um, com que frequência e quando renova.',
-        name: 'Assinaturas pagas',
       },
       trips: {
         description:

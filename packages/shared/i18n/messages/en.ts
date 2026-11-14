@@ -301,18 +301,13 @@ export const en = {
       },
       money: {
         description:
-          'Payments, subscriptions, bills and refunds: what I pay for, to whom and how much.',
-        name: 'Money',
+          'Payments, subscriptions, bills and refunds: what I pay for, to whom, how much and when it renews.',
+        name: 'Finances',
       },
       orders: {
         description:
           'Online orders and deliveries: what I bought, from whom, and where it is.',
         name: 'Orders',
-      },
-      subscriptions: {
-        description:
-          'Services I pay for regularly: what each costs, how often, and when it renews next.',
-        name: 'Paid subscriptions',
       },
       trips: {
         description:

@@ -65,7 +65,7 @@ import { AddToBoardItems } from './board-entries'
 import type { Draft } from './compose/compose-context'
 import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
-import { SNOOZE_PRESETS } from './compose/schedule'
+import { presetTimes, SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
 import { confirm } from './confirm-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
@@ -787,9 +787,8 @@ export const SnoozeMenuItems = ({
 }) => {
   const t = useT()
   const dates = useDates()
-  return SNOOZE_OPTIONS.map((preset) => {
-    const until = SNOOZE_PRESETS[preset]()
-    return (
+  return presetTimes(SNOOZE_PRESETS, SNOOZE_OPTIONS).map(
+    ({ preset, until }) => (
       <DropdownMenuItem key={preset} onClick={() => onSnooze(until)}>
         {t.snooze[preset]}
         <DropdownMenuShortcut>
@@ -797,7 +796,7 @@ export const SnoozeMenuItems = ({
         </DropdownMenuShortcut>
       </DropdownMenuItem>
     )
-  })
+  )
 }
 
 const ROW_REVEAL =

@@ -47,7 +47,7 @@ import {
   trashMessage,
 } from './mail'
 import { scheduleMail } from './outbox'
-import { getPerson } from './people'
+import { findContacts, getPerson } from './people'
 import { getReading } from './reading'
 import { createRule, listRules } from './rules'
 import { markNotSpam, reportSpam } from './spam'
@@ -281,6 +281,12 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
     description:
       'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender (a sender of several lists has one row per list, named by its title), how many emails, how many were opened, and the messageId of the latest one to pass to unsubscribe.',
     run: () => listSubscriptions(userId),
+  }),
+  find_people: define({
+    description:
+      'Email addresses of people the user wrote to or heard from whose name or address contains the query, the most written-to first. Use it to turn a name into an address before send_email or create_draft.',
+    input: { query: z.string().min(1) },
+    run: ({ query }) => findContacts(userId, query),
   }),
   get_person: define({
     description:

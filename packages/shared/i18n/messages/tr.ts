@@ -295,18 +295,13 @@ export const tr: Messages = {
       },
       money: {
         description:
-          'Ödemeler, abonelikler, faturalar ve iadeler: neye, kime ve ne kadar ödediğim.',
-        name: 'Para',
+          'Ödemeler, abonelikler, faturalar ve iadeler: neye, kime, ne kadar ödediğim ve ne zaman yenilendiği.',
+        name: 'Finans',
       },
       orders: {
         description:
           'Online siparişler ve teslimatlar: ne aldım, kimden ve şu an nerede.',
         name: 'Siparişler',
-      },
-      subscriptions: {
-        description:
-          'Düzenli ödediğim hizmetler: her biri ne kadar, ne sıklıkla ve bir sonraki yenileme ne zaman.',
-        name: 'Ücretli abonelikler',
       },
       trips: {
         description:

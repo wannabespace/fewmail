@@ -1534,17 +1534,12 @@ export const ja: Messages = {
       },
       money: {
         description:
-          '支払い、サブスクリプション、請求書、返金：何に、誰に、いくら払っているか。',
-        name: 'お金',
+          '支払い、サブスクリプション、請求書、返金：何に、誰に、いくら払っているか、次の更新日。',
+        name: '家計',
       },
       orders: {
         description: 'オンライン注文と配送：何をどこで買い、今どこにあるか。',
         name: '注文',
-      },
-      subscriptions: {
-        description:
-          '定期的に支払っているサービス：それぞれの料金、頻度、次の更新日。',
-        name: '有料サブスク',
       },
       trips: {
         description:

@@ -1575,18 +1575,13 @@ export const it: Messages = {
       },
       money: {
         description:
-          'Pagamenti, abbonamenti, bollette e rimborsi: cosa pago, a chi e quanto.',
-        name: 'Soldi',
+          'Pagamenti, abbonamenti, bollette e rimborsi: cosa pago, a chi, quanto e quando si rinnova.',
+        name: 'Finanze',
       },
       orders: {
         description:
           'Ordini online e consegne: cosa ho comprato, da chi e dove si trova.',
         name: 'Ordini',
-      },
-      subscriptions: {
-        description:
-          'I servizi che pago regolarmente: quanto costa ciascuno, ogni quanto e quando si rinnova.',
-        name: 'Abbonamenti a pagamento',
       },
       trips: {
         description:

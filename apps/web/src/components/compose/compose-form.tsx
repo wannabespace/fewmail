@@ -32,6 +32,7 @@ import { ComposerEditor } from '../composer/composer-editor'
 import { useWithAgent } from '../upgrade-dialog'
 import type { Draft } from './compose-context'
 import { useCompose } from './compose-context'
+import { RecipientsField } from './recipients-field'
 import { parseRecipients, validRecipients } from './schedule'
 import { SendLater } from './send-later'
 
@@ -244,16 +245,14 @@ export const ComposeForm = ({
         </Select>
       )}
       <div className="flex items-center gap-2">
-        <Input
+        <RecipientsField
           ref={toRef}
+          label={t.compose.to}
           value={to}
-          onChange={(event) => {
-            setTo(event.target.value)
+          onChange={(next) => {
+            setTo(next)
             edit()
           }}
-          placeholder={t.compose.to}
-          aria-label={t.compose.to}
-          data-mask
         />
         {!showCc && (
           <Button
@@ -266,15 +265,13 @@ export const ComposeForm = ({
         )}
       </div>
       {showCc && (
-        <Input
+        <RecipientsField
+          label={t.compose.cc}
           value={cc}
-          onChange={(event) => {
-            setCc(event.target.value)
+          onChange={(next) => {
+            setCc(next)
             edit()
           }}
-          placeholder={t.compose.cc}
-          aria-label={t.compose.cc}
-          data-mask
         />
       )}
       {!isReply && (

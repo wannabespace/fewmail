@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { Input } from '@fewmail/ui/components/input'
@@ -17,7 +18,7 @@ import { useRef, useState } from 'react'
 import { useDates, useT } from '~/lib/i18n'
 
 import type { LaterPreset } from './schedule'
-import { LATER_PRESETS } from './schedule'
+import { LATER_PRESETS, presetTimes } from './schedule'
 
 const LATER_OPTIONS: LaterPreset[] = ['inHour', 'tomorrow', 'monday']
 
@@ -27,7 +28,7 @@ export const SendLater = ({
   onSchedule: (sendAt: Date) => void
 }) => {
   const t = useT()
-  const { locale, weekStartsOn } = useDates()
+  const { format, locale, weekStartsOn } = useDates()
   const trigger = useRef<HTMLButtonElement>(null)
   const [isPicking, setIsPicking] = useState(false)
   const [day, setDay] = useState(() => addDays(startOfToday(), 1))
@@ -44,14 +45,16 @@ export const SendLater = ({
           {t.compose.sendLater}
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          {LATER_OPTIONS.map((preset) => (
-            <DropdownMenuItem
-              key={preset}
-              onClick={() => onSchedule(LATER_PRESETS[preset]())}
-            >
-              {t.compose.later[preset]}
-            </DropdownMenuItem>
-          ))}
+          {presetTimes(LATER_PRESETS, LATER_OPTIONS).map(
+            ({ preset, until }) => (
+              <DropdownMenuItem key={preset} onClick={() => onSchedule(until)}>
+                {t.compose.later[preset]}
+                <DropdownMenuShortcut>
+                  {format(until, 'EEE p')}
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            )
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setIsPicking(true)}>
             <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />

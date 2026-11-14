@@ -99,7 +99,7 @@ import {
   webPushKey,
 } from '../services/notifications'
 import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
-import { getPerson } from '../services/people'
+import { getPerson, listContacts } from '../services/people'
 import { getPlanInfo, getUsage } from '../services/plan'
 import {
   getReading,
@@ -544,6 +544,7 @@ export const router = {
         unsubscribeMessage(context.user.id, input.messageId, 'list')
       ),
   },
+  contacts: authed.handler(({ context }) => listContacts(context.user.id)),
   person: agent
     .input(type({ email: 'string.email' }))
     .handler(({ context, input }) => getPerson(context.user.id, input.email)),

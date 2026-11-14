@@ -302,18 +302,13 @@ export const nl: Messages = {
       },
       money: {
         description:
-          'Betalingen, abonnementen, rekeningen en terugbetalingen: waarvoor ik betaal, aan wie en hoeveel.',
-        name: 'Geld',
+          'Betalingen, abonnementen, rekeningen en terugbetalingen: waarvoor ik betaal, aan wie, hoeveel en wanneer het verlengt.',
+        name: 'Financiën',
       },
       orders: {
         description:
           'Online bestellingen en leveringen: wat ik kocht, bij wie en waar het nu is.',
         name: 'Bestellingen',
-      },
-      subscriptions: {
-        description:
-          'Diensten waarvoor ik regelmatig betaal: wat elk kost, hoe vaak en wanneer het verlengt.',
-        name: 'Betaalde abonnementen',
       },
       trips: {
         description:

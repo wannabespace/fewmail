@@ -6,15 +6,27 @@ import {
   messages,
   people,
 } from '@fewmail/db/schema'
-import { PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
+import { isAutomatedSender, PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
+import { matchesContact } from '@fewmail/shared/email'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText } from 'ai'
 import { subDays } from 'date-fns'
-import { and, arrayContains, desc, eq, inArray, or, sql } from 'drizzle-orm'
+import {
+  and,
+  arrayContains,
+  desc,
+  eq,
+  inArray,
+  isNull,
+  not,
+  or,
+  sql,
+} from 'drizzle-orm'
 
 import { models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { announceChange } from '../lib/live'
 import { logErrorAs } from '../lib/log'
+import { listMailboxes } from './mailboxes'
 import { hasBudget } from './plan'
 import { getSettings } from './settings'
 
@@ -22,6 +34,9 @@ const NOTE_MAX_AGE_DAYS = 7
 const NOTE_MIN_MESSAGES = 3
 const RECENT_SUMMARIES = 12
 const CONVERSATIONS_SHOWN = 20
+const CONTACTS_KEPT = 1000
+const FOUND_SHOWN = 10
+const SENT_WEIGHT = 3
 
 const withPerson = (userId: string, email: string) =>
   and(
@@ -219,4 +234,90 @@ export const getPerson = async (userId: string, rawEmail: string) => {
     open,
     promised,
   }
+}
+
+interface Contact {
+  email: string
+  last: Date
+  name: string | null
+  score: number
+}
+
+/** Everyone the user wrote to and the people who wrote to them, the most written-to first; the composer suggests recipients from it. */
+export const listContacts = async (userId: string) => {
+  const sentTo = db
+    .select({
+      address: sql`unnest(${messages.to} || ${messages.cc})`.as('address'),
+      receivedAt: messages.receivedAt,
+    })
+    .from(messages)
+    .where(and(eq(messages.userId, userId), eq(messages.isFromMe, true)))
+    .as('sent_to')
+  const [sent, received, own] = await Promise.all([
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        email: sql<string>`${sentTo.address}`.mapWith(messages.fromEmail),
+        last: sql<Date>`max(${sentTo.receivedAt})`.mapWith(messages.receivedAt),
+      })
+      .from(sentTo)
+      .groupBy(sentTo.address),
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        email: messages.fromEmail,
+        last: sql<Date>`max(${messages.receivedAt})`.mapWith(
+          messages.receivedAt
+        ),
+        name: sql<string | null>`max(${messages.fromName})`.mapWith(
+          messages.fromName
+        ),
+      })
+      .from(messages)
+      .innerJoin(analyses, eq(analyses.messageId, messages.id))
+      .where(
+        and(
+          eq(messages.userId, userId),
+          eq(messages.isFromMe, false),
+          isNull(messages.listId),
+          isNull(messages.suspicion),
+          not(arrayContains(messages.labelIds, ['SPAM'])),
+          inArray(analyses.category, [...PEOPLE_CATEGORIES])
+        )
+      )
+      .groupBy(messages.fromEmail),
+    listMailboxes(userId),
+  ])
+  const mine = new Set(own.map(({ email }) => email.toLowerCase()))
+  const contacts = new Map<string, Contact>()
+  for (const { count, email, last, name } of [
+    ...sent.map((row) => ({
+      ...row,
+      count: row.count * SENT_WEIGHT,
+      name: null,
+    })),
+    ...received,
+  ]) {
+    const known = contacts.get(email)
+    contacts.set(email, {
+      email,
+      last: known && known.last > last ? known.last : last,
+      name: known?.name ?? name,
+      score: (known?.score ?? 0) + count,
+    })
+  }
+  return [...contacts.values()]
+    .filter(({ email }) => !mine.has(email) && !isAutomatedSender(email))
+    .toSorted(
+      (a, b) => b.score - a.score || b.last.getTime() - a.last.getTime()
+    )
+    .slice(0, CONTACTS_KEPT)
+    .map(({ email, name }) => ({ email, name }))
+}
+
+export const findContacts = async (userId: string, query: string) => {
+  const contacts = await listContacts(userId)
+  return contacts
+    .filter((contact) => matchesContact(contact, query))
+    .slice(0, FOUND_SHOWN)
 }

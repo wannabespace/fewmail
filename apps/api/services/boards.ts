@@ -6,6 +6,8 @@ import {
   BOARD_CHART_TYPES,
   BOARD_GROUPINGS,
   BOARD_MEASURES,
+  BOARD_PRESET_PERIODS,
+  BOARD_PRESETS,
 } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
@@ -471,13 +473,20 @@ export const seedBoards = async (userId: string) => {
     .from(boards)
     .where(eq(boards.userId, userId))
   const names = new Set(existing.map(({ name }) => name))
-  for (const preset of settings?.starterBoards ?? []) {
+  // Settings may still hold a preset since removed (Paid subscriptions), which has no name to create.
+  const presets = (settings?.starterBoards ?? []).filter((preset) =>
+    BOARD_PRESETS.includes(preset)
+  )
+  for (const preset of presets) {
     const input = t.boards.starter[preset]
     if (names.has(input.name)) {
       continue
     }
     // oxlint-disable-next-line no-await-in-loop -- one at a time: each board's plan is paid from the allowance, so seeding stops where it runs out
-    const created = await createBoard(userId, input).catch((error) => {
+    const created = await createBoard(userId, {
+      ...input,
+      periodDays: BOARD_PRESET_PERIODS[preset],
+    }).catch((error) => {
       if (error instanceof LimitReachedError) {
         return null
       }

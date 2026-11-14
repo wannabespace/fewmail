@@ -304,18 +304,13 @@ export const pl: Messages = {
       },
       money: {
         description:
-          'Płatności, subskrypcje, rachunki i zwroty: za co płacę, komu i ile.',
-        name: 'Pieniądze',
+          'Płatności, subskrypcje, rachunki i zwroty: za co płacę, komu, ile i kiedy się odnawia.',
+        name: 'Finanse',
       },
       orders: {
         description:
           'Zamówienia online i dostawy: co kupiłem, u kogo i gdzie teraz jest.',
         name: 'Zamówienia',
-      },
-      subscriptions: {
-        description:
-          'Usługi, za które płacę regularnie: ile kosztuje każda, jak często i kiedy się odnawia.',
-        name: 'Płatne subskrypcje',
       },
       trips: {
         description:

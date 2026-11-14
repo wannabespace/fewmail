@@ -1581,18 +1581,13 @@ export const de: Messages = {
       },
       money: {
         description:
-          'Zahlungen, Abos, Rechnungen und Erstattungen: wofür ich zahle, an wen und wie viel.',
-        name: 'Geld',
+          'Zahlungen, Abos, Rechnungen und Erstattungen: wofür ich zahle, an wen, wie viel und wann es sich verlängert.',
+        name: 'Finanzen',
       },
       orders: {
         description:
           'Online-Bestellungen und Lieferungen: was ich gekauft habe, bei wem und wo es gerade ist.',
         name: 'Bestellungen',
-      },
-      subscriptions: {
-        description:
-          'Dienste, für die ich regelmäßig zahle: was jeder kostet, wie oft und wann er sich verlängert.',
-        name: 'Bezahlte Abos',
       },
       trips: {
         description:
