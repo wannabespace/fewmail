@@ -166,9 +166,11 @@ export const getToday = async (userId: string) => {
     readingNow(userId),
     listRuleOffers(userId),
   ])
+  // What the agent proposes to tidy is noise by its own judgement, so Worth knowing never offers it to read as well.
   const shown = new Set([
     ...queue.map(({ message }) => message?.id),
     ...codes.map(({ id }) => id),
+    ...tidy.map(({ message }) => message.id),
   ])
   const datesShown = upcoming(
     dates.filter(({ message }) => !shown.has(message.id)),

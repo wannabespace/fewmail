@@ -14,7 +14,11 @@ type Question =
   | ReturnType<typeof score>
 
 type Answer<Q> = Q extends { criteria: infer Criteria; type: 'choice' }
-  ? { choice: Extract<keyof Criteria, string>; confidence: number }
+  ? {
+      choice: Extract<keyof Criteria, string>
+      confidence: number
+      probabilities: Record<Extract<keyof Criteria, string>, number>
+    }
   : Q extends { type: 'noul' }
     ? { noul: number }
     : { confidence: number; score: number }

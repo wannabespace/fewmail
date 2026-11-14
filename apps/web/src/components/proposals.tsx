@@ -37,8 +37,9 @@ import { toastUndo } from '~/lib/undo'
 
 type Today = RouterOutputs['today']['get']
 
+/** A rule's archive or unsubscribe on mail that matters waits for a look, never for the bulk yes: that mail is why it waits. */
 export const isProposal = ({ action }: QueueItem) =>
-  (PROPOSAL_KINDS as readonly string[]).includes(action.kind)
+  (PROPOSAL_KINDS as readonly string[]).includes(action.kind) && !action.ruleId
 
 interface Proposal {
   /** The card's action id, or the email's id for quiet mail to tidy. */

@@ -8,31 +8,30 @@ type Rule = typeof rules.$inferSelect
 
 export const CATEGORY_CRITERIA = {
   calendar: 'Meeting invitations, scheduling, calendar updates',
-  finance: 'Bills, invoices, failed or due payments, bank and money matters',
+  finance: 'Bills, payments due or failed, subscriptions, bank and money',
   newsletter: 'Newsletters, digests, blog posts the user subscribed to',
   notification:
-    'Automated mail from apps, tools and services: alerts, account and billing notices, status updates',
+    'App and service mail, not money or security: alerts, status, account notices',
   other: 'Anything else',
-  person:
-    'A real person writing personally to the user, never a company or an automated service',
+  person: 'A real person writing personally, never a company or service',
   promotion: 'Marketing, sales offers, discounts, cold outreach',
-  receipt: 'Receipts, order confirmations, shipping updates',
+  receipt: 'Receipts, order and shipping confirmations',
   security:
     'Sign-in alerts, password resets, verification codes, security warnings',
   travel: 'Flights, hotels, bookings, itineraries',
-  work: 'A colleague, client or partner writing about work in their own words, never a tool or service the user works with',
+  work: 'A colleague, client or partner writing about work, never a tool or service',
 } satisfies Record<MailCategory, string>
 
 export const ACTION_CRITERIA = {
-  archive: 'Noise that can be archived unread',
-  follow_up: 'The user should chase someone about something',
-  mark_read: 'Noise worth keeping but not reading',
+  archive: 'Noise: promotions, stale app notices',
+  follow_up: 'Chase someone who has not answered',
+  mark_read: 'Keep but no need to read: receipts, statements',
   none: 'Nothing to do',
   pay: 'An amount is due and the user should pay it',
-  read: 'Important to read, nothing else to do',
+  read: 'Must see or act outside email: a deadline, something expiring or being deleted; not a sale',
   reply: 'Someone expects the user to answer',
   schedule: 'A meeting time is proposed or requested',
-  unsubscribe: 'Marketing the user never engages with',
+  unsubscribe: 'Marketing the user would rather stop getting',
 } satisfies Partial<Record<ActionKind | 'none', string>>
 
 /** Jev and the LLM fallback offer the same actions; anything wider would let an email steer itself into a card kind that is pushed as urgent (security). */
@@ -44,7 +43,7 @@ export const SUGGESTED_ACTIONS = Object.keys(ACTION_CRITERIA) as [
 export const IMPORTANCE_LEVELS = [
   'Noise: nobody needs to see it',
   'Worth knowing, no rush',
-  'Needs the user soon: something failed or broke, a deadline, a decision to make',
+  'Needs the user soon: something broke, their deadline or expiry (never a sale), a decision',
   'Urgent: security, money due very soon, or a person blocked on the user',
 ]
 
@@ -52,6 +51,14 @@ export const NEEDS_REPLY =
   'A real person, not an automated sender, is waiting for an answer from the recipient'
 
 const NO_RULE = 'none'
+
+/** Below these odds for noise as a whole (archive, mark read and unsubscribe together) Jev is guessing, and a guess would put mail that matters into Tidy. */
+const NOISE_CONFIDENCE = 0.7
+const NOISE_ACTIONS: ReadonlySet<string> = new Set([
+  'archive',
+  'mark_read',
+  'unsubscribe',
+])
 
 /** Every decision about an email in one Jev call. */
 export const decideWithJev = async (input: {
@@ -89,6 +96,12 @@ export const decideWithJev = async (input: {
     state: `Recipient: ${input.userEmail}\n\n${input.prompt}`,
   })
 
+  const { action } = answers
+  const noiseOdds = [...NOISE_ACTIONS].reduce(
+    (sum, kind) =>
+      sum + (action.probabilities[kind as keyof typeof ACTION_CRITERIA] ?? 0),
+    0
+  )
   return {
     category: answers.category.choice,
     importance: Math.min(
@@ -97,6 +110,9 @@ export const decideWithJev = async (input: {
     ) as 0 | 1 | 2 | 3,
     needsReply: answers.needsReply.noul >= 0.5,
     ruleId: ruleIds.get(answers.rule.choice) ?? null,
-    suggestedAction: answers.action.choice,
+    suggestedAction:
+      NOISE_ACTIONS.has(action.choice) && noiseOdds < NOISE_CONFIDENCE
+        ? 'none'
+        : action.choice,
   }
 }

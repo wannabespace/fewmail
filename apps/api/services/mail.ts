@@ -33,6 +33,7 @@ import {
   gte,
   inArray,
   isNotNull,
+  isNull,
   lt,
   ne,
   notExists,
@@ -116,7 +117,10 @@ export const listQueue = (userId: string) =>
 
 /** Home's decisions, as its headline counts them: the agent's proposals are one. */
 export const countQueue = async (userId: string) => {
-  const isProposal = inArray(actions.kind, [...PROPOSAL_KINDS])
+  const isProposal = and(
+    inArray(actions.kind, [...PROPOSAL_KINDS]),
+    isNull(actions.ruleId)
+  )
   const [row] = await db
     .select({
       cards: sql<number>`count(*) filter (where not ${isProposal})::int`,
@@ -243,6 +247,7 @@ const inThread = alias(messages, 'in_thread')
 const newerInThread = alias(messages, 'newer_in_thread')
 const newerAnalysis = alias(analyses, 'newer_analysis')
 const starredInThread = alias(messages, 'starred_in_thread')
+const sameSender = alias(messages, 'same_sender')
 type MessageTable = typeof messages | typeof newerInThread
 
 /** A pin is Gmail's star on any email of the thread, so it follows the thread whoever starred it. */
@@ -1034,10 +1039,15 @@ export const mailWithDates = async (userId: string) => {
 }
 
 const TIDY_SHOWN = 200
+const IGNORED_SENDER_EMAILS = 3
+
+/** Leaving a list cannot be undone, so it is offered only for a sender the user plainly ignores: three emails or more, at most one opened. */
+const ignoredSender = sql`${messages.listUnsubscribe} is not null and (select count(*) >= ${IGNORED_SENDER_EMAILS} and count(*) filter (where not ${sameSender.isUnread}) <= 1 from ${messages} ${sameSender} where ${sameSender.userId} = ${messages.userId} and coalesce(${sameSender.listId}, ${sameSender.fromEmail}) = coalesce(${messages.listId}, ${messages.fromEmail}))`
 
 /**
- * Quiet mail the agent would archive, mark read or unsubscribe from that no rule covers: it waits on Home for one yes.
- * Only a thread's newest email, and never a thread with a card or anything already done to that email.
+ * Quiet mail the agent would archive, mark read or unsubscribe from that no rule covers: it waits on Home for one yes;
+ * an unsubscribe without the evidence above is offered as an archive. Only a thread's newest email, and never a thread
+ * with a card or anything already done to that email.
  */
 const tidyCandidates = (userId: string, where?: SQL) =>
   db
@@ -1046,7 +1056,7 @@ const tidyCandidates = (userId: string, where?: SQL) =>
         ...analysisSummary,
         suggestedAction: sql<
           (typeof TIDY_KINDS)[number]
-        >`${analyses.suggestedAction}`,
+        >`case when ${analyses.suggestedAction} = 'unsubscribe' and not (${ignoredSender}) then 'archive' else ${analyses.suggestedAction} end`,
       },
       message: messageSummary,
     })
