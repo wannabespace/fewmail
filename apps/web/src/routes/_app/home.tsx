@@ -1004,9 +1004,6 @@ const useHomeSubpage = (
 /** Reading opens over Home; the proposals' review takes its place. */
 const showsHome = (page: HomeSubpage | undefined) => !page || page === 'reading'
 
-const isAllClear = (data: Today | undefined, decisions: number) =>
-  decisions === 0 && !data?.codes.length
-
 const HomePage = () => {
   const t = useT()
   const navigate = useNavigate()
@@ -1360,10 +1357,11 @@ const HomePage = () => {
                   />
                   <ConnectHint />
                   <ReadingSection isOpen={isReadingOpen} />
+                  <FreshCodes today={data} canUseKeys={isWalking} />
 
                   <section
                     aria-label={t.today.decisions}
-                    hidden={isAllClear(data, decisions)}
+                    hidden={decisions === 0}
                     className="flex flex-col gap-2.5"
                   >
                     <DecisionsHeader
@@ -1378,7 +1376,6 @@ const HomePage = () => {
                         onTrash={() => trashMany.mutate(picked)}
                       />
                     </DecisionsHeader>
-                    <FreshCodes today={data} canUseKeys={isWalking} />
                     <ProposalsGroup
                       canUseKeys={isWalking}
                       cursorId={cursorId}

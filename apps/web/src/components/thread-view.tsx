@@ -855,8 +855,12 @@ export const CodeActions = ({
         size="xs"
         variant="outline"
         aria-label={t.mail.oneTimeCode.copy}
+        className="pl-1.5"
       >
-        <span data-mask className="font-mono tracking-wider tabular-nums">
+        <span
+          data-mask
+          className="font-mono text-sm tracking-wider tabular-nums"
+        >
           {code}
         </span>
       </CopyButton>
