@@ -824,8 +824,6 @@ export const en = {
       'The app, summaries and explanations use this language. Replies always match the language of the email you answer.',
     languageTitle: 'Which language should Fewmail speak?',
     lead: 'Two quick answers. You can change all of them later in Settings.',
-    messengerHint: 'Optional. You can connect one later in Settings.',
-    messengerTitle: 'Want the agent in your messenger?',
     reading: 'Reading your inbox…',
     start: 'Start',
     title: 'Let’s set up your agent.',

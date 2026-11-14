@@ -807,8 +807,6 @@ export const id: Messages = {
       'Aplikasi, ikhtisar, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
     languageTitle: 'Fewmail harus berbicara dalam bahasa apa?',
     lead: 'Dua jawaban singkat. Semuanya bisa kamu ubah nanti di Pengaturan.',
-    messengerHint: 'Opsional. Kamu bisa menghubungkannya nanti di Pengaturan.',
-    messengerTitle: 'Mau agen ada di aplikasi pesanmu?',
     reading: 'Membaca kotak masukmu…',
     start: 'Mulai',
     title: 'Ayo siapkan agenmu.',

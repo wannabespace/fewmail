@@ -847,8 +847,6 @@ export const pl: Messages = {
       'W tym języku działa aplikacja, podsumowania i wyjaśnienia. Odpowiedzi zawsze są w języku maila, na który odpowiadasz.',
     languageTitle: 'W jakim języku ma mówić Fewmail?',
     lead: 'Dwie szybkie odpowiedzi. Wszystko zmienisz później w Ustawieniach.',
-    messengerHint: 'Opcjonalnie. Możesz go połączyć później w Ustawieniach.',
-    messengerTitle: 'Chcesz mieć agenta w komunikatorze?',
     reading: 'Czytam twoją skrzynkę…',
     start: 'Zaczynamy',
     title: 'Skonfigurujmy twojego agenta.',

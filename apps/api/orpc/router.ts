@@ -319,7 +319,7 @@ export const router = {
       list: authed.handler(({ context }) => listConnectedApps(context.user.id)),
     },
     telegram: {
-      get: authed.handler(({ context }) => getTelegramLink(context.user.id)),
+      get: agent.handler(({ context }) => getTelegramLink(context.user.id)),
       unlink: authed.handler(async ({ context }) => {
         await unlinkTelegram(context.user.id)
       }),
@@ -330,7 +330,7 @@ export const router = {
         }),
     },
     whatsapp: {
-      get: authed.handler(({ context }) => getWhatsappLink(context.user.id)),
+      get: agent.handler(({ context }) => getWhatsappLink(context.user.id)),
       unlink: authed.handler(async ({ context }) => {
         await unlinkWhatsapp(context.user.id)
       }),

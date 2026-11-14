@@ -799,8 +799,6 @@ export const tr: Messages = {
       'Uygulama, özetler ve açıklamalar bu dili kullanır. Yanıtlar her zaman yanıtladığın e-postanın dilinde olur.',
     languageTitle: 'Fewmail hangi dili konuşsun?',
     lead: 'İki kısa cevap. Hepsini daha sonra Ayarlar’dan değiştirebilirsin.',
-    messengerHint: 'İsteğe bağlı. Daha sonra Ayarlar’dan da bağlayabilirsin.',
-    messengerTitle: 'Ajanı mesajlaşma uygulamanda ister misin?',
     reading: 'Gelen kutun okunuyor…',
     start: 'Başla',
     title: 'Ajanını kuralım.',

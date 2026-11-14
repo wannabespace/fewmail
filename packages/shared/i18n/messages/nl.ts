@@ -829,8 +829,6 @@ export const nl: Messages = {
       'De app, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
     languageTitle: 'Welke taal moet Fewmail spreken?',
     lead: 'Twee snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
-    messengerHint: 'Optioneel. Je kunt hem ook later koppelen in Instellingen.',
-    messengerTitle: 'Wil je de agent in je messenger?',
     reading: 'Je inbox wordt gelezen…',
     start: 'Starten',
     title: 'Laten we je agent instellen.',
