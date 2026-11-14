@@ -395,11 +395,11 @@ export const ProposalsReview = ({
   const t = useT()
   const navigate = useNavigate()
   const listRef = useRef<HTMLDivElement>(null)
-  const [cursor, setCursor] = useState(0)
+  const [cursor, setCursor] = useState<number | null>(null)
   const groups = byKind(proposals.proposals)
   const rows = groups.flatMap(({ rows: group }) => group)
   // The cursor keeps its place as rows leave: the next one slides under it.
-  const current = Math.min(cursor, rows.length - 1)
+  const current = cursor === null ? -1 : Math.min(cursor, rows.length - 1)
   const selected = rows[current]
 
   useEffect(() => {
@@ -419,14 +419,15 @@ export const ProposalsReview = ({
 
   const move = (step: number) =>
     setCursor(Math.max(0, Math.min(rows.length - 1, current + step)))
+  const listKeys = { enabled: canUseKeys && rows.length > 0 }
   const keys = { enabled: canUseKeys && !!selected }
-  useHotkey('J', () => move(1), keys)
-  useHotkey('ArrowDown', () => move(1), keys)
-  useHotkey('K', () => move(-1), keys)
-  useHotkey('ArrowUp', () => move(-1), keys)
+  useHotkey('J', () => move(1), listKeys)
+  useHotkey('ArrowDown', () => move(1), listKeys)
+  useHotkey('K', () => move(-1), listKeys)
+  useHotkey('ArrowUp', () => move(-1), listKeys)
   useHotkey('Enter', () => selected && proposals.approve([selected]), keys)
   useHotkey('S', () => selected && proposals.keep(selected), keys)
-  useHotkey('T', () => proposals.approve(rows), keys)
+  useHotkey('T', () => proposals.approve(rows), listKeys)
   useHotkey(
     'O',
     () =>

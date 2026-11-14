@@ -913,17 +913,19 @@ const KindFilter = ({
 /**
  * The cursor holds a card, not a position: a card arriving above it live must never take ⏎ from the one being read.
  * A card that leaves hands the cursor to whichever card takes its place.
+ * There is none until J / K or a click: a lit card nobody picked reads as ⏎'s target.
  */
 const useCursor = (stops: string[]) => {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [lastIndex, setLastIndex] = useState(0)
   const foundIndex = selectedId === null ? -1 : stops.indexOf(selectedId)
   const cursorIndex =
-    foundIndex === -1
+    selectedId !== null && foundIndex === -1
       ? Math.max(0, Math.min(lastIndex, stops.length - 1))
       : foundIndex
-  const cursorId = stops.at(cursorIndex)
-  if (foundIndex === -1 && cursorId) {
+  // Not `at`: with no cursor the index is -1, and `at(-1)` would light the last card.
+  const cursorId = cursorIndex === -1 ? undefined : stops[cursorIndex]
+  if (selectedId !== null && foundIndex === -1 && cursorId) {
     setSelectedId(cursorId)
   }
   if (foundIndex !== -1 && foundIndex !== lastIndex) {
@@ -1135,7 +1137,6 @@ const HomePage = () => {
     })
   )
   const dropFromQueue = (ids: string[]) => {
-    setSelectedId(null)
     setEditingId(null)
     setPickedIds([])
     settle(ids.length)
@@ -1291,7 +1292,7 @@ const HomePage = () => {
     hasNewsletters: newsletters.length > 0,
     hasProposals,
   })
-  const walkKeys = { enabled: isWalking && !!cursorId }
+  const walkKeys = { enabled: isWalking && stops.length > 0 }
   const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), walkKeys)
   useHotkey('ArrowDown', () => move(1), walkKeys)
@@ -1320,7 +1321,7 @@ const HomePage = () => {
           : filter.shown.map(({ action }) => action.id)
       )
     },
-    listKeys
+    walkKeys
   )
   useHotkey('Escape', () => setPickedIds([]), {
     enabled: isWalking && picked.length > 0,
@@ -1333,7 +1334,7 @@ const HomePage = () => {
   }
   useHotkey('E', openAnd(setEditingId), listKeys)
   useHotkey('R', openAnd(setRewritingId), listKeys)
-  useHotkey('Space', () => setIsOpen((open) => !open), walkKeys)
+  useHotkey('Space', () => cursorId && setIsOpen((open) => !open), walkKeys)
   useHotkey(
     'O',
     () => selected?.message && showThread(selected.message.threadId),
