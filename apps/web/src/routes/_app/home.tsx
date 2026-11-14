@@ -51,7 +51,7 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { motion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
@@ -1358,50 +1358,50 @@ const HomePage = () => {
                       value={selected ? [selected.action.id] : []}
                       onValueChange={([id]) => id && setSelectedId(id)}
                     >
-                      {queue.map((item, index) => (
-                        <QueueCard
-                          key={item.action.id}
-                          item={item}
-                          index={index}
-                          draft={draftOf(item)}
-                          isNew={!!seenAt && item.action.createdAt > seenAt}
-                          isPicked={pickedIds.includes(item.action.id)}
-                          isRewriting={rewritingId === item.action.id}
-                          isSelected={item === selected}
-                          isEditing={editingId === item.action.id}
-                          isBusy={
-                            redraft.isPending &&
-                            redraft.variables.id === item.action.id
-                          }
-                          onApprove={() => approveItem(item)}
-                          onEdit={() => setEditingId(item.action.id)}
-                          onDraftChange={(draft) =>
-                            setDrafts((current) => ({
-                              ...current,
-                              [item.action.id]: draft,
-                            }))
-                          }
-                          onRewrite={(instruction) =>
-                            rewrite(item.action.id, instruction)
-                          }
-                          onRewriteChange={(isOn) =>
-                            setRewritingId(isOn ? item.action.id : null)
-                          }
-                          onOpen={() =>
-                            item.message && showThread(item.message.threadId)
-                          }
-                          onPick={() => togglePick(item.action.id)}
-                          onRemind={() => remind(item.action.id)}
-                          onSkip={() => dismiss.mutate({ id: item.action.id })}
-                          onStopEditing={() => setEditingId(null)}
-                        />
-                      ))}
+                      {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
+                      <AnimatePresence key={filter.active} initial={false}>
+                        {queue.map((item, index) => (
+                          <QueueCard
+                            key={item.action.id}
+                            item={item}
+                            index={index}
+                            draft={draftOf(item)}
+                            isNew={!!seenAt && item.action.createdAt > seenAt}
+                            isPicked={pickedIds.includes(item.action.id)}
+                            isRewriting={rewritingId === item.action.id}
+                            isSelected={item === selected}
+                            isEditing={editingId === item.action.id}
+                            isBusy={
+                              redraft.isPending &&
+                              redraft.variables.id === item.action.id
+                            }
+                            onApprove={() => approveItem(item)}
+                            onEdit={() => setEditingId(item.action.id)}
+                            onDraftChange={(draft) =>
+                              setDrafts((current) => ({
+                                ...current,
+                                [item.action.id]: draft,
+                              }))
+                            }
+                            onRewrite={(instruction) =>
+                              rewrite(item.action.id, instruction)
+                            }
+                            onRewriteChange={(isOn) =>
+                              setRewritingId(isOn ? item.action.id : null)
+                            }
+                            onOpen={() =>
+                              item.message && showThread(item.message.threadId)
+                            }
+                            onPick={() => togglePick(item.action.id)}
+                            onRemind={() => remind(item.action.id)}
+                            onSkip={() =>
+                              dismiss.mutate({ id: item.action.id })
+                            }
+                            onStopEditing={() => setEditingId(null)}
+                          />
+                        ))}
+                      </AnimatePresence>
                     </Accordion>
-                    <div
-                      className={cn(
-                        'flex flex-col gap-2.5 empty:hidden',
-                        cardsBleedClassName
-                      )}
                     {hiddenCards > 0 && (
                       <Button
                         size="sm"
@@ -1412,6 +1412,11 @@ const HomePage = () => {
                         {t.mail.showAll(filter.shown.length)}
                       </Button>
                     )}
+                    <div
+                      className={cn(
+                        'flex flex-col gap-2.5 empty:hidden',
+                        cardsBleedClassName
+                      )}
                     >
                       <NewSenders
                         senders={data?.newSenders ?? []}

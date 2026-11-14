@@ -33,8 +33,9 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { Link } from '@tanstack/react-router'
+import { motion, useIsPresent, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
-import type { RefObject } from 'react'
+import type { ReactNode, RefObject } from 'react'
 
 import { useDates, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
@@ -334,6 +335,30 @@ const QueueCardHeader = ({
   )
 }
 
+const CARD_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
+
+/**
+ * A settled card folds out and the cards below rise into its place, the next one opening as it comes.
+ * The margin must end at minus the cards Accordion's gap-2.5, or the cards snap up by the gap once the fold ends; it starts in rem because motion cannot tween px into rem.
+ */
+const LeavingCard = ({ children }: { children: ReactNode }) => {
+  const isPresent = useIsPresent()
+  const isReducedMotion = useReducedMotion()
+  return (
+    <motion.div
+      initial={false}
+      animate={{ marginBottom: '0rem' }}
+      exit={{ height: 0, marginBottom: '-0.625rem', opacity: 0 }}
+      transition={isReducedMotion ? { duration: 0 } : CARD_LEAVE}
+      className={cn(
+        !isPresent && 'pointer-events-none [clip-path:inset(-4px_-4px_0)]'
+      )}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 const RewriteField = ({
   onCancel,
   onSubmit,
@@ -514,99 +539,101 @@ export const QueueCard = ({
   }, [isEditing])
 
   return (
-    <AccordionItem
-      ref={ref}
-      value={action.id}
-      tone={isSecurity ? 'destructive' : 'default'}
-      className="group"
-    >
-      <QueueCardHeader
-        index={index}
-        isNew={isNew}
-        isPicked={isPicked}
-        isSelected={isSelected}
-        item={item}
-        onApprove={onApprove}
-        onOpen={onOpen}
-        onPick={onPick}
-        onSkip={onSkip}
-      />
+    <LeavingCard>
+      <AccordionItem
+        ref={ref}
+        value={action.id}
+        tone={isSecurity ? 'destructive' : 'default'}
+        className="group"
+      >
+        <QueueCardHeader
+          index={index}
+          isNew={isNew}
+          isPicked={isPicked}
+          isSelected={isSelected}
+          item={item}
+          onApprove={onApprove}
+          onOpen={onOpen}
+          onPick={onPick}
+          onSkip={onSkip}
+        />
 
-      <AccordionContent>
-        <div className="flex flex-col gap-3 pl-8.5">
-          {isReply && (
-            <ReplyBody
-              draft={draft}
-              editorRef={editorRef}
-              hasAgent={hasAgent}
-              isEditing={isEditing}
-              isRewriting={isRewriting}
-              message={message}
-              onApprove={onApprove}
-              onDraftChange={onDraftChange}
-              onRewrite={onRewrite}
-              onRewriteChange={onRewriteChange}
-              onStopEditing={onStopEditing}
-            />
-          )}
-          {action.kind === 'cleanup' && <CleanupList action={action} />}
-          {action.kind === 'consent' && <ConsentBody action={action} />}
-          {analysis && showsGist(item) && <Gist analysis={analysis} />}
-          {!isReply && action.kind !== 'cleanup' && reason && (
-            <p
-              data-mask
-              className={cn(
-                'text-sm',
-                isSecurity ? 'text-destructive' : 'text-muted-foreground'
+        <AccordionContent>
+          <div className="flex flex-col gap-3 pl-8.5">
+            {isReply && (
+              <ReplyBody
+                draft={draft}
+                editorRef={editorRef}
+                hasAgent={hasAgent}
+                isEditing={isEditing}
+                isRewriting={isRewriting}
+                message={message}
+                onApprove={onApprove}
+                onDraftChange={onDraftChange}
+                onRewrite={onRewrite}
+                onRewriteChange={onRewriteChange}
+                onStopEditing={onStopEditing}
+              />
+            )}
+            {action.kind === 'cleanup' && <CleanupList action={action} />}
+            {action.kind === 'consent' && <ConsentBody action={action} />}
+            {analysis && showsGist(item) && <Gist analysis={analysis} />}
+            {!isReply && action.kind !== 'cleanup' && reason && (
+              <p
+                data-mask
+                className={cn(
+                  'text-sm',
+                  isSecurity ? 'text-destructive' : 'text-muted-foreground'
+                )}
+              >
+                {reason}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
+              <StepButton action={action} isBusy={isBusy} onRemind={onRemind} />
+              <Button
+                size="sm"
+                variant={step === 'approve' ? 'default' : 'secondary'}
+                disabled={isBusy}
+                onClick={onApprove}
+                shortcut={<Kbd>{approveKey(step, isEditing)}</Kbd>}
+              >
+                {approveLabel(t, action, isReply)}
+              </Button>
+              {isReply && !isEditing && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={isBusy}
+                  onClick={onEdit}
+                  shortcut={<Kbd>E</Kbd>}
+                >
+                  {t.queue.edit}
+                </Button>
               )}
-            >
-              {reason}
-            </p>
-          )}
-          <div className="flex flex-wrap items-center gap-2">
-            <StepButton action={action} isBusy={isBusy} onRemind={onRemind} />
-            <Button
-              size="sm"
-              variant={step === 'approve' ? 'default' : 'secondary'}
-              disabled={isBusy}
-              onClick={onApprove}
-              shortcut={<Kbd>{approveKey(step, isEditing)}</Kbd>}
-            >
-              {approveLabel(t, action, isReply)}
-            </Button>
-            {isReply && !isEditing && (
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={isBusy}
-                onClick={onEdit}
-                shortcut={<Kbd>E</Kbd>}
-              >
-                {t.queue.edit}
-              </Button>
-            )}
-            {isReply && !isRewriting && (
-              <Button
-                size="sm"
-                variant="ghost-muted"
-                disabled={isBusy}
-                onClick={() => onRewriteChange(true)}
-                shortcut={<Kbd>R</Kbd>}
-              >
-                {t.queue.rewrite}
-              </Button>
-            )}
-            {isReply && message && (
-              <span className="text-muted-foreground ml-auto truncate text-xs">
-                <span data-mask>
-                  {t.agent.to(replyRecipients(message).join(', '))}
+              {isReply && !isRewriting && (
+                <Button
+                  size="sm"
+                  variant="ghost-muted"
+                  disabled={isBusy}
+                  onClick={() => onRewriteChange(true)}
+                  shortcut={<Kbd>R</Kbd>}
+                >
+                  {t.queue.rewrite}
+                </Button>
+              )}
+              {isReply && message && (
+                <span className="text-muted-foreground ml-auto truncate text-xs">
+                  <span data-mask>
+                    {t.agent.to(replyRecipients(message).join(', '))}
+                  </span>
+                  {` · ${t.queue.draftedInVoice}`}
                 </span>
-                {` · ${t.queue.draftedInVoice}`}
-              </span>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </AccordionContent>
-    </AccordionItem>
+        </AccordionContent>
+      </AccordionItem>
+    </LeavingCard>
   )
 }
