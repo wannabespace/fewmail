@@ -513,13 +513,17 @@ export const margin = (
   aiUsd: number
 ) => (netRevenue(plan, interval) - aiUsd) / grossRevenue(plan, interval)
 
-/** What a yearly plan keeps after Stripe and AI when its allowance is spent and a busy inbox runs through Jev. */
-export const TARGET_MARGIN = 0.2
+/** What a yearly plan keeps after Stripe and AI when its allowance is spent and a busy inbox runs through Jev; Max gives more of its price back. */
+export const TARGET_MARGIN: Record<PaidPlan, number> = {
+  lite: 0.2,
+  max: 0.1,
+  pro: 0.2,
+}
 
 /** The largest allowance that keeps `TARGET_MARGIN` on a yearly plan; `PLAN_ALLOWANCE_USD` follows it. */
 export const fairAllowance = (plan: PaidPlan) =>
   netRevenue(plan, 'year') -
-  TARGET_MARGIN * grossRevenue(plan, 'year') -
+  TARGET_MARGIN[plan] * grossRevenue(plan, 'year') -
   backgroundCost(FULL, true).jev
 
 const usd = (n: number) => `$${n < 0.01 ? n.toFixed(4) : n.toFixed(2)}`
@@ -549,12 +553,12 @@ const printReport = () => {
   printUnits(lines, 'Heavy use (every size at its cap)', HEAVY)
   lines.push(
     '',
-    `Plans: the allowance (fair at ${pct(TARGET_MARGIN)} yearly), what it buys at typical sizes, AI a month and the margin after Stripe and AI (monthly / yearly)`
+    `Plans: the allowance (fair at the plan's target margin yearly), what it buys at typical sizes, AI a month and the margin after Stripe and AI (monthly / yearly)`
   )
   for (const plan of PAID_PLANS) {
     const allowance = PLAN_ALLOWANCE_USD[plan]
     lines.push(
-      `  ${plan} $${PRICE_USD[plan].month}/mo: allowance ${usd(allowance)} (fair ${usd(fairAllowance(plan))}), about ${Math.round(allowance / analyzedEmailCost(TYPICAL).total)} emails or ${Math.round(allowance / messageCost(TYPICAL))} messages; net ${usd(netRevenue(plan, 'month'))} / ${usd(netRevenue(plan, 'year'))}`
+      `  ${plan} $${PRICE_USD[plan].month}/mo: allowance ${usd(allowance)} (fair at ${pct(TARGET_MARGIN[plan])}: ${usd(fairAllowance(plan))}), about ${Math.round(allowance / analyzedEmailCost(TYPICAL).total)} emails or ${Math.round(allowance / messageCost(TYPICAL))} messages; net ${usd(netRevenue(plan, 'month'))} / ${usd(netRevenue(plan, 'year'))}`
     )
     for (const [name, use] of [
       ['typical', TYPICAL],

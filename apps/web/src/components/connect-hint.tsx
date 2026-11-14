@@ -9,9 +9,12 @@ import {
   ItemTitle,
 } from '@fewmail/ui/components/item'
 import {
+  AiChat02Icon,
   Cancel01Icon,
+  DashboardSquare01Icon,
   McpServerIcon,
   Notification01Icon,
+  PencilEdit02Icon,
   TelegramIcon,
   WhatsappIcon,
 } from '@hugeicons/core-free-icons'
@@ -25,10 +28,21 @@ import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
 import { useT } from '~/lib/i18n'
+import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 import { enablePush, pushStateQuery, pushSupported } from '~/lib/push'
 
-const HINTS = ['telegram', 'whatsapp', 'mcp', 'push'] as const
+/** On Free the first three tell what Pro adds, one a day like the rest; Telegram and WhatsApp need the agent. */
+const HINTS = [
+  'drafts',
+  'ask',
+  'boards',
+  'telegram',
+  'whatsapp',
+  'mcp',
+  'push',
+] as const
 
 const today = () => new Date().toDateString()
 
@@ -70,13 +84,14 @@ const messengerLink = (
 export const ConnectHint = () => {
   const t = useT()
   const copy = t.today.hint
+  const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
   const store = useSubscription(hintsStore)
   const { data: telegram } = useQuery(
-    orpc.integrations.telegram.get.queryOptions()
+    orpc.integrations.telegram.get.queryOptions({ enabled: hasAgent })
   )
   const { data: whatsapp } = useQuery(
-    orpc.integrations.whatsapp.get.queryOptions()
+    orpc.integrations.whatsapp.get.queryOptions({ enabled: hasAgent })
   )
   const { data: apps } = useQuery(orpc.integrations.apps.list.queryOptions())
   const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
@@ -97,7 +112,25 @@ export const ConnectHint = () => {
     }
     return !!publicKey && !push.subscribed && push.permission === 'default'
   }
+  const proTip = (
+    feature: 'ask' | 'boards' | 'drafts',
+    icon: IconSvgElement,
+    title: string
+  ): Hint => ({
+    action: {
+      onClick: () => posthog.capture('upgrade_hint_clicked', { feature }),
+      render: <Link to="/settings" />,
+    },
+    description: t.upgrade.hints[feature],
+    icon,
+    isNeeded: !hasAgent,
+    label: t.command.upgrade,
+    title,
+  })
   const hints: Record<(typeof HINTS)[number], Hint> = {
+    ask: proTip('ask', AiChat02Icon, t.upgrade.ask),
+    boards: proTip('boards', DashboardSquare01Icon, t.nav.boards),
+    drafts: proTip('drafts', PencilEdit02Icon, t.compose.writeForMe),
     mcp: {
       action: { render: <Link to="/settings" /> },
       description: t.settings.mcp.description,
@@ -121,7 +154,7 @@ export const ConnectHint = () => {
       action: messengerLink(telegram, t.settings.telegram.connect),
       description: t.settings.telegram.unlinked,
       icon: TelegramIcon,
-      isNeeded: telegram && !telegram.linked && !!telegram.botUrl,
+      isNeeded: hasAgent && telegram && !telegram.linked && !!telegram.botUrl,
       label: t.settings.telegram.connect,
       title: 'Telegram',
     },
@@ -129,7 +162,7 @@ export const ConnectHint = () => {
       action: messengerLink(whatsapp, t.settings.whatsapp.connect),
       description: t.settings.whatsapp.unlinked,
       icon: WhatsappIcon,
-      isNeeded: whatsapp && !whatsapp.linked && !!whatsapp.botUrl,
+      isNeeded: hasAgent && whatsapp && !whatsapp.linked && !!whatsapp.botUrl,
       label: t.settings.whatsapp.connect,
       title: 'WhatsApp',
     },
@@ -163,12 +196,13 @@ export const ConnectHint = () => {
           label={copy.notNow}
           size="icon-sm"
           variant="ghost-muted"
-          onClick={() =>
+          onClick={() => {
+            posthog.capture('hint_dismissed', { hint: current })
             hintsStore.set({
               dismissed: [...store.dismissed, current],
               dismissedOn: today(),
             })
-          }
+          }}
         />
       </ItemActions>
     </Item>

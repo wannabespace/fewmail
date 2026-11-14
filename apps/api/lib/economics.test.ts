@@ -81,7 +81,7 @@ test('a yearly plan keeps its margin with the allowance spent and a busy inbox',
   for (const plan of PAID_PLANS) {
     expect(
       margin(plan, 'year', monthCost(plan, FULL).total)
-    ).toBeGreaterThanOrEqual(TARGET_MARGIN)
+    ).toBeGreaterThanOrEqual(TARGET_MARGIN[plan])
   }
 })
 
