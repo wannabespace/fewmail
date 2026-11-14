@@ -33,7 +33,6 @@ import {
   gte,
   inArray,
   isNotNull,
-  isNull,
   lt,
   ne,
   notExists,
@@ -117,10 +116,7 @@ export const listQueue = (userId: string) =>
 
 /** Home's decisions, as its headline counts them: the agent's proposals are one. */
 export const countQueue = async (userId: string) => {
-  const isProposal = and(
-    inArray(actions.kind, [...PROPOSAL_KINDS]),
-    isNull(actions.ruleId)
-  )
+  const isProposal = inArray(actions.kind, [...PROPOSAL_KINDS])
   const [row] = await db
     .select({
       cards: sql<number>`count(*) filter (where not ${isProposal})::int`,
