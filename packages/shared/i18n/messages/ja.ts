@@ -504,6 +504,8 @@ export const ja: Messages = {
     settings: '設定',
     syncFailed: 'Gmail の同期に失敗しました。再試行中',
     syncing: '受信トレイを読んでいます…',
+    syncFailedIn: (email: string) => `${email} の同期に失敗しました。再試行中`,
+    syncingIn: (email: string) => `${email} を読んでいます…`,
     home: 'ホーム',
     trialLeft: (total: number) => `Pro トライアル · 残り ${total} 日`,
     usage: (percent: number) => `エージェント · 今月の ${percent}% を使用`,

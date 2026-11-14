@@ -528,22 +528,38 @@ const THEME_ICONS = {
   system: ComputerIcon,
 } as const
 
+interface MailboxSync {
+  email: string
+  lastSyncedAt: Date | null
+  signIn: boolean
+  syncError: string | null
+}
+
 /** The account's state in one line, flagged when the user should act on it. */
-const useAccountStatus = (
-  mailboxes?: { lastSyncedAt: Date | null; syncError: string | null }[]
-) => {
+const useAccountStatus = (mailboxes?: MailboxSync[]) => {
   const t = useT()
   const { plan, usage } = useMe()
   const hasAgent = useHasAgent()
   const percent = plan.kind === 'free' ? 0 : usedPercent(plan.kind, usage.spent)
-  const isSyncing =
-    !mailboxes?.length || mailboxes.some(({ lastSyncedAt }) => !lastSyncedAt)
+  const failed = mailboxes?.find(({ syncError }) => syncError)
+  const reading = mailboxes?.find(({ lastSyncedAt }) => !lastSyncedAt)
 
-  if (hasAgent && mailboxes?.some(({ syncError }) => syncError)) {
-    return { isAlert: true, isTitled: true, text: t.nav.syncFailed }
+  if (hasAgent && failed) {
+    return {
+      isAlert: true,
+      isTitled: true,
+      label: failed.signIn ? undefined : t.nav.syncFailedIn(failed.email),
+      text: t.nav.syncFailed,
+    }
   }
-  if (hasAgent && isSyncing) {
-    return { isAlert: false, isTitled: true, text: t.nav.syncing }
+  if (hasAgent && (!mailboxes?.length || reading)) {
+    return {
+      isAlert: false,
+      isTitled: true,
+      label:
+        reading && !reading.signIn ? t.nav.syncingIn(reading.email) : undefined,
+      text: t.nav.syncing,
+    }
   }
   if (percent >= USAGE_SHOWN_FROM) {
     return { isAlert: true, isTitled: true, text: t.nav.usage(percent) }
@@ -560,7 +576,7 @@ const useDocumentTitle = ({
   mailboxes,
 }: {
   count?: number
-  mailboxes?: { lastSyncedAt: Date | null; syncError: string | null }[]
+  mailboxes?: MailboxSync[]
 }) => {
   const t = useT()
   const status = useAccountStatus(mailboxes)
@@ -596,7 +612,7 @@ const AccountMenu = ({
   mailboxes,
 }: {
   email: string
-  mailboxes?: { lastSyncedAt: Date | null; syncError: string | null }[]
+  mailboxes?: MailboxSync[]
 }) => {
   const t = useT()
   const navigate = useNavigate()
@@ -624,7 +640,11 @@ const AccountMenu = ({
             <span className="text-foreground block truncate" data-mask>
               {email}
             </span>
-            {status && <span className="block">{status.text}</span>}
+            {status && (
+              <span className="block" data-mask>
+                {status.label ?? status.text}
+              </span>
+            )}
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

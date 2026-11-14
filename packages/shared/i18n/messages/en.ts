@@ -785,6 +785,8 @@ export const en = {
     settings: 'Settings',
     syncFailed: 'Gmail sync failed, retrying',
     syncing: 'Reading your inbox…',
+    syncFailedIn: (email: string) => `Couldn’t sync ${email}, retrying`,
+    syncingIn: (email: string) => `Reading ${email}…`,
     home: 'Home',
     trialLeft: (total: number) =>
       plural('en', total, {

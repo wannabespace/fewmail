@@ -762,6 +762,9 @@ export const tr: Messages = {
     settings: 'Ayarlar',
     syncFailed: 'Gmail eşitlemesi başarısız, yeniden deneniyor',
     syncing: 'Gelen kutun okunuyor…',
+    syncFailedIn: (email: string) =>
+      `${email} eşitlemesi başarısız, yeniden deneniyor`,
+    syncingIn: (email: string) => `${email} okunuyor…`,
     home: 'Ana Sayfa',
     trialLeft: (total: number) => `Pro denemesi · ${total} gün kaldı`,
     usage: (percent: number) => `Ajan · bu ayın %${percent} kadarı kullanıldı`,

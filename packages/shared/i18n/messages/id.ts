@@ -770,6 +770,9 @@ export const id: Messages = {
     settings: 'Pengaturan',
     syncFailed: 'Sinkronisasi Gmail gagal, mencoba lagi',
     syncing: 'Membaca kotak masukmu…',
+    syncFailedIn: (email: string) =>
+      `Sinkronisasi ${email} gagal, mencoba lagi`,
+    syncingIn: (email: string) => `Membaca ${email}…`,
     home: 'Beranda',
     trialLeft: (total: number) => `Uji coba Pro · sisa ${total} hari`,
     usage: (percent: number) => `Agen · ${percent}% bulan ini terpakai`,

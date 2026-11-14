@@ -997,6 +997,9 @@ export const de: Messages = {
     settings: 'Einstellungen',
     syncFailed: 'Gmail-Sync fehlgeschlagen, neuer Versuch',
     syncing: 'Lese deinen Posteingang…',
+    syncFailedIn: (email: string) =>
+      `Sync von ${email} fehlgeschlagen, neuer Versuch`,
+    syncingIn: (email: string) => `Lese ${email}…`,
     home: 'Startseite',
     trialLeft: (total: number) =>
       plural('de', total, {

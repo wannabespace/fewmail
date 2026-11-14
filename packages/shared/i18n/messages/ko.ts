@@ -503,6 +503,8 @@ export const ko: Messages = {
     settings: '설정',
     syncFailed: 'Gmail 동기화 실패, 다시 시도 중',
     syncing: '받은편지함을 읽는 중…',
+    syncFailedIn: (email: string) => `${email} 동기화 실패, 다시 시도 중`,
+    syncingIn: (email: string) => `${email} 읽는 중…`,
     home: '홈',
     trialLeft: (total: number) => `Pro 체험 · ${total}일 남음`,
     usage: (percent: number) => `에이전트 · 이번 달 ${percent}% 사용`,

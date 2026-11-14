@@ -787,6 +787,9 @@ export const pt: Messages = {
     settings: 'Configurações',
     syncFailed: 'Falha ao sincronizar o Gmail, tentando de novo',
     syncing: 'Lendo sua caixa de entrada…',
+    syncFailedIn: (email: string) =>
+      `Falha ao sincronizar ${email}, tentando de novo`,
+    syncingIn: (email: string) => `Lendo ${email}…`,
     home: 'Início',
     trialLeft: (total: number) =>
       plural('pt', total, {

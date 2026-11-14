@@ -997,6 +997,9 @@ export const uk: Messages = {
     settings: 'Налаштування',
     syncFailed: 'Помилка синхронізації Gmail, пробую ще',
     syncing: 'Читаю твою пошту…',
+    syncFailedIn: (email: string) =>
+      `Не вдалося синхронізувати ${email}, пробую ще`,
+    syncingIn: (email: string) => `Читаю ${email}…`,
     home: 'Головна',
     trialLeft: (total: number) =>
       plural('uk', total, {

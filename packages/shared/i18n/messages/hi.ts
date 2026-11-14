@@ -504,6 +504,8 @@ export const hi: Messages = {
     settings: 'सेटिंग्स',
     syncFailed: 'Gmail सिंक विफल, फिर से कोशिश हो रही है',
     syncing: 'आपका इनबॉक्स पढ़ा जा रहा है…',
+    syncFailedIn: (email: string) => `${email} सिंक विफल, फिर से कोशिश हो रही है`,
+    syncingIn: (email: string) => `${email} पढ़ा जा रहा है…`,
     home: 'होम',
     trialLeft: (total: number) =>
       plural('hi', total, {
