@@ -1617,15 +1617,15 @@ export const en = {
       review: 'Review',
       reviewLead:
         'Each email with what the agent would do and why. Approve what looks right, keep what should stay as it is.',
-      reviewTitle: 'Review what the agent sorted',
+      reviewTitle: 'Review what the agent suggests',
       done: (n: number) => `${n} tidied`,
       keep: 'Keep',
       mark_read: (n: number) => `${n} to mark read`,
       run: 'Approve all',
       total: (total: number) =>
         plural('en', total, {
-          one: () => 'The agent sorted one email for you',
-          other: (n) => `The agent sorted ${n} emails for you`,
+          one: () => 'The agent suggests tidying one email',
+          other: (n) => `The agent suggests tidying ${n} emails`,
         }),
       unsubscribe: (n: number) => `${n} to unsubscribe`,
       untilYouApprove: 'Nothing changes in your mail until you approve',

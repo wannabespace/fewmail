@@ -1654,12 +1654,12 @@ export const pl: Messages = {
       review: 'Sprawdź',
       reviewLead:
         'Każdy e-mail z tym, co zrobiłby agent, i dlaczego. Zatwierdź to, co wygląda dobrze, zostaw to, co ma zostać bez zmian.',
-      reviewTitle: 'Sprawdź, co posortował agent',
+      reviewTitle: 'Sprawdź, co proponuje agent',
       done: (n: number) => `Uporządkowane: ${n}`,
       keep: 'Zostaw',
       mark_read: (n: number) => `do oznaczenia jako przeczytane: ${n}`,
       run: 'Zatwierdź wszystko',
-      total: (n: number) => `E-maile posortowane przez agenta: ${n}`,
+      total: (n: number) => `E-maile, które agent proponuje uporządkować: ${n}`,
       unsubscribe: (n: number) => `do wypisania się: ${n}`,
       untilYouApprove:
         'Nic w twojej poczcie się nie zmieni, dopóki nie zatwierdzisz',

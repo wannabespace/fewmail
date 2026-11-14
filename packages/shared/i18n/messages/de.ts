@@ -1342,12 +1342,12 @@ export const de: Messages = {
       review: 'Prüfen',
       reviewLead:
         'Jede E-Mail mit dem, was der Agent tun würde, und warum. Bestätige, was passt, und behalte, was bleiben soll, wie es ist.',
-      reviewTitle: 'Prüfe, was der Agent sortiert hat',
+      reviewTitle: 'Prüfe, was der Agent vorschlägt',
       done: (n: number) => `${n} aufgeräumt`,
       keep: 'Behalten',
       mark_read: (n: number) => `${n} als gelesen markieren`,
       run: 'Alle bestätigen',
-      total: (n: number) => `Vom Agenten sortierte E-Mails: ${n}`,
+      total: (n: number) => `Aufräumvorschläge des Agenten: ${n}`,
       unsubscribe: (n: number) => `${n} abbestellen`,
       untilYouApprove:
         'In deinem Postfach ändert sich nichts, bis du zustimmst',

@@ -587,6 +587,9 @@ export const countUnread = async (userId: string, mailboxId?: string) => {
 export const markThreadRead = (userId: string, threadId: string) =>
   changeThreadLabels(userId, threadId, MARK_READ)
 
+export const markThreadUnread = (userId: string, threadId: string) =>
+  changeThreadLabels(userId, threadId, { add: ['UNREAD'] })
+
 const fillMissingHtml = async (
   userId: string,
   threadId: string,

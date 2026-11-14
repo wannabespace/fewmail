@@ -78,6 +78,7 @@ import {
   listMail,
   countUnread,
   markThreadRead,
+  markThreadUnread,
   settleTidy,
   pinMessage,
   redraftAction,
@@ -439,6 +440,11 @@ export const router = {
       .input(type({ threadId: 'string' }))
       .handler(async ({ context, input }) => {
         await markThreadRead(context.user.id, input.threadId)
+      }),
+    markUnread: authed
+      .input(type({ threadId: 'string' }))
+      .handler(async ({ context, input }) => {
+        await markThreadUnread(context.user.id, input.threadId)
       }),
     unread: authed
       .input(type({ 'mailboxId?': 'string.uuid' }))

@@ -68,6 +68,20 @@ const split = (items: Proposal[]) => ({
 
 const PROPOSALS_TOAST = 'proposals'
 
+/** Archived mail comes back and a read mark comes off; a list left, spam and the trash do not. */
+const undoOf = ({ kind, message }: Proposal) => {
+  if (!message) {
+    return []
+  }
+  if (kind === 'archive') {
+    return [() => client.mail.moveToInbox({ messageId: message.id })]
+  }
+  if (kind === 'mark_read') {
+    return [() => client.mail.markUnread({ threadId: message.threadId })]
+  }
+  return []
+}
+
 /** What the agent proposes to do with mail on its own: nothing changes in Gmail until the user approves it, all at once or one by one. */
 export const useProposals = (
   today: Today | undefined,
@@ -114,20 +128,14 @@ export const useProposals = (
     },
     onSettled: refetchMail,
     onSuccess: (done, items) => {
-      // Archived mail comes back; a list left or a read mark does not.
-      const archived = items.flatMap(({ kind, message }) =>
-        kind === 'archive' && message ? [message.id] : []
-      )
-      if (archived.length === 0) {
+      const undos = items.flatMap(undoOf)
+      if (undos.length === 0) {
         toast.success(t.today.tidy.done(done), { id: PROPOSALS_TOAST })
         return
       }
       toastUndo(
         t.today.tidy.done(done),
-        () =>
-          Promise.all(
-            archived.map((messageId) => client.mail.moveToInbox({ messageId }))
-          ).finally(refetchMail),
+        () => Promise.all(undos.map((undo) => undo())).finally(refetchMail),
         PROPOSALS_TOAST
       )
     },

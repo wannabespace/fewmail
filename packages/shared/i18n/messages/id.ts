@@ -1603,12 +1603,12 @@ export const id: Messages = {
       review: 'Periksa',
       reviewLead:
         'Setiap email dengan apa yang akan dilakukan agen dan alasannya. Setujui yang tepat, simpan yang harus tetap seperti semula.',
-      reviewTitle: 'Periksa yang dipilah agen',
+      reviewTitle: 'Periksa saran agen',
       done: (n: number) => `${n} dirapikan`,
       keep: 'Simpan',
       mark_read: (n: number) => `${n} untuk ditandai dibaca`,
       run: 'Setujui semua',
-      total: (n: number) => `Email yang dipilah agen: ${n}`,
+      total: (n: number) => `Email yang disarankan agen untuk dirapikan: ${n}`,
       unsubscribe: (n: number) => `${n} untuk berhenti langganan`,
       untilYouApprove:
         'Tidak ada yang berubah di email kamu sampai kamu menyetujuinya',

@@ -1351,12 +1351,12 @@ export const fr: Messages = {
       review: 'Vérifier',
       reviewLead:
         'Chaque e-mail avec ce que l’agent ferait et pourquoi. Approuvez ce qui vous convient, gardez ce qui doit rester tel quel.',
-      reviewTitle: 'Vérifiez ce que l’agent a trié',
+      reviewTitle: 'Vérifiez ce que l’agent propose',
       done: (n: number) => `${n} rangés`,
       keep: 'Garder',
       mark_read: (n: number) => `${n} à marquer comme lus`,
       run: 'Tout approuver',
-      total: (n: number) => `E-mails triés par l’agent : ${n}`,
+      total: (n: number) => `E-mails que l’agent propose de ranger : ${n}`,
       unsubscribe: (n: number) => `${n} à désabonner`,
       untilYouApprove:
         'Rien ne change dans votre boîte tant que vous n’approuvez pas',
