@@ -200,6 +200,18 @@ const approveLabel = (t: Messages, action: Action, isReply: boolean) => {
   return approveTitle(t, action)
 }
 
+/** What the card asks, never its yes: "I paid it" there repeats the ✓ beside it. */
+const foldedVerb = (t: Messages, action: Action) => {
+  if (sendsDraft(action)) {
+    return t.queue.send
+  }
+  const { event, link, tool } = cardPayload(action)
+  if (tool || event) {
+    return approveTitle(t, action)
+  }
+  return link ? t.actionLink[link.purpose] : t.actionKind[action.kind]
+}
+
 const QuickActions = ({
   action,
   hasMessage,
@@ -219,12 +231,11 @@ const QuickActions = ({
 
   return (
     <span className="flex opacity-0 group-hover:opacity-100">
-      {/* A reply is never sent unread: it needs the open card. */}
-      {!sendsDraft(action) && (
+      {/* A reply is never sent unread: it needs the open card. The open card's own yes button is the ✓. */}
+      {!isSelected && !sendsDraft(action) && (
         <IconButton
           icon={Tick02Icon}
           label={approveLabel(t, action, false)}
-          shortcut={isSelected && <Kbd>⏎</Kbd>}
           size="icon-sm"
           variant="ghost-muted"
           onClick={onApprove}
@@ -282,7 +293,7 @@ const QueueCardHeader = ({
         <>
           {!isSelected && (
             <span className="text-muted-foreground mr-3 text-xs whitespace-nowrap">
-              {approveLabel(t, action, sendsDraft(action))}
+              {foldedVerb(t, action)}
             </span>
           )}
           <span className={cn(ROW_SWAP, 'mr-3')}>
