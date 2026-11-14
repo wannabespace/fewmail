@@ -213,13 +213,13 @@ export const hideThread = (threadId: string) => {
   }
 }
 
-export const showThreadRead = (threadId: string) => {
+export const showThreadRead = (threadId: string, isRead = true) => {
   const thread = threads.get(threadId)
   if (thread) {
     void threads.utils.writeUpdate({
       messages: thread.messages.map((entry) => ({
         ...entry,
-        message: { ...entry.message, isUnread: false },
+        message: { ...entry.message, isUnread: !isRead },
       })),
       threadId,
     })
@@ -229,7 +229,7 @@ export const showThreadRead = (threadId: string) => {
       keys.flatMap((key) => {
         const row = rows.get(key)
         return row
-          ? [{ key, message: { ...row.message, isUnread: false } }]
+          ? [{ key, message: { ...row.message, isUnread: !isRead } }]
           : []
       })
     )

@@ -544,6 +544,7 @@ export const id: Messages = {
     approvePicked: (n: number) => `setujui ${n} yang dipilih`,
     pick: 'pilih',
     pickAll: 'pilih semua',
+    markRead: 'tandai dibaca',
     unpick: 'hapus pilihan',
     pin: 'sematkan',
     unpin: 'lepas sematan',
@@ -703,6 +704,7 @@ export const id: Messages = {
     reportedSpam: 'Dilaporkan. Email mereka kini masuk ke spam.',
     archive: 'Arsipkan',
     archived: 'Diarsipkan',
+    markedRead: 'Ditandai dibaca',
     attachment: 'lampiran',
     draftReply: 'Draf balasan',
     drafting: 'Menyusun…',
@@ -1027,9 +1029,6 @@ export const id: Messages = {
     title: 'Pengaturan',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Perbandingan Fewmail dengan Superhuman, Shortwave, dan SaneBox: agen yang membaca email untukmu, bukan cara lebih cepat untuk membacanya sendiri.',
@@ -1042,6 +1041,9 @@ export const id: Messages = {
         `Fewmail gratis selamanya untuk memilah, aturan, dan perlindungan spam. Pro, agen lengkapnya, dimulai dengan ${trialDays} hari gratis tanpa kartu.`,
       tagline: 'agen email untuk Gmail',
     },
+    chapters: {
+      pricing: {
+        description:
           'Penyortiran, aturan, dan perlindungan gratis selamanya. Lite, Pro, dan Max menambahkan semua yang membaca dan menulis untukmu; paket yang lebih besar hanya melakukannya lebih banyak.',
         label: 'Harga',
         title: (usd: number) =>

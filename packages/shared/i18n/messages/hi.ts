@@ -284,6 +284,7 @@ export const hi: Messages = {
     approvePicked: (n: number) => `${n} चुने हुए मंज़ूर करें`,
     pick: 'चुनें',
     pickAll: 'सब चुनें',
+    markRead: 'पढ़ा हुआ मार्क करें',
     unpick: 'चुनाव हटाएँ',
     pin: 'पिन करें',
     unpin: 'अनपिन करें',
@@ -439,6 +440,7 @@ export const hi: Messages = {
     reportedSpam: 'रिपोर्ट किया गया। उनके मेल अब स्पैम में जाएँगे।',
     archive: 'आर्काइव करें',
     archived: 'आर्काइव हो गया',
+    markedRead: 'पढ़ा हुआ मार्क किया',
     attachment: 'अटैचमेंट',
     draftReply: 'जवाब ड्राफ़्ट करें',
     drafting: 'ड्राफ़्ट बन रहा है…',
@@ -737,9 +739,6 @@ export const hi: Messages = {
     title: 'सेटिंग्स',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Superhuman, Shortwave और SaneBox से Fewmail की तुलना: खुद तेज़ी से पढ़ने का तरीका नहीं, बल्कि आपके लिए मेल पढ़ने वाला एजेंट।',
@@ -752,6 +751,9 @@ export const hi: Messages = {
         `छँटाई, नियमों और स्पैम सुरक्षा के लिए Fewmail हमेशा मुफ़्त है। Pro, पूरा एजेंट, ${trialDays} मुफ़्त दिनों से शुरू होता है, कार्ड की ज़रूरत नहीं।`,
       tagline: 'Gmail के लिए ईमेल एजेंट',
     },
+    chapters: {
+      pricing: {
+        description:
           'सॉर्टिंग, नियम और सुरक्षा हमेशा के लिए मुफ़्त। Lite, Pro और Max वह सब जोड़ते हैं जो आपके लिए पढ़ता और लिखता है; बड़े प्लान बस उसे और ज़्यादा करते हैं।',
         label: 'कीमत',
         title: (usd: number) => `सॉर्टिंग मुफ़्त। एजेंट $${usd} से शुरू।`,

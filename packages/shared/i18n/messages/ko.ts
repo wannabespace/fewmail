@@ -281,6 +281,7 @@ export const ko: Messages = {
     approvePicked: (n: number) => `선택한 ${n}개 승인`,
     pick: '선택',
     pickAll: '모두 선택',
+    markRead: '읽음 표시',
     unpick: '선택 해제',
     pin: '고정',
     unpin: '고정 해제',
@@ -437,6 +438,7 @@ export const ko: Messages = {
     reportedSpam: '신고했어요. 이제 이 발신자의 메일은 스팸으로 가요.',
     archive: '보관',
     archived: '보관했어요',
+    markedRead: '읽음으로 표시했어요',
     attachment: '첨부파일',
     draftReply: '답장 초안 작성',
     drafting: '초안 작성 중…',
@@ -735,9 +737,6 @@ export const ko: Messages = {
     title: '설정',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Superhuman, Shortwave, SaneBox와 Fewmail 비교: 직접 더 빨리 읽는 도구가 아니라 대신 메일을 읽어 주는 에이전트예요.',
@@ -750,6 +749,9 @@ export const ko: Messages = {
         `Fewmail의 분류, 규칙, 스팸 보호는 계속 무료예요. 에이전트 전체를 쓰는 Pro는 카드 없이 ${trialDays}일 무료로 시작해요.`,
       tagline: 'Gmail을 위한 이메일 에이전트',
     },
+    chapters: {
+      pricing: {
+        description:
           '분류, 규칙, 보호 기능은 평생 무료예요. Lite, Pro, Max에는 대신 읽고 써 주는 모든 기능이 더해져요. 큰 요금제일수록 그걸 더 많이 할 뿐이에요.',
         label: '요금',
         title: (usd: number) => `분류는 무료. 에이전트는 $${usd}부터.`,

@@ -557,6 +557,7 @@ export const pt: Messages = {
     approvePicked: (n: number) => `aprovar ${n} selecionados`,
     pick: 'selecionar',
     pickAll: 'selecionar tudo',
+    markRead: 'marcar como lido',
     unpick: 'limpar seleção',
     pin: 'fixar',
     unpin: 'desafixar',
@@ -715,6 +716,7 @@ export const pt: Messages = {
     reportedSpam: 'Denunciado. Os e-mails dele agora vão para o spam.',
     archive: 'Arquivar',
     archived: 'Arquivado',
+    markedRead: 'Marcado como lido',
     attachment: 'anexo',
     draftReply: 'Rascunhar resposta',
     drafting: 'Escrevendo…',
@@ -1051,9 +1053,6 @@ export const pt: Messages = {
     title: 'Configurações',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Como o Fewmail se compara ao Superhuman, Shortwave e SaneBox: um agente que lê seus e-mails em vez de um jeito mais rápido de você mesmo lê-los.',
@@ -1066,6 +1065,9 @@ export const pt: Messages = {
         `O Fewmail é grátis para sempre para organizar, criar regras e proteger contra spam. O Pro, o agente completo, começa com ${trialDays} dias grátis e sem cartão.`,
       tagline: 'o agente de e-mail para o Gmail',
     },
+    chapters: {
+      pricing: {
+        description:
           'A organização, as regras e a proteção são grátis para sempre. Lite, Pro e Max adicionam tudo o que lê e escreve por você; os planos maiores simplesmente fazem mais.',
         label: 'Preços',
         title: (usd: number) =>

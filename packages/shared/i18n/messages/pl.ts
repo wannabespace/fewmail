@@ -570,6 +570,7 @@ export const pl: Messages = {
     approvePicked: (n: number) => `zatwierdź wybrane (${n})`,
     pick: 'wybierz',
     pickAll: 'wybierz wszystkie',
+    markRead: 'oznacz jako przeczytane',
     unpick: 'wyczyść wybór',
     pin: 'przypnij',
     unpin: 'odepnij',
@@ -727,6 +728,7 @@ export const pl: Messages = {
     reportedSpam: 'Zgłoszono. Jego poczta trafia teraz do spamu.',
     archive: 'Archiwizuj',
     archived: 'Zarchiwizowano',
+    markedRead: 'Oznaczono jako przeczytane',
     attachment: 'załącznik',
     draftReply: 'Szkic odpowiedzi',
     drafting: 'Piszę…',
@@ -1072,9 +1074,6 @@ export const pl: Messages = {
     title: 'Ustawienia',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Fewmail w porównaniu z Superhuman, Shortwave i SaneBox: agent, który czyta pocztę za ciebie, zamiast szybszego sposobu, by czytać ją samemu.',
@@ -1087,6 +1086,9 @@ export const pl: Messages = {
         `Fewmail jest na zawsze darmowy do sortowania, reguł i ochrony przed spamem. Pro, cały agent, zaczyna się od ${trialDays} darmowych dni bez karty.`,
       tagline: 'agent poczty dla Gmaila',
     },
+    chapters: {
+      pricing: {
+        description:
           'Sortowanie, reguły i ochrona są za darmo na zawsze. Lite, Pro i Max dodają wszystko, co czyta i pisze za ciebie; większe plany po prostu robią tego więcej.',
         label: 'Cennik',
         title: (usd: number) => `Sortowanie za darmo. Agent od $${usd}.`,

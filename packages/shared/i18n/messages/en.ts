@@ -578,6 +578,7 @@ export const en = {
     open: 'open',
     pick: 'pick',
     pickAll: 'pick all',
+    markRead: 'mark read',
     unpick: 'clear picks',
     notOnBoard: 'not on this board',
     rename: 'rename',
@@ -688,6 +689,7 @@ export const en = {
     unread: 'Unread',
     archive: 'Archive',
     archived: 'Archived',
+    markedRead: 'Marked read',
     block: 'Block sender',
     ignoresUnsubscribe: (name: string) => `${name} ignores unsubscribes`,
     ignoresUnsubscribeHint:
@@ -1043,9 +1045,6 @@ export const en = {
     title: 'Settings',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'How Fewmail compares to Superhuman, Shortwave and SaneBox: an agent that reads your mail instead of a faster way to read it yourself.',
@@ -1058,6 +1057,9 @@ export const en = {
         `Fewmail is free forever for sorting, rules and spam protection. Pro, the whole agent, starts with ${trialDays} free days and no card.`,
       tagline: 'the email agent for Gmail',
     },
+    chapters: {
+      pricing: {
+        description:
           'The sorting, rules and protection are free forever. Lite, Pro and Max add everything that reads and writes for you; the bigger plans simply do more of it.',
         label: 'Pricing',
         title: (usd: number) =>

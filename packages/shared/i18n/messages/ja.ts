@@ -281,6 +281,7 @@ export const ja: Messages = {
     approvePicked: (n: number) => `選択した${n}件を承認`,
     pick: '選択',
     pickAll: 'すべて選択',
+    markRead: '既読にする',
     unpick: '選択を解除',
     pin: 'ピン留め',
     unpin: 'ピン留めを外す',
@@ -438,6 +439,7 @@ export const ja: Messages = {
     reportedSpam: '報告しました。今後のメールは迷惑メールに移動します。',
     archive: 'アーカイブ',
     archived: 'アーカイブしました',
+    markedRead: '既読にしました',
     attachment: '添付ファイル',
     draftReply: '返信を下書き',
     drafting: '下書き中…',
@@ -739,9 +741,6 @@ export const ja: Messages = {
     title: '設定',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Fewmail と Superhuman、Shortwave、SaneBox の比較：自分で速く読むための道具ではなく、代わりにメールを読むエージェントです。',
@@ -754,6 +753,9 @@ export const ja: Messages = {
         `Fewmail の仕分け、ルール、スパム対策はずっと無料。エージェントのすべてが使える Pro は、カード不要の ${trialDays} 日間無料から始められます。`,
       tagline: 'Gmail のためのメールエージェント',
     },
+    chapters: {
+      pricing: {
+        description:
           '仕分け、ルール、保護機能はずっと無料。Lite、Pro、Max では、メールを読み、書いてくれる機能がすべて加わります。上のプランほど、それをたくさんこなすだけです。',
         label: '料金',
         title: (usd: number) => `仕分けは無料。エージェントは $${usd} から。`,

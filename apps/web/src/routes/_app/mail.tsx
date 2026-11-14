@@ -7,12 +7,18 @@ import {
 import type { MailCategory } from '@fewmail/shared/agent'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
+import { Checkbox } from '@fewmail/ui/components/checkbox'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   ResizableGroup,
   ResizablePanel,
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@fewmail/ui/components/dropdown-menu'
 import {
   Empty,
   EmptyDescription,
@@ -54,6 +60,9 @@ import {
   InboxIcon,
   InboxUnreadIcon,
   Mail01Icon,
+  MailOpenIcon,
+  PinIcon,
+  PinOffIcon,
   Search01Icon,
   Shield01Icon,
   SpamIcon,
@@ -100,6 +109,7 @@ import {
   onEach,
   pinEach,
   ROW_ACTIONS,
+  SnoozeMenuItems,
   sweepOf,
   StackView,
   ThreadView,
@@ -702,6 +712,44 @@ const rowSurfaceOf = ({
     isOpen && 'bg-secondary hover:bg-secondary'
   )
 
+// The box lies over the unread dot, so the dot steps aside whenever the box shows.
+const RowPick = ({
+  className,
+  isPicked,
+  isPicking,
+  onPick,
+}: {
+  className: string
+  isPicked: boolean
+  isPicking: boolean
+  onPick: () => void
+}) => {
+  const t = useT()
+  return (
+    <span
+      className={cn(
+        'absolute left-4 flex',
+        className,
+        !isPicking &&
+          'ease-house opacity-0 transition-opacity duration-150 group-hover:opacity-100'
+      )}
+    >
+      <Checkbox
+        aria-label={t.queue.pick}
+        checked={isPicked}
+        onCheckedChange={onPick}
+      />
+    </span>
+  )
+}
+
+const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
+  cn(
+    'size-2 shrink-0 rounded-full',
+    isUnread && 'bg-primary',
+    isPicking ? 'invisible' : 'group-hover:invisible'
+  )
+
 const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
 
 // A leaving row drops `data-row`: the cursor finds its row by index among them, and a folding row would shift it by one.
@@ -928,9 +976,12 @@ const MailRow = ({
   canSnooze,
   isCursor,
   isOpen,
+  isPicked,
+  isPicking,
   isSnoozeOpen,
   onOpen,
   onOpenEmail,
+  onPick,
   onSnoozeOpenChange,
   openEmailThread,
   row: { analysis, burst, message, messageIds, threadSize },
@@ -940,9 +991,12 @@ const MailRow = ({
   canSnooze: boolean
   isCursor: boolean
   isOpen: boolean
+  isPicked: boolean
+  isPicking: boolean
   isSnoozeOpen: boolean
   onOpen: () => void
   onOpenEmail: (message: ListedMessage) => void
+  onPick: () => void
   onSnoozeOpenChange: (open: boolean) => void
   openEmailThread: string | undefined
   row: ListedRow & { burst?: ListedMessage[]; messageIds: string[] }
@@ -956,7 +1010,7 @@ const MailRow = ({
   return (
     <LeavingRow
       className={rowSurfaceOf({
-        isActive: isCursor || isSnoozeOpen,
+        isActive: isCursor || isPicked || isSnoozeOpen,
         isOpen,
         isUnread: message.isUnread,
       })}
@@ -977,10 +1031,7 @@ const MailRow = ({
         <span className="flex items-center gap-2 text-sm">
           <span
             aria-label={message.isUnread ? t.mail.unread : undefined}
-            className={cn(
-              'size-2 shrink-0 rounded-full',
-              message.isUnread && 'bg-primary'
-            )}
+            className={unreadDotOf(message.isUnread, isPicking)}
           />
           <span
             data-mask
@@ -1064,6 +1115,12 @@ const MailRow = ({
         messageIds={messageIds}
         sweep={sweep}
       />
+      <RowPick
+        className="top-3"
+        isPicked={isPicked}
+        isPicking={isPicking}
+        onPick={onPick}
+      />
     </LeavingRow>
   )
 }
@@ -1073,8 +1130,11 @@ const PinnedRow = ({
   canSnooze,
   isCursor,
   isOpen,
+  isPicked,
+  isPicking,
   isSnoozeOpen,
   onOpen,
+  onPick,
   onSnoozeOpenChange,
   row: { message, messageIds },
   sweep,
@@ -1086,7 +1146,7 @@ const PinnedRow = ({
   return (
     <LeavingRow
       className={rowSurfaceOf({
-        isActive: isCursor || isSnoozeOpen,
+        isActive: isCursor || isPicked || isSnoozeOpen,
         isOpen,
         isUnread: message.isUnread,
       })}
@@ -1103,10 +1163,7 @@ const PinnedRow = ({
       >
         <span
           aria-label={message.isUnread ? t.mail.unread : undefined}
-          className={cn(
-            'size-2 shrink-0 rounded-full',
-            message.isUnread && 'bg-primary'
-          )}
+          className={unreadDotOf(message.isUnread, isPicking)}
         />
         <span
           data-mask
@@ -1149,6 +1206,12 @@ const PinnedRow = ({
         messageIds={messageIds}
         onSnoozeOpenChange={onSnoozeOpenChange}
         sweep={sweep}
+      />
+      <RowPick
+        className="top-2.5"
+        isPicked={isPicked}
+        isPicking={isPicking}
+        onPick={onPick}
       />
     </LeavingRow>
   )
@@ -1517,23 +1580,80 @@ const OlderRowsLoader = ({
   )
 }
 
+interface ActedRow {
+  burst?: ListedMessage[]
+  message: ListedMessage
+  messageIds: string[]
+}
+
+const NONE_PICKED: ReadonlySet<string> = new Set()
+const PICKED_SNOOZE = 'picked'
+
+const usePicks = ({
+  cursorRow,
+  isEnabled,
+  picks: [pickedIds, setPickedIds],
+  rows,
+}: {
+  cursorRow: ActedRow | undefined
+  isEnabled: boolean
+  picks: [ReadonlySet<string>, (ids: ReadonlySet<string>) => void]
+  rows: ActedRow[]
+}) => {
+  const picked = rows.filter(({ message }) => pickedIds.has(message.id))
+  // A picked row that left the list (acted on, or changed elsewhere) must leave the picks, or esc would clear picks nobody sees.
+  if (picked.length !== pickedIds.size) {
+    setPickedIds(new Set(picked.map(({ message }) => message.id)))
+  }
+  const isAllPicked = rows.length > 0 && picked.length === rows.length
+  const onUnpick = () => setPickedIds(NONE_PICKED)
+  const onPickAll = () =>
+    setPickedIds(new Set(rows.map(({ message }) => message.id)))
+  const onToggle = (id: string) => {
+    const next = new Set(pickedIds)
+    if (!next.delete(id)) {
+      next.add(id)
+    }
+    setPickedIds(next)
+  }
+  const keys = { enabled: isEnabled && rows.length > 0 }
+  useHotkey('X', () => cursorRow && onToggle(cursorRow.message.id), keys)
+  useHotkey('Mod+A', isAllPicked ? onUnpick : onPickAll, keys)
+  useHotkey('Escape', onUnpick, {
+    enabled: isEnabled && picked.length > 0,
+  })
+  return { isAllPicked, onPickAll, onToggle, onUnpick, picked, pickedIds }
+}
+
 const useListActions = ({
   filter,
   isEnabled,
+  onUnpick,
+  picked,
   row,
 }: {
   filter: Filter
   isEnabled: boolean
-  row:
-    | {
-        message: { code: string | null; isPinned: boolean }
-        messageIds: string[]
-      }
-    | undefined
+  onUnpick: () => void
+  picked: ActedRow[]
+  row: ActedRow | undefined
 }) => {
-  const messageIds = row?.messageIds ?? []
-  const code = row?.message.code
-  const isPinned = !!row?.message.isPinned
+  const isPicking = picked.length > 0
+  const cursorRows = row ? [row] : []
+  const targets = isPicking ? picked : cursorRows
+  const messageIds = targets.flatMap((target) => target.messageIds)
+  const unreadThreadIds = [
+    ...new Set(
+      targets.flatMap(({ burst, message }) =>
+        (burst ?? [message])
+          .filter(({ isUnread }) => isUnread)
+          .map(({ threadId }) => threadId)
+      )
+    ),
+  ]
+  const code = isPicking ? null : row?.message.code
+  const isPinned =
+    targets.length > 0 && targets.every(({ message }) => message.isPinned)
   const t = useT()
   const actions = useMailActions()
   const [snoozeOpenId, setSnoozeOpenId] = useState<string | null>(null)
@@ -1541,13 +1661,40 @@ const useListActions = ({
   const sweep = sweepOf(actions, t, OUT_OF_INBOX[filter] ?? 'inbox')
   const [head] = messageIds
   const keys = { enabled: isEnabled && !!head }
-  useHotkey('E', onEach(messageIds, sweep.action.mutate), keys)
-  useHotkey('H', () => head && setSnoozeOpenId(head), {
-    enabled: keys.enabled && canSnooze,
+  const thenUnpick = (run: () => void) => () => {
+    run()
+    onUnpick()
+  }
+  const each = (mutate: (input: { messageId: string }) => void) =>
+    thenUnpick(onEach(messageIds, mutate))
+  const onTargets = {
+    isPinned,
+    onMarkRead:
+      unreadThreadIds.length > 0
+        ? thenUnpick(() => {
+            for (const threadId of unreadThreadIds) {
+              actions.markRead.mutate({ threadId })
+            }
+          })
+        : undefined,
+    onPin: thenUnpick(pinEach(messageIds, !isPinned, actions.pin.mutate)),
+    onSnooze: (until: Date) =>
+      each(({ messageId }) => actions.snooze.mutate({ messageId, until }))(),
+    onSweep: each(sweep.action.mutate),
+    onTrash: each(actions.trash.mutate),
+  }
+  useHotkey('E', onTargets.onSweep, keys)
+  useHotkey(
+    'H',
+    () => head && setSnoozeOpenId(isPicking ? PICKED_SNOOZE : head),
+    { enabled: keys.enabled && canSnooze }
+  )
+  useHotkey('Backspace', onTargets.onTrash, keys)
+  useHotkey('Shift+1', each(actions.reportSpam.mutate), keys)
+  useHotkey('S', onTargets.onPin, keys)
+  useHotkey('Shift+I', () => onTargets.onMarkRead?.(), {
+    enabled: keys.enabled && !!onTargets.onMarkRead,
   })
-  useHotkey('Backspace', onEach(messageIds, actions.trash.mutate), keys)
-  useHotkey('Shift+1', onEach(messageIds, actions.reportSpam.mutate), keys)
-  useHotkey('S', pinEach(messageIds, !isPinned, actions.pin.mutate), keys)
   useHotkey('Y', () => code && copy(code, t.mail.oneTimeCode.copied), {
     enabled: keys.enabled && !!code,
   })
@@ -1560,6 +1707,9 @@ const useListActions = ({
       ? []
       : [
           sweepHint,
+          ...(onTargets.onMarkRead
+            ? [['⇧I', t.keys.markRead] as [string, string]]
+            : []),
           ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
           pinHint(t, isPinned),
           ['⌫', t.keys.trash],
@@ -1569,6 +1719,7 @@ const useListActions = ({
     actions,
     canSnooze,
     hints,
+    onTargets,
     setSnoozeOpenId,
     snoozeOpenId,
     sweep,
@@ -1576,12 +1727,112 @@ const useListActions = ({
   }
 }
 
+// The header stays mounted under the bar: remounting the search field would take focus back with its autoFocus.
+const PickedBar = ({
+  children,
+  list: { canSnooze, onTargets, setSnoozeOpenId, snoozeOpenId, sweep },
+  picks: { isAllPicked, onPickAll, onUnpick, picked },
+}: {
+  children: ReactNode
+  list: ReturnType<typeof useListActions>
+  picks: ReturnType<typeof usePicks>
+}) => {
+  const t = useT()
+  const { isPinned, onMarkRead, onPin, onSnooze, onSweep, onTrash } = onTargets
+  return (
+    <>
+      {picked.length > 0 && (
+        <div className="flex items-center gap-1 border-b py-3 pr-5 pl-4">
+          <Checkbox
+            aria-label={t.keys.pickAll}
+            checked={isAllPicked}
+            onCheckedChange={isAllPicked ? onUnpick : onPickAll}
+          />
+          <span className="ml-2 text-sm font-medium tabular-nums">
+            {t.queue.picked(picked.length)}
+          </span>
+          <span className="ml-auto flex items-center gap-1">
+            <IconButton
+              icon={isPinned ? PinOffIcon : PinIcon}
+              label={isPinned ? t.mail.unpin : t.mail.pin}
+              shortcut={<Kbd>S</Kbd>}
+              size="icon-sm"
+              variant="ghost-muted"
+              onClick={onPin}
+            />
+            <IconButton
+              icon={sweep.icon}
+              label={sweep.label}
+              shortcut={<Kbd>E</Kbd>}
+              size="icon-sm"
+              variant="ghost-muted"
+              onClick={onSweep}
+            />
+            {onMarkRead && (
+              <IconButton
+                icon={MailOpenIcon}
+                label={t.actionKind.mark_read}
+                shortcut={<Kbd>⇧I</Kbd>}
+                size="icon-sm"
+                variant="ghost-muted"
+                onClick={onMarkRead}
+              />
+            )}
+            {canSnooze && (
+              <DropdownMenu
+                open={snoozeOpenId === PICKED_SNOOZE}
+                onOpenChange={(isOpen) =>
+                  setSnoozeOpenId(isOpen ? PICKED_SNOOZE : null)
+                }
+              >
+                <DropdownMenuTrigger
+                  render={
+                    <IconButton
+                      icon={Clock01Icon}
+                      label={t.snooze.title}
+                      shortcut={<Kbd>H</Kbd>}
+                      size="icon-sm"
+                      variant="ghost-muted"
+                    />
+                  }
+                />
+                <DropdownMenuContent align="end">
+                  <SnoozeMenuItems onSnooze={onSnooze} />
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <IconButton
+              icon={Delete02Icon}
+              label={t.mail.trash}
+              shortcut={<Kbd>⌫</Kbd>}
+              size="icon-sm"
+              variant="ghost-destructive"
+              onClick={onTrash}
+            />
+            <Button
+              size="sm"
+              variant="ghost-muted"
+              shortcut={<Kbd>esc</Kbd>}
+              onClick={onUnpick}
+            >
+              {t.queue.unpick}
+            </Button>
+          </span>
+        </div>
+      )}
+      <div hidden={picked.length > 0}>{children}</div>
+    </>
+  )
+}
+
 const useSearchField = ({
+  isPicking,
   isSearching,
   onCloseThread,
   q,
   thread,
 }: {
+  isPicking: boolean
   isSearching: boolean
   onCloseThread: () => Promise<void>
   q: string | undefined
@@ -1643,7 +1894,7 @@ const useSearchField = ({
         leaveSearch()
       }
     },
-    { enabled: !!thread || isSearching }
+    { enabled: !!thread || (isSearching && !isPicking) }
   )
   return {
     addToSearch: (text: string) => {
@@ -1681,16 +1932,27 @@ const listModeOf = (q: string | undefined, picked: Filter) => {
 const listHintsOf = ({
   canShowRelated,
   hints,
+  isPicking,
   isSearching,
   t,
   total,
 }: {
   canShowRelated: boolean
   hints: [string, string][]
+  isPicking: boolean
   isSearching: boolean
   t: ReturnType<typeof useT>
   total: number
 }): [string, string][] => {
+  if (isPicking) {
+    return [
+      ['J / K', t.keys.move],
+      ['X', t.keys.pick],
+      ['⌘A', t.keys.pickAll],
+      ...hints,
+      ['esc', t.keys.unpick],
+    ]
+  }
   const walk: [string, string][] =
     total > 0
       ? [
@@ -1700,6 +1962,7 @@ const listHintsOf = ({
             ? [['→', t.keys.fromSender] as [string, string]]
             : []),
           ...hints,
+          ...(hints.length > 0 ? [['X', t.keys.pick] as [string, string]] : []),
         ]
       : []
   return isSearching
@@ -1765,6 +2028,7 @@ const MailPage = () => {
   const listRef = useRef<HTMLUListElement>(null)
   const closeThread = () =>
     navigate({ search: (prev) => ({ ...prev, thread: undefined }) })
+  const [pickedIds, setPickedIds] = useState(NONE_PICKED)
   const {
     addToSearch,
     applySearch,
@@ -1775,6 +2039,7 @@ const MailPage = () => {
     searchFor,
     searchRef,
   } = useSearchField({
+    isPicking: pickedIds.size > 0,
     isSearching,
     onCloseThread: closeThread,
     q,
@@ -1796,6 +2061,7 @@ const MailPage = () => {
     setKeptUnread(new Set())
     setUnfolded(new Set())
     setRelatedOf(null)
+    setPickedIds(NONE_PICKED)
   }
 
   const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
@@ -1848,7 +2114,20 @@ const MailPage = () => {
   )
   const total = isDrafts ? listedTotal : rows.length
   useCursorOnOpenThread({ rows, setCursor, thread })
-
+  const picks = usePicks({
+    cursorRow: rows[cursor],
+    isEnabled: !thread,
+    picks: [pickedIds, setPickedIds],
+    rows,
+  })
+  const isPicking = picks.picked.length > 0
+  const list = useListActions({
+    filter,
+    isEnabled: !thread,
+    onUnpick: picks.onUnpick,
+    picked: picks.picked,
+    row: rows[cursor],
+  })
   const {
     actions,
     canSnooze,
@@ -1857,11 +2136,7 @@ const MailPage = () => {
     snoozeOpenId,
     sweep,
     sweepHint,
-  } = useListActions({
-    filter,
-    isEnabled: !thread,
-    row: rows[cursor],
-  })
+  } = list
 
   useEffect(() => {
     const row = listRef.current?.querySelectorAll('[data-row]')[cursor]
@@ -1968,62 +2243,64 @@ const MailPage = () => {
           aria-label={t.nav.mail}
           className="flex min-w-0 flex-1 flex-col border-r"
         >
-          {isSearching ? (
-            <div className="flex items-center gap-2 border-b px-5 py-3">
-              <IconButton
-                icon={ArrowLeft01Icon}
-                label={t.mail.find.back}
-                variant="ghost-muted"
-                size="icon-sm"
-                onClick={leaveSearch}
-              />
-              <InputGroup size="sm">
-                <InputGroupAddon>
-                  <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
-                </InputGroupAddon>
-                <InputGroupInput
-                  ref={searchRef}
-                  autoFocus
-                  defaultValue={search}
-                  onChange={(event) => onSearchInput(event.target.value)}
-                  placeholder={t.mail.search}
-                  aria-label={t.mail.search}
+          <PickedBar list={list} picks={picks}>
+            {isSearching ? (
+              <div className="flex items-center gap-2 border-b px-5 py-3">
+                <IconButton
+                  icon={ArrowLeft01Icon}
+                  label={t.mail.find.back}
+                  variant="ghost-muted"
+                  size="icon-sm"
+                  onClick={leaveSearch}
                 />
-                {isSearchPending && (
-                  <InputGroupAddon align="inline-end">
-                    <Spinner className="text-muted-foreground" />
+                <InputGroup size="sm">
+                  <InputGroupAddon>
+                    <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
                   </InputGroupAddon>
-                )}
-              </InputGroup>
-              <MailboxSelect
-                mailbox={mailbox}
-                mailboxes={mailboxes}
-                onChange={pickMailbox}
-              />
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 border-b px-5 py-3">
-              <ViewPicker
-                filter={shownFilter}
-                unread={unread}
-                onChange={showFilter}
-              />
-              <MailboxSelect
-                mailbox={mailbox}
-                mailboxes={mailboxes}
-                onChange={pickMailbox}
-              />
-              <IconButton
-                icon={Search01Icon}
-                label={t.mail.find.open}
-                shortcut={<Kbd>/</Kbd>}
-                variant="outline"
-                size="icon-sm"
-                className="ml-auto"
-                onClick={() => applySearch('')}
-              />
-            </div>
-          )}
+                  <InputGroupInput
+                    ref={searchRef}
+                    autoFocus
+                    defaultValue={search}
+                    onChange={(event) => onSearchInput(event.target.value)}
+                    placeholder={t.mail.search}
+                    aria-label={t.mail.search}
+                  />
+                  {isSearchPending && (
+                    <InputGroupAddon align="inline-end">
+                      <Spinner className="text-muted-foreground" />
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+                <MailboxSelect
+                  mailbox={mailbox}
+                  mailboxes={mailboxes}
+                  onChange={pickMailbox}
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 border-b px-5 py-3">
+                <ViewPicker
+                  filter={shownFilter}
+                  unread={unread}
+                  onChange={showFilter}
+                />
+                <MailboxSelect
+                  mailbox={mailbox}
+                  mailboxes={mailboxes}
+                  onChange={pickMailbox}
+                />
+                <IconButton
+                  icon={Search01Icon}
+                  label={t.mail.find.open}
+                  shortcut={<Kbd>/</Kbd>}
+                  variant="outline"
+                  size="icon-sm"
+                  className="ml-auto"
+                  onClick={() => applySearch('')}
+                />
+              </div>
+            )}
+          </PickedBar>
           {isSearchStart && (
             <MailSearchStart onAdd={addToSearch} onSearch={searchFor} />
           )}
@@ -2094,9 +2371,12 @@ const MailPage = () => {
                         ? stack?.message.id === row.message.id
                         : row.message.threadId === thread
                     }
+                    isPicked={picks.pickedIds.has(row.message.id)}
+                    isPicking={isPicking}
                     isSnoozeOpen={snoozeOpenId === row.message.id}
                     onOpen={() => open(index)}
                     onOpenEmail={(message) => open(index, message)}
+                    onPick={() => picks.onToggle(row.message.id)}
                     openEmailThread={stack ? undefined : thread}
                     onSnoozeOpenChange={(isOpen) =>
                       setSnoozeOpenId(isOpen ? row.message.id : null)
@@ -2113,6 +2393,7 @@ const MailPage = () => {
               hints={listHintsOf({
                 canShowRelated,
                 hints,
+                isPicking,
                 isSearching,
                 t,
                 total,

@@ -280,6 +280,7 @@ export const zh: Messages = {
     approvePicked: (n: number) => `批准已选的 ${n} 项`,
     pick: '选择',
     pickAll: '全选',
+    markRead: '标为已读',
     unpick: '取消选择',
     pin: '置顶',
     unpin: '取消置顶',
@@ -432,6 +433,7 @@ export const zh: Messages = {
     reportedSpam: '已举报。对方的邮件将进入垃圾邮件。',
     archive: '归档',
     archived: '已归档',
+    markedRead: '已标为已读',
     attachment: '附件',
     draftReply: '起草回复',
     drafting: '正在起草…',
@@ -720,9 +722,6 @@ export const zh: Messages = {
     title: '设置',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Fewmail 与 Superhuman、Shortwave、SaneBox 的对比：一个替你读邮件的助手，而不是让你自己读得更快的工具。',
@@ -734,6 +733,9 @@ export const zh: Messages = {
         `Fewmail 的分拣、规则和垃圾邮件防护永久免费。完整助手 Pro 可免费试用 ${trialDays} 天，无需绑卡。`,
       tagline: 'Gmail 的邮件助手',
     },
+    chapters: {
+      pricing: {
+        description:
           '分类、规则和防护永久免费。Lite、Pro 和 Max 加上所有替你阅读和撰写的功能；更高的套餐只是能做得更多。',
         label: '价格',
         title: (usd: number) => `分类免费。助手 $${usd} 起。`,

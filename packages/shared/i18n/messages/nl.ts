@@ -558,6 +558,7 @@ export const nl: Messages = {
     approvePicked: (n: number) => `${n} gekozen goedkeuren`,
     pick: 'kiezen',
     pickAll: 'alles kiezen',
+    markRead: 'markeer gelezen',
     unpick: 'keuze wissen',
     pin: 'vastzetten',
     unpin: 'losmaken',
@@ -716,6 +717,7 @@ export const nl: Messages = {
     reportedSpam: 'Gemeld. Hun mail gaat nu naar spam.',
     archive: 'Archiveren',
     archived: 'Gearchiveerd',
+    markedRead: 'Gemarkeerd als gelezen',
     attachment: 'bijlage',
     draftReply: 'Antwoord opstellen',
     drafting: 'Opstellen…',
@@ -1052,9 +1054,6 @@ export const nl: Messages = {
     title: 'Instellingen',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Fewmail vergeleken met Superhuman, Shortwave en SaneBox: een agent die je mail leest in plaats van een snellere manier om hem zelf te lezen.',
@@ -1067,6 +1066,9 @@ export const nl: Messages = {
         `Fewmail is voor altijd gratis voor sorteren, regels en spambescherming. Pro, de hele agent, begint met ${trialDays} gratis dagen en zonder kaart.`,
       tagline: 'de e-mailagent voor Gmail',
     },
+    chapters: {
+      pricing: {
+        description:
           'Sorteren, regels en bescherming zijn voor altijd gratis. Lite, Pro en Max voegen alles toe wat voor je leest en schrijft; de grotere abonnementen doen er gewoon meer van.',
         label: 'Prijzen',
         title: (usd: number) =>

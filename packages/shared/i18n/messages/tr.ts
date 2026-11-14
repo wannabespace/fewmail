@@ -539,6 +539,7 @@ export const tr: Messages = {
     approvePicked: (n: number) => `seçili ${n} öğeyi onayla`,
     pick: 'seç',
     pickAll: 'tümünü seç',
+    markRead: 'okundu yap',
     unpick: 'seçimi temizle',
     pin: 'sabitle',
     unpin: 'sabitlemeyi kaldır',
@@ -696,6 +697,7 @@ export const tr: Messages = {
     reportedSpam: 'Bildirildi. E-postaları artık spama gidiyor.',
     archive: 'Arşivle',
     archived: 'Arşivlendi',
+    markedRead: 'Okundu olarak işaretlendi',
     attachment: 'ek',
     draftReply: 'Yanıt taslağı',
     drafting: 'Yazılıyor…',
@@ -1021,9 +1023,6 @@ export const tr: Messages = {
     title: 'Ayarlar',
   },
   site: {
-    chapters: {
-      pricing: {
-        description:
     meta: {
       compare:
         'Fewmail ile Superhuman, Shortwave ve SaneBox karşılaştırması: postanı senin yerine okuyan bir ajan, kendin daha hızlı okumanın bir yolu değil.',
@@ -1036,6 +1035,9 @@ export const tr: Messages = {
         `Fewmail sıralama, kurallar ve spam koruması için sonsuza dek ücretsiz. Pro, ajanın tamamı, ${trialDays} ücretsiz günle ve kart olmadan başlar.`,
       tagline: 'Gmail için e-posta ajanı',
     },
+    chapters: {
+      pricing: {
+        description:
           'Sıralama, kurallar ve koruma sonsuza dek ücretsiz. Lite, Pro ve Max, senin için okuyan ve yazan her şeyi ekler; büyük planlar sadece bunu daha çok yapar.',
         label: 'Fiyatlar',
         title: (usd: number) =>

@@ -662,10 +662,13 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     ),
     markRead: useMutation(
       orpc.mail.markRead.mutationOptions({
+        onError: refresh,
+        onMutate: ({ threadId }) => showThreadRead(threadId),
         onSuccess: (_, { threadId }) =>
-          finish(t.mail.markedRead, threadId, (id) =>
-            client.mail.markUnread({ threadId: id })
-          ),
+          finish(t.mail.markedRead, threadId, (id) => {
+            showThreadRead(id, false)
+            return client.mail.markUnread({ threadId: id })
+          }),
       })
     ),
     moveToInbox: useMutation(
