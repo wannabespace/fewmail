@@ -365,6 +365,7 @@ export const hi: Messages = {
     title: 'सिर्फ़ वही, जो ज़रूरी है।',
   },
   mail: {
+    inThread: (emails: string) => `इस बातचीत में ${emails}`,
     draftDeleted: 'ड्राफ़्ट हटाया गया',
     unsubscribeConfirm: (name: string) => `${name} से अनसब्सक्राइब करें?`,
     unsubscribeHint:

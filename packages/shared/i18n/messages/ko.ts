@@ -364,6 +364,7 @@ export const ko: Messages = {
     title: '중요한 것만.',
   },
   mail: {
+    inThread: (emails: string) => `이 대화에 ${emails}`,
     draftDeleted: '임시 보관 메일을 삭제했어요',
     unsubscribeConfirm: (name: string) => `${name} 구독을 취소할까요?`,
     unsubscribeHint:

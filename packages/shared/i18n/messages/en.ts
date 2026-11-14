@@ -634,6 +634,7 @@ export const en = {
     title: 'Only what matters.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} in this conversation`,
     draftDeleted: 'Draft deleted',
     unsubscribeConfirm: (name: string) => `Unsubscribe from ${name}?`,
     unsubscribeHint:

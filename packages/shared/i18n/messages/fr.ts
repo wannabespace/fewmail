@@ -868,6 +868,7 @@ export const fr: Messages = {
     title: 'L’essentiel, rien de plus.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} dans cette conversation`,
     draftDeleted: 'Brouillon supprimé',
     unsubscribeConfirm: (name: string) => `Se désabonner de ${name} ?`,
     unsubscribeHint:

@@ -858,6 +858,7 @@ export const uk: Messages = {
     title: 'Лише те, що важливо.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} у цій розмові`,
     draftDeleted: 'Чернетку видалено',
     unsubscribeConfirm: (name: string) => `Відписатися від ${name}?`,
     unsubscribeHint:

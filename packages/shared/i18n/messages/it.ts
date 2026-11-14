@@ -862,6 +862,7 @@ export const it: Messages = {
     title: 'Solo ciò che conta.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} in questa conversazione`,
     draftDeleted: 'Bozza eliminata',
     unsubscribeConfirm: (name: string) => `Annullare l’iscrizione a ${name}?`,
     unsubscribeHint:

@@ -638,6 +638,7 @@ export const pt: Messages = {
     title: 'Só o que importa.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} nesta conversa`,
     draftDeleted: 'Rascunho excluído',
     unsubscribeConfirm: (name: string) => `Cancelar inscrição de ${name}?`,
     unsubscribeHint:

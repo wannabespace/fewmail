@@ -859,6 +859,7 @@ export const de: Messages = {
     title: 'Nur, was zählt.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} in dieser Unterhaltung`,
     draftDeleted: 'Entwurf gelöscht',
     unsubscribeConfirm: (name: string) => `Von ${name} abmelden?`,
     unsubscribeHint:

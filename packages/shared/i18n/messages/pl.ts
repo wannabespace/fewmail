@@ -651,6 +651,7 @@ export const pl: Messages = {
     title: 'Tylko to, co ważne.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} w tej rozmowie`,
     draftDeleted: 'Wersja robocza usunięta',
     unsubscribeConfirm: (name: string) => `Wypisać się z ${name}?`,
     unsubscribeHint:

@@ -365,6 +365,7 @@ export const ja: Messages = {
     title: '大切なメールだけを。',
   },
   mail: {
+    inThread: (emails: string) => `この会話に${emails}`,
     draftDeleted: '下書きを削除しました',
     unsubscribeConfirm: (name: string) => `${name}の配信を停止しますか？`,
     unsubscribeHint:

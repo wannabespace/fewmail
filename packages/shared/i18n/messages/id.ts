@@ -625,6 +625,7 @@ export const id: Messages = {
     title: 'Hanya yang penting.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} dalam percakapan ini`,
     draftDeleted: 'Draf dihapus',
     unsubscribeConfirm: (name: string) => `Berhenti berlangganan dari ${name}?`,
     unsubscribeHint:

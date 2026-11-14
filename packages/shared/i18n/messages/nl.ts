@@ -640,6 +640,7 @@ export const nl: Messages = {
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
+    inThread: (emails: string) => `${emails} in dit gesprek`,
     draftDeleted: 'Concept verwijderd',
     unsubscribeConfirm: (name: string) => `Afmelden bij ${name}?`,
     unsubscribeHint:

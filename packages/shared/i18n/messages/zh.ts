@@ -360,6 +360,7 @@ export const zh: Messages = {
     title: '只看重要的。',
   },
   mail: {
+    inThread: (emails: string) => `此会话共 ${emails}`,
     draftDeleted: '草稿已删除',
     unsubscribeConfirm: (name: string) => `退订 ${name}？`,
     unsubscribeHint: 'Fewmail 会退出该列表并归档这个会话。退订无法撤销。',

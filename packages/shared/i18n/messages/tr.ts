@@ -620,6 +620,7 @@ export const tr: Messages = {
     title: 'Yalnızca önemli olan.',
   },
   mail: {
+    inThread: (emails: string) => `Bu konuşmada ${emails}`,
     draftDeleted: 'Taslak silindi',
     unsubscribeConfirm: (name: string) => `${name} aboneliğinden çıkılsın mı?`,
     unsubscribeHint:

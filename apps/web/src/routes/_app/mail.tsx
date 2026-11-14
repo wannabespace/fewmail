@@ -46,6 +46,11 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@fewmail/ui/components/tooltip'
 import { useDebouncedMemo } from '@fewmail/ui/hookas/use-debounced-memo'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -1377,9 +1382,14 @@ const MailRow = ({
             {message.fromName ?? message.fromEmail}
           </span>
           {threadSize > 1 && !isBurst && (
-            <Badge size="sm" variant="outline">
-              {threadSize}
-            </Badge>
+            <Tooltip>
+              <TooltipTrigger render={<Badge size="sm" variant="outline" />}>
+                {threadSize}
+              </TooltipTrigger>
+              <TooltipContent>
+                {t.mail.inThread(t.cleanup.emails(threadSize))}
+              </TooltipContent>
+            </Tooltip>
           )}
           {isBurst && (
             <span className="text-muted-foreground shrink-0 text-xs">
