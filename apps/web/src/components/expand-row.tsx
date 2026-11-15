@@ -112,6 +112,7 @@ export const expandRow = (rowId: string, { from, threadId }: RowEmail) =>
 /** A row that grows into its email over the page instead of peeking: `SettingsRow trigger` lays it over the whole row, the box the pane grows out of. */
 export const ExpandTrigger = ({
   email,
+  onClick,
   rowId,
   ...props
 }: ComponentProps<'button'> & { email: RowEmail; rowId: string }) => (
@@ -123,7 +124,10 @@ export const ExpandTrigger = ({
     }}
     // A click that kept focus here made the list's ⏎ open this row instead of the J / K cursor's.
     onMouseDown={(event) => event.preventDefault()}
-    onClick={() => expandRow(rowId, email)}
     {...props}
+    onClick={(event) => {
+      expandRow(rowId, email)
+      onClick?.(event)
+    }}
   />
 )

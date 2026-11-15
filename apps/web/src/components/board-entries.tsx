@@ -87,11 +87,14 @@ export const EntryRow = ({
   isActive,
   onOpen,
   onRemove,
+  onSelect,
 }: {
   entry: Entry
   isActive: boolean
   onOpen: () => void
   onRemove: () => void
+  /** A click puts the list's cursor on the row, so J / K go on from it once the email closes. */
+  onSelect: () => void
 }) => {
   const t = useT()
   const dates = useDates()
@@ -104,6 +107,7 @@ export const EntryRow = ({
         <ExpandTrigger
           email={{ from: 'board', threadId: entry.threadId }}
           rowId={entry.id}
+          onClick={onSelect}
         />
       }
       title={<span data-mask>{entry.title}</span>}

@@ -493,6 +493,7 @@ const BoardEntries = ({
   active,
   board,
   filter,
+  onCursor,
   onPick,
   onSearch,
   search,
@@ -502,6 +503,7 @@ const BoardEntries = ({
   active: Entry | undefined
   board: Board
   filter: Filter | null
+  onCursor: (index: number) => void
   onPick: (filter: Filter | null) => void
   onSearch: (search: string) => void
   search: string
@@ -556,13 +558,14 @@ const BoardEntries = ({
               : t.boards.entries(board.total)
           }
         >
-          {visible.map((entry) => (
+          {visible.map((entry, index) => (
             <EntryRow
               key={entry.id}
               entry={entry}
               isActive={entry === active}
               onOpen={() => entryActions.open(entry)}
               onRemove={() => entryActions.remove(entry)}
+              onSelect={() => onCursor(index)}
             />
           ))}
         </SettingsGroup>
@@ -774,6 +777,7 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
               search={search}
               searchRef={searchRef}
               visible={visible}
+              onCursor={setCursor}
               onPick={pick}
               onSearch={(next) => {
                 setSearch(next)
