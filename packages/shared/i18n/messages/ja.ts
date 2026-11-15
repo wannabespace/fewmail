@@ -1716,6 +1716,7 @@ export const ja: Messages = {
       perMonth: (amount: string) => `月${amount}`,
       received: (amount: string) => `受取 ${amount}`,
       recurring: (n: number) => `定期 ${n}件`,
+      refunded: (amount: string) => `返金 ${amount}`,
       thisMonth: '今月',
       toPay: (n: number) => `未払い ${n}件`,
       upcoming: '今後30日',

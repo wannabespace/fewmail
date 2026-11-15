@@ -472,7 +472,7 @@ const groupsOf = (rows: ShownEntry[]) => {
 }
 
 /** Entries whose next date falls within their board's `bannerDays`: a renewal, a bill, a departure coming up — stated in an email, or predicted from a steady pace. */
-export const boardBanners = async (userId: string, boardId?: string) => {
+export const boardBanners = async (userId: string) => {
   const watched = await db
     .select({
       bannerDays: boards.bannerDays,
@@ -480,13 +480,7 @@ export const boardBanners = async (userId: string, boardId?: string) => {
       name: boards.name,
     })
     .from(boards)
-    .where(
-      and(
-        eq(boards.userId, userId),
-        boardId ? eq(boards.id, boardId) : undefined,
-        isNotNull(boards.bannerDays)
-      )
-    )
+    .where(and(eq(boards.userId, userId), isNotNull(boards.bannerDays)))
   if (watched.length === 0) {
     return []
   }
@@ -1307,7 +1301,15 @@ const tallyOf = (
 ) => {
   const spent: Totals = new Map()
   const received: Totals = new Map()
+  const refunded: Totals = new Map()
   const left = { due: 0, failed: 0, noAmount: 0, repeats: 0 }
+  const add = (totals: Totals, code: string, cents: number) => {
+    const total = totals.get(code) ?? { amountCents: 0, count: 0 }
+    totals.set(code, {
+      amountCents: total.amountCents + cents,
+      count: total.count + 1,
+    })
+  }
   for (const entry of entries) {
     if (repeatOf.has(entry.id)) {
       left.repeats += 1
@@ -1315,14 +1317,18 @@ const tallyOf = (
       left.noAmount += 1
     } else if (entry.payment === 'due' || entry.payment === 'failed') {
       left[entry.payment] += 1
+    } else if (entry.payment === 'income') {
+      add(received, entry.currency, entry.amountCents)
+    } else if (entry.payment === 'refund') {
+      add(refunded, entry.currency, -entry.amountCents)
     } else {
-      const totals = entry.payment === 'income' ? received : spent
-      const total = totals.get(entry.currency) ?? { amountCents: 0, count: 0 }
-      totals.set(entry.currency, {
-        amountCents: total.amountCents + entry.amountCents,
-        count: total.count + 1,
-      })
+      add(spent, entry.currency, entry.amountCents)
     }
+  }
+  // Spending is paid less refunds; a month of refunds alone reads as a negative sum, so the refunds come back apart to say why.
+  for (const [code, { amountCents }] of refunded) {
+    const total = spent.get(code) ?? { amountCents: 0, count: 0 }
+    spent.set(code, { ...total, amountCents: total.amountCents - amountCents })
   }
   const listed = (totals: Totals) =>
     [...totals]
@@ -1336,19 +1342,87 @@ const tallyOf = (
     ids: entries.map(({ id }) => id),
     left,
     received: listed(received),
+    refunded: listed(refunded),
     spent: listed(spent),
   }
 }
 
-/** The numbers above the charts: this month against the last, what repeats per month, what comes up soon and what of it is to pay, each with the ids of the entries behind it. */
+/** A date of the next 30 days: stated in an email, or expected from a group's pace — every one of them, so a weekly charge comes four times. `isEstimate`: the amount is the last price, not one an email asked for. */
+const upcomingOf = (
+  counted: ShownEntry[],
+  groups: ReturnType<typeof groupsOf>
+) => {
+  const now = new Date()
+  const soon = addDays(now, UPCOMING_DAYS)
+  const isSoon = (date: Date | null): date is Date =>
+    date !== null && date >= now && date <= soon
+  // A renewal notice and the last receipt often both name the next date: one charge, listed once, the bill first.
+  const stated = new Map<string, ShownEntry & { dueAt: Date }>()
+  for (const row of counted.toSorted(
+    (left, right) =>
+      Number(right.entry.payment === 'due') -
+      Number(left.entry.payment === 'due')
+  )) {
+    const { dueAt, group, title } = row.entry
+    const key = `${group ?? title}|${format(dueAt ?? now, 'yyyy-MM-dd')}`
+    if (isSoon(dueAt) && !stated.has(key)) {
+      stated.set(key, { ...row, dueAt })
+    }
+  }
+  const predicted = groups.filter(
+    (group) => group.isNextPredicted && group.nextAt && group.nextAt <= soon
+  )
+  return [
+    ...[...stated.values()].map(({ dueAt, entry, threadId }) => ({
+      amountCents: entry.amountCents,
+      currency: entry.currency,
+      dueAt,
+      every: groups.find(({ name }) => name === entry.group)?.every ?? null,
+      id: entry.id,
+      isEstimate: entry.payment === 'paid',
+      isPredicted: false,
+      payment: entry.payment,
+      threadId,
+      title: entry.title,
+    })),
+    ...predicted.flatMap((group) => {
+      const cadence = CADENCES.find(({ every }) => every === group.every)
+      if (!cadence || !group.nextAt) {
+        return []
+      }
+      const dates: Date[] = []
+      for (let date = group.nextAt; date <= soon; date = cadence.next(date)) {
+        if (date >= now) {
+          dates.push(date)
+        }
+      }
+      return dates.map((dueAt) => ({
+        amountCents: group.lastAmountCents,
+        currency: group.currency,
+        dueAt,
+        every: group.every,
+        id: `${group.name}:${dueAt.toISOString()}`,
+        isEstimate: true,
+        isPredicted: true,
+        payment: 'paid' as const,
+        threadId: group.threadId,
+        title: group.name,
+      }))
+    }),
+  ].toSorted((left, right) => left.dueAt.getTime() - right.dueAt.getTime())
+}
+
+const isCharge = (payment: BoardPayment | null) =>
+  payment === 'due' || payment === 'paid' || payment === 'failed'
+
+/** The numbers on top of a board: this month against the last and what repeats per month, each with the ids of the entries behind it, and what comes up soon and what of it is to pay. */
 const summaryOf = (
   rows: ShownEntry[],
   { counted, repeatOf }: ReturnType<typeof countedOf>,
   groups: ReturnType<typeof groupsOf>,
   currency: string | null
 ) => {
-  const now = new Date()
-  const thisMonth = startOfMonth(now)
+  const thisMonth = startOfMonth(new Date())
   const span = (from: Date, to: Date) =>
     tallyOf(
       rows.flatMap(({ entry }) =>
@@ -1360,25 +1434,13 @@ const summaryOf = (
   const recurring = groups.filter(
     (group) => group.monthlyCents !== null && group.currency === currency
   )
-  const soon = addDays(now, UPCOMING_DAYS)
-  const isSoon = (date: Date | null) =>
-    date !== null && date >= now && date <= soon
-  const stated = counted.flatMap(({ entry }) =>
-    isSoon(entry.dueAt) ? [entry] : []
+  const items = upcomingOf(counted, groups)
+  const toPay = items.filter(
+    (item) =>
+      isCharge(item.payment) &&
+      item.amountCents !== null &&
+      item.currency === currency
   )
-  const predicted = groups.filter(
-    (group) => group.isNextPredicted && isSoon(group.nextAt)
-  )
-  const toPay = [
-    ...stated.flatMap((entry) =>
-      entry.payment === 'due' && entry.currency === currency
-        ? [entry.amountCents ?? 0]
-        : []
-    ),
-    ...predicted.flatMap((group) =>
-      group.currency === currency ? [group.lastAmountCents ?? 0] : []
-    ),
-  ]
   return {
     currency,
     lastMonth: span(subMonths(thisMonth, 1), thisMonth),
@@ -1392,14 +1454,15 @@ const summaryOf = (
         : null,
     thisMonth: span(thisMonth, addMonths(thisMonth, 1)),
     upcoming: {
-      count: stated.length + predicted.length,
-      ids: [
-        ...stated.map(({ id }) => id),
-        ...predicted.map(({ latestId }) => latestId),
-      ],
+      count: items.length,
+      items,
       toPay: {
-        amountCents: toPay.reduce((sum, cents) => sum + cents, 0),
+        amountCents: toPay.reduce(
+          (sum, { amountCents }) => sum + (amountCents ?? 0),
+          0
+        ),
         count: toPay.length,
+        isEstimate: toPay.some(({ isEstimate }) => isEstimate),
       },
     },
   }
@@ -1416,7 +1479,6 @@ export const getBoard = async (userId: string, id: string) => {
   const groups = groupsOf(charges.counted)
   return {
     bannerDays: board.bannerDays,
-    banners: await boardBanners(userId, id),
     charts: board.charts.map((chart) => chartSeries(chart, counted)),
     currencies,
     description: board.description,

@@ -375,6 +375,7 @@ export const nl: Messages = {
           one: () => 'Eén terugkerend',
           other: (count) => `${count} terugkerend`,
         }),
+      refunded: (amount: string) => `${amount} terugbetaald`,
       thisMonth: 'Deze maand',
       toPay: (n: number) => `te betalen: ${n}`,
       upcoming: 'Komende 30 dagen',

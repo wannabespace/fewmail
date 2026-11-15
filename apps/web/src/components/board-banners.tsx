@@ -13,13 +13,7 @@ import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 type Banner = RouterOutputs['today']['get']['banners'][number]
 
 /** A board's heads-up: an entry whose next date (renewal, bill, departure) falls within the board's `bannerDays`; a predicted one says "expected". */
-export const BoardBanners = ({
-  banners,
-  showBoard = true,
-}: {
-  banners: Banner[]
-  showBoard?: boolean
-}) => {
+export const BoardBanners = ({ banners }: { banners: Banner[] }) => {
   const t = useT()
   const dates = useDates()
   const money = useMoneyFormat()
@@ -34,7 +28,7 @@ export const BoardBanners = ({
           ` · ${money(banner.amountCents, banner.currency)}`}
       </AlertTitle>
       <AlertDescription>
-        {showBoard && <span data-mask>{banner.boardName} · </span>}
+        <span data-mask>{banner.boardName} · </span>
         {(banner.isPredicted ? t.boards.expected : t.boards.due)(
           dates.format(new Date(banner.dueAt), 'd MMM')
         )}

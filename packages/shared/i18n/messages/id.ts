@@ -359,6 +359,7 @@ export const id: Messages = {
       received: (amount: string) => `${amount} diterima`,
       recurring: (n: number) =>
         plural('id', n, { other: (count) => `${count} berulang` }),
+      refunded: (amount: string) => `${amount} dikembalikan`,
       thisMonth: 'Bulan ini',
       toPay: (n: number) => `belum dibayar: ${n}`,
       upcoming: '30 hari ke depan',

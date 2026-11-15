@@ -1,6 +1,9 @@
 import type { BoardChart, BoardGrouping } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
-import { SettingsGroup } from '@fewmail/ui/components/custom/settings-group'
+import {
+  SettingsGroup,
+  SettingsRow,
+} from '@fewmail/ui/components/custom/settings-group'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +39,6 @@ import { motion } from 'motion/react'
 import type { RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-import { BoardBanners } from '~/components/board-banners'
 import { AddChart, BoardChartCard, toChart } from '~/components/board-chart'
 import {
   BoardSettingsDialog,
@@ -46,12 +48,14 @@ import {
 import type { Board, Entry } from '~/components/board-entries'
 import {
   BoardGroups,
+  BoardUpcoming,
   EntryRow,
   statusOf,
+  upcomingRowId,
   useEntryActions,
   useStatusLabel,
 } from '~/components/board-entries'
-import { useIsThreadExpanded } from '~/components/expand-row'
+import { expandRow, useIsThreadExpanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
@@ -62,7 +66,9 @@ import { toastUndo } from '~/lib/undo'
 const BOARD_INTENTS = ['chart', 'describe', 'rename', 'settings'] as const
 type BoardIntent = (typeof BOARD_INTENTS)[number]
 
-type SummaryKey = 'lastMonth' | 'recurring' | 'thisMonth' | 'upcoming'
+type SummaryKey = 'lastMonth' | 'recurring' | 'thisMonth'
+/** Until the user opens the whole history, the entries stop here, so the next dates and the charts stay in reach. */
+const ENTRIES_FIRST = 10
 
 type Filter =
   | { by: BoardGrouping; key: string }
@@ -252,10 +258,13 @@ type Span = Board['summary']['thisMonth']
 const Summary = ({
   board,
   onPick,
+  onUpcoming,
   picked,
 }: {
   board: Board
   onPick: (key: SummaryKey | null) => void
+  /** Its number is the list right under the summary: a click walks into it instead of filtering. */
+  onUpcoming: () => void
   picked: SummaryKey | null
 }) => {
   const t = useT()
@@ -271,6 +280,11 @@ const Summary = ({
       label,
       note: [
         t.boards.summary.payments(main?.count ?? 0),
+        ...span.refunded
+          .filter((total) => total.currency === currency)
+          .map((total) =>
+            t.boards.summary.refunded(money(total.amountCents, currency))
+          ),
         ...span.spent
           .filter((total) => total !== main)
           .map((total) => money(total.amountCents, total.currency)),
@@ -310,7 +324,7 @@ const Summary = ({
               .join(' · '),
             value:
               currency && toPay.count > 0
-                ? money(toPay.amountCents, currency)
+                ? `${toPay.isEstimate ? '≈ ' : ''}${money(toPay.amountCents, currency)}`
                 : String(upcoming.count),
           },
         ]
@@ -323,8 +337,12 @@ const Summary = ({
         <button
           key={key}
           type="button"
-          aria-pressed={picked === key}
-          onClick={() => onPick(picked === key ? null : key)}
+          aria-pressed={key === 'upcoming' ? undefined : picked === key}
+          onClick={() =>
+            key === 'upcoming'
+              ? onUpcoming()
+              : onPick(picked === key ? null : key)
+          }
           className={cn(
             'hover:bg-accent focus-visible:focus-ring flex cursor-pointer flex-col items-start gap-0.5 rounded-xl px-2.5 py-2 text-left outline-none',
             picked === key && 'bg-secondary hover:bg-secondary'
@@ -602,19 +620,26 @@ const BoardEntries = ({
   active,
   board,
   filter,
+  hidden,
   onCursor,
   onPick,
   onSearch,
+  onShowAll,
+  ref,
   search,
   searchRef,
   visible,
 }: {
-  active: Entry | undefined
+  active: string | undefined
   board: Board
   filter: Filter | null
+  /** Entries past `ENTRIES_FIRST` while the history is folded. */
+  hidden: number
   onCursor: (index: number) => void
   onPick: (filter: Filter | null) => void
   onSearch: (search: string) => void
+  onShowAll: () => void
+  ref: RefObject<HTMLElement | null>
   search: string
   searchRef: RefObject<HTMLInputElement | null>
   visible: Entry[]
@@ -628,7 +653,7 @@ const BoardEntries = ({
   )
 
   return (
-    <section className="flex flex-col gap-3">
+    <section ref={ref} className="flex scroll-mt-6 flex-col gap-3">
       <div className={cn('flex items-center gap-2', smallItemBleedClassName)}>
         <InputGroup>
           <InputGroupAddon>
@@ -681,12 +706,21 @@ const BoardEntries = ({
                 entry.repeatOf ? dateOf.get(entry.repeatOf) : undefined
               }
               entry={entry}
-              isActive={entry === active}
+              isActive={entry.id === active}
               onOpen={() => entryActions.open(entry)}
               onRemove={() => entryActions.remove(entry)}
               onSelect={() => onCursor(index)}
             />
           ))}
+          {hidden > 0 && (
+            <SettingsRow
+              title={
+                <Button size="sm" variant="link-muted" onClick={onShowAll}>
+                  {t.boards.groups.showAll(board.total)}
+                </Button>
+              }
+            />
+          )}
         </SettingsGroup>
       )}
     </section>
@@ -761,26 +795,90 @@ const matches = (
       value?.toLowerCase().includes(query)
     ))
 
+/** One cursor walks the next dates, then the entries; the next dates step aside while the entries are narrowed. */
 const narrow = (
   board: Board | undefined,
   {
     cursor,
     filter,
+    isAll,
     search,
-  }: { cursor: number | null; filter: Filter | null; search: string }
+  }: {
+    cursor: number | null
+    filter: Filter | null
+    isAll: boolean
+    search: string
+  }
 ) => {
   const query = search.trim().toLowerCase()
-  const visible = board
+  const isNarrowed = Boolean(filter || query)
+  const matching = board
     ? board.entries.filter((entry) => matches(entry, board, filter, query))
     : []
+  const visible =
+    isAll || isNarrowed ? matching : matching.slice(0, ENTRIES_FIRST)
+  const upcoming = board && !isNarrowed ? board.summary.upcoming.items : []
+  const rows = [
+    ...upcoming.map((item) => ({
+      entry: null,
+      id: upcomingRowId(item),
+      threadId: item.threadId,
+    })),
+    ...visible.map((entry) => ({
+      entry,
+      id: entry.id,
+      threadId: entry.threadId,
+    })),
+  ]
   return {
     active:
-      cursor === null
-        ? undefined
-        : visible[Math.min(cursor, visible.length - 1)],
+      cursor === null ? undefined : rows[Math.min(cursor, rows.length - 1)],
+    hidden: matching.length - visible.length,
+    isNarrowed,
     query,
+    rows,
+    upcoming,
     visible,
   }
+}
+
+type Row = ReturnType<typeof narrow>['rows'][number]
+
+/** J / K walk the next dates and the entries as one list; ⌫ takes off only an entry, a next date is not on the board. */
+const useRowKeys = ({
+  active,
+  boardId,
+  isFree,
+  onCursor,
+  rows,
+}: {
+  active: Row | undefined
+  boardId: string
+  isFree: boolean
+  onCursor: (move: (index: number | null) => number) => void
+  rows: Row[]
+}) => {
+  const entryActions = useEntryActions(boardId)
+  const listKeys = { enabled: isFree && rows.length > 0 }
+  const rowKeys = { enabled: isFree && Boolean(active) }
+  const step = (by: number) =>
+    onCursor((index) =>
+      Math.max(0, Math.min(rows.length - 1, (index ?? -1) + by))
+    )
+  const open = () =>
+    active && expandRow(active.id, { from: 'board', threadId: active.threadId })
+
+  useHotkey('J', () => step(1), listKeys)
+  useHotkey('ArrowDown', () => step(1), listKeys)
+  useHotkey('K', () => step(-1), listKeys)
+  useHotkey('ArrowUp', () => step(-1), listKeys)
+  useHotkey('Enter', open, rowKeys)
+  useHotkey('O', open, rowKeys)
+  useHotkey(
+    'Backspace',
+    () => active?.entry && entryActions.remove(active.entry),
+    { enabled: isFree && Boolean(active?.entry) }
+  )
 }
 
 const BoardPage = ({ boardId }: { boardId: string }) => {
@@ -793,9 +891,10 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
   const [filter, setFilter] = useState<Filter | null>(null)
   const [search, setSearch] = useState('')
   const [cursor, setCursor] = useState<number | null>(null)
+  const [isAll, setIsAll] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
+  const entriesRef = useRef<HTMLElement>(null)
   const update = useBoardUpdate(boardId)
-  const entryActions = useEntryActions(boardId)
 
   useBoardIntent((intent) => {
     if (intent === 'settings') {
@@ -808,31 +907,26 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
   })
 
   const isUnderEmail = useIsThreadExpanded()
-  const { active, query, visible } = narrow(board, { cursor, filter, search })
+  const { active, hidden, isNarrowed, query, rows, upcoming, visible } = narrow(
+    board,
+    { cursor, filter, isAll, search }
+  )
   const isFree = !editing && !isSettingsOpen && !isUnderEmail
-  const listKeys = { enabled: isFree && visible.length > 0 }
-  const rowKeys = { enabled: isFree && Boolean(active) }
-  const step = (by: number) =>
-    setCursor((index) =>
-      Math.max(0, Math.min(visible.length - 1, (index ?? -1) + by))
-    )
+  // A chart or a group sits below the entries: the filtered list comes up into view.
   const pick = (next: Filter | null) => {
     setFilter(next)
     setCursor(null)
+    if (next) {
+      entriesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
   }
   const hints = useHints({
-    hasRows: visible.length > 0,
+    hasRows: rows.length > 0,
     isActive: Boolean(active),
-    isNarrowed: Boolean(filter || query),
+    isNarrowed,
   })
 
-  useHotkey('J', () => step(1), listKeys)
-  useHotkey('ArrowDown', () => step(1), listKeys)
-  useHotkey('K', () => step(-1), listKeys)
-  useHotkey('ArrowUp', () => step(-1), listKeys)
-  useHotkey('Enter', () => active && entryActions.open(active), rowKeys)
-  useHotkey('O', () => active && entryActions.open(active), rowKeys)
-  useHotkey('Backspace', () => active && entryActions.remove(active), rowKeys)
+  useRowKeys({ active, boardId, isFree, onCursor: setCursor, rows })
   useHotkey('E', () => setEditing('name'), { enabled: isFree })
   useHotkey('/', () => searchRef.current?.focus(), { enabled: isFree })
   useHotkey('N', () => newBoardStore.set(true), { enabled: isFree })
@@ -874,19 +968,38 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
               board={board}
               picked={filter?.by === 'summary' ? filter.key : null}
               onPick={(key) => pick(key && { by: 'summary', key })}
+              onUpcoming={() => setCursor(0)}
             />
           )}
-          {board.banners.length > 0 && (
-            <BoardBanners banners={board.banners} showBoard={false} />
+          {board.total === 0 && !board.isReadingHistory && (
+            <BoardEmpty onDescribe={() => setEditing('description')} />
           )}
-          <BoardCharts
-            board={board}
-            filter={filter}
-            update={update}
-            isAddingChart={isAddingChart}
-            onAddingChart={setIsAddingChart}
-            onPick={pick}
-          />
+          {upcoming.length > 0 && (
+            <BoardUpcoming
+              active={active?.id}
+              items={upcoming}
+              onCursor={setCursor}
+            />
+          )}
+          {board.total > 0 && (
+            <BoardEntries
+              ref={entriesRef}
+              active={active?.id}
+              board={board}
+              filter={filter}
+              hidden={hidden}
+              search={search}
+              searchRef={searchRef}
+              visible={visible}
+              onCursor={(index) => setCursor(upcoming.length + index)}
+              onPick={pick}
+              onShowAll={() => setIsAll(true)}
+              onSearch={(next) => {
+                setSearch(next)
+                setCursor(null)
+              }}
+            />
+          )}
           {board.groups.length > 1 && (
             <BoardGroups
               board={board}
@@ -896,25 +1009,14 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
               }
             />
           )}
-          {board.total === 0 && !board.isReadingHistory && (
-            <BoardEmpty onDescribe={() => setEditing('description')} />
-          )}
-          {board.total > 0 && (
-            <BoardEntries
-              active={active}
-              board={board}
-              filter={filter}
-              search={search}
-              searchRef={searchRef}
-              visible={visible}
-              onCursor={setCursor}
-              onPick={pick}
-              onSearch={(next) => {
-                setSearch(next)
-                setCursor(null)
-              }}
-            />
-          )}
+          <BoardCharts
+            board={board}
+            filter={filter}
+            update={update}
+            isAddingChart={isAddingChart}
+            onAddingChart={setIsAddingChart}
+            onPick={pick}
+          />
         </div>
       </motion.div>
       <KeyHints hints={hints} />

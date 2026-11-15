@@ -384,6 +384,7 @@ export const pl: Messages = {
           many: (count) => `${count} cyklicznych`,
           other: (count) => `${count} cyklicznej`,
         }),
+      refunded: (amount: string) => `zwrócono ${amount}`,
       thisMonth: 'Ten miesiąc',
       toPay: (n: number) => `do zapłaty: ${n}`,
       upcoming: 'Najbliższe 30 dni',

@@ -1776,6 +1776,7 @@ export const it: Messages = {
           one: () => 'Uno ricorrente',
           other: (count) => `${count} ricorrenti`,
         }),
+      refunded: (amount: string) => `${amount} rimborsati`,
       thisMonth: 'Questo mese',
       toPay: (n: number) => `da pagare: ${n}`,
       upcoming: 'Prossimi 30 giorni',
