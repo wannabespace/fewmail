@@ -6,9 +6,9 @@ import {
 } from '@fewmail/ui/components/popover'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
-import { motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import type { Transition } from 'motion/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { ComponentProps, ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -131,36 +131,30 @@ export const dropPane = (open: boolean) => {
 }
 
 /**
- * The peek's own card, the box that grows into `ThreadPane` (one `layoutId`, as Reading's card does); its popover goes
- * `surface="none"` and `data-expanded:invisible`, so the peek stays where it was while the pane is open.
+ * The peek's own card and the box that grows into `ThreadPane` (one `layoutId`). It stays mounted under the pane, so
+ * motion crossfades the two both ways: the card follows the growing box while it fades, then waits, unseen, to take it
+ * back. Its popover goes `surface="none"` and `data-expanded:pointer-events-none`, as the faded card lies over the pane.
  */
 export const PeekSurface = ({ children }: { children: ReactNode }) => {
   const isExpanded = useIsThreadExpanded()
-  const { morph, reveal } = useMorph()
+  const { morph } = useMorph()
   return (
-    <div className="relative flex min-h-0 flex-col">
-      {!isExpanded && (
-        <motion.div
-          layoutId={PANE_ID}
-          transition={morph}
-          initial={false}
-          animate={{ borderRadius: 12 }}
-          className="bg-popover ring-foreground/4 absolute inset-0 shadow-xl ring"
-        />
-      )}
+    <motion.div
+      layoutId={PANE_ID}
+      transition={morph}
+      initial={false}
+      animate={{ borderRadius: 12 }}
+      className="bg-popover ring-foreground/4 flex min-h-0 flex-col overflow-hidden shadow-xl ring"
+    >
       <motion.div
-        initial={false}
-        animate={
-          isExpanded
-            ? { opacity: 0, transition: { duration: 0 } }
-            : { opacity: 1 }
-        }
-        transition={reveal}
-        className="relative flex min-h-0 flex-col"
+        layout="position"
+        transition={morph}
+        inert={isExpanded}
+        className="flex min-h-0 flex-col"
       >
         {children}
       </motion.div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -173,48 +167,55 @@ export const ThreadPane = () => {
   })
   const { morph, reveal } = useMorph()
   const isHere = open?.pathname === pathname
+  // The pane keeps its email while it shrinks back into the peek.
+  const [shown, setShown] = useState(open)
+  if (open && open !== shown) {
+    setShown(open)
+  }
   useEffect(() => {
     if (open && !isHere) {
       open.close()
     }
   }, [open, isHere])
   const collapse = () => expandedThread.set(null)
-  if (!open || !isHere) {
-    return null
-  }
   return (
-    <motion.div
-      layoutId={PANE_ID}
-      transition={morph}
-      initial={false}
-      animate={{ borderRadius: 0 }}
-      className="bg-background absolute inset-0 z-20 flex flex-col overflow-hidden"
-    >
-      <motion.div
-        layout="position"
-        initial={HIDDEN}
-        animate={SHOWN}
-        transition={reveal}
-        className="flex min-h-0 flex-1 flex-col"
-      >
-        <ThreadView
-          key={open.threadId}
-          isFullPage
-          isSnoozed={false}
-          threadId={open.threadId}
-          onClose={collapse}
-          onDone={() => open.close()}
-        />
-        <KeyHints
-          hints={[
-            ['R', t.keys.reply],
-            ['E', t.keys.archive],
-            ['/', t.keys.ask],
-            ['esc', t.keys.close],
-          ]}
-        />
-      </motion.div>
-    </motion.div>
+    <AnimatePresence>
+      {open && isHere && shown && (
+        <motion.div
+          key="pane"
+          layoutId={PANE_ID}
+          transition={morph}
+          initial={false}
+          animate={{ borderRadius: 0 }}
+          className="bg-background absolute inset-0 z-20 flex flex-col overflow-hidden"
+        >
+          <motion.div
+            layout="position"
+            initial={HIDDEN}
+            animate={SHOWN}
+            transition={reveal}
+            className="flex min-h-0 flex-1 flex-col"
+          >
+            <ThreadView
+              key={shown.threadId}
+              isFullPage
+              isSnoozed={false}
+              threadId={shown.threadId}
+              onClose={collapse}
+              onDone={() => shown.close()}
+            />
+            <KeyHints
+              hints={[
+                ['R', t.keys.reply],
+                ['E', t.keys.archive],
+                ['/', t.keys.ask],
+                ['esc', t.keys.close],
+              ]}
+            />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -235,7 +236,7 @@ export const ThreadPeekPopover = () => {
           padding="none"
           surface="none"
           data-expanded={isExpanded || undefined}
-          className="w-160 data-expanded:invisible"
+          className="w-160 data-expanded:pointer-events-none"
         >
           {payload && (
             <PeekSurface>

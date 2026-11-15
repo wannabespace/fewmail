@@ -116,7 +116,7 @@ const NewsletterPeek = ({
           padding="none"
           surface="none"
           data-expanded={isExpanded || undefined}
-          className="w-160 data-expanded:invisible"
+          className="w-160 data-expanded:pointer-events-none"
         >
           {payload && (
             <PeekSurface>
