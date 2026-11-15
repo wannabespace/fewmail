@@ -22,7 +22,6 @@ const PopoverContent = ({
   side = 'bottom',
   sideOffset = 4,
   padding = 'default',
-  surface = 'default',
   detached = false,
   children,
   ...props
@@ -38,8 +37,6 @@ const PopoverContent = ({
     | 'sideOffset'
   > & {
     padding?: 'default' | 'none'
-    // `none` leaves the card to the content, for a card that morphs (motion `layoutId`).
-    surface?: 'default' | 'none'
     // Only for popovers opened through `createPopoverHandle`.
     detached?: boolean
   }) => (
@@ -61,9 +58,7 @@ const PopoverContent = ({
       <PopoverPrimitive.Popup
         data-slot="popover-content"
         className={cn(
-          'text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 flex max-h-(--available-height) w-72 max-w-(--available-width) origin-(--transform-origin) flex-col text-sm outline-hidden ease-[cubic-bezier(0.32,0.72,0,1)] data-closed:duration-100 data-open:duration-150',
-          surface === 'default' &&
-            'bg-popover ring-foreground/4 rounded-xl shadow-xl ring',
+          'bg-popover text-popover-foreground ring-foreground/4 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 flex max-h-(--available-height) w-72 max-w-(--available-width) origin-(--transform-origin) flex-col rounded-xl text-sm shadow-xl ring outline-hidden ease-[cubic-bezier(0.32,0.72,0,1)] data-closed:duration-100 data-open:duration-150',
           padding === 'default' && 'gap-4 p-4',
           detached &&
             'h-(--popup-height,auto) w-(--popup-width,auto) transition-[width,height] duration-300 data-instant:transition-none',

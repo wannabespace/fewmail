@@ -132,7 +132,10 @@ const AppLayout = () => {
           <ResizableSeparator />
           <ResizablePanel className="flex min-w-0 flex-col">
             <NoticeBar />
-            <div className="relative flex min-h-0 flex-1 flex-col">
+            <div
+              data-slot="thread-pane-area"
+              className="relative flex min-h-0 flex-1 flex-col"
+            >
               <Outlet />
               <ThreadPane />
             </div>

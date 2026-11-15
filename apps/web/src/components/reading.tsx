@@ -31,13 +31,12 @@ import {
   HIDDEN,
   PEEK_ID,
   SHOWN,
-  toggleExpanded,
   useIsThreadExpanded,
   useMorph,
 } from '~/components/expand-row'
 import { ListenButton } from '~/components/listen-button'
 import { SenderAvatar } from '~/components/sender-avatar'
-import { dropPane, keepUnderPane, PeekSurface } from '~/components/thread-link'
+import { dropPane, expandPeek, keepUnderPane } from '~/components/thread-link'
 import { ThreadPeek } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
@@ -113,27 +112,26 @@ const NewsletterPeek = ({
       {({ payload }) => (
         <PopoverContent
           padding="none"
-          surface="none"
+          data-morph-source={PEEK_ID}
           data-expanded={isExpanded || undefined}
-          className="w-160 data-expanded:pointer-events-none"
+          className="w-160 data-expanded:invisible"
         >
           {payload && (
-            <PeekSurface>
-              <ThreadPeek
-                key={`${payload.row.id} ${payload.cite}`}
-                cite={payload.cite}
-                from="reading"
-                message={payload.row}
-                onOpen={() =>
-                  toggleExpanded({
-                    close: () => peek.close(),
-                    from: 'reading',
-                    layoutId: PEEK_ID,
-                    threadId: payload.row.threadId,
-                  })
-                }
-              />
-            </PeekSurface>
+            <ThreadPeek
+              key={`${payload.row.id} ${payload.cite}`}
+              cite={payload.cite}
+              from="reading"
+              message={payload.row}
+              morphId={PEEK_ID}
+              onOpen={() =>
+                expandPeek({
+                  close: () => peek.close(),
+                  from: 'reading',
+                  id: payload.row.id,
+                  threadId: payload.row.threadId,
+                })
+              }
+            />
           )}
         </PopoverContent>
       )}

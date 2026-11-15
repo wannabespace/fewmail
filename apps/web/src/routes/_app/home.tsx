@@ -59,7 +59,12 @@ import { toast } from 'sonner'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
-import { ExpandTrigger, useIsThreadExpanded } from '~/components/expand-row'
+import {
+  ExpandTrigger,
+  MorphSource,
+  rowMorphId,
+  useIsThreadExpanded,
+} from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
@@ -386,14 +391,24 @@ const FreshCodes = ({
               key={message.id}
               trigger={
                 <ExpandTrigger
-                  email={{ from: 'home', threadId: message.threadId }}
+                  email={{
+                    from: 'home',
+                    messageId: message.id,
+                    threadId: message.threadId,
+                  }}
                   rowId={message.id}
                 />
               }
               iconVariant="avatar"
-              icon={<SenderAvatar sender={message} size="sm" />}
+              icon={
+                <MorphSource morphId={rowMorphId(message.id)} part="avatar">
+                  <SenderAvatar sender={message} size="sm" />
+                </MorphSource>
+              }
               title={
-                <span data-mask>{message.fromName ?? message.fromEmail}</span>
+                <MorphSource morphId={rowMorphId(message.id)} part="name">
+                  <span data-mask>{message.fromName ?? message.fromEmail}</span>
+                </MorphSource>
               }
               description={<span data-mask>{message.subject}</span>}
             >
@@ -439,13 +454,25 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
           key={message.id}
           trigger={
             <ExpandTrigger
-              email={{ from: 'home', threadId: message.threadId }}
+              email={{
+                from: 'home',
+                messageId: message.id,
+                threadId: message.threadId,
+              }}
               rowId={message.id}
             />
           }
           iconVariant="avatar"
-          icon={<SenderAvatar sender={message} size="sm" />}
-          title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
+          icon={
+            <MorphSource morphId={rowMorphId(message.id)} part="avatar">
+              <SenderAvatar sender={message} size="sm" />
+            </MorphSource>
+          }
+          title={
+            <MorphSource morphId={rowMorphId(message.id)} part="name">
+              <span data-mask>{message.fromName ?? message.fromEmail}</span>
+            </MorphSource>
+          }
           description={<span data-mask>{analysis.summary}</span>}
         >
           <span className={`${ROW_SWAP} group/swap`}>
@@ -471,13 +498,25 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
           key={message.id}
           trigger={
             <ExpandTrigger
-              email={{ from: 'home', threadId: message.threadId }}
+              email={{
+                from: 'home',
+                messageId: message.id,
+                threadId: message.threadId,
+              }}
               rowId={message.id}
             />
           }
           iconVariant="avatar"
-          icon={<SenderAvatar sender={message} size="sm" />}
-          title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
+          icon={
+            <MorphSource morphId={rowMorphId(message.id)} part="avatar">
+              <SenderAvatar sender={message} size="sm" />
+            </MorphSource>
+          }
+          title={
+            <MorphSource morphId={rowMorphId(message.id)} part="name">
+              <span data-mask>{message.fromName ?? message.fromEmail}</span>
+            </MorphSource>
+          }
           description={<span data-mask>{analysis.summary}</span>}
         >
           <ExtractedChips extracted={{ ...analysis.extracted, amount: null }} />

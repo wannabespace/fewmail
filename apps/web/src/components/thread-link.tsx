@@ -8,16 +8,16 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
-import type { ComponentProps, ReactNode } from 'react'
-import { useSubscription } from 'seitu/react'
+import type { ComponentProps } from 'react'
 
 import {
   collapseExpanded,
+  dropExpanded,
   expandedThread,
-  HIDDEN,
+  OPEN_CLIP,
   PEEK_ID,
-  SHOWN,
   toggleExpanded,
+  useExpanded,
   useIsThreadExpanded,
   useMorph,
 } from '~/components/expand-row'
@@ -93,57 +93,51 @@ export const keepUnderPane: NonNullable<
   if (!open && expandedThread.get() && details.reason !== 'imperative-action') {
     details.cancel()
     if (details.reason === 'escape-key' && !isTyping(details.event.target)) {
-      expandedThread.set(null)
+      collapseExpanded()
     }
   }
 }
 
 export const dropPane = (open: boolean) => {
   if (!open) {
-    expandedThread.set(null)
+    dropExpanded()
   }
 }
 
-/**
- * The peek's own card and the box that grows into `ThreadPane` (one `layoutId`). It stays mounted under the pane, so
- * motion crossfades the two both ways: the card follows the growing box while it fades, then waits, unseen, to take it
- * back. Its popover goes `surface="none"` and `data-expanded:pointer-events-none`, as the faded card lies over the pane.
- */
-export const PeekSurface = ({ children }: { children: ReactNode }) => {
-  const isExpanded = useIsThreadExpanded()
-  const { morph } = useMorph()
-  return (
-    <motion.div
-      layoutId={PEEK_ID}
-      transition={morph}
-      initial={false}
-      animate={{ borderRadius: 12 }}
-      className="bg-popover ring-foreground/4 flex min-h-0 flex-col overflow-hidden shadow-xl ring"
-    >
-      <motion.div
-        layout="position"
-        transition={morph}
-        inert={isExpanded}
-        className="flex min-h-0 flex-col"
-      >
-        {children}
-      </motion.div>
-    </motion.div>
-  )
-}
+/** Grows a peek into the pane: its avatar, name, subject and body fly to the same parts of the email. */
+export const expandPeek = (
+  peek: Pick<Peeked, 'id' | 'threadId'> & {
+    close: () => void
+    from: Peeked['from']
+  }
+) =>
+  toggleExpanded({
+    close: peek.close,
+    from: peek.from,
+    messageId: peek.id,
+    morphId: PEEK_ID,
+    parts: ['avatar', 'name', 'title', 'body'],
+    surface: 'popover',
+    threadId: peek.threadId,
+  })
 
-/** An expanded peek over the page's column: `esc` (through `keepUnderPane`), ⇧O and the collapse shrink it back into the peek; leaving the page closes both. */
+/**
+ * An email grown out of a row or a peek over the page's column, as an App Store card opens: the pane's clip grows from
+ * the source's box while the sender, subject and body fly from where they were there (`ThreadView`'s `Part`) and the rest
+ * rises in; closing runs it backwards. `esc` (a peek's through `keepUnderPane`), ⇧O and the collapse shrink it; leaving
+ * the page drops it.
+ */
 export const ThreadPane = () => {
   const t = useT()
-  const open = useSubscription(expandedThread)
+  const open = useExpanded()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   })
   const { morph, reveal } = useMorph()
   const isHere = open?.pathname === pathname
-  // The pane keeps its email while it shrinks back into the peek.
+  // The pane keeps its email while it shrinks back.
   const [shown, setShown] = useState(open)
-  if (open && open !== shown) {
+  if (open && open !== shown && !open.isClosing) {
     setShown(open)
   }
   useEffect(() => {
@@ -152,31 +146,55 @@ export const ThreadPane = () => {
     }
   }, [open, isHere])
   // A peek's popover takes esc and the peek its ⇧O; a row leaves both to the pane.
-  const rowKeys = { enabled: isHere && open?.layoutId !== PEEK_ID }
+  const rowKeys = { enabled: isHere && open?.morphId !== PEEK_ID }
   useHotkey('Escape', collapseExpanded, rowKeys)
   useHotkey('Shift+O', collapseExpanded, rowKeys)
+  const isRow = shown?.surface === 'row'
   return (
-    <AnimatePresence>
-      {open && isHere && shown && (
+    <AnimatePresence
+      onExitComplete={() => {
+        if (expandedThread.get()?.isClosing) {
+          dropExpanded()
+        }
+      }}
+    >
+      {open && !open.isClosing && isHere && shown && (
         <motion.div
           key="pane"
-          layoutId={shown.layoutId}
+          initial={{ clipPath: shown.clip }}
+          animate={{ clipPath: OPEN_CLIP }}
+          exit={{ clipPath: shown.clip }}
           transition={morph}
-          initial={false}
-          animate={{ borderRadius: 0 }}
-          className="bg-background absolute inset-0 z-20 flex flex-col overflow-hidden"
+          className="absolute inset-0 z-20 flex flex-col"
         >
+          {/* A row shows through the pane until it covers it; a peek's card fades into the page. */}
           <motion.div
-            layout="position"
-            initial={HIDDEN}
-            animate={SHOWN}
+            aria-hidden
+            initial={{ opacity: isRow ? 0 : 1 }}
+            animate={{ opacity: 1 }}
+            exit={{
+              opacity: isRow ? 0 : 1,
+              transition: { ...reveal, delay: 0.15 },
+            }}
             transition={reveal}
-            className="flex min-h-0 flex-1 flex-col"
-          >
+            className="bg-background absolute inset-0"
+          />
+          {!isRow && (
+            <motion.div
+              aria-hidden
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 1 }}
+              transition={reveal}
+              className="bg-popover absolute inset-0"
+            />
+          )}
+          <div className="relative flex min-h-0 flex-1 flex-col">
             <ThreadView
               key={shown.threadId}
               isFullPage
               isSnoozed={false}
+              morph={shown}
               threadId={shown.threadId}
               onClose={collapseExpanded}
               onDone={() => shown.close()}
@@ -189,14 +207,14 @@ export const ThreadPane = () => {
                 ['esc', t.keys.close],
               ]}
             />
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
   )
 }
 
-/** One peek for every `PeekTrigger`, mounted once in the app's layout. */
+/** One peek for every `PeekTrigger`, mounted once in the app's layout; it hides while its email is grown out of it. */
 export const ThreadPeekPopover = () => {
   const isExpanded = useIsThreadExpanded()
   return (
@@ -211,26 +229,25 @@ export const ThreadPeekPopover = () => {
           initialFocus={false}
           finalFocus={false}
           padding="none"
-          surface="none"
+          data-morph-source={PEEK_ID}
           data-expanded={isExpanded || undefined}
-          className="w-160 data-expanded:pointer-events-none"
+          className="w-160 data-expanded:invisible"
         >
           {payload && (
-            <PeekSurface>
-              <ThreadPeek
-                key={payload.id}
-                from={payload.from}
-                message={payload}
-                onOpen={() =>
-                  toggleExpanded({
-                    close: () => threadPeek.close(),
-                    from: payload.from,
-                    layoutId: PEEK_ID,
-                    threadId: payload.threadId,
-                  })
-                }
-              />
-            </PeekSurface>
+            <ThreadPeek
+              key={payload.id}
+              from={payload.from}
+              message={payload}
+              morphId={PEEK_ID}
+              onOpen={() =>
+                expandPeek({
+                  close: () => threadPeek.close(),
+                  from: payload.from,
+                  id: payload.id,
+                  threadId: payload.threadId,
+                })
+              }
+            />
           )}
         </PopoverContent>
       )}
