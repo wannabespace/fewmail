@@ -129,14 +129,57 @@ interface Box {
   width: number
 }
 
-const boxOf = (sourceId: string): Box | null => {
-  const box = sourceOf(sourceId)?.getBoundingClientRect()
-  return box
-    ? { height: box.height, left: box.left, top: box.top, width: box.width }
+const CORNERS = [
+  ['borderTopLeftRadius', 'top', 'left'],
+  ['borderTopRightRadius', 'top', 'right'],
+  ['borderBottomRightRadius', 'bottom', 'right'],
+  ['borderBottomLeftRadius', 'bottom', 'left'],
+] as const
+
+const px = (value: string) => Number(value.split('px')[0]) || 0
+
+/**
+ * The corners the source shows: its own, or those of the box that clips it where it sits in that box's corner, as a
+ * list's first and last rows do.
+ */
+const cornersOf = (element: HTMLElement) => {
+  let clip = element.parentElement
+  while (clip && getComputedStyle(clip).overflow === 'visible') {
+    clip = clip.parentElement
+  }
+  const box = element.getBoundingClientRect()
+  const edges = clip?.getBoundingClientRect()
+  const clipStyle = clip && getComputedStyle(clip)
+  const own = getComputedStyle(element)
+  return CORNERS.map(([corner, y, x]) => {
+    const isInCorner =
+      edges &&
+      Math.abs(box[y] - edges[y]) < 1 &&
+      Math.abs(box[x] - edges[x]) < 1
+    const outer = isInCorner && clipStyle ? px(clipStyle[corner]) : 0
+    return `${Math.max(px(own[corner]), outer)}px`
+  }).join(' ')
+}
+
+type Source = Box & { borderRadius: string }
+
+const boxOf = (sourceId: string): Source | null => {
+  const source = sourceOf(sourceId)
+  const box = source?.getBoundingClientRect()
+  return source && box
+    ? {
+        borderRadius: cornersOf(source),
+        height: box.height,
+        left: box.left,
+        top: box.top,
+        width: box.width,
+      }
     : null
 }
 
 const GUTTER = 24
+// Four corners, as the source's are, so motion tweens each to its own.
+const OPEN_CORNERS = '24px 24px 24px 24px'
 const MAX_WIDTH = 960
 
 /** The card's open box: very large, centred on the window, short of covering it. */
@@ -235,9 +278,9 @@ export const ThreadPane = () => {
   const card = useCardBox()
   const isHere = open?.pathname === pathname
   // The card keeps its email and where it grew from while it shrinks back.
-  const [shown, setShown] = useState<(Expanded & { box: Box | null }) | null>(
-    null
-  )
+  const [shown, setShown] = useState<
+    (Expanded & { box: Source | null }) | null
+  >(null)
   if (open && !open.isClosing && open.sourceId !== shown?.sourceId) {
     setShown({ ...open, box: boxOf(open.sourceId) })
   }
@@ -284,20 +327,19 @@ export const ThreadPane = () => {
           custom={back}
           variants={{
             held: shown.box
-              ? { ...shown.box, borderRadius: 12, boxShadow: RESTING }
+              ? { ...shown.box, boxShadow: RESTING }
               : { ...card, opacity: 0 },
             open: {
               ...card,
-              borderRadius: 24,
+              borderRadius: OPEN_CORNERS,
               boxShadow: FLOATING,
               opacity: 1,
               transition: springs.open,
             },
-            source: (box: Box | null) =>
+            source: (box: Source | null) =>
               box
                 ? {
                     ...box,
-                    borderRadius: 12,
                     boxShadow: RESTING,
                     transition: springs.close,
                   }
