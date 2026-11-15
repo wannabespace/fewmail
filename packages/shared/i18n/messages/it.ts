@@ -1063,6 +1063,7 @@ export const it: Messages = {
       spam: 'Spam',
       inbox: 'In arrivo',
       snoozed: 'Posticipate',
+      sent: 'Inviati',
       focused: 'In primo piano',
       unread: 'Non letti',
     },

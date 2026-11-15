@@ -487,6 +487,7 @@ export const ja: Messages = {
       spam: '迷惑メール',
       inbox: '受信トレイ',
       snoozed: 'スヌーズ中',
+      sent: '送信済み',
       focused: 'フォーカス',
       unread: '未読',
     },

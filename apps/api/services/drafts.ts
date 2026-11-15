@@ -4,6 +4,7 @@ import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
 
 import {
   deleteDraft as deleteGmailDraft,
+  getLabelCounts,
   listDrafts as listGmailDrafts,
   saveDraft as saveGmailDraft,
 } from '../lib/gmail'
@@ -44,6 +45,29 @@ export const saveDraft = async (
     await deleteDraft(userId, mail.draft)
   }
   return { id: saved.id, mailboxId: mailbox.id }
+}
+
+/** Gmail's own total, so the sidebar never reads every draft; a failed send waits among them too. */
+export const countDrafts = async (userId: string) => {
+  const owned = await db
+    .select()
+    .from(mailboxes)
+    .where(eq(mailboxes.userId, userId))
+  const [counts, failed] = await Promise.all([
+    Promise.all(owned.map((mailbox) => getLabelCounts(mailbox, 'DRAFT'))),
+    db.$count(
+      outbox,
+      and(
+        eq(outbox.userId, userId),
+        eq(outbox.status, 'failed'),
+        isNull(outbox.actionId)
+      )
+    ),
+  ])
+  return counts.reduce(
+    (total, { threadsTotal }) => total + threadsTotal,
+    failed
+  )
 }
 
 export const listDrafts = async (

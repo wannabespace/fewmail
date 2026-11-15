@@ -487,6 +487,7 @@ export const hi: Messages = {
       spam: 'स्पैम',
       inbox: 'इनबॉक्स',
       snoozed: 'स्नूज़ किए गए',
+      sent: 'भेजे गए',
       focused: 'फ़ोकस',
       unread: 'अनपढ़े',
     },

@@ -480,6 +480,7 @@ export const zh: Messages = {
       spam: '垃圾邮件',
       inbox: '收件箱',
       snoozed: '已延后',
+      sent: '已发送',
       focused: '专注',
       unread: '未读',
     },

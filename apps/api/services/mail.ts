@@ -251,6 +251,7 @@ export type MailFilter =
   | 'needs_reply'
   | 'quiet'
   | 'snoozed'
+  | 'sent'
   | 'archive'
   | 'trash'
   | 'pinned'
@@ -305,6 +306,12 @@ const FILTER_WHERE: Partial<
   pinned: isPinned,
 }
 
+const isSent = (message: MessageTable) =>
+  and(
+    arrayContains(message.labelIds, ['SENT']),
+    not(arrayContains(message.labelIds, ['TRASH']))
+  )
+
 // Snoozed threads are out of the inbox too, so Archive must leave them to Snoozed.
 const snoozedOf = async (userId: string, filter: MailFilter) => {
   if (filter !== 'snoozed' && filter !== 'archive') {
@@ -350,6 +357,11 @@ const OLDER_LISTS: Partial<
   },
   inbox: { isListed: labelled('INBOX'), query: 'in:inbox' },
   pinned: { isListed: labelled('INBOX'), query: 'in:inbox is:starred' },
+  sent: {
+    isListed: (message) =>
+      message.labelIds.includes('SENT') && !message.labelIds.includes('TRASH'),
+    query: 'in:sent',
+  },
   spam: { isListed: labelled('SPAM'), query: 'in:spam' },
   trash: { isListed: labelled('TRASH'), query: 'in:trash' },
   unread: {
@@ -421,7 +433,7 @@ const listHeldMail = (
   const matches = (message: MessageTable, analysis: AnalysisTable) =>
     and(
       eq(message.userId, userId),
-      isReceived(message),
+      input.filter === 'sent' ? isSent(message) : isReceived(message),
       input.mailboxId ? eq(message.mailboxId, input.mailboxId) : undefined,
       searchIds ? inArray(message.gmailId, searchIds) : undefined,
       input.category ? eq(analysis.category, input.category) : undefined,
@@ -465,6 +477,7 @@ const listHeldMail = (
             .where(and(sameThread, eq(inThread.isUnread, true)))
         )}`,
         isPinned: sql<boolean>`${isPinned(messages)}`,
+        to: messages.to,
       },
       threadSize: sql<number>`(${db
         .select({ size: sql`count(*)` })
@@ -508,6 +521,7 @@ const olderRowOf = ({ mailbox, message, thread }: OlderThread): MailRow => ({
     subject: message.subject,
     suspicion: null,
     threadId: message.threadId,
+    to: message.to,
   },
   threadSize: thread.length,
 })
@@ -580,24 +594,35 @@ export const listMail = async (userId: string, input: ListInput) => {
       ? await listOlderMail(userId, input, older, held)
       : { floor: undefined, threads: found?.older ?? [] }
   const threadIds = new Set<string>()
-  return [
-    ...held,
-    ...fromGmail.threads
-      .filter(({ message }) => snoozed?.isListed(message.threadId) ?? true)
-      .map(olderRowOf),
-  ]
-    .filter(
-      ({ message }) => !fromGmail.floor || message.receivedAt >= fromGmail.floor
-    )
-    .toSorted(
-      (left, right) =>
-        right.message.receivedAt.getTime() - left.message.receivedAt.getTime()
-    )
-    .filter(
-      ({ message }) =>
-        !threadIds.has(message.threadId) && !!threadIds.add(message.threadId)
-    )
-    .slice(0, PAGE_SIZE)
+  return (
+    [
+      ...held,
+      ...fromGmail.threads
+        .filter(({ message }) => snoozed?.isListed(message.threadId) ?? true)
+        .map(olderRowOf),
+    ]
+      .filter(
+        ({ message }) =>
+          !fromGmail.floor || message.receivedAt >= fromGmail.floor
+      )
+      .toSorted(
+        (left, right) =>
+          right.message.receivedAt.getTime() - left.message.receivedAt.getTime()
+      )
+      .filter(
+        ({ message }) =>
+          !threadIds.has(message.threadId) && !!threadIds.add(message.threadId)
+      )
+      .slice(0, PAGE_SIZE)
+      // Recipients only where the user wrote the email: the agent's list_mail pays for every field of every row.
+      .map((row) => ({
+        ...row,
+        message: {
+          ...row.message,
+          to: input.filter === 'sent' ? row.message.to : undefined,
+        },
+      }))
+  )
 }
 
 interface ListedThread {

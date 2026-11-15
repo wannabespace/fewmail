@@ -55,7 +55,12 @@ import {
   scanClearOut,
   undoClearOut,
 } from '../services/cleanup'
-import { deleteDraft, listDrafts, saveDraft } from '../services/drafts'
+import {
+  countDrafts,
+  deleteDraft,
+  listDrafts,
+  saveDraft,
+} from '../services/drafts'
 import { countToday, getToday, listJournal, openToday } from '../services/home'
 import { askFewmail } from '../services/instructions'
 import {
@@ -388,6 +393,7 @@ export const router = {
     drafts: authed
       .input(type({ 'mailboxId?': 'string.uuid', 'search?': 'string' }))
       .handler(({ context, input }) => listDrafts(context.user.id, input)),
+    draftCount: authed.handler(({ context }) => countDrafts(context.user.id)),
     complete: agent
       .input(
         type({
@@ -456,7 +462,7 @@ export const router = {
           'before?': 'Date',
           'category?': type.enumerated(...MAIL_CATEGORIES),
           filter:
-            "'inbox' | 'unread' | 'important' | 'needs_reply' | 'quiet' | 'pinned' | 'snoozed' | 'spam' | 'archive' | 'trash'",
+            "'inbox' | 'unread' | 'important' | 'needs_reply' | 'quiet' | 'pinned' | 'snoozed' | 'sent' | 'spam' | 'archive' | 'trash'",
           'mailboxId?': 'string.uuid',
           'search?': 'string',
         })

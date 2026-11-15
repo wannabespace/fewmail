@@ -1069,6 +1069,7 @@ export const fr: Messages = {
       spam: 'Spam',
       inbox: 'Boîte de réception',
       snoozed: 'En attente',
+      sent: 'Envoyés',
       focused: 'Essentiel',
       unread: 'Non lus',
     },

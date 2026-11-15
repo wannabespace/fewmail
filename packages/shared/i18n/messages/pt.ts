@@ -764,6 +764,7 @@ export const pt: Messages = {
       spam: 'Spam',
       inbox: 'Entrada',
       snoozed: 'Adiados',
+      sent: 'Enviados',
       focused: 'Foco',
       unread: 'Não lidos',
     },

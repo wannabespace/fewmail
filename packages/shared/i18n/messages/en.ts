@@ -753,6 +753,7 @@ export const en = {
       drafts: 'Drafts',
       inbox: 'Inbox',
       snoozed: 'Snoozed',
+      sent: 'Sent',
       spam: 'Spam',
       focused: 'Focused',
       unread: 'Unread',

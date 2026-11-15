@@ -71,6 +71,7 @@ import {
   PinIcon,
   PinOffIcon,
   Search01Icon,
+  SentIcon,
   Shield01Icon,
   SpamIcon,
 } from '@hugeicons/core-free-icons'
@@ -153,7 +154,14 @@ const INBOX_VIEWS = ['focused', 'unread', 'categories', 'inbox'] as const
 
 type InboxView = (typeof INBOX_VIEWS)[number]
 
-const FOLDERS = ['snoozed', 'drafts', 'archive', 'spam', 'trash'] as const
+const FOLDERS = [
+  'snoozed',
+  'sent',
+  'drafts',
+  'archive',
+  'spam',
+  'trash',
+] as const
 
 const FILTERS = [...INBOX_VIEWS, ...FOLDERS] as const
 
@@ -168,6 +176,7 @@ const FILTER_ICONS: Record<Filter, IconSvgElement> = {
   drafts: FileEditIcon,
   focused: FlashIcon,
   inbox: InboxIcon,
+  sent: SentIcon,
   snoozed: Clock01Icon,
   spam: SpamIcon,
   trash: Delete02Icon,
@@ -180,6 +189,7 @@ const LISTS_OF: Record<Exclude<Filter, 'drafts'>, MailList[]> = {
   categories: ['inbox'],
   focused: ['inbox'],
   inbox: ['inbox'],
+  sent: ['sent'],
   snoozed: ['snoozed'],
   spam: ['spam'],
   trash: ['trash'],
@@ -819,7 +829,7 @@ const rowSurfaceOf = ({
       'bg-secondary hover:bg-secondary [--avatar-ring:var(--color-secondary)] hover:[--avatar-ring:var(--color-secondary)]'
   )
 
-/** The row's sender, or everyone in its thread once someone answered. */
+/** The row's sender, or everyone in its thread once someone answered; a Sent row nobody answered, whom it went to. */
 const RowAvatar = ({
   message,
   participants,
@@ -832,17 +842,24 @@ const RowAvatar = ({
   participants.length > 1 ? (
     <ParticipantAvatars participants={participants} size={size} />
   ) : (
-    <SenderAvatar sender={message} size={size} />
+    <SenderAvatar
+      sender={message.to?.[0] ? { fromEmail: message.to[0] } : message}
+      size={size}
+    />
   )
 
 const rowSenderOf = (
   t: ReturnType<typeof useT>,
   message: ListedMessage,
   participants: Participant[]
-) =>
-  participants.length > 1
-    ? participantNamesOf(participants, t.mail.you)
+) => {
+  if (participants.length > 1) {
+    return participantNamesOf(participants, t.mail.you)
+  }
+  return message.to
+    ? t.agent.to(message.to.join(', '))
     : (message.fromName ?? message.fromEmail)
+}
 
 // The box lies over the unread dot, so the dot steps aside whenever the box shows.
 const RowPick = ({
@@ -1633,7 +1650,10 @@ const useDrafts = ({
     })
   )
   const refetchDrafts = () =>
-    queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() }),
+      queryClient.invalidateQueries({ queryKey: orpc.mail.draftCount.key() }),
+    ])
   const hide = (id: string) =>
     queryClient.setQueriesData<DraftRowData[]>(
       { queryKey: orpc.mail.drafts.key() },
@@ -2843,7 +2863,7 @@ export const Route = createFileRoute('/_app/mail')({
   component: MailPage,
   validateSearch: type({
     'filter?':
-      "'focused' | 'unread' | 'categories' | 'inbox' | 'snoozed' | 'drafts' | 'archive' | 'spam' | 'trash'",
+      "'focused' | 'unread' | 'categories' | 'inbox' | 'snoozed' | 'sent' | 'drafts' | 'archive' | 'spam' | 'trash'",
     'mailbox?': 'string.uuid',
     'q?': 'string',
     'thread?': 'string',

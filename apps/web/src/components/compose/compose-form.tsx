@@ -163,6 +163,9 @@ export const ComposeForm = ({
       setIsSaved(true)
       void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
     }
+      void queryClient.invalidateQueries({
+        queryKey: orpc.mail.draftCount.key(),
+      })
     saving.current = saving.current.then(persist).catch(() => null)
   })
   useEffect(() => {
@@ -185,6 +188,9 @@ export const ComposeForm = ({
       await client.mail.deleteDraft(gmailDraft.current)
       void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
     }
+      void queryClient.invalidateQueries({
+        queryKey: orpc.mail.draftCount.key(),
+      })
   }
   const addFiles = async (
     files: File[],

@@ -746,6 +746,7 @@ export const id: Messages = {
       spam: 'Spam',
       inbox: 'Kotak masuk',
       snoozed: 'Ditunda',
+      sent: 'Terkirim',
       focused: 'Fokus',
       unread: 'Belum dibaca',
     },

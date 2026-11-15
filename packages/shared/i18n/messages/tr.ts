@@ -742,6 +742,7 @@ export const tr: Messages = {
       spam: 'Spam',
       inbox: 'Gelen',
       snoozed: 'Ertelenen',
+      sent: 'Gönderilenler',
       focused: 'Odak',
       unread: 'Okunmamış',
     },

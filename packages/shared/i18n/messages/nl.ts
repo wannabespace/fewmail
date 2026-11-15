@@ -760,6 +760,7 @@ export const nl: Messages = {
       spam: 'Spam',
       inbox: 'Inbox',
       snoozed: 'Uitgesteld',
+      sent: 'Verzonden',
       focused: 'Focus',
       unread: 'Ongelezen',
     },

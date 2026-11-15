@@ -486,6 +486,7 @@ export const ko: Messages = {
       spam: '스팸',
       inbox: '받은편지함',
       snoozed: '다시 알림',
+      sent: '보낸편지함',
       focused: '포커스',
       unread: '읽지 않음',
     },

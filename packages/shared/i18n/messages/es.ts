@@ -1059,6 +1059,7 @@ export const es: Messages = {
       spam: 'Spam',
       inbox: 'Recibidos',
       snoozed: 'Pospuestos',
+      sent: 'Enviados',
       focused: 'Enfoque',
       unread: 'No leídos',
     },

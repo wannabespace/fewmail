@@ -14,6 +14,7 @@ export const MAIL_LISTS = [
   'unread',
   'pinned',
   'snoozed',
+  'sent',
   'spam',
   'archive',
   'trash',

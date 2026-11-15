@@ -500,6 +500,7 @@ const SUMMARY_FORMAT = [
   ['format', 'metadata'],
   ['metadataHeaders', 'From'],
   ['metadataHeaders', 'Subject'],
+  ['metadataHeaders', 'To'],
 ]
 
 export const getMessageSummary = async (account: GmailAccount, id: string) =>

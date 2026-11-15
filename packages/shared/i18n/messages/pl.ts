@@ -776,6 +776,7 @@ export const pl: Messages = {
       spam: 'Spam',
       inbox: 'Odebrane',
       snoozed: 'Odłożone',
+      sent: 'Wysłane',
       focused: 'Skupienie',
       unread: 'Nieprzeczytane',
     },

@@ -1054,6 +1054,7 @@ export const uk: Messages = {
       spam: 'Спам',
       inbox: 'Вхідні',
       snoozed: 'Відкладені',
+      sent: 'Надіслані',
       focused: 'Фокус',
       unread: 'Непрочитані',
     },

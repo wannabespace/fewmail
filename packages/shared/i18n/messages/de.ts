@@ -1056,6 +1056,7 @@ export const de: Messages = {
       spam: 'Spam',
       inbox: 'Posteingang',
       snoozed: 'Zurückgestellt',
+      sent: 'Gesendet',
       focused: 'Fokus',
       unread: 'Ungelesen',
     },

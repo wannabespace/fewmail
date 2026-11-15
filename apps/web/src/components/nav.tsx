@@ -60,6 +60,7 @@ import {
   Moon02Icon,
   PencilEdit02Icon,
   Search01Icon,
+  SentIcon,
   Settings01Icon,
   SpamIcon,
   Sun03Icon,
@@ -292,8 +293,45 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
   )
 }
 
+const ROLL = { duration: 0.25, ease: [0.32, 0.72, 0, 1] } as const
+
+const roll = {
+  enter: (direction: number) => ({ y: `${direction * 100}%` }),
+  exit: (direction: number) => ({ y: `${direction * -100}%` }),
+  shown: { y: 0 },
+}
+
+const RollingCount = ({ flash, value }: { flash?: boolean; value: number }) => {
+  const reduceMotion = useReducedMotion()
+  const [last, setLast] = useState({ grew: false, value })
+  if (last.value !== value) {
+    setLast({ grew: value > last.value, value })
+  }
+  const direction = last.grew ? 1 : -1
+
+  return (
+    <span className="relative inline-flex overflow-hidden">
+      <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+        <motion.span
+          key={value}
+          custom={direction}
+          variants={roll}
+          initial="enter"
+          animate="shown"
+          exit="exit"
+          transition={reduceMotion ? { duration: 0 } : ROLL}
+          className={flash && last.grew ? 'animate-count-flash' : undefined}
+        >
+          {value}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  )
+}
+
 export const FOLDER_ITEMS = [
   { filter: 'snoozed', icon: Clock01Icon },
+  { filter: 'sent', icon: SentIcon },
   { filter: 'drafts', icon: FileEditIcon },
   { filter: 'archive', icon: Archive02Icon },
   { filter: 'spam', icon: SpamIcon },
@@ -382,6 +420,7 @@ const MailFolders = () => {
   const t = useT()
   const [isShowingAll, setIsShowingAll] = useState(false)
   const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
+  const { data: draftCount } = useQuery(orpc.mail.draftCount.queryOptions())
   const tree = toLabelTree(labels)
 
   return (
@@ -398,6 +437,11 @@ const MailFolders = () => {
         >
           <HugeiconsIcon icon={icon} strokeWidth={2} />
           <span className="flex-1">{t.mail.filter[filter]}</span>
+          {filter === 'drafts' && Boolean(draftCount) && (
+            <span className="text-muted-foreground text-xs tabular-nums">
+              <RollingCount value={draftCount ?? 0} />
+            </span>
+          )}
         </Link>
       ))}
       {labels.length > 0 && (
@@ -424,42 +468,6 @@ const MailFolders = () => {
         </button>
       )}
     </section>
-  )
-}
-
-const ROLL = { duration: 0.25, ease: [0.32, 0.72, 0, 1] } as const
-
-const roll = {
-  enter: (direction: number) => ({ y: `${direction * 100}%` }),
-  exit: (direction: number) => ({ y: `${direction * -100}%` }),
-  shown: { y: 0 },
-}
-
-const RollingCount = ({ flash, value }: { flash?: boolean; value: number }) => {
-  const reduceMotion = useReducedMotion()
-  const [last, setLast] = useState({ grew: false, value })
-  if (last.value !== value) {
-    setLast({ grew: value > last.value, value })
-  }
-  const direction = last.grew ? 1 : -1
-
-  return (
-    <span className="relative inline-flex overflow-hidden">
-      <AnimatePresence mode="popLayout" initial={false} custom={direction}>
-        <motion.span
-          key={value}
-          custom={direction}
-          variants={roll}
-          initial="enter"
-          animate="shown"
-          exit="exit"
-          transition={reduceMotion ? { duration: 0 } : ROLL}
-          className={flash && last.grew ? 'animate-count-flash' : undefined}
-        >
-          {value}
-        </motion.span>
-      </AnimatePresence>
-    </span>
   )
 }
 
