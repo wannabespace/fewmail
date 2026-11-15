@@ -61,7 +61,7 @@ const WrappedPage = () => {
   return (
     <main className="flex flex-1 flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-3xl flex-col gap-10 px-10 pt-12 pb-16">
+        <div className="mx-auto flex max-w-3xl flex-col gap-10 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6">
           <Tabs
             value={period}
             onValueChange={(next: WrappedPeriod) => show(next)}

@@ -1093,6 +1093,7 @@ export const uk: Messages = {
     unsubscribed: 'Відписано',
   },
   nav: {
+    menu: 'Меню',
     labels: 'Ярлики',
     folders: 'Папки',
     calendar: 'Календар',

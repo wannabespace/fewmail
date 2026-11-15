@@ -8,6 +8,8 @@ import {
 } from '@fewmail/ui/components/custom/resizable'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
+import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
+import { cn } from '@fewmail/ui/lib/utils'
 import {
   Add01Icon,
   ArrowLeft01Icon,
@@ -202,6 +204,7 @@ const CalendarPage = () => {
   const connected = data?.calendars.filter((calendar) => calendar.connected)
   const canAdd = connected === undefined || connected.length > 0
   const paneWidth = useSubscription(paneWidthStore)
+  const isMobile = useIsMobile()
 
   const {
     editing,
@@ -264,14 +267,16 @@ const CalendarPage = () => {
 
   return (
     <ResizableGroup className="flex min-h-0 flex-1">
-      <ResizablePanel className="flex min-w-0">
+      <ResizablePanel
+        className={cn('flex min-w-0', isPaneOpen && 'max-md:hidden')}
+      >
         <ResizablePin className="flex min-w-0 flex-1">
           <main className="flex min-w-0 flex-1 flex-col">
-            <header className="flex flex-wrap items-center gap-x-6 gap-y-4 px-10 pt-10 pb-5">
+            <header className="flex flex-wrap items-center gap-x-6 gap-y-4 px-10 pt-10 pb-5 max-md:px-4 max-md:pt-6">
               <h1 className="text-display min-w-0 grow truncate font-serif tracking-tight">
                 {label}
               </h1>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
                 {!isCurrentPeriod && (
                   <Button
                     variant="outline"
@@ -358,10 +363,12 @@ const CalendarPage = () => {
       <ResizablePanel
         className="flex"
         collapsed={!isPaneOpen}
-        size={paneWidth}
+        size={isMobile ? '100%' : paneWidth}
         minSize={PANE_WIDTH.min}
-        maxSize={PANE_WIDTH.max}
-        onSizeChange={(width) => paneWidthStore.set(width)}
+        maxSize={isMobile ? '100%' : PANE_WIDTH.max}
+        onSizeChange={(width: number | `${number}%`) =>
+          typeof width === 'number' && paneWidthStore.set(width)
+        }
       >
         {editing && (
           <aside className="bg-background flex min-w-0 flex-1 flex-col border-l">

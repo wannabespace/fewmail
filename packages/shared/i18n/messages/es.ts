@@ -1099,6 +1099,7 @@ export const es: Messages = {
     unsubscribed: 'Baja hecha',
   },
   nav: {
+    menu: 'Menú',
     labels: 'Etiquetas',
     folders: 'Carpetas',
     calendar: 'Calendario',

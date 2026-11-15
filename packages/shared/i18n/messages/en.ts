@@ -840,6 +840,7 @@ export const en = {
     unsubscribed: 'Unsubscribed',
   },
   nav: {
+    menu: 'Menu',
     labels: 'Labels',
     folders: 'Folders',
     calendar: 'Calendar',

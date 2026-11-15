@@ -41,6 +41,7 @@ import {
   InputGroupInput,
 } from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { Sheet, SheetContent } from '@fewmail/ui/components/sheet'
 import {
   Tooltip,
   TooltipContent,
@@ -68,6 +69,7 @@ import {
   Logout01Icon,
   Mail01Icon,
   MailRemove01Icon,
+  Menu01Icon,
   Moon02Icon,
   PencilEdit02Icon,
   Search01Icon,
@@ -866,5 +868,63 @@ export const Sidebar = ({
       </div>
       <AccountMenu email={email} mailboxes={mailboxes} />
     </nav>
+  )
+}
+
+/** Below `md` the sidebar lives in a sheet behind a top bar; any navigation closes it. */
+export const MobileBar = ({
+  email,
+  onSearch,
+}: {
+  email: string
+  onSearch: () => void
+}) => {
+  const t = useT()
+  const { openCompose } = useCompose()
+  const [isOpen, setIsOpen] = useState(false)
+  const href = useRouterState({ select: ({ location }) => location.href })
+  const [openedOn, setOpenedOn] = useState(href)
+  if (openedOn !== href) {
+    setOpenedOn(href)
+    setIsOpen(false)
+  }
+  return (
+    <header className="flex items-center gap-1 border-b px-2 py-2">
+      <IconButton
+        icon={Menu01Icon}
+        label={t.nav.menu}
+        size="icon"
+        variant="ghost-muted"
+        onClick={() => setIsOpen(true)}
+      />
+      <Logo to="/home" />
+      <div className="ml-auto flex items-center gap-1">
+        <IconButton
+          icon={Search01Icon}
+          label={t.nav.search}
+          size="icon"
+          variant="ghost-muted"
+          onClick={onSearch}
+        />
+        <IconButton
+          icon={PencilEdit02Icon}
+          label={t.command.compose}
+          size="icon"
+          variant="ghost-muted"
+          onClick={() => openCompose()}
+        />
+      </div>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetContent aria-label={t.nav.menu} showCloseButton={false}>
+          <Sidebar
+            email={email}
+            onSearch={() => {
+              setIsOpen(false)
+              onSearch()
+            }}
+          />
+        </SheetContent>
+      </Sheet>
+    </header>
   )
 }

@@ -870,6 +870,7 @@ export const pl: Messages = {
     unsubscribed: 'Wypisano',
   },
   nav: {
+    menu: 'Menu',
     labels: 'Etykiety',
     folders: 'Foldery',
     calendar: 'Kalendarz',

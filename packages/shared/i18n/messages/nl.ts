@@ -848,6 +848,7 @@ export const nl: Messages = {
     unsubscribed: 'Afgemeld',
   },
   nav: {
+    menu: 'Menu',
     labels: 'Labels',
     folders: 'Mappen',
     calendar: 'Agenda',

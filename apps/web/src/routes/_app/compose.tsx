@@ -22,7 +22,7 @@ const ComposePage = () => {
   return (
     <main className="flex flex-1 flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-10 pt-12 pb-16">
+        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6">
           <h1 className="text-display font-serif tracking-tight">
             {t.compose[draft.mode]}
           </h1>

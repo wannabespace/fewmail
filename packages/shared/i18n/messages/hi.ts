@@ -527,6 +527,7 @@ export const hi: Messages = {
     unsubscribed: 'अनसब्सक्राइब हो गया',
   },
   nav: {
+    menu: 'मेनू',
     labels: 'लेबल',
     folders: 'फ़ोल्डर',
     calendar: 'कैलेंडर',

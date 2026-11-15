@@ -821,6 +821,7 @@ export const tr: Messages = {
     unsubscribed: 'Abonelikten çıkıldı',
   },
   nav: {
+    menu: 'Menü',
     labels: 'Etiketler',
     folders: 'Klasörler',
     calendar: 'Takvim',

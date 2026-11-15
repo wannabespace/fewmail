@@ -860,7 +860,7 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
   return (
     <main className="flex min-h-0 flex-1 flex-col">
       <motion.div layoutScroll className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
+        <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6">
           <BoardHeader
             board={board}
             editing={editing}

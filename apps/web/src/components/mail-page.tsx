@@ -52,6 +52,7 @@ import {
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
 import { useDebouncedMemo } from '@fewmail/ui/hookas/use-debounced-memo'
+import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
@@ -601,8 +602,12 @@ const ViewPicker = ({
         />
       </PopoverTrigger>
       {/* Focus lands on the picked view: a focus ring on the first card read as a second pick. */}
-      <PopoverContent align="start" className="w-160" initialFocus={active}>
-        <div className="grid grid-cols-4 gap-2">
+      <PopoverContent
+        align="start"
+        className="w-160 max-w-[calc(100vw-2rem)]"
+        initialFocus={active}
+      >
+        <div className="grid grid-cols-4 gap-2 max-md:grid-cols-2">
           {INBOX_VIEWS.map((value) => (
             <button
               key={value}
@@ -2103,7 +2108,7 @@ const PickedBar = ({
   return (
     <>
       {picked.length > 0 && (
-        <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-1 px-6 py-3">
+        <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-1 px-6 py-3 max-md:px-4">
           <Checkbox
             aria-label={t.keys.pickAll}
             checked={isAllPicked}
@@ -2375,7 +2380,12 @@ const useReaderWidth = () => {
     { deps: [panes] }
   )
   const readerWidth = useReaderWidthIn(panesWidth)
-  return { panesWidth, readerWidth, setPanes }
+  // A phone has no room for the list beside the reader: the reader takes the whole width.
+  return {
+    panesWidth,
+    readerWidth: useIsMobile() ? panesWidth : readerWidth,
+    setPanes,
+  }
 }
 
 export const MailPage = ({ folder }: { folder?: Folder }) => {
@@ -2694,14 +2704,14 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
 
   return (
     <ResizableGroup ref={setPanes} className="flex min-h-0 flex-1">
-      <ResizablePanel className="flex min-w-0">
+      <ResizablePanel className={cn('flex min-w-0', { 'max-md:hidden': thread })}>
         <section
           aria-label={t.nav.mail}
           className="flex min-w-0 flex-1 flex-col border-r"
         >
           <PickedBar list={list} picks={picks}>
             {isSearching ? (
-              <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3">
+              <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3 max-md:px-4">
                 <IconButton
                   icon={ArrowLeft01Icon}
                   label={t.mail.find.back}
@@ -2737,7 +2747,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
                 />
               </div>
             ) : (
-              <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3">
+              <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3 max-md:px-4">
                 {view ? (
                   <ViewPicker
                     filter={view}
@@ -2788,7 +2798,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
           <ul
             ref={listRef}
             className={cn(
-              'overflow-y-auto px-6 pb-6',
+              'overflow-y-auto px-6 pb-6 max-md:px-4',
               total > 0 && 'flex-1',
               isFetching && 'opacity-70'
             )}

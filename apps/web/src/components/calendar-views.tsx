@@ -399,7 +399,7 @@ export const YearView = ({
   const { locale, weekStartsOn } = useDates()
 
   return (
-    <div className="flex-1 overflow-y-auto px-10 py-6">
+    <div className="flex-1 overflow-y-auto px-10 py-6 max-md:px-4">
       <Calendar
         variant="year"
         month={startOfYear(date)}
