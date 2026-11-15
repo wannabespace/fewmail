@@ -217,7 +217,7 @@ export const de: Messages = {
       copy: 'URL kopieren',
       lead: 'Verbinde Fewmail als MCP-Server und frag die KI, die du schon nutzt, nach deinen Mails. Lesen und das Sortieren durch den Agenten sind kostenlos; Entwürfe, Senden und Regeln gibt es mit Pro.',
       safety:
-        'Alles, was eine E-Mail sendet oder Gmail ändert, fragt zuerst nach deinem Ja. Deine Mails trainieren nie Modelle, und jede App lässt sich in den Einstellungen trennen.',
+        'Alles, was eine E-Mail sendet oder Gmail ändert, fragt zuerst nach deinem Ja. Eine E-Mail, die dem Assistenten Befehle geben will, wird markiert, bevor er sie liest. Deine Mails trainieren nie Modelle, und jede App lässt sich in den Einstellungen trennen.',
       steps: {
         chatgpt:
           'Füge in den Settings einen Connector (App) mit dieser URL hinzu und melde dich dann bei Fewmail an.',
@@ -727,6 +727,7 @@ export const de: Messages = {
     weekend: 'Am Wochenende',
   },
   actionDone: {
+    heads_up: 'Verstanden',
     commitment: 'Erledigt',
     confirm: 'Bestätigt',
     follow_up: 'Nachgefasst',
@@ -745,6 +746,7 @@ export const de: Messages = {
     sign: 'Unterschreiben',
   },
   actionKind: {
+    heads_up: 'Zur Info',
     cleanup: 'Alle abbestellen',
     consent: 'Zustimmen',
     commitment: 'Versprochen',
@@ -1077,6 +1079,8 @@ export const de: Messages = {
     toLine: (recipients: string) => `an ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `${percent} % ihrer Leser bei Fewmail haben sich abgemeldet`,
     unsubscribeHint: (emails: string) =>
       `Fewmail meldet dich vom Verteiler ab und archiviert alles, was er geschickt hat (${emails} diesen Monat). Eine Abmeldung lässt sich nicht rückgängig machen.`,
     archivedOnly:
@@ -1817,7 +1821,16 @@ export const de: Messages = {
   commitments: {
     title: 'Du hast versprochen',
   },
+  headsUp: {
+    deadline: 'Bald letzter Tag',
+    notYet: 'Seitdem kam nichts',
+    price: 'Preis gestiegen',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to} statt ${from}`,
+    promised: 'Dir versprochen',
+  },
   people: {
+    owed: 'Hat dir versprochen',
     firstContact: (date: string) => `Ihr schreibt seit ${date}`,
     lastContact: (date: string) => `Letzte Mail am ${date}`,
     open: 'Wartet in anderen Threads',
@@ -1829,6 +1842,8 @@ export const de: Messages = {
       }),
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} hat in dieser E-Mail Anweisungen für Assistenten versteckt, die Mails lesen. Der Agent ignoriert sie; leite sie nicht weiter und tu nicht, was sie verlangt.`,
     known_phishing: (domain: string) =>
       `${domain} steht auf einer öffentlichen Liste aktiver Phishing-Seiten. Keine Links öffnen, nicht anmelden, nichts bezahlen.`,
     lookalike_domain: (domain: string) =>

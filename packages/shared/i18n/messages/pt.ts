@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const pt: Messages = {
   actionDone: {
+    heads_up: 'Entendi',
     commitment: 'Feito',
     confirm: 'Já confirmei',
     follow_up: 'Já acompanhei',
@@ -22,6 +23,7 @@ export const pt: Messages = {
     sign: 'Assinar',
   },
   actionKind: {
+    heads_up: 'Atenção',
     cleanup: 'Cancelar todas',
     consent: 'Aprovar',
     commitment: 'Prometido',
@@ -784,6 +786,8 @@ export const pt: Messages = {
     toLine: (recipients: string) => `para ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `${percent}% dos leitores no Fewmail cancelaram a inscrição`,
     unsubscribeHint: (emails: string) =>
       `O Fewmail cancela sua inscrição na lista e arquiva tudo o que ela enviou (${emails} este mês). Cancelar uma inscrição não pode ser desfeito.`,
     archivedOnly:
@@ -873,7 +877,16 @@ export const pt: Messages = {
     upgrade: 'Outros planos',
     usage: 'Este mês',
   },
+  headsUp: {
+    deadline: 'Último dia em breve',
+    notYet: 'Nada chegou desde então',
+    price: 'O preço subiu',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to} em vez de ${from}`,
+    promised: 'Prometeram a você',
+  },
   people: {
+    owed: 'Prometeu a você',
     firstContact: (date: string) => `Trocando e-mails desde ${date}`,
     lastContact: (date: string) => `Último e-mail em ${date}`,
     open: 'Pendente em outras conversas',
@@ -909,6 +922,8 @@ export const pt: Messages = {
     noReply: 'Ainda sem resposta',
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} escondeu neste e-mail instruções para assistentes que leem e-mails. O agente as ignora; não encaminhe nem faça o que ele pede.`,
     known_phishing: (domain: string) =>
       `${domain} está em uma lista pública de sites de phishing ativos. Não abra links, não faça login e não pague.`,
     lookalike_domain: (domain: string) =>
@@ -1140,7 +1155,7 @@ export const pt: Messages = {
       copy: 'Copiar URL',
       lead: 'Conecte o Fewmail como servidor MCP e pergunte sobre seu e-mail na IA que você já usa. Ler o e-mail e a triagem do agente são grátis; rascunhos, envios e regras vêm com o Pro.',
       safety:
-        'Tudo o que envia um e-mail ou muda o Gmail pede seu sim antes. Seu e-mail nunca treina modelos, e você pode desconectar qualquer app nas configurações.',
+        'Tudo o que envia um e-mail ou muda o Gmail pede seu sim antes. Um e-mail que tenta dar ordens ao assistente é sinalizado antes que ele o leia. Seu e-mail nunca treina modelos, e você pode desconectar qualquer app nas configurações.',
       steps: {
         chatgpt:
           'Em Settings, adicione um conector (app) com esta URL e entre no Fewmail.',

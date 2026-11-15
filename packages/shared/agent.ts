@@ -42,6 +42,7 @@ export const ACTION_KINDS = [
   'spam',
   'security',
   'commitment',
+  'heads_up',
   'cleanup',
   'consent',
 ] as const
@@ -66,6 +67,7 @@ export const ACTION_KIND_TRAITS: Record<ActionKind, ActionKindTraits> = {
   commitment: quiet(null),
   follow_up: quiet('mark_read'),
   mark_read: quiet('mark_read'),
+  heads_up: quiet(null),
   pay: quiet('mark_read'),
   read: quiet('mark_read'),
   reply: { ...quiet(null), sends: true },
@@ -381,6 +383,10 @@ export const UNDO_SEND_SECONDS = 10
 export const SECONDS_SAVED = { handled: 15, reply: 180 } as const
 
 export type ReminderKind = 'snooze' | 'followup'
+
+/** `mine`: a promise in the user's sent mail; `theirs`: one made to the user in mail they got; `deadline`: a last day an email implies (a return window, a trial turning paid). */
+export const COMMITMENT_KINDS = ['mine', 'theirs', 'deadline'] as const
+export type CommitmentKind = (typeof COMMITMENT_KINDS)[number]
 export type ReminderStatus = 'pending' | 'done' | 'canceled'
 
 export const FOLLOWUP_DAYS = [1, 3, 7] as const
@@ -393,6 +399,7 @@ export type RiskKind =
   | 'lookalike_domain'
   | 'payment_change'
   | 'new_sender_payment'
+  | 'prompt_injection'
 
 export interface MessageRisk {
   /** The domain it imitates, for lookalikes. */

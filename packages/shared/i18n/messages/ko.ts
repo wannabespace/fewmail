@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const ko: Messages = {
   actionDone: {
+    heads_up: '확인했어요',
     commitment: '완료',
     confirm: '확인했어요',
     follow_up: '후속 조치했어요',
@@ -22,6 +23,7 @@ export const ko: Messages = {
     sign: '서명',
   },
   actionKind: {
+    heads_up: '알림',
     cleanup: '모두 구독 취소',
     consent: '승인',
     commitment: '약속',
@@ -506,6 +508,8 @@ export const ko: Messages = {
     toLine: (recipients: string) => `받는 사람: ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `Fewmail 독자의 ${percent}%가 구독을 해지했어요`,
     unsubscribeHint: (emails: string) =>
       `Fewmail이 리스트 구독을 취소하고 보낸 메일을 모두 보관해요(이번 달 ${emails}). 구독 취소는 되돌릴 수 없어요.`,
     archivedOnly:
@@ -820,7 +824,7 @@ export const ko: Messages = {
       copy: 'URL 복사',
       lead: 'Fewmail을 MCP 서버로 연결하고, 이미 쓰는 AI에서 메일에 대해 물어보세요. 메일 읽기와 에이전트의 분류는 무료이고, 초안·발송·규칙은 Pro에 있어요.',
       safety:
-        '메일을 보내거나 Gmail을 바꾸는 일은 모두 먼저 동의를 구해요. 메일은 절대 모델 학습에 쓰이지 않고, 어떤 앱이든 설정에서 연결을 끊을 수 있어요.',
+        '메일을 보내거나 Gmail을 바꾸는 일은 모두 먼저 동의를 구해요. 어시스턴트에게 명령하려는 이메일은 읽히기 전에 표시돼요. 메일은 절대 모델 학습에 쓰이지 않고, 어떤 앱이든 설정에서 연결을 끊을 수 있어요.',
       steps: {
         chatgpt:
           'Settings에서 이 URL로 커넥터(앱)를 추가한 뒤 Fewmail에 로그인하세요.',
@@ -1730,7 +1734,16 @@ export const ko: Messages = {
   commitments: {
     title: '내가 한 약속',
   },
+  headsUp: {
+    deadline: '마감 임박',
+    notYet: '그 뒤로 아무것도 오지 않았어요',
+    price: '가격 인상',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${from} → ${to}`,
+    promised: '나에게 한 약속',
+  },
   people: {
+    owed: '상대의 약속',
     firstContact: (date: string) => `${date}부터 연락`,
     lastContact: (date: string) => `마지막 이메일 ${date}`,
     open: '다른 대화에서 대기 중',
@@ -1738,6 +1751,8 @@ export const ko: Messages = {
     threads: (total: number) => `대화 ${total}개`,
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain}이(가) 이 이메일에 메일을 읽는 어시스턴트용 지시를 숨겼어요. 에이전트는 이를 무시해요. 전달하거나 요청대로 하지 마세요.`,
     known_phishing: (domain: string) =>
       `${domain}은(는) 활성 피싱 사이트 공개 목록에 있어요. 링크를 열거나 로그인하거나 결제하지 마세요.`,
     lookalike_domain: (domain: string) =>

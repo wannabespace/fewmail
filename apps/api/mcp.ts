@@ -12,7 +12,7 @@ import { z } from 'zod'
 import { deliverHomeLink } from './home-link'
 import { auth, AUTH_ISSUER, MCP_RESOURCE } from './lib/auth'
 import { capture } from './lib/posthog'
-import { proposeConsent } from './services/agent-run'
+import { proposeConsent, UNTRUSTED_MAIL } from './services/agent-run'
 import { agentTools, toolAccess } from './services/agent-tools'
 import { isAppConnected } from './services/integrations'
 import { getPlanInfo, hasAgent } from './services/plan'
@@ -65,12 +65,17 @@ const waitForYes = async (
 }
 
 const createServer = (userId: string, withAgent: boolean) => {
-  const server = new McpServer({
-    name: 'fewmail',
-    title: 'Fewmail',
-    version: '0.1.0',
-    websiteUrl: 'https://fewmail.app',
-  })
+  const server = new McpServer(
+    {
+      name: 'fewmail',
+      title: 'Fewmail',
+      version: '0.1.0',
+      websiteUrl: 'https://fewmail.app',
+    },
+    {
+      instructions: `${UNTRUSTED_MAIL} Sending, archiving, unsubscribing and every other change to the mail waits for the user's yes in Fewmail.`,
+    }
+  )
   for (const [name, tool] of Object.entries(agentTools(userId))) {
     const access = toolAccess(name)
     if (!withAgent && (access !== 'read' || LLM_READS.has(name))) {

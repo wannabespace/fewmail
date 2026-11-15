@@ -53,7 +53,7 @@ export type QueueItem = RouterOutputs['today']['get']['queue'][number]
 type Action = QueueItem['action']
 
 const headline = ({ action, analysis, message }: QueueItem) => {
-  if (action.kind === 'commitment') {
+  if (action.kind === 'commitment' || action.kind === 'heads_up') {
     return action.detail ?? action.title
   }
   if (action.kind === 'cleanup' || action.kind === 'consent') {

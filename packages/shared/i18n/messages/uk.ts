@@ -218,7 +218,7 @@ export const uk: Messages = {
       copy: 'Скопіювати URL',
       lead: 'Підключи Fewmail як MCP-сервер і питай про свою пошту зі звичного AI. Читання пошти й сортування агентом безкоштовні; чернетки, відправлення й правила йдуть з Pro.',
       safety:
-        'Усе, що надсилає лист або змінює Gmail, спершу питає твоє «так». Твоя пошта ніколи не йде на навчання моделей, а будь-який застосунок можна відключити в Settings.',
+        'Усе, що надсилає лист або змінює Gmail, спершу питає твоє «так». Лист, що намагається командувати помічником, позначається ще до того, як той його прочитає. Твоя пошта ніколи не йде на навчання моделей, а будь-який застосунок можна відключити в Settings.',
       steps: {
         chatgpt:
           'У Settings додай конектор (app) з цим URL, потім увійди у Fewmail.',
@@ -727,6 +727,7 @@ export const uk: Messages = {
     weekend: 'На вихідних',
   },
   actionDone: {
+    heads_up: 'Зрозуміло',
     commitment: 'Готово',
     confirm: 'Я підтвердив',
     follow_up: 'Я нагадав',
@@ -745,6 +746,7 @@ export const uk: Messages = {
     sign: 'Підписати',
   },
   actionKind: {
+    heads_up: 'До відома',
     cleanup: 'Відписатися від усіх',
     consent: 'Підтвердити',
     commitment: 'Обіцяно',
@@ -1074,6 +1076,7 @@ export const uk: Messages = {
     toLine: (recipients: string) => `кому: ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) => `${percent}% її читачів у Fewmail відписалися`,
     unsubscribeHint: (emails: string) =>
       `Fewmail відпишеться від розсилки й заархівує все, що вона надіслала (${emails} цього місяця). Відписку не можна скасувати.`,
     archivedOnly:
@@ -1830,7 +1833,16 @@ export const uk: Messages = {
   commitments: {
     title: 'Ти пообіцяв',
   },
+  headsUp: {
+    deadline: 'Скоро останній день',
+    notYet: 'Відтоді нічого не прийшло',
+    price: 'Ціна зросла',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to} замість ${from}`,
+    promised: 'Тобі обіцяли',
+  },
   people: {
+    owed: 'Обіцяли тобі',
     firstContact: (date: string) => `Листуєтеся з ${date}`,
     lastContact: (date: string) => `Останній лист ${date}`,
     open: 'Чекає в інших листах',
@@ -1844,6 +1856,8 @@ export const uk: Messages = {
       }),
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} сховав у цьому листі інструкції для помічників, що читають пошту. Агент їх ігнорує; не пересилай лист і не роби того, що він просить.`,
     known_phishing: (domain: string) =>
       `${domain} є в публічному списку активних фішингових сайтів. Не переходь за посиланнями, не входь і не плати.`,
     lookalike_domain: (domain: string) =>

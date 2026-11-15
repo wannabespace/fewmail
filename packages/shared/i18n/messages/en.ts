@@ -4,6 +4,7 @@ import { formatMinutes, plural } from '../locales'
 
 export const en = {
   actionDone: {
+    heads_up: 'Got it',
     commitment: 'Done',
     confirm: 'I confirmed',
     follow_up: 'I followed up',
@@ -22,6 +23,7 @@ export const en = {
     sign: 'Sign',
   },
   actionKind: {
+    heads_up: 'Heads-up',
     archive: 'Archive',
     cleanup: 'Unsubscribe from all',
     consent: 'Approve',
@@ -774,6 +776,8 @@ export const en = {
     toLine: (recipients: string) => `to ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `${percent}% of its readers on Fewmail left it`,
     unsubscribeHint: (emails: string) =>
       `Fewmail leaves the list and archives everything it sent (${emails} this month). Leaving a list cannot be undone.`,
     archivedOnly:
@@ -865,7 +869,16 @@ export const en = {
     upgrade: 'Other plans',
     usage: 'This month',
   },
+  headsUp: {
+    deadline: 'Coming up',
+    notYet: 'Nothing has come since',
+    price: 'Price went up',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to} instead of ${from}`,
+    promised: 'Promised to you',
+  },
   people: {
+    owed: 'Promised you',
     firstContact: (date: string) => `Writing since ${date}`,
     lastContact: (date: string) => `Last email ${date}`,
     open: 'Waiting in other threads',
@@ -901,6 +914,8 @@ export const en = {
     noReply: 'No reply yet',
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} hid instructions in this email for assistants that read mail. The agent ignores them; do not forward it or do what it asks.`,
     known_phishing: (domain: string) =>
       `${domain} is on a public list of live phishing sites. Do not click links, sign in or pay.`,
     lookalike_domain: (domain: string) =>
@@ -1127,7 +1142,7 @@ export const en = {
       copy: 'Copy URL',
       lead: 'Connect Fewmail as an MCP server and ask about your mail from the AI you already use. Reading your mail and the agent’s sorting is free; drafting, sending and rules come with Pro.',
       safety:
-        'Anything that sends an email or changes Gmail asks for your yes first. Your mail is never used to train models, and you can disconnect any app in Settings.',
+        'Anything that sends an email or changes Gmail asks for your yes first. An email that tries to give the assistant orders is flagged before the assistant reads it. Your mail is never used to train models, and you can disconnect any app in Settings.',
       steps: {
         chatgpt:
           'In Settings, add a connector (app) with this URL, then sign in to Fewmail.',

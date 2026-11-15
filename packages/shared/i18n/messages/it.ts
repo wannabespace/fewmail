@@ -220,7 +220,7 @@ export const it: Messages = {
       copy: 'Copia URL',
       lead: 'Collega Fewmail come server MCP e chiedi della tua posta dall’IA che usi già. Leggere la posta e lo smistamento dell’agente sono gratis; bozze, invii e regole arrivano con Pro.',
       safety:
-        'Tutto ciò che invia un’email o cambia Gmail chiede prima il tuo sì. La tua posta non addestra mai modelli e puoi scollegare qualsiasi app nelle impostazioni.',
+        'Tutto ciò che invia un’email o cambia Gmail chiede prima il tuo sì. Un’email che prova a dare ordini all’assistente viene segnalata prima che la legga. La tua posta non addestra mai modelli e puoi scollegare qualsiasi app nelle impostazioni.',
       steps: {
         chatgpt:
           'In Settings aggiungi un connettore (app) con questo URL, poi accedi a Fewmail.',
@@ -730,6 +730,7 @@ export const it: Messages = {
     weekend: 'Questo weekend',
   },
   actionDone: {
+    heads_up: 'Capito',
     commitment: 'Fatto',
     confirm: 'Ho confermato',
     follow_up: 'Ho sollecitato',
@@ -748,6 +749,7 @@ export const it: Messages = {
     sign: 'Firma',
   },
   actionKind: {
+    heads_up: 'Da sapere',
     cleanup: 'Disiscriviti da tutte',
     consent: 'Approva',
     commitment: 'Promesso',
@@ -1083,6 +1085,8 @@ export const it: Messages = {
     toLine: (recipients: string) => `a ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `Il ${percent}% dei suoi lettori su Fewmail si è disiscritto`,
     unsubscribeHint: (emails: string) =>
       `Fewmail annulla l’iscrizione alla lista e archivia tutto ciò che ha inviato (${emails} questo mese). L’annullamento dell’iscrizione non si può revocare.`,
     archivedOnly:
@@ -1814,7 +1818,16 @@ export const it: Messages = {
   commitments: {
     title: 'Hai promesso',
   },
+  headsUp: {
+    deadline: 'Ultimo giorno a breve',
+    notYet: 'Da allora non è arrivato nulla',
+    price: 'Prezzo aumentato',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to} invece di ${from}`,
+    promised: 'Ti è stato promesso',
+  },
   people: {
+    owed: 'Ti ha promesso',
     firstContact: (date: string) => `Vi scrivete dal ${date}`,
     lastContact: (date: string) => `Ultima email il ${date}`,
     open: 'In attesa in altre conversazioni',
@@ -1827,6 +1840,8 @@ export const it: Messages = {
       }),
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} ha nascosto in questa email istruzioni per gli assistenti che leggono la posta. L’agente le ignora; non inoltrarla e non fare ciò che chiede.`,
     known_phishing: (domain: string) =>
       `${domain} è in un elenco pubblico di siti di phishing attivi. Non aprire link, non accedere e non pagare.`,
     lookalike_domain: (domain: string) =>

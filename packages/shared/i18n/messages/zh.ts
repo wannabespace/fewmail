@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const zh: Messages = {
   actionDone: {
+    heads_up: '知道了',
     commitment: '完成',
     confirm: '我已确认',
     follow_up: '我已跟进',
@@ -22,6 +23,7 @@ export const zh: Messages = {
     sign: '签署',
   },
   actionKind: {
+    heads_up: '提醒',
     cleanup: '全部退订',
     consent: '批准',
     commitment: '已承诺',
@@ -499,6 +501,7 @@ export const zh: Messages = {
     toLine: (recipients: string) => `收件人：${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) => `${percent}% 的 Fewmail 读者已退订`,
     unsubscribeHint: (emails: string) =>
       `Fewmail 会退出该列表并归档它发来的所有邮件（本月 ${emails}）。退订无法撤销。`,
     archivedOnly:
@@ -802,7 +805,7 @@ export const zh: Messages = {
       copy: '复制 URL',
       lead: '把 Fewmail 作为 MCP 服务器连接，就能在你常用的 AI 里询问自己的邮件。读取邮件和代理的分类免费；草稿、发送和规则属于 Pro。',
       safety:
-        '任何发送邮件或更改 Gmail 的操作都会先征得你的同意。你的邮件绝不会用于训练模型，任何应用都可以在设置中断开。',
+        '任何发送邮件或更改 Gmail 的操作都会先征得你的同意。试图给助手下命令的邮件，会在助手读到之前被标记。你的邮件绝不会用于训练模型，任何应用都可以在设置中断开。',
       steps: {
         chatgpt:
           '在 Settings 中用这个 URL 添加连接器（应用），然后登录 Fewmail。',
@@ -1696,7 +1699,16 @@ export const zh: Messages = {
   commitments: {
     title: '你的承诺',
   },
+  headsUp: {
+    deadline: '最后期限将至',
+    notYet: '至今还没有收到',
+    price: '涨价了',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}：从 ${from} 涨到 ${to}`,
+    promised: '对你的承诺',
+  },
   people: {
+    owed: '对你的承诺',
     firstContact: (date: string) => `自 ${date} 起联系`,
     lastContact: (date: string) => `最近邮件 ${date}`,
     open: '其他邮件中待处理',
@@ -1704,6 +1716,8 @@ export const zh: Messages = {
     threads: (total: number) => `${total} 个对话`,
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} 在这封邮件里藏了给自动读信程序的指令。助手会忽略它们；不要转发，也不要照它说的做。`,
     known_phishing: (domain: string) =>
       `${domain} 在公开的活跃钓鱼网站列表中。请不要点击链接、登录或付款。`,
     lookalike_domain: (domain: string) =>

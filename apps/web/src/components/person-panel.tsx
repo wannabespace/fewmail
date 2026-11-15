@@ -113,18 +113,27 @@ export const PersonPanel = ({
           {person.note}
         </p>
       )}
-      {person.promised.length > 0 && (
-        <p className="text-muted-foreground">
-          {t.people.promised}:{' '}
-          {person.promised.map((promise, index) => (
-            <span key={promise.id}>
-              {index > 0 && ', '}
-              <ThreadLink threadId={promise.threadId}>
-                {promise.promise} · {dates.format(promise.dueAt, 'EEE d MMM')}
-              </ThreadLink>
-            </span>
-          ))}
-        </p>
+      {(
+        [
+          [t.people.promised, person.promised],
+          [t.people.owed, person.owed],
+        ] as const
+      ).map(
+        ([label, promises]) =>
+          promises.length > 0 && (
+            <p key={label} className="text-muted-foreground">
+              {label}:{' '}
+              {promises.map((promise, index) => (
+                <span key={promise.id}>
+                  {index > 0 && ', '}
+                  <ThreadLink threadId={promise.threadId}>
+                    {promise.promise} ·{' '}
+                    {dates.format(promise.dueAt, 'EEE d MMM')}
+                  </ThreadLink>
+                </span>
+              ))}
+            </p>
+          )
       )}
       {elsewhere.length > 0 && (
         <p className="text-muted-foreground">

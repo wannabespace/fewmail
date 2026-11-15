@@ -271,6 +271,10 @@ export const itemReply = (
     text: [
       urgent ? plain(t.telegram.urgent) : null,
       senderLine(chat, item),
+      // A promise or a heads-up says what it is about in its own words; the email's summary only gives the context.
+      action.kind === 'commitment' || action.kind === 'heads_up'
+        ? plain(action.detail ?? action.title)
+        : null,
       analysis?.summary ? plain(analysis.summary) : null,
       isReply && action.detail
         ? `\n${chat.channel.italic(t.telegram.draft)}\n${clipped(chat, t, action.detail)}`

@@ -259,6 +259,8 @@ const NewSenders = ({
           </ItemTitle>
           <ItemDescription>
             {t.today.newSender.lead(sender.count, sender.opened)}
+            {sender.leftShare !== null &&
+              ` · ${t.subscriptions.leftBy(Math.round(sender.leftShare * 100))}`}
           </ItemDescription>
         </ItemContent>
         <ItemActions>

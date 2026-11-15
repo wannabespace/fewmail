@@ -362,6 +362,8 @@ const SubscriptionsPage = () => {
                               <span data-mask>{row.fromEmail}</span> ·{' '}
                               {t.cleanup.emails(row.count)},{' '}
                               {t.subscriptions.opened(row.opened)}
+                              {row.leftShare !== null &&
+                                ` · ${t.subscriptions.leftBy(Math.round(row.leftShare * 100))}`}
                             </>
                           }
                         >

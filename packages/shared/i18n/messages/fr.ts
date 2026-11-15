@@ -220,7 +220,7 @@ export const fr: Messages = {
       copy: 'Copier l’URL',
       lead: 'Connecte Fewmail comme serveur MCP et interroge ta boîte depuis l’IA que tu utilises déjà. Lire tes e-mails et le tri de l’agent sont gratuits ; brouillons, envois et règles viennent avec Pro.',
       safety:
-        'Tout ce qui envoie un e-mail ou modifie Gmail demande d’abord ton accord. Tes e-mails n’entraînent jamais de modèles, et tu peux déconnecter n’importe quelle app dans les réglages.',
+        'Tout ce qui envoie un e-mail ou modifie Gmail demande d’abord ton accord. Un e-mail qui tente de donner des ordres à l’assistant est signalé avant qu’il ne le lise. Tes e-mails n’entraînent jamais de modèles, et tu peux déconnecter n’importe quelle app dans les réglages.',
       steps: {
         chatgpt:
           'Dans Settings, ajoute un connecteur (app) avec cette URL, puis connecte-toi à Fewmail.',
@@ -736,6 +736,7 @@ export const fr: Messages = {
     weekend: 'Ce week-end',
   },
   actionDone: {
+    heads_up: 'Compris',
     commitment: 'Fait',
     confirm: 'J’ai confirmé',
     follow_up: 'J’ai relancé',
@@ -754,6 +755,7 @@ export const fr: Messages = {
     sign: 'Signer',
   },
   actionKind: {
+    heads_up: 'À savoir',
     cleanup: 'Se désabonner de tout',
     consent: 'Approuver',
     commitment: 'Promis',
@@ -1090,6 +1092,8 @@ export const fr: Messages = {
     toLine: (recipients: string) => `à ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `${percent} % de ses lecteurs sur Fewmail se sont désabonnés`,
     unsubscribeHint: (emails: string) =>
       `Fewmail vous désabonne de la liste et archive tout ce qu’elle a envoyé (${emails} ce mois-ci). Un désabonnement ne peut pas être annulé.`,
     archivedOnly:
@@ -1836,7 +1840,16 @@ export const fr: Messages = {
   commitments: {
     title: 'Vous avez promis',
   },
+  headsUp: {
+    deadline: 'Dernier jour bientôt',
+    notYet: 'Rien reçu depuis',
+    price: 'Prix en hausse',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what} : ${to} au lieu de ${from}`,
+    promised: 'On vous l’a promis',
+  },
   people: {
+    owed: 'Vous a promis',
     firstContact: (date: string) => `Échanges depuis ${date}`,
     lastContact: (date: string) => `Dernier e-mail le ${date}`,
     open: 'En attente dans d’autres fils',
@@ -1849,6 +1862,8 @@ export const fr: Messages = {
       }),
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} a caché dans cet e-mail des instructions pour les assistants qui lisent le courrier. L’agent les ignore ; ne le transférez pas et ne faites pas ce qu’il demande.`,
     known_phishing: (domain: string) =>
       `${domain} figure sur une liste publique de sites d’hameçonnage actifs. N’ouvrez aucun lien, ne vous connectez pas et ne payez pas.`,
     lookalike_domain: (domain: string) =>

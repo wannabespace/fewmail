@@ -1,12 +1,12 @@
 import { db } from '@fewmail/db'
 import type { messages } from '@fewmail/db/schema'
-import { senderReports, unsubscribes } from '@fewmail/db/schema'
+import { listSightings, senderReports, unsubscribes } from '@fewmail/db/schema'
 import { listLabelOf } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { subDays } from 'date-fns'
 import { and, eq, inArray, isNull, lt, sql } from 'drizzle-orm'
 
-import { keyedHash, senderHashOf } from '../lib/keyed-hash'
+import { keyedHash, senderHashOf, userHashOf } from '../lib/keyed-hash'
 import { getSettings } from './settings'
 import { proposeSpam } from './thread-labels'
 
@@ -31,6 +31,68 @@ export const recordUnsubscribe = (userId: string, message: Message) =>
     .insert(unsubscribes)
     .values({ senderHash: listHashOf(message), userId })
     .onConflictDoNothing()
+
+/** A list's crowd verdict is shown only once this many Fewmail users get it: fewer says little and could point at someone. */
+const MIN_READERS = 10
+
+/** Who gets each mailing list, as hashes on both sides; every plan. */
+export const recordListReaders = async (
+  userId: string,
+  incoming: Message[]
+) => {
+  const hashes = [
+    ...new Set(
+      incoming
+        .filter((message) => !message.isFromMe && message.listUnsubscribe)
+        .map(listHashOf)
+    ),
+  ]
+  if (hashes.length === 0) {
+    return
+  }
+  const userHash = userHashOf(userId)
+  await db
+    .insert(listSightings)
+    .values(hashes.map((listHash) => ({ listHash, userHash })))
+    .onConflictDoNothing()
+}
+
+/** By list hash: the share of its Fewmail readers who left it through Fewmail, for lists enough people get. */
+export const leftShares = async (
+  lists: Pick<Message, 'fromEmail' | 'listId'>[]
+) => {
+  const hashes = [...new Set(lists.map(listHashOf))]
+  if (hashes.length === 0) {
+    return new Map<string, number>()
+  }
+  const [readers, left] = await Promise.all([
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        hash: listSightings.listHash,
+      })
+      .from(listSightings)
+      .where(inArray(listSightings.listHash, hashes))
+      .groupBy(listSightings.listHash)
+      .having(sql`count(*) >= ${MIN_READERS}`),
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        hash: unsubscribes.senderHash,
+      })
+      .from(unsubscribes)
+      .where(inArray(unsubscribes.senderHash, hashes))
+      .groupBy(unsubscribes.senderHash),
+  ])
+  const leftBy = new Map(left.map(({ count, hash }) => [hash, count]))
+  // Unsubscribes older than the sightings count too, so the share is capped rather than trusted past 1.
+  return new Map(
+    readers.map(({ count, hash }) => [
+      hash,
+      Math.min(1, (leftBy.get(hash) ?? 0) / count),
+    ])
+  )
+}
 
 export const zombieStats = async (
   message: Pick<Message, 'fromEmail' | 'listId'>

@@ -53,7 +53,7 @@ import { getSettings } from './settings'
 import { applySimpleRules } from './simple-rules'
 import { applySpamShield } from './spam'
 import { forget, insertMessages, readMessages } from './stored-mail'
-import { catchZombies } from './zombies'
+import { catchZombies, recordListReaders } from './zombies'
 
 const INITIAL_INBOX_QUERY = 'in:inbox newer_than:3d'
 const INITIAL_INBOX_LIMIT = 60
@@ -191,6 +191,7 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   await assessRisks(userId, inserted)
   await measureBulk(userId, inserted)
   const zombies = await catchZombies(userId, inserted)
+  await recordListReaders(userId, inserted)
   const spam = await applySpamShield(
     userId,
     inserted.filter((message) => !zombies.has(message.id))

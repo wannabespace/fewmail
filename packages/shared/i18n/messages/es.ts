@@ -218,7 +218,7 @@ export const es: Messages = {
       copy: 'Copiar URL',
       lead: 'Conecta Fewmail como servidor MCP y pregunta por tu correo desde la IA que ya usas. Leer tu correo y la clasificación del agente son gratis; borradores, envíos y reglas vienen con Pro.',
       safety:
-        'Todo lo que envía un correo o cambia Gmail te pide un sí antes. Tu correo nunca entrena modelos y puedes desconectar cualquier app en Ajustes.',
+        'Todo lo que envía un correo o cambia Gmail te pide un sí antes. Un correo que intenta dar órdenes al asistente se marca antes de que lo lea. Tu correo nunca entrena modelos y puedes desconectar cualquier app en Ajustes.',
       steps: {
         chatgpt:
           'En Settings, añade un conector (app) con esta URL y luego inicia sesión en Fewmail.',
@@ -727,6 +727,7 @@ export const es: Messages = {
     weekend: 'Este fin de semana',
   },
   actionDone: {
+    heads_up: 'Entendido',
     commitment: 'Hecho',
     confirm: 'Ya lo confirmé',
     follow_up: 'Ya hice seguimiento',
@@ -745,6 +746,7 @@ export const es: Messages = {
     sign: 'Firmar',
   },
   actionKind: {
+    heads_up: 'Aviso',
     cleanup: 'Darse de baja de todos',
     consent: 'Aprobar',
     commitment: 'Prometido',
@@ -1079,6 +1081,8 @@ export const es: Messages = {
     toLine: (recipients: string) => `para ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `${percent} % de sus lectores en Fewmail se dieron de baja`,
     unsubscribeHint: (emails: string) =>
       `Fewmail te da de baja de la lista y archiva todo lo que envió (${emails} este mes). Darse de baja no se puede deshacer.`,
     archivedOnly:
@@ -1813,7 +1817,16 @@ export const es: Messages = {
   commitments: {
     title: 'Lo prometiste',
   },
+  headsUp: {
+    deadline: 'Último día pronto',
+    notYet: 'No ha llegado nada desde entonces',
+    price: 'Subió el precio',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to} en vez de ${from}`,
+    promised: 'Te lo prometieron',
+  },
   people: {
+    owed: 'Te prometió',
     firstContact: (date: string) => `Os escribís desde ${date}`,
     lastContact: (date: string) => `Último correo: ${date}`,
     open: 'Pendiente en otros hilos',
@@ -1826,6 +1839,8 @@ export const es: Messages = {
       }),
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} escondió en este correo instrucciones para asistentes que leen el correo. El agente las ignora; no lo reenvíes ni hagas lo que pide.`,
     known_phishing: (domain: string) =>
       `${domain} está en una lista pública de sitios de phishing activos. No abras enlaces, no inicies sesión ni pagues.`,
     lookalike_domain: (domain: string) =>

@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const pl: Messages = {
   actionDone: {
+    heads_up: 'Rozumiem',
     commitment: 'Gotowe',
     confirm: 'Potwierdziłem',
     follow_up: 'Przypomniałem się',
@@ -22,6 +23,7 @@ export const pl: Messages = {
     sign: 'Podpisz',
   },
   actionKind: {
+    heads_up: 'Do wiadomości',
     cleanup: 'Wypisz ze wszystkich',
     consent: 'Zatwierdź',
     commitment: 'Obiecane',
@@ -797,6 +799,8 @@ export const pl: Messages = {
     toLine: (recipients: string) => `do ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `${percent}% czytelników w Fewmail się wypisało`,
     unsubscribeHint: (emails: string) =>
       `Fewmail wypisze cię z listy i zarchiwizuje wszystko, co wysłała (${emails} w tym miesiącu). Wypisania nie można cofnąć.`,
     archivedOnly:
@@ -888,7 +892,16 @@ export const pl: Messages = {
     upgrade: 'Inne plany',
     usage: 'W tym miesiącu',
   },
+  headsUp: {
+    deadline: 'Wkrótce ostatni dzień',
+    notYet: 'Od tamtej pory nic nie przyszło',
+    price: 'Cena wzrosła',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to} zamiast ${from}`,
+    promised: 'Obiecano ci',
+  },
   people: {
+    owed: 'Obiecali ci',
     firstContact: (date: string) => `Piszecie od ${date}`,
     lastContact: (date: string) => `Ostatni e-mail: ${date}`,
     open: 'Czeka w innych wątkach',
@@ -926,6 +939,8 @@ export const pl: Messages = {
     noReply: 'Brak odpowiedzi',
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} ukrył w tym e-mailu instrukcje dla asystentów czytających pocztę. Agent je ignoruje; nie przekazuj go dalej i nie rób tego, o co prosi.`,
     known_phishing: (domain: string) =>
       `${domain} jest na publicznej liście aktywnych stron phishingowych. Nie klikaj linków, nie loguj się i nie płać.`,
     lookalike_domain: (domain: string) =>
@@ -1159,7 +1174,7 @@ export const pl: Messages = {
       copy: 'Kopiuj URL',
       lead: 'Podłącz Fewmail jako serwer MCP i pytaj o pocztę z AI, której już używasz. Czytanie poczty i sortowanie przez agenta są darmowe; szkice, wysyłka i reguły są w Pro.',
       safety:
-        'Wszystko, co wysyła maila lub zmienia Gmaila, najpierw pyta o twoje „tak”. Twoja poczta nigdy nie trenuje modeli, a każdą aplikację odłączysz w ustawieniach.',
+        'Wszystko, co wysyła maila lub zmienia Gmaila, najpierw pyta o twoje „tak”. E-mail, który próbuje wydawać polecenia asystentowi, zostaje oznaczony, zanim ten go przeczyta. Twoja poczta nigdy nie trenuje modeli, a każdą aplikację odłączysz w ustawieniach.',
       steps: {
         chatgpt:
           'W Settings dodaj konektor (aplikację) z tym URL, potem zaloguj się do Fewmail.',

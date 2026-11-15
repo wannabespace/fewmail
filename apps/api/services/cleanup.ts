@@ -36,7 +36,7 @@ import { getSettings } from './settings'
 import { ownMessage, insertMessages } from './stored-mail'
 import { unsubscribe, unsubscribeMessage } from './thread-effects'
 import { isOpened } from './thread-labels'
-import { listHashOf } from './zombies'
+import { leftShares, listHashOf } from './zombies'
 
 const LOOKBACK_DAYS = 30
 const MIN_UNOPENED = 3
@@ -103,8 +103,10 @@ export const listSubscriptions = async (userId: string) => {
   const unsubscribed = new Set(
     unsubscribedRows.map(({ senderHash }) => senderHash)
   )
+  const shares = await leftShares(rows)
   return namedLists(rows)
     .filter((row) => !unsubscribed.has(listHashOf(row)))
+    .map((row) => ({ ...row, leftShare: shares.get(listHashOf(row)) ?? null }))
     .toSorted(
       (left, right) =>
         right.count - left.count ||
@@ -194,7 +196,7 @@ export const newSenders = async (userId: string) => {
   const fromRules = ownRules.flatMap(({ match }) =>
     match?.field === 'from' ? [match.value.toLowerCase()] : []
   )
-  return namedLists(lists)
+  const shown = namedLists(lists)
     .filter(
       (list) =>
         !unsubscribed.has(listHashOf(list)) &&
@@ -202,6 +204,11 @@ export const newSenders = async (userId: string) => {
     )
     .toSorted((left, right) => right.count - left.count)
     .slice(0, NEW_SENDERS_SHOWN)
+  const shares = await leftShares(shown)
+  return shown.map((list) => ({
+    ...list,
+    leftShare: shares.get(listHashOf(list)) ?? null,
+  }))
 }
 
 /** "Keep as usual": a dismissed action on its latest email is the answer, so the sender is never asked about again. */

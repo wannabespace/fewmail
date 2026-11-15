@@ -1,5 +1,5 @@
 import { db } from '@fewmail/db'
-import { boardEntries, boards, messages } from '@fewmail/db/schema'
+import { actions, boardEntries, boards, messages } from '@fewmail/db/schema'
 import type { BoardChart, BoardPeriod } from '@fewmail/shared/agent'
 import {
   ANALYZE_WINDOW_DAYS,
@@ -37,11 +37,12 @@ import {
   inArray,
   isNotNull,
   isNull,
+  lt,
   sql,
 } from 'drizzle-orm'
 
 import { models, trackUsage } from '../lib/ai'
-import { announceChange } from '../lib/live'
+import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { logError } from '../lib/log'
 import { expectRow } from '../lib/rows'
 import { LimitReachedError } from './limit-error'
@@ -581,6 +582,76 @@ export const isUnchanged = async (board: Board) => {
 const threadKey = (message: { mailboxId: string; threadId: string }) =>
   `${message.mailboxId}:${message.threadId}`
 
+/** Any rise counts, but not a cent of rounding or exchange. */
+const PRICE_RISE = 1.01
+
+const money = (locale: Locale, cents: number, currency: string) =>
+  new Intl.NumberFormat(locale, { currency, style: 'currency' }).format(
+    cents / 100
+  )
+
+/** A steady charge that came back dearer: services announce a new price in small print, if at all. Only fresh mail, so a board's history read never digs up last year's rise. */
+const watchPrice = async (
+  board: Board,
+  entry: Entry | undefined,
+  message: ReadMessage
+) => {
+  if (
+    !entry?.group ||
+    !entry.currency ||
+    !entry.amountCents ||
+    entry.amountCents <= 0 ||
+    message.receivedAt < subDays(new Date(), ANALYZE_WINDOW_DAYS)
+  ) {
+    return
+  }
+  const earlier = await db
+    .select()
+    .from(boardEntries)
+    .where(
+      and(
+        eq(boardEntries.boardId, board.id),
+        eq(boardEntries.currency, entry.currency),
+        isNull(boardEntries.dismissedAt),
+        lt(boardEntries.occurredAt, entry.occurredAt)
+      )
+    )
+    .orderBy(boardEntries.occurredAt)
+  const repeating = cadenceOf(
+    earlier.filter(({ group }) => group === entry.group)
+  )
+  const before = repeating?.last.amountCents
+  // Two boards may collect the same charge; one card says it.
+  if (
+    !before ||
+    entry.amountCents <= before * PRICE_RISE ||
+    (await db.$count(
+      actions,
+      and(eq(actions.messageId, entry.messageId), eq(actions.kind, 'heads_up'))
+    )) > 0
+  ) {
+    return
+  }
+  const language = await languageOf(board.userId)
+  const t = dictionaries[language]
+  await db.insert(actions).values({
+    autonomous: false,
+    detail: t.headsUp.priceUp(
+      entry.group,
+      money(language, before, entry.currency),
+      money(language, entry.amountCents, entry.currency)
+    ),
+    kind: 'heads_up',
+    messageId: entry.messageId,
+    reason: board.name,
+    status: 'pending',
+    threadId: message.threadId,
+    title: t.headsUp.price,
+    userId: board.userId,
+  })
+  await announceChange(board.userId, ACTION_TOPICS)
+}
+
 /** A later email of the same thing (shipped after ordered) updates its entry, so its amount is not counted twice. */
 const saveEntry = async (
   board: Board,
@@ -613,7 +684,7 @@ const saveEntry = async (
     return
   }
   const occurredAt = output.occurredAt ? new Date(output.occurredAt) : null
-  await db
+  const [entry] = await db
     .insert(boardEntries)
     .values({
       ...amount,
@@ -631,6 +702,8 @@ const saveEntry = async (
       userId: board.userId,
     })
     .onConflictDoNothing()
+    .returning()
+  await watchPrice(board, entry, message)
 }
 
 interface KnownValues {

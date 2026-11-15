@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const nl: Messages = {
   actionDone: {
+    heads_up: 'Begrepen',
     commitment: 'Klaar',
     confirm: 'Bevestigd',
     follow_up: 'Opgevolgd',
@@ -22,6 +23,7 @@ export const nl: Messages = {
     sign: 'Ondertekenen',
   },
   actionKind: {
+    heads_up: 'Ter info',
     cleanup: 'Overal afmelden',
     consent: 'Goedkeuren',
     commitment: 'Beloofd',
@@ -780,6 +782,8 @@ export const nl: Messages = {
     toLine: (recipients: string) => `aan ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `${percent}% van de lezers op Fewmail heeft zich afgemeld`,
     unsubscribeHint: (emails: string) =>
       `Fewmail meldt je af bij de lijst en archiveert alles wat die stuurde (${emails} deze maand). Afmelden kan niet ongedaan worden gemaakt.`,
     archivedOnly:
@@ -869,7 +873,16 @@ export const nl: Messages = {
     upgrade: 'Andere abonnementen',
     usage: 'Deze maand',
   },
+  headsUp: {
+    deadline: 'Binnenkort laatste dag',
+    notYet: 'Sindsdien niets gekomen',
+    price: 'Prijs gestegen',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to} in plaats van ${from}`,
+    promised: 'Aan jou beloofd',
+  },
   people: {
+    owed: 'Beloofde jou',
     firstContact: (date: string) => `Mailt sinds ${date}`,
     lastContact: (date: string) => `Laatste e-mail ${date}`,
     open: 'Wacht in andere gesprekken',
@@ -905,6 +918,8 @@ export const nl: Messages = {
     noReply: 'Nog geen antwoord',
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} heeft in deze e-mail instructies verstopt voor assistenten die mail lezen. De agent negeert ze; stuur hem niet door en doe niet wat hij vraagt.`,
     known_phishing: (domain: string) =>
       `${domain} staat op een openbare lijst van actieve phishingsites. Klik geen links, log niet in en betaal niet.`,
     lookalike_domain: (domain: string) =>
@@ -1136,7 +1151,7 @@ export const nl: Messages = {
       copy: 'URL kopiëren',
       lead: 'Koppel Fewmail als MCP-server en vraag naar je mail vanuit de AI die je al gebruikt. Je mail lezen en het sorteren door de agent zijn gratis; concepten, versturen en regels komen met Pro.',
       safety:
-        'Alles wat een e-mail verstuurt of Gmail wijzigt, vraagt eerst om je ja. Je mail traint nooit modellen en je kunt elke app ontkoppelen in de instellingen.',
+        'Alles wat een e-mail verstuurt of Gmail wijzigt, vraagt eerst om je ja. Een e-mail die de assistent opdrachten probeert te geven, wordt gemarkeerd voordat die hem leest. Je mail traint nooit modellen en je kunt elke app ontkoppelen in de instellingen.',
       steps: {
         chatgpt:
           'Voeg in Settings een connector (app) met deze URL toe en log daarna in bij Fewmail.',

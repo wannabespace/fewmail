@@ -85,7 +85,7 @@ interface AgentTool {
 const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   get_today: define({
     description:
-      "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other unread mail worth knowing from those days (recent), mail naming a due date or meeting time, soonest first and none already passed (dates), sent mail still waiting for an answer (awaiting), what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts) and quiet inbox mail no rule covers that the agent would archive, mark read or unsubscribe from (tidy: each email with its suggestedAction; carry them out with tidy_mail) and sign-in or verification codes from the last 15 minutes still in the inbox (codes).",
+      "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe, commitment: a promise the user made that is due, heads_up: a price rise, a last day coming up or a promise to the user that has not come, said in its detail), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other unread mail worth knowing from those days (recent), mail naming a due date or meeting time, soonest first and none already passed (dates), sent mail still waiting for an answer (awaiting), what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts) and quiet inbox mail no rule covers that the agent would archive, mark read or unsubscribe from (tidy: each email with its suggestedAction; carry them out with tidy_mail) and sign-in or verification codes from the last 15 minutes still in the inbox (codes).",
     run: () => getToday(userId),
   }),
   list_mail: define({
@@ -292,7 +292,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   list_subscriptions: define({
     description:
-      'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender (a sender of several lists has one row per list, named by its title), how many emails, how many were opened, and the messageId of the latest one to pass to unsubscribe.',
+      'Mailing lists that wrote to the user in the last 30 days and they have not left, busiest first: sender (a sender of several lists has one row per list, named by its title), how many emails, how many were opened, the share of its readers on Fewmail who left it (leftShare, 0 to 1, null while too few get it) and the messageId of the latest one to pass to unsubscribe.',
     run: () => listSubscriptions(userId),
   }),
   find_people: define({
@@ -303,7 +303,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   get_person: define({
     description:
-      "What the user's mail knows about one person: since when they write, conversation count, open items, promises the user made to them and a short note.",
+      "What the user's mail knows about one person: since when they write, conversation count, open items, promises the user made to them (promised), promises they made to the user that are still open (owed) and a short note.",
     input: { email: z.email() },
     run: ({ email }) => getPerson(userId, email),
   }),

@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const id: Messages = {
   actionDone: {
+    heads_up: 'Mengerti',
     commitment: 'Selesai',
     confirm: 'Sudah saya konfirmasi',
     follow_up: 'Sudah saya tindak lanjuti',
@@ -22,6 +23,7 @@ export const id: Messages = {
     sign: 'Tanda tangani',
   },
   actionKind: {
+    heads_up: 'Perhatian',
     cleanup: 'Berhenti dari semua',
     consent: 'Setujui',
     commitment: 'Dijanjikan',
@@ -766,6 +768,8 @@ export const id: Messages = {
     toLine: (recipients: string) => `kepada ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `${percent}% pembacanya di Fewmail berhenti berlangganan`,
     unsubscribeHint: (emails: string) =>
       `Fewmail keluar dari milis ini dan mengarsipkan semua yang dikirimnya (${emails} bulan ini). Berhenti berlangganan tidak bisa dibatalkan.`,
     archivedOnly:
@@ -851,7 +855,16 @@ export const id: Messages = {
     upgrade: 'Paket lain',
     usage: 'Bulan ini',
   },
+  headsUp: {
+    deadline: 'Hari terakhir segera',
+    notYet: 'Belum ada kabar sejak itu',
+    price: 'Harga naik',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${to}, sebelumnya ${from}`,
+    promised: 'Dijanjikan untukmu',
+  },
   people: {
+    owed: 'Berjanji padamu',
     firstContact: (date: string) => `Berkirim email sejak ${date}`,
     lastContact: (date: string) => `Email terakhir ${date}`,
     open: 'Menunggu di utas lain',
@@ -883,6 +896,8 @@ export const id: Messages = {
     noReply: 'Belum dibalas',
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} menyembunyikan instruksi untuk asisten pembaca email di email ini. Agen mengabaikannya; jangan teruskan dan jangan lakukan yang dimintanya.`,
     known_phishing: (domain: string) =>
       `${domain} ada di daftar publik situs phishing aktif. Jangan klik tautan, masuk, atau membayar.`,
     lookalike_domain: (domain: string) =>
@@ -1109,7 +1124,7 @@ export const id: Messages = {
       copy: 'Salin URL',
       lead: 'Hubungkan Fewmail sebagai server MCP dan tanyakan emailmu dari AI yang sudah kamu pakai. Membaca email dan penyortiran oleh agen gratis; draf, pengiriman, dan aturan ada di Pro.',
       safety:
-        'Apa pun yang mengirim email atau mengubah Gmail meminta persetujuanmu dulu. Emailmu tidak pernah dipakai melatih model, dan aplikasi apa pun bisa diputus di Pengaturan.',
+        'Apa pun yang mengirim email atau mengubah Gmail meminta persetujuanmu dulu. Email yang mencoba memerintah asisten ditandai sebelum asisten membacanya. Emailmu tidak pernah dipakai melatih model, dan aplikasi apa pun bisa diputus di Pengaturan.',
       steps: {
         chatgpt:
           'Di Settings, tambahkan konektor (app) dengan URL ini, lalu masuk ke Fewmail.',

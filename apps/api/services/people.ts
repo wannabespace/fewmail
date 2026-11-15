@@ -166,7 +166,7 @@ const latestConversations = (userId: string, email: string) =>
 /** Everything the user's mail knows about one person; the note is Pro, refreshed at most weekly in the background. */
 export const getPerson = async (userId: string, rawEmail: string) => {
   const email = rawEmail.trim().toLowerCase()
-  const [stats, conversations, open, promised, recent, [stored]] =
+  const [stats, conversations, open, promises, recent, [stored]] =
     await Promise.all([
       personStats(userId, email),
       latestConversations(userId, email),
@@ -197,6 +197,7 @@ export const getPerson = async (userId: string, rawEmail: string) => {
         .select({
           dueAt: commitments.dueAt,
           id: commitments.id,
+          kind: commitments.kind,
           promise: commitments.promise,
           threadId: commitments.threadId,
         })
@@ -205,6 +206,7 @@ export const getPerson = async (userId: string, rawEmail: string) => {
           and(
             eq(commitments.userId, userId),
             eq(commitments.recipient, email),
+            inArray(commitments.kind, ['mine', 'theirs']),
             inArray(commitments.status, ['open', 'reminded'])
           )
         ),
@@ -235,7 +237,8 @@ export const getPerson = async (userId: string, rawEmail: string) => {
     email,
     note: stored?.note ?? null,
     open,
-    promised,
+    owed: promises.filter(({ kind }) => kind === 'theirs'),
+    promised: promises.filter(({ kind }) => kind === 'mine'),
   }
 }
 

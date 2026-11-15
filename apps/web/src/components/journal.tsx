@@ -166,7 +166,7 @@ export const Journal = ({
                 action.title || t.actionKind[action.kind],
                 // A rule's action carries the rule as its reason: `who` already names it. A promise's reason is only its recipient.
                 !rule &&
-                  (action.kind === 'commitment'
+                  (action.kind === 'commitment' || action.kind === 'heads_up'
                     ? action.detail
                     : action.reason || summary),
               ]

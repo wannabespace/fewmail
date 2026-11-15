@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const ja: Messages = {
   actionDone: {
+    heads_up: '確認しました',
     commitment: '完了',
     confirm: '確認しました',
     follow_up: 'フォローしました',
@@ -22,6 +23,7 @@ export const ja: Messages = {
     sign: '署名する',
   },
   actionKind: {
+    heads_up: 'お知らせ',
     cleanup: 'すべて配信停止',
     consent: '承認',
     commitment: '約束',
@@ -507,6 +509,7 @@ export const ja: Messages = {
     toLine: (recipients: string) => `宛先: ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) => `Fewmailの読者の${percent}%が配信を停止`,
     unsubscribeHint: (emails: string) =>
       `Fewmailがリストから登録解除し、送られたメールをすべてアーカイブします（今月は${emails}）。配信停止は元に戻せません。`,
     archivedOnly:
@@ -828,7 +831,7 @@ export const ja: Messages = {
       copy: 'URL をコピー',
       lead: 'Fewmail を MCP サーバーとしてつなげば、使い慣れた AI からメールについて聞けます。メールの閲覧とエージェントによる仕分けは無料。下書き、送信、ルールは Pro で使えます。',
       safety:
-        'メールの送信や Gmail の変更は、必ず先にあなたの承認を求めます。メールがモデルの学習に使われることはなく、どのアプリも設定から切断できます。',
+        'メールの送信や Gmail の変更は、必ず先にあなたの承認を求めます。アシスタントに命令しようとするメールは、読まれる前に警告が付きます。メールがモデルの学習に使われることはなく、どのアプリも設定から切断できます。',
       steps: {
         chatgpt:
           'Settings でこの URL のコネクタ（アプリ）を追加し、Fewmail にサインインします。',
@@ -1753,7 +1756,16 @@ export const ja: Messages = {
   commitments: {
     title: 'あなたの約束',
   },
+  headsUp: {
+    deadline: 'もうすぐ期限',
+    notYet: 'その後まだ届いていません',
+    price: '値上がり',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${from} → ${to}`,
+    promised: 'あなたへの約束',
+  },
   people: {
+    owed: '相手の約束',
     firstContact: (date: string) => `${date}からやり取り`,
     lastContact: (date: string) => `最後のメール：${date}`,
     open: '他のスレッドで保留中',
@@ -1761,6 +1773,8 @@ export const ja: Messages = {
     threads: (total: number) => `${total}件の会話`,
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} はこのメールに、メールを読むアシスタント向けの指示を隠しています。エージェントは無視します。転送したり、指示どおりにしたりしないでください。`,
     known_phishing: (domain: string) =>
       `${domain} は稼働中のフィッシングサイトの公開リストに載っています。リンクを開いたり、ログインや支払いをしたりしないでください。`,
     lookalike_domain: (domain: string) =>

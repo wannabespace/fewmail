@@ -44,6 +44,7 @@ export {
   domainAges,
   domainSightings,
   knownDomains,
+  listSightings,
   paymentDetails,
   patternReports,
   people,

@@ -789,10 +789,7 @@ const applyActionSideEffects = async (
     const senders = (action.payload?.senders ?? []) as CleanupSender[]
     await runCleanup(userId, senders)
   }
-  if (
-    action.kind === 'commitment' &&
-    typeof action.payload?.commitmentId === 'string'
-  ) {
+  if (typeof action.payload?.commitmentId === 'string') {
     await db
       .update(commitments)
       .set({ status: 'done' })
@@ -919,6 +916,12 @@ export const restoreAction = async (userId: string, actionId: string) => {
 const FOLLOW_UP_INSTRUCTION =
   'Nobody has answered the last email yet: write a short, friendly nudge to the same people that brings it back up, without repeating it.'
 
+/** A chased promise carries what was promised as its reason (`processDueCommitments`). */
+const followUpInstruction = (action: typeof actions.$inferSelect) =>
+  typeof action.payload?.commitmentId === 'string'
+    ? `They promised this and it has not come yet: ${action.reason}. Write a short, friendly nudge asking about it, without repeating their email.`
+    : FOLLOW_UP_INSTRUCTION
+
 export const redraftAction = async (
   userId: string,
   actionId: string,
@@ -931,7 +934,7 @@ export const redraftAction = async (
   const isFollowUp = action.kind === 'follow_up'
   const detail = await writeReply({
     instruction: isFollowUp
-      ? (instruction ?? FOLLOW_UP_INSTRUCTION)
+      ? (instruction ?? followUpInstruction(action))
       : instruction,
     message,
     previousDraft: action.detail ?? undefined,

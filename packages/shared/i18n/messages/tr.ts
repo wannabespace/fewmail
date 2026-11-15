@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const tr: Messages = {
   actionDone: {
+    heads_up: 'Anladım',
     commitment: 'Tamam',
     confirm: 'Onayladım',
     follow_up: 'Takip ettim',
@@ -22,6 +23,7 @@ export const tr: Messages = {
     sign: 'İmzala',
   },
   actionKind: {
+    heads_up: 'Bilgi',
     cleanup: 'Hepsinden çık',
     consent: 'Onayla',
     commitment: 'Söz verildi',
@@ -762,6 +764,8 @@ export const tr: Messages = {
     toLine: (recipients: string) => `alıcı: ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `Fewmail okurlarının %${percent} kadarı abonelikten çıktı`,
     unsubscribeHint: (emails: string) =>
       `Fewmail listeden çıkar ve gönderdiği her şeyi arşivler (bu ay ${emails}). Abonelikten çıkma geri alınamaz.`,
     archivedOnly:
@@ -847,7 +851,16 @@ export const tr: Messages = {
     upgrade: 'Diğer planlar',
     usage: 'Bu ay',
   },
+  headsUp: {
+    deadline: 'Son gün yaklaşıyor',
+    notYet: 'O zamandan beri bir şey gelmedi',
+    price: 'Fiyat arttı',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${from} yerine ${to}`,
+    promised: 'Sana verilen söz',
+  },
   people: {
+    owed: 'Sana söz verdi',
     firstContact: (date: string) => `${date} tarihinden beri yazışıyorsunuz`,
     lastContact: (date: string) => `Son e-posta ${date}`,
     open: 'Diğer yazışmalarda bekliyor',
@@ -879,6 +892,8 @@ export const tr: Messages = {
     noReply: 'Henüz yanıt yok',
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} bu e-postaya, e-posta okuyan asistanlar için talimatlar gizlemiş. Ajan bunları yok sayar; iletme ve istediğini yapma.`,
     known_phishing: (domain: string) =>
       `${domain} etkin oltalama sitelerinin herkese açık listesinde. Bağlantılara tıklama, giriş yapma ve ödeme yapma.`,
     lookalike_domain: (domain: string) =>
@@ -1106,7 +1121,7 @@ export const tr: Messages = {
       copy: 'URL’yi kopyala',
       lead: 'Fewmail’i MCP sunucusu olarak bağla ve zaten kullandığın yapay zekâdan postanı sor. Postanı okumak ve ajanın sıralaması ücretsiz; taslak, gönderme ve kurallar Pro ile gelir.',
       safety:
-        'E-posta gönderen ya da Gmail’i değiştiren her şey önce onayını ister. Postan hiçbir zaman model eğitmek için kullanılmaz ve her uygulamanın bağlantısını ayarlardan kesebilirsin.',
+        'E-posta gönderen ya da Gmail’i değiştiren her şey önce onayını ister. Asistana emir vermeye çalışan bir e-posta, asistan onu okumadan önce işaretlenir. Postan hiçbir zaman model eğitmek için kullanılmaz ve her uygulamanın bağlantısını ayarlardan kesebilirsin.',
       steps: {
         chatgpt:
           'Settings’te bu URL ile bir bağlayıcı (uygulama) ekle, sonra Fewmail’e giriş yap.',

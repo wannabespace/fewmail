@@ -4,6 +4,7 @@ import type { Messages } from './en'
 
 export const hi: Messages = {
   actionDone: {
+    heads_up: 'समझ गया',
     commitment: 'हो गया',
     confirm: 'मैंने पुष्टि कर दी',
     follow_up: 'मैंने फ़ॉलो-अप किया',
@@ -22,6 +23,7 @@ export const hi: Messages = {
     sign: 'साइन करें',
   },
   actionKind: {
+    heads_up: 'ध्यान दें',
     cleanup: 'सभी से अनसब्सक्राइब करें',
     consent: 'मंज़ूर करें',
     commitment: 'वादा किया',
@@ -507,6 +509,8 @@ export const hi: Messages = {
     toLine: (recipients: string) => `को: ${recipients}`,
   },
   subscriptions: {
+    leftBy: (percent: number) =>
+      `Fewmail पर इसके ${percent}% पाठकों ने सदस्यता छोड़ दी`,
     unsubscribeHint: (emails: string) =>
       `Fewmail लिस्ट छोड़ देगा और उसका भेजा सब कुछ आर्काइव करेगा (इस महीने ${emails})। अनसब्सक्राइब को वापस नहीं लिया जा सकता।`,
     archivedOnly:
@@ -821,7 +825,7 @@ export const hi: Messages = {
       copy: 'URL कॉपी करें',
       lead: 'Fewmail को MCP सर्वर की तरह जोड़ें और जिस AI को आप पहले से इस्तेमाल करते हैं, उसी से अपने ईमेल के बारे में पूछें। ईमेल पढ़ना और एजेंट की छँटाई मुफ़्त है; ड्राफ़्ट, भेजना और नियम Pro में हैं।',
       safety:
-        'ईमेल भेजने या Gmail बदलने वाली हर चीज़ पहले आपकी हाँ पूछती है। आपके ईमेल से कभी मॉडल ट्रेन नहीं होते, और किसी भी ऐप को सेटिंग्स में डिस्कनेक्ट किया जा सकता है।',
+        'ईमेल भेजने या Gmail बदलने वाली हर चीज़ पहले आपकी हाँ पूछती है। जो ईमेल सहायक को आदेश देने की कोशिश करता है, उसे सहायक के पढ़ने से पहले चिह्नित कर दिया जाता है। आपके ईमेल से कभी मॉडल ट्रेन नहीं होते, और किसी भी ऐप को सेटिंग्स में डिस्कनेक्ट किया जा सकता है।',
       steps: {
         chatgpt:
           'Settings में इस URL के साथ एक कनेक्टर (ऐप) जोड़ें, फिर Fewmail में साइन इन करें।',
@@ -1760,7 +1764,16 @@ export const hi: Messages = {
   commitments: {
     title: 'आपने वादा किया',
   },
+  headsUp: {
+    deadline: 'आख़िरी दिन क़रीब',
+    notYet: 'तब से कुछ नहीं आया',
+    price: 'कीमत बढ़ गई',
+    priceUp: (what: string, from: string, to: string) =>
+      `${what}: ${from} की जगह अब ${to}`,
+    promised: 'आपसे किया गया वादा',
+  },
   people: {
+    owed: 'आपसे वादा किया',
     firstContact: (date: string) => `${date} से संपर्क में`,
     lastContact: (date: string) => `आखिरी ईमेल ${date}`,
     open: 'दूसरी बातचीत में बाकी',
@@ -1772,6 +1785,8 @@ export const hi: Messages = {
       }),
   },
   risk: {
+    prompt_injection: (domain: string) =>
+      `${domain} ने इस ईमेल में मेल पढ़ने वाले सहायकों के लिए निर्देश छिपाए हैं। एजेंट उन्हें अनदेखा करता है; इसे फ़ॉरवर्ड न करें और इसके कहे अनुसार कुछ न करें।`,
     known_phishing: (domain: string) =>
       `${domain} सक्रिय फ़िशिंग साइटों की सार्वजनिक सूची में है। लिंक न खोलें, साइन इन न करें और भुगतान न करें।`,
     lookalike_domain: (domain: string) =>

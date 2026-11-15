@@ -6,9 +6,11 @@ import {
   reminders,
   userSettings,
 } from '@fewmail/db/schema'
+import { isAutomatedSender } from '@fewmail/shared/agent'
 import type { ReminderKind } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
-import { addDays, addHours } from 'date-fns'
+import type { Messages } from '@fewmail/shared/i18n'
+import { addDays, addHours, subDays } from 'date-fns'
 import { and, asc, desc, eq, gt, inArray, isNotNull, lte } from 'drizzle-orm'
 
 import { localClock } from '../lib/clock'
@@ -289,7 +291,67 @@ const isDueMorning = (dueAt: Date, timezone: string) => {
   return date > dueDate || (date === dueDate && hour >= MORNING_HOUR)
 }
 
-/** A promise surfaces on its due morning as a Home card; approving it closes the commitment. */
+/** A last day comes back this many mornings before it, while there is still time to act on it. */
+const DEADLINE_LEAD_DAYS = 3
+
+type Commitment = typeof commitments.$inferSelect
+
+const surfacesOn = (commitment: Commitment) =>
+  commitment.kind === 'deadline'
+    ? subDays(commitment.dueAt, DEADLINE_LEAD_DAYS)
+    : commitment.dueAt
+
+/** Keep your own promise; chase theirs (a person gets a nudge to write, a service only a heads-up, since nobody reads its replies); act before a last day. */
+const cardOf = (commitment: Commitment, t: Messages) => {
+  const base = {
+    autonomous: false,
+    messageId: commitment.messageId,
+    payload: { commitmentId: commitment.id },
+    status: 'pending' as const,
+    threadId: commitment.threadId,
+    userId: commitment.userId,
+  }
+  if (commitment.kind === 'mine') {
+    return {
+      ...base,
+      detail: commitment.promise,
+      kind: 'commitment' as const,
+      reason: commitment.recipient ?? '',
+      title: t.commitments.title,
+    }
+  }
+  if (commitment.kind === 'deadline') {
+    return {
+      ...base,
+      detail: commitment.promise,
+      kind: 'heads_up' as const,
+      reason: '',
+      title: t.headsUp.deadline,
+    }
+  }
+  if (commitment.recipient && !isAutomatedSender(commitment.recipient)) {
+    return {
+      ...base,
+      kind: 'follow_up' as const,
+      reason: commitment.promise,
+      title: t.reminders.followUp,
+    }
+  }
+  return {
+    ...base,
+    detail: commitment.promise,
+    kind: 'heads_up' as const,
+    reason: t.headsUp.notYet,
+    title: t.headsUp.promised,
+  }
+}
+
+/** A promise made to the user is kept when anyone in the thread wrote since; nothing to chase then. */
+const isKept = (commitment: Commitment) =>
+  commitment.kind === 'theirs' &&
+  hasReplySince(commitment.userId, commitment.threadId, commitment.createdAt)
+
+/** A commitment surfaces on its morning as a Home card; approving it closes the commitment. */
 export const processDueCommitments = async () => {
   const candidates = await db
     .select({
@@ -302,20 +364,27 @@ export const processDueCommitments = async () => {
     .where(
       and(
         eq(commitments.status, 'open'),
-        lte(commitments.dueAt, addHours(new Date(), MAX_UTC_OFFSET_HOURS)),
+        lte(
+          commitments.dueAt,
+          addDays(
+            addHours(new Date(), MAX_UTC_OFFSET_HOURS),
+            DEADLINE_LEAD_DAYS
+          )
+        ),
         hasAgentSql(commitments.userId)
       )
     )
   await Promise.all(
     candidates
       .filter(({ commitment, timezone }) =>
-        isDueMorning(commitment.dueAt, timezone ?? 'UTC')
+        isDueMorning(surfacesOn(commitment), timezone ?? 'UTC')
       )
       .map(async ({ commitment, language }) => {
+        const kept = await isKept(commitment)
         // Claim before inserting: a failure after the insert must not surface it again next minute.
         const [claimed] = await db
           .update(commitments)
-          .set({ status: 'reminded' })
+          .set({ status: kept ? 'done' : 'reminded' })
           .where(
             and(
               eq(commitments.id, commitment.id),
@@ -323,21 +392,12 @@ export const processDueCommitments = async () => {
             )
           )
           .returning({ id: commitments.id })
-        if (!claimed) {
+        if (!claimed || kept) {
           return
         }
-        await db.insert(actions).values({
-          autonomous: false,
-          detail: commitment.promise,
-          kind: 'commitment',
-          messageId: commitment.messageId,
-          payload: { commitmentId: commitment.id },
-          reason: commitment.recipient ?? '',
-          status: 'pending',
-          threadId: commitment.threadId,
-          title: dictionaries[language ?? 'en'].commitments.title,
-          userId: commitment.userId,
-        })
+        await db
+          .insert(actions)
+          .values(cardOf(commitment, dictionaries[language ?? 'en']))
         await announceChange(commitment.userId, ['actions', 'person', 'today'])
       })
   )

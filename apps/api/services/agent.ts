@@ -1,5 +1,12 @@
 import { db } from '@fewmail/db'
-import { actions, analyses, messages, rules, users } from '@fewmail/db/schema'
+import {
+  actions,
+  analyses,
+  commitments,
+  messages,
+  rules,
+  users,
+} from '@fewmail/db/schema'
 import {
   GMAIL_EFFECTS,
   IMPORTANCE,
@@ -26,6 +33,7 @@ import type { Locale } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { Result } from 'better-result'
+import { addDays } from 'date-fns'
 import { and, desc, eq, gt, inArray, isNotNull, lt } from 'drizzle-orm'
 
 import {
@@ -74,6 +82,12 @@ const textSchema = type({
     meetingStart: 'string | null',
     meetingTime: 'string | null',
   },
+  later: {
+    deadline: 'string | null',
+    deadlineDate: 'string | null',
+    promise: 'string | null',
+    promiseDue: 'string | null',
+  },
   reason: 'string',
   summary: 'string',
 })
@@ -99,6 +113,10 @@ const labelExamples = (language: Locale) => {
 /** `meetingStart` is what a schedule card puts in the calendar, so it must be the time the email names; the web formats `amount` only in exactly this shape. */
 const extractedInstruction = (timezone: string) =>
   `extracted: the amount the user pays or is paid (never a promotion's price or threshold) as a plain number and its ISO 4217 code ("1250.00 USD", "2499 UAH"), a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect or a sale ends), the first proposed meeting time as a short date and start time in the language of the email ("18 Nov, 18:00"), never a sentence, and that meeting's start as YYYY-MM-DDTHH:mm in the user's time zone (${timezone}), converted only when the email names another zone, else null. Never invent anything.`
+
+/** What comes back to the user later as a card (`processDueCommitments`): a promise made to them, a last day nobody will remind them of. */
+const laterInstruction = (language: Locale) =>
+  `later: promise: what the sender promises to do for the user later (send, refund, call back, deliver, fix), one short line in ${englishName(language)} naming who promised what ("Anna promised the signed contract"), never a promotion, a newsletter or a routine notice; promiseDue: its date as YYYY-MM-DD when the email gives or implies one, counted from the email's date, else null. deadline: a last day the email implies without asking the user to act by it: the end of a return window for what was bought, the day a free trial turns into a paid plan, the end of a warranty; one short line in ${englishName(language)} with the date written as people write it ("Last day to return the headphones: 18 November"); deadlineDate: that date as YYYY-MM-DD. Each null when absent; never invent anything.`
 
 /** A summary that reads as a to-do must never pass a fraudster's instructions on. */
 const summaryStyle = (language: Locale) =>
@@ -129,6 +147,7 @@ export const analyzeInstructions = (input: {
     INFORMAL_ADDRESS,
     NO_EM_DASH,
     extractedInstruction(input.timezone),
+    laterInstruction(input.language),
     '',
     input.rules.length > 0
       ? `User rules. Set ruleId to the id of the first rule this email clearly matches, else null:\n${input.rules
@@ -436,6 +455,7 @@ const analyze = async (input: {
         ...(decisions.category === 'newsletter' ? [NEWSLETTER_SUMMARY] : []),
         summaryStyle(input.settings.language),
         extractedInstruction(input.settings.timezone),
+        laterInstruction(input.settings.language),
         INFORMAL_ADDRESS,
         NO_EM_DASH,
       ].join('\n'),
@@ -586,6 +606,66 @@ const cardPayload = async (
   }
   const link = await pickLink(message, output.summary)
   return link && { link }
+}
+
+/** "I'll get back to you" without a date still means within days. */
+const THEIR_PROMISE_DAYS = 3
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}/u
+
+const dayOf = (date: string | null) =>
+  date && ISO_DAY.test(date) && !Number.isNaN(Date.parse(date.slice(0, 10)))
+    ? date.slice(0, 10)
+    : null
+
+/** A promise made to the user and a last day the email implies come back as cards when due (`processDueCommitments`). */
+const rememberLater = async (
+  message: Message,
+  later: (typeof textSchema.infer)['later']
+) => {
+  if (message.risk || message.isFromMe) {
+    return
+  }
+  const today = new Date().toISOString().slice(0, 10)
+  const deadline = dayOf(later.deadlineDate)
+  const rows = [
+    ...(later.promise
+      ? [
+          {
+            dueAt: new Date(
+              dayOf(later.promiseDue) ??
+                addDays(message.receivedAt, THEIR_PROMISE_DAYS)
+                  .toISOString()
+                  .slice(0, 10)
+            ),
+            kind: 'theirs' as const,
+            promise: later.promise,
+            recipient: message.fromEmail,
+          },
+        ]
+      : []),
+    ...(later.deadline && deadline && deadline >= today
+      ? [
+          {
+            dueAt: new Date(deadline),
+            kind: 'deadline' as const,
+            promise: later.deadline,
+            recipient: null,
+          },
+        ]
+      : []),
+  ]
+  if (rows.length === 0) {
+    return
+  }
+  await db.insert(commitments).values(
+    rows.map((row) => ({
+      ...row,
+      messageId: message.id,
+      status: 'open' as const,
+      threadId: message.threadId,
+      userId: message.userId,
+    }))
+  )
 }
 
 /** Its newer email carries the conversation's card, even when this one's analysis finishes later. */
@@ -783,6 +863,9 @@ export const analyzeMessage = async (
   await applyAgentLabel(message, output.category).catch((error) =>
     logError('agent label failed', error)
   )
+  if ('later' in output) {
+    await rememberLater(message, output.later)
+  }
 
   const base = {
     messageId: message.id,

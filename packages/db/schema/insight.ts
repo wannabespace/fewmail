@@ -1,6 +1,7 @@
 import type {
   BoardChart,
   BoardPeriod,
+  CommitmentKind,
   DomainList,
   PatternKind,
   SpamVerdict,
@@ -70,6 +71,17 @@ export const domainSightings = d.snakeCase.table(
   ]
 )
 
+/** Who gets a mailing list, as keyed hashes of both: with `unsubscribes` it tells what share of its readers left it. */
+export const listSightings = d.snakeCase.table(
+  'list_sightings',
+  {
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    listHash: d.text().notNull(),
+    userHash: d.text().notNull(),
+  },
+  (table) => [d.primaryKey({ columns: [table.listHash, table.userHash] })]
+)
+
 /** Hashes of payment details (IBAN, account, wallet) a sender domain used before, per user. */
 export const paymentDetails = d.snakeCase.table(
   'payment_details',
@@ -91,6 +103,7 @@ export const commitments = d.snakeCase.table(
   {
     ...baseTable,
     dueAt: d.timestamp({ withTimezone: true }).notNull(),
+    kind: d.text().$type<CommitmentKind>().notNull().default('mine'),
     messageId: d.uuid().references(() => messages.id, { onDelete: 'cascade' }),
     promise: encryptedText().notNull(),
     recipient: searchableText(),
