@@ -960,15 +960,19 @@ const MailRowCode = ({
     />
   )
 
+// Read mail sinks into the page, as in Gmail: a dimmer fill, muted text and a faded icon, so unread rows stand out at a glance.
 const rowSurfaceOf = ({
   isActive,
   isOpen,
+  isUnread,
 }: {
   isActive: boolean
   isOpen: boolean
+  isUnread: boolean
 }) =>
   cn(
     'group relative border-b',
+    !isUnread && 'bg-background',
     isActive ? 'bg-accent' : 'hover:bg-accent',
     isOpen && 'bg-secondary hover:bg-secondary'
   )
@@ -993,6 +997,9 @@ const RowPick = ({
     <Checkbox {...props} />
   </span>
 )
+
+const readIconOf = (isUnread: boolean) =>
+  cn('flex shrink-0', !isUnread && 'opacity-50')
 
 const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
   cn(
@@ -1023,9 +1030,9 @@ interface CardEdge {
 const cardPieceOf = (edge: CardEdge | null) =>
   edge &&
   cn(
-    'bg-popover border-x-foreground/4 border-x',
-    edge.isFirst && 'border-t-foreground/4 rounded-t-xl border-t',
-    edge.isLast && 'border-b-foreground/4 rounded-b-xl shadow-xs'
+    'bg-popover border-foreground/6 border-x',
+    edge.isFirst && 'rounded-t-xl border-t',
+    edge.isLast && 'rounded-b-xl shadow-xs'
   )
 
 const ListWindowContext = createContext<{
@@ -1270,6 +1277,7 @@ const RelatedRow = ({
       className={rowSurfaceOf({
         isActive: isCursor,
         isOpen,
+        isUnread: message.isUnread,
       })}
     >
       <button
@@ -1286,7 +1294,7 @@ const RelatedRow = ({
           data-mask
           className={cn(
             'min-w-0 flex-1 truncate',
-            message.isUnread ? 'font-medium' : 'text-foreground/60'
+            message.isUnread ? 'font-medium' : 'text-muted-foreground'
           )}
         >
           {message.subject}
@@ -1354,8 +1362,8 @@ const BurstList = ({
                 email.risk && 'text-destructive font-medium',
                 !email.risk &&
                   (email.isUnread
-                    ? 'text-foreground/90 font-medium'
-                    : 'text-foreground/60')
+                    ? 'text-foreground font-medium'
+                    : 'text-muted-foreground')
               )}
             >
               {email.subject}
@@ -1474,6 +1482,7 @@ const MailRow = ({
       className={rowSurfaceOf({
         isActive: isCursor || isPicked || isSnoozeOpen,
         isOpen,
+        isUnread: message.isUnread,
       })}
     >
       <button
@@ -1493,14 +1502,16 @@ const MailRow = ({
           aria-label={message.isUnread ? t.mail.unread : undefined}
           className={unreadDotOf(message.isUnread, isPicking)}
         />
-        <SenderAvatar sender={message} size="sm" />
+        <span className={readIconOf(message.isUnread)}>
+          <SenderAvatar sender={message} size="sm" />
+        </span>
         <span className="ml-1 flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="flex items-center gap-2 text-sm">
             <span
               data-mask
               className={cn(
                 'min-w-0 truncate',
-                message.isUnread ? 'font-semibold' : 'text-foreground/70'
+                message.isUnread ? 'font-semibold' : 'text-muted-foreground'
               )}
             >
               {message.fromName ?? message.fromEmail}
@@ -1560,8 +1571,8 @@ const MailRow = ({
                 'truncate text-sm',
                 codeRoom,
                 message.isUnread
-                  ? 'text-foreground/90 font-medium'
-                  : 'text-foreground/60'
+                  ? 'text-foreground font-medium'
+                  : 'text-muted-foreground'
               )}
             >
               {message.subject}
@@ -1635,6 +1646,7 @@ const PinnedRow = ({
       className={rowSurfaceOf({
         isActive: isCursor || isPicked || isSnoozeOpen,
         isOpen,
+        isUnread: message.isUnread,
       })}
     >
       <button
@@ -1651,12 +1663,14 @@ const PinnedRow = ({
           aria-label={message.isUnread ? t.mail.unread : undefined}
           className={unreadDotOf(message.isUnread, isPicking)}
         />
-        <SenderAvatar sender={message} />
+        <span className={readIconOf(message.isUnread)}>
+          <SenderAvatar sender={message} />
+        </span>
         <span
           data-mask
           className={cn(
             'max-w-2/5 shrink-0 truncate',
-            message.isUnread ? 'font-semibold' : 'text-foreground/70'
+            message.isUnread ? 'font-semibold' : 'text-muted-foreground'
           )}
         >
           {message.fromName ?? message.fromEmail}
@@ -1665,7 +1679,7 @@ const PinnedRow = ({
           data-mask
           className={cn(
             'min-w-0 flex-1 truncate',
-            message.isUnread ? 'text-foreground/90' : 'text-foreground/60'
+            message.isUnread ? 'text-foreground' : 'text-muted-foreground'
           )}
         >
           {message.subject}

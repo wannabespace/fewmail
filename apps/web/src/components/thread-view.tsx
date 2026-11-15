@@ -52,6 +52,7 @@ import {
   MailReply01Icon,
   PinIcon,
   PinOffIcon,
+  Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
@@ -1865,10 +1866,12 @@ export const ThreadView = ({
 }
 
 interface StackEmail {
+  extracted?: Parameters<typeof ExtractedChips>[0]['extracted']
   fromEmail: string
   fromName: string | null
   id: string
   receivedAt: Date
+  risk?: unknown
   subject: string
   threadId: string
 }
@@ -2014,12 +2017,26 @@ export const StackView = ({
               <AccordionItem key={email.id} value={email.id}>
                 <AccordionTrigger>
                   <SenderAvatar sender={email} size="sm" />
+                  {Boolean(email.risk) && (
+                    <HugeiconsIcon
+                      icon={Shield01Icon}
+                      strokeWidth={2}
+                      aria-label={t.risk.title}
+                      className="text-destructive size-3.5 shrink-0"
+                    />
+                  )}
                   <span
                     data-mask
-                    className="min-w-0 flex-1 truncate text-sm font-medium"
+                    className={cn(
+                      'min-w-0 flex-1 truncate text-sm font-medium',
+                      Boolean(email.risk) && 'text-destructive'
+                    )}
                   >
                     {email.subject}
                   </span>
+                  {email.extracted && (
+                    <ExtractedChips extracted={email.extracted} size="sm" />
+                  )}
                   <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
                     {dates.format(
                       email.receivedAt,

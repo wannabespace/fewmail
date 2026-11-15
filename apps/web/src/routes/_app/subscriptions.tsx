@@ -117,7 +117,10 @@ const SubscriptionStack = ({
   }
   return (
     <StackView
-      emails={data.map(({ message }) => message)}
+      emails={data.map(({ analysis, message }) => ({
+        ...message,
+        extracted: analysis?.extracted,
+      }))}
       isSnoozed={false}
       place="inbox"
       onClose={onClose}
