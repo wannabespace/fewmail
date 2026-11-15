@@ -6,9 +6,16 @@ import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
-import { Empty, EmptyDescription } from '@fewmail/ui/components/empty'
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@fewmail/ui/components/empty'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import { MailRemove01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import {
   useInfiniteQuery,
@@ -226,7 +233,12 @@ const SubscriptionsPage = () => {
 
           {!isPending && rows.length === 0 && (
             <Empty>
-              <EmptyDescription>{t.subscriptions.empty}</EmptyDescription>
+              <EmptyHeader>
+                <EmptyMedia variant="muted">
+                  <HugeiconsIcon icon={MailRemove01Icon} />
+                </EmptyMedia>
+                <EmptyTitle>{t.subscriptions.empty}</EmptyTitle>
+              </EmptyHeader>
             </Empty>
           )}
           {rows.length > 0 && (
