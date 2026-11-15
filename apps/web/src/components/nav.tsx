@@ -508,7 +508,7 @@ const LabelRow = ({ label }: { label: LabelNode }) => {
   )
 }
 
-/** Gmail's folders, then the user's own labels, each opening the Mail search for it: a branch of Mail, open while Mail is. */
+/** Gmail's folders, then the user's own labels, each opening the Mail search for it: a branch of Mail, open while Mail is or a saved draft is being edited. */
 const MailFolders = () => {
   const t = useT()
   const [isShowingAll, setIsShowingAll] = useState(false)
@@ -778,8 +778,11 @@ export const Sidebar = ({
   const pathname = useRouterState({
     select: ({ location }) => location.pathname,
   })
+  const isEditingDraft = useRouterState({
+    select: ({ location }) => Boolean(location.state.compose?.gmailDraft),
+  })
   const { filter, q } = useSearch({ strict: false })
-  const isOnMail = pathname.startsWith('/mail')
+  const isOnMail = pathname.startsWith('/mail') || isEditingDraft
   const isInFolder =
     FOLDER_ITEMS.some((item) => item.filter === filter) ||
     Boolean(q?.startsWith('label:'))

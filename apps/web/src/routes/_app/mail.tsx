@@ -913,29 +913,13 @@ interface CardEdge {
 }
 
 // A group's rows are one `SettingsGroup` card drawn row by row, since the window renders rows, never their group: no margins here, the window measures borders but not margins.
-// Its edge is drawn by shadows that never overlap, as a ring per row did at every rule and under the sticky header: the sides beside each row, the top inside the first row (the header lies over anything above it), the bottom and the card's shadow under the last.
-const CARD_EDGES = {
-  first:
-    'shadow-[inset_0_1px_var(--edge),-1px_0_var(--edge),1px_0_var(--edge)]',
-  last: 'shadow-[-1px_0_var(--edge),1px_0_var(--edge),0_1px_var(--edge),0_2px_4px_0_rgb(60_40_20/0.03)]',
-  middle: 'shadow-[-1px_0_var(--edge),1px_0_var(--edge)]',
-  only: 'shadow-[inset_0_1px_var(--edge),-1px_0_var(--edge),1px_0_var(--edge),0_1px_var(--edge),0_2px_4px_0_rgb(60_40_20/0.03)]',
-}
-
-const cardEdgeOf = ({ isFirst, isLast }: CardEdge) => {
-  if (isFirst) {
-    return isLast ? CARD_EDGES.only : CARD_EDGES.first
-  }
-  return isLast ? CARD_EDGES.last : CARD_EDGES.middle
-}
-
+// Its edge is real borders, never offset shadows: those taper to nothing around the rounded corners and the sides never meet the top and bottom.
 const cardPieceOf = (edge: CardEdge | null) =>
   edge &&
   cn(
-    'bg-popover border-foreground/6 [--edge:color-mix(in_oklab,var(--color-foreground)_4%,transparent)]',
-    cardEdgeOf(edge),
-    edge.isFirst && 'rounded-t-xl',
-    edge.isLast && 'rounded-b-xl'
+    'bg-popover border-foreground/6 border-x',
+    edge.isFirst && 'rounded-t-xl border-t',
+    edge.isLast && 'rounded-b-xl border-b shadow-xs'
   )
 
 const ListWindowContext = createContext<{
@@ -966,7 +950,6 @@ const ListRow = ({
         'mx-auto w-full max-w-3xl',
         cardPieceOf(edge),
         className,
-        edge?.isLast && 'border-b-0',
         !isPresent && 'pointer-events-none overflow-hidden'
       )}
       {...props}
