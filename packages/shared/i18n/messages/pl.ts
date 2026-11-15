@@ -605,6 +605,7 @@ export const pl: Messages = {
     edit: 'edytuj',
     expand: 'rozwiń / zwiń',
     move: 'przejdź',
+    stackEmail: 'następny / poprzedni e-mail',
     open: 'otwórz',
     notOnBoard: 'nie z tej tablicy',
     rename: 'zmień nazwę',

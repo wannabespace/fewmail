@@ -889,6 +889,7 @@ export const es: Messages = {
     edit: 'editar',
     expand: 'desplegar / plegar',
     move: 'mover',
+    stackEmail: 'correo siguiente / anterior',
     open: 'abrir',
     notOnBoard: 'no es de este tablero',
     rename: 'renombrar',

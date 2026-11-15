@@ -889,6 +889,7 @@ export const de: Messages = {
     edit: 'bearbeiten',
     expand: 'aufklappen / zuklappen',
     move: 'bewegen',
+    stackEmail: 'nächste / vorige E-Mail',
     open: 'öffnen',
     notOnBoard: 'nicht auf diesem Board',
     rename: 'umbenennen',

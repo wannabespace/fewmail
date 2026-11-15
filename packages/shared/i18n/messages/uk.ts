@@ -889,6 +889,7 @@ export const uk: Messages = {
     edit: 'змінити',
     expand: 'розгорнути / згорнути',
     move: 'рух',
+    stackEmail: 'наступний / попередній лист',
     open: 'відкрити',
     notOnBoard: 'не для цієї дошки',
     rename: 'перейменувати',

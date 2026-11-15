@@ -321,6 +321,7 @@ export const ko: Messages = {
     edit: '편집',
     expand: '펼치기 / 접기',
     move: '이동',
+    stackEmail: '다음 / 이전 메일',
     open: '열기',
     notOnBoard: '이 보드에서 빼기',
     rename: '이름 바꾸기',

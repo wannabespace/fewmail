@@ -21,8 +21,9 @@ import {
   useInfiniteQuery,
   useMutation,
   useMutationState,
+  useQuery,
 } from '@tanstack/react-query'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
@@ -31,9 +32,11 @@ import { toast } from 'sonner'
 import { confirm } from '~/components/confirm-dialog'
 import { KeyHints } from '~/components/key-hints'
 import { SenderAvatar } from '~/components/sender-avatar'
+import { StackView } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 import { offerBlock } from '~/lib/offer-block'
 import { orpc, refetchChanged } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 import { queryClient } from '~/lib/query-client'
 
 type Subscription = RouterOutputs['subscriptions']['list']['rows'][number]
@@ -87,6 +90,79 @@ const RowsGap = ({ height }: { height: number }) => (
   />
 )
 
+/** A sender's emails beside the list, newest first, as one stack: N / P step through them, U leaves the list. */
+const SubscriptionStack = ({
+  isLeaving,
+  onClose,
+  onLeave,
+  row,
+}: {
+  isLeaving: boolean
+  onClose: () => void
+  onLeave: () => void
+  row: Subscription
+}) => {
+  const t = useT()
+  const { data } = useQuery(
+    orpc.mail.list.queryOptions({
+      input: { filter: 'inbox', search: listSearch(row) },
+    })
+  )
+  if (!data) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Spinner label={t.nav.loading} />
+      </div>
+    )
+  }
+  return (
+    <StackView
+      emails={data.map(({ message }) => message)}
+      isSnoozed={false}
+      place="inbox"
+      onClose={onClose}
+      onDone={() => {
+        onClose()
+        refetchChanged(['subscriptions'])
+      }}
+    >
+      <Button
+        size="sm"
+        variant="secondary"
+        disabled={isLeaving}
+        onClick={onLeave}
+        shortcut={<Kbd>U</Kbd>}
+      >
+        <LoadingContent loading={isLeaving}>
+          {t.subscriptions.unsubscribe}
+        </LoadingContent>
+      </Button>
+    </StackView>
+  )
+}
+
+const hintsOf = (
+  t: ReturnType<typeof useT>,
+  isActive: boolean,
+  isStackOpen: boolean
+): [string, string][] => {
+  if (!isActive) {
+    return [['J / K', t.keys.move]]
+  }
+  return isStackOpen
+    ? [
+        ['J / K', t.keys.move],
+        ['N / P', t.keys.stackEmail],
+        ['U', t.keys.unsubscribe],
+        ['esc', t.keys.close],
+      ]
+    : [
+        ['J / K', t.keys.move],
+        ['⏎', t.keys.open],
+        ['U', t.keys.unsubscribe],
+      ]
+}
+
 /** A row's height until it is measured. */
 const ROW_SIZE = 68
 
@@ -95,6 +171,7 @@ const SubscriptionsPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } =
     useInfiniteQuery(subscriptionPages)
   const [cursor, setCursor] = useState<number | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
   const rows = data?.pages.flatMap((page) => page.rows) ?? []
   const total = data?.pages[0]?.total ?? 0
   const activeIndex = cursor === null ? -1 : Math.min(cursor, rows.length - 1)
@@ -132,7 +209,6 @@ const SubscriptionsPage = () => {
   const belowHeight =
     virtualizer.getTotalSize() - ((shown.at(-1)?.end ?? listTop) - listTop)
 
-  const navigate = useNavigate()
   const unsubscribe = useMutation(
     orpc.subscriptions.unsubscribe.mutationOptions({
       // Leaving a list can take a while (its page, a mailto): the row stays, spinning, until the answer.
@@ -201,8 +277,12 @@ const SubscriptionsPage = () => {
       title: t.mail.unsubscribeConfirm(row.fromName ?? row.fromEmail),
       variant: 'warning',
     })
-  const show = (row?: Subscription) =>
-    row && navigate({ search: { q: listSearch(row) }, to: '/mail' })
+  const open = (index: number) => {
+    setCursor(index)
+    setIsOpen(true)
+    posthog.capture('subscription_stack_opened')
+  }
+  const isStackOpen = isOpen && !!active
 
   const listKeys = { enabled: rows.length > 0 }
   const rowKeys = { enabled: Boolean(active) }
@@ -215,104 +295,116 @@ const SubscriptionsPage = () => {
   useHotkey('K', () => step(-1), listKeys)
   useHotkey('ArrowUp', () => step(-1), listKeys)
   useHotkey('U', () => leave(active), rowKeys)
-  useHotkey('O', () => show(active), rowKeys)
-  useHotkey('Enter', () => show(active), rowKeys)
-  useHotkey('Escape', () => setCursor(null), rowKeys)
+  useHotkey('O', () => open(activeIndex), rowKeys)
+  useHotkey('Enter', () => open(activeIndex), rowKeys)
+  useHotkey(
+    'Escape',
+    () => (isStackOpen ? setIsOpen(false) : setCursor(null)),
+    rowKeys
+  )
 
   return (
-    <main className="flex flex-1 flex-col overflow-hidden">
-      <div ref={scrollerRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
-          <header className="flex flex-col gap-3">
-            <h1 className="text-display font-serif tracking-tight">
-              {t.subscriptions.title}
-            </h1>
-            <p className="text-brief text-foreground/85 font-serif">
-              {t.subscriptions.lead}
-            </p>
-          </header>
+    <main className="flex flex-1 overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div ref={scrollerRef} className="flex-1 overflow-y-auto">
+          <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
+            <header className="flex flex-col gap-3">
+              <h1 className="text-display font-serif tracking-tight">
+                {t.subscriptions.title}
+              </h1>
+              <p className="text-brief text-foreground/85 font-serif">
+                {t.subscriptions.lead}
+              </p>
+            </header>
 
-          {!isPending && rows.length === 0 && (
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="muted">
-                  <HugeiconsIcon icon={MailRemove01Icon} />
-                </EmptyMedia>
-                <EmptyTitle>{t.subscriptions.empty}</EmptyTitle>
-              </EmptyHeader>
-            </Empty>
-          )}
-          {rows.length > 0 && (
-            <SettingsGroup title={t.subscriptions.count(total)}>
-              <div ref={listRef} className="flex flex-col">
-                <RowsGap height={(shown[0]?.start ?? listTop) - listTop} />
-                {shown.map((item) => {
-                  const row = rows[item.index]
-                  return (
-                    row && (
-                      <SettingsRow
-                        key={item.key}
-                        ref={virtualizer.measureElement}
-                        data-index={item.index}
-                        active={row === active}
-                        iconVariant="avatar"
-                        icon={<SenderAvatar sender={row} size="sm" />}
-                        title={
-                          <Link
-                            to="/mail"
-                            search={{ q: listSearch(row) }}
-                            data-mask
-                          >
-                            {row.fromName ?? row.fromEmail}
-                          </Link>
-                        }
-                        description={
-                          <>
-                            <span data-mask>{row.fromEmail}</span> ·{' '}
-                            {t.cleanup.emails(row.count)},{' '}
-                            {t.subscriptions.opened(row.opened)}
-                          </>
-                        }
-                      >
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={leaving.has(row.messageId)}
-                          onClick={() => leave(row)}
-                          shortcut={row === active && <Kbd>U</Kbd>}
+            {!isPending && rows.length === 0 && (
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="muted">
+                    <HugeiconsIcon icon={MailRemove01Icon} />
+                  </EmptyMedia>
+                  <EmptyTitle>{t.subscriptions.empty}</EmptyTitle>
+                </EmptyHeader>
+              </Empty>
+            )}
+            {rows.length > 0 && (
+              <SettingsGroup title={t.subscriptions.count(total)}>
+                <div ref={listRef} className="flex flex-col">
+                  <RowsGap height={(shown[0]?.start ?? listTop) - listTop} />
+                  {shown.map((item) => {
+                    const row = rows[item.index]
+                    return (
+                      row && (
+                        <SettingsRow
+                          key={item.key}
+                          ref={virtualizer.measureElement}
+                          data-index={item.index}
+                          active={row === active}
+                          trigger={
+                            <button
+                              type="button"
+                              aria-label={row.fromName ?? row.fromEmail}
+                              onClick={() => open(item.index)}
+                            />
+                          }
+                          iconVariant="avatar"
+                          icon={<SenderAvatar sender={row} size="sm" />}
+                          title={
+                            <span data-mask>
+                              {row.fromName ?? row.fromEmail}
+                            </span>
+                          }
+                          description={
+                            <>
+                              <span data-mask>{row.fromEmail}</span> ·{' '}
+                              {t.cleanup.emails(row.count)},{' '}
+                              {t.subscriptions.opened(row.opened)}
+                            </>
+                          }
                         >
-                          <LoadingContent loading={leaving.has(row.messageId)}>
-                            {t.subscriptions.unsubscribe}
-                          </LoadingContent>
-                        </Button>
-                      </SettingsRow>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={leaving.has(row.messageId)}
+                            onClick={() => leave(row)}
+                            shortcut={row === active && <Kbd>U</Kbd>}
+                          >
+                            <LoadingContent
+                              loading={leaving.has(row.messageId)}
+                            >
+                              {t.subscriptions.unsubscribe}
+                            </LoadingContent>
+                          </Button>
+                        </SettingsRow>
+                      )
                     )
-                  )
-                })}
-                {/* Only while rows are left below: after the last row, the spacer would take its last:border-b-0. */}
-                {belowHeight > 0 && <RowsGap height={belowHeight} />}
-              </div>
-            </SettingsGroup>
-          )}
-          <NextPageLoader
-            hasMore={hasNextPage}
-            isLoading={isFetchingNextPage}
-            load={fetchNextPage}
-          />
+                  })}
+                  {/* Only while rows are left below: after the last row, the spacer would take its last:border-b-0. */}
+                  {belowHeight > 0 && <RowsGap height={belowHeight} />}
+                </div>
+              </SettingsGroup>
+            )}
+            <NextPageLoader
+              hasMore={hasNextPage}
+              isLoading={isFetchingNextPage}
+              load={fetchNextPage}
+            />
+          </div>
         </div>
+        {rows.length > 0 && (
+          <KeyHints hints={hintsOf(t, !!active, isStackOpen)} />
+        )}
       </div>
-      {rows.length > 0 && (
-        <KeyHints
-          hints={
-            active
-              ? [
-                  ['J / K', t.keys.move],
-                  ['⏎', t.keys.open],
-                  ['U', t.keys.unsubscribe],
-                ]
-              : [['J / K', t.keys.move]]
-          }
-        />
+      {isStackOpen && (
+        <aside className="bg-background flex w-160 max-w-[60%] shrink-0 flex-col border-l">
+          <SubscriptionStack
+            key={active.messageId}
+            isLeaving={leaving.has(active.messageId)}
+            row={active}
+            onClose={() => setIsOpen(false)}
+            onLeave={() => leave(active)}
+          />
+        </aside>
       )}
     </main>
   )

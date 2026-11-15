@@ -593,6 +593,7 @@ export const nl: Messages = {
     edit: 'bewerken',
     expand: 'uitklappen / inklappen',
     move: 'bewegen',
+    stackEmail: 'volgende / vorige e-mail',
     open: 'openen',
     notOnBoard: 'niet op dit bord',
     rename: 'hernoemen',

@@ -576,6 +576,7 @@ export const tr: Messages = {
     edit: 'düzenle',
     expand: 'aç / kapat',
     move: 'gezin',
+    stackEmail: 'sonraki / önceki e-posta',
     open: 'aç',
     notOnBoard: 'bu panoya ait değil',
     rename: 'yeniden adlandır',

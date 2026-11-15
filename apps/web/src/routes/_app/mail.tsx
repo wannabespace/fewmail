@@ -613,9 +613,30 @@ const useGroupedRows = <Row extends ListedRow>(
   return { groupStarts, rows: groups.flatMap((group) => group.rows) }
 }
 
+/** Each row's card: the pins, then each group's rows, or the rest of the list when it has no groups. */
+const cardsOf = (
+  rows: { message: { id: string } }[],
+  groupStarts: ReadonlyMap<string, { key: string }>,
+  pinnedCount: number
+) => {
+  const cards: string[] = []
+  for (const [index, { message }] of rows.entries()) {
+    const group = groupStarts.get(message.id)
+    const previous = cards.at(-1)
+    if (index < pinnedCount) {
+      cards.push('pinned')
+    } else if (group) {
+      cards.push(`group:${group.key}`)
+    } else {
+      cards.push(!previous || previous === 'pinned' ? 'list' : previous)
+    }
+  }
+  return cards
+}
+
 // Not sticky: pins share the list's <ul>, so a sticky pinned header would ride over every row below it.
 const LIST_HEADER =
-  'bg-body text-muted-foreground flex items-center gap-2 border-b py-1.5 pr-5 pl-9 text-xs font-medium'
+  'bg-body text-muted-foreground flex items-center gap-2 pt-5 pr-1 pb-2 pl-9 text-xs font-medium'
 
 const GROUP_HEADER = cn(LIST_HEADER, 'sticky top-0 z-10')
 
@@ -650,7 +671,7 @@ const GroupHeader = ({
       <RowPick
         aria-label={t.keys.pickAll}
         checked={pickedCount === group.rows.length}
-        className="top-1/2 -translate-y-1/2"
+        className="bottom-2"
         indeterminate={pickedCount > 0 && pickedCount < group.rows.length}
         isPicking={isPicking}
         onCheckedChange={onPick}
@@ -942,15 +963,12 @@ const MailRowCode = ({
 const rowSurfaceOf = ({
   isActive,
   isOpen,
-  isUnread,
 }: {
   isActive: boolean
   isOpen: boolean
-  isUnread: boolean
 }) =>
   cn(
     'group relative border-b',
-    isUnread && 'bg-background',
     isActive ? 'bg-accent' : 'hover:bg-accent',
     isOpen && 'bg-secondary hover:bg-secondary'
   )
@@ -983,6 +1001,10 @@ const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
     isPicking ? 'invisible' : 'group-hover:invisible'
   )
 
+// On the unread dot: beside the first line of a stack, else the middle of the row.
+const pickPlaceOf = (isBurst: boolean) =>
+  isBurst ? 'top-3' : 'top-1/2 -translate-y-1/2'
+
 const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
 
 const HIDDEN_CURSOR = -1
@@ -992,10 +1014,25 @@ const ROW_SIZE = { draft: 82, header: 29, line: 37, mail: 63 }
 
 const ROW_FOLD = { borderBottomWidth: 0, height: 0, opacity: 0 }
 
+interface CardEdge {
+  isFirst: boolean
+  isLast: boolean
+}
+
+// A group's rows are one card drawn row by row, since the window renders rows, never their group: no margins here, the window measures borders but not margins.
+const cardPieceOf = (edge: CardEdge | null) =>
+  edge &&
+  cn(
+    'bg-popover border-x-foreground/4 border-x',
+    edge.isFirst && 'border-t-foreground/4 rounded-t-xl border-t',
+    edge.isLast && 'border-b-foreground/4 rounded-b-xl shadow-xs'
+  )
+
 const ListWindowContext = createContext<{
+  edgeOf: (index: number) => CardEdge | null
   keys: ReadonlySet<VirtualItem['key']>
   measure: (node: Element | null) => void
-}>({ keys: new Set(), measure: () => null })
+}>({ edgeOf: () => null, keys: new Set(), measure: () => null })
 
 // A row gone from the list folds; a row the window scrolled past is still listed and goes at once, taking no room, or the rows below jump by its height. Either way its index is stale, so it stops being measured (-1 is out of range).
 const ListRow = ({
@@ -1004,7 +1041,7 @@ const ListRow = ({
   ...props
 }: ComponentProps<typeof motion.li> & { item: VirtualItem }) => {
   const isPresent = useIsPresent()
-  const { keys, measure } = use(ListWindowContext)
+  const { edgeOf, keys, measure } = use(ListWindowContext)
   const isScrolledPast = !isPresent && keys.has(item.key)
   return (
     <motion.li
@@ -1015,6 +1052,8 @@ const ListRow = ({
       exit={isScrolledPast ? undefined : ROW_FOLD}
       className={cn(
         STILL_POINTER_GUARD,
+        'mx-auto w-full max-w-3xl',
+        cardPieceOf(edgeOf(item.index)),
         className,
         !isPresent && 'pointer-events-none overflow-hidden'
       )}
@@ -1032,6 +1071,8 @@ const ListGap = ({ height }: { height: number }) => (
 )
 
 interface ListWindowItem {
+  /** The card the row belongs to; consecutive rows of one card share its frame. Headers have none. */
+  card?: string
   isCursor?: boolean
   isSticky?: boolean
   key: string
@@ -1091,6 +1132,16 @@ const ListWindow = ({
   return (
     <ListWindowContext
       value={{
+        edgeOf: (index) => {
+          const card = items[index]?.card
+          if (card === undefined) {
+            return null
+          }
+          return {
+            isFirst: items[index - 1]?.card !== card,
+            isLast: items[index + 1]?.card !== card,
+          }
+        },
         keys: new Set(items.map(({ key }) => key)),
         measure: virtualizer.measureElement,
       }}
@@ -1219,7 +1270,6 @@ const RelatedRow = ({
       className={rowSurfaceOf({
         isActive: isCursor,
         isOpen,
-        isUnread: message.isUnread,
       })}
     >
       <button
@@ -1230,7 +1280,7 @@ const RelatedRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-15 text-left text-sm outline-none"
+        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-18 text-left text-sm outline-none"
       >
         <span
           data-mask
@@ -1283,7 +1333,7 @@ const BurstList = ({
             }}
             aria-current={email.threadId === openThread}
             className={cn(
-              'group-hover/line:bg-secondary aria-current:bg-secondary mr-3 ml-13 flex w-[calc(100%-4rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none',
+              'group-hover/line:bg-secondary aria-current:bg-secondary mr-3 ml-16 flex w-[calc(100%-4.75rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none',
               email.code && 'pr-28'
             )}
           >
@@ -1346,7 +1396,7 @@ const BurstList = ({
         </li>
       ))}
       {burst.length > GROUP_SHOWN && (
-        <li className="ml-13">
+        <li className="ml-16">
           <Button
             size="xs"
             variant="link-muted"
@@ -1364,16 +1414,14 @@ const RowWarning = ({ message }: { message: ListedMessage }) => {
   const t = useT()
   if (message.risk) {
     return (
-      <span className="text-destructive pl-11 text-xs font-medium">
+      <span className="text-destructive text-xs font-medium">
         {t.risk.title}
       </span>
     )
   }
   return (
     message.suspicion && (
-      <span className="text-muted-foreground pl-11 text-xs">
-        {t.spam.suspect}
-      </span>
+      <span className="text-muted-foreground text-xs">{t.spam.suspect}</span>
     )
   )
 }
@@ -1426,7 +1474,6 @@ const MailRow = ({
       className={rowSurfaceOf({
         isActive: isCursor || isPicked || isSnoozeOpen,
         isOpen,
-        isUnread: message.isUnread,
       })}
     >
       <button
@@ -1438,88 +1485,90 @@ const MailRow = ({
         }}
         aria-current={isOpen}
         className={cn(
-          'flex w-full cursor-pointer flex-col gap-0.5 py-2.5 pr-5 pl-4 text-left outline-none',
+          'flex w-full cursor-pointer items-center gap-2 py-2.5 pr-5 pl-4 text-left outline-none',
           isBurst && 'pb-1'
         )}
       >
-        <span className="flex items-center gap-2 text-sm">
-          <span
-            aria-label={message.isUnread ? t.mail.unread : undefined}
-            className={unreadDotOf(message.isUnread, isPicking)}
-          />
-          <SenderAvatar sender={message} />
-          <span
-            data-mask
-            className={cn(
-              'min-w-0 truncate',
-              message.isUnread ? 'font-semibold' : 'text-foreground/70'
-            )}
-          >
-            {message.fromName ?? message.fromEmail}
-          </span>
-          {threadSize > 1 && !isBurst && (
-            <Tooltip>
-              <TooltipTrigger render={<Badge size="sm" variant="outline" />}>
-                {threadSize}
-              </TooltipTrigger>
-              <TooltipContent>
-                {t.mail.inThread(t.cleanup.emails(threadSize))}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          {isBurst ? (
-            <>
+        <span
+          aria-label={message.isUnread ? t.mail.unread : undefined}
+          className={unreadDotOf(message.isUnread, isPicking)}
+        />
+        <SenderAvatar sender={message} size="sm" />
+        <span className="ml-1 flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="flex items-center gap-2 text-sm">
+            <span
+              data-mask
+              className={cn(
+                'min-w-0 truncate',
+                message.isUnread ? 'font-semibold' : 'text-foreground/70'
+              )}
+            >
+              {message.fromName ?? message.fromEmail}
+            </span>
+            {threadSize > 1 && !isBurst && (
               <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <span className="text-muted-foreground shrink-0 text-xs" />
-                  }
-                >
-                  {t.cleanup.emails(messageIds.length)}
+                <TooltipTrigger render={<Badge size="sm" variant="outline" />}>
+                  {threadSize}
                 </TooltipTrigger>
                 <TooltipContent>
-                  {t.mail.burstHint(t.cleanup.emails(messageIds.length))}
+                  {t.mail.inThread(t.cleanup.emails(threadSize))}
                 </TooltipContent>
               </Tooltip>
-              <span className="flex-1" />
-            </>
-          ) : (
-            <MailRowMeta
-              hidesCategory={hidesCategory}
-              insight={analysis}
-              message={message}
-            />
+            )}
+            {isBurst ? (
+              <>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <span className="text-muted-foreground shrink-0 text-xs" />
+                    }
+                  >
+                    {t.cleanup.emails(messageIds.length)}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {t.mail.burstHint(t.cleanup.emails(messageIds.length))}
+                  </TooltipContent>
+                </Tooltip>
+                <span className="flex-1" />
+              </>
+            ) : (
+              <MailRowMeta
+                hidesCategory={hidesCategory}
+                insight={analysis}
+                message={message}
+              />
+            )}
+            <span
+              className={cn(
+                'shrink-0 text-xs tabular-nums',
+                UNDER_ROW_ACTIONS,
+                message.isUnread
+                  ? 'text-foreground font-medium'
+                  : 'text-muted-foreground'
+              )}
+            >
+              {dates.format(
+                message.receivedAt,
+                isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
+              )}
+            </span>
+          </span>
+          {!isBurst && (
+            <span
+              data-mask
+              className={cn(
+                'truncate text-sm',
+                codeRoom,
+                message.isUnread
+                  ? 'text-foreground/90 font-medium'
+                  : 'text-foreground/60'
+              )}
+            >
+              {message.subject}
+            </span>
           )}
-          <span
-            className={cn(
-              'shrink-0 text-xs tabular-nums',
-              UNDER_ROW_ACTIONS,
-              message.isUnread
-                ? 'text-foreground font-medium'
-                : 'text-muted-foreground'
-            )}
-          >
-            {dates.format(
-              message.receivedAt,
-              isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
-            )}
-          </span>
+          <RowWarning message={message} />
         </span>
-        {!isBurst && (
-          <span
-            data-mask
-            className={cn(
-              'truncate pl-11 text-sm',
-              codeRoom,
-              message.isUnread
-                ? 'text-foreground/90 font-medium'
-                : 'text-foreground/60'
-            )}
-          >
-            {message.subject}
-          </span>
-        )}
-        <RowWarning message={message} />
       </button>
       {isBurst && burst && (
         <BurstList
@@ -1550,7 +1599,7 @@ const MailRow = ({
         sweep={sweep}
       />
       <RowPick
-        className="top-3"
+        className={pickPlaceOf(isBurst)}
         aria-label={t.queue.pick}
         checked={isPicked}
         isPicking={isPicking}
@@ -1586,7 +1635,6 @@ const PinnedRow = ({
       className={rowSurfaceOf({
         isActive: isCursor || isPicked || isSnoozeOpen,
         isOpen,
-        isUnread: message.isUnread,
       })}
     >
       <button
@@ -1778,6 +1826,7 @@ const headItemsOf = ({
   >
 }): ListWindowItem[] => [
   ...drafts.rows.map((saved, index) => ({
+    card: 'drafts',
     isCursor: index === cursor,
     key: `draft:${saved.id}`,
     render: (item: VirtualItem) => (
@@ -2276,7 +2325,7 @@ const PickedBar = ({
   return (
     <>
       {picked.length > 0 && (
-        <div className="flex items-center gap-1 border-b py-3 pr-5 pl-4">
+        <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-1 px-6 py-3">
           <Checkbox
             aria-label={t.keys.pickAll}
             checked={isAllPicked}
@@ -2528,6 +2577,7 @@ const readerHintsOf = ({
   sweepHint,
   ...(isStack
     ? [
+        ['N / P', t.keys.stackEmail] as [string, string],
         ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
         ['⌫', t.keys.trash] as [string, string],
       ]
@@ -2781,6 +2831,7 @@ const MailPage = () => {
       search: (prev) => ({ ...prev, mailbox: next, thread: undefined }),
     })
 
+  const cards = cardsOf(rows, groupStarts, pinnedRows.shown)
   const listItems: ListWindowItem[] = [
     ...headItemsOf({
       cursor,
@@ -2793,6 +2844,7 @@ const MailPage = () => {
       if ('isRelated' in row) {
         return [
           {
+            card: cards[index],
             isCursor: index === cursor,
             key: `related:${row.message.id}`,
             render: (item) => (
@@ -2813,6 +2865,7 @@ const MailPage = () => {
       const Row = isPinnedRow ? PinnedRow : MailRow
       const group = groupStarts.get(row.message.id)
       const mailItem: ListWindowItem = {
+        card: cards[index],
         isCursor: index === cursor,
         key: row.message.id,
         render: (item) => (
@@ -2853,7 +2906,19 @@ const MailPage = () => {
         size: isPinnedRow ? ROW_SIZE.line : ROW_SIZE.mail,
       }
       if (!group) {
-        return [mailItem]
+        // Pins and the ungrouped list under them are two cards; without a header between, they would touch.
+        return cards[index - 1] === 'pinned' && cards[index] === 'list'
+          ? [
+              {
+                key: 'pinned-gap',
+                render: (item) => (
+                  <ListRow key={item.key} item={item} className="h-5" />
+                ),
+                size: 20,
+              },
+              mailItem,
+            ]
+          : [mailItem]
       }
       return [
         {
@@ -2890,7 +2955,7 @@ const MailPage = () => {
         >
           <PickedBar list={list} picks={picks}>
             {isSearching ? (
-              <div className="flex items-center gap-2 border-b px-5 py-3">
+              <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3">
                 <IconButton
                   icon={ArrowLeft01Icon}
                   label={t.mail.find.back}
@@ -2926,7 +2991,7 @@ const MailPage = () => {
                 />
               </div>
             ) : (
-              <div className="flex items-center gap-2 border-b px-5 py-3">
+              <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3">
                 <ViewPicker
                   filter={shownFilter}
                   unread={unread}
@@ -2966,7 +3031,7 @@ const MailPage = () => {
           <ul
             ref={listRef}
             className={cn(
-              'overflow-y-auto',
+              'overflow-y-auto px-6 pb-6',
               total > 0 && 'flex-1',
               isFetching && 'opacity-70'
             )}

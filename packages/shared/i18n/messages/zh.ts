@@ -319,6 +319,7 @@ export const zh: Messages = {
     edit: '编辑',
     expand: '展开 / 收起',
     move: '移动',
+    stackEmail: '下一封 / 上一封',
     open: '打开',
     notOnBoard: '不属于此看板',
     rename: '重命名',

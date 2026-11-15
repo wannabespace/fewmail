@@ -578,6 +578,7 @@ export const id: Messages = {
     edit: 'edit',
     expand: 'buka / tutup',
     move: 'pindah',
+    stackEmail: 'email berikut / sebelumnya',
     open: 'buka',
     notOnBoard: 'bukan untuk papan ini',
     rename: 'ganti nama',

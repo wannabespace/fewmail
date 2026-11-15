@@ -586,6 +586,7 @@ export const en = {
     edit: 'edit',
     expand: 'expand / collapse',
     move: 'move',
+    stackEmail: 'next / previous email',
     open: 'open',
     pick: 'pick',
     pickAll: 'pick all',

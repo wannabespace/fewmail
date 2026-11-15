@@ -593,6 +593,7 @@ export const pt: Messages = {
     edit: 'editar',
     expand: 'expandir / recolher',
     move: 'mover',
+    stackEmail: 'e-mail seguinte / anterior',
     open: 'abrir',
     notOnBoard: 'não é deste painel',
     rename: 'renomear',

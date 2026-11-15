@@ -323,6 +323,7 @@ export const hi: Messages = {
     edit: 'बदलें',
     expand: 'खोलें / बंद करें',
     move: 'चलें',
+    stackEmail: 'अगला / पिछला ईमेल',
     open: 'खोलें',
     notOnBoard: 'इस बोर्ड का नहीं',
     rename: 'नाम बदलें',

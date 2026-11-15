@@ -898,6 +898,7 @@ export const fr: Messages = {
     edit: 'modifier',
     expand: 'déplier / replier',
     move: 'naviguer',
+    stackEmail: 'e-mail suivant / précédent',
     open: 'ouvrir',
     notOnBoard: 'pas sur ce tableau',
     rename: 'renommer',

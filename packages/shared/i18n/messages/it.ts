@@ -892,6 +892,7 @@ export const it: Messages = {
     edit: 'modifica',
     expand: 'espandi / comprimi',
     move: 'sposta',
+    stackEmail: 'email successiva / precedente',
     open: 'apri',
     notOnBoard: 'non è di questa bacheca',
     rename: 'rinomina',

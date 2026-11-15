@@ -117,7 +117,7 @@ export const SettingsRow = ({
     >
       {trigger && <RowTrigger labelledBy={titleId} render={trigger} />}
       {icon && <ItemMedia variant={iconVariant}>{icon}</ItemMedia>}
-      <ItemContent>
+      <ItemContent className="min-w-0">
         <ItemTitle id={titleId}>
           {title}
           {hint && (

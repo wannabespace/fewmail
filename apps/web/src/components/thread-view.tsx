@@ -6,6 +6,12 @@ import {
 } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@fewmail/ui/components/accordion'
+import {
   Alert,
   AlertDescription,
   AlertTitle,
@@ -50,6 +56,7 @@ import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
+import { isToday } from 'date-fns'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createStore } from 'seitu'
@@ -1691,6 +1698,8 @@ interface StackEmail {
   fromEmail: string
   fromName: string | null
   id: string
+  receivedAt: Date
+  subject: string
   threadId: string
 }
 
@@ -1717,19 +1726,23 @@ const StackedEmail = ({ email }: { email: StackEmail }) => {
       analysis={entry.analysis}
       hasAgent={hasAgent}
       message={entry.message}
-      subject={entry.message.subject}
     />
   )
 }
 
-/** A whole burst read at once, newest first; its actions take every email in it, as the row's do. */
+/**
+ * A whole burst, newest first, one email unfolded at a time (N / P step through them); its actions take every email in it, as the row's do.
+ * `children`: actions of the place it was opened from, before the burst's own.
+ */
 export const StackView = ({
+  children,
   emails,
   isSnoozed,
   onClose,
   onDone,
   place,
 }: {
+  children?: ReactNode
   emails: StackEmail[]
   isSnoozed: boolean
   onClose: () => void
@@ -1737,7 +1750,16 @@ export const StackView = ({
   place: Place
 }) => {
   const t = useT()
+  const dates = useDates()
   const actions = useMailActions(onDone)
+  const [openId, setOpenId] = useState(emails[0]?.id)
+  const stepEmail = (by: number) => {
+    const index = emails.findIndex(({ id }) => id === openId)
+    const next = emails[Math.min(emails.length - 1, Math.max(0, index + by))]
+    setOpenId(next?.id)
+  }
+  useHotkey('N', () => stepEmail(1))
+  useHotkey('P', () => stepEmail(-1))
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
   const [head] = emails
   const messageIds = emails.map(({ id }) => id)
@@ -1758,6 +1780,7 @@ export const StackView = ({
             onClose={onClose}
           >
             <div className="flex flex-wrap items-center gap-2">
+              {children}
               <Button
                 size="sm"
                 variant="secondary"
@@ -1812,11 +1835,34 @@ export const StackView = ({
               </Button>
             </div>
           </ReaderHeader>
-          <div className="flex flex-col gap-2">
+          <Accordion
+            variant="cards"
+            value={openId ? [openId] : []}
+            onValueChange={([id]) => setOpenId(id)}
+          >
             {emails.map((email) => (
-              <StackedEmail key={email.id} email={email} />
+              <AccordionItem key={email.id} value={email.id}>
+                <AccordionTrigger>
+                  <SenderAvatar sender={email} size="sm" />
+                  <span
+                    data-mask
+                    className="min-w-0 flex-1 truncate text-sm font-medium"
+                  >
+                    {email.subject}
+                  </span>
+                  <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+                    {dates.format(
+                      email.receivedAt,
+                      isToday(email.receivedAt) ? 'HH:mm' : 'd MMM'
+                    )}
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <StackedEmail email={email} />
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </div>
       </div>
     </article>

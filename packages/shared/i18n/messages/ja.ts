@@ -321,6 +321,7 @@ export const ja: Messages = {
     edit: '編集',
     expand: '開く / 閉じる',
     move: '移動',
+    stackEmail: '次 / 前のメール',
     open: '開く',
     notOnBoard: 'このボードに含めない',
     rename: '名前を変更',
