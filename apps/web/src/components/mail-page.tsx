@@ -848,7 +848,9 @@ const ROW_SIZE = {
   relatedFirst: 59,
 }
 
-const ROW_FOLD = { borderBottomWidth: 0, height: 0, opacity: 0 }
+const ROW_FOLDED = { height: 0, opacity: 0 }
+const ROW_FOLD = { ...ROW_FOLDED, borderBottomWidth: 0 }
+const ROW_UNFOLD = { height: 'auto', opacity: 1 }
 
 interface CardEdge {
   isFirst: boolean
@@ -866,19 +868,27 @@ const cardPieceOf = (edge: CardEdge | null) =>
   )
 
 const ListWindowContext = createContext<{
+  arriving: ReadonlySet<VirtualItem['key']>
   edgeOf: (index: number) => CardEdge | null
   keys: ReadonlySet<VirtualItem['key']>
   measure: (node: Element | null) => void
-}>({ edgeOf: () => null, keys: new Set(), measure: () => null })
+}>({
+  arriving: new Set(),
+  edgeOf: () => null,
+  keys: new Set(),
+  measure: () => null,
+})
 
 // A row gone from the list folds; a row the window scrolled past is still listed and goes at once, taking no room, or the rows below jump by its height. Either way its index is stale, so it stops being measured (-1 is out of range).
+// A row taking a folding row's place (the next one under a group's Show all) unfolds on the same clock, or the rows below jump down by it and crawl back up.
 const ListRow = ({
   className,
   item,
   ...props
 }: ComponentProps<typeof motion.li> & { item: VirtualItem }) => {
   const isPresent = useIsPresent()
-  const { edgeOf, keys, measure } = use(ListWindowContext)
+  const { arriving, edgeOf, keys, measure } = use(ListWindowContext)
+  const [isUnfolding, setIsUnfolding] = useState(() => arriving.has(item.key))
   const edge = edgeOf(item.index)
   const isScrolledPast = !isPresent && keys.has(item.key)
   return (
@@ -886,13 +896,16 @@ const ListRow = ({
       ref={isPresent ? measure : undefined}
       data-index={isPresent ? item.index : -1}
       hidden={isScrolledPast}
-      initial={false}
+      initial={isUnfolding ? ROW_FOLDED : false}
+      animate={isUnfolding ? ROW_UNFOLD : undefined}
+      onAnimationComplete={() => setIsUnfolding(false)}
       exit={isScrolledPast ? undefined : ROW_FOLD}
       className={cn(
         STILL_POINTER_GUARD,
         'mx-auto w-full max-w-3xl',
         cardPieceOf(edge),
         className,
+        isUnfolding && 'overflow-hidden',
         !isPresent && 'pointer-events-none overflow-hidden'
       )}
       {...props}
@@ -955,6 +968,21 @@ const ListWindow = ({
         : [sticky, ...indexes]
     },
   })
+  const keys = new Set(items.map(({ key }) => key))
+  const [listed, setListed] = useState({ keys, listKey })
+  const [arriving, setArriving] = useState<ReadonlySet<string>>(new Set())
+  const added = keys.difference(listed.keys)
+  const hasLeft = !listed.keys.isSubsetOf(keys)
+  if (added.size > 0 || hasLeft || listed.listKey !== listKey) {
+    setListed({ keys, listKey })
+    setArriving(hasLeft && listed.listKey === listKey ? added : new Set())
+  }
+  // Only rows mounting with the change unfold; one scrolled into view later is already in place.
+  useEffect(() => {
+    if (arriving.size > 0) {
+      setArriving(new Set())
+    }
+  }, [arriving])
   const cursorIndex = items.findIndex(({ isCursor }) => isCursor)
   useEffect(() => {
     if (cursorIndex !== HIDDEN_CURSOR) {
@@ -970,6 +998,7 @@ const ListWindow = ({
   return (
     <ListWindowContext
       value={{
+        arriving,
         edgeOf: (index) => {
           const card = items[index]?.card
           if (card === undefined) {
@@ -980,7 +1009,7 @@ const ListWindow = ({
             isLast: items[index + 1]?.card !== card,
           }
         },
-        keys: new Set(items.map(({ key }) => key)),
+        keys,
         measure: virtualizer.measureElement,
       }}
     >
@@ -2704,7 +2733,9 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
 
   return (
     <ResizableGroup ref={setPanes} className="flex min-h-0 flex-1">
-      <ResizablePanel className={cn('flex min-w-0', { 'max-md:hidden': thread })}>
+      <ResizablePanel
+        className={cn('flex min-w-0', { 'max-md:hidden': thread })}
+      >
         <section
           aria-label={t.nav.mail}
           className="flex min-w-0 flex-1 flex-col border-r"
