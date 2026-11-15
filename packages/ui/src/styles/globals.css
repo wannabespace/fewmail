@@ -362,37 +362,90 @@
   );
 }
 
-/* The open email's sticky header, shrinking over the first 4rem of scroll. Gated on support: without a scroll timeline the animation would end at once and leave the header shrunk. */
-@utility shrink-on-scroll {
-  padding-top: --spacing(8);
-  padding-bottom: --spacing(3);
-  row-gap: --spacing(3);
-  border-bottom: 1px solid transparent;
+/* The open email's header, as iOS's large title: the title scrolls away with the email, the sticky bar over it fills in as it goes and then repeats it on one line. Never shrink the title in place: a two-line subject reflowed to one mid-scroll and the email jumped by a line. The title's timeline starts at its own top (2rem, the bar's resting padding), so the bar is clear at rest. Gated on support: without view timelines the bar scrolls away with the title and only the actions stick. */
+@utility reader-header {
+  display: contents;
+  timeline-scope: --reader-title;
 
-  @supports (animation-timeline: scroll()) {
-    animation: shrink-header linear both;
-    animation-range: 0 4rem;
-    animation-timeline: scroll();
+  & [data-slot='reader-pin'] {
+    position: relative;
+    z-index: 2;
+    height: 0;
+  }
 
-    & h1 {
-      animation: shrink-title linear both;
-      animation-range: 0 4rem;
-      animation-timeline: scroll();
+  & [data-slot='reader-bar'] {
+    padding-top: --spacing(8);
+    padding-bottom: --spacing(2);
+  }
+
+  & [data-slot='reader-bar-title'] {
+    opacity: 0;
+  }
+
+  & [data-slot='reader-title'] {
+    view-timeline: --reader-title;
+    view-timeline-inset: 2rem 0;
+  }
+
+  & [data-slot='reader-actions'] {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-bottom: 1px solid transparent;
+  }
+
+  @supports (animation-timeline: view()) {
+    & [data-slot='reader-pin'] {
+      position: sticky;
+      top: 0;
+    }
+
+    & [data-slot='reader-bar'] {
+      animation:
+        reader-bar-tighten linear both,
+        reader-bar-fill linear both;
+      animation-range:
+        0 4rem,
+        exit 0% exit 100%;
+      animation-timeline: scroll(), --reader-title;
+    }
+
+    & [data-slot='reader-bar-title'] {
+      animation: reader-show linear both;
+      animation-range: exit 60% exit 100%;
+      animation-timeline: --reader-title;
+    }
+
+    & [data-slot='reader-actions'] {
+      top: 3rem;
+      animation: reader-hairline linear both;
+      animation-range: exit 80% exit 100%;
+      animation-timeline: --reader-title;
     }
   }
 }
 
-@keyframes shrink-header {
+@keyframes reader-bar-tighten {
   to {
     padding-top: 0.75rem;
-    row-gap: 0.5rem;
-    border-bottom-color: var(--border);
   }
 }
 
-@keyframes shrink-title {
+@keyframes reader-bar-fill {
   to {
-    font-size: var(--text-lg);
+    background-color: var(--background);
+  }
+}
+
+@keyframes reader-show {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reader-hairline {
+  to {
+    border-bottom-color: var(--border);
   }
 }
 

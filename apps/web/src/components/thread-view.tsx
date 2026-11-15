@@ -1340,7 +1340,7 @@ const settledActionsOf = (
 const revealComposer = (node: HTMLElement | null) =>
   node?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 
-/** Sticks to the top of the reader and shrinks as the email scrolls under it. */
+/** The title scrolls away with the email; the bar with the close buttons and the actions stay on top. */
 const ReaderHeader = ({
   children,
   isFullPage,
@@ -1359,38 +1359,64 @@ const ReaderHeader = ({
 }) => {
   const t = useT()
   return (
-    <header className="shrink-on-scroll bg-background sticky top-0 z-10 -mb-3 flex flex-col">
-      <div className="flex items-start gap-2">
-        <div className="flex flex-1 flex-col gap-1">
-          {title === null ? (
-            <Skeleton className="my-1 h-6 w-3/4" />
-          ) : (
-            <h1 data-mask className="font-serif text-2xl tracking-tight">
-              {title}
-            </h1>
+    <header className="reader-header">
+      <div data-slot="reader-pin" className="-mb-6">
+        <div data-slot="reader-bar" className="flex items-center gap-2">
+          <p
+            aria-hidden
+            data-mask
+            data-slot="reader-bar-title"
+            className="min-w-0 flex-1 truncate font-serif text-lg tracking-tight"
+          >
+            {title}
+          </p>
+          {onOpenFullPage && (
+            <IconButton
+              icon={ArrowExpand01Icon}
+              label={t.mail.openFullPage}
+              shortcut={<Kbd>⇧O</Kbd>}
+              size="icon-sm"
+              variant="ghost-muted"
+              onClick={onOpenFullPage}
+            />
           )}
-          {note && <p className="text-muted-foreground text-sm">{note}</p>}
-        </div>
-        {onOpenFullPage && (
           <IconButton
-            icon={ArrowExpand01Icon}
-            label={t.mail.openFullPage}
-            shortcut={<Kbd>⇧O</Kbd>}
+            icon={isFullPage ? ArrowShrink01Icon : Cancel01Icon}
+            label={isFullPage ? t.mail.collapseFullPage : t.mail.close}
+            shortcut={<Kbd>esc</Kbd>}
             size="icon-sm"
             variant="ghost-muted"
-            onClick={onOpenFullPage}
+            onClick={onClose}
           />
-        )}
-        <IconButton
-          icon={isFullPage ? ArrowShrink01Icon : Cancel01Icon}
-          label={isFullPage ? t.mail.collapseFullPage : t.mail.close}
-          shortcut={<Kbd>esc</Kbd>}
-          size="icon-sm"
-          variant="ghost-muted"
-          onClick={onClose}
-        />
+        </div>
       </div>
-      {children}
+      <div
+        className={cn(
+          'flex flex-col gap-1 pt-8',
+          onOpenFullPage ? 'pr-18' : 'pr-9'
+        )}
+      >
+        {title === null ? (
+          <Skeleton className="my-1 h-6 w-3/4" />
+        ) : (
+          <h1
+            data-mask
+            data-slot="reader-title"
+            className="font-serif text-2xl tracking-tight"
+          >
+            {title}
+          </h1>
+        )}
+        {note && <p className="text-muted-foreground text-sm">{note}</p>}
+      </div>
+      {children && (
+        <div
+          data-slot="reader-actions"
+          className="bg-background -mt-3 -mb-3 pb-3"
+        >
+          {children}
+        </div>
+      )}
     </header>
   )
 }
