@@ -273,30 +273,19 @@ export const markReadingRead = async (userId: string, day?: string) => {
   return { threadIds }
 }
 
-/** Every issue, newest first, with what its row in the list shows; `today` counts the newsletters that go into tomorrow's. */
+/** Every issue, newest first, with what its row in the list shows. */
 export const listReadingIssues = async (userId: string) => {
-  const { timezone, today } = await clockOf(userId)
-  const [issues, [counted]] = await Promise.all([
-    db
-      .select()
-      .from(readingIssues)
-      .where(eq(readingIssues.userId, userId))
-      .orderBy(desc(readingIssues.day)),
-    db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(messages)
-      .innerJoin(analyses, eq(analyses.messageId, messages.id))
-      .where(isReading(userId, today, timezone)),
-  ])
-  return {
-    issues: issues.map(({ createdAt, day, messageIds, summary }) => ({
-      count: messageIds.length,
-      day,
-      isFresh: createdAt > subHours(new Date(), FRESH_HOURS),
-      titles: summary?.sections.map(({ title }) => title) ?? [],
-    })),
-    today: { count: Math.min(counted?.count ?? 0, READING_SHOWN), day: today },
-  }
+  const issues = await db
+    .select()
+    .from(readingIssues)
+    .where(eq(readingIssues.userId, userId))
+    .orderBy(desc(readingIssues.day))
+  return issues.map(({ createdAt, day, messageIds, summary }) => ({
+    count: messageIds.length,
+    day,
+    isFresh: createdAt > subHours(new Date(), FRESH_HOURS),
+    titles: summary?.sections.map(({ title }) => title) ?? [],
+  }))
 }
 
 /**

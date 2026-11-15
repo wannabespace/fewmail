@@ -454,8 +454,6 @@ export const id: Messages = {
     digest: (n: number) => `Newsletter: ${n}`,
     lead: 'Newsletter satu hari di satu tempat, agar tidak memenuhi kotak masuk.',
     issues: 'Semua edisi',
-    todaySoFar: 'Hari ini sejauh ini',
-    tomorrow: (hour: string) => `Ringkasannya datang besok pukul ${hour}.`,
     title: 'Bacaan',
   },
   commitments: {

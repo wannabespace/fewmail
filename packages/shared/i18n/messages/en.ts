@@ -512,8 +512,6 @@ export const en = {
     digest: (n: number) => `${n} newsletters`,
     lead: 'A day of newsletters in one place, so they never crowd the inbox.',
     issues: 'Every issue',
-    todaySoFar: 'Today so far',
-    tomorrow: (hour: string) => `The summary comes tomorrow at ${hour}.`,
     title: 'Reading',
   },
   command: {

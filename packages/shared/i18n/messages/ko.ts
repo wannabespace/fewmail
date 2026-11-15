@@ -1717,8 +1717,6 @@ export const ko: Messages = {
     digest: (n: number) => `뉴스레터: ${n}개`,
     lead: '하루치 뉴스레터를 한곳에 모아 받은편지함을 비워 둬요.',
     issues: '모든 호',
-    todaySoFar: '오늘 지금까지',
-    tomorrow: (hour: string) => `요약은 내일 ${hour}에 와요.`,
     title: '읽을거리',
   },
   commitments: {

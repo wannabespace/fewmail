@@ -1683,8 +1683,6 @@ export const zh: Messages = {
     digest: (n: number) => `订阅邮件：${n} 封`,
     lead: '一天的订阅邮件集中在一处，不再挤满收件箱。',
     issues: '所有期',
-    todaySoFar: '今天到目前为止',
-    tomorrow: (hour: string) => `摘要将于明天 ${hour} 送达。`,
     title: '阅读',
   },
   commitments: {

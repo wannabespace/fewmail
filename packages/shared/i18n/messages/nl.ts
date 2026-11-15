@@ -464,8 +464,6 @@ export const nl: Messages = {
     digest: (n: number) => `Nieuwsbrieven: ${n}`,
     lead: 'De nieuwsbrieven van een dag op één plek, zodat ze je inbox niet vullen.',
     issues: 'Alle edities',
-    todaySoFar: 'Vandaag tot nu toe',
-    tomorrow: (hour: string) => `De samenvatting komt morgen om ${hour}.`,
     title: 'Lezen',
   },
   commitments: {

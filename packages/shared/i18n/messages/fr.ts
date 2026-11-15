@@ -1823,8 +1823,6 @@ export const fr: Messages = {
     digest: (n: number) => `Newsletters : ${n}`,
     lead: 'Les newsletters d’une journée au même endroit, pour qu’elles n’encombrent pas la boîte de réception.',
     issues: 'Toutes les éditions',
-    todaySoFar: 'Aujourd’hui pour l’instant',
-    tomorrow: (hour: string) => `Le résumé arrive demain à ${hour}.`,
     title: 'Lecture',
   },
   commitments: {

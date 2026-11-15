@@ -1740,8 +1740,6 @@ export const ja: Messages = {
     digest: (n: number) => `メルマガ: ${n}件`,
     lead: '1日分のメルマガを1か所に。受信トレイを埋めません。',
     issues: 'すべての号',
-    todaySoFar: '今日のこれまで',
-    tomorrow: (hour: string) => `まとめは明日 ${hour} に届きます。`,
     title: 'リーディング',
   },
   commitments: {

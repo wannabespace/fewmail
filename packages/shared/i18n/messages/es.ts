@@ -1800,8 +1800,6 @@ export const es: Messages = {
     digest: (n: number) => `Boletines: ${n}`,
     lead: 'Los boletines de un día en un solo lugar, para que no llenen la bandeja.',
     issues: 'Todas las ediciones',
-    todaySoFar: 'Hoy por ahora',
-    tomorrow: (hour: string) => `El resumen llega mañana a las ${hour}.`,
     title: 'Lectura',
   },
   commitments: {

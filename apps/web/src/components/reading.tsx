@@ -18,7 +18,6 @@ import {
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
-  ArrowRight01Icon,
   Cancel01Icon,
   News01Icon,
   TickDouble02Icon,
@@ -32,7 +31,6 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { formatHour } from '~/components/agent-fields'
 import {
   clipOver,
   HIDDEN,
@@ -48,7 +46,6 @@ import { dropPane, expandPeek, keepUnderPane } from '~/components/thread-link'
 import { ThreadPeek } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
-import { useHasAgent, useMe } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { toastUndo } from '~/lib/undo'
@@ -62,18 +59,14 @@ const senderOf = (row: Row) => row.fromName ?? row.fromEmail
 // The card's `rounded-2xl` as a motion value: motion keeps only its own radius round while the card scales.
 const CARD_RADIUS = 16
 
-/** Every issue, the fresh one Home shows (this morning's, until the next morning's) and today's newsletters so far. */
+/** Every written issue and the fresh one Home shows (this morning's, until the next morning's); the day still filling is never shown. */
 export const useReadingIssues = () => {
-  const { data } = useQuery(orpc.reading.issues.queryOptions())
-  const issues = data?.issues ?? []
-  const today = data?.today
+  const { data: issues = [] } = useQuery(orpc.reading.issues.queryOptions())
   return {
     fresh: issues[0]?.isFresh ? issues[0] : undefined,
-    hasAny: issues.length > 0 || !!today?.count,
+    hasAny: issues.length > 0,
     issues,
-    /** What `N` opens: the latest issue, or today's newsletters before the first one. */
-    latestDay: issues[0]?.day ?? today?.day,
-    today,
+    latestDay: issues[0]?.day,
   }
 }
 
@@ -100,19 +93,13 @@ export const openReadingDays = (
   return { base, top: day && day !== base ? day : undefined }
 }
 
-/** The pane a row or Home's today line grows into is clipped out of it, measured over Reading's area. */
+/** The pane a row grows into is clipped out of it, measured over Reading's area. */
 const READING_AREA = 'reading-area'
 const issueMorphId = (day: string) => `reading-${day}`
 
-/** An issue's name: its weekday and date, or "Today so far" for the one still filling. */
 const useIssueTitle = () => {
-  const t = useT()
   const dates = useDates()
-  const { today } = useReadingIssues()
-  return (day: string) =>
-    day === today?.day
-      ? t.reading.todaySoFar
-      : dates.format(parseISO(day), 'EEEE, d MMMM')
+  return (day: string) => dates.format(parseISO(day), 'EEEE, d MMMM')
 }
 
 const citedIn = (summary: Summary | undefined) =>
@@ -433,39 +420,30 @@ const ReadingListen = ({ day, summary }: { day: string; summary: Summary }) => {
   )
 }
 
-/** The summary's opening; before it is written, when it comes (with the agent) or what Reading is. */
+/** The summary's opening, or what Reading is when the issue has none (Free). */
 const ReadingIntro = ({ day }: { day: string }) => {
   const t = useT()
-  const hasAgent = useHasAgent()
-  const { settings } = useMe()
-  const { isLoading, issue, summary } = useReadingDay(day)
+  const { isLoading, summary } = useReadingDay(day)
   if (isLoading) {
     return <SummarySkeleton />
   }
-  const waits = hasAgent && !issue?.isFinished
   return (
     <p
       data-mask={!!summary || undefined}
       className="text-brief text-foreground/80 font-serif"
     >
-      {summary?.intro ??
-        (waits
-          ? t.reading.tomorrow(formatHour(settings.briefHour))
-          : t.reading.lead)}
+      {summary?.intro ?? t.reading.lead}
     </p>
   )
 }
 
-/** What an issue's head says: "What your newsletters said · Saturday, 14 November", or "Today so far". */
+/** What an issue's head says: "What your newsletters said · Saturday, 14 November". */
 const IssueHeading = ({ day }: { day: string }) => {
   const t = useT()
   const titleOf = useIssueTitle()
-  const { today } = useReadingIssues()
   return (
     <h2 className="text-muted-foreground text-xs font-medium">
-      {day === today?.day
-        ? titleOf(day)
-        : `${t.reading.summary} · ${titleOf(day)}`}
+      {`${t.reading.summary} · ${titleOf(day)}`}
     </h2>
   )
 }
@@ -568,65 +546,30 @@ const IssueCard = ({
   )
 }
 
-/** Today's newsletters so far, one small line under the card: they go into tomorrow's issue. */
-const TodayLine = ({ count, day }: { count: number; day: string }) => {
-  const t = useT()
-  return (
-    <Button
-      size="sm"
-      variant="ghost-muted"
-      className="self-start"
-      data-morph-source={issueMorphId(day)}
-      onClick={() => posthog.capture('reading_issue_opened', { from: 'home' })}
-      render={<Link to="/home" search={(prev) => ({ ...prev, day })} />}
-    >
-      <HugeiconsIcon
-        icon={News01Icon}
-        strokeWidth={2}
-        data-icon="inline-start"
-      />
-      {t.reading.todaySoFar} · {t.reading.digest(count)}
-      <HugeiconsIcon
-        icon={ArrowRight01Icon}
-        strokeWidth={2}
-        data-icon="inline-end"
-      />
-    </Button>
-  )
-}
-
-/** Reading on Home: yesterday's issue as a card while it is fresh, and today's newsletters so far as one line. */
+/** Reading on Home: yesterday's issue as a card while it is fresh. */
 export const ReadingSection = ({
   base,
   top,
 }: ReturnType<typeof openReadingDays>) => {
-  const { fresh, today } = useReadingIssues()
-  if (!fresh && !today?.count) {
+  const { fresh } = useReadingIssues()
+  if (!fresh) {
     return null
   }
   return (
-    <div className="flex flex-col gap-2">
-      {fresh && (
-        <IssueCard
-          day={fresh.day}
-          isActive={!base && !top}
-          isOpen={base === fresh.day}
-        />
-      )}
-      {!!today?.count && <TodayLine count={today.count} day={today.day} />}
-    </div>
+    <IssueCard
+      day={fresh.day}
+      isActive={!base && !top}
+      isOpen={base === fresh.day}
+    />
   )
 }
 
-/** Every issue but the one shown, newest first, today's on top; a row grows into its issue over this one. */
+/** Every issue but the one shown, newest first; a row grows into its issue over this one. */
 const IssueList = ({ shownDay }: { shownDay: string }) => {
   const t = useT()
   const titleOf = useIssueTitle()
-  const { issues, today } = useReadingIssues()
-  const entries = [
-    ...(today?.count ? [{ ...today, titles: [] as string[] }] : []),
-    ...issues,
-  ].filter(({ day }) => day !== shownDay)
+  const { issues } = useReadingIssues()
+  const entries = issues.filter(({ day }) => day !== shownDay)
   if (entries.length === 0) {
     return null
   }

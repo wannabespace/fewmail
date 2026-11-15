@@ -1747,8 +1747,6 @@ export const hi: Messages = {
     digest: (n: number) => `न्यूज़लेटर: ${n}`,
     lead: 'एक दिन के न्यूज़लेटर एक जगह, ताकि इनबॉक्स न भरे।',
     issues: 'सभी अंक',
-    todaySoFar: 'आज अब तक',
-    tomorrow: (hour: string) => `सारांश कल ${hour} बजे आएगा।`,
     title: 'पढ़ना',
   },
   commitments: {

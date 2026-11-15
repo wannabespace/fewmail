@@ -474,8 +474,6 @@ export const pl: Messages = {
     digest: (n: number) => `Newslettery: ${n}`,
     lead: 'Newslettery z jednego dnia w jednym miejscu, żeby nie zaśmiecały skrzynki.',
     issues: 'Wszystkie wydania',
-    todaySoFar: 'Dziś do tej pory',
-    tomorrow: (hour: string) => `Podsumowanie przyjdzie jutro o ${hour}.`,
     title: 'Czytanie',
   },
   commitments: {

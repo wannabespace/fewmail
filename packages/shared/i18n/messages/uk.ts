@@ -1817,8 +1817,6 @@ export const uk: Messages = {
     digest: (n: number) => `Розсилок: ${n}`,
     lead: 'Розсилки за день в одному місці, щоб вони не захаращували вхідні.',
     issues: 'Усі випуски',
-    todaySoFar: 'Сьогодні поки що',
-    tomorrow: (hour: string) => `Зведення прийде завтра о ${hour}.`,
     title: 'Читання',
   },
   commitments: {

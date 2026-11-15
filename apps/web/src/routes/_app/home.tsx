@@ -1147,7 +1147,7 @@ const useReadingPage = (
   return {
     hasNewsletters: hasAny,
     newsletters: rows,
-    // A day's issue opened alone (Home's today line, a digest's link) is Reading as much as `N`'s pane.
+    // A day's issue opened alone (a digest's or a notification's link) is Reading as much as `N`'s pane.
     page: page ?? (readingDays.top ? ('reading' as const) : undefined),
     readingDays,
   }

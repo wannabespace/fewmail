@@ -451,8 +451,6 @@ export const tr: Messages = {
     digest: (n: number) => `Bültenler: ${n}`,
     lead: 'Bir günün bültenleri tek yerde, gelen kutusunu doldurmasınlar diye.',
     issues: 'Tüm sayılar',
-    todaySoFar: 'Bugün şu ana kadar',
-    tomorrow: (hour: string) => `Özet yarın ${hour} itibarıyla gelir.`,
     title: 'Okuma',
   },
   commitments: {
