@@ -350,6 +350,7 @@ export const id: Messages = {
     previous: 'Sebelumnya',
     save: 'Simpan',
     saved: 'Acara disimpan',
+    saving: 'Menyimpan acara…',
     scope: {
       this: 'Acara ini saja',
       following: 'Acara ini dan berikutnya',
@@ -499,6 +500,7 @@ export const id: Messages = {
     subject: 'Subjek',
     to: 'Kepada',
     undo: 'Urungkan',
+    undoing: 'Membatalkan…',
     writeForMe: 'Tuliskan untukku',
     writing: 'Menulis…',
   },

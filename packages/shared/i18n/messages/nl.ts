@@ -359,6 +359,7 @@ export const nl: Messages = {
     previous: 'Vorige',
     save: 'Opslaan',
     saved: 'Afspraak opgeslagen',
+    saving: 'Afspraak opslaan…',
     scope: {
       this: 'Alleen deze afspraak',
       following: 'Deze en volgende afspraken',
@@ -514,6 +515,7 @@ export const nl: Messages = {
     subject: 'Onderwerp',
     to: 'Aan',
     undo: 'Ongedaan maken',
+    undoing: 'Ongedaan maken…',
     writeForMe: 'Schrijf het voor me',
     writing: 'Schrijven…',
   },

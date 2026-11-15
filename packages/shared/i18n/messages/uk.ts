@@ -150,6 +150,7 @@ export const uk: Messages = {
     subject: 'Тема',
     to: 'Кому',
     undo: 'Скасувати',
+    undoing: 'Скасовую…',
     writeForMe: 'Напиши за мене',
     writing: 'Пишу…',
   },
@@ -717,6 +718,7 @@ export const uk: Messages = {
     previous: 'Назад',
     save: 'Зберегти',
     saved: 'Подію збережено',
+    saving: 'Зберігаю подію…',
     scope: {
       this: 'Лише цю подію',
       following: 'Цю й наступні події',

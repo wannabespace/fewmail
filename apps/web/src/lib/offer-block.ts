@@ -11,8 +11,13 @@ export const offerBlock = (t: Messages, name: string, messageId: string) =>
     action: t.mail.block,
     description: t.mail.ignoresUnsubscribeHint,
     onConfirm: async () => {
-      await client.mail.block({ messageId })
-      toast.success(t.mail.blocked)
+      const id = toast.loading(t.today.working)
+      const blocked = await client.mail.block({ messageId }).catch(() => null)
+      if (!blocked) {
+        toast.dismiss(id)
+        return
+      }
+      toast.success(t.mail.blocked, { id })
       refetchChanged(['mail', 'rules'])
     },
     title: t.mail.ignoresUnsubscribe(name),

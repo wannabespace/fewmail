@@ -8,6 +8,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@fewmail/ui/components/item'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import {
   Calendar03Icon,
   Cancel01Icon,
@@ -154,6 +155,7 @@ export const NoticeBar = () => {
             disabled={reconnect.isPending}
             onClick={() => notice.action?.onClick()}
           >
+            {reconnect.isPending && <Spinner />}
             {notice.action.label}
           </Button>
         )}

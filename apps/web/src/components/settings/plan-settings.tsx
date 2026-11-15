@@ -14,6 +14,7 @@ import {
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Progress } from '@fewmail/ui/components/progress'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { Switch } from '@fewmail/ui/components/switch'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -88,6 +89,7 @@ export const PlanSettings = () => {
               disabled={portal.isPending}
               onClick={() => portal.mutate()}
             >
+              {portal.isPending && <Spinner />}
               {t.plan.manage}
             </Button>
           )}
@@ -149,6 +151,9 @@ export const PlanSettings = () => {
                       })
                 }
               >
+                {checkout.isPending && checkout.variables.plan === choice && (
+                  <Spinner />
+                )}
                 {t.plan.choose(t.plan[choice])}
               </Button>
             </SettingsRow>

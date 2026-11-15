@@ -94,9 +94,16 @@ import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
 import { holdClicksUntilMove, STILL_POINTER_GUARD } from '~/lib/still-pointer'
-import { toastUndo } from '~/lib/undo'
+import { pendingToast, runUndo, toastUndo } from '~/lib/undo'
 
 type Today = RouterOutputs['today']['get']
+
+const NEW_SENDER_TOAST = 'new-sender'
+const RULE_OFFER_TOAST = 'rule-offer'
+const ADD_EVENT_TOAST = 'add-event'
+
+const idsOf = (items: QueueItem[]) =>
+  items.map(({ action }) => action.id).join(',')
 
 const TallyBox = ({ children }: { children: ReactNode }) => (
   <div className="text-foreground/75 flex items-center gap-3 rounded-2xl border border-dashed px-4.5 py-3.5 text-sm">
@@ -139,12 +146,14 @@ const NewSenders = ({
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
   const archive = useMutation(
     orpc.rules.createSimple.mutationOptions({
+      ...pendingToast(NEW_SENDER_TOAST),
       onSettled: () =>
         Promise.all([
           refetch(),
           queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
         ]),
-      onSuccess: () => toast.success(t.today.newSender.archived),
+      onSuccess: () =>
+        toast.success(t.today.newSender.archived, { id: NEW_SENDER_TOAST }),
     })
   )
   const keep = useMutation(
@@ -279,7 +288,11 @@ const RuleOffers = ({
   const queryClient = useQueryClient()
   const answer = useMutation(
     orpc.rules.update.mutationOptions({
-      onMutate: ({ id }) => {
+      onError: () => toast.dismiss(RULE_OFFER_TOAST),
+      onMutate: ({ enabled, id }) => {
+        if (enabled) {
+          toast.loading(t.today.working, { id: RULE_OFFER_TOAST })
+        }
         onSettle()
         queryClient.setQueryData(
           orpc.today.get.queryKey(),
@@ -296,7 +309,8 @@ const RuleOffers = ({
           queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
         ]),
       onSuccess: ({ enabled }) =>
-        enabled && toast.success(t.today.ruleOffer.turnedOn),
+        enabled &&
+        toast.success(t.today.ruleOffer.turnedOn, { id: RULE_OFFER_TOAST }),
     })
   )
 
@@ -1022,12 +1036,13 @@ const useAddEvent = (selected: QueueItem | undefined, canUseKeys: boolean) => {
   const queryClient = useQueryClient()
   const addEvent = useMutation(
     orpc.actions.addEvent.mutationOptions({
+      ...pendingToast(ADD_EVENT_TOAST),
       onSettled: () =>
         Promise.all([
           queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
           queryClient.invalidateQueries({ queryKey: orpc.calendar.key() }),
         ]),
-      onSuccess: () => toast.success(t.calendar.saved),
+      onSuccess: () => toast.success(t.calendar.saved, { id: ADD_EVENT_TOAST }),
     })
   )
   // The button leaves on the press, so a second press never adds the meeting twice.
@@ -1151,17 +1166,23 @@ const HomePage = () => {
   const undoable = (
     message: string,
     count: number,
-    undo: () => Promise<unknown>
+    undo: () => Promise<unknown>,
+    toastId: string
   ) =>
-    toastUndo(message, () => {
-      unsettle(count)
-      return undo().finally(refreshMail)
-    })
+    toastUndo(
+      message,
+      () => {
+        unsettle(count)
+        return undo().finally(refreshMail)
+      },
+      toastId
+    )
   const undoSkip = (ids: string[]) =>
     undoable(
       ids.length === 1 ? t.telegram.skipped : t.queue.skipped(ids.length),
       ids.length,
-      () => Promise.all(ids.map((id) => client.actions.restore({ id })))
+      () => Promise.all(ids.map((id) => client.actions.restore({ id }))),
+      ids.join(',')
     )
   const removeAndAdvance = (actionId: string) => {
     if (actionId === cursorId) {
@@ -1189,9 +1210,11 @@ const HomePage = () => {
         label: t.compose.undo,
         onClick: async () => {
           // The client's error toast already says it was sent.
-          const canceled = await Promise.all(
-            outboxIds.map((id) =>
-              client.mail.cancelSend({ id }).catch(() => null)
+          const canceled = await runUndo(() =>
+            Promise.all(
+              outboxIds.map((id) =>
+                client.mail.cancelSend({ id }).catch(() => null)
+              )
             )
           )
           if (canceled.some(Boolean)) {
@@ -1242,7 +1265,11 @@ const HomePage = () => {
   )
   const dismiss = useMutation(
     orpc.actions.dismiss.mutationOptions({
-      onMutate: ({ id }) => removeAndAdvance(id),
+      onError: (_, { id }) => toast.dismiss(id),
+      onMutate: ({ id }) => {
+        removeAndAdvance(id)
+        working(id)
+      },
       onSettled: invalidate,
       onSuccess: (_, { id }) => undoSkip([id]),
     })
@@ -1251,7 +1278,11 @@ const HomePage = () => {
     meta: { event: 'cards_skipped' },
     mutationFn: (ids: string[]) =>
       Promise.all(ids.map((id) => client.actions.dismiss({ id }))),
-    onMutate: dropFromQueue,
+    onError: (_, ids) => toast.dismiss(ids.join(',')),
+    onMutate: (ids) => {
+      dropFromQueue(ids)
+      working(ids.join(','))
+    },
     onSettled: invalidate,
     onSuccess: (_, ids) => undoSkip(ids),
   })
@@ -1267,22 +1298,34 @@ const HomePage = () => {
           await client.actions.dismiss({ id: action.id })
         })
       ),
-    onMutate: (items) => dropFromQueue(items.map(({ action }) => action.id)),
+    onError: (_, items) => toast.dismiss(idsOf(items)),
+    onMutate: (items) => {
+      dropFromQueue(items.map(({ action }) => action.id))
+      working(idsOf(items))
+    },
     onSettled: refreshMail,
     onSuccess: (_, items) =>
-      undoable(t.mail.trashed, items.length, () =>
-        Promise.all(
-          items.map(async ({ action, message }) => {
-            if (message) {
-              await client.mail.moveToInbox({ messageId: message.id })
-            }
-            await client.actions.restore({ id: action.id })
-          })
-        )
+      undoable(
+        t.mail.trashed,
+        items.length,
+        () =>
+          Promise.all(
+            items.map(async ({ action, message }) => {
+              if (message) {
+                await client.mail.moveToInbox({ messageId: message.id })
+              }
+              await client.actions.restore({ id: action.id })
+            })
+          ),
+        idsOf(items)
       ),
   })
   const redraft = useMutation(
     orpc.actions.redraft.mutationOptions({
+      onMutate: ({ id }) => {
+        toast.loading(t.compose.writing, { id: `redraft-${id}` })
+      },
+      onSettled: (_action, _error, { id }) => toast.dismiss(`redraft-${id}`),
       onSuccess: (action) => {
         setDrafts((current) =>
           Object.fromEntries(

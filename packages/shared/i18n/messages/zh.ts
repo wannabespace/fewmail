@@ -185,6 +185,7 @@ export const zh: Messages = {
     subject: '主题',
     to: '收件人',
     undo: '撤销',
+    undoing: '正在撤销…',
     writeForMe: '帮我写',
     writing: '正在写…',
   },
@@ -222,6 +223,7 @@ export const zh: Messages = {
     previous: '上一个',
     save: '保存',
     saved: '日程已保存',
+    saving: '正在保存日程…',
     scope: {
       this: '仅此日程',
       following: '此日程及后续日程',

@@ -69,7 +69,7 @@ import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc, refetchChanged } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
-import { UNDO_TOAST_MS } from '~/lib/undo'
+import { runUndo, UNDO_TOAST_MS } from '~/lib/undo'
 
 import { cidSource, listedAttachments, MessageAttachments } from './attachments'
 import { AddToBoardItems } from './board-entries'
@@ -715,33 +715,45 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
+  // The press already shows its outcome, so the toast says the request is still running until the answer replaces it.
+  const startBurst = () => {
+    const burst = joinBurst()
+    toast.loading(t.today.working, { id: burst })
+    return burst
+  }
+  const settleFailed = (_error: unknown, _input: unknown, burst?: string) => {
+    if (burst && !bursts.has(burst)) {
+      toast.dismiss(burst)
+    }
+    void refresh()
+  }
   // Every action takes the thread out of the current list, so it leaves before the server answers.
   const leave = {
-    onError: refresh,
+    onError: settleFailed,
     onMutate: ({ messageId }: { messageId: string }) => {
       const threadId = threadOfMessage(messageId)
       if (threadId) {
         hideThread(threadId)
       }
       onDone?.(messageId)
-      return joinBurst()
+      return startBurst()
     },
   }
   // The burst's id folds its per-email answers into one toast, and its Undo takes back the whole burst.
   const finish = (
     message: string,
+    id: string,
     done?: {
-      burst: string
       messageId: string
       undo: (messageId: string) => Promise<unknown>
     }
   ) => {
     void refresh()
     if (!done) {
-      toast.success(message, { id: message })
+      toast.success(message, { id })
       return
     }
-    const { burst: id, messageId, undo } = done
+    const { messageId, undo } = done
     const burst = [...(bursts.get(id) ?? []), messageId]
     bursts.set(id, burst)
     toast.success(message, {
@@ -749,7 +761,7 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
         label: t.compose.undo,
         onClick: () => {
           bursts.delete(id)
-          void Promise.all(burst.map(undo)).finally(refresh)
+          void runUndo(() => Promise.all(burst.map(undo))).finally(refresh)
         },
       },
       duration: UNDO_TOAST_MS,
@@ -797,15 +809,14 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
       orpc.mail.archive.mutationOptions({
         ...leave,
         onSuccess: (_, { messageId }, burst) =>
-          finish(t.mail.archived, { burst, messageId, undo: toInbox }),
+          finish(t.mail.archived, burst, { messageId, undo: toInbox }),
       })
     ),
     block: useMutation(
       orpc.mail.block.mutationOptions({
         ...leave,
         onSuccess: ({ ruleId }, { messageId }, burst) =>
-          finish(t.mail.blocked, {
-            burst,
+          finish(t.mail.blocked, burst, {
             messageId,
             undo: async () => {
               await client.rules.delete({ id: ruleId })
@@ -819,14 +830,13 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     ),
     markRead: useMutation(
       orpc.mail.markRead.mutationOptions({
-        onError: refresh,
+        onError: settleFailed,
         onMutate: ({ threadId }) => {
           showThreadRead(threadId)
-          return joinBurst()
+          return startBurst()
         },
         onSuccess: (_, { threadId }, burst) =>
-          finish(t.mail.markedRead, {
-            burst,
+          finish(t.mail.markedRead, burst, {
             messageId: threadId,
             undo: (id) => {
               showThreadRead(id, false)
@@ -838,13 +848,13 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     moveToInbox: useMutation(
       orpc.mail.moveToInbox.mutationOptions({
         ...leave,
-        onSuccess: () => finish(t.mail.backInInbox),
+        onSuccess: (_, __, burst) => finish(t.mail.backInInbox, burst),
       })
     ),
     notSpam: useMutation(
       orpc.mail.notSpam.mutationOptions({
         ...leave,
-        onSuccess: () => finish(t.mail.movedToInbox),
+        onSuccess: (_, __, burst) => finish(t.mail.movedToInbox, burst),
       })
     ),
     pin: useMutation(
@@ -862,8 +872,7 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
       orpc.mail.reportSpam.mutationOptions({
         ...leave,
         onSuccess: (_, { messageId }, burst) =>
-          finish(t.mail.reportedSpam, {
-            burst,
+          finish(t.mail.reportedSpam, burst, {
             messageId,
             undo: (id) => client.mail.notSpam({ messageId: id }),
           }),
@@ -873,8 +882,7 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
       orpc.mail.snooze.mutationOptions({
         ...leave,
         onSuccess: (_, { messageId, until }, burst) =>
-          finish(t.snooze.until(dates.format(until, 'EEE p')), {
-            burst,
+          finish(t.snooze.until(dates.format(until, 'EEE p')), burst, {
             messageId,
             undo: (id) => client.mail.unsnooze({ messageId: id }),
           }),
@@ -884,13 +892,13 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
       orpc.mail.trash.mutationOptions({
         ...leave,
         onSuccess: (_, { messageId }, burst) =>
-          finish(t.mail.trashed, { burst, messageId, undo: toInbox }),
+          finish(t.mail.trashed, burst, { messageId, undo: toInbox }),
       })
     ),
     unsnooze: useMutation(
       orpc.mail.unsnooze.mutationOptions({
         ...leave,
-        onSuccess: () => finish(t.mail.backInInbox),
+        onSuccess: (_, __, burst) => finish(t.mail.backInInbox, burst),
       })
     ),
     /** Leaving a list has no undo, so it always asks first. */

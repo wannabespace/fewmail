@@ -16,10 +16,12 @@ import { ROW_SWAP } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { hideThread, threadOfMessage } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
+import { pendingToast } from '~/lib/undo'
 
 type JournalEntry = RouterOutputs['today']['handled'][number]
 
 const ROWS_PER_DAY = 5
+const UNDO_TOAST = 'journal-undo'
 
 /** Newest first in, newest day first out: each day keeps the moment of its first entry for its title. */
 const groupByDay = (entries: JournalEntry[]) => {
@@ -58,20 +60,23 @@ export const Journal = () => {
     ])
   const toInbox = useMutation(
     orpc.mail.moveToInbox.mutationOptions({
+      ...pendingToast(UNDO_TOAST),
       onSettled: refresh,
-      onSuccess: () => toast(t.mail.backInInbox),
+      onSuccess: () => toast(t.mail.backInInbox, { id: UNDO_TOAST }),
     })
   )
   const notSpam = useMutation(
     orpc.mail.notSpam.mutationOptions({
+      ...pendingToast(UNDO_TOAST),
       onMutate: ({ messageId }) => {
+        pendingToast(UNDO_TOAST).onMutate()
         const threadId = threadOfMessage(messageId)
         if (threadId) {
           hideThread(threadId)
         }
       },
       onSettled: refresh,
-      onSuccess: () => toast(t.mail.movedToInbox),
+      onSuccess: () => toast(t.mail.movedToInbox, { id: UNDO_TOAST }),
     })
   )
   const undos: Partial<

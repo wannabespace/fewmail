@@ -168,8 +168,12 @@ export const ClearOutDialog = () => {
   const open = useSubscription(clearOutStore)
   const undo = useMutation(
     orpc.subscriptions.undoClearOut.mutationOptions({
-      onSuccess: ({ restored }) =>
-        toast.success(t.clearOut.undone(t.cleanup.emails(restored))),
+      onMutate: () => toast.loading(t.compose.undoing),
+      onError: (_error, _input, toastId) => toast.dismiss(toastId),
+      onSuccess: ({ restored }, _input, toastId) =>
+        toast.success(t.clearOut.undone(t.cleanup.emails(restored)), {
+          id: toastId,
+        }),
       onSettled: refetchMail,
     })
   )

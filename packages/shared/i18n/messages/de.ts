@@ -148,6 +148,7 @@ export const de: Messages = {
     subject: 'Betreff',
     to: 'An',
     undo: 'Rückgängig',
+    undoing: 'Wird rückgängig gemacht…',
     writeForMe: 'Schreib es für mich',
     writing: 'Schreibe…',
   },
@@ -716,6 +717,7 @@ export const de: Messages = {
     previous: 'Zurück',
     save: 'Speichern',
     saved: 'Termin gespeichert',
+    saving: 'Termin wird gespeichert…',
     scope: {
       this: 'Nur diesen Termin',
       following: 'Diesen und alle folgenden Termine',

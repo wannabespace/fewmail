@@ -363,6 +363,7 @@ export const pl: Messages = {
     previous: 'Wstecz',
     save: 'Zapisz',
     saved: 'Wydarzenie zapisane',
+    saving: 'Zapisuję wydarzenie…',
     scope: {
       this: 'Tylko to wydarzenie',
       following: 'To i następne wydarzenia',
@@ -526,6 +527,7 @@ export const pl: Messages = {
     subject: 'Temat',
     to: 'Do',
     undo: 'Cofnij',
+    undoing: 'Cofam…',
     writeForMe: 'Napisz za mnie',
     writing: 'Piszę…',
   },

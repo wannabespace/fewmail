@@ -145,7 +145,7 @@ import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { STILL_POINTER_GUARD } from '~/lib/still-pointer'
-import { toastDeferred } from '~/lib/undo'
+import { pendingToast, settleToast, toastDeferred } from '~/lib/undo'
 
 const INBOX_VIEWS = ['focused', 'unread', 'categories', 'inbox'] as const
 
@@ -1824,8 +1824,12 @@ const useDrafts = ({
   )
   const takeBackFailed = useMutation(
     orpc.mail.cancelSend.mutationOptions({
-      onMutate: ({ id }) => hide(id),
-      onSettled: refetchDrafts,
+      onMutate: ({ id }) => {
+        hide(id)
+        pendingToast(id).onMutate()
+      },
+      onSettled: (_draft, _error, { id }) =>
+        refetchDrafts().finally(settleToast(id)),
     })
   )
   const open = (index: number) => {

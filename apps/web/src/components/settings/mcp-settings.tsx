@@ -9,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { confirm } from '~/components/confirm-dialog'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
+import { pendingToast, settleToast } from '~/lib/undo'
 
 const MCP_URL = `${import.meta.env.API_URL}/mcp`
 
@@ -21,15 +22,17 @@ export const McpSettings = () => {
   )
   const disconnect = useMutation(
     orpc.integrations.apps.disconnect.mutationOptions({
-      onMutate: ({ clientId }) =>
+      onMutate: ({ clientId }) => {
+        pendingToast(clientId).onMutate()
         queryClient.setQueryData(
           orpc.integrations.apps.list.queryKey(),
           (old) => old?.filter((app) => app.clientId !== clientId)
-        ),
-      onSettled: () =>
-        queryClient.invalidateQueries({
-          queryKey: orpc.integrations.apps.key(),
-        }),
+        )
+      },
+      onSettled: (_result, _error, { clientId }) =>
+        queryClient
+          .invalidateQueries({ queryKey: orpc.integrations.apps.key() })
+          .finally(settleToast(clientId)),
     })
   )
 

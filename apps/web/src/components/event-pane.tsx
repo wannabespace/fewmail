@@ -102,6 +102,8 @@ export const previewOf = (draft: EventDraft): CalendarEvent => ({
 const isSameDraft = (a: EventDraft, b: EventDraft) =>
   JSON.stringify(fieldsOf(a)) === JSON.stringify(fieldsOf(b))
 
+const SAVE_TOAST = 'event-save'
+
 const invalidate = () =>
   queryClient.invalidateQueries({ queryKey: orpc.calendar.key() })
 
@@ -166,6 +168,7 @@ export const EventPane = ({
 
   const create = useMutation(
     orpc.calendar.create.mutationOptions({
+      onError: () => toast.dismiss(SAVE_TOAST),
       onMutate: (event) => {
         onClose()
         changeEvents((events) =>
@@ -178,13 +181,15 @@ export const EventPane = ({
             },
           ].toSorted((a, b) => a.start.localeCompare(b.start))
         )
+        toast.loading(t.calendar.saving, { id: SAVE_TOAST })
       },
       onSettled: invalidate,
-      onSuccess: () => toast.success(t.calendar.saved),
+      onSuccess: () => toast.success(t.calendar.saved, { id: SAVE_TOAST }),
     })
   )
   const update = useMutation(
     orpc.calendar.update.mutationOptions({
+      onError: () => toast.dismiss(SAVE_TOAST),
       onMutate: (event) => {
         onClose()
         changeEvents((events) =>
@@ -192,9 +197,10 @@ export const EventPane = ({
             item.id === event.id ? { ...item, ...previewOf(value) } : item
           )
         )
+        toast.loading(t.calendar.saving, { id: SAVE_TOAST })
       },
       onSettled: invalidate,
-      onSuccess: () => toast.success(t.calendar.saved),
+      onSuccess: () => toast.success(t.calendar.saved, { id: SAVE_TOAST }),
     })
   )
   const remove = useMutation(

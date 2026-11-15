@@ -186,6 +186,7 @@ export const ko: Messages = {
     subject: '제목',
     to: '받는 사람',
     undo: '실행 취소',
+    undoing: '되돌리는 중…',
     writeForMe: '대신 써 줘',
     writing: '작성 중…',
   },
@@ -223,6 +224,7 @@ export const ko: Messages = {
     previous: '이전',
     save: '저장',
     saved: '일정을 저장했습니다',
+    saving: '일정 저장 중…',
     scope: {
       this: '이 일정만',
       following: '이 일정 및 이후 일정',

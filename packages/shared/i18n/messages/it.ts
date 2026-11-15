@@ -150,6 +150,7 @@ export const it: Messages = {
     subject: 'Oggetto',
     to: 'A',
     undo: 'Annulla',
+    undoing: 'Annullo…',
     writeForMe: 'Scrivila tu',
     writing: 'Sto scrivendo…',
   },
@@ -720,6 +721,7 @@ export const it: Messages = {
     previous: 'Precedente',
     save: 'Salva',
     saved: 'Evento salvato',
+    saving: 'Salvo l’evento…',
     scope: {
       this: 'Solo questo evento',
       following: 'Questo e i successivi',

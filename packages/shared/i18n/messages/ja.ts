@@ -186,6 +186,7 @@ export const ja: Messages = {
     subject: '件名',
     to: '宛先',
     undo: '元に戻す',
+    undoing: '元に戻しています…',
     writeForMe: '代わりに書いて',
     writing: '作成中…',
   },
@@ -223,6 +224,7 @@ export const ja: Messages = {
     previous: '前へ',
     save: '保存',
     saved: '予定を保存しました',
+    saving: '予定を保存中…',
     scope: {
       this: 'この予定のみ',
       following: 'これ以降の予定',

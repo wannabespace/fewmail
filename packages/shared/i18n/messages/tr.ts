@@ -349,6 +349,7 @@ export const tr: Messages = {
     previous: 'Önceki',
     save: 'Kaydet',
     saved: 'Etkinlik kaydedildi',
+    saving: 'Etkinlik kaydediliyor…',
     scope: {
       this: 'Yalnızca bu etkinlik',
       following: 'Bu ve sonraki etkinlikler',
@@ -496,6 +497,7 @@ export const tr: Messages = {
     subject: 'Konu',
     to: 'Kime',
     undo: 'Geri al',
+    undoing: 'Geri alınıyor…',
     writeForMe: 'Benim için yaz',
     writing: 'Yazılıyor…',
   },

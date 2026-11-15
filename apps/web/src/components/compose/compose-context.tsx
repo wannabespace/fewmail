@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
+import { runUndo } from '~/lib/undo'
 
 export interface Draft {
   attachments: OutgoingAttachment[]
@@ -88,7 +89,11 @@ export const ComposeProvider = ({ children }: { children: ReactNode }) => {
 
   const sendMutation = useMutation(
     orpc.mail.send.mutationOptions({
-      onSuccess: ({ id, sendAt }) => {
+      onError: (_error, _input, sending) => toast.dismiss(sending?.toastId),
+      onMutate: (_input: unknown) => ({
+        toastId: toast.loading(t.today.working),
+      }),
+      onSuccess: ({ id, sendAt }, _input, { toastId }) => {
         const isUndoWindow =
           sendAt.getTime() - Date.now() <= (UNDO_SEND_SECONDS + 1) * 1000
         toast.success(
@@ -100,9 +105,9 @@ export const ComposeProvider = ({ children }: { children: ReactNode }) => {
               label: t.compose.undo,
               onClick: async () => {
                 // The client's error interceptor already toasts "already sent"; a toast here would double it.
-                const restored = await client.mail
-                  .cancelSend({ id })
-                  .catch(() => null)
+                const restored = await runUndo(() =>
+                  client.mail.cancelSend({ id }).catch(() => null)
+                )
                 if (restored) {
                   void openCompose(restored)
                   toast(t.compose.canceled)
@@ -110,6 +115,7 @@ export const ComposeProvider = ({ children }: { children: ReactNode }) => {
               },
             },
             duration: isUndoWindow ? UNDO_SEND_SECONDS * 1000 : 6000,
+            id: toastId,
           }
         )
         void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })

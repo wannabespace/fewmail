@@ -4,11 +4,13 @@ import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { confirm } from '~/components/confirm-dialog'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
+import { pendingToast, settleToast } from '~/lib/undo'
 
 const mailboxStatus = (
   copy: Messages['settings']['mailboxes'],
@@ -32,6 +34,8 @@ const mailboxStatus = (
   return mailbox.signIn ? copy.signIn : copy.synced(ago(mailbox.lastSyncedAt))
 }
 
+const REMOVE_TOAST = 'mailbox-remove'
+
 export const MailboxSettings = () => {
   const copy = useT().settings.mailboxes
   const dates = useDates()
@@ -44,12 +48,16 @@ export const MailboxSettings = () => {
   )
   const remove = useMutation(
     orpc.mailboxes.remove.mutationOptions({
-      onMutate: ({ id }) =>
+      onMutate: ({ id }) => {
+        pendingToast(REMOVE_TOAST).onMutate()
         queryClient.setQueryData(orpc.mailboxes.list.queryKey(), (old) =>
           old?.filter((mailbox) => mailbox.id !== id)
-        ),
+        )
+      },
       onSettled: () =>
-        queryClient.invalidateQueries({ queryKey: orpc.mailboxes.key() }),
+        queryClient
+          .invalidateQueries({ queryKey: orpc.mailboxes.key() })
+          .finally(settleToast(REMOVE_TOAST)),
     })
   )
 
@@ -87,6 +95,7 @@ export const MailboxSettings = () => {
           disabled={add.isPending}
           onClick={() => add.mutate()}
         >
+          {add.isPending && <Spinner />}
           {copy.add}
         </Button>
       </SettingsRow>

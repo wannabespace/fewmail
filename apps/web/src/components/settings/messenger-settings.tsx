@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { confirm } from '~/components/confirm-dialog'
 import { useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
+import { pendingToast, settleToast } from '~/lib/undo'
 
 export const MESSENGERS = {
   telegram: 'Telegram',
@@ -36,13 +37,17 @@ export const MessengerSettings = ({
   const { data: link } = useQuery(procedures.get.queryOptions())
   const unlink = useMutation(
     procedures.unlink.mutationOptions({
-      onMutate: () =>
+      onMutate: () => {
+        pendingToast(channel).onMutate()
         queryClient.setQueryData(
           procedures.get.queryKey(),
           (old) => old && { ...old, linked: false }
-        ),
+        )
+      },
       onSettled: () =>
-        queryClient.invalidateQueries({ queryKey: procedures.key() }),
+        queryClient
+          .invalidateQueries({ queryKey: procedures.key() })
+          .finally(settleToast(channel)),
     })
   )
 

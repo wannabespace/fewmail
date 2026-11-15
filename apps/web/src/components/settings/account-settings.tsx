@@ -14,6 +14,7 @@ import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -90,6 +91,7 @@ const DeleteAccount = ({ isConfirming }: { isConfirming: boolean }) => {
                 : deleteAccount
             }
           >
+            {isDeleting && <Spinner />}
             {needsSignIn ? t.notices.signInAgain : t.settings.deleteConfirm}
           </AlertDialogAction>
         </AlertDialogFooter>

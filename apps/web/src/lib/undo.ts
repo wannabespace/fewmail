@@ -9,10 +9,28 @@ export const UNDO_TOAST_MS = UNDO_SEND_SECONDS * 1000
 
 const undoLabel = () => getT().compose.undo
 
-const undoing = (undo: () => unknown) => () => {
+/** An Undo is a request too: a toast spins until the server has put everything back. */
+export const runUndo = <Result>(undo: () => Result) => {
   posthog.capture('undo_clicked')
-  return undo()
+  const id = toast.loading(getT().compose.undoing)
+  return Promise.resolve(undo()).finally(() => toast.dismiss(id))
 }
+
+/** For a mutation whose press already shows its outcome: the toast spins until the answer's toast takes over the same `id`, or `settleToast` lets it go. */
+export const pendingToast = (id: string) => ({
+  onError: () => {
+    toast.dismiss(id)
+  },
+  onMutate: () => {
+    toast.loading(getT().today.working, { id })
+  },
+})
+
+export const settleToast = (id: string) => () => {
+  toast.dismiss(id)
+}
+
+const undoing = (undo: () => unknown) => () => runUndo(undo)
 
 export const toastUndo = (message: string, undo: () => unknown, id?: string) =>
   toast.success(message, {

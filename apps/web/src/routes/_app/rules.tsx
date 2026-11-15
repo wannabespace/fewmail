@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@fewmail/ui/components/select'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { Switch } from '@fewmail/ui/components/switch'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -197,7 +198,7 @@ const AgentRuleForm = () => {
       },
     })
   )
-  const canAdd = instruction.trim().length > 2
+  const canAdd = instruction.trim().length > 2 && !create.isPending
   const submit = () =>
     canAdd &&
     create.mutate({
@@ -224,10 +225,11 @@ const AgentRuleForm = () => {
         />
         <Button
           className="ml-auto"
-          disabled={!canAdd || create.isPending}
+          disabled={!canAdd}
           onClick={submit}
           shortcut={<Kbd>⏎</Kbd>}
         >
+          {create.isPending && <Spinner />}
           {t.rules.add}
         </Button>
       </div>
@@ -252,7 +254,7 @@ const SimpleRuleForm = () => {
     })
   )
   const needsValue = field !== 'mailingList'
-  const canAdd = !needsValue || Boolean(value.trim())
+  const canAdd = (!needsValue || Boolean(value.trim())) && !create.isPending
   const submit = () =>
     canAdd && create.mutate({ effect, match: { field, value: value.trim() } })
 
@@ -296,10 +298,11 @@ const SimpleRuleForm = () => {
       />
       <Button
         className="ml-auto"
-        disabled={!canAdd || create.isPending}
+        disabled={!canAdd}
         onClick={submit}
         shortcut={<Kbd>⏎</Kbd>}
       >
+        {create.isPending && <Spinner />}
         {t.rules.add}
       </Button>
     </div>

@@ -335,7 +335,18 @@ export const AddToBoardItems = ({ messageId }: { messageId: string }) => {
     orpc.boards.list.queryOptions({ enabled: hasAgent })
   )
   const add = useMutation(
-    orpc.boards.addEmail.mutationOptions({ onSettled: refetchBoards })
+    orpc.boards.addEmail.mutationOptions({
+      onError: (_error, { id }) => toast.dismiss(`add-${id}`),
+      onMutate: ({ id }) => {
+        toast.loading(t.today.working, { id: `add-${id}` })
+      },
+      onSettled: refetchBoards,
+      onSuccess: (_entry, { id }) =>
+        toast.success(
+          t.boards.added(boards.find((board) => board.id === id)?.name ?? ''),
+          { id: `add-${id}` }
+        ),
+    })
   )
   if (!hasAgent || boards.length === 0) {
     return null
@@ -353,7 +364,6 @@ export const AddToBoardItems = ({ messageId }: { messageId: string }) => {
             key={board.id}
             onClick={() => {
               add.mutate({ id: board.id, messageId })
-              toast.success(t.boards.added(board.name))
             }}
           >
             <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />

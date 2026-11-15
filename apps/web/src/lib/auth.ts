@@ -2,7 +2,9 @@ import { oauthProviderClient } from '@better-auth/oauth-provider/client'
 import { type } from 'arktype'
 import { createAuthClient } from 'better-auth/react'
 import { createWebStorageValue } from 'seitu/web'
+import { toast } from 'sonner'
 
+import { getT } from './i18n'
 import { posthog } from './posthog'
 import { disablePush } from './push'
 
@@ -32,6 +34,7 @@ export const signedInStore = createWebStorageValue({
 export const signOut = () => {
   signedInStore.set(false)
   posthog.capture('signed_out')
+  toast.loading(getT().today.working)
   void posthog.reset()
   void disablePush()
     .finally(() => authClient.signOut())

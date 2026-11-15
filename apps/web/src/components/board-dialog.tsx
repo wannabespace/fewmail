@@ -42,6 +42,7 @@ import { useSubscription } from 'seitu/react'
 import { useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 import { queryClient } from '~/lib/query-client'
+import { pendingToast, settleToast } from '~/lib/undo'
 
 /** Opened from the sidebar and from ⌘K, so it lives outside both. */
 export const newBoardStore = createStore(false)
@@ -212,7 +213,13 @@ const SettingsForm = ({
   const [days, setDays] = useState(board.bannerDays)
   const [period, setPeriod] = useState(board.periodDays)
   const update = useMutation(
-    orpc.boards.update.mutationOptions({ onSettled: refetchBoards })
+    orpc.boards.update.mutationOptions({
+      onMutate: ({ id }) => pendingToast(id).onMutate(),
+      onSettled: (_board, _error, { id }) => {
+        settleToast(id)()
+        refetchBoards()
+      },
+    })
   )
 
   return (
@@ -307,6 +314,7 @@ export const DeleteBoardDialog = () => {
   const remove = useMutation(
     orpc.boards.delete.mutationOptions({
       onMutate: ({ id }) => {
+        pendingToast(id).onMutate()
         deletingBoardStore.set(null)
         if (window.location.pathname === `/boards/${id}`) {
           void navigate({ to: '/home' })
@@ -315,7 +323,10 @@ export const DeleteBoardDialog = () => {
           old?.filter((item) => item.id !== id)
         )
       },
-      onSettled: refetchBoards,
+      onSettled: (_result, _error, { id }) => {
+        settleToast(id)()
+        refetchBoards()
+      },
     })
   )
 

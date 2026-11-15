@@ -1,5 +1,6 @@
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
@@ -58,6 +59,7 @@ const ConnectPage = () => {
             onClick={() => reply(false)}
             shortcut={<Kbd>Esc</Kbd>}
           >
+            {answer.isPending && !answer.variables && <Spinner />}
             {copy.deny}
           </Button>
           <Button
@@ -66,6 +68,7 @@ const ConnectPage = () => {
             onClick={() => reply(true)}
             shortcut={<Kbd>⏎</Kbd>}
           >
+            {answer.isPending && answer.variables && <Spinner />}
             {copy.allow}
           </Button>
         </div>

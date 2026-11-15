@@ -357,6 +357,7 @@ export const en = {
     previous: 'Previous',
     save: 'Save',
     saved: 'Event saved',
+    saving: 'Saving the event…',
     scope: {
       this: 'This event',
       following: 'This and following events',
@@ -435,6 +436,7 @@ export const en = {
     subject: 'Subject',
     to: 'To',
     undo: 'Undo',
+    undoing: 'Undoing…',
     writeForMe: 'Write it for me',
     writing: 'Writing…',
   },

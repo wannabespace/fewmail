@@ -189,6 +189,7 @@ export const hi: Messages = {
     subject: 'विषय',
     to: 'प्रति',
     undo: 'पहले जैसा करें',
+    undoing: 'वापस ले रहा है…',
     writeForMe: 'मेरे लिए लिखें',
     writing: 'लिखा जा रहा है…',
   },
@@ -226,6 +227,7 @@ export const hi: Messages = {
     previous: 'पिछला',
     save: 'सेव करें',
     saved: 'इवेंट सेव हुआ',
+    saving: 'इवेंट सेव हो रहा है…',
     scope: {
       this: 'सिर्फ़ यह इवेंट',
       following: 'यह और आगे के इवेंट',
