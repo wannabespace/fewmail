@@ -361,8 +361,11 @@ export const sendReading = async (
   reading: Parameters<typeof readingReply>[2]
 ) => {
   if (bot) {
-    const t = await messagesFor(userId)
-    await send(bot.api, chatId, readingReply(chatOf(chatId), t, reading))
+    await send(
+      bot.api,
+      chatId,
+      readingReply(chatOf(chatId), await localeFor(userId), reading)
+    )
   }
 }
 

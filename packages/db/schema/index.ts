@@ -47,7 +47,7 @@ export {
   paymentDetails,
   patternReports,
   people,
-  readingSummaries,
+  readingIssues,
   templateReports,
   unsubscribes,
 } from './insight'

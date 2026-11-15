@@ -46,7 +46,6 @@ import {
 import {
   READING_SHOWN,
   BODY_CHARS as READING_BODY_CHARS,
-  SUMMARY_EVERY_HOURS,
 } from '../services/reading'
 import { RISK_BODY_CHARS } from '../services/risk'
 import { PROMISE_BODY_CHARS, SENT_JEV_CHARS } from '../services/sent-mail'
@@ -164,7 +163,6 @@ export interface Use {
   messages: number
   newslettersPerDay: number
   notes: number
-  readingSummariesPerDay: number
   promisedShare: number
   ruleChars: number
   rules: number
@@ -196,7 +194,6 @@ export const TYPICAL: Use = {
   messages: 30,
   newslettersPerDay: 8,
   notes: 20,
-  readingSummariesPerDay: 2,
   promisedShare: 0.2,
   ruleChars: 80,
   rules: 5,
@@ -229,7 +226,6 @@ export const HEAVY: Use = {
   messages: Number.POSITIVE_INFINITY,
   newslettersPerDay: READING_SHOWN,
   notes: 100,
-  readingSummariesPerDay: 24 / SUMMARY_EVERY_HOURS,
   promisedShare: 0.5,
   ruleChars: 200,
   rules: 30,
@@ -416,8 +412,8 @@ export const backgroundCost = (use: Use, agent: boolean) => {
       mailTokens(use.newslettersPerDay * READING_SUMMARY_CHARS_EACH),
     READING_SUMMARY_OUTPUT_TOKENS
   )
-  const digest =
-    DAYS * (newsletterSummaries + use.readingSummariesPerDay * readingSummary)
+  // One issue a day, written the morning after.
+  const digest = DAYS * (newsletterSummaries + readingSummary)
   const notes =
     use.notes *
     llm(WRITER_MODEL_ID, mailTokens(NOTE_PROMPT_CHARS), NOTE_OUTPUT_TOKENS)

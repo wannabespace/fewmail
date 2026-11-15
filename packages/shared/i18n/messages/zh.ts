@@ -646,7 +646,7 @@ export const zh: Messages = {
       '机器人将不再给你发消息。重新连接需要从此页面获取新链接。',
     readingDigest: {
       description:
-        '每天早上，过去一天的订阅邮件会合成一条消息发到 Telegram 和 WhatsApp。',
+        '每天早上，昨天的订阅邮件会合成一条消息发到 Telegram 和 WhatsApp；两者都未连接时，以通知发送。',
       title: '订阅邮件摘要',
     },
     knowledge: {
@@ -1603,14 +1603,15 @@ export const zh: Messages = {
     summary: '订阅邮件说了什么',
     worth: '值得读全文',
     leftOut: (n: number) => `未写入摘要：${n} 封，没有新内容。`,
-    since: (n: number) => `摘要之后到达：${n} 封，会写进下一份摘要。`,
     note: {
       inSummary: '已写入摘要',
       leftOut: '未写入',
-      since: '摘要之后',
     },
-    digest: (n: number) => `今日订阅邮件：${n} 封`,
-    lead: '过去一天的订阅邮件集中在一处，不再挤满收件箱。',
+    digest: (n: number) => `订阅邮件：${n} 封`,
+    lead: '一天的订阅邮件集中在一处，不再挤满收件箱。',
+    issues: '所有期',
+    todaySoFar: '今天到目前为止',
+    tomorrow: (hour: string) => `摘要将于明天 ${hour} 送达。`,
     title: '阅读',
   },
   commitments: {

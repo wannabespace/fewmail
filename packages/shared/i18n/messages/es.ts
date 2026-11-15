@@ -1164,7 +1164,7 @@ export const es: Messages = {
       'El bot dejará de escribirte. Para volver a conectarlo hará falta un enlace nuevo de esta página.',
     readingDigest: {
       description:
-        'Cada mañana, los boletines del último día llegan a Telegram y WhatsApp en un solo mensaje.',
+        'Cada mañana, los boletines de ayer llegan a Telegram y WhatsApp en un solo mensaje, o como notificación si no tienes ninguno conectado.',
       title: 'Resumen de boletines',
     },
     knowledge: {
@@ -1719,15 +1719,15 @@ export const es: Messages = {
     summary: 'Lo que dicen tus boletines',
     worth: 'Vale la pena leerlo entero',
     leftOut: (n: number) => `Fuera del resumen: ${n}, nada nuevo.`,
-    since: (n: number) =>
-      `Llegaron después del resumen: ${n}, irán en el siguiente.`,
     note: {
       inSummary: 'En el resumen',
       leftOut: 'Fuera del resumen',
-      since: 'Después del resumen',
     },
-    digest: (n: number) => `Boletines de hoy: ${n}`,
-    lead: 'Los boletines del último día en un solo lugar, para que no llenen la bandeja.',
+    digest: (n: number) => `Boletines: ${n}`,
+    lead: 'Los boletines de un día en un solo lugar, para que no llenen la bandeja.',
+    issues: 'Todas las ediciones',
+    todaySoFar: 'Hoy por ahora',
+    tomorrow: (hour: string) => `El resumen llega mañana a las ${hour}.`,
     title: 'Lectura',
   },
   commitments: {

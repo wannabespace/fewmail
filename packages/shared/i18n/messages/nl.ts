@@ -457,15 +457,15 @@ export const nl: Messages = {
     summary: 'Wat je nieuwsbrieven zeiden',
     worth: 'De moeite waard om helemaal te lezen',
     leftOut: (n: number) => `Weggelaten: ${n}, niets nieuws.`,
-    since: (n: number) =>
-      `Na de samenvatting binnengekomen: ${n}, ze komen in de volgende.`,
     note: {
       inSummary: 'In de samenvatting',
       leftOut: 'Weggelaten',
-      since: 'Na de samenvatting',
     },
-    digest: (n: number) => `Nieuwsbrieven vandaag: ${n}`,
-    lead: 'De nieuwsbrieven van de afgelopen dag op één plek, zodat ze je inbox niet vullen.',
+    digest: (n: number) => `Nieuwsbrieven: ${n}`,
+    lead: 'De nieuwsbrieven van een dag op één plek, zodat ze je inbox niet vullen.',
+    issues: 'Alle edities',
+    todaySoFar: 'Vandaag tot nu toe',
+    tomorrow: (hour: string) => `De samenvatting komt morgen om ${hour}.`,
     title: 'Lezen',
   },
   commitments: {
@@ -968,7 +968,7 @@ export const nl: Messages = {
       'De bot stuurt je dan geen berichten meer. Opnieuw koppelen kan met een nieuwe link van deze pagina.',
     readingDigest: {
       description:
-        'Elke ochtend komen de nieuwsbrieven van de afgelopen dag als één bericht in Telegram en WhatsApp.',
+        'Elke ochtend komen de nieuwsbrieven van gisteren als één bericht in Telegram en WhatsApp, of als melding als geen van beide is gekoppeld.',
       title: 'Nieuwsbriefoverzicht',
     },
     account: 'Account',

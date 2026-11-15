@@ -49,7 +49,7 @@ import {
 } from './mail'
 import { scheduleMail } from './outbox'
 import { findContacts, getPerson } from './people'
-import { getReading } from './reading'
+import { getReadingDay } from './reading'
 import { createRule, listRules } from './rules'
 import { markNotSpam, reportSpam } from './spam'
 import { syncMailboxes } from './sync'
@@ -273,8 +273,9 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   get_reading: define({
     description:
-      "The last 24 hours of newsletters, newest first: sender, subject, a two or three sentence summary of what each says, and the threadId to open it. They usually sit outside the inbox, archived by the user's newsletter rule.",
-    run: () => getReading(userId),
+      "One day of newsletters (day yyyy-MM-dd, else the latest issue): each one's sender, subject, summary and threadId, and the agent's summary of them all once written the next morning.",
+    input: { day: z.iso.date().optional() },
+    run: ({ day }) => getReadingDay(userId, day),
   }),
   get_wrapped: define({
     description:

@@ -105,8 +105,8 @@ import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
 import { getPerson, listContacts } from '../services/people'
 import { getPlanInfo, getUsage } from '../services/plan'
 import {
-  getReading,
-  getReadingSummary,
+  getReadingDay,
+  listReadingIssues,
   markReadingRead,
 } from '../services/reading'
 import {
@@ -192,6 +192,8 @@ const simpleRuleInput = type({
 })
 
 const messageId = type({ messageId: 'string.uuid' })
+
+const readingDayInput = type({ 'day?': /^\d{4}-\d{2}-\d{2}$/u })
 
 const eventRef = type({ id: 'string', mailboxId: 'string.uuid' })
 
@@ -626,12 +628,17 @@ export const router = {
       ),
   },
   reading: {
-    list: authed.handler(({ context }) => getReading(context.user.id)),
-    markRead: authed.handler(({ context }) => markReadingRead(context.user.id)),
-    summary: agent.handler(async ({ context }) => {
-      const { summary } = await getReadingSummary(context.user.id)
-      return summary
-    }),
+    day: authed
+      .input(readingDayInput)
+      .handler(({ context, input }) =>
+        getReadingDay(context.user.id, input.day)
+      ),
+    issues: authed.handler(({ context }) => listReadingIssues(context.user.id)),
+    markRead: authed
+      .input(readingDayInput)
+      .handler(({ context, input }) =>
+        markReadingRead(context.user.id, input.day)
+      ),
   },
   wrapped: {
     get: authed

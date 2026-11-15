@@ -13,7 +13,7 @@ import { Result } from 'better-result'
 import { subMinutes } from 'date-fns'
 import { and, eq, gt, gte, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
 
-import { localClock } from './lib/clock'
+import { localClock, previousDay } from './lib/clock'
 import { logError } from './lib/log'
 import { seedBoards } from './services/boards'
 import { offerCleanup } from './services/cleanup'
@@ -29,11 +29,12 @@ import { listQueue } from './services/mail'
 import {
   flushNotifications,
   notify,
+  readingNotification,
   urgentNotification,
 } from './services/notifications'
 import { dispatchDueOutbox } from './services/outbox'
 import { getPlanInfo, hasAgent, hasAgentSql } from './services/plan'
-import { getReadingSummary } from './services/reading'
+import { writeReadingIssue } from './services/reading'
 import {
   processDueCommitments,
   processDueReminders,
@@ -180,15 +181,32 @@ const isMorningDue = (settings: typeof userSettings.$inferSelect) => {
   )
 }
 
-const sendReadingDigest = async (userId: string, chatId: string | null) => {
-  const reading = await getReadingSummary(userId)
-  if (reading.rows.length === 0) {
+interface Messengers {
+  chatId: string | null
+  hasWhatsapp: boolean
+}
+
+/** Yesterday's issue is written for everyone, then goes to the messengers, or as a notification where there are none. */
+const sendReadingIssue = async (
+  settings: typeof userSettings.$inferSelect,
+  { chatId, hasWhatsapp }: Messengers
+) => {
+  const { userId } = settings
+  const issue = await writeReadingIssue(
+    userId,
+    previousDay(localClock(settings.timezone).date)
+  )
+  if (!(issue && settings.readingDigest)) {
     return
   }
-  await Promise.all([
-    chatId && sendReading(chatId, userId, reading),
-    sendWhatsappReading(userId, reading),
-  ])
+  if (chatId || hasWhatsapp) {
+    await Promise.all([
+      chatId && sendReading(chatId, userId, issue),
+      hasWhatsapp && sendWhatsappReading(userId, issue),
+    ])
+    return
+  }
+  notify(userId, readingNotification(settings.language, issue))
 }
 
 const sendWeeklyReport = async (userId: string, chatId: string | null) => {
@@ -201,7 +219,19 @@ const sendWeeklyReport = async (userId: string, chatId: string | null) => {
   }
 }
 
-/** Marked sent before sending, so a failed digest is not summarized and retried every minute. */
+/** Telegram and WhatsApp are Pro channels: without the agent the morning reaches devices only. */
+const messengersOf = async (userId: string): Promise<Messengers> => {
+  if (!hasAgent(await getPlanInfo(userId))) {
+    return { chatId: null, hasWhatsapp: false }
+  }
+  const [chatId, whatsapp] = await Promise.all([
+    chatIdForUser(userId),
+    whatsappForUser(userId),
+  ])
+  return { chatId, hasWhatsapp: !!whatsapp }
+}
+
+/** Marked sent before sending, so a failed issue is not summarized and retried every minute. */
 const sendMorningIfDue = async (settings: typeof userSettings.$inferSelect) => {
   const { userId } = settings
   if (!isMorningDue(settings)) {
@@ -211,19 +241,12 @@ const sendMorningIfDue = async (settings: typeof userSettings.$inferSelect) => {
     .update(userSettings)
     .set({ morningSentAt: new Date() })
     .where(eq(userSettings.userId, userId))
-  const [chatId, whatsapp] = await Promise.all([
-    chatIdForUser(userId),
-    whatsappForUser(userId),
-  ])
-  if (!chatId && !whatsapp) {
-    return
-  }
-  if (settings.readingDigest) {
-    await sendReadingDigest(userId, chatId)
-  }
+  const messengers = await messengersOf(userId)
+  await sendReadingIssue(settings, messengers)
   const { date } = localClock(settings.timezone)
-  if (new Date(`${date}T12:00:00Z`).getUTCDay() === MONDAY) {
-    await sendWeeklyReport(userId, chatId)
+  const hasMessenger = !!messengers.chatId || messengers.hasWhatsapp
+  if (hasMessenger && new Date(`${date}T12:00:00Z`).getUTCDay() === MONDAY) {
+    await sendWeeklyReport(userId, messengers.chatId)
   }
 }
 
@@ -231,8 +254,8 @@ const settingsWithAgent = () =>
   db.select().from(userSettings).where(hasAgentSql(userSettings.userId))
 
 const sendDueMornings = async () => {
-  for (const settings of await settingsWithAgent()) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- digests are summarized one user at a time
+  for (const settings of await db.select().from(userSettings)) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- issues are summarized one user at a time
     await sendMorningIfDue(settings).catch((error) =>
       logError(`morning ${settings.userId}`, error)
     )

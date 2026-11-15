@@ -36,3 +36,9 @@ export const localStamp = (timezone: string, date: Date) =>
 /** Intl throws on an unknown zone, which would fail every worker loop for that user. */
 export const isTimeZone = (timezone: string) =>
   Result.try(() => localClock(timezone)).isOk()
+
+/** The local day before a YYYY-MM-DD date; noon UTC keeps the step clear of any offset. */
+export const previousDay = (date: string) =>
+  new Date(Date.parse(`${date}T12:00:00Z`) - 86_400_000)
+    .toISOString()
+    .slice(0, 10)

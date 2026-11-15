@@ -11,7 +11,7 @@ import {
 import type { Messages } from '@fewmail/shared/i18n'
 import { approveTitle, messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
-import { formatResetDay } from '@fewmail/shared/i18n/locales'
+import { formatIssueDay, formatResetDay } from '@fewmail/shared/i18n/locales'
 import { Result } from 'better-result'
 import { isAfter, subDays, subMinutes } from 'date-fns'
 import { eq, lt } from 'drizzle-orm'
@@ -28,7 +28,7 @@ import { LimitReachedError } from './limit-error'
 import { dismissAction, listQueue, redraftAction, updateDraft } from './mail'
 import { AlreadySentError, cancelMail } from './outbox'
 import { requireBudget } from './plan'
-import { getReadingSummary, markReadingRead } from './reading'
+import { getReadingDay, markReadingRead } from './reading'
 import { getSettings } from './settings'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
@@ -299,35 +299,40 @@ export const weekReply = (chat: Chat, t: Messages, minutes: number): Reply => ({
   text: `${chat.channel.bold(t.today.saved(minutes))}\n\n${env.WEB_URL}/wrapped`,
 })
 
-type Reading = Awaited<ReturnType<typeof getReadingSummary>>
+type Reading = Awaited<ReturnType<typeof getReadingDay>>
 
-/** The day's newsletters as one message: the agent's summary of all of them, topic titles in bold, then the page; one button marks them read. */
+/** A day's issue as one message: the agent's summary of its newsletters, topic titles in bold, then the issue's page; one button marks them read. */
 export const readingReply = (
   chat: Chat,
-  t: Messages,
-  { rows, summary }: Reading
-): Reply => ({
-  buttons: rows.some(({ isUnread }) => isUnread)
-    ? [{ id: 'readall', title: t.reading.markAllRead }]
-    : [],
-  text: [
-    chat.channel.bold(t.reading.digest(rows.length)),
-    ...(summary
-      ? [
-          chat.channel.plain(summary.intro),
-          ...summary.sections.map(
-            ({ sentences, title }) =>
-              `${chat.channel.bold(title)}\n${chat.channel.plain(sentences.map(({ text }) => text).join(' '))}`
-          ),
-        ]
-      : []),
-    `${env.WEB_URL}/home?page=reading`,
-  ].join('\n\n'),
-})
+  locale: Locale,
+  { day, rows, summary }: Reading
+): Reply => {
+  const t = messages[locale]
+  return {
+    buttons: rows.some(({ isUnread }) => isUnread)
+      ? [{ id: `readall:${day}`, title: t.reading.markAllRead }]
+      : [],
+    text: [
+      chat.channel.bold(
+        `${formatIssueDay(locale, day)} · ${t.reading.digest(rows.length)}`
+      ),
+      ...(summary
+        ? [
+            chat.channel.plain(summary.intro),
+            ...summary.sections.map(
+              ({ sentences, title }) =>
+                `${chat.channel.bold(title)}\n${chat.channel.plain(sentences.map(({ text }) => text).join(' '))}`
+            ),
+          ]
+        : []),
+      `${env.WEB_URL}/home?day=${day}`,
+    ].join('\n\n'),
+  }
+}
 
-/** Read aloud on Reading: the summary as it is written, titles as their own sentences. */
-export const spokenReading = async (userId: string) => {
-  const { summary } = await getReadingSummary(userId)
+/** Read aloud on Reading: a day's summary as it is written, titles as their own sentences. */
+export const spokenReading = async (userId: string, day?: string) => {
+  const { summary } = await getReadingDay(userId, day)
   return summary ? readingSpeech(summary) : ''
 }
 
@@ -393,12 +398,16 @@ export const press = async (
   if (command === 'reading') {
     return {
       replies: async () => [
-        readingReply(chat, t, await getReadingSummary(userId)),
+        readingReply(
+          chat,
+          await localeFor(userId),
+          await getReadingDay(userId)
+        ),
       ],
     }
   }
   if (command === 'readall') {
-    const { threadIds } = await markReadingRead(userId)
+    const { threadIds } = await markReadingRead(userId, id)
     return {
       buttons: [],
       notice: t.today.handled.markedRead(threadIds.length),

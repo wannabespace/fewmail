@@ -76,7 +76,13 @@ import {
   QueueCard,
 } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
-import { ReadingPane, ReadingSection, useReading } from '~/components/reading'
+import {
+  openReadingDays,
+  ReadingPane,
+  ReadingSection,
+  useReadingDay,
+  useReadingIssues,
+} from '~/components/reading'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { usePeekKey } from '~/components/thread-link'
 import {
@@ -517,7 +523,7 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
 
 type HomeSubpage = 'reading' | 'tidy'
 
-type Newsletters = ReturnType<typeof useReading>['rows']
+type Newsletters = ReturnType<typeof useReadingDay>['rows']
 
 const pageHints = (
   t: Messages,
@@ -577,6 +583,7 @@ const homeHints = (
     today: Today | undefined
     isEditing: boolean
     isRewriting: boolean
+    hasNewsletters: boolean
     newsletters: Newsletters
     picked: number
     selected: QueueItem | undefined
@@ -657,7 +664,7 @@ const homeHints = (
           ['I', t.today.newSender.keep] as [string, string],
         ]
       : []),
-    ...(state.newsletters.length > 0
+    ...(state.hasNewsletters
       ? [['N', t.reading.title] as [string, string]]
       : []),
     ...(state.today?.codes.length
@@ -1077,9 +1084,13 @@ const useAddEvent = (selected: QueueItem | undefined, canUseKeys: boolean) => {
   return addEventOf
 }
 
-/** The proposals' review (`D`) takes Home's column and Reading (`N`) opens over it; the same key or esc brings Home back. */
+/**
+ * The proposals' review (`D`) takes Home's column and Reading (`N`) opens over it; the same key or esc brings Home back.
+ * A day's issue (`day`) lies over both, so esc closes it first.
+ */
 const useHomeSubpage = (
   page: HomeSubpage | undefined,
+  day: string | undefined,
   canSwitch: boolean,
   {
     hasNewsletters,
@@ -1090,7 +1101,17 @@ const useHomeSubpage = (
   const show = (next: HomeSubpage | undefined) =>
     navigate({ search: (prev) => ({ ...prev, page: next }), to: '/home' })
   const toggle = (next: HomeSubpage) => show(page === next ? undefined : next)
-  useHotkey('Escape', () => show(undefined), { enabled: canSwitch && !!page })
+  useHotkey(
+    'Escape',
+    () =>
+      day
+        ? navigate({
+            search: (prev) => ({ ...prev, day: undefined }),
+            to: '/home',
+          })
+        : show(undefined),
+    { enabled: canSwitch && (!!page || !!day) }
+  )
   useHotkey('N', () => toggle('reading'), {
     enabled: canSwitch && hasNewsletters,
   })
@@ -1106,15 +1127,34 @@ const useHomeFocus = (isEditing: boolean, page: HomeSubpage | undefined) => {
   return { isFocused, isWalking: isFocused && !page }
 }
 
+/** Reading's panes and the newsletters of the one on top, whose keys Home shows. */
+const useReadingPage = (
+  page: HomeSubpage | undefined,
+  day: string | undefined
+) => {
+  const { hasAny, latestDay } = useReadingIssues()
+  const readingDays = openReadingDays(page, day, latestDay)
+  const { rows } = useReadingDay(readingDays.top ?? readingDays.base)
+  return {
+    hasNewsletters: hasAny,
+    newsletters: rows,
+    // A day's issue opened alone (Home's today line, a digest's link) is Reading as much as `N`'s pane.
+    page: page ?? (readingDays.top ? ('reading' as const) : undefined),
+    readingDays,
+  }
+}
+
 /** Reading opens over Home; the proposals' review takes its place. */
 const showsHome = (page: HomeSubpage | undefined) => !page || page === 'reading'
 
 const HomePage = () => {
   const t = useT()
   const queryClient = useQueryClient()
-  const { page } = Route.useSearch()
-  const isReadingOpen = page === 'reading'
-  const { rows: newsletters } = useReading()
+  const search = Route.useSearch()
+  const { hasNewsletters, newsletters, page, readingDays } = useReadingPage(
+    search.page,
+    search.day
+  )
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
   const { data: cards } = useLiveQuery((query) =>
@@ -1431,8 +1471,8 @@ const HomePage = () => {
       : selected && dismiss.mutate({ id: selected.action.id })
 
   const { isFocused, isWalking } = useHomeFocus(isEditing, page)
-  useHomeSubpage(page, isFocused, {
-    hasNewsletters: newsletters.length > 0,
+  useHomeSubpage(search.page, readingDays.top, isFocused, {
+    hasNewsletters,
     hasProposals,
   })
   const walkKeys = { enabled: isWalking && stops.length > 0 }
@@ -1484,7 +1524,7 @@ const HomePage = () => {
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <main className="flex min-h-0 flex-1 flex-col">
-        <div className="relative min-h-0 flex-1">
+        <div data-slot="reading-area" className="relative min-h-0 flex-1">
           <motion.div layoutScroll className="h-full overflow-y-auto">
             <div
               className={cn(
@@ -1504,7 +1544,7 @@ const HomePage = () => {
                     updatedAt={dataUpdatedAt}
                   />
                   <ConnectHint />
-                  <ReadingSection isOpen={isReadingOpen} />
+                  <ReadingSection {...readingDays} />
                   <FreshCodes today={data} canUseKeys={isWalking} />
 
                   <section
@@ -1622,13 +1662,14 @@ const HomePage = () => {
               )}
             </div>
           </motion.div>
-          <ReadingPane isOpen={isReadingOpen} />
+          <ReadingPane {...readingDays} />
         </div>
         <KeyHints
           hints={homeHints(t, {
             alike: alike.length,
             hasFilter: filter.isOffered,
             isEditing,
+            hasNewsletters,
             newsletters,
             page,
             selected,
@@ -1659,11 +1700,12 @@ export const Route = createFileRoute('/_app/home')({
   validateSearch: type({
     'thread?': 'string',
     'page?': "'reading' | 'tidy'",
+    'day?': /^\d{4}-\d{2}-\d{2}$/u,
   }),
   loader: async () => {
     await Promise.all([
       warmQuery(orpc.today.get.queryOptions()),
-      warmQuery(orpc.reading.list.queryOptions()),
+      warmQuery(orpc.reading.issues.queryOptions()),
       queueCards.preload(),
     ])
   },

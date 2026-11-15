@@ -148,7 +148,8 @@ const app = new Hono()
     if (!userId) {
       return c.notFound()
     }
-    return spokenResponse(userId, () => spokenReading(userId))
+    const day = c.req.query('day')
+    return spokenResponse(userId, () => spokenReading(userId, day))
   })
   .get('/attachments/:messageId/:partId', async (c) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers })

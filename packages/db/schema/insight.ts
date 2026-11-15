@@ -110,16 +110,22 @@ export interface ReadingSummary {
   worth: { messageId: string; why: string }[]
 }
 
-/** The agent's summary of the day's newsletters, one per user; `messageIds` are the emails it was written from. */
-export const readingSummaries = d.snakeCase.table(
-  'reading_summaries',
+/**
+ * One calendar day of newsletters in the user's time zone, written once the morning after; `messageIds` are the
+ * newsletters it covers, `summary` the agent's text over them (null on Free or with the allowance spent).
+ */
+export const readingIssues = d.snakeCase.table(
+  'reading_issues',
   {
     ...baseTable,
+    day: d.date({ mode: 'string' }).notNull(),
     messageIds: d.uuid().array().notNull(),
-    summary: encryptedJson<ReadingSummary>().notNull(),
+    summary: encryptedJson<ReadingSummary>(),
     userId: userId(),
   },
-  (table) => [d.uniqueIndex('reading_summaries_user_idx').on(table.userId)]
+  (table) => [
+    d.uniqueIndex('reading_issues_user_day_idx').on(table.userId, table.day),
+  ]
 )
 
 export const people = d.snakeCase.table(

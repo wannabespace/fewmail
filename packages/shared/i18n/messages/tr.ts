@@ -444,14 +444,15 @@ export const tr: Messages = {
     summary: 'Bültenleriniz ne dedi',
     worth: 'Tamamını okumaya değer',
     leftOut: (n: number) => `Özete alınmayan: ${n}, yeni bir şey yok.`,
-    since: (n: number) => `Özetten sonra gelen: ${n}, bir sonrakine girecek.`,
     note: {
       inSummary: 'Özette',
       leftOut: 'Alınmadı',
-      since: 'Özetten sonra',
     },
-    digest: (n: number) => `Bugünkü bültenler: ${n}`,
-    lead: 'Son günün bültenleri tek yerde, gelen kutusunu doldurmasınlar diye.',
+    digest: (n: number) => `Bültenler: ${n}`,
+    lead: 'Bir günün bültenleri tek yerde, gelen kutusunu doldurmasınlar diye.',
+    issues: 'Tüm sayılar',
+    todaySoFar: 'Bugün şu ana kadar',
+    tomorrow: (hour: string) => `Özet yarın ${hour} itibarıyla gelir.`,
     title: 'Okuma',
   },
   commitments: {
@@ -938,7 +939,7 @@ export const tr: Messages = {
       'Bot sana yazmayı bırakır. Yeniden bağlamak için bu sayfadan yeni bir bağlantı gerekir.',
     readingDigest: {
       description:
-        'Her sabah son bir günün bültenleri Telegram ve WhatsApp’a tek mesaj olarak gelir.',
+        'Her sabah dünün bültenleri Telegram ve WhatsApp’a tek mesaj olarak, ikisi de bağlı değilse bildirim olarak gelir.',
       title: 'Bülten özeti',
     },
     account: 'Hesap',

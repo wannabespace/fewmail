@@ -1175,7 +1175,7 @@ export const fr: Messages = {
       'Le bot ne vous écrira plus. Pour le reconnecter, il faudra un nouveau lien depuis cette page.',
     readingDigest: {
       description:
-        'Chaque matin, les newsletters de la veille arrivent dans Telegram et WhatsApp en un seul message.',
+        'Chaque matin, les newsletters de la veille arrivent dans Telegram et WhatsApp en un seul message, ou en notification si aucun n’est connecté.',
       title: 'Résumé des newsletters',
     },
     knowledge: {
@@ -1742,15 +1742,15 @@ export const fr: Messages = {
     summary: 'Ce que disent vos newsletters',
     worth: 'À lire en entier',
     leftOut: (n: number) => `Laissées de côté : ${n}, rien de nouveau.`,
-    since: (n: number) =>
-      `Arrivées après le résumé : ${n}, elles seront dans le prochain.`,
     note: {
       inSummary: 'Dans le résumé',
       leftOut: 'Laissée de côté',
-      since: 'Après le résumé',
     },
-    digest: (n: number) => `Newsletters du jour : ${n}`,
-    lead: 'Les newsletters du dernier jour au même endroit, pour qu’elles n’encombrent pas la boîte de réception.',
+    digest: (n: number) => `Newsletters : ${n}`,
+    lead: 'Les newsletters d’une journée au même endroit, pour qu’elles n’encombrent pas la boîte de réception.',
+    issues: 'Toutes les éditions',
+    todaySoFar: 'Aujourd’hui pour l’instant',
+    tomorrow: (hour: string) => `Le résumé arrive demain à ${hour}.`,
     title: 'Lecture',
   },
   commitments: {

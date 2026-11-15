@@ -447,15 +447,15 @@ export const id: Messages = {
     summary: 'Isi newsletter Anda',
     worth: 'Layak dibaca utuh',
     leftOut: (n: number) => `Tidak masuk ringkasan: ${n}, tidak ada yang baru.`,
-    since: (n: number) =>
-      `Datang setelah ringkasan: ${n}, akan masuk ringkasan berikutnya.`,
     note: {
       inSummary: 'Di ringkasan',
       leftOut: 'Dilewati',
-      since: 'Setelah ringkasan',
     },
-    digest: (n: number) => `Newsletter hari ini: ${n}`,
-    lead: 'Newsletter sehari terakhir di satu tempat, agar tidak memenuhi kotak masuk.',
+    digest: (n: number) => `Newsletter: ${n}`,
+    lead: 'Newsletter satu hari di satu tempat, agar tidak memenuhi kotak masuk.',
+    issues: 'Semua edisi',
+    todaySoFar: 'Hari ini sejauh ini',
+    tomorrow: (hour: string) => `Ringkasannya datang besok pukul ${hour}.`,
     title: 'Bacaan',
   },
   commitments: {
@@ -943,7 +943,7 @@ export const id: Messages = {
       'Bot berhenti mengirimimu pesan. Untuk menghubungkan lagi, perlu tautan baru dari halaman ini.',
     readingDigest: {
       description:
-        'Setiap pagi, newsletter sehari terakhir datang ke Telegram dan WhatsApp dalam satu pesan.',
+        'Setiap pagi, newsletter kemarin datang ke Telegram dan WhatsApp dalam satu pesan, atau sebagai notifikasi jika keduanya belum terhubung.',
       title: 'Ringkasan newsletter',
     },
     account: 'Akun',

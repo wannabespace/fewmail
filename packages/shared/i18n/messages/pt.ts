@@ -457,14 +457,15 @@ export const pt: Messages = {
     summary: 'O que as suas newsletters disseram',
     worth: 'Vale a pena ler inteira',
     leftOut: (n: number) => `Fora do resumo: ${n}, nada de novo.`,
-    since: (n: number) => `Chegaram depois do resumo: ${n}, entram no próximo.`,
     note: {
       inSummary: 'No resumo',
       leftOut: 'Fora do resumo',
-      since: 'Depois do resumo',
     },
-    digest: (n: number) => `Newsletters de hoje: ${n}`,
-    lead: 'As newsletters do último dia num só lugar, para não lotarem a caixa de entrada.',
+    digest: (n: number) => `Newsletters: ${n}`,
+    lead: 'As newsletters de um dia num só lugar, para não lotarem a caixa de entrada.',
+    issues: 'Todas as edições',
+    todaySoFar: 'Hoje até agora',
+    tomorrow: (hour: string) => `O resumo chega amanhã às ${hour}.`,
     title: 'Leitura',
   },
   commitments: {
@@ -971,7 +972,7 @@ export const pt: Messages = {
       'O bot vai parar de escrever para você. Para conectar de novo, será preciso um novo link desta página.',
     readingDigest: {
       description:
-        'Toda manhã, as newsletters do último dia chegam ao Telegram e WhatsApp numa só mensagem.',
+        'Toda manhã, as newsletters de ontem chegam ao Telegram e WhatsApp numa só mensagem, ou como notificação se nenhum estiver conectado.',
       title: 'Resumo de newsletters',
     },
     account: 'Conta',

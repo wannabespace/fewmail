@@ -45,6 +45,15 @@ export const formatResetDay = (locale: Locale, date: Date) =>
     timeZone: 'UTC',
   }).format(date)
 
+/** An issue's day (YYYY-MM-DD, already the user's own): "Saturday, 14 November". */
+export const formatIssueDay = (locale: Locale, day: string) =>
+  new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'UTC',
+    weekday: 'long',
+  }).format(new Date(`${day}T12:00:00Z`))
+
 /** "2 h 10 min" in the locale's own units, minutes dropped from four hours up. */
 export const formatMinutes = (locale: Locale, minutes: number) => {
   const unit = (value: number, name: 'hour' | 'minute') =>

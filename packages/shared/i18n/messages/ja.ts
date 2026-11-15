@@ -656,7 +656,7 @@ export const ja: Messages = {
       'ボットからのメッセージが届かなくなります。再接続にはこのページの新しいリンクが必要です。',
     readingDigest: {
       description:
-        '毎朝、前日のメルマガを Telegram と WhatsApp にひとつのメッセージで届けます。',
+        '毎朝、前日のメルマガを Telegram と WhatsApp にひとつのメッセージで、どちらも未接続なら通知で届けます。',
       title: 'メルマガのダイジェスト',
     },
     knowledge: {
@@ -1660,15 +1660,15 @@ export const ja: Messages = {
     summary: 'メルマガの内容まとめ',
     worth: '全文を読む価値あり',
     leftOut: (n: number) => `まとめから除外: ${n}件（新しい内容なし）`,
-    since: (n: number) =>
-      `まとめの後に届いたもの: ${n}件（次のまとめに入ります）`,
     note: {
       inSummary: 'まとめに含む',
       leftOut: '除外',
-      since: 'まとめの後',
     },
-    digest: (n: number) => `今日のメルマガ: ${n}件`,
-    lead: '直近1日のメルマガを1か所に。受信トレイを埋めません。',
+    digest: (n: number) => `メルマガ: ${n}件`,
+    lead: '1日分のメルマガを1か所に。受信トレイを埋めません。',
+    issues: 'すべての号',
+    todaySoFar: '今日のこれまで',
+    tomorrow: (hour: string) => `まとめは明日 ${hour} に届きます。`,
     title: 'リーディング',
   },
   commitments: {

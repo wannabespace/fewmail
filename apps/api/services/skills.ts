@@ -11,7 +11,7 @@ const INSTRUCTIONS: Record<Skill, string> = {
   followups:
     'Find threads where the user wrote last and nobody has answered for more than 3 days (search their sent mail from the last 30 days and read the threads). List who owes them an answer and about what, oldest first, and offer to draft a short nudge for each.',
   reading:
-    'Give the user the last day of newsletters as one digest: get_reading, then one short paragraph per newsletter (sender in bold, what it says), most interesting first. Leave out the ones that say nothing new and say how many you skipped.',
+    'Give the user a day of newsletters as one digest: get_reading (the latest issue, or the day in their details), then one short paragraph per newsletter (sender in bold, what it says), most interesting first. Leave out the ones that say nothing new and say how many you skipped.',
   today:
     'Tell the user what needs them today: get_today, then the important mail in the inbox. Most urgent first, one line each with why it matters. Offer to draft the replies that are expected.',
   waiting:

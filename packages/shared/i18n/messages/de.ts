@@ -1161,7 +1161,7 @@ export const de: Messages = {
       'Der Bot schreibt dir dann nicht mehr. Zum erneuten Verbinden brauchst du einen neuen Link von dieser Seite.',
     readingDigest: {
       description:
-        'Jeden Morgen kommen die Newsletter des letzten Tages als eine Nachricht in Telegram und WhatsApp.',
+        'Jeden Morgen kommen die Newsletter von gestern als eine Nachricht in Telegram und WhatsApp, oder als Mitteilung, wenn keins verbunden ist.',
       title: 'Newsletter-Digest',
     },
     knowledge: {
@@ -1722,15 +1722,15 @@ export const de: Messages = {
     summary: 'Was deine Newsletter schreiben',
     worth: 'Lohnt sich ganz zu lesen',
     leftOut: (n: number) => `Ausgelassen: ${n}, nichts Neues darin.`,
-    since: (n: number) =>
-      `Nach der Zusammenfassung gekommen: ${n}, sie stehen in der nächsten.`,
     note: {
       inSummary: 'In der Zusammenfassung',
       leftOut: 'Ausgelassen',
-      since: 'Nach der Zusammenfassung',
     },
-    digest: (n: number) => `Newsletter heute: ${n}`,
-    lead: 'Die Newsletter des letzten Tages an einem Ort, damit sie den Posteingang nicht füllen.',
+    digest: (n: number) => `Newsletter: ${n}`,
+    lead: 'Die Newsletter eines Tages an einem Ort, damit sie den Posteingang nicht füllen.',
+    issues: 'Alle Ausgaben',
+    todaySoFar: 'Heute bisher',
+    tomorrow: (hour: string) => `Die Zusammenfassung kommt morgen um ${hour}.`,
     title: 'Lesen',
   },
   commitments: {

@@ -41,7 +41,8 @@ export const LanguageSelect = ({
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 
-const formatHour = (hour: number) => `${String(hour).padStart(2, '0')}:00`
+export const formatHour = (hour: number) =>
+  `${String(hour).padStart(2, '0')}:00`
 
 export const MorningHourSelect = ({
   onChange,

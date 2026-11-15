@@ -467,15 +467,15 @@ export const pl: Messages = {
     summary: 'Co piszą twoje newslettery',
     worth: 'Warto przeczytać w całości',
     leftOut: (n: number) => `Pominięte w podsumowaniu: ${n}, nic nowego.`,
-    since: (n: number) =>
-      `Przyszły po podsumowaniu: ${n}, trafią do następnego.`,
     note: {
       inSummary: 'W podsumowaniu',
       leftOut: 'Pominięty',
-      since: 'Po podsumowaniu',
     },
-    digest: (n: number) => `Newslettery dziś: ${n}`,
-    lead: 'Newslettery z ostatniej doby w jednym miejscu, żeby nie zaśmiecały skrzynki.',
+    digest: (n: number) => `Newslettery: ${n}`,
+    lead: 'Newslettery z jednego dnia w jednym miejscu, żeby nie zaśmiecały skrzynki.',
+    issues: 'Wszystkie wydania',
+    todaySoFar: 'Dziś do tej pory',
+    tomorrow: (hour: string) => `Podsumowanie przyjdzie jutro o ${hour}.`,
     title: 'Czytanie',
   },
   commitments: {
@@ -991,7 +991,7 @@ export const pl: Messages = {
       'Bot przestanie do ciebie pisać. Ponowne połączenie wymaga nowego linku z tej strony.',
     readingDigest: {
       description:
-        'Co rano newslettery z ostatniej doby przychodzą do Telegrama i WhatsAppa jedną wiadomością.',
+        'Co rano wczorajsze newslettery przychodzą do Telegrama i WhatsAppa jedną wiadomością, a gdy żaden nie jest połączony, powiadomieniem.',
       title: 'Podsumowanie newsletterów',
     },
     account: 'Konto',

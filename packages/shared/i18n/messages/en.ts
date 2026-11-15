@@ -505,15 +505,15 @@ export const en = {
     summary: 'What your newsletters said',
     worth: 'Worth reading in full',
     leftOut: (n: number) => `${n} left out: nothing new in them.`,
-    since: (n: number) =>
-      `${n} came after the summary and go into the next one.`,
     note: {
       inSummary: 'In the summary',
       leftOut: 'Left out',
-      since: 'Since the summary',
     },
-    digest: (n: number) => `${n} newsletters today`,
-    lead: 'The last day of newsletters in one place, so they never crowd the inbox.',
+    digest: (n: number) => `${n} newsletters`,
+    lead: 'A day of newsletters in one place, so they never crowd the inbox.',
+    issues: 'Every issue',
+    todaySoFar: 'Today so far',
+    tomorrow: (hour: string) => `The summary comes tomorrow at ${hour}.`,
     title: 'Reading',
   },
   command: {
@@ -961,7 +961,7 @@ export const en = {
       'The bot stops writing to you. Connecting again takes a new link from this page.',
     readingDigest: {
       description:
-        'Each morning, the last day’s newsletters arrive in Telegram and WhatsApp as one message.',
+        'Each morning, yesterday’s newsletters arrive as one message in Telegram and WhatsApp, or as a notification when neither is connected.',
       title: 'Newsletter digest',
     },
     account: 'Account',

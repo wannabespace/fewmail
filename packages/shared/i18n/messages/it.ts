@@ -1168,7 +1168,7 @@ export const it: Messages = {
       'Il bot smetterà di scriverti. Per ricollegarlo servirà un nuovo link da questa pagina.',
     readingDigest: {
       description:
-        'Ogni mattina, le newsletter dell’ultimo giorno arrivano su Telegram e WhatsApp in un solo messaggio.',
+        'Ogni mattina, le newsletter di ieri arrivano su Telegram e WhatsApp in un solo messaggio, o come notifica se nessuno dei due è collegato.',
       title: 'Riepilogo newsletter',
     },
     knowledge: {
@@ -1720,15 +1720,15 @@ export const it: Messages = {
     summary: 'Cosa dicono le tue newsletter',
     worth: 'Da leggere per intero',
     leftOut: (n: number) => `Escluse dal riassunto: ${n}, niente di nuovo.`,
-    since: (n: number) =>
-      `Arrivate dopo il riassunto: ${n}, saranno nel prossimo.`,
     note: {
       inSummary: 'Nel riassunto',
       leftOut: 'Esclusa',
-      since: 'Dopo il riassunto',
     },
-    digest: (n: number) => `Newsletter di oggi: ${n}`,
-    lead: 'Le newsletter dell’ultimo giorno in un solo posto, così non affollano la posta in arrivo.',
+    digest: (n: number) => `Newsletter: ${n}`,
+    lead: 'Le newsletter di un giorno in un solo posto, così non affollano la posta in arrivo.',
+    issues: 'Tutte le edizioni',
+    todaySoFar: 'Oggi finora',
+    tomorrow: (hour: string) => `Il riepilogo arriva domani alle ${hour}.`,
     title: 'Lettura',
   },
   commitments: {

@@ -360,12 +360,12 @@ export const sendWhatsappReading = async (
   userId: string,
   reading: Parameters<typeof readingReply>[2]
 ) => {
-  const t = await messagesFor(userId)
+  const locale = await localeFor(userId)
   await push(
     userId,
-    t.reading.digest(reading.rows.length),
+    messages[locale].reading.digest(reading.rows.length),
     'reading',
-    (chat, chatT) => readingReply(chat, chatT, reading)
+    (chat) => readingReply(chat, locale, reading)
   )
 }
 
