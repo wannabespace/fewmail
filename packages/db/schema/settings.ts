@@ -43,6 +43,7 @@ export const userSettings = d.snakeCase.table('user_settings', {
     .primaryKey()
     .references(() => users.id, { onDelete: 'cascade' }),
   voice: encryptedText(),
+  voiceLearnedAt: d.timestamp({ withTimezone: true }),
 })
 
 export const telegramLinks = d.snakeCase.table('telegram_links', {
@@ -130,6 +131,7 @@ export type AiFeature =
   | 'promises'
   | 'reading_summary'
   | 'understand'
+  | 'voice'
 
 /** `cost` (USD) is the call at `MODEL_PRICES`, or OpenRouter's own report for a model missing there; null when neither. */
 export const aiUsage = d.snakeCase.table(

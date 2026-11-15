@@ -1033,16 +1033,8 @@ export const updateDraft = async (
 }
 
 /** A reply for the composer to edit; nothing is queued. */
-export const writeReplyTo = async (
-  userId: string,
-  messageId: string,
-  instruction?: string
-) =>
-  writeReply({
-    instruction,
-    message: await ownMessage(userId, messageId),
-    userId,
-  })
+export const writeReplyTo = async (userId: string, messageId: string) =>
+  writeReply({ message: await ownMessage(userId, messageId), userId })
 
 /** Reply on demand, from the Mail view, MCP or Telegram: reuses the open draft for the thread when there is one. */
 export const draftReply = async (

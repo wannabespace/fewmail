@@ -512,7 +512,6 @@ export const tr: Messages = {
     forward: 'İlet',
     forwardedMessage: 'İletilen mesaj',
     from: 'Kimden',
-    instructionPlaceholder: 'Nasıl olsun? (isteğe bağlı)',
     invalidRecipients: 'En az bir geçerli e-posta adresi ekle.',
     later: {
       inHour: 'Bir saat sonra',

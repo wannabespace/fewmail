@@ -119,7 +119,6 @@ export const de: Messages = {
     forward: 'Weiterleiten',
     forwardedMessage: 'Weitergeleitete Nachricht',
     from: 'Von',
-    instructionPlaceholder: 'Wie soll sie klingen? (optional)',
     invalidRecipients: 'Füge mindestens eine gültige E-Mail-Adresse hinzu.',
     later: {
       inHour: 'In einer Stunde',

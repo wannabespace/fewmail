@@ -163,7 +163,6 @@ export const ko: Messages = {
     forward: '전달',
     forwardedMessage: '전달된 메시지',
     from: '보낸 사람',
-    instructionPlaceholder: '어떤 느낌으로 쓸까요? (선택)',
     invalidRecipients: '유효한 이메일 주소를 하나 이상 추가하세요.',
     later: {
       inHour: '1시간 후',

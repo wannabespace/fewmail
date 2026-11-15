@@ -534,7 +534,6 @@ export const nl: Messages = {
     forward: 'Doorsturen',
     forwardedMessage: 'Doorgestuurd bericht',
     from: 'Van',
-    instructionPlaceholder: 'Hoe moet het klinken? (optioneel)',
     invalidRecipients: 'Voeg minstens één geldig e-mailadres toe.',
     later: {
       inHour: 'Over een uur',

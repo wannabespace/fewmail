@@ -516,7 +516,6 @@ export const id: Messages = {
     forward: 'Teruskan',
     forwardedMessage: 'Pesan yang diteruskan',
     from: 'Dari',
-    instructionPlaceholder: 'Bagaimana nadanya? (opsional)',
     invalidRecipients: 'Tambahkan minimal satu alamat email yang valid.',
     later: {
       inHour: 'Satu jam lagi',

@@ -162,7 +162,6 @@ export const zh: Messages = {
     forward: '转发',
     forwardedMessage: '转发的邮件',
     from: '发件人',
-    instructionPlaceholder: '想要什么语气？（可选）',
     invalidRecipients: '请至少添加一个有效的邮箱地址。',
     later: {
       inHour: '一小时后',

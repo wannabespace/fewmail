@@ -446,16 +446,10 @@ export const router = {
     unsnooze: authed.input(messageId).handler(async ({ context, input }) => {
       await unsnoozeMessage(context.user.id, input.messageId)
     }),
-    writeDraft: agent
-      .input(messageId.and({ 'instruction?': 'string' }))
-      .handler(async ({ context, input }) => {
-        const text = await writeReplyTo(
-          context.user.id,
-          input.messageId,
-          input.instruction
-        )
-        return { html: textToHtml(text), text }
-      }),
+    writeDraft: agent.input(messageId).handler(async ({ context, input }) => {
+      const text = await writeReplyTo(context.user.id, input.messageId)
+      return { html: textToHtml(text), text }
+    }),
     draftReply: agent
       .input(type({ 'instruction?': 'string', messageId: 'string.uuid' }))
       .handler(({ context, input }) =>

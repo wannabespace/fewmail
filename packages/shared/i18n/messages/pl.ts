@@ -549,7 +549,6 @@ export const pl: Messages = {
     forward: 'Przekaż',
     forwardedMessage: 'Przekazana wiadomość',
     from: 'Od',
-    instructionPlaceholder: 'Jak ma brzmieć? (opcjonalnie)',
     invalidRecipients: 'Dodaj co najmniej jeden poprawny adres e-mail.',
     later: {
       inHour: 'Za godzinę',

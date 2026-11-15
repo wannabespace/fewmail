@@ -163,7 +163,6 @@ export const ja: Messages = {
     forward: '転送',
     forwardedMessage: '転送されたメッセージ',
     from: '差出人',
-    instructionPlaceholder: 'どんな文面にしますか？（任意）',
     invalidRecipients: '有効なメールアドレスを1つ以上追加してください。',
     later: {
       inHour: '1時間後',

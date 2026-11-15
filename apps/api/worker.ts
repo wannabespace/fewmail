@@ -6,12 +6,24 @@ import {
   analyses,
   boards,
   mailboxes,
+  messages,
   userSettings,
 } from '@fewmail/db/schema'
 import { IMPORTANCE } from '@fewmail/shared/agent'
 import { Result } from 'better-result'
-import { subMinutes } from 'date-fns'
-import { and, eq, gt, gte, isNotNull, isNull, lt, or, sql } from 'drizzle-orm'
+import { subDays, subMinutes } from 'date-fns'
+import {
+  and,
+  eq,
+  exists,
+  gt,
+  gte,
+  isNotNull,
+  isNull,
+  lt,
+  or,
+  sql,
+} from 'drizzle-orm'
 
 import { localClock, previousDay } from './lib/clock'
 import { logError } from './lib/log'
@@ -39,6 +51,7 @@ import {
   processDueCommitments,
   processDueReminders,
 } from './services/reminders'
+import { learnVoice, VOICE_EVERY_SENT } from './services/sent-mail'
 import {
   ensureMailbox,
   HELD_MONTHS,
@@ -271,6 +284,52 @@ const offerDueCleanups = async () => {
   }
 }
 
+/** Right after the first sync, then once the user has sent `VOICE_EVERY_SENT` more emails, at most once a day. */
+const learnDueVoices = async () => {
+  const due = await db
+    .select({ userId: userSettings.userId })
+    .from(userSettings)
+    .where(
+      and(
+        hasAgentSql(userSettings.userId),
+        exists(
+          db
+            .select()
+            .from(mailboxes)
+            .where(
+              and(
+                eq(mailboxes.userId, userSettings.userId),
+                isNotNull(mailboxes.lastSyncedAt)
+              )
+            )
+        ),
+        or(
+          isNull(userSettings.voiceLearnedAt),
+          and(
+            lt(userSettings.voiceLearnedAt, subDays(new Date(), 1)),
+            gte(
+              db.$count(
+                messages,
+                and(
+                  eq(messages.userId, userSettings.userId),
+                  eq(messages.isFromMe, true),
+                  gt(messages.receivedAt, userSettings.voiceLearnedAt)
+                )
+              ),
+              VOICE_EVERY_SENT
+            )
+          )
+        )
+      )
+    )
+  for (const { userId } of due) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- one style read at a time
+    await learnVoice(userId).catch((error) =>
+      logError(`voice ${userId}`, error)
+    )
+  }
+}
+
 /** Telegram and WhatsApp are Pro channels; device push reaches every plan. A failed channel never re-sends the others. */
 const sendUrgentEverywhere = async (id: string, userId: string) => {
   const queue = await listQueue(userId)
@@ -338,6 +397,7 @@ const tick = async () => {
       holdDueMail(),
       once('mornings', sendDueMornings),
       once('cleanups', offerDueCleanups),
+      once('voices', learnDueVoices),
       once('urgent', pushUrgent),
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),

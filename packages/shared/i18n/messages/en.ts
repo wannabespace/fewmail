@@ -451,7 +451,6 @@ export const en = {
     forward: 'Forward',
     forwardedMessage: 'Forwarded message',
     from: 'From',
-    instructionPlaceholder: 'How should it read? (optional)',
     invalidRecipients: 'Add at least one valid email address.',
     later: {
       inHour: 'In an hour',

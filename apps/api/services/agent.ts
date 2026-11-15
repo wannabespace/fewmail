@@ -209,13 +209,16 @@ const threadPrompt = async (message: Message, timezone: string) => {
   ].join('\n')
 }
 
-const recentSentExamples = async (userId: string) => {
+export const recentSentExamples = async (
+  userId: string,
+  limit = SENT_EXAMPLES
+) => {
   const sent = await db
     .select({ body: messages.body })
     .from(messages)
     .where(and(eq(messages.userId, userId), eq(messages.isFromMe, true)))
     .orderBy(desc(messages.receivedAt))
-    .limit(SENT_EXAMPLES)
+    .limit(limit)
   return sent.map(({ body }) => {
     const [quoted = ''] = body.split(/\n\s*On .+wrote:/u)
     return quoted.trim().slice(0, SENT_EXAMPLE_CHARS)

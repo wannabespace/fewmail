@@ -162,7 +162,6 @@ export const hi: Messages = {
     forward: 'फ़ॉरवर्ड करें',
     forwardedMessage: 'फ़ॉरवर्ड किया गया संदेश',
     from: 'से',
-    instructionPlaceholder: 'यह कैसा लगना चाहिए? (वैकल्पिक)',
     invalidRecipients: 'कम से कम एक सही ईमेल पता जोड़ें।',
     later: {
       inHour: 'एक घंटे में',

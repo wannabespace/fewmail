@@ -535,7 +535,6 @@ export const pt: Messages = {
     forward: 'Encaminhar',
     forwardedMessage: 'Mensagem encaminhada',
     from: 'De',
-    instructionPlaceholder: 'Como deve soar? (opcional)',
     invalidRecipients: 'Adicione pelo menos um e-mail válido.',
     later: {
       inHour: 'Em uma hora',

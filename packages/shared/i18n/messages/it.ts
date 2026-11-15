@@ -120,7 +120,6 @@ export const it: Messages = {
     forward: 'Inoltra',
     forwardedMessage: 'Messaggio inoltrato',
     from: 'Da',
-    instructionPlaceholder: 'Che tono deve avere? (facoltativo)',
     invalidRecipients: 'Aggiungi almeno un indirizzo email valido.',
     later: {
       inHour: 'Tra un’ora',

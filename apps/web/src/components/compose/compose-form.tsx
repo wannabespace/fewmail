@@ -24,7 +24,9 @@ import {
   Attachment01Icon,
   Cancel01Icon,
   Delete02Icon,
+  PencilEdit02Icon,
 } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
@@ -103,7 +105,6 @@ export const ComposeForm = ({
   const [showCc, setShowCc] = useState(draft.cc.length > 0)
   const [subject, setSubject] = useState(draft.subject)
   const [remindAfterDays, setRemindAfterDays] = useState(draft.remindAfterDays)
-  const [instruction, setInstruction] = useState('')
   const { data: snippets } = useQuery(orpc.snippets.list.queryOptions())
   const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
   const [mailboxId, setMailboxId] = useState(draft.mailboxId)
@@ -162,10 +163,10 @@ export const ComposeForm = ({
       )
       setIsSaved(true)
       void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
-    }
       void queryClient.invalidateQueries({
         queryKey: orpc.mail.draftCount.key(),
       })
+    }
     saving.current = saving.current.then(persist).catch(() => null)
   })
   useEffect(() => {
@@ -187,10 +188,10 @@ export const ComposeForm = ({
     if (gmailDraft.current) {
       await client.mail.deleteDraft(gmailDraft.current)
       void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
-    }
       void queryClient.invalidateQueries({
         queryKey: orpc.mail.draftCount.key(),
       })
+    }
   }
   const addFiles = async (
     files: File[],
@@ -413,39 +414,6 @@ export const ComposeForm = ({
           data-mask
         />
       )}
-      {draft.replyToMessageId && (
-        <div className="flex items-center gap-2">
-          <Input
-            value={instruction}
-            onChange={(event) => setInstruction(event.target.value)}
-            placeholder={t.compose.instructionPlaceholder}
-            aria-label={t.compose.instructionPlaceholder}
-          />
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={writeDraft.isPending}
-            onClick={() =>
-              withAgent(
-                'drafts',
-                () =>
-                  draft.replyToMessageId &&
-                  writeDraft.mutate(
-                    {
-                      messageId: draft.replyToMessageId,
-                      ...(instruction.trim() && {
-                        instruction: instruction.trim(),
-                      }),
-                    },
-                    { onSuccess: fillEditor }
-                  )
-              )
-            }
-          >
-            {writeDraft.isPending ? t.compose.writing : t.compose.writeForMe}
-          </Button>
-        </div>
-      )}
       <ComposerEditor
         ref={editorRef}
         initialHtml={draft.html}
@@ -547,6 +515,31 @@ export const ComposeForm = ({
           variant="ghost-muted"
           onClick={pickFiles}
         />
+        {draft.replyToMessageId && (
+          <Button
+            size="sm"
+            variant="ghost-muted"
+            disabled={writeDraft.isPending}
+            onClick={() =>
+              withAgent(
+                'drafts',
+                () =>
+                  draft.replyToMessageId &&
+                  writeDraft.mutate(
+                    { messageId: draft.replyToMessageId },
+                    { onSuccess: fillEditor }
+                  )
+              )
+            }
+          >
+            <HugeiconsIcon
+              icon={PencilEdit02Icon}
+              strokeWidth={2}
+              data-icon="inline-start"
+            />
+            {writeDraft.isPending ? t.compose.writing : t.compose.writeForMe}
+          </Button>
+        )}
         <span className="text-muted-foreground ml-auto min-w-0 truncate text-xs">
           {isSaved && t.compose.draftSaved}
         </span>

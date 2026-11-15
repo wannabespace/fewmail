@@ -119,7 +119,6 @@ export const uk: Messages = {
     forward: 'Переслати',
     forwardedMessage: 'Переслане повідомлення',
     from: 'Від',
-    instructionPlaceholder: 'Як має звучати? (необов’язково)',
     invalidRecipients: 'Додай хоча б одну правильну адресу.',
     later: {
       inHour: 'За годину',

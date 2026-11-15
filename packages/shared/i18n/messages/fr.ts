@@ -120,7 +120,6 @@ export const fr: Messages = {
     forward: 'Transférer',
     forwardedMessage: 'Message transféré',
     from: 'De',
-    instructionPlaceholder: 'Quel ton adopter ? (facultatif)',
     invalidRecipients: 'Ajoutez au moins une adresse e-mail valide.',
     later: {
       inHour: 'Dans une heure',

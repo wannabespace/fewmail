@@ -48,7 +48,13 @@ import {
   BODY_CHARS as READING_BODY_CHARS,
 } from '../services/reading'
 import { RISK_BODY_CHARS } from '../services/risk'
-import { PROMISE_BODY_CHARS, SENT_JEV_CHARS } from '../services/sent-mail'
+import {
+  PROMISE_BODY_CHARS,
+  SENT_JEV_CHARS,
+  VOICE_EVERY_SENT,
+  VOICE_INSTRUCTIONS,
+  VOICE_SAMPLE,
+} from '../services/sent-mail'
 import { FIRST_ISSUE_DAYS, FIRST_WEEK_LIMIT } from '../services/sync'
 import {
   FAST_FALLBACK_ID,
@@ -139,6 +145,7 @@ const READING_SUMMARY_CHARS_EACH = 450
 const READING_SUMMARY_OUTPUT_TOKENS = 600
 const NOTE_PROMPT_CHARS = 12 * 200 + 400
 const NOTE_OUTPUT_TOKENS = 120
+const VOICE_OUTPUT_TOKENS = 250
 const ENTRY_INSTRUCTION_CHARS = 1750
 const ENTRY_OUTPUT_TOKENS = 125
 const COMPLETION_PREFIX_CHARS = 1000
@@ -202,7 +209,7 @@ export const TYPICAL: Use = {
   spokenChars: 600,
   spokenReplies: 20,
   toolResultTokens: 1500,
-  voiceChars: 200,
+  voiceChars: 700,
   voiceSeconds: 20,
   voiceShare: 0.1,
 }
@@ -383,7 +390,6 @@ export const messageCost = (use: Use) =>
     use.voiceSeconds *
     priceOf(TRANSCRIBE_MODEL, 'input_cost_per_second')
 
-/** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, board entries and autocomplete. */
 /** One day's Reading issue with the agent: each newsletter's own summary, then the issue's. */
 const issueCost = (use: Use) =>
   llm(
@@ -406,6 +412,7 @@ export const firstWeekCost = (use: Use, agent: boolean) =>
   FIRST_WEEK_LIMIT * inboundJevCost(use) +
   (agent ? FIRST_ISSUE_DAYS * issueCost(use) : 0)
 
+/** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, the user's style, board entries and autocomplete. */
 export const backgroundCost = (use: Use, agent: boolean) => {
   const jev = use.inbound * inboundJevCost(use) + use.sent * sentJevCost(use)
   if (!agent) {
@@ -426,6 +433,15 @@ export const backgroundCost = (use: Use, agent: boolean) => {
   const notes =
     use.notes *
     llm(WRITER_MODEL_ID, mailTokens(NOTE_PROMPT_CHARS), NOTE_OUTPUT_TOKENS)
+  // Read again after every `VOICE_EVERY_SENT` sent emails, at most once a day.
+  const voice =
+    Math.min(DAYS, use.sent / VOICE_EVERY_SENT) *
+    llm(
+      FAST_MODEL_ID,
+      instructionTokens(VOICE_INSTRUCTIONS.length) +
+        mailTokens(VOICE_SAMPLE * SENT_EXAMPLE_CHARS),
+      VOICE_OUTPUT_TOKENS
+    )
   const entries =
     use.entries *
     llm(
@@ -453,7 +469,8 @@ export const backgroundCost = (use: Use, agent: boolean) => {
     jev,
     notes,
     promises,
-    total: jev + promises + digest + notes + entries + completions,
+    total: jev + promises + digest + notes + entries + completions + voice,
+    voice,
   }
 }
 

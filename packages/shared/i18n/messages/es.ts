@@ -119,7 +119,6 @@ export const es: Messages = {
     forward: 'Reenviar',
     forwardedMessage: 'Mensaje reenviado',
     from: 'De',
-    instructionPlaceholder: '¿Cómo debería sonar? (opcional)',
     invalidRecipients: 'Añade al menos una dirección válida.',
     later: {
       inHour: 'En una hora',
