@@ -929,13 +929,13 @@ export const de: Messages = {
     storageFull: (email: string) =>
       `${email} hat keinen Google-Speicher mehr, deshalb weist Gmail neue Mails ab.`,
     storageFullHint:
+      'Gib Speicher frei oder hol dir mehr, um wieder Mails zu empfangen.',
     photos: {
       allow: 'Zugriff erlauben',
       description:
         'Fewmail holt sie aus deinen Google-Kontakten und nutzt diese nur dafür.',
       title: 'Sieh die Fotos der Leute, die dir schreiben',
     },
-      'Gib Speicher frei oder hol dir mehr, um wieder Mails zu empfangen.',
   },
   login: {
     needsGmail:
@@ -1106,6 +1106,9 @@ export const de: Messages = {
     calendar: 'Kalender',
     subscriptions: 'Newsletter',
     boards: 'Boards',
+    people: 'Personen',
+    findPerson: 'Person suchen',
+    showMore: (n: number) => `${n} weitere zeigen`,
     newBoard: 'Neues Board',
     mail: 'Mail',
     reading: 'Lesen',

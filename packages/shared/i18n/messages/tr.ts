@@ -654,6 +654,12 @@ export const tr: Messages = {
       `${email} için Google depolama alanı doldu, bu yüzden Gmail yeni e-postaları geri çeviriyor.`,
     storageFullHint:
       'Yeniden e-posta almak için yer aç ya da daha fazla depolama al.',
+    photos: {
+      allow: 'Erişime izin ver',
+      description:
+        'Fewmail bunları Google kişilerinden alır ve onları yalnızca bunun için kullanır.',
+      title: 'Sana yazanların fotoğraflarını gör',
+    },
   },
   login: {
     needsGmail:
@@ -692,12 +698,6 @@ export const tr: Messages = {
       archive: 'Kopyala ve arşivle',
       copied: 'Kod kopyalandı',
       copy: 'Kodu kopyala',
-    photos: {
-      allow: 'Erişime izin ver',
-      description:
-        'Fewmail bunları Google kişilerinden alır ve onları yalnızca bunun için kullanır.',
-      title: 'Sana yazanların fotoğraflarını gör',
-    },
       trash: 'Kopyala ve sil',
     },
     openUnsubscribePage: 'Sayfayı aç',
@@ -830,6 +830,9 @@ export const tr: Messages = {
     calendar: 'Takvim',
     subscriptions: 'E-posta listeleri',
     boards: 'Panolar',
+    people: 'Kişiler',
+    findPerson: 'Kişi bul',
+    showMore: (n: number) => `${n} tane daha göster`,
     newBoard: 'Yeni pano',
     mail: 'Posta',
     reading: 'Okuma',

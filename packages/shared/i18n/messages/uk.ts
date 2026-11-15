@@ -927,13 +927,13 @@ export const uk: Messages = {
     storageFull: (email: string) =>
       `У ${email} закінчилось місце в Google, тож Gmail повертає нові листи відправникам.`,
     storageFullHint:
+      'Звільни місце або докупи сховище, щоб знову отримувати пошту.',
     photos: {
       allow: 'Дозволити доступ',
       description:
         'Fewmail бере їх із твоїх контактів Google і використовує тільки для цього.',
       title: 'Бач фото людей, які тобі пишуть',
     },
-      'Звільни місце або докупи сховище, щоб знову отримувати пошту.',
   },
   login: {
     needsGmail:
@@ -1102,6 +1102,9 @@ export const uk: Messages = {
     calendar: 'Календар',
     subscriptions: 'Розсилки',
     boards: 'Дошки',
+    people: 'Люди',
+    findPerson: 'Знайти людину',
+    showMore: (n: number) => `Показати ще ${n}`,
     newBoard: 'Нова дошка',
     mail: 'Пошта',
     reading: 'Читання',

@@ -360,13 +360,13 @@ export const ja: Messages = {
     storageFull: (email: string) =>
       `${email} の Google ストレージがいっぱいのため、Gmail が新しいメールを差し戻しています。`,
     storageFullHint:
+      'メールを再び受信するには、空き容量を増やすかストレージを追加してください。',
     photos: {
       allow: 'アクセスを許可',
       description:
         'Fewmail は Google の連絡先から写真を取得し、その用途にのみ使います。',
       title: 'メールをくれる人の写真を表示',
     },
-      'メールを再び受信するには、空き容量を増やすかストレージを追加してください。',
   },
   login: {
     needsGmail:
@@ -534,6 +534,9 @@ export const ja: Messages = {
     calendar: 'カレンダー',
     subscriptions: 'メーリングリスト',
     boards: 'ボード',
+    people: '人',
+    findPerson: '人を探す',
+    showMore: (n: number) => `さらに ${n} 件表示`,
     newBoard: '新しいボード',
     mail: 'メール',
     reading: 'リーディング',

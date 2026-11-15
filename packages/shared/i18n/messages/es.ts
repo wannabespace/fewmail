@@ -928,13 +928,13 @@ export const es: Messages = {
     storageFull: (email: string) =>
       `${email} se quedó sin almacenamiento de Google, así que Gmail rechaza el correo nuevo.`,
     storageFullHint:
+      'Libera espacio o consigue más almacenamiento para volver a recibir correo.',
     photos: {
       allow: 'Permitir acceso',
       description:
         'Fewmail las toma de tus contactos de Google y solo los usa para eso.',
       title: 'Ve las fotos de quienes te escriben',
     },
-      'Libera espacio o consigue más almacenamiento para volver a recibir correo.',
   },
   login: {
     needsGmail:
@@ -1108,6 +1108,9 @@ export const es: Messages = {
     calendar: 'Calendario',
     subscriptions: 'Listas de correo',
     boards: 'Tableros',
+    people: 'Personas',
+    findPerson: 'Buscar a alguien',
+    showMore: (n: number) => `Ver ${n} más`,
     newBoard: 'Nuevo tablero',
     mail: 'Correo',
     reading: 'Lectura',

@@ -931,13 +931,13 @@ export const it: Messages = {
     storageFull: (email: string) =>
       `${email} ha finito lo spazio Google, quindi Gmail rifiuta le nuove email.`,
     storageFullHint:
+      'Libera spazio o prendi più archiviazione per ricevere di nuovo la posta.',
     photos: {
       allow: 'Consenti accesso',
       description:
         'Fewmail le prende dai tuoi contatti Google e li usa solo per questo.',
       title: 'Vedi le foto di chi ti scrive',
     },
-      'Libera spazio o prendi più archiviazione per ricevere di nuovo la posta.',
   },
   login: {
     needsGmail:
@@ -1112,6 +1112,9 @@ export const it: Messages = {
     calendar: 'Calendario',
     subscriptions: 'Mailing list',
     boards: 'Bacheche',
+    people: 'Persone',
+    findPerson: 'Cerca una persona',
+    showMore: (n: number) => `Mostra altri ${n}`,
     newBoard: 'Nuova bacheca',
     mail: 'Posta',
     reading: 'Lettura',

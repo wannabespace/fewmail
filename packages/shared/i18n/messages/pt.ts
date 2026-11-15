@@ -682,6 +682,12 @@ export const pt: Messages = {
       `${email} ficou sem armazenamento no Google, então o Gmail está recusando e-mails novos.`,
     storageFullHint:
       'Libere espaço ou consiga mais armazenamento para voltar a receber e-mails.',
+    photos: {
+      allow: 'Permitir acesso',
+      description:
+        'O Fewmail vai buscá-las aos teus contactos Google e só os usa para isso.',
+      title: 'Vê as fotos de quem te escreve',
+    },
   },
   login: {
     needsGmail:
@@ -730,12 +736,6 @@ export const pt: Messages = {
     unsubscribeYourself:
       'Para sair desta lista, termine na página dela. Enquanto isso, o e-mail fica arquivado.',
     allMailboxes: 'Todas as caixas',
-    photos: {
-      allow: 'Permitir acesso',
-      description:
-        'O Fewmail vai buscá-las aos teus contactos Google e só os usa para isso.',
-      title: 'Vê as fotos de quem te escreve',
-    },
     filterAbout: {
       focused: 'O importante e as pessoas primeiro, avisos recolhidos',
       unread: 'O que você ainda não leu, por tipo',
@@ -862,6 +862,9 @@ export const pt: Messages = {
     calendar: 'Calendário',
     subscriptions: 'Listas de e-mail',
     boards: 'Painéis',
+    people: 'Pessoas',
+    findPerson: 'Procurar pessoa',
+    showMore: (n: number) => `Mostrar mais ${n}`,
     newBoard: 'Novo painel',
     mail: 'E-mail',
     reading: 'Leitura',

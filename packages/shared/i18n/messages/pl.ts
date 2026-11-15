@@ -698,6 +698,12 @@ export const pl: Messages = {
       `Na ${email} skończyło się miejsce w Google, więc Gmail odrzuca nowe maile.`,
     storageFullHint:
       'Zwolnij miejsce albo dokup przestrzeń, żeby znów odbierać pocztę.',
+    photos: {
+      allow: 'Zezwól na dostęp',
+      description:
+        'Fewmail bierze je z twoich kontaktów Google i używa ich tylko do tego.',
+      title: 'Zobacz zdjęcia osób, które do ciebie piszą',
+    },
   },
   login: {
     needsGmail:
@@ -750,12 +756,6 @@ export const pl: Messages = {
       focused: 'Najpierw ważne i ludzie, powiadomienia zwinięte',
       unread: 'Jeszcze nieprzeczytane, według rodzaju',
       categories:
-    photos: {
-      allow: 'Zezwól na dostęp',
-      description:
-        'Fewmail bierze je z twoich kontaktów Google i używa ich tylko do tego.',
-      title: 'Zobacz zdjęcia osób, które do ciebie piszą',
-    },
         'Cała skrzynka według rodzaju, najpierw to, co czeka na ciebie',
       inbox: 'Wszystko, od najnowszych',
     },
@@ -879,6 +879,9 @@ export const pl: Messages = {
     calendar: 'Kalendarz',
     subscriptions: 'Listy mailingowe',
     boards: 'Tablice',
+    people: 'Osoby',
+    findPerson: 'Znajdź osobę',
+    showMore: (n: number) => `Pokaż jeszcze ${n}`,
     newBoard: 'Nowa tablica',
     mail: 'Poczta',
     reading: 'Czytanie',

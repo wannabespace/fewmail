@@ -682,6 +682,12 @@ export const nl: Messages = {
       `${email} heeft geen Google-opslag meer, dus Gmail weigert nieuwe mail.`,
     storageFullHint:
       'Maak ruimte vrij of neem meer opslag om weer mail te ontvangen.',
+    photos: {
+      allow: 'Toegang geven',
+      description:
+        'Fewmail haalt ze uit je Google-contacten en gebruikt die alleen daarvoor.',
+      title: "Zie de foto's van wie je schrijft",
+    },
   },
   login: {
     needsGmail:
@@ -729,12 +735,6 @@ export const nl: Messages = {
     filterAbout: {
       focused: 'Belangrijk en mensen eerst, meldingen ingeklapt',
       unread: 'Wat je nog niet hebt gelezen, per soort',
-    photos: {
-      allow: 'Toegang geven',
-      description:
-        'Fewmail haalt ze uit je Google-contacten en gebruikt die alleen daarvoor.',
-      title: "Zie de foto's van wie je schrijft",
-    },
       categories: 'De hele inbox per soort, wat jou nodig heeft eerst',
       inbox: 'Alles, nieuwste eerst',
     },
@@ -857,6 +857,9 @@ export const nl: Messages = {
     calendar: 'Agenda',
     subscriptions: 'Mailinglijsten',
     boards: 'Borden',
+    people: 'Mensen',
+    findPerson: 'Iemand zoeken',
+    showMore: (n: number) => `Nog ${n} tonen`,
     newBoard: 'Nieuw bord',
     mail: 'Mail',
     reading: 'Lezen',

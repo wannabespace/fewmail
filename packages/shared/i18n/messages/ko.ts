@@ -359,13 +359,13 @@ export const ko: Messages = {
     storageFull: (email: string) =>
       `${email}의 Google 저장공간이 가득 차서 Gmail이 새 메일을 반송하고 있어요.`,
     storageFullHint:
+      '메일을 다시 받으려면 공간을 확보하거나 저장공간을 늘리세요.',
     photos: {
       allow: '접근 허용',
       description:
         'Fewmail은 Google 연락처에서 사진을 가져오며 그 용도로만 사용해요.',
       title: '메일을 보낸 사람의 사진 보기',
     },
-      '메일을 다시 받으려면 공간을 확보하거나 저장공간을 늘리세요.',
   },
   login: {
     needsGmail:
@@ -535,6 +535,9 @@ export const ko: Messages = {
     calendar: '캘린더',
     subscriptions: '메일링 리스트',
     boards: '보드',
+    people: '사람',
+    findPerson: '사람 찾기',
+    showMore: (n: number) => `${n}명 더 보기`,
     newBoard: '새 보드',
     mail: '메일',
     reading: '읽을거리',

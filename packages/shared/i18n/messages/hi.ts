@@ -359,13 +359,13 @@ export const hi: Messages = {
     signInAgain: 'फिर से साइन इन करें',
     storageFull: (email: string) =>
       `${email} का Google स्टोरेज भर गया है, इसलिए Gmail नए ईमेल वापस भेज रहा है।`,
+    storageFullHint: 'फिर से ईमेल पाने के लिए जगह खाली करें या ज़्यादा स्टोरेज लें।',
     photos: {
       allow: 'अनुमति दें',
       description:
         'Fewmail ये आपके Google संपर्कों से लेता है और उन्हें सिर्फ़ इसी के लिए इस्तेमाल करता है।',
       title: 'आपको लिखने वालों की फ़ोटो देखें',
     },
-    storageFullHint: 'फिर से ईमेल पाने के लिए जगह खाली करें या ज़्यादा स्टोरेज लें।',
   },
   login: {
     needsGmail:
@@ -536,6 +536,9 @@ export const hi: Messages = {
     calendar: 'कैलेंडर',
     subscriptions: 'मेलिंग लिस्ट',
     boards: 'बोर्ड',
+    people: 'लोग',
+    findPerson: 'किसी को खोजें',
+    showMore: (n: number) => `${n} और दिखाएँ`,
     newBoard: 'नया बोर्ड',
     mail: 'मेल',
     reading: 'पढ़ना',

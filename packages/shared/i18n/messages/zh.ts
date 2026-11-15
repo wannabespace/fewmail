@@ -354,12 +354,12 @@ export const zh: Messages = {
     signInAgain: '重新登录',
     storageFull: (email: string) =>
       `${email} 的 Google 存储空间已满，Gmail 正在退回新邮件。`,
+    storageFullHint: '释放空间或购买更多存储空间，才能再次收到邮件。',
     photos: {
       allow: '允许访问',
       description: 'Fewmail 从你的 Google 联系人中获取照片，且只用于此。',
       title: '查看给你写信的人的照片',
     },
-    storageFullHint: '释放空间或购买更多存储空间，才能再次收到邮件。',
   },
   login: {
     needsGmail:
@@ -526,6 +526,9 @@ export const zh: Messages = {
     calendar: '日历',
     subscriptions: '邮件列表',
     boards: '看板',
+    people: '联系人',
+    findPerson: '查找联系人',
+    showMore: (n: number) => `再显示 ${n} 个`,
     newBoard: '新建看板',
     mail: '邮件',
     reading: '阅读',

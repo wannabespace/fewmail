@@ -659,6 +659,12 @@ export const id: Messages = {
       `Penyimpanan Google ${email} penuh, jadi Gmail menolak email baru.`,
     storageFullHint:
       'Kosongkan ruang atau tambah penyimpanan agar bisa menerima email lagi.',
+    photos: {
+      allow: 'Izinkan akses',
+      description:
+        'Fewmail mengambilnya dari kontak Google-mu dan hanya memakainya untuk itu.',
+      title: 'Lihat foto orang yang menulis kepadamu',
+    },
   },
   login: {
     needsGmail:
@@ -698,12 +704,6 @@ export const id: Messages = {
       copied: 'Kode disalin',
       copy: 'Salin kode',
       trash: 'Salin dan hapus',
-    },
-    photos: {
-      allow: 'Izinkan akses',
-      description:
-        'Fewmail mengambilnya dari kontak Google-mu dan hanya memakainya untuk itu.',
-      title: 'Lihat foto orang yang menulis kepadamu',
     },
     openUnsubscribePage: 'Buka halaman',
     unsubscribeYourself:
@@ -836,6 +836,9 @@ export const id: Messages = {
     calendar: 'Kalender',
     subscriptions: 'Milis',
     boards: 'Papan',
+    people: 'Orang',
+    findPerson: 'Cari orang',
+    showMore: (n: number) => `Tampilkan ${n} lagi`,
     newBoard: 'Papan baru',
     mail: 'Email',
     reading: 'Bacaan',

@@ -1,4 +1,5 @@
 import { usedPercent } from '@fewmail/shared/agent'
+import { matchesContact } from '@fewmail/shared/email'
 import {
   Avatar,
   AvatarBadge,
@@ -6,6 +7,11 @@ import {
 } from '@fewmail/ui/components/avatar'
 import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@fewmail/ui/components/collapsible'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -29,6 +35,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import {
   Tooltip,
@@ -91,6 +102,7 @@ import { SITE_NAME } from '~/lib/seo'
 
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
+import { SenderAvatar } from './sender-avatar'
 import { useWithAgent } from './upgrade-dialog'
 
 const SETTINGS_ITEM = {
@@ -290,6 +302,107 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
         />
       ))}
     </section>
+  )
+}
+
+const PEOPLE_SHOWN = 5
+const PEOPLE_MORE = 20
+
+/** Everyone the user can write to, the most written-to first; folded until opened, and a row starts an email to them. */
+const People = () => {
+  const t = useT()
+  const { openCompose } = useCompose()
+  const [query, setQuery] = useState('')
+  const [shown, setShown] = useState(PEOPLE_SHOWN)
+  const { data: people = [] } = useQuery(orpc.contacts.queryOptions())
+  if (people.length === 0) {
+    return null
+  }
+  const found = query
+    ? people.filter((person) => matchesContact(person, query))
+    : people
+  const more = Math.min(PEOPLE_MORE, found.length - shown)
+
+  return (
+    <Collapsible
+      render={<section aria-label={t.nav.people} />}
+      className="mt-4 flex flex-col gap-1"
+    >
+      <h2 className="flex ps-2.5">
+        <CollapsibleTrigger variant="disclosure">
+          {t.nav.people}
+          <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} />
+        </CollapsibleTrigger>
+      </h2>
+      <CollapsibleContent className="flex flex-col gap-0.5">
+        {people.length > PEOPLE_SHOWN && (
+          <InputGroup size="sm" className="mb-1">
+            <InputGroupAddon>
+              <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+            </InputGroupAddon>
+            <InputGroupInput
+              value={query}
+              placeholder={t.nav.findPerson}
+              aria-label={t.nav.findPerson}
+              data-mask
+              onChange={(event) => {
+                setQuery(event.target.value)
+                setShown(PEOPLE_SHOWN)
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== 'Escape') {
+                  return
+                }
+                event.stopPropagation()
+                if (query) {
+                  setQuery('')
+                  setShown(PEOPLE_SHOWN)
+                } else {
+                  event.currentTarget.blur()
+                }
+              }}
+            />
+          </InputGroup>
+        )}
+        {found.slice(0, shown).map((person) => (
+          <button
+            key={person.email}
+            type="button"
+            className={NAV_SUBROW}
+            onClick={() => openCompose({ to: [person.email] })}
+          >
+            <SenderAvatar
+              sender={{ fromEmail: person.email, fromName: person.name }}
+            />
+            <span className="flex-1 truncate text-left" data-mask>
+              {person.name ?? person.email}
+            </span>
+          </button>
+        ))}
+        {found.length === 0 && (
+          <p className="text-muted-foreground px-2.5 py-1 text-sm">
+            {t.mail.noResults}
+          </p>
+        )}
+        {(more > 0 || shown > PEOPLE_SHOWN) && (
+          <button
+            type="button"
+            className={NAV_SUBROW}
+            onClick={() =>
+              setShown(more > 0 ? shown + PEOPLE_MORE : PEOPLE_SHOWN)
+            }
+          >
+            <HugeiconsIcon
+              icon={more > 0 ? ArrowDown01Icon : ArrowUp01Icon}
+              strokeWidth={2}
+            />
+            <span className="text-muted-foreground">
+              {more > 0 ? t.nav.showMore(more) : t.mail.showFewer}
+            </span>
+          </button>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
 
@@ -766,6 +879,7 @@ export const Sidebar = ({
           </Fragment>
         ))}
         <Boards showKeys={isModifierHeld} />
+        <People />
         <div className="mt-auto flex flex-col gap-1 pt-4">
           {NAV_ITEMS.filter(({ place }) => place === 'bottom').map((item) => (
             <NavLink key={item.to} item={item} showKeys={isModifierHeld} />

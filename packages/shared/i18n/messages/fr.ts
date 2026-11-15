@@ -937,13 +937,13 @@ export const fr: Messages = {
     storageFull: (email: string) =>
       `${email} n’a plus de stockage Google, donc Gmail refuse les nouveaux e-mails.`,
     storageFullHint:
+      'Libère de l’espace ou prends plus de stockage pour recevoir à nouveau des e-mails.',
     photos: {
       allow: 'Autoriser l’accès',
       description:
         'Fewmail les prend dans tes contacts Google et ne s’en sert que pour ça.',
       title: 'Vois les photos des gens qui t’écrivent',
     },
-      'Libère de l’espace ou prends plus de stockage pour recevoir à nouveau des e-mails.',
   },
   login: {
     needsGmail:
@@ -1119,6 +1119,9 @@ export const fr: Messages = {
     calendar: 'Calendrier',
     subscriptions: 'Listes de diffusion',
     boards: 'Tableaux',
+    people: 'Personnes',
+    findPerson: 'Trouver quelqu’un',
+    showMore: (n: number) => `Voir ${n} de plus`,
     newBoard: 'Nouveau tableau',
     mail: 'E-mails',
     reading: 'Lecture',

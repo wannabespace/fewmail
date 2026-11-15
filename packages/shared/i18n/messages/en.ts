@@ -670,6 +670,12 @@ export const en = {
     storageFull: (email: string) =>
       `${email} is out of Google storage, so Gmail is bouncing new mail.`,
     storageFullHint: 'Free up space or get more storage to receive mail again.',
+    photos: {
+      allow: 'Allow access',
+      description:
+        'Fewmail shows them from your Google contacts and uses those only for that.',
+      title: 'See the photos of people who write to you',
+    },
   },
   login: {
     needsGmail:
@@ -711,12 +717,6 @@ export const en = {
       trash: 'Copy and delete',
     },
     openUnsubscribePage: 'Open page',
-    photos: {
-      allow: 'Allow access',
-      description:
-        'Fewmail shows them from your Google contacts and uses those only for that.',
-      title: 'See the photos of people who write to you',
-    },
     unsubscribeYourself:
       'This list needs you to finish leaving on its own page. Its mail is archived meanwhile.',
     allMailboxes: 'All mailboxes',
@@ -849,6 +849,9 @@ export const en = {
     calendar: 'Calendar',
     subscriptions: 'Mailing lists',
     boards: 'Boards',
+    people: 'People',
+    findPerson: 'Find a person',
+    showMore: (n: number) => `Show ${n} more`,
     newBoard: 'New board',
     mail: 'Mail',
     reading: 'Reading',
