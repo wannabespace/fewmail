@@ -38,6 +38,33 @@ const groupByDay = (entries: JournalEntry[]) => {
   return days
 }
 
+/** The journal as it shows: failed first, then each day cut to its first rows until opened, the order its cursor walks. */
+export const useJournal = () => {
+  const [openDays, setOpenDays] = useState<string[]>([])
+  const { data: entries = [] } = useQuery(orpc.today.handled.queryOptions())
+  const failed = entries.filter(({ action }) => action.status === 'failed')
+  const days = groupByDay(
+    entries.filter(({ action }) => action.status !== 'failed')
+  ).map((day) => {
+    const isOpen = openDays.includes(day.key)
+    return {
+      ...day,
+      isOpen,
+      shown: isOpen ? day.rows : day.rows.slice(0, ROWS_PER_DAY),
+    }
+  })
+  const toggleDay = (key: string) =>
+    setOpenDays((open) =>
+      open.includes(key) ? open.filter((k) => k !== key) : [...open, key]
+    )
+  return {
+    days,
+    failed,
+    rows: [...failed, ...days.flatMap(({ shown }) => shown)],
+    toggleDay,
+  }
+}
+
 const whoAllowed = (t: Messages, { action, rule }: JournalEntry) => {
   if (action.status === 'failed') {
     return t.today.journal.failed
@@ -46,13 +73,19 @@ const whoAllowed = (t: Messages, { action, rule }: JournalEntry) => {
 }
 
 /** Everything done in the mail, each with who allowed it: a rule the user turned on or their yes. Lives under Rules, since rules do most of it. */
-export const Journal = () => {
+export const Journal = ({
+  cursorId,
+  journal: { days, failed, rows, toggleDay },
+  onSelect,
+}: {
+  cursorId: string | undefined
+  journal: ReturnType<typeof useJournal>
+  onSelect: (id: string) => void
+}) => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
-  const [openDays, setOpenDays] = useState<string[]>([])
   const [undoneIds, setUndoneIds] = useState<string[]>([])
-  const { data: entries = [] } = useQuery(orpc.today.handled.queryOptions())
   const refresh = () =>
     Promise.all([
       queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
@@ -107,11 +140,13 @@ export const Journal = () => {
     return (
       <SettingsRow
         key={action.id}
+        active={cursorId === action.id}
         trigger={
           message ? (
             <ExpandTrigger
               email={{ from: 'journal', threadId: message.threadId }}
               rowId={action.id}
+              onClick={() => onSelect(action.id)}
             />
           ) : undefined
         }
@@ -167,12 +202,7 @@ export const Journal = () => {
       </SettingsRow>
     )
   }
-  const failed = entries.filter(({ action }) => action.status === 'failed')
-  const days = groupByDay(
-    entries.filter(({ action }) => action.status !== 'failed')
-  )
-
-  if (entries.length === 0) {
+  if (rows.length === 0) {
     return null
   }
   return (
@@ -186,38 +216,31 @@ export const Journal = () => {
           {failed.map(row)}
         </SettingsGroup>
       )}
-      {days.map(({ day, key, rows }) => {
-        const isOpen = openDays.includes(key)
-        return (
-          <div key={key} className="flex flex-col gap-2">
-            <SettingsGroup
-              title={
-                <span className="inline-block first-letter:uppercase">
-                  {isToday(day)
-                    ? t.calendar.today
-                    : dates.format(day, 'EEEE, d MMMM')}
-                </span>
-              }
+      {days.map(({ day, isOpen, key, rows: dayRows, shown }) => (
+        <div key={key} className="flex flex-col gap-2">
+          <SettingsGroup
+            title={
+              <span className="inline-block first-letter:uppercase">
+                {isToday(day)
+                  ? t.calendar.today
+                  : dates.format(day, 'EEEE, d MMMM')}
+              </span>
+            }
+          >
+            {shown.map(row)}
+          </SettingsGroup>
+          {dayRows.length > ROWS_PER_DAY && (
+            <Button
+              size="sm"
+              variant="ghost-muted"
+              className="self-start"
+              onClick={() => toggleDay(key)}
             >
-              {(isOpen ? rows : rows.slice(0, ROWS_PER_DAY)).map(row)}
-            </SettingsGroup>
-            {rows.length > ROWS_PER_DAY && (
-              <Button
-                size="sm"
-                variant="ghost-muted"
-                className="self-start"
-                onClick={() =>
-                  setOpenDays((open) =>
-                    isOpen ? open.filter((k) => k !== key) : [...open, key]
-                  )
-                }
-              >
-                {isOpen ? t.mail.showFewer : t.mail.showAll(rows.length)}
-              </Button>
-            )}
-          </div>
-        )
-      })}
+              {isOpen ? t.mail.showFewer : t.mail.showAll(dayRows.length)}
+            </Button>
+          )}
+        </div>
+      ))}
     </section>
   )
 }

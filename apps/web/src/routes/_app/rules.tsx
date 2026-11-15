@@ -31,7 +31,8 @@ import { type } from 'arktype'
 import { motion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 
-import { Journal } from '~/components/journal'
+import { expandRow, useIsThreadExpanded } from '~/components/expand-row'
+import { Journal, useJournal } from '~/components/journal'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
@@ -108,7 +109,7 @@ const restoreRule = (rule: Rule) =>
         instruction: rule.instruction ?? '',
       })
 
-const RuleRow = ({ rule }: { rule: Rule }) => {
+const RuleRow = ({ isActive, rule }: { isActive: boolean; rule: Rule }) => {
   const t = useT()
   const queryClient = useQueryClient()
   const invalidate = useInvalidateRules()
@@ -139,9 +140,17 @@ const RuleRow = ({ rule }: { rule: Rule }) => {
     // The row is gone by now, so the undo cannot be a mutation of its own.
     toastUndo(t.rules.deleted, () => restoreRule(rule).then(invalidate))
   }
+  const keys = { enabled: isActive }
+  useHotkey(
+    'Space',
+    () => update.mutate({ enabled: !rule.enabled, id: rule.id }),
+    keys
+  )
+  useHotkey('Backspace', deleteRule, keys)
 
   return (
     <SettingsRow
+      active={isActive}
       title={<span data-mask>{ruleTitle(t, rule)}</span>}
       description={ruleDescription(t, rule)}
     >
@@ -310,10 +319,61 @@ const SimpleRuleForm = () => {
   )
 }
 
+/**
+ * J / K walk the rules, then the journal's emails: space turns the rule under the cursor on or off and ⌫ deletes it,
+ * ⏎ opens the email, esc leaves the list. A click on an email puts the cursor on it.
+ */
+const useRulesCursor = (
+  rules: Rule[],
+  journal: ReturnType<typeof useJournal>
+) => {
+  const isFree = !useIsThreadExpanded()
+  const [cursor, setCursor] = useState<number | null>(null)
+  const emails = journal.rows.filter(({ message }) => message)
+  const stops = [
+    ...rules.map(({ id }) => id),
+    ...emails.map(({ action }) => action.id),
+  ]
+  const activeId =
+    cursor === null ? undefined : stops[Math.min(cursor, stops.length - 1)]
+  const entry = emails.find(({ action }) => action.id === activeId)
+  const step = (by: number) => {
+    // A switch or button still focused from a click would take space and ⏎ as well as the cursor's row.
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    setCursor((index) =>
+      Math.max(0, Math.min(stops.length - 1, (index ?? -1) + by))
+    )
+  }
+  const listKeys = { enabled: isFree && stops.length > 0 }
+  useHotkey('J', () => step(1), listKeys)
+  useHotkey('ArrowDown', () => step(1), listKeys)
+  useHotkey('K', () => step(-1), listKeys)
+  useHotkey('ArrowUp', () => step(-1), listKeys)
+  useHotkey(
+    'Enter',
+    () =>
+      entry?.message &&
+      expandRow(entry.action.id, {
+        from: 'journal',
+        threadId: entry.message.threadId,
+      }),
+    { enabled: isFree && !!entry }
+  )
+  useHotkey('Escape', () => setCursor(null), {
+    enabled: isFree && activeId !== undefined,
+  })
+  return {
+    activeId: isFree ? activeId : undefined,
+    select: (id: string) => setCursor(stops.indexOf(id)),
+  }
+}
+
 const RulesPage = () => {
   const t = useT()
   const hasAgent = useHasAgent()
   const { data: rules = [] } = useQuery(orpc.rules.list.queryOptions())
+  const journal = useJournal()
+  const { activeId, select } = useRulesCursor(rules, journal)
 
   return (
     <motion.main layoutScroll className="flex-1 overflow-y-auto">
@@ -340,12 +400,16 @@ const RulesPage = () => {
         {rules.length > 0 && (
           <SettingsGroup title={t.rules.count(rules.length)}>
             {rules.map((rule) => (
-              <RuleRow key={rule.id} rule={rule} />
+              <RuleRow
+                key={rule.id}
+                isActive={rule.id === activeId}
+                rule={rule}
+              />
             ))}
           </SettingsGroup>
         )}
 
-        <Journal />
+        <Journal cursorId={activeId} journal={journal} onSelect={select} />
       </div>
     </motion.main>
   )

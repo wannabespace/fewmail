@@ -217,6 +217,7 @@ const SubscriptionsPage = () => {
   useHotkey('U', () => leave(active), rowKeys)
   useHotkey('O', () => show(active), rowKeys)
   useHotkey('Enter', () => show(active), rowKeys)
+  useHotkey('Escape', () => setCursor(null), rowKeys)
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden">

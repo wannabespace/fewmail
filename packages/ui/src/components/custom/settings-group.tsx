@@ -11,7 +11,7 @@ import {
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
 import { InformationCircleIcon } from '@hugeicons/core-free-icons'
-import { useId } from 'react'
+import { useEffect, useId } from 'react'
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 
 import { IconButton } from './icon-button'
@@ -91,6 +91,15 @@ export const SettingsRow = ({
   trigger?: ReactElement
 }) => {
   const titleId = useId()
+  // J / K walk a list past the screen's edge: the cursor's row comes into view.
+  useEffect(() => {
+    if (active) {
+      document
+        .querySelector(`#${titleId}`)
+        ?.closest('[data-slot=item]')
+        ?.scrollIntoView({ block: 'nearest' })
+    }
+  }, [active, titleId])
   return (
     <Item
       size="sm"

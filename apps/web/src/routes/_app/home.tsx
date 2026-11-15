@@ -59,7 +59,11 @@ import { toast } from 'sonner'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
-import { ExpandTrigger, useIsThreadExpanded } from '~/components/expand-row'
+import {
+  ExpandTrigger,
+  expandRow,
+  useIsThreadExpanded,
+} from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
@@ -425,8 +429,57 @@ const FreshCodes = ({
   )
 }
 
-/** Mail that needs no decision: important unread, dated mail no card shows, and sent mail still waiting for an answer. */
-const WorthKnowing = ({ today }: { today: Today | undefined }) => {
+interface WorthRow {
+  id: string
+  messageId?: string
+  threadId: string
+}
+
+const worthStop = (rowId: string) => `worth:${rowId}`
+
+/** Worth knowing's rows in their order: Home's cursor walks them after the cards. */
+const worthRowsOf = (today: Today | undefined): WorthRow[] =>
+  today
+    ? [
+        ...[...today.recent, ...today.dates].map(({ message }) => ({
+          id: message.id,
+          messageId: message.id,
+          threadId: message.threadId,
+        })),
+        ...today.awaiting.map(({ threadId }) => ({ id: threadId, threadId })),
+      ]
+    : []
+
+const openWorthRow = ({ id, threadId }: WorthRow) =>
+  expandRow(id, { from: 'home', threadId })
+
+/** `O` peeks at a card's email and opens a worth-knowing row's. */
+const useOpenKey = (
+  cursorId: string | undefined,
+  worthRow: WorthRow | undefined,
+  isWalking: boolean
+) => {
+  usePeekKey(worthRow ? undefined : cursorId, isWalking)
+  useHotkey('O', () => worthRow && openWorthRow(worthRow), {
+    enabled: isWalking && !!worthRow,
+  })
+}
+
+/**
+ * Mail that needs no decision: important unread, dated mail no card shows, and sent mail still waiting for an answer.
+ * Home's cursor walks it after the cards; on a row, `E` archives and ⌫ trashes its email.
+ */
+const WorthKnowing = ({
+  cursorId,
+  isWalking,
+  onSelect,
+  today,
+}: {
+  cursorId: string | undefined
+  isWalking: boolean
+  onSelect: (stop: string) => void
+  today: Today | undefined
+}) => {
   const t = useT()
   const queryClient = useQueryClient()
   const actions = useMailActions((messageId) =>
@@ -435,11 +488,32 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       (old) =>
         old && {
           ...old,
+          dates: old.dates.filter(({ message }) => message.id !== messageId),
           recent: old.recent.filter(({ message }) => message.id !== messageId),
         }
     )
   )
   const sweep = sweepOf(actions, t, 'inbox')
+  const messageId = worthRowsOf(today).find(
+    ({ id }) => worthStop(id) === cursorId
+  )?.messageId
+  const rowKeys = { enabled: isWalking && !!messageId }
+  useHotkey('E', () => messageId && sweep.action.mutate({ messageId }), rowKeys)
+  useHotkey(
+    'Backspace',
+    () => messageId && actions.trash.mutate({ messageId }),
+    rowKeys
+  )
+  const rowOf = (rowId: string, threadId: string) => ({
+    active: cursorId === worthStop(rowId),
+    trigger: (
+      <ExpandTrigger
+        email={{ from: 'home', threadId }}
+        rowId={rowId}
+        onClick={() => onSelect(worthStop(rowId))}
+      />
+    ),
+  })
 
   if (
     !today ||
@@ -452,12 +526,7 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.recent.map(({ analysis, message }) => (
         <SettingsRow
           key={message.id}
-          trigger={
-            <ExpandTrigger
-              email={{ from: 'home', threadId: message.threadId }}
-              rowId={message.id}
-            />
-          }
+          {...rowOf(message.id, message.threadId)}
           iconVariant="avatar"
           icon={<SenderAvatar sender={message} size="sm" />}
           title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
@@ -484,12 +553,7 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.dates.map(({ analysis, message }) => (
         <SettingsRow
           key={message.id}
-          trigger={
-            <ExpandTrigger
-              email={{ from: 'home', threadId: message.threadId }}
-              rowId={message.id}
-            />
-          }
+          {...rowOf(message.id, message.threadId)}
           iconVariant="avatar"
           icon={<SenderAvatar sender={message} size="sm" />}
           title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
@@ -501,12 +565,7 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.awaiting.map((sent) => (
         <SettingsRow
           key={sent.threadId}
-          trigger={
-            <ExpandTrigger
-              email={{ from: 'home', threadId: sent.threadId }}
-              rowId={sent.threadId}
-            />
-          }
+          {...rowOf(sent.threadId, sent.threadId)}
           iconVariant="avatar"
           icon={
             <SenderAvatar
@@ -1186,11 +1245,13 @@ const HomePage = () => {
     setSettled((current) => Math.max(0, current - count))
   const proposals = useProposals(data, cards, settle)
   const hasProposals = proposals.proposals.length > 0
-  // The cursor walks the agent's proposals first, then the cards.
-  const stops = [
+  // The cursor walks the agent's proposals first, then the cards, then the mail worth knowing.
+  const cardStops = [
     ...(hasProposals ? [PROPOSALS_ID] : []),
     ...queue.map(({ action }) => action.id),
   ]
+  const worth = worthRowsOf(data)
+  const stops = [...cardStops, ...worth.map(({ id }) => worthStop(id))]
   const { cursorId, cursorIndex, setSelectedId } = useCursor(stops)
   const isOnProposals = cursorId === PROPOSALS_ID
   // Cards open only when asked (a header click, Space, E or R); while one is open, the card under the cursor opens instead.
@@ -1446,8 +1507,10 @@ const HomePage = () => {
     approveMany.mutate({ ids: alike.map(({ action }) => action.id) })
 
   const move = (step: number) => {
-    if (step > 0 && cursorIndex === stops.length - 1 && hiddenCards > 0) {
+    // J past the last card shown opens the rest of the queue before it goes on to the mail under it.
+    if (step > 0 && cursorIndex === cardStops.length - 1 && hiddenCards > 0) {
       setIsQueueOpen(true)
+      return
     }
     const next =
       stops[Math.min(stops.length - 1, Math.max(0, cursorIndex + step))]
@@ -1465,9 +1528,12 @@ const HomePage = () => {
         ? current.filter((id) => id !== actionId)
         : [...current, actionId]
     )
+  const worthRow = worth.find(({ id }) => worthStop(id) === cursorId)
   const approveTargets = () => {
     if (picked.length > 0) {
       approveMany.mutate({ ids: pickedActionIds })
+    } else if (worthRow) {
+      openWorthRow(worthRow)
     } else if (isOnProposals) {
       proposals.approve(proposals.proposals)
     } else {
@@ -1528,7 +1594,7 @@ const HomePage = () => {
   useHotkey('E', openAnd(setEditingId), listKeys)
   useHotkey('R', openAnd(setRewritingId), listKeys)
   useHotkey('Space', () => cursorId && setIsOpen((open) => !open), walkKeys)
-  usePeekKey(cursorId, isWalking)
+  useOpenKey(cursorId, worthRow, isWalking)
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -1666,7 +1732,12 @@ const HomePage = () => {
                     />
                   </section>
 
-                  <WorthKnowing today={data} />
+                  <WorthKnowing
+                    cursorId={cursorId}
+                    isWalking={isWalking}
+                    today={data}
+                    onSelect={setSelectedId}
+                  />
                 </>
               )}
             </div>

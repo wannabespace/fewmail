@@ -50,7 +50,7 @@ import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -1451,6 +1451,14 @@ export const ThreadView = ({
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
   const { folded, unfold } = useFolding(data)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const isLoaded = !!data
+  // An email on its own (a card, its page) takes the arrows and space once it shows, so they scroll it rather than nothing.
+  useEffect(() => {
+    if (isFullPage && isLoaded) {
+      scrollRef.current?.focus({ preventScroll: true })
+    }
+  }, [isFullPage, isLoaded])
   useThreadOpen(threadId, data)
   const actions = useMailActions(onDone)
   const { pin, reportSpam, snooze, trash, unsnooze, unsubscribe } = actions
@@ -1515,7 +1523,11 @@ export const ThreadView = ({
 
   return (
     <article className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-1 overflow-y-auto">
+      <div
+        ref={scrollRef}
+        tabIndex={-1}
+        className="flex-1 overflow-y-auto outline-none"
+      >
         <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
           <ReaderHeader
             title={subject}
