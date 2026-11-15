@@ -1171,7 +1171,7 @@ export const MailRowActions = ({
   sweep: Sweep
 }) => {
   const t = useT()
-  const size = reveal === 'line' ? 'icon-xs' : 'icon-sm'
+  const size = reveal === 'line' ? 'icon-2xs' : 'icon-sm'
   return (
     <span
       className={cn(

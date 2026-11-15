@@ -71,6 +71,7 @@ import {
   PinOffIcon,
   Search01Icon,
   Shield01Icon,
+  SpaceIcon,
   SpamIcon,
   ViewIcon,
 } from '@hugeicons/core-free-icons'
@@ -421,7 +422,7 @@ const PeekButton = ({
 }: {
   message: ListedMessage
   onClick?: () => void
-  size?: 'icon-sm' | 'icon-xs'
+  size?: 'icon-2xs' | 'icon-sm'
 }) => {
   const t = useT()
   return (
@@ -433,7 +434,11 @@ const PeekButton = ({
         <IconButton
           icon={ViewIcon}
           label={t.mail.peek}
-          shortcut={<Kbd>Space</Kbd>}
+          shortcut={
+            <Kbd>
+              <HugeiconsIcon icon={SpaceIcon} strokeWidth={2} />
+            </Kbd>
+          }
           size={size}
           variant="ghost-muted"
           onClick={onClick}
@@ -619,20 +624,37 @@ const PINNED_SHOWN = 3
 
 const GroupHeader = ({
   group,
+  isPicking,
   isUnfolded,
   item,
   onMarkRead,
+  onPick,
   onToggle,
+  pickedIds,
 }: {
   group: ReturnType<typeof groupRows>[number]
+  isPicking: boolean
   isUnfolded: boolean
   item: VirtualItem
   onMarkRead: (() => void) | undefined
+  onPick: () => void
   onToggle: () => void
+  pickedIds: ReadonlySet<string>
 }) => {
   const t = useT()
+  const pickedCount = group.rows.filter(({ message }) =>
+    pickedIds.has(message.id)
+  ).length
   return (
-    <ListRow item={item} className={GROUP_HEADER}>
+    <ListRow item={item} className={cn(GROUP_HEADER, 'group')}>
+      <RowPick
+        aria-label={t.keys.pickAll}
+        checked={pickedCount === group.rows.length}
+        className="top-1/2 -translate-y-1/2"
+        indeterminate={pickedCount > 0 && pickedCount < group.rows.length}
+        isPicking={isPicking}
+        onCheckedChange={onPick}
+      />
       <span className="truncate">
         {{ ...t.category, ...t.mail.group }[group.key]}
       </span>
@@ -936,33 +958,23 @@ const rowSurfaceOf = ({
 // The box lies over the unread dot, so the dot steps aside whenever the box shows.
 const RowPick = ({
   className,
-  isPicked,
   isPicking,
-  onPick,
-}: {
+  ...props
+}: ComponentProps<typeof Checkbox> & {
   className: string
-  isPicked: boolean
   isPicking: boolean
-  onPick: () => void
-}) => {
-  const t = useT()
-  return (
-    <span
-      className={cn(
-        'absolute left-3 flex',
-        className,
-        !isPicking &&
-          'ease-house opacity-0 transition-opacity duration-150 group-hover:opacity-100'
-      )}
-    >
-      <Checkbox
-        aria-label={t.queue.pick}
-        checked={isPicked}
-        onCheckedChange={onPick}
-      />
-    </span>
-  )
-}
+}) => (
+  <span
+    className={cn(
+      'absolute left-3 flex',
+      className,
+      !isPicking &&
+        'ease-house opacity-0 transition-opacity duration-150 group-hover:opacity-100'
+    )}
+  >
+    <Checkbox {...props} />
+  </span>
+)
 
 const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
   cn(
@@ -1312,13 +1324,13 @@ const BurstList = ({
               </span>
             )}
           </button>
-          <span className="absolute top-0 right-3 flex">
+          <span className="absolute inset-y-0 right-3 flex items-center">
             <MailRowActions
               actions={actions}
               canSnooze={canSnooze}
               isPinned={email.isPinned}
               messageIds={[email.id]}
-              peek={canPeek && <PeekButton message={email} size="icon-xs" />}
+              peek={canPeek && <PeekButton message={email} size="icon-2xs" />}
               reveal="line"
               sweep={sweep}
             />
@@ -1539,9 +1551,10 @@ const MailRow = ({
       />
       <RowPick
         className="top-3"
-        isPicked={isPicked}
+        aria-label={t.queue.pick}
+        checked={isPicked}
         isPicking={isPicking}
-        onPick={onPick}
+        onCheckedChange={onPick}
       />
     </ListRow>
   )
@@ -1636,9 +1649,10 @@ const PinnedRow = ({
       />
       <RowPick
         className="top-2.5"
-        isPicked={isPicked}
+        aria-label={t.queue.pick}
+        checked={isPicked}
         isPicking={isPicking}
-        onPick={onPick}
+        onCheckedChange={onPick}
       />
     </ListRow>
   )
@@ -2126,6 +2140,12 @@ const usePicks = ({
   const onUnpick = () => setPickedIds(NONE_PICKED)
   const onPickAll = () =>
     setPickedIds(new Set(rows.map(({ message }) => message.id)))
+  const onPickGroup = (ids: string[]) =>
+    setPickedIds(
+      ids.every((id) => pickedIds.has(id))
+        ? new Set([...pickedIds].filter((id) => !ids.includes(id)))
+        : new Set([...pickedIds, ...ids])
+    )
   const onToggle = (id: string) => {
     const next = new Set(pickedIds)
     if (!next.delete(id)) {
@@ -2139,7 +2159,15 @@ const usePicks = ({
   useHotkey('Escape', onUnpick, {
     enabled: isEnabled && picked.length > 0,
   })
-  return { isAllPicked, onPickAll, onToggle, onUnpick, picked, pickedIds }
+  return {
+    isAllPicked,
+    onPickAll,
+    onPickGroup,
+    onToggle,
+    onUnpick,
+    picked,
+    pickedIds,
+  }
 }
 
 const useListActions = ({
@@ -2835,10 +2863,15 @@ const MailPage = () => {
             <GroupHeader
               key={item.key}
               group={group}
+              isPicking={isPicking}
               isUnfolded={unfolded.has(group.key)}
               item={item}
               onMarkRead={markReadOf(group.rows, actions.markRead.mutate)}
+              onPick={() =>
+                picks.onPickGroup(group.rows.map(({ message }) => message.id))
+              }
               onToggle={() => toggleGroup(group.key)}
+              pickedIds={picks.pickedIds}
             />
           ),
           size: ROW_SIZE.header,
