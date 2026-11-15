@@ -1826,19 +1826,6 @@ export const it: Messages = {
       `${what}: ${to} invece di ${from}`,
     promised: 'Ti è stato promesso',
   },
-  people: {
-    owed: 'Ti ha promesso',
-    firstContact: (date: string) => `Vi scrivete dal ${date}`,
-    lastContact: (date: string) => `Ultima email il ${date}`,
-    open: 'In attesa in altre conversazioni',
-    promised: 'Hai promesso',
-    threads: (total: number) =>
-      plural('it', total, {
-        one: () => '1 conversazione',
-        many: (n) => `${n} conversazioni`,
-        other: (n) => `${n} conversazioni`,
-      }),
-  },
   risk: {
     prompt_injection: (domain: string) =>
       `${domain} ha nascosto in questa email istruzioni per gli assistenti che leggono la posta. L’agente le ignora; non inoltrarla e non fare ciò che chiede.`,

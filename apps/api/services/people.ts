@@ -25,7 +25,6 @@ import {
 } from 'drizzle-orm'
 
 import { models, NO_EM_DASH, trackUsage } from '../lib/ai'
-import { announceChange } from '../lib/live'
 import { logErrorAs } from '../lib/log'
 import { listMailboxes } from './mailboxes'
 import { hasBudget } from './plan'
@@ -90,7 +89,6 @@ const refreshNote = async (
         `${receivedAt.toISOString().slice(0, 10)} · ${summary ?? subject}`
     )
   )
-  await announceChange(userId, ['person'])
 }
 
 const refreshStaleNote = (
@@ -166,6 +164,11 @@ const latestConversations = (userId: string, email: string) =>
 /** Everything the user's mail knows about one person; the note is Pro, refreshed at most weekly in the background. */
 export const getPerson = async (userId: string, rawEmail: string) => {
   const email = rawEmail.trim().toLowerCase()
+  const own = await listMailboxes(userId)
+  // Everything one of the user's own mailboxes got would count as mail with them, and their note would mix it all.
+  if (own.some((mailbox) => mailbox.email.toLowerCase() === email)) {
+    return { email, isUser: true as const }
+  }
   const [stats, conversations, open, promises, recent, [stored]] =
     await Promise.all([
       personStats(userId, email),

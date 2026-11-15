@@ -96,7 +96,6 @@ import { ComposerEditor } from './composer/composer-editor'
 import { confirm } from './confirm-dialog'
 import { DraftText } from './consent-details'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
-import { PersonPanel } from './person-panel'
 import {
   ParticipantAvatars,
   participantNamesOf,
@@ -1846,10 +1845,6 @@ export const ThreadView = ({
               onReply={reply}
               onStopEditingDraft={() => setIsEditingDraft(false)}
             />
-          )}
-
-          {hasAgent && latest && (
-            <PersonPanel email={latest.message.fromEmail} threadId={threadId} />
           )}
         </div>
       </div>

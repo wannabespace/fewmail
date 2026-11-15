@@ -1742,14 +1742,6 @@ export const ko: Messages = {
       `${what}: ${from} → ${to}`,
     promised: '나에게 한 약속',
   },
-  people: {
-    owed: '상대의 약속',
-    firstContact: (date: string) => `${date}부터 연락`,
-    lastContact: (date: string) => `마지막 이메일 ${date}`,
-    open: '다른 대화에서 대기 중',
-    promised: '내가 한 약속',
-    threads: (total: number) => `대화 ${total}개`,
-  },
   risk: {
     prompt_injection: (domain: string) =>
       `${domain}이(가) 이 이메일에 메일을 읽는 어시스턴트용 지시를 숨겼어요. 에이전트는 이를 무시해요. 전달하거나 요청대로 하지 마세요.`,

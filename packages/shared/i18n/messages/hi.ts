@@ -1772,18 +1772,6 @@ export const hi: Messages = {
       `${what}: ${from} की जगह अब ${to}`,
     promised: 'आपसे किया गया वादा',
   },
-  people: {
-    owed: 'आपसे वादा किया',
-    firstContact: (date: string) => `${date} से संपर्क में`,
-    lastContact: (date: string) => `आखिरी ईमेल ${date}`,
-    open: 'दूसरी बातचीत में बाकी',
-    promised: 'आपने वादा किया',
-    threads: (total: number) =>
-      plural('hi', total, {
-        one: () => '1 बातचीत',
-        other: (n) => `${n} बातचीत`,
-      }),
-  },
   risk: {
     prompt_injection: (domain: string) =>
       `${domain} ने इस ईमेल में मेल पढ़ने वाले सहायकों के लिए निर्देश छिपाए हैं। एजेंट उन्हें अनदेखा करता है; इसे फ़ॉरवर्ड न करें और इसके कहे अनुसार कुछ न करें।`,

@@ -863,14 +863,6 @@ export const id: Messages = {
       `${what}: ${to}, sebelumnya ${from}`,
     promised: 'Dijanjikan untukmu',
   },
-  people: {
-    owed: 'Berjanji padamu',
-    firstContact: (date: string) => `Berkirim email sejak ${date}`,
-    lastContact: (date: string) => `Email terakhir ${date}`,
-    open: 'Menunggu di utas lain',
-    promised: 'Kamu sudah berjanji',
-    threads: (total: number) => `${total} percakapan`,
-  },
   queue: {
     addToCalendar: 'Tambah ke kalender',
     writeReminder: 'Tulis pengingat',

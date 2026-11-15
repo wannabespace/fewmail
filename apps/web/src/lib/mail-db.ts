@@ -127,16 +127,8 @@ export const loadOlderRows = async (
 const threadKey = (threadId?: string) =>
   threadId ? [[...mailKey, 'thread'], { threadId }] : [[...mailKey, 'thread']]
 
-/** The reader's person panel asks next, so its answer is on the way before the thread renders. */
 const fetchThread = async (threadId: string): Promise<Thread[]> => {
   const thread = await client.mail.thread({ threadId })
-  const sender = thread.messages.findLast(({ message }) => !message.isFromMe)
-  const plan = queryClient.getQueryData(orpc.me.queryKey())?.plan.kind
-  if (sender && plan && plan !== 'free') {
-    void queryClient.prefetchQuery(
-      orpc.person.queryOptions({ input: { email: sender.message.fromEmail } })
-    )
-  }
   return [{ ...thread, threadId }]
 }
 

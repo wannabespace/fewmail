@@ -398,7 +398,7 @@ export const processDueCommitments = async () => {
         await db
           .insert(actions)
           .values(cardOf(commitment, dictionaries[language ?? 'en']))
-        await announceChange(commitment.userId, ['actions', 'person', 'today'])
+        await announceChange(commitment.userId, ['actions', 'today'])
       })
   )
 }

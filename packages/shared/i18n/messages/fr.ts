@@ -1848,19 +1848,6 @@ export const fr: Messages = {
       `${what} : ${to} au lieu de ${from}`,
     promised: 'On vous l’a promis',
   },
-  people: {
-    owed: 'Vous a promis',
-    firstContact: (date: string) => `Échanges depuis ${date}`,
-    lastContact: (date: string) => `Dernier e-mail le ${date}`,
-    open: 'En attente dans d’autres fils',
-    promised: 'Vous avez promis',
-    threads: (total: number) =>
-      plural('fr', total, {
-        one: () => '1 conversation',
-        many: (n) => `${n} conversations`,
-        other: (n) => `${n} conversations`,
-      }),
-  },
   risk: {
     prompt_injection: (domain: string) =>
       `${domain} a caché dans cet e-mail des instructions pour les assistants qui lisent le courrier. L’agent les ignore ; ne le transférez pas et ne faites pas ce qu’il demande.`,

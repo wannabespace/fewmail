@@ -885,18 +885,6 @@ export const pt: Messages = {
       `${what}: ${to} em vez de ${from}`,
     promised: 'Prometeram a você',
   },
-  people: {
-    owed: 'Prometeu a você',
-    firstContact: (date: string) => `Trocando e-mails desde ${date}`,
-    lastContact: (date: string) => `Último e-mail em ${date}`,
-    open: 'Pendente em outras conversas',
-    promised: 'Você prometeu',
-    threads: (total: number) =>
-      plural('pt', total, {
-        one: () => '1 conversa',
-        other: (n) => `${n} conversas`,
-      }),
-  },
   queue: {
     addToCalendar: 'Adicionar à agenda',
     writeReminder: 'Escrever um lembrete',

@@ -877,18 +877,6 @@ export const en = {
       `${what}: ${to} instead of ${from}`,
     promised: 'Promised to you',
   },
-  people: {
-    owed: 'Promised you',
-    firstContact: (date: string) => `Writing since ${date}`,
-    lastContact: (date: string) => `Last email ${date}`,
-    open: 'Waiting in other threads',
-    promised: 'You promised',
-    threads: (total: number) =>
-      plural('en', total, {
-        one: () => '1 conversation',
-        other: (n) => `${n} conversations`,
-      }),
-  },
   queue: {
     addToCalendar: 'Add to calendar',
     writeReminder: 'Write a reminder',

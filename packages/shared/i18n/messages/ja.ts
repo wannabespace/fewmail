@@ -1764,14 +1764,6 @@ export const ja: Messages = {
       `${what}: ${from} → ${to}`,
     promised: 'あなたへの約束',
   },
-  people: {
-    owed: '相手の約束',
-    firstContact: (date: string) => `${date}からやり取り`,
-    lastContact: (date: string) => `最後のメール：${date}`,
-    open: '他のスレッドで保留中',
-    promised: 'あなたの約束',
-    threads: (total: number) => `${total}件の会話`,
-  },
   risk: {
     prompt_injection: (domain: string) =>
       `${domain} はこのメールに、メールを読むアシスタント向けの指示を隠しています。エージェントは無視します。転送したり、指示どおりにしたりしないでください。`,

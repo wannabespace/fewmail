@@ -859,14 +859,6 @@ export const tr: Messages = {
       `${what}: ${from} yerine ${to}`,
     promised: 'Sana verilen söz',
   },
-  people: {
-    owed: 'Sana söz verdi',
-    firstContact: (date: string) => `${date} tarihinden beri yazışıyorsunuz`,
-    lastContact: (date: string) => `Son e-posta ${date}`,
-    open: 'Diğer yazışmalarda bekliyor',
-    promised: 'Söz verdin',
-    threads: (total: number) => `${total} yazışma`,
-  },
   queue: {
     addToCalendar: 'Takvime ekle',
     writeReminder: 'Hatırlatma yaz',

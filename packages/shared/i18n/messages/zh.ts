@@ -1707,14 +1707,6 @@ export const zh: Messages = {
       `${what}：从 ${from} 涨到 ${to}`,
     promised: '对你的承诺',
   },
-  people: {
-    owed: '对你的承诺',
-    firstContact: (date: string) => `自 ${date} 起联系`,
-    lastContact: (date: string) => `最近邮件 ${date}`,
-    open: '其他邮件中待处理',
-    promised: '你的承诺',
-    threads: (total: number) => `${total} 个对话`,
-  },
   risk: {
     prompt_injection: (domain: string) =>
       `${domain} 在这封邮件里藏了给自动读信程序的指令。助手会忽略它们；不要转发，也不要照它说的做。`,

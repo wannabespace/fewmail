@@ -900,20 +900,6 @@ export const pl: Messages = {
       `${what}: ${to} zamiast ${from}`,
     promised: 'Obiecano ci',
   },
-  people: {
-    owed: 'Obiecali ci',
-    firstContact: (date: string) => `Piszecie od ${date}`,
-    lastContact: (date: string) => `Ostatni e-mail: ${date}`,
-    open: 'Czeka w innych wątkach',
-    promised: 'Obiecałeś',
-    threads: (total: number) =>
-      plural('pl', total, {
-        one: () => '1 rozmowa',
-        few: (n) => `${n} rozmowy`,
-        many: (n) => `${n} rozmów`,
-        other: (n) => `${n} rozmowy`,
-      }),
-  },
   queue: {
     addToCalendar: 'Dodaj do kalendarza',
     writeReminder: 'Napisz przypomnienie',

@@ -881,18 +881,6 @@ export const nl: Messages = {
       `${what}: ${to} in plaats van ${from}`,
     promised: 'Aan jou beloofd',
   },
-  people: {
-    owed: 'Beloofde jou',
-    firstContact: (date: string) => `Mailt sinds ${date}`,
-    lastContact: (date: string) => `Laatste e-mail ${date}`,
-    open: 'Wacht in andere gesprekken',
-    promised: 'Je hebt beloofd',
-    threads: (total: number) =>
-      plural('nl', total, {
-        one: () => '1 gesprek',
-        other: (n) => `${n} gesprekken`,
-      }),
-  },
   queue: {
     addToCalendar: 'Aan agenda toevoegen',
     writeReminder: 'Herinnering schrijven',

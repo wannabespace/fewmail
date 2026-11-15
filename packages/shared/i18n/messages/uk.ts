@@ -1841,20 +1841,6 @@ export const uk: Messages = {
       `${what}: ${to} замість ${from}`,
     promised: 'Тобі обіцяли',
   },
-  people: {
-    owed: 'Обіцяли тобі',
-    firstContact: (date: string) => `Листуєтеся з ${date}`,
-    lastContact: (date: string) => `Останній лист ${date}`,
-    open: 'Чекає в інших листах',
-    promised: 'Ти пообіцяв',
-    threads: (total: number) =>
-      plural('uk', total, {
-        one: (n) => `${n} розмова`,
-        few: (n) => `${n} розмови`,
-        many: (n) => `${n} розмов`,
-        other: (n) => `${n} розмови`,
-      }),
-  },
   risk: {
     prompt_injection: (domain: string) =>
       `${domain} сховав у цьому листі інструкції для помічників, що читають пошту. Агент їх ігнорує; не пересилай лист і не роби того, що він просить.`,

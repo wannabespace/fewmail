@@ -1825,19 +1825,6 @@ export const es: Messages = {
       `${what}: ${to} en vez de ${from}`,
     promised: 'Te lo prometieron',
   },
-  people: {
-    owed: 'Te prometió',
-    firstContact: (date: string) => `Os escribís desde ${date}`,
-    lastContact: (date: string) => `Último correo: ${date}`,
-    open: 'Pendiente en otros hilos',
-    promised: 'Lo prometiste',
-    threads: (total: number) =>
-      plural('es', total, {
-        one: () => '1 conversación',
-        many: (n) => `${n} conversaciones`,
-        other: (n) => `${n} conversaciones`,
-      }),
-  },
   risk: {
     prompt_injection: (domain: string) =>
       `${domain} escondió en este correo instrucciones para asistentes que leen el correo. El agente las ignora; no lo reenvíes ni hagas lo que pide.`,
