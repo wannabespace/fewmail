@@ -7,6 +7,8 @@ The mark is a **bird**: a round, smiling carrier bird with a small beak, drawn a
 | File | Use |
 | --- | --- |
 | `logo/mark.svg`, `logo/mark-cream.svg`, `logo/mark-512.png` | The bird alone, ink or cream. |
+| `logo/mark-happy.svg` | The bird with a happy, arched eye: the logo's hover state. |
+| `logo/mark-sleeping.svg` | The bird asleep with two z's: an empty mail list. |
 | `logo/wordmark.svg`, `logo/wordmark-cream.svg` | The word alone. |
 | `logo/lockup.svg`, `logo/lockup-cream.svg` (+ `.png`) | Bird and wordmark together. The default logo. |
 | `logo/favicon.svg` | The bird, ink in a light browser and cream in a dark one. |

@@ -66,7 +66,6 @@ import {
   FlashIcon,
   InboxIcon,
   InboxUnreadIcon,
-  Mail01Icon,
   MailOpenIcon,
   PinIcon,
   PinOffIcon,
@@ -113,6 +112,7 @@ import { createElementSize, createWebStorageValue } from 'seitu/web'
 
 import { useCompose } from '~/components/compose/compose-context'
 import { KeyHints } from '~/components/key-hints'
+import { SleepingLogoMark } from '~/components/logo'
 import { ExtractedChips } from '~/components/mail-meta'
 import { MailSearchStart, rememberSearch } from '~/components/mail-search'
 import { SenderAvatar } from '~/components/sender-avatar'
@@ -244,9 +244,15 @@ const MailListEmpty = ({
   return (
     <Empty size="sm">
       <EmptyHeader>
-        <EmptyMedia variant="muted">
-          {isFirstRead ? <Spinner /> : <HugeiconsIcon icon={Mail01Icon} />}
-        </EmptyMedia>
+        {isFirstRead ? (
+          <EmptyMedia variant="muted">
+            <Spinner />
+          </EmptyMedia>
+        ) : (
+          <EmptyMedia>
+            <SleepingLogoMark className="text-muted-foreground/50 size-16" />
+          </EmptyMedia>
+        )}
         <EmptyTitle>{isFirstRead ? t.nav.syncing : t.mail.empty}</EmptyTitle>
         <EmptyDescription hidden={isFirstRead || !ARRIVING.has(filter)}>
           {t.mail.emptyHint}
