@@ -106,7 +106,7 @@ type ThreadMessage = NonNullable<
   ReturnType<typeof useThread>['data']
 >['messages'][number]['message']
 
-export const useThread = (threadId: string | undefined) =>
+const useThread = (threadId: string | undefined) =>
   useLiveQuery((q) =>
     threadId
       ? q
@@ -301,7 +301,7 @@ const frameHeights = new Map<string, number>()
  * Senders' HTML is laid out for a white page, so it keeps one. No `allow-scripts`: with it, `allow-same-origin` would hand the mail our session.
  * With `cite`, the passage it came from is centred and lit for a moment.
  */
-export const HtmlBody = ({
+const HtmlBody = ({
   blockImages,
   cidImage,
   cite,

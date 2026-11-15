@@ -21,7 +21,7 @@ import { popularDomainSet } from './known-domains'
 type Message = typeof messages.$inferSelect
 export type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
-export type PatternReason = 'auth' | 'infra' | 'link' | 'signals' | 'template'
+type PatternReason = 'auth' | 'infra' | 'link' | 'signals' | 'template'
 
 const SPAM_PROBABILITY = 0.8
 const TEMPLATE_REPORTERS = 3
@@ -215,7 +215,7 @@ const riskyTlds = async () => {
 }
 
 /** Machine-made names flip between letters and digits (k7x9q2mz) or have no vowels to speak of (qwrtpsdfgh). */
-export const looksGenerated = (label: string) => {
+const looksGenerated = (label: string) => {
   if (label.startsWith('xn--')) {
     return false
   }

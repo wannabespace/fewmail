@@ -461,7 +461,6 @@ export const hi: Messages = {
     moveToInbox: 'इनबॉक्स में ले जाएँ',
     backInInbox: 'इनबॉक्स में ले जाया गया',
     movedToInbox: 'इनबॉक्स में वापस डाल दिया। बताने के लिए शुक्रिया।',
-    noThread: 'यहाँ पढ़ने के लिए कोई ईमेल चुनें',
     deleteDraft: 'ड्राफ़्ट हटाएँ',
     notSent: 'नहीं भेजा गया। फिर से कोशिश करने के लिए खोलें',
     noRecipients: 'कोई प्राप्तकर्ता नहीं',
@@ -475,8 +474,6 @@ export const hi: Messages = {
     markedUnread: 'अपठित चिह्नित किया',
     attachment: 'अटैचमेंट',
     draftReply: 'जवाब ड्राफ़्ट करें',
-    drafting: 'ड्राफ़्ट बन रहा है…',
-    draftWaiting: 'ड्राफ़्ट होम पर इंतज़ार कर रहा है',
     due: (date: string) => `देय ${date}`,
     dueHint: 'इस ईमेल में एजेंट को मिली समय-सीमा',
     empty: 'यहाँ कोई ईमेल नहीं है',
@@ -1499,8 +1496,6 @@ export const hi: Messages = {
             one: () => 'एक चीज़ को आपकी ज़रूरत है।',
             other: (n) => `${n} चीज़ों को आपकी ज़रूरत है।`,
           }),
-    nothingNeedsYou:
-      'अभी किसी चीज़ को आपकी ज़रूरत नहीं है। नया मेल आते ही पढ़ लिया जाता है।',
     period: (days: number) =>
       days === 1 ? 'पिछले दिन में' : `पिछले ${days} दिनों में`,
     pulse: {
@@ -1513,7 +1508,6 @@ export const hi: Messages = {
     recent: (period: string) => `${period} और`,
     sent: 'भेजा गया',
     codes: 'साइन-इन कोड',
-    worthAttention: 'ध्यान देने लायक',
   },
   boards: {
     chartRemoved: 'चार्ट हटाया गया',

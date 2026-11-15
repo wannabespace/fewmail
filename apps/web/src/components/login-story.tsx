@@ -10,7 +10,7 @@ import { useT } from '~/lib/i18n'
 
 const EASE = [0.32, 0.72, 0, 1] as const
 
-export const TelegramMark = ({ className }: { className?: string }) => (
+const TelegramMark = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
     <path
       fill="currentColor"

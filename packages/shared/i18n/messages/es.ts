@@ -1033,7 +1033,6 @@ export const es: Messages = {
     movedToInbox: 'Devuelto a la bandeja de entrada. Gracias por avisar.',
     moveToInbox: 'A la bandeja de entrada',
     backInInbox: 'Movido a la bandeja de entrada',
-    noThread: 'Elige un correo para leerlo aquí',
     deleteDraft: 'Eliminar borrador',
     notSent: 'No enviado: ábrelo para reintentar',
     noRecipients: 'Sin destinatarios',
@@ -1047,8 +1046,6 @@ export const es: Messages = {
     markedUnread: 'Marcado como no leído',
     attachment: 'adjunto',
     draftReply: 'Redactar respuesta',
-    drafting: 'Redactando…',
-    draftWaiting: 'El borrador te espera en Inicio',
     due: (date: string) => `vence el ${date}`,
     dueHint: 'Plazo que el agente encontró en este correo',
     empty: 'No hay correos aquí',
@@ -1536,8 +1533,6 @@ export const es: Messages = {
             one: () => 'Una cosa te necesita.',
             other: (n) => `${n} cosas te necesitan.`,
           }),
-    nothingNeedsYou:
-      'Ahora mismo nada te necesita. El correo nuevo se lee en cuanto llega.',
     period: (days: number) =>
       days === 1 ? 'en el último día' : `en los últimos ${days} días`,
     pulse: {
@@ -1554,7 +1549,6 @@ export const es: Messages = {
     recent: (period: string) => `También ${period}`,
     sent: 'Enviado',
     codes: 'Códigos de acceso',
-    worthAttention: 'Merece tu atención',
   },
   boards: {
     chartRemoved: 'Gráfico quitado',

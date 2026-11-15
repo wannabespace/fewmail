@@ -1043,7 +1043,6 @@ export const fr: Messages = {
     backInInbox: 'Remis dans la boîte de réception',
     movedToInbox:
       'Remis dans la boîte de réception. Merci de nous l’avoir dit.',
-    noThread: 'Choisissez un e-mail pour le lire ici',
     deleteDraft: 'Supprimer le brouillon',
     notSent: 'Non envoyé. Ouvrez pour réessayer',
     noRecipients: 'Aucun destinataire',
@@ -1057,8 +1056,6 @@ export const fr: Messages = {
     markedUnread: 'Marqué comme non lu',
     attachment: 'pièce jointe',
     draftReply: 'Rédiger une réponse',
-    drafting: 'Rédaction…',
-    draftWaiting: 'Le brouillon vous attend dans Accueil',
     due: (date: string) => `échéance le ${date}`,
     dueHint: 'Échéance trouvée par l’agent dans cet e-mail',
     empty: 'Aucun e-mail ici',
@@ -1553,8 +1550,6 @@ export const fr: Messages = {
             many: (n) => `${n} choses vous attendent.`,
             other: (n) => `${n} choses vous attendent.`,
           }),
-    nothingNeedsYou:
-      'Rien ne vous attend pour l’instant. Les nouveaux e-mails sont lus dès leur arrivée.',
     period: (days: number) =>
       days === 1 ? 'ces dernières 24 h' : `ces ${days} derniers jours`,
     pulse: {
@@ -1571,7 +1566,6 @@ export const fr: Messages = {
     recent: (period: string) => `Aussi ${period}`,
     sent: 'Envoyé',
     codes: 'Codes de connexion',
-    worthAttention: 'Mérite votre attention',
   },
   boards: {
     chartRemoved: 'Graphique retiré',

@@ -118,7 +118,7 @@ export const auth = betterAuth({
   },
 })
 
-export const googleAccessToken = async (userId: string) => {
+const googleAccessToken = async (userId: string) => {
   const cached = signInAccessTokens.get(userId)
   if (cached && cached.expiresAt > Date.now()) {
     return cached.token

@@ -772,7 +772,6 @@ export const en = {
     movedToInbox: 'Moved back to the inbox. Thanks for telling us.',
     moveToInbox: 'Move to inbox',
     backInInbox: 'Moved to the inbox',
-    noThread: 'Pick an email to read it here',
     deleteDraft: 'Delete draft',
     notSent: 'Not sent. Open to retry',
     noRecipients: 'No recipients',
@@ -784,8 +783,6 @@ export const en = {
     trashed: 'Moved to trash',
     attachment: 'attachment',
     draftReply: 'Draft reply',
-    drafting: 'Drafting…',
-    draftWaiting: 'Draft is waiting on Home',
     due: (date: string) => `due ${date}`,
     dueHint: 'Deadline the agent found in this email',
     empty: 'No emails here',
@@ -1852,8 +1849,6 @@ export const en = {
       setUp: 'Set up',
       turnOn: 'Turn on',
     },
-    nothingNeedsYou:
-      'Nothing needs you right now. New mail is read the moment it arrives.',
     period: (days: number) =>
       days === 1 ? 'in the last day' : `in the last ${days} days`,
     pulse: {
@@ -1870,7 +1865,6 @@ export const en = {
     recent: (period: string) => `Also ${period}`,
     sent: 'Sent',
     codes: 'Sign-in codes',
-    worthAttention: 'Worth your attention',
   },
   upgrade: {
     ask: 'Ask your mail',

@@ -16,7 +16,7 @@ import { logError } from '../lib/log'
 import { NotFoundError } from './mail-errors'
 import { ownMailbox } from './mailboxes'
 
-export interface EventRef {
+interface EventRef {
   id: string
   mailboxId: string
 }

@@ -295,7 +295,7 @@ const createBot = (token: string) => {
   return bot
 }
 
-export const bot = env.TELEGRAM_BOT_TOKEN
+const bot = env.TELEGRAM_BOT_TOKEN
   ? createBot(env.TELEGRAM_BOT_TOKEN)
   : null
 

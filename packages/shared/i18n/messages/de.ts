@@ -1030,7 +1030,6 @@ export const de: Messages = {
     movedToInbox: 'Zurück im Posteingang. Danke für den Hinweis.',
     moveToInbox: 'In den Posteingang',
     backInInbox: 'In den Posteingang verschoben',
-    noThread: 'Wähle eine E-Mail, um sie hier zu lesen',
     deleteDraft: 'Entwurf löschen',
     notSent: 'Nicht gesendet – zum erneuten Senden öffnen',
     noRecipients: 'Keine Empfänger',
@@ -1044,8 +1043,6 @@ export const de: Messages = {
     markedUnread: 'Als ungelesen markiert',
     attachment: 'Anhang',
     draftReply: 'Antwort entwerfen',
-    drafting: 'Entwerfe…',
-    draftWaiting: 'Entwurf wartet auf der Startseite',
     due: (date: string) => `fällig am ${date}`,
     dueHint: 'Frist, die der Agent in dieser E-Mail gefunden hat',
     empty: 'Hier sind keine Mails',
@@ -1540,8 +1537,6 @@ export const de: Messages = {
             one: () => 'Eine Sache braucht dich.',
             other: (n) => `${n} Sachen brauchen dich.`,
           }),
-    nothingNeedsYou:
-      'Gerade braucht dich nichts. Neue Mails werden gelesen, sobald sie ankommen.',
     period: (days: number) =>
       days === 1 ? 'in den letzten 24 Stunden' : `in den letzten ${days} Tagen`,
     pulse: {
@@ -1558,7 +1553,6 @@ export const de: Messages = {
     recent: (period: string) => `Außerdem ${period}`,
     sent: 'Gesendet',
     codes: 'Anmeldecodes',
-    worthAttention: 'Einen Blick wert',
   },
   boards: {
     chartRemoved: 'Diagramm entfernt',

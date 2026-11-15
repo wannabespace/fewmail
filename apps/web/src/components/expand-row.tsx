@@ -77,7 +77,7 @@ export const clipOver = (
 }
 
 /** Grows a row into `ThreadPane`, or shrinks it back; one still closing gives way at once. */
-export const toggleExpanded = (
+const toggleExpanded = (
   open: Omit<Expanded, 'isClosing' | 'pathname'>
 ) => {
   const current = expandedThread.get()

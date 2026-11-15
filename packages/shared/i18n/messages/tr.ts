@@ -755,7 +755,6 @@ export const tr: Messages = {
     moveToInbox: 'Gelen kutusuna',
     backInInbox: 'Gelen kutusuna taşındı',
     movedToInbox: 'Gelen kutusuna geri taşındı. Bildirdiğin için teşekkürler.',
-    noThread: 'Burada okumak için bir e-posta seç',
     deleteDraft: 'Taslağı sil',
     notSent: 'Gönderilemedi. Yeniden denemek için aç',
     noRecipients: 'Alıcı yok',
@@ -769,8 +768,6 @@ export const tr: Messages = {
     markedUnread: 'Okunmadı olarak işaretlendi',
     attachment: 'ek',
     draftReply: 'Yanıt taslağı',
-    drafting: 'Yazılıyor…',
-    draftWaiting: 'Taslak Ana Sayfa’da bekliyor',
     due: (date: string) => `son tarih ${date}`,
     dueHint: 'Ajanın bu e-postada bulduğu son tarih',
     empty: 'Burada e-posta yok',
@@ -1832,8 +1829,6 @@ export const tr: Messages = {
             one: () => 'Bir şey seni bekliyor.',
             other: (n) => `${n} şey seni bekliyor.`,
           }),
-    nothingNeedsYou:
-      'Şu an seni bekleyen bir şey yok. Yeni postalar gelir gelmez okunur.',
     period: (days: number) =>
       days === 1 ? 'Son bir günde' : `Son ${days} günde`,
     pulse: {
@@ -1846,7 +1841,6 @@ export const tr: Messages = {
     recent: (period: string) => `${period} ayrıca`,
     sent: 'Gönderildi',
     codes: 'Giriş kodları',
-    worthAttention: 'İlgini hak ediyor',
   },
   upgrade: {
     ask: 'Postana sor',

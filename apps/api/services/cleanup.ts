@@ -291,7 +291,7 @@ const CLEAR_OUT_QUERIES: Record<Exclude<ClearOutGroup, 'lists'>, string> = {
 }
 const INBOX_QUERY = 'in:inbox'
 /** Beyond it the counts read "50,000+": listing more costs a minute of the user's Gmail quota. */
-export const CLEAR_OUT_CAP = 50_000
+const CLEAR_OUT_CAP = 50_000
 const SENDER_SAMPLE = 600
 /** Header reads at once: Gmail allows 250 quota units a second per user, five per read. */
 const SAMPLE_CONCURRENCY = 10
@@ -310,7 +310,7 @@ const ownedMailboxes = (userId: string) =>
 type Headers = Awaited<ReturnType<typeof getMessageHeaders>>
 
 /** A list as the scan showed it: the run leaves exactly these, never lists it finds on its own. */
-export interface ClearOutList {
+interface ClearOutList {
   fromEmail: string
   gmailId: string
   listId: string | null

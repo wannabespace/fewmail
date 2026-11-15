@@ -25,7 +25,7 @@ const MIN_SENDER_REPORTERS = 3
 /** Company domains need more independent reporters, since one domain hosts many senders. */
 const MIN_DOMAIN_REPORTERS = 5
 
-export const senderKeys = (email: string) => {
+const senderKeys = (email: string) => {
   const domain = domainOf(email)
   return {
     domainHash:

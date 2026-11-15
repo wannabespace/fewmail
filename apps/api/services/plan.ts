@@ -20,7 +20,7 @@ const DAY_MS = 86_400_000
 const currentMonth = () => `${new Date().toISOString().slice(0, 7)}-01`
 
 /** Urgent mail may run this far past the month's allowance, so the allowance never hides it. */
-export const URGENT_RESERVE = 1.1
+const URGENT_RESERVE = 1.1
 
 const paidPlan = (priceId: string): Plan => {
   if (
@@ -76,7 +76,7 @@ export const getPlanInfo = async (userId: string) => {
   }
 }
 
-export type PlanInfo = Awaited<ReturnType<typeof getPlanInfo>>
+type PlanInfo = Awaited<ReturnType<typeof getPlanInfo>>
 
 /** Everything that runs a model — analysis, drafts, Telegram, MCP — needs the agent. */
 export const hasAgent = <Info extends Pick<PlanInfo, 'kind'>>(

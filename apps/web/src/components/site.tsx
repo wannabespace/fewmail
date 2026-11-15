@@ -250,19 +250,6 @@ export const Faq = ({
   </Reveal>
 )
 
-export const Stage = ({ children, className }: ComponentProps<'div'>) => (
-  <Reveal
-    className={cn(
-      'bg-background ring-foreground/6 mt-12 flex items-center justify-center overflow-hidden rounded-3xl px-6 py-12 ring',
-      className
-    )}
-  >
-    <div inert className="w-full">
-      {children}
-    </div>
-  </Reveal>
-)
-
 export const FeatureGrid = ({
   features,
 }: {

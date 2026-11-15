@@ -38,7 +38,7 @@ interface Known {
   title?: string
 }
 
-export interface ToolInput {
+interface ToolInput {
   actionId?: string
   allDay?: boolean
   cc?: string[]

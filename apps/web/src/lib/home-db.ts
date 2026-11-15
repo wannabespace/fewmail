@@ -5,7 +5,7 @@ import { createCollection } from '@tanstack/react-db'
 import { client, orpc } from './orpc'
 import { queryClient } from './query-client'
 
-export type QueueCardRow = RouterOutputs['today']['queue'][number] & {
+type QueueCardRow = RouterOutputs['today']['queue'][number] & {
   rank: number
 }
 

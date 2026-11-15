@@ -19,7 +19,7 @@ import { posthog } from '~/lib/posthog'
 
 import { confirm } from './confirm-dialog'
 
-export const attachmentUrl = (messageId: string, partId: string) =>
+const attachmentUrl = (messageId: string, partId: string) =>
   `${import.meta.env.API_URL}/attachments/${messageId}/${encodeURIComponent(partId)}`
 
 /** Draws an email's `cid:` images from its own files; without this they show as broken images. */

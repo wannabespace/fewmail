@@ -115,7 +115,7 @@ const imitableDomains = async () => {
   return imitable
 }
 
-export const imitatedDomain = async (domain: string) => {
+const imitatedDomain = async (domain: string) => {
   if (!domain || FREEMAIL_DOMAINS.has(domain)) {
     return null
   }

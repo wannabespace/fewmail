@@ -15,7 +15,7 @@ const FORMATS = { messenger: 'opus_48000_64', web: 'mp3_44100_64' } as const
 export const canSpeak = !!env.ELEVENLABS_API_KEY
 
 /** Telegram HTML and WhatsApp `*bold*` would otherwise be read aloud. */
-export const spokenText = (text: string) =>
+const spokenText = (text: string) =>
   text
     .replaceAll(/<[^>]+>/gu, '')
     .replaceAll(/[*_~]/gu, '')
