@@ -380,8 +380,6 @@ export const ko: Messages = {
   },
   mail: {
     inThread: (emails: string) => `이 대화에 ${emails}`,
-    burstHint: (emails: string) =>
-      `하나의 대화가 아니에요: 거의 동시에 도착한 이 발신자의 ${emails}를 묶었어요`,
     draftDeleted: '임시 보관 메일을 삭제했어요',
     unsubscribeConfirm: (name: string) => `${name} 구독을 취소할까요?`,
     unsubscribeHint:

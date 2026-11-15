@@ -654,8 +654,6 @@ export const nl: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} in dit gesprek`,
-    burstHint: (emails: string) =>
-      `Geen gesprek: ${emails} van deze afzender, gebundeld omdat ze kort na elkaar kwamen`,
     draftDeleted: 'Concept verwijderd',
     unsubscribeConfirm: (name: string) => `Afmelden bij ${name}?`,
     unsubscribeHint:

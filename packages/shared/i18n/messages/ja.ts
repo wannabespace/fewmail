@@ -381,8 +381,6 @@ export const ja: Messages = {
   },
   mail: {
     inThread: (emails: string) => `この会話に${emails}`,
-    burstHint: (emails: string) =>
-      `1つの会話ではありません: 近い時間に届いた、この送信者からの${emails}をまとめています`,
     draftDeleted: '下書きを削除しました',
     unsubscribeConfirm: (name: string) => `${name}の配信を停止しますか？`,
     unsubscribeHint:

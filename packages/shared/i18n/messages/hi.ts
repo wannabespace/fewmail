@@ -380,8 +380,6 @@ export const hi: Messages = {
   },
   mail: {
     inThread: (emails: string) => `इस बातचीत में ${emails}`,
-    burstHint: (emails: string) =>
-      `यह एक बातचीत नहीं है: इस भेजने वाले के ${emails}, साथ रखे गए क्योंकि लगभग एक साथ आए`,
     draftDeleted: 'ड्राफ़्ट हटाया गया',
     unsubscribeConfirm: (name: string) => `${name} से अनसब्सक्राइब करें?`,
     unsubscribeHint:

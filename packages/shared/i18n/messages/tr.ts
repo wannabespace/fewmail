@@ -635,8 +635,6 @@ export const tr: Messages = {
   },
   mail: {
     inThread: (emails: string) => `Bu konuşmada ${emails}`,
-    burstHint: (emails: string) =>
-      `Tek bir konuşma değil: bu göndericiden neredeyse aynı anda gelen ${emails}, kolaylık için gruplandı`,
     draftDeleted: 'Taslak silindi',
     unsubscribeConfirm: (name: string) => `${name} aboneliğinden çıkılsın mı?`,
     unsubscribeHint:

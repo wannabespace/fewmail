@@ -958,8 +958,6 @@ export const fr: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} dans cette conversation`,
-    burstHint: (emails: string) =>
-      `Pas une conversation : ${emails} de cet expéditeur, regroupés car ils sont arrivés presque ensemble`,
     draftDeleted: 'Brouillon supprimé',
     unsubscribeConfirm: (name: string) => `Se désabonner de ${name} ?`,
     unsubscribeHint:

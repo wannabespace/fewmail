@@ -948,8 +948,6 @@ export const uk: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} у цій розмові`,
-    burstHint: (emails: string) =>
-      `Не одна розмова: ${emails} від цього відправника, згруповано, бо прийшли майже разом`,
     draftDeleted: 'Чернетку видалено',
     unsubscribeConfirm: (name: string) => `Відписатися від ${name}?`,
     unsubscribeHint:

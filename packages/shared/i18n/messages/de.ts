@@ -950,8 +950,6 @@ export const de: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} in dieser Unterhaltung`,
-    burstHint: (emails: string) =>
-      `Keine Unterhaltung: ${emails} von diesem Absender, zusammengefasst, weil sie kurz nacheinander kamen`,
     draftDeleted: 'Entwurf gelöscht',
     unsubscribeConfirm: (name: string) => `Von ${name} abmelden?`,
     unsubscribeHint:

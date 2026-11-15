@@ -648,8 +648,6 @@ export const en = {
   },
   mail: {
     inThread: (emails: string) => `${emails} in this conversation`,
-    burstHint: (emails: string) =>
-      `Not one conversation: ${emails} from this sender, grouped because they came close together`,
     draftDeleted: 'Draft deleted',
     unsubscribeConfirm: (name: string) => `Unsubscribe from ${name}?`,
     unsubscribeHint:

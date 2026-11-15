@@ -91,7 +91,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { defaultRangeExtractor, useVirtualizer } from '@tanstack/react-virtual'
 import type { VirtualItem } from '@tanstack/react-virtual'
 import { type } from 'arktype'
-import { differenceInMinutes, isToday, subDays } from 'date-fns'
+import { isToday, subDays } from 'date-fns'
 import {
   AnimatePresence,
   MotionConfig,
@@ -127,7 +127,6 @@ import {
   UNDER_ROW_ACTIONS,
   SnoozeMenuItems,
   sweepOf,
-  StackView,
   ThreadPeek,
   ThreadView,
   useMailActions,
@@ -340,7 +339,7 @@ const GROUP_OF: Record<MailCategory, GroupKey> = {
   work: 'people',
 }
 
-/** Groups show their newest few rows until asked (a stack is one row), so no group pushes the next one away. */
+/** Groups show their newest few rows until asked, so no group pushes the next one away. */
 const GROUP_SHOWN = 5
 
 type ListedRow = Omit<MailRowData, 'key' | 'list'>
@@ -408,8 +407,6 @@ const groupRows = <Row extends ListedRow>(
     }
   })
 }
-
-const BURST_MINUTES = 10
 
 type ListedMessage = ListedRow['message']
 
@@ -521,70 +518,17 @@ const MailPeek = () => {
   )
 }
 
-/** Each email of a stack keeps its own chips: the stack's header shows none, or one email's amount reads as the whole stack's. */
-type BurstEmail = ListedMessage & {
-  extracted?: NonNullable<ListedRow['analysis']>['extracted']
-}
-
-const burstEmailOf = ({ analysis, message }: ListedRow): BurstEmail => ({
-  ...message,
-  extracted: analysis?.extracted,
-})
-
-const burstWeightOf = ({ analysis, message }: ListedRow) =>
-  message.risk ? Infinity : (analysis?.importance ?? -1)
-
-/** A sender's quick run of mail (a retried payment, a split notice) is one row, acted on as a whole, until → expands it. */
-const collapseBursts = <Row extends ListedRow>(
-  rows: Row[],
-  expanded: ReadonlySet<string>
-) => {
-  const collapsed: (Row & { burst: BurstEmail[]; messageIds: string[] })[] = []
-  let previous: Row | undefined
-  for (const row of rows) {
-    const head = collapsed.at(-1)
-    if (
-      head &&
-      previous &&
-      !expanded.has(head.message.id) &&
-      previous.message.fromEmail === row.message.fromEmail &&
-      differenceInMinutes(previous.message.receivedAt, row.message.receivedAt) <
-        BURST_MINUTES
-    ) {
-      head.burst.push(burstEmailOf(row))
-      head.messageIds.push(row.message.id)
-      head.message.isUnread ||= row.message.isUnread
-      // The stack's group, label and warning are its most important email's, or an urgent or fraud one hides under a newer one.
-      if (burstWeightOf(row) > burstWeightOf(head)) {
-        head.analysis = row.analysis
-        head.message.risk = row.message.risk
-      }
-    } else {
-      collapsed.push({
-        ...row,
-        burst: [burstEmailOf(row)],
-        message: { ...row.message },
-        messageIds: [row.message.id],
-      })
-    }
-    previous = row
-  }
-  return collapsed
-}
-
 const pinHint = (
   t: ReturnType<typeof useT>,
   isPinned: boolean
 ): [string, string] => ['S', isPinned ? t.keys.unpin : t.keys.pin]
 
-const usePinnedRows = <Row extends ListedRow & { messageIds: string[] }>(
+const usePinnedRows = <Row extends ListedRow>(
   pinned: ListedRow[],
   listedRows: Row[]
 ) => {
   const [isExpanded, setIsExpanded] = useState(false)
-  const shown = (isExpanded ? pinned : pinned.slice(0, PINNED_SHOWN)).map(
-    (row) => ({ ...row, messageIds: [row.message.id] })
-  )
+  const shown = isExpanded ? pinned : pinned.slice(0, PINNED_SHOWN)
   return {
     isExpanded,
     rows: [...shown, ...listedRows],
@@ -943,12 +887,12 @@ const MailRowMeta = ({
 const MailRowCode = ({
   actions,
   code,
-  messageIds,
+  messageId,
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
   code: string | null
-  messageIds: string[]
+  messageId: string
   sweep: Sweep
 }) =>
   code && (
@@ -956,7 +900,7 @@ const MailRowCode = ({
       actions={actions}
       className="absolute top-7.5 right-4"
       code={code}
-      messageIds={messageIds}
+      messageIds={[messageId]}
       sweep={sweep}
     />
   )
@@ -1008,10 +952,6 @@ const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
     isUnread && 'bg-primary',
     isPicking ? 'invisible' : 'group-hover:invisible'
   )
-
-// On the unread dot: beside the first line of a stack, else the middle of the row.
-const pickPlaceOf = (isBurst: boolean) =>
-  isBurst ? 'top-3' : 'top-1/2 -translate-y-1/2'
 
 const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
 
@@ -1198,9 +1138,7 @@ const UNRELATED_LISTS = new Set<MailList>(['pinned', 'spam', 'trash'])
  * Under the open row, the sender's other threads from every list as real rows (J / K, ⏎ and E reach them); never one
  * the list already shows. Never under a pin (`pinnedCount` rows lead the list) or in search, which shows only matches.
  */
-const useRelatedRows = <
-  Row extends ListedRow & { burst?: ListedMessage[]; messageIds: string[] },
->({
+const useRelatedRows = <Row extends ListedRow>({
   anchor,
   isEnabled,
   mailbox,
@@ -1220,11 +1158,7 @@ const useRelatedRows = <
       .from({ row: mailRowsOf(mailbox) })
       .orderBy(({ row }) => row.message.receivedAt, 'desc')
   )
-  const seen = new Set(
-    rows.flatMap(({ burst, message }) =>
-      (burst ?? [message]).map(({ threadId }) => threadId)
-    )
-  )
+  const seen = new Set(rows.map(({ message }) => message.threadId))
   const others = (everything.data ?? []).filter(({ list, message }) => {
     if (UNRELATED_LISTS.has(list) || seen.has(message.threadId)) {
       return false
@@ -1240,11 +1174,7 @@ const useRelatedRows = <
     bySender.get(rows[anchorIndex]?.message.fromEmail ?? '') ?? []
   )
     .slice(0, RELATED_SHOWN)
-    .map((row) => ({
-      ...row,
-      isRelated: true as const,
-      messageIds: [row.message.id],
-    }))
+    .map((row) => ({ ...row, isRelated: true as const }))
   return {
     anchorIndex,
     canShowFor: (row: ListedRow | undefined) =>
@@ -1313,117 +1243,6 @@ const RelatedRow = ({
   )
 }
 
-/** Folded to its newest few like a group, never a scroller of its own: a wheel over the row must scroll the list. */
-const BurstList = ({
-  actions,
-  burst,
-  canPeek,
-  canSnooze,
-  onOpenEmail,
-  openThread,
-  sweep,
-}: {
-  actions: ReturnType<typeof useMailActions>
-  burst: BurstEmail[]
-  canPeek: boolean
-  canSnooze: boolean
-  onOpenEmail: (message: ListedMessage) => void
-  openThread: string | undefined
-  sweep: Sweep
-}) => {
-  const t = useT()
-  const dates = useDates()
-  const [isUnfolded, setIsUnfolded] = useState(false)
-  return (
-    <ul className="pb-2">
-      {(isUnfolded ? burst : burst.slice(0, GROUP_SHOWN)).map((email) => (
-        <li key={email.id} className="group/line relative">
-          <button
-            type="button"
-            tabIndex={-1}
-            onClick={() => onOpenEmail(email)}
-            onPointerEnter={() => {
-              void warmThread(email.threadId)
-            }}
-            aria-current={email.threadId === openThread}
-            className={cn(
-              'group-hover/line:bg-secondary aria-current:bg-secondary mr-3 ml-16 flex w-[calc(100%-4.75rem)] cursor-pointer items-center gap-2 rounded-md px-2 py-0.5 text-left text-sm outline-none',
-              email.code && 'pr-28'
-            )}
-          >
-            {email.risk && (
-              <>
-                <HugeiconsIcon
-                  icon={Shield01Icon}
-                  strokeWidth={2}
-                  className="text-destructive size-3 shrink-0"
-                />
-                <span className="sr-only">{t.risk.title}</span>
-              </>
-            )}
-            <span
-              data-mask
-              className={cn(
-                'min-w-0 truncate',
-                email.risk && 'text-destructive font-medium',
-                !email.risk &&
-                  (email.isUnread
-                    ? 'text-foreground font-medium'
-                    : 'text-muted-foreground')
-              )}
-            >
-              {email.subject}
-            </span>
-            {email.extracted && (
-              <span className="ease-house flex h-5 min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-5 overflow-hidden transition-opacity duration-150 group-hover/line:opacity-0 group-has-data-popup-open/line:opacity-0 empty:hidden">
-                <ExtractedChips extracted={email.extracted} size="sm" />
-              </span>
-            )}
-            {!email.code && (
-              <span className="text-muted-foreground ml-auto shrink-0 text-xs tabular-nums">
-                {dates.format(
-                  email.receivedAt,
-                  isToday(email.receivedAt) ? 'HH:mm' : 'd MMM'
-                )}
-              </span>
-            )}
-          </button>
-          <span className="absolute inset-y-0 right-3 flex items-center">
-            <MailRowActions
-              actions={actions}
-              canSnooze={canSnooze}
-              isPinned={email.isPinned}
-              messageIds={[email.id]}
-              peek={canPeek && <PeekButton message={email} size="icon-2xs" />}
-              reveal="line"
-              sweep={sweep}
-            />
-            {email.code && (
-              <CodeActions
-                actions={actions}
-                code={email.code}
-                messageIds={[email.id]}
-                sweep={sweep}
-              />
-            )}
-          </span>
-        </li>
-      ))}
-      {burst.length > GROUP_SHOWN && (
-        <li className="ml-16">
-          <Button
-            size="xs"
-            variant="link-muted"
-            onClick={() => setIsUnfolded((unfolded) => !unfolded)}
-          >
-            {isUnfolded ? t.mail.showFewer : t.mail.showAll(burst.length)}
-          </Button>
-        </li>
-      )}
-    </ul>
-  )
-}
-
 const RowWarning = ({ message }: { message: ListedMessage }) => {
   const t = useT()
   if (message.risk) {
@@ -1451,12 +1270,10 @@ const MailRow = ({
   isSnoozeOpen,
   item,
   onOpen,
-  onOpenEmail,
   onPick,
   onSnoozeOpenChange,
-  openEmailThread,
   peek,
-  row: { analysis, burst, message, messageIds, threadSize },
+  row: { analysis, message, threadSize },
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
@@ -1469,18 +1286,15 @@ const MailRow = ({
   isSnoozeOpen: boolean
   item: VirtualItem
   onOpen: () => void
-  onOpenEmail: (message: ListedMessage) => void
   onPick: () => void
   onSnoozeOpenChange: (open: boolean) => void
-  openEmailThread: string | undefined
   peek: ReactNode
-  row: ListedRow & { burst?: BurstEmail[]; messageIds: string[] }
+  row: ListedRow
   sweep: Sweep
 }) => {
   const t = useT()
   const dates = useDates()
   const codeRoom = message.code ? 'pr-28' : undefined
-  const isBurst = messageIds.length > 1
 
   return (
     <ListRow
@@ -1499,10 +1313,7 @@ const MailRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className={cn(
-          'flex w-full cursor-pointer items-center gap-2 py-2.5 pr-5 pl-4 text-left outline-none',
-          isBurst && 'pb-1'
-        )}
+        className="flex w-full cursor-pointer items-center gap-2 py-2.5 pr-5 pl-4 text-left outline-none"
       >
         <span
           aria-label={message.isUnread ? t.mail.unread : undefined}
@@ -1522,7 +1333,7 @@ const MailRow = ({
             >
               {message.fromName ?? message.fromEmail}
             </span>
-            {threadSize > 1 && !isBurst && (
+            {threadSize > 1 && (
               <Tooltip>
                 <TooltipTrigger render={<Badge size="sm" variant="outline" />}>
                   {threadSize}
@@ -1532,29 +1343,11 @@ const MailRow = ({
                 </TooltipContent>
               </Tooltip>
             )}
-            {isBurst ? (
-              <>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <span className="text-muted-foreground shrink-0 text-xs" />
-                    }
-                  >
-                    {t.cleanup.emails(messageIds.length)}
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {t.mail.burstHint(t.cleanup.emails(messageIds.length))}
-                  </TooltipContent>
-                </Tooltip>
-                <span className="flex-1" />
-              </>
-            ) : (
-              <MailRowMeta
-                hidesCategory={hidesCategory}
-                insight={analysis}
-                message={message}
-              />
-            )}
+            <MailRowMeta
+              hidesCategory={hidesCategory}
+              insight={analysis}
+              message={message}
+            />
             <span
               className={cn(
                 'shrink-0 text-xs tabular-nums',
@@ -1570,53 +1363,40 @@ const MailRow = ({
               )}
             </span>
           </span>
-          {!isBurst && (
-            <span
-              data-mask
-              className={cn(
-                'truncate text-sm',
-                codeRoom,
-                message.isUnread
-                  ? 'text-foreground font-medium'
-                  : 'text-muted-foreground'
-              )}
-            >
-              {message.subject}
-            </span>
-          )}
+          <span
+            data-mask
+            className={cn(
+              'truncate text-sm',
+              codeRoom,
+              message.isUnread
+                ? 'text-foreground font-medium'
+                : 'text-muted-foreground'
+            )}
+          >
+            {message.subject}
+          </span>
           <RowWarning message={message} />
         </span>
       </button>
-      {isBurst && burst && (
-        <BurstList
-          actions={actions}
-          burst={burst}
-          canPeek={!!peek}
-          canSnooze={canSnooze}
-          onOpenEmail={onOpenEmail}
-          openThread={openEmailThread}
-          sweep={sweep}
-        />
-      )}
       <MailRowActions
         actions={actions}
         canSnooze={canSnooze}
         className={ROW_ACTIONS}
         isPinned={message.isPinned}
         isSnoozeOpen={isSnoozeOpen}
-        messageIds={messageIds}
+        messageIds={[message.id]}
         onSnoozeOpenChange={onSnoozeOpenChange}
-        peek={!isBurst && peek}
+        peek={peek}
         sweep={sweep}
       />
       <MailRowCode
         actions={actions}
-        code={isBurst ? null : message.code}
-        messageIds={messageIds}
+        code={message.code}
+        messageId={message.id}
         sweep={sweep}
       />
       <RowPick
-        className={pickPlaceOf(isBurst)}
+        className="top-1/2 -translate-y-1/2"
         aria-label={t.queue.pick}
         checked={isPicked}
         isPicking={isPicking}
@@ -1639,11 +1419,9 @@ const PinnedRow = ({
   onPick,
   onSnoozeOpenChange,
   peek,
-  row: { message, messageIds },
+  row: { message },
   sweep,
-}: Omit<Parameters<typeof MailRow>[0], 'row'> & {
-  row: ListedRow & { messageIds: string[] }
-}) => {
+}: Parameters<typeof MailRow>[0]) => {
   const t = useT()
   const dates = useDates()
   return (
@@ -1710,7 +1488,7 @@ const PinnedRow = ({
         className={cn(ROW_ACTIONS, 'top-1')}
         isPinned
         isSnoozeOpen={isSnoozeOpen}
-        messageIds={messageIds}
+        messageIds={[message.id]}
         onSnoozeOpenChange={onSnoozeOpenChange}
         peek={peek}
         sweep={sweep}
@@ -2030,13 +1808,11 @@ const useSearchAnswer = ({
 }
 
 const useListRows = ({
-  expanded,
   filter,
   mailbox,
   q,
   typed,
 }: {
-  expanded: ReadonlySet<string>
   filter: Filter
   mailbox: string | undefined
   q: string | undefined
@@ -2062,7 +1838,7 @@ const useListRows = ({
       : undefined
   )
   const drafts = useDrafts({ isEnabled: isDrafts, mailbox, q })
-  const rows = collapseBursts(
+  const rows =
     q === undefined
       ? newestPerThread(listed.data ?? []).filter(
           ({ message }) => !showsPinned || !message.isPinned
@@ -2071,9 +1847,7 @@ const useListRows = ({
           answered: found.rows,
           listed: listed.data ?? [],
           typed,
-        }),
-    expanded
-  )
+        })
   const isSearchPending =
     !!typed && !isIncompleteOperator(typed) && (typed !== q || found.isFetching)
   return {
@@ -2161,15 +1935,11 @@ const OlderRowsLoader = ({
 }
 
 interface ActedRow {
-  burst?: ListedMessage[]
   message: ListedMessage
-  messageIds: string[]
 }
 
-const unreadOf = (rows: Pick<ActedRow, 'burst' | 'message'>[]) =>
-  rows.flatMap(({ burst, message }) =>
-    (burst ?? [message]).filter(({ isUnread }) => isUnread)
-  )
+const unreadOf = (rows: ActedRow[]) =>
+  rows.filter(({ message }) => message.isUnread)
 
 /** Marks the rows' threads read, or unread with `toUnread`; undefined when none is in the other state, so its control can hide. */
 const markReadOf = (
@@ -2179,7 +1949,7 @@ const markReadOf = (
 ) => {
   const threadIds = new Set(
     rows
-      .flatMap(({ burst, message }) => burst ?? [message])
+      .map(({ message }) => message)
       .filter(({ isUnread }) => isUnread !== toUnread)
       .map(({ threadId }) => threadId)
   )
@@ -2292,12 +2062,8 @@ const useListActions = ({
   const isPicking = picked.length > 0
   const cursorRows = row ? [row] : []
   const targets = isPicking ? picked : cursorRows
-  const messageIds = targets.flatMap((target) => target.messageIds)
-  const code = isPicking
-    ? null
-    : (row?.burst ?? cursorRows.map(({ message }) => message)).find(
-        (email) => email.code
-      )?.code
+  const messageIds = targets.map(({ message }) => message.id)
+  const code = isPicking ? null : row?.message.code
   const isPinned =
     targets.length > 0 && targets.every(({ message }) => message.isPinned)
   const t = useT()
@@ -2393,9 +2159,7 @@ const PickedBar = ({
             onCheckedChange={isAllPicked ? onUnpick : onPickAll}
           />
           <span className="ml-2 text-sm font-medium tabular-nums">
-            {t.queue.picked(
-              picked.flatMap(({ messageIds }) => messageIds).length
-            )}
+            {t.queue.picked(picked.length)}
           </span>
           <span className="ml-auto flex items-center gap-1">
             <IconButton
@@ -2629,35 +2393,22 @@ const listHintsOf = ({
     : [...walk, ['[ / ]', t.keys.filter], ['/', t.keys.search]]
 }
 
-/** A stack has no one email to pin or answer, so only what takes all of it. */
 const readerHintsOf = ({
-  canSnooze,
   hasAgent,
   isPinned,
-  isStack,
   sweepHint,
   t,
 }: {
-  canSnooze: boolean
   hasAgent: boolean
   isPinned: boolean
-  isStack: boolean
   sweepHint: [string, string]
   t: ReturnType<typeof useT>
 }): [string, string][] => [
   sweepHint,
-  ...(isStack
-    ? [
-        ['N / P', t.keys.stackEmail] as [string, string],
-        ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
-        ['⌫', t.keys.trash] as [string, string],
-      ]
-    : [
-        pinHint(t, isPinned),
-        ['⇧U', t.keys.markUnread] as [string, string],
-        ...(hasAgent ? [['R', t.keys.draftReply] as [string, string]] : []),
-        ['⇧O', t.mail.openFullPage] as [string, string],
-      ]),
+  pinHint(t, isPinned),
+  ['⇧U', t.keys.markUnread],
+  ...(hasAgent ? [['R', t.keys.draftReply] as [string, string]] : []),
+  ['⇧O', t.mail.openFullPage],
   ['esc', t.keys.close],
   ['J / K', t.keys.move],
 ]
@@ -2712,13 +2463,9 @@ const MailPage = () => {
     thread,
   })
   const [cursor, setCursor] = useState(HIDDEN_CURSOR)
-  const [expandedBursts, setExpandedBursts] = useState<ReadonlySet<string>>(
-    new Set()
-  )
   const [keptUnread, setKeptUnread] = useState<KeptUnread>(new Set())
   const [unfolded, setUnfolded] = useState<ReadonlySet<GroupKey>>(new Set())
   const [relatedOf, setRelatedOf] = useState<string | null>(null)
-  const [stackOf, setStackOf] = useState<string | null>(null)
   const listKey = `${filter}:${mailbox ?? ''}:${q ?? ''}`
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
@@ -2746,7 +2493,6 @@ const MailPage = () => {
     rows: listedRows,
     total: listedTotal,
   } = useListRows({
-    expanded: expandedBursts,
     filter,
     mailbox,
     q,
@@ -2776,10 +2522,6 @@ const MailPage = () => {
     rows: pinnedRows.rows,
   })
   const { rows } = related
-  const stack = listedRows.find(
-    ({ message, messageIds }) =>
-      stackOf === thread && message.threadId === thread && messageIds.length > 1
-  )
   const total = isDrafts ? listedTotal : rows.length
   useCursorOnOpenThread({ rows, setCursor, thread })
   const picks = usePicks({
@@ -2816,14 +2558,7 @@ const MailPage = () => {
     }
   }, [rows, cursor])
 
-  const expandBurst = (index: number) => {
-    const row = rows[index]
-    if (row && row.messageIds.length > 1) {
-      setExpandedBursts((expanded) => new Set(expanded).add(row.message.id))
-    }
-  }
-
-  const open = (index: number, email?: ListedMessage) => {
+  const open = (index: number) => {
     if (isDrafts) {
       setCursor(index)
       drafts.open(index)
@@ -2831,13 +2566,12 @@ const MailPage = () => {
     }
     const row = rows[index]
     if (row) {
-      const message = email ?? row.message
+      const { message } = row
       setCursor(index)
       mailPeek.close()
       if (!('isRelated' in row)) {
         setRelatedOf(message.threadId)
       }
-      setStackOf(!email && row.messageIds.length > 1 ? message.threadId : null)
       if (message.isUnread) {
         setKeptUnread((kept) => new Set(kept).add(message.threadId))
       }
@@ -2868,12 +2602,11 @@ const MailPage = () => {
     target: searchRef,
   })
   const canShowRelated = related.canShowFor(rows[cursor])
-  useHotkey('ArrowRight', () => {
-    expandBurst(cursor)
-    if (canShowRelated) {
-      setRelatedOf(rows[cursor]?.message.threadId ?? null)
-    }
-  })
+  useHotkey(
+    'ArrowRight',
+    () => setRelatedOf(rows[cursor]?.message.threadId ?? null),
+    { enabled: canShowRelated }
+  )
   useHotkey(
     'ArrowLeft',
     () => {
@@ -2949,19 +2682,13 @@ const MailPage = () => {
             canSnooze={canSnooze}
             hidesCategory={grouping === 'categories'}
             isCursor={index === cursor}
-            isOpen={
-              row.messageIds.length > 1
-                ? stack?.message.id === row.message.id
-                : row.message.threadId === thread
-            }
+            isOpen={row.message.threadId === thread}
             isPicked={picks.pickedIds.has(row.message.id)}
             isPicking={isPicking}
             isSnoozeOpen={snoozeOpenId === row.message.id}
             item={item}
             onOpen={() => open(index)}
-            onOpenEmail={(message) => open(index, message)}
             onPick={() => picks.onToggle(row.message.id)}
-            openEmailThread={stack ? undefined : thread}
             onSnoozeOpenChange={(isOpen) =>
               setSnoozeOpenId(isOpen ? row.message.id : null)
             }
@@ -3145,34 +2872,21 @@ const MailPage = () => {
       >
         {thread && (
           <div className="bg-background flex min-w-0 flex-1 flex-col">
-            {stack ? (
-              <StackView
-                key={stack.message.id}
-                emails={stack.burst}
-                isSnoozed={filter === 'snoozed'}
-                place={OUT_OF_INBOX[filter] ?? 'inbox'}
-                onClose={closeThread}
-                onDone={closeThread}
-              />
-            ) : (
-              <ThreadView
-                key={thread}
-                canOpenFullPage
-                isSnoozed={filter === 'snoozed'}
-                threadId={thread}
-                onClose={closeThread}
-                onDone={closeThread}
-              />
-            )}
+            <ThreadView
+              key={thread}
+              canOpenFullPage
+              isSnoozed={filter === 'snoozed'}
+              threadId={thread}
+              onClose={closeThread}
+              onDone={closeThread}
+            />
             <KeyHints
               hints={readerHintsOf({
-                canSnooze,
                 hasAgent,
                 isPinned: rows.some(
                   ({ message }) =>
                     message.threadId === thread && message.isPinned
                 ),
-                isStack: !!stack,
                 sweepHint,
                 t,
               })}

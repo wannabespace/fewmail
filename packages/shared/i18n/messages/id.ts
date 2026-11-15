@@ -638,8 +638,6 @@ export const id: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} dalam percakapan ini`,
-    burstHint: (emails: string) =>
-      `Bukan satu percakapan: ${emails} dari pengirim ini, dikelompokkan karena datang hampir bersamaan`,
     draftDeleted: 'Draf dihapus',
     unsubscribeConfirm: (name: string) => `Berhenti berlangganan dari ${name}?`,
     unsubscribeHint:

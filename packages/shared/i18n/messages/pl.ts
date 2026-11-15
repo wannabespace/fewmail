@@ -665,8 +665,6 @@ export const pl: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} w tej rozmowie`,
-    burstHint: (emails: string) =>
-      `To nie jedna rozmowa: ${emails} od tego nadawcy, zebrane razem, bo przyszły niemal jednocześnie`,
     draftDeleted: 'Wersja robocza usunięta',
     unsubscribeConfirm: (name: string) => `Wypisać się z ${name}?`,
     unsubscribeHint:

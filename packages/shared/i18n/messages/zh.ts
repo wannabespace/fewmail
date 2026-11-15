@@ -375,8 +375,6 @@ export const zh: Messages = {
   },
   mail: {
     inThread: (emails: string) => `此会话共 ${emails}`,
-    burstHint: (emails: string) =>
-      `这不是一个会话：这位发件人几乎同时发来的 ${emails}，为方便归在一起`,
     draftDeleted: '草稿已删除',
     unsubscribeConfirm: (name: string) => `退订 ${name}？`,
     unsubscribeHint: 'Fewmail 会退出该列表并归档这个会话。退订无法撤销。',

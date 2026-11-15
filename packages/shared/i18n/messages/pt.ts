@@ -653,8 +653,6 @@ export const pt: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} nesta conversa`,
-    burstHint: (emails: string) =>
-      `Não é uma conversa: ${emails} deste remetente, agrupados porque chegaram quase juntos`,
     draftDeleted: 'Rascunho excluído',
     unsubscribeConfirm: (name: string) => `Cancelar inscrição de ${name}?`,
     unsubscribeHint:
