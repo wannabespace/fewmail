@@ -1,28 +1,27 @@
 # Fewmail brand
 
-The mark is a **wax seal**. Terracotta is the colour of sealing wax, and a sealed letter is the product's promise: nothing leaves or changes in your mail without your yes. The letter on the seal (weight 800) and the wordmark (weight 700, tracking -0.04em) are Literata, outlined, so no font is needed to show them.
+The mark is a **bird**: a round, smiling carrier bird with a small beak, drawn as one solid shape with the eye and smile cut out, so it is always a single colour (ink on light grounds, cream on dark). It is the agent: friendly, quick, and it brings you only the few emails that matter. The wordmark is Baloo 2 ExtraBold, lowercase, tracking -0.02em, outlined so no font is needed to show it.
 
 ## Files
 
 | File | Use |
 | --- | --- |
-| `logo/seal.svg`, `logo/seal-512.png` | The mark, in full colour (wax gradient, debossed f). Default everywhere from 24px up. |
-| `logo/seal-flat.svg`, `logo/seal-flat-512.png` | Flat terracotta with a cream f: favicons, anything under 24px, one-colour print. |
-| `logo/seal-mono.svg` | One colour (ink) with the f cut out: stamps, embossing, monochrome contexts. |
-| `logo/wordmark.svg`, `logo/wordmark-cream.svg` | The word alone, ink for light grounds, cream for dark. |
-| `logo/lockup.svg`, `logo/lockup-cream.svg` (+ `.png`) | Seal and wordmark together. The default logo. |
-| `icon/app-icon.svg`, `icon/app-icon-1024.png` | App icon: the seal on warm paper, full bleed. The OS masks it (iOS squircle, Android shapes), so it never carries its own rounded corners. |
+| `logo/mark.svg`, `logo/mark-cream.svg`, `logo/mark-512.png` | The bird alone, ink or cream. |
+| `logo/wordmark.svg`, `logo/wordmark-cream.svg` | The word alone. |
+| `logo/lockup.svg`, `logo/lockup-cream.svg` (+ `.png`) | Bird and wordmark together. The default logo. |
+| `logo/favicon.svg` | The bird, ink in a light browser and cream in a dark one. |
+| `icon/app-icon.svg`, `icon/app-icon-1024.png` | App icon: the cream bird on an ink tile, full bleed. The OS masks it (iOS squircle, Android shapes), so it never carries its own rounded corners. |
 | `og/og.html` → `og/og.png` | The 1200×630 social card, also copied to `apps/web/public/og.png`. |
 
-In the web app: `apps/web/src/components/logo.tsx` (`apps/web/public/seal.svg` as an image, the wordmark outline inline in `currentColor`), `apps/web/public/favicon.svg` (the flat seal) and `apple-touch-icon.png` (the app icon at 180px).
+In the web app: `apps/web/src/components/logo.tsx` (the bird and wordmark outlines inline in `currentColor`, so they follow the theme), `apps/web/public/favicon.svg` and `apple-touch-icon.png` (the app icon at 180px).
 
-Run `./export.sh` after changing any source here: it renders every PNG with headless Chrome and copies the seal, favicon, touch icon and OG card into `apps/web/public`. Never edit a PNG by hand.
+Run `./export.sh` after changing any source here: it renders every PNG with headless Chrome and copies the favicon, touch icon and OG card into `apps/web/public`. Never edit a PNG by hand.
 
 ## Using the logo
 
-- Clear space around the lockup: the height of the seal's f on every side.
-- Smallest sizes: the full-colour seal at 24px, the flat seal at 16px, the lockup at 96px wide.
-- The seal is never recoloured, rotated, outlined or set on a busy photo. On terracotta, use the mono seal in cream.
+- Clear space around the lockup: half the bird's height on every side.
+- Smallest sizes: the bird at 16px, the lockup at 80px wide.
+- One colour only: ink, cream, or white on a photo's dark area. Never two colours, a gradient, an outline or a rotation.
 - The wordmark is always lowercase, `fewmail`; in running text the name is Fewmail.
 
 ## Colour: wax, paper and ink
@@ -38,7 +37,7 @@ Paper and ink carry about 90% of any surface; wax appears only where a decision 
 | Night paper | `#171310` / `#1D1915` | Dark canvas and surface. |
 | Cream ink | `#F2EEE7` | Text on dark. |
 
-Wax scale (the seal's gradient runs 400 → 600 → 800; the UI uses wax flat):
+Wax scale:
 
 | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -52,7 +51,7 @@ Marketing only (site illustrations, social, slides), never in the app, which kee
 
 | Face | Where | Why |
 | --- | --- | --- |
-| Literata | Logo only, outlined | A bookish serif with a firm, modern build; kept for the mark so the reading face can stay softer. |
+| Baloo 2 | Wordmark only, outlined | Round and warm like the bird. |
 | Lora (variable) | Headlines and everything the person reads | Warm, calligraphic, comfortable at length, full Cyrillic. |
 | Inter (variable) | Everything the person operates | Neutral, dense, Cyrillic. |
 

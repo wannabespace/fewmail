@@ -18,12 +18,10 @@ png() {
 
 png icon/app-icon.svg icon/app-icon-1024.png 1024 1024
 png icon/app-icon.svg "$PUBLIC/apple-touch-icon.png" 180 180
-png logo/seal.svg logo/seal-512.png 512 512
-png logo/seal-flat.svg logo/seal-flat-512.png 512 512
-png logo/lockup.svg logo/lockup.png 2064 446
-png logo/lockup-cream.svg logo/lockup-cream.png 2064 446
-cp logo/seal-flat.svg "$PUBLIC/favicon.svg"
-cp logo/seal.svg "$PUBLIC/seal.svg"
+png logo/mark.svg logo/mark-512.png 512 512
+png logo/lockup.svg logo/lockup.png 1920 320
+png logo/lockup-cream.svg logo/lockup-cream.png 1920 320
+cp logo/favicon.svg "$PUBLIC/favicon.svg"
 
 # The OG card loads Lora from Google Fonts, so give it time.
 "$CHROME" --headless --disable-gpu --hide-scrollbars --allow-file-access-from-files \
