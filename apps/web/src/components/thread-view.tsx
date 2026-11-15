@@ -704,7 +704,9 @@ const useThreadOpen = (
 ) => {
   const queryClient = useQueryClient()
   const hasUnread = thread?.messages.some(({ message }) => message.isUnread)
-  const { mutate: markRead } = useMutation(
+  const markingRead = useRef<Promise<unknown>>(Promise.resolve())
+  const isKeptUnread = useRef(false)
+  const { mutateAsync: markRead } = useMutation(
     orpc.mail.markRead.mutationOptions({
       onMutate: () => showThreadRead(threadId),
       onSuccess: () =>
@@ -716,10 +718,16 @@ const useThreadOpen = (
     // oxlint-disable-next-line react/exhaustive-effect-dependencies -- one event per thread opened
   }, [threadId])
   useEffect(() => {
-    if (hasUnread) {
-      markRead({ threadId })
+    if (hasUnread && !isKeptUnread.current) {
+      markingRead.current = markRead({ threadId }).catch(() => null)
     }
   }, [hasUnread, markRead, threadId])
+  /** Marked unread while open: never read again on its own, and only after the read its opening sent, or that read lands last. */
+  const keepUnread = (markUnread: () => void) => {
+    isKeptUnread.current = true
+    void markingRead.current.then(markUnread)
+  }
+  return keepUnread
 }
 
 const LEAVE_YOURSELF_MS = 15_000
@@ -877,6 +885,23 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
             undo: (id) => {
               showThreadRead(id, false)
               return client.mail.markUnread({ threadId: id })
+            },
+          }),
+      })
+    ),
+    markUnread: useMutation(
+      orpc.mail.markUnread.mutationOptions({
+        onError: settleFailed,
+        onMutate: ({ threadId }) => {
+          showThreadRead(threadId, false)
+          return startBurst()
+        },
+        onSuccess: (_, { threadId }, burst) =>
+          finish(t.mail.markedUnread, burst, {
+            messageId: threadId,
+            undo: (id) => {
+              showThreadRead(id)
+              return client.mail.markRead({ threadId: id })
             },
           }),
       })
@@ -1634,7 +1659,7 @@ export const ThreadView = ({
       scrollRef.current?.focus({ preventScroll: true })
     }
   }, [isFullPage, isLoaded])
-  useThreadOpen(threadId, data)
+  const keepUnread = useThreadOpen(threadId, data)
   const actions = useMailActions(onDone)
   const { pin, reportSpam, snooze, trash, unsnooze, unsubscribe } = actions
 
@@ -1643,6 +1668,10 @@ export const ThreadView = ({
   const sweep = sweepOf(actions, t, placeOf(labelIds, isSnoozed))
   const isPinned = isThreadPinned(data)
   const togglePin = () => target && pin.mutate({ ...target, pinned: !isPinned })
+  const markUnread = () => {
+    keepUnread(() => actions.markUnread.mutate({ threadId }))
+    onClose()
+  }
   const reply = () => {
     if (agentDraft) {
       setIsEditingDraft(true)
@@ -1673,6 +1702,7 @@ export const ThreadView = ({
   useHotkey('E', () => target && sweep.action.mutate(target), keys)
   useHotkey('H', () => setIsSnoozeOpen(true), keys)
   useHotkey('S', togglePin, keys)
+  useHotkey('Shift+U', markUnread, keys)
   useHotkey('Backspace', () => target && trash.mutate(target), keys)
   useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
 
@@ -1770,6 +1800,10 @@ export const ThreadView = ({
                     <DropdownMenuItem onClick={togglePin}>
                       {isPinned ? t.mail.unpin : t.mail.pin}
                       <DropdownMenuShortcut>S</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={markUnread}>
+                      {t.mail.markUnread}
+                      <DropdownMenuShortcut>⇧U</DropdownMenuShortcut>
                     </DropdownMenuItem>
                     <AddToBoardItems messageId={target.messageId} />
                     <DropdownMenuItem onClick={forward}>

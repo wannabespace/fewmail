@@ -591,6 +591,7 @@ export const en = {
     pick: 'pick',
     pickAll: 'pick all',
     markRead: 'mark read',
+    markUnread: 'mark unread',
     unpick: 'clear picks',
     notOnBoard: 'not on this board',
     rename: 'rename',
@@ -710,6 +711,8 @@ export const en = {
     archive: 'Archive',
     archived: 'Archived',
     markedRead: 'Marked read',
+    markUnread: 'Mark as unread',
+    markedUnread: 'Marked unread',
     block: 'Block sender',
     ignoresUnsubscribe: (name: string) => `${name} ignores unsubscribes`,
     ignoresUnsubscribeHint:

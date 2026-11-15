@@ -66,6 +66,7 @@ import {
   FlashIcon,
   InboxIcon,
   InboxUnreadIcon,
+  Mail01Icon,
   MailOpenIcon,
   PinIcon,
   PinOffIcon,
@@ -2165,12 +2166,18 @@ const unreadOf = (rows: Pick<ActedRow, 'burst' | 'message'>[]) =>
     (burst ?? [message]).filter(({ isUnread }) => isUnread)
   )
 
-/** Undefined when nothing in the rows is unread, so the control that marks them can hide. */
+/** Marks the rows' threads read, or unread with `toUnread`; undefined when none is in the other state, so its control can hide. */
 const markReadOf = (
   rows: ActedRow[],
-  mutate: (input: { threadId: string }) => void
+  mutate: (input: { threadId: string }) => void,
+  toUnread = false
 ) => {
-  const threadIds = new Set(unreadOf(rows).map(({ threadId }) => threadId))
+  const threadIds = new Set(
+    rows
+      .flatMap(({ burst, message }) => burst ?? [message])
+      .filter(({ isUnread }) => isUnread !== toUnread)
+      .map(({ threadId }) => threadId)
+  )
   return threadIds.size > 0
     ? () => {
         for (const threadId of threadIds) {
@@ -2233,6 +2240,37 @@ const usePicks = ({
   }
 }
 
+/** The keys that act on the cursor row or the picks, in the order their controls sit. */
+const targetHintsOf = ({
+  canSnooze,
+  code,
+  onTargets,
+  sweepHint,
+  t,
+}: {
+  canSnooze: boolean
+  code: string | null | undefined
+  onTargets: {
+    isPinned: boolean
+    onMarkRead?: () => void
+    onMarkUnread?: () => void
+  }
+  sweepHint: [string, string]
+  t: ReturnType<typeof useT>
+}): [string, string][] => [
+  sweepHint,
+  ...(onTargets.onMarkRead
+    ? [['⇧I', t.keys.markRead] as [string, string]]
+    : []),
+  ...(onTargets.onMarkUnread
+    ? [['⇧U', t.keys.markUnread] as [string, string]]
+    : []),
+  ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
+  pinHint(t, onTargets.isPinned),
+  ['⌫', t.keys.trash],
+  ...(code ? [['Y', t.keys.copyCode] as [string, string]] : []),
+]
+
 const useListActions = ({
   filter,
   isEnabled,
@@ -2271,9 +2309,11 @@ const useListActions = ({
   const each = (mutate: (input: { messageId: string }) => void) =>
     thenUnpick(onEach(messageIds, mutate))
   const markRead = markReadOf(targets, actions.markRead.mutate)
+  const markUnread = markReadOf(targets, actions.markUnread.mutate, true)
   const onTargets = {
     isPinned,
     onMarkRead: markRead && thenUnpick(markRead),
+    onMarkUnread: markUnread && thenUnpick(markUnread),
     onPin: thenUnpick(pinEach(messageIds, !isPinned, actions.pin.mutate)),
     onSnooze: (until: Date) =>
       each(({ messageId }) => actions.snooze.mutate({ messageId, until }))(),
@@ -2292,6 +2332,9 @@ const useListActions = ({
   useHotkey('Shift+I', () => onTargets.onMarkRead?.(), {
     enabled: keys.enabled && !!onTargets.onMarkRead,
   })
+  useHotkey('Shift+U', () => onTargets.onMarkUnread?.(), {
+    enabled: keys.enabled && !!onTargets.onMarkUnread,
+  })
   useHotkey('Y', () => code && copy(code, t.mail.oneTimeCode.copied), {
     enabled: keys.enabled && !!code,
   })
@@ -2299,19 +2342,10 @@ const useListActions = ({
     'E',
     filter in OUT_OF_INBOX ? t.keys.restore : t.keys.archive,
   ]
-  const hints: [string, string][] =
+  const hints =
     filter === 'drafts'
       ? []
-      : [
-          sweepHint,
-          ...(onTargets.onMarkRead
-            ? [['⇧I', t.keys.markRead] as [string, string]]
-            : []),
-          ...(canSnooze ? [['H', t.keys.snooze] as [string, string]] : []),
-          pinHint(t, isPinned),
-          ['⌫', t.keys.trash],
-          ...(code ? [['Y', t.keys.copyCode] as [string, string]] : []),
-        ]
+      : targetHintsOf({ canSnooze, code, onTargets, sweepHint, t })
   return {
     actions,
     canSnooze,
@@ -2335,7 +2369,15 @@ const PickedBar = ({
   picks: ReturnType<typeof usePicks>
 }) => {
   const t = useT()
-  const { isPinned, onMarkRead, onPin, onSnooze, onSweep, onTrash } = onTargets
+  const {
+    isPinned,
+    onMarkRead,
+    onMarkUnread,
+    onPin,
+    onSnooze,
+    onSweep,
+    onTrash,
+  } = onTargets
   return (
     <>
       {picked.length > 0 && (
@@ -2375,6 +2417,16 @@ const PickedBar = ({
                 size="icon-sm"
                 variant="ghost-muted"
                 onClick={onMarkRead}
+              />
+            )}
+            {onMarkUnread && (
+              <IconButton
+                icon={Mail01Icon}
+                label={t.mail.markUnread}
+                shortcut={<Kbd>⇧U</Kbd>}
+                size="icon-sm"
+                variant="ghost-muted"
+                onClick={onMarkUnread}
               />
             )}
             {canSnooze && (
@@ -2597,6 +2649,7 @@ const readerHintsOf = ({
       ]
     : [
         pinHint(t, isPinned),
+        ['⇧U', t.keys.markUnread] as [string, string],
         ...(hasAgent ? [['R', t.keys.draftReply] as [string, string]] : []),
         ['⇧O', t.mail.openFullPage] as [string, string],
       ]),
