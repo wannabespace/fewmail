@@ -375,6 +375,7 @@ export const zh: Messages = {
   },
   mail: {
     inThread: (emails: string) => `此会话共 ${emails}`,
+    moreFrom: (name: string) => `${name} 的其他邮件`,
     draftDeleted: '草稿已删除',
     unsubscribeConfirm: (name: string) => `退订 ${name}？`,
     unsubscribeHint: 'Fewmail 会退出该列表并归档这个会话。退订无法撤销。',
@@ -484,7 +485,6 @@ export const zh: Messages = {
     open: '打开',
     openInGmail: '在 Gmail 中打开',
     openFullPage: '全页打开',
-    peek: '快速查看',
     collapseFullPage: '返回列表',
     search: '搜索或描述：Anna 上个月发来的发票',
     unsubscribe: '退订',

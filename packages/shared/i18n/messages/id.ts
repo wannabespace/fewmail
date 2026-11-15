@@ -638,6 +638,7 @@ export const id: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} dalam percakapan ini`,
+    moreFrom: (name: string) => `Lainnya dari ${name}`,
     draftDeleted: 'Draf dihapus',
     unsubscribeConfirm: (name: string) => `Berhenti berlangganan dari ${name}?`,
     unsubscribeHint:
@@ -751,7 +752,6 @@ export const id: Messages = {
     search: 'Cari atau jelaskan: tagihan dari Anna bulan lalu',
     openInGmail: 'Buka di Gmail',
     openFullPage: 'Buka satu halaman penuh',
-    peek: 'Pratinjau',
     collapseFullPage: 'Kembali ke daftar',
     unsubscribe: 'Berhenti berlangganan',
     unsubscribed: 'Berhenti berlangganan',

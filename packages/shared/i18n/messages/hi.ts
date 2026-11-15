@@ -380,6 +380,7 @@ export const hi: Messages = {
   },
   mail: {
     inThread: (emails: string) => `इस बातचीत में ${emails}`,
+    moreFrom: (name: string) => `${name} से और`,
     draftDeleted: 'ड्राफ़्ट हटाया गया',
     unsubscribeConfirm: (name: string) => `${name} से अनसब्सक्राइब करें?`,
     unsubscribeHint:
@@ -491,7 +492,6 @@ export const hi: Messages = {
     open: 'खोलें',
     openInGmail: 'Gmail में खोलें',
     openFullPage: 'पूरे पेज पर खोलें',
-    peek: 'पूर्वावलोकन',
     collapseFullPage: 'सूची पर वापस जाएँ',
     search: 'खोजें या बताएँ: पिछले महीने Anna के इनवॉइस',
     unsubscribe: 'अनसब्सक्राइब करें',

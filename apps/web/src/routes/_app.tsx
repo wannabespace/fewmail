@@ -24,7 +24,7 @@ import { ComposeProvider } from '~/components/compose/compose-context'
 import { ConfirmDialog } from '~/components/confirm-dialog'
 import { Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
-import { ThreadPane, ThreadPeekPopover } from '~/components/thread-link'
+import { ThreadPane } from '~/components/thread-link'
 import { SnoozePicker, useFreshCodeToast } from '~/components/thread-view'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
 import { signedInStore } from '~/lib/auth'
@@ -154,7 +154,6 @@ const AppLayout = () => {
         <DeleteBoardDialog />
         <ClearOutDialog />
         <ConfirmDialog />
-        <ThreadPeekPopover />
         <ThreadPane />
         <SnoozePicker />
       </div>

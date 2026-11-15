@@ -18,17 +18,14 @@ export const useMorph = (): { morph: Transition; reveal: Transition } =>
 export const HIDDEN = { opacity: 0, y: 6 }
 export const SHOWN = { opacity: 1, y: 0 }
 
-export const PEEK_ID = 'thread-peek'
-
 export interface Expanded {
   close: () => void
   from: 'board' | 'home' | 'journal' | 'mail' | 'reading'
   /** Set while the card shrinks back into its source, which stays hidden until the card is on it. */
   isClosing?: boolean
   pathname: string
-  /** The row (`ExpandTrigger`) or the peek (`PEEK_ID`) the pane grows out of, by its `data-morph-source`. */
+  /** The `ExpandTrigger` the pane grows out of, by its `data-morph-source`: its row when it lies over one, else itself (a source chip). */
   sourceId: string
-  surface: 'popover' | 'row'
   threadId: string
 }
 export const expandedThread = createStore<Expanded | null>(null)
@@ -79,7 +76,7 @@ export const clipOver = (
   return `inset(${box.top - area.top}px ${area.right - box.right}px ${area.bottom - box.bottom}px ${box.left - area.left}px round ${radius}px)`
 }
 
-/** Grows a peek or a row into `ThreadPane`, or shrinks it back; one still closing gives way at once. */
+/** Grows a row into `ThreadPane`, or shrinks it back; one still closing gives way at once. */
 export const toggleExpanded = (
   open: Omit<Expanded, 'isClosing' | 'pathname'>
 ) => {
@@ -105,11 +102,10 @@ export const expandRow = (rowId: string, { from, threadId }: RowEmail) =>
     close: dropExpanded,
     from,
     sourceId: rowSourceId(rowId),
-    surface: 'row',
     threadId,
   })
 
-/** A row that grows into its email over the page instead of peeking: `SettingsRow trigger` lays it over the whole row, the box the pane grows out of. */
+/** A row that grows into its email over the page: `SettingsRow trigger` lays it over the whole row, the box the pane grows out of; rendered as a chip, it grows out of the chip. */
 export const ExpandTrigger = ({
   email,
   onClick,

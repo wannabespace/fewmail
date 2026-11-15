@@ -653,6 +653,7 @@ export const pt: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} nesta conversa`,
+    moreFrom: (name: string) => `Mais de ${name}`,
     draftDeleted: 'Rascunho excluído',
     unsubscribeConfirm: (name: string) => `Cancelar inscrição de ${name}?`,
     unsubscribeHint:
@@ -769,7 +770,6 @@ export const pt: Messages = {
     search: 'Busque ou descreva: faturas da Anna do mês passado',
     openInGmail: 'Abrir no Gmail',
     openFullPage: 'Abrir em página inteira',
-    peek: 'Pré-visualizar',
     collapseFullPage: 'Voltar à lista',
     unsubscribe: 'Cancelar inscrição',
     unsubscribed: 'Inscrição cancelada',

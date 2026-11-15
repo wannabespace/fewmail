@@ -29,9 +29,9 @@ import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
+import { ExpandTrigger, expandRow } from '~/components/expand-row'
 import type { QueueItem } from '~/components/queue-card'
 import { SenderAvatar } from '~/components/sender-avatar'
-import { PeekTrigger, peekIdOf, usePeekKey } from '~/components/thread-link'
 import { queueCards } from '~/lib/home-db'
 import { useT } from '~/lib/i18n'
 import { warmThread } from '~/lib/mail-db'
@@ -448,7 +448,16 @@ export const ProposalsReview = ({
   useHotkey('Enter', () => selected && proposals.approve([selected]), keys)
   useHotkey('S', () => selected && proposals.keep(selected), keys)
   useHotkey('T', () => proposals.approve(rows), listKeys)
-  usePeekKey(selected?.id, canUseKeys)
+  useHotkey(
+    'O',
+    () =>
+      selected?.message &&
+      expandRow(selected.id, {
+        from: 'home',
+        threadId: selected.message.threadId,
+      }),
+    { enabled: keys.enabled && !!selected?.message }
+  )
 
   return (
     <>
@@ -489,9 +498,9 @@ export const ProposalsReview = ({
                   active={isActive}
                   trigger={
                     message ? (
-                      <PeekTrigger
-                        id={peekIdOf(proposal.id)}
-                        message={{ ...message, from: 'home' }}
+                      <ExpandTrigger
+                        email={{ from: 'home', threadId: message.threadId }}
+                        rowId={proposal.id}
                       />
                     ) : undefined
                   }

@@ -665,6 +665,7 @@ export const pl: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} w tej rozmowie`,
+    moreFrom: (name: string) => `Więcej od ${name}`,
     draftDeleted: 'Wersja robocza usunięta',
     unsubscribeConfirm: (name: string) => `Wypisać się z ${name}?`,
     unsubscribeHint:
@@ -782,7 +783,6 @@ export const pl: Messages = {
     search: 'Szukaj lub opisz: faktury od Anny z zeszłego miesiąca',
     openInGmail: 'Otwórz w Gmailu',
     openFullPage: 'Otwórz na całej stronie',
-    peek: 'Podgląd',
     collapseFullPage: 'Wróć do listy',
     unsubscribe: 'Wypisz się',
     unsubscribed: 'Wypisano',

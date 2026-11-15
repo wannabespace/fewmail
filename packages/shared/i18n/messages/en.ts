@@ -648,6 +648,7 @@ export const en = {
   },
   mail: {
     inThread: (emails: string) => `${emails} in this conversation`,
+    moreFrom: (name: string) => `More from ${name}`,
     draftDeleted: 'Draft deleted',
     unsubscribeConfirm: (name: string) => `Unsubscribe from ${name}?`,
     unsubscribeHint:
@@ -758,7 +759,6 @@ export const en = {
     open: 'Open',
     openInGmail: 'Open in Gmail',
     openFullPage: 'Open full page',
-    peek: 'Preview',
     collapseFullPage: 'Back to the list',
     search: 'Search or describe: invoices from Anna last month',
     unsubscribe: 'Unsubscribe',

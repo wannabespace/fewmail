@@ -166,24 +166,13 @@ export const prefetchThread = (threadId: string) =>
     queryKey: threadKey(threadId),
   })
 
-const warmedImages = new Set<string>()
-
 const isPixel = (image: HTMLImageElement) =>
   ['width', 'height'].some((side) => {
     const size = image.getAttribute(side)
     return size !== null && Number(size) <= 2
   })
 
-/** A peek is not a read: the sender's tracking pixels wait for the thread to be opened. */
-export const withoutPixels = (html: string) => {
-  const mail = new DOMParser().parseFromString(html, 'text/html')
-  for (const image of mail.querySelectorAll('img')) {
-    if (isPixel(image)) {
-      image.remove()
-    }
-  }
-  return mail.documentElement.outerHTML
-}
+const warmedImages = new Set<string>()
 
 /**
  * A pointer on a row loads the thread and the newest email's images, so the reader's frame takes them from the browser

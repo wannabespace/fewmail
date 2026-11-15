@@ -9,12 +9,6 @@ import {
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import {
-  createPopoverHandle,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@fewmail/ui/components/popover'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
@@ -33,17 +27,15 @@ import { toast } from 'sonner'
 
 import {
   clipOver,
+  ExpandTrigger,
   HIDDEN,
   OPEN_CLIP,
-  PEEK_ID,
   SHOWN,
-  useExpanded,
+  useIsThreadExpanded,
   useMorph,
 } from '~/components/expand-row'
 import { ListenButton } from '~/components/listen-button'
 import { SenderAvatar } from '~/components/sender-avatar'
-import { dropPane, expandPeek, keepUnderPane } from '~/components/thread-link'
-import { ThreadPeek } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
 import { client, orpc } from '~/lib/orpc'
@@ -120,58 +112,6 @@ const SummarySkeleton = () => (
 // Back from an email, the cursor is on the newsletter that was opened.
 let lastOpened: string | undefined
 
-interface Peek {
-  cite: string
-  row: Row
-}
-const peek = createPopoverHandle<Peek>()
-
-/** A cited newsletter over Reading, opened on the passage the sentence came from, so the summary stays in place. */
-const NewsletterPeek = ({
-  onOpenChange,
-}: {
-  onOpenChange: (isOpen: boolean) => void
-}) => {
-  const expanded = useExpanded()
-  return (
-    <Popover
-      handle={peek}
-      onOpenChange={(open, details) => {
-        keepUnderPane(open, details)
-        if (!details.isCanceled) {
-          onOpenChange(open)
-        }
-      }}
-      onOpenChangeComplete={dropPane}
-    >
-      {({ payload }) => (
-        <PopoverContent
-          padding="none"
-          data-morph-source={PEEK_ID}
-          data-expanded={expanded ? true : undefined}
-          className="w-160 data-expanded:pointer-events-none data-expanded:opacity-0"
-        >
-          {payload && (
-            <ThreadPeek
-              key={`${payload.row.id} ${payload.cite}`}
-              cite={payload.cite}
-              from="reading"
-              message={payload.row}
-              onOpen={() =>
-                expandPeek({
-                  close: () => peek.close(),
-                  from: 'reading',
-                  threadId: payload.row.threadId,
-                })
-              }
-            />
-          )}
-        </PopoverContent>
-      )}
-    </Popover>
-  )
-}
-
 /** The agent's one text over every newsletter; each sentence ends on the newsletters it came from. */
 const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
   const byId = new Map(rows.map((row) => [row.id, row]))
@@ -184,10 +124,12 @@ const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
           data-mask
           variant="source"
           className="mx-0.5 align-[0.15em]"
-          render={<PopoverTrigger handle={peek} payload={{ cite, row }} />}
-          onPointerEnter={() => {
-            void warmThread(row.threadId)
-          }}
+          render={
+            <ExpandTrigger
+              email={{ from: 'reading', threadId: row.threadId }}
+              rowId={`${rowId}:${cite}`}
+            />
+          }
         >
           {senderOf(row)}
         </Badge>
@@ -610,8 +552,8 @@ const IssueList = ({ shownDay }: { shownDay: string }) => {
 /** Everything under an issue's opening: the whole summary, every newsletter, Mark all read. */
 const IssueBody = ({ day, isActive }: { day: string; isActive: boolean }) => {
   const { rows, summary } = useReadingDay(day)
-  const [isPeeking, setIsPeeking] = useState(false)
-  const isFocused = isActive && !isPeeking
+  const isExpanded = useIsThreadExpanded()
+  const isFocused = isActive && !isExpanded
   return (
     <>
       {summary && <SummaryText rows={rows} summary={summary} />}
@@ -625,8 +567,6 @@ const IssueBody = ({ day, isActive }: { day: string; isActive: boolean }) => {
         rows={rows}
         variant="secondary"
       />
-      {/* One peek handle serves Reading: only the pane on top holds it. */}
-      {isActive && <NewsletterPeek onOpenChange={setIsPeeking} />}
     </>
   )
 }

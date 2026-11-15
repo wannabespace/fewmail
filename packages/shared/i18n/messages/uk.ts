@@ -948,6 +948,7 @@ export const uk: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} у цій розмові`,
+    moreFrom: (name: string) => `Ще від ${name}`,
     draftDeleted: 'Чернетку видалено',
     unsubscribeConfirm: (name: string) => `Відписатися від ${name}?`,
     unsubscribeHint:
@@ -1059,7 +1060,6 @@ export const uk: Messages = {
     search: 'Шукай або опиши: рахунки від Анни за минулий місяць',
     openInGmail: 'Відкрити в Gmail',
     openFullPage: 'Відкрити на всю сторінку',
-    peek: 'Швидкий перегляд',
     collapseFullPage: 'Згорнути до списку',
     unsubscribe: 'Відписатися',
     unsubscribed: 'Відписано',

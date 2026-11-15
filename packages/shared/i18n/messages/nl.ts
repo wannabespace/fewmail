@@ -654,6 +654,7 @@ export const nl: Messages = {
   },
   mail: {
     inThread: (emails: string) => `${emails} in dit gesprek`,
+    moreFrom: (name: string) => `Meer van ${name}`,
     draftDeleted: 'Concept verwijderd',
     unsubscribeConfirm: (name: string) => `Afmelden bij ${name}?`,
     unsubscribeHint:
@@ -765,7 +766,6 @@ export const nl: Messages = {
     search: 'Zoek of beschrijf: facturen van Anna van vorige maand',
     openInGmail: 'Openen in Gmail',
     openFullPage: 'Op volledige pagina openen',
-    peek: 'Snel bekijken',
     collapseFullPage: 'Terug naar de lijst',
     unsubscribe: 'Afmelden',
     unsubscribed: 'Afgemeld',

@@ -381,6 +381,7 @@ export const ja: Messages = {
   },
   mail: {
     inThread: (emails: string) => `この会話に${emails}`,
+    moreFrom: (name: string) => `${name}からの他のメール`,
     draftDeleted: '下書きを削除しました',
     unsubscribeConfirm: (name: string) => `${name}の配信を停止しますか？`,
     unsubscribeHint:
@@ -491,7 +492,6 @@ export const ja: Messages = {
     open: '開く',
     openInGmail: 'Gmail で開く',
     openFullPage: '全画面で開く',
-    peek: 'プレビュー',
     collapseFullPage: 'リストに戻る',
     search: '検索または説明：先月の Anna からの請求書',
     unsubscribe: '配信停止',

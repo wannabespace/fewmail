@@ -635,6 +635,7 @@ export const tr: Messages = {
   },
   mail: {
     inThread: (emails: string) => `Bu konuşmada ${emails}`,
+    moreFrom: (name: string) => `${name} kişisinden diğerleri`,
     draftDeleted: 'Taslak silindi',
     unsubscribeConfirm: (name: string) => `${name} aboneliğinden çıkılsın mı?`,
     unsubscribeHint:
@@ -747,7 +748,6 @@ export const tr: Messages = {
     search: "Ara ya da anlat: Anna'dan geçen ayki faturalar",
     openInGmail: "Gmail'de aç",
     openFullPage: 'Tam sayfada aç',
-    peek: 'Önizle',
     collapseFullPage: 'Listeye dön',
     unsubscribe: 'Abonelikten çık',
     unsubscribed: 'Abonelikten çıkıldı',

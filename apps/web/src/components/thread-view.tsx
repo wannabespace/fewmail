@@ -74,7 +74,6 @@ import {
   showThreadRead,
   threadOfMessage,
   threads,
-  withoutPixels,
 } from '~/lib/mail-db'
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
@@ -361,71 +360,6 @@ export const HtmlBody = ({
       />
       {height === 0 && <BodySkeleton />}
     </>
-  )
-}
-
-/** One email over its list, read without opening the thread: nothing is marked read and no tracking pixel loads. */
-export const ThreadPeek = ({
-  cite,
-  from,
-  message: { fromEmail, fromName, id, subject, threadId },
-  onOpen,
-}: {
-  cite?: string
-  from: 'home' | 'journal' | 'mail' | 'reading'
-  message: {
-    fromEmail: string
-    fromName: string | null
-    id: string
-    subject: string
-    threadId: string
-  }
-  onOpen: () => void
-}) => {
-  const t = useT()
-  const { data: thread } = useThread(threadId)
-  const message = thread?.messages.find(
-    (entry) => entry.message.id === id
-  )?.message
-  useHotkey('Shift+O', onOpen)
-  useEffect(() => {
-    posthog.capture('thread_peeked', { from })
-  }, [from])
-  return (
-    <div className="flex max-h-[min(40rem,var(--available-height))] flex-col">
-      <div className="flex items-center gap-3 border-b py-2.5 pr-2.5 pl-4">
-        <SenderAvatar sender={{ fromEmail, fromName }} size="sm" />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span data-mask className="truncate font-medium">
-            {fromName ?? fromEmail}
-          </span>
-          <span data-mask className="text-muted-foreground truncate text-xs">
-            {subject}
-          </span>
-        </div>
-        <IconButton
-          icon={ArrowExpand01Icon}
-          label={t.mail.openFullPage}
-          shortcut={<Kbd>⇧O</Kbd>}
-          size="icon-sm"
-          variant="ghost-muted"
-          onClick={onOpen}
-        />
-      </div>
-      <div className="min-h-0 overflow-y-auto p-2">
-        {message ? (
-          <HtmlBody
-            blockImages={message.labelIds.includes('SPAM')}
-            cidImage={cidSource(message)}
-            cite={cite}
-            html={withoutPixels(message.html ?? textToHtml(message.body))}
-            id={message.id}
-          />
-        ) : (
-          <BodySkeleton />
-        )}
-      </div>
-    </div>
   )
 }
 
@@ -1251,7 +1185,6 @@ export const MailRowActions = ({
   isSnoozeOpen,
   messageIds,
   onSnoozeOpenChange,
-  peek,
   reveal = 'row',
   sweep,
 }: {
@@ -1262,7 +1195,6 @@ export const MailRowActions = ({
   isSnoozeOpen?: boolean
   messageIds: string[]
   onSnoozeOpenChange?: (open: boolean) => void
-  peek?: ReactNode
   reveal?: 'line' | 'row'
   sweep: Sweep
 }) => {
@@ -1277,7 +1209,6 @@ export const MailRowActions = ({
         className
       )}
     >
-      {peek}
       {isPinned !== undefined && (
         <IconButton
           icon={isPinned ? PinOffIcon : PinIcon}
