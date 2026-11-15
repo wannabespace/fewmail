@@ -4,10 +4,8 @@ import {
   addDays,
   differenceInMinutes,
   eachDayOfInterval,
-  eachMonthOfInterval,
   endOfMonth,
   endOfWeek,
-  endOfYear,
   isSameMonth,
   isToday,
   max,
@@ -399,35 +397,26 @@ export const YearView = ({
   onShowDay: (day: Date) => void
 }) => {
   const { locale, weekStartsOn } = useDates()
-  const busy = new Set(
-    events.flatMap((event) => {
-      const { end, start } = eventTimes(event)
-      const last = event.allDay ? addDays(end, -1) : end
-      return eachDayOfInterval({
-        end: min([max([last, start]), endOfYear(date)]),
-        start: max([start, startOfYear(date)]),
-      }).map((day) => day.toDateString())
-    })
-  )
 
   return (
-    <div className="grid flex-1 grid-cols-2 content-start gap-6 overflow-y-auto px-10 py-6 md:grid-cols-3 xl:grid-cols-4">
-      {eachMonthOfInterval({
-        end: endOfYear(date),
-        start: startOfYear(date),
-      }).map((month) => (
-        <Calendar
-          key={month.toISOString()}
-          month={month}
-          hideNavigation
-          disableNavigation
-          showOutsideDays={false}
-          locale={locale}
-          weekStartsOn={weekStartsOn}
-          modifiers={{ marked: (day) => busy.has(day.toDateString()) }}
-          onDayClick={onShowDay}
-        />
-      ))}
+    <div className="flex-1 overflow-y-auto px-10 py-6">
+      <Calendar
+        variant="year"
+        month={startOfYear(date)}
+        numberOfMonths={12}
+        hideNavigation
+        disableNavigation
+        showOutsideDays={false}
+        locale={locale}
+        weekStartsOn={weekStartsOn}
+        modifiers={{
+          marked: events.map((event) => {
+            const { end, start } = eventTimes(event)
+            return { from: start, to: event.allDay ? addDays(end, -1) : end }
+          }),
+        }}
+        onDayClick={onShowDay}
+      />
     </div>
   )
 }

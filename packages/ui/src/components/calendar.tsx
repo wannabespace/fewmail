@@ -87,8 +87,11 @@ const Calendar = ({
   locale,
   modifiersClassNames,
   showOutsideDays = true,
+  variant = 'default',
   ...props
-}: React.ComponentProps<typeof DayPicker>) => {
+}: React.ComponentProps<typeof DayPicker> & {
+  variant?: 'default' | 'year'
+}) => {
   const defaultClassNames = getDefaultClassNames()
 
   return (
@@ -134,14 +137,20 @@ const Calendar = ({
           defaultClassNames.disabled
         ),
         hidden: cn('invisible', defaultClassNames.hidden),
-        month: cn('flex w-full flex-col gap-4', defaultClassNames.month),
+        month: cn(
+          'flex flex-col gap-4',
+          variant === 'year' ? 'w-fit' : 'w-full',
+          defaultClassNames.month
+        ),
         month_caption: cn(
           'flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)',
           defaultClassNames.month_caption
         ),
         month_grid: cn('w-full border-collapse', defaultClassNames.month_grid),
         months: cn(
-          'relative flex flex-col gap-4 md:flex-row',
+          variant === 'year'
+            ? 'grid grid-cols-2 gap-6 md:grid-cols-3 xl:grid-cols-4'
+            : 'relative flex flex-col gap-4 md:flex-row',
           defaultClassNames.months
         ),
         nav: cn(
@@ -164,7 +173,10 @@ const Calendar = ({
           'bg-foreground/5 rounded-l-(--cell-radius) rounded-r-none',
           defaultClassNames.range_start
         ),
-        root: cn('w-fit', defaultClassNames.root),
+        root: cn(
+          variant === 'year' ? 'w-full' : 'w-fit',
+          defaultClassNames.root
+        ),
         today: cn(
           'text-primary font-medium data-[selected=true]:text-inherit',
           defaultClassNames.today
