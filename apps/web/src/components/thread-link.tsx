@@ -6,15 +6,9 @@ import {
 } from '@fewmail/ui/components/popover'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
-import {
-  animate,
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-} from 'motion/react'
-import type { Transition } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { ComponentProps, CSSProperties, RefObject } from 'react'
+import type { ComponentProps, CSSProperties } from 'react'
 
 import {
   collapseExpanded,
@@ -142,7 +136,6 @@ const boxOf = (sourceId: string): Box | null => {
 }
 
 const GUTTER = 24
-const HOLD_FRAMES = 12
 const MAX_WIDTH = 960
 
 /** The card's open box: very large, centred on the window, short of covering it. */
@@ -170,13 +163,8 @@ const useCardBox = (): Box => {
  * The source as it looked, laid where it was: the card starts as this copy, while the source hides until the card has
  * landed back on it (a row by itself, a peek's popover by `data-expanded`).
  */
-const SourceCopy = ({
-  ref,
-  shown,
-}: {
-  ref: RefObject<HTMLDivElement | null>
-  shown: Expanded
-}) => {
+const SourceCopy = ({ shown }: { shown: Expanded }) => {
+  const ref = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
     const trigger = sourceOf(shown.sourceId)
     const source = shown.surface === 'row' ? trigger?.parentElement : trigger
@@ -203,141 +191,36 @@ const SourceCopy = ({
     return () => {
       source.style.visibility = ''
     }
-  }, [ref, shown.sourceId, shown.surface])
+  }, [shown.sourceId, shown.surface])
   return <div ref={ref} className="absolute top-0 left-0" />
 }
 
-/**
- * What of the source reappears in the email, by where it sits in each (a row's slots, a peek's and the email's marks),
- * and whether its size is its width or its type's.
- */
-const PARTS = [
-  ['[data-slot=avatar]', '[data-slot=avatar]', 'width'],
-  [
-    '[data-slot=item-title], [data-morph-part=name]',
-    '[data-morph-part=name]',
-    'type',
-  ],
-  ['[data-slot=item-description]', '[data-morph-part=summary]', 'type'],
-  ['[data-morph-part=subject]', '[data-morph-part=subject]', 'type'],
-  ['[data-morph-part=body]', '[data-morph-part=body]', 'width'],
-] as const
-
-const placeIn = (element: HTMLElement, layer: HTMLElement) => {
-  const box = element.getBoundingClientRect()
-  const origin = layer.getBoundingClientRect()
-  return { left: box.left - origin.left, top: box.top - origin.top }
-}
-
-// A copy's part is still where its last flight left it when the card closes: where it sits is read past that.
-const sitsIn = (element: HTMLElement, root: HTMLElement) => {
-  let left = 0
-  let top = 0
-  for (
-    let node: Element | null = element;
-    node instanceof HTMLElement && node !== root;
-    node = node.offsetParent
-  ) {
-    left += node.offsetLeft
-    top += node.offsetTop
-  }
-  return { left, top }
-}
-
-const sizeOf = (element: HTMLElement, measure: 'type' | 'width') =>
-  measure === 'width'
-    ? element.offsetWidth
-    : Number(getComputedStyle(element).fontSize.replace('px', ''))
-
-interface Flight {
-  copy: HTMLElement
-  scale: number
-  target: HTMLElement
-  x: number
-  y: number
-}
-
-/** Each part of the copy paired with its place in the email, if the email shows where it starts without scrolling. */
-const flightsOf = (copy: HTMLElement, email: HTMLElement): Flight[] =>
-  PARTS.flatMap(([from, to, measure]) => {
-    const source = copy.querySelector<HTMLElement>(from)
-    const target = [...email.querySelectorAll<HTMLElement>(to)].find(
-      (element) => {
-        const { top } = placeIn(element, email)
-        return top >= 0 && top < email.offsetHeight
-      }
-    )
-    if (!source || !target) {
-      return []
-    }
-    const a = sitsIn(source, copy)
-    const b = placeIn(target, email)
-    for (const element of [source, target]) {
-      element.style.transformOrigin = '0 0'
-    }
-    return [
-      {
-        copy: source,
-        scale: sizeOf(target, measure) / sizeOf(source, measure),
-        target,
-        x: b.left - a.left,
-        y: b.top - a.top,
-      },
-    ]
-  })
-
-const HOME = { scale: 1, x: 0, y: 0 }
-
-const between = (from: typeof HOME, to: typeof HOME) => ({
-  scale: [from.scale, to.scale],
-  x: [from.x, to.x],
-  y: [from.y, to.y],
-})
-
-/**
- * Flies each part between its place in the source, the card at the source's `width`, and its place in the email, on the
- * card's spring, the copy's and the email's together. Closing starts from wherever they are.
- */
-const flyParts = (
-  copy: HTMLElement,
-  email: HTMLElement,
-  {
-    isOpening,
-    spring,
-    width,
-  }: { isOpening: boolean; spring: Transition; width: number }
-) => {
-  // The email is centred in the card, so in the source's box it sits this much further left than the copy.
-  const shift = (email.offsetWidth - width) / 2
-  for (const flight of flightsOf(copy, email)) {
-    const { scale, x, y } = flight
-    const over = { scale, x, y }
-    const away = { scale: 1 / scale, x: shift - x, y: -y }
-    animate(flight.copy, isOpening ? between(HOME, over) : HOME, spring)
-    animate(flight.target, isOpening ? between(away, HOME) : away, spring)
-  }
-}
-
 const SPRINGS = {
-  close: { bounce: 0.08, type: 'spring', visualDuration: 0.4 },
-  open: { bounce: 0.2, type: 'spring', visualDuration: 0.5 },
+  close: {
+    bounce: 0,
+    // On the spring the shadow was nearly gone a few frames in, long before the card landed.
+    boxShadow: { duration: 0.28, ease: 'easeIn', type: 'tween' },
+    type: 'spring',
+    visualDuration: 0.28,
+  },
+  open: { bounce: 0.15, type: 'spring', visualDuration: 0.35 },
 } as const
 const INSTANT = { close: { duration: 0 }, open: { duration: 0 } }
 
 const useCardSprings = () => (useReducedMotion() ? INSTANT : SPRINGS)
 
 const EASE = [0.32, 0.72, 0, 1] as const
-// One shape in both, so motion can tween between them.
-const RESTING = '0 1px 2px 0 rgb(0 0 0 / 0.05), 0 0 0 1px rgb(0 0 0 / 0.05)'
+// One shape in both, written as the browser computes it (colour first), or motion cannot tween from what it reads.
+const RESTING =
+  'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
 const FLOATING =
-  '0 32px 64px -16px rgb(0 0 0 / 0.3), 0 0 0 1px rgb(0 0 0 / 0.05)'
+  'rgba(0, 0, 0, 0.3) 0px 32px 64px -16px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
 
 /**
  * An email opened out of a row or a peek as an App Store card: the source lifts into a very large card over the dimmed
- * page on one spring, its avatar, name and line flying to where the email shows them while the rest of it dissolves into
- * the email. The card starts as the source's exact copy, and the email is laid out at the card's open size from the first
- * frame, pinned to its top left, so nothing reflows; every part flies on the card's own spring, so it keeps to a straight
- * line. Closing runs it all back into the source, which shows again only once the card is on it. `esc` (a peek's through
+ * page on one spring, starting as the source's exact copy that dissolves into the email. The email is laid out at the
+ * card's open size from the first frame, centred in it, so nothing reflows. Closing runs it back into the source, the email
+ * dissolving into the copy near the end, and the source shows again only once the card is on it. `esc` (a peek's through
  * `keepUnderPane`), ⇧O, the collapse and a click on the page shrink it; leaving the page drops it.
  */
 export const ThreadPane = () => {
@@ -348,8 +231,6 @@ export const ThreadPane = () => {
   })
   const springs = useCardSprings()
   const card = useCardBox()
-  const copyRef = useRef<HTMLDivElement>(null)
-  const emailRef = useRef<HTMLDivElement>(null)
   const isHere = open?.pathname === pathname
   // The card keeps its email and where it grew from while it shrinks back.
   const [shown, setShown] = useState<(Expanded & { box: Box | null }) | null>(
@@ -363,49 +244,7 @@ export const ThreadPane = () => {
       open.close()
     }
   }, [open, isHere])
-  // The card holds as the source until the email has drawn the parts it flies to, a frame or two once prefetched.
-  const [readyFor, setReadyFor] = useState<string | null>(null)
-  const isReady = !!shown && readyFor === shown.sourceId
-  useEffect(() => {
-    if (!shown) {
-      return
-    }
-    let frames = 0
-    let frame = 0
-    const check = () => {
-      frames += 1
-      if (
-        emailRef.current?.querySelector('[data-morph-part]') ||
-        frames > HOLD_FRAMES
-      ) {
-        setReadyFor(shown.sourceId)
-      } else {
-        frame = requestAnimationFrame(check)
-      }
-    }
-    check()
-    return () => cancelAnimationFrame(frame)
-  }, [shown])
-  useLayoutEffect(() => {
-    if (isReady && shown?.box && copyRef.current && emailRef.current) {
-      flyParts(copyRef.current, emailRef.current, {
-        isOpening: true,
-        spring: springs.open,
-        width: shown.box.width,
-      })
-    }
-  }, [isReady, shown, springs.open])
   const isClosing = !!open?.isClosing
-  useLayoutEffect(() => {
-    const end = isClosing && boxOf(expandedThread.get()?.sourceId ?? '')
-    if (end && copyRef.current && emailRef.current) {
-      flyParts(copyRef.current, emailRef.current, {
-        isOpening: false,
-        spring: springs.close,
-        width: end.width,
-      })
-    }
-  }, [isClosing, springs.close])
   // A peek's popover takes esc and the peek its ⇧O; a row leaves both to the card.
   const rowKeys = { enabled: isHere && open?.surface === 'row' }
   useHotkey('Escape', collapseExpanded, rowKeys)
@@ -427,8 +266,8 @@ export const ThreadPane = () => {
           key="backdrop"
           aria-hidden
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { duration: 0.3, ease: EASE } }}
-          exit={{ opacity: 0, transition: { duration: 0.25, ease: EASE } }}
+          animate={{ opacity: 1, transition: { duration: 0.25, ease: EASE } }}
+          exit={{ opacity: 0, transition: { duration: 0.2, ease: EASE } }}
           onClick={collapseExpanded}
           className="fixed inset-0 z-40 bg-black/30 supports-backdrop-filter:backdrop-blur-sm"
         />
@@ -459,7 +298,7 @@ export const ThreadPane = () => {
                 : { opacity: 0, transition: springs.close },
           }}
           initial="held"
-          animate={isReady ? 'open' : 'held'}
+          animate="open"
           exit="source"
           className="bg-background fixed z-40 overflow-hidden"
         >
@@ -468,27 +307,26 @@ export const ThreadPane = () => {
             inert
             variants={{
               held: { opacity: 1 },
-              open: { opacity: 0, transition: { duration: 0.3, ease: EASE } },
+              open: { opacity: 0, transition: { duration: 0.18, ease: EASE } },
               source: {
                 opacity: 1,
-                transition: { delay: 0.12, duration: 0.2, ease: EASE },
+                transition: { delay: 0.06, duration: 0.15, ease: EASE },
               },
             }}
             className="bg-popover absolute inset-0"
           >
-            <SourceCopy ref={copyRef} shown={shown} />
+            <SourceCopy shown={shown} />
           </motion.div>
           <motion.div
-            ref={emailRef}
             variants={{
               held: { opacity: 0 },
               open: {
                 opacity: 1,
-                transition: { delay: 0.05, duration: 0.3, ease: EASE },
+                transition: { delay: 0.03, duration: 0.22, ease: EASE },
               },
               source: {
                 opacity: 0,
-                transition: { delay: 0.15, duration: 0.2, ease: EASE },
+                transition: { delay: 0.08, duration: 0.15, ease: EASE },
               },
             }}
             style={

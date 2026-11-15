@@ -340,7 +340,6 @@ export const HtmlBody = ({
       <iframe
         ref={watch}
         data-mask
-        data-morph-part="body"
         title="email"
         srcDoc={pinLinks(html, cidImage, blockImages)}
         sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
@@ -384,18 +383,10 @@ export const ThreadPeek = ({
       <div className="flex items-center gap-3 border-b py-2.5 pr-2.5 pl-4">
         <SenderAvatar sender={{ fromEmail, fromName }} size="sm" />
         <div className="flex min-w-0 flex-1 flex-col">
-          <span
-            data-mask
-            data-morph-part="name"
-            className="truncate font-medium"
-          >
+          <span data-mask className="truncate font-medium">
             {fromName ?? fromEmail}
           </span>
-          <span
-            data-mask
-            data-morph-part="subject"
-            className="text-muted-foreground truncate text-xs"
-          >
+          <span data-mask className="text-muted-foreground truncate text-xs">
             {subject}
           </span>
         </div>
@@ -517,7 +508,7 @@ const MessageSection = ({
             />
           )}
           <SenderAvatar sender={message} />
-          <strong data-mask data-morph-part="name" className="font-semibold">
+          <strong data-mask className="font-semibold">
             {message.isFromMe
               ? t.mail.you
               : (message.fromName ?? message.fromEmail)}
@@ -544,7 +535,7 @@ const MessageSection = ({
       </header>
       {hasAgent && analysis && (
         <div className="bg-secondary/50 flex flex-col gap-2 rounded-xl px-4 py-3">
-          <p data-mask data-morph-part="summary" className="text-sm">
+          <p data-mask className="text-sm">
             {analysis.summary}
           </p>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -631,11 +622,7 @@ const CollapsedMessage = ({
       className="hover:bg-accent -mx-3 flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 text-left text-sm"
     >
       <SenderAvatar sender={message} />
-      <strong
-        data-mask
-        data-morph-part="name"
-        className="shrink-0 font-semibold"
-      >
+      <strong data-mask className="shrink-0 font-semibold">
         {message.isFromMe
           ? t.mail.you
           : (message.fromName ?? message.fromEmail)}
@@ -1378,11 +1365,7 @@ const ReaderHeader = ({
           {title === null ? (
             <Skeleton className="my-1 h-6 w-3/4" />
           ) : (
-            <h1
-              data-mask
-              data-morph-part="subject"
-              className="font-serif text-2xl tracking-tight"
-            >
+            <h1 data-mask className="font-serif text-2xl tracking-tight">
               {title}
             </h1>
           )}
