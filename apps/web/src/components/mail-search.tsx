@@ -1,5 +1,9 @@
 import { Button } from '@fewmail/ui/components/button'
 import {
+  SettingsGroup,
+  SettingsRow,
+} from '@fewmail/ui/components/custom/settings-group'
+import {
   AiSearchIcon,
   Attachment01Icon,
   Calendar03Icon,
@@ -59,39 +63,34 @@ const TIPS: {
   { icon: Calendar03Icon, id: 'week', query: 'newer_than:7d' },
 ]
 
-const SECTION_HEADER =
-  'bg-body text-muted-foreground sticky top-0 z-10 flex items-center gap-2 border-b px-5 py-1.5 pl-11 text-xs font-medium'
-
+/** A row of the search's start, laid out like every list of emails: the whole row picks it. */
 const Suggestion = ({
   children,
   hint,
   icon,
+  label,
   onPick,
 }: {
   children: ReactNode
   hint?: string
   icon: IconSvgElement
+  label: string
   onPick: () => void
 }) => (
-  <li className="border-b">
-    <button
-      type="button"
-      onClick={onPick}
-      className="hover:bg-accent focus-visible:bg-accent flex w-full cursor-pointer items-center gap-2 px-5 py-2 text-left text-sm outline-none"
-    >
+  <SettingsRow
+    dense
+    trigger={<button type="button" aria-label={label} onClick={onPick} />}
+    icon={
       <HugeiconsIcon
         icon={icon}
         strokeWidth={2}
-        className="text-muted-foreground size-4 shrink-0"
+        className="text-muted-foreground size-4"
       />
-      <span className="min-w-0 shrink-0 truncate font-medium">{children}</span>
-      {hint && (
-        <span className="text-muted-foreground ml-auto truncate pl-4 text-xs">
-          {hint}
-        </span>
-      )}
-    </button>
-  </li>
+    }
+    title={children}
+  >
+    {hint && <span className="text-muted-foreground text-xs">{hint}</span>}
+  </SettingsRow>
 )
 
 export const MailSearchStart = ({
@@ -105,54 +104,68 @@ export const MailSearchStart = ({
   const hasAgent = useHasAgent()
   const recent = useSubscription(recentSearchesStore)
   return (
-    <ul className="flex-1 overflow-y-auto">
-      {recent.length > 0 && (
-        <>
-          <li className={SECTION_HEADER}>
-            {t.mail.find.recent}
-            <Button
-              size="xs"
-              variant="link-muted"
-              className="ml-auto"
-              onClick={() => recentSearchesStore.set([])}
-            >
-              {t.mail.find.clearRecent}
-            </Button>
-          </li>
-          {recent.map((query) => (
+    <div className="flex-1 overflow-y-auto">
+      {/* Mail's column: the cards' edges line up with the list's, whose rows sit at the same width. */}
+      <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] flex-col gap-6 px-9.5 pt-2 pb-6">
+        {recent.length > 0 && (
+          <SettingsGroup
+            title={
+              <span className="flex items-center">
+                {t.mail.find.recent}
+                <Button
+                  size="xs"
+                  variant="link-muted"
+                  className="ml-auto"
+                  onClick={() => recentSearchesStore.set([])}
+                >
+                  {t.mail.find.clearRecent}
+                </Button>
+              </span>
+            }
+          >
+            {recent.map((query) => (
+              <Suggestion
+                key={query}
+                icon={Clock01Icon}
+                label={query}
+                onPick={() => onSearch(query)}
+              >
+                <span data-mask>{query}</span>
+              </Suggestion>
+            ))}
+          </SettingsGroup>
+        )}
+        <SettingsGroup title={t.mail.find.tips}>
+          {TIPS.map(({ example, icon, id, query }) => (
             <Suggestion
-              key={query}
-              icon={Clock01Icon}
-              onPick={() => onSearch(query)}
+              key={id}
+              icon={icon}
+              hint={t.mail.find.tip[id]}
+              label={`${query}${example ?? ''}`}
+              onPick={() => onAdd(query)}
             >
-              <span data-mask>{query}</span>
+              <span>
+                {query}
+                {example && (
+                  <span className="text-muted-foreground font-normal">
+                    {example}
+                  </span>
+                )}
+              </span>
             </Suggestion>
           ))}
-        </>
-      )}
-      <li className={SECTION_HEADER}>{t.mail.find.tips}</li>
-      {TIPS.map(({ example, icon, id, query }) => (
-        <Suggestion
-          key={id}
-          icon={icon}
-          hint={t.mail.find.tip[id]}
-          onPick={() => onAdd(query)}
-        >
-          {query}
-          {example && (
-            <span className="text-muted-foreground font-normal">{example}</span>
+          {hasAgent && (
+            <Suggestion
+              icon={AiSearchIcon}
+              hint={t.mail.find.tip.describe}
+              label={t.mail.find.describeExample}
+              onPick={() => onSearch(t.mail.find.describeExample)}
+            >
+              {t.mail.find.describeExample}
+            </Suggestion>
           )}
-        </Suggestion>
-      ))}
-      {hasAgent && (
-        <Suggestion
-          icon={AiSearchIcon}
-          hint={t.mail.find.tip.describe}
-          onPick={() => onSearch(t.mail.find.describeExample)}
-        >
-          {t.mail.find.describeExample}
-        </Suggestion>
-      )}
-    </ul>
+        </SettingsGroup>
+      </div>
+    </div>
   )
 }
