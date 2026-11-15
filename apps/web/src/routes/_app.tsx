@@ -23,7 +23,7 @@ import { ComposeProvider } from '~/components/compose/compose-context'
 import { ConfirmDialog } from '~/components/confirm-dialog'
 import { Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
-import { ThreadPeekPopover } from '~/components/thread-link'
+import { ThreadPane, ThreadPeekPopover } from '~/components/thread-link'
 import { SnoozePicker } from '~/components/thread-view'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
 import { signedInStore } from '~/lib/auth'
@@ -132,7 +132,10 @@ const AppLayout = () => {
           <ResizableSeparator />
           <ResizablePanel className="flex min-w-0 flex-col">
             <NoticeBar />
-            <Outlet />
+            <div className="relative flex min-h-0 flex-1 flex-col">
+              <Outlet />
+              <ThreadPane />
+            </div>
           </ResizablePanel>
         </ResizableGroup>
         <CommandMenu

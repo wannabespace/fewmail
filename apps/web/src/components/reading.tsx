@@ -23,13 +23,22 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { isToday } from 'date-fns'
-import { motion, useReducedMotion } from 'motion/react'
-import type { Transition } from 'motion/react'
+import { motion } from 'motion/react'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { ListenButton } from '~/components/listen-button'
 import { SenderAvatar } from '~/components/sender-avatar'
+import {
+  dropPane,
+  HIDDEN,
+  keepUnderPane,
+  PeekSurface,
+  SHOWN,
+  toggleExpanded,
+  useIsThreadExpanded,
+  useMorph,
+} from '~/components/thread-link'
 import { ThreadPeek } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
@@ -77,9 +86,6 @@ const SummarySkeleton = () => (
 
 // Back from an email, the cursor is on the newsletter that was opened.
 let lastOpened: string | undefined
-const rememberOpened = (threadId: string) => {
-  lastOpened = threadId
-}
 
 interface Peek {
   cite: string
@@ -93,23 +99,41 @@ const NewsletterPeek = ({
 }: {
   onOpenChange: (isOpen: boolean) => void
 }) => {
-  const navigate = useNavigate()
-  const openFullPage = (threadId: string) => {
-    rememberOpened(threadId)
-    void navigate({ params: { threadId }, to: '/mail/$threadId' })
-  }
+  const isExpanded = useIsThreadExpanded()
   return (
-    <Popover handle={peek} onOpenChange={onOpenChange}>
+    <Popover
+      handle={peek}
+      onOpenChange={(open, details) => {
+        keepUnderPane(open, details)
+        if (!details.isCanceled) {
+          onOpenChange(open)
+        }
+      }}
+      onOpenChangeComplete={dropPane}
+    >
       {({ payload }) => (
-        <PopoverContent padding="none" className="w-160">
+        <PopoverContent
+          padding="none"
+          surface="none"
+          data-expanded={isExpanded || undefined}
+          className="w-160 data-expanded:invisible"
+        >
           {payload && (
-            <ThreadPeek
-              key={`${payload.row.id} ${payload.cite}`}
-              cite={payload.cite}
-              from="reading"
-              message={payload.row}
-              onOpen={() => openFullPage(payload.row.threadId)}
-            />
+            <PeekSurface>
+              <ThreadPeek
+                key={`${payload.row.id} ${payload.cite}`}
+                cite={payload.cite}
+                from="reading"
+                message={payload.row}
+                onOpen={() =>
+                  toggleExpanded({
+                    close: () => peek.close(),
+                    from: 'reading',
+                    threadId: payload.row.threadId,
+                  })
+                }
+              />
+            </PeekSurface>
           )}
         </PopoverContent>
       )}
@@ -356,16 +380,6 @@ const MarkAllRead = ({
 
 // One spring for the card and the pane, so the pane grows out of the card and shrinks back into it; what only one of
 // them has (the topic line, the whole summary) fades in once the box is on its way.
-const useMorph = (): { morph: Transition; reveal: Transition } =>
-  useReducedMotion()
-    ? { morph: { duration: 0 }, reveal: { duration: 0 } }
-    : {
-        morph: { bounce: 0.1, type: 'spring', visualDuration: 0.3 },
-        reveal: { delay: 0.05, duration: 0.2, ease: [0.32, 0.72, 0, 1] },
-      }
-
-const HIDDEN = { opacity: 0, y: 6 }
-const SHOWN = { opacity: 1, y: 0 }
 const HEAD_HIDDEN = { opacity: 0, scale: 0.9 }
 const HEAD_SHOWN = { opacity: 1, scale: 1 }
 

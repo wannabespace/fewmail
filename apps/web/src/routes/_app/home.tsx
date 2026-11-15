@@ -77,7 +77,11 @@ import {
 import type { QueueItem } from '~/components/queue-card'
 import { ReadingPane, ReadingSection, useReading } from '~/components/reading'
 import { SenderAvatar } from '~/components/sender-avatar'
-import { PeekTrigger, usePeekKey } from '~/components/thread-link'
+import {
+  PeekTrigger,
+  useIsThreadExpanded,
+  usePeekKey,
+} from '~/components/thread-link'
 import {
   CodeActions,
   MailRowActions,
@@ -1087,6 +1091,13 @@ const useHomeSubpage = (
   })
 }
 
+/** Home's keys rest while a card is edited or an expanded email lies over Home; the cursor walks only Home itself. */
+const useHomeFocus = (isEditing: boolean, page: HomeSubpage | undefined) => {
+  const isUnderEmail = useIsThreadExpanded()
+  const isFocused = !isEditing && !isUnderEmail
+  return { isFocused, isWalking: isFocused && !page }
+}
+
 /** Reading opens over Home; the proposals' review takes its place. */
 const showsHome = (page: HomeSubpage | undefined) => !page || page === 'reading'
 
@@ -1411,8 +1422,7 @@ const HomePage = () => {
       ? skipMany.mutate(pickedActionIds)
       : selected && dismiss.mutate({ id: selected.action.id })
 
-  const isFocused = !isEditing
-  const isWalking = isFocused && !page
+  const { isFocused, isWalking } = useHomeFocus(isEditing, page)
   useHomeSubpage(page, isFocused, {
     hasNewsletters: newsletters.length > 0,
     hasProposals,
