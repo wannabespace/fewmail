@@ -536,7 +536,6 @@ export const ja: Messages = {
     boards: 'ボード',
     people: '人',
     findPerson: '人を探す',
-    showMore: (n: number) => `さらに ${n} 件表示`,
     newBoard: '新しいボード',
     mail: 'メール',
     reading: 'リーディング',

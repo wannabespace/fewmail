@@ -1114,7 +1114,6 @@ export const it: Messages = {
     boards: 'Bacheche',
     people: 'Persone',
     findPerson: 'Cerca una persona',
-    showMore: (n: number) => `Mostra altri ${n}`,
     newBoard: 'Nuova bacheca',
     mail: 'Posta',
     reading: 'Lettura',

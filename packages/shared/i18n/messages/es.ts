@@ -1110,7 +1110,6 @@ export const es: Messages = {
     boards: 'Tableros',
     people: 'Personas',
     findPerson: 'Buscar a alguien',
-    showMore: (n: number) => `Ver ${n} más`,
     newBoard: 'Nuevo tablero',
     mail: 'Correo',
     reading: 'Lectura',

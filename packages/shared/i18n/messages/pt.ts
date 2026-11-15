@@ -864,7 +864,6 @@ export const pt: Messages = {
     boards: 'Painéis',
     people: 'Pessoas',
     findPerson: 'Procurar pessoa',
-    showMore: (n: number) => `Mostrar mais ${n}`,
     newBoard: 'Novo painel',
     mail: 'E-mail',
     reading: 'Leitura',

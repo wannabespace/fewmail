@@ -881,7 +881,6 @@ export const pl: Messages = {
     boards: 'Tablice',
     people: 'Osoby',
     findPerson: 'Znajdź osobę',
-    showMore: (n: number) => `Pokaż jeszcze ${n}`,
     newBoard: 'Nowa tablica',
     mail: 'Poczta',
     reading: 'Czytanie',

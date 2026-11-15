@@ -832,7 +832,6 @@ export const tr: Messages = {
     boards: 'Panolar',
     people: 'Kişiler',
     findPerson: 'Kişi bul',
-    showMore: (n: number) => `${n} tane daha göster`,
     newBoard: 'Yeni pano',
     mail: 'Posta',
     reading: 'Okuma',

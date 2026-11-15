@@ -305,15 +305,13 @@ const Boards = ({ showKeys }: { showKeys: boolean }) => {
   )
 }
 
-const PEOPLE_SHOWN = 5
-const PEOPLE_MORE = 20
+const PEOPLE_SHOWN = 20
 
 /** Everyone the user can write to, the most written-to first; folded until opened, and a row starts an email to them. */
 const People = () => {
   const t = useT()
   const { openCompose } = useCompose()
   const [query, setQuery] = useState('')
-  const [shown, setShown] = useState(PEOPLE_SHOWN)
   const { data: people = [] } = useQuery(orpc.contacts.queryOptions())
   if (people.length === 0) {
     return null
@@ -321,7 +319,6 @@ const People = () => {
   const found = query
     ? people.filter((person) => matchesContact(person, query))
     : people
-  const more = Math.min(PEOPLE_MORE, found.length - shown)
 
   return (
     <Collapsible
@@ -345,10 +342,7 @@ const People = () => {
               placeholder={t.nav.findPerson}
               aria-label={t.nav.findPerson}
               data-mask
-              onChange={(event) => {
-                setQuery(event.target.value)
-                setShown(PEOPLE_SHOWN)
-              }}
+              onChange={(event) => setQuery(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key !== 'Escape') {
                   return
@@ -356,7 +350,6 @@ const People = () => {
                 event.stopPropagation()
                 if (query) {
                   setQuery('')
-                  setShown(PEOPLE_SHOWN)
                 } else {
                   event.currentTarget.blur()
                 }
@@ -364,7 +357,7 @@ const People = () => {
             />
           </InputGroup>
         )}
-        {found.slice(0, shown).map((person) => (
+        {found.slice(0, PEOPLE_SHOWN).map((person) => (
           <button
             key={person.email}
             type="button"
@@ -383,23 +376,6 @@ const People = () => {
           <p className="text-muted-foreground px-2.5 py-1 text-sm">
             {t.mail.noResults}
           </p>
-        )}
-        {(more > 0 || shown > PEOPLE_SHOWN) && (
-          <button
-            type="button"
-            className={NAV_SUBROW}
-            onClick={() =>
-              setShown(more > 0 ? shown + PEOPLE_MORE : PEOPLE_SHOWN)
-            }
-          >
-            <HugeiconsIcon
-              icon={more > 0 ? ArrowDown01Icon : ArrowUp01Icon}
-              strokeWidth={2}
-            />
-            <span className="text-muted-foreground">
-              {more > 0 ? t.nav.showMore(more) : t.mail.showFewer}
-            </span>
-          </button>
         )}
       </CollapsibleContent>
     </Collapsible>

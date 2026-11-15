@@ -838,7 +838,6 @@ export const id: Messages = {
     boards: 'Papan',
     people: 'Orang',
     findPerson: 'Cari orang',
-    showMore: (n: number) => `Tampilkan ${n} lagi`,
     newBoard: 'Papan baru',
     mail: 'Email',
     reading: 'Bacaan',

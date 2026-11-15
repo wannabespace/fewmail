@@ -538,7 +538,6 @@ export const hi: Messages = {
     boards: 'बोर्ड',
     people: 'लोग',
     findPerson: 'किसी को खोजें',
-    showMore: (n: number) => `${n} और दिखाएँ`,
     newBoard: 'नया बोर्ड',
     mail: 'मेल',
     reading: 'पढ़ना',

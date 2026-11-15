@@ -528,7 +528,6 @@ export const zh: Messages = {
     boards: '看板',
     people: '联系人',
     findPerson: '查找联系人',
-    showMore: (n: number) => `再显示 ${n} 个`,
     newBoard: '新建看板',
     mail: '邮件',
     reading: '阅读',

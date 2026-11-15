@@ -851,7 +851,6 @@ export const en = {
     boards: 'Boards',
     people: 'People',
     findPerson: 'Find a person',
-    showMore: (n: number) => `Show ${n} more`,
     newBoard: 'New board',
     mail: 'Mail',
     reading: 'Reading',

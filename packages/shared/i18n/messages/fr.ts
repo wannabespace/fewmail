@@ -1121,7 +1121,6 @@ export const fr: Messages = {
     boards: 'Tableaux',
     people: 'Personnes',
     findPerson: 'Trouver quelqu’un',
-    showMore: (n: number) => `Voir ${n} de plus`,
     newBoard: 'Nouveau tableau',
     mail: 'E-mails',
     reading: 'Lecture',

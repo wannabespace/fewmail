@@ -1104,7 +1104,6 @@ export const uk: Messages = {
     boards: 'Дошки',
     people: 'Люди',
     findPerson: 'Знайти людину',
-    showMore: (n: number) => `Показати ще ${n}`,
     newBoard: 'Нова дошка',
     mail: 'Пошта',
     reading: 'Читання',

@@ -537,7 +537,6 @@ export const ko: Messages = {
     boards: '보드',
     people: '사람',
     findPerson: '사람 찾기',
-    showMore: (n: number) => `${n}명 더 보기`,
     newBoard: '새 보드',
     mail: '메일',
     reading: '읽을거리',

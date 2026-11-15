@@ -859,7 +859,6 @@ export const nl: Messages = {
     boards: 'Borden',
     people: 'Mensen',
     findPerson: 'Iemand zoeken',
-    showMore: (n: number) => `Nog ${n} tonen`,
     newBoard: 'Nieuw bord',
     mail: 'Mail',
     reading: 'Lezen',
