@@ -268,6 +268,14 @@ const citedPassage = (mail: Document, cite: string) => {
   return passage
 }
 
+const BodySkeleton = () => (
+  <div className="flex flex-col gap-3 p-2">
+    <Skeleton className="h-5 w-full" />
+    <Skeleton className="h-5 w-11/12" />
+    <Skeleton className="h-5 w-3/5" />
+  </div>
+)
+
 // A frame starts empty on every open; the last measured height keeps a reopened mail from growing into place.
 const frameHeights = new Map<string, number>()
 
@@ -327,15 +335,18 @@ export const HtmlBody = ({
     }
   }
   return (
-    <iframe
-      ref={watch}
-      data-mask
-      title="email"
-      srcDoc={pinLinks(html, cidImage, blockImages)}
-      sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-      style={{ '--frame-height': `${height}px` } as CSSProperties}
-      className="h-(--frame-height) w-full rounded-xl bg-white"
-    />
+    <>
+      <iframe
+        ref={watch}
+        data-mask
+        title="email"
+        srcDoc={pinLinks(html, cidImage, blockImages)}
+        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        style={{ '--frame-height': `${height}px` } as CSSProperties}
+        className="h-(--frame-height) w-full rounded-xl bg-white"
+      />
+      {height === 0 && <BodySkeleton />}
+    </>
   )
 }
 
@@ -397,11 +408,7 @@ export const ThreadPeek = ({
             id={message.id}
           />
         ) : (
-          <div className="flex flex-col gap-3 p-2">
-            <Skeleton className="h-5 w-full" />
-            <Skeleton className="h-5 w-11/12" />
-            <Skeleton className="h-5 w-3/5" />
-          </div>
+          <BodySkeleton />
         )}
       </div>
     </div>
@@ -579,6 +586,19 @@ const MessageSection = ({
     </section>
   )
 }
+
+const MessageSkeleton = ({ hasAgent }: { hasAgent: boolean }) => (
+  <section className="flex flex-col gap-3">
+    <div className="flex items-center gap-2">
+      <Skeleton className="size-8 rounded-full" />
+      <Skeleton className="h-4 w-40" />
+      <Skeleton className="ml-auto h-3 w-20" />
+    </div>
+    <Skeleton className="my-1 h-4 w-32" />
+    {hasAgent && <Skeleton className="h-20 w-full rounded-xl" />}
+    <BodySkeleton />
+  </section>
+)
 
 /** Read mail before the latest email folds to one line, as in Gmail; any of them unfolds the thread. */
 const CollapsedMessage = ({
@@ -1278,6 +1298,7 @@ const ReaderHeader = ({
   note?: ReactNode
   onClose: () => void
   onOpenFullPage?: () => void
+  /** `null` while the email loads. */
   title: ReactNode
 }) => {
   const t = useT()
@@ -1285,9 +1306,13 @@ const ReaderHeader = ({
     <header className="shrink-on-scroll bg-background sticky top-0 z-10 -mb-3 flex flex-col">
       <div className="flex items-start gap-2">
         <div className="flex flex-1 flex-col gap-1">
-          <h1 data-mask className="font-serif text-2xl tracking-tight">
-            {title}
-          </h1>
+          {title === null ? (
+            <Skeleton className="my-1 h-6 w-3/4" />
+          ) : (
+            <h1 data-mask className="font-serif text-2xl tracking-tight">
+              {title}
+            </h1>
+          )}
           {note && <p className="text-muted-foreground text-sm">{note}</p>}
         </div>
         {onOpenFullPage && (
@@ -1381,7 +1406,26 @@ export const ThreadView = ({
   useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
 
   if (!data) {
-    return null
+    return (
+      <article className="flex min-h-0 flex-1 flex-col">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-8 pb-8">
+          <ReaderHeader
+            title={null}
+            isFullPage={isFullPage}
+            onClose={onClose}
+            onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
+          >
+            <div className="flex gap-2">
+              <Skeleton className="h-7 w-20 rounded-lg" />
+              <Skeleton className="h-7 w-24 rounded-lg" />
+              <Skeleton className="h-7 w-28 rounded-lg" />
+              <Skeleton className="h-7 w-16 rounded-lg" />
+            </div>
+          </ReaderHeader>
+          <MessageSkeleton hasAgent={hasAgent} />
+        </div>
+      </article>
+    )
   }
 
   const subject = data.messages[0]?.message.subject
@@ -1564,7 +1608,10 @@ const StackedEmail = ({ email }: { email: StackEmail }) => {
   const index =
     data?.messages.findIndex(({ message }) => message.id === email.id) ?? -1
   const entry = data?.messages[index]
-  if (!data || !entry) {
+  if (!data) {
+    return <MessageSkeleton hasAgent={hasAgent} />
+  }
+  if (!entry) {
     return null
   }
   return (
