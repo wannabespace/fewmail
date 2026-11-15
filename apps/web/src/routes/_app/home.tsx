@@ -11,9 +11,11 @@ import {
   cardsBleedClassName,
 } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
+import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   SettingsGroup,
   SettingsRow,
+  SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
   Item,
@@ -242,51 +244,61 @@ const NewSenders = ({
   useHotkey('U', () => first?.handleUnsubscribe(), keys)
   useHotkey('I', () => first?.handleKeep(), keys)
 
-  return senders.map((sender, index) => {
-    const answer = answers(sender)
-    const key = (letter: string) => index === 0 && <Kbd>{letter}</Kbd>
-    return (
-      <Item key={sender.messageId} variant="card" size="sm">
-        <ItemMedia variant="avatar">
-          <SenderAvatar sender={sender} size="sm" />
-        </ItemMedia>
-        <ItemContent>
-          <ItemTitle>
-            <span data-mask>{sender.fromName ?? sender.fromEmail}</span>
-            <span className="text-muted-foreground text-xs font-normal">
-              {t.today.newSender.label}
-            </span>
-          </ItemTitle>
-          <ItemDescription>
-            {t.today.newSender.lead(sender.count, sender.opened)}
-            {sender.leftShare !== null &&
-              ` · ${t.subscriptions.leftBy(Math.round(sender.leftShare * 100))}`}
-          </ItemDescription>
-        </ItemContent>
-        <ItemActions>
-          <Button
-            size="sm"
-            variant="ghost-muted"
-            onClick={answer.handleKeep}
-            shortcut={key('I')}
-          >
-            {t.today.newSender.keep}
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={answer.handleUnsubscribe}
-            shortcut={key('U')}
-          >
-            {t.actionKind.unsubscribe}
-          </Button>
-          <Button size="sm" onClick={answer.handleArchive} shortcut={key('A')}>
-            {t.today.newSender.archive}
-          </Button>
-        </ItemActions>
-      </Item>
-    )
-  })
+  return (
+    <AnimatePresence initial={false}>
+      {senders.map((sender, index) => {
+        const answer = answers(sender)
+        const key = (letter: string) => index === 0 && <Kbd>{letter}</Kbd>
+        return (
+          <MotionCollapse key={sender.messageId} initial={false}>
+            <Item variant="card" size="sm">
+              <ItemMedia variant="avatar">
+                <SenderAvatar sender={sender} size="sm" />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>
+                  <span data-mask>{sender.fromName ?? sender.fromEmail}</span>
+                  <span className="text-muted-foreground text-xs font-normal">
+                    {t.today.newSender.label}
+                  </span>
+                </ItemTitle>
+                <ItemDescription>
+                  {t.today.newSender.lead(sender.count, sender.opened)}
+                  {sender.leftShare !== null &&
+                    ` · ${t.subscriptions.leftBy(Math.round(sender.leftShare * 100))}`}
+                </ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <Button
+                  size="sm"
+                  variant="ghost-muted"
+                  onClick={answer.handleKeep}
+                  shortcut={key('I')}
+                >
+                  {t.today.newSender.keep}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={answer.handleUnsubscribe}
+                  shortcut={key('U')}
+                >
+                  {t.actionKind.unsubscribe}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={answer.handleArchive}
+                  shortcut={key('A')}
+                >
+                  {t.today.newSender.archive}
+                </Button>
+              </ItemActions>
+            </Item>
+          </MotionCollapse>
+        )
+      })}
+    </AnimatePresence>
+  )
 }
 
 /** A starter rule that changes Gmail starts off: it acts only once the user says yes here (or turns it on in Rules). */
@@ -327,37 +339,43 @@ const RuleOffers = ({
     })
   )
 
-  return today?.ruleOffers.map((rule) => (
-    <Item key={rule.id} variant="card" size="sm">
-      <ItemMedia variant="icon">
-        <HugeiconsIcon icon={RepeatIcon} strokeWidth={2} />
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle>
-          <span data-mask>{rule.instruction}</span>
-          <span className="text-muted-foreground text-xs font-normal">
-            {t.rules.effect[rule.effect]}
-          </span>
-        </ItemTitle>
-        <ItemDescription>{t.today.ruleOffer.lead}</ItemDescription>
-      </ItemContent>
-      <ItemActions>
-        <Button
-          size="sm"
-          variant="ghost-muted"
-          onClick={() => answer.mutate({ enabled: false, id: rule.id })}
-        >
-          {t.today.ruleOffer.no}
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => answer.mutate({ enabled: true, id: rule.id })}
-        >
-          {t.today.ruleOffer.yes}
-        </Button>
-      </ItemActions>
-    </Item>
-  ))
+  return (
+    <AnimatePresence initial={false}>
+      {today?.ruleOffers.map((rule) => (
+        <MotionCollapse key={rule.id} initial={false}>
+          <Item variant="card" size="sm">
+            <ItemMedia variant="icon">
+              <HugeiconsIcon icon={RepeatIcon} strokeWidth={2} />
+            </ItemMedia>
+            <ItemContent>
+              <ItemTitle>
+                <span data-mask>{rule.instruction}</span>
+                <span className="text-muted-foreground text-xs font-normal">
+                  {t.rules.effect[rule.effect]}
+                </span>
+              </ItemTitle>
+              <ItemDescription>{t.today.ruleOffer.lead}</ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Button
+                size="sm"
+                variant="ghost-muted"
+                onClick={() => answer.mutate({ enabled: false, id: rule.id })}
+              >
+                {t.today.ruleOffer.no}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => answer.mutate({ enabled: true, id: rule.id })}
+              >
+                {t.today.ruleOffer.yes}
+              </Button>
+            </ItemActions>
+          </Item>
+        </MotionCollapse>
+      ))}
+    </AnimatePresence>
+  )
 }
 
 const FreshCodes = ({
@@ -398,33 +416,37 @@ const FreshCodes = ({
   return (
     <div ref={block} hidden={!newest}>
       <SettingsGroup>
-        {codes.map(
-          (message) =>
-            message.code && (
-              <SettingsRow
-                key={message.id}
-                trigger={
-                  <ExpandTrigger
-                    email={{ from: 'home', threadId: message.threadId }}
-                    rowId={message.id}
+        <SettingsRows>
+          {codes.map(
+            (message) =>
+              message.code && (
+                <SettingsRow
+                  key={message.id}
+                  trigger={
+                    <ExpandTrigger
+                      email={{ from: 'home', threadId: message.threadId }}
+                      rowId={message.id}
+                    />
+                  }
+                  iconVariant="avatar"
+                  icon={<SenderAvatar sender={message} size="sm" />}
+                  title={
+                    <span data-mask>
+                      {message.fromName ?? message.fromEmail}
+                    </span>
+                  }
+                  description={<span data-mask>{message.subject}</span>}
+                >
+                  <CodeActions
+                    actions={actions}
+                    code={message.code}
+                    messageIds={[message.id]}
+                    sweep={sweep}
                   />
-                }
-                iconVariant="avatar"
-                icon={<SenderAvatar sender={message} size="sm" />}
-                title={
-                  <span data-mask>{message.fromName ?? message.fromEmail}</span>
-                }
-                description={<span data-mask>{message.subject}</span>}
-              >
-                <CodeActions
-                  actions={actions}
-                  code={message.code}
-                  messageIds={[message.id]}
-                  sweep={sweep}
-                />
-              </SettingsRow>
-            )
-        )}
+                </SettingsRow>
+              )
+          )}
+        </SettingsRows>
       </SettingsGroup>
     </div>
   )
