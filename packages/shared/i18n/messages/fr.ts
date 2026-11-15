@@ -1518,7 +1518,7 @@ export const fr: Messages = {
     dates: 'Dates et rendez-vous',
     done: 'Fait',
     firstRead:
-      'Je lis tes e-mails des trois derniers jours. Ce qui demande ton attention apparaîtra ici tout seul, et rien ne change tant que tu ne dis pas oui.',
+      'D’abord tes e-mails des trois derniers jours. Ce qui demande ton attention apparaîtra ici tout seul, et rien ne change tant que tu ne dis pas oui.',
     approvedMany: (n: number) => `${n} approuvées`,
     listen: 'Écouter',
     handled: {

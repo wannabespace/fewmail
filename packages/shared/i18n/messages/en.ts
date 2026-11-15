@@ -1768,7 +1768,7 @@ export const en = {
     dates: 'Dates and meetings',
     done: 'Done',
     firstRead:
-      'Reading the last three days of your mail. What needs you shows up here on its own, and nothing changes until you say yes.',
+      'Starting with the last three days of your mail. What needs you shows up here on its own, and nothing changes until you say yes.',
     approvedMany: (n: number) => `${n} approved`,
     listen: 'Listen',
     handled: {

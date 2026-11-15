@@ -1506,7 +1506,7 @@ export const de: Messages = {
     dates: 'Termine und Fristen',
     done: 'Erledigt',
     firstRead:
-      'Ich lese die Mails der letzten drei Tage. Was dich braucht, erscheint hier von selbst, und nichts ändert sich, bevor du Ja sagst.',
+      'Zuerst die Mails der letzten drei Tage. Was dich braucht, erscheint hier von selbst, und nichts ändert sich, bevor du Ja sagst.',
     approvedMany: (n: number) => `${n} freigegeben`,
     listen: 'Anhören',
     handled: {

@@ -807,7 +807,7 @@ const HomeHeader = ({
         <p className="first-letter:uppercase">
           {updatedAt > 0 && dates.format(updatedAt, 'EEEE, d MMMM')}
         </p>
-        {!!data?.reading && (
+        {!!data?.reading && !isFirstRead && (
           <span className="flex items-center gap-1.5">
             <Spinner />
             {t.today.readingNow(data.reading)}

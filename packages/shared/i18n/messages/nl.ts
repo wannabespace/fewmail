@@ -1784,7 +1784,7 @@ export const nl: Messages = {
     dates: 'Data en afspraken',
     done: 'Klaar',
     firstRead:
-      'Ik lees je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf, en er verandert niets tot je ja zegt.',
+      'Eerst je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf, en er verandert niets tot je ja zegt.',
     approvedMany: (n: number) => `${n} goedgekeurd`,
     listen: 'Luisteren',
     handled: {

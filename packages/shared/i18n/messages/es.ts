@@ -1502,7 +1502,7 @@ export const es: Messages = {
     dates: 'Fechas y reuniones',
     done: 'Hecho',
     firstRead:
-      'Leyendo tu correo de los últimos tres días. Lo que te necesite aparecerá aquí solo, y nada cambia hasta que digas que sí.',
+      'Primero, tu correo de los últimos tres días. Lo que te necesite aparecerá aquí solo, y nada cambia hasta que digas que sí.',
     approvedMany: (n: number) => `${n} aprobadas`,
     listen: 'Escuchar',
     handled: {

@@ -1503,7 +1503,7 @@ export const it: Messages = {
     dates: 'Date e riunioni',
     done: 'Fatto',
     firstRead:
-      'Sto leggendo la posta degli ultimi tre giorni. Ciò che ha bisogno di te comparirà qui da solo, e niente cambia finché non dici sì.',
+      'Prima la posta degli ultimi tre giorni. Ciò che ha bisogno di te comparirà qui da solo, e niente cambia finché non dici sì.',
     approvedMany: (n: number) => `${n} approvate`,
     listen: 'Ascolta',
     handled: {

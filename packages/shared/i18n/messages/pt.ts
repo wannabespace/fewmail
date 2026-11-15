@@ -1792,7 +1792,7 @@ export const pt: Messages = {
     dates: 'Datas e reuniões',
     done: 'Feito',
     firstRead:
-      'Lendo seus e-mails dos últimos três dias. O que precisar de você aparece aqui sozinho, e nada muda até você dizer sim.',
+      'Primeiro, seus e-mails dos últimos três dias. O que precisar de você aparece aqui sozinho, e nada muda até você dizer sim.',
     approvedMany: (n: number) => `${n} aprovadas`,
     listen: 'Ouvir',
     handled: {
