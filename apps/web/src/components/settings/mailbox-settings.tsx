@@ -3,6 +3,7 @@ import { Button } from '@fewmail/ui/components/button'
 import {
   SettingsGroup,
   SettingsRow,
+  SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -63,31 +64,33 @@ export const MailboxSettings = () => {
 
   return (
     <SettingsGroup title={copy.title}>
-      {mailboxes.map((mailbox) => (
-        <SettingsRow
-          key={mailbox.id}
-          title={<span data-mask>{mailbox.email}</span>}
-          description={mailboxStatus(copy, mailbox, dates.fromNow)}
-        >
-          {!mailbox.signIn && (
-            <Button
-              size="sm"
-              variant="ghost-destructive"
-              onClick={() =>
-                confirm({
-                  action: copy.remove,
-                  description: copy.removeHint,
-                  onConfirm: () => remove.mutate({ id: mailbox.id }),
-                  title: copy.removeConfirm(mailbox.email),
-                  variant: 'destructive',
-                })
-              }
-            >
-              {copy.remove}
-            </Button>
-          )}
-        </SettingsRow>
-      ))}
+      <SettingsRows>
+        {mailboxes.map((mailbox) => (
+          <SettingsRow
+            key={mailbox.id}
+            title={<span data-mask>{mailbox.email}</span>}
+            description={mailboxStatus(copy, mailbox, dates.fromNow)}
+          >
+            {!mailbox.signIn && (
+              <Button
+                size="sm"
+                variant="ghost-destructive"
+                onClick={() =>
+                  confirm({
+                    action: copy.remove,
+                    description: copy.removeHint,
+                    onConfirm: () => remove.mutate({ id: mailbox.id }),
+                    title: copy.removeConfirm(mailbox.email),
+                    variant: 'destructive',
+                  })
+                }
+              >
+                {copy.remove}
+              </Button>
+            )}
+          </SettingsRow>
+        ))}
+      </SettingsRows>
       <SettingsRow title={copy.add} description={copy.addDescription}>
         <Button
           size="sm"

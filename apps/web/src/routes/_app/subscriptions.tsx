@@ -5,6 +5,7 @@ import { LoadingContent } from '@fewmail/ui/components/custom/loading-content'
 import {
   SettingsGroup,
   SettingsRow,
+  SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
   Empty,
@@ -334,56 +335,61 @@ const SubscriptionsPage = () => {
               <SettingsGroup title={t.subscriptions.count(total)}>
                 <div ref={listRef} className="flex flex-col">
                   <RowsGap height={(shown[0]?.start ?? listTop) - listTop} />
-                  {shown.map((item) => {
-                    const row = rows[item.index]
-                    return (
-                      row && (
-                        <SettingsRow
-                          key={item.key}
-                          ref={virtualizer.measureElement}
-                          data-index={item.index}
-                          active={row === active}
-                          trigger={
-                            <button
-                              type="button"
-                              aria-label={row.fromName ?? row.fromEmail}
-                              onClick={() => open(item.index)}
-                            />
-                          }
-                          iconVariant="avatar"
-                          icon={<SenderAvatar sender={row} size="sm" />}
-                          title={
-                            <span data-mask>
-                              {row.fromName ?? row.fromEmail}
-                            </span>
-                          }
-                          description={
-                            <>
-                              <span data-mask>{row.fromEmail}</span> ·{' '}
-                              {t.cleanup.emails(row.count)},{' '}
-                              {t.subscriptions.opened(row.opened)}
-                              {row.leftShare !== null &&
-                                ` · ${t.subscriptions.leftBy(Math.round(row.leftShare * 100))}`}
-                            </>
-                          }
-                        >
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            disabled={leaving.has(row.messageId)}
-                            onClick={() => leave(row)}
-                            shortcut={row === active && <Kbd>U</Kbd>}
+                  <SettingsRows
+                    listed={new Set(rows.map(({ messageId }) => messageId))}
+                  >
+                    {shown.map((item) => {
+                      const row = rows[item.index]
+                      return (
+                        row && (
+                          <SettingsRow
+                            key={item.key}
+                            rowKey={row.messageId}
+                            ref={virtualizer.measureElement}
+                            data-index={item.index}
+                            active={row === active}
+                            trigger={
+                              <button
+                                type="button"
+                                aria-label={row.fromName ?? row.fromEmail}
+                                onClick={() => open(item.index)}
+                              />
+                            }
+                            iconVariant="avatar"
+                            icon={<SenderAvatar sender={row} size="sm" />}
+                            title={
+                              <span data-mask>
+                                {row.fromName ?? row.fromEmail}
+                              </span>
+                            }
+                            description={
+                              <>
+                                <span data-mask>{row.fromEmail}</span> ·{' '}
+                                {t.cleanup.emails(row.count)},{' '}
+                                {t.subscriptions.opened(row.opened)}
+                                {row.leftShare !== null &&
+                                  ` · ${t.subscriptions.leftBy(Math.round(row.leftShare * 100))}`}
+                              </>
+                            }
                           >
-                            <LoadingContent
-                              loading={leaving.has(row.messageId)}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={leaving.has(row.messageId)}
+                              onClick={() => leave(row)}
+                              shortcut={row === active && <Kbd>U</Kbd>}
                             >
-                              {t.subscriptions.unsubscribe}
-                            </LoadingContent>
-                          </Button>
-                        </SettingsRow>
+                              <LoadingContent
+                                loading={leaving.has(row.messageId)}
+                              >
+                                {t.subscriptions.unsubscribe}
+                              </LoadingContent>
+                            </Button>
+                          </SettingsRow>
+                        )
                       )
-                    )
-                  })}
+                    })}
+                  </SettingsRows>
                   {/* Only while rows are left below: after the last row, the spacer would take its last:border-b-0. */}
                   {belowHeight > 0 && <RowsGap height={belowHeight} />}
                 </div>

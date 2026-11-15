@@ -11,6 +11,7 @@ import { Button } from '@fewmail/ui/components/button'
 import {
   SettingsGroup,
   SettingsRow,
+  SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Input } from '@fewmail/ui/components/input'
 import { Kbd } from '@fewmail/ui/components/kbd'
@@ -399,13 +400,15 @@ const RulesPage = () => {
 
         {rules.length > 0 && (
           <SettingsGroup title={t.rules.count(rules.length)}>
-            {rules.map((rule) => (
-              <RuleRow
-                key={rule.id}
-                isActive={rule.id === activeId}
-                rule={rule}
-              />
-            ))}
+            <SettingsRows>
+              {rules.map((rule) => (
+                <RuleRow
+                  key={rule.id}
+                  isActive={rule.id === activeId}
+                  rule={rule}
+                />
+              ))}
+            </SettingsRows>
           </SettingsGroup>
         )}
 

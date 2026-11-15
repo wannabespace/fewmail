@@ -11,7 +11,13 @@ import {
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
 import { InformationCircleIcon } from '@hugeicons/core-free-icons'
-import { useEffect, useId } from 'react'
+import {
+  AnimatePresence,
+  motion,
+  useIsPresent,
+  useReducedMotion,
+} from 'motion/react'
+import { createContext, use, useEffect, useId } from 'react'
 import type { ComponentProps, ReactElement, ReactNode } from 'react'
 
 import { IconButton } from './icon-button'
@@ -56,6 +62,51 @@ const RowTrigger = ({
     render,
   })
 
+const ROW_FOLD = {
+  borderBottomWidth: 0,
+  height: 0,
+  opacity: 0,
+  paddingBottom: 0,
+  paddingTop: 0,
+}
+const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
+
+// Only rows of a list fold: a row inside a pane or card that leaves as a whole would fold inside it.
+const ListContext = createContext<{ listed?: ReadonlySet<string> } | null>(null)
+
+/**
+ * Keyed rows that come and go: a row that leaves folds and the rows below rise into its place; a link row (`render`) just goes.
+ * `listed`: every row's key, for a virtualized list whose rows pass `rowKey`. A row the window scrolled past is still listed and goes at once, taking no room, or the rows below jump by its height.
+ */
+export const SettingsRows = ({
+  children,
+  listed,
+}: {
+  children: ReactNode
+  listed?: ReadonlySet<string>
+}) => (
+  <ListContext value={{ listed }}>
+    <AnimatePresence initial={false}>{children}</AnimatePresence>
+  </ListContext>
+)
+
+const useRowFold = (rowKey: string | undefined) => {
+  const list = use(ListContext)
+  const isLeaving = !useIsPresent() && !!list
+  const isScrolledPast =
+    isLeaving && rowKey !== undefined && !!list?.listed?.has(rowKey)
+  const isReducedMotion = useReducedMotion()
+  return {
+    isLeaving,
+    isScrolledPast,
+    motionProps: list && {
+      exit: isScrolledPast ? undefined : ROW_FOLD,
+      initial: false as const,
+      transition: isReducedMotion ? { duration: 0 } : ROW_LEAVE,
+    },
+  }
+}
+
 /**
  * `htmlFor`: makes the whole row the control's label, for a `Switch`; leave it out for a control that opens a popup. `render`: the whole row as a link.
  * `trigger`: the whole row as a button (a popover's trigger) that can still hold actions, which a link or a label cannot.
@@ -72,6 +123,7 @@ export const SettingsRow = ({
   iconVariant,
   ref,
   render,
+  rowKey,
   title,
   trigger,
 }: Pick<ComponentProps<'div'>, 'ref'> & {
@@ -87,10 +139,13 @@ export const SettingsRow = ({
   icon?: ReactNode
   iconVariant?: 'avatar'
   render?: ReactElement
+  /** The row's key in a `SettingsRows` given `listed`. */
+  rowKey?: string
   title: ReactNode
   trigger?: ReactElement
 }) => {
   const titleId = useId()
+  const { isLeaving, isScrolledPast, motionProps } = useRowFold(rowKey)
   // J / K walk a list past the screen's edge: the cursor's row comes into view.
   useEffect(() => {
     if (active) {
@@ -106,14 +161,24 @@ export const SettingsRow = ({
       variant="grouped"
       className={cn(
         dense && 'py-2',
+        isLeaving && 'pointer-events-none overflow-hidden',
         trigger &&
           'has-data-popup-open:bg-accent hover:bg-accent has-[[data-slot=row-trigger][aria-expanded=true]]:bg-secondary has-[[data-slot=row-trigger]:focus-visible]:focus-ring relative cursor-pointer'
       )}
       data-active={active || undefined}
-      data-index={dataIndex}
-      ref={ref}
+      // A leaving row's index is stale, so the virtualizer stops measuring it (-1 is out of range).
+      data-index={isLeaving ? -1 : dataIndex}
+      hidden={isScrolledPast}
+      ref={isLeaving ? undefined : ref}
       // oxlint-disable-next-line jsx-a11y/label-has-associated-control -- Item renders the title and description into this label
-      render={htmlFor ? <label htmlFor={htmlFor} /> : render}
+      render={
+        render ??
+        (htmlFor ? (
+          <motion.label htmlFor={htmlFor} {...motionProps} />
+        ) : (
+          <motion.div {...motionProps} />
+        ))
+      }
     >
       {trigger && <RowTrigger labelledBy={titleId} render={trigger} />}
       {icon && <ItemMedia variant={iconVariant}>{icon}</ItemMedia>}

@@ -3,6 +3,7 @@ import { CopyIconButton } from '@fewmail/ui/components/custom/copy-button'
 import {
   SettingsGroup,
   SettingsRow,
+  SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -49,31 +50,36 @@ export const McpSettings = () => {
           <CopyIconButton label={t.settings.mcp.copy} text={MCP_URL} />
         </div>
       </SettingsRow>
-      {apps.map((app) => (
-        <SettingsRow
-          key={app.clientId}
-          title={app.name ?? t.settings.mcp.defaultName}
-          description={t.settings.mcp.connected(dates.fromNow(app.connectedAt))}
-        >
-          <Button
-            size="sm"
-            variant="ghost-destructive"
-            onClick={() =>
-              confirm({
-                action: t.settings.mcp.disconnect,
-                description: t.settings.mcp.disconnectHint,
-                onConfirm: () => disconnect.mutate({ clientId: app.clientId }),
-                title: t.settings.disconnectConfirm(
-                  app.name ?? t.settings.mcp.defaultName
-                ),
-                variant: 'destructive',
-              })
-            }
+      <SettingsRows>
+        {apps.map((app) => (
+          <SettingsRow
+            key={app.clientId}
+            title={app.name ?? t.settings.mcp.defaultName}
+            description={t.settings.mcp.connected(
+              dates.fromNow(app.connectedAt)
+            )}
           >
-            {t.settings.mcp.disconnect}
-          </Button>
-        </SettingsRow>
-      ))}
+            <Button
+              size="sm"
+              variant="ghost-destructive"
+              onClick={() =>
+                confirm({
+                  action: t.settings.mcp.disconnect,
+                  description: t.settings.mcp.disconnectHint,
+                  onConfirm: () =>
+                    disconnect.mutate({ clientId: app.clientId }),
+                  title: t.settings.disconnectConfirm(
+                    app.name ?? t.settings.mcp.defaultName
+                  ),
+                  variant: 'destructive',
+                })
+              }
+            >
+              {t.settings.mcp.disconnect}
+            </Button>
+          </SettingsRow>
+        ))}
+      </SettingsRows>
     </SettingsGroup>
   )
 }

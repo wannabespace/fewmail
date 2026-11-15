@@ -3,6 +3,7 @@ import { Button } from '@fewmail/ui/components/button'
 import {
   SettingsGroup,
   SettingsRow,
+  SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Input } from '@fewmail/ui/components/input'
 import { Textarea } from '@fewmail/ui/components/textarea'
@@ -88,20 +89,22 @@ export const SnippetsSettings = () => {
           {t.settings.snippets.add}
         </Button>
       </form>
-      {snippets.map((snippet) => (
-        <SettingsRow
-          key={snippet.id}
-          title={<span data-mask>;{snippet.name}</span>}
-        >
-          <Button
-            size="sm"
-            variant="ghost-destructive"
-            onClick={() => deleteSnippet(snippet.id)}
+      <SettingsRows>
+        {snippets.map((snippet) => (
+          <SettingsRow
+            key={snippet.id}
+            title={<span data-mask>;{snippet.name}</span>}
           >
-            {t.settings.snippets.delete}
-          </Button>
-        </SettingsRow>
-      ))}
+            <Button
+              size="sm"
+              variant="ghost-destructive"
+              onClick={() => deleteSnippet(snippet.id)}
+            >
+              {t.settings.snippets.delete}
+            </Button>
+          </SettingsRow>
+        ))}
+      </SettingsRows>
     </SettingsGroup>
   )
 }
