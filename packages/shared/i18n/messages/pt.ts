@@ -775,6 +775,8 @@ export const pt: Messages = {
     unsubscribeFailed:
       'Este remetente não tem cancelamento de inscrição com um clique, então o e-mail foi arquivado.',
     you: 'Você',
+    sent: 'Enviado',
+    writeReply: 'Escreva uma resposta…',
     replyTo: 'Responder para',
     date: 'Data',
     authentication: 'Autenticação',

@@ -1,6 +1,7 @@
-import { isBulk } from '@fewmail/shared/agent'
+import { isBulk, sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import {
   FORWARDED_PREFIX,
+  replyRecipients,
   senderDomainOrAddress,
   textToHtml,
 } from '@fewmail/shared/email'
@@ -48,6 +49,7 @@ import {
   Clock01Icon,
   Delete02Icon,
   InboxDownloadIcon,
+  MailReply01Icon,
   PinIcon,
   PinOffIcon,
 } from '@hugeicons/core-free-icons'
@@ -87,7 +89,10 @@ import { ComposeForm } from './compose/compose-form'
 import { presetTimes, SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
 import { PickTime } from './compose/send-later'
+import type { ComposerEditorHandle } from './composer/composer-editor'
+import { ComposerEditor } from './composer/composer-editor'
 import { confirm } from './confirm-dialog'
+import { DraftText } from './consent-details'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { PersonPanel } from './person-panel'
 import { SenderAvatar } from './sender-avatar'
@@ -520,7 +525,9 @@ const MessageSection = ({
               ? t.mail.you
               : (message.fromName ?? message.fromEmail)}
           </strong>
-          {!message.isFromMe && (
+          {message.isFromMe ? (
+            <Badge variant="outline">{t.mail.sent}</Badge>
+          ) : (
             <span data-mask className="text-muted-foreground">
               {message.fromEmail}
             </span>
@@ -1347,6 +1354,164 @@ const settledActionsOf = (
 const revealComposer = (node: HTMLElement | null) =>
   node?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 
+const agentDraftOf = (thread: ReturnType<typeof useThread>['data']) =>
+  thread?.actions.find(
+    (action) => action.status === 'pending' && sendsDraft(action)
+  )
+
+const REPLY_BOX =
+  'bg-popover ring-foreground/6 flex flex-col gap-3 rounded-2xl p-4 shadow-sm ring'
+
+/** The agent's draft waits under the email it answers, as on its Home card: sent as it is, or edited first. */
+const AgentDraft = ({
+  action,
+  isEditing,
+  message,
+  onEdit,
+  onStopEditing,
+}: {
+  action: ThreadAction
+  isEditing: boolean
+  message: ThreadMessage
+  onEdit: () => void
+  onStopEditing: () => void
+}) => {
+  const t = useT()
+  const queryClient = useQueryClient()
+  const editorRef = useRef<ComposerEditorHandle>(null)
+  const [text, setText] = useState(action.detail ?? '')
+  const approve = useMutation(
+    orpc.actions.approve.mutationOptions({
+      onSuccess: ({ outboxId }) => {
+        void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
+        if (!outboxId) {
+          return
+        }
+        toast.success(t.compose.sendingIn(UNDO_SEND_SECONDS), {
+          action: {
+            label: t.compose.undo,
+            onClick: async () => {
+              await runUndo(() =>
+                client.mail.cancelSend({ id: outboxId }).catch(() => null)
+              )
+              void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
+            },
+          },
+          duration: UNDO_SEND_SECONDS * 1000,
+        })
+      },
+    })
+  )
+  const send = () =>
+    approve.mutate({
+      id: action.id,
+      ...(text !== action.detail && { detail: text }),
+    })
+  useHotkey('Mod+Enter', send, { enabled: !isEditing && !approve.isPending })
+  useEffect(() => {
+    if (isEditing) {
+      editorRef.current?.focus()
+    }
+  }, [isEditing])
+
+  return (
+    <section ref={isEditing ? revealComposer : undefined} className={REPLY_BOX}>
+      <p className="text-muted-foreground truncate text-xs">
+        <span data-mask>{t.agent.to(replyRecipients(message).join(', '))}</span>
+        {` · ${t.queue.draftedInVoice}`}
+      </p>
+      {isEditing ? (
+        <ComposerEditor
+          ref={editorRef}
+          aria-label={t.actionKind.reply}
+          placeholder={t.compose.placeholder}
+          initialHtml={textToHtml(text)}
+          onChange={({ text: edited }) => setText(edited)}
+          onSubmit={send}
+          onEscape={onStopEditing}
+        />
+      ) : (
+        <DraftText text={text} />
+      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          size="sm"
+          disabled={approve.isPending || !text.trim()}
+          onClick={send}
+          shortcut={<Kbd>⌘⏎</Kbd>}
+        >
+          {t.queue.send}
+        </Button>
+        {!isEditing && (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={onEdit}
+            shortcut={<Kbd>R</Kbd>}
+          >
+            {t.queue.edit}
+          </Button>
+        )}
+      </div>
+    </section>
+  )
+}
+
+/** Under the last email: the reply being written, the agent's draft waiting for a yes, or a field to start one. */
+const ReplyArea = ({
+  agentDraft,
+  composing,
+  isEditingDraft,
+  message,
+  onComposed,
+  onReply,
+  onStopEditingDraft,
+}: {
+  agentDraft: ThreadAction | undefined
+  composing: Draft | null
+  isEditingDraft: boolean
+  message: ThreadMessage
+  onComposed: () => void
+  onReply: () => void
+  onStopEditingDraft: () => void
+}) => {
+  const t = useT()
+  if (composing) {
+    return (
+      <section ref={revealComposer} className={REPLY_BOX}>
+        <ComposeForm draft={composing} onDone={onComposed} />
+      </section>
+    )
+  }
+  if (agentDraft) {
+    return (
+      <AgentDraft
+        key={agentDraft.id}
+        action={agentDraft}
+        isEditing={isEditingDraft}
+        message={message}
+        onEdit={onReply}
+        onStopEditing={onStopEditingDraft}
+      />
+    )
+  }
+  return (
+    <Button
+      variant="outline-muted"
+      className="justify-start"
+      onClick={onReply}
+      shortcut={<Kbd>R</Kbd>}
+    >
+      <HugeiconsIcon
+        icon={MailReply01Icon}
+        strokeWidth={2}
+        data-icon="inline-start"
+      />
+      {t.mail.writeReply}
+    </Button>
+  )
+}
+
 /** The title scrolls away with the email; the bar with the close buttons and the actions stay on top. */
 const ReaderHeader = ({
   children,
@@ -1454,9 +1619,11 @@ export const ThreadView = ({
   const hasAgent = useHasAgent()
   const { data } = useThread(threadId)
   const [composing, setComposing] = useState<Draft | null>(null)
+  const [isEditingDraft, setIsEditingDraft] = useState(false)
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
+  const agentDraft = agentDraftOf(data)
   const { folded, unfold } = useFolding(data)
   const scrollRef = useRef<HTMLDivElement>(null)
   const isLoaded = !!data
@@ -1475,15 +1642,21 @@ export const ThreadView = ({
   const sweep = sweepOf(actions, t, placeOf(labelIds, isSnoozed))
   const isPinned = isThreadPinned(data)
   const togglePin = () => target && pin.mutate({ ...target, pinned: !isPinned })
-  const reply = () =>
-    latest &&
-    setComposing({
-      ...EMPTY_DRAFT,
-      mode: 'reply',
-      replyToMessageId: latest.message.id,
-      subject: latest.message.subject,
-      to: [latest.message.fromEmail],
-    })
+  const reply = () => {
+    if (agentDraft) {
+      setIsEditingDraft(true)
+      return
+    }
+    if (latest) {
+      setComposing({
+        ...EMPTY_DRAFT,
+        mode: 'reply',
+        replyToMessageId: latest.message.id,
+        subject: latest.message.subject,
+        to: [latest.message.fromEmail],
+      })
+    }
+  }
   const forward = () =>
     latest &&
     setComposing(
@@ -1493,7 +1666,7 @@ export const ThreadView = ({
       )
     )
 
-  const keys = { enabled: !!target && !composing }
+  const keys = { enabled: !!target && !composing && !isEditingDraft }
   useHotkey('R', reply, keys)
   useHotkey('F', forward, keys)
   useHotkey('E', () => target && sweep.action.mutate(target), keys)
@@ -1544,9 +1717,6 @@ export const ThreadView = ({
           >
             {target && (
               <div className="flex flex-wrap items-center gap-2">
-                <Button size="sm" onClick={reply} shortcut={<Kbd>R</Kbd>}>
-                  {t.mail.reply}
-                </Button>
                 <Button
                   size="sm"
                   variant="secondary"
@@ -1673,20 +1843,20 @@ export const ThreadView = ({
             )}
           </div>
 
-          {hasAgent && latest && (
-            <PersonPanel email={latest.message.fromEmail} threadId={threadId} />
+          {latest && (
+            <ReplyArea
+              agentDraft={agentDraft}
+              composing={composing}
+              isEditingDraft={isEditingDraft}
+              message={latest.message}
+              onComposed={() => setComposing(null)}
+              onReply={reply}
+              onStopEditingDraft={() => setIsEditingDraft(false)}
+            />
           )}
 
-          {composing && (
-            <section
-              ref={revealComposer}
-              className="bg-popover ring-foreground/6 rounded-2xl p-4 shadow-sm ring"
-            >
-              <ComposeForm
-                draft={composing}
-                onDone={() => setComposing(null)}
-              />
-            </section>
+          {hasAgent && latest && (
+            <PersonPanel email={latest.message.fromEmail} threadId={threadId} />
           )}
         </div>
       </div>

@@ -498,6 +498,8 @@ export const hi: Messages = {
     unsubscribeFailed:
       'इस भेजने वाले के पास एक-क्लिक अनसब्सक्राइब नहीं है, इसलिए ईमेल आर्काइव कर दिया गया।',
     you: 'आप',
+    sent: 'भेजा गया',
+    writeReply: 'जवाब लिखें…',
     replyTo: 'जवाब भेजें',
     date: 'तारीख',
     authentication: 'प्रमाणीकरण',

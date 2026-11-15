@@ -788,6 +788,8 @@ export const pl: Messages = {
     unsubscribeFailed:
       'Ten nadawca nie obsługuje wypisania jednym kliknięciem, więc e-mail został zarchiwizowany.',
     you: 'Ty',
+    sent: 'Wysłano',
+    writeReply: 'Napisz odpowiedź…',
     replyTo: 'Odpowiedz do',
     date: 'Data',
     authentication: 'Uwierzytelnienie',

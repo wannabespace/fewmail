@@ -21,7 +21,8 @@ const EmailPage = () => {
     canGoBack
       ? router.history.back()
       : router.navigate({ search: { thread: threadId }, to: '/mail' })
-  useHotkey('Escape', collapse)
+  // An editor's own esc (leave the draft) comes first: one step per press.
+  useHotkey('Escape', collapse, { ignoreDefaultPrevented: true })
   useHotkey('Shift+O', collapse)
 
   return (

@@ -753,6 +753,8 @@ export const tr: Messages = {
     unsubscribeFailed:
       'Bu gönderen tek tıkla abonelikten çıkmayı desteklemiyor, bu yüzden e-posta arşivlendi.',
     you: 'Sen',
+    sent: 'Gönderildi',
+    writeReply: 'Yanıt yaz…',
     replyTo: 'Yanıt adresi',
     date: 'Tarih',
     authentication: 'Kimlik doğrulama',

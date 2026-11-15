@@ -1068,6 +1068,8 @@ export const de: Messages = {
     unsubscribeFailed:
       'Dieser Absender bietet keine Abmeldung per Klick, daher wurde die Mail archiviert.',
     you: 'Du',
+    sent: 'Gesendet',
+    writeReply: 'Antwort schreiben…',
     replyTo: 'Antwort an',
     date: 'Datum',
     authentication: 'Authentifizierung',

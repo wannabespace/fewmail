@@ -1070,6 +1070,8 @@ export const es: Messages = {
     unsubscribeFailed:
       'Este remitente no permite darse de baja con un clic, así que el correo se archivó.',
     you: 'Tú',
+    sent: 'Enviado',
+    writeReply: 'Escribe una respuesta…',
     replyTo: 'Responder a',
     date: 'Fecha',
     authentication: 'Autenticación',

@@ -490,6 +490,8 @@ export const zh: Messages = {
     unsubscribed: '已退订',
     unsubscribeFailed: '该发件人不支持一键退订，所以这封邮件已归档。',
     you: '你',
+    sent: '已发送',
+    writeReply: '写回复…',
     replyTo: '回复至',
     date: '日期',
     authentication: '身份验证',

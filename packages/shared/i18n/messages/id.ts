@@ -757,6 +757,8 @@ export const id: Messages = {
     unsubscribeFailed:
       'Pengirim ini tidak mendukung berhenti berlangganan sekali klik, jadi email-nya diarsipkan.',
     you: 'Kamu',
+    sent: 'Terkirim',
+    writeReply: 'Tulis balasan…',
     replyTo: 'Balas ke',
     date: 'Tanggal',
     authentication: 'Autentikasi',

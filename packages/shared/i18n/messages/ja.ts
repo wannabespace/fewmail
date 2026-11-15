@@ -498,6 +498,8 @@ export const ja: Messages = {
     unsubscribeFailed:
       'この送信者はワンクリック配信停止に対応していないため、メールをアーカイブしました。',
     you: 'あなた',
+    sent: '送信済み',
+    writeReply: '返信を書く…',
     replyTo: '返信先',
     date: '日付',
     authentication: '認証',

@@ -1065,6 +1065,8 @@ export const uk: Messages = {
     unsubscribeFailed:
       'У цього відправника немає відписки в один клік, тому лист заархівовано.',
     you: 'Ти',
+    sent: 'Надіслано',
+    writeReply: 'Написати відповідь…',
     replyTo: 'Відповідати',
     date: 'Дата',
     authentication: 'Перевірка',

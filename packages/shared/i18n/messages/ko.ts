@@ -497,6 +497,8 @@ export const ko: Messages = {
     unsubscribeFailed:
       '이 발신자는 원클릭 구독 취소를 지원하지 않아서 메일을 보관했어요.',
     you: '나',
+    sent: '보냄',
+    writeReply: '답장 쓰기…',
     replyTo: '회신 주소',
     date: '날짜',
     authentication: '인증',

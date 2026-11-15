@@ -765,6 +765,8 @@ export const en = {
     unsubscribeFailed:
       'This sender has no one-click unsubscribe, so the email was archived.',
     you: 'You',
+    sent: 'Sent',
+    writeReply: 'Write a reply…',
     replyTo: 'Reply to',
     date: 'Date',
     authentication: 'Authentication',
