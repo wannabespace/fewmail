@@ -862,7 +862,8 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     block: useMutation(
       orpc.mail.block.mutationOptions({
         ...leave,
-        onSuccess: ({ ruleId }, { messageId }, burst) =>
+        onSuccess: ({ ruleId }, { messageId }, burst) => {
+          void queryClient.invalidateQueries({ queryKey: orpc.rules.key() })
           finish(t.mail.blocked, burst, {
             messageId,
             undo: async () => {
@@ -872,7 +873,8 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
                 queryKey: orpc.rules.key(),
               })
             },
-          }),
+          })
+        },
       })
     ),
     markRead: useMutation(
