@@ -29,7 +29,7 @@ const appUrl = () => `${location.origin}${appPath()}`
 const init = async () => {
   const { default: posthogJs } = await import('posthog-js')
   const client = posthogJs.init(import.meta.env.POSTHOG_TOKEN ?? '', {
-    api_host: 'https://eu.i.posthog.com',
+    api_host: 'https://e.fewmail.app',
     before_send: (event) => {
       if (
         !event ||
