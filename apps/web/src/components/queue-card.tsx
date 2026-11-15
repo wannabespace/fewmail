@@ -284,25 +284,19 @@ const QueueCardHeader = ({
     <AccordionTrigger
       trailing={
         <>
-          {!isOpen && (
-            <span className="text-muted-foreground mr-3 text-xs whitespace-nowrap">
-              {foldedVerb(t, action)}
-            </span>
-          )}
-          {analysis && analysis.importance >= IMPORTANCE.critical && (
-            <span className="mr-3 flex">
-              <ImportanceDot
-                importance={analysis.importance}
-                reason={action.reason || analysis.reason}
-              />
-            </span>
-          )}
           <span className={cn(ROW_SWAP, 'mr-3')}>
-            {message && (
-              <span className="text-muted-foreground text-xs group-hover:opacity-0">
-                {dates.fromNow(message.receivedAt)}
+            <span className="text-muted-foreground flex flex-col items-end gap-0.5 text-xs leading-5 whitespace-nowrap group-hover:opacity-0 group-has-data-popup-open:opacity-0">
+              <span className="flex items-center gap-2">
+                {message && dates.fromNow(message.receivedAt)}
+                {analysis && analysis.importance >= IMPORTANCE.critical && (
+                  <ImportanceDot
+                    importance={analysis.importance}
+                    reason={action.reason || analysis.reason}
+                  />
+                )}
               </span>
-            )}
+              {!isOpen && <span>{foldedVerb(t, action)}</span>}
+            </span>
             <QuickActions
               action={action}
               isOpen={isOpen}
