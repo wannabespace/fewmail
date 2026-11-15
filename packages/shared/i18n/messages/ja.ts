@@ -147,6 +147,11 @@ export const ja: Messages = {
     thinking: 'メールを確認しています…',
   },
   compose: {
+    attach: 'ファイルを添付',
+    attachmentsTooLarge: (limit: string) =>
+      `添付ファイルは合計 ${limit} までです。`,
+    dropFiles: 'ドロップして添付',
+    removeAttachment: '削除',
     discarded: '下書きを破棄しました',
     backInQueue: 'キャンセルしました。下書きは「ホーム」に戻りました。',
     canceled: 'キャンセルしました。メールはエディタに戻りました。',
@@ -275,6 +280,7 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
+    attach: '添付',
     done: '完了',
     openLink: 'リンクを開く',
     writeReminder: 'リマインドを書く',

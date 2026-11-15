@@ -105,6 +105,11 @@ export const de: Messages = {
     thinking: 'Durchsuche deine Mails…',
   },
   compose: {
+    attach: 'Dateien anhängen',
+    attachmentsTooLarge: (limit: string) =>
+      `Anhänge dürfen zusammen bis zu ${limit} groß sein.`,
+    dropFiles: 'Dateien zum Anhängen ablegen',
+    removeAttachment: 'Entfernen',
     discarded: 'Entwurf verworfen',
     backInQueue: 'Abgebrochen. Der Entwurf ist wieder auf der Startseite.',
     canceled: 'Abgebrochen. Deine E-Mail ist wieder im Editor.',
@@ -768,6 +773,7 @@ export const de: Messages = {
     reload: 'Neu laden',
   },
   keys: {
+    attach: 'anhängen',
     done: 'erledigt',
     openLink: 'Link öffnen',
     writeReminder: 'Erinnerung schreiben',

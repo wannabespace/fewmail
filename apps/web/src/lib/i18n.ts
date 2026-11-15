@@ -149,6 +149,22 @@ export const useMoneyFormat = () => {
     )
 }
 
+export const useFileSize = () => {
+  const locale = useLocale()
+  return (bytes: number) => {
+    const unit = bytes >= 1_000_000 ? 'megabyte' : 'kilobyte'
+    return new Intl.NumberFormat(locale, {
+      maximumFractionDigits: unit === 'megabyte' ? 1 : 0,
+      style: 'unit',
+      unit,
+    }).format(
+      unit === 'megabyte'
+        ? bytes / 1_000_000
+        : Math.max(1, Math.round(bytes / 1000))
+    )
+  }
+}
+
 export const weekStartOf = (code: Locale) =>
   DATE_LOCALES[code].options?.weekStartsOn ?? 1
 

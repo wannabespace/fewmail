@@ -525,3 +525,33 @@ export const matchesContact = (
   const needle = query.trim().toLowerCase()
   return email.includes(needle) || Boolean(name?.toLowerCase().includes(needle))
 }
+
+/** A file of a received email: listed under it, or drawn inside its HTML when that points at its `Content-ID`. */
+export interface MailAttachment {
+  contentId: string | null
+  filename: string
+  mimeType: string
+  partId: string
+  size: number
+}
+
+/** A file the user attaches. Without `data` it is already in the saved Gmail draft, found there by `id`. */
+export interface OutgoingAttachment {
+  data?: string
+  filename: string
+  id: string
+  mimeType: string
+  size: number
+}
+
+/** A forwarded email's file goes out under this prefix and its part id, read from that email when sent. */
+export const FORWARDED_PREFIX = 'fwd-'
+
+/** Gmail refuses mail over 25 MB, and base64 makes a file a third larger on the way. */
+export const ATTACHMENTS_MAX_BYTES = 18_000_000
+
+/** `cid:ii_abc` in the HTML names the part whose Content-ID is `<ii_abc>`. */
+export const attachmentOfCid = (attachments: MailAttachment[], src: string) => {
+  const contentId = decodeURIComponent(src.replace(/^cid:/iu, ''))
+  return attachments.find((file) => file.contentId === contentId)
+}

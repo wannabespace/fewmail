@@ -105,6 +105,11 @@ export const uk: Messages = {
     thinking: 'Шукаю у твоїй пошті…',
   },
   compose: {
+    attach: 'Прикріпити файли',
+    attachmentsTooLarge: (limit: string) =>
+      `Вкладення разом можуть бути до ${limit}.`,
+    dropFiles: 'Відпустіть файли, щоб прикріпити',
+    removeAttachment: 'Прибрати',
     discarded: 'Чернетку видалено',
     backInQueue: 'Скасовано. Чернетка знову на «Головній».',
     canceled: 'Скасовано. Лист знову в редакторі.',
@@ -769,6 +774,7 @@ export const uk: Messages = {
     reload: 'Оновити',
   },
   keys: {
+    attach: 'прикріпити',
     done: 'готово',
     openLink: 'відкрити посилання',
     writeReminder: 'написати нагадування',

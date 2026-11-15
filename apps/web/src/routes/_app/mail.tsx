@@ -1824,6 +1824,7 @@ const useDrafts = ({
       takeBackFailed.mutate({ id: saved.id }, { onSuccess: openCompose })
     } else if (saved) {
       openCompose({
+        attachments: saved.attachments,
         bcc: saved.bcc,
         cc: saved.cc,
         gmailDraft: { id: saved.id, mailboxId: saved.mailboxId },

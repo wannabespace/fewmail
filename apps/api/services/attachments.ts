@@ -6,9 +6,12 @@ import type { MailCategory } from '@fewmail/shared/agent'
 import { Result } from 'better-result'
 import { eq } from 'drizzle-orm'
 
-import { getAttachment, listAttachments } from '../lib/gmail'
+import { getAttachment, getAttachmentPart, listAttachments } from '../lib/gmail'
 import { logError } from '../lib/log'
 import { readDocument } from '../lib/mistral'
+import { NotFoundError } from './mail-errors'
+import { ownMailbox } from './mailboxes'
+import { ownMessage } from './stored-mail'
 
 type Message = typeof messages.$inferSelect
 
@@ -74,4 +77,19 @@ export const attachmentText = async (message: Message) => {
     return ''
   }
   return read.value
+}
+
+/** One file of the user's email, read from Gmail when it is opened and never stored. */
+export const readAttachment = async (
+  userId: string,
+  messageId: string,
+  partId: string
+) => {
+  const message = await ownMessage(userId, messageId)
+  const mailbox = await ownMailbox(userId, message.mailboxId)
+  const file = await getAttachmentPart(mailbox, message.gmailId, partId)
+  if (!file) {
+    throw new NotFoundError('Attachment not found')
+  }
+  return file
 }

@@ -147,6 +147,11 @@ export const ko: Messages = {
     thinking: '메일을 살펴보는 중…',
   },
   compose: {
+    attach: '파일 첨부',
+    attachmentsTooLarge: (limit: string) =>
+      `첨부 파일은 합쳐서 ${limit}까지 가능합니다.`,
+    dropFiles: '파일을 놓아 첨부하세요',
+    removeAttachment: '제거',
     discarded: '임시 보관 메일을 삭제했어요',
     backInQueue: '취소했어요. 초안이 홈으로 돌아갔어요.',
     canceled: '취소했어요. 이메일이 편집기로 돌아갔어요.',
@@ -275,6 +280,7 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
+    attach: '첨부',
     done: '완료',
     openLink: '링크 열기',
     writeReminder: '리마인더 쓰기',

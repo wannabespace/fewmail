@@ -3,6 +3,7 @@ import { isIP } from 'node:net'
 
 import { titledListId } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
+import type { MailAttachment, OutgoingAttachment } from '@fewmail/shared/email'
 
 import type { GmailAccount } from './auth'
 import { gmailAccessToken } from './auth'
@@ -11,6 +12,8 @@ import { mailSignals } from './mail-auth'
 import { oneTimeCode } from './one-time-code'
 
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
+// A JSON body carries a few MB at most; mail with files goes up as a media upload.
+const GMAIL_UPLOAD = 'https://gmail.googleapis.com/upload/gmail/v1/users/me'
 
 /** A 404 from `/history` means the history id expired. */
 export class GmailError extends Error {
@@ -46,16 +49,20 @@ const blockedUntilOf = (body: string) => {
 const gmail = async <T>(
   account: GmailAccount,
   path: string,
-  init?: RequestInit,
+  init?: RequestInit & { contentType?: string; isUpload?: boolean },
   attempt = 0
 ): Promise<T> => {
-  const response = await fetch(`${GMAIL_API}${path}`, {
-    ...init,
-    headers: {
-      authorization: `Bearer ${await gmailAccessToken(account)}`,
-      'content-type': 'application/json',
-    },
-  })
+  const { contentType = 'application/json', isUpload, ...request } = init ?? {}
+  const response = await fetch(
+    `${isUpload ? GMAIL_UPLOAD : GMAIL_API}${path}`,
+    {
+      ...request,
+      headers: {
+        authorization: `Bearer ${await gmailAccessToken(account)}`,
+        'content-type': contentType,
+      },
+    }
+  )
 
   if (!response.ok) {
     const body = await response.text()
@@ -83,6 +90,7 @@ interface GmailPart {
   filename?: string
   headers?: { name: string; value: string }[]
   mimeType: string
+  partId?: string
   parts?: GmailPart[]
 }
 
@@ -142,6 +150,35 @@ const htmlToText = (html: string) =>
 const hasAttachment = (part: GmailPart): boolean =>
   !!part.filename || !!part.parts?.some(hasAttachment)
 
+const headerOf = (part: GmailPart, header: string) =>
+  part.headers?.find(({ name }) => name.toLowerCase() === header)?.value.trim()
+
+const contentIdOf = (part: GmailPart) =>
+  headerOf(part, 'content-id')?.replace(/^<(?<id>.*)>$/u, '$<id>') ?? null
+
+/** How a draft's file is found again on the next save: our own id, Gmail's for files attached there, else its part. */
+const draftFileIdOf = (part: GmailPart) =>
+  headerOf(part, 'x-attachment-id') ?? part.partId ?? ''
+
+/** Named files and the images an HTML body draws by `cid:`, which often come without a name. */
+const fileParts = (part: GmailPart): GmailPart[] => [
+  ...(!part.parts &&
+  (part.filename || contentIdOf(part)) &&
+  (part.body?.attachmentId || part.body?.data)
+    ? [part]
+    : []),
+  ...(part.parts ?? []).flatMap(fileParts),
+]
+
+const attachmentsOf = (payload: GmailPart): MailAttachment[] =>
+  fileParts(payload).map((part) => ({
+    contentId: contentIdOf(part),
+    filename: part.filename || 'image',
+    mimeType: part.mimeType,
+    partId: part.partId ?? '',
+    size: part.body?.size ?? 0,
+  }))
+
 const parseAddress = (value: string) => {
   const groups = value.match(
     /^\s*"?(?<name>[^"<]*?)"?\s*<(?<email>[^>]+)>\s*$/u
@@ -188,6 +225,7 @@ export const parseMessage = (message: GmailMessage) => {
 
   return {
     ...mailSignals(message.payload.headers ?? []),
+    attachments: attachmentsOf(message.payload),
     body,
     cc: splitAddresses(headers.get('cc')),
     fromDomain: domainOf(from.email),
@@ -297,22 +335,40 @@ export const getMessageHeaders = async (account: GmailAccount, id: string) => {
   }
 }
 
-const attachmentParts = (part: GmailPart): GmailPart[] => [
-  ...(part.filename && part.body?.attachmentId ? [part] : []),
-  ...(part.parts ?? []).flatMap(attachmentParts),
-]
-
-export const listAttachments = async (account: GmailAccount, id: string) => {
+const messageParts = async (account: GmailAccount, id: string) => {
   const message = await gmail<Pick<GmailMessage, 'payload'>>(
     account,
     `/messages/${id}?${new URLSearchParams({ fields: 'payload', format: 'full' })}`
   )
-  return attachmentParts(message.payload).map((part) => ({
-    attachmentId: part.body?.attachmentId ?? '',
-    filename: part.filename ?? '',
-    mimeType: part.mimeType,
-    size: part.body?.size ?? 0,
-  }))
+  return fileParts(message.payload)
+}
+
+export const listAttachments = async (account: GmailAccount, id: string) => {
+  const parts = await messageParts(account, id)
+  return parts
+    .filter((part) => part.filename && part.body?.attachmentId)
+    .map((part) => ({
+      attachmentId: part.body?.attachmentId ?? '',
+      filename: part.filename ?? '',
+      mimeType: part.mimeType,
+      size: part.body?.size ?? 0,
+    }))
+}
+
+const partBytes = async (
+  account: GmailAccount,
+  id: string,
+  part: GmailPart
+) => {
+  const attachmentId = part.body?.attachmentId
+  if (!attachmentId) {
+    return Buffer.from(part.body?.data ?? '', 'base64url')
+  }
+  const { data } = await gmail<{ data: string }>(
+    account,
+    `/messages/${id}/attachments/${attachmentId}`
+  )
+  return Buffer.from(data, 'base64url')
 }
 
 /** Standard base64, the encoding data URLs expect. */
@@ -321,11 +377,28 @@ export const getAttachment = async (
   id: string,
   attachmentId: string
 ) => {
-  const { data } = await gmail<{ data: string }>(
-    account,
-    `/messages/${id}/attachments/${attachmentId}`
-  )
-  return Buffer.from(data, 'base64url').toString('base64')
+  const bytes = await partBytes(account, id, {
+    body: { attachmentId },
+    mimeType: '',
+  })
+  return bytes.toString('base64')
+}
+
+/** Part ids are fixed for a message, unlike Gmail's attachment ids, which change on every read. */
+export const getAttachmentPart = async (
+  account: GmailAccount,
+  id: string,
+  partId: string
+) => {
+  const parts = await messageParts(account, id)
+  const part = parts.find((candidate) => candidate.partId === partId)
+  return part
+    ? {
+        bytes: await partBytes(account, id, part),
+        filename: part.filename || 'image',
+        mimeType: part.mimeType,
+      }
+    : null
 }
 
 const BATCH_MODIFY_MAX = 1000
@@ -468,10 +541,13 @@ const encodeHeader = (value: string) =>
     : `=?UTF-8?B?${Buffer.from(value).toString('base64')}?=`
 
 const BOUNDARY = 'fewmail-alternative'
+const MIXED_BOUNDARY = 'fewmail-mixed'
+const UPLOAD_BOUNDARY = 'fewmail-upload'
 
 const encodeAddressList = (addresses: string[]) => addresses.join(', ')
 
 interface MailContent {
+  attachments?: Required<OutgoingAttachment>[] | null
   bcc: string[]
   cc: string[]
   html: string
@@ -483,37 +559,103 @@ interface MailContent {
   to: string[]
 }
 
-const rawMessage = (mail: MailContent) => ({
-  raw: Buffer.from(
-    [
-      ...(mail.to.length > 0 ? [`To: ${encodeAddressList(mail.to)}`] : []),
-      ...(mail.cc.length > 0 ? [`Cc: ${encodeAddressList(mail.cc)}`] : []),
-      ...(mail.bcc.length > 0 ? [`Bcc: ${encodeAddressList(mail.bcc)}`] : []),
-      `Subject: ${encodeHeader(mail.subject)}`,
-      ...(mail.inReplyTo ? [`In-Reply-To: ${mail.inReplyTo}`] : []),
-      ...(mail.references ? [`References: ${mail.references}`] : []),
-      'MIME-Version: 1.0',
-      `Content-Type: multipart/alternative; boundary="${BOUNDARY}"`,
+const BASE64_LINE = /.{1,76}/gu
+
+// A quote or a line break in a name would end the header and let the rest pass for headers of its own.
+const fileName = (name: string) =>
+  encodeHeader(name.replaceAll(/["\\\r\n]/gu, '_'))
+
+const filePart = (file: Required<OutgoingAttachment>) => [
+  `--${MIXED_BOUNDARY}`,
+  `Content-Type: ${file.mimeType}; name="${fileName(file.filename)}"`,
+  `Content-Disposition: attachment; filename="${fileName(file.filename)}"`,
+  'Content-Transfer-Encoding: base64',
+  `X-Attachment-Id: ${file.id}`,
+  '',
+  file.data.match(BASE64_LINE)?.join('\r\n') ?? '',
+]
+
+const mimeOf = (mail: MailContent) => {
+  const alternative = [
+    `Content-Type: multipart/alternative; boundary="${BOUNDARY}"`,
+    '',
+    `--${BOUNDARY}`,
+    'Content-Type: text/plain; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
+    '',
+    Buffer.from(mail.text).toString('base64'),
+    `--${BOUNDARY}`,
+    'Content-Type: text/html; charset="UTF-8"',
+    'Content-Transfer-Encoding: base64',
+    '',
+    Buffer.from(mail.html).toString('base64'),
+    `--${BOUNDARY}--`,
+  ]
+  const files = mail.attachments ?? []
+  return [
+    ...(mail.to.length > 0 ? [`To: ${encodeAddressList(mail.to)}`] : []),
+    ...(mail.cc.length > 0 ? [`Cc: ${encodeAddressList(mail.cc)}`] : []),
+    ...(mail.bcc.length > 0 ? [`Bcc: ${encodeAddressList(mail.bcc)}`] : []),
+    `Subject: ${encodeHeader(mail.subject)}`,
+    ...(mail.inReplyTo ? [`In-Reply-To: ${mail.inReplyTo}`] : []),
+    ...(mail.references ? [`References: ${mail.references}`] : []),
+    'MIME-Version: 1.0',
+    ...(files.length === 0
+      ? alternative
+      : [
+          `Content-Type: multipart/mixed; boundary="${MIXED_BOUNDARY}"`,
+          '',
+          `--${MIXED_BOUNDARY}`,
+          ...alternative,
+          ...files.flatMap(filePart),
+          `--${MIXED_BOUNDARY}--`,
+        ]),
+  ].join('\r\n')
+}
+
+/** Plain mail is one JSON call; mail with files goes up as `message/rfc822`, which a JSON body is too small for. */
+const postMail = <T>(
+  account: GmailAccount,
+  path: string,
+  mail: MailContent,
+  { draftId, method }: { draftId?: string; method: 'POST' | 'PUT' }
+) => {
+  const mime = mimeOf(mail)
+  const metadata = (raw?: string) => {
+    const message = {
+      ...(raw && { raw }),
+      ...(mail.threadId && { threadId: mail.threadId }),
+    }
+    return path.startsWith('/drafts')
+      ? { ...(draftId && { id: draftId }), message }
+      : message
+  }
+  if (!mail.attachments?.length) {
+    return gmail<T>(account, path, {
+      body: JSON.stringify(metadata(Buffer.from(mime).toString('base64url'))),
+      method,
+    })
+  }
+  return gmail<T>(account, `${path}?uploadType=multipart`, {
+    body: [
+      `--${UPLOAD_BOUNDARY}`,
+      'Content-Type: application/json; charset=UTF-8',
       '',
-      `--${BOUNDARY}`,
-      'Content-Type: text/plain; charset="UTF-8"',
-      'Content-Transfer-Encoding: base64',
+      JSON.stringify(metadata()),
+      `--${UPLOAD_BOUNDARY}`,
+      'Content-Type: message/rfc822',
       '',
-      Buffer.from(mail.text).toString('base64'),
-      `--${BOUNDARY}`,
-      'Content-Type: text/html; charset="UTF-8"',
-      'Content-Transfer-Encoding: base64',
-      '',
-      Buffer.from(mail.html).toString('base64'),
-      `--${BOUNDARY}--`,
-    ].join('\r\n')
-  ).toString('base64url'),
-  ...(mail.threadId && { threadId: mail.threadId }),
-})
+      mime,
+      `--${UPLOAD_BOUNDARY}--`,
+    ].join('\r\n'),
+    contentType: `multipart/related; boundary=${UPLOAD_BOUNDARY}`,
+    isUpload: true,
+    method,
+  })
+}
 
 export const sendMail = (account: GmailAccount, mail: MailContent) =>
-  gmail<{ id: string; threadId: string }>(account, '/messages/send', {
-    body: JSON.stringify(rawMessage(mail)),
+  postMail<{ id: string; threadId: string }>(account, '/messages/send', mail, {
     method: 'POST',
   })
 
@@ -522,13 +664,27 @@ export const saveDraft = (
   mail: MailContent,
   draftId?: string
 ) =>
-  gmail<{ id: string }>(account, draftId ? `/drafts/${draftId}` : '/drafts', {
-    body: JSON.stringify({
-      ...(draftId && { id: draftId }),
-      message: rawMessage(mail),
-    }),
-    method: draftId ? 'PUT' : 'POST',
-  })
+  postMail<{ id: string }>(
+    account,
+    draftId ? `/drafts/${draftId}` : '/drafts',
+    mail,
+    { draftId, method: draftId ? 'PUT' : 'POST' }
+  )
+
+/** A saved draft's files by the id each was attached under, read only when asked for. */
+export const getDraftFiles = async (account: GmailAccount, draftId: string) => {
+  const { message } = await gmail<{ message: GmailMessage }>(
+    account,
+    `/drafts/${draftId}?format=full`
+  )
+  return fileParts(message.payload).map((part) => ({
+    id: draftFileIdOf(part),
+    read: async () => {
+      const bytes = await partBytes(account, message.id, part)
+      return bytes.toString('base64')
+    },
+  }))
+}
 
 export const listDrafts = async (
   account: GmailAccount,
@@ -548,6 +704,12 @@ export const listDrafts = async (
       const parsed = parseMessage(message)
       return {
         ...parsed,
+        files: fileParts(message.payload).map((part) => ({
+          filename: part.filename || 'image',
+          id: draftFileIdOf(part),
+          mimeType: part.mimeType,
+          size: part.body?.size ?? 0,
+        })),
         bcc: splitAddresses(
           message.payload.headers?.find(
             ({ name }) => name.toLowerCase() === 'bcc'

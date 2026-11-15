@@ -17,9 +17,11 @@ import { capture } from './lib/posthog'
 import { siteIcon } from './lib/site-icon'
 import { handleMcp, mcpResourceMetadata } from './mcp'
 import { router } from './orpc/router'
+import { readAttachment } from './services/attachments'
 import { handleStripeWebhook } from './services/billing'
 import { handleGmailPush } from './services/gmail-push'
 import { LimitReachedError } from './services/limit-error'
+import { NotFoundError } from './services/mail-errors'
 import { finishAddingMailbox } from './services/mailboxes'
 import { speakFor, spokenReading } from './services/messenger'
 import { getPlanInfo, hasAgent } from './services/plan'
@@ -69,6 +71,31 @@ const spokenResponse = async (userId: string, text: () => Promise<string>) => {
 }
 
 const ICON_CACHE_SECONDS = 7 * 86_400
+
+// The sender names the type: anything a browser would run (HTML, SVG) on our origin is only ever downloaded.
+const VIEWABLE = new Set([
+  'application/pdf',
+  'image/gif',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+])
+
+const attachmentResponse = (file: {
+  bytes: Buffer
+  filename: string
+  mimeType: string
+}) => {
+  const isViewable = VIEWABLE.has(file.mimeType.toLowerCase())
+  return new Response(new Uint8Array(file.bytes), {
+    headers: {
+      'cache-control': 'private, max-age=86400',
+      'content-disposition': `${isViewable ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(file.filename)}`,
+      'content-type': isViewable ? file.mimeType : 'application/octet-stream',
+      'x-content-type-options': 'nosniff',
+    },
+  })
+}
 
 const app = new Hono()
   .use(compress())
@@ -122,6 +149,26 @@ const app = new Hono()
       return c.notFound()
     }
     return spokenResponse(userId, () => spokenReading(userId))
+  })
+  .get('/attachments/:messageId/:partId', async (c) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session) {
+      return c.notFound()
+    }
+    const file = await Result.tryPromise(() =>
+      readAttachment(
+        session.user.id,
+        c.req.param('messageId'),
+        c.req.param('partId')
+      )
+    )
+    if (file.isErr()) {
+      if (!(file.error.cause instanceof NotFoundError)) {
+        logError('attachment read', file.error.cause)
+      }
+      return c.notFound()
+    }
+    return attachmentResponse(file.value)
   })
   .get('/site-icon/:domain', async (c) => {
     if (!(await auth.api.getSession({ headers: c.req.raw.headers }))) {

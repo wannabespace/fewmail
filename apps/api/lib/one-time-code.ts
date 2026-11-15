@@ -1,6 +1,6 @@
-// Suffixes count too: "Bestätigungscode", "verificatiecode", "doğrulama kodu".
+// Suffixes count too: "Bestätigungscode", "verificatiecode", "doğrulama kodu". Inside a word they do not: "hotpot", "footprint", "Kodak", "a one-time deal".
 const KEYWORD =
-  /code|kod|código|codice|код|passcode|otp|one[- ]time|verif|(?<!\p{L})pin(?!\p{L})|コード|認証|验证码|驗證碼|校验码|动态码|인증|코드|कोड|ओटीपी/giu
+  /codes?(?!\p{L})|kod(?:u|un|unuz|em|en|y)?(?!\p{L})|código|codice|код|(?<!\p{L})otp(?!\p{L})|one[- ]time[- ](?:code|pass|pin)|(?<!\p{L})verif|(?<!\p{L})pin(?!\p{L})|コード|認証|验证码|驗證碼|校验码|动态码|인증|코드|कोड|ओटीपी/giu
 
 // "Promo code SAVE20", "zip code 10001" and "order #123456" are not sign-in codes.
 const NOT_A_CODE =
@@ -11,15 +11,27 @@ const CANDIDATE =
 
 // "support.google.com/code/…" once matched the sender's street number in the footer.
 const LINK = /\S+:\/\/\S+/gu
+// "FSSC 22000", "ISO 9001": a standard's number follows its acronym; "OTP 4821" is still a code.
+const AFTER_ACRONYM = /(?<!\p{L})(?<acronym>[A-Z]{2,}) $/u
 const YEAR = /^(?:19|20)\d\d$/u
 const AFTER = 100
 const BEFORE = 60
 const BODY_READ = 3000
 
+const isStandardNumber = (before: string) => {
+  const acronym = before.match(AFTER_ACRONYM)?.groups?.acronym
+  return (
+    acronym !== undefined && !new RegExp(KEYWORD.source, 'iu').test(acronym)
+  )
+}
+
 const candidates = (text: string) =>
   [...text.matchAll(CANDIDATE)]
+    .filter(
+      ({ 0: match, index }) =>
+        !YEAR.test(match) && !isStandardNumber(text.slice(0, index))
+    )
     .map(([match]) => match)
-    .filter((match) => !YEAR.test(match))
 
 const codeIn = (text: string) => {
   for (const keyword of text.matchAll(KEYWORD)) {

@@ -1,6 +1,9 @@
 import { FOLLOWUP_DAYS } from '@fewmail/shared/agent'
-import { htmlToText } from '@fewmail/shared/email'
+import { ATTACHMENTS_MAX_BYTES, htmlToText } from '@fewmail/shared/email'
+import type { OutgoingAttachment } from '@fewmail/shared/email'
+import { AttachmentGroup } from '@fewmail/ui/components/attachment'
 import { Button } from '@fewmail/ui/components/button'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,16 +20,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@fewmail/ui/components/select'
+import {
+  Attachment01Icon,
+  Cancel01Icon,
+  Delete02Icon,
+} from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { useT } from '~/lib/i18n'
+import { useFileSize, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 import { toastDeferred } from '~/lib/undo'
 
+import { FileChip } from '../attachments'
 import type { ComposerEditorHandle } from '../composer/composer-editor'
 import { ComposerEditor } from '../composer/composer-editor'
 import { useWithAgent } from '../upgrade-dialog'
@@ -39,6 +49,32 @@ import { SendLater } from './send-later'
 const AUTOSAVE_MS = 1000
 
 const isValid = (recipient: string) => validRecipients([recipient])
+
+const base64Of = (file: File) =>
+  // oxlint-disable-next-line promise/avoid-new -- FileReader has no promise API, and it encodes large files without a copy per byte
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.addEventListener('load', () =>
+      resolve(String(reader.result).split(',')[1] ?? '')
+    )
+    reader.addEventListener('error', () => reject(reader.error))
+    reader.readAsDataURL(file)
+  })
+
+const MIME_TYPE = /^[\w.+-]+\/[\w.+-]+$/u
+
+const attachmentOf = async (file: File): Promise<OutgoingAttachment> => ({
+  data: await base64Of(file),
+  filename: file.name,
+  id: crypto.randomUUID(),
+  mimeType: MIME_TYPE.test(file.type) ? file.type : 'application/octet-stream',
+  size: file.size,
+})
+
+/** Once a saved draft holds a file, later saves name it instead of sending it up again. */
+const withoutData = ({ data: _data, ...file }: OutgoingAttachment) => file
+
+const hasFiles = (transfer: DataTransfer) => transfer.types.includes('Files')
 
 const focusAtEnd = (field: { focus: () => void } | null) => {
   field?.focus()
@@ -55,6 +91,7 @@ export const ComposeForm = ({
   onDone: () => void
 }) => {
   const t = useT()
+  const fileSize = useFileSize()
   const hasAgent = useHasAgent()
   const withAgent = useWithAgent()
   const { openCompose, send } = useCompose()
@@ -70,6 +107,9 @@ export const ComposeForm = ({
   const { data: snippets } = useQuery(orpc.snippets.list.queryOptions())
   const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
   const [mailboxId, setMailboxId] = useState(draft.mailboxId)
+  const [attachments, setAttachments] = useState(draft.attachments)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInput = useRef<HTMLInputElement>(null)
 
   const queryClient = useQueryClient()
   const writeDraft = useMutation(orpc.mail.writeDraft.mutationOptions())
@@ -87,6 +127,7 @@ export const ComposeForm = ({
 
   const save = useEffectEvent(() => {
     const mail = {
+      attachments,
       bcc: draft.bcc,
       cc: parseRecipients(cc).filter(isValid),
       ...body.current,
@@ -99,7 +140,13 @@ export const ComposeForm = ({
       to: parseRecipients(to).filter(isValid),
     }
     const isBlank =
-      !mail.subject.trim() && mail.to.length === 0 && !mail.text.trim()
+      !mail.subject.trim() &&
+      mail.to.length === 0 &&
+      !mail.text.trim() &&
+      mail.attachments.length === 0
+    const uploaded = new Set(
+      mail.attachments.filter(({ data }) => data).map(({ id }) => id)
+    )
     const persist = async () => {
       if (isBlank && !gmailDraft.current) {
         return
@@ -108,6 +155,11 @@ export const ComposeForm = ({
         ...mail,
         ...(gmailDraft.current && { draft: gmailDraft.current }),
       })
+      setAttachments((current) =>
+        current.map((file) =>
+          uploaded.has(file.id) ? withoutData(file) : file
+        )
+      )
       setIsSaved(true)
       void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
     }
@@ -134,15 +186,48 @@ export const ComposeForm = ({
       void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
     }
   }
+  const addFiles = async (
+    files: File[],
+    source: 'drop' | 'paste' | 'picker'
+  ) => {
+    if (files.length === 0) {
+      return
+    }
+    const total = [...attachments, ...files].reduce(
+      (sum, { size }) => sum + size,
+      0
+    )
+    if (total > ATTACHMENTS_MAX_BYTES) {
+      toast.error(
+        t.compose.attachmentsTooLarge(fileSize(ATTACHMENTS_MAX_BYTES))
+      )
+      return
+    }
+    const added = await Promise.all(files.map(attachmentOf))
+    setAttachments((current) => [...current, ...added])
+    edit()
+    posthog.capture('attachment_added', { count: files.length, source })
+  }
+  const removeFile = (id: string) => {
+    setAttachments((current) => current.filter((file) => file.id !== id))
+    edit()
+  }
+  const pickFiles = () => fileInput.current?.click()
+  useHotkey('Mod+Shift+U', pickFiles, { ignoreInputs: false })
+
   const discard = () => {
     isLeaving.current = true
-    if (![to, cc, subject, body.current.text].some((text) => text.trim())) {
+    if (
+      attachments.length === 0 &&
+      ![to, cc, subject, body.current.text].some((text) => text.trim())
+    ) {
       onDone()
       void saving.current.then(removeDraft)
       return
     }
     const kept = {
       ...draft,
+      attachments,
       cc: parseRecipients(cc),
       html: body.current.html,
       mailboxId,
@@ -189,6 +274,7 @@ export const ComposeForm = ({
     }
     const mail = {
       ...draft,
+      attachments,
       cc: copies,
       html: editor.getHtml(),
       mailboxId,
@@ -216,7 +302,41 @@ export const ComposeForm = ({
   )
 
   return (
-    <div className="flex flex-col gap-3">
+    // Capture: the editor would paste a copied file's name as text, or drop it nowhere.
+    <div
+      className="relative flex flex-col gap-3"
+      onDragOver={(event) => {
+        if (hasFiles(event.dataTransfer)) {
+          event.preventDefault()
+          setIsDragging(true)
+        }
+      }}
+      onDragLeave={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setIsDragging(false)
+        }
+      }}
+      onDropCapture={(event) => {
+        if (hasFiles(event.dataTransfer)) {
+          event.preventDefault()
+          event.stopPropagation()
+          setIsDragging(false)
+          void addFiles([...event.dataTransfer.files], 'drop')
+        }
+      }}
+      onPasteCapture={(event) => {
+        if (event.clipboardData.files.length > 0) {
+          event.preventDefault()
+          event.stopPropagation()
+          void addFiles([...event.clipboardData.files], 'paste')
+        }
+      }}
+    >
+      {isDragging && (
+        <div className="border-primary/40 bg-background/80 text-muted-foreground pointer-events-none absolute -inset-2 z-20 flex items-center justify-center rounded-xl border-2 border-dashed text-sm">
+          {t.compose.dropFiles}
+        </div>
+      )}
       {!draft.replyToMessageId && mailboxes.length > 1 && (
         <Select
           items={mailboxes.map(({ email, id }) => ({
@@ -353,6 +473,35 @@ export const ComposeForm = ({
             : undefined
         }
       />
+      {attachments.length > 0 && (
+        <AttachmentGroup>
+          {attachments.map((file) => (
+            <FileChip
+              key={file.id}
+              file={file}
+              actions={
+                <IconButton
+                  icon={Cancel01Icon}
+                  label={t.compose.removeAttachment}
+                  size="icon-xs"
+                  variant="ghost-muted"
+                  onClick={() => removeFile(file.id)}
+                />
+              }
+            />
+          ))}
+        </AttachmentGroup>
+      )}
+      <input
+        ref={fileInput}
+        type="file"
+        multiple
+        hidden
+        onChange={(event) => {
+          void addFiles([...(event.target.files ?? [])], 'picker')
+          event.target.value = ''
+        }}
+      />
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={() => submit()} shortcut={<Kbd>⌘⏎</Kbd>}>
           {t.compose.send}
@@ -384,12 +533,24 @@ export const ComposeForm = ({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
+        <IconButton
+          icon={Attachment01Icon}
+          label={t.compose.attach}
+          shortcut={<Kbd>⇧⌘U</Kbd>}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={pickFiles}
+        />
         <span className="text-muted-foreground ml-auto min-w-0 truncate text-xs">
           {isSaved && t.compose.draftSaved}
         </span>
-        <Button size="sm" variant="ghost-muted" onClick={discard}>
-          {t.compose.discard}
-        </Button>
+        <IconButton
+          icon={Delete02Icon}
+          label={t.compose.discard}
+          size="icon-sm"
+          variant="ghost-destructive"
+          onClick={discard}
+        />
       </div>
     </div>
   )

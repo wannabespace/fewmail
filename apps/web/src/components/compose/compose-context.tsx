@@ -1,5 +1,6 @@
 import type { OutboxMode } from '@fewmail/shared/agent'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import type { OutgoingAttachment } from '@fewmail/shared/email'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
@@ -10,6 +11,7 @@ import { useDates, useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
 
 export interface Draft {
+  attachments: OutgoingAttachment[]
   bcc: string[]
   cc: string[]
   gmailDraft: { id: string; mailboxId: string } | null
@@ -29,6 +31,7 @@ declare module '@tanstack/react-router' {
 }
 
 export const EMPTY_DRAFT: Draft = {
+  attachments: [],
   bcc: [],
   cc: [],
   gmailDraft: null,

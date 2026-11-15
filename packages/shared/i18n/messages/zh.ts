@@ -147,6 +147,10 @@ export const zh: Messages = {
     thinking: '正在查看你的邮件…',
   },
   compose: {
+    attach: '添加附件',
+    attachmentsTooLarge: (limit: string) => `附件总大小不能超过 ${limit}。`,
+    dropFiles: '拖放文件以添加附件',
+    removeAttachment: '移除',
     discarded: '草稿已丢弃',
     backInQueue: '已取消。草稿已回到“首页”。',
     canceled: '已取消。你的邮件已回到编辑器。',
@@ -274,6 +278,7 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
+    attach: '添加附件',
     done: '完成',
     openLink: '打开链接',
     writeReminder: '写一封提醒',

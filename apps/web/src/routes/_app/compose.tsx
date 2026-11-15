@@ -12,7 +12,7 @@ const ComposePage = () => {
   const router = useRouter()
   const hasAgent = useHasAgent()
   const state = useLocation({ select: (location) => location.state })
-  const draft = state.compose ?? EMPTY_DRAFT
+  const draft = { ...EMPTY_DRAFT, ...state.compose }
   const leave = () =>
     router.history.canGoBack()
       ? router.history.back()
@@ -32,6 +32,7 @@ const ComposePage = () => {
       <KeyHints
         hints={[
           ['⌘⏎', t.keys.send],
+          ['⇧⌘U', t.keys.attach],
           ['esc', t.keys.close],
         ]}
       />

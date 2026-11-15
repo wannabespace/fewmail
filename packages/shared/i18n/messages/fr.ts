@@ -106,6 +106,11 @@ export const fr: Messages = {
     thinking: 'Je parcours vos e-mails…',
   },
   compose: {
+    attach: 'Joindre des fichiers',
+    attachmentsTooLarge: (limit: string) =>
+      `Les pièces jointes peuvent totaliser jusqu'à ${limit}.`,
+    dropFiles: 'Déposez les fichiers pour les joindre',
+    removeAttachment: 'Retirer',
     discarded: 'Brouillon supprimé',
     backInQueue: 'Annulé. Le brouillon est de retour dans Accueil.',
     canceled: 'Annulé. Votre e-mail est de retour dans l’éditeur.',
@@ -778,6 +783,7 @@ export const fr: Messages = {
     reload: 'Recharger',
   },
   keys: {
+    attach: 'joindre',
     done: 'fait',
     openLink: 'ouvrir le lien',
     writeReminder: 'écrire une relance',

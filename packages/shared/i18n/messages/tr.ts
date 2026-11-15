@@ -452,6 +452,11 @@ export const tr: Messages = {
     title: 'Söz verdin',
   },
   compose: {
+    attach: 'Dosya ekle',
+    attachmentsTooLarge: (limit: string) =>
+      `Ekler toplamda en fazla ${limit} olabilir.`,
+    dropFiles: 'Eklemek için dosyaları bırakın',
+    removeAttachment: 'Kaldır',
     discarded: 'Taslak silindi',
     backInQueue: 'İptal edildi. Taslak Ana Sayfa’ya geri döndü.',
     canceled: 'İptal edildi. E-postan düzenleyiciye geri döndü.',
@@ -531,6 +536,7 @@ export const tr: Messages = {
     reload: 'Yenile',
   },
   keys: {
+    attach: 'ekle',
     done: 'tamam',
     openLink: 'bağlantıyı aç',
     writeReminder: 'hatırlatma yaz',

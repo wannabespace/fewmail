@@ -1,5 +1,9 @@
 import { isBulk } from '@fewmail/shared/agent'
-import { senderDomainOrAddress, textToHtml } from '@fewmail/shared/email'
+import {
+  FORWARDED_PREFIX,
+  senderDomainOrAddress,
+  textToHtml,
+} from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
   Alert,
@@ -67,6 +71,7 @@ import { client, orpc, refetchChanged } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { UNDO_TOAST_MS } from '~/lib/undo'
 
+import { cidSource, listedAttachments, MessageAttachments } from './attachments'
 import { AddToBoardItems } from './board-entries'
 import type { Draft } from './compose/compose-context'
 import { EMPTY_DRAFT } from './compose/compose-context'
@@ -120,6 +125,14 @@ const SNOOZE_OPTIONS: SnoozePreset[] = [
 
 const forwardDraft = (message: ThreadMessage, header: string): Draft => ({
   ...EMPTY_DRAFT,
+  attachments: listedAttachments(message).map(
+    ({ filename, mimeType, partId, size }) => ({
+      filename,
+      id: `${FORWARDED_PREFIX}${partId}`,
+      mimeType,
+      size,
+    })
+  ),
   html: `<p></p><blockquote>${textToHtml(header)}${textToHtml(message.body)}</blockquote>`,
   mode: 'forward',
   replyToMessageId: message.id,
@@ -164,8 +177,17 @@ const inMailTarget = (mail: Document, id: string) =>
   mail.querySelector(`[id="${CSS.escape(id)}"], a[name="${CSS.escape(id)}"]`)
 
 /** A link's own `target` beats our `<base>`, and a page opened inside the frame refuses to be framed: every link leaves for a new tab, jumps within the mail, or stops being a link. */
-const pinLinks = (html: string) => {
+const pinLinks = (
+  html: string,
+  cidImage?: (src: string) => string | undefined
+) => {
   const mail = new DOMParser().parseFromString(FRAME_HEAD + html, 'text/html')
+  for (const image of mail.querySelectorAll('img[src^="cid:" i]')) {
+    const src = cidImage?.(image.getAttribute('src') ?? '')
+    if (src) {
+      image.setAttribute('src', src)
+    }
+  }
   for (const meta of mail.querySelectorAll('meta[http-equiv="refresh" i]')) {
     meta.remove()
   }
@@ -247,10 +269,12 @@ const frameHeights = new Map<string, number>()
  * With `cite`, the passage it came from is centred and lit for a moment.
  */
 export const HtmlBody = ({
+  cidImage,
   cite,
   html,
   id,
 }: {
+  cidImage?: (src: string) => string | undefined
   cite?: string
   html: string
   id: string
@@ -298,7 +322,7 @@ export const HtmlBody = ({
       ref={watch}
       data-mask
       title="email"
-      srcDoc={pinLinks(html)}
+      srcDoc={pinLinks(html, cidImage)}
       sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
       style={{ '--frame-height': `${height}px` } as CSSProperties}
       className="h-(--frame-height) w-full rounded-xl bg-white"
@@ -357,6 +381,7 @@ export const ThreadPeek = ({
       <div className="min-h-0 overflow-y-auto p-2">
         {message ? (
           <HtmlBody
+            cidImage={cidSource(message)}
             cite={cite}
             html={withoutPixels(message.html ?? textToHtml(message.body))}
             id={message.id}
@@ -510,7 +535,11 @@ const MessageSection = ({
         </div>
       )}
       {message.html ? (
-        <HtmlBody html={message.html} id={message.id} />
+        <HtmlBody
+          cidImage={cidSource(message)}
+          html={message.html}
+          id={message.id}
+        />
       ) : (
         <p
           data-mask
@@ -519,6 +548,7 @@ const MessageSection = ({
           {message.body.replaceAll(/\n\s*\n\s*\n/gu, '\n\n').trim()}
         </p>
       )}
+      <MessageAttachments message={message} />
     </section>
   )
 }

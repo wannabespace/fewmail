@@ -147,6 +147,10 @@ export const hi: Messages = {
     thinking: 'आपके मेल देखे जा रहे हैं…',
   },
   compose: {
+    attach: 'फ़ाइलें जोड़ें',
+    attachmentsTooLarge: (limit: string) => `अटैचमेंट कुल ${limit} तक हो सकते हैं।`,
+    dropFiles: 'जोड़ने के लिए फ़ाइलें यहाँ छोड़ें',
+    removeAttachment: 'हटाएँ',
     discarded: 'ड्राफ़्ट हटाया गया',
     backInQueue: 'रद्द किया गया। ड्राफ़्ट वापस होम पर है।',
     canceled: 'रद्द किया गया। आपका ईमेल वापस एडिटर में है।',
@@ -278,6 +282,7 @@ export const hi: Messages = {
     reload: 'रीलोड करें',
   },
   keys: {
+    attach: 'जोड़ें',
     done: 'हो गया',
     openLink: 'लिंक खोलें',
     writeReminder: 'रिमाइंडर लिखें',

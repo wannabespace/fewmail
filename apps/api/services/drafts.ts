@@ -10,7 +10,7 @@ import {
 import { toGmailQueries } from './ask'
 import { ownMailbox } from './mailboxes'
 import type { DraftRef, OutgoingMail } from './outbox'
-import { mailHeaders } from './outbox'
+import { filesOf, mailHeaders } from './outbox'
 
 const PAGE_SIZE = 50
 
@@ -23,12 +23,21 @@ export const saveDraft = async (
   userId: string,
   mail: Omit<OutgoingMail, 'sendAt' | 'remindAfterDays' | 'actionId'>
 ): Promise<DraftRef> => {
-  const headers = await mailHeaders(userId, mail)
+  const [headers, attachments] = await Promise.all([
+    mailHeaders(userId, mail),
+    filesOf(userId, mail),
+  ])
   const mailbox = await ownMailbox(userId, headers.mailboxId)
   const isSameMailbox = mail.draft?.mailboxId === mailbox.id
   const saved = await saveGmailDraft(
     mailbox,
-    { ...mail, bcc: mail.bcc ?? [], cc: mail.cc ?? [], ...headers },
+    {
+      ...mail,
+      attachments,
+      bcc: mail.bcc ?? [],
+      cc: mail.cc ?? [],
+      ...headers,
+    },
     isSameMailbox ? mail.draft?.id : undefined
   )
   if (mail.draft && !isSameMailbox) {
@@ -99,6 +108,7 @@ export const listDrafts = async (
           threadId === draft.threadId && mailboxId === draft.mailboxId
       )
       return {
+        attachments: draft.files,
         bcc: draft.bcc,
         cc: draft.cc,
         html: draft.html,
@@ -114,6 +124,7 @@ export const listDrafts = async (
       }
     }),
     ...failed.map((mail) => ({
+      attachments: [],
       bcc: mail.bcc,
       cc: mail.cc,
       html: mail.html,

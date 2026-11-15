@@ -12,6 +12,7 @@ import type {
   RuleEffect,
   SimpleMatchField,
 } from '@fewmail/shared/agent'
+import type { MailAttachment, OutgoingAttachment } from '@fewmail/shared/email'
 import { sql } from 'drizzle-orm'
 import * as d from 'drizzle-orm/pg-core'
 
@@ -97,6 +98,8 @@ export const messages = d.snakeCase.table(
     fromEmail: searchableText().notNull(),
     fromName: encryptedText(),
     gmailId: d.text().notNull(),
+    /** Null for mail stored before it was kept: read again from Gmail when first opened (`fillFromGmail`). */
+    attachments: encryptedJson<MailAttachment[]>(),
     hasAttachments: d.boolean().notNull(),
     /** Empty when the email has no HTML part; null until first opened for held mail stored without it (`keepsHtml: false`). */
     html: encryptedText(),
@@ -210,6 +213,8 @@ export const outbox = d.snakeCase.table(
   {
     ...baseTable,
     actionId: d.uuid().references(() => actions.id, { onDelete: 'set null' }),
+    /** The files themselves, kept only until Gmail takes the mail: sending empties it. */
+    attachments: encryptedJson<Required<OutgoingAttachment>[]>(),
     bcc: searchableTextArray().notNull(),
     cc: searchableTextArray().notNull(),
     error: encryptedText(),

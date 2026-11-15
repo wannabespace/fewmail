@@ -465,6 +465,11 @@ export const pt: Messages = {
     title: 'Você prometeu',
   },
   compose: {
+    attach: 'Anexar arquivos',
+    attachmentsTooLarge: (limit: string) =>
+      `Os anexos podem somar até ${limit}.`,
+    dropFiles: 'Solte os arquivos para anexar',
+    removeAttachment: 'Remover',
     discarded: 'Rascunho descartado',
     backInQueue: 'Cancelado. O rascunho voltou para o Início.',
     canceled: 'Cancelado. Seu e-mail voltou para o editor.',
@@ -548,6 +553,7 @@ export const pt: Messages = {
     reload: 'Recarregar',
   },
   keys: {
+    attach: 'anexar',
     done: 'feito',
     openLink: 'abrir link',
     writeReminder: 'escrever um lembrete',

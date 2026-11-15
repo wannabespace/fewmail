@@ -149,7 +149,16 @@ const settingsInput = type({
 
 const draftRef = type({ id: 'string', mailboxId: 'string.uuid' })
 
+const attachmentInput = type({
+  'data?': 'string.base64',
+  filename: 'string <= 255',
+  id: /^[\w.-]{1,100}$/u,
+  mimeType: /^[\w.+-]+\/[\w.+-]+$/u,
+  size: 'number.integer >= 0',
+})
+
 const draftInput = type({
+  'attachments?': attachmentInput.array(),
   'bcc?': 'string.email[]',
   'cc?': 'string.email[]',
   'draft?': draftRef,

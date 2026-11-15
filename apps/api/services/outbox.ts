@@ -2,17 +2,30 @@ import { db } from '@fewmail/db'
 import { actions, mailboxes, messages, outbox } from '@fewmail/db/schema'
 import type { OutboxMode } from '@fewmail/shared/agent'
 import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
-import { forwardSubject, replySubject } from '@fewmail/shared/email'
+import {
+  ATTACHMENTS_MAX_BYTES,
+  FORWARDED_PREFIX,
+  forwardSubject,
+  replySubject,
+} from '@fewmail/shared/email'
+import type { OutgoingAttachment } from '@fewmail/shared/email'
 import { Result } from 'better-result'
 import { addSeconds, subMinutes } from 'date-fns'
 import { and, eq, inArray, isNull, lte } from 'drizzle-orm'
 
-import { deleteDraft, GmailError, sendMail } from '../lib/gmail'
+import {
+  deleteDraft,
+  getDraftFiles,
+  GmailError,
+  saveDraft as saveGmailDraft,
+  sendMail,
+} from '../lib/gmail'
 import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { logError, logErrorAs } from '../lib/log'
 import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
-import { NotFoundError } from './mail-errors'
+import { readAttachment } from './attachments'
+import { AttachmentsTooLargeError, NotFoundError } from './mail-errors'
 import { ownMailbox } from './mailboxes'
 import { scheduleFollowup } from './reminders'
 import { changeThreadLabels } from './thread-labels'
@@ -33,6 +46,7 @@ export interface DraftRef {
 
 export interface OutgoingMail {
   actionId?: string
+  attachments?: OutgoingAttachment[]
   bcc?: string[]
   cc?: string[]
   draft?: DraftRef
@@ -103,6 +117,54 @@ export const mailHeaders = async (userId: string, mail: OutgoingMail) => {
   }
 }
 
+/**
+ * Every file with its bytes: one without `data` is taken from the saved draft the mail was written in,
+ * else, when forwarding, from the forwarded email's own part.
+ */
+export const filesOf = async (
+  userId: string,
+  {
+    attachments = [],
+    draft,
+    mode,
+    replyToMessageId,
+  }: Pick<OutgoingMail, 'attachments' | 'draft' | 'mode' | 'replyToMessageId'>
+) => {
+  if (attachments.length === 0) {
+    return null
+  }
+  const saved =
+    draft && attachments.some(({ data }) => !data)
+      ? await getDraftFiles(await ownMailbox(userId, draft.mailboxId), draft.id)
+      : []
+  const forwardedPart = async (id: string) => {
+    const partId = id.startsWith(FORWARDED_PREFIX)
+      ? id.slice(FORWARDED_PREFIX.length)
+      : null
+    if (mode !== 'forward' || !replyToMessageId || partId === null) {
+      return
+    }
+    const { bytes } = await readAttachment(userId, replyToMessageId, partId)
+    return bytes.toString('base64')
+  }
+  const files = await Promise.all(
+    attachments.map(async (file) => {
+      const data =
+        file.data ??
+        (await saved.find(({ id }) => id === file.id)?.read()) ??
+        (await forwardedPart(file.id))
+      if (!data) {
+        throw new NotFoundError('Attachment not found')
+      }
+      return { ...file, data, size: Buffer.byteLength(data, 'base64') }
+    })
+  )
+  if (files.reduce((sum, { size }) => sum + size, 0) > ATTACHMENTS_MAX_BYTES) {
+    throw new AttachmentsTooLargeError('Attachments are too large')
+  }
+  return files
+}
+
 /** An approved draft goes back to the queue; the user's own mail is listed among the drafts as not sent. */
 const markFailed = async (
   row: Pick<typeof outbox.$inferSelect, 'actionId' | 'id' | 'userId'>,
@@ -162,7 +224,10 @@ export const dispatchOutbox = async (id: string) => {
   }
 
   // Gmail already sent it: a failure below must never mark it failed, or it is sent twice.
-  await db.update(outbox).set({ status: 'sent' }).where(eq(outbox.id, id))
+  await db
+    .update(outbox)
+    .set({ attachments: null, status: 'sent' })
+    .where(eq(outbox.id, id))
   capture(claimed.userId, 'mail_sent', { approved: Boolean(claimed.actionId) })
   const recorded = await Result.tryPromise(async () => {
     if (claimed.threadId) {
@@ -200,12 +265,16 @@ const arm = (id: string, sendAt: Date) => {
 }
 
 export const scheduleMail = async (userId: string, mail: OutgoingMail) => {
-  const headers = await mailHeaders(userId, mail)
+  const [headers, attachments] = await Promise.all([
+    mailHeaders(userId, mail),
+    filesOf(userId, mail),
+  ])
   const sendAt = mail.sendAt ?? addSeconds(new Date(), UNDO_SEND_SECONDS)
   const [row] = await db
     .insert(outbox)
     .values({
       actionId: mail.actionId ?? null,
+      attachments,
       bcc: mail.bcc ?? [],
       cc: mail.cc ?? [],
       html: mail.html,
@@ -230,6 +299,17 @@ export const scheduleMail = async (userId: string, mail: OutgoingMail) => {
       .catch(() => false)
   }
   return scheduled
+}
+
+/** The files go back into a Gmail draft rather than through the browser, which would have to send them up again. */
+const keepAsDraft = async (row: typeof outbox.$inferSelect) => {
+  const mailbox = await ownMailbox(row.userId, row.mailboxId)
+  const draft = await saveGmailDraft(mailbox, row)
+  await db
+    .update(outbox)
+    .set({ attachments: null })
+    .where(eq(outbox.id, row.id))
+  return { id: draft.id, mailboxId: mailbox.id }
 }
 
 /** Undo, or reopening mail that failed: works until the outbox claims the row; an approved agent draft goes back to the queue. */
@@ -257,9 +337,16 @@ export const cancelMail = async (userId: string, id: string) => {
       .where(and(eq(actions.id, canceled.actionId), eq(actions.userId, userId)))
     await announceChange(userId, ACTION_TOPICS)
   }
+  const gmailDraft = canceled.attachments?.length
+    ? await keepAsDraft(canceled)
+    : null
   return {
+    attachments: (canceled.attachments ?? []).map(
+      ({ data: _data, ...file }) => file
+    ),
     bcc: canceled.bcc,
     cc: canceled.cc,
+    gmailDraft,
     html: canceled.html,
     mailboxId: canceled.mailboxId,
     mode: canceled.mode,

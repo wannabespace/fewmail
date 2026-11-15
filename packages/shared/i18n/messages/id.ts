@@ -456,6 +456,10 @@ export const id: Messages = {
     title: 'Kamu sudah berjanji',
   },
   compose: {
+    attach: 'Lampirkan file',
+    attachmentsTooLarge: (limit: string) => `Total lampiran maksimal ${limit}.`,
+    dropFiles: 'Lepas file untuk melampirkan',
+    removeAttachment: 'Hapus',
     discarded: 'Draf dibuang',
     backInQueue: 'Dibatalkan. Draf kembali ke Beranda.',
     canceled: 'Dibatalkan. Email kamu kembali ke editor.',
@@ -535,6 +539,7 @@ export const id: Messages = {
     reload: 'Muat ulang',
   },
   keys: {
+    attach: 'lampirkan',
     done: 'selesai',
     openLink: 'buka tautan',
     writeReminder: 'tulis pengingat',

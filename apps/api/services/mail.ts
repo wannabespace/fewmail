@@ -628,12 +628,18 @@ export const markThreadRead = (userId: string, threadId: string) =>
 export const markThreadUnread = (userId: string, threadId: string) =>
   changeThreadLabels(userId, threadId, { add: ['UNREAD'] })
 
-const fillMissingHtml = async (
+const needsGmail = (message: typeof messages.$inferSelect) =>
+  message.html === null ||
+  (message.attachments === null &&
+    (message.hasAttachments || message.html.includes('cid:')))
+
+/** Held mail is stored without its HTML, and mail stored before attachments were kept has no list of them. */
+const fillFromGmail = async (
   userId: string,
   threadId: string,
-  rows: { message: { gmailId: string; html: string | null; id: string } }[]
+  rows: { message: typeof messages.$inferSelect }[]
 ) => {
-  const missing = rows.filter(({ message }) => message.html === null)
+  const missing = rows.filter(({ message }) => needsGmail(message))
   if (missing.length === 0) {
     return
   }
@@ -644,11 +650,13 @@ const fillMissingHtml = async (
         () => null
       )
       if (parsed) {
-        message.html = parsed.html
-        await db
-          .update(messages)
-          .set({ html: parsed.html })
-          .where(eq(messages.id, message.id))
+        const filled = {
+          attachments: parsed.attachments,
+          code: parsed.code,
+          html: parsed.html,
+        }
+        Object.assign(message, filled)
+        await db.update(messages).set(filled).where(eq(messages.id, message.id))
       }
     })
   )
@@ -691,7 +699,7 @@ export const getThread = async (userId: string, threadId: string) => {
   const latest = rows.findLast(({ message }) => !message.isFromMe)?.message
   const [zombie] = await Promise.all([
     latest?.listUnsubscribe ? zombieStats(latest) : null,
-    fillMissingHtml(userId, threadId, rows),
+    fillFromGmail(userId, threadId, rows),
   ])
 
   return {

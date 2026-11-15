@@ -105,6 +105,11 @@ export const es: Messages = {
     thinking: 'Buscando en tu correo…',
   },
   compose: {
+    attach: 'Adjuntar archivos',
+    attachmentsTooLarge: (limit: string) =>
+      `Los adjuntos pueden sumar hasta ${limit}.`,
+    dropFiles: 'Suelta los archivos para adjuntarlos',
+    removeAttachment: 'Quitar',
     discarded: 'Borrador descartado',
     backInQueue: 'Cancelado. El borrador vuelve a estar en Inicio.',
     canceled: 'Cancelado. Tu correo vuelve a estar en el editor.',
@@ -769,6 +774,7 @@ export const es: Messages = {
     reload: 'Recargar',
   },
   keys: {
+    attach: 'adjuntar',
     done: 'hecho',
     openLink: 'abrir enlace',
     writeReminder: 'escribir un recordatorio',

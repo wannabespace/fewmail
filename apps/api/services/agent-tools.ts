@@ -112,7 +112,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   read_thread: define({
     description:
-      'Read every message of an email thread in full, with the agent analysis and actions for it.',
+      'Read every message of an email thread in full, with the agent analysis and actions for it and the names, types and sizes of its attached files.',
     input: { threadId: z.string() },
     run: ({ threadId }) => getThread(userId, threadId),
   }),

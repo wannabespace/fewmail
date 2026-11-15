@@ -476,6 +476,11 @@ export const pl: Messages = {
     title: 'Obiecałeś',
   },
   compose: {
+    attach: 'Załącz pliki',
+    attachmentsTooLarge: (limit: string) =>
+      `Załączniki mogą mieć łącznie do ${limit}.`,
+    dropFiles: 'Upuść pliki, aby je załączyć',
+    removeAttachment: 'Usuń',
     discarded: 'Wersja robocza odrzucona',
     backInQueue: 'Anulowano. Szkic wrócił na stronę główną.',
     canceled: 'Anulowano. Twój e-mail wrócił do edytora.',
@@ -561,6 +566,7 @@ export const pl: Messages = {
     reload: 'Odśwież',
   },
   keys: {
+    attach: 'załącz',
     done: 'gotowe',
     openLink: 'otwórz link',
     writeReminder: 'napisz przypomnienie',

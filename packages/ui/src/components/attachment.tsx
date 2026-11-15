@@ -123,7 +123,10 @@ const AttachmentTrigger = ({
     defaultTagName: 'button',
     props: mergeProps<'button'>(
       {
-        className: cn('absolute inset-0 z-10 outline-none', className),
+        className: cn(
+          'absolute inset-0 z-10 cursor-pointer outline-none',
+          className
+        ),
         type: render ? type : (type ?? 'button'),
       },
       props

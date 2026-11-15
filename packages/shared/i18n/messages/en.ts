@@ -387,6 +387,11 @@ export const en = {
     title: 'You promised',
   },
   compose: {
+    attach: 'Attach files',
+    attachmentsTooLarge: (limit: string) =>
+      `Attachments can add up to ${limit}.`,
+    dropFiles: 'Drop files to attach',
+    removeAttachment: 'Remove',
     discarded: 'Draft discarded',
     backInQueue: 'Canceled. The draft is back on Home.',
     canceled: 'Canceled. Your email is back in the editor.',
@@ -546,6 +551,7 @@ export const en = {
     reload: 'Reload',
   },
   keys: {
+    attach: 'attach',
     done: 'done',
     openLink: 'open link',
     writeReminder: 'write a reminder',

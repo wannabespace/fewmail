@@ -466,6 +466,11 @@ export const nl: Messages = {
     title: 'Je hebt beloofd',
   },
   compose: {
+    attach: 'Bestanden bijvoegen',
+    attachmentsTooLarge: (limit: string) =>
+      `Bijlagen mogen samen tot ${limit} zijn.`,
+    dropFiles: 'Zet bestanden neer om ze bij te voegen',
+    removeAttachment: 'Verwijderen',
     discarded: 'Concept verworpen',
     backInQueue: 'Geannuleerd. Het concept staat weer op Home.',
     canceled: 'Geannuleerd. Je e-mail staat weer in de editor.',
@@ -549,6 +554,7 @@ export const nl: Messages = {
     reload: 'Herladen',
   },
   keys: {
+    attach: 'bijvoegen',
     done: 'klaar',
     openLink: 'link openen',
     writeReminder: 'herinnering schrijven',

@@ -106,6 +106,11 @@ export const it: Messages = {
     thinking: 'Sto cercando nella tua posta…',
   },
   compose: {
+    attach: 'Allega file',
+    attachmentsTooLarge: (limit: string) =>
+      `Gli allegati possono arrivare in tutto a ${limit}.`,
+    dropFiles: 'Rilascia i file per allegarli',
+    removeAttachment: 'Rimuovi',
     discarded: 'Bozza eliminata',
     backInQueue: 'Annullato. La bozza è di nuovo in Home.',
     canceled: 'Annullato. La tua email è di nuovo nell’editor.',
@@ -772,6 +777,7 @@ export const it: Messages = {
     reload: 'Ricarica',
   },
   keys: {
+    attach: 'allega',
     done: 'fatto',
     openLink: 'apri link',
     writeReminder: 'scrivi un sollecito',
