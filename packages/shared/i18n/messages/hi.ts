@@ -1545,7 +1545,7 @@ export const hi: Messages = {
       }) =>
         `जोड़ में नहीं: ${[
           currency > 0 && `दूसरी मुद्रा में: ${currency}`,
-          payment > 0 && `बकाया, असफल या प्राप्त: ${payment}`,
+          payment > 0 && `बकाया, असफल, रिफ़ंड या प्राप्त: ${payment}`,
           amount > 0 && `बिना राशि: ${amount}`,
         ]
           .filter(Boolean)
@@ -1578,7 +1578,6 @@ export const hi: Messages = {
       edited: 'आपने बदला',
       nextOn: (date: string) => `अगली ${date}`,
       remove: 'इस बोर्ड का नहीं',
-      repeatOf: (date: string) => `${date} वाला ही भुगतान, एक बार गिना गया`,
       removed: 'बोर्ड से हटा दिया। आगे से इसका ध्यान रखेगा।',
     },
     expected: (when: string) => `अपेक्षित ${when}`,
@@ -1698,40 +1697,24 @@ export const hi: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
+      attention: 'ध्यान दें',
+      emails: (n: number) =>
+        plural('hi', n, {
+          one: (count) => `${count} ईमेल`,
+          other: (count) => `${count} ईमेल`,
+        }),
+      next: (title: string, date: string, amount: string | null) =>
+        `अगला: ${title}, ${date}${amount ? `, ${amount}` : ''}।`,
+      perMonth: (amount: string, n: number) => {
         const payments = plural('hi', n, {
-          one: (count) => `${count} भुगतान`,
-          other: (count) => `${count} भुगतान`,
+          one: (count) => `${count} नियमित भुगतान`,
+          other: (count) => `${count} नियमित भुगतानों`,
         })
-        return `${amount} = ${payments}, रिफ़ंड घटाकर।`
+        return `आप ${payments} के लिए हर महीने ${amount} देते हैं।`
       },
-      dates: (n: number) =>
-        plural('hi', n, {
-          one: (count) => `${count} तारीख`,
-          other: (count) => `${count} तारीखें`,
-        }),
-      lastMonth: 'पिछला महीना',
-      left: (parts: string[]) => `इसमें शामिल नहीं: ${parts.join(', ')}।`,
-      leftOut: {
-        failed: (n: number) => `असफल: ${n}`,
-        noAmount: (n: number) => `बिना राशि: ${n}`,
-        repeats: (n: number) => `पहले गिने गए भुगतान की दोहराई: ${n}`,
-      },
-      payments: (n: number) =>
-        plural('hi', n, {
-          one: (count) => `${count} भुगतान`,
-          other: (count) => `${count} भुगतान`,
-        }),
-      perMonth: (amount: string) => `${amount} हर महीने`,
       received: (amount: string) => `${amount} प्राप्त`,
-      recurring: (n: number) =>
-        plural('hi', n, {
-          one: () => 'एक नियमित',
-          other: (count) => `${count} नियमित`,
-        }),
       refunded: (amount: string) => `${amount} रिफ़ंड`,
-      thisMonth: 'इस महीने',
-      toPay: (n: number) => `बकाया: ${n}`,
+      regular: 'नियमित भुगतान',
       upcoming: 'अगले 30 दिन',
     },
   },

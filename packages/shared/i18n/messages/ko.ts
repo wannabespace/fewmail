@@ -1534,7 +1534,7 @@ export const ko: Messages = {
       }) =>
         `합계 제외: ${[
           currency > 0 && `다른 통화 ${currency}건`,
-          payment > 0 && `미결제·실패·수령 ${payment}건`,
+          payment > 0 && `미결제·실패·환불·수령 ${payment}건`,
           amount > 0 && `금액 없음 ${amount}건`,
         ]
           .filter(Boolean)
@@ -1565,7 +1565,6 @@ export const ko: Messages = {
       edited: '직접 수정함',
       nextOn: (date: string) => `다음 ${date}`,
       remove: '이 보드에서 빼기',
-      repeatOf: (date: string) => `${date}과 같은 결제, 한 번만 계산`,
       removed: '보드에서 뺐어요. 다음부터 참고할게요.',
     },
     expected: (when: string) => `${when} 예정`,
@@ -1679,25 +1678,15 @@ export const ko: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
-        const payments = `결제 ${n}건`
-        return `${amount}은 ${payments}의 합계예요(환불 차감).`
-      },
-      dates: (n: number) => `일정 ${n}건`,
-      lastMonth: '지난달',
-      left: (parts: string[]) => `포함 안 됨: ${parts.join(', ')}.`,
-      leftOut: {
-        failed: (n: number) => `실패 ${n}건`,
-        noAmount: (n: number) => `금액 없음 ${n}건`,
-        repeats: (n: number) => `이미 계산된 결제의 중복 ${n}건`,
-      },
-      payments: (n: number) => `결제 ${n}건`,
-      perMonth: (amount: string) => `월 ${amount}`,
+      attention: '확인 필요',
+      emails: (n: number) => `메일 ${n}통`,
+      next: (title: string, date: string, amount: string | null) =>
+        `다음: ${title} · ${date}${amount ? ` · ${amount}` : ''}`,
+      perMonth: (amount: string, n: number) =>
+        `정기 결제 ${n}건, 월 ${amount}.`,
       received: (amount: string) => `받은 금액 ${amount}`,
-      recurring: (n: number) => `정기 ${n}개`,
       refunded: (amount: string) => `환불 ${amount}`,
-      thisMonth: '이번 달',
-      toPay: (n: number) => `미결제 ${n}건`,
+      regular: '정기 결제',
       upcoming: '향후 30일',
     },
   },

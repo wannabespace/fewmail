@@ -184,7 +184,8 @@ export const nl: Messages = {
       }) =>
         `Niet in de som: ${[
           currency > 0 && `andere valuta: ${currency}`,
-          payment > 0 && `te betalen, mislukt of ontvangen: ${payment}`,
+          payment > 0 &&
+            `te betalen, mislukt, terugbetaald of ontvangen: ${payment}`,
           amount > 0 && `zonder bedrag: ${amount}`,
         ]
           .filter(Boolean)
@@ -220,8 +221,6 @@ export const nl: Messages = {
       edited: 'Door jou bewerkt',
       nextOn: (date: string) => `volgende: ${date}`,
       remove: 'Niet op dit bord',
-      repeatOf: (date: string) =>
-        `dezelfde betaling als op ${date}, één keer geteld`,
       removed: 'Van het bord gehaald. Het leert ervan.',
     },
     expected: (when: string) => `Verwacht ${when}`,
@@ -344,40 +343,24 @@ export const nl: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
+      attention: 'Vraagt aandacht',
+      emails: (n: number) =>
+        plural('nl', n, {
+          one: () => `één e-mail`,
+          other: (count) => `${count} e-mails`,
+        }),
+      next: (title: string, date: string, amount: string | null) =>
+        `Volgende: ${title} op ${date}${amount ? `, ${amount}` : ''}.`,
+      perMonth: (amount: string, n: number) => {
         const payments = plural('nl', n, {
-          one: () => `één betaling`,
-          other: (count) => `${count} betalingen`,
+          one: () => `één vaste betaling`,
+          other: (count) => `${count} vaste betalingen`,
         })
-        return `${amount} is ${payments}, min terugbetalingen.`
+        return `Je betaalt ${amount} per maand voor ${payments}.`
       },
-      dates: (n: number) =>
-        plural('nl', n, {
-          one: () => `één datum`,
-          other: (count) => `${count} datums`,
-        }),
-      lastMonth: 'Vorige maand',
-      left: (parts: string[]) => `Niet meegeteld: ${parts.join(', ')}.`,
-      leftOut: {
-        failed: (n: number) => `mislukt: ${n}`,
-        noAmount: (n: number) => `zonder bedrag: ${n}`,
-        repeats: (n: number) => `herhaling van een al getelde betaling: ${n}`,
-      },
-      payments: (n: number) =>
-        plural('nl', n, {
-          one: () => `één betaling`,
-          other: (count) => `${count} betalingen`,
-        }),
-      perMonth: (amount: string) => `${amount} per maand`,
       received: (amount: string) => `${amount} ontvangen`,
-      recurring: (n: number) =>
-        plural('nl', n, {
-          one: () => 'Eén terugkerend',
-          other: (count) => `${count} terugkerend`,
-        }),
       refunded: (amount: string) => `${amount} terugbetaald`,
-      thisMonth: 'Deze maand',
-      toPay: (n: number) => `te betalen: ${n}`,
+      regular: 'Vaste betalingen',
       upcoming: 'Komende 30 dagen',
     },
   },

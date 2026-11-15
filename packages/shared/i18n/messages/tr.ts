@@ -184,7 +184,8 @@ export const tr: Messages = {
       }) =>
         `Toplama dahil değil: ${[
           currency > 0 && `başka para birimi: ${currency}`,
-          payment > 0 && `ödenecek, başarısız veya alınan: ${payment}`,
+          payment > 0 &&
+            `ödenecek, başarısız, iade edilen veya alınan: ${payment}`,
           amount > 0 && `tutarsız: ${amount}`,
         ]
           .filter(Boolean)
@@ -218,8 +219,6 @@ export const tr: Messages = {
       edited: 'Senin düzenlemen',
       nextOn: (date: string) => `sonraki: ${date}`,
       remove: 'Bu panoya ait değil',
-      repeatOf: (date: string) =>
-        `${date} tarihindekiyle aynı ödeme, bir kez sayıldı`,
       removed: 'Panodan çıkarıldı. Bundan ders çıkarır.',
     },
     expected: (when: string) => `Beklenen: ${when}`,
@@ -337,28 +336,22 @@ export const tr: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
-        const payments = plural('tr', n, { other: (count) => `${count} ödeme` })
-        return `${amount} = ${payments}, iadeler düşüldü.`
+      attention: 'İlgilenmen gerekenler',
+      emails: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `${count} e-posta`,
+        }),
+      next: (title: string, date: string, amount: string | null) =>
+        `Sıradaki: ${title}, ${date}${amount ? `, ${amount}` : ''}.`,
+      perMonth: (amount: string, n: number) => {
+        const payments = plural('tr', n, {
+          other: (count) => `${count} düzenli ödeme`,
+        })
+        return `${payments} için ayda ${amount} ödüyorsun.`
       },
-      dates: (n: number) =>
-        plural('tr', n, { other: (count) => `${count} tarih` }),
-      lastMonth: 'Geçen ay',
-      left: (parts: string[]) => `Dahil değil: ${parts.join(', ')}.`,
-      leftOut: {
-        failed: (n: number) => `başarısız: ${n}`,
-        noAmount: (n: number) => `tutarsız: ${n}`,
-        repeats: (n: number) => `zaten sayılmış bir ödemenin tekrarı: ${n}`,
-      },
-      payments: (n: number) =>
-        plural('tr', n, { other: (count) => `${count} ödeme` }),
-      perMonth: (amount: string) => `Ayda ${amount}`,
       received: (amount: string) => `${amount} alındı`,
-      recurring: (n: number) =>
-        plural('tr', n, { other: (count) => `${count} düzenli` }),
       refunded: (amount: string) => `${amount} iade edildi`,
-      thisMonth: 'Bu ay',
-      toPay: (n: number) => `ödenecek: ${n}`,
+      regular: 'Düzenli ödemeler',
       upcoming: 'Önümüzdeki 30 gün',
     },
   },

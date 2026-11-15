@@ -1584,7 +1584,8 @@ export const it: Messages = {
       }) =>
         `Fuori dalla somma: ${[
           currency > 0 && `altra valuta: ${currency}`,
-          payment > 0 && `da pagare, non riusciti o ricevuti: ${payment}`,
+          payment > 0 &&
+            `da pagare, non riusciti, rimborsati o ricevuti: ${payment}`,
           amount > 0 && `senza importo: ${amount}`,
         ]
           .filter(Boolean)
@@ -1622,8 +1623,6 @@ export const it: Messages = {
       edited: 'Modificata da te',
       nextOn: (date: string) => `prossima: ${date}`,
       remove: 'Non è di questa bacheca',
-      repeatOf: (date: string) =>
-        `lo stesso addebito del ${date}, contato una volta`,
       removed: 'Tolta dalla bacheca. Ne terrà conto.',
     },
     expected: (when: string) => `Previsto ${when}`,
@@ -1745,40 +1744,24 @@ export const it: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
+      attention: 'Richiede attenzione',
+      emails: (n: number) =>
+        plural('it', n, {
+          one: () => `un’email`,
+          other: (count) => `${count} email`,
+        }),
+      next: (title: string, date: string, amount: string | null) =>
+        `Prossimo: ${title} il ${date}${amount ? `, ${amount}` : ''}.`,
+      perMonth: (amount: string, n: number) => {
         const payments = plural('it', n, {
-          one: () => `un pagamento`,
-          other: (count) => `${count} pagamenti`,
+          one: () => `un pagamento ricorrente`,
+          other: (count) => `${count} pagamenti ricorrenti`,
         })
-        return `${amount} sono ${payments}, rimborsi detratti.`
+        return `Paghi ${amount} al mese per ${payments}.`
       },
-      dates: (n: number) =>
-        plural('it', n, {
-          one: () => `una data`,
-          other: (count) => `${count} date`,
-        }),
-      lastMonth: 'Mese scorso',
-      left: (parts: string[]) => `Non incluso: ${parts.join(', ')}.`,
-      leftOut: {
-        failed: (n: number) => `non riusciti: ${n}`,
-        noAmount: (n: number) => `senza importo: ${n}`,
-        repeats: (n: number) => `ripetizioni di un addebito già contato: ${n}`,
-      },
-      payments: (n: number) =>
-        plural('it', n, {
-          one: () => `un pagamento`,
-          other: (count) => `${count} pagamenti`,
-        }),
-      perMonth: (amount: string) => `${amount} al mese`,
       received: (amount: string) => `${amount} ricevuti`,
-      recurring: (n: number) =>
-        plural('it', n, {
-          one: () => 'Uno ricorrente',
-          other: (count) => `${count} ricorrenti`,
-        }),
       refunded: (amount: string) => `${amount} rimborsati`,
-      thisMonth: 'Questo mese',
-      toPay: (n: number) => `da pagare: ${n}`,
+      regular: 'Pagamenti ricorrenti',
       upcoming: 'Prossimi 30 giorni',
     },
   },

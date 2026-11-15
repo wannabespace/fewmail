@@ -1594,7 +1594,8 @@ export const uk: Messages = {
       }) =>
         `Не в сумі: ${[
           currency > 0 && `в іншій валюті: ${currency}`,
-          payment > 0 && `до сплати, невдалі чи отримані: ${payment}`,
+          payment > 0 &&
+            `до сплати, невдалі, повернені чи отримані: ${payment}`,
           amount > 0 && `без суми: ${amount}`,
         ]
           .filter(Boolean)
@@ -1634,8 +1635,6 @@ export const uk: Messages = {
       edited: 'Виправлено тобою',
       nextOn: (date: string) => `далі ${date}`,
       remove: 'Не для цієї дошки',
-      repeatOf: (date: string) =>
-        `той самий платіж, що й ${date}, враховано раз`,
       removed: 'Прибрано з дошки. Вона це запам’ятає.',
     },
     expected: (when: string) => `Очікується ${when}`,
@@ -1759,48 +1758,28 @@ export const uk: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
+      attention: 'Потребує уваги',
+      emails: (n: number) =>
+        plural('uk', n, {
+          one: (count) => `${count} лист`,
+          few: (count) => `${count} листи`,
+          many: (count) => `${count} листів`,
+          other: (count) => `${count} листа`,
+        }),
+      next: (title: string, date: string, amount: string | null) =>
+        `Далі: ${title}, ${date}${amount ? `, ${amount}` : ''}.`,
+      perMonth: (amount: string, n: number) => {
         const payments = plural('uk', n, {
-          one: (count) => `${count} платіж`,
-          few: (count) => `${count} платежі`,
-          many: (count) => `${count} платежів`,
-          other: (count) => `${count} платежу`,
+          one: (count) => `${count} регулярний платіж`,
+          few: (count) => `${count} регулярні платежі`,
+          many: (count) => `${count} регулярних платежів`,
+          other: (count) => `${count} регулярного платежу`,
         })
-        return `${amount} — це ${payments}, повернення віднято.`
+        return `Ти платиш ${amount} на місяць за ${payments}.`
       },
-      dates: (n: number) =>
-        plural('uk', n, {
-          one: (count) => `${count} дата`,
-          few: (count) => `${count} дати`,
-          many: (count) => `${count} дат`,
-          other: (count) => `${count} дати`,
-        }),
-      lastMonth: 'Минулого місяця',
-      left: (parts: string[]) => `Не ввійшло: ${parts.join(', ')}.`,
-      leftOut: {
-        failed: (n: number) => `не пройшли: ${n}`,
-        noAmount: (n: number) => `без суми: ${n}`,
-        repeats: (n: number) => `повтори вже врахованого платежу: ${n}`,
-      },
-      payments: (n: number) =>
-        plural('uk', n, {
-          one: (count) => `${count} платіж`,
-          few: (count) => `${count} платежі`,
-          many: (count) => `${count} платежів`,
-          other: (count) => `${count} платежу`,
-        }),
-      perMonth: (amount: string) => `${amount} на місяць`,
       received: (amount: string) => `отримано ${amount}`,
-      recurring: (n: number) =>
-        plural('uk', n, {
-          one: (count) => `${count} регулярний`,
-          few: (count) => `${count} регулярні`,
-          many: (count) => `${count} регулярних`,
-          other: (count) => `${count} регулярного`,
-        }),
       refunded: (amount: string) => `повернено ${amount}`,
-      thisMonth: 'Цього місяця',
-      toPay: (n: number) => `до сплати: ${n}`,
+      regular: 'Регулярні платежі',
       upcoming: 'Найближчі 30 днів',
     },
   },

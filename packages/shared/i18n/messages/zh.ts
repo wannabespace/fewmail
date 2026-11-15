@@ -1503,7 +1503,7 @@ export const zh: Messages = {
       }) =>
         `未计入合计:${[
           currency > 0 && `其他货币 ${currency} 条`,
-          payment > 0 && `待付、失败或收入 ${payment} 条`,
+          payment > 0 && `待付、失败、退款或收入 ${payment} 条`,
           amount > 0 && `无金额 ${amount} 条`,
         ]
           .filter(Boolean)
@@ -1534,7 +1534,6 @@ export const zh: Messages = {
       edited: '已由你编辑',
       nextOn: (date: string) => `下次 ${date}`,
       remove: '不属于此看板',
-      repeatOf: (date: string) => `与 ${date} 是同一笔付款，只计一次`,
       removed: '已从看板移除，之后会记住这一点。',
     },
     expected: (when: string) => `预计 ${when}`,
@@ -1647,25 +1646,15 @@ export const zh: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
-        const payments = `${n} 笔付款`
-        return `${amount} 是 ${payments}的合计，已扣除退款。`
-      },
-      dates: (n: number) => `${n} 个日期`,
-      lastMonth: '上月',
-      left: (parts: string[]) => `未包含:${parts.join('、')}。`,
-      leftOut: {
-        failed: (n: number) => `失败 ${n} 条`,
-        noAmount: (n: number) => `无金额 ${n} 条`,
-        repeats: (n: number) => `已计入付款的重复 ${n} 条`,
-      },
-      payments: (n: number) => `${n} 笔付款`,
-      perMonth: (amount: string) => `每月 ${amount}`,
+      attention: '需要处理',
+      emails: (n: number) => `${n} 封邮件`,
+      next: (title: string, date: string, amount: string | null) =>
+        `下一笔：${title}，${date}${amount ? `，${amount}` : ''}。`,
+      perMonth: (amount: string, n: number) =>
+        `${n} 项定期付款，每月 ${amount}。`,
       received: (amount: string) => `收入 ${amount}`,
-      recurring: (n: number) => `${n} 项定期`,
       refunded: (amount: string) => `退款 ${amount}`,
-      thisMonth: '本月',
-      toPay: (n: number) => `待付 ${n} 笔`,
+      regular: '定期付款',
       upcoming: '未来 30 天',
     },
   },
