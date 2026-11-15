@@ -1,3 +1,4 @@
+import { cardsBleedClassName } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
@@ -8,6 +9,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@fewmail/ui/components/item'
+import { cn } from '@fewmail/ui/lib/utils'
 import {
   AiChat02Icon,
   Cancel01Icon,
@@ -179,32 +181,34 @@ export const ConnectHint = () => {
   const hint = hints[current]
 
   return (
-    <Item variant="card" size="sm">
-      <ItemMedia variant="icon">
-        <HugeiconsIcon icon={hint.icon} strokeWidth={2} />
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle>{hint.title}</ItemTitle>
-        <ItemDescription>{hint.description}</ItemDescription>
-      </ItemContent>
-      <ItemActions>
-        <Button size="sm" variant="secondary" {...hint.action}>
-          {hint.label}
-        </Button>
-        <IconButton
-          icon={Cancel01Icon}
-          label={copy.notNow}
-          size="icon-sm"
-          variant="ghost-muted"
-          onClick={() => {
-            posthog.capture('hint_dismissed', { hint: current })
-            hintsStore.set({
-              dismissed: [...store.dismissed, current],
-              dismissedOn: today(),
-            })
-          }}
-        />
-      </ItemActions>
-    </Item>
+    <div className={cn('flex flex-col', cardsBleedClassName)}>
+      <Item variant="card" size="sm">
+        <ItemMedia variant="icon">
+          <HugeiconsIcon icon={hint.icon} strokeWidth={2} />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>{hint.title}</ItemTitle>
+          <ItemDescription>{hint.description}</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <Button size="sm" variant="secondary" {...hint.action}>
+            {hint.label}
+          </Button>
+          <IconButton
+            icon={Cancel01Icon}
+            label={copy.notNow}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={() => {
+              posthog.capture('hint_dismissed', { hint: current })
+              hintsStore.set({
+                dismissed: [...store.dismissed, current],
+                dismissedOn: today(),
+              })
+            }}
+          />
+        </ItemActions>
+      </Item>
+    </div>
   )
 }
