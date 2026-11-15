@@ -124,9 +124,8 @@ export const learnVoice = async (userId: string) => {
     .update(userSettings)
     .set({ voiceLearnedAt: new Date() })
     .where(eq(userSettings.userId, userId))
-  const examples = (await recentSentExamples(userId, VOICE_SAMPLE)).filter(
-    Boolean
-  )
+  const sent = await recentSentExamples(userId, VOICE_SAMPLE)
+  const examples = sent.filter(Boolean)
   if (examples.length === 0 || !(await hasBudget(userId))) {
     return
   }

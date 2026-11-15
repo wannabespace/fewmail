@@ -2,10 +2,10 @@ import { ORPCError, os } from '@orpc/server'
 import { Result } from 'better-result'
 
 import { auth } from '../lib/auth'
+import { AttachmentsTooLargeError } from '../services/attachments-error'
 import { CalendarAccessError } from '../services/calendar'
 import { LimitReachedError } from '../services/limit-error'
 import { NotFoundError } from '../services/mail'
-import { AttachmentsTooLargeError } from '../services/mail-errors'
 import { AlreadySentError } from '../services/outbox'
 import { AgentRequiredError, requireAgent } from '../services/plan'
 

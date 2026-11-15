@@ -64,21 +64,30 @@ const ICU_LEGACY_ZONES: Record<string, string> = {
 
 let postgresZones: Promise<Set<string>> | undefined
 
-const knownPostgresZones = () => {
-  postgresZones ??= db
-    .execute<{ name: string }>(sql`select name from pg_timezone_names`)
-    .then((rows) => new Set(rows.map(({ name }) => name)))
-    .catch((error: unknown) => {
-      postgresZones = undefined
-      throw error
-    })
-  return postgresZones
+const readPostgresZones = async () => {
+  const rows = await db.execute<{ name: string }>(
+    sql`select name from pg_timezone_names`
+  )
+  return new Set(rows.map(({ name }) => name))
+}
+
+/** Read once; a failed read is forgotten, so the next call tries again instead of failing for the life of the process. */
+const knownPostgresZones = async () => {
+  postgresZones ??= readPostgresZones()
+  const loading = postgresZones
+  const zones = await Result.tryPromise(() => loading)
+  if (zones.isErr()) {
+    postgresZones = undefined
+    throw zones.error.cause
+  }
+  return zones.value
 }
 
 /** Every zone handed to Postgres (`at time zone`) goes through this: one it does not know fails the whole query, so that falls back to UTC. */
 export const postgresZone = async (timezone: string) => {
   const zone = ICU_LEGACY_ZONES[timezone] ?? timezone
-  if ((await knownPostgresZones()).has(zone)) {
+  const known = await knownPostgresZones()
+  if (known.has(zone)) {
     return zone
   }
   console.error('time zone unknown to postgres', zone)

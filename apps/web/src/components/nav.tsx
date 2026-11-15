@@ -323,61 +323,65 @@ const People = () => {
   return (
     <Collapsible
       render={<section aria-label={t.nav.people} />}
-      className="mt-4 flex flex-col gap-1"
+      className="mt-4"
     >
-      <h2 className="flex ps-2.5">
-        <CollapsibleTrigger variant="disclosure">
-          {t.nav.people}
-          <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} />
-        </CollapsibleTrigger>
-      </h2>
-      <CollapsibleContent className="flex flex-col gap-0.5">
-        {people.length > PEOPLE_SHOWN && (
-          <InputGroup size="sm" className="mb-1">
-            <InputGroupAddon>
-              <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
-            </InputGroupAddon>
-            <InputGroupInput
-              value={query}
-              placeholder={t.nav.findPerson}
-              aria-label={t.nav.findPerson}
-              data-mask
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key !== 'Escape') {
-                  return
-                }
-                event.stopPropagation()
-                if (query) {
-                  setQuery('')
-                } else {
-                  event.currentTarget.blur()
-                }
-              }}
-            />
-          </InputGroup>
-        )}
-        {found.slice(0, PEOPLE_SHOWN).map((person) => (
-          <button
-            key={person.email}
-            type="button"
-            className={NAV_SUBROW}
-            onClick={() => openCompose({ to: [person.email] })}
-          >
-            <SenderAvatar
-              sender={{ fromEmail: person.email, fromName: person.name }}
-            />
-            <span className="flex-1 truncate text-left" data-mask>
-              {person.name ?? person.email}
-            </span>
-          </button>
-        ))}
-        {found.length === 0 && (
-          <p className="text-muted-foreground px-2.5 py-1 text-sm">
-            {t.mail.noResults}
-          </p>
-        )}
-      </CollapsibleContent>
+      <div className="flex flex-col gap-1">
+        <h2 className="flex ps-2.5">
+          <CollapsibleTrigger variant="disclosure">
+            {t.nav.people}
+            <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} />
+          </CollapsibleTrigger>
+        </h2>
+        <CollapsibleContent>
+          <div className="flex flex-col gap-0.5">
+            {people.length > PEOPLE_SHOWN && (
+              <InputGroup size="sm" className="mb-1">
+                <InputGroupAddon>
+                  <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+                </InputGroupAddon>
+                <InputGroupInput
+                  value={query}
+                  placeholder={t.nav.findPerson}
+                  aria-label={t.nav.findPerson}
+                  data-mask
+                  onChange={(event) => setQuery(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Escape') {
+                      return
+                    }
+                    event.stopPropagation()
+                    if (query) {
+                      setQuery('')
+                    } else {
+                      event.currentTarget.blur()
+                    }
+                  }}
+                />
+              </InputGroup>
+            )}
+            {found.slice(0, PEOPLE_SHOWN).map((person) => (
+              <button
+                key={person.email}
+                type="button"
+                className={NAV_SUBROW}
+                onClick={() => openCompose({ to: [person.email] })}
+              >
+                <SenderAvatar
+                  sender={{ fromEmail: person.email, fromName: person.name }}
+                />
+                <span className="flex-1 truncate text-left" data-mask>
+                  {person.name ?? person.email}
+                </span>
+              </button>
+            ))}
+            {found.length === 0 && (
+              <p className="text-muted-foreground px-2.5 py-1 text-sm">
+                {t.mail.noResults}
+              </p>
+            )}
+          </div>
+        </CollapsibleContent>
+      </div>
     </Collapsible>
   )
 }

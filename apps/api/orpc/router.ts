@@ -561,13 +561,13 @@ export const router = {
         getUsage(context.user.id),
         hasSignInScope(context.user.id, GMAIL_SCOPE),
         hasSignInScope(context.user.id, CALENDAR_SCOPE),
-      hasContacts: contactScopes.every(Boolean),
         ...CONTACTS_SCOPES.map((scope) =>
           hasSignInScope(context.user.id, scope)
         ),
       ])
     return {
       hasCalendar,
+      hasContacts: contactScopes.every(Boolean),
       hasGmail,
       plan,
       settings,
