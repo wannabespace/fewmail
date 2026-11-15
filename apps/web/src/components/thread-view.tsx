@@ -95,7 +95,6 @@ import { PickTime } from './compose/send-later'
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
 import { confirm } from './confirm-dialog'
-import { DraftText } from './consent-details'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import {
   ParticipantAvatars,
@@ -1327,7 +1326,7 @@ const agentDraftOf = (thread: ReturnType<typeof useThread>['data']) =>
 const REPLY_BOX =
   'bg-popover ring-foreground/6 flex flex-col gap-3 rounded-2xl p-4 shadow-sm ring'
 
-/** The agent's draft waits under the email it answers, as on its Home card: sent as it is, or edited first. */
+/** The agent's draft waits under the email it answers, as on its Home card: sent as it is, or edited first right in place. */
 const AgentDraft = ({
   action,
   isEditing,
@@ -1373,8 +1372,12 @@ const AgentDraft = ({
       ...(text !== action.detail && { detail: text }),
     })
   useHotkey('Mod+Enter', send, { enabled: !isEditing && !approve.isPending })
+  // A click already put the caret where it landed; only `R` brings the focus in.
   useEffect(() => {
-    if (isEditing) {
+    if (
+      isEditing &&
+      !(document.activeElement as HTMLElement | null)?.isContentEditable
+    ) {
       editorRef.current?.focus()
     }
   }, [isEditing])
@@ -1385,7 +1388,11 @@ const AgentDraft = ({
         <span data-mask>{t.agent.to(replyRecipients(message).join(', '))}</span>
         {` · ${t.queue.draftedInVoice}`}
       </p>
-      {isEditing ? (
+      <div
+        className="bg-secondary/60 focus-within:ring-ring/50 cursor-text rounded-xl px-4 py-3 ring-0 focus-within:ring-2"
+        onFocus={onEdit}
+        onBlur={onStopEditing}
+      >
         <ComposerEditor
           ref={editorRef}
           aria-label={t.actionKind.reply}
@@ -1393,11 +1400,11 @@ const AgentDraft = ({
           initialHtml={textToHtml(text)}
           onChange={({ text: edited }) => setText(edited)}
           onSubmit={send}
-          onEscape={onStopEditing}
+          onEscape={() =>
+            (document.activeElement as HTMLElement | null)?.blur()
+          }
         />
-      ) : (
-        <DraftText text={text} />
-      )}
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button
           size="sm"
@@ -1407,16 +1414,6 @@ const AgentDraft = ({
         >
           {t.queue.send}
         </Button>
-        {!isEditing && (
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={onEdit}
-            shortcut={<Kbd>R</Kbd>}
-          >
-            {t.queue.edit}
-          </Button>
-        )}
       </div>
     </section>
   )

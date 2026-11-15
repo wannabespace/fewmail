@@ -455,10 +455,20 @@ const worthRowsOf = (today: Today | undefined): WorthRow[] =>
 const openWorthRow = ({ id, threadId }: WorthRow) =>
   expandRow(id, { from: 'home', threadId })
 
-/** `O` opens a worth-knowing row's email. */
-const useOpenKey = (worthRow: WorthRow | undefined, isWalking: boolean) => {
-  useHotkey('O', () => worthRow && openWorthRow(worthRow), {
-    enabled: isWalking && !!worthRow,
+/** `O` opens the email of the cursor's card or worth-knowing row. */
+const useOpenKey = (
+  worthRow: WorthRow | undefined,
+  card: QueueItem | undefined,
+  isWalking: boolean
+) => {
+  const row =
+    worthRow ??
+    (card?.message && {
+      id: card.action.id,
+      threadId: card.message.threadId,
+    })
+  useHotkey('O', () => row && openWorthRow(row), {
+    enabled: isWalking && !!row,
   })
 }
 
@@ -689,6 +699,9 @@ const homeHints = (
           ['J / K', t.keys.move] as [string, string],
           ['Space', t.keys.expand] as [string, string],
           ...primaryHints(t, state.selected),
+          ...(state.selected.message
+            ? [['O', t.keys.open] as [string, string]]
+            : []),
         ]
       : []),
     ...(state.isOnProposals
@@ -1591,7 +1604,7 @@ const HomePage = () => {
   useHotkey('E', openAnd(setEditingId), listKeys)
   useHotkey('R', openAnd(setRewritingId), listKeys)
   useHotkey('Space', () => cursorId && setIsOpen((open) => !open), walkKeys)
-  useOpenKey(worthRow, isWalking)
+  useOpenKey(worthRow, selected, isWalking)
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -1651,18 +1664,17 @@ const HomePage = () => {
                       queue={decisionCards}
                     />
                     <Accordion
-                      variant="cards"
+                      variant="list"
                       hidden={queue.length === 0}
                       value={openIds}
                       onValueChange={toggleCard}
                     >
                       {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
                       <AnimatePresence key={filter.active} initial={false}>
-                        {queue.map((item, index) => (
+                        {queue.map((item) => (
                           <QueueCard
                             key={item.action.id}
                             item={item}
-                            index={index}
                             draft={draftOf(item)}
                             isNew={!!seenAt && item.action.createdAt > seenAt}
                             isPicked={pickedIds.includes(item.action.id)}

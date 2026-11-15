@@ -17,7 +17,6 @@ import {
 import { Item } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { ScrollArea } from '@fewmail/ui/components/scroll-area'
-import { cn } from '@fewmail/ui/lib/utils'
 import { SparklesIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -250,31 +249,24 @@ const ProposalsQueueCard = ({
           )
         }
       >
-        <span
-          className={cn(
-            'flex size-5.5 shrink-0 items-center justify-center rounded-md',
-            isOpen
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary text-foreground/70'
-          )}
-        >
+        <span className="bg-secondary text-foreground/70 flex size-6 shrink-0 items-center justify-center rounded-md">
           <HugeiconsIcon
             icon={SparklesIcon}
             strokeWidth={2}
             className="size-3.5"
           />
         </span>
-        <strong className="truncate font-semibold">
-          {t.today.tidy.total(rows.length)}
-        </strong>
-        {!isOpen && (
-          <span className="text-muted-foreground min-w-0 flex-1 truncate first-letter:uppercase">
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="truncate font-medium">
+            {t.today.tidy.total(rows.length)}
+          </span>
+          <span className="text-muted-foreground truncate first-letter:uppercase">
             {kindsLine(t, rows)}
           </span>
-        )}
+        </span>
       </AccordionTrigger>
       <AccordionContent>
-        <div className="flex flex-col gap-3 pl-8.5">
+        <div className="flex flex-col gap-3 pl-9.5">
           {/* The scroller clips, so it bleeds by the rows' inset and pads back in, or a row's hover is cut on the left. */}
           <ScrollArea
             className="-mx-2.5"
@@ -385,7 +377,7 @@ export const ProposalsGroup = ({
           <div className="flex flex-col gap-2.5 px-4.75">
             {hasCards && <GroupLabel>{t.today.quick}</GroupLabel>}
             <Accordion
-              variant="cards"
+              variant="list"
               value={openIds}
               onValueChange={onValueChange}
             >

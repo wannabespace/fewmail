@@ -598,7 +598,7 @@ export const zh: Messages = {
     unpick: '取消选择',
     askedByYou: '你要求的',
     draftedInVoice: '已用你的语气起草',
-    edit: '编辑',
+    readEmail: '阅读邮件',
     send: '发送',
     rewrite: '重写',
     shorterInstruction: '写短一点。',

@@ -609,7 +609,7 @@ export const ko: Messages = {
     unpick: '선택 해제',
     askedByYou: '요청하신 답장',
     draftedInVoice: '내 말투로 작성한 초안',
-    edit: '편집',
+    readEmail: '메일 읽기',
     send: '보내기',
     rewrite: '다시 쓰기',
     shorterInstruction: '더 짧게 써 줘.',

@@ -1202,7 +1202,7 @@ export const fr: Messages = {
     unpick: 'Retirer',
     askedByYou: 'Demandé par vous',
     draftedInVoice: 'Rédigé avec votre style',
-    edit: 'Modifier',
+    readEmail: 'Lire l’e-mail',
     send: 'Envoyer',
     rewrite: 'Réécrire',
     shorterInstruction: 'Fais plus court.',
