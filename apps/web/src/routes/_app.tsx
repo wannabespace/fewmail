@@ -3,6 +3,7 @@ import {
   ResizablePanel,
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
+import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import {
   createFileRoute,
@@ -32,6 +33,7 @@ import { mailRowsOf } from '~/lib/mail-db'
 import { useMe } from '~/lib/me'
 import { listenForChanges, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
+import { undoLatest } from '~/lib/undo'
 
 const SIDEBAR_WIDTH = { default: 232, max: 320, min: 200 }
 
@@ -91,6 +93,8 @@ const AppLayout = () => {
   useFreshCodeToast()
   useIdentify()
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
+  // A field keeps ⌘Z for its own text.
+  useHotkey('Mod+Z', undoLatest, { ignoreInputs: true })
   const sidebarWidth = useSubscription(sidebarWidthStore)
   const router = useRouter()
 

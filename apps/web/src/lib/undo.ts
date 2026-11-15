@@ -54,3 +54,23 @@ export const toastDeferred = (
     onAutoClose: () => commit(),
     onDismiss: () => commit(),
   })
+
+/**
+ * ⌘Z presses the newest Undo still on screen, as a click on it would, so every toast's own undo (a burst's, a send's, a
+ * deferred delete's) runs exactly as it does for the mouse.
+ */
+export const undoLatest = () => {
+  const labels = new Set([getT().compose.undo, getT().clearOut.undo])
+  // Sonner numbers its toasts from the front, the newest being 0.
+  const button = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-sonner-toast]:not([data-removed=true])'
+    ),
+  ]
+    .toSorted((a, b) => Number(a.dataset.index) - Number(b.dataset.index))
+    .flatMap((shown) => [
+      ...shown.querySelectorAll<HTMLButtonElement>('[data-button]'),
+    ])
+    .find(({ textContent }) => labels.has(textContent ?? ''))
+  button?.click()
+}
