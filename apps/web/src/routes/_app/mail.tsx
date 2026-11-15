@@ -280,9 +280,10 @@ const OUT_OF_INBOX: Partial<Record<Filter, Place>> = {
   trash: 'elsewhere',
 }
 
-const stepFilter = (filter: Filter, step: number) =>
-  FILTERS[(FILTERS.indexOf(filter) + step + FILTERS.length) % FILTERS.length] ??
-  filter
+const stepView = (view: InboxView, step: number) =>
+  INBOX_VIEWS[
+    (INBOX_VIEWS.indexOf(view) + step + INBOX_VIEWS.length) % INBOX_VIEWS.length
+  ] ?? view
 
 const ALL_MAILBOXES = 'all'
 
@@ -639,14 +640,14 @@ const ViewPicker = ({
   onChange,
   unread,
 }: {
-  filter: Filter
-  onChange: (filter: Filter) => void
+  filter: InboxView
+  onChange: (filter: InboxView) => void
   unread: RouterOutputs['mail']['unread'] | undefined
 }) => {
   const t = useT()
   const [isOpen, setIsOpen] = useState(false)
   const active = useRef<HTMLButtonElement>(null)
-  const pick = (next: Filter) => {
+  const pick = (next: InboxView) => {
     setIsOpen(false)
     onChange(next)
   }
@@ -840,7 +841,7 @@ const RowAvatar = ({
   size?: 'xs' | 'sm'
 }) =>
   participants.length > 1 ? (
-    <ParticipantAvatars participants={participants} size={size} />
+    <ParticipantAvatars isVertical participants={participants} size={size} />
   ) : (
     <SenderAvatar
       sender={message.to?.[0] ? { fromEmail: message.to[0] } : message}
@@ -2308,6 +2309,7 @@ const listModeOf = (q: string | undefined, picked: Filter) => {
 const listHintsOf = ({
   canShowRelated,
   hints,
+  isFolder,
   isPicking,
   isSearching,
   t,
@@ -2315,6 +2317,7 @@ const listHintsOf = ({
 }: {
   canShowRelated: boolean
   hints: [string, string][]
+  isFolder: boolean
   isPicking: boolean
   isSearching: boolean
   t: ReturnType<typeof useT>
@@ -2341,8 +2344,11 @@ const listHintsOf = ({
           ...(hints.length > 0 ? [['X', t.keys.pick] as [string, string]] : []),
         ]
       : []
-  return isSearching
-    ? [...walk, ['esc', t.keys.close]]
+  if (isSearching) {
+    return [...walk, ['esc', t.keys.close]]
+  }
+  return isFolder
+    ? [...walk, ['/', t.keys.search]]
     : [...walk, ['[ / ]', t.keys.filter], ['/', t.keys.search]]
 }
 
@@ -2580,8 +2586,13 @@ const MailPage = () => {
       }),
     })
   }
-  useHotkey('[', () => showFilter(stepFilter(shownFilter, -1)))
-  useHotkey(']', () => showFilter(stepFilter(shownFilter, 1)))
+  const view = isInboxView(shownFilter) ? shownFilter : null
+  useHotkey('[', () => view && showFilter(stepView(view, -1)), {
+    enabled: view !== null,
+  })
+  useHotkey(']', () => view && showFilter(stepView(view, 1)), {
+    enabled: view !== null,
+  })
   const pickMailbox = (next: string | undefined) =>
     navigate({
       search: (prev) => ({ ...prev, mailbox: next, thread: undefined }),
@@ -2737,11 +2748,22 @@ const MailPage = () => {
               </div>
             ) : (
               <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3">
-                <ViewPicker
-                  filter={shownFilter}
-                  unread={unread}
-                  onChange={showFilter}
-                />
+                {view ? (
+                  <ViewPicker
+                    filter={view}
+                    unread={unread}
+                    onChange={showFilter}
+                  />
+                ) : (
+                  <h1 className="flex items-center gap-2 px-1 text-sm font-medium">
+                    <HugeiconsIcon
+                      icon={FILTER_ICONS[shownFilter]}
+                      strokeWidth={2}
+                      className="text-muted-foreground size-4"
+                    />
+                    {t.mail.filter[shownFilter]}
+                  </h1>
+                )}
                 <MailboxSelect
                   mailbox={mailbox}
                   mailboxes={mailboxes}
@@ -2794,6 +2816,7 @@ const MailPage = () => {
               hints={listHintsOf({
                 canShowRelated,
                 hints,
+                isFolder: !view,
                 isPicking,
                 isSearching,
                 t,
