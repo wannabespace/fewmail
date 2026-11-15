@@ -23,7 +23,7 @@ export const PEEK_ID = 'thread-peek'
 export interface Expanded {
   close: () => void
   from: 'board' | 'home' | 'journal' | 'mail' | 'reading'
-  /** Set while the pane shrinks back into its source, which stays hidden and its page's keys asleep until it is gone. */
+  /** Set while the card shrinks back into its source, which stays hidden until the card is on it. */
   isClosing?: boolean
   pathname: string
   /** The row (`ExpandTrigger`) or the peek (`PEEK_ID`) the pane grows out of, by its `data-morph-source`. */
@@ -34,7 +34,11 @@ export interface Expanded {
 export const expandedThread = createStore<Expanded | null>(null)
 
 export const useExpanded = () => useSubscription(expandedThread)
-export const useIsThreadExpanded = () => !!useExpanded()
+/** A closing card no longer covers its page: its keys work again at once. */
+export const useIsThreadExpanded = () => {
+  const open = useExpanded()
+  return !!open && !open.isClosing
+}
 
 export const collapseExpanded = () => {
   const open = expandedThread.get()
@@ -44,6 +48,14 @@ export const collapseExpanded = () => {
 }
 
 export const dropExpanded = () => expandedThread.set(null)
+
+export const reopenExpanded = () => {
+  const open = expandedThread.get()
+  if (open?.isClosing) {
+    expandedThread.set({ ...open, isClosing: false })
+    posthog.capture('thread_expanded', { from: open.from })
+  }
+}
 
 export const OPEN_CLIP = 'inset(0px 0px 0px 0px round 0px)'
 
@@ -67,11 +79,12 @@ export const clipOver = (
   return `inset(${box.top - area.top}px ${area.right - box.right}px ${area.bottom - box.bottom}px ${box.left - area.left}px round ${radius}px)`
 }
 
-/** Grows a peek or a row into `ThreadPane`, or shrinks it back. */
+/** Grows a peek or a row into `ThreadPane`, or shrinks it back; one still closing gives way at once. */
 export const toggleExpanded = (
   open: Omit<Expanded, 'isClosing' | 'pathname'>
 ) => {
-  if (expandedThread.get()) {
+  const current = expandedThread.get()
+  if (current && !current.isClosing) {
     collapseExpanded()
     return
   }

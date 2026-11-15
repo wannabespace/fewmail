@@ -15,6 +15,7 @@ import {
   dropExpanded,
   expandedThread,
   PEEK_ID,
+  reopenExpanded,
   sourceOf,
   toggleExpanded,
   useExpanded,
@@ -221,7 +222,8 @@ const FLOATING =
  * page on one spring, starting as the source's exact copy that dissolves into the email. The email is laid out at the
  * card's open size from the first frame, centred in it, so nothing reflows. Closing runs it back into the source, the email
  * dissolving into the copy near the end, and the source shows again only once the card is on it. `esc` (a peek's through
- * `keepUnderPane`), ⇧O, the collapse and a click on the page shrink it; leaving the page drops it.
+ * `keepUnderPane`), ⇧O, the collapse and a click on the page shrink it; leaving the page drops it. Nothing waits for a
+ * close: a click on the card opens it again from where it is, and another row or peek opens at once.
  */
 export const ThreadPane = () => {
   const t = useT()
@@ -250,31 +252,35 @@ export const ThreadPane = () => {
   useHotkey('Escape', collapseExpanded, rowKeys)
   useHotkey('Shift+O', collapseExpanded, rowKeys)
   const back = isClosing && open ? boxOf(open.sourceId) : null
-  const isOpen = open && !open.isClosing && isHere && shown
+  const isShown = open && isHere && shown
   return (
     <AnimatePresence
-      custom={back}
       onExitComplete={() => {
-        setShown(null)
-        if (expandedThread.get()?.isClosing) {
-          dropExpanded()
+        if (!expandedThread.get()) {
+          setShown(null)
         }
       }}
     >
-      {isOpen && (
+      {isShown && !isClosing && (
         <motion.div
           key="backdrop"
           aria-hidden
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, transition: { duration: 0.25, ease: EASE } }}
-          exit={{ opacity: 0, transition: { duration: 0.2, ease: EASE } }}
+          // A closing card is not in the way: the page under it takes the next click.
+          exit={{
+            opacity: 0,
+            pointerEvents: 'none',
+            transition: { duration: 0.2, ease: EASE },
+          }}
           onClick={collapseExpanded}
           className="fixed inset-0 z-40 bg-black/30 supports-backdrop-filter:backdrop-blur-sm"
         />
       )}
-      {isOpen && (
+      {isShown && (
+        // Another source while this one closes gets a card of its own; this one lands on its source meanwhile.
         <motion.div
-          key="card"
+          key={shown.sourceId}
           custom={back}
           variants={{
             held: shown.box
@@ -298,8 +304,15 @@ export const ThreadPane = () => {
                 : { opacity: 0, transition: springs.close },
           }}
           initial="held"
-          animate="open"
+          animate={isClosing ? 'source' : 'open'}
           exit="source"
+          onAnimationComplete={(definition) => {
+            if (definition === 'source' && expandedThread.get()?.isClosing) {
+              dropExpanded()
+            }
+          }}
+          // A click on a closing card opens it again from where it is.
+          onClick={reopenExpanded}
           className="bg-background fixed z-40 overflow-hidden"
         >
           <motion.div
@@ -318,6 +331,8 @@ export const ThreadPane = () => {
             <SourceCopy shown={shown} />
           </motion.div>
           <motion.div
+            // A click on a closing card only opens it again, never a button in its email.
+            inert={isClosing}
             variants={{
               held: { opacity: 0 },
               open: {
