@@ -1,5 +1,6 @@
 import type {
   BoardChart,
+  BoardPayment,
   BoardPeriod,
   CommitmentKind,
   DomainList,
@@ -200,6 +201,8 @@ export const boardEntries = d.snakeCase.table(
       .notNull()
       .references(() => messages.id, { onDelete: 'cascade' }),
     occurredAt: d.timestamp({ withTimezone: true }).notNull(),
+    /** Set whenever the entry has an amount: whether that amount counts as spending. */
+    payment: d.text().$type<BoardPayment>(),
     status: encryptedText(),
     title: encryptedText().notNull(),
     userId: userId(),

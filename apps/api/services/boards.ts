@@ -1,11 +1,16 @@
 import { db } from '@fewmail/db'
 import { actions, boardEntries, boards, messages } from '@fewmail/db/schema'
-import type { BoardChart, BoardPeriod } from '@fewmail/shared/agent'
+import type {
+  BoardChart,
+  BoardPayment,
+  BoardPeriod,
+} from '@fewmail/shared/agent'
 import {
   ANALYZE_WINDOW_DAYS,
   BOARD_CHART_TYPES,
   BOARD_GROUPINGS,
   BOARD_MEASURES,
+  BOARD_PAYMENTS,
   BOARD_PRESET_PERIODS,
   BOARD_PRESETS,
 } from '@fewmail/shared/agent'
@@ -73,6 +78,10 @@ const UPCOMING_DAYS = 30
 /** A predicted charge this late with no new receipt means the thing stopped (cancelled, moved to another card). */
 const OVERDUE_DAYS = 7
 const DAYS_PER_MONTH = 30.44
+/** An invoice and its receipt, or a failed charge and its retry, arrive within days; a weekly charge never does. */
+const SAME_CHARGE_DAYS = 3
+/** Reminders of one bill and its payment; a monthly bill's next one comes later. */
+const BILL_DAYS = 25
 
 const CADENCES = [
   { days: 7, every: 'week', next: (date: Date) => addWeeks(date, 1) },
@@ -106,6 +115,7 @@ const entrySchema = type({
   group: 'string | null',
   isUpdate: 'boolean',
   occurredAt: 'string | null',
+  payment: type.enumerated(...BOARD_PAYMENTS).or('null'),
   status: 'string | null',
   title: 'string',
 })
@@ -205,9 +215,96 @@ export const reorderBoards = async (userId: string, ids: string[]) => {
   await announceChange(userId, ['boards', 'today'])
 }
 
+const isSpending = ({ payment }: Entry) =>
+  payment === 'paid' || payment === 'refund'
+
+const centsIn = (entries: Entry[], currency: string) => {
+  let total = 0
+  for (const entry of entries) {
+    if (entry.currency === currency) {
+      total += entry.amountCents ?? 0
+    }
+  }
+  return total
+}
+
+const sumOf = (entries: Entry[], currency: string | null) =>
+  currency && entries.length > 0 ? centsIn(entries, currency) : null
+
+/** Refunds are stored negative so sums net them out; an amount always has a payment, so it is never summed blind. */
+const moneyOf = (cents: number | null, payment: BoardPayment | null) => {
+  if (cents === null) {
+    return { amountCents: null, payment: null }
+  }
+  const kind = payment ?? (cents < 0 ? 'refund' : 'paid')
+  return {
+    amountCents: kind === 'refund' ? -Math.abs(cents) : Math.abs(cents),
+    payment: kind,
+  }
+}
+
+const chargeKey = (entry: Entry) =>
+  [
+    entry.payment === 'refund' || entry.payment === 'income'
+      ? entry.payment
+      : 'charge',
+    (entry.group ?? entry.title).toLowerCase(),
+    entry.currency,
+    entry.amountCents,
+  ].join('|')
+
+/**
+ * One charge often comes as several emails, each in its own thread: an invoice and its receipt, a failed charge and the retry, reminders of one bill.
+ * Each repeat maps to the entry that counts (the settled one, else the newest), so nothing is summed or counted twice.
+ */
+const repeatsOf = (entries: Entry[]) => {
+  const repeatOf = new Map<string, string>()
+  const settle = (charge: Entry[]) => {
+    const counted =
+      charge.find(({ payment }) => payment !== 'due' && payment !== 'failed') ??
+      charge.at(-1)
+    for (const entry of charge) {
+      if (counted && entry !== counted) {
+        repeatOf.set(entry.id, counted.id)
+      }
+    }
+  }
+  const open = new Map<string, Entry[]>()
+  const oldestFirst = entries
+    .filter(({ amountCents }) => amountCents !== null)
+    .toSorted(
+      (left, right) => left.occurredAt.getTime() - right.occurredAt.getTime()
+    )
+  for (const entry of oldestFirst) {
+    const key = chargeKey(entry)
+    const charge = open.get(key)
+    const settled = charge?.find(
+      ({ payment }) => payment !== 'due' && payment !== 'failed'
+    )
+    const since = settled ?? charge?.[0]
+    if (
+      charge &&
+      since &&
+      differenceInCalendarDays(entry.occurredAt, since.occurredAt) <=
+        (settled ? SAME_CHARGE_DAYS : BILL_DAYS)
+    ) {
+      charge.push(entry)
+    } else {
+      if (charge) {
+        settle(charge)
+      }
+      open.set(key, [entry])
+    }
+  }
+  for (const charge of open.values()) {
+    settle(charge)
+  }
+  return repeatOf
+}
+
 const DIGEST_DAYS = 30
 
-/** Per board, what it collected that happened in the last month: how many, the totals per currency and the newest one. */
+/** Per board, what it collected that happened in the last month: how many, what was spent per currency and the newest one. */
 export const boardsDigest = async (userId: string) => {
   const rows = await db
     .select({
@@ -226,14 +323,16 @@ export const boardsDigest = async (userId: string) => {
     )
     .orderBy(desc(boardEntries.occurredAt))
   const byBoard = Map.groupBy(rows, ({ board }) => board.id)
-  return [...byBoard.values()].flatMap((boardRows) => {
+  return [...byBoard.values()].flatMap((all) => {
+    const repeatOf = repeatsOf(all.map(({ entry }) => entry))
+    const boardRows = all.filter(({ entry }) => !repeatOf.has(entry.id))
     const [newest] = boardRows
     if (!newest) {
       return []
     }
     const totals = new Map<string, number>()
     for (const { entry } of boardRows) {
-      if (entry.amountCents !== null && entry.currency) {
+      if (entry.amountCents !== null && entry.currency && isSpending(entry)) {
         totals.set(
           entry.currency,
           (totals.get(entry.currency) ?? 0) + entry.amountCents
@@ -255,16 +354,6 @@ export const boardsDigest = async (userId: string) => {
   })
 }
 
-const centsIn = (entries: Entry[], currency: string) => {
-  let total = 0
-  for (const entry of entries) {
-    if (entry.currency === currency) {
-      total += entry.amountCents ?? 0
-    }
-  }
-  return total
-}
-
 const trimmed = (value: string | null | undefined) =>
   value === undefined ? undefined : value?.trim() || null
 
@@ -275,9 +364,7 @@ const median = (values: number[]) => {
 
 /** Charges of one group that repeat at a steady pace with a steady price: a subscription, rent, a monthly bill. Flights and orders vary in price, so they never read as one. */
 const cadenceOf = (oldestFirst: Entry[]) => {
-  const charges = oldestFirst.filter(
-    ({ amountCents }) => amountCents !== null && amountCents > 0
-  )
+  const charges = oldestFirst.filter(({ payment }) => payment === 'paid')
   const last = charges.at(-1)
   if (!last?.amountCents) {
     return null
@@ -313,7 +400,22 @@ interface ShownEntry {
   threadId: string
 }
 
-/** Per group: what it adds up to, how often it comes back and when it is next due — stated in an email, else predicted from its pace. */
+const countedOf = (rows: ShownEntry[]) => {
+  const repeatOf = repeatsOf(rows.map(({ entry }) => entry))
+  return {
+    counted: rows.filter(({ entry }) => !repeatOf.has(entry.id)),
+    repeatOf,
+  }
+}
+
+const perMonthOf = (repeating: ReturnType<typeof cadenceOf>) =>
+  repeating &&
+  Math.round(
+    ((repeating.last.amountCents ?? 0) * DAYS_PER_MONTH) /
+      repeating.cadence.days
+  )
+
+/** Per group, of the entries that count: what it spent or brought in, how often it comes back and when it is next due — stated in an email, else predicted from its pace. */
 const groupsOf = (rows: ShownEntry[]) => {
   const now = new Date()
   const byGroup = Map.groupBy(
@@ -330,7 +432,8 @@ const groupsOf = (rows: ShownEntry[]) => {
       const currency =
         oldestFirst.findLast(({ entry }) => entry.currency)?.entry.currency ??
         null
-      const repeating = cadenceOf(oldestFirst.map(({ entry }) => entry))
+      const entries = oldestFirst.map(({ entry }) => entry)
+      const repeating = cadenceOf(entries)
       const [stated] = oldestFirst
         .flatMap(({ entry }) =>
           entry.dueAt && entry.dueAt > now ? [entry.dueAt] : []
@@ -348,22 +451,16 @@ const groupsOf = (rows: ShownEntry[]) => {
         isNextPredicted: !stated && isRunning,
         lastAmountCents: repeating?.last.amountCents ?? null,
         lastAt: latest?.entry.occurredAt ?? now,
-        monthlyCents:
-          repeating && isRunning
-            ? Math.round(
-                ((repeating.last.amountCents ?? 0) * DAYS_PER_MONTH) /
-                  repeating.cadence.days
-              )
-            : null,
+        latestId: latest?.entry.id ?? '',
+        monthlyCents: isRunning ? perMonthOf(repeating) : null,
         name,
         nextAt: stated ?? (isRunning ? predicted : null),
+        receivedCents: sumOf(
+          entries.filter(({ payment }) => payment === 'income'),
+          currency
+        ),
         threadId: latest?.threadId ?? '',
-        totalCents: currency
-          ? centsIn(
-              groupRows.map(({ entry }) => entry),
-              currency
-            )
-          : null,
+        totalCents: sumOf(entries.filter(isSpending), currency),
       }
     })
     .toSorted(
@@ -403,7 +500,7 @@ export const boardBanners = async (userId: string, boardId?: string) => {
   const byBoard = Map.groupBy(rows, ({ entry }) => entry.boardId)
   return watched
     .flatMap((board) => {
-      const boardRows = byBoard.get(board.id) ?? []
+      const { counted: boardRows } = countedOf(byBoard.get(board.id) ?? [])
       const until = addDays(now, board.bannerDays ?? 0)
       const isSoon = (date: Date | null): date is Date =>
         date !== null && date >= now && date <= until
@@ -600,7 +697,7 @@ const watchPrice = async (
     !entry?.group ||
     !entry.currency ||
     !entry.amountCents ||
-    entry.amountCents <= 0 ||
+    entry.payment !== 'paid' ||
     message.receivedAt < subDays(new Date(), ANALYZE_WINDOW_DAYS)
   ) {
     return
@@ -652,6 +749,15 @@ const watchPrice = async (
   await announceChange(board.userId, ACTION_TOPICS)
 }
 
+/** A later email of the same thing keeps the amount the first one gave, but its payment moves on: an invoice due, then paid. */
+const movedOn = (
+  earlier: Entry,
+  amount: ReturnType<typeof moneyOf> & { currency: string | null }
+) =>
+  earlier.amountCents === null
+    ? amount
+    : amount.payment && moneyOf(earlier.amountCents, amount.payment)
+
 /** A later email of the same thing (shipped after ordered) updates its entry, so its amount is not counted twice. */
 const saveEntry = async (
   board: Board,
@@ -664,10 +770,10 @@ const saveEntry = async (
   const amount =
     output.amount !== null && output.amount !== 0 && output.currency
       ? {
-          amountCents: Math.round(output.amount * 100),
+          ...moneyOf(Math.round(output.amount * 100), output.payment),
           currency: output.currency.toUpperCase(),
         }
-      : { amountCents: null, currency: null }
+      : { ...moneyOf(null, null), currency: null }
   const due = output.dueAt ? new Date(output.dueAt) : null
   const dueAt = due && due.getTime() > Date.now() ? due : null
   const messageId = await keptIdOf(message)
@@ -678,7 +784,7 @@ const saveEntry = async (
         messageId,
         ...(dueAt && { dueAt }),
         ...(status && { status }),
-        ...(earlier.amountCents === null && amount),
+        ...movedOn(earlier, amount),
       })
       .where(eq(boardEntries.id, earlier.id))
     return
@@ -754,11 +860,11 @@ const extractEntry = async (
       `Write title and status in ${language}, even when the email is in another language.`,
       'title: what this entry is in a few words ("Lisbon → Kyiv", "Netflix Premium"), never the subject line.',
       `group: who or what it belongs to as people say it ("Netflix", "Ryanair"), or null.${context.groups.length > 0 ? ` Reuse one of these when it is the same: ${context.groups.join(', ')}.` : ''}`,
-      `status: its state as this board tracks it, in one or two lowercase words, or null: a board about money tracks payment (paid, due, refunded, cancelled), so a paid order on it stays paid when it ships; orders track delivery (ordered, shipped, delivered), trips a booking (booked, cancelled), applications their stage (applied, rejected).${context.statuses.length > 0 ? ` Reuse one of these when it means the same: ${context.statuses.join(', ')}.` : ''}`,
+      `status: its state as this board tracks it besides payment, in one or two lowercase words, or null: orders track delivery (ordered, shipped, delivered), trips a booking (booked, cancelled), applications their stage (applied, rejected); null on a board about money, where payment says it.${context.statuses.length > 0 ? ` Reuse one of these when it means the same: ${context.statuses.join(', ')}.` : ''}`,
       board.bannerDays === null
         ? 'dueAt: null.'
         : 'dueAt: ISO date the email states for the next thing of this board the user must not miss: on a board about money only a date money is due by or a renewal or next charge, else its own event (a departure, an event start, a delivery on a board of orders). null for something already paid that does not renew, for a delivery on any other board, for a date that has passed, for a guess.',
-      `amount and currency (ISO 4217): the total charged or due, negative when money goes back to the user (refund, chargeback, credit), else null. occurredAt: ISO date of the event itself (today is ${new Date().toISOString().slice(0, 10)}), else null.`,
+      `amount and currency (ISO 4217): the total charged, due, refunded or received, else null. payment, whenever there is an amount, else null: paid (the user paid or was charged), due (a bill or invoice the user has yet to pay), failed (a charge declined or not gone through), refund (money back for something the user paid: refund, chargeback, credit), income (money paid to the user: a client paying, a payout, a salary). occurredAt: ISO date of the event itself (today is ${new Date().toISOString().slice(0, 10)}), else null.`,
       earlier
         ? `isUpdate: this thread already holds the entry "${earlier.entry.title}"${earlier.entry.status ? ` (${earlier.entry.status})` : ''}. true when this email is news about that same thing (shipped, delivered, changed, cancelled), false when it is a new one (next month's receipt, a refund).`
         : 'isUpdate: false.',
@@ -971,15 +1077,18 @@ export const updateEntry = async (
     dueAt?: Date | null
     group?: string | null
     occurredAt?: Date
+    payment?: BoardPayment | null
     status?: string | null
     title?: string
   }
 ) => {
-  await getOwnEntry(userId, id)
+  const entry = await getOwnEntry(userId, id)
+  const { amountCents = entry.amountCents, payment = entry.payment } = input
   await db
     .update(boardEntries)
     .set({
       ...input,
+      ...moneyOf(amountCents, payment),
       currency:
         trimmed(input.currency)?.toUpperCase() ?? trimmed(input.currency),
       editedAt: new Date(),
@@ -1094,7 +1203,7 @@ const bucketOf = (chart: { groupBy: BoardChart['groupBy'] }, entry: Entry) => {
       return entry.group
     }
     default: {
-      return entry.status
+      return entry.status ?? entry.payment
     }
   }
 }
@@ -1120,20 +1229,27 @@ const timeBuckets = (chart: BoardChart, entries: Entry[]) => {
   return starts.slice(-TIME_BUCKETS_SHOWN)
 }
 
-/** Sums draw one currency only, mixing them would draw a meaningless total; `skipped` counts the entries left out so the chart can say so. */
+/** Sums add up spending (payments less refunds) in one currency, since mixing them would draw a meaningless total; `left` counts what a sum leaves out and why, so the chart can say so. */
 const chartSeries = (chart: BoardChart, entries: Entry[]) => {
-  const currencies = chart.measure === 'sum' ? currenciesByUse(entries) : []
+  const currencies =
+    chart.measure === 'sum' ? currenciesByUse(entries.filter(isSpending)) : []
   const sumCurrency =
     currencies.find((currency) => currency === chart.currency) ??
     currencies[0] ??
     null
   const totals = new Map<string, { count: number; value: number }>()
-  let skipped = 0
+  const left = { amount: 0, currency: 0, payment: 0 }
   for (const entry of entries) {
     const bucket = bucketOf(chart, entry)
-    if (chart.measure === 'sum' && entry.currency !== sumCurrency) {
-      skipped += 1
-      continue
+    if (chart.measure === 'sum') {
+      const reason =
+        (entry.amountCents === null && 'amount') ||
+        (!isSpending(entry) && 'payment') ||
+        (entry.currency !== sumCurrency && 'currency')
+      if (reason) {
+        left[reason] += 1
+        continue
+      }
     }
     if (!bucket) {
       continue
@@ -1146,7 +1262,7 @@ const chartSeries = (chart: BoardChart, entries: Entry[]) => {
         (chart.measure === 'sum' ? (entry.amountCents ?? 0) / 100 : 1),
     })
   }
-  const shared = { ...chart, currencies, skipped, sumCurrency }
+  const shared = { ...chart, currencies, left, sumCurrency }
   const isOverTime = chart.groupBy === 'month' || chart.groupBy === 'week'
   if (isOverTime) {
     return {
@@ -1163,7 +1279,7 @@ const chartSeries = (chart: BoardChart, entries: Entry[]) => {
   const ranked = [...totals]
     .map(([key, total]) => ({ key, ...total }))
     .filter(({ value }) => chart.measure !== 'sum' || value > 0)
-    .toSorted((left, right) => right.value - left.value)
+    .toSorted((one, other) => other.value - one.value)
   return {
     ...shared,
     points: ranked.slice(0, SHARE_BUCKETS_SHOWN),
@@ -1181,45 +1297,111 @@ const monthlyCentsOf = (groups: { monthlyCents: number | null }[]) => {
   return total
 }
 
-/** The numbers above the charts, in the board's main currency: this month against the last, what repeats per month, what is due soon. */
-const summaryOf = (
+type Totals = Map<string, { amountCents: number; count: number }>
+
+/** What a span of entries adds up to per currency, the board's own first, and what it leaves out of the sum and why: every number on the page can be checked against the entries behind it. */
+const tallyOf = (
   entries: Entry[],
+  repeatOf: Map<string, string>,
+  currency: string | null
+) => {
+  const spent: Totals = new Map()
+  const received: Totals = new Map()
+  const left = { due: 0, failed: 0, noAmount: 0, repeats: 0 }
+  for (const entry of entries) {
+    if (repeatOf.has(entry.id)) {
+      left.repeats += 1
+    } else if (entry.amountCents === null || !entry.currency) {
+      left.noAmount += 1
+    } else if (entry.payment === 'due' || entry.payment === 'failed') {
+      left[entry.payment] += 1
+    } else {
+      const totals = entry.payment === 'income' ? received : spent
+      const total = totals.get(entry.currency) ?? { amountCents: 0, count: 0 }
+      totals.set(entry.currency, {
+        amountCents: total.amountCents + entry.amountCents,
+        count: total.count + 1,
+      })
+    }
+  }
+  const listed = (totals: Totals) =>
+    [...totals]
+      .map(([code, total]) => ({ currency: code, ...total }))
+      .toSorted(
+        (one, other) =>
+          Number(other.currency === currency) -
+            Number(one.currency === currency) || other.count - one.count
+      )
+  return {
+    ids: entries.map(({ id }) => id),
+    left,
+    received: listed(received),
+    spent: listed(spent),
+  }
+}
+
+/** The numbers above the charts: this month against the last, what repeats per month, what comes up soon and what of it is to pay, each with the ids of the entries behind it. */
+const summaryOf = (
+  rows: ShownEntry[],
+  { counted, repeatOf }: ReturnType<typeof countedOf>,
   groups: ReturnType<typeof groupsOf>,
   currency: string | null
 ) => {
   const now = new Date()
   const thisMonth = startOfMonth(now)
-  const lastMonth = subMonths(thisMonth, 1)
-  const span = (from: Date, to: Date) => {
-    const inSpan = entries.filter(
-      ({ occurredAt }) => occurredAt >= from && occurredAt < to
+  const span = (from: Date, to: Date) =>
+    tallyOf(
+      rows.flatMap(({ entry }) =>
+        entry.occurredAt >= from && entry.occurredAt < to ? [entry] : []
+      ),
+      repeatOf,
+      currency
     )
-    return {
-      amountCents: currency ? centsIn(inSpan, currency) : null,
-      count: inSpan.length,
-    }
-  }
   const recurring = groups.filter(
     (group) => group.monthlyCents !== null && group.currency === currency
   )
   const soon = addDays(now, UPCOMING_DAYS)
   const isSoon = (date: Date | null) =>
     date !== null && date >= now && date <= soon
+  const stated = counted.flatMap(({ entry }) =>
+    isSoon(entry.dueAt) ? [entry] : []
+  )
+  const predicted = groups.filter(
+    (group) => group.isNextPredicted && isSoon(group.nextAt)
+  )
+  const toPay = [
+    ...stated.flatMap((entry) =>
+      entry.payment === 'due' && entry.currency === currency
+        ? [entry.amountCents ?? 0]
+        : []
+    ),
+    ...predicted.flatMap((group) =>
+      group.currency === currency ? [group.lastAmountCents ?? 0] : []
+    ),
+  ]
   return {
     currency,
-    lastMonth: span(lastMonth, thisMonth),
+    lastMonth: span(subMonths(thisMonth, 1), thisMonth),
     recurring:
       recurring.length > 0
         ? {
             count: recurring.length,
+            ids: recurring.map(({ latestId }) => latestId),
             monthlyCents: monthlyCentsOf(recurring),
           }
         : null,
     thisMonth: span(thisMonth, addMonths(thisMonth, 1)),
-    upcoming:
-      entries.filter(({ dueAt }) => isSoon(dueAt)).length +
-      groups.filter((group) => group.isNextPredicted && isSoon(group.nextAt))
-        .length,
+    upcoming: {
+      count: stated.length + predicted.length,
+      ids: [
+        ...stated.map(({ id }) => id),
+        ...predicted.map(({ latestId }) => latestId),
+      ],
+      toPay: {
+        amountCents: toPay.reduce((sum, cents) => sum + cents, 0),
+        count: toPay.length,
+      },
+    },
   }
 }
 
@@ -1228,13 +1410,14 @@ export const getBoard = async (userId: string, id: string) => {
   const rows = await shownEntries(eq(boardEntries.boardId, id)).orderBy(
     desc(boardEntries.occurredAt)
   )
-  const entries = rows.map(({ entry }) => entry)
-  const currencies = currenciesByUse(entries)
-  const groups = groupsOf(rows)
+  const charges = countedOf(rows)
+  const counted = charges.counted.map(({ entry }) => entry)
+  const currencies = currenciesByUse(counted)
+  const groups = groupsOf(charges.counted)
   return {
     bannerDays: board.bannerDays,
     banners: await boardBanners(userId, id),
-    charts: board.charts.map((chart) => chartSeries(chart, entries)),
+    charts: board.charts.map((chart) => chartSeries(chart, counted)),
     currencies,
     description: board.description,
     entries: rows.slice(0, ENTRIES_SHOWN).map(({ entry, threadId }) => ({
@@ -1249,6 +1432,8 @@ export const getBoard = async (userId: string, id: string) => {
         week: bucketOf({ groupBy: 'week' }, entry),
       },
       occurredAt: entry.occurredAt,
+      payment: entry.payment,
+      repeatOf: charges.repeatOf.get(entry.id) ?? null,
       status: entry.status,
       threadId,
       title: entry.title,
@@ -1261,8 +1446,8 @@ export const getBoard = async (userId: string, id: string) => {
     isReadingHistory: !board.historyReadAt,
     name: board.name,
     periodDays: board.periodDays,
-    statuses: distinct(entries.map(({ status }) => status)),
-    summary: summaryOf(entries, groups, currencies[0] ?? null),
-    total: entries.length,
+    statuses: distinct(rows.map(({ entry }) => entry.status)),
+    summary: summaryOf(rows, charges, groups, currencies[0] ?? null),
+    total: rows.length,
   }
 }

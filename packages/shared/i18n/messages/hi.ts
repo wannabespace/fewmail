@@ -1539,7 +1539,22 @@ export const hi: Messages = {
       moveLater: 'बाद में ले जाएँ',
       other: 'अन्य',
       remove: 'चार्ट हटाएँ',
-      skipped: (n: number) => `नहीं गिना गया: ${n} दूसरी मुद्रा में या बिना राशि के`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `जोड़ में नहीं: ${[
+          currency > 0 && `दूसरी मुद्रा में: ${currency}`,
+          payment > 0 && `बकाया, असफल या प्राप्त: ${payment}`,
+          amount > 0 && `बिना राशि: ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'चार्ट का नाम',
       type: 'चार्ट का प्रकार',
       types: {
@@ -1568,6 +1583,7 @@ export const hi: Messages = {
       edited: 'आपने बदला',
       nextOn: (date: string) => `अगली ${date}`,
       remove: 'इस बोर्ड का नहीं',
+      repeatOf: (date: string) => `${date} वाला ही भुगतान, एक बार गिना गया`,
       removed: 'बोर्ड से हटा दिया। आगे से इसका ध्यान रखेगा।',
     },
     expected: (when: string) => `अपेक्षित ${when}`,
@@ -1607,6 +1623,13 @@ export const hi: Messages = {
     new: 'नया बोर्ड',
     newHint:
       'अपने शब्दों में बताएँ क्या इकट्ठा करना है। Fewmail आपकी चुनी अवधि तक के मेल में उसे ढूँढेगा, चार्ट चुनेगा और बोर्ड को अपडेट रखेगा।',
+    payment: {
+      due: 'बकाया',
+      failed: 'असफल',
+      income: 'प्राप्त',
+      paid: 'चुकाया',
+      refund: 'रिफ़ंड',
+    },
     period: 'अवधि',
     periods: {
       1: 'पिछला दिन',
@@ -1680,14 +1703,39 @@ export const hi: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('hi', n, {
+          one: (count) => `${count} भुगतान`,
+          other: (count) => `${count} भुगतान`,
+        })
+        return `${amount} = ${payments}, रिफ़ंड घटाकर।`
+      },
+      dates: (n: number) =>
+        plural('hi', n, {
+          one: (count) => `${count} तारीख`,
+          other: (count) => `${count} तारीखें`,
+        }),
       lastMonth: 'पिछला महीना',
+      left: (parts: string[]) => `इसमें शामिल नहीं: ${parts.join(', ')}।`,
+      leftOut: {
+        failed: (n: number) => `असफल: ${n}`,
+        noAmount: (n: number) => `बिना राशि: ${n}`,
+        repeats: (n: number) => `पहले गिने गए भुगतान की दोहराई: ${n}`,
+      },
+      payments: (n: number) =>
+        plural('hi', n, {
+          one: (count) => `${count} भुगतान`,
+          other: (count) => `${count} भुगतान`,
+        }),
       perMonth: (amount: string) => `${amount} हर महीने`,
+      received: (amount: string) => `${amount} प्राप्त`,
       recurring: (n: number) =>
         plural('hi', n, {
           one: () => 'एक नियमित',
           other: (count) => `${count} नियमित`,
         }),
       thisMonth: 'इस महीने',
+      toPay: (n: number) => `बकाया: ${n}`,
       upcoming: 'अगले 30 दिन',
     },
   },

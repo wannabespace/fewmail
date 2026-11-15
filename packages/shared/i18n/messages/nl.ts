@@ -173,8 +173,22 @@ export const nl: Messages = {
       moveLater: 'Naar achteren',
       other: 'Overig',
       remove: 'Grafiek verwijderen',
-      skipped: (n: number) =>
-        `Niet meegeteld: ${n} in een andere valuta of zonder bedrag`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Niet in de som: ${[
+          currency > 0 && `andere valuta: ${currency}`,
+          payment > 0 && `te betalen, mislukt of ontvangen: ${payment}`,
+          amount > 0 && `zonder bedrag: ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Titel van de grafiek',
       type: 'Soort grafiek',
       types: {
@@ -206,6 +220,8 @@ export const nl: Messages = {
       edited: 'Door jou bewerkt',
       nextOn: (date: string) => `volgende: ${date}`,
       remove: 'Niet op dit bord',
+      repeatOf: (date: string) =>
+        `dezelfde betaling als op ${date}, één keer geteld`,
       removed: 'Van het bord gehaald. Het leert ervan.',
     },
     expected: (when: string) => `Verwacht ${when}`,
@@ -247,6 +263,13 @@ export const nl: Messages = {
     new: 'Nieuw bord',
     newHint:
       'Beschrijf in je eigen woorden wat er verzameld moet worden. Fewmail zoekt het op in je mail zo ver terug als je kiest, kiest de grafieken en houdt het bij.',
+    payment: {
+      due: 'te betalen',
+      failed: 'mislukt',
+      income: 'ontvangen',
+      paid: 'betaald',
+      refund: 'terugbetaling',
+    },
     period: 'Periode',
     periods: {
       1: 'Afgelopen dag',
@@ -321,14 +344,39 @@ export const nl: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('nl', n, {
+          one: () => `één betaling`,
+          other: (count) => `${count} betalingen`,
+        })
+        return `${amount} is ${payments}, min terugbetalingen.`
+      },
+      dates: (n: number) =>
+        plural('nl', n, {
+          one: () => `één datum`,
+          other: (count) => `${count} datums`,
+        }),
       lastMonth: 'Vorige maand',
+      left: (parts: string[]) => `Niet meegeteld: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `mislukt: ${n}`,
+        noAmount: (n: number) => `zonder bedrag: ${n}`,
+        repeats: (n: number) => `herhaling van een al getelde betaling: ${n}`,
+      },
+      payments: (n: number) =>
+        plural('nl', n, {
+          one: () => `één betaling`,
+          other: (count) => `${count} betalingen`,
+        }),
       perMonth: (amount: string) => `${amount} per maand`,
+      received: (amount: string) => `${amount} ontvangen`,
       recurring: (n: number) =>
         plural('nl', n, {
           one: () => 'Eén terugkerend',
           other: (count) => `${count} terugkerend`,
         }),
       thisMonth: 'Deze maand',
+      toPay: (n: number) => `te betalen: ${n}`,
       upcoming: 'Komende 30 dagen',
     },
   },

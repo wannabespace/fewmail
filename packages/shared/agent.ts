@@ -413,6 +413,15 @@ export const BOARD_MEASURES = ['sum', 'count'] as const
 export type BoardMeasure = (typeof BOARD_MEASURES)[number]
 export const BOARD_GROUPINGS = ['month', 'week', 'group', 'status'] as const
 export type BoardGrouping = (typeof BOARD_GROUPINGS)[number]
+/** What an entry's amount did. Only `paid` and `refund` (stored negative) are spending; the rest is listed apart, never summed into it. */
+export const BOARD_PAYMENTS = [
+  'paid',
+  'due',
+  'failed',
+  'refund',
+  'income',
+] as const
+export type BoardPayment = (typeof BOARD_PAYMENTS)[number]
 
 export interface BoardChart {
   currency?: string

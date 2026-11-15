@@ -1588,7 +1588,22 @@ export const uk: Messages = {
       moveLater: 'Посунути пізніше',
       other: 'Інше',
       remove: 'Прибрати графік',
-      skipped: (n: number) => `Не враховано: ${n} (інша валюта або без суми)`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Не в сумі: ${[
+          currency > 0 && `в іншій валюті: ${currency}`,
+          payment > 0 && `до сплати, невдалі чи отримані: ${payment}`,
+          amount > 0 && `без суми: ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Назва графіка',
       type: 'Тип графіка',
       types: {
@@ -1624,6 +1639,8 @@ export const uk: Messages = {
       edited: 'Виправлено тобою',
       nextOn: (date: string) => `далі ${date}`,
       remove: 'Не для цієї дошки',
+      repeatOf: (date: string) =>
+        `той самий платіж, що й ${date}, враховано раз`,
       removed: 'Прибрано з дошки. Вона це запам’ятає.',
     },
     expected: (when: string) => `Очікується ${when}`,
@@ -1664,6 +1681,13 @@ export const uk: Messages = {
     new: 'Нова дошка',
     newHint:
       'Опиши своїми словами, що збирати. Fewmail знайде це в пошті за обраний період, підбере графіки й оновлюватиме дошку сам.',
+    payment: {
+      due: 'до сплати',
+      failed: 'не пройшов',
+      income: 'отримано',
+      paid: 'сплачено',
+      refund: 'повернення',
+    },
     period: 'Період',
     periods: {
       1: 'Останній день',
@@ -1740,8 +1764,38 @@ export const uk: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('uk', n, {
+          one: (count) => `${count} платіж`,
+          few: (count) => `${count} платежі`,
+          many: (count) => `${count} платежів`,
+          other: (count) => `${count} платежу`,
+        })
+        return `${amount} — це ${payments}, повернення віднято.`
+      },
+      dates: (n: number) =>
+        plural('uk', n, {
+          one: (count) => `${count} дата`,
+          few: (count) => `${count} дати`,
+          many: (count) => `${count} дат`,
+          other: (count) => `${count} дати`,
+        }),
       lastMonth: 'Минулого місяця',
+      left: (parts: string[]) => `Не ввійшло: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `не пройшли: ${n}`,
+        noAmount: (n: number) => `без суми: ${n}`,
+        repeats: (n: number) => `повтори вже врахованого платежу: ${n}`,
+      },
+      payments: (n: number) =>
+        plural('uk', n, {
+          one: (count) => `${count} платіж`,
+          few: (count) => `${count} платежі`,
+          many: (count) => `${count} платежів`,
+          other: (count) => `${count} платежу`,
+        }),
       perMonth: (amount: string) => `${amount} на місяць`,
+      received: (amount: string) => `отримано ${amount}`,
       recurring: (n: number) =>
         plural('uk', n, {
           one: (count) => `${count} регулярний`,
@@ -1750,6 +1804,7 @@ export const uk: Messages = {
           other: (count) => `${count} регулярного`,
         }),
       thisMonth: 'Цього місяця',
+      toPay: (n: number) => `до сплати: ${n}`,
       upcoming: 'Найближчі 30 днів',
     },
   },

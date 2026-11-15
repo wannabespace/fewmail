@@ -173,8 +173,22 @@ export const pl: Messages = {
       moveLater: 'Przesuń dalej',
       other: 'Inne',
       remove: 'Usuń wykres',
-      skipped: (n: number) =>
-        `Nie wliczono: ${n} w innej walucie lub bez kwoty`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Poza sumą: ${[
+          currency > 0 && `inna waluta: ${currency}`,
+          payment > 0 && `do zapłaty, nieudane lub otrzymane: ${payment}`,
+          amount > 0 && `bez kwoty: ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Tytuł wykresu',
       type: 'Rodzaj wykresu',
       types: {
@@ -209,6 +223,7 @@ export const pl: Messages = {
       edited: 'Poprawione przez ciebie',
       nextOn: (date: string) => `następnie ${date}`,
       remove: 'Nie z tej tablicy',
+      repeatOf: (date: string) => `ta sama płatność co ${date}, liczona raz`,
       removed: 'Zdjęte z tablicy. Zapamięta to na przyszłość.',
     },
     expected: (when: string) => `Spodziewane ${when}`,
@@ -249,6 +264,13 @@ export const pl: Messages = {
     new: 'Nowa tablica',
     newHint:
       'Opisz własnymi słowami, co zbierać. Fewmail znajdzie to w poczcie z wybranego okresu, dobierze wykresy i będzie je aktualizować.',
+    payment: {
+      due: 'do zapłaty',
+      failed: 'nieudana',
+      income: 'otrzymano',
+      paid: 'zapłacono',
+      refund: 'zwrot',
+    },
     period: 'Okres',
     periods: {
       1: 'Ostatni dzień',
@@ -323,8 +345,38 @@ export const pl: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('pl', n, {
+          one: (count) => `${count} płatność`,
+          few: (count) => `${count} płatności`,
+          many: (count) => `${count} płatności`,
+          other: (count) => `${count} płatności`,
+        })
+        return `${amount} to ${payments}, po odjęciu zwrotów.`
+      },
+      dates: (n: number) =>
+        plural('pl', n, {
+          one: (count) => `${count} termin`,
+          few: (count) => `${count} terminy`,
+          many: (count) => `${count} terminów`,
+          other: (count) => `${count} terminu`,
+        }),
       lastMonth: 'Poprzedni miesiąc',
+      left: (parts: string[]) => `Nie wliczono: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `nieudane: ${n}`,
+        noAmount: (n: number) => `bez kwoty: ${n}`,
+        repeats: (n: number) => `powtórzenia już policzonej płatności: ${n}`,
+      },
+      payments: (n: number) =>
+        plural('pl', n, {
+          one: (count) => `${count} płatność`,
+          few: (count) => `${count} płatności`,
+          many: (count) => `${count} płatności`,
+          other: (count) => `${count} płatności`,
+        }),
       perMonth: (amount: string) => `${amount} miesięcznie`,
+      received: (amount: string) => `otrzymano ${amount}`,
       recurring: (n: number) =>
         plural('pl', n, {
           one: () => 'Jedna cykliczna',
@@ -333,6 +385,7 @@ export const pl: Messages = {
           other: (count) => `${count} cyklicznej`,
         }),
       thisMonth: 'Ten miesiąc',
+      toPay: (n: number) => `do zapłaty: ${n}`,
       upcoming: 'Najbliższe 30 dni',
     },
   },

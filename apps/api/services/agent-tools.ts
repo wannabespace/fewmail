@@ -1,5 +1,6 @@
 import {
   AGENT_TOOLS,
+  BOARD_PAYMENTS,
   BOARD_PERIODS,
   EVENT_SCOPES,
   MAIL_CATEGORIES,
@@ -325,7 +326,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   get_board: define({
     description:
-      'One board: its description and Gmail query, a summary (this month, last month, what repeats per month, what is due soon), its groups (total, how often they repeat, next date), the newest entries (id, title, group, status, amount, date, next date) and the series behind its charts.',
+      'One board: its description and Gmail query, a summary (this month and last month: spent and received per currency and what the sum leaves out — due, failed, repeats of one charge, no amount; what repeats per month; what comes up in 30 days and what of it is to pay), its groups (spent or received, how often they repeat, next date), the newest entries (id, title, group, status, payment, amount, date, next date; repeatOf: the entry of the same charge that counts instead) and the series behind its charts. Only paid less refunds is spending: say so when quoting a sum.',
     input: { id: z.uuid() },
     run: async ({ id }) => {
       const board = await getBoard(userId, id)
@@ -364,7 +365,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   edit_board_entry: define({
     description:
-      "Correct an entry of a board (id from get_board). amount is in the currency's units, negative for a refund; dates are ISO; null clears a field.",
+      "Correct an entry of a board (id from get_board). amount is in the currency's units; payment says what it did (paid, due, failed, refund, income; only paid and refund count as spending); dates are ISO; null clears a field.",
     input: {
       amount: z.number().nullable().optional(),
       currency: z.string().length(3).nullable().optional(),
@@ -372,6 +373,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       dueAt: z.iso.date().nullable().optional(),
       group: z.string().nullable().optional(),
       id: z.uuid(),
+      payment: z.enum(BOARD_PAYMENTS).nullable().optional(),
       status: z.string().nullable().optional(),
       title: z.string().min(1).optional(),
     },

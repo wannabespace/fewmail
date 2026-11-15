@@ -31,6 +31,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { ComponentProps } from 'react'
 import { useState } from 'react'
 
+import { useStatusLabel } from '~/components/board-entries'
 import { useDates, useLocale, useMoneyFormat, useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 
@@ -217,6 +218,7 @@ const ChartEditor = ({
 const useRows = (series: ChartSeries) => {
   const t = useT()
   const dates = useDates()
+  const statusLabel = useStatusLabel()
   const labels = (key: string) => {
     if (series.groupBy === 'month') {
       const month = new Date(`${key}-01T00:00:00`)
@@ -229,7 +231,8 @@ const useRows = (series: ChartSeries) => {
       const label = dates.format(new Date(`${key}T00:00:00`), 'd MMM')
       return { heading: t.boards.chart.weekOf(label), label }
     }
-    return { heading: key, label: key }
+    const label = series.groupBy === 'status' ? statusLabel(key) : key
+    return { heading: label, label }
   }
   const rows = series.points.map(({ count, key, value }) => {
     const { heading, label } = labels(key)
@@ -394,10 +397,13 @@ const SkippedNote = ({ series }: { series: ChartSeries }) => {
   const t = useT()
   return (
     <p className="text-muted-foreground text-xs">
-      {t.boards.chart.skipped(series.skipped)}
+      {t.boards.chart.skipped(series.left)}
     </p>
   )
 }
+
+const hasLeft = ({ left }: ChartSeries) =>
+  left.amount + left.currency + left.payment > 0
 
 export const BoardChartCard = ({
   canMove,
@@ -437,7 +443,7 @@ export const BoardChartCard = ({
     <div data-mask>
       <ChartBody series={series} picked={picked} onPick={onPick} />
     </div>
-    {series.skipped > 0 && <SkippedNote series={series} />}
+    {hasLeft(series) && <SkippedNote series={series} />}
   </section>
 )
 

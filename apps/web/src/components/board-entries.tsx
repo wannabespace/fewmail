@@ -1,4 +1,6 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import type { BoardPayment } from '@fewmail/shared/agent'
+import { BOARD_PAYMENTS } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
@@ -22,6 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@fewmail/ui/components/popover'
+import { cn } from '@fewmail/ui/lib/utils'
 import {
   DashboardSquare01Icon,
   Edit02Icon,
@@ -46,6 +49,18 @@ export type Entry = Board['entries'][number]
 type Group = Board['groups'][number]
 
 const GROUPS_SHOWN = 6
+
+const isPayment = (value: string): value is BoardPayment =>
+  BOARD_PAYMENTS.some((payment) => payment === value)
+
+/** A board about money has no status of its own: its payment stands in, so a status chart and filter group by it. */
+export const statusOf = (entry: Entry) => entry.status ?? entry.payment
+
+export const useStatusLabel = () => {
+  const t = useT()
+  return (status: string) =>
+    isPayment(status) ? t.boards.payment[status] : status
+}
 
 const refetchBoards = () => refetchChanged(['boards', 'today'])
 
@@ -82,13 +97,38 @@ export const useEntryActions = (boardId: string) => {
   }
 }
 
+/** An amount that is not spending (a repeat, a failed charge, a bill still to pay, money received) reads apart from the ones the sums add up. */
+const EntryAmount = ({ entry }: { entry: Entry }) => {
+  const money = useMoneyFormat()
+  if (entry.amountCents === null || !entry.currency) {
+    return null
+  }
+  const isLeftOut = entry.repeatOf !== null || entry.payment === 'failed'
+  return (
+    <span
+      className={cn(
+        'tabular-nums',
+        (isLeftOut || entry.payment === 'due') && 'text-muted-foreground',
+        isLeftOut && 'line-through'
+      )}
+      data-mask
+    >
+      {entry.payment === 'income' && '+'}
+      {money(entry.amountCents, entry.currency)}
+    </span>
+  )
+}
+
 export const EntryRow = ({
+  countedOn,
   entry,
   isActive,
   onOpen,
   onRemove,
   onSelect,
 }: {
+  /** For a repeat of one charge: when the entry that counts instead happened. */
+  countedOn: Date | undefined
   entry: Entry
   isActive: boolean
   onOpen: () => void
@@ -98,7 +138,8 @@ export const EntryRow = ({
 }) => {
   const t = useT()
   const dates = useDates()
-  const money = useMoneyFormat()
+  const statusLabel = useStatusLabel()
+  const status = statusOf(entry)
 
   return (
     <SettingsRow
@@ -115,10 +156,12 @@ export const EntryRow = ({
         <span data-mask>
           {[
             entry.group,
-            entry.status,
+            status && statusLabel(status),
             dates.format(entry.occurredAt, 'd MMM yyyy'),
             entry.dueAt &&
               t.boards.entry.nextOn(dates.format(entry.dueAt, 'd MMM')),
+            countedOn &&
+              t.boards.entry.repeatOf(dates.format(countedOn, 'd MMM')),
             entry.isEdited && t.boards.entry.edited,
           ]
             .filter(Boolean)
@@ -126,11 +169,7 @@ export const EntryRow = ({
         </span>
       }
     >
-      {entry.amountCents !== null && entry.currency && (
-        <span className="tabular-nums" data-mask>
-          {money(entry.amountCents, entry.currency)}
-        </span>
-      )}
+      <EntryAmount entry={entry} />
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
@@ -240,6 +279,14 @@ const GroupRow = ({
   const dates = useDates()
   const money = useMoneyFormat()
   const nextOn = group.nextAt && dates.format(group.nextAt, 'd MMM')
+  const { currency } = group
+  const amount =
+    currency &&
+    ((group.monthlyCents !== null &&
+      t.boards.groups.perMonth(money(group.monthlyCents, currency))) ||
+      (group.totalCents !== null && money(group.totalCents, currency)) ||
+      (group.receivedCents !== null &&
+        `+${money(group.receivedCents, currency)}`))
 
   return (
     <SettingsRow
@@ -263,14 +310,9 @@ const GroupRow = ({
         </span>
       }
     >
-      {group.currency && (
+      {amount && (
         <span className="tabular-nums" data-mask>
-          {group.monthlyCents === null
-            ? group.totalCents !== null &&
-              money(group.totalCents, group.currency)
-            : t.boards.groups.perMonth(
-                money(group.monthlyCents, group.currency)
-              )}
+          {amount}
         </span>
       )}
       <RenameGroup boardId={boardId} name={group.name} />

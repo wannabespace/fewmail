@@ -1584,8 +1584,22 @@ export const de: Messages = {
       moveLater: 'Nach hinten',
       other: 'Sonstiges',
       remove: 'Diagramm entfernen',
-      skipped: (n: number) =>
-        `Nicht gezählt: ${n} in anderer Währung oder ohne Betrag`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Nicht in der Summe: ${[
+          currency > 0 && `andere Währung: ${currency}`,
+          payment > 0 && `offen, fehlgeschlagen oder erhalten: ${payment}`,
+          amount > 0 && `ohne Betrag: ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Diagrammtitel',
       type: 'Diagrammtyp',
       types: {
@@ -1618,6 +1632,8 @@ export const de: Messages = {
       edited: 'Von dir bearbeitet',
       nextOn: (date: string) => `nächstes: ${date}`,
       remove: 'Nicht auf diesem Board',
+      repeatOf: (date: string) =>
+        `dieselbe Zahlung wie am ${date}, einmal gezählt`,
       removed: 'Vom Board genommen. Es lernt daraus.',
     },
     expected: (when: string) => `Erwartet ${when}`,
@@ -1659,6 +1675,13 @@ export const de: Messages = {
     new: 'Neues Board',
     newHint:
       'Beschreibe in eigenen Worten, was gesammelt werden soll. Fewmail findet es in deinen Mails so weit zurück, wie du wählst, wählt die Diagramme und hält alles aktuell.',
+    payment: {
+      due: 'offen',
+      failed: 'fehlgeschlagen',
+      income: 'erhalten',
+      paid: 'bezahlt',
+      refund: 'Erstattung',
+    },
     period: 'Zeitraum',
     periods: {
       1: 'Letzter Tag',
@@ -1733,14 +1756,40 @@ export const de: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('de', n, {
+          one: () => `eine Zahlung`,
+          other: (count) => `${count} Zahlungen`,
+        })
+        return `${amount} sind ${payments}, Erstattungen abgezogen.`
+      },
+      dates: (n: number) =>
+        plural('de', n, {
+          one: () => `ein Termin`,
+          other: (count) => `${count} Termine`,
+        }),
       lastMonth: 'Letzter Monat',
+      left: (parts: string[]) => `Nicht enthalten: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `fehlgeschlagen: ${n}`,
+        noAmount: (n: number) => `ohne Betrag: ${n}`,
+        repeats: (n: number) =>
+          `Wiederholung einer schon gezählten Zahlung: ${n}`,
+      },
+      payments: (n: number) =>
+        plural('de', n, {
+          one: () => `eine Zahlung`,
+          other: (count) => `${count} Zahlungen`,
+        }),
       perMonth: (amount: string) => `${amount} im Monat`,
+      received: (amount: string) => `${amount} erhalten`,
       recurring: (n: number) =>
         plural('de', n, {
           one: () => 'Ein wiederkehrender',
           other: (count) => `${count} wiederkehrende`,
         }),
       thisMonth: 'Dieser Monat',
+      toPay: (n: number) => `offen: ${n}`,
       upcoming: 'Nächste 30 Tage',
     },
   },

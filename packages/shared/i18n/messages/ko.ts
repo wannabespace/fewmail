@@ -1527,7 +1527,22 @@ export const ko: Messages = {
       moveLater: '뒤로 이동',
       other: '기타',
       remove: '차트 삭제',
-      skipped: (n: number) => `집계 제외: ${n}건(다른 통화 또는 금액 없음)`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `합계 제외: ${[
+          currency > 0 && `다른 통화 ${currency}건`,
+          payment > 0 && `미결제·실패·수령 ${payment}건`,
+          amount > 0 && `금액 없음 ${amount}건`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: '차트 제목',
       type: '차트 종류',
       types: {
@@ -1554,6 +1569,7 @@ export const ko: Messages = {
       edited: '직접 수정함',
       nextOn: (date: string) => `다음 ${date}`,
       remove: '이 보드에서 빼기',
+      repeatOf: (date: string) => `${date}과 같은 결제, 한 번만 계산`,
       removed: '보드에서 뺐어요. 다음부터 참고할게요.',
     },
     expected: (when: string) => `${when} 예정`,
@@ -1593,6 +1609,13 @@ export const ko: Messages = {
     new: '새 보드',
     newHint:
       '모을 내용을 직접 설명해 주세요. Fewmail이 고른 기간의 메일에서 찾아내고, 차트를 고르고, 계속 최신으로 유지해요.',
+    payment: {
+      due: '미결제',
+      failed: '실패',
+      income: '받음',
+      paid: '결제됨',
+      refund: '환불',
+    },
     period: '기간',
     periods: {
       1: '최근 1일',
@@ -1660,10 +1683,24 @@ export const ko: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = `결제 ${n}건`
+        return `${amount}은 ${payments}의 합계예요(환불 차감).`
+      },
+      dates: (n: number) => `일정 ${n}건`,
       lastMonth: '지난달',
+      left: (parts: string[]) => `포함 안 됨: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `실패 ${n}건`,
+        noAmount: (n: number) => `금액 없음 ${n}건`,
+        repeats: (n: number) => `이미 계산된 결제의 중복 ${n}건`,
+      },
+      payments: (n: number) => `결제 ${n}건`,
       perMonth: (amount: string) => `월 ${amount}`,
+      received: (amount: string) => `받은 금액 ${amount}`,
       recurring: (n: number) => `정기 ${n}개`,
       thisMonth: '이번 달',
+      toPay: (n: number) => `미결제 ${n}건`,
       upcoming: '향후 30일',
     },
   },

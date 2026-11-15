@@ -173,8 +173,22 @@ export const id: Messages = {
       moveLater: 'Geser lebih akhir',
       other: 'Lainnya',
       remove: 'Hapus grafik',
-      skipped: (n: number) =>
-        `Tidak dihitung: ${n} dalam mata uang lain atau tanpa jumlah`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Tidak dijumlahkan: ${[
+          currency > 0 && `mata uang lain: ${currency}`,
+          payment > 0 && `belum dibayar, gagal, atau diterima: ${payment}`,
+          amount > 0 && `tanpa jumlah: ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Judul grafik',
       type: 'Jenis grafik',
       types: {
@@ -204,6 +218,8 @@ export const id: Messages = {
       edited: 'Diedit olehmu',
       nextOn: (date: string) => `berikutnya ${date}`,
       remove: 'Bukan untuk papan ini',
+      repeatOf: (date: string) =>
+        `tagihan yang sama dengan ${date}, dihitung sekali`,
       removed: 'Dikeluarkan dari papan. Papan belajar dari situ.',
     },
     expected: (when: string) => `Diperkirakan ${when}`,
@@ -244,6 +260,13 @@ export const id: Messages = {
     new: 'Papan baru',
     newHint:
       'Jelaskan dengan kata-katamu sendiri apa yang dikumpulkan. Fewmail mencarinya di email sejauh periode yang kamu pilih, memilih grafik, dan terus memperbaruinya.',
+    payment: {
+      due: 'belum dibayar',
+      failed: 'gagal',
+      income: 'diterima',
+      paid: 'dibayar',
+      refund: 'pengembalian',
+    },
     period: 'Periode',
     periods: {
       1: 'Sehari terakhir',
@@ -315,11 +338,29 @@ export const id: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('id', n, {
+          other: (count) => `${count} pembayaran`,
+        })
+        return `${amount} = ${payments}, dikurangi pengembalian dana.`
+      },
+      dates: (n: number) =>
+        plural('id', n, { other: (count) => `${count} tanggal` }),
       lastMonth: 'Bulan lalu',
+      left: (parts: string[]) => `Tidak termasuk: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `gagal: ${n}`,
+        noAmount: (n: number) => `tanpa jumlah: ${n}`,
+        repeats: (n: number) => `ulangan tagihan yang sudah dihitung: ${n}`,
+      },
+      payments: (n: number) =>
+        plural('id', n, { other: (count) => `${count} pembayaran` }),
       perMonth: (amount: string) => `${amount} per bulan`,
+      received: (amount: string) => `${amount} diterima`,
       recurring: (n: number) =>
         plural('id', n, { other: (count) => `${count} berulang` }),
       thisMonth: 'Bulan ini',
+      toPay: (n: number) => `belum dibayar: ${n}`,
       upcoming: '30 hari ke depan',
     },
   },

@@ -1597,8 +1597,22 @@ export const fr: Messages = {
       moveLater: 'Reculer',
       other: 'Autres',
       remove: 'Retirer le graphique',
-      skipped: (n: number) =>
-        `Non comptées : ${n} dans une autre devise ou sans montant`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Hors de la somme : ${[
+          currency > 0 && `autre devise : ${currency}`,
+          payment > 0 && `à payer, échoués ou reçus : ${payment}`,
+          amount > 0 && `sans montant : ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Titre du graphique',
       type: 'Type de graphique',
       types: {
@@ -1632,6 +1646,8 @@ export const fr: Messages = {
       edited: 'Modifiée par toi',
       nextOn: (date: string) => `prochaine : ${date}`,
       remove: 'Pas sur ce tableau',
+      repeatOf: (date: string) =>
+        `même paiement que le ${date}, compté une fois`,
       removed: 'Retirée du tableau. Il en tiendra compte.',
     },
     expected: (when: string) => `Prévu ${when}`,
@@ -1672,6 +1688,13 @@ export const fr: Messages = {
     new: 'Nouveau tableau',
     newHint:
       'Décris avec tes mots ce qu’il faut rassembler. Fewmail le retrouve dans tes e-mails aussi loin que tu choisis, choisit les graphiques et tient le tout à jour.',
+    payment: {
+      due: 'à payer',
+      failed: 'échoué',
+      income: 'reçu',
+      paid: 'payé',
+      refund: 'remboursement',
+    },
     period: 'Période',
     periods: {
       1: 'Dernier jour',
@@ -1746,14 +1769,39 @@ export const fr: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('fr', n, {
+          one: (count) => `${count} paiement`,
+          other: (count) => `${count} paiements`,
+        })
+        return `${amount} = ${payments}, remboursements déduits.`
+      },
+      dates: (n: number) =>
+        plural('fr', n, {
+          one: (count) => `${count} date`,
+          other: (count) => `${count} dates`,
+        }),
       lastMonth: 'Mois dernier',
+      left: (parts: string[]) => `Non inclus : ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `échoués : ${n}`,
+        noAmount: (n: number) => `sans montant : ${n}`,
+        repeats: (n: number) => `répétitions d’un paiement déjà compté : ${n}`,
+      },
+      payments: (n: number) =>
+        plural('fr', n, {
+          one: (count) => `${count} paiement`,
+          other: (count) => `${count} paiements`,
+        }),
       perMonth: (amount: string) => `${amount} par mois`,
+      received: (amount: string) => `${amount} reçus`,
       recurring: (n: number) =>
         plural('fr', n, {
           one: () => 'Un récurrent',
           other: (count) => `${count} récurrents`,
         }),
       thisMonth: 'Ce mois-ci',
+      toPay: (n: number) => `à payer : ${n}`,
       upcoming: '30 prochains jours',
     },
   },

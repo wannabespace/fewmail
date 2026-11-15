@@ -1548,7 +1548,22 @@ export const ja: Messages = {
       moveLater: '後ろへ移動',
       other: 'その他',
       remove: 'グラフを削除',
-      skipped: (n: number) => `集計外: ${n}件(別の通貨または金額なし)`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `合計外: ${[
+          currency > 0 && `別の通貨 ${currency}件`,
+          payment > 0 && `未払い・失敗・受取 ${payment}件`,
+          amount > 0 && `金額なし ${amount}件`,
+        ]
+          .filter(Boolean)
+          .join('、')}`,
       title: 'グラフのタイトル',
       type: 'グラフの種類',
       types: {
@@ -1575,6 +1590,7 @@ export const ja: Messages = {
       edited: 'あなたが編集',
       nextOn: (date: string) => `次回 ${date}`,
       remove: 'このボードに含めない',
+      repeatOf: (date: string) => `${date}と同じ支払い、1回だけ計上`,
       removed: 'ボードから外しました。次からはこれを踏まえます。',
     },
     expected: (when: string) => `${when}予定`,
@@ -1614,6 +1630,13 @@ export const ja: Messages = {
     new: '新しいボード',
     newHint:
       '集めたいものを自分の言葉で書いてください。Fewmail が選んだ期間のメールから探し出し、グラフを選び、最新の状態に保ちます。',
+    payment: {
+      due: '未払い',
+      failed: '失敗',
+      income: '受取',
+      paid: '支払済み',
+      refund: '返金',
+    },
     period: '期間',
     periods: {
       1: '直近1日',
@@ -1682,10 +1705,24 @@ export const ja: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = `支払い${n}件`
+        return `${amount}は${payments}の合計(返金を差し引き済み)。`
+      },
+      dates: (n: number) => `${n}件の予定`,
       lastMonth: '先月',
+      left: (parts: string[]) => `含まれないもの: ${parts.join('、')}。`,
+      leftOut: {
+        failed: (n: number) => `失敗 ${n}件`,
+        noAmount: (n: number) => `金額なし ${n}件`,
+        repeats: (n: number) => `計上済みの支払いの重複 ${n}件`,
+      },
+      payments: (n: number) => `支払い${n}件`,
       perMonth: (amount: string) => `月${amount}`,
+      received: (amount: string) => `受取 ${amount}`,
       recurring: (n: number) => `定期 ${n}件`,
       thisMonth: '今月',
+      toPay: (n: number) => `未払い ${n}件`,
       upcoming: '今後30日',
     },
   },

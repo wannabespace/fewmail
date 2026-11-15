@@ -47,7 +47,9 @@ import type { Board, Entry } from '~/components/board-entries'
 import {
   BoardGroups,
   EntryRow,
+  statusOf,
   useEntryActions,
+  useStatusLabel,
 } from '~/components/board-entries'
 import { useIsThreadExpanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
@@ -60,19 +62,26 @@ import { toastUndo } from '~/lib/undo'
 const BOARD_INTENTS = ['chart', 'describe', 'rename', 'settings'] as const
 type BoardIntent = (typeof BOARD_INTENTS)[number]
 
-interface Filter {
-  by: BoardGrouping
-  key: string
-}
+type SummaryKey = 'lastMonth' | 'recurring' | 'thisMonth' | 'upcoming'
 
-const isIn = (entry: Entry, filter: Filter) => {
+type Filter =
+  | { by: BoardGrouping; key: string }
+  | { by: 'summary'; key: SummaryKey }
+
+const isIn = (entry: Entry, filter: Filter, board: Board) => {
   switch (filter.by) {
     case 'month':
     case 'week': {
       return entry.keys[filter.by] === filter.key
     }
+    case 'group': {
+      return entry.group === filter.key
+    }
+    case 'status': {
+      return statusOf(entry) === filter.key
+    }
     default: {
-      return entry[filter.by] === filter.key
+      return board.summary[filter.key]?.ids.includes(entry.id) ?? false
     }
   }
 }
@@ -94,9 +103,9 @@ const useBoardUpdate = (boardId: string) => {
               ...(next && {
                 charts: next.map((chart) => ({
                   currencies: [],
+                  left: { amount: 0, currency: 0, payment: 0 },
                   points: [],
                   rest: 0,
-                  skipped: 0,
                   sumCurrency: null,
                   ...old.charts.find(({ id }) => id === chart.id),
                   ...chart,
@@ -237,53 +246,144 @@ const DescriptionField = ({
   )
 }
 
-const Summary = ({ board }: { board: Board }) => {
+type Span = Board['summary']['thisMonth']
+
+/** Each stat is a filter: a click lists exactly the entries behind its number, so none has to be taken on trust. */
+const Summary = ({
+  board,
+  onPick,
+  picked,
+}: {
+  board: Board
+  onPick: (key: SummaryKey | null) => void
+  picked: SummaryKey | null
+}) => {
   const t = useT()
   const money = useMoneyFormat()
   const { currency, lastMonth, recurring, thisMonth, upcoming } = board.summary
-  const valueOf = (span: typeof thisMonth) =>
-    currency && span.amountCents !== null
-      ? money(span.amountCents, currency)
-      : String(span.count)
+  const spanStat = (key: SummaryKey, label: string, span: Span) => {
+    if (!currency) {
+      return { key, label, note: null, value: String(span.ids.length) }
+    }
+    const main = span.spent.find((total) => total.currency === currency)
+    return {
+      key,
+      label,
+      note: [
+        t.boards.summary.payments(main?.count ?? 0),
+        ...span.spent
+          .filter((total) => total !== main)
+          .map((total) => money(total.amountCents, total.currency)),
+        ...span.received.map((total) =>
+          t.boards.summary.received(money(total.amountCents, total.currency))
+        ),
+      ].join(' · '),
+      value: money(main?.amountCents ?? 0, currency),
+    }
+  }
+  const { toPay } = upcoming
   const stats = [
-    [
-      t.boards.summary.thisMonth,
-      valueOf(thisMonth),
-      t.boards.entries(thisMonth.count),
-    ],
-    [
-      t.boards.summary.lastMonth,
-      valueOf(lastMonth),
-      t.boards.entries(lastMonth.count),
-    ],
+    spanStat('thisMonth', t.boards.summary.thisMonth, thisMonth),
+    spanStat('lastMonth', t.boards.summary.lastMonth, lastMonth),
     ...(recurring && currency
       ? [
-          [
-            t.boards.summary.recurring(recurring.count),
-            t.boards.summary.perMonth(money(recurring.monthlyCents, currency)),
-            null,
-          ] as const,
+          {
+            key: 'recurring' as const,
+            label: t.boards.summary.recurring(recurring.count),
+            note: null,
+            value: t.boards.summary.perMonth(
+              money(recurring.monthlyCents, currency)
+            ),
+          },
         ]
       : []),
-    ...(upcoming > 0
-      ? [[t.boards.summary.upcoming, String(upcoming), null] as const]
+    ...(upcoming.count > 0
+      ? [
+          {
+            key: 'upcoming' as const,
+            label: t.boards.summary.upcoming,
+            note: [
+              toPay.count > 0 && t.boards.summary.toPay(toPay.count),
+              t.boards.summary.dates(upcoming.count),
+            ]
+              .filter(Boolean)
+              .join(' · '),
+            value:
+              currency && toPay.count > 0
+                ? money(toPay.amountCents, currency)
+                : String(upcoming.count),
+          },
+        ]
       : []),
-  ] as const
+  ]
 
   return (
-    <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
-      {stats.map(([label, value, note]) => (
-        <div key={label} className="flex flex-col gap-0.5">
-          <dt className="text-muted-foreground text-xs">{label}</dt>
-          <dd className="text-xl tabular-nums" data-mask>
-            {value}
-          </dd>
-          {currency && note && (
-            <dd className="text-muted-foreground text-xs">{note}</dd>
+    <div className="-mx-2.5 grid grid-cols-2 gap-1 sm:grid-cols-4">
+      {stats.map(({ key, label, note, value }) => (
+        <button
+          key={key}
+          type="button"
+          aria-pressed={picked === key}
+          onClick={() => onPick(picked === key ? null : key)}
+          className={cn(
+            'hover:bg-accent focus-visible:focus-ring flex cursor-pointer flex-col items-start gap-0.5 rounded-xl px-2.5 py-2 text-left outline-none',
+            picked === key && 'bg-secondary hover:bg-secondary'
           )}
-        </div>
+        >
+          <span className="text-muted-foreground text-xs">{label}</span>
+          <span className="text-xl tabular-nums" data-mask>
+            {value}
+          </span>
+          {note && (
+            <span className="text-muted-foreground text-xs" data-mask>
+              {note}
+            </span>
+          )}
+        </button>
       ))}
-    </dl>
+    </div>
+  )
+}
+
+/** Under a month's entries: what its sum is made of and what it leaves out, and why. */
+const SpanTally = ({ board, span }: { board: Board; span: Span }) => {
+  const t = useT()
+  const money = useMoneyFormat()
+  const { currency } = board.summary
+  const main = span.spent.find((total) => total.currency === currency)
+  const { due, failed, noAmount, repeats } = span.left
+  const parts = [
+    ...span.spent
+      .filter((total) => total !== main)
+      .map(
+        (total) =>
+          `${money(total.amountCents, total.currency)} (${t.boards.summary.payments(total.count)})`
+      ),
+    ...span.received.map((total) =>
+      t.boards.summary.received(money(total.amountCents, total.currency))
+    ),
+    due > 0 && t.boards.summary.toPay(due),
+    failed > 0 && t.boards.summary.leftOut.failed(failed),
+    repeats > 0 && t.boards.summary.leftOut.repeats(repeats),
+    noAmount > 0 && t.boards.summary.leftOut.noAmount(noAmount),
+  ].filter((part) => typeof part === 'string')
+  if (!currency || (!main && parts.length === 0)) {
+    return null
+  }
+
+  return (
+    <p className="text-muted-foreground px-1 text-sm" data-mask>
+      {[
+        main &&
+          t.boards.summary.adds(
+            money(main.amountCents, main.currency),
+            main.count
+          ),
+        parts.length > 0 && t.boards.summary.left(parts),
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    </p>
   )
 }
 
@@ -472,11 +572,20 @@ const BoardCharts = ({
   )
 }
 
-const useFilterLabel = (filter: Filter | null) => {
+const useFilterLabel = (filter: Filter | null, board: Board) => {
   const t = useT()
   const dates = useDates()
+  const statusLabel = useStatusLabel()
   if (!filter) {
     return null
+  }
+  if (filter.by === 'summary') {
+    return filter.key === 'recurring'
+      ? t.boards.summary.recurring(board.summary.recurring?.count ?? 0)
+      : t.boards.summary[filter.key]
+  }
+  if (filter.by === 'status') {
+    return statusLabel(filter.key)
   }
   if (filter.by === 'month') {
     return dates.format(new Date(`${filter.key}-01T00:00:00`), 'LLLL yyyy')
@@ -511,9 +620,12 @@ const BoardEntries = ({
   visible: Entry[]
 }) => {
   const t = useT()
-  const filterLabel = useFilterLabel(filter)
+  const filterLabel = useFilterLabel(filter, board)
   const entryActions = useEntryActions(board.id)
   const isNarrowed = Boolean(filter || search.trim())
+  const dateOf = new Map(
+    board.entries.map(({ id, occurredAt }) => [id, occurredAt])
+  )
 
   return (
     <section className="flex flex-col gap-3">
@@ -546,6 +658,10 @@ const BoardEntries = ({
           </Button>
         )}
       </div>
+      {filter?.by === 'summary' &&
+        (filter.key === 'thisMonth' || filter.key === 'lastMonth') && (
+          <SpanTally board={board} span={board.summary[filter.key]} />
+        )}
       {visible.length === 0 ? (
         <p className="text-muted-foreground px-1 text-sm">
           {t.boards.filter.nothing}
@@ -561,6 +677,9 @@ const BoardEntries = ({
           {visible.map((entry, index) => (
             <EntryRow
               key={entry.id}
+              countedOn={
+                entry.repeatOf ? dateOf.get(entry.repeatOf) : undefined
+              }
               entry={entry}
               isActive={entry === active}
               onOpen={() => entryActions.open(entry)}
@@ -630,10 +749,15 @@ const useBoardIntent = (start: (intent: BoardIntent) => void) => {
   }, [intent, navigate])
 }
 
-const matches = (entry: Entry, filter: Filter | null, query: string) =>
-  (!filter || isIn(entry, filter)) &&
+const matches = (
+  entry: Entry,
+  board: Board,
+  filter: Filter | null,
+  query: string
+) =>
+  (!filter || isIn(entry, filter, board)) &&
   (!query ||
-    [entry.title, entry.group, entry.status].some((value) =>
+    [entry.title, entry.group, statusOf(entry)].some((value) =>
       value?.toLowerCase().includes(query)
     ))
 
@@ -646,9 +770,9 @@ const narrow = (
   }: { cursor: number | null; filter: Filter | null; search: string }
 ) => {
   const query = search.trim().toLowerCase()
-  const visible = (board?.entries ?? []).filter((entry) =>
-    matches(entry, filter, query)
-  )
+  const visible = board
+    ? board.entries.filter((entry) => matches(entry, board, filter, query))
+    : []
   return {
     active:
       cursor === null
@@ -745,7 +869,13 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
             onSettings={() => setIsSettingsOpen(true)}
             onAddChart={() => setIsAddingChart(true)}
           />
-          {board.total > 0 && <Summary board={board} />}
+          {board.total > 0 && (
+            <Summary
+              board={board}
+              picked={filter?.by === 'summary' ? filter.key : null}
+              onPick={(key) => pick(key && { by: 'summary', key })}
+            />
+          )}
           {board.banners.length > 0 && (
             <BoardBanners banners={board.banners} showBoard={false} />
           )}

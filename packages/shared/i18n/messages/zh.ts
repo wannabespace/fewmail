@@ -1496,7 +1496,22 @@ export const zh: Messages = {
       moveLater: '后移',
       other: '其他',
       remove: '移除图表',
-      skipped: (n: number) => `未计入:${n} 条(其他货币或无金额)`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `未计入合计:${[
+          currency > 0 && `其他货币 ${currency} 条`,
+          payment > 0 && `待付、失败或收入 ${payment} 条`,
+          amount > 0 && `无金额 ${amount} 条`,
+        ]
+          .filter(Boolean)
+          .join('、')}`,
       title: '图表标题',
       type: '图表类型',
       types: {
@@ -1523,6 +1538,7 @@ export const zh: Messages = {
       edited: '已由你编辑',
       nextOn: (date: string) => `下次 ${date}`,
       remove: '不属于此看板',
+      repeatOf: (date: string) => `与 ${date} 是同一笔付款，只计一次`,
       removed: '已从看板移除，之后会记住这一点。',
     },
     expected: (when: string) => `预计 ${when}`,
@@ -1562,6 +1578,13 @@ export const zh: Messages = {
     new: '新建看板',
     newHint:
       '用你自己的话描述要收集什么。Fewmail 会在你选择的时段内的邮件中找到它，挑选图表，并持续更新。',
+    payment: {
+      due: '待付',
+      failed: '失败',
+      income: '收入',
+      paid: '已付',
+      refund: '退款',
+    },
     period: '时段',
     periods: {
       1: '最近 1 天',
@@ -1628,10 +1651,24 @@ export const zh: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = `${n} 笔付款`
+        return `${amount} 是 ${payments}的合计，已扣除退款。`
+      },
+      dates: (n: number) => `${n} 个日期`,
       lastMonth: '上月',
+      left: (parts: string[]) => `未包含:${parts.join('、')}。`,
+      leftOut: {
+        failed: (n: number) => `失败 ${n} 条`,
+        noAmount: (n: number) => `无金额 ${n} 条`,
+        repeats: (n: number) => `已计入付款的重复 ${n} 条`,
+      },
+      payments: (n: number) => `${n} 笔付款`,
       perMonth: (amount: string) => `每月 ${amount}`,
+      received: (amount: string) => `收入 ${amount}`,
       recurring: (n: number) => `${n} 项定期`,
       thisMonth: '本月',
+      toPay: (n: number) => `待付 ${n} 笔`,
       upcoming: '未来 30 天',
     },
   },

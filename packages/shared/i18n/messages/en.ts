@@ -172,8 +172,22 @@ export const en = {
       moveLater: 'Move later',
       other: 'Other',
       remove: 'Remove chart',
-      skipped: (n: number) =>
-        `Not counted: ${n} in another currency or without an amount`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Not in the sum: ${[
+          currency > 0 && `${currency} in another currency`,
+          payment > 0 && `${payment} to pay, failed or received`,
+          amount > 0 && `${amount} without an amount`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Chart title',
       type: 'Chart type',
       types: {
@@ -206,6 +220,7 @@ export const en = {
       edited: 'Edited by you',
       nextOn: (date: string) => `next ${date}`,
       remove: 'Not on this board',
+      repeatOf: (date: string) => `same charge as on ${date}, counted once`,
       removed: 'Taken off the board. It learns from that.',
     },
     expected: (when: string) => `Expected ${when}`,
@@ -246,6 +261,13 @@ export const en = {
     new: 'New board',
     newHint:
       'Describe what to collect in your own words. Fewmail finds it in your mail as far back as you choose, picks the charts and keeps it up to date.',
+    payment: {
+      due: 'to pay',
+      failed: 'failed',
+      income: 'received',
+      paid: 'paid',
+      refund: 'refund',
+    },
     period: 'Period',
     periods: {
       1: 'Last day',
@@ -320,14 +342,34 @@ export const en = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) =>
+        `${amount} is ${plural('en', n, { one: () => 'one payment', other: (count) => `${count} payments` })}, refunds taken off.`,
+      dates: (n: number) =>
+        plural('en', n, {
+          one: () => 'one date',
+          other: (count) => `${count} dates`,
+        }),
       lastMonth: 'Last month',
+      left: (parts: string[]) => `Not in it: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `${n} failed`,
+        noAmount: (n: number) => `${n} without an amount`,
+        repeats: (n: number) => `${n} repeating a charge already counted`,
+      },
+      payments: (n: number) =>
+        plural('en', n, {
+          one: () => 'one payment',
+          other: (count) => `${count} payments`,
+        }),
       perMonth: (amount: string) => `${amount} a month`,
+      received: (amount: string) => `${amount} received`,
       recurring: (n: number) =>
         plural('en', n, {
           one: () => 'One repeating',
           other: (count) => `${count} repeating`,
         }),
       thisMonth: 'This month',
+      toPay: (n: number) => `${n} to pay`,
       upcoming: 'Next 30 days',
     },
   },

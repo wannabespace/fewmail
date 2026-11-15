@@ -174,7 +174,22 @@ export const pt: Messages = {
       moveLater: 'Mover para depois',
       other: 'Outros',
       remove: 'Remover gráfico',
-      skipped: (n: number) => `Não contados: ${n} em outra moeda ou sem valor`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Fora da soma: ${[
+          currency > 0 && `outra moeda: ${currency}`,
+          payment > 0 && `a pagar, falhados ou recebidos: ${payment}`,
+          amount > 0 && `sem valor: ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Título do gráfico',
       type: 'Tipo de gráfico',
       types: {
@@ -207,6 +222,8 @@ export const pt: Messages = {
       edited: 'Editado por você',
       nextOn: (date: string) => `próximo: ${date}`,
       remove: 'Não é deste painel',
+      repeatOf: (date: string) =>
+        `a mesma cobrança de ${date}, contada uma vez`,
       removed: 'Tirado do painel. Ele aprende com isso.',
     },
     expected: (when: string) => `Previsto para ${when}`,
@@ -247,6 +264,13 @@ export const pt: Messages = {
     new: 'Novo painel',
     newHint:
       'Descreva com suas palavras o que reunir. O Fewmail encontra isso nos e-mails do período que você escolher, escolhe os gráficos e mantém tudo atualizado.',
+    payment: {
+      due: 'a pagar',
+      failed: 'falhou',
+      income: 'recebido',
+      paid: 'pago',
+      refund: 'reembolso',
+    },
     period: 'Período',
     periods: {
       1: 'Último dia',
@@ -321,14 +345,39 @@ export const pt: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('pt', n, {
+          one: (count) => `${count} pagamento`,
+          other: (count) => `${count} pagamentos`,
+        })
+        return `${amount} são ${payments}, descontados os reembolsos.`
+      },
+      dates: (n: number) =>
+        plural('pt', n, {
+          one: (count) => `${count} data`,
+          other: (count) => `${count} datas`,
+        }),
       lastMonth: 'Mês passado',
+      left: (parts: string[]) => `Não inclui: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `falhados: ${n}`,
+        noAmount: (n: number) => `sem valor: ${n}`,
+        repeats: (n: number) => `repetições de uma cobrança já contada: ${n}`,
+      },
+      payments: (n: number) =>
+        plural('pt', n, {
+          one: (count) => `${count} pagamento`,
+          other: (count) => `${count} pagamentos`,
+        }),
       perMonth: (amount: string) => `${amount} por mês`,
+      received: (amount: string) => `${amount} recebidos`,
       recurring: (n: number) =>
         plural('pt', n, {
           one: () => 'Um recorrente',
           other: (count) => `${count} recorrentes`,
         }),
       thisMonth: 'Este mês',
+      toPay: (n: number) => `a pagar: ${n}`,
       upcoming: 'Próximos 30 dias',
     },
   },

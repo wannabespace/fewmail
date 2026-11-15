@@ -173,8 +173,22 @@ export const tr: Messages = {
       moveLater: 'Geriye al',
       other: 'Diğer',
       remove: 'Grafiği kaldır',
-      skipped: (n: number) =>
-        `Sayılmadı: ${n} başka para biriminde veya tutarsız`,
+      skipped: ({
+        amount,
+        currency,
+        payment,
+      }: {
+        amount: number
+        currency: number
+        payment: number
+      }) =>
+        `Toplama dahil değil: ${[
+          currency > 0 && `başka para birimi: ${currency}`,
+          payment > 0 && `ödenecek, başarısız veya alınan: ${payment}`,
+          amount > 0 && `tutarsız: ${amount}`,
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
       title: 'Grafik başlığı',
       type: 'Grafik türü',
       types: {
@@ -204,6 +218,8 @@ export const tr: Messages = {
       edited: 'Senin düzenlemen',
       nextOn: (date: string) => `sonraki: ${date}`,
       remove: 'Bu panoya ait değil',
+      repeatOf: (date: string) =>
+        `${date} tarihindekiyle aynı ödeme, bir kez sayıldı`,
       removed: 'Panodan çıkarıldı. Bundan ders çıkarır.',
     },
     expected: (when: string) => `Beklenen: ${when}`,
@@ -243,6 +259,13 @@ export const tr: Messages = {
     new: 'Yeni pano',
     newHint:
       'Neyin toplanacağını kendi kelimelerinle anlat. Fewmail seçtiğin dönemin postalarında bulur, grafikleri seçer ve panoyu güncel tutar.',
+    payment: {
+      due: 'ödenecek',
+      failed: 'başarısız',
+      income: 'alındı',
+      paid: 'ödendi',
+      refund: 'iade',
+    },
     period: 'Dönem',
     periods: {
       1: 'Son 1 gün',
@@ -314,11 +337,27 @@ export const tr: Messages = {
       },
     },
     summary: {
+      adds: (amount: string, n: number) => {
+        const payments = plural('tr', n, { other: (count) => `${count} ödeme` })
+        return `${amount} = ${payments}, iadeler düşüldü.`
+      },
+      dates: (n: number) =>
+        plural('tr', n, { other: (count) => `${count} tarih` }),
       lastMonth: 'Geçen ay',
+      left: (parts: string[]) => `Dahil değil: ${parts.join(', ')}.`,
+      leftOut: {
+        failed: (n: number) => `başarısız: ${n}`,
+        noAmount: (n: number) => `tutarsız: ${n}`,
+        repeats: (n: number) => `zaten sayılmış bir ödemenin tekrarı: ${n}`,
+      },
+      payments: (n: number) =>
+        plural('tr', n, { other: (count) => `${count} ödeme` }),
       perMonth: (amount: string) => `Ayda ${amount}`,
+      received: (amount: string) => `${amount} alındı`,
       recurring: (n: number) =>
         plural('tr', n, { other: (count) => `${count} düzenli` }),
       thisMonth: 'Bu ay',
+      toPay: (n: number) => `ödenecek: ${n}`,
       upcoming: 'Önümüzdeki 30 gün',
     },
   },
