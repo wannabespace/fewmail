@@ -50,6 +50,8 @@ import {
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
+import { useResolvedTheme } from '@fewmail/ui/theme-store'
+import type { ResolvedTheme } from '@fewmail/ui/theme-store'
 import {
   Archive02Icon,
   ArrowDown01Icon,
@@ -228,15 +230,41 @@ const IN_MAIL = 'about:srcdoc#'
 const inMailTarget = (mail: Document, id: string) =>
   mail.querySelector(`[id="${CSS.escape(id)}"], a[name="${CSS.escape(id)}"]`)
 
-/** A link's own `target` beats our `<base>`, and a page opened inside the frame refuses to be framed: every link leaves for a new tab, jumps within the mail, or stops being a link. */
-const pinLinks = (
-  html: string,
-  cidImage?: (src: string) => string | undefined,
+// Anything the sender painted or pictured may be dark on transparent: such mail keeps the white page.
+const OWN_LOOK =
+  '[bgcolor], [background], [color], [text], [link], [style*="color" i], [style*="background" i], img, svg, picture, video'
+
+const setsNoColours = (mail: Document) =>
+  !mail.querySelector(OWN_LOOK) &&
+  ![...mail.querySelectorAll('style')].some((style) =>
+    /color|background/iu.test(style.textContent ?? '')
+  )
+
+/** CSS variables stop at the frame's edge, so plain mail gets the tokens' values; `color-scheme` matches the app's, or the frame paints an opaque canvas. */
+const appInk = () => {
+  const tokens = getComputedStyle(document.documentElement)
+  return `<style>html{color-scheme:light dark}body{padding:0;background:none;color:color-mix(in oklch,${tokens.getPropertyValue('--foreground')} 90%,transparent);line-height:1.625}a{color:${tokens.getPropertyValue('--primary')}}</style>`
+}
+
+/**
+ * A link's own `target` beats our `<base>`, and a page opened inside the frame refuses to be framed: every link leaves for a new tab, jumps within the mail, or stops being a link.
+ * `theme` is only there to redo plain mail in the new ink on a switch.
+ */
+const frameMail = ({
+  blockImages,
+  cidImage,
+  html,
+}: {
   blockImages?: boolean
-) => {
-  const mail = new DOMParser().parseFromString(
-    (blockImages ? NOTHING_REMOTE : '') + FRAME_HEAD + html,
-    'text/html'
+  cidImage?: (src: string) => string | undefined
+  html: string
+  theme: ResolvedTheme
+}) => {
+  const mail = new DOMParser().parseFromString(html, 'text/html')
+  const plain = setsNoColours(mail)
+  mail.head.insertAdjacentHTML(
+    'afterbegin',
+    (blockImages ? NOTHING_REMOTE : '') + FRAME_HEAD + (plain ? appInk() : '')
   )
   for (const image of mail.querySelectorAll('img[src^="cid:" i]')) {
     const src = cidImage?.(image.getAttribute('src') ?? '')
@@ -264,7 +292,7 @@ const pinLinks = (
       link.removeAttribute('href')
     }
   }
-  return mail.documentElement.outerHTML
+  return { isPlain: plain, srcDoc: mail.documentElement.outerHTML }
 }
 
 const jumpWithinMail = (event: MouseEvent) => {
@@ -329,7 +357,7 @@ const BodySkeleton = () => (
 const frameHeights = new Map<string, number>()
 
 /**
- * Senders' HTML is laid out for a white page, so it keeps one. No `allow-scripts`: with it, `allow-same-origin` would hand the mail our session.
+ * Senders' HTML is laid out for a white page, so it keeps one unless it sets no colours of its own. No `allow-scripts`: with it, `allow-same-origin` would hand the mail our session.
  * With `cite`, the passage it came from is centred and lit for a moment.
  */
 const HtmlBody = ({
@@ -347,6 +375,8 @@ const HtmlBody = ({
 }) => {
   const [height, setHeight] = useState(frameHeights.get(id) ?? 0)
   const [cited, setCited] = useState<HTMLElement>()
+  const theme = useResolvedTheme()
+  const { isPlain, srcDoc } = frameMail({ blockImages, cidImage, html, theme })
   useEffect(() => {
     // Images load after the first centring and push the passage down; it follows them while it is lit.
     if (height > 0 && cited?.getAnimations().length) {
@@ -389,10 +419,13 @@ const HtmlBody = ({
         ref={watch}
         data-mask
         title="email"
-        srcDoc={pinLinks(html, cidImage, blockImages)}
+        srcDoc={srcDoc}
         sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         style={{ '--frame-height': `${height}px` } as CSSProperties}
-        className="h-(--frame-height) w-full rounded-xl bg-white"
+        className={cn(
+          'h-(--frame-height) w-full',
+          !isPlain && 'rounded-xl bg-white'
+        )}
       />
       {height === 0 && <BodySkeleton />}
     </>
