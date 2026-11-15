@@ -23,6 +23,7 @@ import {
 import { alias } from 'drizzle-orm/pg-core'
 
 import { inBatches } from '../lib/batches'
+import { localClock, previousDay } from '../lib/clock'
 import {
   getProfile,
   isMissing,
@@ -34,7 +35,7 @@ import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
-import { analyzeMessage, retireStaleActions } from './agent'
+import { analyzeMessage, recordNewsletter, retireStaleActions } from './agent'
 import {
   BOARD_HISTORY_LIMIT,
   collectEntries,
@@ -45,8 +46,10 @@ import {
 import { measureBulk } from './bulk'
 import { listMailboxes, searchMailboxes, watchStorage } from './mailboxes'
 import { emailAllowance, hasBudget } from './plan'
+import { writeReadingIssue } from './reading'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
+import { getSettings } from './settings'
 import { applySimpleRules } from './simple-rules'
 import { applySpamShield } from './spam'
 import { forget, insertMessages, readMessages } from './stored-mail'
@@ -54,6 +57,10 @@ import { catchZombies } from './zombies'
 
 const INITIAL_INBOX_QUERY = 'in:inbox newer_than:3d'
 const INITIAL_INBOX_LIMIT = 60
+export const FIRST_ISSUE_DAYS = 7
+// A day more than the issues: the oldest local day can start before Gmail's `newer_than` cut.
+const FIRST_WEEK_QUERY = `unsubscribe newer_than:${FIRST_ISSUE_DAYS + 1}d`
+export const FIRST_WEEK_LIMIT = 100
 const VOICE_SAMPLE_QUERY = 'in:sent newer_than:60d'
 const VOICE_SAMPLE_LIMIT = 15
 const ANALYZE_CONCURRENCY = 4
@@ -283,6 +290,31 @@ const claimSync = async (mailboxId: string) => {
   return claimed
 }
 
+/**
+ * A new user's Reading starts with the week before sign-up: its newsletters anywhere in Gmail, judged by Jev alone and
+ * left as they are, then one issue per day that had any.
+ */
+const writeFirstIssues = async (mailbox: Mailbox) => {
+  const ids = await listMessageIds(mailbox, FIRST_WEEK_QUERY, FIRST_WEEK_LIMIT)
+  const inserted = await insertMessages(mailbox, ids)
+  await inBatches(
+    inserted.filter(({ isFromMe }) => !isFromMe),
+    ANALYZE_CONCURRENCY,
+    (message) =>
+      recordNewsletter(message, mailbox.email).catch((error) =>
+        logError(`newsletter ${message.id} failed`, error)
+      )
+  )
+  const settings = await getSettings(mailbox.userId)
+  let day = localClock(settings?.timezone ?? 'UTC').date
+  for (let left = FIRST_ISSUE_DAYS; left > 0; left -= 1) {
+    day = previousDay(day)
+    // oxlint-disable-next-line eslint/no-await-in-loop -- the newest day is written last, so it is the fresh issue Home shows
+    await writeReadingIssue(mailbox.userId, day)
+  }
+  await announceChange(mailbox.userId, ['mail', 'reading'])
+}
+
 /** While another process syncs the same mailbox, leaves it a request to go again instead. */
 export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
   const mailbox = await claimSync(id)
@@ -343,6 +375,11 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
         added: Boolean(mailbox.googleAccountId),
         messages: inserted.length,
       })
+    }
+    if (!(mailbox.historyId || mailbox.googleAccountId)) {
+      void writeFirstIssues(mailbox).catch((error) =>
+        logError('first issues failed', error)
+      )
     }
     if (released?.syncRequested) {
       await syncMailbox(mailbox).catch((error) =>

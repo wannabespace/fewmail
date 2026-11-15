@@ -49,6 +49,7 @@ import {
 } from '../services/reading'
 import { RISK_BODY_CHARS } from '../services/risk'
 import { PROMISE_BODY_CHARS, SENT_JEV_CHARS } from '../services/sent-mail'
+import { FIRST_ISSUE_DAYS, FIRST_WEEK_LIMIT } from '../services/sync'
 import {
   FAST_FALLBACK_ID,
   FAST_MODEL_ID,
@@ -383,6 +384,28 @@ export const messageCost = (use: Use) =>
     priceOf(TRANSCRIBE_MODEL, 'input_cost_per_second')
 
 /** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, board entries and autocomplete. */
+/** One day's Reading issue with the agent: each newsletter's own summary, then the issue's. */
+const issueCost = (use: Use) =>
+  llm(
+    FAST_MODEL_ID,
+    instructionTokens(READING_INSTRUCTION_CHARS) +
+      STRUCTURED_OUTPUT_TOKENS +
+      mailTokens(use.newslettersPerDay * READING_BODY_CHARS),
+    use.newslettersPerDay * READING_OUTPUT_TOKENS_EACH
+  ) +
+  llm(
+    FAST_MODEL_ID,
+    instructionTokens(READING_SUMMARY_INSTRUCTION_CHARS) +
+      STRUCTURED_OUTPUT_TOKENS +
+      mailTokens(use.newslettersPerDay * READING_SUMMARY_CHARS_EACH),
+    READING_SUMMARY_OUTPUT_TOKENS
+  )
+
+/** Once, at sign-up: Jev on the week's candidates (all `FIRST_WEEK_LIMIT` of them at worst) and, with the agent, a week of issues. */
+export const firstWeekCost = (use: Use, agent: boolean) =>
+  FIRST_WEEK_LIMIT * inboundJevCost(use) +
+  (agent ? FIRST_ISSUE_DAYS * issueCost(use) : 0)
+
 export const backgroundCost = (use: Use, agent: boolean) => {
   const jev = use.inbound * inboundJevCost(use) + use.sent * sentJevCost(use)
   if (!agent) {
@@ -398,22 +421,8 @@ export const backgroundCost = (use: Use, agent: boolean) => {
         mailTokens(Math.min(use.bodyChars, PROMISE_BODY_CHARS)),
       PROMISE_OUTPUT_TOKENS
     )
-  const newsletterSummaries = llm(
-    FAST_MODEL_ID,
-    instructionTokens(READING_INSTRUCTION_CHARS) +
-      STRUCTURED_OUTPUT_TOKENS +
-      mailTokens(use.newslettersPerDay * READING_BODY_CHARS),
-    use.newslettersPerDay * READING_OUTPUT_TOKENS_EACH
-  )
-  const readingSummary = llm(
-    FAST_MODEL_ID,
-    instructionTokens(READING_SUMMARY_INSTRUCTION_CHARS) +
-      STRUCTURED_OUTPUT_TOKENS +
-      mailTokens(use.newslettersPerDay * READING_SUMMARY_CHARS_EACH),
-    READING_SUMMARY_OUTPUT_TOKENS
-  )
   // One issue a day, written the morning after.
-  const digest = DAYS * (newsletterSummaries + readingSummary)
+  const digest = DAYS * issueCost(use)
   const notes =
     use.notes *
     llm(WRITER_MODEL_ID, mailTokens(NOTE_PROMPT_CHARS), NOTE_OUTPUT_TOKENS)
@@ -572,7 +581,8 @@ const printReport = () => {
     '',
     `Typical use uncapped: ${usd(typical.total)} (${Math.round(typical.emails)} emails ${usd(typical.mail)}, ${TYPICAL.messages} messages ${usd(typical.talk)}, speech ${usd(typical.speech)}, background ${usd(typical.background)})`,
     `Trial (${TRIAL_DAYS} days, allowance ${usd(PLAN_ALLOWANCE_USD.trial)}): typical ${usd(trialCost(TYPICAL))}, heavy ${usd(trialCost(HEAVY))}`,
-    `Free (Jev only): typical ${usd(freeMonthCost(TYPICAL))} a month, heavy ${usd(freeMonthCost(HEAVY))}`
+    `Free (Jev only): typical ${usd(freeMonthCost(TYPICAL))} a month, heavy ${usd(freeMonthCost(HEAVY))}`,
+    `First week at sign-up (once, ${FIRST_WEEK_LIMIT} candidates): with the agent typical ${usd(firstWeekCost(TYPICAL, true))}, heavy ${usd(firstWeekCost(HEAVY, true))}; Free ${usd(firstWeekCost(TYPICAL, false))}`
   )
   process.stdout.write(`${lines.join('\n')}\n`)
 }

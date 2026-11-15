@@ -685,6 +685,39 @@ const queueForAgent = async (
   })
 }
 
+/** Mail from before sign-up read for Reading: Jev's category alone, kept only for a newsletter and never a card, a rule's action, a label or a Tidy suggestion. */
+export const recordNewsletter = async (message: Message, userEmail: string) => {
+  const settings = await getSettings(message.userId)
+  if (!settings) {
+    return
+  }
+  const analysis = await analyze({
+    allowance: null,
+    message,
+    prompt: await threadPrompt(message, settings.timezone),
+    rules: [],
+    settings,
+    userEmail,
+  })
+  if (analysis?.output.category !== 'newsletter') {
+    return
+  }
+  const { model, output } = analysis
+  await db
+    .insert(analyses)
+    .values({
+      category: output.category,
+      extracted: output.extracted,
+      importance: output.importance,
+      messageId: message.id,
+      model,
+      needsReply: output.needsReply,
+      reason: output.reason,
+      summary: output.summary,
+    })
+    .onConflictDoNothing()
+}
+
 export const analyzeMessage = async (
   message: Message,
   userEmail: string,
