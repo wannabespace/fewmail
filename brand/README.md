@@ -13,6 +13,7 @@ The mark is a **bird**: a round, smiling carrier bird with a small beak, drawn a
 | `logo/lockup.svg`, `logo/lockup-dark.svg` (+ `.png`) | Bird and wordmark together. The default logo. |
 | `logo/favicon.svg` | The bird, wax in a light browser and wax 400 in a dark one. |
 | `icon/app-icon.svg`, `icon/app-icon-1024.png` | App icon: the wax 400 bird on an ink tile, full bleed. The OS masks it (iOS squircle, Android shapes), so it never carries its own rounded corners. |
+| `avatar/*.svg` (+ 1024px `.png`) | Social avatars, full bleed with the bird inside the circle crop: `wax-on-paper`, `paper-on-wax` (the default), `wax-on-night`, `happy` (launches, good news), `sleeping` (holidays, downtime), and `postmark`, `sage` from the marketing colours. |
 | `og/og.html` → `og/og.png` | The 1200×630 social card, also copied to `apps/web/public/og.png`. |
 
 In the web app: `apps/web/src/components/logo.tsx` (the bird and wordmark outlines inline in `text-primary`, so they lighten in dark), `apps/web/public/favicon.svg` and `apple-touch-icon.png` (the app icon at 180px).
