@@ -42,7 +42,7 @@ const busiest = async (
   timezone: string,
   unit: 'isodow' | 'hour'
 ) => {
-  const bucket = sql<number>`extract(${sql.raw(unit)} from ${messages.receivedAt} at time zone ${postgresZone(timezone)})::int`
+  const bucket = sql<number>`extract(${sql.raw(unit)} from ${messages.receivedAt} at time zone ${timezone})::int`
   const [row] = await db
     .select({ bucket, total: count() })
     .from(messages)
@@ -132,14 +132,15 @@ export const getWrapped = async (userId: string, period: WrappedPeriod) => {
     throw new NotFoundError('Finish onboarding first')
   }
   const { label, since } = periodOf(settings.timezone, period)
+  const zone = await postgresZone(settings.timezone)
   const [pulse, handled, saved, unsubscribed, weekday, hour, people] =
     await Promise.all([
       mailPulse(userId, since),
       handledSince(userId, since),
       timeSaved(userId, since),
       unsubscribedSince(userId, since),
-      busiest(userId, since, settings.timezone, 'isodow'),
-      busiest(userId, since, settings.timezone, 'hour'),
+      busiest(userId, since, zone, 'isodow'),
+      busiest(userId, since, zone, 'hour'),
       topPeople(userId, since),
     ])
   const stats: WrappedStats = {

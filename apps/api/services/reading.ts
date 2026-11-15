@@ -69,7 +69,10 @@ const summarize = async (
 const clockOf = async (userId: string) => {
   const settings = await getSettings(userId)
   const timezone = settings?.timezone ?? 'UTC'
-  return { timezone, today: localClock(timezone).date }
+  return {
+    timezone: await postgresZone(timezone),
+    today: localClock(timezone).date,
+  }
 }
 
 const isReading = (userId: string, day: string, timezone: string) =>
@@ -79,11 +82,11 @@ const isReading = (userId: string, day: string, timezone: string) =>
     eq(analyses.category, 'newsletter'),
     gte(
       messages.receivedAt,
-      sql`${day}::date::timestamp at time zone ${postgresZone(timezone)}`
+      sql`${day}::date::timestamp at time zone ${timezone}`
     ),
     lt(
       messages.receivedAt,
-      sql`(${day}::date + 1)::timestamp at time zone ${postgresZone(timezone)}`
+      sql`(${day}::date + 1)::timestamp at time zone ${timezone}`
     )
   )
 

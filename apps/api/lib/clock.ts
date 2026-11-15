@@ -1,4 +1,6 @@
+import { db } from '@fewmail/db'
 import { Result } from 'better-result'
+import { sql } from 'drizzle-orm'
 
 /** Local date (YYYY-MM-DD) and hour in a time zone, via Intl only. */
 export const localClock = (timezone: string, date = new Date()) => {
@@ -60,9 +62,28 @@ const ICU_LEGACY_ZONES: Record<string, string> = {
   'Pacific/Truk': 'Pacific/Chuuk',
 }
 
-/** Every zone handed to Postgres (`at time zone`) goes through this. */
-export const postgresZone = (timezone: string) =>
-  ICU_LEGACY_ZONES[timezone] ?? timezone
+let postgresZones: Promise<Set<string>> | undefined
+
+const knownPostgresZones = () => {
+  postgresZones ??= db
+    .execute<{ name: string }>(sql`select name from pg_timezone_names`)
+    .then((rows) => new Set(rows.map(({ name }) => name)))
+    .catch((error: unknown) => {
+      postgresZones = undefined
+      throw error
+    })
+  return postgresZones
+}
+
+/** Every zone handed to Postgres (`at time zone`) goes through this: one it does not know fails the whole query, so that falls back to UTC. */
+export const postgresZone = async (timezone: string) => {
+  const zone = ICU_LEGACY_ZONES[timezone] ?? timezone
+  if ((await knownPostgresZones()).has(zone)) {
+    return zone
+  }
+  console.error('time zone unknown to postgres', zone)
+  return 'UTC'
+}
 
 /** The local day before a YYYY-MM-DD date; noon UTC keeps the step clear of any offset. */
 export const previousDay = (date: string) =>
