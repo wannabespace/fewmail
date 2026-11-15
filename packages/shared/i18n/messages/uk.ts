@@ -1067,7 +1067,6 @@ export const uk: Messages = {
     open: 'Відкрити',
     search: 'Шукай або опиши: рахунки від Анни за минулий місяць',
     openInGmail: 'Відкрити в Gmail',
-    openFullPage: 'Відкрити на всю сторінку',
     collapseFullPage: 'Згорнути до списку',
     unsubscribe: 'Відписатися',
     unsubscribed: 'Відписано',

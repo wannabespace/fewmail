@@ -19,47 +19,20 @@ export const HIDDEN = { opacity: 0, y: 6 }
 export const SHOWN = { opacity: 1, y: 0 }
 
 export interface Expanded {
-  close: () => void
   from: 'board' | 'home' | 'journal' | 'mail' | 'reading'
-  /** Set while the card shrinks back into its source, which stays hidden until the card is on it. */
-  isClosing?: boolean
   pathname: string
-  /** The `ExpandTrigger` the pane grows out of, by its `data-morph-source`: its row when it lies over one, else itself (a source chip). */
+  /** The `ExpandTrigger` that opened it, by its `data-expand-trigger`. */
   sourceId: string
   threadId: string
 }
 export const expandedThread = createStore<Expanded | null>(null)
 
 export const useExpanded = () => useSubscription(expandedThread)
-/** A closing card no longer covers its page: its keys work again at once. */
-export const useIsThreadExpanded = () => {
-  const open = useExpanded()
-  return !!open && !open.isClosing
-}
+export const useIsThreadExpanded = () => !!useExpanded()
 
-export const collapseExpanded = () => {
-  const open = expandedThread.get()
-  if (open && !open.isClosing) {
-    expandedThread.set({ ...open, isClosing: true })
-  }
-}
-
-export const dropExpanded = () => expandedThread.set(null)
-
-export const reopenExpanded = () => {
-  const open = expandedThread.get()
-  if (open?.isClosing) {
-    expandedThread.set({ ...open, isClosing: false })
-    posthog.capture('thread_expanded', { from: open.from })
-  }
-}
+export const collapseExpanded = () => expandedThread.set(null)
 
 export const OPEN_CLIP = 'inset(0px 0px 0px 0px round 0px)'
-
-export const sourceOf = (sourceId: string) =>
-  document.querySelector<HTMLElement>(
-    `[data-morph-source="${CSS.escape(sourceId)}"]`
-  )
 
 export const clipOver = (
   morphId: string,
@@ -69,17 +42,18 @@ export const clipOver = (
   const area = document
     .querySelector(`[data-slot=${areaSlot}]`)
     ?.getBoundingClientRect()
-  const box = sourceOf(morphId)?.getBoundingClientRect()
+  const box = document
+    .querySelector(`[data-morph-source="${CSS.escape(morphId)}"]`)
+    ?.getBoundingClientRect()
   if (!area || !box) {
     return OPEN_CLIP
   }
   return `inset(${box.top - area.top}px ${area.right - box.right}px ${area.bottom - box.bottom}px ${box.left - area.left}px round ${radius}px)`
 }
 
-/** Grows a row into `ThreadPane`, or shrinks it back; another row's email takes the sidebar, and one still closing gives way at once. */
-const toggleExpanded = (open: Omit<Expanded, 'isClosing' | 'pathname'>) => {
-  const current = expandedThread.get()
-  if (current?.sourceId === open.sourceId && !current.isClosing) {
+/** Opens a row's email in `ThreadPane`, or closes it; another row's email takes the sidebar. */
+const toggleExpanded = (open: Omit<Expanded, 'pathname'>) => {
+  if (expandedThread.get()?.sourceId === open.sourceId) {
     collapseExpanded()
     return
   }
@@ -94,34 +68,33 @@ interface RowEmail {
 
 const rowSourceId = (rowId: string) => `email-${rowId}`
 
-/** Grows the `ExpandTrigger` of `rowId` into its email, as a click on it does: a list's ⏎ on its cursor row. */
+/** Opens the email of `rowId` in the sidebar, as a click on its `ExpandTrigger` does: a list's ⏎ on its cursor row. */
 export const expandRow = (rowId: string, { from, threadId }: RowEmail) =>
-  toggleExpanded({
-    close: dropExpanded,
-    from,
-    sourceId: rowSourceId(rowId),
-    threadId,
-  })
+  toggleExpanded({ from, sourceId: rowSourceId(rowId), threadId })
 
-/** A row that grows into its email over the page: `SettingsRow trigger` lays it over the whole row, the box the pane grows out of; rendered as a chip, it grows out of the chip. */
+/** A row (`SettingsRow trigger` lays it over the whole row) or a chip that opens its email in the sidebar, `aria-expanded` while it is open. */
 export const ExpandTrigger = ({
   email,
   onClick,
   rowId,
   ...props
-}: ComponentProps<'button'> & { email: RowEmail; rowId: string }) => (
-  <button
-    type="button"
-    data-morph-source={rowSourceId(rowId)}
-    onPointerEnter={() => {
-      void prefetchThread(email.threadId)
-    }}
-    // A click that kept focus here made the list's ⏎ open this row instead of the J / K cursor's.
-    onMouseDown={(event) => event.preventDefault()}
-    {...props}
-    onClick={(event) => {
-      expandRow(rowId, email)
-      onClick?.(event)
-    }}
-  />
-)
+}: ComponentProps<'button'> & { email: RowEmail; rowId: string }) => {
+  const isOpen = useExpanded()?.sourceId === rowSourceId(rowId)
+  return (
+    <button
+      type="button"
+      aria-expanded={isOpen}
+      data-expand-trigger
+      onPointerEnter={() => {
+        void prefetchThread(email.threadId)
+      }}
+      // A click that kept focus here made the list's ⏎ open this row instead of the J / K cursor's.
+      onMouseDown={(event) => event.preventDefault()}
+      {...props}
+      onClick={(event) => {
+        expandRow(rowId, email)
+        onClick?.(event)
+      }}
+    />
+  )
+}
