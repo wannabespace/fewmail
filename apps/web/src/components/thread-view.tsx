@@ -60,11 +60,13 @@ import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
+import { type } from 'arktype'
 import { isToday } from 'date-fns'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
+import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
 import { useDates, useT } from '~/lib/i18n'
@@ -105,6 +107,28 @@ import {
 type ThreadMessage = NonNullable<
   ReturnType<typeof useThread>['data']
 >['messages'][number]['message']
+
+/** At most 60%: a wider reader squeezed the list into unreadable initials on a 1024px screen. */
+export const READER_WIDTH = { default: 640, max: '60%', min: 420 } as const
+const READER_SHARE = 0.6
+
+export const readerWidthStore = createWebStorageValue({
+  defaultValue: READER_WIDTH.default as number,
+  key: 'fewmail.reader-width',
+  schema: type('number'),
+  type: 'localStorage',
+})
+
+/** The reader's width beside `spaceWidth`: `maxSize` bounds only a drag, so the remembered width is clamped here. */
+export const useReaderWidthIn = (spaceWidth: number) => {
+  const remembered = useSubscription(readerWidthStore)
+  return spaceWidth > 0
+    ? Math.min(
+        remembered,
+        Math.max(READER_WIDTH.min, Math.round(spaceWidth * READER_SHARE))
+      )
+    : remembered
+}
 
 const useThread = (threadId: string | undefined) =>
   useLiveQuery((q) =>

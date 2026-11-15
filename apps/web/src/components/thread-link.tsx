@@ -1,6 +1,7 @@
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
 import {
+  animate,
   AnimatePresence,
   motion,
   useMotionValue,
@@ -19,7 +20,7 @@ import {
 } from '~/components/expand-row'
 import type { Expanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
-import { ThreadView } from '~/components/thread-view'
+import { ThreadView, useReaderWidthIn } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 
 interface Box {
@@ -77,28 +78,43 @@ const boxOf = (sourceId: string): Source | null => {
     : null
 }
 
-const GUTTER = 24
 // Four corners, as the source's are, so motion tweens each to its own.
-const OPEN_CORNERS = '24px 24px 24px 24px'
-const MAX_WIDTH = 960
+const OPEN_CORNERS = '0px 0px 0px 0px'
 
-/** The card's open box: very large, centred on the window, short of covering it. */
-const useCardBox = (): Box => {
-  const [viewport, setViewport] = useState({
-    height: innerHeight,
-    width: innerWidth,
-  })
+const pageArea = () =>
+  document.querySelector<HTMLElement>('[data-slot=thread-pane-area]')
+
+/** Where the source sits once the page has its width back: the close lands there while the page widens on the same spring. */
+const restingBoxOf = (sourceId: string) => {
+  const area = pageArea()
+  const padding = area?.style.paddingRight ?? ''
+  area?.style.setProperty('padding-right', '0px')
+  const box = boxOf(sourceId)
+  area?.style.setProperty('padding-right', padding)
+  return box
+}
+
+/** The sidebar's open box: the page area's right edge, top to bottom, as wide as Mail's reader beside its list. */
+const useSidebarBox = (): Box => {
+  const [area, setArea] = useState(() => pageArea()?.getBoundingClientRect())
   useEffect(() => {
-    const onResize = () =>
-      setViewport({ height: innerHeight, width: innerWidth })
-    addEventListener('resize', onResize)
-    return () => removeEventListener('resize', onResize)
+    const element = pageArea()
+    if (!element) {
+      return
+    }
+    const observer = new ResizeObserver(() =>
+      setArea(element.getBoundingClientRect())
+    )
+    // The padding the open sidebar gives the page would otherwise re-measure it every frame of the shift.
+    observer.observe(element, { box: 'border-box' })
+    return () => observer.disconnect()
   }, [])
-  const width = Math.min(MAX_WIDTH, viewport.width - 2 * GUTTER)
+  const right = area?.right ?? innerWidth
+  const width = useReaderWidthIn(area?.width ?? innerWidth)
   return {
-    height: viewport.height - 2 * GUTTER,
-    left: (viewport.width - width) / 2,
-    top: GUTTER,
+    height: area?.height ?? innerHeight,
+    left: right - width,
+    top: area?.top ?? 0,
     width,
   }
 }
@@ -154,50 +170,49 @@ const EASE = [0.32, 0.72, 0, 1] as const
 const RESTING =
   'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
 const FLOATING =
-  'rgba(0, 0, 0, 0.3) 0px 32px 64px -16px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
+  'rgba(0, 0, 0, 0.16) -16px 0px 48px -16px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
 
 /**
- * The card lands on the box its source had when the close began, moved by however far the source has scrolled since,
- * so a scroll during the close carries the card with the source instead of leaving it on the window.
+ * The card lands on the box its source will have once the page is back to its width, moved by however far the source has
+ * scrolled since the close began, so a scroll during the close carries the card with the source.
  */
 const EmailCard = ({
+  card,
   isClosing,
   shown,
 }: {
+  card: Box
   isClosing: boolean
   shown: Expanded & { box: Source | null }
 }) => {
   const t = useT()
   const springs = useCardSprings()
-  const card = useCardBox()
-  const x = useMotionValue(0)
   const y = useMotionValue(0)
   // Measured once per close: a box measured again on a later render would count the scroll twice.
   const [back, setBack] = useState<{ box: Source | null } | null>(null)
   if (isClosing !== !!back) {
-    setBack(isClosing ? { box: boxOf(shown.sourceId) } : null)
+    setBack(isClosing ? { box: restingBoxOf(shown.sourceId) } : null)
   }
   const target = back?.box
   useEffect(() => {
     if (!target) {
       return
     }
-    x.jump(0)
     y.jump(0)
+    // Only the source's height: the page widening under it moves it sideways, and its scroll anchoring keeps it in place.
     const follow = () => {
       const box = sourceOf(shown.sourceId)?.getBoundingClientRect()
       if (box) {
-        x.set(box.left - target.left)
         y.set(box.top - target.top)
       }
     }
     addEventListener('scroll', follow, { capture: true, passive: true })
     return () => removeEventListener('scroll', follow, { capture: true })
-  }, [target, shown.sourceId, x, y])
+  }, [target, shown.sourceId, y])
   return (
     <motion.div
       custom={target ?? null}
-      style={{ translateX: x, translateY: y }}
+      style={{ translateY: y }}
       variants={{
         held: shown.box
           ? { ...shown.box, boxShadow: RESTING }
@@ -208,7 +223,6 @@ const EmailCard = ({
           boxShadow: FLOATING,
           opacity: 1,
           transition: springs.open,
-          translateX: 0,
           translateY: 0,
         },
         source: (box: Source | null) =>
@@ -271,7 +285,7 @@ const EmailCard = ({
       >
         <ThreadView
           key={shown.threadId}
-          isFullPage
+          canOpenFullPage
           isSnoozed={false}
           threadId={shown.threadId}
           onClose={collapseExpanded}
@@ -282,6 +296,7 @@ const EmailCard = ({
             ['R', t.keys.reply],
             ['E', t.keys.archive],
             ['/', t.keys.ask],
+            ['⇧O', t.mail.openFullPage],
             ['esc', t.keys.close],
           ]}
         />
@@ -291,12 +306,12 @@ const EmailCard = ({
 }
 
 /**
- * An email opened out of a row or a source chip as an App Store card: the source lifts into a very large card over the dimmed
- * page on one spring, starting as the source's exact copy that dissolves into the email. The email is laid out at the
- * card's open size from the first frame, centred in it, so nothing reflows. Closing runs it back into the source, the email
- * dissolving into the copy near the end, and the source shows again only once the card is on it. `esc`, ⇧O, the collapse
- * and a click on the page shrink it; leaving the page drops it. Nothing waits for a close: a click on the card opens it
- * again from where it is, and another row opens at once.
+ * An email opened out of a row or a source chip into a sidebar: the source grows into the page area's right edge on one
+ * spring while the page makes room beside it, starting as the source's exact copy that dissolves into the email. The email is laid out at the sidebar's open
+ * size from the first frame, centred in it, so nothing reflows. Closing runs it back into the source, the email dissolving
+ * into the copy near the end, and the source shows again only once the sidebar is on it. `esc`, ✕ and a click on the page
+ * shrink it; leaving the page drops it. The page stays in view and nothing waits for a close: a click on the closing
+ * sidebar opens it again from where it is, and another row opens at once in a sidebar of its own.
  */
 export const ThreadPane = () => {
   const open = useExpanded()
@@ -304,7 +319,7 @@ export const ThreadPane = () => {
     select: (state) => state.location.pathname,
   })
   const isHere = open?.pathname === pathname
-  // The card keeps its email and where it grew from while it shrinks back.
+  // The sidebar keeps its email and where it grew from while it shrinks back.
   const [shown, setShown] = useState<
     (Expanded & { box: Source | null }) | null
   >(null)
@@ -317,13 +332,44 @@ export const ThreadPane = () => {
     }
   }, [open, isHere])
   const isClosing = !!open?.isClosing
-  const keys = { enabled: isHere }
+  const isShown = open && isHere && shown
+  const isOpen = !!isShown && !isClosing
+  const card = useSidebarBox()
+  const springs = useCardSprings()
+  // The page makes room beside the sidebar on the sidebar's own spring; a page left behind gets its width back at once.
+  useLayoutEffect(() => {
+    const area = pageArea()
+    if (!area) {
+      return
+    }
+    const shift = isHere ? springs.close : INSTANT.close
+    const controls = animate(
+      area,
+      { paddingRight: isOpen ? card.width : 0 },
+      isOpen ? springs.open : shift
+    )
+    return () => controls.stop()
+  }, [isOpen, isHere, card.width, springs])
   useHotkey('Escape', collapseExpanded, {
-    ...keys,
+    enabled: isHere,
     ignoreDefaultPrevented: true,
   })
-  useHotkey('Shift+O', collapseExpanded, keys)
-  const isShown = open && isHere && shown
+  useEffect(() => {
+    const area = pageArea()
+    if (!isOpen || !area) {
+      return
+    }
+    // A row's own trigger opens its email in the sidebar instead.
+    const onPointerDown = ({ target }: PointerEvent) => {
+      if (
+        !(target instanceof Element && target.closest('[data-morph-source]'))
+      ) {
+        collapseExpanded()
+      }
+    }
+    area.addEventListener('pointerdown', onPointerDown)
+    return () => area.removeEventListener('pointerdown', onPointerDown)
+  }, [isOpen])
   return (
     <AnimatePresence
       onExitComplete={() => {
@@ -332,25 +378,14 @@ export const ThreadPane = () => {
         }
       }}
     >
-      {isShown && !isClosing && (
-        <motion.div
-          key="backdrop"
-          aria-hidden
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { duration: 0.25, ease: EASE } }}
-          // A closing card is not in the way: the page under it takes the next click.
-          exit={{
-            opacity: 0,
-            pointerEvents: 'none',
-            transition: { duration: 0.2, ease: EASE },
-          }}
-          onClick={collapseExpanded}
-          className="fixed inset-0 z-40 bg-black/30 supports-backdrop-filter:backdrop-blur-sm"
-        />
-      )}
       {isShown && (
-        // Another source while this one closes gets a card of its own; this one lands on its source meanwhile.
-        <EmailCard key={shown.sourceId} shown={shown} isClosing={isClosing} />
+        // Another source gets a sidebar of its own; this one lands on its source meanwhile, or fades where it is if it was open.
+        <EmailCard
+          key={shown.sourceId}
+          card={card}
+          shown={shown}
+          isClosing={isClosing}
+        />
       )}
     </AnimatePresence>
   )

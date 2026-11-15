@@ -76,12 +76,10 @@ export const clipOver = (
   return `inset(${box.top - area.top}px ${area.right - box.right}px ${area.bottom - box.bottom}px ${box.left - area.left}px round ${radius}px)`
 }
 
-/** Grows a row into `ThreadPane`, or shrinks it back; one still closing gives way at once. */
-const toggleExpanded = (
-  open: Omit<Expanded, 'isClosing' | 'pathname'>
-) => {
+/** Grows a row into `ThreadPane`, or shrinks it back; another row's email takes the sidebar, and one still closing gives way at once. */
+const toggleExpanded = (open: Omit<Expanded, 'isClosing' | 'pathname'>) => {
   const current = expandedThread.get()
-  if (current && !current.isClosing) {
+  if (current?.sourceId === open.sourceId && !current.isClosing) {
     collapseExpanded()
     return
   }
