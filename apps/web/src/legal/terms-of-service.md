@@ -76,5 +76,5 @@ We may update these terms. We will notify you of material changes, and continued
 
 ## 16. Contact
 
-- **Email:** [hello@wannabespace.com](mailto:hello@wannabespace.com)
+- **Email:** [hello@fewmail.app](mailto:hello@fewmail.app)
 - **Website:** [https://fewmail.app](https://fewmail.app)

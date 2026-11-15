@@ -97,5 +97,5 @@ We may update this policy. We will notify you in the app or by email about mater
 
 ## 12. Contact
 
-- **Email:** [hello@wannabespace.com](mailto:hello@wannabespace.com)
+- **Email:** [hello@fewmail.app](mailto:hello@fewmail.app)
 - **Website:** [https://fewmail.app](https://fewmail.app)
