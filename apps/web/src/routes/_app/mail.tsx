@@ -637,7 +637,7 @@ const cardsOf = (
 
 // Not sticky: pins share the list's <ul>, so a sticky pinned header would ride over every row below it.
 const LIST_HEADER =
-  'bg-body text-muted-foreground flex items-center gap-2 pt-5 pr-1 pb-2 pl-9 text-xs font-medium'
+  'bg-body text-muted-foreground box-content flex h-6 items-center gap-2 pt-5 pr-1 pb-2 pl-9 text-xs font-medium'
 
 const GROUP_HEADER = cn(LIST_HEADER, 'sticky top-0 z-10')
 
@@ -672,7 +672,7 @@ const GroupHeader = ({
       <RowPick
         aria-label={t.keys.pickAll}
         checked={pickedCount === group.rows.length}
-        className="bottom-2"
+        className="bottom-2 h-6 items-center"
         indeterminate={pickedCount > 0 && pickedCount < group.rows.length}
         isPicking={isPicking}
         onCheckedChange={onPick}
@@ -1018,7 +1018,7 @@ const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
 const HIDDEN_CURSOR = -1
 
 /** First guesses, until a row is measured; near them, the scrollbar barely jumps. */
-const ROW_SIZE = { draft: 82, header: 29, line: 37, mail: 63 }
+const ROW_SIZE = { draft: 82, header: 52, line: 37, mail: 63 }
 
 const ROW_FOLD = { borderBottomWidth: 0, height: 0, opacity: 0 }
 
@@ -1027,12 +1027,13 @@ interface CardEdge {
   isLast: boolean
 }
 
-// A group's rows are one card drawn row by row, since the window renders rows, never their group: no margins here, the window measures borders but not margins.
+// A group's rows are one `SettingsGroup` card drawn row by row, since the window renders rows, never their group: no margins here, the window measures borders but not margins.
+// Each row rings itself as the card does; a row's ring lies over the rule above it, so the rule is fainter and the two add up to the card's own row rule.
 const cardPieceOf = (edge: CardEdge | null) =>
   edge &&
   cn(
-    'bg-popover border-foreground/6 border-x',
-    edge.isFirst && 'rounded-t-xl border-t',
+    'bg-popover ring-foreground/4 border-foreground/2 ring',
+    edge.isFirst && 'rounded-t-xl',
     edge.isLast && 'rounded-b-xl shadow-xs'
   )
 
@@ -1050,6 +1051,7 @@ const ListRow = ({
 }: ComponentProps<typeof motion.li> & { item: VirtualItem }) => {
   const isPresent = useIsPresent()
   const { edgeOf, keys, measure } = use(ListWindowContext)
+  const edge = edgeOf(item.index)
   const isScrolledPast = !isPresent && keys.has(item.key)
   return (
     <motion.li
@@ -1061,8 +1063,9 @@ const ListRow = ({
       className={cn(
         STILL_POINTER_GUARD,
         'mx-auto w-full max-w-3xl',
-        cardPieceOf(edgeOf(item.index)),
+        cardPieceOf(edge),
         className,
+        edge?.isLast && 'border-b-0',
         !isPresent && 'pointer-events-none overflow-hidden'
       )}
       {...props}
