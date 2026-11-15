@@ -1,6 +1,7 @@
 import { isBulk, sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import {
   FORWARDED_PREFIX,
+  participantsOf,
   replyRecipients,
   senderDomainOrAddress,
   textToHtml,
@@ -75,6 +76,7 @@ import {
   threadOfMessage,
   threads,
 } from '~/lib/mail-db'
+import type { Thread } from '~/lib/mail-db'
 import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc, refetchChanged } from '~/lib/orpc'
@@ -95,7 +97,11 @@ import { confirm } from './confirm-dialog'
 import { DraftText } from './consent-details'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { PersonPanel } from './person-panel'
-import { SenderAvatar } from './sender-avatar'
+import {
+  ParticipantAvatars,
+  participantNamesOf,
+  SenderAvatar,
+} from './sender-avatar'
 
 type ThreadMessage = NonNullable<
   ReturnType<typeof useThread>['data']
@@ -1469,6 +1475,26 @@ const ReplyArea = ({
   )
 }
 
+/** Everyone who wrote in the thread, under its title; nothing while only one person did. */
+const ThreadPeople = ({ thread }: { thread: Thread }) => {
+  const t = useT()
+  const participants = participantsOf(
+    thread.messages
+      .map(({ message }) => message)
+      .filter((message) => !message.labelIds.includes('DRAFT'))
+  )
+  return (
+    participants.length > 1 && (
+      <span className="flex items-center gap-2">
+        <ParticipantAvatars participants={participants} size="sm" />
+        <span data-mask className="text-foreground truncate">
+          {participantNamesOf(participants, t.mail.you)}
+        </span>
+      </span>
+    )
+  )
+}
+
 /** The title scrolls away with the email; the bar with the close buttons and the actions stay on top. */
 const ReaderHeader = ({
   children,
@@ -1536,7 +1562,7 @@ const ReaderHeader = ({
             {title}
           </h1>
         )}
-        {note && <p className="text-muted-foreground text-sm">{note}</p>}
+        {note && <div className="text-muted-foreground text-sm">{note}</div>}
       </div>
       {children && (
         <div
@@ -1672,6 +1698,7 @@ export const ThreadView = ({
       >
         <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
           <ReaderHeader
+            note={<ThreadPeople thread={data} />}
             title={subject}
             isFullPage={isFullPage}
             onClose={onClose}

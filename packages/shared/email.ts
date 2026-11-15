@@ -555,3 +555,19 @@ export const attachmentOfCid = (attachments: MailAttachment[], src: string) => {
   const contentId = decodeURIComponent(src.replace(/^cid:/iu, ''))
   return attachments.find((file) => file.contentId === contentId)
 }
+
+export interface Participant {
+  fromEmail: string
+  fromName: string | null
+  isFromMe: boolean
+}
+
+/** Everyone who wrote in a thread, from its emails oldest first: in the order they first wrote, the user once and last. */
+export const participantsOf = (written: Participant[]) => {
+  const byKey = new Map(
+    written.map((email) => [email.isFromMe ? '' : email.fromEmail, email])
+  )
+  const me = byKey.get('')
+  byKey.delete('')
+  return me ? [...byKey.values(), me] : [...byKey.values()]
+}

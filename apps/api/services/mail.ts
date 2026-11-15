@@ -19,13 +19,18 @@ import {
   TIDY_KINDS,
 } from '@fewmail/shared/agent'
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
-import { replyRecipients, textToHtml } from '@fewmail/shared/email'
+import {
+  participantsOf,
+  replyRecipients,
+  textToHtml,
+} from '@fewmail/shared/email'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { Result } from 'better-result'
 import { subHours, subMinutes } from 'date-fns'
 import {
   and,
   arrayContains,
+  asc,
   desc,
   eq,
   exists,
@@ -35,6 +40,7 @@ import {
   isNotNull,
   lt,
   ne,
+  not,
   notExists,
   notInArray,
   or,
@@ -592,6 +598,42 @@ export const listMail = async (userId: string, input: ListInput) => {
         !threadIds.has(message.threadId) && !!threadIds.add(message.threadId)
     )
     .slice(0, PAGE_SIZE)
+}
+
+interface ListedThread {
+  message: { threadId: string }
+}
+
+/** Web only: the agent's `list_mail` leaves them out, so they cost it nothing. A thread Fewmail does not hold has none. */
+export const withParticipants = async <Row extends ListedThread>(
+  userId: string,
+  rows: Row[]
+) => {
+  const threadIds = [...new Set(rows.map(({ message }) => message.threadId))]
+  const written =
+    threadIds.length === 0
+      ? []
+      : await db
+          .select({
+            fromEmail: messages.fromEmail,
+            fromName: messages.fromName,
+            isFromMe: messages.isFromMe,
+            threadId: messages.threadId,
+          })
+          .from(messages)
+          .where(
+            and(
+              eq(messages.userId, userId),
+              inArray(messages.threadId, threadIds),
+              not(arrayContains(messages.labelIds, ['DRAFT']))
+            )
+          )
+          .orderBy(asc(messages.receivedAt))
+  const byThread = Map.groupBy(written, ({ threadId }) => threadId)
+  return rows.map((row) => ({
+    ...row,
+    participants: participantsOf(byThread.get(row.message.threadId) ?? []),
+  }))
 }
 
 /** Conversations in the inbox as Gmail counts them, held by Fewmail or not. */

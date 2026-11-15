@@ -5,6 +5,7 @@ import {
   isAutomatedSender,
 } from '@fewmail/shared/agent'
 import type { MailCategory } from '@fewmail/shared/agent'
+import type { Participant } from '@fewmail/shared/email'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
 import { Checkbox } from '@fewmail/ui/components/checkbox'
@@ -114,7 +115,11 @@ import { KeyHints } from '~/components/key-hints'
 import { SleepingLogoMark } from '~/components/logo'
 import { ExtractedChips } from '~/components/mail-meta'
 import { MailSearchStart, rememberSearch } from '~/components/mail-search'
-import { SenderAvatar } from '~/components/sender-avatar'
+import {
+  ParticipantAvatars,
+  participantNamesOf,
+  SenderAvatar,
+} from '~/components/sender-avatar'
 import {
   CodeActions,
   MailRowActions,
@@ -804,11 +809,40 @@ const rowSurfaceOf = ({
   isUnread: boolean
 }) =>
   cn(
-    'group relative border-b',
-    !isUnread && 'bg-background',
-    isActive ? 'bg-accent' : 'hover:bg-accent',
-    isOpen && 'bg-secondary hover:bg-secondary'
+    // `--avatar-ring` follows every fill, the card's own by default, so a thread's avatars cut out exactly what lies under them.
+    'group relative border-b [--avatar-ring:var(--color-popover)]',
+    !isUnread && 'bg-background [--avatar-ring:var(--color-background)]',
+    isActive
+      ? 'bg-accent [--avatar-ring:var(--color-accent)]'
+      : 'hover:bg-accent hover:[--avatar-ring:var(--color-accent)]',
+    isOpen &&
+      'bg-secondary hover:bg-secondary [--avatar-ring:var(--color-secondary)] hover:[--avatar-ring:var(--color-secondary)]'
   )
+
+/** The row's sender, or everyone in its thread once someone answered. */
+const RowAvatar = ({
+  message,
+  participants,
+  size,
+}: {
+  message: ListedMessage
+  participants: Participant[]
+  size?: 'xs' | 'sm'
+}) =>
+  participants.length > 1 ? (
+    <ParticipantAvatars participants={participants} size={size} />
+  ) : (
+    <SenderAvatar sender={message} size={size} />
+  )
+
+const rowSenderOf = (
+  t: ReturnType<typeof useT>,
+  message: ListedMessage,
+  participants: Participant[]
+) =>
+  participants.length > 1
+    ? participantNamesOf(participants, t.mail.you)
+    : (message.fromName ?? message.fromEmail)
 
 // The box lies over the unread dot, so the dot steps aside whenever the box shows.
 const RowPick = ({
@@ -1196,7 +1230,7 @@ const MailRow = ({
   onOpen,
   onPick,
   onSnoozeOpenChange,
-  row: { analysis, message, threadSize },
+  row: { analysis, message, participants, threadSize },
   sweep,
 }: {
   actions: ReturnType<typeof useMailActions>
@@ -1242,7 +1276,7 @@ const MailRow = ({
           className={unreadDotOf(message.isUnread, isPicking)}
         />
         <span className={readIconOf(message.isUnread)}>
-          <SenderAvatar sender={message} size="sm" />
+          <RowAvatar message={message} participants={participants} size="sm" />
         </span>
         <span className="ml-1 flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="flex items-center gap-2 text-sm">
@@ -1253,7 +1287,7 @@ const MailRow = ({
                 message.isUnread ? 'font-semibold' : 'text-muted-foreground'
               )}
             >
-              {message.fromName ?? message.fromEmail}
+              {rowSenderOf(t, message, participants)}
             </span>
             {threadSize > 1 && (
               <Tooltip>
@@ -1339,7 +1373,7 @@ const PinnedRow = ({
   onOpen,
   onPick,
   onSnoozeOpenChange,
-  row: { message },
+  row: { message, participants },
   sweep,
 }: Parameters<typeof MailRow>[0]) => {
   const t = useT()
@@ -1368,7 +1402,7 @@ const PinnedRow = ({
           className={unreadDotOf(message.isUnread, isPicking)}
         />
         <span className={readIconOf(message.isUnread)}>
-          <SenderAvatar sender={message} />
+          <RowAvatar message={message} participants={participants} />
         </span>
         <span
           data-mask
@@ -1377,7 +1411,7 @@ const PinnedRow = ({
             message.isUnread ? 'font-semibold' : 'text-muted-foreground'
           )}
         >
-          {message.fromName ?? message.fromEmail}
+          {rowSenderOf(t, message, participants)}
         </span>
         <span
           data-mask

@@ -89,6 +89,7 @@ import {
   snoozeMessage,
   trashMessage,
   unsnoozeMessage,
+  withParticipants,
   writeReplyTo,
 } from '../services/mail'
 import {
@@ -460,7 +461,12 @@ export const router = {
           'search?': 'string',
         })
       )
-      .handler(({ context, input }) => listMail(context.user.id, input)),
+      .handler(async ({ context, input }) =>
+        withParticipants(
+          context.user.id,
+          await listMail(context.user.id, input)
+        )
+      ),
     labels: authed.handler(({ context }) => listUserLabels(context.user.id)),
     markRead: authed
       .input(type({ threadId: 'string' }))
