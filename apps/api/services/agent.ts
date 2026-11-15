@@ -2,7 +2,6 @@ import { db } from '@fewmail/db'
 import {
   actions,
   analyses,
-  cases,
   commitments,
   messages,
   rules,
@@ -383,7 +382,6 @@ const withNetworkFacts = <
  */
 const analyze = async (input: {
   allowance: EmailAllowance | null
-  cases: { id: string; title: string }[]
   message: Message
   prompt: string
   rules: Rule[]
@@ -393,7 +391,6 @@ const analyze = async (input: {
   const { allowance, prompt } = input
   const t = dictionaries[input.settings.language]
   const decided = await decideWithJev({
-    cases: input.cases,
     prompt,
     rules: input.rules,
     userEmail: input.userEmail,
@@ -779,7 +776,6 @@ export const recordNewsletter = async (message: Message, userEmail: string) => {
   }
   const analysis = await analyze({
     allowance: null,
-    cases: [],
     message,
     prompt: await threadPrompt(message, settings.timezone),
     rules: [],
@@ -805,46 +801,12 @@ export const recordNewsletter = async (message: Message, userEmail: string) => {
     .onConflictDoNothing()
 }
 
-/** Cases are the agent's: past the allowance Jev is not asked about them. */
-const openCasesFor = (userId: string, allowance: EmailAllowance | null) =>
-  allowance
-    ? db
-        .select({
-          id: cases.id,
-          threadIds: cases.threadIds,
-          title: cases.title,
-        })
-        .from(cases)
-        .where(and(eq(cases.userId, userId), eq(cases.status, 'active')))
-    : []
-
-/** `services/cases.ts` reads it after the card: a case's reply then takes the card's place instead of adding one. */
-const caseSignalOf = (agent: boolean, output: object) => ({
-  agent,
-  caseId:
-    'caseId' in output && typeof output.caseId === 'string'
-      ? output.caseId
-      : null,
-  startsCase: 'startsCase' in output && output.startsCase === true,
-})
-
-/** A case writes the reply to its own mail, knowing what the case needs: one draft, not two. */
-const isCaseMail = (
-  openCases: { id: string; threadIds: string[] }[],
-  signal: { caseId: string | null },
-  message: Message
-) =>
-  openCases.some(
-    ({ id, threadIds }) =>
-      id === signal.caseId || threadIds.includes(message.threadId)
-  )
-
 export const analyzeMessage = async (
   message: Message,
   userEmail: string,
   allowance: EmailAllowance | null
 ) => {
-  const [settings, userRules, openCases] = await Promise.all([
+  const [settings, userRules] = await Promise.all([
     getSettings(message.userId),
     db
       .select()
@@ -856,7 +818,6 @@ export const analyzeMessage = async (
           isNotNull(rules.instruction)
         )
       ),
-    openCasesFor(message.userId, allowance),
   ])
   if (!settings) {
     return
@@ -865,7 +826,6 @@ export const analyzeMessage = async (
 
   const analysis = await analyze({
     allowance,
-    cases: openCases,
     message,
     prompt: thread,
     rules: allowance ? userRules : userRules.filter(actsOnGmail),
@@ -909,7 +869,6 @@ export const analyzeMessage = async (
   if ('later' in output) {
     await rememberLater(message, output.later)
   }
-  const caseSignal = caseSignalOf(agent, output)
 
   const base = {
     messageId: message.id,
@@ -924,7 +883,7 @@ export const analyzeMessage = async (
       ...base,
       title: dictionaries[settings.language].rules.effect[rule.effect],
     })
-    return caseSignal
+    return
   }
   // On Free or past the allowance the agent writes nothing, but the email still gets its card. Risky mail already has its security card.
   if (
@@ -932,13 +891,12 @@ export const analyzeMessage = async (
     oneTimeCode(message.subject, message.body) ||
     (await hasNewerMail(message))
   ) {
-    return caseSignal
+    return
   }
 
   await queueForAgent(message, { ...output, importance }, rule, base, {
     settings,
     thread,
-    writes: agent && !isCaseMail(openCases, caseSignal, message),
+    writes: agent,
   })
-  return caseSignal
 }

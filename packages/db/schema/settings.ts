@@ -12,8 +12,6 @@ import { actions } from './mail'
 export const userSettings = d.snakeCase.table('user_settings', {
   /** Named for the old daily brief: the hour of the morning messages (newsletter digest, Monday's report). */
   briefHour: d.smallint().default(8).notNull(),
-  /** The one look back for cases already under way, set before it runs (`scanForCases`). */
-  casesScannedAt: d.timestamp({ withTimezone: true }),
   cleanupCheckedAt: d.timestamp({ withTimezone: true }),
   gmailLabels: d.boolean().default(false).notNull(),
   knowledge: encryptedText(),
@@ -125,7 +123,6 @@ export type AiFeature =
   | 'board_entry'
   | 'board_plan'
   | 'card_link'
-  | 'case'
   | 'chat'
   | 'digest'
   | 'draft'

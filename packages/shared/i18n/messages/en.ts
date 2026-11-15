@@ -118,9 +118,6 @@ export const en = {
       edit_board_entry: 'Correcting the entry',
       remove_board_entry: 'Taking it off the board',
       rename_board_group: 'Renaming the group',
-      list_cases: 'Checking your cases',
-      start_case: 'Starting a case',
-      set_case_status: 'Updating the case',
     } satisfies Record<AgentToolName, string>,
     to: (recipients: string) => `To ${recipients}`,
     until: (time: string) => `Until ${time}`,
@@ -435,34 +432,6 @@ export const en = {
     security: 'Security',
     travel: 'Travel',
     work: 'Work',
-  },
-  cases: {
-    accept: 'Run this case',
-    accepted: 'Case started. The agent is looking into it.',
-    close: 'Mark as done',
-    decline: 'Not a case',
-    declined: 'Got it. No case for this one.',
-    drop: 'Drop case',
-    dueBy: (d: string) => `due ${d}`,
-    emails: 'Emails of this case',
-    files: (n: number) => `Files: ${n}`,
-    fromWeb: 'From the web',
-    needed: 'What is needed',
-    next: 'What to do now',
-    open: 'Open case',
-    partOf: (t: string) => `Part of the case “${t}”`,
-    planning: 'The agent is looking into it…',
-    progress: (d: number, t: number) => `${d} of ${t}`,
-    proposed: 'Looks like a case',
-    reopen: 'Reopen',
-    reply: 'Case reply',
-    state: {
-      done: 'Done',
-      found: 'Found in your mail',
-      needed: 'Needed',
-      waiting: 'Waiting on them',
-    },
-    title: 'Cases',
   },
   commitments: {
     title: 'You promised',
@@ -1900,8 +1869,6 @@ export const en = {
   upgrade: {
     ask: 'Ask your mail',
     hints: {
-      cases:
-        'Part of Fewmail Pro: when an email starts something of several steps, the agent keeps track of what is needed, finds your documents and says what to do now.',
       ask: 'Part of Fewmail Pro: ask anything in plain words and get the answer from your own mail.',
       boards:
         'Part of Fewmail Pro: describe what to collect, and the agent finds it in your mail and keeps it up to date.',

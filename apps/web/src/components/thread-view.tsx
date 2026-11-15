@@ -87,7 +87,6 @@ import { runUndo, UNDO_TOAST_MS } from '~/lib/undo'
 
 import { cidSource, listedAttachments, MessageAttachments } from './attachments'
 import { AddToBoardItems } from './board-entries'
-import { CaseBanner } from './cases'
 import type { Draft } from './compose/compose-context'
 import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
@@ -642,10 +641,8 @@ const ThreadNotices = ({
 }) => {
   const t = useT()
 
-  const threadId = data.messages[0]?.message.threadId
   return (
     <>
-      {threadId && <CaseBanner threadId={threadId} />}
       {riskOf(data.messages) && (
         <Alert variant="destructive">
           <AlertTitle>{t.risk.title}</AlertTitle>

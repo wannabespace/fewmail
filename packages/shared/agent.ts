@@ -104,12 +104,9 @@ export interface CardEvent {
 }
 
 interface CardPayload {
-  /** A reply a case wrote: the case it moves on, and its files read from Gmail when it is sent. */
-  caseId?: string
   /** A `consent` card: what the server read for it, so the card shows exactly what the yes does. */
   context?: unknown[]
   event?: CardEvent
-  files?: CaseFile[]
   input?: Record<string, unknown>
   link?: CardLink
   tool?: ConsentToolName
@@ -277,7 +274,6 @@ export const AGENT_TOOLS = {
   get_today: 'read',
   get_wrapped: 'read',
   list_boards: 'read',
-  list_cases: 'read',
   list_events: 'read',
   list_handled: 'read',
   list_mail: 'read',
@@ -293,9 +289,7 @@ export const AGENT_TOOLS = {
   rename_board_group: 'write',
   report_spam: 'consent',
   send_email: 'consent',
-  set_case_status: 'write',
   snooze_thread: 'consent',
-  start_case: 'write',
   tidy_mail: 'consent',
   trash_thread: 'consent',
   undo_clear_out: 'consent',
@@ -389,30 +383,6 @@ export const UNDO_SEND_SECONDS = 10
 export const SECONDS_SAVED = { handled: 15, reply: 180 } as const
 
 export type ReminderKind = 'snooze' | 'followup'
-
-/** A case is proposed by the agent from an email that starts something of several steps; only the user's yes makes it active. */
-export const CASE_STATUSES = ['proposed', 'active', 'done', 'dropped'] as const
-export type CaseStatus = (typeof CASE_STATUSES)[number]
-
-/** `found`: the agent found it in the user's mail (a file sent before); `waiting`: someone else owes it. Only the user or a proof in the mail makes it `done`. */
-export const CASE_ITEM_STATES = ['needed', 'found', 'waiting', 'done'] as const
-export type CaseItemState = (typeof CASE_ITEM_STATES)[number]
-
-/** A file of one of the user's emails, attached to a case's reply when it is sent. */
-export interface CaseFile {
-  filename: string
-  messageId: string
-  mimeType: string
-  partId: string
-  size: number
-}
-
-/** Where an item's state comes from: an email, one of its files, or a page the agent searched. */
-export interface CaseSource {
-  file?: CaseFile
-  messageId?: string
-  url?: string
-}
 
 /** `mine`: a promise in the user's sent mail; `theirs`: one made to the user in mail they got; `deadline`: a last day an email implies (a return window, a trial turning paid). */
 export const COMMITMENT_KINDS = ['mine', 'theirs', 'deadline'] as const

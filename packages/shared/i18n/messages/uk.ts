@@ -75,9 +75,6 @@ export const uk: Messages = {
       edit_board_entry: 'Виправляю запис',
       remove_board_entry: 'Прибираю з дошки',
       rename_board_group: 'Перейменовую групу',
-      list_cases: 'Переглядаю справи',
-      start_case: 'Відкриваю справу',
-      set_case_status: 'Оновлюю справу',
     },
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
@@ -1890,34 +1887,6 @@ export const uk: Messages = {
     issues: 'Усі випуски',
     title: 'Читання',
   },
-  cases: {
-    accept: 'Вести справу',
-    accepted: 'Справу відкрито. Агент уже розбирається.',
-    close: 'Завершити справу',
-    decline: 'Це не справа',
-    declined: 'Зрозуміло, це не справа.',
-    drop: 'Покинути справу',
-    dueBy: (d: string) => `до ${d}`,
-    emails: 'Листи справи',
-    files: (n: number) => `Файли: ${n}`,
-    fromWeb: 'З інтернету',
-    needed: 'Що потрібно',
-    next: 'Що зробити зараз',
-    open: 'Відкрити справу',
-    partOf: (t: string) => `Частина справи «${t}»`,
-    planning: 'Агент розбирається…',
-    progress: (d: number, t: number) => `${d} з ${t}`,
-    proposed: 'Схоже, це справа',
-    reopen: 'Відновити',
-    reply: 'Відповідь у справі',
-    state: {
-      done: 'Готово',
-      found: 'Є у твоїй пошті',
-      needed: 'Потрібно',
-      waiting: 'Чекаю на них',
-    },
-    title: 'Справи',
-  },
   commitments: {
     title: 'Ти пообіцяв',
   },
@@ -1947,8 +1916,6 @@ export const uk: Messages = {
   upgrade: {
     ask: 'Запитай пошту',
     hints: {
-      cases:
-        'Частина Fewmail Pro: коли лист починає справу на кілька кроків, агент стежить, що потрібно, знаходить твої документи і каже, що робити зараз.',
       ask: 'Входить у Fewmail Pro: питай що завгодно звичайними словами й отримуй відповідь із власної пошти.',
       boards:
         'Входить у Fewmail Pro: опиши, що збирати, і агент знайде це в пошті та оновлюватиме сам.',

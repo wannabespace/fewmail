@@ -53,13 +53,6 @@ import {
   updateEvent,
 } from '../services/calendar'
 import {
-  caseOfThread,
-  getCase,
-  listCases,
-  setCaseItem,
-  setCaseStatus,
-} from '../services/cases'
-import {
   CLEAR_OUT_RUN,
   keepSender,
   pageSubscriptions,
@@ -306,27 +299,6 @@ export const router = {
       .handler(({ context, input }) =>
         redraftAction(context.user.id, input.id, input.instruction)
       ),
-  },
-  cases: {
-    forThread: agent
-      .input(type({ threadId: 'string' }))
-      .handler(({ context, input }) =>
-        caseOfThread(context.user.id, input.threadId)
-      ),
-    get: agent
-      .input(id)
-      .handler(({ context, input }) => getCase(context.user.id, input.id)),
-    list: agent.handler(({ context }) => listCases(context.user.id)),
-    setItem: agent
-      .input(id.and({ isDone: 'boolean' }))
-      .handler(async ({ context, input }) => {
-        await setCaseItem(context.user.id, input.id, input.isDone)
-      }),
-    setStatus: agent
-      .input(id.and({ status: "'active' | 'done' | 'dropped'" }))
-      .handler(async ({ context, input }) => {
-        await setCaseStatus(context.user.id, input.id, input.status)
-      }),
   },
   calendar: {
     create: authed

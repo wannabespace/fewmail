@@ -5,15 +5,13 @@ import {
   actions,
   analyses,
   boards,
-  cases,
   mailboxes,
   messages,
   userSettings,
 } from '@fewmail/db/schema'
 import { IMPORTANCE } from '@fewmail/shared/agent'
-import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { Result } from 'better-result'
-import { addDays, subDays, subMinutes } from 'date-fns'
+import { subDays, subMinutes } from 'date-fns'
 import {
   and,
   eq,
@@ -27,11 +25,9 @@ import {
   sql,
 } from 'drizzle-orm'
 
-import { deliverHomeLink } from './home-link'
 import { localClock, previousDay } from './lib/clock'
 import { logError } from './lib/log'
 import { seedBoards } from './services/boards'
-import { CASE_SCAN_DAYS, scanForCases } from './services/cases'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { savedThisWeek } from './services/home'
@@ -56,7 +52,6 @@ import {
   processDueReminders,
 } from './services/reminders'
 import { learnVoice, VOICE_EVERY_SENT } from './services/sent-mail'
-import { getSettings } from './services/settings'
 import {
   ensureMailbox,
   HELD_MONTHS,
@@ -392,85 +387,6 @@ const pushUrgent = async () => {
   }
 }
 
-/** A deadline this close reaches the user once more, outside the app. */
-const CASE_REMIND_DAYS = 2
-
-/** A new proposal and a coming deadline each reach the user once, with a link to Home where the yes happens. Marked first, so a failed send is not repeated every minute. */
-const pushCases = async () => {
-  const now = new Date()
-  const due = await db
-    .select()
-    .from(cases)
-    .where(
-      or(
-        and(eq(cases.status, 'proposed'), isNull(cases.notifiedAt)),
-        and(
-          eq(cases.status, 'active'),
-          isNull(cases.remindedAt),
-          lt(cases.dueAt, addDays(now, CASE_REMIND_DAYS))
-        )
-      )
-    )
-  for (const found of due) {
-    const isProposal = found.status === 'proposed'
-    // oxlint-disable-next-line eslint/no-await-in-loop -- a few a minute at most
-    await db
-      .update(cases)
-      .set(isProposal ? { notifiedAt: now } : { remindedAt: now })
-      .where(eq(cases.id, found.id))
-    // oxlint-disable-next-line eslint/no-await-in-loop -- see above
-    const settings = await getSettings(found.userId)
-    const t = dictionaries[settings?.language ?? 'en']
-    // oxlint-disable-next-line eslint/no-await-in-loop -- see above
-    await deliverHomeLink(
-      found.userId,
-      t,
-      isProposal
-        ? { headline: t.cases.proposed, text: found.title }
-        : { headline: found.title, text: found.next ?? found.goal }
-    )
-  }
-}
-
-/**
- * The one look back for cases, per user with the agent: at the release for everyone, after sign-up for the rest, once
- * the sign-in mailbox is synced and holds the mail it reads. Claimed first, so it never runs twice.
- */
-const scanDueCases = async () => {
-  const due = await db
-    .select({ userId: userSettings.userId })
-    .from(userSettings)
-    .innerJoin(mailboxes, eq(mailboxes.userId, userSettings.userId))
-    .where(
-      and(
-        isNull(userSettings.casesScannedAt),
-        isNull(mailboxes.googleAccountId),
-        isNotNull(mailboxes.lastSyncedAt),
-        lt(mailboxes.heldSince, subDays(new Date(), CASE_SCAN_DAYS)),
-        hasAgentSql(userSettings.userId)
-      )
-    )
-  for (const { userId } of due) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- one user at a time keeps Jev and the models to a trickle
-    const [claimed] = await db
-      .update(userSettings)
-      .set({ casesScannedAt: new Date() })
-      .where(
-        and(
-          eq(userSettings.userId, userId),
-          isNull(userSettings.casesScannedAt)
-        )
-      )
-      .returning({ userId: userSettings.userId })
-    if (claimed) {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- see above
-      await scanForCases(userId).catch((error) =>
-        logError(`case scan ${userId}`, error)
-      )
-    }
-  }
-}
-
 const tick = async () => {
   const ticked = await Result.tryPromise(() =>
     Promise.all([
@@ -486,8 +402,6 @@ const tick = async () => {
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),
       once('commitments', processDueCommitments),
-      once('cases', pushCases),
-      once('case-scan', scanDueCases),
       once('known-domains', refreshKnownDomains),
     ])
   )

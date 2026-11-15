@@ -118,9 +118,6 @@ export const pl: Messages = {
       edit_board_entry: 'Poprawiam wpis',
       remove_board_entry: 'Zdejmuję z tablicy',
       rename_board_group: 'Zmieniam nazwę grupy',
-      list_cases: 'Przeglądam sprawy',
-      start_case: 'Otwieram sprawę',
-      set_case_status: 'Aktualizuję sprawę',
     },
     to: (recipients: string) => `Do: ${recipients}`,
     until: (time: string) => `Do ${time}`,
@@ -533,34 +530,6 @@ export const pl: Messages = {
     lead: 'Newslettery z jednego dnia w jednym miejscu, żeby nie zaśmiecały skrzynki.',
     issues: 'Wszystkie wydania',
     title: 'Czytanie',
-  },
-  cases: {
-    accept: 'Prowadź sprawę',
-    accepted: 'Sprawa otwarta. Agent już się tym zajmuje.',
-    close: 'Oznacz jako zakończoną',
-    decline: 'To nie sprawa',
-    declined: 'Jasne, to nie sprawa.',
-    drop: 'Porzuć sprawę',
-    dueBy: (d: string) => `do ${d}`,
-    emails: 'E-maile sprawy',
-    files: (n: number) => `Pliki: ${n}`,
-    fromWeb: 'Z internetu',
-    needed: 'Co jest potrzebne',
-    next: 'Co zrobić teraz',
-    open: 'Otwórz sprawę',
-    partOf: (t: string) => `Część sprawy „${t}”`,
-    planning: 'Agent to sprawdza…',
-    progress: (d: number, t: number) => `${d} z ${t}`,
-    proposed: 'Wygląda na sprawę',
-    reopen: 'Otwórz ponownie',
-    reply: 'Odpowiedź w sprawie',
-    state: {
-      done: 'Gotowe',
-      found: 'Jest w twojej poczcie',
-      needed: 'Potrzebne',
-      waiting: 'Czeka na innych',
-    },
-    title: 'Sprawy',
   },
   commitments: {
     title: 'Obiecałeś',
@@ -1981,8 +1950,6 @@ export const pl: Messages = {
   upgrade: {
     ask: 'Zapytaj swoją pocztę',
     hints: {
-      cases:
-        'Część Fewmail Pro: gdy e-mail zaczyna sprawę na kilka kroków, agent pilnuje, co jest potrzebne, znajduje twoje dokumenty i mówi, co zrobić teraz.',
       ask: 'Część Fewmail Pro: pytaj o cokolwiek własnymi słowami i dostawaj odpowiedź z własnej poczty.',
       boards:
         'Część Fewmail Pro: opisz, co zbierać, a agent znajdzie to w poczcie i będzie aktualizować.',

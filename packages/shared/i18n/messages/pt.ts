@@ -119,9 +119,6 @@ export const pt: Messages = {
       edit_board_entry: 'Corrigindo o registro',
       remove_board_entry: 'Tirando do painel',
       rename_board_group: 'Renomeando o grupo',
-      list_cases: 'Verificando processos',
-      start_case: 'Abrindo processo',
-      set_case_status: 'Atualizando o processo',
     },
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Até ${time}`,
@@ -519,34 +516,6 @@ export const pt: Messages = {
     lead: 'As newsletters de um dia num só lugar, para não lotarem a caixa de entrada.',
     issues: 'Todas as edições',
     title: 'Leitura',
-  },
-  cases: {
-    accept: 'Acompanhar processo',
-    accepted: 'Processo aberto. O agente já está cuidando disso.',
-    close: 'Marcar como concluído',
-    decline: 'Não é um processo',
-    declined: 'Entendido, não é um processo.',
-    drop: 'Abandonar processo',
-    dueBy: (d: string) => `até ${d}`,
-    emails: 'E-mails do processo',
-    files: (n: number) => `Arquivos: ${n}`,
-    fromWeb: 'Da web',
-    needed: 'O que é preciso',
-    next: 'O que fazer agora',
-    open: 'Abrir processo',
-    partOf: (t: string) => `Parte do processo “${t}”`,
-    planning: 'O agente está vendo isso…',
-    progress: (d: number, t: number) => `${d} de ${t}`,
-    proposed: 'Parece um processo',
-    reopen: 'Reabrir',
-    reply: 'Resposta do processo',
-    state: {
-      done: 'Feito',
-      found: 'Está no seu e-mail',
-      needed: 'Falta',
-      waiting: 'Aguardando outros',
-    },
-    title: 'Processos',
   },
   commitments: {
     title: 'Você prometeu',
@@ -1942,8 +1911,6 @@ export const pt: Messages = {
   upgrade: {
     ask: 'Pergunte ao seu e-mail',
     hints: {
-      cases:
-        'Parte do Fewmail Pro: quando um e-mail inicia um processo de várias etapas, o agente acompanha o que é preciso, encontra seus documentos e diz o que fazer agora.',
       ask: 'Parte do Fewmail Pro: pergunte o que quiser com suas palavras e receba a resposta dos seus próprios e-mails.',
       boards:
         'Parte do Fewmail Pro: descreva o que reunir e o agente encontra isso nos seus e-mails e mantém tudo atualizado.',

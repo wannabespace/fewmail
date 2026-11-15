@@ -119,9 +119,6 @@ export const hi: Messages = {
       edit_board_entry: 'एंट्री ठीक कर रहे हैं',
       remove_board_entry: 'बोर्ड से हटा रहे हैं',
       rename_board_group: 'समूह का नाम बदल रहे हैं',
-      list_cases: 'मामले देख रहा है',
-      start_case: 'मामला शुरू कर रहा है',
-      set_case_status: 'मामला अपडेट कर रहा है',
     },
     to: (recipients: string) => `प्रति: ${recipients}`,
     until: (time: string) => `तक: ${time}`,
@@ -1814,34 +1811,6 @@ export const hi: Messages = {
     issues: 'सभी अंक',
     title: 'पढ़ना',
   },
-  cases: {
-    accept: 'मामला संभालें',
-    accepted: 'मामला शुरू हुआ। एजेंट इस पर काम कर रहा है।',
-    close: 'पूरा हुआ चिह्नित करें',
-    decline: 'यह मामला नहीं है',
-    declined: 'ठीक है, यह मामला नहीं है।',
-    drop: 'मामला छोड़ें',
-    dueBy: (d: string) => `${d} तक`,
-    emails: 'इस मामले के ईमेल',
-    files: (n: number) => `फ़ाइलें: ${n}`,
-    fromWeb: 'वेब से',
-    needed: 'क्या चाहिए',
-    next: 'अभी क्या करें',
-    open: 'मामला खोलें',
-    partOf: (t: string) => `मामले “${t}” का हिस्सा`,
-    planning: 'एजेंट देख रहा है…',
-    progress: (d: number, t: number) => `${t} में से ${d}`,
-    proposed: 'यह एक मामला लगता है',
-    reopen: 'फिर से खोलें',
-    reply: 'मामले का जवाब',
-    state: {
-      done: 'हो गया',
-      found: 'आपकी मेल में मिला',
-      needed: 'चाहिए',
-      waiting: 'दूसरों का इंतज़ार',
-    },
-    title: 'मामले',
-  },
   commitments: {
     title: 'आपने वादा किया',
   },
@@ -1871,8 +1840,6 @@ export const hi: Messages = {
   upgrade: {
     ask: 'अपने मेल से पूछें',
     hints: {
-      cases:
-        'Fewmail Pro का हिस्सा: जब कोई ईमेल कई चरणों वाला मामला शुरू करता है, तो एजेंट ज़रूरी चीज़ों पर नज़र रखता है, आपके दस्तावेज़ ढूँढता है और बताता है कि अभी क्या करना है।',
       ask: 'Fewmail Pro का हिस्सा: अपने शब्दों में कुछ भी पूछें और जवाब अपने ही मेल से पाएँ।',
       boards:
         'Fewmail Pro का हिस्सा: बताएँ क्या इकट्ठा करना है, एजेंट उसे आपके मेल में ढूँढेगा और अपडेट रखेगा।',

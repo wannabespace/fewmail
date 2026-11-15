@@ -118,9 +118,6 @@ export const tr: Messages = {
       edit_board_entry: 'Kayıt düzeltiliyor',
       remove_board_entry: 'Panodan çıkarılıyor',
       rename_board_group: 'Grubun adı değiştiriliyor',
-      list_cases: 'İşlere bakılıyor',
-      start_case: 'İş açılıyor',
-      set_case_status: 'İş güncelleniyor',
     },
     to: (recipients: string) => `Kime: ${recipients}`,
     until: (time: string) => `Şu zamana kadar: ${time}`,
@@ -496,34 +493,6 @@ export const tr: Messages = {
     lead: 'Bir günün bültenleri tek yerde, gelen kutusunu doldurmasınlar diye.',
     issues: 'Tüm sayılar',
     title: 'Okuma',
-  },
-  cases: {
-    accept: 'Bu işi takip et',
-    accepted: 'İş açıldı. Ajan ilgileniyor.',
-    close: 'Tamamlandı olarak işaretle',
-    decline: 'Bu bir iş değil',
-    declined: 'Anlaşıldı, bu bir iş değil.',
-    drop: 'İşi bırak',
-    dueBy: (d: string) => `${d} tarihine kadar`,
-    emails: 'Bu işin e-postaları',
-    files: (n: number) => `Dosyalar: ${n}`,
-    fromWeb: 'Webden',
-    needed: 'Gerekenler',
-    next: 'Şimdi ne yapmalı',
-    open: 'İşi aç',
-    partOf: (t: string) => `“${t}” işinin parçası`,
-    planning: 'Ajan inceliyor…',
-    progress: (d: number, t: number) => `${t} içinden ${d}`,
-    proposed: 'Bu bir iş gibi görünüyor',
-    reopen: 'Yeniden aç',
-    reply: 'İş yanıtı',
-    state: {
-      done: 'Tamam',
-      found: 'Postanda var',
-      needed: 'Gerekli',
-      waiting: 'Diğerlerini bekliyor',
-    },
-    title: 'İşler',
   },
   commitments: {
     title: 'Söz verdin',
@@ -1876,8 +1845,6 @@ export const tr: Messages = {
   upgrade: {
     ask: 'Postana sor',
     hints: {
-      cases:
-        'Fewmail Pro’nun parçası: bir e-posta birkaç adımlı bir iş başlattığında ajan gerekenleri takip eder, belgelerini bulur ve şimdi ne yapman gerektiğini söyler.',
       ask: "Fewmail Pro'nun parçası: istediğini kendi kelimelerinle sor, yanıtı kendi postalarından al.",
       boards:
         "Fewmail Pro'nun parçası: neyin toplanacağını anlat, ajan postalarında bulsun ve güncel tutsun.",

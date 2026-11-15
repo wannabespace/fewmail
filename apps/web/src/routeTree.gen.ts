@@ -32,7 +32,6 @@ import { Route as SiteMcpRouteImport } from './routes/_site/mcp'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as WTokenRouteImport } from './routes/w.$token'
 import { Route as AppBoardsBoardIdRouteImport } from './routes/_app/boards.$boardId'
-import { Route as AppCasesCaseIdRouteImport } from './routes/_app/cases.$caseId'
 import { Route as AppMailThreadIdRouteImport } from './routes/_app/mail_.$threadId'
 import { Route as AppMailArchiveRouteImport } from './routes/_app/mail_.archive'
 import { Route as AppMailDraftsRouteImport } from './routes/_app/mail_.drafts'
@@ -156,11 +155,6 @@ const AppBoardsBoardIdRoute = AppBoardsBoardIdRouteImport.update({
   path: '/boards/$boardId',
   getParentRoute: () => AppRoute,
 } as any)
-const AppCasesCaseIdRoute = AppCasesCaseIdRouteImport.update({
-  id: '/cases/$caseId',
-  path: '/cases/$caseId',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppMailThreadIdRoute = AppMailThreadIdRouteImport.update({
   id: '/mail_/$threadId',
   path: '/mail/$threadId',
@@ -229,7 +223,6 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
-  '/cases/$caseId': typeof AppCasesCaseIdRoute
   '/mail/$threadId': typeof AppMailThreadIdRoute
   '/mail/archive': typeof AppMailArchiveRoute
   '/mail/drafts': typeof AppMailDraftsRoute
@@ -262,7 +255,6 @@ export interface FileRoutesByTo {
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
-  '/cases/$caseId': typeof AppCasesCaseIdRoute
   '/mail/$threadId': typeof AppMailThreadIdRoute
   '/mail/archive': typeof AppMailArchiveRoute
   '/mail/drafts': typeof AppMailDraftsRoute
@@ -298,7 +290,6 @@ export interface FileRoutesById {
   '/w/$token': typeof WTokenRoute
   '/_site/': typeof SiteIndexRoute
   '/_app/boards/$boardId': typeof AppBoardsBoardIdRoute
-  '/_app/cases/$caseId': typeof AppCasesCaseIdRoute
   '/_app/mail_/$threadId': typeof AppMailThreadIdRoute
   '/_app/mail_/archive': typeof AppMailArchiveRoute
   '/_app/mail_/drafts': typeof AppMailDraftsRoute
@@ -333,7 +324,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/w/$token'
     | '/boards/$boardId'
-    | '/cases/$caseId'
     | '/mail/$threadId'
     | '/mail/archive'
     | '/mail/drafts'
@@ -366,7 +356,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/w/$token'
     | '/boards/$boardId'
-    | '/cases/$caseId'
     | '/mail/$threadId'
     | '/mail/archive'
     | '/mail/drafts'
@@ -401,7 +390,6 @@ export interface FileRouteTypes {
     | '/w/$token'
     | '/_site/'
     | '/_app/boards/$boardId'
-    | '/_app/cases/$caseId'
     | '/_app/mail_/$threadId'
     | '/_app/mail_/archive'
     | '/_app/mail_/drafts'
@@ -587,13 +575,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBoardsBoardIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/cases/$caseId': {
-      id: '/_app/cases/$caseId'
-      path: '/cases/$caseId'
-      fullPath: '/cases/$caseId'
-      preLoaderRoute: typeof AppCasesCaseIdRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/mail_/$threadId': {
       id: '/_app/mail_/$threadId'
       path: '/mail/$threadId'
@@ -672,7 +653,6 @@ interface AppRouteChildren {
   AppTodayRoute: typeof AppTodayRoute
   AppWrappedRoute: typeof AppWrappedRoute
   AppBoardsBoardIdRoute: typeof AppBoardsBoardIdRoute
-  AppCasesCaseIdRoute: typeof AppCasesCaseIdRoute
   AppMailThreadIdRoute: typeof AppMailThreadIdRoute
   AppMailArchiveRoute: typeof AppMailArchiveRoute
   AppMailDraftsRoute: typeof AppMailDraftsRoute
@@ -694,7 +674,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppTodayRoute: AppTodayRoute,
   AppWrappedRoute: AppWrappedRoute,
   AppBoardsBoardIdRoute: AppBoardsBoardIdRoute,
-  AppCasesCaseIdRoute: AppCasesCaseIdRoute,
   AppMailThreadIdRoute: AppMailThreadIdRoute,
   AppMailArchiveRoute: AppMailArchiveRoute,
   AppMailDraftsRoute: AppMailDraftsRoute,

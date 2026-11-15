@@ -118,9 +118,6 @@ export const id: Messages = {
       edit_board_entry: 'Memperbaiki entri',
       remove_board_entry: 'Mengeluarkan dari papan',
       rename_board_group: 'Mengganti nama grup',
-      list_cases: 'Memeriksa urusan',
-      start_case: 'Membuka urusan',
-      set_case_status: 'Memperbarui urusan',
     },
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
@@ -501,34 +498,6 @@ export const id: Messages = {
     lead: 'Newsletter satu hari di satu tempat, agar tidak memenuhi kotak masuk.',
     issues: 'Semua edisi',
     title: 'Bacaan',
-  },
-  cases: {
-    accept: 'Kelola urusan ini',
-    accepted: 'Urusan dibuka. Agen sedang menanganinya.',
-    close: 'Tandai selesai',
-    decline: 'Bukan urusan',
-    declined: 'Baik, ini bukan urusan.',
-    drop: 'Tinggalkan urusan',
-    dueBy: (d: string) => `paling lambat ${d}`,
-    emails: 'Email urusan ini',
-    files: (n: number) => `File: ${n}`,
-    fromWeb: 'Dari web',
-    needed: 'Yang dibutuhkan',
-    next: 'Yang perlu dilakukan sekarang',
-    open: 'Buka urusan',
-    partOf: (t: string) => `Bagian dari urusan “${t}”`,
-    planning: 'Agen sedang memeriksanya…',
-    progress: (d: number, t: number) => `${d} dari ${t}`,
-    proposed: 'Sepertinya ini urusan',
-    reopen: 'Buka lagi',
-    reply: 'Balasan urusan',
-    state: {
-      done: 'Selesai',
-      found: 'Ada di emailmu',
-      needed: 'Dibutuhkan',
-      waiting: 'Menunggu pihak lain',
-    },
-    title: 'Urusan',
   },
   commitments: {
     title: 'Kamu sudah berjanji',
@@ -1878,8 +1847,6 @@ export const id: Messages = {
   upgrade: {
     ask: 'Tanya email-mu',
     hints: {
-      cases:
-        'Bagian dari Fewmail Pro: saat email memulai urusan beberapa langkah, agen mencatat yang dibutuhkan, menemukan dokumenmu, dan memberi tahu yang perlu dilakukan sekarang.',
       ask: 'Bagian dari Fewmail Pro: tanyakan apa saja dengan kata-katamu sendiri dan dapatkan jawaban dari email-mu.',
       boards:
         'Bagian dari Fewmail Pro: jelaskan apa yang dikumpulkan, dan agen mencarinya di email-mu serta terus memperbaruinya.',

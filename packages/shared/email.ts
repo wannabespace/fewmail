@@ -547,9 +547,6 @@ export interface OutgoingAttachment {
 /** A forwarded email's file goes out under this prefix and its part id, read from that email when sent. */
 export const FORWARDED_PREFIX = 'fwd-'
 
-/** A file of another of the user's emails (a case's reply sends a passport scan sent months ago), read from Gmail when sent: `mail-<messageId>:<partId>`. */
-export const MAIL_FILE_PREFIX = 'mail-'
-
 /** Gmail refuses mail over 25 MB, and base64 makes a file a third larger on the way. */
 export const ATTACHMENTS_MAX_BYTES = 18_000_000
 

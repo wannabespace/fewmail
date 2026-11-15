@@ -531,10 +531,9 @@ const ReplyExtras = ({
   onAddEvent: () => void
 }) => {
   const t = useT()
-  const { event, files = [] } = cardPayload(action)
   return (
     <>
-      {event && (
+      {cardPayload(action).event && (
         <Button
           size="sm"
           variant="ghost-muted"
@@ -551,13 +550,6 @@ const ReplyExtras = ({
             {t.agent.to(replyRecipients(message).join(', '))}
           </span>
           {` · ${t.queue.draftedInVoice}`}
-          {files.length > 0 && (
-            <span data-mask>
-              {' · '}
-              {t.cases.files(files.length)}:{' '}
-              {files.map(({ filename }) => filename).join(', ')}
-            </span>
-          )}
           {rule && (
             <>
               {' · '}
