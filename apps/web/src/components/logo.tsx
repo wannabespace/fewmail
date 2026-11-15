@@ -16,7 +16,7 @@ export const LogoMark = ({ className }: { className?: string }) => (
   <svg
     viewBox="12 11 84 84"
     aria-hidden="true"
-    className={cn('size-5.5 shrink-0', className)}
+    className={cn('text-primary size-5.5 shrink-0', className)}
   >
     <path d={MARK} fill="currentColor" className="group-hover/logo:hidden" />
     <path
@@ -37,7 +37,7 @@ export const Logo = ({ to = '/' }: { to?: LinkProps['to'] }) => (
   <Link
     to={to}
     aria-label="Fewmail"
-    className="group/logo text-foreground focus-visible:focus-ring flex w-fit items-center gap-1.5 rounded-md outline-none"
+    className="group/logo text-primary focus-visible:focus-ring flex w-fit items-center gap-1.5 rounded-md outline-none"
   >
     <LogoMark />
     <svg

@@ -1,21 +1,21 @@
 # Fewmail brand
 
-The mark is a **bird**: a round, smiling carrier bird with a small beak, drawn as one solid shape with the eye and smile cut out, so it is always a single colour (ink on light grounds, cream on dark). It is the agent: friendly, quick, and it brings you only the few emails that matter. The wordmark is Baloo 2 ExtraBold, lowercase, tracking -0.02em, outlined so no font is needed to show it.
+The mark is a **bird**: a round, smiling carrier bird with a small beak, drawn as one solid shape with the eye and smile cut out, so it is always a single colour: wax on light grounds, wax 400 on dark. It is the agent: friendly, quick, and it brings you only the few emails that matter. The wordmark is Baloo 2 ExtraBold, lowercase, tracking -0.02em, outlined so no font is needed to show it.
 
 ## Files
 
 | File | Use |
 | --- | --- |
-| `logo/mark.svg`, `logo/mark-cream.svg`, `logo/mark-512.png` | The bird alone, ink or cream. |
+| `logo/mark.svg`, `logo/mark-dark.svg`, `logo/mark-512.png` | The bird alone, for light or dark grounds. |
 | `logo/mark-happy.svg` | The bird with a happy, arched eye: the logo's hover state. |
 | `logo/mark-sleeping.svg` | The bird asleep with two z's: an empty mail list. |
-| `logo/wordmark.svg`, `logo/wordmark-cream.svg` | The word alone. |
-| `logo/lockup.svg`, `logo/lockup-cream.svg` (+ `.png`) | Bird and wordmark together. The default logo. |
-| `logo/favicon.svg` | The bird, ink in a light browser and cream in a dark one. |
-| `icon/app-icon.svg`, `icon/app-icon-1024.png` | App icon: the cream bird on an ink tile, full bleed. The OS masks it (iOS squircle, Android shapes), so it never carries its own rounded corners. |
+| `logo/wordmark.svg`, `logo/wordmark-dark.svg` | The word alone. |
+| `logo/lockup.svg`, `logo/lockup-dark.svg` (+ `.png`) | Bird and wordmark together. The default logo. |
+| `logo/favicon.svg` | The bird, wax in a light browser and wax 400 in a dark one. |
+| `icon/app-icon.svg`, `icon/app-icon-1024.png` | App icon: the wax 400 bird on an ink tile, full bleed. The OS masks it (iOS squircle, Android shapes), so it never carries its own rounded corners. |
 | `og/og.html` → `og/og.png` | The 1200×630 social card, also copied to `apps/web/public/og.png`. |
 
-In the web app: `apps/web/src/components/logo.tsx` (the bird and wordmark outlines inline in `currentColor`, so they follow the theme), `apps/web/public/favicon.svg` and `apple-touch-icon.png` (the app icon at 180px).
+In the web app: `apps/web/src/components/logo.tsx` (the bird and wordmark outlines inline in `text-primary`, so they lighten in dark), `apps/web/public/favicon.svg` and `apple-touch-icon.png` (the app icon at 180px).
 
 Run `./export.sh` after changing any source here: it renders every PNG with headless Chrome and copies the favicon, touch icon and OG card into `apps/web/public`. Never edit a PNG by hand.
 
@@ -23,7 +23,7 @@ Run `./export.sh` after changing any source here: it renders every PNG with head
 
 - Clear space around the lockup: half the bird's height on every side.
 - Smallest sizes: the bird at 16px, the lockup at 80px wide.
-- One colour only: ink, cream, or white on a photo's dark area. Never two colours, a gradient, an outline or a rotation.
+- One colour only: wax (`#B84A27`) on light, wax 400 (`#E4744B`) on dark; ink or white only where colour cannot print. Never two colours, a gradient, an outline or a rotation.
 - The wordmark is always lowercase, `fewmail`; in running text the name is Fewmail.
 
 ## Colour: wax, paper and ink
