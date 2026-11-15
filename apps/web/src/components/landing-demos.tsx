@@ -16,6 +16,7 @@ import {
   motion,
   useInView,
   useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   useTransform,
 } from 'motion/react'
@@ -163,6 +164,11 @@ const OPEN_START = 0.6
 const OPEN_END = 0.8
 /** Where each line of copy beside the inbox takes over, halfway through its cross-fade. */
 const PHASE_STARTS = [0, 0.11, 0.64]
+/** The cross-fades between phases: a scroll that stops inside one glides on to the phase it was heading for. */
+const FADES = [
+  [0.06, 0.15],
+  [0.6, 0.72],
+] as const
 
 const Parts = ({ parts }: { parts: (ReactNode | string)[] }) =>
   parts.map((part, index) => (
@@ -409,9 +415,30 @@ export const InboxStory = () => {
     useTransform(progress, [0.64, 0.72], [0, 1]),
   ] as const
   const [phase, setPhase] = useState(0)
-  useMotionValueEvent(progress, 'change', (at) =>
+  const isReduced = useReducedMotion()
+  const heading = useRef(1)
+  const idle = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useMotionValueEvent(progress, 'change', (at) => {
     setPhase(PHASE_STARTS.findLastIndex((start) => at >= start))
-  )
+    heading.current =
+      Math.sign(at - (progress.getPrevious() ?? at)) || heading.current
+    clearTimeout(idle.current)
+    idle.current = setTimeout(() => {
+      const fade = FADES.find(
+        ([from, to]) => at > from + 0.002 && at < to - 0.002
+      )
+      const section = story.current
+      if (!fade || !section) {
+        return
+      }
+      const rest = heading.current > 0 ? fade[1] : fade[0]
+      const { height, top } = section.getBoundingClientRect()
+      scrollTo({
+        behavior: isReduced ? 'instant' : 'smooth',
+        top: scrollY + top + rest * (height - innerHeight),
+      })
+    }, 160)
+  })
   const counter = (
     <p className="text-muted-foreground flex items-center gap-2 font-serif">
       <span className="bg-primary size-2 rounded-full" />
