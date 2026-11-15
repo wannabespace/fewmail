@@ -138,7 +138,6 @@ const AppLayout = () => {
               className="relative flex min-h-0 flex-1 flex-col"
             >
               <Outlet />
-              <ThreadPane />
             </div>
           </ResizablePanel>
         </ResizableGroup>
@@ -152,6 +151,7 @@ const AppLayout = () => {
         <ClearOutDialog />
         <ConfirmDialog />
         <ThreadPeekPopover />
+        <ThreadPane />
         <SnoozePicker />
       </div>
     </ComposeProvider>
