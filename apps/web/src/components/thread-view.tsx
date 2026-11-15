@@ -2042,8 +2042,10 @@ export const StackView = ({
               </Button>
             </div>
           </ReaderHeader>
+          {/* Not bled like Home's cards: in a pane as narrow as the reader they ran into its edge. */}
           <Accordion
             variant="cards"
+            className="mx-0"
             value={openId ? [openId] : []}
             onValueChange={([id]) => setOpenId(id)}
           >

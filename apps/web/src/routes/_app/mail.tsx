@@ -637,7 +637,7 @@ const cardsOf = (
 
 // Not sticky: pins share the list's <ul>, so a sticky pinned header would ride over every row below it.
 const LIST_HEADER =
-  'bg-body text-muted-foreground box-content flex h-6 items-center gap-2 pt-5 pr-1 pb-2 pl-9 text-xs font-medium'
+  'bg-body text-muted-foreground flex h-13 items-center gap-2 pt-5 pr-1 pb-2 pl-9 text-xs font-medium'
 
 const GROUP_HEADER = cn(LIST_HEADER, 'sticky top-0 z-10')
 
@@ -1261,14 +1261,17 @@ const useRelatedRows = <
   }
 }
 
+/** One sub-list under its sender's row: the card's fill and no rule until the last of them. */
 const RelatedRow = ({
   isCursor,
+  isLast,
   isOpen,
   item,
   onOpen,
   row: { message },
 }: {
   isCursor: boolean
+  isLast: boolean
   isOpen: boolean
   item: VirtualItem
   onOpen: () => void
@@ -1278,11 +1281,10 @@ const RelatedRow = ({
   return (
     <ListRow
       item={item}
-      className={rowSurfaceOf({
-        isActive: isCursor,
-        isOpen,
-        isUnread: message.isUnread,
-      })}
+      className={cn(
+        rowSurfaceOf({ isActive: isCursor, isOpen, isUnread: true }),
+        !isLast && 'border-b-0'
+      )}
     >
       <button
         type="button"
@@ -1362,7 +1364,7 @@ const BurstList = ({
             <span
               data-mask
               className={cn(
-                'min-w-0 flex-1 truncate',
+                'min-w-0 truncate',
                 email.risk && 'text-destructive font-medium',
                 !email.risk &&
                   (email.isUnread
@@ -1373,12 +1375,12 @@ const BurstList = ({
               {email.subject}
             </span>
             {email.extracted && (
-              <span className="ease-house flex shrink-0 items-center gap-1.5 transition-opacity duration-150 group-hover/line:opacity-0 group-has-data-popup-open/line:opacity-0 empty:hidden">
+              <span className="ease-house flex h-5 min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-5 overflow-hidden transition-opacity duration-150 group-hover/line:opacity-0 group-has-data-popup-open/line:opacity-0 empty:hidden">
                 <ExtractedChips extracted={email.extracted} size="sm" />
               </span>
             )}
             {!email.code && (
-              <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+              <span className="text-muted-foreground ml-auto shrink-0 text-xs tabular-nums">
                 {dates.format(
                   email.receivedAt,
                   isToday(email.receivedAt) ? 'HH:mm' : 'd MMM'
@@ -2922,6 +2924,7 @@ const MailPage = () => {
                 key={item.key}
                 row={row}
                 isCursor={index === cursor}
+                isLast={!('isRelated' in (rows[index + 1] ?? {}))}
                 isOpen={row.message.threadId === thread}
                 item={item}
                 onOpen={() => open(index)}
