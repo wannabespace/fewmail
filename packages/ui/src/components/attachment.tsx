@@ -144,7 +144,7 @@ const AttachmentGroup = ({
   <div
     data-slot="attachment-group"
     className={cn(
-      `scroll-fade-x flex min-w-0 snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 has-[>[data-size=xs]]:gap-1.5 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start`,
+      `scroll-fade-x -mx-1 flex min-w-0 snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain p-1 has-[>[data-size=xs]]:gap-1.5 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start`,
       className
     )}
     {...props}
