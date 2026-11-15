@@ -423,12 +423,12 @@ const RollingCount = ({ flash, value }: { flash?: boolean; value: number }) => {
 }
 
 export const FOLDER_ITEMS = [
-  { filter: 'snoozed', icon: Clock01Icon },
-  { filter: 'sent', icon: SentIcon },
-  { filter: 'drafts', icon: FileEditIcon },
-  { filter: 'archive', icon: Archive02Icon },
-  { filter: 'spam', icon: SpamIcon },
-  { filter: 'trash', icon: Delete02Icon },
+  { folder: 'snoozed', icon: Clock01Icon },
+  { folder: 'sent', icon: SentIcon },
+  { folder: 'drafts', icon: FileEditIcon },
+  { folder: 'archive', icon: Archive02Icon },
+  { folder: 'spam', icon: SpamIcon },
+  { folder: 'trash', icon: Delete02Icon },
 ] as const
 
 const LABELS_SHOWN = 5
@@ -521,16 +521,11 @@ const MailFolders = () => {
       aria-label={t.nav.folders}
       className="my-0.5 ms-4.5 flex flex-col gap-0.5 border-s ps-1.5"
     >
-      {FOLDER_ITEMS.map(({ filter, icon }) => (
-        <Link
-          key={filter}
-          to="/mail"
-          search={{ filter }}
-          className={NAV_SUBROW}
-        >
+      {FOLDER_ITEMS.map(({ folder, icon }) => (
+        <Link key={folder} to={`/mail/${folder}`} className={NAV_SUBROW}>
           <HugeiconsIcon icon={icon} strokeWidth={2} />
-          <span className="flex-1">{t.mail.filter[filter]}</span>
-          {filter === 'drafts' && Boolean(draftCount) && (
+          <span className="flex-1">{t.mail.filter[folder]}</span>
+          {folder === 'drafts' && Boolean(draftCount) && (
             <span className="text-muted-foreground text-xs tabular-nums">
               <RollingCount value={draftCount ?? 0} />
             </span>
@@ -781,10 +776,10 @@ export const Sidebar = ({
   const isEditingDraft = useRouterState({
     select: ({ location }) => Boolean(location.state.compose?.gmailDraft),
   })
-  const { filter, q } = useSearch({ strict: false })
+  const { q } = useSearch({ strict: false })
   const isOnMail = pathname.startsWith('/mail') || isEditingDraft
   const isInFolder =
-    FOLDER_ITEMS.some((item) => item.filter === filter) ||
+    FOLDER_ITEMS.some(({ folder }) => pathname === `/mail/${folder}`) ||
     Boolean(q?.startsWith('label:'))
   const { data: queued } = useQuery(orpc.today.count.queryOptions())
   const { data: mailboxes } = useQuery(
