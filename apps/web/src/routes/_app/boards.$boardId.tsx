@@ -32,6 +32,7 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
+import { motion } from 'motion/react'
 import type { RefObject } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -48,6 +49,7 @@ import {
   EntryRow,
   useEntryActions,
 } from '~/components/board-entries'
+import { useIsThreadExpanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
@@ -678,8 +680,9 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
     }
   })
 
+  const isUnderEmail = useIsThreadExpanded()
   const { active, query, visible } = narrow(board, { cursor, filter, search })
-  const isFree = !editing && !isSettingsOpen
+  const isFree = !editing && !isSettingsOpen && !isUnderEmail
   const listKeys = { enabled: isFree && visible.length > 0 }
   const rowKeys = { enabled: isFree && Boolean(active) }
   const step = (by: number) =>
@@ -729,7 +732,7 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-1 overflow-y-auto">
+      <motion.div layoutScroll className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16">
           <BoardHeader
             board={board}
@@ -779,7 +782,7 @@ const BoardPage = ({ boardId }: { boardId: string }) => {
             />
           )}
         </div>
-      </div>
+      </motion.div>
       <KeyHints hints={hints} />
       <BoardSettingsDialog
         board={board}

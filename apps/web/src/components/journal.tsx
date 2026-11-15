@@ -10,8 +10,8 @@ import { format, isToday } from 'date-fns'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { ExpandTrigger } from '~/components/expand-row'
 import { SenderAvatar } from '~/components/sender-avatar'
-import { ExpandTrigger } from '~/components/thread-link'
 import { ROW_SWAP } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { hideThread, threadOfMessage } from '~/lib/mail-db'
@@ -109,7 +109,10 @@ export const Journal = () => {
         key={action.id}
         trigger={
           message ? (
-            <ExpandTrigger message={{ ...message, from: 'journal' }} />
+            <ExpandTrigger
+              email={{ from: 'journal', threadId: message.threadId }}
+              rowId={action.id}
+            />
           ) : undefined
         }
         iconVariant="avatar"

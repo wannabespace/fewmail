@@ -124,7 +124,13 @@ export const SettingsRow = ({
         {description && <ItemDescription>{description}</ItemDescription>}
       </ItemContent>
       {children && (
-        <ItemActions className={cn(trigger && 'relative')}>
+        // Over the row's trigger only its controls take the click; text beside them (an amount, a time) opens the row.
+        <ItemActions
+          className={cn(
+            trigger &&
+              'pointer-events-none relative [&_:is(a,button,input,label,select,textarea,[role],[data-slot=tooltip-trigger])]:pointer-events-auto'
+          )}
+        >
           {children}
         </ItemActions>
       )}

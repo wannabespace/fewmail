@@ -6,18 +6,25 @@ import {
 } from '@fewmail/ui/components/popover'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import type { Transition } from 'motion/react'
-import { useEffect, useId, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { useEffect, useState } from 'react'
 import type { ComponentProps, ReactNode } from 'react'
-import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
+import {
+  collapseExpanded,
+  expandedThread,
+  HIDDEN,
+  PEEK_ID,
+  SHOWN,
+  toggleExpanded,
+  useIsThreadExpanded,
+  useMorph,
+} from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { ThreadPeek, ThreadView } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 import { prefetchThread } from '~/lib/mail-db'
-import { posthog } from '~/lib/posthog'
 
 type Peeked = ComponentProps<typeof ThreadPeek>['message'] & {
   from: ComponentProps<typeof ThreadPeek>['from']
@@ -72,41 +79,6 @@ export const usePeekKey = (rowId: string | undefined, enabled: boolean) => {
       threadPeek.close()
     }
   }, [triggerId])
-}
-
-export const useMorph = (): { morph: Transition; reveal: Transition } =>
-  useReducedMotion()
-    ? { morph: { duration: 0 }, reveal: { duration: 0 } }
-    : {
-        morph: { bounce: 0.1, type: 'spring', visualDuration: 0.3 },
-        reveal: { delay: 0.05, duration: 0.2, ease: [0.32, 0.72, 0, 1] },
-      }
-
-export const HIDDEN = { opacity: 0, y: 6 }
-export const SHOWN = { opacity: 1, y: 0 }
-
-export const PEEK_ID = 'thread-peek'
-
-interface Expanded {
-  close: () => void
-  from: Peeked['from']
-  /** What the pane grows out of: a peek (`PEEK_ID`) or a row (`ExpandTrigger`). */
-  layoutId: string
-  pathname: string
-  threadId: string
-}
-const expandedThread = createStore<Expanded | null>(null)
-
-export const useIsThreadExpanded = () => !!useSubscription(expandedThread)
-
-/** Grows a peek or a row into `ThreadPane` and back. `close` closes what it grew out of. */
-export const toggleExpanded = (open: Omit<Expanded, 'pathname'>) => {
-  if (expandedThread.get()) {
-    expandedThread.set(null)
-    return
-  }
-  expandedThread.set({ ...open, pathname: location.pathname })
-  posthog.capture('thread_expanded', { from: open.from })
 }
 
 // Esc in the pane's reply belongs to the reply: collapsing there dropped the draft.
@@ -179,11 +151,10 @@ export const ThreadPane = () => {
       open.close()
     }
   }, [open, isHere])
-  const collapse = () => expandedThread.set(null)
   // A peek's popover takes esc and the peek its ⇧O; a row leaves both to the pane.
   const rowKeys = { enabled: isHere && open?.layoutId !== PEEK_ID }
-  useHotkey('Escape', collapse, rowKeys)
-  useHotkey('Shift+O', collapse, rowKeys)
+  useHotkey('Escape', collapseExpanded, rowKeys)
+  useHotkey('Shift+O', collapseExpanded, rowKeys)
   return (
     <AnimatePresence>
       {open && isHere && shown && (
@@ -207,7 +178,7 @@ export const ThreadPane = () => {
               isFullPage
               isSnoozed={false}
               threadId={shown.threadId}
-              onClose={collapse}
+              onClose={collapseExpanded}
               onDone={() => shown.close()}
             />
             <KeyHints
@@ -222,34 +193,6 @@ export const ThreadPane = () => {
         </motion.div>
       )}
     </AnimatePresence>
-  )
-}
-
-/** A row that grows into its email over the page instead of peeking: `SettingsRow trigger` lays it over the whole row, and it is the box the pane grows out of and shrinks back into. */
-export const ExpandTrigger = ({
-  message,
-  ...props
-}: ComponentProps<typeof motion.button> & { message: Peeked }) => {
-  const layoutId = useId()
-  const { morph } = useMorph()
-  return (
-    <motion.button
-      type="button"
-      layoutId={layoutId}
-      transition={morph}
-      onPointerEnter={() => {
-        void prefetchThread(message.threadId)
-      }}
-      onClick={() =>
-        toggleExpanded({
-          close: () => expandedThread.set(null),
-          from: message.from,
-          layoutId,
-          threadId: message.threadId,
-        })
-      }
-      {...props}
-    />
   )
 }
 

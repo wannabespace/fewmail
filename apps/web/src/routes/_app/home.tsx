@@ -59,6 +59,7 @@ import { toast } from 'sonner'
 import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
+import { ExpandTrigger, useIsThreadExpanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
@@ -77,11 +78,7 @@ import {
 import type { QueueItem } from '~/components/queue-card'
 import { ReadingPane, ReadingSection, useReading } from '~/components/reading'
 import { SenderAvatar } from '~/components/sender-avatar'
-import {
-  ExpandTrigger,
-  useIsThreadExpanded,
-  usePeekKey,
-} from '~/components/thread-link'
+import { usePeekKey } from '~/components/thread-link'
 import {
   CodeActions,
   MailRowActions,
@@ -387,7 +384,12 @@ const FreshCodes = ({
           message.code && (
             <SettingsRow
               key={message.id}
-              trigger={<ExpandTrigger message={{ ...message, from: 'home' }} />}
+              trigger={
+                <ExpandTrigger
+                  email={{ from: 'home', threadId: message.threadId }}
+                  rowId={message.id}
+                />
+              }
               iconVariant="avatar"
               icon={<SenderAvatar sender={message} size="sm" />}
               title={
@@ -435,7 +437,12 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.recent.map(({ analysis, message }) => (
         <SettingsRow
           key={message.id}
-          trigger={<ExpandTrigger message={{ ...message, from: 'home' }} />}
+          trigger={
+            <ExpandTrigger
+              email={{ from: 'home', threadId: message.threadId }}
+              rowId={message.id}
+            />
+          }
           iconVariant="avatar"
           icon={<SenderAvatar sender={message} size="sm" />}
           title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
@@ -462,7 +469,12 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.dates.map(({ analysis, message }) => (
         <SettingsRow
           key={message.id}
-          trigger={<ExpandTrigger message={{ ...message, from: 'home' }} />}
+          trigger={
+            <ExpandTrigger
+              email={{ from: 'home', threadId: message.threadId }}
+              rowId={message.id}
+            />
+          }
           iconVariant="avatar"
           icon={<SenderAvatar sender={message} size="sm" />}
           title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
@@ -476,12 +488,8 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
           key={sent.threadId}
           trigger={
             <ExpandTrigger
-              message={{
-                ...sent,
-                from: 'home',
-                fromEmail: sent.to[0] ?? '',
-                fromName: sent.toName,
-              }}
+              email={{ from: 'home', threadId: sent.threadId }}
+              rowId={sent.threadId}
             />
           }
           iconVariant="avatar"

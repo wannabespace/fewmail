@@ -31,10 +31,10 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { ExpandTrigger, expandRow } from '~/components/expand-row'
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { orpc, refetchChanged } from '~/lib/orpc'
@@ -58,7 +58,6 @@ const patchBoard = (boardId: string, patch: (board: Board) => Board) =>
 /** Taking an entry off is undone from its toast; the board learns from it either way once the toast is gone. */
 export const useEntryActions = (boardId: string) => {
   const t = useT()
-  const navigate = useNavigate()
   const dismiss = useMutation(
     orpc.boards.dismissEntry.mutationOptions({
       onMutate: ({ id, isDismissed }) =>
@@ -73,7 +72,7 @@ export const useEntryActions = (boardId: string) => {
   )
   return {
     open: (entry: Entry) =>
-      navigate({ params: { threadId: entry.threadId }, to: '/mail/$threadId' }),
+      expandRow(entry.id, { from: 'board', threadId: entry.threadId }),
     remove: (entry: Entry) => {
       dismiss.mutate({ id: entry.id })
       toastUndo(t.boards.entry.removed, () =>
@@ -101,15 +100,13 @@ export const EntryRow = ({
   return (
     <SettingsRow
       active={isActive}
-      title={
-        <Link
-          to="/mail/$threadId"
-          params={{ threadId: entry.threadId }}
-          data-mask
-        >
-          {entry.title}
-        </Link>
+      trigger={
+        <ExpandTrigger
+          email={{ from: 'board', threadId: entry.threadId }}
+          rowId={entry.id}
+        />
       }
+      title={<span data-mask>{entry.title}</span>}
       description={
         <span data-mask>
           {[
@@ -243,16 +240,10 @@ const GroupRow = ({
   return (
     <SettingsRow
       active={isPicked}
-      title={
-        <button
-          type="button"
-          className="cursor-pointer text-left"
-          onClick={onPick}
-          data-mask
-        >
-          {group.name}
-        </button>
+      trigger={
+        <button type="button" aria-label={group.name} onClick={onPick} />
       }
+      title={<span data-mask>{group.name}</span>}
       description={
         <span data-mask>
           {[

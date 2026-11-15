@@ -27,19 +27,17 @@ import { motion } from 'motion/react'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { ListenButton } from '~/components/listen-button'
-import { SenderAvatar } from '~/components/sender-avatar'
 import {
-  dropPane,
   HIDDEN,
-  keepUnderPane,
   PEEK_ID,
-  PeekSurface,
   SHOWN,
   toggleExpanded,
   useIsThreadExpanded,
   useMorph,
-} from '~/components/thread-link'
+} from '~/components/expand-row'
+import { ListenButton } from '~/components/listen-button'
+import { SenderAvatar } from '~/components/sender-avatar'
+import { dropPane, keepUnderPane, PeekSurface } from '~/components/thread-link'
 import { ThreadPeek } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread, warmThread } from '~/lib/mail-db'
