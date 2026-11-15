@@ -1743,7 +1743,7 @@ export const ThreadView = ({
   if (!data) {
     return (
       <article className="flex min-h-0 flex-1 flex-col">
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-8 pb-8">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-8 pb-8 max-md:px-4">
           <ReaderHeader title={null} isFullPage={isFullPage} onClose={onClose}>
             <div className="flex gap-2">
               <Skeleton className="h-7 w-20 rounded-lg" />
@@ -1768,7 +1768,7 @@ export const ThreadView = ({
         tabIndex={-1}
         className="flex-1 overflow-y-auto outline-none"
       >
-        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
+        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8 max-md:px-4">
           <ReaderHeader
             note={<ThreadPeople thread={data} />}
             title={subject}
@@ -2005,7 +2005,7 @@ export const StackView = ({
   return (
     <article className="flex min-h-0 flex-1 flex-col">
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
+        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8 max-md:px-4">
           <ReaderHeader
             note={t.cleanup.emails(emails.length)}
             title={head?.fromName ?? head?.fromEmail}

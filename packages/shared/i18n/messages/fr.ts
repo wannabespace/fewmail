@@ -1110,6 +1110,7 @@ export const fr: Messages = {
     unsubscribed: 'Désabonné',
   },
   nav: {
+    menu: 'Menu',
     labels: 'Libellés',
     folders: 'Dossiers',
     calendar: 'Calendrier',

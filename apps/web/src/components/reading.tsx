@@ -414,9 +414,9 @@ const IssueCard = ({
   }
   const content = (
     <>
-      <div className="flex min-h-8 items-center gap-2">
+      <div className="flex min-h-8 flex-wrap items-center gap-2">
         <IssueHeading day={day} />
-        <div className="pointer-events-auto ml-auto flex gap-2">
+        <div className="pointer-events-auto ml-auto flex flex-wrap gap-2">
           {summary && !isOpen && <ReadingListen day={day} summary={summary} />}
           {!isOpen && (
             <motion.div
@@ -588,7 +588,8 @@ const CloseIssue = ({ onClose }: { onClose: () => void }) => {
   )
 }
 
-const PANE_COLUMN = 'mx-auto max-w-3xl px-10 pt-12 pb-16'
+const PANE_COLUMN =
+  'mx-auto max-w-3xl px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6'
 
 /** `N`'s pane over Home's column, the latest issue: it grows out of `IssueCard` like an App Store card. */
 const LatestPane = ({
@@ -618,9 +619,9 @@ const LatestPane = ({
             transition={transition}
             className="flex flex-col gap-3"
           >
-            <div className="flex min-h-8 items-center gap-2">
+            <div className="flex min-h-8 flex-wrap items-center gap-2">
               <IssueHeading day={day} />
-              <div className="ml-auto flex gap-2">
+              <div className="ml-auto flex flex-wrap gap-2">
                 {summary && <ReadingListen day={day} summary={summary} />}
                 <CloseIssue
                   onClose={() =>
@@ -671,9 +672,9 @@ const DayPane = ({ day }: { day: string }) => {
       <div className="h-full overflow-y-auto">
         <section aria-label={t.reading.title} className={PANE_COLUMN}>
           <div className="flex flex-col gap-3">
-            <div className="flex min-h-8 items-center gap-2">
+            <div className="flex min-h-8 flex-wrap items-center gap-2">
               <IssueHeading day={day} />
-              <div className="ml-auto flex gap-2">
+              <div className="ml-auto flex flex-wrap gap-2">
                 {summary && (
                   <ListenButton
                     path={listenPath(day)}

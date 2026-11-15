@@ -1,3 +1,4 @@
+import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
 import { useEffect, useLayoutEffect, useState } from 'react'
@@ -26,7 +27,9 @@ const useSidebarBox = () => {
     return () => observer.disconnect()
   }, [])
   const right = area?.right ?? innerWidth
-  const width = useReaderWidthIn(area?.width ?? innerWidth)
+  const readerWidth = useReaderWidthIn(area?.width ?? innerWidth)
+  // A phone has no room beside the page: the email covers it.
+  const width = useIsMobile() ? (area?.width ?? innerWidth) : readerWidth
   return {
     height: area?.height ?? innerHeight,
     left: right - width,
@@ -53,16 +56,17 @@ export const ThreadPane = () => {
     }
   }, [open, isOpen])
   const box = useSidebarBox()
+  const isMobile = useIsMobile()
   useLayoutEffect(() => {
     const area = pageArea()
-    if (!isOpen || !area) {
+    if (!isOpen || !area || isMobile) {
       return
     }
     area.style.paddingRight = `${box.width}px`
     return () => {
       area.style.removeProperty('padding-right')
     }
-  }, [isOpen, box.width])
+  }, [isOpen, isMobile, box.width])
   useHotkey('Escape', collapseExpanded, {
     enabled: isOpen,
     ignoreDefaultPrevented: true,

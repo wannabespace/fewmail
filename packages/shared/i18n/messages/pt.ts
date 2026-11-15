@@ -853,6 +853,7 @@ export const pt: Messages = {
     unsubscribed: 'Inscrição cancelada',
   },
   nav: {
+    menu: 'Menu',
     labels: 'Marcadores',
     folders: 'Pastas',
     calendar: 'Calendário',

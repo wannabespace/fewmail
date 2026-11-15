@@ -1103,6 +1103,7 @@ export const it: Messages = {
     unsubscribed: 'Disiscritto',
   },
   nav: {
+    menu: 'Menu',
     labels: 'Etichette',
     folders: 'Cartelle',
     calendar: 'Calendario',

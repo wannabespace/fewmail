@@ -3,6 +3,7 @@ import {
   ResizablePanel,
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
+import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -22,7 +23,7 @@ import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { ConfirmDialog } from '~/components/confirm-dialog'
-import { Sidebar } from '~/components/nav'
+import { MobileBar, Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
 import { ThreadPane } from '~/components/thread-link'
 import { SnoozePicker, useFreshCodeToast } from '~/components/thread-view'
@@ -97,6 +98,7 @@ const AppLayout = () => {
   useHotkey('Mod+Z', undoLatest, { ignoreInputs: true })
   const sidebarWidth = useSubscription(sidebarWidthStore)
   const router = useRouter()
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     // Charts and the AI SDK would otherwise compete with the first page's own requests.
@@ -126,22 +128,13 @@ const AppLayout = () => {
 
   return (
     <ComposeProvider>
-      <div className="bg-body flex h-svh">
-        <ResizableGroup className="flex-1">
-          <ResizablePanel
-            className="flex"
-            size={sidebarWidth}
-            minSize={SIDEBAR_WIDTH.min}
-            maxSize={SIDEBAR_WIDTH.max}
-            onSizeChange={(width) => sidebarWidthStore.set(width)}
-          >
-            <Sidebar
+      <div className="bg-body flex h-dvh">
+        {isMobile ? (
+          <div className="flex min-w-0 flex-1 flex-col">
+            <MobileBar
               email={me.user.email}
               onSearch={() => setIsCommandMenuOpen(true)}
             />
-          </ResizablePanel>
-          <ResizableSeparator />
-          <ResizablePanel className="flex min-w-0 flex-col">
             <NoticeBar />
             <div
               data-slot="thread-pane-area"
@@ -149,8 +142,33 @@ const AppLayout = () => {
             >
               <Outlet />
             </div>
-          </ResizablePanel>
-        </ResizableGroup>
+          </div>
+        ) : (
+          <ResizableGroup className="flex-1">
+            <ResizablePanel
+              className="flex"
+              size={sidebarWidth}
+              minSize={SIDEBAR_WIDTH.min}
+              maxSize={SIDEBAR_WIDTH.max}
+              onSizeChange={(width) => sidebarWidthStore.set(width)}
+            >
+              <Sidebar
+                email={me.user.email}
+                onSearch={() => setIsCommandMenuOpen(true)}
+              />
+            </ResizablePanel>
+            <ResizableSeparator />
+            <ResizablePanel className="flex min-w-0 flex-col">
+              <NoticeBar />
+              <div
+                data-slot="thread-pane-area"
+                className="relative flex min-h-0 flex-1 flex-col"
+              >
+                <Outlet />
+              </div>
+            </ResizablePanel>
+          </ResizableGroup>
+        )}
         <CommandMenu
           open={isCommandMenuOpen}
           onOpenChange={setIsCommandMenuOpen}

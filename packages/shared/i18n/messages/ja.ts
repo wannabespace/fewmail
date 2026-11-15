@@ -525,6 +525,7 @@ export const ja: Messages = {
     unsubscribed: '配信停止しました',
   },
   nav: {
+    menu: 'メニュー',
     labels: 'ラベル',
     folders: 'フォルダ',
     calendar: 'カレンダー',

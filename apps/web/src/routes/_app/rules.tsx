@@ -379,7 +379,7 @@ const RulesPage = () => {
     <motion.main layoutScroll className="flex-1 overflow-y-auto">
       <div
         className={cn(
-          'mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16',
+          'mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6',
           STILL_POINTER_GUARD
         )}
       >

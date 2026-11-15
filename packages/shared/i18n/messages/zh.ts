@@ -517,6 +517,7 @@ export const zh: Messages = {
     unsubscribed: '已退订',
   },
   nav: {
+    menu: '菜单',
     labels: '标签',
     folders: '文件夹',
     calendar: '日历',

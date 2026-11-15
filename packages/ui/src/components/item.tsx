@@ -29,9 +29,9 @@ const ItemSeparator = ({
   />
 )
 
-// Keep these two in step: the bleed pulls a card out by exactly its rows' inset.
+// Keep these two in step: the bleed pulls a card out by exactly its rows' inset. A phone has no margin to bleed into.
 const smallItemInsetClassName = 'px-3.5'
-const smallItemBleedClassName = '-mx-3.5'
+const smallItemBleedClassName = 'md:-mx-3.5'
 
 const itemVariants = cva(
   `group/item focus-visible:focus-ring [a,button]:hover:bg-accent [a]:text-foreground flex w-full flex-wrap items-center rounded-2xl border text-sm transition-colors duration-100 outline-none [a]:transition-colors [button]:cursor-pointer [button]:text-left`,

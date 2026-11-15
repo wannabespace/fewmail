@@ -10,8 +10,8 @@ import type { ReactNode } from 'react'
 /** `list`: one card of hairline-parted rows, like `SettingsGroup`, each row unfolding in place. */
 type AccordionVariant = 'default' | 'cards' | 'list'
 
-// Keep in step with the cards trigger's inset (its 1px border + px-4.5): the bleed lines its content up with the text above.
-const cardsBleedClassName = '-mx-4.75'
+// Keep in step with the cards trigger's inset (its 1px border + px-4.5): the bleed lines its content up with the text above. A phone has no margin to bleed into.
+const cardsBleedClassName = 'md:-mx-4.75'
 
 const VariantContext = createContext<AccordionVariant>('default')
 
