@@ -184,7 +184,8 @@ export const id: Messages = {
       }) =>
         `Tidak dijumlahkan: ${[
           currency > 0 && `mata uang lain: ${currency}`,
-          payment > 0 && `belum dibayar, gagal, atau diterima: ${payment}`,
+          payment > 0 &&
+            `belum dibayar, gagal, dikembalikan, atau diterima: ${payment}`,
           amount > 0 && `tanpa jumlah: ${amount}`,
         ]
           .filter(Boolean)
@@ -218,8 +219,6 @@ export const id: Messages = {
       edited: 'Diedit olehmu',
       nextOn: (date: string) => `berikutnya ${date}`,
       remove: 'Bukan untuk papan ini',
-      repeatOf: (date: string) =>
-        `tagihan yang sama dengan ${date}, dihitung sekali`,
       removed: 'Dikeluarkan dari papan. Papan belajar dari situ.',
     },
     expected: (when: string) => `Diperkirakan ${when}`,
@@ -338,30 +337,22 @@ export const id: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
+      attention: 'Perlu perhatian',
+      emails: (n: number) =>
+        plural('id', n, {
+          other: (count) => `${count} email`,
+        }),
+      next: (title: string, date: string, amount: string | null) =>
+        `Berikutnya: ${title} pada ${date}${amount ? `, ${amount}` : ''}.`,
+      perMonth: (amount: string, n: number) => {
         const payments = plural('id', n, {
-          other: (count) => `${count} pembayaran`,
+          other: (count) => `${count} pembayaran rutin`,
         })
-        return `${amount} = ${payments}, dikurangi pengembalian dana.`
+        return `Kamu membayar ${amount} per bulan untuk ${payments}.`
       },
-      dates: (n: number) =>
-        plural('id', n, { other: (count) => `${count} tanggal` }),
-      lastMonth: 'Bulan lalu',
-      left: (parts: string[]) => `Tidak termasuk: ${parts.join(', ')}.`,
-      leftOut: {
-        failed: (n: number) => `gagal: ${n}`,
-        noAmount: (n: number) => `tanpa jumlah: ${n}`,
-        repeats: (n: number) => `ulangan tagihan yang sudah dihitung: ${n}`,
-      },
-      payments: (n: number) =>
-        plural('id', n, { other: (count) => `${count} pembayaran` }),
-      perMonth: (amount: string) => `${amount} per bulan`,
       received: (amount: string) => `${amount} diterima`,
-      recurring: (n: number) =>
-        plural('id', n, { other: (count) => `${count} berulang` }),
       refunded: (amount: string) => `${amount} dikembalikan`,
-      thisMonth: 'Bulan ini',
-      toPay: (n: number) => `belum dibayar: ${n}`,
+      regular: 'Pembayaran rutin',
       upcoming: '30 hari ke depan',
     },
   },

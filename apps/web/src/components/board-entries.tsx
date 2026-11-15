@@ -98,38 +98,37 @@ export const useEntryActions = (boardId: string) => {
   }
 }
 
-/** An amount that is not spending (a repeat, a failed charge, a bill still to pay, money received) reads apart from the ones the sums add up. */
+/** Money that did not leave (a failed charge, a bill still to pay) reads muted; money back or received reads "+", never as a negative spend. */
 const EntryAmount = ({ entry }: { entry: Entry }) => {
   const money = useMoneyFormat()
   if (entry.amountCents === null || !entry.currency) {
     return null
   }
-  const isLeftOut = entry.repeatOf !== null || entry.payment === 'failed'
   return (
     <span
       className={cn(
         'tabular-nums',
-        (isLeftOut || entry.payment === 'due') && 'text-muted-foreground',
-        isLeftOut && 'line-through'
+        (entry.payment === 'failed' || entry.payment === 'due') &&
+          'text-muted-foreground'
       )}
       data-mask
     >
-      {entry.payment === 'income' && '+'}
-      {money(entry.amountCents, entry.currency)}
+      {(entry.payment === 'refund' || entry.payment === 'income') && '+'}
+      {money(Math.abs(entry.amountCents), entry.currency)}
     </span>
   )
 }
 
 export const EntryRow = ({
-  countedOn,
+  copies,
   entry,
   isActive,
   onOpen,
   onRemove,
   onSelect,
 }: {
-  /** For a repeat of one charge: when the entry that counts instead happened. */
-  countedOn: Date | undefined
+  /** Other emails of the same charge (a receipt, a retry, a reminder), folded into this row. */
+  copies: number
   entry: Entry
   isActive: boolean
   onOpen: () => void
@@ -161,8 +160,7 @@ export const EntryRow = ({
             dates.format(entry.occurredAt, 'd MMM yyyy'),
             entry.dueAt &&
               t.boards.entry.nextOn(dates.format(entry.dueAt, 'd MMM')),
-            countedOn &&
-              t.boards.entry.repeatOf(dates.format(countedOn, 'd MMM')),
+            copies > 0 && t.boards.summary.emails(copies + 1),
             entry.isEdited && t.boards.entry.edited,
           ]
             .filter(Boolean)
@@ -351,11 +349,14 @@ const GroupRow = ({
   boardId,
   group,
   isPicked,
+  isRegular = false,
   onPick,
 }: {
   boardId: string
   group: Group
   isPicked: boolean
+  /** Under Regular payments the row answers "how much next time", not "how much so far". */
+  isRegular?: boolean
   onPick: () => void
 }) => {
   const t = useT()
@@ -363,13 +364,18 @@ const GroupRow = ({
   const money = useMoneyFormat()
   const nextOn = group.nextAt && dates.format(group.nextAt, 'd MMM')
   const { currency } = group
-  const amount =
+  const next =
     currency &&
-    ((group.monthlyCents !== null &&
-      t.boards.groups.perMonth(money(group.monthlyCents, currency))) ||
-      (group.totalCents !== null && money(group.totalCents, currency)) ||
-      (group.receivedCents !== null &&
-        `+${money(group.receivedCents, currency)}`))
+    group.nextAmountCents !== null &&
+    `${group.isNextEstimate ? '≈ ' : ''}${money(group.nextAmountCents, currency)}`
+  const amount = isRegular
+    ? next
+    : currency &&
+      ((group.monthlyCents !== null &&
+        t.boards.groups.perMonth(money(group.monthlyCents, currency))) ||
+        (group.totalCents !== null && money(group.totalCents, currency)) ||
+        (group.receivedCents !== null &&
+          `+${money(group.receivedCents, currency)}`))
 
   return (
     <SettingsRow
@@ -381,7 +387,7 @@ const GroupRow = ({
       description={
         <span data-mask>
           {[
-            t.boards.entries(group.count),
+            !isRegular && t.boards.entries(group.count),
             group.every && t.boards.groups.every[group.every],
             nextOn &&
               (group.isNextPredicted
@@ -400,6 +406,89 @@ const GroupRow = ({
       )}
       <RenameGroup boardId={boardId} name={group.name} />
     </SettingsRow>
+  )
+}
+
+/** A failed charge or a bill nobody has paid since: what the user has to act on, above everything else. */
+export const BoardAttention = ({
+  active,
+  boardId,
+  entries,
+  onCursor,
+}: {
+  active: string | undefined
+  boardId: string
+  entries: Entry[]
+  onCursor: (index: number) => void
+}) => {
+  const t = useT()
+  const entryActions = useEntryActions(boardId)
+
+  return (
+    <SettingsGroup title={t.boards.summary.attention}>
+      {entries.map((entry, index) => (
+        <EntryRow
+          key={entry.id}
+          copies={0}
+          entry={entry}
+          isActive={entry.id === active}
+          onOpen={() => entryActions.open(entry)}
+          onRemove={() => entryActions.remove(entry)}
+          onSelect={() => onCursor(index)}
+        />
+      ))}
+    </SettingsGroup>
+  )
+}
+
+/** What repeats or renews, soonest first, with the price of its next charge; picking one shows its history below. */
+export const BoardRegular = ({
+  board,
+  onPick,
+  picked,
+}: {
+  board: Board
+  onPick: (group: string | null) => void
+  picked: string | null
+}) => {
+  const t = useT()
+  const money = useMoneyFormat()
+  const { currency, recurring } = board.summary
+  const regular = board.groups
+    .flatMap((group) =>
+      group.nextAt ? [{ ...group, nextAt: group.nextAt }] : []
+    )
+    .toSorted((left, right) => left.nextAt.getTime() - right.nextAt.getTime())
+  if (regular.length === 0) {
+    return null
+  }
+
+  return (
+    <SettingsGroup
+      title={
+        <span className="flex justify-between gap-3">
+          {t.boards.summary.regular}
+          {recurring && currency && (
+            <span className="tabular-nums" data-mask>
+              {t.boards.groups.perMonth(
+                `≈ ${money(recurring.monthlyCents, currency)}`
+              )}
+            </span>
+          )}
+        </span>
+      }
+    >
+      {regular.map((group) => (
+        <GroupRow
+          key={group.name}
+          boardId={board.id}
+          group={group}
+          isPicked={group.name === picked}
+          isRegular
+          onPick={() => onPick(group.name === picked ? null : group.name)}
+        />
+      ))}
+    </SettingsGroup>
   )
 }
 

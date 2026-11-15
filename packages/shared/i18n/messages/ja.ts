@@ -1554,7 +1554,7 @@ export const ja: Messages = {
       }) =>
         `合計外: ${[
           currency > 0 && `別の通貨 ${currency}件`,
-          payment > 0 && `未払い・失敗・受取 ${payment}件`,
+          payment > 0 && `未払い・失敗・返金・受取 ${payment}件`,
           amount > 0 && `金額なし ${amount}件`,
         ]
           .filter(Boolean)
@@ -1585,7 +1585,6 @@ export const ja: Messages = {
       edited: 'あなたが編集',
       nextOn: (date: string) => `次回 ${date}`,
       remove: 'このボードに含めない',
-      repeatOf: (date: string) => `${date}と同じ支払い、1回だけ計上`,
       removed: 'ボードから外しました。次からはこれを踏まえます。',
     },
     expected: (when: string) => `${when}予定`,
@@ -1700,25 +1699,15 @@ export const ja: Messages = {
       },
     },
     summary: {
-      adds: (amount: string, n: number) => {
-        const payments = `支払い${n}件`
-        return `${amount}は${payments}の合計(返金を差し引き済み)。`
-      },
-      dates: (n: number) => `${n}件の予定`,
-      lastMonth: '先月',
-      left: (parts: string[]) => `含まれないもの: ${parts.join('、')}。`,
-      leftOut: {
-        failed: (n: number) => `失敗 ${n}件`,
-        noAmount: (n: number) => `金額なし ${n}件`,
-        repeats: (n: number) => `計上済みの支払いの重複 ${n}件`,
-      },
-      payments: (n: number) => `支払い${n}件`,
-      perMonth: (amount: string) => `月${amount}`,
+      attention: '要対応',
+      emails: (n: number) => `メール${n}件`,
+      next: (title: string, date: string, amount: string | null) =>
+        `次回: ${title}（${date}${amount ? `、${amount}` : ''}）`,
+      perMonth: (amount: string, n: number) =>
+        `定期支払い${n}件で月${amount}。`,
       received: (amount: string) => `受取 ${amount}`,
-      recurring: (n: number) => `定期 ${n}件`,
       refunded: (amount: string) => `返金 ${amount}`,
-      thisMonth: '今月',
-      toPay: (n: number) => `未払い ${n}件`,
+      regular: '定期支払い',
       upcoming: '今後30日',
     },
   },
