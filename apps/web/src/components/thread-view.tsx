@@ -426,7 +426,6 @@ const MessageDetails = ({ message }: { message: ThreadMessage }) => {
     [t.compose.to, message.to.join(', ')],
     [t.compose.cc, message.cc.join(', ')],
     [t.mail.date, dates.format(message.receivedAt, 'PPpp')],
-    [t.compose.subject, message.subject],
     [
       t.mail.authentication,
       message.auth &&
