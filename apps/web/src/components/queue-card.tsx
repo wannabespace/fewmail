@@ -44,7 +44,8 @@ import { client } from '~/lib/orpc'
 
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
-import { ConsentDetails, DraftText } from './consent-details'
+import { ConsentDetails } from './consent-details'
+import { ExpandTrigger } from './expand-row'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { SenderAvatar } from './sender-avatar'
 import { ROW_SWAP } from './thread-view'
@@ -257,7 +258,6 @@ const QuickActions = ({
 }
 
 const QueueCardHeader = ({
-  index,
   isNew,
   isOpen,
   isPicked,
@@ -267,7 +267,6 @@ const QueueCardHeader = ({
   onPick,
   onSkip,
 }: {
-  index: number
   isNew: boolean
   isOpen: boolean
   isPicked: boolean
@@ -320,31 +319,35 @@ const QueueCardHeader = ({
         </>
       }
     >
-      <span
-        className={cn(
-          'flex size-5.5 shrink-0 items-center justify-center rounded-md text-xs font-semibold tabular-nums',
-          isOpen
-            ? 'bg-primary text-primary-foreground'
-            : 'bg-secondary text-foreground/70'
-        )}
-      >
-        {index + 1}
-      </span>
-      {isNew && (
-        <span className="bg-primary size-1.5 shrink-0 rounded-full">
-          <span className="sr-only">{t.queue.new}</span>
+      {message && action.kind !== 'cleanup' ? (
+        <SenderAvatar sender={message} size="sm" />
+      ) : (
+        <span className="size-6 shrink-0" />
+      )}
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="flex items-center gap-2">
+          <span data-mask className="truncate font-medium">
+            {action.kind === 'cleanup'
+              ? 'Fewmail'
+              : (message?.fromName ?? message?.fromEmail ?? 'Fewmail')}
+          </span>
+          {isNew && (
+            <span className="bg-primary size-1.5 shrink-0 rounded-full">
+              <span className="sr-only">{t.queue.new}</span>
+            </span>
+          )}
         </span>
-      )}
-      {message && action.kind !== 'cleanup' && (
-        <SenderAvatar sender={message} />
-      )}
-      <strong data-mask className="truncate font-semibold">
-        {action.kind === 'cleanup'
-          ? 'Fewmail'
-          : (message?.fromName ?? message?.fromEmail ?? 'Fewmail')}
-      </strong>
-      <span data-mask className="text-muted-foreground min-w-0 flex-1 truncate">
-        {titleOf(item, isOpen)}
+        <span
+          data-mask
+          className={cn(
+            'truncate',
+            action.kind === 'security'
+              ? 'text-destructive'
+              : 'text-muted-foreground'
+          )}
+        >
+          {titleOf(item, isOpen)}
+        </span>
       </span>
     </AccordionTrigger>
   )
@@ -352,22 +355,16 @@ const QueueCardHeader = ({
 
 const CARD_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
 
-/**
- * A settled card folds out and the cards below rise into its place, the next one opening as it comes.
- * The margin must end at minus the cards Accordion's gap-2.5, or the cards snap up by the gap once the fold ends; it starts in rem because motion cannot tween px into rem.
- */
+/** A settled row folds out and the rows below rise into its place, the next one opening as it comes. */
 const LeavingCard = ({ children }: { children: ReactNode }) => {
   const isPresent = useIsPresent()
   const isReducedMotion = useReducedMotion()
   return (
     <motion.div
       initial={false}
-      animate={{ marginBottom: '0rem' }}
-      exit={{ height: 0, marginBottom: '-0.625rem', opacity: 0 }}
+      exit={{ height: 0, opacity: 0 }}
       transition={isReducedMotion ? { duration: 0 } : CARD_LEAVE}
-      className={cn(
-        !isPresent && 'pointer-events-none [clip-path:inset(-4px_-4px_0)]'
-      )}
+      className={cn(!isPresent && 'pointer-events-none overflow-hidden')}
     >
       {children}
     </motion.div>
@@ -428,31 +425,37 @@ const completerFor = (hasAgent: boolean, message: QueueItem['message']) =>
           .then(({ text }) => text)
     : undefined
 
-/** What they wrote, then the draft (or its editor) and the rewrite field: a reply is judged against the email, never alone. */
+/**
+ * What they wrote, then the draft and the rewrite field: a reply is judged against the email, never alone.
+ * The draft is its own editor, so a click edits it where it lands; focus is what Home counts as editing. Keyed by the
+ * agent's draft, so a rewrite replaces what the editor holds.
+ */
 const ReplyBody = ({
   draft,
   editorRef,
   hasAgent,
-  isEditing,
   isRewriting,
   message,
   onApprove,
   onDraftChange,
+  onEdit,
   onRewrite,
   onRewriteChange,
   onStopEditing,
+  savedDraft,
 }: {
   draft: string
   editorRef: RefObject<ComposerEditorHandle | null>
   hasAgent: boolean
-  isEditing: boolean
   isRewriting: boolean
   message: QueueItem['message']
   onApprove: () => void
   onDraftChange: (draft: string) => void
+  onEdit: () => void
   onRewrite: (instruction: string) => void
   onRewriteChange: (isRewriting: boolean) => void
   onStopEditing: () => void
+  savedDraft: string | null
 }) => {
   const t = useT()
 
@@ -466,20 +469,25 @@ const ReplyBody = ({
           {message.snippet}
         </p>
       )}
-      {isEditing ? (
+      <div
+        className="bg-secondary/60 focus-within:ring-ring/50 cursor-text rounded-xl px-4 py-3 ring-0 focus-within:ring-2"
+        onFocus={onEdit}
+        onBlur={onStopEditing}
+      >
         <ComposerEditor
+          key={savedDraft}
           ref={editorRef}
           aria-label={t.actionKind.reply}
           placeholder={t.compose.placeholder}
           initialHtml={textToHtml(draft)}
           onChange={({ text }) => onDraftChange(text)}
           onSubmit={onApprove}
-          onEscape={onStopEditing}
+          onEscape={() =>
+            (document.activeElement as HTMLElement | null)?.blur()
+          }
           complete={completerFor(hasAgent, message)}
         />
-      ) : (
-        <DraftText text={draft} />
-      )}
+      </div>
       {isRewriting && (
         <RewriteField
           onCancel={() => onRewriteChange(false)}
@@ -565,7 +573,6 @@ const ReplyExtras = ({
 export const QueueCard = ({
   draft,
   onAddEvent,
-  index,
   isBusy,
   isEditing,
   isNew,
@@ -586,7 +593,6 @@ export const QueueCard = ({
 }: {
   draft: string
   onAddEvent: () => void
-  index: number
   isBusy: boolean
   isEditing: boolean
   isNew: boolean
@@ -620,8 +626,12 @@ export const QueueCard = ({
     }
   }, [isSelected])
 
+  // A click already put the caret where it landed; only `E` brings the focus in.
   useEffect(() => {
-    if (isEditing) {
+    if (
+      isEditing &&
+      !(document.activeElement as HTMLElement | null)?.isContentEditable
+    ) {
       editorRef.current?.focus()
     }
   }, [isEditing])
@@ -636,7 +646,6 @@ export const QueueCard = ({
         className="group"
       >
         <QueueCardHeader
-          index={index}
           isNew={isNew}
           isOpen={isOpen}
           isPicked={isPicked}
@@ -648,20 +657,21 @@ export const QueueCard = ({
         />
 
         <AccordionContent>
-          <div className="flex flex-col gap-3 pl-8.5">
+          <div className="flex flex-col gap-3 pl-9.5">
             {isReply && (
               <ReplyBody
                 draft={draft}
                 editorRef={editorRef}
                 hasAgent={hasAgent}
-                isEditing={isEditing}
                 isRewriting={isRewriting}
                 message={message}
                 onApprove={onApprove}
                 onDraftChange={onDraftChange}
+                onEdit={onEdit}
                 onRewrite={onRewrite}
                 onRewriteChange={onRewriteChange}
                 onStopEditing={onStopEditing}
+                savedDraft={action.detail}
               />
             )}
             {action.kind === 'cleanup' && <CleanupList action={action} />}
@@ -679,17 +689,6 @@ export const QueueCard = ({
               >
                 {approveLabel(t, action, isReply)}
               </Button>
-              {isReply && !isEditing && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={isBusy}
-                  onClick={onEdit}
-                  shortcut={<Kbd>E</Kbd>}
-                >
-                  {t.queue.edit}
-                </Button>
-              )}
               {isReply && !isRewriting && (
                 <Button
                   size="sm"
@@ -699,6 +698,22 @@ export const QueueCard = ({
                   shortcut={<Kbd>R</Kbd>}
                 >
                   {t.queue.rewrite}
+                </Button>
+              )}
+              {message && (
+                <Button
+                  size="sm"
+                  variant="ghost-muted"
+                  nativeButton
+                  render={
+                    <ExpandTrigger
+                      email={{ from: 'home', threadId: message.threadId }}
+                      rowId={action.id}
+                    />
+                  }
+                  shortcut={<Kbd>O</Kbd>}
+                >
+                  {t.queue.readEmail}
                 </Button>
               )}
               {isReply && <ReplyExtras item={item} onAddEvent={onAddEvent} />}

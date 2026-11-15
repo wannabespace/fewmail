@@ -962,7 +962,7 @@ export const en = {
     approve: 'Approve',
     delete: 'Delete',
     draftedInVoice: 'Drafted in your voice',
-    edit: 'Edit',
+    readEmail: 'Read email',
     pick: 'Pick',
     picked: (n: number) => `${n} picked`,
     send: 'Send',

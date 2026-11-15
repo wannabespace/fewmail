@@ -980,7 +980,7 @@ export const pt: Messages = {
     unpick: 'Desmarcar',
     askedByYou: 'Pedido por você',
     draftedInVoice: 'Escrito com a sua voz',
-    edit: 'Editar',
+    readEmail: 'Ler o e-mail',
     send: 'Enviar',
     rewrite: 'Reescrever',
     shorterInstruction: 'Deixe mais curto.',

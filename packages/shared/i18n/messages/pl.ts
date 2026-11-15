@@ -999,7 +999,7 @@ export const pl: Messages = {
     unpick: 'Odznacz',
     askedByYou: 'Na twoją prośbę',
     draftedInVoice: 'Napisane twoim głosem',
-    edit: 'Edytuj',
+    readEmail: 'Przeczytaj e-mail',
     send: 'Wyślij',
     rewrite: 'Przepisz',
     shorterInstruction: 'Skróć to.',

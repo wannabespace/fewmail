@@ -608,7 +608,7 @@ export const ja: Messages = {
     unpick: '選択解除',
     askedByYou: 'あなたの依頼',
     draftedInVoice: 'あなたらしい文面で下書きしました',
-    edit: '編集',
+    readEmail: 'メールを読む',
     send: '送信',
     rewrite: '書き直す',
     shorterInstruction: 'もっと短くしてください。',

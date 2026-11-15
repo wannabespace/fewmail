@@ -950,7 +950,7 @@ export const id: Messages = {
     unpick: 'Batal pilih',
     askedByYou: 'Atas permintaanmu',
     draftedInVoice: 'Ditulis dengan gayamu',
-    edit: 'Edit',
+    readEmail: 'Baca email',
     send: 'Kirim',
     rewrite: 'Tulis ulang',
     shorterInstruction: 'Buat lebih singkat.',

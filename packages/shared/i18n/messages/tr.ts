@@ -944,7 +944,7 @@ export const tr: Messages = {
     unpick: 'Seçimi kaldır',
     askedByYou: 'Senin isteğinle',
     draftedInVoice: 'Senin üslubunla yazıldı',
-    edit: 'Düzenle',
+    readEmail: 'E-postayı oku',
     send: 'Gönder',
     rewrite: 'Yeniden yaz',
     shorterInstruction: 'Daha kısa yap.',

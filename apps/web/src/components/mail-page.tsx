@@ -131,7 +131,10 @@ import {
   SnoozeMenuItems,
   sweepOf,
   ThreadView,
+  READER_WIDTH,
+  readerWidthStore,
   useMailActions,
+  useReaderWidthIn,
 } from '~/components/thread-view'
 import type { Place, Sweep } from '~/components/thread-view'
 import { useDates, useLocale, useT } from '~/lib/i18n'
@@ -291,17 +294,6 @@ const ALL_MAILBOXES = 'all'
 
 /** Threads read ahead of the click; the cursor's neighbours and a hovered row are added as they come. */
 const PREFETCHED_ROWS = 10
-
-/** At most 60%: a wider reader squeezed the list into unreadable initials on a 1024px screen. */
-const READER_WIDTH = { default: 640, max: '60%', min: 420 } as const
-const READER_SHARE = 0.6
-
-const readerWidthStore = createWebStorageValue({
-  defaultValue: READER_WIDTH.default as number,
-  key: 'fewmail.reader-width',
-  schema: type('number'),
-  type: 'localStorage',
-})
 
 type Grouping = 'focused' | 'unread' | 'categories' | 'none'
 
@@ -2378,20 +2370,12 @@ const readerHintsOf = ({
 ]
 
 const useReaderWidth = () => {
-  const rememberedWidth = useSubscription(readerWidthStore)
   const [panes, setPanes] = useState<HTMLElement | null>(null)
   const { width: panesWidth } = useSubscription(
     () => createElementSize({ element: panes }),
     { deps: [panes] }
   )
-  // `maxSize` bounds only a drag; the remembered width is applied as is, so a smaller window clamps it here.
-  const readerWidth =
-    panesWidth > 0
-      ? Math.min(
-          rememberedWidth,
-          Math.max(READER_WIDTH.min, Math.round(panesWidth * READER_SHARE))
-        )
-      : rememberedWidth
+  const readerWidth = useReaderWidthIn(panesWidth)
   return { panesWidth, readerWidth, setPanes }
 }
 

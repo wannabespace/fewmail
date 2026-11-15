@@ -1187,7 +1187,7 @@ export const uk: Messages = {
     unpick: 'Зняти вибір',
     askedByYou: 'На твоє прохання',
     draftedInVoice: 'Написано твоїм голосом',
-    edit: 'Змінити',
+    readEmail: 'Прочитати лист',
     send: 'Надіслати',
     rewrite: 'Переписати',
     shorterInstruction: 'Зроби коротше.',
