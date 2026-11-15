@@ -1562,18 +1562,18 @@ const ThreadPeople = ({ thread }: { thread: Thread }) => {
             {people.map((person) => {
               const wrote = written.get(personKeyOf(person))?.length
               return (
-                <Item key={personKeyOf(person)} size="xs">
+                <Item key={personKeyOf(person)} size="xs" className="pl-1.5">
                   <ItemMedia>
                     <SenderAvatar sender={person} size="sm" />
                   </ItemMedia>
-                  <ItemContent className="min-w-0">
+                  <ItemContent className="min-w-0 group-data-[size=xs]/item:gap-0">
                     <ItemTitle data-mask>
                       {person.isFromMe
                         ? t.mail.you
                         : (person.fromName ?? person.fromEmail)}
                     </ItemTitle>
                     {(person.isFromMe || person.fromName) && (
-                      <ItemDescription data-mask>
+                      <ItemDescription data-mask className="text-xs">
                         {person.fromEmail}
                       </ItemDescription>
                     )}
