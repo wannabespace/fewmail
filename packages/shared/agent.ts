@@ -161,6 +161,10 @@ export type ProposalKind = (typeof PROPOSAL_KINDS)[number]
 /** What Home's Tidy offers to do with quiet mail no rule covers. */
 export const TIDY_KINDS = ['archive', 'mark_read', 'unsubscribe'] as const
 
+/** Which occurrences of a recurring event a change reaches. */
+export const EVENT_SCOPES = ['this', 'following', 'all'] as const
+export type EventScope = (typeof EVENT_SCOPES)[number]
+
 export const isGmailEffect = (effect: RuleEffect): effect is GmailEffect =>
   (GMAIL_EFFECTS as readonly RuleEffect[]).includes(effect)
 

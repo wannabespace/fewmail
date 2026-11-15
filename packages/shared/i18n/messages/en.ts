@@ -357,6 +357,11 @@ export const en = {
     previous: 'Previous',
     save: 'Save',
     saved: 'Event saved',
+    scope: {
+      this: 'This event',
+      following: 'This and following events',
+      all: 'All events',
+    },
     starts: 'Starts',
     title: 'Calendar',
     titlePlaceholder: 'Add a title',

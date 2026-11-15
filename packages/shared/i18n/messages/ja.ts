@@ -223,6 +223,11 @@ export const ja: Messages = {
     previous: '前へ',
     save: '保存',
     saved: '予定を保存しました',
+    scope: {
+      this: 'この予定のみ',
+      following: 'これ以降の予定',
+      all: 'すべての予定',
+    },
     starts: '開始',
     title: 'カレンダー',
     titlePlaceholder: 'タイトルを追加',

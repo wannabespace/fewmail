@@ -716,6 +716,11 @@ export const de: Messages = {
     previous: 'Zurück',
     save: 'Speichern',
     saved: 'Termin gespeichert',
+    scope: {
+      this: 'Nur diesen Termin',
+      following: 'Diesen und alle folgenden Termine',
+      all: 'Alle Termine',
+    },
     starts: 'Beginn',
     title: 'Kalender',
     titlePlaceholder: 'Titel hinzufügen',

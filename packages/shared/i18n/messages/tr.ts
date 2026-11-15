@@ -349,6 +349,11 @@ export const tr: Messages = {
     previous: 'Önceki',
     save: 'Kaydet',
     saved: 'Etkinlik kaydedildi',
+    scope: {
+      this: 'Yalnızca bu etkinlik',
+      following: 'Bu ve sonraki etkinlikler',
+      all: 'Tüm etkinlikler',
+    },
     starts: 'Başlangıç',
     title: 'Takvim',
     titlePlaceholder: 'Başlık ekleyin',

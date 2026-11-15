@@ -7,6 +7,7 @@ import {
   BOARD_PRESETS,
   CLEAR_OUT_GROUPS,
   DEVICE_KINDS,
+  EVENT_SCOPES,
   FOLLOWUP_DAYS,
   GMAIL_EFFECTS,
   MAIL_CATEGORIES,
@@ -298,9 +299,14 @@ export const router = {
       .input(type({ from: 'Date', to: 'Date' }))
       .handler(({ context, input }) => listEvents(context.user.id, input)),
     update: authed
-      .input(eventRef.and(eventInput))
-      .handler(({ context, input: { id: eventId, mailboxId, ...event } }) =>
-        updateEvent(context.user.id, { id: eventId, mailboxId }, event)
+      .input(
+        eventRef
+          .and(eventInput)
+          .and({ 'scope?': type.enumerated(...EVENT_SCOPES) })
+      )
+      .handler(
+        ({ context, input: { id: eventId, mailboxId, scope, ...event } }) =>
+          updateEvent(context.user.id, { id: eventId, mailboxId }, event, scope)
       ),
   },
   devices: {

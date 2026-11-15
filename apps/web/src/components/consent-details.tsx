@@ -1,4 +1,8 @@
-import type { ClearOutGroup, ConsentToolName } from '@fewmail/shared/agent'
+import type {
+  ClearOutGroup,
+  ConsentToolName,
+  EventScope,
+} from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { isSameDay, parseISO, subDays } from 'date-fns'
 import type { ReactNode } from 'react'
@@ -49,6 +53,7 @@ export interface ToolInput {
   mailboxId?: string
   messageId?: string
   messageIds?: string[]
+  scope?: EventScope
   search?: string
   start?: string
   subject?: string
@@ -287,8 +292,15 @@ const CONSENT_DETAILS: Record<
     )),
   undo_clear_out: () => null,
   unsubscribe: ({ email }) => <EmailLine email={email} />,
-  update_event: ({ calendar, input, target }) => (
-    <EventDetails calendar={calendar} event={input} previous={target} />
+  update_event: ({ calendar, input, t, target }) => (
+    <>
+      <EventDetails calendar={calendar} event={input} previous={target} />
+      {input.scope && (
+        <p className="text-muted-foreground text-sm">
+          {t.calendar.scope[input.scope]}
+        </p>
+      )}
+    </>
   ),
 }
 

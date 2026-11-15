@@ -350,6 +350,11 @@ export const id: Messages = {
     previous: 'Sebelumnya',
     save: 'Simpan',
     saved: 'Acara disimpan',
+    scope: {
+      this: 'Acara ini saja',
+      following: 'Acara ini dan berikutnya',
+      all: 'Semua acara',
+    },
     starts: 'Mulai',
     title: 'Kalender',
     titlePlaceholder: 'Tambahkan judul',

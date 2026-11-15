@@ -359,6 +359,11 @@ export const pt: Messages = {
     previous: 'Anterior',
     save: 'Guardar',
     saved: 'Evento guardado',
+    scope: {
+      this: 'Só este evento',
+      following: 'Este e os seguintes',
+      all: 'Todos os eventos',
+    },
     starts: 'Início',
     title: 'Calendário',
     titlePlaceholder: 'Adicione um título',

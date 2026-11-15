@@ -1,5 +1,6 @@
 import { db } from '@fewmail/db'
 import { mailboxes } from '@fewmail/db/schema'
+import type { EventScope } from '@fewmail/shared/agent'
 import { Result } from 'better-result'
 import { and, asc, eq, isNull } from 'drizzle-orm'
 
@@ -147,12 +148,14 @@ export const createEvent = async (
 export const updateEvent = async (
   userId: string,
   ref: EventRef,
-  event: CalendarEventFields
+  event: CalendarEventFields,
+  scope?: EventScope
 ) => {
   const updated = await patchEvent(
     await requireConnected(await ownMailbox(userId, ref.mailboxId)),
     ref.id,
-    event
+    event,
+    scope
   )
   forgetEvents(userId)
   return { ...updated, mailboxId: ref.mailboxId }

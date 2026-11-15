@@ -226,6 +226,11 @@ export const hi: Messages = {
     previous: 'पिछला',
     save: 'सेव करें',
     saved: 'इवेंट सेव हुआ',
+    scope: {
+      this: 'सिर्फ़ यह इवेंट',
+      following: 'यह और आगे के इवेंट',
+      all: 'सभी इवेंट',
+    },
     starts: 'शुरू',
     title: 'कैलेंडर',
     titlePlaceholder: 'शीर्षक जोड़ें',

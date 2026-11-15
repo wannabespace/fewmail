@@ -720,6 +720,11 @@ export const it: Messages = {
     previous: 'Precedente',
     save: 'Salva',
     saved: 'Evento salvato',
+    scope: {
+      this: 'Solo questo evento',
+      following: 'Questo e i successivi',
+      all: 'Tutti gli eventi',
+    },
     starts: 'Inizio',
     title: 'Calendario',
     titlePlaceholder: 'Aggiungi un titolo',

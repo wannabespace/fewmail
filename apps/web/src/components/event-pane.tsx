@@ -1,7 +1,15 @@
 import type { RouterOutputs } from '@fewmail/api/router'
+import type { EventScope } from '@fewmail/shared/agent'
+import { EVENT_SCOPES } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { DatePicker } from '@fewmail/ui/components/custom/date-picker'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@fewmail/ui/components/dropdown-menu'
 import { Field, FieldGroup, FieldLabel } from '@fewmail/ui/components/field'
 import { Input } from '@fewmail/ui/components/input'
 import { Kbd } from '@fewmail/ui/components/kbd'
@@ -30,7 +38,7 @@ import {
   formatDuration,
   parse,
 } from 'date-fns'
-import { useId, useRef } from 'react'
+import { useId, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { KeyHints } from '~/components/key-hints'
@@ -50,6 +58,7 @@ export interface EventDraft {
   link?: string
   location: string
   mailboxId?: string
+  recurring?: boolean
   start: Date
   title: string
 }
@@ -87,6 +96,7 @@ export const previewOf = (draft: EventDraft): CalendarEvent => ({
   id: draft.id ?? '',
   link: draft.link ?? '',
   mailboxId: draft.mailboxId ?? '',
+  recurring: draft.recurring ?? false,
 })
 
 const isSameDraft = (a: EventDraft, b: EventDraft) =>
@@ -143,6 +153,7 @@ export const EventPane = ({
   const formRef = useRef<HTMLFormElement>(null)
   const titleRef = useRef<HTMLTextAreaElement>(null)
   const duration = useDuration(value)
+  const [isPickingScope, setIsPickingScope] = useState(false)
   const ref =
     draft.id && draft.mailboxId
       ? { id: draft.id, mailboxId: draft.mailboxId }
@@ -199,7 +210,7 @@ export const EventPane = ({
     toastDeferred(t.calendar.deleted, () => remove.mutate(ref), invalidate)
   }
 
-  const save = () => {
+  const save = (scope?: EventScope) => {
     if (!isChanged) {
       onClose()
       return
@@ -212,16 +223,18 @@ export const EventPane = ({
       toast.error(t.calendar.endBeforeStart)
       return
     }
-    if (ref) {
-      update.mutate({ ...fieldsOf(value), ...ref })
+    if (ref && draft.recurring && !scope) {
+      setIsPickingScope(true)
+    } else if (ref) {
+      update.mutate({ ...fieldsOf(value), ...ref, scope })
     } else {
       create.mutate({ ...fieldsOf(value), mailboxId })
     }
   }
 
-  useHotkey('Mod+Enter', save)
+  useHotkey('Mod+Enter', () => save())
   useHotkey('Backspace', deleteEvent, { enabled: Boolean(ref) })
-  useHotkey('Enter', save, {
+  useHotkey('Enter', () => save(), {
     ignoreInputs: false,
     preventDefault: true,
     target: titleRef,
@@ -423,13 +436,30 @@ export const EventPane = ({
       </div>
 
       <footer className="flex justify-end border-t px-6 py-4">
-        <Button
-          type="submit"
-          disabled={!isChanged || !hasTitle}
-          shortcut={<Kbd>⌘⏎</Kbd>}
-        >
-          {ref ? t.calendar.save : t.calendar.create}
-        </Button>
+        {ref && draft.recurring ? (
+          <DropdownMenu open={isPickingScope} onOpenChange={setIsPickingScope}>
+            <DropdownMenuTrigger
+              render={<Button disabled={!isChanged || !hasTitle} />}
+            >
+              {t.calendar.save}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="top">
+              {EVENT_SCOPES.map((scope) => (
+                <DropdownMenuItem key={scope} onClick={() => save(scope)}>
+                  {t.calendar.scope[scope]}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button
+            type="submit"
+            disabled={!isChanged || !hasTitle}
+            shortcut={<Kbd>⌘⏎</Kbd>}
+          >
+            {ref ? t.calendar.save : t.calendar.create}
+          </Button>
+        )}
       </footer>
       <KeyHints
         hints={[

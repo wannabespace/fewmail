@@ -359,6 +359,11 @@ export const nl: Messages = {
     previous: 'Vorige',
     save: 'Opslaan',
     saved: 'Afspraak opgeslagen',
+    scope: {
+      this: 'Alleen deze afspraak',
+      following: 'Deze en volgende afspraken',
+      all: 'Alle afspraken',
+    },
     starts: 'Begint',
     title: 'Agenda',
     titlePlaceholder: 'Titel toevoegen',

@@ -223,6 +223,11 @@ export const ko: Messages = {
     previous: '이전',
     save: '저장',
     saved: '일정을 저장했습니다',
+    scope: {
+      this: '이 일정만',
+      following: '이 일정 및 이후 일정',
+      all: '모든 일정',
+    },
     starts: '시작',
     title: '캘린더',
     titlePlaceholder: '제목 추가',

@@ -726,6 +726,11 @@ export const fr: Messages = {
     previous: 'Précédent',
     save: 'Enregistrer',
     saved: 'Événement enregistré',
+    scope: {
+      this: 'Cet événement',
+      following: 'Cet événement et les suivants',
+      all: 'Tous les événements',
+    },
     starts: 'Début',
     title: 'Calendrier',
     titlePlaceholder: 'Ajouter un titre',

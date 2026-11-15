@@ -363,6 +363,11 @@ export const pl: Messages = {
     previous: 'Wstecz',
     save: 'Zapisz',
     saved: 'Wydarzenie zapisane',
+    scope: {
+      this: 'Tylko to wydarzenie',
+      following: 'To i następne wydarzenia',
+      all: 'Wszystkie wydarzenia',
+    },
     starts: 'Początek',
     title: 'Kalendarz',
     titlePlaceholder: 'Dodaj tytuł',

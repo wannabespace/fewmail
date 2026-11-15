@@ -717,6 +717,11 @@ export const uk: Messages = {
     previous: 'Назад',
     save: 'Зберегти',
     saved: 'Подію збережено',
+    scope: {
+      this: 'Лише цю подію',
+      following: 'Цю й наступні події',
+      all: 'Усі події',
+    },
     starts: 'Початок',
     title: 'Календар',
     titlePlaceholder: 'Додай назву',

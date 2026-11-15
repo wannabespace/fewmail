@@ -1,6 +1,7 @@
 import {
   AGENT_TOOLS,
   BOARD_PERIODS,
+  EVENT_SCOPES,
   MAIL_CATEGORIES,
   RULE_EFFECTS,
   CLEAR_OUT_GROUPS,
@@ -396,7 +397,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   list_events: define({
     description:
-      "Events in the user's Google calendars between from and to (ISO 8601), across every mailbox, each with its id and mailboxId. calendars lists each mailbox and whether its calendar is connected.",
+      "Events in the user's Google calendars between from and to (ISO 8601), across every mailbox, each with its id, mailboxId and whether it is one occurrence of a recurring event. calendars lists each mailbox and whether its calendar is connected.",
     input: {
       from: z.iso.datetime({ offset: true }),
       to: z.iso.datetime({ offset: true }),
@@ -410,10 +411,15 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
     run: (event) => createEvent(userId, event),
   }),
   update_event: define({
-    description: `Change an event from list_events, sending every field again. ${EVENT_TIMES}`,
-    input: { ...eventFields, id: z.string(), mailboxId: z.uuid() },
-    run: ({ id, mailboxId, ...event }) =>
-      updateEvent(userId, { id, mailboxId }, event),
+    description: `Change an event from list_events, sending every field again. ${EVENT_TIMES} For a recurring event, scope says what changes: this occurrence only (this, the default), it and every later one (following) or the whole series (all); ask the user which.`,
+    input: {
+      ...eventFields,
+      id: z.string(),
+      mailboxId: z.uuid(),
+      scope: z.enum(EVENT_SCOPES).optional(),
+    },
+    run: ({ id, mailboxId, scope, ...event }) =>
+      updateEvent(userId, { id, mailboxId }, event, scope),
   }),
   delete_event: define({
     description: 'Delete an event from list_events from the Google calendar.',

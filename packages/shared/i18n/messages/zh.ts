@@ -222,6 +222,11 @@ export const zh: Messages = {
     previous: '上一个',
     save: '保存',
     saved: '日程已保存',
+    scope: {
+      this: '仅此日程',
+      following: '此日程及后续日程',
+      all: '所有日程',
+    },
     starts: '开始',
     title: '日历',
     titlePlaceholder: '添加标题',
