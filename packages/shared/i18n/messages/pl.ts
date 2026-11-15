@@ -1600,6 +1600,14 @@ export const pl: Messages = {
     reasonCommunity: 'Zgłoszone jako spam przez kilku użytkowników Fewmail',
     reasonYou: 'Zgłosiłeś tego nadawcę jako spam',
     suspect: 'Wygląda na spam',
+    imagesHidden: 'Obrazy w spamie są ukryte.',
+    openFile: {
+      action: 'Otwórz',
+      description:
+        'Ten e-mail jest w spamie. Otwieraj jego pliki tylko, jeśli ufasz nadawcy.',
+      title: (name: string) => `Otworzyć ${name}?`,
+    },
+    showImages: 'Pokaż obrazy',
   },
   starterRules: {
     alwaysShow:

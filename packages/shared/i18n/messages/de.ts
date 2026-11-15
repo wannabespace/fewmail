@@ -1289,6 +1289,14 @@ export const de: Messages = {
     reasonCommunity: 'Von mehreren Fewmail-Nutzern als Spam gemeldet',
     reasonYou: 'Du hast diesen Absender als Spam gemeldet',
     suspect: 'Wirkt wie Spam',
+    imagesHidden: 'Bilder sind im Spam ausgeblendet.',
+    openFile: {
+      action: 'Öffnen',
+      description:
+        'Diese E-Mail liegt im Spam. Öffne ihre Dateien nur, wenn du dem Absender vertraust.',
+      title: (name: string) => `${name} öffnen?`,
+    },
+    showImages: 'Bilder anzeigen',
   },
   starterRules: {
     alwaysShow:

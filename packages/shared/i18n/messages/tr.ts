@@ -1545,6 +1545,14 @@ export const tr: Messages = {
     reasonCommunity: 'Birkaç Fewmail kullanıcısı spam olarak bildirdi',
     reasonYou: 'Bu göndereni spam olarak bildirdin',
     suspect: 'Spam gibi',
+    imagesHidden: 'Spamdaki görseller gizlenir.',
+    openFile: {
+      action: 'Aç',
+      description:
+        'Bu e-posta spam klasöründe. Dosyalarını yalnızca gönderene güveniyorsan aç.',
+      title: (name: string) => `${name} açılsın mı?`,
+    },
+    showImages: 'Görselleri göster',
   },
   starterRules: {
     alwaysShow:

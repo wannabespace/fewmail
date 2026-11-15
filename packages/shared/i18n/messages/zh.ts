@@ -1232,6 +1232,13 @@ export const zh: Messages = {
     reasonCommunity: '多位 Fewmail 用户举报为垃圾邮件',
     reasonYou: '你已将此发件人举报为垃圾邮件',
     suspect: '疑似垃圾邮件',
+    imagesHidden: '垃圾邮件中的图片已隐藏。',
+    openFile: {
+      action: '打开',
+      description: '这封邮件在垃圾邮件中。只有信任发件人时才打开其中的文件。',
+      title: (name: string) => `打开 ${name}？`,
+    },
+    showImages: '显示图片',
   },
   starterRules: {
     alwaysShow: '安全警报、到期账单，以及来自我的银行或政府机构的任何邮件',

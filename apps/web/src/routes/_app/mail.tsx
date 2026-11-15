@@ -57,6 +57,7 @@ import { cn } from '@fewmail/ui/lib/utils'
 import {
   Archive02Icon,
   ArrowDown01Icon,
+  Attachment01Icon,
   ArrowLeft01Icon,
   Clock01Icon,
   DashboardSquare01Icon,
@@ -872,7 +873,16 @@ const MailRowMeta = ({
       {insight?.needsReply && (
         <span className="text-primary">· {t.mail.expectsReply}</span>
       )}
-      {message.hasAttachments && <span>· {t.mail.attachment}</span>}
+      {message.hasAttachments && (
+        <span className="flex">
+          <HugeiconsIcon
+            icon={Attachment01Icon}
+            strokeWidth={2}
+            className="size-3"
+          />
+          <span className="sr-only">{t.mail.attachment}</span>
+        </span>
+      )}
       {isBulk(message.bulkCount, insight?.category) && (
         <span>· {t.bulk.badge(message.bulkCount ?? 0)}</span>
       )}

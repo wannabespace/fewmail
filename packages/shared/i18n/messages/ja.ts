@@ -1268,6 +1268,14 @@ export const ja: Messages = {
     reasonCommunity: '複数の Fewmail ユーザーが迷惑メールとして報告',
     reasonYou: 'この送信者を迷惑メールとして報告済み',
     suspect: '迷惑メールの疑い',
+    imagesHidden: '迷惑メールの画像は非表示です。',
+    openFile: {
+      action: '開く',
+      description:
+        'このメールは迷惑メールにあります。送信者を信頼できる場合のみファイルを開いてください。',
+      title: (name: string) => `${name} を開きますか？`,
+    },
+    showImages: '画像を表示',
   },
   starterRules: {
     alwaysShow:

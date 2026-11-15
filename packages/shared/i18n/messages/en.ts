@@ -1563,6 +1563,14 @@ export const en = {
     reasonCommunity: 'Reported as spam by several Fewmail users',
     reasonYou: 'You reported this sender as spam',
     suspect: 'Looks like spam',
+    imagesHidden: 'Images are hidden in spam.',
+    openFile: {
+      action: 'Open',
+      description:
+        'This email is in spam. Open its files only if you trust the sender.',
+      title: (name: string) => `Open ${name}?`,
+    },
+    showImages: 'Show images',
   },
   starterRules: {
     alwaysShow:

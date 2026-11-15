@@ -1282,6 +1282,14 @@ export const uk: Messages = {
     reasonCommunity: 'Кілька користувачів Fewmail позначили це як спам',
     reasonYou: 'Ти позначив цього відправника як спам',
     suspect: 'Схоже на спам',
+    imagesHidden: 'Картинки в спамі приховані.',
+    openFile: {
+      action: 'Відкрити',
+      description:
+        'Цей лист у спамі. Відкривайте його файли, лише якщо довіряєте відправнику.',
+      title: (name: string) => `Відкрити ${name}?`,
+    },
+    showImages: 'Показати картинки',
   },
   starterRules: {
     alwaysShow:

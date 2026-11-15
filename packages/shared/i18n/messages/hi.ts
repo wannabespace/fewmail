@@ -1256,6 +1256,14 @@ export const hi: Messages = {
     reasonCommunity: 'कई Fewmail यूज़र्स ने इसे स्पैम बताया',
     reasonYou: 'आपने इस भेजने वाले को स्पैम बताया',
     suspect: 'स्पैम लगता है',
+    imagesHidden: 'स्पैम में तस्वीरें छिपी रहती हैं।',
+    openFile: {
+      action: 'खोलें',
+      description:
+        'यह ईमेल स्पैम में है। इसकी फ़ाइलें तभी खोलें जब आपको भेजने वाले पर भरोसा हो।',
+      title: (name: string) => `${name} खोलें?`,
+    },
+    showImages: 'तस्वीरें दिखाएं',
   },
   starterRules: {
     alwaysShow:

@@ -1549,6 +1549,14 @@ export const id: Messages = {
     reasonCommunity: 'Dilaporkan sebagai spam oleh beberapa pengguna Fewmail',
     reasonYou: 'Kamu melaporkan pengirim ini sebagai spam',
     suspect: 'Mirip spam',
+    imagesHidden: 'Gambar disembunyikan di spam.',
+    openFile: {
+      action: 'Buka',
+      description:
+        'Email ini ada di spam. Buka filenya hanya jika Anda memercayai pengirimnya.',
+      title: (name: string) => `Buka ${name}?`,
+    },
+    showImages: 'Tampilkan gambar',
   },
   starterRules: {
     alwaysShow:

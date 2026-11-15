@@ -1288,6 +1288,14 @@ export const es: Messages = {
     reasonCommunity: 'Varios usuarios de Fewmail lo marcaron como spam',
     reasonYou: 'Marcaste a este remitente como spam',
     suspect: 'Parece spam',
+    imagesHidden: 'Las imágenes están ocultas en el spam.',
+    openFile: {
+      action: 'Abrir',
+      description:
+        'Este correo está en spam. Abre sus archivos solo si confías en el remitente.',
+      title: (name: string) => `¿Abrir ${name}?`,
+    },
+    showImages: 'Mostrar imágenes',
   },
   starterRules: {
     alwaysShow:

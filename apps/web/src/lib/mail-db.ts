@@ -187,13 +187,15 @@ export const withoutPixels = (html: string) => {
 
 /**
  * A pointer on a row loads the thread and the newest email's images, so the reader's frame takes them from the browser
- * cache. Tracking pixels wait for the open: a hover must never tell a sender the email was read.
+ * cache. Tracking pixels wait for the open: a hover must never tell a sender the email was read. Spam keeps its images
+ * hidden even when open (`HtmlBody`), so it loads none.
  */
 export const warmThread = async (threadId: string) => {
   await prefetchThread(threadId)
   const [thread] = queryClient.getQueryData<Thread[]>(threadKey(threadId)) ?? []
-  const html = thread?.messages.at(-1)?.message.html
-  if (!html) {
+  const latest = thread?.messages.at(-1)?.message
+  const html = latest?.html
+  if (!html || latest.labelIds.includes('SPAM')) {
     return
   }
   // A parsed document is inert: its images load only through the `Image` below.

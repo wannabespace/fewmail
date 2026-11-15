@@ -169,6 +169,9 @@ const ActionNote = ({ actions }: { actions: ThreadAction[] }) => {
 const FRAME_HEAD =
   '<base target="_blank"><style>html{color-scheme:light;overflow-y:hidden}body{margin:0;padding:16px;background:#fff;color:#1c1917;font:14px/1.5 system-ui,sans-serif;overflow-wrap:break-word}img{max-width:100%;height:auto}[data-cited]{border-radius:4px;animation:cited 3s cubic-bezier(.32,.72,0,1)}@keyframes cited{0%,50%{box-shadow:0 0 0 4px oklch(.55 .15 38/.18),inset 0 0 0 100vmax oklch(.55 .15 38/.18)}to{box-shadow:0 0 0 4px transparent,inset 0 0 0 100vmax transparent}}</style>'
 
+// Spam loads nothing from the web until the user asks: no image, pixel or font tells its sender the address is read.
+const NOTHING_REMOTE = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">`
+
 const OPENABLE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tel:'])
 // A plain `#id` resolves against our page (srcdoc borrows the parent's base) and loads Fewmail inside the frame.
 const IN_MAIL = 'about:srcdoc#'
@@ -179,9 +182,13 @@ const inMailTarget = (mail: Document, id: string) =>
 /** A link's own `target` beats our `<base>`, and a page opened inside the frame refuses to be framed: every link leaves for a new tab, jumps within the mail, or stops being a link. */
 const pinLinks = (
   html: string,
-  cidImage?: (src: string) => string | undefined
+  cidImage?: (src: string) => string | undefined,
+  blockImages?: boolean
 ) => {
-  const mail = new DOMParser().parseFromString(FRAME_HEAD + html, 'text/html')
+  const mail = new DOMParser().parseFromString(
+    (blockImages ? NOTHING_REMOTE : '') + FRAME_HEAD + html,
+    'text/html'
+  )
   for (const image of mail.querySelectorAll('img[src^="cid:" i]')) {
     const src = cidImage?.(image.getAttribute('src') ?? '')
     if (src) {
@@ -269,11 +276,13 @@ const frameHeights = new Map<string, number>()
  * With `cite`, the passage it came from is centred and lit for a moment.
  */
 export const HtmlBody = ({
+  blockImages,
   cidImage,
   cite,
   html,
   id,
 }: {
+  blockImages?: boolean
   cidImage?: (src: string) => string | undefined
   cite?: string
   html: string
@@ -322,7 +331,7 @@ export const HtmlBody = ({
       ref={watch}
       data-mask
       title="email"
-      srcDoc={pinLinks(html, cidImage)}
+      srcDoc={pinLinks(html, cidImage, blockImages)}
       sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
       style={{ '--frame-height': `${height}px` } as CSSProperties}
       className="h-(--frame-height) w-full rounded-xl bg-white"
@@ -381,6 +390,7 @@ export const ThreadPeek = ({
       <div className="min-h-0 overflow-y-auto p-2">
         {message ? (
           <HtmlBody
+            blockImages={message.labelIds.includes('SPAM')}
             cidImage={cidSource(message)}
             cite={cite}
             html={withoutPixels(message.html ?? textToHtml(message.body))}
@@ -473,6 +483,8 @@ const MessageSection = ({
 }) => {
   const t = useT()
   const dates = useDates()
+  const isSpam = message.labelIds.includes('SPAM')
+  const [showsImages, setShowsImages] = useState(false)
   return (
     <section className="flex flex-col gap-3 not-first:mt-6 not-first:border-t not-first:pt-8">
       {subject && (
@@ -534,8 +546,24 @@ const MessageSection = ({
           </div>
         </div>
       )}
+      {message.html && isSpam && !showsImages && (
+        <div className="text-muted-foreground flex items-center gap-3 text-sm">
+          {t.spam.imagesHidden}
+          <Button
+            size="xs"
+            variant="secondary"
+            onClick={() => {
+              setShowsImages(true)
+              posthog.capture('spam_images_shown')
+            }}
+          >
+            {t.spam.showImages}
+          </Button>
+        </div>
+      )}
       {message.html ? (
         <HtmlBody
+          blockImages={isSpam && !showsImages}
           cidImage={cidSource(message)}
           html={message.html}
           id={message.id}

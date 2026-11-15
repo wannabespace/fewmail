@@ -1574,6 +1574,14 @@ export const nl: Messages = {
     reasonCommunity: 'Door meerdere Fewmail-gebruikers als spam gemeld',
     reasonYou: 'Je hebt deze afzender als spam gemeld',
     suspect: 'Lijkt op spam',
+    imagesHidden: 'Afbeeldingen zijn verborgen in spam.',
+    openFile: {
+      action: 'Openen',
+      description:
+        'Deze e-mail staat in spam. Open de bestanden alleen als je de afzender vertrouwt.',
+      title: (name: string) => `${name} openen?`,
+    },
+    showImages: 'Afbeeldingen tonen',
   },
   starterRules: {
     alwaysShow:

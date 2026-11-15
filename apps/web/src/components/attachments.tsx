@@ -14,8 +14,10 @@ import { File01Icon, Image01Icon, Pdf01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { ReactNode } from 'react'
 
-import { useFileSize } from '~/lib/i18n'
+import { useFileSize, useT } from '~/lib/i18n'
 import { posthog } from '~/lib/posthog'
+
+import { confirm } from './confirm-dialog'
 
 export const attachmentUrl = (messageId: string, partId: string) =>
   `${import.meta.env.API_URL}/attachments/${messageId}/${encodeURIComponent(partId)}`
@@ -82,7 +84,10 @@ const PREVIEWED = new Set([
   'image/webp',
 ])
 
-/** The files the email's HTML does not draw itself; each opens in a new tab, or downloads when a browser cannot show it. */
+/**
+ * The files the email's HTML does not draw itself; each opens in a new tab, or downloads when a browser cannot show it.
+ * Spam's files show no thumbnail and open only after a yes.
+ */
 export const MessageAttachments = ({
   message,
 }: {
@@ -90,12 +95,15 @@ export const MessageAttachments = ({
     attachments: MailAttachment[] | null
     html: string | null
     id: string
+    labelIds: string[]
   }
 }) => {
+  const t = useT()
   const files = listedAttachments(message)
   if (files.length === 0) {
     return null
   }
+  const isSpam = message.labelIds.includes('SPAM')
   return (
     <AttachmentGroup>
       {files.map((file) => {
@@ -104,19 +112,37 @@ export const MessageAttachments = ({
           <FileChip
             key={file.partId}
             file={file}
-            preview={PREVIEWED.has(file.mimeType) ? url : undefined}
+            preview={!isSpam && PREVIEWED.has(file.mimeType) ? url : undefined}
             trigger={
-              <AttachmentTrigger
-                render={
-                  <a
-                    aria-label={file.filename}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => posthog.capture('attachment_opened')}
-                  />
-                }
-              />
+              isSpam ? (
+                <AttachmentTrigger
+                  aria-label={file.filename}
+                  onClick={() =>
+                    confirm({
+                      action: t.spam.openFile.action,
+                      description: t.spam.openFile.description,
+                      onConfirm: () => {
+                        posthog.capture('attachment_opened', { spam: true })
+                        window.open(url, '_blank', 'noopener,noreferrer')
+                      },
+                      title: t.spam.openFile.title(file.filename),
+                      variant: 'warning',
+                    })
+                  }
+                />
+              ) : (
+                <AttachmentTrigger
+                  render={
+                    <a
+                      aria-label={file.filename}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => posthog.capture('attachment_opened')}
+                    />
+                  }
+                />
+              )
             }
           />
         )

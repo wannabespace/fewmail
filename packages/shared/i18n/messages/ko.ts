@@ -1252,6 +1252,14 @@ export const ko: Messages = {
     reasonCommunity: '여러 Fewmail 사용자가 스팸으로 신고했어요',
     reasonYou: '이 발신자를 스팸으로 신고했어요',
     suspect: '스팸 같아요',
+    imagesHidden: '스팸의 이미지는 숨겨져 있어요.',
+    openFile: {
+      action: '열기',
+      description:
+        '이 메일은 스팸함에 있어요. 보낸 사람을 신뢰할 때만 파일을 여세요.',
+      title: (name: string) => `${name}을(를) 열까요?`,
+    },
+    showImages: '이미지 보기',
   },
   starterRules: {
     alwaysShow:
