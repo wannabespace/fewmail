@@ -9,7 +9,7 @@ import { KeyHints } from '~/components/key-hints'
 import { ThreadView } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 
-/** Any email on its own, the whole width: esc, ⇧O and the collapse go back to wherever it was opened from, or from a link to Mail with this email beside the list. */
+/** Any email on its own, the whole width: esc and the collapse go back to wherever it was opened from, or from a link to Mail with this email beside the list. */
 const EmailPage = () => {
   const t = useT()
   const router = useRouter()
@@ -23,7 +23,6 @@ const EmailPage = () => {
       : router.navigate({ search: { thread: threadId }, to: '/mail' })
   // An editor's own esc (leave the draft) comes first: one step per press.
   useHotkey('Escape', collapse, { ignoreDefaultPrevented: true })
-  useHotkey('Shift+O', collapse)
 
   return (
     <div className="bg-background flex min-h-0 min-w-0 flex-1 flex-col">

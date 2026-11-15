@@ -6,6 +6,7 @@ import {
   senderDomainOrAddress,
   textToHtml,
 } from '@fewmail/shared/email'
+import type { Participant } from '@fewmail/shared/email'
 import type { Messages } from '@fewmail/shared/i18n'
 import {
   Accordion,
@@ -31,6 +32,15 @@ import {
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import { ButtonGroup, ButtonGroupSeparator } from '@fewmail/ui/components/group'
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import {
   Popover,
@@ -43,7 +53,6 @@ import { cn } from '@fewmail/ui/lib/utils'
 import {
   Archive02Icon,
   ArrowDown01Icon,
-  ArrowExpand01Icon,
   ArrowShrink01Icon,
   Calendar03Icon,
   Cancel01Icon,
@@ -58,8 +67,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type } from 'arktype'
 import { isToday } from 'date-fns'
 import { Fragment, useEffect, useRef, useState } from 'react'
@@ -1495,23 +1503,95 @@ const ReplyArea = ({
   )
 }
 
-/** Everyone who wrote in the thread, under its title; nothing while only one person did. */
+const personKeyOf = ({ fromEmail, isFromMe }: Participant) =>
+  isFromMe ? '' : fromEmail.toLowerCase()
+
+/**
+ * Everyone who wrote in the thread, under its title; nothing while only one person did. A click lists them in full with
+ * how many emails each wrote, then whoever only got it in To or Cc.
+ */
 const ThreadPeople = ({ thread }: { thread: Thread }) => {
   const t = useT()
-  const participants = participantsOf(
-    thread.messages
-      .map(({ message }) => message)
-      .filter((message) => !message.labelIds.includes('DRAFT'))
-  )
+  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const messages = thread.messages
+    .map(({ message }) => message)
+    .filter((message) => !message.labelIds.includes('DRAFT'))
+  const participants = participantsOf(messages)
+  if (participants.length < 2) {
+    return null
+  }
+  const written = Map.groupBy(messages, personKeyOf)
+  const known = new Set([
+    ...mailboxes.map(({ email }) => email.toLowerCase()),
+    ...messages.map(({ fromEmail }) => fromEmail.toLowerCase()),
+  ])
+  const onlyGot = [
+    ...new Set(
+      messages.flatMap(({ cc, to }) =>
+        [...to, ...cc].map((email) => email.toLowerCase())
+      )
+    ),
+  ].filter((email) => !known.has(email))
+  const people = [
+    ...participants,
+    ...onlyGot.map((fromEmail) => ({
+      fromEmail,
+      fromName: null,
+      isFromMe: false,
+    })),
+  ]
   return (
-    participants.length > 1 && (
-      <span className="flex items-center gap-2">
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-2 max-w-full hover:[--avatar-ring:var(--color-accent)] aria-expanded:[--avatar-ring:var(--color-accent)]"
+          />
+        }
+      >
         <ParticipantAvatars participants={participants} size="sm" />
         <span data-mask className="text-foreground truncate">
           {participantNamesOf(participants, t.mail.you)}
         </span>
-      </span>
-    )
+      </PopoverTrigger>
+      <PopoverContent align="start" padding="none" className="w-auto max-w-sm">
+        <div className="p-1.5">
+          <ItemGroup>
+            {people.map((person) => {
+              const wrote = written.get(personKeyOf(person))?.length
+              return (
+                <Item key={personKeyOf(person)} size="xs">
+                  <ItemMedia>
+                    <SenderAvatar sender={person} size="sm" />
+                  </ItemMedia>
+                  <ItemContent className="min-w-0">
+                    <ItemTitle data-mask>
+                      {person.isFromMe
+                        ? t.mail.you
+                        : (person.fromName ?? person.fromEmail)}
+                    </ItemTitle>
+                    {(person.isFromMe || person.fromName) && (
+                      <ItemDescription data-mask>
+                        {person.fromEmail}
+                      </ItemDescription>
+                    )}
+                  </ItemContent>
+                  {wrote !== undefined && (
+                    <ItemActions>
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {t.cleanup.emails(wrote)}
+                      </span>
+                    </ItemActions>
+                  )}
+                </Item>
+              )
+            })}
+          </ItemGroup>
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -1521,14 +1601,12 @@ const ReaderHeader = ({
   isFullPage,
   note,
   onClose,
-  onOpenFullPage,
   title,
 }: {
   children?: ReactNode
   isFullPage?: boolean
   note?: ReactNode
   onClose: () => void
-  onOpenFullPage?: () => void
   /** `null` while the email loads. */
   title: ReactNode
 }) => {
@@ -1545,16 +1623,6 @@ const ReaderHeader = ({
           >
             {title}
           </p>
-          {onOpenFullPage && (
-            <IconButton
-              icon={ArrowExpand01Icon}
-              label={t.mail.openFullPage}
-              shortcut={<Kbd>⇧O</Kbd>}
-              size="icon-sm"
-              variant="ghost-muted"
-              onClick={onOpenFullPage}
-            />
-          )}
           <IconButton
             icon={isFullPage ? ArrowShrink01Icon : Cancel01Icon}
             label={isFullPage ? t.mail.collapseFullPage : t.mail.close}
@@ -1565,12 +1633,7 @@ const ReaderHeader = ({
           />
         </div>
       </div>
-      <div
-        className={cn(
-          'flex flex-col gap-1 pt-8',
-          onOpenFullPage ? 'pr-18' : 'pr-9'
-        )}
-      >
+      <div className="flex flex-col gap-1 pt-8 pr-9">
         {title === null ? (
           <Skeleton className="my-1 h-6 w-3/4" />
         ) : (
@@ -1596,16 +1659,14 @@ const ReaderHeader = ({
   )
 }
 
-/** `canOpenFullPage`: a reader beside a list offers the email on its own page (`/mail/$threadId`, ⇧O), where `isFullPage` turns its ✕ into a collapse. */
+/** `isFullPage`: the email on its own page (`/mail/$threadId`), where its ✕ turns into a collapse. */
 export const ThreadView = ({
-  canOpenFullPage = false,
   isFullPage,
   isSnoozed,
   onClose,
   onDone,
   threadId,
 }: {
-  canOpenFullPage?: boolean
   isFullPage?: boolean
   isSnoozed: boolean
   onClose: () => void
@@ -1613,10 +1674,6 @@ export const ThreadView = ({
   threadId: string
 }) => {
   const t = useT()
-  const navigate = useNavigate()
-  const openFullPage = () =>
-    navigate({ params: { threadId }, to: '/mail/$threadId' })
-  useHotkey('Shift+O', openFullPage, { enabled: canOpenFullPage })
   const dates = useDates()
   const { user } = useMe()
   const hasAgent = useHasAgent()
@@ -1687,12 +1744,7 @@ export const ThreadView = ({
     return (
       <article className="flex min-h-0 flex-1 flex-col">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-8 pb-8">
-          <ReaderHeader
-            title={null}
-            isFullPage={isFullPage}
-            onClose={onClose}
-            onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
-          >
+          <ReaderHeader title={null} isFullPage={isFullPage} onClose={onClose}>
             <div className="flex gap-2">
               <Skeleton className="h-7 w-20 rounded-lg" />
               <Skeleton className="h-7 w-24 rounded-lg" />
@@ -1722,7 +1774,6 @@ export const ThreadView = ({
             title={subject}
             isFullPage={isFullPage}
             onClose={onClose}
-            onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
           >
             {target && (
               <div className="flex flex-wrap items-center gap-2">

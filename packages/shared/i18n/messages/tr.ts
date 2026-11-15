@@ -791,7 +791,6 @@ export const tr: Messages = {
     open: 'Aç',
     search: "Ara ya da anlat: Anna'dan geçen ayki faturalar",
     openInGmail: "Gmail'de aç",
-    openFullPage: 'Tam sayfada aç',
     collapseFullPage: 'Listeye dön',
     unsubscribe: 'Abonelikten çık',
     unsubscribed: 'Abonelikten çıkıldı',

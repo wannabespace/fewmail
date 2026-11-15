@@ -805,7 +805,6 @@ export const en = {
     instruction: 'Tell the agent how to reply, or just press Enter',
     open: 'Open',
     openInGmail: 'Open in Gmail',
-    openFullPage: 'Open full page',
     collapseFullPage: 'Back to the list',
     search: 'Search or describe: invoices from Anna last month',
     unsubscribe: 'Unsubscribe',

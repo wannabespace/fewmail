@@ -2364,7 +2364,6 @@ const readerHintsOf = ({
   pinHint(t, isPinned),
   ['⇧U', t.keys.markUnread],
   ...(hasAgent ? [['R', t.keys.draftReply] as [string, string]] : []),
-  ['⇧O', t.mail.openFullPage],
   ['esc', t.keys.close],
   ['J / K', t.keys.move],
 ]
@@ -2832,7 +2831,6 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
           <div className="bg-background flex min-w-0 flex-1 flex-col">
             <ThreadView
               key={thread}
-              canOpenFullPage
               isSnoozed={filter === 'snoozed'}
               threadId={thread}
               onClose={closeThread}

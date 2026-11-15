@@ -107,7 +107,7 @@ export const SettingsRow = ({
       className={cn(
         dense && 'py-2',
         trigger &&
-          'has-data-popup-open:bg-accent hover:bg-accent has-[[data-slot=row-trigger]:focus-visible]:focus-ring relative cursor-pointer'
+          'has-data-popup-open:bg-accent hover:bg-accent has-[[data-slot=row-trigger][aria-expanded=true]]:bg-secondary has-[[data-slot=row-trigger]:focus-visible]:focus-ring relative cursor-pointer'
       )}
       data-active={active || undefined}
       data-index={dataIndex}
