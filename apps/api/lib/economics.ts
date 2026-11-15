@@ -38,7 +38,16 @@ import {
 } from '../services/autocomplete'
 import { ENTRY_BODY_CHARS } from '../services/boards'
 import {
+  CASE_BODY_CHARS,
+  CASE_FILES_SHOWN,
+  CASE_SCAN_LIMIT,
+  CASE_SEARCHES,
+  WEB_RESULTS,
+  WEB_SEARCH_USD,
+} from '../services/cases'
+import {
   ACTION_CRITERIA,
+  STARTS_CASE,
   CATEGORY_CRITERIA,
   IMPORTANCE_LEVELS,
   NEEDS_REPLY,
@@ -128,7 +137,17 @@ const LINK_HOST_CHARS = 25
 const LINK_OUTPUT_TOKENS = 20
 const DRAFT_INSTRUCTION_CHARS = 800
 const DRAFT_OUTPUT_TOKENS = 400
-const JEV_QUESTION_CHARS = 400
+/** The open cases Jev chooses among, by title, when there are any. */
+const CASE_TITLES_CHARS = 2 * 40
+const JEV_QUESTION_CHARS = 400 + STARTS_CASE.length + CASE_TITLES_CHARS
+const CASE_PROPOSAL_INSTRUCTION_CHARS = 1500
+const CASE_PROPOSAL_OUTPUT_TOKENS = 250
+const CASE_REVISION_INSTRUCTION_CHARS = 1700
+const CASE_ITEMS_CHARS = 600
+const CASE_FILE_CHARS = 90
+const CASE_REVISION_OUTPUT_TOKENS = 500
+const WEB_RESULT_CHARS = 3000
+const WEB_ANSWER_TOKENS = 300
 const RISK_QUESTION_CHARS = 250
 const PROMISE_INSTRUCTION_CHARS = 600
 const PROMISE_OUTPUT_TOKENS = 100
@@ -156,6 +175,10 @@ export interface Use {
   analyzedShare: number
   attachedShare: number
   bodyChars: number
+  /** Cases the user said yes to (each looked up on the web), the agent proposed, and the steps all of them took. */
+  casesAccepted: number
+  caseProposals: number
+  caseSteps: number
   chatHistoryTokens: number
   chatSteps: number
   completions: number
@@ -187,6 +210,9 @@ export const TYPICAL: Use = {
   analyzedShare: 0.3,
   attachedShare: 0.08,
   bodyChars: 1500,
+  caseProposals: 3,
+  caseSteps: 8,
+  casesAccepted: 2,
   chatHistoryTokens: 3000,
   chatSteps: 3,
   completions: 300,
@@ -219,6 +245,9 @@ export const HEAVY: Use = {
   analyzedShare: 1,
   attachedShare: 1,
   bodyChars: BODY_LIMIT,
+  caseProposals: 30,
+  caseSteps: 120,
+  casesAccepted: 15,
   chatHistoryTokens: 30_000,
   chatSteps: MAX_STEPS,
   completions: 3000,
@@ -407,10 +436,30 @@ const issueCost = (use: Use) =>
     READING_SUMMARY_OUTPUT_TOKENS
   )
 
-/** Once, at sign-up: Jev on the week's candidates (all `FIRST_WEEK_LIMIT` of them at worst) and, with the agent, a week of issues. */
+const caseProposalCost = (use: Use) =>
+  llm(
+    FAST_MODEL_ID,
+    instructionTokens(CASE_PROPOSAL_INSTRUCTION_CHARS) +
+      STRUCTURED_OUTPUT_TOKENS +
+      mailTokens(Math.min(use.bodyChars, CASE_BODY_CHARS) + HEADER_CHARS),
+    CASE_PROPOSAL_OUTPUT_TOKENS
+  )
+
+/** The one look back for cases under way: Jev's one question on up to `CASE_SCAN_LIMIT` emails, a few proposals. */
+const caseScanCost = (use: Use) =>
+  CASE_SCAN_LIMIT *
+    llm(
+      JEV_MODEL_ID,
+      mailTokens(Math.min(use.bodyChars, CASE_BODY_CHARS) + HEADER_CHARS) +
+        instructionTokens(STARTS_CASE.length),
+      0
+    ) +
+  use.caseProposals * caseProposalCost(use)
+
+/** Once, at sign-up: Jev on the week's candidates (all `FIRST_WEEK_LIMIT` of them at worst) and, with the agent, a week of issues and the look back for cases. */
 export const firstWeekCost = (use: Use, agent: boolean) =>
   FIRST_WEEK_LIMIT * inboundJevCost(use) +
-  (agent ? FIRST_ISSUE_DAYS * issueCost(use) : 0)
+  (agent ? FIRST_ISSUE_DAYS * issueCost(use) + caseScanCost(use) : 0)
 
 /** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, the user's style, board entries and autocomplete. */
 export const backgroundCost = (use: Use, agent: boolean) => {
@@ -451,6 +500,31 @@ export const backgroundCost = (use: Use, agent: boolean) => {
         mailTokens(Math.min(use.bodyChars, ENTRY_BODY_CHARS)),
       ENTRY_OUTPUT_TOKENS
     )
+  const cases =
+    use.caseProposals * caseProposalCost(use) +
+    use.casesAccepted *
+      CASE_SEARCHES *
+      (WEB_SEARCH_USD +
+        llm(
+          FAST_FALLBACK_ID,
+          mailTokens(WEB_RESULTS * WEB_RESULT_CHARS),
+          WEB_ANSWER_TOKENS
+        )) +
+    use.caseSteps *
+      // A case's reply replaces the draft its email would get anyway, so only the step itself is extra.
+      llm(
+        FAST_MODEL_ID,
+        instructionTokens(CASE_REVISION_INSTRUCTION_CHARS) +
+          STRUCTURED_OUTPUT_TOKENS +
+          mailTokens(
+            CASE_ITEMS_CHARS +
+              CASE_FILES_SHOWN * CASE_FILE_CHARS +
+              CASE_SEARCHES * WEB_ANSWER_TOKENS * MAIL_CHARS_PER_TOKEN +
+              Math.min(use.bodyChars, CASE_BODY_CHARS) +
+              HEADER_CHARS
+          ),
+        CASE_REVISION_OUTPUT_TOKENS
+      )
   const completions =
     use.completions *
     llm(
@@ -463,13 +537,15 @@ export const backgroundCost = (use: Use, agent: boolean) => {
       FIM_OUTPUT_TOKENS
     )
   return {
+    cases,
     completions,
     digest,
     entries,
     jev,
     notes,
     promises,
-    total: jev + promises + digest + notes + entries + completions + voice,
+    total:
+      jev + promises + digest + notes + entries + completions + voice + cases,
     voice,
   }
 }

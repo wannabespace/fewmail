@@ -44,6 +44,7 @@ import {
   isUnchanged,
 } from './boards'
 import { measureBulk } from './bulk'
+import { routeToCases } from './cases'
 import { listMailboxes, searchMailboxes, watchStorage } from './mailboxes'
 import { emailAllowance, hasBudget } from './plan'
 import { writeReadingIssue } from './reading'
@@ -176,9 +177,9 @@ const analyzePending = async (userId: string, inserted: Message[]) => {
     pending.filter(({ message }) => !own.has(message.fromEmail.toLowerCase())),
     ANALYZE_CONCURRENCY,
     ({ address, message }) =>
-      analyzeMessage(message, address, allowance).catch((error) =>
-        logError(`analyze ${message.id} failed`, error)
-      )
+      analyzeMessage(message, address, allowance)
+        .then((signal) => signal && routeToCases(message, signal))
+        .catch((error) => logError(`analyze ${message.id} failed`, error))
   )
 }
 

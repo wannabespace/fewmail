@@ -26,6 +26,7 @@ import {
   updateEntry,
 } from './boards'
 import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
+import { listCases, setCaseStatus, startCase } from './cases'
 import {
   listSubscriptions,
   runClearOut,
@@ -308,6 +309,31 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       "What the user's mail knows about one person: since when they write, conversation count, open items, promises the user made to them (promised), promises they made to the user that are still open (owed) and a short note.",
     input: { email: z.email() },
     run: ({ email }) => getPerson(userId, email),
+  }),
+  list_cases: define({
+    description:
+      "The user's cases (things of several steps an email started: a company to register, a visa): status (proposed waits for the user's yes), goal, dueAt, next (what to do now) and items.",
+    run: () => listCases(userId),
+  }),
+  start_case: define({
+    description:
+      'Start a case the user asks for ("help me rent a flat in Lisbon"); the agent plans it. searches: up to two general web questions, no personal detail.',
+    input: {
+      dueDate: z.string().optional(),
+      goal: z.string().min(1),
+      searches: z.array(z.string()).max(2).optional(),
+      title: z.string().min(1),
+    },
+    run: (input) => startCase(userId, input),
+  }),
+  set_case_status: define({
+    description:
+      "Accept a proposed case (active), finish it (done) or drop it, on the user's word.",
+    input: {
+      caseId: z.uuid(),
+      status: z.enum(['active', 'done', 'dropped']),
+    },
+    run: ({ caseId, status }) => setCaseStatus(userId, caseId, status),
   }),
   list_boards: define({
     description:

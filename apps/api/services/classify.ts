@@ -52,6 +52,21 @@ export const NEEDS_REPLY =
 
 const NO_RULE = 'none'
 
+export const STARTS_CASE =
+  'Asks the recipient to get several things done that one reply cannot settle, like registering a company, a visa or renting a flat'
+
+/** One more yes or no about the same email: costs nothing on top of the call. */
+const CASE_SIGNAL = 0.7
+
+/** The question alone, for mail read before cases existed (`scanForCases`). */
+export const startsCase = async (prompt: string) => {
+  const { answers } = await jev.systemOne({
+    questions: { startsCase: noul(STARTS_CASE) },
+    state: prompt,
+  })
+  return answers.startsCase.noul >= CASE_SIGNAL
+}
+
 /** Below these odds for noise as a whole (archive, mark read and unsubscribe together) Jev is guessing, and a guess would put mail that matters into Tidy. */
 const NOISE_CONFIDENCE = 0.7
 const NOISE_ACTIONS: ReadonlySet<string> = new Set([
@@ -62,10 +77,14 @@ const NOISE_ACTIONS: ReadonlySet<string> = new Set([
 
 /** Every decision about an email in one Jev call. */
 export const decideWithJev = async (input: {
+  cases: { id: string; title: string }[]
   prompt: string
   rules: Rule[]
   userEmail: string
 }) => {
+  const caseIds = new Map(
+    input.cases.map((open, index) => [`case_${index}`, open.id])
+  )
   const ruleIds = new Map(
     input.rules.map((rule, index) => [`rule_${index}`, rule.id])
   )
@@ -85,6 +104,23 @@ export const decideWithJev = async (input: {
         IMPORTANCE_LEVELS
       ),
       needsReply: noul(NEEDS_REPLY),
+      // Asked only with open cases: every email pays for every question.
+      ...(input.cases.length > 0
+        ? {
+            openCase: choice(
+              "Which of the recipient's open cases this is about",
+              {
+                [NO_RULE]: 'None',
+                ...Object.fromEntries(
+                  input.cases.map((open, index) => [
+                    `case_${index}`,
+                    open.title,
+                  ])
+                ),
+              }
+            ),
+          }
+        : {}),
       rule: choice(
         "Which of the recipient's rules this email clearly matches",
         {
@@ -92,6 +128,7 @@ export const decideWithJev = async (input: {
           ...ruleCriteria,
         }
       ),
+      startsCase: noul(STARTS_CASE),
     },
     state: `Recipient: ${input.userEmail}\n\n${input.prompt}`,
   })
@@ -103,6 +140,11 @@ export const decideWithJev = async (input: {
     0
   )
   return {
+    caseId:
+      caseIds.get(
+        (answers as { openCase?: { choice: string } }).openCase?.choice ??
+          NO_RULE
+      ) ?? null,
     category: answers.category.choice,
     importance: Math.min(
       3,
@@ -110,6 +152,7 @@ export const decideWithJev = async (input: {
     ) as 0 | 1 | 2 | 3,
     needsReply: answers.needsReply.noul >= 0.5,
     ruleId: ruleIds.get(answers.rule.choice) ?? null,
+    startsCase: answers.startsCase.noul >= CASE_SIGNAL,
     suggestedAction:
       NOISE_ACTIONS.has(action.choice) && noiseOdds < NOISE_CONFIDENCE
         ? 'none'

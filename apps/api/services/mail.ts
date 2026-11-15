@@ -20,6 +20,7 @@ import {
 } from '@fewmail/shared/agent'
 import type { CleanupSender, MailCategory } from '@fewmail/shared/agent'
 import {
+  MAIL_FILE_PREFIX,
   participantsOf,
   replyRecipients,
   textToHtml,
@@ -871,7 +872,7 @@ const applyActionSideEffects = async (
 
 const scheduleActionReply = async (
   userId: string,
-  actionId: string,
+  action: typeof actions.$inferSelect,
   message: typeof messages.$inferSelect,
   body: string | null | undefined
 ) => {
@@ -879,7 +880,13 @@ const scheduleActionReply = async (
     throw new Error('Nothing to send')
   }
   const { id } = await scheduleMail(userId, {
-    actionId,
+    actionId: action.id,
+    attachments: (cardPayload(action).files ?? []).map((file) => ({
+      filename: file.filename,
+      id: `${MAIL_FILE_PREFIX}${file.messageId}:${file.partId}`,
+      mimeType: file.mimeType,
+      size: file.size,
+    })),
     html: textToHtml(body),
     mode: 'reply',
     replyToMessageId: message.id,
@@ -914,7 +921,7 @@ export const approveAction = async (
   const applied = await Result.tryPromise(async () => {
     await applyActionSideEffects(userId, action, message)
     if (message && sendsDraft(action)) {
-      return scheduleActionReply(userId, actionId, message, body)
+      return scheduleActionReply(userId, action, message, body)
     }
     if (message && action.kind === 'spam') {
       await reportSpam(userId, message.id)

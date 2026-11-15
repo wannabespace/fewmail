@@ -119,6 +119,9 @@ export const zh: Messages = {
       edit_board_entry: '正在修正记录',
       remove_board_entry: '正在从看板移除',
       rename_board_group: '正在重命名分组',
+      list_cases: '查看事项',
+      start_case: '开启事项',
+      set_case_status: '更新事项',
     },
     to: (recipients: string) => `收件人：${recipients}`,
     until: (time: string) => `推迟到：${time}`,
@@ -1740,6 +1743,34 @@ export const zh: Messages = {
     issues: '所有期',
     title: '阅读',
   },
+  cases: {
+    accept: '跟进这个事项',
+    accepted: '已开启事项，助手正在处理。',
+    close: '标记为完成',
+    decline: '不是事项',
+    declined: '好的，这不是事项。',
+    drop: '放弃事项',
+    dueBy: (d: string) => `${d}前`,
+    emails: '这个事项的邮件',
+    files: (n: number) => `文件：${n}`,
+    fromWeb: '来自网络',
+    needed: '需要什么',
+    next: '现在要做的',
+    open: '打开事项',
+    partOf: (t: string) => `属于事项「${t}」`,
+    planning: '助手正在查看…',
+    progress: (d: number, t: number) => `${d}/${t}`,
+    proposed: '这看起来是一个事项',
+    reopen: '重新打开',
+    reply: '事项回复',
+    state: {
+      done: '完成',
+      found: '邮件里有',
+      needed: '需要',
+      waiting: '等待对方',
+    },
+    title: '事项',
+  },
   commitments: {
     title: '你的承诺',
   },
@@ -1769,6 +1800,8 @@ export const zh: Messages = {
   upgrade: {
     ask: '问问你的邮件',
     hints: {
+      cases:
+        'Fewmail Pro 功能：当邮件开启一件需要多步完成的事项时，助手会跟踪所需材料，找到你的文件，并告诉你现在该做什么。',
       ask: 'Fewmail Pro 的功能：用自己的话随便问，答案来自你自己的邮件。',
       boards:
         'Fewmail Pro 的功能：描述要收集什么，代理会在你的邮件中找到它并持续更新。',

@@ -76,6 +76,9 @@ export const fr: Messages = {
       edit_board_entry: 'Correction de l’entrée',
       remove_board_entry: 'Retrait du tableau',
       rename_board_group: 'Renommage du groupe',
+      list_cases: 'Consultation des démarches',
+      start_case: 'Ouverture de la démarche',
+      set_case_status: 'Mise à jour de la démarche',
     },
     to: (recipients: string) => `À ${recipients}`,
     until: (time: string) => `Jusqu’à ${time}`,
@@ -1893,6 +1896,34 @@ export const fr: Messages = {
     issues: 'Toutes les éditions',
     title: 'Lecture',
   },
+  cases: {
+    accept: 'Suivre la démarche',
+    accepted: 'Démarche ouverte. L’agent s’en occupe.',
+    close: 'Marquer comme terminée',
+    decline: 'Ce n’est pas une démarche',
+    declined: 'Compris, pas de démarche.',
+    drop: 'Abandonner la démarche',
+    dueBy: (d: string) => `avant le ${d}`,
+    emails: 'E-mails de la démarche',
+    files: (n: number) => `Fichiers : ${n}`,
+    fromWeb: 'Trouvé sur le web',
+    needed: 'Ce qu’il faut',
+    next: 'À faire maintenant',
+    open: 'Ouvrir la démarche',
+    partOf: (t: string) => `Fait partie de la démarche « ${t} »`,
+    planning: 'L’agent s’en occupe…',
+    progress: (d: number, t: number) => `${d} sur ${t}`,
+    proposed: 'Ça ressemble à une démarche',
+    reopen: 'Rouvrir',
+    reply: 'Réponse de la démarche',
+    state: {
+      done: 'Fait',
+      found: 'Dans votre courrier',
+      needed: 'À fournir',
+      waiting: 'En attente des autres',
+    },
+    title: 'Démarches',
+  },
   commitments: {
     title: 'Vous avez promis',
   },
@@ -1922,6 +1953,8 @@ export const fr: Messages = {
   upgrade: {
     ask: 'Interroge tes e-mails',
     hints: {
+      cases:
+        'Inclus dans Fewmail Pro : quand un e-mail lance une démarche en plusieurs étapes, l’agent suit ce qu’il faut, retrouve vos documents et vous dit quoi faire maintenant.',
       ask: 'Inclus dans Fewmail Pro : demande ce que tu veux avec tes mots et obtiens la réponse tirée de tes propres e-mails.',
       boards:
         'Inclus dans Fewmail Pro : décris ce qu’il faut rassembler, l’agent le retrouve dans tes e-mails et le tient à jour.',

@@ -32,6 +32,7 @@ import { Route as SiteMcpRouteImport } from './routes/_site/mcp'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as WTokenRouteImport } from './routes/w.$token'
 import { Route as AppBoardsBoardIdRouteImport } from './routes/_app/boards.$boardId'
+import { Route as AppCasesCaseIdRouteImport } from './routes/_app/cases.$caseId'
 import { Route as AppMailThreadIdRouteImport } from './routes/_app/mail_.$threadId'
 import { Route as SiteCompareIndexRouteImport } from './routes/_site/compare.index'
 import { Route as SiteCompareSlugRouteImport } from './routes/_site/compare.$slug'
@@ -149,6 +150,11 @@ const AppBoardsBoardIdRoute = AppBoardsBoardIdRouteImport.update({
   path: '/boards/$boardId',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCasesCaseIdRoute = AppCasesCaseIdRouteImport.update({
+  id: '/cases/$caseId',
+  path: '/cases/$caseId',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMailThreadIdRoute = AppMailThreadIdRouteImport.update({
   id: '/mail_/$threadId',
   path: '/mail/$threadId',
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
+  '/cases/$caseId': typeof AppCasesCaseIdRoute
   '/mail/$threadId': typeof AppMailThreadIdRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare/': typeof SiteCompareIndexRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
+  '/cases/$caseId': typeof AppCasesCaseIdRoute
   '/mail/$threadId': typeof AppMailThreadIdRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare': typeof SiteCompareIndexRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/w/$token': typeof WTokenRoute
   '/_site/': typeof SiteIndexRoute
   '/_app/boards/$boardId': typeof AppBoardsBoardIdRoute
+  '/_app/cases/$caseId': typeof AppCasesCaseIdRoute
   '/_app/mail_/$threadId': typeof AppMailThreadIdRoute
   '/_site/compare/$slug': typeof SiteCompareSlugRoute
   '/_site/compare/': typeof SiteCompareIndexRoute
@@ -270,6 +279,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/w/$token'
     | '/boards/$boardId'
+    | '/cases/$caseId'
     | '/mail/$threadId'
     | '/compare/$slug'
     | '/compare/'
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/w/$token'
     | '/boards/$boardId'
+    | '/cases/$caseId'
     | '/mail/$threadId'
     | '/compare/$slug'
     | '/compare'
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/w/$token'
     | '/_site/'
     | '/_app/boards/$boardId'
+    | '/_app/cases/$caseId'
     | '/_app/mail_/$threadId'
     | '/_site/compare/$slug'
     | '/_site/compare/'
@@ -503,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBoardsBoardIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/cases/$caseId': {
+      id: '/_app/cases/$caseId'
+      path: '/cases/$caseId'
+      fullPath: '/cases/$caseId'
+      preLoaderRoute: typeof AppCasesCaseIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/mail_/$threadId': {
       id: '/_app/mail_/$threadId'
       path: '/mail/$threadId'
@@ -539,6 +558,7 @@ interface AppRouteChildren {
   AppTodayRoute: typeof AppTodayRoute
   AppWrappedRoute: typeof AppWrappedRoute
   AppBoardsBoardIdRoute: typeof AppBoardsBoardIdRoute
+  AppCasesCaseIdRoute: typeof AppCasesCaseIdRoute
   AppMailThreadIdRoute: typeof AppMailThreadIdRoute
 }
 
@@ -554,6 +574,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppTodayRoute: AppTodayRoute,
   AppWrappedRoute: AppWrappedRoute,
   AppBoardsBoardIdRoute: AppBoardsBoardIdRoute,
+  AppCasesCaseIdRoute: AppCasesCaseIdRoute,
   AppMailThreadIdRoute: AppMailThreadIdRoute,
 }
 

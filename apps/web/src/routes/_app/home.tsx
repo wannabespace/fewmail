@@ -57,6 +57,7 @@ import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
 import { BoardBanners } from '~/components/board-banners'
+import { CasesSection } from '~/components/cases'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import {
@@ -1617,6 +1618,7 @@ const HomePage = () => {
                   <ConnectHint />
                   <ReadingSection {...readingDays} />
                   <FreshCodes today={data} canUseKeys={isWalking} />
+                  <CasesSection />
 
                   <section
                     aria-label={t.today.decisions}

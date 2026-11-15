@@ -5,6 +5,7 @@ import { UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
 import {
   ATTACHMENTS_MAX_BYTES,
   FORWARDED_PREFIX,
+  MAIL_FILE_PREFIX,
   forwardSubject,
   replySubject,
 } from '@fewmail/shared/email'
@@ -147,12 +148,23 @@ export const filesOf = async (
     const { bytes } = await readAttachment(userId, replyToMessageId, partId)
     return bytes.toString('base64')
   }
+  const mailPart = async (id: string) => {
+    const [messageId, partId] = id.startsWith(MAIL_FILE_PREFIX)
+      ? id.slice(MAIL_FILE_PREFIX.length).split(':')
+      : []
+    if (!messageId || !partId) {
+      return
+    }
+    const { bytes } = await readAttachment(userId, messageId, partId)
+    return bytes.toString('base64')
+  }
   const files = await Promise.all(
     attachments.map(async (file) => {
       const data =
         file.data ??
         (await saved.find(({ id }) => id === file.id)?.read()) ??
-        (await forwardedPart(file.id))
+        (await forwardedPart(file.id)) ??
+        (await mailPart(file.id))
       if (!data) {
         throw new NotFoundError('Attachment not found')
       }

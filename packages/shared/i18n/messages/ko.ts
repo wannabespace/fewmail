@@ -119,6 +119,9 @@ export const ko: Messages = {
       edit_board_entry: '항목 고치는 중',
       remove_board_entry: '보드에서 빼는 중',
       rename_board_group: '그룹 이름 바꾸는 중',
+      list_cases: '진행 건 확인 중',
+      start_case: '진행 건 여는 중',
+      set_case_status: '진행 건 업데이트 중',
     },
     to: (recipients: string) => `받는 사람: ${recipients}`,
     until: (time: string) => `다시 표시: ${time}`,
@@ -1776,6 +1779,34 @@ export const ko: Messages = {
     issues: '모든 호',
     title: '읽을거리',
   },
+  cases: {
+    accept: '이 건 진행하기',
+    accepted: '진행 건을 열었어요. 에이전트가 살펴보고 있어요.',
+    close: '완료로 표시',
+    decline: '진행 건 아님',
+    declined: '알겠어요. 진행 건으로 만들지 않을게요.',
+    drop: '진행 건 그만두기',
+    dueBy: (d: string) => `${d}까지`,
+    emails: '이 건의 이메일',
+    files: (n: number) => `파일: ${n}`,
+    fromWeb: '웹에서',
+    needed: '필요한 것',
+    next: '지금 할 일',
+    open: '진행 건 열기',
+    partOf: (t: string) => `진행 건 “${t}”의 일부`,
+    planning: '에이전트가 살펴보는 중…',
+    progress: (d: number, t: number) => `${t}개 중 ${d}개`,
+    proposed: '진행 건으로 보여요',
+    reopen: '다시 열기',
+    reply: '진행 건 답장',
+    state: {
+      done: '완료',
+      found: '메일에 있음',
+      needed: '필요',
+      waiting: '상대 대기',
+    },
+    title: '진행 건',
+  },
   commitments: {
     title: '내가 한 약속',
   },
@@ -1805,6 +1836,8 @@ export const ko: Messages = {
   upgrade: {
     ask: '메일에 물어보기',
     hints: {
+      cases:
+        'Fewmail Pro 기능: 이메일로 여러 단계의 일이 시작되면 에이전트가 필요한 것을 챙기고, 서류를 찾아 지금 할 일을 알려줘요.',
       ask: 'Fewmail Pro 기능이에요. 평소 말로 무엇이든 물으면 내 메일에서 답을 찾아 줘요.',
       boards:
         'Fewmail Pro 기능이에요. 모을 내용을 설명하면 에이전트가 메일에서 찾아내고 계속 최신으로 유지해요.',

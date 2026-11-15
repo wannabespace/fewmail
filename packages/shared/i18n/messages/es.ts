@@ -75,6 +75,9 @@ export const es: Messages = {
       edit_board_entry: 'Corrigiendo la entrada',
       remove_board_entry: 'Quitando del tablero',
       rename_board_group: 'Renombrando el grupo',
+      list_cases: 'Revisando las gestiones',
+      start_case: 'Abriendo la gestión',
+      set_case_status: 'Actualizando la gestión',
     },
     to: (recipients: string) => `Para ${recipients}`,
     until: (time: string) => `Hasta ${time}`,
@@ -1871,6 +1874,34 @@ export const es: Messages = {
     issues: 'Todas las ediciones',
     title: 'Lectura',
   },
+  cases: {
+    accept: 'Llevar la gestión',
+    accepted: 'Gestión abierta. El agente ya se ocupa.',
+    close: 'Marcar como hecha',
+    decline: 'No es una gestión',
+    declined: 'Entendido, no es una gestión.',
+    drop: 'Abandonar gestión',
+    dueBy: (d: string) => `hasta el ${d}`,
+    emails: 'Correos de la gestión',
+    files: (n: number) => `Archivos: ${n}`,
+    fromWeb: 'De la web',
+    needed: 'Lo que hace falta',
+    next: 'Qué hacer ahora',
+    open: 'Abrir gestión',
+    partOf: (t: string) => `Parte de la gestión «${t}»`,
+    planning: 'El agente lo está mirando…',
+    progress: (d: number, t: number) => `${d} de ${t}`,
+    proposed: 'Parece una gestión',
+    reopen: 'Reabrir',
+    reply: 'Respuesta de la gestión',
+    state: {
+      done: 'Hecho',
+      found: 'Está en tu correo',
+      needed: 'Falta',
+      waiting: 'Esperando a otros',
+    },
+    title: 'Gestiones',
+  },
   commitments: {
     title: 'Lo prometiste',
   },
@@ -1900,6 +1931,8 @@ export const es: Messages = {
   upgrade: {
     ask: 'Pregunta a tu correo',
     hints: {
+      cases:
+        'Parte de Fewmail Pro: cuando un correo inicia una gestión de varios pasos, el agente sigue lo que hace falta, encuentra tus documentos y te dice qué hacer ahora.',
       ask: 'Parte de Fewmail Pro: pregunta lo que quieras con tus palabras y obtén la respuesta de tu propio correo.',
       boards:
         'Parte de Fewmail Pro: describe qué recopilar y el agente lo encuentra en tu correo y lo mantiene al día.',

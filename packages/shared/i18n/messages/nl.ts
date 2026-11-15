@@ -118,6 +118,9 @@ export const nl: Messages = {
       edit_board_entry: 'Item corrigeren',
       remove_board_entry: 'Van het bord halen',
       rename_board_group: 'Groep hernoemen',
+      list_cases: 'Zaken bekijken',
+      start_case: 'Zaak openen',
+      set_case_status: 'Zaak bijwerken',
     },
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
@@ -515,6 +518,34 @@ export const nl: Messages = {
     lead: 'De nieuwsbrieven van een dag op één plek, zodat ze je inbox niet vullen.',
     issues: 'Alle edities',
     title: 'Lezen',
+  },
+  cases: {
+    accept: 'Zaak volgen',
+    accepted: 'Zaak geopend. De agent zoekt het uit.',
+    close: 'Markeren als klaar',
+    decline: 'Geen zaak',
+    declined: 'Begrepen, geen zaak.',
+    drop: 'Zaak laten vallen',
+    dueBy: (d: string) => `vóór ${d}`,
+    emails: 'E-mails van deze zaak',
+    files: (n: number) => `Bestanden: ${n}`,
+    fromWeb: 'Van het web',
+    needed: 'Wat nodig is',
+    next: 'Wat je nu doet',
+    open: 'Zaak openen',
+    partOf: (t: string) => `Onderdeel van de zaak “${t}”`,
+    planning: 'De agent zoekt het uit…',
+    progress: (d: number, t: number) => `${d} van ${t}`,
+    proposed: 'Dit lijkt een zaak',
+    reopen: 'Heropenen',
+    reply: 'Antwoord voor de zaak',
+    state: {
+      done: 'Klaar',
+      found: 'In je mail gevonden',
+      needed: 'Nodig',
+      waiting: 'Wacht op anderen',
+    },
+    title: 'Zaken',
   },
   commitments: {
     title: 'Je hebt beloofd',
@@ -1888,6 +1919,8 @@ export const nl: Messages = {
   upgrade: {
     ask: 'Vraag het je mail',
     hints: {
+      cases:
+        'Onderdeel van Fewmail Pro: begint een e-mail een zaak van meerdere stappen, dan houdt de agent bij wat nodig is, vindt je documenten en zegt wat je nu doet.',
       ask: 'Onderdeel van Fewmail Pro: vraag alles in je eigen woorden en krijg het antwoord uit je eigen mail.',
       boards:
         'Onderdeel van Fewmail Pro: beschrijf wat er verzameld moet worden, en de agent vindt het in je mail en houdt het bij.',

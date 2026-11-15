@@ -11,6 +11,7 @@ const CHANNEL = 'mail_changed'
 export const LIVE_TOPICS = [
   'actions',
   'boards',
+  'cases',
   'integrations',
   'mail',
   'mailboxes',
@@ -24,6 +25,7 @@ export type LiveTopic = (typeof LIVE_TOPICS)[number]
 export const MAIL_TOPICS = [
   'actions',
   'boards',
+  'cases',
   'mail',
   'mailboxes',
   'reading',

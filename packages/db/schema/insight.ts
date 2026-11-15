@@ -2,6 +2,9 @@ import type {
   BoardChart,
   BoardPayment,
   BoardPeriod,
+  CaseItemState,
+  CaseSource,
+  CaseStatus,
   CommitmentKind,
   DomainList,
   PatternKind,
@@ -140,6 +143,66 @@ export const readingIssues = d.snakeCase.table(
   (table) => [
     d.uniqueIndex('reading_issues_user_day_idx').on(table.userId, table.day),
   ]
+)
+
+/**
+ * Something of several steps an email started (a company to register, a visa, a lease). `next` is what the user should
+ * do now; `searches` are the general questions the agent looks up on the web once the case is accepted, never personal data.
+ */
+export const cases = d.snakeCase.table(
+  'cases',
+  {
+    ...baseTable,
+    dueAt: d.timestamp({ withTimezone: true }),
+    goal: encryptedText().notNull(),
+    messageId: d.uuid().references(() => messages.id, { onDelete: 'set null' }),
+    next: encryptedText(),
+    /** The worker told the user about the proposal (`notifiedAt`) or the coming deadline (`remindedAt`), once each. */
+    notifiedAt: d.timestamp({ withTimezone: true }),
+    plannedAt: d.timestamp({ withTimezone: true }),
+    remindedAt: d.timestamp({ withTimezone: true }),
+    searches: encryptedJson<string[]>(),
+    status: d.text().$type<CaseStatus>().notNull(),
+    threadIds: d.text().array().notNull(),
+    title: encryptedText().notNull(),
+    userId: userId(),
+  },
+  (table) => [d.index('cases_user_status_idx').on(table.userId, table.status)]
+)
+
+export const caseItems = d.snakeCase.table(
+  'case_items',
+  {
+    ...baseTable,
+    caseId: d
+      .uuid()
+      .notNull()
+      .references(() => cases.id, { onDelete: 'cascade' }),
+    isTheirs: d.boolean().notNull(),
+    position: d.smallint().notNull(),
+    proof: encryptedText(),
+    source: encryptedJson<CaseSource>(),
+    state: d.text().$type<CaseItemState>().notNull(),
+    text: encryptedText().notNull(),
+  },
+  (table) => [d.index('case_items_case_idx').on(table.caseId)]
+)
+
+/** The emails of a case, from any thread: what the agent read to keep it current. */
+export const caseMail = d.snakeCase.table(
+  'case_mail',
+  {
+    caseId: d
+      .uuid()
+      .notNull()
+      .references(() => cases.id, { onDelete: 'cascade' }),
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    messageId: d
+      .uuid()
+      .notNull()
+      .references(() => messages.id, { onDelete: 'cascade' }),
+  },
+  (table) => [d.primaryKey({ columns: [table.caseId, table.messageId] })]
 )
 
 export const people = d.snakeCase.table(

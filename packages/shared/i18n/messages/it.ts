@@ -76,6 +76,9 @@ export const it: Messages = {
       edit_board_entry: 'Correggo la voce',
       remove_board_entry: 'Lo tolgo dalla bacheca',
       rename_board_group: 'Rinomino il gruppo',
+      list_cases: 'Controllo le pratiche',
+      start_case: 'Apro la pratica',
+      set_case_status: 'Aggiorno la pratica',
     },
     to: (recipients: string) => `A ${recipients}`,
     until: (time: string) => `Fino a ${time}`,
@@ -1871,6 +1874,34 @@ export const it: Messages = {
     issues: 'Tutte le edizioni',
     title: 'Lettura',
   },
+  cases: {
+    accept: 'Segui la pratica',
+    accepted: 'Pratica aperta. L’agente se ne occupa.',
+    close: 'Segna come completata',
+    decline: 'Non è una pratica',
+    declined: 'Ok, non è una pratica.',
+    drop: 'Abbandona la pratica',
+    dueBy: (d: string) => `entro il ${d}`,
+    emails: 'Email della pratica',
+    files: (n: number) => `File: ${n}`,
+    fromWeb: 'Dal web',
+    needed: 'Cosa serve',
+    next: 'Cosa fare adesso',
+    open: 'Apri la pratica',
+    partOf: (t: string) => `Parte della pratica «${t}»`,
+    planning: 'L’agente ci sta guardando…',
+    progress: (d: number, t: number) => `${d} di ${t}`,
+    proposed: 'Sembra una pratica',
+    reopen: 'Riapri',
+    reply: 'Risposta della pratica',
+    state: {
+      done: 'Fatto',
+      found: 'Nella tua posta',
+      needed: 'Serve',
+      waiting: 'In attesa di altri',
+    },
+    title: 'Pratiche',
+  },
   commitments: {
     title: 'Hai promesso',
   },
@@ -1900,6 +1931,8 @@ export const it: Messages = {
   upgrade: {
     ask: 'Chiedi alla tua posta',
     hints: {
+      cases:
+        'Parte di Fewmail Pro: quando un’email avvia una pratica in più passi, l’agente tiene traccia di cosa serve, trova i tuoi documenti e ti dice cosa fare adesso.',
       ask: 'Incluso in Fewmail Pro: chiedi qualsiasi cosa con parole tue e ricevi la risposta dalla tua posta.',
       boards:
         'Incluso in Fewmail Pro: descrivi cosa raccogliere e l’agente lo trova nella tua posta e lo tiene aggiornato.',

@@ -75,6 +75,9 @@ export const de: Messages = {
       edit_board_entry: 'Korrigiere den Eintrag',
       remove_board_entry: 'Entferne es vom Board',
       rename_board_group: 'Benenne die Gruppe um',
+      list_cases: 'Sehe die Vorgänge durch',
+      start_case: 'Lege den Vorgang an',
+      set_case_status: 'Aktualisiere den Vorgang',
     },
     to: (recipients: string) => `An ${recipients}`,
     until: (time: string) => `Bis ${time}`,
@@ -1875,6 +1878,34 @@ export const de: Messages = {
     issues: 'Alle Ausgaben',
     title: 'Lesen',
   },
+  cases: {
+    accept: 'Vorgang verfolgen',
+    accepted: 'Vorgang angelegt. Der Agent kümmert sich darum.',
+    close: 'Als erledigt markieren',
+    decline: 'Kein Vorgang',
+    declined: 'Verstanden, kein Vorgang.',
+    drop: 'Vorgang aufgeben',
+    dueBy: (d: string) => `bis ${d}`,
+    emails: 'E-Mails zum Vorgang',
+    files: (n: number) => `Dateien: ${n}`,
+    fromWeb: 'Aus dem Web',
+    needed: 'Was gebraucht wird',
+    next: 'Was jetzt zu tun ist',
+    open: 'Vorgang öffnen',
+    partOf: (t: string) => `Teil des Vorgangs „${t}“`,
+    planning: 'Der Agent sieht sich das an…',
+    progress: (d: number, t: number) => `${d} von ${t}`,
+    proposed: 'Sieht nach einem Vorgang aus',
+    reopen: 'Wieder öffnen',
+    reply: 'Antwort im Vorgang',
+    state: {
+      done: 'Erledigt',
+      found: 'In deiner Mail gefunden',
+      needed: 'Fehlt noch',
+      waiting: 'Wartet auf andere',
+    },
+    title: 'Vorgänge',
+  },
   commitments: {
     title: 'Du hast versprochen',
   },
@@ -1904,6 +1935,8 @@ export const de: Messages = {
   upgrade: {
     ask: 'Frag deine Mails',
     hints: {
+      cases:
+        'Teil von Fewmail Pro: Beginnt eine E-Mail einen Vorgang mit mehreren Schritten, behält der Agent im Blick, was nötig ist, findet deine Dokumente und sagt, was jetzt zu tun ist.',
       ask: 'Teil von Fewmail Pro: Frag alles in eigenen Worten und bekomm die Antwort aus deinen eigenen Mails.',
       boards:
         'Teil von Fewmail Pro: Beschreibe, was gesammelt werden soll, und der Agent findet es in deinen Mails und hält es aktuell.',

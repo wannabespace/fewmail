@@ -119,6 +119,9 @@ export const ja: Messages = {
       edit_board_entry: '項目を修正中',
       remove_board_entry: 'ボードから外し中',
       rename_board_group: 'グループ名を変更中',
+      list_cases: '案件を確認中',
+      start_case: '案件を開始中',
+      set_case_status: '案件を更新中',
     },
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
@@ -1798,6 +1801,34 @@ export const ja: Messages = {
     issues: 'すべての号',
     title: 'リーディング',
   },
+  cases: {
+    accept: 'この案件を進める',
+    accepted: '案件を開きました。エージェントが確認しています。',
+    close: '完了にする',
+    decline: '案件ではない',
+    declined: '了解しました。案件にはしません。',
+    drop: '案件をやめる',
+    dueBy: (d: string) => `${d}まで`,
+    emails: 'この案件のメール',
+    files: (n: number) => `ファイル: ${n}`,
+    fromWeb: 'ウェブから',
+    needed: '必要なもの',
+    next: '今やること',
+    open: '案件を開く',
+    partOf: (t: string) => `案件「${t}」の一部`,
+    planning: 'エージェントが確認中…',
+    progress: (d: number, t: number) => `${d} / ${t}`,
+    proposed: '案件のようです',
+    reopen: '再開',
+    reply: '案件の返信',
+    state: {
+      done: '完了',
+      found: 'メールにあります',
+      needed: '必要',
+      waiting: '相手待ち',
+    },
+    title: '案件',
+  },
   commitments: {
     title: 'あなたの約束',
   },
@@ -1827,6 +1858,8 @@ export const ja: Messages = {
   upgrade: {
     ask: 'メールに聞く',
     hints: {
+      cases:
+        'Fewmail Pro の機能：複数の手順が必要な案件がメールで始まると、エージェントが必要なものを管理し、書類を見つけ、今やることを伝えます。',
       ask: 'Fewmail Pro の機能です。普段の言葉で何でも質問すると、あなた自身のメールから答えが返ってきます。',
       boards:
         'Fewmail Pro の機能です。集めたいものを書くと、エージェントがメールから探し出し、最新の状態に保ちます。',
