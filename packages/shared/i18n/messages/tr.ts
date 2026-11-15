@@ -1055,16 +1055,20 @@ export const tr: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail, Gmail için bir yapay zekâ e-posta asistanıdır: her e-postayı önce kendisi okur, yanıtları senin üslubunla yazar ve sana yalnızca seni bekleyenleri gösterir. Ücretsiz başla.',
+      assistantTitle: 'Gmail için yapay zekâ e-posta asistanı',
       compare:
-        'Fewmail ile Superhuman, Shortwave ve SaneBox karşılaştırması: postanı senin yerine okuyan bir ajan, kendin daha hızlı okumanın bir yolu değil.',
-      home: 'Fewmail, Gmail için bir e-posta ajanıdır: her e-postayı okur, yanıtları senin üslubunla yazar ve sana yalnızca seni bekleyenleri gösterir.',
+        'Fewmail ile Superhuman, Shortwave ve SaneBox karşılaştırması: postanı senin yerine okuyan bir yapay zekâ ajanı, kendin daha hızlı okumanın bir yolu değil.',
+      compareTitle: 'Yapay zekâ e-posta asistanları karşılaştırması',
+      home: 'Fewmail, Gmail için yapay zekâ destekli bir e-posta asistanıdır: her e-postayı okur, yanıtları senin üslubunla yazar ve sana yalnızca seni bekleyenleri gösterir.',
       login:
         'Fewmail Gmail’ini senin yerine okur, senin üslubunla yanıtlar ve sana yalnızca gerçekten seni bekleyenleri gösterir.',
       mcp: 'Fewmail’i MCP sunucusu olarak Claude, ChatGPT, Claude Code veya Cursor’a bağla: Gmail’ini zaten kullandığın yapay zekâdan oku ve düzenle.',
       motto: 'gelen kutunda yalnızca önemli olan',
       pricing: (trialDays: number) =>
         `Fewmail Ana Sayfa, sıralama, kurallar ve spam koruması için sonsuza dek ücretsiz. Pro, ajanın tamamı, ${trialDays} ücretsiz günle ve kart olmadan başlar.`,
-      tagline: 'Gmail için e-posta ajanı',
+      tagline: 'Gmail için yapay zekâ e-posta ajanı',
     },
     chapters: {
       pricing: {
@@ -1111,6 +1115,70 @@ export const tr: Messages = {
           'Bunu mcp.json dosyana ekle, Cursor sorduğunda Fewmail’e giriş yap.',
       },
       title: 'Claude, ChatGPT ve araçlarının içinde Fewmail.',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            '“Uçağım ne zaman kalkıyor?” diye sor, yanıtı geldiği e-postalarla birlikte al: Fewmail’de, Telegram’da, WhatsApp’ta ya da Claude ve ChatGPT’de.',
+          title: 'Postandan yanıtlar',
+        },
+        drafts: {
+          description:
+            'Yanıtlar önceden, senin tonunla ve gönderenin dilinde yazılır; sen onaylayana kadar kuyruğunda bekler.',
+          title: 'Yanıtları senin üslubunla yazar',
+        },
+        protection: {
+          description:
+            'Değişen ödeme bilgileri, benzer alan adları ve bilinen dolandırıcılıklar, sen harekete geçmeden önce uyarı verir.',
+          title: 'Oltalamaya karşı uyarır',
+        },
+        reading: {
+          description:
+            'Günün bültenleri konulara göre tek bir özete dönüşür; her cümle geldiği e-postaya bağlanır.',
+          title: 'Bültenler tek bir özette',
+        },
+        rules: {
+          description:
+            'Bazı postalara ne olması gerektiğini tek cümleyle anlat, bir kurala dönüşsün. Yalnızca senin açtığın kurallar kendi başına çalışır.',
+          title: 'Sade sözlerle kurallar',
+        },
+        sorting: {
+          description:
+            'Her e-posta bir özet ve önem puanı alır; böylece acil olan öne çıkar, makbuzlar, bildirimler ve promosyonlar yoluna çıkmaz.',
+          title: 'Her e-postayı okur ve sıralar',
+        },
+      },
+      abilitiesDescription:
+        'Her şey zaten kullandığın Gmail’de olur ve ajanın yaptığı her şey nedeniyle birlikte kaydedilir.',
+      abilitiesLabel: 'Neler yapar',
+      abilitiesTitle: 'Bir asistan, yeni bir gelen kutusu değil.',
+      compareTitle: 'Diğer yapay zekâ e-posta araçlarıyla karşılaştırması.',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'E-postaları senin yerine okumak, sıralamak ve yanıtlamak için yapay zekâ kullanan bir yazılım. Çoğu, hâlâ kendin okuduğun bir gelen kutusuna yalnızca özetler ve yazma yardımı ekler. Fewmail daha ileri gider: her şeyi önce kendisi okur, böylece yalnızca seni bekleyenleri görürsün.',
+          question: 'Yapay zekâ e-posta asistanı nedir?',
+        },
+        {
+          answer:
+            'Fewmail konuları, içerikleri, özetleri ve taslakları veritabanında şifreler, postanı asla model eğitmek için kullanmaz ve onayın olmadan Gmail’de hiçbir şey göndermez ya da değiştirmez. İstediğin zaman bağlantısını kesip her şeyi silebilirsin.',
+          question: 'Yapay zekânın e-postalarımı okuması güvenli mi?',
+        },
+        {
+          answer:
+            'Yanıt taslaklarını senin için yazar ama asla kendi başına göndermez. Her taslak onayın için kuyruğunda bekler, benzer olanları birlikte onaylayabilirsin.',
+          question: 'E-postaları otomatik olarak yanıtlayabilir mi?',
+        },
+        {
+          answer: `Evet. Ücretsiz plan her e-postayı sıralar, seni bekleyenleri tek bir sayfada toplar, kurallarını çalıştırır ve seni spamdan ve oltalamadan korur, hem de sonsuza dek. Taslaklar, özetler ve ajanın geri kalanı ücretli planlarla gelir; her hesap kart gerekmeden ${trialDays} gün Pro ile başlar.`,
+          question:
+            'Gmail için ücretsiz bir yapay zekâ e-posta asistanı var mı?',
+        },
+      ],
+      faqTitle: 'Yapay zekâ e-posta asistanları hakkında.',
+      lead: 'Fewmail, Gmail’ine gelen her e-postayı geldiği anda okur, gürültüyü temizler, yanıtları senin üslubunla yazar ve sana yalnızca kararını bekleyen birkaç şeyi getirir. Onayın olmadan hiçbir şey gönderilmez ya da değiştirilmez.',
+      title: 'Gmail’ini senden önce okuyan yapay zekâ e-posta asistanı.',
     },
     comparePage: {
       lead: 'E-posta istemcileri her e-postayı daha hızlı okumanı sağlar. Filtreler postaları klasörlere taşır. Fewmail ise bir ajan: postaları okur, neyin bekleyebileceğine karar verir ve sana yalnızca gerisini sorar.',
@@ -1256,6 +1324,12 @@ export const tr: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          'Birçok yapay zekâ e-posta aracı sohbet kutulu yeni bir gelen kutusudur: her e-postayı yine sen okursun, sadece üstünde bir özetle. Fewmail, zaten kullandığın Gmail’in üzerinde çalışan bir yapay zekâ ajanı. Her e-postayı önce kendisi okur, yanıtları senin üslubunla yazar ve sana yalnızca seni bekleyen birkaç kararı getirir.',
+        question:
+          'Fewmail diğer yapay zekâ e-posta asistanlarından nasıl farklı?',
+      },
+      {
+        answer:
           'Hayır. Fewmail, Gmail’in üzerinde çalışır. Yaptığı her şey Gmail’de de görünür ve yanında istediğin Gmail uygulamasını kullanmaya devam edebilirsin.',
         question: 'Gmail’i bırakmam gerekiyor mu?',
       },
@@ -1341,7 +1415,7 @@ export const tr: Messages = {
       legal: 'Yasal',
       product: 'Ürün',
       tagline:
-        'Gmail’ini okuyan ve sana yalnızca seni bekleyenleri gösteren e-posta ajanı.',
+        'Gmail’ini okuyan ve sana yalnızca seni bekleyenleri gösteren yapay zekâ e-posta ajanı.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1399,7 +1473,7 @@ export const tr: Messages = {
         ' halledildi, her biri nedeniyle',
       ]) as Rich<'count'>,
       inbox: 'Gelen kutusu',
-      lead: 'Bültenler, makbuzlar, bildirimler, bir oltalama bağlantısı ve bir yerlerde gerçekten önemli olan üç e-posta. Fewmail, hepsini senin yerine okuyan ajan.',
+      lead: 'Bültenler, makbuzlar, bildirimler, bir oltalama bağlantısı ve bir yerlerde gerçekten önemli olan üç e-posta. Fewmail, hepsini senin yerine okuyan yapay zekâ ajanı.',
       needYou: ((slots) => [slots.count, ' seni bekliyor']) as Rich<'count'>,
       queue: [
         {
@@ -1438,6 +1512,7 @@ export const tr: Messages = {
       willDo: 'Fewmail ne yapacak',
     },
     nav: {
+      assistant: 'Yapay zekâ e-posta asistanı',
       compare: 'Karşılaştır',
       features: 'Özellikler',
       mcp: 'MCP sunucusu',

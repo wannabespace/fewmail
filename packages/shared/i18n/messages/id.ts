@@ -1057,16 +1057,20 @@ export const id: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail adalah asisten email AI untuk Gmail yang membaca setiap email lebih dulu, menulis draf balasan dengan gayamu, dan hanya menunjukkan yang butuh kamu. Gratis untuk mulai.',
+      assistantTitle: 'Asisten email AI untuk Gmail',
       compare:
-        'Perbandingan Fewmail dengan Superhuman, Shortwave, dan SaneBox: agen yang membaca email untukmu, bukan cara lebih cepat untuk membacanya sendiri.',
-      home: 'Fewmail adalah agen email untuk Gmail: membaca setiap email, menulis draf balasan dengan gayamu, dan hanya menunjukkan yang butuh kamu.',
+        'Perbandingan Fewmail dengan Superhuman, Shortwave, dan SaneBox: agen AI yang membaca email untukmu, bukan cara lebih cepat untuk membacanya sendiri.',
+      compareTitle: 'Perbandingan asisten email AI',
+      home: 'Fewmail adalah asisten email AI untuk Gmail: membaca setiap email, menulis draf balasan dengan gayamu, dan hanya menunjukkan yang butuh kamu.',
       login:
         'Fewmail membaca Gmail-mu untukmu, membalas dengan gayamu, dan hanya menunjukkan yang benar-benar butuh kamu.',
       mcp: 'Hubungkan Fewmail ke Claude, ChatGPT, Claude Code, atau Cursor sebagai server MCP: baca dan pilah Gmail dari AI yang sudah kamu pakai.',
       motto: 'hanya yang penting di kotak masukmu',
       pricing: (trialDays: number) =>
         `Fewmail gratis selamanya untuk Beranda, memilah, aturan, dan perlindungan spam. Pro, agen lengkapnya, dimulai dengan ${trialDays} hari gratis tanpa kartu.`,
-      tagline: 'agen email untuk Gmail',
+      tagline: 'agen email AI untuk Gmail',
     },
     chapters: {
       pricing: {
@@ -1114,6 +1118,69 @@ export const id: Messages = {
           'Tambahkan ini ke mcp.json-mu, lalu masuk ke Fewmail saat Cursor meminta.',
       },
       title: 'Fewmail di dalam Claude, ChatGPT, dan alatmu.',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            'Tanyakan “kapan pesawatku berangkat?” dan dapatkan jawabannya beserta email asalnya, di Fewmail, Telegram, atau WhatsApp, atau dari Claude dan ChatGPT.',
+          title: 'Jawaban dari emailmu',
+        },
+        drafts: {
+          description:
+            'Balasan ditulis lebih dulu, dengan gayamu dan dalam bahasa pengirim, lalu menunggu di antreanmu sampai kamu menyetujuinya.',
+          title: 'Menulis draf balasan dengan gayamu',
+        },
+        protection: {
+          description:
+            'Detail rekening yang berubah, domain tiruan, dan penipuan yang sudah dikenal memunculkan peringatan sebelum kamu bertindak.',
+          title: 'Memperingatkan soal phishing',
+        },
+        reading: {
+          description:
+            'Newsletter hari ini menjadi satu ringkasan per topik, tiap kalimat tertaut ke email asalnya.',
+          title: 'Newsletter dalam satu ringkasan',
+        },
+        rules: {
+          description:
+            'Jelaskan dalam satu kalimat apa yang harus terjadi pada email tertentu, dan itu menjadi aturan. Hanya aturan yang kamu nyalakan yang bertindak sendiri.',
+          title: 'Aturan dengan kata-kata biasa',
+        },
+        sorting: {
+          description:
+            'Setiap email mendapat ringkasan dan skor kepentingan, jadi yang mendesak naik ke atas, sementara struk, notifikasi, dan promosi tidak menghalangimu.',
+          title: 'Membaca dan memilah setiap email',
+        },
+      },
+      abilitiesDescription:
+        'Semuanya terjadi di Gmail yang sudah kamu pakai, dan setiap tindakan agen dicatat beserta alasannya.',
+      abilitiesLabel: 'Yang dilakukannya',
+      abilitiesTitle: 'Asisten, bukan kotak masuk baru.',
+      compareTitle: 'Dibandingkan dengan alat email AI lainnya.',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'Perangkat lunak yang memakai AI untuk membaca, memilah, dan membalas email untukmu. Kebanyakan hanya menambahkan ringkasan dan bantuan menulis ke kotak masuk yang tetap kamu baca sendiri. Fewmail melangkah lebih jauh: ia membaca semuanya lebih dulu, jadi kamu hanya melihat yang butuh kamu.',
+          question: 'Apa itu asisten email AI?',
+        },
+        {
+          answer:
+            'Fewmail mengenkripsi subjek, isi, ringkasan, dan draf di database-nya, tidak pernah memakai emailmu untuk melatih model, dan tidak pernah mengirim atau mengubah apa pun di Gmail tanpa persetujuanmu. Kamu bisa memutuskannya dan menghapus semuanya kapan saja.',
+          question: 'Apakah aman membiarkan AI membaca emailku?',
+        },
+        {
+          answer:
+            'Ia menuliskan drafnya untukmu, tetapi tidak pernah mengirim satu pun sendiri. Setiap draf menunggu persetujuanmu di antrean, dan draf yang mirip bisa disetujui sekaligus.',
+          question: 'Bisakah ia membalas email secara otomatis?',
+        },
+        {
+          answer: `Ada. Paket Gratis memilah setiap email, mengumpulkan yang butuh kamu di satu halaman, menjalankan aturanmu, dan melindungimu dari spam dan phishing, selamanya. Draf, ringkasan, dan bagian agen lainnya ada di paket berbayar, dan setiap akun dimulai dengan ${trialDays} hari Pro, tanpa kartu.`,
+          question: 'Adakah asisten email AI gratis untuk Gmail?',
+        },
+      ],
+      faqTitle: 'Seputar asisten email AI.',
+      lead: 'Fewmail membaca setiap email di Gmail-mu begitu tiba, menyingkirkan yang tidak penting, menulis draf balasan dengan gayamu, dan hanya membawa beberapa hal yang butuh keputusanmu. Tidak ada yang dikirim atau diubah tanpa persetujuanmu.',
+      title: 'Asisten email AI yang membaca Gmail-mu lebih dulu.',
     },
     comparePage: {
       lead: 'Aplikasi email membuatmu lebih cepat membaca setiap email. Filter memindahkan email ke folder. Fewmail adalah agen: ia membaca email, memutuskan apa yang bisa menunggu, dan hanya bertanya padamu soal sisanya.',
@@ -1259,6 +1326,11 @@ export const id: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          'Banyak alat email AI hanyalah kotak masuk baru dengan kolom chat: kamu tetap membaca setiap email, hanya dengan ringkasan di atasnya. Fewmail adalah agen AI di atas Gmail yang sudah kamu pakai. Ia membaca setiap email lebih dulu, menulis draf balasan dengan gayamu, dan hanya membawa beberapa keputusan yang butuh kamu.',
+        question: 'Apa bedanya Fewmail dengan asisten email AI lainnya?',
+      },
+      {
+        answer:
           'Tidak. Fewmail bekerja di atas Gmail. Semua yang dilakukannya juga terlihat di Gmail, dan kamu tetap bisa memakai aplikasi Gmail mana pun bersamaan.',
         question: 'Apakah aku harus meninggalkan Gmail?',
       },
@@ -1344,7 +1416,7 @@ export const id: Messages = {
       legal: 'Legal',
       product: 'Produk',
       tagline:
-        'Agen email yang membaca Gmail-mu dan hanya menampilkan yang butuh kamu.',
+        'Agen email AI yang membaca Gmail-mu dan hanya menampilkan yang butuh kamu.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1402,7 +1474,7 @@ export const id: Messages = {
         ' ditangani, masing-masing dengan alasannya',
       ]) as Rich<'count'>,
       inbox: 'Kotak masuk',
-      lead: 'Newsletter, struk, notifikasi, sebuah tautan phishing, dan di antaranya, tiga email yang benar-benar penting. Fewmail adalah agen yang membaca semuanya untukmu.',
+      lead: 'Newsletter, struk, notifikasi, sebuah tautan phishing, dan di antaranya, tiga email yang benar-benar penting. Fewmail adalah agen AI yang membaca semuanya untukmu.',
       needYou: ((slots) => [slots.count, ' butuh kamu']) as Rich<'count'>,
       queue: [
         {
@@ -1440,6 +1512,7 @@ export const id: Messages = {
       willDo: 'Yang akan dilakukan Fewmail',
     },
     nav: {
+      assistant: 'Asisten email AI',
       compare: 'Bandingkan',
       features: 'Fitur',
       mcp: 'Server MCP',

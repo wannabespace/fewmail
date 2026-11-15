@@ -1108,16 +1108,20 @@ export const pl: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail to asystent poczty AI dla Gmaila, który najpierw czyta każdy e-mail, pisze odpowiedzi twoim głosem i pokazuje tylko to, co wymaga ciebie. Na start za darmo.',
+      assistantTitle: 'Asystent poczty AI dla Gmaila',
       compare:
-        'Fewmail w porównaniu z Superhuman, Shortwave i SaneBox: agent, który czyta pocztę za ciebie, zamiast szybszego sposobu, by czytać ją samemu.',
-      home: 'Fewmail to agent poczty dla Gmaila: czyta każdy e-mail, pisze odpowiedzi twoim głosem i pokazuje tylko to, co wymaga ciebie.',
+        'Fewmail w porównaniu z Superhuman, Shortwave i SaneBox: agent AI, który czyta pocztę za ciebie, zamiast szybszego sposobu, by czytać ją samemu.',
+      compareTitle: 'Porównanie asystentów poczty AI',
+      home: 'Fewmail to asystent poczty AI dla Gmaila: czyta każdy e-mail, pisze odpowiedzi twoim głosem i pokazuje tylko to, co wymaga ciebie.',
       login:
         'Fewmail czyta twojego Gmaila za ciebie, odpowiada twoim głosem i pokazuje tylko to, co naprawdę wymaga ciebie.',
       mcp: 'Połącz Fewmail z Claude, ChatGPT, Claude Code lub Cursorem jako serwer MCP: czytaj i porządkuj Gmaila z AI, której już używasz.',
       motto: 'tylko to, co ważne w twojej skrzynce',
       pricing: (trialDays: number) =>
         `Fewmail jest na zawsze darmowy do strony głównej, sortowania, reguł i ochrony przed spamem. Pro, cały agent, zaczyna się od ${trialDays} darmowych dni bez karty.`,
-      tagline: 'agent poczty dla Gmaila',
+      tagline: 'agent poczty AI dla Gmaila',
     },
     chapters: {
       pricing: {
@@ -1164,6 +1168,69 @@ export const pl: Messages = {
           'Dodaj to do mcp.json, potem zaloguj się do Fewmail, gdy Cursor poprosi.',
       },
       title: 'Fewmail w Claude, ChatGPT i twoich narzędziach.',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            'Zapytaj „o której mam lot?” i dostań odpowiedź razem z mailami, z których pochodzi: w Fewmail, na Telegramie lub WhatsAppie albo w Claude i ChatGPT.',
+          title: 'Odpowiedzi z twojej poczty',
+        },
+        drafts: {
+          description:
+            'Odpowiedzi powstają z wyprzedzeniem, twoim tonem i w języku nadawcy, i czekają w kolejce, aż je zatwierdzisz.',
+          title: 'Pisze odpowiedzi twoim głosem',
+        },
+        protection: {
+          description:
+            'Zmienione dane do płatności, podszywające się domeny i znane oszustwa wywołują ostrzeżenie, zanim cokolwiek zrobisz.',
+          title: 'Ostrzega przed phishingiem',
+        },
+        reading: {
+          description:
+            'Newslettery z całego dnia stają się jednym podsumowaniem według tematów, a każde zdanie prowadzi do maila, z którego pochodzi.',
+          title: 'Newslettery w jednym podsumowaniu',
+        },
+        rules: {
+          description:
+            'Opisz jednym zdaniem, co ma się dziać z częścią poczty, a stanie się to regułą. Same działają tylko reguły, które włączysz.',
+          title: 'Reguły zwykłymi słowami',
+        },
+        sorting: {
+          description:
+            'Każdy e-mail dostaje streszczenie i ocenę ważności, więc pilne sprawy wypływają na wierzch, a paragony, powiadomienia i promocje nie wchodzą ci w drogę.',
+          title: 'Czyta i sortuje każdy e-mail',
+        },
+      },
+      abilitiesDescription:
+        'Wszystko dzieje się w Gmailu, którego już używasz, a każde działanie agenta jest zapisane razem z powodem.',
+      abilitiesLabel: 'Co robi',
+      abilitiesTitle: 'Asystent, a nie kolejna skrzynka.',
+      compareTitle: 'Jak wypada na tle innych narzędzi pocztowych z AI.',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'To oprogramowanie, które z pomocą AI czyta, sortuje i odpowiada na maile za ciebie. Większość tylko dodaje streszczenia i pomoc w pisaniu do skrzynki, którą nadal czytasz sam. Fewmail idzie dalej: najpierw czyta wszystko, więc widzisz tylko to, co wymaga ciebie.',
+          question: 'Czym jest asystent poczty AI?',
+        },
+        {
+          answer:
+            'Fewmail szyfruje tematy, treści, streszczenia i szkice w swojej bazie danych, nigdy nie używa twojej poczty do trenowania modeli i nigdy niczego nie wysyła ani nie zmienia w Gmailu bez twojego „tak”. W każdej chwili możesz go odłączyć i usunąć wszystko.',
+          question: 'Czy bezpiecznie jest pozwolić AI czytać moją pocztę?',
+        },
+        {
+          answer:
+            'Pisze dla ciebie szkice, ale nigdy nie wysyła ich sam. Każdy szkic czeka w kolejce na twoją zgodę, a podobne możesz zatwierdzić razem.',
+          question: 'Czy może odpowiadać na maile automatycznie?',
+        },
+        {
+          answer: `Tak. Plan Free sortuje każdy e-mail, zbiera na jednej stronie to, co wymaga ciebie, wykonuje twoje reguły i chroni przed spamem i phishingiem, na zawsze. Szkice, streszczenia i reszta agenta są w płatnych planach, a każde konto zaczyna od ${trialDays} dni Pro, bez karty.`,
+          question: 'Czy istnieje darmowy asystent poczty AI dla Gmaila?',
+        },
+      ],
+      faqTitle: 'O asystentach poczty AI.',
+      lead: 'Fewmail czyta każdy e-mail w twoim Gmailu, gdy tylko przyjdzie, usuwa szum, pisze odpowiedzi twoim głosem i przynosi ci tylko te kilka spraw, które wymagają twojej decyzji. Nic nie zostaje wysłane ani zmienione bez twojego „tak”.',
+      title: 'Asystent poczty AI, który pierwszy czyta twojego Gmaila.',
     },
     comparePage: {
       lead: 'Klienty poczty sprawiają, że szybciej czytasz każdy e-mail. Filtry przenoszą pocztę do folderów. Fewmail jest agentem: czyta pocztę, decyduje, co może poczekać, i pyta cię tylko o resztę.',
@@ -1310,6 +1377,11 @@ export const pl: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          'Wiele narzędzi pocztowych z AI to nowa skrzynka z czatem: nadal czytasz każdy e-mail, tylko ze streszczeniem na górze. Fewmail to agent AI działający na Gmailu, którego już używasz. Najpierw czyta każdy e-mail, pisze odpowiedzi twoim głosem i przynosi ci tylko te kilka decyzji, które wymagają ciebie.',
+        question: 'Czym Fewmail różni się od innych asystentów poczty AI?',
+      },
+      {
+        answer:
           'Nie. Fewmail działa na Gmailu. Wszystko, co robi, widać też w Gmailu, a obok możesz dalej używać dowolnej aplikacji Gmail.',
         question: 'Czy muszę rezygnować z Gmaila?',
       },
@@ -1395,7 +1467,7 @@ export const pl: Messages = {
       legal: 'Informacje prawne',
       product: 'Produkt',
       tagline:
-        'Agent poczty, który czyta twojego Gmaila i pokazuje tylko to, co wymaga twojej uwagi.',
+        'Agent poczty AI, który czyta twojego Gmaila i pokazuje tylko to, co wymaga twojej uwagi.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1454,7 +1526,7 @@ export const pl: Messages = {
         ', każde z powodem',
       ]) as Rich<'count'>,
       inbox: 'Odebrane',
-      lead: 'Newslettery, paragony, powiadomienia, link phishingowy i gdzieś pomiędzy nimi trzy maile, które naprawdę się liczą. Fewmail to agent, który czyta to wszystko za ciebie.',
+      lead: 'Newslettery, paragony, powiadomienia, link phishingowy i gdzieś pomiędzy nimi trzy maile, które naprawdę się liczą. Fewmail to agent AI, który czyta to wszystko za ciebie.',
       needYou: ((slots) => ['Czeka na ciebie: ', slots.count]) as Rich<'count'>,
       queue: [
         {
@@ -1492,6 +1564,7 @@ export const pl: Messages = {
       willDo: 'Fewmail zrobi',
     },
     nav: {
+      assistant: 'Asystent poczty AI',
       compare: 'Porównanie',
       features: 'Funkcje',
       mcp: 'Serwer MCP',

@@ -775,16 +775,20 @@ export const ja: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail は Gmail のための AI メールアシスタントです。すべてのメールを先に読み、あなたらしい返信を下書きし、あなたが必要なものだけを見せます。無料で始められます。',
+      assistantTitle: 'Gmail のための AI メールアシスタント',
       compare:
-        'Fewmail と Superhuman、Shortwave、SaneBox の比較：自分で速く読むための道具ではなく、代わりにメールを読むエージェントです。',
-      home: 'Fewmail は Gmail のためのメールエージェントです。すべてのメールを読み、あなたらしい返信を下書きし、あなたが必要なものだけを見せます。',
+        'Fewmail と Superhuman、Shortwave、SaneBox の比較：自分で速く読むための道具ではなく、代わりにメールを読む AI エージェントです。',
+      compareTitle: 'AI メールアシスタントの比較',
+      home: 'Fewmail は Gmail のための AI メールアシスタントです。すべてのメールを読み、あなたらしい返信を下書きし、あなたが必要なものだけを見せます。',
       login:
         'Fewmail はあなたの代わりに Gmail を読み、あなたらしく返信し、本当にあなたが必要なものだけを見せます。',
       mcp: 'Fewmail を MCP サーバーとして Claude、ChatGPT、Claude Code、Cursor に接続し、使い慣れた AI から Gmail を読んで整理できます。',
       motto: '受信トレイの大事なことだけ',
       pricing: (trialDays: number) =>
         `Fewmail のホーム、仕分け、ルール、スパム対策はずっと無料。エージェントのすべてが使える Pro は、カード不要の ${trialDays} 日間無料から始められます。`,
-      tagline: 'Gmail のためのメールエージェント',
+      tagline: 'Gmail のための AI メールエージェント',
     },
     chapters: {
       pricing: {
@@ -831,6 +835,69 @@ export const ja: Messages = {
           'これを mcp.json に追加し、Cursor に求められたら Fewmail にサインインします。',
       },
       title: 'Claude、ChatGPT、いつものツールの中に Fewmail を。',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            '「フライトは何時に出発？」と聞けば、もとのメールと一緒に答えが返ってきます。Fewmail、Telegram、WhatsApp でも、Claude や ChatGPT からでも。',
+          title: 'メールから答える',
+        },
+        drafts: {
+          description:
+            '返信は前もって、あなたの口調で、送信者の言語で書かれ、あなたが承認するまでキューで待ちます。',
+          title: 'あなたらしい返信を下書き',
+        },
+        protection: {
+          description:
+            '振込先の変更、なりすましドメイン、既知の詐欺には、あなたが動く前に警告を出します。',
+          title: 'フィッシングを警告',
+        },
+        reading: {
+          description:
+            'その日のメルマガを、トピックごとの 1 つの要約に。各文にはもとのメールへのリンクがつきます。',
+          title: 'メルマガを 1 つの要約に',
+        },
+        rules: {
+          description:
+            '一部のメールをどうしたいか一文で書けば、それがルールになります。自動で動くのは、あなたがオンにしたルールだけです。',
+          title: '普段の言葉で書くルール',
+        },
+        sorting: {
+          description:
+            'すべてのメールに要約と重要度のスコアがつくので、急ぎのものが上に来て、領収書、通知、プロモーションは邪魔になりません。',
+          title: 'すべてのメールを読んで仕分け',
+        },
+      },
+      abilitiesDescription:
+        'すべてはいつもの Gmail の中で行われ、エージェントがしたことはひとつ残らず理由とともに記録されます。',
+      abilitiesLabel: 'できること',
+      abilitiesTitle: '新しい受信トレイではなく、アシスタント。',
+      compareTitle: 'ほかの AI メールツールとの比較。',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'AI を使って、あなたの代わりにメールを読み、仕分け、返信するソフトウェアです。多くは、結局自分で読む受信トレイに要約や文章作成の手助けを加えるだけ。Fewmail はさらに先へ進み、先にすべてを読むので、あなたは必要なものだけを見れば済みます。',
+          question: 'AI メールアシスタントとは？',
+        },
+        {
+          answer:
+            'Fewmail は件名、本文、要約、下書きをデータベース内で暗号化し、あなたのメールをモデルの学習に使うことはなく、あなたの承認なしに Gmail で何かを送信・変更することもありません。いつでも接続を解除し、すべてを削除できます。',
+          question: 'AI にメールを読ませても安全ですか？',
+        },
+        {
+          answer:
+            '返信を下書きしますが、自分から送信することはありません。下書きはすべてキューであなたの承認を待ち、似たものはまとめて承認できます。',
+          question: 'メールに自動で返信できますか？',
+        },
+        {
+          answer: `あります。Free プランでは、すべてのメールの仕分け、あなたが必要なものを 1 ページにまとめる表示、ルールの実行、迷惑メールとフィッシングからの保護がずっと使えます。下書き、要約などエージェントのほかの機能は有料プランで使え、どのアカウントもカード不要の Pro ${trialDays} 日間から始まります。`,
+          question: 'Gmail で使える無料の AI メールアシスタントはありますか？',
+        },
+      ],
+      faqTitle: 'AI メールアシスタントについて。',
+      lead: 'Fewmail は Gmail に届くメールを届いたそばからすべて読み、ノイズを片付け、あなたらしい返信を下書きし、あなたの判断が必要な数件だけを届けます。あなたの承認なしに送信や変更が行われることはありません。',
+      title: 'あなたの Gmail を先に読む AI メールアシスタント。',
     },
     comparePage: {
       lead: 'メールクライアントは、すべてのメールを速く読めるようにします。フィルターは、メールをフォルダに振り分けます。Fewmail はエージェントです。メールを読み、後回しにできるものを判断し、それ以外だけをあなたに尋ねます。',
@@ -975,6 +1042,11 @@ export const ja: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          '多くの AI メールツールは、チャット欄のついた新しい受信トレイです。結局すべてのメールを自分で読み、上に要約がつくだけです。Fewmail は、いま使っている Gmail の上で動く AI エージェントです。先にすべてのメールを読み、あなたらしい返信を下書きし、あなたが決めるべき数件だけを届けます。',
+        question: 'Fewmail はほかの AI メールアシスタントと何が違いますか？',
+      },
+      {
+        answer:
           'いいえ。Fewmail は Gmail の上で動きます。行ったことはすべて Gmail にも反映され、普段の Gmail アプリもそのまま併用できます。',
         question: 'Gmail から乗り換える必要はありますか？',
       },
@@ -1060,7 +1132,7 @@ export const ja: Messages = {
       legal: '法的情報',
       product: 'プロダクト',
       tagline:
-        'Gmail を読んで、あなたが必要なものだけを見せるメールエージェント。',
+        'Gmail を読んで、あなたが必要なものだけを見せる AI メールエージェント。',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1119,7 +1191,7 @@ export const ja: Messages = {
         ' 件、すべて理由つき',
       ]) as Rich<'count'>,
       inbox: '受信トレイ',
-      lead: 'メルマガ、レシート、通知、フィッシングリンク。そしてそのどこかに、本当に大事な 3 通のメール。Fewmail は、そのすべてをあなたの代わりに読むエージェントです。',
+      lead: 'メルマガ、レシート、通知、フィッシングリンク。そしてそのどこかに、本当に大事な 3 通のメール。Fewmail は、そのすべてをあなたの代わりに読む AI エージェントです。',
       needYou: ((slots) => [
         'あなたの判断が必要 ',
         slots.count,
@@ -1162,6 +1234,7 @@ export const ja: Messages = {
       willDo: 'Fewmail がすること',
     },
     nav: {
+      assistant: 'AI メールアシスタント',
       compare: '比較',
       features: '機能',
       mcp: 'MCP サーバー',

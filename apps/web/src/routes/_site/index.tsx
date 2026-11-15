@@ -1,10 +1,4 @@
 import { PRICE_USD } from '@fewmail/shared/agent'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@fewmail/ui/components/accordion'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   CleanIcon,
@@ -31,6 +25,7 @@ import {
   Chapter,
   Closing,
   CONTAINER,
+  Faq,
   FeatureGrid,
   PlanTable,
   Reveal,
@@ -111,16 +106,7 @@ const LandingPage = () => {
         <PlanTable />
       </Chapter>
       <Chapter {...chapters.questions}>
-        <Reveal className="mt-12 max-w-3xl">
-          <Accordion>
-            {t.faq(TRIAL_DAYS).map(({ answer, question }) => (
-              <AccordionItem key={question} value={question}>
-                <AccordionTrigger>{question}</AccordionTrigger>
-                <AccordionContent>{answer}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </Reveal>
+        <Faq items={t.faq(TRIAL_DAYS)} />
       </Chapter>
       <Closing />
     </>

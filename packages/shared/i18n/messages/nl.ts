@@ -1084,16 +1084,20 @@ export const nl: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail is een AI-e-mailassistent voor Gmail die eerst elke mail leest, antwoorden schrijft in jouw stijl en je alleen laat zien wat jou nodig heeft. Gratis om mee te beginnen.',
+      assistantTitle: 'AI-e-mailassistent voor Gmail',
       compare:
-        'Fewmail vergeleken met Superhuman, Shortwave en SaneBox: een agent die je mail leest in plaats van een snellere manier om hem zelf te lezen.',
-      home: 'Fewmail is een e-mailagent voor Gmail: hij leest elke mail, schrijft antwoorden in jouw stijl en laat je alleen zien wat jou nodig heeft.',
+        'Fewmail vergeleken met Superhuman, Shortwave en SaneBox: een AI-agent die je mail leest in plaats van een snellere manier om hem zelf te lezen.',
+      compareTitle: 'AI-e-mailassistenten vergeleken',
+      home: 'Fewmail is een AI-e-mailassistent voor Gmail: hij leest elke mail, schrijft antwoorden in jouw stijl en laat je alleen zien wat jou nodig heeft.',
       login:
         'Fewmail leest je Gmail voor je, antwoordt in jouw stijl en laat je alleen zien wat jou echt nodig heeft.',
       mcp: 'Koppel Fewmail als MCP-server aan Claude, ChatGPT, Claude Code of Cursor: lees en sorteer je Gmail vanuit de AI die je al gebruikt.',
       motto: 'alleen wat telt in je inbox',
       pricing: (trialDays: number) =>
         `Fewmail is voor altijd gratis voor Home, sorteren, regels en spambescherming. Pro, de hele agent, begint met ${trialDays} gratis dagen en zonder kaart.`,
-      tagline: 'de e-mailagent voor Gmail',
+      tagline: 'de AI-e-mailagent voor Gmail',
     },
     chapters: {
       pricing: {
@@ -1141,6 +1145,69 @@ export const nl: Messages = {
           'Zet dit in je mcp.json en log in bij Fewmail als Cursor erom vraagt.',
       },
       title: 'Fewmail in Claude, ChatGPT en je tools.',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            'Vraag “hoe laat vertrekt mijn vlucht?” en krijg het antwoord met de mails waar het vandaan komt, in Fewmail, Telegram of WhatsApp, of vanuit Claude en ChatGPT.',
+          title: 'Antwoorden uit je mail',
+        },
+        drafts: {
+          description:
+            'Antwoorden worden van tevoren geschreven, in jouw toon en in de taal van de afzender, en wachten in je wachtrij tot je ze goedkeurt.',
+          title: 'Schrijft antwoorden in jouw stijl',
+        },
+        protection: {
+          description:
+            'Gewijzigde betaalgegevens, nagemaakte domeinen en bekende oplichting geven een waarschuwing voordat je iets doet.',
+          title: 'Waarschuwt voor phishing',
+        },
+        reading: {
+          description:
+            'De nieuwsbrieven van de dag worden één samenvatting per onderwerp, met elke zin gekoppeld aan de mail waar hij vandaan komt.',
+          title: 'Nieuwsbrieven in één samenvatting',
+        },
+        rules: {
+          description:
+            'Beschrijf in één zin wat er met bepaalde mail moet gebeuren en het wordt een regel. Alleen de regels die jij aanzet, doen zelf iets.',
+          title: 'Regels in gewone woorden',
+        },
+        sorting: {
+          description:
+            'Elke mail krijgt een samenvatting en een belangrijkheidsscore, zodat wat dringend is bovenaan komt en bonnetjes, meldingen en aanbiedingen je niet in de weg zitten.',
+          title: 'Leest en sorteert elke mail',
+        },
+      },
+      abilitiesDescription:
+        'Alles gebeurt in de Gmail die je al gebruikt, en alles wat de agent doet, wordt vastgelegd met de reden erbij.',
+      abilitiesLabel: 'Wat hij doet',
+      abilitiesTitle: 'Een assistent, geen extra inbox.',
+      compareTitle: 'Zo verhoudt hij zich tot andere AI-mailtools.',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'Software die met AI e-mail voor je leest, sorteert en beantwoordt. De meeste voegen samenvattingen en schrijfhulp toe aan een inbox die je nog steeds zelf leest. Fewmail gaat verder: het leest eerst alles, zodat jij alleen ziet wat jou nodig heeft.',
+          question: 'Wat is een AI-e-mailassistent?',
+        },
+        {
+          answer:
+            'Fewmail versleutelt onderwerpen, inhoud, samenvattingen en concepten in zijn database, gebruikt je mail nooit om modellen te trainen en verstuurt of wijzigt nooit iets in Gmail zonder je ja. Je kunt het op elk moment ontkoppelen en alles laten verwijderen.',
+          question: 'Is het veilig om AI je e-mail te laten lezen?',
+        },
+        {
+          answer:
+            'Het schrijft concepten voor je, maar verstuurt er nooit zelf een. Elk concept wacht in je wachtrij op je goedkeuring, en vergelijkbare kun je in één keer goedkeuren.',
+          question: 'Kan het automatisch e-mails beantwoorden?',
+        },
+        {
+          answer: `Ja. Het gratis abonnement sorteert elke mail, zet wat jou nodig heeft op één pagina, voert je regels uit en beschermt je tegen spam en phishing, voor altijd. Concepten, samenvattingen en de rest van de agent komen met de betaalde abonnementen, en elk account begint met ${trialDays} dagen Pro, zonder kaart.`,
+          question: 'Bestaat er een gratis AI-e-mailassistent voor Gmail?',
+        },
+      ],
+      faqTitle: 'Over AI-e-mailassistenten.',
+      lead: 'Fewmail leest elke mail in je Gmail zodra hij binnenkomt, ruimt de ruis op, schrijft antwoorden in jouw stijl en brengt je alleen de paar dingen waarover jij moet beslissen. Niets wordt verstuurd of gewijzigd zonder je ja.',
+      title: 'De AI-e-mailassistent die je Gmail als eerste leest.',
     },
     comparePage: {
       lead: 'Mailprogramma’s maken je sneller in het lezen van elke e-mail. Filters verplaatsen mail naar mappen. Fewmail is een agent: het leest je mail, beslist wat kan wachten en vraagt jou alleen naar de rest.',
@@ -1286,6 +1353,11 @@ export const nl: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          'Veel AI-mailtools zijn een nieuwe inbox met een chatvenster: je leest nog steeds elke mail, alleen met een samenvatting erboven. Fewmail is een AI-agent bovenop de Gmail die je al gebruikt. Hij leest eerst elke mail, schrijft antwoorden in jouw stijl en brengt je alleen de paar beslissingen die jou nodig hebben.',
+        question: 'Wat maakt Fewmail anders dan andere AI-e-mailassistenten?',
+      },
+      {
+        answer:
           'Nee. Fewmail werkt bovenop Gmail. Alles wat het doet, zie je ook in Gmail, en je kunt elke Gmail-app ernaast blijven gebruiken.',
         question: 'Moet ik weg bij Gmail?',
       },
@@ -1371,7 +1443,7 @@ export const nl: Messages = {
       legal: 'Juridisch',
       product: 'Product',
       tagline:
-        'De e-mailagent die je Gmail leest en je alleen laat zien wat jou nodig heeft.',
+        'De AI-e-mailagent die je Gmail leest en je alleen laat zien wat jou nodig heeft.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1429,7 +1501,7 @@ export const nl: Messages = {
         ' afgehandeld, elk met een reden',
       ]) as Rich<'count'>,
       inbox: 'Inbox',
-      lead: 'Nieuwsbrieven, bonnetjes, meldingen, een phishinglink en, ergens daartussen, de drie e-mails die er echt toe doen. Fewmail is de agent die het allemaal voor je leest.',
+      lead: 'Nieuwsbrieven, bonnetjes, meldingen, een phishinglink en, ergens daartussen, de drie e-mails die er echt toe doen. Fewmail is de AI-agent die het allemaal voor je leest.',
       needYou: ((slots) => [slots.count, ' hebben jou nodig']) as Rich<'count'>,
       queue: [
         {
@@ -1467,6 +1539,7 @@ export const nl: Messages = {
       willDo: 'Wat Fewmail doet',
     },
     nav: {
+      assistant: 'AI-e-mailassistent',
       compare: 'Vergelijken',
       features: 'Functies',
       mcp: 'MCP-server',

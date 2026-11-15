@@ -751,15 +751,19 @@ export const zh: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail 是 Gmail 的 AI 邮件助手：先替你读完每一封邮件，用你的口吻起草回复，只把需要你的事给你看。可免费开始使用。',
+      assistantTitle: 'Gmail 的 AI 邮件助手',
       compare:
-        'Fewmail 与 Superhuman、Shortwave、SaneBox 的对比：一个替你读邮件的助手，而不是让你自己读得更快的工具。',
-      home: 'Fewmail 是 Gmail 的邮件助手：它读每一封邮件，用你的口吻起草回复，只把需要你的事给你看。',
+        'Fewmail 与 Superhuman、Shortwave、SaneBox 的对比：一个替你读邮件的 AI 助手，而不是让你自己读得更快的工具。',
+      compareTitle: 'AI 邮件助手对比',
+      home: 'Fewmail 是 Gmail 的 AI 邮件助手：它读每一封邮件，用你的口吻起草回复，只把需要你的事给你看。',
       login: 'Fewmail 替你读 Gmail，用你的口吻回复，只给你看真正需要你的事。',
       mcp: '把 Fewmail 作为 MCP 服务器连接到 Claude、ChatGPT、Claude Code 或 Cursor：在你已经在用的 AI 里读和整理 Gmail。',
       motto: '收件箱里只留重要的',
       pricing: (trialDays: number) =>
         `Fewmail 的首页、分拣、规则和垃圾邮件防护永久免费。完整助手 Pro 可免费试用 ${trialDays} 天，无需绑卡。`,
-      tagline: 'Gmail 的邮件助手',
+      tagline: 'Gmail 的 AI 邮件助手',
     },
     chapters: {
       pricing: {
@@ -804,6 +808,69 @@ export const zh: Messages = {
         cursor: '把这段加入你的 mcp.json，然后在 Cursor 提示时登录 Fewmail。',
       },
       title: '在 Claude、ChatGPT 和你的工具里使用 Fewmail。',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            '问一句“我的航班几点起飞？”，就能得到答案和它出自的邮件。在 Fewmail、Telegram、WhatsApp 里，或在 Claude 和 ChatGPT 里都可以问。',
+          title: '从邮件里找答案',
+        },
+        drafts: {
+          description:
+            '回复提前写好，用你的语气和发件人的语言，在队列里等你批准。',
+          title: '用你的口吻起草回复',
+        },
+        protection: {
+          description:
+            '付款信息变更、仿冒域名和已知骗局，都会在你操作前发出警告。',
+          title: '钓鱼警告',
+        },
+        reading: {
+          description:
+            '当天的订阅邮件汇成一份按主题整理的摘要，每句话都链接到它出自的邮件。',
+          title: '订阅邮件汇成一份摘要',
+        },
+        rules: {
+          description:
+            '用一句话说清某类邮件该怎么处理，它就成了一条规则。只有你开启的规则才会自动执行。',
+          title: '用大白话写规则',
+        },
+        sorting: {
+          description:
+            '每封邮件都有摘要和重要度评分，紧急的浮到上面，收据、通知和促销不再挡路。',
+          title: '阅读并分拣每封邮件',
+        },
+      },
+      abilitiesDescription:
+        '一切都在你已经在用的 Gmail 里进行，助手做的每件事都会连同原因一起记录下来。',
+      abilitiesLabel: '它能做什么',
+      abilitiesTitle: '是助手，不是又一个收件箱。',
+      compareTitle: '与其他 AI 邮件工具的对比。',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            '用 AI 替你阅读、分拣和回复邮件的软件。大多数只是在你仍要自己读的收件箱上加了摘要和写作辅助。Fewmail 更进一步：它先读完所有邮件，你只会看到需要你的事。',
+          question: '什么是 AI 邮件助手？',
+        },
+        {
+          answer:
+            'Fewmail 在数据库中加密存储主题、正文、摘要和草稿，绝不用你的邮件训练模型，没有你的同意绝不会在 Gmail 里发送或更改任何东西。你可以随时断开连接并删除全部数据。',
+          question: '让 AI 读我的邮件安全吗？',
+        },
+        {
+          answer:
+            '它会替你起草回复，但绝不会自己发送。每份草稿都在队列里等你批准，相似的可以一起批准。',
+          question: '它能自动回复邮件吗？',
+        },
+        {
+          answer: `有。Free 方案会分拣每封邮件，把需要你的事集中在一页，执行你的规则，并帮你挡住垃圾邮件和钓鱼邮件，永久免费。草稿、摘要和助手的其他功能属于付费方案，每个账户都从 ${trialDays} 天 Pro 开始，无需绑卡。`,
+          question: '有免费的 Gmail AI 邮件助手吗？',
+        },
+      ],
+      faqTitle: '关于 AI 邮件助手。',
+      lead: '邮件一到你的 Gmail，Fewmail 就逐封阅读，清掉噪音，用你的口吻起草回复，只把少数需要你决定的事交给你。没有你的同意，什么都不会发送或更改。',
+      title: '先替你读 Gmail 的 AI 邮件助手。',
     },
     comparePage: {
       lead: '邮件客户端让你更快地读完每一封邮件。过滤器把邮件移进文件夹。Fewmail 是一个助手：它阅读邮件，判断哪些可以等，只把其余的拿来问你。',
@@ -948,6 +1015,11 @@ export const zh: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          '很多 AI 邮件工具只是一个带聊天框的新收件箱：你还是得自己读每一封邮件，只是上面多了一段摘要。Fewmail 是在你正在用的 Gmail 上工作的 AI 助手。它先读完每一封邮件，用你的口吻起草回复，只把少数需要你决定的事交给你。',
+        question: 'Fewmail 和其他 AI 邮件助手有什么不同？',
+      },
+      {
+        answer:
           '不用。Fewmail 在 Gmail 之上工作。它做的一切也会出现在 Gmail 里，你也可以同时继续使用任何 Gmail 应用。',
         question: '我需要离开 Gmail 吗？',
       },
@@ -1032,7 +1104,7 @@ export const zh: Messages = {
     footer: {
       legal: '法律信息',
       product: '产品',
-      tagline: '读你的 Gmail，只给你看需要你处理的邮件助手。',
+      tagline: '读你的 Gmail，只给你看需要你处理的 AI 邮件助手。',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1091,7 +1163,7 @@ export const zh: Messages = {
         ' 封，每封都写明原因',
       ]) as Rich<'count'>,
       inbox: '收件箱',
-      lead: '订阅邮件、收据、各种提醒、一条钓鱼链接，还有藏在其中真正重要的三封邮件。Fewmail 就是替你把它们全部读完的助手。',
+      lead: '订阅邮件、收据、各种提醒、一条钓鱼链接，还有藏在其中真正重要的三封邮件。Fewmail 就是替你把它们全部读完的 AI 助手。',
       needYou: ((slots) => [slots.count, ' 件需要你']) as Rich<'count'>,
       queue: [
         {
@@ -1127,6 +1199,7 @@ export const zh: Messages = {
       willDo: 'Fewmail 将会',
     },
     nav: {
+      assistant: 'AI 邮件助手',
       compare: '对比',
       features: '功能',
       mcp: 'MCP 服务器',

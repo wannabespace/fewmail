@@ -768,16 +768,20 @@ export const ko: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail은 Gmail을 위한 AI 이메일 비서예요. 모든 메일을 먼저 읽고, 내 말투로 답장 초안을 쓰고, 나에게 필요한 것만 보여 줘요. 무료로 시작할 수 있어요.',
+      assistantTitle: 'Gmail을 위한 AI 이메일 비서',
       compare:
-        'Superhuman, Shortwave, SaneBox와 Fewmail 비교: 직접 더 빨리 읽는 도구가 아니라 대신 메일을 읽어 주는 에이전트예요.',
-      home: 'Fewmail은 Gmail을 위한 이메일 에이전트예요. 모든 메일을 읽고, 내 말투로 답장 초안을 쓰고, 나에게 필요한 것만 보여 줘요.',
+        'Superhuman, Shortwave, SaneBox와 Fewmail 비교: 직접 더 빨리 읽는 도구가 아니라 대신 메일을 읽어 주는 AI 에이전트예요.',
+      compareTitle: 'AI 이메일 비서 비교',
+      home: 'Fewmail은 Gmail을 위한 AI 이메일 비서예요. 모든 메일을 읽고, 내 말투로 답장 초안을 쓰고, 나에게 필요한 것만 보여 줘요.',
       login:
         'Fewmail이 대신 Gmail을 읽고, 내 말투로 답하고, 정말 나에게 필요한 것만 보여 줘요.',
       mcp: 'Fewmail을 MCP 서버로 Claude, ChatGPT, Claude Code, Cursor에 연결하세요. 이미 쓰는 AI에서 Gmail을 읽고 정리할 수 있어요.',
       motto: '받은편지함에서 중요한 것만',
       pricing: (trialDays: number) =>
         `Fewmail의 홈, 분류, 규칙, 스팸 보호는 계속 무료예요. 에이전트 전체를 쓰는 Pro는 카드 없이 ${trialDays}일 무료로 시작해요.`,
-      tagline: 'Gmail을 위한 이메일 에이전트',
+      tagline: 'Gmail을 위한 AI 이메일 에이전트',
     },
     chapters: {
       pricing: {
@@ -823,6 +827,69 @@ export const ko: Messages = {
           'mcp.json에 추가하고, Cursor가 요청하면 Fewmail에 로그인하세요.',
       },
       title: 'Claude, ChatGPT, 그리고 쓰는 도구 안의 Fewmail.',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            '“내 비행기 언제 출발해?”라고 물으면 근거가 된 메일과 함께 답해 줘요. Fewmail, Telegram, WhatsApp에서도, Claude와 ChatGPT에서도요.',
+          title: '메일에서 찾는 답',
+        },
+        drafts: {
+          description:
+            '답장은 미리 써 둬요. 내 어조로, 보낸 사람의 언어로 쓰고, 내가 승인할 때까지 대기열에서 기다려요.',
+          title: '내 말투로 쓰는 답장 초안',
+        },
+        protection: {
+          description:
+            '바뀐 결제 정보, 비슷하게 꾸민 도메인, 알려진 사기는 행동하기 전에 경고해 줘요.',
+          title: '피싱 경고',
+        },
+        reading: {
+          description:
+            '하루 치 뉴스레터를 주제별 요약 하나로 묶고, 문장마다 출처 메일로 연결해요.',
+          title: '뉴스레터는 요약 하나로',
+        },
+        rules: {
+          description:
+            '어떤 메일을 어떻게 할지 한 문장으로 말하면 규칙이 돼요. 스스로 작동하는 건 내가 켠 규칙뿐이에요.',
+          title: '평소 말로 쓰는 규칙',
+        },
+        sorting: {
+          description:
+            '모든 메일에 요약과 중요도 점수가 붙어서, 급한 건 위로 올라오고 영수증, 알림, 프로모션은 방해하지 않아요.',
+          title: '모든 메일을 읽고 분류',
+        },
+      },
+      abilitiesDescription:
+        '모든 일은 지금 쓰는 Gmail 안에서 일어나고, 에이전트가 한 일은 하나하나 이유와 함께 기록돼요.',
+      abilitiesLabel: '하는 일',
+      abilitiesTitle: '또 하나의 받은편지함이 아닌 비서.',
+      compareTitle: '다른 AI 이메일 도구와 비교하면.',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'AI로 메일을 대신 읽고, 분류하고, 답하는 소프트웨어예요. 대부분은 여전히 직접 읽어야 하는 받은편지함에 요약과 글쓰기 도움을 더할 뿐이에요. Fewmail은 한 걸음 더 나아가 모든 메일을 먼저 읽기 때문에, 나에게 필요한 것만 보게 돼요.',
+          question: 'AI 이메일 비서란 무엇인가요?',
+        },
+        {
+          answer:
+            'Fewmail은 제목, 본문, 요약, 초안을 데이터베이스에 암호화해 저장하고, 내 메일을 절대 모델 학습에 쓰지 않으며, 내 동의 없이는 Gmail에서 아무것도 보내거나 바꾸지 않아요. 언제든 연결을 끊고 모든 데이터를 지울 수 있어요.',
+          question: 'AI에게 메일을 읽게 해도 안전한가요?',
+        },
+        {
+          answer:
+            '답장 초안은 대신 써 주지만, 혼자 보내는 일은 절대 없어요. 초안은 하나하나 대기열에서 내 승인을 기다리고, 비슷한 초안은 한 번에 승인할 수 있어요.',
+          question: '메일에 자동으로 답장할 수 있나요?',
+        },
+        {
+          answer: `네. Free 요금제는 모든 메일을 분류하고, 나에게 필요한 것을 한 페이지에 모으고, 내 규칙을 실행하고, 스팸과 피싱을 막아 줘요. 평생 무료예요. 초안, 요약, 나머지 에이전트 기능은 유료 요금제에 있고, 모든 계정은 카드 없이 Pro ${trialDays}일로 시작해요.`,
+          question: 'Gmail용 무료 AI 이메일 비서가 있나요?',
+        },
+      ],
+      faqTitle: 'AI 이메일 비서에 대해.',
+      lead: 'Fewmail은 Gmail에 도착하는 메일을 바로바로 모두 읽고, 잡음을 걷어 내고, 내 말투로 답장 초안을 쓰고, 내가 결정해야 할 몇 가지만 가져와요. 내 동의 없이는 아무것도 보내거나 바꾸지 않아요.',
+      title: 'Gmail을 먼저 읽어 주는 AI 이메일 비서.',
     },
     comparePage: {
       lead: '메일 클라이언트는 모든 메일을 더 빨리 읽게 해 줘요. 필터는 메일을 폴더로 옮겨요. Fewmail은 에이전트예요. 메일을 읽고, 무엇이 기다려도 되는지 판단하고, 나머지만 물어봐요.',
@@ -967,6 +1034,11 @@ export const ko: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          '많은 AI 메일 도구는 채팅창이 달린 새 받은편지함이에요. 여전히 모든 메일을 직접 읽고, 위에 요약이 붙을 뿐이죠. Fewmail은 지금 쓰는 Gmail 위에서 일하는 AI 에이전트예요. 모든 메일을 먼저 읽고, 내 말투로 답장 초안을 쓰고, 내가 결정해야 할 몇 가지만 가져와요.',
+        question: 'Fewmail은 다른 AI 이메일 비서와 무엇이 다른가요?',
+      },
+      {
+        answer:
           '아니요. Fewmail은 Gmail 위에서 작동해요. 하는 일은 모두 Gmail에도 그대로 반영되고, 쓰던 Gmail 앱도 함께 계속 쓸 수 있어요.',
         question: 'Gmail을 떠나야 하나요?',
       },
@@ -1051,7 +1123,7 @@ export const ko: Messages = {
     footer: {
       legal: '법적 고지',
       product: '제품',
-      tagline: 'Gmail을 읽고 내가 봐야 할 것만 보여주는 메일 에이전트.',
+      tagline: 'Gmail을 읽고 내가 봐야 할 것만 보여주는 AI 메일 에이전트.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1109,7 +1181,7 @@ export const ko: Messages = {
         '개 처리됨, 모두 이유와 함께',
       ]) as Rich<'count'>,
       inbox: '받은편지함',
-      lead: '뉴스레터, 영수증, 알림, 피싱 링크, 그리고 그 사이 어딘가에 정말 중요한 메일 세 통. Fewmail은 그 모든 걸 대신 읽어 주는 에이전트예요.',
+      lead: '뉴스레터, 영수증, 알림, 피싱 링크, 그리고 그 사이 어딘가에 정말 중요한 메일 세 통. Fewmail은 그 모든 걸 대신 읽어 주는 AI 에이전트예요.',
       needYou: ((slots) => ['확인 필요 ', slots.count, '개']) as Rich<'count'>,
       queue: [
         {
@@ -1147,6 +1219,7 @@ export const ko: Messages = {
       willDo: 'Fewmail이 할 일',
     },
     nav: {
+      assistant: 'AI 이메일 비서',
       compare: '비교',
       features: '기능',
       mcp: 'MCP 서버',

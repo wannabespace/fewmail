@@ -1075,16 +1075,20 @@ export const en = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail is an AI email assistant for Gmail that reads every email first, drafts replies in your voice and shows you only what needs you. Free to start.',
+      assistantTitle: 'AI email assistant for Gmail',
       compare:
-        'How Fewmail compares to Superhuman, Shortwave and SaneBox: an agent that reads your mail instead of a faster way to read it yourself.',
-      home: 'Fewmail is an email agent for Gmail: it reads every email, drafts replies in your voice and shows you only what needs you.',
+        'How Fewmail compares to Superhuman, Shortwave and SaneBox: an AI agent that reads your mail instead of a faster way to read it yourself.',
+      compareTitle: 'AI email assistants compared',
+      home: 'Fewmail is an AI email assistant for Gmail: it reads every email, drafts replies in your voice and shows you only what needs you.',
       login:
         'Fewmail reads your Gmail for you, answers in your voice and only shows you what actually needs you.',
       mcp: 'Connect Fewmail to Claude, ChatGPT, Claude Code or Cursor as an MCP server: read and triage your Gmail from the AI you already use.',
       motto: 'only what matters in your inbox',
       pricing: (trialDays: number) =>
         `Fewmail is free forever for Home, sorting, rules and spam protection. Pro, the whole agent, starts with ${trialDays} free days and no card.`,
-      tagline: 'the email agent for Gmail',
+      tagline: 'the AI email agent for Gmail',
     },
     chapters: {
       pricing: {
@@ -1132,6 +1136,69 @@ export const en = {
           'Add this to your mcp.json, then sign in to Fewmail when Cursor asks.',
       },
       title: 'Fewmail inside Claude, ChatGPT and your tools.',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            'Ask “when does my flight leave?” and get the answer with the emails it came from, in Fewmail, Telegram or WhatsApp, or from Claude and ChatGPT.',
+          title: 'Answers from your mail',
+        },
+        drafts: {
+          description:
+            'Replies are written ahead of time, in your tone and in the sender’s language, and wait in your queue until you approve them.',
+          title: 'Drafts replies in your voice',
+        },
+        protection: {
+          description:
+            'Changed bank details, lookalike domains and known scams raise a warning before you act.',
+          title: 'Warns about phishing',
+        },
+        reading: {
+          description:
+            'The day’s newsletters become one summary by topic, each sentence linked to the email it came from.',
+          title: 'Newsletters in one summary',
+        },
+        rules: {
+          description:
+            'Describe in one sentence what should happen to some mail and it becomes a rule. Only the rules you turn on act on their own.',
+          title: 'Rules in plain words',
+        },
+        sorting: {
+          description:
+            'Every email gets a summary and an importance score, so what is urgent rises and receipts, notifications and promotions stay out of your way.',
+          title: 'Reads and sorts every email',
+        },
+      },
+      abilitiesDescription:
+        'Everything happens in the Gmail you already use, and each thing the agent does is written down with its reason.',
+      abilitiesLabel: 'What it does',
+      abilitiesTitle: 'An assistant, not another inbox.',
+      compareTitle: 'How it compares to other AI email tools.',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'Software that uses AI to read, sort and answer email for you. Most add summaries and writing help to an inbox you still read yourself. Fewmail goes further: it reads everything first, so you only see what needs you.',
+          question: 'What is an AI email assistant?',
+        },
+        {
+          answer:
+            'Fewmail encrypts subjects, bodies, summaries and drafts in its database, never uses your mail to train models and never sends or changes anything in Gmail without your yes. You can disconnect it and delete everything at any time.',
+          question: 'Is it safe to let AI read my email?',
+        },
+        {
+          answer:
+            'It drafts them for you, but never sends one on its own. Each draft waits in your queue for your approval, and similar ones can be approved together.',
+          question: 'Can it answer emails automatically?',
+        },
+        {
+          answer: `Yes. The Free plan sorts every email, keeps what needs you on one page, runs your rules and protects you from spam and phishing, forever. Drafts, summaries and the rest of the agent come with the paid plans, and every account starts with ${trialDays} days of Pro, no card.`,
+          question: 'Is there a free AI email assistant for Gmail?',
+        },
+      ],
+      faqTitle: 'About AI email assistants.',
+      lead: 'Fewmail reads every email in your Gmail as it arrives, clears the noise, drafts replies in your voice and brings you only the few things that need your decision. Nothing is sent or changed without your yes.',
+      title: 'The AI email assistant that reads your Gmail first.',
     },
     comparePage: {
       lead: 'Email clients make you faster at reading every email. Filters move mail into folders. Fewmail is an agent: it reads the mail, decides what can wait and asks you only about the rest.',
@@ -1277,6 +1344,11 @@ export const en = {
     faq: (trialDays: number) => [
       {
         answer:
+          'Many AI email tools are a new inbox with a chat box: you still read every email, now with a summary on top. Fewmail is an AI agent on top of the Gmail you already use. It reads every email first, drafts replies in your voice and brings you only the few decisions that need you.',
+        question: 'How is Fewmail different from other AI email assistants?',
+      },
+      {
+        answer:
           'No. Fewmail works on top of Gmail. Everything it does shows up in Gmail too, and you can keep using any Gmail app alongside it.',
         question: 'Do I have to leave Gmail?',
       },
@@ -1362,7 +1434,7 @@ export const en = {
       legal: 'Legal',
       product: 'Product',
       tagline:
-        'The email agent that reads your Gmail and only shows you what needs you.',
+        'The AI email agent that reads your Gmail and only shows you what needs you.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1420,7 +1492,7 @@ export const en = {
         ' handled, each with a reason',
       ]) as Rich<'count'>,
       inbox: 'Inbox',
-      lead: 'Newsletters, receipts, pings, a phishing link and, somewhere in there, the three emails that actually matter. Fewmail is the agent that reads all of it for you.',
+      lead: 'Newsletters, receipts, pings, a phishing link and, somewhere in there, the three emails that actually matter. Fewmail is the AI agent that reads all of it for you.',
       needYou: ((slots) => [slots.count, ' need you']) as Rich<'count'>,
       queue: [
         {
@@ -1457,6 +1529,7 @@ export const en = {
       willDo: 'Fewmail will',
     },
     nav: {
+      assistant: 'AI email assistant',
       compare: 'Compare',
       features: 'Features',
       mcp: 'MCP server',

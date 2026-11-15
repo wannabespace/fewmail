@@ -27,6 +27,7 @@ import { Route as AppSubscriptionsRouteImport } from './routes/_app/subscription
 import { Route as AppTodayRouteImport } from './routes/_app/today'
 import { Route as AppWrappedRouteImport } from './routes/_app/wrapped'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SiteAiEmailAssistantRouteImport } from './routes/_site/ai-email-assistant'
 import { Route as SiteMcpRouteImport } from './routes/_site/mcp'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as WTokenRouteImport } from './routes/w.$token'
@@ -123,6 +124,11 @@ const SiteIndexRoute = SiteIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteAiEmailAssistantRoute = SiteAiEmailAssistantRouteImport.update({
+  id: '/ai-email-assistant',
+  path: '/ai-email-assistant',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteMcpRoute = SiteMcpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/subscriptions': typeof AppSubscriptionsRoute
   '/today': typeof AppTodayRoute
   '/wrapped': typeof AppWrappedRoute
+  '/ai-email-assistant': typeof SiteAiEmailAssistantRoute
   '/mcp': typeof SiteMcpRoute
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/subscriptions': typeof AppSubscriptionsRoute
   '/today': typeof AppTodayRoute
   '/wrapped': typeof AppWrappedRoute
+  '/ai-email-assistant': typeof SiteAiEmailAssistantRoute
   '/mcp': typeof SiteMcpRoute
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/_app/subscriptions': typeof AppSubscriptionsRoute
   '/_app/today': typeof AppTodayRoute
   '/_app/wrapped': typeof AppWrappedRoute
+  '/_site/ai-email-assistant': typeof SiteAiEmailAssistantRoute
   '/_site/mcp': typeof SiteMcpRoute
   '/_site/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/subscriptions'
     | '/today'
     | '/wrapped'
+    | '/ai-email-assistant'
     | '/mcp'
     | '/pricing'
     | '/w/$token'
@@ -281,6 +291,7 @@ export interface FileRouteTypes {
     | '/subscriptions'
     | '/today'
     | '/wrapped'
+    | '/ai-email-assistant'
     | '/mcp'
     | '/pricing'
     | '/w/$token'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/_app/subscriptions'
     | '/_app/today'
     | '/_app/wrapped'
+    | '/_site/ai-email-assistant'
     | '/_site/mcp'
     | '/_site/pricing'
     | '/w/$token'
@@ -456,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteIndexRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/ai-email-assistant': {
+      id: '/_site/ai-email-assistant'
+      path: '/ai-email-assistant'
+      fullPath: '/ai-email-assistant'
+      preLoaderRoute: typeof SiteAiEmailAssistantRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/mcp': {
       id: '/_site/mcp'
       path: '/mcp'
@@ -541,6 +560,7 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface SiteRouteChildren {
+  SiteAiEmailAssistantRoute: typeof SiteAiEmailAssistantRoute
   SiteMcpRoute: typeof SiteMcpRoute
   SitePricingRoute: typeof SitePricingRoute
   SiteIndexRoute: typeof SiteIndexRoute
@@ -549,6 +569,7 @@ interface SiteRouteChildren {
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteAiEmailAssistantRoute: SiteAiEmailAssistantRoute,
   SiteMcpRoute: SiteMcpRoute,
   SitePricingRoute: SitePricingRoute,
   SiteIndexRoute: SiteIndexRoute,

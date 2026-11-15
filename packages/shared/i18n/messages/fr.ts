@@ -170,16 +170,20 @@ export const fr: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail est un assistant e-mail IA pour Gmail qui lit chaque e-mail avant vous, rédige les réponses avec votre ton et ne vous montre que ce qui a besoin de vous. Gratuit pour commencer.',
+      assistantTitle: 'Assistant e-mail IA pour Gmail',
       compare:
-        "Fewmail face à Superhuman, Shortwave et SaneBox : un agent qui lit votre courrier plutôt qu'un moyen plus rapide de le lire vous-même.",
-      home: 'Fewmail est un agent e-mail pour Gmail : il lit chaque e-mail, rédige les réponses avec votre ton et ne vous montre que ce qui a besoin de vous.',
+        "Fewmail face à Superhuman, Shortwave et SaneBox : un agent IA qui lit votre courrier plutôt qu'un moyen plus rapide de le lire vous-même.",
+      compareTitle: 'Assistants e-mail IA comparés',
+      home: 'Fewmail est un assistant e-mail IA pour Gmail : il lit chaque e-mail, rédige les réponses avec votre ton et ne vous montre que ce qui a besoin de vous.',
       login:
         'Fewmail lit votre Gmail pour vous, répond avec votre ton et ne vous montre que ce qui a vraiment besoin de vous.',
       mcp: "Connectez Fewmail à Claude, ChatGPT, Claude Code ou Cursor comme serveur MCP : lisez et triez votre Gmail depuis l'IA que vous utilisez déjà.",
       motto: "seulement l'essentiel de votre boîte",
       pricing: (trialDays: number) =>
         `Fewmail est gratuit pour toujours pour l’Accueil, le tri, les règles et la protection anti-spam. Pro, l'agent complet, commence par ${trialDays} jours gratuits, sans carte.`,
-      tagline: "l'agent e-mail pour Gmail",
+      tagline: "l'agent e-mail IA pour Gmail",
     },
     chapters: {
       pricing: {
@@ -227,6 +231,69 @@ export const fr: Messages = {
           'Ajoute ceci à ton mcp.json, puis connecte-toi à Fewmail quand Cursor le demande.',
       },
       title: 'Fewmail dans Claude, ChatGPT et tes outils.',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            'Demandez « À quelle heure part mon vol ? » et obtenez la réponse avec les e-mails d’où elle vient, dans Fewmail, Telegram ou WhatsApp, ou depuis Claude et ChatGPT.',
+          title: 'Des réponses tirées de vos e-mails',
+        },
+        drafts: {
+          description:
+            'Les réponses sont rédigées à l’avance, avec votre ton et dans la langue de l’expéditeur, et attendent dans votre file que vous les approuviez.',
+          title: 'Rédige les réponses avec votre ton',
+        },
+        protection: {
+          description:
+            'Coordonnées bancaires modifiées, domaines sosies et arnaques connues déclenchent une alerte avant que vous n’agissiez.',
+          title: 'Alerte contre le phishing',
+        },
+        reading: {
+          description:
+            'Les newsletters du jour deviennent un seul résumé par thème, chaque phrase reliée à l’e-mail d’où elle vient.',
+          title: 'Les newsletters en un résumé',
+        },
+        rules: {
+          description:
+            'Décrivez en une phrase ce qui doit arriver à certains e-mails, et cela devient une règle. Seules les règles que vous activez agissent d’elles-mêmes.',
+          title: 'Des règles en langage courant',
+        },
+        sorting: {
+          description:
+            'Chaque e-mail reçoit un résumé et une note d’importance : l’urgent remonte, et les reçus, notifications et promotions ne vous gênent plus.',
+          title: 'Lit et trie chaque e-mail',
+        },
+      },
+      abilitiesDescription:
+        'Tout se passe dans le Gmail que vous utilisez déjà, et chaque action de l’agent est notée avec sa raison.',
+      abilitiesLabel: 'Ce qu’il fait',
+      abilitiesTitle: 'Un assistant, pas une boîte de plus.',
+      compareTitle: 'Face aux autres outils e-mail IA.',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'Un logiciel qui utilise l’IA pour lire, trier et répondre à vos e-mails à votre place. La plupart ajoutent des résumés et une aide à l’écriture à une boîte que vous lisez encore vous-même. Fewmail va plus loin : il lit tout d’abord, pour que vous ne voyiez que ce qui a besoin de vous.',
+          question: 'Qu’est-ce qu’un assistant e-mail IA ?',
+        },
+        {
+          answer:
+            'Fewmail chiffre les objets, contenus, résumés et brouillons dans sa base de données, n’utilise jamais vos e-mails pour entraîner des modèles et n’envoie ni ne modifie jamais rien dans Gmail sans votre accord. Vous pouvez le déconnecter et tout supprimer à tout moment.',
+          question: 'Est-il sûr de laisser une IA lire mes e-mails ?',
+        },
+        {
+          answer:
+            'Il rédige les réponses pour vous, mais n’en envoie jamais aucune de lui-même. Chaque brouillon attend votre approbation dans votre file, et les brouillons similaires peuvent être approuvés ensemble.',
+          question: 'Peut-il répondre aux e-mails automatiquement ?',
+        },
+        {
+          answer: `Oui. La formule Gratuit trie chaque e-mail, réunit sur une seule page ce qui a besoin de vous, applique vos règles et vous protège du spam et du phishing, pour toujours. Les brouillons, les résumés et le reste de l’agent viennent avec les formules payantes, et chaque compte commence avec ${trialDays} jours de Pro, sans carte.`,
+          question: 'Existe-t-il un assistant e-mail IA gratuit pour Gmail ?',
+        },
+      ],
+      faqTitle: 'À propos des assistants e-mail IA.',
+      lead: 'Fewmail lit chaque e-mail de votre Gmail dès son arrivée, élimine le bruit, rédige les réponses avec votre ton et ne vous apporte que les quelques sujets qui demandent votre décision. Rien n’est envoyé ni modifié sans votre accord.',
+      title: 'L’assistant e-mail IA qui lit votre Gmail avant vous.',
     },
     comparePage: {
       lead: 'Les clients mail vous font lire chaque e-mail plus vite. Les filtres rangent les e-mails dans des dossiers. Fewmail est un agent : il lit les e-mails, décide de ce qui peut attendre et ne vous interroge que sur le reste.',
@@ -373,6 +440,12 @@ export const fr: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          'Beaucoup d’outils e-mail IA sont une nouvelle boîte avec un chat : vous lisez toujours chaque e-mail, simplement avec un résumé en plus. Fewmail est un agent IA qui travaille sur le Gmail que vous utilisez déjà. Il lit d’abord chaque e-mail, rédige les réponses avec votre ton et ne vous apporte que les quelques décisions qui ont besoin de vous.',
+        question:
+          'En quoi Fewmail diffère-t-il des autres assistants e-mail IA ?',
+      },
+      {
+        answer:
           'Non. Fewmail fonctionne par-dessus Gmail. Tout ce qu’il fait apparaît aussi dans Gmail, et vous pouvez continuer à utiliser n’importe quelle app Gmail en parallèle.',
         question: 'Dois-je quitter Gmail ?',
       },
@@ -458,7 +531,7 @@ export const fr: Messages = {
       legal: 'Mentions légales',
       product: 'Produit',
       tagline:
-        'L’agent e-mail qui lit votre Gmail et ne vous montre que ce qui a besoin de vous.',
+        'L’agent e-mail IA qui lit votre Gmail et ne vous montre que ce qui a besoin de vous.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -517,7 +590,7 @@ export const fr: Messages = {
         ' traités, chacun avec sa raison',
       ]) as Rich<'count'>,
       inbox: 'Boîte de réception',
-      lead: 'Newsletters, reçus, notifications, un lien de phishing et, quelque part là-dedans, les trois e-mails qui comptent vraiment. Fewmail est l’agent qui lit tout ça pour vous.',
+      lead: 'Newsletters, reçus, notifications, un lien de phishing et, quelque part là-dedans, les trois e-mails qui comptent vraiment. Fewmail est l’agent IA qui lit tout ça pour vous.',
       needYou: ((slots) => [
         slots.count,
         ' ont besoin de vous',
@@ -559,6 +632,7 @@ export const fr: Messages = {
       willDo: 'Fewmail va',
     },
     nav: {
+      assistant: 'Assistant e-mail IA',
       compare: 'Comparer',
       features: 'Fonctionnalités',
       mcp: 'Serveur MCP',

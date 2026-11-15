@@ -168,16 +168,20 @@ export const de: Messages = {
   },
   site: {
     meta: {
+      assistant:
+        'Fewmail ist ein KI-E-Mail-Assistent für Gmail, der jede Mail zuerst liest, Antworten in deinem Ton entwirft und dir nur zeigt, was dich braucht. Kostenlos starten.',
+      assistantTitle: 'KI-E-Mail-Assistent für Gmail',
       compare:
-        'Fewmail im Vergleich zu Superhuman, Shortwave und SaneBox: ein Agent, der deine Mails liest, statt dich schneller selbst lesen zu lassen.',
-      home: 'Fewmail ist ein E-Mail-Agent für Gmail: Er liest jede Mail, entwirft Antworten in deinem Ton und zeigt dir nur, was dich braucht.',
+        'Fewmail im Vergleich zu Superhuman, Shortwave und SaneBox: ein KI-Agent, der deine Mails liest, statt dich schneller selbst lesen zu lassen.',
+      compareTitle: 'KI-E-Mail-Assistenten im Vergleich',
+      home: 'Fewmail ist ein KI-E-Mail-Assistent für Gmail: Er liest jede Mail, entwirft Antworten in deinem Ton und zeigt dir nur, was dich braucht.',
       login:
         'Fewmail liest dein Gmail für dich, antwortet in deinem Ton und zeigt dir nur, was dich wirklich braucht.',
       mcp: 'Verbinde Fewmail als MCP-Server mit Claude, ChatGPT, Claude Code oder Cursor: Lies und sortiere dein Gmail aus der KI, die du schon nutzt.',
       motto: 'nur was in deinem Postfach zählt',
       pricing: (trialDays: number) =>
         `Fewmail ist für Startseite, Sortierung, Regeln und Spamschutz für immer kostenlos. Pro, der ganze Agent, beginnt mit ${trialDays} kostenlosen Tagen ohne Karte.`,
-      tagline: 'der E-Mail-Agent für Gmail',
+      tagline: 'der KI-E-Mail-Agent für Gmail',
     },
     chapters: {
       pricing: {
@@ -224,6 +228,70 @@ export const de: Messages = {
           'Füge das in deine mcp.json ein und melde dich bei Fewmail an, wenn Cursor fragt.',
       },
       title: 'Fewmail in Claude, ChatGPT und deinen Tools.',
+    },
+    assistantPage: {
+      abilities: {
+        ask: {
+          description:
+            'Frag „Wann geht mein Flug?“ und bekomm die Antwort samt den Mails, aus denen sie stammt: in Fewmail, Telegram oder WhatsApp oder aus Claude und ChatGPT.',
+          title: 'Antworten aus deinen Mails',
+        },
+        drafts: {
+          description:
+            'Antworten werden im Voraus geschrieben, in deinem Ton und in der Sprache des Absenders, und warten in deiner Warteschlange, bis du sie freigibst.',
+          title: 'Entwirft Antworten in deinem Ton',
+        },
+        protection: {
+          description:
+            'Geänderte Bankdaten, Doppelgänger-Domains und bekannte Betrugsmaschen lösen eine Warnung aus, bevor du handelst.',
+          title: 'Warnt vor Phishing',
+        },
+        reading: {
+          description:
+            'Die Newsletter des Tages werden zu einer Zusammenfassung nach Thema, jeder Satz verlinkt mit der Mail, aus der er stammt.',
+          title: 'Newsletter in einer Zusammenfassung',
+        },
+        rules: {
+          description:
+            'Beschreib in einem Satz, was mit bestimmten Mails passieren soll, und daraus wird eine Regel. Nur Regeln, die du einschaltest, handeln von selbst.',
+          title: 'Regeln in einfachen Worten',
+        },
+        sorting: {
+          description:
+            'Jede Mail bekommt eine Zusammenfassung und eine Wichtigkeitsbewertung. So steigt Dringendes nach oben, und Belege, Benachrichtigungen und Werbung bleiben dir aus dem Weg.',
+          title: 'Liest und sortiert jede Mail',
+        },
+      },
+      abilitiesDescription:
+        'Alles passiert in dem Gmail, das du schon nutzt, und alles, was der Agent tut, wird mit seinem Grund aufgeschrieben.',
+      abilitiesLabel: 'Was er tut',
+      abilitiesTitle: 'Ein Assistent, kein weiteres Postfach.',
+      compareTitle: 'Im Vergleich mit anderen KI-Mail-Tools.',
+      faq: (trialDays: number) => [
+        {
+          answer:
+            'Software, die mit KI E-Mails für dich liest, sortiert und beantwortet. Die meisten ergänzen ein Postfach, das du weiter selbst liest, um Zusammenfassungen und Schreibhilfe. Fewmail geht weiter: Es liest zuerst alles, und du siehst nur, was dich braucht.',
+          question: 'Was ist ein KI-E-Mail-Assistent?',
+        },
+        {
+          answer:
+            'Fewmail verschlüsselt Betreffzeilen, Inhalte, Zusammenfassungen und Entwürfe in seiner Datenbank, nutzt deine Mails nie zum Trainieren von Modellen und sendet oder ändert in Gmail nie etwas ohne dein Ja. Du kannst es jederzeit trennen und alles löschen.',
+          question: 'Ist es sicher, KI meine Mails lesen zu lassen?',
+        },
+        {
+          answer:
+            'Es entwirft Antworten für dich, sendet aber nie eine von selbst. Jeder Entwurf wartet in deiner Warteschlange auf deine Freigabe, und ähnliche lassen sich gemeinsam freigeben.',
+          question: 'Kann es Mails automatisch beantworten?',
+        },
+        {
+          answer: `Ja. Der Free-Tarif sortiert jede Mail, sammelt alles, was dich braucht, auf einer Seite, führt deine Regeln aus und schützt dich vor Spam und Phishing, für immer. Entwürfe, Zusammenfassungen und der Rest des Agenten gehören zu den bezahlten Tarifen, und jedes Konto startet mit ${trialDays} Tagen Pro, ohne Karte.`,
+          question:
+            'Gibt es einen kostenlosen KI-E-Mail-Assistenten für Gmail?',
+        },
+      ],
+      faqTitle: 'Über KI-E-Mail-Assistenten.',
+      lead: 'Fewmail liest jede Mail in deinem Gmail, sobald sie ankommt, räumt den Lärm weg, entwirft Antworten in deinem Ton und bringt dir nur die wenigen Dinge, die deine Entscheidung brauchen. Nichts wird ohne dein Ja gesendet oder geändert.',
+      title: 'Der KI-E-Mail-Assistent, der dein Gmail zuerst liest.',
     },
     comparePage: {
       lead: 'E-Mail-Programme machen dich schneller beim Lesen jeder einzelnen Mail. Filter schieben Mails in Ordner. Fewmail ist ein Agent: Es liest deine Mails, entscheidet, was warten kann, und fragt dich nur nach dem Rest.',
@@ -369,6 +437,12 @@ export const de: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
+          'Viele KI-Mail-Tools sind ein neues Postfach mit Chatfenster: Du liest trotzdem jede Mail, nur mit einer Zusammenfassung obendrauf. Fewmail ist ein KI-Agent auf dem Gmail, das du schon nutzt. Er liest zuerst jede Mail, entwirft Antworten in deinem Ton und bringt dir nur die wenigen Entscheidungen, die dich brauchen.',
+        question:
+          'Was unterscheidet Fewmail von anderen KI-E-Mail-Assistenten?',
+      },
+      {
+        answer:
           'Nein. Fewmail läuft auf Gmail. Alles, was es tut, siehst du auch in Gmail, und du kannst jede Gmail-App parallel weiter nutzen.',
         question: 'Muss ich Gmail verlassen?',
       },
@@ -454,7 +528,7 @@ export const de: Messages = {
       legal: 'Rechtliches',
       product: 'Produkt',
       tagline:
-        'Der E-Mail-Agent, der dein Gmail liest und dir nur zeigt, was dich braucht.',
+        'Der KI-E-Mail-Agent, der dein Gmail liest und dir nur zeigt, was dich braucht.',
       versus: (name: string) => `vs. ${name}`,
     },
     gone: {
@@ -512,7 +586,7 @@ export const de: Messages = {
         ' erledigt, jeweils mit Grund',
       ]) as Rich<'count'>,
       inbox: 'Posteingang',
-      lead: 'Newsletter, Belege, Benachrichtigungen, ein Phishing-Link und irgendwo dazwischen die drei Mails, die wirklich zählen. Fewmail ist der Agent, der das alles für dich liest.',
+      lead: 'Newsletter, Belege, Benachrichtigungen, ein Phishing-Link und irgendwo dazwischen die drei Mails, die wirklich zählen. Fewmail ist der KI-Agent, der das alles für dich liest.',
       needYou: ((slots) => [slots.count, ' brauchen dich']) as Rich<'count'>,
       queue: [
         {
@@ -550,6 +624,7 @@ export const de: Messages = {
       willDo: 'Was Fewmail tut',
     },
     nav: {
+      assistant: 'KI-E-Mail-Assistent',
       compare: 'Vergleich',
       features: 'Funktionen',
       mcp: 'MCP-Server',

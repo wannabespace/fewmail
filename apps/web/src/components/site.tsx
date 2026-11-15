@@ -1,5 +1,11 @@
 import type { BillingInterval } from '@fewmail/shared/agent'
 import { allowanceIn, PAID_PLANS } from '@fewmail/shared/agent'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -152,6 +158,12 @@ export const SiteFooter = () => {
               link: <Link to="/pricing">{t.site.nav.pricing}</Link>,
             },
             {
+              label: 'assistant',
+              link: (
+                <Link to="/ai-email-assistant">{t.site.nav.assistant}</Link>
+              ),
+            },
+            {
               label: 'mcp',
               link: <Link to="/mcp">{t.site.nav.mcp}</Link>,
             },
@@ -219,6 +231,23 @@ export const Chapter = ({
     </Reveal>
     {children}
   </section>
+)
+
+export const Faq = ({
+  items,
+}: {
+  items: { answer: string; question: string }[]
+}) => (
+  <Reveal className="mt-12 max-w-3xl">
+    <Accordion>
+      {items.map(({ answer, question }) => (
+        <AccordionItem key={question} value={question}>
+          <AccordionTrigger>{question}</AccordionTrigger>
+          <AccordionContent>{answer}</AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  </Reveal>
 )
 
 export const Stage = ({ children, className }: ComponentProps<'div'>) => (

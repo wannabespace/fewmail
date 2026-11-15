@@ -26,6 +26,7 @@ export const LOCALIZED_PATHS = [
   '/compare',
   ...COMPARISONS.map(({ slug }) => `/compare/${slug}`),
   '/mcp',
+  '/ai-email-assistant',
   '/login',
 ]
 
@@ -75,9 +76,13 @@ export const pageMeta = (path: string, t: Messages): PageMeta | undefined => {
   const { comparison, comparisons, meta, nav } = t.site
   const pages: Record<string, PageMeta> = {
     '/': { description: meta.home, title: `${SITE_NAME}: ${meta.tagline}` },
+    '/ai-email-assistant': {
+      description: meta.assistant,
+      title: `${meta.assistantTitle} · ${SITE_NAME}`,
+    },
     '/compare': {
       description: meta.compare,
-      title: `${nav.compare} · ${SITE_NAME}`,
+      title: `${meta.compareTitle} · ${SITE_NAME}`,
     },
     ...Object.fromEntries(
       COMPARISONS.map(({ name, slug }) => [
@@ -102,6 +107,15 @@ export const pageMeta = (path: string, t: Messages): PageMeta | undefined => {
 
 export const pageTitle = (path: string, t: Messages) =>
   pageMeta(path, t)?.title ?? SITE_NAME
+
+const faqPage = (items: { answer: string; question: string }[]) => ({
+  '@type': 'FAQPage',
+  mainEntity: items.map(({ answer, question }) => ({
+    '@type': 'Question',
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+    name: question,
+  })),
+})
 
 /** schema.org JSON-LD for a public page. `WebSite` on `/` is what makes Google name the result "Fewmail" instead of the domain. */
 export const structuredData = (
@@ -145,15 +159,9 @@ export const structuredData = (
           url: `${origin}/`,
         },
         app,
-        {
-          '@type': 'FAQPage',
-          mainEntity: site.faq(TRIAL_DAYS).map(({ answer, question }) => ({
-            '@type': 'Question',
-            acceptedAnswer: { '@type': 'Answer', text: answer },
-            name: question,
-          })),
-        },
+        faqPage(site.faq(TRIAL_DAYS)),
       ],
+      '/ai-email-assistant': [app, faqPage(site.assistantPage.faq(TRIAL_DAYS))],
       '/pricing': [app],
     }[path] ??
     (comparison && [
