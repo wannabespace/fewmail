@@ -30,7 +30,6 @@ import {
   LinkSquare02Icon,
   NextIcon,
   Tick02Icon,
-  ViewIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -48,7 +47,6 @@ import { ComposerEditor } from './composer/composer-editor'
 import { ConsentDetails, DraftText } from './consent-details'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
 import { SenderAvatar } from './sender-avatar'
-import { PeekTrigger, peekIdOf } from './thread-link'
 import { ROW_SWAP } from './thread-view'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
@@ -223,14 +221,12 @@ const QuickActions = ({
   action,
   isOpen,
   isSelected,
-  message,
   onApprove,
   onSkip,
 }: {
   action: Action
   isOpen: boolean
   isSelected: boolean
-  message: QueueItem['message']
   onApprove: () => void
   onSkip: () => void
 }) => {
@@ -246,21 +242,6 @@ const QuickActions = ({
           size="icon-sm"
           variant="ghost-muted"
           onClick={onApprove}
-        />
-      )}
-      {message && (
-        <PeekTrigger
-          id={peekIdOf(action.id)}
-          message={{ ...message, from: 'home' }}
-          render={
-            <IconButton
-              icon={ViewIcon}
-              label={t.mail.peek}
-              shortcut={isSelected && <Kbd>O</Kbd>}
-              size="icon-sm"
-              variant="ghost-muted"
-            />
-          }
         />
       )}
       <IconButton
@@ -327,7 +308,6 @@ const QueueCardHeader = ({
               action={action}
               isOpen={isOpen}
               isSelected={isSelected}
-              message={message}
               onApprove={onApprove}
               onSkip={onSkip}
             />

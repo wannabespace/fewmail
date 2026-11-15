@@ -88,7 +88,6 @@ import {
   useReadingIssues,
 } from '~/components/reading'
 import { SenderAvatar } from '~/components/sender-avatar'
-import { usePeekKey } from '~/components/thread-link'
 import {
   CodeActions,
   codesOnScreen,
@@ -453,13 +452,8 @@ const worthRowsOf = (today: Today | undefined): WorthRow[] =>
 const openWorthRow = ({ id, threadId }: WorthRow) =>
   expandRow(id, { from: 'home', threadId })
 
-/** `O` peeks at a card's email and opens a worth-knowing row's. */
-const useOpenKey = (
-  cursorId: string | undefined,
-  worthRow: WorthRow | undefined,
-  isWalking: boolean
-) => {
-  usePeekKey(worthRow ? undefined : cursorId, isWalking)
+/** `O` opens a worth-knowing row's email. */
+const useOpenKey = (worthRow: WorthRow | undefined, isWalking: boolean) => {
   useHotkey('O', () => worthRow && openWorthRow(worthRow), {
     enabled: isWalking && !!worthRow,
   })
@@ -1594,7 +1588,7 @@ const HomePage = () => {
   useHotkey('E', openAnd(setEditingId), listKeys)
   useHotkey('R', openAnd(setRewritingId), listKeys)
   useHotkey('Space', () => cursorId && setIsOpen((open) => !open), walkKeys)
-  useOpenKey(cursorId, worthRow, isWalking)
+  useOpenKey(worthRow, isWalking)
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
