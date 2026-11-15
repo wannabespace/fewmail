@@ -61,7 +61,7 @@ export default defineConfig({
         contracts: [
           // Motion drives these through MotionValues; a class cannot.
           {
-            allow: ['opacity', 'rotateX', 'scale', 'translateY'],
+            allow: ['opacity', 'rotateX', 'scale', 'translateX', 'translateY'],
             pattern: '^motion\\.',
           },
         ],

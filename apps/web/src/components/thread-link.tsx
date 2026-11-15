@@ -6,7 +6,12 @@ import {
 } from '@fewmail/ui/components/popover'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+} from 'motion/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ComponentProps, CSSProperties } from 'react'
 
@@ -261,6 +266,140 @@ const FLOATING =
   'rgba(0, 0, 0, 0.3) 0px 32px 64px -16px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
 
 /**
+ * The card lands on the box its source had when the close began, moved by however far the source has scrolled since,
+ * so a scroll during the close carries the card with the source instead of leaving it on the window.
+ */
+const EmailCard = ({
+  isClosing,
+  shown,
+}: {
+  isClosing: boolean
+  shown: Expanded & { box: Source | null }
+}) => {
+  const t = useT()
+  const springs = useCardSprings()
+  const card = useCardBox()
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  // Measured once per close: a box measured again on a later render would count the scroll twice.
+  const [back, setBack] = useState<{ box: Source | null } | null>(null)
+  if (isClosing !== !!back) {
+    setBack(isClosing ? { box: boxOf(shown.sourceId) } : null)
+  }
+  const target = back?.box
+  useEffect(() => {
+    if (!target) {
+      return
+    }
+    x.jump(0)
+    y.jump(0)
+    const follow = () => {
+      const box = sourceOf(shown.sourceId)?.getBoundingClientRect()
+      if (box) {
+        x.set(box.left - target.left)
+        y.set(box.top - target.top)
+      }
+    }
+    addEventListener('scroll', follow, { capture: true, passive: true })
+    return () => removeEventListener('scroll', follow, { capture: true })
+  }, [target, shown.sourceId, x, y])
+  return (
+    <motion.div
+      custom={target ?? null}
+      style={{ translateX: x, translateY: y }}
+      variants={{
+        held: shown.box
+          ? { ...shown.box, boxShadow: RESTING }
+          : { ...card, opacity: 0 },
+        open: {
+          ...card,
+          borderRadius: OPEN_CORNERS,
+          boxShadow: FLOATING,
+          opacity: 1,
+          transition: springs.open,
+          translateX: 0,
+          translateY: 0,
+        },
+        source: (box: Source | null) =>
+          box
+            ? {
+                ...box,
+                boxShadow: RESTING,
+                transition: springs.close,
+              }
+            : { opacity: 0, transition: springs.close },
+      }}
+      initial="held"
+      animate={isClosing ? 'source' : 'open'}
+      exit="source"
+      onAnimationComplete={(definition) => {
+        if (definition === 'source' && expandedThread.get()?.isClosing) {
+          dropExpanded()
+        }
+      }}
+      // A click on a closing card opens it again from where it is.
+      onClick={reopenExpanded}
+      className="bg-background fixed z-40 overflow-hidden"
+    >
+      <motion.div
+        aria-hidden
+        inert
+        variants={{
+          held: { opacity: 1 },
+          open: { opacity: 0, transition: { duration: 0.18, ease: EASE } },
+          source: {
+            opacity: 1,
+            transition: { delay: 0.06, duration: 0.15, ease: EASE },
+          },
+        }}
+        className="bg-popover absolute inset-0"
+      >
+        <SourceCopy shown={shown} />
+      </motion.div>
+      <motion.div
+        // A click on a closing card only opens it again, never a button in its email.
+        inert={isClosing}
+        variants={{
+          held: { opacity: 0 },
+          open: {
+            opacity: 1,
+            transition: { delay: 0.03, duration: 0.22, ease: EASE },
+          },
+          source: {
+            opacity: 0,
+            transition: { delay: 0.08, duration: 0.15, ease: EASE },
+          },
+        }}
+        style={
+          {
+            '--card-height': `${card.height}px`,
+            '--card-width': `${card.width}px`,
+          } as CSSProperties
+        }
+        className="absolute top-0 left-1/2 flex h-(--card-height) w-(--card-width) -translate-x-1/2 flex-col pt-6"
+      >
+        <ThreadView
+          key={shown.threadId}
+          isFullPage
+          isSnoozed={false}
+          threadId={shown.threadId}
+          onClose={collapseExpanded}
+          onDone={() => shown.close()}
+        />
+        <KeyHints
+          hints={[
+            ['R', t.keys.reply],
+            ['E', t.keys.archive],
+            ['/', t.keys.ask],
+            ['esc', t.keys.close],
+          ]}
+        />
+      </motion.div>
+    </motion.div>
+  )
+}
+
+/**
  * An email opened out of a row or a peek as an App Store card: the source lifts into a very large card over the dimmed
  * page on one spring, starting as the source's exact copy that dissolves into the email. The email is laid out at the
  * card's open size from the first frame, centred in it, so nothing reflows. Closing runs it back into the source, the email
@@ -269,13 +408,10 @@ const FLOATING =
  * close: a click on the card opens it again from where it is, and another row or peek opens at once.
  */
 export const ThreadPane = () => {
-  const t = useT()
   const open = useExpanded()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   })
-  const springs = useCardSprings()
-  const card = useCardBox()
   const isHere = open?.pathname === pathname
   // The card keeps its email and where it grew from while it shrinks back.
   const [shown, setShown] = useState<
@@ -292,9 +428,11 @@ export const ThreadPane = () => {
   const isClosing = !!open?.isClosing
   // A peek's popover takes esc and the peek its ⇧O; a row leaves both to the card.
   const rowKeys = { enabled: isHere && open?.surface === 'row' }
-  useHotkey('Escape', collapseExpanded, rowKeys)
+  useHotkey('Escape', collapseExpanded, {
+    ...rowKeys,
+    ignoreDefaultPrevented: true,
+  })
   useHotkey('Shift+O', collapseExpanded, rowKeys)
-  const back = isClosing && open ? boxOf(open.sourceId) : null
   const isShown = open && isHere && shown
   return (
     <AnimatePresence
@@ -322,96 +460,7 @@ export const ThreadPane = () => {
       )}
       {isShown && (
         // Another source while this one closes gets a card of its own; this one lands on its source meanwhile.
-        <motion.div
-          key={shown.sourceId}
-          custom={back}
-          variants={{
-            held: shown.box
-              ? { ...shown.box, boxShadow: RESTING }
-              : { ...card, opacity: 0 },
-            open: {
-              ...card,
-              borderRadius: OPEN_CORNERS,
-              boxShadow: FLOATING,
-              opacity: 1,
-              transition: springs.open,
-            },
-            source: (box: Source | null) =>
-              box
-                ? {
-                    ...box,
-                    boxShadow: RESTING,
-                    transition: springs.close,
-                  }
-                : { opacity: 0, transition: springs.close },
-          }}
-          initial="held"
-          animate={isClosing ? 'source' : 'open'}
-          exit="source"
-          onAnimationComplete={(definition) => {
-            if (definition === 'source' && expandedThread.get()?.isClosing) {
-              dropExpanded()
-            }
-          }}
-          // A click on a closing card opens it again from where it is.
-          onClick={reopenExpanded}
-          className="bg-background fixed z-40 overflow-hidden"
-        >
-          <motion.div
-            aria-hidden
-            inert
-            variants={{
-              held: { opacity: 1 },
-              open: { opacity: 0, transition: { duration: 0.18, ease: EASE } },
-              source: {
-                opacity: 1,
-                transition: { delay: 0.06, duration: 0.15, ease: EASE },
-              },
-            }}
-            className="bg-popover absolute inset-0"
-          >
-            <SourceCopy shown={shown} />
-          </motion.div>
-          <motion.div
-            // A click on a closing card only opens it again, never a button in its email.
-            inert={isClosing}
-            variants={{
-              held: { opacity: 0 },
-              open: {
-                opacity: 1,
-                transition: { delay: 0.03, duration: 0.22, ease: EASE },
-              },
-              source: {
-                opacity: 0,
-                transition: { delay: 0.08, duration: 0.15, ease: EASE },
-              },
-            }}
-            style={
-              {
-                '--card-height': `${card.height}px`,
-                '--card-width': `${card.width}px`,
-              } as CSSProperties
-            }
-            className="absolute top-0 left-1/2 flex h-(--card-height) w-(--card-width) -translate-x-1/2 flex-col pt-6"
-          >
-            <ThreadView
-              key={shown.threadId}
-              isFullPage
-              isSnoozed={false}
-              threadId={shown.threadId}
-              onClose={collapseExpanded}
-              onDone={() => shown.close()}
-            />
-            <KeyHints
-              hints={[
-                ['R', t.keys.reply],
-                ['E', t.keys.archive],
-                ['/', t.keys.ask],
-                ['esc', t.keys.close],
-              ]}
-            />
-          </motion.div>
-        </motion.div>
+        <EmailCard key={shown.sourceId} shown={shown} isClosing={isClosing} />
       )}
     </AnimatePresence>
   )
