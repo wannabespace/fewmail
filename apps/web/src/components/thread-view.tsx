@@ -50,23 +50,12 @@ import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { animate, motion, usePresence } from 'motion/react'
-import {
-  createContext,
-  Fragment,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { toast } from 'sonner'
 
-import { MorphSource, useMorph } from '~/components/expand-row'
-import type { Expanded, MorphPart } from '~/components/expand-row'
 import { useDates, useT } from '~/lib/i18n'
 import {
   hideThread,
@@ -361,177 +350,15 @@ export const HtmlBody = ({
   )
 }
 
-interface MorphTarget {
-  morphId: string
-  parts: MorphPart[]
-  targetId?: string
-}
-const MorphContext = createContext<MorphTarget | null>(null)
-
-// Computed sizes are always in px.
-const fontSizeOf = (element: Element) =>
-  Number(
-    getComputedStyle(element.firstElementChild ?? element).fontSize.slice(0, -2)
-  )
-
-/**
- * How far a part sits from the same part of the source, from its layout box, so a part caught mid-flight still lands
- * right. It scales evenly, never stretched: a box by its width, text by its font size, since a subject that wraps here
- * runs on one line there.
- */
-const awayFrom = (element: HTMLElement, sourceId: string, scales?: Scale) => {
-  const source = document.querySelector(
-    `[data-morph="${CSS.escape(sourceId)}"]`
-  )
-  const from = source?.getBoundingClientRect()
-  const box = element.getBoundingClientRect()
-  const now = new DOMMatrixReadOnly(getComputedStyle(element).transform)
-  const width = box.width / now.a
-  if (!source || !from || !width) {
-    return null
-  }
-  const scale =
-    (scales === 'box' && from.width / width) ||
-    (scales === 'text' && fontSizeOf(source) / fontSizeOf(element)) ||
-    1
-  return {
-    scale,
-    x: from.left - (box.left - now.e),
-    y: from.top - (box.top - now.f),
-  }
-}
-
-type Scale = 'box' | 'text'
-
-/** Flies from the same part of the row or peek the pane grew out of, and back to it while the pane shrinks. */
-const Flight = ({
-  block,
-  children,
-  className,
-  scales,
-  sourceId,
-}: {
-  block?: boolean
-  children: ReactNode
-  className?: string
-  scales?: Scale
-  sourceId: string
-}) => {
-  const ref = useRef<HTMLDivElement>(null)
-  const hasFlown = useRef(false)
-  const hasReturned = useRef(false)
-  const [isPresent, safeToRemove] = usePresence()
-  const { morph } = useMorph()
-  useLayoutEffect(() => {
-    const element = ref.current
-    const away = element && awayFrom(element, sourceId, scales)
-    if (hasFlown.current || !element || !away) {
-      return
-    }
-    hasFlown.current = true
-    void animate(
-      element,
-      {
-        scale: [away.scale, 1],
-        x: [away.x, 0],
-        y: [away.y, 0],
-      },
-      morph
-    )
-  })
-  useEffect(() => {
-    if (isPresent || hasReturned.current) {
-      return
-    }
-    hasReturned.current = true
-    const element = ref.current
-    const away = element && awayFrom(element, sourceId, scales)
-    if (!element || !away) {
-      safeToRemove()
-      return
-    }
-    void animate(element, away, morph).then(safeToRemove)
-  }, [isPresent, morph, safeToRemove, scales, sourceId])
-  const Tag = block ? 'div' : 'span'
-  return (
-    <Tag
-      ref={ref}
-      className={cn(
-        'relative z-10 origin-top-left',
-        !block && 'inline-flex',
-        className
-      )}
-    >
-      {children}
-    </Tag>
-  )
-}
-
-const SCALES: Partial<Record<MorphPart, Scale>> = {
-  avatar: 'box',
-  title: 'text',
-}
-
-const RISE = {
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, transition: { duration: 0.1 } },
-  initial: { opacity: 0, y: 8 },
-}
-
-/**
- * In a pane grown out of a row or a peek (`ThreadPane`), `name` flies from the same part there and anything else rises in
- * after it; on a page, or for an email other than the one it grew out of (`of`), it is its children alone.
- */
-const Part = ({
-  block,
-  children,
-  className,
-  name,
-  of,
-}: {
-  block?: boolean
-  children: ReactNode
-  className?: string
-  name?: MorphPart
-  of?: string
-}) => {
-  const morph = useContext(MorphContext)
-  const { reveal } = useMorph()
-  if (!morph || (of !== undefined && of !== morph.targetId)) {
-    return children
-  }
-  if (name && morph.parts.includes(name)) {
-    return (
-      <Flight
-        block={block}
-        className={className}
-        scales={SCALES[name]}
-        sourceId={`${morph.morphId}-${name}`}
-      >
-        {children}
-      </Flight>
-    )
-  }
-  const Rise = block ? motion.div : motion.span
-  return (
-    <Rise {...RISE} transition={reveal} className={className}>
-      {children}
-    </Rise>
-  )
-}
-
 /** One email over its list, read without opening the thread: nothing is marked read and no tracking pixel loads. */
 export const ThreadPeek = ({
   cite,
   from,
   message: { fromEmail, fromName, id, subject, threadId },
-  morphId,
   onOpen,
 }: {
   cite?: string
   from: 'home' | 'journal' | 'mail' | 'reading'
-  /** Its avatar, name, subject and body fly into the pane it grows into (`expandPeek`). */
-  morphId?: string
   message: {
     fromEmail: string
     fromName: string | null
@@ -543,14 +370,6 @@ export const ThreadPeek = ({
 }) => {
   const t = useT()
   const { data: thread } = useThread(threadId)
-  const source = (part: MorphPart, node: ReactNode, className?: string) =>
-    morphId ? (
-      <MorphSource morphId={morphId} part={part} className={className}>
-        {node}
-      </MorphSource>
-    ) : (
-      node
-    )
   const message = thread?.messages.find(
     (entry) => entry.message.id === id
   )?.message
@@ -561,25 +380,14 @@ export const ThreadPeek = ({
   return (
     <div className="flex max-h-[min(40rem,var(--available-height))] flex-col">
       <div className="flex items-center gap-3 border-b py-2.5 pr-2.5 pl-4">
-        {source(
-          'avatar',
-          <SenderAvatar sender={{ fromEmail, fromName }} size="sm" />
-        )}
-        <div className="flex min-w-0 flex-1 flex-col items-start">
-          {source(
-            'name',
-            <span data-mask className="truncate font-medium">
-              {fromName ?? fromEmail}
-            </span>,
-            'min-w-0'
-          )}
-          {source(
-            'title',
-            <span data-mask className="text-muted-foreground truncate text-xs">
-              {subject}
-            </span>,
-            'min-w-0'
-          )}
+        <SenderAvatar sender={{ fromEmail, fromName }} size="sm" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span data-mask className="truncate font-medium">
+            {fromName ?? fromEmail}
+          </span>
+          <span data-mask className="text-muted-foreground truncate text-xs">
+            {subject}
+          </span>
         </div>
         <IconButton
           icon={ArrowExpand01Icon}
@@ -592,17 +400,13 @@ export const ThreadPeek = ({
       </div>
       <div className="min-h-0 overflow-y-auto p-2">
         {message ? (
-          source(
-            'body',
-            <HtmlBody
-              blockImages={message.labelIds.includes('SPAM')}
-              cidImage={cidSource(message)}
-              cite={cite}
-              html={withoutPixels(message.html ?? textToHtml(message.body))}
-              id={message.id}
-            />,
-            'flex w-full flex-col'
-          )
+          <HtmlBody
+            blockImages={message.labelIds.includes('SPAM')}
+            cidImage={cidSource(message)}
+            cite={cite}
+            html={withoutPixels(message.html ?? textToHtml(message.body))}
+            id={message.id}
+          />
         ) : (
           <BodySkeleton />
         )}
@@ -697,112 +501,88 @@ const MessageSection = ({
       <header className="flex flex-col items-start gap-0.5">
         <div className="flex w-full flex-wrap items-center gap-2 text-sm">
           {hasAgent && analysis && (
-            <Part of={message.id}>
-              <ImportanceDot
-                importance={analysis.importance}
-                reason={analysis.reason}
-              />
-            </Part>
+            <ImportanceDot
+              importance={analysis.importance}
+              reason={analysis.reason}
+            />
           )}
-          <Part name="avatar" of={message.id}>
-            <SenderAvatar sender={message} />
-          </Part>
-          <Part name="name" of={message.id}>
-            <strong data-mask className="font-semibold">
-              {message.isFromMe
-                ? t.mail.you
-                : (message.fromName ?? message.fromEmail)}
-            </strong>
-          </Part>
+          <SenderAvatar sender={message} />
+          <strong data-mask className="font-semibold">
+            {message.isFromMe
+              ? t.mail.you
+              : (message.fromName ?? message.fromEmail)}
+          </strong>
           {!message.isFromMe && (
-            <Part of={message.id}>
-              <span data-mask className="text-muted-foreground">
-                {message.fromEmail}
-              </span>
-            </Part>
+            <span data-mask className="text-muted-foreground">
+              {message.fromEmail}
+            </span>
           )}
           {message.suspicion && (
-            <Part of={message.id}>
-              <Badge variant="outline">{t.spam.suspect}</Badge>
-            </Part>
+            <Badge variant="outline">{t.spam.suspect}</Badge>
           )}
           {isBulk(message.bulkCount, analysis?.category) && (
-            <Part of={message.id}>
-              <Badge variant="outline">
-                {t.bulk.badge(message.bulkCount ?? 0)}
-              </Badge>
-            </Part>
+            <Badge variant="outline">
+              {t.bulk.badge(message.bulkCount ?? 0)}
+            </Badge>
           )}
-          <Part of={message.id} className="ml-auto">
-            <span className="text-muted-foreground ml-auto flex items-center gap-2 text-xs">
-              <ActionNote actions={actions} />
-              {dates.format(message.receivedAt, 'd MMM, HH:mm')}
-            </span>
-          </Part>
+          <span className="text-muted-foreground ml-auto flex items-center gap-2 text-xs">
+            <ActionNote actions={actions} />
+            {dates.format(message.receivedAt, 'd MMM, HH:mm')}
+          </span>
         </div>
-        <Part of={message.id}>
-          <MessageDetails message={message} />
-        </Part>
+        <MessageDetails message={message} />
       </header>
       {hasAgent && analysis && (
-        <Part block of={message.id}>
-          <div className="bg-secondary/50 flex flex-col gap-2 rounded-xl px-4 py-3">
-            <p data-mask className="text-sm">
-              {analysis.summary}
-            </p>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <Badge
-                variant={
-                  analysis.category === 'security' ? 'destructive' : 'outline'
-                }
-              >
-                {t.category[analysis.category]}
-              </Badge>
-              {analysis.needsReply && (
-                <Badge variant="outline">{t.mail.expectsReply}</Badge>
-              )}
-              <ExtractedChips extracted={analysis.extracted} />
-            </div>
+        <div className="bg-secondary/50 flex flex-col gap-2 rounded-xl px-4 py-3">
+          <p data-mask className="text-sm">
+            {analysis.summary}
+          </p>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge
+              variant={
+                analysis.category === 'security' ? 'destructive' : 'outline'
+              }
+            >
+              {t.category[analysis.category]}
+            </Badge>
+            {analysis.needsReply && (
+              <Badge variant="outline">{t.mail.expectsReply}</Badge>
+            )}
+            <ExtractedChips extracted={analysis.extracted} />
           </div>
-        </Part>
+        </div>
       )}
       {message.html && isSpam && !showsImages && (
-        <Part block of={message.id}>
-          <div className="text-muted-foreground flex items-center gap-3 text-sm">
-            {t.spam.imagesHidden}
-            <Button
-              size="xs"
-              variant="secondary"
-              onClick={() => {
-                setShowsImages(true)
-                posthog.capture('spam_images_shown')
-              }}
-            >
-              {t.spam.showImages}
-            </Button>
-          </div>
-        </Part>
-      )}
-      <Part block name="body" of={message.id} className="flex flex-col">
-        {message.html ? (
-          <HtmlBody
-            blockImages={isSpam && !showsImages}
-            cidImage={cidSource(message)}
-            html={message.html}
-            id={message.id}
-          />
-        ) : (
-          <p
-            data-mask
-            className="text-foreground/90 text-sm/relaxed wrap-break-word whitespace-pre-wrap"
+        <div className="text-muted-foreground flex items-center gap-3 text-sm">
+          {t.spam.imagesHidden}
+          <Button
+            size="xs"
+            variant="secondary"
+            onClick={() => {
+              setShowsImages(true)
+              posthog.capture('spam_images_shown')
+            }}
           >
-            {message.body.replaceAll(/\n\s*\n\s*\n/gu, '\n\n').trim()}
-          </p>
-        )}
-      </Part>
-      <Part block of={message.id}>
-        <MessageAttachments message={message} />
-      </Part>
+            {t.spam.showImages}
+          </Button>
+        </div>
+      )}
+      {message.html ? (
+        <HtmlBody
+          blockImages={isSpam && !showsImages}
+          cidImage={cidSource(message)}
+          html={message.html}
+          id={message.id}
+        />
+      ) : (
+        <p
+          data-mask
+          className="text-foreground/90 text-sm/relaxed wrap-break-word whitespace-pre-wrap"
+        >
+          {message.body.replaceAll(/\n\s*\n\s*\n/gu, '\n\n').trim()}
+        </p>
+      )}
+      <MessageAttachments message={message} />
     </section>
   )
 }
@@ -859,19 +639,14 @@ const CollapsedMessage = ({
 }
 
 /** Folds once, on the first load: opening the thread marks it read, which must not fold what was unread. */
-const useFolding = (
-  thread?: { messages: { message: ThreadMessage }[] },
-  keepOpenId?: string
-) => {
+const useFolding = (thread?: { messages: { message: ThreadMessage }[] }) => {
   const [folded, setFolded] = useState<Set<string> | null>(null)
   if (thread && !folded) {
     setFolded(
       new Set(
         thread.messages
           .slice(0, -1)
-          .filter(
-            ({ message }) => !message.isUnread && message.id !== keepOpenId
-          )
+          .filter(({ message }) => !message.isUnread)
           .map(({ message }) => message.id)
       )
     )
@@ -1535,89 +1310,40 @@ const ReaderHeader = ({
             <Skeleton className="my-1 h-6 w-3/4" />
           ) : (
             <h1 data-mask className="font-serif text-2xl tracking-tight">
-              <Part name="title">{title}</Part>
+              {title}
             </h1>
           )}
           {note && <p className="text-muted-foreground text-sm">{note}</p>}
         </div>
-        <Part className="flex gap-2">
-          {onOpenFullPage && (
-            <IconButton
-              icon={ArrowExpand01Icon}
-              label={t.mail.openFullPage}
-              shortcut={<Kbd>⇧O</Kbd>}
-              size="icon-sm"
-              variant="ghost-muted"
-              onClick={onOpenFullPage}
-            />
-          )}
+        {onOpenFullPage && (
           <IconButton
-            icon={isFullPage ? ArrowShrink01Icon : Cancel01Icon}
-            label={isFullPage ? t.mail.collapseFullPage : t.mail.close}
-            shortcut={<Kbd>esc</Kbd>}
+            icon={ArrowExpand01Icon}
+            label={t.mail.openFullPage}
+            shortcut={<Kbd>⇧O</Kbd>}
             size="icon-sm"
             variant="ghost-muted"
-            onClick={onClose}
+            onClick={onOpenFullPage}
           />
-        </Part>
+        )}
+        <IconButton
+          icon={isFullPage ? ArrowShrink01Icon : Cancel01Icon}
+          label={isFullPage ? t.mail.collapseFullPage : t.mail.close}
+          shortcut={<Kbd>esc</Kbd>}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={onClose}
+        />
       </div>
-      {children && <Part block>{children}</Part>}
+      {children}
     </header>
   )
 }
-
-const morphTargetOf = (
-  morph: Pick<Expanded, 'messageId' | 'morphId' | 'parts'> | undefined,
-  data: ReturnType<typeof useThread>['data']
-): MorphTarget | null =>
-  morph
-    ? {
-        ...morph,
-        targetId: data?.messages.some(
-          ({ message }) => message.id === morph.messageId
-        )
-          ? morph.messageId
-          : undefined,
-      }
-    : null
-
-const ThreadSkeleton = ({
-  hasAgent,
-  isFullPage,
-  onClose,
-  onOpenFullPage,
-}: {
-  hasAgent: boolean
-  isFullPage?: boolean
-  onClose: () => void
-  onOpenFullPage?: () => void
-}) => (
-  <article className="flex min-h-0 flex-1 flex-col">
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-8 pb-8">
-      <ReaderHeader
-        title={null}
-        isFullPage={isFullPage}
-        onClose={onClose}
-        onOpenFullPage={onOpenFullPage}
-      >
-        <div className="flex gap-2">
-          <Skeleton className="h-7 w-20 rounded-lg" />
-          <Skeleton className="h-7 w-24 rounded-lg" />
-          <Skeleton className="h-7 w-28 rounded-lg" />
-          <Skeleton className="h-7 w-16 rounded-lg" />
-        </div>
-      </ReaderHeader>
-      <MessageSkeleton hasAgent={hasAgent} />
-    </div>
-  </article>
-)
 
 /** `canOpenFullPage`: a reader beside a list offers the email on its own page (`/mail/$threadId`, ⇧O), where `isFullPage` turns its ✕ into a collapse. */
 export const ThreadView = ({
   canOpenFullPage = false,
   isFullPage,
   isSnoozed,
-  morph,
   onClose,
   onDone,
   threadId,
@@ -1625,8 +1351,6 @@ export const ThreadView = ({
   canOpenFullPage?: boolean
   isFullPage?: boolean
   isSnoozed: boolean
-  /** In `ThreadPane`: what it grew out of, whose parts fly to the same parts here. */
-  morph?: Pick<Expanded, 'messageId' | 'morphId' | 'parts'>
   onClose: () => void
   onDone: () => void
   threadId: string
@@ -1644,8 +1368,7 @@ export const ThreadView = ({
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
-  const { folded, unfold } = useFolding(data, morph?.messageId)
-  const morphTarget = morphTargetOf(morph, data)
+  const { folded, unfold } = useFolding(data)
   useThreadOpen(threadId, data)
   const actions = useMailActions(onDone)
   const { pin, reportSpam, snooze, trash, unsnooze, unsubscribe } = actions
@@ -1684,14 +1407,24 @@ export const ThreadView = ({
 
   if (!data) {
     return (
-      <MorphContext value={morphTarget}>
-        <ThreadSkeleton
-          hasAgent={hasAgent}
-          isFullPage={isFullPage}
-          onClose={onClose}
-          onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
-        />
-      </MorphContext>
+      <article className="flex min-h-0 flex-1 flex-col">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-8 pb-8">
+          <ReaderHeader
+            title={null}
+            isFullPage={isFullPage}
+            onClose={onClose}
+            onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
+          >
+            <div className="flex gap-2">
+              <Skeleton className="h-7 w-20 rounded-lg" />
+              <Skeleton className="h-7 w-24 rounded-lg" />
+              <Skeleton className="h-7 w-28 rounded-lg" />
+              <Skeleton className="h-7 w-16 rounded-lg" />
+            </div>
+          </ReaderHeader>
+          <MessageSkeleton hasAgent={hasAgent} />
+        </div>
+      </article>
     )
   }
 
@@ -1699,175 +1432,164 @@ export const ThreadView = ({
   const actionsOf = settledActionsOf(data, hasAgent)
 
   return (
-    <MorphContext value={morphTarget}>
-      <article className="flex min-h-0 flex-1 flex-col">
-        <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
-            <ReaderHeader
-              title={subject}
-              isFullPage={isFullPage}
-              onClose={onClose}
-              onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
-            >
-              {target && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button size="sm" onClick={reply} shortcut={<Kbd>R</Kbd>}>
-                    {t.mail.reply}
-                  </Button>
+    <article className="flex min-h-0 flex-1 flex-col">
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8">
+          <ReaderHeader
+            title={subject}
+            isFullPage={isFullPage}
+            onClose={onClose}
+            onOpenFullPage={canOpenFullPage ? openFullPage : undefined}
+          >
+            {target && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="sm" onClick={reply} shortcut={<Kbd>R</Kbd>}>
+                  {t.mail.reply}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={sweep.action.isPending}
+                  onClick={() => sweep.action.mutate(target)}
+                  shortcut={<Kbd>E</Kbd>}
+                >
+                  {sweep.label}
+                </Button>
+                {isSnoozed ? (
                   <Button
                     size="sm"
                     variant="secondary"
-                    disabled={sweep.action.isPending}
-                    onClick={() => sweep.action.mutate(target)}
-                    shortcut={<Kbd>E</Kbd>}
+                    onClick={() => unsnooze.mutate(target)}
                   >
-                    {sweep.label}
+                    {t.snooze.unsnooze}
                   </Button>
-                  {isSnoozed ? (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => unsnooze.mutate(target)}
-                    >
-                      {t.snooze.unsnooze}
-                    </Button>
-                  ) : (
-                    <DropdownMenu
-                      open={isSnoozeOpen}
-                      onOpenChange={setIsSnoozeOpen}
-                    >
-                      <DropdownMenuTrigger
-                        render={
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            shortcut={<Kbd>H</Kbd>}
-                          />
-                        }
-                      >
-                        {t.snooze.title}
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <SnoozeMenuItems
-                          onSnooze={(until) =>
-                            snooze.mutate({ ...target, until })
-                          }
-                        />
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                  <DropdownMenu>
+                ) : (
+                  <DropdownMenu
+                    open={isSnoozeOpen}
+                    onOpenChange={setIsSnoozeOpen}
+                  >
                     <DropdownMenuTrigger
-                      render={<Button size="sm" variant="ghost-muted" />}
+                      render={
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          shortcut={<Kbd>H</Kbd>}
+                        />
+                      }
                     >
-                      {t.mail.more}
+                      {t.snooze.title}
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem onClick={togglePin}>
-                        {isPinned ? t.mail.unpin : t.mail.pin}
-                        <DropdownMenuShortcut>S</DropdownMenuShortcut>
-                      </DropdownMenuItem>
-                      <AddToBoardItems messageId={target.messageId} />
-                      <DropdownMenuItem onClick={forward}>
-                        {t.mail.forward}
-                        <DropdownMenuShortcut>F</DropdownMenuShortcut>
-                      </DropdownMenuItem>
-                      {latest?.message.listUnsubscribe && (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            unsubscribe(
-                              target,
-                              latest.message.fromName ??
-                                latest.message.fromEmail
-                            )
-                          }
-                        >
-                          {t.mail.unsubscribe}
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem
-                        render={
-                          <a
-                            href={gmailThreadUrl(user.email, threadId)}
-                            target="_blank"
-                            rel="noreferrer"
-                            aria-label={t.mail.openInGmail}
-                          />
+                      <SnoozeMenuItems
+                        onSnooze={(until) =>
+                          snooze.mutate({ ...target, until })
                         }
-                      >
-                        {t.mail.openInGmail}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DiscardItems
-                        actions={actions}
-                        labelIds={labelIds}
-                        target={target}
                       />
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
-              )}
-            </ReaderHeader>
-
-            <Part block className="empty:hidden">
-              <ThreadNotices data={data} />
-            </Part>
-
-            <div className="flex flex-col gap-2">
-              {data.messages.map(({ analysis, message }, index) => {
-                const isLast = index === data.messages.length - 1
-                const email = folded?.has(message.id) ? (
-                  <CollapsedMessage
-                    actions={actionsOf(message.id, isLast)}
-                    hasShortcut={
-                      !folded.has(data.messages[index - 1]?.message.id ?? '')
-                    }
-                    message={message}
-                    onExpand={unfold}
-                  />
-                ) : (
-                  <MessageSection
-                    actions={actionsOf(message.id, isLast)}
-                    analysis={analysis}
-                    message={message}
-                    hasAgent={hasAgent}
-                  />
-                )
-                // The email the pane grew out of moves part by part; the others rise whole.
-                return message.id === morphTarget?.targetId ? (
-                  <Fragment key={message.id}>{email}</Fragment>
-                ) : (
-                  <Part key={message.id} block>
-                    {email}
-                  </Part>
-                )
-              })}
-            </div>
-
-            {hasAgent && latest && (
-              <Part block>
-                <PersonPanel
-                  email={latest.message.fromEmail}
-                  threadId={threadId}
-                />
-              </Part>
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={<Button size="sm" variant="ghost-muted" />}
+                  >
+                    {t.mail.more}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={togglePin}>
+                      {isPinned ? t.mail.unpin : t.mail.pin}
+                      <DropdownMenuShortcut>S</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                    <AddToBoardItems messageId={target.messageId} />
+                    <DropdownMenuItem onClick={forward}>
+                      {t.mail.forward}
+                      <DropdownMenuShortcut>F</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                    {latest?.message.listUnsubscribe && (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          unsubscribe(
+                            target,
+                            latest.message.fromName ?? latest.message.fromEmail
+                          )
+                        }
+                      >
+                        {t.mail.unsubscribe}
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem
+                      render={
+                        <a
+                          href={gmailThreadUrl(user.email, threadId)}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={t.mail.openInGmail}
+                        />
+                      }
+                    >
+                      {t.mail.openInGmail}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DiscardItems
+                      actions={actions}
+                      labelIds={labelIds}
+                      target={target}
+                    />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             )}
+          </ReaderHeader>
 
-            {composing && (
-              <section
-                ref={revealComposer}
-                className="bg-popover ring-foreground/6 rounded-2xl p-4 shadow-sm ring"
-              >
-                <ComposeForm
-                  draft={composing}
-                  onDone={() => setComposing(null)}
+          <ThreadNotices data={data} />
+
+          <div className="flex flex-col gap-2">
+            {data.messages.map(({ analysis, message }, index) =>
+              folded?.has(message.id) ? (
+                <CollapsedMessage
+                  key={message.id}
+                  actions={actionsOf(
+                    message.id,
+                    index === data.messages.length - 1
+                  )}
+                  hasShortcut={
+                    !folded.has(data.messages[index - 1]?.message.id ?? '')
+                  }
+                  message={message}
+                  onExpand={unfold}
                 />
-              </section>
+              ) : (
+                <MessageSection
+                  key={message.id}
+                  actions={actionsOf(
+                    message.id,
+                    index === data.messages.length - 1
+                  )}
+                  analysis={analysis}
+                  message={message}
+                  hasAgent={hasAgent}
+                />
+              )
             )}
           </div>
+
+          {hasAgent && latest && (
+            <PersonPanel email={latest.message.fromEmail} threadId={threadId} />
+          )}
+
+          {composing && (
+            <section
+              ref={revealComposer}
+              className="bg-popover ring-foreground/6 rounded-2xl p-4 shadow-sm ring"
+            >
+              <ComposeForm
+                draft={composing}
+                onDone={() => setComposing(null)}
+              />
+            </section>
+          )}
         </div>
-      </article>
-    </MorphContext>
+      </div>
+    </article>
   )
 }
 

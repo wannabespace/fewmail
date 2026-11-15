@@ -1,7 +1,6 @@
-import { cn } from '@fewmail/ui/lib/utils'
 import { useReducedMotion } from 'motion/react'
 import type { Transition } from 'motion/react'
-import type { ComponentProps, ReactNode } from 'react'
+import type { ComponentProps } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
@@ -21,22 +20,14 @@ export const SHOWN = { opacity: 1, y: 0 }
 
 export const PEEK_ID = 'thread-peek'
 
-/** What flies from a row or a peek to the same thing in the email: the sender's avatar and name, the subject, the body. */
-export type MorphPart = 'avatar' | 'body' | 'name' | 'title'
-
 export interface Expanded {
-  /** The pane's `clip-path` over what it grew out of, measured as it opens. */
-  clip: string
   close: () => void
   from: 'board' | 'home' | 'journal' | 'mail' | 'reading'
-  /** Set while the pane shrinks back; the source stays hidden and its keys asleep until it is gone. */
+  /** Set while the pane shrinks back into its source, which stays hidden and its page's keys asleep until it is gone. */
   isClosing?: boolean
-  /** The email the parts fly to, unfolded in the pane. */
-  messageId?: string
-  /** A peek (`PEEK_ID`) or a row: its `MorphSource` parts and its box carry it. */
-  morphId: string
-  parts: MorphPart[]
   pathname: string
+  /** The row (`ExpandTrigger`) or the peek (`PEEK_ID`) the pane grows out of, by its `data-morph-source`. */
+  sourceId: string
   surface: 'popover' | 'row'
   threadId: string
 }
@@ -56,14 +47,20 @@ export const dropExpanded = () => expandedThread.set(null)
 
 export const OPEN_CLIP = 'inset(0px 0px 0px 0px round 0px)'
 
-const sourceBox = (morphId: string) =>
-  document.querySelector(`[data-morph-source="${CSS.escape(morphId)}"]`)
+export const sourceOf = (sourceId: string) =>
+  document.querySelector<HTMLElement>(
+    `[data-morph-source="${CSS.escape(sourceId)}"]`
+  )
 
-const clipOver = (morphId: string, radius: number) => {
+export const clipOver = (
+  morphId: string,
+  radius: number,
+  areaSlot = 'thread-pane-area'
+) => {
   const area = document
-    .querySelector('[data-slot=thread-pane-area]')
+    .querySelector(`[data-slot=${areaSlot}]`)
     ?.getBoundingClientRect()
-  const box = sourceBox(morphId)?.getBoundingClientRect()
+  const box = sourceOf(morphId)?.getBoundingClientRect()
   if (!area || !box) {
     return OPEN_CLIP
   }
@@ -72,66 +69,34 @@ const clipOver = (morphId: string, radius: number) => {
 
 /** Grows a peek or a row into `ThreadPane`, or shrinks it back. */
 export const toggleExpanded = (
-  open: Omit<Expanded, 'clip' | 'isClosing' | 'pathname'>
+  open: Omit<Expanded, 'isClosing' | 'pathname'>
 ) => {
-  const current = expandedThread.get()
-  if (current) {
+  if (expandedThread.get()) {
     collapseExpanded()
     return
   }
-  expandedThread.set({
-    ...open,
-    clip: clipOver(open.morphId, open.surface === 'popover' ? 12 : 0),
-    pathname: location.pathname,
-  })
+  expandedThread.set({ ...open, pathname: location.pathname })
   posthog.capture('thread_expanded', { from: open.from })
 }
 
-/** One part of a row or a peek that flies into the email: `ThreadView`'s `Part` of the same name measures it. */
-export const MorphSource = ({
-  children,
-  className,
-  morphId,
-  part,
-}: {
-  children: ReactNode
-  className?: string
-  morphId: string
-  part: MorphPart
-}) => (
-  <span
-    data-morph={`${morphId}-${part}`}
-    className={cn('inline-flex max-w-full', className)}
-  >
-    {children}
-  </span>
-)
-
 interface RowEmail {
   from: Expanded['from']
-  /** The email the row names, when its avatar and title are its sender. */
-  messageId?: string
   threadId: string
 }
 
-export const rowMorphId = (rowId: string) => `email-${rowId}`
+const rowSourceId = (rowId: string) => `email-${rowId}`
 
 /** Grows the `ExpandTrigger` of `rowId` into its email, as a click on it does: a list's ⏎ on its cursor row. */
-export const expandRow = (
-  rowId: string,
-  { from, messageId, threadId }: RowEmail
-) =>
+export const expandRow = (rowId: string, { from, threadId }: RowEmail) =>
   toggleExpanded({
     close: dropExpanded,
     from,
-    messageId,
-    morphId: rowMorphId(rowId),
-    parts: messageId ? ['avatar', 'name'] : [],
+    sourceId: rowSourceId(rowId),
     surface: 'row',
     threadId,
   })
 
-/** A row that grows into its email over the page instead of peeking: `SettingsRow trigger` lays it over the whole row, which is the box the pane grows out of. */
+/** A row that grows into its email over the page instead of peeking: `SettingsRow trigger` lays it over the whole row, the box the pane grows out of. */
 export const ExpandTrigger = ({
   email,
   rowId,
@@ -139,7 +104,7 @@ export const ExpandTrigger = ({
 }: ComponentProps<'button'> & { email: RowEmail; rowId: string }) => (
   <button
     type="button"
-    data-morph-source={rowMorphId(rowId)}
+    data-morph-source={rowSourceId(rowId)}
     onPointerEnter={() => {
       void prefetchThread(email.threadId)
     }}

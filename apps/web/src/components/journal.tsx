@@ -10,7 +10,7 @@ import { format, isToday } from 'date-fns'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { ExpandTrigger, MorphSource, rowMorphId } from '~/components/expand-row'
+import { ExpandTrigger } from '~/components/expand-row'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { ROW_SWAP } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
@@ -110,28 +110,16 @@ export const Journal = () => {
         trigger={
           message ? (
             <ExpandTrigger
-              email={{
-                from: 'journal',
-                messageId: message.id,
-                threadId: message.threadId,
-              }}
+              email={{ from: 'journal', threadId: message.threadId }}
               rowId={action.id}
             />
           ) : undefined
         }
         iconVariant="avatar"
-        icon={
-          message && (
-            <MorphSource morphId={rowMorphId(action.id)} part="avatar">
-              <SenderAvatar sender={message} size="sm" />
-            </MorphSource>
-          )
-        }
+        icon={message && <SenderAvatar sender={message} size="sm" />}
         title={
           message ? (
-            <MorphSource morphId={rowMorphId(action.id)} part="name">
-              <span data-mask>{message.fromName ?? message.fromEmail}</span>
-            </MorphSource>
+            <span data-mask>{message.fromName ?? message.fromEmail}</span>
           ) : (
             <span data-mask>{action.title}</span>
           )

@@ -31,7 +31,7 @@ import {
   HIDDEN,
   PEEK_ID,
   SHOWN,
-  useIsThreadExpanded,
+  useExpanded,
   useMorph,
 } from '~/components/expand-row'
 import { ListenButton } from '~/components/listen-button'
@@ -97,7 +97,7 @@ const NewsletterPeek = ({
 }: {
   onOpenChange: (isOpen: boolean) => void
 }) => {
-  const isExpanded = useIsThreadExpanded()
+  const expanded = useExpanded()
   return (
     <Popover
       handle={peek}
@@ -113,8 +113,8 @@ const NewsletterPeek = ({
         <PopoverContent
           padding="none"
           data-morph-source={PEEK_ID}
-          data-expanded={isExpanded || undefined}
-          className="w-160 data-expanded:invisible"
+          data-expanded={expanded ? true : undefined}
+          className="w-160 data-expanded:pointer-events-none data-expanded:opacity-0"
         >
           {payload && (
             <ThreadPeek
@@ -122,12 +122,10 @@ const NewsletterPeek = ({
               cite={payload.cite}
               from="reading"
               message={payload.row}
-              morphId={PEEK_ID}
               onOpen={() =>
                 expandPeek({
                   close: () => peek.close(),
                   from: 'reading',
-                  id: payload.row.id,
                   threadId: payload.row.threadId,
                 })
               }
