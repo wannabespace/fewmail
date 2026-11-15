@@ -100,13 +100,19 @@ const AppLayout = () => {
 
   useEffect(() => {
     // Charts and the AI SDK would otherwise compete with the first page's own requests.
-    const idle = requestIdleCallback(() => {
+    const preloadChunks = () => {
       for (const route of Object.values(router.routesById)) {
         if (route.id.startsWith('/_app/')) {
           void router.loadRouteChunk(route)
         }
       }
-    })
+    }
+    // Safari has no requestIdleCallback; calling it there throws and takes the whole app down.
+    if (!('requestIdleCallback' in window)) {
+      const timeout = setTimeout(preloadChunks, 2000)
+      return () => clearTimeout(timeout)
+    }
+    const idle = requestIdleCallback(preloadChunks)
     return () => cancelIdleCallback(idle)
   }, [router])
   useEffect(() => {
