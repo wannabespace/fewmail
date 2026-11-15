@@ -3,6 +3,7 @@ import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   ResizableGroup,
   ResizablePanel,
+  ResizablePin,
   ResizableSeparator,
 } from '@fewmail/ui/components/custom/resizable'
 import { Kbd } from '@fewmail/ui/components/kbd'
@@ -264,92 +265,94 @@ const CalendarPage = () => {
   return (
     <ResizableGroup className="flex min-h-0 flex-1">
       <ResizablePanel className="flex min-w-0">
-        <main className="flex min-w-0 flex-1 flex-col">
-          <header className="flex flex-wrap items-center gap-x-6 gap-y-4 px-10 pt-10 pb-5">
-            <h1 className="text-display min-w-0 grow truncate font-serif tracking-tight">
-              {label}
-            </h1>
-            <div className="flex shrink-0 items-center gap-2">
-              {!isCurrentPeriod && (
-                <Button
-                  variant="outline"
-                  onClick={() => show({ date: new Date() })}
-                  shortcut={<Kbd>T</Kbd>}
+        <ResizablePin className="flex min-w-0 flex-1">
+          <main className="flex min-w-0 flex-1 flex-col">
+            <header className="flex flex-wrap items-center gap-x-6 gap-y-4 px-10 pt-10 pb-5">
+              <h1 className="text-display min-w-0 grow truncate font-serif tracking-tight">
+                {label}
+              </h1>
+              <div className="flex shrink-0 items-center gap-2">
+                {!isCurrentPeriod && (
+                  <Button
+                    variant="outline"
+                    onClick={() => show({ date: new Date() })}
+                    shortcut={<Kbd>T</Kbd>}
+                  >
+                    {t.calendar.today}
+                  </Button>
+                )}
+                <IconButton
+                  icon={ArrowLeft01Icon}
+                  label={t.calendar.previous}
+                  shortcut={<Kbd>←</Kbd>}
+                  variant="ghost-muted"
+                  onClick={() => step(-1)}
+                />
+                <IconButton
+                  icon={ArrowRight01Icon}
+                  label={t.calendar.next}
+                  shortcut={<Kbd>→</Kbd>}
+                  variant="ghost-muted"
+                  onClick={() => step(1)}
+                />
+                <Tabs
+                  value={view}
+                  onValueChange={(next: CalendarView) => show({ view: next })}
                 >
-                  {t.calendar.today}
-                </Button>
+                  <TabsList>
+                    {CALENDAR_VIEWS.map((option) => (
+                      <TabsTrigger key={option} value={option}>
+                        {t.calendar.views[option]}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
+                {canAdd && (
+                  <Button onClick={newEventNow} shortcut={<Kbd>N</Kbd>}>
+                    <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
+                    {t.calendar.newEvent}
+                  </Button>
+                )}
+              </div>
+            </header>
+
+            <div className="flex min-h-0 flex-1 flex-col border-t">
+              {view === 'month' && (
+                <MonthView
+                  date={date}
+                  events={events}
+                  selected={preview}
+                  onOpenEvent={openEvent}
+                  onPickDay={pickDay}
+                  onShowDay={showDay}
+                />
               )}
-              <IconButton
-                icon={ArrowLeft01Icon}
-                label={t.calendar.previous}
-                shortcut={<Kbd>←</Kbd>}
-                variant="ghost-muted"
-                onClick={() => step(-1)}
-              />
-              <IconButton
-                icon={ArrowRight01Icon}
-                label={t.calendar.next}
-                shortcut={<Kbd>→</Kbd>}
-                variant="ghost-muted"
-                onClick={() => step(1)}
-              />
-              <Tabs
-                value={view}
-                onValueChange={(next: CalendarView) => show({ view: next })}
-              >
-                <TabsList>
-                  {CALENDAR_VIEWS.map((option) => (
-                    <TabsTrigger key={option} value={option}>
-                      {t.calendar.views[option]}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-              {canAdd && (
-                <Button onClick={newEventNow} shortcut={<Kbd>N</Kbd>}>
-                  <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
-                  {t.calendar.newEvent}
-                </Button>
+              {(view === 'week' || view === 'day') && (
+                <TimeGrid
+                  days={eachDayOfInterval({ end: range.to, start: range.from })}
+                  events={events}
+                  selected={preview}
+                  onOpenEvent={openEvent}
+                  onPickTime={newEvent}
+                />
+              )}
+              {view === 'year' && (
+                <YearView date={date} events={events} onShowDay={showDay} />
               )}
             </div>
-          </header>
 
-          <div className="flex min-h-0 flex-1 flex-col border-t">
-            {view === 'month' && (
-              <MonthView
-                date={date}
-                events={events}
-                selected={preview}
-                onOpenEvent={openEvent}
-                onPickDay={pickDay}
-                onShowDay={showDay}
-              />
-            )}
-            {(view === 'week' || view === 'day') && (
-              <TimeGrid
-                days={eachDayOfInterval({ end: range.to, start: range.from })}
-                events={events}
-                selected={preview}
-                onOpenEvent={openEvent}
-                onPickTime={newEvent}
-              />
-            )}
-            {view === 'year' && (
-              <YearView date={date} events={events} onShowDay={showDay} />
-            )}
-          </div>
-
-          <KeyHints
-            hints={[
-              ...(isCurrentPeriod
-                ? []
-                : [['T', t.keys.calendarToday] as [string, string]]),
-              ['← / →', t.keys.period],
-              ['D W M Y', t.keys.view],
-              ...(canAdd ? [['N', t.keys.newEvent] as [string, string]] : []),
-            ]}
-          />
-        </main>
+            <KeyHints
+              hints={[
+                ...(isCurrentPeriod
+                  ? []
+                  : [['T', t.keys.calendarToday] as [string, string]]),
+                ['← / →', t.keys.period],
+                ['D W M Y', t.keys.view],
+                ...(canAdd ? [['N', t.keys.newEvent] as [string, string]] : []),
+              ]}
+            />
+          </main>
+        </ResizablePin>
       </ResizablePanel>
       <ResizableSeparator />
       <ResizablePanel
