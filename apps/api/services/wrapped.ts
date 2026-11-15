@@ -18,7 +18,7 @@ import {
 } from 'drizzle-orm'
 
 import { env } from '../env'
-import { localClock } from '../lib/clock'
+import { localClock, postgresZone } from '../lib/clock'
 import { handledSince, mailPulse, timeSaved } from './mail'
 import { NotFoundError } from './mail-errors'
 import { getSettings } from './settings'
@@ -42,7 +42,7 @@ const busiest = async (
   timezone: string,
   unit: 'isodow' | 'hour'
 ) => {
-  const bucket = sql<number>`extract(${sql.raw(unit)} from ${messages.receivedAt} at time zone ${timezone})::int`
+  const bucket = sql<number>`extract(${sql.raw(unit)} from ${messages.receivedAt} at time zone ${postgresZone(timezone)})::int`
   const [row] = await db
     .select({ bucket, total: count() })
     .from(messages)

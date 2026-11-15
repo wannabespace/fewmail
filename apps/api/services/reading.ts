@@ -14,7 +14,7 @@ import {
   NO_EM_DASH,
   trackUsage,
 } from '../lib/ai'
-import { localClock } from '../lib/clock'
+import { localClock, postgresZone } from '../lib/clock'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { getPlanInfo, hasAgent, hasBudget } from './plan'
 import { getSettings } from './settings'
@@ -79,11 +79,11 @@ const isReading = (userId: string, day: string, timezone: string) =>
     eq(analyses.category, 'newsletter'),
     gte(
       messages.receivedAt,
-      sql`${day}::date::timestamp at time zone ${timezone}`
+      sql`${day}::date::timestamp at time zone ${postgresZone(timezone)}`
     ),
     lt(
       messages.receivedAt,
-      sql`(${day}::date + 1)::timestamp at time zone ${timezone}`
+      sql`(${day}::date + 1)::timestamp at time zone ${postgresZone(timezone)}`
     )
   )
 
