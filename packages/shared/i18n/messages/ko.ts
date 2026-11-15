@@ -78,7 +78,7 @@ export const ko: Messages = {
       delete_event: '일정 삭제 중',
       list_events: '캘린더 확인 중',
       update_event: '일정 변경 중',
-      list_subscriptions: '구독 확인 중',
+      list_subscriptions: '메일링 리스트 확인 중',
       approve_action: '실행하는 중',
       archive_thread: '보관하는 중',
       get_reading: '뉴스레터 읽는 중',
@@ -508,10 +508,10 @@ export const ko: Messages = {
       '이 발신자는 Fewmail이 쓸 수 있는 구독 취소 방법이 없어 메일을 보관했어요. 하지만 아직 리스트에 있어서 새 메일은 계속 와요.',
     count: (total: number) => `메일링 리스트 ${total}개`,
     empty: '이번 달 메일을 보낸 메일링 리스트가 없어요.',
-    lead: '이번 달 메일을 보낸 메일링 리스트예요. 많이 보낸 순서예요. 구독을 취소하면 보낸 메일이 모두 보관되고, 2주 뒤에도 메일이 오면 스팸으로 옮기자고 제안하고, 승인한 뒤에만 옮겨요.',
+    lead: '이번 달 메일을 보낸 뉴스레터, 프로모션 등 메일링 리스트예요. 많이 보낸 순서예요. 읽지 않는 건 구독을 취소하세요. Fewmail이 리스트에서 나가고 보낸 메일을 모두 보관해요.',
     opened: (total: number) =>
       total === 0 ? '하나도 안 열었어요' : `${total}개 열었어요`,
-    title: '구독',
+    title: '메일링 리스트',
     unsubscribe: '구독 취소',
     unsubscribed: '구독을 취소했어요',
   },
@@ -519,7 +519,7 @@ export const ko: Messages = {
     labels: '라벨',
     folders: '폴더',
     calendar: '캘린더',
-    subscriptions: '구독',
+    subscriptions: '메일링 리스트',
     boards: '보드',
     newBoard: '새 보드',
     mail: '메일',
@@ -1079,7 +1079,7 @@ export const ko: Messages = {
         subscriptions: {
           description:
             '이번 달 메일을 보낸 모든 메일링 리스트와 실제로 연 메일 수. 어떤 것이든 키 하나로 해지. 무료.',
-          title: '구독',
+          title: '메일링 리스트',
         },
         ask: {
           description:

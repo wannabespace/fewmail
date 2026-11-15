@@ -37,7 +37,7 @@ export const fr: Messages = {
       delete_event: 'Suppression de l’événement',
       list_events: 'Lecture du calendrier',
       update_event: 'Modification de l’événement',
-      list_subscriptions: 'Lecture des abonnements',
+      list_subscriptions: 'Lecture des listes de diffusion',
       approve_action: 'Validation',
       archive_thread: 'Archivage',
       get_reading: 'Lecture des newsletters',
@@ -486,7 +486,7 @@ export const fr: Messages = {
         subscriptions: {
           description:
             'Chaque liste qui vous a écrit ce mois-ci, avec le nombre de ses e-mails vraiment ouverts. Désabonnez-vous de n’importe laquelle d’une touche. Gratuit.',
-          title: 'Abonnements',
+          title: 'Listes de diffusion',
         },
         ask: {
           description:
@@ -1092,10 +1092,10 @@ export const fr: Messages = {
       'Cet expéditeur n’offre pas de désabonnement que Fewmail puisse utiliser, ses e-mails ont donc été archivés, mais tu restes sur la liste et les nouveaux continueront d’arriver.',
     count: (total: number) => `Listes de diffusion : ${total}`,
     empty: 'Aucune liste de diffusion ne vous a écrit ce mois-ci.',
-    lead: 'Les listes de diffusion qui vous ont écrit ce mois-ci, les plus actives d’abord. Se désabonner archive tout ce qu’elles ont envoyé ; si des e-mails arrivent encore deux semaines plus tard, je propose de les mettre en spam et ne les déplace qu’après votre accord.',
+    lead: 'Newsletters, promotions et autres listes de diffusion qui vous ont écrit ce mois-ci, les plus actives d’abord. Désabonnez-vous de ce que vous ne lisez jamais : Fewmail quitte la liste et archive tout ce qu’elle a envoyé.',
     opened: (total: number) =>
       total === 0 ? 'aucun ouvert' : `${total} ouverts`,
-    title: 'Abonnements',
+    title: 'Listes de diffusion',
     unsubscribe: 'Se désabonner',
     unsubscribed: 'Désabonné',
   },
@@ -1103,7 +1103,7 @@ export const fr: Messages = {
     labels: 'Libellés',
     folders: 'Dossiers',
     calendar: 'Calendrier',
-    subscriptions: 'Abonnements',
+    subscriptions: 'Listes de diffusion',
     boards: 'Tableaux',
     newBoard: 'Nouveau tableau',
     mail: 'E-mails',

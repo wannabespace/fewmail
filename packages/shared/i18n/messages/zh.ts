@@ -78,7 +78,7 @@ export const zh: Messages = {
       delete_event: '正在删除日程',
       list_events: '正在查看日历',
       update_event: '正在修改日程',
-      list_subscriptions: '正在查看订阅',
+      list_subscriptions: '正在查看邮件列表',
       approve_action: '正在执行',
       archive_thread: '正在归档',
       get_reading: '正在阅读订阅邮件',
@@ -501,10 +501,10 @@ export const zh: Messages = {
       '这个发件人没有 Fewmail 能用的退订方式，所以已归档其邮件，但你仍在列表中，新邮件还会继续发来。',
     count: (total: number) => `邮件列表：${total} 个`,
     empty: '本月没有邮件列表给你发信。',
-    lead: '本月给你发信的邮件列表，最活跃的在前。退订会归档它们发来的所有邮件；如果两周后仍有邮件发来，我会建议移入垃圾邮件，并在你同意后才移动。',
+    lead: '本月给你发信的新闻通讯、促销和其他邮件列表，最活跃的在前。从不读的就退订：Fewmail 会退出列表，并归档它发来的所有邮件。',
     opened: (total: number) =>
       total === 0 ? '一封都没打开' : `打开了 ${total} 封`,
-    title: '订阅',
+    title: '邮件列表',
     unsubscribe: '退订',
     unsubscribed: '已退订',
   },
@@ -512,7 +512,7 @@ export const zh: Messages = {
     labels: '标签',
     folders: '文件夹',
     calendar: '日历',
-    subscriptions: '订阅',
+    subscriptions: '邮件列表',
     boards: '看板',
     newBoard: '新建看板',
     mail: '邮件',
@@ -1060,7 +1060,7 @@ export const zh: Messages = {
         subscriptions: {
           description:
             '本月给你发过信的每个邮件列表，以及你真正打开了其中多少封。任何一个都能一键退订。免费。',
-          title: '订阅',
+          title: '邮件列表',
         },
         ask: {
           description:

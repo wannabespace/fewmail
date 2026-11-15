@@ -77,7 +77,7 @@ export const id: Messages = {
       delete_event: 'Menghapus acara',
       list_events: 'Memeriksa kalender',
       update_event: 'Mengubah acara',
-      list_subscriptions: 'Membaca langganan',
+      list_subscriptions: 'Membaca milis',
       approve_action: 'Menyetujui',
       archive_thread: 'Mengarsipkan',
       get_reading: 'Membaca newsletter',
@@ -768,10 +768,10 @@ export const id: Messages = {
       'Pengirim ini tidak punya cara berhenti langganan yang bisa dipakai Fewmail, jadi emailnya diarsipkan, tetapi kamu masih di milis dan email baru akan terus datang.',
     count: (total: number) => `Milis: ${total}`,
     empty: 'Tidak ada milis yang mengirimimu email bulan ini.',
-    lead: 'Milis yang mengirimimu email bulan ini, yang paling aktif lebih dulu. Berhenti langganan mengarsipkan semua kirimannya; jika email masih datang dua minggu kemudian, aku menyarankan memindahkannya ke spam dan baru memindahkannya setelah kamu setuju.',
+    lead: 'Buletin, promosi, dan milis lain yang mengirimimu email bulan ini, yang paling aktif lebih dulu. Berhenti langganan dari yang tidak pernah kamu baca: Fewmail keluar dari milis dan mengarsipkan semua kirimannya.',
     opened: (total: number) =>
       total === 0 ? 'tidak ada yang dibuka' : `${total} dibuka`,
-    title: 'Langganan',
+    title: 'Milis',
     unsubscribe: 'Berhenti langganan',
     unsubscribed: 'Berhenti berlangganan',
   },
@@ -779,7 +779,7 @@ export const id: Messages = {
     labels: 'Label',
     folders: 'Folder',
     calendar: 'Kalender',
-    subscriptions: 'Langganan',
+    subscriptions: 'Milis',
     boards: 'Papan',
     newBoard: 'Papan baru',
     mail: 'Email',
@@ -1369,7 +1369,7 @@ export const id: Messages = {
         subscriptions: {
           description:
             'Setiap milis yang menulis bulan ini, dengan berapa emailnya yang benar-benar kamu buka. Berhenti langganan dari mana saja dengan satu tombol. Gratis.',
-          title: 'Langganan',
+          title: 'Milis',
         },
         ask: {
           description:

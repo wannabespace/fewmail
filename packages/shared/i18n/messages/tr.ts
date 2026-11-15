@@ -77,7 +77,7 @@ export const tr: Messages = {
       delete_event: 'Etkinlik siliniyor',
       list_events: 'Takvime bakılıyor',
       update_event: 'Etkinlik değiştiriliyor',
-      list_subscriptions: 'Abonelikler okunuyor',
+      list_subscriptions: 'E-posta listeleri okunuyor',
       approve_action: 'Onaylanıyor',
       archive_thread: 'Arşivleniyor',
       get_reading: 'Bültenler okunuyor',
@@ -764,10 +764,10 @@ export const tr: Messages = {
       "Bu gönderenin Fewmail'in kullanabileceği bir abonelikten çıkma yolu yok, bu yüzden e-postaları arşivlendi, ama hâlâ listedesin ve yeni e-postalar gelmeye devam edecek.",
     count: (total: number) => `E-posta listesi: ${total}`,
     empty: 'Bu ay sana hiçbir e-posta listesi yazmadı.',
-    lead: 'Bu ay sana yazan e-posta listeleri, en etkin olanlar önce. Abonelikten çıkınca gönderdikleri her şey arşivlenir; iki hafta sonra hâlâ e-posta gelirse spama taşımayı önerir, ancak sen onaylayınca taşırım.',
+    lead: 'Bu ay sana yazan bültenler, kampanyalar ve diğer e-posta listeleri, en etkin olanlar önce. Hiç okumadıklarından çık: Fewmail listeden ayrılır ve gönderdiği her şeyi arşivler.',
     opened: (total: number) =>
       total === 0 ? 'hiçbiri açılmadı' : `${total} açıldı`,
-    title: 'Abonelikler',
+    title: 'E-posta listeleri',
     unsubscribe: 'Abonelikten çık',
     unsubscribed: 'Abonelikten çıkıldı',
   },
@@ -775,7 +775,7 @@ export const tr: Messages = {
     labels: 'Etiketler',
     folders: 'Klasörler',
     calendar: 'Takvim',
-    subscriptions: 'Abonelikler',
+    subscriptions: 'E-posta listeleri',
     boards: 'Panolar',
     newBoard: 'Yeni pano',
     mail: 'Posta',
@@ -1368,7 +1368,7 @@ export const tr: Messages = {
         subscriptions: {
           description:
             'Bu ay yazan her e-posta listesi ve gerçekten kaç e-postasını açtığın. Herhangi birinden tek tuşla çık. Ücretsiz.',
-          title: 'Abonelikler',
+          title: 'E-posta listeleri',
         },
         ask: {
           description:

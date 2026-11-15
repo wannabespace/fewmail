@@ -36,7 +36,7 @@ export const de: Messages = {
       delete_event: 'Termin wird gelöscht',
       list_events: 'Kalender wird geprüft',
       update_event: 'Termin wird geändert',
-      list_subscriptions: 'Lese Abos',
+      list_subscriptions: 'Lese Newsletter',
       approve_action: 'Wird ausgeführt',
       archive_thread: 'Wird archiviert',
       get_reading: 'Newsletter werden gelesen',
@@ -483,7 +483,7 @@ export const de: Messages = {
         subscriptions: {
           description:
             'Jede Mailingliste, die diesen Monat geschrieben hat, und wie viele ihrer Mails du wirklich geöffnet hast. Mit einer Taste abbestellt. Kostenlos.',
-          title: 'Abos',
+          title: 'Newsletter',
         },
         ask: {
           description:
@@ -1079,10 +1079,10 @@ export const de: Messages = {
       'Dieser Absender bietet keine Abmeldung, die Fewmail nutzen kann, daher wurden seine Mails archiviert. Du bleibst aber im Verteiler, neue Mails kommen weiter.',
     count: (total: number) => `Verteiler: ${total}`,
     empty: 'Diesen Monat hat dir kein Verteiler geschrieben.',
-    lead: 'Verteiler, die dir diesen Monat geschrieben haben, die aktivsten zuerst. Abbestellen archiviert alles, was sie geschickt haben; Kommen zwei Wochen später noch Mails, schlage ich vor, sie in den Spam zu verschieben, und verschiebe sie erst nach deinem Ja.',
+    lead: 'Newsletter, Werbung und andere Verteiler, die dir diesen Monat geschrieben haben, die aktivsten zuerst. Bestell ab, was du nie liest: Fewmail trägt dich aus und archiviert alles, was der Verteiler geschickt hat.',
     opened: (total: number) =>
       total === 0 ? 'keine geöffnet' : `${total} geöffnet`,
-    title: 'Abos',
+    title: 'Newsletter',
     unsubscribe: 'Abbestellen',
     unsubscribed: 'Abbestellt',
   },
@@ -1090,7 +1090,7 @@ export const de: Messages = {
     labels: 'Labels',
     folders: 'Ordner',
     calendar: 'Kalender',
-    subscriptions: 'Abos',
+    subscriptions: 'Newsletter',
     boards: 'Boards',
     newBoard: 'Neues Board',
     mail: 'Mail',

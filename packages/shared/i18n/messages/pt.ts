@@ -78,7 +78,7 @@ export const pt: Messages = {
       delete_event: 'A eliminar o evento',
       list_events: 'A ver o calendário',
       update_event: 'A alterar o evento',
-      list_subscriptions: 'Lendo inscrições',
+      list_subscriptions: 'Lendo listas de e-mail',
       approve_action: 'Aprovando',
       archive_thread: 'Arquivando',
       get_reading: 'Lendo as newsletters',
@@ -786,10 +786,10 @@ export const pt: Messages = {
       'Este remetente não tem um cancelamento que o Fewmail consiga usar, então os e-mails foram arquivados, mas você continua na lista e novos e-mails vão continuar chegando.',
     count: (total: number) => `Listas de e-mail: ${total}`,
     empty: 'Nenhuma lista de e-mail escreveu para você este mês.',
-    lead: 'Listas de e-mail que escreveram para você este mês, as mais ativas primeiro. Cancelar a inscrição arquiva tudo o que enviaram; se ainda chegarem e-mails duas semanas depois, proponho movê-los para o spam e só movo depois do seu sim.',
+    lead: 'Newsletters, promoções e outras listas de e-mail que escreveram para você este mês, as mais ativas primeiro. Cancele a inscrição do que você nunca lê: o Fewmail sai da lista e arquiva tudo o que ela enviou.',
     opened: (total: number) =>
       total === 0 ? 'nenhum aberto' : `${total} abertos`,
-    title: 'Inscrições',
+    title: 'Listas de e-mail',
     unsubscribe: 'Cancelar inscrição',
     unsubscribed: 'Inscrição cancelada',
   },
@@ -797,7 +797,7 @@ export const pt: Messages = {
     labels: 'Marcadores',
     folders: 'Pastas',
     calendar: 'Calendário',
-    subscriptions: 'Inscrições',
+    subscriptions: 'Listas de e-mail',
     boards: 'Painéis',
     newBoard: 'Novo painel',
     mail: 'E-mail',
@@ -1403,7 +1403,7 @@ export const pt: Messages = {
         subscriptions: {
           description:
             'Cada lista que escreveu este mês, com quantos dos seus e-mails você realmente abriu. Cancele qualquer uma com uma tecla. Grátis.',
-          title: 'Inscrições',
+          title: 'Listas de e-mail',
         },
         ask: {
           description:

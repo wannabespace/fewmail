@@ -77,7 +77,7 @@ export const en = {
       delete_event: 'Deleting the event',
       list_events: 'Checking the calendar',
       update_event: 'Changing the event',
-      list_subscriptions: 'Reading subscriptions',
+      list_subscriptions: 'Reading mailing lists',
       approve_action: 'Approving',
       archive_thread: 'Archiving',
       get_reading: 'Reading the newsletters',
@@ -780,10 +780,10 @@ export const en = {
         other: (n) => `${n} mailing lists`,
       }),
     empty: 'No mailing lists wrote to you this month.',
-    lead: 'Mailing lists that wrote to you this month, busiest first. Unsubscribing archives everything they sent; if mail still comes two weeks later, I suggest moving it to spam and move it only after your yes.',
+    lead: 'Newsletters, promotions and other mailing lists that wrote to you this month, busiest first. Unsubscribe from what you never read: Fewmail leaves the list and archives everything it sent.',
     opened: (total: number) =>
       total === 0 ? 'none opened' : `${total} opened`,
-    title: 'Subscriptions',
+    title: 'Mailing lists',
     unsubscribe: 'Unsubscribe',
     unsubscribed: 'Unsubscribed',
   },
@@ -791,7 +791,7 @@ export const en = {
     labels: 'Labels',
     folders: 'Folders',
     calendar: 'Calendar',
-    subscriptions: 'Subscriptions',
+    subscriptions: 'Mailing lists',
     boards: 'Boards',
     newBoard: 'New board',
     mail: 'Mail',
@@ -1387,7 +1387,7 @@ export const en = {
         subscriptions: {
           description:
             'Every mailing list that wrote this month, with how many of its emails you actually opened. Leave any of them with one key. Free.',
-          title: 'Subscriptions',
+          title: 'Mailing lists',
         },
         ask: {
           description:

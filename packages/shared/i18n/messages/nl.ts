@@ -77,7 +77,7 @@ export const nl: Messages = {
       delete_event: 'Afspraak verwijderen',
       list_events: 'Agenda bekijken',
       update_event: 'Afspraak wijzigen',
-      list_subscriptions: 'Abonnementen bekijken',
+      list_subscriptions: 'Mailinglijsten bekijken',
       approve_action: 'Uitvoeren',
       archive_thread: 'Archiveren',
       get_reading: 'Nieuwsbrieven lezen',
@@ -782,10 +782,10 @@ export const nl: Messages = {
       'Deze afzender heeft geen afmelding die Fewmail kan gebruiken, dus de mail is gearchiveerd, maar je staat nog op de lijst en nieuwe mail blijft komen.',
     count: (total: number) => `Mailinglijsten: ${total}`,
     empty: 'Geen mailinglijst heeft je deze maand gemaild.',
-    lead: 'Mailinglijsten die je deze maand mailden, de drukste eerst. Afmelden archiveert alles wat ze stuurden; komt er twee weken later nog mail, dan stel ik voor die naar spam te verplaatsen en doe ik dat pas na je ja.',
+    lead: 'Nieuwsbrieven, aanbiedingen en andere mailinglijsten die je deze maand mailden, de drukste eerst. Meld je af voor wat je nooit leest: Fewmail verlaat de lijst en archiveert alles wat die stuurde.',
     opened: (total: number) =>
       total === 0 ? 'geen enkele geopend' : `${total} geopend`,
-    title: 'Abonnementen',
+    title: 'Mailinglijsten',
     unsubscribe: 'Afmelden',
     unsubscribed: 'Afgemeld',
   },
@@ -793,7 +793,7 @@ export const nl: Messages = {
     labels: 'Labels',
     folders: 'Mappen',
     calendar: 'Agenda',
-    subscriptions: 'Abonnementen',
+    subscriptions: 'Mailinglijsten',
     boards: 'Borden',
     newBoard: 'Nieuw bord',
     mail: 'Mail',
@@ -1396,7 +1396,7 @@ export const nl: Messages = {
         subscriptions: {
           description:
             'Elke mailinglijst die deze maand schreef, met hoeveel van haar e-mails je echt hebt geopend. Meld je met één toets af. Gratis.',
-          title: 'Abonnementen',
+          title: 'Mailinglijsten',
         },
         ask: {
           description:

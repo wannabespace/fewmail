@@ -78,7 +78,7 @@ export const ja: Messages = {
       delete_event: '予定を削除中',
       list_events: 'カレンダーを確認中',
       update_event: '予定を変更中',
-      list_subscriptions: '購読を確認中',
+      list_subscriptions: 'メーリングリストを確認中',
       approve_action: '実行中',
       archive_thread: 'アーカイブ中',
       get_reading: 'メルマガを読み込み中',
@@ -509,9 +509,9 @@ export const ja: Messages = {
       'この送信者にはFewmailが使える配信停止の方法がないため、メールをアーカイブしました。ただしリストには残っているので、新しいメールは引き続き届きます。',
     count: (total: number) => `メーリングリスト${total}件`,
     empty: '今月メールを送ってきたメーリングリストはありません。',
-    lead: '今月メールを送ってきたメーリングリスト（多い順）。配信停止すると送られたメールはすべてアーカイブされ、2週間後も届く場合は迷惑メールへの移動を提案し、あなたが承認してから移動します。',
+    lead: '今月メールを送ってきたニュースレター、プロモーション、その他のメーリングリスト（多い順）。読まないものは配信停止を：Fewmail がリストから抜け、送られたメールをすべてアーカイブします。',
     opened: (total: number) => (total === 0 ? '開封なし' : `${total}件開封`),
-    title: '購読',
+    title: 'メーリングリスト',
     unsubscribe: '配信停止',
     unsubscribed: '配信停止しました',
   },
@@ -519,7 +519,7 @@ export const ja: Messages = {
     labels: 'ラベル',
     folders: 'フォルダ',
     calendar: 'カレンダー',
-    subscriptions: '購読',
+    subscriptions: 'メーリングリスト',
     boards: 'ボード',
     newBoard: '新しいボード',
     mail: 'メール',
@@ -1087,7 +1087,7 @@ export const ja: Messages = {
         subscriptions: {
           description:
             '今月届いたすべてのメーリングリストと、実際に開いたメールの数。どれでもキー 1 つで配信停止。無料。',
-          title: '購読',
+          title: 'メーリングリスト',
         },
         ask: {
           description:

@@ -77,7 +77,7 @@ export const pl: Messages = {
       delete_event: 'Usuwam wydarzenie',
       list_events: 'Sprawdzam kalendarz',
       update_event: 'Zmieniam wydarzenie',
-      list_subscriptions: 'Sprawdzam subskrypcje',
+      list_subscriptions: 'Sprawdzam listy mailingowe',
       approve_action: 'Wykonuję',
       archive_thread: 'Archiwizuję',
       get_reading: 'Czytam newslettery',
@@ -799,10 +799,10 @@ export const pl: Messages = {
       'Ten nadawca nie ma wypisania, z którego Fewmail może skorzystać, więc jego poczta została zarchiwizowana, ale nadal jesteś na liście i nowe wiadomości będą przychodzić.',
     count: (total: number) => `Listy mailingowe: ${total}`,
     empty: 'W tym miesiącu nie pisała do ciebie żadna lista mailingowa.',
-    lead: 'Listy mailingowe, które pisały do ciebie w tym miesiącu, od najaktywniejszych. Wypisanie archiwizuje wszystko, co wysłały; jeśli po dwóch tygodniach poczta wciąż przychodzi, proponuję przenieść ją do spamu i przenoszę dopiero po twojej zgodzie.',
+    lead: 'Newslettery, promocje i inne listy mailingowe, które pisały do ciebie w tym miesiącu, od najaktywniejszych. Wypisz się z tego, czego nie czytasz: Fewmail opuści listę i zarchiwizuje wszystko, co wysłała.',
     opened: (total: number) =>
       total === 0 ? 'żaden nie otwarty' : `otwarte: ${total}`,
-    title: 'Subskrypcje',
+    title: 'Listy mailingowe',
     unsubscribe: 'Wypisz się',
     unsubscribed: 'Wypisano',
   },
@@ -810,7 +810,7 @@ export const pl: Messages = {
     labels: 'Etykiety',
     folders: 'Foldery',
     calendar: 'Kalendarz',
-    subscriptions: 'Subskrypcje',
+    subscriptions: 'Listy mailingowe',
     boards: 'Tablice',
     newBoard: 'Nowa tablica',
     mail: 'Poczta',
@@ -1420,7 +1420,7 @@ export const pl: Messages = {
         subscriptions: {
           description:
             'Każda lista mailingowa, która pisała w tym miesiącu, i ile jej e-maili naprawdę otworzyłeś. Wypisz się z dowolnej jednym klawiszem. Za darmo.',
-          title: 'Subskrypcje',
+          title: 'Listy mailingowe',
         },
         ask: {
           description:

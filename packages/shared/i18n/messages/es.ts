@@ -36,7 +36,7 @@ export const es: Messages = {
       delete_event: 'Eliminando el evento',
       list_events: 'Mirando el calendario',
       update_event: 'Cambiando el evento',
-      list_subscriptions: 'Revisando suscripciones',
+      list_subscriptions: 'Revisando listas de correo',
       approve_action: 'Aprobando',
       archive_thread: 'Archivando',
       get_reading: 'Leyendo los boletines',
@@ -483,7 +483,7 @@ export const es: Messages = {
         subscriptions: {
           description:
             'Cada lista que te escribió este mes, con cuántos de sus correos abriste de verdad. Date de baja de cualquiera con una tecla. Gratis.',
-          title: 'Suscripciones',
+          title: 'Listas de correo',
         },
         ask: {
           description:
@@ -1081,10 +1081,10 @@ export const es: Messages = {
       'Este remitente no ofrece una baja que Fewmail pueda usar, así que se archivó su correo, pero sigues en la lista y seguirán llegando correos nuevos.',
     count: (total: number) => `Listas de correo: ${total}`,
     empty: 'Ninguna lista de correo te escribió este mes.',
-    lead: 'Listas de correo que te escribieron este mes, las más activas primero. Darte de baja archiva todo lo que enviaron; si dos semanas después siguen llegando correos, te propongo moverlos a spam y solo los muevo cuando digas que sí.',
+    lead: 'Boletines, promociones y otras listas de correo que te escribieron este mes, las más activas primero. Date de baja de lo que nunca lees: Fewmail sale de la lista y archiva todo lo que envió.',
     opened: (total: number) =>
       total === 0 ? 'ninguno abierto' : `${total} abiertos`,
-    title: 'Suscripciones',
+    title: 'Listas de correo',
     unsubscribe: 'Darse de baja',
     unsubscribed: 'Baja hecha',
   },
@@ -1092,7 +1092,7 @@ export const es: Messages = {
     labels: 'Etiquetas',
     folders: 'Carpetas',
     calendar: 'Calendario',
-    subscriptions: 'Suscripciones',
+    subscriptions: 'Listas de correo',
     boards: 'Tableros',
     newBoard: 'Nuevo tablero',
     mail: 'Correo',

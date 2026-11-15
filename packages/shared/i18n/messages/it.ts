@@ -37,7 +37,7 @@ export const it: Messages = {
       delete_event: 'Elimino l’evento',
       list_events: 'Controllo il calendario',
       update_event: 'Modifico l’evento',
-      list_subscriptions: 'Leggo le iscrizioni',
+      list_subscriptions: 'Leggo le mailing list',
       approve_action: 'Eseguo',
       archive_thread: 'Archivio',
       get_reading: 'Lettura delle newsletter',
@@ -485,7 +485,7 @@ export const it: Messages = {
         subscriptions: {
           description:
             'Ogni mailing list che ti ha scritto questo mese, con quante delle sue email hai davvero aperto. Disiscriviti da qualsiasi con un tasto. Gratis.',
-          title: 'Iscrizioni',
+          title: 'Mailing list',
         },
         ask: {
           description:
@@ -1085,10 +1085,10 @@ export const it: Messages = {
       'Questo mittente non offre una disiscrizione che Fewmail possa usare, quindi la sua posta è stata archiviata, ma sei ancora nella lista e le nuove email continueranno ad arrivare.',
     count: (total: number) => `Mailing list: ${total}`,
     empty: 'Nessuna mailing list ti ha scritto questo mese.',
-    lead: 'Le mailing list che ti hanno scritto questo mese, le più attive prima. Disiscriversi archivia tutto ciò che hanno inviato; se due settimane dopo arriva ancora posta, ti propongo di spostarla nello spam e la sposto solo dopo il tuo sì.',
+    lead: 'Newsletter, promozioni e altre mailing list che ti hanno scritto questo mese, le più attive prima. Disiscriviti da ciò che non leggi mai: Fewmail esce dalla lista e archivia tutto ciò che ha inviato.',
     opened: (total: number) =>
       total === 0 ? 'nessuna aperta' : `${total} aperte`,
-    title: 'Iscrizioni',
+    title: 'Mailing list',
     unsubscribe: 'Disiscriviti',
     unsubscribed: 'Disiscritto',
   },
@@ -1096,7 +1096,7 @@ export const it: Messages = {
     labels: 'Etichette',
     folders: 'Cartelle',
     calendar: 'Calendario',
-    subscriptions: 'Iscrizioni',
+    subscriptions: 'Mailing list',
     boards: 'Bacheche',
     newBoard: 'Nuova bacheca',
     mail: 'Posta',
