@@ -28,6 +28,7 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { type } from 'arktype'
+import { motion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 
 import { Journal } from '~/components/journal'
@@ -315,7 +316,7 @@ const RulesPage = () => {
   const { data: rules = [] } = useQuery(orpc.rules.list.queryOptions())
 
   return (
-    <main className="flex-1 overflow-y-auto">
+    <motion.main layoutScroll className="flex-1 overflow-y-auto">
       <div
         className={cn(
           'mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16',
@@ -346,7 +347,7 @@ const RulesPage = () => {
 
         <Journal />
       </div>
-    </main>
+    </motion.main>
   )
 }
 

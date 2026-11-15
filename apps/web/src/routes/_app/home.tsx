@@ -78,7 +78,7 @@ import type { QueueItem } from '~/components/queue-card'
 import { ReadingPane, ReadingSection, useReading } from '~/components/reading'
 import { SenderAvatar } from '~/components/sender-avatar'
 import {
-  PeekTrigger,
+  ExpandTrigger,
   useIsThreadExpanded,
   usePeekKey,
 } from '~/components/thread-link'
@@ -387,7 +387,7 @@ const FreshCodes = ({
           message.code && (
             <SettingsRow
               key={message.id}
-              trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
+              trigger={<ExpandTrigger message={{ ...message, from: 'home' }} />}
               iconVariant="avatar"
               icon={<SenderAvatar sender={message} size="sm" />}
               title={
@@ -435,7 +435,7 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.recent.map(({ analysis, message }) => (
         <SettingsRow
           key={message.id}
-          trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
+          trigger={<ExpandTrigger message={{ ...message, from: 'home' }} />}
           iconVariant="avatar"
           icon={<SenderAvatar sender={message} size="sm" />}
           title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
@@ -462,7 +462,7 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
       {today.dates.map(({ analysis, message }) => (
         <SettingsRow
           key={message.id}
-          trigger={<PeekTrigger message={{ ...message, from: 'home' }} />}
+          trigger={<ExpandTrigger message={{ ...message, from: 'home' }} />}
           iconVariant="avatar"
           icon={<SenderAvatar sender={message} size="sm" />}
           title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
@@ -475,7 +475,7 @@ const WorthKnowing = ({ today }: { today: Today | undefined }) => {
         <SettingsRow
           key={sent.threadId}
           trigger={
-            <PeekTrigger
+            <ExpandTrigger
               message={{
                 ...sent,
                 from: 'home',

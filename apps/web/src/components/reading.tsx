@@ -33,6 +33,7 @@ import {
   dropPane,
   HIDDEN,
   keepUnderPane,
+  PEEK_ID,
   PeekSurface,
   SHOWN,
   toggleExpanded,
@@ -129,6 +130,7 @@ const NewsletterPeek = ({
                   toggleExpanded({
                     close: () => peek.close(),
                     from: 'reading',
+                    layoutId: PEEK_ID,
                     threadId: payload.row.threadId,
                   })
                 }

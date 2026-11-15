@@ -8,7 +8,7 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import type { Transition } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import type { ComponentProps, ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -85,11 +85,13 @@ export const useMorph = (): { morph: Transition; reveal: Transition } =>
 export const HIDDEN = { opacity: 0, y: 6 }
 export const SHOWN = { opacity: 1, y: 0 }
 
-const PANE_ID = 'thread-pane'
+export const PEEK_ID = 'thread-peek'
 
 interface Expanded {
   close: () => void
   from: Peeked['from']
+  /** What the pane grows out of: a peek (`PEEK_ID`) or a row (`ExpandTrigger`). */
+  layoutId: string
   pathname: string
   threadId: string
 }
@@ -97,7 +99,7 @@ const expandedThread = createStore<Expanded | null>(null)
 
 export const useIsThreadExpanded = () => !!useSubscription(expandedThread)
 
-/** The peek's ↗ and ⇧O: grows the peek into `ThreadPane` and back. `close` closes the peek it grew out of. */
+/** Grows a peek or a row into `ThreadPane` and back. `close` closes what it grew out of. */
 export const toggleExpanded = (open: Omit<Expanded, 'pathname'>) => {
   if (expandedThread.get()) {
     expandedThread.set(null)
@@ -140,7 +142,7 @@ export const PeekSurface = ({ children }: { children: ReactNode }) => {
   const { morph } = useMorph()
   return (
     <motion.div
-      layoutId={PANE_ID}
+      layoutId={PEEK_ID}
       transition={morph}
       initial={false}
       animate={{ borderRadius: 12 }}
@@ -178,12 +180,16 @@ export const ThreadPane = () => {
     }
   }, [open, isHere])
   const collapse = () => expandedThread.set(null)
+  // A peek's popover takes esc and the peek its ⇧O; a row leaves both to the pane.
+  const rowKeys = { enabled: isHere && open?.layoutId !== PEEK_ID }
+  useHotkey('Escape', collapse, rowKeys)
+  useHotkey('Shift+O', collapse, rowKeys)
   return (
     <AnimatePresence>
       {open && isHere && shown && (
         <motion.div
           key="pane"
-          layoutId={PANE_ID}
+          layoutId={shown.layoutId}
           transition={morph}
           initial={false}
           animate={{ borderRadius: 0 }}
@@ -219,6 +225,34 @@ export const ThreadPane = () => {
   )
 }
 
+/** A row that grows into its email over the page instead of peeking: `SettingsRow trigger` lays it over the whole row, and it is the box the pane grows out of and shrinks back into. */
+export const ExpandTrigger = ({
+  message,
+  ...props
+}: ComponentProps<typeof motion.button> & { message: Peeked }) => {
+  const layoutId = useId()
+  const { morph } = useMorph()
+  return (
+    <motion.button
+      type="button"
+      layoutId={layoutId}
+      transition={morph}
+      onPointerEnter={() => {
+        void prefetchThread(message.threadId)
+      }}
+      onClick={() =>
+        toggleExpanded({
+          close: () => expandedThread.set(null),
+          from: message.from,
+          layoutId,
+          threadId: message.threadId,
+        })
+      }
+      {...props}
+    />
+  )
+}
+
 /** One peek for every `PeekTrigger`, mounted once in the app's layout. */
 export const ThreadPeekPopover = () => {
   const isExpanded = useIsThreadExpanded()
@@ -248,6 +282,7 @@ export const ThreadPeekPopover = () => {
                   toggleExpanded({
                     close: () => threadPeek.close(),
                     from: payload.from,
+                    layoutId: PEEK_ID,
                     threadId: payload.threadId,
                   })
                 }
