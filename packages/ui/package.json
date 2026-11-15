@@ -26,7 +26,7 @@
     "@fewmail/configs": "workspace:*",
     "@fewmail/shared": "workspace:*",
     "@fontsource-variable/inter": "catalog:",
-    "@fontsource-variable/newsreader": "catalog:",
+    "@fontsource-variable/lora": "catalog:",
     "@hugeicons/core-free-icons": "catalog:",
     "@hugeicons/react": "catalog:",
     "@number-flow/react": "catalog:",

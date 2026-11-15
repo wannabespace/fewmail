@@ -11,8 +11,8 @@ import type { Shared } from './wrapped'
 
 /** Without a browser user agent Google Fonts answers with TrueType, the one format resvg reads. */
 const FONTS_CSS =
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Newsreader:opsz,wght@72,500'
-/** Scripts Inter and Newsreader draw; the others fall back to English rather than to empty boxes. */
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lora:wght@500'
+/** Scripts Inter and Lora draw; the others fall back to English rather than to empty boxes. */
 const DRAWN_LOCALES = new Set<Locale>([
   'de',
   'en',
@@ -88,7 +88,7 @@ const wrapLines = (text: string) => {
 const text = (
   value: string,
   at: {
-    family: 'Inter' | 'Newsreader 72pt'
+    family: 'Inter' | 'Lora'
     fill: string
     size: number
     weight?: number
@@ -126,7 +126,7 @@ export const wrappedImage = async (shared: Shared) => {
     const y = 270 + Math.floor(index / 3) * 170
     return [
       text(value, {
-        family: 'Newsreader 72pt',
+        family: 'Lora',
         fill: COLORS.foreground,
         size: 64,
         weight: 500,

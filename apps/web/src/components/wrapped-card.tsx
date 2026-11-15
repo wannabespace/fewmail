@@ -92,8 +92,7 @@ export const WrappedCard = ({
 }
 
 const IMAGE = { height: 1350, margin: 96, width: 1080 }
-const serif = (size: number) =>
-  `${size}px "Newsreader Variable", Georgia, serif`
+const serif = (size: number) => `${size}px "Lora Variable", Georgia, serif`
 const sans = (size: number) => `${size}px "Inter Variable", sans-serif`
 
 type Context = OffscreenCanvasRenderingContext2D

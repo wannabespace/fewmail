@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400..600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #F3EEE5; color: #1E1A15; font-family: Inter, sans-serif; position: relative; }
+  .copy { position: absolute; left: 80px; top: 64px; width: 560px; }
+  .logo { height: 44px; display: block; }
+  h1 { margin: 46px 0 0; font-family: Lora, serif; font-weight: 500; font-size: 100px; line-height: 1.02; letter-spacing: -0.02em; }
+  p { margin: 28px 0 0; font-size: 28px; line-height: 1.45; color: #6B6157; }
+  .url { position: absolute; left: 80px; bottom: 58px; font-size: 22px; color: #8A8075; }
+  .panel { position: absolute; left: 732px; top: 64px; width: 520px; height: 500px; border-radius: 40px; background: #FBF9F4; box-shadow: inset 0 0 0 1px rgba(30, 26, 21, 0.06); }
+  .row { position: absolute; left: 110px; width: 420px; height: 84px; border-radius: 20px; background: #FFFDFA; box-shadow: 0 0 0 1px rgba(30, 26, 21, 0.06); }
+  .row::before { content: ''; position: absolute; left: 30px; top: 35px; width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #C9C0B5; }
+  .row i, .row b { position: absolute; left: 62px; height: 11px; border-radius: 6px; background: #EAE4DA; }
+  .row b { top: 26px; width: 124px; } .row i { top: 48px; width: 205px; }
+  .row.hot { left: 82px; width: 460px; box-shadow: 0 0 0 1px rgba(30, 26, 21, 0.08), 0 18px 40px rgba(60, 40, 20, 0.14); }
+  .row.hot::before { box-shadow: none; background: #B84A27; }
+  .row.hot b { background: #DCD4C8; }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <img class="logo" src="../logo/lockup.svg" alt="Fewmail">
+    <h1>Only what matters.</h1>
+    <p>Your Gmail, read for you. Replies in your voice, and only the mail that actually needs you.</p>
+  </div>
+  <div class="url">fewmail.app</div>
+  <div class="panel">
+    <div class="row" style="top: 12px"><b></b><i></i></div>
+    <div class="row" style="top: 110px"><b></b><i style="width: 230px"></i></div>
+    <div class="row hot" style="top: 208px"><b></b><i style="width: 278px"></i></div>
+    <div class="row" style="top: 306px"><b></b><i style="width: 172px"></i></div>
+    <div class="row" style="top: 404px"><b></b><i style="width: 250px"></i></div>
+  </div>
+</body>
+</html>

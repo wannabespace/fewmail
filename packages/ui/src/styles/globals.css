@@ -5,8 +5,8 @@
 @import 'streamdown/styles.css';
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/inter/wght-italic.css';
-@import '@fontsource-variable/newsreader';
-@import '@fontsource-variable/newsreader/wght-italic.css';
+@import '@fontsource-variable/lora';
+@import '@fontsource-variable/lora/wght-italic.css';
 
 @plugin 'tailwind-scrollbar';
 @plugin '@tailwindcss/typography';
@@ -89,7 +89,7 @@
   --text-2xs--line-height: 0.875rem;
   --font-heading: var(--font-serif);
   --font-sans: 'Inter Variable', sans-serif;
-  --font-serif: var(--serif);
+  --font-serif: 'Lora Variable', Georgia, serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
   --text-brief: 1.1875rem;
   --text-brief--line-height: 1.55;
@@ -171,12 +171,6 @@
   --input: oklch(0.995 0.005 90);
   --ring: var(--primary);
   --radius: 0.55rem;
-  --serif: 'Newsreader Variable', Georgia, serif;
-}
-
-/* Newsreader has no Cyrillic: a fallback per glyph sets Latin words in another face and weight inside one heading. */
-:root:lang(uk) {
-  --serif: Georgia, serif;
 }
 
 .dark {
