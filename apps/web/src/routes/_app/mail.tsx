@@ -846,7 +846,13 @@ const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
 const HIDDEN_CURSOR = -1
 
 /** First guesses, until a row is measured; near them, the scrollbar barely jumps. */
-const ROW_SIZE = { draft: 82, header: 52, line: 37, mail: 63 }
+const ROW_SIZE = {
+  draft: 82,
+  header: 52,
+  line: 37,
+  mail: 63,
+  relatedFirst: 59,
+}
 
 const ROW_FOLD = { borderBottomWidth: 0, height: 0, opacity: 0 }
 
@@ -1039,8 +1045,8 @@ const RELATED_SHOWN = 5
 const UNRELATED_LISTS = new Set<MailList>(['pinned', 'spam', 'trash'])
 
 /**
- * Under the open row, the sender's other threads from every list as real rows (J / K, ⏎ and E reach them); never one
- * the list already shows. Never under a pin (`pinnedCount` rows lead the list) or in search, which shows only matches.
+ * Under the row → was pressed on, the sender's other threads from every list as real rows (J / K, ⏎ and E reach them);
+ * never one the list already shows. Never under a pin (`pinnedCount` rows lead the list) or in search, which shows only matches.
  */
 const useRelatedRows = <Row extends ListedRow>({
   anchor,
@@ -1095,9 +1101,13 @@ const useRelatedRows = <Row extends ListedRow>({
   }
 }
 
-/** One sub-list under its sender's row: the card's fill and no rule until the last of them. */
+/**
+ * One sub-list under its sender's row: the card's fill and no rule until the last of them. The first names the sender,
+ * or the lines read as more of the row above and opened threads nobody expected.
+ */
 const RelatedRow = ({
   isCursor,
+  isFirst,
   isLast,
   isOpen,
   item,
@@ -1105,12 +1115,14 @@ const RelatedRow = ({
   row: { message },
 }: {
   isCursor: boolean
+  isFirst: boolean
   isLast: boolean
   isOpen: boolean
   item: VirtualItem
   onOpen: () => void
   row: ListedRow
 }) => {
+  const t = useT()
   const dates = useDates()
   return (
     <ListRow
@@ -1120,6 +1132,14 @@ const RelatedRow = ({
         !isLast && 'border-b-0'
       )}
     >
+      {isFirst && (
+        <span
+          data-mask
+          className="text-muted-foreground block truncate pt-1.5 pr-5 pl-18 text-xs"
+        >
+          {t.mail.moreFrom(message.fromName ?? message.fromEmail)}
+        </span>
+      )}
       <button
         type="button"
         tabIndex={-1}
@@ -2464,8 +2484,8 @@ const MailPage = () => {
     if (row) {
       const { message } = row
       setCursor(index)
-      if (!('isRelated' in row)) {
-        setRelatedOf(message.threadId)
+      if (!('isRelated' in row) && message.threadId !== relatedOf) {
+        setRelatedOf(null)
       }
       if (message.isUnread) {
         setKeptUnread((kept) => new Set(kept).add(message.threadId))
@@ -2541,6 +2561,7 @@ const MailPage = () => {
     }),
     ...rows.flatMap((row, index): ListWindowItem[] => {
       if ('isRelated' in row) {
+        const isFirst = !('isRelated' in (rows[index - 1] ?? {}))
         return [
           {
             card: cards[index],
@@ -2551,13 +2572,14 @@ const MailPage = () => {
                 key={item.key}
                 row={row}
                 isCursor={index === cursor}
+                isFirst={isFirst}
                 isLast={!('isRelated' in (rows[index + 1] ?? {}))}
                 isOpen={row.message.threadId === thread}
                 item={item}
                 onOpen={() => open(index)}
               />
             ),
-            size: ROW_SIZE.line,
+            size: isFirst ? ROW_SIZE.relatedFirst : ROW_SIZE.line,
           },
         ]
       }
