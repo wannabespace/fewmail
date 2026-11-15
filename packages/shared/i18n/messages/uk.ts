@@ -1491,6 +1491,10 @@ export const uk: Messages = {
     resumeListening: 'Продовжити',
     awaiting: 'Чекаєш на відповідь',
     hint: {
+      messengers: {
+        lead: 'Отримуй термінові листи й погоджуй чернетки в месенджері, яким уже користуєшся.',
+        title: 'Telegram або WhatsApp',
+      },
       notNow: 'Не зараз',
       setUp: 'Налаштувати',
       turnOn: 'Увімкнути',

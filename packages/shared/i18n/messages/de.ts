@@ -1495,6 +1495,10 @@ export const de: Messages = {
     resumeListening: 'Weiter',
     awaiting: 'Wartet auf Antwort',
     hint: {
+      messengers: {
+        lead: 'Erhalte dringende Mails und gib Entwürfe frei, im Messenger, den du schon nutzt.',
+        title: 'Telegram oder WhatsApp',
+      },
       notNow: 'Nicht jetzt',
       setUp: 'Einrichten',
       turnOn: 'Einschalten',

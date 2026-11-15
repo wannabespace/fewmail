@@ -1748,6 +1748,10 @@ export const id: Messages = {
     resumeListening: 'Lanjutkan',
     awaiting: 'Menunggu balasan',
     hint: {
+      messengers: {
+        lead: 'Terima email penting dan setujui draf di messenger yang sudah kamu pakai.',
+        title: 'Telegram atau WhatsApp',
+      },
       notNow: 'Nanti saja',
       setUp: 'Atur',
       turnOn: 'Aktifkan',

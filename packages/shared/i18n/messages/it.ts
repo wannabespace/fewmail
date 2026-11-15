@@ -1492,6 +1492,10 @@ export const it: Messages = {
     resumeListening: 'Riprendi',
     awaiting: 'In attesa di risposta',
     hint: {
+      messengers: {
+        lead: 'Ricevi la posta urgente e approva le bozze nell’app di messaggi che usi già.',
+        title: 'Telegram o WhatsApp',
+      },
       notNow: 'Non ora',
       setUp: 'Configura',
       turnOn: 'Attiva',

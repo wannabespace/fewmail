@@ -1787,6 +1787,10 @@ export const en = {
             other: (n) => `${n} things need you.`,
           }),
     hint: {
+      messengers: {
+        lead: 'Get urgent mail and approve drafts in the messenger you already use.',
+        title: 'Telegram or WhatsApp',
+      },
       notNow: 'Not now',
       setUp: 'Set up',
       turnOn: 'Turn on',

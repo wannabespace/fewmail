@@ -1745,6 +1745,10 @@ export const tr: Messages = {
     resumeListening: 'Devam et',
     awaiting: 'Yanıt bekleniyor',
     hint: {
+      messengers: {
+        lead: 'Acil e-postaları al ve taslakları zaten kullandığın mesajlaşma uygulamasında onayla.',
+        title: 'Telegram veya WhatsApp',
+      },
       notNow: 'Şimdi değil',
       setUp: 'Kur',
       turnOn: 'Aç',

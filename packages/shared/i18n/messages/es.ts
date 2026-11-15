@@ -1491,6 +1491,10 @@ export const es: Messages = {
     resumeListening: 'Reanudar',
     awaiting: 'Esperando respuesta',
     hint: {
+      messengers: {
+        lead: 'Recibe el correo urgente y aprueba borradores en el mensajero que ya usas.',
+        title: 'Telegram o WhatsApp',
+      },
       notNow: 'Ahora no',
       setUp: 'Configurar',
       turnOn: 'Activar',

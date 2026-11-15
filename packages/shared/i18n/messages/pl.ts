@@ -1804,6 +1804,10 @@ export const pl: Messages = {
     resumeListening: 'Wznów',
     awaiting: 'Czekasz na odpowiedź',
     hint: {
+      messengers: {
+        lead: 'Odbieraj pilną pocztę i zatwierdzaj szkice w komunikatorze, którego już używasz.',
+        title: 'Telegram lub WhatsApp',
+      },
       notNow: 'Nie teraz',
       setUp: 'Skonfiguruj',
       turnOn: 'Włącz',

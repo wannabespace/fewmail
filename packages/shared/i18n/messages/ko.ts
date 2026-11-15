@@ -1449,6 +1449,10 @@ export const ko: Messages = {
     resumeListening: '이어 듣기',
     awaiting: '답장 대기 중',
     hint: {
+      messengers: {
+        lead: '급한 메일을 받고 초안을 승인하세요. 이미 쓰는 메신저에서요.',
+        title: 'Telegram 또는 WhatsApp',
+      },
       notNow: '나중에',
       setUp: '설정하기',
       turnOn: '켜기',

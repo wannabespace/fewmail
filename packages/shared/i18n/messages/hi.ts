@@ -1454,6 +1454,10 @@ export const hi: Messages = {
     resumeListening: 'जारी रखें',
     awaiting: 'जवाब का इंतज़ार',
     hint: {
+      messengers: {
+        lead: 'ज़रूरी मेल पाएँ और ड्राफ़्ट मंज़ूर करें, उसी मैसेंजर में जो आप पहले से इस्तेमाल करते हैं।',
+        title: 'Telegram या WhatsApp',
+      },
       notNow: 'अभी नहीं',
       setUp: 'सेट अप करें',
       turnOn: 'चालू करें',

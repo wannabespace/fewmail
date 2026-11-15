@@ -1773,6 +1773,10 @@ export const nl: Messages = {
     resumeListening: 'Hervatten',
     awaiting: 'Wacht op antwoord',
     hint: {
+      messengers: {
+        lead: 'Ontvang dringende mail en keur concepten goed in de messenger die je al gebruikt.',
+        title: 'Telegram of WhatsApp',
+      },
       notNow: 'Niet nu',
       setUp: 'Instellen',
       turnOn: 'Inschakelen',

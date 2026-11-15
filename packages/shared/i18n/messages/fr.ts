@@ -1507,6 +1507,10 @@ export const fr: Messages = {
     resumeListening: 'Reprendre',
     awaiting: 'En attente de réponse',
     hint: {
+      messengers: {
+        lead: 'Recevez le courrier urgent et validez les brouillons dans la messagerie que vous utilisez déjà.',
+        title: 'Telegram ou WhatsApp',
+      },
       notNow: 'Pas maintenant',
       setUp: 'Configurer',
       turnOn: 'Activer',

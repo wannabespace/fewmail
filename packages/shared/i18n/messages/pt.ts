@@ -1781,6 +1781,10 @@ export const pt: Messages = {
     resumeListening: 'Retomar',
     awaiting: 'Aguardando resposta',
     hint: {
+      messengers: {
+        lead: 'Receba o e-mail urgente e aprove rascunhos no mensageiro que você já usa.',
+        title: 'Telegram ou WhatsApp',
+      },
       notNow: 'Agora não',
       setUp: 'Configurar',
       turnOn: 'Ativar',

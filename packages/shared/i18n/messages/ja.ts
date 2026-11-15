@@ -1468,6 +1468,10 @@ export const ja: Messages = {
     resumeListening: '再開',
     awaiting: '返信待ち',
     hint: {
+      messengers: {
+        lead: '急ぎのメールの受け取りと下書きの承認を、いつものメッセンジャーで。',
+        title: 'Telegram または WhatsApp',
+      },
       notNow: '今はしない',
       setUp: '設定する',
       turnOn: 'オンにする',

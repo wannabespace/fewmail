@@ -1420,6 +1420,10 @@ export const zh: Messages = {
     resumeListening: '继续',
     awaiting: '等待回复',
     hint: {
+      messengers: {
+        lead: '在你常用的聊天软件里接收紧急邮件、批准草稿。',
+        title: 'Telegram 或 WhatsApp',
+      },
       notNow: '暂不',
       setUp: '设置',
       turnOn: '开启',
