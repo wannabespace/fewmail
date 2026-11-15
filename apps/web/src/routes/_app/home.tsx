@@ -51,8 +51,8 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { AnimatePresence, motion, useInView } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
@@ -87,6 +87,7 @@ import { SenderAvatar } from '~/components/sender-avatar'
 import { usePeekKey } from '~/components/thread-link'
 import {
   CodeActions,
+  codesOnScreen,
   MailRowActions,
   ROW_SWAP,
   sweepOf,
@@ -379,40 +380,48 @@ const FreshCodes = ({
   useHotkey('Y', () => newest && copy(newest, t.mail.oneTimeCode.copied), {
     enabled: canUseKeys && !!newest,
   })
+  // Stays mounted while empty: `useInView` observes only the element it found on mount.
+  const block = useRef<HTMLDivElement>(null)
+  const isInView = useInView(block)
+  const isCovered = useIsThreadExpanded()
+  const isOnScreen = isInView && !isCovered
+  useEffect(() => {
+    codesOnScreen.set(isOnScreen)
+    return () => codesOnScreen.set(false)
+  }, [isOnScreen])
 
-  if (!newest) {
-    return null
-  }
   return (
-    <SettingsGroup>
-      {codes.map(
-        (message) =>
-          message.code && (
-            <SettingsRow
-              key={message.id}
-              trigger={
-                <ExpandTrigger
-                  email={{ from: 'home', threadId: message.threadId }}
-                  rowId={message.id}
+    <div ref={block} hidden={!newest}>
+      <SettingsGroup>
+        {codes.map(
+          (message) =>
+            message.code && (
+              <SettingsRow
+                key={message.id}
+                trigger={
+                  <ExpandTrigger
+                    email={{ from: 'home', threadId: message.threadId }}
+                    rowId={message.id}
+                  />
+                }
+                iconVariant="avatar"
+                icon={<SenderAvatar sender={message} size="sm" />}
+                title={
+                  <span data-mask>{message.fromName ?? message.fromEmail}</span>
+                }
+                description={<span data-mask>{message.subject}</span>}
+              >
+                <CodeActions
+                  actions={actions}
+                  code={message.code}
+                  messageIds={[message.id]}
+                  sweep={sweep}
                 />
-              }
-              iconVariant="avatar"
-              icon={<SenderAvatar sender={message} size="sm" />}
-              title={
-                <span data-mask>{message.fromName ?? message.fromEmail}</span>
-              }
-              description={<span data-mask>{message.subject}</span>}
-            >
-              <CodeActions
-                actions={actions}
-                code={message.code}
-                messageIds={[message.id]}
-                sweep={sweep}
-              />
-            </SettingsRow>
-          )
-      )}
-    </SettingsGroup>
+              </SettingsRow>
+            )
+        )}
+      </SettingsGroup>
+    </div>
   )
 }
 

@@ -24,7 +24,7 @@ import { ConfirmDialog } from '~/components/confirm-dialog'
 import { Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
 import { ThreadPane, ThreadPeekPopover } from '~/components/thread-link'
-import { SnoozePicker } from '~/components/thread-view'
+import { SnoozePicker, useFreshCodeToast } from '~/components/thread-view'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
 import { signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
@@ -88,6 +88,7 @@ const useIdentify = () => {
 const AppLayout = () => {
   const { me } = Route.useRouteContext()
   useNewVersionToast()
+  useFreshCodeToast()
   useIdentify()
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   const sidebarWidth = useSubscription(sidebarWidthStore)

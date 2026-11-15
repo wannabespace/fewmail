@@ -59,6 +59,7 @@ import { toast } from 'sonner'
 import { useDates, useT } from '~/lib/i18n'
 import {
   hideThread,
+  mailRowsOf,
   showThreadPinned,
   showThreadRead,
   threadOfMessage,
@@ -1145,6 +1146,61 @@ export const CodeActions = ({
       </DropdownMenu>
     </ButtonGroup>
   )
+}
+
+/** Home's codes block while it is on screen and no email covers it. */
+export const codesOnScreen = createStore(false)
+
+const CODE_FRESH_MS = 15 * 60_000
+// A code reaches the rows before Home's block has shown it; toasting at once would flash a toast over Home.
+const CODE_TOAST_DELAY_MS = 1500
+const toastedCodes = new Set<string>()
+
+/** A fresh code the user cannot see on Home comes as a toast with a copy button, once per email. */
+export const useFreshCodeToast = () => {
+  const t = useT()
+  const isOnScreen = useSubscription(codesOnScreen)
+  const { data: rows } = useLiveQuery((query) =>
+    query.from({ row: mailRowsOf() }).where(({ row }) => eq(row.list, 'inbox'))
+  )
+  useEffect(() => {
+    const fresh = rows.flatMap(({ message: { code, ...message } }) => {
+      const left = message.receivedAt.getTime() + CODE_FRESH_MS - Date.now()
+      return code && left > 0 ? [{ ...message, code, left }] : []
+    })
+    if (isOnScreen) {
+      for (const { id } of fresh) {
+        toastedCodes.add(id)
+        toast.dismiss(`code-${id}`)
+      }
+      return
+    }
+    const timer = setTimeout(() => {
+      for (const { code, fromEmail, fromName, id, left } of fresh) {
+        if (toastedCodes.has(id)) {
+          continue
+        }
+        toastedCodes.add(id)
+        toast(<span data-mask>{fromName ?? fromEmail}</span>, {
+          action: {
+            label: t.mail.oneTimeCode.copy,
+            onClick: () => {
+              posthog.capture('code_copied', { from: 'toast' })
+              void copy(code, t.mail.oneTimeCode.copied)
+            },
+          },
+          description: (
+            <span data-mask className="font-mono tracking-wider tabular-nums">
+              {code}
+            </span>
+          ),
+          duration: left,
+          id: `code-${id}`,
+        })
+      }
+    }, CODE_TOAST_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [rows, isOnScreen, t])
 }
 
 export const MailRowActions = ({
