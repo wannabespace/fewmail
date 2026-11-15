@@ -17,7 +17,7 @@ import { getSettings } from './settings'
 type Device = typeof devices.$inferSelect
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
 
-export interface Notification {
+interface Notification {
   body: string
   title: string
   url: string

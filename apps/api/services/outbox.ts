@@ -196,7 +196,7 @@ const markFailed = async (
   await announceChange(row.userId, ACTION_TOPICS)
 }
 
-export const dispatchOutbox = async (id: string) => {
+const dispatchOutbox = async (id: string) => {
   timers.delete(id)
   const [claimed] = await db
     .update(outbox)
@@ -369,24 +369,6 @@ export const cancelMail = async (userId: string, id: string) => {
     to: canceled.to,
   }
 }
-
-export const listScheduled = (userId: string) =>
-  db
-    .select({
-      id: outbox.id,
-      sendAt: outbox.sendAt,
-      status: outbox.status,
-      subject: outbox.subject,
-      to: outbox.to,
-    })
-    .from(outbox)
-    .where(
-      and(
-        eq(outbox.userId, userId),
-        inArray(outbox.status, ['scheduled', 'failed'])
-      )
-    )
-    .orderBy(outbox.sendAt)
 
 export const dispatchDueOutbox = async () => {
   // Never send these again: Gmail may have sent the mail before the process died.

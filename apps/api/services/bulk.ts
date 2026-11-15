@@ -57,7 +57,7 @@ const simhash = (words: string[]) => {
   return print
 }
 
-export const hamming = (left: bigint, right: bigint) => {
+const hamming = (left: bigint, right: bigint) => {
   let difference = left ^ right
   let count = 0
   while (difference) {

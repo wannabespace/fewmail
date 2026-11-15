@@ -8,7 +8,7 @@ import { logError } from './log'
 const CHANNEL = 'mail_changed'
 
 /** Router namespaces whose queries the web refetches; an announce without topics refetches every query. */
-export const LIVE_TOPICS = [
+const LIVE_TOPICS = [
   'actions',
   'boards',
   'cases',
@@ -20,7 +20,7 @@ export const LIVE_TOPICS = [
   'today',
 ] as const
 
-export type LiveTopic = (typeof LIVE_TOPICS)[number]
+type LiveTopic = (typeof LIVE_TOPICS)[number]
 
 export const MAIL_TOPICS = [
   'actions',

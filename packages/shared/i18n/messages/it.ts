@@ -1040,7 +1040,6 @@ export const it: Messages = {
     backInInbox: 'Spostato nella posta in arrivo',
     movedToInbox:
       'Riportata nella posta in arrivo. Grazie per la segnalazione.',
-    noThread: 'Scegli un’email per leggerla qui',
     deleteDraft: 'Elimina bozza',
     notSent: 'Non inviata: apri per riprovare',
     noRecipients: 'Nessun destinatario',
@@ -1054,8 +1053,6 @@ export const it: Messages = {
     markedUnread: 'Segnato come da leggere',
     attachment: 'allegato',
     draftReply: 'Scrivi bozza',
-    drafting: 'Scrivo…',
-    draftWaiting: 'La bozza ti aspetta in Home',
     due: (date: string) => `scade il ${date}`,
     dueHint: 'Scadenza trovata dall’agente in questa email',
     empty: 'Nessuna email qui',
@@ -1541,8 +1538,6 @@ export const it: Messages = {
             many: (n) => `${n} cose hanno bisogno di te.`,
             other: (n) => `${n} cose hanno bisogno di te.`,
           }),
-    nothingNeedsYou:
-      'Al momento niente ha bisogno di te. La nuova posta viene letta appena arriva.',
     period: (days: number) =>
       days === 1 ? 'nell’ultimo giorno' : `negli ultimi ${days} giorni`,
     pulse: {
@@ -1555,7 +1550,6 @@ export const it: Messages = {
     recent: (period: string) => `Anche ${period}`,
     sent: 'Inviata',
     codes: 'Codici di accesso',
-    worthAttention: 'Merita attenzione',
   },
   boards: {
     chartRemoved: 'Grafico rimosso',

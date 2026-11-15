@@ -16,7 +16,7 @@ import { NotFoundError } from './mail-errors'
 const CONSENT_PREFIX = 'mailbox-consent:'
 const CONSENT_MINUTES = 10
 
-export type AddMailboxResult = 'added' | 'failed' | 'sign_in'
+type AddMailboxResult = 'added' | 'failed' | 'sign_in'
 
 /** A revoked or narrowed grant, which only the user can fix; any other sync error is retried on its own. */
 const LOST_ACCESS =

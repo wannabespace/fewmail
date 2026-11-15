@@ -1031,7 +1031,6 @@ export const uk: Messages = {
     movedToInbox: 'Повернуто у вхідні. Дякуємо, що сказав.',
     moveToInbox: 'У вхідні',
     backInInbox: 'Повернуто у вхідні',
-    noThread: 'Вибери лист, щоб прочитати його тут',
     deleteDraft: 'Видалити чернетку',
     notSent: 'Не надіслано. Відкрийте, щоб спробувати ще раз',
     noRecipients: 'Без отримувачів',
@@ -1045,8 +1044,6 @@ export const uk: Messages = {
     markedUnread: 'Позначено непрочитаним',
     attachment: 'вкладення',
     draftReply: 'Чернетка відповіді',
-    drafting: 'Пишу…',
-    draftWaiting: 'Чернетка чекає на «Головній»',
     due: (date: string) => `до ${date}`,
     dueHint: 'Термін, який агент знайшов у цьому листі',
     empty: 'Тут немає листів',
@@ -1540,8 +1537,6 @@ export const uk: Messages = {
             many: (n) => `${n} справ чекають на тебе.`,
             other: (n) => `${n} справи чекають на тебе.`,
           }),
-    nothingNeedsYou:
-      'Зараз нічого не потребує тебе. Нові листи читаються, щойно приходять.',
     period: (days: number) =>
       days === 1
         ? 'за добу'
@@ -1565,7 +1560,6 @@ export const uk: Messages = {
     recent: (period: string) => `Ще ${period}`,
     sent: 'Надіслано',
     codes: 'Коди для входу',
-    worthAttention: 'Варто уваги',
   },
   boards: {
     chartRemoved: 'Графік прибрано',

@@ -244,7 +244,7 @@ export const listHandled = (
 
 const PAGE_SIZE = 50
 
-export type MailFilter =
+type MailFilter =
   | 'spam'
   | 'inbox'
   | 'unread'
@@ -944,19 +944,6 @@ export const approveAction = async (
   return { ...expectRow(done), outboxId: applied.value }
 }
 
-/** One by one, so each send keeps its own undo window and a failure leaves the rest approved. */
-export const approveActions = async (userId: string, actionIds: string[]) => {
-  const outboxIds: string[] = []
-  for (const actionId of actionIds) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- approvals share the thread and outbox state
-    const { outboxId } = await approveAction(userId, actionId)
-    if (outboxId) {
-      outboxIds.push(outboxId)
-    }
-  }
-  return { approved: actionIds.length, outboxIds }
-}
-
 export const dismissAction = async (userId: string, actionId: string) => {
   await getAction(userId, actionId)
   const [dismissed] = await db
@@ -1274,7 +1261,7 @@ export const settleTidy = async (
   for (const { analysis, message } of rows) {
     const kind = analysis.suggestedAction
     if (status === 'done') {
-      // oxlint-disable-next-line eslint/no-await-in-loop -- one Gmail change at a time, like approveActions
+      // oxlint-disable-next-line eslint/no-await-in-loop -- one Gmail change at a time, like approveCards
       const applied = await Result.tryPromise(async () =>
         applyThreadEffect(userId, await ownMessage(userId, message.id), kind)
       )

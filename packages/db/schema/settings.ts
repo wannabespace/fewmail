@@ -21,7 +21,6 @@ export const userSettings = d.snakeCase.table('user_settings', {
   /** The day's newsletters sent to Telegram and WhatsApp at `briefHour`. */
   readingDigest: d.boolean().default(true).notNull(),
   language: d.text().$type<Locale>().notNull(),
-  onboardedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   starterBoards: d
     .text()
     .$type<BoardPreset>()

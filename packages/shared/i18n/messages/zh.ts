@@ -456,7 +456,6 @@ export const zh: Messages = {
     moveToInbox: '移到收件箱',
     backInInbox: '已移到收件箱',
     movedToInbox: '已移回收件箱。感谢告知。',
-    noThread: '选择一封邮件在这里阅读',
     deleteDraft: '删除草稿',
     notSent: '未发送，打开后重试',
     noRecipients: '无收件人',
@@ -470,8 +469,6 @@ export const zh: Messages = {
     markedUnread: '已标为未读',
     attachment: '附件',
     draftReply: '起草回复',
-    drafting: '正在起草…',
-    draftWaiting: '草稿在“首页”中等你',
     due: (date: string) => `${date} 到期`,
     dueHint: '助手在这封邮件中找到的截止日期',
     empty: '这里没有邮件',
@@ -1461,7 +1458,6 @@ export const zh: Messages = {
     },
     headline: (n: number) =>
       n === 0 ? '一切安好。' : `有 ${n} 件事需要你处理。`,
-    nothingNeedsYou: '现在没有需要你处理的事。新邮件一到就会被读取。',
     period: (days: number) => (days === 1 ? '过去一天' : `过去 ${days} 天`),
     pulse: {
       lists: (n: number) => `${n} 封来自邮件列表`,
@@ -1473,7 +1469,6 @@ export const zh: Messages = {
     recent: (period: string) => `${period}的其他邮件`,
     sent: '已发送',
     codes: '验证码',
-    worthAttention: '值得关注',
   },
   boards: {
     chartRemoved: '图表已移除',

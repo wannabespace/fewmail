@@ -813,7 +813,6 @@ export const nl: Messages = {
     moveToInbox: 'Naar inbox',
     backInInbox: 'Naar de inbox verplaatst',
     movedToInbox: 'Terug in de inbox. Bedankt voor het melden.',
-    noThread: 'Kies een e-mail om hem hier te lezen',
     deleteDraft: 'Concept verwijderen',
     notSent: 'Niet verzonden. Open om opnieuw te proberen',
     noRecipients: 'Geen ontvangers',
@@ -827,8 +826,6 @@ export const nl: Messages = {
     markedUnread: 'Gemarkeerd als ongelezen',
     attachment: 'bijlage',
     draftReply: 'Antwoord opstellen',
-    drafting: 'Opstellen…',
-    draftWaiting: 'Concept wacht op Home',
     due: (date: string) => `vervalt ${date}`,
     dueHint: 'Deadline die de agent in deze e-mail vond',
     empty: 'Geen e-mails hier',
@@ -1896,8 +1893,6 @@ export const nl: Messages = {
             one: () => 'Eén ding heeft je nodig.',
             other: (n) => `${n} dingen hebben je nodig.`,
           }),
-    nothingNeedsYou:
-      'Er is nu niets dat jou nodig heeft. Nieuwe mail wordt gelezen zodra die binnenkomt.',
     period: (days: number) =>
       days === 1 ? 'het afgelopen etmaal' : `de afgelopen ${days} dagen`,
     pulse: {
@@ -1914,7 +1909,6 @@ export const nl: Messages = {
     recent: (period: string) => `Ook ${period}`,
     sent: 'Verstuurd',
     codes: 'Inlogcodes',
-    worthAttention: 'Verdient je aandacht',
   },
   upgrade: {
     ask: 'Vraag het je mail',

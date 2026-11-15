@@ -43,13 +43,13 @@ export interface ComposerEditorHandle {
   setContent: (html: string) => void
 }
 
-export interface ComposerSnippet {
+interface ComposerSnippet {
   html: string
   id: string
   name: string
 }
 
-export type ComposerComplete = (input: {
+type ComposerComplete = (input: {
   prefix: string
   signal: AbortSignal
   suffix: string

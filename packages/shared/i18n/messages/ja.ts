@@ -464,7 +464,6 @@ export const ja: Messages = {
     moveToInbox: '受信トレイへ',
     backInInbox: '受信トレイに移動しました',
     movedToInbox: '受信トレイに戻しました。お知らせありがとうございます。',
-    noThread: 'メールを選ぶとここで読めます',
     deleteDraft: '下書きを削除',
     notSent: '未送信。開いて再試行',
     noRecipients: '宛先なし',
@@ -478,8 +477,6 @@ export const ja: Messages = {
     markedUnread: '未読にしました',
     attachment: '添付ファイル',
     draftReply: '返信を下書き',
-    drafting: '下書き中…',
-    draftWaiting: '下書きが「ホーム」で待っています',
     due: (date: string) => `期限 ${date}`,
     dueHint: 'エージェントがこのメールで見つけた期限',
     empty: 'メールはありません',
@@ -1512,8 +1509,6 @@ export const ja: Messages = {
       n === 0
         ? 'すべて落ち着いています。'
         : `対応が必要なものが ${n} 件あります。`,
-    nothingNeedsYou:
-      '今、対応が必要なものはありません。新しいメールは届いた瞬間に読みます。',
     period: (days: number) => (days === 1 ? 'この1日' : `この${days}日`),
     pulse: {
       lists: (n: number) => `メーリングリストから${n}通`,
@@ -1525,7 +1520,6 @@ export const ja: Messages = {
     recent: (period: string) => `${period}のその他`,
     sent: '送信済み',
     codes: '認証コード',
-    worthAttention: '目を通す価値あり',
   },
   boards: {
     chartRemoved: 'グラフを削除しました',

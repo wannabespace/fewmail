@@ -834,7 +834,6 @@ export const pl: Messages = {
     moveToInbox: 'Do odebranych',
     backInInbox: 'Przeniesiono do odebranych',
     movedToInbox: 'Przywrócono do odebranych. Dzięki za informację.',
-    noThread: 'Wybierz e-mail, aby go tu przeczytać',
     deleteDraft: 'Usuń szkic',
     notSent: 'Nie wysłano. Otwórz, by spróbować ponownie',
     noRecipients: 'Brak odbiorców',
@@ -848,8 +847,6 @@ export const pl: Messages = {
     markedUnread: 'Oznaczono jako nieprzeczytane',
     attachment: 'załącznik',
     draftReply: 'Szkic odpowiedzi',
-    drafting: 'Piszę…',
-    draftWaiting: 'Szkic czeka na stronie głównej',
     due: (date: string) => `termin ${date}`,
     dueHint: 'Termin znaleziony przez agenta w tym mailu',
     empty: 'Brak maili',
@@ -1962,8 +1959,6 @@ export const pl: Messages = {
             many: (n) => `${n} rzeczy czeka na ciebie.`,
             other: (n) => `${n} rzeczy czeka na ciebie.`,
           }),
-    nothingNeedsYou:
-      'Nic teraz na ciebie nie czeka. Nowa poczta jest czytana od razu, gdy przychodzi.',
     period: (days: number) =>
       days === 1 ? 'z ostatniej doby' : `z ostatnich ${days} dni`,
     pulse: {
@@ -1982,7 +1977,6 @@ export const pl: Messages = {
     recent: (period: string) => `Też ${period}`,
     sent: 'Wysłano',
     codes: 'Kody logowania',
-    worthAttention: 'Warte uwagi',
   },
   upgrade: {
     ask: 'Zapytaj swoją pocztę',

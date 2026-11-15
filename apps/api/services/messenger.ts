@@ -48,7 +48,7 @@ export interface Reply {
 }
 
 /** What a button press changes: a short notice, the pressed message's new buttons (`[]` removes them) and slower replies after. */
-export interface Pressed {
+interface Pressed {
   buttons?: Button[]
   notice?: string
   replies?: () => Promise<Reply[]>

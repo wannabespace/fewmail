@@ -92,7 +92,6 @@ import {
   blockSender,
   listQueue,
   dismissAction,
-  draftReply,
   getThread,
   listMail,
   countInboxInGmail,
@@ -119,7 +118,7 @@ import {
   removeDevice,
   webPushKey,
 } from '../services/notifications'
-import { cancelMail, listScheduled, scheduleMail } from '../services/outbox'
+import { cancelMail, scheduleMail } from '../services/outbox'
 import { listContacts } from '../services/people'
 import { getPlanInfo, getUsage } from '../services/plan'
 import {
@@ -454,7 +453,6 @@ export const router = {
     saveDraft: authed
       .input(draftInput)
       .handler(({ context, input }) => saveDraft(context.user.id, input)),
-    scheduled: authed.handler(({ context }) => listScheduled(context.user.id)),
     send: authed
       .input(sendInput)
       .handler(({ context, input }) => scheduleMail(context.user.id, input)),
@@ -478,11 +476,6 @@ export const router = {
       const text = await writeReplyTo(context.user.id, input.messageId)
       return { html: textToHtml(text), text }
     }),
-    draftReply: agent
-      .input(type({ 'instruction?': 'string', messageId: 'string.uuid' }))
-      .handler(({ context, input }) =>
-        draftReply(context.user.id, input.messageId, input.instruction)
-      ),
     list: authed
       .input(
         type({

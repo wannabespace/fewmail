@@ -463,7 +463,6 @@ export const ko: Messages = {
     moveToInbox: '받은편지함으로',
     backInInbox: '받은편지함으로 옮겼어요',
     movedToInbox: '받은편지함으로 되돌렸어요. 알려줘서 고마워요.',
-    noThread: '메일을 선택하면 여기에서 읽을 수 있어요',
     deleteDraft: '초안 삭제',
     notSent: '보내지 못함. 열어서 다시 시도',
     noRecipients: '받는 사람 없음',
@@ -477,8 +476,6 @@ export const ko: Messages = {
     markedUnread: '읽지 않음으로 표시함',
     attachment: '첨부파일',
     draftReply: '답장 초안 작성',
-    drafting: '초안 작성 중…',
-    draftWaiting: '초안이 홈에서 기다리고 있어요',
     due: (date: string) => `마감 ${date}`,
     dueHint: '에이전트가 이 메일에서 찾은 마감일',
     empty: '메일이 없어요',
@@ -1492,7 +1489,6 @@ export const ko: Messages = {
     },
     headline: (n: number) =>
       n === 0 ? '모두 평온해요.' : `확인이 필요한 일이 ${n}개 있어요.`,
-    nothingNeedsYou: '지금은 확인할 게 없어요. 새 메일은 도착하는 즉시 읽어요.',
     period: (days: number) => (days === 1 ? '지난 하루' : `지난 ${days}일`),
     pulse: {
       lists: (n: number) => `메일링 리스트에서 ${n}통`,
@@ -1504,7 +1500,6 @@ export const ko: Messages = {
     recent: (period: string) => `${period}의 다른 메일`,
     sent: '보냄',
     codes: '인증 코드',
-    worthAttention: '살펴볼 만한 것',
   },
   boards: {
     chartRemoved: '차트를 삭제했어요',

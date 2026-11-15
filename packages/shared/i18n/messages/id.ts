@@ -792,7 +792,6 @@ export const id: Messages = {
     backInInbox: 'Dipindahkan ke kotak masuk',
     movedToInbox:
       'Dikembalikan ke kotak masuk. Terima kasih sudah memberi tahu.',
-    noThread: 'Pilih email untuk membacanya di sini',
     deleteDraft: 'Hapus draf',
     notSent: 'Tidak terkirim. Buka untuk mencoba lagi',
     noRecipients: 'Tanpa penerima',
@@ -806,8 +805,6 @@ export const id: Messages = {
     markedUnread: 'Ditandai belum dibaca',
     attachment: 'lampiran',
     draftReply: 'Draf balasan',
-    drafting: 'Menyusun…',
-    draftWaiting: 'Draf menunggu di Beranda',
     due: (date: string) => `jatuh tempo ${date}`,
     dueHint: 'Tenggat yang ditemukan agen di email ini',
     empty: 'Tidak ada email di sini',
@@ -1865,8 +1862,6 @@ export const id: Messages = {
       total === 0
         ? 'Semua tenang.'
         : plural('id', total, { other: (n) => `${n} hal butuh kamu.` }),
-    nothingNeedsYou:
-      'Tidak ada yang butuh kamu saat ini. Email baru dibaca begitu tiba.',
     period: (days: number) =>
       days === 1 ? 'dalam sehari terakhir' : `dalam ${days} hari terakhir`,
     pulse: {
@@ -1879,7 +1874,6 @@ export const id: Messages = {
     recent: (period: string) => `Juga ${period}`,
     sent: 'Terkirim',
     codes: 'Kode masuk',
-    worthAttention: 'Layak diperhatikan',
   },
   upgrade: {
     ask: 'Tanya email-mu',

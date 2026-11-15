@@ -9,7 +9,7 @@ import { NotFoundError } from '../services/mail'
 import { AlreadySentError } from '../services/outbox'
 import { AgentRequiredError, requireAgent } from '../services/plan'
 
-export const orpc = os.$context<{ headers: Headers }>()
+const orpc = os.$context<{ headers: Headers }>()
 
 const notFoundToOrpc = orpc.middleware(async ({ next }) => {
   const result = await Result.tryPromise(async () => await next())

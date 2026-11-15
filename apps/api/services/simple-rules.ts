@@ -10,7 +10,7 @@ import { applyThreadEffect } from './thread-effects'
 
 type Message = typeof messages.$inferSelect
 
-export const matchesSimple = (match: SimpleMatch, message: Message) => {
+const matchesSimple = (match: SimpleMatch, message: Message) => {
   const needle = match.value.trim().toLowerCase()
   switch (match.field) {
     case 'from': {

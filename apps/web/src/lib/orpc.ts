@@ -12,7 +12,7 @@ import { getT, localeStore } from './i18n'
 import { queryClient } from './query-client'
 
 /** The spent allowance the server refused with, in the user's language; `null` for any other error. */
-export const limitText = (error: unknown) => {
+const limitText = (error: unknown) => {
   if (!(error instanceof ORPCError) || error.code !== 'TOO_MANY_REQUESTS') {
     return null
   }
@@ -29,7 +29,7 @@ const ERROR_TEXT_BY_CODE = {
 } as const
 
 /** The server's own messages are English and meant for logs; the user reads what went wrong in their language. */
-export const errorText = (error: unknown) => {
+const errorText = (error: unknown) => {
   const t = getT().errors
   if (error instanceof TypeError) {
     return t.offline

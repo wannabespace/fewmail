@@ -24,7 +24,7 @@ export const PROMISE_BODY_CHARS = 6000
 export const VOICE_SAMPLE = 20
 /** Sent emails since the last read that make the worker read the user's style again, at most once a day. */
 export const VOICE_EVERY_SENT = 20
-export const VOICE_CHARS = 800
+const VOICE_CHARS = 800
 export const VOICE_INSTRUCTIONS = [
   'Describe how the user writes email, so a writer can draft replies that sound like them.',
   'Cover the languages they write in, how they greet and sign off in each, how formally they address people (ти / Ви, du / Sie, tu / vous) and with whom, typical length, tone, punctuation, capitalisation and emoji habits, and phrases they reuse.',

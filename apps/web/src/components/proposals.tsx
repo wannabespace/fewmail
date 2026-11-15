@@ -206,7 +206,7 @@ export const useProposals = (
   return { approve, isLoaded: !!today, keep, proposals }
 }
 
-export type Proposals = ReturnType<typeof useProposals>
+type Proposals = ReturnType<typeof useProposals>
 
 const byKind = (proposals: Proposal[]) =>
   PROPOSAL_KINDS.map((kind) => ({

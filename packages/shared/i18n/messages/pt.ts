@@ -818,7 +818,6 @@ export const pt: Messages = {
     moveToInbox: 'Para a caixa de entrada',
     backInInbox: 'Movido para a caixa de entrada',
     movedToInbox: 'De volta à caixa de entrada. Valeu por avisar.',
-    noThread: 'Escolha um e-mail para lê-lo aqui',
     deleteDraft: 'Excluir rascunho',
     notSent: 'Não enviado. Abra para tentar de novo',
     noRecipients: 'Sem destinatários',
@@ -832,8 +831,6 @@ export const pt: Messages = {
     markedUnread: 'Marcado como não lido',
     attachment: 'anexo',
     draftReply: 'Rascunhar resposta',
-    drafting: 'Escrevendo…',
-    draftWaiting: 'O rascunho está aguardando no Início',
     due: (date: string) => `vence em ${date}`,
     dueHint: 'Prazo que o agente encontrou neste e-mail',
     empty: 'Nenhum e-mail aqui',
@@ -1925,8 +1922,6 @@ export const pt: Messages = {
             one: () => 'Uma coisa precisa de você.',
             other: (n) => `${n} coisas precisam de você.`,
           }),
-    nothingNeedsYou:
-      'Nada precisa de você agora. Novos e-mails são lidos assim que chegam.',
     period: (days: number) =>
       days === 1 ? 'no último dia' : `nos últimos ${days} dias`,
     pulse: {
@@ -1943,7 +1938,6 @@ export const pt: Messages = {
     recent: (period: string) => `Também ${period}`,
     sent: 'Enviado',
     codes: 'Códigos de acesso',
-    worthAttention: 'Merece sua atenção',
   },
   upgrade: {
     ask: 'Pergunte ao seu e-mail',

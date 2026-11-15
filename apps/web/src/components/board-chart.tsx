@@ -35,7 +35,7 @@ import { useStatusLabel } from '~/components/board-entries'
 import { useDates, useLocale, useMoneyFormat, useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 
-export type ChartSeries = RouterOutputs['boards']['get']['charts'][number]
+type ChartSeries = RouterOutputs['boards']['get']['charts'][number]
 
 const PRIMARY = { dark: ['var(--primary)'], light: ['var(--primary)'] }
 /** Shares step the one accent's strength; a second hue would read as a category color. */
