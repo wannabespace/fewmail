@@ -209,15 +209,13 @@ export const CommandMenu = ({
             </CommandGroup>
           )}
           <CommandGroup heading={t.nav.folders}>
-            {FOLDER_ITEMS.map(({ filter, icon }) => (
+            {FOLDER_ITEMS.map(({ folder, icon }) => (
               <CommandItem
-                key={filter}
-                onSelect={() =>
-                  run(() => navigate({ search: { filter }, to: '/mail' }))
-                }
+                key={folder}
+                onSelect={() => run(() => navigate({ to: `/mail/${folder}` }))}
               >
                 <HugeiconsIcon icon={icon} strokeWidth={2} />
-                {t.mail.filter[filter]}
+                {t.mail.filter[folder]}
               </CommandItem>
             ))}
             {labels.map(({ name, query }) => (

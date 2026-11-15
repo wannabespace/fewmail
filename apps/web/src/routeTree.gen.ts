@@ -34,6 +34,12 @@ import { Route as WTokenRouteImport } from './routes/w.$token'
 import { Route as AppBoardsBoardIdRouteImport } from './routes/_app/boards.$boardId'
 import { Route as AppCasesCaseIdRouteImport } from './routes/_app/cases.$caseId'
 import { Route as AppMailThreadIdRouteImport } from './routes/_app/mail_.$threadId'
+import { Route as AppMailArchiveRouteImport } from './routes/_app/mail_.archive'
+import { Route as AppMailDraftsRouteImport } from './routes/_app/mail_.drafts'
+import { Route as AppMailSentRouteImport } from './routes/_app/mail_.sent'
+import { Route as AppMailSnoozedRouteImport } from './routes/_app/mail_.snoozed'
+import { Route as AppMailSpamRouteImport } from './routes/_app/mail_.spam'
+import { Route as AppMailTrashRouteImport } from './routes/_app/mail_.trash'
 import { Route as SiteCompareIndexRouteImport } from './routes/_site/compare.index'
 import { Route as SiteCompareSlugRouteImport } from './routes/_site/compare.$slug'
 
@@ -160,6 +166,36 @@ const AppMailThreadIdRoute = AppMailThreadIdRouteImport.update({
   path: '/mail/$threadId',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMailArchiveRoute = AppMailArchiveRouteImport.update({
+  id: '/mail_/archive',
+  path: '/mail/archive',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMailDraftsRoute = AppMailDraftsRouteImport.update({
+  id: '/mail_/drafts',
+  path: '/mail/drafts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMailSentRoute = AppMailSentRouteImport.update({
+  id: '/mail_/sent',
+  path: '/mail/sent',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMailSnoozedRoute = AppMailSnoozedRouteImport.update({
+  id: '/mail_/snoozed',
+  path: '/mail/snoozed',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMailSpamRoute = AppMailSpamRouteImport.update({
+  id: '/mail_/spam',
+  path: '/mail/spam',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMailTrashRoute = AppMailTrashRouteImport.update({
+  id: '/mail_/trash',
+  path: '/mail/trash',
+  getParentRoute: () => AppRoute,
+} as any)
 const SiteCompareIndexRoute = SiteCompareIndexRouteImport.update({
   id: '/compare/',
   path: '/compare/',
@@ -195,6 +231,12 @@ export interface FileRoutesByFullPath {
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/cases/$caseId': typeof AppCasesCaseIdRoute
   '/mail/$threadId': typeof AppMailThreadIdRoute
+  '/mail/archive': typeof AppMailArchiveRoute
+  '/mail/drafts': typeof AppMailDraftsRoute
+  '/mail/sent': typeof AppMailSentRoute
+  '/mail/snoozed': typeof AppMailSnoozedRoute
+  '/mail/spam': typeof AppMailSpamRoute
+  '/mail/trash': typeof AppMailTrashRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare/': typeof SiteCompareIndexRoute
 }
@@ -222,6 +264,12 @@ export interface FileRoutesByTo {
   '/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/cases/$caseId': typeof AppCasesCaseIdRoute
   '/mail/$threadId': typeof AppMailThreadIdRoute
+  '/mail/archive': typeof AppMailArchiveRoute
+  '/mail/drafts': typeof AppMailDraftsRoute
+  '/mail/sent': typeof AppMailSentRoute
+  '/mail/snoozed': typeof AppMailSnoozedRoute
+  '/mail/spam': typeof AppMailSpamRoute
+  '/mail/trash': typeof AppMailTrashRoute
   '/compare/$slug': typeof SiteCompareSlugRoute
   '/compare': typeof SiteCompareIndexRoute
 }
@@ -252,6 +300,12 @@ export interface FileRoutesById {
   '/_app/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/_app/cases/$caseId': typeof AppCasesCaseIdRoute
   '/_app/mail_/$threadId': typeof AppMailThreadIdRoute
+  '/_app/mail_/archive': typeof AppMailArchiveRoute
+  '/_app/mail_/drafts': typeof AppMailDraftsRoute
+  '/_app/mail_/sent': typeof AppMailSentRoute
+  '/_app/mail_/snoozed': typeof AppMailSnoozedRoute
+  '/_app/mail_/spam': typeof AppMailSpamRoute
+  '/_app/mail_/trash': typeof AppMailTrashRoute
   '/_site/compare/$slug': typeof SiteCompareSlugRoute
   '/_site/compare/': typeof SiteCompareIndexRoute
 }
@@ -281,6 +335,12 @@ export interface FileRouteTypes {
     | '/boards/$boardId'
     | '/cases/$caseId'
     | '/mail/$threadId'
+    | '/mail/archive'
+    | '/mail/drafts'
+    | '/mail/sent'
+    | '/mail/snoozed'
+    | '/mail/spam'
+    | '/mail/trash'
     | '/compare/$slug'
     | '/compare/'
   fileRoutesByTo: FileRoutesByTo
@@ -308,6 +368,12 @@ export interface FileRouteTypes {
     | '/boards/$boardId'
     | '/cases/$caseId'
     | '/mail/$threadId'
+    | '/mail/archive'
+    | '/mail/drafts'
+    | '/mail/sent'
+    | '/mail/snoozed'
+    | '/mail/spam'
+    | '/mail/trash'
     | '/compare/$slug'
     | '/compare'
   id:
@@ -337,6 +403,12 @@ export interface FileRouteTypes {
     | '/_app/boards/$boardId'
     | '/_app/cases/$caseId'
     | '/_app/mail_/$threadId'
+    | '/_app/mail_/archive'
+    | '/_app/mail_/drafts'
+    | '/_app/mail_/sent'
+    | '/_app/mail_/snoozed'
+    | '/_app/mail_/spam'
+    | '/_app/mail_/trash'
     | '/_site/compare/$slug'
     | '/_site/compare/'
   fileRoutesById: FileRoutesById
@@ -529,6 +601,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMailThreadIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/mail_/archive': {
+      id: '/_app/mail_/archive'
+      path: '/mail/archive'
+      fullPath: '/mail/archive'
+      preLoaderRoute: typeof AppMailArchiveRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mail_/drafts': {
+      id: '/_app/mail_/drafts'
+      path: '/mail/drafts'
+      fullPath: '/mail/drafts'
+      preLoaderRoute: typeof AppMailDraftsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mail_/sent': {
+      id: '/_app/mail_/sent'
+      path: '/mail/sent'
+      fullPath: '/mail/sent'
+      preLoaderRoute: typeof AppMailSentRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mail_/snoozed': {
+      id: '/_app/mail_/snoozed'
+      path: '/mail/snoozed'
+      fullPath: '/mail/snoozed'
+      preLoaderRoute: typeof AppMailSnoozedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mail_/spam': {
+      id: '/_app/mail_/spam'
+      path: '/mail/spam'
+      fullPath: '/mail/spam'
+      preLoaderRoute: typeof AppMailSpamRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mail_/trash': {
+      id: '/_app/mail_/trash'
+      path: '/mail/trash'
+      fullPath: '/mail/trash'
+      preLoaderRoute: typeof AppMailTrashRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_site/compare/': {
       id: '/_site/compare/'
       path: '/compare'
@@ -560,6 +674,12 @@ interface AppRouteChildren {
   AppBoardsBoardIdRoute: typeof AppBoardsBoardIdRoute
   AppCasesCaseIdRoute: typeof AppCasesCaseIdRoute
   AppMailThreadIdRoute: typeof AppMailThreadIdRoute
+  AppMailArchiveRoute: typeof AppMailArchiveRoute
+  AppMailDraftsRoute: typeof AppMailDraftsRoute
+  AppMailSentRoute: typeof AppMailSentRoute
+  AppMailSnoozedRoute: typeof AppMailSnoozedRoute
+  AppMailSpamRoute: typeof AppMailSpamRoute
+  AppMailTrashRoute: typeof AppMailTrashRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -576,6 +696,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppBoardsBoardIdRoute: AppBoardsBoardIdRoute,
   AppCasesCaseIdRoute: AppCasesCaseIdRoute,
   AppMailThreadIdRoute: AppMailThreadIdRoute,
+  AppMailArchiveRoute: AppMailArchiveRoute,
+  AppMailDraftsRoute: AppMailDraftsRoute,
+  AppMailSentRoute: AppMailSentRoute,
+  AppMailSnoozedRoute: AppMailSnoozedRoute,
+  AppMailSpamRoute: AppMailSpamRoute,
+  AppMailTrashRoute: AppMailTrashRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
