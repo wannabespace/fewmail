@@ -47,6 +47,7 @@ import { toastUndo } from '~/lib/undo'
 export type Board = RouterOutputs['boards']['get']
 export type Entry = Board['entries'][number]
 type Group = Board['groups'][number]
+export type Upcoming = Board['summary']['upcoming']['items'][number]
 
 const GROUPS_SHOWN = 6
 
@@ -197,6 +198,88 @@ export const EntryRow = ({
         </DropdownMenuContent>
       </DropdownMenu>
     </SettingsRow>
+  )
+}
+
+export const upcomingRowId = (item: Upcoming) => `upcoming-${item.id}`
+
+/** A date of the next 30 days; an amount that is the last price rather than one an email asked for reads as "≈". */
+const UpcomingRow = ({
+  isActive,
+  item,
+  onSelect,
+}: {
+  isActive: boolean
+  item: Upcoming
+  onSelect: () => void
+}) => {
+  const t = useT()
+  const dates = useDates()
+  const money = useMoneyFormat()
+  const on = dates.format(item.dueAt, 'EEE, d MMM')
+
+  return (
+    <SettingsRow
+      active={isActive}
+      trigger={
+        <ExpandTrigger
+          email={{ from: 'board', threadId: item.threadId }}
+          rowId={upcomingRowId(item)}
+          onClick={onSelect}
+        />
+      }
+      title={<span data-mask>{item.title}</span>}
+      description={
+        <span data-mask>
+          {[
+            (item.isPredicted ? t.boards.expected : t.boards.due)(on),
+            item.every && t.boards.groups.every[item.every],
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        </span>
+      }
+    >
+      {item.amountCents !== null && item.currency && (
+        <span
+          className={cn(
+            'tabular-nums',
+            item.isEstimate && 'text-muted-foreground'
+          )}
+          data-mask
+        >
+          {item.isEstimate && '≈ '}
+          {item.payment === 'income' && '+'}
+          {money(item.amountCents, item.currency)}
+        </span>
+      )}
+    </SettingsRow>
+  )
+}
+
+/** What comes up in the next 30 days, soonest first: bills, renewals stated in an email and the ones expected from a steady pace. */
+export const BoardUpcoming = ({
+  active,
+  items,
+  onCursor,
+}: {
+  active: string | undefined
+  items: Upcoming[]
+  onCursor: (index: number) => void
+}) => {
+  const t = useT()
+
+  return (
+    <SettingsGroup title={t.boards.summary.upcoming}>
+      {items.map((item, index) => (
+        <UpcomingRow
+          key={item.id}
+          item={item}
+          isActive={active === upcomingRowId(item)}
+          onSelect={() => onCursor(index)}
+        />
+      ))}
+    </SettingsGroup>
   )
 }
 

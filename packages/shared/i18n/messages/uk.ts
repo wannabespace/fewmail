@@ -1798,6 +1798,7 @@ export const uk: Messages = {
           many: (count) => `${count} регулярних`,
           other: (count) => `${count} регулярного`,
         }),
+      refunded: (amount: string) => `повернено ${amount}`,
       thisMonth: 'Цього місяця',
       toPay: (n: number) => `до сплати: ${n}`,
       upcoming: 'Найближчі 30 днів',

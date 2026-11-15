@@ -326,7 +326,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   get_board: define({
     description:
-      'One board: its description and Gmail query, a summary (this month and last month: spent and received per currency and what the sum leaves out — due, failed, repeats of one charge, no amount; what repeats per month; what comes up in 30 days and what of it is to pay), its groups (spent or received, how often they repeat, next date), the newest entries (id, title, group, status, payment, amount, date, next date; repeatOf: the entry of the same charge that counts instead) and the series behind its charts. Only paid less refunds is spending: say so when quoting a sum.',
+      'One board: its description and Gmail query, a summary (this month and last month: spent (paid less refunds), refunded and received per currency and what the sum leaves out — due, failed, repeats of one charge, no amount; what repeats per month; upcoming: every date of the next 30 days, soonest first, stated in an email or expected from the pace of its group (isPredicted), with its amount, isEstimate when that is the last price rather than one an email asked for, and what of it is to pay), its groups (spent or received, how often they repeat, next date), the newest entries (id, title, group, status, payment, amount, date, next date; repeatOf: the entry of the same charge that counts instead) and the series behind its charts. Only paid less refunds is spending: say so when quoting a sum.',
     input: { id: z.uuid() },
     run: async ({ id }) => {
       const board = await getBoard(userId, id)

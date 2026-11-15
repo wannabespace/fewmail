@@ -1783,6 +1783,7 @@ export const de: Messages = {
           one: () => 'Ein wiederkehrender',
           other: (count) => `${count} wiederkehrende`,
         }),
+      refunded: (amount: string) => `${amount} erstattet`,
       thisMonth: 'Dieser Monat',
       toPay: (n: number) => `offen: ${n}`,
       upcoming: 'Nächste 30 Tage',

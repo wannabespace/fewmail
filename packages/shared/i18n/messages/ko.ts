@@ -1695,6 +1695,7 @@ export const ko: Messages = {
       perMonth: (amount: string) => `월 ${amount}`,
       received: (amount: string) => `받은 금액 ${amount}`,
       recurring: (n: number) => `정기 ${n}개`,
+      refunded: (amount: string) => `환불 ${amount}`,
       thisMonth: '이번 달',
       toPay: (n: number) => `미결제 ${n}건`,
       upcoming: '향후 30일',

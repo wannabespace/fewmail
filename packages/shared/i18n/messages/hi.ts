@@ -1729,6 +1729,7 @@ export const hi: Messages = {
           one: () => 'एक नियमित',
           other: (count) => `${count} नियमित`,
         }),
+      refunded: (amount: string) => `${amount} रिफ़ंड`,
       thisMonth: 'इस महीने',
       toPay: (n: number) => `बकाया: ${n}`,
       upcoming: 'अगले 30 दिन',

@@ -1663,6 +1663,7 @@ export const zh: Messages = {
       perMonth: (amount: string) => `每月 ${amount}`,
       received: (amount: string) => `收入 ${amount}`,
       recurring: (n: number) => `${n} 项定期`,
+      refunded: (amount: string) => `退款 ${amount}`,
       thisMonth: '本月',
       toPay: (n: number) => `待付 ${n} 笔`,
       upcoming: '未来 30 天',

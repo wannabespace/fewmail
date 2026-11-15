@@ -368,6 +368,7 @@ export const en = {
           one: () => 'One repeating',
           other: (count) => `${count} repeating`,
         }),
+      refunded: (amount: string) => `${amount} refunded`,
       thisMonth: 'This month',
       toPay: (n: number) => `${n} to pay`,
       upcoming: 'Next 30 days',

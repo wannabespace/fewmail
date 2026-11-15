@@ -1778,6 +1778,7 @@ export const es: Messages = {
           one: () => 'Uno recurrente',
           other: (count) => `${count} recurrentes`,
         }),
+      refunded: (amount: string) => `${amount} reembolsados`,
       thisMonth: 'Este mes',
       toPay: (n: number) => `por pagar: ${n}`,
       upcoming: 'Próximos 30 días',

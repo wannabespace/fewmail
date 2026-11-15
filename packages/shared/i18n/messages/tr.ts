@@ -356,6 +356,7 @@ export const tr: Messages = {
       received: (amount: string) => `${amount} alındı`,
       recurring: (n: number) =>
         plural('tr', n, { other: (count) => `${count} düzenli` }),
+      refunded: (amount: string) => `${amount} iade edildi`,
       thisMonth: 'Bu ay',
       toPay: (n: number) => `ödenecek: ${n}`,
       upcoming: 'Önümüzdeki 30 gün',
