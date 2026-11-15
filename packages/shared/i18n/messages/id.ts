@@ -631,7 +631,7 @@ export const id: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail meminta izin untuk membaca, merapikan, dan mengirim Gmail untukmu. Tidak ada yang dikirim atau diarsipkan tanpa persetujuanmu, kecuali kamu membuat aturan yang mengizinkannya. Fewmail juga meminta akses Google Kalender, yang bisa kamu hapus centangnya.',
+      'Fewmail meminta izin untuk membaca, merapikan, dan mengirim Gmail untukmu. Tidak ada yang dikirim atau diarsipkan tanpa persetujuanmu, kecuali kamu membuat aturan yang mengizinkannya. Fewmail juga meminta akses Google Kalender, dan kontakmu untuk menampilkan foto orang; keduanya bisa kamu hapus centangnya.',
     continue: 'Lanjutkan dengan Google',
     lead: 'Fewmail membaca kotak masukmu, membalas dengan gayamu, dan hanya menampilkan yang benar-benar butuh kamu.',
     messengers:
@@ -658,6 +658,12 @@ export const id: Messages = {
       copied: 'Kode disalin',
       copy: 'Salin kode',
       trash: 'Salin dan hapus',
+    },
+    photos: {
+      allow: 'Izinkan akses',
+      description:
+        'Fewmail mengambilnya dari kontak Google-mu dan hanya memakainya untuk itu.',
+      title: 'Lihat foto orang yang menulis kepadamu',
     },
     openUnsubscribePage: 'Buka halaman',
     unsubscribeYourself:

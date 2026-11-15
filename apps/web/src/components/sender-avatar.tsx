@@ -8,19 +8,13 @@ export const SenderAvatar = ({
 }: {
   sender: { fromEmail: string; fromName?: string | null }
   size?: 'xs' | 'sm'
-}) => {
-  const [, domain] = fromEmail.split('@')
-  return (
-    <SiteAvatar
-      name={fromName ?? fromEmail}
-      size={size}
-      src={
-        domain &&
-        `${import.meta.env.API_URL}/site-icon/${encodeURIComponent(domain)}`
-      }
-    />
-  )
-}
+}) => (
+  <SiteAvatar
+    name={fromName ?? fromEmail}
+    size={size}
+    src={`${import.meta.env.API_URL}/avatar/${encodeURIComponent(fromEmail)}`}
+  />
+)
 
 const PARTICIPANTS_SHOWN = 3
 

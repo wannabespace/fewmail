@@ -932,6 +932,12 @@ export const it: Messages = {
     storageFull: (email: string) =>
       `${email} ha finito lo spazio Google, quindi Gmail rifiuta le nuove email.`,
     storageFullHint:
+    photos: {
+      allow: 'Consenti accesso',
+      description:
+        'Fewmail le prende dai tuoi contatti Google e li usa solo per questo.',
+      title: 'Vedi le foto di chi ti scrive',
+    },
       'Libera spazio o prendi più archiviazione per ricevere di nuovo la posta.',
   },
   login: {
@@ -945,7 +951,7 @@ export const it: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail chiede di leggere, organizzare e inviare Gmail per te. Niente viene inviato né archiviato senza il tuo ok, a meno che tu non scriva una regola che lo consenta. Chiede anche il tuo Google Calendar, che puoi deselezionare.',
+      'Fewmail chiede di leggere, organizzare e inviare Gmail per te. Niente viene inviato né archiviato senza il tuo ok, a meno che tu non scriva una regola che lo consenta. Chiede anche il tuo Google Calendar e i tuoi contatti per mostrare le foto delle persone; puoi deselezionarli entrambi.',
     continue: 'Continua con Google',
     lead: 'Fewmail legge la posta per te, risponde con la tua voce e ti mostra solo ciò che ha davvero bisogno di te.',
     messengers:

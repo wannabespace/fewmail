@@ -646,7 +646,7 @@ export const pt: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'O Fewmail pede permissão para ler, organizar e enviar seus e-mails do Gmail. Nada é enviado nem arquivado sem o seu aval, a menos que você crie uma regra que permita. Também pede acesso ao teu Google Agenda, que podes desmarcar.',
+      'O Fewmail pede permissão para ler, organizar e enviar seus e-mails do Gmail. Nada é enviado nem arquivado sem o seu aval, a menos que você crie uma regra que permita. Também pede acesso ao teu Google Agenda e aos teus contactos para mostrar as fotos das pessoas; podes desmarcar ambos.',
     continue: 'Continuar com o Google',
     lead: 'O Fewmail lê sua caixa de entrada por você, responde com a sua voz e só mostra o que realmente precisa de você.',
     messengers:
@@ -682,6 +682,12 @@ export const pt: Messages = {
     unsubscribeYourself:
       'Para sair desta lista, termine na página dela. Enquanto isso, o e-mail fica arquivado.',
     allMailboxes: 'Todas as caixas',
+    photos: {
+      allow: 'Permitir acesso',
+      description:
+        'O Fewmail vai buscá-las aos teus contactos Google e só os usa para isso.',
+      title: 'Vê as fotos de quem te escreve',
+    },
     filterAbout: {
       focused: 'O importante e as pessoas primeiro, avisos recolhidos',
       unread: 'O que você ainda não leu, por tipo',

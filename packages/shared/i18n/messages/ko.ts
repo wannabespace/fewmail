@@ -360,6 +360,12 @@ export const ko: Messages = {
     storageFull: (email: string) =>
       `${email}의 Google 저장공간이 가득 차서 Gmail이 새 메일을 반송하고 있어요.`,
     storageFullHint:
+    photos: {
+      allow: '접근 허용',
+      description:
+        'Fewmail은 Google 연락처에서 사진을 가져오며 그 용도로만 사용해요.',
+      title: '메일을 보낸 사람의 사진 보기',
+    },
       '메일을 다시 받으려면 공간을 확보하거나 저장공간을 늘리세요.',
   },
   login: {
@@ -373,7 +379,7 @@ export const ko: Messages = {
       '에 동의하게 돼요.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail은 사용자를 대신해 Gmail을 읽고, 정리하고, 보낼 수 있는 권한을 요청해요. 허용하는 규칙을 직접 만들지 않는 한, 동의 없이 아무것도 보내거나 보관하지 않아요. Google 캘린더 접근도 요청하며, 선택 해제할 수 있습니다.',
+      'Fewmail은 사용자를 대신해 Gmail을 읽고, 정리하고, 보낼 수 있는 권한을 요청해요. 허용하는 규칙을 직접 만들지 않는 한, 동의 없이 아무것도 보내거나 보관하지 않아요. Google 캘린더와, 상대의 사진을 보여 주기 위한 연락처 접근도 요청하며, 둘 다 선택 해제할 수 있습니다.',
     continue: 'Google로 계속하기',
     lead: 'Fewmail이 받은편지함을 대신 읽고, 내 말투로 답장하고, 정말 필요한 것만 보여줘요.',
     messengers:

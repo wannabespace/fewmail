@@ -4,7 +4,7 @@ import {
   AvatarImage,
 } from '@fewmail/ui/components/avatar'
 
-/** A sender's site icon, rounded square so a logo keeps its corners; the initial while it loads or when there is none. */
+/** A sender's photo or site icon, rounded square so a logo keeps its corners; the initial while it loads or when there is none. */
 export const SiteAvatar = ({
   name,
   size = 'xs',

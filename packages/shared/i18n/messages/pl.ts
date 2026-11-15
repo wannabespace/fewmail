@@ -658,7 +658,7 @@ export const pl: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail prosi o dostęp do czytania, porządkowania i wysyłania poczty Gmail w twoim imieniu. Nic nie zostanie wysłane ani zarchiwizowane bez twojej zgody, chyba że ustawisz regułę, która na to pozwala. Prosi też o dostęp do Kalendarza Google, który możesz odznaczyć.',
+      'Fewmail prosi o dostęp do czytania, porządkowania i wysyłania poczty Gmail w twoim imieniu. Nic nie zostanie wysłane ani zarchiwizowane bez twojej zgody, chyba że ustawisz regułę, która na to pozwala. Prosi też o dostęp do Kalendarza Google oraz do kontaktów, żeby pokazywać zdjęcia ludzi; oba możesz odznaczyć.',
     continue: 'Kontynuuj z Google',
     lead: 'Fewmail czyta twoją skrzynkę za ciebie, odpowiada twoim głosem i pokazuje tylko to, co naprawdę wymaga twojej uwagi.',
     messengers:
@@ -698,6 +698,12 @@ export const pl: Messages = {
       focused: 'Najpierw ważne i ludzie, powiadomienia zwinięte',
       unread: 'Jeszcze nieprzeczytane, według rodzaju',
       categories:
+    photos: {
+      allow: 'Zezwól na dostęp',
+      description:
+        'Fewmail bierze je z twoich kontaktów Google i używa ich tylko do tego.',
+      title: 'Zobacz zdjęcia osób, które do ciebie piszą',
+    },
         'Cała skrzynka według rodzaju, najpierw to, co czeka na ciebie',
       inbox: 'Wszystko, od najnowszych',
     },

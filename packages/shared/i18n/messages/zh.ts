@@ -355,6 +355,11 @@ export const zh: Messages = {
     signInAgain: '重新登录',
     storageFull: (email: string) =>
       `${email} 的 Google 存储空间已满，Gmail 正在退回新邮件。`,
+    photos: {
+      allow: '允许访问',
+      description: 'Fewmail 从你的 Google 联系人中获取照片，且只用于此。',
+      title: '查看给你写信的人的照片',
+    },
     storageFullHint: '释放空间或购买更多存储空间，才能再次收到邮件。',
   },
   login: {
@@ -368,7 +373,7 @@ export const zh: Messages = {
       '。',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail 会请求代你读取、整理和发送 Gmail 邮件。除非你写下允许的规则，否则未经你同意，不会发送或归档任何邮件。它还会请求访问你的 Google 日历，你可以取消勾选。',
+      'Fewmail 会请求代你读取、整理和发送 Gmail 邮件。除非你写下允许的规则，否则未经你同意，不会发送或归档任何邮件。它还会请求访问你的 Google 日历，以及用于显示对方照片的联系人，两者都可以取消勾选。',
     continue: '使用 Google 继续',
     lead: 'Fewmail 替你阅读收件箱，用你的语气回复，只把真正需要你的邮件给你看。',
     messengers:

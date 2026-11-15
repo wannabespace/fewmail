@@ -361,6 +361,12 @@ export const ja: Messages = {
     storageFull: (email: string) =>
       `${email} の Google ストレージがいっぱいのため、Gmail が新しいメールを差し戻しています。`,
     storageFullHint:
+    photos: {
+      allow: 'アクセスを許可',
+      description:
+        'Fewmail は Google の連絡先から写真を取得し、その用途にのみ使います。',
+      title: 'メールをくれる人の写真を表示',
+    },
       'メールを再び受信するには、空き容量を増やすかストレージを追加してください。',
   },
   login: {
@@ -374,7 +380,7 @@ export const ja: Messages = {
       'に同意したことになります。',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail は、あなたに代わって Gmail を読み、整理し、送信する権限をリクエストします。許可するルールを書かない限り、あなたの承認なしに送信やアーカイブは行いません。 Google カレンダーへのアクセスも求めますが、チェックを外せます。',
+      'Fewmail は、あなたに代わって Gmail を読み、整理し、送信する権限をリクエストします。許可するルールを書かない限り、あなたの承認なしに送信やアーカイブは行いません。 Google カレンダーと、相手の写真を表示するための連絡先へのアクセスも求めますが、どちらもチェックを外せます。',
     continue: 'Google で続行',
     lead: 'Fewmail があなたの代わりに受信トレイを読み、あなたらしい文面で返信し、本当に必要なものだけをお見せします。',
     messengers:

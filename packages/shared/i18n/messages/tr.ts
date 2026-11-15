@@ -628,7 +628,7 @@ export const tr: Messages = {
       ' metinlerini kabul etmiş olursun.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail, Gmail’ini senin için okumak, düzenlemek ve göndermek için izin ister. İzin veren bir kural yazmadığın sürece senin onayın olmadan hiçbir şey gönderilmez ve arşivlenmez. Google Takvim erişimi de ister; bunu kaldırabilirsin.',
+      'Fewmail, Gmail’ini senin için okumak, düzenlemek ve göndermek için izin ister. İzin veren bir kural yazmadığın sürece senin onayın olmadan hiçbir şey gönderilmez ve arşivlenmez. Google Takvim’e ve kişilerin fotoğraflarını göstermek için kişilerine de erişim ister; ikisini de kaldırabilirsin.',
     continue: 'Google ile devam et',
     lead: 'Fewmail gelen kutunu senin yerine okur, senin üslubunla yanıtlar ve sadece gerçekten seni bekleyenleri gösterir.',
     messengers:
@@ -654,6 +654,12 @@ export const tr: Messages = {
       archive: 'Kopyala ve arşivle',
       copied: 'Kod kopyalandı',
       copy: 'Kodu kopyala',
+    photos: {
+      allow: 'Erişime izin ver',
+      description:
+        'Fewmail bunları Google kişilerinden alır ve onları yalnızca bunun için kullanır.',
+      title: 'Sana yazanların fotoğraflarını gör',
+    },
       trash: 'Kopyala ve sil',
     },
     openUnsubscribePage: 'Sayfayı aç',

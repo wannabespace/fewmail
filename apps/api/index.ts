@@ -10,6 +10,7 @@ import { cors } from 'hono/cors'
 
 import { env } from './env'
 import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
+import { contactPhoto } from './lib/contact-photos'
 import { canSpeak } from './lib/elevenlabs'
 import { relayChanges } from './lib/live'
 import { logError, logErrorAs } from './lib/log'
@@ -70,7 +71,8 @@ const spokenResponse = async (userId: string, text: () => Promise<string>) => {
   return new Response(null, { status: 500 })
 }
 
-const ICON_CACHE_SECONDS = 7 * 86_400
+// Short enough that photos granted by a new sign-in replace the initials within a day.
+const AVATAR_CACHE_SECONDS = 86_400
 
 // The sender names the type: anything a browser would run (HTML, SVG) on our origin is only ever downloaded.
 const VIEWABLE = new Set([
@@ -171,14 +173,18 @@ const app = new Hono()
     }
     return attachmentResponse(file.value)
   })
-  .get('/site-icon/:domain', async (c) => {
-    if (!(await auth.api.getSession({ headers: c.req.raw.headers }))) {
+  .get('/avatar/:email', async (c) => {
+    const session = await auth.api.getSession({ headers: c.req.raw.headers })
+    if (!session) {
       return c.notFound()
     }
-    const icon = await siteIcon(c.req.param('domain').toLowerCase())
+    const email = c.req.param('email').toLowerCase()
+    const icon =
+      (await contactPhoto(session.user, email)) ??
+      (await siteIcon(email.split('@')[1] ?? ''))
     return new Response(icon?.bytes ?? null, {
       headers: {
-        'cache-control': `private, max-age=${ICON_CACHE_SECONDS}`,
+        'cache-control': `private, max-age=${AVATAR_CACHE_SECONDS}`,
         ...(icon && { 'content-type': icon.type }),
       },
       status: icon ? 200 : 404,

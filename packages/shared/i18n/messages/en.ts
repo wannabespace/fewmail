@@ -641,7 +641,7 @@ export const en = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail asks to read, organize and send Gmail for you. Nothing is sent and nothing is archived without your say, unless you write a rule that allows it. It also asks for your Google Calendar, which you can untick.',
+      'Fewmail asks to read, organize and send Gmail for you. Nothing is sent and nothing is archived without your say, unless you write a rule that allows it. It also asks for your Google Calendar, and for your contacts to show people’s photos; you can untick both.',
     continue: 'Continue with Google',
     lead: 'Fewmail reads your inbox for you, answers in your voice and only shows you what actually needs you.',
     messengers:
@@ -670,6 +670,12 @@ export const en = {
       trash: 'Copy and delete',
     },
     openUnsubscribePage: 'Open page',
+    photos: {
+      allow: 'Allow access',
+      description:
+        'Fewmail shows them from your Google contacts and uses those only for that.',
+      title: 'See the photos of people who write to you',
+    },
     unsubscribeYourself:
       'This list needs you to finish leaving on its own page. Its mail is archived meanwhile.',
     allMailboxes: 'All mailboxes',

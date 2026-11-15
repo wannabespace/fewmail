@@ -23,7 +23,12 @@ import type { InferRouterOutputs } from '@orpc/server'
 import { type } from 'arktype'
 
 import { agent, authed, visitor } from '.'
-import { CALENDAR_SCOPE, GMAIL_SCOPE, hasSignInScope } from '../lib/auth'
+import {
+  CALENDAR_SCOPE,
+  CONTACTS_SCOPES,
+  GMAIL_SCOPE,
+  hasSignInScope,
+} from '../lib/auth'
 import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
 import { approveCard, approveCards } from '../services/approve'
@@ -527,13 +532,18 @@ export const router = {
     })),
   },
   me: authed.handler(async ({ context }) => {
-    const [plan, settings, usage, hasGmail, hasCalendar] = await Promise.all([
-      getPlanInfo(context.user.id),
-      getSettings(context.user.id),
-      getUsage(context.user.id),
-      hasSignInScope(context.user.id, GMAIL_SCOPE),
-      hasSignInScope(context.user.id, CALENDAR_SCOPE),
-    ])
+    const [plan, settings, usage, hasGmail, hasCalendar, ...contactScopes] =
+      await Promise.all([
+        getPlanInfo(context.user.id),
+        getSettings(context.user.id),
+        getUsage(context.user.id),
+        hasSignInScope(context.user.id, GMAIL_SCOPE),
+        hasSignInScope(context.user.id, CALENDAR_SCOPE),
+      hasContacts: contactScopes.every(Boolean),
+        ...CONTACTS_SCOPES.map((scope) =>
+          hasSignInScope(context.user.id, scope)
+        ),
+      ])
     return {
       hasCalendar,
       hasGmail,

@@ -16,6 +16,10 @@ import { capture } from './posthog'
 
 export const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
 export const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events'
+export const CONTACTS_SCOPES = [
+  'https://www.googleapis.com/auth/contacts.readonly',
+  'https://www.googleapis.com/auth/contacts.other.readonly',
+]
 
 export const MCP_RESOURCE = `${env.API_URL}/mcp`
 export const AUTH_ISSUER = `${env.API_URL}/auth`
@@ -41,7 +45,7 @@ export const auth = betterAuth({
   databaseHooks: {
     account: {
       update: {
-        // A new sign-in can grant scopes (Calendar) the cached token lacks.
+        // A new sign-in can grant scopes (Calendar, contacts) the cached token lacks.
         after: (account) => {
           signInAccessTokens.delete(account.userId)
           return Promise.resolve()
@@ -90,7 +94,7 @@ export const auth = betterAuth({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       prompt: 'consent',
-      scope: [GMAIL_SCOPE, CALENDAR_SCOPE],
+      scope: [GMAIL_SCOPE, CALENDAR_SCOPE, ...CONTACTS_SCOPES],
     },
   },
   trustedOrigins: [env.WEB_URL],
@@ -183,7 +187,13 @@ export const mailboxConsentUrl = (state: string) =>
     prompt: 'consent select_account',
     redirect_uri: mailboxRedirectUri(),
     response_type: 'code',
-    scope: ['openid', 'email', GMAIL_SCOPE, CALENDAR_SCOPE].join(' '),
+    scope: [
+      'openid',
+      'email',
+      GMAIL_SCOPE,
+      CALENDAR_SCOPE,
+      ...CONTACTS_SCOPES,
+    ].join(' '),
     state,
   })}`
 

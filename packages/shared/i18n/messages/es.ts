@@ -929,6 +929,12 @@ export const es: Messages = {
     storageFull: (email: string) =>
       `${email} se quedó sin almacenamiento de Google, así que Gmail rechaza el correo nuevo.`,
     storageFullHint:
+    photos: {
+      allow: 'Permitir acceso',
+      description:
+        'Fewmail las toma de tus contactos de Google y solo los usa para eso.',
+      title: 'Ve las fotos de quienes te escriben',
+    },
       'Libera espacio o consigue más almacenamiento para volver a recibir correo.',
   },
   login: {
@@ -942,7 +948,7 @@ export const es: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail pide permiso para leer, organizar y enviar Gmail por ti. No se envía ni se archiva nada sin tu permiso, salvo que escribas una regla que lo permita. También pide acceso a tu Google Calendar, que puedes desmarcar.',
+      'Fewmail pide permiso para leer, organizar y enviar Gmail por ti. No se envía ni se archiva nada sin tu permiso, salvo que escribas una regla que lo permita. También pide acceso a tu Google Calendar y a tus contactos para mostrar sus fotos; puedes desmarcar ambos.',
     continue: 'Continuar con Google',
     lead: 'Fewmail lee tu bandeja por ti, responde con tu voz y solo te muestra lo que de verdad te necesita.',
     messengers:

@@ -15,6 +15,7 @@ import {
   CloudIcon,
   MailAccount01Icon,
   MailSend01Icon,
+  UserMultipleIcon,
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -30,7 +31,14 @@ import { useDates, useT } from '~/lib/i18n'
 import { useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 
-const NOTICES = ['mail', 'mailbox', 'storage', 'send', 'calendar'] as const
+const NOTICES = [
+  'mail',
+  'mailbox',
+  'storage',
+  'send',
+  'calendar',
+  'photos',
+] as const
 
 const GOOGLE_STORAGE_URL = 'https://one.google.com/storage/management'
 
@@ -55,7 +63,7 @@ interface Notice {
 export const NoticeBar = () => {
   const t = useT()
   const dates = useDates()
-  const { hasCalendar } = useMe()
+  const { hasCalendar, hasContacts } = useMe()
   const dismissed = useSubscription(dismissedStore)
   const pathname = useRouterState({
     select: ({ location }) => location.pathname,
@@ -126,6 +134,17 @@ export const NoticeBar = () => {
       id: 'calendar',
       isOptional: !isCalendarPage,
       title: t.calendar.noAccess.title,
+    },
+    !hasContacts && {
+      action: {
+        label: t.notices.photos.allow,
+        onClick: () => signInWithGoogle(pathname),
+      },
+      description: t.notices.photos.description,
+      icon: UserMultipleIcon,
+      id: 'photos',
+      isOptional: true,
+      title: t.notices.photos.title,
     },
   ]
   const notice = notices.find(

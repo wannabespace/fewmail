@@ -647,7 +647,7 @@ export const nl: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail vraagt toestemming om je Gmail te lezen, te ordenen en te versturen. Er wordt niets verstuurd of gearchiveerd zonder jouw akkoord, tenzij je een regel maakt die dat toestaat. Het vraagt ook om je Google Agenda, die je kunt uitvinken.',
+      'Fewmail vraagt toestemming om je Gmail te lezen, te ordenen en te versturen. Er wordt niets verstuurd of gearchiveerd zonder jouw akkoord, tenzij je een regel maakt die dat toestaat. Het vraagt ook om je Google Agenda, en om je contacten om foto’s van mensen te tonen; beide kun je uitvinken.',
     continue: 'Doorgaan met Google',
     lead: 'Fewmail leest je inbox voor je, antwoordt in jouw stijl en laat alleen zien wat jou echt nodig heeft.',
     messengers:
@@ -682,6 +682,12 @@ export const nl: Messages = {
     filterAbout: {
       focused: 'Belangrijk en mensen eerst, meldingen ingeklapt',
       unread: 'Wat je nog niet hebt gelezen, per soort',
+    photos: {
+      allow: 'Toegang geven',
+      description:
+        'Fewmail haalt ze uit je Google-contacten en gebruikt die alleen daarvoor.',
+      title: "Zie de foto's van wie je schrijft",
+    },
       categories: 'De hele inbox per soort, wat jou nodig heeft eerst',
       inbox: 'Alles, nieuwste eerst',
     },
