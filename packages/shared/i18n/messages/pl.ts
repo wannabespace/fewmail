@@ -1440,6 +1440,7 @@ export const pl: Messages = {
       emphasis: 'w dwie minuty.',
       handled: [
         'Lumen Weekly: nie otworzyłeś żadnego z ostatnich 30 wydań',
+      details: 'Zobacz wszystkie plany w szczegółach',
         'paypa1-billing.com udaje paypal.com',
         'Parcelhub: powiadomienia o dostawie, według reguły „Paragony i przesyłki”',
       ],

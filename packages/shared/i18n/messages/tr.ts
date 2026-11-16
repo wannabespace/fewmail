@@ -1403,6 +1403,7 @@ export const tr: Messages = {
       emphasis: 'iki dakikada.',
       handled: [
         'Lumen Weekly: son 30 sayının hiçbirini açmadın',
+      details: 'Tüm planları ayrıntılı gör',
         'paypa1-billing.com, paypal.com gibi görünüyor',
         'Parcelhub: teslimat bildirimleri, “Makbuzlar ve kargo” kuralıyla',
       ],

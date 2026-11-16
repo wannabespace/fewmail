@@ -1216,6 +1216,7 @@ export const zh: Messages = {
       emphasis: '两分钟搞定。',
       handled: [
         'Lumen Weekly：最近 30 期你一期都没打开',
+      details: '查看所有方案详情',
         'paypa1-billing.com 看起来像 paypal.com',
         'Parcelhub：物流通知，按规则“收据和物流”',
       ],

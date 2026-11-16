@@ -26,7 +26,7 @@ import {
   CONTAINER,
   Faq,
   FeatureGrid,
-  PlanTable,
+  PlanCards,
   Reveal,
 } from '~/components/site'
 import { signedInStore } from '~/lib/auth'
@@ -101,7 +101,7 @@ const LandingPage = () => {
         {...chapters.pricing}
         title={chapters.pricing.title(PRICE_USD.lite.month)}
       >
-        <PlanTable />
+        <PlanCards />
       </Chapter>
       <Chapter {...chapters.questions}>
         <Faq items={t.faq(TRIAL_DAYS)} />

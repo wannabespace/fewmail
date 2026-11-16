@@ -634,6 +634,7 @@ export const uk: Messages = {
     },
     plans: {
       agent: 'Агент',
+      details: 'Усі плани детально',
       emails: 'Листів, які агент прочитає за місяць',
       everyPlan: 'На кожному плані',
       messages: 'або повідомлень агенту',

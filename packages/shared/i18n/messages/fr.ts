@@ -642,6 +642,7 @@ export const fr: Messages = {
     },
     plans: {
       agent: 'L’agent',
+      details: 'Voir toutes les formules en détail',
       emails: 'E-mails lus par l’agent chaque mois',
       everyPlan: 'Dans chaque formule',
       messages: 'ou messages à l’agent',

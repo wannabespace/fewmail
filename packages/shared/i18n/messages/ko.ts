@@ -1238,6 +1238,7 @@ export const ko: Messages = {
       emphasis: '2분이면 끝.',
       handled: [
         'Lumen Weekly: 최근 30호를 하나도 열지 않았어요',
+      details: '모든 플랜 자세히 보기',
         'paypa1-billing.com이 paypal.com처럼 보여요',
         'Parcelhub: 배송 알림, “영수증과 배송” 규칙으로',
       ],

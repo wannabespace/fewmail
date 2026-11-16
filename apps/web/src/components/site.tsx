@@ -308,20 +308,94 @@ const EVERY_PLAN = featureList(
     .filter((feature) => !AGENT_FEATURES.includes(feature))
 )
 
-const Ticked = ({ labels }: { labels: string[] }) => (
-  <ul className="flex flex-wrap gap-x-5 gap-y-1.5">
-    {labels.map((label) => (
-      <li key={label} className="flex items-center gap-1.5">
-        <HugeiconsIcon
-          icon={Tick02Icon}
-          strokeWidth={2}
-          className="text-primary size-4 shrink-0"
-        />
-        {label}
-      </li>
-    ))}
-  </ul>
+const FeatureList = ({
+  labels,
+  note,
+  title,
+}: {
+  labels: string[]
+  note?: string
+  title: string
+}) => (
+  <div className="flex flex-col gap-3">
+    <p className="text-muted-foreground text-xs font-medium">
+      {title}
+      {note && <span className="font-normal"> · {note}</span>}
+    </p>
+    <ul className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+      {labels.map((label) => (
+        <li key={label} className="flex gap-2">
+          <HugeiconsIcon
+            icon={Tick02Icon}
+            strokeWidth={2}
+            className="text-primary mt-0.5 size-4 shrink-0"
+          />
+          {label}
+        </li>
+      ))}
+    </ul>
+  </div>
 )
+
+/** Three blocks, so the table can align them across plans with subgrid rows. */
+const PlanHead = ({
+  billingInterval,
+  plan,
+}: {
+  billingInterval: BillingInterval
+  plan: (typeof PLANS)[number]
+}) => {
+  const t = useT()
+  const { plans } = t.site
+  const isFree = plan.id === 'free'
+  return (
+    <>
+      <div>
+        <h3 className="font-medium">{t.plan[plan.id]}</h3>
+        <p className="text-muted-foreground mt-1 text-sm text-pretty">
+          {plans[plan.id].description}
+        </p>
+      </div>
+      <p className="flex items-baseline gap-1.5">
+        <span className="text-display font-serif tabular-nums">
+          ${plan.price[billingInterval]}
+        </span>
+        <span className="text-muted-foreground text-sm">
+          {isFree ? plans.forever : plans.per[billingInterval]}
+        </span>
+      </p>
+      <Button
+        size="lg"
+        variant={plan.id === 'pro' ? 'default' : 'secondary'}
+        render={<Link to="/login" />}
+      >
+        {isFree ? t.site.startFree : plans.tryFree(TRIAL_DAYS)}
+      </Button>
+    </>
+  )
+}
+
+export const PlanCards = () => {
+  const { plans } = useT().site
+  return (
+    <Reveal className="mt-12 flex flex-col items-start gap-6">
+      <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {PLANS.map((plan) => (
+          <div
+            key={plan.id}
+            className="bg-background ring-foreground/6 grid grid-rows-[1fr_auto_auto] gap-4 rounded-3xl p-6 ring"
+          >
+            <PlanHead plan={plan} billingInterval="month" />
+          </div>
+        ))}
+      </div>
+      <Button variant="link" render={<Link to="/pricing" />}>
+        {plans.details}
+        <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} />
+      </Button>
+    </Reveal>
+  )
+}
 
 /** The plans differ only in what the agent may do a month, so the table shows only that and what Free lacks. */
 export const PlanTable = () => {
@@ -330,7 +404,7 @@ export const PlanTable = () => {
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('month')
   const { comparison, plans } = t.site
-  const paidName = PAID_PLANS.map((plan) => t.plan[plan]).join(' · ')
+  const paidName = PAID_PLANS.map((plan) => t.plan[plan]).join(', ')
   const allowanceRow = (label: string, unit: 'emails' | 'messages') => (
     <div className={PLAN_ROW}>
       <span className="text-muted-foreground col-span-4 text-sm xl:col-span-1">
@@ -363,62 +437,29 @@ export const PlanTable = () => {
       <Reveal className="bg-background ring-foreground/6 grid w-full rounded-3xl ring xl:grid-cols-5">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 xl:col-span-5 xl:grid-cols-subgrid xl:grid-rows-[repeat(3,auto)]">
           <span className="hidden xl:row-span-3 xl:block" />
-          {PLANS.map((plan) => {
-            const isFree = plan.id === 'free'
-            return (
-              <div
-                key={plan.id}
-                className="grid content-start gap-4 px-6 py-6 xl:row-span-3 xl:grid-rows-subgrid"
-              >
-                <div>
-                  <h3 className="font-medium">{t.plan[plan.id]}</h3>
-                  <p className="text-muted-foreground mt-1 text-sm text-pretty">
-                    {plans[plan.id].description}
-                  </p>
-                </div>
-                <p className="flex items-baseline gap-1.5">
-                  <span className="text-display font-serif tabular-nums">
-                    ${plan.price[billingInterval]}
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    {isFree ? plans.forever : plans.per[billingInterval]}
-                  </span>
-                </p>
-                <Button
-                  size="lg"
-                  variant={plan.id === 'pro' ? 'default' : 'secondary'}
-                  render={<Link to="/login" />}
-                >
-                  {isFree ? t.site.startFree : plans.tryFree(TRIAL_DAYS)}
-                </Button>
-              </div>
-            )
-          })}
+          {PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              className="grid content-start gap-4 px-6 py-6 xl:row-span-3 xl:grid-rows-subgrid"
+            >
+              <PlanHead plan={plan} billingInterval={billingInterval} />
+            </div>
+          ))}
         </div>
         {allowanceRow(plans.emails, 'emails')}
         {allowanceRow(plans.messages, 'messages')}
-        <div className={PLAN_ROW}>
-          <span className="text-muted-foreground col-span-4 text-sm xl:col-span-1">
-            {plans.agent}
-          </span>
-          <PlanCell name={t.plan.free}>
-            <Lacks />
-          </PlanCell>
-          <PlanCell name={paidName} className="col-span-3 text-sm">
-            <Ticked
-              labels={featureList(AGENT_FEATURES).map(
-                (feature) => comparison.labels[feature]
-              )}
-            />
-          </PlanCell>
-        </div>
-        <div className="flex flex-col gap-3 border-t px-6 py-5 text-sm xl:col-span-5 xl:grid xl:grid-cols-subgrid xl:gap-0 xl:px-0 xl:*:px-6">
-          <span className="text-muted-foreground">{plans.everyPlan}</span>
-          <div className="xl:col-span-4">
-            <Ticked
-              labels={EVERY_PLAN.map((feature) => comparison.labels[feature])}
-            />
-          </div>
+        <div className="flex flex-col gap-8 border-t px-6 py-6 text-sm xl:col-span-5">
+          <FeatureList
+            title={plans.agent}
+            note={paidName}
+            labels={featureList(AGENT_FEATURES).map(
+              (feature) => comparison.labels[feature]
+            )}
+          />
+          <FeatureList
+            title={plans.everyPlan}
+            labels={EVERY_PLAN.map((feature) => comparison.labels[feature])}
+          />
         </div>
       </Reveal>
       <p className="text-muted-foreground self-start text-xs">

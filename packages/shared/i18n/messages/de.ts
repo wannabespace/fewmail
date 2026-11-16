@@ -634,6 +634,7 @@ export const de: Messages = {
     },
     plans: {
       agent: 'Der Agent',
+      details: 'Alle Pläne im Detail',
       emails: 'E-Mails, die der Agent im Monat liest',
       everyPlan: 'In jedem Plan',
       messages: 'oder Nachrichten an den Agenten',

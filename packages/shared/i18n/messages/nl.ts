@@ -1416,6 +1416,7 @@ export const nl: Messages = {
       emphasis: 'in twee minuten.',
       handled: [
         'Lumen Weekly: je opende geen van de laatste 30 nummers',
+      details: 'Bekijk alle abonnementen in detail',
         'paypa1-billing.com lijkt op paypal.com',
         'Parcelhub: bezorgberichten, via de regel “Bonnetjes en verzending”',
       ],
