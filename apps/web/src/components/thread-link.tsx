@@ -15,8 +15,7 @@ const pageArea = () =>
 
 const NOTICE_GAP = 8
 
-/** The sidebar's box: the page area's right edge, top to bottom, as wide as Mail's reader beside its list; under a notice it starts a gap below it. */
-const useSidebarBox = () => {
+const usePageAreaRect = () => {
   const [area, setArea] = useState(() => pageArea()?.getBoundingClientRect())
   useEffect(() => {
     const element = pageArea()
@@ -29,13 +28,25 @@ const useSidebarBox = () => {
     observer.observe(element)
     return () => observer.disconnect()
   }, [])
+  return area
+}
+
+const isUnderNoticeAt = (top: number, isMobile: boolean) => !isMobile && top > 0
+
+/** Whether a notice sits above the page: an email beside the page then starts a gap below it, with a top border and corner. */
+export const useIsUnderNotice = () =>
+  isUnderNoticeAt(usePageAreaRect()?.top ?? 0, useIsMobile())
+
+/** The sidebar's box: the page area's right edge, top to bottom, as wide as Mail's reader beside its list; under a notice it starts a gap below it. */
+const useSidebarBox = () => {
+  const area = usePageAreaRect()
   const right = area?.right ?? innerWidth
   const readerWidth = useReaderWidthIn(area?.width ?? innerWidth)
   const isMobile = useIsMobile()
   // A phone has no room beside the page: the email covers it.
   const width = isMobile ? (area?.width ?? innerWidth) : readerWidth
   const top = area?.top ?? 0
-  const isUnderNotice = !isMobile && top > 0
+  const isUnderNotice = isUnderNoticeAt(top, isMobile)
   const gap = isUnderNotice ? NOTICE_GAP : 0
   return {
     height: (area?.height ?? innerHeight) - gap,

@@ -118,6 +118,7 @@ import {
   participantNamesOf,
   SenderAvatar,
 } from '~/components/sender-avatar'
+import { useIsUnderNotice } from '~/components/thread-link'
 import {
   CodeActions,
   MailRowActions,
@@ -2432,6 +2433,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const { panesWidth, readerWidth, setPanes } = useReaderWidth()
   const hasAgent = useHasAgent()
   const { filter: picked, mailbox, q, thread } = useSearch({ strict: false })
+  const isReaderUnderNotice = useIsUnderNotice() && !!thread
   const inboxView = useSubscription(inboxViewStore)
   const navigate = useNavigate()
   const listRef = useRef<HTMLUListElement>(null)
@@ -2751,7 +2753,9 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
       >
         <section
           aria-label={t.nav.mail}
-          className="@container flex min-w-0 flex-1 flex-col border-r"
+          className={cn('@container flex min-w-0 flex-1 flex-col border-r', {
+            'border-r-transparent': isReaderUnderNotice,
+          })}
         >
           <PickedBar list={list} picks={picks}>
             <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3 max-md:px-4">
@@ -2846,7 +2850,11 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
         onSizeChange={(width) => readerWidthStore.set(width)}
       >
         {thread && (
-          <div className="bg-background flex min-w-0 flex-1 flex-col">
+          <div
+            className={cn('bg-background flex min-w-0 flex-1 flex-col', {
+              'mt-2 rounded-tl-xl border-t border-l': isReaderUnderNotice,
+            })}
+          >
             <ThreadView
               key={thread}
               isSnoozed={filter === 'snoozed'}
