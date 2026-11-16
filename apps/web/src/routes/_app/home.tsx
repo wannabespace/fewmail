@@ -60,7 +60,6 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
-import { BoardBanners } from '~/components/board-banners'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import {
@@ -1143,7 +1142,7 @@ const StaleCards = ({
   )
 }
 
-/** Every card is one decision and all the agent's proposals one more, as `today.count` (the sidebar) counts them; a board's heads-up asks nothing. */
+/** Every card is one decision and all the agent's proposals one more, as `today.count` (the sidebar) counts them. */
 const countDecisions = (
   data: Today | undefined,
   cards: number,
@@ -1155,10 +1154,6 @@ const countDecisions = (
       data.ruleOffers.length +
       Math.min(proposals, 1)
     : 0
-
-/** A board's heads-up asks nothing but still shows under the decisions. */
-const isEmpty = (data: Today | undefined, decisions: number) =>
-  decisions === 0 && !data?.banners.length
 
 /** A reply card's meeting goes in the calendar apart from Send (`L` on the cursor card). */
 const useAddEvent = (selected: QueueItem | undefined, canUseKeys: boolean) => {
@@ -1667,7 +1662,7 @@ const HomePage = () => {
 
                   <section
                     aria-label={t.today.decisions}
-                    hidden={isEmpty(data, decisions)}
+                    hidden={decisions === 0}
                     className="flex flex-col gap-2.5"
                   >
                     <DecisionsHeader
@@ -1766,7 +1761,6 @@ const HomePage = () => {
                       />
                       <RuleOffers today={data} onSettle={() => settle()} />
                     </div>
-                    <BoardBanners banners={data?.banners ?? []} />
                     <StaleCards
                       canUseKeys={isWalking}
                       count={stale.length}

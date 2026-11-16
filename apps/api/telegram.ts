@@ -295,9 +295,7 @@ const createBot = (token: string) => {
   return bot
 }
 
-const bot = env.TELEGRAM_BOT_TOKEN
-  ? createBot(env.TELEGRAM_BOT_TOKEN)
-  : null
+const bot = env.TELEGRAM_BOT_TOKEN ? createBot(env.TELEGRAM_BOT_TOKEN) : null
 
 export const telegramWebhook =
   bot && env.TELEGRAM_WEBHOOK_SECRET

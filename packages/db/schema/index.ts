@@ -38,8 +38,6 @@ export {
   whatsappLinks,
 } from './settings'
 export {
-  boardEntries,
-  boards,
   bulkPrints,
   commitmentEvents,
   commitments,

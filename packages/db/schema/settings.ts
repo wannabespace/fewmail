@@ -1,5 +1,4 @@
 import type {
-  BoardPreset,
   DeliveryChannel,
   DeliveryNotice,
   DeliveryStatus,
@@ -25,12 +24,6 @@ export const userSettings = d.snakeCase.table('user_settings', {
   /** The day's newsletters sent to Telegram and WhatsApp at `briefHour`. */
   readingDigest: d.boolean().default(true).notNull(),
   language: d.text().$type<Locale>().notNull(),
-  starterBoards: d
-    .text()
-    .$type<BoardPreset>()
-    .array()
-    .default(['money'])
-    .notNull(),
   timezone: d.text().notNull(),
   todayOpenedAt: d.timestamp({ withTimezone: true }),
   todaySince: d.timestamp({ withTimezone: true }),
@@ -153,9 +146,6 @@ export type AiFeature =
   | 'ask_answer'
   | 'ask_query'
   | 'autocomplete'
-  | 'board_chart'
-  | 'board_entry'
-  | 'board_plan'
   | 'card_link'
   | 'chat'
   | 'digest'

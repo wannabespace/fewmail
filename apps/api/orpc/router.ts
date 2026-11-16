@@ -1,10 +1,5 @@
 import {
   BILLING_INTERVALS,
-  BOARD_CHART_TYPES,
-  BOARD_GROUPINGS,
-  BOARD_MEASURES,
-  BOARD_PERIODS,
-  BOARD_PRESETS,
   CLEAR_OUT_GROUPS,
   COMMITMENT_STATUSES,
   DEVICE_KINDS,
@@ -35,18 +30,6 @@ import { watchChanges } from '../lib/live'
 import { approveCard, approveCards } from '../services/approve'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
-import {
-  addChart,
-  addToBoard,
-  createBoard,
-  deleteBoard,
-  dismissEntry,
-  getBoard,
-  listBoards,
-  renameGroup,
-  reorderBoards,
-  updateBoard,
-} from '../services/boards'
 import {
   createEvent,
   deleteEvent,
@@ -136,21 +119,9 @@ import { getWrapped, readSharedWrapped } from '../services/wrapped'
 
 const id = type({ id: 'string.uuid' })
 
-const boardChart = type({
-  'currency?': 'string',
-  groupBy: type.enumerated(...BOARD_GROUPINGS),
-  id: 'string',
-  measure: type.enumerated(...BOARD_MEASURES),
-  title: 'string',
-  type: type.enumerated(...BOARD_CHART_TYPES),
-})
-const boardText = { description: 'string > 2', name: 'string > 0' } as const
-const boardPeriod = type.enumerated(...BOARD_PERIODS)
-
 const settingsInput = type({
   'briefHour?': '0 <= number.integer <= 23',
   language: type.enumerated(...LOCALES.map(({ code }) => code)),
-  'starterBoards?': type.enumerated(...BOARD_PRESETS).array(),
   'gmailLabels?': 'boolean',
   'knowledge?': 'string | null',
   'readingDigest?': 'boolean',
@@ -219,59 +190,6 @@ const eventInput = type({
 })
 
 export const router = {
-  boards: {
-    create: agent
-      .input(type({ ...boardText, 'periodDays?': boardPeriod }))
-      .handler(async ({ context, input }) => {
-        const board = await createBoard(context.user.id, input)
-        return { id: board.id }
-      }),
-    delete: agent.input(id).handler(async ({ context, input }) => {
-      await deleteBoard(context.user.id, input.id)
-    }),
-    get: agent
-      .input(id)
-      .handler(({ context, input }) => getBoard(context.user.id, input.id)),
-    list: agent.handler(({ context }) => listBoards(context.user.id)),
-    reorder: agent
-      .input(type({ ids: 'string.uuid[]' }))
-      .handler(async ({ context, input }) => {
-        await reorderBoards(context.user.id, input.ids)
-      }),
-    update: agent
-      .input(
-        id.and({
-          'bannerDays?': '1 <= number.integer <= 14 | null',
-          'charts?': boardChart.array(),
-          'description?': boardText.description,
-          'name?': boardText.name,
-          'periodDays?': boardPeriod,
-        })
-      )
-      .handler(async ({ context, input: { id: boardId, ...input } }) => {
-        await updateBoard(context.user.id, boardId, input)
-      }),
-    addChart: agent
-      .input(id.and({ ask: 'string' }))
-      .handler(({ context, input }) =>
-        addChart(context.user.id, input.id, input.ask)
-      ),
-    addEmail: agent
-      .input(id.and(messageId))
-      .handler(async ({ context, input }) => {
-        await addToBoard(context.user.id, input.id, input.messageId)
-      }),
-    renameGroup: agent
-      .input(id.and({ from: 'string', to: 'string' }))
-      .handler(async ({ context, input: { id: boardId, ...names } }) => {
-        await renameGroup(context.user.id, boardId, names)
-      }),
-    dismissEntry: agent
-      .input(id.and({ 'isDismissed?': 'boolean' }))
-      .handler(async ({ context, input }) => {
-        await dismissEntry(context.user.id, input.id, input.isDismissed)
-      }),
-  },
   actions: {
     addEvent: authed.input(id).handler(async ({ context, input }) => {
       await addCardEvent(context.user.id, input.id)

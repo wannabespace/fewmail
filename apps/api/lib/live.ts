@@ -10,7 +10,6 @@ const CHANNEL = 'mail_changed'
 /** Router namespaces whose queries the web refetches; an announce without topics refetches every query. */
 const LIVE_TOPICS = [
   'actions',
-  'boards',
   'commitments',
   'integrations',
   'mail',
@@ -24,7 +23,6 @@ type LiveTopic = (typeof LIVE_TOPICS)[number]
 
 export const MAIL_TOPICS = [
   'actions',
-  'boards',
   'commitments',
   'mail',
   'mailboxes',

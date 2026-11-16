@@ -96,7 +96,6 @@ import { posthog } from '~/lib/posthog'
 import { runUndo, UNDO_TOAST_MS } from '~/lib/undo'
 
 import { cidSource, listedAttachments, MessageAttachments } from './attachments'
-import { AddToBoardItems } from './board-entries'
 import type { Draft } from './compose/compose-context'
 import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
@@ -1869,7 +1868,6 @@ export const ThreadView = ({
                       {t.mail.markUnread}
                       <DropdownMenuShortcut>⇧U</DropdownMenuShortcut>
                     </DropdownMenuItem>
-                    <AddToBoardItems messageId={target.messageId} />
                     <DropdownMenuItem onClick={forward}>
                       {t.mail.forward}
                       <DropdownMenuShortcut>F</DropdownMenuShortcut>

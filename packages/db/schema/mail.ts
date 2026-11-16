@@ -55,8 +55,6 @@ export const mailboxes = d.snakeCase.table(
       .default({})
       .notNull(),
     lastSyncedAt: d.timestamp({ withTimezone: true }),
-    /** Null until the default boards were created; set once the agent is on, so an upgrade gets them too. Sign-in mailbox only. */
-    boardsSeededAt: d.timestamp({ withTimezone: true }),
     refreshToken: encryptedText(),
     /** Gmail's daily sending limit was hit; Gmail refuses every send until then. */
     sendBlockedUntil: d.timestamp({ withTimezone: true }),

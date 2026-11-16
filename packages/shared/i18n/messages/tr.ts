@@ -54,7 +54,6 @@ export const tr: Messages = {
     cc: (recipients: string) => `Bilgi: ${recipients}`,
     confirm: {
       dismiss_action: 'Bu kart atlansın mı?',
-      delete_board: 'Bu pano ve içindeki her şey silinsin mi?',
       create_event: 'Bu etkinlik eklensin mi?',
       delete_event: 'Bu etkinlik silinsin mi?',
       update_event: 'Bu etkinlik değiştirilsin mi?',
@@ -92,10 +91,8 @@ export const tr: Messages = {
       draft_reply: 'Yanıt yazılıyor',
       create_draft: 'Taslak kaydediliyor',
       find_people: 'Adres aranıyor',
-      get_board: 'Pano okunuyor',
       get_person: 'Kişi aranıyor',
       get_today: 'Bugün kontrol ediliyor',
-      list_boards: 'Panolar açılıyor',
       list_handled: 'Halledilenlere bakılıyor',
       list_mail: 'E-postalarda aranıyor',
       list_rules: 'Kurallar okunuyor',
@@ -110,14 +107,6 @@ export const tr: Messages = {
       report_spam: 'Spam bildiriliyor',
       mark_not_spam: 'Spamdan çıkarılıyor',
       move_to_inbox: 'Gelen kutusuna taşınıyor',
-      create_board: 'Pano oluşturuluyor',
-      update_board: 'Pano değiştiriliyor',
-      delete_board: 'Pano siliniyor',
-      add_board_chart: 'Grafik ekleniyor',
-      add_to_board: 'Panoya ekleniyor',
-      edit_board_entry: 'Kayıt düzeltiliyor',
-      remove_board_entry: 'Panodan çıkarılıyor',
-      rename_board_group: 'Grubun adı değiştiriliyor',
       list_promises: 'Sözler kontrol ediliyor',
       set_promise_status: 'Söz güncelleniyor',
     },
@@ -125,7 +114,6 @@ export const tr: Messages = {
     until: (time: string) => `Şu zamana kadar: ${time}`,
     yes: {
       dismiss_action: 'Atla',
-      delete_board: 'Sil',
       create_event: 'Ekle',
       delete_event: 'Sil',
       update_event: 'Kaydet',
@@ -150,213 +138,6 @@ export const tr: Messages = {
     thinking: 'E-postalarına bakılıyor…',
   },
   byRule: 'bir kuralla',
-  boards: {
-    chartRemoved: 'Grafik kaldırıldı',
-    addTo: 'Panoya ekle',
-    added: (board: string) => `Eklendi: ${board}`,
-    cancel: 'İptal',
-    chart: {
-      add: 'Grafik ekle',
-      ask: 'Grafiği anlat',
-      askPlaceholder: 'Mağazaya göre harcama, duruma göre siparişler…',
-      currency: 'Para birimi',
-      edit: 'Grafik ayarları',
-      empty: 'Henüz çizilecek bir şey yok',
-      groupBy: 'Gruplama',
-      groupings: {
-        group: 'Kim veya ne',
-        month: 'Ay',
-        status: 'Durum',
-        week: 'Hafta',
-      },
-      measure: 'Gösterilen',
-      measures: { count: 'Adet', sum: 'Toplam tutar' },
-      moveEarlier: 'Öne al',
-      moveLater: 'Geriye al',
-      other: 'Diğer',
-      remove: 'Grafiği kaldır',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `Toplama dahil değil: ${[
-          currency > 0 && `başka para birimi: ${currency}`,
-          payment > 0 &&
-            `ödenecek, başarısız, iade edilen veya alınan: ${payment}`,
-          amount > 0 && `tutarsız: ${amount}`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: 'Grafik başlığı',
-      type: 'Grafik türü',
-      types: {
-        area: 'Alan',
-        bar: 'Çubuk',
-        line: 'Çizgi',
-        pie: 'Pasta',
-      },
-      untitled: 'Yeni grafik',
-      weekOf: (date: string) => `${date} haftası`,
-    },
-    charts: 'Grafikler',
-    create: 'Pano oluştur',
-    delete: 'Panoyu sil',
-    deleteConfirm: (name: string) => `“${name}” silinsin mi?`,
-    deleteHint:
-      'Kayıtları ve grafikleri de silinir. Postaların olduğu yerde kalır.',
-    describe: 'Neleri topladığını değiştir',
-    description: 'Neleri topladığı',
-    descriptionPlaceholder:
-      'Seyahatler: uçuşlar, oteller ve araç kiralama, maliyetleriyle',
-    due: (when: string) => `Yaklaşıyor: ${when}`,
-    empty: 'Henüz boş. Uygun e-postalar gelir gelmez burada görünür.',
-    entries: (total: number) =>
-      plural('tr', total, { other: (n) => `${n} kayıt` }),
-    entry: {
-      edited: 'Senin düzenlemen',
-      nextOn: (date: string) => `sonraki: ${date}`,
-      remove: 'Bu panoya ait değil',
-      removed: 'Panodan çıkarıldı. Bundan ders çıkarır.',
-    },
-    expected: (when: string) => `Beklenen: ${when}`,
-    filter: {
-      clear: 'Filtreyi temizle',
-      nothing: 'Eşleşen kayıt yok.',
-      search: 'Kayıtlarda ara',
-    },
-    groups: {
-      every: {
-        month: 'her ay',
-        quarter: 'her çeyrek',
-        week: 'her hafta',
-        year: 'her yıl',
-      },
-      expected: (date: string) => `beklenen: ${date}`,
-      next: (date: string) => `sonraki: ${date}`,
-      perMonth: (amount: string) => `${amount} / ay`,
-      rename: 'Grubu yeniden adlandır',
-      renameHint: 'İkisini birleştirmek için başka bir grubun adını ver.',
-      showAll: (n: number) => `Tümünü göster (${n})`,
-      showFewer: 'Daha az göster',
-      title: 'Kim veya neye göre',
-    },
-    history: {
-      capped: (n: number) => `Dönemin eşleşen en yeni ${n} e-postası okundu.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? 'Dönemin postalarına bakılıyor…'
-          : `${plural('tr', found, { other: (n) => `${n} e-posta` })} okunuyor · şimdiye kadar ${plural('tr', entries, { other: (n) => `${n} kayıt` })}`,
-    },
-    menu: 'Pano işlemleri',
-    moveDown: 'Aşağı taşı',
-    moveUp: 'Yukarı taşı',
-    name: 'Ad',
-    namePlaceholder: 'Seyahatler',
-    new: 'Yeni pano',
-    newHint:
-      'Neyin toplanacağını kendi kelimelerinle anlat. Fewmail seçtiğin dönemin postalarında bulur, grafikleri seçer ve panoyu güncel tutar.',
-    payment: {
-      due: 'ödenecek',
-      failed: 'başarısız',
-      income: 'alındı',
-      paid: 'ödendi',
-      refund: 'iade',
-    },
-    period: 'Dönem',
-    periods: {
-      1: 'Son 1 gün',
-      7: 'Son 1 hafta',
-      30: 'Son 1 ay',
-      90: 'Son 3 ay',
-      180: 'Son 6 ay',
-      365: 'Son 1 yıl',
-    },
-    planning: 'Hazırlanıyor…',
-    redescribe: 'Kaydet ve yeniden oku',
-    redescribeHint:
-      'Dönem yeni açıklamayla yeniden okunur. Düzenlediğin veya çıkardığın kayıtlar olduğu gibi kalır.',
-    rename: 'Panoyu yeniden adlandır',
-    save: 'Kaydet',
-    settings: {
-      bannerDays: 'Tarihten önce uyarı',
-      days: (n: number) =>
-        plural('tr', n, { other: (count) => `${count} gün önce` }),
-      hint: 'Panonun ne kadar geriye kadar topladığı ve seni bir tarihten ne kadar önce uyaracağı.',
-      never: 'Hiçbir zaman',
-      title: 'Pano ayarları',
-    },
-    starter: {
-      events: {
-        description:
-          'Biletler, rezervasyonlar ve randevular: nerede, ne zaman ve kiminle olmam gerektiği.',
-        name: 'Etkinlikler',
-      },
-      health: {
-        description:
-          'Doktor randevuları, reçeteler, tahlil sonuçları ve sigorta talepleri: kime, ne zaman gittim ve ne kadar tuttu.',
-        name: 'Sağlık',
-      },
-      home: {
-        description:
-          'Kira, faturalar, tamirler ve evle ilgili sözleşmeler: neyin vadesi geldi, kime ve ne kadar.',
-        name: 'Ev',
-      },
-      invoices: {
-        description:
-          'İş için kestiğim ve aldığım faturalar: müşteri ya da tedarikçi, tutar, son tarih ve ödenip ödenmediği.',
-        name: 'İş faturaları',
-      },
-      jobs: {
-        description:
-          'Başvurular, mülakatlar ve teklifler: hangi şirket, hangi pozisyon ve her biri ne aşamada.',
-        name: 'İş arama',
-      },
-      learning: {
-        description:
-          'Kurslar, dersler ve okul ya da üniversite e-postaları: son tarihler, notlar, sertifikalar ve ücretleri.',
-        name: 'Eğitim',
-      },
-      money: {
-        description:
-          'Ödemeler, abonelikler, faturalar ve iadeler: neye, kime, ne kadar ödediğim ve ne zaman yenilendiği.',
-        name: 'Finans',
-      },
-      orders: {
-        description:
-          'Online siparişler ve teslimatlar: ne aldım, kimden ve şu an nerede.',
-        name: 'Siparişler',
-      },
-      trips: {
-        description:
-          'Uçuşlar, trenler, oteller ve kiralamalar: nereye, ne zaman ve kaça gidiyorum.',
-        name: 'Seyahatler',
-      },
-    },
-    summary: {
-      attention: 'İlgilenmen gerekenler',
-      emails: (n: number) =>
-        plural('tr', n, {
-          other: (count) => `${count} e-posta`,
-        }),
-      next: (title: string, date: string, amount: string | null) =>
-        `Sıradaki: ${title}, ${date}${amount ? `, ${amount}` : ''}.`,
-      perMonth: (amount: string, n: number) => {
-        const payments = plural('tr', n, {
-          other: (count) => `${count} düzenli ödeme`,
-        })
-        return `${payments} için ayda ${amount} ödüyorsun.`
-      },
-      received: (amount: string) => `${amount} alındı`,
-      refunded: (amount: string) => `${amount} iade edildi`,
-      regular: 'Düzenli ödemeler',
-      upcoming: 'Önümüzdeki 30 gün',
-    },
-  },
   bulk: {
     badge: (n: number) => `${n}+ Fewmail kullanıcısına gönderildi`,
     reason: (n: number) =>
@@ -617,7 +398,6 @@ export const tr: Messages = {
     move: 'gezin',
     stackEmail: 'sonraki / önceki e-posta',
     open: 'aç',
-    notOnBoard: 'bu panoya ait değil',
     rename: 'yeniden adlandır',
     clearFilter: 'filtreyi temizle',
     search: 'ara',
@@ -824,10 +604,8 @@ export const tr: Messages = {
     folders: 'Klasörler',
     calendar: 'Takvim',
     subscriptions: 'E-posta listeleri',
-    boards: 'Panolar',
     people: 'Kişiler',
     findPerson: 'Kişi bul',
-    newBoard: 'Yeni pano',
     mail: 'Posta',
     reading: 'Okuma',
     rules: 'Kurallar',
@@ -851,9 +629,6 @@ export const tr: Messages = {
       }),
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `Ajanın e-postalarından doldurduğu sayfalar; son üç aydan başlar. En fazla ${max} tane seç; kendi panolarını sonra ekleyebilirsin.`,
-    boardsTitle: 'Ajan senin için neleri toplasın?',
     languageHint:
       'Uygulama, özetler ve açıklamalar bu dili kullanır. Yanıtlar her zaman yanıtladığın e-postanın dilinde olur.',
     languageTitle: 'Fewmail hangi dili konuşsun?',
@@ -1428,11 +1203,6 @@ export const tr: Messages = {
             'Sade bir dille her şeyi sor, yanıtı kendi postalarından, dayandığı e-postalarla birlikte al.',
           title: 'Postalarına sor',
         },
-        boards: {
-          description:
-            'Para, ücretli abonelikler, seyahatler, siparişler: neyin takip edileceğini anlat, ajan bunları bir yıla kadar postalardan grafiklerle toplasın.',
-          title: 'Panolar',
-        },
         calendar: {
           description:
             'Tüm posta kutularının takvimi tek bir görünümde. Bir e-postada önerilen toplantı, sen evet deyince etkinliğe dönüşür.',
@@ -1703,7 +1473,7 @@ export const tr: Messages = {
     queueChanged: 'Kartlar bu arada değişti. Şu an seni bekleyenler:',
     heard: (text: string) => `Duyduğum: “${text}”`,
     voiceFailed: 'Anlayamadım. Tekrar dene ya da yaz.',
-    help: 'Ne istediğini yaz ya da söyle:\n• e-postaların hakkında sor: “Netflix ne zaman yenileniyor?”\n• ne yanıtlanacağını söyle: “Anna’ya yarın imzalayacağımı yaz”\n• bana bir iş ver: “seyahatler için bir pano oluştur”\n• değiştirmek için taslaklarımdan birini yanıtla',
+    help: 'Ne istediğini yaz ya da söyle:\n• e-postaların hakkında sor: “Netflix ne zaman yenileniyor?”\n• ne yanıtlanacağını söyle: “Anna’ya yarın imzalayacağımı yaz”\n• bana bir iş ver: “Medium bültenlerini hep arşivle”\n• değiştirmek için taslaklarımdan birini yanıtla',
     canceled: 'İptal edildi. Taslak kuyruğuna geri döndü.',
     sendingIn: (seconds: number) => `${seconds} sn içinde gönderiliyor`,
     undo: 'Geri al',
@@ -1759,14 +1529,14 @@ export const tr: Messages = {
     allDoneLead:
       'Yeni e-postaları okumaya devam ediyorum, ilgilenmen gereken her şey burada görünecek.',
     allowanceSpent: (date: string) =>
-      `Ajanın bu ayki kullanım hakkı bitti: özetler ve taslaklar ${date} tarihinde geri gelecek. O zamana kadar tutarları, sözleri ve son tarihleri kaydetmeye devam ediyorum.`,
+      `Ajanın bu ayki kullanım hakkı bitti: özetler ve taslaklar ${date} tarihinde geri gelecek. O zamana kadar sözleri ve son tarihleri kaydetmeye devam ediyorum.`,
     byRules: (n: number) => `Kuralların ${n} tanesini halletti.`,
     decisions: 'Kararlar',
     journal: {
       approved: 'Evet dedin',
       byRule: (rule: string) => `Kuralın: ${rule}`,
       failed: 'Olmadı',
-      lead: 'Son 7 gün. E-postandaki, takvimindeki ya da panolarındaki her değişiklik senin onayınla ya da açtığın bir kuralla yapıldı.',
+      lead: 'Son 7 gün. E-postandaki ya da takvimindeki her değişiklik senin onayınla ya da açtığın bir kuralla yapıldı.',
       title: 'E-postanda yapılanlar',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
@@ -1846,8 +1616,6 @@ export const tr: Messages = {
     ask: 'Postana sor',
     hints: {
       ask: "Fewmail Pro'nun parçası: istediğini kendi kelimelerinle sor, yanıtı kendi postalarından al.",
-      boards:
-        "Fewmail Pro'nun parçası: neyin toplanacağını anlat, ajan postalarında bulsun ve güncel tutsun.",
       drafts:
         "Fewmail Pro'nun parçası: ajan yanıtı senin üslubunla yazar, sen düzenleyip gönderirsin.",
     },

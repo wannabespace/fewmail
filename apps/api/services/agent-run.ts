@@ -1,5 +1,5 @@
 import { db } from '@fewmail/db'
-import { actions, analyses, boards, messages } from '@fewmail/db/schema'
+import { actions, analyses, messages } from '@fewmail/db/schema'
 import type { ConsentToolName } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
@@ -73,7 +73,7 @@ const EVENTS_AROUND = (now: Date) => ({
   to: addDays(now, 365).toISOString(),
 })
 
-/** The reads the card finds its email, card, board or event in; without them the user would say yes blind. */
+/** The reads the card finds its email, card or event in; without them the user would say yes blind. */
 const consentReads = async (
   userId: string,
   name: ConsentToolName,
@@ -92,9 +92,6 @@ const consentReads = async (
   ) {
     return [{ input: {}, name: 'get_today' }]
   }
-  if (name === 'delete_board') {
-    return [{ input: {}, name: 'list_boards' }]
-  }
   if (
     name === 'create_event' ||
     name === 'update_event' ||
@@ -107,7 +104,7 @@ const consentReads = async (
 
 /**
  * What a yes covers beyond the call's own input, read when it was asked: the draft an approval sends, the thread a
- * move touches, what Tidy would do to each email, the event a change rewrites, the board a deletion takes. Null when
+ * move touches, what Tidy would do to each email, and the event a change rewrites. Null when
  * the input says it all (a new email, a rule).
  */
 const consentState = async (
@@ -158,13 +155,6 @@ const consentState = async (
         ({ id, mailboxId }) => id === input.id && mailboxId === input.mailboxId
       ) ?? null
     )
-  }
-  if (name === 'delete_board' && typeof input.id === 'string') {
-    const [board] = await db
-      .select({ description: boards.description, name: boards.name })
-      .from(boards)
-      .where(and(eq(boards.id, input.id), eq(boards.userId, userId)))
-    return board ?? null
   }
   return null
 }

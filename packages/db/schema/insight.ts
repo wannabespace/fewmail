@@ -1,7 +1,4 @@
 import type {
-  BoardChart,
-  BoardPayment,
-  BoardPeriod,
   CommitmentActor,
   CommitmentKind,
   CommitmentStatus,
@@ -186,64 +183,6 @@ export const people = d.snakeCase.table(
   },
   (table) => [
     d.uniqueIndex('people_user_email_idx').on(table.userId, table.email),
-  ]
-)
-
-/** A page the user describes in their own words; the agent turns the description into a Gmail query and the charts. */
-export const boards = d.snakeCase.table(
-  'boards',
-  {
-    ...baseTable,
-    charts: encryptedJson<BoardChart[]>().notNull(),
-    /** Days before an entry's `dueAt` it shows as a banner (Home, the board); null: the board has no heads-ups. */
-    bannerDays: d.smallint(),
-    description: encryptedText().notNull(),
-    gmailQuery: encryptedText().notNull(),
-    /** How many emails the last history read found; at `BOARD_HISTORY_LIMIT` the oldest were left out. */
-    historyFound: d.integer(),
-    /** Null until the board's period was read; a new description, query or a longer period resets it. */
-    historyReadAt: d.timestamp({ withTimezone: true }),
-    name: encryptedText().notNull(),
-    /** Days back the board collects (`BOARD_PERIODS`); entries that happened before then are not shown. */
-    periodDays: d.smallint().$type<BoardPeriod>().default(90).notNull(),
-    position: d.smallint().default(0).notNull(),
-    userId: userId(),
-  },
-  (table) => [d.index('boards_user_idx').on(table.userId)]
-)
-
-export const boardEntries = d.snakeCase.table(
-  'board_entries',
-  {
-    ...baseTable,
-    amountCents: d.integer(),
-    boardId: d
-      .uuid()
-      .notNull()
-      .references(() => boards.id, { onDelete: 'cascade' }),
-    currency: d.text(),
-    /** The user took it off the board: hidden everywhere, kept so the same email is never collected again and the model learns what does not belong. */
-    dismissedAt: d.timestamp({ withTimezone: true }),
-    /** The entry's next date that needs the user: a renewal, a payment due, a departure. */
-    dueAt: d.timestamp({ withTimezone: true }),
-    /** The user edited or added it by hand; a new description keeps it. */
-    editedAt: d.timestamp({ withTimezone: true }),
-    group: encryptedText(),
-    messageId: d
-      .uuid()
-      .notNull()
-      .references(() => messages.id, { onDelete: 'cascade' }),
-    occurredAt: d.timestamp({ withTimezone: true }).notNull(),
-    /** Set whenever the entry has an amount: whether that amount counts as spending. */
-    payment: d.text().$type<BoardPayment>(),
-    status: encryptedText(),
-    title: encryptedText().notNull(),
-    userId: userId(),
-  },
-  (table) => [
-    d
-      .uniqueIndex('board_entries_board_message_idx')
-      .on(table.boardId, table.messageId),
   ]
 )
 

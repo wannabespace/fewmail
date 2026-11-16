@@ -1,7 +1,5 @@
 import {
   AGENT_TOOLS,
-  BOARD_PAYMENTS,
-  BOARD_PERIODS,
   COMMITMENT_STATUSES,
   EVENT_SCOPES,
   MAIL_CATEGORIES,
@@ -14,18 +12,6 @@ import { textToHtml } from '@fewmail/shared/email'
 import { z } from 'zod'
 
 import { announceChange } from '../lib/live'
-import {
-  addChart,
-  addToBoard,
-  createBoard,
-  deleteBoard,
-  dismissEntry,
-  getBoard,
-  listBoards,
-  renameGroup,
-  updateBoard,
-  updateEntry,
-} from './boards'
 import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
 import {
   listSubscriptions,
@@ -74,8 +60,6 @@ const eventFields = {
   title: z.string().min(1),
 }
 
-const BOARD_ENTRIES_SHOWN = 60
-
 const EVENT_TIMES =
   "start and end are ISO 8601 with the user's UTC offset, or yyyy-MM-dd when allDay (end exclusive: a one-day event ends the next day)."
 
@@ -88,7 +72,7 @@ interface AgentTool {
 const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   get_today: define({
     description:
-      "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe, commitment: a promise the user made that is due, heads_up: a price rise, a last day coming up or a promise to the user that has not come, said in its detail), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other unread mail worth knowing from those days (recent), mail naming a due date or meeting time, soonest first and none already passed (dates), sent mail still waiting for an answer (awaiting), what each board collected in the last 30 days (boards), board entries whose next date is coming up such as a renewal, a bill or a departure (banners) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts) and quiet inbox mail no rule covers that the agent would archive, mark read or unsubscribe from (tidy: each email with its suggestedAction; carry them out with tidy_mail) and sign-in or verification codes from the last 15 minutes still in the inbox (codes).",
+      "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe, commitment: a promise the user made that is due, heads_up: a last day coming up or a promise to the user that has not come, said in its detail), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other unread mail worth knowing from those days (recent), mail naming a due date or meeting time, soonest first and none already passed (dates), sent mail still waiting for an answer (awaiting) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts) and quiet inbox mail no rule covers that the agent would archive, mark read or unsubscribe from (tidy: each email with its suggestedAction; carry them out with tidy_mail) and sign-in or verification codes from the last 15 minutes still in the inbox (codes).",
     run: () => getToday(userId),
   }),
   list_mail: define({
@@ -327,96 +311,6 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       await setCommitmentStatus(userId, id, status)
       return { status }
     },
-  }),
-  list_boards: define({
-    description:
-      "The user's boards: pages that collect one kind of email (money, trips, orders…) as entries. Use get_board to read one.",
-    run: () => listBoards(userId),
-  }),
-  create_board: define({
-    description:
-      'Create a board that collects one kind of email as entries. description says what belongs on it ("receipts and refunds with their amounts"), at least 3 characters; it fills from mail the user already has, as far back as periodDays (default 90; entries older than the period leave the board).',
-    input: {
-      description: z.string().min(3),
-      name: z.string().min(1),
-      periodDays: z.literal([...BOARD_PERIODS]).optional(),
-    },
-    run: (input) => createBoard(userId, input),
-  }),
-  get_board: define({
-    description:
-      'One board: its description and Gmail query, attention (ids of entries the user has to act on: a failed charge or a bill nobody has paid since), a summary (months: per month, what was paid, refunded and received per currency, repeats of one charge counted once; what repeats per month; upcoming: every date of the next 30 days, soonest first, stated in an email or expected from the pace of its group (isPredicted), with its amount, isEstimate when that is the last price rather than one an email asked for, and what of it is to pay), its groups (paid or received, how often they repeat, next date), the newest entries (id, title, group, status, payment, amount, date, next date; repeatOf: the entry of the same charge that counts instead) and the series behind its charts. Spending is what was paid; refunds are money back beside it, never taken off: quote them apart.',
-    input: { id: z.uuid() },
-    run: async ({ id }) => {
-      const board = await getBoard(userId, id)
-      return { ...board, entries: board.entries.slice(0, BOARD_ENTRIES_SHOWN) }
-    },
-  }),
-  update_board: define({
-    description:
-      "Change a board: its name, what it collects (a new description reads its period again; entries the user edited or removed stay), how far back it collects (periodDays: a longer period reads the extra mail, a shorter one hides older entries) or how many days before an entry's next date it warns (1–14, null for never).",
-    input: {
-      bannerDays: z.number().int().min(1).max(14).nullable().optional(),
-      description: z.string().min(3).optional(),
-      id: z.uuid(),
-      name: z.string().min(1).optional(),
-      periodDays: z.literal([...BOARD_PERIODS]).optional(),
-    },
-    run: ({ id, ...input }) => updateBoard(userId, id, input),
-  }),
-  delete_board: define({
-    description:
-      'Delete a board and every entry on it. Only when the user asks to delete that board.',
-    input: { id: z.uuid() },
-    run: ({ id }) => deleteBoard(userId, id),
-  }),
-  add_board_chart: define({
-    description:
-      'Add a chart to a board from the user\'s words ("spending per shop", "orders by status").',
-    input: { ask: z.string().min(3), id: z.uuid() },
-    run: ({ ask, id }) => addChart(userId, id, ask),
-  }),
-  add_to_board: define({
-    description:
-      'Put an email on a board that its search missed; the entry is written from the email.',
-    input: { boardId: z.uuid(), messageId: z.uuid() },
-    run: ({ boardId, messageId }) => addToBoard(userId, boardId, messageId),
-  }),
-  edit_board_entry: define({
-    description:
-      "Correct an entry of a board (id from get_board). amount is in the currency's units; payment says what it did (paid, due, failed, refund, income; only paid and refund count as spending); dates are ISO; null clears a field.",
-    input: {
-      amount: z.number().nullable().optional(),
-      currency: z.string().length(3).nullable().optional(),
-      date: z.iso.date().optional(),
-      dueAt: z.iso.date().nullable().optional(),
-      group: z.string().nullable().optional(),
-      id: z.uuid(),
-      payment: z.enum(BOARD_PAYMENTS).nullable().optional(),
-      status: z.string().nullable().optional(),
-      title: z.string().min(1).optional(),
-    },
-    run: ({ amount, date, dueAt, id, ...input }) =>
-      updateEntry(userId, id, {
-        ...input,
-        ...(amount !== undefined && {
-          amountCents: amount === null ? null : Math.round(amount * 100),
-        }),
-        ...(date && { occurredAt: new Date(date) }),
-        ...(dueAt !== undefined && { dueAt: dueAt ? new Date(dueAt) : null }),
-      }),
-  }),
-  remove_board_entry: define({
-    description:
-      'Take an entry off its board because it does not belong; the board learns from it and never collects that email again.',
-    input: { id: z.uuid() },
-    run: ({ id }) => dismissEntry(userId, id),
-  }),
-  rename_board_group: define({
-    description:
-      'Rename a group on a board; renaming it to another group\'s name merges the two ("Netflix Inc." into "Netflix").',
-    input: { from: z.string(), id: z.uuid(), to: z.string().min(1) },
-    run: ({ from, id, to }) => renameGroup(userId, id, { from, to }),
   }),
   list_events: define({
     description:
