@@ -560,7 +560,7 @@ const InGmailCount = ({
   return (
     isInboxView(filter) &&
     total !== undefined && (
-      <span className="text-muted-foreground text-xs tabular-nums">
+      <span className="text-muted-foreground text-xs whitespace-nowrap tabular-nums @max-xl:hidden">
         {t.mail.inboxTotal(total.toLocaleString(locale))}
       </span>
     )
@@ -1250,6 +1250,7 @@ const MailRow = ({
   isPicking,
   isSnoozeOpen,
   item,
+  onClose,
   onOpen,
   onPick,
   onSnoozeOpenChange,
@@ -1265,6 +1266,7 @@ const MailRow = ({
   isPicking: boolean
   isSnoozeOpen: boolean
   item: VirtualItem
+  onClose: () => void
   onOpen: () => void
   onPick: () => void
   onSnoozeOpenChange: (open: boolean) => void
@@ -1361,10 +1363,10 @@ const MailRow = ({
         isPinned={message.isPinned}
         isSnoozeOpen={isSnoozeOpen}
         messageIds={[message.id]}
+        onMarkUnread={isOpen ? onClose : undefined}
         onSnoozeOpenChange={onSnoozeOpenChange}
         sweep={sweep}
-        // The open thread marks itself read again, so its row offers no read toggle.
-        thread={isOpen ? undefined : message}
+        thread={message}
       />
       <MailRowCode
         actions={actions}
@@ -2678,6 +2680,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
             isPicking={isPicking}
             isSnoozeOpen={snoozeOpenId === row.message.id}
             item={item}
+            onClose={closeThread}
             onOpen={() => open(index)}
             onPick={() => picks.onToggle(row.message.id)}
             onSnoozeOpenChange={(isOpen) =>
@@ -2736,7 +2739,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
       >
         <section
           aria-label={t.nav.mail}
-          className="flex min-w-0 flex-1 flex-col border-r"
+          className="@container flex min-w-0 flex-1 flex-col border-r"
         >
           <PickedBar list={list} picks={picks}>
             <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3 max-md:px-4">

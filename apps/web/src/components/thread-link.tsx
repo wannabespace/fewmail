@@ -1,4 +1,5 @@
 import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
+import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
 import { useEffect, useLayoutEffect, useState } from 'react'
@@ -12,7 +13,9 @@ import { useT } from '~/lib/i18n'
 const pageArea = () =>
   document.querySelector<HTMLElement>('[data-slot=thread-pane-area]')
 
-/** The sidebar's box: the page area's right edge, top to bottom, as wide as Mail's reader beside its list. */
+const NOTICE_GAP = 8
+
+/** The sidebar's box: the page area's right edge, top to bottom, as wide as Mail's reader beside its list; under a notice it starts a gap below it. */
 const useSidebarBox = () => {
   const [area, setArea] = useState(() => pageArea()?.getBoundingClientRect())
   useEffect(() => {
@@ -28,12 +31,17 @@ const useSidebarBox = () => {
   }, [])
   const right = area?.right ?? innerWidth
   const readerWidth = useReaderWidthIn(area?.width ?? innerWidth)
+  const isMobile = useIsMobile()
   // A phone has no room beside the page: the email covers it.
-  const width = useIsMobile() ? (area?.width ?? innerWidth) : readerWidth
+  const width = isMobile ? (area?.width ?? innerWidth) : readerWidth
+  const top = area?.top ?? 0
+  const isUnderNotice = !isMobile && top > 0
+  const gap = isUnderNotice ? NOTICE_GAP : 0
   return {
-    height: area?.height ?? innerHeight,
+    height: (area?.height ?? innerHeight) - gap,
+    isUnderNotice,
     left: right - width,
-    top: area?.top ?? 0,
+    top: top + gap,
     width,
   }
 }
@@ -100,7 +108,10 @@ export const ThreadPane = () => {
           '--sidebar-width': `${box.width}px`,
         } as CSSProperties
       }
-      className="bg-background border-foreground/6 fixed top-(--sidebar-top) left-(--sidebar-left) z-40 flex h-(--sidebar-height) w-(--sidebar-width) flex-col border-l pt-6"
+      className={cn(
+        'bg-background border-foreground/6 fixed top-(--sidebar-top) left-(--sidebar-left) z-40 flex h-(--sidebar-height) w-(--sidebar-width) flex-col border-l pt-6',
+        box.isUnderNotice && 'rounded-tl-xl border-t'
+      )}
     >
       <ThreadView
         key={open.sourceId}

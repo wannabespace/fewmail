@@ -739,13 +739,18 @@ const ThreadNotices = ({
   )
 }
 
+/** The read each thread's opening sent: an unread from anywhere waits for it, or that read lands last and the email stays read. */
+const openingReads = new Map<string, Promise<unknown>>()
+
+const afterOpeningRead = (threadId: string) =>
+  openingReads.get(threadId) ?? Promise.resolve()
+
 const useThreadOpen = (
   threadId: string,
   thread?: { messages: { message: { isUnread: boolean } }[] }
 ) => {
   const queryClient = useQueryClient()
   const hasUnread = thread?.messages.some(({ message }) => message.isUnread)
-  const markingRead = useRef<Promise<unknown>>(Promise.resolve())
   const isKeptUnread = useRef(false)
   const { mutateAsync: markRead } = useMutation(
     orpc.mail.markRead.mutationOptions({
@@ -760,13 +765,16 @@ const useThreadOpen = (
   }, [threadId])
   useEffect(() => {
     if (hasUnread && !isKeptUnread.current) {
-      markingRead.current = markRead({ threadId }).catch(() => null)
+      openingReads.set(
+        threadId,
+        markRead({ threadId }).catch(() => null)
+      )
     }
   }, [hasUnread, markRead, threadId])
   /** Marked unread while open: never read again on its own, and only after the read its opening sent, or that read lands last. */
   const keepUnread = (markUnread: () => void) => {
     isKeptUnread.current = true
-    void markingRead.current.then(markUnread)
+    void afterOpeningRead(threadId).then(markUnread)
   }
   return keepUnread
 }
@@ -1226,6 +1234,7 @@ export const MailRowActions = ({
   isPinned,
   isSnoozeOpen,
   messageIds,
+  onMarkUnread,
   onSnoozeOpenChange,
   reveal = 'row',
   sweep,
@@ -1237,6 +1246,8 @@ export const MailRowActions = ({
   isPinned?: boolean
   isSnoozeOpen?: boolean
   messageIds: string[]
+  /** The row's email is open: its reader would read it again, so marking it unread closes it. */
+  onMarkUnread?: () => void
   onSnoozeOpenChange?: (open: boolean) => void
   reveal?: 'line' | 'row'
   sweep: Sweep
@@ -1275,11 +1286,16 @@ export const MailRowActions = ({
           label={thread.isUnread ? t.actionKind.mark_read : t.mail.markUnread}
           size={size}
           variant="ghost-muted"
-          onClick={() =>
-            (thread.isUnread ? actions.markRead : actions.markUnread).mutate({
-              threadId: thread.threadId,
-            })
-          }
+          onClick={() => {
+            if (thread.isUnread) {
+              actions.markRead.mutate({ threadId: thread.threadId })
+              return
+            }
+            void afterOpeningRead(thread.threadId).then(() =>
+              actions.markUnread.mutate({ threadId: thread.threadId })
+            )
+            onMarkUnread?.()
+          }}
         />
       )}
       {canSnooze && (
