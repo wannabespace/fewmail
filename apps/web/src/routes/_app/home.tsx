@@ -64,6 +64,8 @@ import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import { EmailRow } from '~/components/email-row'
 import { expandRow, useIsThreadExpanded } from '~/components/expand-row'
+import { HomeCard, PageHeading } from '~/components/home-card'
+import type { HomeCardPage } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
@@ -427,6 +429,9 @@ interface WorthRow {
 
 const worthStop = (rowId: string) => `worth:${rowId}`
 
+/** The senders Worth knowing's card names; the rest are a click away. */
+const WORTH_SENDERS_SHOWN = 3
+
 /** Worth knowing's rows in their order: Home's cursor walks them after the cards. */
 const worthRowsOf = (today: Today | undefined): WorthRow[] =>
   today
@@ -467,11 +472,13 @@ const useOpenKey = (
 const WorthKnowing = ({
   cursorId,
   isWalking,
+  onClose,
   onSelect,
   today,
 }: {
   cursorId: string | undefined
   isWalking: boolean
+  onClose: () => void
   onSelect: (stop: string) => void
   today: Today | undefined
 }) => {
@@ -514,53 +521,94 @@ const WorthKnowing = ({
     return null
   }
   return (
-    <SettingsGroup title={t.today.worthKnowing}>
-      {today.recent.map(({ analysis, message }) => (
-        <EmailRow
-          key={message.id}
-          {...rowOf(message.id)}
-          message={message}
-          description={<span data-mask>{analysis.summary}</span>}
-          facts={
-            <ImportanceDot
-              importance={analysis.importance}
-              reason={analysis.reason}
-            />
-          }
-        />
-      ))}
-      {today.dates.map(({ analysis, message }) => (
-        <EmailRow
-          key={message.id}
-          {...rowOf(message.id)}
-          message={message}
-          description={<span data-mask>{analysis.summary}</span>}
-          facts={
-            <ExtractedChips
-              extracted={{ ...analysis.extracted, amount: null }}
-            />
-          }
-        />
-      ))}
-      {today.awaiting.map((sent) => (
-        <EmailRow
-          key={sent.threadId}
-          {...rowOf(sent.threadId)}
-          actions={undefined}
-          message={{ ...sent, fromEmail: sent.to[0] ?? '' }}
-          sender={{ fromEmail: sent.to[0] ?? '', fromName: sent.toName }}
-          description={
-            <>
-              {t.today.awaiting} · <span data-mask>{sent.subject}</span>
-            </>
-          }
-        />
-      ))}
-    </SettingsGroup>
+    <>
+      <PageHeading title={t.today.worthKnowing} onClose={onClose} />
+      <SettingsGroup>
+        {today.recent.map(({ analysis, message }) => (
+          <EmailRow
+            key={message.id}
+            {...rowOf(message.id)}
+            message={message}
+            description={<span data-mask>{analysis.summary}</span>}
+            facts={
+              <ImportanceDot
+                importance={analysis.importance}
+                reason={analysis.reason}
+              />
+            }
+          />
+        ))}
+        {today.dates.map(({ analysis, message }) => (
+          <EmailRow
+            key={message.id}
+            {...rowOf(message.id)}
+            message={message}
+            description={<span data-mask>{analysis.summary}</span>}
+            facts={
+              <ExtractedChips
+                extracted={{ ...analysis.extracted, amount: null }}
+              />
+            }
+          />
+        ))}
+        {today.awaiting.map((sent) => (
+          <EmailRow
+            key={sent.threadId}
+            {...rowOf(sent.threadId)}
+            actions={undefined}
+            message={{ ...sent, fromEmail: sent.to[0] ?? '' }}
+            sender={{ fromEmail: sent.to[0] ?? '', fromName: sent.toName }}
+            description={
+              <>
+                {t.today.awaiting} · <span data-mask>{sent.subject}</span>
+              </>
+            }
+          />
+        ))}
+      </SettingsGroup>
+    </>
   )
 }
 
-type HomeSubpage = 'board' | 'reading' | 'tidy'
+/** Home's mail worth knowing as one card: how much of each kind and from whom; the rows open over Home's column (`W`). */
+const WorthCard = ({ today }: { today: Today | undefined }) => {
+  const t = useT()
+  if (!today) {
+    return null
+  }
+  const parts = [
+    today.recent.length > 0 && t.today.worth.important(today.recent.length),
+    today.dates.length > 0 && t.today.worth.dated(today.dates.length),
+    today.awaiting.length > 0 && t.today.worth.awaiting(today.awaiting.length),
+  ].filter((part) => typeof part === 'string')
+  if (parts.length === 0) {
+    return null
+  }
+  const lead = parts.join(', ')
+  const senders = [
+    ...new Set(
+      [...today.recent, ...today.dates].map(
+        ({ message }) => message.fromName ?? message.fromEmail
+      )
+    ),
+  ]
+  return (
+    <HomeCard
+      heading={t.today.worthKnowing}
+      lead={`${lead.charAt(0).toUpperCase()}${lead.slice(1)}.`}
+      detail={
+        senders.length > 0 && (
+          <span data-mask>
+            {senders.slice(0, WORTH_SENDERS_SHOWN).join(' · ')}
+          </span>
+        )
+      }
+      page="worth"
+    />
+  )
+}
+
+type HomeSubpage = HomeCardPage | 'reading'
 
 type Newsletters = ReturnType<typeof useReadingDay>['rows']
 
@@ -572,6 +620,15 @@ const pageHints = (
 ): [string, string][] => {
   if (page === 'board') {
     return board
+  }
+  if (page === 'worth') {
+    return [
+      ['J / K', t.keys.move],
+      ['⏎', t.keys.open],
+      ['E', t.keys.archive],
+      ['⌫', t.keys.trash],
+      ['esc', t.keys.close],
+    ]
   }
   if (page === 'tidy') {
     return [
@@ -620,11 +677,23 @@ const primaryHints = (t: Messages, item: QueueItem): [string, string][] => {
   ]
 }
 
+/** The keys that open Home's cards over its column. */
+const cardHints = (
+  t: Messages,
+  state: { hasBoard: boolean; hasNewsletters: boolean; hasWorth: boolean }
+): [string, string][] => [
+  ...(state.hasNewsletters ? [['N', t.reading.title] as [string, string]] : []),
+  ...(state.hasWorth ? [['W', t.today.worthKnowing] as [string, string]] : []),
+  ...(state.hasBoard ? [['B', t.nav.board] as [string, string]] : []),
+]
+
 const homeHints = (
   t: Messages,
   state: {
     alike: number
     board: [string, string][]
+    hasBoard: boolean
+    hasWorth: boolean
     hasFilter: boolean
     today: Today | undefined
     isEditing: boolean
@@ -678,8 +747,8 @@ const homeHints = (
     ...(state.isOnProposals
       ? [
           ['J / K', t.keys.move] as [string, string],
-          ['Space', t.keys.expand] as [string, string],
           ['⏎', t.today.tidy.run] as [string, string],
+          ['D', t.today.tidy.review] as [string, string],
         ]
       : []),
     ...(state.alike > 1
@@ -713,9 +782,7 @@ const homeHints = (
           ['I', t.today.newSender.keep] as [string, string],
         ]
       : []),
-    ...(state.hasNewsletters
-      ? [['N', t.reading.title] as [string, string]]
-      : []),
+    ...cardHints(t, state),
     ...(state.today?.codes.length
       ? [['Y', t.mail.oneTimeCode.copy] as [string, string]]
       : []),
@@ -1150,7 +1217,13 @@ const useHomeSubpage = (
     hasAgent,
     hasNewsletters,
     hasProposals,
-  }: { hasAgent: boolean; hasNewsletters: boolean; hasProposals: boolean }
+    hasWorth,
+  }: {
+    hasAgent: boolean
+    hasNewsletters: boolean
+    hasProposals: boolean
+    hasWorth: boolean
+  }
 ) => {
   const navigate = useNavigate()
   const show = (next: HomeSubpage | undefined) =>
@@ -1174,13 +1247,15 @@ const useHomeSubpage = (
     enabled: canSwitch && hasProposals && page !== 'board',
   })
   useHotkey('B', () => toggle('board'), { enabled: canSwitch && hasAgent })
+  useHotkey('W', () => toggle('worth'), { enabled: canSwitch && hasWorth })
 }
 
 /** Home's keys rest while a card is edited or an expanded email lies over Home; the cursor walks only Home itself. */
 const useHomeFocus = (isEditing: boolean, page: HomeSubpage | undefined) => {
   const isUnderEmail = useIsThreadExpanded()
   const isFocused = !isEditing && !isUnderEmail
-  return { isFocused, isWalking: isFocused && !page }
+  // Worth knowing's page is Home's own rows over the column, so Home's cursor walks it.
+  return { isFocused, isWalking: isFocused && (!page || page === 'worth') }
 }
 
 /** Reading's panes and the newsletters of the one on top, whose keys Home shows. */
@@ -1200,12 +1275,36 @@ const useReadingPage = (
   }
 }
 
+/**
+ * Where Home's cursor goes: the agent's proposals, then the cards. Its mail worth knowing is one card on Home, so those
+ * rows are walked only on their own page.
+ */
+const stopsOf = (
+  isWorthPage: boolean,
+  {
+    hasProposals,
+    queue,
+    worth,
+  }: { hasProposals: boolean; queue: QueueItem[]; worth: WorthRow[] }
+) => {
+  if (isWorthPage) {
+    return { cardStops: [], stops: worth.map(({ id }) => worthStop(id)) }
+  }
+  const cardStops = [
+    ...(hasProposals ? [PROPOSALS_ID] : []),
+    ...queue.map(({ action }) => action.id),
+  ]
+  return { cardStops, stops: cardStops }
+}
+
 /** Reading opens over Home; the proposals' review and the Board take its place. */
 const showsHome = (page: HomeSubpage | undefined) => !page || page === 'reading'
 
 const HomePage = () => {
   const t = useT()
   const navigate = useNavigate()
+  const closePage = () =>
+    navigate({ search: (prev) => ({ ...prev, page: undefined }), to: '/home' })
   const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
   const search = Route.useSearch()
@@ -1236,12 +1335,12 @@ const HomePage = () => {
   const proposals = useProposals(data, cards, settle)
   const hasProposals = proposals.proposals.length > 0
   // The cursor walks the agent's proposals first, then the cards, then the mail worth knowing.
-  const cardStops = [
-    ...(hasProposals ? [PROPOSALS_ID] : []),
-    ...queue.map(({ action }) => action.id),
-  ]
   const worth = worthRowsOf(data)
-  const stops = [...cardStops, ...worth.map(({ id }) => worthStop(id))]
+  const { cardStops, stops } = stopsOf(search.page === 'worth', {
+    hasProposals,
+    queue,
+    worth,
+  })
   const { cursorId, cursorIndex, setSelectedId } = useCursor(stops)
   const isOnProposals = cursorId === PROPOSALS_ID
   // Cards open only when asked (a header click, Space, E or R); while one is open, the card under the cursor opens instead.
@@ -1540,6 +1639,7 @@ const HomePage = () => {
     hasAgent,
     hasNewsletters,
     hasProposals,
+    hasWorth: worth.length > 0,
   })
   const boardHints = useBoardHints()
   const walkKeys = { enabled: isWalking && stops.length > 0 }
@@ -1599,16 +1699,17 @@ const HomePage = () => {
                 STILL_POINTER_GUARD
               )}
             >
-              {page === 'board' && (
-                <BoardPane
-                  isActive={isFocused}
-                  onClose={() =>
-                    navigate({
-                      search: (prev) => ({ ...prev, page: undefined }),
-                      to: '/home',
-                    })
-                  }
+              {page === 'worth' && (
+                <WorthKnowing
+                  cursorId={cursorId}
+                  isWalking={isWalking}
+                  today={data}
+                  onClose={closePage}
+                  onSelect={setSelectedId}
                 />
+              )}
+              {page === 'board' && (
+                <BoardPane isActive={isFocused} onClose={closePage} />
               )}
               {page === 'tidy' && (
                 <ProposalsReview canUseKeys={isFocused} proposals={proposals} />
@@ -1644,11 +1745,9 @@ const HomePage = () => {
                     </DecisionsHeader>
                     <ProposalsGroup
                       canUseKeys={isWalking}
-                      cursorId={cursorId}
                       hasCards={queue.length > 0}
-                      openIds={openIds}
+                      isSelected={isOnProposals}
                       proposals={proposals}
-                      onValueChange={toggleCard}
                     />
                     <KindFilter
                       canUseKeys={isWalking}
@@ -1733,13 +1832,8 @@ const HomePage = () => {
                     />
                   </section>
 
-                  {hasAgent && <BoardCard canUseKeys={isWalking} />}
-                  <WorthKnowing
-                    cursorId={cursorId}
-                    isWalking={isWalking}
-                    today={data}
-                    onSelect={setSelectedId}
-                  />
+                  {hasAgent && <BoardCard />}
+                  <WorthCard today={data} />
                 </>
               )}
             </div>
@@ -1750,6 +1844,8 @@ const HomePage = () => {
           hints={homeHints(t, {
             alike: alike.length,
             board: boardHints,
+            hasBoard: hasAgent,
+            hasWorth: worth.length > 0,
             hasFilter: filter.isOffered,
             isEditing,
             hasNewsletters,
@@ -1789,7 +1885,7 @@ export const Route = createFileRoute('/_app/home')({
   component: HomePage,
   validateSearch: type({
     'thread?': 'string',
-    'page?': "'board' | 'reading' | 'tidy'",
+    'page?': "'board' | 'reading' | 'tidy' | 'worth'",
     'day?': /^\d{4}-\d{2}-\d{2}$/u,
   }),
   loader: async () => {

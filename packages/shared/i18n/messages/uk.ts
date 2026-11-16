@@ -1453,6 +1453,24 @@ export const uk: Messages = {
     },
     progress: (done: number, total: number) => `${done} з ${total}`,
     readAll: 'Я прочитав усі, і без твого «так» у пошті нічого не змінюється.',
+    worth: {
+      awaiting: (total: number) =>
+        plural('uk', total, {
+          one: (n) =>
+            n === 1 ? '1 чекає відповіді' : `чекають відповіді: ${n}`,
+          other: (n) => `чекають відповіді: ${n}`,
+        }),
+      dated: (total: number) =>
+        plural('uk', total, {
+          one: (n) => (n === 1 ? '1 з датою' : `з датою: ${n}`),
+          other: (n) => `з датою: ${n}`,
+        }),
+      important: (total: number) =>
+        plural('uk', total, {
+          one: (n) => (n === 1 ? '1 важливий лист' : `важливих листів: ${n}`),
+          other: (n) => `важливих листів: ${n}`,
+        }),
+    },
     worthKnowing: 'Варто знати',
     quick: 'Швидко',
     needsLook: 'Подивись сам',
@@ -1552,7 +1570,10 @@ export const uk: Messages = {
     lead: {
       coming: (total: number) =>
         plural('uk', total, {
-          one: () => 'Наближається один останній день.',
+          one: (n) =>
+            n === 1
+              ? 'Наближається один останній день.'
+              : `Наближається останніх днів: ${n}.`,
           other: (n) => `Наближається останніх днів: ${n}.`,
         }),
       empty:
@@ -1560,12 +1581,16 @@ export const uk: Messages = {
       owed: (amounts: string) => `Тобі винні ${amounts}.`,
       promised: (total: number) =>
         plural('uk', total, {
-          one: () => 'Ти пообіцяв одну річ.',
+          one: (n) =>
+            n === 1 ? 'Ти пообіцяв одну річ.' : `Ти пообіцяв речей: ${n}.`,
           other: (n) => `Ти пообіцяв речей: ${n}.`,
         }),
       waiting: (total: number) =>
         plural('uk', total, {
-          one: () => 'Одна обіцянка тобі ще відкрита.',
+          one: (n) =>
+            n === 1
+              ? 'Одна обіцянка тобі ще відкрита.'
+              : `Відкритих обіцянок тобі: ${n}.`,
           other: (n) => `Відкритих обіцянок тобі: ${n}.`,
         }),
     },

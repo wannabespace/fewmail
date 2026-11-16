@@ -10,21 +10,16 @@ import {
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import {
-  Cancel01Icon,
-  DashboardSquare01Icon,
-  Tick02Icon,
-} from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
 import { startOfToday, subDays } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
+import { HomeCard, PageHeading } from '~/components/home-card'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useDates, useLocale, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
@@ -148,10 +143,10 @@ const useBoard = () => {
 }
 
 /**
- * The Board on Home: one row saying what is open, the sentence of the Board itself; it opens the Board over Home's column
+ * The Board on Home: one card saying what is open, the sentence of the Board itself; it opens the Board over Home's column
  * (`B`, `?page=board`). Nothing open, no row: Home never shows an empty promise.
  */
-export const BoardCard = ({ canUseKeys }: { canUseKeys: boolean }) => {
+export const BoardCard = () => {
   const t = useT()
   const locale = useLocale()
   const { sections } = useBoard()
@@ -162,18 +157,11 @@ export const BoardCard = ({ canUseKeys }: { canUseKeys: boolean }) => {
     return null
   }
   return (
-    <SettingsGroup>
-      <SettingsRow
-        render={
-          <Link to="/home" search={(prev) => ({ ...prev, page: 'board' })} />
-        }
-        icon={<HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />}
-        title={t.nav.board}
-        description={leadOf(t, locale, sections)}
-      >
-        {canUseKeys && <Kbd>B</Kbd>}
-      </SettingsRow>
-    </SettingsGroup>
+    <HomeCard
+      heading={t.nav.board}
+      lead={leadOf(t, locale, sections)}
+      page="board"
+    />
   )
 }
 
@@ -332,27 +320,13 @@ export const BoardPane = ({
 
   return (
     <>
-      <header className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <h1 className="text-display font-serif tracking-tight">
-            {t.nav.board}
-          </h1>
-          <IconButton
-            className="ml-auto"
-            icon={Cancel01Icon}
-            label={t.mail.close}
-            shortcut={<Kbd>esc</Kbd>}
-            size="icon-sm"
-            variant="ghost-muted"
-            onClick={onClose}
-          />
-        </div>
+      <PageHeading title={t.nav.board} onClose={onClose}>
         {!isPending && (
           <p className="text-brief text-foreground/85 font-serif">
             {leadOf(t, locale, sections)}
           </p>
         )}
-      </header>
+      </PageHeading>
       {SECTIONS.map(
         (section) =>
           sections[section].length > 0 && (
