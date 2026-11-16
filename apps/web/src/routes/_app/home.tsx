@@ -59,6 +59,7 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
+import { BoardCard, BoardPane, useBoardHints } from '~/components/board'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import { EmailRow } from '~/components/email-row'
@@ -88,12 +89,12 @@ import {
 } from '~/components/reading'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { CodeActions, sweepOf, useMailActions } from '~/components/thread-view'
-import { useWithAgent } from '~/components/upgrade-dialog'
+import { upgradeStore, useWithAgent } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
 import { queueCards } from '~/lib/home-db'
 import { useDates, useLocale, useT } from '~/lib/i18n'
 import { isReadingFirstTime } from '~/lib/mail-db'
-import { useMe } from '~/lib/me'
+import { useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
@@ -559,15 +560,19 @@ const WorthKnowing = ({
   )
 }
 
-type HomeSubpage = 'reading' | 'tidy'
+type HomeSubpage = 'board' | 'reading' | 'tidy'
 
 type Newsletters = ReturnType<typeof useReadingDay>['rows']
 
 const pageHints = (
   t: Messages,
   page: HomeSubpage,
-  newsletters: Newsletters
+  newsletters: Newsletters,
+  board: [string, string][]
 ): [string, string][] => {
+  if (page === 'board') {
+    return board
+  }
   if (page === 'tidy') {
     return [
       ['J / K', t.keys.move],
@@ -619,6 +624,7 @@ const homeHints = (
   t: Messages,
   state: {
     alike: number
+    board: [string, string][]
     hasFilter: boolean
     today: Today | undefined
     isEditing: boolean
@@ -646,7 +652,7 @@ const homeHints = (
     ]
   }
   if (state.page) {
-    return pageHints(t, state.page, state.newsletters)
+    return pageHints(t, state.page, state.newsletters, state.board)
   }
   if (state.picked > 0) {
     return [
@@ -1141,9 +1147,10 @@ const useHomeSubpage = (
   day: string | undefined,
   canSwitch: boolean,
   {
+    hasAgent,
     hasNewsletters,
     hasProposals,
-  }: { hasNewsletters: boolean; hasProposals: boolean }
+  }: { hasAgent: boolean; hasNewsletters: boolean; hasProposals: boolean }
 ) => {
   const navigate = useNavigate()
   const show = (next: HomeSubpage | undefined) =>
@@ -1164,8 +1171,9 @@ const useHomeSubpage = (
     enabled: canSwitch && hasNewsletters,
   })
   useHotkey('D', () => toggle('tidy'), {
-    enabled: canSwitch && hasProposals,
+    enabled: canSwitch && hasProposals && page !== 'board',
   })
+  useHotkey('B', () => toggle('board'), { enabled: canSwitch && hasAgent })
 }
 
 /** Home's keys rest while a card is edited or an expanded email lies over Home; the cursor walks only Home itself. */
@@ -1192,11 +1200,13 @@ const useReadingPage = (
   }
 }
 
-/** Reading opens over Home; the proposals' review takes its place. */
+/** Reading opens over Home; the proposals' review and the Board take its place. */
 const showsHome = (page: HomeSubpage | undefined) => !page || page === 'reading'
 
 const HomePage = () => {
   const t = useT()
+  const navigate = useNavigate()
+  const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
   const search = Route.useSearch()
   const { hasNewsletters, newsletters, page, readingDays } = useReadingPage(
@@ -1527,9 +1537,11 @@ const HomePage = () => {
 
   const { isFocused, isWalking } = useHomeFocus(isEditing, page)
   useHomeSubpage(search.page, readingDays.top, isFocused, {
+    hasAgent,
     hasNewsletters,
     hasProposals,
   })
+  const boardHints = useBoardHints()
   const walkKeys = { enabled: isWalking && stops.length > 0 }
   const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), walkKeys)
@@ -1587,6 +1599,17 @@ const HomePage = () => {
                 STILL_POINTER_GUARD
               )}
             >
+              {page === 'board' && (
+                <BoardPane
+                  isActive={isFocused}
+                  onClose={() =>
+                    navigate({
+                      search: (prev) => ({ ...prev, page: undefined }),
+                      to: '/home',
+                    })
+                  }
+                />
+              )}
               {page === 'tidy' && (
                 <ProposalsReview canUseKeys={isFocused} proposals={proposals} />
               )}
@@ -1710,6 +1733,7 @@ const HomePage = () => {
                     />
                   </section>
 
+                  {hasAgent && <BoardCard canUseKeys={isWalking} />}
                   <WorthKnowing
                     cursorId={cursorId}
                     isWalking={isWalking}
@@ -1725,6 +1749,7 @@ const HomePage = () => {
         <KeyHints
           hints={homeHints(t, {
             alike: alike.length,
+            board: boardHints,
             hasFilter: filter.isOffered,
             isEditing,
             hasNewsletters,
@@ -1745,7 +1770,14 @@ const HomePage = () => {
 }
 
 export const Route = createFileRoute('/_app/home')({
-  beforeLoad: ({ search }) => {
+  beforeLoad: ({ context: { me }, preload, search }) => {
+    // The Board is what the agent writes down: Free gets the upgrade dialog instead (`domain.md` → Free).
+    if (search.page === 'board' && me.plan.kind === 'free') {
+      if (!preload) {
+        upgradeStore.set('board')
+      }
+      throw redirect({ search: {}, to: '/home' })
+    }
     // Agent answers and older links still open an email with `?thread=`.
     if (search.thread) {
       throw redirect({
@@ -1757,7 +1789,7 @@ export const Route = createFileRoute('/_app/home')({
   component: HomePage,
   validateSearch: type({
     'thread?': 'string',
-    'page?': "'reading' | 'tidy'",
+    'page?': "'board' | 'reading' | 'tidy'",
     'day?': /^\d{4}-\d{2}-\d{2}$/u,
   }),
   loader: async () => {
