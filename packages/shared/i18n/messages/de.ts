@@ -843,6 +843,8 @@ export const de: Messages = {
     reload: 'Neu laden',
   },
   keys: {
+    forget: 'vergessen',
+    reopen: 'wieder öffnen',
     attach: 'anhängen',
     done: 'erledigt',
     openLink: 'Link öffnen',
@@ -1081,6 +1083,7 @@ export const de: Messages = {
     unsubscribed: 'Abbestellt',
   },
   nav: {
+    board: 'Pinnwand',
     menu: 'Menü',
     labels: 'Labels',
     folders: 'Ordner',
@@ -1540,6 +1543,51 @@ export const de: Messages = {
     reason: (n: number) =>
       `Massenmail: ${n}+ Fewmail-Nutzer haben denselben Text bekommen`,
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('de', total, {
+          one: () => 'Ein letzter Tag steht bevor.',
+          other: (n) => `${n} letzte Tage stehen bevor.`,
+        }),
+      empty:
+        'Nichts offen. Was dir versprochen wird, was du versprichst, und letzte Tage kommen von selbst aus deiner Mail hierher.',
+      owed: (amounts: string) => `Dir stehen ${amounts} zu.`,
+      promised: (total: number) =>
+        plural('de', total, {
+          one: () => 'Du hast eine Sache versprochen.',
+          other: (n) => `Du hast ${n} Dinge versprochen.`,
+        }),
+      waiting: (total: number) =>
+        plural('de', total, {
+          one: () => 'Ein Versprechen an dich ist noch offen.',
+          other: (n) => `${n} Versprechen an dich sind noch offen.`,
+        }),
+    },
+    section: {
+      coming: 'Steht bevor',
+      owed: 'Dir geschuldet',
+      promised: 'Du hast versprochen',
+      settled: 'Kürzlich erledigt',
+    },
+    state: {
+      acknowledged: 'sie haben geantwortet, noch nicht erledigt',
+      broken: 'ist nicht passiert',
+      cancelled: 'abgesagt',
+      fulfilled: 'erledigt',
+      in_progress: 'unterwegs',
+      open: 'wartet',
+      overdue: 'überfällig',
+    },
+    by: (date: string) => `bis ${date}`,
+    lastDay: (date: string) => `letzter Tag ${date}`,
+    done: 'Erledigt',
+    forget: 'Vergessen',
+    reopen: 'Wieder öffnen',
+    markedDone: 'Als erledigt markiert',
+    forgotten: 'Vergessen',
+    reopened: 'Wieder geöffnet',
+  },
   cleanup: {
     emails: (total: number) =>
       plural('de', total, {
@@ -1645,6 +1693,8 @@ export const de: Messages = {
   upgrade: {
     ask: 'Frag deine Mails',
     hints: {
+      board:
+        'Teil von Fewmail Pro: Der Agent schreibt auf, was dir versprochen wurde, was du versprochen hast und die letzten Tage aus deiner Mail, und behält jedes im Blick, bis es erledigt ist.',
       ask: 'Teil von Fewmail Pro: Frag alles in eigenen Worten und bekomm die Antwort aus deinen eigenen Mails.',
       drafts:
         'Teil von Fewmail Pro: Der Agent schreibt die Antwort in deinem Stil, du bearbeitest und sendest sie.',

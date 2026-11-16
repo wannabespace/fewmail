@@ -198,6 +198,51 @@ export const pl: Messages = {
     travel: 'Podróże',
     work: 'Praca',
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('pl', total, {
+          one: () => 'Zbliża się jeden termin.',
+          other: (n) => `Zbliża się terminów: ${n}.`,
+        }),
+      empty:
+        'Nic otwartego. To, co ci obiecują, co ty obiecujesz, i terminy trafiają tu same z twojej poczty.',
+      owed: (amounts: string) => `Należy ci się ${amounts}.`,
+      promised: (total: number) =>
+        plural('pl', total, {
+          one: () => 'Obiecałeś jedną rzecz.',
+          other: (n) => `Obiecanych rzeczy: ${n}.`,
+        }),
+      waiting: (total: number) =>
+        plural('pl', total, {
+          one: () => 'Jedna obietnica wobec ciebie jest wciąż otwarta.',
+          other: (n) => `Otwartych obietnic wobec ciebie: ${n}.`,
+        }),
+    },
+    section: {
+      coming: 'Zbliża się',
+      owed: 'Należy ci się',
+      promised: 'Obiecałeś',
+      settled: 'Ostatnio zamknięte',
+    },
+    state: {
+      acknowledged: 'odpowiedzieli, jeszcze nie zrobione',
+      broken: 'nie doszło do skutku',
+      cancelled: 'odwołane',
+      fulfilled: 'zrobione',
+      in_progress: 'w drodze',
+      open: 'czeka',
+      overdue: 'po terminie',
+    },
+    by: (date: string) => `do ${date}`,
+    lastDay: (date: string) => `ostatni dzień ${date}`,
+    done: 'Zrobione',
+    forget: 'Zapomnij',
+    reopen: 'Otwórz ponownie',
+    markedDone: 'Oznaczono jako zrobione',
+    forgotten: 'Zapomniano',
+    reopened: 'Otwarto ponownie',
+  },
   cleanup: {
     emails: (total: number) =>
       plural('pl', total, {
@@ -376,6 +421,8 @@ export const pl: Messages = {
     reload: 'Odśwież',
   },
   keys: {
+    forget: 'zapomnij',
+    reopen: 'otwórz ponownie',
     attach: 'załącz',
     done: 'gotowe',
     openLink: 'otwórz link',
@@ -618,6 +665,7 @@ export const pl: Messages = {
     unsubscribed: 'Wypisano',
   },
   nav: {
+    board: 'Tablica',
     menu: 'Menu',
     labels: 'Etykiety',
     folders: 'Foldery',
@@ -1690,6 +1738,8 @@ export const pl: Messages = {
   upgrade: {
     ask: 'Zapytaj swoją pocztę',
     hints: {
+      board:
+        'Część Fewmail Pro: agent zapisuje, co ci obiecano, co ty obiecałeś, i terminy z twojej poczty, i pilnuje każdego, aż się zamknie.',
       ask: 'Część Fewmail Pro: pytaj o cokolwiek własnymi słowami i dostawaj odpowiedź z własnej poczty.',
       drafts:
         'Część Fewmail Pro: agent napisze odpowiedź w twoim stylu, a ty ją poprawisz i wyślesz.',

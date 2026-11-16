@@ -50,6 +50,7 @@ import {
   ArrowRight01Icon,
   ArrowUp01Icon,
   Calendar03Icon,
+  DashboardSquare01Icon,
   Clock01Icon,
   ComputerIcon,
   CrownIcon,
@@ -123,6 +124,13 @@ export const NAV_ITEMS = [
     place: 'top',
     sequence: ['G', 'L'],
     to: '/calendar',
+  },
+  {
+    icon: DashboardSquare01Icon,
+    key: 'board',
+    place: 'top',
+    sequence: ['G', 'B'],
+    to: '/board',
   },
   {
     icon: ZapIcon,

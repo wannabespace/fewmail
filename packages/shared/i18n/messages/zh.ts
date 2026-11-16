@@ -1,5 +1,5 @@
 import type { Rich } from '../locales'
-import { formatMinutes } from '../locales'
+import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const zh: Messages = {
@@ -277,6 +277,8 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
+    forget: '忘掉',
+    reopen: '重新打开',
     attach: '添加附件',
     done: '完成',
     openLink: '打开链接',
@@ -505,6 +507,7 @@ export const zh: Messages = {
     unsubscribed: '已退订',
   },
   nav: {
+    board: '看板',
     menu: '菜单',
     labels: '标签',
     folders: '文件夹',
@@ -1451,6 +1454,51 @@ export const zh: Messages = {
     badge: (n: number) => `已发给 ${n}+ 位 Fewmail 用户`,
     reason: (n: number) => `群发邮件：${n}+ 位 Fewmail 用户收到了相同内容`,
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('zh', total, {
+          one: () => '有 1 个截止日期临近。',
+          other: (n) => `有 ${n} 个截止日期临近。`,
+        }),
+      empty:
+        '没有未完成的事项。别人对你的承诺、你的承诺和截止日期会自动从邮件来到这里。',
+      owed: (amounts: string) => `你应收 ${amounts}。`,
+      promised: (total: number) =>
+        plural('zh', total, {
+          one: () => '你承诺了 1 件事。',
+          other: (n) => `你承诺了 ${n} 件事。`,
+        }),
+      waiting: (total: number) =>
+        plural('zh', total, {
+          one: () => '有 1 个对你的承诺仍未完成。',
+          other: (n) => `有 ${n} 个对你的承诺仍未完成。`,
+        }),
+    },
+    section: {
+      coming: '即将到来',
+      owed: '你应收',
+      promised: '你的承诺',
+      settled: '最近完成',
+    },
+    state: {
+      acknowledged: '已回复，尚未完成',
+      broken: '没有兑现',
+      cancelled: '已取消',
+      fulfilled: '已完成',
+      in_progress: '进行中',
+      open: '等待中',
+      overdue: '已逾期',
+    },
+    by: (date: string) => `${date} 前`,
+    lastDay: (date: string) => `最后一天 ${date}`,
+    done: '完成',
+    forget: '忘掉',
+    reopen: '重新打开',
+    markedDone: '已标记为完成',
+    forgotten: '已忘掉',
+    reopened: '已重新打开',
+  },
   cleanup: {
     emails: (total: number) => `${total} 封邮件`,
     reason: (total: number) => `本月 ${total} 封，一封都没打开`,
@@ -1543,6 +1591,8 @@ export const zh: Messages = {
   upgrade: {
     ask: '问问你的邮件',
     hints: {
+      board:
+        'Fewmail Pro 的一部分：代理会从你的邮件里记下别人对你的承诺、你的承诺和截止日期，并跟进每一项直到完成。',
       ask: 'Fewmail Pro 的功能：用自己的话随便问，答案来自你自己的邮件。',
       drafts: 'Fewmail Pro 的功能：代理用你的风格写好回复，你修改后发送。',
     },

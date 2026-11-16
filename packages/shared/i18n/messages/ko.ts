@@ -1,5 +1,5 @@
 import type { Rich } from '../locales'
-import { formatMinutes } from '../locales'
+import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const ko: Messages = {
@@ -280,6 +280,8 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
+    forget: '잊기',
+    reopen: '다시 열기',
     attach: '첨부',
     done: '완료',
     openLink: '링크 열기',
@@ -515,6 +517,7 @@ export const ko: Messages = {
     unsubscribed: '구독을 취소했어요',
   },
   nav: {
+    board: '보드',
     menu: '메뉴',
     labels: '라벨',
     folders: '폴더',
@@ -1484,6 +1487,51 @@ export const ko: Messages = {
     reason: (n: number) =>
       `대량 메일: Fewmail 사용자 ${n}명 이상이 같은 내용을 받았어요`,
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('ko', total, {
+          one: () => '마감일이 하나 다가와요.',
+          other: (n) => `마감일이 ${n}개 다가와요.`,
+        }),
+      empty:
+        '열린 일이 없어요. 받은 약속, 한 약속, 마감일은 메일에서 알아서 여기로 와요.',
+      owed: (amounts: string) => `받을 돈: ${amounts}.`,
+      promised: (total: number) =>
+        plural('ko', total, {
+          one: () => '한 가지를 약속했어요.',
+          other: (n) => `${n}가지를 약속했어요.`,
+        }),
+      waiting: (total: number) =>
+        plural('ko', total, {
+          one: () => '받은 약속 하나가 아직 열려 있어요.',
+          other: (n) => `받은 약속 ${n}개가 아직 열려 있어요.`,
+        }),
+    },
+    section: {
+      coming: '다가오는 일',
+      owed: '받을 것',
+      promised: '내가 한 약속',
+      settled: '최근 끝난 일',
+    },
+    state: {
+      acknowledged: '답은 왔지만 아직 안 됨',
+      broken: '이뤄지지 않음',
+      cancelled: '취소됨',
+      fulfilled: '완료',
+      in_progress: '진행 중',
+      open: '기다리는 중',
+      overdue: '기한 지남',
+    },
+    by: (date: string) => `${date}까지`,
+    lastDay: (date: string) => `마지막 날 ${date}`,
+    done: '완료',
+    forget: '잊기',
+    reopen: '다시 열기',
+    markedDone: '완료로 표시했어요',
+    forgotten: '잊었어요',
+    reopened: '다시 열었어요',
+  },
   cleanup: {
     emails: (total: number) => `이메일 ${total}개`,
     reason: (total: number) => `이번 달 ${total}개, 하나도 열지 않았어요`,
@@ -1579,6 +1627,8 @@ export const ko: Messages = {
   upgrade: {
     ask: '메일에 물어보기',
     hints: {
+      board:
+        'Fewmail Pro에 포함돼요. 에이전트가 메일에서 받은 약속, 한 약속, 마감일을 적어 두고 끝날 때까지 챙겨요.',
       ask: 'Fewmail Pro 기능이에요. 평소 말로 무엇이든 물으면 내 메일에서 답을 찾아 줘요.',
       drafts:
         'Fewmail Pro 기능이에요. 에이전트가 내 말투로 답장을 쓰고, 나는 고쳐서 보내기만 하면 돼요.',

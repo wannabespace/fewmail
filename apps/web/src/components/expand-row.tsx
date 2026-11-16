@@ -19,7 +19,7 @@ export const HIDDEN = { opacity: 0, y: 6 }
 export const SHOWN = { opacity: 1, y: 0 }
 
 export interface Expanded {
-  from: 'home' | 'journal' | 'mail' | 'reading'
+  from: 'board' | 'home' | 'journal' | 'mail' | 'reading'
   pathname: string
   /** The `ExpandTrigger` that opened it, by its `data-expand-trigger`. */
   sourceId: string

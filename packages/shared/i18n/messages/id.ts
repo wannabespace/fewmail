@@ -198,6 +198,51 @@ export const id: Messages = {
     travel: 'Perjalanan',
     work: 'Kerja',
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('id', total, {
+          one: () => 'Satu tenggat sudah dekat.',
+          other: (n) => `${n} tenggat sudah dekat.`,
+        }),
+      empty:
+        'Tidak ada yang terbuka. Janji kepadamu, janjimu, dan tenggat masuk ke sini sendiri dari emailmu.',
+      owed: (amounts: string) => `Kamu masih berhak menerima ${amounts}.`,
+      promised: (total: number) =>
+        plural('id', total, {
+          one: () => 'Kamu menjanjikan satu hal.',
+          other: (n) => `Kamu menjanjikan ${n} hal.`,
+        }),
+      waiting: (total: number) =>
+        plural('id', total, {
+          one: () => 'Satu janji kepadamu masih terbuka.',
+          other: (n) => `${n} janji kepadamu masih terbuka.`,
+        }),
+    },
+    section: {
+      coming: 'Segera',
+      owed: 'Hakmu',
+      promised: 'Janjimu',
+      settled: 'Baru selesai',
+    },
+    state: {
+      acknowledged: 'sudah dibalas, belum dikerjakan',
+      broken: 'tidak terjadi',
+      cancelled: 'dibatalkan',
+      fulfilled: 'selesai',
+      in_progress: 'dalam proses',
+      open: 'menunggu',
+      overdue: 'terlambat',
+    },
+    by: (date: string) => `sebelum ${date}`,
+    lastDay: (date: string) => `hari terakhir ${date}`,
+    done: 'Selesai',
+    forget: 'Lupakan',
+    reopen: 'Buka lagi',
+    markedDone: 'Ditandai selesai',
+    forgotten: 'Dilupakan',
+    reopened: 'Dibuka lagi',
+  },
   cleanup: {
     emails: (total: number) => `${total} email`,
     reason: (total: number) =>
@@ -362,6 +407,8 @@ export const id: Messages = {
     reload: 'Muat ulang',
   },
   keys: {
+    forget: 'lupakan',
+    reopen: 'buka lagi',
     attach: 'lampirkan',
     done: 'selesai',
     openLink: 'buka tautan',
@@ -600,6 +647,7 @@ export const id: Messages = {
     unsubscribed: 'Berhenti berlangganan',
   },
   nav: {
+    board: 'Papan',
     menu: 'Menu',
     labels: 'Label',
     folders: 'Folder',
@@ -1612,6 +1660,8 @@ export const id: Messages = {
   upgrade: {
     ask: 'Tanya email-mu',
     hints: {
+      board:
+        'Bagian dari Fewmail Pro: agen mencatat apa yang dijanjikan kepadamu, apa yang kamu janjikan, dan tenggat dari emailmu, lalu memantau masing-masing sampai selesai.',
       ask: 'Bagian dari Fewmail Pro: tanyakan apa saja dengan kata-katamu sendiri dan dapatkan jawaban dari email-mu.',
       drafts:
         'Bagian dari Fewmail Pro: agen menulis balasan dengan gayamu, lalu kamu edit dan kirim.',

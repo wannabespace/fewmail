@@ -281,6 +281,8 @@ export const hi: Messages = {
     reload: 'रीलोड करें',
   },
   keys: {
+    forget: 'भूल जाएँ',
+    reopen: 'फिर से खोलें',
     attach: 'जोड़ें',
     done: 'हो गया',
     openLink: 'लिंक खोलें',
@@ -515,6 +517,7 @@ export const hi: Messages = {
     unsubscribed: 'अनसब्सक्राइब हो गया',
   },
   nav: {
+    board: 'बोर्ड',
     menu: 'मेनू',
     labels: 'लेबल',
     folders: 'फ़ोल्डर',
@@ -1493,6 +1496,51 @@ export const hi: Messages = {
     badge: (n: number) => `${n}+ Fewmail उपयोगकर्ताओं को भेजा गया`,
     reason: (n: number) => `बल्क ईमेल: ${n}+ Fewmail उपयोगकर्ताओं को यही टेक्स्ट मिला`,
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('hi', total, {
+          one: () => 'एक आख़िरी तारीख़ आ रही है।',
+          other: (n) => `${n} आख़िरी तारीख़ें आ रही हैं।`,
+        }),
+      empty:
+        'कुछ बाकी नहीं। आपसे किए वादे, आपके वादे और आख़िरी तारीख़ें आपके मेल से अपने आप यहाँ आती हैं।',
+      owed: (amounts: string) => `आपको ${amounts} मिलने बाकी हैं।`,
+      promised: (total: number) =>
+        plural('hi', total, {
+          one: () => 'आपने एक वादा किया है।',
+          other: (n) => `आपने ${n} वादे किए हैं।`,
+        }),
+      waiting: (total: number) =>
+        plural('hi', total, {
+          one: () => 'आपसे किया एक वादा अभी बाकी है।',
+          other: (n) => `आपसे किए ${n} वादे अभी बाकी हैं।`,
+        }),
+    },
+    section: {
+      coming: 'आने वाला',
+      owed: 'आपको मिलना है',
+      promised: 'आपने वादा किया',
+      settled: 'हाल में पूरे हुए',
+    },
+    state: {
+      acknowledged: 'जवाब आया, अभी हुआ नहीं',
+      broken: 'नहीं हुआ',
+      cancelled: 'रद्द',
+      fulfilled: 'हो गया',
+      in_progress: 'रास्ते में',
+      open: 'इंतज़ार',
+      overdue: 'समय निकल गया',
+    },
+    by: (date: string) => `${date} तक`,
+    lastDay: (date: string) => `आख़िरी दिन ${date}`,
+    done: 'हो गया',
+    forget: 'भूल जाएँ',
+    reopen: 'फिर से खोलें',
+    markedDone: 'हो गया के रूप में चिह्नित',
+    forgotten: 'भुला दिया',
+    reopened: 'फिर से खोला',
+  },
   cleanup: {
     emails: (total: number) =>
       plural('hi', total, {
@@ -1595,6 +1643,8 @@ export const hi: Messages = {
   upgrade: {
     ask: 'अपने मेल से पूछें',
     hints: {
+      board:
+        'Fewmail Pro का हिस्सा: एजेंट आपके मेल से लिखता है कि आपसे क्या वादा किया गया, आपने क्या वादा किया और आख़िरी तारीख़ें, और हर एक पर नज़र रखता है जब तक वह पूरा न हो।',
       ask: 'Fewmail Pro का हिस्सा: अपने शब्दों में कुछ भी पूछें और जवाब अपने ही मेल से पाएँ।',
       drafts:
         'Fewmail Pro का हिस्सा: एजेंट आपकी शैली में जवाब लिखेगा, आप उसे बदलकर भेज दें।',

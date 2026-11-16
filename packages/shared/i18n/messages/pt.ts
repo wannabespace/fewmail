@@ -199,6 +199,51 @@ export const pt: Messages = {
     travel: 'Viagem',
     work: 'Trabalho',
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('pt', total, {
+          one: () => 'Um prazo está chegando.',
+          other: (n) => `${n} prazos estão chegando.`,
+        }),
+      empty:
+        'Nada em aberto. O que te prometem, o que você promete e os prazos chegam aqui sozinhos do seu e-mail.',
+      owed: (amounts: string) => `Te devem ${amounts}.`,
+      promised: (total: number) =>
+        plural('pt', total, {
+          one: () => 'Você prometeu uma coisa.',
+          other: (n) => `Você prometeu ${n} coisas.`,
+        }),
+      waiting: (total: number) =>
+        plural('pt', total, {
+          one: () => 'Uma promessa feita a você ainda está aberta.',
+          other: (n) => `${n} promessas feitas a você ainda estão abertas.`,
+        }),
+    },
+    section: {
+      coming: 'Chegando',
+      owed: 'Te devem',
+      promised: 'Você prometeu',
+      settled: 'Concluído há pouco',
+    },
+    state: {
+      acknowledged: 'responderam, ainda não feito',
+      broken: 'não aconteceu',
+      cancelled: 'cancelado',
+      fulfilled: 'feito',
+      in_progress: 'a caminho',
+      open: 'aguardando',
+      overdue: 'atrasado',
+    },
+    by: (date: string) => `até ${date}`,
+    lastDay: (date: string) => `último dia ${date}`,
+    done: 'Feito',
+    forget: 'Esquecer',
+    reopen: 'Reabrir',
+    markedDone: 'Marcado como feito',
+    forgotten: 'Esquecido',
+    reopened: 'Reaberto',
+  },
   cleanup: {
     emails: (total: number) =>
       plural('pt', total, {
@@ -369,6 +414,8 @@ export const pt: Messages = {
     reload: 'Recarregar',
   },
   keys: {
+    forget: 'esquecer',
+    reopen: 'reabrir',
     attach: 'anexar',
     done: 'feito',
     openLink: 'abrir link',
@@ -610,6 +657,7 @@ export const pt: Messages = {
     unsubscribed: 'Inscrição cancelada',
   },
   nav: {
+    board: 'Quadro',
     menu: 'Menu',
     labels: 'Marcadores',
     folders: 'Pastas',
@@ -1660,6 +1708,8 @@ export const pt: Messages = {
   upgrade: {
     ask: 'Pergunte ao seu e-mail',
     hints: {
+      board:
+        'Parte do Fewmail Pro: o agente anota o que te prometeram, o que você prometeu e os prazos do seu e-mail, e acompanha cada um até ser concluído.',
       ask: 'Parte do Fewmail Pro: pergunte o que quiser com suas palavras e receba a resposta dos seus próprios e-mails.',
       drafts:
         'Parte do Fewmail Pro: o agente escreve a resposta no seu estilo, e você edita e envia.',

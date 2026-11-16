@@ -198,6 +198,51 @@ export const tr: Messages = {
     travel: 'Seyahat',
     work: 'İş',
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('tr', total, {
+          one: () => 'Bir son gün yaklaşıyor.',
+          other: (n) => `${n} son gün yaklaşıyor.`,
+        }),
+      empty:
+        'Açık bir şey yok. Sana verilen sözler, senin sözlerin ve son günler e-postandan buraya kendiliğinden gelir.',
+      owed: (amounts: string) => `Alacağın: ${amounts}.`,
+      promised: (total: number) =>
+        plural('tr', total, {
+          one: () => 'Bir söz verdin.',
+          other: (n) => `${n} söz verdin.`,
+        }),
+      waiting: (total: number) =>
+        plural('tr', total, {
+          one: () => 'Sana verilen bir söz hâlâ açık.',
+          other: (n) => `Sana verilen ${n} söz hâlâ açık.`,
+        }),
+    },
+    section: {
+      coming: 'Yaklaşan',
+      owed: 'Alacakların',
+      promised: 'Verdiğin sözler',
+      settled: 'Yakında kapananlar',
+    },
+    state: {
+      acknowledged: 'yanıt verdiler, henüz yapılmadı',
+      broken: 'olmadı',
+      cancelled: 'iptal edildi',
+      fulfilled: 'yapıldı',
+      in_progress: 'yolda',
+      open: 'bekliyor',
+      overdue: 'gecikti',
+    },
+    by: (date: string) => `${date} tarihine kadar`,
+    lastDay: (date: string) => `son gün ${date}`,
+    done: 'Yapıldı',
+    forget: 'Unut',
+    reopen: 'Yeniden aç',
+    markedDone: 'Yapıldı olarak işaretlendi',
+    forgotten: 'Unutuldu',
+    reopened: 'Yeniden açıldı',
+  },
   cleanup: {
     emails: (total: number) => `${total} e-posta`,
     reason: (total: number) => `Bu ay ${total} e-posta, hiçbiri açılmadı`,
@@ -361,6 +406,8 @@ export const tr: Messages = {
     reload: 'Yenile',
   },
   keys: {
+    forget: 'unut',
+    reopen: 'yeniden aç',
     attach: 'ekle',
     done: 'tamam',
     openLink: 'bağlantıyı aç',
@@ -597,6 +644,7 @@ export const tr: Messages = {
     unsubscribed: 'Abonelikten çıkıldı',
   },
   nav: {
+    board: 'Pano',
     menu: 'Menü',
     labels: 'Etiketler',
     folders: 'Klasörler',
@@ -1613,6 +1661,8 @@ export const tr: Messages = {
   upgrade: {
     ask: 'Postana sor',
     hints: {
+      board:
+        'Fewmail Pro’ya dahil: ajan e-postandan sana verilen sözleri, senin verdiğin sözleri ve son günleri yazar, her biri tamamlanana kadar takip eder.',
       ask: "Fewmail Pro'nun parçası: istediğini kendi kelimelerinle sor, yanıtı kendi postalarından al.",
       drafts:
         "Fewmail Pro'nun parçası: ajan yanıtı senin üslubunla yazar, sen düzenleyip gönderirsin.",
