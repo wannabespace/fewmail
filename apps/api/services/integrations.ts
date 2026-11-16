@@ -27,17 +27,18 @@ export const listConnectedApps = (userId: string) =>
     .where(eq(oauthConsents.userId, userId))
     .orderBy(desc(oauthConsents.createdAt))
 
-export const isAppConnected = async (userId: string, clientId: string) => {
-  const [consent] = await db
-    .select({ id: oauthConsents.id })
+export const findConnectedApp = async (userId: string, clientId: string) => {
+  const [app] = await db
+    .select({ name: oauthClients.name })
     .from(oauthConsents)
+    .innerJoin(oauthClients, eq(oauthClients.clientId, oauthConsents.clientId))
     .where(
       and(
         eq(oauthConsents.userId, userId),
         eq(oauthConsents.clientId, clientId)
       )
     )
-  return !!consent
+  return app
 }
 
 export const disconnectApp = (userId: string, clientId: string) =>

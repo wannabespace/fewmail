@@ -14,7 +14,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import { type } from 'arktype'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
@@ -30,6 +30,7 @@ import { ThreadPane } from '~/components/thread-link'
 import { SnoozePicker } from '~/components/thread-view'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
 import { signedInStore } from '~/lib/auth'
+import { desktop, onDesktopUpdateReady } from '~/lib/desktop'
 import { localeStore, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
 import { useMe } from '~/lib/me'
@@ -49,8 +50,17 @@ const sidebarWidthStore = createWebStorageValue({
 const BUILT_COMMIT = import.meta.env.RAILWAY_GIT_COMMIT_SHA
 const VERSION_CHECK_MS = 60_000
 
+const installDesktopUpdate = () => {
+  posthog.capture('desktop_update_installed')
+  desktop?.installUpdate()
+}
+
 const useNewVersionToast = () => {
   const t = useT().update
+  const isDesktopUpdateReady = useSyncExternalStore(
+    onDesktopUpdateReady,
+    () => desktop?.isUpdateReady() ?? false
+  )
   const { data: liveCommit } = useQuery({
     enabled: Boolean(BUILT_COMMIT),
     queryFn: async () => {
@@ -67,14 +77,20 @@ const useNewVersionToast = () => {
   })
 
   useEffect(() => {
-    if (liveCommit && liveCommit !== BUILT_COMMIT) {
+    if (isDesktopUpdateReady || (liveCommit && liveCommit !== BUILT_COMMIT)) {
       toast(t.available, {
-        action: { label: t.reload, onClick: () => location.reload() },
+        action: {
+          label: t.reload,
+          // The app's restart loads the newest page too.
+          onClick: isDesktopUpdateReady
+            ? installDesktopUpdate
+            : () => location.reload(),
+        },
         duration: Infinity,
         id: 'new-version',
       })
     }
-  }, [liveCommit, t])
+  }, [isDesktopUpdateReady, liveCommit, t])
 }
 
 const useIdentify = () => {

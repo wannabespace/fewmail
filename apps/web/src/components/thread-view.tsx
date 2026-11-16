@@ -1142,7 +1142,7 @@ const ROW_REVEAL =
 const FADING_EDGE =
   'before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-inherit before:[mask-image:linear-gradient(to_right,transparent,black)]'
 
-export const ROW_ACTIONS = `${ROW_REVEAL} absolute top-1.5 right-4 bg-inherit ${FADING_EDGE}`
+export const ROW_ACTIONS = `${ROW_REVEAL} absolute top-1.5 right-2 bg-inherit ${FADING_EDGE}`
 
 // Keyed to its own line (`group/line`): the row's `group-hover` would light every line of a stack at once.
 const LINE_ACTIONS = `flex opacity-0 transition-opacity duration-150 ease-house group-hover/line:opacity-100 relative rounded-r-md bg-secondary ${FADING_EDGE}`

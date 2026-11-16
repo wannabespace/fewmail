@@ -1,9 +1,11 @@
 import { oauthProviderClient } from '@better-auth/oauth-provider/client'
 import { type } from 'arktype'
+import { oneTimeTokenClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
+import { desktop } from './desktop'
 import { getT } from './i18n'
 import { posthog } from './posthog'
 import { disablePush } from './push'
@@ -11,11 +13,15 @@ import { disablePush } from './push'
 export const authClient = createAuthClient({
   basePath: '/auth',
   baseURL: import.meta.env.API_URL,
-  plugins: [oauthProviderClient()],
+  plugins: [oauthProviderClient(), oneTimeTokenClient()],
 })
 
 export const signInWithGoogle = (path = '/home', loginHint?: string) => {
   posthog.capture('sign_in_started')
+  if (desktop) {
+    desktop.signIn(path, loginHint)
+    return Promise.resolve()
+  }
   return authClient.signIn.social({
     callbackURL: `${location.origin}${path}`,
     loginHint,

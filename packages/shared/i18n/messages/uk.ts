@@ -838,6 +838,11 @@ export const uk: Messages = {
     notFound: 'Цього вже немає. Можливо, його видалили.',
     offline: 'Немає зв’язку з Fewmail. Перевір інтернет.',
   },
+  desktop: {
+    lead: 'Fewmail відкривається на вашому Mac. Цю вкладку можна закрити.',
+    open: 'Відкрити Fewmail',
+    title: 'Назад у застосунок',
+  },
   update: {
     available: 'Вийшла нова версія Fewmail.',
     reload: 'Оновити',
@@ -1087,6 +1092,9 @@ export const uk: Messages = {
     subscriptions: 'Розсилки',
     people: 'Люди',
     findPerson: 'Знайти людину',
+    personMail: 'Показати листи',
+    hidePerson: 'Прибрати з Людей',
+    personHidden: 'Прибрано з Людей',
     clearSearch: 'Очистити пошук',
     mail: 'Пошта',
     reading: 'Читання',

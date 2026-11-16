@@ -276,6 +276,11 @@ export const hi: Messages = {
     notFound: 'यह अब मौजूद नहीं है। शायद इसे हटा दिया गया है।',
     offline: 'Fewmail से कनेक्ट नहीं हो पा रहा। अपना कनेक्शन जाँचें।',
   },
+  desktop: {
+    lead: 'Fewmail आपके Mac पर खुल रहा है। आप यह टैब बंद कर सकते हैं।',
+    open: 'Fewmail खोलें',
+    title: 'ऐप पर वापस जाएँ',
+  },
   update: {
     available: 'Fewmail का नया वर्ज़न आ गया है।',
     reload: 'रीलोड करें',
@@ -525,6 +530,9 @@ export const hi: Messages = {
     subscriptions: 'मेलिंग लिस्ट',
     people: 'लोग',
     findPerson: 'किसी को खोजें',
+    personMail: 'ईमेल देखें',
+    hidePerson: 'लोग से हटाएँ',
+    personHidden: 'लोग से हटाया गया',
     clearSearch: 'खोज साफ़ करें',
     mail: 'मेल',
     reading: 'पढ़ना',

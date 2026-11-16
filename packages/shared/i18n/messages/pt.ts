@@ -409,6 +409,11 @@ export const pt: Messages = {
     notFound: 'Isso não existe mais. Talvez tenha sido excluído.',
     offline: 'Não foi possível conectar ao Fewmail. Verifique sua conexão.',
   },
+  desktop: {
+    lead: 'O Fewmail está abrindo no seu Mac. Você pode fechar esta aba.',
+    open: 'Abrir o Fewmail',
+    title: 'Volte para o app',
+  },
   update: {
     available: 'Uma nova versão do Fewmail está disponível.',
     reload: 'Recarregar',
@@ -665,6 +670,9 @@ export const pt: Messages = {
     subscriptions: 'Listas de e-mail',
     people: 'Pessoas',
     findPerson: 'Procurar pessoa',
+    personMail: 'Ver e-mails',
+    hidePerson: 'Remover de Pessoas',
+    personHidden: 'Removido de Pessoas',
     clearSearch: 'Limpar pesquisa',
     mail: 'E-mail',
     reading: 'Leitura',

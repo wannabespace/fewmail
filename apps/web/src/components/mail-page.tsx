@@ -524,8 +524,9 @@ const cardsOf = (
 }
 
 // Not sticky: pins share the list's <ul>, so a sticky pinned header would ride over every row below it.
+// The transparent border-x is the card rows' edge, so the label lines up with their avatars and the buttons with their times.
 const LIST_HEADER =
-  'bg-body text-muted-foreground flex h-13 items-center gap-2 pt-5 pr-1 pb-2 pl-9 text-xs font-medium'
+  'bg-body text-muted-foreground flex h-13 items-center gap-2 border-x border-transparent pt-5 pr-3 pb-2 pl-8 text-xs font-medium'
 
 const GROUP_HEADER = cn(LIST_HEADER, 'sticky -top-3 z-10')
 
@@ -786,7 +787,7 @@ const MailRowCode = ({
   code && (
     <CodeActions
       actions={actions}
-      className="absolute top-7.5 right-4"
+      className="absolute top-7.5 right-2"
       code={code}
       messageIds={[messageId]}
       sweep={sweep}
@@ -857,7 +858,7 @@ const RowPick = ({
 }) => (
   <span
     className={cn(
-      'absolute left-3 flex',
+      'absolute left-2 flex',
       className,
       !isPicking &&
         'ease-house opacity-0 transition-opacity duration-150 group-hover:opacity-100'
@@ -1194,7 +1195,7 @@ const RelatedRow = ({
       {isFirst && (
         <span
           data-mask
-          className="text-muted-foreground block truncate pt-1.5 pr-5 pl-18 text-xs"
+          className="text-muted-foreground block truncate pt-1.5 pr-3 pl-17 text-xs"
         >
           {t.mail.moreFrom(message.fromName ?? message.fromEmail)}
         </span>
@@ -1207,7 +1208,7 @@ const RelatedRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-5 pl-18 text-left text-sm outline-none"
+        className="flex w-full cursor-pointer items-center gap-2 py-1.5 pr-3 pl-17 text-left text-sm outline-none"
       >
         <span
           data-mask
@@ -1296,7 +1297,7 @@ const MailRow = ({
           void warmThread(message.threadId)
         }}
         aria-current={isOpen}
-        className="flex w-full cursor-pointer items-center gap-2 py-2.5 pr-5 pl-4 text-left outline-none"
+        className="flex w-full cursor-pointer items-center gap-2 px-3 py-2.5 text-left outline-none"
       >
         <span
           aria-label={message.isUnread ? t.mail.unread : undefined}
@@ -1448,9 +1449,9 @@ const DraftRow = ({
         type="button"
         tabIndex={-1}
         onClick={onOpen}
-        className="flex w-full cursor-pointer flex-col gap-0.5 px-5 py-2.5 text-left outline-none"
+        className="flex w-full cursor-pointer flex-col gap-0.5 px-3 py-2.5 text-left outline-none"
       >
-        <span className="flex items-center gap-2 pl-6 text-sm">
+        <span className="flex items-center gap-2 pl-5 text-sm">
           <span
             data-mask
             className="text-foreground/70 min-w-0 flex-1 truncate"
@@ -1464,14 +1465,14 @@ const DraftRow = ({
             )}
           </span>
         </span>
-        <span data-mask className="text-foreground/60 truncate pl-6 text-sm">
+        <span data-mask className="text-foreground/60 truncate pl-5 text-sm">
           {draft.subject}
         </span>
-        <span data-mask className="text-muted-foreground truncate pl-6 text-sm">
+        <span data-mask className="text-muted-foreground truncate pl-5 text-sm">
           {draft.snippet}
         </span>
         {draft.isFailed && (
-          <span className="text-destructive pl-6 text-xs font-medium">
+          <span className="text-destructive pl-5 text-xs font-medium">
             {t.mail.notSent}
           </span>
         )}

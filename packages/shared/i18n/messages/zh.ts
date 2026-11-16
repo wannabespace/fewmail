@@ -272,6 +272,11 @@ export const zh: Messages = {
     notFound: '它已不存在，可能已被删除。',
     offline: '无法连接到 Fewmail，请检查网络。',
   },
+  desktop: {
+    lead: 'Fewmail 正在你的 Mac 上打开，可以关闭此标签页。',
+    open: '打开 Fewmail',
+    title: '返回应用',
+  },
   update: {
     available: 'Fewmail 有新版本了。',
     reload: '重新加载',
@@ -515,6 +520,9 @@ export const zh: Messages = {
     subscriptions: '邮件列表',
     people: '联系人',
     findPerson: '查找联系人',
+    personMail: '查看邮件',
+    hidePerson: '从联系人中移除',
+    personHidden: '已从联系人中移除',
     clearSearch: '清除搜索',
     mail: '邮件',
     reading: '阅读',

@@ -402,6 +402,11 @@ export const id: Messages = {
     notFound: 'Ini sudah tidak ada. Mungkin sudah dihapus.',
     offline: 'Tidak dapat terhubung ke Fewmail. Periksa koneksimu.',
   },
+  desktop: {
+    lead: 'Fewmail sedang terbuka di Mac Anda. Anda bisa menutup tab ini.',
+    open: 'Buka Fewmail',
+    title: 'Kembali ke aplikasi',
+  },
   update: {
     available: 'Versi baru Fewmail sudah tersedia.',
     reload: 'Muat ulang',
@@ -655,6 +660,9 @@ export const id: Messages = {
     subscriptions: 'Milis',
     people: 'Orang',
     findPerson: 'Cari orang',
+    personMail: 'Lihat email',
+    hidePerson: 'Hapus dari Orang',
+    personHidden: 'Dihapus dari Orang',
     clearSearch: 'Hapus pencarian',
     mail: 'Email',
     reading: 'Bacaan',

@@ -45,7 +45,7 @@ export const EmailRow = ({
 }: {
   actions?: ReturnType<typeof useMailActions>
   active?: boolean
-  /** Always shown, before the time: a code's copy button. */
+  /** Always shown, ending the row after the time: a code's copy button. Before the time, the hover actions' reserved width left it floating mid-row. */
   children?: ReactNode
   description: ReactNode
   /** Beside the time, until the hover's actions take their place. */
@@ -106,7 +106,6 @@ export const EmailRow = ({
       }
       description={description}
     >
-      {children}
       {actions ? (
         <span className={`${ROW_SWAP} group/swap`}>
           <span className="flex items-center gap-2 group-hover/item:opacity-0 group-has-data-popup-open/swap:opacity-0">
@@ -133,6 +132,7 @@ export const EmailRow = ({
           {time}
         </span>
       )}
+      {children}
     </SettingsRow>
   )
 }

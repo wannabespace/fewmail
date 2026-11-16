@@ -21,6 +21,7 @@ import {
   desc,
   eq,
   inArray,
+  isNotNull,
   isNull,
   ne,
   not,
@@ -267,7 +268,7 @@ export const listContacts = async (userId: string) => {
     .from(messages)
     .where(and(eq(messages.userId, userId), eq(messages.isFromMe, true)))
     .as('sent_to')
-  const [sent, received, own] = await Promise.all([
+  const [sent, received, own, hidden] = await Promise.all([
     db
       .select({
         count: sql<number>`count(*)::int`,
@@ -301,8 +302,13 @@ export const listContacts = async (userId: string) => {
       )
       .groupBy(messages.fromEmail),
     listMailboxes(userId),
+    db
+      .select({ email: people.email, hiddenAt: people.hiddenAt })
+      .from(people)
+      .where(and(eq(people.userId, userId), isNotNull(people.hiddenAt))),
   ])
   const mine = new Set(own.map(({ email }) => email.toLowerCase()))
+  const hiddenAt = new Map(hidden.map((row) => [row.email, row.hiddenAt]))
   const contacts = new Map<string, Contact>()
   for (const { count, email, last, name } of [
     ...sent.map((row) => ({
@@ -321,12 +327,27 @@ export const listContacts = async (userId: string) => {
     })
   }
   return [...contacts.values()]
-    .filter(({ email }) => !mine.has(email) && !isAutomatedSender(email))
+    .filter(
+      ({ email, last }) =>
+        !mine.has(email) &&
+        !isAutomatedSender(email) &&
+        last > (hiddenAt.get(email) ?? new Date(0))
+    )
     .toSorted(
       (a, b) => b.score - a.score || b.last.getTime() - a.last.getTime()
     )
     .slice(0, CONTACTS_KEPT)
     .map(({ email, name }) => ({ email, name }))
+}
+
+export const hideContact = async (userId: string, email: string) => {
+  await db
+    .insert(people)
+    .values({ email, hiddenAt: new Date(), userId })
+    .onConflictDoUpdate({
+      set: { hiddenAt: new Date() },
+      target: [people.userId, people.email],
+    })
 }
 
 export const findContacts = async (userId: string, query: string) => {

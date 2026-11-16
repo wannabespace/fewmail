@@ -1,0 +1,18 @@
+[package]
+name = "fewmail-desktop"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "Fewmail"
+path = "src/main.rs"
+
+[dependencies]
+futures = "0.3"
+gpui = { version = "0.2.2", default-features = false, features = ["runtime_shaders"] }
+wry = "0.57"
+
+[profile.release]
+lto = "thin"
+strip = true

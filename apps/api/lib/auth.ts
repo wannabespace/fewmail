@@ -6,7 +6,7 @@ import { db } from '@fewmail/db'
 import { accounts } from '@fewmail/db/schema'
 import * as schema from '@fewmail/db/schema'
 import { betterAuth } from 'better-auth'
-import { jwt } from 'better-auth/plugins'
+import { jwt, oneTimeToken } from 'better-auth/plugins'
 import { Result } from 'better-result'
 import { and, eq } from 'drizzle-orm'
 
@@ -83,6 +83,8 @@ export const auth = betterAuth({
       loginPage: `${env.WEB_URL}/login`,
       resources: [MCP_RESOURCE],
     }),
+    // The desktop app signs in through the browser (Google refuses embedded web views) and redeems this in its own.
+    oneTimeToken({ storeToken: 'hashed' }),
   ],
   secret: env.BETTER_AUTH_SECRET,
   // A signed-out or deleted session keeps working for up to this long; without it every call reads the session from Postgres.

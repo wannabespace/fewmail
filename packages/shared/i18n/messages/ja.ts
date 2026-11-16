@@ -275,6 +275,11 @@ export const ja: Messages = {
     notFound: 'これはもう存在しません。削除された可能性があります。',
     offline: 'Fewmail に接続できません。接続を確認してください。',
   },
+  desktop: {
+    lead: 'Mac で Fewmail を開いています。このタブは閉じてかまいません。',
+    open: 'Fewmail を開く',
+    title: 'アプリに戻る',
+  },
   update: {
     available: 'Fewmail の新しいバージョンがあります。',
     reload: '再読み込み',
@@ -524,6 +529,9 @@ export const ja: Messages = {
     subscriptions: 'メーリングリスト',
     people: '人',
     findPerson: '人を探す',
+    personMail: 'メールを表示',
+    hidePerson: '人から外す',
+    personHidden: '人から外しました',
     clearSearch: '検索をクリア',
     mail: 'メール',
     reading: 'リーディング',

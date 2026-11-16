@@ -408,6 +408,11 @@ export const nl: Messages = {
     notFound: 'Dit bestaat niet meer. Misschien is het verwijderd.',
     offline: 'Fewmail is niet bereikbaar. Controleer je verbinding.',
   },
+  desktop: {
+    lead: 'Fewmail opent op je Mac. Je kunt dit tabblad sluiten.',
+    open: 'Fewmail openen',
+    title: 'Terug naar de app',
+  },
   update: {
     available: 'Er is een nieuwe versie van Fewmail.',
     reload: 'Herladen',
@@ -660,6 +665,9 @@ export const nl: Messages = {
     subscriptions: 'Mailinglijsten',
     people: 'Mensen',
     findPerson: 'Iemand zoeken',
+    personMail: 'E-mails tonen',
+    hidePerson: 'Uit Mensen verwijderen',
+    personHidden: 'Uit Mensen verwijderd',
     clearSearch: 'Zoekopdracht wissen',
     mail: 'Mail',
     reading: 'Lezen',
