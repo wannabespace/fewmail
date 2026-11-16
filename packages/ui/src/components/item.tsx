@@ -46,6 +46,8 @@ const itemVariants = cva(
         sm: `gap-3.5 ${smallItemInsetClassName} py-3`,
         xs: `gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0`,
         '2xs': 'gap-2 rounded-lg px-2.5 py-1',
+        // A popover's list of people: the popover's own padding already sits left of the avatar, and the address hugs the name.
+        compact: 'gap-2 py-2 pr-2.5 pl-1.5',
       },
       variant: {
         card: `bg-popover ring-foreground/4 [a]:hover:ring-foreground/12 rounded-xl border-transparent shadow-xs ring [a]:transition-[color,background-color,box-shadow]`,
@@ -115,7 +117,7 @@ const ItemContent = ({ className, ...props }: React.ComponentProps<'div'>) => (
   <div
     data-slot="item-content"
     className={cn(
-      `flex flex-1 flex-col gap-1 group-data-[size=xs]/item:gap-0.5 [&+[data-slot=item-content]]:flex-none`,
+      `flex flex-1 flex-col gap-1 group-data-[size=compact]/item:gap-0 group-data-[size=xs]/item:gap-0.5 [&+[data-slot=item-content]]:flex-none`,
       className
     )}
     {...props}
@@ -140,7 +142,7 @@ const ItemDescription = ({
   <p
     data-slot="item-description"
     className={cn(
-      `text-muted-foreground [&>a:hover]:text-primary line-clamp-2 text-left text-sm/snug font-normal [&>a]:underline [&>a]:underline-offset-4`,
+      `text-muted-foreground [&>a:hover]:text-primary line-clamp-2 text-left text-sm/snug font-normal group-data-[size=compact]/item:text-xs [&>a]:underline [&>a]:underline-offset-4`,
       className
     )}
     {...props}

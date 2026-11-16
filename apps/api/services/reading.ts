@@ -5,7 +5,17 @@ import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { subHours } from 'date-fns'
-import { and, desc, eq, gte, inArray, lt, sql } from 'drizzle-orm'
+import {
+  and,
+  arrayContains,
+  desc,
+  eq,
+  gte,
+  inArray,
+  lt,
+  not,
+  sql,
+} from 'drizzle-orm'
 
 import {
   FAST_MODEL_ID,
@@ -76,9 +86,13 @@ const clockOf = async (userId: string) => {
   }
 }
 
+// A newsletter trashed from its row leaves the issue; archived ones stay, the starter rule archives them all.
+const notTrashed = not(arrayContains(messages.labelIds, ['TRASH']))
+
 const isReading = (userId: string, day: string, timezone: string) =>
   and(
     eq(messages.userId, userId),
+    notTrashed,
     eq(messages.isFromMe, false),
     eq(analyses.category, 'newsletter'),
     gte(
@@ -139,7 +153,13 @@ const readIssueRows = async (userId: string, messageIds: string[]) => {
     .select(readingColumns)
     .from(messages)
     .innerJoin(analyses, eq(analyses.messageId, messages.id))
-    .where(and(eq(messages.userId, userId), inArray(messages.id, messageIds)))
+    .where(
+      and(
+        eq(messages.userId, userId),
+        inArray(messages.id, messageIds),
+        notTrashed
+      )
+    )
     .orderBy(desc(messages.receivedAt))
   return rows.map(({ body: _body, model: _model, ...row }) => row)
 }
