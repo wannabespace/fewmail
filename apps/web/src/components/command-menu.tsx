@@ -12,28 +12,22 @@ import {
 } from '@fewmail/ui/components/command'
 import { themeStore } from '@fewmail/ui/theme-store'
 import {
-  Add01Icon,
   AiChat02Icon,
   CleanIcon,
   ComputerIcon,
   CrownIcon,
-  DashboardSquare01Icon,
-  Delete02Icon,
-  Edit02Icon,
   GiftIcon,
   Moon02Icon,
   News01Icon,
   PencilEdit02Icon,
-  Settings01Icon,
   Sun03Icon,
   Tag01Icon,
-  TextAlignLeftIcon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useNavigate, useRouterState } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
 import { useT } from '~/lib/i18n'
@@ -42,11 +36,10 @@ import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 
 import { AskAnswer } from './ask-answer'
-import { deletingBoardStore, newBoardStore } from './board-dialog'
 import { clearOutStore } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
 import { FOLDER_ITEMS, NAV_ITEMS, useGoTo } from './nav'
-import { upgradeStore, useWithAgent } from './upgrade-dialog'
+import { upgradeStore } from './upgrade-dialog'
 
 const THEME_ICONS = {
   dark: Moon02Icon,
@@ -80,30 +73,9 @@ export const CommandMenu = ({
     ask.variables?.question === search.trim()
       ? ask.variables.question
       : undefined
-  const withAgent = useWithAgent()
   const goTo = useGoTo()
 
-  const pathname = useRouterState({
-    select: (state) => state.location.pathname,
-  })
-  const { data: boards = [] } = useQuery(
-    orpc.boards.list.queryOptions({ enabled: hasAgent })
-  )
   const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
-  const board = boards.find(({ id }) => pathname === `/boards/${id}`)
-  const onBoard = (intent: 'chart' | 'describe' | 'rename' | 'settings') =>
-    board &&
-    navigate({
-      params: { boardId: board.id },
-      search: { do: intent },
-      to: '/boards/$boardId',
-    })
-  const boardCommands = [
-    ['rename', Edit02Icon, t.boards.rename],
-    ['describe', TextAlignLeftIcon, t.boards.describe],
-    ['settings', Settings01Icon, t.boards.settings.title],
-    ['chart', Add01Icon, t.boards.chart.add],
-  ] as const
 
   useHotkey('Mod+K', () => setOpen((value) => !value), { ignoreInputs: false })
   useEffect(() => {
@@ -165,49 +137,6 @@ export const CommandMenu = ({
               <CommandShortcut>G N</CommandShortcut>
             </CommandItem>
           </CommandGroup>
-          {board && (
-            <CommandGroup heading={t.boards.menu}>
-              {boardCommands.map(([intent, icon, label]) => (
-                <CommandItem
-                  key={intent}
-                  onSelect={() => run(() => onBoard(intent))}
-                >
-                  <HugeiconsIcon icon={icon} strokeWidth={2} />
-                  {label}
-                </CommandItem>
-              ))}
-              <CommandItem
-                onSelect={() => run(() => deletingBoardStore.set(board))}
-              >
-                <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                {t.boards.delete}
-              </CommandItem>
-            </CommandGroup>
-          )}
-          {boards.length > 0 && (
-            <CommandGroup heading={t.nav.boards}>
-              {boards.map((item, index) => (
-                <CommandItem
-                  key={item.id}
-                  value={`board ${item.id} ${item.name}`}
-                  onSelect={() =>
-                    run(() =>
-                      navigate({
-                        params: { boardId: item.id },
-                        to: '/boards/$boardId',
-                      })
-                    )
-                  }
-                >
-                  <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
-                  <span data-mask>{item.name}</span>
-                  {index < 9 && (
-                    <CommandShortcut>G {index + 1}</CommandShortcut>
-                  )}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          )}
           <CommandGroup heading={t.nav.folders}>
             {FOLDER_ITEMS.map(({ folder, icon }) => (
               <CommandItem
@@ -254,14 +183,6 @@ export const CommandMenu = ({
             >
               <HugeiconsIcon icon={ZapIcon} strokeWidth={2} />
               {t.command.teachRule}
-            </CommandItem>
-            <CommandItem
-              onSelect={() =>
-                run(() => withAgent('boards', () => newBoardStore.set(true)))
-              }
-            >
-              <HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
-              {t.nav.newBoard}
             </CommandItem>
             {!hasAgent && (
               <CommandItem

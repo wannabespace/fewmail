@@ -30,9 +30,3 @@ Shadows are tinted warm brown (`rgb(60 40 20 / …)`), never black, in light mod
 ## Selection & secondary fills
 
 `bg-secondary` (`#E6DDCE`-ish) is the warm chip/fill: secondary buttons, the active nav item, draft blocks (`bg-secondary/60`), agent analysis blocks (`bg-secondary/50`). On the canvas, hover/cursor (`bg-accent`, `#ECE4D8`) sits halfway between the canvas and `bg-secondary`, so the active item never reads as merely hovered — keep both steps visible when retuning.
-
-## Charts
-
-Boards draw with the EvilCharts registry (`packages/ui/src/components/evilcharts`, Recharts underneath), wrapped once in `apps/web/src/components/board-chart.tsx`. Every series is the one accent, `var(--primary)`; a pie steps that accent's strength (`color-mix` toward transparent) instead of adding hues, since a second color would read as a category. A chart sits in a `bg-card` ring card with its title in sans and a ghost settings `IconButton` opening its editor popover (title saved on ⏎ or close, choices that would draw nothing true — a pie over time, a sum without amounts — disabled, move earlier / later). Clicking a bucket filters the board's entries; a pie shows the picked slice through its own selection.
-
-A chart never leaves data out silently. A tooltip heading names the whole bucket and how many entries it holds ("Week of 9 Nov · 3 entries"), never the bare axis tick. A sum draws one currency, picked in the editor (the most used one by default), and a muted line under the chart counts the entries it left out. Time buckets default to bars: entries are sparse, and a line draws slopes between payments that never happened.

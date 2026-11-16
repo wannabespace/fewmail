@@ -36,7 +36,6 @@ import {
   FIM_MODEL,
   MAX_TOKENS as FIM_OUTPUT_TOKENS,
 } from '../services/autocomplete'
-import { ENTRY_BODY_CHARS } from '../services/boards'
 import {
   ACTION_CRITERIA,
   CATEGORY_CRITERIA,
@@ -146,8 +145,6 @@ const READING_SUMMARY_OUTPUT_TOKENS = 600
 const NOTE_PROMPT_CHARS = 12 * 200 + 400
 const NOTE_OUTPUT_TOKENS = 120
 const VOICE_OUTPUT_TOKENS = 250
-const ENTRY_INSTRUCTION_CHARS = 1750
-const ENTRY_OUTPUT_TOKENS = 125
 const COMPLETION_PREFIX_CHARS = 1000
 const DAYS = 30
 
@@ -162,7 +159,6 @@ export interface Use {
   draftedShare: number
   earlierChars: number
   earlierEmails: number
-  entries: number
   inbound: number
   knowledgeChars: number
   linkChars: number
@@ -193,7 +189,6 @@ export const TYPICAL: Use = {
   draftedShare: 0.25,
   earlierChars: 800,
   earlierEmails: 1,
-  entries: 100,
   inbound: 1500,
   knowledgeChars: 500,
   linkChars: 30,
@@ -225,7 +220,6 @@ export const HEAVY: Use = {
   draftedShare: 1,
   earlierChars: EARLIER_BODY_LIMIT,
   earlierEmails: EARLIER_LIMIT,
-  entries: 600,
   inbound: 6000,
   knowledgeChars: 4000,
   linkChars: LINK_TEXT_CHARS,
@@ -412,7 +406,7 @@ export const firstWeekCost = (use: Use, agent: boolean) =>
   FIRST_WEEK_LIMIT * inboundJevCost(use) +
   (agent ? FIRST_ISSUE_DAYS * issueCost(use) : 0)
 
-/** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, the user's style, board entries and autocomplete. */
+/** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, the user's style and autocomplete. */
 export const backgroundCost = (use: Use, agent: boolean) => {
   const jev = use.inbound * inboundJevCost(use) + use.sent * sentJevCost(use)
   if (!agent) {
@@ -442,15 +436,6 @@ export const backgroundCost = (use: Use, agent: boolean) => {
         mailTokens(VOICE_SAMPLE * SENT_EXAMPLE_CHARS),
       VOICE_OUTPUT_TOKENS
     )
-  const entries =
-    use.entries *
-    llm(
-      FAST_MODEL_ID,
-      instructionTokens(ENTRY_INSTRUCTION_CHARS) +
-        STRUCTURED_OUTPUT_TOKENS +
-        mailTokens(Math.min(use.bodyChars, ENTRY_BODY_CHARS)),
-      ENTRY_OUTPUT_TOKENS
-    )
   const completions =
     use.completions *
     llm(
@@ -465,11 +450,10 @@ export const backgroundCost = (use: Use, agent: boolean) => {
   return {
     completions,
     digest,
-    entries,
     jev,
     notes,
     promises,
-    total: jev + promises + digest + notes + entries + completions + voice,
+    total: jev + promises + digest + notes + completions + voice,
     voice,
   }
 }

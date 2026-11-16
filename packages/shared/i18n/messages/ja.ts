@@ -55,7 +55,6 @@ export const ja: Messages = {
     cc: (recipients: string) => `CC: ${recipients}`,
     confirm: {
       dismiss_action: 'このカードをスキップしますか?',
-      delete_board: 'このボードと中身をすべて削除しますか？',
       create_event: 'この予定を追加しますか？',
       delete_event: 'この予定を削除しますか？',
       update_event: 'この予定を変更しますか？',
@@ -93,10 +92,8 @@ export const ja: Messages = {
       draft_reply: '返信を作成中',
       create_draft: '下書きを保存中',
       find_people: 'アドレスを検索中',
-      get_board: 'ボードを読込中',
       get_person: '相手を確認中',
       get_today: '今日の状況を確認中',
-      list_boards: 'ボードを開いています',
       list_handled: '処理済みを確認中',
       list_mail: 'メールを検索中',
       list_rules: 'ルールを確認中',
@@ -111,20 +108,11 @@ export const ja: Messages = {
       report_spam: '迷惑メールを報告中',
       mark_not_spam: '迷惑メールから戻し中',
       move_to_inbox: '受信トレイに移動中',
-      create_board: 'ボードを作成中',
-      update_board: 'ボードを変更中',
-      delete_board: 'ボードを削除中',
-      add_board_chart: 'グラフを追加中',
-      add_to_board: 'ボードに追加中',
-      edit_board_entry: '項目を修正中',
-      remove_board_entry: 'ボードから外し中',
-      rename_board_group: 'グループ名を変更中',
     },
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
     yes: {
       dismiss_action: 'スキップ',
-      delete_board: '削除',
       create_event: '追加',
       delete_event: '削除',
       update_event: '保存',
@@ -325,7 +313,6 @@ export const ja: Messages = {
     move: '移動',
     stackEmail: '次 / 前のメール',
     open: '開く',
-    notOnBoard: 'このボードに含めない',
     rename: '名前を変更',
     clearFilter: 'フィルターを解除',
     search: '検索',
@@ -530,10 +517,8 @@ export const ja: Messages = {
     folders: 'フォルダ',
     calendar: 'カレンダー',
     subscriptions: 'メーリングリスト',
-    boards: 'ボード',
     people: '人',
     findPerson: '人を探す',
-    newBoard: '新しいボード',
     mail: 'メール',
     reading: 'リーディング',
     rules: 'ルール',
@@ -553,9 +538,6 @@ export const ja: Messages = {
     many: (n: number) => `Fewmail から ${n} 件のお知らせ`,
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `エージェントがメールから自動でまとめるページです。直近3か月分から始めます。${max} 件まで選べます。自分のボードは後から追加できます。`,
-    boardsTitle: 'エージェントに何を集めてもらいますか？',
     languageHint:
       'アプリ、要約、説明にこの言語を使います。返信は常に、返信するメールの言語に合わせます。',
     languageTitle: 'Fewmail は何語で話しましょうか？',
@@ -1106,11 +1088,6 @@ export const ja: Messages = {
             '普段の言葉で何でも聞けば、あなた自身のメールから答えが返ってきます。根拠になったメールも一緒に。',
           title: 'メールに聞く',
         },
-        boards: {
-          description:
-            'お金、有料サブスク、旅行、注文。追跡したいものを書けば、エージェントが最大1年分のメールから集め、グラフにまとめます。',
-          title: 'ボード',
-        },
         calendar: {
           description:
             'すべてのメールボックスのカレンダーをひとつの画面に。メールで提案された会議は、あなたが OK すれば予定になります。',
@@ -1386,7 +1363,7 @@ export const ja: Messages = {
     heard: (text: string) => `聞き取った内容：「${text}」`,
     voiceFailed:
       'うまく聞き取れませんでした。もう一度話すか、入力してください。',
-    help: '必要なことを書くか話してください：\n• メールについて質問：「Netflixの更新日はいつ？」\n• 返信内容を伝える：「アンナに明日署名すると伝えて」\n• 作業を頼む：「旅行のボードを作って」\n• 下書きを変えるには、その下書きに返信',
+    help: '必要なことを書くか話してください：\n• メールについて質問：「Netflixの更新日はいつ？」\n• 返信内容を伝える：「アンナに明日署名すると伝えて」\n• 作業を頼む：「Mediumのニュースレターはいつもアーカイブして」\n• 下書きを変えるには、その下書きに返信',
     canceled: 'キャンセルしました。下書きはキューに戻りました。',
     sendingIn: (seconds: number) => `${seconds}秒後に送信`,
     undo: '元に戻す',
@@ -1445,7 +1422,7 @@ export const ja: Messages = {
       approved: 'あなたが承認',
       byRule: (rule: string) => `あなたのルール：${rule}`,
       failed: 'うまくいきませんでした',
-      lead: '直近7日間。メール、カレンダー、ボードの変更はすべて、あなたの承認か、あなたがオンにしたルールによるものです。',
+      lead: '直近7日間。メールやカレンダーの変更はすべて、あなたの承認か、あなたがオンにしたルールによるものです。',
       title: 'メールで行ったこと',
     },
     progress: (done: number, total: number) => `${done} / ${total}`,
@@ -1517,199 +1494,6 @@ export const ja: Messages = {
     recent: (period: string) => `${period}のその他`,
     sent: '送信済み',
     codes: '認証コード',
-  },
-  boards: {
-    chartRemoved: 'グラフを削除しました',
-    addTo: 'ボードに追加',
-    added: (board: string) => `${board}に追加しました`,
-    cancel: 'キャンセル',
-    chart: {
-      add: 'グラフを追加',
-      ask: 'どんなグラフか説明',
-      askPlaceholder: 'ショップ別の支出、ステータス別の注文…',
-      currency: '通貨',
-      edit: 'グラフの設定',
-      empty: 'まだ表示できるデータがありません',
-      groupBy: 'まとめ方',
-      groupings: {
-        group: '相手・対象',
-        month: '月',
-        status: 'ステータス',
-        week: '週',
-      },
-      measure: '表示する値',
-      measures: { count: '件数', sum: '合計金額' },
-      moveEarlier: '前へ移動',
-      moveLater: '後ろへ移動',
-      other: 'その他',
-      remove: 'グラフを削除',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `合計外: ${[
-          currency > 0 && `別の通貨 ${currency}件`,
-          payment > 0 && `未払い・失敗・返金・受取 ${payment}件`,
-          amount > 0 && `金額なし ${amount}件`,
-        ]
-          .filter(Boolean)
-          .join('、')}`,
-      title: 'グラフのタイトル',
-      type: 'グラフの種類',
-      types: {
-        area: 'エリア',
-        bar: '棒',
-        line: '折れ線',
-        pie: '円',
-      },
-      untitled: '新しいグラフ',
-      weekOf: (date: string) => `${date}の週`,
-    },
-    charts: 'グラフ',
-    create: 'ボードを作成',
-    delete: 'ボードを削除',
-    deleteConfirm: (name: string) => `「${name}」を削除しますか？`,
-    deleteHint: '項目とグラフも一緒に削除されます。メールはそのまま残ります。',
-    describe: '集める内容を変更',
-    description: '集める内容',
-    descriptionPlaceholder: '旅行：航空券、ホテル、レンタカーとその費用',
-    due: (when: string) => `次の日付: ${when}`,
-    empty: 'まだ空です。当てはまるメールが届くとここに表示されます。',
-    entries: (n: number) => `${n}件`,
-    entry: {
-      edited: 'あなたが編集',
-      nextOn: (date: string) => `次回 ${date}`,
-      remove: 'このボードに含めない',
-      removed: 'ボードから外しました。次からはこれを踏まえます。',
-    },
-    expected: (when: string) => `${when}予定`,
-    filter: {
-      clear: 'フィルターを解除',
-      nothing: '一致する項目はありません。',
-      search: '項目を検索',
-    },
-    groups: {
-      every: {
-        month: '毎月',
-        quarter: '四半期ごと',
-        week: '毎週',
-        year: '毎年',
-      },
-      expected: (date: string) => `${date}予定`,
-      next: (date: string) => `次回 ${date}`,
-      perMonth: (amount: string) => `${amount} / 月`,
-      rename: 'グループ名を変更',
-      renameHint: '別のグループと同じ名前にすると、2つがまとまります。',
-      showAll: (n: number) => `${n}件すべて表示`,
-      showFewer: '表示を減らす',
-      title: '相手・対象別',
-    },
-    history: {
-      capped: (n: number) => `期間内の該当メールのうち最新${n}件を読みました。`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? '期間内のメールを確認しています…'
-          : `メール${found}件を読んでいます · これまでに${entries}件`,
-    },
-    menu: 'ボードの操作',
-    moveDown: '下へ移動',
-    moveUp: '上へ移動',
-    name: '名前',
-    namePlaceholder: '旅行',
-    new: '新しいボード',
-    newHint:
-      '集めたいものを自分の言葉で書いてください。Fewmail が選んだ期間のメールから探し出し、グラフを選び、最新の状態に保ちます。',
-    payment: {
-      due: '未払い',
-      failed: '失敗',
-      income: '受取',
-      paid: '支払済み',
-      refund: '返金',
-    },
-    period: '期間',
-    periods: {
-      1: '直近1日',
-      7: '直近1週間',
-      30: '直近1か月',
-      90: '直近3か月',
-      180: '直近6か月',
-      365: '直近1年',
-    },
-    planning: '準備しています…',
-    redescribe: '保存して読み直す',
-    redescribeHint:
-      '新しい説明で期間内のメールを読み直します。編集した項目や外した項目はそのまま残ります。',
-    rename: 'ボード名を変更',
-    save: '保存',
-    settings: {
-      bannerDays: '日付の前のお知らせ',
-      days: (n: number) => `${n}日前`,
-      hint: 'ボードがどこまでさかのぼって集めるか、日付の何日前にお知らせするか。',
-      never: 'なし',
-      title: 'ボードの設定',
-    },
-    starter: {
-      events: {
-        description: 'チケット、予約、アポイント：どこに、いつ、誰と行くか。',
-        name: '予定',
-      },
-      health: {
-        description:
-          '診察、処方箋、検査結果、保険請求：誰に、いつ診てもらい、いくらかかったか。',
-        name: '健康',
-      },
-      home: {
-        description:
-          '家賃、光熱費、修理、住まいの契約：何の支払いが、誰に、いくら必要か。',
-        name: '住まい',
-      },
-      invoices: {
-        description:
-          '仕事で発行・受領する請求書：取引先、金額、支払期日、支払い済みかどうか。',
-        name: '仕事の請求書',
-      },
-      jobs: {
-        description:
-          '応募、面接、内定：どの会社の、どの職種で、それぞれ今どの段階か。',
-        name: '転職活動',
-      },
-      learning: {
-        description:
-          '講座、授業、学校や大学からのメール：締め切り、成績、修了証、費用。',
-        name: '学び',
-      },
-      money: {
-        description:
-          '支払い、サブスクリプション、請求書、返金：何に、誰に、いくら払っているか、次の更新日。',
-        name: '家計',
-      },
-      orders: {
-        description: 'オンライン注文と配送：何をどこで買い、今どこにあるか。',
-        name: '注文',
-      },
-      trips: {
-        description:
-          'フライト、列車、ホテル、レンタル：どこへ、いつ、いくらかかるか。',
-        name: '旅行',
-      },
-    },
-    summary: {
-      attention: '要対応',
-      emails: (n: number) => `メール${n}件`,
-      next: (title: string, date: string, amount: string | null) =>
-        `次回: ${title}（${date}${amount ? `、${amount}` : ''}）`,
-      perMonth: (amount: string, n: number) =>
-        `定期支払い${n}件で月${amount}。`,
-      received: (amount: string) => `受取 ${amount}`,
-      refunded: (amount: string) => `返金 ${amount}`,
-      regular: '定期支払い',
-      upcoming: '今後30日',
-    },
   },
   bulk: {
     badge: (n: number) => `${n}人以上のFewmailユーザーに送信`,
@@ -1812,8 +1596,6 @@ export const ja: Messages = {
     ask: 'メールに聞く',
     hints: {
       ask: 'Fewmail Pro の機能です。普段の言葉で何でも質問すると、あなた自身のメールから答えが返ってきます。',
-      boards:
-        'Fewmail Pro の機能です。集めたいものを書くと、エージェントがメールから探し出し、最新の状態に保ちます。',
       drafts:
         'Fewmail Pro の機能です。エージェントがあなたの文体で返信を書き、あなたが編集して送信します。',
     },

@@ -194,7 +194,7 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
 
 /**
  * What the agent may cost per calendar month (UTC), in USD of AI: everything it does (writing for an email, a
- * message, a summary, a board entry, reading aloud) is paid from it at its real price, so a feature left unused
+ * message, a summary, reading aloud) is paid from it at its real price, so a feature left unused
  * costs nothing. Sized so a yearly plan keeps 20% (Max 10%) after Stripe, the allowance and Jev (`economics.test.ts`).
  * Noise Jev settles costs nothing. Every plan has every feature; only this differs.
  */
@@ -206,7 +206,7 @@ export const PLAN_ALLOWANCE_USD = {
 } satisfies Record<Exclude<Plan, 'free'>, number>
 
 /** What one email the agent writes for and one message to it cost on typical use, to tell an allowance in both. */
-export const TYPICAL_COST_USD = { email: 0.0044, message: 0.045 }
+export const TYPICAL_COST_USD = { email: 0.0044, message: 0.041 }
 
 type AgentPlan = keyof typeof PLAN_ALLOWANCE_USD
 
@@ -253,27 +253,20 @@ export const parseSkill = (text: string) => {
  * it never runs on the agent's or an MCP client's word: it waits as a `consent` card on Home (`proposeConsent`), whose details must show every input (`ConsentToolName`), and the yes runs it.
  */
 export const AGENT_TOOLS = {
-  add_board_chart: 'write',
-  add_to_board: 'write',
   approve_action: 'consent',
   archive_thread: 'consent',
   clear_out: 'consent',
-  create_board: 'write',
   create_draft: 'write',
   create_event: 'consent',
   create_rule: 'consent',
-  delete_board: 'consent',
   delete_event: 'consent',
   dismiss_action: 'consent',
   draft_reply: 'write',
-  edit_board_entry: 'write',
   find_people: 'read',
-  get_board: 'read',
   get_person: 'read',
   get_reading: 'read',
   get_today: 'read',
   get_wrapped: 'read',
-  list_boards: 'read',
   list_events: 'read',
   list_handled: 'read',
   list_mail: 'read',
@@ -285,8 +278,6 @@ export const AGENT_TOOLS = {
   read_thread: 'read',
   redraft_action: 'write',
   refresh: 'write',
-  remove_board_entry: 'write',
-  rename_board_group: 'write',
   report_spam: 'consent',
   send_email: 'consent',
   snooze_thread: 'consent',
@@ -294,7 +285,6 @@ export const AGENT_TOOLS = {
   trash_thread: 'consent',
   undo_clear_out: 'consent',
   unsubscribe: 'consent',
-  update_board: 'write',
   update_event: 'consent',
 } as const satisfies Record<string, 'read' | 'write' | 'consent'>
 export type AgentToolName = keyof typeof AGENT_TOOLS
@@ -329,35 +319,6 @@ export interface WrappedStats {
   savedMinutes: number
   spam: number
   unsubscribed: number
-}
-
-/** Ready-made boards offered at onboarding; names and descriptions come from `boards.starter`. */
-export const BOARD_PRESETS = [
-  'money',
-  'trips',
-  'orders',
-  'events',
-  'invoices',
-  'jobs',
-  'health',
-  'home',
-  'learning',
-] as const
-export type BoardPreset = (typeof BOARD_PRESETS)[number]
-
-/** How far back a board collects, in days: its history read stops there and older entries leave it. */
-export const BOARD_PERIODS = [1, 7, 30, 90, 180, 365] as const
-
-export type BoardPeriod = (typeof BOARD_PERIODS)[number]
-
-export const DEFAULT_BOARD_PERIOD: BoardPeriod = 90
-
-/** Mail that comes once a year (a renewal, a contract, a checkup) is found only with a year of history. */
-export const BOARD_PRESET_PERIODS: Partial<Record<BoardPreset, BoardPeriod>> = {
-  health: 365,
-  home: 365,
-  learning: 180,
-  money: 365,
 }
 
 export const IMPORTANCE = {
@@ -407,32 +368,7 @@ export interface MessageRisk {
   kind: RiskKind
 }
 
-export const BOARD_CHART_TYPES = ['bar', 'line', 'area', 'pie'] as const
-export type BoardChartType = (typeof BOARD_CHART_TYPES)[number]
-export const BOARD_MEASURES = ['sum', 'count'] as const
-export type BoardMeasure = (typeof BOARD_MEASURES)[number]
-export const BOARD_GROUPINGS = ['month', 'week', 'group', 'status'] as const
-export type BoardGrouping = (typeof BOARD_GROUPINGS)[number]
-/** What an entry's amount did. Only `paid` and `refund` (stored negative) are spending; the rest is listed apart, never summed into it. */
-export const BOARD_PAYMENTS = [
-  'paid',
-  'due',
-  'failed',
-  'refund',
-  'income',
-] as const
-export type BoardPayment = (typeof BOARD_PAYMENTS)[number]
-
-export interface BoardChart {
-  currency?: string
-  groupBy: BoardGrouping
-  id: string
-  measure: BoardMeasure
-  title: string
-  type: BoardChartType
-}
-
-/** Mail older than this is never sent to the model and never becomes a Home card, so an upgrade or a board's history does not flood the queue. */
+/** Mail older than this is never sent to the model and never becomes a Home card, so an upgrade does not flood the queue. */
 export const ANALYZE_WINDOW_DAYS = 3
 
 export interface CleanupSender {

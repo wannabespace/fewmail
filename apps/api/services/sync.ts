@@ -1,11 +1,5 @@
 import { db } from '@fewmail/db'
-import {
-  actions,
-  analyses,
-  boards,
-  mailboxes,
-  messages,
-} from '@fewmail/db/schema'
+import { actions, analyses, mailboxes, messages } from '@fewmail/db/schema'
 import { ANALYZE_WINDOW_DAYS } from '@fewmail/shared/agent'
 import { Result } from 'better-result'
 import { max, subDays, subMinutes, subMonths } from 'date-fns'
@@ -36,23 +30,16 @@ import { logError } from '../lib/log'
 import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage, recordNewsletter, retireStaleActions } from './agent'
-import {
-  BOARD_HISTORY_LIMIT,
-  collectEntries,
-  collectForNewMail,
-  collectMatching,
-  isUnchanged,
-} from './boards'
 import { measureBulk } from './bulk'
-import { listMailboxes, searchMailboxes, watchStorage } from './mailboxes'
-import { emailAllowance, hasBudget } from './plan'
+import { listMailboxes, watchStorage } from './mailboxes'
+import { emailAllowance } from './plan'
 import { writeReadingIssue } from './reading'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
 import { getSettings } from './settings'
 import { applySimpleRules } from './simple-rules'
 import { applySpamShield } from './spam'
-import { forget, insertMessages, readMessages } from './stored-mail'
+import { forget, insertMessages } from './stored-mail'
 import { catchZombies, recordListReaders } from './zombies'
 
 const INITIAL_INBOX_QUERY = 'in:inbox newer_than:3d'
@@ -221,12 +208,6 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   )
   await watchStorage(mailbox, inserted).catch((error) =>
     logError('storage watch failed', error)
-  )
-  if (!(await hasBudget(userId))) {
-    return
-  }
-  await collectForNewMail(userId, inserted).catch((error) =>
-    logError('board collection failed', error)
   )
 }
 
@@ -417,9 +398,6 @@ export const syncMailboxes = async (userId: string) => {
 
 const seconds = (date: Date) => Math.floor(date.getTime() / 1000)
 
-const gmailKey = (message: { gmailId: string; mailboxId: string }) =>
-  `${message.mailboxId}:${message.gmailId}`
-
 /**
  * Stores a week of the mail before `heldSince` per call, back to `HELD_MONTHS` before the mailbox was added. Reading
  * only, never `processIncoming`; `heldSince` moves once the week is stored, so a run cut off is read again.
@@ -444,58 +422,4 @@ export const holdEarlierMail = async (mailbox: Mailbox) => {
     .set({ heldSince: from })
     .where(eq(mailboxes.id, mailbox.id))
   await announceChange(mailbox.userId, ['mail'])
-}
-
-/** Pro: a new board starts with its period's mail, not only what arrives from now on; what Fewmail does not hold is read in memory. */
-export const readBoardHistory = async (board: typeof boards.$inferSelect) => {
-  // Unread, the board is picked again on a later tick: the history waits for next month's allowance.
-  if (!(await hasBudget(board.userId))) {
-    return
-  }
-  const searchedAt = new Date()
-  const results = await searchMailboxes(
-    board.userId,
-    `(${board.gmailQuery}) newer_than:${board.periodDays}d`,
-    BOARD_HISTORY_LIMIT
-  )
-  const found = await Promise.all(
-    results.map(({ ids, mailbox }) => readMessages(mailbox, ids))
-  )
-  const candidates = found.flat()
-  if (!(await isUnchanged(board))) {
-    return
-  }
-  await db
-    .update(boards)
-    .set({ historyFound: candidates.length })
-    .where(eq(boards.id, board.id))
-  await announceChange(board.userId, ['boards'])
-  await collectEntries(board, candidates)
-  if (!(await isUnchanged(board))) {
-    return
-  }
-  const readAt = new Date()
-  await db
-    .update(boards)
-    .set({ historyReadAt: readAt })
-    .where(eq(boards.id, board.id))
-  await announceChange(board.userId, ['boards', 'today'])
-  // Only after `historyReadAt` is set: from then on `collectForNewMail` takes new mail, so nothing falls between the two.
-  const read = new Set(candidates.map(gmailKey))
-  const arrived = await db
-    .select()
-    .from(messages)
-    .where(
-      and(
-        eq(messages.userId, board.userId),
-        eq(messages.isFromMe, false),
-        gte(messages.createdAt, searchedAt),
-        lt(messages.createdAt, readAt)
-      )
-    )
-  const missed = arrived.filter((message) => !read.has(gmailKey(message)))
-  if (missed.length > 0) {
-    await collectMatching(board, missed)
-    await announceChange(board.userId, ['boards', 'today'])
-  }
 }

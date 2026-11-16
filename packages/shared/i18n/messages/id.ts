@@ -54,7 +54,6 @@ export const id: Messages = {
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Lewati kartu ini?',
-      delete_board: 'Hapus papan ini beserta semua isinya?',
       create_event: 'Tambahkan acara ini?',
       delete_event: 'Hapus acara ini?',
       update_event: 'Ubah acara ini?',
@@ -92,10 +91,8 @@ export const id: Messages = {
       draft_reply: 'Menulis balasan',
       create_draft: 'Menyimpan draf',
       find_people: 'Mencari alamatnya',
-      get_board: 'Membaca papan',
       get_person: 'Mencari orangnya',
       get_today: 'Memeriksa hari ini',
-      list_boards: 'Membuka papan',
       list_handled: 'Memeriksa yang sudah ditangani',
       list_mail: 'Mencari di email',
       list_rules: 'Membaca aturan',
@@ -110,20 +107,11 @@ export const id: Messages = {
       report_spam: 'Melaporkan spam',
       mark_not_spam: 'Mengeluarkan dari spam',
       move_to_inbox: 'Memindahkan ke kotak masuk',
-      create_board: 'Membuat papan',
-      update_board: 'Mengubah papan',
-      delete_board: 'Menghapus papan',
-      add_board_chart: 'Menambah grafik',
-      add_to_board: 'Menaruh di papan',
-      edit_board_entry: 'Memperbaiki entri',
-      remove_board_entry: 'Mengeluarkan dari papan',
-      rename_board_group: 'Mengganti nama grup',
     },
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
     yes: {
       dismiss_action: 'Lewati',
-      delete_board: 'Hapus',
       create_event: 'Tambah',
       delete_event: 'Hapus',
       update_event: 'Simpan',
@@ -148,214 +136,6 @@ export const id: Messages = {
     thinking: 'Menelusuri email kamu…',
   },
   byRule: 'oleh aturan',
-  boards: {
-    chartRemoved: 'Grafik dihapus',
-    addTo: 'Tambah ke papan',
-    added: (board: string) => `Ditaruh di ${board}`,
-    cancel: 'Batal',
-    chart: {
-      add: 'Tambah grafik',
-      ask: 'Jelaskan grafiknya',
-      askPlaceholder: 'Belanja per toko, pesanan per status…',
-      currency: 'Mata uang',
-      edit: 'Pengaturan grafik',
-      empty: 'Belum ada yang bisa digambar',
-      groupBy: 'Dikelompokkan per',
-      groupings: {
-        group: 'Siapa atau apa',
-        month: 'Bulan',
-        status: 'Status',
-        week: 'Minggu',
-      },
-      measure: 'Menampilkan',
-      measures: { count: 'Jumlah', sum: 'Total nominal' },
-      moveEarlier: 'Geser lebih awal',
-      moveLater: 'Geser lebih akhir',
-      other: 'Lainnya',
-      remove: 'Hapus grafik',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `Tidak dijumlahkan: ${[
-          currency > 0 && `mata uang lain: ${currency}`,
-          payment > 0 &&
-            `belum dibayar, gagal, dikembalikan, atau diterima: ${payment}`,
-          amount > 0 && `tanpa jumlah: ${amount}`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: 'Judul grafik',
-      type: 'Jenis grafik',
-      types: {
-        area: 'Area',
-        bar: 'Batang',
-        line: 'Garis',
-        pie: 'Lingkaran',
-      },
-      untitled: 'Grafik baru',
-      weekOf: (date: string) => `Minggu ${date}`,
-    },
-    charts: 'Grafik',
-    create: 'Buat papan',
-    delete: 'Hapus papan',
-    deleteConfirm: (name: string) => `Hapus “${name}”?`,
-    deleteHint:
-      'Entri dan grafiknya ikut terhapus. Email kamu tetap di tempatnya.',
-    describe: 'Ubah apa yang dikumpulkan',
-    description: 'Apa yang dikumpulkan',
-    descriptionPlaceholder:
-      'Perjalanan: tiket pesawat, hotel, dan sewa mobil, beserta biayanya',
-    due: (when: string) => `Segera: ${when}`,
-    empty: 'Masih kosong. Email yang cocok akan muncul di sini begitu tiba.',
-    entries: (total: number) =>
-      plural('id', total, { other: (n) => `${n} entri` }),
-    entry: {
-      edited: 'Diedit olehmu',
-      nextOn: (date: string) => `berikutnya ${date}`,
-      remove: 'Bukan untuk papan ini',
-      removed: 'Dikeluarkan dari papan. Papan belajar dari situ.',
-    },
-    expected: (when: string) => `Diperkirakan ${when}`,
-    filter: {
-      clear: 'Hapus filter',
-      nothing: 'Tidak ada entri yang cocok.',
-      search: 'Cari entri',
-    },
-    groups: {
-      every: {
-        month: 'tiap bulan',
-        quarter: 'tiap kuartal',
-        week: 'tiap minggu',
-        year: 'tiap tahun',
-      },
-      expected: (date: string) => `diperkirakan ${date}`,
-      next: (date: string) => `berikutnya ${date}`,
-      perMonth: (amount: string) => `${amount} / bulan`,
-      rename: 'Ganti nama grup',
-      renameHint: 'Beri nama grup lain untuk menggabungkan keduanya.',
-      showAll: (n: number) => `Tampilkan semua ${n}`,
-      showFewer: 'Tampilkan lebih sedikit',
-      title: 'Per siapa atau apa',
-    },
-    history: {
-      capped: (n: number) =>
-        `Sudah membaca ${n} email cocok terbaru dalam periode papan.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? 'Menelusuri email dalam periode papan…'
-          : `Membaca ${plural('id', found, { other: (n) => `${n} email` })} · sejauh ini ${plural('id', entries, { other: (n) => `${n} entri` })}`,
-    },
-    menu: 'Aksi papan',
-    moveDown: 'Pindah ke bawah',
-    moveUp: 'Pindah ke atas',
-    name: 'Nama',
-    namePlaceholder: 'Perjalanan',
-    new: 'Papan baru',
-    newHint:
-      'Jelaskan dengan kata-katamu sendiri apa yang dikumpulkan. Fewmail mencarinya di email sejauh periode yang kamu pilih, memilih grafik, dan terus memperbaruinya.',
-    payment: {
-      due: 'belum dibayar',
-      failed: 'gagal',
-      income: 'diterima',
-      paid: 'dibayar',
-      refund: 'pengembalian',
-    },
-    period: 'Periode',
-    periods: {
-      1: 'Sehari terakhir',
-      7: 'Seminggu terakhir',
-      30: 'Sebulan terakhir',
-      90: '3 bulan terakhir',
-      180: '6 bulan terakhir',
-      365: 'Setahun terakhir',
-    },
-    planning: 'Menyiapkan…',
-    redescribe: 'Simpan dan baca ulang',
-    redescribeHint:
-      'Membaca ulang periode papan dengan deskripsi baru. Entri yang kamu edit atau keluarkan tetap seperti itu.',
-    rename: 'Ganti nama papan',
-    save: 'Simpan',
-    settings: {
-      bannerDays: 'Pengingat sebelum tanggal',
-      days: (n: number) =>
-        plural('id', n, { other: (count) => `${count} hari sebelumnya` }),
-      hint: 'Seberapa jauh papan mengumpulkan dan kapan memberi tahu kamu sebelum suatu tanggal.',
-      never: 'Tidak pernah',
-      title: 'Pengaturan papan',
-    },
-    starter: {
-      events: {
-        description:
-          'Tiket, reservasi, dan janji temu: di mana saya harus berada, kapan, dan dengan siapa.',
-        name: 'Acara',
-      },
-      health: {
-        description:
-          'Kunjungan dokter, resep, hasil tes, dan klaim asuransi: siapa yang saya temui, kapan, dan berapa biayanya.',
-        name: 'Kesehatan',
-      },
-      home: {
-        description:
-          'Sewa, tagihan utilitas, perbaikan, dan kontrak tempat tinggal: apa yang jatuh tempo, kepada siapa, dan berapa.',
-        name: 'Rumah',
-      },
-      invoices: {
-        description:
-          'Faktur yang saya kirim dan terima untuk pekerjaan: klien atau pemasok, jumlah, jatuh tempo, dan apakah sudah dibayar.',
-        name: 'Faktur',
-      },
-      jobs: {
-        description:
-          'Lamaran, wawancara, dan tawaran: perusahaan mana, posisi apa, dan sampai mana masing-masing.',
-        name: 'Cari kerja',
-      },
-      learning: {
-        description:
-          'Kursus, kelas, dan email dari sekolah atau kampus: tenggat, nilai, sertifikat, dan biayanya.',
-        name: 'Belajar',
-      },
-      money: {
-        description:
-          'Pembayaran, langganan, tagihan, dan pengembalian dana: untuk apa saya membayar, kepada siapa, berapa, dan kapan diperpanjang.',
-        name: 'Keuangan',
-      },
-      orders: {
-        description:
-          'Pesanan online dan pengiriman: apa yang kubeli, dari siapa dan di mana sekarang.',
-        name: 'Pesanan',
-      },
-      trips: {
-        description:
-          'Penerbangan, kereta, hotel dan sewa: ke mana aku pergi, kapan dan berapa biayanya.',
-        name: 'Perjalanan',
-      },
-    },
-    summary: {
-      attention: 'Perlu perhatian',
-      emails: (n: number) =>
-        plural('id', n, {
-          other: (count) => `${count} email`,
-        }),
-      next: (title: string, date: string, amount: string | null) =>
-        `Berikutnya: ${title} pada ${date}${amount ? `, ${amount}` : ''}.`,
-      perMonth: (amount: string, n: number) => {
-        const payments = plural('id', n, {
-          other: (count) => `${count} pembayaran rutin`,
-        })
-        return `Kamu membayar ${amount} per bulan untuk ${payments}.`
-      },
-      received: (amount: string) => `${amount} diterima`,
-      refunded: (amount: string) => `${amount} dikembalikan`,
-      regular: 'Pembayaran rutin',
-      upcoming: '30 hari ke depan',
-    },
-  },
   bulk: {
     badge: (n: number) => `Dikirim ke ${n}+ pengguna Fewmail`,
     reason: (n: number) =>
@@ -615,7 +395,6 @@ export const id: Messages = {
     move: 'pindah',
     stackEmail: 'email berikut / sebelumnya',
     open: 'buka',
-    notOnBoard: 'bukan untuk papan ini',
     rename: 'ganti nama',
     clearFilter: 'hapus filter',
     search: 'cari',
@@ -824,10 +603,8 @@ export const id: Messages = {
     folders: 'Folder',
     calendar: 'Kalender',
     subscriptions: 'Milis',
-    boards: 'Papan',
     people: 'Orang',
     findPerson: 'Cari orang',
-    newBoard: 'Papan baru',
     mail: 'Email',
     reading: 'Bacaan',
     rules: 'Aturan',
@@ -851,9 +628,6 @@ export const id: Messages = {
       }),
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `Halaman yang diisi agen dari email kamu, mulai dari tiga bulan terakhir. Pilih sampai ${max}; kamu bisa menambah sendiri nanti.`,
-    boardsTitle: 'Apa yang perlu dikumpulkan agen untukmu?',
     languageHint:
       'Aplikasi, ikhtisar, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
     languageTitle: 'Fewmail harus berbicara dalam bahasa apa?',
@@ -1425,11 +1199,6 @@ export const id: Messages = {
             'Tanyakan apa saja dengan kata-kata biasa dan dapatkan jawaban dari emailmu sendiri, lengkap dengan email sumbernya.',
           title: 'Tanya emailmu',
         },
-        boards: {
-          description:
-            'Uang, langganan berbayar, perjalanan, pesanan: jelaskan apa yang ingin dilacak dan agen mengumpulkannya dari email hingga setahun terakhir, lengkap dengan grafik.',
-          title: 'Papan',
-        },
         calendar: {
           description:
             'Kalender semua kotak suratmu dalam satu tampilan. Rapat yang diusulkan lewat email menjadi acara begitu kamu setuju.',
@@ -1701,7 +1470,7 @@ export const id: Messages = {
       'Kartunya sudah berubah sejak tadi. Ini yang perlu kamu tangani sekarang:',
     heard: (text: string) => `Terdengar: “${text}”`,
     voiceFailed: 'Aku tidak bisa menangkapnya. Coba lagi atau ketik saja.',
-    help: 'Tulis atau ucapkan apa yang kamu perlukan:\n• tanya soal email: “kapan Netflix diperpanjang?”\n• bilang apa balasannya: “bilang ke Anna aku tanda tangan besok”\n• kasih tugas: “buat papan untuk perjalanan”\n• balas salah satu drafku untuk mengubahnya',
+    help: 'Tulis atau ucapkan apa yang kamu perlukan:\n• tanya soal email: “kapan Netflix diperpanjang?”\n• bilang apa balasannya: “bilang ke Anna aku tanda tangan besok”\n• kasih tugas: “selalu arsipkan newsletter dari Medium”\n• balas salah satu drafku untuk mengubahnya',
     canceled: 'Dibatalkan. Draf kembali ke antrean kamu.',
     sendingIn: (seconds: number) => `Mengirim dalam ${seconds} dtk`,
     undo: 'Urungkan',
@@ -1761,7 +1530,7 @@ export const id: Messages = {
       approved: 'Kamu bilang ya',
       byRule: (rule: string) => `Aturanmu: ${rule}`,
       failed: 'Tidak berhasil',
-      lead: '7 hari terakhir. Setiap perubahan di email, kalender, atau papanmu terjadi dengan persetujuanmu atau aturan yang kamu aktifkan.',
+      lead: '7 hari terakhir. Setiap perubahan di email atau kalendermu terjadi dengan persetujuanmu atau aturan yang kamu aktifkan.',
       title: 'Yang sudah dilakukan di email kamu',
     },
     progress: (done: number, total: number) => `${done} dari ${total}`,
@@ -1840,8 +1609,6 @@ export const id: Messages = {
     ask: 'Tanya email-mu',
     hints: {
       ask: 'Bagian dari Fewmail Pro: tanyakan apa saja dengan kata-katamu sendiri dan dapatkan jawaban dari email-mu.',
-      boards:
-        'Bagian dari Fewmail Pro: jelaskan apa yang dikumpulkan, dan agen mencarinya di email-mu serta terus memperbaruinya.',
       drafts:
         'Bagian dari Fewmail Pro: agen menulis balasan dengan gayamu, lalu kamu edit dan kirim.',
     },

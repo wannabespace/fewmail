@@ -11,7 +11,6 @@ export const uk: Messages = {
     cc: (recipients: string) => `Копія: ${recipients}`,
     confirm: {
       dismiss_action: 'Пропустити цю картку?',
-      delete_board: 'Видалити цю дошку з усім, що на ній?',
       create_event: 'Додати цю подію?',
       delete_event: 'Видалити цю подію?',
       update_event: 'Змінити цю подію?',
@@ -49,10 +48,8 @@ export const uk: Messages = {
       draft_reply: 'Пишу чернетку',
       create_draft: 'Зберігаю чернетку',
       find_people: 'Шукаю адресу',
-      get_board: 'Читаю дошку',
       get_person: 'Шукаю людину',
       get_today: 'Дивлюся сьогоднішнє',
-      list_boards: 'Відкриваю дошки',
       list_handled: 'Дивлюся, що зроблено',
       list_mail: 'Шукаю в пошті',
       list_rules: 'Читаю правила',
@@ -67,20 +64,11 @@ export const uk: Messages = {
       report_spam: 'Позначаю як спам',
       mark_not_spam: 'Повертаю зі спаму',
       move_to_inbox: 'Повертаю у вхідні',
-      create_board: 'Створюю дошку',
-      update_board: 'Змінюю дошку',
-      delete_board: 'Видаляю дошку',
-      add_board_chart: 'Додаю графік',
-      add_to_board: 'Додаю на дошку',
-      edit_board_entry: 'Виправляю запис',
-      remove_board_entry: 'Прибираю з дошки',
-      rename_board_group: 'Перейменовую групу',
     },
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
     yes: {
       dismiss_action: 'Пропустити',
-      delete_board: 'Видалити',
       create_event: 'Додати',
       delete_event: 'Видалити',
       update_event: 'Зберегти',
@@ -489,11 +477,6 @@ export const uk: Messages = {
             'Питай звичайними словами й отримуй відповідь із власної пошти разом із листами, звідки вона.',
           title: 'Спитай свою пошту',
         },
-        boards: {
-          description:
-            'Гроші, платні підписки, поїздки, замовлення: опиши, що відстежувати, і агент збере це з пошти до року, з графіками.',
-          title: 'Дошки',
-        },
         calendar: {
           description:
             'Календарі всіх скриньок в одному вікні. Зустріч, запропонована в листі, стає подією, щойно ти скажеш «так».',
@@ -893,7 +876,6 @@ export const uk: Messages = {
     move: 'рух',
     stackEmail: 'наступний / попередній лист',
     open: 'відкрити',
-    notOnBoard: 'не для цієї дошки',
     rename: 'перейменувати',
     clearFilter: 'скинути фільтр',
     search: 'пошук',
@@ -1098,10 +1080,8 @@ export const uk: Messages = {
     folders: 'Папки',
     calendar: 'Календар',
     subscriptions: 'Розсилки',
-    boards: 'Дошки',
     people: 'Люди',
     findPerson: 'Знайти людину',
-    newBoard: 'Нова дошка',
     mail: 'Пошта',
     reading: 'Читання',
     rules: 'Правила',
@@ -1133,9 +1113,6 @@ export const uk: Messages = {
       }),
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `Сторінки, які агент заповнює з твоєї пошти, починаючи з останніх трьох місяців. Обери до ${max}; свої можна додати пізніше.`,
-    boardsTitle: 'Що агенту збирати для тебе?',
     languageHint:
       'Цією мовою будуть застосунок, підсумки й пояснення. Відповіді завжди мовою листа, на який ти відповідаєш.',
     languageTitle: 'Якою мовою говорити Fewmail?',
@@ -1399,7 +1376,7 @@ export const uk: Messages = {
     queueChanged: 'Картки тим часом змінилися. Ось що зараз потребує тебе:',
     heard: (text: string) => `Почув: «${text}»`,
     voiceFailed: 'Не вдалося розібрати. Спробуй ще раз або напиши текстом.',
-    help: 'Напиши або скажи голосом, що потрібно:\n• спитай про пошту: «коли продовжується Netflix?»\n• скажи, що відповісти: «напиши Анні, що підпишу завтра»\n• дай завдання: «створи дошку для поїздок»\n• дай відповідь на мою чернетку, щоб її змінити',
+    help: 'Напиши або скажи голосом, що потрібно:\n• спитай про пошту: «коли продовжується Netflix?»\n• скажи, що відповісти: «напиши Анні, що підпишу завтра»\n• дай завдання: «завжди архівуй розсилки від Medium»\n• дай відповідь на мою чернетку, щоб її змінити',
     canceled: 'Скасовано. Чернетка знову в черзі.',
     sendingIn: (seconds: number) => `Надсилаю через ${seconds} с`,
     undo: 'Скасувати',
@@ -1463,7 +1440,7 @@ export const uk: Messages = {
       approved: 'Ти сказав «так»',
       byRule: (rule: string) => `Твоє правило: ${rule}`,
       failed: 'Не вдалося',
-      lead: 'Останні 7 днів. Кожна зміна в пошті, календарі чи на дошках мала твоє «так» або правило, яке ти увімкнув.',
+      lead: 'Останні 7 днів. Кожна зміна в пошті чи календарі мала твоє «так» або правило, яке ти увімкнув.',
       title: 'Що зроблено в пошті',
     },
     progress: (done: number, total: number) => `${done} з ${total}`,
@@ -1557,231 +1534,6 @@ export const uk: Messages = {
     recent: (period: string) => `Ще ${period}`,
     sent: 'Надіслано',
     codes: 'Коди для входу',
-  },
-  boards: {
-    chartRemoved: 'Графік прибрано',
-    addTo: 'Додати на дошку',
-    added: (board: string) => `Додано на «${board}»`,
-    cancel: 'Скасувати',
-    chart: {
-      add: 'Додати графік',
-      ask: 'Опиши графік',
-      askPlaceholder: 'Витрати за магазинами, замовлення за статусом…',
-      currency: 'Валюта',
-      edit: 'Налаштування графіка',
-      empty: 'Поки нічого малювати',
-      groupBy: 'Розбивка',
-      groupings: {
-        group: 'Хто або що',
-        month: 'Місяць',
-        status: 'Статус',
-        week: 'Тиждень',
-      },
-      measure: 'Показує',
-      measures: { count: 'Кількість', sum: 'Сума' },
-      moveEarlier: 'Посунути раніше',
-      moveLater: 'Посунути пізніше',
-      other: 'Інше',
-      remove: 'Прибрати графік',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `Не в сумі: ${[
-          currency > 0 && `в іншій валюті: ${currency}`,
-          payment > 0 &&
-            `до сплати, невдалі, повернені чи отримані: ${payment}`,
-          amount > 0 && `без суми: ${amount}`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: 'Назва графіка',
-      type: 'Тип графіка',
-      types: {
-        area: 'Область',
-        bar: 'Стовпці',
-        line: 'Лінія',
-        pie: 'Кругова',
-      },
-      untitled: 'Новий графік',
-      weekOf: (date: string) => `Тиждень з ${date}`,
-    },
-    charts: 'Графіки',
-    create: 'Створити дошку',
-    delete: 'Видалити дошку',
-    deleteConfirm: (name: string) => `Видалити «${name}»?`,
-    deleteHint:
-      'Її записи й графіки зникнуть разом із нею. Пошта лишиться на місці.',
-    describe: 'Змінити, що збирати',
-    description: 'Що збирати',
-    descriptionPlaceholder:
-      'Подорожі: квитки, готелі й оренда авто, разом із вартістю',
-    due: (when: string) => `Наступна дата ${when}`,
-    empty:
-      'Поки порожньо. Відповідні листи з’являтимуться тут, щойно надійдуть.',
-    entries: (total: number) =>
-      plural('uk', total, {
-        one: (n) => `${n} запис`,
-        few: (n) => `${n} записи`,
-        many: (n) => `${n} записів`,
-        other: (n) => `${n} запису`,
-      }),
-    entry: {
-      edited: 'Виправлено тобою',
-      nextOn: (date: string) => `далі ${date}`,
-      remove: 'Не для цієї дошки',
-      removed: 'Прибрано з дошки. Вона це запам’ятає.',
-    },
-    expected: (when: string) => `Очікується ${when}`,
-    filter: {
-      clear: 'Скинути фільтр',
-      nothing: 'Нічого не знайдено.',
-      search: 'Шукати записи',
-    },
-    groups: {
-      every: {
-        month: 'щомісяця',
-        quarter: 'щокварталу',
-        week: 'щотижня',
-        year: 'щороку',
-      },
-      expected: (date: string) => `очікується ${date}`,
-      next: (date: string) => `далі ${date}`,
-      perMonth: (amount: string) => `${amount} / міс.`,
-      rename: 'Перейменувати групу',
-      renameHint: 'Дай їй назву іншої групи, і вони об’єднаються.',
-      showAll: (n: number) => `Показати всі ${n}`,
-      showFewer: 'Показати менше',
-      title: 'Хто або що',
-    },
-    history: {
-      capped: (n: number) =>
-        `Прочитано ${n} найновіших відповідних листів за період дошки.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? 'Переглядаю пошту за період дошки…'
-          : `Читаю ${plural('uk', found, { one: (n) => `${n} лист`, few: (n) => `${n} листи`, many: (n) => `${n} листів`, other: (n) => `${n} листа` })} · поки ${plural('uk', entries, { one: (n) => `${n} запис`, few: (n) => `${n} записи`, many: (n) => `${n} записів`, other: (n) => `${n} запису` })}`,
-    },
-    menu: 'Дії з дошкою',
-    moveDown: 'Посунути нижче',
-    moveUp: 'Посунути вище',
-    name: 'Назва',
-    namePlaceholder: 'Подорожі',
-    new: 'Нова дошка',
-    newHint:
-      'Опиши своїми словами, що збирати. Fewmail знайде це в пошті за обраний період, підбере графіки й оновлюватиме дошку сам.',
-    payment: {
-      due: 'до сплати',
-      failed: 'не пройшов',
-      income: 'отримано',
-      paid: 'сплачено',
-      refund: 'повернення',
-    },
-    period: 'Період',
-    periods: {
-      1: 'Останній день',
-      7: 'Останній тиждень',
-      30: 'Останній місяць',
-      90: 'Останні 3 місяці',
-      180: 'Останні пів року',
-      365: 'Останній рік',
-    },
-    planning: 'Налаштовую…',
-    redescribe: 'Зберегти й перечитати',
-    redescribeHint:
-      'Перечитає період дошки з новим описом. Записи, які ти виправив або прибрав, лишаться як є.',
-    rename: 'Перейменувати дошку',
-    save: 'Зберегти',
-    settings: {
-      bannerDays: 'Нагадати перед датою',
-      days: (n: number) =>
-        plural('uk', n, {
-          one: (count) => `за ${count} день`,
-          few: (count) => `за ${count} дні`,
-          many: (count) => `за ${count} днів`,
-          other: (count) => `за ${count} дня`,
-        }),
-      hint: 'За який період дошка збирає і коли попереджає перед датою.',
-      never: 'Ніколи',
-      title: 'Налаштування дошки',
-    },
-    starter: {
-      events: {
-        description:
-          'Квитки, бронювання й записи: куди мені треба, коли і з ким.',
-        name: 'Події',
-      },
-      health: {
-        description:
-          'Візити до лікаря, рецепти, аналізи й страхові виплати: у кого я був, коли і скільки це коштувало.',
-        name: 'Здоров’я',
-      },
-      home: {
-        description:
-          'Оренда, комуналка, ремонти й договори за житло: що треба сплатити, кому і скільки.',
-        name: 'Дім',
-      },
-      invoices: {
-        description:
-          'Рахунки, які я виставляю й отримую по роботі: клієнт чи постачальник, сума, термін і чи оплачено.',
-        name: 'Інвойси',
-      },
-      jobs: {
-        description:
-          'Відгуки на вакансії, співбесіди й офери: яка компанія, яка роль і на якому етапі кожна.',
-        name: 'Пошук роботи',
-      },
-      learning: {
-        description:
-          'Курси, заняття й листи зі школи чи університету: дедлайни, оцінки, сертифікати й скільки це коштує.',
-        name: 'Навчання',
-      },
-      money: {
-        description:
-          'Платежі, підписки, рахунки й повернення: за що я плачу, кому, скільки і коли наступне списання.',
-        name: 'Фінанси',
-      },
-      orders: {
-        description:
-          'Онлайн-замовлення й доставки: що я купив, у кого і де воно зараз.',
-        name: 'Замовлення',
-      },
-      trips: {
-        description:
-          'Перельоти, потяги, готелі й оренда: куди я їду, коли і скільки це коштує.',
-        name: 'Подорожі',
-      },
-    },
-    summary: {
-      attention: 'Потребує уваги',
-      emails: (n: number) =>
-        plural('uk', n, {
-          one: (count) => `${count} лист`,
-          few: (count) => `${count} листи`,
-          many: (count) => `${count} листів`,
-          other: (count) => `${count} листа`,
-        }),
-      next: (title: string, date: string, amount: string | null) =>
-        `Далі: ${title}, ${date}${amount ? `, ${amount}` : ''}.`,
-      perMonth: (amount: string, n: number) => {
-        const payments = plural('uk', n, {
-          one: (count) => `${count} регулярний платіж`,
-          few: (count) => `${count} регулярні платежі`,
-          many: (count) => `${count} регулярних платежів`,
-          other: (count) => `${count} регулярного платежу`,
-        })
-        return `Ти платиш ${amount} на місяць за ${payments}.`
-      },
-      received: (amount: string) => `отримано ${amount}`,
-      refunded: (amount: string) => `повернено ${amount}`,
-      regular: 'Регулярні платежі',
-      upcoming: 'Найближчі 30 днів',
-    },
   },
   bulk: {
     badge: (n: number) => `Отримали ${n}+ користувачів Fewmail`,
@@ -1897,8 +1649,6 @@ export const uk: Messages = {
     ask: 'Запитай пошту',
     hints: {
       ask: 'Входить у Fewmail Pro: питай що завгодно звичайними словами й отримуй відповідь із власної пошти.',
-      boards:
-        'Входить у Fewmail Pro: опиши, що збирати, і агент знайде це в пошті та оновлюватиме сам.',
       drafts:
         'Входить у Fewmail Pro: агент напише відповідь у твоєму стилі, а ти відредагуєш і надішлеш.',
     },

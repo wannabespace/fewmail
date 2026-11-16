@@ -20,7 +20,6 @@ import {
 
 import { localClock } from '../lib/clock'
 import { expectRow } from '../lib/rows'
-import { boardBanners, boardsDigest } from './boards'
 import { newSenders } from './cleanup'
 import {
   countQueue,
@@ -156,9 +155,7 @@ export const getToday = async (userId: string) => {
     pulse,
     dates,
     awaiting,
-    boards,
     saved,
-    banners,
     tidy,
     codes,
     senders,
@@ -172,9 +169,7 @@ export const getToday = async (userId: string) => {
     mailPulse(userId, since),
     mailWithDates(userId),
     awaitingReplies(userId),
-    boardsDigest(userId),
     savedThisWeek(userId),
-    boardBanners(userId),
     listTidy(userId),
     freshCodes(userId),
     newSenders(userId),
@@ -198,8 +193,6 @@ export const getToday = async (userId: string) => {
   }
   return {
     awaiting,
-    banners,
-    boards,
     codes,
     dates: datesShown,
     days,

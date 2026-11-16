@@ -71,7 +71,7 @@ const EVENTS_AROUND = (now: Date) => ({
   to: addDays(now, 365).toISOString(),
 })
 
-/** The reads the card finds its email, card, board or event in; without them the user would say yes blind. */
+/** The reads the card finds its email, card or event in; without them the user would say yes blind. */
 const consentReads = async (
   userId: string,
   name: ConsentToolName,
@@ -89,9 +89,6 @@ const consentReads = async (
     name === 'tidy_mail'
   ) {
     return [{ input: {}, name: 'get_today' }]
-  }
-  if (name === 'delete_board') {
-    return [{ input: {}, name: 'list_boards' }]
   }
   if (
     name === 'create_event' ||

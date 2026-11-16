@@ -31,7 +31,6 @@ import { Route as SiteAiEmailAssistantRouteImport } from './routes/_site/ai-emai
 import { Route as SiteMcpRouteImport } from './routes/_site/mcp'
 import { Route as SitePricingRouteImport } from './routes/_site/pricing'
 import { Route as WTokenRouteImport } from './routes/w.$token'
-import { Route as AppBoardsBoardIdRouteImport } from './routes/_app/boards.$boardId'
 import { Route as AppMailThreadIdRouteImport } from './routes/_app/mail_.$threadId'
 import { Route as AppMailArchiveRouteImport } from './routes/_app/mail_.archive'
 import { Route as AppMailDraftsRouteImport } from './routes/_app/mail_.drafts'
@@ -150,11 +149,6 @@ const WTokenRoute = WTokenRouteImport.update({
   path: '/w/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppBoardsBoardIdRoute = AppBoardsBoardIdRouteImport.update({
-  id: '/boards/$boardId',
-  path: '/boards/$boardId',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppMailThreadIdRoute = AppMailThreadIdRouteImport.update({
   id: '/mail_/$threadId',
   path: '/mail/$threadId',
@@ -222,7 +216,6 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof SiteMcpRoute
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
-  '/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/mail/$threadId': typeof AppMailThreadIdRoute
   '/mail/archive': typeof AppMailArchiveRoute
   '/mail/drafts': typeof AppMailDraftsRoute
@@ -254,7 +247,6 @@ export interface FileRoutesByTo {
   '/mcp': typeof SiteMcpRoute
   '/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
-  '/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/mail/$threadId': typeof AppMailThreadIdRoute
   '/mail/archive': typeof AppMailArchiveRoute
   '/mail/drafts': typeof AppMailDraftsRoute
@@ -289,7 +281,6 @@ export interface FileRoutesById {
   '/_site/pricing': typeof SitePricingRoute
   '/w/$token': typeof WTokenRoute
   '/_site/': typeof SiteIndexRoute
-  '/_app/boards/$boardId': typeof AppBoardsBoardIdRoute
   '/_app/mail_/$threadId': typeof AppMailThreadIdRoute
   '/_app/mail_/archive': typeof AppMailArchiveRoute
   '/_app/mail_/drafts': typeof AppMailDraftsRoute
@@ -323,7 +314,6 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/pricing'
     | '/w/$token'
-    | '/boards/$boardId'
     | '/mail/$threadId'
     | '/mail/archive'
     | '/mail/drafts'
@@ -355,7 +345,6 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/pricing'
     | '/w/$token'
-    | '/boards/$boardId'
     | '/mail/$threadId'
     | '/mail/archive'
     | '/mail/drafts'
@@ -389,7 +378,6 @@ export interface FileRouteTypes {
     | '/_site/pricing'
     | '/w/$token'
     | '/_site/'
-    | '/_app/boards/$boardId'
     | '/_app/mail_/$threadId'
     | '/_app/mail_/archive'
     | '/_app/mail_/drafts'
@@ -568,13 +556,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/boards/$boardId': {
-      id: '/_app/boards/$boardId'
-      path: '/boards/$boardId'
-      fullPath: '/boards/$boardId'
-      preLoaderRoute: typeof AppBoardsBoardIdRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/mail_/$threadId': {
       id: '/_app/mail_/$threadId'
       path: '/mail/$threadId'
@@ -652,7 +633,6 @@ interface AppRouteChildren {
   AppSubscriptionsRoute: typeof AppSubscriptionsRoute
   AppTodayRoute: typeof AppTodayRoute
   AppWrappedRoute: typeof AppWrappedRoute
-  AppBoardsBoardIdRoute: typeof AppBoardsBoardIdRoute
   AppMailThreadIdRoute: typeof AppMailThreadIdRoute
   AppMailArchiveRoute: typeof AppMailArchiveRoute
   AppMailDraftsRoute: typeof AppMailDraftsRoute
@@ -673,7 +653,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppSubscriptionsRoute: AppSubscriptionsRoute,
   AppTodayRoute: AppTodayRoute,
   AppWrappedRoute: AppWrappedRoute,
-  AppBoardsBoardIdRoute: AppBoardsBoardIdRoute,
   AppMailThreadIdRoute: AppMailThreadIdRoute,
   AppMailArchiveRoute: AppMailArchiveRoute,
   AppMailDraftsRoute: AppMailDraftsRoute,

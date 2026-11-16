@@ -2,7 +2,6 @@ import { PRICE_USD } from '@fewmail/shared/agent'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   CleanIcon,
-  ChartBarLineIcon,
   Calendar03Icon,
   GiftIcon,
   MailRemove01Icon,
@@ -37,7 +36,6 @@ import { TRIAL_DAYS } from '~/lib/marketing'
 const FEATURE_ICONS = {
   clearOut: CleanIcon,
   reading: News01Icon,
-  boards: ChartBarLineIcon,
   voice: Mic01Icon,
   calendar: Calendar03Icon,
   ask: Search01Icon,

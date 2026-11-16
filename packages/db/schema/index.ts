@@ -37,8 +37,6 @@ export {
   whatsappLinks,
 } from './settings'
 export {
-  boardEntries,
-  boards,
   bulkPrints,
   commitments,
   domainAges,

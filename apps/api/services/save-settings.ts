@@ -1,7 +1,7 @@
 import { db } from '@fewmail/db'
 import { rules, userSettings } from '@fewmail/db/schema'
 import { isGmailEffect } from '@fewmail/shared/agent'
-import type { BoardPreset, RuleEffect } from '@fewmail/shared/agent'
+import type { RuleEffect } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
@@ -32,7 +32,6 @@ export const saveSettings = async (
   input: {
     briefHour?: number
     language: Locale
-    starterBoards?: BoardPreset[]
     gmailLabels?: boolean
     knowledge?: string | null
     readingDigest?: boolean
