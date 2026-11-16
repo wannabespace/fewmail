@@ -81,6 +81,7 @@ import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 
+import type { Expanded } from '~/components/expand-row'
 import { useDates, useT } from '~/lib/i18n'
 import {
   hideThread,
@@ -494,12 +495,14 @@ const MessageDetails = ({ message }: { message: ThreadMessage }) => {
 const MessageSection = ({
   actions,
   analysis,
+  cite,
   hasAgent,
   message,
   subject,
 }: {
   actions: ThreadAction[]
   analysis: ThreadRow['analysis']
+  cite?: string
   hasAgent: boolean
   message: ThreadMessage
   subject?: string
@@ -590,6 +593,7 @@ const MessageSection = ({
         <HtmlBody
           blockImages={isSpam && !showsImages}
           cidImage={cidSource(message)}
+          cite={cite}
           html={message.html}
           id={message.id}
         />
@@ -1666,12 +1670,14 @@ const ReaderHeader = ({
 
 /** `isFullPage`: the email on its own page (`/mail/$threadId`), where its ✕ turns into a collapse. */
 export const ThreadView = ({
+  cite,
   isFullPage,
   isSnoozed,
   onClose,
   onDone,
   threadId,
 }: {
+  cite?: Expanded['cite']
   isFullPage?: boolean
   isSnoozed: boolean
   onClose: () => void
@@ -1904,6 +1910,9 @@ export const ThreadView = ({
                     index === data.messages.length - 1
                   )}
                   analysis={analysis}
+                  cite={
+                    cite?.messageId === message.id ? cite.text : undefined
+                  }
                   message={message}
                   hasAgent={hasAgent}
                 />

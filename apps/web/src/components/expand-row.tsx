@@ -19,6 +19,8 @@ export const HIDDEN = { opacity: 0, y: 6 }
 export const SHOWN = { opacity: 1, y: 0 }
 
 export interface Expanded {
+  /** A Reading sentence: its source message's body is centred on the passage it came from. */
+  cite?: { messageId: string; text: string }
   from: 'board' | 'home' | 'journal' | 'mail' | 'reading'
   pathname: string
   /** The `ExpandTrigger` that opened it, by its `data-expand-trigger`. */
@@ -61,16 +63,13 @@ const toggleExpanded = (open: Omit<Expanded, 'pathname'>) => {
   posthog.capture('thread_expanded', { from: open.from })
 }
 
-interface RowEmail {
-  from: Expanded['from']
-  threadId: string
-}
+type RowEmail = Pick<Expanded, 'cite' | 'from' | 'threadId'>
 
 const rowSourceId = (rowId: string) => `email-${rowId}`
 
 /** Opens the email of `rowId` in the sidebar, as a click on its `ExpandTrigger` does: a list's ⏎ on its cursor row. */
-export const expandRow = (rowId: string, { from, threadId }: RowEmail) =>
-  toggleExpanded({ from, sourceId: rowSourceId(rowId), threadId })
+export const expandRow = (rowId: string, email: RowEmail) =>
+  toggleExpanded({ ...email, sourceId: rowSourceId(rowId) })
 
 /** A row (`SettingsRow trigger` lays it over the whole row) or a chip that opens its email in the sidebar, `aria-expanded` while it is open. */
 export const ExpandTrigger = ({

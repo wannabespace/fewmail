@@ -103,7 +103,8 @@ export const ThreadPane = () => {
       className="bg-background border-foreground/6 fixed top-(--sidebar-top) left-(--sidebar-left) z-40 flex h-(--sidebar-height) w-(--sidebar-width) flex-col border-l pt-6"
     >
       <ThreadView
-        key={open.threadId}
+        key={open.sourceId}
+        cite={open.cite}
         isSnoozed={false}
         threadId={open.threadId}
         onClose={collapseExpanded}

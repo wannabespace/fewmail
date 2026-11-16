@@ -126,7 +126,11 @@ const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
           className="mx-0.5 align-[0.15em]"
           render={
             <ExpandTrigger
-              email={{ from: 'reading', threadId: row.threadId }}
+              email={{
+                cite: { messageId: rowId, text: cite },
+                from: 'reading',
+                threadId: row.threadId,
+              }}
               rowId={`${rowId}:${cite}`}
             />
           }
