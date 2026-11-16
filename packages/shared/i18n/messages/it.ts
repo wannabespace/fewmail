@@ -76,6 +76,8 @@ export const it: Messages = {
       edit_board_entry: 'Correggo la voce',
       remove_board_entry: 'Lo tolgo dalla bacheca',
       rename_board_group: 'Rinomino il gruppo',
+      list_promises: 'Controllo le promesse',
+      set_promise_status: 'Aggiorno la promessa',
     },
     to: (recipients: string) => `A ${recipients}`,
     until: (time: string) => `Fino a ${time}`,
@@ -851,6 +853,8 @@ export const it: Messages = {
     failed: 'Qualcosa è andato storto. Riprova.',
     needsPro: 'Serve Fewmail Pro.',
     alreadySent: 'Già inviata: è tardi per annullare.',
+    consentChanged:
+      'È cambiato da quando è stato chiesto. Guardalo di nuovo e decidi nella Home.',
     notFound: 'Non esiste più: forse è stato eliminato.',
     offline: 'Impossibile raggiungere Fewmail. Controlla la connessione.',
   },
@@ -1464,6 +1468,8 @@ export const it: Messages = {
     allDone: 'Tutto fatto. Niente ha bisogno di te.',
     allDoneLead:
       'Continuo a leggere la posta nuova, e ciò che ha bisogno di te comparirà qui.',
+    allowanceSpent: (date: string) =>
+      `La quota dell’agente di questo mese è finita: riassunti e bozze tornano il ${date}. Fino ad allora continuo ad annotare importi, promesse e scadenze.`,
     byRules: (n: number) => `Le tue regole ne hanno gestite ${n}.`,
     decisions: 'Decisioni',
     journal: {

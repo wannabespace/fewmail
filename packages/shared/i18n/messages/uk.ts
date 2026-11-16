@@ -75,6 +75,8 @@ export const uk: Messages = {
       edit_board_entry: 'Виправляю запис',
       remove_board_entry: 'Прибираю з дошки',
       rename_board_group: 'Перейменовую групу',
+      list_promises: 'Перевіряю обіцянки',
+      set_promise_status: 'Оновлюю обіцянку',
     },
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
@@ -848,6 +850,8 @@ export const uk: Messages = {
     failed: 'Щось пішло не так. Спробуй ще раз.',
     needsPro: 'Для цього потрібен Fewmail Pro.',
     alreadySent: 'Уже надіслано, скасувати запізно.',
+    consentChanged:
+      'Це змінилося відтоді, як про нього попросили. Подивись ще раз і виріши на Головній.',
     notFound: 'Цього вже немає. Можливо, його видалили.',
     offline: 'Немає зв’язку з Fewmail. Перевір інтернет.',
   },
@@ -1457,6 +1461,8 @@ export const uk: Messages = {
     allDone: 'Усе. Нічого не чекає на тебе.',
     allDoneLead:
       'Я далі читаю нові листи, і все, що потребує тебе, з’явиться тут.',
+    allowanceSpent: (date: string) =>
+      `Обсяг агента на цей місяць вичерпано: підсумки й чернетки повернуться ${date}. До того я й далі записую суми, обіцянки та терміни.`,
     byRules: (n: number) => `Твої правила розібрали ще ${n}.`,
     decisions: 'Рішення',
     journal: {

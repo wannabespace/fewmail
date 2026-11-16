@@ -1,17 +1,19 @@
 import { db } from '@fewmail/db'
-import { actions } from '@fewmail/db/schema'
+import { actions, analyses, boards, messages } from '@fewmail/db/schema'
 import type { ConsentToolName } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText, stepCountIs, tool } from 'ai'
 import { addDays, subDays } from 'date-fns'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { keyedHash } from '../lib/keyed-hash'
 import { announceChange } from '../lib/live'
 import { agentTools, toolAccess } from './agent-tools'
+import { listEvents } from './calendar'
+import { ConsentChangedError } from './consent-error'
 import type { Transaction } from './patterns'
 import { requireBudget } from './plan'
 import { getSettings } from './settings'
@@ -103,6 +105,85 @@ const consentReads = async (
   return []
 }
 
+/**
+ * What a yes covers beyond the call's own input, read when it was asked: the draft an approval sends, the thread a
+ * move touches, what Tidy would do to each email, the event a change rewrites, the board a deletion takes. Null when
+ * the input says it all (a new email, a rule).
+ */
+const consentState = async (
+  userId: string,
+  name: ConsentToolName,
+  input: ToolInput
+): Promise<unknown> => {
+  if (
+    (name === 'approve_action' || name === 'dismiss_action') &&
+    typeof input.actionId === 'string'
+  ) {
+    const [action] = await db
+      .select({
+        detail: actions.detail,
+        kind: actions.kind,
+        messageId: actions.messageId,
+        status: actions.status,
+      })
+      .from(actions)
+      .where(and(eq(actions.id, input.actionId), eq(actions.userId, userId)))
+    return action ?? null
+  }
+  if (typeof input.messageId === 'string') {
+    const { mailboxId, threadId } = await ownMessage(userId, input.messageId)
+    return { mailboxId, threadId }
+  }
+  if (name === 'tidy_mail' && Array.isArray(input.messageIds)) {
+    const suggested = await db
+      .select({ id: analyses.messageId, suggested: analyses.suggestedAction })
+      .from(analyses)
+      .innerJoin(messages, eq(messages.id, analyses.messageId))
+      .where(
+        and(
+          eq(messages.userId, userId),
+          inArray(analyses.messageId, input.messageIds as string[])
+        )
+      )
+    return suggested.toSorted((a, b) => a.id.localeCompare(b.id))
+  }
+  if (name === 'update_event' || name === 'delete_event') {
+    const around = EVENTS_AROUND(new Date())
+    const { events } = await listEvents(userId, {
+      from: new Date(around.from),
+      to: new Date(around.to),
+    })
+    return (
+      events.find(
+        ({ id, mailboxId }) => id === input.id && mailboxId === input.mailboxId
+      ) ?? null
+    )
+  }
+  if (name === 'delete_board' && typeof input.id === 'string') {
+    const [board] = await db
+      .select({ description: boards.description, name: boards.name })
+      .from(boards)
+      .where(and(eq(boards.id, input.id), eq(boards.userId, userId)))
+    return board ?? null
+  }
+  return null
+}
+
+/** What the card shows (`context`) and what its yes is bound to (`state`), read together. */
+const consentSnapshot = async (
+  userId: string,
+  name: ConsentToolName,
+  input: ToolInput
+) => {
+  const tools = agentTools(userId)
+  const reads = await consentReads(userId, name, input)
+  const [context, state] = await Promise.all([
+    Promise.all(reads.map((read) => tools[read.name].run(read.input as never))),
+    consentState(userId, name, input),
+  ])
+  return { context, state }
+}
+
 /** The same request again (an MCP client retrying a call) is the card already waiting, or one yes would run it twice. */
 const isWaiting = async (
   tx: Transaction,
@@ -140,11 +221,7 @@ export const proposeConsent = async (
 ) => {
   const settings = await getSettings(userId)
   const t = dictionaries[settings?.language ?? 'en']
-  const tools = agentTools(userId)
-  const reads = await consentReads(userId, name, input)
-  const context = await Promise.all(
-    reads.map((read) => tools[read.name].run(read.input as never))
-  )
+  const { context, state } = await consentSnapshot(userId, name, input)
   const asked = JSON.stringify(input)
   // Two identical calls at the same moment (a client retrying in parallel) must queue here, or both see no card and add one each.
   const isNew = await db.transaction(async (tx) => {
@@ -158,7 +235,7 @@ export const proposeConsent = async (
       autonomous: false,
       kind: 'consent',
       messageId: typeof input.messageId === 'string' ? input.messageId : null,
-      payload: { context, input, tool: name },
+      payload: { context, input, state, tool: name },
       reason: from,
       status: 'pending',
       title: t.agent.confirm[name],
@@ -172,12 +249,31 @@ export const proposeConsent = async (
   return { isNew, question: t.agent.confirm[name] }
 }
 
-export const runConsent = (
+/**
+ * Runs the tool only when what the yes covered is still what the card showed: a draft edited, a thread moved or an
+ * event changed since makes the card show the new state and ask again (`ConsentChangedError`). Cards asked before
+ * the state was kept carry none and run as before.
+ */
+export const runConsent = async (
   userId: string,
+  actionId: string,
   payload: Record<string, unknown> | null
 ) => {
   const name = payload?.tool as ConsentToolName
-  return agentTools(userId)[name].run((payload?.input ?? {}) as never)
+  const input = (payload?.input ?? {}) as ToolInput
+  if (payload && 'state' in payload) {
+    const now = await consentState(userId, name, input)
+    if (JSON.stringify(now) !== JSON.stringify(payload.state)) {
+      const snapshot = await consentSnapshot(userId, name, input)
+      await db
+        .update(actions)
+        .set({ payload: { ...payload, ...snapshot } })
+        .where(eq(actions.id, actionId))
+      await announceChange(userId, ['actions', 'today'])
+      throw new ConsentChangedError('The card changed since it was asked')
+    }
+  }
+  return agentTools(userId)[name].run(input as never)
 }
 
 const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu

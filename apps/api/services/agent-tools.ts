@@ -2,6 +2,7 @@ import {
   AGENT_TOOLS,
   BOARD_PAYMENTS,
   BOARD_PERIODS,
+  COMMITMENT_STATUSES,
   EVENT_SCOPES,
   MAIL_CATEGORIES,
   RULE_EFFECTS,
@@ -32,6 +33,7 @@ import {
   scanClearOut,
   undoClearOut,
 } from './cleanup'
+import { listCommitments, setCommitmentStatus } from './commitments'
 import { saveDraft } from './drafts'
 import { getToday } from './home'
 import {
@@ -308,6 +310,23 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       "What the user's mail knows about one person: since when they write, conversation count, open items, promises the user made to them (promised), promises they made to the user that are still open (owed) and a short note.",
     input: { email: z.email() },
     run: ({ email }) => getPerson(userId, email),
+  }),
+  list_promises: define({
+    description:
+      "Every promise the agent tracks: the user's own from their sent mail (mine), those made to the user (theirs) and last days an email implies (deadline). status: open, acknowledged (someone answered, nothing done yet), in_progress, fulfilled (an email proved it: evidenceMessageId), broken or cancelled; history lists each change, who made it (agent from an email, or user) and the email. A reply alone never makes a promise fulfilled.",
+    run: () => listCommitments(userId),
+  }),
+  set_promise_status: define({
+    description:
+      'Set a promise\'s status when the user says so ("they paid me back", "forget that one", "it never came"): fulfilled, broken, cancelled, or open to reopen. Changes nothing in Gmail.',
+    input: {
+      id: z.uuid(),
+      status: z.enum(COMMITMENT_STATUSES),
+    },
+    run: async ({ id, status }) => {
+      await setCommitmentStatus(userId, id, status)
+      return { status }
+    },
   }),
   list_boards: define({
     description:

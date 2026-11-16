@@ -21,6 +21,7 @@ import {
   BODY_LIMIT,
   EARLIER_BODY_LIMIT,
   EARLIER_LIMIT,
+  laterInstruction,
   LINK_INSTRUCTIONS,
   LINK_LIMIT,
   LINK_TEXT_CHARS,
@@ -40,9 +41,11 @@ import { ENTRY_BODY_CHARS } from '../services/boards'
 import {
   ACTION_CRITERIA,
   CATEGORY_CRITERIA,
+  HAS_LATER,
   IMPORTANCE_LEVELS,
   NEEDS_REPLY,
 } from '../services/classify'
+import { CHECKED_PER_EMAIL, EVIDENCE_CHARS } from '../services/commitments'
 import {
   READING_SHOWN,
   BODY_CHARS as READING_BODY_CHARS,
@@ -132,6 +135,8 @@ const JEV_QUESTION_CHARS = 400
 const RISK_QUESTION_CHARS = 250
 const PROMISE_INSTRUCTION_CHARS = 600
 const PROMISE_OUTPUT_TOKENS = 100
+const LATER_OUTPUT_TOKENS = 60
+const EVIDENCE_QUESTION_CHARS = 550
 const ASK_QUERY_INSTRUCTION_CHARS = 1500
 const ASK_QUERY_OUTPUT_TOKENS = 60
 const ASK_ANSWER_INSTRUCTION_CHARS = 900
@@ -163,8 +168,10 @@ export interface Use {
   earlierChars: number
   earlierEmails: number
   entries: number
+  evidenceShare: number
   inbound: number
   knowledgeChars: number
+  laterShare: number
   linkChars: number
   linkedShare: number
   links: number
@@ -194,8 +201,10 @@ export const TYPICAL: Use = {
   earlierChars: 800,
   earlierEmails: 1,
   entries: 100,
+  evidenceShare: 0.05,
   inbound: 1500,
   knowledgeChars: 500,
+  laterShare: 0.05,
   linkChars: 30,
   linkedShare: 0.1,
   links: 20,
@@ -226,8 +235,10 @@ export const HEAVY: Use = {
   earlierChars: EARLIER_BODY_LIMIT,
   earlierEmails: EARLIER_LIMIT,
   entries: 600,
+  evidenceShare: 0.3,
   inbound: 6000,
   knowledgeChars: 4000,
+  laterShare: 0.2,
   linkChars: LINK_TEXT_CHARS,
   linkedShare: 1,
   links: LINK_LIMIT,
@@ -414,10 +425,22 @@ export const firstWeekCost = (use: Use, agent: boolean) =>
 
 /** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, the user's style, board entries and autocomplete. */
 export const backgroundCost = (use: Use, agent: boolean) => {
-  const jev = use.inbound * inboundJevCost(use) + use.sent * sentJevCost(use)
+  const mailJev =
+    use.inbound * inboundJevCost(use) + use.sent * sentJevCost(use)
   if (!agent) {
-    return { jev, total: jev }
+    return { jev: mailJev, total: mailJev }
   }
+  // An email that touches open promises asks Jev about each of them (`trackCommitments`).
+  const jev =
+    mailJev +
+    (use.inbound + use.sent) *
+      use.evidenceShare *
+      llm(
+        JEV_MODEL_ID,
+        mailTokens(Math.min(use.bodyChars, EVIDENCE_CHARS)) +
+          instructionTokens(CHECKED_PER_EMAIL * EVIDENCE_QUESTION_CHARS),
+        0
+      )
   const promises =
     use.sent *
     use.promisedShare *
@@ -497,11 +520,38 @@ export const agentCost = (use: Use) => {
   }
 }
 
-/** A month of `plan`: the agent stops where the allowance runs out; Jev reads all mail on every plan and is never stopped. */
+/** Past the allowance Jev is asked one more question per email, and the email that holds a promise or a last day gets the small call that writes it down. */
+const laterCost = (use: Use) =>
+  use.inbound * llm(JEV_MODEL_ID, instructionTokens(HAS_LATER.length), 0) +
+  use.inbound *
+    use.laterShare *
+    llm(
+      FAST_MODEL_ID,
+      instructionTokens(laterInstruction('en').length) +
+        STRUCTURED_OUTPUT_TOKENS +
+        mailTokens(threadChars(use)),
+      LATER_OUTPUT_TOKENS
+    )
+
+/** What the allowance never stops (`keepsRows`): promises from sent mail, board entries and, once it is spent, the promises of incoming mail. */
+export const rowsCost = (use: Use, isSpent: boolean) => {
+  const { entries = 0, promises = 0 } = backgroundCost(use, true)
+  const later = isSpent ? laterCost(use) : 0
+  return { entries, later, promises, total: entries + later + promises }
+}
+
+/**
+ * A month of `plan`: the agent stops where the allowance runs out, except rows, taken at worst to all come after it
+ * did; Jev reads all mail on every plan and is never stopped.
+ */
 export const monthCost = (plan: AgentPlan, use: Use) => {
-  const agent = Math.min(agentCost(use).total, PLAN_ALLOWANCE_USD[plan])
+  const uncapped = agentCost(use).total
+  const allowance = PLAN_ALLOWANCE_USD[plan]
+  const isSpent = uncapped > allowance
+  const rows = rowsCost(use, isSpent)
+  const agent = isSpent ? allowance + rows.total : uncapped
   const { jev } = backgroundCost(use, true)
-  return { agent, jev, total: agent + jev }
+  return { agent, jev, rows: isSpent ? rows.total : 0, total: agent + jev }
 }
 
 /** A trial's allowance is a month's, so all of it can go in its `TRIAL_DAYS`. */
@@ -546,7 +596,8 @@ export const TARGET_MARGIN: Record<PaidPlan, number> = {
 export const fairAllowance = (plan: PaidPlan) =>
   netRevenue(plan, 'year') -
   TARGET_MARGIN[plan] * grossRevenue(plan, 'year') -
-  backgroundCost(FULL, true).jev
+  backgroundCost(FULL, true).jev -
+  rowsCost(FULL, true).total
 
 const usd = (n: number) => `$${n < 0.01 ? n.toFixed(4) : n.toFixed(2)}`
 const pct = (n: number) => `${Math.round(n * 100)}%`
@@ -589,7 +640,7 @@ const printReport = () => {
     ] as const) {
       const month = monthCost(plan, use)
       lines.push(
-        `    ${name}: ${usd(month.total)} (agent ${usd(month.agent)}, Jev ${usd(month.jev)}), margin ${pct(margin(plan, 'month', month.total))} / ${pct(margin(plan, 'year', month.total))}`
+        `    ${name}: ${usd(month.total)} (agent ${usd(month.agent)}${month.rows ? `, of it rows past the allowance ${usd(month.rows)}` : ''}, Jev ${usd(month.jev)}), margin ${pct(margin(plan, 'month', month.total))} / ${pct(margin(plan, 'year', month.total))}`
       )
     }
   }
@@ -597,6 +648,7 @@ const printReport = () => {
   lines.push(
     '',
     `Typical use uncapped: ${usd(typical.total)} (${Math.round(typical.emails)} emails ${usd(typical.mail)}, ${TYPICAL.messages} messages ${usd(typical.talk)}, speech ${usd(typical.speech)}, background ${usd(typical.background)})`,
+    `Rows the allowance never stops, a month once it is spent: typical ${usd(rowsCost(TYPICAL, true).total)}, busy inbox ${usd(rowsCost(FULL, true).total)}, heavy ${usd(rowsCost(HEAVY, true).total)} (incoming promises ${usd(rowsCost(FULL, true).later)} / ${usd(rowsCost(HEAVY, true).later)})`,
     `Trial (${TRIAL_DAYS} days, allowance ${usd(PLAN_ALLOWANCE_USD.trial)}): typical ${usd(trialCost(TYPICAL))}, heavy ${usd(trialCost(HEAVY))}`,
     `Free (Jev only): typical ${usd(freeMonthCost(TYPICAL))} a month, heavy ${usd(freeMonthCost(HEAVY))}`,
     `First week at sign-up (once, ${FIRST_WEEK_LIMIT} candidates): with the agent typical ${usd(firstWeekCost(TYPICAL, true))}, heavy ${usd(firstWeekCost(HEAVY, true))}; Free ${usd(firstWeekCost(TYPICAL, false))}`

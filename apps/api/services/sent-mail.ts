@@ -1,5 +1,5 @@
 import { db } from '@fewmail/db'
-import { commitments, messages, userSettings } from '@fewmail/db/schema'
+import { messages, userSettings } from '@fewmail/db/schema'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { noul } from '@typesafe-ai/sdk'
 import { generateText, Output } from 'ai'
@@ -11,7 +11,8 @@ import { models, trackUsage } from '../lib/ai'
 import { localClock } from '../lib/clock'
 import { jev } from '../lib/jev'
 import { recentSentExamples } from './agent'
-import { hasBudget } from './plan'
+import { recordCommitments } from './commitments'
+import { hasBudget, keepsRows } from './plan'
 import { watchForReply } from './reminders'
 import { getSettings } from './settings'
 
@@ -93,7 +94,7 @@ export const watchSentMail = async (
   if (answers.expectsReply.noul >= SIGNAL) {
     await watchForReply(userId, sent.threadId, AUTO_FOLLOWUP_DAYS)
   }
-  if (answers.promises.noul < SIGNAL || !(await hasBudget(userId))) {
+  if (answers.promises.noul < SIGNAL || !(await keepsRows(userId))) {
     return
   }
   const [message] = await db
@@ -104,14 +105,10 @@ export const watchSentMail = async (
     text: sent.text,
     to: message?.to ?? [],
   })
-  if (promises.length === 0) {
-    return
-  }
-  await db.insert(commitments).values(
+  await recordCommitments(
     promises.map((promise) => ({
       ...promise,
       messageId: sent.messageId,
-      status: 'open' as const,
       threadId: sent.threadId,
       userId,
     }))

@@ -1,12 +1,5 @@
 import { db } from '@fewmail/db'
-import {
-  actions,
-  analyses,
-  commitments,
-  messages,
-  rules,
-  users,
-} from '@fewmail/db/schema'
+import { actions, analyses, messages, rules, users } from '@fewmail/db/schema'
 import {
   GMAIL_EFFECTS,
   IMPORTANCE,
@@ -58,6 +51,7 @@ import {
   NEEDS_REPLY,
   SUGGESTED_ACTIONS,
 } from './classify'
+import { recordCommitments } from './commitments'
 import { applyAgentLabel } from './labels'
 import { listMailboxes } from './mailboxes'
 import type { EmailAllowance } from './plan'
@@ -74,19 +68,22 @@ type Message = typeof messages.$inferSelect
 type Rule = typeof rules.$inferSelect
 type Settings = NonNullable<Awaited<ReturnType<typeof getSettings>>>
 
-const textSchema = type({
+const laterSchema = type({
+  later: {
+    deadline: 'string | null',
+    deadlineDate: 'string | null',
+    promise: 'string | null',
+    promiseDue: 'string | null',
+  },
+})
+
+const textSchema = laterSchema.merge({
   actionTitle: 'string',
   extracted: {
     amount: 'string | null',
     dueDate: 'string | null',
     meetingStart: 'string | null',
     meetingTime: 'string | null',
-  },
-  later: {
-    deadline: 'string | null',
-    deadlineDate: 'string | null',
-    promise: 'string | null',
-    promiseDue: 'string | null',
   },
   reason: 'string',
   summary: 'string',
@@ -115,7 +112,7 @@ const extractedInstruction = (timezone: string) =>
   `extracted: the amount the user pays or is paid (never a promotion's price or threshold) as a plain number and its ISO 4217 code ("1250.00 USD", "2499 UAH"), a due date as YYYY-MM-DD (only a date by which the user must act: pay, reply, sign, renew; never a date when terms, prices or a policy take effect or a sale ends), the first proposed meeting time as a short date and start time in the language of the email ("18 Nov, 18:00"), never a sentence, and that meeting's start as YYYY-MM-DDTHH:mm in the user's time zone (${timezone}), converted only when the email names another zone, else null. Never invent anything.`
 
 /** What comes back to the user later as a card (`processDueCommitments`): a promise made to them, a last day nobody will remind them of. */
-const laterInstruction = (language: Locale) =>
+export const laterInstruction = (language: Locale) =>
   `later: promise: what the sender promises to do for the user later (send, refund, call back, deliver, fix), one short line in ${englishName(language)} naming who promised what ("Anna promised the signed contract"), never a promotion, a newsletter or a routine notice; promiseDue: its date as YYYY-MM-DD when the email gives or implies one, counted from the email's date, else null. deadline: a last day the email implies without asking the user to act by it: the end of a return window for what was bought, the day a free trial turns into a paid plan, the end of a warranty; one short line in ${englishName(language)} with the date written as people write it ("Last day to return the headphones: 18 November"); deadlineDate: that date as YYYY-MM-DD. Each null when absent; never invent anything.`
 
 /** A summary that reads as a to-do must never pass a fraudster's instructions on. */
@@ -375,6 +372,34 @@ const withNetworkFacts = <
 }
 
 /**
+ * Past the allowance the agent writes no summary, but a promise or a last day is a row, not prose: written down
+ * from the emails Jev says hold one (`keepsRows`), so the watch never sleeps mid-month.
+ */
+const extractLater = async (input: {
+  message: Message
+  prompt: string
+  settings: Settings
+}) => {
+  const written = await Result.tryPromise(() =>
+    generateText({
+      instructions: [
+        laterInstruction(input.settings.language),
+        NO_EM_DASH,
+      ].join('\n'),
+      model: models.fast,
+      output: Output.object({ schema: laterSchema }),
+      prompt: flagged(input.message, input.prompt),
+      telemetry: trackUsage(input.message.userId, 'promises'),
+    })
+  )
+  if (written.isErr()) {
+    logError('promise extraction failed', written.error.cause)
+    return null
+  }
+  return written.value.output.later
+}
+
+/**
  * Jev decides for every plan; the LLM writes text only for the agent and only for mail that
  * matters, while the month's allowance lasts. When Jev fails the LLM does both, never for free.
  * `agent` says whether this email gets the agent at all — past the allowance it is treated as Free.
@@ -391,6 +416,8 @@ const analyze = async (input: {
   const { allowance, prompt } = input
   const t = dictionaries[input.settings.language]
   const decided = await decideWithJev({
+    // Within the allowance the text call writes promises down; past it only this question picks the emails that need it.
+    asksLater: !!allowance && !allowance.take(false),
     prompt,
     rules: input.rules,
     userEmail: input.userEmail,
@@ -444,6 +471,11 @@ const analyze = async (input: {
       summary: input.message.snippet.slice(0, 240),
     },
   })
+  if (allowance && !agent && !isNoise && decided.hasLater) {
+    const later = await extractLater(input)
+    const kept = jevOnly(false)
+    return later ? { ...kept, output: { ...kept.output, later } } : kept
+  }
   if (!agent || isNoise) {
     return jevOnly(agent)
   }
@@ -657,14 +689,10 @@ const rememberLater = async (
         ]
       : []),
   ]
-  if (rows.length === 0) {
-    return
-  }
-  await db.insert(commitments).values(
+  await recordCommitments(
     rows.map((row) => ({
       ...row,
       messageId: message.id,
-      status: 'open' as const,
       threadId: message.threadId,
       userId: message.userId,
     }))

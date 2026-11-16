@@ -199,10 +199,10 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
  * Noise Jev settles costs nothing. Every plan has every feature; only this differs.
  */
 export const PLAN_ALLOWANCE_USD = {
-  lite: 2.6,
-  max: 21,
-  pro: 5.8,
-  trial: 2.6,
+  lite: 2.5,
+  max: 20.9,
+  pro: 5.7,
+  trial: 2.5,
 } satisfies Record<Exclude<Plan, 'free'>, number>
 
 /** What one email the agent writes for and one message to it cost on typical use, to tell an allowance in both. */
@@ -225,6 +225,24 @@ export const usedPercent = (plan: AgentPlan, spent: number) =>
 /** Where a notification is delivered; mobile and desktop apps join as new kinds with their own sender in `services/notifications.ts`. */
 export const DEVICE_KINDS = ['web'] as const
 export type DeviceKind = (typeof DEVICE_KINDS)[number]
+
+/** Where a notification can go, in the order a failed one falls back along. `web` is every device the user has. */
+export const DELIVERY_CHANNELS = ['telegram', 'whatsapp', 'web'] as const
+export type DeliveryChannel = (typeof DELIVERY_CHANNELS)[number]
+/** `failed` waits for its next attempt; `dead` gave up; `skipped`: the card it was about was answered first. */
+export type DeliveryStatus =
+  | 'pending'
+  | 'sending'
+  | 'failed'
+  | 'sent'
+  | 'dead'
+  | 'skipped'
+/** A notification's own text: `title` is the push's title and a messenger's headline. */
+export interface DeliveryNotice {
+  body: string
+  title: string
+  url: string
+}
 
 /** Built-in agent skills, run as `/name` in the chat, as Telegram commands and as MCP prompts; labels come from `skills`. Names stay Telegram-safe: `[a-z0-9_]`. */
 export const SKILLS = [
@@ -277,6 +295,7 @@ export const AGENT_TOOLS = {
   list_events: 'read',
   list_handled: 'read',
   list_mail: 'read',
+  list_promises: 'read',
   list_rules: 'read',
   list_subscriptions: 'read',
   mark_not_spam: 'consent',
@@ -289,6 +308,7 @@ export const AGENT_TOOLS = {
   rename_board_group: 'write',
   report_spam: 'consent',
   send_email: 'consent',
+  set_promise_status: 'write',
   snooze_thread: 'consent',
   tidy_mail: 'consent',
   trash_thread: 'consent',
@@ -387,6 +407,28 @@ export type ReminderKind = 'snooze' | 'followup'
 /** `mine`: a promise in the user's sent mail; `theirs`: one made to the user in mail they got; `deadline`: a last day an email implies (a return window, a trial turning paid). */
 export const COMMITMENT_KINDS = ['mine', 'theirs', 'deadline'] as const
 export type CommitmentKind = (typeof COMMITMENT_KINDS)[number]
+
+/**
+ * A reply only acknowledges a promise; it is fulfilled when an email proves it (`evidenceMessageId`) or the user says
+ * so. The agent moves a promise forward along this order only; `broken` and a reopening are the user's word.
+ */
+export const COMMITMENT_STATUSES = [
+  'open',
+  'acknowledged',
+  'in_progress',
+  'fulfilled',
+  'broken',
+  'cancelled',
+] as const
+export type CommitmentStatus = (typeof COMMITMENT_STATUSES)[number]
+/** Still waiting on someone: these surface on their morning and are checked against new mail. */
+export const ACTIVE_COMMITMENT_STATUSES = [
+  'open',
+  'acknowledged',
+  'in_progress',
+] as const satisfies CommitmentStatus[]
+/** Who moved a promise: `agent` from an email (the evidence), `user` by hand or by a card's yes. */
+export type CommitmentActor = 'agent' | 'user'
 export type ReminderStatus = 'pending' | 'done' | 'canceled'
 
 export const FOLLOWUP_DAYS = [1, 3, 7] as const

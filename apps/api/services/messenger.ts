@@ -22,6 +22,7 @@ import { keyedHash } from '../lib/keyed-hash'
 import { transcribe } from '../lib/mistral'
 import { capture } from '../lib/posthog'
 import { approveCard } from './approve'
+import { ConsentChangedError } from './consent-error'
 import { savedThisWeek } from './home'
 import { followMessage } from './instructions'
 import { LimitReachedError } from './limit-error'
@@ -87,6 +88,9 @@ export const failureText = (locale: Locale, error: unknown, voice: boolean) => {
   const t = messages[locale]
   if (error instanceof LimitReachedError) {
     return t.limits.usage(formatResetDay(locale, error.resetsAt))
+  }
+  if (error instanceof ConsentChangedError) {
+    return t.errors.consentChanged
   }
   return voice ? t.telegram.voiceFailed : t.telegram.somethingWrong
 }

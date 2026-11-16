@@ -44,8 +44,9 @@ import {
   isUnchanged,
 } from './boards'
 import { measureBulk } from './bulk'
+import { trackCommitments } from './commitments'
 import { listMailboxes, searchMailboxes, watchStorage } from './mailboxes'
-import { emailAllowance, hasBudget } from './plan'
+import { emailAllowance, hasBudget, keepsRows } from './plan'
 import { writeReadingIssue } from './reading'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
@@ -219,10 +220,11 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
         }).catch((error) => logError('follow-up watch failed', error))
       )
   )
+  await trackCommitments(userId, inserted)
   await watchStorage(mailbox, inserted).catch((error) =>
     logError('storage watch failed', error)
   )
-  if (!(await hasBudget(userId))) {
+  if (!(await keepsRows(userId))) {
     return
   }
   await collectForNewMail(userId, inserted).catch((error) =>

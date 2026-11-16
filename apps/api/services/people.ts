@@ -6,7 +6,11 @@ import {
   messages,
   people,
 } from '@fewmail/db/schema'
-import { isAutomatedSender, PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
+import {
+  ACTIVE_COMMITMENT_STATUSES,
+  isAutomatedSender,
+  PEOPLE_CATEGORIES,
+} from '@fewmail/shared/agent'
 import { matchesContact } from '@fewmail/shared/email'
 import { englishName } from '@fewmail/shared/i18n/locales'
 import { generateText } from 'ai'
@@ -202,6 +206,7 @@ export const getPerson = async (userId: string, rawEmail: string) => {
           id: commitments.id,
           kind: commitments.kind,
           promise: commitments.promise,
+          status: commitments.status,
           threadId: commitments.threadId,
         })
         .from(commitments)
@@ -210,7 +215,7 @@ export const getPerson = async (userId: string, rawEmail: string) => {
             eq(commitments.userId, userId),
             eq(commitments.recipient, email),
             inArray(commitments.kind, ['mine', 'theirs']),
-            inArray(commitments.status, ['open', 'reminded'])
+            inArray(commitments.status, ACTIVE_COMMITMENT_STATUSES)
           )
         ),
       db

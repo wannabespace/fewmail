@@ -118,6 +118,8 @@ export const tr: Messages = {
       edit_board_entry: 'Kayıt düzeltiliyor',
       remove_board_entry: 'Panodan çıkarılıyor',
       rename_board_group: 'Grubun adı değiştiriliyor',
+      list_promises: 'Sözler kontrol ediliyor',
+      set_promise_status: 'Söz güncelleniyor',
     },
     to: (recipients: string) => `Kime: ${recipients}`,
     until: (time: string) => `Şu zamana kadar: ${time}`,
@@ -568,6 +570,8 @@ export const tr: Messages = {
     failed: 'Bir şeyler ters gitti. Tekrar dene.',
     needsPro: 'Bunun için Fewmail Pro gerekiyor.',
     alreadySent: 'Zaten gönderildi, geri almak için çok geç.',
+    consentChanged:
+      'Bu, istendiğinden beri değişti. Tekrar bak ve ana sayfada karar ver.',
     notFound: 'Bu artık yok. Silinmiş olabilir.',
     offline: 'Fewmail’e ulaşılamıyor. Bağlantını kontrol et.',
   },
@@ -1754,6 +1758,8 @@ export const tr: Messages = {
     allDone: 'Hepsi tamam. Seni bekleyen bir şey yok.',
     allDoneLead:
       'Yeni e-postaları okumaya devam ediyorum, ilgilenmen gereken her şey burada görünecek.',
+    allowanceSpent: (date: string) =>
+      `Ajanın bu ayki kullanım hakkı bitti: özetler ve taslaklar ${date} tarihinde geri gelecek. O zamana kadar tutarları, sözleri ve son tarihleri kaydetmeye devam ediyorum.`,
     byRules: (n: number) => `Kuralların ${n} tanesini halletti.`,
     decisions: 'Kararlar',
     journal: {

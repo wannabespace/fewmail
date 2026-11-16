@@ -6,6 +6,7 @@ import {
   BOARD_PERIODS,
   BOARD_PRESETS,
   CLEAR_OUT_GROUPS,
+  COMMITMENT_STATUSES,
   DEVICE_KINDS,
   EVENT_SCOPES,
   FOLLOWUP_DAYS,
@@ -60,6 +61,7 @@ import {
   scanClearOut,
   undoClearOut,
 } from '../services/cleanup'
+import { listCommitments, setCommitmentStatus } from '../services/commitments'
 import {
   countDrafts,
   deleteDraft,
@@ -299,6 +301,14 @@ export const router = {
       .handler(({ context, input }) =>
         redraftAction(context.user.id, input.id, input.instruction)
       ),
+  },
+  commitments: {
+    list: agent.handler(({ context }) => listCommitments(context.user.id)),
+    setStatus: agent
+      .input(id.and({ status: type.enumerated(...COMMITMENT_STATUSES) }))
+      .handler(async ({ context, input }) => {
+        await setCommitmentStatus(context.user.id, input.id, input.status)
+      }),
   },
   calendar: {
     create: authed

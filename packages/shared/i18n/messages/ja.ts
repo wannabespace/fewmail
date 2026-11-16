@@ -119,6 +119,8 @@ export const ja: Messages = {
       edit_board_entry: '項目を修正中',
       remove_board_entry: 'ボードから外し中',
       rename_board_group: 'グループ名を変更中',
+      list_promises: '約束を確認中',
+      set_promise_status: '約束を更新中',
     },
     to: (recipients: string) => `宛先: ${recipients}`,
     until: (time: string) => `再表示: ${time}`,
@@ -280,6 +282,8 @@ export const ja: Messages = {
     failed: '問題が発生しました。もう一度お試しください。',
     needsPro: 'これには Fewmail Pro が必要です。',
     alreadySent: 'すでに送信済みのため、取り消せません。',
+    consentChanged:
+      '確認を求めた後に内容が変わりました。もう一度見て、ホームで決めてください。',
     notFound: 'これはもう存在しません。削除された可能性があります。',
     offline: 'Fewmail に接続できません。接続を確認してください。',
   },
@@ -1439,6 +1443,8 @@ export const ja: Messages = {
     allDone: 'すべて完了。対応が必要なものはありません。',
     allDoneLead:
       '新しいメールは引き続き読んでいます。対応が必要なものはここに表示されます。',
+    allowanceSpent: (date: string) =>
+      `今月のエージェント利用枠を使い切りました。要約と下書きは ${date} に戻ります。それまでも金額、約束、期限は記録し続けます。`,
     byRules: (n: number) => `${n}件はルールで処理しました。`,
     decisions: '決めること',
     journal: {

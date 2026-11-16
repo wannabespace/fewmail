@@ -802,6 +802,10 @@ const saveEntry = async (
   const dueAt = due && due.getTime() > Date.now() ? due : null
   const messageId = await keptIdOf(message)
   if (earlier && output.isUpdate) {
+    // What the user corrected is theirs: news in the thread never writes over it.
+    if (earlier.editedAt) {
+      return
+    }
     await db
       .update(boardEntries)
       .set({

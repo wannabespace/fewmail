@@ -34,6 +34,12 @@ const errorText = (error: unknown) => {
   if (error instanceof TypeError) {
     return t.offline
   }
+  if (
+    error instanceof ORPCError &&
+    (error.data as { consentChanged?: boolean } | undefined)?.consentChanged
+  ) {
+    return t.consentChanged
+  }
   const key =
     error instanceof ORPCError
       ? ERROR_TEXT_BY_CODE[error.code as keyof typeof ERROR_TEXT_BY_CODE]

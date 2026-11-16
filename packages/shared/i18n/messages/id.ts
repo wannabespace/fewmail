@@ -118,6 +118,8 @@ export const id: Messages = {
       edit_board_entry: 'Memperbaiki entri',
       remove_board_entry: 'Mengeluarkan dari papan',
       rename_board_group: 'Mengganti nama grup',
+      list_promises: 'Memeriksa janji',
+      set_promise_status: 'Memperbarui janji',
     },
     to: (recipients: string) => `Kepada ${recipients}`,
     until: (time: string) => `Sampai ${time}`,
@@ -570,6 +572,8 @@ export const id: Messages = {
     failed: 'Terjadi kesalahan. Coba lagi.',
     needsPro: 'Ini memerlukan Fewmail Pro.',
     alreadySent: 'Sudah terkirim, terlambat untuk membatalkan.',
+    consentChanged:
+      'Ini berubah sejak diminta. Lihat lagi dan putuskan di Beranda.',
     notFound: 'Ini sudah tidak ada. Mungkin sudah dihapus.',
     offline: 'Tidak dapat terhubung ke Fewmail. Periksa koneksimu.',
   },
@@ -1755,6 +1759,8 @@ export const id: Messages = {
     allDone: 'Semua beres. Tidak ada yang butuh kamu.',
     allDoneLead:
       'Aku terus membaca email baru, dan yang butuh perhatianmu akan muncul di sini.',
+    allowanceSpent: (date: string) =>
+      `Jatah agen untuk bulan ini sudah habis: ringkasan dan draf tersedia lagi pada ${date}. Sampai saat itu aku tetap mencatat jumlah, janji, dan tenggat.`,
     byRules: (n: number) => `Aturanmu sudah mengurus ${n}.`,
     decisions: 'Keputusan',
     journal: {
