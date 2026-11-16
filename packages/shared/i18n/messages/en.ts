@@ -1394,7 +1394,6 @@ export const en = {
       emphasis: 'in two minutes.',
       handled: [
         'Lumen Weekly: you opened none of the last 30 issues',
-      details: 'See every plan in detail',
         'paypa1-billing.com looks like paypal.com',
         'Parcelhub: delivery notices, by the rule “Receipts and shipping”',
       ],
@@ -1406,6 +1405,7 @@ export const en = {
     },
     plans: {
       agent: 'The agent',
+      details: 'See every plan in detail',
       emails: 'Emails the agent reads, a month',
       everyPlan: 'On every plan',
       messages: 'or messages to the agent',

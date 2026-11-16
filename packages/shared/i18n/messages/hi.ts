@@ -1228,7 +1228,6 @@ export const hi: Messages = {
       emphasis: 'दो मिनट में।',
       handled: [
         'Lumen Weekly: पिछले 30 अंकों में से आपने एक भी नहीं खोला',
-      details: 'सभी प्लान विस्तार से देखें',
         'paypa1-billing.com, paypal.com जैसा दिखता है',
         'Parcelhub: डिलीवरी सूचनाएँ, नियम “रसीदें और शिपिंग” के तहत',
       ],
@@ -1240,6 +1239,7 @@ export const hi: Messages = {
     },
     plans: {
       agent: 'एजेंट',
+      details: 'सभी प्लान विस्तार से देखें',
       emails: 'एजेंट हर महीने जितने ईमेल पढ़ता है',
       everyPlan: 'हर प्लान में',
       messages: 'या एजेंट को संदेश',

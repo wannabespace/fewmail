@@ -1204,7 +1204,6 @@ export const zh: Messages = {
       emphasis: '两分钟搞定。',
       handled: [
         'Lumen Weekly：最近 30 期你一期都没打开',
-      details: '查看所有方案详情',
         'paypa1-billing.com 看起来像 paypal.com',
         'Parcelhub：物流通知，按规则“收据和物流”',
       ],
@@ -1216,6 +1215,7 @@ export const zh: Messages = {
     },
     plans: {
       agent: '代理',
+      details: '查看所有方案详情',
       emails: '代理每月阅读的邮件',
       everyPlan: '所有方案都包含',
       messages: '或发给代理的消息',

@@ -1390,7 +1390,6 @@ export const id: Messages = {
       emphasis: 'dalam dua menit.',
       handled: [
         'Lumen Weekly: kamu tidak membuka satu pun dari 30 edisi terakhir',
-      details: 'Lihat semua paket secara rinci',
         'paypa1-billing.com mirip paypal.com',
         'Parcelhub: pemberitahuan pengiriman, lewat aturan “Struk dan pengiriman”',
       ],
@@ -1402,6 +1401,7 @@ export const id: Messages = {
     },
     plans: {
       agent: 'Agen',
+      details: 'Lihat semua paket secara rinci',
       emails: 'Email yang dibaca agen per bulan',
       everyPlan: 'Di setiap paket',
       messages: 'atau pesan ke agen',

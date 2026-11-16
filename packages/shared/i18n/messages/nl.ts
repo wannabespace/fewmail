@@ -1404,7 +1404,6 @@ export const nl: Messages = {
       emphasis: 'in twee minuten.',
       handled: [
         'Lumen Weekly: je opende geen van de laatste 30 nummers',
-      details: 'Bekijk alle abonnementen in detail',
         'paypa1-billing.com lijkt op paypal.com',
         'Parcelhub: bezorgberichten, via de regel “Bonnetjes en verzending”',
       ],
@@ -1416,6 +1415,7 @@ export const nl: Messages = {
     },
     plans: {
       agent: 'De agent',
+      details: 'Bekijk alle abonnementen in detail',
       emails: 'E-mails die de agent per maand leest',
       everyPlan: 'In elk abonnement',
       messages: 'of berichten aan de agent',

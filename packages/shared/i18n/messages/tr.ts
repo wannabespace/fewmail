@@ -1391,7 +1391,6 @@ export const tr: Messages = {
       emphasis: 'iki dakikada.',
       handled: [
         'Lumen Weekly: son 30 sayının hiçbirini açmadın',
-      details: 'Tüm planları ayrıntılı gör',
         'paypa1-billing.com, paypal.com gibi görünüyor',
         'Parcelhub: teslimat bildirimleri, “Makbuzlar ve kargo” kuralıyla',
       ],
@@ -1403,6 +1402,7 @@ export const tr: Messages = {
     },
     plans: {
       agent: 'Ajan',
+      details: 'Tüm planları ayrıntılı gör',
       emails: 'Ajanın ayda okuduğu e-posta',
       everyPlan: 'Her planda',
       messages: 'ya da ajana mesaj',

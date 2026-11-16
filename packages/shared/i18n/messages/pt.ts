@@ -1411,7 +1411,6 @@ export const pt: Messages = {
       emphasis: 'em dois minutos.',
       handled: [
         'Lumen Weekly: você não abriu nenhuma das últimas 30 edições',
-      details: 'Ver todos os planos em detalhe',
         'paypa1-billing.com se parece com paypal.com',
         'Parcelhub: avisos de entrega, pela regra “Recibos e entregas”',
       ],
@@ -1423,6 +1422,7 @@ export const pt: Messages = {
     },
     plans: {
       agent: 'O agente',
+      details: 'Ver todos os planos em detalhe',
       emails: 'E-mails lidos pelo agente por mês',
       everyPlan: 'Em todos os planos',
       messages: 'ou mensagens ao agente',

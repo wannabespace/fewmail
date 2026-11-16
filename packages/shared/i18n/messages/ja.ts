@@ -1240,7 +1240,6 @@ export const ja: Messages = {
       emphasis: '2 分で。',
       handled: [
         'Lumen Weekly：直近 30 号を一度も開いていません',
-      details: 'すべてのプランを詳しく見る',
         'paypa1-billing.com は paypal.com に似せたドメインです',
         'Parcelhub：配送のお知らせ、ルール「レシートと配送」により',
       ],
@@ -1252,6 +1251,7 @@ export const ja: Messages = {
     },
     plans: {
       agent: 'エージェント',
+      details: 'すべてのプランを詳しく見る',
       emails: 'エージェントが 1 か月に読むメール',
       everyPlan: 'すべてのプランに',
       messages: 'またはエージェントへのメッセージ',
