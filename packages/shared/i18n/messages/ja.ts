@@ -1436,6 +1436,23 @@ export const ja: Messages = {
     progress: (done: number, total: number) => `${done} / ${total}`,
     readAll:
       'すべて読みました。あなたの承認なしにメールが変わることはありません。',
+    worth: {
+      awaiting: (total: number) =>
+        plural('ja', total, {
+          one: () => '返信待ち 1 件',
+          other: (n) => `返信待ち ${n} 件`,
+        }),
+      dated: (total: number) =>
+        plural('ja', total, {
+          one: () => '日付あり 1 件',
+          other: (n) => `日付あり ${n} 件`,
+        }),
+      important: (total: number) =>
+        plural('ja', total, {
+          one: () => '重要なメール 1 件',
+          other: (n) => `重要なメール ${n} 件`,
+        }),
+    },
     worthKnowing: '知っておきたいこと',
     quick: 'すぐ済むもの',
     needsLook: '目を通すもの',

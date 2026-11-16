@@ -202,7 +202,8 @@ export const pl: Messages = {
     lead: {
       coming: (total: number) =>
         plural('pl', total, {
-          one: () => 'Zbliża się jeden termin.',
+          one: (n) =>
+            n === 1 ? 'Zbliża się jeden termin.' : `Zbliża się terminów: ${n}.`,
           other: (n) => `Zbliża się terminów: ${n}.`,
         }),
       empty:
@@ -210,12 +211,16 @@ export const pl: Messages = {
       owed: (amounts: string) => `Należy ci się ${amounts}.`,
       promised: (total: number) =>
         plural('pl', total, {
-          one: () => 'Obiecałeś jedną rzecz.',
+          one: (n) =>
+            n === 1 ? 'Obiecałeś jedną rzecz.' : `Obiecanych rzeczy: ${n}.`,
           other: (n) => `Obiecanych rzeczy: ${n}.`,
         }),
       waiting: (total: number) =>
         plural('pl', total, {
-          one: () => 'Jedna obietnica wobec ciebie jest wciąż otwarta.',
+          one: (n) =>
+            n === 1
+              ? 'Jedna obietnica wobec ciebie jest wciąż otwarta.'
+              : `Otwartych obietnic wobec ciebie: ${n}.`,
           other: (n) => `Otwartych obietnic wobec ciebie: ${n}.`,
         }),
     },
@@ -1626,6 +1631,24 @@ export const pl: Messages = {
     progress: (done: number, total: number) => `${done} z ${total}`,
     readAll:
       'Przeczytałem wszystkie, a bez twojego „tak” w poczcie nic się nie zmienia.',
+    worth: {
+      awaiting: (total: number) =>
+        plural('pl', total, {
+          one: (n) =>
+            n === 1 ? '1 czeka na odpowiedź' : `czeka na odpowiedź: ${n}`,
+          other: (n) => `czeka na odpowiedź: ${n}`,
+        }),
+      dated: (total: number) =>
+        plural('pl', total, {
+          one: (n) => (n === 1 ? '1 z datą' : `z datą: ${n}`),
+          other: (n) => `z datą: ${n}`,
+        }),
+      important: (total: number) =>
+        plural('pl', total, {
+          one: (n) => (n === 1 ? '1 ważny e-mail' : `ważnych e-maili: ${n}`),
+          other: (n) => `ważnych e-maili: ${n}`,
+        }),
+    },
     worthKnowing: 'Warto wiedzieć',
     quick: 'Szybko',
     needsLook: 'Zobacz sam',

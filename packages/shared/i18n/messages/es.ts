@@ -1460,6 +1460,23 @@ export const es: Messages = {
     },
     progress: (done: number, total: number) => `${done} de ${total}`,
     readAll: 'Leí cada uno, y nada cambia en tu correo sin tu sí.',
+    worth: {
+      awaiting: (total: number) =>
+        plural('es', total, {
+          one: () => '1 esperando respuesta',
+          other: (n) => `${n} esperando respuesta`,
+        }),
+      dated: (total: number) =>
+        plural('es', total, {
+          one: () => '1 con fecha',
+          other: (n) => `${n} con fecha`,
+        }),
+      important: (total: number) =>
+        plural('es', total, {
+          one: () => '1 correo importante',
+          other: (n) => `${n} correos importantes`,
+        }),
+    },
     worthKnowing: 'Para tener en cuenta',
     quick: 'Rápido',
     needsLook: 'Míralo tú',

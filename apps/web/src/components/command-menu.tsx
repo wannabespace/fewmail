@@ -18,6 +18,7 @@ import {
   CrownIcon,
   GiftIcon,
   Moon02Icon,
+  DashboardSquare01Icon,
   News01Icon,
   PencilEdit02Icon,
   Sun03Icon,
@@ -95,6 +96,8 @@ export const CommandMenu = ({
   const openReading = () =>
     navigate({ search: { page: 'reading' }, to: '/home' })
   useHotkey(['G', 'N'], openReading)
+  const openBoard = () => navigate({ search: { page: 'board' }, to: '/home' })
+  useHotkey(['G', 'B'], openBoard)
 
   return (
     <CommandDialog
@@ -136,6 +139,11 @@ export const CommandMenu = ({
               <HugeiconsIcon icon={News01Icon} strokeWidth={2} />
               {t.nav.reading}
               <CommandShortcut>G N</CommandShortcut>
+            </CommandItem>
+            <CommandItem onSelect={() => run(openBoard)}>
+              <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
+              {t.nav.board}
+              <CommandShortcut>G B</CommandShortcut>
             </CommandItem>
           </CommandGroup>
           <CommandGroup heading={t.nav.folders}>

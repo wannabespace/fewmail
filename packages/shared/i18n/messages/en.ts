@@ -1591,6 +1591,23 @@ export const en = {
     progress: (done: number, total: number) => `${done} of ${total}`,
     readAll:
       'I read every one, and nothing changes in your mail without your yes.',
+    worth: {
+      awaiting: (total: number) =>
+        plural('en', total, {
+          one: () => '1 waiting for a reply',
+          other: (n) => `${n} waiting for a reply`,
+        }),
+      dated: (total: number) =>
+        plural('en', total, {
+          one: () => '1 with a date',
+          other: (n) => `${n} with a date`,
+        }),
+      important: (total: number) =>
+        plural('en', total, {
+          one: () => '1 important email',
+          other: (n) => `${n} important emails`,
+        }),
+    },
     worthKnowing: 'Worth knowing',
     quick: 'Quick',
     needsLook: 'Needs a look',

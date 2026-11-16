@@ -63,6 +63,12 @@ const headline = ({ action, analysis, message }: QueueItem) => {
   return analysis?.summary ?? message?.subject ?? action.title
 }
 
+/** Whom the card is about: your own promise names whom you promised (its `reason`), never you, the sender of your mail. */
+const whoOf = ({ action, message }: QueueItem) =>
+  action.kind === 'commitment' && action.reason
+    ? { fromEmail: action.reason, fromName: null }
+    : message
+
 const showsGist = ({ action, analysis }: QueueItem) =>
   !!analysis &&
   !sendsDraft(action) &&
@@ -279,6 +285,7 @@ const QueueCardHeader = ({
   const t = useT()
   const dates = useDates()
   const { action, analysis, message } = item
+  const who = whoOf(item)
 
   return (
     <AccordionTrigger
@@ -313,8 +320,8 @@ const QueueCardHeader = ({
         </>
       }
     >
-      {message && action.kind !== 'cleanup' ? (
-        <SenderAvatar sender={message} size="sm" />
+      {who && action.kind !== 'cleanup' ? (
+        <SenderAvatar sender={who} size="sm" />
       ) : (
         <span className="size-6 shrink-0" />
       )}
@@ -323,7 +330,7 @@ const QueueCardHeader = ({
           <span data-mask className="truncate font-medium">
             {action.kind === 'cleanup'
               ? 'Fewmail'
-              : (message?.fromName ?? message?.fromEmail ?? 'Fewmail')}
+              : (who?.fromName ?? who?.fromEmail ?? 'Fewmail')}
           </span>
           {isNew && (
             <span className="bg-primary size-1.5 shrink-0 rounded-full">
@@ -496,7 +503,8 @@ const ReplyBody = ({
 const Why = ({ item: { action, analysis, rule } }: { item: QueueItem }) => {
   const t = useT()
   const why = [
-    action.reason || analysis?.reason,
+    // A promise's `reason` is whom it was made to, already the card's name (`whoOf`).
+    (action.kind === 'commitment' ? null : action.reason) || analysis?.reason,
     rule && t.today.journal.byRule(rule),
   ].filter(Boolean)
   return (

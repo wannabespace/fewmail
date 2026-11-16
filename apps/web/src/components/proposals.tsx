@@ -2,26 +2,16 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import { PROPOSAL_KINDS } from '@fewmail/shared/agent'
 import type { ProposalKind } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
-import { Item } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import { ScrollArea } from '@fewmail/ui/components/scroll-area'
-import { SparklesIcon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { AnimatePresence } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -29,11 +19,11 @@ import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
+import { HomeCard } from '~/components/home-card'
 import type { QueueItem } from '~/components/queue-card'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { queueCards } from '~/lib/home-db'
 import { useT } from '~/lib/i18n'
-import { warmThread } from '~/lib/mail-db'
 import { client, orpc } from '~/lib/orpc'
 import { toastUndo } from '~/lib/undo'
 
@@ -220,15 +210,22 @@ const kindsLine = (t: Messages, proposals: Proposal[]) =>
 
 export const PROPOSALS_ID = 'proposals'
 
-/** The first stop of Home's decisions: every email the agent proposes to move, in a scroller of its own, approved in one yes (⏎ or T) or looked at one by one (D). */
-const ProposalsQueueCard = ({
+const GroupLabel = ({ children }: { children: ReactNode }) => (
+  <h3 className="text-muted-foreground text-xs font-medium">{children}</h3>
+)
+
+/**
+ * Heads Home's decisions: every email the agent proposes to move as one card, approved in one yes (T, or ⏎ on it) or
+ * looked at one by one in the review it opens (a click, D); it folds away once settled.
+ */
+export const ProposalsGroup = ({
   canUseKeys,
-  isOpen,
+  hasCards,
   isSelected,
   proposals,
 }: {
   canUseKeys: boolean
-  isOpen: boolean
+  hasCards: boolean
   isSelected: boolean
   proposals: Proposals
 }) => {
@@ -239,155 +236,31 @@ const ProposalsQueueCard = ({
   })
 
   return (
-    <AccordionItem value={PROPOSALS_ID} active={isSelected} className="group">
-      <AccordionTrigger
-        trailing={
-          !isOpen && (
-            <span className="text-muted-foreground text-xs whitespace-nowrap">
-              {t.today.tidy.run}
-            </span>
-          )
-        }
-      >
-        <span className="bg-secondary text-foreground/70 flex size-6 shrink-0 items-center justify-center rounded-md">
-          <HugeiconsIcon
-            icon={SparklesIcon}
-            strokeWidth={2}
-            className="size-3.5"
-          />
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="truncate font-medium">
-            {t.today.tidy.total(rows.length)}
-          </span>
-          <span className="text-muted-foreground truncate first-letter:uppercase">
-            {kindsLine(t, rows)}
-          </span>
-        </span>
-      </AccordionTrigger>
-      <AccordionContent>
-        <div className="flex flex-col gap-3 pl-9.5">
-          {/* The scroller clips, so it bleeds by the rows' inset and pads back in, or a row's hover is cut on the left. */}
-          <ScrollArea
-            className="-mx-2.5"
-            viewportClassName="scroll-fade max-h-60"
-          >
-            <div className="flex flex-col gap-3 px-2.5">
-              {byKind(rows).map(({ kind, rows: group }) => (
-                <div key={kind} className="flex flex-col gap-1">
-                  <h4 className="text-muted-foreground text-xs font-medium first-letter:uppercase">
-                    {t.today.tidy[kind](group.length)}
-                  </h4>
-                  <ul className="flex flex-col">
-                    {group.map(({ id, message }) => (
-                      <li key={id}>
-                        {message ? (
-                          <Item
-                            size="2xs"
-                            className="-mx-2.5 flex-nowrap"
-                            render={
-                              <Link
-                                to="/mail/$threadId"
-                                params={{ threadId: message.threadId }}
-                                onPointerEnter={() => {
-                                  void warmThread(message.threadId)
-                                }}
-                              />
-                            }
-                          >
-                            <SenderAvatar sender={message} />
-                            <span data-mask className="shrink-0 font-medium">
-                              {message.fromName ?? message.fromEmail}
-                            </span>
-                            <span
-                              data-mask
-                              className="text-muted-foreground min-w-0 truncate"
-                            >
-                              {message.subject}
-                            </span>
-                          </Item>
-                        ) : (
-                          t.actionKind[kind]
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-          <p className="text-muted-foreground text-sm">
-            {t.today.tidy.untilYouApprove}
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              size="sm"
-              onClick={() => proposals.approve(rows)}
-              shortcut={<Kbd>⏎</Kbd>}
-            >
-              {t.today.tidy.run}
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              render={
-                <Link
-                  to="/home"
-                  search={(prev) => ({ ...prev, page: 'tidy' })}
-                />
-              }
-              shortcut={<Kbd>D</Kbd>}
-            >
-              {t.today.tidy.review}
-            </Button>
-          </div>
-        </div>
-      </AccordionContent>
-    </AccordionItem>
-  )
-}
-
-const GroupLabel = ({ children }: { children: ReactNode }) => (
-  <h3 className="text-muted-foreground text-xs font-medium">{children}</h3>
-)
-
-/** Heads Home's decisions: the proposals card, labelled apart from the cards only when there are both, folding away once settled. */
-export const ProposalsGroup = ({
-  canUseKeys,
-  cursorId,
-  hasCards,
-  onValueChange,
-  openIds,
-  proposals,
-}: {
-  canUseKeys: boolean
-  cursorId: string | undefined
-  hasCards: boolean
-  onValueChange: (ids: string[]) => void
-  openIds: string[]
-  proposals: Proposals
-}) => {
-  const t = useT()
-
-  return (
     <AnimatePresence initial={false}>
-      {proposals.proposals.length > 0 && (
+      {rows.length > 0 && (
         // The collapse clips, so it bleeds out like the cards (cardsBleedClassName) and pads back in, or it cuts the card's sides off.
         <MotionCollapse key={PROPOSALS_ID} className="-mx-4.75">
           <div className="flex flex-col gap-2.5 px-4.75">
-            {hasCards && <GroupLabel>{t.today.quick}</GroupLabel>}
-            <Accordion
-              variant="list"
-              value={openIds}
-              onValueChange={onValueChange}
-            >
-              <ProposalsQueueCard
-                canUseKeys={canUseKeys}
-                isOpen={openIds.includes(PROPOSALS_ID)}
-                isSelected={cursorId === PROPOSALS_ID}
-                proposals={proposals}
-              />
-            </Accordion>
+            <HomeCard
+              heading={t.today.quick}
+              isActive={isSelected}
+              lead={t.today.tidy.total(rows.length)}
+              detail={
+                <span className="inline-block first-letter:uppercase">
+                  {kindsLine(t, rows)}
+                </span>
+              }
+              page="tidy"
+              actions={
+                <Button
+                  size="sm"
+                  onClick={() => proposals.approve(rows)}
+                  shortcut={<Kbd>{isSelected ? '⏎' : 'T'}</Kbd>}
+                >
+                  {t.today.tidy.run}
+                </Button>
+              }
+            />
             {hasCards && <GroupLabel>{t.today.needsLook}</GroupLabel>}
           </div>
         </MotionCollapse>

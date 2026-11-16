@@ -1388,6 +1388,23 @@ export const zh: Messages = {
     },
     progress: (done: number, total: number) => `${done}/${total}`,
     readAll: '每一封我都读过了。没有你的同意，邮件里什么都不会改变。',
+    worth: {
+      awaiting: (total: number) =>
+        plural('zh', total, {
+          one: () => '1 封等待回复',
+          other: (n) => `${n} 封等待回复`,
+        }),
+      dated: (total: number) =>
+        plural('zh', total, {
+          one: () => '1 封带日期',
+          other: (n) => `${n} 封带日期`,
+        }),
+      important: (total: number) =>
+        plural('zh', total, {
+          one: () => '1 封重要邮件',
+          other: (n) => `${n} 封重要邮件`,
+        }),
+    },
     worthKnowing: '值得了解',
     quick: '快速处理',
     needsLook: '需要你看',
