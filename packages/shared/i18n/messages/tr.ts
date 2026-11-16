@@ -485,8 +485,6 @@ export const tr: Messages = {
       inbox: 'Hepsi, en yenisi üstte',
     },
     find: {
-      back: 'Postaya dön',
-      open: 'Ara',
       recent: 'Son aramalar',
       tips: 'İpuçları',
       clearRecent: 'Temizle',

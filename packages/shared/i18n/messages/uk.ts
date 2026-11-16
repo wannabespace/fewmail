@@ -967,8 +967,6 @@ export const uk: Messages = {
       inbox: 'Усе, найновіше зверху',
     },
     find: {
-      back: 'Назад до пошти',
-      open: 'Пошук',
       recent: 'Недавні пошуки',
       tips: 'Підказки',
       clearRecent: 'Очистити',

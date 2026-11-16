@@ -397,8 +397,6 @@ export const zh: Messages = {
       inbox: '全部，最新在前',
     },
     find: {
-      back: '返回邮件',
-      open: '搜索',
       recent: '最近搜索',
       tips: '提示',
       clearRecent: '清除',

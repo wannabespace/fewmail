@@ -27,11 +27,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@fewmail/ui/components/empty'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import {
   Popover,
@@ -59,7 +54,6 @@ import {
   Archive02Icon,
   ArrowDown01Icon,
   Attachment01Icon,
-  ArrowLeft01Icon,
   Clock01Icon,
   DashboardSquare01Icon,
   Delete02Icon,
@@ -116,7 +110,7 @@ import { useCompose } from '~/components/compose/compose-context'
 import { KeyHints } from '~/components/key-hints'
 import { SleepingLogoMark } from '~/components/logo'
 import { ExtractedChips } from '~/components/mail-meta'
-import { MailSearchStart, rememberSearch } from '~/components/mail-search'
+import { MailSearchField, rememberSearch } from '~/components/mail-search'
 import {
   ParticipantAvatars,
   participantNamesOf,
@@ -2236,13 +2230,11 @@ const PickedBar = ({
 
 const useSearchField = ({
   isPicking,
-  isSearching,
   onCloseThread,
   q,
   thread,
 }: {
   isPicking: boolean
-  isSearching: boolean
   onCloseThread: () => Promise<void>
   q: string | undefined
   thread: string | undefined
@@ -2257,25 +2249,31 @@ const useSearchField = ({
     }
     setSearch(value)
   }
-  const applySearch = (value: string) =>
-    navigate({
-      replace: isSearching,
+  // Only a query from elsewhere (⌘K, a label, Back) refills the field: refilling it with its own would drop what was typed since.
+  const sentRef = useRef(q)
+  const onQuery = useEffectEvent((next: string | undefined) => {
+    if (next !== sentRef.current) {
+      sentRef.current = next
+      fill(next ?? '')
+    }
+  })
+  useEffect(() => onQuery(q), [q])
+  const applySearch = (value: string) => {
+    sentRef.current = value || undefined
+    return navigate({
+      replace: !!q,
       to: '.',
-      search: (prev) => ({ ...prev, q: value, thread: undefined }),
-    })
-  const leaveSearch = () => {
-    setSearch('')
-    void navigate({
-      to: '.',
-      search: (prev) => ({ ...prev, q: undefined, thread: undefined }),
+      search: (prev) => ({ ...prev, q: value || undefined, thread: undefined }),
     })
   }
-  useHotkey('/', () =>
-    isSearching ? searchRef.current?.focus() : applySearch('')
-  )
+  useHotkey('/', () => {
+    posthog.capture('mail_search_opened', { key: 'slash' })
+    searchRef.current?.focus()
+    searchRef.current?.select()
+  })
   const typedSearch = useDebouncedMemo(() => search.trim(), [search], 400)
   const onTyped = useEffectEvent((value: string) => {
-    if (isSearching && value !== q && !isIncompleteOperator(value)) {
+    if (value !== (q ?? '') && !isIncompleteOperator(value)) {
       void applySearch(value)
     }
   })
@@ -2293,19 +2291,18 @@ const useSearchField = ({
     ignoreInputs: false,
     target: searchRef,
   })
+  const isOpen = q !== undefined || !!search.trim()
   useHotkey(
     'Escape',
     () => {
       if (thread) {
         void onCloseThread()
-      } else if (q || search.trim()) {
+      } else {
         fill('')
         void applySearch('')
-      } else {
-        leaveSearch()
       }
     },
-    { enabled: !!thread || (isSearching && !isPicking) }
+    { enabled: !!thread || (isOpen && !isPicking) }
   )
   return {
     addToSearch: (text: string) => {
@@ -2315,9 +2312,7 @@ const useSearchField = ({
       )
       searchRef.current?.focus()
     },
-    applySearch,
-    isSearchStart: isSearching && !search.trim(),
-    leaveSearch,
+    isSearching: !!q || !!search.trim(),
     onSearchInput: (value: string) => startTransition(() => setSearch(value)),
     search,
     searchFor: (query: string) => {
@@ -2329,8 +2324,7 @@ const useSearchField = ({
   }
 }
 
-const listModeOf = (q: string | undefined, picked: Filter) => {
-  const isSearching = q !== undefined
+const listModeOf = (isSearching: boolean, picked: Filter) => {
   const filter: Filter = isSearching ? 'inbox' : picked
   return {
     filter,
@@ -2427,10 +2421,6 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const hasAgent = useHasAgent()
   const { filter: picked, mailbox, q, thread } = useSearch({ strict: false })
   const inboxView = useSubscription(inboxViewStore)
-  const { filter, grouping, isSearching, shownFilter, view } = listModeOf(
-    q,
-    folder ?? picked ?? inboxView
-  )
   const navigate = useNavigate()
   const listRef = useRef<HTMLUListElement>(null)
   const closeThread = () =>
@@ -2438,25 +2428,27 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const [pickedIds, setPickedIds] = useState(NONE_PICKED)
   const {
     addToSearch,
-    applySearch,
-    isSearchStart,
-    leaveSearch,
+    isSearching,
     search,
     onSearchInput,
     searchFor,
     searchRef,
   } = useSearchField({
     isPicking: pickedIds.size > 0,
-    isSearching,
     onCloseThread: closeThread,
     q,
     thread,
   })
+  const { filter, grouping, shownFilter, view } = listModeOf(
+    isSearching,
+    folder ?? picked ?? inboxView
+  )
+  const query = isSearching ? (q ?? '') : undefined
   const [cursor, setCursor] = useState(HIDDEN_CURSOR)
   const [keptUnread, setKeptUnread] = useState<KeptUnread>(new Set())
   const [unfolded, setUnfolded] = useState<ReadonlySet<GroupKey>>(new Set())
   const [relatedOf, setRelatedOf] = useState<string | null>(null)
-  const listKey = `${filter}:${mailbox ?? ''}:${q ?? ''}`
+  const listKey = `${filter}:${mailbox ?? ''}:${query === undefined ? '' : `q:${query}`}`
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
     setCursorListKey(listKey)
@@ -2485,10 +2477,15 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   } = useListRows({
     filter,
     mailbox,
-    q,
+    q: query,
     typed: search.trim(),
   })
-  const older = useOlderRows({ filter, isLoading: isFetching, mailbox, q })
+  const older = useOlderRows({
+    filter,
+    isLoading: isFetching,
+    mailbox,
+    q: query,
+  })
   const { groupStarts, rows: groupedRows } = useGroupedRows(
     listedRows,
     grouping,
@@ -2564,8 +2561,8 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
       if (message.isUnread) {
         setKeptUnread((kept) => new Set(kept).add(message.threadId))
       }
-      if (q) {
-        rememberSearch(q)
+      if (query) {
+        rememberSearch(query)
       }
       void navigate({
         to: '.',
@@ -2745,83 +2742,46 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
           className="flex min-w-0 flex-1 flex-col border-r"
         >
           <PickedBar list={list} picks={picks}>
-            {isSearching ? (
-              <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3 max-md:px-4">
-                <IconButton
-                  icon={ArrowLeft01Icon}
-                  label={t.mail.find.back}
-                  variant="ghost-muted"
-                  size="icon-sm"
-                  onClick={leaveSearch}
+            <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3 max-md:px-4">
+              {view ? (
+                <ViewPicker
+                  filter={view}
+                  unread={unread}
+                  onChange={showFilter}
                 />
-                <InputGroup size="sm">
-                  <InputGroupAddon>
-                    <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    ref={searchRef}
-                    autoFocus
-                    defaultValue={search}
-                    onChange={(event) => onSearchInput(event.target.value)}
-                    placeholder={t.mail.search}
-                    aria-label={t.mail.search}
+              ) : (
+                <h1 className="flex items-center gap-2 px-1 text-sm font-medium">
+                  <HugeiconsIcon
+                    icon={FILTER_ICONS[shownFilter]}
+                    strokeWidth={2}
+                    className="text-muted-foreground size-4"
                   />
-                  {isSearchPending && (
-                    <InputGroupAddon align="inline-end">
-                      <Spinner
-                        className="text-muted-foreground"
-                        label={t.mail.find.searching}
-                      />
-                    </InputGroupAddon>
-                  )}
-                </InputGroup>
-                <MailboxSelect
-                  mailbox={mailbox}
-                  mailboxes={mailboxes}
-                  onChange={pickMailbox}
-                />
-              </div>
-            ) : (
-              <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3 max-md:px-4">
-                {view ? (
-                  <ViewPicker
-                    filter={view}
-                    unread={unread}
-                    onChange={showFilter}
-                  />
-                ) : (
-                  <h1 className="flex items-center gap-2 px-1 text-sm font-medium">
-                    <HugeiconsIcon
-                      icon={FILTER_ICONS[shownFilter]}
-                      strokeWidth={2}
-                      className="text-muted-foreground size-4"
-                    />
-                    {t.mail.filter[shownFilter]}
-                  </h1>
-                )}
-                <MailboxSelect
-                  mailbox={mailbox}
-                  mailboxes={mailboxes}
-                  onChange={pickMailbox}
-                />
-                <div className="ml-auto flex items-center gap-3">
+                  {t.mail.filter[shownFilter]}
+                </h1>
+              )}
+              <MailboxSelect
+                mailbox={mailbox}
+                mailboxes={mailboxes}
+                onChange={pickMailbox}
+              />
+              <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-3">
+                {!isSearching && (
                   <InGmailCount filter={shownFilter} mailbox={mailbox} />
-                  <IconButton
-                    icon={Search01Icon}
-                    label={t.mail.find.open}
-                    shortcut={<Kbd>/</Kbd>}
-                    variant="outline"
-                    size="icon-sm"
-                    onClick={() => applySearch('')}
-                  />
-                </div>
+                )}
+                <MailSearchField
+                  autoFocus={q !== undefined}
+                  defaultValue={search}
+                  fieldRef={searchRef}
+                  isEmpty={!search.trim()}
+                  isPending={isSearchPending}
+                  onAdd={addToSearch}
+                  onInput={onSearchInput}
+                  onSearch={searchFor}
+                />
               </div>
-            )}
+            </div>
           </PickedBar>
-          {isSearchStart && (
-            <MailSearchStart onAdd={addToSearch} onSearch={searchFor} />
-          )}
-          {total === 0 && !isSearchStart && (
+          {total === 0 && (
             <MailListEmpty
               hasOlder={older.hasMore}
               filter={filter}

@@ -506,8 +506,6 @@ export const pl: Messages = {
       inbox: 'Wszystko, od najnowszych',
     },
     find: {
-      back: 'Wróć do poczty',
-      open: 'Szukaj',
       recent: 'Ostatnie wyszukiwania',
       tips: 'Wskazówki',
       clearRecent: 'Wyczyść',

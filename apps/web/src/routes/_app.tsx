@@ -10,6 +10,7 @@ import {
   createFileRoute,
   Outlet,
   redirect,
+  useNavigate,
   useRouter,
 } from '@tanstack/react-router'
 import { type } from 'arktype'
@@ -22,6 +23,7 @@ import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { ConfirmDialog } from '~/components/confirm-dialog'
+import { mailSearchFieldStore } from '~/components/mail-search'
 import { MobileBar, Sidebar } from '~/components/nav'
 import { NoticeBar } from '~/components/notice-bar'
 import { ThreadPane } from '~/components/thread-link'
@@ -95,6 +97,17 @@ const AppLayout = () => {
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
   // A field keeps ⌘Z for its own text.
   useHotkey('Mod+Z', undoLatest, { ignoreInputs: true })
+  const navigate = useNavigate()
+  useHotkey('Mod+F', () => {
+    posthog.capture('mail_search_opened', { key: 'mod_f' })
+    const field = mailSearchFieldStore.get()
+    if (field) {
+      field.focus()
+      field.select()
+    } else {
+      void navigate({ search: { q: '' }, to: '/mail' })
+    }
+  })
   const sidebarWidth = useSubscription(sidebarWidthStore)
   const router = useRouter()
   const isMobile = useIsMobile()
