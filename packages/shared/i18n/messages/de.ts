@@ -973,8 +973,6 @@ export const de: Messages = {
       inbox: 'Alles, Neuestes zuerst',
     },
     find: {
-      back: 'Zurück zur Post',
-      open: 'Suchen',
       recent: 'Letzte Suchen',
       tips: 'Tipps',
       clearRecent: 'Leeren',

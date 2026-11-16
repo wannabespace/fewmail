@@ -409,8 +409,6 @@ export const ja: Messages = {
       inbox: 'すべて、新しい順',
     },
     find: {
-      back: 'メールに戻る',
-      open: '検索',
       recent: '最近の検索',
       tips: 'ヒント',
       clearRecent: 'クリア',

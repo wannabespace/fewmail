@@ -61,6 +61,8 @@ import {
   Clock01Icon,
   Delete02Icon,
   InboxDownloadIcon,
+  Mail01Icon,
+  MailOpenIcon,
   MailReply01Icon,
   PinIcon,
   PinOffIcon,
@@ -1257,6 +1259,7 @@ export const MailRowActions = ({
   onSnoozeOpenChange,
   reveal = 'row',
   sweep,
+  thread,
 }: {
   actions: ReturnType<typeof useMailActions>
   canSnooze: boolean
@@ -1267,6 +1270,7 @@ export const MailRowActions = ({
   onSnoozeOpenChange?: (open: boolean) => void
   reveal?: 'line' | 'row'
   sweep: Sweep
+  thread?: { isUnread: boolean; threadId: string }
 }) => {
   const t = useT()
   const size = reveal === 'line' ? 'icon-2xs' : 'icon-sm'
@@ -1295,6 +1299,19 @@ export const MailRowActions = ({
         variant="ghost-muted"
         onClick={onEach(messageIds, sweep.action.mutate)}
       />
+      {thread && (
+        <IconButton
+          icon={thread.isUnread ? MailOpenIcon : Mail01Icon}
+          label={thread.isUnread ? t.actionKind.mark_read : t.mail.markUnread}
+          size={size}
+          variant="ghost-muted"
+          onClick={() =>
+            (thread.isUnread ? actions.markRead : actions.markUnread).mutate({
+              threadId: thread.threadId,
+            })
+          }
+        />
+      )}
       {canSnooze && (
         <DropdownMenu open={isSnoozeOpen} onOpenChange={onSnoozeOpenChange}>
           <DropdownMenuTrigger

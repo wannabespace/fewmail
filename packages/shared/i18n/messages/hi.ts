@@ -407,8 +407,6 @@ export const hi: Messages = {
       inbox: 'सब कुछ, नया सबसे ऊपर',
     },
     find: {
-      back: 'मेल पर वापस',
-      open: 'खोजें',
       recent: 'हाल की खोजें',
       tips: 'सुझाव',
       clearRecent: 'साफ़ करें',

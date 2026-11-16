@@ -492,8 +492,6 @@ export const en = {
       inbox: 'Everything, newest first',
     },
     find: {
-      back: 'Back to mail',
-      open: 'Search',
       recent: 'Recent searches',
       tips: 'Tips',
       clearRecent: 'Clear',

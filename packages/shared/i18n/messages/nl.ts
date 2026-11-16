@@ -498,8 +498,6 @@ export const nl: Messages = {
       inbox: 'Alles, nieuwste eerst',
     },
     find: {
-      back: 'Terug naar mail',
-      open: 'Zoeken',
       recent: 'Recente zoekopdrachten',
       tips: 'Tips',
       clearRecent: 'Wissen',

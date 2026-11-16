@@ -491,8 +491,6 @@ export const id: Messages = {
       inbox: 'Semua, terbaru di atas',
     },
     find: {
-      back: 'Kembali ke email',
-      open: 'Cari',
       recent: 'Pencarian terakhir',
       tips: 'Tips',
       clearRecent: 'Hapus',

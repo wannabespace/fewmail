@@ -408,8 +408,6 @@ export const ko: Messages = {
       inbox: '전체, 최신순',
     },
     find: {
-      back: '메일로 돌아가기',
-      open: '검색',
       recent: '최근 검색',
       tips: '팁',
       clearRecent: '지우기',

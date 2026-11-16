@@ -502,8 +502,6 @@ export const pt: Messages = {
       inbox: 'Tudo, mais recentes primeiro',
     },
     find: {
-      back: 'Voltar ao e-mail',
-      open: 'Buscar',
       recent: 'Buscas recentes',
       tips: 'Dicas',
       clearRecent: 'Limpar',
