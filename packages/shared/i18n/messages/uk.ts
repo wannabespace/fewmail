@@ -989,6 +989,8 @@ export const uk: Messages = {
       },
     },
     group: {
+      named: 'Відправник або тема',
+      mentioned: 'Згадується в тексті',
       read: 'Прочитані',
       earlier: 'Раніше',
       important: 'Важливе',

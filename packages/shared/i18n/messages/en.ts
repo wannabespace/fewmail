@@ -555,6 +555,8 @@ export const en = {
       },
     },
     group: {
+      named: 'Sender or subject',
+      mentioned: 'Mentioned in the text',
       read: 'Read',
       earlier: 'Earlier',
       important: 'Important',

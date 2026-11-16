@@ -1003,6 +1003,8 @@ export const fr: Messages = {
       },
     },
     group: {
+      named: 'Expéditeur ou objet',
+      mentioned: 'Mentionné dans le texte',
       read: 'Lus',
       earlier: 'Plus anciens',
       important: 'Importants',

@@ -425,6 +425,8 @@ export const hi: Messages = {
       },
     },
     group: {
+      named: 'प्रेषक या विषय',
+      mentioned: 'टेक्स्ट में उल्लेख',
       read: 'पढ़े हुए',
       earlier: 'पहले के',
       important: 'ज़रूरी',

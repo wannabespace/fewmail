@@ -554,6 +554,8 @@ export const id: Messages = {
       },
     },
     group: {
+      named: 'Pengirim atau subjek',
+      mentioned: 'Disebut dalam teks',
       read: 'Sudah dibaca',
       earlier: 'Sebelumnya',
       important: 'Penting',

@@ -991,6 +991,8 @@ export const de: Messages = {
       },
     },
     group: {
+      named: 'Absender oder Betreff',
+      mentioned: 'Im Text erwähnt',
       read: 'Gelesen',
       earlier: 'Früher',
       important: 'Wichtig',

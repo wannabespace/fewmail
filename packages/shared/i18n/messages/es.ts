@@ -994,6 +994,8 @@ export const es: Messages = {
       },
     },
     group: {
+      named: 'Remitente o asunto',
+      mentioned: 'Mencionado en el texto',
       read: 'Leídos',
       earlier: 'Anteriores',
       important: 'Importantes',

@@ -299,7 +299,7 @@ const ALL_MAILBOXES = 'all'
 /** Threads read ahead of the click; the cursor's neighbours and a hovered row are added as they come. */
 const PREFETCHED_ROWS = 10
 
-type Grouping = 'focused' | 'unread' | 'categories' | 'none'
+type Grouping = 'focused' | 'unread' | 'categories' | 'search' | 'none'
 
 const groupingOf = (filter: Filter): Grouping =>
   filter === 'focused' || filter === 'unread' || filter === 'categories'
@@ -333,7 +333,13 @@ const CATEGORY_GROUPS = [
   'other',
 ] as const satisfies readonly MailCategory[]
 
-type GroupKey = (typeof GROUPS)[number] | MailCategory
+/** Search results that name the query lead; the rest Gmail found in the text, which the row never shows. */
+const SEARCH_GROUPS = ['named', 'mentioned'] as const
+
+type GroupKey =
+  | (typeof GROUPS)[number]
+  | (typeof SEARCH_GROUPS)[number]
+  | MailCategory
 
 const GROUP_OF: Record<MailCategory, GroupKey> = {
   calendar: 'plans',
@@ -389,14 +395,43 @@ const groupKeyOf = (
     : group
 }
 
+const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
+const SEARCH_WORD = /[\p{L}\p{N}]{3,}/gu
+
+/** An operator query is Gmail's own and precise, so it stays one list; otherwise headers only when both groups exist. */
+const searchGroupsOf = <Row extends ListedRow>(rows: Row[], typed: string) => {
+  const words = GMAIL_OPERATOR.test(typed)
+    ? []
+    : (typed.toLowerCase().match(SEARCH_WORD) ?? [])
+  const byKey = Map.groupBy(rows, ({ message }) =>
+    words.some((word) =>
+      `${message.fromName ?? ''} ${message.fromEmail} ${message.subject}`
+        .toLowerCase()
+        .includes(word)
+    )
+      ? 'named'
+      : 'mentioned'
+  )
+  return byKey.size < 2
+    ? []
+    : SEARCH_GROUPS.map((key) => {
+        const members = byKey.get(key) ?? []
+        return { key, rows: members, total: members.length }
+      })
+}
+
 const groupRows = <Row extends ListedRow>(
   rows: Row[],
   grouping: Grouping,
   keptUnread: KeptUnread,
-  unfolded: ReadonlySet<GroupKey>
+  unfolded: ReadonlySet<GroupKey>,
+  typed: string
 ) => {
   if (grouping === 'none') {
     return []
+  }
+  if (grouping === 'search') {
+    return searchGroupsOf(rows, typed)
   }
   const byKey = Map.groupBy(rows, (row) =>
     groupKeyOf(grouping, row, keptUnread)
@@ -446,9 +481,10 @@ const useGroupedRows = <Row extends ListedRow>(
   listedRows: Row[],
   grouping: Grouping,
   keptUnread: KeptUnread,
-  unfolded: ReadonlySet<GroupKey>
+  unfolded: ReadonlySet<GroupKey>,
+  typed: string
 ) => {
-  const groups = groupRows(listedRows, grouping, keptUnread, unfolded)
+  const groups = groupRows(listedRows, grouping, keptUnread, unfolded, typed)
   if (groups.length === 0) {
     return {
       groupStarts: new Map<string, (typeof groups)[number]>(),
@@ -2379,7 +2415,7 @@ const listModeOf = (isSearching: boolean, picked: Filter) => {
   const filter: Filter = isSearching ? 'inbox' : picked
   return {
     filter,
-    grouping: isSearching ? ('none' as const) : groupingOf(filter),
+    grouping: isSearching ? ('search' as const) : groupingOf(filter),
     isSearching,
     shownFilter: picked,
     view: isInboxView(picked) ? picked : null,
@@ -2541,7 +2577,8 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
     listedRows,
     grouping,
     keptUnread,
-    unfolded
+    unfolded,
+    search.trim()
   )
   const toggleGroup = (key: GroupKey) =>
     setUnfolded((current) => {

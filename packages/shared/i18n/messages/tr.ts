@@ -552,6 +552,8 @@ export const tr: Messages = {
       },
     },
     group: {
+      named: 'Gönderen veya konu',
+      mentioned: 'Metinde geçiyor',
       read: 'Okunanlar',
       earlier: 'Daha eski',
       important: 'Önemli',
