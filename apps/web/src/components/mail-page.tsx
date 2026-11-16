@@ -1804,7 +1804,9 @@ const useListRows = ({
           typed,
         })
   const isSearchPending =
-    !!typed && !isIncompleteOperator(typed) && (typed !== q || found.isFetching)
+    !!typed &&
+    !isIncompleteOperator(typed) &&
+    (typed !== q || indexed.isFetching || found.isFetching)
   return {
     isSearchPending,
     drafts,
@@ -1886,6 +1888,26 @@ const OlderRowsLoader = ({
         </Button>
       )}
     </li>
+  )
+}
+
+/** Rows already listed while the index or Gmail is still searching: more may come. */
+const MoreSearching = ({
+  isPending,
+  total,
+}: {
+  isPending: boolean
+  total: number
+}) => {
+  const t = useT()
+  return (
+    total > 0 &&
+    isPending && (
+      <li className="text-muted-foreground flex items-center justify-center gap-2 py-3 text-xs">
+        <Spinner />
+        {t.mail.find.searching}
+      </li>
+    )
   )
 }
 
@@ -2834,6 +2856,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
               scroller={listRef}
             />
             <OlderRowsLoader {...older} />
+            <MoreSearching isPending={isSearchPending} total={total} />
           </ul>
           {!thread && (
             <KeyHints

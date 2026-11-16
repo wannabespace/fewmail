@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "a87c9d07-6a8f-46ed-a70e-fc58db934d75",
+  "id": "7c06c465-167d-4dff-ad00-0b97aa7fe717",
   "prevIds": [
-    "f303af1f-170e-4d71-a759-89b3a21fdf77"
+    "03eaef88-795e-4267-9a0b-2713b280a37b"
   ],
   "ddl": [
     {
@@ -1248,6 +1248,32 @@
       "generated": null,
       "identity": null,
       "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "commitments"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "amount_cents",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "commitments"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "currency",
       "entityType": "columns",
       "schema": "public",
       "table": "commitments"
