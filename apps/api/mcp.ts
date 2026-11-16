@@ -7,14 +7,16 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
 import { APIError, isAPIError } from 'better-auth/api'
 import { createAuthClient } from 'better-auth/client'
+import { Result } from 'better-result'
 import { z } from 'zod'
 
 import { deliverHomeLink } from './delivery'
 import { auth, AUTH_ISSUER, MCP_RESOURCE } from './lib/auth'
+import { logError } from './lib/log'
 import { capture } from './lib/posthog'
 import { proposeConsent, UNTRUSTED_MAIL } from './services/agent-run'
 import { agentTools, toolAccess } from './services/agent-tools'
-import { isAppConnected } from './services/integrations'
+import { findConnectedApp } from './services/integrations'
 import { getPlanInfo, hasAgent } from './services/plan'
 import { getSettings } from './services/settings'
 import { skillPrompt } from './services/skills'
@@ -64,7 +66,7 @@ const waitForYes = async (
   }
 }
 
-const createServer = (userId: string, withAgent: boolean) => {
+const createServer = (userId: string, app: string, withAgent: boolean) => {
   const server = new McpServer(
     {
       name: 'fewmail',
@@ -91,11 +93,19 @@ const createServer = (userId: string, withAgent: boolean) => {
       },
       async (input: unknown) => {
         capture(userId, 'mcp_tool_called', { access, tool: name })
-        return json(
+        const started = performance.now()
+        const result = await Result.tryPromise(async () =>
           access === 'consent'
             ? await waitForYes(userId, server, name as ConsentToolName, input)
             : await tool.run(input as never)
         )
+        const call = `mcp ${app} ${name} ${access} user=${userId} ${Math.round(performance.now() - started)}ms`
+        if (result.isErr()) {
+          logError(call, result.error.cause)
+          throw result.error.cause
+        }
+        console.info(call)
+        return json(result.value)
       }
     )
   }
@@ -145,30 +155,33 @@ const verifyCaller = async (request: Request) => {
       typ: 'at+jwt',
     },
   })
-  if (!token.sub || !(await isAppConnected(token.sub, String(token.azp)))) {
+  const clientId = String(token.azp)
+  const app = token.sub && (await findConnectedApp(token.sub, clientId))
+  if (!token.sub || !app) {
     throw new APIError('UNAUTHORIZED', { error: 'invalid_token' })
   }
-  return token.sub
+  return { app: JSON.stringify(app.name ?? clientId), userId: token.sub }
 }
 
 export const handleMcp = async (request: Request) => {
-  const userId = await verifyCaller(request).catch((error: unknown) => {
+  const caller = await verifyCaller(request).catch((error: unknown) => {
     if (!isAPIError(error)) {
       throw error
     }
     return createResourceServerChallenge(error, MCP_RESOURCE)
   })
-  if (typeof userId !== 'string') {
+  if (!caller || !('userId' in caller)) {
     return Response.json(
       { error: 'Connect Fewmail from your MCP client and allow access.' },
-      { headers: userId?.headers, status: userId?.statusCode ?? 401 }
+      { headers: caller?.headers, status: caller?.statusCode ?? 401 }
     )
   }
+  const { app, userId } = caller
   const transport = new WebStandardStreamableHTTPServerTransport({
     enableJsonResponse: true,
     sessionIdGenerator: undefined,
   })
-  await createServer(userId, hasAgent(await getPlanInfo(userId))).connect(
+  await createServer(userId, app, hasAgent(await getPlanInfo(userId))).connect(
     transport
   )
   return transport.handleRequest(request)
