@@ -154,7 +154,6 @@ export default defineConfig({
     'tailwindcss/no-unnecessary-arbitrary-value': 'error',
   },
   settings: {
-    'react-hooks': { additionalEffectHooks: '(useMountedEffect)' },
     shadcn: {
       ignoreImports: '^@fewmail/ui/components/(brand|icons)/',
       ui: '@fewmail/ui/components',

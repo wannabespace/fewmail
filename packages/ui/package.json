@@ -10,7 +10,6 @@
     "./components/*.variants": "./src/components/*.variants.ts",
     "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
-    "./hookas/*": "./src/hookas/*.ts",
     "./theme-constants": "./src/theme-constants.ts",
     "./theme-observer": "./src/theme-observer.tsx",
     "./theme-store": "./src/theme-store.ts"

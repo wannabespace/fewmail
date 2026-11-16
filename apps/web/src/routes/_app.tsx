@@ -94,6 +94,12 @@ const AppLayout = () => {
   useNewVersionToast()
   useIdentify()
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
+  const changeCommandMenu = (isOpen: boolean) => {
+    if (isOpen) {
+      posthog.capture('command_menu_opened')
+    }
+    setIsCommandMenuOpen(isOpen)
+  }
   // A field keeps ⌘Z for its own text.
   useHotkey('Mod+Z', undoLatest, { ignoreInputs: true })
   const navigate = useNavigate()
@@ -144,7 +150,7 @@ const AppLayout = () => {
           <div className="flex min-w-0 flex-1 flex-col">
             <MobileBar
               email={me.user.email}
-              onSearch={() => setIsCommandMenuOpen(true)}
+              onSearch={() => changeCommandMenu(true)}
             />
             <NoticeBar />
             <div
@@ -165,7 +171,7 @@ const AppLayout = () => {
             >
               <Sidebar
                 email={me.user.email}
-                onSearch={() => setIsCommandMenuOpen(true)}
+                onSearch={() => changeCommandMenu(true)}
               />
             </ResizablePanel>
             <ResizableSeparator />
@@ -182,7 +188,7 @@ const AppLayout = () => {
         )}
         <CommandMenu
           open={isCommandMenuOpen}
-          onOpenChange={setIsCommandMenuOpen}
+          onOpenChange={changeCommandMenu}
         />
         <UpgradeDialog />
         <ClearOutDialog />

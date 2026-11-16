@@ -46,7 +46,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
-import { useDebouncedMemo } from '@fewmail/ui/hookas/use-debounced-memo'
 import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -99,10 +98,12 @@ import {
   use,
   useEffect,
   useEffectEvent,
+  useMemo,
   useRef,
   useState,
 } from 'react'
 import type { ComponentProps, CSSProperties, ReactNode, RefObject } from 'react'
+import { createDebouncedFn } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { createElementSize, createWebStorageValue } from 'seitu/web'
 
@@ -2258,7 +2259,14 @@ const useSearchField = ({
     }
   })
   useEffect(() => onQuery(q), [q])
+  // One pause for every keystroke: a search sent at once (Enter, Escape, a pick) drops the one still waiting, or it lands after.
+  const afterTyping = useMemo(
+    () => createDebouncedFn((run: () => void) => run(), 400),
+    []
+  )
+  useEffect(() => afterTyping.cancel, [afterTyping])
   const applySearch = (value: string) => {
+    afterTyping.cancel()
     sentRef.current = value || undefined
     return navigate({
       replace: !!q,
@@ -2271,13 +2279,14 @@ const useSearchField = ({
     searchRef.current?.focus()
     searchRef.current?.select()
   })
-  const typedSearch = useDebouncedMemo(() => search.trim(), [search], 400)
-  const onTyped = useEffectEvent((value: string) => {
-    if (value !== (q ?? '') && !isIncompleteOperator(value)) {
-      void applySearch(value)
-    }
-  })
-  useEffect(() => onTyped(typedSearch), [typedSearch])
+  const searchTyped = (typed: string) => {
+    const value = typed.trim()
+    afterTyping(() => {
+      if (value !== (sentRef.current ?? '') && !isIncompleteOperator(value)) {
+        void applySearch(value)
+      }
+    })
+  }
   useHotkey(
     'Enter',
     () => {
@@ -2307,13 +2316,16 @@ const useSearchField = ({
   return {
     addToSearch: (text: string) => {
       const current = searchRef.current?.value.trim() ?? ''
-      fill(
-        `${[current, text].filter(Boolean).join(' ')}${isIncompleteOperator(text) ? '' : ' '}`
-      )
+      const value = `${[current, text].filter(Boolean).join(' ')}${isIncompleteOperator(text) ? '' : ' '}`
+      fill(value)
+      searchTyped(value)
       searchRef.current?.focus()
     },
     isSearching: !!q || !!search.trim(),
-    onSearchInput: (value: string) => startTransition(() => setSearch(value)),
+    onSearchInput: (value: string) => {
+      searchTyped(value)
+      startTransition(() => setSearch(value))
+    },
     search,
     searchFor: (query: string) => {
       fill(query)

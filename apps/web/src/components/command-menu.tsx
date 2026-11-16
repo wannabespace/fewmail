@@ -29,12 +29,11 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
-import { posthog } from '~/lib/posthog'
 
 import { AskAnswer } from './ask-answer'
 import { clearOutStore } from './clear-out-dialog'
@@ -58,7 +57,7 @@ export const CommandMenu = ({
   onOpenChange: setOpen,
   open,
 }: {
-  onOpenChange: (open: boolean | ((open: boolean) => boolean)) => void
+  onOpenChange: (open: boolean) => void
   open: boolean
 }) => {
   const t = useT()
@@ -78,12 +77,7 @@ export const CommandMenu = ({
 
   const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
 
-  useHotkey('Mod+K', () => setOpen((value) => !value), { ignoreInputs: false })
-  useEffect(() => {
-    if (open) {
-      posthog.capture('command_menu_opened')
-    }
-  }, [open])
+  useHotkey('Mod+K', () => setOpen(!open), { ignoreInputs: false })
 
   const run = (action: () => unknown) => {
     setOpen(false)
