@@ -1315,6 +1315,8 @@ const MailRow = ({
         messageIds={[message.id]}
         onSnoozeOpenChange={onSnoozeOpenChange}
         sweep={sweep}
+        // The open thread marks itself read again, so its row offers no read toggle.
+        thread={isOpen ? undefined : message}
       />
       <MailRowCode
         actions={actions}
@@ -1417,6 +1419,8 @@ const PinnedRow = ({
         messageIds={[message.id]}
         onSnoozeOpenChange={onSnoozeOpenChange}
         sweep={sweep}
+        // The open thread marks itself read again, so its row offers no read toggle.
+        thread={isOpen ? undefined : message}
       />
       <RowPick
         className="top-2.5"
