@@ -723,7 +723,7 @@ impl Workspace {
                             Button::new("read-email")
                                 .size(Size::Sm)
                                 .variant(Variant::GhostMuted)
-                                .label(t(cx, "queue.readEmail"))
+                                .label(t(cx, "queue.openEmail"))
                                 .on_click(cx.listener(move |workspace, _, _, cx| {
                                     workspace.open_email(&email, cx)
                                 })),

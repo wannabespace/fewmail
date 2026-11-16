@@ -741,7 +741,7 @@ export const nl: Messages = {
     unpick: 'Niet kiezen',
     askedByYou: 'Op jouw verzoek',
     draftedInVoice: 'Opgesteld in jouw stijl',
-    readEmail: 'E-mail lezen',
+    openEmail: 'E-mail openen',
     send: 'Versturen',
     rewrite: 'Herschrijven',
     shorterInstruction: 'Maak het korter.',

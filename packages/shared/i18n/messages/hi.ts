@@ -594,7 +594,7 @@ export const hi: Messages = {
     unpick: 'चुनाव हटाएँ',
     askedByYou: 'आपके कहने पर',
     draftedInVoice: 'आपके अंदाज़ में ड्राफ़्ट किया गया',
-    readEmail: 'ईमेल पढ़ें',
+    openEmail: 'ईमेल खोलें',
     send: 'भेजें',
     rewrite: 'दोबारा लिखें',
     shorterInstruction: 'इसे छोटा करें।',

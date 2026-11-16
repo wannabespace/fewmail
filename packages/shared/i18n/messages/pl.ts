@@ -761,7 +761,7 @@ export const pl: Messages = {
     unpick: 'Odznacz',
     askedByYou: 'Na twoją prośbę',
     draftedInVoice: 'Napisane twoim głosem',
-    readEmail: 'Przeczytaj e-mail',
+    openEmail: 'Otwórz e-mail',
     send: 'Wyślij',
     rewrite: 'Przepisz',
     shorterInstruction: 'Skróć to.',

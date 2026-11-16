@@ -1165,7 +1165,7 @@ export const de: Messages = {
     unpick: 'Abwählen',
     askedByYou: 'Von dir angefragt',
     draftedInVoice: 'In deinem Ton entworfen',
-    readEmail: 'E-Mail lesen',
+    openEmail: 'E-Mail öffnen',
     send: 'Senden',
     rewrite: 'Umschreiben',
     shorterInstruction: 'Mach es kürzer.',

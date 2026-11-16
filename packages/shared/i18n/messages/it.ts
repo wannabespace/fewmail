@@ -1172,7 +1172,7 @@ export const it: Messages = {
     unpick: 'Deseleziona',
     askedByYou: 'Richiesto da te',
     draftedInVoice: 'Scritto con la tua voce',
-    readEmail: 'Leggi l’email',
+    openEmail: 'Apri l’email',
     send: 'Invia',
     rewrite: 'Riscrivi',
     shorterInstruction: 'Rendila più breve.',

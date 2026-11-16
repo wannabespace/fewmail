@@ -746,7 +746,7 @@ export const pt: Messages = {
     unpick: 'Desmarcar',
     askedByYou: 'Pedido por você',
     draftedInVoice: 'Escrito com a sua voz',
-    readEmail: 'Ler o e-mail',
+    openEmail: 'Abrir o e-mail',
     send: 'Enviar',
     rewrite: 'Reescrever',
     shorterInstruction: 'Deixe mais curto.',

@@ -734,7 +734,7 @@ export const en = {
     approve: 'Approve',
     delete: 'Delete',
     draftedInVoice: 'Drafted in your voice',
-    readEmail: 'Read email',
+    openEmail: 'Open email',
     pick: 'Pick',
     picked: (n: number) => `${n} picked`,
     send: 'Send',

@@ -1168,7 +1168,7 @@ export const es: Messages = {
     unpick: 'Quitar',
     askedByYou: 'Lo pediste tú',
     draftedInVoice: 'Redactado con tu voz',
-    readEmail: 'Leer el correo',
+    openEmail: 'Abrir el correo',
     send: 'Enviar',
     rewrite: 'Reescribir',
     shorterInstruction: 'Hazlo más corto.',

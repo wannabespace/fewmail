@@ -707,7 +707,7 @@ export const QueueCard = ({
                   }
                   shortcut={<Kbd>O</Kbd>}
                 >
-                  {t.queue.readEmail}
+                  {t.queue.openEmail}
                 </Button>
               )}
               {isReply && <ReplyExtras item={item} onAddEvent={onAddEvent} />}
