@@ -958,7 +958,7 @@ export const it: Messages = {
     pinned: 'Fissati',
     showAll: (n: number) => `Mostra tutti e ${n}`,
     showFewer: 'Mostra meno',
-    inGmail: (count: string) => `${count} in Gmail`,
+    inboxTotal: (count: string) => `${count} in totale`,
     markShownRead: (total: number) =>
       plural('it', total, {
         one: (n) => `Segna ${n} come letta`,
@@ -1057,7 +1057,7 @@ export const it: Messages = {
     },
     instruction: 'Di’ all’agente come rispondere, o premi Invio',
     open: 'Apri',
-    search: 'Cerca o descrivi: fatture di Anna del mese scorso',
+    search: 'Cerca o descrivi',
     openInGmail: 'Apri in Gmail',
     collapseFullPage: 'Torna all’elenco',
     unsubscribe: 'Annulla iscrizione',

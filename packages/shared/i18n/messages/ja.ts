@@ -392,7 +392,7 @@ export const ja: Messages = {
     pinned: 'ピン留め',
     showAll: (n: number) => `すべて表示（${n}）`,
     showFewer: '折りたたむ',
-    inGmail: (count: string) => `Gmail に ${count} 件`,
+    inboxTotal: (count: string) => `全 ${count} 件`,
     markShownRead: (n: number) => `${n}件を既読にする`,
     oneTimeCode: {
       copied: 'コードをコピーしました',
@@ -488,7 +488,7 @@ export const ja: Messages = {
     open: '開く',
     openInGmail: 'Gmail で開く',
     collapseFullPage: 'リストに戻る',
-    search: '検索または説明：先月の Anna からの請求書',
+    search: '検索または説明',
     unsubscribe: '配信停止',
     unsubscribed: '配信を停止しました',
     unsubscribeFailed:

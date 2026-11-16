@@ -526,7 +526,7 @@ export const nl: Messages = {
     pinned: 'Vastgezet',
     showAll: (n: number) => `Alle ${n} tonen`,
     showFewer: 'Minder tonen',
-    inGmail: (count: string) => `${count} in Gmail`,
+    inboxTotal: (count: string) => `${count} in totaal`,
     markShownRead: (n: number) => `${n} als gelezen markeren`,
     oneTimeCode: {
       copied: 'Code gekopieerd',
@@ -620,7 +620,7 @@ export const nl: Messages = {
     },
     instruction: 'Vertel de agent hoe te antwoorden, of druk gewoon op Enter',
     open: 'Openen',
-    search: 'Zoek of beschrijf: facturen van Anna van vorige maand',
+    search: 'Zoek of beschrijf',
     openInGmail: 'Openen in Gmail',
     collapseFullPage: 'Terug naar de lijst',
     unsubscribe: 'Afmelden',

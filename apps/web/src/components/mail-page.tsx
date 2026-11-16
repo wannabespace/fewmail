@@ -561,7 +561,7 @@ const InGmailCount = ({
     isInboxView(filter) &&
     total !== undefined && (
       <span className="text-muted-foreground text-xs tabular-nums">
-        {t.mail.inGmail(total.toLocaleString(locale))}
+        {t.mail.inboxTotal(total.toLocaleString(locale))}
       </span>
     )
   )

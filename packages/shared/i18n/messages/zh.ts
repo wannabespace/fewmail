@@ -383,7 +383,7 @@ export const zh: Messages = {
     pinned: '已置顶',
     showAll: (n: number) => `显示全部 ${n} 封`,
     showFewer: '收起',
-    inGmail: (count: string) => `Gmail 中共 ${count} 个`,
+    inboxTotal: (count: string) => `共 ${count} 个`,
     markShownRead: (n: number) => `将 ${n} 封标为已读`,
     oneTimeCode: {
       copied: '已复制验证码',
@@ -479,7 +479,7 @@ export const zh: Messages = {
     open: '打开',
     openInGmail: '在 Gmail 中打开',
     collapseFullPage: '返回列表',
-    search: '搜索或描述：Anna 上个月发来的发票',
+    search: '搜索或描述',
     unsubscribe: '退订',
     unsubscribed: '已退订',
     unsubscribeFailed: '该发件人不支持一键退订，所以这封邮件已归档。',

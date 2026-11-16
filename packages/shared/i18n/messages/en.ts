@@ -520,7 +520,7 @@ export const en = {
     pinned: 'Pinned',
     showAll: (n: number) => `Show all ${n}`,
     showFewer: 'Show fewer',
-    inGmail: (count: string) => `${count} in Gmail`,
+    inboxTotal: (count: string) => `${count} total`,
     markShownRead: (n: number) => `Mark ${n} read`,
     oneTimeCode: {
       copied: 'Code copied',
@@ -616,7 +616,7 @@ export const en = {
     open: 'Open',
     openInGmail: 'Open in Gmail',
     collapseFullPage: 'Back to the list',
-    search: 'Search or describe: invoices from Anna last month',
+    search: 'Search or describe',
     unsubscribe: 'Unsubscribe',
     unsubscribed: 'Unsubscribed',
     unsubscribeFailed:

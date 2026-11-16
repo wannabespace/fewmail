@@ -517,7 +517,7 @@ export const tr: Messages = {
     pinned: 'Sabitlenenler',
     showAll: (n: number) => `${n} öğenin tümünü göster`,
     showFewer: 'Daha az göster',
-    inGmail: (count: string) => `${count} Gmail’de`,
+    inboxTotal: (count: string) => `Toplam ${count}`,
     markShownRead: (n: number) => `${n} tanesini okundu işaretle`,
     oneTimeCode: {
       copied: 'Kod kopyalandı',
@@ -612,7 +612,7 @@ export const tr: Messages = {
     },
     instruction: 'Ajana nasıl yanıtlayacağını söyle ya da sadece Enter’a bas',
     open: 'Aç',
-    search: "Ara ya da anlat: Anna'dan geçen ayki faturalar",
+    search: 'Ara ya da anlat',
     openInGmail: "Gmail'de aç",
     collapseFullPage: 'Listeye dön',
     unsubscribe: 'Abonelikten çık',

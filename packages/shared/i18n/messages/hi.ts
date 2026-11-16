@@ -390,7 +390,7 @@ export const hi: Messages = {
     pinned: 'पिन किए गए',
     showAll: (n: number) => `सभी ${n} दिखाएँ`,
     showFewer: 'कम दिखाएँ',
-    inGmail: (count: string) => `Gmail में ${count}`,
+    inboxTotal: (count: string) => `कुल ${count}`,
     markShownRead: (n: number) => `${n} को पढ़ा हुआ चिह्नित करें`,
     oneTimeCode: {
       copied: 'कोड कॉपी हो गया',
@@ -487,7 +487,7 @@ export const hi: Messages = {
     open: 'खोलें',
     openInGmail: 'Gmail में खोलें',
     collapseFullPage: 'सूची पर वापस जाएँ',
-    search: 'खोजें या बताएँ: पिछले महीने Anna के इनवॉइस',
+    search: 'खोजें या बताएँ',
     unsubscribe: 'अनसब्सक्राइब करें',
     unsubscribed: 'अनसब्सक्राइब हो गया',
     unsubscribeFailed:

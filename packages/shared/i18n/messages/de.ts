@@ -956,7 +956,7 @@ export const de: Messages = {
     pinned: 'Angeheftet',
     showAll: (n: number) => `Alle ${n} zeigen`,
     showFewer: 'Weniger zeigen',
-    inGmail: (count: string) => `${count} in Gmail`,
+    inboxTotal: (count: string) => `${count} insgesamt`,
     markShownRead: (n: number) => `${n} als gelesen markieren`,
     oneTimeCode: {
       copied: 'Code kopiert',
@@ -1051,7 +1051,7 @@ export const de: Messages = {
     instruction:
       'Sag dem Agenten, wie er antworten soll, oder drück einfach Enter',
     open: 'Öffnen',
-    search: 'Suchen oder beschreiben: Rechnungen von Anna letzten Monat',
+    search: 'Suchen oder beschreiben',
     openInGmail: 'In Gmail öffnen',
     collapseFullPage: 'Zurück zur Liste',
     unsubscribe: 'Abmelden',

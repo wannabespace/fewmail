@@ -538,7 +538,7 @@ export const pl: Messages = {
     pinned: 'Przypięte',
     showAll: (n: number) => `Pokaż wszystkie (${n})`,
     showFewer: 'Pokaż mniej',
-    inGmail: (count: string) => `${count} w Gmailu`,
+    inboxTotal: (count: string) => `${count} łącznie`,
     markShownRead: (total: number) =>
       plural('pl', total, {
         one: (n) => `Oznacz ${n} jako przeczytaną`,
@@ -638,7 +638,7 @@ export const pl: Messages = {
     instruction:
       'Powiedz agentowi, jak odpowiedzieć, albo po prostu naciśnij Enter',
     open: 'Otwórz',
-    search: 'Szukaj lub opisz: faktury od Anny z zeszłego miesiąca',
+    search: 'Szukaj lub opisz',
     openInGmail: 'Otwórz w Gmailu',
     collapseFullPage: 'Wróć do listy',
     unsubscribe: 'Wypisz się',

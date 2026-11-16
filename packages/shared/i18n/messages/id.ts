@@ -519,7 +519,7 @@ export const id: Messages = {
     pinned: 'Disematkan',
     showAll: (n: number) => `Tampilkan semua ${n}`,
     showFewer: 'Tampilkan lebih sedikit',
-    inGmail: (count: string) => `${count} di Gmail`,
+    inboxTotal: (count: string) => `${count} total`,
     markShownRead: (n: number) => `Tandai ${n} sudah dibaca`,
     oneTimeCode: {
       copied: 'Kode disalin',
@@ -615,7 +615,7 @@ export const id: Messages = {
     },
     instruction: 'Beri tahu agen cara membalas, atau tekan Enter saja',
     open: 'Buka',
-    search: 'Cari atau jelaskan: tagihan dari Anna bulan lalu',
+    search: 'Cari atau jelaskan',
     openInGmail: 'Buka di Gmail',
     collapseFullPage: 'Kembali ke daftar',
     unsubscribe: 'Berhenti berlangganan',

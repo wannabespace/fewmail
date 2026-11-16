@@ -391,7 +391,7 @@ export const ko: Messages = {
     pinned: '고정됨',
     showAll: (n: number) => `${n}개 모두 보기`,
     showFewer: '접기',
-    inGmail: (count: string) => `Gmail에 ${count}개`,
+    inboxTotal: (count: string) => `총 ${count}개`,
     markShownRead: (n: number) => `${n}개 읽음 표시`,
     oneTimeCode: {
       copied: '코드를 복사했습니다',
@@ -487,7 +487,7 @@ export const ko: Messages = {
     open: '열기',
     openInGmail: 'Gmail에서 열기',
     collapseFullPage: '목록으로 돌아가기',
-    search: '검색하거나 설명하세요: 지난달 Anna가 보낸 청구서',
+    search: '검색하거나 설명하세요',
     unsubscribe: '구독 취소',
     unsubscribed: '구독을 취소했어요',
     unsubscribeFailed:

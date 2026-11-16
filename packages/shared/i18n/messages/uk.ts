@@ -954,7 +954,7 @@ export const uk: Messages = {
     pinned: 'Закріплені',
     showAll: (n: number) => `Показати всі ${n}`,
     showFewer: 'Згорнути',
-    inGmail: (count: string) => `${count} у Gmail`,
+    inboxTotal: (count: string) => `Усього ${count}`,
     markShownRead: (n: number) => `Прочитати ${n}`,
     oneTimeCode: {
       copied: 'Код скопійовано',
@@ -1048,7 +1048,7 @@ export const uk: Messages = {
     },
     instruction: 'Скажи агенту, як відповісти, або просто натисни Enter',
     open: 'Відкрити',
-    search: 'Шукай або опиши: рахунки від Анни за минулий місяць',
+    search: 'Шукай або опиши',
     openInGmail: 'Відкрити в Gmail',
     collapseFullPage: 'Згорнути до списку',
     unsubscribe: 'Відписатися',
