@@ -968,6 +968,25 @@ interface ListWindowItem {
   size: number
 }
 
+const useScrollToCursor = (
+  items: ListWindowItem[],
+  virtualizer: { scrollToIndex: (index: number) => void }
+) => {
+  const cursorIndex = items.findIndex(({ isCursor }) => isCursor)
+  const cursorKey = items[cursorIndex]?.key
+  const scrolledCursorKey = useRef<string>(undefined)
+  // Only a new cursor row scrolls: one pushed down by rows unfolding above it (a group's Show all) would yank the list away.
+  useEffect(() => {
+    if (
+      cursorIndex !== HIDDEN_CURSOR &&
+      cursorKey !== scrolledCursorKey.current
+    ) {
+      virtualizer.scrollToIndex(cursorIndex)
+    }
+    scrolledCursorKey.current = cursorKey
+  }, [cursorIndex, cursorKey, virtualizer])
+}
+
 /**
  * Renders the rows in and near view between spacers that hold the rest of the list's height, so the rows stay in the flow: a folding row pulls up the ones below and group headers stick.
  * Keyed by the list: a view, mailbox or search swap replaces every row at once, so nothing folds out; typing in search churns rows, so they leave at once.
@@ -1020,12 +1039,7 @@ const ListWindow = ({
       setArriving(new Set())
     }
   }, [arriving])
-  const cursorIndex = items.findIndex(({ isCursor }) => isCursor)
-  useEffect(() => {
-    if (cursorIndex !== HIDDEN_CURSOR) {
-      virtualizer.scrollToIndex(cursorIndex)
-    }
-  }, [cursorIndex, virtualizer])
+  useScrollToCursor(items, virtualizer)
   const shown = virtualizer.getVirtualItems()
   const [head, second] = shown
   const sticky =
