@@ -522,10 +522,8 @@ export const id: Messages = {
     inGmail: (count: string) => `${count} di Gmail`,
     markShownRead: (n: number) => `Tandai ${n} sudah dibaca`,
     oneTimeCode: {
-      archive: 'Salin dan arsipkan',
       copied: 'Kode disalin',
       copy: 'Salin kode',
-      trash: 'Salin dan hapus',
     },
     openUnsubscribePage: 'Buka halaman',
     unsubscribeYourself:

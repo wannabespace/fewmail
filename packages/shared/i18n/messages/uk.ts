@@ -957,10 +957,8 @@ export const uk: Messages = {
     inGmail: (count: string) => `${count} у Gmail`,
     markShownRead: (n: number) => `Прочитати ${n}`,
     oneTimeCode: {
-      archive: 'Скопіювати й архівувати',
       copied: 'Код скопійовано',
       copy: 'Скопіювати код',
-      trash: 'Скопіювати й видалити',
     },
     openUnsubscribePage: 'Відкрити сторінку',
     unsubscribeYourself:

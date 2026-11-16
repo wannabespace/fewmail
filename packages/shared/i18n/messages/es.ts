@@ -962,10 +962,8 @@ export const es: Messages = {
         other: (n) => `Marcar ${n} como leídos`,
       }),
     oneTimeCode: {
-      archive: 'Copiar y archivar',
       copied: 'Código copiado',
       copy: 'Copiar código',
-      trash: 'Copiar y eliminar',
     },
     openUnsubscribePage: 'Abrir página',
     unsubscribeYourself:

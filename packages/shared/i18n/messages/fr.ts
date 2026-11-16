@@ -971,10 +971,8 @@ export const fr: Messages = {
         other: (n) => `Marquer ${n} comme lus`,
       }),
     oneTimeCode: {
-      archive: 'Copier et archiver',
       copied: 'Code copié',
       copy: 'Copier le code',
-      trash: 'Copier et supprimer',
     },
     openUnsubscribePage: 'Ouvrir la page',
     unsubscribeYourself:

@@ -395,10 +395,8 @@ export const ja: Messages = {
     inGmail: (count: string) => `Gmail に ${count} 件`,
     markShownRead: (n: number) => `${n}件を既読にする`,
     oneTimeCode: {
-      archive: 'コピーしてアーカイブ',
       copied: 'コードをコピーしました',
       copy: 'コードをコピー',
-      trash: 'コピーして削除',
     },
     openUnsubscribePage: 'ページを開く',
     unsubscribeYourself:

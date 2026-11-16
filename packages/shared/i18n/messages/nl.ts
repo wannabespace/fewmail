@@ -529,10 +529,8 @@ export const nl: Messages = {
     inGmail: (count: string) => `${count} in Gmail`,
     markShownRead: (n: number) => `${n} als gelezen markeren`,
     oneTimeCode: {
-      archive: 'Kopiëren en archiveren',
       copied: 'Code gekopieerd',
       copy: 'Code kopiëren',
-      trash: 'Kopiëren en verwijderen',
     },
     openUnsubscribePage: 'Pagina openen',
     unsubscribeYourself:

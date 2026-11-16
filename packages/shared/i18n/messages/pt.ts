@@ -533,10 +533,8 @@ export const pt: Messages = {
         other: (n) => `Marcar ${n} como lidos`,
       }),
     oneTimeCode: {
-      archive: 'Copiar e arquivar',
       copied: 'Código copiado',
       copy: 'Copiar código',
-      trash: 'Copiar e excluir',
     },
     openUnsubscribePage: 'Abrir página',
     unsubscribeYourself:

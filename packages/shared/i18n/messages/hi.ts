@@ -393,10 +393,8 @@ export const hi: Messages = {
     inGmail: (count: string) => `Gmail में ${count}`,
     markShownRead: (n: number) => `${n} को पढ़ा हुआ चिह्नित करें`,
     oneTimeCode: {
-      archive: 'कॉपी करें और संग्रहित करें',
       copied: 'कोड कॉपी हो गया',
       copy: 'कोड कॉपी करें',
-      trash: 'कॉपी करें और हटाएँ',
     },
     openUnsubscribePage: 'पेज खोलें',
     unsubscribeYourself:

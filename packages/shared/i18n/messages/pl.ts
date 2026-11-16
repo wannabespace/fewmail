@@ -540,10 +540,8 @@ export const pl: Messages = {
         other: (n) => `Oznacz ${n} jako przeczytane`,
       }),
     oneTimeCode: {
-      archive: 'Kopiuj i archiwizuj',
       copied: 'Skopiowano kod',
       copy: 'Kopiuj kod',
-      trash: 'Kopiuj i usuń',
     },
     openUnsubscribePage: 'Otwórz stronę',
     unsubscribeYourself:

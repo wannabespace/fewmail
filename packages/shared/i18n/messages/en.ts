@@ -523,10 +523,8 @@ export const en = {
     inGmail: (count: string) => `${count} in Gmail`,
     markShownRead: (n: number) => `Mark ${n} read`,
     oneTimeCode: {
-      archive: 'Copy and archive',
       copied: 'Code copied',
       copy: 'Copy code',
-      trash: 'Copy and delete',
     },
     openUnsubscribePage: 'Open page',
     unsubscribeYourself:
