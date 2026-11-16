@@ -2,7 +2,6 @@ import { db } from '@fewmail/db'
 import {
   actions,
   analyses,
-  commitments,
   mailboxes,
   messages,
   rules,
@@ -59,6 +58,7 @@ import { writeReply } from './agent'
 import { searchByQuestion } from './ask'
 import { createEvent } from './calendar'
 import { runCleanup } from './cleanup'
+import { settleByCard } from './commitments'
 import { NotFoundError } from './mail-errors'
 import {
   listOlderThreads,
@@ -857,15 +857,7 @@ const applyActionSideEffects = async (
     await runCleanup(userId, senders)
   }
   if (typeof action.payload?.commitmentId === 'string') {
-    await db
-      .update(commitments)
-      .set({ status: 'done' })
-      .where(
-        and(
-          eq(commitments.id, action.payload.commitmentId),
-          eq(commitments.userId, userId)
-        )
-      )
+    await settleByCard(userId, action.payload.commitmentId)
   }
 }
 

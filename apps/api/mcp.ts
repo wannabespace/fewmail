@@ -9,7 +9,7 @@ import { APIError, isAPIError } from 'better-auth/api'
 import { createAuthClient } from 'better-auth/client'
 import { z } from 'zod'
 
-import { deliverHomeLink } from './home-link'
+import { deliverHomeLink } from './delivery'
 import { auth, AUTH_ISSUER, MCP_RESOURCE } from './lib/auth'
 import { capture } from './lib/posthog'
 import { proposeConsent, UNTRUSTED_MAIL } from './services/agent-run'
@@ -30,8 +30,8 @@ const ANNOTATIONS = {
   write: { destructiveHint: false, readOnlyHint: false },
 }
 
-/** Free reads mail without the LLM; `get_person` writes a note with it, so it stays with the agent. */
-const LLM_READS = new Set(['get_person'])
+/** Free reads mail without the LLM; `get_person` writes a note with it and promises are the agent's own, so both stay with it. */
+const LLM_READS = new Set(['get_person', 'list_promises'])
 
 const titleOf = (name: string) => {
   const words = name.replaceAll('_', ' ')
@@ -56,7 +56,7 @@ const waitForYes = async (
     name,
   })
   if (isNew) {
-    await deliverHomeLink(userId, t, { headline: from, text: question })
+    await deliverHomeLink(userId, { headline: from, text: question })
   }
   return {
     note: 'Nothing happened yet. The user answers this in Fewmail (Home and a notification); the yes carries it out there. Tell them so, and do not call it again.',

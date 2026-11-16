@@ -107,6 +107,8 @@ export const en = {
       report_spam: 'Reporting spam',
       mark_not_spam: 'Moving out of spam',
       move_to_inbox: 'Moving to the inbox',
+      list_promises: 'Checking promises',
+      set_promise_status: 'Updating the promise',
     } satisfies Record<AgentToolName, string>,
     to: (recipients: string) => `To ${recipients}`,
     until: (time: string) => `Until ${time}`,
@@ -353,6 +355,8 @@ export const en = {
     failed: 'Something went wrong. Try again.',
     needsPro: 'This needs Fewmail Pro.',
     alreadySent: "Already sent, it's too late to undo.",
+    consentChanged:
+      'This changed since it was asked. Look at it again and decide on Home.',
     notFound: 'This is no longer here. It may have been deleted.',
     offline: "Can't reach Fewmail. Check your connection.",
   },
@@ -1524,6 +1528,8 @@ export const en = {
     allDone: 'All done. Nothing needs you.',
     allDoneLead:
       'I keep reading new mail, and anything that needs you shows up here.',
+    allowanceSpent: (date: string) =>
+      `This month’s agent allowance is spent: summaries and drafts come back on ${date}. Until then I still write down promises and last days.`,
     byRules: (n: number) => `Your rules took care of ${n}.`,
     decisions: 'Decisions',
     journal: {

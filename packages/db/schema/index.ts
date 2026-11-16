@@ -29,6 +29,7 @@ export type { AiFeature } from './settings'
 export {
   aiUsage,
   botMessages,
+  deliveries,
   devices,
   subscriptions,
   telegramLinks,
@@ -38,6 +39,7 @@ export {
 } from './settings'
 export {
   bulkPrints,
+  commitmentEvents,
   commitments,
   domainAges,
   domainSightings,

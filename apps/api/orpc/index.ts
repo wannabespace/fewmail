@@ -4,6 +4,7 @@ import { Result } from 'better-result'
 import { auth } from '../lib/auth'
 import { AttachmentsTooLargeError } from '../services/attachments-error'
 import { CalendarAccessError } from '../services/calendar'
+import { ConsentChangedError } from '../services/consent-error'
 import { LimitReachedError } from '../services/limit-error'
 import { NotFoundError } from '../services/mail'
 import { AlreadySentError } from '../services/outbox'
@@ -17,6 +18,12 @@ const notFoundToOrpc = orpc.middleware(async ({ next }) => {
     return result.value
   }
   const error = result.error.cause
+  if (error instanceof ConsentChangedError) {
+    throw new ORPCError('CONFLICT', {
+      data: { consentChanged: true },
+      message: error.message,
+    })
+  }
   if (error instanceof AlreadySentError) {
     throw new ORPCError('CONFLICT', { message: error.message })
   }

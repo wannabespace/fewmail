@@ -64,6 +64,8 @@ export const de: Messages = {
       report_spam: 'Melde Spam',
       mark_not_spam: 'Hole aus dem Spam',
       move_to_inbox: 'Verschiebe in den Posteingang',
+      list_promises: 'Prüfe Versprechen',
+      set_promise_status: 'Aktualisiere das Versprechen',
     },
     to: (recipients: string) => `An ${recipients}`,
     until: (time: string) => `Bis ${time}`,
@@ -831,6 +833,8 @@ export const de: Messages = {
     failed: 'Etwas ist schiefgelaufen. Versuch es noch einmal.',
     needsPro: 'Dafür brauchst du Fewmail Pro.',
     alreadySent: 'Schon gesendet – Rückgängig geht nicht mehr.',
+    consentChanged:
+      'Das hat sich seit der Anfrage geändert. Sieh es dir noch einmal an und entscheide auf der Startseite.',
     notFound: 'Das gibt es nicht mehr – vielleicht wurde es gelöscht.',
     offline: 'Fewmail ist nicht erreichbar. Prüf deine Verbindung.',
   },
@@ -1441,6 +1445,8 @@ export const de: Messages = {
     allDone: 'Alles erledigt. Nichts braucht dich.',
     allDoneLead:
       'Ich lese neue Mails weiter, und alles, was dich braucht, erscheint hier.',
+    allowanceSpent: (date: string) =>
+      `Das Kontingent des Agenten ist für diesen Monat aufgebraucht: Zusammenfassungen und Entwürfe gibt es ab ${date} wieder. Bis dahin schreibe ich Versprechen und Fristen weiter auf.`,
     byRules: (n: number) => `Deine Regeln haben ${n} erledigt.`,
     decisions: 'Entscheidungen',
     journal: {

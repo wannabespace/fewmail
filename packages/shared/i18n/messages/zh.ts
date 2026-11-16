@@ -108,6 +108,8 @@ export const zh: Messages = {
       report_spam: '正在举报垃圾邮件',
       mark_not_spam: '正在移出垃圾邮件',
       move_to_inbox: '正在移到收件箱',
+      list_promises: '正在查看承诺',
+      set_promise_status: '正在更新承诺',
     },
     to: (recipients: string) => `收件人：${recipients}`,
     until: (time: string) => `推迟到：${time}`,
@@ -266,6 +268,7 @@ export const zh: Messages = {
     failed: '出了点问题，请重试。',
     needsPro: '此功能需要 Fewmail Pro。',
     alreadySent: '已发送，无法撤销。',
+    consentChanged: '提出请求后内容已变化。请再看一遍，然后在主页决定。',
     notFound: '它已不存在，可能已被删除。',
     offline: '无法连接到 Fewmail，请检查网络。',
   },
@@ -1368,6 +1371,8 @@ export const zh: Messages = {
     readingNow: (total: number) => `助手正在读 ${total} 封新邮件`,
     allDone: '都处理好了。没有需要你的事。',
     allDoneLead: '我会继续读新邮件，需要你处理的事会出现在这里。',
+    allowanceSpent: (date: string) =>
+      `本月的代理额度已用完：摘要和草稿将于 ${date} 恢复。在此之前，我仍会记下承诺和截止日期。`,
     byRules: (n: number) => `你的规则处理了 ${n} 件。`,
     decisions: '待你决定',
     journal: {

@@ -1,4 +1,9 @@
-import type { DeviceKind } from '@fewmail/shared/agent'
+import type {
+  DeliveryChannel,
+  DeliveryNotice,
+  DeliveryStatus,
+  DeviceKind,
+} from '@fewmail/shared/agent'
 import { TRIAL_DAYS } from '@fewmail/shared/agent'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { sql } from 'drizzle-orm'
@@ -87,6 +92,34 @@ export const devices = d.snakeCase.table('devices', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
 })
+
+/**
+ * One notification on one channel, kept until it went out: a channel that fails is retried with backoff and, once
+ * `dead`, its group (the same notification on every channel) falls back to a channel it has not tried. A messenger
+ * reads an urgent card (`actionId`) again when it goes, so a card already answered is `skipped`; a push shows `notice`.
+ */
+export const deliveries = d.snakeCase.table(
+  'deliveries',
+  {
+    ...baseTable,
+    actionId: d.uuid().references(() => actions.id, { onDelete: 'cascade' }),
+    attempts: d.smallint().default(0).notNull(),
+    channel: d.text().$type<DeliveryChannel>().notNull(),
+    groupId: d.uuid().notNull(),
+    nextAttemptAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    notice: encryptedJson<DeliveryNotice>().notNull(),
+    sentAt: d.timestamp({ withTimezone: true }),
+    status: d.text().$type<DeliveryStatus>().default('pending').notNull(),
+    userId: d
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+  },
+  (table) => [
+    d.index('deliveries_due_idx').on(table.status, table.nextAttemptAt),
+    d.index('deliveries_group_idx').on(table.groupId),
+  ]
+)
 
 /** What the agent cost per user and calendar month (UTC), in USD, against `PLAN_ALLOWANCE_USD`. */
 export const usage = d.snakeCase.table(

@@ -107,6 +107,8 @@ export const nl: Messages = {
       report_spam: 'Spam melden',
       mark_not_spam: 'Uit spam halen',
       move_to_inbox: 'Naar de inbox verplaatsen',
+      list_promises: 'Beloftes bekijken',
+      set_promise_status: 'Belofte bijwerken',
     },
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
@@ -356,6 +358,8 @@ export const nl: Messages = {
     failed: 'Er ging iets mis. Probeer het opnieuw.',
     needsPro: 'Hiervoor heb je Fewmail Pro nodig.',
     alreadySent: 'Al verzonden, te laat om ongedaan te maken.',
+    consentChanged:
+      'Dit is veranderd sinds het werd gevraagd. Bekijk het opnieuw en beslis op Home.',
     notFound: 'Dit bestaat niet meer. Misschien is het verwijderd.',
     offline: 'Fewmail is niet bereikbaar. Controleer je verbinding.',
   },
@@ -1535,6 +1539,8 @@ export const nl: Messages = {
     allDone: 'Alles klaar. Niets heeft je nodig.',
     allDoneLead:
       'Ik blijf nieuwe mail lezen, en wat jou nodig heeft, verschijnt hier.',
+    allowanceSpent: (date: string) =>
+      `Het tegoed van de agent is op voor deze maand: samenvattingen en concepten komen terug op ${date}. Tot dan noteer ik nog steeds beloftes en deadlines.`,
     byRules: (n: number) => `Je regels hebben er ${n} afgehandeld.`,
     decisions: 'Beslissingen',
     journal: {

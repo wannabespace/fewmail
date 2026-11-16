@@ -1,5 +1,7 @@
 import type {
+  CommitmentActor,
   CommitmentKind,
+  CommitmentStatus,
   DomainList,
   PatternKind,
   SpamVerdict,
@@ -101,15 +103,46 @@ export const commitments = d.snakeCase.table(
   {
     ...baseTable,
     dueAt: d.timestamp({ withTimezone: true }).notNull(),
+    /** The user changed its text, date or status by hand: the agent never rewrites what they wrote. */
+    editedAt: d.timestamp({ withTimezone: true }),
+    /** The email that proved it fulfilled, acknowledged or cancelled. */
+    evidenceMessageId: d
+      .uuid()
+      .references(() => messages.id, { onDelete: 'set null' }),
     kind: d.text().$type<CommitmentKind>().notNull().default('mine'),
     messageId: d.uuid().references(() => messages.id, { onDelete: 'cascade' }),
     promise: encryptedText().notNull(),
     recipient: searchableText(),
-    status: d.text().$type<'open' | 'reminded' | 'done'>().notNull(),
+    /** Its card went to Home once (`processDueCommitments`); it never surfaces again, whatever its status. */
+    remindedAt: d.timestamp({ withTimezone: true }),
+    status: d.text().$type<CommitmentStatus>().notNull(),
     threadId: d.text().notNull(),
     userId: userId(),
   },
-  (table) => [d.index('commitments_due_idx').on(table.status, table.dueAt)]
+  (table) => [
+    d.index('commitments_due_idx').on(table.status, table.dueAt),
+    d.index('commitments_user_thread_idx').on(table.userId, table.threadId),
+  ]
+)
+
+/** Append-only: every status a promise went through, who moved it and the email that showed it. No text, so nothing to encrypt. */
+export const commitmentEvents = d.snakeCase.table(
+  'commitment_events',
+  {
+    ...baseTable,
+    by: d.text().$type<CommitmentActor>().notNull(),
+    commitmentId: d
+      .uuid()
+      .notNull()
+      .references(() => commitments.id, { onDelete: 'cascade' }),
+    from: d.text().$type<CommitmentStatus>(),
+    messageId: d.uuid().references(() => messages.id, { onDelete: 'set null' }),
+    to: d.text().$type<CommitmentStatus>().notNull(),
+    userId: userId(),
+  },
+  (table) => [
+    d.index('commitment_events_commitment_idx').on(table.commitmentId),
+  ]
 )
 
 export interface ReadingSummary {

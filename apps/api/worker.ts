@@ -24,20 +24,18 @@ import {
   sql,
 } from 'drizzle-orm'
 
+import { dispatchDeliveries } from './delivery'
 import { localClock, previousDay } from './lib/clock'
 import { logError } from './lib/log'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { savedThisWeek } from './services/home'
-import {
-  chatIdForUser,
-  urgentPushTargets,
-  whatsappForUser,
-} from './services/integrations'
+import { chatIdForUser, whatsappForUser } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
 import { listQueue } from './services/mail'
 import {
-  flushNotifications,
+  availableChannels,
+  enqueueDelivery,
   notify,
   readingNotification,
   urgentNotification,
@@ -56,12 +54,8 @@ import {
   holdEarlierMail,
   syncMailbox,
 } from './services/sync'
-import { sendReading, sendUrgent, sendWeek } from './telegram'
-import {
-  sendWhatsappReading,
-  sendWhatsappUrgent,
-  sendWhatsappWeek,
-} from './whatsapp'
+import { sendReading, sendWeek } from './telegram'
+import { sendWhatsappReading, sendWhatsappWeek } from './whatsapp'
 
 const TICK_MS = 60_000
 const SYNC_EVERY_MINUTES = 2
@@ -181,7 +175,7 @@ const sendReadingIssue = async (
     ])
     return
   }
-  notify(userId, readingNotification(settings.language, issue))
+  await notify(userId, readingNotification(settings.language, issue))
 }
 
 const sendWeeklyReport = async (userId: string, chatId: string | null) => {
@@ -292,38 +286,28 @@ const learnDueVoices = async () => {
   }
 }
 
-/** Telegram and WhatsApp are Pro channels; device push reaches every plan. A failed channel never re-sends the others. */
-const sendUrgentEverywhere = async (id: string, userId: string) => {
+/**
+ * `notifiedAt` and the card's deliveries are written together: the card is queued exactly once, and each channel
+ * then retries and falls back on its own (`dispatchDeliveries`), so a messenger that is down loses nothing.
+ */
+const notifyUrgent = async (id: string, userId: string) => {
   const queue = await listQueue(userId)
   const item = queue.find(({ action }) => action.id === id)
-  if (!item) {
-    return
-  }
-  notify(userId, urgentNotification(item))
-  if (!hasAgent(await getPlanInfo(userId))) {
-    return
-  }
-  const { telegramChat, whatsapp } = await urgentPushTargets(userId)
-  const sent = await Promise.allSettled([
-    telegramChat && sendUrgent(telegramChat, userId, item),
-    whatsapp && sendWhatsappUrgent(userId, item),
-  ])
-  for (const result of sent) {
-    if (result.status === 'rejected') {
-      logError(`urgent ${id}`, result.reason)
-    }
-  }
-}
-
-const notifyUrgent = async (id: string, userId: string) => {
-  try {
-    await sendUrgentEverywhere(id, userId)
-  } finally {
-    await db
+  const channels = item ? await availableChannels(userId, true) : []
+  await db.transaction(async (tx) => {
+    const [claimed] = await tx
       .update(actions)
       .set({ notifiedAt: new Date() })
-      .where(eq(actions.id, id))
-  }
+      .where(and(eq(actions.id, id), isNull(actions.notifiedAt)))
+      .returning({ id: actions.id })
+    if (claimed && item) {
+      await enqueueDelivery(
+        userId,
+        { actionId: id, channels, notice: urgentNotification(item) },
+        tx
+      )
+    }
+  })
 }
 
 const pushUrgent = async () => {
@@ -358,7 +342,10 @@ const tick = async () => {
       once('mornings', sendDueMornings),
       once('cleanups', offerDueCleanups),
       once('voices', learnDueVoices),
-      once('urgent', pushUrgent),
+      once('urgent', async () => {
+        await pushUrgent()
+        await dispatchDeliveries()
+      }),
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),
       once('commitments', processDueCommitments),
@@ -384,7 +371,6 @@ process.on('SIGTERM', async () => {
     // oxlint-disable-next-line eslint/no-await-in-loop -- polling the in-flight jobs until they finish
     await Bun.sleep(250)
   }
-  await flushNotifications()
   console.log(`worker stopped, ${running.size} jobs left`)
   process.exit(0)
 })

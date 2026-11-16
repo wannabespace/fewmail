@@ -108,6 +108,8 @@ export const hi: Messages = {
       report_spam: 'स्पैम रिपोर्ट कर रहे हैं',
       mark_not_spam: 'स्पैम से निकाल रहे हैं',
       move_to_inbox: 'इनबॉक्स में ले जा रहे हैं',
+      list_promises: 'वादे देख रहे हैं',
+      set_promise_status: 'वादा अपडेट कर रहे हैं',
     },
     to: (recipients: string) => `प्रति: ${recipients}`,
     until: (time: string) => `तक: ${time}`,
@@ -270,6 +272,7 @@ export const hi: Messages = {
     failed: 'कुछ गड़बड़ हो गई। फिर से कोशिश करें।',
     needsPro: 'इसके लिए Fewmail Pro चाहिए।',
     alreadySent: 'पहले ही भेजा जा चुका है, अब पूर्ववत नहीं हो सकता।',
+    consentChanged: 'पूछे जाने के बाद यह बदल गया है। इसे फिर से देखें और होम पर तय करें।',
     notFound: 'यह अब मौजूद नहीं है। शायद इसे हटा दिया गया है।',
     offline: 'Fewmail से कनेक्ट नहीं हो पा रहा। अपना कनेक्शन जाँचें।',
   },
@@ -1402,6 +1405,8 @@ export const hi: Messages = {
       }),
     allDone: 'सब हो गया। आपके लिए कुछ बाकी नहीं।',
     allDoneLead: 'मैं नए मेल पढ़ता रहूँगा, और जिस पर आपका ध्यान चाहिए, वह यहाँ दिखेगा।',
+    allowanceSpent: (date: string) =>
+      `इस महीने एजेंट का कोटा खत्म हो गया: सारांश और ड्राफ़्ट ${date} को फिर मिलेंगे। तब तक मैं वादे और आख़िरी तारीख़ें लिखता रहूँगा।`,
     byRules: (n: number) => `आपके नियमों ने ${n} संभाल लिए।`,
     decisions: 'फ़ैसले',
     journal: {

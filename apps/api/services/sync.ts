@@ -31,6 +31,7 @@ import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage, recordNewsletter, retireStaleActions } from './agent'
 import { measureBulk } from './bulk'
+import { trackCommitments } from './commitments'
 import { listMailboxes, watchStorage } from './mailboxes'
 import { emailAllowance } from './plan'
 import { writeReadingIssue } from './reading'
@@ -206,6 +207,7 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
         }).catch((error) => logError('follow-up watch failed', error))
       )
   )
+  await trackCommitments(userId, inserted)
   await watchStorage(mailbox, inserted).catch((error) =>
     logError('storage watch failed', error)
   )

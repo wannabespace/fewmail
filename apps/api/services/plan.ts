@@ -141,6 +141,14 @@ export const hasBudget = async (userId: string, reserve = 1) => {
   return spent < PLAN_ALLOWANCE_USD[plan.kind] * reserve
 }
 
+/**
+ * Rows (a promise, a last day) are cheap structured calls the agent keeps making once the allowance is spent, so the
+ * watch never sleeps mid-month; they are still charged. Prose (summaries, drafts, answers) is what the allowance
+ * stops. `economics.ts` counts rows outside the cap.
+ */
+export const keepsRows = async (userId: string) =>
+  hasAgent(await getPlanInfo(userId))
+
 /** Anything the user asks of the agent (a message, a voice note, reading aloud, a task) is refused once the month's allowance is spent. */
 export const requireBudget = async (userId: string) => {
   await requireAgent(userId)

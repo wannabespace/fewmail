@@ -64,6 +64,8 @@ export const uk: Messages = {
       report_spam: 'Позначаю як спам',
       mark_not_spam: 'Повертаю зі спаму',
       move_to_inbox: 'Повертаю у вхідні',
+      list_promises: 'Перевіряю обіцянки',
+      set_promise_status: 'Оновлюю обіцянку',
     },
     to: (recipients: string) => `Кому: ${recipients}`,
     until: (time: string) => `До ${time}`,
@@ -831,6 +833,8 @@ export const uk: Messages = {
     failed: 'Щось пішло не так. Спробуй ще раз.',
     needsPro: 'Для цього потрібен Fewmail Pro.',
     alreadySent: 'Уже надіслано, скасувати запізно.',
+    consentChanged:
+      'Це змінилося відтоді, як про нього попросили. Подивись ще раз і виріши на Головній.',
     notFound: 'Цього вже немає. Можливо, його видалили.',
     offline: 'Немає зв’язку з Fewmail. Перевір інтернет.',
   },
@@ -1432,6 +1436,8 @@ export const uk: Messages = {
     allDone: 'Усе. Нічого не чекає на тебе.',
     allDoneLead:
       'Я далі читаю нові листи, і все, що потребує тебе, з’явиться тут.',
+    allowanceSpent: (date: string) =>
+      `Обсяг агента на цей місяць вичерпано: підсумки й чернетки повернуться ${date}. До того я й далі записую обіцянки та терміни.`,
     byRules: (n: number) => `Твої правила розібрали ще ${n}.`,
     decisions: 'Рішення',
     journal: {

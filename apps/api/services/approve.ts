@@ -64,7 +64,9 @@ const approveConsent = async (
   if (!claimed) {
     throw new NotFoundError('Action already handled')
   }
-  const ran = await Result.tryPromise(() => runConsent(userId, payload))
+  const ran = await Result.tryPromise(() =>
+    runConsent(userId, actionId, payload)
+  )
   if (ran.isErr()) {
     await db
       .update(actions)

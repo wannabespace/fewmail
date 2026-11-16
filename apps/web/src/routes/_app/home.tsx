@@ -3,9 +3,11 @@ import {
   cardPayload,
   sendsDraft,
   UNDO_SEND_SECONDS,
+  usedPercent,
 } from '@fewmail/shared/agent'
 import type { ActionKind } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
+import { formatResetDay } from '@fewmail/shared/i18n/locales'
 import {
   Accordion,
   cardsBleedClassName,
@@ -100,8 +102,9 @@ import {
 import { useWithAgent } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
 import { queueCards } from '~/lib/home-db'
-import { useDates, useT } from '~/lib/i18n'
+import { useDates, useLocale, useT } from '~/lib/i18n'
 import { isReadingFirstTime } from '~/lib/mail-db'
+import { useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
@@ -877,18 +880,27 @@ const HomeHeader = ({
 }) => {
   const t = useT()
   const dates = useDates()
-  const lead =
-    decisions === 0
-      ? t.today.allDoneLead
+  const locale = useLocale()
+  const { plan, usage } = useMe()
+  // A spent allowance pauses the agent's writing, never its watch: Home says which, so nothing stops silently.
+  const paused =
+    plan.kind !== 'free' &&
+    usedPercent(plan.kind, usage.spent) >= 100 &&
+    t.today.allowanceSpent(formatResetDay(locale, usage.resetsAt))
+  const lead = [
+    ...(decisions === 0
+      ? [t.today.allDoneLead]
       : [
           data &&
             data.pulse.total > 0 &&
             `${t.today.pulse.total(data.pulse.total, t.today.period(data.days))}.`,
           t.today.readAll,
           data && data.handled.total > 0 && t.today.byRules(data.handled.total),
-        ]
-          .filter(Boolean)
-          .join(' ')
+        ]),
+    paused,
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <header className="flex flex-col gap-3">

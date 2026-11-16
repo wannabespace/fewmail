@@ -108,6 +108,8 @@ export const ko: Messages = {
       report_spam: '스팸 신고 중',
       mark_not_spam: '스팸에서 꺼내는 중',
       move_to_inbox: '받은편지함으로 옮기는 중',
+      list_promises: '약속 확인 중',
+      set_promise_status: '약속 업데이트 중',
     },
     to: (recipients: string) => `받는 사람: ${recipients}`,
     until: (time: string) => `다시 표시: ${time}`,
@@ -268,6 +270,8 @@ export const ko: Messages = {
     failed: '문제가 발생했어요. 다시 시도해 주세요.',
     needsPro: 'Fewmail Pro가 필요해요.',
     alreadySent: '이미 보냈어요. 취소하기엔 늦었어요.',
+    consentChanged:
+      '요청된 뒤에 내용이 바뀌었어요. 다시 확인하고 홈에서 결정해 주세요.',
     notFound: '더 이상 존재하지 않아요. 삭제되었을 수 있어요.',
     offline: 'Fewmail에 연결할 수 없어요. 연결 상태를 확인해 주세요.',
   },
@@ -1397,6 +1401,8 @@ export const ko: Messages = {
     allDone: '모두 끝났어요. 확인할 게 없어요.',
     allDoneLead:
       '새 메일을 계속 읽고 있어요. 확인할 게 생기면 여기에 나타나요.',
+    allowanceSpent: (date: string) =>
+      `이번 달 에이전트 사용량을 모두 썼어요. 요약과 초안은 ${date}에 다시 돌아와요. 그때까지도 약속과 마감일은 계속 적어 둘게요.`,
     byRules: (n: number) => `${n}개는 규칙이 처리했어요.`,
     decisions: '결정할 일',
     journal: {

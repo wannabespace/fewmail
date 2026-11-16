@@ -50,7 +50,12 @@ export const IMPORTANCE_LEVELS = [
 export const NEEDS_REPLY =
   'A real person, not an automated sender, is waiting for an answer from the recipient'
 
+/** Asked only past the allowance: these emails get the small call that writes a promise or a last day down (`extractLater`). */
+export const HAS_LATER =
+  'The sender promises to do something for the recipient later (send, refund, call back, deliver, fix), or the email implies a last day: a return window, a free trial turning paid, a warranty end'
+
 const NO_RULE = 'none'
+const LATER_SIGNAL = 0.7
 
 /** Below these odds for noise as a whole (archive, mark read and unsubscribe together) Jev is guessing, and a guess would put mail that matters into Tidy. */
 const NOISE_CONFIDENCE = 0.7
@@ -62,6 +67,7 @@ const NOISE_ACTIONS: ReadonlySet<string> = new Set([
 
 /** Every decision about an email in one Jev call. */
 export const decideWithJev = async (input: {
+  asksLater: boolean
   prompt: string
   rules: Rule[]
   userEmail: string
@@ -84,6 +90,7 @@ export const decideWithJev = async (input: {
         'How soon the recipient needs to see this; they want calm, but nothing important may slip and anything a real person waits on matters',
         IMPORTANCE_LEVELS
       ),
+      ...(input.asksLater && { hasLater: noul(HAS_LATER) }),
       needsReply: noul(NEEDS_REPLY),
       rule: choice(
         "Which of the recipient's rules this email clearly matches",
@@ -104,6 +111,9 @@ export const decideWithJev = async (input: {
   )
   return {
     category: answers.category.choice,
+    hasLater:
+      'hasLater' in answers &&
+      (answers.hasLater as { noul: number }).noul >= LATER_SIGNAL,
     importance: Math.min(
       3,
       Math.max(0, Math.round(answers.importance.score))

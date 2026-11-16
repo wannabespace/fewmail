@@ -6,12 +6,25 @@ import {
   reminders,
   userSettings,
 } from '@fewmail/db/schema'
-import { isAutomatedSender } from '@fewmail/shared/agent'
+import {
+  ACTIVE_COMMITMENT_STATUSES,
+  isAutomatedSender,
+} from '@fewmail/shared/agent'
 import type { ReminderKind } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
 import { addDays, addHours, subDays } from 'date-fns'
-import { and, asc, desc, eq, gt, inArray, isNotNull, lte } from 'drizzle-orm'
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  inArray,
+  isNotNull,
+  isNull,
+  lte,
+} from 'drizzle-orm'
 
 import { localClock } from '../lib/clock'
 import { GmailError } from '../lib/gmail'
@@ -346,12 +359,10 @@ const cardOf = (commitment: Commitment, t: Messages) => {
   }
 }
 
-/** A promise made to the user is kept when anyone in the thread wrote since; nothing to chase then. */
-const isKept = (commitment: Commitment) =>
-  commitment.kind === 'theirs' &&
-  hasReplySince(commitment.userId, commitment.threadId, commitment.createdAt)
-
-/** A commitment surfaces on its morning as a Home card; approving it closes the commitment. */
+/**
+ * A promise still waiting on someone surfaces once, on its morning, as a Home card: a reply alone never settled it
+ * (`trackCommitments` moves it only on evidence), so "thanks, we are looking into it" still gets chased.
+ */
 export const processDueCommitments = async () => {
   const candidates = await db
     .select({
@@ -363,7 +374,8 @@ export const processDueCommitments = async () => {
     .leftJoin(userSettings, eq(userSettings.userId, commitments.userId))
     .where(
       and(
-        eq(commitments.status, 'open'),
+        inArray(commitments.status, ACTIVE_COMMITMENT_STATUSES),
+        isNull(commitments.remindedAt),
         lte(
           commitments.dueAt,
           addDays(
@@ -380,19 +392,18 @@ export const processDueCommitments = async () => {
         isDueMorning(surfacesOn(commitment), timezone ?? 'UTC')
       )
       .map(async ({ commitment, language }) => {
-        const kept = await isKept(commitment)
         // Claim before inserting: a failure after the insert must not surface it again next minute.
         const [claimed] = await db
           .update(commitments)
-          .set({ status: kept ? 'done' : 'reminded' })
+          .set({ remindedAt: new Date() })
           .where(
             and(
               eq(commitments.id, commitment.id),
-              eq(commitments.status, 'open')
+              isNull(commitments.remindedAt)
             )
           )
           .returning({ id: commitments.id })
-        if (!claimed || kept) {
+        if (!claimed) {
           return
         }
         await db

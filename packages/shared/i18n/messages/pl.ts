@@ -107,6 +107,8 @@ export const pl: Messages = {
       report_spam: 'Zgłaszam spam',
       mark_not_spam: 'Wyjmuję ze spamu',
       move_to_inbox: 'Przenoszę do odebranych',
+      list_promises: 'Sprawdzam obietnice',
+      set_promise_status: 'Aktualizuję obietnicę',
     },
     to: (recipients: string) => `Do: ${recipients}`,
     until: (time: string) => `Do ${time}`,
@@ -364,6 +366,8 @@ export const pl: Messages = {
     failed: 'Coś poszło nie tak. Spróbuj ponownie.',
     needsPro: 'Do tego potrzebny jest Fewmail Pro.',
     alreadySent: 'Już wysłano, za późno, by cofnąć.',
+    consentChanged:
+      'To się zmieniło od czasu prośby. Spójrz jeszcze raz i zdecyduj na stronie głównej.',
     notFound: 'Tego już nie ma. Możliwe, że zostało usunięte.',
     offline: 'Brak połączenia z Fewmail. Sprawdź internet.',
   },
@@ -1559,6 +1563,8 @@ export const pl: Messages = {
     allDone: 'Gotowe. Nic na ciebie nie czeka.',
     allDoneLead:
       'Dalej czytam nową pocztę, a wszystko, co wymaga twojej uwagi, pojawi się tutaj.',
+    allowanceSpent: (date: string) =>
+      `Limit agenta na ten miesiąc się skończył: podsumowania i szkice wrócą ${date}. Do tego czasu nadal zapisuję obietnice i terminy.`,
     byRules: (n: number) => `Twoje reguły zajęły się ${n}.`,
     decisions: 'Decyzje',
     journal: {
