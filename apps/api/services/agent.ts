@@ -43,6 +43,7 @@ import { logError } from '../lib/log'
 import { oneTimeCode } from '../lib/one-time-code'
 import { attachmentText, worthReading } from './attachments'
 import { BULK_THRESHOLD } from './bulk'
+import { hasMailboxCalendar } from './calendar'
 import {
   ACTION_CRITERIA,
   CATEGORY_CRITERIA,
@@ -627,7 +628,8 @@ const cardPayload = async (
   if (
     (kind === 'schedule' || kind === 'reply') &&
     start &&
-    /^\d{4}-\d\d-\d\dT\d\d:\d\d$/u.test(start)
+    /^\d{4}-\d\d-\d\dT\d\d:\d\d$/u.test(start) &&
+    (await hasMailboxCalendar(message.mailboxId))
   ) {
     return {
       event: {

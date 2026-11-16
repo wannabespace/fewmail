@@ -139,6 +139,12 @@ export const NAV_ITEMS = [
   SETTINGS_ITEM,
 ] as const
 
+/** Google's consent screen lets the user untick Calendar; without any calendar its page is gone everywhere, `G L` included. */
+export const useNavItems = () => {
+  const { hasCalendar } = useMe()
+  return NAV_ITEMS.filter(({ key }) => key !== 'calendar' || hasCalendar)
+}
+
 export const useGoTo = () => {
   const navigate = useNavigate()
   return (item: (typeof NAV_ITEMS)[number]) => navigate({ to: item.to })
@@ -664,6 +670,7 @@ export const Sidebar = ({
 }) => {
   const t = useT()
   const hasAgent = useHasAgent()
+  const navItems = useNavItems()
   const isModifierHeld = useModifierHold()
   const { openCompose } = useCompose()
   const pathname = useRouterState({
@@ -731,32 +738,36 @@ export const Sidebar = ({
         />
       </div>
       <div className="scroll-fade -mx-1 flex min-h-0 flex-1 scrollbar-none flex-col gap-1 overflow-y-auto px-1 pb-3">
-        {NAV_ITEMS.filter(({ place }) => place === 'top').map((item) => (
-          <Fragment key={item.to}>
-            <NavLink
-              item={item}
-              showKeys={isModifierHeld}
-              count={counts[item.to]}
-              className={
-                item.key === 'mail' && isInFolder ? QUIET_ROW : undefined
-              }
-            />
-            {item.key === 'mail' && (
-              <AnimatePresence initial={false}>
-                {isOnMail && (
-                  <MotionCollapse key="folders">
-                    <MailFolders />
-                  </MotionCollapse>
-                )}
-              </AnimatePresence>
-            )}
-          </Fragment>
-        ))}
+        {navItems
+          .filter(({ place }) => place === 'top')
+          .map((item) => (
+            <Fragment key={item.to}>
+              <NavLink
+                item={item}
+                showKeys={isModifierHeld}
+                count={counts[item.to]}
+                className={
+                  item.key === 'mail' && isInFolder ? QUIET_ROW : undefined
+                }
+              />
+              {item.key === 'mail' && (
+                <AnimatePresence initial={false}>
+                  {isOnMail && (
+                    <MotionCollapse key="folders">
+                      <MailFolders />
+                    </MotionCollapse>
+                  )}
+                </AnimatePresence>
+              )}
+            </Fragment>
+          ))}
         <People />
         <div className="mt-auto flex flex-col gap-1 pt-4">
-          {NAV_ITEMS.filter(({ place }) => place === 'bottom').map((item) => (
-            <NavLink key={item.to} item={item} showKeys={isModifierHeld} />
-          ))}
+          {navItems
+            .filter(({ place }) => place === 'bottom')
+            .map((item) => (
+              <NavLink key={item.to} item={item} showKeys={isModifierHeld} />
+            ))}
         </div>
       </div>
       <AccountMenu email={email} mailboxes={mailboxes} />

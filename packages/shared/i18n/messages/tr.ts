@@ -145,12 +145,6 @@ export const tr: Messages = {
   },
   calendar: {
     tomorrow: 'Yarın',
-    noAccess: {
-      allow: 'Erişime izin ver',
-      description:
-        'Google’ın takvimini Fewmail ile paylaşmasına izin verilmedi. Etkinlikleri burada görmek ve eklemek için izin ver.',
-      title: 'Takvim bağlı değil',
-    },
     allDay: 'Tüm gün',
     calendar: 'Takvim',
     create: 'Etkinlik ekle',
@@ -484,12 +478,6 @@ export const tr: Messages = {
       `${email} için Google depolama alanı doldu, bu yüzden Gmail yeni e-postaları geri çeviriyor.`,
     storageFullHint:
       'Yeniden e-posta almak için yer aç ya da daha fazla depolama al.',
-    photos: {
-      allow: 'Erişime izin ver',
-      description:
-        'Fewmail bunları ve kaydettiğin adları Google kişilerinden gösterir, bir kişiyi yalnızca sen istediğinde siler.',
-      title: 'Sana yazanların fotoğraflarını gör',
-    },
   },
   login: {
     needsGmail:

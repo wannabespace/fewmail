@@ -757,12 +757,6 @@ export const de: Messages = {
   byRule: 'per Regel',
   calendar: {
     tomorrow: 'Morgen',
-    noAccess: {
-      allow: 'Zugriff erlauben',
-      description:
-        'Google durfte deinen Kalender nicht mit Fewmail teilen. Erlaube es, um Termine hier zu sehen und anzulegen.',
-      title: 'Kalender nicht verbunden',
-    },
     allDay: 'Ganztägig',
     calendar: 'Kalender',
     create: 'Termin hinzufügen',
@@ -924,12 +918,6 @@ export const de: Messages = {
       `${email} hat keinen Google-Speicher mehr, deshalb weist Gmail neue Mails ab.`,
     storageFullHint:
       'Gib Speicher frei oder hol dir mehr, um wieder Mails zu empfangen.',
-    photos: {
-      allow: 'Zugriff erlauben',
-      description:
-        'Fewmail zeigt sie und die gespeicherten Namen aus deinen Google-Kontakten und löscht einen Kontakt nur, wenn du es willst.',
-      title: 'Sieh die Fotos der Leute, die dir schreiben',
-    },
   },
   login: {
     needsGmail:

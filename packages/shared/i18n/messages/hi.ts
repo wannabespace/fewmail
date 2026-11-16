@@ -196,12 +196,6 @@ export const hi: Messages = {
   },
   calendar: {
     tomorrow: 'कल',
-    noAccess: {
-      allow: 'अनुमति दें',
-      description:
-        'Google को आपका कैलेंडर Fewmail के साथ साझा करने की अनुमति नहीं मिली। यहाँ इवेंट देखने और जोड़ने के लिए अनुमति दें।',
-      title: 'कैलेंडर जुड़ा नहीं है',
-    },
     allDay: 'पूरा दिन',
     calendar: 'कैलेंडर',
     create: 'इवेंट जोड़ें',
@@ -357,12 +351,6 @@ export const hi: Messages = {
     storageFull: (email: string) =>
       `${email} का Google स्टोरेज भर गया है, इसलिए Gmail नए ईमेल वापस भेज रहा है।`,
     storageFullHint: 'फिर से ईमेल पाने के लिए जगह खाली करें या ज़्यादा स्टोरेज लें।',
-    photos: {
-      allow: 'अनुमति दें',
-      description:
-        'Fewmail इन्हें और आपके सहेजे गए नाम आपके Google संपर्कों से दिखाता है, और कोई संपर्क तभी हटाता है जब आप कहें।',
-      title: 'आपको लिखने वालों की फ़ोटो देखें',
-    },
   },
   login: {
     needsGmail:

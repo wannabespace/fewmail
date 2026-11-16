@@ -38,7 +38,7 @@ import { orpc } from '~/lib/orpc'
 import { AskAnswer } from './ask-answer'
 import { clearOutStore } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
-import { FOLDER_ITEMS, NAV_ITEMS, useGoTo } from './nav'
+import { FOLDER_ITEMS, useGoTo, useNavItems } from './nav'
 import { upgradeStore } from './upgrade-dialog'
 
 const THEME_ICONS = {
@@ -74,6 +74,7 @@ export const CommandMenu = ({
       ? ask.variables.question
       : undefined
   const goTo = useGoTo()
+  const navItems = useNavItems()
 
   const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
 
@@ -122,7 +123,7 @@ export const CommandMenu = ({
             />
           )}
           <CommandGroup heading={t.command.goTo}>
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <CommandItem key={item.to} onSelect={() => run(() => goTo(item))}>
                 <HugeiconsIcon icon={item.icon} strokeWidth={2} />
                 {t.nav[item.key]}

@@ -193,12 +193,6 @@ export const ja: Messages = {
   },
   calendar: {
     tomorrow: '明日',
-    noAccess: {
-      allow: 'アクセスを許可',
-      description:
-        'Google でカレンダーの共有が許可されていません。ここで予定を見たり追加したりするには許可してください。',
-      title: 'カレンダーが接続されていません',
-    },
     allDay: '終日',
     calendar: 'カレンダー',
     create: '予定を追加',
@@ -359,12 +353,6 @@ export const ja: Messages = {
       `${email} の Google ストレージがいっぱいのため、Gmail が新しいメールを差し戻しています。`,
     storageFullHint:
       'メールを再び受信するには、空き容量を増やすかストレージを追加してください。',
-    photos: {
-      allow: 'アクセスを許可',
-      description:
-        'Fewmail は Google の連絡先から写真と保存した名前を表示し、連絡先を削除するのはあなたが頼んだときだけです。',
-      title: 'メールをくれる人の写真を表示',
-    },
   },
   login: {
     needsGmail:

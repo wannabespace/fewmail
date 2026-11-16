@@ -145,12 +145,6 @@ export const nl: Messages = {
   },
   calendar: {
     tomorrow: 'Morgen',
-    noAccess: {
-      allow: 'Toegang geven',
-      description:
-        'Google mocht je agenda niet met Fewmail delen. Sta het toe om hier afspraken te zien en toe te voegen.',
-      title: 'Agenda niet verbonden',
-    },
     allDay: 'Hele dag',
     calendar: 'Agenda',
     create: 'Afspraak toevoegen',
@@ -493,12 +487,6 @@ export const nl: Messages = {
       `${email} heeft geen Google-opslag meer, dus Gmail weigert nieuwe mail.`,
     storageFullHint:
       'Maak ruimte vrij of neem meer opslag om weer mail te ontvangen.',
-    photos: {
-      allow: 'Toegang geven',
-      description:
-        'Fewmail toont ze met de namen die je hebt opgeslagen uit je Google-contacten, en verwijdert een contact alleen als jij dat vraagt.',
-      title: "Zie de foto's van wie je schrijft",
-    },
   },
   login: {
     needsGmail:

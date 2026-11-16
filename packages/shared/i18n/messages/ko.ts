@@ -193,12 +193,6 @@ export const ko: Messages = {
   },
   calendar: {
     tomorrow: '내일',
-    noAccess: {
-      allow: '접근 허용',
-      description:
-        'Google에서 캘린더 공유가 허용되지 않았어요. 여기서 일정을 보고 추가하려면 허용해 주세요.',
-      title: '캘린더가 연결되지 않았어요',
-    },
     allDay: '종일',
     calendar: '캘린더',
     create: '일정 추가',
@@ -358,12 +352,6 @@ export const ko: Messages = {
       `${email}의 Google 저장공간이 가득 차서 Gmail이 새 메일을 반송하고 있어요.`,
     storageFullHint:
       '메일을 다시 받으려면 공간을 확보하거나 저장공간을 늘리세요.',
-    photos: {
-      allow: '접근 허용',
-      description:
-        'Fewmail은 Google 연락처에서 사진과 저장한 이름을 보여 주고, 요청할 때만 연락처를 삭제합니다.',
-      title: '메일을 보낸 사람의 사진 보기',
-    },
   },
   login: {
     needsGmail:

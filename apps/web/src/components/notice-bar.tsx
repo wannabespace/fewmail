@@ -14,12 +14,10 @@ import { Spinner } from '@fewmail/ui/components/spinner'
 import { copy } from '@fewmail/ui/lib/copy'
 import {
   AiChat02Icon,
-  Calendar03Icon,
   Cancel01Icon,
   CloudIcon,
   MailAccount01Icon,
   MailSend01Icon,
-  UserMultipleIcon,
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -27,14 +25,12 @@ import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
-import { type } from 'arktype'
 import { isFuture } from 'date-fns'
 import { AnimatePresence } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
-import { createWebStorageValue } from 'seitu/web'
 
 import { SenderAvatar } from '~/components/sender-avatar'
 import {
@@ -46,27 +42,10 @@ import {
 import { signInWithGoogle } from '~/lib/auth'
 import { useDates, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
-import { useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 
-const NOTICES = [
-  'mail',
-  'mailbox',
-  'storage',
-  'send',
-  'calendar',
-  'photos',
-] as const
-
 const GOOGLE_STORAGE_URL = 'https://one.google.com/storage/management'
-
-const dismissedStore = createWebStorageValue({
-  defaultValue: [],
-  key: 'fewmail.dismissed-notices',
-  schema: type.enumerated(...NOTICES).array(),
-  type: 'localStorage',
-})
 
 /** How much of the page the bar covers: the first notice only, since the rest stacks over the page when shown. */
 export const noticeHeightStore = createStore(0)
@@ -152,8 +131,6 @@ export const NoticeBar = () => {
   const t = useT()
   const dates = useDates()
   const navigate = useNavigate()
-  const { hasCalendar, hasContacts } = useMe()
-  const dismissed = useSubscription(dismissedStore)
   const [isExpanded, setIsExpanded] = useState(false)
   const pathname = useRouterState({
     select: ({ location }) => location.pathname,
@@ -183,7 +160,6 @@ export const NoticeBar = () => {
   const sendBlocked = mailboxes.find(
     ({ sendBlockedUntil }) => sendBlockedUntil && isFuture(sendBlockedUntil)
   )
-  const isCalendarPage = pathname === '/calendar'
   const newest = isHome ? undefined : codes[0]
   const canCopyWithY =
     !!newest && !OWNS_Y.some((page) => pathname.startsWith(page))
@@ -200,8 +176,6 @@ export const NoticeBar = () => {
       ? navigate({ params: { threadId }, to: '/mail/$threadId' })
       : navigate({ to: '/home' }))
   }
-  const optional = (id: (typeof NOTICES)[number], isOptional: boolean) =>
-    isOptional ? () => dismissedStore.set([...dismissed, id]) : undefined
 
   const notices: (Notice | false)[] = [
     ...(isHome ? [] : codes).map((message): Notice => ({
@@ -290,30 +264,6 @@ export const NoticeBar = () => {
         </span>
       ),
     },
-    !hasCalendar &&
-      !(dismissed.includes('calendar') && !isCalendarPage) && {
-        action: {
-          label: t.calendar.noAccess.allow,
-          onClick: () => signInWithGoogle('/calendar'),
-        },
-        description: t.calendar.noAccess.description,
-        dismiss: optional('calendar', !isCalendarPage),
-        id: 'calendar',
-        media: iconOf(Calendar03Icon),
-        title: t.calendar.noAccess.title,
-      },
-    !hasContacts &&
-      !dismissed.includes('photos') && {
-        action: {
-          label: t.notices.photos.allow,
-          onClick: () => signInWithGoogle(pathname),
-        },
-        description: t.notices.photos.description,
-        dismiss: optional('photos', true),
-        id: 'photos',
-        media: iconOf(UserMultipleIcon),
-        title: t.notices.photos.title,
-      },
   ]
   const shown = notices.filter((notice): notice is Notice => !!notice)
   const more = shown.length - 1

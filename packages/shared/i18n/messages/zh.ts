@@ -192,12 +192,6 @@ export const zh: Messages = {
   },
   calendar: {
     tomorrow: '明天',
-    noAccess: {
-      allow: '授予权限',
-      description:
-        'Google 未获准与 Fewmail 共享你的日历。授权后即可在这里查看和添加日程。',
-      title: '日历未连接',
-    },
     allDay: '全天',
     calendar: '日历',
     create: '添加日程',
@@ -352,12 +346,6 @@ export const zh: Messages = {
     storageFull: (email: string) =>
       `${email} 的 Google 存储空间已满，Gmail 正在退回新邮件。`,
     storageFullHint: '释放空间或购买更多存储空间，才能再次收到邮件。',
-    photos: {
-      allow: '允许访问',
-      description:
-        'Fewmail 从你的 Google 联系人中显示照片和你保存的名字，只有在你要求时才会删除联系人。',
-      title: '查看给你写信的人的照片',
-    },
   },
   login: {
     needsGmail:

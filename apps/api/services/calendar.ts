@@ -39,6 +39,25 @@ const isConnected = async (mailbox: Mailbox) =>
   Boolean(mailbox.googleAccountId) ||
   (await hasSignInScope(mailbox.userId, CALENDAR_SCOPE))
 
+/** Any calendar of the user's: without one the web hides the Calendar page and everything leading to it. */
+export const hasCalendar = async (userId: string) => {
+  const owned = await db
+    .select()
+    .from(mailboxes)
+    .where(eq(mailboxes.userId, userId))
+  const connected = await Promise.all(owned.map(isConnected))
+  return connected.some(Boolean)
+}
+
+/** A card's meeting goes in its email's mailbox calendar, so a mailbox without one gets no meeting to approve. */
+export const hasMailboxCalendar = async (mailboxId: string) => {
+  const [mailbox] = await db
+    .select()
+    .from(mailboxes)
+    .where(eq(mailboxes.id, mailboxId))
+  return mailbox ? isConnected(mailbox) : false
+}
+
 const requireConnected = async (mailbox: Mailbox) => {
   if (!(await isConnected(mailbox))) {
     throw new CalendarAccessError()

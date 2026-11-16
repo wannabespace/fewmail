@@ -145,12 +145,6 @@ export const id: Messages = {
   },
   calendar: {
     tomorrow: 'Besok',
-    noAccess: {
-      allow: 'Izinkan akses',
-      description:
-        'Google tidak diizinkan membagikan kalendermu ke Fewmail. Izinkan agar bisa melihat dan menambah acara di sini.',
-      title: 'Kalender belum terhubung',
-    },
     allDay: 'Sepanjang hari',
     calendar: 'Kalender',
     create: 'Tambah acara',
@@ -486,12 +480,6 @@ export const id: Messages = {
       `Penyimpanan Google ${email} penuh, jadi Gmail menolak email baru.`,
     storageFullHint:
       'Kosongkan ruang atau tambah penyimpanan agar bisa menerima email lagi.',
-    photos: {
-      allow: 'Izinkan akses',
-      description:
-        'Fewmail menampilkannya beserta nama yang kamu simpan dari kontak Google, dan hanya menghapus kontak jika kamu memintanya.',
-      title: 'Lihat foto orang yang menulis kepadamu',
-    },
   },
   login: {
     needsGmail:

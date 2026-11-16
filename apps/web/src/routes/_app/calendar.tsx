@@ -17,7 +17,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { type } from 'arktype'
 import {
   add,
@@ -387,6 +387,11 @@ const CalendarPage = () => {
 }
 
 export const Route = createFileRoute('/_app/calendar')({
+  beforeLoad: ({ context: { me } }) => {
+    if (!me.hasCalendar) {
+      throw redirect({ to: '/home' })
+    }
+  },
   component: CalendarPage,
   validateSearch: type({
     'date?': 'string',

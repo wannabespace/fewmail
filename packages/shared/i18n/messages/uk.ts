@@ -757,12 +757,6 @@ export const uk: Messages = {
   byRule: 'за правилом',
   calendar: {
     tomorrow: 'Завтра',
-    noAccess: {
-      allow: 'Дозволити доступ',
-      description:
-        'Google не дозволили ділитися твоїм календарем із Fewmail. Дозволь, щоб бачити й додавати події тут.',
-      title: 'Календар не підключено',
-    },
     allDay: 'Увесь день',
     calendar: 'Календар',
     create: 'Додати подію',
@@ -922,12 +916,6 @@ export const uk: Messages = {
       `У ${email} закінчилось місце в Google, тож Gmail повертає нові листи відправникам.`,
     storageFullHint:
       'Звільни місце або докупи сховище, щоб знову отримувати пошту.',
-    photos: {
-      allow: 'Дозволити доступ',
-      description:
-        'Fewmail бере їх і збережені імена з твоїх контактів Google, а контакт видаляє лише тоді, коли ти просиш.',
-      title: 'Бач фото людей, які тобі пишуть',
-    },
   },
   login: {
     needsGmail:

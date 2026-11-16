@@ -143,12 +143,6 @@ export const en = {
   },
   byRule: 'by a rule',
   calendar: {
-    noAccess: {
-      allow: 'Allow access',
-      description:
-        'Google was not allowed to share your calendar with Fewmail. Allow it to see and add events here.',
-      title: 'Calendar is not connected',
-    },
     allDay: 'All day',
     calendar: 'Calendar',
     create: 'Add event',
@@ -487,12 +481,6 @@ export const en = {
     storageFull: (email: string) =>
       `${email} is out of Google storage, so Gmail is bouncing new mail.`,
     storageFullHint: 'Free up space or get more storage to receive mail again.',
-    photos: {
-      allow: 'Allow access',
-      description:
-        'Fewmail shows them and the names you saved from your Google contacts, and deletes a contact only when you ask.',
-      title: 'See the photos of people who write to you',
-    },
   },
   login: {
     needsGmail:

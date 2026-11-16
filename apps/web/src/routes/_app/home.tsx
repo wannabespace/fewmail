@@ -837,8 +837,10 @@ const useVisits = (onVisit: () => Promise<unknown>) => {
 const DayStrip = () => {
   const t = useT()
   const dates = useDates()
+  const { hasCalendar } = useMe()
   const { data: events = [] } = useQuery(
     orpc.calendar.events.queryOptions({
+      enabled: hasCalendar,
       input: { from: startOfToday(), to: endOfTomorrow() },
       select: (calendar) =>
         calendar.events.filter((event) => eventTimes(event).end > new Date()),

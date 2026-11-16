@@ -145,12 +145,6 @@ export const pl: Messages = {
   },
   calendar: {
     tomorrow: 'Jutro',
-    noAccess: {
-      allow: 'Zezwól na dostęp',
-      description:
-        'Google nie pozwolił udostępnić Twojego kalendarza Fewmail. Zezwól, aby widzieć i dodawać tu wydarzenia.',
-      title: 'Kalendarz nie jest połączony',
-    },
     allDay: 'Cały dzień',
     calendar: 'Kalendarz',
     create: 'Dodaj wydarzenie',
@@ -505,12 +499,6 @@ export const pl: Messages = {
       `Na ${email} skończyło się miejsce w Google, więc Gmail odrzuca nowe maile.`,
     storageFullHint:
       'Zwolnij miejsce albo dokup przestrzeń, żeby znów odbierać pocztę.',
-    photos: {
-      allow: 'Zezwól na dostęp',
-      description:
-        'Fewmail pokazuje je wraz z zapisanymi nazwami z Twoich kontaktów Google i usuwa kontakt tylko na Twoją prośbę.',
-      title: 'Zobacz zdjęcia osób, które do ciebie piszą',
-    },
   },
   login: {
     needsGmail:
