@@ -565,6 +565,8 @@ export const pt: Messages = {
       },
     },
     group: {
+      named: 'Remetente ou assunto',
+      mentioned: 'Mencionado no texto',
       read: 'Lidos',
       earlier: 'Anteriores',
       important: 'Importantes',

@@ -426,6 +426,8 @@ export const ko: Messages = {
       },
     },
     group: {
+      named: '보낸 사람 또는 제목',
+      mentioned: '본문에 언급됨',
       read: '읽음',
       earlier: '이전',
       important: '중요',

@@ -573,6 +573,8 @@ export const pl: Messages = {
       },
     },
     group: {
+      named: 'Nadawca lub temat',
+      mentioned: 'Wspomniane w treści',
       read: 'Przeczytane',
       earlier: 'Wcześniejsze',
       important: 'Ważne',

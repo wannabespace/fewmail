@@ -997,6 +997,8 @@ export const it: Messages = {
       },
     },
     group: {
+      named: 'Mittente o oggetto',
+      mentioned: 'Citato nel testo',
       read: 'Letti',
       earlier: 'Precedenti',
       important: 'Importanti',

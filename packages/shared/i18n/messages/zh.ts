@@ -418,6 +418,8 @@ export const zh: Messages = {
       },
     },
     group: {
+      named: '发件人或主题',
+      mentioned: '正文中提到',
       read: '已读',
       earlier: '更早',
       important: '重要',

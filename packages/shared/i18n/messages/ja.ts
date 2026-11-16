@@ -427,6 +427,8 @@ export const ja: Messages = {
       },
     },
     group: {
+      named: '差出人または件名',
+      mentioned: '本文に記載',
       read: '既読',
       earlier: '以前',
       important: '重要',

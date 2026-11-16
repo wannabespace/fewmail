@@ -561,6 +561,8 @@ export const nl: Messages = {
       },
     },
     group: {
+      named: 'Afzender of onderwerp',
+      mentioned: 'Genoemd in de tekst',
       read: 'Gelezen',
       earlier: 'Eerder',
       important: 'Belangrijk',
