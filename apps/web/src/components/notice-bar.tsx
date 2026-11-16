@@ -267,77 +267,81 @@ export const NoticeBar = () => {
   ]
   const shown = notices.filter((notice): notice is Notice => !!notice)
   const more = shown.length - 1
-  const isStacked = isExpanded && more > 0
-  const barRef = useRef<HTMLDivElement>(null)
+  const firstRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const bar = barRef.current
-    if (!bar || isStacked) {
+    const first = firstRef.current
+    if (!first) {
       return
     }
     const observer = new ResizeObserver(() =>
-      noticeHeightStore.set(bar.offsetHeight)
+      noticeHeightStore.set(first.offsetHeight)
     )
-    observer.observe(bar)
+    observer.observe(first)
     return () => observer.disconnect()
-  }, [isStacked])
+  }, [])
+
+  const cardOf = (notice: Notice, isFirst: boolean) => (
+    <MotionCollapse key={notice.id}>
+      <div className="pt-2">
+        <Item variant="card" size="sm" className="pointer-events-auto">
+          {notice.media}
+          <ItemContent>
+            <ItemTitle>{notice.title}</ItemTitle>
+            {notice.description && (
+              <ItemDescription>{notice.description}</ItemDescription>
+            )}
+          </ItemContent>
+          <ItemActions>
+            {notice.end}
+            {notice.action && (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={reconnect.isPending}
+                onClick={() => notice.action?.onClick()}
+              >
+                {reconnect.isPending && <Spinner />}
+                {notice.action.label}
+              </Button>
+            )}
+            {isFirst && more > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? t.mail.showFewer : t.mail.showAll(shown.length)}
+              </Button>
+            )}
+            {notice.dismiss && (
+              <IconButton
+                icon={Cancel01Icon}
+                label={t.today.hint.notNow}
+                size="icon-sm"
+                variant="ghost-muted"
+                onClick={() => notice.dismiss?.()}
+              />
+            )}
+          </ItemActions>
+        </Item>
+      </div>
+    </MotionCollapse>
+  )
 
   // Always mounted, so the last card can fold away instead of vanishing; each card unfolds into its place, never pops.
+  // Only the first card is measured: the rest unfold in their own scroller, so Show all never moves the page.
   return (
-    <div
-      ref={barRef}
-      className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col px-3"
-    >
-      <AnimatePresence initial={false}>
-        {(isExpanded ? shown : shown.slice(0, 1)).map((notice, index) => (
-          <MotionCollapse key={notice.id}>
-            <div className="pt-2">
-              <Item variant="card" size="sm" className="pointer-events-auto">
-                {notice.media}
-                <ItemContent>
-                  <ItemTitle>{notice.title}</ItemTitle>
-                  {notice.description && (
-                    <ItemDescription>{notice.description}</ItemDescription>
-                  )}
-                </ItemContent>
-                <ItemActions>
-                  {notice.end}
-                  {notice.action && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      disabled={reconnect.isPending}
-                      onClick={() => notice.action?.onClick()}
-                    >
-                      {reconnect.isPending && <Spinner />}
-                      {notice.action.label}
-                    </Button>
-                  )}
-                  {index === 0 && more > 0 && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setIsExpanded(!isExpanded)}
-                    >
-                      {isExpanded
-                        ? t.mail.showFewer
-                        : t.mail.showAll(shown.length)}
-                    </Button>
-                  )}
-                  {notice.dismiss && (
-                    <IconButton
-                      icon={Cancel01Icon}
-                      label={t.today.hint.notNow}
-                      size="icon-sm"
-                      variant="ghost-muted"
-                      onClick={() => notice.dismiss?.()}
-                    />
-                  )}
-                </ItemActions>
-              </Item>
-            </div>
-          </MotionCollapse>
-        ))}
-      </AnimatePresence>
+    <div className="pointer-events-none absolute inset-0 z-10 flex flex-col">
+      <div ref={firstRef} className="px-3">
+        <AnimatePresence initial={false}>
+          {shown.slice(0, 1).map((notice) => cardOf(notice, true))}
+        </AnimatePresence>
+      </div>
+      <div className="pointer-events-auto min-h-0 overflow-y-auto overscroll-contain px-3 pb-2 empty:pb-0">
+        <AnimatePresence initial={false}>
+          {isExpanded && shown.slice(1).map((notice) => cardOf(notice, false))}
+        </AnimatePresence>
+      </div>
     </div>
   )
 }
