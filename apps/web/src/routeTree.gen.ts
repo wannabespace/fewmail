@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as ConnectRouteImport } from './routes/connect'
+import { Route as DesktopRouteImport } from './routes/desktop'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -53,6 +54,11 @@ const SiteRoute = SiteRouteImport.update({
 const ConnectRoute = ConnectRouteImport.update({
   id: '/connect',
   path: '/connect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesktopRoute = DesktopRouteImport.update({
+  id: '/desktop',
+  path: '/desktop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -204,6 +210,7 @@ const SiteCompareSlugRoute = SiteCompareSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/connect': typeof ConnectRoute
+  '/desktop': typeof DesktopRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
   '/connect': typeof ConnectRoute
+  '/desktop': typeof DesktopRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_site': typeof SiteRouteWithChildren
   '/connect': typeof ConnectRoute
+  '/desktop': typeof DesktopRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/connect'
+    | '/desktop'
     | '/login'
     | '/onboarding'
     | '/privacy'
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/connect'
+    | '/desktop'
     | '/login'
     | '/onboarding'
     | '/privacy'
@@ -370,6 +381,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_site'
     | '/connect'
+    | '/desktop'
     | '/login'
     | '/onboarding'
     | '/privacy'
@@ -405,6 +417,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   SiteRoute: typeof SiteRouteWithChildren
   ConnectRoute: typeof ConnectRoute
+  DesktopRoute: typeof DesktopRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -433,6 +446,13 @@ declare module '@tanstack/react-router' {
       path: '/connect'
       fullPath: '/connect'
       preLoaderRoute: typeof ConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desktop': {
+      id: '/desktop'
+      path: '/desktop'
+      fullPath: '/desktop'
+      preLoaderRoute: typeof DesktopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -709,6 +729,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   SiteRoute: SiteRouteWithChildren,
   ConnectRoute: ConnectRoute,
+  DesktopRoute: DesktopRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,

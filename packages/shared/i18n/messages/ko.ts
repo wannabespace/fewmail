@@ -275,6 +275,11 @@ export const ko: Messages = {
     notFound: '더 이상 존재하지 않아요. 삭제되었을 수 있어요.',
     offline: 'Fewmail에 연결할 수 없어요. 연결 상태를 확인해 주세요.',
   },
+  desktop: {
+    lead: 'Mac에서 Fewmail을 여는 중입니다. 이 탭은 닫아도 됩니다.',
+    open: 'Fewmail 열기',
+    title: '앱으로 돌아가기',
+  },
   update: {
     available: 'Fewmail 새 버전이 나왔어요.',
     reload: '새로고침',
@@ -525,6 +530,9 @@ export const ko: Messages = {
     subscriptions: '메일링 리스트',
     people: '사람',
     findPerson: '사람 찾기',
+    personMail: '이메일 보기',
+    hidePerson: '사람에서 제거',
+    personHidden: '사람에서 제거했습니다',
     clearSearch: '검색 지우기',
     mail: '메일',
     reading: '읽을거리',

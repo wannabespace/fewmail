@@ -13,6 +13,7 @@ import { LanguageSelect } from '~/components/agent-fields'
 import { LoginStory } from '~/components/login-story'
 import { Logo } from '~/components/logo'
 import { signInWithGoogle } from '~/lib/auth'
+import { desktop } from '~/lib/desktop'
 import { localeStore, useLocale, useT } from '~/lib/i18n'
 
 const EASE = [0.32, 0.72, 0, 1] as const
@@ -41,7 +42,8 @@ const LoginPage = () => {
     if (isRedirecting) {
       return
     }
-    setIsRedirecting(true)
+    // The desktop app signs in in the browser and stays on this page until it is back.
+    setIsRedirecting(!desktop)
     void signInWithGoogle()
   }
 

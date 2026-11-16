@@ -65,11 +65,12 @@ import {
   Sun03Icon,
   Tag01Icon,
   UnfoldMoreIcon,
+  UserRemove01Icon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Link,
   useNavigate,
@@ -84,6 +85,7 @@ import { useT } from '~/lib/i18n'
 import { useHasAgent, useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 import { SITE_NAME } from '~/lib/seo'
+import { toastDeferred } from '~/lib/undo'
 
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
@@ -156,18 +158,31 @@ const QUIET_ROW =
 
 const PEOPLE_SHOWN = 20
 
-/** Everyone the user can write to, the most written-to first; folded until opened, and a row starts an email to them. */
+/** Everyone the user can write to, the most written-to first; folded until opened, and a row's menu writes to them, shows their mail or hides them. */
 const People = () => {
   const t = useT()
   const { openCompose } = useCompose()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
-  const { data: people = [] } = useQuery(orpc.contacts.queryOptions())
+  const { data: people = [] } = useQuery(orpc.contacts.list.queryOptions())
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: orpc.contacts.key() })
+  const hide = useMutation(
+    orpc.contacts.hide.mutationOptions({ onSettled: invalidate })
+  )
   if (people.length === 0) {
     return null
   }
   const found = query
     ? people.filter((person) => matchesContact(person, query))
     : people
+  const hidePerson = (email: string) => {
+    queryClient.setQueryData(orpc.contacts.list.queryKey(), (old) =>
+      old?.filter((person) => person.email !== email)
+    )
+    toastDeferred(t.nav.personHidden, () => hide.mutate({ email }), invalidate)
+  }
 
   return (
     <Collapsible
@@ -206,19 +221,45 @@ const People = () => {
               />
             )}
             {found.slice(0, PEOPLE_SHOWN).map((person) => (
-              <button
-                key={person.email}
-                type="button"
-                className={NAV_SUBROW}
-                onClick={() => openCompose({ to: [person.email] })}
-              >
-                <SenderAvatar
-                  sender={{ fromEmail: person.email, fromName: person.name }}
-                />
-                <span className="flex-1 truncate text-left" data-mask>
-                  {person.name ?? person.email}
-                </span>
-              </button>
+              <DropdownMenu key={person.email}>
+                <DropdownMenuTrigger className={NAV_SUBROW}>
+                  <SenderAvatar
+                    sender={{ fromEmail: person.email, fromName: person.name }}
+                  />
+                  <span className="flex-1 truncate text-left" data-mask>
+                    {person.name ?? person.email}
+                  </span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="right" align="start">
+                  <DropdownMenuItem
+                    onClick={() => openCompose({ to: [person.email] })}
+                  >
+                    <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={2} />
+                    {t.compose.new}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigate({
+                        search: {
+                          q: `from:${person.email} OR to:${person.email}`,
+                        },
+                        to: '/mail',
+                      })
+                    }
+                  >
+                    <HugeiconsIcon icon={Mail01Icon} strokeWidth={2} />
+                    {t.nav.personMail}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => hidePerson(person.email)}
+                  >
+                    <HugeiconsIcon icon={UserRemove01Icon} strokeWidth={2} />
+                    {t.nav.hidePerson}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ))}
             {found.length === 0 && (
               <p className="text-muted-foreground px-2.5 py-1 text-sm">

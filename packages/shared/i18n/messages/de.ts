@@ -838,6 +838,11 @@ export const de: Messages = {
     notFound: 'Das gibt es nicht mehr – vielleicht wurde es gelöscht.',
     offline: 'Fewmail ist nicht erreichbar. Prüf deine Verbindung.',
   },
+  desktop: {
+    lead: 'Fewmail öffnet sich auf deinem Mac. Du kannst diesen Tab schließen.',
+    open: 'Fewmail öffnen',
+    title: 'Zurück zur App',
+  },
   update: {
     available: 'Eine neue Version von Fewmail ist da.',
     reload: 'Neu laden',
@@ -1091,6 +1096,9 @@ export const de: Messages = {
     subscriptions: 'Newsletter',
     people: 'Personen',
     findPerson: 'Person suchen',
+    personMail: 'E-Mails anzeigen',
+    hidePerson: 'Aus Personen entfernen',
+    personHidden: 'Aus Personen entfernt',
     clearSearch: 'Suche leeren',
     mail: 'Mail',
     reading: 'Lesen',

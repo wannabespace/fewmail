@@ -405,6 +405,11 @@ export const en = {
     notFound: 'This is no longer here. It may have been deleted.',
     offline: "Can't reach Fewmail. Check your connection.",
   },
+  desktop: {
+    lead: 'Fewmail is opening on your Mac. You can close this tab.',
+    open: 'Open Fewmail',
+    title: 'Back to the app',
+  },
   update: {
     available: 'A new version of Fewmail is out.',
     reload: 'Reload',
@@ -658,6 +663,9 @@ export const en = {
     subscriptions: 'Mailing lists',
     people: 'People',
     findPerson: 'Find a person',
+    personMail: 'Show emails',
+    hidePerson: 'Remove from People',
+    personHidden: 'Removed from People',
     clearSearch: 'Clear search',
     mail: 'Mail',
     reading: 'Reading',

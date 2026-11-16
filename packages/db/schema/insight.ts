@@ -180,6 +180,7 @@ export const people = d.snakeCase.table(
   {
     ...baseTable,
     email: searchableText().notNull(),
+    hiddenAt: d.timestamp({ withTimezone: true }),
     note: encryptedText(),
     noteUpdatedAt: d.timestamp({ withTimezone: true }),
     userId: userId(),

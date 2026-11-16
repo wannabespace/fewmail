@@ -17,6 +17,7 @@ png() {
 }
 
 png icon/app-icon.svg icon/app-icon-1024.png 1024 1024
+png icon/app-icon-macos.svg icon/app-icon-macos-1024.png 1024 1024
 png icon/app-icon.svg "$PUBLIC/apple-touch-icon.png" 180 180
 png logo/mark.svg logo/mark-512.png 512 512
 png logo/lockup.svg logo/lockup.png 1920 320

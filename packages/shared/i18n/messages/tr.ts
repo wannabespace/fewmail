@@ -401,6 +401,11 @@ export const tr: Messages = {
     notFound: 'Bu artık yok. Silinmiş olabilir.',
     offline: 'Fewmail’e ulaşılamıyor. Bağlantını kontrol et.',
   },
+  desktop: {
+    lead: "Fewmail Mac'inde açılıyor. Bu sekmeyi kapatabilirsin.",
+    open: "Fewmail'i aç",
+    title: 'Uygulamaya dön',
+  },
   update: {
     available: 'Fewmail’in yeni bir sürümü çıktı.',
     reload: 'Yenile',
@@ -652,6 +657,9 @@ export const tr: Messages = {
     subscriptions: 'E-posta listeleri',
     people: 'Kişiler',
     findPerson: 'Kişi bul',
+    personMail: 'E-postaları göster',
+    hidePerson: "Kişiler'den kaldır",
+    personHidden: "Kişiler'den kaldırıldı",
     clearSearch: 'Aramayı temizle',
     mail: 'Posta',
     reading: 'Okuma',

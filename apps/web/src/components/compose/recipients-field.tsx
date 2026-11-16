@@ -15,7 +15,7 @@ import { orpc } from '~/lib/orpc'
 
 import { parseRecipients } from './schedule'
 
-type Contact = RouterOutputs['contacts'][number]
+type Contact = RouterOutputs['contacts']['list'][number]
 
 const SUGGESTIONS_SHOWN = 6
 const LAST_RECIPIENT = /[^,;]*$/u
@@ -34,7 +34,7 @@ export const RecipientsField = ({
   value: string
 }) => {
   const { data: contacts = NO_CONTACTS } = useQuery(
-    orpc.contacts.queryOptions()
+    orpc.contacts.list.queryOptions()
   )
   const query = LAST_RECIPIENT.exec(value)?.[0].trim() ?? ''
   const suggestions = useMemo(() => {
