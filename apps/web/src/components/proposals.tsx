@@ -18,7 +18,7 @@ import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
-import { HomeCard } from '~/components/home-card'
+import { HomeCard, PageHeading } from '~/components/home-card'
 import type { QueueItem } from '~/components/queue-card'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { queueCards } from '~/lib/home-db'
@@ -270,9 +270,11 @@ export const ProposalsGroup = ({
 /** Every proposal by what it would do: ⏎ approves the cursor's, S keeps the email as it is. */
 export const ProposalsReview = ({
   canUseKeys,
+  onClose,
   proposals,
 }: {
   canUseKeys: boolean
+  onClose: () => void
   proposals: Proposals
 }) => {
   const t = useT()
@@ -324,11 +326,10 @@ export const ProposalsReview = ({
 
   return (
     <>
-      <header className="flex flex-col gap-3">
-        <div className="flex items-end justify-between gap-4">
-          <h1 className="text-display font-serif tracking-tight">
-            {t.today.tidy.reviewTitle}
-          </h1>
+      <PageHeading
+        title={t.today.tidy.reviewTitle}
+        onClose={onClose}
+        actions={
           <Button
             size="sm"
             disabled={rows.length === 0}
@@ -337,11 +338,12 @@ export const ProposalsReview = ({
           >
             {t.today.tidy.run}
           </Button>
-        </div>
+        }
+      >
         <p className="text-brief text-foreground/80 font-serif">
           {t.today.tidy.reviewLead}
         </p>
-      </header>
+      </PageHeading>
       <div ref={listRef} className="flex flex-col gap-8">
         {groups.map(({ kind, rows: group }) => (
           <SettingsGroup

@@ -53,7 +53,7 @@ import { ROW_SWAP } from './thread-view'
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
 type Action = QueueItem['action']
 
-const headline = ({ action, analysis, message }: QueueItem) => {
+export const cardHeadlineOf = ({ action, analysis, message }: QueueItem) => {
   if (action.kind === 'commitment' || action.kind === 'heads_up') {
     return action.detail ?? action.title
   }
@@ -64,7 +64,7 @@ const headline = ({ action, analysis, message }: QueueItem) => {
 }
 
 /** Whom the card is about: your own promise names whom you promised (its `reason`), never you, the sender of your mail. */
-const whoOf = ({ action, message }: QueueItem) =>
+export const whoOf = ({ action, message }: QueueItem) =>
   action.kind === 'commitment' && action.reason
     ? { fromEmail: action.reason, fromName: null }
     : message
@@ -78,8 +78,8 @@ const showsGist = ({ action, analysis }: QueueItem) =>
 /** The open card says the email whole, so its title gives the subject instead of repeating it. */
 const titleOf = (item: QueueItem, isOpen: boolean) =>
   isOpen && showsGist(item)
-    ? (item.message?.subject ?? headline(item))
-    : headline(item)
+    ? (item.message?.subject ?? cardHeadlineOf(item))
+    : cardHeadlineOf(item)
 
 /** What the email says and the facts in it, so the card can be settled without opening the email. */
 const Gist = ({

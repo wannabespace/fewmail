@@ -105,6 +105,25 @@ const useIdentify = () => {
   }, [user.id, user.email, user.name, settings.language, plan.kind])
 }
 
+/**
+ * The notice bar over the page; a pane a Home card grows into covers both (`page-column`, `HomeCardPane`), so a notice
+ * never sits on top of what the user opened.
+ */
+const PageColumn = () => (
+  <div
+    data-slot="page-column"
+    className="relative flex min-h-0 flex-1 flex-col"
+  >
+    <NoticeBar />
+    <div
+      data-slot="thread-pane-area"
+      className="relative flex min-h-0 flex-1 flex-col"
+    >
+      <Outlet />
+    </div>
+  </div>
+)
+
 const AppLayout = () => {
   const { me } = Route.useRouteContext()
   useNewVersionToast()
@@ -168,13 +187,7 @@ const AppLayout = () => {
               email={me.user.email}
               onSearch={() => changeCommandMenu(true)}
             />
-            <NoticeBar />
-            <div
-              data-slot="thread-pane-area"
-              className="relative flex min-h-0 flex-1 flex-col"
-            >
-              <Outlet />
-            </div>
+            <PageColumn />
           </div>
         ) : (
           <ResizableGroup className="flex-1">
@@ -192,13 +205,7 @@ const AppLayout = () => {
             </ResizablePanel>
             <ResizableSeparator />
             <ResizablePanel className="flex min-w-0 flex-col">
-              <NoticeBar />
-              <div
-                data-slot="thread-pane-area"
-                className="relative flex min-h-0 flex-1 flex-col"
-              >
-                <Outlet />
-              </div>
+              <PageColumn />
             </ResizablePanel>
           </ResizableGroup>
         )}

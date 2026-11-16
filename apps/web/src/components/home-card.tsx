@@ -7,13 +7,14 @@ import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { Link, useSearch } from '@tanstack/react-router'
 import { motion } from 'motion/react'
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 
 import { HIDDEN, SHOWN, useMorph } from '~/components/expand-row'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 
 /** What a Home card opens over Home's column (`?page=`). */
-export type HomeCardPage = 'board' | 'tidy' | 'worth'
+export type HomeCardPage = 'board' | 'look' | 'tidy' | 'worth'
 
 /** One line of what a card holds: who, then what. */
 export interface HomeCardRow {
@@ -126,7 +127,7 @@ export const HomeCard = ({
   )
 }
 
-/** What a Home card grows into: a pane over Home's column, like Reading's; its content fades in once it has grown. */
+/** What a Home card grows into: a pane over the page column (notices included), like Reading's; its content fades in once it has grown. */
 export const HomeCardPane = ({
   children,
   page,
@@ -135,7 +136,9 @@ export const HomeCardPane = ({
   page: HomeCardPage
 }) => {
   const { morph, reveal } = useMorph()
-  return (
+  // Over the notice bar too: the pane covers the whole page column, not only the page under the notices.
+  const column = document.querySelector('[data-slot=page-column]')
+  const pane = (
     <motion.div
       layoutId={morphIdOf(page)}
       transition={morph}
@@ -155,34 +158,43 @@ export const HomeCardPane = ({
       </motion.div>
     </motion.div>
   )
+  return column ? createPortal(pane, column) : pane
 }
 
-/** What a Home card opened says on top: its name, and ✕ (Home's `esc`) back to Home. */
+/**
+ * What a Home card opened says on top: its name, its actions and ✕ (Home's `esc`) back to Home, held at the pane's top
+ * while it scrolls; `children` (a lead) scroll away under it. A fragment, so the row sticks within the whole pane, not
+ * just within its own header.
+ */
 export const PageHeading = ({
+  actions,
   children,
   onClose,
   title,
 }: {
+  actions?: ReactNode
   children?: ReactNode
   onClose: () => void
   title: string
 }) => {
   const t = useT()
   return (
-    <header className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
+    <>
+      <header className="bg-background sticky top-0 z-10 -mt-3 flex items-center gap-2 py-3">
         <h1 className="text-display font-serif tracking-tight">{title}</h1>
-        <IconButton
-          className="ml-auto"
-          icon={Cancel01Icon}
-          label={t.mail.close}
-          shortcut={<Kbd>esc</Kbd>}
-          size="icon-sm"
-          variant="ghost-muted"
-          onClick={onClose}
-        />
-      </div>
-      {children}
-    </header>
+        <div className="ml-auto flex items-center gap-2">
+          {actions}
+          <IconButton
+            icon={Cancel01Icon}
+            label={t.mail.close}
+            shortcut={<Kbd>esc</Kbd>}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={onClose}
+          />
+        </div>
+      </header>
+      {children && <div className="-mt-5 flex flex-col gap-3">{children}</div>}
+    </>
   )
 }

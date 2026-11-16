@@ -76,10 +76,12 @@ import {
   useProposals,
 } from '~/components/proposals'
 import {
+  cardHeadlineOf,
   foldedVerb,
   openCardLink,
   primaryStep,
   QueueCard,
+  whoOf,
 } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import {
@@ -676,8 +678,14 @@ const primaryHints = (t: Messages, item: QueueItem): [string, string][] => {
 /** The keys that open Home's cards over its column. */
 const cardHints = (
   t: Messages,
-  state: { hasBoard: boolean; hasNewsletters: boolean; hasWorth: boolean }
+  state: {
+    hasBoard: boolean
+    hasLook: boolean
+    hasNewsletters: boolean
+    hasWorth: boolean
+  }
 ): [string, string][] => [
+  ...(state.hasLook ? [['Q', t.today.needsLook] as [string, string]] : []),
   ...(state.hasNewsletters ? [['N', t.reading.title] as [string, string]] : []),
   ...(state.hasWorth ? [['W', t.today.worthKnowing] as [string, string]] : []),
   ...(state.hasBoard ? [['B', t.nav.board] as [string, string]] : []),
@@ -689,6 +697,7 @@ const homeHints = (
     alike: number
     board: [string, string][]
     hasBoard: boolean
+    hasLook: boolean
     hasWorth: boolean
     hasFilter: boolean
     today: Today | undefined
@@ -716,7 +725,8 @@ const homeHints = (
       ['esc', t.keys.stopEditing],
     ]
   }
-  if (state.page) {
+  // Needs a look's pane holds Home's own cards: their keys are Home's.
+  if (state.page && state.page !== 'look') {
     return pageHints(t, state.page, state.newsletters, state.board)
   }
   if (state.picked > 0) {
@@ -995,15 +1005,38 @@ const PickedActions = ({
 }
 
 /** Picked cards swap the progress for what can be done to all of them at once. */
-const DecisionsHeader = ({
+/** Needs a look's pane says what it holds, or how many are picked with what to do with them. */
+const LookHeading = ({
   children,
-  decisions,
+  onClose,
   picked,
-  settled,
+  ...actions
 }: {
   children: ReactNode
-  decisions: number
+  onApprove: () => void
+  onClear: () => void
+  onClose: () => void
+  onSkip: () => void
+  onTrash: () => void
   picked: number
+}) => {
+  const t = useT()
+  return (
+    <PageHeading
+      title={picked > 0 ? t.queue.picked(picked) : t.today.needsLook}
+      onClose={onClose}
+      actions={picked > 0 && <PickedActions {...actions} />}
+    >
+      {children}
+    </PageHeading>
+  )
+}
+
+const DecisionsHeader = ({
+  decisions,
+  settled,
+}: {
+  decisions: number
   settled: number
 }) => {
   const t = useT()
@@ -1011,12 +1044,9 @@ const DecisionsHeader = ({
   return (
     <div className="flex min-h-7 items-center gap-3">
       <h2 className="text-muted-foreground text-xs font-medium">
-        {picked > 0 ? t.queue.picked(picked) : t.today.decisions}
+        {t.today.decisions}
       </h2>
-      {picked > 0 && (
-        <span className="ml-auto flex items-center gap-1.5">{children}</span>
-      )}
-      {picked === 0 && decisions > 0 && (
+      {decisions > 0 && (
         <>
           <Progress
             className="flex-1"
@@ -1053,6 +1083,41 @@ const useKindFilter = (queue: QueueItem[]) => {
   }
 }
 
+/** Each kind of card in the queue with what its cards ask, the words of the filter and of Needs a look's card. */
+const kindsOf = (t: Messages, queue: QueueItem[]) =>
+  [...new Set(queue.map(({ action }) => action.kind))].map((kind) => {
+    const cards = queue.filter(({ action }) => action.kind === kind)
+    const verbs = new Set(cards.map(({ action }) => foldedVerb(t, action)))
+    const [verb] = verbs
+    return {
+      count: cards.length,
+      kind,
+      label: verbs.size === 1 && verb ? verb : t.actionKind[kind],
+    }
+  })
+
+/** Home's decision cards as one card, opened like Reading's (`Q`, `?page=look`): what they ask and the first few. */
+const LookCard = ({ queue }: { queue: QueueItem[] }) => {
+  const t = useT()
+  if (queue.length === 0) {
+    return null
+  }
+  return (
+    <HomeCard
+      heading={t.today.needsLook}
+      lead={kindsOf(t, queue)
+        .map(({ count, label }) => `${label} ${count}`)
+        .join(' · ')}
+      page="look"
+      rows={queue.map((item) => ({
+        id: item.action.id,
+        sender: whoOf(item) ?? { fromEmail: '', fromName: 'Fewmail' },
+        text: cardHeadlineOf(item),
+      }))}
+    />
+  )
+}
+
 const KindFilter = ({
   canUseKeys,
   filter,
@@ -1080,18 +1145,9 @@ const KindFilter = ({
     filter.isOffered && (
       <div className="flex flex-wrap items-center gap-1">
         {pill(null, t.today.allKinds, queue.length)}
-        {filter.kinds.map((kind) => {
-          const cards = queue.filter(({ action }) => action.kind === kind)
-          const verbs = new Set(
-            cards.map(({ action }) => foldedVerb(t, action))
-          )
-          const [verb] = verbs
-          return pill(
-            kind,
-            verbs.size === 1 && verb ? verb : t.actionKind[kind],
-            cards.length
-          )
-        })}
+        {kindsOf(t, queue).map(({ count, kind, label }) =>
+          pill(kind, label, count)
+        )}
         <Kbd>F</Kbd>
       </div>
     )
@@ -1212,10 +1268,12 @@ const useHomeSubpage = (
   {
     hasAgent,
     hasNewsletters,
+    hasLook,
     hasProposals,
     hasWorth,
   }: {
     hasAgent: boolean
+    hasLook: boolean
     hasNewsletters: boolean
     hasProposals: boolean
     hasWorth: boolean
@@ -1244,16 +1302,18 @@ const useHomeSubpage = (
   })
   useHotkey('B', () => toggle('board'), { enabled: canSwitch && hasAgent })
   useHotkey('W', () => toggle('worth'), { enabled: canSwitch && hasWorth })
+  useHotkey('Q', () => toggle('look'), { enabled: canSwitch && hasLook })
 }
 
 /** Home's keys rest while a card is edited or an expanded email lies over Home; the cursor walks only Home itself. */
 const useHomeFocus = (isEditing: boolean, page: HomeSubpage | undefined) => {
   const isUnderEmail = useIsThreadExpanded()
   const isFocused = !isEditing && !isUnderEmail
-  // Worth knowing's pane holds Home's own rows, so Home's cursor walks them there, and only them.
+  // Needs a look's and Worth knowing's panes hold Home's own cards and rows, so Home's cursor walks them there, and only them.
   return {
     isFocused,
-    isStepping: isFocused && (!page || page === 'worth'),
+    isInQueue: isFocused && page === 'look',
+    isStepping: isFocused && (!page || page === 'look' || page === 'worth'),
     isWalking: isFocused && !page,
   }
 }
@@ -1276,24 +1336,25 @@ const useReadingPage = (
 }
 
 /**
- * Where Home's cursor goes: the agent's proposals, then the cards. Its mail worth knowing is one card on Home, so those
- * rows are walked only on their own page.
+ * Where Home's cursor goes: on Home the agent's proposals; its decision cards and its mail worth knowing are one card
+ * each there, so those are walked only in their panes.
  */
 const stopsOf = (
-  isWorthPage: boolean,
+  page: HomeSubpage | undefined,
   {
     hasProposals,
     queue,
     worth,
   }: { hasProposals: boolean; queue: QueueItem[]; worth: WorthRow[] }
 ) => {
-  if (isWorthPage) {
+  if (page === 'worth') {
     return { cardStops: [], stops: worth.map(({ id }) => worthStop(id)) }
   }
-  const cardStops = [
-    ...(hasProposals ? [PROPOSALS_ID] : []),
-    ...queue.map(({ action }) => action.id),
-  ]
+  if (page === 'look') {
+    const cardStops = queue.map(({ action }) => action.id)
+    return { cardStops, stops: cardStops }
+  }
+  const cardStops = hasProposals ? [PROPOSALS_ID] : []
   return { cardStops, stops: cardStops }
 }
 
@@ -1333,7 +1394,7 @@ const HomePage = () => {
   const hasProposals = proposals.proposals.length > 0
   // The cursor walks the agent's proposals first, then the cards, then the mail worth knowing.
   const worth = worthRowsOf(data)
-  const { cardStops, stops } = stopsOf(search.page === 'worth', {
+  const { cardStops, stops } = stopsOf(search.page, {
     hasProposals,
     queue,
     worth,
@@ -1631,16 +1692,20 @@ const HomePage = () => {
       ? skipMany.mutate(pickedActionIds)
       : selected && dismiss.mutate({ id: selected.action.id })
 
-  const { isFocused, isStepping, isWalking } = useHomeFocus(isEditing, page)
+  const { isFocused, isInQueue, isStepping, isWalking } = useHomeFocus(
+    isEditing,
+    page
+  )
   useHomeSubpage(search.page, readingDays.top, isFocused, {
     hasAgent,
     hasNewsletters,
+    hasLook: decisionCards.length > 0,
     hasProposals,
     hasWorth: worth.length > 0,
   })
   const boardHints = useBoardHints()
   const walkKeys = { enabled: isStepping && stops.length > 0 }
-  const listKeys = { enabled: isWalking && !!selected }
+  const listKeys = { enabled: isInQueue && !!selected }
   useHotkey('J', () => move(1), walkKeys)
   useHotkey('ArrowDown', () => move(1), walkKeys)
   useHotkey('K', () => move(-1), walkKeys)
@@ -1658,7 +1723,7 @@ const HomePage = () => {
   useHotkey('S', skipTargets, listKeys)
   useHotkey('Backspace', () => trashMany.mutate(targets), listKeys)
   useHotkey('X', () => selected && togglePick(selected.action.id), listKeys)
-  const addEventOf = useAddEvent(selected, isWalking)
+  const addEventOf = useAddEvent(selected, isInQueue)
   useHotkey(
     'Mod+A',
     () => {
@@ -1672,7 +1737,7 @@ const HomePage = () => {
     walkKeys
   )
   useHotkey('Escape', () => setPickedIds([]), {
-    enabled: isWalking && picked.length > 0,
+    enabled: isInQueue && picked.length > 0,
   })
   const openAnd = (start: (id: string) => void) => () => {
     if (selected && sendsDraft(selected.action)) {
@@ -1711,40 +1776,56 @@ const HomePage = () => {
                 hidden={decisions === 0}
                 className="flex flex-col gap-2.5"
               >
-                <DecisionsHeader
-                  decisions={decisions}
-                  picked={picked.length}
-                  settled={settled}
-                >
-                  <PickedActions
-                    onApprove={approveTargets}
-                    onClear={() => setPickedIds([])}
-                    onSkip={skipTargets}
-                    onTrash={() => trashMany.mutate(picked)}
-                  />
-                </DecisionsHeader>
+                <DecisionsHeader decisions={decisions} settled={settled} />
                 <ProposalsGroup
                   canUseKeys={isWalking}
                   isSelected={isOnProposals}
                   proposals={proposals}
                 />
+                <LookCard queue={decisionCards} />
+                <div
+                  className={cn(
+                    'flex flex-col gap-2.5 empty:hidden',
+                    cardsBleedClassName
+                  )}
+                >
+                  <NewSenders
+                    senders={data?.newSenders ?? []}
+                    canUseKeys={isWalking}
+                    onSettle={() => settle()}
+                  />
+                  <RuleOffers today={data} onSettle={() => settle()} />
+                </div>
+              </section>
+
+              {hasAgent && <BoardCard />}
+              <WorthCard today={data} />
+            </div>
+          </motion.div>
+          <ReadingPane {...readingDays} />
+          {page === 'look' && (
+            <HomeCardPane page="look">
+              <LookHeading
+                picked={picked.length}
+                onApprove={approveTargets}
+                onClear={() => setPickedIds([])}
+                onClose={closePage}
+                onSkip={skipTargets}
+                onTrash={() => trashMany.mutate(picked)}
+              >
+                <KindFilter
+                  canUseKeys={isInQueue}
+                  filter={filter}
+                  queue={decisionCards}
+                />
+              </LookHeading>
+              <div className="flex flex-col gap-2.5">
                 <Accordion
                   variant="list"
                   hidden={queue.length === 0}
                   value={openIds}
                   onValueChange={toggleCard}
                 >
-                  {/* The section's own head, the card's first row, so the decisions read as one block like Home's other cards. */}
-                  <div className="flex flex-col gap-2 px-3.5 pt-3.5 pb-3">
-                    <h2 className="text-muted-foreground text-xs font-medium">
-                      {t.today.needsLook}
-                    </h2>
-                    <KindFilter
-                      canUseKeys={isWalking}
-                      filter={filter}
-                      queue={decisionCards}
-                    />
-                  </div>
                   {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
                   <AnimatePresence key={filter.active} initial={false}>
                     {queue.map((item) => (
@@ -1795,31 +1876,14 @@ const HomePage = () => {
                     {t.mail.showAll(filter.shown.length)}
                   </Button>
                 )}
-                <div
-                  className={cn(
-                    'flex flex-col gap-2.5 empty:hidden',
-                    cardsBleedClassName
-                  )}
-                >
-                  <NewSenders
-                    senders={data?.newSenders ?? []}
-                    canUseKeys={isWalking}
-                    onSettle={() => settle()}
-                  />
-                  <RuleOffers today={data} onSettle={() => settle()} />
-                </div>
                 <StaleCards
-                  canUseKeys={isWalking}
+                  canUseKeys={isInQueue}
                   count={stale.length}
                   onSkip={skipStale}
                 />
-              </section>
-
-              {hasAgent && <BoardCard />}
-              <WorthCard today={data} />
-            </div>
-          </motion.div>
-          <ReadingPane {...readingDays} />
+              </div>
+            </HomeCardPane>
+          )}
           {page === 'worth' && (
             <HomeCardPane page="worth">
               <WorthKnowing
@@ -1838,7 +1902,11 @@ const HomePage = () => {
           )}
           {page === 'tidy' && (
             <HomeCardPane page="tidy">
-              <ProposalsReview canUseKeys={isFocused} proposals={proposals} />
+              <ProposalsReview
+                canUseKeys={isFocused}
+                proposals={proposals}
+                onClose={closePage}
+              />
             </HomeCardPane>
           )}
         </div>
@@ -1847,6 +1915,7 @@ const HomePage = () => {
             alike: alike.length,
             board: boardHints,
             hasBoard: hasAgent,
+            hasLook: decisionCards.length > 0,
             hasWorth: worth.length > 0,
             hasFilter: filter.isOffered,
             isEditing,
@@ -1887,7 +1956,7 @@ export const Route = createFileRoute('/_app/home')({
   component: HomePage,
   validateSearch: type({
     'thread?': 'string',
-    'page?': "'board' | 'reading' | 'tidy' | 'worth'",
+    'page?': "'board' | 'look' | 'reading' | 'tidy' | 'worth'",
     'day?': /^\d{4}-\d{2}-\d{2}$/u,
   }),
   loader: async () => {
