@@ -182,15 +182,12 @@ export const BoardCard = () => {
     <HomeCard
       heading={t.nav.board}
       lead={leadOf(t, locale, sections)}
-      openKey="B"
       page="board"
       rows={open.map((row) => ({
         id: row.id,
         sender: senderOf(row) ?? { fromEmail: '', fromName: t.nav.board },
         text: `${row.promise} · ${descriptionOf(t, dates, row, today)}`,
-        threadId: threadOf(row),
       }))}
-      total={open.length}
     />
   )
 }

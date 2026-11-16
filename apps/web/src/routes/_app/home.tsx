@@ -64,7 +64,7 @@ import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import { EmailRow } from '~/components/email-row'
 import { expandRow, useIsThreadExpanded } from '~/components/expand-row'
-import { HomeCard, PageHeading } from '~/components/home-card'
+import { HomeCard, HomeCardPane, PageHeading } from '~/components/home-card'
 import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
@@ -587,23 +587,19 @@ const WorthCard = ({ today }: { today: Today | undefined }) => {
       id: message.id,
       sender: message,
       text: analysis.summary,
-      threadId: message.threadId,
     })),
     ...today.awaiting.map((sent) => ({
       id: sent.threadId,
       sender: { fromEmail: sent.to[0] ?? '', fromName: sent.toName },
       text: `${t.today.awaiting} · ${sent.subject}`,
-      threadId: sent.threadId,
     })),
   ]
   return (
     <HomeCard
       heading={t.today.worthKnowing}
       lead={`${lead.charAt(0).toUpperCase()}${lead.slice(1)}.`}
-      openKey="W"
       page="worth"
       rows={rows}
-      total={rows.length}
     />
   )
 }
@@ -1254,8 +1250,12 @@ const useHomeSubpage = (
 const useHomeFocus = (isEditing: boolean, page: HomeSubpage | undefined) => {
   const isUnderEmail = useIsThreadExpanded()
   const isFocused = !isEditing && !isUnderEmail
-  // Worth knowing's page is Home's own rows over the column, so Home's cursor walks it.
-  return { isFocused, isWalking: isFocused && (!page || page === 'worth') }
+  // Worth knowing's pane holds Home's own rows, so Home's cursor walks them there, and only them.
+  return {
+    isFocused,
+    isStepping: isFocused && (!page || page === 'worth'),
+    isWalking: isFocused && !page,
+  }
 }
 
 /** Reading's panes and the newsletters of the one on top, whose keys Home shows. */
@@ -1296,9 +1296,6 @@ const stopsOf = (
   ]
   return { cardStops, stops: cardStops }
 }
-
-/** Reading opens over Home; the proposals' review and the Board take its place. */
-const showsHome = (page: HomeSubpage | undefined) => !page || page === 'reading'
 
 const HomePage = () => {
   const t = useT()
@@ -1634,7 +1631,7 @@ const HomePage = () => {
       ? skipMany.mutate(pickedActionIds)
       : selected && dismiss.mutate({ id: selected.action.id })
 
-  const { isFocused, isWalking } = useHomeFocus(isEditing, page)
+  const { isFocused, isStepping, isWalking } = useHomeFocus(isEditing, page)
   useHomeSubpage(search.page, readingDays.top, isFocused, {
     hasAgent,
     hasNewsletters,
@@ -1642,7 +1639,7 @@ const HomePage = () => {
     hasWorth: worth.length > 0,
   })
   const boardHints = useBoardHints()
-  const walkKeys = { enabled: isWalking && stops.length > 0 }
+  const walkKeys = { enabled: isStepping && stops.length > 0 }
   const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), walkKeys)
   useHotkey('ArrowDown', () => move(1), walkKeys)
@@ -1686,7 +1683,7 @@ const HomePage = () => {
   useHotkey('E', openAnd(setEditingId), listKeys)
   useHotkey('R', openAnd(setRewritingId), listKeys)
   useHotkey('Space', () => cursorId && setIsOpen((open) => !open), walkKeys)
-  useOpenKey(worthRow, selected, isWalking)
+  useOpenKey(worthRow, selected, isStepping)
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -1699,151 +1696,151 @@ const HomePage = () => {
                 STILL_POINTER_GUARD
               )}
             >
-              {page === 'worth' && (
-                <WorthKnowing
-                  cursorId={cursorId}
-                  isWalking={isWalking}
-                  today={data}
-                  onClose={closePage}
-                  onSelect={setSelectedId}
-                />
-              )}
-              {page === 'board' && (
-                <BoardPane isActive={isFocused} onClose={closePage} />
-              )}
-              {page === 'tidy' && (
-                <ProposalsReview canUseKeys={isFocused} proposals={proposals} />
-              )}
-              {showsHome(page) && (
-                <>
-                  <HomeHeader
-                    data={data}
-                    decisions={decisions}
-                    isFirstRead={isFirstRead}
-                    updatedAt={dataUpdatedAt}
+              <HomeHeader
+                data={data}
+                decisions={decisions}
+                isFirstRead={isFirstRead}
+                updatedAt={dataUpdatedAt}
+              />
+              <ConnectHint />
+              <ReadingSection {...readingDays} />
+              <FreshCodes today={data} canUseKeys={isWalking} />
+
+              <section
+                aria-label={t.today.decisions}
+                hidden={decisions === 0}
+                className="flex flex-col gap-2.5"
+              >
+                <DecisionsHeader
+                  decisions={decisions}
+                  picked={picked.length}
+                  settled={settled}
+                >
+                  <PickedActions
+                    onApprove={approveTargets}
+                    onClear={() => setPickedIds([])}
+                    onSkip={skipTargets}
+                    onTrash={() => trashMany.mutate(picked)}
                   />
-                  <ConnectHint />
-                  <ReadingSection {...readingDays} />
-                  <FreshCodes today={data} canUseKeys={isWalking} />
-
-                  <section
-                    aria-label={t.today.decisions}
-                    hidden={decisions === 0}
-                    className="flex flex-col gap-2.5"
+                </DecisionsHeader>
+                <ProposalsGroup
+                  canUseKeys={isWalking}
+                  isSelected={isOnProposals}
+                  proposals={proposals}
+                />
+                <Accordion
+                  variant="list"
+                  hidden={queue.length === 0}
+                  value={openIds}
+                  onValueChange={toggleCard}
+                >
+                  {/* The section's own head, the card's first row, so the decisions read as one block like Home's other cards. */}
+                  <div className="flex flex-col gap-2 px-3.5 pt-3.5 pb-3">
+                    <h2 className="text-muted-foreground text-xs font-medium">
+                      {t.today.needsLook}
+                    </h2>
+                    <KindFilter
+                      canUseKeys={isWalking}
+                      filter={filter}
+                      queue={decisionCards}
+                    />
+                  </div>
+                  {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
+                  <AnimatePresence key={filter.active} initial={false}>
+                    {queue.map((item) => (
+                      <QueueCard
+                        key={item.action.id}
+                        item={item}
+                        draft={draftOf(item)}
+                        isNew={!!seenAt && item.action.createdAt > seenAt}
+                        isPicked={pickedIds.includes(item.action.id)}
+                        isRewriting={rewritingId === item.action.id}
+                        isOpen={isOpen && item === selected}
+                        isSelected={item === selected}
+                        isEditing={editingId === item.action.id}
+                        isBusy={
+                          redraft.isPending &&
+                          redraft.variables.id === item.action.id
+                        }
+                        onAddEvent={() => addEventOf(item.action.id)}
+                        onApprove={() => approveItem(item)}
+                        onEdit={() => setEditingId(item.action.id)}
+                        onDraftChange={(draft) =>
+                          setDrafts((current) => ({
+                            ...current,
+                            [item.action.id]: draft,
+                          }))
+                        }
+                        onRewrite={(instruction) =>
+                          rewrite(item.action.id, instruction)
+                        }
+                        onRewriteChange={(isOn) =>
+                          setRewritingId(isOn ? item.action.id : null)
+                        }
+                        onPick={() => togglePick(item.action.id)}
+                        onRemind={() => remind(item.action.id)}
+                        onSkip={() => dismiss.mutate({ id: item.action.id })}
+                        onStopEditing={() => setEditingId(null)}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </Accordion>
+                {hiddenCards > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost-muted"
+                    className="self-start"
+                    onClick={() => setIsQueueOpen(true)}
                   >
-                    <DecisionsHeader
-                      decisions={decisions}
-                      picked={picked.length}
-                      settled={settled}
-                    >
-                      <PickedActions
-                        onApprove={approveTargets}
-                        onClear={() => setPickedIds([])}
-                        onSkip={skipTargets}
-                        onTrash={() => trashMany.mutate(picked)}
-                      />
-                    </DecisionsHeader>
-                    <ProposalsGroup
-                      canUseKeys={isWalking}
-                      isSelected={isOnProposals}
-                      proposals={proposals}
-                    />
-                    <Accordion
-                      variant="list"
-                      hidden={queue.length === 0}
-                      value={openIds}
-                      onValueChange={toggleCard}
-                    >
-                      {/* The section's own head, the card's first row, so the decisions read as one block like Home's other cards. */}
-                      <div className="flex flex-col gap-2 px-3.5 pt-3.5 pb-3">
-                        <h2 className="text-muted-foreground text-xs font-medium">
-                          {t.today.needsLook}
-                        </h2>
-                        <KindFilter
-                          canUseKeys={isWalking}
-                          filter={filter}
-                          queue={decisionCards}
-                        />
-                      </div>
-                      {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
-                      <AnimatePresence key={filter.active} initial={false}>
-                        {queue.map((item) => (
-                          <QueueCard
-                            key={item.action.id}
-                            item={item}
-                            draft={draftOf(item)}
-                            isNew={!!seenAt && item.action.createdAt > seenAt}
-                            isPicked={pickedIds.includes(item.action.id)}
-                            isRewriting={rewritingId === item.action.id}
-                            isOpen={isOpen && item === selected}
-                            isSelected={item === selected}
-                            isEditing={editingId === item.action.id}
-                            isBusy={
-                              redraft.isPending &&
-                              redraft.variables.id === item.action.id
-                            }
-                            onAddEvent={() => addEventOf(item.action.id)}
-                            onApprove={() => approveItem(item)}
-                            onEdit={() => setEditingId(item.action.id)}
-                            onDraftChange={(draft) =>
-                              setDrafts((current) => ({
-                                ...current,
-                                [item.action.id]: draft,
-                              }))
-                            }
-                            onRewrite={(instruction) =>
-                              rewrite(item.action.id, instruction)
-                            }
-                            onRewriteChange={(isOn) =>
-                              setRewritingId(isOn ? item.action.id : null)
-                            }
-                            onPick={() => togglePick(item.action.id)}
-                            onRemind={() => remind(item.action.id)}
-                            onSkip={() =>
-                              dismiss.mutate({ id: item.action.id })
-                            }
-                            onStopEditing={() => setEditingId(null)}
-                          />
-                        ))}
-                      </AnimatePresence>
-                    </Accordion>
-                    {hiddenCards > 0 && (
-                      <Button
-                        size="sm"
-                        variant="ghost-muted"
-                        className="self-start"
-                        onClick={() => setIsQueueOpen(true)}
-                      >
-                        {t.mail.showAll(filter.shown.length)}
-                      </Button>
-                    )}
-                    <div
-                      className={cn(
-                        'flex flex-col gap-2.5 empty:hidden',
-                        cardsBleedClassName
-                      )}
-                    >
-                      <NewSenders
-                        senders={data?.newSenders ?? []}
-                        canUseKeys={isWalking}
-                        onSettle={() => settle()}
-                      />
-                      <RuleOffers today={data} onSettle={() => settle()} />
-                    </div>
-                    <StaleCards
-                      canUseKeys={isWalking}
-                      count={stale.length}
-                      onSkip={skipStale}
-                    />
-                  </section>
+                    {t.mail.showAll(filter.shown.length)}
+                  </Button>
+                )}
+                <div
+                  className={cn(
+                    'flex flex-col gap-2.5 empty:hidden',
+                    cardsBleedClassName
+                  )}
+                >
+                  <NewSenders
+                    senders={data?.newSenders ?? []}
+                    canUseKeys={isWalking}
+                    onSettle={() => settle()}
+                  />
+                  <RuleOffers today={data} onSettle={() => settle()} />
+                </div>
+                <StaleCards
+                  canUseKeys={isWalking}
+                  count={stale.length}
+                  onSkip={skipStale}
+                />
+              </section>
 
-                  {hasAgent && <BoardCard />}
-                  <WorthCard today={data} />
-                </>
-              )}
+              {hasAgent && <BoardCard />}
+              <WorthCard today={data} />
             </div>
           </motion.div>
           <ReadingPane {...readingDays} />
+          {page === 'worth' && (
+            <HomeCardPane page="worth">
+              <WorthKnowing
+                cursorId={cursorId}
+                isWalking={isStepping}
+                today={data}
+                onClose={closePage}
+                onSelect={setSelectedId}
+              />
+            </HomeCardPane>
+          )}
+          {page === 'board' && (
+            <HomeCardPane page="board">
+              <BoardPane isActive={isFocused} onClose={closePage} />
+            </HomeCardPane>
+          )}
+          {page === 'tidy' && (
+            <HomeCardPane page="tidy">
+              <ProposalsReview canUseKeys={isFocused} proposals={proposals} />
+            </HomeCardPane>
+          )}
         </div>
         <KeyHints
           hints={homeHints(t, {

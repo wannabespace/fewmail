@@ -238,7 +238,6 @@ export const ProposalsGroup = ({
               heading={t.today.quick}
               isActive={isSelected}
               lead={`${t.today.tidy.total(rows.length)}: ${kindsLine(t, rows)}.`}
-              openKey="D"
               page="tidy"
               rows={rows.flatMap(({ id, message }) =>
                 message
@@ -247,12 +246,10 @@ export const ProposalsGroup = ({
                         id,
                         sender: message,
                         text: message.subject,
-                        threadId: message.threadId,
                       },
                     ]
                   : []
               )}
-              total={rows.length}
               actions={
                 <Button
                   size="sm"
