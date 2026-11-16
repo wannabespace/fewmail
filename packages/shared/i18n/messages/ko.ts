@@ -361,7 +361,7 @@ export const ko: Messages = {
     photos: {
       allow: '접근 허용',
       description:
-        'Fewmail은 Google 연락처에서 사진을 가져오며 그 용도로만 사용해요.',
+        'Fewmail은 Google 연락처에서 사진과 저장한 이름을 보여 주고, 요청할 때만 연락처를 삭제합니다.',
       title: '메일을 보낸 사람의 사진 보기',
     },
   },
@@ -531,8 +531,8 @@ export const ko: Messages = {
     people: '사람',
     findPerson: '사람 찾기',
     personMail: '이메일 보기',
-    hidePerson: '사람에서 제거',
-    personHidden: '사람에서 제거했습니다',
+    deleteContact: '연락처 삭제',
+    contactDeleted: '연락처를 삭제했습니다',
     clearSearch: '검색 지우기',
     mail: '메일',
     reading: '읽을거리',

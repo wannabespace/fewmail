@@ -490,7 +490,7 @@ export const en = {
     photos: {
       allow: 'Allow access',
       description:
-        'Fewmail shows them from your Google contacts and uses those only for that.',
+        'Fewmail shows them and the names you saved from your Google contacts, and deletes a contact only when you ask.',
       title: 'See the photos of people who write to you',
     },
   },
@@ -664,8 +664,8 @@ export const en = {
     people: 'People',
     findPerson: 'Find a person',
     personMail: 'Show emails',
-    hidePerson: 'Remove from People',
-    personHidden: 'Removed from People',
+    deleteContact: 'Delete contact',
+    contactDeleted: 'Contact deleted',
     clearSearch: 'Clear search',
     mail: 'Mail',
     reading: 'Reading',

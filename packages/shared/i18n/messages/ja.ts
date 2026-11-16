@@ -362,7 +362,7 @@ export const ja: Messages = {
     photos: {
       allow: 'アクセスを許可',
       description:
-        'Fewmail は Google の連絡先から写真を取得し、その用途にのみ使います。',
+        'Fewmail は Google の連絡先から写真と保存した名前を表示し、連絡先を削除するのはあなたが頼んだときだけです。',
       title: 'メールをくれる人の写真を表示',
     },
   },
@@ -530,8 +530,8 @@ export const ja: Messages = {
     people: '人',
     findPerson: '人を探す',
     personMail: 'メールを表示',
-    hidePerson: '人から外す',
-    personHidden: '人から外しました',
+    deleteContact: '連絡先を削除',
+    contactDeleted: '連絡先を削除しました',
     clearSearch: '検索をクリア',
     mail: 'メール',
     reading: 'リーディング',

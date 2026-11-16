@@ -10,7 +10,7 @@ import { cors } from 'hono/cors'
 
 import { env } from './env'
 import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
-import { contactPhoto } from './lib/contact-photos'
+import { contactPhoto } from './lib/google-contacts'
 import { canSpeak } from './lib/elevenlabs'
 import { relayChanges } from './lib/live'
 import { logError, logErrorAs } from './lib/log'

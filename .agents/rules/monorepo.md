@@ -28,7 +28,7 @@ The Railway project is code: `.railway/railway.ts` (`railway/iac`, root devDepen
 - **Web and API go live together**: the web's healthcheck `/health` is proxied by Caddy to the API's `/health/$RAILWAY_GIT_COMMIT_SHA`, which answers 503 until the API runs that commit (`healthcheckTimeout: 600` covers the API's build). So a new web never talks to an old API, and a failed API deploy keeps the old web too. Both services share `watchPatterns` for this — a commit only the web picked up would never become healthy. Rolling the web back alone fails the same way: roll back the API first. Deploys need a git commit (`railway up` has no `RAILWAY_GIT_COMMIT_SHA`). The web build also gets that SHA (build arg) and emits it as `/version.txt`; an open app compares it with its own every minute and on focus and offers a reload.
 - Service names in `railway.ts` are the existing ones (`@fewmail/api`, `@fewmail/web`, `Postgres`): IaC matches by name, so a new name creates a second service.
 
-Google OAuth redirect URI: `https://api.local.fewmail.app/auth/callback/google (prod: https://api.fewmail.app/auth/callback/google)`; the Gmail, Google Calendar and People APIs must be enabled, the `calendar.events`, `contacts.readonly` and `contacts.other.readonly` scopes added to the consent screen, and, until verification, the user added as a test user.
+Google OAuth redirect URI: `https://api.local.fewmail.app/auth/callback/google (prod: https://api.fewmail.app/auth/callback/google)`; the Gmail, Google Calendar and People APIs must be enabled, the `calendar.events`, `contacts` and `contacts.other.readonly` scopes added to the consent screen, and, until verification, the user added as a test user.
 
 ## Desktop release
 

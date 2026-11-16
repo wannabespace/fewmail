@@ -487,7 +487,7 @@ export const tr: Messages = {
     photos: {
       allow: 'Erişime izin ver',
       description:
-        'Fewmail bunları Google kişilerinden alır ve onları yalnızca bunun için kullanır.',
+        'Fewmail bunları ve kaydettiğin adları Google kişilerinden gösterir, bir kişiyi yalnızca sen istediğinde siler.',
       title: 'Sana yazanların fotoğraflarını gör',
     },
   },
@@ -658,8 +658,8 @@ export const tr: Messages = {
     people: 'Kişiler',
     findPerson: 'Kişi bul',
     personMail: 'E-postaları göster',
-    hidePerson: "Kişiler'den kaldır",
-    personHidden: "Kişiler'den kaldırıldı",
+    deleteContact: 'Kişiyi sil',
+    contactDeleted: 'Kişi silindi',
     clearSearch: 'Aramayı temizle',
     mail: 'Posta',
     reading: 'Okuma',

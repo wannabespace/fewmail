@@ -360,7 +360,7 @@ export const hi: Messages = {
     photos: {
       allow: 'अनुमति दें',
       description:
-        'Fewmail ये आपके Google संपर्कों से लेता है और उन्हें सिर्फ़ इसी के लिए इस्तेमाल करता है।',
+        'Fewmail इन्हें और आपके सहेजे गए नाम आपके Google संपर्कों से दिखाता है, और कोई संपर्क तभी हटाता है जब आप कहें।',
       title: 'आपको लिखने वालों की फ़ोटो देखें',
     },
   },
@@ -531,8 +531,8 @@ export const hi: Messages = {
     people: 'लोग',
     findPerson: 'किसी को खोजें',
     personMail: 'ईमेल देखें',
-    hidePerson: 'लोग से हटाएँ',
-    personHidden: 'लोग से हटाया गया',
+    deleteContact: 'संपर्क हटाएँ',
+    contactDeleted: 'संपर्क हटाया गया',
     clearSearch: 'खोज साफ़ करें',
     mail: 'मेल',
     reading: 'पढ़ना',

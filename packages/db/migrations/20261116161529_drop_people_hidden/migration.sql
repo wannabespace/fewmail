@@ -1,0 +1,1 @@
+ALTER TABLE "people" DROP COLUMN "hidden_at";

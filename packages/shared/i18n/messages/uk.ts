@@ -924,7 +924,7 @@ export const uk: Messages = {
     photos: {
       allow: 'Дозволити доступ',
       description:
-        'Fewmail бере їх із твоїх контактів Google і використовує тільки для цього.',
+        'Fewmail бере їх і збережені імена з твоїх контактів Google, а контакт видаляє лише тоді, коли ти просиш.',
       title: 'Бач фото людей, які тобі пишуть',
     },
   },
@@ -1093,8 +1093,8 @@ export const uk: Messages = {
     people: 'Люди',
     findPerson: 'Знайти людину',
     personMail: 'Показати листи',
-    hidePerson: 'Прибрати з Людей',
-    personHidden: 'Прибрано з Людей',
+    deleteContact: 'Видалити контакт',
+    contactDeleted: 'Контакт видалено',
     clearSearch: 'Очистити пошук',
     mail: 'Пошта',
     reading: 'Читання',

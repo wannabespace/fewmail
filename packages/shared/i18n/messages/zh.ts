@@ -354,7 +354,8 @@ export const zh: Messages = {
     storageFullHint: '释放空间或购买更多存储空间，才能再次收到邮件。',
     photos: {
       allow: '允许访问',
-      description: 'Fewmail 从你的 Google 联系人中获取照片，且只用于此。',
+      description:
+        'Fewmail 从你的 Google 联系人中显示照片和你保存的名字，只有在你要求时才会删除联系人。',
       title: '查看给你写信的人的照片',
     },
   },
@@ -521,8 +522,8 @@ export const zh: Messages = {
     people: '联系人',
     findPerson: '查找联系人',
     personMail: '查看邮件',
-    hidePerson: '从联系人中移除',
-    personHidden: '已从联系人中移除',
+    deleteContact: '删除联系人',
+    contactDeleted: '已删除联系人',
     clearSearch: '清除搜索',
     mail: '邮件',
     reading: '阅读',

@@ -21,7 +21,6 @@ import {
   desc,
   eq,
   inArray,
-  isNotNull,
   isNull,
   ne,
   not,
@@ -30,6 +29,8 @@ import {
 } from 'drizzle-orm'
 
 import { models, NO_EM_DASH, trackUsage } from '../lib/ai'
+import type { GoogleContact } from '../lib/google-contacts'
+import { deleteGoogleContacts, googleContacts } from '../lib/google-contacts'
 import { logErrorAs } from '../lib/log'
 import { listMailboxes } from './mailboxes'
 import { hasBudget } from './plan'
@@ -252,6 +253,7 @@ export const getPerson = async (userId: string, rawEmail: string) => {
 }
 
 interface Contact {
+  deletable: boolean
   email: string
   last: Date
   name: string | null
@@ -259,7 +261,10 @@ interface Contact {
 }
 
 /** Everyone the user wrote to and the people who wrote to them, the most written-to first; the composer suggests recipients from it. */
-export const listContacts = async (userId: string) => {
+const rankContacts = async (
+  userId: string,
+  google: Iterable<GoogleContact>
+) => {
   const sentTo = db
     .select({
       address: sql`unnest(${messages.to} || ${messages.cc})`.as('address'),
@@ -268,7 +273,7 @@ export const listContacts = async (userId: string) => {
     .from(messages)
     .where(and(eq(messages.userId, userId), eq(messages.isFromMe, true)))
     .as('sent_to')
-  const [sent, received, own, hidden] = await Promise.all([
+  const [sent, received, own] = await Promise.all([
     db
       .select({
         count: sql<number>`count(*)::int`,
@@ -302,13 +307,8 @@ export const listContacts = async (userId: string) => {
       )
       .groupBy(messages.fromEmail),
     listMailboxes(userId),
-    db
-      .select({ email: people.email, hiddenAt: people.hiddenAt })
-      .from(people)
-      .where(and(eq(people.userId, userId), isNotNull(people.hiddenAt))),
   ])
   const mine = new Set(own.map(({ email }) => email.toLowerCase()))
-  const hiddenAt = new Map(hidden.map((row) => [row.email, row.hiddenAt]))
   const contacts = new Map<string, Contact>()
   for (const { count, email, last, name } of [
     ...sent.map((row) => ({
@@ -320,39 +320,47 @@ export const listContacts = async (userId: string) => {
   ]) {
     const known = contacts.get(email)
     contacts.set(email, {
+      deletable: false,
       email,
       last: known && known.last > last ? known.last : last,
       name: known?.name ?? name,
       score: (known?.score ?? 0) + count,
     })
   }
+  for (const { email, name, saved } of google) {
+    const known = contacts.get(email)
+    contacts.set(email, {
+      deletable: saved.length > 0,
+      email,
+      last: known?.last ?? new Date(0),
+      name: name ?? known?.name ?? null,
+      score: known?.score ?? 0,
+    })
+  }
   return [...contacts.values()]
-    .filter(
-      ({ email, last }) =>
-        !mine.has(email) &&
-        !isAutomatedSender(email) &&
-        last > (hiddenAt.get(email) ?? new Date(0))
-    )
+    .filter(({ email }) => !mine.has(email) && !isAutomatedSender(email))
     .toSorted(
       (a, b) => b.score - a.score || b.last.getTime() - a.last.getTime()
     )
     .slice(0, CONTACTS_KEPT)
-    .map(({ email, name }) => ({ email, name }))
+    .map(({ deletable, email, name }) => ({ deletable, email, name }))
 }
 
-export const hideContact = async (userId: string, email: string) => {
-  await db
-    .insert(people)
-    .values({ email, hiddenAt: new Date(), userId })
-    .onConflictDoUpdate({
-      set: { hiddenAt: new Date() },
-      target: [people.userId, people.email],
-    })
+/** Google's contacts only reach the user's own screens: the privacy policy promises the agent never sees them. */
+export const listContacts = async (userId: string) => {
+  const google = await googleContacts(userId)
+  return rankContacts(userId, google.values())
+}
+
+export const deleteContact = async (userId: string, email: string) => {
+  const google = await googleContacts(userId)
+  await deleteGoogleContacts(userId, google.get(email)?.saved ?? [])
 }
 
 export const findContacts = async (userId: string, query: string) => {
-  const contacts = await listContacts(userId)
+  const contacts = await rankContacts(userId, [])
   return contacts
     .filter((contact) => matchesContact(contact, query))
     .slice(0, FOUND_SHOWN)
+    .map(({ email, name }) => ({ email, name }))
 }

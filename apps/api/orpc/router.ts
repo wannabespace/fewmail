@@ -104,7 +104,7 @@ import {
   webPushKey,
 } from '../services/notifications'
 import { cancelMail, scheduleMail } from '../services/outbox'
-import { hideContact, listContacts } from '../services/people'
+import { deleteContact, listContacts } from '../services/people'
 import { getPlanInfo, getUsage } from '../services/plan'
 import {
   getReadingDay,
@@ -529,10 +529,10 @@ export const router = {
       ),
   },
   contacts: {
-    hide: authed
+    delete: authed
       .input(type({ email: 'string.email' }))
       .handler(async ({ context, input }) => {
-        await hideContact(context.user.id, input.email)
+        await deleteContact(context.user.id, input.email)
       }),
     list: authed.handler(({ context }) => listContacts(context.user.id)),
   },

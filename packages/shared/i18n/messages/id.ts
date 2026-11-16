@@ -489,7 +489,7 @@ export const id: Messages = {
     photos: {
       allow: 'Izinkan akses',
       description:
-        'Fewmail mengambilnya dari kontak Google-mu dan hanya memakainya untuk itu.',
+        'Fewmail menampilkannya beserta nama yang kamu simpan dari kontak Google, dan hanya menghapus kontak jika kamu memintanya.',
       title: 'Lihat foto orang yang menulis kepadamu',
     },
   },
@@ -661,8 +661,8 @@ export const id: Messages = {
     people: 'Orang',
     findPerson: 'Cari orang',
     personMail: 'Lihat email',
-    hidePerson: 'Hapus dari Orang',
-    personHidden: 'Dihapus dari Orang',
+    deleteContact: 'Hapus kontak',
+    contactDeleted: 'Kontak dihapus',
     clearSearch: 'Hapus pencarian',
     mail: 'Email',
     reading: 'Bacaan',

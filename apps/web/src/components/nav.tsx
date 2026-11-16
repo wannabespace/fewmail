@@ -158,7 +158,7 @@ const QUIET_ROW =
 
 const PEOPLE_SHOWN = 20
 
-/** Everyone the user can write to, the most written-to first; folded until opened, and a row's menu writes to them, shows their mail or hides them. */
+/** Everyone the user can write to, the most written-to first; folded until opened, and a row's menu writes to them, shows their mail or deletes their saved Google contact. */
 const People = () => {
   const t = useT()
   const { openCompose } = useCompose()
@@ -168,8 +168,8 @@ const People = () => {
   const { data: people = [] } = useQuery(orpc.contacts.list.queryOptions())
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.contacts.key() })
-  const hide = useMutation(
-    orpc.contacts.hide.mutationOptions({ onSettled: invalidate })
+  const remove = useMutation(
+    orpc.contacts.delete.mutationOptions({ onSettled: invalidate })
   )
   if (people.length === 0) {
     return null
@@ -177,11 +177,17 @@ const People = () => {
   const found = query
     ? people.filter((person) => matchesContact(person, query))
     : people
-  const hidePerson = (email: string) => {
+  const deletePerson = (email: string) => {
     queryClient.setQueryData(orpc.contacts.list.queryKey(), (old) =>
-      old?.filter((person) => person.email !== email)
+      old?.map((person) =>
+        person.email === email ? { ...person, deletable: false } : person
+      )
     )
-    toastDeferred(t.nav.personHidden, () => hide.mutate({ email }), invalidate)
+    toastDeferred(
+      t.nav.contactDeleted,
+      () => remove.mutate({ email }),
+      invalidate
+    )
   }
 
   return (
@@ -250,14 +256,21 @@ const People = () => {
                     <HugeiconsIcon icon={Mail01Icon} strokeWidth={2} />
                     {t.nav.personMail}
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => hidePerson(person.email)}
-                  >
-                    <HugeiconsIcon icon={UserRemove01Icon} strokeWidth={2} />
-                    {t.nav.hidePerson}
-                  </DropdownMenuItem>
+                  {person.deletable && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => deletePerson(person.email)}
+                      >
+                        <HugeiconsIcon
+                          icon={UserRemove01Icon}
+                          strokeWidth={2}
+                        />
+                        {t.nav.deleteContact}
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             ))}

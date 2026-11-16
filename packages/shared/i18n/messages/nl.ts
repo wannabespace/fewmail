@@ -496,7 +496,7 @@ export const nl: Messages = {
     photos: {
       allow: 'Toegang geven',
       description:
-        'Fewmail haalt ze uit je Google-contacten en gebruikt die alleen daarvoor.',
+        'Fewmail toont ze met de namen die je hebt opgeslagen uit je Google-contacten, en verwijdert een contact alleen als jij dat vraagt.',
       title: "Zie de foto's van wie je schrijft",
     },
   },
@@ -666,8 +666,8 @@ export const nl: Messages = {
     people: 'Mensen',
     findPerson: 'Iemand zoeken',
     personMail: 'E-mails tonen',
-    hidePerson: 'Uit Mensen verwijderen',
-    personHidden: 'Uit Mensen verwijderd',
+    deleteContact: 'Contact verwijderen',
+    contactDeleted: 'Contact verwijderd',
     clearSearch: 'Zoekopdracht wissen',
     mail: 'Mail',
     reading: 'Lezen',

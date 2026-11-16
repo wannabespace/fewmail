@@ -934,7 +934,7 @@ export const fr: Messages = {
     photos: {
       allow: 'Autoriser l’accès',
       description:
-        'Fewmail les prend dans tes contacts Google et ne s’en sert que pour ça.',
+        'Fewmail les affiche avec les noms enregistrés dans tes contacts Google, et ne supprime un contact que si tu le demandes.',
       title: 'Vois les photos des gens qui t’écrivent',
     },
   },
@@ -1110,8 +1110,8 @@ export const fr: Messages = {
     people: 'Personnes',
     findPerson: 'Trouver quelqu’un',
     personMail: 'Voir les e-mails',
-    hidePerson: 'Retirer des Personnes',
-    personHidden: 'Retiré des Personnes',
+    deleteContact: 'Supprimer le contact',
+    contactDeleted: 'Contact supprimé',
     clearSearch: 'Effacer la recherche',
     mail: 'E-mails',
     reading: 'Lecture',
