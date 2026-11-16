@@ -1087,6 +1087,7 @@ export const uk: Messages = {
     subscriptions: 'Розсилки',
     people: 'Люди',
     findPerson: 'Знайти людину',
+    clearSearch: 'Очистити пошук',
     mail: 'Пошта',
     reading: 'Читання',
     rules: 'Правила',

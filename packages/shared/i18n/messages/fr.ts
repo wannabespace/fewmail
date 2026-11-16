@@ -1104,6 +1104,7 @@ export const fr: Messages = {
     subscriptions: 'Listes de diffusion',
     people: 'Personnes',
     findPerson: 'Trouver quelqu’un',
+    clearSearch: 'Effacer la recherche',
     mail: 'E-mails',
     reading: 'Lecture',
     rules: 'Règles',

@@ -652,6 +652,7 @@ export const tr: Messages = {
     subscriptions: 'E-posta listeleri',
     people: 'Kişiler',
     findPerson: 'Kişi bul',
+    clearSearch: 'Aramayı temizle',
     mail: 'Posta',
     reading: 'Okuma',
     rules: 'Kurallar',

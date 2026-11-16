@@ -105,6 +105,7 @@ export const CommandMenu = ({
     >
       <CommandPrimitive filter={rankAskLast}>
         <CommandPaletteInput
+          clearLabel={t.nav.clearSearch}
           placeholder={t.command.placeholder}
           value={search}
           onValueChange={setSearch}

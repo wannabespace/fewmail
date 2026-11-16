@@ -30,7 +30,7 @@ export const earlierLines = (earlier: Exchange | null) =>
 const querySchema = type({ gmailQueries: 'string[]' })
 const answerSchema = type({ answer: 'string', sources: 'number[]' })
 
-const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
+export const GMAIL_OPERATOR = /(?:^|\s)-?[a-z_]+:\S/iu
 const ONE_WORD = /^\S+$/u
 
 /** Plain language goes through the fast model (agent only) as a few queries, strictest first; one word or text already in Gmail syntax is used as typed. */

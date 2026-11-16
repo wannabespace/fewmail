@@ -515,6 +515,7 @@ export const zh: Messages = {
     subscriptions: '邮件列表',
     people: '联系人',
     findPerson: '查找联系人',
+    clearSearch: '清除搜索',
     mail: '邮件',
     reading: '阅读',
     rules: '规则',

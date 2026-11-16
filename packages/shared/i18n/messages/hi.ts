@@ -525,6 +525,7 @@ export const hi: Messages = {
     subscriptions: 'मेलिंग लिस्ट',
     people: 'लोग',
     findPerson: 'किसी को खोजें',
+    clearSearch: 'खोज साफ़ करें',
     mail: 'मेल',
     reading: 'पढ़ना',
     rules: 'नियम',

@@ -655,6 +655,7 @@ export const id: Messages = {
     subscriptions: 'Milis',
     people: 'Orang',
     findPerson: 'Cari orang',
+    clearSearch: 'Hapus pencarian',
     mail: 'Email',
     reading: 'Bacaan',
     rules: 'Aturan',

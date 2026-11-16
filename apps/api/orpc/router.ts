@@ -390,6 +390,7 @@ export const router = {
           'category?': type.enumerated(...MAIL_CATEGORIES),
           filter:
             "'inbox' | 'unread' | 'important' | 'needs_reply' | 'quiet' | 'pinned' | 'snoozed' | 'sent' | 'spam' | 'archive' | 'trash'",
+          'indexOnly?': 'boolean',
           'mailboxId?': 'string.uuid',
           'search?': 'string',
         })

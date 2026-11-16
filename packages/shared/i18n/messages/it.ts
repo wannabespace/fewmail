@@ -1097,6 +1097,7 @@ export const it: Messages = {
     subscriptions: 'Mailing list',
     people: 'Persone',
     findPerson: 'Cerca una persona',
+    clearSearch: 'Cancella ricerca',
     mail: 'Posta',
     reading: 'Lettura',
     rules: 'Regole',

@@ -48,6 +48,7 @@ import {
   processDueReminders,
 } from './services/reminders'
 import { learnVoice, VOICE_EVERY_SENT } from './services/sent-mail'
+import { indexStoredMail } from './services/stored-mail'
 import {
   ensureMailbox,
   HELD_MONTHS,
@@ -350,6 +351,7 @@ const tick = async () => {
       once('reminders', processDueReminders),
       once('commitments', processDueCommitments),
       once('known-domains', refreshKnownDomains),
+      once('search-index', indexStoredMail),
     ])
   )
   if (ticked.isErr()) {

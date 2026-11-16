@@ -1,10 +1,11 @@
 import { db } from '@fewmail/db'
 import { mailboxes, messages } from '@fewmail/db/schema'
 import { Result } from 'better-result'
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, eq, inArray, isNull } from 'drizzle-orm'
 
 import { inBatches } from '../lib/batches'
 import { getMessage, isMissing, listThreadMessageIds } from '../lib/gmail'
+import { searchTokensOf } from '../lib/search-tokens'
 import { NotFoundError } from './mail-errors'
 import { parseLiveMessageId } from './older-mail'
 
@@ -74,6 +75,11 @@ export const insertMessages = async (
             ...parsed,
             html: keepsHtml ? parsed.html : null,
             mailboxId: mailbox.id,
+            searchTokens: searchTokensOf(mailbox.userId, [
+              parsed.subject,
+              parsed.fromName,
+              parsed.fromEmail,
+            ]),
             userId: mailbox.userId,
           })
           .onConflictDoNothing()
@@ -87,6 +93,34 @@ export const insertMessages = async (
     throw stored.error.cause
   }
   return inserted
+}
+
+const INDEX_BATCH = 1000
+
+/** Mail stored before the search index existed, a batch a tick. */
+export const indexStoredMail = async () => {
+  const due = await db
+    .select({
+      fromEmail: messages.fromEmail,
+      fromName: messages.fromName,
+      id: messages.id,
+      subject: messages.subject,
+      userId: messages.userId,
+    })
+    .from(messages)
+    .where(isNull(messages.searchTokens))
+    .limit(INDEX_BATCH)
+  await inBatches(
+    due,
+    STORE_CONCURRENCY,
+    ({ fromEmail, fromName, id, subject, userId }) =>
+      db
+        .update(messages)
+        .set({
+          searchTokens: searchTokensOf(userId, [subject, fromName, fromEmail]),
+        })
+        .where(eq(messages.id, id))
+  )
 }
 
 const ownedMailboxes = (userId: string) =>

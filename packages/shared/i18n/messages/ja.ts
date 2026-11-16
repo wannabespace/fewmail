@@ -524,6 +524,7 @@ export const ja: Messages = {
     subscriptions: 'メーリングリスト',
     people: '人',
     findPerson: '人を探す',
+    clearSearch: '検索をクリア',
     mail: 'メール',
     reading: 'リーディング',
     rules: 'ルール',

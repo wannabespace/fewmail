@@ -13,6 +13,7 @@ import {
   CollapsibleTrigger,
 } from '@fewmail/ui/components/collapsible'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
+import { SearchInput } from '@fewmail/ui/components/custom/search-input'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,11 +29,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Sheet, SheetContent } from '@fewmail/ui/components/sheet'
 import {
@@ -196,29 +192,26 @@ const People = () => {
         <CollapsibleContent>
           <div className="flex flex-col gap-0.5">
             {people.length > PEOPLE_SHOWN && (
-              <InputGroup size="sm" className="mb-1">
-                <InputGroupAddon>
-                  <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
-                </InputGroupAddon>
-                <InputGroupInput
-                  value={query}
-                  placeholder={t.nav.findPerson}
-                  aria-label={t.nav.findPerson}
-                  data-mask
-                  onChange={(event) => setQuery(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key !== 'Escape') {
-                      return
-                    }
-                    event.stopPropagation()
-                    if (query) {
-                      setQuery('')
-                    } else {
-                      event.currentTarget.blur()
-                    }
-                  }}
-                />
-              </InputGroup>
+              <SearchInput
+                className="mb-1"
+                clearLabel={t.nav.clearSearch}
+                value={query}
+                placeholder={t.nav.findPerson}
+                aria-label={t.nav.findPerson}
+                data-mask
+                onValueChange={setQuery}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Escape') {
+                    return
+                  }
+                  event.stopPropagation()
+                  if (query) {
+                    setQuery('')
+                  } else {
+                    event.currentTarget.blur()
+                  }
+                }}
+              />
             )}
             {found.slice(0, PEOPLE_SHOWN).map((person) => (
               <button

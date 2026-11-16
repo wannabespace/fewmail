@@ -660,6 +660,7 @@ export const nl: Messages = {
     subscriptions: 'Mailinglijsten',
     people: 'Mensen',
     findPerson: 'Iemand zoeken',
+    clearSearch: 'Zoekopdracht wissen',
     mail: 'Mail',
     reading: 'Lezen',
     rules: 'Regels',

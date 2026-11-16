@@ -119,6 +119,8 @@ export const messages = d.snakeCase.table(
     receivedAt: d.timestamp({ withTimezone: true }).notNull(),
     replyTo: encryptedText(),
     risk: d.jsonb().$type<MessageRisk>(),
+    /** Keyed hashes of the subject's and sender's word beginnings (`searchTokensOf`); null until indexed. */
+    searchTokens: d.text().array(),
     snippet: encryptedText().notNull(),
     suspicion: d.smallint(),
     subject: encryptedText().notNull(),
@@ -136,6 +138,12 @@ export const messages = d.snakeCase.table(
     d.index('messages_label_ids_idx').using('gin', table.labelIds),
     d.index('messages_to_idx').using('gin', table.to),
     d.index('messages_cc_idx').using('gin', table.cc),
+    d.index('messages_search_tokens_idx').using('gin', table.searchTokens),
+    // The backfill asks for unindexed mail every tick: without it that is a scan of every message, long after none is left.
+    d
+      .index('messages_unindexed_idx')
+      .on(table.id)
+      .where(sql`${table.searchTokens} is null`),
   ]
 )
 

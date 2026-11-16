@@ -1,13 +1,9 @@
 import { Button } from '@fewmail/ui/components/button'
+import { SearchInput } from '@fewmail/ui/components/custom/search-input'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Popover, PopoverContent } from '@fewmail/ui/components/popover'
 import { Spinner } from '@fewmail/ui/components/spinner'
@@ -18,7 +14,6 @@ import {
   Clock01Icon,
   Mail01Icon,
   Pdf01Icon,
-  Search01Icon,
   TextIcon,
   UserIcon,
 } from '@hugeicons/core-free-icons'
@@ -206,35 +201,33 @@ export const MailSearchField = ({
   const [isFocused, setIsFocused] = useState(autoFocus)
   return (
     <>
-      <InputGroup ref={setGroup} size="sm" className="max-w-64">
-        <InputGroupAddon>
-          <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
-        </InputGroupAddon>
-        <InputGroupInput
-          ref={(field) => {
-            fieldRef.current = field
-            mailSearchFieldStore.set(field)
-            return () => mailSearchFieldStore.set(null)
-          }}
-          autoFocus={autoFocus}
-          defaultValue={defaultValue}
-          onBlur={() => setIsFocused(false)}
-          onChange={(event) => onInput(event.target.value)}
-          onFocus={() => setIsFocused(true)}
-          placeholder={t.mail.search}
-          aria-label={t.mail.search}
-        />
-        <InputGroupAddon align="inline-end">
-          {isPending ? (
+      <SearchInput
+        ref={(field) => {
+          fieldRef.current = field
+          mailSearchFieldStore.set(field)
+          return () => mailSearchFieldStore.set(null)
+        }}
+        groupRef={setGroup}
+        className="max-w-64"
+        clearLabel={t.nav.clearSearch}
+        autoFocus={autoFocus}
+        defaultValue={defaultValue}
+        onBlur={() => setIsFocused(false)}
+        onFocus={() => setIsFocused(true)}
+        onValueChange={onInput}
+        placeholder={t.mail.search}
+        aria-label={t.mail.search}
+        end={
+          isPending ? (
             <Spinner
               className="text-muted-foreground"
               label={t.mail.find.searching}
             />
           ) : (
             <Kbd>⌘F</Kbd>
-          )}
-        </InputGroupAddon>
-      </InputGroup>
+          )
+        }
+      />
       <Popover open={isFocused && isEmpty}>
         {/* The field keeps focus while a row is pressed: blurring it would close the popover under the click. */}
         <PopoverContent

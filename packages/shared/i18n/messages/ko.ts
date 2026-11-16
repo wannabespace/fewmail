@@ -525,6 +525,7 @@ export const ko: Messages = {
     subscriptions: '메일링 리스트',
     people: '사람',
     findPerson: '사람 찾기',
+    clearSearch: '검색 지우기',
     mail: '메일',
     reading: '읽을거리',
     rules: '규칙',
