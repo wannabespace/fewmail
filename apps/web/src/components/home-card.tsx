@@ -6,6 +6,7 @@ import { cn } from '@fewmail/ui/lib/utils'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { Link, useSearch } from '@tanstack/react-router'
 import { motion } from 'motion/react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -57,8 +58,13 @@ export const HomeCard = ({
   page: HomeCardPage
   rows: HomeCardRow[]
 }) => {
-  const { morph } = useMorph()
+  const { morph, reveal } = useMorph()
   const isOpen = useSearch({ strict: false }).page === page
+  // Only a card coming back from its pane fades its content in; on Home's first render it is simply there.
+  const [hasOpened, setHasOpened] = useState(isOpen)
+  if (isOpen && !hasOpened) {
+    setHasOpened(true)
+  }
   const content = (
     <>
       <h2 className="text-muted-foreground text-xs font-medium">{heading}</h2>
@@ -103,6 +109,8 @@ export const HomeCard = ({
   return (
     <motion.section
       layoutId={morphIdOf(page)}
+      // The closing pane hides at once instead of fading over the card: scaled down, its rows would squash.
+      layoutCrossfade={false}
       transition={morph}
       initial={false}
       animate={{ borderRadius: CARD_RADIUS }}
@@ -119,10 +127,17 @@ export const HomeCard = ({
         aria-label={heading}
         className="focus-visible:focus-ring absolute inset-0 cursor-pointer rounded-2xl outline-none focus-visible:ring-inset"
       />
-      {/* Paints over the card's link and lets clicks through to it; only the quick decision takes its own. */}
-      <div className="pointer-events-none relative flex flex-col gap-3">
+      {/* Paints over the card's link and lets clicks through to it; only the quick decision takes its own. `layout` keeps
+          the text from stretching while the box scales back from the pane. */}
+      <motion.div
+        layout="position"
+        initial={hasOpened ? HIDDEN : false}
+        animate={SHOWN}
+        transition={{ ...reveal, layout: morph }}
+        className="pointer-events-none relative flex flex-col gap-3"
+      >
         {content}
-      </div>
+      </motion.div>
     </motion.section>
   )
 }
