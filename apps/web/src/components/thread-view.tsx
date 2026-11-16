@@ -492,6 +492,20 @@ const MessageDetails = ({ message }: { message: ThreadMessage }) => {
   )
 }
 
+const SHORT_BODY_CHARS = 600
+
+// A newsletter's text/plain part is often a "view in browser" stub, so HTML is measured by its own text.
+const textLength = (message: ThreadMessage) =>
+  (message.html
+    ? message.html.replaceAll(
+        /<(?<tag>style|script)[\s\S]*?<\/\k<tag>>|<[^>]+>/giu,
+        ' '
+      )
+    : message.body
+  )
+    .replaceAll(/\s+/gu, ' ')
+    .trim().length
+
 const MessageSection = ({
   actions,
   analysis,
@@ -511,6 +525,7 @@ const MessageSection = ({
   const dates = useDates()
   const isSpam = message.labelIds.includes('SPAM')
   const [showsImages, setShowsImages] = useState(false)
+  const isShort = textLength(message) <= SHORT_BODY_CHARS
   return (
     <section className="flex flex-col gap-3 not-first:mt-6 not-first:border-t not-first:pt-8">
       {subject && (
@@ -555,10 +570,17 @@ const MessageSection = ({
         <MessageDetails message={message} />
       </header>
       {hasAgent && analysis && (
-        <div className="bg-secondary/50 flex flex-col gap-2 rounded-xl px-4 py-3">
-          <p data-mask className="text-sm">
-            {analysis.summary}
-          </p>
+        <div
+          className={cn(
+            'flex flex-col gap-2',
+            !isShort && 'bg-secondary/50 rounded-xl px-4 py-3'
+          )}
+        >
+          {!isShort && (
+            <p data-mask className="text-sm">
+              {analysis.summary}
+            </p>
+          )}
           <div className="flex flex-wrap items-center gap-1.5">
             <Badge
               variant={
