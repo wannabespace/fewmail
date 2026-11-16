@@ -625,6 +625,7 @@ export const pl: Messages = {
     subscriptions: 'Listy mailingowe',
     people: 'Osoby',
     findPerson: 'Znajdź osobę',
+    clearSearch: 'Wyczyść wyszukiwanie',
     mail: 'Poczta',
     reading: 'Czytanie',
     rules: 'Reguły',

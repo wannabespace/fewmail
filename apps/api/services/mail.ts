@@ -29,6 +29,7 @@ import { subHours, subMinutes } from 'date-fns'
 import {
   and,
   arrayContains,
+  arrayOverlaps,
   asc,
   desc,
   eq,
@@ -54,8 +55,9 @@ import { ACTION_TOPICS, announceChange } from '../lib/live'
 import { logError } from '../lib/log'
 import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
+import { searchQueryTokensOf } from '../lib/search-tokens'
 import { writeReply } from './agent'
-import { searchByQuestion } from './ask'
+import { GMAIL_OPERATOR, searchByQuestion } from './ask'
 import { createEvent } from './calendar'
 import { runCleanup } from './cleanup'
 import { settleByCard } from './commitments'
@@ -396,18 +398,46 @@ type OlderThread = Awaited<
   ReturnType<typeof listOlderThreads>
 >['threads'][number]
 
-/** Found mail Fewmail holds is listed from the database; the rest is read live, never stored. */
-const searchMail = async (
+/** Held mail by its subject's and sender's word beginnings: a word half typed, which Gmail's whole-word search never finds. */
+const searchIndex = async (
   userId: string,
   search: string,
   mailboxId?: string
 ) => {
-  const { results } = await searchByQuestion(
-    userId,
-    search,
-    PAGE_SIZE,
-    mailboxId
-  )
+  const tokens = GMAIL_OPERATOR.test(search)
+    ? []
+    : searchQueryTokensOf(userId, search)
+  if (tokens.length === 0) {
+    return []
+  }
+  const found = await db
+    .select({ gmailId: messages.gmailId })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, userId),
+        mailboxId ? eq(messages.mailboxId, mailboxId) : undefined,
+        arrayContains(messages.searchTokens, tokens),
+        not(arrayOverlaps(messages.labelIds, ['SPAM', 'TRASH']))
+      )
+    )
+    .orderBy(desc(messages.receivedAt))
+    .limit(PAGE_SIZE)
+  return found.map(({ gmailId }) => gmailId)
+}
+
+/** Found mail Fewmail holds is listed from the database; the rest is read live, never stored. */
+const searchMail = async (
+  userId: string,
+  { indexOnly, mailboxId, search }: ListInput & { search: string }
+) => {
+  if (indexOnly) {
+    return { heldIds: await searchIndex(userId, search, mailboxId), older: [] }
+  }
+  const [{ results }, indexed] = await Promise.all([
+    searchByQuestion(userId, search, PAGE_SIZE, mailboxId),
+    searchIndex(userId, search, mailboxId),
+  ])
   const ids = results.flatMap((result) => result.ids)
   const held = ids.length
     ? await db
@@ -430,7 +460,7 @@ const searchMail = async (
     })
   )
   return {
-    heldIds: held.map(({ gmailId }) => gmailId),
+    heldIds: [...new Set([...held.map(({ gmailId }) => gmailId), ...indexed])],
     older: older.flat().filter(({ message }) => isReceivedMail(message)),
   }
 }
@@ -439,6 +469,8 @@ interface ListInput {
   before?: Date
   category?: MailCategory
   filter: MailFilter
+  /** Only Fewmail's own index, without Gmail: answers while Gmail is still searching. */
+  indexOnly?: boolean
   mailboxId?: string
   search?: string
 }
@@ -588,7 +620,9 @@ export const listMail = async (userId: string, input: ListInput) => {
   const older =
     input.search || input.category ? undefined : OLDER_LISTS[input.filter]
   const [found, snoozed] = await Promise.all([
-    input.search ? searchMail(userId, input.search, input.mailboxId) : null,
+    input.search
+      ? searchMail(userId, { ...input, search: input.search })
+      : null,
     snoozedOf(userId, input),
   ])
   if (found?.heldIds.length === 0 && found.older.length === 0) {

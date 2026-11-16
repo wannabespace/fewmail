@@ -610,6 +610,7 @@ export const en = {
     subscriptions: 'Mailing lists',
     people: 'People',
     findPerson: 'Find a person',
+    clearSearch: 'Clear search',
     mail: 'Mail',
     reading: 'Reading',
     rules: 'Rules',

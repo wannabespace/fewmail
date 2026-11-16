@@ -617,6 +617,7 @@ export const pt: Messages = {
     subscriptions: 'Listas de e-mail',
     people: 'Pessoas',
     findPerson: 'Procurar pessoa',
+    clearSearch: 'Limpar pesquisa',
     mail: 'E-mail',
     reading: 'Leitura',
     rules: 'Regras',

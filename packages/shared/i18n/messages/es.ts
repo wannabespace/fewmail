@@ -1090,6 +1090,7 @@ export const es: Messages = {
     subscriptions: 'Listas de correo',
     people: 'Personas',
     findPerson: 'Buscar a alguien',
+    clearSearch: 'Borrar búsqueda',
     mail: 'Correo',
     reading: 'Lectura',
     rules: 'Reglas',

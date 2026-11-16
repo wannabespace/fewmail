@@ -1,3 +1,4 @@
+import { SearchClear } from '@fewmail/ui/components/custom/search-input'
 import { EnterIcon } from '@fewmail/ui/components/custom/shortcuts'
 import {
   Dialog,
@@ -124,12 +125,17 @@ export const CommandInput = ({
 
 export const CommandPaletteInput = ({
   className,
+  clearLabel,
   end,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input> & {
+  clearLabel: string
   end?: React.ReactNode
 }) => (
-  <div className="flex shrink-0 items-center gap-3 border-b px-4">
+  <div
+    data-search
+    className="group/search flex shrink-0 items-center gap-3 border-b px-4"
+  >
     <HugeiconsIcon
       icon={Search01Icon}
       strokeWidth={2}
@@ -143,6 +149,7 @@ export const CommandPaletteInput = ({
       )}
       {...props}
     />
+    <SearchClear label={clearLabel} onClear={() => props.onValueChange?.('')} />
     {end}
   </div>
 )

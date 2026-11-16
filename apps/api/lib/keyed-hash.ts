@@ -24,3 +24,7 @@ export const paymentHashOf = (detail: string) => keyedHash(`pay:${detail}`)
 
 export const domainOf = (email: string) =>
   email.trim().toLowerCase().split('@')[1] ?? ''
+
+/** Per user, so the same word in two people's mail never shares a hash; 64 bits keep a mailbox's index small. */
+export const searchTokenHashOf = (userId: string, prefix: string) =>
+  keyedHash(`search:${userId}:${prefix}`).slice(0, 16)

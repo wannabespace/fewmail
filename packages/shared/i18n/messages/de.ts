@@ -1088,6 +1088,7 @@ export const de: Messages = {
     subscriptions: 'Newsletter',
     people: 'Personen',
     findPerson: 'Person suchen',
+    clearSearch: 'Suche leeren',
     mail: 'Mail',
     reading: 'Lesen',
     rules: 'Regeln',
