@@ -14,7 +14,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { AnimatePresence } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
@@ -210,22 +209,16 @@ const kindsLine = (t: Messages, proposals: Proposal[]) =>
 
 export const PROPOSALS_ID = 'proposals'
 
-const GroupLabel = ({ children }: { children: ReactNode }) => (
-  <h3 className="text-muted-foreground text-xs font-medium">{children}</h3>
-)
-
 /**
  * Heads Home's decisions: every email the agent proposes to move as one card, approved in one yes (T, or ⏎ on it) or
  * looked at one by one in the review it opens (a click, D); it folds away once settled.
  */
 export const ProposalsGroup = ({
   canUseKeys,
-  hasCards,
   isSelected,
   proposals,
 }: {
   canUseKeys: boolean
-  hasCards: boolean
   isSelected: boolean
   proposals: Proposals
 }) => {
@@ -244,13 +237,22 @@ export const ProposalsGroup = ({
             <HomeCard
               heading={t.today.quick}
               isActive={isSelected}
-              lead={t.today.tidy.total(rows.length)}
-              detail={
-                <span className="inline-block first-letter:uppercase">
-                  {kindsLine(t, rows)}
-                </span>
-              }
+              lead={`${t.today.tidy.total(rows.length)}: ${kindsLine(t, rows)}.`}
+              openKey="D"
               page="tidy"
+              rows={rows.flatMap(({ id, message }) =>
+                message
+                  ? [
+                      {
+                        id,
+                        sender: message,
+                        text: message.subject,
+                        threadId: message.threadId,
+                      },
+                    ]
+                  : []
+              )}
+              total={rows.length}
               actions={
                 <Button
                   size="sm"
@@ -261,7 +263,6 @@ export const ProposalsGroup = ({
                 </Button>
               }
             />
-            {hasCards && <GroupLabel>{t.today.needsLook}</GroupLabel>}
           </div>
         </MotionCollapse>
       )}

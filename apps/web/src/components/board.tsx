@@ -99,6 +99,27 @@ const threadOf = (row: Commitment) =>
 const openRow = (row?: Commitment) =>
   row && expandRow(row.id, { from: 'board', threadId: threadOf(row) })
 
+/** Whom a promise is with: your own names whom you promised, never you; theirs, who wrote. */
+const senderOf = (row: Commitment) =>
+  row.kind === 'mine' && row.recipient
+    ? { fromEmail: row.recipient, fromName: null }
+    : row.from
+
+/** Its state in people's words and its date: by when, the last day, or when it was settled. */
+const descriptionOf = (
+  t: Messages,
+  dates: ReturnType<typeof useDates>,
+  row: Commitment,
+  today: Date
+) => {
+  if (!isOpenStatus(row.status)) {
+    const settledOn = changedAt(row)
+    return `${t.board.state[row.status]}${settledOn ? ` · ${dates.format(settledOn, 'd MMM')}` : ''}`
+  }
+  const day = dates.format(row.dueAt, 'd MMM')
+  return `${stateOf(t, row, today)} · ${row.kind === 'deadline' ? t.board.lastDay(day) : t.board.by(day)}`
+}
+
 /** The cursor's row, for Home's key hints. */
 const boardCursor = createStore<Commitment | undefined>(undefined)
 
@@ -148,19 +169,28 @@ const useBoard = () => {
  */
 export const BoardCard = () => {
   const t = useT()
+  const dates = useDates()
   const locale = useLocale()
-  const { sections } = useBoard()
-  const isOpen = SECTIONS.some(
-    (section) => section !== 'settled' && sections[section].length > 0
+  const { sections, today } = useBoard()
+  const open = SECTIONS.filter((section) => section !== 'settled').flatMap(
+    (section) => sections[section]
   )
-  if (!isOpen) {
+  if (open.length === 0) {
     return null
   }
   return (
     <HomeCard
       heading={t.nav.board}
       lead={leadOf(t, locale, sections)}
+      openKey="B"
       page="board"
+      rows={open.map((row) => ({
+        id: row.id,
+        sender: senderOf(row) ?? { fromEmail: '', fromName: t.nav.board },
+        text: `${row.promise} · ${descriptionOf(t, dates, row, today)}`,
+        threadId: threadOf(row),
+      }))}
+      total={open.length}
     />
   )
 }
@@ -249,15 +279,7 @@ export const BoardPane = ({
 
   const rowOf = (row: Commitment) => {
     const isCursor = row === active
-    const date =
-      row.kind === 'deadline'
-        ? t.board.lastDay(dates.format(row.dueAt, 'd MMM'))
-        : t.board.by(dates.format(row.dueAt, 'd MMM'))
-    const settledOn = changedAt(row)
-    const sender =
-      row.kind === 'mine' && row.recipient
-        ? { fromEmail: row.recipient, fromName: null }
-        : row.from
+    const sender = senderOf(row)
     return (
       <SettingsRow
         key={row.id}
@@ -274,11 +296,7 @@ export const BoardPane = ({
         iconVariant="avatar"
         icon={sender && <SenderAvatar sender={sender} size="sm" />}
         title={<span data-mask>{row.promise}</span>}
-        description={
-          isOpenStatus(row.status)
-            ? `${stateOf(t, row, today)} · ${date}`
-            : `${t.board.state[row.status]}${settledOn ? ` · ${dates.format(settledOn, 'd MMM')}` : ''}`
-        }
+        description={descriptionOf(t, dates, row, today)}
       >
         {row.amountCents !== null && row.currency && (
           <span data-mask className="text-sm tabular-nums">
