@@ -155,6 +155,16 @@ export const listOlderThreads = (
   )
 }
 
+/**
+ * Threads snoozed in Gmail itself: the API has no label and no wake time for them, only the `in:snoozed` search.
+ * Cached like the lists; a mailbox Gmail refuses counts as having none, so Snoozed and Archive still open.
+ */
+export const listSnoozedInGmail = (mailbox: Mailbox) =>
+  cached(mailbox.userId, `${mailbox.id} in:snoozed`, async () => {
+    const { messages } = await listMessagePage(mailbox, 'in:snoozed', 500)
+    return messages.map(({ threadId }) => threadId)
+  }).catch(() => [])
+
 /** Found mail Fewmail does not hold, read live and cached like the lists. */
 export const readOlderMessages = async (mailbox: Mailbox, ids: string[]) => {
   const read: ParsedMessage[] = []

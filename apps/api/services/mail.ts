@@ -62,6 +62,7 @@ import { settleByCard } from './commitments'
 import { NotFoundError } from './mail-errors'
 import {
   listOlderThreads,
+  listSnoozedInGmail,
   liveMessageId,
   readOlderMessages,
 } from './older-mail'
@@ -292,6 +293,9 @@ const INBOX_FILTERS = new Set<MailFilter>([
   'pinned',
 ])
 
+const isOutOfInbox = (message: MessageTable) =>
+  sql`not (${message.labelIds} && array['INBOX', 'SPAM', 'TRASH'])`
+
 const FILTER_WHERE: Partial<
   Record<MailFilter, (message: MessageTable, analysis: AnalysisTable) => SQL>
 > = {
@@ -300,8 +304,9 @@ const FILTER_WHERE: Partial<
   needs_reply: (_, analysis) => eq(analysis.needsReply, true),
   quiet: (_, analysis) => lt(analysis.importance, 1),
   spam: (message) => arrayContains(message.labelIds, ['SPAM']),
-  archive: (message) =>
-    sql`not (${message.labelIds} && array['INBOX', 'SPAM', 'TRASH'])`,
+  archive: (message) => isOutOfInbox(message),
+  // Gmail's own snooze is known through a cached search, so a thread Gmail brought back leaves by its INBOX label.
+  snoozed: (message) => isOutOfInbox(message),
   trash: (message) => arrayContains(message.labelIds, ['TRASH']),
   pinned: isPinned,
 }
@@ -312,13 +317,30 @@ const isSent = (message: MessageTable) =>
     not(arrayContains(message.labelIds, ['TRASH']))
   )
 
+const mailboxesOf = (userId: string, mailboxId?: string) =>
+  db
+    .select()
+    .from(mailboxes)
+    .where(
+      and(
+        eq(mailboxes.userId, userId),
+        mailboxId ? eq(mailboxes.id, mailboxId) : undefined
+      )
+    )
+
 // Snoozed threads are out of the inbox too, so Archive must leave them to Snoozed.
-const snoozedOf = async (userId: string, filter: MailFilter) => {
+const snoozedOf = async (userId: string, { filter, mailboxId }: ListInput) => {
   if (filter !== 'snoozed' && filter !== 'archive') {
     return
   }
-  const snoozed = await snoozedThreadIds(userId)
-  const threadIds = [...snoozed.keys()]
+  const [inFewmail, inGmail] = await Promise.all([
+    snoozedThreadIds(userId),
+    mailboxesOf(userId, mailboxId).then((owned) =>
+      Promise.all(owned.map(listSnoozedInGmail))
+    ),
+  ])
+  const snoozed = new Set([...inFewmail.keys(), ...inGmail.flat()])
+  const threadIds = [...snoozed]
   return {
     isListed: (threadId: string) =>
       snoozed.has(threadId) === (filter === 'snoozed'),
@@ -526,17 +548,6 @@ const olderRowOf = ({ mailbox, message, thread }: OlderThread): MailRow => ({
   threadSize: thread.length,
 })
 
-const mailboxesOf = (userId: string, mailboxId?: string) =>
-  db
-    .select()
-    .from(mailboxes)
-    .where(
-      and(
-        eq(mailboxes.userId, userId),
-        mailboxId ? eq(mailboxes.id, mailboxId) : undefined
-      )
-    )
-
 /**
  * A full page of held mail ends at its oldest row: Gmail is asked only for what lies between that and where each
  * mailbox's held mail begins. `floor` is where every source is still whole: a row below it may have older neighbours
@@ -578,7 +589,7 @@ export const listMail = async (userId: string, input: ListInput) => {
     input.search || input.category ? undefined : OLDER_LISTS[input.filter]
   const [found, snoozed] = await Promise.all([
     input.search ? searchMail(userId, input.search, input.mailboxId) : null,
-    snoozedOf(userId, input.filter),
+    snoozedOf(userId, input),
   ])
   if (found?.heldIds.length === 0 && found.older.length === 0) {
     return []
