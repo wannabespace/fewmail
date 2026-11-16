@@ -107,6 +107,7 @@ import { useSubscription } from 'seitu/react'
 import { createElementSize, createWebStorageValue } from 'seitu/web'
 
 import { useCompose } from '~/components/compose/compose-context'
+import { readIconOf, senderTextOf } from '~/components/email-row'
 import { KeyHints } from '~/components/key-hints'
 import { SleepingLogoMark } from '~/components/logo'
 import { ExtractedChips } from '~/components/mail-meta'
@@ -864,9 +865,6 @@ const RowPick = ({
   </span>
 )
 
-const readIconOf = (isUnread: boolean) =>
-  cn('flex shrink-0', !isUnread && 'opacity-50')
-
 const unreadDotOf = (isUnread: boolean, isPicking: boolean) =>
   cn(
     'mr-1 size-2 shrink-0 rounded-full',
@@ -1293,10 +1291,7 @@ const MailRow = ({
           <span className="flex items-center gap-2 text-sm">
             <span
               data-mask
-              className={cn(
-                'min-w-0 truncate',
-                message.isUnread ? 'font-semibold' : 'text-muted-foreground'
-              )}
+              className={cn('min-w-0 truncate', senderTextOf(message.isUnread))}
             >
               {rowSenderOf(t, message, participants)}
             </span>
@@ -1421,7 +1416,7 @@ const PinnedRow = ({
           data-mask
           className={cn(
             'max-w-2/5 shrink-0 truncate',
-            message.isUnread ? 'font-semibold' : 'text-muted-foreground'
+            senderTextOf(message.isUnread)
           )}
         >
           {rowSenderOf(t, message, participants)}

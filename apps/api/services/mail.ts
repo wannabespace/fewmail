@@ -281,6 +281,12 @@ const isPinned = (message: MessageTable) =>
       )
   )
 
+/** Where a row's email stands, for its hover actions on Home and Reading: archive or move back, pin or unpin. */
+export const rowPlace = {
+  isInInbox: sql<boolean>`${arrayContains(messages.labelIds, ['INBOX'])}`,
+  isPinned: sql<boolean>`${isPinned(messages)}`,
+}
+
 /** Mail the user received: their own sent mail is left out unless Gmail put it in the inbox (mail to themselves). */
 const isReceived = (message: MessageTable) =>
   or(eq(message.isFromMe, false), arrayContains(message.labelIds, ['INBOX']))
@@ -1105,7 +1111,10 @@ export const draftReply = async (
 
 const worthKnowingSince = (userId: string, since: Date, where?: SQL) =>
   db
-    .select({ analysis: analysisSummary, message: messageSummary })
+    .select({
+      analysis: analysisSummary,
+      message: { ...messageSummary, ...rowPlace },
+    })
     .from(messages)
     .innerJoin(analyses, eq(analyses.messageId, messages.id))
     .where(
@@ -1134,7 +1143,7 @@ const CODES_SHOWN = 3
 
 export const freshCodes = (userId: string) =>
   db
-    .select(messageSummary)
+    .select({ ...messageSummary, ...rowPlace })
     .from(messages)
     .where(
       and(

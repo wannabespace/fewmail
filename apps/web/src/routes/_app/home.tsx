@@ -16,7 +16,6 @@ import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   SettingsGroup,
-  SettingsRow,
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
@@ -62,11 +61,8 @@ import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
-import {
-  ExpandTrigger,
-  expandRow,
-  useIsThreadExpanded,
-} from '~/components/expand-row'
+import { EmailRow } from '~/components/email-row'
+import { expandRow, useIsThreadExpanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
@@ -91,13 +87,7 @@ import {
   useReadingIssues,
 } from '~/components/reading'
 import { SenderAvatar } from '~/components/sender-avatar'
-import {
-  CodeActions,
-  MailRowActions,
-  ROW_SWAP,
-  sweepOf,
-  useMailActions,
-} from '~/components/thread-view'
+import { CodeActions, sweepOf, useMailActions } from '~/components/thread-view'
 import { useWithAgent } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
 import { queueCards } from '~/lib/home-db'
@@ -123,12 +113,6 @@ const TallyBox = ({ children }: { children: ReactNode }) => (
   <div className="text-foreground/75 flex items-center gap-3 rounded-2xl border border-dashed px-4.5 py-3.5 text-sm">
     {children}
   </div>
-)
-
-const Ago = ({ date }: { date: Date }) => (
-  <span className="text-muted-foreground text-xs">
-    {useDates().fromNow(date)}
-  </span>
 )
 
 /** A list that started writing often and is barely opened: the agent asks once how to treat it. A, U and I answer the first. */
@@ -412,21 +396,11 @@ const FreshCodes = ({
           {codes.map(
             (message) =>
               message.code && (
-                <SettingsRow
+                <EmailRow
                   key={message.id}
-                  trigger={
-                    <ExpandTrigger
-                      email={{ from: 'home', threadId: message.threadId }}
-                      rowId={message.id}
-                    />
-                  }
-                  iconVariant="avatar"
-                  icon={<SenderAvatar sender={message} size="sm" />}
-                  title={
-                    <span data-mask>
-                      {message.fromName ?? message.fromEmail}
-                    </span>
-                  }
+                  actions={actions}
+                  from="home"
+                  message={message}
                   description={<span data-mask>{message.subject}</span>}
                 >
                   <CodeActions
@@ -435,7 +409,7 @@ const FreshCodes = ({
                     messageIds={[message.id]}
                     sweep={sweep}
                   />
-                </SettingsRow>
+                </EmailRow>
               )
           )}
         </SettingsRows>
@@ -524,15 +498,12 @@ const WorthKnowing = ({
     () => messageId && actions.trash.mutate({ messageId }),
     rowKeys
   )
-  const rowOf = (rowId: string, threadId: string) => ({
+  const rowOf = (rowId: string) => ({
+    actions,
     active: cursorId === worthStop(rowId),
-    trigger: (
-      <ExpandTrigger
-        email={{ from: 'home', threadId }}
-        rowId={rowId}
-        onClick={() => onSelect(worthStop(rowId))}
-      />
-    ),
+    from: 'home' as const,
+    onSelect: () => onSelect(worthStop(rowId)),
+    rowId,
   })
 
   if (
@@ -544,66 +515,45 @@ const WorthKnowing = ({
   return (
     <SettingsGroup title={t.today.worthKnowing}>
       {today.recent.map(({ analysis, message }) => (
-        <SettingsRow
+        <EmailRow
           key={message.id}
-          {...rowOf(message.id, message.threadId)}
-          iconVariant="avatar"
-          icon={<SenderAvatar sender={message} size="sm" />}
-          title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
+          {...rowOf(message.id)}
+          message={message}
           description={<span data-mask>{analysis.summary}</span>}
-        >
-          <span className={`${ROW_SWAP} group/swap`}>
-            <span className="flex items-center gap-2 group-hover/item:opacity-0 group-has-data-popup-open/swap:opacity-0">
-              <Ago date={message.receivedAt} />
-              <ImportanceDot
-                importance={analysis.importance}
-                reason={analysis.reason}
-              />
-            </span>
-            <MailRowActions
-              actions={actions}
-              canSnooze
-              className="group-hover/item:opacity-100"
-              messageIds={[message.id]}
-              sweep={sweep}
+          facts={
+            <ImportanceDot
+              importance={analysis.importance}
+              reason={analysis.reason}
             />
-          </span>
-        </SettingsRow>
+          }
+        />
       ))}
       {today.dates.map(({ analysis, message }) => (
-        <SettingsRow
+        <EmailRow
           key={message.id}
-          {...rowOf(message.id, message.threadId)}
-          iconVariant="avatar"
-          icon={<SenderAvatar sender={message} size="sm" />}
-          title={<span data-mask>{message.fromName ?? message.fromEmail}</span>}
+          {...rowOf(message.id)}
+          message={message}
           description={<span data-mask>{analysis.summary}</span>}
-        >
-          <ExtractedChips extracted={{ ...analysis.extracted, amount: null }} />
-        </SettingsRow>
-      ))}
-      {today.awaiting.map((sent) => (
-        <SettingsRow
-          key={sent.threadId}
-          {...rowOf(sent.threadId, sent.threadId)}
-          iconVariant="avatar"
-          icon={
-            <SenderAvatar
-              sender={{ fromEmail: sent.to[0] ?? '', fromName: sent.toName }}
-              size="sm"
+          facts={
+            <ExtractedChips
+              extracted={{ ...analysis.extracted, amount: null }}
             />
           }
-          title={
-            <span data-mask>{sent.toName ?? sent.to[0] ?? sent.subject}</span>
-          }
+        />
+      ))}
+      {today.awaiting.map((sent) => (
+        <EmailRow
+          key={sent.threadId}
+          {...rowOf(sent.threadId)}
+          actions={undefined}
+          message={{ ...sent, fromEmail: sent.to[0] ?? '' }}
+          sender={{ fromEmail: sent.to[0] ?? '', fromName: sent.toName }}
           description={
             <>
               {t.today.awaiting} · <span data-mask>{sent.subject}</span>
             </>
           }
-        >
-          <Ago date={sent.receivedAt} />
-        </SettingsRow>
+        />
       ))}
     </SettingsGroup>
   )
@@ -633,6 +583,8 @@ const pageHints = (
       ? ([
           ['J / K', t.keys.move],
           ['⏎', t.keys.open],
+          ['E', t.keys.archive],
+          ['⌫', t.keys.trash],
         ] as [string, string][])
       : []),
     ...(newsletters.some(({ isUnread }) => isUnread)

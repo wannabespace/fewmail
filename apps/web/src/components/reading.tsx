@@ -20,14 +20,16 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { isToday, parseISO } from 'date-fns'
+import { parseISO } from 'date-fns'
 import { AnimatePresence, motion } from 'motion/react'
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
+import { EmailRow } from '~/components/email-row'
 import {
   clipOver,
   ExpandTrigger,
+  expandRow,
   HIDDEN,
   OPEN_CLIP,
   SHOWN,
@@ -35,9 +37,9 @@ import {
   useMorph,
 } from '~/components/expand-row'
 import { ListenButton } from '~/components/listen-button'
-import { SenderAvatar } from '~/components/sender-avatar'
+import { sweepOf, useMailActions } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
-import { prefetchThread, warmThread } from '~/lib/mail-db'
+import { prefetchThread } from '~/lib/mail-db'
 import { client, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { toastUndo } from '~/lib/undo'
@@ -109,9 +111,6 @@ const SummarySkeleton = () => (
   </div>
 )
 
-// Back from an email, the cursor is on the newsletter that was opened.
-let lastOpened: string | undefined
-
 /** The agent's one text over every newsletter; each sentence ends on the newsletters it came from. */
 const SummaryText = ({ rows, summary }: { rows: Row[]; summary: Summary }) => {
   const byId = new Map(rows.map((row) => [row.id, row]))
@@ -178,7 +177,7 @@ const useNoteOf = (summary: Summary | undefined) => {
   }
 }
 
-/** Every newsletter under the whole summary; J / K walk them, ⏎ opens one. */
+/** Every newsletter under the whole summary, rows as Mail's; J / K walk them, ⏎ opens one in the sidebar, E and ⌫ act on it. */
 const NewsletterList = ({
   isActive,
   rows,
@@ -189,90 +188,76 @@ const NewsletterList = ({
   summary: Summary | undefined
 }) => {
   const t = useT()
-  const dates = useDates()
-  const navigate = useNavigate()
   const noteOf = useNoteOf(summary)
   const whyOf = new Map(
     summary?.worth.map(({ messageId, why }) => [messageId, why])
   )
-  const listRef = useRef<HTMLDivElement>(null)
+  const actions = useMailActions()
   const [cursor, setCursor] = useState<number | null>(null)
-  const current =
-    cursor ?? rows.findIndex(({ threadId }) => threadId === lastOpened)
+  const row = cursor === null ? undefined : rows[cursor]
 
-  useEffect(() => {
-    const row = listRef.current?.querySelectorAll('[data-slot="item"]')[current]
-    row?.scrollIntoView({ block: 'nearest' })
-  }, [current])
-
-  const open = (threadId: string) => {
-    lastOpened = threadId
-    void navigate({ params: { threadId }, to: '/mail/$threadId' })
-  }
   const move = (step: number) => {
-    const next = Math.max(0, Math.min(rows.length - 1, current + step))
-    const threadId = rows[next]?.threadId
+    const next = Math.max(0, Math.min(rows.length - 1, (cursor ?? -1) + step))
     setCursor(next)
+    const threadId = rows[next]?.threadId
     if (threadId) {
       void prefetchThread(threadId)
     }
   }
   const keys = { enabled: isActive }
+  const rowKeys = { enabled: isActive && !!row }
   useHotkey('J', () => move(1), keys)
   useHotkey('ArrowDown', () => move(1), keys)
   useHotkey('K', () => move(-1), keys)
   useHotkey('ArrowUp', () => move(-1), keys)
-  useHotkey('Enter', () => rows[current] && open(rows[current].threadId), {
-    enabled: isActive && current !== -1,
-  })
+  useHotkey(
+    'Enter',
+    () => row && expandRow(row.id, { from: 'reading', threadId: row.threadId }),
+    rowKeys
+  )
+  useHotkey(
+    'E',
+    () =>
+      row &&
+      sweepOf(actions, t, row.isInInbox ? 'inbox' : 'elsewhere').action.mutate({
+        messageId: row.id,
+      }),
+    rowKeys
+  )
+  useHotkey(
+    'Backspace',
+    () => row && actions.trash.mutate({ messageId: row.id }),
+    rowKeys
+  )
 
   return (
-    <div ref={listRef}>
-      <SettingsGroup title={t.reading.digest(rows.length)}>
-        {rows.map((row, index) => (
-          <SettingsRow
-            key={row.id}
-            active={index === current}
-            render={
-              <Link
-                to="/mail/$threadId"
-                params={{ threadId: row.threadId }}
-                onPointerEnter={() => {
-                  void warmThread(row.threadId)
-                }}
-                onClick={() => {
-                  lastOpened = row.threadId
-                  setCursor(index)
-                }}
-              />
-            }
-            iconVariant="avatar"
-            icon={<SenderAvatar sender={row} size="sm" />}
-            title={<span data-mask>{senderOf(row)}</span>}
-            description={
-              <>
-                <span data-mask>{row.subject}</span>
-                {' · '}
-                <span data-mask={!summary || undefined}>{noteOf(row)}</span>
-                {whyOf.has(row.id) && (
-                  <>
-                    <br />
-                    <span data-mask>{whyOf.get(row.id)}</span>
-                  </>
-                )}
-              </>
-            }
-          >
-            <span className="text-muted-foreground text-xs tabular-nums">
-              {dates.format(
-                row.receivedAt,
-                isToday(row.receivedAt) ? 'HH:mm' : 'd MMM'
+    <SettingsGroup title={t.reading.digest(rows.length)}>
+      {rows.map((newsletter, index) => (
+        <EmailRow
+          key={newsletter.id}
+          actions={actions}
+          active={index === cursor}
+          from="reading"
+          message={newsletter}
+          onSelect={() => setCursor(index)}
+          description={
+            <>
+              <span data-mask>{newsletter.subject}</span>
+              {' · '}
+              <span data-mask={!summary || undefined}>
+                {noteOf(newsletter)}
+              </span>
+              {whyOf.has(newsletter.id) && (
+                <>
+                  <br />
+                  <span data-mask>{whyOf.get(newsletter.id)}</span>
+                </>
               )}
-            </span>
-          </SettingsRow>
-        ))}
-      </SettingsGroup>
-    </div>
+            </>
+          }
+        />
+      ))}
+    </SettingsGroup>
   )
 }
 

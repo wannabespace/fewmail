@@ -16,6 +16,7 @@ import {
 } from '../lib/ai'
 import { localClock, postgresZone } from '../lib/clock'
 import { JEV_MODEL_ID } from '../lib/jev'
+import { rowPlace } from './mail'
 import { getPlanInfo, hasAgent, hasBudget } from './plan'
 import { getSettings } from './settings'
 import { changeThreadLabels, MARK_READ } from './thread-labels'
@@ -97,6 +98,7 @@ const readingColumns = {
   id: messages.id,
   isUnread: messages.isUnread,
   model: analyses.model,
+  ...rowPlace,
   receivedAt: messages.receivedAt,
   subject: messages.subject,
   summary: analyses.summary,

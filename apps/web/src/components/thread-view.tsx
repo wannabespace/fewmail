@@ -782,7 +782,7 @@ const joinBurst = () => {
 const toInbox = (messageId: string) => client.mail.moveToInbox({ messageId })
 
 // Settled together like live events: a refetch after a burst's first answer would put its other emails back for a moment.
-const refresh = () => refetchChanged(['mail', 'today'])
+const refresh = () => refetchChanged(['mail', 'reading', 'today'])
 
 export const useMailActions = (onDone?: (messageId: string) => void) => {
   const t = useT()
