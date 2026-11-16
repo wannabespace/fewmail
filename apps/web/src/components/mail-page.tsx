@@ -528,7 +528,10 @@ const cardsOf = (
 const LIST_HEADER =
   'bg-body text-muted-foreground flex h-13 items-center gap-2 border-x border-transparent pt-5 pr-3 pb-2 pl-8 text-xs font-medium'
 
-const GROUP_HEADER = cn(LIST_HEADER, 'sticky -top-3 z-10')
+const GROUP_HEADER = cn(
+  LIST_HEADER,
+  'sticky top-[min(--spacing(-3),var(--pushed-at,infinity*1px)-var(--scroll,0px))] z-10'
+)
 
 const UnreadCount = ({
   filter,
@@ -912,11 +915,13 @@ const ListWindowContext = createContext<{
   edgeOf: (index: number) => CardEdge | null
   keys: ReadonlySet<VirtualItem['key']>
   measure: (node: Element | null) => void
+  pushedAtOf: (index: number) => number | null
 }>({
   arriving: new Set(),
   edgeOf: () => null,
   keys: new Set(),
   measure: () => null,
+  pushedAtOf: () => null,
 })
 
 // A row gone from the list folds; a row the window scrolled past is still listed and goes at once, taking no room, or the rows below jump by its height. Either way its index is stale, so it stops being measured (-1 is out of range).
@@ -927,7 +932,8 @@ const ListRow = ({
   ...props
 }: ComponentProps<typeof motion.li> & { item: VirtualItem }) => {
   const isPresent = useIsPresent()
-  const { arriving, edgeOf, keys, measure } = use(ListWindowContext)
+  const { arriving, edgeOf, keys, measure, pushedAtOf } = use(ListWindowContext)
+  const pushedAt = pushedAtOf(item.index)
   const [isUnfolding, setIsUnfolding] = useState(() => arriving.has(item.key))
   const edge = edgeOf(item.index)
   const isScrolledPast = !isPresent && keys.has(item.key)
@@ -940,6 +946,11 @@ const ListRow = ({
       animate={isUnfolding ? ROW_UNFOLD : undefined}
       onAnimationComplete={() => setIsUnfolding(false)}
       exit={isScrolledPast ? undefined : ROW_FOLD}
+      style={
+        pushedAt === null
+          ? undefined
+          : ({ '--pushed-at': `${pushedAt}px` } as CSSProperties)
+      }
       className={cn(
         STILL_POINTER_GUARD,
         'mx-auto w-full max-w-3xl',
@@ -1043,6 +1054,18 @@ const ListWindow = ({
     }
   }, [arriving])
   useScrollToCursor(items, virtualizer)
+  // The virtualizer re-renders only when the range changes, so the pushed header reads the scroll from CSS.
+  useEffect(() => {
+    const list = scroller.current
+    if (!list) {
+      return
+    }
+    const onScroll = () =>
+      list.style.setProperty('--scroll', `${list.scrollTop}px`)
+    onScroll()
+    list.addEventListener('scroll', onScroll, { passive: true })
+    return () => list.removeEventListener('scroll', onScroll)
+  }, [scroller])
   const shown = virtualizer.getVirtualItems()
   const [head, second] = shown
   const sticky =
@@ -1065,6 +1088,20 @@ const ListWindow = ({
         },
         keys,
         measure: virtualizer.measureElement,
+        // All headers share one <ul>, so CSS alone stacks the next over the stuck one; past this scroll offset the next header pushes it up instead.
+        pushedAtOf: (index) => {
+          const next = stickyIndexes.find((stickyIndex) => stickyIndex > index)
+          const nextStart =
+            next === undefined
+              ? undefined
+              : virtualizer.measurementsCache[next]?.start
+          const size = virtualizer.measurementsCache[index]?.size
+          return items[index]?.isSticky &&
+            nextStart !== undefined &&
+            size !== undefined
+            ? nextStart - size
+            : null
+        },
       }}
     >
       <ListGap height={head?.start ?? 0} />
