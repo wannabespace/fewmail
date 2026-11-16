@@ -1,5 +1,6 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { Button } from '@fewmail/ui/components/button'
+import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   Item,
@@ -28,6 +29,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { isFuture } from 'date-fns'
+import { AnimatePresence } from 'motion/react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createStore } from 'seitu'
@@ -311,56 +313,62 @@ export const NoticeBar = () => {
       },
   ]
   const shown = notices.filter((notice): notice is Notice => !!notice)
-  if (shown.length === 0) {
-    return null
-  }
   const more = shown.length - 1
 
+  // Always mounted, so the last card can fold away instead of vanishing; each card unfolds into its place, never pops.
   return (
-    <div className="flex flex-col">
-      {(isExpanded ? shown : shown.slice(0, 1)).map((notice, index) => (
-        <Item key={notice.id} variant="grouped" size="sm">
-          {notice.media}
-          <ItemContent>
-            <ItemTitle>{notice.title}</ItemTitle>
-            {notice.description && (
-              <ItemDescription>{notice.description}</ItemDescription>
-            )}
-          </ItemContent>
-          <ItemActions>
-            {notice.end}
-            {notice.action && (
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={reconnect.isPending}
-                onClick={() => notice.action?.onClick()}
-              >
-                {reconnect.isPending && <Spinner />}
-                {notice.action.label}
-              </Button>
-            )}
-            {index === 0 && more > 0 && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? t.mail.showFewer : t.mail.showAll(shown.length)}
-              </Button>
-            )}
-            {notice.dismiss && (
-              <IconButton
-                icon={Cancel01Icon}
-                label={t.today.hint.notNow}
-                size="icon-sm"
-                variant="ghost-muted"
-                onClick={() => notice.dismiss?.()}
-              />
-            )}
-          </ItemActions>
-        </Item>
-      ))}
+    <div className="flex flex-col px-3">
+      <AnimatePresence initial={false}>
+        {(isExpanded ? shown : shown.slice(0, 1)).map((notice, index) => (
+          <MotionCollapse key={notice.id}>
+            <div className="pt-2">
+              <Item variant="card" size="sm">
+                {notice.media}
+                <ItemContent>
+                  <ItemTitle>{notice.title}</ItemTitle>
+                  {notice.description && (
+                    <ItemDescription>{notice.description}</ItemDescription>
+                  )}
+                </ItemContent>
+                <ItemActions>
+                  {notice.end}
+                  {notice.action && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={reconnect.isPending}
+                      onClick={() => notice.action?.onClick()}
+                    >
+                      {reconnect.isPending && <Spinner />}
+                      {notice.action.label}
+                    </Button>
+                  )}
+                  {index === 0 && more > 0 && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setIsExpanded(!isExpanded)}
+                    >
+                      {isExpanded
+                        ? t.mail.showFewer
+                        : t.mail.showAll(shown.length)}
+                    </Button>
+                  )}
+                  {notice.dismiss && (
+                    <IconButton
+                      icon={Cancel01Icon}
+                      label={t.today.hint.notNow}
+                      size="icon-sm"
+                      variant="ghost-muted"
+                      onClick={() => notice.dismiss?.()}
+                    />
+                  )}
+                </ItemActions>
+              </Item>
+            </div>
+          </MotionCollapse>
+        ))}
+      </AnimatePresence>
     </div>
   )
 }
