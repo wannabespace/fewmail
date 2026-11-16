@@ -975,8 +975,6 @@ export const it: Messages = {
       inbox: 'Tutto, dal più recente',
     },
     find: {
-      back: 'Torna alla posta',
-      open: 'Cerca',
       recent: 'Ricerche recenti',
       tips: 'Suggerimenti',
       clearRecent: 'Cancella',
