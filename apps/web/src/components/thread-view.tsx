@@ -504,6 +504,42 @@ const textLength = (message: ThreadMessage) =>
     .replaceAll(/\s+/gu, ' ')
     .trim().length
 
+/** The agent's summary over its chips; a short email keeps only the chips, since the summary would repeat it. */
+const MessageInsight = ({
+  analysis,
+  isShort,
+}: {
+  analysis: NonNullable<ThreadRow['analysis']>
+  isShort: boolean
+}) => {
+  const t = useT()
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-2',
+        !isShort && 'bg-secondary/50 rounded-xl px-4 py-3'
+      )}
+    >
+      {!isShort && (
+        <p data-mask className="text-sm">
+          {analysis.summary}
+        </p>
+      )}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Badge
+          variant={analysis.category === 'security' ? 'destructive' : 'outline'}
+        >
+          {t.category[analysis.category]}
+        </Badge>
+        {analysis.needsReply && (
+          <Badge variant="outline">{t.mail.expectsReply}</Badge>
+        )}
+        <ExtractedChips extracted={analysis.extracted} />
+      </div>
+    </div>
+  )
+}
+
 const MessageSection = ({
   actions,
   analysis,
@@ -523,7 +559,6 @@ const MessageSection = ({
   const dates = useDates()
   const isSpam = message.labelIds.includes('SPAM')
   const [showsImages, setShowsImages] = useState(false)
-  const isShort = textLength(message) <= SHORT_BODY_CHARS
   return (
     <section className="flex flex-col gap-3 not-first:mt-6 not-first:border-t not-first:pt-8">
       {subject && (
@@ -568,31 +603,10 @@ const MessageSection = ({
         <MessageDetails message={message} />
       </header>
       {hasAgent && analysis && (
-        <div
-          className={cn(
-            'flex flex-col gap-2',
-            !isShort && 'bg-secondary/50 rounded-xl px-4 py-3'
-          )}
-        >
-          {!isShort && (
-            <p data-mask className="text-sm">
-              {analysis.summary}
-            </p>
-          )}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <Badge
-              variant={
-                analysis.category === 'security' ? 'destructive' : 'outline'
-              }
-            >
-              {t.category[analysis.category]}
-            </Badge>
-            {analysis.needsReply && (
-              <Badge variant="outline">{t.mail.expectsReply}</Badge>
-            )}
-            <ExtractedChips extracted={analysis.extracted} />
-          </div>
-        </div>
+        <MessageInsight
+          analysis={analysis}
+          isShort={textLength(message) <= SHORT_BODY_CHARS}
+        />
       )}
       {message.html && isSpam && !showsImages && (
         <div className="text-muted-foreground flex items-center gap-3 text-sm">
@@ -1569,18 +1583,18 @@ const ThreadPeople = ({ thread }: { thread: Thread }) => {
             {people.map((person) => {
               const wrote = written.get(personKeyOf(person))?.length
               return (
-                <Item key={personKeyOf(person)} size="xs" className="pl-1.5">
+                <Item key={personKeyOf(person)} size="compact">
                   <ItemMedia>
                     <SenderAvatar sender={person} size="sm" />
                   </ItemMedia>
-                  <ItemContent className="min-w-0 group-data-[size=xs]/item:gap-0">
+                  <ItemContent className="min-w-0">
                     <ItemTitle data-mask>
                       {person.isFromMe
                         ? t.mail.you
                         : (person.fromName ?? person.fromEmail)}
                     </ItemTitle>
                     {(person.isFromMe || person.fromName) && (
-                      <ItemDescription data-mask className="text-xs">
+                      <ItemDescription data-mask>
                         {person.fromEmail}
                       </ItemDescription>
                     )}
