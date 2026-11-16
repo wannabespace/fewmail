@@ -54,7 +54,7 @@ import {
   startOfToday,
   subDays,
 } from 'date-fns'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence } from 'motion/react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
@@ -1756,10 +1756,7 @@ const HomePage = () => {
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <main className="flex min-h-0 flex-1 flex-col">
         <div data-slot="reading-area" className="relative min-h-0 flex-1">
-          <motion.div
-            layoutScroll
-            className="under-notice h-full overflow-y-auto"
-          >
+          <div className="under-notice h-full overflow-y-auto">
             <div
               className={cn(
                 'mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6',
@@ -1806,118 +1803,114 @@ const HomePage = () => {
               {hasAgent && <BoardCard />}
               <WorthCard today={data} />
             </div>
-          </motion.div>
+          </div>
           <ReadingPane {...readingDays} />
-          {/* A pane closing stays mounted until its card has grown back: unmounted at once, motion drops Home's scroll
-              from the morph and the card flies in from below. */}
-          <AnimatePresence>
-            {page === 'look' && (
-              <HomeCardPane key="look" page="look">
-                <LookHeading
-                  picked={picked.length}
-                  onApprove={approveTargets}
-                  onClear={() => setPickedIds([])}
-                  onClose={closePage}
-                  onSkip={skipTargets}
-                  onTrash={() => trashMany.mutate(picked)}
+          {page === 'look' && (
+            <HomeCardPane page="look">
+              <LookHeading
+                picked={picked.length}
+                onApprove={approveTargets}
+                onClear={() => setPickedIds([])}
+                onClose={closePage}
+                onSkip={skipTargets}
+                onTrash={() => trashMany.mutate(picked)}
+              >
+                <KindFilter
+                  canUseKeys={isInQueue}
+                  filter={filter}
+                  queue={decisionCards}
+                />
+              </LookHeading>
+              <div className="flex flex-col gap-2.5">
+                <Accordion
+                  variant="list"
+                  hidden={queue.length === 0}
+                  value={openIds}
+                  onValueChange={toggleCard}
                 >
-                  <KindFilter
-                    canUseKeys={isInQueue}
-                    filter={filter}
-                    queue={decisionCards}
-                  />
-                </LookHeading>
-                <div className="flex flex-col gap-2.5">
-                  <Accordion
-                    variant="list"
-                    hidden={queue.length === 0}
-                    value={openIds}
-                    onValueChange={toggleCard}
+                  {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
+                  <AnimatePresence key={filter.active} initial={false}>
+                    {queue.map((item) => (
+                      <QueueCard
+                        key={item.action.id}
+                        item={item}
+                        draft={draftOf(item)}
+                        isNew={!!seenAt && item.action.createdAt > seenAt}
+                        isPicked={pickedIds.includes(item.action.id)}
+                        isRewriting={rewritingId === item.action.id}
+                        isOpen={isOpen && item === selected}
+                        isSelected={item === selected}
+                        isEditing={editingId === item.action.id}
+                        isBusy={
+                          redraft.isPending &&
+                          redraft.variables.id === item.action.id
+                        }
+                        onAddEvent={() => addEventOf(item.action.id)}
+                        onApprove={() => approveItem(item)}
+                        onEdit={() => setEditingId(item.action.id)}
+                        onDraftChange={(draft) =>
+                          setDrafts((current) => ({
+                            ...current,
+                            [item.action.id]: draft,
+                          }))
+                        }
+                        onRewrite={(instruction) =>
+                          rewrite(item.action.id, instruction)
+                        }
+                        onRewriteChange={(isOn) =>
+                          setRewritingId(isOn ? item.action.id : null)
+                        }
+                        onPick={() => togglePick(item.action.id)}
+                        onRemind={() => remind(item.action.id)}
+                        onSkip={() => dismiss.mutate({ id: item.action.id })}
+                        onStopEditing={() => setEditingId(null)}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </Accordion>
+                {hiddenCards > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost-muted"
+                    className="self-start"
+                    onClick={() => setIsQueueOpen(true)}
                   >
-                    {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
-                    <AnimatePresence key={filter.active} initial={false}>
-                      {queue.map((item) => (
-                        <QueueCard
-                          key={item.action.id}
-                          item={item}
-                          draft={draftOf(item)}
-                          isNew={!!seenAt && item.action.createdAt > seenAt}
-                          isPicked={pickedIds.includes(item.action.id)}
-                          isRewriting={rewritingId === item.action.id}
-                          isOpen={isOpen && item === selected}
-                          isSelected={item === selected}
-                          isEditing={editingId === item.action.id}
-                          isBusy={
-                            redraft.isPending &&
-                            redraft.variables.id === item.action.id
-                          }
-                          onAddEvent={() => addEventOf(item.action.id)}
-                          onApprove={() => approveItem(item)}
-                          onEdit={() => setEditingId(item.action.id)}
-                          onDraftChange={(draft) =>
-                            setDrafts((current) => ({
-                              ...current,
-                              [item.action.id]: draft,
-                            }))
-                          }
-                          onRewrite={(instruction) =>
-                            rewrite(item.action.id, instruction)
-                          }
-                          onRewriteChange={(isOn) =>
-                            setRewritingId(isOn ? item.action.id : null)
-                          }
-                          onPick={() => togglePick(item.action.id)}
-                          onRemind={() => remind(item.action.id)}
-                          onSkip={() => dismiss.mutate({ id: item.action.id })}
-                          onStopEditing={() => setEditingId(null)}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </Accordion>
-                  {hiddenCards > 0 && (
-                    <Button
-                      size="sm"
-                      variant="ghost-muted"
-                      className="self-start"
-                      onClick={() => setIsQueueOpen(true)}
-                    >
-                      {t.mail.showAll(filter.shown.length)}
-                    </Button>
-                  )}
-                  <StaleCards
-                    canUseKeys={isInQueue}
-                    count={stale.length}
-                    onSkip={skipStale}
-                  />
-                </div>
-              </HomeCardPane>
-            )}
-            {page === 'worth' && (
-              <HomeCardPane key="worth" page="worth">
-                <WorthKnowing
-                  cursorId={cursorId}
-                  isWalking={isStepping}
-                  today={data}
-                  onClose={closePage}
-                  onSelect={setSelectedId}
+                    {t.mail.showAll(filter.shown.length)}
+                  </Button>
+                )}
+                <StaleCards
+                  canUseKeys={isInQueue}
+                  count={stale.length}
+                  onSkip={skipStale}
                 />
-              </HomeCardPane>
-            )}
-            {page === 'board' && (
-              <HomeCardPane key="board" page="board">
-                <BoardPane isActive={isFocused} onClose={closePage} />
-              </HomeCardPane>
-            )}
-            {page === 'tidy' && (
-              <HomeCardPane key="tidy" page="tidy">
-                <ProposalsReview
-                  canUseKeys={isFocused}
-                  proposals={proposals}
-                  onClose={closePage}
-                />
-              </HomeCardPane>
-            )}
-          </AnimatePresence>
+              </div>
+            </HomeCardPane>
+          )}
+          {page === 'worth' && (
+            <HomeCardPane page="worth">
+              <WorthKnowing
+                cursorId={cursorId}
+                isWalking={isStepping}
+                today={data}
+                onClose={closePage}
+                onSelect={setSelectedId}
+              />
+            </HomeCardPane>
+          )}
+          {page === 'board' && (
+            <HomeCardPane page="board">
+              <BoardPane isActive={isFocused} onClose={closePage} />
+            </HomeCardPane>
+          )}
+          {page === 'tidy' && (
+            <HomeCardPane page="tidy">
+              <ProposalsReview
+                canUseKeys={isFocused}
+                proposals={proposals}
+                onClose={closePage}
+              />
+            </HomeCardPane>
+          )}
         </div>
         <KeyHints
           hints={homeHints(t, {

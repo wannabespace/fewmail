@@ -109,8 +109,6 @@ export const HomeCard = ({
   return (
     <motion.section
       layoutId={morphIdOf(page)}
-      // The closing pane hides at once instead of fading over the card: scaled down, its rows would squash.
-      layoutCrossfade={false}
       transition={morph}
       initial={false}
       animate={{ borderRadius: CARD_RADIUS }}
@@ -162,10 +160,13 @@ export const HomeCardPane = ({
       className="bg-background absolute inset-0 z-10 overflow-hidden"
     >
       <motion.div layoutScroll className="h-full overflow-y-auto">
+        {/* `layout` keeps the content from squashing while the box grows from the card; it stays centred at the top. */}
         <motion.div
+          layout="position"
+          layoutAnchor={{ x: 0.5, y: 0 }}
           initial={HIDDEN}
           animate={SHOWN}
-          transition={reveal}
+          transition={{ ...reveal, layout: morph }}
           className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6"
         >
           {children}
