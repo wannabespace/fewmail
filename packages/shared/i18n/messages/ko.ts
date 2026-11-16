@@ -394,10 +394,8 @@ export const ko: Messages = {
     inGmail: (count: string) => `Gmail에 ${count}개`,
     markShownRead: (n: number) => `${n}개 읽음 표시`,
     oneTimeCode: {
-      archive: '복사 후 보관',
       copied: '코드를 복사했습니다',
       copy: '코드 복사',
-      trash: '복사 후 삭제',
     },
     openUnsubscribePage: '페이지 열기',
     unsubscribeYourself:

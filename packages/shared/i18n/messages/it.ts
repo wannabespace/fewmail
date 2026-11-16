@@ -965,10 +965,8 @@ export const it: Messages = {
         other: (n) => `Segna ${n} come lette`,
       }),
     oneTimeCode: {
-      archive: 'Copia e archivia',
       copied: 'Codice copiato',
       copy: 'Copia codice',
-      trash: 'Copia ed elimina',
     },
     openUnsubscribePage: 'Apri pagina',
     unsubscribeYourself:

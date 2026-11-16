@@ -386,10 +386,8 @@ export const zh: Messages = {
     inGmail: (count: string) => `Gmail 中共 ${count} 个`,
     markShownRead: (n: number) => `将 ${n} 封标为已读`,
     oneTimeCode: {
-      archive: '复制并归档',
       copied: '已复制验证码',
       copy: '复制验证码',
-      trash: '复制并删除',
     },
     openUnsubscribePage: '打开页面',
     unsubscribeYourself:

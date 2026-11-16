@@ -31,7 +31,6 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
-import { ButtonGroup, ButtonGroupSeparator } from '@fewmail/ui/components/group'
 import {
   Item,
   ItemActions,
@@ -48,7 +47,6 @@ import {
   PopoverTrigger,
 } from '@fewmail/ui/components/popover'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
-import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useResolvedTheme } from '@fewmail/ui/theme-store'
 import type { ResolvedTheme } from '@fewmail/ui/theme-store'
@@ -1156,7 +1154,7 @@ export const pinEach =
     }
   }
 
-/** Like iOS's verification codes: copied without opening the email, then the email goes away in the same click. */
+/** Like iOS's verification codes: one press copies it without opening the email, and the toast takes the email away. */
 export const CodeActions = ({
   actions,
   className,
@@ -1175,54 +1173,32 @@ export const CodeActions = ({
   sweep: Sweep
 }) => {
   const t = useT()
-  const copyThen = (mutate: (input: { messageId: string }) => void) => () => {
-    onCopy?.()
-    void copy(code)
-    onEach(messageIds, mutate)()
-  }
+  const isInInbox = sweep.action === actions.archive
   return (
-    <ButtonGroup className={className}>
-      <CopyButton
-        text={code}
-        size="xs"
-        variant="outline"
-        aria-label={t.mail.oneTimeCode.copy}
-        shortcut={shortcut}
-        onClick={onCopy}
-      >
-        <span
-          data-mask
-          className="font-mono text-sm tracking-wider tabular-nums"
-        >
-          {code}
-        </span>
-      </CopyButton>
-      <ButtonGroupSeparator />
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button size="icon-xs" variant="outline" aria-label={t.mail.more} />
-          }
-        >
-          <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {sweep.action === actions.archive && (
-            <DropdownMenuItem onClick={copyThen(actions.archive.mutate)}>
-              <HugeiconsIcon icon={sweep.icon} strokeWidth={2} />
-              {t.mail.oneTimeCode.archive}
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={copyThen(actions.trash.mutate)}
-          >
-            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-            {t.mail.oneTimeCode.trash}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </ButtonGroup>
+    <CopyButton
+      text={code}
+      size="xs"
+      variant="secondary"
+      className={className}
+      aria-label={t.mail.oneTimeCode.copy}
+      shortcut={shortcut}
+      onClick={() => {
+        onCopy?.()
+        toast.success(t.mail.oneTimeCode.copied, {
+          action: {
+            label: isInInbox ? t.mail.archive : t.mail.trash,
+            onClick: onEach(
+              messageIds,
+              (isInInbox ? actions.archive : actions.trash).mutate
+            ),
+          },
+        })
+      }}
+    >
+      <span data-mask className="font-mono text-sm tabular-nums">
+        {code}
+      </span>
+    </CopyButton>
   )
 }
 
@@ -1932,9 +1908,7 @@ export const ThreadView = ({
                     index === data.messages.length - 1
                   )}
                   analysis={analysis}
-                  cite={
-                    cite?.messageId === message.id ? cite.text : undefined
-                  }
+                  cite={cite?.messageId === message.id ? cite.text : undefined}
                   message={message}
                   hasAgent={hasAgent}
                 />

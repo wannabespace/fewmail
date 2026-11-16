@@ -520,10 +520,8 @@ export const tr: Messages = {
     inGmail: (count: string) => `${count} Gmail’de`,
     markShownRead: (n: number) => `${n} tanesini okundu işaretle`,
     oneTimeCode: {
-      archive: 'Kopyala ve arşivle',
       copied: 'Kod kopyalandı',
       copy: 'Kodu kopyala',
-      trash: 'Kopyala ve sil',
     },
     openUnsubscribePage: 'Sayfayı aç',
     unsubscribeYourself:
