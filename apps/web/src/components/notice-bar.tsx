@@ -1,3 +1,4 @@
+import type { RouterOutputs } from '@fewmail/api/router'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
@@ -9,7 +10,9 @@ import {
   ItemTitle,
 } from '@fewmail/ui/components/item'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import { copy } from '@fewmail/ui/lib/copy'
 import {
+  AiChat02Icon,
   Calendar03Icon,
   Cancel01Icon,
   CloudIcon,
@@ -19,17 +22,31 @@ import {
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { eq, useLiveQuery } from '@tanstack/react-db'
+import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useRouterState } from '@tanstack/react-router'
+import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { isFuture } from 'date-fns'
+import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 
+import { SenderAvatar } from '~/components/sender-avatar'
+import {
+  CODE_FRESH_MS,
+  CodeActions,
+  sweepOf,
+  useMailActions,
+} from '~/components/thread-view'
 import { signInWithGoogle } from '~/lib/auth'
 import { useDates, useT } from '~/lib/i18n'
+import { mailRowsOf } from '~/lib/mail-db'
 import { useMe } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 
 const NOTICES = [
   'mail',
@@ -49,26 +66,103 @@ const dismissedStore = createWebStorageValue({
   type: 'localStorage',
 })
 
+/** A code put away stays away for this tab's life; it goes stale within 15 minutes anyway. */
+const dismissedCodes = createStore<string[]>([])
+
+/** `Y` already means something on these pages (the cursor row's code, the year view). */
+const OWNS_Y = ['/home', '/mail', '/calendar', '/wrapped']
+
 interface Notice {
   action?: { label: string; onClick: () => void }
-  description?: string
-  icon: IconSvgElement
-  id: (typeof NOTICES)[number]
+  description?: ReactNode
   /** Only what the app works without may be put away; lost mail access stays until it is fixed. */
-  isOptional: boolean
-  title: string
+  dismiss?: () => void
+  end?: ReactNode
+  id: string
+  media: ReactNode
+  title: ReactNode
 }
 
-/** The one place for what the user must act on, above every page; the most pressing shows first, one at a time. */
+const iconOf = (icon: IconSvgElement) => (
+  <ItemMedia variant="icon">
+    <HugeiconsIcon icon={icon} strokeWidth={2} />
+  </ItemMedia>
+)
+
+const avatarOf = (sender: { fromEmail: string; fromName?: string | null }) => (
+  <ItemMedia variant="avatar">
+    <SenderAvatar sender={sender} size="sm" />
+  </ItemMedia>
+)
+
+type BannerCard = RouterOutputs['today']['banner'][number]
+
+/** A request says what it asks; a risk warns before naming anyone; urgent mail is who wrote. */
+const cardTitle = (card: BannerCard, riskTitle: string) => {
+  if (card.kind === 'consent') {
+    return card.title
+  }
+  if (card.kind === 'risk') {
+    return riskTitle
+  }
+  return <span data-mask>{card.fromName ?? card.fromEmail}</span>
+}
+
+/** Inbox codes under 15 minutes old, newest first; the list drops each one the moment it goes stale. */
+const useFreshCodes = () => {
+  const dismissed = useSubscription(dismissedCodes)
+  const { data: rows } = useLiveQuery((query) =>
+    query.from({ row: mailRowsOf() }).where(({ row }) => eq(row.list, 'inbox'))
+  )
+  const [now, setNow] = useState(Date.now)
+  const fresh = rows
+    .flatMap(({ message }) =>
+      message.code &&
+      !dismissed.includes(message.id) &&
+      message.receivedAt.getTime() + CODE_FRESH_MS > now
+        ? [{ ...message, code: message.code }]
+        : []
+    )
+    .toSorted((a, b) => b.receivedAt.getTime() - a.receivedAt.getTime())
+  const staleAt = Math.min(
+    ...fresh.map(({ receivedAt }) => receivedAt.getTime() + CODE_FRESH_MS)
+  )
+  useEffect(() => {
+    if (!Number.isFinite(staleAt)) {
+      return
+    }
+    const timer = setTimeout(() => setNow(Date.now()), staleAt - Date.now())
+    return () => clearTimeout(timer)
+  }, [staleAt])
+  return fresh
+}
+
+/**
+ * The one place for what the user must act on, above every page; the most pressing shows first, one at a time, the
+ * rest a click away. A fresh code, a risk, a request waiting for a yes and urgent mail come before mailbox trouble;
+ * Home shows its own codes and cards, so here it keeps only mailbox trouble. Nothing here changes Gmail or says yes
+ * except a code's own Copy and archive: the rest opens where the decision is.
+ */
 export const NoticeBar = () => {
   const t = useT()
   const dates = useDates()
+  const navigate = useNavigate()
   const { hasCalendar, hasContacts } = useMe()
   const dismissed = useSubscription(dismissedStore)
+  const [isExpanded, setIsExpanded] = useState(false)
   const pathname = useRouterState({
     select: ({ location }) => location.pathname,
   })
+  const isHome = pathname === '/home'
   const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const { data: cards = [] } = useQuery({
+    ...orpc.today.banner.queryOptions(),
+    enabled: !isHome,
+  })
+  const codes = useFreshCodes()
+  const actions = useMailActions()
+  const sweep = sweepOf(actions, t, 'inbox')
+  const putAway = useMutation(orpc.today.dismissBanner.mutationOptions())
   const reconnect = useMutation(
     orpc.mailboxes.add.mutationOptions({
       onSuccess: ({ url }) => location.assign(url),
@@ -85,24 +179,89 @@ export const NoticeBar = () => {
     ({ sendBlockedUntil }) => sendBlockedUntil && isFuture(sendBlockedUntil)
   )
   const isCalendarPage = pathname === '/calendar'
+  const newest = isHome ? undefined : codes[0]
+  const canCopyWithY =
+    !!newest && !OWNS_Y.some((page) => pathname.startsWith(page))
+  const copyCode = (code: string) => {
+    posthog.capture('code_copied', { from: 'banner' })
+    void copy(code, t.mail.oneTimeCode.copied)
+  }
+  useHotkey('Y', () => newest && copyCode(newest.code), {
+    enabled: canCopyWithY,
+  })
+  const openThread = (kind: string, threadId: string | null) => () => {
+    posthog.capture('banner_opened', { kind })
+    void (threadId
+      ? navigate({ params: { threadId }, to: '/mail/$threadId' })
+      : navigate({ to: '/home' }))
+  }
+  const optional = (id: (typeof NOTICES)[number], isOptional: boolean) =>
+    isOptional ? () => dismissedStore.set([...dismissed, id]) : undefined
 
   const notices: (Notice | false)[] = [
+    ...(isHome ? [] : codes).map((message): Notice => ({
+      description: <span data-mask>{message.subject}</span>,
+      dismiss: () => {
+        posthog.capture('banner_dismissed', { kind: 'code' })
+        dismissedCodes.set([...dismissedCodes.get(), message.id])
+      },
+      end: (
+        <CodeActions
+          actions={actions}
+          code={message.code}
+          messageIds={[message.id]}
+          shortcut={message === newest && canCopyWithY ? 'Y' : undefined}
+          sweep={sweep}
+          onCopy={() => posthog.capture('code_copied', { from: 'banner' })}
+        />
+      ),
+      id: `code:${message.id}`,
+      media: avatarOf(message),
+      title: <span data-mask>{message.fromName ?? message.fromEmail}</span>,
+    })),
+    ...(isHome ? [] : cards).map((card): Notice => ({
+      action:
+        card.kind === 'consent'
+          ? {
+              label: t.agent.decideOnHome,
+              onClick: openThread(card.kind, null),
+            }
+          : {
+              label: t.mail.open,
+              onClick: openThread(card.kind, card.threadId),
+            },
+      description:
+        card.kind === 'consent' ? (
+          card.reason
+        ) : (
+          <span data-mask>
+            {card.kind === 'risk'
+              ? `${card.fromName ?? card.fromEmail ?? ''} · ${card.subject ?? ''}`
+              : card.subject}
+          </span>
+        ),
+      dismiss: () => putAway.mutate({ id: card.id }),
+      id: `card:${card.id}`,
+      media:
+        card.kind === 'consent' || !card.fromEmail
+          ? iconOf(AiChat02Icon)
+          : avatarOf({ fromEmail: card.fromEmail, fromName: card.fromName }),
+      title: cardTitle(card, t.risk.title),
+    })),
     signInLost && {
       action: {
         label: t.notices.signInAgain,
         onClick: () => signInWithGoogle(pathname),
       },
-      icon: MailAccount01Icon,
       id: 'mail',
-      isOptional: false,
+      media: iconOf(MailAccount01Icon),
       title: t.notices.mailLost,
     },
     !!addedLost && {
       action: { label: t.notices.reconnect, onClick: () => reconnect.mutate() },
-      icon: MailAccount01Icon,
       id: 'mailbox',
-      isOptional: false,
-      title: t.notices.mailboxLost(addedLost.email),
+      media: iconOf(MailAccount01Icon),
+      title: <span data-mask>{t.notices.mailboxLost(addedLost.email)}</span>,
     },
     !!storageFull && {
       action: {
@@ -110,84 +269,98 @@ export const NoticeBar = () => {
         onClick: () => window.open(GOOGLE_STORAGE_URL, '_blank', 'noopener'),
       },
       description: t.notices.storageFullHint,
-      icon: CloudIcon,
       id: 'storage',
-      isOptional: false,
-      title: t.notices.storageFull(storageFull.email),
+      media: iconOf(CloudIcon),
+      title: <span data-mask>{t.notices.storageFull(storageFull.email)}</span>,
     },
     !!sendBlocked?.sendBlockedUntil && {
-      icon: MailSend01Icon,
       id: 'send',
-      isOptional: false,
-      title: t.notices.sendLimit(
-        sendBlocked.email,
-        dates.fromNow(sendBlocked.sendBlockedUntil)
+      media: iconOf(MailSend01Icon),
+      title: (
+        <span data-mask>
+          {t.notices.sendLimit(
+            sendBlocked.email,
+            dates.fromNow(sendBlocked.sendBlockedUntil)
+          )}
+        </span>
       ),
     },
-    !hasCalendar && {
-      action: {
-        label: t.calendar.noAccess.allow,
-        onClick: () => signInWithGoogle('/calendar'),
+    !hasCalendar &&
+      !(dismissed.includes('calendar') && !isCalendarPage) && {
+        action: {
+          label: t.calendar.noAccess.allow,
+          onClick: () => signInWithGoogle('/calendar'),
+        },
+        description: t.calendar.noAccess.description,
+        dismiss: optional('calendar', !isCalendarPage),
+        id: 'calendar',
+        media: iconOf(Calendar03Icon),
+        title: t.calendar.noAccess.title,
       },
-      description: t.calendar.noAccess.description,
-      icon: Calendar03Icon,
-      id: 'calendar',
-      isOptional: !isCalendarPage,
-      title: t.calendar.noAccess.title,
-    },
-    !hasContacts && {
-      action: {
-        label: t.notices.photos.allow,
-        onClick: () => signInWithGoogle(pathname),
+    !hasContacts &&
+      !dismissed.includes('photos') && {
+        action: {
+          label: t.notices.photos.allow,
+          onClick: () => signInWithGoogle(pathname),
+        },
+        description: t.notices.photos.description,
+        dismiss: optional('photos', true),
+        id: 'photos',
+        media: iconOf(UserMultipleIcon),
+        title: t.notices.photos.title,
       },
-      description: t.notices.photos.description,
-      icon: UserMultipleIcon,
-      id: 'photos',
-      isOptional: true,
-      title: t.notices.photos.title,
-    },
   ]
-  const notice = notices.find(
-    (item): item is Notice =>
-      !!item && !(item.isOptional && dismissed.includes(item.id))
-  )
-  if (!notice) {
+  const shown = notices.filter((notice): notice is Notice => !!notice)
+  if (shown.length === 0) {
     return null
   }
+  const more = shown.length - 1
 
   return (
-    <Item variant="grouped" size="sm">
-      <ItemMedia variant="icon">
-        <HugeiconsIcon icon={notice.icon} strokeWidth={2} />
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle data-mask>{notice.title}</ItemTitle>
-        {notice.description && (
-          <ItemDescription>{notice.description}</ItemDescription>
-        )}
-      </ItemContent>
-      <ItemActions>
-        {notice.action && (
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={reconnect.isPending}
-            onClick={() => notice.action?.onClick()}
-          >
-            {reconnect.isPending && <Spinner />}
-            {notice.action.label}
-          </Button>
-        )}
-        {notice.isOptional && (
-          <IconButton
-            icon={Cancel01Icon}
-            label={t.today.hint.notNow}
-            size="icon-sm"
-            variant="ghost-muted"
-            onClick={() => dismissedStore.set([...dismissed, notice.id])}
-          />
-        )}
-      </ItemActions>
-    </Item>
+    <div className="flex flex-col">
+      {(isExpanded ? shown : shown.slice(0, 1)).map((notice, index) => (
+        <Item key={notice.id} variant="grouped" size="sm">
+          {notice.media}
+          <ItemContent>
+            <ItemTitle>{notice.title}</ItemTitle>
+            {notice.description && (
+              <ItemDescription>{notice.description}</ItemDescription>
+            )}
+          </ItemContent>
+          <ItemActions>
+            {notice.end}
+            {notice.action && (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={reconnect.isPending}
+                onClick={() => notice.action?.onClick()}
+              >
+                {reconnect.isPending && <Spinner />}
+                {notice.action.label}
+              </Button>
+            )}
+            {index === 0 && more > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? t.mail.showFewer : t.mail.showAll(shown.length)}
+              </Button>
+            )}
+            {notice.dismiss && (
+              <IconButton
+                icon={Cancel01Icon}
+                label={t.today.hint.notNow}
+                size="icon-sm"
+                variant="ghost-muted"
+                onClick={() => notice.dismiss?.()}
+              />
+            )}
+          </ItemActions>
+        </Item>
+      ))}
+    </div>
   )
 }

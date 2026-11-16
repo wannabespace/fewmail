@@ -51,7 +51,14 @@ import {
   listDrafts,
   saveDraft,
 } from '../services/drafts'
-import { countToday, getToday, listJournal, openToday } from '../services/home'
+import {
+  countToday,
+  dismissBanner,
+  getToday,
+  listBanner,
+  listJournal,
+  openToday,
+} from '../services/home'
 import { askFewmail } from '../services/instructions'
 import {
   getTelegramLink,
@@ -540,7 +547,11 @@ export const router = {
       .handler(({ context, input }) => saveSnippet(context.user.id, input)),
   },
   today: {
+    banner: authed.handler(({ context }) => listBanner(context.user.id)),
     count: authed.handler(({ context }) => countToday(context.user.id)),
+    dismissBanner: authed.input(id).handler(async ({ context, input }) => {
+      await dismissBanner(context.user.id, input.id)
+    }),
     get: authed.handler(({ context }) => getToday(context.user.id)),
     handled: authed.handler(({ context }) => listJournal(context.user.id)),
     keepSender: authed

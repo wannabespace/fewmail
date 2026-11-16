@@ -185,6 +185,8 @@ export const actions = d.snakeCase.table(
   {
     ...baseTable,
     autonomous: d.boolean().notNull(),
+    /** The user put its banner away (every page's notice bar); the card itself still waits on Home. */
+    bannerDismissedAt: d.timestamp({ withTimezone: true }),
     detail: encryptedText(),
     kind: d.text().$type<ActionKind>().notNull(),
     messageId: d.uuid().references(() => messages.id, { onDelete: 'cascade' }),
