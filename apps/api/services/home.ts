@@ -6,19 +6,26 @@ import {
   messages,
   userSettings,
 } from '@fewmail/db/schema'
+import { IMPORTANCE } from '@fewmail/shared/agent'
+import type { ActionKind } from '@fewmail/shared/agent'
 import { differenceInHours, max, min, subDays, subHours } from 'date-fns'
 import {
   and,
   arrayContains,
+  desc,
   eq,
   exists,
   gte,
+  inArray,
   isNotNull,
+  isNull,
   notExists,
+  or,
   sql,
 } from 'drizzle-orm'
 
 import { localClock } from '../lib/clock'
+import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
 import { newSenders } from './cleanup'
 import {
@@ -239,3 +246,63 @@ export const openToday = async (userId: string) => {
 
 export const listJournal = (userId: string) =>
   listHandled(userId, subDays(new Date(), JOURNAL_DAYS))
+
+/** A card is news in the banner for a day; after that it only waits on Home. */
+const BANNER_HOURS = 24
+const BANNER_SHOWN = 10
+const BANNER_ORDER = ['risk', 'consent', 'urgent'] as const
+const BANNER_KINDS: Partial<Record<ActionKind, (typeof BANNER_ORDER)[number]>> =
+  { consent: 'consent', security: 'risk' }
+
+/**
+ * What every page's notice bar raises besides codes and mailbox trouble, most pressing first: a risk, a request
+ * waiting for the user's yes, urgent mail. Only pending cards of the last day whose banner the user did not put away;
+ * the yes itself is never in the banner, it opens the card.
+ */
+export const listBanner = async (userId: string) => {
+  const rows = await db
+    .select({
+      createdAt: actions.createdAt,
+      fromEmail: messages.fromEmail,
+      fromName: messages.fromName,
+      id: actions.id,
+      kind: actions.kind,
+      reason: actions.reason,
+      subject: messages.subject,
+      threadId: actions.threadId,
+      title: actions.title,
+    })
+    .from(actions)
+    .leftJoin(messages, eq(messages.id, actions.messageId))
+    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
+    .where(
+      and(
+        eq(actions.userId, userId),
+        eq(actions.status, 'pending'),
+        isNull(actions.bannerDismissedAt),
+        gte(actions.createdAt, subHours(new Date(), BANNER_HOURS)),
+        or(
+          inArray(actions.kind, ['security', 'consent']),
+          gte(analyses.importance, IMPORTANCE.critical)
+        )
+      )
+    )
+    .orderBy(desc(actions.createdAt))
+    .limit(BANNER_SHOWN)
+  const items = rows.map(({ kind, ...row }) => ({
+    ...row,
+    kind: BANNER_KINDS[kind] ?? ('urgent' as const),
+  }))
+  return items.toSorted(
+    (a, b) => BANNER_ORDER.indexOf(a.kind) - BANNER_ORDER.indexOf(b.kind)
+  )
+}
+
+/** Put away in one tab, gone in every other and on the phone; the card stays on Home. */
+export const dismissBanner = async (userId: string, actionId: string) => {
+  await db
+    .update(actions)
+    .set({ bannerDismissedAt: new Date() })
+    .where(and(eq(actions.id, actionId), eq(actions.userId, userId)))
+  await announceChange(userId, ['today'])
+}
