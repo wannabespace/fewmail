@@ -561,6 +561,16 @@ importers:
         specifier: 'catalog:'
         version: 10.1.0
 
+  apps/desktop:
+    dependencies:
+      '@fewmail/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      '@hugeicons/core-free-icons':
+        specifier: 'catalog:'
+        version: 4.4.0
+
   apps/web:
     dependencies:
       '@better-auth/oauth-provider':

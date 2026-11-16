@@ -1,25 +1,23 @@
+mod api;
+mod home;
+mod i18n;
+mod sidebar;
+mod sign_in;
+mod theme;
+mod ui;
 mod update;
+mod workspace;
 
-use std::rc::Rc;
+use std::borrow::Cow;
 
 use futures::{StreamExt, channel::mpsc};
 use gpui::{
-    App, AppContext, Application, Bounds, Context, Entity, KeyBinding, Menu, MenuItem, OsAction,
-    Render, Rgba, TitlebarOptions, Window, WindowAppearance, WindowBounds, WindowOptions, actions,
-    canvas, div, point, prelude::*, px, rgb, size,
+    AnyView, AppContext, Application, AssetSource, Bounds, Context, KeyBinding, Menu, MenuItem,
+    OsAction, Render, SharedString, TitlebarOptions, Window, WindowBounds, WindowOptions, actions,
+    div, point, prelude::*, px, size,
 };
-use wry::{NewWindowResponse, WebViewBuilder, dpi, http::Uri};
 
-/// The app is the web app: `cargo run` opens the local dev server, a release build fewmail.app.
-const WEB_URL: &str = match option_env!("FEWMAIL_WEB_URL") {
-    Some(url) => url,
-    None if cfg!(debug_assertions) => "https://app.local.fewmail.app",
-    None => "https://fewmail.app",
-};
-const TITLEBAR_HEIGHT: f32 = 32.;
-/// `--body` in `packages/ui/src/styles/globals.css`, shown until the page reports its own.
-const LIGHT_BODY: u32 = 0xf4efe6;
-const DARK_BODY: u32 = 0x171412;
+use crate::{api::Session, i18n::I18n, sign_in::SignIn, theme::theme, workspace::Workspace};
 
 actions!(
     fewmail,
@@ -31,7 +29,6 @@ actions!(
         CloseWindow,
         Minimize,
         Zoom,
-        Reload,
         Cut,
         Copy,
         Paste,
@@ -39,202 +36,129 @@ actions!(
     ]
 );
 
+macro_rules! embed {
+    ($($path:literal),* $(,)?) => {
+        fn embedded(path: &str) -> Option<&'static [u8]> {
+            match path {
+                $($path => Some(include_bytes!(concat!("../assets/", $path))),)*
+                _ => None,
+            }
+        }
+    };
+}
+
+embed!(
+    "fonts/Inter-Regular.ttf",
+    "fonts/Inter-Medium.ttf",
+    "fonts/Inter-SemiBold.ttf",
+    "fonts/Inter-Bold.ttf",
+    "fonts/Lora-Regular.ttf",
+    "fonts/Lora-Medium.ttf",
+    "fonts/Lora-SemiBold.ttf",
+    "fonts/Lora-Italic.ttf",
+    "logo/lockup.svg",
+    "logo/google.svg",
+);
+
+struct Assets;
+
+impl AssetSource for Assets {
+    fn load(&self, path: &str) -> gpui::Result<Option<Cow<'static, [u8]>>> {
+        if let Some(name) = path.strip_prefix("icons/") {
+            return Ok(ui::ICONS
+                .iter()
+                .find(|(icon, _)| Some(*icon) == name.strip_suffix(".svg"))
+                .map(|(_, svg)| Cow::Borrowed(svg.as_bytes())));
+        }
+        Ok(embedded(path).map(Cow::Borrowed))
+    }
+
+    fn list(&self, _path: &str) -> gpui::Result<Vec<SharedString>> {
+        Ok(Vec::new())
+    }
+}
+
 enum Event {
-    /// A message the page sent through `window.ipc.postMessage` (`apps/web/src/lib/desktop.ts`).
-    Page(String),
-    PageLoaded,
     OpenUrls(Vec<String>),
-    OpenExternally(String),
 }
 
-type Events = mpsc::UnboundedSender<Event>;
-
-fn is_fewmail(uri: &Uri) -> bool {
-    uri.host()
-        .is_some_and(|host| host == "fewmail.app" || host.ends_with(".fewmail.app"))
+/// Signed out it shows the sign-in page, signed in the app; a `fewmail://sign-in` link moves from one to the other.
+struct Root {
+    sign_in: Option<gpui::Entity<SignIn>>,
+    workspace: Option<gpui::Entity<Workspace>>,
 }
 
-/// Fewmail and Stripe's checkout stay in the window; Google refuses to sign in inside an embedded web view,
-/// so its consent screens, like every other site and `mailto:`, open in the default browser.
-fn stays_in_app(url: &str) -> bool {
-    match url.split_once(':').map(|(scheme, _)| scheme) {
-        Some("about" | "data" | "blob") => true,
-        Some("http" | "https") => url.parse::<Uri>().is_ok_and(|uri| {
-            is_fewmail(&uri)
-                || matches!(
-                    uri.host(),
-                    Some("checkout.stripe.com" | "billing.stripe.com")
-                )
-        }),
-        _ => false,
-    }
-}
-
-fn random_state() -> String {
-    let mut bytes = [0u8; 16];
-    std::io::Read::read_exact(
-        &mut std::fs::File::open("/dev/urandom").unwrap(),
-        &mut bytes,
-    )
-    .unwrap();
-    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
-}
-
-struct Shell {
-    webview: Rc<wry::WebView>,
-    titlebar: Rgba,
-    /// Set when the page asked to sign in through the browser; the `fewmail://sign-in` link must carry it back,
-    /// or any page could sign the app into someone else's account.
-    sign_in_state: Option<String>,
-}
-
-impl Shell {
-    fn new(events: Events, window: &mut Window, _cx: &mut Context<Self>) -> Self {
-        let titlebar = rgb(match window.appearance() {
-            WindowAppearance::Dark | WindowAppearance::VibrantDark => DARK_BODY,
-            _ => LIGHT_BODY,
-        });
-        let to_ipc = events.clone();
-        let to_navigation = events.clone();
-        let to_popups = events.clone();
-        let webview = WebViewBuilder::new()
-            .with_url(format!("{WEB_URL}/home"))
-            .with_background_color((
-                (titlebar.r * 255.) as u8,
-                (titlebar.g * 255.) as u8,
-                (titlebar.b * 255.) as u8,
-                255,
-            ))
-            .with_initialization_script(format!(
-                "window.fewmailDesktop = {{ version: '{}' }};{}",
-                env!("CARGO_PKG_VERSION"),
-                include_str!("page.js")
-            ))
-            .with_ipc_handler(move |request| {
-                if is_fewmail(request.uri()) {
-                    let _ = to_ipc.unbounded_send(Event::Page(request.into_body()));
-                }
-            })
-            .with_on_page_load_handler(move |event, _| {
-                if matches!(event, wry::PageLoadEvent::Finished) {
-                    let _ = events.unbounded_send(Event::PageLoaded);
-                }
-            })
-            .with_navigation_handler(move |url| {
-                let stays = stays_in_app(&url);
-                if !stays {
-                    let _ = to_navigation.unbounded_send(Event::OpenExternally(url));
-                }
-                stays
-            })
-            // Attachments open from the API with the session cookie, which only this web view has.
-            .with_new_window_req_handler(move |url, _| {
-                if url.parse::<Uri>().is_ok_and(|uri| is_fewmail(&uri)) {
-                    return NewWindowResponse::Allow;
-                }
-                let _ = to_popups.unbounded_send(Event::OpenExternally(url));
-                NewWindowResponse::Deny
-            })
-            .build_as_child(window)
-            .expect("the web view should build");
-        Self {
-            webview: Rc::new(webview),
-            titlebar,
-            sign_in_state: None,
+impl Root {
+    fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        let mut root = Self {
+            sign_in: None,
+            workspace: None,
+        };
+        match Session::stored() {
+            Some(session) => root.open_workspace(session, window, cx),
+            None => root.open_sign_in(cx),
         }
+        root
     }
 
-    fn handle(&mut self, event: Event, window: &mut Window, cx: &mut Context<Self>) {
-        match event {
-            Event::Page(message) => {
-                let (kind, rest) = message.split_once(' ').unwrap_or((&message, ""));
-                match kind {
-                    "theme" => {
-                        let channels: Vec<u8> = rest
-                            .split(' ')
-                            .filter_map(|part| part.parse().ok())
-                            .collect();
-                        if let [r, g, b] = channels[..] {
-                            self.titlebar = rgb(u32::from_be_bytes([0, r, g, b]));
-                            cx.notify();
-                        }
-                    }
-                    "sign-in" if rest.starts_with(&format!("{WEB_URL}/desktop?")) => {
-                        let state = random_state();
-                        cx.open_url(&format!("{rest}&state={state}"));
-                        self.sign_in_state = Some(state);
-                    }
-                    "install-update" => update::install(cx),
-                    _ => {}
-                }
-            }
-            Event::PageLoaded => {
-                if update::is_ready(cx) {
-                    self.announce_update();
-                }
-            }
-            Event::OpenUrls(urls) => {
-                for url in urls {
-                    self.open_link(&url);
-                }
-                cx.activate(true);
-                window.activate_window();
-            }
-            Event::OpenExternally(url) => cx.open_url(&url),
-        }
+    fn open_sign_in(&mut self, cx: &mut Context<Self>) {
+        self.workspace = None;
+        self.sign_in = Some(cx.new(SignIn::new));
     }
 
-    fn open_link(&mut self, url: &str) {
-        let Some(query) = url.strip_prefix("fewmail://sign-in?") else {
+    fn open_workspace(&mut self, session: Session, window: &mut Window, cx: &mut Context<Self>) {
+        self.sign_in = None;
+        let workspace = cx.new(|cx| Workspace::new(session, window, cx));
+        cx.subscribe_in(
+            &workspace,
+            window,
+            |root, _, workspace::SignedOut, _, cx| {
+                root.open_sign_in(cx);
+                cx.notify();
+            },
+        )
+        .detach();
+        self.workspace = Some(workspace);
+    }
+
+    fn open_link(&mut self, url: &str, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(sign_in) = &self.sign_in else {
             return;
         };
-        let state = query
-            .split('&')
-            .find_map(|pair| pair.strip_prefix("state="));
-        if state.is_none() || state != self.sign_in_state.as_deref() {
+        let Some(token) = sign_in.read(cx).token_from(url) else {
             return;
-        }
-        self.sign_in_state = None;
-        let _ = self.webview.load_url(&format!("{WEB_URL}/desktop?{query}"));
-    }
-
-    fn announce_update(&self) {
-        let _ = self.webview.evaluate_script(
-            "window.fewmailDesktop.updateReady = true; dispatchEvent(new Event('fewmail-desktop-update'))",
-        );
+        };
+        let task = cx
+            .background_executor()
+            .spawn(async move { Session::redeem(&token) });
+        cx.spawn_in(window, async move |root, cx| {
+            let redeemed = task.await;
+            root.update_in(cx, |root, window, cx| {
+                match redeemed {
+                    Ok(session) => root.open_workspace(session, window, cx),
+                    Err(error) => eprintln!("sign-in failed: {error:?}"),
+                }
+                cx.notify();
+            })
+        })
+        .detach();
     }
 }
 
-impl Render for Shell {
-    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        let webview = self.webview.clone();
+impl Render for Root {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        cx.set_global(theme::for_appearance(window.appearance()));
+        let content: AnyView = match (&self.workspace, &self.sign_in) {
+            (Some(workspace), _) => workspace.clone().into(),
+            (_, Some(sign_in)) => sign_in.clone().into(),
+            _ => unreachable!("Root always shows one of the two"),
+        };
         div()
             .size_full()
-            .flex()
-            .flex_col()
-            .bg(self.titlebar)
-            .child(div().h(px(TITLEBAR_HEIGHT)).flex_none())
-            .child(
-                canvas(
-                    move |bounds, _, _| {
-                        let _ = webview.set_bounds(wry::Rect {
-                            position: dpi::LogicalPosition::new(
-                                f32::from(bounds.origin.x),
-                                f32::from(bounds.origin.y),
-                            )
-                            .into(),
-                            size: dpi::LogicalSize::new(
-                                f32::from(bounds.size.width),
-                                f32::from(bounds.size.height),
-                            )
-                            .into(),
-                        });
-                    },
-                    |_, _, _, _| {},
-                )
-                .flex_1()
-                .w_full(),
-            )
+            .bg(theme(cx).body)
+            .text_color(theme(cx).foreground)
+            .font_family(ui::SANS)
+            .child(content)
     }
 }
 
@@ -260,10 +184,6 @@ fn menus() -> Vec<Menu> {
             ],
         },
         Menu {
-            name: "View".into(),
-            items: vec![MenuItem::action("Reload", Reload)],
-        },
-        Menu {
             name: "Window".into(),
             items: vec![
                 MenuItem::action("Minimize", Minimize),
@@ -275,58 +195,47 @@ fn menus() -> Vec<Menu> {
     ]
 }
 
-fn open_shell(events: Events, cx: &mut App) -> Entity<Shell> {
-    let options = WindowOptions {
-        titlebar: Some(TitlebarOptions {
-            title: Some("Fewmail".into()),
-            appears_transparent: true,
-            traffic_light_position: Some(point(px(12.), px(10.))),
-        }),
-        window_bounds: Some(WindowBounds::Windowed(Bounds::centered(
-            None,
-            size(px(1280.), px(840.)),
-            cx,
-        ))),
-        window_min_size: Some(size(px(720.), px(480.))),
-        app_id: Some("app.fewmail.desktop".into()),
-        ..Default::default()
-    };
-    let window = cx
-        .open_window(options, |window, cx| {
-            // Closing keeps the page alive, so live updates and the session carry on behind the Dock icon.
-            window.on_window_should_close(cx, |_, cx| {
-                cx.hide();
-                false
-            });
-            cx.new(|cx| Shell::new(events, window, cx))
-        })
-        .expect("the window should open");
-    window.update(cx, |_, _, cx| cx.entity()).unwrap()
-}
-
 fn main() {
     let (events, mut received) = mpsc::unbounded();
-    let app = Application::new();
-    app.on_open_urls({
-        let events = events.clone();
-        move |urls| {
-            let _ = events.unbounded_send(Event::OpenUrls(urls));
-        }
+    let app = Application::new().with_assets(Assets);
+    app.on_open_urls(move |urls| {
+        let _ = events.unbounded_send(Event::OpenUrls(urls));
     })
     .on_reopen(|cx| cx.activate(true));
     app.run(move |cx| {
+        cx.text_system()
+            .add_fonts(
+                [
+                    "Inter-Regular",
+                    "Inter-Medium",
+                    "Inter-SemiBold",
+                    "Inter-Bold",
+                    "Lora-Regular",
+                    "Lora-Medium",
+                    "Lora-SemiBold",
+                    "Lora-Italic",
+                ]
+                .iter()
+                .filter_map(|name| embedded(&format!("fonts/{name}.ttf")))
+                .map(Cow::Borrowed)
+                .collect(),
+            )
+            .expect("the fonts are embedded");
+        cx.set_global(I18n::new());
+        cx.set_global(theme::for_appearance(gpui::WindowAppearance::Light));
         cx.bind_keys([
             KeyBinding::new("cmd-q", Quit, None),
             KeyBinding::new("cmd-h", Hide, None),
             KeyBinding::new("alt-cmd-h", HideOthers, None),
             KeyBinding::new("cmd-w", CloseWindow, None),
             KeyBinding::new("cmd-m", Minimize, None),
-            KeyBinding::new("cmd-r", Reload, None),
             KeyBinding::new("cmd-x", Cut, None),
             KeyBinding::new("cmd-c", Copy, None),
             KeyBinding::new("cmd-v", Paste, None),
             KeyBinding::new("cmd-a", SelectAll, None),
         ]);
+        workspace::bind_keys(cx);
+        home::bind_keys(cx);
         cx.set_menus(menus());
         cx.on_action(|_: &Quit, cx| cx.quit());
         cx.on_action(|_: &Hide, cx| cx.hide());
@@ -334,14 +243,34 @@ fn main() {
         cx.on_action(|_: &ShowAll, cx| cx.unhide_other_apps());
         cx.on_action(|_: &CloseWindow, cx| cx.hide());
 
-        let shell = open_shell(events.clone(), cx);
-        let window = cx.windows()[0];
-        cx.on_action({
-            let shell = shell.clone();
-            move |_: &Reload, cx| {
-                let _ = shell.read(cx).webview.reload();
-            }
-        });
+        let options = WindowOptions {
+            titlebar: Some(TitlebarOptions {
+                title: Some("Fewmail".into()),
+                appears_transparent: true,
+                traffic_light_position: Some(point(px(16.), px(16.))),
+            }),
+            window_bounds: Some(WindowBounds::Windowed(Bounds::centered(
+                None,
+                size(px(1280.), px(840.)),
+                cx,
+            ))),
+            window_min_size: Some(size(px(720.), px(480.))),
+            app_id: Some("app.fewmail.desktop".into()),
+            ..Default::default()
+        };
+        let window = cx
+            .open_window(options, |window, cx| {
+                // Closing keeps the app signed in and listening behind the Dock icon.
+                window.on_window_should_close(cx, |_, cx| {
+                    cx.hide();
+                    false
+                });
+                window
+                    .observe_window_appearance(|window, _| window.refresh())
+                    .detach();
+                cx.new(|cx| Root::new(window, cx))
+            })
+            .expect("the window should open");
         cx.on_action(move |_: &Minimize, cx| {
             let _ = window.update(cx, |_, window, _| window.minimize_window());
         });
@@ -350,9 +279,12 @@ fn main() {
         });
 
         update::watch(
-            {
-                let shell = shell.clone();
-                move |cx| shell.read(cx).announce_update()
+            move |cx| {
+                let _ = window.update(cx, |root, _, cx| {
+                    if let Some(workspace) = &root.workspace {
+                        workspace.update(cx, |_, cx| cx.notify());
+                    }
+                });
             },
             cx,
         );
@@ -363,9 +295,13 @@ fn main() {
         .detach();
 
         cx.spawn(async move |cx| {
-            while let Some(event) = received.next().await {
-                let _ = window.update(cx, |_, window, cx| {
-                    shell.update(cx, |shell, cx| shell.handle(event, window, cx));
+            while let Some(Event::OpenUrls(urls)) = received.next().await {
+                let _ = window.update(cx, |root, window, cx| {
+                    for url in &urls {
+                        root.open_link(url, window, cx);
+                    }
+                    cx.activate(true);
+                    window.activate_window();
                 });
             }
         })

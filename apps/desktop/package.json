@@ -1,0 +1,11 @@
+{
+  "name": "@fewmail/desktop",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@hugeicons/core-free-icons": "catalog:"
+  },
+  "dependencies": {
+    "@fewmail/shared": "workspace:*"
+  }
+}
