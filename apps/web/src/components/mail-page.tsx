@@ -196,6 +196,15 @@ const LISTS_OF: Record<Exclude<Filter, 'drafts'>, MailList[]> = {
   unread: ['unread', 'inbox'],
 }
 
+/** Gmail matches whole words only, so a word half typed ("amaz") is found only here: every held list of received mail, as Gmail's own search reads it. */
+const SEARCHED_LISTS: MailList[] = [
+  'inbox',
+  'unread',
+  'pinned',
+  'snoozed',
+  'archive',
+]
+
 const inboxViewStore = createWebStorageValue({
   defaultValue: 'focused' as InboxView,
   key: 'fewmail.inbox-view',
@@ -479,7 +488,7 @@ const cardsOf = (
 const LIST_HEADER =
   'bg-body text-muted-foreground flex h-13 items-center gap-2 pt-5 pr-1 pb-2 pl-9 text-xs font-medium'
 
-const GROUP_HEADER = cn(LIST_HEADER, 'sticky top-0 z-10')
+const GROUP_HEADER = cn(LIST_HEADER, 'sticky -top-3 z-10')
 
 const UnreadCount = ({
   filter,
@@ -1699,11 +1708,13 @@ const searchRowsOf = ({
 
 /** The last answer stays while the query is refined, so the list grows and shrinks instead of blinking empty. */
 const useSearchAnswer = ({
+  indexOnly,
   isEnabled,
   mailbox,
   q,
   typed,
 }: {
+  indexOnly: boolean
   isEnabled: boolean
   mailbox: string | undefined
   q: string | undefined
@@ -1713,7 +1724,7 @@ const useSearchAnswer = ({
     orpc.mail.list.queryOptions({
       input:
         q && isEnabled
-          ? { filter: 'inbox', mailboxId: mailbox, search: q }
+          ? { filter: 'inbox', indexOnly, mailboxId: mailbox, search: q }
           : skipToken,
     })
   )
@@ -1745,13 +1756,31 @@ const useListRows = ({
   typed: string
 }) => {
   const isDrafts = filter === 'drafts'
-  const found = useSearchAnswer({ isEnabled: !isDrafts, mailbox, q, typed })
+  const indexed = useSearchAnswer({
+    indexOnly: true,
+    isEnabled: !isDrafts,
+    mailbox,
+    q,
+    typed,
+  })
+  const found = useSearchAnswer({
+    indexOnly: false,
+    isEnabled: !isDrafts,
+    mailbox,
+    q,
+    typed,
+  })
   const listed = useLiveQuery((query) =>
     filter === 'drafts'
       ? undefined
       : query
           .from({ row: mailRowsOf(mailbox) })
-          .where(({ row }) => inArray(row.list, LISTS_OF[filter]))
+          .where(({ row }) =>
+            inArray(
+              row.list,
+              q === undefined ? LISTS_OF[filter] : SEARCHED_LISTS
+            )
+          )
           .orderBy(({ row }) => row.message.receivedAt, 'desc')
   )
   const showsPinned = q === undefined && isInboxView(filter)
@@ -1770,7 +1799,7 @@ const useListRows = ({
           ({ message }) => !showsPinned || !message.isPinned
         )
       : searchRowsOf({
-          answered: found.rows,
+          answered: [...indexed.rows, ...found.rows],
           listed: listed.data ?? [],
           typed,
         })
