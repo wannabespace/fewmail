@@ -109,6 +109,8 @@ export const HomeCard = ({
   return (
     <motion.section
       layoutId={morphIdOf(page)}
+      // The closing pane hides at once instead of fading over the card: scaled down, its rows would squash.
+      layoutCrossfade={false}
       transition={morph}
       initial={false}
       animate={{ borderRadius: CARD_RADIUS }}
