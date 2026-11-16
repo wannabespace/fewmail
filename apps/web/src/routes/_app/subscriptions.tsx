@@ -310,7 +310,7 @@ const SubscriptionsPage = () => {
   return (
     <main className="flex flex-1 overflow-hidden">
       <div className="flex min-w-0 flex-1 flex-col">
-        <div ref={scrollerRef} className="flex-1 overflow-y-auto">
+        <div ref={scrollerRef} className="under-notice flex-1 overflow-y-auto">
           <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6">
             <header className="flex flex-col gap-3">
               <h1 className="text-display font-serif tracking-tight">

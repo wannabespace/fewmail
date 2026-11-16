@@ -47,7 +47,7 @@ const SettingsPage = () => {
   }, [deleteAccount, mailbox, upgraded, navigate, queryClient, t])
 
   return (
-    <main className="flex-1 overflow-y-auto">
+    <main className="under-notice flex-1 overflow-y-auto">
       <div className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6">
         <h1 className="text-display font-serif tracking-tight">
           {t.settings.title}

@@ -265,7 +265,7 @@ const CalendarPage = () => {
     event !== preview && openDraft(draftOf(event))
 
   return (
-    <ResizableGroup className="flex min-h-0 flex-1">
+    <ResizableGroup className="under-notice flex min-h-0 flex-1">
       <ResizablePanel
         className={cn('flex min-w-0', isPaneOpen && 'max-md:hidden')}
       >

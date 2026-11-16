@@ -2748,7 +2748,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   ]
 
   return (
-    <ResizableGroup ref={setPanes} className="flex min-h-0 flex-1">
+    <ResizableGroup ref={setPanes} className="under-notice flex min-h-0 flex-1">
       <ResizablePanel
         className={cn('flex min-w-0', { 'max-md:hidden': thread })}
       >

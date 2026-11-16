@@ -25,7 +25,7 @@ const EmailPage = () => {
   useHotkey('Escape', collapse, { ignoreDefaultPrevented: true })
 
   return (
-    <div className="bg-background flex min-h-0 min-w-0 flex-1 flex-col">
+    <div className="bg-background under-notice flex min-h-0 min-w-0 flex-1 flex-col">
       <ThreadView
         key={threadId}
         isFullPage

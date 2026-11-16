@@ -362,6 +362,12 @@
   );
 }
 
+/* A page's top under the floating notice bar (`--notice-height` on `page-column`); on a scroller, keyboard scrolling keeps rows out from under it too. */
+@utility under-notice {
+  padding-top: var(--notice-height, 0px);
+  scroll-padding-top: var(--notice-height, 0px);
+}
+
 /* The open email's header, as iOS's large title: the title scrolls away with the email, the sticky bar over it fills in as it goes and then repeats it on one line. Never shrink the title in place: a two-line subject reflowed to one mid-scroll and the email jumped by a line. The title's timeline starts at its own top (2rem, the bar's resting padding), so the bar is clear at rest. Gated on support: without view timelines the bar scrolls away with the title and only the actions stick. */
 @utility reader-header {
   display: contents;

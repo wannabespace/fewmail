@@ -4,9 +4,11 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
+import { useSubscription } from 'seitu/react'
 
 import { collapseExpanded, useExpanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
+import { noticeHeightStore } from '~/components/notice-bar'
 import { ThreadView, useReaderWidthIn } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 
@@ -31,11 +33,12 @@ const usePageAreaRect = () => {
   return area
 }
 
-const isUnderNoticeAt = (top: number, isMobile: boolean) => !isMobile && top > 0
-
-/** Whether a notice sits above the page: an email beside the page then starts a gap below it, with a top border and corner. */
-export const useIsUnderNotice = () =>
-  isUnderNoticeAt(usePageAreaRect()?.top ?? 0, useIsMobile())
+/** Whether a notice floats over the page: an email beside the page then starts a gap below it, with a top border and corner. */
+export const useIsUnderNotice = () => {
+  const noticeHeight = useSubscription(noticeHeightStore)
+  const isMobile = useIsMobile()
+  return noticeHeight > 0 && !isMobile
+}
 
 /** The sidebar's box: the page area's right edge, top to bottom, as wide as Mail's reader beside its list; under a notice it starts a gap below it. */
 const useSidebarBox = () => {
@@ -45,11 +48,12 @@ const useSidebarBox = () => {
   const isMobile = useIsMobile()
   // A phone has no room beside the page: the email covers it.
   const width = isMobile ? (area?.width ?? innerWidth) : readerWidth
-  const top = area?.top ?? 0
-  const isUnderNotice = isUnderNoticeAt(top, isMobile)
+  const noticeHeight = useSubscription(noticeHeightStore)
+  const top = (area?.top ?? 0) + noticeHeight
+  const isUnderNotice = noticeHeight > 0 && !isMobile
   const gap = isUnderNotice ? NOTICE_GAP : 0
   return {
-    height: (area?.height ?? innerHeight) - gap,
+    height: (area?.height ?? innerHeight) - noticeHeight - gap,
     isUnderNotice,
     left: right - width,
     top: top + gap,

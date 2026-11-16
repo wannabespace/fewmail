@@ -30,7 +30,7 @@ import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { isFuture } from 'date-fns'
 import { AnimatePresence } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -67,6 +67,9 @@ const dismissedStore = createWebStorageValue({
   schema: type.enumerated(...NOTICES).array(),
   type: 'localStorage',
 })
+
+/** How much of the page the bar covers: the first notice only, since the rest stacks over the page when shown. */
+export const noticeHeightStore = createStore(0)
 
 /** A code put away stays away for this tab's life; it goes stale within 15 minutes anyway. */
 const dismissedCodes = createStore<string[]>([])
@@ -314,15 +317,31 @@ export const NoticeBar = () => {
   ]
   const shown = notices.filter((notice): notice is Notice => !!notice)
   const more = shown.length - 1
+  const isStacked = isExpanded && more > 0
+  const barRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const bar = barRef.current
+    if (!bar || isStacked) {
+      return
+    }
+    const observer = new ResizeObserver(() =>
+      noticeHeightStore.set(bar.offsetHeight)
+    )
+    observer.observe(bar)
+    return () => observer.disconnect()
+  }, [isStacked])
 
   // Always mounted, so the last card can fold away instead of vanishing; each card unfolds into its place, never pops.
   return (
-    <div className="flex flex-col px-3">
+    <div
+      ref={barRef}
+      className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col px-3"
+    >
       <AnimatePresence initial={false}>
         {(isExpanded ? shown : shown.slice(0, 1)).map((notice, index) => (
           <MotionCollapse key={notice.id}>
             <div className="pt-2">
-              <Item variant="card" size="sm">
+              <Item variant="card" size="sm" className="pointer-events-auto">
                 {notice.media}
                 <ItemContent>
                   <ItemTitle>{notice.title}</ItemTitle>

@@ -1754,7 +1754,10 @@ const HomePage = () => {
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <main className="flex min-h-0 flex-1 flex-col">
         <div data-slot="reading-area" className="relative min-h-0 flex-1">
-          <motion.div layoutScroll className="h-full overflow-y-auto">
+          <motion.div
+            layoutScroll
+            className="under-notice h-full overflow-y-auto"
+          >
             <div
               className={cn(
                 'mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6',

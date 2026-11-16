@@ -15,6 +15,7 @@ import {
 } from '@tanstack/react-router'
 import { type } from 'arktype'
 import { useEffect, useState, useSyncExternalStore } from 'react'
+import type { CSSProperties } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
@@ -25,7 +26,7 @@ import { ComposeProvider } from '~/components/compose/compose-context'
 import { ConfirmDialog } from '~/components/confirm-dialog'
 import { mailSearchFieldStore } from '~/components/mail-search'
 import { MobileBar, Sidebar } from '~/components/nav'
-import { NoticeBar } from '~/components/notice-bar'
+import { NoticeBar, noticeHeightStore } from '~/components/notice-bar'
 import { ThreadPane } from '~/components/thread-link'
 import { SnoozePicker } from '~/components/thread-view'
 import { UpgradeDialog } from '~/components/upgrade-dialog'
@@ -106,23 +107,28 @@ const useIdentify = () => {
 }
 
 /**
- * The notice bar over the page; a pane a Home card grows into covers both (`page-column`, `HomeCardPane`), so a notice
- * never sits on top of what the user opened.
+ * The notice bar floats over the page, which scrolls under it from `under-notice`; a pane a Home card grows into covers
+ * both (`page-column`, `HomeCardPane`), so a notice never sits on top of what the user opened.
  */
-const PageColumn = () => (
-  <div
-    data-slot="page-column"
-    className="relative flex min-h-0 flex-1 flex-col"
-  >
-    <NoticeBar />
+const PageColumn = () => {
+  const noticeHeight = useSubscription(noticeHeightStore)
+  return (
     <div
-      data-slot="thread-pane-area"
+      data-slot="page-column"
+      style={{ '--notice-height': `${noticeHeight}px` } as CSSProperties}
       className="relative flex min-h-0 flex-1 flex-col"
     >
-      <Outlet />
+      <NoticeBar />
+      {/* isolate: Reading's panes inside stay under the notice bar. */}
+      <div
+        data-slot="thread-pane-area"
+        className="relative isolate flex min-h-0 flex-1 flex-col"
+      >
+        <Outlet />
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 const AppLayout = () => {
   const { me } = Route.useRouteContext()

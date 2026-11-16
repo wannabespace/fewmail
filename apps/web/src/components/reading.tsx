@@ -600,7 +600,7 @@ const LatestPane = ({
       animate={{ borderRadius: 0 }}
       className="bg-background absolute inset-0 z-10 overflow-hidden"
     >
-      <motion.div layoutScroll className="h-full overflow-y-auto">
+      <motion.div layoutScroll className="under-notice h-full overflow-y-auto">
         <section aria-label={t.reading.title} className={PANE_COLUMN}>
           <motion.div
             layout="position"
@@ -658,7 +658,7 @@ const DayPane = ({ day }: { day: string }) => {
       transition={morph}
       className="bg-background absolute inset-0 z-20 overflow-hidden"
     >
-      <div className="h-full overflow-y-auto">
+      <div className="under-notice h-full overflow-y-auto">
         <section aria-label={t.reading.title} className={PANE_COLUMN}>
           <div className="flex flex-col gap-3">
             <div className="flex min-h-8 flex-wrap items-center gap-2">
