@@ -252,10 +252,25 @@ export const ComposeForm = ({
         )
     )
   }
+
   const fillEditor = ({ html }: { html: string }) => {
     editorRef.current?.setContent(html)
     editorRef.current?.focus()
   }
+
+  const writeLabel = writeDraft.isPending
+    ? t.compose.writing
+    : t.compose.writeForMe
+  const writeForMe = () =>
+    withAgent(
+      'drafts',
+      () =>
+        draft.replyToMessageId &&
+        writeDraft.mutate(
+          { messageId: draft.replyToMessageId },
+          { onSuccess: fillEditor }
+        )
+    )
 
   const isReply = draft.mode === 'reply'
   const focusFirstEmpty = useEffectEvent(() => {
@@ -476,7 +491,7 @@ export const ComposeForm = ({
           event.target.value = ''
         }}
       />
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="@container flex flex-wrap items-center gap-2">
         <Button size="sm" onClick={() => submit()} shortcut={<Kbd>⌘⏎</Kbd>}>
           {t.compose.send}
         </Button>
@@ -516,29 +531,31 @@ export const ComposeForm = ({
           onClick={pickFiles}
         />
         {draft.replyToMessageId && (
-          <Button
-            size="sm"
-            variant="ghost-muted"
-            disabled={writeDraft.isPending}
-            onClick={() =>
-              withAgent(
-                'drafts',
-                () =>
-                  draft.replyToMessageId &&
-                  writeDraft.mutate(
-                    { messageId: draft.replyToMessageId },
-                    { onSuccess: fillEditor }
-                  )
-              )
-            }
-          >
-            <HugeiconsIcon
+          <>
+            <IconButton
+              className="@xl:hidden"
               icon={PencilEdit02Icon}
-              strokeWidth={2}
-              data-icon="inline-start"
+              label={writeLabel}
+              size="icon-sm"
+              variant="ghost-muted"
+              disabled={writeDraft.isPending}
+              onClick={writeForMe}
             />
-            {writeDraft.isPending ? t.compose.writing : t.compose.writeForMe}
-          </Button>
+            <Button
+              className="hidden @xl:inline-flex"
+              size="sm"
+              variant="ghost-muted"
+              disabled={writeDraft.isPending}
+              onClick={writeForMe}
+            >
+              <HugeiconsIcon
+                icon={PencilEdit02Icon}
+                strokeWidth={2}
+                data-icon="inline-start"
+              />
+              {writeLabel}
+            </Button>
+          </>
         )}
         <span className="text-muted-foreground ml-auto min-w-0 truncate text-xs">
           {isSaved && t.compose.draftSaved}
