@@ -1369,104 +1369,6 @@ const MailRow = ({
   )
 }
 
-const PinnedRow = ({
-  actions,
-  canSnooze,
-  isCursor,
-  isOpen,
-  isPicked,
-  isPicking,
-  isSnoozeOpen,
-  item,
-  onOpen,
-  onPick,
-  onSnoozeOpenChange,
-  row: { message, participants },
-  sweep,
-}: Parameters<typeof MailRow>[0]) => {
-  const t = useT()
-  const dates = useDates()
-  return (
-    <ListRow
-      item={item}
-      className={rowSurfaceOf({
-        isActive: isCursor || isPicked || isSnoozeOpen,
-        isOpen,
-        isUnread: message.isUnread,
-      })}
-    >
-      <button
-        type="button"
-        tabIndex={-1}
-        onClick={onOpen}
-        onPointerEnter={() => {
-          void warmThread(message.threadId)
-        }}
-        aria-current={isOpen}
-        className="flex w-full cursor-pointer items-center gap-2 py-2 pr-5 pl-4 text-left text-sm outline-none"
-      >
-        <span
-          aria-label={message.isUnread ? t.mail.unread : undefined}
-          className={unreadDotOf(message.isUnread, isPicking)}
-        />
-        <span className={readIconOf(message.isUnread)}>
-          <RowAvatar message={message} participants={participants} />
-        </span>
-        <span
-          data-mask
-          className={cn(
-            'max-w-2/5 shrink-0 truncate',
-            senderTextOf(message.isUnread)
-          )}
-        >
-          {rowSenderOf(t, message, participants)}
-        </span>
-        <span
-          data-mask
-          className={cn(
-            'min-w-0 flex-1 truncate',
-            message.isUnread ? 'text-foreground' : 'text-muted-foreground'
-          )}
-        >
-          {message.subject}
-        </span>
-        <span
-          className={cn(
-            'shrink-0 text-xs tabular-nums',
-            message.isUnread
-              ? 'text-foreground font-medium'
-              : 'text-muted-foreground'
-          )}
-        >
-          {dates.format(
-            message.receivedAt,
-            isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
-          )}
-        </span>
-      </button>
-      <MailRowActions
-        actions={actions}
-        canSnooze={canSnooze}
-        className={cn(ROW_ACTIONS, 'top-1')}
-        isPinned
-        isSnoozeOpen={isSnoozeOpen}
-        messageIds={[message.id]}
-        onSnoozeOpenChange={onSnoozeOpenChange}
-        sweep={sweep}
-        // The open thread marks itself read again, so its row offers no read toggle.
-        thread={isOpen ? undefined : message}
-      />
-      <RowPick
-        className="top-2.5"
-        aria-label={t.queue.pick}
-        checked={isPicked}
-        isPicking={isPicking}
-        onCheckedChange={onPick}
-      />
-    </ListRow>
-  )
-}
-
 const PinnedHeader = ({
   hidden,
   isExpanded,
@@ -2744,15 +2646,13 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
           },
         ]
       }
-      const isPinnedRow = index < pinnedRows.shown
-      const Row = isPinnedRow ? PinnedRow : MailRow
       const group = groupStarts.get(row.message.id)
       const mailItem: ListWindowItem = {
         card: cards[index],
         isCursor: index === cursor,
         key: row.message.id,
         render: (item) => (
-          <Row
+          <MailRow
             key={item.key}
             row={row}
             actions={actions}
@@ -2772,7 +2672,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
             sweep={sweep}
           />
         ),
-        size: isPinnedRow ? ROW_SIZE.line : ROW_SIZE.mail,
+        size: ROW_SIZE.mail,
       }
       if (!group) {
         // Pins and the ungrouped list under them are two cards; without a header between, they would touch.
