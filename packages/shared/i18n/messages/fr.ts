@@ -852,6 +852,8 @@ export const fr: Messages = {
     reload: 'Recharger',
   },
   keys: {
+    forget: 'oublier',
+    reopen: 'rouvrir',
     attach: 'joindre',
     done: 'fait',
     openLink: 'ouvrir le lien',
@@ -1094,6 +1096,7 @@ export const fr: Messages = {
     unsubscribed: 'Désabonné',
   },
   nav: {
+    board: 'Tableau',
     menu: 'Menu',
     labels: 'Libellés',
     folders: 'Dossiers',
@@ -1553,6 +1556,51 @@ export const fr: Messages = {
     reason: (n: number) =>
       `E-mail de masse : plus de ${n} utilisateurs de Fewmail ont reçu le même texte`,
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('fr', total, {
+          one: () => 'Une date limite approche.',
+          other: (n) => `${n} dates limites approchent.`,
+        }),
+      empty:
+        'Rien en cours. Ce qu’on te promet, ce que tu promets et les dates limites arrivent ici tout seuls depuis tes e-mails.',
+      owed: (amounts: string) => `On te doit ${amounts}.`,
+      promised: (total: number) =>
+        plural('fr', total, {
+          one: () => 'Tu as promis une chose.',
+          other: (n) => `Tu as promis ${n} choses.`,
+        }),
+      waiting: (total: number) =>
+        plural('fr', total, {
+          one: () => 'Une promesse qu’on t’a faite est encore ouverte.',
+          other: (n) => `${n} promesses qu’on t’a faites sont encore ouvertes.`,
+        }),
+    },
+    section: {
+      coming: 'À venir',
+      owed: 'On te doit',
+      promised: 'Tu as promis',
+      settled: 'Réglé récemment',
+    },
+    state: {
+      acknowledged: 'ils ont répondu, pas encore fait',
+      broken: 'ne s’est pas fait',
+      cancelled: 'annulé',
+      fulfilled: 'fait',
+      in_progress: 'en route',
+      open: 'en attente',
+      overdue: 'en retard',
+    },
+    by: (date: string) => `avant le ${date}`,
+    lastDay: (date: string) => `dernier jour ${date}`,
+    done: 'Fait',
+    forget: 'Oublier',
+    reopen: 'Rouvrir',
+    markedDone: 'Marqué comme fait',
+    forgotten: 'Oublié',
+    reopened: 'Rouvert',
+  },
   cleanup: {
     emails: (total: number) =>
       plural('fr', total, {
@@ -1664,6 +1712,8 @@ export const fr: Messages = {
   upgrade: {
     ask: 'Interroge tes e-mails',
     hints: {
+      board:
+        'Inclus dans Fewmail Pro : l’agent note ce qu’on t’a promis, ce que tu as promis et les dates limites de tes e-mails, et suit chacun jusqu’à ce qu’il soit réglé.',
       ask: 'Inclus dans Fewmail Pro : demande ce que tu veux avec tes mots et obtiens la réponse tirée de tes propres e-mails.',
       drafts:
         'Inclus dans Fewmail Pro : l’agent rédige la réponse dans ton style, tu la modifies et l’envoies.',

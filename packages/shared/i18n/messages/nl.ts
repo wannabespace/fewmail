@@ -198,6 +198,51 @@ export const nl: Messages = {
     travel: 'Reizen',
     work: 'Werk',
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('nl', total, {
+          one: () => 'Er komt een deadline aan.',
+          other: (n) => `Er komen ${n} deadlines aan.`,
+        }),
+      empty:
+        'Niets open. Wat jou wordt beloofd, wat jij belooft en deadlines komen hier vanzelf uit je mail.',
+      owed: (amounts: string) => `Je krijgt nog ${amounts}.`,
+      promised: (total: number) =>
+        plural('nl', total, {
+          one: () => 'Je hebt één ding beloofd.',
+          other: (n) => `Je hebt ${n} dingen beloofd.`,
+        }),
+      waiting: (total: number) =>
+        plural('nl', total, {
+          one: () => 'Eén belofte aan jou staat nog open.',
+          other: (n) => `${n} beloftes aan jou staan nog open.`,
+        }),
+    },
+    section: {
+      coming: 'Komt eraan',
+      owed: 'Jij krijgt nog',
+      promised: 'Jij beloofde',
+      settled: 'Onlangs afgerond',
+    },
+    state: {
+      acknowledged: 'ze antwoordden, nog niet gedaan',
+      broken: 'is niet gebeurd',
+      cancelled: 'afgezegd',
+      fulfilled: 'gedaan',
+      in_progress: 'onderweg',
+      open: 'wacht',
+      overdue: 'te laat',
+    },
+    by: (date: string) => `voor ${date}`,
+    lastDay: (date: string) => `laatste dag ${date}`,
+    done: 'Gedaan',
+    forget: 'Vergeten',
+    reopen: 'Heropenen',
+    markedDone: 'Gemarkeerd als gedaan',
+    forgotten: 'Vergeten',
+    reopened: 'Heropend',
+  },
   cleanup: {
     emails: (total: number) =>
       plural('nl', total, {
@@ -368,6 +413,8 @@ export const nl: Messages = {
     reload: 'Herladen',
   },
   keys: {
+    forget: 'vergeten',
+    reopen: 'heropenen',
     attach: 'bijvoegen',
     done: 'klaar',
     openLink: 'link openen',
@@ -605,6 +652,7 @@ export const nl: Messages = {
     unsubscribed: 'Afgemeld',
   },
   nav: {
+    board: 'Bord',
     menu: 'Menu',
     labels: 'Labels',
     folders: 'Mappen',
@@ -1631,6 +1679,8 @@ export const nl: Messages = {
   upgrade: {
     ask: 'Vraag het je mail',
     hints: {
+      board:
+        'Onderdeel van Fewmail Pro: de agent noteert wat jou is beloofd, wat jij hebt beloofd en de deadlines uit je mail, en houdt elk bij tot het klaar is.',
       ask: 'Onderdeel van Fewmail Pro: vraag alles in je eigen woorden en krijg het antwoord uit je eigen mail.',
       drafts:
         'Onderdeel van Fewmail Pro: de agent schrijft het antwoord in jouw stijl, jij past het aan en verstuurt het.',

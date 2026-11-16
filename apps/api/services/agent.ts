@@ -73,6 +73,7 @@ const laterSchema = type({
     deadline: 'string | null',
     deadlineDate: 'string | null',
     promise: 'string | null',
+    promiseAmount: 'string | null',
     promiseDue: 'string | null',
   },
 })
@@ -113,7 +114,7 @@ const extractedInstruction = (timezone: string) =>
 
 /** What comes back to the user later as a card (`processDueCommitments`): a promise made to them, a last day nobody will remind them of. */
 export const laterInstruction = (language: Locale) =>
-  `later: promise: what the sender promises to do for the user later (send, refund, call back, deliver, fix), one short line in ${englishName(language)} naming who promised what ("Anna promised the signed contract"), never a promotion, a newsletter or a routine notice; promiseDue: its date as YYYY-MM-DD when the email gives or implies one, counted from the email's date, else null. deadline: a last day the email implies without asking the user to act by it: the end of a return window for what was bought, the day a free trial turns into a paid plan, the end of a warranty; one short line in ${englishName(language)} with the date written as people write it ("Last day to return the headphones: 18 November"); deadlineDate: that date as YYYY-MM-DD. Each null when absent; never invent anything.`
+  `later: promise: what the sender promises to do for the user later (send, refund, call back, deliver, fix), one short line in ${englishName(language)} naming who promised what ("Anna promised the signed contract"), never a promotion, a newsletter or a routine notice; promiseDue: its date as YYYY-MM-DD when the email gives or implies one, counted from the email's date, else null; promiseAmount: when the promise is money for the user (a refund, a payment, compensation), its amount as a plain number and its ISO 4217 code ("184.90 EUR"), else null. deadline: a last day the email implies without asking the user to act by it: the end of a return window for what was bought, the day a free trial turns into a paid plan, the end of a warranty; one short line in ${englishName(language)} with the date written as people write it ("Last day to return the headphones: 18 November"); deadlineDate: that date as YYYY-MM-DD. Each null when absent; never invent anything.`
 
 /** A summary that reads as a to-do must never pass a fraudster's instructions on. */
 const summaryStyle = (language: Locale) =>
@@ -647,6 +648,19 @@ const cardPayload = async (
 const THEIR_PROMISE_DAYS = 3
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}/u
 
+const AMOUNT = /^(?<value>\d+(?:\.\d{1,2})?) (?<currency>[A-Z]{3})$/u
+
+/** "184.90 EUR" → cents and currency; anything else is no amount, never a guess. */
+const moneyOf = (amount: string | null) => {
+  const groups = amount ? AMOUNT.exec(amount.trim())?.groups : undefined
+  return groups?.value && groups.currency
+    ? {
+        amountCents: Math.round(Number(groups.value) * 100),
+        currency: groups.currency,
+      }
+    : { amountCents: null, currency: null }
+}
+
 const dayOf = (date: string | null) =>
   date && ISO_DAY.test(date) && !Number.isNaN(Date.parse(date.slice(0, 10)))
     ? date.slice(0, 10)
@@ -673,6 +687,7 @@ const rememberLater = async (
                   .slice(0, 10)
             ),
             kind: 'theirs' as const,
+            ...moneyOf(later.promiseAmount),
             promise: later.promise,
             recipient: message.fromEmail,
           },

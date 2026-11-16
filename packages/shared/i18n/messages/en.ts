@@ -247,6 +247,51 @@ export const en = {
     writeForMe: 'Write it for me',
     writing: 'Writing…',
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('en', total, {
+          one: () => 'One last day is coming up.',
+          other: (n) => `${n} last days are coming up.`,
+        }),
+      empty:
+        'Nothing open. What you are promised, what you promise and last days come here from your mail on their own.',
+      owed: (amounts: string) => `You are owed ${amounts}.`,
+      promised: (total: number) =>
+        plural('en', total, {
+          one: () => 'You promised one thing.',
+          other: (n) => `You promised ${n} things.`,
+        }),
+      waiting: (total: number) =>
+        plural('en', total, {
+          one: () => 'One promise to you is still open.',
+          other: (n) => `${n} promises to you are still open.`,
+        }),
+    },
+    section: {
+      coming: 'Coming up',
+      owed: 'Owed to you',
+      promised: 'You promised',
+      settled: 'Settled lately',
+    },
+    state: {
+      acknowledged: 'they answered, not done yet',
+      broken: 'did not happen',
+      cancelled: 'called off',
+      fulfilled: 'done',
+      in_progress: 'on its way',
+      open: 'waiting',
+      overdue: 'overdue',
+    },
+    by: (date: string) => `by ${date}`,
+    lastDay: (date: string) => `last day ${date}`,
+    done: 'Done',
+    forget: 'Forget it',
+    reopen: 'Reopen',
+    markedDone: 'Marked done',
+    forgotten: 'Forgotten',
+    reopened: 'Reopened',
+  },
   cleanup: {
     emails: (total: number) =>
       plural('en', total, {
@@ -366,6 +411,8 @@ export const en = {
   },
   keys: {
     attach: 'attach',
+    forget: 'forget',
+    reopen: 'reopen',
     done: 'done',
     openLink: 'open link',
     writeReminder: 'write a reminder',
@@ -603,6 +650,7 @@ export const en = {
     unsubscribed: 'Unsubscribed',
   },
   nav: {
+    board: 'Board',
     menu: 'Menu',
     labels: 'Labels',
     folders: 'Folders',
@@ -1627,6 +1675,8 @@ export const en = {
       ask: 'Part of Fewmail Pro: ask anything in plain words and get the answer from your own mail.',
       drafts:
         'Part of Fewmail Pro: the agent writes the reply in your style, and you edit and send it.',
+      board:
+        'Part of Fewmail Pro: the agent writes down what you were promised, what you promised and the last days in your mail, and keeps each until it is done.',
     },
   },
   whatsapp: {

@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AppBoardRouteImport } from './routes/_app/board'
 import { Route as AppCalendarRouteImport } from './routes/_app/calendar'
 import { Route as AppComposeRouteImport } from './routes/_app/compose'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
@@ -73,6 +74,11 @@ const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppBoardRoute = AppBoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCalendarRoute = AppCalendarRouteImport.update({
   id: '/calendar',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/board': typeof AppBoardRoute
   '/calendar': typeof AppCalendarRoute
   '/compose': typeof AppComposeRoute
   '/home': typeof AppHomeRoute
@@ -233,6 +240,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/board': typeof AppBoardRoute
   '/calendar': typeof AppCalendarRoute
   '/compose': typeof AppComposeRoute
   '/home': typeof AppHomeRoute
@@ -266,6 +274,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/_app/board': typeof AppBoardRoute
   '/_app/calendar': typeof AppCalendarRoute
   '/_app/compose': typeof AppComposeRoute
   '/_app/home': typeof AppHomeRoute
@@ -300,6 +309,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/terms'
+    | '/board'
     | '/calendar'
     | '/compose'
     | '/home'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/terms'
+    | '/board'
     | '/calendar'
     | '/compose'
     | '/home'
@@ -363,6 +374,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/terms'
+    | '/_app/board'
     | '/_app/calendar'
     | '/_app/compose'
     | '/_app/home'
@@ -450,6 +462,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/board': {
+      id: '/_app/board'
+      path: '/board'
+      fullPath: '/board'
+      preLoaderRoute: typeof AppBoardRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/calendar': {
       id: '/_app/calendar'
@@ -623,6 +642,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppBoardRoute: typeof AppBoardRoute
   AppCalendarRoute: typeof AppCalendarRoute
   AppComposeRoute: typeof AppComposeRoute
   AppHomeRoute: typeof AppHomeRoute
@@ -643,6 +663,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppBoardRoute: AppBoardRoute,
   AppCalendarRoute: AppCalendarRoute,
   AppComposeRoute: AppComposeRoute,
   AppHomeRoute: AppHomeRoute,

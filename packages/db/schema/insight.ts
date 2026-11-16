@@ -102,6 +102,9 @@ export const commitments = d.snakeCase.table(
   'commitments',
   {
     ...baseTable,
+    /** Money the promise is about (a refund, a payment), with `currency`; null when it is not money. */
+    amountCents: d.integer(),
+    currency: d.text(),
     dueAt: d.timestamp({ withTimezone: true }).notNull(),
     /** The user changed its text, date or status by hand: the agent never rewrites what they wrote. */
     editedAt: d.timestamp({ withTimezone: true }),

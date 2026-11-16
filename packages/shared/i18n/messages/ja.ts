@@ -1,5 +1,5 @@
 import type { Rich } from '../locales'
-import { formatMinutes } from '../locales'
+import { formatMinutes, plural } from '../locales'
 import type { Messages } from './en'
 
 export const ja: Messages = {
@@ -280,6 +280,8 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
+    forget: '忘れる',
+    reopen: '再開',
     attach: '添付',
     done: '完了',
     openLink: 'リンクを開く',
@@ -514,6 +516,7 @@ export const ja: Messages = {
     unsubscribed: '配信停止しました',
   },
   nav: {
+    board: 'ボード',
     menu: 'メニュー',
     labels: 'ラベル',
     folders: 'フォルダ',
@@ -1504,6 +1507,51 @@ export const ja: Messages = {
     reason: (n: number) =>
       `一斉メール：${n}人以上のFewmailユーザーが同じ内容を受信`,
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('ja', total, {
+          one: () => '期限が 1 件近づいています。',
+          other: (n) => `期限が ${n} 件近づいています。`,
+        }),
+      empty:
+        '未完了のものはありません。あなたへの約束、あなたの約束、期限はメールから自動でここに届きます。',
+      owed: (amounts: string) => `受け取る予定: ${amounts}。`,
+      promised: (total: number) =>
+        plural('ja', total, {
+          one: () => 'あなたは 1 件約束しています。',
+          other: (n) => `あなたは ${n} 件約束しています。`,
+        }),
+      waiting: (total: number) =>
+        plural('ja', total, {
+          one: () => 'あなたへの約束が 1 件まだ未完了です。',
+          other: (n) => `あなたへの約束が ${n} 件まだ未完了です。`,
+        }),
+    },
+    section: {
+      coming: '近づく期限',
+      owed: '受け取る予定',
+      promised: 'あなたの約束',
+      settled: '最近完了',
+    },
+    state: {
+      acknowledged: '返事あり、未完了',
+      broken: '実現しなかった',
+      cancelled: '取り消し',
+      fulfilled: '完了',
+      in_progress: '進行中',
+      open: '待機中',
+      overdue: '期限切れ',
+    },
+    by: (date: string) => `${date} まで`,
+    lastDay: (date: string) => `最終日 ${date}`,
+    done: '完了',
+    forget: '忘れる',
+    reopen: '再開',
+    markedDone: '完了にしました',
+    forgotten: '忘れました',
+    reopened: '再開しました',
+  },
   cleanup: {
     emails: (total: number) => `${total}件のメール`,
     reason: (total: number) => `今月${total}件、一度も開封なし`,
@@ -1599,6 +1647,8 @@ export const ja: Messages = {
   upgrade: {
     ask: 'メールに聞く',
     hints: {
+      board:
+        'Fewmail Pro に含まれます。エージェントがメールから、あなたへの約束、あなたの約束、期限を書き留め、完了するまで見守ります。',
       ask: 'Fewmail Pro の機能です。普段の言葉で何でも質問すると、あなた自身のメールから答えが返ってきます。',
       drafts:
         'Fewmail Pro の機能です。エージェントがあなたの文体で返信を書き、あなたが編集して送信します。',

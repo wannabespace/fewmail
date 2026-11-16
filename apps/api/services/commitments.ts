@@ -1,10 +1,10 @@
 import { db } from '@fewmail/db'
-import type { messages } from '@fewmail/db/schema'
-import { commitmentEvents, commitments } from '@fewmail/db/schema'
+import { commitmentEvents, commitments, messages } from '@fewmail/db/schema'
 import { ACTIVE_COMMITMENT_STATUSES } from '@fewmail/shared/agent'
 import type { CommitmentActor, CommitmentStatus } from '@fewmail/shared/agent'
 import { choice } from '@typesafe-ai/sdk'
 import { and, asc, desc, eq, inArray, lt, ne, or } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/pg-core'
 
 import { jev } from '../lib/jev'
 import { announceChange } from '../lib/live'
@@ -12,6 +12,8 @@ import { logError } from '../lib/log'
 import { NotFoundError } from './mail-errors'
 
 type Commitment = typeof commitments.$inferSelect
+
+const evidence = alias(messages, 'evidence')
 type Message = typeof messages.$inferSelect
 
 /** How far the agent may move a promise on its own; it never moves one back. */
@@ -209,8 +211,15 @@ const isActive = (status: CommitmentStatus) =>
 /** Every promise both ways and every last day, the ones still waiting first, each with what happened to it. */
 export const listCommitments = async (userId: string) => {
   const rows = await db
-    .select()
+    .select({
+      commitment: commitments,
+      evidenceThreadId: evidence.threadId,
+      fromEmail: messages.fromEmail,
+      fromName: messages.fromName,
+    })
     .from(commitments)
+    .leftJoin(messages, eq(messages.id, commitments.messageId))
+    .leftJoin(evidence, eq(evidence.id, commitments.evidenceMessageId))
     .where(eq(commitments.userId, userId))
     .orderBy(asc(commitments.dueAt))
   const history = rows.length
@@ -220,16 +229,21 @@ export const listCommitments = async (userId: string) => {
         .where(
           inArray(
             commitmentEvents.commitmentId,
-            rows.map(({ id }) => id)
+            rows.map(({ commitment }) => commitment.id)
           )
         )
         .orderBy(asc(commitmentEvents.createdAt))
     : []
   const byCommitment = Map.groupBy(history, ({ commitmentId }) => commitmentId)
   return rows
-    .map((row) => ({
+    .map(({ commitment: row, evidenceThreadId, fromEmail, fromName }) => ({
+      amountCents: row.amountCents,
+      currency: row.currency,
       dueAt: row.dueAt,
       evidenceMessageId: row.evidenceMessageId,
+      evidenceThreadId,
+      /** Who wrote the email it came from: the promiser for `theirs`, the user for `mine`. */
+      from: fromEmail ? { fromEmail, fromName } : null,
       history: (byCommitment.get(row.id) ?? []).map(
         ({ by, createdAt, messageId, to }) => ({
           at: createdAt,

@@ -297,7 +297,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   list_promises: define({
     description:
-      "Every promise the agent tracks: the user's own from their sent mail (mine), those made to the user (theirs) and last days an email implies (deadline). status: open, acknowledged (someone answered, nothing done yet), in_progress, fulfilled (an email proved it: evidenceMessageId), broken or cancelled; history lists each change, who made it (agent from an email, or user) and the email. A reply alone never makes a promise fulfilled.",
+      "Every promise the agent tracks: the user's own from their sent mail (mine), those made to the user (theirs) and last days an email implies (deadline). status: open, acknowledged (someone answered, nothing done yet), in_progress, fulfilled (an email proved it: evidenceMessageId), broken or cancelled; history lists each change, who made it (agent from an email, or user) and the email; amountCents and currency when it is money owed to the user (a refund). A reply alone never makes a promise fulfilled.",
     run: () => listCommitments(userId),
   }),
   set_promise_status: define({

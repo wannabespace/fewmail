@@ -843,6 +843,8 @@ export const uk: Messages = {
     reload: 'Оновити',
   },
   keys: {
+    forget: 'забути',
+    reopen: 'відкрити знову',
     attach: 'прикріпити',
     done: 'готово',
     openLink: 'відкрити посилання',
@@ -1077,6 +1079,7 @@ export const uk: Messages = {
     unsubscribed: 'Відписано',
   },
   nav: {
+    board: 'Дошка',
     menu: 'Меню',
     labels: 'Ярлики',
     folders: 'Папки',
@@ -1544,6 +1547,51 @@ export const uk: Messages = {
     reason: (n: number) =>
       `Масова розсилка: ${n}+ користувачів Fewmail отримали той самий текст`,
   },
+  board: {
+    lead: {
+      coming: (total: number) =>
+        plural('uk', total, {
+          one: () => 'Наближається один останній день.',
+          other: (n) => `Наближається останніх днів: ${n}.`,
+        }),
+      empty:
+        'Нічого відкритого. Що тобі обіцяють, що обіцяєш ти, і останні дні з’являються тут із пошти самі.',
+      owed: (amounts: string) => `Тобі винні ${amounts}.`,
+      promised: (total: number) =>
+        plural('uk', total, {
+          one: () => 'Ти пообіцяв одну річ.',
+          other: (n) => `Ти пообіцяв речей: ${n}.`,
+        }),
+      waiting: (total: number) =>
+        plural('uk', total, {
+          one: () => 'Одна обіцянка тобі ще відкрита.',
+          other: (n) => `Відкритих обіцянок тобі: ${n}.`,
+        }),
+    },
+    section: {
+      coming: 'Наближається',
+      owed: 'Тобі винні',
+      promised: 'Ти пообіцяв',
+      settled: 'Нещодавно закрито',
+    },
+    state: {
+      acknowledged: 'відповіли, ще не зроблено',
+      broken: 'не сталося',
+      cancelled: 'скасовано',
+      fulfilled: 'зроблено',
+      in_progress: 'в дорозі',
+      open: 'чекаю',
+      overdue: 'прострочено',
+    },
+    by: (date: string) => `до ${date}`,
+    lastDay: (date: string) => `останній день ${date}`,
+    done: 'Зроблено',
+    forget: 'Забути',
+    reopen: 'Відкрити знову',
+    markedDone: 'Позначено зробленим',
+    forgotten: 'Забуто',
+    reopened: 'Відкрито знову',
+  },
   cleanup: {
     emails: (total: number) =>
       plural('uk', total, {
@@ -1652,6 +1700,8 @@ export const uk: Messages = {
   upgrade: {
     ask: 'Запитай пошту',
     hints: {
+      board:
+        'Входить у Fewmail Pro: агент записує, що тобі пообіцяли, що пообіцяв ти, і останні дні з твоєї пошти, і стежить за кожним, доки його не закрито.',
       ask: 'Входить у Fewmail Pro: питай що завгодно звичайними словами й отримуй відповідь із власної пошти.',
       drafts:
         'Входить у Fewmail Pro: агент напише відповідь у твоєму стилі, а ти відредагуєш і надішлеш.',
