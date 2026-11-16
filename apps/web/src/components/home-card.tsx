@@ -6,11 +6,10 @@ import { cn } from '@fewmail/ui/lib/utils'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { Link, useSearch } from '@tanstack/react-router'
 import { motion } from 'motion/react'
-import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
-import { HIDDEN, SHOWN, useMorph, useMorphLayer } from '~/components/expand-row'
+import { useMorph, useMorphLayer } from '~/components/expand-row'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 
@@ -30,6 +29,7 @@ export const HOME_CARD_ROWS = 3
 const CARD_RADIUS = 16
 
 const morphIdOf = (page: HomeCardPage) => `home-${page}`
+const contentIdOf = (page: HomeCardPage) => `home-${page}-content`
 
 const cardClassName = cn(
   'bg-card ring-foreground/6 flex flex-col gap-3 px-4.75 py-4 ring',
@@ -58,14 +58,9 @@ export const HomeCard = ({
   page: HomeCardPage
   rows: HomeCardRow[]
 }) => {
-  const { morph, reveal } = useMorph()
-  const layer = useMorphLayer()
+  const { morph } = useMorph()
+  const layer = useMorphLayer(morphIdOf(page))
   const isOpen = useSearch({ strict: false }).page === page
-  // Only a card coming back from its pane fades its content in; on Home's first render it is simply there.
-  const [hasOpened, setHasOpened] = useState(isOpen)
-  if (isOpen && !hasOpened) {
-    setHasOpened(true)
-  }
   const content = (
     <>
       <h2 className="text-muted-foreground text-xs font-medium">{heading}</h2>
@@ -128,13 +123,12 @@ export const HomeCard = ({
         aria-label={heading}
         className="focus-visible:focus-ring absolute inset-0 cursor-pointer rounded-2xl outline-none focus-visible:ring-inset"
       />
-      {/* Paints over the card's link and lets clicks through to it; only the quick decision takes its own. `layout` keeps
-          the text from stretching while the box scales back from the pane. */}
+      {/* Paints over the card's link and lets clicks through to it; only the quick decision takes its own. Shared with the
+          pane's content and `layout="position"`, so the two cross-fade while they move and neither stretches with the box. */}
       <motion.div
         layout="position"
-        initial={hasOpened ? HIDDEN : false}
-        animate={SHOWN}
-        transition={{ ...reveal, layout: morph }}
+        layoutId={contentIdOf(page)}
+        transition={morph}
         className="pointer-events-none relative flex flex-col gap-3"
       >
         {content}
@@ -143,7 +137,7 @@ export const HomeCard = ({
   )
 }
 
-/** What a Home card grows into: a pane over the page column (notices included), like Reading's; its content fades in once it has grown. */
+/** What a Home card grows into: a pane over the page column (notices included), like Reading's; its content cross-fades with the card's. */
 export const HomeCardPane = ({
   children,
   page,
@@ -163,14 +157,14 @@ export const HomeCardPane = ({
       className="bg-background absolute inset-0 z-10 overflow-hidden"
     >
       <motion.div layoutScroll className="h-full overflow-y-auto">
-        {/* `layout` keeps the content from squashing while the box grows from the card; it stays centred at the top. */}
+        {/* Blur only this block, never the pane: a full-column blur repaints the whole area every frame and lags. */}
         <motion.div
           layout="position"
-          layoutAnchor={{ x: 0.5, y: 0 }}
-          initial={HIDDEN}
-          animate={SHOWN}
-          exit={{ opacity: 0, transition: { duration: 0.1 } }}
-          transition={{ ...reveal, layout: morph }}
+          layoutId={contentIdOf(page)}
+          initial={{ filter: 'blur(4px)' }}
+          animate={{ filter: 'blur(0px)' }}
+          exit={{ filter: 'blur(4px)' }}
+          transition={{ filter: reveal, layout: morph }}
           className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6"
         >
           {children}

@@ -396,7 +396,7 @@ const IssueCard = ({
 }) => {
   const t = useT()
   const { morph: transition, reveal } = useMorph()
-  const layer = useMorphLayer()
+  const layer = useMorphLayer('reading')
   const { rows, summary } = useReadingDay(day)
   // Only a card coming back from the pane fades its topics in; on Home's first render they are simply there.
   const [hasOpened, setHasOpened] = useState(isOpen)
