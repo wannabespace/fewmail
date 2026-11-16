@@ -4,6 +4,73 @@ Google approves `gmail.modify` (a restricted scope) only after a Cloud App Secur
 
 Submitted for verification on 2026-11-17. Google names the lab after its first review.
 
+## Verification status
+
+- **Where:** Google Cloud console, project `fewmail`, Google Auth Platform → Verification Center (signed in as the Google account at `authuser=2`). Branding is verified; data access is "under review".
+- **Google writes to** valerii@wannabespace.com. Answer the same day: every delay puts the app back in the queue.
+- **Scopes submitted:**
+  - `gmail.modify` (restricted, "Email productivity");
+  - `calendar.events`, `contacts`, `contacts.other.readonly` (sensitive);
+  - `openid`, `userinfo.email`, `userinfo.profile`.
+
+  They match `apps/api/lib/auth.ts`, so any change to the scopes there must be made in Data Access too, and needs a new video.
+- **Demo video:** https://youtu.be/Q3MRryOLweI (Unlisted, 2:37). It shows, in order:
+  - sign-in through Google's unverified-app warning and the consent screen, with the client ID in the address bar;
+  - Home;
+  - Mail: a drafted reply sent and archived, then the same thread in Gmail;
+  - Calendar: an event added, shown in Google Calendar, then deleted;
+  - People search;
+  - Settings → Delete account.
+- **Acknowledged when submitting:** the verification requirements, and that restricted scopes need CASA, re-certified every year.
+- **Expected timeline** (developers' experience, not a Google promise):
+
+  | Stage | Roughly |
+  | --- | --- |
+  | First reply from Google | a few days to 2 weeks |
+  | Rounds of fixes (video, texts, privacy policy), often 1 to 3 | 1 to 4 weeks |
+  | Calendar and Contacts approved | usually before CASA |
+  | CASA: lab, scan, fixes, report | 2 to 6 weeks |
+  | Final Gmail approval after the CASA report | 1 to 2 weeks |
+
+  In total, plan for 1 to 3 months. Until then, users see the unverified-app warning and sign-ins are capped at 100 users.
+
+### Justifications as submitted
+
+Keep replies to Google consistent with these, and update them in Data Access if the product changes.
+
+**Gmail (`gmail.modify`):**
+
+> Fewmail is an email client with an assistant built in. We read the inbox to show people what needs their attention, catch spam and suggest replies written the way they usually write. When the user agrees, Fewmail also archives emails, marks them as read, moves spam and unsubscribes from mailing lists. A reply is only sent after the user approves it, in the app or in our Telegram or WhatsApp bot.
+>
+> We looked at narrower scopes first. gmail.readonly can't archive or send. gmail.send and gmail.labels can't read the emails we summarize and reply to. gmail.metadata doesn't include the message body. gmail.modify covers all of this and still can't permanently delete anything.
+>
+> Email content is encrypted in our database. We don't sell it or train models on it, and we follow the Google API Services User Data Policy, including the Limited Use requirements.
+
+**Sensitive (Calendar, Contacts):**
+
+> Calendar: Fewmail has a calendar next to the inbox. We show the user's events there and use them when they ask the assistant something like "am I free on Thursday?". Users can add an event themselves or ask us to add a meeting from an email, and they can edit or delete events on the same page, so read-only access isn't enough.
+>
+> Contacts: we use the user's contacts and other contacts to show real names and photos next to senders, to suggest recipients while writing, and on the People page. A user can also delete a contact they no longer need there, so we need contacts rather than contacts.readonly. Other contacts are only read.
+>
+> We only change something in Calendar or Contacts when the user asks. Contacts are never sent to the AI model. Users can uncheck Calendar or Contacts on the consent screen and the rest of the app keeps working.
+
+**Additional info:**
+
+> No test account needed: anyone can sign in with Google at https://fewmail.app/login. The video shows the whole sign-in with the consent screen, then each scope in use. Gmail: replying to an email from Fewmail and archiving it, then the same thread in Gmail. Calendar: adding an event, seeing it in Google Calendar, then deleting it. Contacts: searching on the People page.
+
+## Suggested order
+
+1. Security headers. This is the biggest scan finding and is mostly config. Test the mail frame under the new CSP.
+2. Dependency fix and audit in CI.
+3. Rate limiting.
+4. Secrets: document them, check the database TLS.
+5. 2FA and the access list, and the incident note. These are not code; the owner does them.
+6. Security-event logging and alerting.
+7. Retention answer.
+8. A ZAP self-scan, then fix what it finds.
+
+Follow `CLAUDE.md` and `.agents/rules/` as for any change: for example, headers touch `architecture.md`, and retention touches the privacy policy.
+
 ## To do
 
 ### Security headers
@@ -94,3 +161,23 @@ Neither `fewmail.app` nor `api.fewmail.app` sends any security header today, and
 - **Analytics:** PostHog session replay masks all text, inputs and element attributes.
 - **Errors:** responses carry a code and a generic message, never a stack trace.
 - **Secrets:** none tracked in git (only `.env.example`).
+
+## How this was checked (2026-11-17)
+
+Re-run these to see what is fixed:
+
+```sh
+# Security headers (none today; only `server: cloudflare`)
+curl -sI https://fewmail.app/home | grep -iE 'strict-transport|content-security|x-frame|x-content-type|referrer-policy|permissions-policy'
+curl -sI https://api.fewmail.app/auth/ok | grep -iE 'strict-transport|content-security|x-frame|x-content-type'
+
+# HTTP → HTTPS (301 today), old TLS refused
+curl -sI http://fewmail.app | head -1
+echo | openssl s_client -connect fewmail.app:443 -tls1_1 2>&1 | grep -E 'Protocol|Cipher is'
+
+# Known vulnerabilities in production dependencies (1 moderate today)
+pnpm audit --prod
+
+# Every table that references users cascades on delete (no output = all do)
+grep -rnE "references\(\(\) => users" packages/db/schema/*.ts | grep -v cascade
+```
