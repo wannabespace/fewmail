@@ -65,7 +65,7 @@ import { ConnectHint } from '~/components/connect-hint'
 import { EmailRow } from '~/components/email-row'
 import { expandRow, useIsThreadExpanded } from '~/components/expand-row'
 import { HomeCard, PageHeading } from '~/components/home-card'
-import type { HomeCardPage } from '~/components/home-card'
+import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
@@ -429,9 +429,6 @@ interface WorthRow {
 
 const worthStop = (rowId: string) => `worth:${rowId}`
 
-/** The senders Worth knowing's card names; the rest are a click away. */
-const WORTH_SENDERS_SHOWN = 3
-
 /** Worth knowing's rows in their order: Home's cursor walks them after the cards. */
 const worthRowsOf = (today: Today | undefined): WorthRow[] =>
   today
@@ -585,25 +582,28 @@ const WorthCard = ({ today }: { today: Today | undefined }) => {
     return null
   }
   const lead = parts.join(', ')
-  const senders = [
-    ...new Set(
-      [...today.recent, ...today.dates].map(
-        ({ message }) => message.fromName ?? message.fromEmail
-      )
-    ),
+  const rows: HomeCardRow[] = [
+    ...[...today.recent, ...today.dates].map(({ analysis, message }) => ({
+      id: message.id,
+      sender: message,
+      text: analysis.summary,
+      threadId: message.threadId,
+    })),
+    ...today.awaiting.map((sent) => ({
+      id: sent.threadId,
+      sender: { fromEmail: sent.to[0] ?? '', fromName: sent.toName },
+      text: `${t.today.awaiting} · ${sent.subject}`,
+      threadId: sent.threadId,
+    })),
   ]
   return (
     <HomeCard
       heading={t.today.worthKnowing}
       lead={`${lead.charAt(0).toUpperCase()}${lead.slice(1)}.`}
-      detail={
-        senders.length > 0 && (
-          <span data-mask>
-            {senders.slice(0, WORTH_SENDERS_SHOWN).join(' · ')}
-          </span>
-        )
-      }
+      openKey="W"
       page="worth"
+      rows={rows}
+      total={rows.length}
     />
   )
 }
@@ -1745,14 +1745,8 @@ const HomePage = () => {
                     </DecisionsHeader>
                     <ProposalsGroup
                       canUseKeys={isWalking}
-                      hasCards={queue.length > 0}
                       isSelected={isOnProposals}
                       proposals={proposals}
-                    />
-                    <KindFilter
-                      canUseKeys={isWalking}
-                      filter={filter}
-                      queue={decisionCards}
                     />
                     <Accordion
                       variant="list"
@@ -1760,6 +1754,17 @@ const HomePage = () => {
                       value={openIds}
                       onValueChange={toggleCard}
                     >
+                      {/* The section's own head, the card's first row, so the decisions read as one block like Home's other cards. */}
+                      <div className="flex flex-col gap-2 px-3.5 pt-3.5 pb-3">
+                        <h2 className="text-muted-foreground text-xs font-medium">
+                          {t.today.needsLook}
+                        </h2>
+                        <KindFilter
+                          canUseKeys={isWalking}
+                          filter={filter}
+                          queue={decisionCards}
+                        />
+                      </div>
                       {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
                       <AnimatePresence key={filter.active} initial={false}>
                         {queue.map((item) => (
