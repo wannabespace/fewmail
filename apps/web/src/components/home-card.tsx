@@ -10,7 +10,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
-import { HIDDEN, SHOWN, useMorph } from '~/components/expand-row'
+import { HIDDEN, SHOWN, useMorph, useMorphLayer } from '~/components/expand-row'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 
@@ -59,6 +59,7 @@ export const HomeCard = ({
   rows: HomeCardRow[]
 }) => {
   const { morph, reveal } = useMorph()
+  const layer = useMorphLayer()
   const isOpen = useSearch({ strict: false }).page === page
   // Only a card coming back from its pane fades its content in; on Home's first render it is simply there.
   const [hasOpened, setHasOpened] = useState(isOpen)
@@ -109,8 +110,7 @@ export const HomeCard = ({
   return (
     <motion.section
       layoutId={morphIdOf(page)}
-      // The closing pane hides at once instead of fading over the card: scaled down, its rows would squash.
-      layoutCrossfade={false}
+      {...layer.handlers}
       transition={morph}
       initial={false}
       animate={{ borderRadius: CARD_RADIUS }}
@@ -118,7 +118,8 @@ export const HomeCard = ({
       data-active={isActive || undefined}
       className={cn(
         cardClassName,
-        'hover:ring-foreground/10 data-active:ring-foreground/25 relative z-10 overflow-hidden'
+        'hover:ring-foreground/10 data-active:ring-foreground/25 relative overflow-hidden',
+        layer.className
       )}
     >
       <Link
@@ -168,6 +169,7 @@ export const HomeCardPane = ({
           layoutAnchor={{ x: 0.5, y: 0 }}
           initial={HIDDEN}
           animate={SHOWN}
+          exit={{ opacity: 0, transition: { duration: 0.1 } }}
           transition={{ ...reveal, layout: morph }}
           className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6"
         >

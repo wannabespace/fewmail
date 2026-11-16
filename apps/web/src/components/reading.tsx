@@ -35,6 +35,7 @@ import {
   SHOWN,
   useIsThreadExpanded,
   useMorph,
+  useMorphLayer,
 } from '~/components/expand-row'
 import { ListenButton } from '~/components/listen-button'
 import { sweepOf, useMailActions } from '~/components/thread-view'
@@ -395,6 +396,7 @@ const IssueCard = ({
 }) => {
   const t = useT()
   const { morph: transition, reveal } = useMorph()
+  const layer = useMorphLayer()
   const { rows, summary } = useReadingDay(day)
   // Only a card coming back from the pane fades its topics in; on Home's first render they are simply there.
   const [hasOpened, setHasOpened] = useState(isOpen)
@@ -448,6 +450,7 @@ const IssueCard = ({
   ) : (
     <motion.section
       layoutId="reading"
+      {...layer.handlers}
       transition={transition}
       aria-label={t.reading.title}
       initial={false}
@@ -455,7 +458,8 @@ const IssueCard = ({
       data-morph-source={issueMorphId(day)}
       className={cn(
         cardClassName,
-        'hover:ring-foreground/10 relative z-10 overflow-hidden'
+        'hover:ring-foreground/10 relative overflow-hidden',
+        layer.className
       )}
     >
       <Link
@@ -702,7 +706,10 @@ export const ReadingPane = ({
   top,
 }: ReturnType<typeof openReadingDays>) => (
   <>
-    {base && <LatestPane day={base} isCovered={!!top} />}
+    {/* A closing pane stays mounted until its card has grown back, or the card can grow out of its corner. */}
+    <AnimatePresence>
+      {base && <LatestPane key={base} day={base} isCovered={!!top} />}
+    </AnimatePresence>
     <AnimatePresence>{top && <DayPane key={top} day={top} />}</AnimatePresence>
   </>
 )

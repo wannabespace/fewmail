@@ -1,5 +1,6 @@
 import { useReducedMotion } from 'motion/react'
 import type { Transition } from 'motion/react'
+import { useState } from 'react'
 import type { ComponentProps } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -14,6 +15,18 @@ export const useMorph = (): { morph: Transition; reveal: Transition } =>
         morph: { bounce: 0.1, type: 'spring', visualDuration: 0.3 },
         reveal: { delay: 0.05, duration: 0.2, ease: [0.32, 0.72, 0, 1] },
       }
+
+/** Lifts a card over the cards after it while it morphs, or they paint over it as it shrinks back from its pane. */
+export const useMorphLayer = () => {
+  const [isMorphing, setIsMorphing] = useState(false)
+  return {
+    className: isMorphing ? 'z-20' : 'z-10',
+    handlers: {
+      onLayoutAnimationComplete: () => setIsMorphing(false),
+      onLayoutAnimationStart: () => setIsMorphing(true),
+    },
+  }
+}
 
 export const HIDDEN = { opacity: 0, y: 6 }
 export const SHOWN = { opacity: 1, y: 0 }
