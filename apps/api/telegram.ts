@@ -45,6 +45,7 @@ const channel: Channel = {
   link: (text, url) => `<a href="${escapeHtml(url)}">${escapeHtml(text)}</a>`,
   name: 'telegram',
   plain: escapeHtml,
+  quote: (lines) => `<blockquote>${lines.join('\n')}</blockquote>`,
   shorter: true,
 }
 

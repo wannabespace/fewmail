@@ -62,6 +62,8 @@ export interface Channel {
   name: 'telegram' | 'whatsapp'
   /** Every piece of mail or user text goes through it: Telegram parses HTML. */
   plain: (text: string) => string
+  /** Lines already formatted. */
+  quote: (lines: string[]) => string
   shorter: boolean
 }
 
@@ -95,28 +97,76 @@ export const failureText = (locale: Locale, error: unknown, voice: boolean) => {
   return voice ? t.telegram.voiceFailed : t.telegram.somethingWrong
 }
 
-/** Splits at line breaks, so Telegram's HTML tags (never wider than a line here) stay whole; an overlong line is cut before any entity it would break. */
+const QUOTE_OPEN = '<blockquote>'
+const QUOTE_CLOSE = '</blockquote>'
+
+/** Splits at line breaks, so Telegram's HTML tags (never wider than a line here, but a `<blockquote>`, closed and reopened across parts) stay whole; an overlong line is cut before any entity it would break. */
 export const splitText = (text: string, limit: number) => {
   const parts: string[] = []
+  const room = limit - QUOTE_CLOSE.length
   let part = ''
+  const cutAt = (end: number) => {
+    const piece = part.slice(0, end)
+    const quoted =
+      piece.lastIndexOf(QUOTE_OPEN) > piece.lastIndexOf(QUOTE_CLOSE)
+    parts.push(quoted ? `${piece}${QUOTE_CLOSE}` : piece)
+    part = `${quoted ? QUOTE_OPEN : ''}${part.slice(end)}`
+  }
   for (const line of text.split('\n')) {
     const joined = part ? `${part}\n${line}` : line
-    if (joined.length <= limit) {
+    if (joined.length <= room) {
       part = joined
       continue
     }
     if (part) {
-      parts.push(part)
+      cutAt(part.length)
     }
-    part = line
-    while (part.length > limit) {
-      const entity = part.lastIndexOf('&', limit - 1)
-      const cut = entity > limit - 5 ? entity : limit
-      parts.push(part.slice(0, cut))
-      part = part.slice(cut)
+    part += line
+    while (part.length > room) {
+      const entity = part.lastIndexOf('&', room - 1)
+      cutAt(entity > room - 5 ? entity : room)
     }
   }
   return [...parts, part]
+}
+
+const INLINE =
+  /\*\*(?<bold>.+?)\*\*|(?<![\p{L}\p{N}*_])[*_](?<italic>[^\s*_](?:.*?[^\s*_])?)[*_](?![\p{L}\p{N}*_])/gu
+const QUOTED = /^>\s?/u
+const BULLET = /^\s*[-*]\s+/u
+
+const inline = (channel: Channel, line: string) => {
+  let formatted = ''
+  let at = 0
+  for (const match of line.matchAll(INLINE)) {
+    const { bold, italic = '' } = match.groups ?? {}
+    formatted += channel.plain(line.slice(at, match.index))
+    formatted +=
+      bold === undefined ? channel.italic(italic) : channel.bold(bold)
+    at = match.index + match[0].length
+  }
+  return formatted + channel.plain(line.slice(at))
+}
+
+/** The agent's Markdown (`agentInstructions` allows bold, italic, `- ` lists and `> ` quotes) in the channel's own formatting. */
+export const fromMarkdown = (channel: Channel, text: string) => {
+  const lines: string[] = []
+  let quote: string[] = []
+  for (const line of text.split('\n')) {
+    if (QUOTED.test(line)) {
+      quote.push(inline(channel, line.replace(QUOTED, '')))
+      continue
+    }
+    if (quote.length > 0) {
+      lines.push(channel.quote(quote))
+      quote = []
+    }
+    lines.push(inline(channel, line.replace(BULLET, '• ')))
+  }
+  if (quote.length > 0) {
+    lines.push(channel.quote(quote))
+  }
+  return lines.join('\n')
 }
 
 const keyOf = (chat: Chat, suffix: string) =>
@@ -236,7 +286,8 @@ const agentReply = (
   t: Messages,
   { text, waiting }: { text: string; waiting: number }
 ): Reply => ({
-  text: chat.channel.plain(
+  text: fromMarkdown(
+    chat.channel,
     waiting > 0
       ? `${text}\n\n${t.agent.decideOnHome}: ${env.WEB_URL}/home`
       : text

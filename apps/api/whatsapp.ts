@@ -66,6 +66,7 @@ const channel: Channel = {
   link: (text, url) => `${text}\n${url}`,
   name: 'whatsapp',
   plain: (text) => text,
+  quote: (lines) => lines.map((line) => `> ${line}`).join('\n'),
   shorter: false,
 }
 

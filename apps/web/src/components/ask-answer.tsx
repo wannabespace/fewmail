@@ -1,5 +1,6 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { CommandGroup, CommandItem } from '@fewmail/ui/components/command'
+import { Response } from '@fewmail/ui/components/response'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { Home01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -25,12 +26,9 @@ export const AskAnswer = ({
     <CommandGroup forceMount heading={question}>
       <div className="flex flex-col gap-3 px-2.5 py-2">
         {result ? (
-          <p
-            data-mask
-            className="font-serif text-base/relaxed whitespace-pre-wrap"
-          >
-            {result.answer}
-          </p>
+          <div data-mask>
+            <Response variant="reading">{result.answer}</Response>
+          </div>
         ) : (
           <p className="text-muted-foreground flex items-center gap-2 text-sm">
             <Spinner />
