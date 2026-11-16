@@ -55,7 +55,6 @@ export const ko: Messages = {
     cc: (recipients: string) => `참조: ${recipients}`,
     confirm: {
       dismiss_action: '이 카드를 건너뛸까요?',
-      delete_board: '이 보드와 안의 모든 항목을 삭제할까요?',
       create_event: '이 일정을 추가할까요?',
       delete_event: '이 일정을 삭제할까요?',
       update_event: '이 일정을 변경할까요?',
@@ -93,10 +92,8 @@ export const ko: Messages = {
       draft_reply: '답장 작성하는 중',
       create_draft: '초안 저장하는 중',
       find_people: '주소 찾는 중',
-      get_board: '보드 읽는 중',
       get_person: '사람 찾는 중',
       get_today: '오늘 확인하는 중',
-      list_boards: '보드 여는 중',
       list_handled: '처리한 항목 확인 중',
       list_mail: '메일 검색하는 중',
       list_rules: '규칙 읽는 중',
@@ -111,20 +108,11 @@ export const ko: Messages = {
       report_spam: '스팸 신고 중',
       mark_not_spam: '스팸에서 꺼내는 중',
       move_to_inbox: '받은편지함으로 옮기는 중',
-      create_board: '보드 만드는 중',
-      update_board: '보드 바꾸는 중',
-      delete_board: '보드 삭제하는 중',
-      add_board_chart: '차트 추가하는 중',
-      add_to_board: '보드에 추가하는 중',
-      edit_board_entry: '항목 고치는 중',
-      remove_board_entry: '보드에서 빼는 중',
-      rename_board_group: '그룹 이름 바꾸는 중',
     },
     to: (recipients: string) => `받는 사람: ${recipients}`,
     until: (time: string) => `다시 표시: ${time}`,
     yes: {
       dismiss_action: '건너뛰기',
-      delete_board: '삭제',
       create_event: '추가',
       delete_event: '삭제',
       update_event: '저장',
@@ -325,7 +313,6 @@ export const ko: Messages = {
     move: '이동',
     stackEmail: '다음 / 이전 메일',
     open: '열기',
-    notOnBoard: '이 보드에서 빼기',
     rename: '이름 바꾸기',
     clearFilter: '필터 지우기',
     search: '검색',
@@ -531,10 +518,8 @@ export const ko: Messages = {
     folders: '폴더',
     calendar: '캘린더',
     subscriptions: '메일링 리스트',
-    boards: '보드',
     people: '사람',
     findPerson: '사람 찾기',
-    newBoard: '새 보드',
     mail: '메일',
     reading: '읽을거리',
     rules: '규칙',
@@ -554,9 +539,6 @@ export const ko: Messages = {
     many: (n: number) => `Fewmail 새 알림 ${n}개`,
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `에이전트가 메일에서 채워 주는 페이지예요. 최근 3개월부터 시작해요. 최대 ${max}개까지 고를 수 있고, 직접 만든 보드는 나중에 추가할 수 있어요.`,
-    boardsTitle: '에이전트가 무엇을 모아 둘까요?',
     languageHint:
       '앱, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
     languageTitle: 'Fewmail이 어떤 언어를 쓸까요?',
@@ -1099,11 +1081,6 @@ export const ko: Messages = {
             '평소 말로 무엇이든 물어보면, 내 메일에서 찾은 답을 근거가 된 메일과 함께 보여줘요.',
           title: '메일에 묻기',
         },
-        boards: {
-          description:
-            '돈, 유료 구독, 여행, 주문. 추적할 것을 설명하면 에이전트가 최대 1년 치 메일에서 모아 차트로 보여줘요.',
-          title: '보드',
-        },
         calendar: {
           description:
             '모든 메일함의 캘린더를 한 화면에. 메일로 제안된 회의는 내가 좋다고 하면 일정이 돼요.',
@@ -1369,7 +1346,7 @@ export const ko: Messages = {
     queueChanged: '그사이 카드가 바뀌었어요. 지금 확인이 필요한 것은 이거예요:',
     heard: (text: string) => `들은 내용: “${text}”`,
     voiceFailed: '잘 알아듣지 못했어요. 다시 말하거나 입력해 주세요.',
-    help: '필요한 것을 쓰거나 말해 주세요:\n• 메일에 대해 묻기: “넷플릭스 갱신일이 언제야?”\n• 답장 내용 말하기: “안나에게 내일 서명한다고 전해 줘”\n• 일 맡기기: “여행 보드 만들어 줘”\n• 초안을 바꾸려면 그 초안에 답장하기',
+    help: '필요한 것을 쓰거나 말해 주세요:\n• 메일에 대해 묻기: “넷플릭스 갱신일이 언제야?”\n• 답장 내용 말하기: “안나에게 내일 서명한다고 전해 줘”\n• 일 맡기기: “Medium 뉴스레터는 항상 보관해 줘”\n• 초안을 바꾸려면 그 초안에 답장하기',
     canceled: '취소했어요. 초안이 대기열로 돌아갔어요.',
     sendingIn: (seconds: number) => `${seconds}초 후 전송`,
     undo: '실행 취소',
@@ -1428,7 +1405,7 @@ export const ko: Messages = {
       approved: '승인함',
       byRule: (rule: string) => `내 규칙: ${rule}`,
       failed: '실패함',
-      lead: '최근 7일. 메일, 캘린더, 보드의 모든 변경은 승인을 받았거나 직접 켠 규칙에 따른 거예요.',
+      lead: '최근 7일. 메일과 캘린더의 모든 변경은 승인을 받았거나 직접 켠 규칙에 따른 거예요.',
       title: '메일에서 처리된 일',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
@@ -1497,198 +1474,6 @@ export const ko: Messages = {
     recent: (period: string) => `${period}의 다른 메일`,
     sent: '보냄',
     codes: '인증 코드',
-  },
-  boards: {
-    chartRemoved: '차트를 삭제했어요',
-    addTo: '보드에 추가',
-    added: (board: string) => `${board}에 추가했어요`,
-    cancel: '취소',
-    chart: {
-      add: '차트 추가',
-      ask: '차트 설명하기',
-      askPlaceholder: '상점별 지출, 상태별 주문…',
-      currency: '통화',
-      edit: '차트 설정',
-      empty: '아직 그릴 내용이 없어요',
-      groupBy: '묶는 기준',
-      groupings: {
-        group: '누구 또는 무엇',
-        month: '월',
-        status: '상태',
-        week: '주',
-      },
-      measure: '표시 값',
-      measures: { count: '개수', sum: '총액' },
-      moveEarlier: '앞으로 이동',
-      moveLater: '뒤로 이동',
-      other: '기타',
-      remove: '차트 삭제',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `합계 제외: ${[
-          currency > 0 && `다른 통화 ${currency}건`,
-          payment > 0 && `미결제·실패·환불·수령 ${payment}건`,
-          amount > 0 && `금액 없음 ${amount}건`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: '차트 제목',
-      type: '차트 종류',
-      types: {
-        area: '영역',
-        bar: '막대',
-        line: '선',
-        pie: '원형',
-      },
-      untitled: '새 차트',
-      weekOf: (date: string) => `${date} 주`,
-    },
-    charts: '차트',
-    create: '보드 만들기',
-    delete: '보드 삭제',
-    deleteConfirm: (name: string) => `“${name}” 보드를 삭제할까요?`,
-    deleteHint: '항목과 차트도 함께 삭제돼요. 메일은 그대로 남아요.',
-    describe: '모을 내용 바꾸기',
-    description: '모을 내용',
-    descriptionPlaceholder: '여행: 항공권, 호텔, 렌터카와 그 비용',
-    due: (when: string) => `다가오는 날짜: ${when}`,
-    empty: '아직 비어 있어요. 맞는 메일이 오면 바로 여기에 나타나요.',
-    entries: (n: number) => `${n}개 항목`,
-    entry: {
-      edited: '직접 수정함',
-      nextOn: (date: string) => `다음 ${date}`,
-      remove: '이 보드에서 빼기',
-      removed: '보드에서 뺐어요. 다음부터 참고할게요.',
-    },
-    expected: (when: string) => `${when} 예정`,
-    filter: {
-      clear: '필터 지우기',
-      nothing: '맞는 항목이 없어요.',
-      search: '항목 검색',
-    },
-    groups: {
-      every: {
-        month: '매월',
-        quarter: '분기마다',
-        week: '매주',
-        year: '매년',
-      },
-      expected: (date: string) => `${date} 예정`,
-      next: (date: string) => `다음 ${date}`,
-      perMonth: (amount: string) => `월 ${amount}`,
-      rename: '그룹 이름 바꾸기',
-      renameHint: '다른 그룹의 이름을 쓰면 두 그룹이 합쳐져요.',
-      showAll: (n: number) => `${n}개 모두 보기`,
-      showFewer: '접기',
-      title: '누구 또는 무엇별',
-    },
-    history: {
-      capped: (n: number) => `기간 내 조건에 맞는 최신 메일 ${n}개를 읽었어요.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? '기간 내 메일을 살펴보는 중…'
-          : `메일 ${found}개 읽는 중 · 지금까지 ${entries}개 항목`,
-    },
-    menu: '보드 작업',
-    moveDown: '아래로 이동',
-    moveUp: '위로 이동',
-    name: '이름',
-    namePlaceholder: '여행',
-    new: '새 보드',
-    newHint:
-      '모을 내용을 직접 설명해 주세요. Fewmail이 고른 기간의 메일에서 찾아내고, 차트를 고르고, 계속 최신으로 유지해요.',
-    payment: {
-      due: '미결제',
-      failed: '실패',
-      income: '받음',
-      paid: '결제됨',
-      refund: '환불',
-    },
-    period: '기간',
-    periods: {
-      1: '최근 1일',
-      7: '최근 1주',
-      30: '최근 1개월',
-      90: '최근 3개월',
-      180: '최근 6개월',
-      365: '최근 1년',
-    },
-    planning: '준비하는 중…',
-    redescribe: '저장하고 다시 읽기',
-    redescribeHint:
-      '새 설명으로 기간 내 메일을 다시 읽어요. 직접 수정하거나 뺀 항목은 그대로 남아요.',
-    rename: '보드 이름 바꾸기',
-    save: '저장',
-    settings: {
-      bannerDays: '날짜 전 미리 알림',
-      days: (n: number) => `${n}일 전`,
-      hint: '보드가 얼마나 이전까지 모을지, 날짜 며칠 전에 알려 줄지 정해요.',
-      never: '안 함',
-      title: '보드 설정',
-    },
-    starter: {
-      events: {
-        description: '티켓, 예약, 약속: 어디에, 언제, 누구와 가야 하는지.',
-        name: '일정',
-      },
-      health: {
-        description:
-          '진료, 처방전, 검사 결과, 보험 청구: 누구에게, 언제 진료받았고 얼마가 들었는지.',
-        name: '건강',
-      },
-      home: {
-        description:
-          '월세, 공과금, 수리, 집 관련 계약: 무엇을 누구에게 얼마 내야 하는지.',
-        name: '집',
-      },
-      invoices: {
-        description:
-          '업무로 보내고 받는 인보이스: 고객 또는 공급업체, 금액, 기한, 결제 여부.',
-        name: '인보이스',
-      },
-      jobs: {
-        description:
-          '지원, 면접, 제안: 어느 회사, 어떤 직무이고 각각 어느 단계인지.',
-        name: '구직',
-      },
-      learning: {
-        description: '강의, 수업, 학교 메일: 마감일, 성적, 수료증, 비용.',
-        name: '학습',
-      },
-      money: {
-        description:
-          '결제, 구독, 청구서, 환불: 무엇에, 누구에게, 얼마를 내는지, 다음 갱신일.',
-        name: '재정',
-      },
-      orders: {
-        description:
-          '온라인 주문과 배송: 무엇을 어디서 샀고 지금 어디에 있는지.',
-        name: '주문',
-      },
-      trips: {
-        description: '항공, 기차, 호텔, 렌터카: 어디로, 언제, 비용은 얼마인지.',
-        name: '여행',
-      },
-    },
-    summary: {
-      attention: '확인 필요',
-      emails: (n: number) => `메일 ${n}통`,
-      next: (title: string, date: string, amount: string | null) =>
-        `다음: ${title} · ${date}${amount ? ` · ${amount}` : ''}`,
-      perMonth: (amount: string, n: number) =>
-        `정기 결제 ${n}건, 월 ${amount}.`,
-      received: (amount: string) => `받은 금액 ${amount}`,
-      refunded: (amount: string) => `환불 ${amount}`,
-      regular: '정기 결제',
-      upcoming: '향후 30일',
-    },
   },
   bulk: {
     badge: (n: number) => `Fewmail 사용자 ${n}명 이상에게 발송됨`,
@@ -1791,8 +1576,6 @@ export const ko: Messages = {
     ask: '메일에 물어보기',
     hints: {
       ask: 'Fewmail Pro 기능이에요. 평소 말로 무엇이든 물으면 내 메일에서 답을 찾아 줘요.',
-      boards:
-        'Fewmail Pro 기능이에요. 모을 내용을 설명하면 에이전트가 메일에서 찾아내고 계속 최신으로 유지해요.',
       drafts:
         'Fewmail Pro 기능이에요. 에이전트가 내 말투로 답장을 쓰고, 나는 고쳐서 보내기만 하면 돼요.',
     },

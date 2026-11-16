@@ -54,7 +54,6 @@ export const en = {
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Skip this card?',
-      delete_board: 'Delete this board and everything on it?',
       create_event: 'Add this event?',
       delete_event: 'Delete this event?',
       update_event: 'Change this event?',
@@ -92,10 +91,8 @@ export const en = {
       draft_reply: 'Drafting a reply',
       create_draft: 'Saving a draft',
       find_people: 'Finding the address',
-      get_board: 'Reading the board',
       get_person: 'Looking up the person',
       get_today: 'Checking today',
-      list_boards: 'Opening boards',
       list_handled: 'Checking what was handled',
       list_mail: 'Searching mail',
       list_rules: 'Reading rules',
@@ -110,20 +107,11 @@ export const en = {
       report_spam: 'Reporting spam',
       mark_not_spam: 'Moving out of spam',
       move_to_inbox: 'Moving to the inbox',
-      create_board: 'Creating a board',
-      update_board: 'Changing the board',
-      delete_board: 'Deleting the board',
-      add_board_chart: 'Adding a chart',
-      add_to_board: 'Putting it on the board',
-      edit_board_entry: 'Correcting the entry',
-      remove_board_entry: 'Taking it off the board',
-      rename_board_group: 'Renaming the group',
     } satisfies Record<AgentToolName, string>,
     to: (recipients: string) => `To ${recipients}`,
     until: (time: string) => `Until ${time}`,
     yes: {
       dismiss_action: 'Skip',
-      delete_board: 'Delete',
       create_event: 'Add',
       delete_event: 'Delete',
       update_event: 'Save',
@@ -146,221 +134,6 @@ export const en = {
   ask: {
     label: (question: string) => `Ask Fewmail: “${question}”`,
     thinking: 'Looking through your mail…',
-  },
-  boards: {
-    chartRemoved: 'Chart removed',
-    addTo: 'Add to board',
-    added: (board: string) => `Put on ${board}`,
-    cancel: 'Cancel',
-    chart: {
-      add: 'Add chart',
-      ask: 'Describe the chart',
-      askPlaceholder: 'Spending per shop, orders by status…',
-      currency: 'Currency',
-      edit: 'Chart settings',
-      empty: 'Nothing to draw yet',
-      groupBy: 'Grouped by',
-      groupings: {
-        group: 'Who or what',
-        month: 'Month',
-        status: 'Status',
-        week: 'Week',
-      },
-      measure: 'Shows',
-      measures: { count: 'Count', sum: 'Total amount' },
-      moveEarlier: 'Move earlier',
-      moveLater: 'Move later',
-      other: 'Other',
-      remove: 'Remove chart',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `Not in the sum: ${[
-          currency > 0 && `${currency} in another currency`,
-          payment > 0 && `${payment} to pay, failed, refunded or received`,
-          amount > 0 && `${amount} without an amount`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: 'Chart title',
-      type: 'Chart type',
-      types: {
-        area: 'Area',
-        bar: 'Bars',
-        line: 'Line',
-        pie: 'Pie',
-      },
-      untitled: 'New chart',
-      weekOf: (date: string) => `Week of ${date}`,
-    },
-    charts: 'Charts',
-    create: 'Create board',
-    delete: 'Delete board',
-    deleteConfirm: (name: string) => `Delete “${name}”?`,
-    deleteHint:
-      'Its entries and charts go with it. Your mail stays where it is.',
-    describe: 'Change what it collects',
-    description: 'What it collects',
-    descriptionPlaceholder:
-      'Trips: flights, hotels and car rentals, with what they cost',
-    due: (when: string) => `Coming up ${when}`,
-    empty: 'Nothing here yet. Matching emails show up as they arrive.',
-    entries: (total: number) =>
-      plural('en', total, {
-        one: () => 'One entry',
-        other: (n) => `${n} entries`,
-      }),
-    entry: {
-      edited: 'Edited by you',
-      nextOn: (date: string) => `next ${date}`,
-      remove: 'Not on this board',
-      removed: 'Taken off the board. It learns from that.',
-    },
-    expected: (when: string) => `Expected ${when}`,
-    filter: {
-      clear: 'Clear filter',
-      nothing: 'No entries match.',
-      search: 'Search entries',
-    },
-    groups: {
-      every: {
-        month: 'every month',
-        quarter: 'every quarter',
-        week: 'every week',
-        year: 'every year',
-      },
-      expected: (date: string) => `expected ${date}`,
-      next: (date: string) => `next ${date}`,
-      perMonth: (amount: string) => `${amount} / month`,
-      rename: 'Rename group',
-      renameHint: 'Give it another group’s name to merge the two.',
-      showAll: (n: number) => `Show all ${n}`,
-      showFewer: 'Show fewer',
-      title: 'By who or what',
-    },
-    history: {
-      capped: (n: number) =>
-        `Read the newest ${n} matching emails of the board’s period.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? 'Looking through the board’s period…'
-          : `Reading ${plural('en', found, { one: () => 'one email', other: (n) => `${n} emails` })} · ${plural('en', entries, { one: () => 'one entry', other: (n) => `${n} entries` })} so far`,
-    },
-    menu: 'Board actions',
-    moveDown: 'Move down',
-    moveUp: 'Move up',
-    name: 'Name',
-    namePlaceholder: 'Travel',
-    new: 'New board',
-    newHint:
-      'Describe what to collect in your own words. Fewmail finds it in your mail as far back as you choose, picks the charts and keeps it up to date.',
-    payment: {
-      due: 'to pay',
-      failed: 'failed',
-      income: 'received',
-      paid: 'paid',
-      refund: 'refund',
-    },
-    period: 'Period',
-    periods: {
-      1: 'Last day',
-      7: 'Last week',
-      30: 'Last month',
-      90: 'Last 3 months',
-      180: 'Last 6 months',
-      365: 'Last year',
-    },
-    planning: 'Setting it up…',
-    redescribe: 'Save and read again',
-    redescribeHint:
-      'Reads the board’s period again with the new description. Entries you edited or took off stay.',
-    rename: 'Rename board',
-    save: 'Save',
-    settings: {
-      bannerDays: 'Heads-up before a date',
-      days: (n: number) =>
-        plural('en', n, {
-          one: () => '1 day before',
-          other: (count) => `${count} days before`,
-        }),
-      hint: 'How far back the board collects and when it warns you before a date.',
-      never: 'Never',
-      title: 'Board settings',
-    },
-    starter: {
-      events: {
-        description:
-          'Tickets, reservations and appointments: where I need to be, when and with whom.',
-        name: 'Events',
-      },
-      health: {
-        description:
-          'Doctor visits, prescriptions, test results and insurance claims: who I saw, when, and what it cost.',
-        name: 'Health',
-      },
-      home: {
-        description:
-          'Rent, utilities, repairs and contracts for where I live: what is due, to whom and how much.',
-        name: 'Home',
-      },
-      invoices: {
-        description:
-          'Invoices I send and receive for work: client or supplier, amount, due date and whether it is paid.',
-        name: 'Invoices',
-      },
-      jobs: {
-        description:
-          'Applications, interviews and offers: which company, what role, and where each one stands.',
-        name: 'Job search',
-      },
-      learning: {
-        description:
-          'Courses, classes and school mail: deadlines, grades, certificates and what they cost.',
-        name: 'Courses and school',
-      },
-      money: {
-        description:
-          'Payments, subscriptions, bills and refunds: what I pay for, to whom, how much and when it renews.',
-        name: 'Finances',
-      },
-      orders: {
-        description:
-          'Online orders and deliveries: what I bought, from whom, and where it is.',
-        name: 'Orders',
-      },
-      trips: {
-        description:
-          'Flights, trains, hotels and rentals: where I go, when and what it costs.',
-        name: 'Trips',
-      },
-    },
-    summary: {
-      attention: 'Needs attention',
-      emails: (n: number) =>
-        plural('en', n, {
-          one: () => `one email`,
-          other: (count) => `${count} emails`,
-        }),
-      next: (title: string, date: string, amount: string | null) =>
-        `Next: ${title} on ${date}${amount ? `, ${amount}` : ''}.`,
-      perMonth: (amount: string, n: number) => {
-        const payments = plural('en', n, {
-          one: () => `one regular payment`,
-          other: (count) => `${count} regular payments`,
-        })
-        return `You pay ${amount} a month for ${payments}.`
-      },
-      received: (amount: string) => `${amount} received`,
-      refunded: (amount: string) => `${amount} refunded`,
-      regular: 'Regular payments',
-      upcoming: 'Next 30 days',
-    },
   },
   bulk: {
     badge: (n: number) => `Sent to ${n}+ Fewmail users`,
@@ -625,7 +398,6 @@ export const en = {
     markRead: 'mark read',
     markUnread: 'mark unread',
     unpick: 'clear picks',
-    notOnBoard: 'not on this board',
     rename: 'rename',
     clearFilter: 'clear filter',
     search: 'search',
@@ -834,10 +606,8 @@ export const en = {
     folders: 'Folders',
     calendar: 'Calendar',
     subscriptions: 'Mailing lists',
-    boards: 'Boards',
     people: 'People',
     findPerson: 'Find a person',
-    newBoard: 'New board',
     mail: 'Mail',
     reading: 'Reading',
     rules: 'Rules',
@@ -864,9 +634,6 @@ export const en = {
       }),
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `Pages the agent fills from your mail, starting with the last three months. Pick up to ${max}; you can add your own later.`,
-    boardsTitle: 'What should the agent collect for you?',
     languageHint:
       'The app, summaries and explanations use this language. Replies always match the language of the email you answer.',
     languageTitle: 'Which language should Fewmail speak?',
@@ -1437,11 +1204,6 @@ export const en = {
             'Ask anything in plain words and get the answer from your own mail, with the emails it came from.',
           title: 'Ask your mail',
         },
-        boards: {
-          description:
-            'Money, paid subscriptions, trips, orders: describe what to track and the agent collects it from up to a year of mail, with charts.',
-          title: 'Boards',
-        },
         calendar: {
           description:
             'The calendar of every mailbox in one view. A meeting proposed in an email becomes an event once you say yes.',
@@ -1734,7 +1496,7 @@ export const en = {
     somethingWrong: 'Something went wrong',
     undo: 'Undo',
     voiceFailed: 'I could not make that out. Try again or type it.',
-    help: 'Write or say what you need:\n• ask about your mail: “when does my Netflix renew?”\n• say what to answer: “tell Anna I’ll sign tomorrow”\n• give me a task: “make a board for trips”\n• reply to one of my drafts to change it',
+    help: 'Write or say what you need:\n• ask about your mail: “when does my Netflix renew?”\n• say what to answer: “tell Anna I’ll sign tomorrow”\n• give me a task: “always archive newsletters from Medium”\n• reply to one of my drafts to change it',
     urgent: 'Urgent',
     willSend: 'Will send:',
   },
@@ -1770,7 +1532,7 @@ export const en = {
       approved: 'You said yes',
       byRule: (rule: string) => `Your rule: ${rule}`,
       failed: 'Did not work',
-      lead: 'The last 7 days. Every change in your mail, calendar or boards had your yes or a rule you turned on.',
+      lead: 'The last 7 days. Every change in your mail or calendar had your yes or a rule you turned on.',
       title: 'Done in your mail',
     },
     progress: (done: number, total: number) => `${done} of ${total}`,
@@ -1859,8 +1621,6 @@ export const en = {
     ask: 'Ask your mail',
     hints: {
       ask: 'Part of Fewmail Pro: ask anything in plain words and get the answer from your own mail.',
-      boards:
-        'Part of Fewmail Pro: describe what to collect, and the agent finds it in your mail and keeps it up to date.',
       drafts:
         'Part of Fewmail Pro: the agent writes the reply in your style, and you edit and send it.',
     },

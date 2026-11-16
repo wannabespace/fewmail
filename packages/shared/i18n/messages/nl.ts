@@ -54,7 +54,6 @@ export const nl: Messages = {
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Deze kaart overslaan?',
-      delete_board: 'Dit bord met alles erop verwijderen?',
       create_event: 'Deze afspraak toevoegen?',
       delete_event: 'Deze afspraak verwijderen?',
       update_event: 'Deze afspraak wijzigen?',
@@ -92,10 +91,8 @@ export const nl: Messages = {
       draft_reply: 'Antwoord opstellen',
       create_draft: 'Concept wordt opgeslagen',
       find_people: 'Adres zoeken',
-      get_board: 'Bord lezen',
       get_person: 'Persoon opzoeken',
       get_today: 'Vandaag bekijken',
-      list_boards: 'Borden openen',
       list_handled: 'Afgehandelde mail bekijken',
       list_mail: 'Mail doorzoeken',
       list_rules: 'Regels lezen',
@@ -110,20 +107,11 @@ export const nl: Messages = {
       report_spam: 'Spam melden',
       mark_not_spam: 'Uit spam halen',
       move_to_inbox: 'Naar de inbox verplaatsen',
-      create_board: 'Bord maken',
-      update_board: 'Bord aanpassen',
-      delete_board: 'Bord verwijderen',
-      add_board_chart: 'Grafiek toevoegen',
-      add_to_board: 'Op het bord zetten',
-      edit_board_entry: 'Item corrigeren',
-      remove_board_entry: 'Van het bord halen',
-      rename_board_group: 'Groep hernoemen',
     },
     to: (recipients: string) => `Aan ${recipients}`,
     until: (time: string) => `Tot ${time}`,
     yes: {
       dismiss_action: 'Overslaan',
-      delete_board: 'Verwijderen',
       create_event: 'Toevoegen',
       delete_event: 'Verwijderen',
       update_event: 'Opslaan',
@@ -148,222 +136,6 @@ export const nl: Messages = {
     thinking: 'Je mail doorzoeken…',
   },
   byRule: 'door een regel',
-  boards: {
-    chartRemoved: 'Grafiek verwijderd',
-    addTo: 'Aan bord toevoegen',
-    added: (board: string) => `Op ${board} gezet`,
-    cancel: 'Annuleren',
-    chart: {
-      add: 'Grafiek toevoegen',
-      ask: 'Beschrijf de grafiek',
-      askPlaceholder: 'Uitgaven per winkel, bestellingen per status…',
-      currency: 'Valuta',
-      edit: 'Grafiekinstellingen',
-      empty: 'Nog niets om te tekenen',
-      groupBy: 'Gegroepeerd per',
-      groupings: {
-        group: 'Wie of wat',
-        month: 'Maand',
-        status: 'Status',
-        week: 'Week',
-      },
-      measure: 'Toont',
-      measures: { count: 'Aantal', sum: 'Totaalbedrag' },
-      moveEarlier: 'Naar voren',
-      moveLater: 'Naar achteren',
-      other: 'Overig',
-      remove: 'Grafiek verwijderen',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `Niet in de som: ${[
-          currency > 0 && `andere valuta: ${currency}`,
-          payment > 0 &&
-            `te betalen, mislukt, terugbetaald of ontvangen: ${payment}`,
-          amount > 0 && `zonder bedrag: ${amount}`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: 'Titel van de grafiek',
-      type: 'Soort grafiek',
-      types: {
-        area: 'Vlak',
-        bar: 'Staven',
-        line: 'Lijn',
-        pie: 'Taart',
-      },
-      untitled: 'Nieuwe grafiek',
-      weekOf: (date: string) => `Week van ${date}`,
-    },
-    charts: 'Grafieken',
-    create: 'Bord maken',
-    delete: 'Bord verwijderen',
-    deleteConfirm: (name: string) => `“${name}” verwijderen?`,
-    deleteHint: 'De items en grafieken gaan mee. Je mail blijft waar hij is.',
-    describe: 'Aanpassen wat het verzamelt',
-    description: 'Wat het verzamelt',
-    descriptionPlaceholder:
-      'Reizen: vluchten, hotels en huurauto’s, met wat ze kostten',
-    due: (when: string) => `Binnenkort: ${when}`,
-    empty: 'Nog leeg. Passende e-mails verschijnen hier zodra ze binnenkomen.',
-    entries: (total: number) =>
-      plural('nl', total, {
-        one: () => 'Eén item',
-        other: (n) => `${n} items`,
-      }),
-    entry: {
-      edited: 'Door jou bewerkt',
-      nextOn: (date: string) => `volgende: ${date}`,
-      remove: 'Niet op dit bord',
-      removed: 'Van het bord gehaald. Het leert ervan.',
-    },
-    expected: (when: string) => `Verwacht ${when}`,
-    filter: {
-      clear: 'Filter wissen',
-      nothing: 'Geen items gevonden.',
-      search: 'Items zoeken',
-    },
-    groups: {
-      every: {
-        month: 'elke maand',
-        quarter: 'elk kwartaal',
-        week: 'elke week',
-        year: 'elk jaar',
-      },
-      expected: (date: string) => `verwacht ${date}`,
-      next: (date: string) => `volgende: ${date}`,
-      perMonth: (amount: string) => `${amount} / maand`,
-      rename: 'Groep hernoemen',
-      renameHint:
-        'Geef hem de naam van een andere groep om ze samen te voegen.',
-      showAll: (n: number) => `Alle ${n} tonen`,
-      showFewer: 'Minder tonen',
-      title: 'Per wie of wat',
-    },
-    history: {
-      capped: (n: number) =>
-        `De nieuwste ${n} passende e-mails van de periode gelezen.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? 'Mail van de periode doorzoeken…'
-          : `${plural('nl', found, { one: () => 'Eén e-mail', other: (n) => `${n} e-mails` })} lezen · tot nu toe ${plural('nl', entries, { one: () => 'één item', other: (n) => `${n} items` })}`,
-    },
-    menu: 'Bordacties',
-    moveDown: 'Omlaag',
-    moveUp: 'Omhoog',
-    name: 'Naam',
-    namePlaceholder: 'Reizen',
-    new: 'Nieuw bord',
-    newHint:
-      'Beschrijf in je eigen woorden wat er verzameld moet worden. Fewmail zoekt het op in je mail zo ver terug als je kiest, kiest de grafieken en houdt het bij.',
-    payment: {
-      due: 'te betalen',
-      failed: 'mislukt',
-      income: 'ontvangen',
-      paid: 'betaald',
-      refund: 'terugbetaling',
-    },
-    period: 'Periode',
-    periods: {
-      1: 'Afgelopen dag',
-      7: 'Afgelopen week',
-      30: 'Afgelopen maand',
-      90: 'Afgelopen 3 maanden',
-      180: 'Afgelopen 6 maanden',
-      365: 'Afgelopen jaar',
-    },
-    planning: 'Bezig met instellen…',
-    redescribe: 'Opslaan en opnieuw lezen',
-    redescribeHint:
-      'Leest de periode opnieuw met de nieuwe beschrijving. Items die je bewerkte of weghaalde blijven.',
-    rename: 'Bord hernoemen',
-    save: 'Opslaan',
-    settings: {
-      bannerDays: 'Seintje vóór een datum',
-      days: (n: number) =>
-        plural('nl', n, {
-          one: () => '1 dag van tevoren',
-          other: (count) => `${count} dagen van tevoren`,
-        }),
-      hint: 'Hoe ver het bord terug verzamelt en wanneer het je vóór een datum waarschuwt.',
-      never: 'Nooit',
-      title: 'Bordinstellingen',
-    },
-    starter: {
-      events: {
-        description:
-          'Tickets, reserveringen en afspraken: waar ik moet zijn, wanneer en met wie.',
-        name: 'Afspraken',
-      },
-      health: {
-        description:
-          'Doktersafspraken, recepten, uitslagen en declaraties: bij wie ik was, wanneer en wat het kostte.',
-        name: 'Gezondheid',
-      },
-      home: {
-        description:
-          'Huur, energie, reparaties en contracten voor mijn woning: wat er betaald moet worden, aan wie en hoeveel.',
-        name: 'Wonen',
-      },
-      invoices: {
-        description:
-          'Facturen die ik voor werk verstuur en ontvang: klant of leverancier, bedrag, vervaldatum en of hij betaald is.',
-        name: 'Facturen',
-      },
-      jobs: {
-        description:
-          'Sollicitaties, gesprekken en aanbiedingen: welk bedrijf, welke functie en hoe ver elke staat.',
-        name: 'Sollicitaties',
-      },
-      learning: {
-        description:
-          'Cursussen, lessen en mail van school of studie: deadlines, cijfers, certificaten en wat ze kosten.',
-        name: 'Leren',
-      },
-      money: {
-        description:
-          'Betalingen, abonnementen, rekeningen en terugbetalingen: waarvoor ik betaal, aan wie, hoeveel en wanneer het verlengt.',
-        name: 'Financiën',
-      },
-      orders: {
-        description:
-          'Online bestellingen en leveringen: wat ik kocht, bij wie en waar het nu is.',
-        name: 'Bestellingen',
-      },
-      trips: {
-        description:
-          'Vluchten, treinen, hotels en huur: waar ik heen ga, wanneer en wat het kost.',
-        name: 'Reizen',
-      },
-    },
-    summary: {
-      attention: 'Vraagt aandacht',
-      emails: (n: number) =>
-        plural('nl', n, {
-          one: () => `één e-mail`,
-          other: (count) => `${count} e-mails`,
-        }),
-      next: (title: string, date: string, amount: string | null) =>
-        `Volgende: ${title} op ${date}${amount ? `, ${amount}` : ''}.`,
-      perMonth: (amount: string, n: number) => {
-        const payments = plural('nl', n, {
-          one: () => `één vaste betaling`,
-          other: (count) => `${count} vaste betalingen`,
-        })
-        return `Je betaalt ${amount} per maand voor ${payments}.`
-      },
-      received: (amount: string) => `${amount} ontvangen`,
-      refunded: (amount: string) => `${amount} terugbetaald`,
-      regular: 'Vaste betalingen',
-      upcoming: 'Komende 30 dagen',
-    },
-  },
   bulk: {
     badge: (n: number) => `Verstuurd naar ${n}+ Fewmail-gebruikers`,
     reason: (n: number) =>
@@ -629,7 +401,6 @@ export const nl: Messages = {
     move: 'bewegen',
     stackEmail: 'volgende / vorige e-mail',
     open: 'openen',
-    notOnBoard: 'niet op dit bord',
     rename: 'hernoemen',
     clearFilter: 'filter wissen',
     search: 'zoeken',
@@ -837,10 +608,8 @@ export const nl: Messages = {
     folders: 'Mappen',
     calendar: 'Agenda',
     subscriptions: 'Mailinglijsten',
-    boards: 'Borden',
     people: 'Mensen',
     findPerson: 'Iemand zoeken',
-    newBoard: 'Nieuw bord',
     mail: 'Mail',
     reading: 'Lezen',
     rules: 'Regels',
@@ -868,9 +637,6 @@ export const nl: Messages = {
       }),
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `Pagina’s die de agent uit je mail vult, te beginnen met de laatste drie maanden. Kies er tot ${max}; eigen pagina’s kun je later toevoegen.`,
-    boardsTitle: 'Wat moet de agent voor je verzamelen?',
     languageHint:
       'De app, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
     languageTitle: 'Welke taal moet Fewmail spreken?',
@@ -1447,11 +1213,6 @@ export const nl: Messages = {
             'Vraag wat je wilt in gewone woorden en krijg het antwoord uit je eigen mail, met de e-mails waar het vandaan komt.',
           title: 'Vraag het je mail',
         },
-        boards: {
-          description:
-            'Geld, betaalde abonnementen, reizen, bestellingen: beschrijf wat je wilt bijhouden en de agent verzamelt het uit tot een jaar mail, met grafieken.',
-          title: 'Borden',
-        },
         calendar: {
           description:
             'De agenda van elke mailbox in één overzicht. Een afspraak die in een e-mail wordt voorgesteld, komt in je agenda zodra je ja zegt.',
@@ -1720,7 +1481,7 @@ export const nl: Messages = {
     queueChanged: 'De kaarten zijn intussen veranderd. Dit heeft je nu nodig:',
     heard: (text: string) => `Gehoord: “${text}”`,
     voiceFailed: 'Ik kon het niet verstaan. Probeer het opnieuw of typ het.',
-    help: 'Schrijf of zeg wat je nodig hebt:\n• vraag iets over je mail: ‘wanneer verlengt Netflix?’\n• zeg wat ik moet antwoorden: ‘zeg Anna dat ik morgen teken’\n• geef me een taak: ‘maak een bord voor reizen’\n• antwoord op een van mijn concepten om het aan te passen',
+    help: 'Schrijf of zeg wat je nodig hebt:\n• vraag iets over je mail: ‘wanneer verlengt Netflix?’\n• zeg wat ik moet antwoorden: ‘zeg Anna dat ik morgen teken’\n• geef me een taak: ‘archiveer nieuwsbrieven van Medium altijd’\n• antwoord op een van mijn concepten om het aan te passen',
     canceled: 'Geannuleerd. Het concept staat weer in je wachtrij.',
     sendingIn: (seconds: number) => `Versturen over ${seconds} s`,
     undo: 'Ongedaan maken',
@@ -1782,7 +1543,7 @@ export const nl: Messages = {
       approved: 'Je zei ja',
       byRule: (rule: string) => `Je regel: ${rule}`,
       failed: 'Mislukt',
-      lead: 'De afgelopen 7 dagen. Elke wijziging in je mail, agenda of borden had je ja of een regel die je aanzette.',
+      lead: 'De afgelopen 7 dagen. Elke wijziging in je mail of agenda had je ja of een regel die je aanzette.',
       title: 'Gedaan in je mail',
     },
     progress: (done: number, total: number) => `${done} van ${total}`,
@@ -1867,8 +1628,6 @@ export const nl: Messages = {
     ask: 'Vraag het je mail',
     hints: {
       ask: 'Onderdeel van Fewmail Pro: vraag alles in je eigen woorden en krijg het antwoord uit je eigen mail.',
-      boards:
-        'Onderdeel van Fewmail Pro: beschrijf wat er verzameld moet worden, en de agent vindt het in je mail en houdt het bij.',
       drafts:
         'Onderdeel van Fewmail Pro: de agent schrijft het antwoord in jouw stijl, jij past het aan en verstuurt het.',
     },

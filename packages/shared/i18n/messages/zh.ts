@@ -55,7 +55,6 @@ export const zh: Messages = {
     cc: (recipients: string) => `抄送：${recipients}`,
     confirm: {
       dismiss_action: '跳过这张卡片?',
-      delete_board: '删除这个看板及其所有内容？',
       create_event: '添加此日程？',
       delete_event: '删除此日程？',
       update_event: '修改此日程？',
@@ -93,10 +92,8 @@ export const zh: Messages = {
       draft_reply: '正在起草回复',
       create_draft: '正在保存草稿',
       find_people: '正在查找地址',
-      get_board: '正在读取看板',
       get_person: '正在查找此人',
       get_today: '正在查看今天',
-      list_boards: '正在打开看板',
       list_handled: '正在查看已处理的邮件',
       list_mail: '正在搜索邮件',
       list_rules: '正在读取规则',
@@ -111,20 +108,11 @@ export const zh: Messages = {
       report_spam: '正在举报垃圾邮件',
       mark_not_spam: '正在移出垃圾邮件',
       move_to_inbox: '正在移到收件箱',
-      create_board: '正在创建看板',
-      update_board: '正在修改看板',
-      delete_board: '正在删除看板',
-      add_board_chart: '正在添加图表',
-      add_to_board: '正在加入看板',
-      edit_board_entry: '正在修正记录',
-      remove_board_entry: '正在从看板移除',
-      rename_board_group: '正在重命名分组',
     },
     to: (recipients: string) => `收件人：${recipients}`,
     until: (time: string) => `推迟到：${time}`,
     yes: {
       dismiss_action: '跳过',
-      delete_board: '删除',
       create_event: '添加',
       delete_event: '删除',
       update_event: '保存',
@@ -323,7 +311,6 @@ export const zh: Messages = {
     move: '移动',
     stackEmail: '下一封 / 上一封',
     open: '打开',
-    notOnBoard: '不属于此看板',
     rename: '重命名',
     clearFilter: '清除筛选',
     search: '搜索',
@@ -522,10 +509,8 @@ export const zh: Messages = {
     folders: '文件夹',
     calendar: '日历',
     subscriptions: '邮件列表',
-    boards: '看板',
     people: '联系人',
     findPerson: '查找联系人',
-    newBoard: '新建看板',
     mail: '邮件',
     reading: '阅读',
     rules: '规则',
@@ -545,9 +530,6 @@ export const zh: Messages = {
     many: (n: number) => `Fewmail 有 ${n} 条新通知`,
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `助手会用你的邮件填充这些页面，从最近三个月开始。最多选 ${max} 个；之后可以添加你自己的。`,
-    boardsTitle: '要让助手为你收集什么？',
     languageHint:
       '应用、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
     languageTitle: 'Fewmail 应该说哪种语言？',
@@ -1078,11 +1060,6 @@ export const zh: Messages = {
             '用平常的话随便问，答案来自你自己的邮件，并附上出处邮件。',
           title: '问问你的邮件',
         },
-        boards: {
-          description:
-            '钱、付费订阅、行程、订单：描述你想追踪什么，助手就会从最多一年的邮件里收集起来，并配上图表。',
-          title: '看板',
-        },
         calendar: {
           description:
             '所有邮箱的日历汇在一处。邮件里提议的会议，你点头后就变成日程。',
@@ -1345,7 +1322,7 @@ export const zh: Messages = {
     queueChanged: '卡片在此期间有变化。现在需要你处理的是：',
     heard: (text: string) => `听到的是：“${text}”`,
     voiceFailed: '我没听清。请再说一次，或直接输入。',
-    help: '写下或说出你需要什么：\n• 询问邮件：“Netflix 什么时候续费？”\n• 告诉我回复什么：“告诉安娜我明天签字”\n• 交给我一件事：“建一个旅行看板”\n• 回复我的某个草稿来修改它',
+    help: '写下或说出你需要什么：\n• 询问邮件：“Netflix 什么时候续费？”\n• 告诉我回复什么：“告诉安娜我明天签字”\n• 交给我一件事：“总是归档 Medium 的新闻通讯”\n• 回复我的某个草稿来修改它',
     canceled: '已取消。草稿已回到队列。',
     sendingIn: (seconds: number) => `${seconds} 秒后发送`,
     undo: '撤销',
@@ -1399,7 +1376,7 @@ export const zh: Messages = {
       approved: '你已同意',
       byRule: (rule: string) => `你的规则：${rule}`,
       failed: '没有成功',
-      lead: '最近 7 天。邮件、日历或看板中的每一项更改，都经过你的同意，或来自你开启的规则。',
+      lead: '最近 7 天。邮件或日历中的每一项更改，都经过你的同意，或来自你开启的规则。',
       title: '邮件里已完成的事',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
@@ -1466,197 +1443,6 @@ export const zh: Messages = {
     recent: (period: string) => `${period}的其他邮件`,
     sent: '已发送',
     codes: '验证码',
-  },
-  boards: {
-    chartRemoved: '图表已移除',
-    addTo: '加入看板',
-    added: (board: string) => `已加入${board}`,
-    cancel: '取消',
-    chart: {
-      add: '添加图表',
-      ask: '描述图表',
-      askPlaceholder: '按商店统计支出、按状态统计订单…',
-      currency: '货币',
-      edit: '图表设置',
-      empty: '暂时没有可显示的数据',
-      groupBy: '分组方式',
-      groupings: {
-        group: '对象',
-        month: '月',
-        status: '状态',
-        week: '周',
-      },
-      measure: '显示',
-      measures: { count: '数量', sum: '总金额' },
-      moveEarlier: '前移',
-      moveLater: '后移',
-      other: '其他',
-      remove: '移除图表',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `未计入合计:${[
-          currency > 0 && `其他货币 ${currency} 条`,
-          payment > 0 && `待付、失败、退款或收入 ${payment} 条`,
-          amount > 0 && `无金额 ${amount} 条`,
-        ]
-          .filter(Boolean)
-          .join('、')}`,
-      title: '图表标题',
-      type: '图表类型',
-      types: {
-        area: '面积图',
-        bar: '柱状图',
-        line: '折线图',
-        pie: '饼图',
-      },
-      untitled: '新图表',
-      weekOf: (date: string) => `${date} 当周`,
-    },
-    charts: '图表',
-    create: '创建看板',
-    delete: '删除看板',
-    deleteConfirm: (name: string) => `删除“${name}”？`,
-    deleteHint: '其中的记录和图表会一并删除，邮件保持原样。',
-    describe: '更改收集内容',
-    description: '收集什么',
-    descriptionPlaceholder: '旅行：机票、酒店和租车，以及花费',
-    due: (when: string) => `即将到来：${when}`,
-    empty: '暂时为空。符合条件的邮件一到就会出现在这里。',
-    entries: (n: number) => `${n} 条记录`,
-    entry: {
-      edited: '已由你编辑',
-      nextOn: (date: string) => `下次 ${date}`,
-      remove: '不属于此看板',
-      removed: '已从看板移除，之后会记住这一点。',
-    },
-    expected: (when: string) => `预计 ${when}`,
-    filter: {
-      clear: '清除筛选',
-      nothing: '没有匹配的记录。',
-      search: '搜索记录',
-    },
-    groups: {
-      every: {
-        month: '每月',
-        quarter: '每季度',
-        week: '每周',
-        year: '每年',
-      },
-      expected: (date: string) => `预计 ${date}`,
-      next: (date: string) => `下次 ${date}`,
-      perMonth: (amount: string) => `${amount} / 月`,
-      rename: '重命名分组',
-      renameHint: '改成另一个分组的名称，即可将两者合并。',
-      showAll: (n: number) => `显示全部 ${n} 项`,
-      showFewer: '收起',
-      title: '按对象',
-    },
-    history: {
-      capped: (n: number) => `已读取所选时段内最新的 ${n} 封匹配邮件。`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? '正在查看所选时段的邮件…'
-          : `正在读取${found} 封邮件 · 已有 ${entries} 条记录`,
-    },
-    menu: '看板操作',
-    moveDown: '下移',
-    moveUp: '上移',
-    name: '名称',
-    namePlaceholder: '旅行',
-    new: '新建看板',
-    newHint:
-      '用你自己的话描述要收集什么。Fewmail 会在你选择的时段内的邮件中找到它，挑选图表，并持续更新。',
-    payment: {
-      due: '待付',
-      failed: '失败',
-      income: '收入',
-      paid: '已付',
-      refund: '退款',
-    },
-    period: '时段',
-    periods: {
-      1: '最近 1 天',
-      7: '最近 1 周',
-      30: '最近 1 个月',
-      90: '最近 3 个月',
-      180: '最近 6 个月',
-      365: '最近 1 年',
-    },
-    planning: '正在设置…',
-    redescribe: '保存并重新读取',
-    redescribeHint:
-      '按新的描述重新读取所选时段的邮件。你编辑过或移除的记录会保留。',
-    rename: '重命名看板',
-    save: '保存',
-    settings: {
-      bannerDays: '日期前提醒',
-      days: (n: number) => `提前 ${n} 天`,
-      hint: '看板收集多久以前的邮件，以及在日期前多久提醒你。',
-      never: '从不',
-      title: '看板设置',
-    },
-    starter: {
-      events: {
-        description: '门票、预订和预约：我要去哪里、什么时候、和谁一起。',
-        name: '活动',
-      },
-      health: {
-        description:
-          '看病、处方、检查结果和保险理赔：看了谁、什么时候、花了多少。',
-        name: '健康',
-      },
-      home: {
-        description:
-          '房租、水电燃气、维修和住房合同：要付什么、付给谁、付多少。',
-        name: '住房',
-      },
-      invoices: {
-        description:
-          '工作中开出和收到的发票：客户或供应商、金额、到期日以及是否已付。',
-        name: '工作发票',
-      },
-      jobs: {
-        description:
-          '投递、面试和录用通知：哪家公司、什么职位、各自进行到哪一步。',
-        name: '求职',
-      },
-      learning: {
-        description: '课程、上课和学校的邮件：截止日期、成绩、证书和费用。',
-        name: '学习',
-      },
-      money: {
-        description:
-          '付款、订阅、账单和退款：我为什么付钱、付给谁、付多少、下次何时续费。',
-        name: '财务',
-      },
-      orders: {
-        description: '网购订单和快递：买了什么、在哪家买的、现在到哪了。',
-        name: '订单',
-      },
-      trips: {
-        description: '机票、火车、酒店和租车：去哪里、什么时候、花多少钱。',
-        name: '出行',
-      },
-    },
-    summary: {
-      attention: '需要处理',
-      emails: (n: number) => `${n} 封邮件`,
-      next: (title: string, date: string, amount: string | null) =>
-        `下一笔：${title}，${date}${amount ? `，${amount}` : ''}。`,
-      perMonth: (amount: string, n: number) =>
-        `${n} 项定期付款，每月 ${amount}。`,
-      received: (amount: string) => `收入 ${amount}`,
-      refunded: (amount: string) => `退款 ${amount}`,
-      regular: '定期付款',
-      upcoming: '未来 30 天',
-    },
   },
   bulk: {
     badge: (n: number) => `已发给 ${n}+ 位 Fewmail 用户`,
@@ -1755,8 +1541,6 @@ export const zh: Messages = {
     ask: '问问你的邮件',
     hints: {
       ask: 'Fewmail Pro 的功能：用自己的话随便问，答案来自你自己的邮件。',
-      boards:
-        'Fewmail Pro 的功能：描述要收集什么，代理会在你的邮件中找到它并持续更新。',
       drafts: 'Fewmail Pro 的功能：代理用你的风格写好回复，你修改后发送。',
     },
   },

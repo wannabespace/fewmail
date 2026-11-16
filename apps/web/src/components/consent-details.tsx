@@ -68,7 +68,7 @@ interface Details {
   calendar?: Known
   dates: ReturnType<typeof useDates>
   email?: Known
-  /** What `input.id` names, from what the card's reads found: the event or board. */
+  /** What `input.id` names, from what the card's reads found: the event. */
   target?: Known
   input: ToolInput
   tidy?: Known[]
@@ -247,12 +247,6 @@ const CONSENT_DETAILS: Record<
       )}
     </>
   ),
-  delete_board: ({ target }) =>
-    target?.name && (
-      <p data-mask className="text-sm">
-        {target.name}
-      </p>
-    ),
   delete_event: ({ calendar, target }) =>
     target && <EventDetails calendar={calendar} event={target} />,
   send_email: ({ input }) => (

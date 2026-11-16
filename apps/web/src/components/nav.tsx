@@ -12,13 +12,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@fewmail/ui/components/collapsible'
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from '@fewmail/ui/components/context-menu'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   DropdownMenu,
@@ -52,7 +45,6 @@ import { cn } from '@fewmail/ui/lib/utils'
 import type { Theme } from '@fewmail/ui/theme-store'
 import { themeStore, useTheme } from '@fewmail/ui/theme-store'
 import {
-  Add01Icon,
   Archive02Icon,
   ArrowDown01Icon,
   ArrowRight01Icon,
@@ -61,9 +53,7 @@ import {
   Clock01Icon,
   ComputerIcon,
   CrownIcon,
-  DashboardSquare01Icon,
   Delete02Icon,
-  Edit02Icon,
   FileEditIcon,
   Home01Icon,
   Logout01Icon,
@@ -78,13 +68,12 @@ import {
   SpamIcon,
   Sun03Icon,
   Tag01Icon,
-  TextAlignLeftIcon,
   UnfoldMoreIcon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import {
   Link,
   useNavigate,
@@ -94,18 +83,15 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Fragment, useEffect, useState } from 'react'
 
-import { deletingBoardStore, newBoardStore } from '~/components/board-dialog'
 import { signOut } from '~/lib/auth'
 import { useT } from '~/lib/i18n'
 import { useHasAgent, useMe } from '~/lib/me'
-import { orpc, refetchChanged } from '~/lib/orpc'
-import { queryClient } from '~/lib/query-client'
+import { orpc } from '~/lib/orpc'
 import { SITE_NAME } from '~/lib/seo'
 
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
 import { SenderAvatar } from './sender-avatar'
-import { useWithAgent } from './upgrade-dialog'
 
 const SETTINGS_ITEM = {
   icon: Settings01Icon,
@@ -171,141 +157,6 @@ const NAV_SUBROW = cn(NAV_ROW, 'h-7')
 /** Mail's row stays plain while a folder or label under it is the one open. */
 const QUIET_ROW =
   'data-[status=active]:bg-transparent data-[status=active]:font-normal'
-
-const BOARD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
-
-interface BoardRow {
-  id: string
-  name: string
-}
-
-/** Right-click on a board row: the board page's edits, the order and delete, without opening the board first. */
-const BoardLink = ({
-  board,
-  index,
-  onMove,
-  showKeys,
-  total,
-}: {
-  board: BoardRow
-  index: number
-  onMove: (by: -1 | 1) => void
-  showKeys: boolean
-  total: number
-}) => {
-  const t = useT()
-  const navigate = useNavigate()
-  const key = BOARD_KEYS[index]
-  const open = (intent?: 'describe' | 'rename') =>
-    navigate({
-      params: { boardId: board.id },
-      search: intent ? { do: intent } : {},
-      to: '/boards/$boardId',
-    })
-  useHotkey(['G', key ?? '0'], () => open(), { enabled: Boolean(key) })
-
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger
-        render={
-          <Link
-            to="/boards/$boardId"
-            params={{ boardId: board.id }}
-            className={NAV_ROW}
-          />
-        }
-      >
-        <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
-        <span className="flex-1 truncate" data-mask>
-          {board.name}
-        </span>
-        {showKeys && key && <Kbd>G {key}</Kbd>}
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onClick={() => open('rename')}>
-          <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
-          {t.boards.rename}
-        </ContextMenuItem>
-        <ContextMenuItem onClick={() => open('describe')}>
-          <HugeiconsIcon icon={TextAlignLeftIcon} strokeWidth={2} />
-          {t.boards.describe}
-        </ContextMenuItem>
-        <ContextMenuItem disabled={index === 0} onClick={() => onMove(-1)}>
-          <HugeiconsIcon icon={ArrowUp01Icon} strokeWidth={2} />
-          {t.boards.moveUp}
-        </ContextMenuItem>
-        <ContextMenuItem
-          disabled={index === total - 1}
-          onClick={() => onMove(1)}
-        >
-          <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />
-          {t.boards.moveDown}
-        </ContextMenuItem>
-        <ContextMenuSeparator />
-        <ContextMenuItem
-          variant="destructive"
-          onClick={() => deletingBoardStore.set(board)}
-        >
-          <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-          {t.boards.delete}
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
-  )
-}
-
-const Boards = ({ showKeys }: { showKeys: boolean }) => {
-  const t = useT()
-  const hasAgent = useHasAgent()
-  const withAgent = useWithAgent()
-  const { data: boards = [] } = useQuery(
-    orpc.boards.list.queryOptions({ enabled: hasAgent })
-  )
-  const reorder = useMutation(
-    orpc.boards.reorder.mutationOptions({
-      onMutate: ({ ids }) =>
-        queryClient.setQueryData(orpc.boards.list.queryKey(), (old) =>
-          ids.flatMap((id) => old?.find((board) => board.id === id) ?? [])
-        ),
-      onSettled: () => refetchChanged(['boards']),
-    })
-  )
-  const move = (index: number, by: -1 | 1) => {
-    const ids = boards.map(({ id }) => id)
-    const [moved] = ids.splice(index, 1)
-    if (moved) {
-      ids.splice(index + by, 0, moved)
-      reorder.mutate({ ids })
-    }
-  }
-
-  return (
-    <section aria-label={t.nav.boards} className="mt-4 flex flex-col gap-1">
-      <div className="flex items-center justify-between ps-2.5">
-        <h2 className="text-muted-foreground text-xs font-medium">
-          {t.nav.boards}
-        </h2>
-        <IconButton
-          icon={Add01Icon}
-          label={t.nav.newBoard}
-          size="icon-xs"
-          variant="ghost-muted"
-          onClick={() => withAgent('boards', () => newBoardStore.set(true))}
-        />
-      </div>
-      {boards.map((board, index) => (
-        <BoardLink
-          key={board.id}
-          board={board}
-          index={index}
-          total={boards.length}
-          showKeys={showKeys}
-          onMove={(by) => move(index, by)}
-        />
-      ))}
-    </section>
-  )
-}
 
 const PEOPLE_SHOWN = 20
 
@@ -651,9 +502,6 @@ const useDocumentTitle = ({
   const pathname = useRouterState({
     select: ({ location }) => location.pathname,
   })
-  const { data: boards } = useQuery(
-    orpc.boards.list.queryOptions({ enabled: pathname.startsWith('/boards/') })
-  )
   const navPage = NAV_ITEMS.find(({ to }) => pathname.startsWith(to))?.key
   const page = navPage
     ? t.nav[navPage]
@@ -664,10 +512,9 @@ const useDocumentTitle = ({
           ['/wrapped', t.wrapped.title.year],
         ] as const
       ).find(([to]) => pathname.startsWith(to))?.[1]
-  const board = boards?.find(({ id }) => pathname === `/boards/${id}`)
   const title = [
     count ? `(${count})` : '',
-    [board?.name ?? page, status?.isTitled && status.text, SITE_NAME]
+    [page, status?.isTitled && status.text, SITE_NAME]
       .filter(Boolean)
       .join(' · '),
   ]
@@ -858,7 +705,6 @@ export const Sidebar = ({
             )}
           </Fragment>
         ))}
-        <Boards showKeys={isModifierHeld} />
         <People />
         <div className="mt-auto flex flex-col gap-1 pt-4">
           {NAV_ITEMS.filter(({ place }) => place === 'bottom').map((item) => (

@@ -11,7 +11,6 @@ export const fr: Messages = {
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Passer cette carte ?',
-      delete_board: 'Supprimer ce tableau et tout son contenu ?',
       create_event: 'Ajouter cet événement ?',
       delete_event: 'Supprimer cet événement ?',
       update_event: 'Modifier cet événement ?',
@@ -50,10 +49,8 @@ export const fr: Messages = {
       draft_reply: 'Rédaction d’une réponse',
       create_draft: 'Enregistrement du brouillon',
       find_people: "Recherche de l'adresse",
-      get_board: 'Lecture du tableau',
       get_person: 'Recherche de la personne',
       get_today: 'Point sur aujourd’hui',
-      list_boards: 'Ouverture des tableaux',
       list_handled: 'Lecture de ce qui a été traité',
       list_mail: 'Recherche dans les e-mails',
       list_rules: 'Lecture des règles',
@@ -68,20 +65,11 @@ export const fr: Messages = {
       report_spam: 'Signalement du spam',
       mark_not_spam: 'Sortie des spams',
       move_to_inbox: 'Remise dans la boîte de réception',
-      create_board: 'Création d’un tableau',
-      update_board: 'Modification du tableau',
-      delete_board: 'Suppression du tableau',
-      add_board_chart: 'Ajout d’un graphique',
-      add_to_board: 'Ajout au tableau',
-      edit_board_entry: 'Correction de l’entrée',
-      remove_board_entry: 'Retrait du tableau',
-      rename_board_group: 'Renommage du groupe',
     },
     to: (recipients: string) => `À ${recipients}`,
     until: (time: string) => `Jusqu’à ${time}`,
     yes: {
       dismiss_action: 'Passer',
-      delete_board: 'Supprimer',
       create_event: 'Ajouter',
       delete_event: 'Supprimer',
       update_event: 'Enregistrer',
@@ -492,11 +480,6 @@ export const fr: Messages = {
             'Posez une question avec vos mots et obtenez la réponse tirée de vos propres e-mails, avec les messages d’où elle vient.',
           title: 'Interrogez vos e-mails',
         },
-        boards: {
-          description:
-            'Argent, abonnements payants, voyages, commandes : décrivez ce que vous voulez suivre et l’agent le rassemble à partir d’un an d’e-mails au plus, avec des graphiques.',
-          title: 'Tableaux',
-        },
         calendar: {
           description:
             'Le calendrier de chaque boîte dans une seule vue. Une réunion proposée dans un e-mail devient un événement dès que vous dites oui.',
@@ -902,7 +885,6 @@ export const fr: Messages = {
     move: 'naviguer',
     stackEmail: 'e-mail suivant / précédent',
     open: 'ouvrir',
-    notOnBoard: 'pas sur ce tableau',
     rename: 'renommer',
     clearFilter: 'effacer le filtre',
     search: 'rechercher',
@@ -1115,10 +1097,8 @@ export const fr: Messages = {
     folders: 'Dossiers',
     calendar: 'Calendrier',
     subscriptions: 'Listes de diffusion',
-    boards: 'Tableaux',
     people: 'Personnes',
     findPerson: 'Trouver quelqu’un',
-    newBoard: 'Nouveau tableau',
     mail: 'E-mails',
     reading: 'Lecture',
     rules: 'Règles',
@@ -1147,9 +1127,6 @@ export const fr: Messages = {
       }),
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `Des pages que l’agent remplit à partir de vos e-mails, en commençant par les trois derniers mois. Choisissez-en jusqu’à ${max} ; vous pourrez ajouter les vôtres plus tard.`,
-    boardsTitle: 'Que doit rassembler l’agent pour vous ?',
     languageHint:
       'L’app, les résumés et les explications utilisent cette langue. Les réponses suivent toujours la langue de l’e-mail auquel vous répondez.',
     languageTitle: 'Dans quelle langue Fewmail doit-il parler ?',
@@ -1421,7 +1398,7 @@ export const fr: Messages = {
       'Les cartes ont changé entre-temps. Voici ce qui vous attend maintenant :',
     heard: (text: string) => `Entendu : « ${text} »`,
     voiceFailed: 'Je n’ai pas compris. Réessayez ou écrivez-le.',
-    help: 'Écrivez ou dites ce qu’il vous faut :\n• une question sur vos e-mails : « quand Netflix se renouvelle-t-il ? »\n• quoi répondre : « dis à Anna que je signe demain »\n• une tâche : « crée un tableau pour les voyages »\n• répondez à l’un de mes brouillons pour le modifier',
+    help: 'Écrivez ou dites ce qu’il vous faut :\n• une question sur vos e-mails : « quand Netflix se renouvelle-t-il ? »\n• quoi répondre : « dis à Anna que je signe demain »\n• une tâche : « archive toujours les newsletters de Medium »\n• répondez à l’un de mes brouillons pour le modifier',
     canceled: 'Annulé. Le brouillon est de retour dans votre file.',
     sendingIn: (seconds: number) => `Envoi dans ${seconds} s`,
     undo: 'Annuler',
@@ -1484,7 +1461,7 @@ export const fr: Messages = {
       approved: 'Tu as dit oui',
       byRule: (rule: string) => `Ta règle : ${rule}`,
       failed: 'N’a pas fonctionné',
-      lead: 'Les 7 derniers jours. Chaque changement dans tes e-mails, ton agenda ou tes tableaux a eu ton oui ou une règle que tu as activée.',
+      lead: 'Les 7 derniers jours. Chaque changement dans tes e-mails ou ton agenda a eu ton oui ou une règle que tu as activée.',
       title: 'Fait dans votre boîte',
     },
     progress: (done: number, total: number) => `${done} sur ${total}`,
@@ -1566,222 +1543,6 @@ export const fr: Messages = {
     recent: (period: string) => `Aussi ${period}`,
     sent: 'Envoyé',
     codes: 'Codes de connexion',
-  },
-  boards: {
-    chartRemoved: 'Graphique retiré',
-    addTo: 'Ajouter à un tableau',
-    added: (board: string) => `Ajouté à ${board}`,
-    cancel: 'Annuler',
-    chart: {
-      add: 'Ajouter un graphique',
-      ask: 'Décris le graphique',
-      askPlaceholder: 'Dépenses par boutique, commandes par statut…',
-      currency: 'Devise',
-      edit: 'Réglages du graphique',
-      empty: 'Rien à afficher pour l’instant',
-      groupBy: 'Regroupé par',
-      groupings: {
-        group: 'Qui ou quoi',
-        month: 'Mois',
-        status: 'Statut',
-        week: 'Semaine',
-      },
-      measure: 'Affiche',
-      measures: { count: 'Nombre', sum: 'Montant total' },
-      moveEarlier: 'Avancer',
-      moveLater: 'Reculer',
-      other: 'Autres',
-      remove: 'Retirer le graphique',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `Hors de la somme : ${[
-          currency > 0 && `autre devise : ${currency}`,
-          payment > 0 && `à payer, échoués, remboursés ou reçus : ${payment}`,
-          amount > 0 && `sans montant : ${amount}`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: 'Titre du graphique',
-      type: 'Type de graphique',
-      types: {
-        area: 'Aire',
-        bar: 'Barres',
-        line: 'Ligne',
-        pie: 'Camembert',
-      },
-      untitled: 'Nouveau graphique',
-      weekOf: (date: string) => `Semaine du ${date}`,
-    },
-    charts: 'Graphiques',
-    create: 'Créer le tableau',
-    delete: 'Supprimer le tableau',
-    deleteConfirm: (name: string) => `Supprimer « ${name} » ?`,
-    deleteHint:
-      'Ses entrées et graphiques partent avec lui. Tes e-mails restent où ils sont.',
-    describe: 'Changer ce qu’il rassemble',
-    description: 'Ce qu’il rassemble',
-    descriptionPlaceholder:
-      'Voyages : vols, hôtels et locations de voiture, avec leur coût',
-    due: (when: string) => `À venir : ${when}`,
-    empty:
-      'Encore vide. Les e-mails correspondants apparaîtront ici dès leur arrivée.',
-    entries: (total: number) =>
-      plural('fr', total, {
-        one: () => 'Une entrée',
-        other: (n) => `${n} entrées`,
-      }),
-    entry: {
-      edited: 'Modifiée par toi',
-      nextOn: (date: string) => `prochaine : ${date}`,
-      remove: 'Pas sur ce tableau',
-      removed: 'Retirée du tableau. Il en tiendra compte.',
-    },
-    expected: (when: string) => `Prévu ${when}`,
-    filter: {
-      clear: 'Effacer le filtre',
-      nothing: 'Aucune entrée ne correspond.',
-      search: 'Rechercher des entrées',
-    },
-    groups: {
-      every: {
-        month: 'chaque mois',
-        quarter: 'chaque trimestre',
-        week: 'chaque semaine',
-        year: 'chaque année',
-      },
-      expected: (date: string) => `prévu ${date}`,
-      next: (date: string) => `prochain : ${date}`,
-      perMonth: (amount: string) => `${amount} / mois`,
-      rename: 'Renommer le groupe',
-      renameHint: 'Donne-lui le nom d’un autre groupe pour les fusionner.',
-      showAll: (n: number) => `Tout afficher (${n})`,
-      showFewer: 'Afficher moins',
-      title: 'Par qui ou quoi',
-    },
-    history: {
-      capped: (n: number) =>
-        `Les ${n} e-mails correspondants les plus récents de la période ont été lus.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? 'Parcours des e-mails de la période…'
-          : `Lecture : ${plural('fr', found, { one: () => 'un e-mail', other: (n) => `${n} e-mails` })} · ${plural('fr', entries, { one: () => 'une entrée', other: (n) => `${n} entrées` })} pour l’instant`,
-    },
-    menu: 'Actions du tableau',
-    moveDown: 'Descendre',
-    moveUp: 'Monter',
-    name: 'Nom',
-    namePlaceholder: 'Voyages',
-    new: 'Nouveau tableau',
-    newHint:
-      'Décris avec tes mots ce qu’il faut rassembler. Fewmail le retrouve dans tes e-mails aussi loin que tu choisis, choisit les graphiques et tient le tout à jour.',
-    payment: {
-      due: 'à payer',
-      failed: 'échoué',
-      income: 'reçu',
-      paid: 'payé',
-      refund: 'remboursement',
-    },
-    period: 'Période',
-    periods: {
-      1: 'Dernier jour',
-      7: 'Dernière semaine',
-      30: 'Dernier mois',
-      90: '3 derniers mois',
-      180: '6 derniers mois',
-      365: 'Dernière année',
-    },
-    planning: 'Mise en place…',
-    redescribe: 'Enregistrer et relire',
-    redescribeHint:
-      'Relit la période avec la nouvelle description. Les entrées que tu as modifiées ou retirées restent.',
-    rename: 'Renommer le tableau',
-    save: 'Enregistrer',
-    settings: {
-      bannerDays: 'Prévenir avant une date',
-      days: (n: number) =>
-        plural('fr', n, {
-          one: () => '1 jour avant',
-          other: (count) => `${count} jours avant`,
-        }),
-      hint: 'Jusqu’où le tableau remonte et quand il te prévient avant une date.',
-      never: 'Jamais',
-      title: 'Réglages du tableau',
-    },
-    starter: {
-      events: {
-        description:
-          'Billets, réservations et rendez-vous : où je dois être, quand et avec qui.',
-        name: 'Événements',
-      },
-      health: {
-        description:
-          'Rendez-vous médicaux, ordonnances, résultats et remboursements : qui j’ai vu, quand et combien ça a coûté.',
-        name: 'Santé',
-      },
-      home: {
-        description:
-          'Loyer, charges, travaux et contrats pour mon logement : ce qui est dû, à qui et combien.',
-        name: 'Logement',
-      },
-      invoices: {
-        description:
-          'Factures que j’émets et reçois pour mon travail : client ou fournisseur, montant, échéance et si elle est payée.',
-        name: 'Factures pro',
-      },
-      jobs: {
-        description:
-          'Candidatures, entretiens et offres : quelle entreprise, quel poste et où en est chacune.',
-        name: 'Recherche d’emploi',
-      },
-      learning: {
-        description:
-          'Cours, formations et courriers de l’école ou de la fac : échéances, notes, certificats et ce qu’ils coûtent.',
-        name: 'Formation',
-      },
-      money: {
-        description:
-          'Paiements, abonnements, factures et remboursements : ce que je paie, à qui, combien et quand ça se renouvelle.',
-        name: 'Finances',
-      },
-      orders: {
-        description:
-          'Commandes en ligne et livraisons : ce que j’ai acheté, chez qui et où en est le colis.',
-        name: 'Commandes',
-      },
-      trips: {
-        description:
-          'Vols, trains, hôtels et locations : où je vais, quand et combien ça coûte.',
-        name: 'Voyages',
-      },
-    },
-    summary: {
-      attention: 'À traiter',
-      emails: (n: number) =>
-        plural('fr', n, {
-          one: (count) => `${count} e-mail`,
-          other: (count) => `${count} e-mails`,
-        }),
-      next: (title: string, date: string, amount: string | null) =>
-        `Prochain : ${title} le ${date}${amount ? `, ${amount}` : ''}.`,
-      perMonth: (amount: string, n: number) => {
-        const payments = plural('fr', n, {
-          one: (count) => `${count} paiement régulier`,
-          other: (count) => `${count} paiements réguliers`,
-        })
-        return `Tu paies ${amount} par mois pour ${payments}.`
-      },
-      received: (amount: string) => `${amount} reçus`,
-      refunded: (amount: string) => `${amount} remboursés`,
-      regular: 'Paiements réguliers',
-      upcoming: '30 prochains jours',
-    },
   },
   bulk: {
     badge: (n: number) => `Envoyé à plus de ${n} utilisateurs de Fewmail`,
@@ -1900,8 +1661,6 @@ export const fr: Messages = {
     ask: 'Interroge tes e-mails',
     hints: {
       ask: 'Inclus dans Fewmail Pro : demande ce que tu veux avec tes mots et obtiens la réponse tirée de tes propres e-mails.',
-      boards:
-        'Inclus dans Fewmail Pro : décris ce qu’il faut rassembler, l’agent le retrouve dans tes e-mails et le tient à jour.',
       drafts:
         'Inclus dans Fewmail Pro : l’agent rédige la réponse dans ton style, tu la modifies et l’envoies.',
     },

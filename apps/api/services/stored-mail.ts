@@ -5,15 +5,11 @@ import { and, eq, inArray } from 'drizzle-orm'
 
 import { inBatches } from '../lib/batches'
 import { getMessage, isMissing, listThreadMessageIds } from '../lib/gmail'
-import { expectRow } from '../lib/rows'
 import { NotFoundError } from './mail-errors'
 import { parseLiveMessageId } from './older-mail'
 
 type Mailbox = typeof mailboxes.$inferSelect
 type Message = typeof messages.$inferSelect
-
-/** An email read for one job: stored, or straight from Gmail with an id of its own until `keptIdOf` stores it. */
-export type ReadMessage = typeof messages.$inferInsert & { id: string }
 
 const STORE_CONCURRENCY = 4
 
@@ -43,7 +39,7 @@ export const forget = async (inserted: Message[]) => {
   }
 }
 
-/** Only stores: mail found by search or for a board must never reach `processIncoming`. Without `keepsHtml` the html is fetched on first open. */
+/** Only stores: mail found by search must never reach `processIncoming`. Without `keepsHtml` the html is fetched on first open. */
 export const insertMessages = async (
   mailbox: Mailbox,
   ids: string[],
@@ -91,62 +87,6 @@ export const insertMessages = async (
     throw stored.error.cause
   }
   return inserted
-}
-
-/** Stored mail from the database, the rest read from Gmail into memory only. */
-export const readMessages = async (mailbox: Mailbox, ids: string[]) => {
-  const stored = ids.length
-    ? await db
-        .select()
-        .from(messages)
-        .where(
-          and(
-            eq(messages.mailboxId, mailbox.id),
-            inArray(messages.gmailId, ids)
-          )
-        )
-    : []
-  const storedIds = new Set(stored.map(({ gmailId }) => gmailId))
-  const read: ReadMessage[] = [...stored]
-  await inBatches(
-    ids.filter((id) => !storedIds.has(id)),
-    STORE_CONCURRENCY,
-    async (id) => {
-      const parsed = await readStorable(mailbox, id)
-      if (parsed) {
-        read.push({
-          ...parsed,
-          html: null,
-          id: Bun.randomUUIDv7(),
-          mailboxId: mailbox.id,
-          userId: mailbox.userId,
-        })
-      }
-    }
-  )
-  return read
-}
-
-/** The stored id of a `ReadMessage`, storing it first when it came straight from Gmail. */
-export const keptIdOf = async (message: ReadMessage) => {
-  const [kept] = await db
-    .insert(messages)
-    .values(message)
-    .onConflictDoNothing()
-    .returning({ id: messages.id })
-  if (kept) {
-    return kept.id
-  }
-  const [stored] = await db
-    .select({ id: messages.id })
-    .from(messages)
-    .where(
-      and(
-        eq(messages.mailboxId, message.mailboxId),
-        eq(messages.gmailId, message.gmailId)
-      )
-    )
-  return expectRow(stored).id
 }
 
 const ownedMailboxes = (userId: string) =>

@@ -141,7 +141,7 @@ export const hasBudget = async (userId: string, reserve = 1) => {
   return spent < PLAN_ALLOWANCE_USD[plan.kind] * reserve
 }
 
-/** Anything the user asks of the agent (a message, a voice note, reading aloud, a board, a task) is refused once the month's allowance is spent. */
+/** Anything the user asks of the agent (a message, a voice note, reading aloud, a task) is refused once the month's allowance is spent. */
 export const requireBudget = async (userId: string) => {
   await requireAgent(userId)
   if (!(await hasBudget(userId))) {

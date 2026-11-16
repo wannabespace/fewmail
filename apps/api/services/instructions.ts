@@ -21,7 +21,7 @@ const understandingSchema = type({
   intent: "'reply' | 'question' | 'request' | 'other'",
 })
 
-/** "Tell Anna I'll sign tomorrow" names an email among open drafts and recent mail; "when does Netflix renew?" asks about the mail; "make a board for trips" is work for the agent. */
+/** "Tell Anna I'll sign tomorrow" names an email among open drafts and recent mail; "when does Netflix renew?" asks about the mail; "always archive newsletters from Medium" is work for the agent. */
 const understand = async (
   userId: string,
   text: string,
@@ -72,7 +72,7 @@ const understand = async (
   const { output } = await generateText({
     instructions: [
       'The user writes to their email assistant in a chat.',
-      'intent: "reply" when they say what to answer to one email, "question" when they ask something about their mail, "request" when they ask the assistant to do or change anything else (create or change a board, a rule, a schedule or an event; archive, unsubscribe, hand over a thread), "other" for anything else (greetings, what the assistant can do).',
+      'intent: "reply" when they say what to answer to one email, "question" when they ask something about their mail, "request" when they ask the assistant to do or change anything else (create or change a rule, a schedule or an event; archive, unsubscribe, hand over a thread), "other" for anything else (greetings, what the assistant can do).',
       'index: for "reply", the email it is about, or -1 when none clearly fits; -1 otherwise.',
     ].join('\n'),
     model: models.fast,

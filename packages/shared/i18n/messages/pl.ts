@@ -54,7 +54,6 @@ export const pl: Messages = {
     cc: (recipients: string) => `DW: ${recipients}`,
     confirm: {
       dismiss_action: 'Pominąć tę kartę?',
-      delete_board: 'Usunąć tę tablicę ze wszystkim, co na niej jest?',
       create_event: 'Dodać to wydarzenie?',
       delete_event: 'Usunąć to wydarzenie?',
       update_event: 'Zmienić to wydarzenie?',
@@ -92,10 +91,8 @@ export const pl: Messages = {
       draft_reply: 'Piszę odpowiedź',
       create_draft: 'Zapisuję szkic',
       find_people: 'Szukam adresu',
-      get_board: 'Czytam tablicę',
       get_person: 'Szukam osoby',
       get_today: 'Sprawdzam dzisiejsze',
-      list_boards: 'Otwieram tablice',
       list_handled: 'Sprawdzam, co załatwiono',
       list_mail: 'Przeszukuję pocztę',
       list_rules: 'Czytam reguły',
@@ -110,20 +107,11 @@ export const pl: Messages = {
       report_spam: 'Zgłaszam spam',
       mark_not_spam: 'Wyjmuję ze spamu',
       move_to_inbox: 'Przenoszę do odebranych',
-      create_board: 'Tworzę tablicę',
-      update_board: 'Zmieniam tablicę',
-      delete_board: 'Usuwam tablicę',
-      add_board_chart: 'Dodaję wykres',
-      add_to_board: 'Dodaję do tablicy',
-      edit_board_entry: 'Poprawiam wpis',
-      remove_board_entry: 'Zdejmuję z tablicy',
-      rename_board_group: 'Zmieniam nazwę grupy',
     },
     to: (recipients: string) => `Do: ${recipients}`,
     until: (time: string) => `Do ${time}`,
     yes: {
       dismiss_action: 'Pomiń',
-      delete_board: 'Usuń',
       create_event: 'Dodaj',
       delete_event: 'Usuń',
       update_event: 'Zapisz',
@@ -148,228 +136,6 @@ export const pl: Messages = {
     thinking: 'Przeglądam twoją pocztę…',
   },
   byRule: 'przez regułę',
-  boards: {
-    chartRemoved: 'Wykres usunięty',
-    addTo: 'Dodaj do tablicy',
-    added: (board: string) => `Dodano do „${board}”`,
-    cancel: 'Anuluj',
-    chart: {
-      add: 'Dodaj wykres',
-      ask: 'Opisz wykres',
-      askPlaceholder: 'Wydatki według sklepów, zamówienia według statusu…',
-      currency: 'Waluta',
-      edit: 'Ustawienia wykresu',
-      empty: 'Na razie nie ma czego narysować',
-      groupBy: 'Grupowanie',
-      groupings: {
-        group: 'Kto lub co',
-        month: 'Miesiąc',
-        status: 'Status',
-        week: 'Tydzień',
-      },
-      measure: 'Pokazuje',
-      measures: { count: 'Liczba', sum: 'Łączna kwota' },
-      moveEarlier: 'Przesuń wcześniej',
-      moveLater: 'Przesuń dalej',
-      other: 'Inne',
-      remove: 'Usuń wykres',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `Poza sumą: ${[
-          currency > 0 && `inna waluta: ${currency}`,
-          payment > 0 &&
-            `do zapłaty, nieudane, zwrócone lub otrzymane: ${payment}`,
-          amount > 0 && `bez kwoty: ${amount}`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: 'Tytuł wykresu',
-      type: 'Rodzaj wykresu',
-      types: {
-        area: 'Warstwowy',
-        bar: 'Słupki',
-        line: 'Linia',
-        pie: 'Kołowy',
-      },
-      untitled: 'Nowy wykres',
-      weekOf: (date: string) => `Tydzień od ${date}`,
-    },
-    charts: 'Wykresy',
-    create: 'Utwórz tablicę',
-    delete: 'Usuń tablicę',
-    deleteConfirm: (name: string) => `Usunąć „${name}”?`,
-    deleteHint:
-      'Wpisy i wykresy znikną razem z nią. Poczta zostaje tam, gdzie jest.',
-    describe: 'Zmień, co zbiera',
-    description: 'Co zbiera',
-    descriptionPlaceholder:
-      'Podróże: loty, hotele i wynajem aut, razem z kosztami',
-    due: (when: string) => `Najbliższa data: ${when}`,
-    empty: 'Na razie pusto. Pasujące maile pojawią się tu, gdy tylko przyjdą.',
-    entries: (total: number) =>
-      plural('pl', total, {
-        one: () => 'Jeden wpis',
-        few: (n) => `${n} wpisy`,
-        many: (n) => `${n} wpisów`,
-        other: (n) => `${n} wpisu`,
-      }),
-    entry: {
-      edited: 'Poprawione przez ciebie',
-      nextOn: (date: string) => `następnie ${date}`,
-      remove: 'Nie z tej tablicy',
-      removed: 'Zdjęte z tablicy. Zapamięta to na przyszłość.',
-    },
-    expected: (when: string) => `Spodziewane ${when}`,
-    filter: {
-      clear: 'Wyczyść filtr',
-      nothing: 'Brak pasujących wpisów.',
-      search: 'Szukaj we wpisach',
-    },
-    groups: {
-      every: {
-        month: 'co miesiąc',
-        quarter: 'co kwartał',
-        week: 'co tydzień',
-        year: 'co rok',
-      },
-      expected: (date: string) => `spodziewane ${date}`,
-      next: (date: string) => `następnie ${date}`,
-      perMonth: (amount: string) => `${amount} / mies.`,
-      rename: 'Zmień nazwę grupy',
-      renameHint: 'Nadaj jej nazwę innej grupy, a obie się połączą.',
-      showAll: (n: number) => `Pokaż wszystkie (${n})`,
-      showFewer: 'Pokaż mniej',
-      title: 'Według tego, kto lub co',
-    },
-    history: {
-      capped: (n: number) =>
-        `Przeczytano ${n} najnowszych pasujących maili z wybranego okresu.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? 'Przeglądam pocztę z wybranego okresu…'
-          : `Czytam ${plural('pl', found, { one: () => 'jeden mail', few: (n) => `${n} maile`, many: (n) => `${n} maili`, other: (n) => `${n} maila` })} · na razie ${plural('pl', entries, { one: () => 'jeden wpis', few: (n) => `${n} wpisy`, many: (n) => `${n} wpisów`, other: (n) => `${n} wpisu` })}`,
-    },
-    menu: 'Działania na tablicy',
-    moveDown: 'Przesuń w dół',
-    moveUp: 'Przesuń w górę',
-    name: 'Nazwa',
-    namePlaceholder: 'Podróże',
-    new: 'Nowa tablica',
-    newHint:
-      'Opisz własnymi słowami, co zbierać. Fewmail znajdzie to w poczcie z wybranego okresu, dobierze wykresy i będzie je aktualizować.',
-    payment: {
-      due: 'do zapłaty',
-      failed: 'nieudana',
-      income: 'otrzymano',
-      paid: 'zapłacono',
-      refund: 'zwrot',
-    },
-    period: 'Okres',
-    periods: {
-      1: 'Ostatni dzień',
-      7: 'Ostatni tydzień',
-      30: 'Ostatni miesiąc',
-      90: 'Ostatnie 3 miesiące',
-      180: 'Ostatnie pół roku',
-      365: 'Ostatni rok',
-    },
-    planning: 'Przygotowuję…',
-    redescribe: 'Zapisz i przeczytaj ponownie',
-    redescribeHint:
-      'Wybrany okres zostanie przeczytany od nowa według nowego opisu. Wpisy, które poprawiłeś lub zdjąłeś, zostają.',
-    rename: 'Zmień nazwę tablicy',
-    save: 'Zapisz',
-    settings: {
-      bannerDays: 'Przypomnienie przed datą',
-      days: (n: number) =>
-        plural('pl', n, {
-          one: () => '1 dzień wcześniej',
-          other: (count) => `${count} dni wcześniej`,
-        }),
-      hint: 'Jak daleko wstecz tablica zbiera i kiedy uprzedza cię przed terminem.',
-      never: 'Nigdy',
-      title: 'Ustawienia tablicy',
-    },
-    starter: {
-      events: {
-        description:
-          'Bilety, rezerwacje i wizyty: gdzie mam być, kiedy i z kim.',
-        name: 'Wydarzenia',
-      },
-      health: {
-        description:
-          'Wizyty lekarskie, recepty, wyniki badań i zwroty z ubezpieczenia: u kogo byłem, kiedy i ile to kosztowało.',
-        name: 'Zdrowie',
-      },
-      home: {
-        description:
-          'Czynsz, media, naprawy i umowy dotyczące mieszkania: co trzeba zapłacić, komu i ile.',
-        name: 'Dom',
-      },
-      invoices: {
-        description:
-          'Faktury, które wystawiam i otrzymuję w pracy: klient lub dostawca, kwota, termin i czy jest opłacona.',
-        name: 'Faktury',
-      },
-      jobs: {
-        description:
-          'Aplikacje, rozmowy i oferty: która firma, jakie stanowisko i na jakim etapie jest każda.',
-        name: 'Szukanie pracy',
-      },
-      learning: {
-        description:
-          'Kursy, zajęcia i poczta ze szkoły lub uczelni: terminy, oceny, certyfikaty i ich koszt.',
-        name: 'Nauka',
-      },
-      money: {
-        description:
-          'Płatności, subskrypcje, rachunki i zwroty: za co płacę, komu, ile i kiedy się odnawia.',
-        name: 'Finanse',
-      },
-      orders: {
-        description:
-          'Zamówienia online i dostawy: co kupiłem, u kogo i gdzie teraz jest.',
-        name: 'Zamówienia',
-      },
-      trips: {
-        description:
-          'Loty, pociągi, hotele i wynajem: dokąd jadę, kiedy i ile to kosztuje.',
-        name: 'Podróże',
-      },
-    },
-    summary: {
-      attention: 'Wymaga uwagi',
-      emails: (n: number) =>
-        plural('pl', n, {
-          one: (count) => `${count} e-mail`,
-          few: (count) => `${count} e-maile`,
-          many: (count) => `${count} e-maili`,
-          other: (count) => `${count} e-maila`,
-        }),
-      next: (title: string, date: string, amount: string | null) =>
-        `Następna: ${title}, ${date}${amount ? `, ${amount}` : ''}.`,
-      perMonth: (amount: string, n: number) => {
-        const payments = plural('pl', n, {
-          one: () => `jedną stałą płatność`,
-          few: (count) => `${count} stałe płatności`,
-          many: (count) => `${count} stałych płatności`,
-          other: (count) => `${count} stałej płatności`,
-        })
-        return `Płacisz ${amount} miesięcznie za ${payments}.`
-      },
-      received: (amount: string) => `otrzymano ${amount}`,
-      refunded: (amount: string) => `zwrócono ${amount}`,
-      regular: 'Stałe płatności',
-      upcoming: 'Najbliższe 30 dni',
-    },
-  },
   bulk: {
     badge: (n: number) => `Wysłane do ${n}+ użytkowników Fewmail`,
     reason: (n: number) =>
@@ -643,7 +409,6 @@ export const pl: Messages = {
     move: 'przejdź',
     stackEmail: 'następny / poprzedni e-mail',
     open: 'otwórz',
-    notOnBoard: 'nie z tej tablicy',
     rename: 'zmień nazwę',
     clearFilter: 'wyczyść filtr',
     search: 'szukaj',
@@ -856,10 +621,8 @@ export const pl: Messages = {
     folders: 'Foldery',
     calendar: 'Kalendarz',
     subscriptions: 'Listy mailingowe',
-    boards: 'Tablice',
     people: 'Osoby',
     findPerson: 'Znajdź osobę',
-    newBoard: 'Nowa tablica',
     mail: 'Poczta',
     reading: 'Czytanie',
     rules: 'Reguły',
@@ -891,9 +654,6 @@ export const pl: Messages = {
       }),
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `Strony, które agent wypełnia z twojej poczty, zaczynając od ostatnich trzech miesięcy. Wybierz do ${max}; własne dodasz później.`,
-    boardsTitle: 'Co agent ma dla ciebie zbierać?',
     languageHint:
       'W tym języku działa aplikacja, podsumowania i wyjaśnienia. Odpowiedzi zawsze są w języku maila, na który odpowiadasz.',
     languageTitle: 'W jakim języku ma mówić Fewmail?',
@@ -1471,11 +1231,6 @@ export const pl: Messages = {
             'Pytaj zwykłymi słowami i dostawaj odpowiedź z własnej poczty, razem z mailami, z których pochodzi.',
           title: 'Zapytaj swoją pocztę',
         },
-        boards: {
-          description:
-            'Pieniądze, płatne subskrypcje, podróże, zamówienia: opisz, co śledzić, a agent zbierze to z maksymalnie roku poczty, z wykresami.',
-          title: 'Tablice',
-        },
         calendar: {
           description:
             'Kalendarze wszystkich skrzynek w jednym widoku. Spotkanie zaproponowane w mailu staje się wydarzeniem, gdy powiesz „tak”.',
@@ -1748,7 +1503,7 @@ export const pl: Messages = {
     heard: (text: string) => `Usłyszałem: „${text}”`,
     voiceFailed:
       'Nie udało mi się tego zrozumieć. Spróbuj jeszcze raz albo napisz.',
-    help: 'Napisz albo powiedz, czego potrzebujesz:\n• zapytaj o pocztę: „kiedy odnawia się Netflix?”\n• powiedz, co odpisać: „napisz Annie, że podpiszę jutro”\n• zleć mi coś: „utwórz tablicę na podróże”\n• odpowiedz na mój szkic, żeby go zmienić',
+    help: 'Napisz albo powiedz, czego potrzebujesz:\n• zapytaj o pocztę: „kiedy odnawia się Netflix?”\n• powiedz, co odpisać: „napisz Annie, że podpiszę jutro”\n• zleć mi coś: „zawsze archiwizuj newslettery z Medium”\n• odpowiedz na mój szkic, żeby go zmienić',
     canceled: 'Anulowano. Szkic wrócił do kolejki.',
     sendingIn: (seconds: number) => `Wysyłanie za ${seconds} s`,
     undo: 'Cofnij',
@@ -1812,7 +1567,7 @@ export const pl: Messages = {
       approved: 'Twoje „tak”',
       byRule: (rule: string) => `Twoja reguła: ${rule}`,
       failed: 'Nie udało się',
-      lead: 'Ostatnie 7 dni. Każda zmiana w poczcie, kalendarzu czy tablicach miała twoje „tak” albo włączoną przez ciebie regułę.',
+      lead: 'Ostatnie 7 dni. Każda zmiana w poczcie czy kalendarzu miała twoje „tak” albo włączoną przez ciebie regułę.',
       title: 'Zrobione w twojej poczcie',
     },
     progress: (done: number, total: number) => `${done} z ${total}`,
@@ -1932,8 +1687,6 @@ export const pl: Messages = {
     ask: 'Zapytaj swoją pocztę',
     hints: {
       ask: 'Część Fewmail Pro: pytaj o cokolwiek własnymi słowami i dostawaj odpowiedź z własnej poczty.',
-      boards:
-        'Część Fewmail Pro: opisz, co zbierać, a agent znajdzie to w poczcie i będzie aktualizować.',
       drafts:
         'Część Fewmail Pro: agent napisze odpowiedź w twoim stylu, a ty ją poprawisz i wyślesz.',
     },

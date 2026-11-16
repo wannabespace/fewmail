@@ -4,7 +4,6 @@ import { db } from '@fewmail/db'
 import {
   actions,
   analyses,
-  boards,
   mailboxes,
   messages,
   userSettings,
@@ -27,7 +26,6 @@ import {
 
 import { localClock, previousDay } from './lib/clock'
 import { logError } from './lib/log'
-import { seedBoards } from './services/boards'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { savedThisWeek } from './services/home'
@@ -56,7 +54,6 @@ import {
   ensureMailbox,
   HELD_MONTHS,
   holdEarlierMail,
-  readBoardHistory,
   syncMailbox,
 } from './services/sync'
 import { sendReading, sendUrgent, sendWeek } from './telegram'
@@ -137,46 +134,11 @@ const holdDueMail = async () => {
   )
 }
 
-/** After the first sync, so the inbox is read before any history. */
-const seedDueBoards = async () => {
-  const due = await db
-    .select()
-    .from(mailboxes)
-    .where(
-      and(
-        isNull(mailboxes.googleAccountId),
-        isNull(mailboxes.boardsSeededAt),
-        isNotNull(mailboxes.lastSyncedAt),
-        hasAgentSql(mailboxes.userId)
-      )
-    )
-  await Promise.all(
-    due.map((mailbox) =>
-      once(`boards-seed:${mailbox.userId}`, async () => {
-        await seedBoards(mailbox.userId)
-        await db
-          .update(mailboxes)
-          .set({ boardsSeededAt: new Date() })
-          .where(eq(mailboxes.id, mailbox.id))
-      })
-    )
-  )
-}
-
 const renewWatches = async () => {
   const due = await mailboxesToWatch()
   await Promise.all(
     due.map((mailbox) =>
       once(`watch:${mailbox.id}`, () => watchMailbox(mailbox))
-    )
-  )
-}
-
-const readDueBoardHistory = async () => {
-  const due = await db.select().from(boards).where(isNull(boards.historyReadAt))
-  await Promise.all(
-    due.map((board) =>
-      once(`board-history:${board.id}`, () => readBoardHistory(board))
     )
   )
 }
@@ -392,8 +354,6 @@ const tick = async () => {
     Promise.all([
       syncDueMailboxes(),
       renewWatches(),
-      seedDueBoards(),
-      readDueBoardHistory(),
       holdDueMail(),
       once('mornings', sendDueMornings),
       once('cleanups', offerDueCleanups),

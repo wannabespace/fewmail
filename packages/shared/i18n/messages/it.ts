@@ -11,7 +11,6 @@ export const it: Messages = {
     cc: (recipients: string) => `Cc ${recipients}`,
     confirm: {
       dismiss_action: 'Saltare questa scheda?',
-      delete_board: 'Eliminare questa bacheca e tutto ciò che contiene?',
       create_event: 'Aggiungere questo evento?',
       delete_event: 'Eliminare questo evento?',
       update_event: 'Modificare questo evento?',
@@ -50,10 +49,8 @@ export const it: Messages = {
       draft_reply: 'Scrivo una risposta',
       create_draft: 'Salvo una bozza',
       find_people: "Cerco l'indirizzo",
-      get_board: 'Leggo la bacheca',
       get_person: 'Cerco la persona',
       get_today: 'Controllo oggi',
-      list_boards: 'Apro le bacheche',
       list_handled: 'Controllo ciò che è stato gestito',
       list_mail: 'Cerco nella posta',
       list_rules: 'Leggo le regole',
@@ -68,20 +65,11 @@ export const it: Messages = {
       report_spam: 'Segnalo come spam',
       mark_not_spam: 'Tolgo dallo spam',
       move_to_inbox: 'Sposto nella posta in arrivo',
-      create_board: 'Creo una bacheca',
-      update_board: 'Modifico la bacheca',
-      delete_board: 'Elimino la bacheca',
-      add_board_chart: 'Aggiungo un grafico',
-      add_to_board: 'Lo metto in bacheca',
-      edit_board_entry: 'Correggo la voce',
-      remove_board_entry: 'Lo tolgo dalla bacheca',
-      rename_board_group: 'Rinomino il gruppo',
     },
     to: (recipients: string) => `A ${recipients}`,
     until: (time: string) => `Fino a ${time}`,
     yes: {
       dismiss_action: 'Salta',
-      delete_board: 'Elimina',
       create_event: 'Aggiungi',
       delete_event: 'Elimina',
       update_event: 'Salva',
@@ -491,11 +479,6 @@ export const it: Messages = {
             'Chiedi qualsiasi cosa a parole tue e ottieni la risposta dalla tua posta, con le email da cui proviene.',
           title: 'Chiedi alla tua posta',
         },
-        boards: {
-          description:
-            'Soldi, abbonamenti a pagamento, viaggi, ordini: descrivi cosa tenere d’occhio e l’agente lo raccoglie da fino a un anno di posta, con grafici.',
-          title: 'Bacheche',
-        },
         calendar: {
           description:
             'Il calendario di ogni casella in un’unica vista. Una riunione proposta in un’email diventa un evento appena dici sì.',
@@ -896,7 +879,6 @@ export const it: Messages = {
     move: 'sposta',
     stackEmail: 'email successiva / precedente',
     open: 'apri',
-    notOnBoard: 'non è di questa bacheca',
     rename: 'rinomina',
     clearFilter: 'azzera filtro',
     search: 'cerca',
@@ -1108,10 +1090,8 @@ export const it: Messages = {
     folders: 'Cartelle',
     calendar: 'Calendario',
     subscriptions: 'Mailing list',
-    boards: 'Bacheche',
     people: 'Persone',
     findPerson: 'Cerca una persona',
-    newBoard: 'Nuova bacheca',
     mail: 'Posta',
     reading: 'Lettura',
     rules: 'Regole',
@@ -1140,9 +1120,6 @@ export const it: Messages = {
       }),
   },
   onboarding: {
-    boardsHint: (max: number) =>
-      `Pagine che l’agente riempie con la tua posta, a partire dagli ultimi tre mesi. Scegline fino a ${max}; le tue puoi aggiungerle dopo.`,
-    boardsTitle: 'Cosa deve raccogliere l’agente per te?',
     languageHint:
       'App, riepiloghi e spiegazioni usano questa lingua. Le risposte seguono sempre la lingua dell’email a cui rispondi.',
     languageTitle: 'In che lingua deve parlare Fewmail?',
@@ -1407,7 +1384,7 @@ export const it: Messages = {
       'Le schede sono cambiate nel frattempo. Ecco cosa richiede te adesso:',
     heard: (text: string) => `Ho sentito: “${text}”`,
     voiceFailed: 'Non ho capito. Riprova o scrivilo.',
-    help: 'Scrivi o di’ cosa ti serve:\n• chiedi della tua posta: «quando si rinnova Netflix?»\n• di’ cosa rispondere: «di’ ad Anna che firmo domani»\n• dammi un compito: «crea una bacheca per i viaggi»\n• rispondi a una mia bozza per cambiarla',
+    help: 'Scrivi o di’ cosa ti serve:\n• chiedi della tua posta: «quando si rinnova Netflix?»\n• di’ cosa rispondere: «di’ ad Anna che firmo domani»\n• dammi un compito: «archivia sempre le newsletter di Medium»\n• rispondi a una mia bozza per cambiarla',
     canceled: 'Annullato. La bozza è di nuovo nella tua coda.',
     sendingIn: (seconds: number) => `Invio tra ${seconds} s`,
     undo: 'Annulla',
@@ -1470,7 +1447,7 @@ export const it: Messages = {
       approved: 'Hai detto sì',
       byRule: (rule: string) => `La tua regola: ${rule}`,
       failed: 'Non è riuscito',
-      lead: 'Gli ultimi 7 giorni. Ogni modifica a posta, calendario o bacheche ha avuto il tuo sì o una regola che hai attivato.',
+      lead: 'Gli ultimi 7 giorni. Ogni modifica a posta o calendario ha avuto il tuo sì o una regola che hai attivato.',
       title: 'Fatto nella tua posta',
     },
     progress: (done: number, total: number) => `${done} di ${total}`,
@@ -1547,223 +1524,6 @@ export const it: Messages = {
     recent: (period: string) => `Anche ${period}`,
     sent: 'Inviata',
     codes: 'Codici di accesso',
-  },
-  boards: {
-    chartRemoved: 'Grafico rimosso',
-    addTo: 'Aggiungi a una bacheca',
-    added: (board: string) => `Aggiunta a ${board}`,
-    cancel: 'Annulla',
-    chart: {
-      add: 'Aggiungi grafico',
-      ask: 'Descrivi il grafico',
-      askPlaceholder: 'Spese per negozio, ordini per stato…',
-      currency: 'Valuta',
-      edit: 'Impostazioni del grafico',
-      empty: 'Ancora niente da disegnare',
-      groupBy: 'Raggruppato per',
-      groupings: {
-        group: 'Chi o cosa',
-        month: 'Mese',
-        status: 'Stato',
-        week: 'Settimana',
-      },
-      measure: 'Mostra',
-      measures: { count: 'Numero', sum: 'Importo totale' },
-      moveEarlier: 'Sposta prima',
-      moveLater: 'Sposta dopo',
-      other: 'Altro',
-      remove: 'Rimuovi grafico',
-      skipped: ({
-        amount,
-        currency,
-        payment,
-      }: {
-        amount: number
-        currency: number
-        payment: number
-      }) =>
-        `Fuori dalla somma: ${[
-          currency > 0 && `altra valuta: ${currency}`,
-          payment > 0 &&
-            `da pagare, non riusciti, rimborsati o ricevuti: ${payment}`,
-          amount > 0 && `senza importo: ${amount}`,
-        ]
-          .filter(Boolean)
-          .join(', ')}`,
-      title: 'Titolo del grafico',
-      type: 'Tipo di grafico',
-      types: {
-        area: 'Area',
-        bar: 'Barre',
-        line: 'Linea',
-        pie: 'Torta',
-      },
-      untitled: 'Nuovo grafico',
-      weekOf: (date: string) => `Settimana dal ${date}`,
-    },
-    charts: 'Grafici',
-    create: 'Crea bacheca',
-    delete: 'Elimina bacheca',
-    deleteConfirm: (name: string) => `Eliminare «${name}»?`,
-    deleteHint:
-      'Le sue voci e i suoi grafici vengono eliminati con lei. La tua posta resta dov’è.',
-    describe: 'Cambia cosa raccoglie',
-    description: 'Cosa raccoglie',
-    descriptionPlaceholder:
-      'Viaggi: voli, hotel e noleggi auto, con quanto sono costati',
-    due: (when: string) => `In arrivo: ${when}`,
-    empty:
-      'Ancora vuota. Le email pertinenti compariranno qui appena arrivano.',
-    entries: (total: number) =>
-      plural('it', total, {
-        one: () => 'Una voce',
-        other: (n) => `${n} voci`,
-      }),
-    entry: {
-      edited: 'Modificata da te',
-      nextOn: (date: string) => `prossima: ${date}`,
-      remove: 'Non è di questa bacheca',
-      removed: 'Tolta dalla bacheca. Ne terrà conto.',
-    },
-    expected: (when: string) => `Previsto ${when}`,
-    filter: {
-      clear: 'Azzera filtro',
-      nothing: 'Nessuna voce corrisponde.',
-      search: 'Cerca nelle voci',
-    },
-    groups: {
-      every: {
-        month: 'ogni mese',
-        quarter: 'ogni trimestre',
-        week: 'ogni settimana',
-        year: 'ogni anno',
-      },
-      expected: (date: string) => `previsto ${date}`,
-      next: (date: string) => `prossimo: ${date}`,
-      perMonth: (amount: string) => `${amount} / mese`,
-      rename: 'Rinomina gruppo',
-      renameHint: 'Dagli il nome di un altro gruppo per unirli.',
-      showAll: (n: number) => `Mostra tutti (${n})`,
-      showFewer: 'Mostra meno',
-      title: 'Per chi o cosa',
-    },
-    history: {
-      capped: (n: number) =>
-        `Lette le ${n} email corrispondenti più recenti del periodo.`,
-      reading: (found: number | null, entries: number) =>
-        found === null
-          ? 'Guardo la posta del periodo…'
-          : `Leggo ${plural('it', found, { one: () => 'un’email', other: (n) => `${n} email` })} · ${plural('it', entries, { one: () => 'una voce', other: (n) => `${n} voci` })} finora`,
-    },
-    menu: 'Azioni della bacheca',
-    moveDown: 'Sposta giù',
-    moveUp: 'Sposta su',
-    name: 'Nome',
-    namePlaceholder: 'Viaggi',
-    new: 'Nuova bacheca',
-    newHint:
-      'Descrivi con parole tue cosa raccogliere. Fewmail lo trova nella posta fin dove scegli, sceglie i grafici e la tiene aggiornata.',
-    payment: {
-      due: 'da pagare',
-      failed: 'non riuscito',
-      income: 'ricevuto',
-      paid: 'pagato',
-      refund: 'rimborso',
-    },
-    period: 'Periodo',
-    periods: {
-      1: 'Ultimo giorno',
-      7: 'Ultima settimana',
-      30: 'Ultimo mese',
-      90: 'Ultimi 3 mesi',
-      180: 'Ultimi 6 mesi',
-      365: 'Ultimo anno',
-    },
-    planning: 'Preparazione…',
-    redescribe: 'Salva e rileggi',
-    redescribeHint:
-      'Rilegge il periodo con la nuova descrizione. Le voci che hai modificato o tolto restano.',
-    rename: 'Rinomina bacheca',
-    save: 'Salva',
-    settings: {
-      bannerDays: 'Avviso prima di una data',
-      days: (n: number) =>
-        plural('it', n, {
-          one: () => '1 giorno prima',
-          other: (count) => `${count} giorni prima`,
-        }),
-      hint: 'Fin dove raccoglie la bacheca e quando ti avvisa prima di una data.',
-      never: 'Mai',
-      title: 'Impostazioni della bacheca',
-    },
-    starter: {
-      events: {
-        description:
-          'Biglietti, prenotazioni e appuntamenti: dove devo essere, quando e con chi.',
-        name: 'Eventi',
-      },
-      health: {
-        description:
-          'Visite mediche, ricette, referti e rimborsi dell’assicurazione: chi ho visto, quando e quanto è costato.',
-        name: 'Salute',
-      },
-      home: {
-        description:
-          'Affitto, utenze, riparazioni e contratti della casa: cosa scade, a chi e quanto.',
-        name: 'Casa',
-      },
-      invoices: {
-        description:
-          'Fatture che emetto e ricevo per lavoro: cliente o fornitore, importo, scadenza e se è pagata.',
-        name: 'Fatture',
-      },
-      jobs: {
-        description:
-          'Candidature, colloqui e offerte: quale azienda, quale ruolo e a che punto è ciascuna.',
-        name: 'Ricerca di lavoro',
-      },
-      learning: {
-        description:
-          'Corsi, lezioni e posta da scuola o università: scadenze, voti, certificati e quanto costano.',
-        name: 'Formazione',
-      },
-      money: {
-        description:
-          'Pagamenti, abbonamenti, bollette e rimborsi: cosa pago, a chi, quanto e quando si rinnova.',
-        name: 'Finanze',
-      },
-      orders: {
-        description:
-          'Ordini online e consegne: cosa ho comprato, da chi e dove si trova.',
-        name: 'Ordini',
-      },
-      trips: {
-        description:
-          'Voli, treni, hotel e noleggi: dove vado, quando e quanto costa.',
-        name: 'Viaggi',
-      },
-    },
-    summary: {
-      attention: 'Richiede attenzione',
-      emails: (n: number) =>
-        plural('it', n, {
-          one: () => `un’email`,
-          other: (count) => `${count} email`,
-        }),
-      next: (title: string, date: string, amount: string | null) =>
-        `Prossimo: ${title} il ${date}${amount ? `, ${amount}` : ''}.`,
-      perMonth: (amount: string, n: number) => {
-        const payments = plural('it', n, {
-          one: () => `un pagamento ricorrente`,
-          other: (count) => `${count} pagamenti ricorrenti`,
-        })
-        return `Paghi ${amount} al mese per ${payments}.`
-      },
-      received: (amount: string) => `${amount} ricevuti`,
-      refunded: (amount: string) => `${amount} rimborsati`,
-      regular: 'Pagamenti ricorrenti',
-      upcoming: 'Prossimi 30 giorni',
-    },
   },
   bulk: {
     badge: (n: number) => `Inviata a oltre ${n} utenti Fewmail`,
@@ -1879,8 +1639,6 @@ export const it: Messages = {
     ask: 'Chiedi alla tua posta',
     hints: {
       ask: 'Incluso in Fewmail Pro: chiedi qualsiasi cosa con parole tue e ricevi la risposta dalla tua posta.',
-      boards:
-        'Incluso in Fewmail Pro: descrivi cosa raccogliere e l’agente lo trova nella tua posta e lo tiene aggiornato.',
       drafts:
         'Incluso in Fewmail Pro: l’agente scrive la risposta nel tuo stile, tu la modifichi e la invii.',
     },

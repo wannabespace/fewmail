@@ -6,7 +6,7 @@
 - **A row's title and description are two blocks, not one paragraph**: kit `ItemDescription` is `text-sm/snug` and `ItemContent` keeps `gap-1` at every size but `xs`, so a two-line description reads as one unit set apart from its title. A call site wrapping the description in a span never sets `text-sm` again, which would reset the leading.
 - Content column: reading screens (Home, Rules, Settings) cap at `max-w-3xl` with `px-10 pt-12`; the thread reader caps at `max-w-2xl`.
 - Heights: nav rows `h-8`; key-hint footer `h-11`; buttons through size props (`sm` inside cards, default in forms, `lg` on login/onboarding).
-- Radius: `--radius` 0.55rem (rounder than Tamery). Queue and choice cards `rounded-2xl` (a dense grid of small choice cards, like onboarding's board presets, `rounded-xl` with `p-3`); inner blocks (draft, analysis) `rounded-xl`; nav items and inputs `rounded-lg`.
+- Radius: `--radius` 0.55rem (rounder than Tamery). Queue and choice cards `rounded-2xl` (a dense grid of small choice cards `rounded-xl` with `p-3`); inner blocks (draft, analysis) `rounded-xl`; nav items and inputs `rounded-lg`.
 - `tabular-nums` on counts and times in lists.
 - Cyrillic: both Lora and Inter draw it, so Ukrainian sets in the same faces as English.
 - CJK: Lora and Inter have no CJK glyphs, so ja/zh/ko fall back to system fonts; `globals.css` sets `word-break: auto-phrase` on `:lang(ja|zh|ko)` so display headlines break at phrase boundaries. `<html lang>` follows `localeStore`.

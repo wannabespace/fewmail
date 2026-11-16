@@ -14,7 +14,6 @@ import {
   AiChat02Icon,
   BubbleChatIcon,
   Cancel01Icon,
-  DashboardSquare01Icon,
   McpServerIcon,
   Notification01Icon,
   PencilEdit02Icon,
@@ -35,8 +34,8 @@ import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { enablePush, pushStateQuery, pushSupported } from '~/lib/push'
 
-/** On Free the first three tell what Pro adds; the messengers need the agent. */
-const HINTS = ['drafts', 'ask', 'boards', 'messengers', 'mcp', 'push'] as const
+/** On Free the first two tell what Pro adds; the messengers need the agent. */
+const HINTS = ['drafts', 'ask', 'messengers', 'mcp', 'push'] as const
 
 const SLIDE = { duration: 0.15, ease: [0.32, 0.72, 0, 1] } as const
 
@@ -45,8 +44,10 @@ const hintsStore = createWebStorageValue({
   defaultValue: { dismissed: [] },
   key: 'fewmail.hints',
   schema: type({
-    // Browsers still hold the retired per-messenger hints; without them the whole list fails to parse and every dismissed hint comes back.
-    dismissed: type.enumerated(...HINTS, 'telegram', 'whatsapp').array(),
+    // Browsers still hold the retired hints; without them the whole list fails to parse and every dismissed hint comes back.
+    dismissed: type
+      .enumerated(...HINTS, 'boards', 'telegram', 'whatsapp')
+      .array(),
   }),
   type: 'localStorage',
 })
@@ -118,7 +119,7 @@ export const ConnectHint = () => {
     return !!publicKey && !push.subscribed && push.permission === 'default'
   }
   const proTip = (
-    feature: 'ask' | 'boards' | 'drafts',
+    feature: 'ask' | 'drafts',
     icon: IconSvgElement,
     title: string
   ): Hint => ({
@@ -136,7 +137,6 @@ export const ConnectHint = () => {
   })
   const hints: Record<(typeof HINTS)[number], Hint> = {
     ask: proTip('ask', AiChat02Icon, t.upgrade.ask),
-    boards: proTip('boards', DashboardSquare01Icon, t.nav.boards),
     drafts: proTip('drafts', PencilEdit02Icon, t.compose.writeForMe),
     mcp: {
       actions: [{ label: copy.setUp, render: <Link to="/settings" /> }],
