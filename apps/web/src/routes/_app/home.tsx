@@ -74,6 +74,8 @@ import {
 import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
+import { PaneRows } from '~/components/pane-rows'
+import type { RowPlace } from '~/components/pane-rows'
 import {
   isProposal,
   PROPOSALS_ID,
@@ -521,18 +523,24 @@ const WorthKnowing = ({
     () => messageId && actions.trash.mutate({ messageId }),
     rowKeys
   )
-  const rowOf = (rowId: string) => ({
+  const rowOf = (rowId: string, place: RowPlace) => ({
     actions,
     active: cursorId === worthStop(rowId),
     from: 'home' as const,
     onSelect: () => onSelect(worthStop(rowId)),
+    place,
     rowId,
   })
 
-  if (
-    !today ||
-    today.recent.length + today.dates.length + today.awaiting.length === 0
-  ) {
+  if (!today) {
+    return null
+  }
+  const rows = [
+    ...today.recent.map((item) => ({ ...item, kind: 'recent' as const })),
+    ...today.dates.map((item) => ({ ...item, kind: 'dates' as const })),
+    ...today.awaiting.map((sent) => ({ kind: 'awaiting' as const, sent })),
+  ]
+  if (rows.length === 0) {
     return null
   }
   return (
@@ -540,47 +548,49 @@ const WorthKnowing = ({
       title={t.today.worthKnowing}
       titleClassName={paneGroupTitleClassName}
     >
-      {today.recent.map(({ analysis, message }) => (
-        <EmailRow
-          key={message.id}
-          {...rowOf(message.id)}
-          message={message}
-          description={<span data-mask>{analysis.summary}</span>}
-          facts={
-            <ImportanceDot
-              importance={analysis.importance}
-              reason={analysis.reason}
+      <PaneRows
+        rowKey={(row) =>
+          row.kind === 'awaiting' ? row.sent.threadId : row.message.id
+        }
+        rows={rows}
+      >
+        {(row, place) =>
+          row.kind === 'awaiting' ? (
+            <EmailRow
+              {...rowOf(row.sent.threadId, place)}
+              actions={undefined}
+              message={{ ...row.sent, fromEmail: row.sent.to[0] ?? '' }}
+              sender={{
+                fromEmail: row.sent.to[0] ?? '',
+                fromName: row.sent.toName,
+              }}
+              description={
+                <>
+                  {t.today.awaiting} · <span data-mask>{row.sent.subject}</span>
+                </>
+              }
             />
-          }
-        />
-      ))}
-      {today.dates.map(({ analysis, message }) => (
-        <EmailRow
-          key={message.id}
-          {...rowOf(message.id)}
-          message={message}
-          description={<span data-mask>{analysis.summary}</span>}
-          facts={
-            <ExtractedChips
-              extracted={{ ...analysis.extracted, amount: null }}
+          ) : (
+            <EmailRow
+              {...rowOf(row.message.id, place)}
+              message={row.message}
+              description={<span data-mask>{row.analysis.summary}</span>}
+              facts={
+                row.kind === 'recent' ? (
+                  <ImportanceDot
+                    importance={row.analysis.importance}
+                    reason={row.analysis.reason}
+                  />
+                ) : (
+                  <ExtractedChips
+                    extracted={{ ...row.analysis.extracted, amount: null }}
+                  />
+                )
+              }
             />
-          }
-        />
-      ))}
-      {today.awaiting.map((sent) => (
-        <EmailRow
-          key={sent.threadId}
-          {...rowOf(sent.threadId)}
-          actions={undefined}
-          message={{ ...sent, fromEmail: sent.to[0] ?? '' }}
-          sender={{ fromEmail: sent.to[0] ?? '', fromName: sent.toName }}
-          description={
-            <>
-              {t.today.awaiting} · <span data-mask>{sent.subject}</span>
-            </>
-          }
-        />
-      ))}
+          )
+        }
+      </PaneRows>
     </SettingsGroup>
   )
 }
@@ -1571,10 +1581,10 @@ const HomePage = () => {
   })
   useHotkey('Space', () => selected && openCard(selected), listKeys)
   useOpenKey(worthRow, selected, isStepping)
-  const cardOf = (item: QueueItem) => (
+  const cardOf = (item: QueueItem, place: RowPlace) => (
     <QueueCard
-      key={item.action.id}
       item={item}
+      place={place}
       isNew={!!seenAt && item.action.createdAt > seenAt}
       isPicked={pickedIds.includes(item.action.id)}
       isOpen={isOpen && item === selected}
@@ -1591,10 +1601,9 @@ const HomePage = () => {
       value={openIds}
       onValueChange={toggleCard}
     >
-      {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
-      <AnimatePresence key={key} initial={false}>
-        {items.map(cardOf)}
-      </AnimatePresence>
+      <PaneRows listKey={key} rowKey={({ action }) => action.id} rows={items}>
+        {cardOf}
+      </PaneRows>
     </Accordion>
   )
 

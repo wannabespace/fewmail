@@ -7,7 +7,6 @@ import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   SettingsGroup,
   SettingsRow,
-  SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Cancel01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
@@ -20,6 +19,8 @@ import { useSubscription } from 'seitu/react'
 
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
 import { HomeCard, PageHeading } from '~/components/home-card'
+import { PaneRows } from '~/components/pane-rows'
+import type { RowPlace } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useDates, useLocale, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
@@ -274,13 +275,12 @@ export const BoardPane = ({
     enabled: isActive && !!active && !isOpenStatus(active.status),
   })
 
-  const rowOf = (row: Commitment) => {
+  const rowOf = (row: Commitment, place: RowPlace) => {
     const isCursor = row === active
     const sender = senderOf(row)
     return (
       <SettingsRow
-        key={row.id}
-        rowKey={row.id}
+        {...place}
         active={isCursor}
         trigger={
           <ExpandTrigger
@@ -346,7 +346,9 @@ export const BoardPane = ({
         (section) =>
           sections[section].length > 0 && (
             <SettingsGroup key={section} title={t.board.section[section]}>
-              <SettingsRows>{sections[section].map(rowOf)}</SettingsRows>
+              <PaneRows rowKey={({ id }) => id} rows={sections[section]}>
+                {rowOf}
+              </PaneRows>
             </SettingsGroup>
           )
       )}

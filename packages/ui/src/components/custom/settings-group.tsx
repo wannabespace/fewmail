@@ -99,7 +99,8 @@ export const SettingsRows = ({
   </ListContext>
 )
 
-const useRowFold = (rowKey: string | undefined) => {
+/** A row of `SettingsRows` folds as it leaves; one the window scrolled past (still in `listed`) goes at once. */
+export const useRowFold = (rowKey: string | undefined) => {
   const list = use(ListContext)
   const isLeaving = !useIsPresent() && !!list
   const isScrolledPast =

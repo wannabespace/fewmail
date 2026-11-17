@@ -34,7 +34,7 @@ const clockOf = (isReduced: boolean | null) => {
       ? { duration: 0 }
       : { bounce, type: 'spring', visualDuration: 0.25 }
   return {
-    box: spring(0.2),
+    box: spring(0.15),
     copyIn: at(0.04, 0.13),
     copyOut: at(0.04, 0.13),
     paneIn: at(0.04, 0.18),

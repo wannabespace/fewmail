@@ -6,6 +6,7 @@ import type { ReactNode } from 'react'
 import { ExpandTrigger } from '~/components/expand-row'
 import type { Expanded } from '~/components/expand-row'
 import { ROW_SWAP } from '~/components/mail-meta'
+import type { RowPlace } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { MailRowActions, sweepOf } from '~/components/thread-view'
 import type { useMailActions } from '~/components/thread-view'
@@ -41,6 +42,7 @@ export const EmailRow = ({
   from,
   message,
   onSelect,
+  place,
   rowId,
   sender = message,
 }: {
@@ -61,6 +63,7 @@ export const EmailRow = ({
     threadId: string
   }
   onSelect?: () => void
+  place?: RowPlace
   rowId?: string
   sender?: Sender
 }) => {
@@ -79,6 +82,7 @@ export const EmailRow = ({
   )
   return (
     <SettingsRow
+      {...place}
       active={active}
       trigger={
         <ExpandTrigger

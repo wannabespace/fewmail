@@ -34,6 +34,7 @@ import {
   useIsThreadExpanded,
 } from '~/components/expand-row'
 import { ListenButton } from '~/components/listen-button'
+import { PaneRows, PaneScroller } from '~/components/pane-rows'
 import { sweepOf, useMailActions } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 import { prefetchThread } from '~/lib/mail-db'
@@ -228,31 +229,33 @@ const NewsletterList = ({
 
   return (
     <SettingsGroup title={t.reading.digest(rows.length)}>
-      {rows.map((newsletter, index) => (
-        <EmailRow
-          key={newsletter.id}
-          actions={actions}
-          active={index === cursor}
-          from="reading"
-          message={newsletter}
-          onSelect={() => setCursor(index)}
-          description={
-            <>
-              <span data-mask>{newsletter.subject}</span>
-              {' · '}
-              <span data-mask={!summary || undefined}>
-                {noteOf(newsletter)}
-              </span>
-              {whyOf.has(newsletter.id) && (
-                <>
-                  <br />
-                  <span data-mask>{whyOf.get(newsletter.id)}</span>
-                </>
-              )}
-            </>
-          }
-        />
-      ))}
+      <PaneRows rowKey={({ id }) => id} rows={rows}>
+        {(newsletter, place) => (
+          <EmailRow
+            actions={actions}
+            active={place['data-index'] === cursor}
+            from="reading"
+            message={newsletter}
+            onSelect={() => setCursor(place['data-index'])}
+            place={place}
+            description={
+              <>
+                <span data-mask>{newsletter.subject}</span>
+                {' · '}
+                <span data-mask={!summary || undefined}>
+                  {noteOf(newsletter)}
+                </span>
+                {whyOf.has(newsletter.id) && (
+                  <>
+                    <br />
+                    <span data-mask>{whyOf.get(newsletter.id)}</span>
+                  </>
+                )}
+              </>
+            }
+          />
+        )}
+      </PaneRows>
     </SettingsGroup>
   )
 }
@@ -453,34 +456,36 @@ const IssueList = ({ shownDay }: { shownDay: string }) => {
   }
   return (
     <SettingsGroup title={t.reading.issues}>
-      {entries.map(({ count, day, titles }) => (
-        <SettingsRow
-          key={day}
-          render={
-            <Link
-              to="/home"
-              search={(prev) => ({ ...prev, day })}
-              data-morph-source={issueMorphId(day)}
-              onClick={() =>
-                posthog.capture('reading_issue_opened', { from: 'list' })
-              }
-            />
-          }
-          icon={<HugeiconsIcon icon={News01Icon} strokeWidth={2} />}
-          title={
-            <span className="inline-block first-letter:uppercase">
-              {titleOf(day)}
+      <PaneRows rowKey={({ day }) => day} rows={entries}>
+        {({ count, day, titles }, place) => (
+          <SettingsRow
+            {...place}
+            render={
+              <Link
+                to="/home"
+                search={(prev) => ({ ...prev, day })}
+                data-morph-source={issueMorphId(day)}
+                onClick={() =>
+                  posthog.capture('reading_issue_opened', { from: 'list' })
+                }
+              />
+            }
+            icon={<HugeiconsIcon icon={News01Icon} strokeWidth={2} />}
+            title={
+              <span className="inline-block first-letter:uppercase">
+                {titleOf(day)}
+              </span>
+            }
+            description={
+              titles.length > 0 && <span data-mask>{titles.join(' · ')}</span>
+            }
+          >
+            <span className="text-muted-foreground text-xs tabular-nums">
+              {t.reading.digest(count)}
             </span>
-          }
-          description={
-            titles.length > 0 && <span data-mask>{titles.join(' · ')}</span>
-          }
-        >
-          <span className="text-muted-foreground text-xs tabular-nums">
-            {t.reading.digest(count)}
-          </span>
-        </SettingsRow>
-      ))}
+          </SettingsRow>
+        )}
+      </PaneRows>
     </SettingsGroup>
   )
 }
@@ -552,7 +557,7 @@ const LatestPane = ({
   const navigate = useNavigate()
   return (
     <MorphPane area={READING_AREA} source={issueMorphId(day)} className="z-10">
-      <div className="under-notice h-full overflow-y-auto">
+      <PaneScroller className="under-notice">
         <section aria-label={t.reading.title} className={PANE_COLUMN}>
           <PaneReveal className="flex flex-col gap-3">
             <PaneHead
@@ -571,7 +576,7 @@ const LatestPane = ({
             </div>
           </PaneReveal>
         </section>
-      </div>
+      </PaneScroller>
     </MorphPane>
   )
 }
@@ -587,7 +592,7 @@ const DayPane = ({ day }: { day: string }) => {
       radius={12}
       className="z-20"
     >
-      <div className="under-notice h-full overflow-y-auto">
+      <PaneScroller className="under-notice">
         <section aria-label={t.reading.title} className={PANE_COLUMN}>
           <PaneReveal className="flex flex-col gap-3">
             <PaneHead
@@ -605,7 +610,7 @@ const DayPane = ({ day }: { day: string }) => {
             </div>
           </PaneReveal>
         </section>
-      </div>
+      </PaneScroller>
     </MorphPane>
   )
 }

@@ -11,12 +11,13 @@ import { Kbd } from '@fewmail/ui/components/kbd'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
 import { HomeCard, PageHeading } from '~/components/home-card'
+import { PaneRows } from '~/components/pane-rows'
 import type { QueueItem } from '~/components/queue-card'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { queueCards } from '~/lib/home-db'
@@ -265,18 +266,12 @@ export const ProposalsReview = ({
 }) => {
   const t = useT()
   const navigate = useNavigate()
-  const listRef = useRef<HTMLDivElement>(null)
   const [cursor, setCursor] = useState<number | null>(null)
   const groups = byKind(proposals.proposals)
   const rows = groups.flatMap(({ rows: group }) => group)
   // The cursor keeps its place as rows leave: the next one slides under it.
   const current = cursor === null ? -1 : Math.min(cursor, rows.length - 1)
   const selected = rows[current]
-
-  useEffect(() => {
-    const row = listRef.current?.querySelectorAll('[data-slot="item"]')[current]
-    row?.scrollIntoView({ block: 'nearest' })
-  }, [current])
 
   const isDone = proposals.isLoaded && rows.length === 0
   useEffect(() => {
@@ -331,7 +326,7 @@ export const ProposalsReview = ({
           {t.today.tidy.reviewLead}
         </p>
       </PageHeading>
-      <div ref={listRef} className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8">
         {groups.map(({ kind, rows: group }) => (
           <SettingsGroup
             key={kind}
@@ -341,59 +336,63 @@ export const ProposalsReview = ({
               </span>
             }
           >
-            {group.map((proposal) => {
-              const isActive = proposal === selected
-              const { message } = proposal
-              return (
-                <SettingsRow
-                  key={proposal.id}
-                  active={isActive}
-                  trigger={
-                    message ? (
-                      <ExpandTrigger
-                        email={{ from: 'home', threadId: message.threadId }}
-                        rowId={proposal.id}
-                      />
-                    ) : undefined
-                  }
-                  iconVariant="avatar"
-                  icon={message && <SenderAvatar sender={message} size="sm" />}
-                  title={
-                    message ? (
+            <PaneRows rowKey={({ id }) => id} rows={group}>
+              {(proposal, place) => {
+                const isActive = proposal === selected
+                const { message } = proposal
+                return (
+                  <SettingsRow
+                    {...place}
+                    active={isActive}
+                    trigger={
+                      message ? (
+                        <ExpandTrigger
+                          email={{ from: 'home', threadId: message.threadId }}
+                          rowId={proposal.id}
+                        />
+                      ) : undefined
+                    }
+                    iconVariant="avatar"
+                    icon={
+                      message && <SenderAvatar sender={message} size="sm" />
+                    }
+                    title={
+                      message ? (
+                        <span data-mask>
+                          {message.fromName ?? message.fromEmail}
+                        </span>
+                      ) : (
+                        t.actionKind[kind]
+                      )
+                    }
+                    description={
                       <span data-mask>
-                        {message.fromName ?? message.fromEmail}
+                        {[message?.subject, proposal.why]
+                          .filter(Boolean)
+                          .join(' · ')}
                       </span>
-                    ) : (
-                      t.actionKind[kind]
-                    )
-                  }
-                  description={
-                    <span data-mask>
-                      {[message?.subject, proposal.why]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </span>
-                  }
-                >
-                  <Button
-                    size="sm"
-                    variant="ghost-tint-muted"
-                    onClick={() => proposals.keep(proposal)}
-                    shortcut={isActive ? <Kbd>S</Kbd> : undefined}
+                    }
                   >
-                    {t.today.tidy.keep}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => proposals.approve([proposal])}
-                    shortcut={isActive ? <Kbd>⏎</Kbd> : undefined}
-                  >
-                    {t.actionKind[kind]}
-                  </Button>
-                </SettingsRow>
-              )
-            })}
+                    <Button
+                      size="sm"
+                      variant="ghost-tint-muted"
+                      onClick={() => proposals.keep(proposal)}
+                      shortcut={isActive ? <Kbd>S</Kbd> : undefined}
+                    >
+                      {t.today.tidy.keep}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => proposals.approve([proposal])}
+                      shortcut={isActive ? <Kbd>⏎</Kbd> : undefined}
+                    >
+                      {t.actionKind[kind]}
+                    </Button>
+                  </SettingsRow>
+                )
+              }}
+            </PaneRows>
           </SettingsGroup>
         ))}
       </div>

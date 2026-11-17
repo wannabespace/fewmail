@@ -12,6 +12,7 @@ import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
 import { MorphPane, PaneReveal } from '~/components/expand-row'
+import { PaneScroller } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 
@@ -149,19 +150,24 @@ export const HomeCardPane = ({
   const column = useSubscription(pageColumn)
   const pane = (
     <MorphPane area="page-column" source={morphIdOf(page)} className="z-10">
-      <div data-slot="home-card-pane" className="h-full overflow-y-auto">
+      <PaneScroller data-slot="home-card-pane">
         <PaneReveal className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6">
           {children}
         </PaneReveal>
-      </div>
+      </PaneScroller>
     </MorphPane>
   )
   return column && createPortal(pane, column)
 }
 
+// Keep in step with the pane's padding: a sticky row over the whole gutter covers every card's bleed and ring scrolling under it.
+const paneGutterClassName = '-mx-4 px-4 md:-mx-10 md:px-10'
+
 /** A group's title in a pane sticks under `PageHeading`'s row (`top-17` is its height) and, like it, covers the cards' bleed. */
-export const paneGroupTitleClassName =
-  'bg-background sticky top-17 z-[5] -my-2 py-2 md:-mx-3.5 md:px-3.5'
+export const paneGroupTitleClassName = cn(
+  'bg-background sticky top-17 z-5 -my-2 py-2',
+  paneGutterClassName
+)
 
 /**
  * What a Home card opened says on top: its name, its actions and ✕ (Home's `esc`) back to Home, held at the pane's top
@@ -182,7 +188,12 @@ export const PageHeading = ({
   const t = useT()
   return (
     <>
-      <header className="bg-background sticky top-0 z-10 -mt-3 flex items-center gap-2 py-3 md:-mx-3.5 md:px-3.5">
+      <header
+        className={cn(
+          'bg-background sticky top-0 z-10 -mt-3 flex items-center gap-2 py-3',
+          paneGutterClassName
+        )}
+      >
         <h1 className="text-display font-serif tracking-tight">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
           {actions}

@@ -19,6 +19,7 @@ import {
 import { Button } from '@fewmail/ui/components/button'
 import { Checkbox } from '@fewmail/ui/components/checkbox'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
+import { useRowFold } from '@fewmail/ui/components/custom/settings-group'
 import {
   InputGroup,
   InputGroupAddon,
@@ -36,7 +37,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { motion, useIsPresent, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import { toast } from 'sonner'
@@ -52,6 +53,7 @@ import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
 import { ConsentDetails } from './consent-details'
 import { ImportanceDot, ROW_SWAP } from './mail-meta'
+import type { RowPlace } from './pane-rows'
 import { SenderAvatar } from './sender-avatar'
 import { useWithAgent } from './upgrade-dialog'
 
@@ -333,18 +335,23 @@ const QueueCardHeader = ({
   )
 }
 
-const CARD_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
-
 /** A settled row folds out and the rows below rise into its place, the next one opening as it comes. */
-const LeavingCard = ({ children }: { children: ReactNode }) => {
-  const isPresent = useIsPresent()
-  const isReducedMotion = useReducedMotion()
+const LeavingCard = ({
+  children,
+  place,
+}: {
+  children: ReactNode
+  place: RowPlace
+}) => {
+  const { isLeaving, isScrolledPast, motionProps } = useRowFold(place.rowKey)
   return (
     <motion.div
-      initial={false}
-      exit={{ height: 0, opacity: 0 }}
-      transition={isReducedMotion ? { duration: 0 } : CARD_LEAVE}
-      className={cn(!isPresent && 'pointer-events-none overflow-hidden')}
+      {...motionProps}
+      // A leaving card's index is stale, so the virtualizer stops measuring it (-1 is out of range).
+      data-index={isLeaving ? -1 : place['data-index']}
+      ref={isLeaving ? undefined : place.ref}
+      hidden={isScrolledPast}
+      className={cn(isLeaving && 'pointer-events-none overflow-hidden')}
     >
       {children}
     </motion.div>
@@ -547,6 +554,7 @@ export const QueueCard = ({
   onApprove,
   onPick,
   onSkip,
+  place,
 }: {
   isNew: boolean
   isOpen: boolean
@@ -556,6 +564,7 @@ export const QueueCard = ({
   onApprove: () => void
   onPick: () => void
   onSkip: () => void
+  place: RowPlace
 }) => {
   const t = useT()
   const { action } = item
@@ -568,7 +577,7 @@ export const QueueCard = ({
   }, [isSelected])
 
   return (
-    <LeavingCard>
+    <LeavingCard place={place}>
       <AccordionItem
         ref={ref}
         value={action.id}
