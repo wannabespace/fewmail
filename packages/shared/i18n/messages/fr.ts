@@ -1203,13 +1203,13 @@ export const fr: Messages = {
       }),
     delete: 'Supprimer',
     describe: {
-      alwaysShow: 'Arrive toujours dans Accueil',
+      alwaysShow: 'Reste toujours dans Accueil, jamais masqué',
       autonomous: 'Fait automatiquement, listé dans les e-mails traités',
       draft: 'Un brouillon vous attend dans Accueil',
     },
     effect: {
       trash: 'Le mettre à la corbeille',
-      always_show: 'Toujours me montrer',
+      always_show: 'Ne pas manquer',
       archive: 'L’archiver',
       draft_reply: 'Rédiger une réponse',
       mark_read: 'Marquer comme lu',

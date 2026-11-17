@@ -1192,13 +1192,13 @@ export const es: Messages = {
       }),
     delete: 'Eliminar',
     describe: {
-      alwaysShow: 'Siempre llega a Inicio',
+      alwaysShow: 'Siempre queda en Inicio, nunca se oculta',
       autonomous: 'Se hace solo y aparece en gestionados',
       draft: 'Un borrador te espera en Inicio',
     },
     effect: {
       trash: 'Moverlo a la papelera',
-      always_show: 'Mostrármelo siempre',
+      always_show: 'No perdérmelo',
       archive: 'Archivarlo',
       draft_reply: 'Redactar respuesta',
       mark_read: 'Marcar como leído',

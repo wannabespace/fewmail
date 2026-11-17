@@ -614,13 +614,13 @@ export const ko: Messages = {
     count: (n: number) => `규칙 ${n}개`,
     delete: '삭제',
     describe: {
-      alwaysShow: '항상 홈에 표시',
+      alwaysShow: '항상 홈에 남고 숨겨지지 않음',
       autonomous: '자동으로 처리하고 처리됨에 표시',
       draft: '초안이 홈에서 기다려요',
     },
     effect: {
       trash: '휴지통으로 이동',
-      always_show: '항상 보여주기',
+      always_show: '놓치지 않기',
       archive: '보관하기',
       draft_reply: '답장 초안 쓰기',
       mark_read: '읽음으로 표시',

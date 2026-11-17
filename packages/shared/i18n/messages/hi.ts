@@ -619,13 +619,13 @@ export const hi: Messages = {
       plural('hi', total, { one: () => '1 नियम', other: (n) => `${n} नियम` }),
     delete: 'हटाएँ',
     describe: {
-      alwaysShow: 'हमेशा होम पर दिखता है',
+      alwaysShow: 'हमेशा होम पर रहता है, कभी छिपता नहीं',
       autonomous: 'अपने आप होता है, निपटाए गए में दिखता है',
       draft: 'एक ड्राफ़्ट होम पर आपका इंतज़ार करता है',
     },
     effect: {
       trash: 'ट्रैश में डालें',
-      always_show: 'हमेशा मुझे दिखाएँ',
+      always_show: 'छूटने न दें',
       archive: 'आर्काइव करें',
       draft_reply: 'जवाब ड्राफ़्ट करें',
       mark_read: 'पढ़ा हुआ मार्क करें',

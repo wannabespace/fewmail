@@ -1189,13 +1189,13 @@ export const de: Messages = {
       }),
     delete: 'Löschen',
     describe: {
-      alwaysShow: 'Landet immer auf der Startseite',
+      alwaysShow: 'Bleibt immer auf der Startseite, wird nie ausgeblendet',
       autonomous: 'Wird selbst erledigt, steht unter Erledigt',
       draft: 'Ein Entwurf wartet auf der Startseite auf dich',
     },
     effect: {
       trash: 'In den Papierkorb',
-      always_show: 'Immer anzeigen',
+      always_show: 'Nicht verpassen',
       archive: 'Archivieren',
       draft_reply: 'Antwort entwerfen',
       mark_read: 'Als gelesen markieren',

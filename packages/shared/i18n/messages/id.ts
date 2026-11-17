@@ -776,12 +776,12 @@ export const id: Messages = {
       plural('id', total, { other: (n) => `${n} aturan` }),
     delete: 'Hapus',
     describe: {
-      alwaysShow: 'Selalu masuk ke Beranda',
+      alwaysShow: 'Selalu tetap di Beranda, tidak pernah disembunyikan',
       autonomous: 'Dikerjakan sendiri, tercatat di yang sudah ditangani',
       draft: 'Draf menunggumu di Beranda',
     },
     effect: {
-      always_show: 'Selalu tampilkan',
+      always_show: 'Jangan lewatkan',
       archive: 'Arsipkan',
       draft_reply: 'Buat draf balasan',
       mark_read: 'Tandai sudah dibaca',

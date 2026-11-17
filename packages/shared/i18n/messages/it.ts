@@ -1196,13 +1196,13 @@ export const it: Messages = {
       }),
     delete: 'Elimina',
     describe: {
-      alwaysShow: 'Arriva sempre in Home',
+      alwaysShow: 'Resta sempre in Home, mai nascosta',
       autonomous: 'Fatto in autonomia, elencato tra le gestite',
       draft: 'Una bozza ti aspetta in Home',
     },
     effect: {
       trash: 'Spostala nel cestino',
-      always_show: 'Mostramela sempre',
+      always_show: 'Non perdermela',
       archive: 'Archiviala',
       draft_reply: 'Scrivi una bozza',
       mark_read: 'Segna come letta',

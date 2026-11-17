@@ -601,13 +601,13 @@ export const zh: Messages = {
     count: (n: number) => `${n} 条规则`,
     delete: '删除',
     describe: {
-      alwaysShow: '始终出现在“首页”',
+      alwaysShow: '始终留在“首页”，不会被隐藏',
       autonomous: '自动完成，列在已处理中',
       draft: '草稿在“首页”中等你',
     },
     effect: {
       trash: '移到废纸篓',
-      always_show: '始终显示给我',
+      always_show: '不要错过',
       archive: '归档',
       draft_reply: '起草回复',
       mark_read: '标为已读',

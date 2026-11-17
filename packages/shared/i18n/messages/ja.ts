@@ -613,13 +613,13 @@ export const ja: Messages = {
     count: (n: number) => `${n} 件のルール`,
     delete: '削除',
     describe: {
-      alwaysShow: '常に「ホーム」に表示',
+      alwaysShow: '常に「ホーム」に残り、隠されない',
       autonomous: '自動で実行し、対応済みに表示',
       draft: '下書きが「ホーム」で待っています',
     },
     effect: {
       trash: 'ゴミ箱に移動',
-      always_show: '常に表示する',
+      always_show: '見逃さない',
       archive: 'アーカイブする',
       draft_reply: '返信を下書きする',
       mark_read: '既読にする',

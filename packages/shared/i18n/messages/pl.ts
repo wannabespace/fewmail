@@ -810,12 +810,12 @@ export const pl: Messages = {
       }),
     delete: 'Usuń',
     describe: {
-      alwaysShow: 'Zawsze trafia na stronę główną',
+      alwaysShow: 'Zawsze zostaje na stronie głównej, nigdy nie jest ukrywany',
       autonomous: 'Robione samo, widoczne w załatwionych',
       draft: 'Szkic czeka na ciebie na stronie głównej',
     },
     effect: {
-      always_show: 'Zawsze pokazuj',
+      always_show: 'Nie przegap',
       archive: 'Archiwizuj',
       draft_reply: 'Przygotuj szkic odpowiedzi',
       mark_read: 'Oznacz jako przeczytane',

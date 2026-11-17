@@ -793,12 +793,12 @@ export const pt: Messages = {
       }),
     delete: 'Excluir',
     describe: {
-      alwaysShow: 'Sempre aparece no Início',
+      alwaysShow: 'Sempre fica no Início, nunca é escondido',
       autonomous: 'Feito sozinho, listado em resolvidos',
       draft: 'Um rascunho espera por você no Início',
     },
     effect: {
-      always_show: 'Sempre me mostrar',
+      always_show: 'Não perder',
       archive: 'Arquivar',
       draft_reply: 'Rascunhar resposta',
       mark_read: 'Marcar como lido',

@@ -774,12 +774,12 @@ export const tr: Messages = {
       plural('tr', total, { other: (n) => `${n} kural` }),
     delete: 'Sil',
     describe: {
-      alwaysShow: 'Her zaman Ana Sayfa’ya düşer',
+      alwaysShow: 'Her zaman Ana Sayfa’da kalır, asla gizlenmez',
       autonomous: 'Kendiliğinden yapılır, halledilenlerde listelenir',
       draft: 'Bir taslak Ana Sayfa’da seni bekler',
     },
     effect: {
-      always_show: 'Her zaman göster',
+      always_show: 'Kaçırma',
       archive: 'Arşivle',
       draft_reply: 'Yanıt taslağı hazırla',
       mark_read: 'Okundu olarak işaretle',

@@ -780,12 +780,12 @@ export const en = {
       plural('en', total, { one: () => '1 rule', other: (n) => `${n} rules` }),
     delete: 'Delete',
     describe: {
-      alwaysShow: 'Always lands on Home',
+      alwaysShow: 'Always stays on Home, never hidden',
       autonomous: 'Done on its own, listed under handled',
       draft: 'A draft waits for you on Home',
     },
     effect: {
-      always_show: 'Always show me',
+      always_show: "Don't miss",
       archive: 'Archive it',
       draft_reply: 'Draft a reply',
       mark_read: 'Mark as read',

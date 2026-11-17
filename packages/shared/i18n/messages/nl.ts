@@ -788,12 +788,12 @@ export const nl: Messages = {
       }),
     delete: 'Verwijderen',
     describe: {
-      alwaysShow: 'Komt altijd op Home',
+      alwaysShow: 'Blijft altijd op Home, wordt nooit verborgen',
       autonomous: 'Wordt zelf gedaan, staat bij afgehandeld',
       draft: 'Een concept wacht op je op Home',
     },
     effect: {
-      always_show: 'Altijd tonen',
+      always_show: 'Niet missen',
       archive: 'Archiveren',
       draft_reply: 'Antwoord opstellen',
       mark_read: 'Markeren als gelezen',
