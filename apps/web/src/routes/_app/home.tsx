@@ -1206,8 +1206,15 @@ const improveCountOf = (today: Today | undefined) =>
  * A card that leaves hands the cursor to whichever card takes its place.
  * There is none until J / K or a click: a lit card nobody picked reads as ⏎'s target.
  */
-const useCursor = (stops: string[]) => {
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+const useCursor = (stops: string[], page: HomeCardPage | undefined) => {
+  // Each pane has its own: carried into the next one, it lit the card at its old place there, which scrolled itself into
+  // view while the pane was still growing out of its card, and the pane opened scrolled and jumped.
+  const [selected, setSelected] = useState<{
+    id: string
+    page?: HomeCardPage
+  } | null>(null)
+  const selectedId = selected && selected.page === page ? selected.id : null
+  const setSelectedId = (id: string) => setSelected({ id, page })
   const [lastIndex, setLastIndex] = useState(0)
   const foundIndex = selectedId === null ? -1 : stops.indexOf(selectedId)
   const cursorIndex =
@@ -1413,7 +1420,7 @@ const HomePage = () => {
   const hasImprove = improveCountOf(data) > 0
   const queue = page === 'later' ? laterCards : groups.shown
   const stops = stopsOf(page, { hasProposals, queue, worth })
-  const { cursorId, cursorIndex, setSelectedId } = useCursor(stops)
+  const { cursorId, cursorIndex, setSelectedId } = useCursor(stops, page)
   const isOnProposals = cursorId === PROPOSALS_ID
   // Only a card without an email unfolds in place; one with an email opens it in the sidebar.
   const [isOpen, setIsOpen] = useState(false)
