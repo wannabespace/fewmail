@@ -65,12 +65,7 @@ import {
   useExpandedRow,
   useIsThreadExpanded,
 } from '~/components/expand-row'
-import {
-  HomeCard,
-  HomeCardPane,
-  PageHeading,
-  paneGroupTitleClassName,
-} from '~/components/home-card'
+import { HomeCard, HomeCardPane, PageHeading } from '~/components/home-card'
 import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
@@ -544,10 +539,7 @@ const WorthKnowing = ({
     return null
   }
   return (
-    <SettingsGroup
-      title={t.today.worthKnowing}
-      titleClassName={paneGroupTitleClassName}
-    >
+    <SettingsGroup title={t.today.worthKnowing} isTitleSticky>
       <PaneRows
         rowKey={(row) =>
           row.kind === 'awaiting' ? row.sent.threadId : row.message.id
@@ -1082,6 +1074,11 @@ const cardRowOf = (item: QueueItem): HomeCardRow => ({
 const laterCountOf = (cards: QueueItem[], today: Today) =>
   cards.length + worthRowsOf(today).length + today.newSenders.length
 
+const homeFlagsOf = (today: Today | undefined, laterCards: QueueItem[]) => ({
+  hasLater: Boolean(today && laterCountOf(laterCards, today) > 0),
+  isFirstRead: Boolean(today && isReadingFirstTime(today.mailboxes)),
+})
+
 /** What can wait as one card (`W`, `?page=later`): the cards that only ask to read, Worth knowing's mail, new senders. */
 const LaterCard = ({
   cards,
@@ -1422,13 +1419,12 @@ const HomePage = () => {
     query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
   )
   const { filter, importantCards, laterCards } = useHomeLists(cards)
-  const isFirstRead = !!data && isReadingFirstTime(data.mailboxes)
+  const { hasLater, isFirstRead } = homeFlagsOf(data, laterCards)
   const decisions = importantCards.length
   const settled = useSettledCount(importantCards)
   const proposals = useProposals(data, cards, holdClicksUntilMove)
   const hasProposals = proposals.proposals.length > 0
   const worth = worthRowsOf(data)
-  const hasLater = !!data && laterCountOf(laterCards, data) > 0
   const hasImprove = improveCountOf(data) > 0
   const queue = page === 'later' ? laterCards : filter.shown
   const stops = stopsOf(page, { hasProposals, queue, worth })

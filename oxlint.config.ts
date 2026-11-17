@@ -85,6 +85,8 @@ export default defineConfig({
               '^(InputGroupTextarea|MessageScrollerContent|MessageScrollerViewport|ResizableGroup|SidebarContent|SidebarMenu)$',
           },
           { allow: [...callSiteClasses, 'divide-y'], pattern: '^Form$' },
+          // A title with a label beside it wraps the label under it whole (fewmail-ui's gotchas).
+          { allow: [...callSiteClasses, 'gap-y-0.5'], pattern: '^ItemTitle$' },
           {
             allow: [
               ...callSiteClasses,

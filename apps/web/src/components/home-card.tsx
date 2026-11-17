@@ -160,14 +160,8 @@ export const HomeCardPane = ({
   return column && createPortal(pane, column)
 }
 
-// Keep in step with the pane's padding: a sticky row over the whole gutter covers every card's bleed and ring scrolling under it.
+// Keep in step with the pane's padding, and with `SettingsGroup`'s `isTitleSticky` (`top-17` is this row's height): a sticky row over the whole gutter covers every card's bleed and ring scrolling under it.
 const paneGutterClassName = '-mx-4 px-4 md:-mx-10 md:px-10'
-
-/** A group's title in a pane sticks under `PageHeading`'s row (`top-17` is its height) and, like it, covers the cards' bleed. */
-export const paneGroupTitleClassName = cn(
-  'bg-background sticky top-17 z-5 -my-2 py-2',
-  paneGutterClassName
-)
 
 /**
  * What a Home card opened says on top: its name, its actions and ✕ (Home's `esc`) back to Home, held at the pane's top

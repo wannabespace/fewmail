@@ -2480,18 +2480,22 @@ const useReaderWidth = () => {
   }
 }
 
+/** The closed email stays in the reader while it folds away. */
+const useShownThread = (thread: string | undefined) => {
+  const [lastThread, setLastThread] = useState(thread)
+  if (thread && thread !== lastThread) {
+    setLastThread(thread)
+  }
+  return thread ?? lastThread
+}
+
 export const MailPage = ({ folder }: { folder?: Folder }) => {
   const t = useT()
   const { panesWidth, readerWidth, setPanes } = useReaderWidth()
   const hasAgent = useHasAgent()
   const { filter: picked, mailbox, q, thread } = useSearch({ strict: false })
-  // The closed email stays in the reader while it folds away.
-  const [lastThread, setLastThread] = useState(thread)
-  if (thread && thread !== lastThread) {
-    setLastThread(thread)
-  }
-  const shownThread = thread ?? lastThread
-  const isReaderUnderNotice = useIsUnderNotice() && !!shownThread
+  const shownThread = useShownThread(thread)
+  const isReaderUnderNotice = useIsUnderNotice() && Boolean(shownThread)
   const inboxView = useSubscription(inboxViewStore)
   const navigate = useNavigate()
   const listRef = useRef<HTMLUListElement>(null)

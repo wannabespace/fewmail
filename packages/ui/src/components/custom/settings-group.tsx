@@ -24,19 +24,21 @@ import { IconButton } from './icon-button'
 
 export const SettingsGroup = ({
   children,
+  isTitleSticky,
   title,
-  titleClassName,
 }: {
   children: ReactNode
+  /** In a Home pane: the title sticks under its heading row (`top-17`) and spans the pane's gutter (`home-card.tsx`), covering the cards scrolling under it. */
+  isTitleSticky?: boolean
   title?: ReactNode
-  titleClassName?: string
 }) => (
   <section className="flex flex-col gap-2">
     {title && (
       <h2
         className={cn(
           'text-muted-foreground text-xs font-medium',
-          titleClassName
+          isTitleSticky &&
+            'bg-background sticky top-17 z-5 -mx-4 -my-2 px-4 py-2 md:-mx-10 md:px-10'
         )}
       >
         {title}
