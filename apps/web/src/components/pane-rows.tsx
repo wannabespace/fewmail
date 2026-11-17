@@ -1,4 +1,6 @@
 import { SettingsRows } from '@fewmail/ui/components/custom/settings-group'
+import { Item, ItemContent, ItemMedia } from '@fewmail/ui/components/item'
+import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import {
@@ -16,6 +18,8 @@ import type {
   Ref,
   RefObject,
 } from 'react'
+
+import { useIsPaneGrowing } from '~/components/expand-row'
 
 /** Where a row of `PaneRows` sits: spread on its outermost element (a `SettingsRow` takes it as is). */
 export interface RowPlace {
@@ -63,6 +67,23 @@ const RowsGap = ({
   />
 )
 
+// Each bar in a line of text, so the skeleton is as tall as the row it stands for and nothing moves when the row comes.
+const RowSkeleton = () => (
+  <Item size="sm" variant="grouped">
+    <ItemMedia variant="avatar">
+      <Skeleton className="size-8 rounded-full" />
+    </ItemMedia>
+    <ItemContent>
+      <div className="flex h-lh items-center text-sm/snug">
+        <Skeleton className="h-3 w-40" />
+      </div>
+      <div className="flex h-lh items-center text-sm/snug">
+        <Skeleton className="h-3 w-64 max-w-full" />
+      </div>
+    </ItemContent>
+  </Item>
+)
+
 /** Anything above the list changing height (a card leaving, the pane growing) moves where its rows start. */
 const useListTop = (
   area: HTMLDivElement | null,
@@ -93,7 +114,8 @@ const useListTop = (
 /**
  * A pane's list: the rows in and near view between gaps holding the rest of its height, so the rows stay in the flow
  * (a leaving row folds, the rows below rise) and the pane, not the list, scrolls. Goes straight inside the list's card.
- * `listKey`: a new one replaces every row at once, so nothing folds out (a filter swap).
+ * `listKey`: a new one replaces every row at once, so nothing folds out (a filter swap). While its pane grows out of
+ * its card the rows are skeletons: dozens of real ones, laid out at the box's width on every frame, stalled the growth.
  */
 export const PaneRows = <Row,>({
   children,
@@ -107,6 +129,7 @@ export const PaneRows = <Row,>({
   rows: Row[]
 }) => {
   const scroller = use(ScrollerContext)
+  const isGrowing = useIsPaneGrowing()
   const start = useRef<HTMLDivElement>(null)
   const top = useListTop(scroller, start)
   const keys = rows.map(rowKey)
@@ -124,24 +147,28 @@ export const PaneRows = <Row,>({
   return (
     <>
       <RowsGap ref={start} height={(shown[0]?.start ?? top) - top} />
-      <SettingsRows key={listKey} listed={new Set(keys)}>
-        {shown.map(({ index }) => {
-          const row = rows[index]
-          const key = keys[index]
-          return (
-            row !== undefined &&
-            key !== undefined && (
-              <Fragment key={key}>
-                {children(row, {
-                  'data-index': index,
-                  ref: virtualizer.measureElement,
-                  rowKey: key,
-                })}
-              </Fragment>
+      {isGrowing ? (
+        shown.map(({ key }) => <RowSkeleton key={key} />)
+      ) : (
+        <SettingsRows key={listKey} listed={new Set(keys)}>
+          {shown.map(({ index }) => {
+            const row = rows[index]
+            const key = keys[index]
+            return (
+              row !== undefined &&
+              key !== undefined && (
+                <Fragment key={key}>
+                  {children(row, {
+                    'data-index': index,
+                    ref: virtualizer.measureElement,
+                    rowKey: key,
+                  })}
+                </Fragment>
+              )
             )
-          )
-        })}
-      </SettingsRows>
+          })}
+        </SettingsRows>
+      )}
       {below > 0 && <RowsGap height={below} />}
     </>
   )
