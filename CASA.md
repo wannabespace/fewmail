@@ -84,9 +84,9 @@ Keep replies to Google consistent with these, and update them in Data Access if 
 - [ ] **2FA, and a list of who has access,** for Google Cloud (project `fewmail`), Railway, Cloudflare, GitHub, Stripe, PostHog and the domain registrar.
 - [x] **Incident response:** below.
 - [x] **Postgres:** `DATABASE_URL` is the Postgres service's own variable (`db.env.DATABASE_URL` in `.railway/railway.ts`), Railway's private network address; the public proxy URL is used nowhere.
-- [ ] **Test account for the lab,** kept out of the repo, with a little mail in it.
+- [ ] **Test account for the lab,** only if the lab asks: sign-in is Google-only and open to anyone, so a lab can use its own Google account (Google was told the same when the scopes were submitted). If asked, a separate Google account with a little mail, kept out of the repo.
 - [x] **ZAP baseline** (2026-11-17, `zap-baseline.py`, both hosts): no failures. Fixed from its warnings: the web now also sends `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Resource-Policy: same-site`, and Cloudflare's Email Address Obfuscation is off (its `/cdn-cgi/` script and pages carried none of our headers). Kept on purpose, say so to the lab: `img-src https:`, `font-src https:` and `style-src 'unsafe-inline'` (the mail frame inherits the page's CSP and mail is inline-styled with remote images; scripts stay hash-only), CORP `same-site` on the API (the web on `fewmail.app` loads avatars, attachments and voice from it), no `Cross-Origin-Embedder-Policy` (it would block mail's images), and cache warnings on public assets.
-- [ ] **ZAP authenticated scan** with the lab's test account.
+- [ ] **ZAP authenticated scan**, when the lab's scan or questionnaire calls for it.
 
 ### Code, next
 
