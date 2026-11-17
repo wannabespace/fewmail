@@ -306,7 +306,7 @@ export const BoardPane = ({
               icon={Tick02Icon}
               label={t.board.done}
               size="icon-sm"
-              variant="ghost-muted"
+              variant="ghost-tint-muted"
               shortcut={isCursor ? 'D' : undefined}
               onClick={() => done(row)}
             />
@@ -314,7 +314,7 @@ export const BoardPane = ({
               icon={Cancel01Icon}
               label={t.board.forget}
               size="icon-sm"
-              variant="ghost-muted"
+              variant="ghost-tint-muted"
               shortcut={isCursor ? '⌫' : undefined}
               onClick={() => forget(row)}
             />
@@ -337,7 +337,7 @@ export const BoardPane = ({
     <>
       <PageHeading title={t.nav.board} onClose={onClose}>
         {!isPending && (
-          <p className="text-brief text-foreground/85 font-serif">
+          <p className="text-brief text-foreground/85 font-serif text-balance">
             {leadOf(t, locale, sections)}
           </p>
         )}

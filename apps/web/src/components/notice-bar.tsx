@@ -347,7 +347,7 @@ export const NoticeBar = () => {
         // The count, not Show all / Show fewer: a label changing width moved every control left of it.
         <Button
           size="sm"
-          variant="ghost-muted"
+          variant="ghost-tint-muted"
           aria-expanded={isExpanded}
           aria-label={
             isExpanded ? t.mail.showFewer : t.mail.showAll(shown.length)
@@ -370,7 +370,7 @@ export const NoticeBar = () => {
           icon={Cancel01Icon}
           label={t.today.hint.notNow}
           size="icon-sm"
-          variant="ghost-muted"
+          variant="ghost-tint-muted"
           onClick={() => notice.dismiss?.()}
         />
       )}

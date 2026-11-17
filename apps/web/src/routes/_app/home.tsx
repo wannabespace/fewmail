@@ -898,7 +898,9 @@ const HomeHeader = ({
         </p>
       ) : (
         data && (
-          <p className="text-brief text-foreground/80 font-serif">{lead}</p>
+          <p className="text-brief text-foreground/80 font-serif text-balance">
+            {lead}
+          </p>
         )
       )}
       <DayStrip />

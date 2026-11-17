@@ -327,7 +327,7 @@ export const ProposalsReview = ({
           </Button>
         }
       >
-        <p className="text-brief text-foreground/80 font-serif">
+        <p className="text-brief text-foreground/80 font-serif text-balance">
           {t.today.tidy.reviewLead}
         </p>
       </PageHeading>
@@ -377,7 +377,7 @@ export const ProposalsReview = ({
                 >
                   <Button
                     size="sm"
-                    variant="ghost-muted"
+                    variant="ghost-tint-muted"
                     onClick={() => proposals.keep(proposal)}
                     shortcut={isActive ? <Kbd>S</Kbd> : undefined}
                   >

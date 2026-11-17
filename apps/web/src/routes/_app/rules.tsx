@@ -388,7 +388,7 @@ const RulesPage = () => {
           <h1 className="text-display font-serif tracking-tight">
             {t.rules.title}
           </h1>
-          <p className="text-brief text-foreground/85 font-serif">
+          <p className="text-brief text-foreground/85 font-serif text-balance">
             {hasAgent ? t.rules.lead : t.rules.leadFree}
           </p>
         </header>

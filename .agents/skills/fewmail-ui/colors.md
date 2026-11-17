@@ -10,6 +10,7 @@ All values are `oklch` tokens in `packages/ui/src/styles/globals.css`, defined f
 | 2 surface | `bg-background`, `bg-card` | `#FBF8F2` | Open thread pane, grouped settings |
 | 3 elevated | `bg-popover`, `bg-input` | `#FFFDF8` | Queue cards, inputs, menus, choice cards |
 
+- **A control on a row that opens as a whole is `ghost-tint` / `ghost-tint-muted`**, never `ghost` / `ghost-muted`: a `SettingsRow trigger` hovers to `bg-accent`, and a `ghost-muted` button on it hovered to that same fill, so the button never showed it was the thing under the pointer (the notice bar's `+N` and ×, the Board's done and forget).
 - Cards and grouped boxes use `ring` (1px, `ring-foreground/6`) rather than `border`; the selected/focused card raises to `ring-foreground/10` + `shadow-sm`.
 - Dividers inside a surface: `border-b`/`border-r` (token `--border`, warm ink at 12%).
 - Dashed border (`border-dashed`) marks *passive* information: the "handled" summary, empty queue. Never on something clickable.

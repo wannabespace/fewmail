@@ -186,7 +186,7 @@ export const Journal = ({
             <span className="opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100">
               <Button
                 size="sm"
-                variant="ghost-muted"
+                variant="ghost-tint-muted"
                 onClick={() => {
                   setUndoneIds((ids) => [...ids, action.id])
                   undo.run(message.id)

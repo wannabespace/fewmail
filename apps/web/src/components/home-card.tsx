@@ -59,7 +59,9 @@ export const HomeCard = ({
   const content = (
     <>
       <h2 className="text-muted-foreground text-xs font-medium">{heading}</h2>
-      <p className="text-brief text-foreground/80 font-serif">{lead}</p>
+      <p className="text-brief text-foreground/80 font-serif text-balance">
+        {lead}
+      </p>
       {rows.length > 0 && (
         <ul className="flex flex-col">
           {rows.slice(0, HOME_CARD_ROWS).map((row) => (

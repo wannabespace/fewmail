@@ -2,6 +2,7 @@
 
 - Fonts (fontsource, imported in `globals.css`): **Inter Variable** (`font-sans`, default) for operating UI; **Lora Variable** (`font-serif`, also `--font-heading`) for reading. Mono is the system stack, rarely needed. The logo's Literata is outlined and never loaded (`brand/README.md`).
 - Reading scale: `text-display` (2.5rem/1.1) page titles and Home's headline, always `font-serif tracking-tight`; `text-brief` (1.1875rem/1.55, named for the old daily brief) lead and intro paragraphs; drafts render at `text-base/relaxed` serif.
+- Every heading (`h1`–`h6`) sets `text-wrap: balance` in the kit's base layer, so a title never leaves one word on its last line; the `text-brief` lead under a page or pane title takes `text-balance` too, longer intro copy `text-pretty`.
 - Operating scale: `text-sm` rows, buttons, nav; `text-xs` metadata, key hints, section labels (`text-muted-foreground text-xs font-medium`, sentence case — no uppercase tracking headers); `text-2xs` micro only.
 - **A row's title and description are two blocks, not one paragraph**: kit `ItemDescription` is `text-sm/snug` and `ItemContent` keeps `gap-1` at every size but `xs`, so a two-line description reads as one unit set apart from its title. A call site wrapping the description in a span never sets `text-sm` again, which would reset the leading.
 - Content column: reading screens (Home, Rules, Settings) cap at `max-w-3xl` with `px-10 pt-12`; the thread reader caps at `max-w-2xl`.
