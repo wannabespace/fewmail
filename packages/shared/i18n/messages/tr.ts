@@ -1608,7 +1608,7 @@ export const tr: Messages = {
       title: 'E-postanda yapılanlar',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
-    readAll: 'Hepsini okudum. Onayın olmadan e-postanda hiçbir şey değişmez.',
+    readAll: 'Hepsini okudum.',
     worth: {
       awaiting: (total: number) =>
         plural('tr', total, {
@@ -1628,6 +1628,13 @@ export const tr: Messages = {
     },
     worthKnowing: 'Bilmekte fayda var',
     canWait: 'Bekleyebilir',
+    improve: {
+      lead: (total: number) =>
+        plural('tr', total, {
+          other: (n) => `Ajanın senin için uygulayabileceği ${n} kural.`,
+        }),
+      title: 'Ajanın önerileri',
+    },
     quick: 'Hızlı',
     needsLook: 'Seni bekliyor',
     tidy: {
@@ -1646,7 +1653,6 @@ export const tr: Messages = {
       keep: 'Kalsın',
       mark_read: (n: number) => `${n} okundu yapılacak`,
       run: 'Tümünü onayla',
-      total: (n: number) => `Ajanın toparlamayı önerdiği e-posta: ${n}`,
       unsubscribe: (n: number) => `${n} abonelikten çıkılacak`,
       untilYouApprove: 'Sen onaylayana kadar e-postanda hiçbir şey değişmez',
       spam: (n: number) => `${n} spama taşınacak`,

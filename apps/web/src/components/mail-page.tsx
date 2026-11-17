@@ -523,7 +523,6 @@ const cardsOf = (
   return cards
 }
 
-// Not sticky: pins share the list's <ul>, so a sticky pinned header would ride over every row below it.
 // The transparent border-x is the card rows' edge, so the label lines up with their avatars and the buttons with their times.
 const LIST_HEADER =
   'bg-body text-muted-foreground flex h-13 items-center gap-2 border-x border-transparent pt-5 pr-3 pb-2 pl-8 text-xs font-medium'
@@ -975,6 +974,8 @@ const ListGap = ({ height }: { height: number }) => (
 interface ListWindowItem {
   /** The card the row belongs to; consecutive rows of one card share its frame. Headers have none. */
   card?: string
+  /** A sticky header's card: past its last row the header leaves with it, or (the pins, sharing the list's <ul>) it rides over every row below. */
+  heads?: string
   isCursor?: boolean
   isSticky?: boolean
   key: string
@@ -1090,7 +1091,18 @@ const ListWindow = ({
         measure: virtualizer.measureElement,
         // All headers share one <ul>, so CSS alone stacks the next over the stuck one; past this scroll offset the next header pushes it up instead.
         pushedAtOf: (index) => {
-          const next = stickyIndexes.find((stickyIndex) => stickyIndex > index)
+          const card = items[index]?.heads
+          const cardEnd =
+            card === undefined
+              ? -1
+              : items.findIndex(
+                  (item, after) => after > index && item.card !== card
+                )
+          const pushers = [
+            stickyIndexes.find((stickyIndex) => stickyIndex > index) ?? -1,
+            cardEnd,
+          ].filter((at) => at !== -1)
+          const next = pushers.length > 0 ? Math.min(...pushers) : undefined
           const nextStart =
             next === undefined
               ? undefined
@@ -1440,7 +1452,7 @@ const PinnedHeader = ({
 }) => {
   const t = useT()
   return (
-    <ListRow item={item} className={LIST_HEADER}>
+    <ListRow item={item} className={GROUP_HEADER}>
       <span>{t.mail.pinned}</span>
       <span className="tabular-nums opacity-60">{total}</span>
       {(hidden > 0 || isExpanded) && (
@@ -1563,6 +1575,8 @@ const headItemsOf = ({
   ...(pinnedCount > 0
     ? [
         {
+          heads: 'pinned',
+          isSticky: true,
           key: 'pinned',
           render: (item: VirtualItem) => (
             <PinnedHeader

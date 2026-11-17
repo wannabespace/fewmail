@@ -1472,7 +1472,7 @@ export const uk: Messages = {
       title: 'Що зроблено в пошті',
     },
     progress: (done: number, total: number) => `${done} з ${total}`,
-    readAll: 'Я прочитав усі, і без твого «так» у пошті нічого не змінюється.',
+    readAll: 'Я прочитав усі.',
     worth: {
       awaiting: (total: number) =>
         plural('uk', total, {
@@ -1493,6 +1493,16 @@ export const uk: Messages = {
     },
     worthKnowing: 'Варто знати',
     canWait: 'Може почекати',
+    improve: {
+      lead: (total: number) =>
+        plural('uk', total, {
+          one: (n) => `${n} правило, яке агент може виконувати за тебе.`,
+          few: (n) => `${n} правила, які агент може виконувати за тебе.`,
+          many: (n) => `${n} правил, які агент може виконувати за тебе.`,
+          other: (n) => `${n} правила, які агент може виконувати за тебе.`,
+        }),
+      title: 'Агент пропонує',
+    },
     quick: 'Швидко',
     needsLook: 'Чекає на тебе',
     tidy: {
@@ -1511,13 +1521,6 @@ export const uk: Messages = {
       keep: 'Залишити',
       mark_read: (n: number) => `позначити прочитаними: ${n}`,
       run: 'Погодити',
-      total: (total: number) =>
-        plural('uk', total, {
-          one: (n) => `Агент пропонує розібрати ${n} лист`,
-          few: (n) => `Агент пропонує розібрати ${n} листи`,
-          many: (n) => `Агент пропонує розібрати ${n} листів`,
-          other: (n) => `Агент пропонує розібрати ${n} листа`,
-        }),
       unsubscribe: (n: number) => `відписатися: ${n}`,
       untilYouApprove: 'Поки ти не погодиш, у пошті нічого не зміниться',
       spam: (n: number) => `у спам: ${n}`,

@@ -24,6 +24,7 @@ import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { ConfirmDialog } from '~/components/confirm-dialog'
+import { pageColumn } from '~/components/home-card'
 import { mailSearchFieldStore } from '~/components/mail-search'
 import { MobileBar, Sidebar } from '~/components/nav'
 import { NoticeBar, noticeHeightStore } from '~/components/notice-bar'
@@ -94,10 +95,13 @@ const useIdentify = () => {
  * The notice bar floats over the page, which scrolls under it from `under-notice`; a pane a Home card grows into covers
  * both (`page-column`, `HomeCardPane`), so a notice never sits on top of what the user opened.
  */
+const setPageColumn = (node: HTMLDivElement | null) => pageColumn.set(node)
+
 const PageColumn = () => {
   const noticeHeight = useSubscription(noticeHeightStore)
   return (
     <div
+      ref={setPageColumn}
       data-slot="page-column"
       style={{ '--notice-height': `${noticeHeight}px` } as CSSProperties}
       className="relative flex min-h-0 flex-1 flex-col"

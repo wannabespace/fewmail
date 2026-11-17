@@ -2,13 +2,14 @@ import { cn } from '@fewmail/ui/lib/utils'
 import {
   animate,
   motion,
+  PresenceContext,
   useMotionValue,
   usePresence,
   useReducedMotion,
   useTransform,
 } from 'motion/react'
 import type { MotionStyle, Transition } from 'motion/react'
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ComponentProps, ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -111,7 +112,9 @@ const copyOf = (source: string) => {
  * itself takes the source's place, fill, ring and corners (the source hides under it), with a still copy of its content,
  * then grows to the pane, laying out what it holds at its own size as it goes, while its fill turns into the page's, the
  * copy blurs out and the pane's content (`PaneReveal`) blurs in. Closing runs it back into the same box (measured once:
- * the source stays where it is under the pane), with a fresh copy, so it needs an `AnimatePresence`.
+ * the source stays where it is under the pane), with a fresh copy, so it needs an `AnimatePresence`. Already open when
+ * the page loads (`AnimatePresence initial={false}`, a reload on `?page=`), it is simply there, and measures its card
+ * only to close into it.
  */
 export const MorphPane = ({
   area,
@@ -129,7 +132,13 @@ export const MorphPane = ({
 }) => {
   const isReduced = useReducedMotion()
   const [isPresent, safeToRemove] = usePresence()
-  const from = useMemo(() => insetOver(source, area), [area, source])
+  const isThereOnLoad = useContext(PresenceContext)?.initial === false
+  const [from, setFrom] = useState(() =>
+    isThereOnLoad ? null : insetOver(source, area)
+  )
+  if (!isPresent && !from) {
+    setFrom(insetOver(source, area))
+  }
   const grown = useMotionValue(from ? 0 : 1)
   const drift = useMotionValue(0)
   const box = useRef<HTMLDivElement>(null)

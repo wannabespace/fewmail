@@ -1454,8 +1454,7 @@ export const ja: Messages = {
       title: 'メールで行ったこと',
     },
     progress: (done: number, total: number) => `${done} / ${total}`,
-    readAll:
-      'すべて読みました。あなたの承認なしにメールが変わることはありません。',
+    readAll: 'すべて読みました。',
     worth: {
       awaiting: (total: number) =>
         plural('ja', total, {
@@ -1475,6 +1474,11 @@ export const ja: Messages = {
     },
     worthKnowing: '知っておきたいこと',
     canWait: '後でも大丈夫',
+    improve: {
+      lead: (total: number) =>
+        `エージェントが代わりに実行できるルールが${total}件あります。`,
+      title: 'エージェントからの提案',
+    },
     quick: 'すぐ済むもの',
     needsLook: 'あなたの判断待ち',
     tidy: {
@@ -1493,7 +1497,6 @@ export const ja: Messages = {
       keep: '残す',
       mark_read: (n: number) => `既読にする ${n} 件`,
       run: 'すべて承認',
-      total: (n: number) => `エージェントが片付けを提案したメール ${n} 件`,
       unsubscribe: (n: number) => `配信停止 ${n} 件`,
       untilYouApprove: '承認するまでメールは何も変わりません',
       spam: (n: number) => `迷惑メールへ ${n} 件`,

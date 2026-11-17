@@ -1,20 +1,18 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { Button } from '@fewmail/ui/components/button'
+import { cardClass } from '@fewmail/ui/components/card.utils'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from '@fewmail/ui/components/item'
+  SettingsRow,
+  SettingsRows,
+} from '@fewmail/ui/components/custom/settings-group'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   AiChat02Icon,
+  ArrowDown01Icon,
   Cancel01Icon,
   CloudIcon,
   MailAccount01Icon,
@@ -71,26 +69,26 @@ const notificationsDeclinedStore = createWebStorageValue({
 const OWNS_Y = ['/home', '/mail', '/calendar', '/wrapped']
 
 interface Notice {
+  /** A step with consequences of its own (sign in, reconnect), named on its button. */
   action?: { label: string; onClick: () => void }
   description?: ReactNode
   /** Only what the app works without may be put away; lost mail access stays until it is fixed. */
   dismiss?: () => void
   end?: ReactNode
+  icon: ReactNode
   id: string
-  media: ReactNode
+  isAvatar?: boolean
+  /** Where the notice leads (its email, Home): the whole row opens it. */
+  open?: () => void
   title: ReactNode
 }
 
 const iconOf = (icon: IconSvgElement) => (
-  <ItemMedia variant="icon">
-    <HugeiconsIcon icon={icon} strokeWidth={2} />
-  </ItemMedia>
+  <HugeiconsIcon icon={icon} strokeWidth={2} className="size-4" />
 )
 
 const avatarOf = (sender: { fromEmail: string; fromName?: string | null }) => (
-  <ItemMedia variant="avatar">
-    <SenderAvatar sender={sender} size="sm" />
-  </ItemMedia>
+  <SenderAvatar sender={sender} size="sm" />
 )
 
 type BannerCard = RouterOutputs['today']['banner'][number]
@@ -217,21 +215,12 @@ export const NoticeBar = () => {
           onCopy={() => posthog.capture('code_copied', { from: 'banner' })}
         />
       ),
+      icon: avatarOf(message),
       id: `code:${message.id}`,
-      media: avatarOf(message),
+      isAvatar: true,
       title: <span data-mask>{message.fromName ?? message.fromEmail}</span>,
     })),
     ...(isHome ? [] : cards).map((card): Notice => ({
-      action:
-        card.kind === 'consent'
-          ? {
-              label: t.agent.decideOnHome,
-              onClick: openThread(card.kind, null),
-            }
-          : {
-              label: t.mail.open,
-              onClick: openThread(card.kind, card.threadId),
-            },
       description:
         card.kind === 'consent' ? (
           card.reason
@@ -243,11 +232,16 @@ export const NoticeBar = () => {
           </span>
         ),
       dismiss: () => putAway.mutate({ id: card.id }),
-      id: `card:${card.id}`,
-      media:
+      icon:
         card.kind === 'consent' || !card.fromEmail
           ? iconOf(AiChat02Icon)
           : avatarOf({ fromEmail: card.fromEmail, fromName: card.fromName }),
+      id: `card:${card.id}`,
+      isAvatar: card.kind !== 'consent' && !!card.fromEmail,
+      open: openThread(
+        card.kind,
+        card.kind === 'consent' ? null : card.threadId
+      ),
       title: cardTitle(card, t.risk.title),
     })),
     signInLost && {
@@ -255,14 +249,14 @@ export const NoticeBar = () => {
         label: t.notices.signInAgain,
         onClick: () => signInWithGoogle(pathname),
       },
+      icon: iconOf(MailAccount01Icon),
       id: 'mail',
-      media: iconOf(MailAccount01Icon),
       title: t.notices.mailLost,
     },
     !!addedLost && {
       action: { label: t.notices.reconnect, onClick: () => reconnect.mutate() },
+      icon: iconOf(MailAccount01Icon),
       id: 'mailbox',
-      media: iconOf(MailAccount01Icon),
       title: <span data-mask>{t.notices.mailboxLost(addedLost.email)}</span>,
     },
     !!storageFull && {
@@ -271,8 +265,8 @@ export const NoticeBar = () => {
         onClick: () => window.open(GOOGLE_STORAGE_URL, '_blank', 'noopener'),
       },
       description: t.notices.storageFullHint,
+      icon: iconOf(CloudIcon),
       id: 'storage',
-      media: iconOf(CloudIcon),
       title: <span data-mask>{t.notices.storageFull(storageFull.email)}</span>,
     },
     isDesktop &&
@@ -287,13 +281,13 @@ export const NoticeBar = () => {
           posthog.capture('banner_dismissed', { kind: 'notifications' })
           notificationsDeclinedStore.set(true)
         },
+        icon: iconOf(Notification01Icon),
         id: 'notifications',
-        media: iconOf(Notification01Icon),
         title: t.settings.notifications.title,
       },
     !!sendBlocked?.sendBlockedUntil && {
+      icon: iconOf(MailSend01Icon),
       id: 'send',
-      media: iconOf(MailSend01Icon),
       title: (
         <span data-mask>
           {t.notices.sendLimit(
@@ -319,71 +313,112 @@ export const NoticeBar = () => {
     return () => observer.disconnect()
   }, [])
 
-  const cardOf = (notice: Notice, isFirst: boolean) => (
-    <MotionCollapse key={notice.id}>
-      <div className="pt-2">
-        <Item variant="card" size="sm" className="pointer-events-auto">
-          {notice.media}
-          <ItemContent>
-            <ItemTitle>{notice.title}</ItemTitle>
-            {notice.description && (
-              <ItemDescription>{notice.description}</ItemDescription>
+  const rowOf = (notice: Notice, isFirst: boolean) => (
+    <SettingsRow
+      key={notice.id}
+      rowKey={notice.id}
+      icon={notice.icon}
+      iconVariant={notice.isAvatar ? 'avatar' : undefined}
+      title={notice.title}
+      description={notice.description}
+      trigger={
+        notice.open && (
+          <button
+            type="button"
+            aria-label={t.mail.open}
+            onClick={() => notice.open?.()}
+          />
+        )
+      }
+    >
+      {notice.end}
+      {notice.action && (
+        <Button
+          size="sm"
+          variant="secondary"
+          disabled={reconnect.isPending}
+          onClick={() => notice.action?.onClick()}
+        >
+          {reconnect.isPending && <Spinner />}
+          {notice.action.label}
+        </Button>
+      )}
+      {isFirst && more > 0 && (
+        // The count, not Show all / Show fewer: a label changing width moved every control left of it.
+        <Button
+          size="sm"
+          variant="ghost-muted"
+          aria-expanded={isExpanded}
+          aria-label={
+            isExpanded ? t.mail.showFewer : t.mail.showAll(shown.length)
+          }
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          +{more}
+          <HugeiconsIcon
+            icon={ArrowDown01Icon}
+            strokeWidth={2}
+            className={cn(
+              'transition-transform duration-150',
+              isExpanded && 'rotate-180'
             )}
-          </ItemContent>
-          <ItemActions>
-            {notice.end}
-            {notice.action && (
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={reconnect.isPending}
-                onClick={() => notice.action?.onClick()}
-              >
-                {reconnect.isPending && <Spinner />}
-                {notice.action.label}
-              </Button>
-            )}
-            {isFirst && more > 0 && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? t.mail.showFewer : t.mail.showAll(shown.length)}
-              </Button>
-            )}
-            {notice.dismiss && (
-              <IconButton
-                icon={Cancel01Icon}
-                label={t.today.hint.notNow}
-                size="icon-sm"
-                variant="ghost-muted"
-                onClick={() => notice.dismiss?.()}
-              />
-            )}
-          </ItemActions>
-        </Item>
-      </div>
-    </MotionCollapse>
+          />
+        </Button>
+      )}
+      {notice.dismiss && (
+        <IconButton
+          icon={Cancel01Icon}
+          label={t.today.hint.notNow}
+          size="icon-sm"
+          variant="ghost-muted"
+          onClick={() => notice.dismiss?.()}
+        />
+      )}
+    </SettingsRow>
   )
+  const [first] = shown
+  const isStackOpen = isExpanded && more > 0
 
-  // Always mounted, so the last card can fold away instead of vanishing; each card unfolds into its place, never pops.
-  // Only the first card is measured, so Show all never moves the page; the whole stack, first card included, scrolls as one.
+  // Always mounted, so the last notice can fold away instead of vanishing. Only the first notice is measured, so
+  // showing the rest never moves the page; they join its card from below, one card scrolling whole, never a sheet
+  // over the page.
   return (
     <div className="pointer-events-none absolute inset-0 z-10 flex flex-col">
-      <div
-        className={cn(
-          'min-h-0 overflow-y-auto overscroll-contain px-3 pb-2',
-          isExpanded && 'bg-body pointer-events-auto border-b'
-        )}
-      >
+      <div className="min-h-0 overflow-y-auto overscroll-contain px-3 pb-2">
         <div ref={firstRef}>
           <AnimatePresence initial={false}>
-            {shown.slice(0, 1).map((notice) => cardOf(notice, true))}
+            {first && (
+              <MotionCollapse key="first">
+                <div className="pt-2">
+                  <div
+                    className={cn(
+                      cardClass,
+                      'pointer-events-auto overflow-hidden transition-[border-radius] duration-150',
+                      isStackOpen && 'rounded-b-none'
+                    )}
+                  >
+                    {rowOf(first, true)}
+                  </div>
+                </div>
+              </MotionCollapse>
+            )}
           </AnimatePresence>
         </div>
         <AnimatePresence initial={false}>
-          {isExpanded && shown.slice(1).map((notice) => cardOf(notice, false))}
+          {isStackOpen && (
+            <MotionCollapse key="rest">
+              <div
+                className={cn(
+                  cardClass,
+                  'pointer-events-auto overflow-hidden rounded-t-none'
+                )}
+              >
+                <SettingsRows>
+                  {shown.slice(1).map((notice) => rowOf(notice, false))}
+                </SettingsRows>
+              </div>
+            </MotionCollapse>
+          )}
         </AnimatePresence>
       </div>
     </div>

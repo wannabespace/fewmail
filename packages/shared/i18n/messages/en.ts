@@ -1609,8 +1609,7 @@ export const en = {
       title: 'Done in your mail',
     },
     progress: (done: number, total: number) => `${done} of ${total}`,
-    readAll:
-      'I read every one, and nothing changes in your mail without your yes.',
+    readAll: 'I read every one.',
     worth: {
       awaiting: (total: number) =>
         plural('en', total, {
@@ -1630,6 +1629,14 @@ export const en = {
     },
     worthKnowing: 'Worth knowing',
     canWait: 'Can wait',
+    improve: {
+      lead: (total: number) =>
+        plural('en', total, {
+          one: () => 'One rule the agent could follow for you.',
+          other: (n) => `${n} rules the agent could follow for you.`,
+        }),
+      title: 'The agent suggests',
+    },
     quick: 'Quick',
     needsLook: 'Needs you',
     tidy: {
@@ -1648,11 +1655,6 @@ export const en = {
       keep: 'Keep',
       mark_read: (n: number) => `${n} to mark read`,
       run: 'Approve all',
-      total: (total: number) =>
-        plural('en', total, {
-          one: () => 'The agent suggests tidying one email',
-          other: (n) => `The agent suggests tidying ${n} emails`,
-        }),
       unsubscribe: (n: number) => `${n} to unsubscribe`,
       untilYouApprove: 'Nothing changes in your mail until you approve',
       spam: (n: number) => `${n} to move to spam`,

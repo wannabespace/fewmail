@@ -65,7 +65,12 @@ import {
   useExpandedRow,
   useIsThreadExpanded,
 } from '~/components/expand-row'
-import { HomeCard, HomeCardPane, PageHeading } from '~/components/home-card'
+import {
+  HomeCard,
+  HomeCardPane,
+  PageHeading,
+  paneGroupTitleClassName,
+} from '~/components/home-card'
 import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
@@ -531,7 +536,10 @@ const WorthKnowing = ({
     return null
   }
   return (
-    <SettingsGroup title={t.today.worthKnowing}>
+    <SettingsGroup
+      title={t.today.worthKnowing}
+      titleClassName={paneGroupTitleClassName}
+    >
       {today.recent.map(({ analysis, message }) => (
         <EmailRow
           key={message.id}
@@ -590,6 +598,9 @@ const pageHints = (
   if (page === 'board') {
     return board
   }
+  if (page === 'improve') {
+    return [['esc', t.keys.close]]
+  }
   if (page === 'tidy') {
     return [
       ['J / K', t.keys.move],
@@ -626,6 +637,7 @@ const cardHints = (
   t: Messages,
   state: {
     hasBoard: boolean
+    hasImprove: boolean
     hasLater: boolean
     hasLook: boolean
     hasNewsletters: boolean
@@ -633,6 +645,9 @@ const cardHints = (
 ): [string, string][] => [
   ...(state.hasLook ? [['Q', t.today.needsLook] as [string, string]] : []),
   ...(state.hasLater ? [['W', t.today.canWait] as [string, string]] : []),
+  ...(state.hasImprove
+    ? [['R', t.today.improve.title] as [string, string]]
+    : []),
   ...(state.hasNewsletters ? [['N', t.reading.title] as [string, string]] : []),
   ...(state.hasBoard ? [['B', t.nav.board] as [string, string]] : []),
 ]
@@ -644,6 +659,7 @@ const homeHints = (
     board: [string, string][]
     hasBoard: boolean
     hasFilter: boolean
+    hasImprove: boolean
     hasLater: boolean
     hasLook: boolean
     today: Today | undefined
@@ -1052,11 +1068,7 @@ const cardRowOf = (item: QueueItem): HomeCardRow => ({
 })
 
 const laterCountOf = (cards: QueueItem[], today: Today) =>
-  cards.length +
-  worthRowsOf(today).length +
-  today.newSenders.length +
-  today.ruleOffers.length +
-  today.ruleSuggestions.length
+  cards.length + worthRowsOf(today).length + today.newSenders.length
 
 /** What can wait as one card (`W`, `?page=later`): the cards that only ask to read, Worth knowing's mail, new senders. */
 const LaterCard = ({
@@ -1102,6 +1114,39 @@ const LaterCard = ({
     />
   )
 }
+
+/** What the agent offers to take over (`R`, `?page=improve`): rules for a sender it keeps judging quiet, starter rules. */
+const ImproveCard = ({ today }: { today: Today | undefined }) => {
+  const t = useT()
+  const total = improveCountOf(today)
+  if (!today || total === 0) {
+    return null
+  }
+  const rows: HomeCardRow[] = [
+    ...today.ruleSuggestions.map((suggestion) => ({
+      id: suggestion.fromEmail,
+      sender: suggestion,
+      text: t.today.ruleSuggestion.yes[suggestion.effect],
+    })),
+    ...today.ruleOffers.map((rule) => ({
+      icon: RepeatIcon,
+      id: rule.id,
+      name: rule.instruction,
+      text: t.rules.effect[rule.effect],
+    })),
+  ]
+  return (
+    <HomeCard
+      heading={t.today.improve.title}
+      lead={t.today.improve.lead(total)}
+      page="improve"
+      rows={rows}
+    />
+  )
+}
+
+const improveCountOf = (today: Today | undefined) =>
+  (today?.ruleSuggestions.length ?? 0) + (today?.ruleOffers.length ?? 0)
 
 const KindFilter = ({
   canUseKeys,
@@ -1204,12 +1249,14 @@ const useHomeSubpage = (
   canSwitch: boolean,
   {
     hasAgent,
+    hasImprove,
     hasLater,
     hasLook,
     hasNewsletters,
     hasProposals,
   }: {
     hasAgent: boolean
+    hasImprove: boolean
     hasLater: boolean
     hasLook: boolean
     hasNewsletters: boolean
@@ -1240,6 +1287,10 @@ const useHomeSubpage = (
   useHotkey('B', () => toggle('board'), { enabled: canSwitch && hasAgent })
   useHotkey('Q', () => toggle('look'), { enabled: canSwitch && hasLook })
   useHotkey('W', () => toggle('later'), { enabled: canSwitch && hasLater })
+  // The Board's pane takes R for reopening a promise.
+  useHotkey('R', () => toggle('improve'), {
+    enabled: canSwitch && hasImprove && page !== 'board',
+  })
 }
 
 /** Home's keys rest while an expanded email lies over Home, its proposal taking them. */
@@ -1366,6 +1417,7 @@ const HomePage = () => {
   const hasProposals = proposals.proposals.length > 0
   const worth = worthRowsOf(data)
   const hasLater = !!data && laterCountOf(laterCards, data) > 0
+  const hasImprove = improveCountOf(data) > 0
   const queue = page === 'later' ? laterCards : filter.shown
   const stops = stopsOf(page, { hasProposals, queue, worth })
   const { cursorId, cursorIndex, setSelectedId } = useCursor(stops)
@@ -1484,6 +1536,7 @@ const HomePage = () => {
   const { isFocused, isInQueue, isStepping, isWalking } = useHomeFocus(page)
   useHomeSubpage(search.page, readingDays.top, isFocused, {
     hasAgent,
+    hasImprove,
     hasLater,
     hasLook: importantCards.length > 0,
     hasNewsletters,
@@ -1579,6 +1632,7 @@ const HomePage = () => {
                   <LookCard queue={importantCards} />
                   <div className="grid gap-3 empty:hidden md:grid-cols-2 md:[&>:last-child:nth-child(odd)]:col-span-2">
                     <LaterCard cards={laterCards} today={data} />
+                    <ImproveCard today={data} />
                     <ProposalsGroup
                       canUseKeys={isWalking}
                       isSelected={isOnProposals}
@@ -1592,8 +1646,8 @@ const HomePage = () => {
             </div>
           </div>
           <ReadingPane {...readingDays} />
-          {/* A closing pane stays mounted while it shrinks back into its card. */}
-          <AnimatePresence>
+          {/* A closing pane stays mounted while it shrinks back into its card; one open on load is simply there. */}
+          <AnimatePresence initial={false}>
             {page === 'look' && (
               <HomeCardPane key="look" page="look">
                 <LookHeading
@@ -1643,6 +1697,18 @@ const HomePage = () => {
                     canUseKeys={isStepping}
                     onSettle={holdClicksUntilMove}
                   />
+                </div>
+              </HomeCardPane>
+            )}
+            {page === 'improve' && (
+              <HomeCardPane key="improve" page="improve">
+                <PageHeading
+                  title={t.today.improve.title}
+                  onClose={closePage}
+                />
+                <div
+                  className={cn('flex flex-col gap-2.5', cardsBleedClassName)}
+                >
                   <RuleSuggestions today={data} />
                   <RuleOffers today={data} onSettle={holdClicksUntilMove} />
                 </div>
@@ -1670,6 +1736,7 @@ const HomePage = () => {
             board: boardHints,
             hasBoard: hasAgent,
             hasFilter: filter.isOffered,
+            hasImprove,
             hasLater,
             hasLook: importantCards.length > 0,
             hasNewsletters,
@@ -1709,7 +1776,9 @@ export const Route = createFileRoute('/_app/home')({
   component: HomePage,
   validateSearch: z.object({
     day: z.optional(z.string().check(z.regex(/^\d{4}-\d{2}-\d{2}$/u))),
-    page: z.optional(z.enum(['board', 'later', 'look', 'reading', 'tidy'])),
+    page: z.optional(
+      z.enum(['board', 'improve', 'later', 'look', 'reading', 'tidy'])
+    ),
     thread: z.optional(z.string()),
   }),
   // Everything Home draws on its first frame: loaded after it, Reading's card showed a skeleton under cards already

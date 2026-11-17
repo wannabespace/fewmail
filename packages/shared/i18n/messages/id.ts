@@ -1607,8 +1607,7 @@ export const id: Messages = {
       title: 'Yang sudah dilakukan di email kamu',
     },
     progress: (done: number, total: number) => `${done} dari ${total}`,
-    readAll:
-      'Aku membaca semuanya, dan tidak ada yang berubah di emailmu tanpa persetujuanmu.',
+    readAll: 'Aku membaca semuanya.',
     worth: {
       awaiting: (total: number) =>
         plural('id', total, {
@@ -1628,6 +1627,13 @@ export const id: Messages = {
     },
     worthKnowing: 'Perlu diketahui',
     canWait: 'Bisa menunggu',
+    improve: {
+      lead: (total: number) =>
+        plural('id', total, {
+          other: (n) => `${n} aturan yang bisa dijalankan agen untukmu.`,
+        }),
+      title: 'Saran dari agen',
+    },
     quick: 'Cepat',
     needsLook: 'Butuh kamu',
     tidy: {
@@ -1646,7 +1652,6 @@ export const id: Messages = {
       keep: 'Simpan',
       mark_read: (n: number) => `${n} untuk ditandai dibaca`,
       run: 'Setujui semua',
-      total: (n: number) => `Email yang disarankan agen untuk dirapikan: ${n}`,
       unsubscribe: (n: number) => `${n} untuk berhenti langganan`,
       untilYouApprove:
         'Tidak ada yang berubah di email kamu sampai kamu menyetujuinya',

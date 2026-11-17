@@ -25,13 +25,22 @@ import { IconButton } from './icon-button'
 export const SettingsGroup = ({
   children,
   title,
+  titleClassName,
 }: {
   children: ReactNode
   title?: ReactNode
+  titleClassName?: string
 }) => (
   <section className="flex flex-col gap-2">
     {title && (
-      <h2 className="text-muted-foreground text-xs font-medium">{title}</h2>
+      <h2
+        className={cn(
+          'text-muted-foreground text-xs font-medium',
+          titleClassName
+        )}
+      >
+        {title}
+      </h2>
     )}
     <div
       className={cn(

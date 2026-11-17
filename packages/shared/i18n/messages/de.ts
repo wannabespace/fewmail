@@ -1481,8 +1481,7 @@ export const de: Messages = {
       title: 'In deinem Postfach erledigt',
     },
     progress: (done: number, total: number) => `${done} von ${total}`,
-    readAll:
-      'Ich habe jede gelesen, und ohne dein Ja ändert sich nichts in deiner Mail.',
+    readAll: 'Ich habe jede gelesen.',
     worth: {
       awaiting: (total: number) =>
         plural('de', total, {
@@ -1502,6 +1501,14 @@ export const de: Messages = {
     },
     worthKnowing: 'Gut zu wissen',
     canWait: 'Kann warten',
+    improve: {
+      lead: (total: number) =>
+        plural('de', total, {
+          one: () => 'Eine Regel, die der Agent für dich befolgen könnte.',
+          other: (n) => `${n} Regeln, die der Agent für dich befolgen könnte.`,
+        }),
+      title: 'Der Agent schlägt vor',
+    },
     quick: 'Schnell',
     needsLook: 'Braucht dich',
     tidy: {
@@ -1520,7 +1527,6 @@ export const de: Messages = {
       keep: 'Behalten',
       mark_read: (n: number) => `${n} als gelesen markieren`,
       run: 'Alle bestätigen',
-      total: (n: number) => `Aufräumvorschläge des Agenten: ${n}`,
       unsubscribe: (n: number) => `${n} abbestellen`,
       untilYouApprove:
         'In deinem Postfach ändert sich nichts, bis du zustimmst',

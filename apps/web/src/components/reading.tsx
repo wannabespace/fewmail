@@ -616,10 +616,12 @@ export const ReadingPane = ({
   top,
 }: ReturnType<typeof openReadingDays>) => (
   <>
-    {/* A closing pane stays mounted while it shrinks back into its card. */}
-    <AnimatePresence>
+    {/* A closing pane stays mounted while it shrinks back into its card; one open on load is simply there. */}
+    <AnimatePresence initial={false}>
       {base && <LatestPane key={base} day={base} isCovered={!!top} />}
     </AnimatePresence>
-    <AnimatePresence>{top && <DayPane key={top} day={top} />}</AnimatePresence>
+    <AnimatePresence initial={false}>
+      {top && <DayPane key={top} day={top} />}
+    </AnimatePresence>
   </>
 )

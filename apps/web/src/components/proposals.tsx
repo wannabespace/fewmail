@@ -200,10 +200,12 @@ const byKind = (proposals: Proposal[]) =>
     rows: proposals.filter((proposal) => proposal.kind === kind),
   })).filter(({ rows }) => rows.length > 0)
 
-const kindsLine = (t: Messages, proposals: Proposal[]) =>
-  byKind(proposals)
+const kindsLine = (t: Messages, proposals: Proposal[]) => {
+  const line = byKind(proposals)
     .map(({ kind, rows }) => t.today.tidy[kind](rows.length))
     .join(' · ')
+  return `${line.charAt(0).toUpperCase()}${line.slice(1)}.`
+}
 
 export const PROPOSALS_ID = 'proposals'
 
@@ -231,7 +233,7 @@ export const ProposalsGroup = ({
       <HomeCard
         heading={t.today.quick}
         isActive={isSelected}
-        lead={`${t.today.tidy.total(rows.length)}: ${kindsLine(t, rows)}.`}
+        lead={kindsLine(t, rows)}
         page="tidy"
         rows={rows.flatMap(({ id, message }) =>
           message ? [{ id, sender: message, text: message.subject }] : []
@@ -243,6 +245,7 @@ export const ProposalsGroup = ({
             shortcut={<Kbd>{isSelected ? '⏎' : 'T'}</Kbd>}
           >
             {t.today.tidy.run}
+            <span className="tabular-nums">{rows.length}</span>
           </Button>
         }
       />
@@ -320,6 +323,7 @@ export const ProposalsReview = ({
             shortcut={<Kbd>T</Kbd>}
           >
             {t.today.tidy.run}
+            <span className="tabular-nums">{rows.length}</span>
           </Button>
         }
       >

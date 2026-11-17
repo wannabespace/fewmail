@@ -1439,7 +1439,7 @@ export const hi: Messages = {
       title: 'आपके मेल में क्या हुआ',
     },
     progress: (done: number, total: number) => `${total} में से ${done}`,
-    readAll: 'मैंने हर एक पढ़ा, और आपकी हाँ के बिना आपके मेल में कुछ नहीं बदलता।',
+    readAll: 'मैंने हर एक पढ़ा।',
     worth: {
       awaiting: (total: number) =>
         plural('hi', total, {
@@ -1459,6 +1459,14 @@ export const hi: Messages = {
     },
     worthKnowing: 'जानने लायक',
     canWait: 'बाद में भी चलेगा',
+    improve: {
+      lead: (total: number) =>
+        plural('hi', total, {
+          one: (n) => `${n} नियम, जिसे एजेंट आपके लिए अपना सकता है।`,
+          other: (n) => `${n} नियम, जिन्हें एजेंट आपके लिए अपना सकता है।`,
+        }),
+      title: 'एजेंट का सुझाव',
+    },
     quick: 'झटपट',
     needsLook: 'आपकी ज़रूरत',
     tidy: {
@@ -1477,7 +1485,6 @@ export const hi: Messages = {
       keep: 'रहने दें',
       mark_read: (n: number) => `पढ़ा हुआ करने को: ${n}`,
       run: 'सब मंज़ूर करें',
-      total: (n: number) => `एजेंट ने इन्हें समेटने का सुझाव दिया: ${n} ईमेल`,
       unsubscribe: (n: number) => `अनसब्सक्राइब करने को: ${n}`,
       untilYouApprove: 'आपकी मंज़ूरी तक आपके मेल में कुछ नहीं बदलता',
       spam: (n: number) => `स्पैम में: ${n}`,

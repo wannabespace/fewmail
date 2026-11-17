@@ -1479,7 +1479,7 @@ export const es: Messages = {
       title: 'Hecho en tu correo',
     },
     progress: (done: number, total: number) => `${done} de ${total}`,
-    readAll: 'Leí cada uno, y nada cambia en tu correo sin tu sí.',
+    readAll: 'Leí cada uno.',
     worth: {
       awaiting: (total: number) =>
         plural('es', total, {
@@ -1499,6 +1499,15 @@ export const es: Messages = {
     },
     worthKnowing: 'Para tener en cuenta',
     canWait: 'Puede esperar',
+    improve: {
+      lead: (total: number) =>
+        plural('es', total, {
+          one: () => 'Una regla que el agente podría seguir por ti.',
+          many: (n) => `${n} reglas que el agente podría seguir por ti.`,
+          other: (n) => `${n} reglas que el agente podría seguir por ti.`,
+        }),
+      title: 'El agente sugiere',
+    },
     quick: 'Rápido',
     needsLook: 'Te necesita',
     tidy: {
@@ -1517,7 +1526,6 @@ export const es: Messages = {
       keep: 'Conservar',
       mark_read: (n: number) => `${n} para marcar como leídos`,
       run: 'Aprobar todo',
-      total: (n: number) => `Correos que el agente propone ordenar: ${n}`,
       unsubscribe: (n: number) => `${n} para darse de baja`,
       untilYouApprove: 'Nada cambia en tu correo hasta que lo apruebes',
       spam: (n: number) => `${n} a spam`,

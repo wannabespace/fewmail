@@ -3,23 +3,26 @@ import { Item } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
+import type { IconSvgElement } from '@hugeicons/react'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { Link, useSearch } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { createStore } from 'seitu'
+import { useSubscription } from 'seitu/react'
 
 import { MorphPane, PaneReveal } from '~/components/expand-row'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 
 /** What a Home card opens over Home's column (`?page=`). */
-export type HomeCardPage = 'board' | 'later' | 'look' | 'tidy'
+export type HomeCardPage = 'board' | 'improve' | 'later' | 'look' | 'tidy'
 
-/** One line of what a card holds: who, then what. */
-export interface HomeCardRow {
-  id: string
-  sender: { fromEmail: string; fromName?: string | null }
-  text: ReactNode
-}
+/** One line of what a card holds: who (or, with no sender, an icon and a name), then what. */
+export type HomeCardRow = { id: string; text: ReactNode } & (
+  | { sender: { fromEmail: string; fromName?: string | null } }
+  | { icon: IconSvgElement; name: ReactNode }
+)
 
 /** A card names its first few; the rest are in what it opens. */
 export const HOME_CARD_ROWS = 3
@@ -62,9 +65,25 @@ export const HomeCard = ({
           {rows.slice(0, HOME_CARD_ROWS).map((row) => (
             <li key={row.id}>
               <Item size="2xs" className="-mx-2.5 flex-nowrap">
-                <SenderAvatar sender={row.sender} />
-                <span data-mask className="shrink-0 font-medium">
-                  {row.sender.fromName ?? row.sender.fromEmail}
+                {'sender' in row ? (
+                  <SenderAvatar sender={row.sender} />
+                ) : (
+                  <HugeiconsIcon
+                    icon={row.icon}
+                    strokeWidth={2}
+                    className="text-muted-foreground size-4 shrink-0"
+                  />
+                )}
+                <span
+                  data-mask
+                  className={cn(
+                    'font-medium',
+                    'sender' in row ? 'shrink-0' : 'min-w-0 truncate'
+                  )}
+                >
+                  {'sender' in row
+                    ? (row.sender.fromName ?? row.sender.fromEmail)
+                    : row.name}
                 </span>
                 <span
                   data-mask
@@ -111,6 +130,9 @@ export const HomeCard = ({
   )
 }
 
+/** The page column (`routes/_app.tsx` sets it by ref), which a Home card's pane covers. */
+export const pageColumn = createStore<HTMLDivElement | null>(null)
+
 /** What a Home card grows into: a pane over the page column (notices included), like Reading's. */
 export const HomeCardPane = ({
   children,
@@ -119,8 +141,10 @@ export const HomeCardPane = ({
   children: ReactNode
   page: HomeCardPage
 }) => {
-  // Over the notice bar too: the pane covers the whole page column, not only the page under the notices.
-  const column = document.querySelector('[data-slot=page-column]')
+  // Over the notice bar too: the pane covers the whole page column, not only the page under the notices. Never drawn in
+  // place first (a reload renders it before the column is in the DOM): moved into the column after, it remounted and
+  // played its opening.
+  const column = useSubscription(pageColumn)
   const pane = (
     <MorphPane area="page-column" source={morphIdOf(page)} className="z-10">
       <div data-slot="home-card-pane" className="h-full overflow-y-auto">
@@ -130,8 +154,12 @@ export const HomeCardPane = ({
       </div>
     </MorphPane>
   )
-  return column ? createPortal(pane, column) : pane
+  return column && createPortal(pane, column)
 }
+
+/** A group's title in a pane sticks under `PageHeading`'s row (`top-17` is its height) and, like it, covers the cards' bleed. */
+export const paneGroupTitleClassName =
+  'bg-background sticky top-17 z-[5] -my-2 py-2 md:-mx-3.5 md:px-3.5'
 
 /**
  * What a Home card opened says on top: its name, its actions and ✕ (Home's `esc`) back to Home, held at the pane's top
@@ -152,7 +180,7 @@ export const PageHeading = ({
   const t = useT()
   return (
     <>
-      <header className="bg-background sticky top-0 z-10 -mt-3 flex items-center gap-2 py-3">
+      <header className="bg-background sticky top-0 z-10 -mt-3 flex items-center gap-2 py-3 md:-mx-3.5 md:px-3.5">
         <h1 className="text-display font-serif tracking-tight">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
           {actions}

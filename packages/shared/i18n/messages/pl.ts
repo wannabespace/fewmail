@@ -1649,8 +1649,7 @@ export const pl: Messages = {
       title: 'Zrobione w twojej poczcie',
     },
     progress: (done: number, total: number) => `${done} z ${total}`,
-    readAll:
-      'Przeczytałem wszystkie, a bez twojego „tak” w poczcie nic się nie zmienia.',
+    readAll: 'Przeczytałem wszystkie.',
     worth: {
       awaiting: (total: number) =>
         plural('pl', total, {
@@ -1671,6 +1670,16 @@ export const pl: Messages = {
     },
     worthKnowing: 'Warto wiedzieć',
     canWait: 'Może poczekać',
+    improve: {
+      lead: (total: number) =>
+        plural('pl', total, {
+          one: () => 'Jedna reguła, którą agent mógłby stosować za ciebie.',
+          few: (n) => `${n} reguły, które agent mógłby stosować za ciebie.`,
+          many: (n) => `${n} reguł, które agent mógłby stosować za ciebie.`,
+          other: (n) => `${n} reguły, które agent mógłby stosować za ciebie.`,
+        }),
+      title: 'Agent proponuje',
+    },
     quick: 'Szybko',
     needsLook: 'Czeka na ciebie',
     tidy: {
@@ -1689,7 +1698,6 @@ export const pl: Messages = {
       keep: 'Zostaw',
       mark_read: (n: number) => `do oznaczenia jako przeczytane: ${n}`,
       run: 'Zatwierdź wszystko',
-      total: (n: number) => `E-maile, które agent proponuje uporządkować: ${n}`,
       unsubscribe: (n: number) => `do wypisania się: ${n}`,
       untilYouApprove:
         'Nic w twojej poczcie się nie zmieni, dopóki nie zatwierdzisz',

@@ -1620,8 +1620,7 @@ export const nl: Messages = {
       title: 'Gedaan in je mail',
     },
     progress: (done: number, total: number) => `${done} van ${total}`,
-    readAll:
-      'Ik heb ze allemaal gelezen, en zonder je ja verandert er niets in je mail.',
+    readAll: 'Ik heb ze allemaal gelezen.',
     worth: {
       awaiting: (total: number) =>
         plural('nl', total, {
@@ -1641,6 +1640,14 @@ export const nl: Messages = {
     },
     worthKnowing: 'Goed om te weten',
     canWait: 'Kan wachten',
+    improve: {
+      lead: (total: number) =>
+        plural('nl', total, {
+          one: () => 'Eén regel die de agent voor je zou kunnen volgen.',
+          other: (n) => `${n} regels die de agent voor je zou kunnen volgen.`,
+        }),
+      title: 'De agent stelt voor',
+    },
     quick: 'Snel',
     needsLook: 'Heeft jou nodig',
     tidy: {
@@ -1659,7 +1666,6 @@ export const nl: Messages = {
       keep: 'Houden',
       mark_read: (n: number) => `${n} als gelezen markeren`,
       run: 'Alles goedkeuren',
-      total: (n: number) => `E-mails die de agent wil opruimen: ${n}`,
       unsubscribe: (n: number) => `${n} afmelden`,
       untilYouApprove: 'Er verandert niets in je mail tot je akkoord geeft',
       spam: (n: number) => `${n} naar spam`,

@@ -1404,7 +1404,7 @@ export const zh: Messages = {
       title: '邮件里已完成的事',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
-    readAll: '每一封我都读过了。没有你的同意，邮件里什么都不会改变。',
+    readAll: '每一封我都读过了。',
     worth: {
       awaiting: (total: number) =>
         plural('zh', total, {
@@ -1424,6 +1424,10 @@ export const zh: Messages = {
     },
     worthKnowing: '值得了解',
     canWait: '可以稍后',
+    improve: {
+      lead: (total: number) => `助手可以替你执行的规则有 ${total} 条。`,
+      title: '助手的建议',
+    },
     quick: '快速处理',
     needsLook: '需要你',
     tidy: {
@@ -1440,7 +1444,6 @@ export const zh: Messages = {
       keep: '保留',
       mark_read: (n: number) => `${n} 封标为已读`,
       run: '全部批准',
-      total: (n: number) => `助手建议整理的邮件：${n} 封`,
       unsubscribe: (n: number) => `${n} 封退订`,
       untilYouApprove: '你批准之前，邮箱里什么都不会变',
       spam: (n: number) => `${n} 封移到垃圾邮件`,

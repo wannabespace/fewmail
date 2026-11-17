@@ -1437,7 +1437,7 @@ export const ko: Messages = {
       title: '메일에서 처리된 일',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
-    readAll: '모두 읽었어요. 승인 없이는 메일에서 아무것도 바뀌지 않아요.',
+    readAll: '모두 읽었어요.',
     worth: {
       awaiting: (total: number) =>
         plural('ko', total, {
@@ -1457,6 +1457,11 @@ export const ko: Messages = {
     },
     worthKnowing: '알아 두면 좋은 것',
     canWait: '나중에 봐도 돼요',
+    improve: {
+      lead: (total: number) =>
+        `에이전트가 대신 따를 수 있는 규칙이 ${total}개 있어요.`,
+      title: '에이전트의 제안',
+    },
     quick: '빠르게',
     needsLook: '확인 필요',
     tidy: {
@@ -1475,7 +1480,6 @@ export const ko: Messages = {
       keep: '그대로 두기',
       mark_read: (n: number) => `읽음 표시 ${n}개`,
       run: '모두 승인',
-      total: (n: number) => `에이전트가 정리를 제안한 메일 ${n}개`,
       unsubscribe: (n: number) => `구독 취소 ${n}개`,
       untilYouApprove: '승인하기 전까지 메일은 바뀌지 않아요',
       spam: (n: number) => `스팸으로 ${n}개`,
