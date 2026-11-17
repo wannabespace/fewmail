@@ -312,6 +312,9 @@ export const tr: Messages = {
     digest: (n: number) => `Bültenler: ${n}`,
     lead: 'Bir günün bültenleri tek yerde, gelen kutusunu doldurmasınlar diye.',
     issues: 'Tüm sayılar',
+    empty: 'Henüz bülten yok',
+    emptyHint:
+      'Her sabah ajan bültenlerindeki haberleri buraya yazacak; her satır geldiği e-postaya bağlanır.',
     title: 'Okuma',
   },
   commitments: {

@@ -1734,6 +1734,9 @@ export const es: Messages = {
     digest: (n: number) => `Boletines: ${n}`,
     lead: 'Los boletines de un día en un solo lugar, para que no llenen la bandeja.',
     issues: 'Todas las ediciones',
+    empty: 'Aún no hay boletines',
+    emptyHint:
+      'Cada mañana el agente escribirá aquí las noticias de tus boletines, cada línea enlazada al correo del que salió.',
     title: 'Lectura',
   },
   commitments: {

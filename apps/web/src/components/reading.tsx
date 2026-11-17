@@ -7,6 +7,13 @@ import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@fewmail/ui/components/empty'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { News01Icon, TickDouble02Icon } from '@hugeicons/core-free-icons'
@@ -27,6 +34,7 @@ import {
 import { HomeCard, PageHeading } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ListenButton } from '~/components/listen-button'
+import { SleepingLogoMark } from '~/components/logo'
 import { PaneRows, PaneScroller } from '~/components/pane-rows'
 import { sweepOf, useMailActions } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
@@ -423,6 +431,25 @@ export const newsletterHints = (
 ]
 
 /**
+ * Nothing to read: no issue yet, or every newsletter of one trashed. The bird sleeps, as over an empty mail list; the
+ * hint says what will come, so only Reading's page carries it.
+ */
+const ReadingEmpty = ({ hasHint }: { hasHint?: boolean }) => {
+  const t = useT()
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia>
+          <SleepingLogoMark className="text-muted-foreground/50 size-20" />
+        </EmptyMedia>
+        <EmptyTitle>{t.reading.empty}</EmptyTitle>
+        {hasHint && <EmptyDescription>{t.reading.emptyHint}</EmptyDescription>}
+      </EmptyHeader>
+    </Empty>
+  )
+}
+
+/**
  * `/reading`, a page of its own: the latest issue (or `?day=`), the whole summary, every newsletter it was written
  * from, then every other issue; `esc` goes from a day back to the latest.
  */
@@ -431,7 +458,8 @@ export const ReadingPage = ({ day: pickedDay }: { day?: string }) => {
   const navigate = useNavigate()
   const { latestDay } = useReadingIssues()
   const day = pickedDay ?? latestDay
-  const { rows, summary } = useReadingDay(day)
+  const { isLoading, rows, summary } = useReadingDay(day)
+  const isEmpty = !day || (!isLoading && rows.length === 0 && !summary)
   const isFocused = !useIsThreadExpanded()
   const canGoBack = isFocused && !!pickedDay
   useHotkey('Escape', () => navigate({ search: {}, to: '/reading' }), {
@@ -457,15 +485,13 @@ export const ReadingPage = ({ day: pickedDay }: { day?: string }) => {
               )}
             </div>
             {day && <IssueHeading day={day} />}
-            {day ? (
-              <ReadingIntro day={day} />
-            ) : (
-              <p className="text-brief text-foreground/80 font-serif">
-                {t.reading.lead}
-              </p>
-            )}
+            {day && !isEmpty && <ReadingIntro day={day} />}
           </header>
-          {day && <IssueBody day={day} isActive={isFocused} />}
+          {isEmpty ? (
+            <ReadingEmpty hasHint />
+          ) : (
+            <IssueBody day={day} isActive={isFocused} />
+          )}
           {day && <IssueList shownDay={day} />}
         </div>
       </PaneScroller>
@@ -544,16 +570,18 @@ export const NewslettersPane = ({
           )
         }
       />
-      {day && (
-        <MarkAllRead
-          day={day}
-          isActive={isActive}
-          rows={rows}
-          variant="secondary"
-        />
-      )}
-      {rows.length > 0 && (
-        <NewsletterList isActive={isActive} rows={rows} summary={summary} />
+      {day && rows.length > 0 ? (
+        <>
+          <MarkAllRead
+            day={day}
+            isActive={isActive}
+            rows={rows}
+            variant="secondary"
+          />
+          <NewsletterList isActive={isActive} rows={rows} summary={summary} />
+        </>
+      ) : (
+        <ReadingEmpty />
       )}
     </>
   )

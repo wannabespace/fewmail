@@ -361,6 +361,9 @@ export const en = {
     digest: (n: number) => `${n} newsletters`,
     lead: 'A day of newsletters in one place, so they never crowd the inbox.',
     issues: 'Every issue',
+    empty: 'No newsletters yet',
+    emptyHint:
+      'Each morning the agent will write the news from your newsletters here, each line linked to the email it came from.',
     title: 'Reading',
   },
   command: {

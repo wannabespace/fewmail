@@ -1667,6 +1667,9 @@ export const ko: Messages = {
     digest: (n: number) => `뉴스레터: ${n}개`,
     lead: '하루치 뉴스레터를 한곳에 모아 받은편지함을 비워 둬요.',
     issues: '모든 호',
+    empty: '아직 뉴스레터가 없어요',
+    emptyHint:
+      '매일 아침 에이전트가 뉴스레터에서 뽑은 소식을 여기에 정리해요. 각 줄은 출처 이메일로 연결돼요.',
     title: '읽을거리',
   },
   commitments: {

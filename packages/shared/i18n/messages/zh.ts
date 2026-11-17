@@ -1626,6 +1626,9 @@ export const zh: Messages = {
     digest: (n: number) => `订阅邮件：${n} 封`,
     lead: '一天的订阅邮件集中在一处，不再挤满收件箱。',
     issues: '所有期',
+    empty: '还没有新闻通讯',
+    emptyHint:
+      '每天早上，代理会在这里写下你的新闻通讯里的新闻，每一行都链接到它来自的邮件。',
     title: '阅读',
   },
   commitments: {

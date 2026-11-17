@@ -314,6 +314,9 @@ export const id: Messages = {
     digest: (n: number) => `Newsletter: ${n}`,
     lead: 'Newsletter satu hari di satu tempat, agar tidak memenuhi kotak masuk.',
     issues: 'Semua edisi',
+    empty: 'Belum ada buletin',
+    emptyHint:
+      'Setiap pagi agen akan menulis berita dari buletinmu di sini, tiap baris tertaut ke email asalnya.',
     title: 'Bacaan',
   },
   commitments: {

@@ -1686,6 +1686,9 @@ export const ja: Messages = {
     digest: (n: number) => `メルマガ: ${n}件`,
     lead: '1日分のメルマガを1か所に。受信トレイを埋めません。',
     issues: 'すべての号',
+    empty: 'ニュースレターはまだありません',
+    emptyHint:
+      '毎朝、エージェントがニュースレターから集めたニュースをここに書きます。各行は元のメールにリンクしています。',
     title: 'リーディング',
   },
   commitments: {

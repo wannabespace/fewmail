@@ -1757,6 +1757,9 @@ export const fr: Messages = {
     digest: (n: number) => `Newsletters : ${n}`,
     lead: 'Les newsletters d’une journée au même endroit, pour qu’elles n’encombrent pas la boîte de réception.',
     issues: 'Toutes les éditions',
+    empty: 'Pas encore de newsletters',
+    emptyHint:
+      'Chaque matin, l’agent écrira ici les nouvelles de vos newsletters, chaque ligne liée à l’e-mail d’où elle vient.',
     title: 'Lecture',
   },
   commitments: {

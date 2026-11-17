@@ -315,6 +315,9 @@ export const nl: Messages = {
     digest: (n: number) => `Nieuwsbrieven: ${n}`,
     lead: 'De nieuwsbrieven van een dag op één plek, zodat ze je inbox niet vullen.',
     issues: 'Alle edities',
+    empty: 'Nog geen nieuwsbrieven',
+    emptyHint:
+      'Elke ochtend schrijft de agent hier het nieuws uit je nieuwsbrieven, elke regel gelinkt aan de e-mail waar hij vandaan komt.',
     title: 'Lezen',
   },
   commitments: {
