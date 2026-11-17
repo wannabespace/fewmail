@@ -4,6 +4,8 @@ import { onError } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
 import { BatchHandlerPlugin } from '@orpc/server/plugins'
 import { Result } from 'better-result'
+import { BlockList, isIP } from 'node:net'
+
 import { Hono } from 'hono'
 import { except } from 'hono/combine'
 import { compress } from 'hono/compress'
@@ -93,6 +95,22 @@ const rateLimit = createMiddleware((c, next) => {
   }
   return next()
 })
+
+const CLOUDFLARE = new BlockList()
+for (const range of '173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22'.split(' ')) {
+  const [n, p] = range.split('/')
+  CLOUDFLARE.addSubnet(n ?? '', Number(p), 'ipv4')
+}
+for (const range of '2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32'.split(' ')) {
+  const [n, p] = range.split('/')
+  CLOUDFLARE.addSubnet(n ?? '', Number(p), 'ipv6')
+}
+const PRIVATE_PROBE = new BlockList()
+PRIVATE_PROBE.addSubnet('10.0.0.0', 8, 'ipv4')
+PRIVATE_PROBE.addSubnet('100.64.0.0', 10, 'ipv4')
+PRIVATE_PROBE.addSubnet('172.16.0.0', 12, 'ipv4')
+PRIVATE_PROBE.addSubnet('192.168.0.0', 16, 'ipv4')
+PRIVATE_PROBE.addSubnet('fc00::', 7, 'ipv6')
 
 const WEBHOOKS = ['/telegram', '/whatsapp', '/stripe/webhook', '/gmail/push']
 
@@ -291,10 +309,14 @@ const app = new Hono()
     })
   })
   .get('/health', (c) => {
-    const ip = (value?: string) =>
-      value === undefined ? 'none' : value.startsWith('104.') || value.startsWith('172.') || value.startsWith('162.158') || value.startsWith('2606:4700') || value.startsWith('2a06:98c0') ? 'cf?' : 'other'
+    const ip = (value?: string) => {
+      if (value === undefined) return 'none'
+      const family = isIP(value) === 6 ? 'ipv6' : 'ipv4'
+      if (isIP(value) === 0) return 'bad'
+      return CLOUDFLARE.check(value, family) ? 'cf' : PRIVATE_PROBE.check(value, family) ? 'private' : 'public'
+    }
     const hops = c.req.header('x-forwarded-for')?.split(',').map((hop) => hop.trim())
-    console.warn('origin probe', c.req.header('cf-connecting-ip') ? 'cf-header' : 'no-cf-header', 'real', ip(c.req.header('x-real-ip')), 'first', ip(hops?.[0]), 'last', ip(hops?.at(-1)), 'hops', hops?.length ?? 0)
+    console.warn('origin probe', c.req.header('cf-connecting-ip') ? 'cf-header' : 'no-cf-header', 'real', ip(c.req.header('x-real-ip')), 'hops', (hops ?? []).map(ip).join('>'), 'envoy', c.req.header('x-envoy-external-address') ? ip(c.req.header('x-envoy-external-address')) : '-')
     return c.text('ok')
   })
   .get('/health/:commit', (c) =>
