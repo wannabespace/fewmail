@@ -7,13 +7,112 @@ import {
   MultiplicationSignCircleIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import type { CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { Toaster as Sonner } from 'sonner'
 
 import { useTheme } from '../theme-store'
 
 const subscribeNever = () => noop
+
+const CONTROL =
+  'a[href], button, input, select, textarea, [role="button"], [role="checkbox"], [role="switch"]'
+const PROBE_STEP = 12
+const CONTROL_GAP = 8
+// sonner's `visibleToasts` and `gap` defaults: passing either prop to `Sonner` must change these too.
+const STACK_VISIBLE = 3
+const STACK_PEEK = 14
+const SETTLE_MS = 250
+
+interface Box {
+  bottom: number
+  left: number
+  right: number
+  top: number
+}
+
+const controlTopsUnder = (toaster: Element, box: Box) => {
+  const tops: number[] = []
+  for (let y = box.top + 2; y < box.bottom; y += PROBE_STEP) {
+    for (let x = box.left + 2; x < box.right; x += PROBE_STEP) {
+      const under = document
+        .elementsFromPoint(x, y)
+        .find((node) => !toaster.contains(node))
+      const control = under?.closest(CONTROL)?.getBoundingClientRect()
+      // A row or a field wider than the toast is an area, not a control: counted, Mail's list would never let it sit.
+      if (control && control.width < box.right - box.left) {
+        tops.push(control.top)
+      }
+    }
+  }
+  return tops
+}
+
+const liftOffControls = (toaster: HTMLElement) => {
+  const stack = toaster.querySelectorAll(
+    '[data-sonner-toast]:not([data-removed="true"])'
+  ).length
+  if (!stack) {
+    return 0
+  }
+  const { left, right } = toaster.getBoundingClientRect()
+  const front = toaster.querySelector<HTMLElement>('[data-front="true"]')
+  // The list has no height of its own, so its top is the toasts' bottom; offsetTop leaves out the lift's translate.
+  const bottom = toaster.offsetTop
+  const height =
+    (front?.offsetHeight ?? 0) +
+    (Math.min(stack, STACK_VISIBLE) - 1) * STACK_PEEK
+  let lift = 0
+  while (lift < innerHeight * 0.4) {
+    const tops = controlTopsUnder(toaster, {
+      bottom: bottom - lift,
+      left,
+      right,
+      top: bottom - lift - height,
+    })
+    if (!tops.length) {
+      return lift
+    }
+    lift = bottom - Math.min(...tops) + CONTROL_GAP
+  }
+  return 0
+}
+
+const useControlLift = () => {
+  const ref = useRef<HTMLDivElement>(null)
+  const [lift, setLift] = useState(0)
+
+  useEffect(() => {
+    let timer = 0
+    const place = () => {
+      const toaster = ref.current?.querySelector<HTMLElement>(
+        '[data-sonner-toaster]'
+      )
+      if (!toaster) {
+        setLift(0)
+      } else if (!toaster.matches(':hover')) {
+        setLift(liftOffControls(toaster))
+      }
+    }
+    const schedule = () => {
+      clearTimeout(timer)
+      timer = window.setTimeout(place, SETTLE_MS)
+    }
+    const observer = new MutationObserver(schedule)
+    observer.observe(document.body, { childList: true, subtree: true })
+    addEventListener('scroll', schedule, { capture: true, passive: true })
+    addEventListener('resize', schedule)
+    return () => {
+      clearTimeout(timer)
+      observer.disconnect()
+      removeEventListener('scroll', schedule, { capture: true })
+      removeEventListener('resize', schedule)
+    }
+  }, [])
+
+  return { lift, ref }
+}
 
 const Toaster = () => {
   const theme = useTheme()
@@ -22,13 +121,19 @@ const Toaster = () => {
     () => true,
     () => false
   )
+  const { lift, ref } = useControlLift()
 
   if (!isClient) {
     return null
   }
 
   return createPortal(
-    <div data-mask className="contents [&_ol]:z-60!">
+    <div
+      ref={ref}
+      data-mask
+      style={{ '--toast-lift': `${lift}px` } as CSSProperties}
+      className="[&_ol]:ease-house contents [&_ol]:z-60! [&_ol]:-translate-y-(--toast-lift) [&_ol]:transition-[transform,translate] [&_ol]:duration-300 motion-reduce:[&_ol]:transition-none"
+    >
       <Sonner
         theme={theme}
         position="bottom-right"
