@@ -222,9 +222,14 @@ const SOURCE_MARKERS =
   /\s*(?:\[\d+(?:\s*,\s*\d+)*\]|\(n\d+(?:\s*,\s*n\d+)*\))/gu
 const withoutMarkers = (text: string) => text.replaceAll(SOURCE_MARKERS, '')
 
-/** The model also numbers its sources in the text ("[2]", "(n2)") and opens a topic with its title, though the sources show as chips and the title as a heading. */
+const saysSomething = (text: string) => /[\p{L}\p{N}]/u.test(text)
+
+/**
+ * The model also numbers its sources in the text ("[2]", "(n2)") and opens a topic with its title, though the sources
+ * show as chips and the title as a heading; on a day with nothing new it writes "…" as the intro.
+ */
 const withoutEchoes = ({ intro, sections, worth }: ReadingSummary) => ({
-  intro: withoutMarkers(intro),
+  intro: saysSomething(intro) ? withoutMarkers(intro) : '',
   sections: sections.map(({ sentences, title }) => ({
     sentences: sentences.map(({ messageIds, text }) => ({
       messageIds,

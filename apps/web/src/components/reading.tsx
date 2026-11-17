@@ -327,6 +327,9 @@ const ReadingIntro = ({ day }: { day: string }) => {
   if (isLoading) {
     return <SummarySkeleton />
   }
+  if (summary && !summary.intro) {
+    return null
+  }
   return (
     <p
       data-mask={!!summary || undefined}
@@ -459,6 +462,7 @@ export const ReadingPage = ({ day: pickedDay }: { day?: string }) => {
   const { latestDay } = useReadingIssues()
   const day = pickedDay ?? latestDay
   const { isLoading, rows, summary } = useReadingDay(day)
+  const speech = summary && readingSpeech(summary)
   const isEmpty = !day || (!isLoading && rows.length === 0 && !summary)
   const isFocused = !useIsThreadExpanded()
   const canGoBack = isFocused && !!pickedDay
@@ -475,12 +479,9 @@ export const ReadingPage = ({ day: pickedDay }: { day?: string }) => {
               <h1 className="text-display font-serif tracking-tight">
                 {t.reading.title}
               </h1>
-              {day && summary && (
+              {day && speech && (
                 <div className="ml-auto">
-                  <ListenButton
-                    path={listenPath(day)}
-                    text={readingSpeech(summary)}
-                  />
+                  <ListenButton path={listenPath(day)} text={speech} />
                 </div>
               )}
             </div>

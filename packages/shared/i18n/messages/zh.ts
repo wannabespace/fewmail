@@ -1487,8 +1487,7 @@ export const zh: Messages = {
     },
     dates: '日期和会议',
     done: '完成',
-    firstRead:
-      '先从你最近三天的邮件开始。需要你处理的事会自动出现在这里。',
+    firstRead: '先从你最近三天的邮件开始。需要你处理的事会自动出现在这里。',
     approvedMany: (n: number) => `已批准 ${n} 项`,
     listen: '收听',
     handled: {
@@ -1627,8 +1626,7 @@ export const zh: Messages = {
     lead: '一天的订阅邮件集中在一处，不再挤满收件箱。',
     issues: '所有期',
     empty: '还没有新闻通讯',
-    emptyHint:
-      '每天早上，代理会在这里写下你的新闻通讯里的新闻，每一行都链接到它来自的邮件。',
+    emptyHint: '每天早上，代理会把新闻通讯里的新闻写在这里，并附上来源邮件。',
     title: '阅读',
   },
   commitments: {
