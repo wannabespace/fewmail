@@ -454,8 +454,30 @@ export const zh: Messages = {
     draftReply: '起草回复',
     due: (date: string) => `${date} 到期`,
     dueHint: '助手在这封邮件中找到的截止日期',
-    empty: '这里没有邮件',
-    emptyHint: '新邮件一到就会出现在这里。',
+    empty: {
+      focused: '收件箱已清空',
+      unread: '全部已读',
+      categories: '收件箱已清空',
+      inbox: '收件箱已清空',
+      snoozed: '没有延后的邮件',
+      sent: '还没有发送过邮件',
+      drafts: '没有草稿',
+      archive: '归档为空',
+      spam: '没有垃圾邮件',
+      trash: '回收站为空',
+    },
+    emptyHint: {
+      focused: '新邮件一到就会出现在这里。',
+      unread: '新邮件一到就会出现在这里。',
+      categories: '新邮件一到就会出现在这里。',
+      inbox: '新邮件一到就会出现在这里。',
+      snoozed: '延后一封邮件，它会暂时隐藏，到时以未读状态回到收件箱。',
+      sent: '你发送的邮件会出现在这里。',
+      drafts: '写了但没发送的邮件会留在这里。',
+      archive: '归档的邮件离开收件箱，保存在这里。',
+      spam: '垃圾邮件会进入这里，而不是收件箱。',
+      trash: '删除的邮件会在这里保留 30 天。',
+    },
     noResults: '未找到结果',
     noResultsHint: '换个词或换个文件夹试试。',
     expectsReply: '等待回复',
@@ -1404,7 +1426,10 @@ export const zh: Messages = {
       title: '邮件里已完成的事',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
-    readAll: '每一封我都读过了。',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? '全是新闻通讯和通知。'
+        : `大多是新闻通讯和通知，来自真人的只有 ${people} 封。`,
     worth: {
       awaiting: (total: number) =>
         plural('zh', total, {

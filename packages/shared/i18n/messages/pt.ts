@@ -607,8 +607,31 @@ export const pt: Messages = {
     draftReply: 'Rascunhar resposta',
     due: (date: string) => `vence em ${date}`,
     dueHint: 'Prazo que o agente encontrou neste e-mail',
-    empty: 'Nenhum e-mail aqui',
-    emptyHint: 'Novos e-mails aparecem aqui assim que chegam.',
+    empty: {
+      focused: 'Caixa de entrada vazia',
+      unread: 'Tudo lido',
+      categories: 'Caixa de entrada vazia',
+      inbox: 'Caixa de entrada vazia',
+      snoozed: 'Nada adiado',
+      sent: 'Nada enviado ainda',
+      drafts: 'Nenhum rascunho',
+      archive: 'O arquivo está vazio',
+      spam: 'Nenhum spam',
+      trash: 'A lixeira está vazia',
+    },
+    emptyHint: {
+      focused: 'Novos e-mails aparecem aqui assim que chegam.',
+      unread: 'Novos e-mails aparecem aqui assim que chegam.',
+      categories: 'Novos e-mails aparecem aqui assim que chegam.',
+      inbox: 'Novos e-mails aparecem aqui assim que chegam.',
+      snoozed:
+        'Adie um e-mail para guardá-lo até mais tarde: ele volta para a entrada como não lido.',
+      sent: 'Os e-mails que você envia aparecem aqui.',
+      drafts: 'Os e-mails que você começou e não enviou esperam aqui.',
+      archive: 'E-mails arquivados saem da entrada e esperam aqui.',
+      spam: 'O spam chega aqui, fora da sua caixa de entrada.',
+      trash: 'E-mails excluídos ficam aqui por 30 dias.',
+    },
     noResults: 'Nada encontrado',
     noResultsHint: 'Tente outras palavras ou outra pasta.',
     expectsReply: 'Aguarda resposta',
@@ -1634,7 +1657,10 @@ export const pt: Messages = {
       title: 'Feito no seu e-mail',
     },
     progress: (done: number, total: number) => `${done} de ${total}`,
-    readAll: 'Li cada um.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'Tudo newsletters e notificações.'
+        : `Quase tudo newsletters e notificações, só ${people} de pessoas.`,
     worth: {
       awaiting: (total: number) =>
         plural('pt', total, {

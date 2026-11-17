@@ -595,8 +595,31 @@ export const en = {
     draftReply: 'Draft reply',
     due: (date: string) => `due ${date}`,
     dueHint: 'Deadline the agent found in this email',
-    empty: 'No emails here',
-    emptyHint: 'New mail shows up here as it arrives.',
+    empty: {
+      focused: 'Inbox zero',
+      unread: 'All read',
+      categories: 'Inbox zero',
+      inbox: 'Inbox zero',
+      snoozed: 'Nothing snoozed',
+      sent: 'Nothing sent yet',
+      drafts: 'No drafts',
+      archive: 'The archive is empty',
+      spam: 'No spam',
+      trash: 'The trash is empty',
+    },
+    emptyHint: {
+      focused: 'New mail shows up here as it arrives.',
+      unread: 'New mail shows up here as it arrives.',
+      categories: 'New mail shows up here as it arrives.',
+      inbox: 'New mail shows up here as it arrives.',
+      snoozed:
+        'Snooze an email to put it away until later: it comes back to the inbox unread.',
+      sent: 'Emails you send show up here.',
+      drafts: 'Emails you start but have not sent wait here.',
+      archive: 'Archived emails leave the inbox and wait here.',
+      spam: 'Spam lands here, out of your inbox.',
+      trash: 'Deleted emails stay here for 30 days.',
+    },
     noResults: 'Nothing found',
     noResultsHint: 'Try other words, or look in another folder.',
     expectsReply: 'Expects a reply',
@@ -1612,7 +1635,10 @@ export const en = {
       title: 'Done in your mail',
     },
     progress: (done: number, total: number) => `${done} of ${total}`,
-    readAll: 'I read every one.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'All of them newsletters and notifications.'
+        : `Mostly newsletters and notifications, and just ${people} from people.`,
     worth: {
       awaiting: (total: number) =>
         plural('en', total, {

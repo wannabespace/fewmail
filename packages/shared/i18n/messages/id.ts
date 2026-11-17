@@ -597,8 +597,32 @@ export const id: Messages = {
     draftReply: 'Draf balasan',
     due: (date: string) => `jatuh tempo ${date}`,
     dueHint: 'Tenggat yang ditemukan agen di email ini',
-    empty: 'Tidak ada email di sini',
-    emptyHint: 'Email baru akan muncul di sini begitu tiba.',
+    empty: {
+      focused: 'Kotak masuk kosong',
+      unread: 'Semua sudah dibaca',
+      categories: 'Kotak masuk kosong',
+      inbox: 'Kotak masuk kosong',
+      snoozed: 'Tidak ada yang ditunda',
+      sent: 'Belum ada yang terkirim',
+      drafts: 'Tidak ada draf',
+      archive: 'Arsip kosong',
+      spam: 'Tidak ada spam',
+      trash: 'Sampah kosong',
+    },
+    emptyHint: {
+      focused: 'Email baru akan muncul di sini begitu tiba.',
+      unread: 'Email baru akan muncul di sini begitu tiba.',
+      categories: 'Email baru akan muncul di sini begitu tiba.',
+      inbox: 'Email baru akan muncul di sini begitu tiba.',
+      snoozed:
+        'Tunda email untuk menyingkirkannya sampai nanti: email itu kembali ke kotak masuk sebagai belum dibaca.',
+      sent: 'Email yang kamu kirim muncul di sini.',
+      drafts: 'Email yang kamu mulai tapi belum dikirim menunggu di sini.',
+      archive:
+        'Email yang diarsipkan keluar dari kotak masuk dan menunggu di sini.',
+      spam: 'Spam masuk ke sini, bukan ke kotak masuk.',
+      trash: 'Email yang dihapus tersimpan di sini selama 30 hari.',
+    },
     noResults: 'Tidak ada hasil',
     noResultsHint: 'Coba kata lain atau folder lain.',
     expectsReply: 'Menunggu balasan',
@@ -1611,7 +1635,10 @@ export const id: Messages = {
       title: 'Yang sudah dilakukan di email kamu',
     },
     progress: (done: number, total: number) => `${done} dari ${total}`,
-    readAll: 'Aku membaca semuanya.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'Semuanya newsletter dan notifikasi.'
+        : `Kebanyakan newsletter dan notifikasi, dari orang hanya ${people}.`,
     worth: {
       awaiting: (total: number) =>
         plural('id', total, {

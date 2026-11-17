@@ -1029,8 +1029,32 @@ export const de: Messages = {
     draftReply: 'Antwort entwerfen',
     due: (date: string) => `fällig am ${date}`,
     dueHint: 'Frist, die der Agent in dieser E-Mail gefunden hat',
-    empty: 'Hier sind keine Mails',
-    emptyHint: 'Neue Mails erscheinen hier, sobald sie ankommen.',
+    empty: {
+      focused: 'Posteingang leer',
+      unread: 'Alles gelesen',
+      categories: 'Posteingang leer',
+      inbox: 'Posteingang leer',
+      snoozed: 'Nichts zurückgestellt',
+      sent: 'Noch nichts gesendet',
+      drafts: 'Keine Entwürfe',
+      archive: 'Das Archiv ist leer',
+      spam: 'Kein Spam',
+      trash: 'Der Papierkorb ist leer',
+    },
+    emptyHint: {
+      focused: 'Neue Mails erscheinen hier, sobald sie ankommen.',
+      unread: 'Neue Mails erscheinen hier, sobald sie ankommen.',
+      categories: 'Neue Mails erscheinen hier, sobald sie ankommen.',
+      inbox: 'Neue Mails erscheinen hier, sobald sie ankommen.',
+      snoozed:
+        'Stell eine Mail zurück, um sie bis später wegzulegen: Sie kommt ungelesen in den Posteingang zurück.',
+      sent: 'Mails, die du sendest, erscheinen hier.',
+      drafts:
+        'Mails, die du angefangen, aber nicht gesendet hast, warten hier.',
+      archive: 'Archivierte Mails verlassen den Posteingang und warten hier.',
+      spam: 'Spam landet hier statt im Posteingang.',
+      trash: 'Gelöschte Mails bleiben hier 30 Tage lang.',
+    },
     noResults: 'Nichts gefunden',
     noResultsHint: 'Versuch andere Wörter oder einen anderen Ordner.',
     expectsReply: 'Erwartet Antwort',
@@ -1481,7 +1505,10 @@ export const de: Messages = {
       title: 'In deinem Postfach erledigt',
     },
     progress: (done: number, total: number) => `${done} von ${total}`,
-    readAll: 'Ich habe jede gelesen.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'Alles Newsletter und Benachrichtigungen.'
+        : `Meist Newsletter und Benachrichtigungen, nur ${people} von Menschen.`,
     worth: {
       awaiting: (total: number) =>
         plural('de', total, {

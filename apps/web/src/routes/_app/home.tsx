@@ -865,7 +865,9 @@ const HomeHeader = ({
           data &&
             data.pulse.total > 0 &&
             `${t.today.pulse.total(data.pulse.total, t.today.period(data.days))}.`,
-          t.today.readAll,
+          data &&
+            data.pulse.people * 2 < data.pulse.total &&
+            t.today.mostlyNoise(data.pulse.people),
           data && data.handled.total > 0 && t.today.byRules(data.handled.total),
         ]),
     paused,

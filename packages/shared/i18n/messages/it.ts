@@ -1036,8 +1036,32 @@ export const it: Messages = {
     draftReply: 'Scrivi bozza',
     due: (date: string) => `scade il ${date}`,
     dueHint: 'Scadenza trovata dall’agente in questa email',
-    empty: 'Nessuna email qui',
-    emptyHint: 'Le nuove email compariranno qui appena arrivano.',
+    empty: {
+      focused: 'Posta in arrivo vuota',
+      unread: 'Tutto letto',
+      categories: 'Posta in arrivo vuota',
+      inbox: 'Posta in arrivo vuota',
+      snoozed: 'Niente di posticipato',
+      sent: 'Ancora niente di inviato',
+      drafts: 'Nessuna bozza',
+      archive: 'L’archivio è vuoto',
+      spam: 'Nessuno spam',
+      trash: 'Il cestino è vuoto',
+    },
+    emptyHint: {
+      focused: 'Le nuove email compariranno qui appena arrivano.',
+      unread: 'Le nuove email compariranno qui appena arrivano.',
+      categories: 'Le nuove email compariranno qui appena arrivano.',
+      inbox: 'Le nuove email compariranno qui appena arrivano.',
+      snoozed:
+        'Posticipa un’email per metterla da parte: tornerà in arrivo come non letta.',
+      sent: 'Le email che invii compaiono qui.',
+      drafts: 'Le email iniziate e non inviate aspettano qui.',
+      archive:
+        'Le email archiviate escono dalla posta in arrivo e aspettano qui.',
+      spam: 'Lo spam arriva qui, fuori dalla posta in arrivo.',
+      trash: 'Le email eliminate restano qui per 30 giorni.',
+    },
     noResults: 'Nessun risultato',
     noResultsHint: 'Prova altre parole o un’altra cartella.',
     expectsReply: 'Attende risposta',
@@ -1479,7 +1503,10 @@ export const it: Messages = {
       title: 'Fatto nella tua posta',
     },
     progress: (done: number, total: number) => `${done} di ${total}`,
-    readAll: 'Le ho lette tutte.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'Tutte newsletter e notifiche.'
+        : `Per lo più newsletter e notifiche, solo ${people} da persone.`,
     worth: {
       awaiting: (total: number) =>
         plural('it', total, {

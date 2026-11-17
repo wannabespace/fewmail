@@ -595,8 +595,31 @@ export const tr: Messages = {
     draftReply: 'Yanıt taslağı',
     due: (date: string) => `son tarih ${date}`,
     dueHint: 'Ajanın bu e-postada bulduğu son tarih',
-    empty: 'Burada e-posta yok',
-    emptyHint: 'Yeni e-postalar gelir gelmez burada görünür.',
+    empty: {
+      focused: 'Gelen kutusu boş',
+      unread: 'Hepsi okundu',
+      categories: 'Gelen kutusu boş',
+      inbox: 'Gelen kutusu boş',
+      snoozed: 'Ertelenen yok',
+      sent: 'Henüz bir şey gönderilmedi',
+      drafts: 'Taslak yok',
+      archive: 'Arşiv boş',
+      spam: 'Spam yok',
+      trash: 'Çöp kutusu boş',
+    },
+    emptyHint: {
+      focused: 'Yeni e-postalar gelir gelmez burada görünür.',
+      unread: 'Yeni e-postalar gelir gelmez burada görünür.',
+      categories: 'Yeni e-postalar gelir gelmez burada görünür.',
+      inbox: 'Yeni e-postalar gelir gelmez burada görünür.',
+      snoozed:
+        'Bir e-postayı sonraya ertele: okunmamış olarak gelen kutusuna döner.',
+      sent: 'Gönderdiğin e-postalar burada görünür.',
+      drafts: 'Başlayıp göndermediğin e-postalar burada bekler.',
+      archive: 'Arşivlenen e-postalar gelen kutusundan çıkar ve burada bekler.',
+      spam: 'Spam gelen kutusuna değil, buraya düşer.',
+      trash: 'Silinen e-postalar burada 30 gün kalır.',
+    },
     noResults: 'Hiçbir şey bulunamadı',
     noResultsHint: 'Başka kelimeler ya da başka bir klasör dene.',
     expectsReply: 'Yanıt bekliyor',
@@ -1612,7 +1635,10 @@ export const tr: Messages = {
       title: 'E-postanda yapılanlar',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
-    readAll: 'Hepsini okudum.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'Hepsi bülten ve bildirim.'
+        : `Çoğu bülten ve bildirim, insanlardan yalnızca ${people} tane.`,
     worth: {
       awaiting: (total: number) =>
         plural('tr', total, {

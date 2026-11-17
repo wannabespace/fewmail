@@ -464,8 +464,31 @@ export const ja: Messages = {
     draftReply: '返信を下書き',
     due: (date: string) => `期限 ${date}`,
     dueHint: 'エージェントがこのメールで見つけた期限',
-    empty: 'メールはありません',
-    emptyHint: '新しいメールが届くとここに表示されます。',
+    empty: {
+      focused: '受信トレイは空です',
+      unread: 'すべて既読です',
+      categories: '受信トレイは空です',
+      inbox: '受信トレイは空です',
+      snoozed: 'スヌーズ中のメールはありません',
+      sent: 'まだ送信したメールはありません',
+      drafts: '下書きはありません',
+      archive: 'アーカイブは空です',
+      spam: '迷惑メールはありません',
+      trash: 'ゴミ箱は空です',
+    },
+    emptyHint: {
+      focused: '新しいメールが届くとここに表示されます。',
+      unread: '新しいメールが届くとここに表示されます。',
+      categories: '新しいメールが届くとここに表示されます。',
+      inbox: '新しいメールが届くとここに表示されます。',
+      snoozed:
+        'メールをスヌーズすると後まで非表示にでき、未読のまま受信トレイに戻ります。',
+      sent: '送信したメールがここに表示されます。',
+      drafts: '書きかけで送信していないメールがここに残ります。',
+      archive: 'アーカイブしたメールは受信トレイから外れ、ここに残ります。',
+      spam: '迷惑メールは受信トレイではなくここに届きます。',
+      trash: '削除したメールはここに30日間残ります。',
+    },
     noResults: '見つかりませんでした',
     noResultsHint: '別の言葉や別のフォルダーで試してください。',
     expectsReply: '返信待ち',
@@ -1454,7 +1477,10 @@ export const ja: Messages = {
       title: 'メールで行ったこと',
     },
     progress: (done: number, total: number) => `${done} / ${total}`,
-    readAll: 'すべて読みました。',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'すべてニュースレターと通知です。'
+        : `ほとんどがニュースレターと通知で、人からは${people}通だけ。`,
     worth: {
       awaiting: (total: number) =>
         plural('ja', total, {

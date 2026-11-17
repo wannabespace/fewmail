@@ -619,8 +619,31 @@ export const pl: Messages = {
     draftReply: 'Szkic odpowiedzi',
     due: (date: string) => `termin ${date}`,
     dueHint: 'Termin znaleziony przez agenta w tym mailu',
-    empty: 'Brak maili',
-    emptyHint: 'Nowe maile pojawią się tu, gdy tylko przyjdą.',
+    empty: {
+      focused: 'Skrzynka pusta',
+      unread: 'Wszystko przeczytane',
+      categories: 'Skrzynka pusta',
+      inbox: 'Skrzynka pusta',
+      snoozed: 'Nic nie odłożono',
+      sent: 'Jeszcze nic nie wysłano',
+      drafts: 'Brak szkiców',
+      archive: 'Archiwum jest puste',
+      spam: 'Brak spamu',
+      trash: 'Kosz jest pusty',
+    },
+    emptyHint: {
+      focused: 'Nowe maile pojawią się tu, gdy tylko przyjdą.',
+      unread: 'Nowe maile pojawią się tu, gdy tylko przyjdą.',
+      categories: 'Nowe maile pojawią się tu, gdy tylko przyjdą.',
+      inbox: 'Nowe maile pojawią się tu, gdy tylko przyjdą.',
+      snoozed:
+        'Odłóż maila na później: wróci do odebranych jako nieprzeczytany.',
+      sent: 'Tu pojawią się maile, które wyślesz.',
+      drafts: 'Tu czekają maile zaczęte, ale niewysłane.',
+      archive: 'Zarchiwizowane maile znikają z odebranych i czekają tutaj.',
+      spam: 'Spam trafia tutaj, a nie do odebranych.',
+      trash: 'Usunięte maile zostają tu przez 30 dni.',
+    },
     noResults: 'Nic nie znaleziono',
     noResultsHint: 'Spróbuj innych słów albo innego folderu.',
     expectsReply: 'Czeka na odpowiedź',
@@ -1653,7 +1676,10 @@ export const pl: Messages = {
       title: 'Zrobione w twojej poczcie',
     },
     progress: (done: number, total: number) => `${done} z ${total}`,
-    readAll: 'Przeczytałem wszystkie.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'Same newslettery i powiadomienia.'
+        : `Głównie newslettery i powiadomienia, od ludzi tylko ${people}.`,
     worth: {
       awaiting: (total: number) =>
         plural('pl', total, {

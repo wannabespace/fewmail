@@ -1042,8 +1042,32 @@ export const fr: Messages = {
     draftReply: 'Rédiger une réponse',
     due: (date: string) => `échéance le ${date}`,
     dueHint: 'Échéance trouvée par l’agent dans cet e-mail',
-    empty: 'Aucun e-mail ici',
-    emptyHint: 'Les nouveaux e-mails apparaîtront ici dès leur arrivée.',
+    empty: {
+      focused: 'Boîte de réception vide',
+      unread: 'Tout est lu',
+      categories: 'Boîte de réception vide',
+      inbox: 'Boîte de réception vide',
+      snoozed: 'Rien en attente',
+      sent: 'Aucun envoi pour l’instant',
+      drafts: 'Aucun brouillon',
+      archive: 'Les archives sont vides',
+      spam: 'Aucun spam',
+      trash: 'La corbeille est vide',
+    },
+    emptyHint: {
+      focused: 'Les nouveaux e-mails apparaîtront ici dès leur arrivée.',
+      unread: 'Les nouveaux e-mails apparaîtront ici dès leur arrivée.',
+      categories: 'Les nouveaux e-mails apparaîtront ici dès leur arrivée.',
+      inbox: 'Les nouveaux e-mails apparaîtront ici dès leur arrivée.',
+      snoozed:
+        'Reportez un e-mail pour le mettre de côté : il reviendra non lu dans la boîte de réception.',
+      sent: 'Les e-mails que vous envoyez apparaissent ici.',
+      drafts: 'Les e-mails commencés mais pas envoyés attendent ici.',
+      archive:
+        'Les e-mails archivés quittent la boîte de réception et attendent ici.',
+      spam: 'Le spam arrive ici, hors de votre boîte de réception.',
+      trash: 'Les e-mails supprimés restent ici 30 jours.',
+    },
     noResults: 'Aucun résultat',
     noResultsHint: 'Essayez d’autres mots ou un autre dossier.',
     expectsReply: 'Attend une réponse',
@@ -1493,7 +1517,10 @@ export const fr: Messages = {
       title: 'Fait dans votre boîte',
     },
     progress: (done: number, total: number) => `${done} sur ${total}`,
-    readAll: 'Je les ai tous lus.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'Uniquement des newsletters et des notifications.'
+        : `Surtout des newsletters et des notifications, seulement ${people} de vraies personnes.`,
     worth: {
       awaiting: (total: number) =>
         plural('fr', total, {

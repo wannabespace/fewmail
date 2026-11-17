@@ -463,8 +463,31 @@ export const ko: Messages = {
     draftReply: '답장 초안 작성',
     due: (date: string) => `마감 ${date}`,
     dueHint: '에이전트가 이 메일에서 찾은 마감일',
-    empty: '메일이 없어요',
-    emptyHint: '새 메일이 오면 바로 여기에 나타나요.',
+    empty: {
+      focused: '받은편지함이 비었어요',
+      unread: '모두 읽었어요',
+      categories: '받은편지함이 비었어요',
+      inbox: '받은편지함이 비었어요',
+      snoozed: '다시 알림으로 미룬 메일이 없어요',
+      sent: '아직 보낸 메일이 없어요',
+      drafts: '임시보관한 메일이 없어요',
+      archive: '보관함이 비었어요',
+      spam: '스팸이 없어요',
+      trash: '휴지통이 비었어요',
+    },
+    emptyHint: {
+      focused: '새 메일이 오면 바로 여기에 나타나요.',
+      unread: '새 메일이 오면 바로 여기에 나타나요.',
+      categories: '새 메일이 오면 바로 여기에 나타나요.',
+      inbox: '새 메일이 오면 바로 여기에 나타나요.',
+      snoozed:
+        '메일을 다시 알림으로 미루면 나중까지 숨겨지고, 읽지 않은 상태로 받은편지함에 돌아와요.',
+      sent: '보낸 메일이 여기에 나타나요.',
+      drafts: '쓰다가 보내지 않은 메일이 여기에 남아요.',
+      archive: '보관한 메일은 받은편지함에서 빠져 여기에 남아요.',
+      spam: '스팸은 받은편지함 대신 여기로 와요.',
+      trash: '삭제한 메일은 30일 동안 여기에 남아요.',
+    },
     noResults: '찾은 결과가 없어요',
     noResultsHint: '다른 단어나 다른 폴더로 찾아보세요.',
     expectsReply: '답장을 기다림',
@@ -1437,7 +1460,10 @@ export const ko: Messages = {
       title: '메일에서 처리된 일',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
-    readAll: '모두 읽었어요.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? '모두 뉴스레터와 알림이에요.'
+        : `대부분 뉴스레터와 알림이고, 사람이 보낸 건 ${people}통뿐이에요.`,
     worth: {
       awaiting: (total: number) =>
         plural('ko', total, {

@@ -215,7 +215,8 @@ const inboxViewStore = createWebStorageValue({
   type: 'localStorage',
 })
 
-const ARRIVING = new Set<Filter>([...INBOX_VIEWS, 'spam'])
+const RisingEmptyHeader = motion.create(EmptyHeader)
+const RISE = { duration: 0.25, ease: [0.32, 0.72, 0, 1] } as const
 
 const MailListEmpty = ({
   filter,
@@ -231,6 +232,7 @@ const MailListEmpty = ({
   mailboxes: { hasSynced: boolean }[]
 }) => {
   const t = useT()
+  const isStill = useReducedMotion()
   const isFirstRead = mailboxes.length > 0 && isReadingFirstTime(mailboxes)
   // Nothing held is not an empty list: the loader below is reading older mail from Gmail.
   if (hasOlder && !isSearch) {
@@ -266,22 +268,28 @@ const MailListEmpty = ({
   }
 
   return (
-    <Empty size="sm">
-      <EmptyHeader>
+    <Empty>
+      <RisingEmptyHeader
+        initial={isStill ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={RISE}
+      >
         {isFirstRead ? (
           <EmptyMedia variant="muted">
             <Spinner />
           </EmptyMedia>
         ) : (
           <EmptyMedia>
-            <SleepingLogoMark className="text-muted-foreground/50 size-16" />
+            <SleepingLogoMark className="text-muted-foreground/50 size-20" />
           </EmptyMedia>
         )}
-        <EmptyTitle>{isFirstRead ? t.nav.syncing : t.mail.empty}</EmptyTitle>
-        <EmptyDescription hidden={isFirstRead || !ARRIVING.has(filter)}>
-          {t.mail.emptyHint}
+        <EmptyTitle>
+          {isFirstRead ? t.nav.syncing : t.mail.empty[filter]}
+        </EmptyTitle>
+        <EmptyDescription hidden={isFirstRead}>
+          {t.mail.emptyHint[filter]}
         </EmptyDescription>
-      </EmptyHeader>
+      </RisingEmptyHeader>
     </Empty>
   )
 }

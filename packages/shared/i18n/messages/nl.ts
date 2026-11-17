@@ -602,8 +602,31 @@ export const nl: Messages = {
     draftReply: 'Antwoord opstellen',
     due: (date: string) => `vervalt ${date}`,
     dueHint: 'Deadline die de agent in deze e-mail vond',
-    empty: 'Geen e-mails hier',
-    emptyHint: 'Nieuwe e-mails verschijnen hier zodra ze binnenkomen.',
+    empty: {
+      focused: 'Inbox leeg',
+      unread: 'Alles gelezen',
+      categories: 'Inbox leeg',
+      inbox: 'Inbox leeg',
+      snoozed: 'Niets uitgesteld',
+      sent: 'Nog niets verzonden',
+      drafts: 'Geen concepten',
+      archive: 'Het archief is leeg',
+      spam: 'Geen spam',
+      trash: 'De prullenbak is leeg',
+    },
+    emptyHint: {
+      focused: 'Nieuwe e-mails verschijnen hier zodra ze binnenkomen.',
+      unread: 'Nieuwe e-mails verschijnen hier zodra ze binnenkomen.',
+      categories: 'Nieuwe e-mails verschijnen hier zodra ze binnenkomen.',
+      inbox: 'Nieuwe e-mails verschijnen hier zodra ze binnenkomen.',
+      snoozed:
+        'Stel een e-mail uit om hem tot later weg te leggen: hij komt ongelezen terug in je inbox.',
+      sent: 'E-mails die je verstuurt, verschijnen hier.',
+      drafts: 'E-mails die je begint maar niet verstuurt, wachten hier.',
+      archive: 'Gearchiveerde e-mails verlaten de inbox en wachten hier.',
+      spam: 'Spam komt hier terecht, buiten je inbox.',
+      trash: 'Verwijderde e-mails blijven hier 30 dagen.',
+    },
     noResults: 'Niets gevonden',
     noResultsHint: 'Probeer andere woorden of een andere map.',
     expectsReply: 'Verwacht antwoord',
@@ -1624,7 +1647,10 @@ export const nl: Messages = {
       title: 'Gedaan in je mail',
     },
     progress: (done: number, total: number) => `${done} van ${total}`,
-    readAll: 'Ik heb ze allemaal gelezen.',
+    mostlyNoise: (people: number) =>
+      people === 0
+        ? 'Allemaal nieuwsbrieven en meldingen.'
+        : `Vooral nieuwsbrieven en meldingen, maar ${people} van mensen.`,
     worth: {
       awaiting: (total: number) =>
         plural('nl', total, {
