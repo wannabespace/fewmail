@@ -78,7 +78,7 @@ Keep replies to Google consistent with these, and update them in Data Access if 
 ### Owner (not code)
 
 - [x] **Cloudflare:** minimum TLS 1.2 for `fewmail.app` and its subdomains (2026-11-17; TLS 1.1 is refused). HSTS comes from the web and the API themselves, so Cloudflare's is left off.
-- [ ] **Origin lock:** only Cloudflare should reach Railway, since `cf-connecting-ip` keys the rate limits and anyone reaching Railway directly can forge it. A Cloudflare Transform Rule that adds a secret header, checked in Hono, does it; the secret is set by hand in both places.
+- [x] **Origin lock** (2026-11-17): Railway's edge answered `Host: api.fewmail.app` directly, past Cloudflare, with a forged `cf-connecting-ip`. The API now answers 403 to any request whose first `x-forwarded-for` hop (the address Railway's edge saw; Railway drops one a client sends) is not Cloudflare's (`lib/cloudflare.ts`), so the rate limits, Better Auth's limiter and Cloudflare's WAF and TLS floor cannot be skipped. No secret to keep in two places.
 - [x] **PostHog:** the insight "server_error count" has the alert "Server errors spike": more than 20 in an hour, checked hourly, emailed to the owner.
 - [x] **GitHub:** private vulnerability reporting is on (`.github/SECURITY.md` points to it), Dependabot alerts and version updates are on.
 - [ ] **2FA, and a list of who has access,** for Google Cloud (project `fewmail`), Railway, Cloudflare, GitHub, Stripe, PostHog and the domain registrar.
