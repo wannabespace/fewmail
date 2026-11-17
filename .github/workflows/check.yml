@@ -22,6 +22,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       # The root's install scripts start the local portless proxy.
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      # `bun check` runs the `bun` package's binary, which its own install script fetches.
+      - run: pnpm rebuild bun
       - run: pnpm run check
       - run: pnpm run check-types
       - run: pnpm run test
