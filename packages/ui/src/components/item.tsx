@@ -50,7 +50,7 @@ const itemVariants = cva(
         compact: 'gap-2 py-2 pr-2.5 pl-1.5',
       },
       variant: {
-        card: `bg-popover ring-foreground/4 [a]:hover:ring-foreground/12 rounded-xl border-transparent shadow-xs ring [a]:transition-[color,background-color,box-shadow]`,
+        card: `bg-popover ring-foreground/4 [a]:hover:ring-foreground/12 border-transparent shadow-xs ring [a]:transition-[color,background-color,box-shadow]`,
         default: 'border-transparent',
         grouped: `border-foreground/6 data-active:bg-accent rounded-none border-0 border-b last:border-b-0`,
         muted: 'bg-muted/50 border-transparent',

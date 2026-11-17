@@ -13,7 +13,7 @@ export const fieldGroupVariants = cva(
         sm: 'gap-4',
       },
       variant: {
-        card: `bg-card ring-foreground/4 gap-0 rounded-xl shadow-xs ring *:not-first:border-t [&_[data-slot=field]+[data-slot=field]]:border-t`,
+        card: `bg-card ring-foreground/4 gap-0 rounded-2xl shadow-xs ring *:not-first:border-t [&_[data-slot=field]+[data-slot=field]]:border-t`,
         default: '',
       },
     },
