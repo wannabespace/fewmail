@@ -77,11 +77,13 @@ Keep replies to Google consistent with these, and update them in Data Access if 
 
 ### Owner (not code)
 
-- [ ] **Cloudflare:** minimum TLS 1.2 and HSTS for both hosts. Lock the API's origin to Cloudflare (or drop the `*.up.railway.app` domain): `cf-connecting-ip` keys the rate limits and can be forged by anyone reaching Railway directly.
-- [ ] **PostHog:** an alert on a spike of `server_error`.
+- [x] **Cloudflare:** minimum TLS 1.2 for `fewmail.app` and its subdomains (2026-11-17; TLS 1.1 is refused). HSTS comes from the web and the API themselves, so Cloudflare's is left off.
+- [ ] **Origin lock:** only Cloudflare should reach Railway, since `cf-connecting-ip` keys the rate limits and anyone reaching Railway directly can forge it. A Cloudflare Transform Rule that adds a secret header, checked in Hono, does it; the secret is set by hand in both places.
+- [x] **PostHog:** the insight "server_error count" has the alert "Server errors spike": more than 20 in an hour, checked hourly, emailed to the owner.
+- [x] **GitHub:** private vulnerability reporting is on (`.github/SECURITY.md` points to it), Dependabot alerts and version updates are on.
 - [ ] **2FA, and a list of who has access,** for Google Cloud (project `fewmail`), Railway, Cloudflare, GitHub, Stripe, PostHog and the domain registrar.
-- [ ] **Incident response note** (one page): who is told, how a leaked secret is revoked (Google OAuth client secret, `ENCRYPTION_SECRET`, `BETTER_AUTH_SECRET`, Stripe, Telegram and WhatsApp secrets), and how users are notified.
-- [ ] **Postgres TLS:** confirm `DATABASE_URL` stays on Railway's private network (or uses `sslmode=require`).
+- [x] **Incident response:** below.
+- [x] **Postgres:** `DATABASE_URL` is the Postgres service's own variable (`db.env.DATABASE_URL` in `.railway/railway.ts`), Railway's private network address; the public proxy URL is used nowhere.
 - [ ] **Test account for the lab,** kept out of the repo, with a little mail in it.
 - [ ] **ZAP:** a baseline, then an authenticated scan against `fewmail.app` and `api.fewmail.app` after this ships, and fix what it reports.
 
@@ -92,6 +94,24 @@ Keep replies to Google consistent with these, and update them in Data Access if 
 - [ ] **Messenger link codes** never expire and work in Telegram groups: give them a TTL, rotate them, refuse non-private chats.
 - [ ] **Keys.** Everything at rest uses one `ENCRYPTION_SECRET`, with no key id in the ciphertext. Prefix ciphertexts with a key version so a key can be rotated. `BETTER_AUTH_SECRET` also keys the spam-report hashes and Wrapped links: rotating it resets sender reputation and old Wrapped links. Require 32+ characters for both secrets in `env.ts`.
 - [ ] **Data retention.** Synced mail is kept while the account exists (privacy policy §8). Keep the justification ready (Home and the agent's context need history), or prune old bodies and say so in §8.
+
+## Incident response
+
+The owner is the only person with production access, so every report reaches them: GitHub private advisories, hello@fewmail.app, PostHog's `server_error` alert, Railway's deploy failures.
+
+1. **Contain.** Revoke what leaked (below), redeploy, and check Railway's logs (`security …` lines: refusals, failed sign-ins, deletions) for when it started.
+2. **Revoke.** Every secret lives only in Railway's variables on `@fewmail/api` (the worker references them), so a new value is set there once and both redeploy.
+   - **Google OAuth client secret:** reset it in Google Cloud → Credentials, set `GOOGLE_CLIENT_SECRET`. Users' refresh tokens survive.
+   - **`BETTER_AUTH_SECRET`:** a new value signs everyone out, and the OAuth tokens it encrypts can no longer be read, so every user signs in with Google again. It also resets spam-report hashes and old Wrapped links.
+   - **`ENCRYPTION_SECRET`:** with a database copy it decrypts every stored email. There is no key rotation yet (see Code, next), so first close the database: new Postgres password in Railway, then assume stored mail is exposed.
+   - **Database:** a new Postgres password in Railway; `DATABASE_URL` follows by reference.
+   - **Stripe:** roll the secret key and the webhook signing secret in Stripe, set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
+   - **Telegram:** `/revoke` in @BotFather, set `TELEGRAM_BOT_TOKEN`, and a new random `TELEGRAM_WEBHOOK_SECRET`.
+   - **WhatsApp:** reset the app secret and the token in Meta's developer console, set `WHATSAPP_APP_SECRET` and `WHATSAPP_TOKEN`.
+   - **OpenRouter, Mistral, ElevenLabs, PostHog, VAPID:** a new key in each dashboard (VAPID: new keys, so browsers subscribe again).
+   - **A user's Google grant:** Settings → Delete account revokes it; Google's own security page does too.
+3. **Tell people.** Email the users whose data was reached, with what and when. A personal data breach goes to the supervisory authority within 72 hours where GDPR applies, and a breach of Google user data is reported to Google.
+4. **Write it down** here under History: what happened, when, what changed.
 
 ## Already in place
 
