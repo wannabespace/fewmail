@@ -290,7 +290,13 @@ const app = new Hono()
       },
     })
   })
-  .get('/health', (c) => c.text('ok'))
+  .get('/health', (c) => {
+    const ip = (value?: string) =>
+      value === undefined ? 'none' : value.startsWith('104.') || value.startsWith('172.') || value.startsWith('162.158') || value.startsWith('2606:4700') || value.startsWith('2a06:98c0') ? 'cf?' : 'other'
+    const hops = c.req.header('x-forwarded-for')?.split(',').map((hop) => hop.trim())
+    console.warn('origin probe', c.req.header('cf-connecting-ip') ? 'cf-header' : 'no-cf-header', 'real', ip(c.req.header('x-real-ip')), 'first', ip(hops?.[0]), 'last', ip(hops?.at(-1)), 'hops', hops?.length ?? 0)
+    return c.text('ok')
+  })
   .get('/health/:commit', (c) =>
     c.req.param('commit') === env.RAILWAY_GIT_COMMIT_SHA
       ? c.text('ok')
