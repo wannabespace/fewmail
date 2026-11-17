@@ -24,6 +24,10 @@ All values are `oklch` tokens in `packages/ui/src/styles/globals.css`, defined f
 
 The `ImportanceDot` is the only place importance gets color: 3 urgent → `bg-destructive`, 2 needs you → `bg-primary`, 1 worth knowing → `bg-foreground/30`, 0 noise → hollow ring. Always paired with a tooltip carrying the label and the agent's reason.
 
+## Decisions progress
+
+Home's `ProgressSegments` fills one share per card: Needs you `bg-primary`, Quick `bg-success` (cleared mail), Can wait `bg-foreground/30` (the worth-knowing dot's ink). The shares say where the work went, so each is named by its tooltip, never by a legend.
+
 ## Shadows
 
 Shadows are tinted warm brown (`rgb(60 40 20 / …)`), never black, in light mode. `shadow-sm` is the lifted card (long soft drop); dark mode overrides the elevated tiers heavier. Use the scale, never inline `shadow-[…]`.

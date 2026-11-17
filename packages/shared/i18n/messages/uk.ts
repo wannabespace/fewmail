@@ -1439,7 +1439,6 @@ export const uk: Messages = {
   },
   today: {
     working: 'Виконується…',
-    allKinds: 'Усі',
     ruleSuggestion: {
       done: {
         archive:

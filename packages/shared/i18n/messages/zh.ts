@@ -1380,7 +1380,6 @@ export const zh: Messages = {
   },
   today: {
     working: '处理中…',
-    allKinds: '全部',
     ruleSuggestion: {
       done: {
         archive: '此发件人的新邮件将被归档。可在规则中更改。',

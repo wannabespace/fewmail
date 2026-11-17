@@ -1620,7 +1620,6 @@ export const pl: Messages = {
   },
   today: {
     working: 'W toku…',
-    allKinds: 'Wszystkie',
     ruleSuggestion: {
       done: {
         archive:

@@ -1462,7 +1462,6 @@ export const fr: Messages = {
   },
   today: {
     working: 'En cours…',
-    allKinds: 'Tous',
     ruleSuggestion: {
       done: {
         archive:

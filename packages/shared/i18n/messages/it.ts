@@ -1448,7 +1448,6 @@ export const it: Messages = {
   },
   today: {
     working: 'In corso…',
-    allKinds: 'Tutte',
     ruleSuggestion: {
       done: {
         archive:

@@ -1593,7 +1593,6 @@ export const nl: Messages = {
   },
   today: {
     working: 'Bezig…',
-    allKinds: 'Alle',
     ruleSuggestion: {
       done: {
         archive:

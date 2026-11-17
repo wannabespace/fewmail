@@ -22,27 +22,41 @@ import type { ComponentProps, ReactElement, ReactNode } from 'react'
 
 import { IconButton } from './icon-button'
 
+/** A group's title over a card of its own (`SettingsGroup`'s, or a `list` `Accordion`); `action` ends the row without growing it. */
+export const SettingsGroupTitle = ({
+  action,
+  children,
+  isSticky,
+}: {
+  action?: ReactNode
+  children: ReactNode
+  /** In a Home pane: the title sticks under its heading row (`top-17`) and spans the pane's gutter (`home-card.tsx`), covering the cards scrolling under it. */
+  isSticky?: boolean
+}) => (
+  <div
+    className={cn(
+      'text-muted-foreground flex items-center gap-2 text-xs font-medium',
+      isSticky &&
+        'bg-background sticky top-17 z-5 -mx-4 -my-2 px-4 py-2 md:-mx-10 md:px-10'
+    )}
+  >
+    <h2 className="flex min-w-0 items-center gap-2">{children}</h2>
+    {action && <div className="-my-1 ml-auto">{action}</div>}
+  </div>
+)
+
 export const SettingsGroup = ({
   children,
   isTitleSticky,
   title,
 }: {
   children: ReactNode
-  /** In a Home pane: the title sticks under its heading row (`top-17`) and spans the pane's gutter (`home-card.tsx`), covering the cards scrolling under it. */
   isTitleSticky?: boolean
   title?: ReactNode
 }) => (
   <section className="flex flex-col gap-2">
     {title && (
-      <h2
-        className={cn(
-          'text-muted-foreground text-xs font-medium',
-          isTitleSticky &&
-            'bg-background sticky top-17 z-5 -mx-4 -my-2 px-4 py-2 md:-mx-10 md:px-10'
-        )}
-      >
-        {title}
-      </h2>
+      <SettingsGroupTitle isSticky={isTitleSticky}>{title}</SettingsGroupTitle>
     )}
     <div
       className={cn(

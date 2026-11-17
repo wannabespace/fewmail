@@ -1451,7 +1451,6 @@ export const de: Messages = {
   },
   today: {
     working: 'Wird erledigt…',
-    allKinds: 'Alle',
     ruleSuggestion: {
       done: {
         archive:

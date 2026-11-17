@@ -1447,7 +1447,6 @@ export const es: Messages = {
   },
   today: {
     working: 'En ello…',
-    allKinds: 'Todos',
     ruleSuggestion: {
       done: {
         archive:

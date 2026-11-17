@@ -95,7 +95,7 @@ const useListTop = (
 /**
  * A pane's list: the rows in and near view between gaps holding the rest of its height, so the rows stay in the flow
  * (a leaving row folds, the rows below rise) and the pane, not the list, scrolls. Goes straight inside the list's card.
- * `listKey`: a new one replaces every row at once, so nothing folds out (a filter swap). While its pane grows out of
+ * `listKey`: a new one replaces every row at once, so nothing folds out (a group's Show all / Show fewer). While its pane grows out of
  * its card, or back into it, it holds only the rows one screen shows: every row in it is laid out at the box's width on
  * every frame, and dozens of them stalled the growth.
  */

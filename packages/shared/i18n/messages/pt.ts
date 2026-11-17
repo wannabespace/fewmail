@@ -1602,7 +1602,6 @@ export const pt: Messages = {
   },
   today: {
     working: 'Fazendo…',
-    allKinds: 'Todos',
     ruleSuggestion: {
       done: {
         archive:

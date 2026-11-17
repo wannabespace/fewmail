@@ -1583,7 +1583,6 @@ export const id: Messages = {
   },
   today: {
     working: 'Sedang dikerjakan…',
-    allKinds: 'Semua',
     ruleSuggestion: {
       done: {
         archive:

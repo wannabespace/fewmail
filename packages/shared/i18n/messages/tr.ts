@@ -1582,7 +1582,6 @@ export const tr: Messages = {
   },
   today: {
     working: 'Yapılıyor…',
-    allKinds: 'Tümü',
     ruleSuggestion: {
       done: {
         archive:

@@ -1426,7 +1426,6 @@ export const ja: Messages = {
   },
   today: {
     working: '処理中…',
-    allKinds: 'すべて',
     ruleSuggestion: {
       done: {
         archive:

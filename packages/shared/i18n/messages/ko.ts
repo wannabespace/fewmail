@@ -1409,7 +1409,6 @@ export const ko: Messages = {
   },
   today: {
     working: '처리 중…',
-    allKinds: '전체',
     ruleSuggestion: {
       done: {
         archive:

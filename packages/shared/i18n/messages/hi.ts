@@ -1412,7 +1412,6 @@ export const hi: Messages = {
   },
   today: {
     working: 'काम चल रहा है…',
-    allKinds: 'सभी',
     ruleSuggestion: {
       done: {
         archive: 'इस भेजने वाले के नए ईमेल आर्काइव होंगे। नियमों में बदलें।',

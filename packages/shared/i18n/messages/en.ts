@@ -1581,7 +1581,6 @@ export const en = {
   },
   today: {
     working: 'Working on it…',
-    allKinds: 'All',
     ruleSuggestion: {
       done: {
         archive:

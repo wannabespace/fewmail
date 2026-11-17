@@ -11,6 +11,7 @@ import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   SettingsGroup,
+  SettingsGroupTitle,
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
@@ -22,7 +23,7 @@ import {
   ItemTitle,
 } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import { Progress } from '@fewmail/ui/components/progress'
+import { ProgressSegments } from '@fewmail/ui/components/progress'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { copy } from '@fewmail/ui/lib/copy'
@@ -660,7 +661,6 @@ const homeHints = (
     alike: number
     board: [string, string][]
     hasBoard: boolean
-    hasFilter: boolean
     hasImprove: boolean
     hasLater: boolean
     hasLook: boolean
@@ -729,7 +729,6 @@ const homeHints = (
           ['D', t.today.tidy.review] as [string, string],
         ]
       : []),
-    ...(state.hasFilter ? [['F', t.keys.filter] as [string, string]] : []),
     ...(state.today?.newSenders.length
       ? [
           ['A', t.today.newSender.archive] as [string, string],
@@ -960,12 +959,10 @@ const PickedActions = ({
 
 /** Picked cards swap Needs you's title for what can be done to all of them at once. */
 const LookHeading = ({
-  children,
   onClose,
   picked,
   ...actions
 }: {
-  children: ReactNode
   onApprove: () => void
   onClear: () => void
   onClose: () => void
@@ -979,60 +976,80 @@ const LookHeading = ({
       title={picked > 0 ? t.queue.picked(picked) : t.today.needsLook}
       onClose={onClose}
       actions={picked > 0 && <PickedActions {...actions} />}
-    >
-      {children}
-    </PageHeading>
+    />
   )
 }
 
+type Settled = ReturnType<typeof useSettled>
+
+/** Each card's share of the day's progress, in its own color: Needs you, Can wait and Quick. */
 const DecisionsHeader = ({
-  decisions,
-  settled,
-}: {
-  decisions: number
-  settled: number
-}) => {
+  later,
+  look,
+  quick,
+}: Record<'later' | 'look' | 'quick', Settled>) => {
   const t = useT()
+  const parts = [
+    { className: 'bg-primary', key: 'look', name: t.today.needsLook, ...look },
+    { className: 'bg-success', key: 'quick', name: t.today.quick, ...quick },
+    {
+      className: 'bg-foreground/30',
+      key: 'later',
+      name: t.today.canWait,
+      ...later,
+    },
+  ]
+  const settled = parts.reduce((sum, part) => sum + part.settled, 0)
+  const total = parts.reduce((sum, part) => sum + part.total, 0)
 
   return (
-    <div className="flex min-h-7 items-center gap-3">
-      <h2 className="text-muted-foreground text-xs font-medium">
-        {t.today.decisions}
-      </h2>
-      {decisions > 0 && (
-        <>
-          <Progress
-            className="flex-1"
-            value={(settled / (settled + decisions)) * 100}
-          />
-          <span className="text-muted-foreground text-xs font-medium tabular-nums">
-            {t.today.progress(settled, settled + decisions)}
-          </span>
-        </>
-      )}
-    </div>
+    settled < total && (
+      <div className="flex min-h-7 items-center gap-3">
+        <h2 className="text-muted-foreground text-xs font-medium">
+          {t.today.decisions}
+        </h2>
+        <ProgressSegments
+          className="flex-1"
+          max={total}
+          segments={parts.map(({ className, key, name, ...part }) => ({
+            className,
+            key,
+            label: `${name}: ${t.today.progress(part.settled, part.total)}`,
+            value: part.settled,
+          }))}
+        />
+        <span className="text-muted-foreground text-xs font-medium tabular-nums">
+          {t.today.progress(settled, total)}
+        </span>
+      </div>
+    )
   )
 }
 
-const KIND_FILTER_FROM = 5
+/** Every kind but the last folds to its first few cards until Show all, so no kind pushes the next one away, as Mail's groups do. */
+const KIND_GROUP_SHOWN = 5
 
-/** Narrows the queue to one kind of card (F cycles); a kind that empties falls back to all. */
-const useKindFilter = (queue: QueueItem[]) => {
-  const [kind, setKind] = useState<ActionKind | null>(null)
-  const kinds = [...new Set(queue.map(({ action }) => action.kind))]
-  const active = kind && kinds.includes(kind) ? kind : null
-  const isOffered = kinds.length > 1 && queue.length >= KIND_FILTER_FROM
-  const cycle = () =>
-    setKind(kinds[(active ? kinds.indexOf(active) : -1) + 1] ?? null)
+const useKindGroups = (queue: QueueItem[]) => {
+  const t = useT()
+  const [unfolded, setUnfolded] = useState<ReadonlySet<ActionKind>>(new Set())
+  const kinds = kindsOf(t, queue)
+  const groups = kinds.map((group, index) => ({
+    ...group,
+    isUnfolded: unfolded.has(group.kind),
+    shown:
+      unfolded.has(group.kind) || index === kinds.length - 1
+        ? group.cards
+        : group.cards.slice(0, KIND_GROUP_SHOWN),
+  }))
   return {
-    active,
-    cycle,
-    isOffered,
-    kinds,
-    setKind,
-    shown: active
-      ? queue.filter(({ action }) => action.kind === active)
-      : queue,
+    groups,
+    shown: groups.flatMap(({ shown }) => shown),
+    toggle: (kind: ActionKind) =>
+      setUnfolded((current) =>
+        current.has(kind)
+          ? new Set([...current].filter((each) => each !== kind))
+          : new Set([...current, kind])
+      ),
   }
 }
 
@@ -1043,6 +1060,7 @@ const kindsOf = (t: Messages, queue: QueueItem[]) =>
     const verbs = new Set(cards.map(({ action }) => foldedVerb(t, action)))
     const [verb] = verbs
     return {
+      cards,
       count: cards.length,
       kind,
       label: verbs.size === 1 && verb ? verb : t.actionKind[kind],
@@ -1158,42 +1176,6 @@ const ImproveCard = ({ today }: { today: Today | undefined }) => {
 
 const improveCountOf = (today: Today | undefined) =>
   (today?.ruleSuggestions.length ?? 0) + (today?.ruleOffers.length ?? 0)
-
-const KindFilter = ({
-  canUseKeys,
-  filter,
-  queue,
-}: {
-  canUseKeys: boolean
-  filter: ReturnType<typeof useKindFilter>
-  queue: QueueItem[]
-}) => {
-  const t = useT()
-  useHotkey('F', filter.cycle, { enabled: canUseKeys && filter.isOffered })
-  const pill = (kind: ActionKind | null, label: string, count: number) => (
-    <Button
-      key={kind ?? 'all'}
-      size="xs"
-      variant={filter.active === kind ? 'secondary' : 'ghost-muted'}
-      onClick={() => filter.setKind(kind)}
-    >
-      {label}
-      <span className="text-muted-foreground tabular-nums">{count}</span>
-    </Button>
-  )
-
-  return (
-    filter.isOffered && (
-      <div className="flex flex-wrap items-center gap-1">
-        {pill(null, t.today.allKinds, queue.length)}
-        {kindsOf(t, queue).map(({ count, kind, label }) =>
-          pill(kind, label, count)
-        )}
-        <Kbd>F</Kbd>
-      </div>
-    )
-  )
-}
 
 /**
  * The cursor holds a card, not a position: a card arriving above it live must never take ⏎ from the one being read.
@@ -1352,15 +1334,16 @@ const stopsOf = (
   return hasProposals ? [PROPOSALS_ID] : []
 }
 
-/** Important cards settled since the page opened, however they left (here, the sidebar, another tab); an Undo brings one back. */
-const useSettledCount = (cards: QueueItem[]) => {
+/** What left a card since the page opened, however it left (here, the sidebar, another tab); an Undo brings one back. */
+const useSettled = (current: string[]) => {
   const [seen, setSeen] = useState<ReadonlySet<string>>(new Set())
-  const ids = new Set(cards.map(({ action }) => action.id))
+  const ids = new Set(current)
   const fresh = [...ids].filter((id) => !seen.has(id))
   if (fresh.length > 0) {
     setSeen(new Set([...seen, ...fresh]))
   }
-  return [...seen].filter((id) => !ids.has(id)).length
+  const settled = [...seen].filter((id) => !ids.has(id)).length
+  return { settled, total: settled + ids.size }
 }
 
 const openCardEmail = ({ action, message }: QueueItem) =>
@@ -1395,7 +1378,7 @@ const useNextInSidebar = (queue: QueueItem[], onNext: (id: string) => void) => {
 const useHomeLists = (cards: QueueItem[]) => {
   const importantCards = cards.filter(isImportantCard)
   return {
-    filter: useKindFilter(importantCards),
+    groups: useKindGroups(importantCards),
     importantCards,
     laterCards: cards.filter(
       (card) => !isProposal(card) && !isImportantCard(card)
@@ -1420,15 +1403,23 @@ const HomePage = () => {
   const { data: cards } = useLiveQuery((query) =>
     query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
   )
-  const { filter, importantCards, laterCards } = useHomeLists(cards)
+  const { groups, importantCards, laterCards } = useHomeLists(cards)
   const { hasLater, isFirstRead } = homeFlagsOf(data, laterCards)
   const decisions = importantCards.length
-  const settled = useSettledCount(importantCards)
   const proposals = useProposals(data, cards, holdClicksUntilMove)
   const hasProposals = proposals.proposals.length > 0
   const worth = worthRowsOf(data)
+  const settled = {
+    later: useSettled([
+      ...laterCards.map(({ action }) => action.id),
+      ...worth.map(({ id }) => id),
+      ...(data?.newSenders ?? []).map(({ fromEmail }) => fromEmail),
+    ]),
+    look: useSettled(importantCards.map(({ action }) => action.id)),
+    quick: useSettled(proposals.proposals.map(({ id }) => id)),
+  }
   const hasImprove = improveCountOf(data) > 0
-  const queue = page === 'later' ? laterCards : filter.shown
+  const queue = page === 'later' ? laterCards : groups.shown
   const stops = stopsOf(page, { hasProposals, queue, worth })
   const { cursorId, cursorIndex, setSelectedId } = useCursor(stops)
   const isOnProposals = cursorId === PROPOSALS_ID
@@ -1458,7 +1449,7 @@ const HomePage = () => {
   const targets =
     picked.length > 0 ? picked : queue.filter((item) => item === selected)
   const staleBefore = subDays(dataUpdatedAt, STALE_DAYS)
-  const stale = filter.shown.filter(
+  const stale = importantCards.filter(
     ({ action }) => action.createdAt < staleBefore
   )
 
@@ -1629,9 +1620,7 @@ const HomePage = () => {
                 aria-label={t.today.decisions}
                 className="flex flex-col gap-2.5"
               >
-                {decisions > 0 && (
-                  <DecisionsHeader decisions={decisions} settled={settled} />
-                )}
+                <DecisionsHeader {...settled} />
                 <div
                   className={cn(
                     'flex flex-col gap-3 empty:hidden',
@@ -1666,23 +1655,39 @@ const HomePage = () => {
                   onClose={closePage}
                   onSkip={skipTargets}
                   onTrash={() => trashMany.mutate(picked)}
-                >
-                  <KindFilter
-                    canUseKeys={isInQueue}
-                    filter={filter}
-                    queue={importantCards}
-                  />
-                </LookHeading>
-                <div className="flex flex-col gap-2.5">
-                  {cardList(filter.shown, filter.active ?? undefined)}
-                  <StaleCards
-                    canUseKeys={isInQueue}
-                    count={stale.length}
-                    onSkip={() =>
-                      skipCards(stale.map(({ action }) => action.id))
-                    }
-                  />
-                </div>
+                />
+                {groups.groups.map((group) => (
+                  <section key={group.kind} className="flex flex-col gap-2">
+                    <SettingsGroupTitle
+                      isSticky
+                      action={
+                        (group.shown.length < group.count ||
+                          group.isUnfolded) && (
+                          <Button
+                            size="xs"
+                            variant="link-muted"
+                            onClick={() => groups.toggle(group.kind)}
+                          >
+                            {group.isUnfolded
+                              ? t.mail.showFewer
+                              : t.mail.showAll(group.count)}
+                          </Button>
+                        )
+                      }
+                    >
+                      {group.label}
+                      <span className="tabular-nums opacity-60">
+                        {group.count}
+                      </span>
+                    </SettingsGroupTitle>
+                    {cardList(group.shown, `${group.kind}:${group.isUnfolded}`)}
+                  </section>
+                ))}
+                <StaleCards
+                  canUseKeys={isInQueue}
+                  count={stale.length}
+                  onSkip={() => skipCards(stale.map(({ action }) => action.id))}
+                />
               </HomeCardPane>
             )}
             {page === 'later' && (
@@ -1744,7 +1749,6 @@ const HomePage = () => {
             alike: alike.length,
             board: boardHints,
             hasBoard: hasAgent,
-            hasFilter: filter.isOffered,
             hasImprove,
             hasLater,
             hasLook: importantCards.length > 0,
