@@ -129,6 +129,7 @@ import {
   SnoozeMenuItems,
   sweepOf,
   ThreadView,
+  READER_FOLD,
   READER_WIDTH,
   readerWidthStore,
   useMailActions,
@@ -2913,8 +2914,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
       <ResizablePanel
         className="flex"
         collapsed={!thread || panesWidth === 0}
-        initial={{ x: 24 }}
-        animate={{ x: 0 }}
+        {...READER_FOLD}
         keepMounted={false}
         size={readerWidth}
         minSize={READER_WIDTH.min}

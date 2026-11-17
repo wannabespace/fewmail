@@ -139,6 +139,13 @@ export const useReaderWidthIn = (spaceWidth: number) => {
     : remembered
 }
 
+/** How the reader opens and shuts, on Mail beside its list and in every other page's sidebar: `motion-panels`' own fold, the email riding in from 24px off its edge with no fade, so a click lands on readable text at once. */
+export const READER_FOLD = {
+  animate: { x: 0 },
+  initial: { x: 24 },
+  transition: { duration: 0.25, ease: [0.32, 0.72, 0, 1] },
+} as const
+
 const useThread = (threadId: string | undefined) =>
   useLiveQuery((q) =>
     threadId

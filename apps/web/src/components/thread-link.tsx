@@ -2,20 +2,32 @@ import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
-import { useEffect, useLayoutEffect, useState } from 'react'
+import {
+  AnimatePresence,
+  animate,
+  motion,
+  useReducedMotion,
+} from 'motion/react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useSubscription } from 'seitu/react'
 
 import { collapseExpanded, useExpanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { noticeHeightStore } from '~/components/notice-bar'
-import { ThreadView, useReaderWidthIn } from '~/components/thread-view'
+import {
+  READER_FOLD,
+  ThreadView,
+  useReaderWidthIn,
+} from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 
 const pageArea = () =>
   document.querySelector<HTMLElement>('[data-slot=thread-pane-area]')
 
 const NOTICE_GAP = 8
+
+const INSTANT = { duration: 0 } as const
 
 const usePageAreaRect = () => {
   const [area, setArea] = useState(() => pageArea()?.getBoundingClientRect())
@@ -80,23 +92,31 @@ export const ThreadPane = () => {
   }, [open, isOpen])
   const box = useSidebarBox()
   const isMobile = useIsMobile()
+  const isReduced = useReducedMotion()
+  // Leaving the page drops the email at once, never folding it shut over the next page.
+  const fold = isReduced || (open && !isOpen) ? INSTANT : READER_FOLD.transition
+  const pageRoom = isOpen && !isMobile ? box.width : 0
+  const wasOpen = useRef(isOpen)
   useLayoutEffect(() => {
+    const isToggled = wasOpen.current !== isOpen
+    wasOpen.current = isOpen
     // A Home card's pane lies over the page area, so it makes room too.
     const areas = document.querySelectorAll<HTMLElement>(
       '[data-slot=thread-pane-area], [data-slot=home-card-pane]'
     )
-    if (!isOpen || isMobile) {
-      return
-    }
-    for (const area of areas) {
-      area.style.paddingRight = `${box.width}px`
-    }
+    const folds = [...areas].map((area) =>
+      animate(
+        area,
+        { paddingRight: `${pageRoom}px` },
+        isToggled ? fold : INSTANT
+      )
+    )
     return () => {
-      for (const area of areas) {
-        area.style.removeProperty('padding-right')
+      for (const area of folds) {
+        area.stop()
       }
     }
-  }, [isOpen, isMobile, box.width])
+  }, [fold, isOpen, pageRoom])
   useHotkey('Escape', collapseExpanded, {
     enabled: isOpen,
     ignoreDefaultPrevented: true,
@@ -117,40 +137,60 @@ export const ThreadPane = () => {
     area.addEventListener('pointerdown', onPointerDown)
     return () => area.removeEventListener('pointerdown', onPointerDown)
   }, [isOpen])
-  if (!isOpen) {
-    return null
-  }
   return (
-    <div
-      style={
-        {
-          '--sidebar-height': `${box.height}px`,
-          '--sidebar-left': `${box.left}px`,
-          '--sidebar-top': `${box.top}px`,
-          '--sidebar-width': `${box.width}px`,
-        } as CSSProperties
-      }
-      className={cn(
-        'bg-background border-foreground/6 fixed top-(--sidebar-top) left-(--sidebar-left) z-40 flex h-(--sidebar-height) w-(--sidebar-width) flex-col border-l pt-6',
-        box.isUnderNotice && 'rounded-tl-xl border-t'
+    // Keyed by the page: leaving it drops the email without folding it on the next one.
+    <AnimatePresence key={pathname}>
+      {isOpen && (
+        <div
+          key="sidebar"
+          style={
+            {
+              '--sidebar-height': `${box.height}px`,
+              '--sidebar-left': `${box.left}px`,
+              '--sidebar-top': `${box.top}px`,
+              '--sidebar-width': `${box.width}px`,
+            } as CSSProperties
+          }
+          className="pointer-events-none fixed top-(--sidebar-top) left-(--sidebar-left) z-40 flex h-(--sidebar-height) w-(--sidebar-width) justify-end"
+        >
+          {/* In percent of the sidebar's box, so a resize never plays the fold. */}
+          <motion.div
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            exit={{ width: '0%' }}
+            transition={fold}
+            className={cn(
+              'bg-background border-foreground/6 pointer-events-auto flex overflow-hidden border-l',
+              box.isUnderNotice && 'rounded-tl-xl border-t'
+            )}
+          >
+            <motion.div
+              initial={READER_FOLD.initial}
+              animate={READER_FOLD.animate}
+              exit={READER_FOLD.initial}
+              transition={fold}
+              className="flex w-(--sidebar-width) shrink-0 flex-col pt-6"
+            >
+              <ThreadView
+                key={open.sourceId}
+                cite={open.cite}
+                isSnoozed={false}
+                threadId={open.threadId}
+                onClose={collapseExpanded}
+                onDone={collapseExpanded}
+              />
+              <KeyHints
+                hints={[
+                  ['R', t.keys.reply],
+                  ['E', t.keys.archive],
+                  ['/', t.keys.ask],
+                  ['esc', t.keys.close],
+                ]}
+              />
+            </motion.div>
+          </motion.div>
+        </div>
       )}
-    >
-      <ThreadView
-        key={open.sourceId}
-        cite={open.cite}
-        isSnoozed={false}
-        threadId={open.threadId}
-        onClose={collapseExpanded}
-        onDone={collapseExpanded}
-      />
-      <KeyHints
-        hints={[
-          ['R', t.keys.reply],
-          ['E', t.keys.archive],
-          ['/', t.keys.ask],
-          ['esc', t.keys.close],
-        ]}
-      />
-    </div>
+    </AnimatePresence>
   )
 }
