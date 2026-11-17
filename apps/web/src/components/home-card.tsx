@@ -13,7 +13,7 @@ import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 
 /** What a Home card opens over Home's column (`?page=`). */
-export type HomeCardPage = 'board' | 'look' | 'tidy' | 'worth'
+export type HomeCardPage = 'board' | 'tidy'
 
 /** One line of what a card holds: who, then what. */
 export interface HomeCardRow {

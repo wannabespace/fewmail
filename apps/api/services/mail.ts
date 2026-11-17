@@ -10,6 +10,7 @@ import {
   ACTION_KIND_TRAITS,
   cardPayload,
   IMPORTANCE,
+  LATER_KINDS,
   LIST_CATEGORIES,
   PEOPLE_CATEGORIES,
   PROPOSAL_KINDS,
@@ -134,17 +135,24 @@ export const listQueue = (userId: string) =>
       actions.createdAt
     )
 
-/** Pending cards, the agent's proposals apart: Home counts those as one decision (`countToday`). */
-export const countQueue = async (userId: string) => {
-  const isProposal = inArray(actions.kind, [...PROPOSAL_KINDS])
+/** Pending cards Home counts as important, as `isImportant` decides in the browser. */
+export const countImportant = async (userId: string) => {
   const [row] = await db
-    .select({
-      cards: sql<number>`count(*) filter (where not ${isProposal})::int`,
-      proposals: sql<number>`count(*) filter (where ${isProposal})::int`,
-    })
+    .select({ total: sql<number>`count(*)::int` })
     .from(actions)
-    .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
-  return expectRow(row)
+    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
+    .where(
+      and(
+        eq(actions.userId, userId),
+        eq(actions.status, 'pending'),
+        notInArray(actions.kind, [...PROPOSAL_KINDS]),
+        or(
+          notInArray(actions.kind, [...LATER_KINDS]),
+          gte(analyses.importance, IMPORTANCE.critical)
+        )
+      )
+    )
+  return expectRow(row).total
 }
 
 export const handledSince = async (userId: string, since: Date) => {

@@ -29,7 +29,6 @@ import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
 import { newSenders } from './cleanup'
 import {
-  countQueue,
   freshCodes,
   handledSince,
   listHandled,
@@ -216,18 +215,6 @@ export const getToday = async (userId: string) => {
     saved,
     tidy,
   }
-}
-
-/** The sidebar's number, counted as Home's headline counts its decisions: the proposals and Tidy are one, each new sender and rule offer one more. */
-export const countToday = async (userId: string) => {
-  const [{ cards, proposals }, senders, ruleOffers] = await Promise.all([
-    countQueue(userId),
-    newSenders(userId),
-    listRuleOffers(userId),
-  ])
-  const tidy = proposals > 0 ? [] : await listTidy(userId)
-  const hasProposals = proposals > 0 || tidy.length > 0
-  return cards + Number(hasProposals) + senders.length + ruleOffers.length
 }
 
 /** Only the person looking at Home is a visit (never a live refetch or the agent); `seenAt` is the one before, so the page can mark what came since. */

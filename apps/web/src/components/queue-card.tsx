@@ -53,7 +53,7 @@ import { ROW_SWAP } from './thread-view'
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
 type Action = QueueItem['action']
 
-export const cardHeadlineOf = ({ action, analysis, message }: QueueItem) => {
+const cardHeadlineOf = ({ action, analysis, message }: QueueItem) => {
   if (action.kind === 'commitment' || action.kind === 'heads_up') {
     return action.detail ?? action.title
   }
@@ -64,7 +64,7 @@ export const cardHeadlineOf = ({ action, analysis, message }: QueueItem) => {
 }
 
 /** Whom the card is about: your own promise names whom you promised (its `reason`), never you, the sender of your mail. */
-export const whoOf = ({ action, message }: QueueItem) =>
+const whoOf = ({ action, message }: QueueItem) =>
   action.kind === 'commitment' && action.reason
     ? { fromEmail: action.reason, fromName: null }
     : message

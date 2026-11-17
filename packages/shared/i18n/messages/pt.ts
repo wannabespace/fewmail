@@ -1606,26 +1606,12 @@ export const pt: Messages = {
     },
     progress: (done: number, total: number) => `${done} de ${total}`,
     readAll: 'Li cada um, e nada muda nos seus e-mails sem o seu sim.',
-    worth: {
-      awaiting: (total: number) =>
-        plural('pt', total, {
-          one: () => '1 aguardando resposta',
-          other: (n) => `${n} aguardando resposta`,
-        }),
-      dated: (total: number) =>
-        plural('pt', total, {
-          one: () => '1 com data',
-          other: (n) => `${n} com data`,
-        }),
-      important: (total: number) =>
-        plural('pt', total, {
-          one: () => '1 e-mail importante',
-          other: (n) => `${n} e-mails importantes`,
-        }),
-    },
-    worthKnowing: 'Bom saber',
+    later: (total: number) =>
+      plural('pt', total, {
+        one: () => 'Mais 1 pode esperar',
+        other: (n) => `Mais ${n} podem esperar`,
+      }),
     quick: 'Rápido',
-    needsLook: 'Para você ver',
     tidy: {
       failed: (emails: string) =>
         `O Gmail não alterou ${emails}. Tente novamente em instantes.`,

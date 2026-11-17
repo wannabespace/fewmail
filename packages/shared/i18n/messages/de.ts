@@ -1458,26 +1458,12 @@ export const de: Messages = {
     progress: (done: number, total: number) => `${done} von ${total}`,
     readAll:
       'Ich habe jede gelesen, und ohne dein Ja ändert sich nichts in deiner Mail.',
-    worth: {
-      awaiting: (total: number) =>
-        plural('de', total, {
-          one: () => '1 wartet auf Antwort',
-          other: (n) => `${n} warten auf Antwort`,
-        }),
-      dated: (total: number) =>
-        plural('de', total, {
-          one: () => '1 mit Datum',
-          other: (n) => `${n} mit Datum`,
-        }),
-      important: (total: number) =>
-        plural('de', total, {
-          one: () => '1 wichtige E-Mail',
-          other: (n) => `${n} wichtige E-Mails`,
-        }),
-    },
-    worthKnowing: 'Gut zu wissen',
+    later: (total: number) =>
+      plural('de', total, {
+        one: () => 'Noch 1 kann warten',
+        other: (n) => `Noch ${n} können warten`,
+      }),
     quick: 'Schnell',
-    needsLook: 'Schau selbst',
     tidy: {
       failed: (emails: string) =>
         `Gmail hat ${emails} nicht geändert. Versuch es gleich noch einmal.`,

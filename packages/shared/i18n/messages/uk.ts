@@ -1448,27 +1448,12 @@ export const uk: Messages = {
     },
     progress: (done: number, total: number) => `${done} з ${total}`,
     readAll: 'Я прочитав усі, і без твого «так» у пошті нічого не змінюється.',
-    worth: {
-      awaiting: (total: number) =>
-        plural('uk', total, {
-          one: (n) =>
-            n === 1 ? '1 чекає відповіді' : `чекають відповіді: ${n}`,
-          other: (n) => `чекають відповіді: ${n}`,
-        }),
-      dated: (total: number) =>
-        plural('uk', total, {
-          one: (n) => (n === 1 ? '1 з датою' : `з датою: ${n}`),
-          other: (n) => `з датою: ${n}`,
-        }),
-      important: (total: number) =>
-        plural('uk', total, {
-          one: (n) => (n === 1 ? '1 важливий лист' : `важливих листів: ${n}`),
-          other: (n) => `важливих листів: ${n}`,
-        }),
-    },
-    worthKnowing: 'Варто знати',
+    later: (total: number) =>
+      plural('uk', total, {
+        one: (n) => `Ще ${n} може почекати`,
+        other: (n) => `Ще ${n} можуть почекати`,
+      }),
     quick: 'Швидко',
-    needsLook: 'Подивись сам',
     tidy: {
       failed: (emails: string) =>
         `Gmail не змінив ${emails}. Спробуй ще раз за хвилину.`,

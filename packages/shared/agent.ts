@@ -348,6 +348,18 @@ export const IMPORTANCE = {
   normal: 1,
 } as const
 
+/** Cards that only ask to read or notice something: Home leaves them for Later unless the email is urgent. */
+export const LATER_KINDS = ['read', 'heads_up'] as const
+
+/** What Home lists first and counts (`countImportant` counts the same in SQL): a card that asks for a step, or urgent mail. */
+export const isImportant = (
+  kind: ActionKind,
+  importance: number | null | undefined
+) =>
+  !(PROPOSAL_KINDS as readonly string[]).includes(kind) &&
+  (!(LATER_KINDS as readonly string[]).includes(kind) ||
+    (importance ?? 0) >= IMPORTANCE.critical)
+
 export const OUTBOX_MODES = ['reply', 'forward', 'new'] as const
 export type OutboxMode = (typeof OUTBOX_MODES)[number]
 export type OutboxStatus =

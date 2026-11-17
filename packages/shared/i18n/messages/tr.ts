@@ -1583,26 +1583,11 @@ export const tr: Messages = {
     },
     progress: (done: number, total: number) => `${done}/${total}`,
     readAll: 'Hepsini okudum. Onayın olmadan e-postanda hiçbir şey değişmez.',
-    worth: {
-      awaiting: (total: number) =>
-        plural('tr', total, {
-          one: () => '1 yanıt bekliyor',
-          other: (n) => `${n} yanıt bekliyor`,
-        }),
-      dated: (total: number) =>
-        plural('tr', total, {
-          one: () => '1 tarihli',
-          other: (n) => `${n} tarihli`,
-        }),
-      important: (total: number) =>
-        plural('tr', total, {
-          one: () => '1 önemli e-posta',
-          other: (n) => `${n} önemli e-posta`,
-        }),
-    },
-    worthKnowing: 'Bilmekte fayda var',
+    later: (total: number) =>
+      plural('tr', total, {
+        other: (n) => `${n} tane daha bekleyebilir`,
+      }),
     quick: 'Hızlı',
-    needsLook: 'Kendin bak',
     tidy: {
       failed: (emails: string) =>
         `${emails} Gmail’de değiştirilemedi. Birazdan tekrar dene.`,

@@ -167,7 +167,7 @@ export const useProposals = (
     onMutate: hide,
     onSettled: (_data, _error, items) => refetch().then(() => show(items)),
   })
-  // All of it is one decision on Home: it is settled once none is left.
+  // The card leaves once none is left, and whatever rises under the pointer must not take its click.
   const settleIfLast = (count: number) =>
     count === proposals.length && onSettle()
   const approve = (items: Proposal[]) => {

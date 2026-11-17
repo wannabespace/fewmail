@@ -48,7 +48,6 @@ import {
   saveDraft,
 } from '../services/drafts'
 import {
-  countToday,
   dismissBanner,
   getToday,
   listBanner,
@@ -75,6 +74,7 @@ import {
   dismissAction,
   getThread,
   listMail,
+  countImportant,
   countInboxInGmail,
   countUnread,
   markThreadRead,
@@ -549,7 +549,7 @@ export const router = {
   },
   today: {
     banner: authed.handler(({ context }) => listBanner(context.user.id)),
-    count: authed.handler(({ context }) => countToday(context.user.id)),
+    count: authed.handler(({ context }) => countImportant(context.user.id)),
     dismissBanner: authed.input(id).handler(async ({ context, input }) => {
       await dismissBanner(context.user.id, input.id)
     }),

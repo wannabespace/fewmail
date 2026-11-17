@@ -1597,26 +1597,12 @@ export const nl: Messages = {
     progress: (done: number, total: number) => `${done} van ${total}`,
     readAll:
       'Ik heb ze allemaal gelezen, en zonder je ja verandert er niets in je mail.',
-    worth: {
-      awaiting: (total: number) =>
-        plural('nl', total, {
-          one: () => '1 wacht op antwoord',
-          other: (n) => `${n} wachten op antwoord`,
-        }),
-      dated: (total: number) =>
-        plural('nl', total, {
-          one: () => '1 met een datum',
-          other: (n) => `${n} met een datum`,
-        }),
-      important: (total: number) =>
-        plural('nl', total, {
-          one: () => '1 belangrijke e-mail',
-          other: (n) => `${n} belangrijke e-mails`,
-        }),
-    },
-    worthKnowing: 'Goed om te weten',
+    later: (total: number) =>
+      plural('nl', total, {
+        one: () => 'Nog 1 kan wachten',
+        other: (n) => `Nog ${n} kunnen wachten`,
+      }),
     quick: 'Snel',
-    needsLook: 'Zelf bekijken',
     tidy: {
       failed: (emails: string) =>
         `Gmail heeft ${emails} niet aangepast. Probeer het zo opnieuw.`,

@@ -1,6 +1,7 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import {
   cardPayload,
+  isImportant,
   sendsDraft,
   UNDO_SEND_SECONDS,
   usedPercent,
@@ -32,7 +33,11 @@ import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
-import { Calendar03Icon, RepeatIcon } from '@hugeicons/core-free-icons'
+import {
+  ArrowDown01Icon,
+  Calendar03Icon,
+  RepeatIcon,
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -43,7 +48,6 @@ import {
   redirect,
   useNavigate,
 } from '@tanstack/react-router'
-import { type } from 'arktype'
 import {
   differenceInMinutes,
   endOfTomorrow,
@@ -58,14 +62,15 @@ import { AnimatePresence } from 'motion/react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod/mini'
 
-import { BoardCard, BoardPane, useBoardHints } from '~/components/board'
+import { BoardPane, useBoardHints } from '~/components/board'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import { EmailRow } from '~/components/email-row'
 import { expandRow, useIsThreadExpanded } from '~/components/expand-row'
-import { HomeCard, HomeCardPane, PageHeading } from '~/components/home-card'
-import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
+import { HomeCardPane } from '~/components/home-card'
+import type { HomeCardPage } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import {
@@ -76,12 +81,10 @@ import {
   useProposals,
 } from '~/components/proposals'
 import {
-  cardHeadlineOf,
   foldedVerb,
   openCardLink,
   primaryStep,
   QueueCard,
-  whoOf,
 } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import {
@@ -101,6 +104,7 @@ import { isReadingFirstTime } from '~/lib/mail-db'
 import { useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 import { warmQuery } from '~/lib/query-client'
 import { holdClicksUntilMove, STILL_POINTER_GUARD } from '~/lib/still-pointer'
 import { pendingToast, runUndo, toastUndo } from '~/lib/undo'
@@ -110,6 +114,9 @@ type Today = RouterOutputs['today']['get']
 const NEW_SENDER_TOAST = 'new-sender'
 const RULE_OFFER_TOAST = 'rule-offer'
 const ADD_EVENT_TOAST = 'add-event'
+
+const isImportantCard = ({ action, analysis }: QueueItem) =>
+  isImportant(action.kind, analysis?.importance)
 
 const idsOf = (items: QueueItem[]) =>
   items.map(({ action }) => action.id).join(',')
@@ -471,13 +478,11 @@ const useOpenKey = (
 const WorthKnowing = ({
   cursorId,
   isWalking,
-  onClose,
   onSelect,
   today,
 }: {
   cursorId: string | undefined
   isWalking: boolean
-  onClose: () => void
   onSelect: (stop: string) => void
   today: Today | undefined
 }) => {
@@ -520,89 +525,49 @@ const WorthKnowing = ({
     return null
   }
   return (
-    <>
-      <PageHeading title={t.today.worthKnowing} onClose={onClose} />
-      <SettingsGroup>
-        {today.recent.map(({ analysis, message }) => (
-          <EmailRow
-            key={message.id}
-            {...rowOf(message.id)}
-            message={message}
-            description={<span data-mask>{analysis.summary}</span>}
-            facts={
-              <ImportanceDot
-                importance={analysis.importance}
-                reason={analysis.reason}
-              />
-            }
-          />
-        ))}
-        {today.dates.map(({ analysis, message }) => (
-          <EmailRow
-            key={message.id}
-            {...rowOf(message.id)}
-            message={message}
-            description={<span data-mask>{analysis.summary}</span>}
-            facts={
-              <ExtractedChips
-                extracted={{ ...analysis.extracted, amount: null }}
-              />
-            }
-          />
-        ))}
-        {today.awaiting.map((sent) => (
-          <EmailRow
-            key={sent.threadId}
-            {...rowOf(sent.threadId)}
-            actions={undefined}
-            message={{ ...sent, fromEmail: sent.to[0] ?? '' }}
-            sender={{ fromEmail: sent.to[0] ?? '', fromName: sent.toName }}
-            description={
-              <>
-                {t.today.awaiting} · <span data-mask>{sent.subject}</span>
-              </>
-            }
-          />
-        ))}
-      </SettingsGroup>
-    </>
-  )
-}
-
-/** Home's mail worth knowing as one card: how much of each kind and from whom; the rows open over Home's column (`W`). */
-const WorthCard = ({ today }: { today: Today | undefined }) => {
-  const t = useT()
-  if (!today) {
-    return null
-  }
-  const parts = [
-    today.recent.length > 0 && t.today.worth.important(today.recent.length),
-    today.dates.length > 0 && t.today.worth.dated(today.dates.length),
-    today.awaiting.length > 0 && t.today.worth.awaiting(today.awaiting.length),
-  ].filter((part) => typeof part === 'string')
-  if (parts.length === 0) {
-    return null
-  }
-  const lead = parts.join(', ')
-  const rows: HomeCardRow[] = [
-    ...[...today.recent, ...today.dates].map(({ analysis, message }) => ({
-      id: message.id,
-      sender: message,
-      text: analysis.summary,
-    })),
-    ...today.awaiting.map((sent) => ({
-      id: sent.threadId,
-      sender: { fromEmail: sent.to[0] ?? '', fromName: sent.toName },
-      text: `${t.today.awaiting} · ${sent.subject}`,
-    })),
-  ]
-  return (
-    <HomeCard
-      heading={t.today.worthKnowing}
-      lead={`${lead.charAt(0).toUpperCase()}${lead.slice(1)}.`}
-      page="worth"
-      rows={rows}
-    />
+    <SettingsGroup>
+      {today.recent.map(({ analysis, message }) => (
+        <EmailRow
+          key={message.id}
+          {...rowOf(message.id)}
+          message={message}
+          description={<span data-mask>{analysis.summary}</span>}
+          facts={
+            <ImportanceDot
+              importance={analysis.importance}
+              reason={analysis.reason}
+            />
+          }
+        />
+      ))}
+      {today.dates.map(({ analysis, message }) => (
+        <EmailRow
+          key={message.id}
+          {...rowOf(message.id)}
+          message={message}
+          description={<span data-mask>{analysis.summary}</span>}
+          facts={
+            <ExtractedChips
+              extracted={{ ...analysis.extracted, amount: null }}
+            />
+          }
+        />
+      ))}
+      {today.awaiting.map((sent) => (
+        <EmailRow
+          key={sent.threadId}
+          {...rowOf(sent.threadId)}
+          actions={undefined}
+          message={{ ...sent, fromEmail: sent.to[0] ?? '' }}
+          sender={{ fromEmail: sent.to[0] ?? '', fromName: sent.toName }}
+          description={
+            <>
+              {t.today.awaiting} · <span data-mask>{sent.subject}</span>
+            </>
+          }
+        />
+      ))}
+    </SettingsGroup>
   )
 }
 
@@ -618,15 +583,6 @@ const pageHints = (
 ): [string, string][] => {
   if (page === 'board') {
     return board
-  }
-  if (page === 'worth') {
-    return [
-      ['J / K', t.keys.move],
-      ['⏎', t.keys.open],
-      ['E', t.keys.archive],
-      ['⌫', t.keys.trash],
-      ['esc', t.keys.close],
-    ]
   }
   if (page === 'tidy') {
     return [
@@ -680,14 +636,10 @@ const cardHints = (
   t: Messages,
   state: {
     hasBoard: boolean
-    hasLook: boolean
     hasNewsletters: boolean
-    hasWorth: boolean
   }
 ): [string, string][] => [
-  ...(state.hasLook ? [['Q', t.today.needsLook] as [string, string]] : []),
   ...(state.hasNewsletters ? [['N', t.reading.title] as [string, string]] : []),
-  ...(state.hasWorth ? [['W', t.today.worthKnowing] as [string, string]] : []),
   ...(state.hasBoard ? [['B', t.nav.board] as [string, string]] : []),
 ]
 
@@ -697,8 +649,6 @@ const homeHints = (
     alike: number
     board: [string, string][]
     hasBoard: boolean
-    hasLook: boolean
-    hasWorth: boolean
     hasFilter: boolean
     today: Today | undefined
     isEditing: boolean
@@ -708,6 +658,7 @@ const homeHints = (
     picked: number
     selected: QueueItem | undefined
     isOnProposals: boolean
+    isOnWorth: boolean
     stale: number
     page: HomeSubpage | undefined
     tidy: number
@@ -725,8 +676,7 @@ const homeHints = (
       ['esc', t.keys.stopEditing],
     ]
   }
-  // Needs a look's pane holds Home's own cards: their keys are Home's.
-  if (state.page && state.page !== 'look') {
+  if (state.page) {
     return pageHints(t, state.page, state.newsletters, state.board)
   }
   if (state.picked > 0) {
@@ -748,6 +698,14 @@ const homeHints = (
           ...(state.selected.message
             ? [['O', t.keys.open] as [string, string]]
             : []),
+        ]
+      : []),
+    ...(state.isOnWorth
+      ? [
+          ['J / K', t.keys.move] as [string, string],
+          ['⏎', t.keys.open] as [string, string],
+          ['E', t.keys.archive] as [string, string],
+          ['⌫', t.keys.trash] as [string, string],
         ]
       : []),
     ...(state.isOnProposals
@@ -1007,57 +965,43 @@ const PickedActions = ({
 }
 
 /** Picked cards swap the progress for what can be done to all of them at once. */
-/** Needs a look's pane says what it holds, or how many are picked with what to do with them. */
-const LookHeading = ({
-  children,
-  onClose,
+const DecisionsHeader = ({
+  decisions,
   picked,
+  settled,
   ...actions
 }: {
-  children: ReactNode
+  decisions: number
   onApprove: () => void
   onClear: () => void
-  onClose: () => void
   onSkip: () => void
   onTrash: () => void
   picked: number
-}) => {
-  const t = useT()
-  return (
-    <PageHeading
-      title={picked > 0 ? t.queue.picked(picked) : t.today.needsLook}
-      onClose={onClose}
-      actions={picked > 0 && <PickedActions {...actions} />}
-    >
-      {children}
-    </PageHeading>
-  )
-}
-
-const DecisionsHeader = ({
-  decisions,
-  settled,
-}: {
-  decisions: number
   settled: number
 }) => {
   const t = useT()
 
   return (
-    <div className="flex min-h-7 items-center gap-3">
+    <div className="flex min-h-7 flex-wrap items-center gap-3">
       <h2 className="text-muted-foreground text-xs font-medium">
-        {t.today.decisions}
+        {picked > 0 ? t.queue.picked(picked) : t.today.decisions}
       </h2>
-      {decisions > 0 && (
-        <>
-          <Progress
-            className="flex-1"
-            value={(settled / (settled + decisions)) * 100}
-          />
-          <span className="text-muted-foreground text-xs font-medium tabular-nums">
-            {t.today.progress(settled, settled + decisions)}
-          </span>
-        </>
+      {picked > 0 ? (
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <PickedActions {...actions} />
+        </div>
+      ) : (
+        decisions > 0 && (
+          <>
+            <Progress
+              className="flex-1"
+              value={(settled / (settled + decisions)) * 100}
+            />
+            <span className="text-muted-foreground text-xs font-medium tabular-nums">
+              {t.today.progress(settled, settled + decisions)}
+            </span>
+          </>
+        )
       )}
     </div>
   )
@@ -1085,7 +1029,7 @@ const useKindFilter = (queue: QueueItem[]) => {
   }
 }
 
-/** Each kind of card in the queue with what its cards ask, the words of the filter and of Needs a look's card. */
+/** Each kind of card in the queue with what its cards ask, in the filter's words. */
 const kindsOf = (t: Messages, queue: QueueItem[]) =>
   [...new Set(queue.map(({ action }) => action.kind))].map((kind) => {
     const cards = queue.filter(({ action }) => action.kind === kind)
@@ -1097,28 +1041,6 @@ const kindsOf = (t: Messages, queue: QueueItem[]) =>
       label: verbs.size === 1 && verb ? verb : t.actionKind[kind],
     }
   })
-
-/** Home's decision cards as one card, opened like Reading's (`Q`, `?page=look`): what they ask and the first few. */
-const LookCard = ({ queue }: { queue: QueueItem[] }) => {
-  const t = useT()
-  if (queue.length === 0) {
-    return null
-  }
-  return (
-    <HomeCard
-      heading={t.today.needsLook}
-      lead={kindsOf(t, queue)
-        .map(({ count, label }) => `${label} ${count}`)
-        .join(' · ')}
-      page="look"
-      rows={queue.map((item) => ({
-        id: item.action.id,
-        sender: whoOf(item) ?? { fromEmail: '', fromName: 'Fewmail' },
-        text: cardHeadlineOf(item),
-      }))}
-    />
-  )
-}
 
 const KindFilter = ({
   canUseKeys,
@@ -1211,19 +1133,6 @@ const StaleCards = ({
   )
 }
 
-/** Every card is one decision and all the agent's proposals one more, as `today.count` (the sidebar) counts them. */
-const countDecisions = (
-  data: Today | undefined,
-  cards: number,
-  proposals: number
-) =>
-  data
-    ? cards +
-      data.newSenders.length +
-      data.ruleOffers.length +
-      Math.min(proposals, 1)
-    : 0
-
 /** A reply card's meeting goes in the calendar apart from Send (`L` on the cursor card). */
 const useAddEvent = (selected: QueueItem | undefined, canUseKeys: boolean) => {
   const t = useT()
@@ -1270,15 +1179,11 @@ const useHomeSubpage = (
   {
     hasAgent,
     hasNewsletters,
-    hasLook,
     hasProposals,
-    hasWorth,
   }: {
     hasAgent: boolean
-    hasLook: boolean
     hasNewsletters: boolean
     hasProposals: boolean
-    hasWorth: boolean
   }
 ) => {
   const navigate = useNavigate()
@@ -1303,21 +1208,13 @@ const useHomeSubpage = (
     enabled: canSwitch && hasProposals && page !== 'board',
   })
   useHotkey('B', () => toggle('board'), { enabled: canSwitch && hasAgent })
-  useHotkey('W', () => toggle('worth'), { enabled: canSwitch && hasWorth })
-  useHotkey('Q', () => toggle('look'), { enabled: canSwitch && hasLook })
 }
 
 /** Home's keys rest while a card is edited or an expanded email lies over Home; the cursor walks only Home itself. */
 const useHomeFocus = (isEditing: boolean, page: HomeSubpage | undefined) => {
   const isUnderEmail = useIsThreadExpanded()
   const isFocused = !isEditing && !isUnderEmail
-  // Needs a look's and Worth knowing's panes hold Home's own cards and rows, so Home's cursor walks them there, and only them.
-  return {
-    isFocused,
-    isInQueue: isFocused && page === 'look',
-    isStepping: isFocused && (!page || page === 'look' || page === 'worth'),
-    isWalking: isFocused && !page,
-  }
+  return { isFocused, isWalking: isFocused && !page }
 }
 
 /** Reading's panes and the newsletters of the one on top, whose keys Home shows. */
@@ -1337,27 +1234,56 @@ const useReadingPage = (
   }
 }
 
+/** Where Home's cursor goes: the important cards, then what Later shows while it is open, then the agent's proposals. */
+const stopsOf = ({
+  hasProposals,
+  later,
+  queue,
+  worth,
+}: {
+  hasProposals: boolean
+  later: QueueItem[]
+  queue: QueueItem[]
+  worth: WorthRow[]
+}) => [
+  ...[...queue, ...later].map(({ action }) => action.id),
+  ...worth.map(({ id }) => worthStop(id)),
+  ...(hasProposals ? [PROPOSALS_ID] : []),
+]
+
 /**
- * Where Home's cursor goes: on Home the agent's proposals; its decision cards and its mail worth knowing are one card
- * each there, so those are walked only in their panes.
+ * Home's one list: the important cards (the first few until asked for the rest), then Later, folded until opened: the
+ * cards that only ask to read, Worth knowing's mail, new senders and rule offers.
  */
-const stopsOf = (
-  page: HomeSubpage | undefined,
-  {
-    hasProposals,
-    queue,
-    worth,
-  }: { hasProposals: boolean; queue: QueueItem[]; worth: WorthRow[] }
-) => {
-  if (page === 'worth') {
-    return { cardStops: [], stops: worth.map(({ id }) => worthStop(id)) }
+const useHomeLists = (cards: QueueItem[], data: Today | undefined) => {
+  const importantCards = cards.filter(isImportantCard)
+  const importantIds = new Set(importantCards.map(({ action }) => action.id))
+  const laterCards = cards.filter(
+    (card) => !isProposal(card) && !importantIds.has(card.action.id)
+  )
+  const filter = useKindFilter(importantCards)
+  const [isQueueOpen, setIsQueueOpen] = useState(false)
+  const [isLaterOpen, setIsLaterOpen] = useState(false)
+  const shownCards = isQueueOpen
+    ? filter.shown
+    : filter.shown.slice(0, QUEUE_SHOWN)
+  const worthRows = worthRowsOf(data)
+  return {
+    filter,
+    hiddenCards: filter.shown.length - shownCards.length,
+    importantCards,
+    importantIds,
+    isLaterOpen,
+    later: isLaterOpen ? laterCards : [],
+    laterCount:
+      laterCards.length +
+      worthRows.length +
+      (data ? data.newSenders.length + data.ruleOffers.length : 0),
+    setIsLaterOpen,
+    setIsQueueOpen,
+    shownCards,
+    worth: isLaterOpen ? worthRows : [],
   }
-  if (page === 'look') {
-    const cardStops = queue.map(({ action }) => action.id)
-    return { cardStops, stops: cardStops }
-  }
-  const cardStops = hasProposals ? [PROPOSALS_ID] : []
-  return { cardStops, stops: cardStops }
 }
 
 const HomePage = () => {
@@ -1377,14 +1303,22 @@ const HomePage = () => {
   const { data: cards } = useLiveQuery((query) =>
     query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
   )
-  const decisionCards = cards.filter((card) => !isProposal(card))
-  const filter = useKindFilter(decisionCards)
-  // A long queue shows its first cards; the rest open with the button under them or J past the last.
-  const [isQueueOpen, setIsQueueOpen] = useState(false)
-  const queue = isQueueOpen ? filter.shown : filter.shown.slice(0, QUEUE_SHOWN)
-  const hiddenCards = filter.shown.length - queue.length
+  const {
+    filter,
+    hiddenCards,
+    importantCards,
+    importantIds,
+    isLaterOpen,
+    later,
+    laterCount,
+    setIsLaterOpen,
+    setIsQueueOpen,
+    shownCards,
+    worth,
+  } = useHomeLists(cards, data)
+  const queue = [...shownCards, ...later]
   const isFirstRead = !!data && isReadingFirstTime(data.mailboxes)
-  // Decisions closed since the page opened: the progress counts them against what is left.
+  // Important cards closed since the page opened: the progress counts them against what is left.
   const [settled, setSettled] = useState(0)
   const settle = (count = 1) => {
     holdClicksUntilMove()
@@ -1392,15 +1326,9 @@ const HomePage = () => {
   }
   const unsettle = (count: number) =>
     setSettled((current) => Math.max(0, current - count))
-  const proposals = useProposals(data, cards, settle)
+  const proposals = useProposals(data, cards, holdClicksUntilMove)
   const hasProposals = proposals.proposals.length > 0
-  // The cursor walks the agent's proposals first, then the cards, then the mail worth knowing.
-  const worth = worthRowsOf(data)
-  const { cardStops, stops } = stopsOf(search.page, {
-    hasProposals,
-    queue,
-    worth,
-  })
+  const stops = stopsOf({ hasProposals, later, queue: shownCards, worth })
   const { cursorId, cursorIndex, setSelectedId } = useCursor(stops)
   const isOnProposals = cursorId === PROPOSALS_ID
   // Cards open only when asked (a header click, Space, E or R); while one is open, the card under the cursor opens instead.
@@ -1427,11 +1355,7 @@ const HomePage = () => {
   const stale = filter.shown.filter(
     ({ action }) => action.createdAt < staleBefore
   )
-  const decisions = countDecisions(
-    data,
-    decisionCards.length,
-    proposals.proposals.length
-  )
+  const decisions = importantCards.length
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
@@ -1467,7 +1391,7 @@ const HomePage = () => {
       setSelectedId(stops[cursorIndex + 1] ?? stops[cursorIndex - 1] ?? null)
       setEditingId(null)
     }
-    settle()
+    settle(Number(importantIds.has(actionId)))
     queueCards.utils.writeDelete(actionId)
   }
 
@@ -1521,7 +1445,7 @@ const HomePage = () => {
   const dropFromQueue = (ids: string[]) => {
     setEditingId(null)
     setPickedIds([])
-    settle(ids.length)
+    settle(ids.filter((id) => importantIds.has(id)).length)
     queueCards.utils.writeDelete(ids)
   }
 
@@ -1655,10 +1579,19 @@ const HomePage = () => {
     alike.length > 1 &&
     approveMany.mutate({ ids: alike.map(({ action }) => action.id) })
 
+  const openLater = (from: 'click' | 'key') => {
+    posthog.capture('later_opened', { from })
+    setIsLaterOpen(true)
+  }
   const move = (step: number) => {
-    // J past the last card shown opens the rest of the queue before it goes on to the mail under it.
-    if (step > 0 && cursorIndex === cardStops.length - 1 && hiddenCards > 0) {
+    // J past the last important card shown opens the rest of them, then Later.
+    const isPastImportant = step > 0 && cursorIndex === shownCards.length - 1
+    if (isPastImportant && hiddenCards > 0) {
       setIsQueueOpen(true)
+      return
+    }
+    if (isPastImportant && !isLaterOpen && laterCount > 0) {
+      openLater('key')
       return
     }
     const next =
@@ -1694,20 +1627,15 @@ const HomePage = () => {
       ? skipMany.mutate(pickedActionIds)
       : selected && dismiss.mutate({ id: selected.action.id })
 
-  const { isFocused, isInQueue, isStepping, isWalking } = useHomeFocus(
-    isEditing,
-    page
-  )
+  const { isFocused, isWalking } = useHomeFocus(isEditing, page)
   useHomeSubpage(search.page, readingDays.top, isFocused, {
     hasAgent,
     hasNewsletters,
-    hasLook: decisionCards.length > 0,
     hasProposals,
-    hasWorth: worth.length > 0,
   })
   const boardHints = useBoardHints()
-  const walkKeys = { enabled: isStepping && stops.length > 0 }
-  const listKeys = { enabled: isInQueue && !!selected }
+  const walkKeys = { enabled: isWalking && stops.length > 0 }
+  const listKeys = { enabled: isWalking && !!selected }
   useHotkey('J', () => move(1), walkKeys)
   useHotkey('ArrowDown', () => move(1), walkKeys)
   useHotkey('K', () => move(-1), walkKeys)
@@ -1725,7 +1653,7 @@ const HomePage = () => {
   useHotkey('S', skipTargets, listKeys)
   useHotkey('Backspace', () => trashMany.mutate(targets), listKeys)
   useHotkey('X', () => selected && togglePick(selected.action.id), listKeys)
-  const addEventOf = useAddEvent(selected, isInQueue)
+  const addEventOf = useAddEvent(selected, isWalking)
   useHotkey(
     'Mod+A',
     () => {
@@ -1739,7 +1667,7 @@ const HomePage = () => {
     walkKeys
   )
   useHotkey('Escape', () => setPickedIds([]), {
-    enabled: isInQueue && picked.length > 0,
+    enabled: isWalking && picked.length > 0,
   })
   const openAnd = (start: (id: string) => void) => () => {
     if (selected && sendsDraft(selected.action)) {
@@ -1750,7 +1678,33 @@ const HomePage = () => {
   useHotkey('E', openAnd(setEditingId), listKeys)
   useHotkey('R', openAnd(setRewritingId), listKeys)
   useHotkey('Space', () => cursorId && setIsOpen((open) => !open), walkKeys)
-  useOpenKey(worthRow, selected, isStepping)
+  useOpenKey(worthRow, selected, isWalking)
+  const cardOf = (item: QueueItem) => (
+    <QueueCard
+      key={item.action.id}
+      item={item}
+      draft={draftOf(item)}
+      isNew={!!seenAt && item.action.createdAt > seenAt}
+      isPicked={pickedIds.includes(item.action.id)}
+      isRewriting={rewritingId === item.action.id}
+      isOpen={isOpen && item === selected}
+      isSelected={item === selected}
+      isEditing={editingId === item.action.id}
+      isBusy={redraft.isPending && redraft.variables.id === item.action.id}
+      onAddEvent={() => addEventOf(item.action.id)}
+      onApprove={() => approveItem(item)}
+      onEdit={() => setEditingId(item.action.id)}
+      onDraftChange={(draft) =>
+        setDrafts((current) => ({ ...current, [item.action.id]: draft }))
+      }
+      onRewrite={(instruction) => rewrite(item.action.id, instruction)}
+      onRewriteChange={(isOn) => setRewritingId(isOn ? item.action.id : null)}
+      onPick={() => togglePick(item.action.id)}
+      onRemind={() => remind(item.action.id)}
+      onSkip={() => dismiss.mutate({ id: item.action.id })}
+      onStopEditing={() => setEditingId(null)}
+    />
+  )
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -1770,7 +1724,6 @@ const HomePage = () => {
                 updatedAt={dataUpdatedAt}
               />
               <ConnectHint />
-              <ReadingSection {...readingDays} />
               <FreshCodes today={data} canUseKeys={isWalking} />
 
               <section
@@ -1778,127 +1731,117 @@ const HomePage = () => {
                 hidden={decisions === 0}
                 className="flex flex-col gap-2.5"
               >
-                <DecisionsHeader decisions={decisions} settled={settled} />
-                <ProposalsGroup
-                  canUseKeys={isWalking}
-                  isSelected={isOnProposals}
-                  proposals={proposals}
+                <DecisionsHeader
+                  decisions={decisions}
+                  picked={picked.length}
+                  settled={settled}
+                  onApprove={approveTargets}
+                  onClear={() => setPickedIds([])}
+                  onSkip={skipTargets}
+                  onTrash={() => trashMany.mutate(picked)}
                 />
-                <LookCard queue={decisionCards} />
-                <div
-                  className={cn(
-                    'flex flex-col gap-2.5 empty:hidden',
-                    cardsBleedClassName
-                  )}
+                <KindFilter
+                  canUseKeys={isWalking}
+                  filter={filter}
+                  queue={importantCards}
+                />
+                <Accordion
+                  variant="list"
+                  hidden={shownCards.length === 0}
+                  value={openIds}
+                  onValueChange={toggleCard}
                 >
-                  <NewSenders
-                    senders={data?.newSenders ?? []}
-                    canUseKeys={isWalking}
-                    onSettle={() => settle()}
-                  />
-                  <RuleOffers today={data} onSettle={() => settle()} />
-                </div>
+                  {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
+                  <AnimatePresence key={filter.active} initial={false}>
+                    {shownCards.map(cardOf)}
+                  </AnimatePresence>
+                </Accordion>
+                {hiddenCards > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost-muted"
+                    className="self-start"
+                    onClick={() => setIsQueueOpen(true)}
+                  >
+                    {t.mail.showAll(filter.shown.length)}
+                  </Button>
+                )}
+                <StaleCards
+                  canUseKeys={isWalking}
+                  count={stale.length}
+                  onSkip={skipStale}
+                />
               </section>
 
-              {hasAgent && <BoardCard />}
-              <WorthCard today={data} />
+              <section
+                aria-label={t.today.later(laterCount)}
+                hidden={laterCount === 0}
+                className="flex flex-col gap-2.5"
+              >
+                <Button
+                  size="sm"
+                  variant="ghost-muted"
+                  className="self-start"
+                  aria-expanded={isLaterOpen}
+                  onClick={() =>
+                    isLaterOpen ? setIsLaterOpen(false) : openLater('click')
+                  }
+                >
+                  {t.today.later(laterCount)}
+                  <HugeiconsIcon
+                    icon={ArrowDown01Icon}
+                    className={cn(
+                      'transition-transform',
+                      isLaterOpen && 'rotate-180'
+                    )}
+                  />
+                </Button>
+                {isLaterOpen && (
+                  <>
+                    <Accordion
+                      variant="list"
+                      hidden={later.length === 0}
+                      value={openIds}
+                      onValueChange={toggleCard}
+                    >
+                      <AnimatePresence initial={false}>
+                        {later.map(cardOf)}
+                      </AnimatePresence>
+                    </Accordion>
+                    <WorthKnowing
+                      cursorId={cursorId}
+                      isWalking={isWalking}
+                      today={data}
+                      onSelect={setSelectedId}
+                    />
+                    <div
+                      className={cn(
+                        'flex flex-col gap-2.5 empty:hidden',
+                        cardsBleedClassName
+                      )}
+                    >
+                      <NewSenders
+                        senders={data?.newSenders ?? []}
+                        canUseKeys={isWalking}
+                        onSettle={holdClicksUntilMove}
+                      />
+                      <RuleOffers today={data} onSettle={holdClicksUntilMove} />
+                    </div>
+                  </>
+                )}
+              </section>
+
+              <ProposalsGroup
+                canUseKeys={isWalking}
+                isSelected={isOnProposals}
+                proposals={proposals}
+              />
+              <ReadingSection {...readingDays} />
             </div>
           </div>
           <ReadingPane {...readingDays} />
           {/* A closing pane stays mounted while it shrinks back into its card. */}
           <AnimatePresence>
-            {page === 'look' && (
-              <HomeCardPane key="look" page="look">
-                <LookHeading
-                  picked={picked.length}
-                  onApprove={approveTargets}
-                  onClear={() => setPickedIds([])}
-                  onClose={closePage}
-                  onSkip={skipTargets}
-                  onTrash={() => trashMany.mutate(picked)}
-                >
-                  <KindFilter
-                    canUseKeys={isInQueue}
-                    filter={filter}
-                    queue={decisionCards}
-                  />
-                </LookHeading>
-                <div className="flex flex-col gap-2.5">
-                  <Accordion
-                    variant="list"
-                    hidden={queue.length === 0}
-                    value={openIds}
-                    onValueChange={toggleCard}
-                  >
-                    {/* Keyed by the filter: a filter swap replaces the cards at once, so nothing folds out. */}
-                    <AnimatePresence key={filter.active} initial={false}>
-                      {queue.map((item) => (
-                        <QueueCard
-                          key={item.action.id}
-                          item={item}
-                          draft={draftOf(item)}
-                          isNew={!!seenAt && item.action.createdAt > seenAt}
-                          isPicked={pickedIds.includes(item.action.id)}
-                          isRewriting={rewritingId === item.action.id}
-                          isOpen={isOpen && item === selected}
-                          isSelected={item === selected}
-                          isEditing={editingId === item.action.id}
-                          isBusy={
-                            redraft.isPending &&
-                            redraft.variables.id === item.action.id
-                          }
-                          onAddEvent={() => addEventOf(item.action.id)}
-                          onApprove={() => approveItem(item)}
-                          onEdit={() => setEditingId(item.action.id)}
-                          onDraftChange={(draft) =>
-                            setDrafts((current) => ({
-                              ...current,
-                              [item.action.id]: draft,
-                            }))
-                          }
-                          onRewrite={(instruction) =>
-                            rewrite(item.action.id, instruction)
-                          }
-                          onRewriteChange={(isOn) =>
-                            setRewritingId(isOn ? item.action.id : null)
-                          }
-                          onPick={() => togglePick(item.action.id)}
-                          onRemind={() => remind(item.action.id)}
-                          onSkip={() => dismiss.mutate({ id: item.action.id })}
-                          onStopEditing={() => setEditingId(null)}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </Accordion>
-                  {hiddenCards > 0 && (
-                    <Button
-                      size="sm"
-                      variant="ghost-muted"
-                      className="self-start"
-                      onClick={() => setIsQueueOpen(true)}
-                    >
-                      {t.mail.showAll(filter.shown.length)}
-                    </Button>
-                  )}
-                  <StaleCards
-                    canUseKeys={isInQueue}
-                    count={stale.length}
-                    onSkip={skipStale}
-                  />
-                </div>
-              </HomeCardPane>
-            )}
-            {page === 'worth' && (
-              <HomeCardPane key="worth" page="worth">
-                <WorthKnowing
-                  cursorId={cursorId}
-                  isWalking={isStepping}
-                  today={data}
-                  onClose={closePage}
-                  onSelect={setSelectedId}
-                />
-              </HomeCardPane>
-            )}
             {page === 'board' && (
               <HomeCardPane key="board" page="board">
                 <BoardPane isActive={isFocused} onClose={closePage} />
@@ -1920,8 +1863,6 @@ const HomePage = () => {
             alike: alike.length,
             board: boardHints,
             hasBoard: hasAgent,
-            hasLook: decisionCards.length > 0,
-            hasWorth: worth.length > 0,
             hasFilter: filter.isOffered,
             isEditing,
             hasNewsletters,
@@ -1929,6 +1870,7 @@ const HomePage = () => {
             page,
             selected,
             isOnProposals,
+            isOnWorth: !!worthRow,
             isRewriting,
             picked: picked.length,
             stale: stale.length,
@@ -1959,10 +1901,10 @@ export const Route = createFileRoute('/_app/home')({
     }
   },
   component: HomePage,
-  validateSearch: type({
-    'thread?': 'string',
-    'page?': "'board' | 'look' | 'reading' | 'tidy' | 'worth'",
-    'day?': /^\d{4}-\d{2}-\d{2}$/u,
+  validateSearch: z.object({
+    day: z.optional(z.string().check(z.regex(/^\d{4}-\d{2}-\d{2}$/u))),
+    page: z.optional(z.enum(['board', 'reading', 'tidy'])),
+    thread: z.optional(z.string()),
   }),
   // Everything Home draws on its first frame: loaded after it, Reading's card showed a skeleton under cards already
   // there and the connect hint pushed the page down as it came in.

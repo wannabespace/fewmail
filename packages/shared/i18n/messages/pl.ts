@@ -1626,27 +1626,13 @@ export const pl: Messages = {
     progress: (done: number, total: number) => `${done} z ${total}`,
     readAll:
       'Przeczytałem wszystkie, a bez twojego „tak” w poczcie nic się nie zmienia.',
-    worth: {
-      awaiting: (total: number) =>
-        plural('pl', total, {
-          one: (n) =>
-            n === 1 ? '1 czeka na odpowiedź' : `czeka na odpowiedź: ${n}`,
-          other: (n) => `czeka na odpowiedź: ${n}`,
-        }),
-      dated: (total: number) =>
-        plural('pl', total, {
-          one: (n) => (n === 1 ? '1 z datą' : `z datą: ${n}`),
-          other: (n) => `z datą: ${n}`,
-        }),
-      important: (total: number) =>
-        plural('pl', total, {
-          one: (n) => (n === 1 ? '1 ważny e-mail' : `ważnych e-maili: ${n}`),
-          other: (n) => `ważnych e-maili: ${n}`,
-        }),
-    },
-    worthKnowing: 'Warto wiedzieć',
+    later: (total: number) =>
+      plural('pl', total, {
+        one: () => 'Jeszcze 1 może poczekać',
+        few: (n) => `Jeszcze ${n} mogą poczekać`,
+        other: (n) => `Jeszcze ${n} może poczekać`,
+      }),
     quick: 'Szybko',
-    needsLook: 'Zobacz sam',
     tidy: {
       failed: (emails: string) =>
         `Gmail odrzucił ${emails}. Spróbuj ponownie za chwilę.`,
