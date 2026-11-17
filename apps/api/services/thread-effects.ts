@@ -1,6 +1,7 @@
 import { db } from '@fewmail/db'
 import { mailboxes, messages } from '@fewmail/db/schema'
 import type { GmailEffect } from '@fewmail/shared/agent'
+import { textToHtml } from '@fewmail/shared/email'
 import { and, eq, isNull } from 'drizzle-orm'
 
 import { sendMail, unsubscribeOneClick } from '../lib/gmail'
@@ -36,15 +37,17 @@ const listThreadIds = async (userId: string, message: Message) => {
 }
 
 const LINKS = /<(?<link>[^>]+)>/gu
+const ONE_ADDRESS = /^[^\s@,;<>]+@[^\s@,;<>]+$/u
 
-/** An unsubscribe request by email is part of leaving the list, so it goes out with the unsubscribe the user or their rule chose. */
+/** An unsubscribe request by email is part of leaving the list, so it goes out with the unsubscribe the user or their rule chose. The sender wrote the link: one address, and its subject and body only as plain text. */
 const unsubscribeByMail = async (message: Message, mailto: string) => {
   const url = new URL(mailto)
+  const to = decodeURIComponent(url.pathname)
   const [mailbox] = await db
     .select()
     .from(mailboxes)
     .where(eq(mailboxes.id, message.mailboxId))
-  if (!mailbox || !url.pathname.includes('@')) {
+  if (!mailbox || !ONE_ADDRESS.test(to)) {
     return false
   }
   const subject = url.searchParams.get('subject') ?? 'unsubscribe'
@@ -52,13 +55,13 @@ const unsubscribeByMail = async (message: Message, mailto: string) => {
   await sendMail(mailbox, {
     bcc: [],
     cc: [],
-    html: text,
+    html: textToHtml(text),
     inReplyTo: null,
     references: null,
     subject,
     text,
     threadId: null,
-    to: [decodeURIComponent(url.pathname)],
+    to: [to],
   })
   return true
 }

@@ -6,14 +6,15 @@ Submitted for verification on 2026-11-17. Google names the lab after its first r
 
 ## Verification status
 
-- **Where:** Google Cloud console, project `fewmail`, Google Auth Platform → Verification Center (signed in as the Google account at `authuser=2`). Branding is verified; data access is "under review".
-- **Google writes to** valerii@wannabespace.com. Answer the same day: every delay puts the app back in the queue.
+- **Where:** Google Cloud console, project `fewmail`, Google Auth Platform → Verification Center. Branding is verified; data access is "under review".
+- **Google writes to** the developer contact on the consent screen. Answer the same day: every delay puts the app back in the queue.
 - **Scopes submitted:**
   - `gmail.modify` (restricted, "Email productivity");
   - `calendar.events`, `contacts`, `contacts.other.readonly` (sensitive);
   - `openid`, `userinfo.email`, `userinfo.profile`.
 
   They match `apps/api/lib/auth.ts`, so any change to the scopes there must be made in Data Access too, and needs a new video.
+
 - **Demo video:** https://youtu.be/Q3MRryOLweI (Unlisted, 2:37). It shows, in order:
   - sign-in through Google's unverified-app warning and the consent screen, with the client ID in the address bar;
   - Home;
@@ -58,85 +59,39 @@ Keep replies to Google consistent with these, and update them in Data Access if 
 
 > No test account needed: anyone can sign in with Google at https://fewmail.app/login. The video shows the whole sign-in with the consent screen, then each scope in use. Gmail: replying to an email from Fewmail and archiving it, then the same thread in Gmail. Calendar: adding an event, seeing it in Google Calendar, then deleting it. Contacts: searching on the People page.
 
-## Suggested order
+## Done in code (2026-11-17)
 
-1. Security headers. This is the biggest scan finding and is mostly config. Test the mail frame under the new CSP.
-2. Dependency fix and audit in CI.
-3. Rate limiting.
-4. Secrets: document them, check the database TLS.
-5. 2FA and the access list, and the incident note. These are not code; the owner does them.
-6. Security-event logging and alerting.
-7. Retention answer.
-8. A ZAP self-scan, then fix what it finds.
-
-Follow `CLAUDE.md` and `.agents/rules/` as for any change: for example, headers touch `architecture.md`, and retention touches the privacy policy.
+- **Security headers.** Web (`apps/web/Caddyfile`): HSTS, `nosniff`, `Referrer-Policy`, `Permissions-Policy` and a CSP with `frame-ancestors 'none'`, `object-src 'none'`, scripts only from our origin, PostHog's proxy and two hashed inline scripts (the build fails if a page's inline script has no hash there). The mail frame inherits it: inline styles and remote images still work, checked in Chrome against the built site. API (`apps/api/index.ts`): `hono/secure-headers` on every route, `default-src 'none'; frame-ancestors 'none'`, except attachments (no CSP, so PDFs open).
+- **Dependencies.** `postcss-selector-parser` pinned to `^6.1.5` (GHSA-rj75-hqrm-r3gf); `pnpm audit --prod` is clean. CI (`.github/workflows/check.yml`) runs lint, types, tests, TruffleHog and `pnpm audit --prod --audit-level=high`; Dependabot is on.
+- **Rate limiting.** 1000 requests a minute per IP on everything but the providers' webhooks, in memory (the API is one replica). Better Auth still limits `/auth/*`.
+- **Security-event logging.** Every 401/403/429, a sign-in Google refused and every account deletion is logged as `security …` (method, route's first segment, status; no address or content). Rejected webhooks (Stripe now answers 401, WhatsApp, Telegram, Gmail push) and refused MCP clients fall under it.
+- **Error alerting.** Every logged error also sends `server_error { label, error }` to PostHog (class name only), so an alert can watch it.
+- **Fixes from the self-review** (three parallel reviews of authorization, injection and auth/crypto):
+  - `/avatar` fetched the user's `image` field, which `/auth/update-user` let anyone set to any URL, `file://` included: the server could read its own environment. Photos are now fetched only from `https://*.googleusercontent.com`, `/auth/update-user` and `/auth/change-email` are disabled, and `/avatar` serves only raster image types.
+  - `/og/w/:token` put the raw token into its HTML: reflected XSS on the API origin. The token must be exactly two segments and every URL in the page is escaped.
+  - An unsubscribe by email took recipients, subject and body from the sender's `mailto:`: several recipients, injected headers and raw HTML. Now one address, the body as escaped text, and no header value in any outgoing mail can carry a line break.
+  - Links from mail the server fetches (one-click unsubscribe, unsubscribe pages) were checked by name only, so `127.0.0.1.nip.io` passed. The name is now resolved and private, loopback, link-local, CGNAT and ULA addresses are refused on every hop.
+  - WhatsApp's verify token is compared in constant time; `/voice/reading` refuses cross-site requests, so another site's link cannot spend the month's speech.
 
 ## To do
 
-### Security headers
+### Owner (not code)
 
-Neither `fewmail.app` nor `api.fewmail.app` sends any security header today, and it is the first thing a scan reports.
+- [ ] **Cloudflare:** minimum TLS 1.2 and HSTS for both hosts. Lock the API's origin to Cloudflare (or drop the `*.up.railway.app` domain): `cf-connecting-ip` keys the rate limits and can be forged by anyone reaching Railway directly.
+- [ ] **PostHog:** an alert on a spike of `server_error`.
+- [ ] **2FA, and a list of who has access,** for Google Cloud (project `fewmail`), Railway, Cloudflare, GitHub, Stripe, PostHog and the domain registrar.
+- [ ] **Incident response note** (one page): who is told, how a leaked secret is revoked (Google OAuth client secret, `ENCRYPTION_SECRET`, `BETTER_AUTH_SECRET`, Stripe, Telegram and WhatsApp secrets), and how users are notified.
+- [ ] **Postgres TLS:** confirm `DATABASE_URL` stays on Railway's private network (or uses `sslmode=require`).
+- [ ] **Test account for the lab,** kept out of the repo, with a little mail in it.
+- [ ] **ZAP:** a baseline, then an authenticated scan against `fewmail.app` and `api.fewmail.app` after this ships, and fix what it reports.
 
-- [ ] **Web** (`apps/web/Caddyfile`, every response):
-  - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
-  - `X-Content-Type-Options: nosniff`
-  - `Referrer-Policy: strict-origin-when-cross-origin`
-  - `Permissions-Policy` that turns off camera, microphone, geolocation and payment (the web uses none)
-  - `Content-Security-Policy` with `frame-ancestors 'none'`, `script-src 'self' https://e.fewmail.app`, `connect-src 'self' https://api.fewmail.app https://e.fewmail.app` and `object-src 'none'`
-- [ ] **Watch out:** a `srcDoc` iframe inherits the page's CSP, so the email frame (`thread-view.tsx`) will be held to it. Inline styles in mail need `style-src 'unsafe-inline'` and remote images need `img-src https: data: blob:`, or mail renders broken. Test a few real newsletters before shipping.
-- [ ] **API** (`apps/api/index.ts`): `hono/secure-headers` on every route: HSTS, `nosniff`, `frame-ancestors 'none'`. Responses are JSON, audio and images, so a strict `default-src 'none'` fits, except the Wrapped preview HTML.
-- [ ] **Cloudflare:** set the minimum TLS version to 1.2 and turn on HSTS for both hosts. HTTP already redirects to HTTPS and TLS 1.3 is served.
+### Code, next
 
-### Dependencies
-
-- [ ] `pnpm audit --prod` finds one moderate issue: `postcss-selector-parser` < 6.1.5 through `@tailwindcss/typography` (GHSA-rj75-hqrm-r3gf). Bump it or add a `pnpm.overrides` entry.
-- [ ] Add `pnpm audit --prod --audit-level=high` to CI and turn on Dependabot or Renovate, so the yearly re-assessment starts clean.
-
-### Rate limiting
-
-- [ ] Better Auth limits only `/auth/*`, in memory per instance. oRPC (`/rpc`), `/mcp`, `/voice/*` and the attachment and avatar routes have no limit. Add Cloudflare rate-limiting rules per IP on `api.fewmail.app`, or a limiter in Hono backed by Postgres or Redis, so that limits hold across instances.
-
-### Keys and secrets
-
-- [ ] Everything encrypted at rest uses one `ENCRYPTION_SECRET`, with no key id in the ciphertext and no rotation path. At minimum, document:
-  - where it lives (Railway variables);
-  - who can read it;
-  - what happens if it leaks.
-
-  Better: prefix ciphertexts with a key version, so a new key can be introduced and old rows re-encrypted.
-- [ ] `BETTER_AUTH_SECRET` also keys the spam-report hashes. Rotating it resets sender reputation (see `architecture.md`). Write this down next to the rotation plan.
-- [ ] Confirm the Postgres connection uses TLS (`sslmode=require`), or that it stays on Railway's private network.
-
-### Accounts and access
-
-- [ ] Turn on 2FA, and list who has access, for each of:
-  - Google Cloud (project `fewmail`);
-  - Railway;
-  - Cloudflare;
-  - GitHub;
-  - Stripe;
-  - PostHog;
-  - the domain registrar.
-
-  The questionnaire asks.
-- [ ] A one-page incident response note: who is told, how a leaked token or key is revoked (Google OAuth client secret, `ENCRYPTION_SECRET`, Stripe, Telegram and WhatsApp secrets), and how users are notified.
-
-### Logging and monitoring
-
-- [ ] Security events are not logged as such. Log, without addresses or content:
-  - failed sign-ins and rejected webhooks (bad Stripe, WhatsApp, Telegram or Gmail push signatures);
-  - MCP clients being refused;
-  - account deletions.
-- [ ] Error alerting: today errors only reach Railway's logs. Any alert, even an email on a spike of 5xx responses, answers the "do you monitor" questions.
-
-### Data retention
-
-- [ ] Synced mail is kept for as long as the account exists (privacy policy §8). This is allowed, but the lab asks why. Either keep the justification ready (Home and the agent's context need history), or prune message bodies older than a set window and say so in §8.
-
-### Before the scan
-
-- [ ] Run OWASP ZAP (baseline, then authenticated) against `fewmail.app` and `api.fewmail.app`, and fix what it reports before the lab runs its own scan.
-- [ ] Have a test account ready for the lab, made for the lab and kept out of the repo, with a little mail in it.
+- [ ] **MCP consent phishing.** Anyone can register an OAuth client (`allowUnauthenticatedClientRegistration`) and name it "Claude"; `/connect` shows only that name and Enter accepts. Show the redirect host and an "unverified" mark for dynamically registered clients, and drop Enter as accept.
+- [ ] **Desktop sign-in phishing.** `desktopSignIn.wait` needs no auth, so an attacker can start a flow and send someone the `/desktop?challenge=…` link with its code. Show where the waiting app is (IP, country, OS) on the confirm page, or have the user type the code shown in the app.
+- [ ] **Messenger link codes** never expire and work in Telegram groups: give them a TTL, rotate them, refuse non-private chats.
+- [ ] **Keys.** Everything at rest uses one `ENCRYPTION_SECRET`, with no key id in the ciphertext. Prefix ciphertexts with a key version so a key can be rotated. `BETTER_AUTH_SECRET` also keys the spam-report hashes and Wrapped links: rotating it resets sender reputation and old Wrapped links. Require 32+ characters for both secrets in `env.ts`.
+- [ ] **Data retention.** Synced mail is kept while the account exists (privacy policy §8). Keep the justification ready (Home and the agent's context need history), or prune old bodies and say so in §8.
 
 ## Already in place
 
@@ -146,7 +101,8 @@ Neither `fewmail.app` nor `api.fewmail.app` sends any security header today, and
   - OAuth tokens are encrypted by Better Auth (`encryptOAuthTokens`).
   - Contacts are never stored in the database; they are cached in memory only.
   - Calendar events are read live from Google.
-- **Email rendering:** mail HTML is shown in an iframe sandboxed without `allow-scripts`, and remote content is blocked by its own CSP until the user allows images (`thread-view.tsx`).
+- **Email rendering:** mail HTML is shown in an iframe sandboxed without `allow-scripts` or `allow-forms`, and remote content is blocked by its own CSP until the user allows images (`thread-view.tsx`).
+- **Authorization:** every service takes the session's or token's `userId`, and every client-supplied id is checked against it (reviewed 2026-11-17, no IDOR found).
 - **Webhooks verified:**
   - Stripe: signature;
   - WhatsApp: HMAC with `timingSafeEqual`;
@@ -160,14 +116,14 @@ Neither `fewmail.app` nor `api.fewmail.app` sends any security header today, and
 - **Logs:** no bodies, subjects, addresses or drafts. MCP logs only the tool name, access level and timing.
 - **Analytics:** PostHog session replay masks all text, inputs and element attributes.
 - **Errors:** responses carry a code and a generic message, never a stack trace.
-- **Secrets:** none tracked in git (only `.env.example`).
+- **Secrets:** none tracked in git, now or in history (only `.env.example`); TruffleHog checks every push.
 
 ## How this was checked (2026-11-17)
 
 Re-run these to see what is fixed:
 
 ```sh
-# Security headers (none today; only `server: cloudflare`)
+# Security headers
 curl -sI https://fewmail.app/home | grep -iE 'strict-transport|content-security|x-frame|x-content-type|referrer-policy|permissions-policy'
 curl -sI https://api.fewmail.app/auth/ok | grep -iE 'strict-transport|content-security|x-frame|x-content-type'
 
@@ -175,7 +131,7 @@ curl -sI https://api.fewmail.app/auth/ok | grep -iE 'strict-transport|content-se
 curl -sI http://fewmail.app | head -1
 echo | openssl s_client -connect fewmail.app:443 -tls1_1 2>&1 | grep -E 'Protocol|Cipher is'
 
-# Known vulnerabilities in production dependencies (1 moderate today)
+# Known vulnerabilities in production dependencies (none)
 pnpm audit --prod
 
 # Every table that references users cascades on delete (no output = all do)
@@ -188,7 +144,7 @@ What was done toward verification, so none of it has to be rediscovered.
 
 ### 2026-11-11: Data Access, first pass
 
-- **Branding was already verified:** Fewmail, fewmail.app, `/privacy`, `/terms`, authorized domain `fewmail.app`, contact valerii@wannabespace.com. No logo is set; uploading one would restart brand review.
+- **Branding was already verified:** Fewmail, fewmail.app, `/privacy`, `/terms`, authorized domain `fewmail.app`, the developer contact email. No logo is set; uploading one would restart brand review.
 - **Data Access:**
   - The project had no scopes declared.
   - Added `openid`, `userinfo.email`, `userinfo.profile` and `gmail.modify`.
@@ -219,6 +175,7 @@ What was done toward verification, so none of it has to be rediscovered.
 ### 2026-11-16: recording the demo video
 
 **Method:**
+
 - A clean Chrome profile, driven over CDP by `agent-browser` (0.41.2). The script is below.
 - `ffmpeg` (installed with brew) captured the screen on the external display, which gets no macOS notification banners. It was cropped to the 1440x900 window, so the address bar is in every frame.
 - agent-browser's `record --cursor` ran alongside it to draw the pointer.
@@ -238,6 +195,7 @@ open -na "Google Chrome" --args --user-data-dir="$HOME/.fewmail-demo-chrome" \
 ```
 
 **Problems hit, so a re-shoot avoids them:**
+
 - The profile came up in Ukrainian. Fix: the en-US flags above, plus Fewmail's locale set to `"en"` in localStorage and in the `fewmail.locale` cookie.
 - agent-browser jumped to Chrome's hidden Gemini webview. Fix: `ab tab t1` before every step.
 - **The consent screen:** click only "Select all". Clicking it and then each checkbox unticks them, and the first take ended without Calendar connected.
@@ -247,11 +205,12 @@ open -na "Google Chrome" --args --user-data-dir="$HOME/.fewmail-demo-chrome" \
 - **Possible bug (not fixed):** after the first sync, Mail's list showed only a spinner for about 2 minutes, apparently waiting out Gmail's quota backoff. The script loads `/mail` before it starts recording.
 
 **Side effects on real accounts:**
-- A test email "Project sync this week" was sent from wannabespace.llc@gmail.com to valerii.strilets@gmail.com.
+
+- A test email "Project sync this week" was sent from a second test account to the owner's account.
 - Fewmail's reply to it was really sent.
-- The Fewmail account of valerii.strilets@gmail.com was deleted twice and created again in the take.
+- The owner's Fewmail account was deleted twice and created again in the take.
 - A test event was created and deleted.
-- Real mail is visible in the video: subjects, the Gmail Sent list and an old Vercel sign-in code. If Google objects, re-shoot on a cleaner mailbox.
+- Real mail is visible in the video. If Google objects, re-shoot on a cleaner mailbox.
 
 ### 2026-11-16/17: Data Access completed and submitted
 
@@ -260,20 +219,21 @@ open -na "Google Chrome" --args --user-data-dir="$HOME/.fewmail-demo-chrome" \
 - **Video link** pasted in Data Access and saved.
 - **Questionnaire:** submitted from Verification Center → Prepare for verification, with the answers below.
 
-  | Question | Answer |
-  | --- | --- |
-  | Personal use only | No |
-  | Internal only | No |
-  | Development/testing only | No |
-  | WordPress SMTP plugin | No |
+  | Question                 | Answer |
+  | ------------------------ | ------ |
+  | Personal use only        | No     |
+  | Internal only            | No     |
+  | Development/testing only | No     |
+  | WordPress SMTP plugin    | No     |
 
   Both acknowledgements (verification requirements, CASA) were ticked.
+
 - **Status:** "Your app's data access is under review". No reply from Google yet.
 
 <details>
 <summary>Recording script (demo.sh)</summary>
 
-Usage: `demo.sh part1` … `part4`, with the demo browser open and signed in to the Google account in it. Each part writes `<part>.mp4` next to the script.
+Usage: `GOOGLE_ACCOUNT_NAME='<name on the Google account>' demo.sh part1` … `part4`, with the demo browser open and signed in to that Google account. Each part writes `<part>.mp4` next to the script.
 
 ```bash
 #!/bin/bash
@@ -326,7 +286,7 @@ part1() {
   click find role button click --name 'Continue with Google'
   ab wait --url '**accounts.google.com/**' >/dev/null
   pause 3
-  click find role link click --name 'Valerii Strilets'
+  click find role link click --name "$GOOGLE_ACCOUNT_NAME"
   ab wait --text 'verified this app' >/dev/null
   pause 3
   click find role link click --name 'Advanced'

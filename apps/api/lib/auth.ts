@@ -12,6 +12,7 @@ import { and, eq } from 'drizzle-orm'
 
 import { env } from '../env'
 import { deleteStripeCustomer } from '../services/billing'
+import { logSecurityEvent } from './log'
 import { capture } from './posthog'
 
 export const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
@@ -63,8 +64,8 @@ export const auth = betterAuth({
       },
     },
   },
-  // Session JWTs would share the signing key with MCP access tokens.
-  disabledPaths: ['/token'],
+  // Session JWTs would share the signing key with MCP access tokens; the name and photo are Google's, and the server fetches the photo (`contactPhoto`).
+  disabledPaths: ['/token', '/update-user', '/change-email'],
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema,
@@ -103,6 +104,10 @@ export const auth = betterAuth({
   trustedOrigins: [env.WEB_URL],
   user: {
     deleteUser: {
+      afterDelete: () => {
+        logSecurityEvent('account deleted')
+        return Promise.resolve()
+      },
       beforeDelete: async (user) => {
         // First, and allowed to throw: a failure here keeps the account, which beats a subscription still billing nobody.
         await deleteStripeCustomer(user.id)

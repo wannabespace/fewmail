@@ -7,6 +7,15 @@
 	root * /srv
 	encode zstd gzip
 
+	# The mail frame (`srcDoc`) inherits this policy: mail needs inline styles and remote images and fonts, which the frame's own policy blocks until the user allows them. The script hashes are the prerendered pages' inline scripts; the build fails when one is missing (`vite.config.ts`). `ipc:` is the desktop app's bridge.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-ImE49Vcdt5QqO7Rd6XR69o3xxm53oGQ3gqgkFkFAJFY=' 'sha256-/Ahd9+SC1fqxnhfqq3+QrbuKchjWV9duL70hYJPwZgc=' https://e.fewmail.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https:; media-src 'self' blob: {$API_URL}; connect-src 'self' {$API_URL} https://e.fewmail.app ipc: http://ipc.localhost; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+	}
+
 	@assets path /assets/*
 	header @assets Cache-Control "public, max-age=31536000, immutable"
 

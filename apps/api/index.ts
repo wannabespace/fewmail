@@ -5,15 +5,18 @@ import { RPCHandler } from '@orpc/server/fetch'
 import { BatchHandlerPlugin } from '@orpc/server/plugins'
 import { Result } from 'better-result'
 import { Hono } from 'hono'
+import { except } from 'hono/combine'
 import { compress } from 'hono/compress'
 import { cors } from 'hono/cors'
+import { createMiddleware } from 'hono/factory'
+import { secureHeaders } from 'hono/secure-headers'
 
 import { env } from './env'
 import { auth, MAILBOX_CALLBACK_PATH } from './lib/auth'
-import { contactPhoto } from './lib/google-contacts'
 import { canSpeak } from './lib/elevenlabs'
+import { contactPhoto } from './lib/google-contacts'
 import { relayChanges } from './lib/live'
-import { logError, logErrorAs } from './lib/log'
+import { logError, logErrorAs, logSecurityEvent } from './lib/log'
 import { capture } from './lib/posthog'
 import { siteIcon } from './lib/site-icon'
 import { handleMcp, mcpResourceMetadata } from './mcp'
@@ -45,8 +48,59 @@ const webCors = cors({
   origin: env.WEB_URL,
 })
 
-/** Voice is part of the agent and needs a speaking key; anyone else gets a 404. */
+const HEADERS = {
+  // The web is another origin on the same site and loads avatars, attachments and voice from here.
+  crossOriginResourcePolicy: 'same-site',
+  referrerPolicy: 'strict-origin-when-cross-origin',
+  strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+} as const
+
+/** Rejected requests and sign-ins that failed at Google are the security log; only the route's first segment, as a path can hold an address (`/avatar/:email`). */
+const logRefusals = createMiddleware(async (c, next) => {
+  // oxlint-disable-next-line node/callback-return -- the status is known only after the route ran
+  await next()
+  const isFailedSignIn =
+    c.req.path.startsWith('/auth/callback/') &&
+    c.res.headers.get('location')?.includes('error=')
+  if ([401, 403, 429].includes(c.res.status) || isFailedSignIn) {
+    logSecurityEvent(
+      'refused',
+      c.req.method,
+      c.req.path.split('/')[1] ?? '',
+      c.res.status
+    )
+  }
+})
+
+// Per IP and in memory: right while the API runs as one replica (`.railway/railway.ts`). Providers' webhooks are left out, Google pushes every user's mail from a few addresses.
+const RATE_WINDOW_MS = 60_000
+const RATE_LIMIT = 1000
+let requestsByIp = new Map<string, number>()
+setInterval(() => {
+  requestsByIp = new Map()
+}, RATE_WINDOW_MS).unref()
+
+const rateLimit = createMiddleware((c, next) => {
+  const ip = c.req.header('cf-connecting-ip') ?? ''
+  const count = (requestsByIp.get(ip) ?? 0) + 1
+  requestsByIp.set(ip, count)
+  if (count > RATE_LIMIT) {
+    return Promise.resolve(
+      c.text('Too many requests', 429, {
+        'retry-after': String(RATE_WINDOW_MS / 1000),
+      })
+    )
+  }
+  return next()
+})
+
+const WEBHOOKS = ['/telegram', '/whatsapp', '/stripe/webhook', '/gmail/push']
+
+/** Voice is part of the agent and needs a speaking key; anyone else gets a 404. A GET, so another site's link must not spend the month's speech. */
 const voiceUser = async (headers: Headers) => {
+  if (headers.get('sec-fetch-site') === 'cross-site') {
+    return null
+  }
   const session = await auth.api.getSession({ headers })
   return session && canSpeak && hasAgent(await getPlanInfo(session.user.id))
     ? session.user.id
@@ -74,6 +128,16 @@ const spokenResponse = async (userId: string, text: () => Promise<string>) => {
 // Short enough that photos granted by a new sign-in replace the initials within a day.
 const AVATAR_CACHE_SECONDS = 86_400
 
+// Fetched from elsewhere and served from our origin: never anything a browser would run (HTML, SVG).
+const AVATAR_TYPES = new Set([
+  'image/gif',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/x-icon',
+  'image/vnd.microsoft.icon',
+])
+
 // The sender names the type: anything a browser would run (HTML, SVG) on our origin is only ever downloaded.
 const VIEWABLE = new Set([
   'application/pdf',
@@ -100,6 +164,22 @@ const attachmentResponse = (file: {
 }
 
 const app = new Hono()
+  .use(logRefusals)
+  .use(except(WEBHOOKS, rateLimit))
+  // Chrome's PDF viewer does not open a file under `default-src 'none'`.
+  .use(
+    except(
+      '/attachments/*',
+      secureHeaders({
+        ...HEADERS,
+        contentSecurityPolicy: {
+          defaultSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+        },
+      })
+    )
+  )
+  .use('/attachments/*', secureHeaders(HEADERS))
   .use(compress())
   .use('/auth/*', webCors)
   .use('/rpc/*', webCors)
@@ -182,12 +262,13 @@ const app = new Hono()
     const icon =
       (await contactPhoto(session.user, email)) ??
       (await siteIcon(email.split('@')[1] ?? ''))
-    return new Response(icon?.bytes ?? null, {
+    const isImage = icon && AVATAR_TYPES.has(icon.type.split(';')[0] ?? '')
+    return new Response(isImage ? icon.bytes : null, {
       headers: {
         'cache-control': `private, max-age=${AVATAR_CACHE_SECONDS}`,
-        ...(icon && { 'content-type': icon.type }),
+        ...(isImage && { 'content-type': icon.type }),
       },
-      status: icon ? 200 : 404,
+      status: isImage ? 200 : 404,
     })
   })
   .get('/og/w/:token', (c) => {

@@ -183,13 +183,13 @@ export const wrappedPreviewHtml = (shared: Shared, token: string) => {
   const locale = drawnLocale(shared)
   const title = cardTitle(shared, locale)
   const description = `${formatMinutes(locale, shared.stats.savedMinutes)} ${messages[locale].wrapped.saved}`
-  const page = `${env.WEB_URL}/w/${token}`
+  const page = attribute(`${env.WEB_URL}/w/${encodeURIComponent(token)}`)
   return `<!doctype html><html><head><meta charset="utf-8"><title>${attribute(title)}</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="${attribute(title)}">
 <meta property="og:description" content="${attribute(description)}">
 <meta property="og:url" content="${page}">
-<meta property="og:image" content="${env.API_URL}/og/w/${token}/image.png">
+<meta property="og:image" content="${attribute(`${env.API_URL}/og/w/${encodeURIComponent(token)}/image.png`)}">
 <meta property="og:image:width" content="${SIZE.width}">
 <meta property="og:image:height" content="${SIZE.height}">
 <meta name="twitter:card" content="summary_large_image">

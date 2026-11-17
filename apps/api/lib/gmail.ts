@@ -1,5 +1,6 @@
 import { Buffer } from 'node:buffer'
-import { isIP } from 'node:net'
+import { lookup } from 'node:dns/promises'
+import { BlockList, isIP } from 'node:net'
 
 import { titledListId } from '@fewmail/shared/agent'
 import { textToHtml } from '@fewmail/shared/email'
@@ -535,17 +536,20 @@ export const modifyMessage = (
     method: 'POST',
   })
 
+// A line break in any header value would end it and let the rest pass for headers of its own (a `Bcc:` from a subject).
+const oneLine = (value: string) => value.replaceAll(/[\r\n]+/gu, ' ')
+
 const encodeHeader = (value: string) =>
   // oxlint-disable-next-line no-control-regex -- RFC 2047 only for non-ASCII headers
   /^[\u0000-\u007F]*$/u.test(value)
-    ? value
+    ? oneLine(value)
     : `=?UTF-8?B?${Buffer.from(value).toString('base64')}?=`
 
 const BOUNDARY = 'fewmail-alternative'
 const MIXED_BOUNDARY = 'fewmail-mixed'
 const UPLOAD_BOUNDARY = 'fewmail-upload'
 
-const encodeAddressList = (addresses: string[]) => addresses.join(', ')
+const encodeAddressList = (addresses: string[]) => oneLine(addresses.join(', '))
 
 interface MailContent {
   attachments?: Required<OutgoingAttachment>[] | null
@@ -598,8 +602,8 @@ const mimeOf = (mail: MailContent) => {
     ...(mail.cc.length > 0 ? [`Cc: ${encodeAddressList(mail.cc)}`] : []),
     ...(mail.bcc.length > 0 ? [`Bcc: ${encodeAddressList(mail.bcc)}`] : []),
     `Subject: ${encodeHeader(mail.subject)}`,
-    ...(mail.inReplyTo ? [`In-Reply-To: ${mail.inReplyTo}`] : []),
-    ...(mail.references ? [`References: ${mail.references}`] : []),
+    ...(mail.inReplyTo ? [`In-Reply-To: ${oneLine(mail.inReplyTo)}`] : []),
+    ...(mail.references ? [`References: ${oneLine(mail.references)}`] : []),
     'MIME-Version: 1.0',
     ...(files.length === 0
       ? alternative
@@ -771,13 +775,51 @@ export const createLabel = (account: GmailAccount, name: string) =>
 
 const UNSUBSCRIBE_TIMEOUT_MS = 10_000
 
-/** The sender writes the link and sync posts to it unattended, so it must never reach our own network; redirects are not followed for the same reason. */
-export const isPublicHost = (hostname: string) => {
+const PRIVATE = new BlockList()
+for (const [network, prefix] of [
+  ['0.0.0.0', 8],
+  ['10.0.0.0', 8],
+  ['100.64.0.0', 10],
+  ['127.0.0.0', 8],
+  ['169.254.0.0', 16],
+  ['172.16.0.0', 12],
+  ['192.0.0.0', 24],
+  ['192.168.0.0', 16],
+  ['198.18.0.0', 15],
+  ['224.0.0.0', 3],
+] as const) {
+  PRIVATE.addSubnet(network, prefix, 'ipv4')
+}
+for (const [network, prefix] of [
+  ['::', 127],
+  ['64:ff9b::', 96],
+  ['fc00::', 7],
+  ['fe80::', 10],
+  ['ff00::', 8],
+] as const) {
+  PRIVATE.addSubnet(network, prefix, 'ipv6')
+}
+
+/**
+ * The sender writes the link and sync posts to it unattended, so it must never reach our own network; redirects are not followed for the same reason.
+ * A public name can point anywhere (`127.0.0.1.nip.io`, Railway's private `fd12::/16`), so every address it resolves to is checked.
+ */
+export const isPublicHost = async (hostname: string) => {
   const host = hostname.replaceAll(/^\[|\]$/gu, '').replace(/\.$/u, '')
+  if (
+    !host.includes('.') ||
+    isIP(host) !== 0 ||
+    /\.(?:localhost|local|internal|home\.arpa)$/iu.test(host)
+  ) {
+    return false
+  }
+  const addresses = await lookup(host, { all: true }).catch(() => [])
   return (
-    host.includes('.') &&
-    isIP(host) === 0 &&
-    !/\.(?:localhost|local|internal|home\.arpa)$/iu.test(host)
+    addresses.length > 0 &&
+    addresses.every(
+      ({ address, family }) =>
+        !PRIVATE.check(address, family === 6 ? 'ipv6' : 'ipv4')
+    )
   )
 }
 
@@ -790,8 +832,8 @@ export const unsubscribeOneClick = async (
   if (
     !url ||
     !URL.canParse(url) ||
-    !isPublicHost(new URL(url).hostname) ||
-    !/One-Click/iu.test(listUnsubscribePost ?? '')
+    !/One-Click/iu.test(listUnsubscribePost ?? '') ||
+    !(await isPublicHost(new URL(url).hostname))
   ) {
     return false
   }

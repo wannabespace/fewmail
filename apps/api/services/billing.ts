@@ -146,7 +146,7 @@ export const handleStripeWebhook = async (request: Request) => {
     )
     .catch(() => null)
   if (!event) {
-    return new Response('Bad signature', { status: 400 })
+    return new Response('Bad signature', { status: 401 })
   }
   if (!SUBSCRIPTION_EVENTS.has(event.type)) {
     return new Response('Ignored')

@@ -27,7 +27,11 @@ const fetchPublic = async (start: URL, init?: RequestInit) => {
   let url = start
   let request = init
   for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
-    if (!/^https?:$/u.test(url.protocol) || !isPublicHost(url.hostname)) {
+    if (
+      !/^https?:$/u.test(url.protocol) ||
+      // oxlint-disable-next-line eslint/no-await-in-loop -- each redirect is checked before it is followed
+      !(await isPublicHost(url.hostname))
+    ) {
       return null
     }
     // oxlint-disable-next-line eslint/no-await-in-loop -- each redirect is checked before it is followed

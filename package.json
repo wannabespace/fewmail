@@ -2,6 +2,16 @@
   "name": "fewmail",
   "private": true,
   "description": "An email agent that reads your mail so you don't have to.",
+  "homepage": "https://fewmail.app",
+  "license": "AGPL-3.0-only",
+  "author": {
+    "name": "Wannabe Space, LLC",
+    "email": "hello@wannabespace.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wannabespace/fewmail"
+  },
   "type": "module",
   "scripts": {
     "postinstall": "pnpm run portless:start",

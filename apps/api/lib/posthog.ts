@@ -21,3 +21,11 @@ export const capture = (
     event,
     properties: { app: 'api', ...properties },
   })
+
+/** Feeds the 5xx alert in PostHog: the log's label and the error's class, never its message. */
+export const captureServerError = (label: string, error: string) =>
+  client?.capture({
+    distinctId: 'fewmail-api',
+    event: 'server_error',
+    properties: { $process_person_profile: false, app: 'api', error, label },
+  })

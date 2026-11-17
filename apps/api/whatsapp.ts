@@ -259,23 +259,29 @@ const handleSafely = async (inbound: Inbound) => {
   }
 }
 
-const signed = (body: string, signature: string | null) => {
-  if (!(config && signature)) {
-    return false
-  }
-  const expected = Buffer.from(
-    `sha256=${createHmac('sha256', config.appSecret).update(body).digest('hex')}`
-  )
-  const given = Buffer.from(signature)
-  return expected.length === given.length && timingSafeEqual(expected, given)
+const isSame = (expected: string, given: string) => {
+  const [a, b] = [Buffer.from(expected), Buffer.from(given)]
+  return a.length === b.length && timingSafeEqual(a, b)
 }
+
+const signed = (body: string, signature: string | null) =>
+  Boolean(config && signature) &&
+  isSame(
+    `sha256=${createHmac('sha256', config?.appSecret ?? '')
+      .update(body)
+      .digest('hex')}`,
+    signature ?? ''
+  )
 
 /** Meta's one-time subscription check. */
 export const verifyWhatsappWebhook = (url: URL) =>
   config &&
   env.WHATSAPP_VERIFY_TOKEN &&
   url.searchParams.get('hub.mode') === 'subscribe' &&
-  url.searchParams.get('hub.verify_token') === env.WHATSAPP_VERIFY_TOKEN
+  isSame(
+    env.WHATSAPP_VERIFY_TOKEN,
+    url.searchParams.get('hub.verify_token') ?? ''
+  )
     ? new Response(url.searchParams.get('hub.challenge'))
     : new Response(null, { status: 403 })
 

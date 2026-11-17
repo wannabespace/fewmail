@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import process from 'node:process'
 
 import { messages } from '@fewmail/shared/i18n'
@@ -166,6 +168,24 @@ const prerender = async (urls: string[]) => {
 // A returning user on `/` is redirected into the app: drop the landing before it paints.
 const SIGNED_IN_GUARD = `<script>if (localStorage.getItem('fewmail.signed-in') === 'true') document.getElementById('root').replaceChildren()</script>`
 
+const INLINE_SCRIPT =
+  /<script(?![^>]*\b(?:src|type)=)[^>]*>(?<body>[\s\S]*?)<\/script>/gu
+
+/** The Caddyfile's CSP runs an inline script only by its hash: one that changes without it would silently stop running. */
+const assertScriptsAllowed = (html: string) => {
+  const caddyfile = readFileSync(new URL('Caddyfile', import.meta.url), 'utf-8')
+  for (const { groups } of html.matchAll(INLINE_SCRIPT)) {
+    const hash = `'sha256-${createHash('sha256')
+      .update(groups?.body ?? '')
+      .digest('base64')}'`
+    if (!caddyfile.includes(hash)) {
+      throw new Error(
+        `Caddyfile's script-src lacks ${hash} for an inline script`
+      )
+    }
+  }
+}
+
 const withPage = (html: string, page: Page, body: string) =>
   html
     .replace('<html lang="en">', `<html lang="${page.locale}">`)
@@ -206,6 +226,7 @@ const seo = (): Plugin => ({
     const bodies = await prerender(PAGES.map(({ url }) => url))
     for (const page of PAGES) {
       const source = withPage(html, page, bodies[page.url] ?? '')
+      assertScriptsAllowed(source)
       if (page.url === '/') {
         shell.source = source
       } else {

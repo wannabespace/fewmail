@@ -172,6 +172,14 @@ export const deleteGoogleContacts = async (
   cache.delete(userId)
 }
 
+const isGooglePhoto = (url: string) => {
+  const parsed = URL.parse(url)
+  return (
+    parsed?.protocol === 'https:' &&
+    parsed.hostname.endsWith('.googleusercontent.com')
+  )
+}
+
 /** The Google profile photo of the user or of someone in their contacts, fetched by our server like site icons. */
 export const contactPhoto = async (
   user: { email: string; id: string; image?: string | null },
@@ -180,7 +188,7 @@ export const contactPhoto = async (
   const contacts = await googleContacts(user.id)
   const url =
     email === user.email.toLowerCase() ? user.image : contacts.get(email)?.photo
-  if (!url) {
+  if (!url || !isGooglePhoto(url)) {
     return null
   }
   const photo = await Result.tryPromise(async () => {

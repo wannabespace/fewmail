@@ -116,7 +116,10 @@ const shareToken = (shared: Shared) => {
 }
 
 export const readSharedWrapped = (token: string): Shared => {
-  const [payload = '', signed = ''] = token.split('.')
+  const [payload = '', signed = '', ...rest] = token.split('.')
+  if (rest.length > 0) {
+    throw new NotFoundError('Wrapped link not found')
+  }
   const expected = Buffer.from(signature(payload))
   const given = Buffer.from(signed)
   if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
