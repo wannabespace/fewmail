@@ -4,7 +4,7 @@ import type { Messages } from './en'
 
 export const ja: Messages = {
   actionDone: {
-    heads_up: '確認しました',
+    heads_up: '了解しました',
     commitment: '完了',
     confirm: '確認しました',
     follow_up: 'フォローしました',

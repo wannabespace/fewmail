@@ -4,7 +4,7 @@ import type { Messages } from './en'
 
 export const hi: Messages = {
   actionDone: {
-    heads_up: 'समझ गया',
+    heads_up: 'समझ लिया',
     commitment: 'हो गया',
     confirm: 'मैंने पुष्टि कर दी',
     follow_up: 'मैंने फ़ॉलो-अप किया',

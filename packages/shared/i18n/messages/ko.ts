@@ -4,7 +4,7 @@ import type { Messages } from './en'
 
 export const ko: Messages = {
   actionDone: {
-    heads_up: '확인했어요',
+    heads_up: '알겠어요',
     commitment: '완료',
     confirm: '확인했어요',
     follow_up: '후속 조치했어요',
