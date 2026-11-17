@@ -44,7 +44,7 @@ export const IMPORTANCE_LEVELS = [
   'Noise: nobody needs to see it',
   'Worth knowing, no rush',
   'Needs the user soon: something broke, their deadline or expiry (never a sale), a decision',
-  'Urgent: security, money due within two days, or a person blocked on the user',
+  'Urgent: security, money overdue or due within two days, a service about to be suspended or shut down, or a person blocked on the user',
 ]
 
 export const NEEDS_REPLY =
