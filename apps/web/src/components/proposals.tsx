@@ -3,7 +3,6 @@ import { PROPOSAL_KINDS } from '@fewmail/shared/agent'
 import type { ProposalKind } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
-import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   SettingsGroup,
   SettingsRow,
@@ -12,7 +11,6 @@ import { Kbd } from '@fewmail/ui/components/kbd'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { AnimatePresence } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -229,41 +227,26 @@ export const ProposalsGroup = ({
   })
 
   return (
-    <AnimatePresence initial={false}>
-      {rows.length > 0 && (
-        // The collapse clips, so it bleeds out like the cards (cardsBleedClassName) and pads back in, or it cuts the card's sides off.
-        <MotionCollapse key={PROPOSALS_ID} className="-mx-4.75">
-          <div className="flex flex-col gap-2.5 px-4.75">
-            <HomeCard
-              heading={t.today.quick}
-              isActive={isSelected}
-              lead={`${t.today.tidy.total(rows.length)}: ${kindsLine(t, rows)}.`}
-              page="tidy"
-              rows={rows.flatMap(({ id, message }) =>
-                message
-                  ? [
-                      {
-                        id,
-                        sender: message,
-                        text: message.subject,
-                      },
-                    ]
-                  : []
-              )}
-              actions={
-                <Button
-                  size="sm"
-                  onClick={() => proposals.approve(rows)}
-                  shortcut={<Kbd>{isSelected ? '⏎' : 'T'}</Kbd>}
-                >
-                  {t.today.tidy.run}
-                </Button>
-              }
-            />
-          </div>
-        </MotionCollapse>
-      )}
-    </AnimatePresence>
+    rows.length > 0 && (
+      <HomeCard
+        heading={t.today.quick}
+        isActive={isSelected}
+        lead={`${t.today.tidy.total(rows.length)}: ${kindsLine(t, rows)}.`}
+        page="tidy"
+        rows={rows.flatMap(({ id, message }) =>
+          message ? [{ id, sender: message, text: message.subject }] : []
+        )}
+        actions={
+          <Button
+            size="sm"
+            onClick={() => proposals.approve(rows)}
+            shortcut={<Kbd>{isSelected ? '⏎' : 'T'}</Kbd>}
+          >
+            {t.today.tidy.run}
+          </Button>
+        }
+      />
+    )
   )
 }
 

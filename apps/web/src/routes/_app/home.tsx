@@ -1565,19 +1565,29 @@ const HomePage = () => {
 
               <section
                 aria-label={t.today.decisions}
-                hidden={decisions === 0}
                 className="flex flex-col gap-2.5"
               >
-                <DecisionsHeader decisions={decisions} settled={settled} />
-                <LookCard queue={importantCards} />
+                {decisions > 0 && (
+                  <DecisionsHeader decisions={decisions} settled={settled} />
+                )}
+                <div
+                  className={cn(
+                    'flex flex-col gap-3 empty:hidden',
+                    cardsBleedClassName
+                  )}
+                >
+                  <LookCard queue={importantCards} />
+                  <div className="grid gap-3 empty:hidden md:grid-cols-2 md:[&>:last-child:nth-child(odd)]:col-span-2">
+                    <LaterCard cards={laterCards} today={data} />
+                    <ProposalsGroup
+                      canUseKeys={isWalking}
+                      isSelected={isOnProposals}
+                      proposals={proposals}
+                    />
+                    {hasAgent && <BoardCard />}
+                  </div>
+                </div>
               </section>
-              <LaterCard cards={laterCards} today={data} />
-              <ProposalsGroup
-                canUseKeys={isWalking}
-                isSelected={isOnProposals}
-                proposals={proposals}
-              />
-              {hasAgent && <BoardCard />}
               <ReadingSection {...readingDays} />
             </div>
           </div>

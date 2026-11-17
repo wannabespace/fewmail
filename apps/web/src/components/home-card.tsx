@@ -1,4 +1,3 @@
-import { cardsBleedClassName } from '@fewmail/ui/components/accordion'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import { Item } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
@@ -27,10 +26,9 @@ export const HOME_CARD_ROWS = 3
 
 const morphIdOf = (page: HomeCardPage) => `home-${page}`
 
-const cardClassName = cn(
-  'bg-card ring-foreground/6 flex flex-col gap-3 px-4.75 py-4 ring',
-  cardsBleedClassName
-)
+// No bleed of its own: Home's bento grid bleeds as a whole, so the cards' text lines up with the page's.
+const cardClassName =
+  'bg-card ring-foreground/6 flex flex-col gap-3 px-4.75 py-4 ring'
 
 /**
  * A block of Home as Reading's card: a muted heading, one serif line saying what is there and its first few as one-line
