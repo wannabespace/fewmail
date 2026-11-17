@@ -30,14 +30,14 @@ export const SettingsGroupTitle = ({
 }: {
   action?: ReactNode
   children: ReactNode
-  /** In a Home pane: the title sticks under its heading row (`top-17`) and spans the pane's gutter (`home-card.tsx`), covering the cards scrolling under it. */
+  /** In a Home pane: the title sticks under its heading's stuck bar (`top-12`) and spans the pane's gutter (`home-card.tsx`), covering the cards scrolling under it. */
   isSticky?: boolean
 }) => (
   <div
     className={cn(
       'text-muted-foreground flex items-center gap-2 text-xs font-medium',
       isSticky &&
-        'bg-background sticky top-17 z-5 -mx-4 -my-2 px-4 py-2 md:-mx-10 md:px-10'
+        'bg-background sticky top-12 z-5 -mx-4 -my-2 px-4 py-2 md:-mx-10 md:px-10'
     )}
   >
     <h2 className="flex min-w-0 items-center gap-2">{children}</h2>

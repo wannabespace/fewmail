@@ -14,6 +14,7 @@ import {
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Link, useSearch } from '@tanstack/react-router'
+import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { createStore } from 'seitu'
@@ -194,13 +195,13 @@ export const HomeCardPane = ({
   return column && createPortal(pane, column)
 }
 
-// Keep in step with the pane's padding, and with `SettingsGroup`'s `isTitleSticky` (`top-17` is this row's height): a sticky row over the whole gutter covers every card's bleed and ring scrolling under it.
+// Keep in step with the pane's padding, and with `SettingsGroup`'s `isTitleSticky` (`top-12` is the stuck bar's height): a sticky bar over the whole gutter covers every card's bleed and ring scrolling under it.
 const paneGutterClassName = '-mx-4 px-4 md:-mx-10 md:px-10'
 
 /**
- * What a Home card opened says on top: its name, its actions and ✕ (Home's `esc`) back to Home, held at the pane's top
- * while it scrolls; `children` (a lead) scroll away under it. A fragment, so the row sticks within the whole pane, not
- * just within its own header.
+ * What a Home card opened says on top: its name, its actions and ✕ (Home's `esc`) back to Home. The title scrolls away
+ * like the open email's (`page-heading` in the kit's globals.css) while the bar with the actions sticks and repeats it;
+ * `children` (a lead) scroll away under it. A fragment, so the bar sticks within the whole pane, not just its header.
  */
 export const PageHeading = ({
   actions,
@@ -214,26 +215,58 @@ export const PageHeading = ({
   title: string
 }) => {
   const t = useT()
+  const headerRef = useRef<HTMLElement>(null)
+  const actionsRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const header = headerRef.current
+    const bar = actionsRef.current
+    if (!header || !bar) {
+      return
+    }
+    const observer = new ResizeObserver(() =>
+      header.style.setProperty(
+        '--page-heading-actions',
+        `calc(${bar.offsetWidth}px + 0.5rem)`
+      )
+    )
+    observer.observe(bar)
+    return () => observer.disconnect()
+  }, [])
   return (
     <>
-      <header
-        className={cn(
-          'bg-background sticky top-0 z-10 -mt-3 flex items-center gap-2 py-3',
-          paneGutterClassName
-        )}
-      >
-        <h1 className="text-display font-serif tracking-tight">{title}</h1>
-        <div className="ml-auto flex items-center gap-2">
-          {actions}
-          <IconButton
-            icon={Cancel01Icon}
-            label={t.mail.close}
-            shortcut={<Kbd>esc</Kbd>}
-            size="icon-sm"
-            variant="ghost-muted"
-            onClick={onClose}
-          />
+      <header ref={headerRef} className="page-heading">
+        {/* -mt-3 / -mb-5 and the bar's resting padding line its row up with the title's: change them together. */}
+        <div data-slot="page-heading-pin" className="-mt-3 -mb-5">
+          <div
+            data-slot="page-heading-bar"
+            className={cn('flex items-center gap-2', paneGutterClassName)}
+          >
+            <p
+              aria-hidden
+              data-slot="page-heading-bar-title"
+              className="min-w-0 flex-1 truncate font-serif text-lg tracking-tight"
+            >
+              {title}
+            </p>
+            <div ref={actionsRef} className="flex items-center gap-2">
+              {actions}
+              <IconButton
+                icon={Cancel01Icon}
+                label={t.mail.close}
+                shortcut={<Kbd>esc</Kbd>}
+                size="icon-sm"
+                variant="ghost-muted"
+                onClick={onClose}
+              />
+            </div>
+          </div>
         </div>
+        <h1
+          data-slot="page-heading-title"
+          className="text-display mb-3 font-serif tracking-tight"
+        >
+          {title}
+        </h1>
       </header>
       {children && <div className="-mt-5 flex flex-col gap-3">{children}</div>}
     </>

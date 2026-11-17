@@ -442,6 +442,54 @@
   }
 }
 
+/* A Home pane's heading (`PageHeading`), as the open email's: the title scrolls away, the bar with the pane's actions and ✕ lies over its row at rest and sticks, then tightens to 0.75rem, fills in and repeats it on one line. The title leaves room for the bar's buttons (`--page-heading-actions`, measured). Its timeline starts at 0.75rem, where it sits as the bar sticks. Without view timelines the bar scrolls away with the title. */
+@utility page-heading {
+  display: contents;
+  timeline-scope: --page-heading-title;
+
+  & [data-slot='page-heading-pin'] {
+    position: relative;
+    z-index: 10;
+    height: 0;
+  }
+
+  & [data-slot='page-heading-bar'] {
+    padding-top: 1.25rem;
+    padding-bottom: --spacing(2);
+  }
+
+  & [data-slot='page-heading-bar-title'] {
+    opacity: 0;
+  }
+
+  & [data-slot='page-heading-title'] {
+    padding-right: var(--page-heading-actions, 0px);
+    view-timeline: --page-heading-title;
+    view-timeline-inset: 0.75rem 0;
+  }
+
+  @supports (animation-timeline: view()) {
+    & [data-slot='page-heading-pin'] {
+      position: sticky;
+      top: 0;
+    }
+
+    & [data-slot='page-heading-bar'] {
+      animation:
+        reader-bar-tighten linear both,
+        reader-bar-fill linear both;
+      animation-range: exit 0% exit 100%;
+      animation-timeline: --page-heading-title;
+    }
+
+    & [data-slot='page-heading-bar-title'] {
+      animation: reader-show linear both;
+      animation-range: exit 60% exit 100%;
+      animation-timeline: --page-heading-title;
+    }
+  }
+}
+
 @keyframes reader-bar-tighten {
   to {
     padding-top: 0.75rem;
