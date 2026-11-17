@@ -88,11 +88,10 @@ import {
 } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
 import {
-  openReadingDays,
-  ReadingPane,
-  ReadingSection,
-  useReadingDay,
-  useReadingIssues,
+  newsletterHints,
+  NewslettersCard,
+  NewslettersPane,
+  useFreshNewsletters,
 } from '~/components/reading'
 import { RuleSuggestionCard } from '~/components/rule-suggestion'
 import { SenderAvatar } from '~/components/sender-avatar'
@@ -588,13 +587,11 @@ const WorthKnowing = ({
   )
 }
 
-type HomeSubpage = HomeCardPage | 'reading'
-
-type Newsletters = ReturnType<typeof useReadingDay>['rows']
+type Newsletters = ReturnType<typeof useFreshNewsletters>['rows']
 
 const pageHints = (
   t: Messages,
-  page: HomeSubpage,
+  page: HomeCardPage,
   newsletters: Newsletters,
   board: [string, string][]
 ): [string, string][] => {
@@ -614,20 +611,7 @@ const pageHints = (
       ['esc', t.keys.close],
     ]
   }
-  return [
-    ...(newsletters.length > 0
-      ? ([
-          ['J / K', t.keys.move],
-          ['⏎', t.keys.open],
-          ['E', t.keys.archive],
-          ['⌫', t.keys.trash],
-        ] as [string, string][])
-      : []),
-    ...(newsletters.some(({ isUnread }) => isUnread)
-      ? [['⇧I', t.reading.markAllRead] as [string, string]]
-      : []),
-    ['esc', t.keys.close],
-  ]
+  return [...newsletterHints(t, newsletters), ['esc', t.keys.close]]
 }
 
 /** ⏎ on a card: one with an email opens it in the sidebar, where its proposal waits; one without says yes. */
@@ -651,7 +635,9 @@ const cardHints = (
   ...(state.hasImprove
     ? [['R', t.today.improve.title] as [string, string]]
     : []),
-  ...(state.hasNewsletters ? [['N', t.reading.title] as [string, string]] : []),
+  ...(state.hasNewsletters
+    ? [['N', t.mail.group.newsletters] as [string, string]]
+    : []),
   ...(state.hasBoard ? [['B', t.nav.board] as [string, string]] : []),
 ]
 
@@ -672,7 +658,7 @@ const homeHints = (
     isOnProposals: boolean
     isOnWorth: boolean
     stale: number
-    page: HomeSubpage | undefined
+    page: HomeCardPage | undefined
     tidy: number
   }
 ): [string, string][] => {
@@ -1067,7 +1053,7 @@ const kindsOf = (t: Messages, queue: QueueItem[]) =>
     }
   })
 
-/** Home's important cards as one card, opened like Reading's (`Q`, `?page=look`): what they ask and the first few. */
+/** Home's important cards as one card, opened over Home's column (`Q`, `?page=look`): what they ask and the first few. */
 const LookCard = ({ queue }: { queue: QueueItem[] }) => {
   const t = useT()
   if (queue.length === 0) {
@@ -1232,13 +1218,9 @@ const StaleCards = ({
   )
 }
 
-/**
- * The proposals' review (`D`) takes Home's column and Reading (`N`) opens over it; the same key or esc brings Home back.
- * A day's issue (`day`) lies over both, so esc closes it first.
- */
+/** A card's key opens its pane over Home's column; the same key or esc brings Home back. */
 const useHomeSubpage = (
-  page: HomeSubpage | undefined,
-  day: string | undefined,
+  page: HomeCardPage | undefined,
   canSwitch: boolean,
   {
     hasAgent,
@@ -1257,21 +1239,11 @@ const useHomeSubpage = (
   }
 ) => {
   const navigate = useNavigate()
-  const show = (next: HomeSubpage | undefined) =>
+  const show = (next: HomeCardPage | undefined) =>
     navigate({ search: (prev) => ({ ...prev, page: next }), to: '/home' })
-  const toggle = (next: HomeSubpage) => show(page === next ? undefined : next)
-  useHotkey(
-    'Escape',
-    () =>
-      day
-        ? navigate({
-            search: (prev) => ({ ...prev, day: undefined }),
-            to: '/home',
-          })
-        : show(undefined),
-    { enabled: canSwitch && (!!page || !!day) }
-  )
-  useHotkey('N', () => toggle('reading'), {
+  const toggle = (next: HomeCardPage) => show(page === next ? undefined : next)
+  useHotkey('Escape', () => show(undefined), { enabled: canSwitch && !!page })
+  useHotkey('N', () => toggle('newsletters'), {
     enabled: canSwitch && hasNewsletters,
   })
   useHotkey('D', () => toggle('tidy'), {
@@ -1287,7 +1259,7 @@ const useHomeSubpage = (
 }
 
 /** Home's keys rest while an expanded email lies over Home, its proposal taking them. */
-const useHomeFocus = (page: HomeSubpage | undefined) => {
+const useHomeFocus = (page: HomeCardPage | undefined) => {
   const isFocused = !useIsThreadExpanded()
   const isInList = page === 'look' || page === 'later'
   // Needs you's and Can wait's panes hold Home's own cards and rows, so Home's cursor walks them there, and only them.
@@ -1299,26 +1271,9 @@ const useHomeFocus = (page: HomeSubpage | undefined) => {
   }
 }
 
-/** Reading's panes and the newsletters of the one on top, whose keys Home shows. */
-const useReadingPage = (
-  page: HomeSubpage | undefined,
-  day: string | undefined
-) => {
-  const { hasAny, latestDay } = useReadingIssues()
-  const readingDays = openReadingDays(page, day, latestDay)
-  const { rows } = useReadingDay(readingDays.top ?? readingDays.base)
-  return {
-    hasNewsletters: hasAny,
-    newsletters: rows,
-    // A day's issue opened alone (a digest's or a notification's link) is Reading as much as `N`'s pane.
-    page: page ?? (readingDays.top ? ('reading' as const) : undefined),
-    readingDays,
-  }
-}
-
 /** Where Home's cursor goes: on Home the agent's proposals; in a card's pane its cards, then (Can wait) its mail. */
 const stopsOf = (
-  page: HomeSubpage | undefined,
+  page: HomeCardPage | undefined,
   {
     hasProposals,
     queue,
@@ -1394,10 +1349,9 @@ const HomePage = () => {
   const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
   const search = Route.useSearch()
-  const { hasNewsletters, newsletters, page, readingDays } = useReadingPage(
-    search.page,
-    search.day
-  )
+  const { page } = search
+  const { rows: newsletters } = useFreshNewsletters()
+  const hasNewsletters = newsletters.length > 0
   const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
 
   const { data: cards } = useLiveQuery((query) =>
@@ -1535,7 +1489,7 @@ const HomePage = () => {
   const skipTargets = () => skipCards(targets.map(({ action }) => action.id))
 
   const { isFocused, isInQueue, isStepping, isWalking } = useHomeFocus(page)
-  useHomeSubpage(search.page, readingDays.top, isFocused, {
+  useHomeSubpage(page, isFocused, {
     hasAgent,
     hasImprove,
     hasLater,
@@ -1599,7 +1553,7 @@ const HomePage = () => {
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <main className="flex min-h-0 flex-1 flex-col">
-        <div data-slot="reading-area" className="relative min-h-0 flex-1">
+        <div className="relative min-h-0 flex-1">
           <div className="under-notice h-full overflow-y-auto">
             <div
               className={cn(
@@ -1640,10 +1594,11 @@ const HomePage = () => {
                   </div>
                 </div>
               </section>
-              <ReadingSection {...readingDays} />
+              <div className={cn('empty:hidden', cardsBleedClassName)}>
+                <NewslettersCard isActive={isWalking} />
+              </div>
             </div>
           </div>
-          <ReadingPane {...readingDays} />
           {/* A closing pane stays mounted while it shrinks back into its card; one open on load is simply there. */}
           <AnimatePresence initial={false}>
             {page === 'look' && (
@@ -1733,6 +1688,11 @@ const HomePage = () => {
                 <BoardPane isActive={isFocused} onClose={closePage} />
               </HomeCardPane>
             )}
+            {page === 'newsletters' && (
+              <HomeCardPane key="newsletters" page="newsletters">
+                <NewslettersPane isActive={isFocused} onClose={closePage} />
+              </HomeCardPane>
+            )}
             {page === 'tidy' && (
               <HomeCardPane key="tidy" page="tidy">
                 <ProposalsReview
@@ -1778,6 +1738,10 @@ export const Route = createFileRoute('/_app/home')({
       }
       throw redirect({ search: {}, to: '/home' })
     }
+    // Digests and notifications already sent still open an issue on Home.
+    if (search.day) {
+      throw redirect({ search: { day: search.day }, to: '/reading' })
+    }
     // Agent answers and older links still open an email with `?thread=`.
     if (search.thread) {
       throw redirect({
@@ -1790,11 +1754,11 @@ export const Route = createFileRoute('/_app/home')({
   validateSearch: z.object({
     day: z.optional(z.string().check(z.regex(/^\d{4}-\d{2}-\d{2}$/u))),
     page: z.optional(
-      z.enum(['board', 'improve', 'later', 'look', 'reading', 'tidy'])
+      z.enum(['board', 'improve', 'later', 'look', 'newsletters', 'tidy'])
     ),
     thread: z.optional(z.string()),
   }),
-  // Everything Home draws on its first frame: loaded after it, Reading's card showed a skeleton under cards already
+  // Everything Home draws on its first frame: loaded after it, the newsletters' card came in under cards already
   // there and the connect hint pushed the page down as it came in.
   loader: async ({ context: { me } }) => {
     const hasAgent = me.plan.kind !== 'free'

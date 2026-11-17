@@ -55,6 +55,7 @@ import {
   Logout01Icon,
   Mail01Icon,
   MailRemove01Icon,
+  News01Icon,
   Menu01Icon,
   Moon02Icon,
   PencilEdit02Icon,
@@ -114,6 +115,13 @@ export const NAV_ITEMS = [
     place: 'top',
     sequence: ['G', 'M'],
     to: '/mail',
+  },
+  {
+    icon: News01Icon,
+    key: 'reading',
+    place: 'top',
+    sequence: ['G', 'N'],
+    to: '/reading',
   },
   {
     icon: Calendar03Icon,

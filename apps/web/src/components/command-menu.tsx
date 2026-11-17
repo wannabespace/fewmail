@@ -19,7 +19,6 @@ import {
   GiftIcon,
   Moon02Icon,
   DashboardSquare01Icon,
-  News01Icon,
   PencilEdit02Icon,
   Sun03Icon,
   Tag01Icon,
@@ -88,9 +87,6 @@ export const CommandMenu = ({
   }
 
   useHotkey('C', () => openCompose())
-  const openReading = () =>
-    navigate({ search: { page: 'reading' }, to: '/home' })
-  useHotkey(['G', 'N'], openReading)
   const openBoard = () => navigate({ search: { page: 'board' }, to: '/home' })
   useHotkey(['G', 'B'], openBoard)
 
@@ -130,11 +126,6 @@ export const CommandMenu = ({
                 <CommandShortcut>{item.sequence.join(' ')}</CommandShortcut>
               </CommandItem>
             ))}
-            <CommandItem onSelect={() => run(openReading)}>
-              <HugeiconsIcon icon={News01Icon} strokeWidth={2} />
-              {t.nav.reading}
-              <CommandShortcut>G N</CommandShortcut>
-            </CommandItem>
             <CommandItem onSelect={() => run(openBoard)}>
               <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
               {t.nav.board}

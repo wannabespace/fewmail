@@ -384,7 +384,7 @@ export const readingReply = (
             ),
           ]
         : []),
-      `${env.WEB_URL}/home?day=${day}`,
+      `${env.WEB_URL}/reading?day=${day}`,
     ].join('\n\n'),
   }
 }

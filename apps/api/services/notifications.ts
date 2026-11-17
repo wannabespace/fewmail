@@ -462,7 +462,7 @@ export const readingNotification = (
     .join('\n')
     .slice(0, BODY_LIMIT),
   title: messages[locale].reading.summary,
-  url: `/home?day=${day}`,
+  url: `/reading?day=${day}`,
 })
 
 export const homeNotification = (

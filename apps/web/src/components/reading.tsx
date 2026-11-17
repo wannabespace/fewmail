@@ -1,27 +1,20 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import { readingSpeech } from '@fewmail/shared/agent'
-import { cardsBleedClassName } from '@fewmail/ui/components/accordion'
+import type { Messages } from '@fewmail/shared/i18n'
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
-import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
-import { cn } from '@fewmail/ui/lib/utils'
-import {
-  Cancel01Icon,
-  News01Icon,
-  TickDouble02Icon,
-} from '@hugeicons/core-free-icons'
+import { News01Icon, TickDouble02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { parseISO } from 'date-fns'
-import { AnimatePresence } from 'motion/react'
 import { Fragment, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -29,10 +22,10 @@ import { EmailRow } from '~/components/email-row'
 import {
   ExpandTrigger,
   expandRow,
-  MorphPane,
-  PaneReveal,
   useIsThreadExpanded,
 } from '~/components/expand-row'
+import { HomeCard, PageHeading } from '~/components/home-card'
+import { KeyHints } from '~/components/key-hints'
 import { ListenButton } from '~/components/listen-button'
 import { PaneRows, PaneScroller } from '~/components/pane-rows'
 import { sweepOf, useMailActions } from '~/components/thread-view'
@@ -48,9 +41,7 @@ type Summary = NonNullable<Issue['summary']>
 
 const senderOf = (row: Row) => row.fromName ?? row.fromEmail
 
-// The card's `rounded-2xl` as a motion value: motion keeps only its own radius round while the card scales.
-
-/** Every written issue and the fresh one Home shows (this morning's, until the next morning's); the day still filling is never shown. */
+/** Every written issue and the fresh one, whose newsletters Home shows (this morning's, until the next morning's); the day still filling is never shown. */
 export const useReadingIssues = () => {
   const { data: issues = [] } = useQuery(orpc.reading.issues.queryOptions())
   return {
@@ -73,20 +64,6 @@ export const useReadingDay = (day: string | undefined) => {
     summary: data?.summary ?? undefined,
   }
 }
-
-/** The panes over Home: `N`'s (`page=reading`, the latest issue) and the day a row or a link opened, over it or alone. */
-export const openReadingDays = (
-  page: string | undefined,
-  day: string | undefined,
-  latestDay: string | undefined
-) => {
-  const base = page === 'reading' ? latestDay : undefined
-  return { base, top: day && day !== base ? day : undefined }
-}
-
-/** The pane a row grows into is clipped out of it, measured over Reading's area. */
-const READING_AREA = 'reading-area'
-const issueMorphId = (day: string) => `reading-${day}`
 
 const useIssueTitle = () => {
   const dates = useDates()
@@ -363,93 +340,31 @@ const IssueHeading = ({ day }: { day: string }) => {
   )
 }
 
-/**
- * Yesterday's issue, a card on Home under the header: the opening and the topics. A click anywhere on it or `N`
- * (`?page=reading`) grows it into the pane; the card stays where it is under the pane, its content blurred out, so the
- * pane shrinks back into the same spot.
- */
-const IssueCard = ({
-  day,
-  isActive,
-  isOpen,
-}: {
-  day: string
-  isActive: boolean
-  isOpen: boolean
-}) => {
-  const t = useT()
+/** Everything under an issue's opening: the whole summary, Mark all read, every newsletter. */
+const IssueBody = ({ day, isActive }: { day: string; isActive: boolean }) => {
   const { rows, summary } = useReadingDay(day)
   return (
-    <section
-      aria-label={t.reading.title}
-      aria-hidden={isOpen || undefined}
-      data-morph-source={issueMorphId(day)}
-      className={cn(
-        'bg-card ring-foreground/6 hover:ring-foreground/10 relative flex flex-col gap-3 overflow-hidden rounded-2xl px-4.75 py-4 ring',
-        cardsBleedClassName
-      )}
-    >
-      <Link
-        to="/home"
-        search={(prev) => ({ ...prev, page: 'reading' })}
-        aria-label={t.reading.digest(rows.length)}
-        // The card stays under its pane: a click that kept focus here lit its ring when `esc` closed the pane.
-        onMouseDown={(event) => event.preventDefault()}
-        className="focus-visible:focus-ring absolute inset-0 cursor-pointer rounded-2xl outline-none focus-visible:ring-inset"
+    <>
+      {summary && <SummaryText rows={rows} summary={summary} />}
+      {summary && <SummaryGaps rows={rows} summary={summary} />}
+      <MarkAllRead
+        day={day}
+        isActive={isActive}
+        rows={rows}
+        variant="secondary"
       />
-      {/* Positioned to paint over the card's link, and lets clicks through to it; only the head's buttons take their own. */}
-      <div className="pointer-events-none relative flex flex-col gap-3">
-        <div className="flex min-h-8 flex-wrap items-center gap-2">
-          <IssueHeading day={day} />
-          <div className="pointer-events-auto ml-auto flex flex-wrap gap-2">
-            {summary && (
-              <ListenButton
-                path={listenPath(day)}
-                text={readingSpeech(summary)}
-              />
-            )}
-            <MarkAllRead
-              day={day}
-              isActive={isActive}
-              rows={rows}
-              variant="ghost-muted"
-            />
-          </div>
-        </div>
-        <ReadingIntro day={day} />
-        {!!summary?.sections.length && (
-          <p data-mask className="text-muted-foreground font-serif">
-            {summary.sections.map(({ title }) => title).join(' · ')}
-          </p>
-        )}
-      </div>
-    </section>
+      {rows.length > 0 && (
+        <NewsletterList isActive={isActive} rows={rows} summary={summary} />
+      )}
+    </>
   )
 }
 
-/** Reading on Home: yesterday's issue as a card while it is fresh. */
-export const ReadingSection = ({
-  base,
-  top,
-}: ReturnType<typeof openReadingDays>) => {
-  const { fresh } = useReadingIssues()
-  if (!fresh) {
-    return null
-  }
-  return (
-    <IssueCard
-      day={fresh.day}
-      isActive={!base && !top}
-      isOpen={base === fresh.day}
-    />
-  )
-}
-
-/** Every issue but the one shown, newest first; a row grows into its issue over this one. */
+/** Every issue but the one shown, newest first; a row opens its day. */
 const IssueList = ({ shownDay }: { shownDay: string }) => {
   const t = useT()
   const titleOf = useIssueTitle()
-  const { issues } = useReadingIssues()
+  const { issues, latestDay } = useReadingIssues()
   const entries = issues.filter(({ day }) => day !== shownDay)
   if (entries.length === 0) {
     return null
@@ -462,9 +377,8 @@ const IssueList = ({ shownDay }: { shownDay: string }) => {
             {...place}
             render={
               <Link
-                to="/home"
-                search={(prev) => ({ ...prev, day })}
-                data-morph-source={issueMorphId(day)}
+                to="/reading"
+                search={day === latestDay ? {} : { day }}
                 onClick={() =>
                   posthog.capture('reading_issue_opened', { from: 'list' })
                 }
@@ -490,143 +404,157 @@ const IssueList = ({ shownDay }: { shownDay: string }) => {
   )
 }
 
-/** Everything under an issue's opening: the whole summary, every newsletter, Mark all read. */
-const IssueBody = ({ day, isActive }: { day: string; isActive: boolean }) => {
+/** The keys a list of newsletters answers: Reading's and Home's newsletters pane. */
+export const newsletterHints = (
+  t: Messages,
+  rows: Row[]
+): [key: string, label: string][] => [
+  ...(rows.length > 0
+    ? ([
+        ['J / K', t.keys.move],
+        ['⏎', t.keys.open],
+        ['E', t.keys.archive],
+        ['⌫', t.keys.trash],
+      ] as [string, string][])
+    : []),
+  ...(rows.some(({ isUnread }) => isUnread)
+    ? [['⇧I', t.reading.markAllRead] as [string, string]]
+    : []),
+]
+
+/**
+ * `/reading`, a page of its own: the latest issue (or `?day=`), the whole summary, every newsletter it was written
+ * from, then every other issue; `esc` goes from a day back to the latest.
+ */
+export const ReadingPage = ({ day: pickedDay }: { day?: string }) => {
+  const t = useT()
+  const navigate = useNavigate()
+  const { latestDay } = useReadingIssues()
+  const day = pickedDay ?? latestDay
   const { rows, summary } = useReadingDay(day)
-  const isExpanded = useIsThreadExpanded()
-  const isFocused = isActive && !isExpanded
+  const isFocused = !useIsThreadExpanded()
+  const canGoBack = isFocused && !!pickedDay
+  useHotkey('Escape', () => navigate({ search: {}, to: '/reading' }), {
+    enabled: canGoBack,
+  })
   return (
-    <>
-      {summary && <SummaryText rows={rows} summary={summary} />}
-      {summary && <SummaryGaps rows={rows} summary={summary} />}
-      {rows.length > 0 && (
-        <NewsletterList isActive={isFocused} rows={rows} summary={summary} />
-      )}
-      <MarkAllRead
-        day={day}
-        isActive={isFocused}
-        rows={rows}
-        variant="secondary"
+    <main className="flex min-h-0 flex-1 flex-col">
+      {/* Keyed by its day: another day opens at its top, not where the list was. */}
+      <PaneScroller key={day} className="under-notice">
+        <div className="mx-auto flex max-w-3xl flex-col gap-6 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6">
+          <header className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-display font-serif tracking-tight">
+                {t.reading.title}
+              </h1>
+              {day && summary && (
+                <div className="ml-auto">
+                  <ListenButton
+                    path={listenPath(day)}
+                    text={readingSpeech(summary)}
+                  />
+                </div>
+              )}
+            </div>
+            {day && <IssueHeading day={day} />}
+            {day ? (
+              <ReadingIntro day={day} />
+            ) : (
+              <p className="text-brief text-foreground/80 font-serif">
+                {t.reading.lead}
+              </p>
+            )}
+          </header>
+          {day && <IssueBody day={day} isActive={isFocused} />}
+          {day && <IssueList shownDay={day} />}
+        </div>
+      </PaneScroller>
+      <KeyHints
+        hints={[
+          ...newsletterHints(t, rows),
+          ...(canGoBack ? [['esc', t.keys.close] as [string, string]] : []),
+        ]}
       />
-    </>
+    </main>
   )
 }
 
-const CloseIssue = ({ onClose }: { onClose: () => void }) => {
+/** The newsletters of the fresh issue: Home's own category of mail, while it is fresh. */
+export const useFreshNewsletters = () => {
+  const { fresh } = useReadingIssues()
+  const { rows, summary } = useReadingDay(fresh?.day)
+  return { day: fresh?.day, rows, summary }
+}
+
+/** Home's card for the fresh issue's newsletters (`N`, `?page=newsletters`): how many, the first few, Mark all read. */
+export const NewslettersCard = ({ isActive }: { isActive: boolean }) => {
   const t = useT()
+  const titleOf = useIssueTitle()
+  const { day, rows } = useFreshNewsletters()
+  if (!day || rows.length === 0) {
+    return null
+  }
   return (
-    <IconButton
-      icon={Cancel01Icon}
-      label={t.mail.close}
-      shortcut={<Kbd>esc</Kbd>}
-      size="icon-sm"
-      variant="ghost-muted"
-      onClick={onClose}
+    <HomeCard
+      heading={t.mail.group.newsletters}
+      lead={`${t.reading.digest(rows.length)} · ${titleOf(day)}`}
+      page="newsletters"
+      rows={rows.map((row) => ({ id: row.id, sender: row, text: row.subject }))}
+      actions={
+        <MarkAllRead
+          day={day}
+          isActive={isActive}
+          rows={rows}
+          variant="secondary"
+        />
+      }
     />
   )
 }
 
-const PANE_COLUMN =
-  'mx-auto max-w-3xl px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6'
-
-/** The head of an issue's pane: its heading, Listen and ✕ back to where it opened from. */
-const PaneHead = ({ day, onClose }: { day: string; onClose: () => void }) => {
-  const { summary } = useReadingDay(day)
-  return (
-    <div className="flex min-h-8 flex-wrap items-center gap-2">
-      <IssueHeading day={day} />
-      <div className="ml-auto flex flex-wrap gap-2">
-        {summary && (
-          <ListenButton path={listenPath(day)} text={readingSpeech(summary)} />
-        )}
-        <CloseIssue onClose={onClose} />
-      </div>
-    </div>
-  )
-}
-
-/** `N`'s pane over Home's column, the latest issue: it grows out of `IssueCard`. */
-const LatestPane = ({
-  day,
-  isCovered,
+/** What Home's newsletters card opens: every one of them as Mail's rows, with Reading's summary a page away. */
+export const NewslettersPane = ({
+  isActive,
+  onClose,
 }: {
-  day: string
-  isCovered: boolean
+  isActive: boolean
+  onClose: () => void
 }) => {
   const t = useT()
-  const navigate = useNavigate()
+  const { day, rows, summary } = useFreshNewsletters()
   return (
-    <MorphPane area={READING_AREA} source={issueMorphId(day)} className="z-10">
-      <PaneScroller className="under-notice">
-        <section aria-label={t.reading.title} className={PANE_COLUMN}>
-          <PaneReveal className="flex flex-col gap-3">
-            <PaneHead
-              day={day}
-              onClose={() =>
-                navigate({
-                  search: (prev) => ({ ...prev, page: undefined }),
-                  to: '/home',
-                })
-              }
-            />
-            <ReadingIntro day={day} />
-            <div className="flex flex-col gap-6 pt-2">
-              <IssueBody day={day} isActive={!isCovered} />
-              <IssueList shownDay={day} />
-            </div>
-          </PaneReveal>
-        </section>
-      </PaneScroller>
-    </MorphPane>
+    <>
+      <PageHeading
+        title={t.mail.group.newsletters}
+        onClose={onClose}
+        actions={
+          summary && (
+            <Button
+              size="sm"
+              variant="ghost-muted"
+              render={<Link to="/reading" />}
+            >
+              <HugeiconsIcon
+                icon={News01Icon}
+                strokeWidth={2}
+                data-icon="inline-start"
+              />
+              {t.reading.summary}
+            </Button>
+          )
+        }
+      />
+      {day && (
+        <MarkAllRead
+          day={day}
+          isActive={isActive}
+          rows={rows}
+          variant="secondary"
+        />
+      )}
+      {rows.length > 0 && (
+        <NewsletterList isActive={isActive} rows={rows} summary={summary} />
+      )}
+    </>
   )
 }
-
-/** Another day's issue, grown out of its row in the list (or Home's today line); esc shrinks it back. */
-const DayPane = ({ day }: { day: string }) => {
-  const t = useT()
-  const navigate = useNavigate()
-  return (
-    <MorphPane
-      area={READING_AREA}
-      source={issueMorphId(day)}
-      radius={12}
-      className="z-20"
-    >
-      <PaneScroller className="under-notice">
-        <section aria-label={t.reading.title} className={PANE_COLUMN}>
-          <PaneReveal className="flex flex-col gap-3">
-            <PaneHead
-              day={day}
-              onClose={() =>
-                navigate({
-                  search: (prev) => ({ ...prev, day: undefined }),
-                  to: '/home',
-                })
-              }
-            />
-            <div className="flex flex-col gap-6">
-              <ReadingIntro day={day} />
-              <IssueBody day={day} isActive />
-            </div>
-          </PaneReveal>
-        </section>
-      </PaneScroller>
-    </MorphPane>
-  )
-}
-
-/** Reading's panes over Home's column: the latest issue (`N`), and over it the day a row, a link or Home's today line opened. */
-export const ReadingPane = ({
-  base,
-  top,
-}: ReturnType<typeof openReadingDays>) => (
-  <>
-    {/* A closing pane stays mounted while it shrinks back into its card; one open on load is simply there. */}
-    <AnimatePresence initial={false}>
-      {base && <LatestPane key={base} day={base} isCovered={!!top} />}
-    </AnimatePresence>
-    <AnimatePresence initial={false}>
-      {top && <DayPane key={top} day={top} />}
-    </AnimatePresence>
-  </>
-)

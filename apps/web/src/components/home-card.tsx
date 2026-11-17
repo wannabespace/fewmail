@@ -7,6 +7,7 @@ import {
   Coffee02Icon,
   DashboardSquare01Icon,
   Flag02Icon,
+  News01Icon,
   SparklesIcon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
@@ -24,7 +25,13 @@ import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 
 /** What a Home card opens over Home's column (`?page=`). */
-export type HomeCardPage = 'board' | 'improve' | 'later' | 'look' | 'tidy'
+export type HomeCardPage =
+  | 'board'
+  | 'improve'
+  | 'later'
+  | 'look'
+  | 'newsletters'
+  | 'tidy'
 
 /** One line of what a card holds: who (or, with no sender, an icon and a name), then what. */
 export type HomeCardRow = { id: string; text: ReactNode } & (
@@ -46,6 +53,7 @@ const HEADING_ICONS: Record<
   improve: { className: 'text-muted-foreground', icon: ZapIcon },
   later: { className: 'text-foreground/30', icon: Coffee02Icon },
   look: { className: 'text-primary', icon: Flag02Icon },
+  newsletters: { className: 'text-muted-foreground', icon: News01Icon },
   tidy: { className: 'text-success', icon: SparklesIcon },
 }
 
@@ -54,7 +62,7 @@ const cardClassName =
   'bg-card ring-foreground/6 flex flex-col gap-3 px-4.75 py-4 ring'
 
 /**
- * A block of Home as Reading's card: a muted heading, one serif line saying what is there and its first few as one-line
+ * A block of Home as a card: a muted heading, one serif line saying what is there and its first few as one-line
  * rows, then its quick decision. A click anywhere else (or the block's key) grows the card into its pane over Home's
  * column (`HomeCardPane`); the card stays where it is under the pane, its content blurred out, so the pane shrinks back
  * into the same spot.
@@ -162,7 +170,7 @@ export const HomeCard = ({
 /** The page column (`routes/_app.tsx` sets it by ref), which a Home card's pane covers. */
 export const pageColumn = createStore<HTMLDivElement | null>(null)
 
-/** What a Home card grows into: a pane over the page column (notices included), like Reading's. */
+/** What a Home card grows into: a pane over the page column (notices included). */
 export const HomeCardPane = ({
   children,
   page,
