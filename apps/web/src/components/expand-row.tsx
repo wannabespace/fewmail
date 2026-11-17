@@ -131,6 +131,7 @@ export const MorphPane = ({
   const [isPresent, safeToRemove] = usePresence()
   const from = useMemo(() => insetOver(source, area), [area, source])
   const grown = useMotionValue(from ? 0 : 1)
+  const drift = useMotionValue(0)
   const box = useRef<HTMLDivElement>(null)
   const ghost = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
@@ -159,6 +160,17 @@ export const MorphPane = ({
     )
   }, [from, isPresent, source])
   useEffect(() => {
+    // A closing pane lets the pointer through, so the page under it can scroll: the box lands where its card is now.
+    const follow = () =>
+      drift.set((insetOver(source, area)?.top ?? 0) - (from?.top ?? 0))
+    document.addEventListener('scroll', follow, {
+      capture: true,
+      passive: true,
+    })
+    return () =>
+      document.removeEventListener('scroll', follow, { capture: true })
+  }, [area, drift, from, source])
+  useEffect(() => {
     const clock = clockOf(isReduced)
     let isCurrent = true
     const turns = [animate(grown, isPresent ? 1 : 0, clock.box)]
@@ -183,15 +195,17 @@ export const MorphPane = ({
   }, [from, grown, isPresent, isReduced, safeToRemove])
   // The box's real edges, not a clip over a whole pane: clipped, the pane's content stayed full size and was cut off by
   // the edges closing in, a mask over the page instead of the card shrinking.
-  const edges = useTransform(grown, (at) => {
+  const edges = useTransform(() => {
     if (!from) {
       return '0px'
     }
+    const at = grown.get()
+    const dy = drift.get()
     // Springing back past its card, the box sinks into it from every side; the growth run below 0 drew it off towards
     // the column's far corner.
     const sink =
       (Math.max(0, -at) * (from.top + from.right + from.bottom + from.left)) / 4
-    return [from.top, from.right, from.bottom, from.left]
+    return [from.top + dy, from.right, from.bottom - dy, from.left]
       .map((side) => `${side * (1 - Math.max(0, at)) + sink}px`)
       .join(' ')
   })

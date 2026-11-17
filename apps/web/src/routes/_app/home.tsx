@@ -1964,10 +1964,22 @@ export const Route = createFileRoute('/_app/home')({
     'page?': "'board' | 'look' | 'reading' | 'tidy' | 'worth'",
     'day?': /^\d{4}-\d{2}-\d{2}$/u,
   }),
-  loader: async () => {
+  // Everything Home draws on its first frame: loaded after it, Reading's card showed a skeleton under cards already
+  // there and the connect hint pushed the page down as it came in.
+  loader: async ({ context: { me } }) => {
+    const hasAgent = me.plan.kind !== 'free'
     await Promise.all([
       warmQuery(orpc.today.get.queryOptions()),
-      warmQuery(orpc.reading.issues.queryOptions()),
+      warmQuery(orpc.reading.issues.queryOptions()).then((issues) =>
+        issues?.[0]?.isFresh
+          ? warmQuery(
+              orpc.reading.day.queryOptions({ input: { day: issues[0].day } })
+            )
+          : null
+      ),
+      warmQuery(orpc.integrations.apps.list.queryOptions()),
+      hasAgent && warmQuery(orpc.integrations.telegram.get.queryOptions()),
+      hasAgent && warmQuery(orpc.integrations.whatsapp.get.queryOptions()),
       queueCards.preload(),
     ])
   },

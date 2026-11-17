@@ -23,6 +23,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { type } from 'arktype'
+import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { ComponentProps } from 'react'
 import { useSubscription } from 'seitu/react'
@@ -92,6 +93,7 @@ export const ConnectHint = () => {
   const copy = t.today.hint
   const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
+  const [hasDismissed, setHasDismissed] = useState(false)
   const store = useSubscription(hintsStore)
   const { data: telegram } = useQuery(
     orpc.integrations.telegram.get.queryOptions({ enabled: hasAgent })
@@ -187,7 +189,8 @@ export const ConnectHint = () => {
         <motion.div
           key={current}
           className={cn('flex flex-col', cardsBleedClassName)}
-          initial={{ opacity: 0, x: 24 }}
+          // Its data arrives after Home is drawn: the first hint is just there, only the next one after ✕ slides in.
+          initial={hasDismissed && { opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -24 }}
           transition={SLIDE}
@@ -213,6 +216,7 @@ export const ConnectHint = () => {
                 variant="ghost-muted"
                 onClick={() => {
                   posthog.capture('hint_dismissed', { hint: current })
+                  setHasDismissed(true)
                   hintsStore.set({ dismissed: [...store.dismissed, current] })
                 }}
               />
