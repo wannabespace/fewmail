@@ -15,6 +15,13 @@ import {
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@fewmail/ui/components/empty'
+import {
   Item,
   ItemActions,
   ItemContent,
@@ -69,6 +76,7 @@ import {
 import { HomeCard, HomeCardPane, PageHeading } from '~/components/home-card'
 import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
+import { LogoMark } from '~/components/logo'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { PaneRows } from '~/components/pane-rows'
 import type { RowPlace } from '~/components/pane-rows'
@@ -966,6 +974,25 @@ const LookHeading = ({
   )
 }
 
+/** Needs you with its last card settled: the bird smiles over Home's own all-done words, never a bare title. */
+const LookDone = ({ queue }: { queue: QueueItem[] }) => {
+  const t = useT()
+  if (queue.length > 0) {
+    return null
+  }
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia>
+          <LogoMark isHappy className="size-20" />
+        </EmptyMedia>
+        <EmptyTitle>{t.today.allDone}</EmptyTitle>
+        <EmptyDescription>{t.today.allDoneLead}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  )
+}
+
 type Settled = ReturnType<typeof useSettled>
 
 /** Each card's share of the day's progress, in its own color: Needs you, Can wait and Quick. */
@@ -1622,6 +1649,7 @@ const HomePage = () => {
                   onSkip={skipTargets}
                   onTrash={() => trashMany.mutate(picked)}
                 />
+                <LookDone queue={importantCards} />
                 {groups.groups.map((group) => (
                   <section key={group.kind} className="flex flex-col gap-2">
                     <SettingsGroupTitle

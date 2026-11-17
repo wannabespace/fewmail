@@ -104,7 +104,8 @@ const PageColumn = () => {
       ref={setPageColumn}
       data-slot="page-column"
       style={{ '--notice-height': `${noticeHeight}px` } as CSSProperties}
-      className="relative flex min-h-0 flex-1 flex-col"
+      // Clipped: a Home pane with no card left to land on slides off the bottom, and would scroll the page while it does.
+      className="relative flex min-h-0 flex-1 flex-col overflow-clip"
     >
       <NoticeBar />
       {/* isolate: Reading's panes inside stay under the notice bar. */}

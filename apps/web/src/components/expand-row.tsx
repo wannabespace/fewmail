@@ -42,6 +42,7 @@ const clockOf = (isReduced: boolean | null) => {
       ? { duration: 0 }
       : { bounce, type: 'spring', visualDuration: 0.25 }
   return {
+    away: at(0, 0.3),
     box: spring(0.15),
     copyIn: at(0.04, 0.13),
     copyOut: at(0.04, 0.13),
@@ -57,6 +58,14 @@ const SHOWN = { filter: 'blur(0px)', opacity: 1 }
 
 const CARD_RADIUS = 16
 
+/** `away`: closing with its source gone (Needs you's last card settled), the pane slides off the bottom whole. */
+type PaneMorph = 'away' | 'growing' | 'shrinking' | null
+
+const MorphContext = createContext<PaneMorph>(null)
+
+/** The pane's box is growing out of its card or back into it: everything in it is laid out again on every frame. */
+export const usePaneMorph = () => useContext(MorphContext)
+
 /**
  * What a pane shows: it fades in as the card's content blurs out, and out as the box starts to shrink. Never blurred: a
  * blur over a whole pane, laid out again on every frame of the growth, lagged on phones.
@@ -69,24 +78,18 @@ export const PaneReveal = ({
   className?: string
 }) => {
   const clock = useMorphClock()
+  const isAway = usePaneMorph() === 'away'
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: clock.paneIn }}
-      exit={{ opacity: 0, transition: clock.paneOut }}
+      exit={isAway ? undefined : { opacity: 0, transition: clock.paneOut }}
       className={className}
     >
       {children}
     </motion.div>
   )
 }
-
-type PaneMorph = 'growing' | 'shrinking' | null
-
-const MorphContext = createContext<PaneMorph>(null)
-
-/** The pane's box is growing out of its card or back into it: everything in it is laid out again on every frame. */
-export const usePaneMorph = () => useContext(MorphContext)
 
 const sourceOf = (source: string) =>
   document.querySelector<HTMLElement>(
@@ -162,6 +165,7 @@ export const MorphPane = ({
     setFrom(insetOver(source, area))
   }
   const [morph, setMorph] = useState<PaneMorph>(from ? 'growing' : null)
+  const closing: PaneMorph = from ? 'shrinking' : 'away'
   const grown = useMotionValue(from ? 0 : 1)
   const drift = useMotionValue(0)
   // At its full size, not when the spring rests: its last few pixels of bounce run on for another quarter second.
@@ -207,7 +211,11 @@ export const MorphPane = ({
   useEffect(() => {
     const clock = clockOf(isReduced)
     let isCurrent = true
-    const turns = [animate(grown, isPresent ? 1 : 0, clock.box)]
+    const turns = [
+      !isPresent && !from && box.current
+        ? animate(box.current, { y: '100%' }, clock.away)
+        : animate(grown, isPresent ? 1 : 0, clock.box),
+    ]
     if (ghost.current && from) {
       turns.push(
         animate(
@@ -277,7 +285,7 @@ export const MorphPane = ({
         className="bg-card pointer-events-none absolute inset-0 -z-10 opacity-(--morph-fill)"
       />
       <div className="h-full">
-        <MorphContext value={isPresent ? morph : 'shrinking'}>
+        <MorphContext value={isPresent ? morph : closing}>
           {children}
         </MorphContext>
       </div>
