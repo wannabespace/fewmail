@@ -258,6 +258,13 @@ export const MorphPane = ({
   const cardFill = useTransform(grown, [0, 1], [1, 0])
   const growth = useTransform(grown, (at) => Math.min(1, Math.max(0, at)))
   const copyX = useTransform(growth, (at) => `${at * 1.3125}rem`)
+  // Grown with the box, never `max-w-3xl` over it: the column held still while its padding shrank, so the card's content
+  // slid left and back as the box closed.
+  const copyWidth = useTransform(growth, (at) =>
+    from
+      ? `calc(${from.width}px + (min(${from.left + from.width + from.right}px, 48rem) - ${from.width}px) * ${at})`
+      : '100%'
+  )
   const copyTop = useTransform(growth, (at) => `${at * 2}rem`)
   const copyTopNarrow = useTransform(growth, (at) => `${at * 0.5}rem`)
   return (
@@ -270,6 +277,7 @@ export const MorphPane = ({
           '--morph-copy-top': copyTop,
           '--morph-copy-top-narrow': copyTopNarrow,
           '--morph-copy-x': copyX,
+          '--morph-copy-width': copyWidth,
         } as MotionStyle
       }
       className={cn(
@@ -295,7 +303,7 @@ export const MorphPane = ({
       <div
         ref={ghost}
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 mx-auto max-w-3xl px-(--morph-copy-x) pt-(--morph-copy-top) max-md:px-0 max-md:pt-(--morph-copy-top-narrow)"
+        className="pointer-events-none absolute inset-x-0 top-0 mx-auto w-(--morph-copy-width) px-(--morph-copy-x) pt-(--morph-copy-top) max-md:px-0 max-md:pt-(--morph-copy-top-narrow)"
       />
     </motion.div>
   )
