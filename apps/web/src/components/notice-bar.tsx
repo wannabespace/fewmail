@@ -374,7 +374,7 @@ export const NoticeBar = () => {
       <div
         className={cn(
           'min-h-0 overflow-y-auto overscroll-contain px-3 pb-2',
-          isExpanded && 'pointer-events-auto'
+          isExpanded && 'bg-body pointer-events-auto border-b'
         )}
       >
         <div ref={firstRef}>
