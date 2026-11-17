@@ -34,6 +34,7 @@ import {
 } from '../services/calendar'
 import {
   CLEAR_OUT_RUN,
+  declineRuleSuggestion,
   keepSender,
   pageSubscriptions,
   runClearOut,
@@ -476,6 +477,11 @@ export const router = {
     createSimple: authed
       .input(simpleRuleInput)
       .handler(({ context, input }) => createRule(context.user.id, input)),
+    declineSuggestion: authed
+      .input(type({ fromEmail: 'string > 0' }))
+      .handler(({ context, input }) =>
+        declineRuleSuggestion(context.user.id, input.fromEmail)
+      ),
     delete: authed.input(id).handler(async ({ context, input }) => {
       await deleteRule(context.user.id, input.id)
     }),

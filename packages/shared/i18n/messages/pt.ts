@@ -1569,6 +1569,24 @@ export const pt: Messages = {
   today: {
     working: 'Fazendo…',
     allKinds: 'Todos',
+    ruleSuggestion: {
+      done: {
+        archive:
+          'Novos e-mails deste remetente serão arquivados. Altere em Regras.',
+        mark_read:
+          'Novos e-mails deste remetente serão marcados como lidos. Altere em Regras.',
+      },
+      label: 'Regra sugerida',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `${count} e-mails este mês, e o agente arquivaria cada um`
+          : `${count} e-mails este mês, e o agente marcaria cada um como lido`,
+      no: 'Não, obrigado',
+      yes: {
+        archive: 'Sempre arquivar',
+        mark_read: 'Sempre marcar como lido',
+      },
+    },
     ruleOffer: {
       lead: 'O agente pode fazer isso sozinho com os e-mails correspondentes. Fica desligada até você dizer sim.',
       no: 'Deixar desligada',

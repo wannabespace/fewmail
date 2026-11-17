@@ -1380,6 +1380,24 @@ export const ko: Messages = {
   today: {
     working: '처리 중…',
     allKinds: '전체',
+    ruleSuggestion: {
+      done: {
+        archive:
+          '이 보낸 사람의 새 메일은 보관됩니다. 규칙에서 바꿀 수 있어요.',
+        mark_read:
+          '이 보낸 사람의 새 메일은 읽음으로 표시됩니다. 규칙에서 바꿀 수 있어요.',
+      },
+      label: '추천 규칙',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `이번 달 ${count}통, 에이전트라면 모두 보관합니다`
+          : `이번 달 ${count}통, 에이전트라면 모두 읽음으로 표시합니다`,
+      no: '괜찮아요',
+      yes: {
+        archive: '항상 보관',
+        mark_read: '항상 읽음으로 표시',
+      },
+    },
     ruleOffer: {
       lead: '에이전트가 해당 메일에 이 작업을 직접 할 수 있습니다. 승인하기 전까지는 꺼져 있습니다.',
       no: '끈 채로 두기',

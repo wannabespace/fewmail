@@ -295,3 +295,18 @@ export const senderReports = d.snakeCase.table(
     d.index('sender_reports_domain_idx').on(table.domainHash),
   ]
 )
+
+/** Senders whose suggested rule the user said no to, as keyed hashes: the offer never comes back, on Home or in their mail. */
+export const declinedRuleSuggestions = d.snakeCase.table(
+  'declined_rule_suggestions',
+  {
+    ...baseTable,
+    senderHash: d.text().notNull(),
+    userId: userId(),
+  },
+  (table) => [
+    d
+      .uniqueIndex('declined_rule_suggestions_user_sender_idx')
+      .on(table.userId, table.senderHash),
+  ]
+)

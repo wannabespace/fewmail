@@ -1560,6 +1560,24 @@ export const nl: Messages = {
   today: {
     working: 'Bezig…',
     allKinds: 'Alle',
+    ruleSuggestion: {
+      done: {
+        archive:
+          'Nieuwe e-mail van deze afzender wordt gearchiveerd. Wijzig het bij Regels.',
+        mark_read:
+          'Nieuwe e-mail van deze afzender wordt als gelezen gemarkeerd. Wijzig het bij Regels.',
+      },
+      label: 'Voorgestelde regel',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `${count} e-mails deze maand, en de agent zou ze allemaal archiveren`
+          : `${count} e-mails deze maand, en de agent zou ze allemaal als gelezen markeren`,
+      no: 'Nee, bedankt',
+      yes: {
+        archive: 'Altijd archiveren',
+        mark_read: 'Altijd als gelezen markeren',
+      },
+    },
     ruleOffer: {
       lead: 'De agent kan dit zelf doen voor passende mail. De regel blijft uit tot je ja zegt.',
       no: 'Uit laten',

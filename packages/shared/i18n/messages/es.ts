@@ -1418,6 +1418,24 @@ export const es: Messages = {
   today: {
     working: 'En ello…',
     allKinds: 'Todos',
+    ruleSuggestion: {
+      done: {
+        archive:
+          'El correo nuevo de este remitente se archivará. Puedes cambiarlo en Reglas.',
+        mark_read:
+          'El correo nuevo de este remitente se marcará como leído. Puedes cambiarlo en Reglas.',
+      },
+      label: 'Regla sugerida',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `${count} correos este mes, y el agente archivaría cada uno`
+          : `${count} correos este mes, y el agente marcaría cada uno como leído`,
+      no: 'No, gracias',
+      yes: {
+        archive: 'Archivar siempre',
+        mark_read: 'Marcar siempre como leído',
+      },
+    },
     ruleOffer: {
       lead: 'El agente puede hacer esto solo con el correo que coincida. Sigue desactivada hasta que digas que sí.',
       no: 'Dejar desactivada',

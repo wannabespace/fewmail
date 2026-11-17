@@ -60,7 +60,7 @@ import { searchQueryTokensOf } from '../lib/search-tokens'
 import { writeReply } from './agent'
 import { GMAIL_OPERATOR, searchByQuestion } from './ask'
 import { createEvent } from './calendar'
-import { runCleanup } from './cleanup'
+import { ruleSuggestions, runCleanup } from './cleanup'
 import { settleByCard } from './commitments'
 import { NotFoundError } from './mail-errors'
 import {
@@ -823,14 +823,16 @@ export const getThread = async (userId: string, threadId: string) => {
   }
 
   const latest = rows.findLast(({ message }) => !message.isFromMe)?.message
-  const [zombie] = await Promise.all([
+  const [zombie, [ruleSuggestion = null] = []] = await Promise.all([
     latest?.listUnsubscribe ? zombieStats(latest) : null,
+    latest ? ruleSuggestions(userId, latest.fromEmail) : undefined,
     fillFromGmail(userId, threadId, rows),
   ])
 
   return {
     actions: threadActions,
     messages: rows,
+    ruleSuggestion,
     zombieShare:
       zombie && zombie.total >= 3 ? Math.round(zombie.share * 100) : null,
   }

@@ -15,6 +15,7 @@ export {
 export {
   actions,
   analyses,
+  declinedRuleSuggestions,
   mailboxes,
   messages,
   outbox,

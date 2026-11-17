@@ -1353,6 +1353,22 @@ export const zh: Messages = {
   today: {
     working: '处理中…',
     allKinds: '全部',
+    ruleSuggestion: {
+      done: {
+        archive: '此发件人的新邮件将被归档。可在规则中更改。',
+        mark_read: '此发件人的新邮件将被标为已读。可在规则中更改。',
+      },
+      label: '建议的规则',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `本月 ${count} 封，代理会全部归档`
+          : `本月 ${count} 封，代理会全部标为已读`,
+      no: '不用了',
+      yes: {
+        archive: '总是归档',
+        mark_read: '总是标为已读',
+      },
+    },
     ruleOffer: {
       lead: '代理可以自动处理符合的邮件。在你同意之前它保持关闭。',
       no: '保持关闭',

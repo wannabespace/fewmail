@@ -1397,6 +1397,24 @@ export const ja: Messages = {
   today: {
     working: '処理中…',
     allKinds: 'すべて',
+    ruleSuggestion: {
+      done: {
+        archive:
+          'この送信者からの新しいメールはアーカイブされます。ルールで変更できます。',
+        mark_read:
+          'この送信者からの新しいメールは既読になります。ルールで変更できます。',
+      },
+      label: 'おすすめのルール',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `今月${count}通、エージェントはすべてアーカイブします`
+          : `今月${count}通、エージェントはすべて既読にします`,
+      no: 'いいえ',
+      yes: {
+        archive: '常にアーカイブ',
+        mark_read: '常に既読にする',
+      },
+    },
     ruleOffer: {
       lead: 'エージェントが該当するメールに自動でこれを行えます。「はい」と言うまでオフのままです。',
       no: 'オフのまま',

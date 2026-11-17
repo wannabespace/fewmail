@@ -1549,6 +1549,24 @@ export const en = {
   today: {
     working: 'Working on it…',
     allKinds: 'All',
+    ruleSuggestion: {
+      done: {
+        archive:
+          'New mail from this sender will be archived. Change it in Rules.',
+        mark_read:
+          'New mail from this sender will be marked read. Change it in Rules.',
+      },
+      label: 'Suggested rule',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `${count} emails this month, and the agent would archive every one`
+          : `${count} emails this month, and the agent would mark every one read`,
+      no: 'No, thanks',
+      yes: {
+        archive: 'Always archive',
+        mark_read: 'Always mark read',
+      },
+    },
     ruleOffer: {
       lead: 'The agent can do this for matching mail on its own. It stays off until you say yes.',
       no: 'Keep off',

@@ -94,6 +94,7 @@ import {
   useReadingDay,
   useReadingIssues,
 } from '~/components/reading'
+import { RuleSuggestionCard } from '~/components/rule-suggestion'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { CodeActions, sweepOf, useMailActions } from '~/components/thread-view'
 import { upgradeStore, useWithAgent } from '~/components/upgrade-dialog'
@@ -297,6 +298,16 @@ const NewSenders = ({
     </AnimatePresence>
   )
 }
+
+/** Each card folds itself away on an answer; the refetch then drops it from Home's count. */
+const RuleSuggestions = ({ today }: { today: Today | undefined }) =>
+  today?.ruleSuggestions.map((suggestion) => (
+    <RuleSuggestionCard
+      key={suggestion.fromEmail}
+      suggestion={suggestion}
+      onAnswer={holdClicksUntilMove}
+    />
+  ))
 
 /** A starter rule that changes Gmail starts off: it acts only once the user says yes here (or turns it on in Rules). */
 const RuleOffers = ({
@@ -1253,7 +1264,7 @@ const stopsOf = ({
 
 /**
  * Home's one list: the important cards (the first few until asked for the rest), then Later, folded until opened: the
- * cards that only ask to read, Worth knowing's mail, new senders and rule offers.
+ * cards that only ask to read, Worth knowing's mail, new senders, suggested rules and rule offers.
  */
 const useHomeLists = (cards: QueueItem[], data: Today | undefined) => {
   const importantCards = cards.filter(isImportantCard)
@@ -1278,7 +1289,11 @@ const useHomeLists = (cards: QueueItem[], data: Today | undefined) => {
     laterCount:
       laterCards.length +
       worthRows.length +
-      (data ? data.newSenders.length + data.ruleOffers.length : 0),
+      (data
+        ? data.newSenders.length +
+          data.ruleSuggestions.length +
+          data.ruleOffers.length
+        : 0),
     setIsLaterOpen,
     setIsQueueOpen,
     shownCards,
@@ -1825,6 +1840,7 @@ const HomePage = () => {
                         canUseKeys={isWalking}
                         onSettle={holdClicksUntilMove}
                       />
+                      <RuleSuggestions today={data} />
                       <RuleOffers today={data} onSettle={holdClicksUntilMove} />
                     </div>
                   </>

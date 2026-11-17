@@ -1418,6 +1418,24 @@ export const it: Messages = {
   today: {
     working: 'In corso…',
     allKinds: 'Tutte',
+    ruleSuggestion: {
+      done: {
+        archive:
+          'Le nuove email di questo mittente verranno archiviate. Puoi cambiarlo in Regole.',
+        mark_read:
+          'Le nuove email di questo mittente verranno segnate come lette. Puoi cambiarlo in Regole.',
+      },
+      label: 'Regola suggerita',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `${count} email questo mese, e l’agente le archivierebbe tutte`
+          : `${count} email questo mese, e l’agente le segnerebbe tutte come lette`,
+      no: 'No, grazie',
+      yes: {
+        archive: 'Archivia sempre',
+        mark_read: 'Segna sempre come letta',
+      },
+    },
     ruleOffer: {
       lead: 'L’agente può farlo da solo con le email corrispondenti. Resta spenta finché non dici sì.',
       no: 'Lascia spenta',

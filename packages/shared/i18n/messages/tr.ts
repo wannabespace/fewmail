@@ -1548,6 +1548,24 @@ export const tr: Messages = {
   today: {
     working: 'Yapılıyor…',
     allKinds: 'Tümü',
+    ruleSuggestion: {
+      done: {
+        archive:
+          'Bu göndericiden gelen yeni e-postalar arşivlenecek. Kurallar’dan değiştirebilirsin.',
+        mark_read:
+          'Bu göndericiden gelen yeni e-postalar okundu olarak işaretlenecek. Kurallar’dan değiştirebilirsin.',
+      },
+      label: 'Önerilen kural',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `Bu ay ${count} e-posta, ajan hepsini arşivlerdi`
+          : `Bu ay ${count} e-posta, ajan hepsini okundu işaretlerdi`,
+      no: 'Hayır, teşekkürler',
+      yes: {
+        archive: 'Her zaman arşivle',
+        mark_read: 'Her zaman okundu işaretle',
+      },
+    },
     ruleOffer: {
       lead: 'Ajan bunu eşleşen postalar için kendisi yapabilir. Sen evet diyene kadar kapalı kalır.',
       no: 'Kapalı kalsın',

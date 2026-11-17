@@ -1,6 +1,8 @@
 import { db } from '@fewmail/db'
 import {
   actions,
+  analyses,
+  declinedRuleSuggestions,
   mailboxes,
   messages,
   rules,
@@ -9,14 +11,16 @@ import {
 } from '@fewmail/db/schema'
 import {
   CLEAR_OUT_GROUPS,
+  IMPORTANCE,
   listLabelOf,
   listTitleOf,
+  TIDY_KINDS,
 } from '@fewmail/shared/agent'
 import type { CleanupSender, ClearOutGroup } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { Result } from 'better-result'
 import { subDays } from 'date-fns'
-import { and, eq, gte, inArray, isNotNull, sql } from 'drizzle-orm'
+import { and, eq, gte, inArray, isNotNull, lt, sql } from 'drizzle-orm'
 import type { AnyColumn } from 'drizzle-orm'
 
 import { inBatches } from '../lib/batches'
@@ -29,6 +33,7 @@ import {
   listMessageIds,
   modifyMessages,
 } from '../lib/gmail'
+import { senderHashOf } from '../lib/keyed-hash'
 import { announceChange, MAIL_TOPICS } from '../lib/live'
 import { logError } from '../lib/log'
 import { findOrCreateLabel } from './labels'
@@ -227,6 +232,86 @@ export const keepSender = async (userId: string, messageId: string) => {
     title: t.rules.effect.archive,
     userId,
   })
+}
+
+const SUGGESTION_DAYS = 30
+const SUGGESTION_MIN = 3
+const SUGGESTIONS_SHOWN = 3
+
+/**
+ * Senders whose every analysed email of the last month the agent judged quiet and would archive or mark read, at least
+ * three times: it offers to make that a standing rule. Never for a sender a rule already handled, one the user kept
+ * an email of, one a simple rule covers or one the user said no to (`declinedRuleSuggestions`). An unsubscribe
+ * suggestion counts as archiving: a rule keeps acting, leaving a list is a one-off.
+ */
+export const ruleSuggestions = async (userId: string, fromEmail?: string) => {
+  const [senders, ownRules, declined] = await Promise.all([
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        effect: sql<
+          'archive' | 'mark_read'
+        >`case when bool_and(${analyses.suggestedAction} = 'mark_read') then 'mark_read' else 'archive' end`,
+        fromEmail: messages.fromEmail,
+        fromName: latest<string | null>(messages.fromName),
+        messageId: latest<string>(messages.id),
+      })
+      .from(messages)
+      .innerJoin(analyses, eq(analyses.messageId, messages.id))
+      .where(
+        and(
+          eq(messages.userId, userId),
+          eq(messages.isFromMe, false),
+          gte(messages.receivedAt, subDays(new Date(), SUGGESTION_DAYS)),
+          fromEmail === undefined
+            ? undefined
+            : eq(messages.fromEmail, fromEmail)
+        )
+      )
+      .groupBy(messages.fromEmail)
+      .having(
+        and(
+          sql`count(*) >= ${SUGGESTION_MIN}`,
+          // bool_and skips nulls: an email with no suggestion must fail the test, not drop out of it.
+          sql`bool_and(coalesce(${inArray(analyses.suggestedAction, [...TIDY_KINDS])}, false) and ${lt(analyses.importance, IMPORTANCE.high)} and ${analyses.ruleId} is null)`,
+          sql`not bool_or(exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id} and (${actions.ruleId} is not null or ${actions.status} = 'dismissed')))`
+        )
+      ),
+    db
+      .select({ match: rules.match })
+      .from(rules)
+      .where(and(eq(rules.userId, userId), eq(rules.enabled, true))),
+    db
+      .select({ senderHash: declinedRuleSuggestions.senderHash })
+      .from(declinedRuleSuggestions)
+      .where(eq(declinedRuleSuggestions.userId, userId)),
+  ])
+  const declinedHashes = new Set(declined.map(({ senderHash }) => senderHash))
+  const fromRules = ownRules.flatMap(({ match }) =>
+    match?.field === 'from' ? [match.value.toLowerCase()] : []
+  )
+  return senders
+    .filter(
+      (sender) =>
+        !declinedHashes.has(senderHashOf(sender.fromEmail)) &&
+        !fromRules.some((value) =>
+          sender.fromEmail.toLowerCase().includes(value)
+        )
+    )
+    .toSorted((left, right) => right.count - left.count)
+    .slice(0, SUGGESTIONS_SHOWN)
+}
+
+/** "No" to a suggested rule is kept for the sender, so it is never offered again, on Home or in their mail. */
+export const declineRuleSuggestion = async (
+  userId: string,
+  fromEmail: string
+) => {
+  await db
+    .insert(declinedRuleSuggestions)
+    .values({ senderHash: senderHashOf(fromEmail), userId })
+    .onConflictDoNothing()
+  await announceChange(userId, ['today', 'mail'])
 }
 
 const CLEANUP_EVERY_DAYS = 6

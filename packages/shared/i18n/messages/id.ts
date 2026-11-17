@@ -1549,6 +1549,24 @@ export const id: Messages = {
   today: {
     working: 'Sedang dikerjakan…',
     allKinds: 'Semua',
+    ruleSuggestion: {
+      done: {
+        archive:
+          'Email baru dari pengirim ini akan diarsipkan. Ubah di Aturan.',
+        mark_read:
+          'Email baru dari pengirim ini akan ditandai sudah dibaca. Ubah di Aturan.',
+      },
+      label: 'Aturan yang disarankan',
+      lead: (count: number, effect: 'archive' | 'mark_read') =>
+        effect === 'archive'
+          ? `${count} email bulan ini, dan agen akan mengarsipkan semuanya`
+          : `${count} email bulan ini, dan agen akan menandai semuanya sudah dibaca`,
+      no: 'Tidak, terima kasih',
+      yes: {
+        archive: 'Selalu arsipkan',
+        mark_read: 'Selalu tandai dibaca',
+      },
+    },
     ruleOffer: {
       lead: 'Agen bisa melakukan ini sendiri untuk email yang cocok. Aturan tetap mati sampai kamu bilang ya.',
       no: 'Biarkan mati',

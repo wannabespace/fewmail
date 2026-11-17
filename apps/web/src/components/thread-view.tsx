@@ -106,6 +106,7 @@ import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
 import { confirm } from './confirm-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
+import { RuleSuggestionCard } from './rule-suggestion'
 import {
   ParticipantAvatars,
   participantNamesOf,
@@ -734,6 +735,9 @@ const ThreadNotices = ({
         <p className="text-muted-foreground text-sm">
           {t.zombie.badge(data.zombieShare)}
         </p>
+      )}
+      {data.ruleSuggestion && (
+        <RuleSuggestionCard suggestion={data.ruleSuggestion} />
       )}
     </>
   )
