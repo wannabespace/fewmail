@@ -6,7 +6,7 @@ import {
 import { createCollection } from '@tanstack/react-db'
 
 import { client, orpc } from './orpc'
-import { queryClient } from './query-client'
+import { queryClient, showUntilSettled } from './query-client'
 import { holdClicksUntilMove } from './still-pointer'
 
 export const MAIL_LISTS = [
@@ -55,6 +55,11 @@ const oldestOf = (rows: MailRow[]) =>
     .map(({ message }) => message.receivedAt)
     .toSorted((left, right) => left.getTime() - right.getTime())[0]
 
+export const mailRowsKey = (mailboxId?: string) => [
+  [...mailKey, 'rows'],
+  { mailboxId: mailboxId ?? null },
+]
+
 const mailRowsByMailbox = new Map<string, ReturnType<typeof createMailRows>>()
 
 /** Pages past the first stay through a refetch as the collection holds them now, acted-on rows included; only the first is read again. */
@@ -86,7 +91,7 @@ const createMailRows = (mailboxId: string | undefined) =>
         )
         return lists.flat()
       },
-      queryKey: [[...mailKey, 'rows'], { mailboxId: mailboxId ?? null }],
+      queryKey: mailRowsKey(mailboxId),
     })
   )
 
@@ -203,38 +208,38 @@ const rowsOfThread = (threadId: string) =>
     rows,
   }))
 
-/** Takes a thread out of every list at once; the server's answer (or a refetch after a failure) settles it. */
+/** Takes a thread out of every list at once; the refetch after the server's answer (a failure's too) settles it. */
 export const hideThread = (threadId: string) => {
   holdClicksUntilMove()
-  for (const { keys, rows } of rowsOfThread(threadId)) {
-    if (keys.length > 0) {
-      void rows.utils.writeDelete(keys)
+  return showUntilSettled(() => {
+    for (const { keys, rows } of rowsOfThread(threadId)) {
+      if (keys.length > 0) {
+        rows.delete(keys)
+      }
     }
-  }
+  })
 }
 
-export const showThreadRead = (threadId: string, isRead = true) => {
-  const thread = threads.get(threadId)
-  if (thread) {
-    void threads.utils.writeUpdate({
-      messages: thread.messages.map((entry) => ({
-        ...entry,
-        message: { ...entry.message, isUnread: !isRead },
-      })),
-      threadId,
-    })
-  }
-  for (const { keys, rows } of rowsOfThread(threadId)) {
-    void rows.utils.writeUpdate(
-      keys.flatMap((key) => {
-        const row = rows.get(key)
-        return row
-          ? [{ key, message: { ...row.message, isUnread: !isRead } }]
-          : []
+export const showThreadRead = (threadId: string, isRead = true) =>
+  showUntilSettled(() => {
+    if (threads.has(threadId)) {
+      threads.update(threadId, (thread) => {
+        thread.messages = thread.messages.map((entry) => ({
+          ...entry,
+          message: { ...entry.message, isUnread: !isRead },
+        }))
       })
-    )
-  }
-}
+    }
+    for (const { keys, rows } of rowsOfThread(threadId)) {
+      if (keys.length > 0) {
+        rows.update(keys, (drafts) => {
+          for (const row of drafts) {
+            row.message = { ...row.message, isUnread: !isRead }
+          }
+        })
+      }
+    }
+  })
 
 const withStar = (labelIds: string[], pinned: boolean) =>
   pinned
@@ -242,44 +247,47 @@ const withStar = (labelIds: string[], pinned: boolean) =>
     : labelIds.filter((label) => label !== 'STARRED')
 
 /** Flips the pin everywhere at once: the thread's rows, its Pinned row (only an inbox thread has one) and the open thread. */
-export const showThreadPinned = (threadId: string, pinned: boolean) => {
-  const thread = threads.get(threadId)
-  if (thread) {
-    void threads.utils.writeUpdate({
-      messages: thread.messages.map((entry) => ({
-        ...entry,
-        message: {
-          ...entry.message,
-          labelIds: withStar(entry.message.labelIds, pinned),
-        },
-      })),
-      threadId,
-    })
-  }
-  for (const { keys, rows } of rowsOfThread(threadId)) {
-    const found = keys.flatMap((key) => rows.get(key) ?? [])
-    const listed = found.filter((row) => row.list !== 'pinned')
-    void rows.utils.writeUpdate(
-      listed.map((row) => ({
-        key: row.key,
-        message: { ...row.message, isPinned: pinned },
-      }))
-    )
-    const inInbox = listed.find((row) => row.list === 'inbox')
-    const inPinned = found.filter((row) => row.list === 'pinned')
-    if (!pinned && inPinned.length > 0) {
-      void rows.utils.writeDelete(inPinned.map((row) => row.key))
-    }
-    if (pinned && inPinned.length === 0 && inInbox) {
-      void rows.utils.writeInsert({
-        ...inInbox,
-        key: `pinned:${inInbox.message.id}`,
-        list: 'pinned',
-        message: { ...inInbox.message, isPinned: true },
+export const showThreadPinned = (threadId: string, pinned: boolean) =>
+  showUntilSettled(() => {
+    if (threads.has(threadId)) {
+      threads.update(threadId, (thread) => {
+        thread.messages = thread.messages.map((entry) => ({
+          ...entry,
+          message: {
+            ...entry.message,
+            labelIds: withStar(entry.message.labelIds, pinned),
+          },
+        }))
       })
     }
-  }
-}
+    for (const { keys, rows } of rowsOfThread(threadId)) {
+      const found = keys.flatMap((key) => rows.get(key) ?? [])
+      const listed = found.filter((row) => row.list !== 'pinned')
+      if (listed.length > 0) {
+        rows.update(
+          listed.map((row) => row.key),
+          (drafts) => {
+            for (const row of drafts) {
+              row.message = { ...row.message, isPinned: pinned }
+            }
+          }
+        )
+      }
+      const inInbox = listed.find((row) => row.list === 'inbox')
+      const inPinned = found.filter((row) => row.list === 'pinned')
+      if (!pinned && inPinned.length > 0) {
+        rows.delete(inPinned.map((row) => row.key))
+      }
+      if (pinned && inPinned.length === 0 && inInbox) {
+        rows.insert({
+          ...inInbox,
+          key: `pinned:${inInbox.message.id}`,
+          list: 'pinned',
+          message: { ...inInbox.message, isPinned: true },
+        })
+      }
+    }
+  })
 
 export const threadOfMessage = (messageId: string) => {
   for (const rows of mailRowsByMailbox.values()) {

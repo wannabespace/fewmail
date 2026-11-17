@@ -20,9 +20,10 @@ import { HomeCard, PageHeading } from '~/components/home-card'
 import { PaneRows } from '~/components/pane-rows'
 import type { QueueItem } from '~/components/queue-card'
 import { SenderAvatar } from '~/components/sender-avatar'
-import { queueCards } from '~/lib/home-db'
+import { queueCards, todayLists } from '~/lib/home-db'
 import { useT } from '~/lib/i18n'
 import { client, orpc } from '~/lib/orpc'
+import { showUntilSettled } from '~/lib/query-client'
 import { toastUndo } from '~/lib/undo'
 
 type Today = RouterOutputs['today']['get']
@@ -79,6 +80,19 @@ const undoOf = ({ kind, message }: Proposal) => {
   return []
 }
 
+const hide = (items: Proposal[]) => {
+  const { cardIds, messageIds } = split(items)
+  return showUntilSettled(() => {
+    if (cardIds.length > 0) {
+      queueCards.delete(cardIds)
+    }
+    const tidied = messageIds.filter((id) => todayLists.tidy.has(id))
+    if (tidied.length > 0) {
+      todayLists.tidy.delete(tidied)
+    }
+  })
+}
+
 /** What the agent proposes to do with mail on its own: nothing changes in Gmail until the user approves it, all at once or one by one. */
 export const useProposals = (
   today: Today | undefined,
@@ -87,24 +101,10 @@ export const useProposals = (
 ) => {
   const t = useT()
   const queryClient = useQueryClient()
-  // A refetch that lands while the next approval still runs would bring its row back under the cursor.
-  const [goneIds, setGoneIds] = useState<string[]>([])
   const proposals = [
     ...cards.filter(isProposal).map(fromCard),
     ...(today?.tidy ?? []).map(fromTidy),
-  ].filter(({ id }) => !goneIds.includes(id))
-  const hide = (items: Proposal[]) => {
-    setGoneIds((current) => [...current, ...items.map(({ id }) => id)])
-    const { cardIds } = split(items)
-    if (cardIds.length > 0) {
-      queueCards.utils.writeDelete(cardIds)
-    }
-  }
-  // Not before the refetch lands, or settled rows flash back for a moment.
-  const show = (items: Proposal[]) =>
-    setGoneIds((current) =>
-      current.filter((id) => !items.some((item) => item.id === id))
-    )
+  ]
   const refetch = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
   const refetchMail = () =>
@@ -129,10 +129,10 @@ export const useProposals = (
     meta: { event: 'proposals_approved' },
     onError: () => toast.dismiss(PROPOSALS_TOAST),
     onMutate: (items) => {
-      hide(items)
       toast.loading(t.today.tidy.running, { id: PROPOSALS_TOAST })
+      return hide(items)
     },
-    onSettled: (_data, _error, items) => refetchMail().then(() => show(items)),
+    onSettled: (_data, _error, _items, settle) => settle?.(refetchMail()),
     onSuccess: ({ done, failed }, items) => {
       if (failed > 0) {
         toast.error(t.today.tidy.failed(t.cleanup.emails(failed)), {
@@ -164,7 +164,7 @@ export const useProposals = (
     },
     meta: { event: 'proposal_kept' },
     onMutate: hide,
-    onSettled: (_data, _error, items) => refetch().then(() => show(items)),
+    onSettled: (_data, _error, _items, settle) => settle?.(refetch()),
   })
   // The card leaves once none is left, and whatever rises under the pointer must not take its click.
   const settleIfLast = (count: number) =>

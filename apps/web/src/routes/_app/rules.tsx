@@ -26,7 +26,7 @@ import { Spinner } from '@fewmail/ui/components/spinner'
 import { Switch } from '@fewmail/ui/components/switch'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { motion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
@@ -37,11 +37,23 @@ import { Journal, useJournal } from '~/components/journal'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
-import { warmQuery } from '~/lib/query-client'
+import {
+  listCollection,
+  queryClient,
+  showUntilSettled,
+  useRanked,
+} from '~/lib/query-client'
 import { holdClicksUntilMove, STILL_POINTER_GUARD } from '~/lib/still-pointer'
 import { toastUndo } from '~/lib/undo'
 
 type Rule = RouterOutputs['rules']['list'][number]
+
+const rulesList = listCollection({
+  getKey: ({ id }) => id,
+  id: 'rules',
+  queryFn: () => client.rules.list(),
+  queryKey: orpc.rules.list.key(),
+})
 type GmailEffect = (typeof GMAIL_EFFECTS)[number]
 
 const ACTS_ON_GMAIL = new Set<RuleEffect>(GMAIL_EFFECTS)
@@ -97,10 +109,8 @@ const ruleDescription = (t: Messages, rule: Rule) => {
     : t.rules.describe.alwaysShow
 }
 
-const useInvalidateRules = () => {
-  const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: orpc.rules.key() })
-}
+const invalidate = () =>
+  queryClient.invalidateQueries({ queryKey: orpc.rules.key() })
 
 const restoreRule = (rule: Rule) =>
   rule.match && isGmailEffect(rule.effect)
@@ -112,27 +122,26 @@ const restoreRule = (rule: Rule) =>
 
 const RuleRow = ({ isActive, rule }: { isActive: boolean; rule: Rule }) => {
   const t = useT()
-  const queryClient = useQueryClient()
-  const invalidate = useInvalidateRules()
-  const changeRules = (change: (rules: Rule[]) => Rule[]) =>
-    queryClient.setQueryData(
-      orpc.rules.list.queryKey(),
-      (rules) => rules && change(rules)
-    )
   const update = useMutation(
     orpc.rules.update.mutationOptions({
       onMutate: ({ id, ...change }) =>
-        changeRules((rules) =>
-          rules.map((item) => (item.id === id ? { ...item, ...change } : item))
-        ),
-      onSettled: invalidate,
+        showUntilSettled(() => {
+          if (rulesList.has(id)) {
+            rulesList.update(id, (item) => Object.assign(item, change))
+          }
+        }),
+      onSettled: (_, __, ___, settle) => settle?.(invalidate()),
     })
   )
   const remove = useMutation(
     orpc.rules.delete.mutationOptions({
       onMutate: ({ id }) =>
-        changeRules((rules) => rules.filter((item) => item.id !== id)),
-      onSettled: invalidate,
+        showUntilSettled(() => {
+          if (rulesList.has(id)) {
+            rulesList.delete(id)
+          }
+        }),
+      onSettled: (_, __, ___, settle) => settle?.(invalidate()),
     })
   )
   const deleteRule = () => {
@@ -196,7 +205,6 @@ const useRuleInput = () => {
 const AgentRuleForm = () => {
   const t = useT()
   const hasAgent = useHasAgent()
-  const invalidate = useInvalidateRules()
   const inputRef = useRuleInput()
   const [instruction, setInstruction] = useState('')
   const [effect, setEffect] = useState<RuleEffect>('archive')
@@ -250,7 +258,6 @@ const AgentRuleForm = () => {
 
 const SimpleRuleForm = () => {
   const t = useT()
-  const invalidate = useInvalidateRules()
   const inputRef = useRuleInput()
   const [field, setField] = useState<SimpleMatchField>('from')
   const [value, setValue] = useState('')
@@ -372,7 +379,7 @@ const useRulesCursor = (
 const RulesPage = () => {
   const t = useT()
   const hasAgent = useHasAgent()
-  const { data: rules = [] } = useQuery(orpc.rules.list.queryOptions())
+  const { data: rules = [] } = useRanked(rulesList)
   const journal = useJournal()
   const { activeId, select } = useRulesCursor(rules, journal)
 
@@ -420,6 +427,6 @@ const RulesPage = () => {
 
 export const Route = createFileRoute('/_app/rules')({
   component: RulesPage,
-  loader: () => warmQuery(orpc.rules.list.queryOptions()),
+  loader: () => rulesList.preload(),
   validateSearch: z.object({ new: z.optional(z.boolean()) }),
 })

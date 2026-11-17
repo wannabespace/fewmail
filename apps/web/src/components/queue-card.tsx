@@ -46,6 +46,7 @@ import { queueCards } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
+import { showUntilSettled } from '~/lib/query-client'
 import { holdClicksUntilMove } from '~/lib/still-pointer'
 import { pendingToast, runUndo, toastUndo } from '~/lib/undo'
 
@@ -663,14 +664,20 @@ export const useCardActions = () => {
   // A card's work can take seconds (leaving a list, a Gmail change): the toast says so until it is done.
   const leave = (ids: string[]) => {
     holdClicksUntilMove()
-    queueCards.utils.writeDelete(ids)
     toast.loading(t.today.working, { id: ids.join(',') })
+    return showUntilSettled(() => queueCards.delete(ids))
   }
+  const settleLeft = (
+    _: unknown,
+    __: unknown,
+    ___: unknown,
+    settle?: (refetched: Promise<unknown>) => void
+  ) => settle?.(refresh())
   const approve = useMutation(
     orpc.actions.approve.mutationOptions({
       onError: (_, { id }) => toast.dismiss(id),
       onMutate: ({ id }) => leave([id]),
-      onSettled: refresh,
+      onSettled: settleLeft,
       onSuccess: ({ outboxId }, { id }) =>
         sent(outboxId ? [outboxId] : [], id, t.today.done),
     })
@@ -679,7 +686,7 @@ export const useCardActions = () => {
     orpc.actions.approveMany.mutationOptions({
       onError: (_, { ids }) => toast.dismiss(ids.join(',')),
       onMutate: ({ ids }) => leave(ids),
-      onSettled: refresh,
+      onSettled: settleLeft,
       onSuccess: ({ approved, outboxIds }, { ids }) =>
         sent(outboxIds, ids.join(','), t.today.approvedMany(approved)),
     })
@@ -690,7 +697,7 @@ export const useCardActions = () => {
       Promise.all(ids.map((id) => client.actions.dismiss({ id }))),
     onError: (_, ids) => toast.dismiss(ids.join(',')),
     onMutate: leave,
-    onSettled: refresh,
+    onSettled: settleLeft,
     onSuccess: (_, ids) => skipped(ids),
   })
   const redraft = useMutation(
@@ -704,29 +711,32 @@ export const useCardActions = () => {
   )
   const addEvent = useMutation(
     orpc.actions.addEvent.mutationOptions({
-      ...pendingToast(ADD_EVENT_TOAST),
-      onSettled: () =>
-        Promise.all([
-          refresh(),
-          queryClient.invalidateQueries({ queryKey: orpc.calendar.key() }),
-        ]),
+      onError: pendingToast(ADD_EVENT_TOAST).onError,
+      // The button leaves on the press, so a second press never adds the meeting twice.
+      onMutate: ({ id }) => {
+        pendingToast(ADD_EVENT_TOAST).onMutate()
+        return showUntilSettled(() => {
+          if (queueCards.has(id)) {
+            queueCards.update(id, (card) => {
+              card.action = {
+                ...card.action,
+                payload: { ...card.action.payload, event: undefined },
+              }
+            })
+          }
+        })
+      },
+      onSettled: (_, __, ___, settle) =>
+        settle?.(
+          Promise.all([
+            refresh(),
+            queryClient.invalidateQueries({ queryKey: orpc.calendar.key() }),
+          ])
+        ),
       onSuccess: () => toast.success(t.calendar.saved, { id: ADD_EVENT_TOAST }),
     })
   )
-  // The button leaves on the press, so a second press never adds the meeting twice.
-  const addEventOf = (id: string) => {
-    const card = queueCards.get(id)
-    if (card) {
-      queueCards.utils.writeUpdate({
-        ...card,
-        action: {
-          ...card.action,
-          payload: { ...card.action.payload, event: undefined },
-        },
-      })
-    }
-    addEvent.mutate({ id })
-  }
+  const addEventOf = (id: string) => addEvent.mutate({ id })
   return { addEventOf, approve, approveMany, redraft, refresh, skip }
 }
 

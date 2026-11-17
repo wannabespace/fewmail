@@ -6,11 +6,13 @@ import {
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import { Spinner } from '@fewmail/ui/components/spinner'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 import { confirm } from '~/components/confirm-dialog'
 import { useDates, useT } from '~/lib/i18n'
+import { mailboxes as mailboxRows, useMailboxes } from '~/lib/lists-db'
 import { orpc } from '~/lib/orpc'
+import { queryClient, showUntilSettled } from '~/lib/query-client'
 import { pendingToast, settleToast } from '~/lib/undo'
 
 const mailboxStatus = (
@@ -40,8 +42,7 @@ const REMOVE_TOAST = 'mailbox-remove'
 export const MailboxSettings = () => {
   const copy = useT().settings.mailboxes
   const dates = useDates()
-  const queryClient = useQueryClient()
-  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const mailboxes = useMailboxes()
   const add = useMutation(
     orpc.mailboxes.add.mutationOptions({
       onSuccess: ({ url }) => location.assign(url),
@@ -51,14 +52,18 @@ export const MailboxSettings = () => {
     orpc.mailboxes.remove.mutationOptions({
       onMutate: ({ id }) => {
         pendingToast(REMOVE_TOAST).onMutate()
-        queryClient.setQueryData(orpc.mailboxes.list.queryKey(), (old) =>
-          old?.filter((mailbox) => mailbox.id !== id)
-        )
+        return showUntilSettled(() => {
+          if (mailboxRows.has(id)) {
+            mailboxRows.delete(id)
+          }
+        })
       },
-      onSettled: () =>
-        queryClient
-          .invalidateQueries({ queryKey: orpc.mailboxes.key() })
-          .finally(settleToast(REMOVE_TOAST)),
+      onSettled: (_, __, ___, settle) =>
+        settle?.(
+          queryClient
+            .invalidateQueries({ queryKey: orpc.mailboxes.key() })
+            .finally(settleToast(REMOVE_TOAST))
+        ),
     })
   )
 

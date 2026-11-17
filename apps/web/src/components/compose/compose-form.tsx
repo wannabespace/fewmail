@@ -28,14 +28,16 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useFileSize, useT } from '~/lib/i18n'
+import { snippets as snippetRows, useMailboxes } from '~/lib/lists-db'
 import { useHasAgent } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
+import { useRanked } from '~/lib/query-client'
 import { toastDeferred } from '~/lib/undo'
 
 import { FileChip } from '../attachments'
@@ -105,8 +107,8 @@ export const ComposeForm = ({
   const [showCc, setShowCc] = useState(draft.cc.length > 0)
   const [subject, setSubject] = useState(draft.subject)
   const [remindAfterDays, setRemindAfterDays] = useState(draft.remindAfterDays)
-  const { data: snippets } = useQuery(orpc.snippets.list.queryOptions())
-  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const { data: snippets } = useRanked(snippetRows)
+  const mailboxes = useMailboxes()
   const [mailboxId, setMailboxId] = useState(draft.mailboxId)
   const [attachments, setAttachments] = useState(draft.attachments)
   const [isDragging, setIsDragging] = useState(false)
@@ -193,6 +195,11 @@ export const ComposeForm = ({
       })
     }
   }
+  const hideDraft = () =>
+    queryClient.setQueriesData<{ id: string }[]>(
+      { queryKey: orpc.mail.drafts.key() },
+      (old) => old?.filter((saved) => saved.id !== gmailDraft.current?.id)
+    )
   const addFiles = async (
     files: File[],
     source: 'drop' | 'paste' | 'picker'
@@ -243,14 +250,20 @@ export const ComposeForm = ({
       to: parseRecipients(to),
     }
     onDone()
-    toastDeferred(
-      t.compose.discarded,
-      () => saving.current.then(removeDraft),
-      () =>
-        saving.current.then(() =>
-          openCompose({ ...kept, gmailDraft: gmailDraft.current ?? null })
-        )
-    )
+    toastDeferred(t.compose.discarded, {
+      commit: () => saving.current.then(removeDraft),
+      hide: () => saving.current.then(hideDraft),
+      undo: () =>
+        saving.current.then(() => {
+          void queryClient.invalidateQueries({
+            queryKey: orpc.mail.drafts.key(),
+          })
+          return openCompose({
+            ...kept,
+            gmailDraft: gmailDraft.current ?? null,
+          })
+        }),
+    })
   }
 
   const fillEditor = ({ html }: { html: string }) => {

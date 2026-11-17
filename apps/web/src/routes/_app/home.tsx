@@ -106,13 +106,14 @@ import { SenderAvatar } from '~/components/sender-avatar'
 import { CodeActions, sweepOf, useMailActions } from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
-import { queueCards } from '~/lib/home-db'
+import { queueCards, todayLists, useToday } from '~/lib/home-db'
 import { useDates, useLocale, useT } from '~/lib/i18n'
+import { connectedApps } from '~/lib/lists-db'
 import { isReadingFirstTime } from '~/lib/mail-db'
 import { useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
-import { warmQuery } from '~/lib/query-client'
+import { showUntilSettled, warmQuery } from '~/lib/query-client'
 import { holdClicksUntilMove, STILL_POINTER_GUARD } from '~/lib/still-pointer'
 import { pendingToast, toastUndo } from '~/lib/undo'
 
@@ -145,48 +146,57 @@ const NewSenders = ({
 }) => {
   const t = useT()
   const queryClient = useQueryClient()
-  const answered = (sender: Today['newSenders'][number]) => {
+  const answered = (messageId: string | undefined) => {
     onSettle()
-    queryClient.setQueryData(
-      orpc.today.get.queryKey(),
-      (old) =>
-        old && {
-          ...old,
-          newSenders: old.newSenders.filter(
-            ({ messageId }) => messageId !== sender.messageId
-          ),
-        }
-    )
+    return showUntilSettled(() => {
+      if (messageId && todayLists.newSenders.has(messageId)) {
+        todayLists.newSenders.delete(messageId)
+      }
+    })
   }
   const refetch = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
   const archive = useMutation(
     orpc.rules.createSimple.mutationOptions({
-      ...pendingToast(NEW_SENDER_TOAST),
-      onSettled: () =>
-        Promise.all([
-          refetch(),
-          queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
-        ]),
+      onError: pendingToast(NEW_SENDER_TOAST).onError,
+      onMutate: ({ match }) => {
+        pendingToast(NEW_SENDER_TOAST).onMutate()
+        return answered(
+          senders.find(({ fromEmail }) => fromEmail === match.value)?.messageId
+        )
+      },
+      onSettled: (_, __, ___, settle) =>
+        settle?.(
+          Promise.all([
+            refetch(),
+            queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
+          ])
+        ),
       onSuccess: () =>
         toast.success(t.today.newSender.archived, { id: NEW_SENDER_TOAST }),
     })
   )
   const keep = useMutation(
-    orpc.today.keepSender.mutationOptions({ onSettled: refetch })
+    orpc.today.keepSender.mutationOptions({
+      onMutate: ({ messageId }) => answered(messageId),
+      onSettled: (_, __, ___, settle) => settle?.(refetch()),
+    })
   )
   const unsubscribe = useMutation(
     orpc.subscriptions.unsubscribe.mutationOptions({
       // Leaving a list can take a while (its page, a mailto): the toast says so until the answer.
       onMutate: ({ messageId }) => {
         toast.loading(t.mail.unsubscribing, { id: messageId })
+        return answered(messageId)
       },
       onError: (_, { messageId }) => toast.dismiss(messageId),
-      onSettled: () =>
-        Promise.all([
-          refetch(),
-          queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
-        ]),
+      onSettled: (_, __, ___, settle) =>
+        settle?.(
+          Promise.all([
+            refetch(),
+            queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+          ])
+        ),
       onSuccess: ({ link, unsubscribed }, { messageId }) =>
         link
           ? toast(t.mail.unsubscribeYourself, {
@@ -205,25 +215,19 @@ const NewSenders = ({
     })
   )
   const answers = (sender: Today['newSenders'][number]) => ({
-    handleArchive: () => {
-      answered(sender)
+    handleArchive: () =>
       archive.mutate({
         effect: 'archive',
         match: { field: 'from', value: sender.fromEmail },
-      })
-    },
-    handleKeep: () => {
-      answered(sender)
-      keep.mutate({ messageId: sender.messageId })
-    },
+      }),
+    handleKeep: () => keep.mutate({ messageId: sender.messageId }),
     handleUnsubscribe: () =>
       confirm({
         action: t.subscriptions.unsubscribe,
         description: t.subscriptions.unsubscribeHint(
           t.cleanup.emails(sender.count)
         ),
-        onConfirm: () => {
-          answered(sender)
+        onConfirm: () =>
           unsubscribe.mutate(
             { messageId: sender.messageId },
             {
@@ -235,8 +239,7 @@ const NewSenders = ({
                   sender.messageId
                 ),
             }
-          )
-        },
+          ),
         title: t.mail.unsubscribeConfirm(sender.fromName ?? sender.fromEmail),
         variant: 'warning',
       }),
@@ -332,20 +335,19 @@ const RuleOffers = ({
           toast.loading(t.today.working, { id: RULE_OFFER_TOAST })
         }
         onSettle()
-        queryClient.setQueryData(
-          orpc.today.get.queryKey(),
-          (old) =>
-            old && {
-              ...old,
-              ruleOffers: old.ruleOffers.filter((rule) => rule.id !== id),
-            }
-        )
+        return showUntilSettled(() => {
+          if (todayLists.ruleOffers.has(id)) {
+            todayLists.ruleOffers.delete(id)
+          }
+        })
       },
-      onSettled: () =>
-        Promise.all([
-          queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
-          queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
-        ]),
+      onSettled: (_, __, ___, settle) =>
+        settle?.(
+          Promise.all([
+            queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
+            queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
+          ])
+        ),
       onSuccess: ({ enabled }) =>
         enabled &&
         toast.success(t.today.ruleOffer.turnedOn, { id: RULE_OFFER_TOAST }),
@@ -400,17 +402,11 @@ const FreshCodes = ({
 }) => {
   const t = useT()
   const codes = today?.codes ?? []
-  const queryClient = useQueryClient()
-  const actions = useMailActions((messageId) =>
-    queryClient.setQueryData(
-      orpc.today.get.queryKey(),
-      (old) =>
-        old && {
-          ...old,
-          codes: old.codes.filter(({ id }) => id !== messageId),
-        }
-    )
-  )
+  const actions = useMailActions(undefined, (messageId) => {
+    if (todayLists.codes.has(messageId)) {
+      todayLists.codes.delete(messageId)
+    }
+  })
   const sweep = sweepOf(actions, t, 'inbox')
   const newest = codes[0]?.code
   useHotkey('Y', () => newest && copy(newest, t.mail.oneTimeCode.copied), {
@@ -503,18 +499,13 @@ const WorthKnowing = ({
   today: Today | undefined
 }) => {
   const t = useT()
-  const queryClient = useQueryClient()
-  const actions = useMailActions((messageId) =>
-    queryClient.setQueryData(
-      orpc.today.get.queryKey(),
-      (old) =>
-        old && {
-          ...old,
-          dates: old.dates.filter(({ message }) => message.id !== messageId),
-          recent: old.recent.filter(({ message }) => message.id !== messageId),
-        }
-    )
-  )
+  const actions = useMailActions(undefined, (messageId) => {
+    for (const list of [todayLists.dates, todayLists.recent]) {
+      if (list.has(messageId)) {
+        list.delete(messageId)
+      }
+    }
+  })
   const sweep = sweepOf(actions, t, 'inbox')
   const messageId = worthRowsOf(today).find(
     ({ id }) => worthStop(id) === cursorId
@@ -1397,7 +1388,7 @@ const HomePage = () => {
   const { page } = search
   const { rows: newsletters } = useFreshNewsletters()
   const hasNewsletters = newsletters.length > 0
-  const { data, dataUpdatedAt } = useQuery(orpc.today.get.queryOptions())
+  const { data, dataUpdatedAt } = useToday()
 
   const { data: cards } = useLiveQuery((query) =>
     query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
@@ -1475,10 +1466,12 @@ const HomePage = () => {
     onMutate: (items) => {
       setPickedIds([])
       holdClicksUntilMove()
-      queueCards.utils.writeDelete(items.map(({ action }) => action.id))
       toast.loading(t.today.working, { id: idsOf(items) })
+      return showUntilSettled(() =>
+        queueCards.delete(items.map(({ action }) => action.id))
+      )
     },
-    onSettled: refresh,
+    onSettled: (_, __, ___, settle) => settle?.(refresh()),
     onSuccess: (_, items) =>
       toastUndo(
         t.mail.trashed,
@@ -1817,10 +1810,11 @@ export const Route = createFileRoute('/_app/home')({
             )
           : null
       ),
-      warmQuery(orpc.integrations.apps.list.queryOptions()),
+      connectedApps.preload(),
       hasAgent && warmQuery(orpc.integrations.telegram.get.queryOptions()),
       hasAgent && warmQuery(orpc.integrations.whatsapp.get.queryOptions()),
       queueCards.preload(),
+      ...Object.values(todayLists).map((list) => list.preload()),
     ])
   },
 })

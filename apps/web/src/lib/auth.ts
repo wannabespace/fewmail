@@ -38,6 +38,12 @@ export const signOut = () => {
   toast.loading(getT().today.working)
   void posthog.reset()
   void disablePush()
-    .finally(() => authClient.signOut())
+    .finally(() =>
+      Promise.all([
+        authClient.signOut(),
+        // Imported here, so the public pages that read `signedInStore` never load Mail's collections.
+        import('./snapshot').then(({ clearSnapshot }) => clearSnapshot()),
+      ])
+    )
     .then(() => location.assign('/login'))
 }

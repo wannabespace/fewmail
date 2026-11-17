@@ -1,3 +1,10 @@
+import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import {
+  createCollection,
+  createTransaction,
+  useLiveQuery,
+} from '@tanstack/react-db'
+import type { Collection, UtilsRecord } from '@tanstack/react-db'
 import type { EnsureQueryDataOptions, QueryKey } from '@tanstack/react-query'
 import { MutationCache, QueryClient } from '@tanstack/react-query'
 
@@ -45,3 +52,55 @@ export const warmQuery = <Data, Key extends QueryKey>(
   queryClient
     .ensureQueryData({ ...options, revalidateIfStale: true })
     .catch(() => null)
+
+/**
+ * Changes collections at once in a TanStack DB transaction that holds over every refetch until `settle` gets the
+ * refetch after the server's answer. A direct write (`utils.writeDelete`) is overwritten by any refetch that lands
+ * first, so a row acted on while an earlier action settles comes back and leaves again.
+ */
+export const showUntilSettled = (change: () => void) => {
+  const settled = Promise.withResolvers<unknown>()
+  createTransaction({ mutationFn: () => settled.promise }).mutate(change)
+  return settled.resolve
+}
+
+export type Settle = ReturnType<typeof showUntilSettled>
+
+/**
+ * A server list as a TanStack DB collection under its oRPC procedure's `key()` (two long, so its router's invalidations
+ * reach it, and never the procedure's own query, which holds rows without `rank`); `rank` keeps the server's order.
+ */
+export const listCollection = <Row extends object>({
+  getKey,
+  id,
+  queryFn,
+  queryKey,
+}: {
+  getKey: (row: Row) => string
+  id: string
+  queryFn: () => Promise<Row[]>
+  queryKey: QueryKey
+}) =>
+  createCollection(
+    queryCollectionOptions({
+      getKey: (row: Row & { rank: number }) => getKey(row),
+      id,
+      queryClient,
+      queryFn: async () => {
+        const rows = await queryFn()
+        return rows.map((row, rank) => ({ ...row, rank }))
+      },
+      queryKey,
+    })
+  )
+
+/** A list's rows in the server's order; nothing is read while `isEnabled` is false. */
+export const useRanked = <Row extends { rank: number }>(
+  rows: Collection<Row, string, UtilsRecord>,
+  isEnabled = true
+) =>
+  useLiveQuery((query) =>
+    isEnabled
+      ? query.from({ row: rows }).orderBy(({ row }) => row.rank)
+      : undefined
+  )

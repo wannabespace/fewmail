@@ -7,11 +7,11 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '@fewmail/ui/components/combobox'
-import { useQuery } from '@tanstack/react-query'
 import type { Ref } from 'react'
 import { useMemo } from 'react'
 
-import { orpc } from '~/lib/orpc'
+import { contacts as contactRows } from '~/lib/lists-db'
+import { useRanked } from '~/lib/query-client'
 
 import { parseRecipients } from './schedule'
 
@@ -33,9 +33,7 @@ export const RecipientsField = ({
   ref?: Ref<HTMLInputElement>
   value: string
 }) => {
-  const { data: contacts = NO_CONTACTS } = useQuery(
-    orpc.contacts.list.queryOptions()
-  )
+  const { data: contacts = NO_CONTACTS } = useRanked(contactRows)
   const query = LAST_RECIPIENT.exec(value)?.[0].trim() ?? ''
   const suggestions = useMemo(() => {
     if (!query) {

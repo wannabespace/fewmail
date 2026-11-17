@@ -83,8 +83,11 @@ import { Fragment, useEffect, useState } from 'react'
 
 import { signOut } from '~/lib/auth'
 import { useT } from '~/lib/i18n'
+import { contacts, mailboxes as mailboxRows } from '~/lib/lists-db'
 import { useHasAgent, useMe } from '~/lib/me'
-import { orpc } from '~/lib/orpc'
+import { client, orpc } from '~/lib/orpc'
+import { showUntilSettled, useRanked } from '~/lib/query-client'
+import type { Settle } from '~/lib/query-client'
 import { SITE_NAME } from '~/lib/seo'
 import { toastDeferred } from '~/lib/undo'
 
@@ -179,12 +182,15 @@ const People = () => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
-  const { data: people = [] } = useQuery(orpc.contacts.list.queryOptions())
+  const { data: people = [] } = useRanked(contacts)
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: orpc.contacts.key() })
-  const remove = useMutation(
-    orpc.contacts.delete.mutationOptions({ onSettled: invalidate })
-  )
+  const remove = useMutation({
+    ...orpc.contacts.delete.mutationOptions(),
+    mutationFn: ({ email }: { email: string; settle: Settle }) =>
+      client.contacts.delete({ email }),
+    onSettled: (_, __, { settle }) => settle(invalidate()),
+  })
   if (people.length === 0) {
     return null
   }
@@ -192,16 +198,18 @@ const People = () => {
     ? people.filter((person) => matchesContact(person, query))
     : people
   const deletePerson = (email: string) => {
-    queryClient.setQueryData(orpc.contacts.list.queryKey(), (old) =>
-      old?.map((person) =>
-        person.email === email ? { ...person, deletable: false } : person
-      )
-    )
-    toastDeferred(
-      t.nav.contactDeleted,
-      () => remove.mutate({ email }),
-      invalidate
-    )
+    const settle = showUntilSettled(() => {
+      if (contacts.has(email)) {
+        contacts.update(email, (person) => {
+          person.deletable = false
+        })
+      }
+    })
+    toastDeferred(t.nav.contactDeleted, {
+      commit: () => remove.mutate({ email, settle }),
+      hide: () => null,
+      undo: () => settle(invalidate()),
+    })
   }
 
   return (
@@ -693,9 +701,7 @@ export const Sidebar = ({
     FOLDER_ITEMS.some(({ folder }) => pathname === `/mail/${folder}`) ||
     Boolean(q?.startsWith('label:'))
   const { data: queued } = useQuery(orpc.today.count.queryOptions())
-  const { data: mailboxes } = useQuery(
-    orpc.mailboxes.list.queryOptions({ enabled: hasAgent })
-  )
+  const { data: mailboxes } = useRanked(mailboxRows, hasAgent)
   const { data: unread } = useQuery(
     orpc.mail.unread.queryOptions({ input: {} })
   )

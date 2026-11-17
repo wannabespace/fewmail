@@ -11,7 +11,7 @@ import {
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Cancel01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { startOfToday, subDays } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { createStore } from 'seitu'
@@ -24,11 +24,23 @@ import type { RowPlace } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useDates, useLocale, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
-import { orpc } from '~/lib/orpc'
-import { queryClient } from '~/lib/query-client'
+import { client, orpc } from '~/lib/orpc'
+import {
+  listCollection,
+  queryClient,
+  showUntilSettled,
+  useRanked,
+} from '~/lib/query-client'
 import { toastUndo } from '~/lib/undo'
 
 type Commitment = RouterOutputs['commitments']['list'][number]
+
+const commitments = listCollection({
+  getKey: ({ id }) => id,
+  id: 'commitments',
+  queryFn: () => client.commitments.list(),
+  queryKey: orpc.commitments.list.key(),
+})
 type Section = 'owed' | 'promised' | 'coming' | 'settled'
 
 const SECTIONS: Section[] = ['owed', 'promised', 'coming', 'settled']
@@ -145,19 +157,17 @@ const hintsOf = (t: Messages, row: Commitment | undefined) => {
 /** Every promise and last day sorted into the Board's lists; nothing is asked on Free, where there is none. */
 const useBoard = () => {
   const hasAgent = useHasAgent()
-  const { data = [], isPending } = useQuery({
-    ...orpc.commitments.list.queryOptions(),
-    enabled: hasAgent,
-  })
+  const { data = [], isLoading } = useRanked(commitments, hasAgent)
+  const rows: Commitment[] = data
   const today = startOfToday()
   const sections = Object.fromEntries(
     SECTIONS.map((section) => [
       section,
-      data.filter((row) => sectionOf(row, today) === section),
+      rows.filter((row) => sectionOf(row, today) === section),
     ])
   ) as Record<Section, Commitment[]>
   return {
-    isPending,
+    isPending: !hasAgent || isLoading,
     ordered: SECTIONS.flatMap((section) => sections[section]),
     sections,
     today,
@@ -212,31 +222,24 @@ export const BoardPane = ({
     return () => boardCursor.set(undefined)
   }, [active])
 
-  const listKey = orpc.commitments.list.queryKey()
   const setStatus = useMutation(
     orpc.commitments.setStatus.mutationOptions({
-      onMutate: ({ id, status }) => {
-        queryClient.setQueryData(listKey, (rows) =>
-          rows?.map((row) =>
-            row.id === id
-              ? {
-                  ...row,
-                  history: [
-                    ...row.history,
-                    {
-                      at: new Date(),
-                      by: 'user' as const,
-                      messageId: null,
-                      to: status,
-                    },
-                  ],
-                  status,
-                }
-              : row
-          )
-        )
-      },
-      onSettled: () => queryClient.invalidateQueries({ queryKey: listKey }),
+      onMutate: ({ id, status }) =>
+        showUntilSettled(() => {
+          if (commitments.has(id)) {
+            commitments.update(id, (row) => {
+              row.history = [
+                ...row.history,
+                { at: new Date(), by: 'user', messageId: null, to: status },
+              ]
+              row.status = status
+            })
+          }
+        }),
+      onSettled: (_, __, ___, settle) =>
+        settle?.(
+          queryClient.invalidateQueries({ queryKey: orpc.commitments.key() })
+        ),
     })
   )
   const move = (

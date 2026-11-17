@@ -104,11 +104,9 @@ export const Journal = ({
       onMutate: ({ messageId }) => {
         pendingToast(UNDO_TOAST).onMutate()
         const threadId = threadOfMessage(messageId)
-        if (threadId) {
-          hideThread(threadId)
-        }
+        return threadId ? hideThread(threadId) : undefined
       },
-      onSettled: refresh,
+      onSettled: (_, __, ___, settle) => settle?.(refresh()),
       onSuccess: () => toast(t.mail.movedToInbox, { id: UNDO_TOAST }),
     })
   )

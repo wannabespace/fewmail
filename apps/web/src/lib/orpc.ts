@@ -53,10 +53,25 @@ const errorText = (error: unknown) => {
   return limitText(error) ?? t[key ?? 'failed']
 }
 
+let isPageLeaving = false
+
+/** What is sent while the page closes must outlive it: kept alive, and never batched, since a batch waits a tick. */
+export const keepRequestsAlive = () => {
+  isPageLeaving = true
+}
+
+addEventListener('pageshow', () => {
+  isPageLeaving = false
+})
+
 export const client: RouterClient<Router> = createORPCClient(
   new RPCLink({
     fetch: (url, init) =>
-      globalThis.fetch(url, { ...init, credentials: 'include' }),
+      globalThis.fetch(url, {
+        ...init,
+        credentials: 'include',
+        keepalive: isPageLeaving,
+      }),
     interceptors: [
       // oxlint-disable-next-line promise/prefer-await-to-callbacks -- oRPC interceptor API
       onError((error, { path }) => {
@@ -76,7 +91,7 @@ export const client: RouterClient<Router> = createORPCClient(
     plugins: [
       new BatchLinkPlugin({
         // The live stream never ends, so a batch holding it would never answer.
-        filter: ({ path }) => path[0] !== 'live',
+        filter: ({ path }) => path[0] !== 'live' && !isPageLeaving,
         groups: [{ condition: () => true, context: {} }],
         mode: 'streaming',
       }),
@@ -93,8 +108,9 @@ const LIVE_SETTLE_MS = 200
 let pendingTopics = new Set<string>()
 let isEverythingPending = false
 let flushTimer: ReturnType<typeof setTimeout> | undefined
+let nextFlush = Promise.withResolvers<unknown>()
 
-/** Refetches whole router namespaces, `null` everything; calls close together refetch once. */
+/** Refetches whole router namespaces, `null` everything; calls close together refetch once, and resolve once it has landed. */
 export const refetchChanged = (topics: string[] | null) => {
   if (topics) {
     for (const topic of topics) {
@@ -104,17 +120,19 @@ export const refetchChanged = (topics: string[] | null) => {
     isEverythingPending = true
   }
   clearTimeout(flushTimer)
+  const flush = nextFlush
   flushTimer = setTimeout(() => {
-    if (isEverythingPending) {
-      void queryClient.invalidateQueries()
-    } else {
-      for (const topic of pendingTopics) {
-        void queryClient.invalidateQueries({ queryKey: [[topic]] })
-      }
-    }
+    const refetches = isEverythingPending
+      ? [queryClient.invalidateQueries()]
+      : [...pendingTopics].map((topic) =>
+          queryClient.invalidateQueries({ queryKey: [[topic]] })
+        )
     pendingTopics = new Set()
     isEverythingPending = false
+    nextFlush = Promise.withResolvers()
+    void Promise.all(refetches).then(flush.resolve)
   }, LIVE_SETTLE_MS)
+  return flush.promise
 }
 
 /** The server says which parts changed; a dropped stream reconnects and refetches everything it may have missed. */

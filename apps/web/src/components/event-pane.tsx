@@ -266,12 +266,12 @@ export const EventPane = ({
         event.seriesId === draft.seriesId &&
         (scope === 'all' || eventTimes(event).start >= draft.start))
     onClose()
-    changeEvents((events) => events.filter((event) => !isReached(event)))
-    toastDeferred(
-      t.calendar.deleted,
-      () => remove.mutate({ ...ref, scope }),
-      invalidate
-    )
+    toastDeferred(t.calendar.deleted, {
+      commit: () => remove.mutate({ ...ref, scope }),
+      hide: () =>
+        changeEvents((events) => events.filter((event) => !isReached(event))),
+      undo: invalidate,
+    })
   }
 
   const save = (scope?: EventScope) => {

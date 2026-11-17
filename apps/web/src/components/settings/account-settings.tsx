@@ -28,6 +28,7 @@ import { useT } from '~/lib/i18n'
 import { useMe } from '~/lib/me'
 import { posthog } from '~/lib/posthog'
 import { currentPushSubscription, pushSupported } from '~/lib/push'
+import { clearSnapshot } from '~/lib/snapshot'
 
 const DeleteAccount = ({ isConfirming }: { isConfirming: boolean }) => {
   const t = useT()
@@ -57,6 +58,7 @@ const DeleteAccount = ({ isConfirming }: { isConfirming: boolean }) => {
     // The server dropped the account's devices with it; only the browser's own subscription is left.
     void (pushSupported ? currentPushSubscription() : Promise.resolve(null))
       .then((subscription) => subscription?.unsubscribe())
+      .finally(clearSnapshot)
       .finally(() => location.assign('/login'))
   }
 

@@ -88,7 +88,7 @@ We keep your data while your account exists. Synced mail is used for Home and th
 
 ## 9. Security
 
-Data is encrypted in transit (TLS). At rest, everything you or your mail provide is encrypted: your name, email address and photo, mail, rules, snippets, settings you write yourself, your Telegram chat, your WhatsApp number, browser notification addresses, and the IP address and browser of your sessions. What stays unencrypted is what is not personal: ids, dates, flags, amounts and the keyed hashes used for spam protection. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
+Data is encrypted in transit (TLS). At rest, everything you or your mail provide is encrypted: your name, email address and photo, mail, rules, snippets, settings you write yourself, your Telegram chat, your WhatsApp number, browser notification addresses, and the IP address and browser of your sessions. What stays unencrypted is what is not personal: ids, dates, flags, amounts and the keyed hashes used for spam protection. So that Home and your inbox open at once, your browser keeps a copy of what they last showed (senders, subjects, previews and summaries, never full emails or one-time codes) in its own storage on your device; it is replaced as they refresh and deleted when you sign out or delete your account. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
 
 ## 10. Children
 

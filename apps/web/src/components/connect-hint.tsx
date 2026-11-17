@@ -31,10 +31,12 @@ import { z } from 'zod/mini'
 
 import { isDesktop } from '~/lib/desktop'
 import { useT } from '~/lib/i18n'
+import { connectedApps } from '~/lib/lists-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { enablePush, pushStateQuery, pushSupported } from '~/lib/push'
+import { useRanked } from '~/lib/query-client'
 
 /** On Free the first two tell what Pro adds; the messengers need the agent. */
 const HINTS = ['drafts', 'ask', 'messengers', 'mcp', 'push'] as const
@@ -100,7 +102,7 @@ export const ConnectHint = () => {
   const { data: whatsapp } = useQuery(
     orpc.integrations.whatsapp.get.queryOptions({ enabled: hasAgent })
   )
-  const { data: apps } = useQuery(orpc.integrations.apps.list.queryOptions())
+  const { data: apps = [], isReady: hasApps } = useRanked(connectedApps)
   const { data: publicKey } = useQuery(orpc.devices.webPushKey.queryOptions())
   const { data: push } = useQuery(pushStateQuery)
   const turnOnPush = useMutation({
@@ -144,7 +146,7 @@ export const ConnectHint = () => {
       actions: [{ label: copy.setUp, render: <Link to="/settings" /> }],
       description: t.settings.mcp.description,
       icon: McpServerIcon,
-      isNeeded: apps && apps.length === 0,
+      isNeeded: hasApps && apps.length === 0,
       title: t.settings.mcp.title,
     },
     messengers: {

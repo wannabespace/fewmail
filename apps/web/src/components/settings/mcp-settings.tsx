@@ -5,11 +5,13 @@ import {
   SettingsRow,
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 import { confirm } from '~/components/confirm-dialog'
 import { useDates, useT } from '~/lib/i18n'
+import { connectedApps } from '~/lib/lists-db'
 import { orpc } from '~/lib/orpc'
+import { queryClient, showUntilSettled, useRanked } from '~/lib/query-client'
 import { pendingToast, settleToast } from '~/lib/undo'
 
 const MCP_URL = `${import.meta.env.API_URL}/mcp`
@@ -17,23 +19,23 @@ const MCP_URL = `${import.meta.env.API_URL}/mcp`
 export const McpSettings = () => {
   const t = useT()
   const dates = useDates()
-  const queryClient = useQueryClient()
-  const { data: apps = [] } = useQuery(
-    orpc.integrations.apps.list.queryOptions()
-  )
+  const { data: apps = [] } = useRanked(connectedApps)
   const disconnect = useMutation(
     orpc.integrations.apps.disconnect.mutationOptions({
       onMutate: ({ clientId }) => {
         pendingToast(clientId).onMutate()
-        queryClient.setQueryData(
-          orpc.integrations.apps.list.queryKey(),
-          (old) => old?.filter((app) => app.clientId !== clientId)
-        )
+        return showUntilSettled(() => {
+          if (connectedApps.has(clientId)) {
+            connectedApps.delete(clientId)
+          }
+        })
       },
-      onSettled: (_result, _error, { clientId }) =>
-        queryClient
-          .invalidateQueries({ queryKey: orpc.integrations.apps.key() })
-          .finally(settleToast(clientId)),
+      onSettled: (_result, _error, { clientId }, settle) =>
+        settle?.(
+          queryClient
+            .invalidateQueries({ queryKey: orpc.integrations.apps.key() })
+            .finally(settleToast(clientId))
+        ),
     })
   )
 

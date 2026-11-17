@@ -18,6 +18,7 @@ import { NotificationSettings } from '~/components/settings/notification-setting
 import { PlanSettings } from '~/components/settings/plan-settings'
 import { SnippetsSettings } from '~/components/settings/snippets-settings'
 import { useT } from '~/lib/i18n'
+import { connectedApps, mailboxes, snippets } from '~/lib/lists-db'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
 import { warmQuery } from '~/lib/query-client'
@@ -84,15 +85,15 @@ export const Route = createFileRoute('/_app/settings')({
   component: SettingsPage,
   loader: ({ context: { me } }) =>
     Promise.all([
-      warmQuery(orpc.mailboxes.list.queryOptions()),
+      mailboxes.preload(),
       warmQuery(orpc.devices.webPushKey.queryOptions()),
-      warmQuery(orpc.snippets.list.queryOptions()),
+      snippets.preload(),
       ...(me.plan.kind === 'free'
         ? []
         : [
             warmQuery(orpc.integrations.telegram.get.queryOptions()),
             warmQuery(orpc.integrations.whatsapp.get.queryOptions()),
-            warmQuery(orpc.integrations.apps.list.queryOptions()),
+            connectedApps.preload(),
           ]),
     ]),
   validateSearch: z.object({

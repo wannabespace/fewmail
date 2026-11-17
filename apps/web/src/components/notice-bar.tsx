@@ -44,6 +44,7 @@ import {
 import { signInWithGoogle } from '~/lib/auth'
 import { isDesktop } from '~/lib/desktop'
 import { useDates, useT } from '~/lib/i18n'
+import { useMailboxes } from '~/lib/lists-db'
 import { mailRowsOf } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
@@ -148,7 +149,7 @@ export const NoticeBar = () => {
     select: ({ location }) => location.pathname,
   })
   const isHome = pathname === '/home'
-  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const mailboxes = useMailboxes()
   const { data: cards = [] } = useQuery({
     ...orpc.today.banner.queryOptions(),
     enabled: !isHome,

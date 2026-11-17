@@ -137,6 +137,7 @@ import {
 } from '~/components/thread-view'
 import type { Place, Sweep } from '~/components/thread-view'
 import { useDates, useLocale, useT } from '~/lib/i18n'
+import { useMailboxes } from '~/lib/lists-db'
 import {
   hasOlderRows,
   isReadingFirstTime,
@@ -899,9 +900,10 @@ const ROW_SIZE = {
   relatedFirst: 59,
 }
 
-const ROW_FOLDED = { height: 0, opacity: 0 }
+// Only the content fades (`--row-fade`, see `ListRow`): a row's piece of its card stays solid, or a card's corners fade out with the row taking them along.
+const ROW_FOLDED = { '--row-fade': 0, height: 0 }
 const ROW_FOLD = { ...ROW_FOLDED, borderBottomWidth: 0 }
-const ROW_UNFOLD = { height: 'auto', opacity: 1 }
+const ROW_UNFOLD = { '--row-fade': 1, height: 'auto' }
 
 interface CardEdge {
   isFirst: boolean
@@ -920,15 +922,17 @@ const cardPieceOf = (edge: CardEdge | null) =>
 
 const ListWindowContext = createContext<{
   arriving: ReadonlySet<VirtualItem['key']>
-  edgeOf: (index: number) => CardEdge | null
+  edgeOf: (key: VirtualItem['key']) => CardEdge | null
   keys: ReadonlySet<VirtualItem['key']>
   measure: (node: Element | null) => void
+  onLeft: (key: VirtualItem['key']) => void
   pushedAtOf: (index: number) => number | null
 }>({
   arriving: new Set(),
   edgeOf: () => null,
   keys: new Set(),
   measure: () => null,
+  onLeft: () => null,
   pushedAtOf: () => null,
 })
 
@@ -940,10 +944,11 @@ const ListRow = ({
   ...props
 }: ComponentProps<typeof motion.li> & { item: VirtualItem }) => {
   const isPresent = useIsPresent()
-  const { arriving, edgeOf, keys, measure, pushedAtOf } = use(ListWindowContext)
+  const { arriving, edgeOf, keys, measure, onLeft, pushedAtOf } =
+    use(ListWindowContext)
   const pushedAt = pushedAtOf(item.index)
   const [isUnfolding, setIsUnfolding] = useState(() => arriving.has(item.key))
-  const edge = edgeOf(item.index)
+  const edge = edgeOf(item.key)
   const isScrolledPast = !isPresent && keys.has(item.key)
   return (
     <motion.li
@@ -952,20 +957,25 @@ const ListRow = ({
       hidden={isScrolledPast}
       initial={isUnfolding ? ROW_FOLDED : false}
       animate={isUnfolding ? ROW_UNFOLD : undefined}
-      onAnimationComplete={() => setIsUnfolding(false)}
+      onAnimationComplete={() =>
+        isPresent ? setIsUnfolding(false) : onLeft(item.key)
+      }
       exit={isScrolledPast ? undefined : ROW_FOLD}
+      // A fold starts from `--row-fade` as it stands; unset, motion has nothing to start from and the content vanishes at once.
       style={
-        pushedAt === null
-          ? undefined
-          : ({ '--pushed-at': `${pushedAt}px` } as CSSProperties)
+        {
+          '--pushed-at': pushedAt === null ? undefined : `${pushedAt}px`,
+          '--row-fade': 1,
+        } as CSSProperties
       }
       className={cn(
         STILL_POINTER_GUARD,
         'mx-auto w-full max-w-3xl',
         cardPieceOf(edge),
         className,
-        isUnfolding && 'overflow-hidden',
-        !isPresent && 'pointer-events-none overflow-hidden'
+        isUnfolding && 'overflow-hidden *:opacity-(--row-fade)',
+        !isPresent &&
+          'pointer-events-none overflow-hidden *:opacity-(--row-fade)'
       )}
       {...props}
     />
@@ -979,6 +989,45 @@ const ListGap = ({ height }: { height: number }) => (
     style={{ '--gap': `${height}px` } as CSSProperties}
   />
 )
+
+type CardSpot = Pick<ListWindowItem, 'card' | 'key'>
+
+/** The list's rows with the ones still folding out where they stood, so a card's edges stay on them until they are gone. */
+const withLeaving = (shown: CardSpot[], listed: CardSpot[]) => {
+  const listedKeys = new Set(listed.map(({ key }) => key))
+  const leavingAfter = new Map<string | undefined, CardSpot[]>()
+  let anchor: string | undefined
+  for (const spot of shown) {
+    if (listedKeys.has(spot.key)) {
+      anchor = spot.key
+    } else {
+      leavingAfter.set(anchor, [...(leavingAfter.get(anchor) ?? []), spot])
+    }
+  }
+  if (leavingAfter.size === 0) {
+    return listed
+  }
+  return [
+    ...(leavingAfter.get(undefined) ?? []),
+    ...listed.flatMap((spot) => [spot, ...(leavingAfter.get(spot.key) ?? [])]),
+  ]
+}
+
+const edgeIn = (
+  spots: CardSpot[],
+  indexes: Map<string, number>,
+  key: VirtualItem['key']
+): CardEdge | null => {
+  const index = indexes.get(String(key)) ?? -1
+  const card = spots[index]?.card
+  if (card === undefined) {
+    return null
+  }
+  return {
+    isFirst: spots[index - 1]?.card !== card,
+    isLast: spots[index + 1]?.card !== card,
+  }
+}
 
 interface ListWindowItem {
   /** The card the row belongs to; consecutive rows of one card share its frame. Headers have none. */
@@ -1010,6 +1059,47 @@ const useScrollToCursor = (
     scrolledCursorKey.current = cursorKey
   }, [cursorIndex, cursorKey, virtualizer])
 }
+
+interface Listed {
+  keys: Set<string>
+  listKey: string
+  /** The rows in order as last changed, the ones that left still in place until they have folded out. */
+  spots: CardSpot[]
+}
+
+/** The list after a change, or `null` when its rows are the same; rows a change brings into a leaving row's place unfold. */
+const listChangeOf = (
+  listed: Listed,
+  items: ListWindowItem[],
+  keys: Set<string>,
+  listKey: string
+) => {
+  const added = keys.difference(listed.keys)
+  const hasLeft = !listed.keys.isSubsetOf(keys)
+  const isSameList = listed.listKey === listKey
+  if (added.size === 0 && !hasLeft && isSameList) {
+    return null
+  }
+  return {
+    arriving: hasLeft && isSameList ? added : new Set<string>(),
+    listed: {
+      keys,
+      listKey,
+      spots: isSameList ? withLeaving(listed.spots, items) : items,
+    },
+  }
+}
+
+const dropLeft =
+  (left?: VirtualItem['key']) =>
+  (current: Listed): Listed => {
+    const spots = current.spots.filter(
+      ({ key }) => current.keys.has(key) || (left !== undefined && key !== left)
+    )
+    return spots.length === current.spots.length
+      ? current
+      : { ...current, spots }
+  }
 
 /**
  * Renders the rows in and near view between spacers that hold the rest of the list's height, so the rows stay in the flow: a folding row pulls up the ones below and group headers stick.
@@ -1049,13 +1139,12 @@ const ListWindow = ({
     },
   })
   const keys = new Set(items.map(({ key }) => key))
-  const [listed, setListed] = useState({ keys, listKey })
+  const [listed, setListed] = useState<Listed>({ keys, listKey, spots: items })
   const [arriving, setArriving] = useState<ReadonlySet<string>>(new Set())
-  const added = keys.difference(listed.keys)
-  const hasLeft = !listed.keys.isSubsetOf(keys)
-  if (added.size > 0 || hasLeft || listed.listKey !== listKey) {
-    setListed({ keys, listKey })
-    setArriving(hasLeft && listed.listKey === listKey ? added : new Set())
+  const change = listChangeOf(listed, items, keys, listKey)
+  if (change) {
+    setListed(change.listed)
+    setArriving(change.arriving)
   }
   // Only rows mounting with the change unfold; one scrolled into view later is already in place.
   useEffect(() => {
@@ -1063,6 +1152,16 @@ const ListWindow = ({
       setArriving(new Set())
     }
   }, [arriving])
+  // A row that left outside the window never folds, so nothing else lets its neighbours take their edges back.
+  useEffect(() => {
+    const timer = setTimeout(
+      () => setListed(dropLeft()),
+      ROW_LEAVE.duration * 1000
+    )
+    return () => clearTimeout(timer)
+  }, [listed])
+  const onScreen = withLeaving(listed.spots, items)
+  const spotIndexes = new Map(onScreen.map(({ key }, index) => [key, index]))
   useScrollToCursor(items, virtualizer)
   // The virtualizer re-renders only when the range changes, so the pushed header reads the scroll from CSS.
   useEffect(() => {
@@ -1086,18 +1185,10 @@ const ListWindow = ({
     <ListWindowContext
       value={{
         arriving,
-        edgeOf: (index) => {
-          const card = items[index]?.card
-          if (card === undefined) {
-            return null
-          }
-          return {
-            isFirst: items[index - 1]?.card !== card,
-            isLast: items[index + 1]?.card !== card,
-          }
-        },
+        edgeOf: (key) => edgeIn(onScreen, spotIndexes, key),
         keys,
         measure: virtualizer.measureElement,
+        onLeft: (key) => setListed(dropLeft(key)),
         // All headers share one <ul>, so CSS alone stacks the next over the stuck one; past this scroll offset the next header pushes it up instead.
         pushedAtOf: (index) => {
           const card = items[index]?.heads
@@ -1666,17 +1757,15 @@ const useDrafts = ({
     }
   }
   // Gmail deletes a draft for good, so it goes only once the toast closes without Undo.
-  const remove = ({ id, isFailed, mailboxId }: DraftRowData) => {
-    hide(id)
-    toastDeferred(
-      t.mail.draftDeleted,
-      () =>
+  const remove = ({ id, isFailed, mailboxId }: DraftRowData) =>
+    toastDeferred(t.mail.draftDeleted, {
+      commit: () =>
         isFailed
           ? takeBackFailed.mutate({ id })
           : deleteDraft.mutate({ id, mailboxId }),
-      refetchDrafts
-    )
-  }
+      hide: () => hide(id),
+      undo: refetchDrafts,
+    })
   return { isFetching, open, remove, rows }
 }
 
@@ -2544,7 +2633,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
     setPickedIds(NONE_PICKED)
   }
 
-  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const mailboxes = useMailboxes()
   const { data: unread } = useQuery(
     orpc.mail.unread.queryOptions({
       input: { mailboxId: mailbox },

@@ -7,48 +7,57 @@ import {
 } from '@fewmail/ui/components/custom/settings-group'
 import { Input } from '@fewmail/ui/components/input'
 import { Textarea } from '@fewmail/ui/components/textarea'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useLiveQuery } from '@tanstack/react-db'
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 
 import { useT } from '~/lib/i18n'
-import { orpc } from '~/lib/orpc'
+import { snippets as snippetRows } from '~/lib/lists-db'
+import { client, orpc } from '~/lib/orpc'
+import { queryClient, showUntilSettled } from '~/lib/query-client'
+import type { Settle } from '~/lib/query-client'
 import { toastDeferred } from '~/lib/undo'
+
+const invalidate = () =>
+  queryClient.invalidateQueries({ queryKey: orpc.snippets.key() })
 
 export const SnippetsSettings = () => {
   const t = useT()
-  const queryClient = useQueryClient()
   const [name, setName] = useState('')
   const [body, setBody] = useState('')
-  const { data: snippets = [] } = useQuery(orpc.snippets.list.queryOptions())
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: orpc.snippets.key() })
-  const listKey = orpc.snippets.list.queryKey()
+  // A new snippet has no `rank` the server gave, so the list goes by name, as the server sorts it.
+  const { data: snippets = [] } = useLiveQuery((query) =>
+    query.from({ snippet: snippetRows }).orderBy(({ snippet }) => snippet.name)
+  )
   const save = useMutation(
     orpc.snippets.save.mutationOptions({
       onMutate: (snippet) => {
         setName('')
         setBody('')
-        queryClient.setQueryData(listKey, (old) =>
-          [...(old ?? []), { id: crypto.randomUUID(), ...snippet }].toSorted(
-            (a, b) => a.name.localeCompare(b.name)
-          )
+        return showUntilSettled(() =>
+          snippetRows.insert({ id: crypto.randomUUID(), rank: 0, ...snippet })
         )
       },
-      onSettled: invalidate,
+      onSettled: (_, __, ___, settle) => settle?.(invalidate()),
     })
   )
-  const remove = useMutation(
-    orpc.snippets.delete.mutationOptions({ onSettled: invalidate })
-  )
+  const remove = useMutation({
+    ...orpc.snippets.delete.mutationOptions(),
+    mutationFn: ({ id }: { id: string; settle: Settle }) =>
+      client.snippets.delete({ id }),
+    onSettled: (_, __, { settle }) => settle(invalidate()),
+  })
   const deleteSnippet = (id: string) => {
-    queryClient.setQueryData(listKey, (old) =>
-      old?.filter((snippet) => snippet.id !== id)
-    )
-    toastDeferred(
-      t.settings.snippets.deleted,
-      () => remove.mutate({ id }),
-      invalidate
-    )
+    const settle = showUntilSettled(() => {
+      if (snippetRows.has(id)) {
+        snippetRows.delete(id)
+      }
+    })
+    toastDeferred(t.settings.snippets.deleted, {
+      commit: () => remove.mutate({ id, settle }),
+      hide: () => null,
+      undo: () => settle(invalidate()),
+    })
   }
   const isFilled = Boolean(name.trim() && body.trim())
 

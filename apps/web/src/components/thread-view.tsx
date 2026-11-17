@@ -68,7 +68,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { isToday } from 'date-fns'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
@@ -81,6 +81,7 @@ import { z } from 'zod/mini'
 import type { Expanded } from '~/components/expand-row'
 import { queueCards } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
+import { useMailboxes } from '~/lib/lists-db'
 import {
   hideThread,
   showThreadPinned,
@@ -93,6 +94,7 @@ import { gmailThreadUrl, useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc, refetchChanged } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
+import { showUntilSettled } from '~/lib/query-client'
 import { runUndo, UNDO_TOAST_MS } from '~/lib/undo'
 
 import { cidSource, listedAttachments, MessageAttachments } from './attachments'
@@ -750,6 +752,14 @@ const ThreadNotices = ({
   )
 }
 
+// Settled together like live events, and every shown change stays until it lands (`showUntilSettled`).
+const refresh = () => refetchChanged(['mail', 'reading', 'today'])
+
+interface Shown {
+  burst: string
+  settle: (refetched: Promise<unknown>) => void
+}
+
 /** The read each thread's opening sent: an unread from anywhere waits for it, or that read lands last and the email stays read. */
 const openingReads = new Map<string, Promise<unknown>>()
 
@@ -766,6 +776,7 @@ const useThreadOpen = (
   const { mutateAsync: markRead } = useMutation(
     orpc.mail.markRead.mutationOptions({
       onMutate: () => showThreadRead(threadId),
+      onSettled: (_, __, ___, settle) => settle?.(refresh()),
       onSuccess: () =>
         queryClient.invalidateQueries({ queryKey: orpc.mail.unread.key() }),
     })
@@ -812,10 +823,18 @@ const joinBurst = () => {
 }
 const toInbox = (messageId: string) => client.mail.moveToInbox({ messageId })
 
-// Settled together like live events: a refetch after a burst's first answer would put its other emails back for a moment.
-const refresh = () => refetchChanged(['mail', 'reading', 'today'])
+const settleFailed = (_error: unknown, _input: unknown, shown?: Shown) => {
+  if (shown && !bursts.has(shown.burst)) {
+    toast.dismiss(shown.burst)
+  }
+  shown?.settle(refresh())
+}
 
-export const useMailActions = (onDone?: (messageId: string) => void) => {
+/** `hide` takes the email out of collections besides Mail's (Home's lists) in a transaction that settles with the thread's. */
+export const useMailActions = (
+  onDone?: (messageId: string) => void,
+  hide?: (messageId: string) => void
+) => {
   const t = useT()
   const dates = useDates()
   const queryClient = useQueryClient()
@@ -825,34 +844,35 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     toast.loading(t.today.working, { id: burst })
     return burst
   }
-  const settleFailed = (_error: unknown, _input: unknown, burst?: string) => {
-    if (burst && !bursts.has(burst)) {
-      toast.dismiss(burst)
-    }
-    void refresh()
-  }
   // Every action takes the thread out of the current list, so it leaves before the server answers.
   const leave = {
     onError: settleFailed,
-    onMutate: ({ messageId }: { messageId: string }) => {
+    onMutate: ({ messageId }: { messageId: string }): Shown => {
       const threadId = threadOfMessage(messageId)
-      if (threadId) {
-        hideThread(threadId)
-      }
+      const settleThread = threadId ? hideThread(threadId) : () => null
+      const settleHidden = hide
+        ? showUntilSettled(() => hide(messageId))
+        : () => null
       onDone?.(messageId)
-      return startBurst()
+      return {
+        burst: startBurst(),
+        settle: (refetched) => {
+          settleThread(refetched)
+          settleHidden(refetched)
+        },
+      }
     },
   }
   // The burst's id folds its per-email answers into one toast, and its Undo takes back the whole burst.
   const finish = (
     message: string,
-    id: string,
+    { burst: id, settle }: Shown,
     done?: {
       messageId: string
       undo: (messageId: string) => Promise<unknown>
     }
   ) => {
-    void refresh()
+    settle(refresh())
     if (!done) {
       toast.success(message, { id })
       return
@@ -883,24 +903,21 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
       duration: LEAVE_YOURSELF_MS,
       id,
     })
-    void refresh()
   }
   const unsubscribe = useMutation(
     orpc.mail.unsubscribe.mutationOptions({
-      onError: (_, { messageId }) => {
-        toast.dismiss(messageId)
-        void refresh()
-      },
+      onError: (_, { messageId }) => toast.dismiss(messageId),
       onMutate: ({ messageId }) => {
-        leave.onMutate({ messageId })
+        const shown = leave.onMutate({ messageId })
         toast.loading(t.mail.unsubscribing, { id: messageId })
+        return shown
       },
+      onSettled: (_, __, ___, shown) => shown?.settle(refresh()),
       onSuccess: ({ link, unsubscribed }, { messageId }) => {
         if (link) {
           leaveYourself(link, messageId)
           return
         }
-        void refresh()
         toast.success(
           unsubscribed ? t.mail.unsubscribed : t.mail.unsubscribeFailed,
           { id: messageId }
@@ -912,16 +929,16 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     archive: useMutation(
       orpc.mail.archive.mutationOptions({
         ...leave,
-        onSuccess: (_, { messageId }, burst) =>
-          finish(t.mail.archived, burst, { messageId, undo: toInbox }),
+        onSuccess: (_, { messageId }, shown) =>
+          finish(t.mail.archived, shown, { messageId, undo: toInbox }),
       })
     ),
     block: useMutation(
       orpc.mail.block.mutationOptions({
         ...leave,
-        onSuccess: ({ ruleId }, { messageId }, burst) => {
+        onSuccess: ({ ruleId }, { messageId }, shown) => {
           void queryClient.invalidateQueries({ queryKey: orpc.rules.key() })
-          finish(t.mail.blocked, burst, {
+          finish(t.mail.blocked, shown, {
             messageId,
             undo: async () => {
               await client.rules.delete({ id: ruleId })
@@ -937,16 +954,18 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     markRead: useMutation(
       orpc.mail.markRead.mutationOptions({
         onError: settleFailed,
-        onMutate: ({ threadId }) => {
-          showThreadRead(threadId)
-          return startBurst()
+        onMutate: ({ threadId }): Shown => {
+          const settle = showThreadRead(threadId)
+          return { burst: startBurst(), settle }
         },
-        onSuccess: (_, { threadId }, burst) =>
-          finish(t.mail.markedRead, burst, {
+        onSuccess: (_, { threadId }, shown) =>
+          finish(t.mail.markedRead, shown, {
             messageId: threadId,
             undo: (id) => {
-              showThreadRead(id, false)
-              return client.mail.markUnread({ threadId: id })
+              const settle = showThreadRead(id, false)
+              return client.mail
+                .markUnread({ threadId: id })
+                .finally(() => settle(refresh()))
             },
           }),
       })
@@ -954,16 +973,18 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     markUnread: useMutation(
       orpc.mail.markUnread.mutationOptions({
         onError: settleFailed,
-        onMutate: ({ threadId }) => {
-          showThreadRead(threadId, false)
-          return startBurst()
+        onMutate: ({ threadId }): Shown => {
+          const settle = showThreadRead(threadId, false)
+          return { burst: startBurst(), settle }
         },
-        onSuccess: (_, { threadId }, burst) =>
-          finish(t.mail.markedUnread, burst, {
+        onSuccess: (_, { threadId }, shown) =>
+          finish(t.mail.markedUnread, shown, {
             messageId: threadId,
             undo: (id) => {
-              showThreadRead(id)
-              return client.mail.markRead({ threadId: id })
+              const settle = showThreadRead(id)
+              return client.mail
+                .markRead({ threadId: id })
+                .finally(() => settle(refresh()))
             },
           }),
       })
@@ -971,31 +992,29 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     moveToInbox: useMutation(
       orpc.mail.moveToInbox.mutationOptions({
         ...leave,
-        onSuccess: (_, __, burst) => finish(t.mail.backInInbox, burst),
+        onSuccess: (_, __, shown) => finish(t.mail.backInInbox, shown),
       })
     ),
     notSpam: useMutation(
       orpc.mail.notSpam.mutationOptions({
         ...leave,
-        onSuccess: (_, __, burst) => finish(t.mail.movedToInbox, burst),
+        onSuccess: (_, __, shown) => finish(t.mail.movedToInbox, shown),
       })
     ),
     pin: useMutation(
       orpc.mail.pin.mutationOptions({
         onMutate: ({ messageId, pinned }) => {
           const threadId = threadOfMessage(messageId)
-          if (threadId) {
-            showThreadPinned(threadId, pinned)
-          }
+          return threadId ? showThreadPinned(threadId, pinned) : undefined
         },
-        onSettled: refresh,
+        onSettled: (_, __, ___, settle) => settle?.(refresh()),
       })
     ),
     reportSpam: useMutation(
       orpc.mail.reportSpam.mutationOptions({
         ...leave,
-        onSuccess: (_, { messageId }, burst) =>
-          finish(t.mail.reportedSpam, burst, {
+        onSuccess: (_, { messageId }, shown) =>
+          finish(t.mail.reportedSpam, shown, {
             messageId,
             undo: (id) => client.mail.notSpam({ messageId: id }),
           }),
@@ -1004,8 +1023,8 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     snooze: useMutation(
       orpc.mail.snooze.mutationOptions({
         ...leave,
-        onSuccess: (_, { messageId, until }, burst) =>
-          finish(t.snooze.until(dates.format(until, 'EEE p')), burst, {
+        onSuccess: (_, { messageId, until }, shown) =>
+          finish(t.snooze.until(dates.format(until, 'EEE p')), shown, {
             messageId,
             undo: (id) => client.mail.unsnooze({ messageId: id }),
           }),
@@ -1014,14 +1033,14 @@ export const useMailActions = (onDone?: (messageId: string) => void) => {
     trash: useMutation(
       orpc.mail.trash.mutationOptions({
         ...leave,
-        onSuccess: (_, { messageId }, burst) =>
-          finish(t.mail.trashed, burst, { messageId, undo: toInbox }),
+        onSuccess: (_, { messageId }, shown) =>
+          finish(t.mail.trashed, shown, { messageId, undo: toInbox }),
       })
     ),
     unsnooze: useMutation(
       orpc.mail.unsnooze.mutationOptions({
         ...leave,
-        onSuccess: (_, __, burst) => finish(t.mail.backInInbox, burst),
+        onSuccess: (_, __, shown) => finish(t.mail.backInInbox, shown),
       })
     ),
     /** Leaving a list has no undo, so it always asks first. */
@@ -1464,7 +1483,7 @@ const personKeyOf = ({ fromEmail, isFromMe }: Participant) =>
  */
 const ThreadPeople = ({ thread }: { thread: Thread }) => {
   const t = useT()
-  const { data: mailboxes = [] } = useQuery(orpc.mailboxes.list.queryOptions())
+  const mailboxes = useMailboxes()
   const messages = thread.messages
     .map(({ message }) => message)
     .filter((message) => !message.labelIds.includes('DRAFT'))

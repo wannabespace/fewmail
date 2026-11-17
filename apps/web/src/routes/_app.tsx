@@ -37,6 +37,7 @@ import { mailRowsOf } from '~/lib/mail-db'
 import { useMe } from '~/lib/me'
 import { listenForChanges, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
+import { clearSnapshot, restoreSnapshot } from '~/lib/snapshot'
 import { undoLatest } from '~/lib/undo'
 
 const SIDEBAR_WIDTH = { default: 232, max: 320, min: 200 }
@@ -229,6 +230,7 @@ export const Route = createFileRoute('/_app')({
     ).catch(() => null)
     signedInStore.set(Boolean(me))
     if (!me) {
+      await clearSnapshot()
       throw redirect({ to: '/login' })
     }
     if (!me.hasGmail) {
@@ -238,6 +240,7 @@ export const Route = createFileRoute('/_app')({
       throw redirect({ to: '/onboarding' })
     }
     localeStore.set(me.settings.language)
+    await restoreSnapshot(me.user.id)
     return { me: { ...me, settings: me.settings } }
   },
   component: AppLayout,
