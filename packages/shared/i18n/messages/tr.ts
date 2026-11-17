@@ -1705,7 +1705,7 @@ export const tr: Messages = {
     dates: 'Tarihler ve toplantılar',
     done: 'Tamam',
     firstRead:
-      'Önce son üç günün e-postaları. İlgilenmen gerekenler burada kendiliğinden görünecek. Sen “evet” demeden hiçbir şey değişmez.',
+      'Önce son üç günün e-postaları. İlgilenmen gerekenler burada kendiliğinden görünecek.',
     approvedMany: (n: number) => `${n} onaylandı`,
     listen: 'Dinle',
     handled: {

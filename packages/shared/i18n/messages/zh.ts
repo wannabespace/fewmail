@@ -1488,7 +1488,7 @@ export const zh: Messages = {
     dates: '日期和会议',
     done: '完成',
     firstRead:
-      '先从你最近三天的邮件开始。需要你处理的事会自动出现在这里，没有你的同意，什么都不会改变。',
+      '先从你最近三天的邮件开始。需要你处理的事会自动出现在这里。',
     approvedMany: (n: number) => `已批准 ${n} 项`,
     listen: '收听',
     handled: {

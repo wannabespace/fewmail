@@ -1542,7 +1542,7 @@ export const ja: Messages = {
     dates: '日付と予定',
     done: '完了',
     firstRead:
-      'まずは直近3日分のメールから。対応が必要なものはここに自動で表示されます。あなたが承認するまで何も変わりません。',
+      'まずは直近3日分のメールから。対応が必要なものはここに自動で表示されます。',
     approvedMany: (n: number) => `${n}件を承認しました`,
     listen: '聞く',
     handled: {

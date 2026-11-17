@@ -1706,7 +1706,7 @@ export const id: Messages = {
     dates: 'Tanggal dan rapat',
     done: 'Selesai',
     firstRead:
-      'Mulai dari email tiga hari terakhir. Yang butuh perhatianmu akan muncul di sini dengan sendirinya, dan tidak ada yang berubah sampai kamu bilang ya.',
+      'Mulai dari email tiga hari terakhir. Yang butuh perhatianmu akan muncul di sini dengan sendirinya.',
     approvedMany: (n: number) => `${n} disetujui`,
     listen: 'Dengarkan',
     handled: {

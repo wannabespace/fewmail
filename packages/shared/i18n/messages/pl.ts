@@ -1751,7 +1751,7 @@ export const pl: Messages = {
     dates: 'Terminy i spotkania',
     done: 'Gotowe',
     firstRead:
-      'Najpierw poczta z ostatnich trzech dni. To, co wymaga Twojej uwagi, pojawi się tu samo, a bez Twojego „tak” nic się nie zmieni.',
+      'Najpierw poczta z ostatnich trzech dni. To, co wymaga Twojej uwagi, pojawi się tu samo.',
     approvedMany: (n: number) => `Zatwierdzono: ${n}`,
     listen: 'Odsłuchaj',
     handled: {
