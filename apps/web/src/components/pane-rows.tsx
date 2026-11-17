@@ -1,6 +1,4 @@
 import { SettingsRows } from '@fewmail/ui/components/custom/settings-group'
-import { Item, ItemContent, ItemMedia } from '@fewmail/ui/components/item'
-import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import {
@@ -67,29 +65,12 @@ const RowsGap = ({
   />
 )
 
-// Each bar in a line of text, so the skeleton is as tall as the row it stands for and nothing moves when the row comes.
-const RowSkeleton = () => (
-  <Item size="sm" variant="grouped">
-    <ItemMedia variant="avatar">
-      <Skeleton className="size-8 rounded-full" />
-    </ItemMedia>
-    <ItemContent>
-      <div className="flex h-lh items-center text-sm/snug">
-        <Skeleton className="h-3 w-40" />
-      </div>
-      <div className="flex h-lh items-center text-sm/snug">
-        <Skeleton className="h-3 w-64 max-w-full" />
-      </div>
-    </ItemContent>
-  </Item>
-)
-
 /** Anything above the list changing height (a card leaving, the pane growing) moves where its rows start. */
 const useListTop = (
   area: HTMLDivElement | null,
   start: RefObject<HTMLDivElement | null>
 ) => {
-  const [top, setTop] = useState(0)
+  const [top, setTop] = useState<number | null>(null)
   useLayoutEffect(() => {
     const list = start.current
     if (!area || !list) {
@@ -115,7 +96,8 @@ const useListTop = (
  * A pane's list: the rows in and near view between gaps holding the rest of its height, so the rows stay in the flow
  * (a leaving row folds, the rows below rise) and the pane, not the list, scrolls. Goes straight inside the list's card.
  * `listKey`: a new one replaces every row at once, so nothing folds out (a filter swap). While its pane grows out of
- * its card the rows are skeletons: dozens of real ones, laid out at the box's width on every frame, stalled the growth.
+ * its card it holds only the rows one screen shows: every row in it is laid out at the box's width on every frame, and
+ * dozens of them stalled the growth.
  */
 export const PaneRows = <Row,>({
   children,
@@ -138,37 +120,38 @@ export const PaneRows = <Row,>({
     count: rows.length,
     estimateSize: () => ROW_SIZE,
     getItemKey: (index) => keys[index] ?? index,
-    getScrollElement: () => scroller,
-    overscan: 10,
-    scrollMargin: top,
+    // Not the pane's scroller while it grows: a screen's height, not the box's, so no row comes in mid-growth.
+    getScrollElement: () => (isGrowing ? null : scroller),
+    initialRect: { height: window.innerHeight, width: 0 },
+    overscan: isGrowing ? 0 : 10,
+    scrollMargin: top ?? 0,
   })
-  const shown = virtualizer.getVirtualItems()
-  const below = virtualizer.getTotalSize() - ((shown.at(-1)?.end ?? top) - top)
+  // Until the list knows where it starts, a list under the screen's edge would take it for the top and draw a screen of rows.
+  const shown = top === null ? [] : virtualizer.getVirtualItems()
+  const listTop = top ?? 0
+  const below =
+    virtualizer.getTotalSize() - ((shown.at(-1)?.end ?? listTop) - listTop)
   return (
     <>
-      <RowsGap ref={start} height={(shown[0]?.start ?? top) - top} />
-      {isGrowing ? (
-        shown.map(({ key }) => <RowSkeleton key={key} />)
-      ) : (
-        <SettingsRows key={listKey} listed={new Set(keys)}>
-          {shown.map(({ index }) => {
-            const row = rows[index]
-            const key = keys[index]
-            return (
-              row !== undefined &&
-              key !== undefined && (
-                <Fragment key={key}>
-                  {children(row, {
-                    'data-index': index,
-                    ref: virtualizer.measureElement,
-                    rowKey: key,
-                  })}
-                </Fragment>
-              )
+      <RowsGap ref={start} height={(shown[0]?.start ?? listTop) - listTop} />
+      <SettingsRows key={listKey} listed={new Set(keys)}>
+        {shown.map(({ index }) => {
+          const row = rows[index]
+          const key = keys[index]
+          return (
+            row !== undefined &&
+            key !== undefined && (
+              <Fragment key={key}>
+                {children(row, {
+                  'data-index': index,
+                  ref: virtualizer.measureElement,
+                  rowKey: key,
+                })}
+              </Fragment>
             )
-          })}
-        </SettingsRows>
-      )}
+          )
+        })}
+      </SettingsRows>
       {below > 0 && <RowsGap height={below} />}
     </>
   )
