@@ -1855,7 +1855,7 @@ export const ThreadView = ({
             )}
           </div>
 
-          {latest && (
+          {(latest || card) && (
             <ReplyArea
               card={card}
               composing={composing}

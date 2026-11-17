@@ -806,7 +806,8 @@ export const CardProposal = ({
           savedDraft={action.detail}
         />
       ) : (
-        <Why item={item} />
+        // A security card's reason is the risk warning the thread already shows over the email.
+        action.kind !== 'security' && <Why item={item} />
       )}
       <div className="flex flex-wrap items-center gap-2">
         <StepButton action={action} isBusy={isBusy} onRemind={remind} />
