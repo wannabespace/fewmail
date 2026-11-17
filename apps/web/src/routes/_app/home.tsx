@@ -1012,13 +1012,24 @@ const DecisionsHeader = ({
   )
 }
 
-/** Every kind but the last folds to its first few cards until Show all, so no kind pushes the next one away, as Mail's groups do. */
+/** Every kind but the last folds to its first few cards until Show all, so no kind pushes the next one away, as Mail's groups do. A kind keeps its place while Home is open: settling a group's first card must not send the group below the next. */
 const KIND_GROUP_SHOWN = 5
 
 const useKindGroups = (queue: QueueItem[]) => {
   const t = useT()
   const [unfolded, setUnfolded] = useState<ReadonlySet<ActionKind>>(new Set())
-  const kinds = kindsOf(t, queue)
+  const [placed, setPlaced] = useState<ActionKind[]>([])
+  const inQueue = kindsOf(t, queue)
+  const order = [
+    ...placed,
+    ...inQueue.map(({ kind }) => kind).filter((kind) => !placed.includes(kind)),
+  ]
+  if (order.length > placed.length) {
+    setPlaced(order)
+  }
+  const kinds = inQueue.toSorted(
+    (a, b) => order.indexOf(a.kind) - order.indexOf(b.kind)
+  )
   const groups = kinds.map((group, index) => ({
     ...group,
     isUnfolded: unfolded.has(group.kind),
