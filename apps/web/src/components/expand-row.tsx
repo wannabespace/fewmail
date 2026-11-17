@@ -81,10 +81,12 @@ export const PaneReveal = ({
   )
 }
 
-const GrowingContext = createContext(false)
+type PaneMorph = 'growing' | 'shrinking' | null
 
-/** The pane's box is still growing out of its card: everything in it is laid out again on every frame, so a long list waits. */
-export const useIsPaneGrowing = () => useContext(GrowingContext)
+const MorphContext = createContext<PaneMorph>(null)
+
+/** The pane's box is growing out of its card or back into it: everything in it is laid out again on every frame. */
+export const usePaneMorph = () => useContext(MorphContext)
 
 const sourceOf = (source: string) =>
   document.querySelector<HTMLElement>(
@@ -159,11 +161,11 @@ export const MorphPane = ({
   if (!isPresent && !from) {
     setFrom(insetOver(source, area))
   }
-  const [isGrowing, setIsGrowing] = useState(!!from)
+  const [morph, setMorph] = useState<PaneMorph>(from ? 'growing' : null)
   const grown = useMotionValue(from ? 0 : 1)
   const drift = useMotionValue(0)
   // At its full size, not when the spring rests: its last few pixels of bounce run on for another quarter second.
-  useMotionValueEvent(grown, 'change', (at) => at >= 1 && setIsGrowing(false))
+  useMotionValueEvent(grown, 'change', (at) => at >= 1 && setMorph(null))
   const box = useRef<HTMLDivElement>(null)
   const ghost = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
@@ -275,7 +277,9 @@ export const MorphPane = ({
         className="bg-card pointer-events-none absolute inset-0 -z-10 opacity-(--morph-fill)"
       />
       <div className="h-full">
-        <GrowingContext value={isGrowing}>{children}</GrowingContext>
+        <MorphContext value={isPresent ? morph : 'shrinking'}>
+          {children}
+        </MorphContext>
       </div>
       {/* The pane's column (`mx-auto max-w-3xl px-10 pt-12`, a card's `px-4.75 py-4` already in the copy): the card's
           content ends where the pane's begins. As tall as the copy, never the box: its blur is redrawn over its whole

@@ -17,7 +17,7 @@ import type {
   RefObject,
 } from 'react'
 
-import { useIsPaneGrowing } from '~/components/expand-row'
+import { usePaneMorph } from '~/components/expand-row'
 
 /** Where a row of `PaneRows` sits: spread on its outermost element (a `SettingsRow` takes it as is). */
 export interface RowPlace {
@@ -96,8 +96,8 @@ const useListTop = (
  * A pane's list: the rows in and near view between gaps holding the rest of its height, so the rows stay in the flow
  * (a leaving row folds, the rows below rise) and the pane, not the list, scrolls. Goes straight inside the list's card.
  * `listKey`: a new one replaces every row at once, so nothing folds out (a filter swap). While its pane grows out of
- * its card it holds only the rows one screen shows: every row in it is laid out at the box's width on every frame, and
- * dozens of them stalled the growth.
+ * its card, or back into it, it holds only the rows one screen shows: every row in it is laid out at the box's width on
+ * every frame, and dozens of them stalled the growth.
  */
 export const PaneRows = <Row,>({
   children,
@@ -111,7 +111,7 @@ export const PaneRows = <Row,>({
   rows: Row[]
 }) => {
   const scroller = use(ScrollerContext)
-  const isGrowing = useIsPaneGrowing()
+  const morph = usePaneMorph()
   const start = useRef<HTMLDivElement>(null)
   const top = useListTop(scroller, start)
   const keys = rows.map(rowKey)
@@ -120,10 +120,11 @@ export const PaneRows = <Row,>({
     count: rows.length,
     estimateSize: () => ROW_SIZE,
     getItemKey: (index) => keys[index] ?? index,
-    // Not the pane's scroller while it grows: a screen's height, not the box's, so no row comes in mid-growth.
-    getScrollElement: () => (isGrowing ? null : scroller),
+    // Not the pane's scroller while it grows: a screen's height, not the box's, so no row comes in mid-growth. Shrinking,
+    // it keeps the scroller, so the rows left are the ones where the user scrolled to.
+    getScrollElement: () => (morph === 'growing' ? null : scroller),
     initialRect: { height: window.innerHeight, width: 0 },
-    overscan: isGrowing ? 0 : 10,
+    overscan: morph ? 0 : 10,
     scrollMargin: top ?? 0,
   })
   // Until the list knows where it starts, a list under the screen's edge would take it for the top and draw a screen of rows.
