@@ -181,3 +181,284 @@ pnpm audit --prod
 # Every table that references users cascades on delete (no output = all do)
 grep -rnE "references\(\(\) => users" packages/db/schema/*.ts | grep -v cascade
 ```
+
+## History
+
+What was done toward verification, so none of it has to be rediscovered.
+
+### 2026-11-11: Data Access, first pass
+
+- **Branding was already verified:** Fewmail, fewmail.app, `/privacy`, `/terms`, authorized domain `fewmail.app`, contact valerii@wannabespace.com. No logo is set; uploading one would restart brand review.
+- **Data Access:**
+  - The project had no scopes declared.
+  - Added `openid`, `userinfo.email`, `userinfo.profile` and `gmail.modify`.
+  - Picked "Email productivity" and wrote a `gmail.modify` justification, checked against `apps/web/src/legal/privacy-policy.md`.
+  - Saved.
+- **Submission blocked:** "Prepare for verification" refused it as "Missing … demo video". Nothing was submitted.
+
+### 2026-11-12: test run before recording
+
+- **Calendar:**
+  - The app also asks for `calendar.events` (`apps/api/lib/auth.ts`), which was missing from Data Access, so it was added with a justification.
+  - The Google Calendar API was not enabled in the project, so creating an event answered 500. It is enabled now.
+- **Fixes shipped while clicking through:**
+
+  | Commit | Fix |
+  | --- | --- |
+  | `b325467` | Gmail 403/429 backoff |
+  | `1f3a493` | "Reading your inbox…" until the first sync; labelled Listen button; Clear-out no longer opens on its own |
+  | `de57c0d` | Gmail empty-204 crash |
+  | `5463e34` | Better Auth takes the IP from `cf-connecting-ip` |
+  | `cce5cf3` | Mistral 429 retry |
+  | `a998edf` | ⌘K search ladder |
+  | `56a010d` | Visible compose button |
+  | `de6eeab` | Board presets |
+
+- **Recording attempt:** the Claude in Chrome overlay and personal tabs would have been in the video, so recording moved to a separate browser (below).
+
+### 2026-11-16: recording the demo video
+
+**Method:**
+- A clean Chrome profile, driven over CDP by `agent-browser` (0.41.2). The script is below.
+- `ffmpeg` (installed with brew) captured the screen on the external display, which gets no macOS notification banners. It was cropped to the 1440x900 window, so the address bar is in every frame.
+- agent-browser's `record --cursor` ran alongside it to draw the pointer.
+- The take was shot in four parts and joined with ffmpeg's concat:
+  - part 1 in full;
+  - part 2 cut to 0–54 s;
+  - part 3 cut to 0–23.6 s;
+  - part 4 in full.
+- **Result:** `~/Desktop/fewmail-oauth-demo.mp4` (2:37, 1440x900, H.264, no voice), uploaded Unlisted as https://youtu.be/Q3MRryOLweI. The consent frame shows `client_id=904482129450-3ssd…` in the address bar.
+
+**Launching the demo browser:**
+
+```sh
+open -na "Google Chrome" --args --user-data-dir="$HOME/.fewmail-demo-chrome" \
+  --remote-debugging-port=9222 --window-size=1440,900 --window-position=0,25 \
+  --lang=en-US --accept-lang=en-US,en --no-first-run --no-default-browser-check
+```
+
+**Problems hit, so a re-shoot avoids them:**
+- The profile came up in Ukrainian. Fix: the en-US flags above, plus Fewmail's locale set to `"en"` in localStorage and in the `fewmail.locale` cookie.
+- agent-browser jumped to Chrome's hidden Gemini webview. Fix: `ab tab t1` before every step.
+- **The consent screen:** click only "Select all". Clicking it and then each checkbox unticks them, and the first take ended without Calendar connected.
+- To see the full consent screen again, delete the Fewmail account (Settings → Delete account). This revokes the Google grant.
+- ffmpeg failed with "Invalid device index", because indexes change. Fix: pick the screen by name, `"Capture screen 1:none"`.
+- Nav links didn't respond to role locators, and "Week" is not a button. Fix: CSS (`nav a[href="/mail"]`) and text locators.
+- **Possible bug (not fixed):** after the first sync, Mail's list showed only a spinner for about 2 minutes, apparently waiting out Gmail's quota backoff. The script loads `/mail` before it starts recording.
+
+**Side effects on real accounts:**
+- A test email "Project sync this week" was sent from wannabespace.llc@gmail.com to valerii.strilets@gmail.com.
+- Fewmail's reply to it was really sent.
+- The Fewmail account of valerii.strilets@gmail.com was deleted twice and created again in the take.
+- A test event was created and deleted.
+- Real mail is visible in the video: subjects, the Gmail Sent list and an old Vercel sign-in code. If Google objects, re-shoot on a cleaner mailbox.
+
+### 2026-11-16/17: Data Access completed and submitted
+
+- **Contacts:** added `contacts` and `contacts.other.readonly`, which the app asks for since `a64c6cd`.
+- **Texts:** the justifications were rewritten in plain language after the first versions read as machine-written. They are above.
+- **Video link** pasted in Data Access and saved.
+- **Questionnaire:** submitted from Verification Center → Prepare for verification, with the answers below.
+
+  | Question | Answer |
+  | --- | --- |
+  | Personal use only | No |
+  | Internal only | No |
+  | Development/testing only | No |
+  | WordPress SMTP plugin | No |
+
+  Both acknowledgements (verification requirements, CASA) were ticked.
+- **Status:** "Your app's data access is under review". No reply from Google yet.
+
+<details>
+<summary>Recording script (demo.sh)</summary>
+
+Usage: `demo.sh part1` … `part4`, with the demo browser open and signed in to the Google account in it. Each part writes `<part>.mp4` next to the script.
+
+```bash
+#!/bin/bash
+# Fewmail OAuth demo: drives the demo Chrome (CDP 9222) and screen-records its window, address bar included.
+# Usage: demo.sh <part1|part2>
+set -uo pipefail
+D=$(cd "$(dirname "$0")" && pwd)
+S=demo-5219cd301b0d
+ab() { agent-browser --session "$S" --cdp 9222 "$@"; }
+pause() { sleep "${1:-1.2}"; }
+say() { echo "▶ $(date +%T) $*"; }
+must() { ab "$@" >/dev/null || { echo "✗ $*"; stop_capture; exit 1; }; }
+click() { must "$@"; pause 1.2; }
+typeslow() { local w; for w in $1; do ab keyboard type "$w " >/dev/null; sleep 0.12; done; }
+
+front() {
+  ab tab t1 >/dev/null
+  local pid
+  pid=$(pgrep -f "user-data-dir=$HOME/.fewmail-demo-chrome" | head -1)
+  osascript -e "tell application \"System Events\" to tell (first process whose unix id is $pid)" \
+    -e 'set frontmost to true' -e 'set position of window 1 to {-2440, 0}' \
+    -e 'set size of window 1 to {1440, 900}' -e 'end tell' >/dev/null
+}
+# The external display (no notification banners); the window sits at 1000,135 in its pixels.
+start_capture() {
+  front
+  ab record start "$D/cursor-$1.mp4" --cursor >/dev/null
+  ffmpeg -v error -y -f avfoundation -capture_cursor 0 -framerate 30 -pixel_format nv12 -i "Capture screen 1:none" \
+    -vf "crop=1440:900:1000:135" -c:v libx264 -preset veryfast -crf 18 -pix_fmt yuv420p "$D/$1.mp4" \
+    </dev/null &
+  FF=$!
+  pause 1.5
+}
+stop_capture() {
+  [ -n "${FF:-}" ] && kill -INT "$FF" 2>/dev/null && wait "$FF" 2>/dev/null
+  FF=
+  ab record stop >/dev/null 2>&1
+}
+
+part1() {
+  ab open https://fewmail.app >/dev/null
+  pause 3
+  start_capture part1
+  say landing
+  pause 3
+  click find role button click --name 'Sign in'
+  ab wait --url '**/login' >/dev/null
+  pause 4.5
+  say google
+  click find role button click --name 'Continue with Google'
+  ab wait --url '**accounts.google.com/**' >/dev/null
+  pause 3
+  click find role link click --name 'Valerii Strilets'
+  ab wait --text 'verified this app' >/dev/null
+  pause 3
+  click find role link click --name 'Advanced'
+  pause 1
+  click find role link click --name 'Go to Fewmail (unsafe)'
+  pause 2
+  say consent
+  # Google shows a sign-in step, then the scopes; Continue on each until Fewmail is back.
+  for _ in 1 2 3; do
+    case "$(ab get url)" in *fewmail.app*) break ;; esac
+    ab snapshot -i -c >"$D/consent.txt"
+    if grep -q 'checkbox' "$D/consent.txt"; then
+      pause 2
+      ab click "@$(grep -o 'checkbox "Select all" \[checked=false, ref=e[0-9]*' "$D/consent.txt" | grep -o 'e[0-9]*$')" >/dev/null
+      pause 2.5
+      ab scroll down 300 >/dev/null
+    fi
+    pause 4
+    click find role button click --name 'Continue'
+    pause 4
+  done
+  say onboarding
+  ab wait --url '**/onboarding' >/dev/null
+  pause 3
+  click find role button click --name 'Start'
+  ab wait --url '**/home' >/dev/null
+  pause 6
+  stop_capture
+}
+
+slot() {
+  # The middle of a week-view hour slot: column from the day's header, row from the hour's label.
+  ab eval "(() => {
+    const day = [...document.querySelectorAll('*')].find(e => e.children.length < 3 && /^Thu\s*19$/.test(e.textContent.trim()))
+    const hour = [...document.querySelectorAll('*')].find(e => e.children.length === 0 && e.textContent.trim() === '3:00 PM')
+    const d = day.getBoundingClientRect(), h = hour.getBoundingClientRect()
+    return Math.round(d.x + d.width / 2) + ' ' + Math.round(h.y + 18)
+  })()" | tr -d '"'
+}
+
+part2() {
+  # Mail's first list can wait minutes on Gmail's quota: load it before recording, then go Home without a reload.
+  ab open https://fewmail.app/mail >/dev/null
+  for _ in $(seq 1 40); do
+    [ "$(ab eval 'document.body.innerText.includes("Project sync this week")')" = true ] && break
+    sleep 6
+  done
+  ab click 'nav a[href="/home"]' >/dev/null
+  ab wait --text 'need you' >/dev/null
+  pause 2
+  start_capture part2
+  say home
+  pause 3
+  ab scroll down 500 >/dev/null; pause 2.5
+  ab scroll up 500 >/dev/null; pause 1.5
+
+  say mail
+  click click 'nav a[href="/mail"]'
+  pause 1.5
+  click find text 'Project sync this week' click
+  pause 5
+  say send
+  local send
+  send=$(ab snapshot -i -c | grep -o 'button "Send" \[ref=e[0-9]*' | tail -1 | grep -o 'e[0-9]*$')
+  ab hover "@$send" >/dev/null; pause 1.5
+  click click "@$send"
+  pause 12
+  say archive
+  click find role button click --name 'Archive'
+  pause 3
+
+  say gmail
+  ab open 'https://mail.google.com/mail/u/0/#sent' >/dev/null
+  pause 6
+  ab open 'https://mail.google.com/mail/u/0/#search/subject%3A%22Project+sync+this+week%22' >/dev/null
+  pause 6
+
+  stop_capture
+}
+
+part3() {
+  ab open https://fewmail.app/calendar >/dev/null
+  pause 4
+  start_capture part3
+  say calendar
+  pause 2
+  click find text 'Week' click --exact
+  pause 1
+  local xy
+  xy=$(slot)
+  ab mouse move ${xy} >/dev/null; pause 0.6
+  ab mouse down left >/dev/null; ab mouse up left >/dev/null
+  pause 1.5
+  must find label 'Add a title' click
+  typeslow 'Project sync with Wannabe Space'
+  pause 1
+  click find role button click --name 'Add event'
+  pause 3
+  ab open 'https://calendar.google.com/calendar/r/week/2026/11/19' >/dev/null
+  pause 6
+  stop_capture
+}
+
+part4() {
+  ab open https://fewmail.app/calendar >/dev/null
+  pause 4
+  start_capture part4
+  say delete event
+  pause 1.5
+  click find text 'Project sync with Wannabe Space' click
+  pause 1.5
+  click find role button click --name 'Delete'
+  pause 3
+
+  say people
+  click find role button click --name 'People'
+  pause 1
+  must find placeholder 'Find a person' click
+  typeslow 'Wannabe'
+  pause 3
+
+  say settings
+  ab open https://fewmail.app/settings >/dev/null
+  pause 2
+  ab scroll down 2000 >/dev/null
+  pause 1.5
+  ab find role button hover --name 'Delete account' >/dev/null
+  pause 3
+  stop_capture
+}
+
+"$1"
+```
+
+</details>
