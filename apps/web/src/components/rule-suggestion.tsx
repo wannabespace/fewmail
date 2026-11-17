@@ -66,11 +66,11 @@ export const RuleSuggestionCard = ({
               <SenderAvatar sender={suggestion} size="sm" />
             </ItemMedia>
             <ItemContent>
-              <ItemTitle>
+              <ItemTitle className="flex-wrap gap-y-0.5">
                 <span data-mask>
                   {suggestion.fromName ?? suggestion.fromEmail}
                 </span>
-                <span className="text-muted-foreground text-xs font-normal">
+                <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
                   {t.today.ruleSuggestion.label}
                 </span>
               </ItemTitle>

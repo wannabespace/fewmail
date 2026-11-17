@@ -12,6 +12,7 @@ import {
 } from '@fewmail/ui/components/item'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { copy } from '@fewmail/ui/lib/copy'
+import { cn } from '@fewmail/ui/lib/utils'
 import {
   AiChat02Icon,
   Cancel01Icon,
@@ -367,15 +368,20 @@ export const NoticeBar = () => {
   )
 
   // Always mounted, so the last card can fold away instead of vanishing; each card unfolds into its place, never pops.
-  // Only the first card is measured: the rest unfold in their own scroller, so Show all never moves the page.
+  // Only the first card is measured, so Show all never moves the page; the whole stack, first card included, scrolls as one.
   return (
     <div className="pointer-events-none absolute inset-0 z-10 flex flex-col">
-      <div ref={firstRef} className="px-3">
-        <AnimatePresence initial={false}>
-          {shown.slice(0, 1).map((notice) => cardOf(notice, true))}
-        </AnimatePresence>
-      </div>
-      <div className="pointer-events-auto min-h-0 overflow-y-auto overscroll-contain px-3 pb-2 empty:pb-0">
+      <div
+        className={cn(
+          'min-h-0 overflow-y-auto overscroll-contain px-3 pb-2',
+          isExpanded && 'pointer-events-auto'
+        )}
+      >
+        <div ref={firstRef}>
+          <AnimatePresence initial={false}>
+            {shown.slice(0, 1).map((notice) => cardOf(notice, true))}
+          </AnimatePresence>
+        </div>
         <AnimatePresence initial={false}>
           {isExpanded && shown.slice(1).map((notice) => cardOf(notice, false))}
         </AnimatePresence>

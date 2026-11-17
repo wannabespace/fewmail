@@ -254,9 +254,9 @@ const NewSenders = ({
                 <SenderAvatar sender={sender} size="sm" />
               </ItemMedia>
               <ItemContent>
-                <ItemTitle>
+                <ItemTitle className="flex-wrap gap-y-0.5">
                   <span data-mask>{sender.fromName ?? sender.fromEmail}</span>
-                  <span className="text-muted-foreground text-xs font-normal">
+                  <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
                     {t.today.newSender.label}
                   </span>
                 </ItemTitle>
@@ -356,9 +356,9 @@ const RuleOffers = ({
               <HugeiconsIcon icon={RepeatIcon} strokeWidth={2} />
             </ItemMedia>
             <ItemContent>
-              <ItemTitle>
+              <ItemTitle className="flex-wrap gap-y-0.5">
                 <span data-mask>{rule.instruction}</span>
-                <span className="text-muted-foreground text-xs font-normal">
+                <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
                   {t.rules.effect[rule.effect]}
                 </span>
               </ItemTitle>
