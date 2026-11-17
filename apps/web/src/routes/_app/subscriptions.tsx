@@ -15,6 +15,7 @@ import {
 } from '@fewmail/ui/components/empty'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import { cn } from '@fewmail/ui/lib/utils'
 import { MailRemove01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -33,6 +34,7 @@ import { toast } from 'sonner'
 import { confirm } from '~/components/confirm-dialog'
 import { KeyHints } from '~/components/key-hints'
 import { SenderAvatar } from '~/components/sender-avatar'
+import { useIsUnderNotice } from '~/components/thread-link'
 import { StackView } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 import { offerBlock } from '~/lib/offer-block'
@@ -287,6 +289,7 @@ const SubscriptionsPage = () => {
     posthog.capture('subscription_stack_opened')
   }
   const isStackOpen = isOpen && !!active
+  const isUnderNotice = useIsUnderNotice()
 
   const listKeys = { enabled: rows.length > 0 }
   const rowKeys = { enabled: Boolean(active) }
@@ -407,7 +410,13 @@ const SubscriptionsPage = () => {
         )}
       </div>
       {isStackOpen && (
-        <aside className="bg-background flex w-160 max-w-[60%] shrink-0 flex-col border-l">
+        <aside
+          className={cn(
+            'bg-background mt-(--notice-height) flex w-160 max-w-[60%] shrink-0 flex-col border-l',
+            isUnderNotice &&
+              'mt-[calc(var(--notice-height)+--spacing(2))] rounded-tl-xl border-t'
+          )}
+        >
           <SubscriptionStack
             key={active.messageId}
             isLeaving={leaving.has(active.messageId)}

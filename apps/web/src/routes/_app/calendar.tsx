@@ -53,6 +53,7 @@ import {
   previewOf,
 } from '~/components/event-pane'
 import { KeyHints } from '~/components/key-hints'
+import { useIsUnderNotice } from '~/components/thread-link'
 import type { CalendarEvent, CalendarView } from '~/lib/calendar'
 import { CALENDAR_VIEWS } from '~/lib/calendar'
 import { localeStore, useDates, useLocale, useT, weekStartOf } from '~/lib/i18n'
@@ -204,6 +205,7 @@ const CalendarPage = () => {
   const canAdd = connected === undefined || connected.length > 0
   const paneWidth = useSubscription(paneWidthStore)
   const isMobile = useIsMobile()
+  const isUnderNotice = useIsUnderNotice()
 
   const {
     editing,
@@ -370,7 +372,12 @@ const CalendarPage = () => {
         }
       >
         {editing && (
-          <aside className="bg-background flex min-w-0 flex-1 flex-col border-l">
+          <aside
+            className={cn(
+              'bg-background flex min-w-0 flex-1 flex-col border-l',
+              isUnderNotice && 'mt-2 rounded-tl-xl border-t'
+            )}
+          >
             <EventPane
               key={`${editing.draft.id}${editing.draft.start.toISOString()}`}
               calendars={connected ?? []}
