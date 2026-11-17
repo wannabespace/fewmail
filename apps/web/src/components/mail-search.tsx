@@ -208,7 +208,7 @@ export const MailSearchField = ({
           return () => mailSearchFieldStore.set(null)
         }}
         groupRef={setGroup}
-        className="max-w-64"
+        className="max-w-64 @max-xl:max-w-none"
         clearLabel={t.nav.clearSearch}
         autoFocus={autoFocus}
         defaultValue={defaultValue}

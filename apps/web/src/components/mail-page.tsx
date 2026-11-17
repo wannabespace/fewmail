@@ -2471,7 +2471,13 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const { panesWidth, readerWidth, setPanes } = useReaderWidth()
   const hasAgent = useHasAgent()
   const { filter: picked, mailbox, q, thread } = useSearch({ strict: false })
-  const isReaderUnderNotice = useIsUnderNotice() && !!thread
+  // The closed email stays in the reader while it folds away.
+  const [lastThread, setLastThread] = useState(thread)
+  if (thread && thread !== lastThread) {
+    setLastThread(thread)
+  }
+  const shownThread = thread ?? lastThread
+  const isReaderUnderNotice = useIsUnderNotice() && !!shownThread
   const inboxView = useSubscription(inboxViewStore)
   const navigate = useNavigate()
   const listRef = useRef<HTMLUListElement>(null)
@@ -2796,7 +2802,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
           })}
         >
           <PickedBar list={list} picks={picks}>
-            <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] items-center gap-2 px-6 py-3 max-md:px-4">
+            <div className="mx-auto flex w-full max-w-[calc(var(--container-3xl)+3rem)] flex-wrap items-center gap-2 px-6 py-3 max-md:px-4">
               {view ? (
                 <ViewPicker
                   filter={view}
@@ -2818,7 +2824,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
                 mailboxes={mailboxes}
                 onChange={pickMailbox}
               />
-              <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-3">
+              <div className="ml-auto flex min-w-52 flex-1 items-center justify-end gap-3">
                 {!isSearching && (
                   <InGmailCount filter={shownFilter} mailbox={mailbox} />
                 )}
@@ -2881,22 +2887,24 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
       <ResizablePanel
         className="flex"
         collapsed={!thread || panesWidth === 0}
-        transition={{ duration: 0 }}
+        initial={{ x: 24 }}
+        animate={{ x: 0 }}
+        keepMounted={false}
         size={readerWidth}
         minSize={READER_WIDTH.min}
         maxSize={READER_WIDTH.max}
         onSizeChange={(width) => readerWidthStore.set(width)}
       >
-        {thread && (
+        {shownThread && (
           <div
             className={cn('bg-background flex min-w-0 flex-1 flex-col', {
               'mt-2 rounded-tl-xl border-t border-l': isReaderUnderNotice,
             })}
           >
             <ThreadView
-              key={thread}
+              key={shownThread}
               isSnoozed={filter === 'snoozed'}
-              threadId={thread}
+              threadId={shownThread}
               onClose={closeThread}
               onDone={closeThread}
             />
@@ -2905,7 +2913,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
                 hasAgent,
                 isPinned: rows.some(
                   ({ message }) =>
-                    message.threadId === thread && message.isPinned
+                    message.threadId === shownThread && message.isPinned
                 ),
                 sweepHint,
                 t,
