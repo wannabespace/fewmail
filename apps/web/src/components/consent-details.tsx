@@ -247,8 +247,16 @@ const CONSENT_DETAILS: Record<
       )}
     </>
   ),
-  delete_event: ({ calendar, target }) =>
-    target && <EventDetails calendar={calendar} event={target} />,
+  delete_event: ({ calendar, input, t, target }) => (
+    <>
+      {target && <EventDetails calendar={calendar} event={target} />}
+      {input.scope && (
+        <p className="text-muted-foreground text-sm">
+          {t.calendar.scope[input.scope]}
+        </p>
+      )}
+    </>
+  ),
   send_email: ({ input }) => (
     <>
       <Recipients cc={input.cc} to={input.to} />

@@ -314,7 +314,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   list_events: define({
     description:
-      "Events in the user's Google calendars between from and to (ISO 8601), across every mailbox, each with its id, mailboxId and whether it is one occurrence of a recurring event. calendars lists each mailbox and whether its calendar is connected.",
+      "Events in the user's Google calendars between from and to (ISO 8601), across every mailbox, each with its id, mailboxId and, for one occurrence of a recurring event, its seriesId. calendars lists each mailbox and whether its calendar is connected.",
     input: {
       from: z.iso.datetime({ offset: true }),
       to: z.iso.datetime({ offset: true }),
@@ -339,10 +339,15 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       updateEvent(userId, { id, mailboxId }, event, scope),
   }),
   delete_event: define({
-    description: 'Delete an event from list_events from the Google calendar.',
-    input: { id: z.string(), mailboxId: z.uuid() },
-    run: async (ref) => {
-      await deleteEvent(userId, ref)
+    description:
+      'Delete an event from list_events from the Google calendar. For a recurring event, scope says what goes: this occurrence only (this, the default), it and every later one (following) or the whole series (all); ask the user which.',
+    input: {
+      id: z.string(),
+      mailboxId: z.uuid(),
+      scope: z.enum(EVENT_SCOPES).optional(),
+    },
+    run: async ({ scope, ...ref }) => {
+      await deleteEvent(userId, ref, scope)
       return { deleted: true }
     },
   }),

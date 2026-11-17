@@ -180,10 +180,15 @@ export const updateEvent = async (
   return { ...updated, mailboxId: ref.mailboxId }
 }
 
-export const deleteEvent = async (userId: string, ref: EventRef) => {
+export const deleteEvent = async (
+  userId: string,
+  ref: EventRef,
+  scope?: EventScope
+) => {
   await deleteGoogleEvent(
     await requireConnected(await ownMailbox(userId, ref.mailboxId)),
-    ref.id
+    ref.id,
+    scope
   )
   forgetEvents(userId)
 }

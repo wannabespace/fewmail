@@ -188,6 +188,7 @@ const messageId = type({ messageId: 'string.uuid' })
 const readingDayInput = type({ 'day?': /^\d{4}-\d{2}-\d{2}$/u })
 
 const eventRef = type({ id: 'string', mailboxId: 'string.uuid' })
+const eventScope = type.enumerated(...EVENT_SCOPES)
 
 const eventInput = type({
   allDay: 'boolean',
@@ -245,18 +246,16 @@ export const router = {
     create: authed
       .input(eventInput.and({ 'mailboxId?': 'string.uuid' }))
       .handler(({ context, input }) => createEvent(context.user.id, input)),
-    delete: authed.input(eventRef).handler(async ({ context, input }) => {
-      await deleteEvent(context.user.id, input)
-    }),
+    delete: authed
+      .input(eventRef.and({ 'scope?': eventScope }))
+      .handler(async ({ context, input: { scope, ...ref } }) => {
+        await deleteEvent(context.user.id, ref, scope)
+      }),
     events: authed
       .input(type({ from: 'Date', to: 'Date' }))
       .handler(({ context, input }) => listEvents(context.user.id, input)),
     update: authed
-      .input(
-        eventRef
-          .and(eventInput)
-          .and({ 'scope?': type.enumerated(...EVENT_SCOPES) })
-      )
+      .input(eventRef.and(eventInput).and({ 'scope?': eventScope }))
       .handler(
         ({ context, input: { id: eventId, mailboxId, scope, ...event } }) =>
           updateEvent(context.user.id, { id: eventId, mailboxId }, event, scope)

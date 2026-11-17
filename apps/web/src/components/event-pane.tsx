@@ -58,7 +58,7 @@ export interface EventDraft {
   link?: string
   location: string
   mailboxId?: string
-  recurring?: boolean
+  seriesId?: string
   start: Date
   title: string
 }
@@ -96,7 +96,7 @@ export const previewOf = (draft: EventDraft): CalendarEvent => ({
   id: draft.id ?? '',
   link: draft.link ?? '',
   mailboxId: draft.mailboxId ?? '',
-  recurring: draft.recurring ?? false,
+  seriesId: draft.seriesId,
 })
 
 const isSameDraft = (a: EventDraft, b: EventDraft) =>
@@ -135,6 +135,49 @@ const useDuration = (draft: EventDraft) => {
   )
 }
 
+const DeleteEventButton = ({
+  isPicking,
+  isRecurring,
+  onDelete,
+  onPickingChange,
+}: {
+  isPicking: boolean
+  isRecurring: boolean
+  onDelete: (scope?: EventScope) => void
+  onPickingChange: (isPicking: boolean) => void
+}) => {
+  const t = useT()
+  const button = (
+    <IconButton
+      icon={Delete02Icon}
+      label={t.calendar.delete}
+      shortcut={<Kbd>⌫</Kbd>}
+      size="icon-sm"
+      variant="ghost-destructive"
+      onClick={isRecurring ? undefined : () => onDelete()}
+    />
+  )
+  if (!isRecurring) {
+    return button
+  }
+  return (
+    <DropdownMenu open={isPicking} onOpenChange={onPickingChange}>
+      <DropdownMenuTrigger render={button} />
+      <DropdownMenuContent align="end">
+        {EVENT_SCOPES.map((scope) => (
+          <DropdownMenuItem
+            key={scope}
+            variant="destructive"
+            onClick={() => onDelete(scope)}
+          >
+            {t.calendar.scope[scope]}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 /** Controlled by the page, which draws `value` on the grid while it is edited; `draft` is what was opened. */
 export const EventPane = ({
   calendars,
@@ -156,6 +199,7 @@ export const EventPane = ({
   const titleRef = useRef<HTMLTextAreaElement>(null)
   const duration = useDuration(value)
   const [isPickingScope, setIsPickingScope] = useState(false)
+  const [isPickingDeleteScope, setIsPickingDeleteScope] = useState(false)
   const ref =
     draft.id && draft.mailboxId
       ? { id: draft.id, mailboxId: draft.mailboxId }
@@ -207,13 +251,27 @@ export const EventPane = ({
     orpc.calendar.delete.mutationOptions({ onSettled: invalidate })
   )
   // Google sends guests a cancellation on delete, so the event goes only once the toast closes without Undo.
-  const deleteEvent = () => {
+  const deleteEvent = (scope?: EventScope) => {
     if (!ref) {
       return
     }
+    if (draft.seriesId && !scope) {
+      setIsPickingDeleteScope(true)
+      return
+    }
+    const isReached = (event: CalendarEvent) =>
+      event.id === ref.id ||
+      (scope !== 'this' &&
+        event.mailboxId === ref.mailboxId &&
+        event.seriesId === draft.seriesId &&
+        (scope === 'all' || eventTimes(event).start >= draft.start))
     onClose()
-    changeEvents((events) => events.filter((event) => event.id !== ref.id))
-    toastDeferred(t.calendar.deleted, () => remove.mutate(ref), invalidate)
+    changeEvents((events) => events.filter((event) => !isReached(event)))
+    toastDeferred(
+      t.calendar.deleted,
+      () => remove.mutate({ ...ref, scope }),
+      invalidate
+    )
   }
 
   const save = (scope?: EventScope) => {
@@ -229,7 +287,7 @@ export const EventPane = ({
       toast.error(t.calendar.endBeforeStart)
       return
     }
-    if (ref && draft.recurring && !scope) {
+    if (ref && draft.seriesId && !scope) {
       setIsPickingScope(true)
     } else if (ref) {
       update.mutate({ ...fieldsOf(value), ...ref, scope })
@@ -239,7 +297,7 @@ export const EventPane = ({
   }
 
   useHotkey('Mod+Enter', () => save())
-  useHotkey('Backspace', deleteEvent, { enabled: Boolean(ref) })
+  useHotkey('Backspace', () => deleteEvent(), { enabled: Boolean(ref) })
   useHotkey('Enter', () => save(), {
     ignoreInputs: false,
     preventDefault: true,
@@ -296,13 +354,11 @@ export const EventPane = ({
           />
         )}
         {ref && (
-          <IconButton
-            icon={Delete02Icon}
-            label={t.calendar.delete}
-            shortcut={<Kbd>⌫</Kbd>}
-            size="icon-sm"
-            variant="ghost-destructive"
-            onClick={deleteEvent}
+          <DeleteEventButton
+            isPicking={isPickingDeleteScope}
+            isRecurring={Boolean(draft.seriesId)}
+            onDelete={deleteEvent}
+            onPickingChange={setIsPickingDeleteScope}
           />
         )}
         <IconButton
@@ -442,7 +498,7 @@ export const EventPane = ({
       </div>
 
       <footer className="flex justify-end border-t px-6 py-4">
-        {ref && draft.recurring ? (
+        {ref && draft.seriesId ? (
           <DropdownMenu open={isPickingScope} onOpenChange={setIsPickingScope}>
             <DropdownMenuTrigger
               render={<Button disabled={!isChanged || !hasTitle} />}

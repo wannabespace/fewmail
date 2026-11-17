@@ -82,7 +82,7 @@ const fromGoogleEvent = (event: GoogleEvent) => ({
   id: event.id,
   link: event.htmlLink,
   location: event.location ?? '',
-  recurring: Boolean(event.recurringEventId ?? event.recurrence),
+  seriesId: event.recurringEventId,
   start: timeOf(event.start),
   title: event.summary ?? '',
 })
@@ -199,6 +199,22 @@ const occurrencesBefore = async (
   return items.length
 }
 
+const endSeriesBefore = (
+  account: GmailAccount,
+  series: GoogleEvent,
+  original: GoogleTime
+) =>
+  patch(account, series.id, {
+    recurrence: series.recurrence?.map((line) =>
+      isRule(line)
+        ? `${line
+            .split(';')
+            .filter((part) => !/^(?:COUNT|UNTIL)=/u.test(part))
+            .join(';')};UNTIL=${untilBefore(original)}`
+        : line
+    ),
+  })
+
 /** Google's own "this and following": the series ends before this occurrence and a copy of it starts here with the change. */
 const splitSeries = async (
   account: GmailAccount,
@@ -231,17 +247,26 @@ const splitSeries = async (
     method: 'POST',
   })
   // Created first: a failed split then leaves a duplicate, never lost occurrences.
-  await patch(account, series.id, {
-    recurrence: series.recurrence?.map((line) =>
-      isRule(line)
-        ? `${line
-            .split(';')
-            .filter((part) => !/^(?:COUNT|UNTIL)=/u.test(part))
-            .join(';')};UNTIL=${untilBefore(original)}`
-        : line
-    ),
-  })
+  await endSeriesBefore(account, series, original)
   return created
+}
+
+/** The series a change to this occurrence reaches past it, and whether it reaches all of it; none for `this` or a single event. */
+const seriesOf = async (
+  account: GmailAccount,
+  id: string,
+  scope: EventScope
+) => {
+  const occurrence = scope === 'this' ? undefined : await getEvent(account, id)
+  if (!occurrence?.recurringEventId || !occurrence.originalStartTime) {
+    return
+  }
+  const series = await getEvent(account, occurrence.recurringEventId)
+  const original = occurrence.originalStartTime
+  const isWhole =
+    scope === 'all' ||
+    Date.parse(timeOf(original)) === Date.parse(timeOf(series.start))
+  return { isWhole, occurrence, original, series }
 }
 
 export const patchEvent = async (
@@ -250,21 +275,28 @@ export const patchEvent = async (
   event: CalendarEventFields,
   scope: EventScope = 'this'
 ) => {
-  const occurrence = scope === 'this' ? undefined : await getEvent(account, id)
-  if (!occurrence?.recurringEventId || !occurrence.originalStartTime) {
+  const reach = await seriesOf(account, id, scope)
+  if (!reach) {
     return fromGoogleEvent(await patch(account, id, toGoogleEvent(event)))
   }
-  const series = await getEvent(account, occurrence.recurringEventId)
-  const original = occurrence.originalStartTime
-  const isFirst =
-    Date.parse(timeOf(original)) === Date.parse(timeOf(series.start))
   return fromGoogleEvent(
-    scope === 'all' || isFirst
-      ? await patchSeries(account, occurrence, series, event)
-      : await splitSeries(account, series, original, event)
+    reach.isWhole
+      ? await patchSeries(account, reach.occurrence, reach.series, event)
+      : await splitSeries(account, reach.series, reach.original, event)
   )
 }
 
-export const deleteEvent = async (account: GmailAccount, id: string) => {
-  await calendar(account, eventPath(id), { method: 'DELETE' })
+export const deleteEvent = async (
+  account: GmailAccount,
+  id: string,
+  scope: EventScope = 'this'
+) => {
+  const reach = await seriesOf(account, id, scope)
+  if (reach && !reach.isWhole) {
+    await endSeriesBefore(account, reach.series, reach.original)
+    return
+  }
+  await calendar(account, eventPath(reach?.series.id ?? id), {
+    method: 'DELETE',
+  })
 }
