@@ -128,7 +128,7 @@ const AccordionTrigger = ({
         <div
           className={cn(
             'relative flex shrink-0 items-center',
-            variant === 'list' ? 'pr-3.5' : 'pr-4.5'
+            variant === 'list' ? 'pr-3.5 pl-3' : 'pr-4.5'
           )}
         >
           {trailing}
