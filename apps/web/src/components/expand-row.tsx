@@ -20,8 +20,10 @@ import { posthog } from '~/lib/posthog'
 const HOUSE_EASE = [0.32, 0.72, 0, 1] as const
 
 /**
- * One clock for a card growing into its pane and back, all at once: the box grows (or shrinks) while what leaves blurs
- * out and what arrives is already blurring in.
+ * One clock for a card growing into its pane and back: the card's content grows with the box and hands over to
+ * the pane's while it is still growing, one blurring out as the other blurs in; closing, the pane's content
+ * blurs out at once and the card's is back while the box shrinks into its place. Blurred in over the card's content
+ * from the start, the pane's read as a second layer opening on it.
  */
 const clockOf = (isReduced: boolean | null) => {
   const at = (delay: number, duration: number): Transition =>
@@ -32,9 +34,11 @@ const clockOf = (isReduced: boolean | null) => {
       ? { duration: 0 }
       : { bounce, type: 'spring', visualDuration: 0.25 }
   return {
-    arrive: at(0.04, 0.18),
     box: spring(0.2),
-    leave: at(0, 0.13),
+    copyIn: at(0.04, 0.13),
+    copyOut: at(0.04, 0.13),
+    paneIn: at(0.04, 0.18),
+    paneOut: at(0, 0.13),
   } satisfies Record<string, Transition>
 }
 
@@ -45,7 +49,7 @@ const SHOWN = { filter: 'blur(0px)', opacity: 1 }
 
 const CARD_RADIUS = 16
 
-/** What a pane shows: it blurs in as the box grows and out as it shrinks. */
+/** What a pane shows: it blurs in once the box has nearly grown and out as it starts to shrink. */
 export const PaneReveal = ({
   children,
   className,
@@ -57,8 +61,8 @@ export const PaneReveal = ({
   return (
     <motion.div
       initial={HIDDEN}
-      animate={{ ...SHOWN, transition: clock.arrive }}
-      exit={{ ...HIDDEN, transition: clock.leave }}
+      animate={{ ...SHOWN, transition: clock.paneIn }}
+      exit={{ ...HIDDEN, transition: clock.paneOut }}
       className={className}
     >
       {children}
@@ -103,16 +107,16 @@ const copyOf = (source: string) => {
   copy.style.boxShadow = 'none'
   copy.style.margin = '0'
   copy.style.width = '100%'
-  copy.style.height = '100%'
   return copy
 }
 
 /**
  * The card or row marked `data-morph-source={source}` growing into a pane over `area` (`data-slot`), and back: the box
  * itself takes the source's place, fill, ring and corners (the source hides under it), with a still copy of its content,
- * then grows to the pane, laying out what it holds at its own size as it goes, while its fill turns into the page's, the
- * copy blurs out and the pane's content (`PaneReveal`) blurs in. Closing runs it back into the same box (measured once:
- * the source stays where it is under the pane), with a fresh copy, so it needs an `AnimatePresence`. Already open when
+ * then grows to the pane while its fill turns into the page's. The copy grows with it, laid out at the box's width in the
+ * pane's column, its padding growing into the pane's, so the card's own content rides to the top of the pane; only then
+ * does it blur out as the pane's content (`PaneReveal`) blurs in. Closing runs it back into the same box (measured once: the
+ * source stays where it is under the pane), with a fresh copy, so it needs an `AnimatePresence`. Already open when
  * the page loads (`AnimatePresence initial={false}`, a reload on `?page=`), it is simply there, and measures its card
  * only to close into it.
  */
@@ -188,7 +192,7 @@ export const MorphPane = ({
         animate(
           ghost.current,
           isPresent ? HIDDEN : SHOWN,
-          isPresent ? clock.leave : clock.arrive
+          isPresent ? clock.copyOut : clock.copyIn
         )
       )
     }
@@ -223,6 +227,10 @@ export const MorphPane = ({
     (at) => `${from ? radius * Math.max(0, 1 - at ** 4) : 0}px`
   )
   const cardFill = useTransform(grown, [0, 1], [1, 0])
+  const growth = useTransform(grown, (at) => Math.min(1, Math.max(0, at)))
+  const copyX = useTransform(growth, (at) => `${at * 1.3125}rem`)
+  const copyTop = useTransform(growth, (at) => `${at * 2}rem`)
+  const copyTopNarrow = useTransform(growth, (at) => `${at * 0.5}rem`)
   return (
     <motion.div
       ref={box}
@@ -230,6 +238,9 @@ export const MorphPane = ({
         {
           '--morph-corners': corners,
           '--morph-edges': edges,
+          '--morph-copy-top': copyTop,
+          '--morph-copy-top-narrow': copyTopNarrow,
+          '--morph-copy-x': copyX,
         } as MotionStyle
       }
       className={cn(
@@ -245,10 +256,12 @@ export const MorphPane = ({
         className="bg-card pointer-events-none absolute inset-0 -z-10 opacity-(--morph-fill)"
       />
       <div className="h-full">{children}</div>
+      {/* The pane's column (`mx-auto max-w-3xl px-10 pt-12`, a card's `px-4.75 py-4` already in the copy): the card's
+          content ends where the pane's begins. */}
       <div
         ref={ghost}
         aria-hidden
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 mx-auto max-w-3xl px-(--morph-copy-x) pt-(--morph-copy-top) max-md:px-0 max-md:pt-(--morph-copy-top-narrow)"
       />
     </motion.div>
   )
