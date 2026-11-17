@@ -1805,8 +1805,7 @@ const HomePage = () => {
             </div>
           </div>
           <ReadingPane {...readingDays} />
-          {/* A closing pane stays mounted until its card has grown back: removed at once, motion may have no snapshot
-              of it and the card grows from its corner instead of shrinking from the pane. */}
+          {/* A closing pane stays mounted while it shrinks back into its card. */}
           <AnimatePresence>
             {page === 'look' && (
               <HomeCardPane key="look" page="look">

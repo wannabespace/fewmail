@@ -21,21 +21,17 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { parseISO } from 'date-fns'
-import { AnimatePresence, motion } from 'motion/react'
-import { Fragment, useMemo, useState } from 'react'
+import { AnimatePresence } from 'motion/react'
+import { Fragment, useState } from 'react'
 import { toast } from 'sonner'
 
 import { EmailRow } from '~/components/email-row'
 import {
-  clipOver,
   ExpandTrigger,
   expandRow,
-  HIDDEN,
-  OPEN_CLIP,
-  SHOWN,
+  MorphPane,
+  PaneReveal,
   useIsThreadExpanded,
-  useMorph,
-  useMorphLayer,
 } from '~/components/expand-row'
 import { ListenButton } from '~/components/listen-button'
 import { sweepOf, useMailActions } from '~/components/thread-view'
@@ -52,7 +48,6 @@ type Summary = NonNullable<Issue['summary']>
 const senderOf = (row: Row) => row.fromName ?? row.fromEmail
 
 // The card's `rounded-2xl` as a motion value: motion keeps only its own radius round while the card scales.
-const CARD_RADIUS = 16
 
 /** Every written issue and the fresh one Home shows (this morning's, until the next morning's); the day still filling is never shown. */
 export const useReadingIssues = () => {
@@ -335,22 +330,7 @@ const MarkAllRead = ({
   )
 }
 
-// One spring for the card and the pane, so the pane grows out of the card and shrinks back into it; what only one of
-// them has (the topic line, the whole summary) fades in once the box is on its way.
-const HEAD_HIDDEN = { opacity: 0, scale: 0.9 }
-const HEAD_SHOWN = { opacity: 1, scale: 1 }
-
 const listenPath = (day: string) => `/voice/reading?day=${day}`
-
-/** One Listen for the card and the pane, so it slides to its new spot in the head instead of jumping. */
-const ReadingListen = ({ day, summary }: { day: string; summary: Summary }) => {
-  const { morph } = useMorph()
-  return (
-    <motion.div layout="position" layoutId="reading-listen" transition={morph}>
-      <ListenButton path={listenPath(day)} text={readingSpeech(summary)} />
-    </motion.div>
-  )
-}
 
 /** The summary's opening, or what Reading is when the issue has none (Free). */
 const ReadingIntro = ({ day }: { day: string }) => {
@@ -382,8 +362,8 @@ const IssueHeading = ({ day }: { day: string }) => {
 
 /**
  * Yesterday's issue, a card on Home under the header: the opening and the topics. A click anywhere on it or `N`
- * (`?page=reading`) grows it into the pane (one `layoutId`); while the pane is open the card keeps its place, unseen, so
- * it shrinks back into the same spot.
+ * (`?page=reading`) grows it into the pane; the card stays where it is under the pane, its content blurred out, so the
+ * pane shrinks back into the same spot.
  */
 const IssueCard = ({
   day,
@@ -395,89 +375,52 @@ const IssueCard = ({
   isOpen: boolean
 }) => {
   const t = useT()
-  const { morph: transition, reveal } = useMorph()
-  const layer = useMorphLayer('reading')
   const { rows, summary } = useReadingDay(day)
-  // Only a card coming back from the pane fades its topics in; on Home's first render they are simply there.
-  const [hasOpened, setHasOpened] = useState(isOpen)
-  if (isOpen && !hasOpened) {
-    setHasOpened(true)
-  }
-  const content = (
-    <>
-      <div className="flex min-h-8 flex-wrap items-center gap-2">
-        <IssueHeading day={day} />
-        <div className="pointer-events-auto ml-auto flex flex-wrap gap-2">
-          {summary && !isOpen && <ReadingListen day={day} summary={summary} />}
-          {!isOpen && (
-            <motion.div
-              initial={hasOpened ? HEAD_HIDDEN : false}
-              animate={HEAD_SHOWN}
-              transition={reveal}
-            >
-              <MarkAllRead
-                day={day}
-                isActive={isActive}
-                rows={rows}
-                variant="ghost-muted"
-              />
-            </motion.div>
-          )}
-        </div>
-      </div>
-      <ReadingIntro day={day} />
-      {!!summary?.sections.length && (
-        <motion.p
-          initial={hasOpened ? HIDDEN : false}
-          animate={SHOWN}
-          transition={reveal}
-          data-mask
-          className="text-muted-foreground font-serif"
-        >
-          {summary.sections.map(({ title }) => title).join(' · ')}
-        </motion.p>
-      )}
-    </>
-  )
-  const cardClassName = cn(
-    'bg-card ring-foreground/6 flex flex-col gap-3 px-4.75 py-4 ring',
-    cardsBleedClassName
-  )
-  return isOpen ? (
-    <section aria-hidden className={cn(cardClassName, 'invisible rounded-2xl')}>
-      {content}
-    </section>
-  ) : (
-    <motion.section
-      layoutId="reading"
-      {...layer.handlers}
-      transition={transition}
+  return (
+    <section
       aria-label={t.reading.title}
-      initial={false}
-      animate={{ borderRadius: CARD_RADIUS }}
+      aria-hidden={isOpen || undefined}
       data-morph-source={issueMorphId(day)}
       className={cn(
-        cardClassName,
-        'hover:ring-foreground/10 relative overflow-hidden',
-        layer.className
+        'bg-card ring-foreground/6 hover:ring-foreground/10 relative flex flex-col gap-3 overflow-hidden rounded-2xl px-4.75 py-4 ring',
+        cardsBleedClassName
       )}
     >
       <Link
         to="/home"
         search={(prev) => ({ ...prev, page: 'reading' })}
         aria-label={t.reading.digest(rows.length)}
+        // The card stays under its pane: a click that kept focus here lit its ring when `esc` closed the pane.
+        onMouseDown={(event) => event.preventDefault()}
         className="focus-visible:focus-ring absolute inset-0 cursor-pointer rounded-2xl outline-none focus-visible:ring-inset"
       />
       {/* Positioned to paint over the card's link, and lets clicks through to it; only the head's buttons take their own. */}
-      <motion.div
-        layout="position"
-        layoutId="reading-content"
-        transition={transition}
-        className="pointer-events-none relative flex flex-col gap-3"
-      >
-        {content}
-      </motion.div>
-    </motion.section>
+      <div className="pointer-events-none relative flex flex-col gap-3">
+        <div className="flex min-h-8 flex-wrap items-center gap-2">
+          <IssueHeading day={day} />
+          <div className="pointer-events-auto ml-auto flex flex-wrap gap-2">
+            {summary && (
+              <ListenButton
+                path={listenPath(day)}
+                text={readingSpeech(summary)}
+              />
+            )}
+            <MarkAllRead
+              day={day}
+              isActive={isActive}
+              rows={rows}
+              variant="ghost-muted"
+            />
+          </div>
+        </div>
+        <ReadingIntro day={day} />
+        {!!summary?.sections.length && (
+          <p data-mask className="text-muted-foreground font-serif">
+            {summary.sections.map(({ title }) => title).join(' · ')}
+          </p>
+        )}
+      </div>
+    </section>
   )
 }
 
@@ -566,25 +509,38 @@ const IssueBody = ({ day, isActive }: { day: string; isActive: boolean }) => {
 
 const CloseIssue = ({ onClose }: { onClose: () => void }) => {
   const t = useT()
-  const { reveal } = useMorph()
   return (
-    <motion.div initial={HEAD_HIDDEN} animate={HEAD_SHOWN} transition={reveal}>
-      <IconButton
-        icon={Cancel01Icon}
-        label={t.mail.close}
-        shortcut={<Kbd>esc</Kbd>}
-        size="icon-sm"
-        variant="ghost-muted"
-        onClick={onClose}
-      />
-    </motion.div>
+    <IconButton
+      icon={Cancel01Icon}
+      label={t.mail.close}
+      shortcut={<Kbd>esc</Kbd>}
+      size="icon-sm"
+      variant="ghost-muted"
+      onClick={onClose}
+    />
   )
 }
 
 const PANE_COLUMN =
   'mx-auto max-w-3xl px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6'
 
-/** `N`'s pane over Home's column, the latest issue: it grows out of `IssueCard` like an App Store card. */
+/** The head of an issue's pane: its heading, Listen and ✕ back to where it opened from. */
+const PaneHead = ({ day, onClose }: { day: string; onClose: () => void }) => {
+  const { summary } = useReadingDay(day)
+  return (
+    <div className="flex min-h-8 flex-wrap items-center gap-2">
+      <IssueHeading day={day} />
+      <div className="ml-auto flex flex-wrap gap-2">
+        {summary && (
+          <ListenButton path={listenPath(day)} text={readingSpeech(summary)} />
+        )}
+        <CloseIssue onClose={onClose} />
+      </div>
+    </div>
+  )
+}
+
+/** `N`'s pane over Home's column, the latest issue: it grows out of `IssueCard`. */
 const LatestPane = ({
   day,
   isCovered,
@@ -594,109 +550,63 @@ const LatestPane = ({
 }) => {
   const t = useT()
   const navigate = useNavigate()
-  const { morph: transition, reveal } = useMorph()
-  const { summary } = useReadingDay(day)
   return (
-    <motion.div
-      layoutId="reading"
-      transition={transition}
-      initial={false}
-      animate={{ borderRadius: 0 }}
-      className="bg-background absolute inset-0 z-10 overflow-hidden"
-    >
-      <motion.div layoutScroll className="under-notice h-full overflow-y-auto">
+    <MorphPane area={READING_AREA} source={issueMorphId(day)} className="z-10">
+      <div className="under-notice h-full overflow-y-auto">
         <section aria-label={t.reading.title} className={PANE_COLUMN}>
-          <motion.div
-            layout="position"
-            layoutId="reading-content"
-            transition={transition}
-            className="flex flex-col gap-3"
-          >
-            <div className="flex min-h-8 flex-wrap items-center gap-2">
-              <IssueHeading day={day} />
-              <div className="ml-auto flex flex-wrap gap-2">
-                {summary && <ReadingListen day={day} summary={summary} />}
-                <CloseIssue
-                  onClose={() =>
-                    navigate({
-                      search: (prev) => ({ ...prev, page: undefined }),
-                      to: '/home',
-                    })
-                  }
-                />
-              </div>
-            </div>
+          <PaneReveal className="flex flex-col gap-3">
+            <PaneHead
+              day={day}
+              onClose={() =>
+                navigate({
+                  search: (prev) => ({ ...prev, page: undefined }),
+                  to: '/home',
+                })
+              }
+            />
             <ReadingIntro day={day} />
-            <motion.div
-              initial={HIDDEN}
-              animate={SHOWN}
-              transition={reveal}
-              className="flex flex-col gap-6 pt-2"
-            >
+            <div className="flex flex-col gap-6 pt-2">
               <IssueBody day={day} isActive={!isCovered} />
               <IssueList shownDay={day} />
-            </motion.div>
-          </motion.div>
+            </div>
+          </PaneReveal>
         </section>
-      </motion.div>
-    </motion.div>
+      </div>
+    </MorphPane>
   )
 }
 
-/** Another day's issue, grown out of its row in the list (or Home's today line) by its clip; esc shrinks it back. */
+/** Another day's issue, grown out of its row in the list (or Home's today line); esc shrinks it back. */
 const DayPane = ({ day }: { day: string }) => {
   const t = useT()
   const navigate = useNavigate()
-  const { morph, reveal } = useMorph()
-  const { summary } = useReadingDay(day)
-  // Measured once as it opens: the row it grew from stays where it was under it, so it closes back into the same box.
-  const clip = useMemo(
-    () => clipOver(issueMorphId(day), 12, READING_AREA),
-    [day]
-  )
   return (
-    <motion.div
-      initial={{ clipPath: clip }}
-      animate={{ clipPath: OPEN_CLIP }}
-      exit={{ clipPath: clip }}
-      transition={morph}
-      className="bg-background absolute inset-0 z-20 overflow-hidden"
+    <MorphPane
+      area={READING_AREA}
+      source={issueMorphId(day)}
+      radius={12}
+      className="z-20"
     >
       <div className="under-notice h-full overflow-y-auto">
         <section aria-label={t.reading.title} className={PANE_COLUMN}>
-          <div className="flex flex-col gap-3">
-            <div className="flex min-h-8 flex-wrap items-center gap-2">
-              <IssueHeading day={day} />
-              <div className="ml-auto flex flex-wrap gap-2">
-                {summary && (
-                  <ListenButton
-                    path={listenPath(day)}
-                    text={readingSpeech(summary)}
-                  />
-                )}
-                <CloseIssue
-                  onClose={() =>
-                    navigate({
-                      search: (prev) => ({ ...prev, day: undefined }),
-                      to: '/home',
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <motion.div
-              initial={HIDDEN}
-              animate={SHOWN}
-              transition={reveal}
-              className="flex flex-col gap-6"
-            >
+          <PaneReveal className="flex flex-col gap-3">
+            <PaneHead
+              day={day}
+              onClose={() =>
+                navigate({
+                  search: (prev) => ({ ...prev, day: undefined }),
+                  to: '/home',
+                })
+              }
+            />
+            <div className="flex flex-col gap-6">
               <ReadingIntro day={day} />
               <IssueBody day={day} isActive />
-            </motion.div>
-          </div>
+            </div>
+          </PaneReveal>
         </section>
       </div>
-    </motion.div>
+    </MorphPane>
   )
 }
 
@@ -706,7 +616,7 @@ export const ReadingPane = ({
   top,
 }: ReturnType<typeof openReadingDays>) => (
   <>
-    {/* A closing pane stays mounted until its card has grown back, or the card can grow out of its corner. */}
+    {/* A closing pane stays mounted while it shrinks back into its card. */}
     <AnimatePresence>
       {base && <LatestPane key={base} day={base} isCovered={!!top} />}
     </AnimatePresence>
