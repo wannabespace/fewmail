@@ -40,7 +40,7 @@ export const fr: Messages = {
       approve_action: 'Validation',
       archive_thread: 'Archivage',
       get_reading: 'Lecture des newsletters',
-      get_wrapped: 'Je compte ton courrier',
+      get_wrapped: 'Je compte votre courrier',
       clear_out: 'Ménage de la boîte de réception',
       preview_clear_out: 'Lecture de toute la boîte de réception',
       undo_clear_out: 'Retour des e-mails rangés',
@@ -124,9 +124,9 @@ export const fr: Messages = {
     remind: {
       days: (total: number) =>
         plural('fr', total, {
-          one: () => 'Me rappeler sans réponse sous un jour',
-          many: (n) => `Me rappeler sans réponse sous ${n} jours`,
-          other: (n) => `Me rappeler sans réponse sous ${n} jours`,
+          one: () => 'Me rappeler si aucune réponse après un jour',
+          many: (n) => `Me rappeler si aucune réponse après ${n} jours`,
+          other: (n) => `Me rappeler si aucune réponse après ${n} jours`,
         }),
       label: 'Me rappeler',
       off: 'Pas de rappel',
@@ -160,14 +160,14 @@ export const fr: Messages = {
   site: {
     meta: {
       assistant:
-        'Fewmail est un assistant e-mail IA pour Gmail qui lit chaque e-mail avant vous, rédige les réponses avec votre ton et ne vous montre que ce qui a besoin de vous. Gratuit pour commencer.',
+        'Fewmail est un assistant e-mail IA pour Gmail qui lit chaque e-mail avant vous, rédige les réponses avec votre ton et ne vous montre que ce qui demande votre attention. Gratuit pour commencer.',
       assistantTitle: 'Assistant e-mail IA pour Gmail',
       compare:
         "Fewmail face à Superhuman, Shortwave et SaneBox : un agent IA qui lit votre courrier plutôt qu'un moyen plus rapide de le lire vous-même.",
       compareTitle: 'Assistants e-mail IA comparés',
-      home: 'Fewmail est un assistant e-mail IA pour Gmail : il lit chaque e-mail, rédige les réponses avec votre ton et ne vous montre que ce qui a besoin de vous.',
+      home: 'Fewmail est un assistant e-mail IA pour Gmail : il lit chaque e-mail, rédige les réponses avec votre ton et ne vous montre que ce qui demande votre attention.',
       login:
-        'Fewmail lit votre Gmail pour vous, répond avec votre ton et ne vous montre que ce qui a vraiment besoin de vous.',
+        'Fewmail lit votre Gmail pour vous, répond avec votre ton et ne vous montre que ce qui demande vraiment votre attention.',
       mcp: "Connectez Fewmail à Claude, ChatGPT, Claude Code ou Cursor comme serveur MCP : lisez et triez votre Gmail depuis l'IA que vous utilisez déjà.",
       motto: "seulement l'essentiel de votre boîte",
       pricing: (trialDays: number) =>
@@ -207,19 +207,19 @@ export const fr: Messages = {
     },
     mcpPage: {
       copy: 'Copier l’URL',
-      lead: 'Connecte Fewmail comme serveur MCP et interroge ta boîte depuis l’IA que tu utilises déjà. Lire tes e-mails et le tri de l’agent sont gratuits ; brouillons, envois et règles viennent avec Pro.',
+      lead: 'Connectez Fewmail comme serveur MCP et interrogez votre boîte depuis l’assistant que vous utilisez déjà. La lecture des e-mails et le tri de l’agent sont gratuits ; les brouillons, les envois et les règles sont inclus dans Pro.',
       safety:
-        'Tout ce qui envoie un e-mail ou modifie Gmail demande d’abord ton accord. Un e-mail qui tente de donner des ordres à l’assistant est signalé avant qu’il ne le lise. Tes e-mails n’entraînent jamais de modèles, et tu peux déconnecter n’importe quelle app dans les réglages.',
+        'Tout envoi ou changement dans Gmail demande d’abord votre accord. Un e-mail qui tente de donner des ordres à l’assistant est signalé avant qu’il ne le lise. Vos e-mails ne servent jamais à entraîner des modèles, et vous pouvez déconnecter chaque application dans les réglages.',
       steps: {
         chatgpt:
-          'Dans Settings, ajoute un connecteur (app) avec cette URL, puis connecte-toi à Fewmail.',
+          'Dans Settings, ajoutez un connecteur (app) avec cette URL, puis connectez-vous à Fewmail.',
         claude:
-          'Dans Settings → Connectors, ajoute un connecteur personnalisé avec cette URL, puis connecte-toi à Fewmail.',
-        code: 'Lance ceci une fois dans un terminal, puis connecte-toi à Fewmail quand Claude Code le demande.',
+          'Dans Settings → Connectors, ajoutez un connecteur personnalisé avec cette URL, puis connectez-vous à Fewmail.',
+        code: 'Exécutez cette commande une fois dans un terminal, puis connectez-vous à Fewmail quand Claude Code le demande.',
         cursor:
-          'Ajoute ceci à ton mcp.json, puis connecte-toi à Fewmail quand Cursor le demande.',
+          'Ajoutez ceci à votre mcp.json, puis connectez-vous à Fewmail quand Cursor le demande.',
       },
-      title: 'Fewmail dans Claude, ChatGPT et tes outils.',
+      title: 'Fewmail dans Claude, ChatGPT et vos outils.',
     },
     assistantPage: {
       abilities: {
@@ -262,7 +262,7 @@ export const fr: Messages = {
       faq: (trialDays: number) => [
         {
           answer:
-            'Un logiciel qui utilise l’IA pour lire, trier et répondre à vos e-mails à votre place. La plupart ajoutent des résumés et une aide à l’écriture à une boîte que vous lisez encore vous-même. Fewmail va plus loin : il lit tout d’abord, pour que vous ne voyiez que ce qui a besoin de vous.',
+            'Un logiciel qui utilise l’IA pour lire, trier et répondre à vos e-mails à votre place. La plupart ajoutent des résumés et une aide à l’écriture à une boîte que vous lisez encore vous-même. Fewmail va plus loin : il lit tout d’abord, pour que vous ne voyiez que ce qui demande votre attention.',
           question: 'Qu’est-ce qu’un assistant e-mail IA ?',
         },
         {
@@ -276,7 +276,7 @@ export const fr: Messages = {
           question: 'Peut-il répondre aux e-mails automatiquement ?',
         },
         {
-          answer: `Oui. La formule Gratuit trie chaque e-mail, réunit sur une seule page ce qui a besoin de vous, applique vos règles et vous protège du spam et du phishing, pour toujours. Les brouillons, les résumés et le reste de l’agent viennent avec les formules payantes, et chaque compte commence avec ${trialDays} jours de Pro, sans carte.`,
+          answer: `Oui. La formule Gratuit trie chaque e-mail, réunit sur une seule page ce qui demande votre attention, applique vos règles et vous protège du spam et du phishing, pour toujours. Les brouillons, les résumés et le reste de l’agent viennent avec les formules payantes, et chaque compte commence avec ${trialDays} jours de Pro, sans carte.`,
           question: 'Existe-t-il un assistant e-mail IA gratuit pour Gmail ?',
         },
       ],
@@ -408,7 +408,7 @@ export const fr: Messages = {
           starter: 'Par membre, $25 en facturation annuelle',
         },
         summary:
-          'Superhuman vous fait parcourir chaque e-mail plus vite. Fewmail les parcourt pour vous et ne vous montre que ce qui a besoin de vous.',
+          'Superhuman vous fait parcourir chaque e-mail plus vite. Fewmail les parcourt pour vous et ne vous montre que ce qui demande votre attention.',
         them: {
           ask: 'Ask AI, avec Business',
           drafts: 'Auto Drafts, avec Business',
@@ -429,7 +429,7 @@ export const fr: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
-          'Beaucoup d’outils e-mail IA sont une nouvelle boîte avec un chat : vous lisez toujours chaque e-mail, simplement avec un résumé en plus. Fewmail est un agent IA qui travaille sur le Gmail que vous utilisez déjà. Il lit d’abord chaque e-mail, rédige les réponses avec votre ton et ne vous apporte que les quelques décisions qui ont besoin de vous.',
+          'Beaucoup d’outils e-mail IA sont une nouvelle boîte avec un chat : vous lisez toujours chaque e-mail, simplement avec un résumé en plus. Fewmail est un agent IA qui travaille sur le Gmail que vous utilisez déjà. Il lit d’abord chaque e-mail, rédige les réponses avec votre ton et ne vous apporte que les quelques décisions qui demandent votre attention.',
         question:
           'En quoi Fewmail diffère-t-il des autres assistants e-mail IA ?',
       },
@@ -515,7 +515,7 @@ export const fr: Messages = {
       legal: 'Mentions légales',
       product: 'Produit',
       tagline:
-        'L’agent e-mail IA qui lit votre Gmail et ne vous montre que ce qui a besoin de vous.',
+        'L’agent e-mail IA qui lit votre Gmail et ne vous montre que ce qui demande votre attention.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -556,11 +556,11 @@ export const fr: Messages = {
     },
     hero: {
       needs: {
-        emphasis: 'ont besoin de vous.',
+        emphasis: 'demandent votre attention.',
         lead: (handled: string) =>
           `Anna attend le contrat, la facture de Northwind arrive à échéance la semaine prochaine et Marco veut un créneau jeudi. ${handled} newsletters et notifications ont été traitées, et Accueil se met à jour dès qu’un nouvel e-mail arrive.`,
         tag: 'Accueil · jeudi, 08:12',
-        title: 'Trois choses ont besoin de vous.',
+        title: 'Trois choses demandent votre attention.',
       },
       fates: {
         archived: 'Archivé',
@@ -577,7 +577,7 @@ export const fr: Messages = {
       lead: 'Newsletters, reçus, notifications, un lien de phishing et, quelque part là-dedans, les trois e-mails qui comptent vraiment. Fewmail est l’agent IA qui lit tout ça pour vous.',
       needYou: ((slots) => [
         slots.count,
-        ' ont besoin de vous',
+        ' demandent votre attention',
       ]) as Rich<'count'>,
       queue: [
         {
@@ -820,7 +820,7 @@ export const fr: Messages = {
     goTo: 'Aller à',
     mail: 'E-mails',
     nothingMatches: 'Aucun résultat.',
-    placeholder: 'Pose une question sur tes e-mails ou lance une commande…',
+    placeholder: 'Posez une question sur vos e-mails ou lancez une commande…',
     upgrade: 'Passer à Pro',
     teachRule: 'Apprendre une nouvelle règle',
     theme: {
@@ -834,13 +834,13 @@ export const fr: Messages = {
   errors: {
     calendarAccess:
       'Fewmail n’a pas accès à cet agenda. Autorisez-le depuis la page Agenda.',
-    failed: 'Un problème est survenu. Réessaie.',
+    failed: 'Un problème est survenu. Réessayez.',
     needsPro: 'Il faut Fewmail Pro pour cela.',
     alreadySent: 'Déjà envoyé, trop tard pour annuler.',
     consentChanged:
-      'Ceci a changé depuis la demande. Regarde-le à nouveau et décide sur l’accueil.',
+      'Le contenu a changé depuis la demande. Vérifiez-le à nouveau et décidez sur l’Accueil.',
     notFound: 'Ceci n’existe plus. Il a peut-être été supprimé.',
-    offline: 'Impossible de joindre Fewmail. Vérifie ta connexion.',
+    offline: 'Impossible de joindre Fewmail. Vérifiez votre connexion.',
   },
   desktop: {
     confirm: 'Se connecter à l’app',
@@ -946,7 +946,7 @@ export const fr: Messages = {
     consent:
       'Rien n’est envoyé ni archivé sans votre accord. L’agenda et les contacts sont facultatifs.',
     continue: 'Continuer avec Google',
-    lead: 'Fewmail lit vos e-mails et ne vous montre que ce qui a besoin de vous.',
+    lead: 'Fewmail lit vos e-mails et ne vous montre que ce qui demande votre attention.',
     title: 'L’essentiel, rien de plus.',
   },
   mail: {
@@ -978,8 +978,9 @@ export const fr: Messages = {
     allMailboxes: 'Toutes les boîtes',
     filterAbout: {
       focused: 'L’important et les personnes d’abord, notifications repliées',
-      unread: 'Ce que tu n’as pas encore lu, par type',
-      categories: 'Toute la boîte par type, ce qui t’attend d’abord',
+      unread: 'Ce que vous n’avez pas encore lu, par type',
+      categories:
+        'Toute la boîte par type, les e-mails qui demandent votre attention en premier',
       inbox: 'Tout, le plus récent en haut',
     },
     find: {
@@ -987,7 +988,7 @@ export const fr: Messages = {
       tips: 'Astuces',
       clearRecent: 'Effacer',
       describeExample: 'factures d’Anna le mois dernier',
-      searching: 'Recherche dans tes e-mails…',
+      searching: 'Recherche dans vos e-mails…',
       tip: {
         from: 'E-mails d’Anna',
         subject: 'L’objet mentionne « invoice »',
@@ -1015,7 +1016,7 @@ export const fr: Messages = {
     block: 'Bloquer l’expéditeur',
     ignoresUnsubscribe: (name: string) => `${name} ignore les désabonnements`,
     ignoresUnsubscribeHint:
-      'Fewmail a demandé le désabonnement, mais cet expéditeur est connu pour continuer d’écrire. Envoyer ses e-mails à la corbeille désormais ? Tu peux l’annuler dans Règles.',
+      'Fewmail a demandé le désabonnement, mais cet expéditeur est connu pour continuer d’écrire. Envoyer ses e-mails à la corbeille désormais ? Vous pouvez annuler ce choix dans Règles.',
     blocked: 'Bloqué. Ses e-mails vont désormais à la corbeille.',
     forward: 'Transférer',
     more: 'Plus',
@@ -1107,7 +1108,7 @@ export const fr: Messages = {
     unsubscribeHint: (emails: string) =>
       `Fewmail vous désabonne de la liste et archive tout ce qu’elle a envoyé (${emails} ce mois-ci). Un désabonnement ne peut pas être annulé.`,
     archivedOnly:
-      'Cet expéditeur n’offre pas de désabonnement que Fewmail puisse utiliser, ses e-mails ont donc été archivés, mais tu restes sur la liste et les nouveaux continueront d’arriver.',
+      'Cet expéditeur n’offre pas de désabonnement que Fewmail puisse utiliser, ses e-mails ont donc été archivés, mais vous restez sur la liste et les nouveaux continueront d’arriver.',
     count: (total: number) => `Listes de diffusion : ${total}`,
     empty: 'Aucune liste de diffusion ne vous a écrit ce mois-ci.',
     lead: 'Newsletters, promotions et autres listes de diffusion qui vous ont écrit ce mois-ci, les plus actives d’abord. Désabonnez-vous de ce que vous ne lisez jamais : Fewmail quitte la liste et archive tout ce qu’elle a envoyé.',
@@ -1403,7 +1404,7 @@ export const fr: Messages = {
         'Même texte que celui signalé comme spam par plusieurs utilisateurs de Fewmail',
     },
     reasonCommunity: 'Signalé comme spam par plusieurs utilisateurs de Fewmail',
-    reasonYou: 'Tu as signalé cet expéditeur comme spam',
+    reasonYou: 'Vous avez signalé cet expéditeur comme spam',
     suspect: 'Ressemble à du spam',
     imagesHidden: 'Les images sont masquées dans les spams.',
     openFile: {
@@ -1472,8 +1473,8 @@ export const fr: Messages = {
       label: 'Règle suggérée',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
-          ? `${count} e-mails ce mois-ci, et l’agent archiverait chacun`
-          : `${count} e-mails ce mois-ci, et l’agent marquerait chacun comme lu`,
+          ? `${count} e-mails ce mois-ci, que l’agent propose tous d’archiver`
+          : `${count} e-mails ce mois-ci, que l’agent propose tous de marquer comme lus`,
       no: 'Non, merci',
       yes: {
         archive: 'Toujours archiver',
@@ -1481,7 +1482,7 @@ export const fr: Messages = {
       },
     },
     ruleOffer: {
-      lead: 'L’agent peut s’en charger seul pour les e-mails concernés. La règle reste désactivée tant que tu ne dis pas oui.',
+      lead: 'L’agent peut s’en charger seul pour les e-mails concernés. La règle reste désactivée tant que vous ne donnez pas votre accord.',
       no: 'Laisser désactivée',
       turnedOn: 'Activée. Modifiable dans Règles.',
       yes: 'Activer',
@@ -1489,7 +1490,7 @@ export const fr: Messages = {
     newSender: {
       archive: 'Toujours archiver',
       archived:
-        'Les nouveaux e-mails de cet expéditeur seront archivés. Tu peux changer ça dans Règles.',
+        'Les nouveaux e-mails de cet expéditeur seront archivés. Vous pouvez modifier ce choix dans Règles.',
       keep: 'Garder comme d’habitude',
       label: 'Nouvel expéditeur',
       lead: (count: number, opened: number) =>
@@ -1501,18 +1502,18 @@ export const fr: Messages = {
         many: (n) => `L’agent lit ${n} nouveaux e-mails`,
         other: (n) => `L’agent lit ${n} nouveaux e-mails`,
       }),
-    allDone: 'Tout est fait. Rien ne t’attend.',
+    allDone: 'Tout est fait. Rien ne vous attend.',
     allDoneLead:
-      'Je continue à lire les nouveaux e-mails, et ce qui demande ton attention apparaîtra ici.',
+      'Je continue à lire les nouveaux e-mails, et ce qui demande votre attention apparaîtra ici.',
     allowanceSpent: (date: string) =>
       `L’enveloppe de l’agent pour ce mois est épuisée : les résumés et brouillons reviennent le ${date}. D’ici là, je note toujours les promesses et les dates limites.`,
-    byRules: (n: number) => `Tes règles se sont occupées de ${n}.`,
+    byRules: (n: number) => `Vos règles ont traité ${n} e-mails.`,
     decisions: 'Décisions',
     journal: {
-      approved: 'Tu as dit oui',
-      byRule: (rule: string) => `Ta règle : ${rule}`,
+      approved: 'Vous avez donné votre accord',
+      byRule: (rule: string) => `Votre règle : ${rule}`,
       failed: 'N’a pas fonctionné',
-      lead: 'Les 7 derniers jours. Chaque changement dans tes e-mails ou ton agenda a eu ton oui ou une règle que tu as activée.',
+      lead: 'Les 7 derniers jours. Chaque changement dans vos e-mails ou votre agenda a été approuvé par vous ou effectué selon une règle que vous avez activée.',
       title: 'Fait dans votre boîte',
     },
     progress: (done: number, total: number) => `${done} sur ${total}`,
@@ -1542,9 +1543,9 @@ export const fr: Messages = {
     improve: {
       lead: (total: number) =>
         plural('fr', total, {
-          one: () => 'Une règle que l’agent pourrait suivre pour toi.',
-          many: (n) => `${n} règles que l’agent pourrait suivre pour toi.`,
-          other: (n) => `${n} règles que l’agent pourrait suivre pour toi.`,
+          one: () => 'Une règle que l’agent pourrait suivre pour vous.',
+          many: (n) => `${n} règles que l’agent pourrait suivre pour vous.`,
+          other: (n) => `${n} règles que l’agent pourrait suivre pour vous.`,
         }),
       title: 'L’agent propose',
     },
@@ -1552,7 +1553,7 @@ export const fr: Messages = {
     needsLook: 'Pour vous',
     tidy: {
       failed: (emails: string) =>
-        `Gmail n’a pas modifié ${emails}. Réessaie dans un instant.`,
+        `Gmail n’a pas modifié ${emails}. Réessayez dans un instant.`,
       confirm: (emails: string) => `Ranger ${emails} ?`,
       running: 'Rangement…',
       unsubscribeHint:
@@ -1587,7 +1588,7 @@ export const fr: Messages = {
     dates: 'Dates et rendez-vous',
     done: 'Fait',
     firstRead:
-      'D’abord tes e-mails des trois derniers jours. Ce qui demande ton attention apparaîtra ici tout seul.',
+      'D’abord vos e-mails des trois derniers jours. Ce qui demande votre attention apparaîtra ici tout seul.',
     approvedMany: (n: number) => `${n} approuvées`,
     listen: 'Écouter',
     handled: {
@@ -1618,7 +1619,7 @@ export const fr: Messages = {
         }),
     },
     saved: (minutes: number) =>
-      `Fewmail t’a fait gagner environ ${formatMinutes('fr', minutes)} cette semaine`,
+      `Fewmail vous a fait gagner environ ${formatMinutes('fr', minutes)} cette semaine`,
     recent: (period: string) => `Aussi ${period}`,
     sent: 'Envoyé',
     codes: 'Codes de connexion',
@@ -1640,23 +1641,24 @@ export const fr: Messages = {
           other: (n) => `${n} dates limites approchent.`,
         }),
       empty:
-        'Rien en cours. Ce qu’on te promet, ce que tu promets et les dates limites arrivent ici tout seuls depuis tes e-mails.',
-      owed: (amounts: string) => `On te doit ${amounts}.`,
+        'Rien en attente. Les promesses qui vous sont faites, vos engagements et les dates limites de vos e-mails apparaissent ici automatiquement.',
+      owed: (amounts: string) => `On vous doit ${amounts}.`,
       promised: (total: number) =>
         plural('fr', total, {
-          one: () => 'Tu as promis une chose.',
-          other: (n) => `Tu as promis ${n} choses.`,
+          one: () => 'Vous avez promis une chose.',
+          other: (n) => `Vous avez promis ${n} choses.`,
         }),
       waiting: (total: number) =>
         plural('fr', total, {
-          one: () => 'Une promesse qu’on t’a faite est encore ouverte.',
-          other: (n) => `${n} promesses qu’on t’a faites sont encore ouvertes.`,
+          one: () => 'Une promesse qui vous a été faite reste à tenir.',
+          other: (n) =>
+            `${n} promesses qui vous ont été faites restent à tenir.`,
         }),
     },
     section: {
       coming: 'À venir',
-      owed: 'On te doit',
-      promised: 'Tu as promis',
+      owed: 'On vous doit',
+      promised: 'Vous avez promis',
       settled: 'Réglé récemment',
     },
     state: {
@@ -1668,8 +1670,8 @@ export const fr: Messages = {
       open: 'en attente',
       overdue: 'en retard',
     },
-    by: (date: string) => `avant le ${date}`,
-    lastDay: (date: string) => `dernier jour ${date}`,
+    by: (date: string) => `au plus tard le ${date}`,
+    lastDay: (date: string) => `date limite : ${date}`,
     done: 'Fait',
     forget: 'Oublier',
     reopen: 'Rouvrir',
@@ -1698,7 +1700,7 @@ export const fr: Messages = {
     partial:
       'Gmail a interrompu une partie du ménage. Ce qui a déjà été rangé peut revenir.',
     groups: {
-      lists: 'Newsletters que tu n’ouvres jamais',
+      lists: 'Newsletters que vous n’ouvrez jamais',
       notifications: 'Notifications lues, de plus d’un mois',
       old: 'Tout ce qui a plus d’un an',
       promotions: 'Pubs et réseaux sociaux, de plus de 3 jours',
@@ -1713,7 +1715,7 @@ export const fr: Messages = {
     listsFrom: (names: string, more: number) =>
       more ? `${names} et ${more} autres` : names,
     run: (emails: string) => `Ranger ${emails}`,
-    safe: 'Rien n’est supprimé. Les e-mails rangés sont archivés avec le libellé Fewmail/Cleared et reviennent en un clic ; tu es aussi désabonné des newsletters.',
+    safe: 'Rien n’est supprimé. Les e-mails rangés sont archivés avec le libellé Fewmail/Cleared et reviennent en un clic ; les abonnements aux newsletters concernées sont aussi résiliés.',
     scanning:
       'Je lis toute la boîte de réception, en-têtes seulement. Jusqu’à une minute.',
     title: 'Faire le ménage dans la boîte de réception',
@@ -1729,7 +1731,7 @@ export const fr: Messages = {
     cta: 'Obtiens le tien avec Fewmail',
     emails: 'e-mails reçus',
     empty:
-      'Pas encore assez d’e-mails pour raconter l’histoire. Reviens dans quelques jours.',
+      'Pas encore assez d’e-mails pour raconter l’histoire. Revenez dans quelques jours.',
     handled: 'traités par Fewmail tout seul',
     people: 'Qui a le plus écrit',
     period: { month: 'Ce mois-ci', year: 'Cette année' },
@@ -1742,7 +1744,7 @@ export const fr: Messages = {
     spam: 'spams arrêtés',
     split: (people: string, lists: string, other: string) =>
       `${people} de personnes · ${lists} de newsletters · ${other} autres`,
-    title: { month: 'Ton mois en e-mails', year: 'Ton année en e-mails' },
+    title: { month: 'Votre mois en e-mails', year: 'Votre année en e-mails' },
     unsubscribed: 'newsletters quittées',
   },
   reading: {
@@ -1789,13 +1791,13 @@ export const fr: Messages = {
     title: 'Vérifiez avant d’agir',
   },
   upgrade: {
-    ask: 'Interroge tes e-mails',
+    ask: 'Interrogez vos e-mails',
     hints: {
       board:
-        'Inclus dans Fewmail Pro : l’agent note ce qu’on t’a promis, ce que tu as promis et les dates limites de tes e-mails, et suit chacun jusqu’à ce qu’il soit réglé.',
-      ask: 'Inclus dans Fewmail Pro : demande ce que tu veux avec tes mots et obtiens la réponse tirée de tes propres e-mails.',
+        'Inclus dans Fewmail Pro : l’agent note les promesses qui vous sont faites, vos engagements et les dates limites de vos e-mails, puis les suit jusqu’à leur résolution.',
+      ask: 'Inclus dans Fewmail Pro : posez vos questions avec vos mots et obtenez les réponses à partir de vos propres e-mails.',
       drafts:
-        'Inclus dans Fewmail Pro : l’agent rédige la réponse dans ton style, tu la modifies et l’envoies.',
+        'Inclus dans Fewmail Pro : l’agent rédige la réponse dans votre style, puis vous la modifiez et l’envoyez.',
     },
   },
   whatsapp: {

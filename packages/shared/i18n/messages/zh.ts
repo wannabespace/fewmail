@@ -281,7 +281,7 @@ export const zh: Messages = {
     reload: '重新加载',
   },
   keys: {
-    forget: '忘掉',
+    forget: '从列表移除',
     reopen: '重新打开',
     attach: '添加附件',
     done: '完成',
@@ -338,7 +338,7 @@ export const zh: Messages = {
     updated: (date: string) => `最后更新：${date}`,
   },
   limits: {
-    usage: (date: string) => `本月的代理额度已用完，将于 ${date} 恢复。`,
+    usage: (date: string) => `本月的助手额度已用完，将于 ${date} 恢复。`,
   },
   notices: {
     freeUpSpace: '释放空间',
@@ -364,7 +364,7 @@ export const zh: Messages = {
     ]) as Rich<'privacy' | 'terms'>,
     consent: '未经你同意，不会发送或归档任何邮件。日历和联系人可选。',
     continue: '使用 Google 继续',
-    lead: 'Fewmail 替你读邮件，只给你看真正需要你的。',
+    lead: 'Fewmail 替你读邮件，只给你看真正需要你处理的邮件。',
     title: '只看重要的。',
   },
   mail: {
@@ -549,7 +549,7 @@ export const zh: Messages = {
     syncingIn: (email: string) => `正在读取 ${email}…`,
     home: '首页',
     trialLeft: (total: number) => `Pro 试用 · 还剩 ${total} 天`,
-    usage: (percent: number) => `代理 · 本月已用 ${percent}%`,
+    usage: (percent: number) => `助手 · 本月已用 ${percent}%`,
     watching: '助手正在留意你的收件箱',
   },
   notifications: {
@@ -567,7 +567,7 @@ export const zh: Messages = {
   plan: {
     used: (percent: number) => `已用 ${percent}%`,
     about: (emails: string, messages: string) =>
-      `每月约可读取 ${emails} 封邮件或向代理发送 ${messages} 条消息，可任意组合。`,
+      `每月约可读取 ${emails} 封邮件或向助手发送 ${messages} 条消息，可任意组合。`,
     free: 'Free',
     freeDescription: '快速、安静的邮件，配合简单规则。想用多久就免费用多久。',
     includes:
@@ -772,13 +772,14 @@ export const zh: Messages = {
   site: {
     meta: {
       assistant:
-        'Fewmail 是 Gmail 的 AI 邮件助手：先替你读完每一封邮件，用你的口吻起草回复，只把需要你的事给你看。可免费开始使用。',
+        'Fewmail 是 Gmail 的 AI 邮件助手：先替你读完每一封邮件，用你的口吻起草回复，只把需要你处理的事给你看。可免费开始使用。',
       assistantTitle: 'Gmail 的 AI 邮件助手',
       compare:
         'Fewmail 与 Superhuman、Shortwave、SaneBox 的对比：一个替你读邮件的 AI 助手，而不是让你自己读得更快的工具。',
       compareTitle: 'AI 邮件助手对比',
-      home: 'Fewmail 是 Gmail 的 AI 邮件助手：它读每一封邮件，用你的口吻起草回复，只把需要你的事给你看。',
-      login: 'Fewmail 替你读 Gmail，用你的口吻回复，只给你看真正需要你的事。',
+      home: 'Fewmail 是 Gmail 的 AI 邮件助手：它读每一封邮件，用你的口吻起草回复，只把需要你处理的事给你看。',
+      login:
+        'Fewmail 替你读 Gmail，用你的口吻回复，只给你看真正需要你处理的事。',
       mcp: '把 Fewmail 作为 MCP 服务器连接到 Claude、ChatGPT、Claude Code 或 Cursor：在你已经在用的 AI 里读和整理 Gmail。',
       motto: '收件箱里只留重要的',
       pricing: (trialDays: number) =>
@@ -816,7 +817,7 @@ export const zh: Messages = {
     },
     mcpPage: {
       copy: '复制 URL',
-      lead: '把 Fewmail 作为 MCP 服务器连接，就能在你常用的 AI 里询问自己的邮件。读取邮件和代理的分类免费；草稿、发送和规则属于 Pro。',
+      lead: '把 Fewmail 作为 MCP 服务器连接，就能在你常用的 AI 里询问自己的邮件。读取邮件和助手的分类免费；草稿、发送和规则属于 Pro。',
       safety:
         '任何发送邮件或更改 Gmail 的操作都会先征得你的同意。试图给助手下命令的邮件，会在助手读到之前被标记。你的邮件绝不会用于训练模型，任何应用都可以在设置中断开。',
       steps: {
@@ -870,7 +871,7 @@ export const zh: Messages = {
       faq: (trialDays: number) => [
         {
           answer:
-            '用 AI 替你阅读、分拣和回复邮件的软件。大多数只是在你仍要自己读的收件箱上加了摘要和写作辅助。Fewmail 更进一步：它先读完所有邮件，你只会看到需要你的事。',
+            '用 AI 替你阅读、分拣和回复邮件的软件。大多数只是在你仍要自己读的收件箱上加了摘要和写作辅助。Fewmail 更进一步：它先读完所有邮件，你只会看到需要你处理的事。',
           question: '什么是 AI 邮件助手？',
         },
         {
@@ -884,7 +885,7 @@ export const zh: Messages = {
           question: '它能自动回复邮件吗？',
         },
         {
-          answer: `有。Free 方案会分拣每封邮件，把需要你的事集中在一页，执行你的规则，并帮你挡住垃圾邮件和钓鱼邮件，永久免费。草稿、摘要和助手的其他功能属于付费方案，每个账户都从 ${trialDays} 天 Pro 开始，无需绑卡。`,
+          answer: `有。Free 方案会分拣每封邮件，把需要你处理的事集中在一页，执行你的规则，并帮你挡住垃圾邮件和钓鱼邮件，永久免费。草稿、摘要和助手的其他功能属于付费方案，每个账户都从 ${trialDays} 天 Pro 开始，无需绑卡。`,
           question: '有免费的 Gmail AI 邮件助手吗？',
         },
       ],
@@ -907,7 +908,7 @@ export const zh: Messages = {
       },
       labels: {
         ask: '向你的邮件提任何问题',
-        home: '需要你的事，集中在一页',
+        home: '需要你处理的事，集中在一页',
         calendar: '日历',
         drafts: '替你起草回复',
         followUps: '跟进提醒',
@@ -1014,7 +1015,7 @@ export const zh: Messages = {
           starter: '每位成员 $25，按年付费',
         },
         summary:
-          'Superhuman 让你更快地处理每一封邮件。Fewmail 替你处理，只给你看需要你的那几封。',
+          'Superhuman 让你更快地处理每一封邮件。Fewmail 替你处理，只给你看需要你处理的那几封。',
         them: {
           ask: 'Ask AI，Business 方案',
           drafts: 'Auto Drafts，Business 方案',
@@ -1104,7 +1105,7 @@ export const zh: Messages = {
         },
         voice: {
           description:
-            '把订阅邮件的摘要读给你听。在 Telegram 或 WhatsApp 发语音消息，代理会用语音回答。',
+            '把订阅邮件的摘要读给你听。在 Telegram 或 WhatsApp 发语音消息，助手会用语音回答。',
           title: '用听代替读',
         },
         wrapped: {
@@ -1159,11 +1160,11 @@ export const zh: Messages = {
     },
     hero: {
       needs: {
-        emphasis: '需要你。',
+        emphasis: '需要你处理。',
         lead: (handled: string) =>
           `Anna 在等合同，Northwind 的发票下周到期，Marco 想约周四。${handled} 封订阅邮件和通知已处理，新邮件一到，“首页”就会自动更新。`,
         tag: '首页 · 周四 08:12',
-        title: '有三件事需要你。',
+        title: '有三件事需要你处理。',
       },
       fates: {
         archived: '已归档',
@@ -1179,7 +1180,7 @@ export const zh: Messages = {
       ]) as Rich<'count'>,
       inbox: '收件箱',
       lead: '订阅邮件、收据、各种提醒、一条钓鱼链接，还有藏在其中真正重要的三封邮件。Fewmail 就是替你把它们全部读完的 AI 助手。',
-      needYou: ((slots) => [slots.count, ' 件需要你']) as Rich<'count'>,
+      needYou: ((slots) => [slots.count, ' 件需要你处理']) as Rich<'count'>,
       queue: [
         {
           reason: '合同明天到期',
@@ -1239,13 +1240,13 @@ export const zh: Messages = {
       title: '整个收件箱，两分钟搞定。',
     },
     plans: {
-      agent: '代理',
+      agent: '助手',
       details: '查看所有方案详情',
-      emails: '代理每月阅读的邮件',
+      emails: '助手每月阅读的邮件',
       everyPlan: '所有方案都包含',
-      messages: '或发给代理的消息',
+      messages: '或发给助手的消息',
       oneAllowance:
-        '代理所做的一切共用一份额度：用多少付多少，无关邮件从不计入',
+        '助手所做的一切共用一份额度：用多少付多少，无关邮件从不计入',
       forever: '永久',
       free: {
         description: '首页、分类、规则和防护。永久免费。',
@@ -1388,8 +1389,8 @@ export const zh: Messages = {
       label: '建议的规则',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
-          ? `本月 ${count} 封，代理会全部归档`
-          : `本月 ${count} 封，代理会全部标为已读`,
+          ? `本月 ${count} 封，助手建议全部归档`
+          : `本月 ${count} 封，助手建议全部标为已读`,
       no: '不用了',
       yes: {
         archive: '总是归档',
@@ -1397,7 +1398,7 @@ export const zh: Messages = {
       },
     },
     ruleOffer: {
-      lead: '代理可以自动处理符合的邮件。在你同意之前它保持关闭。',
+      lead: '助手可以自动处理符合的邮件。在你同意之前它保持关闭。',
       no: '保持关闭',
       turnedOn: '已开启。可在规则中更改。',
       yes: '开启',
@@ -1411,10 +1412,10 @@ export const zh: Messages = {
         `两周内 ${count} 封，${opened === 0 ? '一封都没打开' : `打开了 ${opened} 封`}`,
     },
     readingNow: (total: number) => `助手正在读 ${total} 封新邮件`,
-    allDone: '都处理好了。没有需要你的事。',
+    allDone: '都处理好了。没有需要你处理的事。',
     allDoneLead: '我会继续读新邮件，需要你处理的事会出现在这里。',
     allowanceSpent: (date: string) =>
-      `本月的代理额度已用完：摘要和草稿将于 ${date} 恢复。在此之前，我仍会记下承诺和截止日期。`,
+      `本月的助手额度已用完：摘要和草稿将于 ${date} 恢复。在此之前，我仍会记下承诺和截止日期。`,
     byRules: (n: number) => `你的规则处理了 ${n} 件。`,
     decisions: '待你决定',
     journal: {
@@ -1453,7 +1454,7 @@ export const zh: Messages = {
       title: '助手的建议',
     },
     quick: '快速处理',
-    needsLook: '需要你',
+    needsLook: '需要你处理',
     tidy: {
       failed: (emails: string) => `Gmail 未能更改 ${emails}，请稍后再试。`,
       confirm: (emails: string) => `整理 ${emails}？`,
@@ -1527,7 +1528,7 @@ export const zh: Messages = {
           other: (n) => `有 ${n} 个截止日期临近。`,
         }),
       empty:
-        '没有未完成的事项。别人对你的承诺、你的承诺和截止日期会自动从邮件来到这里。',
+        '没有待办事项。邮件中别人对你的承诺、你做出的承诺和截止日期都会自动整理到这里。',
       owed: (amounts: string) => `你应收 ${amounts}。`,
       promised: (total: number) =>
         plural('zh', total, {
@@ -1556,12 +1557,12 @@ export const zh: Messages = {
       overdue: '已逾期',
     },
     by: (date: string) => `${date} 前`,
-    lastDay: (date: string) => `最后一天 ${date}`,
+    lastDay: (date: string) => `截止日期：${date}`,
     done: '完成',
-    forget: '忘掉',
+    forget: '从列表移除',
     reopen: '重新打开',
     markedDone: '已标记为完成',
-    forgotten: '已忘掉',
+    forgotten: '已从列表移除',
     reopened: '已重新打开',
   },
   cleanup: {
@@ -1625,8 +1626,8 @@ export const zh: Messages = {
     digest: (n: number) => `订阅邮件：${n} 封`,
     lead: '一天的订阅邮件集中在一处，不再挤满收件箱。',
     issues: '所有期',
-    empty: '还没有新闻通讯',
-    emptyHint: '每天早上，代理会把新闻通讯里的新闻写在这里，并附上来源邮件。',
+    empty: '还没有订阅邮件',
+    emptyHint: '每天早上，助手会在这里整理订阅邮件的内容，并附上来源邮件。',
     title: '阅读',
   },
   commitments: {
@@ -1659,9 +1660,9 @@ export const zh: Messages = {
     ask: '问问你的邮件',
     hints: {
       board:
-        'Fewmail Pro 的一部分：代理会从你的邮件里记下别人对你的承诺、你的承诺和截止日期，并跟进每一项直到完成。',
+        'Fewmail Pro 的一部分：助手会从你的邮件里记下别人对你的承诺、你的承诺和截止日期，并跟进每一项直到完成。',
       ask: 'Fewmail Pro 的功能：用自己的话随便问，答案来自你自己的邮件。',
-      drafts: 'Fewmail Pro 的功能：代理用你的风格写好回复，你修改后发送。',
+      drafts: 'Fewmail Pro 的功能：助手用你的风格写好回复，你修改后发送。',
     },
   },
   whatsapp: {

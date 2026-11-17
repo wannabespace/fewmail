@@ -248,11 +248,11 @@ export const en = {
     lead: {
       coming: (total: number) =>
         plural('en', total, {
-          one: () => 'One last day is coming up.',
-          other: (n) => `${n} last days are coming up.`,
+          one: () => 'One deadline is coming up.',
+          other: (n) => `${n} deadlines are coming up.`,
         }),
       empty:
-        'Nothing open. What you are promised, what you promise and last days come here from your mail on their own.',
+        'Nothing pending. Promises made to you, promises you make and deadlines appear here automatically from your mail.',
       owed: (amounts: string) => `You are owed ${amounts}.`,
       promised: (total: number) =>
         plural('en', total, {
@@ -281,7 +281,7 @@ export const en = {
       overdue: 'overdue',
     },
     by: (date: string) => `by ${date}`,
-    lastDay: (date: string) => `last day ${date}`,
+    lastDay: (date: string) => `deadline: ${date}`,
     done: 'Done',
     forget: 'Forget it',
     reopen: 'Reopen',
@@ -1552,7 +1552,7 @@ export const en = {
     queueChanged: 'The cards changed since. Here is what needs you now:',
     commands: { queue: 'What needs you' },
     connectFirst: (url: string) =>
-      `Hi! I’m Fewmail. Here in Telegram I tell you when urgent mail arrives, show what needs you and send the replies you approve.\n\nThis chat isn’t connected to your Fewmail yet. It takes a minute:\n1. Open Fewmail settings: ${url}\n2. Under Integrations, tap “Connect Telegram” (it’s part of Fewmail Pro).\n3. Telegram brings you back here — press Start and you’re set.`,
+      `Hi! I’m Fewmail. Here in Telegram I tell you when urgent mail arrives, show what needs you and send the replies you approve.\n\nThis chat isn’t connected to your Fewmail yet. It takes a minute:\n1. Open Fewmail settings: ${url}\n2. Under Integrations, tap “Connect Telegram” (it’s part of Fewmail Pro).\n3. Telegram brings you back here, press Start and you’re set.`,
     connected:
       'Connected. I will ping you when something urgent arrives.\n\n/queue: what needs you',
     done: 'Done',
@@ -1755,7 +1755,7 @@ export const en = {
     phoneTaken:
       'This number is already connected to another Fewmail account. Disconnect WhatsApp there first (Settings → Integrations), then send the message again.',
     connectFirst: (url: string) =>
-      `Hi! I’m Fewmail. Here in WhatsApp I tell you when urgent mail arrives, show what needs you and send the replies you approve.\n\nThis number isn’t connected to your Fewmail yet. It takes a minute:\n1. Open Fewmail settings: ${url}\n2. Under Integrations, tap “Connect WhatsApp” (it’s part of Fewmail Pro).\n3. WhatsApp opens with a message ready — send it and you’re set.`,
+      `Hi! I’m Fewmail. Here in WhatsApp I tell you when urgent mail arrives, show what needs you and send the replies you approve.\n\nThis number isn’t connected to your Fewmail yet. It takes a minute:\n1. Open Fewmail settings: ${url}\n2. Under Integrations, tap “Connect WhatsApp” (it’s part of Fewmail Pro).\n3. WhatsApp opens with a message ready, send it and you’re set.`,
     connected:
       'Connected. I will message you when something urgent arrives. Send text or a voice message to answer any email.',
     proOnly:

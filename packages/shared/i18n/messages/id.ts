@@ -204,7 +204,7 @@ export const id: Messages = {
           other: (n) => `${n} tenggat sudah dekat.`,
         }),
       empty:
-        'Tidak ada yang terbuka. Janji kepadamu, janjimu, dan tenggat masuk ke sini sendiri dari emailmu.',
+        'Tidak ada yang tertunda. Janji orang lain kepadamu, janjimu, dan tenggat otomatis muncul di sini dari emailmu.',
       owed: (amounts: string) => `Kamu masih berhak menerima ${amounts}.`,
       promised: (total: number) =>
         plural('id', total, {
@@ -213,8 +213,8 @@ export const id: Messages = {
         }),
       waiting: (total: number) =>
         plural('id', total, {
-          one: () => 'Satu janji kepadamu masih terbuka.',
-          other: (n) => `${n} janji kepadamu masih terbuka.`,
+          one: () => 'Satu janji kepadamu belum dipenuhi.',
+          other: (n) => `${n} janji kepadamu belum dipenuhi.`,
         }),
     },
     section: {
@@ -232,8 +232,8 @@ export const id: Messages = {
       open: 'menunggu',
       overdue: 'terlambat',
     },
-    by: (date: string) => `sebelum ${date}`,
-    lastDay: (date: string) => `hari terakhir ${date}`,
+    by: (date: string) => `paling lambat ${date}`,
+    lastDay: (date: string) => `tenggat: ${date}`,
     done: 'Selesai',
     forget: 'Lupakan',
     reopen: 'Buka lagi',
@@ -304,7 +304,7 @@ export const id: Messages = {
   },
   reading: {
     markAllRead: 'Tandai semua sudah dibaca',
-    summary: 'Isi newsletter Anda',
+    summary: 'Isi buletinmu',
     worth: 'Layak dibaca utuh',
     leftOut: (n: number) => `Tidak masuk ringkasan: ${n}, tidak ada yang baru.`,
     note: {
@@ -390,7 +390,12 @@ export const id: Messages = {
     noSnippets: 'Tidak ada snippet yang cocok.',
     removeLink: 'Hapus tautan',
   },
-  importance: ['Kebisingan', 'Perlu tahu', 'Segera butuh kamu', 'Mendesak'],
+  importance: [
+    'Kebisingan',
+    'Perlu tahu',
+    'Segera perlu perhatianmu',
+    'Mendesak',
+  ],
   justNow: 'baru saja',
   errors: {
     calendarAccess:
@@ -406,13 +411,13 @@ export const id: Messages = {
   desktop: {
     confirm: 'Masuk ke aplikasi',
     confirmLead: (code: string) =>
-      `Fewmail di komputer Anda meminta masuk. Pastikan aplikasi menampilkan ${code}.`,
+      `Fewmail di komputer kamu meminta masuk. Pastikan aplikasi menampilkan ${code}.`,
     confirmTitle: 'Masuk ke aplikasi?',
     expired: 'Proses masuk ini kedaluwarsa. Mulai lagi dari aplikasi.',
-    lead: 'Anda sudah masuk di komputer Anda. Anda bisa menutup tab ini.',
+    lead: 'Kamu sudah masuk di komputermu. Kamu bisa menutup tab ini.',
     title: 'Kembali ke aplikasi',
     waiting: (code: string) =>
-      `Lanjutkan di browser Anda dan pastikan browser menampilkan ${code}.`,
+      `Lanjutkan di browser kamu dan pastikan browser menampilkan ${code}.`,
   },
   update: {
     available: 'Versi baru Fewmail sudah tersedia.',
@@ -507,7 +512,7 @@ export const id: Messages = {
     consent:
       'Tidak ada yang dikirim atau diarsipkan tanpa persetujuanmu. Kalender dan kontak opsional.',
     continue: 'Lanjutkan dengan Google',
-    lead: 'Fewmail membaca emailmu dan hanya menampilkan yang butuh kamu.',
+    lead: 'Fewmail membaca emailmu dan hanya menampilkan yang perlu perhatianmu.',
     title: 'Hanya yang penting.',
   },
   mail: {
@@ -536,7 +541,7 @@ export const id: Messages = {
     filterAbout: {
       focused: 'Yang penting dan orang dulu, pemberitahuan dilipat',
       unread: 'Yang belum kamu baca, per jenis',
-      categories: 'Seluruh kotak masuk per jenis, yang butuh kamu dulu',
+      categories: 'Seluruh kotak masuk per jenis, yang perlu perhatianmu dulu',
       inbox: 'Semua, terbaru di atas',
     },
     find: {
@@ -895,8 +900,8 @@ export const id: Messages = {
       remove: 'Hapus',
       retrying:
         'Gmail sedang tidak merespons. Fewmail akan mencoba lagi sendiri.',
-      signIn: 'Anda masuk dengan akun ini',
-      signInChosen: 'Itu akun yang Anda pakai untuk masuk. Pilih akun lain.',
+      signIn: 'kamu masuk dengan akun ini',
+      signInChosen: 'Itu akun yang kamu pakai untuk masuk. Pilih akun lain.',
       signInLost: 'Akses Gmail hilang. Masuk lagi untuk menyambungkan ulang.',
       synced: (ago: string) => `Disinkronkan ${ago}`,
       title: 'Kotak surat',
@@ -962,14 +967,14 @@ export const id: Messages = {
   site: {
     meta: {
       assistant:
-        'Fewmail adalah asisten email AI untuk Gmail yang membaca setiap email lebih dulu, menulis draf balasan dengan gayamu, dan hanya menunjukkan yang butuh kamu. Gratis untuk mulai.',
+        'Fewmail adalah asisten email AI untuk Gmail yang membaca setiap email lebih dulu, menulis draf balasan dengan gayamu, dan hanya menunjukkan yang perlu perhatianmu. Gratis untuk mulai.',
       assistantTitle: 'Asisten email AI untuk Gmail',
       compare:
         'Perbandingan Fewmail dengan Superhuman, Shortwave, dan SaneBox: agen AI yang membaca email untukmu, bukan cara lebih cepat untuk membacanya sendiri.',
       compareTitle: 'Perbandingan asisten email AI',
-      home: 'Fewmail adalah asisten email AI untuk Gmail: membaca setiap email, menulis draf balasan dengan gayamu, dan hanya menunjukkan yang butuh kamu.',
+      home: 'Fewmail adalah asisten email AI untuk Gmail: membaca setiap email, menulis draf balasan dengan gayamu, dan hanya menunjukkan yang perlu perhatianmu.',
       login:
-        'Fewmail membaca Gmail-mu untukmu, membalas dengan gayamu, dan hanya menunjukkan yang benar-benar butuh kamu.',
+        'Fewmail membaca Gmail-mu untukmu, membalas dengan gayamu, dan hanya menunjukkan yang benar-benar perlu perhatianmu.',
       mcp: 'Hubungkan Fewmail ke Claude, ChatGPT, Claude Code, atau Cursor sebagai server MCP: baca dan pilah Gmail dari AI yang sudah kamu pakai.',
       motto: 'hanya yang penting di kotak masukmu',
       pricing: (trialDays: number) =>
@@ -1064,7 +1069,7 @@ export const id: Messages = {
       faq: (trialDays: number) => [
         {
           answer:
-            'Perangkat lunak yang memakai AI untuk membaca, memilah, dan membalas email untukmu. Kebanyakan hanya menambahkan ringkasan dan bantuan menulis ke kotak masuk yang tetap kamu baca sendiri. Fewmail melangkah lebih jauh: ia membaca semuanya lebih dulu, jadi kamu hanya melihat yang butuh kamu.',
+            'Perangkat lunak yang memakai AI untuk membaca, memilah, dan membalas email untukmu. Kebanyakan hanya menambahkan ringkasan dan bantuan menulis ke kotak masuk yang tetap kamu baca sendiri. Fewmail melangkah lebih jauh: ia membaca semuanya lebih dulu, jadi kamu hanya melihat yang perlu perhatianmu.',
           question: 'Apa itu asisten email AI?',
         },
         {
@@ -1078,7 +1083,7 @@ export const id: Messages = {
           question: 'Bisakah ia membalas email secara otomatis?',
         },
         {
-          answer: `Ada. Paket Gratis memilah setiap email, mengumpulkan yang butuh kamu di satu halaman, menjalankan aturanmu, dan melindungimu dari spam dan phishing, selamanya. Draf, ringkasan, dan bagian agen lainnya ada di paket berbayar, dan setiap akun dimulai dengan ${trialDays} hari Pro, tanpa kartu.`,
+          answer: `Ada. Paket Gratis memilah setiap email, mengumpulkan yang perlu perhatianmu di satu halaman, menjalankan aturanmu, dan melindungimu dari spam dan phishing, selamanya. Draf, ringkasan, dan bagian agen lainnya ada di paket berbayar, dan setiap akun dimulai dengan ${trialDays} hari Pro, tanpa kartu.`,
           question: 'Adakah asisten email AI gratis untuk Gmail?',
         },
       ],
@@ -1101,7 +1106,7 @@ export const id: Messages = {
       },
       labels: {
         ask: 'Tanyakan apa saja ke emailmu',
-        home: 'Yang butuh kamu, dalam satu halaman',
+        home: 'Yang perlu perhatianmu, dalam satu halaman',
         calendar: 'Kalender',
         drafts: 'Balasan yang disusunkan untukmu',
         followUps: 'Pengingat tindak lanjut',
@@ -1209,7 +1214,7 @@ export const id: Messages = {
           starter: 'Per anggota, $25 ditagih tahunan',
         },
         summary:
-          'Superhuman membuatmu lebih cepat memeriksa setiap email. Fewmail memeriksanya untukmu dan hanya menampilkan yang butuh kamu.',
+          'Superhuman membuatmu lebih cepat memeriksa setiap email. Fewmail memeriksanya untukmu dan hanya menampilkan yang perlu perhatianmu.',
         them: {
           ask: 'Ask AI, di Business',
           drafts: 'Auto Drafts, di Business',
@@ -1230,7 +1235,7 @@ export const id: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
-          'Banyak alat email AI hanyalah kotak masuk baru dengan kolom chat: kamu tetap membaca setiap email, hanya dengan ringkasan di atasnya. Fewmail adalah agen AI di atas Gmail yang sudah kamu pakai. Ia membaca setiap email lebih dulu, menulis draf balasan dengan gayamu, dan hanya membawa beberapa keputusan yang butuh kamu.',
+          'Banyak alat email AI hanyalah kotak masuk baru dengan kolom chat: kamu tetap membaca setiap email, hanya dengan ringkasan di atasnya. Fewmail adalah agen AI di atas Gmail yang sudah kamu pakai. Ia membaca setiap email lebih dulu, menulis draf balasan dengan gayamu, dan hanya membawa beberapa keputusan yang perlu perhatianmu.',
         question: 'Apa bedanya Fewmail dengan asisten email AI lainnya?',
       },
       {
@@ -1315,7 +1320,7 @@ export const id: Messages = {
       legal: 'Legal',
       product: 'Produk',
       tagline:
-        'Agen email AI yang membaca Gmail-mu dan hanya menampilkan yang butuh kamu.',
+        'Agen email AI yang membaca Gmail-mu dan hanya menampilkan yang perlu perhatianmu.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1355,11 +1360,11 @@ export const id: Messages = {
     },
     hero: {
       needs: {
-        emphasis: 'butuh kamu.',
+        emphasis: 'perlu perhatianmu.',
         lead: (handled: string) =>
           `Anna menunggu kontraknya, tagihan Northwind jatuh tempo minggu depan, dan Marco minta hari Kamis. ${handled} newsletter dan notifikasi sudah ditangani, dan Beranda memperbarui diri begitu email baru masuk.`,
         tag: 'Beranda · Kamis, 08:12',
-        title: 'Tiga hal butuh kamu.',
+        title: 'Tiga hal perlu perhatianmu.',
       },
       fates: {
         archived: 'Diarsipkan',
@@ -1374,7 +1379,10 @@ export const id: Messages = {
       ]) as Rich<'count'>,
       inbox: 'Kotak masuk',
       lead: 'Newsletter, struk, notifikasi, sebuah tautan phishing, dan di antaranya, tiga email yang benar-benar penting. Fewmail adalah agen AI yang membaca semuanya untukmu.',
-      needYou: ((slots) => [slots.count, ' butuh kamu']) as Rich<'count'>,
+      needYou: ((slots) => [
+        slots.count,
+        ' perlu perhatianmu',
+      ]) as Rich<'count'>,
       queue: [
         {
           reason: 'Kontrak jatuh tempo besok',
@@ -1533,7 +1541,7 @@ export const id: Messages = {
     openFile: {
       action: 'Buka',
       description:
-        'Email ini ada di spam. Buka filenya hanya jika Anda memercayai pengirimnya.',
+        'Email ini ada di spam. Buka filenya hanya jika kamu memercayai pengirimnya.',
       title: (name: string) => `Buka ${name}?`,
     },
     showImages: 'Tampilkan gambar',
@@ -1558,18 +1566,18 @@ export const id: Messages = {
     canceled: 'Dibatalkan. Draf kembali ke antrean kamu.',
     sendingIn: (seconds: number) => `Mengirim dalam ${seconds} dtk`,
     undo: 'Urungkan',
-    commands: { queue: 'Yang butuh kamu' },
+    commands: { queue: 'Yang perlu perhatianmu' },
     connectFirst: (url: string) =>
-      `Hai! Aku Fewmail. Di Telegram ini aku memberi tahu saat email penting masuk, menunjukkan apa yang perlu kamu tangani, dan mengirim balasan yang kamu setujui.\n\nChat ini belum terhubung ke Fewmail-mu. Cuma butuh semenit:\n1. Buka pengaturan Fewmail: ${url}\n2. Di Integrasi, ketuk “Hubungkan Telegram” (bagian dari Fewmail Pro).\n3. Telegram akan membawamu kembali ke sini — tekan Mulai, dan selesai.`,
+      `Hai! Aku Fewmail. Di Telegram ini aku memberi tahu saat email penting masuk, menunjukkan apa yang perlu kamu tangani, dan mengirim balasan yang kamu setujui.\n\nChat ini belum terhubung ke Fewmail-mu. Cuma butuh semenit:\n1. Buka pengaturan Fewmail: ${url}\n2. Di Integrasi, ketuk “Hubungkan Telegram” (bagian dari Fewmail Pro).\n3. Telegram akan membawamu kembali ke sini, tekan Mulai, dan selesai.`,
     connected:
-      'Terhubung. Aku akan memberi tahu saat ada yang mendesak.\n\n/queue: yang butuh kamu',
+      'Terhubung. Aku akan memberi tahu saat ada yang mendesak.\n\n/queue: yang perlu perhatianmu',
     done: 'Selesai',
     draft: 'Draf:',
     edit: 'Edit',
     editPrompt:
       'Kirimkan teks penggantinya, atau beri tahu cara mengubahnya dengan awalan “/”, mis. “/lebih formal”.',
     newDraft: 'Draf baru:',
-    nothing: 'Tidak ada yang butuh kamu saat ini.',
+    nothing: 'Tidak ada yang perlu perhatianmu saat ini.',
     proOnly:
       'Telegram adalah bagian dari Fewmail Pro. Buka Pengaturan → Paket di Fewmail untuk beralih.',
     draftClipped:
@@ -1605,10 +1613,10 @@ export const id: Messages = {
       },
     },
     ruleOffer: {
-      lead: 'Agen bisa melakukan ini sendiri untuk email yang cocok. Aturan tetap mati sampai kamu bilang ya.',
-      no: 'Biarkan mati',
-      turnedOn: 'Dinyalakan. Ubah di Aturan.',
-      yes: 'Nyalakan',
+      lead: 'Agen bisa melakukan ini sendiri untuk email yang cocok. Aturan tetap nonaktif sampai kamu menyetujuinya.',
+      no: 'Biarkan nonaktif',
+      turnedOn: 'Diaktifkan. Ubah di Aturan.',
+      yes: 'Aktifkan',
     },
     newSender: {
       archive: 'Selalu arsipkan',
@@ -1622,9 +1630,9 @@ export const id: Messages = {
       plural('id', total, {
         other: (n) => `Agen sedang membaca ${n} email baru`,
       }),
-    allDone: 'Semua beres. Tidak ada yang butuh kamu.',
+    allDone: 'Semua beres. Tidak ada yang perlu kamu tangani.',
     allDoneLead:
-      'Aku terus membaca email baru, dan yang butuh perhatianmu akan muncul di sini.',
+      'Aku terus membaca email baru, dan yang perlu perhatianmu akan muncul di sini.',
     allowanceSpent: (date: string) =>
       `Jatah agen untuk bulan ini sudah habis: ringkasan dan draf tersedia lagi pada ${date}. Sampai saat itu aku tetap mencatat janji dan tenggat.`,
     byRules: (n: number) => `Aturanmu sudah mengurus ${n}.`,
@@ -1668,7 +1676,7 @@ export const id: Messages = {
       title: 'Saran dari agen',
     },
     quick: 'Cepat',
-    needsLook: 'Butuh kamu',
+    needsLook: 'Perlu perhatianmu',
     tidy: {
       failed: (emails: string) =>
         `Gmail tidak mengubah ${emails}. Coba lagi sebentar lagi.`,
@@ -1706,7 +1714,7 @@ export const id: Messages = {
     dates: 'Tanggal dan rapat',
     done: 'Selesai',
     firstRead:
-      'Mulai dari email tiga hari terakhir. Yang butuh perhatianmu akan muncul di sini dengan sendirinya.',
+      'Mulai dari email tiga hari terakhir. Yang perlu perhatianmu akan muncul di sini dengan sendirinya.',
     approvedMany: (n: number) => `${n} disetujui`,
     listen: 'Dengarkan',
     handled: {
@@ -1720,7 +1728,7 @@ export const id: Messages = {
     headline: (total: number) =>
       total === 0
         ? 'Semua tenang.'
-        : plural('id', total, { other: (n) => `${n} hal butuh kamu.` }),
+        : plural('id', total, { other: (n) => `${n} hal perlu perhatianmu.` }),
     period: (days: number) =>
       days === 1 ? 'dalam sehari terakhir' : `dalam ${days} hari terakhir`,
     pulse: {
@@ -1748,7 +1756,7 @@ export const id: Messages = {
     phoneTaken:
       'Nomor ini sudah terhubung ke akun Fewmail lain. Putuskan WhatsApp di sana dulu (Pengaturan → Integrasi), lalu kirim pesannya lagi.',
     connectFirst: (url: string) =>
-      `Hai! Aku Fewmail. Di WhatsApp ini aku memberi tahu saat ada email penting, menunjukkan apa yang butuh kamu, dan mengirim balasan yang kamu setujui.\n\nNomor ini belum terhubung ke Fewmail-mu. Cuma butuh semenit:\n1. Buka pengaturan Fewmail: ${url}\n2. Di Integrasi, ketuk “Hubungkan WhatsApp” (bagian dari Fewmail Pro).\n3. WhatsApp terbuka dengan pesan yang sudah siap — kirim, dan selesai.`,
+      `Hai! Aku Fewmail. Di WhatsApp ini aku memberi tahu saat ada email penting, menunjukkan apa yang perlu perhatianmu, dan mengirim balasan yang kamu setujui.\n\nNomor ini belum terhubung ke Fewmail-mu. Cuma butuh semenit:\n1. Buka pengaturan Fewmail: ${url}\n2. Di Integrasi, ketuk “Hubungkan WhatsApp” (bagian dari Fewmail Pro).\n3. WhatsApp terbuka dengan pesan yang sudah siap, kirim, dan selesai.`,
     connected:
       'Terhubung. Aku akan mengabari saat ada yang mendesak. Kirim teks atau pesan suara untuk membalas email apa pun.',
     proOnly:

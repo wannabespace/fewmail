@@ -160,12 +160,12 @@ export const it: Messages = {
   site: {
     meta: {
       assistant:
-        'Fewmail è un assistente email con IA per Gmail che legge per primo ogni email, scrive le risposte con la tua voce e ti mostra solo ciò che ha bisogno di te. Inizia gratis.',
+        'Fewmail è un assistente email con IA per Gmail che legge per primo ogni email, scrive le risposte con la tua voce e ti mostra solo ciò che richiede la tua attenzione. Inizia gratis.',
       assistantTitle: 'Assistente email con IA per Gmail',
       compare:
         'Fewmail a confronto con Superhuman, Shortwave e SaneBox: un agente IA che legge la posta per te invece di un modo più veloce per leggerla da solo.',
       compareTitle: 'Assistenti email con IA a confronto',
-      home: 'Fewmail è un assistente email con IA per Gmail: legge ogni email, scrive le risposte con la tua voce e ti mostra solo ciò che ha bisogno di te.',
+      home: 'Fewmail è un assistente email con IA per Gmail: legge ogni email, scrive le risposte con la tua voce e ti mostra solo ciò che richiede la tua attenzione.',
       login:
         'Fewmail legge Gmail per te, risponde con la tua voce e ti mostra solo ciò che ha davvero bisogno di te.',
       mcp: 'Collega Fewmail a Claude, ChatGPT, Claude Code o Cursor come server MCP: leggi e smista Gmail dall’IA che usi già.',
@@ -262,7 +262,7 @@ export const it: Messages = {
       faq: (trialDays: number) => [
         {
           answer:
-            'Un software che usa l’IA per leggere, smistare e rispondere alle email al posto tuo. La maggior parte aggiunge riassunti e aiuto nella scrittura a una casella che continui a leggere tu. Fewmail va oltre: legge tutto prima, così vedi solo ciò che ha bisogno di te.',
+            'Un software che usa l’IA per leggere, smistare e rispondere alle email al posto tuo. La maggior parte aggiunge riassunti e aiuto nella scrittura a una casella che continui a leggere tu. Fewmail va oltre: legge tutto prima, così vedi solo ciò che richiede la tua attenzione.',
           question: 'Cos’è un assistente email con IA?',
         },
         {
@@ -276,7 +276,7 @@ export const it: Messages = {
           question: 'Può rispondere alle email in automatico?',
         },
         {
-          answer: `Sì. Il piano Gratis smista ogni email, tiene in una sola pagina ciò che ha bisogno di te, applica le tue regole e ti protegge da spam e phishing, per sempre. Bozze, riassunti e il resto dell’agente arrivano con i piani a pagamento, e ogni account parte con ${trialDays} giorni di Pro, senza carta.`,
+          answer: `Sì. Il piano Gratis smista ogni email, tiene in una sola pagina ciò che richiede la tua attenzione, applica le tue regole e ti protegge da spam e phishing, per sempre. Bozze, riassunti e il resto dell’agente arrivano con i piani a pagamento, e ogni account parte con ${trialDays} giorni di Pro, senza carta.`,
           question: 'Esiste un assistente email con IA gratis per Gmail?',
         },
       ],
@@ -299,7 +299,7 @@ export const it: Messages = {
       },
       labels: {
         ask: 'Chiedi qualsiasi cosa alla tua posta',
-        home: 'Ciò che ha bisogno di te, in una sola pagina',
+        home: 'Ciò che richiede la tua attenzione, in una sola pagina',
         calendar: 'Calendario',
         drafts: 'Risposte scritte per te',
         followUps: 'Promemoria per i solleciti',
@@ -428,7 +428,7 @@ export const it: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
-          'Molti strumenti email con IA sono una nuova casella con una chat: continui a leggere ogni email, solo con un riassunto sopra. Fewmail è un agente IA che lavora sul Gmail che usi già. Legge prima ogni email, scrive le risposte con la tua voce e ti porta solo le poche decisioni che hanno bisogno di te.',
+          'Molti strumenti email con IA sono una nuova casella con una chat: continui a leggere ogni email, solo con un riassunto sopra. Fewmail è un agente IA che lavora sul Gmail che usi già. Legge prima ogni email, scrive le risposte con la tua voce e ti porta solo le poche decisioni che richiedono la tua attenzione.',
         question:
           'In cosa Fewmail è diverso dagli altri assistenti email con IA?',
       },
@@ -554,11 +554,11 @@ export const it: Messages = {
     },
     hero: {
       needs: {
-        emphasis: 'hanno bisogno di te.',
+        emphasis: 'richiedono la tua attenzione.',
         lead: (handled: string) =>
           `Anna aspetta il contratto, la fattura di Northwind scade la settimana prossima e Marco vuole giovedì. ${handled} newsletter e notifiche sono state gestite, e Home si aggiorna da sola appena arriva nuova posta.`,
         tag: 'Home · giovedì, 08:12',
-        title: 'Tre cose hanno bisogno di te.',
+        title: 'Tre cose richiedono la tua attenzione.',
       },
       fates: {
         archived: 'Archiviata',
@@ -575,7 +575,7 @@ export const it: Messages = {
       lead: 'Newsletter, ricevute, notifiche, un link di phishing e, da qualche parte lì in mezzo, le tre email che contano davvero. Fewmail è l’agente IA che le legge tutte per te.',
       needYou: ((slots) => [
         slots.count,
-        ' hanno bisogno di te',
+        ' richiedono la tua attenzione',
       ]) as Rich<'count'>,
       queue: [
         {
@@ -940,7 +940,7 @@ export const it: Messages = {
     consent:
       'Niente viene inviato né archiviato senza il tuo ok. Calendario e contatti sono facoltativi.',
     continue: 'Continua con Google',
-    lead: 'Fewmail legge la tua posta e ti mostra solo ciò che ha bisogno di te.',
+    lead: 'Fewmail legge la tua posta e ti mostra solo ciò che richiede la tua attenzione.',
     title: 'Solo ciò che conta.',
   },
   mail: {
@@ -1487,9 +1487,9 @@ export const it: Messages = {
         many: (n) => `L’agente sta leggendo ${n} nuove email`,
         other: (n) => `L’agente sta leggendo ${n} nuove email`,
       }),
-    allDone: 'Tutto fatto. Niente ha bisogno di te.',
+    allDone: 'Tutto fatto. Non ci sono altre cose da fare.',
     allDoneLead:
-      'Continuo a leggere la posta nuova, e ciò che ha bisogno di te comparirà qui.',
+      'Continuo a leggere la posta nuova. Tutto ciò che richiede la tua attenzione comparirà qui.',
     allowanceSpent: (date: string) =>
       `La quota dell’agente di questo mese è finita: riassunti e bozze tornano il ${date}. Fino ad allora continuo ad annotare promesse e scadenze.`,
     byRules: (n: number) => `Le tue regole ne hanno gestite ${n}.`,
@@ -1572,7 +1572,7 @@ export const it: Messages = {
     dates: 'Date e riunioni',
     done: 'Fatto',
     firstRead:
-      'Prima la posta degli ultimi tre giorni. Ciò che ha bisogno di te comparirà qui da solo.',
+      'Iniziamo dalla posta degli ultimi tre giorni. Tutto ciò che richiede la tua attenzione comparirà qui automaticamente.',
     approvedMany: (n: number) => `${n} approvate`,
     listen: 'Ascolta',
     handled: {
@@ -1587,9 +1587,9 @@ export const it: Messages = {
       total === 0
         ? 'Tutto tranquillo.'
         : plural('it', total, {
-            one: () => 'Una cosa ha bisogno di te.',
-            many: (n) => `${n} cose hanno bisogno di te.`,
-            other: (n) => `${n} cose hanno bisogno di te.`,
+            one: () => 'Una cosa richiede la tua attenzione.',
+            many: (n) => `${n} cose richiedono la tua attenzione.`,
+            other: (n) => `${n} cose richiedono la tua attenzione.`,
           }),
     period: (days: number) =>
       days === 1 ? 'nell’ultimo giorno' : `negli ultimi ${days} giorni`,
@@ -1621,7 +1621,7 @@ export const it: Messages = {
           other: (n) => `Si avvicinano ${n} scadenze.`,
         }),
       empty:
-        'Niente di aperto. Ciò che ti promettono, ciò che prometti e le scadenze arrivano qui da soli dalla tua posta.',
+        'Niente in sospeso. Le promesse che ricevi, quelle che fai e le scadenze compaiono qui automaticamente dalla tua posta.',
       owed: (amounts: string) => `Ti devono ${amounts}.`,
       promised: (total: number) =>
         plural('it', total, {
@@ -1650,7 +1650,7 @@ export const it: Messages = {
       overdue: 'in ritardo',
     },
     by: (date: string) => `entro il ${date}`,
-    lastDay: (date: string) => `ultimo giorno ${date}`,
+    lastDay: (date: string) => `scadenza: ${date}`,
     done: 'Fatto',
     forget: 'Dimentica',
     reopen: 'Riapri',

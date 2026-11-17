@@ -158,12 +158,12 @@ export const de: Messages = {
   site: {
     meta: {
       assistant:
-        'Fewmail ist ein KI-E-Mail-Assistent für Gmail, der jede Mail zuerst liest, Antworten in deinem Ton entwirft und dir nur zeigt, was dich braucht. Kostenlos starten.',
+        'Fewmail ist ein KI-E-Mail-Assistent für Gmail, der jede Mail zuerst liest, Antworten in deinem Ton entwirft und dir nur zeigt, was deine Aufmerksamkeit braucht. Kostenlos starten.',
       assistantTitle: 'KI-E-Mail-Assistent für Gmail',
       compare:
         'Fewmail im Vergleich zu Superhuman, Shortwave und SaneBox: ein KI-Agent, der deine Mails liest, statt dich schneller selbst lesen zu lassen.',
       compareTitle: 'KI-E-Mail-Assistenten im Vergleich',
-      home: 'Fewmail ist ein KI-E-Mail-Assistent für Gmail: Er liest jede Mail, entwirft Antworten in deinem Ton und zeigt dir nur, was dich braucht.',
+      home: 'Fewmail ist ein KI-E-Mail-Assistent für Gmail: Er liest jede Mail, entwirft Antworten in deinem Ton und zeigt dir nur, was deine Aufmerksamkeit braucht.',
       login:
         'Fewmail liest dein Gmail für dich, antwortet in deinem Ton und zeigt dir nur, was dich wirklich braucht.',
       mcp: 'Verbinde Fewmail als MCP-Server mit Claude, ChatGPT, Claude Code oder Cursor: Lies und sortiere dein Gmail aus der KI, die du schon nutzt.',
@@ -259,7 +259,7 @@ export const de: Messages = {
       faq: (trialDays: number) => [
         {
           answer:
-            'Software, die mit KI E-Mails für dich liest, sortiert und beantwortet. Die meisten ergänzen ein Postfach, das du weiter selbst liest, um Zusammenfassungen und Schreibhilfe. Fewmail geht weiter: Es liest zuerst alles, und du siehst nur, was dich braucht.',
+            'Software, die mit KI E-Mails für dich liest, sortiert und beantwortet. Die meisten ergänzen ein Postfach, das du weiter selbst liest, um Zusammenfassungen und Schreibhilfe. Fewmail geht weiter: Es liest zuerst alles, und du siehst nur, was deine Aufmerksamkeit braucht.',
           question: 'Was ist ein KI-E-Mail-Assistent?',
         },
         {
@@ -273,7 +273,7 @@ export const de: Messages = {
           question: 'Kann es Mails automatisch beantworten?',
         },
         {
-          answer: `Ja. Der Free-Tarif sortiert jede Mail, sammelt alles, was dich braucht, auf einer Seite, führt deine Regeln aus und schützt dich vor Spam und Phishing, für immer. Entwürfe, Zusammenfassungen und der Rest des Agenten gehören zu den bezahlten Tarifen, und jedes Konto startet mit ${trialDays} Tagen Pro, ohne Karte.`,
+          answer: `Ja. Der Free-Tarif sortiert jede Mail, sammelt alles, was deine Aufmerksamkeit braucht, auf einer Seite, führt deine Regeln aus und schützt dich vor Spam und Phishing, für immer. Entwürfe, Zusammenfassungen und der Rest des Agenten gehören zu den bezahlten Tarifen, und jedes Konto startet mit ${trialDays} Tagen Pro, ohne Karte.`,
           question:
             'Gibt es einen kostenlosen KI-E-Mail-Assistenten für Gmail?',
         },
@@ -297,7 +297,7 @@ export const de: Messages = {
       },
       labels: {
         ask: 'Frag deine Mails, was du willst',
-        home: 'Alles, was dich braucht, auf einer Seite',
+        home: 'Alles, was deine Aufmerksamkeit braucht, auf einer Seite',
         calendar: 'Kalender',
         drafts: 'Antworten für dich entworfen',
         followUps: 'Erinnerungen zum Nachfassen',
@@ -405,7 +405,7 @@ export const de: Messages = {
           starter: 'Pro Mitglied, $25 bei jährlicher Zahlung',
         },
         summary:
-          'Mit Superhuman gehst du schneller durch jede Mail. Fewmail geht sie für dich durch und zeigt dir nur, was dich braucht.',
+          'Mit Superhuman gehst du schneller durch jede Mail. Fewmail geht sie für dich durch und zeigt dir nur, was deine Aufmerksamkeit braucht.',
         them: {
           ask: 'Ask AI, mit Business',
           drafts: 'Auto Drafts, mit Business',
@@ -426,7 +426,7 @@ export const de: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
-          'Viele KI-Mail-Tools sind ein neues Postfach mit Chatfenster: Du liest trotzdem jede Mail, nur mit einer Zusammenfassung obendrauf. Fewmail ist ein KI-Agent auf dem Gmail, das du schon nutzt. Er liest zuerst jede Mail, entwirft Antworten in deinem Ton und bringt dir nur die wenigen Entscheidungen, die dich brauchen.',
+          'Viele KI-Mail-Tools sind ein neues Postfach mit Chatfenster: Du liest trotzdem jede Mail, nur mit einer Zusammenfassung obendrauf. Fewmail ist ein KI-Agent auf dem Gmail, das du schon nutzt. Er liest zuerst jede Mail, entwirft Antworten in deinem Ton und bringt dir nur die wenigen Entscheidungen, die deine Entscheidung brauchen.',
         question:
           'Was unterscheidet Fewmail von anderen KI-E-Mail-Assistenten?',
       },
@@ -512,7 +512,7 @@ export const de: Messages = {
       legal: 'Rechtliches',
       product: 'Produkt',
       tagline:
-        'Der KI-E-Mail-Agent, der dein Gmail liest und dir nur zeigt, was dich braucht.',
+        'Der KI-E-Mail-Agent, der dein Gmail liest und dir nur zeigt, was deine Aufmerksamkeit braucht.',
       versus: (name: string) => `vs. ${name}`,
     },
     gone: {
@@ -820,7 +820,12 @@ export const de: Messages = {
       system: 'System',
     },
   },
-  importance: ['Rauschen', 'Gut zu wissen', 'Braucht dich bald', 'Dringend'],
+  importance: [
+    'Rauschen',
+    'Gut zu wissen',
+    'Braucht deine Aufmerksamkeit bald',
+    'Dringend',
+  ],
   justNow: 'gerade eben',
   errors: {
     calendarAccess:
@@ -938,7 +943,7 @@ export const de: Messages = {
     consent:
       'Ohne dein Okay wird nichts gesendet oder archiviert. Kalender und Kontakte sind optional.',
     continue: 'Weiter mit Google',
-    lead: 'Fewmail liest deine Mails und zeigt nur, was dich braucht.',
+    lead: 'Fewmail liest deine Mails und zeigt nur, was deine Aufmerksamkeit braucht.',
     title: 'Nur, was zählt.',
   },
   mail: {
@@ -967,7 +972,8 @@ export const de: Messages = {
     filterAbout: {
       focused: 'Wichtiges und Menschen zuerst, Hinweise eingeklappt',
       unread: 'Was du noch nicht gelesen hast, nach Art',
-      categories: 'Der ganze Posteingang nach Art, was dich braucht zuerst',
+      categories:
+        'Der ganze Posteingang nach Art, was deine Aufmerksamkeit braucht zuerst',
       inbox: 'Alles, Neuestes zuerst',
     },
     find: {
@@ -1423,11 +1429,11 @@ export const de: Messages = {
     canceled: 'Abgebrochen. Der Entwurf ist wieder in deiner Warteschlange.',
     sendingIn: (seconds: number) => `Senden in ${seconds} s`,
     undo: 'Rückgängig',
-    commands: { queue: 'Was dich braucht' },
+    commands: { queue: 'Was deine Aufmerksamkeit braucht' },
     connectFirst: (url: string) =>
-      `Hi! Ich bin Fewmail. Hier in Telegram sage ich dir, wenn dringende Mail kommt, zeige, was dich braucht, und sende die Antworten, die du freigibst.\n\nDieser Chat ist noch nicht mit deinem Fewmail verbunden. Das dauert eine Minute:\n1. Öffne die Fewmail-Einstellungen: ${url}\n2. Tippe unter Integrationen auf „Telegram verbinden“ (Teil von Fewmail Pro).\n3. Telegram bringt dich hierher zurück – tippe auf Start, und fertig.`,
+      `Hi! Ich bin Fewmail. Hier in Telegram sage ich dir, wenn dringende Mail kommt, zeige, was deine Aufmerksamkeit braucht, und sende die Antworten, die du freigibst.\n\nDieser Chat ist noch nicht mit deinem Fewmail verbunden. Das dauert eine Minute:\n1. Öffne die Fewmail-Einstellungen: ${url}\n2. Tippe unter Integrationen auf „Telegram verbinden“ (Teil von Fewmail Pro).\n3. Telegram bringt dich hierher zurück – tippe auf Start, und fertig.`,
     connected:
-      'Verbunden. Ich melde mich, wenn etwas Dringendes kommt.\n\n/queue: was dich braucht',
+      'Verbunden. Ich melde mich, wenn etwas Dringendes kommt.\n\n/queue: was deine Aufmerksamkeit braucht',
     done: 'Erledigt',
     draft: 'Entwurf:',
     edit: 'Bearbeiten',
@@ -1489,9 +1495,9 @@ export const de: Messages = {
         one: () => 'Der Agent liest eine neue Mail',
         other: (n) => `Der Agent liest ${n} neue Mails`,
       }),
-    allDone: 'Alles erledigt. Nichts braucht dich.',
+    allDone: 'Alles erledigt. Es gibt nichts zu tun.',
     allDoneLead:
-      'Ich lese neue Mails weiter, und alles, was dich braucht, erscheint hier.',
+      'Ich lese weiterhin neue E-Mails. Alles, was deine Aufmerksamkeit braucht, erscheint hier.',
     allowanceSpent: (date: string) =>
       `Das Kontingent des Agenten ist für diesen Monat aufgebraucht: Zusammenfassungen und Entwürfe gibt es ab ${date} wieder. Bis dahin schreibe ich Versprechen und Fristen weiter auf.`,
     byRules: (n: number) => `Deine Regeln haben ${n} erledigt.`,
@@ -1536,7 +1542,7 @@ export const de: Messages = {
       title: 'Der Agent schlägt vor',
     },
     quick: 'Schnell',
-    needsLook: 'Braucht dich',
+    needsLook: 'Braucht deine Aufmerksamkeit',
     tidy: {
       failed: (emails: string) =>
         `Gmail hat ${emails} nicht geändert. Versuch es gleich noch einmal.`,
@@ -1574,7 +1580,7 @@ export const de: Messages = {
     dates: 'Termine und Fristen',
     done: 'Erledigt',
     firstRead:
-      'Zuerst die Mails der letzten drei Tage. Was dich braucht, erscheint hier von selbst.',
+      'Zuerst die E-Mails der letzten drei Tage. Alles, was deine Aufmerksamkeit braucht, erscheint hier automatisch.',
     approvedMany: (n: number) => `${n} freigegeben`,
     listen: 'Anhören',
     handled: {
@@ -1589,8 +1595,8 @@ export const de: Messages = {
       total === 0
         ? 'Alles ruhig.'
         : plural('de', total, {
-            one: () => 'Eine Sache braucht dich.',
-            other: (n) => `${n} Sachen brauchen dich.`,
+            one: () => 'Eine Sache braucht deine Aufmerksamkeit.',
+            other: (n) => `${n} Dinge brauchen deine Aufmerksamkeit.`,
           }),
     period: (days: number) =>
       days === 1 ? 'in den letzten 24 Stunden' : `in den letzten ${days} Tagen`,
@@ -1622,11 +1628,11 @@ export const de: Messages = {
     lead: {
       coming: (total: number) =>
         plural('de', total, {
-          one: () => 'Ein letzter Tag steht bevor.',
-          other: (n) => `${n} letzte Tage stehen bevor.`,
+          one: () => 'Eine Frist läuft bald ab.',
+          other: (n) => `${n} Fristen laufen bald ab.`,
         }),
       empty:
-        'Nichts offen. Was dir versprochen wird, was du versprichst, und letzte Tage kommen von selbst aus deiner Mail hierher.',
+        'Nichts offen. Zusagen an dich, deine eigenen Zusagen und Fristen aus deinen E-Mails erscheinen hier automatisch.',
       owed: (amounts: string) => `Dir stehen ${amounts} zu.`,
       promised: (total: number) =>
         plural('de', total, {
@@ -1655,7 +1661,7 @@ export const de: Messages = {
       overdue: 'überfällig',
     },
     by: (date: string) => `bis ${date}`,
-    lastDay: (date: string) => `letzter Tag ${date}`,
+    lastDay: (date: string) => `Frist: ${date}`,
     done: 'Erledigt',
     forget: 'Vergessen',
     reopen: 'Wieder öffnen',
@@ -1728,7 +1734,7 @@ export const de: Messages = {
   reading: {
     markAllRead: 'Alle als gelesen markieren',
     summary: 'Was deine Newsletter schreiben',
-    worth: 'Lohnt sich ganz zu lesen',
+    worth: 'In voller Länge lesenswert',
     leftOut: (n: number) => `Ausgelassen: ${n}, nichts Neues darin.`,
     note: {
       inSummary: 'In der Zusammenfassung',
@@ -1782,7 +1788,7 @@ export const de: Messages = {
     phoneTaken:
       'Diese Nummer ist schon mit einem anderen Fewmail-Konto verbunden. Trenne WhatsApp zuerst dort (Einstellungen → Integrationen) und sende die Nachricht dann noch einmal.',
     connectFirst: (url: string) =>
-      `Hi! Ich bin Fewmail. Hier in WhatsApp sage ich dir, wenn dringende Mail kommt, zeige, was dich braucht, und sende die Antworten, die du freigibst.\n\nDiese Nummer ist noch nicht mit deinem Fewmail verbunden. Das dauert eine Minute:\n1. Öffne die Fewmail-Einstellungen: ${url}\n2. Tippe unter Integrationen auf „WhatsApp verbinden“ (Teil von Fewmail Pro).\n3. WhatsApp öffnet sich mit einer fertigen Nachricht – sende sie, und fertig.`,
+      `Hi! Ich bin Fewmail. Hier in WhatsApp sage ich dir, wenn dringende Mail kommt, zeige, was deine Aufmerksamkeit braucht, und sende die Antworten, die du freigibst.\n\nDiese Nummer ist noch nicht mit deinem Fewmail verbunden. Das dauert eine Minute:\n1. Öffne die Fewmail-Einstellungen: ${url}\n2. Tippe unter Integrationen auf „WhatsApp verbinden“ (Teil von Fewmail Pro).\n3. WhatsApp öffnet sich mit einer fertigen Nachricht – sende sie, und fertig.`,
     connected:
       'Verbunden. Ich melde mich, wenn etwas Dringendes kommt. Schreib oder sprich eine Nachricht ein, um auf eine Mail zu antworten.',
     proOnly:

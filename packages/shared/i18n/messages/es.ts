@@ -159,14 +159,14 @@ export const es: Messages = {
   site: {
     meta: {
       assistant:
-        'Fewmail es un asistente de correo con IA para Gmail que lee primero cada email, redacta respuestas con tu voz y te muestra solo lo que te necesita. Empieza gratis.',
+        'Fewmail es un asistente de correo con IA para Gmail que lee primero cada email, redacta respuestas con tu voz y te muestra solo lo que requiere tu atención. Empieza gratis.',
       assistantTitle: 'Asistente de correo con IA para Gmail',
       compare:
         'Cómo se compara Fewmail con Superhuman, Shortwave y SaneBox: un agente de IA que lee tu correo en lugar de una forma más rápida de leerlo tú.',
       compareTitle: 'Asistentes de correo con IA comparados',
-      home: 'Fewmail es un asistente de correo con IA para Gmail: lee cada email, redacta respuestas con tu voz y te muestra solo lo que te necesita.',
+      home: 'Fewmail es un asistente de correo con IA para Gmail: lee cada email, redacta respuestas con tu voz y te muestra solo lo que requiere tu atención.',
       login:
-        'Fewmail lee tu Gmail por ti, responde con tu voz y solo te muestra lo que de verdad te necesita.',
+        'Fewmail lee tu Gmail por ti, responde con tu voz y solo te muestra lo que de verdad requiere tu atención.',
       mcp: 'Conecta Fewmail a Claude, ChatGPT, Claude Code o Cursor como servidor MCP: lee y ordena tu Gmail desde la IA que ya usas.',
       motto: 'solo lo que importa en tu bandeja',
       pricing: (trialDays: number) =>
@@ -260,7 +260,7 @@ export const es: Messages = {
       faq: (trialDays: number) => [
         {
           answer:
-            'Un software que usa IA para leer, ordenar y responder tu correo por ti. La mayoría añade resúmenes y ayuda para escribir a una bandeja que sigues leyendo tú. Fewmail va más allá: lo lee todo primero, así que solo ves lo que te necesita.',
+            'Un software que usa IA para leer, ordenar y responder tu correo por ti. La mayoría añade resúmenes y ayuda para escribir a una bandeja que sigues leyendo tú. Fewmail va más allá: lo lee todo primero, así que solo ves lo que requiere tu atención.',
           question: '¿Qué es un asistente de correo con IA?',
         },
         {
@@ -274,7 +274,7 @@ export const es: Messages = {
           question: '¿Puede responder correos automáticamente?',
         },
         {
-          answer: `Sí. El plan Gratis ordena cada correo, reúne lo que te necesita en una sola página, aplica tus reglas y te protege del spam y el phishing, para siempre. Los borradores, los resúmenes y el resto del agente vienen con los planes de pago, y cada cuenta empieza con ${trialDays} días de Pro, sin tarjeta.`,
+          answer: `Sí. El plan Gratis ordena cada correo, reúne lo que requiere tu atención en una sola página, aplica tus reglas y te protege del spam y el phishing, para siempre. Los borradores, los resúmenes y el resto del agente vienen con los planes de pago, y cada cuenta empieza con ${trialDays} días de Pro, sin tarjeta.`,
           question: '¿Hay un asistente de correo con IA gratis para Gmail?',
         },
       ],
@@ -297,7 +297,7 @@ export const es: Messages = {
       },
       labels: {
         ask: 'Pregúntale lo que quieras a tu correo',
-        home: 'Lo que te necesita, en una sola página',
+        home: 'Lo que requiere tu atención, en una sola página',
         calendar: 'Calendario',
         drafts: 'Respuestas redactadas para ti',
         followUps: 'Recordatorios de seguimiento',
@@ -405,7 +405,7 @@ export const es: Messages = {
           starter: 'Por miembro, $25 con pago anual',
         },
         summary:
-          'Superhuman te hace más rápido revisando cada correo. Fewmail los revisa por ti y solo te enseña lo que te necesita.',
+          'Superhuman te hace más rápido revisando cada correo. Fewmail los revisa por ti y solo te enseña lo que requiere tu atención.',
         them: {
           ask: 'Ask AI, con Business',
           drafts: 'Auto Drafts, con Business',
@@ -426,7 +426,7 @@ export const es: Messages = {
     faq: (trialDays: number) => [
       {
         answer:
-          'Muchas herramientas de correo con IA son una bandeja nueva con un chat: sigues leyendo cada email, ahora con un resumen encima. Fewmail es un agente de IA sobre el Gmail que ya usas. Lee primero cada email, redacta respuestas con tu voz y te trae solo las pocas decisiones que te necesitan.',
+          'Muchas herramientas de correo con IA son una bandeja nueva con un chat: sigues leyendo cada email, ahora con un resumen encima. Fewmail es un agente de IA sobre el Gmail que ya usas. Lee primero cada email, redacta respuestas con tu voz y te trae solo las pocas decisiones que requieren tu atención.',
         question:
           '¿En qué se diferencia Fewmail de otros asistentes de correo con IA?',
       },
@@ -512,7 +512,7 @@ export const es: Messages = {
       legal: 'Legal',
       product: 'Producto',
       tagline:
-        'El agente de correo con IA que lee tu Gmail y solo te enseña lo que te necesita.',
+        'El agente de correo con IA que lee tu Gmail y solo te enseña lo que requiere tu atención.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -552,11 +552,11 @@ export const es: Messages = {
     },
     hero: {
       needs: {
-        emphasis: 'te necesitan.',
+        emphasis: 'requieren tu atención.',
         lead: (handled: string) =>
           `Anna espera el contrato, la factura de Northwind vence la semana que viene y Marco quiere el jueves. Se gestionaron ${handled} boletines y notificaciones, e Inicio se actualiza solo en cuanto llega correo nuevo.`,
         tag: 'Inicio · jueves, 08:12',
-        title: 'Tres cosas te necesitan.',
+        title: 'Tres cosas requieren tu atención.',
       },
       fates: {
         archived: 'Archivado',
@@ -571,7 +571,10 @@ export const es: Messages = {
       ]) as Rich<'count'>,
       inbox: 'Bandeja de entrada',
       lead: 'Boletines, recibos, avisos, un enlace de phishing y, en algún lugar entre todo eso, los tres correos que de verdad importan. Fewmail es el agente de IA que lo lee todo por ti.',
-      needYou: ((slots) => [slots.count, ' te necesitan']) as Rich<'count'>,
+      needYou: ((slots) => [
+        slots.count,
+        ' requieren tu atención',
+      ]) as Rich<'count'>,
       queue: [
         {
           reason: 'El contrato vence mañana',
@@ -698,7 +701,7 @@ export const es: Messages = {
     cleanup: 'Boletines para limpiar',
     followups: 'Quién te debe una respuesta',
     reading: 'Los boletines del día en un resumen',
-    today: 'Lo que te necesita hoy',
+    today: 'Lo que requiere tu atención hoy',
     waiting: 'Quién espera tu respuesta',
     week: 'Tu semana en el correo',
   },
@@ -820,7 +823,12 @@ export const es: Messages = {
       system: 'Sistema',
     },
   },
-  importance: ['Ruido', 'Bueno saberlo', 'Te necesita pronto', 'Urgente'],
+  importance: [
+    'Ruido',
+    'Bueno saberlo',
+    'Requiere tu atención pronto',
+    'Urgente',
+  ],
   justNow: 'justo ahora',
   errors: {
     calendarAccess:
@@ -937,7 +945,7 @@ export const es: Messages = {
     consent:
       'Nada se envía ni se archiva sin tu permiso. El calendario y los contactos son opcionales.',
     continue: 'Continuar con Google',
-    lead: 'Fewmail lee tu correo y solo te muestra lo que te necesita.',
+    lead: 'Fewmail lee tu correo y solo te muestra lo que requiere tu atención.',
     title: 'Solo lo que importa.',
   },
   mail: {
@@ -970,7 +978,8 @@ export const es: Messages = {
     filterAbout: {
       focused: 'Lo importante y las personas primero, avisos plegados',
       unread: 'Lo que aún no has leído, por tipo',
-      categories: 'Toda la bandeja por tipo, lo que te necesita primero',
+      categories:
+        'Toda la bandeja por tipo, lo que requiere tu atención primero',
       inbox: 'Todo, lo más reciente primero',
     },
     find: {
@@ -1412,25 +1421,25 @@ export const es: Messages = {
     chatTaken:
       'Este chat ya está conectado a otra cuenta de Fewmail. Desconecta Telegram allí primero (Ajustes → Integraciones) y vuelve a abrir el enlace.',
     queueChanged:
-      'Las tarjetas cambiaron desde entonces. Esto es lo que te necesita ahora:',
+      'Las tarjetas cambiaron desde entonces. Esto es lo que requiere tu atención ahora:',
     heard: (text: string) => `He oído: «${text}»`,
     voiceFailed: 'No lo he entendido. Inténtalo de nuevo o escríbelo.',
     help: 'Escribe o di lo que necesitas:\n• pregunta por tu correo: «¿cuándo se renueva Netflix?»\n• di qué responder: «dile a Ana que firmo mañana»\n• pídeme algo: «archiva siempre los boletines de Medium»\n• responde a uno de mis borradores para cambiarlo',
     canceled: 'Cancelado. El borrador vuelve a tu cola.',
     sendingIn: (seconds: number) => `Enviando en ${seconds} s`,
     undo: 'Deshacer',
-    commands: { queue: 'Lo que te necesita' },
+    commands: { queue: 'Lo que requiere tu atención' },
     connectFirst: (url: string) =>
-      `¡Hola! Soy Fewmail. Aquí en Telegram te aviso cuando llega correo urgente, te muestro lo que te necesita y envío las respuestas que apruebes.\n\nEste chat aún no está conectado a tu Fewmail. Lleva un minuto:\n1. Abre los ajustes de Fewmail: ${url}\n2. En Integraciones, toca «Conectar Telegram» (es parte de Fewmail Pro).\n3. Telegram te traerá de vuelta aquí: pulsa Iniciar y listo.`,
+      `¡Hola! Soy Fewmail. Aquí en Telegram te aviso cuando llega correo urgente, te muestro lo que requiere tu atención y envío las respuestas que apruebes.\n\nEste chat aún no está conectado a tu Fewmail. Lleva un minuto:\n1. Abre los ajustes de Fewmail: ${url}\n2. En Integraciones, toca «Conectar Telegram» (es parte de Fewmail Pro).\n3. Telegram te traerá de vuelta aquí: pulsa Iniciar y listo.`,
     connected:
-      'Conectado. Te avisaré cuando llegue algo urgente.\n\n/queue: lo que te necesita',
+      'Conectado. Te avisaré cuando llegue algo urgente.\n\n/queue: lo que requiere tu atención',
     done: 'Hecho',
     draft: 'Borrador:',
     edit: 'Editar',
     editPrompt:
       'Envíame el texto que quieres usar, o dime cómo cambiarlo empezando por «/», p. ej. «/más formal».',
     newDraft: 'Nuevo borrador:',
-    nothing: 'Ahora mismo nada te necesita.',
+    nothing: 'Ahora mismo nada requiere tu atención.',
     proOnly:
       'Telegram forma parte de Fewmail Pro. Abre Ajustes → Plan en Fewmail para pasarte.',
     draftClipped:
@@ -1486,9 +1495,9 @@ export const es: Messages = {
         many: (n) => `El agente está leyendo ${n} correos nuevos`,
         other: (n) => `El agente está leyendo ${n} correos nuevos`,
       }),
-    allDone: 'Todo listo. Nada te necesita.',
+    allDone: 'Todo listo. No tienes nada pendiente.',
     allDoneLead:
-      'Sigo leyendo el correo nuevo, y lo que te necesite aparecerá aquí.',
+      'Sigo leyendo el correo nuevo. Todo lo que requiera tu atención aparecerá aquí.',
     allowanceSpent: (date: string) =>
       `Se acabó el uso del agente de este mes: los resúmenes y borradores vuelven el ${date}. Hasta entonces sigo anotando promesas y fechas límite.`,
     byRules: (n: number) => `Tus reglas se encargaron de ${n}.`,
@@ -1534,7 +1543,7 @@ export const es: Messages = {
       title: 'El agente sugiere',
     },
     quick: 'Rápido',
-    needsLook: 'Te necesita',
+    needsLook: 'Requiere tu atención',
     tidy: {
       failed: (emails: string) =>
         `Gmail no cambió ${emails}. Inténtalo de nuevo en un momento.`,
@@ -1571,7 +1580,7 @@ export const es: Messages = {
     dates: 'Fechas y reuniones',
     done: 'Hecho',
     firstRead:
-      'Primero, tu correo de los últimos tres días. Lo que te necesite aparecerá aquí solo.',
+      'Empezamos por tu correo de los últimos tres días. Todo lo que requiera tu atención aparecerá aquí automáticamente.',
     approvedMany: (n: number) => `${n} aprobadas`,
     listen: 'Escuchar',
     handled: {
@@ -1586,8 +1595,8 @@ export const es: Messages = {
       total === 0
         ? 'Todo en calma.'
         : plural('es', total, {
-            one: () => 'Una cosa te necesita.',
-            other: (n) => `${n} cosas te necesitan.`,
+            one: () => 'Una cosa requiere tu atención.',
+            other: (n) => `${n} cosas requieren tu atención.`,
           }),
     period: (days: number) =>
       days === 1 ? 'en el último día' : `en los últimos ${days} días`,
@@ -1622,7 +1631,7 @@ export const es: Messages = {
           other: (n) => `Se acercan ${n} fechas límite.`,
         }),
       empty:
-        'Nada pendiente. Lo que te prometen, lo que prometes y las fechas límite llegan aquí solos desde tu correo.',
+        'Nada pendiente. Las promesas que te hacen, las que haces tú y las fechas límite aparecen aquí automáticamente a partir de tu correo.',
       owed: (amounts: string) => `Te deben ${amounts}.`,
       promised: (total: number) =>
         plural('es', total, {
@@ -1650,8 +1659,8 @@ export const es: Messages = {
       open: 'esperando',
       overdue: 'vencido',
     },
-    by: (date: string) => `antes del ${date}`,
-    lastDay: (date: string) => `último día ${date}`,
+    by: (date: string) => `hasta el ${date}`,
+    lastDay: (date: string) => `fecha límite: ${date}`,
     done: 'Hecho',
     forget: 'Olvidar',
     reopen: 'Reabrir',
@@ -1779,7 +1788,7 @@ export const es: Messages = {
     phoneTaken:
       'Este número ya está conectado a otra cuenta de Fewmail. Desconecta WhatsApp allí primero (Ajustes → Integraciones) y vuelve a enviar el mensaje.',
     connectFirst: (url: string) =>
-      `¡Hola! Soy Fewmail. Aquí en WhatsApp te aviso cuando llega correo urgente, te muestro lo que te necesita y envío las respuestas que apruebes.\n\nEste número aún no está conectado a tu Fewmail. Lleva un minuto:\n1. Abre los ajustes de Fewmail: ${url}\n2. En Integraciones, toca «Conectar WhatsApp» (es parte de Fewmail Pro).\n3. WhatsApp se abre con un mensaje listo: envíalo y listo.`,
+      `¡Hola! Soy Fewmail. Aquí en WhatsApp te aviso cuando llega correo urgente, te muestro lo que requiere tu atención y envío las respuestas que apruebes.\n\nEste número aún no está conectado a tu Fewmail. Lleva un minuto:\n1. Abre los ajustes de Fewmail: ${url}\n2. En Integraciones, toca «Conectar WhatsApp» (es parte de Fewmail Pro).\n3. WhatsApp se abre con un mensaje listo: envíalo y listo.`,
     connected:
       'Conectado. Te escribiré cuando llegue algo urgente. Envía texto o un mensaje de voz para responder cualquier correo.',
     proOnly:

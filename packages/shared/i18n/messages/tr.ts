@@ -200,11 +200,11 @@ export const tr: Messages = {
     lead: {
       coming: (total: number) =>
         plural('tr', total, {
-          one: () => 'Bir son gün yaklaşıyor.',
-          other: (n) => `${n} son gün yaklaşıyor.`,
+          one: () => 'Bir son tarih yaklaşıyor.',
+          other: (n) => `${n} son tarih yaklaşıyor.`,
         }),
       empty:
-        'Açık bir şey yok. Sana verilen sözler, senin sözlerin ve son günler e-postandan buraya kendiliğinden gelir.',
+        'Bekleyen bir şey yok. Sana verilen sözler, senin verdiğin sözler ve son tarihler e-postalarından otomatik olarak buraya eklenir.',
       owed: (amounts: string) => `Alacağın: ${amounts}.`,
       promised: (total: number) =>
         plural('tr', total, {
@@ -221,7 +221,7 @@ export const tr: Messages = {
       coming: 'Yaklaşan',
       owed: 'Alacakların',
       promised: 'Verdiğin sözler',
-      settled: 'Yakında kapananlar',
+      settled: 'Yakın zamanda tamamlananlar',
     },
     state: {
       acknowledged: 'yanıt verdiler, henüz yapılmadı',
@@ -233,7 +233,7 @@ export const tr: Messages = {
       overdue: 'gecikti',
     },
     by: (date: string) => `${date} tarihine kadar`,
-    lastDay: (date: string) => `son gün ${date}`,
+    lastDay: (date: string) => `son tarih: ${date}`,
     done: 'Yapıldı',
     forget: 'Unut',
     reopen: 'Yeniden aç',
@@ -301,8 +301,8 @@ export const tr: Messages = {
     unsubscribed: 'bülten bırakıldı',
   },
   reading: {
-    markAllRead: 'Tümünü okundu işaretle',
-    summary: 'Bültenleriniz ne dedi',
+    markAllRead: 'Tümünü okundu olarak işaretle',
+    summary: 'Bültenlerinde neler var',
     worth: 'Tamamını okumaya değer',
     leftOut: (n: number) => `Özete alınmayan: ${n}, yeni bir şey yok.`,
     note: {
@@ -324,7 +324,7 @@ export const tr: Messages = {
     attach: 'Dosya ekle',
     attachmentsTooLarge: (limit: string) =>
       `Ekler toplamda en fazla ${limit} olabilir.`,
-    dropFiles: 'Eklemek için dosyaları bırakın',
+    dropFiles: 'Eklemek için dosyaları bırak',
     removeAttachment: 'Kaldır',
     discarded: 'Taslak silindi',
     backInQueue: 'İptal edildi. Taslak Ana Sayfa’ya geri döndü.',
@@ -893,7 +893,7 @@ export const tr: Messages = {
       retrying:
         'Gmail şu anda yanıt vermiyor. Fewmail kendiliğinden yeniden deneyecek.',
       signIn: 'Bu hesapla giriş yapıyorsunuz',
-      signInChosen: 'Bu, giriş yaptığınız hesap. Başka birini seçin.',
+      signInChosen: 'Bu, giriş yaptığın hesap. Başka bir hesap seç.',
       signInLost:
         'Gmail erişimi kesildi. Yeniden bağlamak için tekrar giriş yapın.',
       synced: (ago: string) => `${ago} eşitlendi`,
@@ -1596,11 +1596,11 @@ export const tr: Messages = {
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
           ? `Bu ay ${count} e-posta, ajan hepsini arşivlerdi`
-          : `Bu ay ${count} e-posta, ajan hepsini okundu işaretlerdi`,
+          : `Bu ay ${count} e-posta, ajan hepsini okundu olarak işaretlerdi`,
       no: 'Hayır, teşekkürler',
       yes: {
         archive: 'Her zaman arşivle',
-        mark_read: 'Her zaman okundu işaretle',
+        mark_read: 'Her zaman okundu olarak işaretle',
       },
     },
     ruleOffer: {
@@ -1750,7 +1750,7 @@ export const tr: Messages = {
     phoneTaken:
       'Bu numara zaten başka bir Fewmail hesabına bağlı. Önce oradan WhatsApp bağlantısını kes (Ayarlar → Entegrasyonlar), sonra mesajı yeniden gönder.',
     connectFirst: (url: string) =>
-      `Merhaba! Ben Fewmail. Burada, WhatsApp’ta acil bir e-posta geldiğinde haber veririm, seni bekleyenleri gösteririm ve onayladığın yanıtları gönderirim.\n\nBu numara henüz Fewmail’ine bağlı değil. Bir dakika sürer:\n1. Fewmail ayarlarını aç: ${url}\n2. Entegrasyonlar’da “WhatsApp’ı bağla”ya dokun (Fewmail Pro’nun parçası).\n3. WhatsApp hazır bir mesajla açılır — gönder, hepsi bu.`,
+      `Merhaba! Ben Fewmail. Burada, WhatsApp’ta acil bir e-posta geldiğinde haber veririm, seni bekleyenleri gösteririm ve onayladığın yanıtları gönderirim.\n\nBu numara henüz Fewmail’ine bağlı değil. Bir dakika sürer:\n1. Fewmail ayarlarını aç: ${url}\n2. Entegrasyonlar’da “WhatsApp’ı bağla”ya dokun (Fewmail Pro’nun parçası).\n3. WhatsApp hazır bir mesajla açılır, gönder, hepsi bu.`,
     connected:
       'Bağlandı. Acil bir şey geldiğinde yazacağım. Herhangi bir e-postayı yanıtlamak için metin ya da sesli mesaj gönder.',
     proOnly:

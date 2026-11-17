@@ -7,7 +7,7 @@ export const ja: Messages = {
     heads_up: '了解しました',
     commitment: '完了',
     confirm: '確認しました',
-    follow_up: 'フォローしました',
+    follow_up: 'リマインダーを送りました',
     pay: '支払いました',
     read: '読みました',
     renew: '更新しました',
@@ -285,7 +285,7 @@ export const ja: Messages = {
     reload: '再読み込み',
   },
   keys: {
-    forget: '忘れる',
+    forget: '一覧から削除',
     reopen: '再開',
     attach: '添付',
     done: '完了',
@@ -800,14 +800,14 @@ export const ja: Messages = {
   site: {
     meta: {
       assistant:
-        'Fewmail は Gmail のための AI メールアシスタントです。すべてのメールを先に読み、あなたらしい返信を下書きし、あなたが必要なものだけを見せます。無料で始められます。',
+        'Fewmail は Gmail のための AI メールアシスタントです。すべてのメールを先に読み、あなたらしい返信を下書きし、対応が必要なものだけを見せます。無料で始められます。',
       assistantTitle: 'Gmail のための AI メールアシスタント',
       compare:
         'Fewmail と Superhuman、Shortwave、SaneBox の比較：自分で速く読むための道具ではなく、代わりにメールを読む AI エージェントです。',
       compareTitle: 'AI メールアシスタントの比較',
-      home: 'Fewmail は Gmail のための AI メールアシスタントです。すべてのメールを読み、あなたらしい返信を下書きし、あなたが必要なものだけを見せます。',
+      home: 'Fewmail は Gmail のための AI メールアシスタントです。すべてのメールを読み、あなたらしい返信を下書きし、対応が必要なものだけを見せます。',
       login:
-        'Fewmail はあなたの代わりに Gmail を読み、あなたらしく返信し、本当にあなたが必要なものだけを見せます。',
+        'Fewmail はあなたの代わりに Gmail を読み、あなたらしく返信し、本当に対応が必要なものだけを見せます。',
       mcp: 'Fewmail を MCP サーバーとして Claude、ChatGPT、Claude Code、Cursor に接続し、使い慣れた AI から Gmail を読んで整理できます。',
       motto: '受信トレイの大事なことだけ',
       pricing: (trialDays: number) =>
@@ -915,7 +915,7 @@ export const ja: Messages = {
           question: 'メールに自動で返信できますか？',
         },
         {
-          answer: `あります。Free プランでは、すべてのメールの仕分け、あなたが必要なものを 1 ページにまとめる表示、ルールの実行、迷惑メールとフィッシングからの保護がずっと使えます。下書き、要約などエージェントのほかの機能は有料プランで使え、どのアカウントもカード不要の Pro ${trialDays} 日間から始まります。`,
+          answer: `あります。Free プランでは、すべてのメールの仕分け、対応が必要なものを 1 ページにまとめる表示、ルールの実行、迷惑メールとフィッシングからの保護がずっと使えます。下書き、要約などエージェントのほかの機能は有料プランで使え、どのアカウントもカード不要の Pro ${trialDays} 日間から始まります。`,
           question: 'Gmail で使える無料の AI メールアシスタントはありますか？',
         },
       ],
@@ -1045,7 +1045,7 @@ export const ja: Messages = {
           starter: '1 メンバーあたり $25、年払い',
         },
         summary:
-          'Superhuman は、すべてのメールを速く処理できるようにします。Fewmail はあなたの代わりに処理し、あなたが必要なものだけを見せます。',
+          'Superhuman は、すべてのメールを速く処理できるようにします。Fewmail はあなたの代わりに処理し、対応が必要なものだけを見せます。',
         them: {
           ask: 'Ask AI、Business で',
           drafts: 'Auto Drafts、Business で',
@@ -1151,7 +1151,7 @@ export const ja: Messages = {
       legal: '法的情報',
       product: 'プロダクト',
       tagline:
-        'Gmail を読んで、あなたが必要なものだけを見せる AI メールエージェント。',
+        'Gmail を読んで、対応が必要なものだけを見せる AI メールエージェント。',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1436,8 +1436,8 @@ export const ja: Messages = {
       label: 'おすすめのルール',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
-          ? `今月${count}通、エージェントはすべてアーカイブします`
-          : `今月${count}通、エージェントはすべて既読にします`,
+          ? `今月${count}通、エージェントはすべてのアーカイブを提案しています`
+          : `今月${count}通、エージェントはすべて既読にすることを提案しています`,
       no: 'いいえ',
       yes: {
         archive: '常にアーカイブ',
@@ -1614,12 +1614,12 @@ export const ja: Messages = {
       overdue: '期限切れ',
     },
     by: (date: string) => `${date} まで`,
-    lastDay: (date: string) => `最終日 ${date}`,
+    lastDay: (date: string) => `期限：${date}`,
     done: '完了',
-    forget: '忘れる',
+    forget: '一覧から削除',
     reopen: '再開',
     markedDone: '完了にしました',
-    forgotten: '忘れました',
+    forgotten: '一覧から削除しました',
     reopened: '再開しました',
   },
   cleanup: {
@@ -1686,9 +1686,9 @@ export const ja: Messages = {
     digest: (n: number) => `メルマガ: ${n}件`,
     lead: '1日分のメルマガを1か所に。受信トレイを埋めません。',
     issues: 'すべての号',
-    empty: 'ニュースレターはまだありません',
+    empty: 'メルマガはまだありません',
     emptyHint:
-      '毎朝、エージェントがニュースレターから集めたニュースをここに書きます。各行は元のメールにリンクしています。',
+      '毎朝、エージェントがメルマガの内容をここにまとめます。各項目から元のメールを開けます。',
     title: 'リーディング',
   },
   commitments: {

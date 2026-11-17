@@ -200,32 +200,33 @@ export const pl: Messages = {
     lead: {
       coming: (total: number) =>
         plural('pl', total, {
-          one: (n) =>
-            n === 1 ? 'Zbliża się jeden termin.' : `Zbliża się terminów: ${n}.`,
-          other: (n) => `Zbliża się terminów: ${n}.`,
+          one: () => 'Zbliża się jeden termin.',
+          few: (n) => `Zbliżają się ${n} terminy.`,
+          many: (n) => `Zbliża się ${n} terminów.`,
+          other: (n) => `Zbliża się ${n} terminu.`,
         }),
       empty:
-        'Nic otwartego. To, co ci obiecują, co ty obiecujesz, i terminy trafiają tu same z twojej poczty.',
+        'Nic nie czeka na załatwienie. Obietnice złożone tobie, twoje zobowiązania i terminy pojawiają się tu automatycznie na podstawie twojej poczty.',
       owed: (amounts: string) => `Należy ci się ${amounts}.`,
       promised: (total: number) =>
         plural('pl', total, {
-          one: (n) =>
-            n === 1 ? 'Obiecałeś jedną rzecz.' : `Obiecanych rzeczy: ${n}.`,
-          other: (n) => `Obiecanych rzeczy: ${n}.`,
+          one: () => 'Masz jedno zobowiązanie.',
+          few: (n) => `Masz ${n} zobowiązania.`,
+          many: (n) => `Masz ${n} zobowiązań.`,
+          other: (n) => `Masz ${n} zobowiązania.`,
         }),
       waiting: (total: number) =>
         plural('pl', total, {
-          one: (n) =>
-            n === 1
-              ? 'Jedna obietnica wobec ciebie jest wciąż otwarta.'
-              : `Otwartych obietnic wobec ciebie: ${n}.`,
-          other: (n) => `Otwartych obietnic wobec ciebie: ${n}.`,
+          one: () => 'Jedna złożona ci obietnica czeka na spełnienie.',
+          few: (n) => `${n} złożone ci obietnice czekają na spełnienie.`,
+          many: (n) => `${n} złożonych ci obietnic czeka na spełnienie.`,
+          other: (n) => `${n} złożonej ci obietnicy czeka na spełnienie.`,
         }),
     },
     section: {
       coming: 'Zbliża się',
       owed: 'Należy ci się',
-      promised: 'Obiecałeś',
+      promised: 'Twoje zobowiązania',
       settled: 'Ostatnio zamknięte',
     },
     state: {
@@ -238,7 +239,7 @@ export const pl: Messages = {
       overdue: 'po terminie',
     },
     by: (date: string) => `do ${date}`,
-    lastDay: (date: string) => `ostatni dzień ${date}`,
+    lastDay: (date: string) => `termin: ${date}`,
     done: 'Zrobione',
     forget: 'Zapomnij',
     reopen: 'Otwórz ponownie',
@@ -332,7 +333,7 @@ export const pl: Messages = {
     title: 'Czytanie',
   },
   commitments: {
-    title: 'Obiecałeś',
+    title: 'Twoje zobowiązania',
   },
   compose: {
     attach: 'Załącz pliki',
@@ -1597,7 +1598,7 @@ export const pl: Messages = {
     undo: 'Cofnij',
     commands: { queue: 'Co czeka na ciebie' },
     connectFirst: (url: string) =>
-      `Cześć! Jestem Fewmail. Tutaj, w Telegramie, daję znać, gdy przychodzi pilna poczta, pokazuję, co czeka na ciebie, i wysyłam odpowiedzi, które zatwierdzisz.\n\nTen czat nie jest jeszcze połączony z twoim Fewmail. To zajmie minutę:\n1. Otwórz ustawienia Fewmail: ${url}\n2. W sekcji Integracje stuknij „Połącz Telegram” (to część Fewmail Pro).\n3. Telegram przeniesie cię z powrotem tutaj — naciśnij Start i gotowe.`,
+      `Cześć! Jestem Fewmail. Tutaj, w Telegramie, daję znać, gdy przychodzi pilna poczta, pokazuję, co czeka na ciebie, i wysyłam odpowiedzi, które zatwierdzisz.\n\nTen czat nie jest jeszcze połączony z twoim Fewmail. To zajmie minutę:\n1. Otwórz ustawienia Fewmail: ${url}\n2. W sekcji Integracje stuknij „Połącz Telegram” (to część Fewmail Pro).\n3. Telegram przeniesie cię z powrotem tutaj, naciśnij Start i gotowe.`,
     connected:
       'Połączono. Dam znać, gdy przyjdzie coś pilnego.\n\n/queue: co czeka na ciebie',
     done: 'Gotowe',
@@ -1751,7 +1752,7 @@ export const pl: Messages = {
     dates: 'Terminy i spotkania',
     done: 'Gotowe',
     firstRead:
-      'Najpierw poczta z ostatnich trzech dni. To, co wymaga Twojej uwagi, pojawi się tu samo.',
+      'Najpierw poczta z ostatnich trzech dni. To, co wymaga twojej uwagi, pojawi się tu automatycznie.',
     approvedMany: (n: number) => `Zatwierdzono: ${n}`,
     listen: 'Odsłuchaj',
     handled: {
@@ -1834,7 +1835,7 @@ export const pl: Messages = {
     phoneTaken:
       'Ten numer jest już połączony z innym kontem Fewmail. Najpierw odłącz tam WhatsApp (Ustawienia → Integracje), a potem wyślij wiadomość ponownie.',
     connectFirst: (url: string) =>
-      `Cześć! Jestem Fewmail. Tutaj, w WhatsAppie, daję znać, gdy przychodzi pilny mail, pokazuję, co na ciebie czeka, i wysyłam odpowiedzi, które zatwierdzisz.\n\nTen numer nie jest jeszcze połączony z twoim Fewmail. To zajmie minutę:\n1. Otwórz ustawienia Fewmail: ${url}\n2. W Integracjach stuknij „Połącz WhatsApp” (część Fewmail Pro).\n3. WhatsApp otworzy się z gotową wiadomością — wyślij ją i gotowe.`,
+      `Cześć! Jestem Fewmail. Tutaj, w WhatsAppie, daję znać, gdy przychodzi pilny mail, pokazuję, co na ciebie czeka, i wysyłam odpowiedzi, które zatwierdzisz.\n\nTen numer nie jest jeszcze połączony z twoim Fewmail. To zajmie minutę:\n1. Otwórz ustawienia Fewmail: ${url}\n2. W Integracjach stuknij „Połącz WhatsApp” (część Fewmail Pro).\n3. WhatsApp otworzy się z gotową wiadomością, wyślij ją i gotowe.`,
     connected:
       'Połączono. Napiszę, gdy przyjdzie coś pilnego. Wyślij tekst albo głosówkę, żeby odpowiedzieć na dowolny e-mail.',
     proOnly:

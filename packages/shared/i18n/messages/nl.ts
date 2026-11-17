@@ -204,7 +204,7 @@ export const nl: Messages = {
           other: (n) => `Er komen ${n} deadlines aan.`,
         }),
       empty:
-        'Niets open. Wat jou wordt beloofd, wat jij belooft en deadlines komen hier vanzelf uit je mail.',
+        'Niets meer open. Beloftes aan jou, je eigen beloftes en deadlines uit je mail verschijnen hier automatisch.',
       owed: (amounts: string) => `Je krijgt nog ${amounts}.`,
       promised: (total: number) =>
         plural('nl', total, {
@@ -232,8 +232,8 @@ export const nl: Messages = {
       open: 'wacht',
       overdue: 'te laat',
     },
-    by: (date: string) => `voor ${date}`,
-    lastDay: (date: string) => `laatste dag ${date}`,
+    by: (date: string) => `uiterlijk ${date}`,
+    lastDay: (date: string) => `deadline: ${date}`,
     done: 'Gedaan',
     forget: 'Vergeten',
     reopen: 'Heropenen',
@@ -514,7 +514,7 @@ export const nl: Messages = {
     consent:
       'Niets wordt verstuurd of gearchiveerd zonder jouw akkoord. Agenda en contacten zijn optioneel.',
     continue: 'Doorgaan met Google',
-    lead: 'Fewmail leest je mail en laat alleen zien wat jou nodig heeft.',
+    lead: 'Fewmail leest je mail en laat alleen zien wat je aandacht vraagt.',
     title: 'Alleen wat ertoe doet.',
   },
   mail: {
@@ -543,7 +543,7 @@ export const nl: Messages = {
     filterAbout: {
       focused: 'Belangrijk en mensen eerst, meldingen ingeklapt',
       unread: 'Wat je nog niet hebt gelezen, per soort',
-      categories: 'De hele inbox per soort, wat jou nodig heeft eerst',
+      categories: 'De hele inbox per soort, wat je aandacht vraagt eerst',
       inbox: 'Alles, nieuwste eerst',
     },
     find: {
@@ -975,12 +975,12 @@ export const nl: Messages = {
   site: {
     meta: {
       assistant:
-        'Fewmail is een AI-e-mailassistent voor Gmail die eerst elke mail leest, antwoorden schrijft in jouw stijl en je alleen laat zien wat jou nodig heeft. Gratis om mee te beginnen.',
+        'Fewmail is een AI-e-mailassistent voor Gmail die eerst elke mail leest, antwoorden schrijft in jouw stijl en je alleen laat zien wat je aandacht vraagt. Gratis om mee te beginnen.',
       assistantTitle: 'AI-e-mailassistent voor Gmail',
       compare:
         'Fewmail vergeleken met Superhuman, Shortwave en SaneBox: een AI-agent die je mail leest in plaats van een snellere manier om hem zelf te lezen.',
       compareTitle: 'AI-e-mailassistenten vergeleken',
-      home: 'Fewmail is een AI-e-mailassistent voor Gmail: hij leest elke mail, schrijft antwoorden in jouw stijl en laat je alleen zien wat jou nodig heeft.',
+      home: 'Fewmail is een AI-e-mailassistent voor Gmail: hij leest elke mail, schrijft antwoorden in jouw stijl en laat je alleen zien wat je aandacht vraagt.',
       login:
         'Fewmail leest je Gmail voor je, antwoordt in jouw stijl en laat je alleen zien wat jou echt nodig heeft.',
       mcp: 'Koppel Fewmail als MCP-server aan Claude, ChatGPT, Claude Code of Cursor: lees en sorteer je Gmail vanuit de AI die je al gebruikt.',
@@ -1077,7 +1077,7 @@ export const nl: Messages = {
       faq: (trialDays: number) => [
         {
           answer:
-            'Software die met AI e-mail voor je leest, sorteert en beantwoordt. De meeste voegen samenvattingen en schrijfhulp toe aan een inbox die je nog steeds zelf leest. Fewmail gaat verder: het leest eerst alles, zodat jij alleen ziet wat jou nodig heeft.',
+            'Software die met AI e-mail voor je leest, sorteert en beantwoordt. De meeste voegen samenvattingen en schrijfhulp toe aan een inbox die je nog steeds zelf leest. Fewmail gaat verder: het leest eerst alles, zodat jij alleen ziet wat je aandacht vraagt.',
           question: 'Wat is een AI-e-mailassistent?',
         },
         {
@@ -1091,7 +1091,7 @@ export const nl: Messages = {
           question: 'Kan het automatisch e-mails beantwoorden?',
         },
         {
-          answer: `Ja. Het gratis abonnement sorteert elke mail, zet wat jou nodig heeft op één pagina, voert je regels uit en beschermt je tegen spam en phishing, voor altijd. Concepten, samenvattingen en de rest van de agent komen met de betaalde abonnementen, en elk account begint met ${trialDays} dagen Pro, zonder kaart.`,
+          answer: `Ja. Het gratis abonnement sorteert elke mail, zet wat je aandacht vraagt op één pagina, voert je regels uit en beschermt je tegen spam en phishing, voor altijd. Concepten, samenvattingen en de rest van de agent komen met de betaalde abonnementen, en elk account begint met ${trialDays} dagen Pro, zonder kaart.`,
           question: 'Bestaat er een gratis AI-e-mailassistent voor Gmail?',
         },
       ],
@@ -1114,7 +1114,7 @@ export const nl: Messages = {
       },
       labels: {
         ask: 'Vraag je mail wat je wilt',
-        home: 'Alles wat jou nodig heeft, op één pagina',
+        home: 'Alles wat je aandacht vraagt, op één pagina',
         calendar: 'Agenda',
         drafts: 'Antwoorden voor je opgesteld',
         followUps: 'Herinneringen om op te volgen',
@@ -1222,7 +1222,7 @@ export const nl: Messages = {
           starter: 'Per lid, $25 bij jaarlijkse betaling',
         },
         summary:
-          'Met Superhuman ga je sneller door elke e-mail. Fewmail gaat er voor je doorheen en laat alleen zien wat jou nodig heeft.',
+          'Met Superhuman ga je sneller door elke e-mail. Fewmail gaat er voor je doorheen en laat alleen zien wat je aandacht vraagt.',
         them: {
           ask: 'Ask AI, in Business',
           drafts: 'Auto Drafts, in Business',
@@ -1328,7 +1328,7 @@ export const nl: Messages = {
       legal: 'Juridisch',
       product: 'Product',
       tagline:
-        'De AI-e-mailagent die je Gmail leest en je alleen laat zien wat jou nodig heeft.',
+        'De AI-e-mailagent die je Gmail leest en je alleen laat zien wat je aandacht vraagt.',
       versus: (name: string) => `vs ${name}`,
     },
     gone: {
@@ -1568,18 +1568,18 @@ export const nl: Messages = {
     canceled: 'Geannuleerd. Het concept staat weer in je wachtrij.',
     sendingIn: (seconds: number) => `Versturen over ${seconds} s`,
     undo: 'Ongedaan maken',
-    commands: { queue: 'Wat jou nodig heeft' },
+    commands: { queue: 'Wat je aandacht vraagt' },
     connectFirst: (url: string) =>
-      `Hoi! Ik ben Fewmail. Hier in Telegram laat ik je weten wanneer er dringende mail binnenkomt, laat ik zien wat jou nodig heeft en verstuur ik de antwoorden die je goedkeurt.\n\nDeze chat is nog niet gekoppeld aan je Fewmail. Het kost een minuutje:\n1. Open de instellingen van Fewmail: ${url}\n2. Tik onder Integraties op “Telegram koppelen” (onderdeel van Fewmail Pro).\n3. Telegram brengt je hier terug: druk op Start en je bent klaar.`,
+      `Hoi! Ik ben Fewmail. Hier in Telegram laat ik je weten wanneer er dringende mail binnenkomt, laat ik zien wat je aandacht vraagt en verstuur ik de antwoorden die je goedkeurt.\n\nDeze chat is nog niet gekoppeld aan je Fewmail. Het kost een minuutje:\n1. Open de instellingen van Fewmail: ${url}\n2. Tik onder Integraties op “Telegram koppelen” (onderdeel van Fewmail Pro).\n3. Telegram brengt je hier terug: druk op Start en je bent klaar.`,
     connected:
-      'Gekoppeld. Ik laat het weten als er iets dringends binnenkomt.\n\n/queue: wat jou nodig heeft',
+      'Gekoppeld. Ik laat het weten als er iets dringends binnenkomt.\n\n/queue: wat je aandacht vraagt',
     done: 'Klaar',
     draft: 'Concept:',
     edit: 'Bewerken',
     editPrompt:
       'Stuur me de tekst die ik moet gebruiken, of zeg hoe ik het moet aanpassen, beginnend met “/”, bijv. “/formeler”.',
     newDraft: 'Nieuw concept:',
-    nothing: 'Er is nu niets dat jou nodig heeft.',
+    nothing: 'Er is nu niets dat je aandacht vraagt.',
     proOnly:
       'Telegram is onderdeel van Fewmail Pro. Open Instellingen → Abonnement in Fewmail om over te stappen.',
     draftClipped:
@@ -1634,9 +1634,9 @@ export const nl: Messages = {
         one: () => 'De agent leest een nieuwe e-mail',
         other: (n) => `De agent leest ${n} nieuwe e-mails`,
       }),
-    allDone: 'Alles klaar. Niets heeft je nodig.',
+    allDone: 'Alles klaar. Je hoeft niets te doen.',
     allDoneLead:
-      'Ik blijf nieuwe mail lezen, en wat jou nodig heeft, verschijnt hier.',
+      'Ik blijf nieuwe mail lezen. Alles wat je aandacht vraagt, verschijnt hier.',
     allowanceSpent: (date: string) =>
       `Het tegoed van de agent is op voor deze maand: samenvattingen en concepten komen terug op ${date}. Tot dan noteer ik nog steeds beloftes en deadlines.`,
     byRules: (n: number) => `Je regels hebben er ${n} afgehandeld.`,
@@ -1681,7 +1681,7 @@ export const nl: Messages = {
       title: 'De agent stelt voor',
     },
     quick: 'Snel',
-    needsLook: 'Heeft jou nodig',
+    needsLook: 'Vraagt je aandacht',
     tidy: {
       failed: (emails: string) =>
         `Gmail heeft ${emails} niet aangepast. Probeer het zo opnieuw.`,
@@ -1718,7 +1718,7 @@ export const nl: Messages = {
     dates: 'Data en afspraken',
     done: 'Klaar',
     firstRead:
-      'Eerst je mail van de afgelopen drie dagen. Wat jou nodig heeft, verschijnt hier vanzelf.',
+      'Eerst je mail van de afgelopen drie dagen. Alles wat je aandacht vraagt, verschijnt hier vanzelf.',
     approvedMany: (n: number) => `${n} goedgekeurd`,
     listen: 'Luisteren',
     handled: {
@@ -1733,8 +1733,8 @@ export const nl: Messages = {
       total === 0
         ? 'Alles rustig.'
         : plural('nl', total, {
-            one: () => 'Eén ding heeft je nodig.',
-            other: (n) => `${n} dingen hebben je nodig.`,
+            one: () => 'Eén ding vraagt je aandacht.',
+            other: (n) => `${n} dingen vragen je aandacht.`,
           }),
     period: (days: number) =>
       days === 1 ? 'het afgelopen etmaal' : `de afgelopen ${days} dagen`,
@@ -1767,7 +1767,7 @@ export const nl: Messages = {
     phoneTaken:
       'Dit nummer is al gekoppeld aan een ander Fewmail-account. Ontkoppel WhatsApp daar eerst (Instellingen → Integraties) en stuur het bericht dan opnieuw.',
     connectFirst: (url: string) =>
-      `Hoi! Ik ben Fewmail. Hier in WhatsApp laat ik weten wanneer er dringende mail binnenkomt, toon ik wat jou nodig heeft en verstuur ik de antwoorden die je goedkeurt.\n\nDit nummer is nog niet gekoppeld aan je Fewmail. Het kost een minuutje:\n1. Open de Fewmail-instellingen: ${url}\n2. Tik onder Integraties op “WhatsApp koppelen” (onderdeel van Fewmail Pro).\n3. WhatsApp opent met een klaargezet bericht — verstuur het en je bent klaar.`,
+      `Hoi! Ik ben Fewmail. Hier in WhatsApp laat ik weten wanneer er dringende mail binnenkomt, toon ik wat je aandacht vraagt en verstuur ik de antwoorden die je goedkeurt.\n\nDit nummer is nog niet gekoppeld aan je Fewmail. Het kost een minuutje:\n1. Open de Fewmail-instellingen: ${url}\n2. Tik onder Integraties op “WhatsApp koppelen” (onderdeel van Fewmail Pro).\n3. WhatsApp opent met een klaargezet bericht, verstuur het en je bent klaar.`,
     connected:
       'Gekoppeld. Ik stuur je een bericht als er iets dringends binnenkomt. Stuur tekst of een spraakbericht om op een e-mail te antwoorden.',
     proOnly:

@@ -141,7 +141,7 @@ export const ko: Messages = {
   compose: {
     attach: '파일 첨부',
     attachmentsTooLarge: (limit: string) =>
-      `첨부 파일은 합쳐서 ${limit}까지 가능합니다.`,
+      `첨부 파일의 전체 크기는 ${limit}까지 가능해요.`,
     dropFiles: '파일을 놓아 첨부하세요',
     removeAttachment: '제거',
     discarded: '임시 보관 메일을 삭제했어요',
@@ -285,7 +285,7 @@ export const ko: Messages = {
     reload: '새로고침',
   },
   keys: {
-    forget: '잊기',
+    forget: '목록에서 삭제',
     reopen: '다시 열기',
     attach: '첨부',
     done: '완료',
@@ -1428,9 +1428,9 @@ export const ko: Messages = {
       },
     },
     ruleOffer: {
-      lead: '에이전트가 해당 메일에 이 작업을 직접 할 수 있습니다. 승인하기 전까지는 꺼져 있습니다.',
+      lead: '에이전트가 조건에 맞는 메일에 이 작업을 자동으로 할 수 있어요. 승인하기 전까지는 꺼져 있어요.',
       no: '끈 채로 두기',
-      turnedOn: '켰습니다. 규칙에서 바꿀 수 있습니다.',
+      turnedOn: '켰어요. 규칙에서 바꿀 수 있어요.',
       yes: '켜기',
     },
     newSender: {
@@ -1566,7 +1566,7 @@ export const ko: Messages = {
           other: (n) => `마감일이 ${n}개 다가와요.`,
         }),
       empty:
-        '열린 일이 없어요. 받은 약속, 한 약속, 마감일은 메일에서 알아서 여기로 와요.',
+        '미완료된 일이 없어요. 받은 약속, 내가 한 약속, 마감일이 메일에서 자동으로 여기에 정리돼요.',
       owed: (amounts: string) => `받을 돈: ${amounts}.`,
       promised: (total: number) =>
         plural('ko', total, {
@@ -1575,8 +1575,8 @@ export const ko: Messages = {
         }),
       waiting: (total: number) =>
         plural('ko', total, {
-          one: () => '받은 약속 하나가 아직 열려 있어요.',
-          other: (n) => `받은 약속 ${n}개가 아직 열려 있어요.`,
+          one: () => '아직 이행되지 않은 약속이 하나 있어요.',
+          other: (n) => `아직 이행되지 않은 약속이 ${n}개 있어요.`,
         }),
     },
     section: {
@@ -1595,12 +1595,12 @@ export const ko: Messages = {
       overdue: '기한 지남',
     },
     by: (date: string) => `${date}까지`,
-    lastDay: (date: string) => `마지막 날 ${date}`,
+    lastDay: (date: string) => `마감일: ${date}`,
     done: '완료',
-    forget: '잊기',
+    forget: '목록에서 삭제',
     reopen: '다시 열기',
     markedDone: '완료로 표시했어요',
-    forgotten: '잊었어요',
+    forgotten: '목록에서 삭제했어요',
     reopened: '다시 열었어요',
   },
   cleanup: {
