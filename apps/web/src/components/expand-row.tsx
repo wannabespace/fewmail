@@ -21,9 +21,9 @@ const HOUSE_EASE = [0.32, 0.72, 0, 1] as const
 
 /**
  * One clock for a card growing into its pane and back: the card's content grows with the box and hands over to
- * the pane's while it is still growing, one blurring out as the other blurs in; closing, the pane's content
- * blurs out at once and the card's is back while the box shrinks into its place. Blurred in over the card's content
- * from the start, the pane's read as a second layer opening on it.
+ * the pane's while it is still growing, one blurring out as the other fades in; closing, the pane's content
+ * fades out at once and the card's is back while the box shrinks into its place. Shown over the card's content from the
+ * start, the pane's read as a second layer opening on it.
  */
 const clockOf = (isReduced: boolean | null) => {
   const at = (delay: number, duration: number): Transition =>
@@ -49,7 +49,10 @@ const SHOWN = { filter: 'blur(0px)', opacity: 1 }
 
 const CARD_RADIUS = 16
 
-/** What a pane shows: it blurs in once the box has nearly grown and out as it starts to shrink. */
+/**
+ * What a pane shows: it fades in as the card's content blurs out, and out as the box starts to shrink. Never blurred: a
+ * blur over a whole pane, laid out again on every frame of the growth, lagged on phones.
+ */
 export const PaneReveal = ({
   children,
   className,
@@ -60,9 +63,9 @@ export const PaneReveal = ({
   const clock = useMorphClock()
   return (
     <motion.div
-      initial={HIDDEN}
-      animate={{ ...SHOWN, transition: clock.paneIn }}
-      exit={{ ...HIDDEN, transition: clock.paneOut }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: clock.paneIn }}
+      exit={{ opacity: 0, transition: clock.paneOut }}
       className={className}
     >
       {children}
@@ -115,7 +118,7 @@ const copyOf = (source: string) => {
  * itself takes the source's place, fill, ring and corners (the source hides under it), with a still copy of its content,
  * then grows to the pane while its fill turns into the page's. The copy grows with it, laid out at the box's width in the
  * pane's column, its padding growing into the pane's, so the card's own content rides to the top of the pane; only then
- * does it blur out as the pane's content (`PaneReveal`) blurs in. Closing runs it back into the same box (measured once: the
+ * does it blur out as the pane's content (`PaneReveal`) fades in. Closing runs it back into the same box (measured once: the
  * source stays where it is under the pane), with a fresh copy, so it needs an `AnimatePresence`. Already open when
  * the page loads (`AnimatePresence initial={false}`, a reload on `?page=`), it is simply there, and measures its card
  * only to close into it.
@@ -257,11 +260,12 @@ export const MorphPane = ({
       />
       <div className="h-full">{children}</div>
       {/* The pane's column (`mx-auto max-w-3xl px-10 pt-12`, a card's `px-4.75 py-4` already in the copy): the card's
-          content ends where the pane's begins. */}
+          content ends where the pane's begins. As tall as the copy, never the box: its blur is redrawn over its whole
+          area on every frame. */}
       <div
         ref={ghost}
         aria-hidden
-        className="pointer-events-none absolute inset-0 mx-auto max-w-3xl px-(--morph-copy-x) pt-(--morph-copy-top) max-md:px-0 max-md:pt-(--morph-copy-top-narrow)"
+        className="pointer-events-none absolute inset-x-0 top-0 mx-auto max-w-3xl px-(--morph-copy-x) pt-(--morph-copy-top) max-md:px-0 max-md:pt-(--morph-copy-top-narrow)"
       />
     </motion.div>
   )
