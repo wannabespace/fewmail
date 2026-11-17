@@ -1,8 +1,6 @@
 import { Alert, AlertDescription } from '@fewmail/ui/components/alert'
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import { BubbleChatIcon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { type } from 'arktype'
@@ -74,19 +72,6 @@ const LoginPage = () => {
               {t.login.lead}
             </p>
           </motion.div>
-          <motion.p
-            variants={rise}
-            className="text-muted-foreground flex items-center gap-3 text-sm text-pretty"
-          >
-            <span className="bg-secondary text-foreground flex size-8 shrink-0 items-center justify-center rounded-lg">
-              <HugeiconsIcon
-                icon={BubbleChatIcon}
-                strokeWidth={2}
-                className="size-4"
-              />
-            </span>
-            {t.login.messengers}
-          </motion.p>
           <motion.div variants={rise} className="flex flex-col gap-4">
             {missing === 'gmail' && (
               <Alert variant="error">

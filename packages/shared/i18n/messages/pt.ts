@@ -499,11 +499,9 @@ export const pt: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'O Fewmail pede permissão para ler, organizar e enviar seus e-mails do Gmail. Nada é enviado nem arquivado sem o seu aval, a menos que você crie uma regra que permita. Também pede acesso ao teu Google Agenda e aos teus contactos para mostrar as fotos das pessoas; podes desmarcar ambos.',
+      'Nada é enviado nem arquivado sem o seu aval. Agenda e contatos são opcionais.',
     continue: 'Continuar com o Google',
-    lead: 'O Fewmail lê sua caixa de entrada por você, responde com a sua voz e só mostra o que realmente precisa de você.',
-    messengers:
-      'Também em mensageiros, começando pelo Telegram: receba os e-mails urgentes, aprove respostas ou simplesmente envie uma mensagem de voz.',
+    lead: 'O Fewmail lê seu e-mail e só mostra o que precisa de você.',
     title: 'Só o que importa.',
   },
   mail: {

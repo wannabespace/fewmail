@@ -493,11 +493,9 @@ export const en = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail asks to read, organize and send Gmail for you. Nothing is sent and nothing is archived without your say, unless you write a rule that allows it. It also asks for your Google Calendar, and for your contacts to show people’s photos; you can untick both.',
+      'Nothing is sent or archived without your yes. Calendar and contacts are optional.',
     continue: 'Continue with Google',
-    lead: 'Fewmail reads your inbox for you, answers in your voice and only shows you what actually needs you.',
-    messengers:
-      'Works in messengers too, starting with Telegram: get urgent mail, approve replies or just send a voice message.',
+    lead: 'Fewmail reads your mail and shows only what needs you.',
     title: 'Only what matters.',
   },
   mail: {

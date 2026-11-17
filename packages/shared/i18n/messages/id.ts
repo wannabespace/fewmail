@@ -492,11 +492,9 @@ export const id: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail meminta izin untuk membaca, merapikan, dan mengirim Gmail untukmu. Tidak ada yang dikirim atau diarsipkan tanpa persetujuanmu, kecuali kamu membuat aturan yang mengizinkannya. Fewmail juga meminta akses Google Kalender, dan kontakmu untuk menampilkan foto orang; keduanya bisa kamu hapus centangnya.',
+      'Tidak ada yang dikirim atau diarsipkan tanpa persetujuanmu. Kalender dan kontak opsional.',
     continue: 'Lanjutkan dengan Google',
-    lead: 'Fewmail membaca kotak masukmu, membalas dengan gayamu, dan hanya menampilkan yang benar-benar butuh kamu.',
-    messengers:
-      'Juga di aplikasi pesan, dimulai dari Telegram: terima email mendesak, setujui balasan, atau cukup kirim pesan suara.',
+    lead: 'Fewmail membaca emailmu dan hanya menampilkan yang butuh kamu.',
     title: 'Hanya yang penting.',
   },
   mail: {

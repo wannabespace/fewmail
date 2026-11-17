@@ -930,11 +930,9 @@ export const de: Messages = {
       ' zu.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail bittet darum, Gmail für dich zu lesen, zu ordnen und zu senden. Ohne dein Okay wird nichts gesendet und nichts archiviert, außer du legst eine Regel an, die es erlaubt. Außerdem bittet es um deinen Google Kalender und um deine Kontakte, um Profilfotos zu zeigen; beides kannst du abwählen.',
+      'Ohne dein Okay wird nichts gesendet oder archiviert. Kalender und Kontakte sind optional.',
     continue: 'Weiter mit Google',
-    lead: 'Fewmail liest deinen Posteingang für dich, antwortet in deinem Ton und zeigt dir nur, was dich wirklich braucht.',
-    messengers:
-      'Funktioniert auch in Messengern, zuerst in Telegram: dringende Mails erhalten, Antworten freigeben oder einfach eine Sprachnachricht schicken.',
+    lead: 'Fewmail liest deine Mails und zeigt nur, was dich braucht.',
     title: 'Nur, was zählt.',
   },
   mail: {

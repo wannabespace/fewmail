@@ -499,11 +499,9 @@ export const nl: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail vraagt toestemming om je Gmail te lezen, te ordenen en te versturen. Er wordt niets verstuurd of gearchiveerd zonder jouw akkoord, tenzij je een regel maakt die dat toestaat. Het vraagt ook om je Google Agenda, en om je contacten om foto’s van mensen te tonen; beide kun je uitvinken.',
+      'Niets wordt verstuurd of gearchiveerd zonder jouw akkoord. Agenda en contacten zijn optioneel.',
     continue: 'Doorgaan met Google',
-    lead: 'Fewmail leest je inbox voor je, antwoordt in jouw stijl en laat alleen zien wat jou echt nodig heeft.',
-    messengers:
-      'Werkt ook in messengers, te beginnen met Telegram: ontvang dringende mail, keur antwoorden goed of stuur gewoon een spraakbericht.',
+    lead: 'Fewmail leest je mail en laat alleen zien wat jou nodig heeft.',
     title: 'Alleen wat ertoe doet.',
   },
   mail: {

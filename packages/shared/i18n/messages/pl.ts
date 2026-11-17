@@ -511,11 +511,9 @@ export const pl: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail prosi o dostęp do czytania, porządkowania i wysyłania poczty Gmail w twoim imieniu. Nic nie zostanie wysłane ani zarchiwizowane bez twojej zgody, chyba że ustawisz regułę, która na to pozwala. Prosi też o dostęp do Kalendarza Google oraz do kontaktów, żeby pokazywać zdjęcia ludzi; oba możesz odznaczyć.',
+      'Nic nie zostanie wysłane ani zarchiwizowane bez twojej zgody. Kalendarz i kontakty są opcjonalne.',
     continue: 'Kontynuuj z Google',
-    lead: 'Fewmail czyta twoją skrzynkę za ciebie, odpowiada twoim głosem i pokazuje tylko to, co naprawdę wymaga twojej uwagi.',
-    messengers:
-      'Działa też w komunikatorach, na początek w Telegramie: odbieraj pilne e-maile, zatwierdzaj odpowiedzi albo po prostu nagraj głosówkę.',
+    lead: 'Fewmail czyta twoją pocztę i pokazuje tylko to, co wymaga twojej uwagi.',
     title: 'Tylko to, co ważne.',
   },
   mail: {

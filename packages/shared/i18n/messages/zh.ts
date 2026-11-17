@@ -357,12 +357,9 @@ export const zh: Messages = {
       slots.privacy,
       '。',
     ]) as Rich<'privacy' | 'terms'>,
-    consent:
-      'Fewmail 会请求代你读取、整理和发送 Gmail 邮件。除非你写下允许的规则，否则未经你同意，不会发送或归档任何邮件。它还会请求访问你的 Google 日历，以及用于显示对方照片的联系人，两者都可以取消勾选。',
+    consent: '未经你同意，不会发送或归档任何邮件。日历和联系人可选。',
     continue: '使用 Google 继续',
-    lead: 'Fewmail 替你阅读收件箱，用你的语气回复，只把真正需要你的邮件给你看。',
-    messengers:
-      '也能在聊天应用中使用，首先支持 Telegram：接收紧急邮件、批准回复，或者直接发一条语音。',
+    lead: 'Fewmail 替你读邮件，只给你看真正需要你的。',
     title: '只看重要的。',
   },
   mail: {

@@ -929,11 +929,9 @@ export const es: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail pide permiso para leer, organizar y enviar Gmail por ti. No se envía ni se archiva nada sin tu permiso, salvo que escribas una regla que lo permita. También pide acceso a tu Google Calendar y a tus contactos para mostrar sus fotos; puedes desmarcar ambos.',
+      'Nada se envía ni se archiva sin tu permiso. El calendario y los contactos son opcionales.',
     continue: 'Continuar con Google',
-    lead: 'Fewmail lee tu bandeja por ti, responde con tu voz y solo te muestra lo que de verdad te necesita.',
-    messengers:
-      'También en mensajería, empezando por Telegram: recibe el correo urgente, aprueba respuestas o simplemente envía un mensaje de voz.',
+    lead: 'Fewmail lee tu correo y solo te muestra lo que te necesita.',
     title: 'Solo lo que importa.',
   },
   mail: {

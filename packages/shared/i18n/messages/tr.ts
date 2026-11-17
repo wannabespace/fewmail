@@ -490,11 +490,9 @@ export const tr: Messages = {
       ' metinlerini kabul etmiş olursun.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Fewmail, Gmail’ini senin için okumak, düzenlemek ve göndermek için izin ister. İzin veren bir kural yazmadığın sürece senin onayın olmadan hiçbir şey gönderilmez ve arşivlenmez. Google Takvim’e ve kişilerin fotoğraflarını göstermek için kişilerine de erişim ister; ikisini de kaldırabilirsin.',
+      'Onayın olmadan hiçbir şey gönderilmez ve arşivlenmez. Takvim ve kişiler isteğe bağlıdır.',
     continue: 'Google ile devam et',
-    lead: 'Fewmail gelen kutunu senin yerine okur, senin üslubunla yanıtlar ve sadece gerçekten seni bekleyenleri gösterir.',
-    messengers:
-      'Mesajlaşma uygulamalarında da çalışır, ilk olarak Telegram’da: acil postaları al, yanıtları onayla ya da sadece sesli mesaj gönder.',
+    lead: 'Fewmail postanı okur ve sadece seni bekleyenleri gösterir.',
     title: 'Yalnızca önemli olan.',
   },
   mail: {
