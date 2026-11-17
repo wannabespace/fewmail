@@ -2,7 +2,14 @@ import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import { Item } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
-import { Cancel01Icon } from '@hugeicons/core-free-icons'
+import {
+  Cancel01Icon,
+  Coffee02Icon,
+  DashboardSquare01Icon,
+  Flag02Icon,
+  SparklesIcon,
+  ZapIcon,
+} from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Link, useSearch } from '@tanstack/react-router'
@@ -29,6 +36,18 @@ export type HomeCardRow = { id: string; text: ReactNode } & (
 export const HOME_CARD_ROWS = 3
 
 const morphIdOf = (page: HomeCardPage) => `home-${page}`
+
+// The colours are the Decisions bar's shares, so each share names its card; the rest stay ink, never a second accent.
+const HEADING_ICONS: Record<
+  HomeCardPage,
+  { className: string; icon: IconSvgElement }
+> = {
+  board: { className: 'text-muted-foreground', icon: DashboardSquare01Icon },
+  improve: { className: 'text-muted-foreground', icon: ZapIcon },
+  later: { className: 'text-foreground/30', icon: Coffee02Icon },
+  look: { className: 'text-primary', icon: Flag02Icon },
+  tidy: { className: 'text-success', icon: SparklesIcon },
+}
 
 // No bleed of its own: Home's bento grid bleeds as a whole, so the cards' text lines up with the page's.
 const cardClassName =
@@ -59,7 +78,14 @@ export const HomeCard = ({
   const isOpen = useSearch({ strict: false }).page === page
   const content = (
     <>
-      <h2 className="text-muted-foreground text-xs font-medium">{heading}</h2>
+      <h2 className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
+        <HugeiconsIcon
+          icon={HEADING_ICONS[page].icon}
+          strokeWidth={2}
+          className={cn('size-3.5 shrink-0', HEADING_ICONS[page].className)}
+        />
+        {heading}
+      </h2>
       <p className="text-brief text-foreground/80 font-serif text-balance">
         {lead}
       </p>

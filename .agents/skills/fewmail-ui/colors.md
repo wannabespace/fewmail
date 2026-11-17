@@ -26,7 +26,7 @@ The `ImportanceDot` is the only place importance gets color: 3 urgent → `bg-de
 
 ## Decisions progress
 
-Home's `ProgressSegments` fills one share per card: Needs you `bg-primary`, Quick `bg-success` (cleared mail), Can wait `bg-foreground/30` (the worth-knowing dot's ink). The shares say where the work went, so each is named by its tooltip, never by a legend.
+Home's `ProgressSegments` fills one share per card: Needs you `bg-primary`, Quick `bg-success` (cleared mail), Can wait `bg-foreground/30` (the worth-knowing dot's ink). The shares say where the work went, so each is named by its tooltip, never by a legend. The same three colours tint those cards' heading glyphs (`HEADING_ICONS` in `home-card.tsx`), so the bar's shares match their cards; The agent suggests and the Board keep a `text-muted-foreground` glyph, never a colour of their own.
 
 ## Shadows
 
