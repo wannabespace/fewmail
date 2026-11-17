@@ -1,104 +1,170 @@
-## 1. Introduction
+## 1. Who we are
 
-Fewmail ("we," "our," "us"), owned by Wannabe Space, LLC, is an email agent: it reads your Gmail for you, drafts replies in your voice and only shows you what needs you. This Privacy Policy explains what data we access, why, how we protect it and what we never do with it.
+Fewmail is an email agent operated by **Wannabe Space, LLC** ("Fewmail", "we", "us"), a limited liability company registered in Delaware, United States (file number 5255992). We are responsible for the personal data described in this policy.
 
-## 2. Google user data we access
+- **Registered agent:** Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, United States.
+- **Email, including privacy requests:** [hello@fewmail.app](mailto:hello@fewmail.app).
+- **Phone:** [+1 302 267 7919](tel:+13022677919).
 
-When you sign in with Google you grant Fewmail the `gmail.modify`, `calendar.events`, `contacts` and `contacts.other.readonly` permissions together with your basic profile (name, email address, profile photo). We use it only for the features you see in the app:
+Fewmail reads your connected Gmail mailboxes, sorts mail and helps you decide what to do. Paid plans and the trial also offer summaries, drafts and answers about your mail. **Free also uses AI to sort mail and check for risks.**
 
-- **Read** your messages (sender, recipients, subject, date, labels, text body and the names, types and sizes of attached files) so the agent can summarize them, judge their importance and draft replies. When you open an attached file, or an email shows an image carried inside it, the file is read from Gmail through our server at that moment and is not stored. On paid plans, the PDFs and images attached to email that matters (up to two per email, the first three pages) are read once so the summary can name the amounts and dates inside them; their text is not stored.
-- **Read your recently sent messages** so drafts match how you write, and to notice when you are waiting for an answer or promised something.
-- **Change labels** (archive, mark as read, snooze, pin as a star, move to trash, or add the agent's own `Fewmail/…` labels if you turn them on) only when you do it yourself (opening an email in Fewmail marks it as read in Gmail, as any mail app does), approve it, or keep a rule that allows it. Every automatic change is listed under "handled" in the app.
-- **Send email** only when you send it yourself or explicitly approve an agent draft: in the app, in Telegram or WhatsApp, or through an MCP client you connected. Every send waits a few seconds so you can undo it, and scheduled emails wait until the time you chose. Files you attach are kept encrypted only until Gmail takes the email (or, if you undo it, until it is back in your Gmail drafts), then deleted from our database; a file you forward is read from the original email in Gmail when it is sent.
-- **Save drafts** to your Gmail, with the files you attached, as you write or when you ask the agent for a draft, list them under Drafts, and delete one when you send it from Fewmail or discard it. Drafts stay in Gmail; Fewmail does not store them.
-- **Search** your mailbox when you ask the agent a question about your mail.
-- **Clear out your inbox**, only when you open the clear-out and approve it: Fewmail reads the sender, labels and list headers of the mail in your inbox (up to 50,000 emails) to count what could be archived, without storing them; it then archives the groups you chose under the `Fewmail/Cleared` label, which brings them back in one click, and keeps one email from each mailing list it unsubscribes you from.
-- **Unsubscribe** from a mailing list, only when you approve it or a rule you keep allows it: through its one-click unsubscribe link; else by opening its unsubscribe page from our server (without your cookies or any login) and sending the one-click form on it; else by sending the short unsubscribe email the list asks for from the Gmail address it writes to.
-- **Show and edit your calendar** (`calendar.events`): Fewmail reads the events of your primary Google calendar (title, time, location and description) to show them on the Calendar page, and creates, changes or deletes an event only when you do it there or approve the agent doing it. Events are read live from Google each time and are not stored by Fewmail; when the agent looks them up for you (the agent chat, MCP), they are processed like the mail details it reads. You can leave this permission unticked on Google's consent screen; everything else keeps working.
-- **Show people's photos and names, and delete a contact when you ask** (`contacts`, `contacts.other.readonly`): Fewmail reads the email addresses, names and profile photos of your Google contacts and of the people you have emailed with, to show each person's photo next to their mail and to list them in People and in the To and Cc suggestions. It deletes one of your saved Google contacts only when you choose Delete contact on it, and never changes your contacts otherwise. They are read from Google and kept in our server's memory for a few hours, never stored in our database, and never shown to the agent. You can leave these permissions unticked on Google's consent screen; senders then show their initial and People lists only the people you have emailed with.
+We do not sell your personal data, use your mail for advertising or use Google user data to train general-purpose AI models. Connecting an optional service, such as Telegram or an external AI assistant, lets that service receive the data needed for its features.
 
-You can add more Gmail accounts in Settings → Mailboxes. Each one grants the same `gmail.modify`, `calendar.events`, `contacts` and `contacts.other.readonly` permissions plus its email address, and Fewmail uses it exactly as above; its mail joins your own account. An added account is never a way to sign in to yours: signing in to Fewmail with it opens its own, separate Fewmail account.
+## 2. What we read from Google
 
-## 3. Limited Use
+Google asks you to allow access when you connect a mailbox. We request your basic profile and these permissions:
 
-Fewmail's use and transfer to any other app of information received from Google APIs will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements. In particular:
-
-- We use Google user data only to provide and improve the user-facing features described above.
-- We do not sell Google user data, and we do not use or transfer it for advertising, for credit-worthiness or lending decisions, or to data brokers.
-- We do not use Google user data to develop, improve or train generalized AI or machine-learning models.
-- No person at Fewmail reads your email unless you ask us to (for example in a support request), it is necessary for security purposes such as investigating abuse, or it is required by law.
-
-## 4. What we store
-
-- **Account and session data:** name, email address, profile photo, session tokens, IP address and user agent.
-- **Google OAuth tokens:** stored encrypted, used only to access Gmail on your behalf.
-- **Synced mail:** the message data listed in section 2, for mail from three months before you connected a mailbox onward (for older mail the formatted HTML version is fetched only when you open an email). Everything that comes from your mail (addresses, names, subjects, snippets, bodies and headers) is encrypted at rest with AES-256-GCM. Older mail, and mail found by a search, is read from Gmail when you scroll to it or search and is not stored (our server keeps it in memory for at most a minute); an older thread is stored once you open it, point at it in a list (which starts loading it so it opens at once) or act on it.
-- **Search index:** so Mail finds an email by part of a word, keyed one-way hashes of the beginnings of the words in each synced email's subject and sender, unique to your account, never the words themselves.
-- **What the agent produces:** summaries, importance and reasons and drafts, also encrypted at rest.
-- **Agent notes (Pro):** notes about the people you correspond with, promises you made in sent mail and promises made to you in mail you got (with the amount when it is money owed to you, such as a refund), each with how it went (open, answered, under way, done, broken or called off), who changed it (the agent, from an email, or you) and which email showed it, and a short description of how you write (greetings, sign-offs, tone, length; never what your emails are about), learned from your recent sent mail so drafts sound like you, encrypted at rest.
-- **Fraud checks:** to warn you when bank or payment details in an email change, we store only keyed one-way hashes of those details, never the details themselves.
-- **Your settings and rules:** language, how you use email, the hour for morning messages, time zone, the rules and snippets you write, and anything you tell the agent to know about you.
-- **Community spam protection:** when you report spam or mark something as not spam, we store your vote with a keyed one-way hash of the sender's address (and of the domain for company domains). No addresses, subjects or contents are stored for this, and other users never learn who voted. Mail from a sender is flagged as spam for other users only after several different people reported it and few marked it as not spam, and it moves to spam only when that user says yes; a sender you have written to is never flagged by community votes.
-- **Other network signals:** to spot mass mailings, senders who keep writing after you unsubscribed, and lookalike domains, we store keyed one-way hashes of your account, senders, domains and a short fingerprint of each message's text. When you report spam or mark mail as not spam, the vote is also stored against a fingerprint of the text, a keyed hash of the network that delivered the mail and keyed hashes of unfamiliar domains it links to, so the same campaign is caught when it comes from a new address. We also read the sender-authentication results Gmail attaches to each email (SPF, DKIM, DMARC). These are combined across users only as counts; no content is shared between users. We also record which senders you unsubscribed from, and, as keyed hashes of your account and of the list, which mailing lists you get, so the app can show what share of a list's readers left it; that share is shown only for lists at least ten people get.
-- **Outbox and reminders:** emails waiting to be sent (encrypted, recipients included), snoozed threads and follow-up reminders.
-- **Billing:** if you subscribe to Pro, your Stripe customer ID and subscription status. Card details are handled by Stripe and never reach our servers.
-- **Integrations:** if you connect Telegram, your Telegram chat ID; if you connect WhatsApp, your phone number and when you last wrote to the bot; if you turn on browser notifications, the push address and keys your browser gives us for that; if you turn on notifications in the desktop app, a random ID for that computer and when it was last open, since the app receives them only while it runs; notifications waiting to go out (their title and text, encrypted), kept until they are delivered or given up on and for 7 days after, so one that failed can be sent again or through another channel you connected; if you connect an MCP client, its name and links as the client registered them, which permissions you granted it, and one-way hashes of the tokens it holds.
-
-- **Public domain lists:** to catch phishing, spam and lookalike senders we also check sender and link domains against public lists we download: [Phishing.Database](https://github.com/Phishing-Database/Phishing.Database) (MIT), [StopForumSpam](https://www.stopforumspam.com/license) toxic domains, [disposable-email-domains](https://github.com/disposable-email-domains/disposable-email-domains) (CC0) and the [Majestic Million](https://majestic.com/reports/majestic-million) (CC BY 3.0). The check happens on our servers; nothing about your mail is sent to these projects. To tell whether a new sender's domain was registered only days ago, we look up that domain (the domain alone, never the address or the email) in the public registration database (RDAP) through rdap.org.
-
-We use **PostHog** (servers in the EU) for product analytics and error reports: which pages you open and which features you use (for example that an email was archived or a card approved, never which email), your plan and language, errors the app runs into and, while you use the app, screen recordings in which every text, input, email and picture is hidden, so they show only layout and clicks. PostHog receives your account's email address and name to link this to your account and keeps an identifier in your browser. No email content, subject, address of anyone you correspond with, search, draft or link from your mail is sent to PostHog. We do not use advertising or cross-site tracking tools.
-
-## 5. AI processing
-
-Quick decisions about each email (its category, importance, whether someone waits for an answer, whether you expect a reply to mail you sent, matching your rules, checking for risky wording and for text that tries to give orders to an assistant reading the mail and, for email from Google itself, whether it says your Google storage is full) are made by **TypeSafe** (Jev) through **OpenRouter** on every plan, including Free. Everything else runs only on the Pro plan and during the trial; on the Free plan no email content is sent to other AI providers. To summarize emails and write drafts, the relevant email content and your settings are sent to large language models through **OpenRouter**: short summaries and extraction go to **TypeSafe** Jev Router, which picks a model for each request only among providers that do not store or train on the data (Google Gemini Flash as fallback), drafts, answers about your mail and the agent chat (with the mail it looks up for you) go to Anthropic Claude Sonnet (xAI Grok as fallback). Inline autocomplete while you write uses **Mistral** Codestral, falling back to Jev Router through OpenRouter. Voice messages you send to the Telegram or WhatsApp bot are transcribed by **Mistral** Voxtral; voice recordings are not stored. They process the data only to return a result to us. We do not use your data to train models and do not allow it to be used for training.
-
-## 6. Where your data goes
-
-| Service | Purpose |
+| Permission | What we use it for |
 | --- | --- |
-| Google (Gmail API, OAuth, Cloud Pub/Sub) | Sign-in and access to your mailbox; Pub/Sub tells us that your mailbox changed (only your address and a change number, no mail content) so new mail and changes you make in Gmail show up in seconds |
-| Google favicon service | Showing the icon of the website a sender writes from: our server asks for it by the site's domain name alone (e.g. github.com), never with your address or anything about you, and your browser only loads it from Fewmail |
-| OpenRouter → Anthropic, Google, xAI and the providers Jev Router picks | Reading emails, drafting replies, answering questions about your mail, autocomplete fallback |
-| OpenRouter → TypeSafe (Jev) | Classifying each email, on every plan |
-| ElevenLabs | Reading aloud, only when you ask: a summary of what needs you and the first items of your queue, the summary of your newsletters, and the bot’s answer to a voice message you sent (paid plans) |
-| Mistral | Autocomplete while you write, transcribing Telegram and WhatsApp voice messages, reading the text of PDFs and images attached to email that matters (paid plans) |
-| Stripe | Payments and subscriptions for Pro |
-| PostHog (EU) | Product analytics, error reports and recordings with every text and picture hidden: what you use in Fewmail, never what your mail says |
-| Telegram | Delivering urgent emails, drafts, the newsletter digest and the weekly report, only if you connect it |
-| WhatsApp (Meta) | Delivering urgent emails, drafts, the newsletter digest and the weekly report, only if you connect it |
-| Your browser’s push service (Google, Mozilla, Apple or Microsoft) | Delivering browser notifications with the sender, subject and summary of urgent emails, end-to-end encrypted so the push service cannot read them, only if you turn them on |
-| GitHub | Hosting the desktop app's downloads and updates; the app asks it for a newer version every few hours, so GitHub sees your IP address, never anything about your mail or account |
-| MCP clients you connect (e.g. Claude, Cursor) | Data that client requests after you sign in and allow it |
-| Our hosting and database providers | Running Fewmail and storing the data above |
+| Basic profile | Your name, email address and photo, to create and identify your account |
+| Gmail (`gmail.modify`) | Read, search and organize mail; save drafts; send messages you approve |
+| Calendar (`calendar.events`) | Show events from your primary calendar; create, change or delete events when you ask or approve |
+| Contacts (`contacts`, `contacts.other.readonly`) | Show names and photos, suggest recipients and list contacts; delete a saved contact only when you choose to |
 
-We share data with these services only as needed to run Fewmail, and we may disclose information if required by law.
+Calendar and Contacts are optional. You can leave them unticked on Google's consent screen and use the other features. Gmail access is needed to use Fewmail as an email app.
 
-## 7. Your choices and rights
+**Mail.** We read senders, recipients, subjects, dates, labels, message text and HTML, list and security headers, and attachment names, types and sizes. Recent sent mail helps us match your writing style and notice replies or promises you are waiting for.
 
-- **Change what the agent may do** at any time in Rules: turn a rule off, remove it or stop it from acting without asking.
-- **Remove an added mailbox** in Settings → Mailboxes. Its synced mail is deleted from our database right away; to also end the Google permission, revoke it at [myaccount.google.com/permissions](https://myaccount.google.com/permissions) (we do not revoke it ourselves, since the same permission may also serve that account's own Fewmail).
-- **Disconnect** Telegram or WhatsApp, turn off browser notifications, or disconnect MCP clients in Settings.
-- **Revoke access** to your Google account at any time at [myaccount.google.com/permissions](https://myaccount.google.com/permissions). Fewmail stops syncing immediately.
-- **Delete your account** in Settings → Account. This deletes your account, synced mail, drafts, rules, settings and integrations from our database right away, revokes our Google access to the account you sign in with, cancels a paid plan at once and deletes your customer record at Stripe (Stripe keeps past invoices and payments). Your Gmail itself is not changed.
-- **Access or export** your data by contacting us.
+**Attachments.** Opening a file or an image embedded in an email fetches it from Gmail through our server. We do not save a separate copy of those files. On paid plans and the trial, we may also send up to two attached PDFs or images per relevant email to Mistral to extract text. Each file must be no larger than 10 MB; for PDFs we request the first three pages. Extracted text is used in the AI request, rather than stored as a separate document. Facts from it can appear in saved summaries or reminders.
 
-## 8. Data retention
+**Calendar and Contacts.** Calendar events are fetched live. Event details can also be included in an agent request or a stored request awaiting your approval. Google contacts are cached in server memory, refreshed on use after six hours, and are not stored in our database or sent to our AI models. Names and addresses already present in your email may still be processed as email data.
 
-We keep your data while your account exists. Synced mail is used for Home and the agent's context; deleting your account removes it as described above. Encrypted database backups, where they exist, are overwritten within 30 days.
+**Additional mailboxes.** Each mailbox grants its own permissions. Its mail joins your Fewmail account. Adding it does not let someone sign in to your Fewmail account using that mailbox.
 
-## 9. Security
+## 3. What can change in your Google account
 
-Data is encrypted in transit (TLS). At rest, everything you or your mail provide is encrypted: your name, email address and photo, mail, rules, snippets, settings you write yourself, your Telegram chat, your WhatsApp number, browser notification addresses, and the IP address and browser of your sessions. What stays unencrypted is what is not personal: ids, dates, flags, amounts and the keyed hashes used for spam protection. So that Home and your inbox open at once, your browser keeps a copy of what they last showed (senders, subjects, previews and summaries, never full emails or one-time codes) in its own storage on your device; it is replaced as they refresh and deleted when you sign out or delete your account. Access to production systems is restricted. No system is perfectly secure, and we cannot guarantee absolute security.
+Changes happen when you take an action, approve a proposal or turn on a rule that allows the change.
 
-## 10. Children
+- Opening a thread in Fewmail marks it as read in Gmail. Archive, trash, spam, pin and snooze controls also update Gmail.
+- Rules you turn on can archive, mark read, unsubscribe or trash matching mail. Starter rules that change Gmail begin switched off. You can review completed actions under Rules.
+- Messages you compose and AI-written replies need your explicit send approval. Ordinary sends have a short Undo window; scheduled sends wait until the time you choose.
+- Unsubscribing contacts the mailing list through its unsubscribe link, a simple form or an unsubscribe email. The list receives the information in that request, which may identify your subscription. An enabled unsubscribe rule can make this request automatically.
+- Your unfinished composer drafts and their attachments are saved in Gmail. Proposed AI replies and emails waiting to be sent are also stored encrypted in Fewmail. Uploaded outgoing attachments are kept until sending completes or the undone message is saved back to Gmail drafts.
+- Inbox clear-out runs only after you approve the groups to archive. It scans metadata for up to 50,000 inbox emails without saving that scan as a separate mailbox copy. Cleared mail gets a label so you can restore it.
 
-Fewmail is not intended for anyone under 16, and we do not knowingly collect data from children.
+Requests from an external AI assistant through MCP that need consent wait for your approval in Fewmail. An approval shown only inside that assistant does not replace your approval in Fewmail.
 
-## 11. Changes
+## 4. How AI processes your data
 
-We may update this policy. We will notify you in the app or by email about material changes before they take effect.
+The content sent depends on the feature. It can include relevant emails and earlier messages in a thread, your request, settings, writing style, examples of sent mail, and calendar details the agent looks up.
 
-## 12. Contact
+| Feature | Services that process it |
+| --- | --- |
+| Sorting, importance, rule matching and risk checks, on every plan | TypeSafe's Jev through OpenRouter |
+| Summaries and information extracted from mail, on paid plans and the trial | Jev Router through OpenRouter; Google Gemini as fallback |
+| Drafts and answers about your mail, on paid plans and the trial | Anthropic Claude through OpenRouter; xAI Grok as fallback |
+| Suggestions while you type | Mistral Codestral; Jev Router through OpenRouter as fallback |
+| Text from attached PDFs and images; transcription of voice messages | Mistral |
+| Reading summaries and answers aloud | ElevenLabs receives the text to speak |
 
-- **Email:** [hello@fewmail.app](mailto:hello@fewmail.app)
-- **Website:** [https://fewmail.app](https://fewmail.app)
+Jev Router selects a model for each request. We apply OpenRouter's restriction against data collection to that route. This is different from a promise that every provider deletes every request immediately: providers may retain data for security, abuse prevention or legal obligations under their terms and account settings.
+
+We do not use your Google user data to develop, improve or train general-purpose AI or machine-learning models. Our use of AI providers must respect the same restriction. We have disabled Mistral's API data-sharing option and ElevenLabs' model-improvement option. These choices do not mean those providers immediately delete every request.
+
+AI can misread mail, miss a deadline or write an incorrect draft. You can check the original email, change a draft and turn off rules.
+
+## 5. Google API Limited Use
+
+Fewmail's use and transfer of information received from Google APIs will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including its Limited Use requirements and the [Google Workspace user data policy](https://developers.google.com/workspace/workspace-api-user-data-developer-policy).
+
+We use that data only for the user-facing features described here. We do not transfer it for advertising, credit or lending decisions, or to data brokers. People at Fewmail may access Google user data only with your affirmative agreement to view specific data, where necessary for security or abuse investigations, or where required by law.
+
+## 6. What we store and why
+
+| Data | Why we keep it |
+| --- | --- |
+| Name, email, profile photo, sessions, IP address and browser information | Sign-in, account security and support |
+| Encrypted Google access and refresh tokens | Keep the mailboxes you connected available without asking you to sign in for each sync |
+| Synced mail and attachment metadata | Display mail, search and provide context for the agent |
+| Summaries, proposed replies, approval requests and their supporting context | Show what the agent proposes and record your decisions |
+| Rules, snippets, settings and information you give the agent | Apply your preferences |
+| Notes about correspondents, writing style, promises, amounts and deadlines | Draft in your voice and help you follow up on paid plans and the trial |
+| Emails waiting to send, uploaded outgoing attachments and reminders | Deliver approved messages and resurface mail when requested |
+| Stripe customer and subscription identifiers, plan and usage records | Manage billing and your agent allowance; Stripe handles card details |
+| Connected messenger identifiers, notification addresses and MCP permissions | Deliver messages and support connections you choose |
+
+We gradually sync mail from three months before you connect a mailbox onward. Some older messages are stored too, for example when they belong to a synced thread or when you open, preview or act on an older thread. Browsing or searching older mail otherwise fetches it from Gmail, with a short server-memory cache. Formatted HTML for historical mail may be fetched on first opening.
+
+Search uses account-specific keyed hashes of word beginnings from senders and subjects. These let us match part of a word without keeping a plain-text search index.
+
+**Spam and fraud protection.** We store reports and signals about senders, domains, sending networks, message patterns, changed payment details and mailing-list subscriptions. We use keyed hashes and message fingerprints to compare patterns without sharing mail content between users. Some domain observations are stored encrypted. Hashes and identifiers can still be personal data; they are not automatically anonymous.
+
+Community reports normally produce a warning or proposal. Mail moves to spam automatically only for senders you reported yourself. Mailing-list departure rates are shown only for lists received by at least ten users.
+
+## 7. Who receives data
+
+We send only the data needed for the purposes below. Providers process data under their applicable terms and privacy arrangements. Services you connect can keep their own copies; disconnecting them does not erase copies they already received.
+
+| Recipient | Purpose and data involved |
+| --- | --- |
+| Google | Sign-in, Gmail, Calendar and Contacts. Cloud Pub/Sub sends us your mailbox address and a change identifier so we know when to sync |
+| OpenRouter and the AI providers in section 4 | Process the content needed for the requested AI feature |
+| Mistral and ElevenLabs | Process the text, attachments or audio described in section 4 |
+| Stripe | Payments and subscriptions, including your account name and email; card details do not reach our servers |
+| Railway | Host Fewmail's web app, API, worker and database |
+| Cloudflare | Deliver and protect our sites and API; handles network requests, including IP addresses |
+| PostHog, using its EU service | Product analytics, error reports and masked session recordings, described below |
+| Telegram or WhatsApp (Meta), if connected | Your messages to the bot and replies, drafts, alerts, newsletter digests and weekly reports delivered there |
+| Your browser's push service, if enabled | Delivers encrypted notifications. The sender, subject and summary are readable on your device, including on its lock screen if your settings allow |
+| MCP clients you connect, such as Claude or Cursor | The mail and other data they request within the permissions you grant |
+| GitHub | Desktop downloads and update checks; receives request information such as your IP address |
+| Mailing-list operators | Unsubscribe requests you approve or authorize through a rule |
+
+For sender website icons, our server sends only the website's domain to Google's favicon service. To check a domain's age, we send the domain to the public registration service through rdap.org. We do not send these services the full email address or email content.
+
+Spam and phishing checks also use downloaded public lists: [Phishing.Database](https://github.com/Phishing-Database/Phishing.Database) (MIT), [StopForumSpam](https://www.stopforumspam.com/license), [disposable-email-domains](https://github.com/disposable-email-domains/disposable-email-domains) (CC0) and the [Majestic Million](https://majestic.com/reports/majestic-million) (CC BY 3.0). These checks run on our servers; no mail is sent to the list publishers.
+
+We may also disclose information when legally required or where necessary to investigate abuse or protect the service, subject to the Google Limited Use restrictions.
+
+**International processing.** These services may process data outside your country, including in the United States. Using PostHog's EU service does not mean all Fewmail data stays in the EU. Contact us for information about processing locations and the safeguards applicable to your data.
+
+## 8. Cookies, device storage and analytics
+
+We use cookies and browser storage to keep you signed in, remember your language and preferences, and load the app quickly.
+
+Home and Mail keep a local snapshot in your browser's IndexedDB. It includes mail previews, summaries and pending actions, including drafts and the email or calendar context attached to an approval request. It can therefore contain sensitive data. It refreshes as the app loads new data and is cleared when you sign out or delete your account through that browser. One-time-code fields and detected codes are masked before saving. Other devices may retain their own copies until they sign out or clear site data.
+
+PostHog records page visits, feature use, plan, language, device and browser information, and errors. It receives your account ID, name and account email, and keeps browser identifiers. Recordings mask page text and inputs and block email frames and images. We configure analytics to exclude mail contents, correspondent addresses, subjects, drafts, searches and links from mail. These are measures to reduce disclosure, rather than a guarantee that every possible application error contains no personal data.
+
+PostHog's default retention periods depend on its plan and when that plan began. Events and recordings have separate retention periods; account profiles remain until deleted. Its documentation explains [event retention](https://posthog.com/docs/data/events-retention) and [recording retention](https://posthog.com/docs/session-replay/recording-retention). Reaching a retention date does not guarantee immediate deletion.
+
+We do not use advertising trackers. You can clear cookies and site storage in your browser; doing so can sign you out and remove saved preferences. Clearing storage does not delete analytics already received by PostHog. Contact us to exercise your privacy rights over those records.
+
+## 9. Why we may process personal data
+
+Where the GDPR or UK GDPR applies, we rely on:
+
+- **Providing the service you request:** account access, connected mail features, AI processing needed for those features, subscriptions and support.
+- **Legitimate interests:** protecting accounts, preventing fraud and spam, maintaining the service and understanding product use, balanced against your rights. This also covers handling information about other people contained in mail you connect, where applicable.
+- **Consent:** processing for which applicable law requires consent. You can withdraw it without affecting processing that was lawful before withdrawal.
+- **Legal obligations:** records and disclosures required by law, such as applicable accounting obligations.
+
+Google permission lets us access your mailbox; it is not blanket consent to every use of personal data. Without the access needed for a feature, we cannot provide that feature. Optional Calendar, Contacts, messenger and notification access is not required to use the rest of the app.
+
+## 10. Retention and account deletion
+
+We keep synced mail, settings and agent records while your account exists so you can use mail history and ongoing reminders. A cleanup job removes completed or abandoned notification deliveries seven days after their last update. Contacts, older-mail lookups and raw files read for AI extraction are handled as described above rather than kept as separate permanent copies.
+
+**Deleting your account** in Settings → Account removes the account and its linked mail, rules, settings, agent records and integrations from our active database. It also deletes your Stripe customer record, ending any paid subscription immediately, and attempts to revoke the Google grant for your sign-in mailbox. If Stripe deletion fails, account deletion stops so a subscription is not left billing a deleted account. You may need to sign in again before confirming deletion.
+
+Deletion does not delete your Gmail messages, Gmail drafts or calendar events. To make sure all Google permissions are removed, including for added mailboxes, revoke them at [Google account permissions](https://myaccount.google.com/permissions).
+
+Account deletion does not automatically erase every copy elsewhere. Hashed network signals are stored separately from account-linked records; analytics, support correspondence, infrastructure logs, backups and records held by connected services can have separate retention periods. Stripe retains payment and invoice records as required for its obligations. Contact us about deletion of remaining personal data and applicable retention periods. We may retain data where required by law or necessary for a legal claim.
+
+## 11. Your choices and rights
+
+You can turn off rules, remove added mailboxes and disconnect messengers or MCP clients in Settings. Removing an added mailbox deletes its synced mail from our active database, but does not revoke its Google permission. Revoking Google access prevents future authorized Google API access; it does not by itself delete data already stored by Fewmail.
+
+Email [hello@fewmail.app](mailto:hello@fewmail.app) to request access, a portable copy, correction or deletion of your personal data, or to object to or restrict processing. These rights depend on the law that applies and can have exceptions. We may need to verify your identity. Where GDPR applies, we normally respond within one month and explain any permitted extension.
+
+You may complain to your local data protection authority, including an EU/EEA authority or the UK's Information Commissioner's Office. You do not have to contact us first.
+
+Fewmail uses automated sorting and recommendations to help manage mail. It is not designed to make decisions about your legal rights or other similarly significant matters. You can review the original mail and change or stop rules you enabled.
+
+## 12. Security, age and changes
+
+We use HTTPS and encrypt stored mail content, personal text and Google tokens. Technical identifiers, dates, flags, usage amounts and some security hashes remain readable in the database. This is server-side encryption: Fewmail and the providers needed to run its features can process the data. It is not end-to-end encryption of your mailbox. Local browser storage relies on the protection of your device and browser. No system can guarantee absolute security.
+
+Fewmail is intended for people aged 16 or older. If you believe a child under 16 has provided personal data, contact us so we can investigate and delete it where appropriate.
+
+We will update the date on this page when this policy changes. We will notify you in the app or by email before material changes take effect. If a new use requires consent, a policy update alone does not provide that consent.

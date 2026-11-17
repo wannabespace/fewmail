@@ -33,7 +33,7 @@ export const LOCALIZED_PATHS = [
 const LEGAL_PAGES: Record<string, PageMeta> = {
   '/privacy': {
     description:
-      'What Fewmail reads in your Gmail, what it stores encrypted, what it shares and how to delete everything.',
+      'What Fewmail reads in Gmail, how AI and connected services use it, and your privacy and deletion choices.',
     title: `Privacy Policy · ${SITE_NAME}`,
     updatedAt: LEGAL_UPDATED_AT,
   },
