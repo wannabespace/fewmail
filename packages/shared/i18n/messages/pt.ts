@@ -144,6 +144,10 @@ export const pt: Messages = {
     reason: (n: number) =>
       `E-mail em massa: ${n}+ usuários do Fewmail receberam o mesmo texto`,
   },
+  cold: {
+    reason:
+      'Contato frio: um desconhecido oferecendo algo, e você nunca escreveu para esse endereço',
+  },
   calendar: {
     tomorrow: 'Amanhã',
     allDay: 'Dia inteiro',

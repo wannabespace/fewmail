@@ -143,6 +143,10 @@ export const tr: Messages = {
     reason: (n: number) =>
       `Toplu e-posta: ${n}+ Fewmail kullanıcısı aynı metni aldı`,
   },
+  cold: {
+    reason:
+      'Soğuk e-posta: hiç yazmadığın bir yabancı bir şey satmaya çalışıyor',
+  },
   calendar: {
     tomorrow: 'Yarın',
     allDay: 'Tüm gün',

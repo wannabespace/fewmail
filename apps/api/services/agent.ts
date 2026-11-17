@@ -27,7 +27,17 @@ import { generateText, Output } from 'ai'
 import { type } from 'arktype'
 import { Result } from 'better-result'
 import { addDays } from 'date-fns'
-import { and, desc, eq, gt, inArray, isNotNull, lt } from 'drizzle-orm'
+import {
+  and,
+  arrayContains,
+  desc,
+  eq,
+  gt,
+  inArray,
+  isNotNull,
+  lt,
+  or,
+} from 'drizzle-orm'
 
 import {
   FAST_MODEL_ID,
@@ -333,12 +343,34 @@ const NO_EXTRACTED = {
   meetingTime: null,
 }
 
-/** What the network knows beats what one email claims: mass mail and no-reply senders are never personal, flagged mail is always urgent. */
+/** The user wrote to this address or took part in this thread: whoever writes is no stranger, whatever the email says. */
+const hasWrittenTo = async (message: Message) => {
+  const [mine] = await db
+    .select({ id: messages.id })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.userId, message.userId),
+        eq(messages.isFromMe, true),
+        or(
+          eq(messages.threadId, message.threadId),
+          arrayContains(messages.to, [message.fromEmail]),
+          arrayContains(messages.cc, [message.fromEmail])
+        )
+      )
+    )
+    .limit(1)
+  return !!mine
+}
+
+/** What the network knows beats what one email claims: mass mail and no-reply senders are never personal, flagged mail is always urgent, a stranger's pitch waits in Tidy. */
 const withNetworkFacts = <
   Output extends {
     category: MailCategory
     importance: 0 | 1 | 2 | 3
+    isCold?: boolean
     needsReply: boolean
+    suggestedAction: (typeof analysisSchema.infer)['suggestedAction']
   },
 >(
   output: Output,
@@ -354,6 +386,16 @@ const withNetworkFacts = <
       importance: Math.min(output.importance, 1) as 0 | 1,
       needsReply: false,
       reason: t.spam.suspect,
+    }
+  }
+  if (output.isCold) {
+    return {
+      ...output,
+      category: 'promotion',
+      importance: 0,
+      needsReply: false,
+      reason: t.cold.reason,
+      suggestedAction: 'archive',
     }
   }
   if (!isBulk(message.bulkCount, output.category)) {
@@ -423,10 +465,15 @@ const analyze = async (input: {
     prompt,
     rules: input.rules,
     userEmail: input.userEmail,
-  }).catch((error) => {
-    logError('jev failed, falling back to the LLM', error)
-    return null
   })
+    .then(async (jev) => ({
+      ...jev,
+      isCold: jev.isCold && !(await hasWrittenTo(input.message)),
+    }))
+    .catch((error) => {
+      logError('jev failed, falling back to the LLM', error)
+      return null
+    })
 
   if (!decided) {
     if (!allowance?.take(false)) {

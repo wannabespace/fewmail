@@ -1530,6 +1530,9 @@ export const ko: Messages = {
     reason: (n: number) =>
       `대량 메일: Fewmail 사용자 ${n}명 이상이 같은 내용을 받았어요`,
   },
+  cold: {
+    reason: '콜드 메일: 한 번도 메일을 보낸 적 없는 사람의 영업 메일이에요',
+  },
   board: {
     lead: {
       coming: (total: number) =>

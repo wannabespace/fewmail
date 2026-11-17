@@ -141,6 +141,9 @@ export const en = {
     badge: (n: number) => `Sent to ${n}+ Fewmail users`,
     reason: (n: number) => `Mass email: ${n}+ Fewmail users got the same text`,
   },
+  cold: {
+    reason: 'Cold outreach: a stranger pitching, and you never wrote to them',
+  },
   byRule: 'by a rule',
   calendar: {
     allDay: 'All day',

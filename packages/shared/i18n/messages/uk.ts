@@ -1590,6 +1590,10 @@ export const uk: Messages = {
     reason: (n: number) =>
       `Масова розсилка: ${n}+ користувачів Fewmail отримали той самий текст`,
   },
+  cold: {
+    reason:
+      'Холодний лист: незнайомець щось пропонує, а листування з цією адресою в тебе не було',
+  },
   board: {
     lead: {
       coming: (total: number) =>

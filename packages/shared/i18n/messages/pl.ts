@@ -143,6 +143,10 @@ export const pl: Messages = {
     reason: (n: number) =>
       `Masowy e-mail: ${n}+ użytkowników Fewmail dostało ten sam tekst`,
   },
+  cold: {
+    reason:
+      'Zimny mail: obca osoba coś proponuje, a z tym adresem nie było żadnej korespondencji',
+  },
   calendar: {
     tomorrow: 'Jutro',
     allDay: 'Cały dzień',

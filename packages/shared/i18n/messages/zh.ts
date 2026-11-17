@@ -1493,6 +1493,9 @@ export const zh: Messages = {
     badge: (n: number) => `已发给 ${n}+ 位 Fewmail 用户`,
     reason: (n: number) => `群发邮件：${n}+ 位 Fewmail 用户收到了相同内容`,
   },
+  cold: {
+    reason: '陌生推销：你从未给对方写过信，对方却在推销',
+  },
   board: {
     lead: {
       coming: (total: number) =>

@@ -143,6 +143,10 @@ export const nl: Messages = {
     reason: (n: number) =>
       `Massamail: ${n}+ Fewmail-gebruikers kregen dezelfde tekst`,
   },
+  cold: {
+    reason:
+      'Koude acquisitie: een onbekende biedt iets aan en jij hebt dit adres nooit gemaild',
+  },
   calendar: {
     tomorrow: 'Morgen',
     allDay: 'Hele dag',

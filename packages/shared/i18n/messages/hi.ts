@@ -1540,6 +1540,9 @@ export const hi: Messages = {
     badge: (n: number) => `${n}+ Fewmail उपयोगकर्ताओं को भेजा गया`,
     reason: (n: number) => `बल्क ईमेल: ${n}+ Fewmail उपयोगकर्ताओं को यही टेक्स्ट मिला`,
   },
+  cold: {
+    reason: 'कोल्ड आउटरीच: कोई अनजान व्यक्ति कुछ बेचना चाहता है, आपने उसे कभी नहीं लिखा',
+  },
   board: {
     lead: {
       coming: (total: number) =>

@@ -143,6 +143,10 @@ export const id: Messages = {
     reason: (n: number) =>
       `Email massal: ${n}+ pengguna Fewmail menerima teks yang sama`,
   },
+  cold: {
+    reason:
+      'Cold outreach: orang asing menawarkan sesuatu, kamu belum pernah mengirim email kepadanya',
+  },
   calendar: {
     tomorrow: 'Besok',
     allDay: 'Sepanjang hari',

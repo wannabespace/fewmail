@@ -1583,6 +1583,10 @@ export const it: Messages = {
     reason: (n: number) =>
       `Email di massa: oltre ${n} utenti Fewmail hanno ricevuto lo stesso testo`,
   },
+  cold: {
+    reason:
+      'Contatto a freddo: uno sconosciuto ti propone qualcosa e tu non hai mai scritto a questo indirizzo',
+  },
   board: {
     lead: {
       coming: (total: number) =>

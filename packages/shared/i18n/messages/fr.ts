@@ -1602,6 +1602,10 @@ export const fr: Messages = {
     reason: (n: number) =>
       `E-mail de masse : plus de ${n} utilisateurs de Fewmail ont reçu le même texte`,
   },
+  cold: {
+    reason:
+      'Prospection à froid : quelqu’un à qui vous n’avez jamais écrit vous démarche',
+  },
   board: {
     lead: {
       coming: (total: number) =>

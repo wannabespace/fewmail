@@ -1549,6 +1549,9 @@ export const ja: Messages = {
     reason: (n: number) =>
       `一斉メール：${n}人以上のFewmailユーザーが同じ内容を受信`,
   },
+  cold: {
+    reason: 'コールドメール：一度もメールしたことのない相手からの売り込み',
+  },
   board: {
     lead: {
       coming: (total: number) =>

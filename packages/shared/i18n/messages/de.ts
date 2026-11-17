@@ -1588,6 +1588,10 @@ export const de: Messages = {
     reason: (n: number) =>
       `Massenmail: ${n}+ Fewmail-Nutzer haben denselben Text bekommen`,
   },
+  cold: {
+    reason:
+      'Kaltakquise: Jemand Fremdes will dir etwas verkaufen, du hast nie an diese Adresse geschrieben',
+  },
   board: {
     lead: {
       coming: (total: number) =>

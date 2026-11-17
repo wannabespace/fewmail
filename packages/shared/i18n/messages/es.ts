@@ -1586,6 +1586,9 @@ export const es: Messages = {
     reason: (n: number) =>
       `Envío masivo: más de ${n} usuarios de Fewmail recibieron el mismo texto`,
   },
+  cold: {
+    reason: 'Contacto en frío: alguien a quien nunca escribiste te ofrece algo',
+  },
   board: {
     lead: {
       coming: (total: number) =>

@@ -40,6 +40,7 @@ import {
 import {
   ACTION_CRITERIA,
   CATEGORY_CRITERIA,
+  COLD_OUTREACH,
   HAS_LATER,
   IMPORTANCE_LEVELS,
   NEEDS_REPLY,
@@ -273,6 +274,7 @@ const fakeRules = (use: Use) =>
 const criteriaChars = JSON.stringify([
   ACTION_CRITERIA,
   CATEGORY_CRITERIA,
+  COLD_OUTREACH,
   IMPORTANCE_LEVELS,
   NEEDS_REPLY,
 ]).length
