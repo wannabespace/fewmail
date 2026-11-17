@@ -1,33 +1,36 @@
-/** Set by the desktop app (`apps/desktop`) before any script runs: the page is inside its window. */
-interface DesktopApp {
-  updateReady?: boolean
-  version: string
-}
+import type { DeliveryNotice } from '@fewmail/shared/agent'
+import { createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
 declare global {
   interface Window {
-    fewmailDesktop?: DesktopApp
-    ipc?: { postMessage: (message: string) => void }
+    /** Tauri's bridge (`withGlobalTauri`); the app's commands are in `apps/desktop/src-tauri/src/lib.rs`. */
+    __TAURI__?: {
+      core: {
+        invoke: (
+          command: string,
+          args: Record<string, unknown>
+        ) => Promise<void>
+      }
+    }
   }
 }
 
-const app = window.fewmailDesktop
-const post = (message: string) => window.ipc?.postMessage(message)
+/** Set by the desktop app's preload (`apps/desktop`) to its platform: this page is its window. */
+export const isDesktop = 'desktop' in document.documentElement.dataset
 
-export const desktop = app && {
-  /** Restarts into the update the app downloaded. */
-  installUpdate: () => post('install-update'),
-  isUpdateReady: () => Boolean(app.updateReady),
-  /** Google refuses embedded web views: the app opens `/desktop` in the browser and gets a one-time token back. */
-  signIn: (next: string, hint?: string) =>
-    post(
-      `sign-in ${location.origin}/desktop?${new URLSearchParams({ next, ...(hint && { hint }) })}`
-    ),
-  version: app.version,
-}
+/** This app's `devices` row (`kind: 'desktop'`) while its notifications are on; Web Push does not reach a web view. */
+export const desktopDeviceStore = createWebStorageValue({
+  defaultValue: '',
+  key: 'fewmail.desktop-device',
+  schema: z.string(),
+  type: 'localStorage',
+})
 
-/** Fired by the app once an update is downloaded and checked; never outside it. */
-export const onDesktopUpdateReady = (listener: () => void) => {
-  addEventListener('fewmail-desktop-update', listener)
-  return () => removeEventListener('fewmail-desktop-update', listener)
-}
+/** The app shows it as the system's notification, which opens its `url` when clicked. */
+export const notifyDesktop = (notice: DeliveryNotice) =>
+  window.__TAURI__?.core.invoke('notify', { notice })
+
+/** Home's count on the app's icon, as the tab title shows it in a browser. */
+export const badgeDesktop = (count: number) =>
+  window.__TAURI__?.core.invoke('set_badge', { count })

@@ -10,6 +10,24 @@
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Fewmail</title>
+    <!-- The kit's --body, before any stylesheet or script: the first frame is the page's own color, never white (the desktop app shows its window as soon as this document loads). -->
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      html {
+        background: #f3eee5;
+      }
+      @media (prefers-color-scheme: dark) {
+        html {
+          background: #171310;
+        }
+      }
+      html.light {
+        background: #f3eee5;
+      }
+      html.dark {
+        background: #171310;
+      }
+    </style>
   </head>
   <body>
     <div id="root" class="flex min-h-svh flex-col"></div>

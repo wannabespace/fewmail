@@ -15,6 +15,7 @@ import { and, eq, inArray, lt, lte, min } from 'drizzle-orm'
 import webpush from 'web-push'
 
 import { env } from '../env'
+import { announceNotice } from '../lib/live'
 import { logError, logErrorAs } from '../lib/log'
 import {
   chatIdForUser,
@@ -36,19 +37,24 @@ const BATCH_MS = 10_000
 const BODY_LIMIT = 240
 const TTL_SECONDS = 12 * 60 * 60
 const GONE = new Set([404, 410])
+/** A desktop app on the live stream marks itself seen this often; one not seen for twice as long is closed. */
+export const DESKTOP_SEEN_MS = 60_000
 
 export const webPushKey = () => env.VAPID_PUBLIC_KEY ?? null
 
 /** One browser is one device whoever signs in on it, so registering takes the row over. */
 export const registerDevice = (
   userId: string,
-  device: Pick<Device, 'keys' | 'kind' | 'token'>
+  {
+    keys = null,
+    ...device
+  }: Pick<Device, 'kind' | 'token'> & Partial<Pick<Device, 'keys'>>
 ) =>
   db
     .insert(devices)
-    .values({ ...device, userId })
+    .values({ ...device, keys, userId })
     .onConflictDoUpdate({
-      set: { keys: device.keys, userId },
+      set: { keys, userId },
       target: devices.token,
     })
 
@@ -57,10 +63,15 @@ export const removeDevice = (userId: string, token: string) =>
     .delete(devices)
     .where(and(eq(devices.userId, userId), eq(devices.token, token)))
 
-/** Resolves false when the device is gone for good and its row should be removed. */
-const sendWeb = async (device: Device, notification: Notification) => {
+/** `gone` removes the device for good; `away` (a closed desktop app) keeps it and lets the next channel try. */
+type DeviceOutcome = 'away' | 'gone' | 'sent'
+
+const sendWeb = async (
+  device: Device,
+  notification: Notification
+): Promise<DeviceOutcome> => {
   if (!(env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && device.keys)) {
-    return true
+    return 'sent'
   }
   const subscription = { endpoint: device.token, keys: device.keys }
   const options = {
@@ -79,19 +90,48 @@ const sendWeb = async (device: Device, notification: Notification) => {
     )
   )
   if (sent.isOk()) {
-    return true
+    return 'sent'
   }
   const error = sent.error.cause
   if (error instanceof webpush.WebPushError && GONE.has(error.statusCode)) {
-    return false
+    return 'gone'
   }
   throw error
 }
 
+/** The desktop app has no push service: it shows what reaches it over the live stream while it is open. */
+const sendDesktop = async (
+  device: Device,
+  notification: Notification
+): Promise<DeviceOutcome> => {
+  if (!device.seenAt || device.seenAt < subMinutes(new Date(), 2)) {
+    return 'away'
+  }
+  await announceNotice(device.userId, notification)
+  return 'sent'
+}
+
 const senders: Record<
   DeviceKind,
-  (device: Device, notification: Notification) => Promise<boolean>
-> = { web: sendWeb }
+  (device: Device, notification: Notification) => Promise<DeviceOutcome>
+> = { desktop: sendDesktop, web: sendWeb }
+
+/** While a desktop app holds the live stream it is seen every `DESKTOP_SEEN_MS`, so notifications go to it. */
+export const keepDeviceSeen = (
+  userId: string,
+  token: string,
+  signal?: AbortSignal
+) => {
+  const see = () =>
+    db
+      .update(devices)
+      .set({ seenAt: new Date() })
+      .where(and(eq(devices.userId, userId), eq(devices.token, token)))
+      .catch(logErrorAs('device seen'))
+  void see()
+  const timer = setInterval(see, DESKTOP_SEEN_MS)
+  signal?.addEventListener('abort', () => clearInterval(timer))
+}
 
 const combine = async (userId: string, batch: DeliveryNotice[]) => {
   const [single] = batch
@@ -128,11 +168,11 @@ const sendToDevices = async (
   const results = await Promise.all(
     targets.map((device) =>
       Result.tryPromise(async () => {
-        if (await senders[device.kind](device, notification)) {
-          return true
+        const outcome = await senders[device.kind](device, notification)
+        if (outcome === 'gone') {
+          await db.delete(devices).where(eq(devices.id, device.id))
         }
-        await db.delete(devices).where(eq(devices.id, device.id))
-        return false
+        return outcome === 'sent'
       })
     )
   )

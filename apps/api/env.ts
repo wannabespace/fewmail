@@ -15,6 +15,7 @@ if (process.env.NODE_ENV === 'development') {
 export const env = type({
   API_URL: 'string.url',
   BETTER_AUTH_SECRET: 'string',
+  ENCRYPTION_SECRET: 'string',
   GOOGLE_CLIENT_ID: 'string',
   GOOGLE_CLIENT_SECRET: 'string',
   'ELEVENLABS_API_KEY?': 'string',

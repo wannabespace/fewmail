@@ -397,9 +397,15 @@ export const id: Messages = {
     offline: 'Tidak dapat terhubung ke Fewmail. Periksa koneksimu.',
   },
   desktop: {
-    lead: 'Fewmail sedang terbuka di Mac Anda. Anda bisa menutup tab ini.',
-    open: 'Buka Fewmail',
+    confirm: 'Masuk ke aplikasi',
+    confirmLead: (code: string) =>
+      `Fewmail di komputer Anda meminta masuk. Pastikan aplikasi menampilkan ${code}.`,
+    confirmTitle: 'Masuk ke aplikasi?',
+    expired: 'Proses masuk ini kedaluwarsa. Mulai lagi dari aplikasi.',
+    lead: 'Anda sudah masuk di komputer Anda. Anda bisa menutup tab ini.',
     title: 'Kembali ke aplikasi',
+    waiting: (code: string) =>
+      `Lanjutkan di browser Anda dan pastikan browser menampilkan ${code}.`,
   },
   update: {
     available: 'Versi baru Fewmail sudah tersedia.',
@@ -895,6 +901,7 @@ export const id: Messages = {
     notifications: {
       blocked: 'Notifikasi diblokir. Izinkan di pengaturan situs browser.',
       browser: 'Browser ini',
+      desktop: 'Komputer ini',
       messengerOff: 'Email mendesak tetap di Fewmail.',
       messengerOn: 'Email mendesak langsung masuk ke chat.',
       notConfigured: 'Notifikasi browser belum dikonfigurasi di server ini.',

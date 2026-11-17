@@ -1,18 +1,22 @@
+import { signInChallenge } from '@fewmail/shared/sign-in-challenge'
 import { Alert, AlertDescription } from '@fewmail/ui/components/alert'
 import { Button } from '@fewmail/ui/components/button'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { useHotkey } from '@tanstack/react-hotkeys'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { type } from 'arktype'
 import { motion } from 'motion/react'
-import { Fragment, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
+import { z } from 'zod/mini'
 
 import { LanguageSelect } from '~/components/agent-fields'
 import { LoginStory } from '~/components/login-story'
 import { Logo } from '~/components/logo'
-import { signInWithGoogle } from '~/lib/auth'
-import { desktop } from '~/lib/desktop'
+import { authClient, signedInStore, signInWithGoogle } from '~/lib/auth'
+import { isDesktop } from '~/lib/desktop'
 import { localeStore, useLocale, useT } from '~/lib/i18n'
+import { client } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 
 const EASE = [0.32, 0.72, 0, 1] as const
 
@@ -30,18 +34,67 @@ const GoogleMark = () => (
   </svg>
 )
 
+/**
+ * The desktop app signs in through the browser, which Google allows: the server learns this app waits, the browser
+ * opens `/desktop` with the challenge, and once the user confirms there the app takes the session (`desktopSignIn`).
+ */
+const signInFromDesktop = async (
+  signal: AbortSignal,
+  onCode: (code: string) => void
+) => {
+  posthog.capture('sign_in_started')
+  const verifier = signInChallenge.createVerifier()
+  const challenge = await signInChallenge.challengeOf(verifier)
+  const events = await client.desktopSignIn.wait({ challenge }, { signal })
+  // The browser's confirm refuses a challenge nobody waits on, so it opens only once the server has this one.
+  await events.next()
+  onCode(await signInChallenge.codeOf(challenge))
+  window.open(
+    `${location.origin}/desktop?${new URLSearchParams({ challenge })}`,
+    '_blank'
+  )
+  for await (const { isConfirmed } of events) {
+    if (isConfirmed) {
+      break
+    }
+  }
+  const { token } = await client.desktopSignIn.take({ challenge, verifier })
+  await authClient.oneTimeToken.verify({ fetchOptions: { throw: true }, token })
+  signedInStore.set(true)
+  location.assign('/home')
+}
+
 const LoginPage = () => {
   const t = useT()
   const locale = useLocale()
   const { missing } = Route.useSearch()
   const [isRedirecting, setIsRedirecting] = useState(false)
+  const [desktopCode, setDesktopCode] = useState<string | null>(null)
+  const desktopAbort = useRef<AbortController | null>(null)
+  const desktopSignIn = useMutation({
+    mutationFn: () => {
+      desktopAbort.current = new AbortController()
+      return signInFromDesktop(desktopAbort.current.signal, setDesktopCode)
+    },
+    onSettled: () => setDesktopCode(null),
+  })
+  const cancelDesktopSignIn = () => {
+    posthog.capture('sign_in_cancelled')
+    desktopAbort.current?.abort()
+    desktopSignIn.reset()
+  }
 
   const signIn = () => {
+    if (isDesktop) {
+      if (!desktopSignIn.isPending) {
+        desktopSignIn.mutate()
+      }
+      return
+    }
     if (isRedirecting) {
       return
     }
-    // The desktop app signs in in the browser and stays on this page until it is back.
-    setIsRedirecting(!desktop)
+    setIsRedirecting(true)
     void signInWithGoogle()
   }
 
@@ -50,6 +103,11 @@ const LoginPage = () => {
   return (
     <main className="bg-body grid flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       <section className="flex flex-col gap-10 px-6 py-6 sm:px-12 sm:py-8">
+        {/* The Mac app's traffic lights sit here, and the window is dragged by it. */}
+        <div
+          className="traffic-lights:block -mb-10 hidden h-6 shrink-0"
+          data-tauri-drag-region
+        />
         <header className="flex items-center justify-between gap-4">
           <Logo />
           <LanguageSelect
@@ -78,26 +136,50 @@ const LoginPage = () => {
                 <AlertDescription>{t.login.needsGmail}</AlertDescription>
               </Alert>
             )}
+            {desktopSignIn.isError && (
+              <Alert variant="error">
+                <AlertDescription>{t.desktop.expired}</AlertDescription>
+              </Alert>
+            )}
             <Button
               size="lg"
-              disabled={isRedirecting}
+              disabled={isRedirecting || desktopSignIn.isPending}
               onClick={signIn}
               shortcut={<Kbd>⏎</Kbd>}
             >
               <GoogleMark />
               {t.login.continue}
             </Button>
-            <p className="text-muted-foreground text-xs/relaxed text-pretty">
-              {t.login.consent}
-            </p>
+            {desktopCode ? (
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-muted-foreground text-xs/relaxed text-pretty">
+                  {t.desktop.waiting(desktopCode)}
+                </p>
+                <Button size="xs" variant="ghost" onClick={cancelDesktopSignIn}>
+                  {t.settings.cancel}
+                </Button>
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-xs/relaxed text-pretty">
+                {t.login.consent}
+              </p>
+            )}
           </motion.div>
         </motion.div>
 
         <footer className="text-muted-foreground text-xs">
           {t.login
             .agree({
-              privacy: <Link to="/privacy">{t.legal.privacy}</Link>,
-              terms: <Link to="/terms">{t.legal.terms}</Link>,
+              privacy: (
+                <Link to="/privacy" target="_blank">
+                  {t.legal.privacy}
+                </Link>
+              ),
+              terms: (
+                <Link to="/terms" target="_blank">
+                  {t.legal.terms}
+                </Link>
+              ),
             })
             .map((part, index) => (
               // oxlint-disable-next-line react/no-array-index-key -- parts of one sentence never reorder
@@ -115,5 +197,5 @@ const LoginPage = () => {
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
-  validateSearch: type({ 'missing?': "'gmail'" }),
+  validateSearch: z.object({ missing: z.optional(z.literal('gmail')) }),
 })

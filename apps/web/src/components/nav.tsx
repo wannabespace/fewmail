@@ -705,6 +705,11 @@ export const Sidebar = ({
       aria-label="Main"
       className="flex w-full flex-col gap-1 border-r px-3.5 py-5"
     >
+      {/* The Mac app's traffic lights sit here, and the window is dragged by it. */}
+      <div
+        className="traffic-lights:block hidden h-6 shrink-0"
+        data-tauri-drag-region
+      />
       <div className="px-2.5 pb-4">
         <Logo to="/home" />
       </div>

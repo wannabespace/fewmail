@@ -18,12 +18,13 @@ import {
   CloudIcon,
   MailAccount01Icon,
   MailSend01Icon,
+  Notification01Icon,
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { isFuture } from 'date-fns'
 import { AnimatePresence } from 'motion/react'
@@ -31,6 +32,8 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
+import { createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
 import { SenderAvatar } from '~/components/sender-avatar'
 import {
@@ -40,10 +43,12 @@ import {
   useMailActions,
 } from '~/components/thread-view'
 import { signInWithGoogle } from '~/lib/auth'
+import { isDesktop } from '~/lib/desktop'
 import { useDates, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
 import { orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
+import { enablePush, pushStateQuery } from '~/lib/push'
 
 const GOOGLE_STORAGE_URL = 'https://one.google.com/storage/management'
 
@@ -52,6 +57,14 @@ export const noticeHeightStore = createStore(0)
 
 /** A code put away stays away for this tab's life; it goes stale within 15 minutes anyway. */
 const dismissedCodes = createStore<string[]>([])
+
+/** The desktop app asks for its notifications until they are on or the user says not now, never again after that. */
+const notificationsDeclinedStore = createWebStorageValue({
+  defaultValue: false,
+  key: 'fewmail.notifications-declined',
+  schema: z.boolean(),
+  type: 'localStorage',
+})
 
 /** `Y` already means something on these pages (the cursor row's code, the year view). */
 const OWNS_Y = ['/home', '/mail', '/calendar', '/wrapped']
@@ -145,6 +158,15 @@ export const NoticeBar = () => {
   const actions = useMailActions()
   const sweep = sweepOf(actions, t, 'inbox')
   const putAway = useMutation(orpc.today.dismissBanner.mutationOptions())
+  const queryClient = useQueryClient()
+  const { data: push } = useQuery({ ...pushStateQuery, enabled: isDesktop })
+  const isNotificationsDeclined = useSubscription(notificationsDeclinedStore)
+  const turnOnNotifications = useMutation({
+    meta: { event: 'push_enabled' },
+    mutationFn: () => enablePush(''),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: pushStateQuery.queryKey }),
+  })
   const reconnect = useMutation(
     orpc.mailboxes.add.mutationOptions({
       onSuccess: ({ url }) => location.assign(url),
@@ -252,6 +274,22 @@ export const NoticeBar = () => {
       media: iconOf(CloudIcon),
       title: <span data-mask>{t.notices.storageFull(storageFull.email)}</span>,
     },
+    isDesktop &&
+      push?.subscribed === false &&
+      !isNotificationsDeclined && {
+        action: {
+          label: t.today.hint.turnOn,
+          onClick: () => turnOnNotifications.mutate(),
+        },
+        description: t.settings.notifications.off,
+        dismiss: () => {
+          posthog.capture('banner_dismissed', { kind: 'notifications' })
+          notificationsDeclinedStore.set(true)
+        },
+        id: 'notifications',
+        media: iconOf(Notification01Icon),
+        title: t.settings.notifications.title,
+      },
     !!sendBlocked?.sendBlockedUntil && {
       id: 'send',
       media: iconOf(MailSend01Icon),

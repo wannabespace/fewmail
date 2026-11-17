@@ -18,7 +18,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { type } from 'arktype'
 import {
   add,
   addHours,
@@ -43,6 +42,7 @@ import {
 import { useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
 import { MonthView, TimeGrid, YearView } from '~/components/calendar-views'
 import type { EventDraft } from '~/components/event-pane'
@@ -70,7 +70,7 @@ const PANE_WIDTH = { default: 380, max: '50%', min: 320 } as const
 const paneWidthStore = createWebStorageValue({
   defaultValue: PANE_WIDTH.default as number,
   key: 'fewmail.event-pane-width',
-  schema: type('number'),
+  schema: z.number(),
   type: 'localStorage',
 })
 
@@ -393,9 +393,9 @@ export const Route = createFileRoute('/_app/calendar')({
     }
   },
   component: CalendarPage,
-  validateSearch: type({
-    'date?': 'string',
-    'view?': type.enumerated(...CALENDAR_VIEWS),
+  validateSearch: z.object({
+    date: z.optional(z.string()),
+    view: z.optional(z.enum(CALENDAR_VIEWS)),
   }),
   loaderDeps: ({ search }) => search,
   // Google answers slowly: awaiting here would hold every step; the neighbours load ahead for ← / →.

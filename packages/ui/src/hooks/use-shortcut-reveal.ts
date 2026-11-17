@@ -1,8 +1,8 @@
 import { getKeyStateTracker, useKeyHold } from '@tanstack/react-hotkeys'
-import { type } from 'arktype'
 import { useEffect, useState } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
 import { isMac } from '../lib/os'
 
@@ -11,7 +11,7 @@ const REVEAL_DELAY_MS = 800
 export const shortcutRevealStore = createWebStorageValue({
   defaultValue: true,
   key: 'shortcut-reveal',
-  schema: type('boolean'),
+  schema: z.boolean(),
   type: 'localStorage',
 })
 

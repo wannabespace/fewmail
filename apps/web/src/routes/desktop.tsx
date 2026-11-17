@@ -1,22 +1,26 @@
+import { signInChallenge } from '@fewmail/shared/sign-in-challenge'
+import { Alert, AlertDescription } from '@fewmail/ui/components/alert'
 import { Button } from '@fewmail/ui/components/button'
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { type } from 'arktype'
+import { useMutation } from '@tanstack/react-query'
+import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod/mini'
 
 import { Logo } from '~/components/logo'
-import { authClient, signedInStore } from '~/lib/auth'
+import { authClient, signInWithGoogle } from '~/lib/auth'
 import { useT } from '~/lib/i18n'
-import { posthog } from '~/lib/posthog'
-
-const safePath = (next?: string) =>
-  next?.startsWith('/') && !next.startsWith('//') ? next : '/home'
+import { orpc } from '~/lib/orpc'
 
 /**
- * The desktop app's sign-in (`desktop.signIn`, `apps/desktop`): opened in the browser with the app's `state`, it signs in
- * there and hands a one-time token to `fewmail://sign-in`; the app opens it here again with the `token`, inside its own window.
+ * Where the desktop app (`apps/desktop`) signs in, since Google refuses embedded views: the app opens this
+ * in the browser with its PKCE `challenge` (`services/desktop-sign-in.ts`); signed in here, the user checks that the
+ * code matches the app's and confirms, and the app takes the session.
  */
 const DesktopPage = () => {
   const t = useT().desktop
-  const { link } = Route.useLoaderData()
+  const { challenge } = Route.useSearch()
+  const { code } = Route.useLoaderData()
+  const confirm = useMutation(orpc.desktopSignIn.confirm.mutationOptions())
+  const lead = code ? t.confirmLead(code) : t.expired
   return (
     <main className="bg-body flex flex-1 flex-col gap-10 px-6 py-6 sm:px-12 sm:py-8">
       <header>
@@ -25,19 +29,27 @@ const DesktopPage = () => {
       <div className="my-auto flex w-full max-w-md flex-col gap-8 self-center">
         <div className="flex flex-col gap-4">
           <h1 className="text-display font-serif tracking-tight text-balance">
-            {t.title}
+            {confirm.isSuccess ? t.title : t.confirmTitle}
           </h1>
           <p className="text-brief text-foreground/75 font-serif text-pretty">
-            {t.lead}
+            {confirm.isSuccess ? t.lead : lead}
           </p>
         </div>
-        <Button
-          size="lg"
-          className="self-start"
-          render={<a href={link} aria-label={t.open} />}
-        >
-          {t.open}
-        </Button>
+        {confirm.isError && (
+          <Alert variant="error">
+            <AlertDescription>{t.expired}</AlertDescription>
+          </Alert>
+        )}
+        {challenge && code && !confirm.isSuccess && (
+          <Button
+            size="lg"
+            className="self-start"
+            disabled={confirm.isPending}
+            onClick={() => confirm.mutate({ challenge })}
+          >
+            {t.confirm}
+          </Button>
+        )}
       </div>
     </main>
   )
@@ -46,40 +58,14 @@ const DesktopPage = () => {
 export const Route = createFileRoute('/desktop')({
   component: DesktopPage,
   loaderDeps: ({ search }) => search,
-  loader: async ({ deps: { hint, next, state, token } }) => {
-    if (token) {
-      const { error } = await authClient.oneTimeToken.verify({ token })
-      if (!error) {
-        signedInStore.set(true)
-        posthog.capture('desktop_signed_in')
-      }
-      throw redirect({
-        href: error ? '/login' : safePath(next),
-        reloadDocument: true,
-      })
-    }
+  loader: async ({ deps: { challenge } }) => {
     const { data: session } = await authClient.getSession()
     if (!session) {
-      await authClient.signIn.social({
-        callbackURL: window.location.href,
-        loginHint: hint,
-        provider: 'google',
-      })
-      return { link: '' }
+      await signInWithGoogle(`${location.pathname}${location.search}`)
     }
-    const { data } = await authClient.oneTimeToken.generate()
-    const link = `fewmail://sign-in?${new URLSearchParams({
-      next: safePath(next),
-      state: state ?? '',
-      token: data?.token ?? '',
-    })}`
-    window.location.assign(link)
-    return { link }
+    return {
+      code: challenge ? await signInChallenge.codeOf(challenge) : null,
+    }
   },
-  validateSearch: type({
-    'hint?': 'string',
-    'next?': 'string',
-    'state?': 'string',
-    'token?': 'string',
-  }),
+  validateSearch: z.object({ challenge: z.optional(z.string()) }),
 })

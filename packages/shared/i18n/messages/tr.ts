@@ -396,9 +396,16 @@ export const tr: Messages = {
     offline: 'Fewmail’e ulaşılamıyor. Bağlantını kontrol et.',
   },
   desktop: {
-    lead: "Fewmail Mac'inde açılıyor. Bu sekmeyi kapatabilirsin.",
-    open: "Fewmail'i aç",
+    confirm: 'Uygulamada oturum aç',
+    confirmLead: (code: string) =>
+      `Bilgisayarındaki Fewmail oturum açmak istiyor. ${code} gösterdiğini kontrol et.`,
+    confirmTitle: 'Uygulamada oturum açılsın mı?',
+    expired:
+      'Bu oturum açma isteğinin süresi doldu. Uygulamada yeniden başlat.',
+    lead: 'Bilgisayarında oturum açtın. Bu sekmeyi kapatabilirsin.',
     title: 'Uygulamaya dön',
+    waiting: (code: string) =>
+      `Tarayıcında devam et ve ${code} gösterdiğini kontrol et.`,
   },
   update: {
     available: 'Fewmail’in yeni bir sürümü çıktı.',
@@ -892,6 +899,7 @@ export const tr: Messages = {
       blocked:
         'Bildirimler engellendi. Tarayıcının site ayarlarından izin ver.',
       browser: 'Bu tarayıcı',
+      desktop: 'Bu bilgisayar',
       messengerOff: "Acil e-postalar Fewmail'de kalır.",
       messengerOn: 'Acil e-postalar hemen sohbete gelir.',
       notConfigured: 'Tarayıcı bildirimleri bu sunucuda yapılandırılmamış.',

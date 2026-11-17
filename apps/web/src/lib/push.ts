@@ -1,9 +1,10 @@
-import { client } from './orpc'
+import { desktopDeviceStore, isDesktop } from './desktop'
+import { client, reopenLiveStream } from './orpc'
 
 const WORKER_URL = '/sw.js'
 
 export const pushSupported =
-  'serviceWorker' in navigator && 'PushManager' in window
+  isDesktop || ('serviceWorker' in navigator && 'PushManager' in window)
 
 export const currentPushSubscription = async () => {
   const registration = await navigator.serviceWorker.getRegistration(WORKER_URL)
@@ -12,14 +13,25 @@ export const currentPushSubscription = async () => {
 
 export const pushStateQuery = {
   enabled: pushSupported,
-  queryFn: async () => ({
-    permission: Notification.permission,
-    subscribed: !!(await currentPushSubscription()),
-  }),
+  // macOS asks for the app's permission with its first notification, so the desktop app starts at `default`.
+  queryFn: async () =>
+    isDesktop
+      ? { permission: 'default', subscribed: !!desktopDeviceStore.get() }
+      : {
+          permission: Notification.permission,
+          subscribed: !!(await currentPushSubscription()),
+        },
   queryKey: ['push-state'],
 }
 
 export const enablePush = async (publicKey: string) => {
+  if (isDesktop) {
+    const token = crypto.randomUUID()
+    await client.devices.register({ kind: 'desktop', token })
+    desktopDeviceStore.set(token)
+    reopenLiveStream()
+    return
+  }
   const registration = await navigator.serviceWorker.register(WORKER_URL)
   const subscription = await registration.pushManager.subscribe({
     applicationServerKey: publicKey,
@@ -37,7 +49,13 @@ export const enablePush = async (publicKey: string) => {
 }
 
 export const disablePush = async () => {
-  const subscription = pushSupported ? await currentPushSubscription() : null
+  const token = desktopDeviceStore.get()
+  if (token) {
+    desktopDeviceStore.set('')
+    await client.devices.remove({ token })
+  }
+  const subscription =
+    pushSupported && !isDesktop ? await currentPushSubscription() : null
   if (subscription) {
     await client.devices.remove({ token: subscription.endpoint })
     await subscription.unsubscribe()

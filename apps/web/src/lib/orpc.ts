@@ -8,6 +8,12 @@ import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import { Result } from 'better-result'
 import { toast } from 'sonner'
 
+import {
+  badgeDesktop,
+  desktopDeviceStore,
+  isDesktop,
+  notifyDesktop,
+} from './desktop'
 import { getT, localeStore } from './i18n'
 import { queryClient } from './query-client'
 
@@ -112,15 +118,33 @@ export const refetchChanged = (topics: string[] | null) => {
 }
 
 /** The server says which parts changed; a dropped stream reconnects and refetches everything it may have missed. */
+/** Reopens the stream at once: the desktop app's device changed, and the server sees it only from the stream's input. */
+let reopenLive: () => void = () => null
+
 export const listenForChanges = async (signal: AbortSignal) => {
   while (!signal.aborted) {
+    const connection = new AbortController()
+    signal.addEventListener('abort', () => connection.abort(), { once: true })
+    reopenLive = () => connection.abort()
     // oxlint-disable-next-line eslint/no-await-in-loop -- one stream at a time, reopened after it drops
     const streamed = await Result.tryPromise(async () => {
-      for await (const { topics } of await client.live(undefined, { signal })) {
-        refetchChanged(topics)
+      // The desktop app's device keeps receiving notifications while this stream is open.
+      const device = desktopDeviceStore.get() || undefined
+      const stream = await client.live(
+        { device },
+        {
+          signal: connection.signal,
+        }
+      )
+      for await (const { notice, topics } of stream) {
+        if (notice) {
+          notifyDesktop(notice)
+        } else {
+          refetchChanged(topics)
+        }
       }
     })
-    if (streamed.isErr()) {
+    if (streamed.isErr() && !connection.signal.aborted) {
       // oxlint-disable-next-line eslint/no-await-in-loop, promise/avoid-new -- waits before reconnecting
       await new Promise((resolve) => {
         setTimeout(resolve, LIVE_RECONNECT_MS)
@@ -128,4 +152,15 @@ export const listenForChanges = async (signal: AbortSignal) => {
       refetchChanged(null)
     }
   }
+}
+
+export const reopenLiveStream = () => reopenLive()
+
+if (isDesktop) {
+  const countHash = JSON.stringify(orpc.today.count.queryKey())
+  queryClient.getQueryCache().subscribe(({ query, type }) => {
+    if (type === 'updated' && JSON.stringify(query.queryKey) === countHash) {
+      badgeDesktop(typeof query.state.data === 'number' ? query.state.data : 0)
+    }
+  })
 }

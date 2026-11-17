@@ -837,9 +837,15 @@ export const it: Messages = {
     offline: 'Impossibile raggiungere Fewmail. Controlla la connessione.',
   },
   desktop: {
-    lead: 'Fewmail si sta aprendo sul tuo Mac. Puoi chiudere questa scheda.',
-    open: 'Apri Fewmail',
+    confirm: 'Accedi all’app',
+    confirmLead: (code: string) =>
+      `Fewmail sul tuo computer chiede di accedere. Controlla che mostri ${code}.`,
+    confirmTitle: 'Accedere all’app?',
+    expired: 'Questo accesso è scaduto. Ricomincia dall’app.',
+    lead: 'Hai effettuato l’accesso sul tuo computer. Puoi chiudere questa scheda.',
     title: 'Torna all’app',
+    waiting: (code: string) =>
+      `Continua nel browser e controlla che mostri ${code}.`,
   },
   update: {
     available: 'È disponibile una nuova versione di Fewmail.',
@@ -1317,6 +1323,7 @@ export const it: Messages = {
       blocked:
         'Le notifiche sono bloccate. Consentile nelle impostazioni del sito del browser.',
       browser: 'Questo browser',
+      desktop: 'Questo computer',
       messengerOff: 'Le email urgenti restano in Fewmail.',
       messengerOn: 'Le email urgenti arrivano subito in chat.',
       notConfigured:

@@ -270,9 +270,15 @@ export const ja: Messages = {
     offline: 'Fewmail に接続できません。接続を確認してください。',
   },
   desktop: {
-    lead: 'Mac で Fewmail を開いています。このタブは閉じてかまいません。',
-    open: 'Fewmail を開く',
+    confirm: 'アプリにサインイン',
+    confirmLead: (code: string) =>
+      `このコンピュータの Fewmail がサインインを求めています。${code} と表示されているか確認してください。`,
+    confirmTitle: 'アプリにサインインしますか？',
+    expired: 'このサインインは期限切れです。アプリからやり直してください。',
+    lead: 'このコンピュータでサインインしました。このタブは閉じてかまいません。',
     title: 'アプリに戻る',
+    waiting: (code: string) =>
+      `ブラウザで続けて、${code} と表示されているか確認してください。`,
   },
   update: {
     available: 'Fewmail の新しいバージョンがあります。',
@@ -739,6 +745,7 @@ export const ja: Messages = {
       blocked:
         '通知がブロックされています。ブラウザのサイト設定で許可してください。',
       browser: 'このブラウザ',
+      desktop: 'このコンピュータ',
       messengerOff: '緊急のメールは Fewmail の中だけに表示します。',
       messengerOn: '緊急のメールをすぐにチャットへ送ります。',
       notConfigured: 'このサーバーではブラウザ通知が設定されていません。',

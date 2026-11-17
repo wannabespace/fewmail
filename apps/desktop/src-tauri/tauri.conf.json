@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Fewmail",
+  "version": "0.1.0",
+  "identifier": "app.fewmail.desktop",
+  "build": {
+    "beforeDevCommand": { "script": "bun scripts/strings.ts", "wait": true },
+    "beforeBuildCommand": "bun scripts/strings.ts",
+    "devUrl": "https://app.local.fewmail.app",
+    "frontendDist": "https://fewmail.app"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": []
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "createUpdaterArtifacts": true,
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": { "minimumSystemVersion": "13.0" },
+    "targets": "all"
+  },
+  "plugins": {
+    "deep-link": { "desktop": { "schemes": ["mailto"] } },
+    "updater": {
+      "endpoints": [
+        "https://github.com/wannabespace/fewmail-desktop/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJFNzkzQkI3NzIxQ0YyNzAKUldSdzhoeHl0enQ1dnVhSmorazFhdk10ejhINThueFBvcWxwcGxWVGpxK2JaR2d3OGlLM3JqcTEK"
+    }
+  }
+}

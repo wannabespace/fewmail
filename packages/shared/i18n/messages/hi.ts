@@ -271,9 +271,15 @@ export const hi: Messages = {
     offline: 'Fewmail से कनेक्ट नहीं हो पा रहा। अपना कनेक्शन जाँचें।',
   },
   desktop: {
-    lead: 'Fewmail आपके Mac पर खुल रहा है। आप यह टैब बंद कर सकते हैं।',
-    open: 'Fewmail खोलें',
+    confirm: 'ऐप में साइन इन करें',
+    confirmLead: (code: string) =>
+      `आपके कंप्यूटर पर Fewmail साइन इन करना चाहता है। जाँचें कि वह ${code} दिखा रहा है।`,
+    confirmTitle: 'ऐप में साइन इन करें?',
+    expired: 'यह साइन-इन समाप्त हो गया। ऐप में फिर से शुरू करें।',
+    lead: 'आपके कंप्यूटर पर साइन इन हो गया है। आप यह टैब बंद कर सकते हैं।',
     title: 'ऐप पर वापस जाएँ',
+    waiting: (code: string) =>
+      `अपने ब्राउज़र में जारी रखें और जाँचें कि वह ${code} दिखा रहा है।`,
   },
   update: {
     available: 'Fewmail का नया वर्ज़न आ गया है।',
@@ -735,6 +741,7 @@ export const hi: Messages = {
     notifications: {
       blocked: 'सूचनाएँ ब्लॉक हैं। ब्राउज़र की साइट सेटिंग में इन्हें अनुमति दें।',
       browser: 'यह ब्राउज़र',
+      desktop: 'यह कंप्यूटर',
       messengerOff: 'ज़रूरी मेल Fewmail में ही रहते हैं।',
       messengerOn: 'ज़रूरी मेल तुरंत चैट में आते हैं।',
       notConfigured: 'इस सर्वर पर ब्राउज़र सूचनाएँ कॉन्फ़िगर नहीं हैं।',

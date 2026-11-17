@@ -70,7 +70,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { type } from 'arktype'
 import { isToday } from 'date-fns'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
@@ -78,6 +77,7 @@ import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
+import { z } from 'zod/mini'
 
 import type { Expanded } from '~/components/expand-row'
 import { useDates, useT } from '~/lib/i18n'
@@ -124,7 +124,7 @@ const READER_SHARE = 0.6
 export const readerWidthStore = createWebStorageValue({
   defaultValue: READER_WIDTH.default as number,
   key: 'fewmail.reader-width',
-  schema: type('number'),
+  schema: z.number(),
   type: 'localStorage',
 })
 

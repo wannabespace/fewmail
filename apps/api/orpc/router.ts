@@ -2,7 +2,6 @@ import {
   BILLING_INTERVALS,
   CLEAR_OUT_GROUPS,
   COMMITMENT_STATUSES,
-  DEVICE_KINDS,
   EVENT_SCOPES,
   FOLLOWUP_DAYS,
   GMAIL_EFFECTS,
@@ -42,6 +41,11 @@ import {
   undoClearOut,
 } from '../services/cleanup'
 import { listCommitments, setCommitmentStatus } from '../services/commitments'
+import {
+  confirmSignIn,
+  takeSignIn,
+  waitForSignIn,
+} from '../services/desktop-sign-in'
 import {
   countDrafts,
   deleteDraft,
@@ -96,6 +100,7 @@ import {
   startAddingMailbox,
 } from '../services/mailboxes'
 import {
+  keepDeviceSeen,
   registerDevice,
   removeDevice,
   webPushKey,
@@ -193,6 +198,10 @@ const eventInput = type({
   title: 'string',
 })
 
+/** Both halves of PKCE are 32 bytes, or their SHA-256, in base64url. */
+const SIGN_IN_CHALLENGE = '/^[\\w-]{43}$/'
+const signInChallengeInput = type({ challenge: SIGN_IN_CHALLENGE })
+
 export const router = {
   actions: {
     addEvent: authed.input(id).handler(async ({ context, input }) => {
@@ -253,14 +262,33 @@ export const router = {
           updateEvent(context.user.id, { id: eventId, mailboxId }, event, scope)
       ),
   },
+  /** The desktop app's sign-in through the browser (`services/desktop-sign-in.ts`). */
+  desktopSignIn: {
+    confirm: authed
+      .input(signInChallengeInput)
+      .handler(({ context, input }) =>
+        confirmSignIn(context.headers, input.challenge)
+      ),
+    take: visitor
+      .input(
+        type({ challenge: SIGN_IN_CHALLENGE, verifier: SIGN_IN_CHALLENGE })
+      )
+      .handler(({ input }) => takeSignIn(input.challenge, input.verifier)),
+    wait: visitor.input(signInChallengeInput).handler(async function* wait({
+      input,
+      signal,
+    }) {
+      yield* waitForSignIn(input.challenge, signal)
+    }),
+  },
   devices: {
     register: authed
       .input(
         type({
           keys: { auth: 'string', p256dh: 'string' },
-          kind: type.enumerated(...DEVICE_KINDS),
+          kind: "'web'",
           token: 'string.url',
-        })
+        }).or({ kind: "'desktop'", token: 'string.uuid' })
       )
       .handler(async ({ context, input }) => {
         await registerDevice(context.user.id, input)
@@ -541,9 +569,14 @@ export const router = {
       .input(settingsInput)
       .handler(({ context, input }) => saveSettings(context.user.id, input)),
   },
-  live: authed.handler(async function* live({ context, signal }) {
-    yield* watchChanges(context.user.id, signal)
-  }),
+  live: authed
+    .input(type({ 'device?': 'string.uuid' }).or('undefined'))
+    .handler(async function* live({ context, input, signal }) {
+      if (input?.device) {
+        keepDeviceSeen(context.user.id, input.device, signal)
+      }
+      yield* watchChanges(context.user.id, signal)
+    }),
   snippets: {
     delete: authed.input(id).handler(async ({ context, input }) => {
       await deleteSnippet(context.user.id, input.id)

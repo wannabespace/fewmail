@@ -400,9 +400,15 @@ export const en = {
     offline: "Can't reach Fewmail. Check your connection.",
   },
   desktop: {
-    lead: 'Fewmail is opening on your Mac. You can close this tab.',
-    open: 'Open Fewmail',
+    confirm: 'Sign in to the app',
+    confirmLead: (code: string) =>
+      `Fewmail on your computer asks to sign in. Check that it shows ${code}.`,
+    confirmTitle: 'Sign in to the app?',
+    expired: 'This sign-in expired. Start it again in the app.',
+    lead: "You're signed in on your computer. You can close this tab.",
     title: 'Back to the app',
+    waiting: (code: string) =>
+      `Continue in your browser and check that it shows ${code}.`,
   },
   update: {
     available: 'A new version of Fewmail is out.',
@@ -898,6 +904,7 @@ export const en = {
       blocked:
         'Notifications are blocked. Allow them in this site’s browser settings.',
       browser: 'This browser',
+      desktop: 'This computer',
       messengerOff: 'Urgent mail stays in Fewmail.',
       messengerOn: 'Urgent mail arrives in the chat right away.',
       notConfigured: 'Browser notifications are not configured on this server.',

@@ -223,7 +223,7 @@ export const usedPercent = (plan: AgentPlan, spent: number) =>
   Math.min(100, Math.floor((spent / PLAN_ALLOWANCE_USD[plan]) * 100))
 
 /** Where a notification is delivered; mobile and desktop apps join as new kinds with their own sender in `services/notifications.ts`. */
-export const DEVICE_KINDS = ['web'] as const
+export const DEVICE_KINDS = ['web', 'desktop'] as const
 export type DeviceKind = (typeof DEVICE_KINDS)[number]
 
 /** Where a notification can go, in the order a failed one falls back along. `web` is every device the user has. */

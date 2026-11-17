@@ -31,7 +31,6 @@
     "@tanstack/react-router": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "arktype": "catalog:",
     "better-result": "catalog:",
     "class-variance-authority": "catalog:",
     "cmdk": "catalog:",
@@ -47,7 +46,8 @@
     "streamdown": "catalog:",
     "tailwind-scrollbar": "catalog:",
     "tailwindcss": "catalog:",
-    "tw-animate-css": "catalog:"
+    "tw-animate-css": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "shadcn": "catalog:"

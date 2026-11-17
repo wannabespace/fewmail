@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { z } from 'zod/mini'
 
 import { isInboxView, MailPage, mailSearch } from '~/components/mail-page'
 
@@ -10,8 +11,20 @@ export const Route = createFileRoute('/_app/mail')({
     }
   },
   component: MailPage,
-  validateSearch: mailSearch.and({
-    'filter?':
-      "'focused' | 'unread' | 'categories' | 'inbox' | 'snoozed' | 'sent' | 'drafts' | 'archive' | 'spam' | 'trash'",
+  validateSearch: z.extend(mailSearch, {
+    filter: z.optional(
+      z.enum([
+        'focused',
+        'unread',
+        'categories',
+        'inbox',
+        'snoozed',
+        'sent',
+        'drafts',
+        'archive',
+        'spam',
+        'trash',
+      ])
+    ),
   }),
 })

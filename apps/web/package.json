@@ -29,7 +29,6 @@
     "@tiptap/react": "catalog:",
     "@tiptap/starter-kit": "catalog:",
     "@tiptap/suggestion": "catalog:",
-    "arktype": "catalog:",
     "better-auth": "catalog:",
     "better-result": "catalog:",
     "date-fns": "catalog:",
@@ -38,7 +37,8 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "seitu": "catalog:",
-    "sonner": "catalog:"
+    "sonner": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@fewmail/api": "workspace:*",

@@ -148,12 +148,13 @@ export const LoginStory = () => {
   const [step, setStep] = useState(0)
   const shownStep = isReduced ? LAST_STEP : step
 
+  // Plays once: a story on a loop grew WebKit's memory without bound (`architecture.md` → Memory).
   useEffect(() => {
-    if (isReduced) {
+    if (isReduced || step === LAST_STEP) {
       return
     }
     const timer = setTimeout(
-      () => setStep((current) => (current + 1) % STEP_MS.length),
+      () => setStep((current) => current + 1),
       STEP_MS[step]
     )
     return () => clearTimeout(timer)

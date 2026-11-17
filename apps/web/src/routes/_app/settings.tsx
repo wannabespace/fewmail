@@ -5,9 +5,9 @@ import {
 } from '@fewmail/ui/components/custom/settings-group'
 import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { type } from 'arktype'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod/mini'
 
 import { AccountSettings } from '~/components/settings/account-settings'
 import { AgentSettings } from '~/components/settings/agent-settings'
@@ -68,9 +68,12 @@ const SettingsPage = () => {
         <SettingsGroup title={t.settings.legal}>
           <SettingsRow
             title={t.legal.privacy}
-            render={<Link to="/privacy" />}
+            render={<Link to="/privacy" target="_blank" />}
           />
-          <SettingsRow title={t.legal.terms} render={<Link to="/terms" />} />
+          <SettingsRow
+            title={t.legal.terms}
+            render={<Link to="/terms" target="_blank" />}
+          />
         </SettingsGroup>
       </div>
     </main>
@@ -92,9 +95,9 @@ export const Route = createFileRoute('/_app/settings')({
             warmQuery(orpc.integrations.apps.list.queryOptions()),
           ]),
     ]),
-  validateSearch: type({
-    'deleteAccount?': "'confirm'",
-    'mailbox?': "'added' | 'failed' | 'sign_in'",
-    'upgraded?': type.enumerated(...PAID_PLANS),
+  validateSearch: z.object({
+    deleteAccount: z.optional(z.literal('confirm')),
+    mailbox: z.optional(z.enum(['added', 'failed', 'sign_in'])),
+    upgraded: z.optional(z.enum(PAID_PLANS)),
   }),
 })

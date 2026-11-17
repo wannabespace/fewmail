@@ -2,7 +2,6 @@ import type { Messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
 import { LOCALES, matchLocale } from '@fewmail/shared/i18n/locales'
 import { en } from '@fewmail/shared/i18n/messages/en'
-import { type } from 'arktype'
 import type { Locale as DateLocale } from 'date-fns'
 import { format, formatDistanceToNowStrict } from 'date-fns'
 import {
@@ -25,6 +24,7 @@ import {
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { createCookieValue, createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
 /** date-fns abbreviates Ukrainian weekdays as "пон", "чтв"; people write "пн", "чт", its short width. */
 const ukrainian: DateLocale = {
@@ -63,7 +63,7 @@ const DATE_LOCALES: Record<Locale, DateLocale> = {
 const savedLocale = createWebStorageValue({
   defaultValue: matchLocale(navigator.languages),
   key: 'fewmail.locale',
-  schema: type.enumerated(...LOCALES.map(({ code }) => code)),
+  schema: z.enum(LOCALES.map(({ code }) => code)),
   type: 'localStorage',
 })
 
@@ -78,7 +78,7 @@ localeStore.subscribe((locale) => savedLocale.set(locale))
 const localeCookie = createCookieValue({
   defaultValue: localeStore.get(),
   key: 'fewmail.locale',
-  schema: type.enumerated(...LOCALES.map(({ code }) => code)),
+  schema: z.enum(LOCALES.map(({ code }) => code)),
 })
 
 /** Only English ships in the main bundle (crawlers and the prerender read it); every other language is its own chunk. */

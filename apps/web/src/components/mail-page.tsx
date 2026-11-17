@@ -83,7 +83,6 @@ import {
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { defaultRangeExtractor, useVirtualizer } from '@tanstack/react-virtual'
 import type { VirtualItem } from '@tanstack/react-virtual'
-import { type } from 'arktype'
 import { isToday, subDays } from 'date-fns'
 import {
   AnimatePresence,
@@ -106,6 +105,7 @@ import type { ComponentProps, CSSProperties, ReactNode, RefObject } from 'react'
 import { createDebouncedFn } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { createElementSize, createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
 import { useCompose } from '~/components/compose/compose-context'
 import { readIconOf, senderTextOf } from '~/components/email-row'
@@ -211,7 +211,7 @@ const SEARCHED_LISTS: MailList[] = [
 const inboxViewStore = createWebStorageValue({
   defaultValue: 'focused' as InboxView,
   key: 'fewmail.inbox-view',
-  schema: type("'focused' | 'unread' | 'categories' | 'inbox'"),
+  schema: z.enum(['focused', 'unread', 'categories', 'inbox']),
   type: 'localStorage',
 })
 
@@ -2918,8 +2918,8 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   )
 }
 
-export const mailSearch = type({
-  'mailbox?': 'string.uuid',
-  'q?': 'string',
-  'thread?': 'string',
+export const mailSearch = z.object({
+  mailbox: z.optional(z.uuid()),
+  q: z.optional(z.string()),
+  thread: z.optional(z.string()),
 })

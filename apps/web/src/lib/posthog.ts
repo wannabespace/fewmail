@@ -1,7 +1,5 @@
 import type { PostHog } from 'posthog-js'
 
-import { desktop } from './desktop'
-
 let instance: Promise<PostHog> | null = null
 let identity: Parameters<PostHog['identify']> | null = null
 
@@ -66,11 +64,9 @@ const init = async () => {
     },
     ui_host: 'https://eu.posthog.com',
   })
-  client.register(
-    desktop
-      ? { app: 'desktop', desktop_version: desktop.version }
-      : { app: 'web' }
-  )
+  client.register({
+    app: 'desktop' in document.documentElement.dataset ? 'desktop' : 'web',
+  })
   if (identity) {
     client.identify(...identity)
   }

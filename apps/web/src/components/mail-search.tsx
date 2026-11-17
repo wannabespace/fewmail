@@ -19,12 +19,12 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { IconSvgElement } from '@hugeicons/react'
-import { type } from 'arktype'
 import { useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
@@ -35,7 +35,7 @@ const RECENT_LIMIT = 6
 const recentSearchesStore = createWebStorageValue({
   defaultValue: [] as string[],
   key: 'fewmail.recent-searches',
-  schema: type('string[]'),
+  schema: z.array(z.string()),
   type: 'localStorage',
 })
 

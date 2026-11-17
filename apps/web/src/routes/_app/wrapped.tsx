@@ -12,8 +12,8 @@ import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { type } from 'arktype'
 import { toast } from 'sonner'
+import { z } from 'zod/mini'
 
 import { KeyHints } from '~/components/key-hints'
 import { SenderAvatar } from '~/components/sender-avatar'
@@ -145,7 +145,9 @@ const WrappedPage = () => {
 
 export const Route = createFileRoute('/_app/wrapped')({
   component: WrappedPage,
-  validateSearch: type({ 'period?': type.enumerated(...WRAPPED_PERIODS) }),
+  validateSearch: z.object({
+    period: z.optional(z.enum(WRAPPED_PERIODS)),
+  }),
   loaderDeps: ({ search }) => search,
   loader: ({ deps }) =>
     warmQuery(

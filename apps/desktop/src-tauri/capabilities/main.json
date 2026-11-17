@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "The main window shows fewmail.app, which hands notices and its count to the app and is dragged by its strip.",
+  "windows": ["main"],
+  "remote": { "urls": ["https://fewmail.app/*", "https://*.fewmail.app/*"] },
+  "permissions": [
+    "allow-notify",
+    "allow-set-badge",
+    "core:window:allow-start-dragging",
+    "core:window:allow-internal-toggle-maximize"
+  ]
+}

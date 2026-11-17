@@ -28,9 +28,9 @@ import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { type } from 'arktype'
 import { motion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
+import { z } from 'zod/mini'
 
 import { expandRow, useIsThreadExpanded } from '~/components/expand-row'
 import { Journal, useJournal } from '~/components/journal'
@@ -421,5 +421,5 @@ const RulesPage = () => {
 export const Route = createFileRoute('/_app/rules')({
   component: RulesPage,
   loader: () => warmQuery(orpc.rules.list.queryOptions()),
-  validateSearch: type({ 'new?': 'boolean' }),
+  validateSearch: z.object({ new: z.optional(z.boolean()) }),
 })

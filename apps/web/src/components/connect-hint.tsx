@@ -22,13 +22,14 @@ import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { type } from 'arktype'
-import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+import { useState } from 'react'
 import type { ComponentProps } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
+import { isDesktop } from '~/lib/desktop'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
@@ -44,11 +45,9 @@ const SLIDE = { duration: 0.15, ease: [0.32, 0.72, 0, 1] } as const
 const hintsStore = createWebStorageValue({
   defaultValue: { dismissed: [] },
   key: 'fewmail.hints',
-  schema: type({
+  schema: z.object({
     // Browsers still hold the retired hints; without them the whole list fails to parse and every dismissed hint comes back.
-    dismissed: type
-      .enumerated(...HINTS, 'boards', 'telegram', 'whatsapp')
-      .array(),
+    dismissed: z.array(z.enum([...HINTS, 'boards', 'telegram', 'whatsapp'])),
   }),
   type: 'localStorage',
 })
@@ -93,8 +92,8 @@ export const ConnectHint = () => {
   const copy = t.today.hint
   const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
-  const [hasDismissed, setHasDismissed] = useState(false)
   const store = useSubscription(hintsStore)
+  const [hasDismissed, setHasDismissed] = useState(false)
   const { data: telegram } = useQuery(
     orpc.integrations.telegram.get.queryOptions({ enabled: hasAgent })
   )
@@ -112,7 +111,8 @@ export const ConnectHint = () => {
   })
 
   const pushNeeded = () => {
-    if (!pushSupported) {
+    // The desktop app asks in the notice bar instead, until the user says not now.
+    if (!pushSupported || isDesktop) {
       return false
     }
     if (!push || publicKey === undefined) {

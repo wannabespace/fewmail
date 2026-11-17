@@ -403,9 +403,15 @@ export const nl: Messages = {
     offline: 'Fewmail is niet bereikbaar. Controleer je verbinding.',
   },
   desktop: {
-    lead: 'Fewmail opent op je Mac. Je kunt dit tabblad sluiten.',
-    open: 'Fewmail openen',
+    confirm: 'Inloggen in de app',
+    confirmLead: (code: string) =>
+      `Fewmail op je computer vraagt om in te loggen. Controleer dat hij ${code} toont.`,
+    confirmTitle: 'Inloggen in de app?',
+    expired: 'Deze inlog is verlopen. Begin opnieuw in de app.',
+    lead: 'Je bent ingelogd op je computer. Je kunt dit tabblad sluiten.',
     title: 'Terug naar de app',
+    waiting: (code: string) =>
+      `Ga verder in je browser en controleer dat die ${code} toont.`,
   },
   update: {
     available: 'Er is een nieuwe versie van Fewmail.',
@@ -907,6 +913,7 @@ export const nl: Messages = {
       blocked:
         'Meldingen zijn geblokkeerd. Sta ze toe in de site-instellingen van de browser.',
       browser: 'Deze browser',
+      desktop: 'Deze computer',
       messengerOff: 'Dringende mail blijft in Fewmail.',
       messengerOn: 'Dringende mail komt meteen in de chat.',
       notConfigured: 'Browsermeldingen zijn niet ingesteld op deze server.',

@@ -1,7 +1,7 @@
-import { type } from 'arktype'
 import { createComputed } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { createMediaQuery, createWebStorageValue } from 'seitu/web'
+import { z } from 'zod/mini'
 
 import { THEME_STORAGE_KEY } from './theme-constants'
 
@@ -11,7 +11,7 @@ export type { ResolvedTheme, Theme } from './theme-constants'
 export const themeStore = createWebStorageValue({
   defaultValue: 'system',
   key: THEME_STORAGE_KEY,
-  schema: type('"dark" | "light" | "system"'),
+  schema: z.enum(['dark', 'light', 'system']),
   type: 'localStorage',
 })
 

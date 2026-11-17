@@ -86,6 +86,8 @@ export const devices = d.snakeCase.table('devices', {
   ...baseTable,
   keys: encryptedJson<{ auth: string; p256dh: string }>(),
   kind: d.text().$type<DeviceKind>().notNull(),
+  /** A desktop app's last moment on the live stream: it is sent notifications only while it is there to show them. */
+  seenAt: d.timestamp({ withTimezone: true }),
   token: searchableText().notNull().unique(),
   userId: d
     .uuid()

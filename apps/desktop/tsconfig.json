@@ -1,0 +1,9 @@
+{
+  "extends": "@fewmail/configs/ts/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "strictNullChecks": true
+  },
+  "include": ["scripts"],
+  "exclude": ["node_modules"]
+}

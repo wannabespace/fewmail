@@ -6,6 +6,7 @@ import { Switch } from '@fewmail/ui/components/switch'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { MESSENGERS } from '~/components/settings/messenger-settings'
+import { isDesktop } from '~/lib/desktop'
 import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { orpc } from '~/lib/orpc'
@@ -82,7 +83,7 @@ export const NotificationSettings = () => {
   return (
     <SettingsGroup title={copy.title}>
       <SettingsRow
-        title={copy.browser}
+        title={isDesktop ? copy.desktop : copy.browser}
         description={description()}
         htmlFor="browser-notifications"
       >

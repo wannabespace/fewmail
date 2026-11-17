@@ -267,9 +267,14 @@ export const zh: Messages = {
     offline: '无法连接到 Fewmail，请检查网络。',
   },
   desktop: {
-    lead: 'Fewmail 正在你的 Mac 上打开，可以关闭此标签页。',
-    open: '打开 Fewmail',
+    confirm: '登录应用',
+    confirmLead: (code: string) =>
+      `你电脑上的 Fewmail 请求登录。请确认它显示的是 ${code}。`,
+    confirmTitle: '登录应用？',
+    expired: '此次登录已过期，请在应用中重新开始。',
+    lead: '已在你的电脑上登录，可以关闭此标签页。',
     title: '返回应用',
+    waiting: (code: string) => `请在浏览器中继续，并确认它显示 ${code}。`,
   },
   update: {
     available: 'Fewmail 有新版本了。',
@@ -715,6 +720,7 @@ export const zh: Messages = {
     notifications: {
       blocked: '通知已被阻止。请在浏览器的网站设置中允许。',
       browser: '此浏览器',
+      desktop: '这台电脑',
       messengerOff: '紧急邮件只留在 Fewmail 中。',
       messengerOn: '紧急邮件会立即发到聊天中。',
       notConfigured: '此服务器未配置浏览器通知。',

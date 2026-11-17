@@ -270,9 +270,15 @@ export const ko: Messages = {
     offline: 'Fewmail에 연결할 수 없어요. 연결 상태를 확인해 주세요.',
   },
   desktop: {
-    lead: 'Mac에서 Fewmail을 여는 중입니다. 이 탭은 닫아도 됩니다.',
-    open: 'Fewmail 열기',
+    confirm: '앱에 로그인',
+    confirmLead: (code: string) =>
+      `이 컴퓨터의 Fewmail이 로그인을 요청합니다. ${code}가 표시되는지 확인하세요.`,
+    confirmTitle: '앱에 로그인할까요?',
+    expired: '이 로그인은 만료되었습니다. 앱에서 다시 시작하세요.',
+    lead: '이 컴퓨터에서 로그인되었습니다. 이 탭은 닫아도 됩니다.',
     title: '앱으로 돌아가기',
+    waiting: (code: string) =>
+      `브라우저에서 계속하고 ${code}가 표시되는지 확인하세요.`,
   },
   update: {
     available: 'Fewmail 새 버전이 나왔어요.',
@@ -733,6 +739,7 @@ export const ko: Messages = {
       blocked:
         '알림이 차단되어 있어요. 브라우저의 사이트 설정에서 허용해 주세요.',
       browser: '이 브라우저',
+      desktop: '이 컴퓨터',
       messengerOff: '긴급 메일은 Fewmail에만 표시돼요.',
       messengerOn: '긴급 메일이 바로 채팅으로 와요.',
       notConfigured: '이 서버에는 브라우저 알림이 설정되어 있지 않아요.',

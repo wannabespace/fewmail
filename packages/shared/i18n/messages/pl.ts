@@ -416,9 +416,15 @@ export const pl: Messages = {
     offline: 'Brak połączenia z Fewmail. Sprawdź internet.',
   },
   desktop: {
-    lead: 'Fewmail otwiera się na Twoim Macu. Możesz zamknąć tę kartę.',
-    open: 'Otwórz Fewmail',
+    confirm: 'Zaloguj w aplikacji',
+    confirmLead: (code: string) =>
+      `Fewmail na Twoim komputerze prosi o zalogowanie. Sprawdź, czy pokazuje ${code}.`,
+    confirmTitle: 'Zalogować w aplikacji?',
+    expired: 'To logowanie wygasło. Zacznij je ponownie w aplikacji.',
+    lead: 'Logowanie na Twoim komputerze się udało. Możesz zamknąć tę kartę.',
     title: 'Wróć do aplikacji',
+    waiting: (code: string) =>
+      `Kontynuuj w przeglądarce i sprawdź, czy pokazuje ${code}.`,
   },
   update: {
     available: 'Jest nowa wersja Fewmail.',
@@ -929,6 +935,7 @@ export const pl: Messages = {
       blocked:
         'Powiadomienia są zablokowane. Zezwól na nie w ustawieniach witryny w przeglądarce.',
       browser: 'Ta przeglądarka',
+      desktop: 'Ten komputer',
       messengerOff: 'Pilne maile zostają w Fewmail.',
       messengerOn: 'Pilne maile od razu trafiają na czat.',
       notConfigured:
