@@ -9,6 +9,11 @@ import { parseISO } from 'date-fns'
 
 import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
 
+// The meta and the actions share one cell, so the cell is always as wide as the actions and hovering never shifts the row.
+// The actions must stay last and `relative`: the faded meta (opacity < 1) paints above unpositioned siblings and would swallow their clicks.
+export const ROW_SWAP =
+  'grid items-center justify-items-end *:[grid-area:1/1] *:transition-opacity *:duration-150 *:ease-house *:last:relative'
+
 export const ImportanceDot = ({
   importance,
   reason,

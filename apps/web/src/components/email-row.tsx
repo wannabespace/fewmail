@@ -5,8 +5,9 @@ import type { ReactNode } from 'react'
 
 import { ExpandTrigger } from '~/components/expand-row'
 import type { Expanded } from '~/components/expand-row'
+import { ROW_SWAP } from '~/components/mail-meta'
 import { SenderAvatar } from '~/components/sender-avatar'
-import { MailRowActions, ROW_SWAP, sweepOf } from '~/components/thread-view'
+import { MailRowActions, sweepOf } from '~/components/thread-view'
 import type { useMailActions } from '~/components/thread-view'
 import { useDates, useT } from '~/lib/i18n'
 

@@ -1609,11 +1609,27 @@ export const id: Messages = {
     progress: (done: number, total: number) => `${done} dari ${total}`,
     readAll:
       'Aku membaca semuanya, dan tidak ada yang berubah di emailmu tanpa persetujuanmu.',
-    later: (total: number) =>
-      plural('id', total, {
-        other: (n) => `${n} lagi bisa menunggu`,
-      }),
+    worth: {
+      awaiting: (total: number) =>
+        plural('id', total, {
+          one: () => '1 menunggu balasan',
+          other: (n) => `${n} menunggu balasan`,
+        }),
+      dated: (total: number) =>
+        plural('id', total, {
+          one: () => '1 bertanggal',
+          other: (n) => `${n} bertanggal`,
+        }),
+      important: (total: number) =>
+        plural('id', total, {
+          one: () => '1 email penting',
+          other: (n) => `${n} email penting`,
+        }),
+    },
+    worthKnowing: 'Perlu diketahui',
+    canWait: 'Bisa menunggu',
     quick: 'Cepat',
+    needsLook: 'Butuh kamu',
     tidy: {
       failed: (emails: string) =>
         `Gmail tidak mengubah ${emails}. Coba lagi sebentar lagi.`,

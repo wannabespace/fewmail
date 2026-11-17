@@ -1440,12 +1440,27 @@ export const hi: Messages = {
     },
     progress: (done: number, total: number) => `${total} में से ${done}`,
     readAll: 'मैंने हर एक पढ़ा, और आपकी हाँ के बिना आपके मेल में कुछ नहीं बदलता।',
-    later: (total: number) =>
-      plural('hi', total, {
-        one: () => 'बाकी 1 इंतज़ार कर सकता है',
-        other: (n) => `बाकी ${n} इंतज़ार कर सकते हैं`,
-      }),
+    worth: {
+      awaiting: (total: number) =>
+        plural('hi', total, {
+          one: () => '1 जवाब का इंतज़ार',
+          other: (n) => `${n} जवाब का इंतज़ार`,
+        }),
+      dated: (total: number) =>
+        plural('hi', total, {
+          one: () => '1 तारीख़ वाला',
+          other: (n) => `${n} तारीख़ वाले`,
+        }),
+      important: (total: number) =>
+        plural('hi', total, {
+          one: () => '1 ज़रूरी ईमेल',
+          other: (n) => `${n} ज़रूरी ईमेल`,
+        }),
+    },
+    worthKnowing: 'जानने लायक',
+    canWait: 'बाद में भी चलेगा',
     quick: 'झटपट',
+    needsLook: 'आपकी ज़रूरत',
     tidy: {
       failed: (emails: string) =>
         `Gmail ने बदलाव नहीं माना: ${emails}। थोड़ी देर में फिर कोशिश करें।`,

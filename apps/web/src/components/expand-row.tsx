@@ -279,6 +279,20 @@ const rowSourceId = (rowId: string) => `email-${rowId}`
 export const expandRow = (rowId: string, email: RowEmail) =>
   toggleExpanded({ ...email, sourceId: rowSourceId(rowId) })
 
+/** Moves the sidebar to a row's email and never closes it: Home's next card once one is settled. */
+export const showRow = (rowId: string, email: RowEmail) =>
+  expandedThread.set({
+    ...email,
+    pathname: location.pathname,
+    sourceId: rowSourceId(rowId),
+  })
+
+/** The row whose email the sidebar shows, among `rowIds`. */
+export const useExpandedRow = (rowIds: string[]) => {
+  const sourceId = useExpanded()?.sourceId
+  return rowIds.find((rowId) => rowSourceId(rowId) === sourceId)
+}
+
 /** A row (`SettingsRow trigger` lays it over the whole row) or a chip that opens its email in the sidebar, `aria-expanded` while it is open. */
 export const ExpandTrigger = ({
   email,

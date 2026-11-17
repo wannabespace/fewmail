@@ -1405,11 +1405,27 @@ export const zh: Messages = {
     },
     progress: (done: number, total: number) => `${done}/${total}`,
     readAll: '每一封我都读过了。没有你的同意，邮件里什么都不会改变。',
-    later: (total: number) =>
-      plural('zh', total, {
-        other: (n) => `还有 ${n} 件可以稍后再看`,
-      }),
+    worth: {
+      awaiting: (total: number) =>
+        plural('zh', total, {
+          one: () => '1 封等待回复',
+          other: (n) => `${n} 封等待回复`,
+        }),
+      dated: (total: number) =>
+        plural('zh', total, {
+          one: () => '1 封带日期',
+          other: (n) => `${n} 封带日期`,
+        }),
+      important: (total: number) =>
+        plural('zh', total, {
+          one: () => '1 封重要邮件',
+          other: (n) => `${n} 封重要邮件`,
+        }),
+    },
+    worthKnowing: '值得了解',
+    canWait: '可以稍后',
     quick: '快速处理',
+    needsLook: '需要你',
     tidy: {
       failed: (emails: string) => `Gmail 未能更改 ${emails}，请稍后再试。`,
       confirm: (emails: string) => `整理 ${emails}？`,

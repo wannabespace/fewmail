@@ -13,7 +13,7 @@ import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
 
 /** What a Home card opens over Home's column (`?page=`). */
-export type HomeCardPage = 'board' | 'tidy'
+export type HomeCardPage = 'board' | 'later' | 'look' | 'tidy'
 
 /** One line of what a card holds: who, then what. */
 export interface HomeCardRow {
@@ -125,7 +125,7 @@ export const HomeCardPane = ({
   const column = document.querySelector('[data-slot=page-column]')
   const pane = (
     <MorphPane area="page-column" source={morphIdOf(page)} className="z-10">
-      <div className="h-full overflow-y-auto">
+      <div data-slot="home-card-pane" className="h-full overflow-y-auto">
         <PaneReveal className="mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6">
           {children}
         </PaneReveal>

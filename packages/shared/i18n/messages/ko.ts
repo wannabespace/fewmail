@@ -1438,11 +1438,27 @@ export const ko: Messages = {
     },
     progress: (done: number, total: number) => `${done}/${total}`,
     readAll: '모두 읽었어요. 승인 없이는 메일에서 아무것도 바뀌지 않아요.',
-    later: (total: number) =>
-      plural('ko', total, {
-        other: (n) => `나머지 ${n}개는 나중에 봐도 돼요`,
-      }),
+    worth: {
+      awaiting: (total: number) =>
+        plural('ko', total, {
+          one: () => '답장 기다리는 중 1개',
+          other: (n) => `답장 기다리는 중 ${n}개`,
+        }),
+      dated: (total: number) =>
+        plural('ko', total, {
+          one: () => '날짜 있는 메일 1개',
+          other: (n) => `날짜 있는 메일 ${n}개`,
+        }),
+      important: (total: number) =>
+        plural('ko', total, {
+          one: () => '중요한 메일 1개',
+          other: (n) => `중요한 메일 ${n}개`,
+        }),
+    },
+    worthKnowing: '알아 두면 좋은 것',
+    canWait: '나중에 봐도 돼요',
     quick: '빠르게',
+    needsLook: '확인 필요',
     tidy: {
       failed: (emails: string) =>
         `Gmail에서 ${emails}를 바꾸지 못했어요. 잠시 후 다시 시도해 주세요.`,

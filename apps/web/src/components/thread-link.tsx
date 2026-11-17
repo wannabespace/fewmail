@@ -81,13 +81,20 @@ export const ThreadPane = () => {
   const box = useSidebarBox()
   const isMobile = useIsMobile()
   useLayoutEffect(() => {
-    const area = pageArea()
-    if (!isOpen || !area || isMobile) {
+    // A Home card's pane lies over the page area, so it makes room too.
+    const areas = document.querySelectorAll<HTMLElement>(
+      '[data-slot=thread-pane-area], [data-slot=home-card-pane]'
+    )
+    if (!isOpen || isMobile) {
       return
     }
-    area.style.paddingRight = `${box.width}px`
+    for (const area of areas) {
+      area.style.paddingRight = `${box.width}px`
+    }
     return () => {
-      area.style.removeProperty('padding-right')
+      for (const area of areas) {
+        area.style.removeProperty('padding-right')
+      }
     }
   }, [isOpen, isMobile, box.width])
   useHotkey('Escape', collapseExpanded, {

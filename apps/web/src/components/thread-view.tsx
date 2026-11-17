@@ -1,8 +1,7 @@
-import { isBulk, sendsDraft, UNDO_SEND_SECONDS } from '@fewmail/shared/agent'
+import { isBulk, sendsDraft } from '@fewmail/shared/agent'
 import {
   FORWARDED_PREFIX,
   participantsOf,
-  replyRecipients,
   senderDomainOrAddress,
   textToHtml,
 } from '@fewmail/shared/email'
@@ -80,6 +79,7 @@ import { toast } from 'sonner'
 import { z } from 'zod/mini'
 
 import type { Expanded } from '~/components/expand-row'
+import { queueCards } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
 import {
   hideThread,
@@ -102,10 +102,10 @@ import { ComposeForm } from './compose/compose-form'
 import { presetTimes, SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
 import { PickTime } from './compose/send-later'
-import type { ComposerEditorHandle } from './composer/composer-editor'
-import { ComposerEditor } from './composer/composer-editor'
 import { confirm } from './confirm-dialog'
 import { ExtractedChips, ImportanceDot } from './mail-meta'
+import { CardProposal } from './queue-card'
+import type { QueueItem } from './queue-card'
 import { RuleSuggestionCard } from './rule-suggestion'
 import {
   ParticipantAvatars,
@@ -1155,11 +1155,6 @@ const LINE_ACTIONS = `flex opacity-0 transition-opacity duration-150 ease-house 
 export const UNDER_ROW_ACTIONS =
   'transition-opacity duration-150 ease-house group-hover:opacity-0 group-has-data-popup-open:opacity-0'
 
-// The meta and the actions share one cell, so the cell is always as wide as the actions and hovering never shifts the row.
-// The actions must stay last and `relative`: the faded meta (opacity < 1) paints above unpositioned siblings and would swallow their clicks.
-export const ROW_SWAP =
-  'grid items-center justify-items-end *:[grid-area:1/1] *:transition-opacity *:duration-150 *:ease-house *:last:relative'
-
 export const onEach =
   (messageIds: string[], mutate: (input: { messageId: string }) => void) =>
   () => {
@@ -1388,121 +1383,29 @@ const settledActionsOf = (
 const revealComposer = (node: HTMLElement | null) =>
   node?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 
-const agentDraftOf = (thread: ReturnType<typeof useThread>['data']) =>
-  thread?.actions.find(
-    (action) => action.status === 'pending' && sendsDraft(action)
+/** The card Home holds for this thread, its proposal shown under the email. */
+const useThreadCard = (threadId: string) => {
+  const { data: cards } = useLiveQuery((query) =>
+    query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
   )
+  return cards.find(({ message }) => message?.threadId === threadId)
+}
 
 const REPLY_BOX =
   'bg-popover ring-foreground/6 flex flex-col gap-3 rounded-2xl p-4 shadow-sm ring'
 
-/** The agent's draft waits under the email it answers, as on its Home card: sent as it is, or edited first right in place. */
-const AgentDraft = ({
-  action,
-  isEditing,
-  message,
-  onEdit,
-  onStopEditing,
-}: {
-  action: ThreadAction
-  isEditing: boolean
-  message: ThreadMessage
-  onEdit: () => void
-  onStopEditing: () => void
-}) => {
-  const t = useT()
-  const queryClient = useQueryClient()
-  const editorRef = useRef<ComposerEditorHandle>(null)
-  const [text, setText] = useState(action.detail ?? '')
-  const approve = useMutation(
-    orpc.actions.approve.mutationOptions({
-      onSuccess: ({ outboxId }) => {
-        void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
-        if (!outboxId) {
-          return
-        }
-        toast.success(t.compose.sendingIn(UNDO_SEND_SECONDS), {
-          action: {
-            label: t.compose.undo,
-            onClick: async () => {
-              await runUndo(() =>
-                client.mail.cancelSend({ id: outboxId }).catch(() => null)
-              )
-              void queryClient.invalidateQueries({ queryKey: orpc.mail.key() })
-            },
-          },
-          duration: UNDO_SEND_SECONDS * 1000,
-        })
-      },
-    })
-  )
-  const send = () =>
-    approve.mutate({
-      id: action.id,
-      ...(text !== action.detail && { detail: text }),
-    })
-  useHotkey('Mod+Enter', send, { enabled: !isEditing && !approve.isPending })
-  // A click already put the caret where it landed; only `R` brings the focus in.
-  useEffect(() => {
-    if (
-      isEditing &&
-      !(document.activeElement as HTMLElement | null)?.isContentEditable
-    ) {
-      editorRef.current?.focus()
-    }
-  }, [isEditing])
-
-  return (
-    <section ref={isEditing ? revealComposer : undefined} className={REPLY_BOX}>
-      <p className="text-muted-foreground truncate text-xs">
-        <span data-mask>{t.agent.to(replyRecipients(message).join(', '))}</span>
-        {` · ${t.queue.draftedInVoice}`}
-      </p>
-      <div
-        className="bg-secondary/60 focus-within:ring-ring/50 cursor-text rounded-xl px-4 py-3 ring-0 focus-within:ring-2"
-        onFocus={onEdit}
-        onBlur={onStopEditing}
-      >
-        <ComposerEditor
-          ref={editorRef}
-          aria-label={t.actionKind.reply}
-          placeholder={t.compose.placeholder}
-          initialHtml={textToHtml(text)}
-          onChange={({ text: edited }) => setText(edited)}
-          onSubmit={send}
-          onEscape={() =>
-            (document.activeElement as HTMLElement | null)?.blur()
-          }
-        />
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          size="sm"
-          disabled={approve.isPending || !text.trim()}
-          onClick={send}
-          shortcut={<Kbd>⌘⏎</Kbd>}
-        >
-          {t.queue.send}
-        </Button>
-      </div>
-    </section>
-  )
-}
-
-/** Under the last email: the reply being written, the agent's draft waiting for a yes, or a field to start one. */
+/** Under the last email: the reply being written, what the agent proposes for it, or a field to start one. */
 const ReplyArea = ({
-  agentDraft,
+  card,
   composing,
   isEditingDraft,
-  message,
   onComposed,
   onReply,
   onStopEditingDraft,
 }: {
-  agentDraft: ThreadAction | undefined
+  card: QueueItem | undefined
   composing: Draft | null
   isEditingDraft: boolean
-  message: ThreadMessage
   onComposed: () => void
   onReply: () => void
   onStopEditingDraft: () => void
@@ -1515,16 +1418,17 @@ const ReplyArea = ({
       </section>
     )
   }
-  if (agentDraft) {
+  if (card) {
     return (
-      <AgentDraft
-        key={agentDraft.id}
-        action={agentDraft}
-        isEditing={isEditingDraft}
-        message={message}
-        onEdit={onReply}
-        onStopEditing={onStopEditingDraft}
-      />
+      <div ref={isEditingDraft ? revealComposer : undefined}>
+        <CardProposal
+          key={`${card.action.id}-${card.action.detail}`}
+          item={card}
+          isEditing={isEditingDraft}
+          onEdit={onReply}
+          onStopEditing={onStopEditingDraft}
+        />
+      </div>
     )
   }
   return (
@@ -1726,7 +1630,7 @@ export const ThreadView = ({
   const [isSnoozeOpen, setIsSnoozeOpen] = useState(false)
 
   const latest = data?.messages.findLast(({ message }) => !message.isFromMe)
-  const agentDraft = agentDraftOf(data)
+  const card = useThreadCard(threadId)
   const { folded, unfold } = useFolding(data)
   const scrollRef = useRef<HTMLDivElement>(null)
   const isLoaded = !!data
@@ -1750,7 +1654,7 @@ export const ThreadView = ({
     onClose()
   }
   const reply = () => {
-    if (agentDraft) {
+    if (card && sendsDraft(card.action)) {
       setIsEditingDraft(true)
       return
     }
@@ -1778,7 +1682,8 @@ export const ThreadView = ({
   useHotkey('F', forward, keys)
   useHotkey('E', () => target && sweep.action.mutate(target), keys)
   useHotkey('H', () => setIsSnoozeOpen(true), keys)
-  useHotkey('S', togglePin, keys)
+  // A card's S skips it (`CardProposal`), as on Home.
+  useHotkey('S', togglePin, { enabled: keys.enabled && !card })
   useHotkey('Shift+U', markUnread, keys)
   useHotkey('Backspace', () => target && trash.mutate(target), keys)
   useHotkey('Shift+1', () => target && reportSpam.mutate(target), keys)
@@ -1952,10 +1857,9 @@ export const ThreadView = ({
 
           {latest && (
             <ReplyArea
-              agentDraft={agentDraft}
+              card={card}
               composing={composing}
               isEditingDraft={isEditingDraft}
-              message={latest.message}
               onComposed={() => setComposing(null)}
               onReply={reply}
               onStopEditingDraft={() => setIsEditingDraft(false)}

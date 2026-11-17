@@ -19,7 +19,7 @@ import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
-import { PageHeading } from '~/components/home-card'
+import { HomeCard, PageHeading } from '~/components/home-card'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useDates, useLocale, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
@@ -161,6 +161,35 @@ const useBoard = () => {
     sections,
     today,
   }
+}
+
+/**
+ * The Board on Home: one card saying what is open, the sentence of the Board itself; it opens the Board over Home's column
+ * (`B`, `?page=board`). Nothing open, no row: Home never shows an empty promise.
+ */
+export const BoardCard = () => {
+  const t = useT()
+  const dates = useDates()
+  const locale = useLocale()
+  const { sections, today } = useBoard()
+  const open = SECTIONS.filter((section) => section !== 'settled').flatMap(
+    (section) => sections[section]
+  )
+  if (open.length === 0) {
+    return null
+  }
+  return (
+    <HomeCard
+      heading={t.nav.board}
+      lead={leadOf(t, locale, sections)}
+      page="board"
+      rows={open.map((row) => ({
+        id: row.id,
+        sender: senderOf(row) ?? { fromEmail: '', fromName: t.nav.board },
+        text: `${row.promise} · ${descriptionOf(t, dates, row, today)}`,
+      }))}
+    />
+  )
 }
 
 /** The Board over Home's column: the sentence, then the lists; `esc` (Home's) closes it. */

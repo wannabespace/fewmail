@@ -1480,12 +1480,27 @@ export const es: Messages = {
     },
     progress: (done: number, total: number) => `${done} de ${total}`,
     readAll: 'Leí cada uno, y nada cambia en tu correo sin tu sí.',
-    later: (total: number) =>
-      plural('es', total, {
-        one: () => 'Queda 1 que puede esperar',
-        other: (n) => `Quedan ${n} que pueden esperar`,
-      }),
+    worth: {
+      awaiting: (total: number) =>
+        plural('es', total, {
+          one: () => '1 esperando respuesta',
+          other: (n) => `${n} esperando respuesta`,
+        }),
+      dated: (total: number) =>
+        plural('es', total, {
+          one: () => '1 con fecha',
+          other: (n) => `${n} con fecha`,
+        }),
+      important: (total: number) =>
+        plural('es', total, {
+          one: () => '1 correo importante',
+          other: (n) => `${n} correos importantes`,
+        }),
+    },
+    worthKnowing: 'Para tener en cuenta',
+    canWait: 'Puede esperar',
     quick: 'Rápido',
+    needsLook: 'Te necesita',
     tidy: {
       failed: (emails: string) =>
         `Gmail no cambió ${emails}. Inténtalo de nuevo en un momento.`,

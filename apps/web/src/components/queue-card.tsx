@@ -5,6 +5,7 @@ import {
   IMPORTANCE,
   listSearch,
   sendsDraft,
+  UNDO_SEND_SECONDS,
 } from '@fewmail/shared/agent'
 import type { CleanupSender } from '@fewmail/shared/agent'
 import { replyRecipients, textToHtml } from '@fewmail/shared/email'
@@ -33,27 +34,31 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { motion, useIsPresent, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
+import { toast } from 'sonner'
 
+import { queueCards } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
-import { client } from '~/lib/orpc'
+import { client, orpc } from '~/lib/orpc'
+import { holdClicksUntilMove } from '~/lib/still-pointer'
+import { pendingToast, runUndo, toastUndo } from '~/lib/undo'
 
 import type { ComposerEditorHandle } from './composer/composer-editor'
 import { ComposerEditor } from './composer/composer-editor'
 import { ConsentDetails } from './consent-details'
-import { ExpandTrigger } from './expand-row'
-import { ExtractedChips, ImportanceDot } from './mail-meta'
+import { ImportanceDot, ROW_SWAP } from './mail-meta'
 import { SenderAvatar } from './sender-avatar'
-import { ROW_SWAP } from './thread-view'
+import { useWithAgent } from './upgrade-dialog'
 
 export type QueueItem = RouterOutputs['today']['get']['queue'][number]
 type Action = QueueItem['action']
 
-const cardHeadlineOf = ({ action, analysis, message }: QueueItem) => {
+export const cardHeadlineOf = ({ action, analysis, message }: QueueItem) => {
   if (action.kind === 'commitment' || action.kind === 'heads_up') {
     return action.detail ?? action.title
   }
@@ -64,36 +69,10 @@ const cardHeadlineOf = ({ action, analysis, message }: QueueItem) => {
 }
 
 /** Whom the card is about: your own promise names whom you promised (its `reason`), never you, the sender of your mail. */
-const whoOf = ({ action, message }: QueueItem) =>
+export const whoOf = ({ action, message }: QueueItem) =>
   action.kind === 'commitment' && action.reason
     ? { fromEmail: action.reason, fromName: null }
     : message
-
-const showsGist = ({ action, analysis }: QueueItem) =>
-  !!analysis &&
-  !sendsDraft(action) &&
-  action.kind !== 'cleanup' &&
-  action.kind !== 'consent'
-
-/** The open card says the email whole, so its title gives the subject instead of repeating it. */
-const titleOf = (item: QueueItem, isOpen: boolean) =>
-  isOpen && showsGist(item)
-    ? (item.message?.subject ?? cardHeadlineOf(item))
-    : cardHeadlineOf(item)
-
-/** What the email says and the facts in it, so the card can be settled without opening the email. */
-const Gist = ({
-  analysis,
-}: {
-  analysis: NonNullable<QueueItem['analysis']>
-}) => (
-  <>
-    <p data-mask className="font-serif text-base/relaxed">
-      {analysis.summary}
-    </p>
-    <ExtractedChips extracted={analysis.extracted} />
-  </>
-)
 
 /** A request from the agent or an MCP client: every input of what the yes does, then who asked (the reason). */
 const ConsentBody = ({ action }: { action: Action }) => {
@@ -347,7 +326,7 @@ const QueueCardHeader = ({
               : 'text-muted-foreground'
           )}
         >
-          {titleOf(item, isOpen)}
+          {cardHeadlineOf(item)}
         </span>
       </span>
     </AccordionTrigger>
@@ -427,9 +406,8 @@ const completerFor = (hasAgent: boolean, message: QueueItem['message']) =>
     : undefined
 
 /**
- * What they wrote, then the draft and the rewrite field: a reply is judged against the email, never alone.
- * The draft is its own editor, so a click edits it where it lands; focus is what Home counts as editing. Keyed by the
- * agent's draft, so a rewrite replaces what the editor holds.
+ * The draft and the rewrite field, under the email it answers. The draft is its own editor, so a click edits it where
+ * it lands. Keyed by the agent's draft, so a rewrite replaces what the editor holds.
  */
 const ReplyBody = ({
   draft,
@@ -462,14 +440,6 @@ const ReplyBody = ({
 
   return (
     <>
-      {message?.snippet && (
-        <p
-          data-mask
-          className="text-muted-foreground line-clamp-3 border-l-2 pl-3 font-serif text-sm/relaxed"
-        >
-          {message.snippet}
-        </p>
-      )}
       <div
         className="bg-secondary/60 focus-within:ring-ring/50 cursor-text rounded-xl px-4 py-3 ring-0 focus-within:ring-2"
         onFocus={onEdit}
@@ -564,55 +534,32 @@ const ReplyExtras = ({
   )
 }
 
+/**
+ * A row of Home's list. One with an email opens it in the sidebar, the proposal under it (`CardProposal`); one without
+ * (an agent request, a clean-up, a promise) unfolds in place.
+ */
 export const QueueCard = ({
-  draft,
-  onAddEvent,
-  isBusy,
-  isEditing,
   isNew,
   isOpen,
   isPicked,
-  isRewriting,
   isSelected,
   item,
   onApprove,
-  onDraftChange,
-  onEdit,
   onPick,
-  onRemind,
-  onRewrite,
-  onRewriteChange,
   onSkip,
-  onStopEditing,
 }: {
-  draft: string
-  onAddEvent: () => void
-  isBusy: boolean
-  isEditing: boolean
   isNew: boolean
   isOpen: boolean
   isPicked: boolean
-  isRewriting: boolean
   isSelected: boolean
   item: QueueItem
   onApprove: () => void
-  onDraftChange: (draft: string) => void
-  onEdit: () => void
   onPick: () => void
-  onRemind: () => void
-  onRewrite: (instruction: string) => void
-  onRewriteChange: (isRewriting: boolean) => void
   onSkip: () => void
-  onStopEditing: () => void
 }) => {
   const t = useT()
-  const { action, analysis, message } = item
-  const isReply = sendsDraft(action)
-  const step = primaryStep(action)
-  const isSecurity = action.kind === 'security'
+  const { action } = item
   const ref = useRef<HTMLDivElement>(null)
-  const editorRef = useRef<ComposerEditorHandle>(null)
-  const hasAgent = useHasAgent()
 
   useEffect(() => {
     if (isSelected) {
@@ -620,22 +567,12 @@ export const QueueCard = ({
     }
   }, [isSelected])
 
-  // A click already put the caret where it landed; only `E` brings the focus in.
-  useEffect(() => {
-    if (
-      isEditing &&
-      !(document.activeElement as HTMLElement | null)?.isContentEditable
-    ) {
-      editorRef.current?.focus()
-    }
-  }, [isEditing])
-
   return (
     <LeavingCard>
       <AccordionItem
         ref={ref}
         value={action.id}
-        tone={isSecurity ? 'destructive' : 'default'}
+        tone={action.kind === 'security' ? 'destructive' : 'default'}
         active={isSelected}
         className="group"
       >
@@ -652,69 +589,258 @@ export const QueueCard = ({
 
         <AccordionContent>
           <div className="flex flex-col gap-3 pl-9.5">
-            {isReply && (
-              <ReplyBody
-                draft={draft}
-                editorRef={editorRef}
-                hasAgent={hasAgent}
-                isRewriting={isRewriting}
-                message={message}
-                onApprove={onApprove}
-                onDraftChange={onDraftChange}
-                onEdit={onEdit}
-                onRewrite={onRewrite}
-                onRewriteChange={onRewriteChange}
-                onStopEditing={onStopEditing}
-                savedDraft={action.detail}
-              />
-            )}
             {action.kind === 'cleanup' && <CleanupList action={action} />}
             {action.kind === 'consent' && <ConsentBody action={action} />}
-            {analysis && showsGist(item) && <Gist analysis={analysis} />}
-            {!isReply && action.kind !== 'cleanup' && <Why item={item} />}
+            {action.kind !== 'cleanup' && <Why item={item} />}
             <div className="flex flex-wrap items-center gap-2">
-              <StepButton action={action} isBusy={isBusy} onRemind={onRemind} />
-              <Button
-                size="sm"
-                variant={step === 'approve' ? 'default' : 'secondary'}
-                disabled={isBusy}
-                onClick={onApprove}
-                shortcut={<Kbd>{approveKey(step, isEditing)}</Kbd>}
-              >
-                {approveLabel(t, action, isReply)}
+              <Button size="sm" onClick={onApprove} shortcut={<Kbd>⏎</Kbd>}>
+                {approveTitle(t, action)}
               </Button>
-              {isReply && !isRewriting && (
-                <Button
-                  size="sm"
-                  variant="ghost-muted"
-                  disabled={isBusy}
-                  onClick={() => onRewriteChange(true)}
-                  shortcut={<Kbd>R</Kbd>}
-                >
-                  {t.queue.rewrite}
-                </Button>
-              )}
-              {message && (
-                <Button
-                  size="sm"
-                  variant="ghost-muted"
-                  nativeButton
-                  render={
-                    <ExpandTrigger
-                      email={{ from: 'home', threadId: message.threadId }}
-                      rowId={action.id}
-                    />
-                  }
-                  shortcut={<Kbd>O</Kbd>}
-                >
-                  {t.queue.openEmail}
-                </Button>
-              )}
-              {isReply && <ReplyExtras item={item} onAddEvent={onAddEvent} />}
             </div>
           </div>
         </AccordionContent>
       </AccordionItem>
     </LeavingCard>
+  )
+}
+
+const ADD_EVENT_TOAST = 'add-event'
+
+/** Approving, skipping and redrafting a card, with their toasts: Home's list and the sidebar's proposal settle cards alike. */
+export const useCardActions = () => {
+  const t = useT()
+  const queryClient = useQueryClient()
+  const refresh = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
+      queryClient.invalidateQueries({ queryKey: orpc.mail.key() }),
+    ])
+  const sent = (outboxIds: string[], toastId: string, done: string) => {
+    if (outboxIds.length === 0) {
+      toast.success(done, { id: toastId })
+      return
+    }
+    toast.success(t.compose.sendingIn(UNDO_SEND_SECONDS), {
+      action: {
+        label: t.compose.undo,
+        onClick: async () => {
+          // The client's error toast already says it was sent.
+          const canceled = await runUndo(() =>
+            Promise.all(
+              outboxIds.map((id) =>
+                client.mail.cancelSend({ id }).catch(() => null)
+              )
+            )
+          )
+          if (canceled.some(Boolean)) {
+            void refresh()
+            toast(t.compose.backInQueue)
+          }
+        },
+      },
+      duration: UNDO_SEND_SECONDS * 1000,
+      id: toastId,
+    })
+  }
+  const skipped = (ids: string[]) =>
+    toastUndo(
+      ids.length === 1 ? t.telegram.skipped : t.queue.skipped(ids.length),
+      () =>
+        Promise.all(ids.map((id) => client.actions.restore({ id }))).finally(
+          refresh
+        ),
+      ids.join(',')
+    )
+  // A card's work can take seconds (leaving a list, a Gmail change): the toast says so until it is done.
+  const leave = (ids: string[]) => {
+    holdClicksUntilMove()
+    queueCards.utils.writeDelete(ids)
+    toast.loading(t.today.working, { id: ids.join(',') })
+  }
+  const approve = useMutation(
+    orpc.actions.approve.mutationOptions({
+      onError: (_, { id }) => toast.dismiss(id),
+      onMutate: ({ id }) => leave([id]),
+      onSettled: refresh,
+      onSuccess: ({ outboxId }, { id }) =>
+        sent(outboxId ? [outboxId] : [], id, t.today.done),
+    })
+  )
+  const approveMany = useMutation(
+    orpc.actions.approveMany.mutationOptions({
+      onError: (_, { ids }) => toast.dismiss(ids.join(',')),
+      onMutate: ({ ids }) => leave(ids),
+      onSettled: refresh,
+      onSuccess: ({ approved, outboxIds }, { ids }) =>
+        sent(outboxIds, ids.join(','), t.today.approvedMany(approved)),
+    })
+  )
+  const skip = useMutation({
+    meta: { event: 'cards_skipped' },
+    mutationFn: (ids: string[]) =>
+      Promise.all(ids.map((id) => client.actions.dismiss({ id }))),
+    onError: (_, ids) => toast.dismiss(ids.join(',')),
+    onMutate: leave,
+    onSettled: refresh,
+    onSuccess: (_, ids) => skipped(ids),
+  })
+  const redraft = useMutation(
+    orpc.actions.redraft.mutationOptions({
+      onMutate: ({ id }) => {
+        toast.loading(t.compose.writing, { id: `redraft-${id}` })
+      },
+      onSettled: (_action, _error, { id }) => toast.dismiss(`redraft-${id}`),
+      onSuccess: refresh,
+    })
+  )
+  const addEvent = useMutation(
+    orpc.actions.addEvent.mutationOptions({
+      ...pendingToast(ADD_EVENT_TOAST),
+      onSettled: () =>
+        Promise.all([
+          refresh(),
+          queryClient.invalidateQueries({ queryKey: orpc.calendar.key() }),
+        ]),
+      onSuccess: () => toast.success(t.calendar.saved, { id: ADD_EVENT_TOAST }),
+    })
+  )
+  // The button leaves on the press, so a second press never adds the meeting twice.
+  const addEventOf = (id: string) => {
+    const card = queueCards.get(id)
+    if (card) {
+      queueCards.utils.writeUpdate({
+        ...card,
+        action: {
+          ...card.action,
+          payload: { ...card.action.payload, event: undefined },
+        },
+      })
+    }
+    addEvent.mutate({ id })
+  }
+  return { addEventOf, approve, approveMany, redraft, refresh, skip }
+}
+
+const PROPOSAL_BOX =
+  'bg-popover ring-foreground/6 flex flex-col gap-3 rounded-2xl p-4 shadow-sm ring'
+
+/**
+ * What the agent proposes for an email, under it in the sidebar: the draft or the step, the yes, Skip, and Home's keys
+ * for them. `R` (the thread's reply key) edits the draft through `isEditing`.
+ */
+export const CardProposal = ({
+  isEditing,
+  item,
+  onEdit,
+  onStopEditing,
+}: {
+  isEditing: boolean
+  item: QueueItem
+  onEdit: () => void
+  onStopEditing: () => void
+}) => {
+  const t = useT()
+  const hasAgent = useHasAgent()
+  const withAgent = useWithAgent()
+  const editorRef = useRef<ComposerEditorHandle>(null)
+  const { action, message } = item
+  const isReply = sendsDraft(action)
+  const step = primaryStep(action)
+  const [draft, setDraft] = useState(action.detail ?? '')
+  const [isRewriting, setIsRewriting] = useState(false)
+  const { addEventOf, approve, redraft, skip } = useCardActions()
+  const isBusy = redraft.isPending || approve.isPending
+  const yes = () =>
+    approve.mutate({
+      id: action.id,
+      ...(draft !== action.detail && { detail: draft }),
+    })
+  const remind = () =>
+    withAgent('drafts', () => redraft.mutate({ id: action.id }))
+  const rewrite = (instruction: string) => {
+    setIsRewriting(false)
+    withAgent('drafts', () => redraft.mutate({ id: action.id, instruction }))
+  }
+  const runStep = () => {
+    if (step === 'link') {
+      openCardLink(action)
+    } else if (step === 'remind') {
+      remind()
+    } else if (!isReply) {
+      yes()
+    }
+  }
+  const keys = { enabled: !isEditing && !isRewriting && !isBusy }
+  useHotkey('Enter', runStep, keys)
+  useHotkey('Mod+Enter', yes, { enabled: keys.enabled && isReply })
+  useHotkey('M', yes, { enabled: keys.enabled && step !== 'approve' })
+  useHotkey('S', () => skip.mutate([action.id]), keys)
+  useHotkey('L', () => addEventOf(action.id), {
+    enabled: keys.enabled && !!cardPayload(action).event,
+  })
+  // A click already put the caret where it landed; only `R` brings the focus in.
+  useEffect(() => {
+    if (
+      isEditing &&
+      !(document.activeElement as HTMLElement | null)?.isContentEditable
+    ) {
+      editorRef.current?.focus()
+    }
+  }, [isEditing])
+
+  return (
+    <section className={PROPOSAL_BOX}>
+      {isReply ? (
+        <ReplyBody
+          draft={draft}
+          editorRef={editorRef}
+          hasAgent={hasAgent}
+          isRewriting={isRewriting}
+          message={message}
+          onApprove={yes}
+          onDraftChange={setDraft}
+          onEdit={onEdit}
+          onRewrite={rewrite}
+          onRewriteChange={setIsRewriting}
+          onStopEditing={onStopEditing}
+          savedDraft={action.detail}
+        />
+      ) : (
+        <Why item={item} />
+      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <StepButton action={action} isBusy={isBusy} onRemind={remind} />
+        <Button
+          size="sm"
+          variant={step === 'approve' ? 'default' : 'secondary'}
+          disabled={isBusy}
+          onClick={yes}
+          shortcut={<Kbd>{approveKey(step, isEditing || isReply)}</Kbd>}
+        >
+          {approveLabel(t, action, isReply)}
+        </Button>
+        {isReply && !isRewriting && (
+          <Button
+            size="sm"
+            variant="ghost-muted"
+            disabled={isBusy}
+            onClick={() => setIsRewriting(true)}
+          >
+            {t.queue.rewrite}
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="ghost-muted"
+          onClick={() => skip.mutate([action.id])}
+          shortcut={<Kbd>S</Kbd>}
+        >
+          {t.queue.skip}
+        </Button>
+        {isReply && (
+          <ReplyExtras item={item} onAddEvent={() => addEventOf(action.id)} />
+        )}
+      </div>
+    </section>
   )
 }
