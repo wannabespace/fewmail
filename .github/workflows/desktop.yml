@@ -1,10 +1,13 @@
 name: Desktop
 
 # Bump `version` in apps/desktop/src-tauri/tauri.conf.json and push the tag `desktop-v<version>`: open apps update
-# within four hours (Tauri's updater reads `latest.json` from the latest release of the public fewmail-desktop).
+# within four hours (Tauri's updater reads `latest.json` from this repository's latest release).
 on:
   push:
     tags: ['desktop-v*']
+
+permissions:
+  contents: write
 
 jobs:
   release:
@@ -45,7 +48,7 @@ jobs:
       # Signs and notarizes on macOS; Windows has no certificate yet, so it shows its unknown-publisher prompt.
       - uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.DESKTOP_RELEASES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_DEVELOPER_ID_P12 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_P12_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_DEVELOPER_ID }}
@@ -57,8 +60,6 @@ jobs:
           projectPath: apps/desktop
           tauriScript: pnpm tauri
           args: ${{ matrix.target && format('--target {0}', matrix.target) || '' }}
-          owner: wannabespace
-          repo: fewmail-desktop
-          tagName: v__VERSION__
+          tagName: desktop-v__VERSION__
           releaseName: Fewmail __VERSION__
           includeUpdaterJson: true

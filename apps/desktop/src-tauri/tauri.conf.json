@@ -31,7 +31,7 @@
     "deep-link": { "desktop": { "schemes": ["mailto"] } },
     "updater": {
       "endpoints": [
-        "https://github.com/wannabespace/fewmail-desktop/releases/latest/download/latest.json"
+        "https://github.com/wannabespace/fewmail/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJFNzkzQkI3NzIxQ0YyNzAKUldSdzhoeHl0enQ1dnVhSmorazFhdk10ejhINThueFBvcWxwcGxWVGpxK2JaR2d3OGlLM3JqcTEK"
     }
