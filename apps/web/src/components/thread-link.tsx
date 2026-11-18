@@ -1,23 +1,25 @@
+import {
+  ResizableGroup,
+  ResizablePanel,
+  ResizableSeparator,
+} from '@fewmail/ui/components/custom/resizable'
 import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useRouterState } from '@tanstack/react-router'
-import {
-  AnimatePresence,
-  animate,
-  motion,
-  useReducedMotion,
-} from 'motion/react'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
+import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useSubscription } from 'seitu/react'
 
 import { collapseExpanded, useExpanded } from '~/components/expand-row'
+import type { Expanded } from '~/components/expand-row'
 import { KeyHints } from '~/components/key-hints'
 import { noticeHeightStore } from '~/components/notice-bar'
 import {
   READER_FOLD,
+  READER_WIDTH,
   ThreadView,
+  readerWidthStore,
   useReaderWidthIn,
 } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
@@ -26,8 +28,6 @@ const pageArea = () =>
   document.querySelector<HTMLElement>('[data-slot=thread-pane-area]')
 
 const NOTICE_GAP = 8
-
-const INSTANT = { duration: 0 } as const
 
 const usePageAreaRect = () => {
   const [area, setArea] = useState(() => pageArea()?.getBoundingClientRect())
@@ -52,31 +52,123 @@ export const useIsUnderNotice = () => {
   return noticeHeight > 0 && !isMobile
 }
 
-/** The sidebar's box: the page area's right edge, top to bottom, as wide as Mail's reader beside its list; under a notice it starts a gap below it. */
+/** The sidebar's room: the page area, top to bottom; under a notice it starts a gap below it. */
 const useSidebarBox = () => {
   const area = usePageAreaRect()
-  const right = area?.right ?? innerWidth
-  const readerWidth = useReaderWidthIn(area?.width ?? innerWidth)
-  const isMobile = useIsMobile()
-  // A phone has no room beside the page: the email covers it.
-  const width = isMobile ? (area?.width ?? innerWidth) : readerWidth
+  const isUnderNotice = useIsUnderNotice()
   const noticeHeight = useSubscription(noticeHeightStore)
-  const top = (area?.top ?? 0) + noticeHeight
-  const isUnderNotice = noticeHeight > 0 && !isMobile
   const gap = isUnderNotice ? NOTICE_GAP : 0
   return {
     height: (area?.height ?? innerHeight) - noticeHeight - gap,
     isUnderNotice,
-    left: right - width,
-    top: top + gap,
-    width,
+    left: area?.left ?? 0,
+    top: (area?.top ?? 0) + noticeHeight + gap,
+    width: area?.width ?? 0,
   }
 }
 
+/** The page makes room for the email as wide as it is on screen, so it follows every frame of a fold and a drag. */
+const useMakeRoom = (panes: HTMLElement | null) => {
+  const isMobile = useIsMobile()
+  useEffect(() => {
+    const fill = panes?.querySelector<HTMLElement>('[data-motion-panels-fill]')
+    if (!panes || !fill) {
+      return
+    }
+    let lastRoom = 0
+    const observer = new ResizeObserver(() => {
+      // A phone has no room beside the page: the email covers it.
+      const room = isMobile
+        ? 0
+        : panes.getBoundingClientRect().width -
+          fill.getBoundingClientRect().width
+      // Every page has a shut sidebar of its own: one that stays shut never takes another's room away.
+      if (room === lastRoom) {
+        return
+      }
+      lastRoom = room
+      // A Home card's pane lies over the page area, so it makes room too.
+      for (const area of document.querySelectorAll<HTMLElement>(
+        '[data-slot=thread-pane-area], [data-slot=home-card-pane]'
+      )) {
+        area.style.paddingRight = `${room}px`
+      }
+    })
+    observer.observe(fill)
+    return () => observer.disconnect()
+  }, [isMobile, panes])
+}
+
 /**
- * An email opened out of a row or a source chip, in a sidebar at the page area's right edge while the page makes room
- * beside it. `esc`, ✕, the same row again and a click on the page close it; another row moves it to that email; leaving
- * the page drops it.
+ * Mail's reader for every other page: a sidebar at the page area's right edge, the same width, bounds, grip and fold,
+ * while the page makes room beside it. Keyed by the page, so leaving it drops the sidebar without folding it on the
+ * next one.
+ */
+export const ReaderSidebar = ({
+  children,
+  className,
+  isOpen,
+}: {
+  children: ReactNode
+  className?: string
+  isOpen: boolean
+}) => {
+  const box = useSidebarBox()
+  const isMobile = useIsMobile()
+  const readerWidth = useReaderWidthIn(box.width)
+  const [panes, setPanes] = useState<HTMLElement | null>(null)
+  useMakeRoom(panes)
+  return (
+    <ResizableGroup
+      ref={setPanes}
+      // Inline: the group's own style sets it to 100% of its parent.
+      style={{
+        height: box.height,
+        left: box.left,
+        top: box.top,
+        width: box.width,
+      }}
+      className="pointer-events-none fixed z-40"
+    >
+      <ResizablePanel />
+      <ResizableSeparator className="pointer-events-auto" />
+      {/* Held shut until the page area is measured: opening at the remembered width and then clamping it springs the width. */}
+      <ResizablePanel
+        className="pointer-events-auto flex"
+        collapsed={!isOpen || box.width === 0}
+        {...READER_FOLD}
+        keepMounted={false}
+        size={isMobile ? box.width : readerWidth}
+        minSize={READER_WIDTH.min}
+        maxSize={READER_WIDTH.max}
+        onSizeChange={(width: number) => readerWidthStore.set(width)}
+      >
+        <div
+          className={cn(
+            'bg-background border-foreground/6 flex min-w-0 flex-1 flex-col border-l',
+            box.isUnderNotice && 'rounded-tl-xl border-t',
+            className
+          )}
+        >
+          {children}
+        </div>
+      </ResizablePanel>
+    </ResizableGroup>
+  )
+}
+
+/** The closed email stays in the sidebar while it folds away. */
+const useShownEmail = (open: Expanded | null) => {
+  const [last, setLast] = useState(open)
+  if (open && open !== last) {
+    setLast(open)
+  }
+  return open ?? last
+}
+
+/**
+ * An email opened out of a row or a source chip, in `ReaderSidebar`. `esc`, ✕, the same row again and a click on the page
+ * close it; another row moves it to that email; leaving the page drops it.
  */
 export const ThreadPane = () => {
   const t = useT()
@@ -85,38 +177,12 @@ export const ThreadPane = () => {
     select: (state) => state.location.pathname,
   })
   const isOpen = !!open && open.pathname === pathname
+  const shown = useShownEmail(open)
   useEffect(() => {
     if (open && !isOpen) {
       collapseExpanded()
     }
   }, [open, isOpen])
-  const box = useSidebarBox()
-  const isMobile = useIsMobile()
-  const isReduced = useReducedMotion()
-  // Leaving the page drops the email at once, never folding it shut over the next page.
-  const fold = isReduced || (open && !isOpen) ? INSTANT : READER_FOLD.transition
-  const pageRoom = isOpen && !isMobile ? box.width : 0
-  const wasOpen = useRef(isOpen)
-  useLayoutEffect(() => {
-    const isToggled = wasOpen.current !== isOpen
-    wasOpen.current = isOpen
-    // A Home card's pane lies over the page area, so it makes room too.
-    const areas = document.querySelectorAll<HTMLElement>(
-      '[data-slot=thread-pane-area], [data-slot=home-card-pane]'
-    )
-    const folds = [...areas].map((area) =>
-      animate(
-        area,
-        { paddingRight: `${pageRoom}px` },
-        isToggled ? fold : INSTANT
-      )
-    )
-    return () => {
-      for (const area of folds) {
-        area.stop()
-      }
-    }
-  }, [fold, isOpen, pageRoom])
   useHotkey('Escape', collapseExpanded, {
     enabled: isOpen,
     ignoreDefaultPrevented: true,
@@ -138,59 +204,27 @@ export const ThreadPane = () => {
     return () => area.removeEventListener('pointerdown', onPointerDown)
   }, [isOpen])
   return (
-    // Keyed by the page: leaving it drops the email without folding it on the next one.
-    <AnimatePresence key={pathname}>
-      {isOpen && (
-        <div
-          key="sidebar"
-          style={
-            {
-              '--sidebar-height': `${box.height}px`,
-              '--sidebar-left': `${box.left}px`,
-              '--sidebar-top': `${box.top}px`,
-              '--sidebar-width': `${box.width}px`,
-            } as CSSProperties
-          }
-          className="pointer-events-none fixed top-(--sidebar-top) left-(--sidebar-left) z-40 flex h-(--sidebar-height) w-(--sidebar-width) justify-end"
-        >
-          {/* In percent of the sidebar's box, so a resize never plays the fold. */}
-          <motion.div
-            initial={{ width: '0%' }}
-            animate={{ width: '100%' }}
-            exit={{ width: '0%' }}
-            transition={fold}
-            className={cn(
-              'bg-background border-foreground/6 pointer-events-auto flex overflow-hidden border-l',
-              box.isUnderNotice && 'rounded-tl-xl border-t'
-            )}
-          >
-            <motion.div
-              initial={READER_FOLD.initial}
-              animate={READER_FOLD.animate}
-              exit={READER_FOLD.initial}
-              transition={fold}
-              className="flex w-(--sidebar-width) shrink-0 flex-col pt-6"
-            >
-              <ThreadView
-                key={open.sourceId}
-                cite={open.cite}
-                isSnoozed={false}
-                threadId={open.threadId}
-                onClose={collapseExpanded}
-                onDone={collapseExpanded}
-              />
-              <KeyHints
-                hints={[
-                  ['R', t.keys.reply],
-                  ['E', t.keys.archive],
-                  ['/', t.keys.ask],
-                  ['esc', t.keys.close],
-                ]}
-              />
-            </motion.div>
-          </motion.div>
-        </div>
+    <ReaderSidebar key={pathname} isOpen={isOpen} className="pt-6">
+      {shown && (
+        <>
+          <ThreadView
+            key={shown.sourceId}
+            cite={shown.cite}
+            isSnoozed={false}
+            threadId={shown.threadId}
+            onClose={collapseExpanded}
+            onDone={collapseExpanded}
+          />
+          <KeyHints
+            hints={[
+              ['R', t.keys.reply],
+              ['E', t.keys.archive],
+              ['/', t.keys.ask],
+              ['esc', t.keys.close],
+            ]}
+          />
+        </>
       )}
-    </AnimatePresence>
+    </ReaderSidebar>
   )
 }
