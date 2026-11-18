@@ -502,43 +502,23 @@ const Why = ({ item: { action, analysis, rule } }: { item: QueueItem }) => {
   )
 }
 
-/** A meeting the email names goes in the calendar on its own (`L`), and the row ends with who the reply goes to and why it was drafted. */
-const ReplyExtras = ({
-  item: { action, message, rule },
-  onAddEvent,
-}: {
-  item: QueueItem
-  onAddEvent: () => void
-}) => {
+/** Over the draft: who the reply goes to and why it was drafted. Only the addresses shorten, so the rest never cuts mid-word. */
+const ReplyMeta = ({ item: { message, rule } }: { item: QueueItem }) => {
   const t = useT()
   return (
-    <>
-      {cardPayload(action).event && (
-        <Button
-          size="sm"
-          variant="ghost-muted"
-          onClick={onAddEvent}
-          shortcut={<Kbd>L</Kbd>}
-        >
-          <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />
-          {t.queue.addToCalendar}
-        </Button>
-      )}
-      {message && (
-        <span className="text-muted-foreground ml-auto truncate text-xs">
-          <span data-mask>
-            {t.agent.to(replyRecipients(message).join(', '))}
-          </span>
-          {` · ${t.queue.draftedInVoice}`}
-          {rule && (
-            <>
-              {' · '}
-              <span data-mask>{t.today.journal.byRule(rule)}</span>
-            </>
-          )}
+    message && (
+      <p className="text-muted-foreground flex min-w-0 gap-1 text-xs whitespace-nowrap">
+        <span data-mask className="truncate">
+          {t.agent.to(replyRecipients(message).join(', '))}
         </span>
-      )}
-    </>
+        <span>· {t.queue.draftedInVoice}</span>
+        {rule && (
+          <span data-mask className="truncate">
+            · {t.today.journal.byRule(rule)}
+          </span>
+        )}
+      </p>
+    )
   )
 }
 
@@ -809,6 +789,7 @@ export const CardProposal = ({
 
   return (
     <section className={PROPOSAL_BOX}>
+      {isReply && <ReplyMeta item={item} />}
       {isReply ? (
         <ReplyBody
           draft={draft}
@@ -857,8 +838,16 @@ export const CardProposal = ({
         >
           {t.queue.skip}
         </Button>
-        {isReply && (
-          <ReplyExtras item={item} onAddEvent={() => addEventOf(action.id)} />
+        {isReply && cardPayload(action).event && (
+          <Button
+            size="sm"
+            variant="ghost-muted"
+            onClick={() => addEventOf(action.id)}
+            shortcut={<Kbd>L</Kbd>}
+          >
+            <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />
+            {t.queue.addToCalendar}
+          </Button>
         )}
       </div>
     </section>
