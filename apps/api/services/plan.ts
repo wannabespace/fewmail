@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
+
 import { db } from '@fewmail/db'
 import { subscriptions, usage, userSettings } from '@fewmail/db/schema'
 import { PLAN_ALLOWANCE_USD } from '@fewmail/shared/agent'
@@ -131,8 +133,13 @@ export const charge = async (userId: string, usd: number) => {
   }
 }
 
+const paidFlows = new AsyncLocalStorage<string>()
+
 /** Whether the agent may still spend this month; `reserve` lets urgent mail run past the allowance. */
 export const hasBudget = async (userId: string, reserve = 1) => {
+  if (paidFlows.getStore() === userId) {
+    return true
+  }
   const plan = await getPlanInfo(userId)
   if (!hasAgent(plan)) {
     return false
@@ -156,6 +163,14 @@ export const requireBudget = async (userId: string) => {
     throw new LimitReachedError()
   }
 }
+
+/**
+ * The allowance is read once, when a flow starts: one it let start runs to its end even past it (every check inside
+ * passes), so the user never gets half of a reply or an issue; the next flow is refused. Past it the flow runs with
+ * its checks as they are.
+ */
+export const finishPaid = async <T>(userId: string, flow: () => Promise<T>) =>
+  (await hasBudget(userId)) ? paidFlows.run(userId, flow) : flow()
 
 export interface EmailAllowance {
   take: (urgent: boolean) => boolean

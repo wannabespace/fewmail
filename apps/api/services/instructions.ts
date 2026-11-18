@@ -11,7 +11,7 @@ import { askAgent } from './agent-run'
 import type { Exchange } from './ask'
 import { askMail, earlierLines } from './ask'
 import { draftReply, redraftAction } from './mail'
-import { requireBudget } from './plan'
+import { finishPaid, requireBudget } from './plan'
 
 const RECENT_DAYS = 7
 const CANDIDATES = 15
@@ -94,33 +94,33 @@ const understand = async (
 }
 
 /** A typed or spoken message: a skill or a request run by the agent (its approvals wait on Home), a reply draft, an answer about the mail, or `help` when it is none of them. */
-export const followMessage = async (
+export const followMessage = (
   userId: string,
   text: string,
   actionId?: string | null,
   earlier: Exchange | null = null
-) => {
-  if (parseSkill(text)) {
-    return { skill: await askAgent(userId, text) }
-  }
-  if (actionId) {
+) =>
+  finishPaid(userId, async () => {
+    if (parseSkill(text)) {
+      return { skill: await askAgent(userId, text) }
+    }
     await requireBudget(userId)
-    return { draft: await redraftAction(userId, actionId, text) }
-  }
-  await requireBudget(userId)
-  const { intent, target } = await understand(userId, text, earlier)
-  if (intent === 'request') {
-    return { skill: await askAgent(userId, text) }
-  }
-  if (intent === 'question') {
-    return { answer: await askMail(userId, text, earlier) }
-  }
-  if (!target) {
-    return { help: true as const }
-  }
-  return {
-    draft: target.actionId
-      ? await redraftAction(userId, target.actionId, text)
-      : await draftReply(userId, target.messageId ?? '', text),
-  }
-}
+    if (actionId) {
+      return { draft: await redraftAction(userId, actionId, text) }
+    }
+    const { intent, target } = await understand(userId, text, earlier)
+    if (intent === 'request') {
+      return { skill: await askAgent(userId, text) }
+    }
+    if (intent === 'question') {
+      return { answer: await askMail(userId, text, earlier) }
+    }
+    if (!target) {
+      return { help: true as const }
+    }
+    return {
+      draft: target.actionId
+        ? await redraftAction(userId, target.actionId, text)
+        : await draftReply(userId, target.messageId ?? '', text),
+    }
+  })

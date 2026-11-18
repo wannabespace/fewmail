@@ -27,7 +27,7 @@ import {
 import { localClock, postgresZone } from '../lib/clock'
 import { JEV_MODEL_ID } from '../lib/jev'
 import { rowPlace } from './mail'
-import { getPlanInfo, hasAgent, hasBudget } from './plan'
+import { finishPaid, hasBudget } from './plan'
 import { getSettings } from './settings'
 import { changeThreadLabels, MARK_READ } from './thread-labels'
 
@@ -319,26 +319,26 @@ export const listReadingIssues = async (userId: string) => {
  * Writes a finished day's issue once: the newsletters it held and, with the agent, one summary of them. Null when the
  * day had none. The worker calls it the morning after, so a summary costs one call a day.
  */
-export const writeReadingIssue = async (userId: string, day: string) => {
-  const current = await getReadingDay(userId, day)
-  if (current.isFinished) {
-    return current
-  }
-  if (current.rows.length === 0) {
-    return null
-  }
-  const summary =
-    hasAgent(await getPlanInfo(userId)) && (await hasBudget(userId))
+export const writeReadingIssue = (userId: string, day: string) =>
+  finishPaid(userId, async () => {
+    const current = await getReadingDay(userId, day)
+    if (current.isFinished) {
+      return current
+    }
+    if (current.rows.length === 0) {
+      return null
+    }
+    const summary = (await hasBudget(userId))
       ? await writeReadingSummary(userId, current.rows)
       : null
-  await db
-    .insert(readingIssues)
-    .values({
-      day,
-      messageIds: current.rows.map(({ id }) => id),
-      summary,
-      userId,
-    })
-    .onConflictDoNothing()
-  return { ...current, isFinished: true, summary: shownSummary(summary) }
-}
+    await db
+      .insert(readingIssues)
+      .values({
+        day,
+        messageIds: current.rows.map(({ id }) => id),
+        summary,
+        userId,
+      })
+      .onConflictDoNothing()
+    return { ...current, isFinished: true, summary: shownSummary(summary) }
+  })

@@ -32,7 +32,7 @@ import {
   splitText,
   weekReply,
 } from './services/messenger'
-import { getPlanInfo, hasAgent } from './services/plan'
+import { finishPaid, getPlanInfo, hasAgent } from './services/plan'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
 
@@ -228,16 +228,18 @@ const handle = async (inbound: Inbound) => {
     if (pressed) {
       await pressButton(to, userId, pressed)
     } else if (audio) {
-      const heard = await hear(userId, () => download(audio.id))
-      if (!heard) {
-        await say(to, t.telegram.voiceFailed)
-        return
-      }
-      await say(to, t.telegram.heard(heard))
-      const reply = await follow(chatOf(to), userId, heard, context?.id)
-      await send(to, {
-        ...reply,
-        voice: canSpeak ? { text: reply.text, userId } : undefined,
+      await finishPaid(userId, async () => {
+        const heard = await hear(userId, () => download(audio.id))
+        if (!heard) {
+          await say(to, t.telegram.voiceFailed)
+          return
+        }
+        await say(to, t.telegram.heard(heard))
+        const reply = await follow(chatOf(to), userId, heard, context?.id)
+        await send(to, {
+          ...reply,
+          voice: canSpeak ? { text: reply.text, userId } : undefined,
+        })
       })
     } else if (text) {
       await send(to, await follow(chatOf(to), userId, text, context?.id))

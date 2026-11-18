@@ -29,7 +29,7 @@ import {
   splitText,
   weekReply,
 } from './services/messenger'
-import { getPlanInfo, hasAgent } from './services/plan'
+import { finishPaid, getPlanInfo, hasAgent } from './services/plan'
 
 type QueueItem = Awaited<ReturnType<typeof listQueue>>[number]
 
@@ -252,21 +252,23 @@ const createBot = (token: string) => {
       return
     }
     const t = await messagesFor(userId)
-    const heard = await hear(userId, async () => {
-      const file = await ctx.getFile()
-      const response = await fetch(
-        `https://api.telegram.org/file/bot${token}/${file.file_path ?? ''}`
-      )
-      return response.arrayBuffer()
+    await finishPaid(userId, async () => {
+      const heard = await hear(userId, async () => {
+        const file = await ctx.getFile()
+        const response = await fetch(
+          `https://api.telegram.org/file/bot${token}/${file.file_path ?? ''}`
+        )
+        return response.arrayBuffer()
+      })
+      if (!heard) {
+        await ctx.reply(t.telegram.voiceFailed)
+        return
+      }
+      await send(ctx.api, ctx.chat.id, {
+        text: escapeHtml(t.telegram.heard(heard)),
+      })
+      await followText(ctx, userId, heard, { spoken: true })
     })
-    if (!heard) {
-      await ctx.reply(t.telegram.voiceFailed)
-      return
-    }
-    await send(ctx.api, ctx.chat.id, {
-      text: escapeHtml(t.telegram.heard(heard)),
-    })
-    await followText(ctx, userId, heard, { spoken: true })
   })
 
   bot.on('message:text', async (ctx) => {
