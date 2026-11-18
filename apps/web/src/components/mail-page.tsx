@@ -2184,12 +2184,14 @@ const targetHintsOf = ({
 const useListActions = ({
   filter,
   isEnabled,
+  onLeave,
   onUnpick,
   picked,
   row,
 }: {
   filter: Filter
   isEnabled: boolean
+  onLeave: (messageId: string) => void
   onUnpick: () => void
   picked: ActedRow[]
   row: ActedRow | undefined
@@ -2202,7 +2204,7 @@ const useListActions = ({
   const isPinned =
     targets.length > 0 && targets.every(({ message }) => message.isPinned)
   const t = useT()
-  const actions = useMailActions()
+  const actions = useMailActions(onLeave)
   const [snoozeOpenId, setSnoozeOpenId] = useState<string | null>(null)
   const canSnooze = filter !== 'snoozed'
   const sweep = sweepOf(actions, t, OUT_OF_INBOX[filter] ?? 'inbox')
@@ -2696,6 +2698,10 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const list = useListActions({
     filter,
     isEnabled: !thread,
+    onLeave: (messageId) =>
+      rows.some(
+        ({ message }) => message.id === messageId && message.threadId === thread
+      ) && closeThread(),
     onUnpick: picks.onUnpick,
     picked: picks.picked,
     row: rows[cursor],
