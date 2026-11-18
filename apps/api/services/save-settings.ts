@@ -26,7 +26,7 @@ const STARTER_RULES: {
   { effect: 'always_show', instruction: 'alwaysShow' },
 ]
 
-/** The first save (onboarding) seeds the starter rules and reads the inbox at once; turning Gmail labels on labels recent mail. */
+/** The first save (the first sign-in) seeds the starter rules and reads the inbox at once; turning Gmail labels on labels recent mail. */
 export const saveSettings = async (
   userId: string,
   input: {

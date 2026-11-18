@@ -560,15 +560,6 @@ export const ko: Messages = {
   notifications: {
     many: (n: number) => `Fewmail 새 알림 ${n}개`,
   },
-  onboarding: {
-    languageHint:
-      '앱, 요약, 설명에 이 언어를 사용해요. 답장은 항상 답하는 메일의 언어를 따라요.',
-    languageTitle: 'Fewmail이 어떤 언어를 쓸까요?',
-    lead: '두 가지 간단한 질문이에요. 모두 나중에 설정에서 바꿀 수 있어요.',
-    reading: '받은편지함을 읽는 중…',
-    start: '시작',
-    title: '에이전트를 설정해 볼게요.',
-  },
   plan: {
     used: (percent: number) => `${percent}% 사용`,
     about: (emails: string, messages: string) =>

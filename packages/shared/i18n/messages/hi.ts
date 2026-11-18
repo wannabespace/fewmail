@@ -567,15 +567,6 @@ export const hi: Messages = {
         other: (n) => `Fewmail से ${n} नई सूचनाएँ`,
       }),
   },
-  onboarding: {
-    languageHint:
-      'ऐप, सारांश और व्याख्याएँ इसी भाषा में होंगी। जवाब हमेशा उस ईमेल की भाषा में होंगे जिसका आप जवाब दे रहे हैं।',
-    languageTitle: 'Fewmail कौन-सी भाषा बोले?',
-    lead: 'दो छोटे जवाब। आप बाद में सेटिंग्स में सब बदल सकते हैं।',
-    reading: 'आपका इनबॉक्स पढ़ा जा रहा है…',
-    start: 'शुरू करें',
-    title: 'चलिए, आपका एजेंट सेट करते हैं।',
-  },
   plan: {
     used: (percent: number) => `${percent}% इस्तेमाल हुआ`,
     about: (emails: string, messages: string) =>

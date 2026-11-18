@@ -1135,15 +1135,6 @@ export const uk: Messages = {
         other: (n) => `${n} нових у Fewmail`,
       }),
   },
-  onboarding: {
-    languageHint:
-      'Цією мовою будуть застосунок, підсумки й пояснення. Відповіді завжди мовою листа, на який ти відповідаєш.',
-    languageTitle: 'Якою мовою говорити Fewmail?',
-    lead: 'Дві швидкі відповіді. Усе можна змінити пізніше в налаштуваннях.',
-    reading: 'Читаю твою пошту…',
-    start: 'Почати',
-    title: 'Налаштуймо твого агента.',
-  },
   plan: {
     used: (percent: number) => `Використано ${percent}%`,
     about: (emails: string, messages: string) =>

@@ -712,15 +712,6 @@ export const en = {
         other: (n) => `${n} new from Fewmail`,
       }),
   },
-  onboarding: {
-    languageHint:
-      'The app, summaries and explanations use this language. Replies always match the language of the email you answer.',
-    languageTitle: 'Which language should Fewmail speak?',
-    lead: 'Two quick answers. You can change all of them later in Settings.',
-    reading: 'Reading your inbox…',
-    start: 'Start',
-    title: 'Let’s set up your agent.',
-  },
   plan: {
     used: (percent: number) => `${percent}% used`,
     about: (emails: string, messages: string) =>

@@ -1142,15 +1142,6 @@ export const de: Messages = {
         other: (n) => `${n} Neuigkeiten von Fewmail`,
       }),
   },
-  onboarding: {
-    languageHint:
-      'App, Zusammenfassungen und Erklärungen nutzen diese Sprache. Antworten folgen immer der Sprache der Mail, auf die du antwortest.',
-    languageTitle: 'Welche Sprache soll Fewmail sprechen?',
-    lead: 'Zwei kurze Antworten. Du kannst alles später in den Einstellungen ändern.',
-    reading: 'Lese deinen Posteingang…',
-    start: 'Los geht’s',
-    title: 'Richten wir deinen Agenten ein.',
-  },
   plan: {
     used: (percent: number) => `${percent} % verbraucht`,
     about: (emails: string, messages: string) =>

@@ -713,15 +713,6 @@ export const id: Messages = {
         other: (n) => `${n} kabar baru dari Fewmail`,
       }),
   },
-  onboarding: {
-    languageHint:
-      'Aplikasi, ikhtisar, dan penjelasan memakai bahasa ini. Balasan selalu mengikuti bahasa email yang kamu balas.',
-    languageTitle: 'Fewmail harus berbicara dalam bahasa apa?',
-    lead: 'Dua jawaban singkat. Semuanya bisa kamu ubah nanti di Pengaturan.',
-    reading: 'Membaca kotak masukmu…',
-    start: 'Mulai',
-    title: 'Ayo siapkan agenmu.',
-  },
   plan: {
     used: (percent: number) => `${percent}% terpakai`,
     about: (emails: string, messages: string) =>

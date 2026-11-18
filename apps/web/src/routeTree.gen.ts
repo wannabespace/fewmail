@@ -14,7 +14,6 @@ import { Route as SiteRouteImport } from './routes/_site'
 import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as DesktopRouteImport } from './routes/desktop'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppBoardRouteImport } from './routes/_app/board'
@@ -64,11 +63,6 @@ const DesktopRoute = DesktopRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -212,7 +206,6 @@ export interface FileRoutesByFullPath {
   '/connect': typeof ConnectRoute
   '/desktop': typeof DesktopRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/board': typeof AppBoardRoute
@@ -245,7 +238,6 @@ export interface FileRoutesByTo {
   '/connect': typeof ConnectRoute
   '/desktop': typeof DesktopRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/board': typeof AppBoardRoute
@@ -280,7 +272,6 @@ export interface FileRoutesById {
   '/connect': typeof ConnectRoute
   '/desktop': typeof DesktopRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_app/board': typeof AppBoardRoute
@@ -316,7 +307,6 @@ export interface FileRouteTypes {
     | '/connect'
     | '/desktop'
     | '/login'
-    | '/onboarding'
     | '/privacy'
     | '/terms'
     | '/board'
@@ -349,7 +339,6 @@ export interface FileRouteTypes {
     | '/connect'
     | '/desktop'
     | '/login'
-    | '/onboarding'
     | '/privacy'
     | '/terms'
     | '/board'
@@ -383,7 +372,6 @@ export interface FileRouteTypes {
     | '/connect'
     | '/desktop'
     | '/login'
-    | '/onboarding'
     | '/privacy'
     | '/terms'
     | '/_app/board'
@@ -419,7 +407,6 @@ export interface RootRouteChildren {
   ConnectRoute: typeof ConnectRoute
   DesktopRoute: typeof DesktopRoute
   LoginRoute: typeof LoginRoute
-  OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   WTokenRoute: typeof WTokenRoute
@@ -460,13 +447,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -731,7 +711,6 @@ const rootRouteChildren: RootRouteChildren = {
   ConnectRoute: ConnectRoute,
   DesktopRoute: DesktopRoute,
   LoginRoute: LoginRoute,
-  OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   WTokenRoute: WTokenRoute,

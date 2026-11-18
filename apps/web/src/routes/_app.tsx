@@ -34,7 +34,7 @@ import { signedInStore } from '~/lib/auth'
 import { localeStore, useT } from '~/lib/i18n'
 import { mailRowsOf } from '~/lib/mail-db'
 import { useMe } from '~/lib/me'
-import { listenForChanges, orpc } from '~/lib/orpc'
+import { client, listenForChanges, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { clearSnapshot, restoreSnapshot } from '~/lib/snapshot'
 import { undoLatest } from '~/lib/undo'
@@ -204,7 +204,7 @@ const AppLayout = () => {
 export const Route = createFileRoute('/_app')({
   beforeLoad: async ({ context: { queryClient } }) => {
     const meQuery = orpc.me.queryOptions()
-    // Every navigation passes here, so a cached account answers at once; one without settings is onboarding that just finished.
+    // Every navigation passes here, so a cached account answers at once; one without settings has just signed up.
     const me = await (
       queryClient.getQueryData(meQuery.queryKey)?.settings
         ? queryClient.ensureQueryData({ ...meQuery, revalidateIfStale: true })
@@ -218,12 +218,19 @@ export const Route = createFileRoute('/_app')({
     if (!me.hasGmail) {
       throw redirect({ search: { missing: 'gmail' }, to: '/login' })
     }
+    // The first visit saves the language the browser or the login page chose; the first save seeds the starter bots in it.
+    const settings =
+      me.settings ??
+      (await client.settings.save({
+        language: localeStore.get(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      }))
     if (!me.settings) {
-      throw redirect({ to: '/onboarding' })
+      queryClient.setQueryData(meQuery.queryKey, { ...me, settings })
     }
-    localeStore.set(me.settings.language)
+    localeStore.set(settings.language)
     await restoreSnapshot(me.user.id)
-    return { me: { ...me, settings: me.settings } }
+    return { me: { ...me, settings } }
   },
   component: AppLayout,
 })

@@ -132,7 +132,7 @@ export const readSharedWrapped = (token: string): Shared => {
 export const getWrapped = async (userId: string, period: WrappedPeriod) => {
   const settings = await getSettings(userId)
   if (!settings) {
-    throw new NotFoundError('Finish onboarding first')
+    throw new NotFoundError('Open the app once first')
   }
   const { label, since } = periodOf(settings.timezone, period)
   const zone = await postgresZone(settings.timezone)

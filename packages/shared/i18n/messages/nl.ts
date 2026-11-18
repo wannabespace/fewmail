@@ -716,15 +716,6 @@ export const nl: Messages = {
         other: (n) => `${n} nieuwe meldingen van Fewmail`,
       }),
   },
-  onboarding: {
-    languageHint:
-      'De app, samenvattingen en uitleg gebruiken deze taal. Antwoorden volgen altijd de taal van de e-mail die je beantwoordt.',
-    languageTitle: 'Welke taal moet Fewmail spreken?',
-    lead: 'Twee snelle antwoorden. Je kunt alles later wijzigen in Instellingen.',
-    reading: 'Je inbox wordt gelezen…',
-    start: 'Starten',
-    title: 'Laten we je agent instellen.',
-  },
   plan: {
     used: (percent: number) => `${percent}% gebruikt`,
     about: (emails: string, messages: string) =>

@@ -6,7 +6,7 @@ All values are `oklch` tokens in `packages/ui/src/styles/globals.css`, defined f
 
 | Level | Tokens | Light | Use |
 |---|---|---|---|
-| 1 canvas | `bg-body` | cream `#F4EFE6` | App background, sidebar (naked, no card), onboarding/login |
+| 1 canvas | `bg-body` | cream `#F4EFE6` | App background, sidebar (naked, no card), login |
 | 2 surface | `bg-background`, `bg-card` | `#FBF8F2` | Open thread pane, grouped settings |
 | 3 elevated | `bg-popover`, `bg-input` | `#FFFDF8` | Queue cards, inputs, menus, choice cards |
 

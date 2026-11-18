@@ -59,7 +59,7 @@ const DATE_LOCALES: Record<Locale, DateLocale> = {
   zh: zhCN,
 }
 
-/** Before sign-in the browser decides, or the public site's pick; it seeds onboarding and the next visit. */
+/** Before sign-in the browser decides, or the public site's pick; the first sign-in saves it as the account's language, and it seeds the next visit. */
 const savedLocale = createWebStorageValue({
   defaultValue: matchLocale(navigator.languages),
   key: 'fewmail.locale',

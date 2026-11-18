@@ -6,7 +6,7 @@
 - Operating scale: `text-sm` rows, buttons, nav; `text-xs` metadata, key hints, section labels (`text-muted-foreground text-xs font-medium`, sentence case — no uppercase tracking headers); `text-2xs` micro only.
 - **A row's title and description are two blocks, not one paragraph**: kit `ItemDescription` is `text-sm/snug` and `ItemContent` keeps `gap-1` at every size but `xs`, so a two-line description reads as one unit set apart from its title. A call site wrapping the description in a span never sets `text-sm` again, which would reset the leading.
 - Content column: reading screens (Home, Rules, Settings) cap at `max-w-3xl` with `px-10 pt-12`; the thread reader caps at `max-w-2xl`.
-- Heights: nav rows `h-8`; key-hint footer `h-11`; buttons through size props (`sm` inside cards, default in forms, `lg` on login/onboarding).
+- Heights: nav rows `h-8`; key-hint footer `h-11`; buttons through size props (`sm` inside cards, default in forms, `lg` on login).
 - Radius: `--radius` 0.55rem (rounder than Tamery). Every card that stands on a page is `rounded-2xl` whatever its size — queue and choice cards, Home's and Reading's cards, and the kit's `cardClass`, `Item variant="card"` and `FieldGroup variant="card"` (so `SettingsGroup`, notices, hints, list accordions): a hint at `rounded-xl` over Home's cards read as a different kind of object (a dense grid of small choice cards `rounded-xl` with `p-3`); popups (menus, popovers, selects) stay `rounded-xl`; inner blocks (draft, analysis) `rounded-xl`; nav items and inputs `rounded-lg`.
 - `tabular-nums` on counts and times in lists.
 - Cyrillic: both Lora and Inter draw it, so Ukrainian sets in the same faces as English.

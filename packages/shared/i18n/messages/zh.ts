@@ -548,15 +548,6 @@ export const zh: Messages = {
   notifications: {
     many: (n: number) => `Fewmail 有 ${n} 条新通知`,
   },
-  onboarding: {
-    languageHint:
-      '应用、摘要和说明都使用这种语言。回复始终与你所回复邮件的语言一致。',
-    languageTitle: 'Fewmail 应该说哪种语言？',
-    lead: '两个简单的问题。之后都可以在设置里修改。',
-    reading: '正在读取收件箱…',
-    start: '开始',
-    title: '来设置你的助手吧。',
-  },
   plan: {
     used: (percent: number) => `已用 ${percent}%`,
     about: (emails: string, messages: string) =>

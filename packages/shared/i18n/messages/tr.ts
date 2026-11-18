@@ -705,15 +705,6 @@ export const tr: Messages = {
         other: (n) => `Fewmail’den ${n} yeni bildirim`,
       }),
   },
-  onboarding: {
-    languageHint:
-      'Uygulama, özetler ve açıklamalar bu dili kullanır. Yanıtlar her zaman yanıtladığın e-postanın dilinde olur.',
-    languageTitle: 'Fewmail hangi dili konuşsun?',
-    lead: 'İki kısa cevap. Hepsini daha sonra Ayarlar’dan değiştirebilirsin.',
-    reading: 'Gelen kutun okunuyor…',
-    start: 'Başla',
-    title: 'Ajanını kuralım.',
-  },
   plan: {
     used: (percent: number) => `%${percent} kullanıldı`,
     about: (emails: string, messages: string) =>

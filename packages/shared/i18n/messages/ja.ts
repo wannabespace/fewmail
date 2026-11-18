@@ -559,15 +559,6 @@ export const ja: Messages = {
   notifications: {
     many: (n: number) => `Fewmail から ${n} 件のお知らせ`,
   },
-  onboarding: {
-    languageHint:
-      'アプリ、要約、説明にこの言語を使います。返信は常に、返信するメールの言語に合わせます。',
-    languageTitle: 'Fewmail は何語で話しましょうか？',
-    lead: '2つの簡単な質問です。すべて後から設定で変更できます。',
-    reading: '受信トレイを読んでいます…',
-    start: '始める',
-    title: 'エージェントを設定しましょう。',
-  },
   plan: {
     used: (percent: number) => `${percent}% 使用`,
     about: (emails: string, messages: string) =>
