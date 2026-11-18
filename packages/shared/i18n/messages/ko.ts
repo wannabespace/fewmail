@@ -532,6 +532,7 @@ export const ko: Messages = {
     folders: '폴더',
     calendar: '캘린더',
     subscriptions: '메일링 리스트',
+    wrapped: '돌아보기',
     people: '사람',
     findPerson: '사람 찾기',
     personMail: '이메일 보기',
@@ -1635,7 +1636,9 @@ export const ko: Messages = {
     cta: 'Fewmail로 나만의 기록 받기',
     emails: '통의 메일 수신',
     empty: '아직 이야기할 만큼 메일이 없어요. 며칠 뒤에 다시 와 주세요.',
-    handled: 'Fewmail이 알아서 처리',
+    handled: '통의 메일을 Fewmail이 처리',
+    handledHint:
+      'Fewmail은 승인 없이 Gmail에서 아무것도 바꾸지 않아요. 규칙을 켜면 이런 메일을 알아서 처리해요.',
     people: '가장 많이 보낸 사람',
     period: { month: '이번 달', year: '올해' },
     replies: 'Fewmail이 쓰고 보낸 답장',

@@ -139,7 +139,7 @@ export const getWrapped = async (userId: string, period: WrappedPeriod) => {
   const [pulse, handled, saved, unsubscribed, weekday, hour, people] =
     await Promise.all([
       mailPulse(userId, since),
-      handledSince(userId, since),
+      handledSince(userId, since, true),
       timeSaved(userId, since),
       unsubscribedSince(userId, since),
       busiest(userId, since, zone, 'isodow'),

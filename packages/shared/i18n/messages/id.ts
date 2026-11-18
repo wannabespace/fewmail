@@ -287,7 +287,9 @@ export const id: Messages = {
     cta: 'Dapatkan punyamu dengan Fewmail',
     emails: 'email masuk',
     empty: 'Belum cukup email untuk bercerita. Kembali beberapa hari lagi.',
-    handled: 'ditangani Fewmail sendiri',
+    handled: 'email ditangani Fewmail',
+    handledHint:
+      'Fewmail tidak mengubah apa pun di Gmail tanpa persetujuanmu. Nyalakan aturan, dan ia akan menangani email seperti ini sendiri.',
     people: 'Siapa yang paling sering menulis',
     period: { month: 'Bulan ini', year: 'Tahun ini' },
     replies: 'balasan ditulis Fewmail dan terkirim',
@@ -679,6 +681,7 @@ export const id: Messages = {
     folders: 'Folder',
     calendar: 'Kalender',
     subscriptions: 'Milis',
+    wrapped: 'Rekap',
     people: 'Orang',
     findPerson: 'Cari orang',
     personMail: 'Lihat email',

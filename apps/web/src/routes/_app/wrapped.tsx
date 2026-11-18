@@ -11,7 +11,7 @@ import { Skeleton } from '@fewmail/ui/components/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@fewmail/ui/components/tabs'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { z } from 'zod/mini'
 
@@ -88,6 +88,20 @@ const WrappedPage = () => {
                 stats={data.stats}
                 title={title}
               />
+              {data.stats.handled === 0 && (
+                <div className="flex flex-col items-start gap-1">
+                  <p className="text-muted-foreground text-sm">
+                    {t.wrapped.handledHint}
+                  </p>
+                  <Button
+                    size="xs"
+                    variant="link-muted"
+                    render={<Link to="/rules" />}
+                  >
+                    {t.nav.rules}
+                  </Button>
+                </div>
+              )}
               {data.people.length > 0 && (
                 <SettingsGroup title={t.wrapped.people}>
                   {data.people.map((person) => (

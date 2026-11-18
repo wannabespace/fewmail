@@ -65,7 +65,7 @@ export const formatMinutes = (locale: Locale, minutes: number) => {
   const hours = Math.floor(minutes / 60)
   const rest = Math.round(minutes % 60)
   if (hours === 0) {
-    return unit(Math.max(1, rest), 'minute')
+    return unit(rest, 'minute')
   }
   return hours >= 4 || rest === 0
     ? unit(Math.round(minutes / 60), 'hour')

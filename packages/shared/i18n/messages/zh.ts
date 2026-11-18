@@ -520,6 +520,7 @@ export const zh: Messages = {
     folders: '文件夹',
     calendar: '日历',
     subscriptions: '邮件列表',
+    wrapped: '回顾',
     people: '联系人',
     findPerson: '查找联系人',
     personMail: '查看邮件',
@@ -1595,7 +1596,9 @@ export const zh: Messages = {
     cta: '用 Fewmail 生成你的',
     emails: '封邮件到来',
     empty: '邮件还不够讲故事。过几天再来看看。',
-    handled: 'Fewmail 自动处理',
+    handled: '封邮件由 Fewmail 处理',
+    handledHint:
+      '没有你的同意，Fewmail 不会改动 Gmail 里的任何内容。开启一条规则，它就会自动处理这类邮件。',
     people: '谁写得最多',
     period: { month: '本月', year: '今年' },
     replies: 'Fewmail 起草并发出的回复',

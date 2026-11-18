@@ -285,7 +285,9 @@ export const tr: Messages = {
     emails: 'e-posta geldi',
     empty:
       'Hikâye için henüz yeterli e-posta yok. Birkaç gün sonra tekrar gel.',
-    handled: 'Fewmail kendi halletti',
+    handled: 'e-postayı Fewmail halletti',
+    handledHint:
+      "Fewmail onayın olmadan Gmail'de hiçbir şeyi değiştirmez. Bir kural aç, bu tür postaları kendisi halletsin.",
     people: 'En çok kim yazdı',
     period: { month: 'Bu ay', year: 'Bu yıl' },
     replies: 'yanıtı Fewmail yazdı ve gönderildi',
@@ -671,6 +673,7 @@ export const tr: Messages = {
     folders: 'Klasörler',
     calendar: 'Takvim',
     subscriptions: 'E-posta listeleri',
+    wrapped: 'Özet',
     people: 'Kişiler',
     findPerson: 'Kişi bul',
     personMail: 'E-postaları göster',

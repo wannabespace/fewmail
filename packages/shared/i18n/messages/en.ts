@@ -334,7 +334,9 @@ export const en = {
     cta: 'Get yours with Fewmail',
     emails: 'emails came in',
     empty: 'Not enough mail yet to tell the story. Come back in a few days.',
-    handled: 'handled by Fewmail on its own',
+    handled: 'emails handled by Fewmail',
+    handledHint:
+      'Fewmail moves nothing in Gmail without your yes. Turn on a rule, and it will handle mail like this on its own.',
     people: 'Who wrote most',
     period: { month: 'This month', year: 'This year' },
     replies: 'replies drafted by Fewmail and sent',
@@ -675,6 +677,7 @@ export const en = {
     folders: 'Folders',
     calendar: 'Calendar',
     subscriptions: 'Mailing lists',
+    wrapped: 'Wrapped',
     people: 'People',
     findPerson: 'Find a person',
     personMail: 'Show emails',

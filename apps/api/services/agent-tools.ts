@@ -267,7 +267,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   get_wrapped: define({
     description:
-      "The user's mail so far this year or this month, Wrapped style: emails in (from people, from lists), handled by the agent on its own, replies sent from its drafts, minutes saved, lists left, spam stopped, the busiest ISO weekday and hour in their time zone, and the three people who wrote most. shareToken makes the public link /w/<shareToken>, which shows the counts only.",
+      "The user's mail so far this year or this month, Wrapped style: emails in (from people, from lists), handled (by rules on their own plus the archive, mark read, unsubscribe, trash and spam the user said yes to), replies sent from its drafts, minutes saved, lists left, spam stopped, the busiest ISO weekday and hour in their time zone, and the three people who wrote most. shareToken makes the public link /w/<shareToken>, which shows the counts only.",
     input: { period: z.enum(WRAPPED_PERIODS) },
     run: ({ period }) => getWrapped(userId, period),
   }),

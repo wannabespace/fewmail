@@ -9,6 +9,7 @@ import {
 import {
   ACTION_KIND_TRAITS,
   cardPayload,
+  GMAIL_EFFECTS,
   IMPORTANCE,
   isMassMail,
   LATER_KINDS,
@@ -157,14 +158,25 @@ export const countImportant = async (userId: string) => {
   return expectRow(row).total
 }
 
-export const handledSince = async (userId: string, since: Date) => {
+const onItsOwn = eq(actions.status, 'auto_done')
+const movedOnYes = and(
+  eq(actions.status, 'done'),
+  inArray(actions.kind, [...GMAIL_EFFECTS, 'spam'])
+)
+
+/** Home's "your rules took care of N" counts without `withYes`: the Gmail moves the user said yes to (Tidy, a card, a consent) were not the rules'. */
+export const handledSince = async (
+  userId: string,
+  since: Date,
+  withYes = false
+) => {
   const rows = await db
     .select({ count: sql<number>`count(*)::int`, kind: actions.kind })
     .from(actions)
     .where(
       and(
         eq(actions.userId, userId),
-        eq(actions.status, 'auto_done'),
+        withYes ? or(onItsOwn, movedOnYes) : onItsOwn,
         gte(actions.createdAt, since)
       )
     )

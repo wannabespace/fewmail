@@ -532,6 +532,7 @@ export const hi: Messages = {
     folders: 'फ़ोल्डर',
     calendar: 'कैलेंडर',
     subscriptions: 'मेलिंग लिस्ट',
+    wrapped: 'सारांश',
     people: 'लोग',
     findPerson: 'किसी को खोजें',
     personMail: 'ईमेल देखें',
@@ -1656,7 +1657,9 @@ export const hi: Messages = {
     cta: 'Fewmail के साथ अपना पाएँ',
     emails: 'ईमेल आए',
     empty: 'कहानी के लिए अभी पर्याप्त ईमेल नहीं हैं। कुछ दिनों में फिर आएँ।',
-    handled: 'Fewmail ने ख़ुद संभाले',
+    handled: 'ईमेल Fewmail ने संभाले',
+    handledHint:
+      'आपकी हाँ के बिना Fewmail Gmail में कुछ नहीं बदलता। कोई नियम चालू करें, फिर वह ऐसे ईमेल ख़ुद संभालेगा।',
     people: 'सबसे ज़्यादा किसने लिखा',
     period: { month: 'यह महीना', year: 'यह साल' },
     replies: 'जवाब Fewmail ने लिखे और भेजे गए',

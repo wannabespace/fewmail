@@ -1106,6 +1106,7 @@ export const it: Messages = {
     folders: 'Cartelle',
     calendar: 'Calendario',
     subscriptions: 'Mailing list',
+    wrapped: 'Riepilogo',
     people: 'Persone',
     findPerson: 'Cerca una persona',
     personMail: 'Mostra email',
@@ -1703,7 +1704,9 @@ export const it: Messages = {
     emails: 'email arrivate',
     empty:
       'Ancora troppa poca posta per raccontare la storia. Torna tra qualche giorno.',
-    handled: 'gestite da Fewmail da solo',
+    handled: 'email gestite da Fewmail',
+    handledHint:
+      'Fewmail non cambia nulla in Gmail senza il tuo sì. Attiva una regola e gestirà queste email da solo.',
     people: 'Chi ha scritto di più',
     period: { month: 'Questo mese', year: 'Quest’anno' },
     replies: 'risposte scritte da Fewmail e inviate',

@@ -300,7 +300,9 @@ export const pl: Messages = {
     cta: 'Zdobądź swój z Fewmail',
     emails: 'maili przyszło',
     empty: 'Za mało poczty na historię. Wróć za kilka dni.',
-    handled: 'Fewmail załatwił sam',
+    handled: 'maili załatwił Fewmail',
+    handledHint:
+      'Fewmail nic nie zmienia w Gmailu bez twojej zgody. Włącz regułę, a sam zajmie się taką pocztą.',
     people: 'Kto pisał najwięcej',
     period: { month: 'Ten miesiąc', year: 'Ten rok' },
     replies: 'odpowiedzi napisał Fewmail i zostały wysłane',
@@ -697,6 +699,7 @@ export const pl: Messages = {
     folders: 'Foldery',
     calendar: 'Kalendarz',
     subscriptions: 'Listy mailingowe',
+    wrapped: 'Podsumowanie',
     people: 'Osoby',
     findPerson: 'Znajdź osobę',
     personMail: 'Pokaż e-maile',

@@ -531,6 +531,7 @@ export const ja: Messages = {
     folders: 'フォルダ',
     calendar: 'カレンダー',
     subscriptions: 'メーリングリスト',
+    wrapped: '振り返り',
     people: '人',
     findPerson: '人を探す',
     personMail: 'メールを表示',
@@ -1654,7 +1655,9 @@ export const ja: Messages = {
     cta: 'Fewmail で自分のものを',
     emails: '通のメールが届いた',
     empty: 'まだ振り返るほどメールがありません。数日後にまた見てください。',
-    handled: 'Fewmail が自動で処理',
+    handled: '通のメールを Fewmail が処理',
+    handledHint:
+      'Fewmail はあなたの承認なしに Gmail を変更しません。ルールをオンにすると、こうしたメールを自動で処理します。',
     people: 'よく届いた相手',
     period: { month: '今月', year: '今年' },
     replies: 'Fewmail が下書きして送信した返信',

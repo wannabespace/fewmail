@@ -149,6 +149,13 @@ export const NAV_ITEMS = [
     sequence: ['G', 'U'],
     to: '/subscriptions',
   },
+  {
+    icon: GiftIcon,
+    key: 'wrapped',
+    place: 'top',
+    sequence: ['G', 'W'],
+    to: '/wrapped',
+  },
   SETTINGS_ITEM,
 ] as const
 
@@ -600,7 +607,6 @@ const useDocumentTitle = ({
         [
           ['/compose', t.command.compose],
           ['/settings', t.nav.settings],
-          ['/wrapped', t.wrapped.title.year],
         ] as const
       ).find(([to]) => pathname.startsWith(to))?.[1]
   const title = [
@@ -664,10 +670,6 @@ const AccountMenu = ({
           <DropdownMenuShortcut>
             {SETTINGS_ITEM.sequence.join(' ')}
           </DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate({ to: '/wrapped' })}>
-          <HugeiconsIcon icon={GiftIcon} strokeWidth={2} />
-          {t.wrapped.title.year}
         </DropdownMenuItem>
         {(plan.kind === 'free' || Boolean(plan.trialDaysLeft)) && (
           <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>

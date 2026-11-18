@@ -1095,6 +1095,7 @@ export const uk: Messages = {
     folders: 'Папки',
     calendar: 'Календар',
     subscriptions: 'Розсилки',
+    wrapped: 'Підсумки',
     people: 'Люди',
     findPerson: 'Знайти людину',
     personMail: 'Показати листи',
@@ -1715,7 +1716,9 @@ export const uk: Messages = {
     cta: 'Отримай свій з Fewmail',
     emails: 'листів прийшло',
     empty: 'Поки замало листів для історії. Повертайся за кілька днів.',
-    handled: 'Fewmail розібрав сам',
+    handled: 'листів розібрав Fewmail',
+    handledHint:
+      'Fewmail нічого не змінює в Gmail без твого «так». Увімкни правило, і він розбиратиме таку пошту сам.',
     people: 'Хто писав найбільше',
     period: { month: 'Цей місяць', year: 'Цей рік' },
     replies: 'відповідей написав Fewmail, і їх відправлено',

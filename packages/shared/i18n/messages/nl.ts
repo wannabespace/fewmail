@@ -288,7 +288,9 @@ export const nl: Messages = {
     emails: 'e-mails binnengekomen',
     empty:
       'Nog te weinig mail voor een verhaal. Kom over een paar dagen terug.',
-    handled: 'zelf afgehandeld door Fewmail',
+    handled: 'e-mails afgehandeld door Fewmail',
+    handledHint:
+      'Fewmail verandert niets in Gmail zonder jouw ja. Zet een regel aan, dan handelt het zulke mail zelf af.',
     people: 'Wie het meest schreef',
     period: { month: 'Deze maand', year: 'Dit jaar' },
     replies: 'antwoorden door Fewmail geschreven en verstuurd',
@@ -678,6 +680,7 @@ export const nl: Messages = {
     folders: 'Mappen',
     calendar: 'Agenda',
     subscriptions: 'Mailinglijsten',
+    wrapped: 'Terugblik',
     people: 'Mensen',
     findPerson: 'Iemand zoeken',
     personMail: 'E-mails tonen',

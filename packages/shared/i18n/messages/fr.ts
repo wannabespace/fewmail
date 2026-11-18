@@ -1114,6 +1114,7 @@ export const fr: Messages = {
     folders: 'Dossiers',
     calendar: 'Calendrier',
     subscriptions: 'Listes de diffusion',
+    wrapped: 'Bilan',
     people: 'Personnes',
     findPerson: 'Trouver quelqu’un',
     personMail: 'Voir les e-mails',
@@ -1727,7 +1728,9 @@ export const fr: Messages = {
     emails: 'e-mails reçus',
     empty:
       'Pas encore assez d’e-mails pour raconter l’histoire. Revenez dans quelques jours.',
-    handled: 'traités par Fewmail tout seul',
+    handled: 'e-mails traités par Fewmail',
+    handledHint:
+      'Fewmail ne change rien dans Gmail sans votre accord. Activez une règle, et il traitera ce courrier tout seul.',
     people: 'Qui a le plus écrit',
     period: { month: 'Ce mois-ci', year: 'Cette année' },
     replies: 'réponses rédigées par Fewmail et envoyées',
