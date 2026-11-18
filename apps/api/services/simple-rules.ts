@@ -69,10 +69,9 @@ export const applySimpleRules = async (userId: string, incoming: Message[]) => {
       ) {
         return
       }
-      const done = await applyThreadEffect(userId, message, rule.effect).then(
-        () => true,
-        () => false
-      )
+      const done = await applyThreadEffect(userId, message, rule.effect)
+        .then(() => true)
+        .catch(() => false)
       await db.insert(actions).values({
         autonomous: true,
         kind: rule.effect,

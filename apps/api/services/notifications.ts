@@ -12,7 +12,7 @@ import { formatIssueDay } from '@fewmail/shared/i18n/locales'
 import { Result } from 'better-result'
 import { addMilliseconds, addMinutes, subDays, subMinutes } from 'date-fns'
 import { and, eq, inArray, lt, lte, min } from 'drizzle-orm'
-import webpush from 'web-push'
+import { sendNotification, WebPushError } from 'web-push'
 
 import { env } from '../env'
 import { announceNotice } from '../lib/live'
@@ -83,17 +83,13 @@ const sendWeb = async (
     },
   }
   const sent = await Result.tryPromise(() =>
-    webpush.sendNotification(
-      subscription,
-      JSON.stringify(notification),
-      options
-    )
+    sendNotification(subscription, JSON.stringify(notification), options)
   )
   if (sent.isOk()) {
     return 'sent'
   }
   const error = sent.error.cause
-  if (error instanceof webpush.WebPushError && GONE.has(error.statusCode)) {
+  if (error instanceof WebPushError && GONE.has(error.statusCode)) {
     return 'gone'
   }
   throw error

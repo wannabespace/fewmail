@@ -198,9 +198,7 @@ export const knownDomains = d.snakeCase.table(
     rank: d.integer(),
     updatedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
-  (table) => [
-    d.primaryKey({ columns: [table.list, table.domain] }),
-  ]
+  (table) => [d.primaryKey({ columns: [table.list, table.domain] })]
 )
 
 /** Spam votes on a message's text fingerprint, so a template stays flagged whichever address sends it next. */

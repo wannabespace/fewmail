@@ -116,10 +116,9 @@ export const moveToSpam = async (
   reason: string,
   t: Messages
 ) => {
-  const done = await changeThreadLabels(userId, message.threadId, SPAM).then(
-    () => true,
-    () => false
-  )
+  const done = await changeThreadLabels(userId, message.threadId, SPAM)
+    .then(() => true)
+    .catch(() => false)
   await db.insert(actions).values({
     autonomous: true,
     kind: 'spam',

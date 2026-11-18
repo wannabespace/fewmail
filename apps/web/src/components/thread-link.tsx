@@ -121,13 +121,14 @@ export const ReaderSidebar = ({
   return (
     <ResizableGroup
       ref={setPanes}
-      // Inline: the group's own style sets it to 100% of its parent.
+      // oxlint-disable shadcn/no-inline-styles -- the group's own inline style sets it to 100% of its parent, which a class cannot beat
       style={{
         height: box.height,
         left: box.left,
         top: box.top,
         width: box.width,
       }}
+      // oxlint-enable shadcn/no-inline-styles
       className="pointer-events-none fixed z-40"
     >
       <ResizablePanel />

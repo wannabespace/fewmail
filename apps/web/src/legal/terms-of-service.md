@@ -44,11 +44,11 @@ Fewmail's source code is available under the [GNU AGPL v3](https://github.com/wa
 
 Free provides mail access, sorting, risk warnings and rules without a subscription. Lite, Pro and Max offer the same agent features with different monthly usage allowances.
 
-| Paid plan | Monthly billing | Yearly billing |
-| --- | --- | --- |
-| Lite | US$5 per month | US$50 per year |
-| Pro | US$10 per month | US$100 per year |
-| Max | US$30 per month | US$300 per year |
+| Paid plan | Monthly billing | Yearly billing  |
+| --------- | --------------- | --------------- |
+| Lite      | US$5 per month  | US$50 per year  |
+| Pro       | US$10 per month | US$100 per year |
+| Max       | US$30 per month | US$300 per year |
 
 Checkout shows the amount and billing interval you agree to, including any applicable taxes or discounts. Stripe processes payment. **Subscriptions renew automatically** for the same interval until canceled. You authorize recurring charges for your selected subscription.
 

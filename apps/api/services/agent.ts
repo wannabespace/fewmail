@@ -318,14 +318,9 @@ const recordRuleAction = async (
     userId: string
   }
 ) => {
-  const done = await applyThreadEffect(
-    message.userId,
-    message,
-    rule.effect
-  ).then(
-    () => true,
-    () => false
-  )
+  const done = await applyThreadEffect(message.userId, message, rule.effect)
+    .then(() => true)
+    .catch(() => false)
   await db.insert(actions).values({
     ...base,
     autonomous: true,
