@@ -91,10 +91,6 @@ export const it: Messages = {
       move_to_inbox: 'Riporta',
     },
   },
-  ask: {
-    label: (question: string) => `Chiedi a Fewmail: «${question}»`,
-    thinking: 'Sto cercando nella tua posta…',
-  },
   compose: {
     attach: 'Allega file',
     attachmentsTooLarge: (limit: string) =>
@@ -809,14 +805,8 @@ export const it: Messages = {
   },
   command: {
     compose: 'Nuova email',
-    agent: 'Agente',
     appearance: 'Aspetto',
-    goTo: 'Vai a',
-    mail: 'Posta',
-    nothingMatches: 'Nessun risultato.',
-    placeholder: 'Chiedi della tua posta o esegui un comando…',
     upgrade: 'Passa a Pro',
-    teachRule: 'Insegna una nuova regola',
     theme: {
       dark: 'Scuro',
       light: 'Chiaro',
@@ -880,7 +870,6 @@ export const it: Messages = {
     reply: 'rispondi',
     snooze: 'posticipa',
     trash: 'cestino',
-    ask: 'chiedi a riguardo',
     archive: 'archivia',
     approve: 'approva',
     approveAll: (n: number) => `approva tutte le ${n} di questo tipo`,
@@ -1126,7 +1115,6 @@ export const it: Messages = {
     mail: 'Posta',
     reading: 'Lettura',
     rules: 'Regole',
-    search: 'Cerca o chiedi…',
     settings: 'Impostazioni',
     syncFailed: 'Sincronizzazione Gmail non riuscita, riprovo',
     syncing: 'Leggo la tua posta…',
@@ -1772,11 +1760,9 @@ export const it: Messages = {
     title: 'Controlla prima di agire',
   },
   upgrade: {
-    ask: 'Chiedi alla tua posta',
     hints: {
       board:
         'Incluso in Fewmail Pro: l’agente annota cosa ti hanno promesso, cosa hai promesso e le scadenze della tua posta, e segue ognuna finché non è chiusa.',
-      ask: 'Incluso in Fewmail Pro: chiedi qualsiasi cosa con parole tue e ricevi la risposta dalla tua posta.',
       drafts:
         'Incluso in Fewmail Pro: l’agente scrive la risposta nel tuo stile, tu la modifichi e la invii.',
     },

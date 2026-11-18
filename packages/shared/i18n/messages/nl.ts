@@ -133,10 +133,6 @@ export const nl: Messages = {
       move_to_inbox: 'Terugzetten',
     },
   },
-  ask: {
-    label: (question: string) => `Vraag Fewmail: “${question}”`,
-    thinking: 'Je mail doorzoeken…',
-  },
   byRule: 'door een regel',
   bulk: {
     badge: (n: number) => `Verstuurd naar ${n}+ Fewmail-gebruikers`,
@@ -374,13 +370,7 @@ export const nl: Messages = {
   },
   command: {
     compose: 'Nieuwe e-mail',
-    agent: 'Agent',
     appearance: 'Weergave',
-    goTo: 'Ga naar',
-    mail: 'Mail',
-    nothingMatches: 'Geen resultaten.',
-    placeholder: 'Vraag iets over je mail of voer een opdracht uit…',
-    teachRule: 'Nieuwe regel aanleren',
     upgrade: 'Overstappen op Pro',
     theme: {
       dark: 'Donker',
@@ -455,7 +445,6 @@ export const nl: Messages = {
     reply: 'beantwoorden',
     snooze: 'uitstellen',
     trash: 'prullenbak',
-    ask: 'ernaar vragen',
     approve: 'goedkeuren',
     approveAll: (n: number) => `alle ${n} van deze soort goedkeuren`,
     archive: 'archiveren',
@@ -696,7 +685,6 @@ export const nl: Messages = {
     mail: 'Mail',
     reading: 'Lezen',
     rules: 'Regels',
-    search: 'Zoek of vraag…',
     settings: 'Instellingen',
     syncFailed: 'Gmail-synchronisatie mislukt, opnieuw proberen',
     syncing: 'Je inbox wordt gelezen…',
@@ -1759,11 +1747,9 @@ export const nl: Messages = {
     codes: 'Inlogcodes',
   },
   upgrade: {
-    ask: 'Vraag het je mail',
     hints: {
       board:
         'Onderdeel van Fewmail Pro: de agent noteert wat jou is beloofd, wat jij hebt beloofd en de deadlines uit je mail, en houdt elk bij tot het klaar is.',
-      ask: 'Onderdeel van Fewmail Pro: vraag alles in je eigen woorden en krijg het antwoord uit je eigen mail.',
       drafts:
         'Onderdeel van Fewmail Pro: de agent schrijft het antwoord in jouw stijl, jij past het aan en verstuurt het.',
     },

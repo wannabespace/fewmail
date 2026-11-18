@@ -134,10 +134,6 @@ export const pt: Messages = {
       move_to_inbox: 'Devolver',
     },
   },
-  ask: {
-    label: (question: string) => `Perguntar ao Fewmail: “${question}”`,
-    thinking: 'Procurando nos seus e-mails…',
-  },
   byRule: 'por uma regra',
   bulk: {
     badge: (n: number) => `Enviado para ${n}+ usuários do Fewmail`,
@@ -375,13 +371,7 @@ export const pt: Messages = {
   },
   command: {
     compose: 'Novo e-mail',
-    agent: 'Agente',
     appearance: 'Aparência',
-    goTo: 'Ir para',
-    mail: 'E-mail',
-    nothingMatches: 'Nada encontrado.',
-    placeholder: 'Pergunte sobre seus e-mails ou execute um comando…',
-    teachRule: 'Ensinar uma nova regra',
     upgrade: 'Assinar o Pro',
     theme: {
       dark: 'Escuro',
@@ -461,7 +451,6 @@ export const pt: Messages = {
     reply: 'responder',
     snooze: 'adiar',
     trash: 'lixeira',
-    ask: 'perguntar sobre ele',
     approve: 'aprovar',
     approveAll: (n: number) => `aprovar as ${n} deste tipo`,
     archive: 'arquivar',
@@ -707,7 +696,6 @@ export const pt: Messages = {
     mail: 'E-mail',
     reading: 'Leitura',
     rules: 'Regras',
-    search: 'Buscar ou perguntar…',
     settings: 'Configurações',
     syncFailed: 'Falha ao sincronizar o Gmail, tentando de novo',
     syncing: 'Lendo sua caixa de entrada…',
@@ -1799,11 +1787,9 @@ export const pt: Messages = {
     codes: 'Códigos de acesso',
   },
   upgrade: {
-    ask: 'Pergunte ao seu e-mail',
     hints: {
       board:
         'Parte do Fewmail Pro: o agente anota o que te prometeram, o que você prometeu e os prazos do seu e-mail, e acompanha cada um até ser concluído.',
-      ask: 'Parte do Fewmail Pro: pergunte o que quiser com suas palavras e receba a resposta dos seus próprios e-mails.',
       drafts:
         'Parte do Fewmail Pro: o agente escreve a resposta no seu estilo, e você edita e envia.',
     },

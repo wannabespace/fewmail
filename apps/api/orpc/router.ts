@@ -59,7 +59,6 @@ import {
   listJournal,
   openToday,
 } from '../services/home'
-import { askFewmail } from '../services/instructions'
 import {
   getTelegramLink,
   getWhatsappLink,
@@ -458,11 +457,6 @@ export const router = {
       ),
   },
 
-  ask: agent
-    .input(type({ question: 'string > 2' }))
-    .handler(({ context, input }) =>
-      askFewmail(context.user.id, input.question)
-    ),
   billing: {
     checkout: authed
       .input(

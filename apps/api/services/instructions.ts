@@ -93,17 +93,6 @@ const understand = async (
   }
 }
 
-/** ⌘K: a question is answered from the mail; anything else goes to the agent, whose approvals wait as cards on Home. */
-export const askFewmail = async (userId: string, text: string) => {
-  await requireBudget(userId)
-  const { intent } = await understand(userId, text)
-  if (intent !== 'question') {
-    const { text: answer, waiting } = await askAgent(userId, text)
-    return { answer, query: null, sources: [], waiting }
-  }
-  return { ...(await askMail(userId, text)), waiting: 0 }
-}
-
 /** A typed or spoken message: a skill or a request run by the agent (its approvals wait on Home), a reply draft, an answer about the mail, or `help` when it is none of them. */
 export const followMessage = async (
   userId: string,
@@ -124,7 +113,7 @@ export const followMessage = async (
     return { skill: await askAgent(userId, text) }
   }
   if (intent === 'question') {
-    return { answer: await askMail(userId, text, true, earlier) }
+    return { answer: await askMail(userId, text, earlier) }
   }
   if (!target) {
     return { help: true as const }

@@ -90,10 +90,6 @@ export const uk: Messages = {
       move_to_inbox: 'Повернути',
     },
   },
-  ask: {
-    label: (question: string) => `Спитати Fewmail: «${question}»`,
-    thinking: 'Шукаю у твоїй пошті…',
-  },
   compose: {
     attach: 'Прикріпити файли',
     attachmentsTooLarge: (limit: string) =>
@@ -806,14 +802,8 @@ export const uk: Messages = {
   },
   command: {
     compose: 'Новий лист',
-    agent: 'Агент',
     appearance: 'Вигляд',
-    goTo: 'Перейти',
-    mail: 'Пошта',
-    nothingMatches: 'Нічого не знайдено.',
-    placeholder: 'Спитай про пошту або введи команду…',
     upgrade: 'Перейти на Pro',
-    teachRule: 'Навчити нового правила',
     theme: {
       dark: 'Темна',
       light: 'Світла',
@@ -877,7 +867,6 @@ export const uk: Messages = {
     reply: 'відповісти',
     snooze: 'відкласти',
     trash: 'у кошик',
-    ask: 'запитати про нього',
     archive: 'архівувати',
     approve: 'схвалити',
     approveAll: (n: number) => `схвалити всі ${n} такі`,
@@ -1115,7 +1104,6 @@ export const uk: Messages = {
     mail: 'Пошта',
     reading: 'Читання',
     rules: 'Правила',
-    search: 'Шукай або питай…',
     settings: 'Налаштування',
     syncFailed: 'Помилка синхронізації Gmail, пробую ще',
     syncing: 'Читаю твою пошту…',
@@ -1784,11 +1772,9 @@ export const uk: Messages = {
     title: 'Перевір, перш ніж діяти',
   },
   upgrade: {
-    ask: 'Запитай пошту',
     hints: {
       board:
         'Входить у Fewmail Pro: агент записує, що тобі пообіцяли, що пообіцяв ти, і останні дні з твоєї пошти, і стежить за кожним, доки його не закрито.',
-      ask: 'Входить у Fewmail Pro: питай що завгодно звичайними словами й отримуй відповідь із власної пошти.',
       drafts:
         'Входить у Fewmail Pro: агент напише відповідь у твоєму стилі, а ти відредагуєш і надішлеш.',
     },

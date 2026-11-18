@@ -84,20 +84,15 @@ export const searchByQuestion = async (
   return { query: queries.at(-1) ?? text, results: [] }
 }
 
-const CITED = [
-  'Cite the emails inline as [n].',
-  'sources: the numbers you cited, in order.',
-]
 const TEXTED = [
   'Write it like a friend texting back: the answer itself in one to three short sentences, no [n] markers, no account numbers or ids, no retelling of email subjects.',
   'sources: the emails the user asked to see (to find, show or list them), else none; they arrive as links under your answer, so do not describe them.',
 ]
 
-/** Ask AI: the question becomes a Gmail search, the writer answers from what it finds, citing [n] unless `texted` (Telegram, WhatsApp). */
+/** Ask AI in Telegram and WhatsApp: the question becomes a Gmail search, the writer answers from what it finds. */
 export const askMail = async (
   userId: string,
   question: string,
-  texted = false,
   earlier: Exchange | null = null
 ) => {
   const settings = await getSettings(userId)
@@ -133,7 +128,7 @@ export const askMail = async (
     instructions: [
       `Answer the user's question about their email in ${englishName(settings?.language ?? 'en')}, briefly and concretely.`,
       'Use only the emails below. Lead with the answer. When they do not state it outright but point to it (a billing period, past charge dates, a renewal notice), give your best estimate and say it is one; only when they say nothing about it, say so plainly.',
-      ...(texted ? TEXTED : CITED),
+      ...TEXTED,
       INFORMAL_ADDRESS,
       NO_EM_DASH,
     ].join('\n'),

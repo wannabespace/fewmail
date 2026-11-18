@@ -269,7 +269,7 @@ export const runConsent = async (
 
 const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu
 
-/** One request to the agent from a messenger or ⌘K: plain text back, every consent left as a card on Home. */
+/** One request to the agent from a messenger: plain text back, every consent left as a card on Home. */
 export const askAgent = async (userId: string, text: string) => {
   await requireBudget(userId)
   const settings = await getSettings(userId)

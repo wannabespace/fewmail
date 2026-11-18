@@ -22,7 +22,7 @@ import { toast } from 'sonner'
 import { useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 
-/** Opened from ⌘K, so it lives outside the menu, which closes first. */
+/** Opened from the account menu, so it lives outside the menu, which closes first. */
 export const clearOutStore = createStore(false)
 
 const SENDER_NAMES_SHOWN = 3

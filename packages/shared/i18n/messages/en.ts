@@ -133,10 +133,6 @@ export const en = {
       move_to_inbox: 'Move to inbox',
     } satisfies Record<ConsentToolName | 'reply', string>,
   },
-  ask: {
-    label: (question: string) => `Ask Fewmail: “${question}”`,
-    thinking: 'Looking through your mail…',
-  },
   bulk: {
     badge: (n: number) => `Sent to ${n}+ Fewmail users`,
     reason: (n: number) => `Mass email: ${n}+ Fewmail users got the same text`,
@@ -369,14 +365,8 @@ export const en = {
     title: 'Reading',
   },
   command: {
-    agent: 'Agent',
     appearance: 'Appearance',
     compose: 'New email',
-    goTo: 'Go to',
-    mail: 'Mail',
-    nothingMatches: 'Nothing matches.',
-    placeholder: 'Ask about your mail or run a command…',
-    teachRule: 'Teach a new rule',
     upgrade: 'Upgrade to Pro',
     theme: {
       dark: 'Dark',
@@ -442,7 +432,6 @@ export const en = {
     skills: 'skills',
     unsubscribe: 'unsubscribe',
     filter: 'filter',
-    ask: 'ask about it',
     approve: 'approve',
     approveAll: (n: number) => `approve all ${n} like this`,
     approvePicked: (n: number) => `approve ${n} picked`,
@@ -693,7 +682,6 @@ export const en = {
     mail: 'Mail',
     reading: 'Reading',
     rules: 'Rules',
-    search: 'Search or ask…',
     settings: 'Settings',
     syncFailed: 'Gmail sync failed, retrying',
     syncing: 'Reading your inbox…',
@@ -1747,9 +1735,7 @@ export const en = {
     codes: 'Sign-in codes',
   },
   upgrade: {
-    ask: 'Ask your mail',
     hints: {
-      ask: 'Part of Fewmail Pro: ask anything in plain words and get the answer from your own mail.',
       drafts:
         'Part of Fewmail Pro: the agent writes the reply in your style, and you edit and send it.',
       board:

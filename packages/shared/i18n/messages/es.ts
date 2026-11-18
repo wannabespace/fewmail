@@ -90,10 +90,6 @@ export const es: Messages = {
       move_to_inbox: 'Devolver',
     },
   },
-  ask: {
-    label: (question: string) => `Preguntar a Fewmail: «${question}»`,
-    thinking: 'Buscando en tu correo…',
-  },
   compose: {
     attach: 'Adjuntar archivos',
     attachmentsTooLarge: (limit: string) =>
@@ -809,14 +805,8 @@ export const es: Messages = {
   },
   command: {
     compose: 'Nuevo correo',
-    agent: 'Agente',
     appearance: 'Apariencia',
-    goTo: 'Ir a',
-    mail: 'Correo',
-    nothingMatches: 'Sin resultados.',
-    placeholder: 'Pregunta por tu correo o ejecuta un comando…',
     upgrade: 'Pasar a Pro',
-    teachRule: 'Enseñar una regla nueva',
     theme: {
       dark: 'Oscuro',
       light: 'Claro',
@@ -885,7 +875,6 @@ export const es: Messages = {
     reply: 'responder',
     snooze: 'posponer',
     trash: 'papelera',
-    ask: 'preguntar sobre él',
     archive: 'archivar',
     approve: 'aprobar',
     approveAll: (n: number) => `aprobar las ${n} de este tipo`,
@@ -1130,7 +1119,6 @@ export const es: Messages = {
     mail: 'Correo',
     reading: 'Lectura',
     rules: 'Reglas',
-    search: 'Busca o pregunta…',
     settings: 'Ajustes',
     syncFailed: 'Falló la sincronización con Gmail, reintentando',
     syncing: 'Leyendo tu bandeja…',
@@ -1780,11 +1768,9 @@ export const es: Messages = {
     title: 'Compruébalo antes de actuar',
   },
   upgrade: {
-    ask: 'Pregunta a tu correo',
     hints: {
       board:
         'Parte de Fewmail Pro: el agente anota lo que te prometieron, lo que prometiste y las fechas límite de tu correo, y sigue cada una hasta que se cumple.',
-      ask: 'Parte de Fewmail Pro: pregunta lo que quieras con tus palabras y obtén la respuesta de tu propio correo.',
       drafts:
         'Parte de Fewmail Pro: el agente escribe la respuesta con tu estilo, y tú la editas y la envías.',
     },

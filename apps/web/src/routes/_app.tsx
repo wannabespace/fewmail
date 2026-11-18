@@ -13,7 +13,7 @@ import {
   useNavigate,
   useRouter,
 } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { CSSProperties } from 'react'
 import { useSubscription } from 'seitu/react'
 import { createWebStorageValue } from 'seitu/web'
@@ -21,7 +21,6 @@ import { toast } from 'sonner'
 import { z } from 'zod/mini'
 
 import { ClearOutDialog } from '~/components/clear-out-dialog'
-import { CommandMenu } from '~/components/command-menu'
 import { ComposeProvider } from '~/components/compose/compose-context'
 import { ConfirmDialog } from '~/components/confirm-dialog'
 import { pageColumn } from '~/components/home-card'
@@ -124,13 +123,6 @@ const AppLayout = () => {
   const { me } = Route.useRouteContext()
   useNewVersionToast()
   useIdentify()
-  const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false)
-  const changeCommandMenu = (isOpen: boolean) => {
-    if (isOpen) {
-      posthog.capture('command_menu_opened')
-    }
-    setIsCommandMenuOpen(isOpen)
-  }
   // A field keeps ⌘Z for its own text.
   useHotkey('Mod+Z', undoLatest, { ignoreInputs: true })
   const navigate = useNavigate()
@@ -179,10 +171,7 @@ const AppLayout = () => {
       <div className="bg-body flex h-dvh">
         {isMobile ? (
           <div className="flex min-w-0 flex-1 flex-col">
-            <MobileBar
-              email={me.user.email}
-              onSearch={() => changeCommandMenu(true)}
-            />
+            <MobileBar email={me.user.email} />
             <PageColumn />
           </div>
         ) : (
@@ -194,10 +183,7 @@ const AppLayout = () => {
               maxSize={SIDEBAR_WIDTH.max}
               onSizeChange={(width) => sidebarWidthStore.set(width)}
             >
-              <Sidebar
-                email={me.user.email}
-                onSearch={() => changeCommandMenu(true)}
-              />
+              <Sidebar email={me.user.email} />
             </ResizablePanel>
             <ResizableSeparator />
             <ResizablePanel className="flex min-w-0 flex-col">
@@ -205,10 +191,6 @@ const AppLayout = () => {
             </ResizablePanel>
           </ResizableGroup>
         )}
-        <CommandMenu
-          open={isCommandMenuOpen}
-          onOpenChange={changeCommandMenu}
-        />
         <UpgradeDialog />
         <ClearOutDialog />
         <ConfirmDialog />

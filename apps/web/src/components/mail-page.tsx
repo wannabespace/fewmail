@@ -2404,7 +2404,7 @@ const useSearchField = ({
     }
     setSearch(value)
   }
-  // Only a query from elsewhere (⌘K, a label, Back) refills the field: refilling it with its own would drop what was typed since.
+  // Only a query from elsewhere (a label, Back) refills the field: refilling it with its own would drop what was typed since.
   const sentRef = useRef(q)
   const onQuery = useEffectEvent((next: string | undefined) => {
     if (next !== sentRef.current) {

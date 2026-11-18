@@ -11,7 +11,6 @@ import {
 } from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
-  AiChat02Icon,
   BubbleChatIcon,
   Cancel01Icon,
   McpServerIcon,
@@ -38,8 +37,8 @@ import { posthog } from '~/lib/posthog'
 import { enablePush, pushStateQuery, pushSupported } from '~/lib/push'
 import { useRanked } from '~/lib/query-client'
 
-/** On Free the first two tell what Pro adds; the messengers need the agent. */
-const HINTS = ['drafts', 'ask', 'messengers', 'mcp', 'push'] as const
+/** On Free the first tells what Pro adds; the messengers need the agent. */
+const HINTS = ['drafts', 'messengers', 'mcp', 'push'] as const
 
 const SLIDE = { duration: 0.15, ease: [0.32, 0.72, 0, 1] } as const
 
@@ -49,7 +48,9 @@ const hintsStore = createWebStorageValue({
   key: 'fewmail.hints',
   schema: z.object({
     // Browsers still hold the retired hints; without them the whole list fails to parse and every dismissed hint comes back.
-    dismissed: z.array(z.enum([...HINTS, 'boards', 'telegram', 'whatsapp'])),
+    dismissed: z.array(
+      z.enum([...HINTS, 'ask', 'boards', 'telegram', 'whatsapp'])
+    ),
   }),
   type: 'localStorage',
 })
@@ -122,26 +123,21 @@ export const ConnectHint = () => {
     }
     return !!publicKey && !push.subscribed && push.permission === 'default'
   }
-  const proTip = (
-    feature: 'ask' | 'drafts',
-    icon: IconSvgElement,
-    title: string
-  ): Hint => ({
-    actions: [
-      {
-        label: t.command.upgrade,
-        onClick: () => posthog.capture('upgrade_hint_clicked', { feature }),
-        render: <Link to="/settings" />,
-      },
-    ],
-    description: t.upgrade.hints[feature],
-    icon,
-    isNeeded: !hasAgent,
-    title,
-  })
   const hints: Record<(typeof HINTS)[number], Hint> = {
-    ask: proTip('ask', AiChat02Icon, t.upgrade.ask),
-    drafts: proTip('drafts', PencilEdit02Icon, t.compose.writeForMe),
+    drafts: {
+      actions: [
+        {
+          label: t.command.upgrade,
+          onClick: () =>
+            posthog.capture('upgrade_hint_clicked', { feature: 'drafts' }),
+          render: <Link to="/settings" />,
+        },
+      ],
+      description: t.upgrade.hints.drafts,
+      icon: PencilEdit02Icon,
+      isNeeded: !hasAgent,
+      title: t.compose.writeForMe,
+    },
     mcp: {
       actions: [{ label: copy.setUp, render: <Link to="/settings" /> }],
       description: t.settings.mcp.description,

@@ -134,10 +134,6 @@ export const ko: Messages = {
       move_to_inbox: '되돌리기',
     },
   },
-  ask: {
-    label: (question: string) => `Fewmail에 묻기: “${question}”`,
-    thinking: '메일을 살펴보는 중…',
-  },
   compose: {
     attach: '파일 첨부',
     attachmentsTooLarge: (limit: string) =>
@@ -242,13 +238,7 @@ export const ko: Messages = {
   },
   command: {
     compose: '새 이메일',
-    agent: '에이전트',
     appearance: '화면',
-    goTo: '이동',
-    mail: '메일',
-    nothingMatches: '일치하는 항목이 없어요.',
-    placeholder: '메일에 대해 묻거나 명령 실행…',
-    teachRule: '새 규칙 가르치기',
     upgrade: 'Pro로 업그레이드',
     theme: {
       dark: '다크',
@@ -313,7 +303,6 @@ export const ko: Messages = {
     reply: '답장',
     snooze: '다시 알림',
     trash: '휴지통',
-    ask: '이것에 대해 묻기',
     archive: '보관',
     approve: '승인',
     approveAll: (n: number) => `같은 종류 ${n}개 모두 승인`,
@@ -552,7 +541,6 @@ export const ko: Messages = {
     mail: '메일',
     reading: '읽을거리',
     rules: '규칙',
-    search: '검색 또는 질문…',
     settings: '설정',
     syncFailed: 'Gmail 동기화 실패, 다시 시도 중',
     syncing: '받은편지함을 읽는 중…',
@@ -1704,11 +1692,9 @@ export const ko: Messages = {
     title: '행동하기 전에 확인하세요',
   },
   upgrade: {
-    ask: '메일에 물어보기',
     hints: {
       board:
         'Fewmail Pro에 포함돼요. 에이전트가 메일에서 받은 약속, 한 약속, 마감일을 적어 두고 끝날 때까지 챙겨요.',
-      ask: 'Fewmail Pro 기능이에요. 평소 말로 무엇이든 물으면 내 메일에서 답을 찾아 줘요.',
       drafts:
         'Fewmail Pro 기능이에요. 에이전트가 내 말투로 답장을 쓰고, 나는 고쳐서 보내기만 하면 돼요.',
     },

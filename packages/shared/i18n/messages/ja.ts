@@ -134,10 +134,6 @@ export const ja: Messages = {
       move_to_inbox: '戻す',
     },
   },
-  ask: {
-    label: (question: string) => `Fewmail に質問：「${question}」`,
-    thinking: 'メールを確認しています…',
-  },
   compose: {
     attach: 'ファイルを添付',
     attachmentsTooLarge: (limit: string) =>
@@ -242,13 +238,7 @@ export const ja: Messages = {
   },
   command: {
     compose: '新規メール',
-    agent: 'エージェント',
     appearance: '表示',
-    goTo: '移動',
-    mail: 'メール',
-    nothingMatches: '一致するものはありません。',
-    placeholder: 'メールについて質問、またはコマンドを実行…',
-    teachRule: '新しいルールを教える',
     upgrade: 'Pro にアップグレード',
     theme: {
       dark: 'ダーク',
@@ -313,7 +303,6 @@ export const ja: Messages = {
     reply: '返信',
     snooze: 'スヌーズ',
     trash: 'ゴミ箱',
-    ask: 'これについて聞く',
     archive: 'アーカイブ',
     approve: '承認',
     approveAll: (n: number) => `同じ種類の${n}件をすべて承認`,
@@ -551,7 +540,6 @@ export const ja: Messages = {
     mail: 'メール',
     reading: 'リーディング',
     rules: 'ルール',
-    search: '検索または質問…',
     settings: '設定',
     syncFailed: 'Gmail の同期に失敗しました。再試行中',
     syncing: '受信トレイを読んでいます…',
@@ -1723,11 +1711,9 @@ export const ja: Messages = {
     title: '対応する前に確認してください',
   },
   upgrade: {
-    ask: 'メールに聞く',
     hints: {
       board:
         'Fewmail Pro に含まれます。エージェントがメールから、あなたへの約束、あなたの約束、期限を書き留め、完了するまで見守ります。',
-      ask: 'Fewmail Pro の機能です。普段の言葉で何でも質問すると、あなた自身のメールから答えが返ってきます。',
       drafts:
         'Fewmail Pro の機能です。エージェントがあなたの文体で返信を書き、あなたが編集して送信します。',
     },

@@ -90,10 +90,6 @@ export const de: Messages = {
       move_to_inbox: 'Verschieben',
     },
   },
-  ask: {
-    label: (question: string) => `Fewmail fragen: „${question}“`,
-    thinking: 'Durchsuche deine Mails…',
-  },
   compose: {
     attach: 'Dateien anhängen',
     attachmentsTooLarge: (limit: string) =>
@@ -806,14 +802,8 @@ export const de: Messages = {
   },
   command: {
     compose: 'Neue E-Mail',
-    agent: 'Agent',
     appearance: 'Darstellung',
-    goTo: 'Gehe zu',
-    mail: 'Mail',
-    nothingMatches: 'Keine Treffer.',
-    placeholder: 'Frag nach deinen Mails oder führe einen Befehl aus…',
     upgrade: 'Auf Pro upgraden',
-    teachRule: 'Neue Regel beibringen',
     theme: {
       dark: 'Dunkel',
       light: 'Hell',
@@ -882,7 +872,6 @@ export const de: Messages = {
     reply: 'antworten',
     snooze: 'zurückstellen',
     trash: 'Papierkorb',
-    ask: 'danach fragen',
     archive: 'archivieren',
     approve: 'freigeben',
     approveAll: (n: number) => `alle ${n} dieser Art freigeben`,
@@ -1126,7 +1115,6 @@ export const de: Messages = {
     mail: 'Mail',
     reading: 'Lesen',
     rules: 'Regeln',
-    search: 'Suchen oder fragen…',
     settings: 'Einstellungen',
     syncFailed: 'Gmail-Sync fehlgeschlagen, neuer Versuch',
     syncing: 'Lese deinen Posteingang…',
@@ -1780,11 +1768,9 @@ export const de: Messages = {
     title: 'Erst prüfen, dann handeln',
   },
   upgrade: {
-    ask: 'Frag deine Mails',
     hints: {
       board:
         'Teil von Fewmail Pro: Der Agent schreibt auf, was dir versprochen wurde, was du versprochen hast und die letzten Tage aus deiner Mail, und behält jedes im Blick, bis es erledigt ist.',
-      ask: 'Teil von Fewmail Pro: Frag alles in eigenen Worten und bekomm die Antwort aus deinen eigenen Mails.',
       drafts:
         'Teil von Fewmail Pro: Der Agent schreibt die Antwort in deinem Stil, du bearbeitest und sendest sie.',
     },

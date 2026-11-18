@@ -375,7 +375,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
 })
 
-/** Everything the agent can do for a user, shared by MCP and the agent's runs (messengers, ⌘K); their access comes from `AGENT_TOOLS`. A write refreshes every open tab, since a tool can touch any part of the app. */
+/** Everything the agent can do for a user, shared by MCP and the agent's runs (messengers); their access comes from `AGENT_TOOLS`. A write refreshes every open tab, since a tool can touch any part of the app. */
 export const agentTools = (userId: string) =>
   Object.fromEntries(
     Object.entries(toolsOf(userId)).map(([name, tool]) => [

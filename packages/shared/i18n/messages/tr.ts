@@ -133,10 +133,6 @@ export const tr: Messages = {
       move_to_inbox: 'Geri taşı',
     },
   },
-  ask: {
-    label: (question: string) => `Fewmail'e sor: “${question}”`,
-    thinking: 'E-postalarına bakılıyor…',
-  },
   byRule: 'bir kuralla',
   bulk: {
     badge: (n: number) => `${n}+ Fewmail kullanıcısına gönderildi`,
@@ -367,13 +363,7 @@ export const tr: Messages = {
   },
   command: {
     compose: 'Yeni e-posta',
-    agent: 'Ajan',
     appearance: 'Görünüm',
-    goTo: 'Git',
-    mail: 'Posta',
-    nothingMatches: 'Eşleşen bir şey yok.',
-    placeholder: 'Postaların hakkında sor veya komut çalıştır…',
-    teachRule: 'Yeni kural öğret',
     upgrade: "Pro'ya geç",
     theme: {
       dark: 'Koyu',
@@ -449,7 +439,6 @@ export const tr: Messages = {
     reply: 'yanıtla',
     snooze: 'ertele',
     trash: 'çöp',
-    ask: 'bunu sor',
     approve: 'onayla',
     approveAll: (n: number) => `bu türdeki ${n} kartın hepsini onayla`,
     archive: 'arşivle',
@@ -689,7 +678,6 @@ export const tr: Messages = {
     mail: 'Posta',
     reading: 'Okuma',
     rules: 'Kurallar',
-    search: 'Ara veya sor…',
     settings: 'Ayarlar',
     syncFailed: 'Gmail eşitlemesi başarısız, yeniden deneniyor',
     syncing: 'Gelen kutun okunuyor…',
@@ -1742,11 +1730,9 @@ export const tr: Messages = {
     codes: 'Giriş kodları',
   },
   upgrade: {
-    ask: 'Postana sor',
     hints: {
       board:
         'Fewmail Pro’ya dahil: ajan e-postandan sana verilen sözleri, senin verdiğin sözleri ve son günleri yazar, her biri tamamlanana kadar takip eder.',
-      ask: "Fewmail Pro'nun parçası: istediğini kendi kelimelerinle sor, yanıtı kendi postalarından al.",
       drafts:
         "Fewmail Pro'nun parçası: ajan yanıtı senin üslubunla yazar, sen düzenleyip gönderirsin.",
     },

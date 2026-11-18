@@ -91,10 +91,6 @@ export const fr: Messages = {
       move_to_inbox: 'Remettre',
     },
   },
-  ask: {
-    label: (question: string) => `Demander à Fewmail : « ${question} »`,
-    thinking: 'Je parcours vos e-mails…',
-  },
   compose: {
     attach: 'Joindre des fichiers',
     attachmentsTooLarge: (limit: string) =>
@@ -815,14 +811,8 @@ export const fr: Messages = {
   },
   command: {
     compose: 'Nouvel e-mail',
-    agent: 'Agent',
     appearance: 'Apparence',
-    goTo: 'Aller à',
-    mail: 'E-mails',
-    nothingMatches: 'Aucun résultat.',
-    placeholder: 'Posez une question sur vos e-mails ou lancez une commande…',
     upgrade: 'Passer à Pro',
-    teachRule: 'Apprendre une nouvelle règle',
     theme: {
       dark: 'Sombre',
       light: 'Clair',
@@ -886,7 +876,6 @@ export const fr: Messages = {
     reply: 'répondre',
     snooze: 'reporter',
     trash: 'corbeille',
-    ask: 'poser une question',
     archive: 'archiver',
     approve: 'approuver',
     approveAll: (n: number) => `approuver les ${n} de ce type`,
@@ -1134,7 +1123,6 @@ export const fr: Messages = {
     mail: 'E-mails',
     reading: 'Lecture',
     rules: 'Règles',
-    search: 'Rechercher ou demander…',
     settings: 'Réglages',
     syncFailed: 'Échec de la synchro Gmail, nouvelle tentative',
     syncing: 'Lecture de votre boîte…',
@@ -1796,11 +1784,9 @@ export const fr: Messages = {
     title: 'Vérifiez avant d’agir',
   },
   upgrade: {
-    ask: 'Interrogez vos e-mails',
     hints: {
       board:
         'Inclus dans Fewmail Pro : l’agent note les promesses qui vous sont faites, vos engagements et les dates limites de vos e-mails, puis les suit jusqu’à leur résolution.',
-      ask: 'Inclus dans Fewmail Pro : posez vos questions avec vos mots et obtenez les réponses à partir de vos propres e-mails.',
       drafts:
         'Inclus dans Fewmail Pro : l’agent rédige la réponse dans votre style, puis vous la modifiez et l’envoyez.',
     },

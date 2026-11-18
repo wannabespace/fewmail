@@ -5,7 +5,6 @@ import {
   AvatarBadge,
   AvatarFallback,
 } from '@fewmail/ui/components/avatar'
-import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   Collapsible,
@@ -31,11 +30,6 @@ import {
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Sheet, SheetContent } from '@fewmail/ui/components/sheet'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@fewmail/ui/components/tooltip'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
 import { cn } from '@fewmail/ui/lib/utils'
 import type { Theme } from '@fewmail/ui/theme-store'
@@ -46,11 +40,13 @@ import {
   ArrowRight01Icon,
   ArrowUp01Icon,
   Calendar03Icon,
+  CleanIcon,
   Clock01Icon,
   ComputerIcon,
   CrownIcon,
   Delete02Icon,
   FileEditIcon,
+  GiftIcon,
   Home01Icon,
   Logout01Icon,
   Mail01Icon,
@@ -59,7 +55,6 @@ import {
   Menu01Icon,
   Moon02Icon,
   PencilEdit02Icon,
-  Search01Icon,
   SentIcon,
   Settings01Icon,
   SpamIcon,
@@ -91,6 +86,7 @@ import type { Settle } from '~/lib/query-client'
 import { SITE_NAME } from '~/lib/seo'
 import { toastDeferred } from '~/lib/undo'
 
+import { clearOutStore } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
 import { SenderAvatar } from './sender-avatar'
@@ -151,12 +147,12 @@ export const NAV_ITEMS = [
 ] as const
 
 /** Google's consent screen lets the user untick Calendar; without any calendar its page is gone everywhere, `G L` included. */
-export const useNavItems = () => {
+const useNavItems = () => {
   const { hasCalendar } = useMe()
   return NAV_ITEMS.filter(({ key }) => key !== 'calendar' || hasCalendar)
 }
 
-export const useGoTo = () => {
+const useGoTo = () => {
   const navigate = useNavigate()
   return (item: (typeof NAV_ITEMS)[number]) => navigate({ to: item.to })
 }
@@ -344,7 +340,7 @@ const RollingCount = ({ flash, value }: { flash?: boolean; value: number }) => {
   )
 }
 
-export const FOLDER_ITEMS = [
+const FOLDER_ITEMS = [
   { folder: 'snoozed', icon: Clock01Icon },
   { folder: 'sent', icon: SentIcon },
   { folder: 'drafts', icon: FileEditIcon },
@@ -643,6 +639,14 @@ const AccountMenu = ({
             {SETTINGS_ITEM.sequence.join(' ')}
           </DropdownMenuShortcut>
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate({ to: '/wrapped' })}>
+          <HugeiconsIcon icon={GiftIcon} strokeWidth={2} />
+          {t.wrapped.title.year}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => clearOutStore.set(true)}>
+          <HugeiconsIcon icon={CleanIcon} strokeWidth={2} />
+          {t.clearOut.title}
+        </DropdownMenuItem>
         {(plan.kind === 'free' || Boolean(plan.trialDaysLeft)) && (
           <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
             <HugeiconsIcon icon={CrownIcon} strokeWidth={2} />
@@ -677,18 +681,17 @@ const AccountMenu = ({
   )
 }
 
-export const Sidebar = ({
-  email,
-  onSearch,
-}: {
-  email: string
-  onSearch: () => void
-}) => {
+export const Sidebar = ({ email }: { email: string }) => {
   const t = useT()
   const hasAgent = useHasAgent()
   const navItems = useNavItems()
   const isModifierHeld = useModifierHold()
+  const navigate = useNavigate()
   const { openCompose } = useCompose()
+  useHotkey('C', () => openCompose())
+  useHotkey(['G', 'B'], () =>
+    navigate({ search: { page: 'board' }, to: '/home' })
+  )
   const pathname = useRouterState({
     select: ({ location }) => location.pathname,
   })
@@ -724,35 +727,14 @@ export const Sidebar = ({
         className="traffic-lights:block hidden h-6 shrink-0"
         data-tauri-drag-region
       />
-      <div className="px-2.5 pb-4">
+      <div className="flex items-center justify-between ps-2.5 pb-3">
         <Logo to="/home" />
-      </div>
-      <div className="mb-3 flex items-center gap-1.5">
-        <Tooltip shortcut={<Kbd>⌘K</Kbd>}>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="outline-muted"
-                className="min-w-0 flex-1 justify-start"
-                onClick={onSearch}
-              />
-            }
-          >
-            <HugeiconsIcon
-              icon={Search01Icon}
-              strokeWidth={2}
-              data-icon="inline-start"
-            />
-            <span className="truncate">{t.nav.search}</span>
-          </TooltipTrigger>
-          <TooltipContent>{t.nav.search}</TooltipContent>
-        </Tooltip>
         <IconButton
           icon={PencilEdit02Icon}
           label={t.command.compose}
           shortcut={<Kbd>C</Kbd>}
-          size="icon"
-          variant="outline-muted"
+          size="icon-sm"
+          variant="ghost-muted"
           onClick={() => openCompose()}
         />
       </div>
@@ -788,13 +770,7 @@ export const Sidebar = ({
 }
 
 /** Below `md` the sidebar lives in a sheet behind a top bar; any navigation closes it. */
-export const MobileBar = ({
-  email,
-  onSearch,
-}: {
-  email: string
-  onSearch: () => void
-}) => {
+export const MobileBar = ({ email }: { email: string }) => {
   const t = useT()
   const { openCompose } = useCompose()
   const [isOpen, setIsOpen] = useState(false)
@@ -814,31 +790,17 @@ export const MobileBar = ({
         onClick={() => setIsOpen(true)}
       />
       <Logo to="/home" />
-      <div className="ml-auto flex items-center gap-1">
-        <IconButton
-          icon={Search01Icon}
-          label={t.nav.search}
-          size="icon"
-          variant="ghost-muted"
-          onClick={onSearch}
-        />
-        <IconButton
-          icon={PencilEdit02Icon}
-          label={t.command.compose}
-          size="icon"
-          variant="ghost-muted"
-          onClick={() => openCompose()}
-        />
-      </div>
+      <IconButton
+        icon={PencilEdit02Icon}
+        label={t.command.compose}
+        size="icon"
+        variant="ghost-muted"
+        className="ml-auto"
+        onClick={() => openCompose()}
+      />
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent aria-label={t.nav.menu} showCloseButton={false}>
-          <Sidebar
-            email={email}
-            onSearch={() => {
-              setIsOpen(false)
-              onSearch()
-            }}
-          />
+          <Sidebar email={email} />
         </SheetContent>
       </Sheet>
     </header>

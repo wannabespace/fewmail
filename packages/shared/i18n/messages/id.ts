@@ -133,10 +133,6 @@ export const id: Messages = {
       move_to_inbox: 'Kembalikan',
     },
   },
-  ask: {
-    label: (question: string) => `Tanya Fewmail: “${question}”`,
-    thinking: 'Menelusuri email kamu…',
-  },
   byRule: 'oleh aturan',
   bulk: {
     badge: (n: number) => `Dikirim ke ${n}+ pengguna Fewmail`,
@@ -368,13 +364,7 @@ export const id: Messages = {
   },
   command: {
     compose: 'Email baru',
-    agent: 'Agen',
     appearance: 'Tampilan',
-    goTo: 'Buka',
-    mail: 'Email',
-    nothingMatches: 'Tidak ada yang cocok.',
-    placeholder: 'Tanya soal email atau jalankan perintah…',
-    teachRule: 'Ajarkan aturan baru',
     upgrade: 'Beralih ke Pro',
     theme: {
       dark: 'Gelap',
@@ -454,7 +444,6 @@ export const id: Messages = {
     reply: 'balas',
     snooze: 'tunda',
     trash: 'buang',
-    ask: 'tanyakan tentang ini',
     approve: 'setujui',
     approveAll: (n: number) => `setujui semua ${n} yang sejenis`,
     archive: 'arsipkan',
@@ -697,7 +686,6 @@ export const id: Messages = {
     mail: 'Email',
     reading: 'Bacaan',
     rules: 'Aturan',
-    search: 'Cari atau tanya…',
     settings: 'Pengaturan',
     syncFailed: 'Sinkronisasi Gmail gagal, mencoba lagi',
     syncing: 'Membaca kotak masukmu…',
@@ -1748,11 +1736,9 @@ export const id: Messages = {
     codes: 'Kode masuk',
   },
   upgrade: {
-    ask: 'Tanya email-mu',
     hints: {
       board:
         'Bagian dari Fewmail Pro: agen mencatat apa yang dijanjikan kepadamu, apa yang kamu janjikan, dan tenggat dari emailmu, lalu memantau masing-masing sampai selesai.',
-      ask: 'Bagian dari Fewmail Pro: tanyakan apa saja dengan kata-katamu sendiri dan dapatkan jawaban dari email-mu.',
       drafts:
         'Bagian dari Fewmail Pro: agen menulis balasan dengan gayamu, lalu kamu edit dan kirim.',
     },

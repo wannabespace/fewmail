@@ -134,10 +134,6 @@ export const hi: Messages = {
       move_to_inbox: 'वापस ले जाएँ',
     },
   },
-  ask: {
-    label: (question: string) => `Fewmail से पूछें: “${question}”`,
-    thinking: 'आपके मेल देखे जा रहे हैं…',
-  },
   compose: {
     attach: 'फ़ाइलें जोड़ें',
     attachmentsTooLarge: (limit: string) => `अटैचमेंट कुल ${limit} तक हो सकते हैं।`,
@@ -245,13 +241,7 @@ export const hi: Messages = {
   },
   command: {
     compose: 'नया ईमेल',
-    agent: 'एजेंट',
     appearance: 'रूप-रंग',
-    goTo: 'यहाँ जाएँ',
-    mail: 'मेल',
-    nothingMatches: 'कुछ नहीं मिला।',
-    placeholder: 'अपने मेल के बारे में पूछें या कोई कमांड चलाएँ…',
-    teachRule: 'नया नियम सिखाएँ',
     upgrade: 'Pro में अपग्रेड करें',
     theme: {
       dark: 'डार्क',
@@ -314,7 +304,6 @@ export const hi: Messages = {
     reply: 'जवाब',
     snooze: 'स्नूज़',
     trash: 'ट्रैश',
-    ask: 'इसके बारे में पूछें',
     archive: 'आर्काइव',
     approve: 'मंज़ूर करें',
     approveAll: (n: number) => `ऐसे सभी ${n} मंज़ूर करें`,
@@ -552,7 +541,6 @@ export const hi: Messages = {
     mail: 'मेल',
     reading: 'पढ़ना',
     rules: 'नियम',
-    search: 'खोजें या पूछें…',
     settings: 'सेटिंग्स',
     syncFailed: 'Gmail सिंक विफल, फिर से कोशिश हो रही है',
     syncing: 'आपका इनबॉक्स पढ़ा जा रहा है…',
@@ -1724,11 +1712,9 @@ export const hi: Messages = {
     title: 'कुछ करने से पहले जाँच लें',
   },
   upgrade: {
-    ask: 'अपने मेल से पूछें',
     hints: {
       board:
         'Fewmail Pro का हिस्सा: एजेंट आपके मेल से लिखता है कि आपसे क्या वादा किया गया, आपने क्या वादा किया और आख़िरी तारीख़ें, और हर एक पर नज़र रखता है जब तक वह पूरा न हो।',
-      ask: 'Fewmail Pro का हिस्सा: अपने शब्दों में कुछ भी पूछें और जवाब अपने ही मेल से पाएँ।',
       drafts:
         'Fewmail Pro का हिस्सा: एजेंट आपकी शैली में जवाब लिखेगा, आप उसे बदलकर भेज दें।',
     },

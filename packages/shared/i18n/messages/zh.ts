@@ -134,10 +134,6 @@ export const zh: Messages = {
       move_to_inbox: '移回',
     },
   },
-  ask: {
-    label: (question: string) => `问 Fewmail：“${question}”`,
-    thinking: '正在查看你的邮件…',
-  },
   compose: {
     attach: '添加附件',
     attachmentsTooLarge: (limit: string) => `附件总大小不能超过 ${limit}。`,
@@ -241,13 +237,7 @@ export const zh: Messages = {
   },
   command: {
     compose: '新邮件',
-    agent: '助手',
     appearance: '外观',
-    goTo: '前往',
-    mail: '邮件',
-    nothingMatches: '没有匹配项。',
-    placeholder: '询问邮件或运行命令…',
-    teachRule: '教一条新规则',
     upgrade: '升级到 Pro',
     theme: {
       dark: '深色',
@@ -309,7 +299,6 @@ export const zh: Messages = {
     reply: '回复',
     snooze: '稍后提醒',
     trash: '删除',
-    ask: '询问这封邮件',
     archive: '归档',
     approve: '批准',
     approveAll: (n: number) => `批准同类的全部 ${n} 项`,
@@ -540,7 +529,6 @@ export const zh: Messages = {
     mail: '邮件',
     reading: '阅读',
     rules: '规则',
-    search: '搜索或提问…',
     settings: '设置',
     syncFailed: 'Gmail 同步失败，正在重试',
     syncing: '正在读取收件箱…',
@@ -1662,11 +1650,9 @@ export const zh: Messages = {
     title: '操作前请先核实',
   },
   upgrade: {
-    ask: '问问你的邮件',
     hints: {
       board:
         'Fewmail Pro 的一部分：助手会从你的邮件里记下别人对你的承诺、你的承诺和截止日期，并跟进每一项直到完成。',
-      ask: 'Fewmail Pro 的功能：用自己的话随便问，答案来自你自己的邮件。',
       drafts: 'Fewmail Pro 的功能：助手用你的风格写好回复，你修改后发送。',
     },
   },

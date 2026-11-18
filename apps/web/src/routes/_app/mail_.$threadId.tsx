@@ -34,7 +34,6 @@ const EmailPage = () => {
         hints={[
           ['R', t.keys.reply],
           ['E', t.keys.archive],
-          ['/', t.keys.ask],
           ['esc', t.keys.close],
         ]}
       />

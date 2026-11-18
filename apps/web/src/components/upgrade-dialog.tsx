@@ -18,7 +18,7 @@ import { useT } from '~/lib/i18n'
 import { useHasAgent } from '~/lib/me'
 import { posthog } from '~/lib/posthog'
 
-type ProFeature = 'ask' | 'board' | 'drafts'
+type ProFeature = 'board' | 'drafts'
 
 /** Free sees every Pro control; using one opens this instead (`domain.md` → Free). */
 export const upgradeStore = createStore<ProFeature | null>(null)
@@ -49,7 +49,6 @@ export const UpgradeDialog = () => {
     setShown(feature)
   }
   const titles = {
-    ask: t.upgrade.ask,
     board: t.nav.board,
     drafts: t.compose.writeForMe,
   }

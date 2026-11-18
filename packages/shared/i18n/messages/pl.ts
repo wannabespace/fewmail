@@ -133,10 +133,6 @@ export const pl: Messages = {
       move_to_inbox: 'Przenieś',
     },
   },
-  ask: {
-    label: (question: string) => `Zapytaj Fewmail: „${question}”`,
-    thinking: 'Przeglądam twoją pocztę…',
-  },
   byRule: 'przez regułę',
   bulk: {
     badge: (n: number) => `Wysłane do ${n}+ użytkowników Fewmail`,
@@ -388,13 +384,7 @@ export const pl: Messages = {
   },
   command: {
     compose: 'Nowy e-mail',
-    agent: 'Agent',
     appearance: 'Wygląd',
-    goTo: 'Przejdź do',
-    mail: 'Poczta',
-    nothingMatches: 'Brak wyników.',
-    placeholder: 'Zapytaj o pocztę lub wpisz polecenie…',
-    teachRule: 'Naucz nowej reguły',
     upgrade: 'Przejdź na Pro',
     theme: {
       dark: 'Ciemny',
@@ -469,7 +459,6 @@ export const pl: Messages = {
     reply: 'odpowiedz',
     snooze: 'odłóż',
     trash: 'kosz',
-    ask: 'zapytaj o niego',
     approve: 'zatwierdź',
     approveAll: (n: number) => `zatwierdź wszystkie ${n} tego typu`,
     archive: 'archiwizuj',
@@ -715,7 +704,6 @@ export const pl: Messages = {
     mail: 'Poczta',
     reading: 'Czytanie',
     rules: 'Reguły',
-    search: 'Szukaj lub zapytaj…',
     settings: 'Ustawienia',
     syncFailed: 'Synchronizacja z Gmailem nie powiodła się, ponawiam',
     syncing: 'Czytam twoją skrzynkę…',
@@ -1827,11 +1815,9 @@ export const pl: Messages = {
     codes: 'Kody logowania',
   },
   upgrade: {
-    ask: 'Zapytaj swoją pocztę',
     hints: {
       board:
         'Część Fewmail Pro: agent zapisuje, co ci obiecano, co ty obiecałeś, i terminy z twojej poczty, i pilnuje każdego, aż się zamknie.',
-      ask: 'Część Fewmail Pro: pytaj o cokolwiek własnymi słowami i dostawaj odpowiedź z własnej poczty.',
       drafts:
         'Część Fewmail Pro: agent napisze odpowiedź w twoim stylu, a ty ją poprawisz i wyślesz.',
     },
