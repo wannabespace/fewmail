@@ -39,10 +39,20 @@ const controlTopsUnder = (toaster: Element, box: Box) => {
       const under = document
         .elementsFromPoint(x, y)
         .find((node) => !toaster.contains(node))
-      const control = under?.closest(CONTROL)?.getBoundingClientRect()
+      const control = under?.closest(CONTROL)
+      // A row's hover buttons wait at opacity 0 yet are still hit: counted, the toast climbed Mail's rows to a gap mid-list.
+      if (
+        !control?.checkVisibility({
+          opacityProperty: true,
+          visibilityProperty: true,
+        })
+      ) {
+        continue
+      }
+      const rect = control.getBoundingClientRect()
       // A row or a field wider than the toast is an area, not a control: counted, Mail's list would never let it sit.
-      if (control && control.width < box.right - box.left) {
-        tops.push(control.top)
+      if (rect.width < box.right - box.left) {
+        tops.push(rect.top)
       }
     }
   }
