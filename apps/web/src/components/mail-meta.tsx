@@ -93,10 +93,11 @@ export const ExtractedChips = ({
         <Tooltip>
           <TooltipTrigger
             render={
+              // A narrow row's meta ends at its right edge: a chip that cannot shrink was cut off at its start.
               <Badge
                 variant="secondary"
                 size={size}
-                className="max-w-48"
+                className="max-w-48 min-w-0 shrink"
                 data-mask
               />
             }

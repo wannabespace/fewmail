@@ -619,7 +619,7 @@ export const retireStaleActions = (
 export const LINK_LIMIT = 40
 export const LINK_TEXT_CHARS = 80
 export const LINK_INSTRUCTIONS =
-  'Pick the one link of this email that does what it asks the user to do: pay a bill, sign a document, renew a subscription, confirm something, or read what it is about. Answer its number and what it does. index is null when no link does that; never a logo, a social profile, an unsubscribe, settings or help link.'
+  'Pick the one link of this email that does what it asks the user to do: pay a bill, sign a document, renew a subscription, confirm something, or read what it is about. Answer its number and what it does. index is null when no link does that, and when the email or its summary reads as phishing or fraud (it presses to confirm account, card or login details, or to pay somewhere new): the button would send the user to the fraudster. Never a logo, a social profile, an unsubscribe, settings or help link.'
 
 const linkSchema = type({
   index: 'number | null',

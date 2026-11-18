@@ -46,7 +46,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
-import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
@@ -132,6 +131,7 @@ import {
   READER_FOLD,
   READER_WIDTH,
   readerWidthStore,
+  useIsReaderCrowded,
   useMailActions,
   useReaderWidthIn,
 } from '~/components/thread-view'
@@ -2573,10 +2573,11 @@ const useReaderWidth = () => {
     { deps: [panes] }
   )
   const readerWidth = useReaderWidthIn(panesWidth)
-  // A phone has no room for the list beside the reader: the reader takes the whole width.
+  const isCrowded = useIsReaderCrowded(panesWidth)
   return {
+    isCrowded,
     panesWidth,
-    readerWidth: useIsMobile() ? panesWidth : readerWidth,
+    readerWidth: isCrowded ? panesWidth : readerWidth,
     setPanes,
   }
 }
@@ -2592,7 +2593,7 @@ const useShownThread = (thread: string | undefined) => {
 
 export const MailPage = ({ folder }: { folder?: Folder }) => {
   const t = useT()
-  const { panesWidth, readerWidth, setPanes } = useReaderWidth()
+  const { isCrowded, panesWidth, readerWidth, setPanes } = useReaderWidth()
   const hasAgent = useHasAgent()
   const { filter: picked, mailbox, q, thread } = useSearch({ strict: false })
   const shownThread = useShownThread(thread)
@@ -2916,7 +2917,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   return (
     <ResizableGroup ref={setPanes} className="under-notice flex min-h-0 flex-1">
       <ResizablePanel
-        className={cn('flex min-w-0', { 'max-md:hidden': thread })}
+        className={cn('flex min-w-0', { hidden: thread && isCrowded })}
       >
         <section
           aria-label={t.nav.mail}

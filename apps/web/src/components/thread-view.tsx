@@ -46,6 +46,7 @@ import {
   PopoverTrigger,
 } from '@fewmail/ui/components/popover'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
+import { useIsMobile } from '@fewmail/ui/hooks/use-is-mobile'
 import { cn } from '@fewmail/ui/lib/utils'
 import { useResolvedTheme } from '@fewmail/ui/theme-store'
 import type { ResolvedTheme } from '@fewmail/ui/theme-store'
@@ -141,6 +142,14 @@ export const useReaderWidthIn = (spaceWidth: number) => {
       )
     : remembered
 }
+
+/** Less than this beside the reader's narrowest and the page is unreadable: Mail's list was `q…` rows at 800px. */
+const BESIDE_READER_MIN = 320
+
+/** A phone, or a window with no readable room beside the reader: the reader then takes the whole width, over the page. */
+export const useIsReaderCrowded = (spaceWidth: number) =>
+  useIsMobile() ||
+  (spaceWidth > 0 && spaceWidth - READER_WIDTH.min < BESIDE_READER_MIN)
 
 /** How the reader opens and shuts, on Mail beside its list and in every other page's sidebar: `motion-panels`' own fold, the email riding in from 24px off its edge with no fade, so a click lands on readable text at once. */
 export const READER_FOLD = {

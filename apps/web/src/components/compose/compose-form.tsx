@@ -127,6 +127,13 @@ export const ComposeForm = ({
     setEdits((count) => count + 1)
     setIsSaved(false)
   }
+  // A reply opens with its To, Cc and Re: subject filled in: those alone are no draft.
+  const isUntouched = () =>
+    attachments.length === 0 &&
+    !body.current.text.trim() &&
+    subject.trim() === draft.subject.trim() &&
+    to.trim() === draft.to.join(', ') &&
+    cc.trim() === draft.cc.join(', ')
 
   const save = useEffectEvent(() => {
     const mail = {
@@ -142,11 +149,7 @@ export const ComposeForm = ({
       subject,
       to: parseRecipients(to).filter(isValid),
     }
-    const isBlank =
-      !mail.subject.trim() &&
-      mail.to.length === 0 &&
-      !mail.text.trim() &&
-      mail.attachments.length === 0
+    const isBlank = isUntouched()
     const uploaded = new Set(
       mail.attachments.filter(({ data }) => data).map(({ id }) => id)
     )
@@ -231,10 +234,7 @@ export const ComposeForm = ({
 
   const discard = () => {
     isLeaving.current = true
-    if (
-      attachments.length === 0 &&
-      ![to, cc, subject, body.current.text].some((text) => text.trim())
-    ) {
+    if (isUntouched()) {
       onDone()
       void saving.current.then(removeDraft)
       return

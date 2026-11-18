@@ -1060,6 +1060,10 @@ const kindsOf = (t: Messages, queue: QueueItem[]) =>
     }
   })
 
+/** A line breaks only between parts and never starts with the dot: "з / датою: 4" read as two facts. */
+const leadOf = (parts: string[]) =>
+  parts.map((part) => part.replaceAll(' ', '\u00A0')).join('\u00A0· ')
+
 /** Home's important cards as one card, opened over Home's column (`Q`, `?page=look`): what they ask and the first few. */
 const LookCard = ({ queue }: { queue: QueueItem[] }) => {
   const t = useT()
@@ -1069,9 +1073,9 @@ const LookCard = ({ queue }: { queue: QueueItem[] }) => {
   return (
     <HomeCard
       heading={t.today.needsLook}
-      lead={kindsOf(t, queue)
-        .map(({ count, label }) => `${label} ${count}`)
-        .join(' · ')}
+      lead={leadOf(
+        kindsOf(t, queue).map(({ count, label }) => `${label} ${count}`)
+      )}
       page="look"
       rows={queue.map(cardRowOf)}
     />
@@ -1106,16 +1110,18 @@ const LaterCard = ({
   if (!today || laterCountOf(cards, today) === 0) {
     return null
   }
-  const lead = [
-    ...kindsOf(t, cards).map(({ count, label }) => `${label} ${count}`),
-    today.recent.length > 0 && `${t.today.worthKnowing} ${today.recent.length}`,
-    today.dates.length > 0 && t.today.worth.dated(today.dates.length),
-    today.awaiting.length > 0 && t.today.worth.awaiting(today.awaiting.length),
-    today.newSenders.length > 0 &&
-      `${t.today.newSender.label} ${today.newSenders.length}`,
-  ]
-    .filter((part) => typeof part === 'string')
-    .join(' · ')
+  const lead = leadOf(
+    [
+      ...kindsOf(t, cards).map(({ count, label }) => `${label} ${count}`),
+      today.recent.length > 0 &&
+        `${t.today.worthKnowing} ${today.recent.length}`,
+      today.dates.length > 0 && t.today.worth.dated(today.dates.length),
+      today.awaiting.length > 0 &&
+        t.today.worth.awaiting(today.awaiting.length),
+      today.newSenders.length > 0 &&
+        `${t.today.newSender.label} ${today.newSenders.length}`,
+    ].filter((part) => typeof part === 'string')
+  )
   const rows: HomeCardRow[] = [
     ...cards.map(cardRowOf),
     ...[...today.recent, ...today.dates].map(({ analysis, message }) => ({

@@ -42,7 +42,7 @@ export const listRuleOffers = async (userId: string) => {
   return untouched.filter(({ effect }) => isGmailEffect(effect))
 }
 
-const sameText = (a: string, b: string) =>
+export const sameText = (a: string, b: string) =>
   a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase()
 
 export const updateRule = async (

@@ -194,6 +194,7 @@ export const NoticeBar = () => {
   })
   const openThread = (kind: string, threadId: string | null) => () => {
     posthog.capture('banner_opened', { kind })
+    setIsExpanded(false)
     void (threadId
       ? navigate({ params: { threadId }, to: '/mail/$threadId' })
       : navigate({ to: '/home' }))

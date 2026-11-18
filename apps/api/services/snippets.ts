@@ -3,6 +3,7 @@ import { snippets } from '@fewmail/db/schema'
 import { and, eq } from 'drizzle-orm'
 
 import { expectRow } from '../lib/rows'
+import { sameText } from './rules'
 
 export const listSnippets = async (userId: string) => {
   const rows = await db
@@ -16,11 +17,15 @@ export const saveSnippet = async (
   userId: string,
   input: { html: string; id?: string; name: string }
 ) => {
-  if (input.id) {
+  // `;name` inserts one snippet: a second one of the same name could never be picked.
+  const existing = await listSnippets(userId)
+  const id =
+    input.id ?? existing.find(({ name }) => sameText(name, input.name))?.id
+  if (id) {
     const [updated] = await db
       .update(snippets)
       .set({ html: input.html, name: input.name })
-      .where(and(eq(snippets.id, input.id), eq(snippets.userId, userId)))
+      .where(and(eq(snippets.id, id), eq(snippets.userId, userId)))
       .returning()
     return expectRow(updated)
   }

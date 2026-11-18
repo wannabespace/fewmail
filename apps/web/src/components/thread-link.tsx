@@ -20,6 +20,7 @@ import {
   READER_WIDTH,
   ThreadView,
   readerWidthStore,
+  useIsReaderCrowded,
   useReaderWidthIn,
 } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
@@ -68,8 +69,7 @@ const useSidebarBox = () => {
 }
 
 /** The page makes room for the email as wide as it is on screen, so it follows every frame of a fold and a drag. */
-const useMakeRoom = (panes: HTMLElement | null) => {
-  const isMobile = useIsMobile()
+const useMakeRoom = (panes: HTMLElement | null, isCrowded: boolean) => {
   useEffect(() => {
     const fill = panes?.querySelector<HTMLElement>('[data-motion-panels-fill]')
     if (!panes || !fill) {
@@ -77,8 +77,8 @@ const useMakeRoom = (panes: HTMLElement | null) => {
     }
     let lastRoom = 0
     const observer = new ResizeObserver(() => {
-      // A phone has no room beside the page: the email covers it.
-      const room = isMobile
+      // With no room beside the page (a phone, a narrow window) the email covers it.
+      const room = isCrowded
         ? 0
         : panes.getBoundingClientRect().width -
           fill.getBoundingClientRect().width
@@ -96,7 +96,7 @@ const useMakeRoom = (panes: HTMLElement | null) => {
     })
     observer.observe(fill)
     return () => observer.disconnect()
-  }, [isMobile, panes])
+  }, [isCrowded, panes])
 }
 
 /**
@@ -114,10 +114,10 @@ export const ReaderSidebar = ({
   isOpen: boolean
 }) => {
   const box = useSidebarBox()
-  const isMobile = useIsMobile()
+  const isCrowded = useIsReaderCrowded(box.width)
   const readerWidth = useReaderWidthIn(box.width)
   const [panes, setPanes] = useState<HTMLElement | null>(null)
-  useMakeRoom(panes)
+  useMakeRoom(panes, isCrowded)
   return (
     <ResizableGroup
       ref={setPanes}
@@ -138,7 +138,7 @@ export const ReaderSidebar = ({
         collapsed={!isOpen || box.width === 0}
         {...READER_FOLD}
         keepMounted={false}
-        size={isMobile ? box.width : readerWidth}
+        size={isCrowded ? box.width : readerWidth}
         minSize={READER_WIDTH.min}
         maxSize={READER_WIDTH.max}
         onSizeChange={(width: number) => readerWidthStore.set(width)}

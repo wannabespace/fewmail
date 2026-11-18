@@ -1651,7 +1651,7 @@ export const uk: Messages = {
       cancelled: 'скасовано',
       fulfilled: 'зроблено',
       in_progress: 'у процесі',
-      open: 'чекаю',
+      open: 'чекає',
       overdue: 'прострочено',
     },
     by: (date: string) => `до ${date}`,
