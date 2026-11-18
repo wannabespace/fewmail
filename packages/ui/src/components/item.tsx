@@ -33,8 +33,11 @@ const ItemSeparator = ({
 const smallItemInsetClassName = 'px-3.5'
 const smallItemBleedClassName = 'md:-mx-3.5'
 
+// A card clips its rows at its rounded corners, which cut an outer ring and the corners of an inset one: a row in a card rings on this layer instead, as round as the card.
+const groupedRowRingClassName = `relative after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:ring-inset`
+
 const itemVariants = cva(
-  `group/item focus-visible:focus-ring [a,button]:hover:bg-accent [a]:text-foreground flex w-full flex-wrap items-center rounded-2xl border text-sm transition-colors duration-100 outline-none [a]:transition-colors [button]:cursor-pointer [button]:text-left`,
+  `group/item [a,button]:hover:bg-accent [a]:text-foreground flex w-full flex-wrap items-center rounded-2xl border text-sm transition-colors duration-100 outline-none [a]:transition-colors [button]:cursor-pointer [button]:text-left`,
   {
     defaultVariants: {
       size: 'default',
@@ -50,11 +53,11 @@ const itemVariants = cva(
         compact: 'gap-2 py-2 pr-2.5 pl-1.5',
       },
       variant: {
-        card: `bg-popover ring-foreground/4 [a]:hover:ring-foreground/12 border-transparent shadow-xs ring [a]:transition-[color,background-color,box-shadow]`,
-        default: 'border-transparent',
-        grouped: `border-foreground/6 data-active:bg-accent rounded-none border-0 border-b last:border-b-0`,
-        muted: 'bg-muted/50 border-transparent',
-        outline: 'border-border',
+        card: `focus-visible:focus-ring bg-popover ring-foreground/4 [a]:hover:ring-foreground/12 border-transparent shadow-xs ring [a]:transition-[color,background-color,box-shadow]`,
+        default: 'focus-visible:focus-ring border-transparent',
+        grouped: `${groupedRowRingClassName} focus-visible:after:focus-ring border-foreground/6 data-active:bg-accent rounded-none border-0 border-b last:border-b-0`,
+        muted: 'focus-visible:focus-ring bg-muted/50 border-transparent',
+        outline: 'focus-visible:focus-ring border-border',
       },
     },
   }
@@ -190,6 +193,7 @@ export {
   ItemMedia,
   ItemSeparator,
   ItemTitle,
+  groupedRowRingClassName,
   smallItemBleedClassName,
   smallItemInsetClassName,
 }

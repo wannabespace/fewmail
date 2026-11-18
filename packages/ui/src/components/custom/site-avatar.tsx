@@ -18,7 +18,7 @@ export const SiteAvatar = ({
     size={size}
     className="overflow-hidden rounded-md after:rounded-md data-[size=xs]:rounded-sm data-[size=xs]:after:rounded-sm"
   >
-    {src && <AvatarImage alt="" className="rounded-none" src={src} />}
+    {src && <AvatarImage alt="" className="rounded-none p-px" src={src} />}
     <AvatarFallback data-mask className="rounded-none font-medium">
       {name[0]?.toUpperCase()}
     </AvatarFallback>

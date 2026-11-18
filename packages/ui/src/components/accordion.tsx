@@ -1,6 +1,9 @@
 import { Accordion as AccordionPrimitive } from '@base-ui/react/accordion'
 import { cardClass } from '@fewmail/ui/components/card.utils'
-import { smallItemBleedClassName } from '@fewmail/ui/components/item'
+import {
+  groupedRowRingClassName,
+  smallItemBleedClassName,
+} from '@fewmail/ui/components/item'
 import { cn } from '@fewmail/ui/lib/utils'
 import { ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -89,13 +92,15 @@ const AccordionTrigger = ({
       className={cn(
         'flex',
         variant === 'list' &&
-          'group-data-active/accordion-item:bg-accent hover:bg-accent'
+          `${groupedRowRingClassName} group-data-active/accordion-item:bg-accent hover:bg-accent has-[[data-slot=accordion-trigger]:focus-visible]:after:focus-ring`
       )}
     >
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          `group/accordion-trigger focus-visible:focus-ring relative flex min-w-0 flex-1 border border-transparent text-left transition-all outline-none focus-visible:ring-inset aria-disabled:pointer-events-none aria-disabled:opacity-50`,
+          `group/accordion-trigger relative flex min-w-0 flex-1 border border-transparent text-left transition-all outline-none aria-disabled:pointer-events-none aria-disabled:opacity-50`,
+          variant !== 'list' &&
+            'focus-visible:focus-ring focus-visible:ring-inset',
           variant === 'cards' &&
             'cursor-pointer items-center gap-3 rounded-2xl px-4.5 py-4',
           variant === 'list' &&
