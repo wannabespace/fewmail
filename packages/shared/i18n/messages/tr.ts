@@ -645,6 +645,7 @@ export const tr: Messages = {
     search: 'Ara ya da anlat',
     openInGmail: "Gmail'de aç",
     collapseFullPage: 'Listeye dön',
+    openInNewTab: 'Yeni sekmede aç',
     unsubscribe: 'Abonelikten çık',
     unsubscribed: 'Abonelikten çıkıldı',
     unsubscribeFailed:

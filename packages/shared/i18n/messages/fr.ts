@@ -1090,6 +1090,7 @@ export const fr: Messages = {
     search: 'Recherchez ou décrivez',
     openInGmail: 'Ouvrir dans Gmail',
     collapseFullPage: 'Revenir à la liste',
+    openInNewTab: 'Ouvrir dans un nouvel onglet',
     unsubscribe: 'Se désabonner',
     unsubscribed: 'Désabonné',
     unsubscribeFailed:

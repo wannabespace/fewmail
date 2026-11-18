@@ -507,6 +507,7 @@ export const hi: Messages = {
     open: 'खोलें',
     openInGmail: 'Gmail में खोलें',
     collapseFullPage: 'सूची पर वापस जाएँ',
+    openInNewTab: 'नए टैब में खोलें',
     search: 'खोजें या बताएँ',
     unsubscribe: 'अनसब्सक्राइब करें',
     unsubscribed: 'अनसब्सक्राइब हो गया',

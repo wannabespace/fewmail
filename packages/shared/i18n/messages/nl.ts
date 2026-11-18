@@ -652,6 +652,7 @@ export const nl: Messages = {
     search: 'Zoek of beschrijf',
     openInGmail: 'Openen in Gmail',
     collapseFullPage: 'Terug naar de lijst',
+    openInNewTab: 'Openen in nieuw tabblad',
     unsubscribe: 'Afmelden',
     unsubscribed: 'Afgemeld',
     unsubscribeFailed:

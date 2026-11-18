@@ -497,6 +497,7 @@ export const zh: Messages = {
     open: '打开',
     openInGmail: '在 Gmail 中打开',
     collapseFullPage: '返回列表',
+    openInNewTab: '在新标签页中打开',
     search: '搜索或描述',
     unsubscribe: '退订',
     unsubscribed: '已退订',

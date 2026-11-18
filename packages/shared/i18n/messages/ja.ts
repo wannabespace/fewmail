@@ -508,6 +508,7 @@ export const ja: Messages = {
     open: '開く',
     openInGmail: 'Gmail で開く',
     collapseFullPage: 'リストに戻る',
+    openInNewTab: '新しいタブで開く',
     search: '検索または説明',
     unsubscribe: '配信停止',
     unsubscribed: '配信を停止しました',

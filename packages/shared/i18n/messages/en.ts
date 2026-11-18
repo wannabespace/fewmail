@@ -644,6 +644,7 @@ export const en = {
     open: 'Open',
     openInGmail: 'Open in Gmail',
     collapseFullPage: 'Back to the list',
+    openInNewTab: 'Open in a new tab',
     search: 'Search or describe',
     unsubscribe: 'Unsubscribe',
     unsubscribed: 'Unsubscribed',

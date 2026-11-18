@@ -58,6 +58,7 @@ import {
   Clock01Icon,
   Delete02Icon,
   InboxDownloadIcon,
+  LinkSquare02Icon,
   Mail01Icon,
   MailOpenIcon,
   MailReply01Icon,
@@ -69,6 +70,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { isToday } from 'date-fns'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
@@ -1572,12 +1574,14 @@ const ReaderHeader = ({
   isFullPage,
   note,
   onClose,
+  threadId,
   title,
 }: {
   children?: ReactNode
   isFullPage?: boolean
   note?: ReactNode
   onClose: () => void
+  threadId?: string
   /** `null` while the email loads. */
   title: ReactNode
 }) => {
@@ -1594,6 +1598,22 @@ const ReaderHeader = ({
           >
             {title}
           </p>
+          {threadId && !isFullPage && (
+            <IconButton
+              icon={LinkSquare02Icon}
+              label={t.mail.openInNewTab}
+              size="icon-sm"
+              variant="ghost-muted"
+              render={
+                <Link
+                  to="/mail/$threadId"
+                  params={{ threadId }}
+                  target="_blank"
+                  aria-label={t.mail.openInNewTab}
+                />
+              }
+            />
+          )}
           <IconButton
             icon={isFullPage ? ArrowShrink01Icon : Cancel01Icon}
             label={isFullPage ? t.mail.collapseFullPage : t.mail.close}
@@ -1718,7 +1738,12 @@ export const ThreadView = ({
     return (
       <article className="flex min-h-0 flex-1 flex-col">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-8 pb-8 max-md:px-4">
-          <ReaderHeader title={null} isFullPage={isFullPage} onClose={onClose}>
+          <ReaderHeader
+            title={null}
+            isFullPage={isFullPage}
+            threadId={threadId}
+            onClose={onClose}
+          >
             <div className="flex gap-2">
               <Skeleton className="h-7 w-20 rounded-lg" />
               <Skeleton className="h-7 w-24 rounded-lg" />
@@ -1747,6 +1772,7 @@ export const ThreadView = ({
             note={<ThreadPeople thread={data} />}
             title={subject}
             isFullPage={isFullPage}
+            threadId={threadId}
             onClose={onClose}
           >
             {target && (

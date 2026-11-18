@@ -507,6 +507,7 @@ export const ko: Messages = {
     open: '열기',
     openInGmail: 'Gmail에서 열기',
     collapseFullPage: '목록으로 돌아가기',
+    openInNewTab: '새 탭에서 열기',
     search: '검색하거나 설명하세요',
     unsubscribe: '구독 취소',
     unsubscribed: '구독을 취소했어요',
