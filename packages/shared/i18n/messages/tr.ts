@@ -266,6 +266,8 @@ export const tr: Messages = {
     left: (emails: string) => `Gelen kutusunda ${emails} kalacak`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} ve ${more} tane daha` : names,
+    ready: (emails: string) => `${emails} temizlenebilir`,
+    review: 'İncele',
     run: (emails: string) => `${emails} temizle`,
     safe: 'Hiçbir şey silinmez. Temizlenen e-postalar Fewmail/Cleared etiketiyle arşive gider ve tek tıkla geri gelir; bültenlerden aboneliğin de iptal edilir.',
     scanning:

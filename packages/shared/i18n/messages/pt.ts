@@ -271,6 +271,8 @@ export const pt: Messages = {
     left: (emails: string) => `Ficam ${emails} na caixa de entrada`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} e mais ${more}` : names,
+    ready: (emails: string) => `Dá para tirar ${emails}`,
+    review: 'Revisar',
     run: (emails: string) => `Limpar ${emails}`,
     safe: 'Nada é apagado. Os e-mails limpos vão para o arquivo com o marcador Fewmail/Cleared e voltam com um clique; das newsletters você também sai.',
     scanning: 'Leio toda a caixa de entrada, só os cabeçalhos. Até um minuto.',

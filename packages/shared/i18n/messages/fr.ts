@@ -1707,6 +1707,8 @@ export const fr: Messages = {
     left: (emails: string) => `${emails} restent dans la boîte de réception`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} et ${more} autres` : names,
+    ready: (emails: string) => `${emails} peuvent partir`,
+    review: 'Voir',
     run: (emails: string) => `Ranger ${emails}`,
     safe: 'Rien n’est supprimé. Les e-mails rangés sont archivés avec le libellé Fewmail/Cleared et reviennent en un clic ; les abonnements aux newsletters concernées sont aussi résiliés.',
     scanning:

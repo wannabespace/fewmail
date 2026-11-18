@@ -270,6 +270,8 @@ export const nl: Messages = {
     left: (emails: string) => `${emails} blijven in de inbox`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} en nog ${more}` : names,
+    ready: (emails: string) => `${emails} kunnen weg`,
+    review: 'Bekijken',
     run: (emails: string) => `${emails} opruimen`,
     safe: 'Er wordt niets verwijderd. Opgeruimde mail gaat naar het archief met het label Fewmail/Cleared en komt met één klik terug; van nieuwsbrieven word je ook afgemeld.',
     scanning: 'Ik lees de hele inbox, alleen de kopregels. Tot een minuut.',

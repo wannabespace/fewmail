@@ -1693,6 +1693,8 @@ export const es: Messages = {
     left: (emails: string) => `Quedan ${emails} en la bandeja`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} y ${more} más` : names,
+    ready: (emails: string) => `Se pueden quitar ${emails}`,
+    review: 'Revisar',
     run: (emails: string) => `Limpiar ${emails}`,
     safe: 'No se borra nada. El correo limpiado se archiva con la etiqueta Fewmail/Cleared y vuelve con un clic; además, te das de baja de los boletines.',
     scanning: 'Leo toda la bandeja, solo los encabezados. Hasta un minuto.',

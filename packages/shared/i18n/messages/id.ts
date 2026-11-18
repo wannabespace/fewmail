@@ -269,6 +269,8 @@ export const id: Messages = {
     left: (emails: string) => `${emails} tetap di kotak masuk`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} dan ${more} lainnya` : names,
+    ready: (emails: string) => `${emails} bisa dibereskan`,
+    review: 'Lihat',
     run: (emails: string) => `Bersihkan ${emails}`,
     safe: 'Tidak ada yang dihapus. Email yang dibersihkan diarsipkan dengan label Fewmail/Cleared dan kembali dengan satu klik; langganan newsletter juga dihentikan.',
     scanning:

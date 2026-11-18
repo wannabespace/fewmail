@@ -1692,6 +1692,8 @@ export const de: Messages = {
     left: (emails: string) => `${emails} bleiben im Posteingang`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} und ${more} weitere` : names,
+    ready: (emails: string) => `${emails} können weg`,
+    review: 'Ansehen',
     run: (emails: string) => `${emails} aufräumen`,
     safe: 'Nichts wird gelöscht. Aufgeräumte E-Mails landen im Archiv mit dem Label Fewmail/Cleared und kommen mit einem Klick zurück; Newsletter werden zusätzlich abbestellt.',
     scanning:

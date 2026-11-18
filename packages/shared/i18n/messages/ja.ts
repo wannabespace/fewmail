@@ -1637,6 +1637,8 @@ export const ja: Messages = {
     left: (emails: string) => `受信トレイに残るのは${emails}`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} ほか${more}件` : names,
+    ready: (emails: string) => `${emails}を片付けられます`,
+    review: '確認する',
     run: (emails: string) => `${emails}を片付ける`,
     safe: '何も削除されません。片付けたメールは Fewmail/Cleared ラベル付きでアーカイブされ、ワンクリックで戻せます。メルマガは配信停止もします。',
     scanning: '受信トレイ全体をヘッダーだけ読み込んでいます。最大1分。',

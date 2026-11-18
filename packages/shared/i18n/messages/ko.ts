@@ -1618,6 +1618,8 @@ export const ko: Messages = {
     left: (emails: string) => `받은편지함에 남는 메일: ${emails}`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} 외 ${more}개` : names,
+    ready: (emails: string) => `정리 가능: ${emails}`,
+    review: '보기',
     run: (emails: string) => `${emails} 정리`,
     safe: '아무것도 삭제하지 않아요. 정리한 메일은 Fewmail/Cleared 라벨로 보관되고 한 번에 되돌릴 수 있어요. 뉴스레터는 구독도 해지해요.',
     scanning: '받은편지함 전체를 헤더만 읽고 있어요. 최대 1분.',

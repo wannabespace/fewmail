@@ -30,6 +30,7 @@ import {
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Sheet, SheetContent } from '@fewmail/ui/components/sheet'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
 import { cn } from '@fewmail/ui/lib/utils'
 import type { Theme } from '@fewmail/ui/theme-store'
@@ -66,7 +67,12 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useIsFetching,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import {
   Link,
   useNavigate,
@@ -86,7 +92,7 @@ import type { Settle } from '~/lib/query-client'
 import { SITE_NAME } from '~/lib/seo'
 import { toastDeferred } from '~/lib/undo'
 
-import { clearOutStore } from './clear-out-dialog'
+import { openClearOut } from './clear-out-dialog'
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
 import { SenderAvatar } from './sender-avatar'
@@ -506,6 +512,26 @@ const NavLink = ({
   )
 }
 
+const ClearOutRow = () => {
+  const t = useT()
+  const isScanning =
+    useIsFetching({ queryKey: orpc.subscriptions.scanClearOut.queryKey() }) > 0
+
+  return (
+    <button
+      type="button"
+      className={NAV_ROW}
+      onClick={() => {
+        void openClearOut()
+      }}
+    >
+      <HugeiconsIcon icon={CleanIcon} strokeWidth={2} />
+      <span className="flex-1 text-left">{t.clearOut.title}</span>
+      {isScanning && <Spinner />}
+    </button>
+  )
+}
+
 const THEME_ICONS = {
   dark: Moon02Icon,
   light: Sun03Icon,
@@ -643,10 +669,6 @@ const AccountMenu = ({
           <HugeiconsIcon icon={GiftIcon} strokeWidth={2} />
           {t.wrapped.title.year}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => clearOutStore.set(true)}>
-          <HugeiconsIcon icon={CleanIcon} strokeWidth={2} />
-          {t.clearOut.title}
-        </DropdownMenuItem>
         {(plan.kind === 'free' || Boolean(plan.trialDaysLeft)) && (
           <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
             <HugeiconsIcon icon={CrownIcon} strokeWidth={2} />
@@ -764,6 +786,7 @@ export const Sidebar = ({ email }: { email: string }) => {
           ))}
         <People />
       </div>
+      <ClearOutRow />
       <AccountMenu email={email} mailboxes={mailboxes} />
     </nav>
   )

@@ -1684,6 +1684,8 @@ export const it: Messages = {
     left: (emails: string) => `Restano ${emails} nella posta in arrivo`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} e altre ${more}` : names,
+    ready: (emails: string) => `Si possono togliere ${emails}`,
+    review: 'Rivedi',
     run: (emails: string) => `Togli ${emails}`,
     safe: 'Non si cancella nulla. Le email tolte vanno in archivio con l’etichetta Fewmail/Cleared e tornano con un clic; dalle newsletter ti disiscrivo anche.',
     scanning:

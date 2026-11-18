@@ -317,6 +317,8 @@ export const en = {
     left: (emails: string) => `${emails} stay in the inbox`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} and ${more} more` : names,
+    ready: (emails: string) => `${emails} can go`,
+    review: 'Review',
     run: (emails: string) => `Clear out ${emails}`,
     safe: 'Nothing is deleted. Cleared mail is archived under the Fewmail/Cleared label and comes back in one click; lists are also unsubscribed.',
     scanning: 'Reading the whole inbox, headers only. Up to a minute.',

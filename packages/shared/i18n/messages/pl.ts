@@ -283,6 +283,8 @@ export const pl: Messages = {
     left: (emails: string) => `W skrzynce zostanie: ${emails}`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} i jeszcze ${more}` : names,
+    ready: (emails: string) => `Można uprzątnąć ${emails}`,
+    review: 'Przejrzyj',
     run: (emails: string) => `Uprzątnij: ${emails}`,
     safe: 'Nic nie jest usuwane. Uprzątnięte maile trafiają do archiwum z etykietą Fewmail/Cleared i wracają jednym kliknięciem; z newsletterów dodatkowo się wypisuję.',
     scanning: 'Czytam całą skrzynkę, tylko nagłówki. Do minuty.',

@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@fewmail/ui/components/dialog'
-import { Spinner } from '@fewmail/ui/components/spinner'
 import { Switch } from '@fewmail/ui/components/switch'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
@@ -19,18 +18,66 @@ import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { toast } from 'sonner'
 
-import { useT } from '~/lib/i18n'
+import { getT, useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
+import { queryClient } from '~/lib/query-client'
 
-/** Opened from the account menu, so it lives outside the menu, which closes first. */
-export const clearOutStore = createStore(false)
+const clearOutStore = createStore(false)
 
 const SENDER_NAMES_SHOWN = 3
-const UNDO_TOAST_MS = 30_000
+const ACTION_TOAST_MS = 30_000
+const SCAN_FRESH_MS = 5 * 60_000
+const SCAN_TOAST_ID = 'clear-out-scan'
+const DEFAULT_GROUPS = CLEAR_OUT_GROUPS.filter((group) => group !== 'old')
 
 const refetchMail = () => refetchChanged(['mail', 'subscriptions', 'today'])
 
-type ListShown = RouterOutputs['subscriptions']['scanClearOut']['senders']
+type Scan = RouterOutputs['subscriptions']['scanClearOut']
+type ListShown = Scan['senders']
+
+const countOf = (scan: Scan, groups: readonly ClearOutGroup[]) =>
+  scan.overlaps
+    .filter((overlap) => overlap.groups.some((group) => groups.includes(group)))
+    .reduce((sum, { count }) => sum + count, 0)
+
+/** Reading a whole inbox takes up to a minute, so it runs under a toast and the dialog opens on its answer. */
+export const openClearOut = async () => {
+  if (
+    queryClient
+      .getQueryCache()
+      .find({
+        exact: true,
+        queryKey: orpc.subscriptions.scanClearOut.queryKey(),
+      })
+      ?.isStaleByTime(SCAN_FRESH_MS) === false
+  ) {
+    clearOutStore.set(true)
+    return
+  }
+  const t = getT()
+  toast.loading(t.clearOut.scanning, { id: SCAN_TOAST_ID })
+  const scan = await queryClient
+    .fetchQuery(orpc.subscriptions.scanClearOut.queryOptions({ staleTime: 0 }))
+    .catch(() => null)
+  if (!scan) {
+    toast.dismiss(SCAN_TOAST_ID)
+    return
+  }
+  const clearable =
+    countOf(scan, DEFAULT_GROUPS) || countOf(scan, CLEAR_OUT_GROUPS)
+  if (clearable === 0) {
+    toast.success(t.clearOut.empty, { id: SCAN_TOAST_ID })
+    return
+  }
+  toast.success(t.clearOut.ready(t.cleanup.emails(clearable)), {
+    action: {
+      label: t.clearOut.review,
+      onClick: () => clearOutStore.set(true),
+    },
+    duration: ACTION_TOAST_MS,
+    id: SCAN_TOAST_ID,
+  })
+}
 
 const ClearOutForm = ({
   onRun,
@@ -38,56 +85,22 @@ const ClearOutForm = ({
   onRun: (input: { groups: ClearOutGroup[]; lists: ListShown }) => void
 }) => {
   const t = useT()
-  const {
-    data: scan,
-    isError,
-    refetch,
-  } = useQuery(orpc.subscriptions.scanClearOut.queryOptions({ staleTime: 0 }))
-  const [chosen, setChosen] = useState<ClearOutGroup[]>(
-    CLEAR_OUT_GROUPS.filter((group) => group !== 'old')
+  // The scan behind the toast is what the dialog shows: a rescan on mount would read the whole inbox again.
+  const { data: scan } = useQuery(
+    orpc.subscriptions.scanClearOut.queryOptions({
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    })
   )
-
-  if (!scan && isError) {
-    return (
-      <p
-        role="alert"
-        className="text-muted-foreground flex items-center gap-2 text-sm"
-      >
-        {t.errors.failed}
-        <Button
-          size="xs"
-          variant="ghost-muted"
-          onClick={() => {
-            void refetch()
-          }}
-        >
-          {t.agent.retry}
-        </Button>
-      </p>
-    )
-  }
+  const [chosen, setChosen] = useState<ClearOutGroup[]>(DEFAULT_GROUPS)
 
   if (!scan) {
-    return (
-      <p
-        aria-busy
-        className="text-muted-foreground flex items-center gap-2 text-sm"
-      >
-        <Spinner />
-        {t.clearOut.scanning}
-      </p>
-    )
+    return null
   }
 
-  const countOf = (groups: ClearOutGroup[]) =>
-    scan.overlaps
-      .filter((overlap) =>
-        overlap.groups.some((group) => groups.includes(group))
-      )
-      .reduce((sum, { count }) => sum + count, 0)
-  const offered = CLEAR_OUT_GROUPS.filter((group) => countOf([group]) > 0)
+  const offered = CLEAR_OUT_GROUPS.filter((group) => countOf(scan, [group]) > 0)
   const selected = chosen.filter((group) => offered.includes(group))
-  const clearing = countOf(selected)
+  const clearing = countOf(scan, selected)
   const inbox = t.cleanup.emails(scan.inbox)
   const senderNames = scan.senders.map(
     ({ fromEmail, fromName }) => fromName ?? fromEmail
@@ -135,7 +148,7 @@ const ClearOutForm = ({
                 className="hover:text-foreground cursor-pointer underline underline-offset-3"
                 onClick={() => clearOutStore.set(false)}
               >
-                {t.cleanup.emails(countOf([group]))}
+                {t.cleanup.emails(countOf(scan, [group]))}
               </Link>
               {group === 'lists' && (
                 <span data-mask>
@@ -192,7 +205,7 @@ export const ClearOutDialog = () => {
               label: t.clearOut.undo,
               onClick: () => undo.mutate({ run: ran }),
             },
-            duration: UNDO_TOAST_MS,
+            duration: ACTION_TOAST_MS,
             id: toastId,
           }
         ),

@@ -1639,6 +1639,8 @@ export const hi: Messages = {
     left: (emails: string) => `इनबॉक्स में ${emails} रहेंगे`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} और ${more} और` : names,
+    ready: (emails: string) => `${emails} हटाए जा सकते हैं`,
+    review: 'देखें',
     run: (emails: string) => `${emails} साफ़ करें`,
     safe: 'कुछ भी डिलीट नहीं होता। साफ़ किए गए ईमेल Fewmail/Cleared लेबल के साथ आर्काइव होते हैं और एक क्लिक में वापस आते हैं; न्यूज़लेटर से सदस्यता भी हटाई जाती है।',
     scanning: 'पूरा इनबॉक्स पढ़ रहा हूँ, सिर्फ़ हेडर। एक मिनट तक।',

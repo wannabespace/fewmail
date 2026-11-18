@@ -1578,6 +1578,8 @@ export const zh: Messages = {
     left: (emails: string) => `收件箱将保留 ${emails}`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} 等另外 ${more} 个` : names,
+    ready: (emails: string) => `可清理 ${emails}`,
+    review: '查看',
     run: (emails: string) => `清理 ${emails}`,
     safe: '不会删除任何邮件。清理的邮件会带着 Fewmail/Cleared 标签归档，一键即可放回；订阅邮件还会退订。',
     scanning: '正在读取整个收件箱，只读邮件头。最多一分钟。',

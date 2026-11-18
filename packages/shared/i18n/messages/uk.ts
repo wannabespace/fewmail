@@ -1698,6 +1698,8 @@ export const uk: Messages = {
     left: (emails: string) => `У вхідних лишиться ${emails}`,
     listsFrom: (names: string, more: number) =>
       more ? `${names} і ще ${more}` : names,
+    ready: (emails: string) => `Можна прибрати ${emails}`,
+    review: 'Переглянути',
     run: (emails: string) => `Прибрати ${emails}`,
     safe: 'Нічого не видаляється. Прибрані листи йдуть в архів з міткою Fewmail/Cleared і повертаються одним кліком; від розсилок я ще й відпишу.',
     scanning: 'Читаю всі вхідні, лише заголовки. До хвилини.',
