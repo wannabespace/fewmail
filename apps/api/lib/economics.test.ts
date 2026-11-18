@@ -77,11 +77,12 @@ test('the allowance is charged at LiteLLM’s prices', () => {
   expect(OCR_USD_PER_PAGE).toBe(priceOf(OCR_MODEL, 'ocr_cost_per_page'))
 })
 
-test('a yearly plan keeps its margin with the allowance spent and a busy inbox', () => {
+test('a plan keeps its margin with the allowance spent and a busy inbox', () => {
   for (const plan of PAID_PLANS) {
+    const { interval, margin: target } = TARGET_MARGIN[plan]
     expect(
-      margin(plan, 'year', monthCost(plan, FULL).total)
-    ).toBeGreaterThanOrEqual(TARGET_MARGIN[plan])
+      margin(plan, interval, monthCost(plan, FULL).total)
+    ).toBeGreaterThanOrEqual(target)
   }
 })
 

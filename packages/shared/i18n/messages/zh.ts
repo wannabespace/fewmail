@@ -1639,6 +1639,8 @@ export const zh: Messages = {
       `${domain} 在这封邮件里藏了给自动读信程序的指令。助手会忽略它们；不要转发，也不要照它说的做。`,
     known_phishing: (domain: string) =>
       `${domain} 在公开的活跃钓鱼网站列表中。请不要点击链接、登录或付款。`,
+    credential_phishing: (domain: string) =>
+      `${domain} 要求你登录或输入银行卡、账户信息。银行和服务从不会通过邮件索要这些：请不要点击链接，也不要输入任何内容。`,
     lookalike_domain: (domain: string) =>
       `看起来像 ${domain}，但其实是另一个地址。请不要点击链接或付款。`,
     new_sender_payment: (domain: string) =>

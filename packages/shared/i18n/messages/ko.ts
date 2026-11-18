@@ -1681,6 +1681,8 @@ export const ko: Messages = {
       `${domain}이(가) 이 이메일에 메일을 읽는 어시스턴트용 지시를 숨겼어요. 에이전트는 이를 무시해요. 전달하거나 요청대로 하지 마세요.`,
     known_phishing: (domain: string) =>
       `${domain}은(는) 활성 피싱 사이트 공개 목록에 있어요. 링크를 열거나 로그인하거나 결제하지 마세요.`,
+    credential_phishing: (domain: string) =>
+      `${domain}이 로그인하거나 카드·계정 정보를 입력하라고 요구해요. 은행과 서비스는 이메일로 그런 걸 요구하지 않아요. 링크를 누르거나 아무것도 입력하지 마세요.`,
     lookalike_domain: (domain: string) =>
       `${domain}처럼 보이지만 다른 주소예요. 링크를 누르거나 결제하지 마세요.`,
     new_sender_payment: (domain: string) =>

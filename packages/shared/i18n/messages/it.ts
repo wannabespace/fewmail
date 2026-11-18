@@ -1749,6 +1749,8 @@ export const it: Messages = {
       `${domain} ha nascosto in questa email istruzioni per gli assistenti che leggono la posta. L’agente le ignora; non inoltrarla e non fare ciò che chiede.`,
     known_phishing: (domain: string) =>
       `${domain} è in un elenco pubblico di siti di phishing attivi. Non aprire link, non accedere e non pagare.`,
+    credential_phishing: (domain: string) =>
+      `${domain} ti chiede di accedere o di inserire i dati della carta o dell’account. Banche e servizi non lo chiedono mai via email: non cliccare sui link e non inserire nulla.`,
     lookalike_domain: (domain: string) =>
       `Sembra ${domain}, ma è un indirizzo diverso. Non cliccare sui link e non pagare.`,
     new_sender_payment: (domain: string) =>

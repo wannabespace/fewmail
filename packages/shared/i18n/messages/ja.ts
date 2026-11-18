@@ -1700,6 +1700,8 @@ export const ja: Messages = {
       `${domain} はこのメールに、メールを読むアシスタント向けの指示を隠しています。エージェントは無視します。転送したり、指示どおりにしたりしないでください。`,
     known_phishing: (domain: string) =>
       `${domain} は稼働中のフィッシングサイトの公開リストに載っています。リンクを開いたり、ログインや支払いをしたりしないでください。`,
+    credential_phishing: (domain: string) =>
+      `${domain}がサインインやカード・アカウント情報の入力を求めています。銀行やサービスがメールでそれを求めることはありません。リンクを開いたり何かを入力したりしないでください。`,
     lookalike_domain: (domain: string) =>
       `${domain}に似ていますが、別のアドレスです。リンクを開いたり支払ったりしないでください。`,
     new_sender_payment: (domain: string) =>

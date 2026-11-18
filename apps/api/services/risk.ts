@@ -183,10 +183,14 @@ const jevSignals = async (body: string) => {
       urgentPayment: noul(
         'The email pressures the reader to pay, transfer money or share credentials urgently'
       ),
+      asksCredentials: noul(
+        'The email asks the reader to sign in, confirm or enter their login, password, card or account details or a one-time code through a link or a reply, under a threat or urgency (the account will be blocked, suspicious activity)'
+      ),
     },
     state: body.slice(0, RISK_BODY_CHARS),
   })
   return {
+    asksCredentials: answers.asksCredentials.noul >= 0.7,
     detailsChanged: answers.detailsChanged.noul >= 0.7,
     urgentPayment: answers.urgentPayment.noul >= 0.7,
   }
@@ -218,6 +222,15 @@ const isInjection = (message: Message) => {
   )
 }
 
+/** A bank's or a service's own security notice, signed by its domain, reads the same as the phishing that copies it. */
+const isGenuineBrand = async (message: Message, domain: string) => {
+  if (message.auth?.dmarc !== 'pass' || FREEMAIL_DOMAINS.has(domain)) {
+    return false
+  }
+  const { domains } = await imitableDomains()
+  return domains.has(registrable(domain))
+}
+
 /** Who the mail pretends to be: a listed phishing domain, a forged known sender or a lookalike name. */
 const senderRisk = async (
   message: Message,
@@ -240,27 +253,19 @@ const senderRisk = async (
   return imitates ? { imitates, kind: 'lookalike_domain' } : null
 }
 
-const assess = async (
+/** Changed payment details, or a new sender asking to pay to its own. */
+const paymentRisk = async (
   userId: string,
-  message: Message
+  message: Message,
+  signals: Awaited<ReturnType<typeof jevSignals>>
 ): Promise<MessageRisk | null> => {
   const domain = domainOf(message.fromEmail)
   const replyDomain = message.replyTo ? domainOf(message.replyTo) : domain
-  const pretends = await senderRisk(message, domain, replyDomain)
-  if (pretends) {
-    return pretends
-  }
-  if (await isInjection(message)) {
-    return { imitates: null, kind: 'prompt_injection' }
-  }
-  const mentionsMoney = MONEY_WORDS.test(`${message.subject}\n${message.body}`)
-  if (!mentionsMoney) {
-    return null
-  }
   // A freemail domain is shared by strangers: its stored details and senders say nothing about this one.
   if (FREEMAIL_DOMAINS.has(domain)) {
-    const { detailsChanged } = await jevSignals(message.body)
-    return detailsChanged ? { imitates: null, kind: 'payment_change' } : null
+    return signals.detailsChanged
+      ? { imitates: null, kind: 'payment_change' }
+      : null
   }
 
   const details = paymentDetailsIn(message.body)
@@ -279,7 +284,6 @@ const assess = async (
   const newDetails = details.filter(
     (detail) => !knownHashes.has(paymentHashOf(detail))
   )
-  const signals = await jevSignals(message.body)
 
   if ((known.length > 0 && newDetails.length > 0) || signals.detailsChanged) {
     return { imitates: null, kind: 'payment_change' }
@@ -298,6 +302,28 @@ const assess = async (
     return { imitates: null, kind: 'new_sender_payment' }
   }
   return null
+}
+
+const assess = async (
+  userId: string,
+  message: Message
+): Promise<MessageRisk | null> => {
+  const domain = domainOf(message.fromEmail)
+  const replyDomain = message.replyTo ? domainOf(message.replyTo) : domain
+  const pretends = await senderRisk(message, domain, replyDomain)
+  if (pretends) {
+    return pretends
+  }
+  if (await isInjection(message)) {
+    return { imitates: null, kind: 'prompt_injection' }
+  }
+  const signals = await jevSignals(message.body)
+  if (signals.asksCredentials && !(await isGenuineBrand(message, domain))) {
+    return { imitates: null, kind: 'credential_phishing' }
+  }
+  return MONEY_WORDS.test(`${message.subject}\n${message.body}`)
+    ? paymentRisk(userId, message, signals)
+    : null
 }
 
 const remember = async (userId: string, message: Message) => {

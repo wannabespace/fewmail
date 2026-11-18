@@ -784,6 +784,8 @@ export const nl: Messages = {
       `${domain} heeft in deze e-mail instructies verstopt voor assistenten die mail lezen. De agent negeert ze; stuur hem niet door en doe niet wat hij vraagt.`,
     known_phishing: (domain: string) =>
       `${domain} staat op een openbare lijst van actieve phishingsites. Klik geen links, log niet in en betaal niet.`,
+    credential_phishing: (domain: string) =>
+      `${domain} vraagt je in te loggen of kaart- of accountgegevens in te vullen. Banken en diensten vragen dat nooit per e-mail: klik niet op links en vul niets in.`,
     lookalike_domain: (domain: string) =>
       `Lijkt op ${domain}, maar het is een ander adres. Klik niet op links en betaal niet.`,
     new_sender_payment: (domain: string) =>

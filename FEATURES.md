@@ -54,7 +54,7 @@ This is the product's constitution. No feature may weaken it, not even "for conv
 
 Without this no core feature holds up. The product promises "I am keeping an eye on this", and right now that watching breaks in several places.
 
-**Status.** 0.1–0.5 are done (`services/commitments.ts`, `commitment_events`, `keepsRows`, the `deliveries` table and `delivery.ts`, `state` on the consent card; details in `architecture.md`). Plan limits after 0.3: Lite/trial $2.50, Pro $5.70, Max $20.90. 0.6 moved into the Record (feature 1): the backfill will go straight into it. 0.7 moved into the Gateway (feature 2): the site and `/mcp` get rewritten once there is something to show, and the SEO rule about "AI email" changes at the same time.
+**Status.** 0.1–0.5 are done (`services/commitments.ts`, `commitment_events`, `keepsRows`, the `deliveries` table and `delivery.ts`, `state` on the consent card; details in `architecture.md`). Plan limits after 0.3: Lite/trial $2.50, Pro $5.69, Max $20.40. 0.6 moved into the Record (feature 1): the backfill will go straight into it. 0.7 moved into the Gateway (feature 2): the site and `/mcp` get rewritten once there is something to show, and the SEO rule about "AI email" changes at the same time.
 
 ### 0.1. A promise ≠ any reply
 

@@ -132,7 +132,7 @@ const LINK_OUTPUT_TOKENS = 20
 const DRAFT_INSTRUCTION_CHARS = 800
 const DRAFT_OUTPUT_TOKENS = 400
 const JEV_QUESTION_CHARS = 400
-const RISK_QUESTION_CHARS = 250
+const RISK_QUESTION_CHARS = 450
 const PROMISE_INSTRUCTION_CHARS = 600
 const PROMISE_OUTPUT_TOKENS = 100
 const LATER_OUTPUT_TOKENS = 60
@@ -571,19 +571,26 @@ export const margin = (
   aiUsd: number
 ) => (netRevenue(plan, interval) - aiUsd) / grossRevenue(plan, interval)
 
-/** What a yearly plan keeps after Stripe and AI when its allowance is spent and a busy inbox runs through Jev; Max gives more of its price back. */
-export const TARGET_MARGIN: Record<PaidPlan, number> = {
-  lite: 0.2,
-  max: 0.1,
-  pro: 0.2,
+/** What a plan keeps after Stripe and AI when its allowance is spent and a busy inbox runs through Jev. Max is held on its monthly price, which leaves its yearly one about 12%. */
+export const TARGET_MARGIN: Record<
+  PaidPlan,
+  { interval: BillingInterval; margin: number }
+> = {
+  lite: { interval: 'year', margin: 0.2 },
+  max: { interval: 'month', margin: 0.25 },
+  pro: { interval: 'year', margin: 0.2 },
 }
 
-/** The largest allowance that keeps `TARGET_MARGIN` on a yearly plan; `PLAN_ALLOWANCE_USD` follows it. */
-export const fairAllowance = (plan: PaidPlan) =>
-  netRevenue(plan, 'year') -
-  TARGET_MARGIN[plan] * grossRevenue(plan, 'year') -
-  backgroundCost(FULL, true).jev -
-  rowsCost(FULL, true).total
+/** The largest allowance that keeps `TARGET_MARGIN`; `PLAN_ALLOWANCE_USD` follows it. */
+export const fairAllowance = (plan: PaidPlan) => {
+  const { interval, margin: target } = TARGET_MARGIN[plan]
+  return (
+    netRevenue(plan, interval) -
+    target * grossRevenue(plan, interval) -
+    backgroundCost(FULL, true).jev -
+    rowsCost(FULL, true).total
+  )
+}
 
 const usd = (n: number) => `$${n < 0.01 ? n.toFixed(4) : n.toFixed(2)}`
 const pct = (n: number) => `${Math.round(n * 100)}%`
@@ -617,7 +624,7 @@ const printReport = () => {
   for (const plan of PAID_PLANS) {
     const allowance = PLAN_ALLOWANCE_USD[plan]
     lines.push(
-      `  ${plan} $${PRICE_USD[plan].month}/mo: allowance ${usd(allowance)} (fair at ${pct(TARGET_MARGIN[plan])}: ${usd(fairAllowance(plan))}), about ${Math.round(allowance / analyzedEmailCost(TYPICAL).total)} emails or ${Math.round(allowance / messageCost(TYPICAL))} messages; net ${usd(netRevenue(plan, 'month'))} / ${usd(netRevenue(plan, 'year'))}`
+      `  ${plan} $${PRICE_USD[plan].month}/mo: allowance ${usd(allowance)} (fair at ${pct(TARGET_MARGIN[plan].margin)} ${TARGET_MARGIN[plan].interval}ly: ${usd(fairAllowance(plan))}), about ${Math.round(allowance / analyzedEmailCost(TYPICAL).total)} emails or ${Math.round(allowance / messageCost(TYPICAL))} messages; net ${usd(netRevenue(plan, 'month'))} / ${usd(netRevenue(plan, 'year'))}`
     )
     for (const [name, use] of [
       ['typical', TYPICAL],

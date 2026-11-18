@@ -779,6 +779,8 @@ export const en = {
       `${domain} hid instructions in this email for assistants that read mail. The agent ignores them; do not forward it or do what it asks.`,
     known_phishing: (domain: string) =>
       `${domain} is on a public list of live phishing sites. Do not click links, sign in or pay.`,
+    credential_phishing: (domain: string) =>
+      `${domain} asks you to sign in or enter card or account details. Banks and services never ask for that by email: do not click links or enter anything.`,
     lookalike_domain: (domain: string) =>
       `Looks like ${domain}, but it is a different address. Do not click links or pay.`,
     new_sender_payment: (domain: string) =>

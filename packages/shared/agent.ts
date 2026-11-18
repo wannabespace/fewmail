@@ -203,13 +203,13 @@ export const PRICE_USD: Record<PaidPlan, Record<BillingInterval, number>> = {
 /**
  * What the agent may cost per calendar month (UTC), in USD of AI: everything it does (writing for an email, a
  * message, a summary, reading aloud) is paid from it at its real price, so a feature left unused
- * costs nothing. Sized so a yearly plan keeps 20% (Max 10%) after Stripe, the allowance and Jev (`economics.test.ts`).
+ * costs nothing. Sized so a yearly plan keeps 20% (Max: 25% monthly) after Stripe, the allowance and Jev (`economics.test.ts`).
  * Noise Jev settles costs nothing. Every plan has every feature; only this differs.
  */
 export const PLAN_ALLOWANCE_USD = {
   lite: 2.5,
-  max: 20.9,
-  pro: 5.7,
+  max: 20.4,
+  pro: 5.69,
   trial: 2.5,
 } satisfies Record<Exclude<Plan, 'free'>, number>
 
@@ -419,6 +419,7 @@ export type SpamVerdict = 'spam' | 'not_spam'
 
 export type RiskKind =
   | 'known_phishing'
+  | 'credential_phishing'
   | 'spoofed_sender'
   | 'lookalike_domain'
   | 'payment_change'

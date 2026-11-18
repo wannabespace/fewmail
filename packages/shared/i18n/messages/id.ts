@@ -781,6 +781,8 @@ export const id: Messages = {
       `${domain} menyembunyikan instruksi untuk asisten pembaca email di email ini. Agen mengabaikannya; jangan teruskan dan jangan lakukan yang dimintanya.`,
     known_phishing: (domain: string) =>
       `${domain} ada di daftar publik situs phishing aktif. Jangan klik tautan, masuk, atau membayar.`,
+    credential_phishing: (domain: string) =>
+      `${domain} memintamu masuk atau memasukkan data kartu atau akun. Bank dan layanan tidak pernah memintanya lewat email: jangan klik tautan atau memasukkan apa pun.`,
     lookalike_domain: (domain: string) =>
       `Terlihat seperti ${domain}, tapi alamatnya berbeda. Jangan klik tautan atau membayar.`,
     new_sender_payment: (domain: string) =>

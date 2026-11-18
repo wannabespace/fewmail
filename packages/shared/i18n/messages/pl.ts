@@ -805,6 +805,8 @@ export const pl: Messages = {
       `${domain} ukrył w tym e-mailu instrukcje dla asystentów czytających pocztę. Agent je ignoruje; nie przekazuj go dalej i nie rób tego, o co prosi.`,
     known_phishing: (domain: string) =>
       `${domain} jest na publicznej liście aktywnych stron phishingowych. Nie klikaj linków, nie loguj się i nie płać.`,
+    credential_phishing: (domain: string) =>
+      `${domain} prosi, żebyś się zalogował albo podał dane karty lub konta. Banki i serwisy nigdy nie proszą o to mailem: nie klikaj linków i niczego nie wpisuj.`,
     lookalike_domain: (domain: string) =>
       `Wygląda jak ${domain}, ale to inny adres. Nie klikaj linków i nie płać.`,
     new_sender_payment: (domain: string) =>

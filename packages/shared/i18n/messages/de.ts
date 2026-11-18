@@ -1757,6 +1757,8 @@ export const de: Messages = {
       `${domain} hat in dieser E-Mail Anweisungen für Assistenten versteckt, die Mails lesen. Der Agent ignoriert sie; leite sie nicht weiter und tu nicht, was sie verlangt.`,
     known_phishing: (domain: string) =>
       `${domain} steht auf einer öffentlichen Liste aktiver Phishing-Seiten. Keine Links öffnen, nicht anmelden, nichts bezahlen.`,
+    credential_phishing: (domain: string) =>
+      `${domain} will, dass du dich anmeldest oder Karten- oder Kontodaten eingibst. Banken und Dienste fragen per Mail nie danach: Klick keine Links an und gib nichts ein.`,
     lookalike_domain: (domain: string) =>
       `Sieht aus wie ${domain}, ist aber eine andere Adresse. Klick keine Links an und zahl nichts.`,
     new_sender_payment: (domain: string) =>

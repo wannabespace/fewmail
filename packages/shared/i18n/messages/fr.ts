@@ -1773,6 +1773,8 @@ export const fr: Messages = {
       `${domain} a caché dans cet e-mail des instructions pour les assistants qui lisent le courrier. L’agent les ignore ; ne le transférez pas et ne faites pas ce qu’il demande.`,
     known_phishing: (domain: string) =>
       `${domain} figure sur une liste publique de sites d’hameçonnage actifs. N’ouvrez aucun lien, ne vous connectez pas et ne payez pas.`,
+    credential_phishing: (domain: string) =>
+      `${domain} vous demande de vous connecter ou de saisir vos données de carte ou de compte. Les banques et les services ne le demandent jamais par e-mail : ne cliquez sur aucun lien et ne saisissez rien.`,
     lookalike_domain: (domain: string) =>
       `Ressemble à ${domain}, mais c’est une autre adresse. Ne cliquez sur aucun lien et ne payez pas.`,
     new_sender_payment: (domain: string) =>

@@ -773,6 +773,8 @@ export const tr: Messages = {
       `${domain} bu e-postaya, e-posta okuyan asistanlar için talimatlar gizlemiş. Ajan bunları yok sayar; iletme ve istediğini yapma.`,
     known_phishing: (domain: string) =>
       `${domain} etkin oltalama sitelerinin herkese açık listesinde. Bağlantılara tıklama, giriş yapma ve ödeme yapma.`,
+    credential_phishing: (domain: string) =>
+      `${domain} giriş yapmanı ya da kart veya hesap bilgilerini girmeni istiyor. Bankalar ve hizmetler bunu asla e-postayla istemez: bağlantılara tıklama, hiçbir şey girme.`,
     lookalike_domain: (domain: string) =>
       `${domain} gibi görünüyor ama farklı bir adres. Bağlantılara tıklama ve ödeme yapma.`,
     new_sender_payment: (domain: string) =>
