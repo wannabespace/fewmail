@@ -1,7 +1,8 @@
 import { db } from '@fewmail/db'
 import { mailboxes, messages } from '@fewmail/db/schema'
 import { Result } from 'better-result'
-import { and, eq, inArray, isNull } from 'drizzle-orm'
+import { subDays } from 'date-fns'
+import { and, eq, inArray, isNotNull, isNull, lt } from 'drizzle-orm'
 
 import { inBatches } from '../lib/batches'
 import { getMessage, isMissing, listThreadMessageIds } from '../lib/gmail'
@@ -122,6 +123,29 @@ export const indexStoredMail = async () => {
         .where(eq(messages.id, id))
   )
 }
+
+const HTML_KEPT_DAYS = 30
+
+/** Old mail keeps its text; its HTML, most of a row, is read again from Gmail when it is opened (`fillFromGmail`). */
+export const dropOldHtml = () =>
+  db
+    .update(messages)
+    .set({ html: null })
+    .where(
+      inArray(
+        messages.id,
+        db
+          .select({ id: messages.id })
+          .from(messages)
+          .where(
+            and(
+              isNotNull(messages.html),
+              lt(messages.receivedAt, subDays(new Date(), HTML_KEPT_DAYS))
+            )
+          )
+          .limit(INDEX_BATCH)
+      )
+    )
 
 const ownedMailboxes = (userId: string) =>
   db.select().from(mailboxes).where(eq(mailboxes.userId, userId))

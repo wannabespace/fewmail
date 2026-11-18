@@ -27,6 +27,7 @@ import {
 import { dispatchDeliveries } from './delivery'
 import { localClock, previousDay } from './lib/clock'
 import { logError } from './lib/log'
+import { pruneBulkPrints } from './services/bulk'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
 import { savedThisWeek } from './services/home'
@@ -48,7 +49,7 @@ import {
   processDueReminders,
 } from './services/reminders'
 import { learnVoice, VOICE_EVERY_SENT } from './services/sent-mail'
-import { indexStoredMail } from './services/stored-mail'
+import { dropOldHtml, indexStoredMail } from './services/stored-mail'
 import {
   ensureMailbox,
   HELD_MONTHS,
@@ -352,6 +353,8 @@ const tick = async () => {
       once('commitments', processDueCommitments),
       once('known-domains', refreshKnownDomains),
       once('search-index', indexStoredMail),
+      once('bulk-prints', pruneBulkPrints),
+      once('old-html', dropOldHtml),
     ])
   )
   if (ticked.isErr()) {

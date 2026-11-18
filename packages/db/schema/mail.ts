@@ -144,6 +144,11 @@ export const messages = d.snakeCase.table(
       .index('messages_unindexed_idx')
       .on(table.id)
       .where(sql`${table.searchTokens} is null`),
+    // The worker drops old HTML every tick: without it that is a scan of every message.
+    d
+      .index('messages_html_kept_idx')
+      .on(table.receivedAt)
+      .where(sql`${table.html} is not null`),
   ]
 )
 

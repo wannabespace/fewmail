@@ -5,7 +5,7 @@ import { db } from '@fewmail/db'
 import type { templateReports } from '@fewmail/db/schema'
 import { bulkPrints, messages, users } from '@fewmail/db/schema'
 import { subDays } from 'date-fns'
-import { and, eq, gte, or } from 'drizzle-orm'
+import { and, eq, gte, lt, or } from 'drizzle-orm'
 
 import { userHashOf } from '../lib/keyed-hash'
 
@@ -109,6 +109,12 @@ export const fingerprint = (body: string, personal: string[]) => {
   const [band0 = 0, band1 = 0, band2 = 0, band3 = 0] = bands(print)
   return { band0, band1, band2, band3, print }
 }
+
+/** Prints older than the window are never read again. */
+export const pruneBulkPrints = () =>
+  db
+    .delete(bulkPrints)
+    .where(lt(bulkPrints.createdAt, subDays(new Date(), WINDOW_DAYS)))
 
 /** Fingerprints fake-personal mail (no List-Unsubscribe) and counts how many Fewmail users got a near copy. */
 export const measureBulk = async (userId: string, incoming: Message[]) => {

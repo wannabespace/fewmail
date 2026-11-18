@@ -103,7 +103,7 @@ const SETTINGS_ITEM = {
   to: '/settings',
 } as const
 
-/** `place` is where the sidebar shows it: daily places on top, set-up tools at the bottom, Settings in the account menu. */
+/** `place` is where the sidebar shows it: a row of its own, or Settings in the account menu. */
 export const NAV_ITEMS = [
   {
     icon: Home01Icon,
@@ -136,14 +136,14 @@ export const NAV_ITEMS = [
   {
     icon: ZapIcon,
     key: 'rules',
-    place: 'bottom',
+    place: 'top',
     sequence: ['G', 'R'],
     to: '/rules',
   },
   {
     icon: MailRemove01Icon,
     key: 'subscriptions',
-    place: 'bottom',
+    place: 'top',
     sequence: ['G', 'U'],
     to: '/subscriptions',
   },
@@ -756,7 +756,7 @@ export const Sidebar = ({
           onClick={() => openCompose()}
         />
       </div>
-      <div className="scroll-fade -mx-1 flex min-h-0 flex-1 scrollbar-none flex-col gap-1 overflow-y-auto px-1 pb-3">
+      <div className="scroll-fade -mx-1 -mt-1 flex min-h-0 flex-1 scrollbar-none flex-col gap-1 overflow-y-auto px-1 pt-1 pb-3">
         {navItems
           .filter(({ place }) => place === 'top')
           .map((item) => (
@@ -781,13 +781,6 @@ export const Sidebar = ({
             </Fragment>
           ))}
         <People />
-        <div className="mt-auto flex flex-col gap-1 pt-4">
-          {navItems
-            .filter(({ place }) => place === 'bottom')
-            .map((item) => (
-              <NavLink key={item.to} item={item} showKeys={isModifierHeld} />
-            ))}
-        </div>
       </div>
       <AccountMenu email={email} mailboxes={mailboxes} />
     </nav>

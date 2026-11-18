@@ -54,6 +54,7 @@ export const bulkPrints = d.snakeCase.table(
     d.index('bulk_prints_band1_idx').on(table.band1),
     d.index('bulk_prints_band2_idx').on(table.band2),
     d.index('bulk_prints_band3_idx').on(table.band3),
+    d.index('bulk_prints_created_at_idx').on(table.createdAt),
   ]
 )
 
@@ -199,7 +200,6 @@ export const knownDomains = d.snakeCase.table(
   },
   (table) => [
     d.primaryKey({ columns: [table.list, table.domain] }),
-    d.index('known_domains_domain_idx').on(table.domain),
   ]
 )
 
