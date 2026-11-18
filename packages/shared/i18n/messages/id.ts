@@ -652,7 +652,6 @@ export const id: Messages = {
     open: 'Buka',
     search: 'Cari atau jelaskan',
     openInGmail: 'Buka di Gmail',
-    collapseFullPage: 'Kembali ke daftar',
     openInNewTab: 'Buka di tab baru',
     unsubscribe: 'Berhenti berlangganan',
     unsubscribed: 'Berhenti berlangganan',

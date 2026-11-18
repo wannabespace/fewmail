@@ -643,7 +643,6 @@ export const en = {
     instruction: 'Tell the agent how to reply, or just press Enter',
     open: 'Open',
     openInGmail: 'Open in Gmail',
-    collapseFullPage: 'Back to the list',
     openInNewTab: 'Open in a new tab',
     search: 'Search or describe',
     unsubscribe: 'Unsubscribe',

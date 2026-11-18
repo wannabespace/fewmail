@@ -662,7 +662,6 @@ export const pt: Messages = {
     open: 'Abrir',
     search: 'Busque ou descreva',
     openInGmail: 'Abrir no Gmail',
-    collapseFullPage: 'Voltar à lista',
     openInNewTab: 'Abrir em uma nova aba',
     unsubscribe: 'Cancelar inscrição',
     unsubscribed: 'Inscrição cancelada',

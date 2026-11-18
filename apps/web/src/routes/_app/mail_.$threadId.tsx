@@ -9,7 +9,7 @@ import { KeyHints } from '~/components/key-hints'
 import { ThreadView } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 
-/** Any email on its own, the whole width: esc and the collapse go back to wherever it was opened from, or from a link to Mail with this email beside the list. */
+/** Any email on its own, the whole width: esc and ✕ go back to wherever it was opened from, or from a link to Mail. */
 const EmailPage = () => {
   const t = useT()
   const router = useRouter()
@@ -17,12 +17,8 @@ const EmailPage = () => {
   const { threadId } = Route.useParams()
   const close = () =>
     canGoBack ? router.history.back() : router.navigate({ to: '/mail' })
-  const collapse = () =>
-    canGoBack
-      ? router.history.back()
-      : router.navigate({ search: { thread: threadId }, to: '/mail' })
   // An editor's own esc (leave the draft) comes first: one step per press.
-  useHotkey('Escape', collapse, { ignoreDefaultPrevented: true })
+  useHotkey('Escape', close, { ignoreDefaultPrevented: true })
 
   return (
     <div className="bg-background under-notice flex min-h-0 min-w-0 flex-1 flex-col">
@@ -31,7 +27,7 @@ const EmailPage = () => {
         isFullPage
         isSnoozed={false}
         threadId={threadId}
-        onClose={collapse}
+        onClose={close}
         onDone={close}
       />
       <KeyHints

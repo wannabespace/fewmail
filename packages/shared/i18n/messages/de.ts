@@ -1081,7 +1081,6 @@ export const de: Messages = {
     open: 'Öffnen',
     search: 'Suchen oder beschreiben',
     openInGmail: 'In Gmail öffnen',
-    collapseFullPage: 'Zurück zur Liste',
     openInNewTab: 'In neuem Tab öffnen',
     unsubscribe: 'Abmelden',
     unsubscribed: 'Abgemeldet',

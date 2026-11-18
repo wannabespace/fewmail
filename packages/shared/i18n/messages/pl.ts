@@ -670,7 +670,6 @@ export const pl: Messages = {
     open: 'Otwórz',
     search: 'Szukaj lub opisz',
     openInGmail: 'Otwórz w Gmailu',
-    collapseFullPage: 'Wróć do listy',
     openInNewTab: 'Otwórz w nowej karcie',
     unsubscribe: 'Wypisz się',
     unsubscribed: 'Wypisano',

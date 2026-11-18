@@ -1081,7 +1081,6 @@ export const it: Messages = {
     open: 'Apri',
     search: 'Cerca o descrivi',
     openInGmail: 'Apri in Gmail',
-    collapseFullPage: 'Torna all’elenco',
     openInNewTab: 'Apri in una nuova scheda',
     unsubscribe: 'Annulla iscrizione',
     unsubscribed: 'Iscrizione annullata',

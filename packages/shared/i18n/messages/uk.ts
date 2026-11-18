@@ -1071,7 +1071,6 @@ export const uk: Messages = {
     open: 'Відкрити',
     search: 'Шукай або опиши',
     openInGmail: 'Відкрити в Gmail',
-    collapseFullPage: 'Згорнути до списку',
     openInNewTab: 'Відкрити в новій вкладці',
     unsubscribe: 'Відписатися',
     unsubscribed: 'Відписано',

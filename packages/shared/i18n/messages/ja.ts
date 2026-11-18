@@ -507,7 +507,6 @@ export const ja: Messages = {
     instruction: '返信の方針を伝えるか、そのまま Enter を押してください',
     open: '開く',
     openInGmail: 'Gmail で開く',
-    collapseFullPage: 'リストに戻る',
     openInNewTab: '新しいタブで開く',
     search: '検索または説明',
     unsubscribe: '配信停止',

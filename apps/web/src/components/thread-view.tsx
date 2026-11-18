@@ -52,7 +52,6 @@ import type { ResolvedTheme } from '@fewmail/ui/theme-store'
 import {
   Archive02Icon,
   ArrowDown01Icon,
-  ArrowShrink01Icon,
   Calendar03Icon,
   Cancel01Icon,
   Clock01Icon,
@@ -1615,8 +1614,8 @@ const ReaderHeader = ({
             />
           )}
           <IconButton
-            icon={isFullPage ? ArrowShrink01Icon : Cancel01Icon}
-            label={isFullPage ? t.mail.collapseFullPage : t.mail.close}
+            icon={Cancel01Icon}
+            label={t.mail.close}
             shortcut={<Kbd>esc</Kbd>}
             size="icon-sm"
             variant="ghost-muted"
@@ -1650,7 +1649,7 @@ const ReaderHeader = ({
   )
 }
 
-/** `isFullPage`: the email on its own page (`/mail/$threadId`), where its ✕ turns into a collapse. */
+/** `isFullPage`: the email on its own page (`/mail/$threadId`), with no link to open it in a new tab. */
 export const ThreadView = ({
   cite,
   isFullPage,

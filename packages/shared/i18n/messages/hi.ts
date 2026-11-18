@@ -506,7 +506,6 @@ export const hi: Messages = {
     instruction: 'एजेंट को बताएँ कि कैसे जवाब देना है, या बस Enter दबाएँ',
     open: 'खोलें',
     openInGmail: 'Gmail में खोलें',
-    collapseFullPage: 'सूची पर वापस जाएँ',
     openInNewTab: 'नए टैब में खोलें',
     search: 'खोजें या बताएँ',
     unsubscribe: 'अनसब्सक्राइब करें',

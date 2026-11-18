@@ -506,7 +506,6 @@ export const ko: Messages = {
     instruction: '어떻게 답장할지 알려주거나, 그냥 Enter를 누르세요',
     open: '열기',
     openInGmail: 'Gmail에서 열기',
-    collapseFullPage: '목록으로 돌아가기',
     openInNewTab: '새 탭에서 열기',
     search: '검색하거나 설명하세요',
     unsubscribe: '구독 취소',
