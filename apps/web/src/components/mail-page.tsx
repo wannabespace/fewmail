@@ -402,8 +402,9 @@ const groupKeyOf = (
     return 'earlier'
   }
   const group = analysis ? GROUP_OF[analysis.category] : 'people'
-  // Mail analysed before senders were checked may still call a service a person.
-  return group === 'people' && isAutomatedSender(message.fromEmail)
+  // Mail analysed before senders were checked may still call a service a person, and unanalysed mail is only a guess.
+  return group === 'people' &&
+    (message.isMassMail || isAutomatedSender(message.fromEmail))
     ? 'updates'
     : group
 }

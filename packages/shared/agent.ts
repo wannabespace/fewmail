@@ -29,6 +29,14 @@ const AUTOMATED_ADDRESS =
 export const isAutomatedSender = (email: string) =>
   AUTOMATED_ADDRESS.test(email.split('@')[0] ?? '')
 
+/** Gmail's Promotions, or a list's unsubscribe header outside Forums (a group a colleague writes to): whoever signs it, nobody wrote it to the user. Mirrored in SQL by `isMassMail` in `services/mail.ts`. */
+export const isMassMail = (message: {
+  labelIds: string[]
+  listUnsubscribe: string | null
+}) =>
+  message.labelIds.includes('CATEGORY_PROMOTIONS') ||
+  (!!message.listUnsubscribe && !message.labelIds.includes('CATEGORY_FORUMS'))
+
 export const ACTION_KINDS = [
   'reply',
   'pay',

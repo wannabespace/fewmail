@@ -7,6 +7,7 @@ import {
   isBulk,
   hostOf,
   isGmailEffect,
+  isMassMail,
   LINK_PURPOSES,
   MAIL_CATEGORIES,
   PEOPLE_CATEGORIES,
@@ -367,6 +368,7 @@ const hasWrittenTo = async (message: Message) => {
 const withNetworkFacts = <
   Output extends {
     category: MailCategory
+    impersonalCategory?: MailCategory
     importance: 0 | 1 | 2 | 3
     isCold?: boolean
     needsReply: boolean
@@ -399,9 +401,13 @@ const withNetworkFacts = <
     }
   }
   if (!isBulk(message.bulkCount, output.category)) {
-    return isAutomatedSender(message.fromEmail) &&
-      PEOPLE_CATEGORIES.has(output.category)
-      ? { ...output, category: 'notification', needsReply: false }
+    return PEOPLE_CATEGORIES.has(output.category) &&
+      (isAutomatedSender(message.fromEmail) || isMassMail(message))
+      ? {
+          ...output,
+          category: output.impersonalCategory ?? 'notification',
+          needsReply: false,
+        }
       : output
   }
   return {

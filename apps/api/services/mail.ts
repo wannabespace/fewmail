@@ -10,6 +10,7 @@ import {
   ACTION_KIND_TRAITS,
   cardPayload,
   IMPORTANCE,
+  isMassMail,
   LATER_KINDS,
   LIST_CATEGORIES,
   PEOPLE_CATEGORIES,
@@ -544,6 +545,7 @@ const listHeldMail = (
             .from(inThread)
             .where(and(sameThread, eq(inThread.isUnread, true)))
         )}`,
+        isMassMail: sql<boolean>`(${arrayContains(messages.labelIds, ['CATEGORY_PROMOTIONS'])} or (${messages.listUnsubscribe} is not null and not ${arrayContains(messages.labelIds, ['CATEGORY_FORUMS'])}))`,
         isPinned: sql<boolean>`${isPinned(messages)}`,
         to: messages.to,
       },
@@ -581,6 +583,7 @@ const olderRowOf = ({ mailbox, message, thread }: OlderThread): MailRow => ({
     gmailId: message.gmailId,
     hasAttachments: message.hasAttachments,
     id: liveMessageId(mailbox.id, message.gmailId),
+    isMassMail: isMassMail(message),
     isPinned: thread.some(({ labelIds }) => labelIds.includes('STARRED')),
     isUnread: thread.some(({ isUnread }) => isUnread),
     receivedAt: message.receivedAt,

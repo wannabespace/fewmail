@@ -1,4 +1,5 @@
 import type { rules } from '@fewmail/db/schema'
+import { PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
 import type { ActionKind, MailCategory } from '@fewmail/shared/agent'
 import { choice, noul, score } from '@typesafe-ai/sdk'
 
@@ -115,6 +116,12 @@ export const decideWithJev = async (input: {
       sum + (action.probabilities[kind as keyof typeof ACTION_CRITERIA] ?? 0),
     0
   )
+  const [impersonalCategory] = (
+    Object.entries(answers.category.probabilities) as [MailCategory, number][]
+  )
+    .filter(([category]) => !PEOPLE_CATEGORIES.has(category))
+    .toSorted(([, a], [, b]) => b - a)
+    .map(([category]) => category)
   return {
     category: answers.category.choice,
     hasLater:
@@ -125,6 +132,7 @@ export const decideWithJev = async (input: {
       3,
       Math.max(0, Math.round(answers.importance.score))
     ) as 0 | 1 | 2 | 3,
+    impersonalCategory,
     needsReply: answers.needsReply.noul >= 0.5,
     ruleId: ruleIds.get(answers.rule.choice) ?? null,
     suggestedAction:
