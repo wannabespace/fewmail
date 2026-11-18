@@ -1736,7 +1736,7 @@ export const ThreadView = ({
 
   if (!data) {
     return (
-      <article className="flex min-h-0 flex-1 flex-col">
+      <article className="@container flex min-h-0 flex-1 flex-col">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-8 pb-8 max-md:px-4">
           <ReaderHeader
             title={null}
@@ -1765,7 +1765,7 @@ export const ThreadView = ({
       <div
         ref={scrollRef}
         tabIndex={-1}
-        className="flex-1 overflow-y-auto outline-none"
+        className="@container flex-1 overflow-y-auto outline-none"
       >
         <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8 max-md:px-4">
           <ReaderHeader
@@ -2003,7 +2003,7 @@ export const StackView = ({
 
   return (
     <article className="flex min-h-0 flex-1 flex-col">
-      <div className="flex-1 overflow-y-auto">
+      <div className="@container flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-2xl flex-col gap-6 px-8 pb-8 max-md:px-4">
           <ReaderHeader
             note={t.cleanup.emails(emails.length)}

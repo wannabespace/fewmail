@@ -411,6 +411,13 @@
     border-bottom: 1px solid transparent;
   }
 
+  /* Fills the scroller's width while the content stays in the column; needs `@container` on the scroller, or `cqw` falls back to the viewport. */
+  & [data-slot='reader-bar'],
+  & [data-slot='reader-actions'] {
+    margin-inline: calc(50% - 50cqw);
+    padding-inline: calc(50cqw - 50%);
+  }
+
   @supports (animation-timeline: view()) {
     & [data-slot='reader-pin'] {
       position: sticky;
