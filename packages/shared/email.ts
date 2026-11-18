@@ -1,3 +1,6 @@
+/** The size site icons are fetched at. `SiteAvatar` takes anything this small or smaller for an icon: kept under a Google photo's 96px, or photos get an icon's inset. */
+export const SITE_ICON_PX = 64
+
 /** Shared mailbox providers: a spammer on gmail.com says nothing about gmail.com. */
 export const FREEMAIL_DOMAINS = new Set([
   '126.com',
