@@ -1525,11 +1525,6 @@ export const de: Messages = {
           one: () => '1 mit Datum',
           other: (n) => `${n} mit Datum`,
         }),
-      important: (total: number) =>
-        plural('de', total, {
-          one: () => '1 wichtige E-Mail',
-          other: (n) => `${n} wichtige E-Mails`,
-        }),
     },
     worthKnowing: 'Gut zu wissen',
     canWait: 'Kann warten',

@@ -1654,11 +1654,6 @@ export const en = {
           one: () => '1 with a date',
           other: (n) => `${n} with a date`,
         }),
-      important: (total: number) =>
-        plural('en', total, {
-          one: () => '1 important email',
-          other: (n) => `${n} important emails`,
-        }),
     },
     worthKnowing: 'Worth knowing',
     canWait: 'Can wait',

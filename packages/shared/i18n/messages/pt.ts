@@ -1685,11 +1685,6 @@ export const pt: Messages = {
           one: () => '1 com data',
           other: (n) => `${n} com data`,
         }),
-      important: (total: number) =>
-        plural('pt', total, {
-          one: () => '1 e-mail importante',
-          other: (n) => `${n} e-mails importantes`,
-        }),
     },
     worthKnowing: 'Bom saber',
     canWait: 'Pode esperar',

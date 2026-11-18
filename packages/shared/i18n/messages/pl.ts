@@ -1697,11 +1697,6 @@ export const pl: Messages = {
           one: (n) => (n === 1 ? '1 z datą' : `z datą: ${n}`),
           other: (n) => `z datą: ${n}`,
         }),
-      important: (total: number) =>
-        plural('pl', total, {
-          one: (n) => (n === 1 ? '1 ważny e-mail' : `ważnych e-maili: ${n}`),
-          other: (n) => `ważnych e-maili: ${n}`,
-        }),
     },
     worthKnowing: 'Warto wiedzieć',
     canWait: 'Może poczekać',

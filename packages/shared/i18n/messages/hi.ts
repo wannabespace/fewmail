@@ -1479,11 +1479,6 @@ export const hi: Messages = {
           one: () => '1 तारीख़ वाला',
           other: (n) => `${n} तारीख़ वाले`,
         }),
-      important: (total: number) =>
-        plural('hi', total, {
-          one: () => '1 ज़रूरी ईमेल',
-          other: (n) => `${n} ज़रूरी ईमेल`,
-        }),
     },
     worthKnowing: 'जानने लायक',
     canWait: 'बाद में भी चलेगा',

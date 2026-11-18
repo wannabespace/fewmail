@@ -1441,11 +1441,6 @@ export const zh: Messages = {
           one: () => '1 封带日期',
           other: (n) => `${n} 封带日期`,
         }),
-      important: (total: number) =>
-        plural('zh', total, {
-          one: () => '1 封重要邮件',
-          other: (n) => `${n} 封重要邮件`,
-        }),
     },
     worthKnowing: '值得了解',
     canWait: '可以稍后',

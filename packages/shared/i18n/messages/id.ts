@@ -1662,11 +1662,6 @@ export const id: Messages = {
           one: () => '1 bertanggal',
           other: (n) => `${n} bertanggal`,
         }),
-      important: (total: number) =>
-        plural('id', total, {
-          one: () => '1 email penting',
-          other: (n) => `${n} email penting`,
-        }),
     },
     worthKnowing: 'Perlu diketahui',
     canWait: 'Bisa menunggu',

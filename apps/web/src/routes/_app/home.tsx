@@ -120,7 +120,7 @@ const NEW_SENDER_TOAST = 'new-sender'
 const RULE_OFFER_TOAST = 'rule-offer'
 
 const isImportantCard = ({ action, analysis }: QueueItem) =>
-  isImportant(action.kind, analysis?.importance)
+  isImportant(action.kind, analysis)
 
 const idsOf = (items: QueueItem[]) =>
   items.map(({ action }) => action.id).join(',')
@@ -1108,7 +1108,7 @@ const LaterCard = ({
   }
   const lead = [
     ...kindsOf(t, cards).map(({ count, label }) => `${label} ${count}`),
-    today.recent.length > 0 && t.today.worth.important(today.recent.length),
+    today.recent.length > 0 && `${t.today.worthKnowing} ${today.recent.length}`,
     today.dates.length > 0 && t.today.worth.dated(today.dates.length),
     today.awaiting.length > 0 && t.today.worth.awaiting(today.awaiting.length),
     today.newSenders.length > 0 &&

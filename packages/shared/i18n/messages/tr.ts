@@ -1654,11 +1654,6 @@ export const tr: Messages = {
           one: () => '1 tarihli',
           other: (n) => `${n} tarihli`,
         }),
-      important: (total: number) =>
-        plural('tr', total, {
-          one: () => '1 önemli e-posta',
-          other: (n) => `${n} önemli e-posta`,
-        }),
     },
     worthKnowing: 'Bilmekte fayda var',
     canWait: 'Bekleyebilir',

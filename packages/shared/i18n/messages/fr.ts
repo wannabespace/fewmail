@@ -1532,11 +1532,6 @@ export const fr: Messages = {
           one: () => '1 avec une date',
           other: (n) => `${n} avec une date`,
         }),
-      important: (total: number) =>
-        plural('fr', total, {
-          one: () => '1 e-mail important',
-          other: (n) => `${n} e-mails importants`,
-        }),
     },
     worthKnowing: 'Bon à savoir',
     canWait: 'Peut attendre',

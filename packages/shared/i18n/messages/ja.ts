@@ -1491,11 +1491,6 @@ export const ja: Messages = {
           one: () => '日付あり 1 件',
           other: (n) => `日付あり ${n} 件`,
         }),
-      important: (total: number) =>
-        plural('ja', total, {
-          one: () => '重要なメール 1 件',
-          other: (n) => `重要なメール ${n} 件`,
-        }),
     },
     worthKnowing: '知っておきたいこと',
     canWait: '後でも大丈夫',

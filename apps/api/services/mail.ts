@@ -149,6 +149,7 @@ export const countImportant = async (userId: string) => {
         notInArray(actions.kind, [...PROPOSAL_KINDS]),
         or(
           notInArray(actions.kind, [...LATER_KINDS]),
+          eq(analyses.needsReply, true),
           gte(analyses.importance, IMPORTANCE.critical)
         )
       )
@@ -1139,13 +1140,47 @@ const worthKnowingSince = (userId: string, since: Date, where?: SQL) =>
       )
     )
 
+const isNewestInThread = notExists(
+  db
+    .select({ id: newerInThread.id })
+    .from(newerInThread)
+    .where(
+      and(
+        eq(newerInThread.userId, messages.userId),
+        eq(newerInThread.threadId, messages.threadId),
+        gt(newerInThread.receivedAt, messages.receivedAt)
+      )
+    )
+)
+
+/** No card was ever made for this email and none waits in its thread: the card, settled or not, already said what the email needs. */
+const isUntouched = notExists(
+  db
+    .select({ id: actions.id })
+    .from(actions)
+    .where(
+      and(
+        eq(actions.userId, messages.userId),
+        or(
+          eq(actions.messageId, messages.id),
+          and(
+            eq(actions.threadId, messages.threadId),
+            eq(actions.status, 'pending')
+          )
+        )
+      )
+    )
+)
+
 export const recentImportant = (userId: string, since: Date) =>
   worthKnowingSince(
     userId,
     since,
     and(
       arrayContains(messages.labelIds, ['INBOX']),
-      eq(messages.isUnread, true)
+      eq(messages.isUnread, true),
+      isNewestInThread,
+      isUntouched
     )
   )
     .orderBy(desc(analyses.importance), desc(messages.receivedAt))
@@ -1260,35 +1295,8 @@ const tidyCandidates = (userId: string, where?: SQL) =>
           ne(analyses.suggestedAction, 'mark_read'),
           eq(messages.isUnread, true)
         ),
-        notExists(
-          db
-            .select({ id: newerInThread.id })
-            .from(newerInThread)
-            .where(
-              and(
-                eq(newerInThread.userId, messages.userId),
-                eq(newerInThread.threadId, messages.threadId),
-                gt(newerInThread.receivedAt, messages.receivedAt)
-              )
-            )
-        ),
-        notExists(
-          db
-            .select({ id: actions.id })
-            .from(actions)
-            .where(
-              and(
-                eq(actions.userId, messages.userId),
-                or(
-                  eq(actions.messageId, messages.id),
-                  and(
-                    eq(actions.threadId, messages.threadId),
-                    eq(actions.status, 'pending')
-                  )
-                )
-              )
-            )
-        ),
+        isNewestInThread,
+        isUntouched,
         where
       )
     )

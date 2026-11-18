@@ -1666,11 +1666,6 @@ export const nl: Messages = {
           one: () => '1 met een datum',
           other: (n) => `${n} met een datum`,
         }),
-      important: (total: number) =>
-        plural('nl', total, {
-          one: () => '1 belangrijke e-mail',
-          other: (n) => `${n} belangrijke e-mails`,
-        }),
     },
     worthKnowing: 'Goed om te weten',
     canWait: 'Kan wachten',

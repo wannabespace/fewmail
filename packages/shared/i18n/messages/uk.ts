@@ -1510,11 +1510,6 @@ export const uk: Messages = {
           one: (n) => (n === 1 ? '1 з датою' : `з датою: ${n}`),
           other: (n) => `з датою: ${n}`,
         }),
-      important: (total: number) =>
-        plural('uk', total, {
-          one: (n) => (n === 1 ? '1 важливий лист' : `важливих листів: ${n}`),
-          other: (n) => `важливих листів: ${n}`,
-        }),
     },
     worthKnowing: 'Варто знати',
     canWait: 'Може почекати',

@@ -1474,11 +1474,6 @@ export const ko: Messages = {
           one: () => '날짜 있는 메일 1개',
           other: (n) => `날짜 있는 메일 ${n}개`,
         }),
-      important: (total: number) =>
-        plural('ko', total, {
-          one: () => '중요한 메일 1개',
-          other: (n) => `중요한 메일 ${n}개`,
-        }),
     },
     worthKnowing: '알아 두면 좋은 것',
     canWait: '나중에 봐도 돼요',
