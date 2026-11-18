@@ -197,6 +197,10 @@ export const pl: Messages = {
     work: 'Praca',
   },
   board: {
+    empty: {
+      lead: 'Obietnice złożone tobie, twoje zobowiązania i terminy pojawiają się tu automatycznie na podstawie twojej poczty.',
+      title: 'Nic nie czeka na załatwienie.',
+    },
     lead: {
       coming: (total: number) =>
         plural('pl', total, {
@@ -205,8 +209,6 @@ export const pl: Messages = {
           many: (n) => `Zbliża się ${n} terminów.`,
           other: (n) => `Zbliża się ${n} terminu.`,
         }),
-      empty:
-        'Nic nie czeka na załatwienie. Obietnice złożone tobie, twoje zobowiązania i terminy pojawiają się tu automatycznie na podstawie twojej poczty.',
       owed: (amounts: string) => `Należy ci się ${amounts}.`,
       promised: (total: number) =>
         plural('pl', total, {
@@ -1703,7 +1705,15 @@ export const pl: Messages = {
     },
     worthKnowing: 'Warto wiedzieć',
     canWait: 'Może poczekać',
+    canWaitEmpty: {
+      lead: 'Tu zbierają się maile do przeczytania w wolnej chwili i odpowiedzi, na które czekasz.',
+      title: 'Nic nie czeka.',
+    },
     improve: {
+      empty: {
+        lead: 'Gdy agent zauważy, że wiadomości od jakiegoś nadawcy traktujesz zawsze tak samo, zaproponuje tu regułę.',
+        title: 'Na razie brak propozycji.',
+      },
       lead: (total: number) =>
         plural('pl', total, {
           one: () => 'Jedna reguła, którą agent mógłby stosować za ciebie.',

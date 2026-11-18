@@ -197,14 +197,16 @@ export const tr: Messages = {
     work: 'İş',
   },
   board: {
+    empty: {
+      lead: 'Sana verilen sözler, senin verdiğin sözler ve son tarihler e-postalarından otomatik olarak buraya eklenir.',
+      title: 'Bekleyen bir şey yok.',
+    },
     lead: {
       coming: (total: number) =>
         plural('tr', total, {
           one: () => 'Bir son tarih yaklaşıyor.',
           other: (n) => `${n} son tarih yaklaşıyor.`,
         }),
-      empty:
-        'Bekleyen bir şey yok. Sana verilen sözler, senin verdiğin sözler ve son tarihler e-postalarından otomatik olarak buraya eklenir.',
       owed: (amounts: string) => `Alacağın: ${amounts}.`,
       promised: (total: number) =>
         plural('tr', total, {
@@ -1660,7 +1662,15 @@ export const tr: Messages = {
     },
     worthKnowing: 'Bilmekte fayda var',
     canWait: 'Bekleyebilir',
+    canWaitEmpty: {
+      lead: 'Vaktin olduğunda okuyacağın e-postalar ve beklediğin yanıtlar burada toplanır.',
+      title: 'Bekleyen bir şey yok.',
+    },
     improve: {
+      empty: {
+        lead: 'Ajan bir gönderene her seferinde aynı şeyi yaptığını görürse burada bir kural önerir.',
+        title: 'Şimdilik öneri yok.',
+      },
       lead: (total: number) =>
         plural('tr', total, {
           other: (n) => `Ajanın senin için uygulayabileceği ${n} kural.`,

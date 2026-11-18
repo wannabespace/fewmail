@@ -1449,7 +1449,15 @@ export const zh: Messages = {
     },
     worthKnowing: '值得了解',
     canWait: '可以稍后',
+    canWaitEmpty: {
+      lead: '有空时再读的邮件和你在等的回复会集中在这里。',
+      title: '没有等待中的邮件。',
+    },
     improve: {
+      empty: {
+        lead: '当助手发现你每次都用同样的方式处理某个发件人的邮件时，会在这里建议一条规则。',
+        title: '暂时没有建议。',
+      },
       lead: (total: number) => `助手可以替你执行的规则有 ${total} 条。`,
       title: '助手的建议',
     },
@@ -1521,14 +1529,16 @@ export const zh: Messages = {
     reason: '陌生推销：你从未给对方写过信，对方却在推销',
   },
   board: {
+    empty: {
+      lead: '邮件中别人对你的承诺、你做出的承诺和截止日期都会自动整理到这里。',
+      title: '没有待办事项。',
+    },
     lead: {
       coming: (total: number) =>
         plural('zh', total, {
           one: () => '有 1 个截止日期临近。',
           other: (n) => `有 ${n} 个截止日期临近。`,
         }),
-      empty:
-        '没有待办事项。邮件中别人对你的承诺、你做出的承诺和截止日期都会自动整理到这里。',
       owed: (amounts: string) => `你应收 ${amounts}。`,
       promised: (total: number) =>
         plural('zh', total, {

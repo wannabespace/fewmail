@@ -15,13 +15,6 @@ import {
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@fewmail/ui/components/empty'
-import {
   Item,
   ItemActions,
   ItemContent,
@@ -73,10 +66,14 @@ import {
   useExpandedRow,
   useIsThreadExpanded,
 } from '~/components/expand-row'
-import { HomeCard, HomeCardPane, PageHeading } from '~/components/home-card'
+import {
+  HomeCard,
+  HomeCardPane,
+  PageHeading,
+  PaneEmpty,
+} from '~/components/home-card'
 import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
-import { LogoMark } from '~/components/logo'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
 import { PaneRows } from '~/components/pane-rows'
 import type { RowPlace } from '~/components/pane-rows'
@@ -965,25 +962,6 @@ const LookHeading = ({
   )
 }
 
-/** Needs you with its last card settled: the bird smiles over Home's own all-done words, never a bare title. */
-const LookDone = ({ queue }: { queue: QueueItem[] }) => {
-  const t = useT()
-  if (queue.length > 0) {
-    return null
-  }
-  return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia>
-          <LogoMark isHappy className="size-20" />
-        </EmptyMedia>
-        <EmptyTitle>{t.today.allDone}</EmptyTitle>
-        <EmptyDescription>{t.today.allDoneLead}</EmptyDescription>
-      </EmptyHeader>
-    </Empty>
-  )
-}
-
 type Settled = ReturnType<typeof useSettled>
 
 /** Each card's share of the day's progress, in its own color: Needs you, Can wait and Quick. */
@@ -1112,6 +1090,8 @@ const laterCountOf = (cards: QueueItem[], today: Today) =>
 const homeFlagsOf = (today: Today | undefined, laterCards: QueueItem[]) => ({
   hasLater: Boolean(today && laterCountOf(laterCards, today) > 0),
   isFirstRead: Boolean(today && isReadingFirstTime(today.mailboxes)),
+  isImproveEmpty: Boolean(today && improveCountOf(today) === 0),
+  isLaterEmpty: Boolean(today && laterCountOf(laterCards, today) === 0),
 })
 
 /** What can wait as one card (`W`, `?page=later`): the cards that only ask to read, Worth knowing's mail, new senders. */
@@ -1394,7 +1374,10 @@ const HomePage = () => {
     query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
   )
   const { groups, importantCards, laterCards } = useHomeLists(cards)
-  const { hasLater, isFirstRead } = homeFlagsOf(data, laterCards)
+  const { hasLater, isFirstRead, isImproveEmpty, isLaterEmpty } = homeFlagsOf(
+    data,
+    laterCards
+  )
   const decisions = importantCards.length
   const proposals = useProposals(data, cards, holdClicksUntilMove)
   const hasProposals = proposals.proposals.length > 0
@@ -1649,7 +1632,11 @@ const HomePage = () => {
                   onSkip={skipTargets}
                   onTrash={() => trashMany.mutate(picked)}
                 />
-                <LookDone queue={importantCards} />
+                <PaneEmpty
+                  isShown={importantCards.length === 0}
+                  lead={t.today.allDoneLead}
+                  title={t.today.allDone}
+                />
                 {groups.groups.map((group) => (
                   <section key={group.kind} className="flex flex-col gap-2">
                     <SettingsGroupTitle
@@ -1687,6 +1674,7 @@ const HomePage = () => {
             {page === 'later' && (
               <HomeCardPane key="later" page="later">
                 <PageHeading title={t.today.canWait} onClose={closePage} />
+                <PaneEmpty isShown={isLaterEmpty} {...t.today.canWaitEmpty} />
                 {cardList(laterCards)}
                 <WorthKnowing
                   cursorId={cursorId}
@@ -1713,6 +1701,10 @@ const HomePage = () => {
                 <PageHeading
                   title={t.today.improve.title}
                   onClose={closePage}
+                />
+                <PaneEmpty
+                  isShown={isImproveEmpty}
+                  {...t.today.improve.empty}
                 />
                 <div
                   className={cn('flex flex-col gap-2.5', cardsBleedClassName)}

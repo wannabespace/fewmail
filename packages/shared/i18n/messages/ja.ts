@@ -1499,7 +1499,15 @@ export const ja: Messages = {
     },
     worthKnowing: '知っておきたいこと',
     canWait: '後でも大丈夫',
+    canWaitEmpty: {
+      lead: '手が空いたときに読むメールと、返信待ちのメールがここに集まります。',
+      title: '待っているものはありません。',
+    },
     improve: {
+      empty: {
+        lead: '同じ送信者のメールをいつも同じように扱っていると、エージェントがここでルールを提案します。',
+        title: '今は提案がありません。',
+      },
       lead: (total: number) =>
         `エージェントが代わりに実行できるルールが${total}件あります。`,
       title: 'エージェントからの提案',
@@ -1578,14 +1586,16 @@ export const ja: Messages = {
     reason: 'コールドメール：一度もメールしたことのない相手からの売り込み',
   },
   board: {
+    empty: {
+      lead: 'あなたへの約束、あなたの約束、期限はメールから自動でここに届きます。',
+      title: '未完了のものはありません。',
+    },
     lead: {
       coming: (total: number) =>
         plural('ja', total, {
           one: () => '期限が 1 件近づいています。',
           other: (n) => `期限が ${n} 件近づいています。`,
         }),
-      empty:
-        '未完了のものはありません。あなたへの約束、あなたの約束、期限はメールから自動でここに届きます。',
       owed: (amounts: string) => `受け取る予定: ${amounts}。`,
       promised: (total: number) =>
         plural('ja', total, {

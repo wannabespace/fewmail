@@ -18,7 +18,7 @@ import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
-import { HomeCard, PageHeading } from '~/components/home-card'
+import { HomeCard, PageHeading, PaneEmpty } from '~/components/home-card'
 import { PaneRows } from '~/components/pane-rows'
 import type { RowPlace } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
@@ -96,7 +96,9 @@ const leadOf = (
       t.board.lead.promised(sections.promised.length),
     sections.coming.length > 0 && t.board.lead.coming(sections.coming.length),
   ].filter(Boolean)
-  return parts.length > 0 ? parts.join(' ') : t.board.lead.empty
+  return parts.length > 0
+    ? parts.join(' ')
+    : `${t.board.empty.title} ${t.board.empty.lead}`
 }
 
 /** In people's words, never the status names: "they answered, not done yet", "overdue". */
@@ -339,12 +341,16 @@ export const BoardPane = ({
   return (
     <>
       <PageHeading title={t.nav.board} onClose={onClose}>
-        {!isPending && (
+        {!isPending && ordered.length > 0 && (
           <p className="text-brief text-foreground/85 font-serif text-balance">
             {leadOf(t, locale, sections)}
           </p>
         )}
       </PageHeading>
+      <PaneEmpty
+        isShown={!isPending && ordered.length === 0}
+        {...t.board.empty}
+      />
       {SECTIONS.map(
         (section) =>
           sections[section].length > 0 && (

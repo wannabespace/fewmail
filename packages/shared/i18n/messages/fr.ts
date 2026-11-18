@@ -1540,7 +1540,15 @@ export const fr: Messages = {
     },
     worthKnowing: 'Bon à savoir',
     canWait: 'Peut attendre',
+    canWaitEmpty: {
+      lead: 'Les e-mails à lire quand vous aurez un moment et les réponses que vous attendez se rassemblent ici.',
+      title: 'Rien n’attend.',
+    },
     improve: {
+      empty: {
+        lead: 'Quand l’agent voit que vous traitez un expéditeur toujours de la même façon, il vous propose une règle ici.',
+        title: 'Aucune suggestion pour l’instant.',
+      },
       lead: (total: number) =>
         plural('fr', total, {
           one: () => 'Une règle que l’agent pourrait suivre pour vous.',
@@ -1634,14 +1642,16 @@ export const fr: Messages = {
       'Prospection à froid : quelqu’un à qui vous n’avez jamais écrit vous démarche',
   },
   board: {
+    empty: {
+      lead: 'Les promesses qui vous sont faites, vos engagements et les dates limites de vos e-mails apparaissent ici automatiquement.',
+      title: 'Rien en attente.',
+    },
     lead: {
       coming: (total: number) =>
         plural('fr', total, {
           one: () => 'Une date limite approche.',
           other: (n) => `${n} dates limites approchent.`,
         }),
-      empty:
-        'Rien en attente. Les promesses qui vous sont faites, vos engagements et les dates limites de vos e-mails apparaissent ici automatiquement.',
       owed: (amounts: string) => `On vous doit ${amounts}.`,
       promised: (total: number) =>
         plural('fr', total, {

@@ -1533,7 +1533,15 @@ export const es: Messages = {
     },
     worthKnowing: 'Para tener en cuenta',
     canWait: 'Puede esperar',
+    canWaitEmpty: {
+      lead: 'Aquí se reúnen los correos para leer cuando tengas un momento y las respuestas que esperas.',
+      title: 'Nada en espera.',
+    },
     improve: {
+      empty: {
+        lead: 'Cuando el agente vea que tratas a un remitente siempre igual, te ofrecerá una regla aquí.',
+        title: 'Ninguna sugerencia por ahora.',
+      },
       lead: (total: number) =>
         plural('es', total, {
           one: () => 'Una regla que el agente podría seguir por ti.',
@@ -1624,14 +1632,16 @@ export const es: Messages = {
     reason: 'Contacto en frío: alguien a quien nunca escribiste te ofrece algo',
   },
   board: {
+    empty: {
+      lead: 'Las promesas que te hacen, las que haces tú y las fechas límite aparecen aquí automáticamente a partir de tu correo.',
+      title: 'Nada pendiente.',
+    },
     lead: {
       coming: (total: number) =>
         plural('es', total, {
           one: () => 'Se acerca una fecha límite.',
           other: (n) => `Se acercan ${n} fechas límite.`,
         }),
-      empty:
-        'Nada pendiente. Las promesas que te hacen, las que haces tú y las fechas límite aparecen aquí automáticamente a partir de tu correo.',
       owed: (amounts: string) => `Te deben ${amounts}.`,
       promised: (total: number) =>
         plural('es', total, {

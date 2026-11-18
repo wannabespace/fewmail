@@ -197,14 +197,16 @@ export const nl: Messages = {
     work: 'Werk',
   },
   board: {
+    empty: {
+      lead: 'Beloftes aan jou, je eigen beloftes en deadlines uit je mail verschijnen hier automatisch.',
+      title: 'Niets meer open.',
+    },
     lead: {
       coming: (total: number) =>
         plural('nl', total, {
           one: () => 'Er komt een deadline aan.',
           other: (n) => `Er komen ${n} deadlines aan.`,
         }),
-      empty:
-        'Niets meer open. Beloftes aan jou, je eigen beloftes en deadlines uit je mail verschijnen hier automatisch.',
       owed: (amounts: string) => `Je krijgt nog ${amounts}.`,
       promised: (total: number) =>
         plural('nl', total, {
@@ -1672,7 +1674,15 @@ export const nl: Messages = {
     },
     worthKnowing: 'Goed om te weten',
     canWait: 'Kan wachten',
+    canWaitEmpty: {
+      lead: 'Mail om te lezen als je even tijd hebt en antwoorden waar je op wacht, komen hier samen.',
+      title: 'Er wacht niets.',
+    },
     improve: {
+      empty: {
+        lead: 'Als de agent ziet dat je een afzender steeds op dezelfde manier behandelt, stelt hij hier een regel voor.',
+        title: 'Nu geen voorstellen.',
+      },
       lead: (total: number) =>
         plural('nl', total, {
           one: () => 'Eén regel die de agent voor je zou kunnen volgen.',

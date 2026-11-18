@@ -1533,7 +1533,15 @@ export const de: Messages = {
     },
     worthKnowing: 'Gut zu wissen',
     canWait: 'Kann warten',
+    canWaitEmpty: {
+      lead: 'E-Mails für einen ruhigen Moment und Antworten, auf die du wartest, sammeln sich hier.',
+      title: 'Nichts wartet.',
+    },
     improve: {
+      empty: {
+        lead: 'Wenn der Agent sieht, dass du einen Absender immer wieder gleich behandelst, schlägt er hier eine Regel vor.',
+        title: 'Gerade keine Vorschläge.',
+      },
       lead: (total: number) =>
         plural('de', total, {
           one: () => 'Eine Regel, die der Agent für dich befolgen könnte.',
@@ -1625,14 +1633,16 @@ export const de: Messages = {
       'Kaltakquise: Jemand Fremdes will dir etwas verkaufen, du hast nie an diese Adresse geschrieben',
   },
   board: {
+    empty: {
+      lead: 'Zusagen an dich, deine eigenen Zusagen und Fristen aus deinen E-Mails erscheinen hier automatisch.',
+      title: 'Nichts offen.',
+    },
     lead: {
       coming: (total: number) =>
         plural('de', total, {
           one: () => 'Eine Frist läuft bald ab.',
           other: (n) => `${n} Fristen laufen bald ab.`,
         }),
-      empty:
-        'Nichts offen. Zusagen an dich, deine eigenen Zusagen und Fristen aus deinen E-Mails erscheinen hier automatisch.',
       owed: (amounts: string) => `Dir stehen ${amounts} zu.`,
       promised: (total: number) =>
         plural('de', total, {

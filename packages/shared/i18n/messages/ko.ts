@@ -1482,7 +1482,15 @@ export const ko: Messages = {
     },
     worthKnowing: '알아 두면 좋은 것',
     canWait: '나중에 봐도 돼요',
+    canWaitEmpty: {
+      lead: '여유 있을 때 읽을 메일과 기다리는 답장이 여기에 모여요.',
+      title: '기다리는 메일이 없어요.',
+    },
     improve: {
+      empty: {
+        lead: '같은 발신자의 메일을 매번 같은 방식으로 처리하면 에이전트가 여기에서 규칙을 제안해요.',
+        title: '지금은 제안이 없어요.',
+      },
       lead: (total: number) =>
         `에이전트가 대신 따를 수 있는 규칙이 ${total}개 있어요.`,
       title: '에이전트의 제안',
@@ -1559,14 +1567,16 @@ export const ko: Messages = {
     reason: '콜드 메일: 한 번도 메일을 보낸 적 없는 사람의 영업 메일이에요',
   },
   board: {
+    empty: {
+      lead: '받은 약속, 내가 한 약속, 마감일이 메일에서 자동으로 여기에 정리돼요.',
+      title: '미완료된 일이 없어요.',
+    },
     lead: {
       coming: (total: number) =>
         plural('ko', total, {
           one: () => '마감일이 하나 다가와요.',
           other: (n) => `마감일이 ${n}개 다가와요.`,
         }),
-      empty:
-        '미완료된 일이 없어요. 받은 약속, 내가 한 약속, 마감일이 메일에서 자동으로 여기에 정리돼요.',
       owed: (amounts: string) => `받을 돈: ${amounts}.`,
       promised: (total: number) =>
         plural('ko', total, {

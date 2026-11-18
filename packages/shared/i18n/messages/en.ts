@@ -245,14 +245,16 @@ export const en = {
     writing: 'Writing…',
   },
   board: {
+    empty: {
+      lead: 'Promises made to you, promises you make and deadlines appear here automatically from your mail.',
+      title: 'Nothing pending.',
+    },
     lead: {
       coming: (total: number) =>
         plural('en', total, {
           one: () => 'One deadline is coming up.',
           other: (n) => `${n} deadlines are coming up.`,
         }),
-      empty:
-        'Nothing pending. Promises made to you, promises you make and deadlines appear here automatically from your mail.',
       owed: (amounts: string) => `You are owed ${amounts}.`,
       promised: (total: number) =>
         plural('en', total, {
@@ -1660,7 +1662,15 @@ export const en = {
     },
     worthKnowing: 'Worth knowing',
     canWait: 'Can wait',
+    canWaitEmpty: {
+      lead: 'Mail to read when you have a moment, and replies you are waiting for, gather here.',
+      title: 'Nothing is waiting.',
+    },
     improve: {
+      empty: {
+        lead: 'When the agent sees you treat a sender the same way again and again, it offers a rule here.',
+        title: 'No suggestions right now.',
+      },
       lead: (total: number) =>
         plural('en', total, {
           one: () => 'One rule the agent could follow for you.',

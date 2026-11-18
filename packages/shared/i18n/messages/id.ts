@@ -197,14 +197,16 @@ export const id: Messages = {
     work: 'Kerja',
   },
   board: {
+    empty: {
+      lead: 'Janji orang lain kepadamu, janjimu, dan tenggat otomatis muncul di sini dari emailmu.',
+      title: 'Tidak ada yang tertunda.',
+    },
     lead: {
       coming: (total: number) =>
         plural('id', total, {
           one: () => 'Satu tenggat sudah dekat.',
           other: (n) => `${n} tenggat sudah dekat.`,
         }),
-      empty:
-        'Tidak ada yang tertunda. Janji orang lain kepadamu, janjimu, dan tenggat otomatis muncul di sini dari emailmu.',
       owed: (amounts: string) => `Kamu masih berhak menerima ${amounts}.`,
       promised: (total: number) =>
         plural('id', total, {
@@ -1668,7 +1670,15 @@ export const id: Messages = {
     },
     worthKnowing: 'Perlu diketahui',
     canWait: 'Bisa menunggu',
+    canWaitEmpty: {
+      lead: 'Email untuk dibaca saat kamu senggang dan balasan yang kamu tunggu berkumpul di sini.',
+      title: 'Tidak ada yang menunggu.',
+    },
     improve: {
+      empty: {
+        lead: 'Saat agen melihat kamu memperlakukan pengirim yang sama dengan cara yang sama berulang kali, agen akan menawarkan aturan di sini.',
+        title: 'Belum ada saran.',
+      },
       lead: (total: number) =>
         plural('id', total, {
           other: (n) => `${n} aturan yang bisa dijalankan agen untukmu.`,

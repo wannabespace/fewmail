@@ -1,4 +1,11 @@
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@fewmail/ui/components/empty'
 import { Item } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { cn } from '@fewmail/ui/lib/utils'
@@ -21,6 +28,7 @@ import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
 import { MorphPane, PaneReveal } from '~/components/expand-row'
+import { LogoMark } from '~/components/logo'
 import { PaneScroller } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { useT } from '~/lib/i18n'
@@ -272,3 +280,25 @@ export const PageHeading = ({
     </>
   )
 }
+
+/** A pane with nothing left in it: the bird smiles over what is done and what will come, never a bare title. */
+export const PaneEmpty = ({
+  isShown,
+  lead,
+  title,
+}: {
+  isShown: boolean
+  lead: string
+  title: string
+}) =>
+  isShown && (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia>
+          <LogoMark isHappy className="size-20" />
+        </EmptyMedia>
+        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyDescription>{lead}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  )

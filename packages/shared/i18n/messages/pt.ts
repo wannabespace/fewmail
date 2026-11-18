@@ -198,14 +198,16 @@ export const pt: Messages = {
     work: 'Trabalho',
   },
   board: {
+    empty: {
+      lead: 'As promessas que você recebe, as que faz e os prazos aparecem aqui automaticamente a partir dos seus e-mails.',
+      title: 'Nada pendente.',
+    },
     lead: {
       coming: (total: number) =>
         plural('pt', total, {
           one: () => 'Um prazo está chegando.',
           other: (n) => `${n} prazos estão chegando.`,
         }),
-      empty:
-        'Nada pendente. As promessas que você recebe, as que faz e os prazos aparecem aqui automaticamente a partir dos seus e-mails.',
       owed: (amounts: string) => `Te devem ${amounts}.`,
       promised: (total: number) =>
         plural('pt', total, {
@@ -1691,7 +1693,15 @@ export const pt: Messages = {
     },
     worthKnowing: 'Bom saber',
     canWait: 'Pode esperar',
+    canWaitEmpty: {
+      lead: 'Os e-mails para ler quando você tiver um tempo e as respostas que você aguarda se reúnem aqui.',
+      title: 'Nada esperando.',
+    },
     improve: {
+      empty: {
+        lead: 'Quando o agente perceber que você trata um remetente sempre do mesmo jeito, ele sugere uma regra aqui.',
+        title: 'Nenhuma sugestão por enquanto.',
+      },
       lead: (total: number) =>
         plural('pt', total, {
           one: () => 'Uma regra que o agente poderia seguir por você.',
