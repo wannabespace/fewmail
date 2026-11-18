@@ -822,6 +822,10 @@ export const fr: Messages = {
   importance: ['Bruit', 'Bon à savoir', 'Bientôt pour vous', 'Urgent'],
   justNow: 'à l’instant',
   errors: {
+    crashTitle: 'Fewmail a trébuché sur cette page',
+    crashLead:
+      'Vos e-mails sont en sécurité et rien n’a changé dans Gmail. Rechargez ; si cela se reproduit, nous sommes déjà prévenus.',
+    missingTitle: 'Il n’y a rien à cette adresse',
     calendarAccess:
       'Fewmail n’a pas accès à cet agenda. Autorisez-le depuis la page Agenda.',
     failed: 'Un problème est survenu. Réessayez.',

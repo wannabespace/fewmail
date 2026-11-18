@@ -395,6 +395,10 @@ export const nl: Messages = {
   importance: ['Ruis', 'Goed om te weten', 'Heeft je snel nodig', 'Dringend'],
   justNow: 'zojuist',
   errors: {
+    crashTitle: 'Fewmail struikelde over deze pagina',
+    crashLead:
+      'Je mail is veilig en er is niets veranderd in Gmail. Laad opnieuw; gebeurt het weer, dan weten we het al.',
+    missingTitle: 'Op dit adres staat niets',
     calendarAccess:
       'Fewmail heeft geen toegang tot deze agenda. Sta het toe op de pagina Agenda.',
     failed: 'Er ging iets mis. Probeer het opnieuw.',

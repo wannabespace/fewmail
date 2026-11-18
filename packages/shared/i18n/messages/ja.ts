@@ -249,6 +249,10 @@ export const ja: Messages = {
   importance: ['ノイズ', '知っておくと良い', '近いうちに対応', '緊急'],
   justNow: 'たった今',
   errors: {
+    crashTitle: 'このページで Fewmail がつまずきました',
+    crashLead:
+      'メールは無事で、Gmail では何も変わっていません。再読み込みしてください。もう一度起きても、こちらで把握しています。',
+    missingTitle: 'このアドレスには何もありません',
     calendarAccess:
       'Fewmail はこのカレンダーにアクセスできません。カレンダーのページで許可してください。',
     failed: '問題が発生しました。もう一度お試しください。',

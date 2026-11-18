@@ -816,6 +816,10 @@ export const it: Messages = {
   importance: ['Rumore', 'Buono a sapersi', 'Presto per te', 'Urgente'],
   justNow: 'proprio ora',
   errors: {
+    crashTitle: 'Fewmail è inciampato su questa pagina',
+    crashLead:
+      'La tua posta è al sicuro e in Gmail non è cambiato nulla. Ricarica; se succede di nuovo, lo sappiamo già.',
+    missingTitle: 'Non c’è niente a questo indirizzo',
     calendarAccess:
       'Fewmail non ha accesso a questo calendario. Consentilo dalla pagina Calendario.',
     failed: 'Qualcosa è andato storto. Riprova.',

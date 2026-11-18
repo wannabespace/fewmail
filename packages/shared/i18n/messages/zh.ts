@@ -248,6 +248,10 @@ export const zh: Messages = {
   importance: ['噪音', '值得了解', '需尽快处理', '紧急'],
   justNow: '刚刚',
   errors: {
+    crashTitle: 'Fewmail 在这个页面上绊了一下',
+    crashLead:
+      '你的邮件很安全，Gmail 中没有任何改动。请重新加载；如果再次出现，我们已经知道了。',
+    missingTitle: '这个地址什么也没有',
     calendarAccess: 'Fewmail 无权访问此日历。请在日历页面中授权。',
     failed: '出了点问题，请重试。',
     needsPro: '此功能需要 Fewmail Pro。',

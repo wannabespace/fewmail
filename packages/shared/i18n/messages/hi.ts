@@ -252,6 +252,10 @@ export const hi: Messages = {
   importance: ['शोर', 'जानने लायक', 'जल्द ध्यान दें', 'ज़रूरी'],
   justNow: 'अभी',
   errors: {
+    crashTitle: 'Fewmail इस पेज पर अटक गया',
+    crashLead:
+      'आपका मेल सुरक्षित है और Gmail में कुछ नहीं बदला। फिर से लोड करें, अगर दोबारा हुआ तो हमें पहले से पता है।',
+    missingTitle: 'इस पते पर कुछ नहीं है',
     calendarAccess: 'Fewmail के पास इस कैलेंडर की अनुमति नहीं है। कैलेंडर पेज पर अनुमति दें।',
     failed: 'कुछ गड़बड़ हो गई। फिर से कोशिश करें।',
     needsPro: 'इसके लिए Fewmail Pro चाहिए।',

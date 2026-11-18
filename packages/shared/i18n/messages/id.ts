@@ -394,6 +394,10 @@ export const id: Messages = {
   ],
   justNow: 'baru saja',
   errors: {
+    crashTitle: 'Fewmail tersandung di halaman ini',
+    crashLead:
+      'Email kamu aman dan tidak ada yang berubah di Gmail. Muat ulang; kalau terjadi lagi, kami sudah tahu.',
+    missingTitle: 'Tidak ada apa-apa di alamat ini',
     calendarAccess:
       'Fewmail tidak punya akses ke kalender ini. Izinkan di halaman Kalender.',
     failed: 'Terjadi kesalahan. Coba lagi.',

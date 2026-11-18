@@ -1,6 +1,7 @@
 import type { RouterHistory } from '@tanstack/react-router'
 import { createRouter } from '@tanstack/react-router'
 
+import { ErrorPage, NotFoundPage } from './components/error-page'
 import { localeStore } from './lib/i18n'
 import { posthog } from './lib/posthog'
 import { queryClient } from './lib/query-client'
@@ -14,6 +15,8 @@ import { routeTree } from './routeTree.gen'
 export const createAppRouter = (history?: RouterHistory) =>
   createRouter({
     context: { queryClient },
+    defaultErrorComponent: ErrorPage,
+    defaultNotFoundComponent: NotFoundPage,
     defaultOnCatch: (error) => posthog.captureException(error),
     defaultPreload: 'intent',
     history,

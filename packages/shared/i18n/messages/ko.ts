@@ -249,6 +249,10 @@ export const ko: Messages = {
   importance: ['잡음', '알아두면 좋음', '곧 확인 필요', '긴급'],
   justNow: '방금',
   errors: {
+    crashTitle: 'Fewmail이 이 페이지에서 걸려 넘어졌어요',
+    crashLead:
+      '메일은 안전하고 Gmail에서는 아무것도 바뀌지 않았어요. 새로고침해 주세요. 다시 일어나도 저희가 이미 알고 있어요.',
+    missingTitle: '이 주소에는 아무것도 없어요',
     calendarAccess:
       'Fewmail이 이 캘린더에 접근할 수 없어요. 캘린더 페이지에서 허용해 주세요.',
     failed: '문제가 발생했어요. 다시 시도해 주세요.',

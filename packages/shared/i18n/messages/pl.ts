@@ -409,6 +409,10 @@ export const pl: Messages = {
   importance: ['Szum', 'Warto wiedzieć', 'Wkrótce czeka na ciebie', 'Pilne'],
   justNow: 'przed chwilą',
   errors: {
+    crashTitle: 'Fewmail potknął się na tej stronie',
+    crashLead:
+      'Twoja poczta jest bezpieczna, w Gmailu nic się nie zmieniło. Odśwież; jeśli to się powtórzy, już o tym wiemy.',
+    missingTitle: 'Pod tym adresem nic nie ma',
     calendarAccess:
       'Fewmail nie ma dostępu do tego kalendarza. Zezwól na niego na stronie Kalendarz.',
     failed: 'Coś poszło nie tak. Spróbuj ponownie.',

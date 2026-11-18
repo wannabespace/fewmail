@@ -391,6 +391,10 @@ export const en = {
   importance: ['Noise', 'Worth knowing', 'Needs you soon', 'Urgent'],
   justNow: 'just now',
   errors: {
+    crashTitle: 'Fewmail tripped over this page',
+    crashLead:
+      'Your mail is safe and nothing changed in Gmail. Reload, and if it happens again we already know.',
+    missingTitle: 'Nothing lives at this address',
     calendarAccess:
       'Fewmail has no access to this calendar. Allow it on the Calendar page.',
     failed: 'Something went wrong. Try again.',

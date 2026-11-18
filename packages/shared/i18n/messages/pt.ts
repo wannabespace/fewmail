@@ -401,6 +401,10 @@ export const pt: Messages = {
   ],
   justNow: 'agora mesmo',
   errors: {
+    crashTitle: 'O Fewmail tropeçou nesta página',
+    crashLead:
+      'Seus e-mails estão seguros e nada mudou no Gmail. Recarregue; se acontecer de novo, já estamos sabendo.',
+    missingTitle: 'Não há nada neste endereço',
     calendarAccess:
       'O Fewmail não tem acesso a esta agenda. Permita na página Agenda.',
     failed: 'Algo deu errado. Tente novamente.',

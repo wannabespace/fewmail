@@ -818,6 +818,10 @@ export const de: Messages = {
   ],
   justNow: 'gerade eben',
   errors: {
+    crashTitle: 'Fewmail ist über diese Seite gestolpert',
+    crashLead:
+      'Deine Mails sind sicher, in Gmail hat sich nichts geändert. Lade neu – passiert es wieder, wissen wir schon Bescheid.',
+    missingTitle: 'Unter dieser Adresse ist nichts',
     calendarAccess:
       'Fewmail hat keinen Zugriff auf diesen Kalender. Erlaube ihn auf der Kalenderseite.',
     failed: 'Etwas ist schiefgelaufen. Versuch es noch einmal.',

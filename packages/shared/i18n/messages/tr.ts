@@ -388,6 +388,10 @@ export const tr: Messages = {
   importance: ['Gürültü', 'Bilmeye değer', 'Yakında seni bekliyor', 'Acil'],
   justNow: 'az önce',
   errors: {
+    crashTitle: 'Fewmail bu sayfada tökezledi',
+    crashLead:
+      'E-postaların güvende, Gmail’de hiçbir şey değişmedi. Sayfayı yenile; tekrar olursa zaten haberimiz olur.',
+    missingTitle: 'Bu adreste bir şey yok',
     calendarAccess:
       'Fewmail’in bu takvime erişimi yok. Takvim sayfasından izin ver.',
     failed: 'Bir şeyler ters gitti. Tekrar dene.',
