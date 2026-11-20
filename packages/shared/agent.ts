@@ -146,7 +146,19 @@ export const BOT_EFFECTS = [
   'collect',
   'tidy',
 ] as const
-export type BotEffect = (typeof BOT_EFFECTS)[number]
+export type MailBotEffect = (typeof BOT_EFFECTS)[number]
+/** The Board's: it takes no mail; while the user has it, the agent writes down promises and last days. Never one a mail bot can pick. */
+export const BOARD_EFFECT = 'promises'
+export type BotEffect = MailBotEffect | typeof BOARD_EFFECT
+
+/** What New bot offers and the first sign-in seeds, named in the user's language (`starterBots`); the Board at most once. */
+export const BOT_PRESETS = [
+  { effect: BOARD_EFFECT, key: 'board' },
+  { effect: 'tidy', key: 'quick' },
+  { effect: 'collect', key: 'later' },
+  { effect: 'always_show', key: 'important' },
+] as const
+export type BotPreset = (typeof BOT_PRESETS)[number]['key']
 
 export const SIMPLE_MATCH_FIELDS = ['from', 'subject', 'mailingList'] as const
 export type SimpleMatchField = (typeof SIMPLE_MATCH_FIELDS)[number]
@@ -372,16 +384,6 @@ export const isImportant = (
   (!(LATER_KINDS as readonly string[]).includes(kind) ||
     !!analysis?.needsReply ||
     (analysis?.importance ?? 0) >= IMPORTANCE.critical)
-
-/**
- * Home's bots that are not the user's: `fewmail` holds what no bot of theirs takes (and the messengers' chat), `board`
- * the promises. Every other bot is one of the user's bots (a `bots` row) by its id; the starter ones are only a prefill.
- */
-export const SYSTEM_BOTS = ['fewmail', 'board'] as const
-export type SystemBot = (typeof SYSTEM_BOTS)[number]
-
-export const isSystemBot = (bot: string): bot is SystemBot =>
-  (SYSTEM_BOTS as readonly string[]).includes(bot)
 
 /** Whose chat a card is in: the bot that made it, else the bot its email matched, else Fewmail's. */
 export const botOfCard = (card: {

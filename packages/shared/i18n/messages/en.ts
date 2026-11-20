@@ -243,10 +243,6 @@ export const en = {
     writing: 'Writing…',
   },
   board: {
-    empty: {
-      lead: 'Promises made to you, promises you make and deadlines appear here automatically from your mail.',
-      title: 'Nothing pending.',
-    },
     lead: {
       coming: (total: number) =>
         plural('en', total, {
@@ -338,7 +334,7 @@ export const en = {
     empty: 'Not enough mail yet to tell the story. Come back in a few days.',
     handled: 'emails handled by Fewmail',
     handledHint:
-      'Fewmail moves nothing in Gmail without your yes. Let a bot act on its own, and it will handle mail like this for you.',
+      'Fewmail moves nothing in Gmail unless you approve it. Let a bot act on its own, and it will handle mail like this for you.',
     people: 'Who wrote most',
     period: { month: 'This month', year: 'This year' },
     replies: 'replies drafted by Fewmail and sent',
@@ -506,7 +502,7 @@ export const en = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Nothing is sent or archived without your yes. Calendar and contacts are optional.',
+      'Nothing is sent or archived without your approval. Calendar and contacts are optional.',
     continue: 'Continue with Google',
     lead: 'Fewmail reads your mail and shows only what needs you.',
     title: 'Only what matters.',
@@ -825,8 +821,8 @@ export const en = {
         }),
       done: (n: number) =>
         plural('en', n, {
-          one: () => 'One is done after your yes.',
-          other: (count) => `${count} are done after your yes.`,
+          one: () => 'One is done, approved by you.',
+          other: (count) => `${count} are done, approved by you.`,
         }),
       failed: (n: number) =>
         plural('en', n, {
@@ -856,6 +852,7 @@ export const en = {
       collect: 'Just collect it',
       draft_reply: 'Draft a reply',
       mark_read: 'Mark it read',
+      promises: 'The promises and last days I keep track of',
       tidy: 'Tidy it up',
       trash: 'Move it to trash',
       unsubscribe: 'Unsubscribe',
@@ -863,7 +860,7 @@ export const en = {
     empty: 'Nothing here yet. When mail of mine comes, I write here.',
     enabled: 'Acts on its own',
     enabledHint: {
-      off: 'Off, it asks for your yes on each email first.',
+      off: 'Off, it asks you to approve each email first.',
       on: 'On, it acts without asking; everything it does shows in its chat.',
     },
     instruction: 'Which emails, and what to do with them',
@@ -885,6 +882,7 @@ export const en = {
         one: () => 'I wrote down a promise.',
         other: (count) => `I wrote down ${count} promises.`,
       }),
+    presets: 'Templates',
     react: 'React',
     reaction: 'Reaction',
     reply: 'Reply',
@@ -905,11 +903,8 @@ export const en = {
         other: (count) => `${count} steps`,
       }),
     subscribe: 'Subscribe',
-    system: { board: 'Board', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'The promises and last days I keep track of',
-      fewmail: 'Makes your bots, finds emails and answers questions',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Makes your bots, finds emails and answers questions',
     title: 'Bots',
     toLatest: 'To the latest',
     unmute: 'Unmute',
@@ -1078,7 +1073,7 @@ export const en = {
       emphasis: 'Claude and ChatGPT.',
       free: 'Reading your mail and the agent’s sorting is free.',
       label: 'MCP',
-      lead: 'Connect Fewmail as an MCP server and ask about your mail from the assistant you already use. Anything that sends or changes Gmail still asks for your yes.',
+      lead: 'Connect Fewmail as an MCP server and ask about your mail from the assistant you already use. Anything that sends or changes Gmail still waits for your approval.',
       question: 'What does Anna need from me this week?',
       setup: 'Connect in a minute',
       title: 'Your mail, inside Claude and ChatGPT.',
@@ -1087,7 +1082,7 @@ export const en = {
       copy: 'Copy URL',
       lead: 'Connect Fewmail as an MCP server and ask about your mail from the AI you already use. Reading your mail and the agent’s sorting is free; drafting, sending and rules come with Pro.',
       safety:
-        'Anything that sends an email or changes Gmail asks for your yes first. An email that tries to give the assistant orders is flagged before the assistant reads it. Your mail is never used to train models, and you can disconnect any app in Settings.',
+        'Anything that sends an email or changes Gmail asks for your approval first. An email that tries to give the assistant orders is flagged before the assistant reads it. Your mail is never used to train models, and you can disconnect any app in Settings.',
       steps: {
         chatgpt:
           'In Settings, add a connector (app) with this URL, then sign in to Fewmail.',
@@ -1145,7 +1140,7 @@ export const en = {
         },
         {
           answer:
-            'Fewmail encrypts subjects, bodies, summaries and drafts in its database, never uses your mail to train models and never sends or changes anything in Gmail without your yes. You can disconnect it and delete everything at any time.',
+            'Fewmail encrypts subjects, bodies, summaries and drafts in its database, never uses your mail to train models and never sends or changes anything in Gmail without your approval. You can disconnect it and delete everything at any time.',
           question: 'Is it safe to let AI read my email?',
         },
         {
@@ -1159,7 +1154,7 @@ export const en = {
         },
       ],
       faqTitle: 'About AI email assistants.',
-      lead: 'Fewmail reads every email in your Gmail as it arrives, clears the noise, drafts replies in your voice and brings you only the few things that need your decision. Nothing is sent or changed without your yes.',
+      lead: 'Fewmail reads every email in your Gmail as it arrives, clears the noise, drafts replies in your voice and brings you only the few things that need your decision. Nothing is sent or changed without your approval.',
       title: 'The AI email assistant that reads your Gmail first.',
     },
     comparePage: {
@@ -1360,7 +1355,7 @@ export const en = {
         },
         calendar: {
           description:
-            'The calendar of every mailbox in one view. A meeting proposed in an email becomes an event once you say yes.',
+            'The calendar of every mailbox in one view. A meeting proposed in an email becomes an event once you approve it.',
           title: 'Calendar',
         },
         clearOut: {
@@ -1555,7 +1550,7 @@ export const en = {
         {
           description:
             'Drafts wait for you. Only rules you created or kept may archive, mark read or unsubscribe on their own, and everything they did is listed under Handled.',
-          title: 'Nothing is sent without your yes.',
+          title: 'Nothing is sent without your approval.',
         },
         {
           description:
@@ -1611,6 +1606,7 @@ export const en = {
     showImages: 'Show images',
   },
   starterBots: {
+    board: { name: 'Board' },
     important: {
       instruction:
         'What needs a step from me: people waiting for my answer, bills that are due, security alerts, anything from my bank or government. Keep them on Home',
@@ -1703,10 +1699,10 @@ export const en = {
     byBots: (n: number) => `Your bots took care of ${n}.`,
     decisions: 'Decisions',
     journal: {
-      approved: 'You said yes',
+      approved: 'Approved by you',
       byBot: (bot: string) => `Your bot: ${bot}`,
       failed: 'Did not work',
-      lead: 'The last 7 days. Every change in your mail or calendar had your yes or a bot you let act on its own.',
+      lead: 'The last 7 days. Every change in your mail or calendar was approved by you or made by a bot you let act on its own.',
       title: 'Done in your mail',
     },
     progress: (done: number, total: number) => `${done} of ${total}`,

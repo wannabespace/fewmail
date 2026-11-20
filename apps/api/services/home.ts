@@ -8,8 +8,7 @@ import {
   messages,
   userSettings,
 } from '@fewmail/db/schema'
-import { botOfCard, IMPORTANCE, PROPOSAL_KINDS } from '@fewmail/shared/agent'
-import type { ActionKind } from '@fewmail/shared/agent'
+import { botOfCard, PROPOSAL_KINDS } from '@fewmail/shared/agent'
 import { differenceInHours, max, min, subDays, subHours } from 'date-fns'
 import {
   and,
@@ -22,7 +21,6 @@ import {
   isNotNull,
   isNull,
   notExists,
-  or,
   sql,
 } from 'drizzle-orm'
 
@@ -286,14 +284,12 @@ export const listJournal = (userId: string) =>
 /** A card is news in the banner for a day; after that it only waits on Home. */
 const BANNER_HOURS = 24
 const BANNER_SHOWN = 10
-const BANNER_ORDER = ['risk', 'consent', 'urgent'] as const
-const BANNER_KINDS: Partial<Record<ActionKind, (typeof BANNER_ORDER)[number]>> =
-  { consent: 'consent', security: 'risk' }
+const BANNER_KINDS = { consent: 'consent', security: 'risk' } as const
 
 /**
- * What every page's notice bar raises besides codes and mailbox trouble, most pressing first: a risk, a request
- * waiting for the user's yes, urgent mail. Only pending cards of the last day whose banner the user did not put away;
- * the yes itself is never in the banner, it opens the card.
+ * What every page's notice bar raises besides codes and mailbox trouble, a risk before a request waiting for the
+ * user's approval; urgent mail stays on Home. Only pending cards of the last day whose banner the user did not put
+ * away; the approval itself is never in the banner, it opens the card.
  */
 export const listBanner = async (userId: string) => {
   const rows = await db
@@ -310,7 +306,6 @@ export const listBanner = async (userId: string) => {
     })
     .from(actions)
     .leftJoin(messages, eq(messages.id, actions.messageId))
-    .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
     .where(
       and(
         eq(actions.userId, userId),
@@ -318,21 +313,19 @@ export const listBanner = async (userId: string) => {
         notBinned,
         isNull(actions.bannerDismissedAt),
         gte(actions.createdAt, subHours(new Date(), BANNER_HOURS)),
-        or(
-          inArray(actions.kind, ['security', 'consent']),
-          gte(analyses.importance, IMPORTANCE.critical)
-        )
+        inArray(actions.kind, ['security', 'consent'])
       )
     )
     .orderBy(desc(actions.createdAt))
     .limit(BANNER_SHOWN)
-  const items = rows.map(({ kind, ...row }) => ({
-    ...row,
-    kind: BANNER_KINDS[kind] ?? ('urgent' as const),
-  }))
-  return items.toSorted(
-    (a, b) => BANNER_ORDER.indexOf(a.kind) - BANNER_ORDER.indexOf(b.kind)
-  )
+  return rows
+    .map(({ kind, ...row }) => ({
+      ...row,
+      kind: BANNER_KINDS[kind as keyof typeof BANNER_KINDS],
+    }))
+    .toSorted(
+      (a, b) => Number(a.kind === 'consent') - Number(b.kind === 'consent')
+    )
 }
 
 /** Put away in one tab, gone in every other and on the phone; the card stays on Home. */

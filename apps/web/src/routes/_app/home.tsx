@@ -11,7 +11,6 @@ import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   SettingsGroup,
-  SettingsGroupTitle,
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
 import {
@@ -31,9 +30,15 @@ import {
   MessageScrollerViewport,
 } from '@fewmail/ui/components/message-scroller'
 import { Spinner } from '@fewmail/ui/components/spinner'
+import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
-import { Calendar03Icon } from '@hugeicons/core-free-icons'
+import {
+  BookOpen01Icon,
+  Calendar03Icon,
+  Mail01Icon,
+  ZapIcon,
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -60,7 +65,7 @@ import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod/mini'
 
-import { BoardPane, useBoardHints } from '~/components/board'
+import { BoardPane, useBoard, useBoardHints } from '~/components/board'
 import {
   BotComposer,
   BotHeader,
@@ -75,11 +80,15 @@ import {
   useAskBot,
   useReadBot,
 } from '~/components/bot-chat'
-import { BotAvatar, openBotIdOf, useBots } from '~/components/bot-list'
+import {
+  BotAvatar,
+  isBoardBot,
+  openBotIdOf,
+  useBots,
+} from '~/components/bot-list'
 import type { HomeBot, OwnBot } from '~/components/bot-list'
 import { BotSuggestionCard } from '~/components/bot-suggestion'
 import { confirm } from '~/components/confirm-dialog'
-import { ConnectHint } from '~/components/connect-hint'
 import { EmailRow } from '~/components/email-row'
 import {
   collapseExpanded,
@@ -466,51 +475,66 @@ const WorthKnowing = ({
     return null
   }
   return (
-    <SettingsGroup title={t.today.worthKnowing}>
-      <PaneRows
-        rowKey={(row) =>
-          row.kind === 'awaiting' ? row.sent.threadId : row.message.id
+    <Tool open>
+      <ToolHeader
+        icon={BookOpen01Icon}
+        isOpenable={false}
+        title={
+          <>
+            {t.today.worthKnowing}
+            <span className="text-muted-foreground ml-1.5 tabular-nums">
+              {rows.length}
+            </span>
+          </>
         }
-        rows={rows}
-      >
-        {(row, place) =>
-          row.kind === 'awaiting' ? (
-            <EmailRow
-              {...rowOf(row.sent.threadId, place)}
-              actions={undefined}
-              message={{ ...row.sent, fromEmail: row.sent.to[0] ?? '' }}
-              sender={{
-                fromEmail: row.sent.to[0] ?? '',
-                fromName: row.sent.toName,
-              }}
-              description={
-                <>
-                  {t.today.awaiting} · <span data-mask>{row.sent.subject}</span>
-                </>
-              }
-            />
-          ) : (
-            <EmailRow
-              {...rowOf(row.message.id, place)}
-              message={row.message}
-              description={<span data-mask>{row.analysis.summary}</span>}
-              facts={
-                row.kind === 'recent' ? (
-                  <ImportanceDot
-                    importance={row.analysis.importance}
-                    reason={row.analysis.reason}
-                  />
-                ) : (
-                  <ExtractedChips
-                    extracted={{ ...row.analysis.extracted, amount: null }}
-                  />
-                )
-              }
-            />
-          )
-        }
-      </PaneRows>
-    </SettingsGroup>
+      />
+      <ToolContent variant="rows">
+        <PaneRows
+          rowKey={(row) =>
+            row.kind === 'awaiting' ? row.sent.threadId : row.message.id
+          }
+          rows={rows}
+        >
+          {(row, place) =>
+            row.kind === 'awaiting' ? (
+              <EmailRow
+                {...rowOf(row.sent.threadId, place)}
+                actions={undefined}
+                message={{ ...row.sent, fromEmail: row.sent.to[0] ?? '' }}
+                sender={{
+                  fromEmail: row.sent.to[0] ?? '',
+                  fromName: row.sent.toName,
+                }}
+                description={
+                  <>
+                    {t.today.awaiting} ·{' '}
+                    <span data-mask>{row.sent.subject}</span>
+                  </>
+                }
+              />
+            ) : (
+              <EmailRow
+                {...rowOf(row.message.id, place)}
+                message={row.message}
+                description={<span data-mask>{row.analysis.summary}</span>}
+                facts={
+                  row.kind === 'recent' ? (
+                    <ImportanceDot
+                      importance={row.analysis.importance}
+                      reason={row.analysis.reason}
+                    />
+                  ) : (
+                    <ExtractedChips
+                      extracted={{ ...row.analysis.extracted, amount: null }}
+                    />
+                  )
+                }
+              />
+            )
+          }
+        </PaneRows>
+      </ToolContent>
+    </Tool>
   )
 }
 
@@ -953,26 +977,28 @@ const DoneInMail = ({
   )
 }
 
-/** The Board's chat: its lists, or on Free what Pro adds. */
+/** What the Board waits on: its lists, or on Free what Pro adds. */
 const BoardNow = ({ isActive }: { isActive: boolean }) => {
   const t = useT()
   const hasAgent = useHasAgent()
   return hasAgent ? (
     <BoardPane isActive={isActive} />
   ) : (
-    <Button
-      size="sm"
-      className="self-start"
-      onClick={() => upgradeStore.set('board')}
-    >
-      {t.bots.subscribe}
-    </Button>
+    <NowMessage isWide={false}>
+      <Button
+        size="sm"
+        className="self-start"
+        onClick={() => upgradeStore.set('board')}
+      >
+        {t.bots.subscribe}
+      </Button>
+    </NowMessage>
   )
 }
 
 type KindGroups = ReturnType<typeof useKindGroups>
 
-/** The open bot's cards by what they ask, every kind but the last folded to its first few. */
+/** The open bot's cards by what they ask, a tool block each, every kind but the last folded to its first few. */
 const CardGroups = ({
   cardOf,
   groups,
@@ -988,27 +1014,34 @@ const CardGroups = ({
 }) => {
   const t = useT()
   return groups.groups.map((group) => (
-    <NowMessage key={group.kind}>
-      <section className="flex flex-col gap-2">
-        <SettingsGroupTitle
-          action={
-            (group.shown.length < group.count || group.isUnfolded) && (
-              <Button
-                size="xs"
-                variant="link-muted"
-                onClick={() => groups.toggle(group.kind)}
-              >
-                {group.isUnfolded
-                  ? t.mail.showFewer
-                  : t.mail.showAll(group.count)}
-              </Button>
-            )
-          }
-        >
-          {group.label}
-          <span className="tabular-nums opacity-60">{group.count}</span>
-        </SettingsGroupTitle>
-        <Accordion variant="list" value={openIds} onValueChange={onToggle}>
+    <Tool key={group.kind} open>
+      <ToolHeader
+        icon={group.kind === 'consent' ? ZapIcon : Mail01Icon}
+        isOpenable={false}
+        title={
+          <>
+            {group.label}
+            <span className="text-muted-foreground ml-1.5 tabular-nums">
+              {group.count}
+            </span>
+          </>
+        }
+        action={
+          (group.shown.length < group.count || group.isUnfolded) && (
+            <Button
+              size="xs"
+              variant="link-muted"
+              onClick={() => groups.toggle(group.kind)}
+            >
+              {group.isUnfolded
+                ? t.mail.showFewer
+                : t.mail.showAll(group.count)}
+            </Button>
+          )
+        }
+      />
+      <ToolContent variant="rows">
+        <Accordion variant="rows" value={openIds} onValueChange={onToggle}>
           <PaneRows
             listKey={`${listKey}:${group.kind}:${group.isUnfolded}`}
             rowKey={({ action }) => action.id}
@@ -1017,8 +1050,8 @@ const CardGroups = ({
             {cardOf}
           </PaneRows>
         </Accordion>
-      </section>
-    </NowMessage>
+      </ToolContent>
+    </Tool>
   ))
 }
 
@@ -1093,10 +1126,7 @@ const BotPane = ({
               >
                 <BotStrip bots={bots} openId={bot.bot} onOpen={onOpen} />
                 {bot.bot === 'fewmail' && (
-                  <>
-                    <ConnectHint />
-                    <FreshCodes today={today} canUseKeys={isFocused} />
-                  </>
+                  <FreshCodes today={today} canUseKeys={isFocused} />
                 )}
                 <BotTimeline
                   bot={bot}
@@ -1135,21 +1165,26 @@ const BotPane = ({
 
 /** Whether the open bot waits on anything now: with nothing, its chat ends on its last message, never an empty one. */
 const waitsOnAnything = ({
+  board,
   botId,
   data,
+  isBoard,
   journal,
   proposals,
   queue,
   worth,
 }: {
+  /** Pending too on Free, where it offers Pro instead. */
+  board: ReturnType<typeof useBoard>
   botId: string
   data: Today | undefined
+  isBoard: boolean
   journal: number
   proposals: number
   queue: number
   worth: number
 }) =>
-  botId === 'board' ||
+  (isBoard && (board.isPending || board.ordered.length > 0)) ||
   queue + proposals + worth > 0 ||
   (data?.newSenders.length ?? 0) + (data?.botSuggestions.length ?? 0) > 0 ||
   (botId === 'fewmail' && journal > 0)
@@ -1342,7 +1377,7 @@ const HomePage = () => {
   const skipTargets = () => skipCards(targets.map(({ action }) => action.id))
 
   const isFocused = !useIsThreadExpanded()
-  const isBoard = botId === 'board'
+  const isBoard = isBoardBot(bot)
   const isStepping = isFocused && !isBoard
   const walkKeys = { enabled: isStepping && stops.length > 0 }
   const listKeys = { enabled: isStepping && !!selected }
@@ -1373,10 +1408,13 @@ const HomePage = () => {
   useHotkey('Space', () => selected && openCard(selected), listKeys)
   useOpenKey(worthRow, selected, isStepping)
   const boardHints = useBoardHints()
+  const board = useBoard(isBoard)
   const journal = useJournal()
   const isWaiting = waitsOnAnything({
+    board,
     botId,
     data,
+    isBoard,
     journal: journal.rows.length,
     proposals: proposals.proposals.length,
     queue: queue.length,
@@ -1397,9 +1435,7 @@ const HomePage = () => {
     />
   )
   const now = isBoard ? (
-    <NowMessage>
-      <BoardNow isActive={isFocused} />
-    </NowMessage>
+    <BoardNow isActive={isFocused} />
   ) : (
     <>
       {picked.length > 0 && (
@@ -1415,13 +1451,23 @@ const HomePage = () => {
           />
         </div>
       )}
-      <CardGroups
-        cardOf={cardOf}
-        groups={groups}
-        listKey={botId}
-        openIds={openIds}
-        onToggle={toggleCard}
-      />
+      <NowMessage>
+        <div className="flex flex-col gap-2.5 empty:hidden">
+          <CardGroups
+            cardOf={cardOf}
+            groups={groups}
+            listKey={botId}
+            openIds={openIds}
+            onToggle={toggleCard}
+          />
+          <WorthKnowing
+            cursorId={cursorId}
+            isWalking={isStepping}
+            today={data}
+            onSelect={setSelectedId}
+          />
+        </div>
+      </NowMessage>
       <NowMessage>
         <StaleCards
           canUseKeys={isStepping}
@@ -1437,14 +1483,6 @@ const HomePage = () => {
           />
         </NowMessage>
       )}
-      <NowMessage>
-        <WorthKnowing
-          cursorId={cursorId}
-          isWalking={isStepping}
-          today={data}
-          onSelect={setSelectedId}
-        />
-      </NowMessage>
       <NowMessage>
         <div
           className={cn(

@@ -1,8 +1,8 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import {
+  BOARD_EFFECT,
   BOT_FOLDER_NAME_CHARS,
   BOT_FOLDERS_MAX,
-  isSystemBot,
 } from '@fewmail/shared/agent'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
@@ -25,7 +25,6 @@ import {
 } from '@fewmail/ui/components/dropdown-menu'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
-  DashboardSquare01Icon,
   Delete02Icon,
   Eraser01Icon,
   Folder01Icon,
@@ -63,20 +62,15 @@ export interface HomeBot extends Chat {
 
 export const ownName = (bot: OwnBot) => bot.name ?? ''
 
-/** Fewmail, the user's bots newest first and the Board, each with its name and what it looks after. */
+/** Fewmail, then the user's bots newest first, each with its name and what it looks after. */
 export const useBots = (): HomeBot[] => {
   const t = useT()
   const { data: chats = [] } = useRanked(botChats)
   const { data: own = [] } = useRanked(ownBots)
   return chats.flatMap((chat): HomeBot[] => {
-    if (isSystemBot(chat.bot)) {
+    if (chat.bot === 'fewmail') {
       return [
-        {
-          ...chat,
-          job: t.bots.systemJob[chat.bot],
-          name: t.bots.system[chat.bot],
-          own: null,
-        },
+        { ...chat, job: t.bots.fewmailJob, name: t.bots.fewmail, own: null },
       ]
     }
     const bot = own.find(({ id }) => id === chat.bot)
@@ -97,7 +91,7 @@ export const useBots = (): HomeBot[] => {
   })
 }
 
-/** Fewmail is the bird, the Board its glyph, a bot of the user's its first letter. */
+/** Fewmail is the bird, a bot of the user's its first letter. */
 export const BotAvatar = ({
   bot,
   size = 'sm',
@@ -116,11 +110,7 @@ export const BotAvatar = ({
       }[size]
     )}
   >
-    {bot.bot === 'fewmail' && <LogoMark />}
-    {bot.bot === 'board' && (
-      <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
-    )}
-    {!isSystemBot(bot.bot) && bot.name.charAt(0).toUpperCase()}
+    {bot.bot === 'fewmail' ? <LogoMark /> : bot.name.charAt(0).toUpperCase()}
   </span>
 )
 
@@ -501,6 +491,14 @@ export const BotFolderRow = ({
   )
 }
 
+/** The bot that keeps the promises, if the user has one; `?bot=board` (`G B`, the old `/board`) opens it. */
+export const boardOf = (bots: HomeBot[]) => bots.find(isBoardBot)
+
+export const isBoardBot = (bot?: Pick<HomeBot, 'own'>) =>
+  bot?.own?.effect === BOARD_EFFECT
+
 /** Without one in the address, Home opens the first bot with something new, else Fewmail. */
 export const openBotIdOf = (bots: HomeBot[], picked: string | undefined) =>
-  picked ?? bots.find(({ unread }) => unread > 0)?.bot ?? 'fewmail'
+  (picked === 'board' ? boardOf(bots)?.bot : picked) ??
+  bots.find(({ unread }) => unread > 0)?.bot ??
+  'fewmail'

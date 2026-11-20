@@ -1,13 +1,14 @@
 import type { RouterOutputs } from '@fewmail/api/router'
 import {
+  BOARD_EFFECT,
   BOT_MESSAGE_CHARS,
+  BOT_PRESETS,
   BOT_REACTIONS,
   cardPayload,
-  isSystemBot,
 } from '@fewmail/shared/agent'
 import type {
-  BotEffect,
   BotReaction,
+  MailBotEffect,
   DigestCounts,
 } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
@@ -139,7 +140,7 @@ import { useDates, useLocale, useT } from '~/lib/i18n'
 import { useMe } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
-import { queryClient, showUntilSettled } from '~/lib/query-client'
+import { queryClient, showUntilSettled, useRanked } from '~/lib/query-client'
 
 type ChatPage = RouterOutputs['bots']['chat']
 type Entry = ChatPage['entries'][number]
@@ -276,8 +277,9 @@ export const digestLead = (t: Messages, counts: DigestCounts) =>
         .join(' ')
 
 /**
- * Fewmail's digest of a day: its date, how many things need the user and what came. The live one (Home's, `isLive`) is
- * the page's title and adds what is going on now (`status`, `children`); a null headline is still loading.
+ * Fewmail's digest of a day, said as a message: how many things need the user and what came. The live one (Home's,
+ * `isLive`) is the page's title, adds what is going on now (`status`, `children`) and ends on when it was counted
+ * (`at`); a null headline is still loading.
  */
 export const DigestHeader = ({
   at,
@@ -287,7 +289,7 @@ export const DigestHeader = ({
   lead,
   status,
 }: {
-  at: Date | number | null
+  at?: number | null
   children?: ReactNode
   headline: string | null
   isLive?: boolean
@@ -297,31 +299,22 @@ export const DigestHeader = ({
   const dates = useDates()
   const Title = isLive ? 'h1' : 'h2'
   return (
-    <header className="flex flex-col gap-3">
-      {/* Each part keeps to one line: in the list's narrow column the second goes under the first, never split. */}
-      <div className="text-muted-foreground flex min-h-8 flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-        <p className="whitespace-nowrap first-letter:uppercase">
-          {at !== null && dates.format(at, 'EEEE, d MMMM')}
-        </p>
-        {status}
-      </div>
+    <>
+      {status && <p className="text-muted-foreground text-sm">{status}</p>}
       {headline === null ? (
-        <Skeleton className="my-1 h-9 w-3/5" />
+        <Skeleton className="my-1 h-4 w-3/5" />
       ) : (
-        <Title className="text-display font-serif tracking-tight">
-          {headline}
-        </Title>
+        <Title className="font-medium">{headline}</Title>
       )}
       {lead}
       {children}
-    </header>
+      {at && <MessageTime>{dates.format(at, 'p')}</MessageTime>}
+    </>
   )
 }
 
 export const DigestLead = ({ children }: { children: ReactNode }) => (
-  <p className="text-brief text-foreground/80 font-serif text-balance">
-    {children}
-  </p>
+  <p>{children}</p>
 )
 
 /** When a message was written, in its bubble. */
@@ -513,13 +506,14 @@ const openCard = (card: Card) =>
   card.message &&
   expandRow(card.action.id, { from: 'home', threadId: card.message.threadId })
 
-/** What was done with the emails, or still waits on Home, one muted line each, the email a click away. */
+/** What was done with the emails, one muted line each, the email a click away; what still waits lives once, in Waiting now. */
 const CardsTrace = ({ cards }: { cards: Card[] }) => {
   const t = useT()
+  const settled = cards.filter(({ action }) => action.status !== 'pending')
   return (
-    cards.length > 0 && (
+    settled.length > 0 && (
       <Trace>
-        {cards.map((card) => {
+        {settled.map((card) => {
           const who = whoOf(card)
           const line = (
             <TraceLine
@@ -618,9 +612,7 @@ const ProposalTool = ({ card }: { card: Card }) => {
 /** The emails a message is about: what waits as tool blocks, what is settled as a trace. */
 const CardsOf = ({ cards }: { cards: Card[] }) => (
   <>
-    <CardsTrace
-      cards={cards.filter(({ action }) => action.status !== 'pending')}
-    />
+    <CardsTrace cards={cards} />
     {cards
       .filter(({ action }) => action.status === 'pending')
       .map((card) => (
@@ -773,7 +765,6 @@ const DigestView = ({
     <>
       {entry.counts && (
         <DigestHeader
-          at={entry.at}
           headline={digestHeadline(t, entry.counts.decisions)}
           lead={<DigestLead>{digestLead(t, entry.counts)}</DigestLead>}
         />
@@ -847,7 +838,6 @@ const EntryView = ({ entry }: { entry: Entry }) => {
       {entry.type === 'cards' && (
         <>
           <Speech>{cardsLine(t, entry.cards)}</Speech>
-          {/* A report's cards still waiting are only lines here: the yes lives once, in Waiting now under the chat. */}
           <CardsTrace cards={entry.cards} />
         </>
       )}
@@ -1297,10 +1287,10 @@ const useReadEffect = (text: string, bot: OwnBot | null, t: Messages) => {
     })
   )
   /** Saving right after a keystroke reads the words as they stand, never the read from before the pause. */
-  return async (): Promise<BotEffect> => {
+  return async (): Promise<MailBotEffect> => {
     const latest = asked(text)
     if (!latest) {
-      return bot?.effect ?? 'collect'
+      return bot && bot.effect !== BOARD_EFFECT ? bot.effect : 'collect'
     }
     return (
       (await queryClient.fetchQuery(
@@ -1317,10 +1307,13 @@ const useReadEffect = (text: string, bot: OwnBot | null, t: Messages) => {
 const BotFields = ({
   draft,
   hasMatch,
+  isBoard,
   onChange,
 }: {
   draft: BotDraft
   hasMatch: boolean
+  /** It takes no mail and moves none: only its name is the user's to change. */
+  isBoard: boolean
   onChange: (change: Partial<BotDraft>) => void
 }) => {
   const t = useT()
@@ -1337,6 +1330,26 @@ const BotFields = ({
           onChange={(event) => onChange({ name: event.target.value })}
         />
       </Field>
+      {!isBoard && (
+        <BotMailFields draft={draft} hasMatch={hasMatch} onChange={onChange} />
+      )}
+    </FieldGroup>
+  )
+}
+
+/** Which mail is its and what it does with it, and whether it acts alone. */
+const BotMailFields = ({
+  draft,
+  hasMatch,
+  onChange,
+}: {
+  draft: BotDraft
+  hasMatch: boolean
+  onChange: (change: Partial<BotDraft>) => void
+}) => {
+  const t = useT()
+  return (
+    <>
       <Field>
         <FieldLabel htmlFor="bot-text">
           {hasMatch ? t.bots.whatItDoes : t.bots.instruction}
@@ -1362,7 +1375,40 @@ const BotFields = ({
           </FieldDescription>
         </div>
       </Field>
-    </FieldGroup>
+    </>
+  )
+}
+
+/** New bot's ready-made ones, in the user's language; the Board only while the user has none. */
+const BotPresets = ({ onCreated }: { onCreated: (id: string) => void }) => {
+  const t = useT()
+  const { data: own = [] } = useRanked(ownBots)
+  const add = useMutation(
+    orpc.bots.addPreset.mutationOptions({
+      onSettled: refreshBots,
+      onSuccess: ({ id }) => onCreated(id),
+    })
+  )
+  const hasBoard = own.some(({ effect }) => effect === BOARD_EFFECT)
+  return (
+    <Field>
+      <FieldLabel>{t.bots.presets}</FieldLabel>
+      <div className="flex flex-wrap gap-2">
+        {BOT_PRESETS.filter(
+          ({ effect }) => effect !== BOARD_EFFECT || !hasBoard
+        ).map(({ key }) => (
+          <Button
+            key={key}
+            size="sm"
+            variant="secondary"
+            disabled={add.isPending}
+            onClick={() => add.mutate({ preset: key })}
+          >
+            {t.starterBots[key].name}
+          </Button>
+        ))}
+      </div>
+    </Field>
   )
 }
 
@@ -1420,9 +1466,15 @@ const BotForm = ({
       onSettled: (_, __, ___, settle) => settle?.(refreshBots()),
     })
   )
+  const isBoard = bot?.effect === BOARD_EFFECT
   const canSave =
-    !!draft.name.trim() && (!!bot?.match || draft.text.trim().length > 2)
+    !!draft.name.trim() &&
+    (isBoard || !!bot?.match || draft.text.trim().length > 2)
   const save = async () => {
+    if (bot && isBoard) {
+      update.mutate({ id: bot.id, name: draft.name.trim() })
+      return
+    }
     const fields = {
       effect: await readEffect(),
       enabled: draft.enabled,
@@ -1456,9 +1508,18 @@ const BotForm = ({
         }
       }}
     >
+      {!bot && (
+        <BotPresets
+          onCreated={(id) => {
+            onCreated(id)
+            done(t.bots.created)
+          }}
+        />
+      )}
       <BotFields
         draft={draft}
         hasMatch={!!bot?.match}
+        isBoard={isBoard}
         onChange={(change) =>
           setDraft((current) => ({ ...current, ...change }))
         }
@@ -1540,7 +1601,7 @@ export const useReadBot = (bot: HomeBot | undefined) => {
   const id = bot?.bot
   useEffect(() => {
     if (id) {
-      posthog.capture('bot_opened', { system: isSystemBot(id) })
+      posthog.capture('bot_opened', { system: id === 'fewmail' })
     }
   }, [id])
   useEffect(() => {

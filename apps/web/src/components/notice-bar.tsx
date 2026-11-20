@@ -1,4 +1,3 @@
-import type { RouterOutputs } from '@fewmail/api/router'
 import { Button } from '@fewmail/ui/components/button'
 import { cardClass } from '@fewmail/ui/components/card.utils'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
@@ -92,19 +91,6 @@ const avatarOf = (sender: { fromEmail: string; fromName?: string | null }) => (
   <SenderAvatar sender={sender} size="sm" />
 )
 
-type BannerCard = RouterOutputs['today']['banner'][number]
-
-/** A request says what it asks; a risk warns before naming anyone; urgent mail is who wrote. */
-const cardTitle = (card: BannerCard, riskTitle: string) => {
-  if (card.kind === 'consent') {
-    return card.title
-  }
-  if (card.kind === 'risk') {
-    return riskTitle
-  }
-  return <span data-mask>{card.fromName ?? card.fromEmail}</span>
-}
-
 /** Inbox codes under 15 minutes old, newest first; the list drops each one the moment it goes stale. */
 const useFreshCodes = () => {
   const dismissed = useSubscription(dismissedCodes)
@@ -136,9 +122,9 @@ const useFreshCodes = () => {
 
 /**
  * The one place for what the user must act on, above every page; the most pressing shows first, one at a time, the
- * rest a click away. A fresh code, a risk, a request waiting for a yes and urgent mail come before mailbox trouble;
- * Home shows its own codes and cards, so here it keeps only mailbox trouble. Nothing here changes Gmail or says yes
- * except a code's own Copy and archive: the rest opens where the decision is.
+ * rest a click away. A fresh code, a risk and a request waiting for approval come before mailbox trouble; urgent
+ * mail waits on Home alone. Home shows its own codes and cards, so here it keeps only mailbox trouble. Nothing here
+ * changes Gmail or approves anything except a code's own Copy and archive: the rest opens where the decision is.
  */
 export const NoticeBar = () => {
   const t = useT()
@@ -228,9 +214,7 @@ export const NoticeBar = () => {
           card.reason
         ) : (
           <span data-mask>
-            {card.kind === 'risk'
-              ? `${card.fromName ?? card.fromEmail ?? ''} · ${card.subject ?? ''}`
-              : card.subject}
+            {`${card.fromName ?? card.fromEmail ?? ''} · ${card.subject ?? ''}`}
           </span>
         ),
       dismiss: () => putAway.mutate({ id: card.id }),
@@ -244,7 +228,7 @@ export const NoticeBar = () => {
         card.kind,
         card.kind === 'consent' ? null : card.threadId
       ),
-      title: cardTitle(card, t.risk.title),
+      title: card.kind === 'consent' ? card.title : t.risk.title,
     })),
     signInLost && {
       action: {

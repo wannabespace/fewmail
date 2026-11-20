@@ -107,6 +107,7 @@ import { createElementSize, createWebStorageValue } from 'seitu/web'
 import { z } from 'zod/mini'
 
 import { useCompose } from '~/components/compose/compose-context'
+import { ConnectHint } from '~/components/connect-hint'
 import { readIconOf, senderTextOf } from '~/components/email-row'
 import { KeyHints } from '~/components/key-hints'
 import { SleepingLogoMark } from '~/components/logo'
@@ -2970,6 +2971,12 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
               </div>
             </div>
           </PickedBar>
+          <div
+            hidden={!view}
+            className="mx-auto w-full max-w-[calc(var(--container-3xl)+3rem)] px-6 pb-3 empty:hidden max-md:px-4"
+          >
+            <ConnectHint />
+          </div>
           {total === 0 && (
             <MailListEmpty
               hasOlder={older.hasMore}

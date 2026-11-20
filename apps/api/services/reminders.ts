@@ -1,6 +1,7 @@
 import { db } from '@fewmail/db'
 import {
   actions,
+  bots,
   commitments,
   messages,
   reminders,
@@ -8,6 +9,7 @@ import {
 } from '@fewmail/db/schema'
 import {
   ACTIVE_COMMITMENT_STATUSES,
+  BOARD_EFFECT,
   isAutomatedSender,
 } from '@fewmail/shared/agent'
 import type { ReminderKind } from '@fewmail/shared/agent'
@@ -19,6 +21,7 @@ import {
   asc,
   desc,
   eq,
+  exists,
   gt,
   inArray,
   isNotNull,
@@ -387,7 +390,19 @@ export const processDueCommitments = async () => {
             DEADLINE_LEAD_DAYS
           )
         ),
-        hasAgentSql(commitments.userId)
+        hasAgentSql(commitments.userId),
+        // Without the Board the user asked for no promises, so what it wrote down before never comes back as a card.
+        exists(
+          db
+            .select({ id: bots.id })
+            .from(bots)
+            .where(
+              and(
+                eq(bots.userId, commitments.userId),
+                eq(bots.effect, BOARD_EFFECT)
+              )
+            )
+        )
       )
     )
   await Promise.all(

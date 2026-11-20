@@ -190,7 +190,7 @@ export const botPosts = d.snakeCase.table(
     ...baseTable,
     /** The `consent` cards an answer asked for: the chat shows them with their yes. A digest's: the cards waiting then. */
     actionIds: d.uuid().array().default([]).notNull(),
-    /** One of the user's `bots` by id, or `fewmail` / `board` (`SYSTEM_BOTS`). */
+    /** One of the user's `bots` by id, or `fewmail`. */
     bot: d.text().notNull(),
     /** Fewmail's digest only: its headline's counts as they were. */
     counts: d.jsonb().$type<DigestCounts>(),

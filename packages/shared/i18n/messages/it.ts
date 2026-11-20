@@ -198,7 +198,7 @@ export const it: Messages = {
       emphasis: 'Claude e ChatGPT.',
       free: 'Leggere la posta e lo smistamento dell’agente sono gratis.',
       label: 'MCP',
-      lead: 'Collega Fewmail come server MCP e chiedi della tua posta all’assistente che usi già. Tutto ciò che invia un’email o cambia Gmail chiede comunque il tuo sì.',
+      lead: 'Collega Fewmail come server MCP e chiedi della tua posta all’assistente che usi già. Tutto ciò che invia un’email o cambia Gmail chiede comunque la tua approvazione.',
       question: 'Di cosa ha bisogno Anna da me questa settimana?',
       setup: 'Collegalo in un minuto',
       title: 'La tua posta, dentro Claude e ChatGPT.',
@@ -207,7 +207,7 @@ export const it: Messages = {
       copy: 'Copia URL',
       lead: 'Collega Fewmail come server MCP e chiedi della tua posta dall’IA che usi già. Leggere la posta e lo smistamento dell’agente sono gratis; bozze, invii e regole arrivano con Pro.',
       safety:
-        'Tutto ciò che invia un’email o cambia Gmail chiede prima il tuo sì. Un’email che prova a dare ordini all’assistente viene segnalata prima che la legga. La tua posta non addestra mai modelli e puoi scollegare qualsiasi app nelle impostazioni.',
+        'Tutto ciò che invia un’email o cambia Gmail chiede prima la tua approvazione. Un’email che prova a dare ordini all’assistente viene segnalata prima che la legga. La tua posta non addestra mai modelli e puoi scollegare qualsiasi app nelle impostazioni.',
       steps: {
         chatgpt:
           'In Settings aggiungi un connettore (app) con questo URL, poi accedi a Fewmail.',
@@ -265,7 +265,7 @@ export const it: Messages = {
         },
         {
           answer:
-            'Fewmail cifra oggetti, testi, riepiloghi e bozze nel suo database, non usa mai la tua posta per addestrare modelli e non invia né cambia mai nulla in Gmail senza il tuo sì. Puoi scollegarlo e cancellare tutto in qualsiasi momento.',
+            'Fewmail cifra oggetti, testi, riepiloghi e bozze nel suo database, non usa mai la tua posta per addestrare modelli e non invia né cambia mai nulla in Gmail senza la tua approvazione. Puoi scollegarlo e cancellare tutto in qualsiasi momento.',
           question: 'È sicuro far leggere la mia posta all’IA?',
         },
         {
@@ -279,7 +279,7 @@ export const it: Messages = {
         },
       ],
       faqTitle: 'Sugli assistenti email con IA.',
-      lead: 'Fewmail legge ogni email del tuo Gmail appena arriva, toglie il rumore, scrive le risposte con la tua voce e ti porta solo le poche cose che richiedono una tua decisione. Nulla viene inviato o cambiato senza il tuo sì.',
+      lead: 'Fewmail legge ogni email del tuo Gmail appena arriva, toglie il rumore, scrive le risposte con la tua voce e ti porta solo le poche cose che richiedono una tua decisione. Nulla viene inviato o cambiato senza la tua approvazione.',
       title: 'L’assistente email con IA che legge Gmail prima di te.',
     },
     comparePage: {
@@ -481,7 +481,7 @@ export const it: Messages = {
         },
         calendar: {
           description:
-            'Il calendario di ogni casella in un’unica vista. Una riunione proposta in un’email diventa un evento appena dici sì.',
+            'Il calendario di ogni casella in un’unica vista. Una riunione proposta in un’email diventa un evento appena la approvi.',
           title: 'Calendario',
         },
         clearOut: {
@@ -678,7 +678,7 @@ export const it: Messages = {
         {
           description:
             'Le bozze ti aspettano. Solo le regole che hai creato o tenuto possono archiviare, segnare come letto o disiscriverti da sole, e tutto ciò che hanno fatto è elencato in Gestite.',
-          title: 'Non parte nulla senza il tuo sì.',
+          title: 'Non parte nulla senza la tua approvazione.',
         },
         {
           description:
@@ -933,7 +933,7 @@ export const it: Messages = {
       '.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Niente viene inviato né archiviato senza il tuo ok. Calendario e contatti sono facoltativi.',
+      'Niente viene inviato né archiviato senza la tua approvazione. Calendario e contatti sono facoltativi.',
     continue: 'Continua con Google',
     lead: 'Fewmail legge la tua posta e ti mostra solo ciò che richiede la tua attenzione.',
     title: 'Solo ciò che conta.',
@@ -1230,9 +1230,9 @@ export const it: Messages = {
         }),
       done: (n: number) =>
         plural('it', n, {
-          one: () => 'Una è fatta dopo il tuo sì.',
-          many: (count) => `${count} sono fatte dopo il tuo sì.`,
-          other: (count) => `${count} sono fatte dopo il tuo sì.`,
+          one: () => 'Una è fatta, approvata da te.',
+          many: (count) => `${count} sono fatte, approvate da te.`,
+          other: (count) => `${count} sono fatte, approvate da te.`,
         }),
       failed: (n: number) =>
         plural('it', n, {
@@ -1264,6 +1264,7 @@ export const it: Messages = {
       collect: 'Raccoglila e basta',
       draft_reply: 'Scrivi una bozza',
       mark_read: 'Segna come letta',
+      promises: 'Le promesse e le scadenze che tengo d’occhio',
       tidy: 'Mettila in ordine',
       trash: 'Spostala nel cestino',
       unsubscribe: 'Disiscriviti',
@@ -1271,7 +1272,7 @@ export const it: Messages = {
     empty: 'Ancora niente qui. Quando arriva posta mia, scrivo qui.',
     enabled: 'Agisce da solo',
     enabledHint: {
-      off: 'Se è spento, chiede prima il tuo sì per ogni email.',
+      off: 'Se è spento, chiede prima la tua approvazione per ogni email.',
       on: 'Se è acceso, agisce senza chiedere; tutto ciò che fa si vede nella sua chat.',
     },
     instruction: 'Quali email e cosa farne',
@@ -1294,6 +1295,7 @@ export const it: Messages = {
         many: (count) => `Ho annotato ${count} promesse.`,
         other: (count) => `Ho annotato ${count} promesse.`,
       }),
+    presets: 'Modelli',
     react: 'Reagisci',
     reaction: 'Reazione',
     reply: 'Rispondi',
@@ -1315,11 +1317,8 @@ export const it: Messages = {
         other: (count) => `${count} passaggi`,
       }),
     subscribe: 'Abbonati',
-    system: { board: 'Bacheca', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'Le promesse e le scadenze che tengo d’occhio',
-      fewmail: 'Crea i tuoi bot, trova email e risponde alle domande',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Crea i tuoi bot, trova email e risponde alle domande',
     title: 'Bot',
     toLatest: 'Vai al più recente',
     unmute: 'Riattiva notifiche',
@@ -1470,6 +1469,7 @@ export const it: Messages = {
     showImages: 'Mostra immagini',
   },
   starterBots: {
+    board: { name: 'Bacheca' },
     important: {
       instruction:
         'Ciò che richiede un mio passo: persone che aspettano la mia risposta, bollette in scadenza, avvisi di sicurezza, qualsiasi cosa dalla mia banca o dalla pubblica amministrazione. Tienile in Home',
@@ -1565,10 +1565,10 @@ export const it: Messages = {
     byBots: (n: number) => `I tuoi bot ne hanno gestite ${n}.`,
     decisions: 'Decisioni',
     journal: {
-      approved: 'Hai detto sì',
+      approved: 'Approvato da te',
       byBot: (bot: string) => `Il tuo bot: ${bot}`,
       failed: 'Non è riuscito',
-      lead: 'Gli ultimi 7 giorni. Ogni modifica a posta o calendario ha avuto il tuo sì o un bot che hai lasciato agire da solo.',
+      lead: 'Gli ultimi 7 giorni. Ogni modifica a posta o calendario è stata approvata da te o fatta da un bot che hai lasciato agire da solo.',
       title: 'Fatto nella tua posta',
     },
     progress: (done: number, total: number) => `${done} di ${total}`,
@@ -1687,10 +1687,6 @@ export const it: Messages = {
       'Contatto a freddo: uno sconosciuto ti propone qualcosa e tu non hai mai scritto a questo indirizzo',
   },
   board: {
-    empty: {
-      lead: 'Le promesse che ricevi, quelle che fai e le scadenze compaiono qui automaticamente dalla tua posta.',
-      title: 'Niente in sospeso.',
-    },
     lead: {
       coming: (total: number) =>
         plural('it', total, {
@@ -1787,7 +1783,7 @@ export const it: Messages = {
       'Ancora troppa poca posta per raccontare la storia. Torna tra qualche giorno.',
     handled: 'email gestite da Fewmail',
     handledHint:
-      'Fewmail non cambia nulla in Gmail senza il tuo sì. Lascia agire un bot da solo e gestirà queste email per te.',
+      'Fewmail non cambia nulla in Gmail senza la tua approvazione. Lascia agire un bot da solo e gestirà queste email per te.',
     people: 'Chi ha scritto di più',
     period: { month: 'Questo mese', year: 'Quest’anno' },
     replies: 'risposte scritte da Fewmail e inviate',

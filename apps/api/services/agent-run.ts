@@ -2,9 +2,9 @@ import { db } from '@fewmail/db'
 import { actions, analyses, messages } from '@fewmail/db/schema'
 import type { bots } from '@fewmail/db/schema'
 import {
+  BOARD_EFFECT,
   BOT_REACTIONS,
   BOT_REPLY_QUOTE_CHARS,
-  isSystemBot,
 } from '@fewmail/shared/agent'
 import type { BotReaction, ConsentToolName } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
@@ -376,11 +376,11 @@ export const botScope = (
   own: Pick<Bot, 'effect' | 'instruction' | 'match' | 'name'> | undefined
 ) => {
   const remind = `To come back to the user later (to check a promise, a payment or an answer), call remind_later with bot "${bot}".`
-  if (bot === 'board') {
-    return `You are the Board in this chat: the promises and last days the agent tracks (list_promises, set_promise_status). ${remind}`
-  }
   if (!own) {
     return `You are Fewmail Bot in this chat, the user's main bot: you make their other bots when they ask for one (create_bot), find emails, answer any question about their mail, and keep everything in it that none of their bots looks after. ${remind}`
+  }
+  if (own.effect === BOARD_EFFECT) {
+    return `You are the user's bot "${own.name}" in this chat, their Board: the promises and last days the agent tracks (list_promises, set_promise_status). ${remind}`
   }
   const takes = own.instruction ?? `mail matching ${JSON.stringify(own.match)}`
   return `You are the user's bot "${own.name ?? takes}" in this chat. It looks after: ${takes}. What it does with that mail: ${own.effect}. Stay on its mail unless the user asks about something else. ${remind}`
@@ -430,7 +430,7 @@ export const askBot = async function* askBot(
   const [settings, plan, own] = await Promise.all([
     getSettings(userId),
     getPlanInfo(userId),
-    isSystemBot(bot) ? undefined : listBots(userId),
+    bot === 'fewmail' ? undefined : listBots(userId),
   ])
   const ownBot = own?.find(({ id }) => id === bot)
   if (own && !ownBot) {
@@ -534,7 +534,7 @@ export const answerReaction = async (
   const [settings, plan, own, history] = await Promise.all([
     getSettings(userId),
     getPlanInfo(userId),
-    isSystemBot(post.bot) ? undefined : listBots(userId),
+    post.bot === 'fewmail' ? undefined : listBots(userId),
     botHistory(userId, post.bot),
   ])
   const ownBot = own?.find(({ id }) => id === post.bot)

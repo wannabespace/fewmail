@@ -94,13 +94,21 @@ const ToolHeader = ({
   )
 }
 
+/** `rows`: rows that run to the block's edges, parted by their own hairlines (`Accordion variant="rows"`). */
 const ToolContent = ({
   className,
+  variant = 'default',
   ...props
-}: ComponentProps<typeof CollapsibleContent>) => (
+}: Omit<ComponentProps<typeof CollapsibleContent>, 'variant'> & {
+  variant?: 'default' | 'rows'
+}) => (
   <CollapsibleContent
     data-slot="tool-content"
-    className={cn('border-t px-3.5 py-3', className)}
+    className={cn(
+      'border-t',
+      variant === 'default' && 'px-3.5 py-3',
+      className
+    )}
     {...props}
   />
 )

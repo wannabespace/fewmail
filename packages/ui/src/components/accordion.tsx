@@ -10,20 +10,21 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { createContext, useContext } from 'react'
 import type { ReactNode } from 'react'
 
-/** `list`: one card of hairline-parted rows, like `SettingsGroup`, each row unfolding in place. */
-type AccordionVariant = 'default' | 'cards' | 'list'
+/** `list`: one card of hairline-parted rows, like `SettingsGroup`, each row unfolding in place; `rows`: the same rows inside a surface that is already the card (a `Tool`). */
+type AccordionVariant = 'default' | 'cards' | 'list' | 'rows'
 
 // Keep in step with the cards trigger's inset (its 1px border + px-4.5): the bleed lines its content up with the text above. A phone has no margin to bleed into.
 const cardsBleedClassName = 'md:-mx-4.75'
 
-const VariantContext = createContext<AccordionVariant>('default')
+const VariantContext =
+  createContext<Exclude<AccordionVariant, 'rows'>>('default')
 
 const Accordion = ({
   className,
   variant = 'default',
   ...props
 }: AccordionPrimitive.Root.Props & { variant?: AccordionVariant }) => (
-  <VariantContext value={variant}>
+  <VariantContext value={variant === 'rows' ? 'list' : variant}>
     <AccordionPrimitive.Root
       data-slot="accordion"
       className={cn(
@@ -36,6 +37,7 @@ const Accordion = ({
             smallItemBleedClassName,
             'divide-foreground/6 divide-y overflow-hidden'
           ),
+          rows: 'divide-foreground/6 divide-y',
         }[variant],
         className
       )}

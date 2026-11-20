@@ -17,8 +17,8 @@ import { useEffect, useState } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
+import { DigestLead, NowMessage } from '~/components/bot-chat'
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
-import { PaneEmpty } from '~/components/pane-empty'
 import { PaneRows } from '~/components/pane-rows'
 import type { RowPlace } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
@@ -96,9 +96,7 @@ const leadOf = (
       t.board.lead.promised(sections.promised.length),
     sections.coming.length > 0 && t.board.lead.coming(sections.coming.length),
   ].filter(Boolean)
-  return parts.length > 0
-    ? parts.join(' ')
-    : `${t.board.empty.title} ${t.board.empty.lead}`
+  return parts.join(' ')
 }
 
 /** In people's words, never the status names: "they answered, not done yet", "overdue". */
@@ -156,10 +154,10 @@ const hintsOf = (t: Messages, row: Commitment | undefined) => {
   ] as [string, string][]
 }
 
-/** Every promise and last day sorted into the Board's lists; nothing is asked on Free, where there is none. */
-const useBoard = () => {
+/** Every promise and last day sorted into the Board's lists; nothing is asked on Free, where there is none, or while the Board is not open. */
+export const useBoard = (isOpen = true) => {
   const hasAgent = useHasAgent()
-  const { data = [], isLoading } = useRanked(commitments, hasAgent)
+  const { data = [], isLoading } = useRanked(commitments, hasAgent && isOpen)
   const rows: Commitment[] = data
   const today = startOfToday()
   const sections = Object.fromEntries(
@@ -176,7 +174,7 @@ const useBoard = () => {
   }
 }
 
-/** The Board's chat on Home: the sentence, then the lists. */
+/** What the Board waits on, as any bot's messages: the sentence, then a message per list. */
 export const BoardPane = ({ isActive }: { isActive: boolean }) => {
   const t = useT()
   const dates = useDates()
@@ -304,27 +302,26 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
   }
 
   return (
-    <>
-      {!isPending && ordered.length > 0 && (
-        <p className="text-brief text-foreground/85 font-serif text-balance">
-          {leadOf(t, locale, sections)}
-        </p>
-      )}
-      <PaneEmpty
-        isShown={!isPending && ordered.length === 0}
-        {...t.board.empty}
-      />
-      {SECTIONS.map(
-        (section) =>
-          sections[section].length > 0 && (
-            <SettingsGroup key={section} title={t.board.section[section]}>
-              <PaneRows rowKey={({ id }) => id} rows={sections[section]}>
-                {rowOf}
-              </PaneRows>
-            </SettingsGroup>
-          )
-      )}
-    </>
+    !isPending &&
+    ordered.length > 0 && (
+      <>
+        <NowMessage isWide={false}>
+          <DigestLead>{leadOf(t, locale, sections)}</DigestLead>
+        </NowMessage>
+        {SECTIONS.map(
+          (section) =>
+            sections[section].length > 0 && (
+              <NowMessage key={section}>
+                <SettingsGroup title={t.board.section[section]}>
+                  <PaneRows rowKey={({ id }) => id} rows={sections[section]}>
+                    {rowOf}
+                  </PaneRows>
+                </SettingsGroup>
+              </NowMessage>
+            )
+        )}
+      </>
+    )
   )
 }
 

@@ -195,10 +195,6 @@ export const tr: Messages = {
     work: 'İş',
   },
   board: {
-    empty: {
-      lead: 'Sana verilen sözler, senin verdiğin sözler ve son tarihler e-postalarından otomatik olarak buraya eklenir.',
-      title: 'Bekleyen bir şey yok.',
-    },
     lead: {
       coming: (total: number) =>
         plural('tr', total, {
@@ -845,6 +841,7 @@ export const tr: Messages = {
       collect: 'Sadece topla',
       draft_reply: 'Yanıt taslağı hazırla',
       mark_read: 'Okundu olarak işaretle',
+      promises: 'Takip ettiğim sözler ve son tarihler',
       tidy: 'Toparla',
       trash: 'Çöpe taşı',
       unsubscribe: 'Abonelikten çık',
@@ -874,6 +871,7 @@ export const tr: Messages = {
       plural('tr', n, {
         other: (count) => `${count} sözü not ettim.`,
       }),
+    presets: 'Şablonlar',
     react: 'Tepki ver',
     reaction: 'Tepki',
     reply: 'Yanıtla',
@@ -894,11 +892,8 @@ export const tr: Messages = {
         other: (count) => `${count} adım`,
       }),
     subscribe: 'Abone ol',
-    system: { board: 'Pano', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'Takip ettiğim sözler ve son tarihler',
-      fewmail: 'Botlarını oluşturur, e-postaları bulur ve soruları yanıtlar',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Botlarını oluşturur, e-postaları bulur ve soruları yanıtlar',
     title: 'Botlar',
     toLatest: 'En yeniye git',
     unmute: 'Sesi aç',
@@ -1352,7 +1347,7 @@ export const tr: Messages = {
         },
         calendar: {
           description:
-            'Tüm posta kutularının takvimi tek bir görünümde. Bir e-postada önerilen toplantı, sen evet deyince etkinliğe dönüşür.',
+            'Tüm posta kutularının takvimi tek bir görünümde. Bir e-postada önerilen toplantı, sen onaylayınca etkinliğe dönüşür.',
           title: 'Takvim',
         },
         clearOut: {
@@ -1607,6 +1602,7 @@ export const tr: Messages = {
     showImages: 'Görselleri göster',
   },
   starterBots: {
+    board: { name: 'Pano' },
     important: {
       instruction:
         'Benden bir adım bekleyenler: yanıtımı bekleyen kişiler, ödemesi gelen faturalar, güvenlik uyarıları, bankamdan ya da devletten gelen her şey. Ana Sayfa’da tut',
@@ -1701,7 +1697,7 @@ export const tr: Messages = {
     byBots: (n: number) => `Botların ${n} tanesini halletti.`,
     decisions: 'Kararlar',
     journal: {
-      approved: 'Evet dedin',
+      approved: 'Onayladın',
       byBot: (bot: string) => `Botun: ${bot}`,
       failed: 'Olmadı',
       lead: 'Son 7 gün. E-postandaki ya da takvimindeki her değişiklik senin onayınla ya da kendi başına çalışmasına izin verdiğin bir botla yapıldı.',

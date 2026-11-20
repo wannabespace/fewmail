@@ -9,6 +9,7 @@ import { alias } from 'drizzle-orm/pg-core'
 import { jev } from '../lib/jev'
 import { announceChange } from '../lib/live'
 import { logError } from '../lib/log'
+import { keepsPromises } from './bots'
 import { NotFoundError } from './mail-errors'
 
 type Commitment = typeof commitments.$inferSelect
@@ -65,11 +66,11 @@ export const moveCommitment = (
     return true
   })
 
-/** New promises start their history here, so every status they ever had is in `commitment_events`. */
+/** New promises start their history here, so every status they ever had is in `commitment_events`; none without the Board. */
 export const recordCommitments = async (
   rows: Omit<typeof commitments.$inferInsert, 'status'>[]
 ) => {
-  if (rows.length === 0) {
+  if (!rows[0] || !(await keepsPromises(rows[0].userId))) {
     return
   }
   await db.transaction(async (tx) => {

@@ -195,10 +195,6 @@ export const pl: Messages = {
     work: 'Praca',
   },
   board: {
-    empty: {
-      lead: 'Obietnice złożone tobie, twoje zobowiązania i terminy pojawiają się tu automatycznie na podstawie twojej poczty.',
-      title: 'Nic nie czeka na załatwienie.',
-    },
     lead: {
       coming: (total: number) =>
         plural('pl', total, {
@@ -855,10 +851,10 @@ export const pl: Messages = {
         }),
       done: (n: number) =>
         plural('pl', n, {
-          one: () => 'Jedna gotowa po twoim „tak”.',
-          few: (count) => `${count} gotowe po twoim „tak”.`,
-          many: (count) => `${count} gotowych po twoim „tak”.`,
-          other: (count) => `${count} gotowej po twoim „tak”.`,
+          one: () => 'Jedna gotowa za twoją zgodą.',
+          few: (count) => `${count} gotowe za twoją zgodą.`,
+          many: (count) => `${count} gotowych za twoją zgodą.`,
+          other: (count) => `${count} gotowej za twoją zgodą.`,
         }),
       failed: (n: number) =>
         plural('pl', n, {
@@ -892,6 +888,7 @@ export const pl: Messages = {
       collect: 'Tylko zbieraj',
       draft_reply: 'Przygotuj szkic odpowiedzi',
       mark_read: 'Oznacz jako przeczytane',
+      promises: 'Obietnice i terminy, których pilnuję',
       tidy: 'Sprzątaj',
       trash: 'Przenieś do kosza',
       unsubscribe: 'Wypisz się',
@@ -899,7 +896,7 @@ export const pl: Messages = {
     empty: 'Na razie pusto. Gdy przyjdzie moja poczta, napiszę tutaj.',
     enabled: 'Działa sam',
     enabledHint: {
-      off: 'Wyłączony najpierw pyta o twoje „tak” przy każdym mailu.',
+      off: 'Wyłączony najpierw prosi o twoją zgodę przy każdym mailu.',
       on: 'Włączony działa bez pytania; wszystko, co zrobi, widać w jego czacie.',
     },
     instruction: 'Które maile i co z nimi robić',
@@ -923,6 +920,7 @@ export const pl: Messages = {
         many: (count) => `Zapisałem ${count} obietnic.`,
         other: (count) => `Zapisałem ${count} obietnicy.`,
       }),
+    presets: 'Szablony',
     react: 'Zareaguj',
     reaction: 'Reakcja',
     reply: 'Odpowiedz',
@@ -945,11 +943,8 @@ export const pl: Messages = {
         other: (count) => `${count} kroku`,
       }),
     subscribe: 'Wykup subskrypcję',
-    system: { board: 'Tablica', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'Obietnice i terminy, których pilnuję',
-      fewmail: 'Tworzy twoje boty, znajduje maile i odpowiada na pytania',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Tworzy twoje boty, znajduje maile i odpowiada na pytania',
     title: 'Boty',
     toLatest: 'Do najnowszej wiadomości',
     unmute: 'Wyłącz wyciszenie',
@@ -1120,7 +1115,7 @@ export const pl: Messages = {
       emphasis: 'Claude i ChatGPT.',
       free: 'Czytanie poczty i sortowanie przez agenta są za darmo.',
       label: 'MCP',
-      lead: 'Podłącz Fewmail jako serwer MCP i pytaj o pocztę asystenta, którego już używasz. Wszystko, co wysyła maile lub zmienia Gmaila, i tak czeka na twoje „tak”.',
+      lead: 'Podłącz Fewmail jako serwer MCP i pytaj o pocztę asystenta, którego już używasz. Wszystko, co wysyła maile lub zmienia Gmaila, i tak czeka na twoją zgodę.',
       question: 'Czego Anna potrzebuje ode mnie w tym tygodniu?',
       setup: 'Połącz w minutę',
       title: 'Twoja poczta w Claude i ChatGPT.',
@@ -1129,7 +1124,7 @@ export const pl: Messages = {
       copy: 'Kopiuj URL',
       lead: 'Podłącz Fewmail jako serwer MCP i pytaj o pocztę z AI, której już używasz. Czytanie poczty i sortowanie przez agenta są darmowe; szkice, wysyłka i reguły są w Pro.',
       safety:
-        'Wszystko, co wysyła maila lub zmienia Gmaila, najpierw pyta o twoje „tak”. E-mail, który próbuje wydawać polecenia asystentowi, zostaje oznaczony, zanim ten go przeczyta. Twoja poczta nigdy nie trenuje modeli, a każdą aplikację odłączysz w ustawieniach.',
+        'Wszystko, co wysyła maila lub zmienia Gmaila, najpierw prosi o twoją zgodę. E-mail, który próbuje wydawać polecenia asystentowi, zostaje oznaczony, zanim ten go przeczyta. Twoja poczta nigdy nie trenuje modeli, a każdą aplikację odłączysz w ustawieniach.',
       steps: {
         chatgpt:
           'W Settings dodaj konektor (aplikację) z tym URL, potem zaloguj się do Fewmail.',
@@ -1187,7 +1182,7 @@ export const pl: Messages = {
         },
         {
           answer:
-            'Fewmail szyfruje tematy, treści, streszczenia i szkice w swojej bazie danych, nigdy nie używa twojej poczty do trenowania modeli i nigdy niczego nie wysyła ani nie zmienia w Gmailu bez twojego „tak”. W każdej chwili możesz go odłączyć i usunąć wszystko.',
+            'Fewmail szyfruje tematy, treści, streszczenia i szkice w swojej bazie danych, nigdy nie używa twojej poczty do trenowania modeli i nigdy niczego nie wysyła ani nie zmienia w Gmailu bez twojej zgody. W każdej chwili możesz go odłączyć i usunąć wszystko.',
           question: 'Czy bezpiecznie jest pozwolić AI czytać moją pocztę?',
         },
         {
@@ -1201,7 +1196,7 @@ export const pl: Messages = {
         },
       ],
       faqTitle: 'O asystentach poczty AI.',
-      lead: 'Fewmail czyta każdy e-mail w twoim Gmailu, gdy tylko przyjdzie, usuwa szum, pisze odpowiedzi twoim głosem i przynosi ci tylko te kilka spraw, które wymagają twojej decyzji. Nic nie zostaje wysłane ani zmienione bez twojego „tak”.',
+      lead: 'Fewmail czyta każdy e-mail w twoim Gmailu, gdy tylko przyjdzie, usuwa szum, pisze odpowiedzi twoim głosem i przynosi ci tylko te kilka spraw, które wymagają twojej decyzji. Nic nie zostaje wysłane ani zmienione bez twojej zgody.',
       title: 'Asystent poczty AI, który pierwszy czyta twojego Gmaila.',
     },
     comparePage: {
@@ -1402,7 +1397,7 @@ export const pl: Messages = {
         },
         calendar: {
           description:
-            'Kalendarze wszystkich skrzynek w jednym widoku. Spotkanie zaproponowane w mailu staje się wydarzeniem, gdy powiesz „tak”.',
+            'Kalendarze wszystkich skrzynek w jednym widoku. Spotkanie zaproponowane w mailu staje się wydarzeniem, gdy je zatwierdzisz.',
           title: 'Kalendarz',
         },
         clearOut: {
@@ -1599,7 +1594,7 @@ export const pl: Messages = {
         {
           description:
             'Szkice czekają na ciebie. Archiwizować, oznaczać jako przeczytane czy wypisywać się mogą same tylko reguły, które utworzyłeś lub zostawiłeś, a wszystko, co zrobiły, znajdziesz w Załatwionych.',
-          title: 'Nic nie wychodzi bez twojego „tak”.',
+          title: 'Nic nie wychodzi bez twojej zgody.',
         },
         {
           description:
@@ -1657,6 +1652,7 @@ export const pl: Messages = {
     showImages: 'Pokaż obrazy',
   },
   starterBots: {
+    board: { name: 'Tablica' },
     important: {
       instruction:
         'Co wymaga mojego ruchu: ludzie czekający na moją odpowiedź, rachunki do zapłacenia, alerty bezpieczeństwa, wszystko od mojego banku lub urzędów. Zostaw na Stronie głównej',
@@ -1754,10 +1750,10 @@ export const pl: Messages = {
     byBots: (n: number) => `Twoje boty zajęły się ${n}.`,
     decisions: 'Decyzje',
     journal: {
-      approved: 'Twoje „tak”',
+      approved: 'Za twoją zgodą',
       byBot: (bot: string) => `Twój bot: ${bot}`,
       failed: 'Nie udało się',
-      lead: 'Ostatnie 7 dni. Każda zmiana w poczcie czy kalendarzu miała twoje „tak” albo bota, któremu pozwoliłeś działać samemu.',
+      lead: 'Ostatnie 7 dni. Każda zmiana w poczcie czy kalendarzu zaszła za twoją zgodą albo zrobił ją bot, któremu pozwalasz działać samemu.',
       title: 'Zrobione w twojej poczcie',
     },
     progress: (done: number, total: number) => `${done} z ${total}`,

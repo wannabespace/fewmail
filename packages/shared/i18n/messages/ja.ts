@@ -660,6 +660,7 @@ export const ja: Messages = {
       collect: 'まとめておくだけ',
       draft_reply: '返信を下書きする',
       mark_read: '既読にする',
+      promises: '私が見守っている約束と期限',
       tidy: '片付ける',
       trash: 'ゴミ箱に移動',
       unsubscribe: '配信停止する',
@@ -685,6 +686,7 @@ export const ja: Messages = {
       replied: 'その後、そのスレッドに返信が届きました。',
     },
     promises: (n: number) => `約束を${n}件書き留めました。`,
+    presets: 'テンプレート',
     react: 'リアクション',
     reaction: 'リアクション',
     reply: '返信',
@@ -701,11 +703,8 @@ export const ja: Messages = {
       `${date}までお返事できません。今月の利用枠を使い切りました。`,
     steps: (n: number) => `${n} ステップ`,
     subscribe: '登録する',
-    system: { board: 'ボード', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: '私が見守っている約束と期限',
-      fewmail: 'ボットを作り、メールを探し、質問に答えます',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'ボットを作り、メールを探し、質問に答えます',
     title: 'ボット',
     toLatest: '最新へ',
     unmute: 'ミュート解除',
@@ -1159,7 +1158,7 @@ export const ja: Messages = {
         },
         calendar: {
           description:
-            'すべてのメールボックスのカレンダーをひとつの画面に。メールで提案された会議は、あなたが OK すれば予定になります。',
+            'すべてのメールボックスのカレンダーをひとつの画面に。メールで提案された会議は、あなたが承認すれば予定になります。',
           title: 'カレンダー',
         },
         clearOut: {
@@ -1360,7 +1359,7 @@ export const ja: Messages = {
         {
           description:
             '下書きはあなたを待ちます。自動でアーカイブ、既読、配信停止ができるのは、あなたが作成したか残したルールだけ。ルールが行ったことはすべて「対応済み」に表示されます。',
-          title: 'あなたの OK なしには何も送りません。',
+          title: 'あなたの承認なしには何も送りません。',
         },
         {
           description:
@@ -1417,6 +1416,7 @@ export const ja: Messages = {
     showImages: '画像を表示',
   },
   starterBots: {
+    board: { name: 'ボード' },
     important: {
       instruction:
         '自分の対応が必要なもの：返信を待っている人、支払期限の来た請求書、セキュリティ警告、銀行や役所からのものすべて。ホームに残す',
@@ -1620,10 +1620,6 @@ export const ja: Messages = {
     reason: 'コールドメール：一度もメールしたことのない相手からの売り込み',
   },
   board: {
-    empty: {
-      lead: 'あなたへの約束、あなたの約束、期限はメールから自動でここに届きます。',
-      title: '未完了のものはありません。',
-    },
     lead: {
       coming: (total: number) =>
         plural('ja', total, {

@@ -195,7 +195,7 @@ export const de: Messages = {
       emphasis: 'Claude und ChatGPT.',
       free: 'Deine Mails lesen und das Sortieren durch den Agenten sind kostenlos.',
       label: 'MCP',
-      lead: 'Verbinde Fewmail als MCP-Server und frag den Assistenten, den du schon nutzt, nach deinen Mails. Alles, was sendet oder Gmail ändert, fragt trotzdem nach deinem Ja.',
+      lead: 'Verbinde Fewmail als MCP-Server und frag den Assistenten, den du schon nutzt, nach deinen Mails. Alles, was sendet oder Gmail ändert, wartet trotzdem auf deine Freigabe.',
       question: 'Was braucht Anna diese Woche von mir?',
       setup: 'In einer Minute verbunden',
       title: 'Deine Mails, direkt in Claude und ChatGPT.',
@@ -204,7 +204,7 @@ export const de: Messages = {
       copy: 'URL kopieren',
       lead: 'Verbinde Fewmail als MCP-Server und frag die KI, die du schon nutzt, nach deinen Mails. Lesen und das Sortieren durch den Agenten sind kostenlos; Entwürfe, Senden und Regeln gibt es mit Pro.',
       safety:
-        'Alles, was eine E-Mail sendet oder Gmail ändert, fragt zuerst nach deinem Ja. Eine E-Mail, die dem Assistenten Befehle geben will, wird markiert, bevor er sie liest. Deine Mails trainieren nie Modelle, und jede App lässt sich in den Einstellungen trennen.',
+        'Alles, was eine E-Mail sendet oder Gmail ändert, braucht zuerst deine Freigabe. Eine E-Mail, die dem Assistenten Befehle geben will, wird markiert, bevor er sie liest. Deine Mails trainieren nie Modelle, und jede App lässt sich in den Einstellungen trennen.',
       steps: {
         chatgpt:
           'Füge in den Settings einen Connector (App) mit dieser URL hinzu und melde dich dann bei Fewmail an.',
@@ -262,7 +262,7 @@ export const de: Messages = {
         },
         {
           answer:
-            'Fewmail verschlüsselt Betreffzeilen, Inhalte, Zusammenfassungen und Entwürfe in seiner Datenbank, nutzt deine Mails nie zum Trainieren von Modellen und sendet oder ändert in Gmail nie etwas ohne dein Ja. Du kannst es jederzeit trennen und alles löschen.',
+            'Fewmail verschlüsselt Betreffzeilen, Inhalte, Zusammenfassungen und Entwürfe in seiner Datenbank, nutzt deine Mails nie zum Trainieren von Modellen und sendet oder ändert in Gmail nie etwas ohne deine Freigabe. Du kannst es jederzeit trennen und alles löschen.',
           question: 'Ist es sicher, KI meine Mails lesen zu lassen?',
         },
         {
@@ -277,7 +277,7 @@ export const de: Messages = {
         },
       ],
       faqTitle: 'Über KI-E-Mail-Assistenten.',
-      lead: 'Fewmail liest jede Mail in deinem Gmail, sobald sie ankommt, räumt den Lärm weg, entwirft Antworten in deinem Ton und bringt dir nur die wenigen Dinge, die deine Entscheidung brauchen. Nichts wird ohne dein Ja gesendet oder geändert.',
+      lead: 'Fewmail liest jede Mail in deinem Gmail, sobald sie ankommt, räumt den Lärm weg, entwirft Antworten in deinem Ton und bringt dir nur die wenigen Dinge, die deine Entscheidung brauchen. Nichts wird ohne deine Freigabe gesendet oder geändert.',
       title: 'Der KI-E-Mail-Assistent, der dein Gmail zuerst liest.',
     },
     comparePage: {
@@ -479,7 +479,7 @@ export const de: Messages = {
         },
         calendar: {
           description:
-            'Die Kalender aller Postfächer in einer Ansicht. Ein Termin, der in einer Mail vorgeschlagen wird, landet im Kalender, sobald du Ja sagst.',
+            'Die Kalender aller Postfächer in einer Ansicht. Ein Termin, der in einer Mail vorgeschlagen wird, landet im Kalender, sobald du ihn bestätigst.',
           title: 'Kalender',
         },
         clearOut: {
@@ -675,7 +675,7 @@ export const de: Messages = {
         {
           description:
             'Entwürfe warten auf dich. Nur Regeln, die du angelegt oder behalten hast, dürfen selbst archivieren, als gelesen markieren oder abmelden, und alles, was sie getan haben, steht unter Erledigt.',
-          title: 'Ohne dein Ja wird nichts gesendet.',
+          title: 'Ohne deine Freigabe wird nichts gesendet.',
         },
         {
           description:
@@ -936,7 +936,7 @@ export const de: Messages = {
       ' zu.',
     ]) as Rich<'privacy' | 'terms'>,
     consent:
-      'Ohne dein Okay wird nichts gesendet oder archiviert. Kalender und Kontakte sind optional.',
+      'Ohne deine Freigabe wird nichts gesendet oder archiviert. Kalender und Kontakte sind optional.',
     continue: 'Weiter mit Google',
     lead: 'Fewmail liest deine Mails und zeigt nur, was deine Aufmerksamkeit braucht.',
     title: 'Nur, was zählt.',
@@ -1228,8 +1228,8 @@ export const de: Messages = {
         }),
       done: (n: number) =>
         plural('de', n, {
-          one: () => 'Eine ist nach deinem Ja erledigt.',
-          other: (count) => `${count} sind nach deinem Ja erledigt.`,
+          one: () => 'Eine ist erledigt, von dir freigegeben.',
+          other: (count) => `${count} sind erledigt, von dir freigegeben.`,
         }),
       failed: (n: number) =>
         plural('de', n, {
@@ -1259,6 +1259,7 @@ export const de: Messages = {
       collect: 'Nur sammeln',
       draft_reply: 'Antwort entwerfen',
       mark_read: 'Als gelesen markieren',
+      promises: 'Die Versprechen und Fristen, die ich im Blick behalte',
       tidy: 'Aufräumen',
       trash: 'In den Papierkorb',
       unsubscribe: 'Abmelden',
@@ -1266,7 +1267,7 @@ export const de: Messages = {
     empty: 'Noch nichts hier. Sobald Mail für mich kommt, schreibe ich hier.',
     enabled: 'Handelt selbst',
     enabledHint: {
-      off: 'Aus: Er fragt erst bei jeder Mail nach deinem Ja.',
+      off: 'Aus: Er fragt bei jeder Mail erst nach deiner Freigabe.',
       on: 'An: Er handelt ohne zu fragen, alles, was er tut, steht in seinem Chat.',
     },
     instruction: 'Welche Mails und was er damit macht',
@@ -1288,6 +1289,7 @@ export const de: Messages = {
         one: () => 'Ich habe ein Versprechen notiert.',
         other: (count) => `Ich habe ${count} Versprechen notiert.`,
       }),
+    presets: 'Vorlagen',
     react: 'Reagieren',
     reaction: 'Reaktion',
     reply: 'Antworten',
@@ -1308,11 +1310,8 @@ export const de: Messages = {
         other: (count) => `${count} Schritte`,
       }),
     subscribe: 'Abonnieren',
-    system: { board: 'Pinnwand', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'Die Versprechen und Fristen, die ich im Blick behalte',
-      fewmail: 'Erstellt deine Bots, findet E-Mails und beantwortet Fragen',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Erstellt deine Bots, findet E-Mails und beantwortet Fragen',
     title: 'Bots',
     toLatest: 'Zur neuesten Nachricht',
     unmute: 'Stummschaltung aufheben',
@@ -1471,6 +1470,7 @@ export const de: Messages = {
     showImages: 'Bilder anzeigen',
   },
   starterBots: {
+    board: { name: 'Pinnwand' },
     important: {
       instruction:
         'Was einen Schritt von mir braucht: Leute, die auf meine Antwort warten, fällige Rechnungen, Sicherheitswarnungen, alles von meiner Bank oder von Behörden. Auf der Startseite halten',
@@ -1567,10 +1567,10 @@ export const de: Messages = {
     byBots: (n: number) => `Deine Bots haben ${n} erledigt.`,
     decisions: 'Entscheidungen',
     journal: {
-      approved: 'Du hast Ja gesagt',
+      approved: 'Von dir freigegeben',
       byBot: (bot: string) => `Dein Bot: ${bot}`,
       failed: 'Hat nicht geklappt',
-      lead: 'Die letzten 7 Tage. Jede Änderung in deiner Mail oder deinem Kalender hatte dein Ja oder einen Bot, den du selbst handeln lässt.',
+      lead: 'Die letzten 7 Tage. Jede Änderung in deiner Mail oder deinem Kalender wurde von dir freigegeben oder von einem Bot gemacht, den du selbst handeln lässt.',
       title: 'In deinem Postfach erledigt',
     },
     progress: (done: number, total: number) => `${done} von ${total}`,
@@ -1692,10 +1692,6 @@ export const de: Messages = {
       'Kaltakquise: Jemand Fremdes will dir etwas verkaufen, du hast nie an diese Adresse geschrieben',
   },
   board: {
-    empty: {
-      lead: 'Zusagen an dich, deine eigenen Zusagen und Fristen aus deinen E-Mails erscheinen hier automatisch.',
-      title: 'Nichts offen.',
-    },
     lead: {
       coming: (total: number) =>
         plural('de', total, {
@@ -1789,7 +1785,7 @@ export const de: Messages = {
       'Noch zu wenig Mail für eine Geschichte. Schau in ein paar Tagen wieder vorbei.',
     handled: 'E-Mails von Fewmail erledigt',
     handledHint:
-      'Fewmail ändert in Gmail nichts ohne dein Ja. Lass einen Bot selbst handeln, dann erledigt er solche Mails für dich.',
+      'Fewmail ändert in Gmail nichts ohne deine Freigabe. Lass einen Bot selbst handeln, dann erledigt er solche Mails für dich.',
     people: 'Wer am meisten schrieb',
     period: { month: 'Dieser Monat', year: 'Dieses Jahr' },
     replies: 'Antworten von Fewmail entworfen und gesendet',

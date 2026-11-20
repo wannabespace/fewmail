@@ -1,8 +1,13 @@
 import { db } from '@fewmail/db'
 import { botPosts, bots } from '@fewmail/db/schema'
 import type { SimpleMatch } from '@fewmail/db/schema'
-import { BOT_EFFECTS, GMAIL_EFFECTS } from '@fewmail/shared/agent'
-import type { BotEffect } from '@fewmail/shared/agent'
+import {
+  BOARD_EFFECT,
+  BOT_EFFECTS,
+  BOT_PRESETS,
+  GMAIL_EFFECTS,
+} from '@fewmail/shared/agent'
+import type { BotEffect, BotPreset, MailBotEffect } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
 import { choice } from '@typesafe-ai/sdk'
@@ -29,6 +34,9 @@ const SHORT_WORD = 3
 
 /** A bot from before names were required is named once from its own words: what it matches, or its instruction's first clause. */
 const nameOf = (bot: typeof bots.$inferSelect, t: Messages) => {
+  if (bot.effect === BOARD_EFFECT) {
+    return t.starterBots.board.name
+  }
   if (bot.match) {
     return bot.match.value || t.bots.simple.title.mailingList()
   }
@@ -74,9 +82,33 @@ export const listBots = async (userId: string) => {
   )
 }
 
+/** A preset as the user's bot, in their language. */
+export const presetBot = (
+  userId: string,
+  { effect, key }: (typeof BOT_PRESETS)[number],
+  t: Messages
+) => {
+  const words = t.starterBots[key]
+  return {
+    effect,
+    // Nobody said yes to moving their mail yet: the tidying bot asks until the user lets it act on its own.
+    enabled: effect !== 'tidy',
+    instruction: 'instruction' in words ? words.instruction : null,
+    name: words.name,
+    userId,
+  }
+}
+
+const boardOf = (userId: string) =>
+  and(eq(bots.userId, userId), eq(bots.effect, BOARD_EFFECT))
+
+/** The agent writes promises and last days down only while the user has the Board. */
+export const keepsPromises = async (userId: string) =>
+  (await db.$count(bots, boardOf(userId))) > 0
+
 const UNSAID = 'unsaid'
 
-const EFFECT_CRITERIA: Record<BotEffect | typeof UNSAID, string> = {
+const EFFECT_CRITERIA: Record<MailBotEffect | typeof UNSAID, string> = {
   [UNSAID]: 'It only says which emails, not what to do with them',
   always_show: 'Keep them in sight on Home, never let one slip',
   archive: 'Archive them, take them out of the inbox',
@@ -105,7 +137,7 @@ export const readBotEffect = async (text: string, simple: boolean) => {
             each,
             EFFECT_CRITERIA[each],
           ])
-        ) as Record<BotEffect | typeof UNSAID, string>
+        ) as Record<MailBotEffect | typeof UNSAID, string>
       ),
     },
     state: text,
@@ -125,7 +157,7 @@ export const updateBot = async (
   userId: string,
   id: string,
   input: Partial<{
-    effect: BotEffect
+    effect: MailBotEffect
     enabled: boolean
     instruction: string
     name: string
@@ -145,7 +177,7 @@ export const updateBot = async (
 
 export const createBot = async (
   userId: string,
-  input: { effect: BotEffect; enabled?: boolean; name: string } & (
+  input: { effect: MailBotEffect; enabled?: boolean; name: string } & (
     | { instruction: string }
     | { match: SimpleMatch }
   )
@@ -170,6 +202,34 @@ export const createBot = async (
     .values({ ...input, userId })
     .returning()
   return expectRow(bot)
+}
+
+/** A preset from New bot; the Board comes once, so asking for it again gives the one the user has. */
+export const addPresetBot = async (userId: string, key: BotPreset) => {
+  const preset = BOT_PRESETS.find((each) => each.key === key)
+  if (!preset) {
+    throw new NotFoundError('Preset not found')
+  }
+  const settings = await getSettings(userId)
+  const row = presetBot(
+    userId,
+    preset,
+    dictionaries[settings?.language ?? 'en']
+  )
+  if (preset.effect !== BOARD_EFFECT && row.instruction) {
+    return createBot(userId, {
+      effect: preset.effect,
+      enabled: row.enabled,
+      instruction: row.instruction,
+      name: row.name,
+    })
+  }
+  const [board] = await db.select().from(bots).where(boardOf(userId))
+  if (board) {
+    return board
+  }
+  const [created] = await db.insert(bots).values(row).returning()
+  return expectRow(created)
 }
 
 /** Its chat goes with it; what it did stays in the mail and under Fewmail's. */

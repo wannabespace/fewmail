@@ -53,6 +53,7 @@ import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
 import { oneTimeCode } from '../lib/one-time-code'
 import { attachmentText, worthReading } from './attachments'
+import { keepsPromises } from './bots'
 import { BULK_THRESHOLD } from './bulk'
 import { hasMailboxCalendar } from './calendar'
 import {
@@ -436,13 +437,16 @@ const withNetworkFacts = <
 
 /**
  * Past the allowance the agent writes no summary, but a promise or a last day is a row, not prose: written down
- * from the emails Jev says hold one (`keepsRows`), so the watch never sleeps mid-month.
+ * from the emails Jev says hold one (`keepsRows`), so the watch never sleeps mid-month. Without the Board nothing is asked.
  */
 const extractLater = async (input: {
   message: Message
   prompt: string
   settings: Settings
 }) => {
+  if (!(await keepsPromises(input.message.userId))) {
+    return null
+  }
   const written = await Result.tryPromise(() =>
     generateText({
       instructions: [

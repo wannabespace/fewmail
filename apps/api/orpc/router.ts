@@ -11,6 +11,7 @@ import {
   OUTBOX_MODES,
   PAID_PLANS,
   BOT_EFFECTS,
+  BOT_PRESETS,
   BOT_REACTIONS,
   SIMPLE_MATCH_FIELDS,
   WRAPPED_PERIODS,
@@ -44,6 +45,7 @@ import {
   setBotPinned,
 } from '../services/bot-chat'
 import {
+  addPresetBot,
   createBot,
   deleteBot,
   listBots,
@@ -196,7 +198,7 @@ const botInput = type({
   name: '0 < string <= 60',
 })
 
-/** `fewmail`, `board` or one of the user's bots. */
+/** `fewmail` or one of the user's bots. */
 const botRef = type({ bot: '0 < string <= 64' })
 
 const folderName = type('string.trim').to(
@@ -522,6 +524,13 @@ export const router = {
     }
   }),
   bots: {
+    addPreset: authed
+      .input(
+        type({ preset: type.enumerated(...BOT_PRESETS.map(({ key }) => key)) })
+      )
+      .handler(({ context, input }) =>
+        addPresetBot(context.user.id, input.preset)
+      ),
     create: authed
       .input(botInput)
       .handler(({ context, input }) => createBot(context.user.id, input)),

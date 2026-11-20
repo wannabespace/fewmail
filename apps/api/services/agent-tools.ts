@@ -372,7 +372,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   list_bots: define({
     description:
-      "The user's bots, the chats on Home: each takes the incoming mail its plain-language instruction (or a simple match on sender, subject or mailing list) describes, and has a name and an effect: archive, mark_read, unsubscribe and trash move each email; tidy does what you would suggest for each email (archive, mark read or unsubscribe); draft_reply leaves a draft in the bot's chat; always_show puts each email in the bot's chat as one that needs the user; collect only gathers the mail there. enabled: the bot moves mail on its own; off, it asks the user for a yes on each email. Mail no bot takes is Fewmail's, the Board holds the promises.",
+      "The user's bots, the chats on Home: each takes the incoming mail its plain-language instruction (or a simple match on sender, subject or mailing list) describes, and has a name and an effect: archive, mark_read, unsubscribe and trash move each email; tidy does what you would suggest for each email (archive, mark read or unsubscribe); draft_reply leaves a draft in the bot's chat; always_show puts each email in the bot's chat as one that needs the user; collect only gathers the mail there. enabled: the bot moves mail on its own; off, it asks the user for a yes on each email. Mail no bot takes is Fewmail's; a bot with effect promises is the Board, which holds the promises and takes no mail.",
     run: () => listBots(userId),
   }),
   create_bot: define({

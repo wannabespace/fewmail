@@ -11,6 +11,7 @@ import { models, trackUsage } from '../lib/ai'
 import { localClock } from '../lib/clock'
 import { jev } from '../lib/jev'
 import { recentSentExamples } from './agent'
+import { keepsPromises } from './bots'
 import { recordCommitments } from './commitments'
 import { hasBudget, keepsRows } from './plan'
 import { watchForReply } from './reminders'
@@ -94,7 +95,11 @@ export const watchSentMail = async (
   if (answers.expectsReply.noul >= SIGNAL) {
     await watchForReply(userId, sent.threadId, AUTO_FOLLOWUP_DAYS)
   }
-  if (answers.promises.noul < SIGNAL || !(await keepsRows(userId))) {
+  if (
+    answers.promises.noul < SIGNAL ||
+    !(await keepsRows(userId)) ||
+    !(await keepsPromises(userId))
+  ) {
     return
   }
   const [message] = await db

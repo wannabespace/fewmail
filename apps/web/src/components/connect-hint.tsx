@@ -1,4 +1,3 @@
-import { cardsBleedClassName } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
@@ -9,7 +8,6 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@fewmail/ui/components/item'
-import { cn } from '@fewmail/ui/lib/utils'
 import {
   BubbleChatIcon,
   Cancel01Icon,
@@ -186,7 +184,7 @@ export const ConnectHint = () => {
       {hint && current && (
         <motion.div
           key={current}
-          className={cn('flex flex-col', cardsBleedClassName)}
+          className="flex flex-col"
           // Its data arrives after Home is drawn: the first hint is just there, only the next one after ✕ slides in.
           initial={hasDismissed && { opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}

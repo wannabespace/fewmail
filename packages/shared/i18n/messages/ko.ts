@@ -660,6 +660,7 @@ export const ko: Messages = {
       collect: '모아 두기만',
       draft_reply: '답장 초안 쓰기',
       mark_read: '읽음으로 표시',
+      promises: '제가 챙기는 약속과 마감일',
       tidy: '정리하기',
       trash: '휴지통으로 이동',
       unsubscribe: '구독 취소',
@@ -685,6 +686,7 @@ export const ko: Messages = {
       replied: '그 뒤로 그 스레드에 답장이 왔어요.',
     },
     promises: (n: number) => `약속 ${n}개를 적어 뒀어요.`,
+    presets: '템플릿',
     react: '반응 남기기',
     reaction: '반응',
     reply: '답장',
@@ -701,11 +703,8 @@ export const ko: Messages = {
       `${date}까지는 답할 수 없어요. 이번 달 사용량을 모두 썼어요.`,
     steps: (n: number) => `${n}단계`,
     subscribe: '구독하기',
-    system: { board: '보드', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: '제가 챙기는 약속과 마감일',
-      fewmail: '봇을 만들고, 메일을 찾고, 질문에 답해요',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: '봇을 만들고, 메일을 찾고, 질문에 답해요',
     title: '봇',
     toLatest: '최신 메시지로',
     unmute: '알림 켜기',
@@ -1151,7 +1150,7 @@ export const ko: Messages = {
         },
         calendar: {
           description:
-            '모든 메일함의 캘린더를 한 화면에. 메일로 제안된 회의는 내가 좋다고 하면 일정이 돼요.',
+            '모든 메일함의 캘린더를 한 화면에. 메일로 제안된 회의는 내가 승인하면 일정이 돼요.',
           title: '캘린더',
         },
         clearOut: {
@@ -1401,6 +1400,7 @@ export const ko: Messages = {
     showImages: '이미지 보기',
   },
   starterBots: {
+    board: { name: '보드' },
     important: {
       instruction:
         '내가 직접 움직여야 하는 것: 내 답장을 기다리는 사람, 납부할 청구서, 보안 알림, 은행이나 정부 기관에서 온 모든 것. 홈에 두기',
@@ -1600,10 +1600,6 @@ export const ko: Messages = {
     reason: '콜드 메일: 한 번도 메일을 보낸 적 없는 사람의 영업 메일이에요',
   },
   board: {
-    empty: {
-      lead: '받은 약속, 내가 한 약속, 마감일이 메일에서 자동으로 여기에 정리돼요.',
-      title: '미완료된 일이 없어요.',
-    },
     lead: {
       coming: (total: number) =>
         plural('ko', total, {

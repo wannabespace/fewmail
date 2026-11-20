@@ -645,6 +645,7 @@ export const zh: Messages = {
       collect: '只收集',
       draft_reply: '起草回复',
       mark_read: '标为已读',
+      promises: '我在跟进的承诺和截止日期',
       tidy: '整理',
       trash: '移到废纸篓',
       unsubscribe: '退订',
@@ -670,6 +671,7 @@ export const zh: Messages = {
       replied: '那之后，那个会话里有了回复。',
     },
     promises: (n: number) => `我记下了 ${n} 个承诺。`,
+    presets: '模板',
     react: '添加回应',
     reaction: '回应',
     reply: '回复',
@@ -685,11 +687,8 @@ export const zh: Messages = {
     spent: (date: string) => `${date} 之前我无法回复：本月的额度已用完。`,
     steps: (n: number) => `${n} 个步骤`,
     subscribe: '订阅',
-    system: { board: '看板', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: '我在跟进的承诺和截止日期',
-      fewmail: '创建你的机器人，查找邮件，回答问题',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: '创建你的机器人，查找邮件，回答问题',
     title: '机器人',
     toLatest: '回到最新',
     unmute: '取消静音',
@@ -1127,7 +1126,7 @@ export const zh: Messages = {
         },
         calendar: {
           description:
-            '所有邮箱的日历汇在一处。邮件里提议的会议，你点头后就变成日程。',
+            '所有邮箱的日历汇在一处。邮件里提议的会议，经你同意后就变成日程。',
           title: '日历',
         },
         clearOut: {
@@ -1320,7 +1319,7 @@ export const zh: Messages = {
         {
           description:
             '草稿会等你。只有你创建或保留的规则才能自动归档、标为已读或退订，它们做过的一切都列在“已处理”中。',
-          title: '没有你点头，什么都不会发出。',
+          title: '未经你同意，什么都不会发出。',
         },
         {
           description:
@@ -1375,6 +1374,7 @@ export const zh: Messages = {
     showImages: '显示图片',
   },
   starterBots: {
+    board: { name: '看板' },
     important: {
       instruction:
         '需要我采取行动的：等我回复的人、到期的账单、安全提醒、来自我的银行或政府的一切。留在首页',
@@ -1565,10 +1565,6 @@ export const zh: Messages = {
     reason: '陌生推销：你从未给对方写过信，对方却在推销',
   },
   board: {
-    empty: {
-      lead: '邮件中别人对你的承诺、你做出的承诺和截止日期都会自动整理到这里。',
-      title: '没有待办事项。',
-    },
     lead: {
       coming: (total: number) =>
         plural('zh', total, {

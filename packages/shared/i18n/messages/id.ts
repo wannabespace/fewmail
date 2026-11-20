@@ -195,10 +195,6 @@ export const id: Messages = {
     work: 'Kerja',
   },
   board: {
-    empty: {
-      lead: 'Janji orang lain kepadamu, janjimu, dan tenggat otomatis muncul di sini dari emailmu.',
-      title: 'Tidak ada yang tertunda.',
-    },
     lead: {
       coming: (total: number) =>
         plural('id', total, {
@@ -853,6 +849,7 @@ export const id: Messages = {
       collect: 'Kumpulkan saja',
       draft_reply: 'Buat draf balasan',
       mark_read: 'Tandai sudah dibaca',
+      promises: 'Janji dan tenggat yang kupantau',
       tidy: 'Rapikan',
       trash: 'Pindahkan ke sampah',
       unsubscribe: 'Berhenti langganan',
@@ -881,6 +878,7 @@ export const id: Messages = {
       plural('id', n, {
         other: (count) => `Aku mencatat ${count} janji.`,
       }),
+    presets: 'Templat',
     react: 'Beri reaksi',
     reaction: 'Reaksi',
     reply: 'Balas',
@@ -901,11 +899,8 @@ export const id: Messages = {
         other: (count) => `${count} langkah`,
       }),
     subscribe: 'Berlangganan',
-    system: { board: 'Papan', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'Janji dan tenggat yang kupantau',
-      fewmail: 'Membuat bot-botmu, mencari email, dan menjawab pertanyaan',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Membuat bot-botmu, mencari email, dan menjawab pertanyaan',
     title: 'Bot',
     toLatest: 'Ke yang terbaru',
     unmute: 'Bunyikan lagi',
@@ -1614,6 +1609,7 @@ export const id: Messages = {
     showImages: 'Tampilkan gambar',
   },
   starterBots: {
+    board: { name: 'Papan' },
     important: {
       instruction:
         'Yang butuh tindakan dariku: orang yang menunggu balasanku, tagihan yang jatuh tempo, peringatan keamanan, apa pun dari bank atau pemerintah. Simpan di Beranda',
@@ -1709,7 +1705,7 @@ export const id: Messages = {
     byBots: (n: number) => `Bot-botmu sudah mengurus ${n}.`,
     decisions: 'Keputusan',
     journal: {
-      approved: 'Kamu bilang ya',
+      approved: 'Disetujui olehmu',
       byBot: (bot: string) => `Botmu: ${bot}`,
       failed: 'Tidak berhasil',
       lead: '7 hari terakhir. Setiap perubahan di email atau kalendermu terjadi dengan persetujuanmu atau oleh bot yang kamu biarkan bertindak sendiri.',

@@ -9,10 +9,10 @@ import {
   userSettings,
 } from '@fewmail/db/schema'
 import {
+  BOARD_EFFECT,
   BOT_FOLDERS_MAX,
   BOT_HISTORY,
   botOfCard,
-  isSystemBot,
 } from '@fewmail/shared/agent'
 import type {
   BotFolder,
@@ -116,18 +116,22 @@ export const quotesOf = async (userId: string, ids: string[]) => {
   )
 }
 
-/** Fewmail, the user's bots newest first, the Board: the order of Home's list. */
-const botIdsOf = async (userId: string) => {
+/** Fewmail, then the user's bots newest first: the order of Home's list; `board` is the one that keeps the promises. */
+const botsOf = async (userId: string) => {
   const own = await listBots(userId)
-  return ['fewmail', ...own.map(({ id }) => id), 'board']
+  return {
+    board: own.find(({ effect }) => effect === BOARD_EFFECT)?.id ?? null,
+    ids: ['fewmail', ...own.map(({ id }) => id)],
+  }
 }
 
-/** A user's bot, or a system one; anything else is not theirs to read. */
+/** A user's bot or Fewmail's; anything else is not theirs to read. */
 const requireBot = async (userId: string, bot: string) => {
-  const ids = await botIdsOf(userId)
-  if (!ids.includes(bot)) {
+  const found = await botsOf(userId)
+  if (!found.ids.includes(bot)) {
     throw new NotFoundError('Bot not found')
   }
+  return found
 }
 
 /** Fewmail Bot stays first in the list, pinned for good and in no folder. */
@@ -288,16 +292,16 @@ const byTime = (a: BotEntry, b: BotEntry) => a.at.getTime() - b.at.getTime()
 /** Every bot's chat between two moments: what its sources reported, then what was said, in order. */
 const entriesBetween = async (
   userId: string,
-  ids: string[],
+  { board, ids }: { board: string | null; ids: string[] },
   from: Date,
   to: Date
 ) => {
-  const cardBots = ids.filter((bot) => bot !== 'board')
+  const cardBots = ids.filter((bot) => bot !== board)
   const [cards, promises, posts] = await Promise.all([
     cardBots.length > 0
       ? cardsBetween(userId, from, to, or(...cardBots.map(cardsOf)))
       : [],
-    ids.includes('board') ? promisesBetween(userId, from, to) : [],
+    board && ids.includes(board) ? promisesBetween(userId, from, to) : [],
     postsBetween(userId, ids, from, to),
   ])
   const said = await postEntries(userId, posts)
@@ -305,7 +309,7 @@ const entriesBetween = async (
     ids.map((bot) => [
       bot,
       [
-        ...(bot === 'board'
+        ...(bot === board
           ? promiseEntries(promises)
           : cardEntries(cards.filter((card) => botOfCard(card) === bot))),
         ...said.filter((entry) => entry.bot === bot),
@@ -315,33 +319,34 @@ const entriesBetween = async (
 }
 
 /** When the newest thing in a bot's chat before `before` happened, so the page before never comes back empty. */
-const earlierAt = async (userId: string, bot: string, before: Date) => {
-  const reported =
-    bot === 'board'
-      ? db
-          .select({ at: commitments.createdAt })
-          .from(commitments)
-          .where(
-            and(
-              eq(commitments.userId, userId),
-              lt(commitments.createdAt, before)
-            )
+const earlierAt = async (
+  userId: string,
+  bot: string,
+  before: Date,
+  isBoard: boolean
+) => {
+  const reported = isBoard
+    ? db
+        .select({ at: commitments.createdAt })
+        .from(commitments)
+        .where(
+          and(eq(commitments.userId, userId), lt(commitments.createdAt, before))
+        )
+        .orderBy(desc(commitments.createdAt))
+        .limit(1)
+    : db
+        .select({ at: actions.createdAt })
+        .from(actions)
+        .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
+        .where(
+          and(
+            eq(actions.userId, userId),
+            lt(actions.createdAt, before),
+            cardsOf(bot)
           )
-          .orderBy(desc(commitments.createdAt))
-          .limit(1)
-      : db
-          .select({ at: actions.createdAt })
-          .from(actions)
-          .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
-          .where(
-            and(
-              eq(actions.userId, userId),
-              lt(actions.createdAt, before),
-              cardsOf(bot)
-            )
-          )
-          .orderBy(desc(actions.createdAt))
-          .limit(1)
+        )
+        .orderBy(desc(actions.createdAt))
+        .limit(1)
   const said = db
     .select({ at: botPosts.dueAt })
     .from(botPosts)
@@ -361,12 +366,12 @@ const earlierAt = async (userId: string, bot: string, before: Date) => {
 
 /** One bot's chat, `WINDOW_DAYS` back from `before` (now by default); `earlier` is where the page before ends, null when nothing is older. */
 export const botChat = async (userId: string, bot: string, before?: Date) => {
-  await requireBot(userId, bot)
+  const { board } = await requireBot(userId, bot)
   const until = before ?? addDays(new Date(), 1)
   const from = subDays(until, WINDOW_DAYS)
   const [entries, earlier, settings] = await Promise.all([
-    entriesBetween(userId, [bot], from, until),
-    earlierAt(userId, bot, from),
+    entriesBetween(userId, { board, ids: [bot] }, from, until),
+    earlierAt(userId, bot, from, bot === board),
     getSettings(userId),
   ])
   const isKept = keptAfter(settings?.botsClearedAt[bot])
@@ -397,10 +402,11 @@ const newSince = (entry: BotEntry, since: Date) => {
 /** Home's list: each bot's latest message, how much came since the user last looked, and whether it may notify. */
 export const listBotChats = async (userId: string) => {
   const now = new Date()
-  const ids = await botIdsOf(userId)
+  const found = await botsOf(userId)
+  const { ids } = found
   const [settings, entries] = await Promise.all([
     getSettings(userId),
-    entriesBetween(userId, ids, subDays(now, WINDOW_DAYS), addDays(now, 1)),
+    entriesBetween(userId, found, subDays(now, WINDOW_DAYS), addDays(now, 1)),
   ])
   return ids.map((bot) => {
     const readAt = settings?.botsReadAt[bot]
@@ -759,14 +765,14 @@ const botName = async (
   bot: string,
   t: (typeof dictionaries)['en']
 ) => {
-  if (isSystemBot(bot)) {
-    return t.bots.system[bot]
+  if (bot === 'fewmail') {
+    return t.bots.fewmail
   }
   const [own] = await db
     .select({ instruction: bots.instruction, name: bots.name })
     .from(bots)
     .where(and(eq(bots.id, bot), eq(bots.userId, userId)))
-  return own?.name ?? own?.instruction ?? t.bots.system.fewmail
+  return own?.name ?? own?.instruction ?? t.bots.fewmail
 }
 
 /** Nudges that came due: each bot says it once, never at night, and notifies unless the user muted it. */

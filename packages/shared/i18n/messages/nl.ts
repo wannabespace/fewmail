@@ -195,10 +195,6 @@ export const nl: Messages = {
     work: 'Werk',
   },
   board: {
-    empty: {
-      lead: 'Beloftes aan jou, je eigen beloftes en deadlines uit je mail verschijnen hier automatisch.',
-      title: 'Niets meer open.',
-    },
     lead: {
       coming: (total: number) =>
         plural('nl', total, {
@@ -292,7 +288,7 @@ export const nl: Messages = {
       'Nog te weinig mail voor een verhaal. Kom over een paar dagen terug.',
     handled: 'e-mails afgehandeld door Fewmail',
     handledHint:
-      'Fewmail verandert niets in Gmail zonder jouw ja. Laat een bot zelf handelen, dan handelt hij zulke mail voor je af.',
+      'Fewmail verandert niets in Gmail zonder jouw goedkeuring. Laat een bot zelf handelen, dan handelt hij zulke mail voor je af.',
     people: 'Wie het meest schreef',
     period: { month: 'Deze maand', year: 'Dit jaar' },
     replies: 'antwoorden door Fewmail geschreven en verstuurd',
@@ -830,8 +826,8 @@ export const nl: Messages = {
         }),
       done: (n: number) =>
         plural('nl', n, {
-          one: () => 'Eén is gedaan na je ja.',
-          other: (count) => `${count} zijn gedaan na je ja.`,
+          one: () => 'Eén is gedaan met je goedkeuring.',
+          other: (count) => `${count} zijn gedaan met je goedkeuring.`,
         }),
       failed: (n: number) =>
         plural('nl', n, {
@@ -861,6 +857,7 @@ export const nl: Messages = {
       collect: 'Alleen verzamelen',
       draft_reply: 'Antwoord opstellen',
       mark_read: 'Markeren als gelezen',
+      promises: 'De beloftes en deadlines die ik bijhoud',
       tidy: 'Opruimen',
       trash: 'Naar prullenbak',
       unsubscribe: 'Afmelden',
@@ -868,7 +865,7 @@ export const nl: Messages = {
     empty: 'Nog niets hier. Als er mail voor mij komt, schrijf ik hier.',
     enabled: 'Handelt zelf',
     enabledHint: {
-      off: 'Staat dit uit, dan vraagt hij eerst je ja voor elke e-mail.',
+      off: 'Staat dit uit, dan vraagt hij eerst je goedkeuring voor elke e-mail.',
       on: 'Staat dit aan, dan handelt hij zonder te vragen; alles wat hij doet staat in zijn chat.',
     },
     instruction: 'Welke e-mails en wat hij ermee doet',
@@ -890,6 +887,7 @@ export const nl: Messages = {
         one: () => 'Ik heb een belofte genoteerd.',
         other: (count) => `Ik heb ${count} beloftes genoteerd.`,
       }),
+    presets: 'Sjablonen',
     react: 'Reageren',
     reaction: 'Reactie',
     reply: 'Beantwoorden',
@@ -910,11 +908,8 @@ export const nl: Messages = {
         other: (count) => `${count} stappen`,
       }),
     subscribe: 'Abonneren',
-    system: { board: 'Bord', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'De beloftes en deadlines die ik bijhoud',
-      fewmail: 'Maakt je bots, vindt e-mails en beantwoordt vragen',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Maakt je bots, vindt e-mails en beantwoordt vragen',
     title: 'Bots',
     toLatest: 'Naar het nieuwste',
     unmute: 'Dempen opheffen',
@@ -1085,7 +1080,7 @@ export const nl: Messages = {
       emphasis: 'Claude en ChatGPT.',
       free: 'Je mail lezen en het sorteren door de agent zijn gratis.',
       label: 'MCP',
-      lead: 'Koppel Fewmail als MCP-server en vraag naar je mail vanuit de assistent die je al gebruikt. Alles wat iets verstuurt of Gmail wijzigt, vraagt nog steeds om je ja.',
+      lead: 'Koppel Fewmail als MCP-server en vraag naar je mail vanuit de assistent die je al gebruikt. Alles wat iets verstuurt of Gmail wijzigt, wacht nog steeds op je goedkeuring.',
       question: 'Wat heeft Anna deze week van me nodig?',
       setup: 'In een minuut gekoppeld',
       title: 'Je mail, gewoon in Claude en ChatGPT.',
@@ -1094,7 +1089,7 @@ export const nl: Messages = {
       copy: 'URL kopiëren',
       lead: 'Koppel Fewmail als MCP-server en vraag naar je mail vanuit de AI die je al gebruikt. Je mail lezen en het sorteren door de agent zijn gratis; concepten, versturen en regels komen met Pro.',
       safety:
-        'Alles wat een e-mail verstuurt of Gmail wijzigt, vraagt eerst om je ja. Een e-mail die de assistent opdrachten probeert te geven, wordt gemarkeerd voordat die hem leest. Je mail traint nooit modellen en je kunt elke app ontkoppelen in de instellingen.',
+        'Alles wat een e-mail verstuurt of Gmail wijzigt, vraagt eerst om je goedkeuring. Een e-mail die de assistent opdrachten probeert te geven, wordt gemarkeerd voordat die hem leest. Je mail traint nooit modellen en je kunt elke app ontkoppelen in de instellingen.',
       steps: {
         chatgpt:
           'Voeg in Settings een connector (app) met deze URL toe en log daarna in bij Fewmail.',
@@ -1152,7 +1147,7 @@ export const nl: Messages = {
         },
         {
           answer:
-            'Fewmail versleutelt onderwerpen, inhoud, samenvattingen en concepten in zijn database, gebruikt je mail nooit om modellen te trainen en verstuurt of wijzigt nooit iets in Gmail zonder je ja. Je kunt het op elk moment ontkoppelen en alles laten verwijderen.',
+            'Fewmail versleutelt onderwerpen, inhoud, samenvattingen en concepten in zijn database, gebruikt je mail nooit om modellen te trainen en verstuurt of wijzigt nooit iets in Gmail zonder je goedkeuring. Je kunt het op elk moment ontkoppelen en alles laten verwijderen.',
           question: 'Is het veilig om AI je e-mail te laten lezen?',
         },
         {
@@ -1166,7 +1161,7 @@ export const nl: Messages = {
         },
       ],
       faqTitle: 'Over AI-e-mailassistenten.',
-      lead: 'Fewmail leest elke mail in je Gmail zodra hij binnenkomt, ruimt de ruis op, schrijft antwoorden in jouw stijl en brengt je alleen de paar dingen waarover jij moet beslissen. Niets wordt verstuurd of gewijzigd zonder je ja.',
+      lead: 'Fewmail leest elke mail in je Gmail zodra hij binnenkomt, ruimt de ruis op, schrijft antwoorden in jouw stijl en brengt je alleen de paar dingen waarover jij moet beslissen. Niets wordt verstuurd of gewijzigd zonder je goedkeuring.',
       title: 'De AI-e-mailassistent die je Gmail als eerste leest.',
     },
     comparePage: {
@@ -1367,7 +1362,7 @@ export const nl: Messages = {
         },
         calendar: {
           description:
-            'De agenda van elke mailbox in één overzicht. Een afspraak die in een e-mail wordt voorgesteld, komt in je agenda zodra je ja zegt.',
+            'De agenda van elke mailbox in één overzicht. Een afspraak die in een e-mail wordt voorgesteld, komt in je agenda zodra je die goedkeurt.',
           title: 'Agenda',
         },
         clearOut: {
@@ -1562,7 +1557,7 @@ export const nl: Messages = {
         {
           description:
             'Concepten wachten op jou. Alleen regels die jij hebt gemaakt of behouden mogen zelf archiveren, als gelezen markeren of afmelden, en alles wat ze deden, staat onder Afgehandeld.',
-          title: 'Niets wordt verstuurd zonder jouw ja.',
+          title: 'Niets wordt verstuurd zonder jouw goedkeuring.',
         },
         {
           description:
@@ -1620,6 +1615,7 @@ export const nl: Messages = {
     showImages: 'Afbeeldingen tonen',
   },
   starterBots: {
+    board: { name: 'Bord' },
     important: {
       instruction:
         'Wat een stap van mij vraagt: mensen die op mijn antwoord wachten, rekeningen die betaald moeten worden, beveiligingsmeldingen, alles van mijn bank of de overheid. Op Home houden',
@@ -1714,10 +1710,10 @@ export const nl: Messages = {
     byBots: (n: number) => `Je bots hebben er ${n} afgehandeld.`,
     decisions: 'Beslissingen',
     journal: {
-      approved: 'Je zei ja',
+      approved: 'Door jou goedgekeurd',
       byBot: (bot: string) => `Je bot: ${bot}`,
       failed: 'Mislukt',
-      lead: 'De afgelopen 7 dagen. Elke wijziging in je mail of agenda had je ja of een bot die je zelf liet handelen.',
+      lead: 'De afgelopen 7 dagen. Elke wijziging in je mail of agenda was door jou goedgekeurd of gedaan door een bot die je zelf liet handelen.',
       title: 'Gedaan in je mail',
     },
     progress: (done: number, total: number) => `${done} van ${total}`,

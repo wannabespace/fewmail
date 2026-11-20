@@ -196,10 +196,6 @@ export const pt: Messages = {
     work: 'Trabalho',
   },
   board: {
-    empty: {
-      lead: 'As promessas que você recebe, as que faz e os prazos aparecem aqui automaticamente a partir dos seus e-mails.',
-      title: 'Nada pendente.',
-    },
     lead: {
       coming: (total: number) =>
         plural('pt', total, {
@@ -293,7 +289,7 @@ export const pt: Messages = {
       'Ainda há pouco e-mail para contar a história. Volte em alguns dias.',
     handled: 'e-mails resolvidos pelo Fewmail',
     handledHint:
-      'O Fewmail não muda nada no Gmail sem o seu sim. Deixe um bot agir sozinho e ele vai resolver esses e-mails por você.',
+      'O Fewmail não muda nada no Gmail sem a sua aprovação. Deixe um bot agir sozinho e ele vai resolver esses e-mails por você.',
     people: 'Quem mais escreveu',
     period: { month: 'Este mês', year: 'Este ano' },
     replies: 'respostas escritas pelo Fewmail e enviadas',
@@ -843,9 +839,9 @@ export const pt: Messages = {
         }),
       done: (n: number) =>
         plural('pt', n, {
-          one: () => 'Um foi feito depois do seu sim.',
-          many: (count) => `${count} foram feitos depois do seu sim.`,
-          other: (count) => `${count} foram feitos depois do seu sim.`,
+          one: () => 'Um foi feito com a sua aprovação.',
+          many: (count) => `${count} foram feitos com a sua aprovação.`,
+          other: (count) => `${count} foram feitos com a sua aprovação.`,
         }),
       failed: (n: number) =>
         plural('pt', n, {
@@ -877,6 +873,7 @@ export const pt: Messages = {
       collect: 'Só reunir',
       draft_reply: 'Rascunhar resposta',
       mark_read: 'Marcar como lido',
+      promises: 'As promessas e prazos que acompanho',
       tidy: 'Arrumar',
       trash: 'Mover para lixeira',
       unsubscribe: 'Cancelar inscrição',
@@ -884,7 +881,7 @@ export const pt: Messages = {
     empty: 'Nada aqui ainda. Quando chegar um e-mail meu, eu escrevo aqui.',
     enabled: 'Age sozinho',
     enabledHint: {
-      off: 'Desligado, ele pede o seu sim para cada e-mail antes.',
+      off: 'Desligado, ele pede a sua aprovação para cada e-mail antes.',
       on: 'Ligado, ele age sem perguntar; tudo o que faz aparece no chat dele.',
     },
     instruction: 'Quais e-mails e o que fazer com eles',
@@ -907,6 +904,7 @@ export const pt: Messages = {
         many: (count) => `Anotei ${count} promessas.`,
         other: (count) => `Anotei ${count} promessas.`,
       }),
+    presets: 'Modelos',
     react: 'Reagir',
     reaction: 'Reação',
     reply: 'Responder',
@@ -927,11 +925,8 @@ export const pt: Messages = {
         other: (count) => `${count} passos`,
       }),
     subscribe: 'Assinar',
-    system: { board: 'Quadro', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'As promessas e prazos que acompanho',
-      fewmail: 'Cria seus bots, encontra e-mails e responde perguntas',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Cria seus bots, encontra e-mails e responde perguntas',
     title: 'Bots',
     toLatest: 'Ir para o mais recente',
     unmute: 'Reativar notificações',
@@ -1102,7 +1097,7 @@ export const pt: Messages = {
       emphasis: 'no Claude e no ChatGPT.',
       free: 'Ler seus e-mails e a triagem do agente são grátis.',
       label: 'MCP',
-      lead: 'Conecte o Fewmail como servidor MCP e pergunte sobre seus e-mails no assistente que você já usa. Tudo o que envia ou muda algo no Gmail continua pedindo o seu sim.',
+      lead: 'Conecte o Fewmail como servidor MCP e pergunte sobre seus e-mails no assistente que você já usa. Tudo o que envia ou muda algo no Gmail continua pedindo a sua aprovação.',
       question: 'Do que a Anna precisa de mim esta semana?',
       setup: 'Conecte em um minuto',
       title: 'Seus e-mails, no Claude e no ChatGPT.',
@@ -1111,7 +1106,7 @@ export const pt: Messages = {
       copy: 'Copiar URL',
       lead: 'Conecte o Fewmail como servidor MCP e pergunte sobre seu e-mail na IA que você já usa. Ler o e-mail e a triagem do agente são grátis; rascunhos, envios e regras vêm com o Pro.',
       safety:
-        'Tudo o que envia um e-mail ou muda o Gmail pede seu sim antes. Um e-mail que tenta dar ordens ao assistente é sinalizado antes que ele o leia. Seu e-mail nunca treina modelos, e você pode desconectar qualquer app nas configurações.',
+        'Tudo o que envia um e-mail ou muda o Gmail pede sua aprovação antes. Um e-mail que tenta dar ordens ao assistente é sinalizado antes que ele o leia. Seu e-mail nunca treina modelos, e você pode desconectar qualquer app nas configurações.',
       steps: {
         chatgpt:
           'Em Settings, adicione um conector (app) com esta URL e entre no Fewmail.',
@@ -1170,7 +1165,7 @@ export const pt: Messages = {
         },
         {
           answer:
-            'O Fewmail criptografa assuntos, corpos, resumos e rascunhos no banco de dados, nunca usa seus e-mails para treinar modelos e nunca envia nem muda nada no Gmail sem o seu sim. Você pode desconectá-lo e apagar tudo quando quiser.',
+            'O Fewmail criptografa assuntos, corpos, resumos e rascunhos no banco de dados, nunca usa seus e-mails para treinar modelos e nunca envia nem muda nada no Gmail sem a sua aprovação. Você pode desconectá-lo e apagar tudo quando quiser.',
           question: 'É seguro deixar uma IA ler meus e-mails?',
         },
         {
@@ -1185,7 +1180,7 @@ export const pt: Messages = {
         },
       ],
       faqTitle: 'Sobre assistentes de e-mail com IA.',
-      lead: 'O Fewmail lê cada e-mail do seu Gmail assim que ele chega, tira o ruído, escreve respostas com a sua voz e traz só as poucas coisas que precisam da sua decisão. Nada é enviado ou alterado sem o seu sim.',
+      lead: 'O Fewmail lê cada e-mail do seu Gmail assim que ele chega, tira o ruído, escreve respostas com a sua voz e traz só as poucas coisas que precisam da sua decisão. Nada é enviado ou alterado sem a sua aprovação.',
       title: 'O assistente de e-mail com IA que lê o seu Gmail primeiro.',
     },
     comparePage: {
@@ -1387,7 +1382,7 @@ export const pt: Messages = {
         },
         calendar: {
           description:
-            'O calendário de cada caixa de e-mail numa só visão. Uma reunião proposta num e-mail vira evento quando você diz sim.',
+            'O calendário de cada caixa de e-mail numa só visão. Uma reunião proposta num e-mail vira evento quando você aprova.',
           title: 'Calendário',
         },
         clearOut: {
@@ -1584,7 +1579,7 @@ export const pt: Messages = {
         {
           description:
             'Os rascunhos esperam por você. Só as regras que você criou ou manteve podem arquivar, marcar como lido ou cancelar inscrições sozinhas, e tudo o que elas fizeram aparece em Resolvidos.',
-          title: 'Nada é enviado sem o seu sim.',
+          title: 'Nada é enviado sem a sua aprovação.',
         },
         {
           description:
@@ -1643,6 +1638,7 @@ export const pt: Messages = {
     showImages: 'Mostrar imagens',
   },
   starterBots: {
+    board: { name: 'Quadro' },
     important: {
       instruction:
         'O que precisa de um passo meu: pessoas esperando minha resposta, contas a vencer, alertas de segurança, qualquer coisa do meu banco ou do governo. Manter no Início',
@@ -1740,10 +1736,10 @@ export const pt: Messages = {
     byBots: (n: number) => `Seus bots cuidaram de ${n}.`,
     decisions: 'Decisões',
     journal: {
-      approved: 'Você disse sim',
+      approved: 'Aprovado por você',
       byBot: (bot: string) => `Seu bot: ${bot}`,
       failed: 'Não deu certo',
-      lead: 'Os últimos 7 dias. Cada mudança no seu e-mail ou agenda teve o seu sim ou um bot que você deixou agir sozinho.',
+      lead: 'Os últimos 7 dias. Cada mudança no seu e-mail ou agenda foi aprovada por você ou feita por um bot que você deixou agir sozinho.',
       title: 'Feito no seu e-mail',
     },
     progress: (done: number, total: number) => `${done} de ${total}`,

@@ -482,7 +482,7 @@ export const fr: Messages = {
         },
         calendar: {
           description:
-            'Le calendrier de chaque boîte dans une seule vue. Une réunion proposée dans un e-mail devient un événement dès que vous dites oui.',
+            'Le calendrier de chaque boîte dans une seule vue. Une réunion proposée dans un e-mail devient un événement dès que vous l’approuvez.',
           title: 'Calendrier',
         },
         clearOut: {
@@ -1272,6 +1272,7 @@ export const fr: Messages = {
       collect: 'Juste le recueillir',
       draft_reply: 'Rédiger une réponse',
       mark_read: 'Le marquer comme lu',
+      promises: 'Les promesses et dates limites que je suis',
       tidy: 'Le ranger',
       trash: 'Le mettre à la corbeille',
       unsubscribe: 'Se désabonner',
@@ -1303,6 +1304,7 @@ export const fr: Messages = {
         many: (count) => `J’ai noté ${count} promesses.`,
         other: (count) => `J’ai noté ${count} promesses.`,
       }),
+    presets: 'Modèles',
     react: 'Réagir',
     reaction: 'Réaction',
     reply: 'Répondre',
@@ -1324,11 +1326,8 @@ export const fr: Messages = {
         other: (count) => `${count} étapes`,
       }),
     subscribe: 'S’abonner',
-    system: { board: 'Tableau', fewmail: 'Fewmail Bot' },
-    systemJob: {
-      board: 'Les promesses et dates limites que je suis',
-      fewmail: 'Crée vos bots, trouve des e-mails et répond aux questions',
-    },
+    fewmail: 'Fewmail Bot',
+    fewmailJob: 'Crée vos bots, trouve des e-mails et répond aux questions',
     title: 'Bots',
     toLatest: 'Aller au plus récent',
     unmute: 'Réactiver',
@@ -1486,6 +1485,7 @@ export const fr: Messages = {
     showImages: 'Afficher les images',
   },
   starterBots: {
+    board: { name: 'Tableau' },
     important: {
       instruction:
         'Ce qui demande une action de ma part : les personnes qui attendent ma réponse, les factures à payer, les alertes de sécurité, tout ce qui vient de ma banque ou de l’administration. Les garder sur l’Accueil',
@@ -1583,7 +1583,7 @@ export const fr: Messages = {
     byBots: (n: number) => `Vos bots ont traité ${n} e-mails.`,
     decisions: 'Décisions',
     journal: {
-      approved: 'Vous avez donné votre accord',
+      approved: 'Approuvé par vous',
       byBot: (bot: string) => `Votre bot : ${bot}`,
       failed: 'N’a pas fonctionné',
       lead: 'Les 7 derniers jours. Chaque changement dans vos e-mails ou votre agenda a été approuvé par vous ou effectué par un bot que vous laissez agir seul.',
@@ -1710,10 +1710,6 @@ export const fr: Messages = {
       'Prospection à froid : quelqu’un à qui vous n’avez jamais écrit vous démarche',
   },
   board: {
-    empty: {
-      lead: 'Les promesses qui vous sont faites, vos engagements et les dates limites de vos e-mails apparaissent ici automatiquement.',
-      title: 'Rien en attente.',
-    },
     lead: {
       coming: (total: number) =>
         plural('fr', total, {
