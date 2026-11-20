@@ -20,10 +20,8 @@ import { createWebStorageValue } from 'seitu/web'
 import { toast } from 'sonner'
 import { z } from 'zod/mini'
 
-import { ClearOutDialog } from '~/components/clear-out-dialog'
 import { ComposeProvider } from '~/components/compose/compose-context'
-import { ConfirmDialog } from '~/components/confirm-dialog'
-import { pageColumn } from '~/components/home-card'
+import { ConfirmDialog, NameDialog } from '~/components/confirm-dialog'
 import { mailSearchFieldStore } from '~/components/mail-search'
 import { MobileBar, Sidebar } from '~/components/nav'
 import { NoticeBar, noticeHeightStore } from '~/components/notice-bar'
@@ -39,7 +37,7 @@ import { posthog } from '~/lib/posthog'
 import { clearSnapshot, restoreSnapshot } from '~/lib/snapshot'
 import { undoLatest } from '~/lib/undo'
 
-const SIDEBAR_WIDTH = { default: 232, max: 320, min: 200 }
+const SIDEBAR_WIDTH = { default: 272, max: 360, min: 232 }
 
 const sidebarWidthStore = createWebStorageValue({
   defaultValue: SIDEBAR_WIDTH.default,
@@ -91,20 +89,13 @@ const useIdentify = () => {
   }, [user.id, user.email, user.name, settings.language, plan.kind])
 }
 
-/**
- * The notice bar floats over the page, which scrolls under it from `under-notice`; a pane a Home card grows into covers
- * both (`page-column`, `HomeCardPane`), so a notice never sits on top of what the user opened.
- */
-const setPageColumn = (node: HTMLDivElement | null) => pageColumn.set(node)
-
+/** The notice bar floats over the page, which scrolls under it from `under-notice`. */
 const PageColumn = () => {
   const noticeHeight = useSubscription(noticeHeightStore)
   return (
     <div
-      ref={setPageColumn}
       data-slot="page-column"
       style={{ '--notice-height': `${noticeHeight}px` } as CSSProperties}
-      // Clipped: a Home pane with no card left to land on slides off the bottom, and would scroll the page while it does.
       className="relative flex min-h-0 flex-1 flex-col overflow-clip"
     >
       <NoticeBar />
@@ -192,8 +183,8 @@ const AppLayout = () => {
           </ResizableGroup>
         )}
         <UpgradeDialog />
-        <ClearOutDialog />
         <ConfirmDialog />
+        <NameDialog />
         <ThreadPane />
         <SnoozePicker />
       </div>

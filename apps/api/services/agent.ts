@@ -1,5 +1,5 @@
 import { db } from '@fewmail/db'
-import { actions, analyses, messages, rules, users } from '@fewmail/db/schema'
+import { actions, analyses, messages, bots, users } from '@fewmail/db/schema'
 import {
   GMAIL_EFFECTS,
   IMPORTANCE,
@@ -77,7 +77,7 @@ export const SENT_EXAMPLES = 5
 export const SENT_EXAMPLE_CHARS = 600
 
 type Message = typeof messages.$inferSelect
-type Rule = typeof rules.$inferSelect
+type Bot = typeof bots.$inferSelect
 type Settings = NonNullable<Awaited<ReturnType<typeof getSettings>>>
 
 const laterSchema = type({
@@ -106,7 +106,7 @@ const analysisSchema = textSchema.merge({
   category: type.enumerated(...MAIL_CATEGORIES),
   importance: '0 | 1 | 2 | 3',
   needsReply: 'boolean',
-  ruleId: 'string | null',
+  botId: 'string | null',
   suggestedAction: type.enumerated(...SUGGESTED_ACTIONS),
 })
 
@@ -139,7 +139,7 @@ const flagged = (message: Message, prompt: string) =>
 
 export const analyzeInstructions = (input: {
   language: Locale
-  rules: Pick<Rule, 'id' | 'instruction'>[]
+  bots: Pick<Bot, 'id' | 'instruction'>[]
   timezone: string
   userEmail: string
 }) =>
@@ -159,11 +159,11 @@ export const analyzeInstructions = (input: {
     extractedInstruction(input.timezone),
     laterInstruction(input.language),
     '',
-    input.rules.length > 0
-      ? `User rules. Set ruleId to the id of the first rule this email clearly matches, else null:\n${input.rules
-          .map((rule) => `- ${rule.id}: ${rule.instruction}`)
+    input.bots.length > 0
+      ? `User bots. Set botId to the id of the first bot this email clearly matches, else null:\n${input.bots
+          .map((bot) => `- ${bot.id}: ${bot.instruction}`)
           .join('\n')}`
-      : 'The user has no rules: ruleId is null.',
+      : 'The user has no bots: botId is null.',
   ].join('\n')
 
 const senderOf = (message: Message) =>
@@ -299,18 +299,36 @@ export const writeReply = async (input: ReplyInput) => {
 
 const NOISE_ACTIONS = new Set<string>(GMAIL_EFFECTS)
 
-const ruleImportance = (rule: Rule | null, importance: number) =>
-  rule?.effect === 'always_show' ? Math.max(importance, 2) : importance
+const botImportance = (bot: Bot | null, importance: number) =>
+  bot?.effect === 'always_show' ? Math.max(importance, 2) : importance
 
-type GmailRule = Rule & { effect: GmailEffect }
+type GmailBot = Bot & { effect: GmailEffect }
 
-/** Without Home a free account cannot see a draft or a pinned email, so only rules that act on Gmail run. */
-const actsOnGmail = (rule: Rule): rule is GmailRule =>
-  isGmailEffect(rule.effect)
+/** Without the agent nothing drafts or pins to Home, so only bots that act on Gmail move mail there. */
+const actsOnGmail = (bot: Bot): bot is GmailBot => isGmailEffect(bot.effect)
 
-const recordRuleAction = async (
+/** A bot that only moves mail, its own way or as Jev suggests: its mail is noise the agent writes nothing for. */
+const movesMail = (bot: Bot) => actsOnGmail(bot) || bot.effect === 'tidy'
+
+/** What a bot does needs no text from the agent: it moves mail (its own way or the agent's suggestion) or only collects it. */
+const runsFree = (bot: Bot) => movesMail(bot) || bot.effect === 'collect'
+
+/** A tidying bot that acts on its own does what Jev suggests for the email, when that is moving it. */
+const ownMove = (bot: Bot | null, suggested: string): GmailBot | null => {
+  if (!bot?.enabled) {
+    return null
+  }
+  if (actsOnGmail(bot)) {
+    return bot
+  }
+  return bot.effect === 'tidy' && NOISE_ACTIONS.has(suggested)
+    ? { ...bot, effect: suggested as GmailEffect }
+    : null
+}
+
+const recordBotAction = async (
   message: Message,
-  rule: GmailRule,
+  bot: GmailBot,
   base: {
     messageId: string
     threadId: string
@@ -318,16 +336,16 @@ const recordRuleAction = async (
     userId: string
   }
 ) => {
-  const done = await applyThreadEffect(message.userId, message, rule.effect)
+  const done = await applyThreadEffect(message.userId, message, bot.effect)
     .then(() => true)
     .catch(() => false)
   await db.insert(actions).values({
     ...base,
     autonomous: true,
-    kind: rule.effect,
-    reason: rule.instruction ?? '',
+    kind: bot.effect,
+    reason: bot.instruction ?? '',
     resolvedAt: done ? new Date() : null,
-    ruleId: rule.id,
+    botId: bot.id,
     status: done ? 'auto_done' : 'failed',
   })
 }
@@ -454,7 +472,7 @@ const analyze = async (input: {
   allowance: EmailAllowance | null
   message: Message
   prompt: string
-  rules: Rule[]
+  bots: Bot[]
   settings: Settings
   userEmail: string
 }) => {
@@ -464,7 +482,7 @@ const analyze = async (input: {
     // Within the allowance the text call writes promises down; past it only this question picks the emails that need it.
     asksLater: !!allowance && !allowance.take(false),
     prompt,
-    rules: input.rules,
+    bots: input.bots,
     userEmail: input.userEmail,
   })
     .then(async (jev) => ({
@@ -483,7 +501,7 @@ const analyze = async (input: {
     const { output } = await generateText({
       instructions: analyzeInstructions({
         ...input.settings,
-        rules: input.rules,
+        bots: input.bots,
         userEmail: input.userEmail,
       }),
       model: models.fast,
@@ -499,11 +517,11 @@ const analyze = async (input: {
   }
 
   const decisions = withNetworkFacts(decided, input.message, t)
-  const rule = input.rules.find(({ id }) => id === decisions.ruleId)
+  const bot = input.bots.find(({ id }) => id === decisions.botId)
   const isNoise =
     decisions.importance === 0 &&
     !decisions.needsReply &&
-    (!rule || actsOnGmail(rule))
+    (!bot || movesMail(bot))
   const agent =
     !!allowance &&
     (isNoise || allowance.take(decisions.importance >= IMPORTANCE.critical))
@@ -787,7 +805,7 @@ const queueForAgent = async (
     suggestedAction: (typeof analysisSchema.infer)['suggestedAction']
     summary: string
   },
-  rule: Rule | null,
+  bot: Bot | null,
   base: {
     messageId: string
     threadId: string
@@ -797,7 +815,7 @@ const queueForAgent = async (
   context: { settings: Settings; thread: string; writes: boolean }
 ) => {
   const wantsReply =
-    rule?.effect === 'draft_reply' ||
+    bot?.effect === 'draft_reply' ||
     (output.needsReply && output.importance >= 1)
 
   const readTitle = dictionaries[context.settings.language].actionKind.read
@@ -820,22 +838,23 @@ const queueForAgent = async (
       kind,
       payload: await cardPayload(message, kind, output, context),
       reason: output.reason,
-      ruleId: rule?.id ?? null,
+      botId: bot?.id ?? null,
       status: 'pending',
       title: draft ? base.title : readTitle,
     })
     return
   }
 
-  if (rule && actsOnGmail(rule)) {
+  // A bot that asks puts every email of its own up for a yes.
+  if (bot && actsOnGmail(bot)) {
     await db.insert(actions).values({
       ...base,
       autonomous: false,
-      kind: rule.effect,
+      kind: bot.effect,
       reason: output.reason,
-      ruleId: rule.id,
+      botId: bot.id,
       status: 'pending',
-      title: dictionaries[context.settings.language].rules.effect[rule.effect],
+      title: dictionaries[context.settings.language].bots.effect[bot.effect],
     })
     return
   }
@@ -855,13 +874,13 @@ const queueForAgent = async (
     kind,
     payload: await cardPayload(message, kind, output, context),
     reason: output.reason,
-    ruleId: rule?.id ?? null,
+    botId: bot?.id ?? null,
     status: 'pending',
     title: step ? base.title : readTitle,
   })
 }
 
-/** Mail from before sign-up read for Reading: Jev's category alone, kept only for a newsletter and never a card, a rule's action, a label or a Tidy suggestion. */
+/** Mail from before sign-up read for Reading: Jev's category alone, kept only for a newsletter and never a card, a bot's action, a label or a Tidy suggestion. */
 export const recordNewsletter = async (message: Message, userEmail: string) => {
   const settings = await getSettings(message.userId)
   if (!settings) {
@@ -871,7 +890,7 @@ export const recordNewsletter = async (message: Message, userEmail: string) => {
     allowance: null,
     message,
     prompt: await threadPrompt(message, settings.timezone),
-    rules: [],
+    bots: [],
     settings,
     userEmail,
   })
@@ -899,18 +918,12 @@ export const analyzeMessage = async (
   userEmail: string,
   allowance: EmailAllowance | null
 ) => {
-  const [settings, userRules] = await Promise.all([
+  const [settings, userBots] = await Promise.all([
     getSettings(message.userId),
     db
       .select()
-      .from(rules)
-      .where(
-        and(
-          eq(rules.userId, message.userId),
-          eq(rules.enabled, true),
-          isNotNull(rules.instruction)
-        )
-      ),
+      .from(bots)
+      .where(and(eq(bots.userId, message.userId), isNotNull(bots.instruction))),
   ])
   if (!settings) {
     return
@@ -921,7 +934,7 @@ export const analyzeMessage = async (
     allowance,
     message,
     prompt: thread,
-    rules: allowance ? userRules : userRules.filter(actsOnGmail),
+    bots: allowance ? userBots : userBots.filter(runsFree),
     settings,
     userEmail,
   })
@@ -930,9 +943,9 @@ export const analyzeMessage = async (
   }
   const { agent, model, output } = analysis
 
-  const matched = userRules.find(({ id }) => id === output.ruleId) ?? null
-  const rule = matched && (allowance || actsOnGmail(matched)) ? matched : null
-  const importance = ruleImportance(rule, output.importance)
+  const matched = userBots.find(({ id }) => id === output.botId) ?? null
+  const bot = matched && (allowance || runsFree(matched)) ? matched : null
+  const importance = botImportance(bot, output.importance)
 
   const [saved] = await db
     .insert(analyses)
@@ -944,7 +957,7 @@ export const analyzeMessage = async (
       model,
       needsReply: output.needsReply,
       reason: output.reason,
-      ruleId: rule?.id ?? null,
+      botId: bot?.id ?? null,
       suggestedAction:
         output.suggestedAction === 'none' ? null : output.suggestedAction,
       summary: output.summary,
@@ -970,11 +983,12 @@ export const analyzeMessage = async (
     userId: message.userId,
   }
 
-  // A rule never touches mail that needs the user: it waits on Home for a yes.
-  if (rule && actsOnGmail(rule) && output.importance < IMPORTANCE.high) {
-    await recordRuleAction(message, rule, {
+  // A bot never moves mail that needs the user on its own: it waits on Home for a yes.
+  const move = ownMove(bot, output.suggestedAction)
+  if (move && output.importance < IMPORTANCE.high) {
+    await recordBotAction(message, move, {
       ...base,
-      title: dictionaries[settings.language].rules.effect[rule.effect],
+      title: dictionaries[settings.language].bots.effect[move.effect],
     })
     return
   }
@@ -987,7 +1001,7 @@ export const analyzeMessage = async (
     return
   }
 
-  await queueForAgent(message, { ...output, importance }, rule, base, {
+  await queueForAgent(message, { ...output, importance }, bot, base, {
     settings,
     thread,
     writes: agent,

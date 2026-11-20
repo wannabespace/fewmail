@@ -9,7 +9,7 @@ import type {
   ActionKind,
   ActionStatus,
   MailCategory,
-  RuleEffect,
+  BotEffect,
   SimpleMatchField,
 } from '@fewmail/shared/agent'
 import type { MailAttachment, OutgoingAttachment } from '@fewmail/shared/email'
@@ -165,14 +165,18 @@ export interface Extracted {
   meetingTime: string | null
 }
 
-export const rules = d.snakeCase.table('rules', {
+/** The user's bots (Home's chats): which mail is theirs (`instruction` or `match`) and what they do with it. */
+export const bots = d.snakeCase.table('bots', {
   ...baseTable,
-  effect: d.text().$type<RuleEffect>().notNull(),
+  effect: d.text().$type<BotEffect>().notNull(),
+  /** It acts on its own; off, it asks for a yes on each email instead. */
   enabled: d.boolean().default(true).notNull(),
-  /** Plain-language rule matched by the agent (Pro); null for a simple rule. */
+  /** Plain-language bot matched by the agent (Pro); null for a simple bot. */
   instruction: encryptedText(),
-  /** Simple rule matched without AI, available on every plan; null for an agent rule. */
+  /** Simple bot matched without AI, available on every plan; null for an agent bot. */
   match: encryptedJson<SimpleMatch>(),
+  /** What its chat is called. Required since bots replaced rules; one made before gets it on the first read (`listBots`), and its effect is written into its instruction then. */
+  name: encryptedText(),
   userId: userId(),
 })
 
@@ -188,7 +192,7 @@ export const analyses = d.snakeCase.table('analyses', {
   model: d.text().notNull(),
   needsReply: d.boolean().notNull(),
   reason: encryptedText().notNull(),
-  ruleId: d.uuid().references(() => rules.id, { onDelete: 'set null' }),
+  botId: d.uuid().references(() => bots.id, { onDelete: 'set null' }),
   suggestedAction: d.text().$type<ActionKind>(),
   summary: encryptedText().notNull(),
 })
@@ -208,7 +212,7 @@ export const actions = d.snakeCase.table(
     payload: encryptedJson<Record<string, unknown>>(),
     reason: encryptedText().notNull(),
     resolvedAt: d.timestamp({ withTimezone: true }),
-    ruleId: d.uuid().references(() => rules.id, { onDelete: 'set null' }),
+    botId: d.uuid().references(() => bots.id, { onDelete: 'set null' }),
     status: d.text().$type<ActionStatus>().notNull(),
     threadId: d.text(),
     title: encryptedText().notNull(),
@@ -301,9 +305,9 @@ export const senderReports = d.snakeCase.table(
   ]
 )
 
-/** Senders whose suggested rule the user said no to, as keyed hashes: the offer never comes back, on Home or in their mail. */
-export const declinedRuleSuggestions = d.snakeCase.table(
-  'declined_rule_suggestions',
+/** Senders whose suggested bot the user said no to, as keyed hashes: the offer never comes back, on Home or in their mail. */
+export const declinedBotSuggestions = d.snakeCase.table(
+  'declined_bot_suggestions',
   {
     ...baseTable,
     senderHash: d.text().notNull(),
@@ -311,7 +315,7 @@ export const declinedRuleSuggestions = d.snakeCase.table(
   },
   (table) => [
     d
-      .uniqueIndex('declined_rule_suggestions_user_sender_idx')
+      .uniqueIndex('declined_bot_suggestions_user_sender_idx')
       .on(table.userId, table.senderHash),
   ]
 )

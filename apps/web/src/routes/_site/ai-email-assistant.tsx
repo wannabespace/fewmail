@@ -25,7 +25,7 @@ import { TRIAL_DAYS } from '~/lib/marketing'
 const ABILITY_ICONS = {
   sorting: MailOpen01Icon,
   drafts: PencilEdit02Icon,
-  rules: FilterHorizontalIcon,
+  bots: FilterHorizontalIcon,
   reading: News01Icon,
   protection: SecurityCheckIcon,
   ask: Search01Icon,

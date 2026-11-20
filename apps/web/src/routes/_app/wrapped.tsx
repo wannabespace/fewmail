@@ -96,9 +96,9 @@ const WrappedPage = () => {
                   <Button
                     size="xs"
                     variant="link-muted"
-                    render={<Link to="/rules" />}
+                    render={<Link to="/home" />}
                   >
-                    {t.nav.rules}
+                    {t.nav.home}
                   </Button>
                 </div>
               )}

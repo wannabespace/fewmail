@@ -61,7 +61,7 @@ export const en = {
       archive_thread: 'Archive this thread?',
       clear_out: 'Clear out these groups of inbox mail?',
       undo_clear_out: 'Bring every cleared email back to the inbox?',
-      create_rule: 'Add this rule?',
+      create_bot: 'Make this bot?',
       reply: 'Send this reply?',
       send_email: 'Send this email?',
       snooze_thread: 'Snooze this thread?',
@@ -86,7 +86,7 @@ export const en = {
       clear_out: 'Clearing out the inbox',
       preview_clear_out: 'Reading the whole inbox',
       undo_clear_out: 'Bringing cleared mail back',
-      create_rule: 'Adding a rule',
+      create_bot: 'Making a bot',
       dismiss_action: 'Skipping',
       draft_reply: 'Drafting a reply',
       create_draft: 'Saving a draft',
@@ -95,10 +95,12 @@ export const en = {
       get_today: 'Checking today',
       list_handled: 'Checking what was handled',
       list_mail: 'Searching mail',
-      list_rules: 'Reading rules',
+      get_bot_chat: 'Reading the chat',
+      list_bots: 'Reading your bots',
       read_thread: 'Reading the thread',
       redraft_action: 'Rewriting the draft',
       refresh: 'Checking for new mail',
+      remind_later: 'Setting a reminder',
       send_email: 'Sending',
       snooze_thread: 'Snoozing',
       unsubscribe: 'Unsubscribing',
@@ -121,7 +123,7 @@ export const en = {
       archive_thread: 'Archive',
       clear_out: 'Clear out',
       undo_clear_out: 'Bring back',
-      create_rule: 'Add rule',
+      create_bot: 'Make bot',
       reply: 'Send',
       send_email: 'Send',
       snooze_thread: 'Snooze',
@@ -140,7 +142,7 @@ export const en = {
   cold: {
     reason: 'Cold outreach: a stranger pitching, and you never wrote to them',
   },
-  byRule: 'by a rule',
+  byBot: 'by a bot',
   calendar: {
     allDay: 'All day',
     calendar: 'Calendar',
@@ -336,7 +338,7 @@ export const en = {
     empty: 'Not enough mail yet to tell the story. Come back in a few days.',
     handled: 'emails handled by Fewmail',
     handledHint:
-      'Fewmail moves nothing in Gmail without your yes. Turn on a rule, and it will handle mail like this on its own.',
+      'Fewmail moves nothing in Gmail without your yes. Let a bot act on its own, and it will handle mail like this for you.',
     people: 'Who wrote most',
     period: { month: 'This month', year: 'This year' },
     replies: 'replies drafted by Fewmail and sent',
@@ -576,7 +578,7 @@ export const en = {
     block: 'Block sender',
     ignoresUnsubscribe: (name: string) => `${name} ignores unsubscribes`,
     ignoresUnsubscribeHint:
-      'Fewmail asked to leave, but this sender is known to keep writing anyway. Send their mail to the trash from now on? You can undo it in Rules.',
+      'Fewmail asked to leave, but this sender is known to keep writing anyway. Send their mail to the trash from now on? A bot will do it, and you can delete it on Home.',
     blocked: 'Blocked. Their mail now goes to the trash.',
     forward: 'Forward',
     more: 'More',
@@ -690,7 +692,6 @@ export const en = {
     clearSearch: 'Clear search',
     mail: 'Mail',
     reading: 'Reading',
-    rules: 'Rules',
     settings: 'Settings',
     syncFailed: 'Gmail sync failed, retrying',
     syncing: 'Reading your inbox…',
@@ -791,49 +792,129 @@ export const en = {
       `New payment details from ${domain}. Confirm by phone before paying.`,
     title: 'Check before you act',
   },
-  rules: {
-    deleted: 'Rule deleted',
-    add: 'Add rule',
-    count: (total: number) =>
-      plural('en', total, { one: () => '1 rule', other: (n) => `${n} rules` }),
-    delete: 'Delete',
-    describe: {
-      alwaysShow: 'Always stays on Home, never hidden',
-      autonomous: 'Done on its own, listed under handled',
-      draft: 'A draft waits for you on Home',
+  bots: {
+    chatMenu: 'Chat actions',
+    clear: 'Clear history',
+    clearConfirm: (name: string) => `Clear the chat with ${name}?`,
+    clearHint:
+      'Its messages go for good. What it did in your mail stays, and so do the reminders it set.',
+    cleared: 'History cleared',
+    deleteFolder: 'Delete folder',
+    deleteFolderConfirm: (name: string) => `Delete the folder ${name}?`,
+    deleteFolderHint: 'Its bots stay in the list, outside any folder.',
+    moveTo: 'Move to folder',
+    newFolder: 'New folder',
+    noFolder: 'No folder',
+    pin: 'Pin',
+    rename: 'Rename',
+    renameFolder: 'Rename folder',
+    unpin: 'Unpin',
+    add: 'New bot',
+    answering: 'Writing…',
+    cancelReply: 'Cancel reply',
+    cards: {
+      autoDone: (n: number) =>
+        plural('en', n, {
+          one: () => 'I did one on my own.',
+          other: (count) => `I did ${count} on my own.`,
+        }),
+      dismissed: (n: number) =>
+        plural('en', n, {
+          one: () => 'You skipped one.',
+          other: (count) => `You skipped ${count}.`,
+        }),
+      done: (n: number) =>
+        plural('en', n, {
+          one: () => 'One is done after your yes.',
+          other: (count) => `${count} are done after your yes.`,
+        }),
+      failed: (n: number) =>
+        plural('en', n, {
+          one: () => 'Gmail refused one.',
+          other: (count) => `Gmail refused ${count}.`,
+        }),
+      pending: (n: number) =>
+        plural('en', n, {
+          one: () => 'One waits for you.',
+          other: (count) => `${count} wait for you.`,
+        }),
     },
+    composer: (name: string) => `Write to ${name} about its mail`,
+    copied: 'Copied',
+    copy: 'Copy',
+    created: 'Bot made. It reads new mail from now on.',
+    delete: 'Delete bot',
+    deleteConfirm: (name: string) => `Delete ${name}?`,
+    deleteHint:
+      'Its chat goes with it. Its mail stays where it is, and new mail like it goes to Fewmail.',
+    deleted: 'Bot deleted',
+    earlier: 'Show earlier',
+    edit: 'Bot settings',
     effect: {
-      always_show: "Don't miss",
+      always_show: 'Keep it on Home',
       archive: 'Archive it',
+      collect: 'Just collect it',
       draft_reply: 'Draft a reply',
-      mark_read: 'Mark as read',
-      trash: 'Move to trash',
+      mark_read: 'Mark it read',
+      tidy: 'Tidy it up',
+      trash: 'Move it to trash',
       unsubscribe: 'Unsubscribe',
     },
-    enabled: 'Rule enabled',
-    lead: 'Tell the agent in plain words what to do with certain mail. It reads every email against these.',
-    newTitle: 'Teach a new rule',
-    leadFree:
-      'Archive, mark as read or unsubscribe automatically. Rules run on new mail the moment it arrives.',
-    placeholder: 'e.g. Invoices from Hetzner, or LinkedIn notifications',
+    empty: 'Nothing here yet. When mail of mine comes, I write here.',
+    enabled: 'Acts on its own',
+    enabledHint: {
+      off: 'Off, it asks for your yes on each email first.',
+      on: 'On, it acts without asking; everything it does shows in its chat.',
+    },
+    instruction: 'Which emails, and what to do with them',
+    instructionPlaceholder:
+      'e.g. Mark invoices from Hetzner read, or archive LinkedIn notifications',
+    mute: 'Mute',
+    muted: 'Muted: no notifications from this bot',
+    name: 'Name',
+    namePlaceholder: 'e.g. Invoices',
+    noPlan:
+      'I can’t answer you: on the free plan I have no tokens for a conversation. Subscribe and I’m all yours.',
+    now: 'Waiting now',
+    nudge: {
+      noReply: 'No answer in that thread yet.',
+      replied: 'An answer came in that thread since.',
+    },
+    promises: (n: number) =>
+      plural('en', n, {
+        one: () => 'I wrote down a promise.',
+        other: (count) => `I wrote down ${count} promises.`,
+      }),
+    react: 'React',
+    reaction: 'Reaction',
+    reply: 'Reply',
+    save: 'Save',
+    saved: 'Saved',
     simple: {
-      appliedAutomatically: 'Applied automatically to new mail',
-      field: {
-        from: 'From',
-        mailingList: 'Any mailing list',
-        subject: 'Subject contains',
-      },
       title: {
         from: (value: string) => `From “${value}”`,
         mailingList: () => 'Any mailing list',
         subject: (value: string) => `Subject contains “${value}”`,
       },
-      valuePlaceholder: 'anna@example.com, a name or a word',
-      whichField: 'Match by',
     },
-    title: 'Rules',
-    whatAgentDoes: 'What the agent does',
-    whichEmails: 'Which emails',
+    spent: (date: string) =>
+      `I can’t answer until ${date}: this month’s allowance is spent.`,
+    steps: (n: number) =>
+      plural('en', n, {
+        one: () => 'One step',
+        other: (count) => `${count} steps`,
+      }),
+    subscribe: 'Subscribe',
+    system: { board: 'Board', fewmail: 'Fewmail Bot' },
+    systemJob: {
+      board: 'The promises and last days I keep track of',
+      fewmail: 'Makes your bots, finds emails and answers questions',
+    },
+    title: 'Bots',
+    toLatest: 'To the latest',
+    unmute: 'Unmute',
+    whatItDoes: 'What it does with them',
+    you: 'You',
   },
   settings: {
     disconnectConfirm: (name: string) => `Disconnect ${name}?`,
@@ -849,7 +930,7 @@ export const en = {
     deleteAccount: 'Delete account',
     deleteConfirm: 'Delete everything',
     deleteDescription:
-      'Deletes your account, synced mail, drafts and rules from Fewmail right away. Your Gmail itself is not touched. A paid plan is canceled at once.',
+      'Deletes your account, synced mail, drafts and bots from Fewmail right away. Your Gmail itself is not touched. A paid plan is canceled at once.',
     deleteFailed: 'The account was not deleted. Try again in a minute.',
     deleteSignIn:
       'To confirm it is you, sign in with Google again, then delete the account.',
@@ -1040,7 +1121,7 @@ export const en = {
             'The day’s newsletters become one summary by topic, each sentence linked to the email it came from.',
           title: 'Newsletters in one summary',
         },
-        rules: {
+        bots: {
           description:
             'Describe in one sentence what should happen to some mail and it becomes a rule. Only the rules you turn on act on their own.',
           title: 'Rules in plain words',
@@ -1110,7 +1191,7 @@ export const en = {
         outlook: 'Outlook and Microsoft 365',
         phishing: 'Phishing and payment-change warnings',
         phone: 'On your phone',
-        rules: 'Rules in plain words',
+        bots: 'Rules in plain words',
         snooze: 'Snooze',
         spamShield: 'Community spam shield',
         summaries: 'Email summaries',
@@ -1131,7 +1212,7 @@ export const en = {
         mcp: 'On Pro',
         memory: 'On Pro',
         phone: 'Telegram and WhatsApp, with voice, on Pro',
-        rules: 'Archive, mark read or unsubscribe, free',
+        bots: 'Archive, mark read or unsubscribe, free',
         summaries: 'On Pro',
         unsubscribe: 'Senders who ignore it go to spam',
       },
@@ -1161,7 +1242,7 @@ export const en = {
           keepApp: 'Works through folders',
           otherProviders: 'Any IMAP or Exchange server',
           phone: 'Through your mail app',
-          rules: 'Trained by moving mail between folders',
+          bots: 'Trained by moving mail between folders',
           snooze: 'From Lunch',
           summaries: 'SaneSummary, on Dinner',
           unsubscribe: 'SaneBlackHole folder',
@@ -1188,7 +1269,7 @@ export const en = {
           otherProviders: 'Forwarded into Gmail',
           outlook: 'Microsoft 365 not supported',
           phone: 'iOS and Android apps',
-          rules: 'AI filters, 3 to 50 by plan',
+          bots: 'AI filters, 3 to 50 by plan',
           summaries: 'On top of every email',
           teams: 'Shared threads and comments',
           unsubscribe: 'With one-click block',
@@ -1213,7 +1294,7 @@ export const en = {
           keepApp: 'Replaces your mail app',
           mcp: 'On Business',
           phone: 'iOS and Android apps',
-          rules: 'Custom Auto Labels, on Business',
+          bots: 'Custom Auto Labels, on Business',
           spamShield: "Your provider's filter",
           summaries: 'Auto Summarize',
           teams: 'Shared drafts and comments',
@@ -1529,13 +1610,22 @@ export const en = {
     },
     showImages: 'Show images',
   },
-  starterRules: {
-    alwaysShow:
-      'Security alerts, bills that are due, anything from my bank or government',
-    newsletters: 'Newsletters and digests',
-    notifications: 'Automated notifications from tools and services',
-    promotions: 'Promotions, marketing and cold sales emails',
-    receipts: 'Receipts, order and shipping confirmations',
+  starterBots: {
+    important: {
+      instruction:
+        'What needs a step from me: people waiting for my answer, bills that are due, security alerts, anything from my bank or government. Keep them on Home',
+      name: 'Important',
+    },
+    later: {
+      instruction:
+        'Worth knowing but needs no decision: updates from services I use, deliveries, events and dates',
+      name: 'Can wait',
+    },
+    quick: {
+      instruction:
+        'Noise I would clear without reading: notifications, receipts, newsletters, promotions and cold sales. Tidy them up: archive, mark read or unsubscribe, whichever fits',
+      name: 'Quick',
+    },
   },
   telegram: {
     approveAlike: 'Approve every card of one kind at once:',
@@ -1576,14 +1666,12 @@ export const en = {
   },
   today: {
     working: 'Working on it…',
-    ruleSuggestion: {
+    botSuggestion: {
       done: {
-        archive:
-          'New mail from this sender will be archived. Change it in Rules.',
-        mark_read:
-          'New mail from this sender will be marked read. Change it in Rules.',
+        archive: 'A new bot archives this sender’s mail from now on.',
+        mark_read: 'A new bot marks this sender’s mail read from now on.',
       },
-      label: 'Suggested rule',
+      label: 'Suggested bot',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
           ? `${count} emails this month, and the agent would archive every one`
@@ -1594,16 +1682,9 @@ export const en = {
         mark_read: 'Always mark read',
       },
     },
-    ruleOffer: {
-      lead: 'The agent can do this for matching mail on its own. It stays off until you say yes.',
-      no: 'Keep off',
-      turnedOn: 'Turned on. Change it in Rules.',
-      yes: 'Turn on',
-    },
     newSender: {
       archive: 'Always archive',
-      archived:
-        'New mail from this sender will be archived. Change it in Rules.',
+      archived: 'A new bot archives this sender’s mail from now on.',
       keep: 'Keep as usual',
       label: 'New sender',
       lead: (count: number, opened: number) =>
@@ -1619,13 +1700,13 @@ export const en = {
       'I keep reading new mail, and anything that needs you shows up here.',
     allowanceSpent: (date: string) =>
       `This month’s agent allowance is spent: summaries and drafts come back on ${date}. Until then I still write down promises and last days.`,
-    byRules: (n: number) => `Your rules took care of ${n}.`,
+    byBots: (n: number) => `Your bots took care of ${n}.`,
     decisions: 'Decisions',
     journal: {
       approved: 'You said yes',
-      byRule: (rule: string) => `Your rule: ${rule}`,
+      byBot: (bot: string) => `Your bot: ${bot}`,
       failed: 'Did not work',
-      lead: 'The last 7 days. Every change in your mail or calendar had your yes or a rule you turned on.',
+      lead: 'The last 7 days. Every change in your mail or calendar had your yes or a bot you let act on its own.',
       title: 'Done in your mail',
     },
     progress: (done: number, total: number) => `${done} of ${total}`,
@@ -1653,13 +1734,13 @@ export const en = {
     },
     improve: {
       empty: {
-        lead: 'When the agent sees you treat a sender the same way again and again, it offers a rule here.',
+        lead: 'When the agent sees you treat a sender the same way again and again, it offers a bot here.',
         title: 'No suggestions right now.',
       },
       lead: (total: number) =>
         plural('en', total, {
-          one: () => 'One rule the agent could follow for you.',
-          other: (n) => `${n} rules the agent could follow for you.`,
+          one: () => 'One bot the agent could make for you.',
+          other: (n) => `${n} bots the agent could make for you.`,
         }),
       title: 'The agent suggests',
     },
@@ -1738,6 +1819,7 @@ export const en = {
   },
   upgrade: {
     hints: {
+      chat: 'Part of Fewmail Pro: talk to your bots about their mail, and they come back to you when they said they would.',
       drafts:
         'Part of Fewmail Pro: the agent writes the reply in your style, and you edit and send it.',
       board:

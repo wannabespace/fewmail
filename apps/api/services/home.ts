@@ -2,11 +2,13 @@ import { db } from '@fewmail/db'
 import {
   actions,
   analyses,
+  botPosts,
+  bots,
   mailboxes as mailboxRows,
   messages,
   userSettings,
 } from '@fewmail/db/schema'
-import { IMPORTANCE } from '@fewmail/shared/agent'
+import { botOfCard, IMPORTANCE, PROPOSAL_KINDS } from '@fewmail/shared/agent'
 import type { ActionKind } from '@fewmail/shared/agent'
 import { differenceInHours, max, min, subDays, subHours } from 'date-fns'
 import {
@@ -27,12 +29,14 @@ import {
 import { localClock } from '../lib/clock'
 import { announceChange } from '../lib/live'
 import { expectRow } from '../lib/rows'
-import { newSenders, ruleSuggestions } from './cleanup'
+import { newSenders, botSuggestions } from './cleanup'
 import {
+  countImportant,
   freshCodes,
   handledSince,
   listHandled,
   listQueue,
+  notBinned,
   listTidy,
   mailPulse,
   mailWithDates,
@@ -41,7 +45,6 @@ import {
 } from './mail'
 import { listMailboxes } from './mailboxes'
 import { awaitingReplies } from './reminders'
-import { listRuleOffers } from './rules'
 import { getSettings } from './settings'
 
 const CATCH_UP_MIN_HOURS = 24
@@ -166,7 +169,6 @@ export const getToday = async (userId: string) => {
     codes,
     senders,
     reading,
-    ruleOffers,
     suggestions,
   ] = await Promise.all([
     listQueue(userId),
@@ -181,8 +183,7 @@ export const getToday = async (userId: string) => {
     freshCodes(userId),
     newSenders(userId),
     readingNow(userId),
-    listRuleOffers(userId),
-    ruleSuggestions(userId),
+    botSuggestions(userId),
   ])
   // What the agent proposes to tidy is noise by its own judgement, so Worth knowing never offers it to read as well.
   const shown = new Set([
@@ -214,13 +215,55 @@ export const getToday = async (userId: string) => {
     recent: important
       .filter((item) => !shown.has(item.message.id) && !hasCode(item))
       .slice(0, RECENT_SHOWN_PER_DAY * days),
-    ruleOffers,
-    ruleSuggestions: suggestions.filter(
+    botSuggestions: suggestions.filter(
       ({ fromEmail }) => !askedSenders.has(fromEmail)
     ),
     saved,
     tidy,
   }
+}
+
+/**
+ * Each bot's report of the day, after the first read and every morning: Fewmail's always, with its headline's counts,
+ * another bot's only while cards of its own wait. The cards are kept as ids, so the chat reads them as they are now.
+ */
+export const writeDigests = async (userId: string) => {
+  const settings = await getSettings(userId)
+  const { days, since } = catchUp(settings)
+  const [queue, own, decisions, handled, pulse] = await Promise.all([
+    listQueue(userId),
+    db.select({ id: bots.id }).from(bots).where(eq(bots.userId, userId)),
+    countImportant(userId),
+    handledSince(userId, since),
+    mailPulse(userId, since),
+  ])
+  const waiting = queue.filter(
+    ({ action }) => !(PROPOSAL_KINDS as readonly string[]).includes(action.kind)
+  )
+  const idsOf = (bot: string) =>
+    waiting
+      .filter((card) => botOfCard(card) === bot)
+      .map(({ action }) => action.id)
+  await db.insert(botPosts).values([
+    {
+      actionIds: idsOf('fewmail'),
+      bot: 'fewmail',
+      counts: {
+        days,
+        decisions,
+        handled: handled.total,
+        people: pulse.people,
+        total: pulse.total,
+      },
+      kind: 'digest',
+      userId,
+    },
+    ...own
+      .map(({ id }) => ({ actionIds: idsOf(id), bot: id }))
+      .filter(({ actionIds }) => actionIds.length > 0)
+      .map((post) => ({ ...post, kind: 'digest' as const, userId })),
+  ])
+  await announceChange(userId, ['bots'])
 }
 
 /** Only the person looking at Home is a visit (never a live refetch or the agent); `seenAt` is the one before, so the page can mark what came since. */
@@ -272,6 +315,7 @@ export const listBanner = async (userId: string) => {
       and(
         eq(actions.userId, userId),
         eq(actions.status, 'pending'),
+        notBinned,
         isNull(actions.bannerDismissedAt),
         gte(actions.createdAt, subHours(new Date(), BANNER_HOURS)),
         or(

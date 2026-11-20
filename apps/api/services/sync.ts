@@ -30,15 +30,17 @@ import { logError } from '../lib/log'
 import { capture } from '../lib/posthog'
 import { expectRow } from '../lib/rows'
 import { analyzeMessage, recordNewsletter, retireStaleActions } from './agent'
+import { introduceUser } from './bot-chat'
 import { measureBulk } from './bulk'
 import { trackCommitments } from './commitments'
+import { writeDigests } from './home'
 import { listMailboxes, watchStorage } from './mailboxes'
 import { emailAllowance } from './plan'
 import { writeReadingIssue } from './reading'
 import { assessRisks } from './risk'
 import { watchSentMail } from './sent-mail'
 import { getSettings } from './settings'
-import { applySimpleRules } from './simple-rules'
+import { applySimpleBots } from './simple-bots'
 import { applySpamShield } from './spam'
 import { forget, insertMessages } from './stored-mail'
 import { catchZombies, recordListReaders } from './zombies'
@@ -172,7 +174,7 @@ const analyzePending = async (userId: string, inserted: Message[]) => {
 
 /**
  * Order matters: risk and bulk facts are on the message before anything judges it, zombie and
- * spam moves win over rules, and the agent only sees what is left.
+ * spam moves win over bots, and the agent only sees what is left.
  */
 const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
   const { userId } = mailbox
@@ -184,7 +186,7 @@ const processIncoming = async (mailbox: Mailbox, inserted: Message[]) => {
     userId,
     inserted.filter((message) => !zombies.has(message.id))
   )
-  await applySimpleRules(
+  await applySimpleBots(
     userId,
     inserted.filter(
       (message) => !zombies.has(message.id) && !spam.has(message.id)
@@ -363,6 +365,12 @@ export const syncMailbox = async ({ id }: Pick<Mailbox, 'id'>) => {
     if (!(mailbox.historyId || mailbox.googleAccountId)) {
       void writeFirstIssues(mailbox).catch((error) =>
         logError('first issues failed', error)
+      )
+      void introduceUser(mailbox).catch((error) =>
+        logError('introduction failed', error)
+      )
+      void writeDigests(mailbox.userId).catch((error) =>
+        logError('first digest failed', error)
       )
     }
     if (released?.syncRequested) {

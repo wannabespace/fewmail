@@ -14,15 +14,25 @@ export const queueCards = listCollection({
   queryKey: orpc.today.queue.key(),
 })
 
+/** Home's bots with their latest line and how much is new: muted or read at once (`showUntilSettled`). */
+export const botChats = listCollection({
+  getKey: ({ bot }) => bot,
+  id: 'home-bot-chats',
+  queryFn: () => client.bots.chats(),
+  queryKey: orpc.bots.chats.key(),
+})
+
+/** The user's own bots: renamed, changed or deleted at once. */
+export const ownBots = listCollection({
+  getKey: ({ id }) => id,
+  id: 'home-own-bots',
+  queryFn: () => client.bots.list(),
+  queryKey: orpc.bots.list.key(),
+})
+
 type Today = RouterOutputs['today']['get']
 
-type TodayList =
-  | 'codes'
-  | 'dates'
-  | 'newSenders'
-  | 'recent'
-  | 'ruleOffers'
-  | 'tidy'
+type TodayList = 'codes' | 'dates' | 'newSenders' | 'recent' | 'tidy'
 
 /** One of Home's lists out of `today.get` as a collection, so a row acted on stays gone through every refetch (`showUntilSettled`). */
 const todayList = <List extends TodayList>(
@@ -50,7 +60,6 @@ export const todayLists = {
   dates: todayList('dates', ({ message }) => message.id),
   newSenders: todayList('newSenders', ({ messageId }) => messageId),
   recent: todayList('recent', ({ message }) => message.id),
-  ruleOffers: todayList('ruleOffers', ({ id }) => id),
   tidy: todayList('tidy', ({ message }) => message.id),
 }
 
@@ -67,7 +76,6 @@ export const useToday = () => {
     dates: useRanked('dates'),
     newSenders: useRanked('newSenders'),
     recent: useRanked('recent'),
-    ruleOffers: useRanked('ruleOffers'),
     tidy: useRanked('tidy'),
   }
   return { data: data && { ...data, ...lists }, dataUpdatedAt }

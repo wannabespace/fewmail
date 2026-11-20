@@ -17,8 +17,6 @@ import type {
   RefObject,
 } from 'react'
 
-import { usePaneMorph } from '~/components/expand-row'
-
 /** Where a row of `PaneRows` sits: spread on its outermost element (a `SettingsRow` takes it as is). */
 export interface RowPlace {
   'data-index': number
@@ -28,7 +26,24 @@ export interface RowPlace {
 
 const ROW_SIZE = 68
 
-const ScrollerContext = createContext<HTMLDivElement | null>(null)
+const ScrollerContext = createContext<HTMLElement | null>(null)
+
+/** Rows inside a kit `MessageScroller` draw on its viewport, as they do in a `PaneScroller`. */
+export const ChatScroller = ({ children }: { children: ReactNode }) => {
+  const [scroller, setScroller] = useState<HTMLElement | null>(null)
+  // Around the scroller, never inside its content: it measures its content's children, and this box has none.
+  const findScroller = (node: HTMLDivElement | null) =>
+    setScroller(
+      node?.querySelector<HTMLElement>(
+        '[data-slot=message-scroller-viewport]'
+      ) ?? null
+    )
+  return (
+    <div ref={findScroller} className="contents">
+      <ScrollerContext value={scroller}>{children}</ScrollerContext>
+    </div>
+  )
+}
 
 /** A pane scrolls as a whole: every `PaneRows` in it draws only the rows in and near view, on this one scroller. */
 export const PaneScroller = ({
@@ -67,7 +82,7 @@ const RowsGap = ({
 
 /** Anything above the list changing height (a card leaving, the pane growing) moves where its rows start. */
 const useListTop = (
-  area: HTMLDivElement | null,
+  area: HTMLElement | null,
   start: RefObject<HTMLDivElement | null>
 ) => {
   const [top, setTop] = useState<number | null>(null)
@@ -111,7 +126,6 @@ export const PaneRows = <Row,>({
   rows: Row[]
 }) => {
   const scroller = use(ScrollerContext)
-  const morph = usePaneMorph()
   const start = useRef<HTMLDivElement>(null)
   const top = useListTop(scroller, start)
   const keys = rows.map(rowKey)
@@ -120,11 +134,9 @@ export const PaneRows = <Row,>({
     count: rows.length,
     estimateSize: () => ROW_SIZE,
     getItemKey: (index) => keys[index] ?? index,
-    // Not the pane's scroller while it grows: a screen's height, not the box's, so no row comes in mid-growth. Shrinking,
-    // it keeps the scroller, so the rows left are the ones where the user scrolled to.
-    getScrollElement: () => (morph === 'growing' ? null : scroller),
+    getScrollElement: () => scroller,
     initialRect: { height: window.innerHeight, width: 0 },
-    overscan: morph ? 0 : 10,
+    overscan: 10,
     scrollMargin: top ?? 0,
   })
   // Until the list knows where it starts, a list under the screen's edge would take it for the top and draw a screen of rows.

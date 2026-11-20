@@ -15,7 +15,7 @@ export const authClient = createAuthClient({
   plugins: [oauthProviderClient(), oneTimeTokenClient()],
 })
 
-export const signInWithGoogle = (path = '/home', loginHint?: string) => {
+export const signInWithGoogle = (path = '/mail', loginHint?: string) => {
   posthog.capture('sign_in_started')
   return authClient.signIn.social({
     callbackURL: `${location.origin}${path}`,

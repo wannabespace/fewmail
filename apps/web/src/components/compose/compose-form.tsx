@@ -11,7 +11,13 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
-import { Input } from '@fewmail/ui/components/input'
+import { ButtonGroup, ButtonGroupSeparator } from '@fewmail/ui/components/group'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@fewmail/ui/components/input-group'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import {
   Select,
@@ -21,6 +27,7 @@ import {
   SelectValue,
 } from '@fewmail/ui/components/select'
 import {
+  AlarmClockIcon,
   Attachment01Icon,
   Cancel01Icon,
   Delete02Icon,
@@ -134,7 +141,22 @@ export const ComposeForm = ({
     subject.trim() === draft.subject.trim() &&
     to.trim() === draft.to.join(', ') &&
     cc.trim() === draft.cc.join(', ')
+  // A reopened draft opens with its own subject and recipients, so for it only clearing everything leaves nothing.
+  const isBlank = () =>
+    draft.gmailDraft && !draft.replyToMessageId
+      ? attachments.length === 0 &&
+        ![body.current.text, subject, to, cc].some((field) => field.trim())
+      : isUntouched()
 
+  const removeDraft = async () => {
+    if (gmailDraft.current) {
+      await client.mail.deleteDraft(gmailDraft.current)
+      void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
+      void queryClient.invalidateQueries({
+        queryKey: orpc.mail.draftCount.key(),
+      })
+    }
+  }
   const save = useEffectEvent(() => {
     const mail = {
       attachments,
@@ -149,12 +171,14 @@ export const ComposeForm = ({
       subject,
       to: parseRecipients(to).filter(isValid),
     }
-    const isBlank = isUntouched()
+    const isEmpty = isBlank()
     const uploaded = new Set(
       mail.attachments.filter(({ data }) => data).map(({ id }) => id)
     )
     const persist = async () => {
-      if (isBlank && !gmailDraft.current) {
+      if (isEmpty) {
+        await removeDraft()
+        gmailDraft.current = null
         return
       }
       gmailDraft.current = await client.mail.saveDraft({
@@ -189,15 +213,6 @@ export const ComposeForm = ({
   })
   useEffect(() => () => saveOnLeave(), [])
 
-  const removeDraft = async () => {
-    if (gmailDraft.current) {
-      await client.mail.deleteDraft(gmailDraft.current)
-      void queryClient.invalidateQueries({ queryKey: orpc.mail.drafts.key() })
-      void queryClient.invalidateQueries({
-        queryKey: orpc.mail.draftCount.key(),
-      })
-    }
-  }
   const hideDraft = () =>
     queryClient.setQueriesData<{ id: string }[]>(
       { queryKey: orpc.mail.drafts.key() },
@@ -339,7 +354,7 @@ export const ComposeForm = ({
   return (
     // Capture: the editor would paste a copied file's name as text, or drop it nowhere.
     <div
-      className="relative flex flex-col gap-3"
+      className="bg-popover ring-foreground/6 relative flex flex-col gap-4 rounded-2xl p-4 shadow-sm ring"
       onDragOver={(event) => {
         if (hasFiles(event.dataTransfer)) {
           event.preventDefault()
@@ -368,38 +383,42 @@ export const ComposeForm = ({
       }}
     >
       {isDragging && (
-        <div className="border-primary/40 bg-background/80 text-muted-foreground pointer-events-none absolute -inset-2 z-20 flex items-center justify-center rounded-xl border-2 border-dashed text-sm">
+        <div className="border-primary/40 bg-background/80 text-muted-foreground pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-xl border-2 border-dashed text-sm">
           {t.compose.dropFiles}
         </div>
       )}
-      {!draft.replyToMessageId && mailboxes.length > 1 && (
-        <Select
-          items={mailboxes.map(({ email, id }) => ({
-            label: email,
-            value: id,
-          }))}
-          value={mailboxId ?? mailboxes.find(({ signIn }) => signIn)?.id}
-          onValueChange={(next) => {
-            if (next) {
-              setMailboxId(next)
-              edit()
-            }
-          }}
-        >
-          <SelectTrigger aria-label={t.compose.from} className="w-full">
-            <span className="text-muted-foreground">{t.compose.from}</span>
-            <SelectValue data-mask />
-          </SelectTrigger>
-          <SelectContent>
-            {mailboxes.map(({ email, id }) => (
-              <SelectItem key={id} value={id}>
-                <span data-mask>{email}</span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-      <div className="flex items-center gap-2">
+      <div className="-mt-2 flex flex-col">
+        {!draft.replyToMessageId && mailboxes.length > 1 && (
+          <Select
+            items={mailboxes.map(({ email, id }) => ({
+              label: email,
+              value: id,
+            }))}
+            value={mailboxId ?? mailboxes.find(({ signIn }) => signIn)?.id}
+            onValueChange={(next) => {
+              if (next) {
+                setMailboxId(next)
+                edit()
+              }
+            }}
+          >
+            <SelectTrigger
+              aria-label={t.compose.from}
+              variant="flat"
+              className="w-full"
+            >
+              <span className="text-muted-foreground">{t.compose.from}</span>
+              <SelectValue data-mask />
+            </SelectTrigger>
+            <SelectContent>
+              {mailboxes.map(({ email, id }) => (
+                <SelectItem key={id} value={id}>
+                  <span data-mask>{email}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <RecipientsField
           ref={toRef}
           label={t.compose.to}
@@ -408,40 +427,44 @@ export const ComposeForm = ({
             setTo(next)
             edit()
           }}
-        />
-        {!showCc && (
-          <Button
-            size="sm"
-            variant="ghost-muted"
-            onClick={() => setShowCc(true)}
-          >
-            {t.compose.cc}
-          </Button>
+        >
+          {!showCc && (
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton
+                variant="ghost-muted"
+                onClick={() => setShowCc(true)}
+              >
+                {t.compose.cc}
+              </InputGroupButton>
+            </InputGroupAddon>
+          )}
+        </RecipientsField>
+        {showCc && (
+          <RecipientsField
+            label={t.compose.cc}
+            value={cc}
+            onChange={(next) => {
+              setCc(next)
+              edit()
+            }}
+          />
+        )}
+        {!isReply && (
+          <InputGroup variant="line">
+            <InputGroupInput
+              ref={subjectRef}
+              value={subject}
+              onChange={(event) => {
+                setSubject(event.target.value)
+                edit()
+              }}
+              placeholder={t.compose.subject}
+              aria-label={t.compose.subject}
+              data-mask
+            />
+          </InputGroup>
         )}
       </div>
-      {showCc && (
-        <RecipientsField
-          label={t.compose.cc}
-          value={cc}
-          onChange={(next) => {
-            setCc(next)
-            edit()
-          }}
-        />
-      )}
-      {!isReply && (
-        <Input
-          ref={subjectRef}
-          value={subject}
-          onChange={(event) => {
-            setSubject(event.target.value)
-            edit()
-          }}
-          placeholder={t.compose.subject}
-          aria-label={t.compose.subject}
-          data-mask
-        />
-      )}
       <ComposerEditor
         ref={editorRef}
         initialHtml={draft.html}
@@ -505,18 +528,29 @@ export const ComposeForm = ({
         }}
       />
       <div className="@container flex flex-wrap items-center gap-2">
-        <Button size="sm" onClick={() => submit()} shortcut={<Kbd>⌘⏎</Kbd>}>
-          {t.compose.send}
-        </Button>
-        <SendLater onSchedule={submit} />
+        <ButtonGroup>
+          <Button size="sm" onClick={() => submit()} shortcut={<Kbd>⌘⏎</Kbd>}>
+            {t.compose.send}
+          </Button>
+          <ButtonGroupSeparator />
+          <SendLater onSchedule={submit} />
+        </ButtonGroup>
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={<Button size="sm" variant="ghost-muted" />}
-          >
-            {remindAfterDays
-              ? t.compose.remind.days(remindAfterDays)
-              : t.compose.remind.label}
-          </DropdownMenuTrigger>
+            render={
+              <IconButton
+                icon={AlarmClockIcon}
+                label={
+                  remindAfterDays
+                    ? t.compose.remind.days(remindAfterDays)
+                    : t.compose.remind.label
+                }
+                aria-pressed={Boolean(remindAfterDays)}
+                size="icon-sm"
+                variant="ghost-muted"
+              />
+            }
+          />
           <DropdownMenuContent className="max-w-none">
             <DropdownMenuRadioGroup
               value={String(remindAfterDays ?? 0)}

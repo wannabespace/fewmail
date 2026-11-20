@@ -5,7 +5,7 @@ import { confirm } from '~/components/confirm-dialog'
 
 import { client, refetchChanged } from './orpc'
 
-/** After an unsubscribe a sender that ignores them would keep writing; only the user's yes turns that into a trash rule. */
+/** After an unsubscribe a sender that ignores them would keep writing; only the user's yes turns that into a trash bot. */
 export const offerBlock = (t: Messages, name: string, messageId: string) =>
   confirm({
     action: t.mail.block,
@@ -18,7 +18,7 @@ export const offerBlock = (t: Messages, name: string, messageId: string) =>
         return
       }
       toast.success(t.mail.blocked, { id })
-      refetchChanged(['mail', 'rules'])
+      refetchChanged(['mail', 'bots'])
     },
     title: t.mail.ignoresUnsubscribe(name),
     variant: 'destructive',

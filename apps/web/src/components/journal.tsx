@@ -65,14 +65,14 @@ export const useJournal = () => {
   }
 }
 
-const whoAllowed = (t: Messages, { action, rule }: JournalEntry) => {
+const whoAllowed = (t: Messages, { action, bot }: JournalEntry) => {
   if (action.status === 'failed') {
     return t.today.journal.failed
   }
-  return rule ? t.today.journal.byRule(rule) : t.today.journal.approved
+  return bot ? t.today.journal.byBot(bot) : t.today.journal.approved
 }
 
-/** Everything done in the mail, each with who allowed it: a rule the user turned on or their yes. Lives under Rules, since rules do most of it. */
+/** Everything done in the mail, each with who allowed it: a bot the user turned on or their yes. Lives at the end of Fewmail's chat on Home. */
 export const Journal = ({
   cursorId,
   journal: { days, failed, rows, toggleDay },
@@ -124,7 +124,7 @@ export const Journal = ({
   }
 
   const row = (entry: JournalEntry) => {
-    const { action, message, rule, summary } = entry
+    const { action, message, bot, summary } = entry
     const undo =
       action.status === 'failed' || undoneIds.includes(action.id)
         ? undefined
@@ -162,8 +162,8 @@ export const Journal = ({
             <span data-mask>
               {[
                 action.title || t.actionKind[action.kind],
-                // A rule's action carries the rule as its reason: `who` already names it. A promise's reason is only its recipient.
-                !rule &&
+                // A bot's action carries the bot as its reason: `who` already names it. A promise's reason is only its recipient.
+                !bot &&
                   (action.kind === 'commitment' || action.kind === 'heads_up'
                     ? action.detail
                     : action.reason || summary),
@@ -172,7 +172,7 @@ export const Journal = ({
                 .join(' · ')}
             </span>
             {' · '}
-            <span data-mask={!!rule && action.status !== 'failed'}>{who}</span>
+            <span data-mask={!!bot && action.status !== 'failed'}>{who}</span>
           </>
         }
       >

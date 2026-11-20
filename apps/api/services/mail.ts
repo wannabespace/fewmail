@@ -4,7 +4,7 @@ import {
   analyses,
   mailboxes,
   messages,
-  rules,
+  bots,
 } from '@fewmail/db/schema'
 import {
   ACTION_KIND_TRAITS,
@@ -41,6 +41,7 @@ import {
   gte,
   inArray,
   isNotNull,
+  isNull,
   lt,
   ne,
   not,
@@ -61,8 +62,9 @@ import { expectRow } from '../lib/rows'
 import { searchQueryTokensOf } from '../lib/search-tokens'
 import { writeReply } from './agent'
 import { GMAIL_OPERATOR, searchByQuestion } from './ask'
+import { createBot } from './bots'
 import { createEvent } from './calendar'
-import { ruleSuggestions, runCleanup } from './cleanup'
+import { botSuggestions, runCleanup } from './cleanup'
 import { settleByCard } from './commitments'
 import { NotFoundError } from './mail-errors'
 import {
@@ -73,7 +75,6 @@ import {
 } from './older-mail'
 import { scheduleMail } from './outbox'
 import { snoozedThreadIds, snoozeThread, unsnoozeThread } from './reminders'
-import { createRule } from './rules'
 import { getSettings } from './settings'
 import { reportSpam } from './spam'
 import { holdThread, ownMessage } from './stored-mail'
@@ -106,6 +107,7 @@ const messageSummary = {
 }
 
 const analysisSummary = {
+  botId: analyses.botId,
   category: analyses.category,
   extracted: analyses.extracted,
   importance: analyses.importance,
@@ -114,7 +116,8 @@ const analysisSummary = {
   summary: analyses.summary,
 }
 
-export const listQueue = (userId: string) =>
+/** Cards as Home draws them, whatever their status: with their email, its analysis and the bot that made them. */
+export const selectCards = () =>
   db
     .select({
       action: actions,
@@ -124,13 +127,24 @@ export const listQueue = (userId: string) =>
         isFromMe: messages.isFromMe,
         to: messages.to,
       },
-      rule: rules.instruction,
+      bot: bots.instruction,
     })
     .from(actions)
     .leftJoin(messages, eq(messages.id, actions.messageId))
     .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
-    .leftJoin(rules, eq(rules.id, actions.ruleId))
-    .where(and(eq(actions.userId, userId), eq(actions.status, 'pending')))
+    .leftJoin(bots, eq(bots.id, actions.botId))
+
+/** A card waits only while its email is out of Trash and Spam: a card of a binned email comes back with it on Undo. */
+export const notBinned = or(
+  isNull(messages.id),
+  not(arrayOverlaps(messages.labelIds, ['SPAM', 'TRASH']))
+)
+
+export const listQueue = (userId: string) =>
+  selectCards()
+    .where(
+      and(eq(actions.userId, userId), eq(actions.status, 'pending'), notBinned)
+    )
     .orderBy(
       sql`${analyses.importance} desc nulls last`,
       sql`${analyses.needsReply} desc nulls last`,
@@ -142,11 +156,13 @@ export const countImportant = async (userId: string) => {
   const [row] = await db
     .select({ total: sql<number>`count(*)::int` })
     .from(actions)
+    .leftJoin(messages, eq(messages.id, actions.messageId))
     .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
     .where(
       and(
         eq(actions.userId, userId),
         eq(actions.status, 'pending'),
+        notBinned,
         notInArray(actions.kind, [...PROPOSAL_KINDS]),
         or(
           notInArray(actions.kind, [...LATER_KINDS]),
@@ -164,7 +180,7 @@ const movedOnYes = and(
   inArray(actions.kind, [...GMAIL_EFFECTS, 'spam'])
 )
 
-/** Home's "your rules took care of N" counts without `withYes`: the Gmail moves the user said yes to (Tidy, a card, a consent) were not the rules'. */
+/** Home's "your bots took care of N" counts without `withYes`: the Gmail moves the user said yes to (Tidy, a card, a consent) were not the bots'. */
 export const handledSince = async (
   userId: string,
   since: Date,
@@ -225,7 +241,7 @@ const actedAt =
     actions.createdAt
   )
 
-/** The journal: everything the agent did after the user's yes (`done`) or by a rule they turned on (`auto_done`, `rule`), and what failed. */
+/** The journal: everything the agent did after the user's yes (`done`) or by a bot they turned on (`auto_done`, `bot`), and what failed. */
 export const listHandled = (
   userId: string,
   since = subHours(new Date(), HANDLED_HOURS)
@@ -242,7 +258,7 @@ export const listHandled = (
         status: actions.status,
         title: actions.title,
       },
-      rule: rules.instruction,
+      bot: bots.instruction,
       message: {
         fromEmail: messages.fromEmail,
         fromName: messages.fromName,
@@ -255,7 +271,7 @@ export const listHandled = (
     .from(actions)
     .leftJoin(messages, eq(messages.id, actions.messageId))
     .leftJoin(analyses, eq(analyses.messageId, actions.messageId))
-    .leftJoin(rules, eq(rules.id, actions.ruleId))
+    .leftJoin(bots, eq(bots.id, actions.botId))
     .where(
       and(
         eq(actions.userId, userId),
@@ -839,16 +855,16 @@ export const getThread = async (userId: string, threadId: string) => {
   }
 
   const latest = rows.findLast(({ message }) => !message.isFromMe)?.message
-  const [zombie, [ruleSuggestion = null] = []] = await Promise.all([
+  const [zombie, [botSuggestion = null] = []] = await Promise.all([
     latest?.listUnsubscribe ? zombieStats(latest) : null,
-    latest ? ruleSuggestions(userId, latest.fromEmail) : undefined,
+    latest ? botSuggestions(userId, latest.fromEmail) : undefined,
     fillFromGmail(userId, threadId, rows),
   ])
 
   return {
     actions: threadActions,
     messages: rows,
-    ruleSuggestion,
+    botSuggestion,
     zombieShare:
       zombie && zombie.total >= 3 ? Math.round(zombie.share * 100) : null,
   }
@@ -1280,7 +1296,7 @@ const IGNORED_SENDER_EMAILS = 3
 const ignoredSender = sql`${messages.listUnsubscribe} is not null and (select count(*) >= ${IGNORED_SENDER_EMAILS} and count(*) filter (where ${isOpened(sameSender)}) <= 1 from ${messages} ${sameSender} where ${sameSender.userId} = ${messages.userId} and coalesce(${sameSender.listId}, ${sameSender.fromEmail}) = coalesce(${messages.listId}, ${messages.fromEmail}))`
 
 /**
- * Quiet mail the agent would archive, mark read or unsubscribe from that no rule covers: it waits on Home for one yes;
+ * Quiet mail the agent would archive, mark read or unsubscribe from, that no bot takes or a tidying bot asks about: it waits on Home for one yes;
  * an unsubscribe without the evidence above is offered as an archive. Only a thread's newest email, and never a thread
  * with a card or anything already done to that email.
  */
@@ -1309,6 +1325,13 @@ const tidyCandidates = (userId: string, where?: SQL) =>
         ),
         isNewestInThread,
         isUntouched,
+        or(
+          isNull(analyses.botId),
+          inArray(
+            analyses.botId,
+            db.select({ id: bots.id }).from(bots).where(eq(bots.effect, 'tidy'))
+          )
+        ),
         where
       )
     )
@@ -1346,13 +1369,14 @@ export const settleTidy = async (
     // oxlint-disable-next-line eslint/no-await-in-loop -- recorded right after its own Gmail change
     await db.insert(actions).values({
       autonomous: false,
+      botId: analysis.botId,
       kind,
       messageId: message.id,
       reason: analysis.reason,
       resolvedAt: new Date(),
       status,
       threadId: message.threadId,
-      title: t.rules.effect[kind],
+      title: t.bots.effect[kind],
       userId,
     })
     settled += 1
@@ -1375,15 +1399,16 @@ export const moveToInbox = async (userId: string, messageId: string) => {
   })
 }
 
-/** Blocking is a simple rule: future mail from the sender goes to the trash on every plan. */
+/** Blocking is a simple bot: future mail from the sender goes to the trash on every plan. */
 export const blockSender = async (userId: string, messageId: string) => {
   const message = await ownMessage(userId, messageId)
-  const rule = await createRule(userId, {
+  const bot = await createBot(userId, {
     effect: 'trash',
     match: { field: 'from', value: message.fromEmail },
+    name: message.fromName ?? message.fromEmail,
   })
   await trashMessage(userId, messageId)
-  return { ruleId: rule.id }
+  return { botId: bot.id }
 }
 
 export const snoozeMessage = async (

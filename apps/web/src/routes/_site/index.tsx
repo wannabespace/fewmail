@@ -114,7 +114,7 @@ const LandingPage = () => {
 export const Route = createFileRoute('/_site/')({
   beforeLoad: () => {
     if (signedInStore.get()) {
-      throw redirect({ to: '/home' })
+      throw redirect({ to: '/mail' })
     }
   },
   component: LandingPage,

@@ -46,7 +46,7 @@ export const ja: Messages = {
     failed: '失敗',
     pending: '「ホーム」で待機中',
   },
-  byRule: 'ルールによる',
+  byBot: 'ボットによる',
   agent: {
     decideOnHome: 'ホームで決める',
     fromAgent: 'エージェントからの確認',
@@ -62,7 +62,7 @@ export const ja: Messages = {
       archive_thread: 'このスレッドをアーカイブしますか？',
       clear_out: '受信トレイからこれらのメールを片付けますか？',
       undo_clear_out: '片付けたメールをすべて受信トレイに戻しますか？',
-      create_rule: 'このルールを追加しますか？',
+      create_bot: 'このボットを作成しますか？',
       reply: 'この返信を送信しますか？',
       send_email: 'このメールを送信しますか？',
       snooze_thread: 'このスレッドをスヌーズしますか？',
@@ -87,7 +87,7 @@ export const ja: Messages = {
       clear_out: '受信トレイを片付け中',
       preview_clear_out: '受信トレイ全体を読み込み中',
       undo_clear_out: '片付けたメールを戻し中',
-      create_rule: 'ルールを追加中',
+      create_bot: 'ボットを作成中',
       dismiss_action: 'スキップ中',
       draft_reply: '返信を作成中',
       create_draft: '下書きを保存中',
@@ -96,10 +96,12 @@ export const ja: Messages = {
       get_today: '今日の状況を確認中',
       list_handled: '処理済みを確認中',
       list_mail: 'メールを検索中',
-      list_rules: 'ルールを確認中',
+      get_bot_chat: 'チャットを確認中',
+      list_bots: 'ボットを確認中',
       read_thread: 'スレッドを読込中',
       redraft_action: '下書きを書き直し中',
       refresh: '新着メールを確認中',
+      remind_later: 'リマインダーを設定中',
       send_email: '送信中',
       snooze_thread: 'スヌーズ中',
       unsubscribe: '配信停止中',
@@ -122,7 +124,7 @@ export const ja: Messages = {
       archive_thread: 'アーカイブ',
       clear_out: '片付ける',
       undo_clear_out: '戻す',
-      create_rule: '追加',
+      create_bot: '作成',
       reply: '送信',
       send_email: '送信',
       snooze_thread: 'スヌーズ',
@@ -431,7 +433,7 @@ export const ja: Messages = {
     block: '送信者をブロック',
     ignoresUnsubscribe: (name: string) => `${name} は配信停止を無視します`,
     ignoresUnsubscribeHint:
-      'Fewmail は配信停止を依頼しましたが、この送信者はそれでも送り続けることで知られています。今後このメールをゴミ箱に送りますか?ルールで元に戻せます。',
+      'Fewmail は配信停止を依頼しましたが、この送信者はそれでも送り続けることで知られています。今後このメールをゴミ箱に送りますか?ボットが行い、そのボットはホームで削除できます。',
     blocked: 'ブロックしました。今後のメールはゴミ箱に移動します。',
     forward: '転送',
     more: 'その他',
@@ -544,7 +546,6 @@ export const ja: Messages = {
     clearSearch: '検索をクリア',
     mail: 'メール',
     reading: 'リーディング',
-    rules: 'ルール',
     settings: '設定',
     syncFailed: 'Gmail の同期に失敗しました。再試行中',
     syncing: '受信トレイを読んでいます…',
@@ -614,48 +615,102 @@ export const ja: Messages = {
     followUp: 'フォローアップ',
     noReply: 'まだ返信なし',
   },
-  rules: {
-    deleted: 'ルールを削除しました',
-    add: 'ルールを追加',
-    count: (n: number) => `${n} 件のルール`,
-    delete: '削除',
-    describe: {
-      alwaysShow: '常に「ホーム」に残り、隠されない',
-      autonomous: '自動で実行し、対応済みに表示',
-      draft: '下書きが「ホーム」で待っています',
+  bots: {
+    chatMenu: 'チャットの操作',
+    clear: '履歴を消去',
+    clearConfirm: (name: string) => `${name}とのチャットを消去しますか？`,
+    clearHint:
+      'メッセージは完全に消えます。メールで行ったことと設定したリマインダーは残ります。',
+    cleared: '履歴を消去しました',
+    deleteFolder: 'フォルダを削除',
+    deleteFolderConfirm: (name: string) =>
+      `フォルダ「${name}」を削除しますか？`,
+    deleteFolderHint: '中のボットはフォルダの外に戻り、一覧に残ります。',
+    moveTo: 'フォルダへ移動',
+    newFolder: '新しいフォルダ',
+    noFolder: 'フォルダなし',
+    pin: '固定',
+    rename: '名前を変更',
+    renameFolder: 'フォルダ名を変更',
+    unpin: '固定を解除',
+    add: '新しいボット',
+    answering: '書いています…',
+    cancelReply: '返信をやめる',
+    cards: {
+      autoDone: (n: number) => `${n}通は自分で処理しました。`,
+      dismissed: (n: number) => `${n}通はあなたがスキップしました。`,
+      done: (n: number) => `${n}通はあなたの承認後に完了しました。`,
+      failed: (n: number) => `${n}通は Gmail に拒否されました。`,
+      pending: (n: number) => `${n}通があなたを待っています。`,
     },
+    composer: (name: string) => `${name}に担当のメールについて書く`,
+    copied: 'コピーしました',
+    copy: 'コピー',
+    created: 'ボットを作成しました。これから届く新着メールを読みます。',
+    delete: 'ボットを削除',
+    deleteConfirm: (name: string) => `${name}を削除しますか？`,
+    deleteHint:
+      'チャットも一緒に削除されます。メールはそのまま残り、同じような新着メールは Fewmail が受け持ちます。',
+    deleted: 'ボットを削除しました',
+    earlier: '以前のものを表示',
+    edit: 'ボットの設定',
     effect: {
-      trash: 'ゴミ箱に移動',
-      always_show: '見逃さない',
+      always_show: 'ホームに残す',
       archive: 'アーカイブする',
+      collect: 'まとめておくだけ',
       draft_reply: '返信を下書きする',
       mark_read: '既読にする',
+      tidy: '片付ける',
+      trash: 'ゴミ箱に移動',
       unsubscribe: '配信停止する',
     },
-    enabled: 'ルールを有効化',
-    lead: '特定のメールをどう扱うか、普段の言葉でエージェントに伝えてください。エージェントはすべてのメールを、これらのルールに照らし合わせます。',
-    newTitle: '新しいルールを教える',
-    leadFree:
-      'アーカイブ、既読、配信停止を自動で行います。ルールは新しいメールが届いた瞬間に適用されます。',
+    empty: 'まだ何もありません。担当のメールが届いたら、ここに書きます。',
+    enabled: '自分で実行',
+    enabledHint: {
+      off: 'オフのときは、メールごとに先にあなたの承認を求めます。',
+      on: 'オンのときは確認せずに動きます。行ったことはすべてチャットに表示されます。',
+    },
+    instruction: '担当するメールと、その扱い',
+    instructionPlaceholder:
+      '例：Hetzner からの請求書は既読にする、LinkedIn の通知はアーカイブする',
+    mute: 'ミュート',
+    muted: 'ミュート中：このボットからの通知はありません',
+    name: '名前',
+    namePlaceholder: '例：請求書',
+    noPlan:
+      'お返事できません。無料プランでは会話に使うトークンがないためです。登録してもらえれば、いつでもお相手します。',
+    now: '対応待ち',
+    nudge: {
+      noReply: 'そのスレッドにはまだ返信がありません。',
+      replied: 'その後、そのスレッドに返信が届きました。',
+    },
+    promises: (n: number) => `約束を${n}件書き留めました。`,
+    react: 'リアクション',
+    reaction: 'リアクション',
+    reply: '返信',
+    save: '保存',
+    saved: '保存しました',
     simple: {
-      appliedAutomatically: '新しいメールに自動で適用されます',
-      field: {
-        from: '差出人',
-        mailingList: 'すべてのメーリングリスト',
-        subject: '件名に含む',
-      },
       title: {
         from: (value: string) => `差出人「${value}」`,
         mailingList: () => 'すべてのメーリングリスト',
         subject: (value: string) => `件名に「${value}」を含む`,
       },
-      valuePlaceholder: 'anna@example.com、名前、または単語',
-      whichField: '条件',
     },
-    placeholder: '例：Hetzner からの請求書、LinkedIn の通知',
-    title: 'ルール',
-    whatAgentDoes: 'エージェントの動作',
-    whichEmails: '対象のメール',
+    spent: (date: string) =>
+      `${date}までお返事できません。今月の利用枠を使い切りました。`,
+    steps: (n: number) => `${n} ステップ`,
+    subscribe: '登録する',
+    system: { board: 'ボード', fewmail: 'Fewmail Bot' },
+    systemJob: {
+      board: '私が見守っている約束と期限',
+      fewmail: 'ボットを作り、メールを探し、質問に答えます',
+    },
+    title: 'ボット',
+    toLatest: '最新へ',
+    unmute: 'ミュート解除',
+    whatItDoes: 'メールをどうするか',
+    you: 'あなた',
   },
   settings: {
     disconnectConfirm: (name: string) => `${name}の接続を解除しますか？`,
@@ -693,7 +748,7 @@ export const ja: Messages = {
     deleteAccount: 'アカウントを削除',
     deleteConfirm: 'すべて削除',
     deleteDescription:
-      'アカウント、同期したメール、下書き、ルールを Fewmail からすぐに削除します。Gmail 自体には影響しません。有料プランはすぐに解約されます。',
+      'アカウント、同期したメール、下書き、ボットを Fewmail からすぐに削除します。Gmail 自体には影響しません。有料プランはすぐに解約されます。',
     deleteFailed:
       'アカウントは削除されませんでした。少し待ってからもう一度お試しください。',
     deleteSignIn:
@@ -866,7 +921,7 @@ export const ja: Messages = {
             'その日のメルマガを、トピックごとの 1 つの要約に。各文にはもとのメールへのリンクがつきます。',
           title: 'メルマガを 1 つの要約に',
         },
-        rules: {
+        bots: {
           description:
             '一部のメールをどうしたいか一文で書けば、それがルールになります。自動で動くのは、あなたがオンにしたルールだけです。',
           title: '普段の言葉で書くルール',
@@ -936,7 +991,7 @@ export const ja: Messages = {
         outlook: 'Outlook と Microsoft 365',
         phishing: 'フィッシングと支払い先変更の警告',
         phone: 'スマートフォンで',
-        rules: '普段の言葉で書くルール',
+        bots: '普段の言葉で書くルール',
         snooze: 'スヌーズ',
         spamShield: 'コミュニティ迷惑メールシールド',
         summaries: 'メールの要約',
@@ -957,7 +1012,7 @@ export const ja: Messages = {
         mcp: 'Pro で',
         memory: 'Pro で',
         phone: 'Telegram と WhatsApp、音声も、Pro で',
-        rules: 'アーカイブ、既読、配信停止、無料',
+        bots: 'アーカイブ、既読、配信停止、無料',
         summaries: 'Pro で',
         unsubscribe: '無視する送信者は迷惑メールへ',
       },
@@ -987,7 +1042,7 @@ export const ja: Messages = {
           keepApp: 'フォルダを通して動作',
           otherProviders: 'あらゆる IMAP または Exchange サーバー',
           phone: 'メールアプリを通して',
-          rules: 'フォルダ間でメールを動かして学習',
+          bots: 'フォルダ間でメールを動かして学習',
           snooze: 'Lunch から',
           summaries: 'SaneSummary、Dinner で',
           unsubscribe: 'SaneBlackHole フォルダ',
@@ -1014,7 +1069,7 @@ export const ja: Messages = {
           otherProviders: 'Gmail に転送して',
           outlook: 'Microsoft 365 は非対応',
           phone: 'iOS と Android アプリ',
-          rules: 'AI フィルター、プランにより 3〜50 個',
+          bots: 'AI フィルター、プランにより 3〜50 個',
           summaries: 'すべてのメールの上部に',
           teams: '共有スレッドとコメント',
           unsubscribe: 'ワンクリックのブロック付き',
@@ -1038,7 +1093,7 @@ export const ja: Messages = {
           keepApp: 'メールアプリを置き換える',
           mcp: 'Business で',
           phone: 'iOS と Android アプリ',
-          rules: 'Custom Auto Labels、Business で',
+          bots: 'Custom Auto Labels、Business で',
           spamShield: 'メールプロバイダーのフィルター',
           summaries: 'Auto Summarize',
           teams: '共有下書きとコメント',
@@ -1361,13 +1416,22 @@ export const ja: Messages = {
     },
     showImages: '画像を表示',
   },
-  starterRules: {
-    alwaysShow:
-      'セキュリティ警告、支払期限のある請求書、銀行や行政機関からのあらゆるメール',
-    newsletters: 'ニュースレターとダイジェスト',
-    notifications: 'ツールやサービスからの自動通知',
-    promotions: 'プロモーション、マーケティング、営業の売り込みメール',
-    receipts: '領収書、注文確認、発送通知',
+  starterBots: {
+    important: {
+      instruction:
+        '自分の対応が必要なもの：返信を待っている人、支払期限の来た請求書、セキュリティ警告、銀行や役所からのものすべて。ホームに残す',
+      name: '重要',
+    },
+    later: {
+      instruction:
+        '知っておきたいが判断はいらないもの：使っているサービスからのお知らせ、配送、イベントや日付',
+      name: 'あとで',
+    },
+    quick: {
+      instruction:
+        '読まずに片付けるノイズ：通知、領収書、ニュースレター、プロモーション、営業メール。片付ける：アーカイブ、既読、配信停止のうち合うものを',
+      name: 'すぐ済む',
+    },
   },
   telegram: {
     approveAlike: '同じ種類のカードをまとめて承認：',
@@ -1410,14 +1474,12 @@ export const ja: Messages = {
   },
   today: {
     working: '処理中…',
-    ruleSuggestion: {
+    botSuggestion: {
       done: {
-        archive:
-          'この送信者からの新しいメールはアーカイブされます。ルールで変更できます。',
-        mark_read:
-          'この送信者からの新しいメールは既読になります。ルールで変更できます。',
+        archive: '今後、この送信者のメールは新しいボットがアーカイブします。',
+        mark_read: '今後、この送信者のメールは新しいボットが既読にします。',
       },
-      label: 'おすすめのルール',
+      label: 'おすすめのボット',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
           ? `今月${count}通、エージェントはすべてのアーカイブを提案しています`
@@ -1428,16 +1490,9 @@ export const ja: Messages = {
         mark_read: '常に既読にする',
       },
     },
-    ruleOffer: {
-      lead: 'エージェントが該当するメールに自動でこれを行えます。「はい」と言うまでオフのままです。',
-      no: 'オフのまま',
-      turnedOn: 'オンにしました。ルールで変更できます。',
-      yes: 'オンにする',
-    },
     newSender: {
       archive: '常にアーカイブ',
-      archived:
-        'この送信者からの新しいメールはアーカイブされます。「ルール」で変更できます。',
+      archived: '今後、この送信者のメールは新しいボットがアーカイブします。',
       keep: 'いつも通り残す',
       label: '新しい送信者',
       lead: (count: number, opened: number) =>
@@ -1450,13 +1505,13 @@ export const ja: Messages = {
       '新しいメールは引き続き読んでいます。対応が必要なものはここに表示されます。',
     allowanceSpent: (date: string) =>
       `今月のエージェント利用枠を使い切りました。要約と下書きは ${date} に戻ります。それまでも約束と期限は記録し続けます。`,
-    byRules: (n: number) => `${n}件はルールで処理しました。`,
+    byBots: (n: number) => `${n}件はボットが処理しました。`,
     decisions: '決めること',
     journal: {
       approved: 'あなたが承認',
-      byRule: (rule: string) => `あなたのルール：${rule}`,
+      byBot: (bot: string) => `あなたのボット：${bot}`,
       failed: 'うまくいきませんでした',
-      lead: '直近7日間。メールやカレンダーの変更はすべて、あなたの承認か、あなたがオンにしたルールによるものです。',
+      lead: '直近7日間。メールやカレンダーの変更はすべて、あなたの承認か、自分で実行するよう任せたボットによるものです。',
       title: 'メールで行ったこと',
     },
     progress: (done: number, total: number) => `${done} / ${total}`,
@@ -1484,11 +1539,11 @@ export const ja: Messages = {
     },
     improve: {
       empty: {
-        lead: '同じ送信者のメールをいつも同じように扱っていると、エージェントがここでルールを提案します。',
+        lead: '同じ送信者のメールをいつも同じように扱っていると、エージェントがここでボットを提案します。',
         title: '今は提案がありません。',
       },
       lead: (total: number) =>
-        `エージェントが代わりに実行できるルールが${total}件あります。`,
+        `エージェントが作成できるボットが${total}件あります。`,
       title: 'エージェントからの提案',
     },
     quick: 'すぐ済むもの',
@@ -1652,7 +1707,7 @@ export const ja: Messages = {
     empty: 'まだ振り返るほどメールがありません。数日後にまた見てください。',
     handled: '通のメールを Fewmail が処理',
     handledHint:
-      'Fewmail はあなたの承認なしに Gmail を変更しません。ルールをオンにすると、こうしたメールを自動で処理します。',
+      'Fewmail はあなたの承認なしに Gmail を変更しません。ボットに自分で実行するよう任せると、こうしたメールを代わりに処理します。',
     people: 'よく届いた相手',
     period: { month: '今月', year: '今年' },
     replies: 'Fewmail が下書きして送信した返信',
@@ -1716,6 +1771,7 @@ export const ja: Messages = {
     hints: {
       board:
         'Fewmail Pro に含まれます。エージェントがメールから、あなたへの約束、あなたの約束、期限を書き留め、完了するまで見守ります。',
+      chat: 'Fewmail Pro の機能です。ボットと担当のメールについて話せて、ボットは約束したときにあなたのもとへ戻ってきます。',
       drafts:
         'Fewmail Pro の機能です。エージェントがあなたの文体で返信を書き、あなたが編集して送信します。',
     },

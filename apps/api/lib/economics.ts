@@ -7,6 +7,9 @@
 import process from 'node:process'
 
 import {
+  BOT_HISTORY,
+  BOT_MESSAGE_CHARS,
+  BOT_REPLY_QUOTE_CHARS,
   PAID_PLANS,
   PLAN_ALLOWANCE_USD,
   PRICE_USD,
@@ -28,7 +31,12 @@ import {
   SENT_EXAMPLE_CHARS,
   SENT_EXAMPLES,
 } from '../services/agent'
-import { agentInstructions, MAX_STEPS } from '../services/agent-run'
+import {
+  agentInstructions,
+  BOT_REACT_TOOL,
+  botScope,
+  MAX_STEPS,
+} from '../services/agent-run'
 import { agentTools } from '../services/agent-tools'
 import { BODY_LIMIT as ASK_BODY_LIMIT, SOURCE_LIMIT } from '../services/ask'
 import { MAX_FILES, TEXT_CHARS } from '../services/attachments'
@@ -37,6 +45,11 @@ import {
   FIM_MODEL,
   MAX_TOKENS as FIM_OUTPUT_TOKENS,
 } from '../services/autocomplete'
+import {
+  INTRO_FROM_PEOPLE,
+  INTRO_INSTRUCTIONS,
+  INTRO_SENT,
+} from '../services/bot-chat'
 import {
   ACTION_CRITERIA,
   CATEGORY_CRITERIA,
@@ -151,6 +164,9 @@ const READING_SUMMARY_OUTPUT_TOKENS = 600
 const NOTE_PROMPT_CHARS = 12 * 200 + 400
 const NOTE_OUTPUT_TOKENS = 120
 const VOICE_OUTPUT_TOKENS = 250
+/** Subject and summary of one email from a person in Fewmail's first words. */
+const INTRO_CHARS_EACH = 450
+const INTRO_OUTPUT_TOKENS = 200
 const COMPLETION_PREFIX_CHARS = 1000
 const DAYS = 30
 
@@ -176,8 +192,8 @@ export interface Use {
   newslettersPerDay: number
   notes: number
   promisedShare: number
-  ruleChars: number
-  rules: number
+  botChars: number
+  bots: number
   sent: number
   spokenChars: number
   spokenReplies: number
@@ -208,8 +224,8 @@ export const TYPICAL: Use = {
   newslettersPerDay: 8,
   notes: 20,
   promisedShare: 0.2,
-  ruleChars: 80,
-  rules: 5,
+  botChars: 80,
+  bots: 5,
   sent: 150,
   spokenChars: 600,
   spokenReplies: 20,
@@ -224,7 +240,9 @@ export const HEAVY: Use = {
   analyzedShare: 1,
   attachedShare: 1,
   bodyChars: BODY_LIMIT,
-  chatHistoryTokens: 30_000,
+  chatHistoryTokens: instructionTokens(
+    BOT_HISTORY.chars + BOT_MESSAGE_CHARS + BOT_REPLY_QUOTE_CHARS
+  ),
   chatSteps: MAX_STEPS,
   completions: 3000,
   draftedShare: 1,
@@ -241,8 +259,8 @@ export const HEAVY: Use = {
   newslettersPerDay: READING_SHOWN,
   notes: 100,
   promisedShare: 0.5,
-  ruleChars: 200,
-  rules: 30,
+  botChars: 200,
+  bots: 30,
   sent: 600,
   spokenChars: SPEECH_CHARS,
   spokenReplies: 300,
@@ -265,10 +283,10 @@ const threadChars = (use: Use) =>
   use.bodyChars +
   HEADER_CHARS
 
-const fakeRules = (use: Use) =>
-  Array.from({ length: use.rules }, (_, index) => ({
-    id: `rule_${index}`,
-    instruction: 'x'.repeat(use.ruleChars),
+const fakeBots = (use: Use) =>
+  Array.from({ length: use.bots }, (_, index) => ({
+    id: `bot_${index}`,
+    instruction: 'x'.repeat(use.botChars),
   }))
 
 const criteriaChars = JSON.stringify([
@@ -285,7 +303,7 @@ export const inboundJevCost = (use: Use) =>
     JEV_MODEL_ID,
     mailTokens(threadChars(use)) +
       instructionTokens(
-        criteriaChars + JEV_QUESTION_CHARS + use.rules * use.ruleChars
+        criteriaChars + JEV_QUESTION_CHARS + use.bots * use.botChars
       ) +
       mailTokens(Math.min(use.bodyChars, RISK_BODY_CHARS)) +
       instructionTokens(RISK_QUESTION_CHARS),
@@ -318,7 +336,7 @@ const linkCost = (use: Use) =>
 export const analyzedEmailCost = (use: Use) => {
   const instructions = analyzeInstructions({
     language: 'en',
-    rules: fakeRules(use),
+    bots: fakeBots(use),
     timezone: 'Europe/Kyiv',
     userEmail: 'someone@example.com',
   })
@@ -341,7 +359,10 @@ export const analyzedEmailCost = (use: Use) => {
 }
 
 const toolsChars = JSON.stringify(
-  Object.entries(agentTools('economics')).map(([name, tool]) => ({
+  Object.entries({
+    ...agentTools('economics'),
+    react: BOT_REACT_TOOL,
+  }).map(([name, tool]) => ({
     description: tool.description,
     input: z.toJSONSchema(z.object(tool.input ?? {})),
     name,
@@ -359,8 +380,15 @@ const chatCost = (use: Use) => {
     language: 'en',
     timezone: 'UTC',
   })
+  const scope = botScope('bot', {
+    effect: 'collect',
+    instruction: 'x'.repeat(use.botChars),
+    match: null,
+    name: 'x'.repeat(60),
+  })
   const perStep =
-    instructionTokens(instructions.length + toolsChars) + use.chatHistoryTokens
+    instructionTokens(instructions.length + scope.length + toolsChars) +
+    use.chatHistoryTokens
   const growth = use.toolResultTokens + CHAT_STEP_OUTPUT_TOKENS
   const steps = use.chatSteps
   const written = perStep + growth * (steps - 1)
@@ -414,10 +442,21 @@ const issueCost = (use: Use) =>
     READING_SUMMARY_OUTPUT_TOKENS
   )
 
-/** Once, at sign-up: Jev on the week's candidates (all `FIRST_WEEK_LIMIT` of them at worst) and, with the agent, a week of issues. */
+/** Fewmail's first words, once: who the user seems to be from their sent mail and the mail from people. */
+const introCost = () =>
+  llm(
+    FAST_MODEL_ID,
+    instructionTokens(INTRO_INSTRUCTIONS.length) +
+      mailTokens(
+        INTRO_SENT * SENT_EXAMPLE_CHARS + INTRO_FROM_PEOPLE * INTRO_CHARS_EACH
+      ),
+    INTRO_OUTPUT_TOKENS
+  )
+
+/** Once, at sign-up: Jev on the week's candidates (all `FIRST_WEEK_LIMIT` of them at worst) and, with the agent, a week of issues and Fewmail's first words. */
 export const firstWeekCost = (use: Use, agent: boolean) =>
   FIRST_WEEK_LIMIT * inboundJevCost(use) +
-  (agent ? FIRST_ISSUE_DAYS * issueCost(use) : 0)
+  (agent ? FIRST_ISSUE_DAYS * issueCost(use) + introCost() : 0)
 
 /** What no plan limit counts: Jev on all mail for everyone, and for the agent the digest, promises, notes, the user's style and autocomplete. */
 export const backgroundCost = (use: Use, agent: boolean) => {

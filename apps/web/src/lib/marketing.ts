@@ -10,7 +10,7 @@ export const PLANS = [
 ] as const
 
 export const COMPARISON_GROUPS = {
-  day: ['home', 'importance', 'rules', 'snooze', 'followUps', 'calendar'],
+  day: ['home', 'importance', 'bots', 'snooze', 'followUps', 'calendar'],
   agent: ['drafts', 'summaries', 'ask', 'handOver', 'memory', 'mcp'],
   safety: ['unsubscribe', 'spamShield', 'phishing'],
   reach: ['gmail', 'outlook', 'otherProviders', 'keepApp', 'phone', 'teams'],
@@ -73,7 +73,7 @@ export const COMPARISONS = [
   },
   {
     lacks: [
-      'rules',
+      'bots',
       'calendar',
       'ask',
       'handOver',

@@ -61,7 +61,7 @@ export const tr: Messages = {
       archive_thread: 'Bu yazışma arşivlensin mi?',
       clear_out: 'Bu e-posta grupları gelen kutusundan temizlensin mi?',
       undo_clear_out: 'Temizlenen her şey gelen kutusuna geri dönsün mü?',
-      create_rule: 'Bu kural eklensin mi?',
+      create_bot: 'Bu bot oluşturulsun mu?',
       reply: 'Bu yanıt gönderilsin mi?',
       send_email: 'Bu e-posta gönderilsin mi?',
       snooze_thread: 'Bu yazışma ertelensin mi?',
@@ -86,7 +86,7 @@ export const tr: Messages = {
       clear_out: 'Gelen kutusu temizleniyor',
       preview_clear_out: 'Tüm gelen kutusu okunuyor',
       undo_clear_out: 'Temizlenen e-postalar geri getiriliyor',
-      create_rule: 'Kural ekleniyor',
+      create_bot: 'Bot oluşturuluyor',
       dismiss_action: 'Atlanıyor',
       draft_reply: 'Yanıt yazılıyor',
       create_draft: 'Taslak kaydediliyor',
@@ -95,10 +95,12 @@ export const tr: Messages = {
       get_today: 'Bugün kontrol ediliyor',
       list_handled: 'Halledilenlere bakılıyor',
       list_mail: 'E-postalarda aranıyor',
-      list_rules: 'Kurallar okunuyor',
+      get_bot_chat: 'Sohbet okunuyor',
+      list_bots: 'Botların okunuyor',
       read_thread: 'Yazışma okunuyor',
       redraft_action: 'Taslak yeniden yazılıyor',
       refresh: 'Yeni e-postalar alınıyor',
+      remind_later: 'Hatırlatıcı kuruluyor',
       send_email: 'Gönderiliyor',
       snooze_thread: 'Erteleniyor',
       unsubscribe: 'Abonelik iptal ediliyor',
@@ -121,7 +123,7 @@ export const tr: Messages = {
       archive_thread: 'Arşivle',
       clear_out: 'Temizle',
       undo_clear_out: 'Geri getir',
-      create_rule: 'Ekle',
+      create_bot: 'Bot oluştur',
       reply: 'Gönder',
       send_email: 'Gönder',
       snooze_thread: 'Ertele',
@@ -133,7 +135,7 @@ export const tr: Messages = {
       move_to_inbox: 'Geri taşı',
     },
   },
-  byRule: 'bir kuralla',
+  byBot: 'bir botla',
   bulk: {
     badge: (n: number) => `${n}+ Fewmail kullanıcısına gönderildi`,
     reason: (n: number) =>
@@ -287,7 +289,7 @@ export const tr: Messages = {
       'Hikâye için henüz yeterli e-posta yok. Birkaç gün sonra tekrar gel.',
     handled: 'e-postayı Fewmail halletti',
     handledHint:
-      "Fewmail onayın olmadan Gmail'de hiçbir şeyi değiştirmez. Bir kural aç, bu tür postaları kendisi halletsin.",
+      'Fewmail onayın olmadan Gmail’de hiçbir şeyi değiştirmez. Bir botun kendi başına çalışmasına izin ver, bu tür postaları senin için halletsin.',
     people: 'En çok kim yazdı',
     period: { month: 'Bu ay', year: 'Bu yıl' },
     replies: 'yanıtı Fewmail yazdı ve gönderildi',
@@ -571,7 +573,7 @@ export const tr: Messages = {
     ignoresUnsubscribe: (name: string) =>
       `${name} abonelikten çıkmayı yok sayıyor`,
     ignoresUnsubscribeHint:
-      "Fewmail abonelikten çıkmayı istedi ama bu gönderenin yine de yazmaya devam ettiği biliniyor. Postaları bundan sonra çöp kutusuna gitsin mi? Kurallar'dan geri alabilirsin.",
+      'Fewmail abonelikten çıkmayı istedi ama bu gönderenin yine de yazmaya devam ettiği biliniyor. Postaları bundan sonra çöp kutusuna gitsin mi? Bunu bir bot yapar, onu da Ana Sayfa’dan silebilirsin.',
     blocked: 'Engellendi. E-postaları artık çöpe gidiyor.',
     forward: 'İlet',
     more: 'Daha fazla',
@@ -686,7 +688,6 @@ export const tr: Messages = {
     clearSearch: 'Aramayı temizle',
     mail: 'Posta',
     reading: 'Okuma',
-    rules: 'Kurallar',
     settings: 'Ayarlar',
     syncFailed: 'Gmail eşitlemesi başarısız, yeniden deneniyor',
     syncing: 'Gelen kutun okunuyor…',
@@ -785,49 +786,124 @@ export const tr: Messages = {
       `${domain} adresinden yeni ödeme bilgileri. Ödemeden önce telefonla teyit et.`,
     title: 'Harekete geçmeden önce kontrol et',
   },
-  rules: {
-    deleted: 'Kural silindi',
-    add: 'Kural ekle',
-    count: (total: number) =>
-      plural('tr', total, { other: (n) => `${n} kural` }),
-    delete: 'Sil',
-    describe: {
-      alwaysShow: 'Her zaman Ana Sayfa’da kalır, asla gizlenmez',
-      autonomous: 'Kendiliğinden yapılır, halledilenlerde listelenir',
-      draft: 'Bir taslak Ana Sayfa’da seni bekler',
+  bots: {
+    chatMenu: 'Sohbet işlemleri',
+    clear: 'Geçmişi temizle',
+    clearConfirm: (name: string) => `${name} ile sohbet temizlensin mi?`,
+    clearHint:
+      'Mesajları kalıcı olarak silinir. Postanda yaptıkları ve kurduğu hatırlatmalar kalır.',
+    cleared: 'Geçmiş temizlendi',
+    deleteFolder: 'Klasörü sil',
+    deleteFolderConfirm: (name: string) => `${name} klasörü silinsin mi?`,
+    deleteFolderHint: 'İçindeki botlar listede, klasör dışında kalır.',
+    moveTo: 'Klasöre taşı',
+    newFolder: 'Yeni klasör',
+    noFolder: 'Klasör yok',
+    pin: 'Sabitle',
+    rename: 'Yeniden adlandır',
+    renameFolder: 'Klasörü yeniden adlandır',
+    unpin: 'Sabitlemeyi kaldır',
+    add: 'Yeni bot',
+    answering: 'Yazıyorum…',
+    cancelReply: 'Yanıtı iptal et',
+    cards: {
+      autoDone: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `${count} tanesini kendim yaptım.`,
+        }),
+      dismissed: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `${count} tanesini atladın.`,
+        }),
+      done: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `${count} tanesi onayından sonra yapıldı.`,
+        }),
+      failed: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `Gmail ${count} tanesini reddetti.`,
+        }),
+      pending: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `${count} tanesi seni bekliyor.`,
+        }),
     },
+    composer: (name: string) => `Postaları hakkında ${name} botuna yaz`,
+    copied: 'Kopyalandı',
+    copy: 'Kopyala',
+    created: 'Bot oluşturuldu. Bundan sonra yeni postaları okuyor.',
+    delete: 'Botu sil',
+    deleteConfirm: (name: string) => `${name} silinsin mi?`,
+    deleteHint:
+      'Sohbeti de onunla birlikte gider. Postaları olduğu yerde kalır, benzer yeni postalar Fewmail’e gider.',
+    deleted: 'Bot silindi',
+    earlier: 'Öncekileri göster',
+    edit: 'Bot ayarları',
     effect: {
-      always_show: 'Kaçırma',
+      always_show: 'Ana Sayfa’da tut',
       archive: 'Arşivle',
+      collect: 'Sadece topla',
       draft_reply: 'Yanıt taslağı hazırla',
       mark_read: 'Okundu olarak işaretle',
+      tidy: 'Toparla',
       trash: 'Çöpe taşı',
       unsubscribe: 'Abonelikten çık',
     },
-    enabled: 'Kural etkin',
-    lead: 'Ajana belirli postalarla ne yapacağını sade bir dille anlat. Her e-postayı bu kurallarla karşılaştırır.',
-    newTitle: 'Yeni kural öğret',
-    leadFree:
-      'Otomatik olarak arşivle, okundu olarak işaretle veya abonelikten çık. Kurallar yeni e-postalara geldiği anda uygulanır.',
-    placeholder: 'örn. Hetzner faturaları veya LinkedIn bildirimleri',
+    empty:
+      'Burada henüz bir şey yok. Bana ait bir posta gelince buraya yazarım.',
+    enabled: 'Kendi başına yapar',
+    enabledHint: {
+      off: 'Kapalıyken her e-posta için önce onayını ister.',
+      on: 'Açıkken sormadan iş görür; yaptığı her şey sohbetinde görünür.',
+    },
+    instruction: 'Hangi e-postalar ve onlarla ne yapacağı',
+    instructionPlaceholder:
+      'örn. Hetzner faturalarını okundu say veya LinkedIn bildirimlerini arşivle',
+    mute: 'Sessize al',
+    muted: 'Sessizde: bu bottan bildirim gelmez',
+    name: 'Ad',
+    namePlaceholder: 'örn. Faturalar',
+    noPlan:
+      'Sana yanıt veremem: ücretsiz planda sohbet için tokenim yok. Abone ol, tamamen seninim.',
+    now: 'Şimdi bekleyenler',
+    nudge: {
+      noReply: 'O yazışmada henüz yanıt yok.',
+      replied: 'O zamandan beri o yazışmaya bir yanıt geldi.',
+    },
+    promises: (n: number) =>
+      plural('tr', n, {
+        other: (count) => `${count} sözü not ettim.`,
+      }),
+    react: 'Tepki ver',
+    reaction: 'Tepki',
+    reply: 'Yanıtla',
+    save: 'Kaydet',
+    saved: 'Kaydedildi',
     simple: {
-      appliedAutomatically: 'Yeni e-postalara otomatik uygulanır',
-      field: {
-        from: 'Gönderen',
-        mailingList: 'Herhangi bir e-posta listesi',
-        subject: 'Konu şunu içerir',
-      },
       title: {
         from: (value: string) => `Gönderen: “${value}”`,
         mailingList: () => 'Herhangi bir e-posta listesi',
         subject: (value: string) => `Konu “${value}” içerir`,
       },
-      valuePlaceholder: 'anna@example.com, bir ad veya bir sözcük',
-      whichField: 'Eşleştirme ölçütü',
     },
-    title: 'Kurallar',
-    whatAgentDoes: 'Ajan ne yapar',
-    whichEmails: 'Hangi e-postalar',
+    spent: (date: string) =>
+      `${date} tarihine kadar yanıt veremem: bu ayın kullanım hakkı bitti.`,
+    steps: (n: number) =>
+      plural('tr', n, {
+        one: () => 'Bir adım',
+        other: (count) => `${count} adım`,
+      }),
+    subscribe: 'Abone ol',
+    system: { board: 'Pano', fewmail: 'Fewmail Bot' },
+    systemJob: {
+      board: 'Takip ettiğim sözler ve son tarihler',
+      fewmail: 'Botlarını oluşturur, e-postaları bulur ve soruları yanıtlar',
+    },
+    title: 'Botlar',
+    toLatest: 'En yeniye git',
+    unmute: 'Sesi aç',
+    whatItDoes: 'Onlarla ne yapacağı',
+    you: 'Sen',
   },
   settings: {
     disconnectConfirm: (name: string) => `${name} bağlantısı kesilsin mi?`,
@@ -846,7 +922,7 @@ export const tr: Messages = {
     deleteAccount: 'Hesabı sil',
     deleteConfirm: 'Her şeyi sil',
     deleteDescription:
-      'Hesabını, eşitlenen postaları, taslakları ve kuralları Fewmail’den hemen siler. Gmail’ine dokunulmaz. Ücretli plan hemen iptal edilir.',
+      'Hesabını, eşitlenen postaları, taslakları ve botları Fewmail’den hemen siler. Gmail’ine dokunulmaz. Ücretli plan hemen iptal edilir.',
     deleteFailed: 'Hesap silinmedi. Bir dakika sonra yeniden dene.',
     deleteSignIn:
       'Sen olduğunu doğrulamak için Google ile yeniden giriş yap, sonra hesabı sil.',
@@ -1035,7 +1111,7 @@ export const tr: Messages = {
             'Günün bültenleri konulara göre tek bir özete dönüşür; her cümle geldiği e-postaya bağlanır.',
           title: 'Bültenler tek bir özette',
         },
-        rules: {
+        bots: {
           description:
             'Bazı postalara ne olması gerektiğini tek cümleyle anlat, bir kurala dönüşsün. Yalnızca senin açtığın kurallar kendi başına çalışır.',
           title: 'Sade sözlerle kurallar',
@@ -1106,7 +1182,7 @@ export const tr: Messages = {
         outlook: 'Outlook ve Microsoft 365',
         phishing: 'Oltalama ve ödeme değişikliği uyarıları',
         phone: 'Telefonunda',
-        rules: 'Sade dille kurallar',
+        bots: 'Sade dille kurallar',
         snooze: 'Erteleme',
         spamShield: 'Topluluk spam kalkanı',
         summaries: 'E-posta özetleri',
@@ -1127,7 +1203,7 @@ export const tr: Messages = {
         mcp: 'Pro’da',
         memory: 'Pro’da',
         phone: 'Telegram ve WhatsApp, sesle, Pro’da',
-        rules: 'Arşivle, okundu işaretle veya abonelikten çık, ücretsiz',
+        bots: 'Arşivle, okundu işaretle veya abonelikten çık, ücretsiz',
         summaries: 'Pro’da',
         unsubscribe: 'Bunu yok sayan gönderenler spama gider',
       },
@@ -1157,7 +1233,7 @@ export const tr: Messages = {
           keepApp: 'Klasörler üzerinden çalışır',
           otherProviders: 'Herhangi bir IMAP veya Exchange sunucusu',
           phone: 'E-posta uygulaman üzerinden',
-          rules: 'Postaları klasörler arasında taşıyarak eğitme',
+          bots: 'Postaları klasörler arasında taşıyarak eğitme',
           snooze: 'Lunch’tan itibaren',
           summaries: 'SaneSummary, Dinner’da',
           unsubscribe: 'SaneBlackHole klasörü',
@@ -1184,7 +1260,7 @@ export const tr: Messages = {
           otherProviders: 'Gmail’e yönlendirilir',
           outlook: 'Microsoft 365 desteklenmez',
           phone: 'iOS ve Android uygulamaları',
-          rules: 'AI filtreleri, plana göre 3 ile 50 arası',
+          bots: 'AI filtreleri, plana göre 3 ile 50 arası',
           summaries: 'Her e-postanın üstünde',
           teams: 'Paylaşılan yazışmalar ve yorumlar',
           unsubscribe: 'Tek tıkla engellemeyle',
@@ -1209,7 +1285,7 @@ export const tr: Messages = {
           keepApp: 'E-posta uygulamanın yerini alır',
           mcp: 'Business’ta',
           phone: 'iOS ve Android uygulamaları',
-          rules: 'Custom Auto Labels, Business’ta',
+          bots: 'Custom Auto Labels, Business’ta',
           spamShield: 'Sağlayıcının filtresi',
           summaries: 'Auto Summarize',
           teams: 'Paylaşılan taslaklar ve yorumlar',
@@ -1530,13 +1606,22 @@ export const tr: Messages = {
     },
     showImages: 'Görselleri göster',
   },
-  starterRules: {
-    alwaysShow:
-      'Güvenlik uyarıları, ödeme tarihi gelen faturalar, bankamdan veya devletten gelen her şey',
-    newsletters: 'Bültenler ve özet e-postalar',
-    notifications: 'Araç ve hizmetlerden gelen otomatik bildirimler',
-    promotions: 'Promosyonlar, pazarlama ve istenmeyen satış e-postaları',
-    receipts: 'Makbuzlar, sipariş ve kargo onayları',
+  starterBots: {
+    important: {
+      instruction:
+        'Benden bir adım bekleyenler: yanıtımı bekleyen kişiler, ödemesi gelen faturalar, güvenlik uyarıları, bankamdan ya da devletten gelen her şey. Ana Sayfa’da tut',
+      name: 'Önemli',
+    },
+    later: {
+      instruction:
+        'Bilmeye değer ama karar gerektirmeyenler: kullandığım hizmetlerden haberler, teslimatlar, etkinlikler ve tarihler',
+      name: 'Bekleyebilir',
+    },
+    quick: {
+      instruction:
+        'Okumadan temizleyeceğim gürültü: bildirimler, makbuzlar, bültenler, kampanyalar ve tanımadığım yerlerden satış e-postaları. Toparla: arşivle, okundu olarak işaretle ya da abonelikten çık, hangisi uyarsa',
+      name: 'Hızlı',
+    },
   },
   telegram: {
     approveAlike: 'Aynı türdeki tüm kartları birden onayla:',
@@ -1577,14 +1662,14 @@ export const tr: Messages = {
   },
   today: {
     working: 'Yapılıyor…',
-    ruleSuggestion: {
+    botSuggestion: {
       done: {
         archive:
-          'Bu göndericiden gelen yeni e-postalar arşivlenecek. Kurallar’dan değiştirebilirsin.',
+          'Bundan sonra yeni bir bot bu göndericinin postalarını arşivleyecek.',
         mark_read:
-          'Bu göndericiden gelen yeni e-postalar okundu olarak işaretlenecek. Kurallar’dan değiştirebilirsin.',
+          'Bundan sonra yeni bir bot bu göndericinin postalarını okundu olarak işaretleyecek.',
       },
-      label: 'Önerilen kural',
+      label: 'Önerilen bot',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
           ? `Bu ay ${count} e-posta, ajan hepsini arşivlerdi`
@@ -1595,16 +1680,10 @@ export const tr: Messages = {
         mark_read: 'Her zaman okundu olarak işaretle',
       },
     },
-    ruleOffer: {
-      lead: 'Ajan bunu eşleşen postalar için kendisi yapabilir. Sen evet diyene kadar kapalı kalır.',
-      no: 'Kapalı kalsın',
-      turnedOn: "Açıldı. Kurallar'dan değiştirebilirsin.",
-      yes: 'Aç',
-    },
     newSender: {
       archive: 'Her zaman arşivle',
       archived:
-        'Bu göndericiden gelen yeni e-postalar arşivlenecek. Kurallar bölümünden değiştirebilirsin.',
+        'Bundan sonra yeni bir bot bu göndericinin postalarını arşivleyecek.',
       keep: 'Her zamanki gibi tut',
       label: 'Yeni gönderici',
       lead: (count: number, opened: number) =>
@@ -1619,13 +1698,13 @@ export const tr: Messages = {
       'Yeni e-postaları okumaya devam ediyorum, ilgilenmen gereken her şey burada görünecek.',
     allowanceSpent: (date: string) =>
       `Ajanın bu ayki kullanım hakkı bitti: özetler ve taslaklar ${date} tarihinde geri gelecek. O zamana kadar sözleri ve son tarihleri kaydetmeye devam ediyorum.`,
-    byRules: (n: number) => `Kuralların ${n} tanesini halletti.`,
+    byBots: (n: number) => `Botların ${n} tanesini halletti.`,
     decisions: 'Kararlar',
     journal: {
       approved: 'Evet dedin',
-      byRule: (rule: string) => `Kuralın: ${rule}`,
+      byBot: (bot: string) => `Botun: ${bot}`,
       failed: 'Olmadı',
-      lead: 'Son 7 gün. E-postandaki ya da takvimindeki her değişiklik senin onayınla ya da açtığın bir kuralla yapıldı.',
+      lead: 'Son 7 gün. E-postandaki ya da takvimindeki her değişiklik senin onayınla ya da kendi başına çalışmasına izin verdiğin bir botla yapıldı.',
       title: 'E-postanda yapılanlar',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
@@ -1653,12 +1732,12 @@ export const tr: Messages = {
     },
     improve: {
       empty: {
-        lead: 'Ajan bir gönderene her seferinde aynı şeyi yaptığını görürse burada bir kural önerir.',
+        lead: 'Ajan bir gönderene her seferinde aynı şeyi yaptığını görürse burada bir bot önerir.',
         title: 'Şimdilik öneri yok.',
       },
       lead: (total: number) =>
         plural('tr', total, {
-          other: (n) => `Ajanın senin için uygulayabileceği ${n} kural.`,
+          other: (n) => `Ajanın senin için oluşturabileceği ${n} bot.`,
         }),
       title: 'Ajanın önerileri',
     },
@@ -1735,6 +1814,7 @@ export const tr: Messages = {
     hints: {
       board:
         'Fewmail Pro’ya dahil: ajan e-postandan sana verilen sözleri, senin verdiğin sözleri ve son günleri yazar, her biri tamamlanana kadar takip eder.',
+      chat: 'Fewmail Pro’nun parçası: botlarınla postaları hakkında konuş, söyledikleri zaman sana geri dönerler.',
       drafts:
         "Fewmail Pro'nun parçası: ajan yanıtı senin üslubunla yazar, sen düzenleyip gönderirsin.",
     },

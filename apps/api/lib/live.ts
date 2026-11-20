@@ -13,6 +13,7 @@ const CHANNEL = 'mail_changed'
 /** Router namespaces whose queries the web refetches; an announce without topics refetches every query. */
 const LIVE_TOPICS = [
   'actions',
+  'bots',
   'commitments',
   'integrations',
   'mail',
@@ -23,6 +24,18 @@ const LIVE_TOPICS = [
 ] as const
 
 type LiveTopic = (typeof LIVE_TOPICS)[number]
+
+/** Home's bot chats are read from cards and promises, so whatever changes those changes them too. */
+const BOT_SOURCES: ReadonlySet<LiveTopic> = new Set([
+  'actions',
+  'commitments',
+  'today',
+])
+
+const withBots = (topics: readonly LiveTopic[]) =>
+  topics.some((topic) => BOT_SOURCES.has(topic)) && !topics.includes('bots')
+    ? [...topics, 'bots']
+    : topics
 
 export const MAIL_TOPICS = [
   'actions',
@@ -56,7 +69,7 @@ export const announceChange = async (
 ) => {
   const announced = await Result.tryPromise(() =>
     db.execute(
-      sql`select pg_notify(${CHANNEL}, ${[userId, ...(topics ?? [])].join(' ')})`
+      sql`select pg_notify(${CHANNEL}, ${[userId, ...withBots(topics ?? [])].join(' ')})`
     )
   )
   if (announced.isErr()) {

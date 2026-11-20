@@ -1,7 +1,10 @@
 import type {
+  BotPostKind,
+  BotReaction,
   CommitmentActor,
   CommitmentKind,
   CommitmentStatus,
+  DigestCounts,
   DomainList,
   PatternKind,
   SpamVerdict,
@@ -173,6 +176,43 @@ export const readingIssues = d.snakeCase.table(
   },
   (table) => [
     d.uniqueIndex('reading_issues_user_day_idx').on(table.userId, table.day),
+  ]
+)
+
+/**
+ * What a Home bot's chat holds that no other table does: the user's messages, the bot's answers, what it said it
+ * would come back with and its digest of each day. What a bot reports (cards, promises) is read from their own
+ * tables, never copied here: a digest keeps only the counts and the ids of the cards that waited.
+ */
+export const botPosts = d.snakeCase.table(
+  'bot_posts',
+  {
+    ...baseTable,
+    /** The `consent` cards an answer asked for: the chat shows them with their yes. A digest's: the cards waiting then. */
+    actionIds: d.uuid().array().default([]).notNull(),
+    /** One of the user's `bots` by id, or `fewmail` / `board` (`SYSTEM_BOTS`). */
+    bot: d.text().notNull(),
+    /** Fewmail's digest only: its headline's counts as they were. */
+    counts: d.jsonb().$type<DigestCounts>(),
+    /** Its notification went out (a nudge only, once it is due). */
+    deliveredAt: d.timestamp({ withTimezone: true }),
+    /** A nudge stays out of the chat until then. */
+    dueAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    kind: d.text().$type<BotPostKind>().notNull(),
+    /** From the other side: on a `message` the bot's, on the bot's own words the user's. */
+    reaction: d.text().$type<BotReaction>(),
+    /** The post a `message` answers: its bubble quotes it, and so does what the bot reads. */
+    replyTo: d.uuid(),
+    /** Null when the kind says it all (`no_plan`, `spent`). */
+    text: encryptedText(),
+    threadId: d.text(),
+    /** The agent's tools an answer used, in the order it called them: the chat shows them as its steps. */
+    tools: d.text().array().default([]).notNull(),
+    userId: userId(),
+  },
+  (table) => [
+    d.index('bot_posts_user_bot_idx').on(table.userId, table.bot, table.dueAt),
+    d.index('bot_posts_due_idx').on(table.deliveredAt, table.dueAt),
   ]
 )
 

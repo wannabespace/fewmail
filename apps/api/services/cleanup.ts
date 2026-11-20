@@ -2,10 +2,10 @@ import { db } from '@fewmail/db'
 import {
   actions,
   analyses,
-  declinedRuleSuggestions,
+  declinedBotSuggestions,
   mailboxes,
   messages,
-  rules,
+  bots,
   unsubscribes,
   userSettings,
 } from '@fewmail/db/schema'
@@ -151,12 +151,12 @@ const NEW_SENDERS_SHOWN = 3
 
 /**
  * Lists that started writing in the last two weeks, at least three times, opened at most once: the agent asks once
- * how to treat each (always archive, unsubscribe, keep). Any action on any of its emails (a rule, a tidy, a kept
+ * how to treat each (always archive, unsubscribe, keep). Any action on any of its emails (a bot, a tidy, a kept
  * answer) means the user already decided, so it is never asked again.
  */
 export const newSenders = async (userId: string) => {
   const since = subDays(new Date(), NEW_SENDER_DAYS)
-  const [lists, ownRules, unsubscribedRows] = await Promise.all([
+  const [lists, ownBots, unsubscribedRows] = await Promise.all([
     db
       .select({
         count: sql<number>`count(*)::int`,
@@ -184,28 +184,28 @@ export const newSenders = async (userId: string) => {
         )
       ),
     db
-      .select({ match: rules.match })
-      .from(rules)
-      .where(and(eq(rules.userId, userId), eq(rules.enabled, true))),
+      .select({ match: bots.match })
+      .from(bots)
+      .where(and(eq(bots.userId, userId), eq(bots.enabled, true))),
     db
       .select({ senderHash: unsubscribes.senderHash })
       .from(unsubscribes)
       .where(eq(unsubscribes.userId, userId)),
   ])
-  if (ownRules.some(({ match }) => match?.field === 'mailingList')) {
+  if (ownBots.some(({ match }) => match?.field === 'mailingList')) {
     return []
   }
   const unsubscribed = new Set(
     unsubscribedRows.map(({ senderHash }) => senderHash)
   )
-  const fromRules = ownRules.flatMap(({ match }) =>
+  const fromBots = ownBots.flatMap(({ match }) =>
     match?.field === 'from' ? [match.value.toLowerCase()] : []
   )
   const shown = namedLists(lists)
     .filter(
       (list) =>
         !unsubscribed.has(listHashOf(list)) &&
-        !fromRules.some((value) => list.fromEmail.toLowerCase().includes(value))
+        !fromBots.some((value) => list.fromEmail.toLowerCase().includes(value))
     )
     .toSorted((left, right) => right.count - left.count)
     .slice(0, NEW_SENDERS_SHOWN)
@@ -229,7 +229,7 @@ export const keepSender = async (userId: string, messageId: string) => {
     resolvedAt: new Date(),
     status: 'dismissed',
     threadId: message.threadId,
-    title: t.rules.effect.archive,
+    title: t.bots.effect.archive,
     userId,
   })
 }
@@ -240,12 +240,12 @@ const SUGGESTIONS_SHOWN = 3
 
 /**
  * Senders whose every analysed email of the last month the agent judged quiet and would archive or mark read, at least
- * three times: it offers to make that a standing rule. Never for a sender a rule already handled, one the user kept
- * an email of, one a simple rule covers or one the user said no to (`declinedRuleSuggestions`). An unsubscribe
- * suggestion counts as archiving: a rule keeps acting, leaving a list is a one-off.
+ * three times: it offers to make that a standing bot. Never for a sender a bot already handled, one the user kept
+ * an email of, one a simple bot covers or one the user said no to (`declinedBotSuggestions`). An unsubscribe
+ * suggestion counts as archiving: a bot keeps acting, leaving a list is a one-off.
  */
-export const ruleSuggestions = async (userId: string, fromEmail?: string) => {
-  const [senders, ownRules, declined] = await Promise.all([
+export const botSuggestions = async (userId: string, fromEmail?: string) => {
+  const [senders, ownBots, declined] = await Promise.all([
     db
       .select({
         count: sql<number>`count(*)::int`,
@@ -273,28 +273,28 @@ export const ruleSuggestions = async (userId: string, fromEmail?: string) => {
         and(
           sql`count(*) >= ${SUGGESTION_MIN}`,
           // bool_and skips nulls: an email with no suggestion must fail the test, not drop out of it.
-          sql`bool_and(coalesce(${inArray(analyses.suggestedAction, [...TIDY_KINDS])}, false) and ${lt(analyses.importance, IMPORTANCE.high)} and ${analyses.ruleId} is null)`,
-          sql`not bool_or(exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id} and (${actions.ruleId} is not null or ${actions.status} = 'dismissed')))`
+          sql`bool_and(coalesce(${inArray(analyses.suggestedAction, [...TIDY_KINDS])}, false) and ${lt(analyses.importance, IMPORTANCE.high)} and ${analyses.botId} is null)`,
+          sql`not bool_or(exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id} and (${actions.botId} is not null or ${actions.status} = 'dismissed')))`
         )
       ),
     db
-      .select({ match: rules.match })
-      .from(rules)
-      .where(and(eq(rules.userId, userId), eq(rules.enabled, true))),
+      .select({ match: bots.match })
+      .from(bots)
+      .where(and(eq(bots.userId, userId), eq(bots.enabled, true))),
     db
-      .select({ senderHash: declinedRuleSuggestions.senderHash })
-      .from(declinedRuleSuggestions)
-      .where(eq(declinedRuleSuggestions.userId, userId)),
+      .select({ senderHash: declinedBotSuggestions.senderHash })
+      .from(declinedBotSuggestions)
+      .where(eq(declinedBotSuggestions.userId, userId)),
   ])
   const declinedHashes = new Set(declined.map(({ senderHash }) => senderHash))
-  const fromRules = ownRules.flatMap(({ match }) =>
+  const fromBots = ownBots.flatMap(({ match }) =>
     match?.field === 'from' ? [match.value.toLowerCase()] : []
   )
   return senders
     .filter(
       (sender) =>
         !declinedHashes.has(senderHashOf(sender.fromEmail)) &&
-        !fromRules.some((value) =>
+        !fromBots.some((value) =>
           sender.fromEmail.toLowerCase().includes(value)
         )
     )
@@ -302,13 +302,13 @@ export const ruleSuggestions = async (userId: string, fromEmail?: string) => {
     .slice(0, SUGGESTIONS_SHOWN)
 }
 
-/** "No" to a suggested rule is kept for the sender, so it is never offered again, on Home or in their mail. */
-export const declineRuleSuggestion = async (
+/** "No" to a suggested bot is kept for the sender, so it is never offered again, on Home or in their mail. */
+export const declineBotSuggestion = async (
   userId: string,
   fromEmail: string
 ) => {
   await db
-    .insert(declinedRuleSuggestions)
+    .insert(declinedBotSuggestions)
     .values({ senderHash: senderHashOf(fromEmail), userId })
     .onConflictDoNothing()
   await announceChange(userId, ['today', 'mail'])

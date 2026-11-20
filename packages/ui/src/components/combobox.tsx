@@ -92,36 +92,40 @@ const ComboboxInput = ({
   disabled = false,
   showTrigger = true,
   showClear = false,
+  variant,
   ...props
-}: ComboboxPrimitive.Input.Props & {
-  showTrigger?: boolean
-  showClear?: boolean
-}) => (
-  <InputGroup className={cn('w-auto', className)}>
+}: ComboboxPrimitive.Input.Props &
+  Pick<React.ComponentProps<typeof InputGroup>, 'variant'> & {
+    showTrigger?: boolean
+    showClear?: boolean
+  }) => (
+  <InputGroup className={cn('w-auto', className)} variant={variant}>
     <ComboboxPrimitive.Input
       render={<InputGroupInput disabled={disabled} />}
       {...props}
     />
-    <InputGroupAddon align="inline-end">
-      {showTrigger && (
-        <InputGroupButton
-          size="icon-xs"
-          variant="ghost"
-          render={<ComboboxPrimitive.Trigger />}
-          nativeButton
-          data-slot="input-group-button"
-          className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
-          disabled={disabled}
-        >
-          <HugeiconsIcon
-            icon={ArrowDown01Icon}
-            strokeWidth={2}
-            className="text-muted-foreground pointer-events-none size-4"
-          />
-        </InputGroupButton>
-      )}
-      {showClear && <ComboboxClear disabled={disabled} />}
-    </InputGroupAddon>
+    {(showTrigger || showClear) && (
+      <InputGroupAddon align="inline-end">
+        {showTrigger && (
+          <InputGroupButton
+            size="icon-xs"
+            variant="ghost"
+            render={<ComboboxPrimitive.Trigger />}
+            nativeButton
+            data-slot="input-group-button"
+            className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
+            disabled={disabled}
+          >
+            <HugeiconsIcon
+              icon={ArrowDown01Icon}
+              strokeWidth={2}
+              className="text-muted-foreground pointer-events-none size-4"
+            />
+          </InputGroupButton>
+        )}
+        {showClear && <ComboboxClear disabled={disabled} />}
+      </InputGroupAddon>
+    )}
     {children}
   </InputGroup>
 )

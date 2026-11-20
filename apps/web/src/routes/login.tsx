@@ -61,7 +61,7 @@ const signInFromDesktop = async (
   const { token } = await client.desktopSignIn.take({ challenge, verifier })
   await authClient.oneTimeToken.verify({ fetchOptions: { throw: true }, token })
   signedInStore.set(true)
-  location.assign('/home')
+  location.assign('/mail')
 }
 
 const LoginPage = () => {

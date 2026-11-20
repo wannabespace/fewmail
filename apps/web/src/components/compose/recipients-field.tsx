@@ -7,7 +7,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '@fewmail/ui/components/combobox'
-import type { Ref } from 'react'
+import type { ReactNode, Ref } from 'react'
 import { useMemo } from 'react'
 
 import { contacts as contactRows } from '~/lib/lists-db'
@@ -23,11 +23,13 @@ const NO_CONTACTS: Contact[] = []
 
 /** The To / Cc line: comma-separated addresses, suggesting people the user's mail knows for the one being typed. */
 export const RecipientsField = ({
+  children,
   label,
   onChange,
   ref,
   value,
 }: {
+  children?: ReactNode
   label: string
   onChange: (value: string) => void
   ref?: Ref<HTMLInputElement>
@@ -74,9 +76,11 @@ export const RecipientsField = ({
         showTrigger={false}
         placeholder={label}
         aria-label={label}
-        className="flex-1"
+        variant="line"
         data-mask
-      />
+      >
+        {children}
+      </ComboboxInput>
       <ComboboxContent>
         <ComboboxList>
           {(contact: Contact) => (

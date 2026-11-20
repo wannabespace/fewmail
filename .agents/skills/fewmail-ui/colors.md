@@ -22,11 +22,7 @@ All values are `oklch` tokens in `packages/ui/src/styles/globals.css`, defined f
 
 ## Importance
 
-The `ImportanceDot` is the only place importance gets color: 3 urgent → `bg-destructive`, 2 needs you → `bg-primary`, 1 worth knowing → `bg-foreground/30`, 0 noise → hollow ring. Always paired with a tooltip carrying the label and the agent's reason.
-
-## Decisions progress
-
-Home's `ProgressSegments` fills one share per card: Needs you `bg-primary`, Quick `bg-success` (cleared mail), Can wait `bg-foreground/30` (the worth-knowing dot's ink). The shares say where the work went, so each is named by its tooltip, never by a legend. The same three colours tint those cards' heading glyphs (`HEADING_ICONS` in `home-card.tsx`), so the bar's shares match their cards; The agent suggests and the Board keep a `text-muted-foreground` glyph, never a colour of their own.
+The `ImportanceDot` is the only place importance gets color: 3 urgent → `bg-destructive`, 2 needs you → `bg-primary`, 1 worth knowing → `bg-foreground/30`, 0 noise → hollow ring. Always paired with a tooltip carrying the label and the agent's reason. It marks rows in a list (Home's urgent cards, Worth knowing), never an open email's header: there the insight under it already says what the email is (the user's call: the dot beside the sender repeated the Security badge).
 
 ## Shadows
 

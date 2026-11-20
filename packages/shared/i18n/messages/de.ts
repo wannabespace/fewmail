@@ -18,7 +18,7 @@ export const de: Messages = {
       archive_thread: 'Diese Unterhaltung archivieren?',
       clear_out: 'Diese Gruppen aus dem Posteingang aufräumen?',
       undo_clear_out: 'Alle aufgeräumten E-Mails zurück in den Posteingang?',
-      create_rule: 'Diese Regel hinzufügen?',
+      create_bot: 'Diesen Bot erstellen?',
       reply: 'Diese Antwort senden?',
       send_email: 'Diese E-Mail senden?',
       snooze_thread: 'Diese Unterhaltung zurückstellen?',
@@ -43,7 +43,7 @@ export const de: Messages = {
       clear_out: 'Posteingang wird aufgeräumt',
       preview_clear_out: 'Ganzer Posteingang wird gelesen',
       undo_clear_out: 'Aufgeräumte E-Mails kommen zurück',
-      create_rule: 'Regel wird hinzugefügt',
+      create_bot: 'Bot wird erstellt',
       dismiss_action: 'Wird übersprungen',
       draft_reply: 'Antwort wird entworfen',
       create_draft: 'Entwurf wird gespeichert',
@@ -52,10 +52,12 @@ export const de: Messages = {
       get_today: 'Heute wird geprüft',
       list_handled: 'Erledigtes wird geprüft',
       list_mail: 'Mails werden durchsucht',
-      list_rules: 'Regeln werden gelesen',
+      get_bot_chat: 'Chat wird gelesen',
+      list_bots: 'Deine Bots werden gelesen',
       read_thread: 'Unterhaltung wird gelesen',
       redraft_action: 'Entwurf wird umgeschrieben',
       refresh: 'Neue Mails werden abgerufen',
+      remind_later: 'Erinnerung wird gestellt',
       send_email: 'Wird gesendet',
       snooze_thread: 'Wird zurückgestellt',
       unsubscribe: 'Wird abgemeldet',
@@ -78,7 +80,7 @@ export const de: Messages = {
       archive_thread: 'Archivieren',
       clear_out: 'Aufräumen',
       undo_clear_out: 'Zurückholen',
-      create_rule: 'Hinzufügen',
+      create_bot: 'Bot erstellen',
       reply: 'Senden',
       send_email: 'Senden',
       snooze_thread: 'Zurückstellen',
@@ -236,7 +238,7 @@ export const de: Messages = {
             'Die Newsletter des Tages werden zu einer Zusammenfassung nach Thema, jeder Satz verlinkt mit der Mail, aus der er stammt.',
           title: 'Newsletter in einer Zusammenfassung',
         },
-        rules: {
+        bots: {
           description:
             'Beschreib in einem Satz, was mit bestimmten Mails passieren soll, und daraus wird eine Regel. Nur Regeln, die du einschaltest, handeln von selbst.',
           title: 'Regeln in einfachen Worten',
@@ -307,7 +309,7 @@ export const de: Messages = {
         outlook: 'Outlook und Microsoft 365',
         phishing: 'Warnungen vor Phishing und geänderten Zahlungsdaten',
         phone: 'Auf dem Handy',
-        rules: 'Regeln in einfachen Worten',
+        bots: 'Regeln in einfachen Worten',
         snooze: 'Zurückstellen',
         spamShield: 'Community-Spamschutz',
         summaries: 'Zusammenfassungen',
@@ -328,7 +330,7 @@ export const de: Messages = {
         mcp: 'Mit Pro',
         memory: 'Mit Pro',
         phone: 'Telegram und WhatsApp, mit Sprache, mit Pro',
-        rules: 'Archivieren, als gelesen markieren oder abmelden, kostenlos',
+        bots: 'Archivieren, als gelesen markieren oder abmelden, kostenlos',
         summaries: 'Mit Pro',
         unsubscribe: 'Wer es ignoriert, landet im Spam',
       },
@@ -358,7 +360,7 @@ export const de: Messages = {
           keepApp: 'Arbeitet über Ordner',
           otherProviders: 'Jeder IMAP- oder Exchange-Server',
           phone: 'Über deine Mail-App',
-          rules: 'Training durch Verschieben von Mails zwischen Ordnern',
+          bots: 'Training durch Verschieben von Mails zwischen Ordnern',
           snooze: 'Ab Lunch',
           summaries: 'SaneSummary, mit Dinner',
           unsubscribe: 'Ordner SaneBlackHole',
@@ -385,7 +387,7 @@ export const de: Messages = {
           otherProviders: 'An Gmail weitergeleitet',
           outlook: 'Microsoft 365 nicht unterstützt',
           phone: 'Apps für iOS und Android',
-          rules: 'KI-Filter, 3 bis 50 je nach Tarif',
+          bots: 'KI-Filter, 3 bis 50 je nach Tarif',
           summaries: 'Über jeder Mail',
           teams: 'Geteilte Threads und Kommentare',
           unsubscribe: 'Mit Blockieren per Klick',
@@ -410,7 +412,7 @@ export const de: Messages = {
           keepApp: 'Ersetzt deine Mail-App',
           mcp: 'Mit Business',
           phone: 'Apps für iOS und Android',
-          rules: 'Custom Auto Labels, mit Business',
+          bots: 'Custom Auto Labels, mit Business',
           spamShield: 'Der Filter deines Anbieters',
           summaries: 'Auto Summarize',
           teams: 'Geteilte Entwürfe und Kommentare',
@@ -750,7 +752,7 @@ export const de: Messages = {
     failed: 'fehlgeschlagen',
     pending: 'wartet auf der Startseite',
   },
-  byRule: 'per Regel',
+  byBot: 'per Bot',
   calendar: {
     tomorrow: 'Morgen',
     allDay: 'Ganztägig',
@@ -1002,7 +1004,7 @@ export const de: Messages = {
     block: 'Absender blockieren',
     ignoresUnsubscribe: (name: string) => `${name} ignoriert Abmeldungen`,
     ignoresUnsubscribeHint:
-      'Fewmail hat um die Abmeldung gebeten, aber dieser Absender schreibt bekanntlich trotzdem weiter. Seine Mails ab jetzt in den Papierkorb? Rückgängig in Regeln.',
+      'Fewmail hat um die Abmeldung gebeten, aber dieser Absender schreibt bekanntlich trotzdem weiter. Seine Mails ab jetzt in den Papierkorb? Das übernimmt ein Bot, und du kannst ihn auf der Startseite löschen.',
     blocked: 'Blockiert. Ihre Mails landen jetzt im Papierkorb.',
     forward: 'Weiterleiten',
     more: 'Mehr',
@@ -1119,7 +1121,6 @@ export const de: Messages = {
     clearSearch: 'Suche leeren',
     mail: 'Mail',
     reading: 'Lesen',
-    rules: 'Regeln',
     settings: 'Einstellungen',
     syncFailed: 'Gmail-Sync fehlgeschlagen, neuer Versuch',
     syncing: 'Lese deinen Posteingang…',
@@ -1193,53 +1194,130 @@ export const de: Messages = {
     stale: (n: number) => `Älter als eine Woche: ${n}`,
     skip: 'Überspringen',
   },
-  rules: {
-    deleted: 'Regel gelöscht',
-    add: 'Regel hinzufügen',
-    count: (total: number) =>
-      plural('de', total, {
-        one: () => '1 Regel',
-        other: (n) => `${n} Regeln`,
-      }),
-    delete: 'Löschen',
-    describe: {
-      alwaysShow: 'Bleibt immer auf der Startseite, wird nie ausgeblendet',
-      autonomous: 'Wird selbst erledigt, steht unter Erledigt',
-      draft: 'Ein Entwurf wartet auf der Startseite auf dich',
+  bots: {
+    chatMenu: 'Chat-Aktionen',
+    clear: 'Verlauf leeren',
+    clearConfirm: (name: string) => `Chat mit ${name} leeren?`,
+    clearHint:
+      'Seine Nachrichten sind dann endgültig weg. Was er in deiner Mail getan hat, bleibt, ebenso seine Erinnerungen.',
+    cleared: 'Verlauf geleert',
+    deleteFolder: 'Ordner löschen',
+    deleteFolderConfirm: (name: string) => `Ordner ${name} löschen?`,
+    deleteFolderHint:
+      'Seine Bots bleiben in der Liste, außerhalb jedes Ordners.',
+    moveTo: 'In Ordner verschieben',
+    newFolder: 'Neuer Ordner',
+    noFolder: 'Kein Ordner',
+    pin: 'Anheften',
+    rename: 'Umbenennen',
+    renameFolder: 'Ordner umbenennen',
+    unpin: 'Lösen',
+    add: 'Neuer Bot',
+    answering: 'Schreibe…',
+    cancelReply: 'Antwort abbrechen',
+    cards: {
+      autoDone: (n: number) =>
+        plural('de', n, {
+          one: () => 'Eine habe ich selbst erledigt.',
+          other: (count) => `${count} habe ich selbst erledigt.`,
+        }),
+      dismissed: (n: number) =>
+        plural('de', n, {
+          one: () => 'Eine hast du übersprungen.',
+          other: (count) => `${count} hast du übersprungen.`,
+        }),
+      done: (n: number) =>
+        plural('de', n, {
+          one: () => 'Eine ist nach deinem Ja erledigt.',
+          other: (count) => `${count} sind nach deinem Ja erledigt.`,
+        }),
+      failed: (n: number) =>
+        plural('de', n, {
+          one: () => 'Eine hat Gmail abgelehnt.',
+          other: (count) => `${count} hat Gmail abgelehnt.`,
+        }),
+      pending: (n: number) =>
+        plural('de', n, {
+          one: () => 'Eine wartet auf dich.',
+          other: (count) => `${count} warten auf dich.`,
+        }),
     },
+    composer: (name: string) => `Schreib ${name} zu seinen Mails`,
+    copied: 'Kopiert',
+    copy: 'Kopieren',
+    created: 'Bot erstellt. Er liest ab jetzt neue Mails.',
+    delete: 'Bot löschen',
+    deleteConfirm: (name: string) => `${name} löschen?`,
+    deleteHint:
+      'Sein Chat wird mitgelöscht. Seine Mails bleiben, wo sie sind, und neue Mails dieser Art gehen an Fewmail.',
+    deleted: 'Bot gelöscht',
+    earlier: 'Frühere anzeigen',
+    edit: 'Bot-Einstellungen',
     effect: {
-      trash: 'In den Papierkorb',
-      always_show: 'Nicht verpassen',
+      always_show: 'Auf der Startseite halten',
       archive: 'Archivieren',
+      collect: 'Nur sammeln',
       draft_reply: 'Antwort entwerfen',
       mark_read: 'Als gelesen markieren',
+      tidy: 'Aufräumen',
+      trash: 'In den Papierkorb',
       unsubscribe: 'Abmelden',
     },
-    enabled: 'Regel aktiv',
-    lead: 'Sag dem Agenten in einfachen Worten, was er mit bestimmten Mails tun soll. Er prüft jede Mail anhand dieser Regeln.',
-    newTitle: 'Neue Regel beibringen',
-    placeholder:
-      'z. B. Rechnungen von Hetzner oder Benachrichtigungen von LinkedIn',
-    leadFree:
-      'Automatisch archivieren, als gelesen markieren oder abmelden. Regeln greifen bei neuer Mail, sobald sie ankommt.',
+    empty: 'Noch nichts hier. Sobald Mail für mich kommt, schreibe ich hier.',
+    enabled: 'Handelt selbst',
+    enabledHint: {
+      off: 'Aus: Er fragt erst bei jeder Mail nach deinem Ja.',
+      on: 'An: Er handelt ohne zu fragen, alles, was er tut, steht in seinem Chat.',
+    },
+    instruction: 'Welche Mails und was er damit macht',
+    instructionPlaceholder:
+      'z. B. Rechnungen von Hetzner als gelesen markieren oder LinkedIn-Benachrichtigungen archivieren',
+    mute: 'Stummschalten',
+    muted: 'Stumm: keine Benachrichtigungen von diesem Bot',
+    name: 'Name',
+    namePlaceholder: 'z. B. Rechnungen',
+    noPlan:
+      'Ich kann dir nicht antworten: Im kostenlosen Plan habe ich keine Tokens für ein Gespräch. Abonniere, und ich bin ganz für dich da.',
+    now: 'Wartet jetzt',
+    nudge: {
+      noReply: 'In dieser Unterhaltung gibt es noch keine Antwort.',
+      replied: 'In dieser Unterhaltung kam seitdem eine Antwort.',
+    },
+    promises: (n: number) =>
+      plural('de', n, {
+        one: () => 'Ich habe ein Versprechen notiert.',
+        other: (count) => `Ich habe ${count} Versprechen notiert.`,
+      }),
+    react: 'Reagieren',
+    reaction: 'Reaktion',
+    reply: 'Antworten',
+    save: 'Speichern',
+    saved: 'Gespeichert',
     simple: {
-      appliedAutomatically: 'Wird automatisch auf neue Mail angewendet',
-      field: {
-        from: 'Von',
-        mailingList: 'Jede Mailingliste',
-        subject: 'Betreff enthält',
-      },
       title: {
         from: (value: string) => `Von „${value}“`,
         mailingList: () => 'Jede Mailingliste',
         subject: (value: string) => `Betreff enthält „${value}“`,
       },
-      valuePlaceholder: 'anna@example.com, ein Name oder ein Wort',
-      whichField: 'Abgleichen nach',
     },
-    title: 'Regeln',
-    whatAgentDoes: 'Was der Agent tut',
-    whichEmails: 'Welche Mails',
+    spent: (date: string) =>
+      `Bis ${date} kann ich nicht antworten: Das Kontingent für diesen Monat ist aufgebraucht.`,
+    steps: (n: number) =>
+      plural('de', n, {
+        one: () => 'Ein Schritt',
+        other: (count) => `${count} Schritte`,
+      }),
+    subscribe: 'Abonnieren',
+    system: { board: 'Pinnwand', fewmail: 'Fewmail Bot' },
+    systemJob: {
+      board: 'Die Versprechen und Fristen, die ich im Blick behalte',
+      fewmail: 'Erstellt deine Bots, findet E-Mails und beantwortet Fragen',
+    },
+    title: 'Bots',
+    toLatest: 'Zur neuesten Nachricht',
+    unmute: 'Stummschaltung aufheben',
+    whatItDoes: 'Was er damit macht',
+    you: 'Du',
   },
   settings: {
     disconnectConfirm: (name: string) => `${name} trennen?`,
@@ -1277,7 +1355,7 @@ export const de: Messages = {
     deleteAccount: 'Konto löschen',
     deleteConfirm: 'Alles löschen',
     deleteDescription:
-      'Löscht dein Konto, synchronisierte Mails, Entwürfe und Regeln sofort aus Fewmail. Dein Gmail selbst bleibt unberührt. Ein bezahlter Plan endet sofort.',
+      'Löscht dein Konto, synchronisierte Mails, Entwürfe und Bots sofort aus Fewmail. Dein Gmail selbst bleibt unberührt. Ein bezahlter Plan endet sofort.',
     deleteFailed:
       'Das Konto wurde nicht gelöscht. Versuch es in einer Minute noch einmal.',
     deleteSignIn:
@@ -1392,13 +1470,22 @@ export const de: Messages = {
     },
     showImages: 'Bilder anzeigen',
   },
-  starterRules: {
-    alwaysShow:
-      'Sicherheitswarnungen, fällige Rechnungen, alles von meiner Bank oder von Behörden',
-    newsletters: 'Newsletter und Digests',
-    notifications: 'Automatische Benachrichtigungen von Tools und Diensten',
-    promotions: 'Angebote, Marketing und Kaltakquise-Mails',
-    receipts: 'Belege, Bestell- und Versandbestätigungen',
+  starterBots: {
+    important: {
+      instruction:
+        'Was einen Schritt von mir braucht: Leute, die auf meine Antwort warten, fällige Rechnungen, Sicherheitswarnungen, alles von meiner Bank oder von Behörden. Auf der Startseite halten',
+      name: 'Wichtig',
+    },
+    later: {
+      instruction:
+        'Gut zu wissen, aber ohne Entscheidung: Neuigkeiten von Diensten, die ich nutze, Lieferungen, Termine und Daten',
+      name: 'Kann warten',
+    },
+    quick: {
+      instruction:
+        'Rauschen, das ich ungelesen wegräumen würde: Benachrichtigungen, Belege, Newsletter, Werbung und Kaltakquise. Aufräumen: archivieren, als gelesen markieren oder abmelden, je nachdem, was passt',
+      name: 'Schnell',
+    },
   },
   telegram: {
     approveAlike: 'Alle Karten einer Art auf einmal freigeben:',
@@ -1441,14 +1528,14 @@ export const de: Messages = {
   },
   today: {
     working: 'Wird erledigt…',
-    ruleSuggestion: {
+    botSuggestion: {
       done: {
         archive:
-          'Neue E-Mails von diesem Absender werden archiviert. Ändern unter Regeln.',
+          'Ein neuer Bot archiviert ab jetzt die Mails dieses Absenders.',
         mark_read:
-          'Neue E-Mails von diesem Absender werden als gelesen markiert. Ändern unter Regeln.',
+          'Ein neuer Bot markiert die Mails dieses Absenders ab jetzt als gelesen.',
       },
-      label: 'Vorgeschlagene Regel',
+      label: 'Vorgeschlagener Bot',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
           ? `${count} E-Mails in diesem Monat, und der Agent würde jede archivieren`
@@ -1459,16 +1546,9 @@ export const de: Messages = {
         mark_read: 'Immer als gelesen markieren',
       },
     },
-    ruleOffer: {
-      lead: 'Der Agent kann das bei passenden Mails selbst erledigen. Die Regel bleibt aus, bis du Ja sagst.',
-      no: 'Aus lassen',
-      turnedOn: 'Eingeschaltet. Ändern in Regeln.',
-      yes: 'Einschalten',
-    },
     newSender: {
       archive: 'Immer archivieren',
-      archived:
-        'Neue Mails von diesem Absender werden archiviert. Ändern kannst du das unter Regeln.',
+      archived: 'Ein neuer Bot archiviert ab jetzt die Mails dieses Absenders.',
       keep: 'Wie gewohnt behalten',
       label: 'Neuer Absender',
       lead: (count: number, opened: number) =>
@@ -1484,13 +1564,13 @@ export const de: Messages = {
       'Ich lese weiterhin neue E-Mails. Alles, was deine Aufmerksamkeit braucht, erscheint hier.',
     allowanceSpent: (date: string) =>
       `Das Kontingent des Agenten ist für diesen Monat aufgebraucht: Zusammenfassungen und Entwürfe gibt es ab ${date} wieder. Bis dahin schreibe ich Versprechen und Fristen weiter auf.`,
-    byRules: (n: number) => `Deine Regeln haben ${n} erledigt.`,
+    byBots: (n: number) => `Deine Bots haben ${n} erledigt.`,
     decisions: 'Entscheidungen',
     journal: {
       approved: 'Du hast Ja gesagt',
-      byRule: (rule: string) => `Deine Regel: ${rule}`,
+      byBot: (bot: string) => `Dein Bot: ${bot}`,
       failed: 'Hat nicht geklappt',
-      lead: 'Die letzten 7 Tage. Jede Änderung in deiner Mail oder deinem Kalender hatte dein Ja oder eine Regel, die du eingeschaltet hast.',
+      lead: 'Die letzten 7 Tage. Jede Änderung in deiner Mail oder deinem Kalender hatte dein Ja oder einen Bot, den du selbst handeln lässt.',
       title: 'In deinem Postfach erledigt',
     },
     progress: (done: number, total: number) => `${done} von ${total}`,
@@ -1518,13 +1598,13 @@ export const de: Messages = {
     },
     improve: {
       empty: {
-        lead: 'Wenn der Agent sieht, dass du einen Absender immer wieder gleich behandelst, schlägt er hier eine Regel vor.',
+        lead: 'Wenn der Agent sieht, dass du einen Absender immer wieder gleich behandelst, schlägt er hier einen Bot vor.',
         title: 'Gerade keine Vorschläge.',
       },
       lead: (total: number) =>
         plural('de', total, {
-          one: () => 'Eine Regel, die der Agent für dich befolgen könnte.',
-          other: (n) => `${n} Regeln, die der Agent für dich befolgen könnte.`,
+          one: () => 'Ein Bot, den der Agent für dich erstellen könnte.',
+          other: (n) => `${n} Bots, die der Agent für dich erstellen könnte.`,
         }),
       title: 'Der Agent schlägt vor',
     },
@@ -1709,7 +1789,7 @@ export const de: Messages = {
       'Noch zu wenig Mail für eine Geschichte. Schau in ein paar Tagen wieder vorbei.',
     handled: 'E-Mails von Fewmail erledigt',
     handledHint:
-      'Fewmail ändert in Gmail nichts ohne dein Ja. Schalte eine Regel ein, dann erledigt es solche Mails selbst.',
+      'Fewmail ändert in Gmail nichts ohne dein Ja. Lass einen Bot selbst handeln, dann erledigt er solche Mails für dich.',
     people: 'Wer am meisten schrieb',
     period: { month: 'Dieser Monat', year: 'Dieses Jahr' },
     replies: 'Antworten von Fewmail entworfen und gesendet',
@@ -1773,6 +1853,7 @@ export const de: Messages = {
     hints: {
       board:
         'Teil von Fewmail Pro: Der Agent schreibt auf, was dir versprochen wurde, was du versprochen hast und die letzten Tage aus deiner Mail, und behält jedes im Blick, bis es erledigt ist.',
+      chat: 'Teil von Fewmail Pro: Sprich mit deinen Bots über ihre Mails, und sie melden sich bei dir, wann sie es versprochen haben.',
       drafts:
         'Teil von Fewmail Pro: Der Agent schreibt die Antwort in deinem Stil, du bearbeitest und sendest sie.',
     },

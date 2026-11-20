@@ -374,6 +374,38 @@
 }
 
 /* A page's top under the floating notice bar (`--notice-height` on `page-column`); on a scroller, keyboard scrolling keeps rows out from under it too. */
+@utility shimmer {
+  animation: shimmer 2s linear infinite;
+  background:
+    linear-gradient(
+        90deg,
+        transparent calc(50% - 2em),
+        var(--color-background),
+        transparent calc(50% + 2em)
+      )
+      100% center / 250% 100% no-repeat,
+    linear-gradient(
+      var(--color-muted-foreground),
+      var(--color-muted-foreground)
+    );
+  background-clip: text;
+  color: transparent;
+}
+
+@utility shimmer-none {
+  animation: none;
+  background: none;
+  color: inherit;
+}
+
+@keyframes shimmer {
+  to {
+    background-position:
+      0% center,
+      0 0;
+  }
+}
+
 @utility under-notice {
   padding-top: var(--notice-height, 0px);
   scroll-padding-top: var(--notice-height, 0px);

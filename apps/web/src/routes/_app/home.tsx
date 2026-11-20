@@ -1,5 +1,5 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { isImportant, usedPercent } from '@fewmail/shared/agent'
+import { botOfCard, isImportant, usedPercent } from '@fewmail/shared/agent'
 import type { ActionKind } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
@@ -23,12 +23,17 @@ import {
   ItemTitle,
 } from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
-import { ProgressSegments } from '@fewmail/ui/components/progress'
-import { Skeleton } from '@fewmail/ui/components/skeleton'
+import {
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from '@fewmail/ui/components/message-scroller'
 import { Spinner } from '@fewmail/ui/components/spinner'
 import { copy } from '@fewmail/ui/lib/copy'
 import { cn } from '@fewmail/ui/lib/utils'
-import { Calendar03Icon, RepeatIcon } from '@hugeicons/core-free-icons'
+import { Calendar03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -55,7 +60,24 @@ import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod/mini'
 
-import { BoardCard, BoardPane, useBoardHints } from '~/components/board'
+import { BoardPane, useBoardHints } from '~/components/board'
+import {
+  BotComposer,
+  BotHeader,
+  BotNow,
+  NowMessage,
+  BotSettingsDialog,
+  BotTimeline,
+  DigestHeader,
+  DigestLead,
+  digestHeadline,
+  digestLead,
+  useAskBot,
+  useReadBot,
+} from '~/components/bot-chat'
+import { BotAvatar, openBotIdOf, useBots } from '~/components/bot-list'
+import type { HomeBot, OwnBot } from '~/components/bot-list'
+import { BotSuggestionCard } from '~/components/bot-suggestion'
 import { confirm } from '~/components/confirm-dialog'
 import { ConnectHint } from '~/components/connect-hint'
 import { EmailRow } from '~/components/email-row'
@@ -66,44 +88,29 @@ import {
   useExpandedRow,
   useIsThreadExpanded,
 } from '~/components/expand-row'
-import {
-  HomeCard,
-  HomeCardPane,
-  PageHeading,
-  PaneEmpty,
-} from '~/components/home-card'
-import type { HomeCardPage, HomeCardRow } from '~/components/home-card'
+import { Journal, useJournal } from '~/components/journal'
 import { KeyHints } from '~/components/key-hints'
 import { ExtractedChips, ImportanceDot } from '~/components/mail-meta'
-import { PaneRows } from '~/components/pane-rows'
+import { ChatScroller, PaneRows } from '~/components/pane-rows'
 import type { RowPlace } from '~/components/pane-rows'
 import {
   isProposal,
-  PROPOSALS_ID,
-  ProposalsGroup,
   ProposalsReview,
   useProposals,
 } from '~/components/proposals'
-import {
-  cardHeadlineOf,
-  foldedVerb,
-  QueueCard,
-  useCardActions,
-  whoOf,
-} from '~/components/queue-card'
+import { foldedVerb, QueueCard, useCardActions } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
-import {
-  newsletterHints,
-  NewslettersCard,
-  NewslettersPane,
-  useFreshNewsletters,
-} from '~/components/reading'
-import { RuleSuggestionCard } from '~/components/rule-suggestion'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { CodeActions, sweepOf, useMailActions } from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
-import { queueCards, todayLists, useToday } from '~/lib/home-db'
+import {
+  botChats,
+  ownBots,
+  queueCards,
+  todayLists,
+  useToday,
+} from '~/lib/home-db'
 import { useDates, useLocale, useT } from '~/lib/i18n'
 import { connectedApps } from '~/lib/lists-db'
 import { isReadingFirstTime } from '~/lib/mail-db'
@@ -117,7 +124,6 @@ import { pendingToast, toastUndo } from '~/lib/undo'
 type Today = RouterOutputs['today']['get']
 
 const NEW_SENDER_TOAST = 'new-sender'
-const RULE_OFFER_TOAST = 'rule-offer'
 
 const isImportantCard = ({ action, analysis }: QueueItem) =>
   isImportant(action.kind, analysis)
@@ -154,7 +160,7 @@ const NewSenders = ({
   const refetch = () =>
     queryClient.invalidateQueries({ queryKey: orpc.today.key() })
   const archive = useMutation(
-    orpc.rules.createSimple.mutationOptions({
+    orpc.bots.createSimple.mutationOptions({
       onError: pendingToast(NEW_SENDER_TOAST).onError,
       onMutate: ({ match }) => {
         pendingToast(NEW_SENDER_TOAST).onMutate()
@@ -166,7 +172,7 @@ const NewSenders = ({
         settle?.(
           Promise.all([
             refetch(),
-            queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
+            queryClient.invalidateQueries({ queryKey: orpc.bots.key() }),
           ])
         ),
       onSuccess: () =>
@@ -216,6 +222,7 @@ const NewSenders = ({
       archive.mutate({
         effect: 'archive',
         match: { field: 'from', value: sender.fromEmail },
+        name: sender.fromName ?? sender.fromEmail,
       }),
     handleKeep: () => keep.mutate({ messageId: sender.messageId }),
     handleUnsubscribe: () =>
@@ -305,90 +312,14 @@ const NewSenders = ({
 }
 
 /** Each card folds itself away on an answer; the refetch then drops it from Home's count. */
-const RuleSuggestions = ({ today }: { today: Today | undefined }) =>
-  today?.ruleSuggestions.map((suggestion) => (
-    <RuleSuggestionCard
+const BotSuggestions = ({ today }: { today: Today | undefined }) =>
+  today?.botSuggestions.map((suggestion) => (
+    <BotSuggestionCard
       key={suggestion.fromEmail}
       suggestion={suggestion}
       onAnswer={holdClicksUntilMove}
     />
   ))
-
-/** A starter rule that changes Gmail starts off: it acts only once the user says yes here (or turns it on in Rules). */
-const RuleOffers = ({
-  onSettle,
-  today,
-}: {
-  onSettle: () => void
-  today: Today | undefined
-}) => {
-  const t = useT()
-  const queryClient = useQueryClient()
-  const answer = useMutation(
-    orpc.rules.update.mutationOptions({
-      onError: () => toast.dismiss(RULE_OFFER_TOAST),
-      onMutate: ({ enabled, id }) => {
-        if (enabled) {
-          toast.loading(t.today.working, { id: RULE_OFFER_TOAST })
-        }
-        onSettle()
-        return showUntilSettled(() => {
-          if (todayLists.ruleOffers.has(id)) {
-            todayLists.ruleOffers.delete(id)
-          }
-        })
-      },
-      onSettled: (_, __, ___, settle) =>
-        settle?.(
-          Promise.all([
-            queryClient.invalidateQueries({ queryKey: orpc.today.key() }),
-            queryClient.invalidateQueries({ queryKey: orpc.rules.key() }),
-          ])
-        ),
-      onSuccess: ({ enabled }) =>
-        enabled &&
-        toast.success(t.today.ruleOffer.turnedOn, { id: RULE_OFFER_TOAST }),
-    })
-  )
-
-  return (
-    <AnimatePresence initial={false}>
-      {today?.ruleOffers.map((rule) => (
-        <MotionCollapse key={rule.id} initial={false}>
-          <Item variant="card" size="sm">
-            <ItemMedia variant="icon">
-              <HugeiconsIcon icon={RepeatIcon} strokeWidth={2} />
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle className="flex-wrap gap-y-0.5">
-                <span data-mask>{rule.instruction}</span>
-                <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
-                  {t.rules.effect[rule.effect]}
-                </span>
-              </ItemTitle>
-              <ItemDescription>{t.today.ruleOffer.lead}</ItemDescription>
-            </ItemContent>
-            <ItemActions>
-              <Button
-                size="sm"
-                variant="ghost-muted"
-                onClick={() => answer.mutate({ enabled: false, id: rule.id })}
-              >
-                {t.today.ruleOffer.no}
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => answer.mutate({ enabled: true, id: rule.id })}
-              >
-                {t.today.ruleOffer.yes}
-              </Button>
-            </ItemActions>
-          </Item>
-        </MotionCollapse>
-      ))}
-    </AnimatePresence>
-  )
-}
 
 const FreshCodes = ({
   canUseKeys,
@@ -535,7 +466,7 @@ const WorthKnowing = ({
     return null
   }
   return (
-    <SettingsGroup title={t.today.worthKnowing} isTitleSticky>
+    <SettingsGroup title={t.today.worthKnowing}>
       <PaneRows
         rowKey={(row) =>
           row.kind === 'awaiting' ? row.sent.threadId : row.message.id
@@ -583,84 +514,30 @@ const WorthKnowing = ({
   )
 }
 
-type Newsletters = ReturnType<typeof useFreshNewsletters>['rows']
-
-const pageHints = (
-  t: Messages,
-  page: HomeCardPage,
-  newsletters: Newsletters,
-  board: [string, string][]
-): [string, string][] => {
-  if (page === 'board') {
-    return board
-  }
-  if (page === 'improve') {
-    return [['esc', t.keys.close]]
-  }
-  if (page === 'tidy') {
-    return [
-      ['J / K', t.keys.move],
-      ['⏎', t.keys.approve],
-      ['S', t.keys.keep],
-      ['O', t.keys.open],
-      ['T', t.today.tidy.run],
-      ['esc', t.keys.close],
-    ]
-  }
-  return [...newsletterHints(t, newsletters), ['esc', t.keys.close]]
-}
-
 /** ⏎ on a card: one with an email opens it in the sidebar, where its proposal waits; one without says yes. */
 const primaryHints = (t: Messages, item: QueueItem): [string, string][] => [
   ['⏎', item.message ? t.keys.open : t.keys.approve],
-]
-
-/** The keys that open Home's cards over its column. */
-const cardHints = (
-  t: Messages,
-  state: {
-    hasBoard: boolean
-    hasImprove: boolean
-    hasLater: boolean
-    hasLook: boolean
-    hasNewsletters: boolean
-  }
-): [string, string][] => [
-  ...(state.hasLook ? [['Q', t.today.needsLook] as [string, string]] : []),
-  ...(state.hasLater ? [['W', t.today.canWait] as [string, string]] : []),
-  ...(state.hasImprove
-    ? [['R', t.today.improve.title] as [string, string]]
-    : []),
-  ...(state.hasNewsletters
-    ? [['N', t.mail.group.newsletters] as [string, string]]
-    : []),
-  ...(state.hasBoard ? [['B', t.nav.board] as [string, string]] : []),
 ]
 
 const homeHints = (
   t: Messages,
   state: {
     alike: number
-    board: [string, string][]
-    hasBoard: boolean
-    hasImprove: boolean
-    hasLater: boolean
-    hasLook: boolean
-    today: Today | undefined
-    hasNewsletters: boolean
-    newsletters: Newsletters
+    board: [string, string][] | null
+    isOnWorth: boolean
     picked: number
     selected: QueueItem | undefined
-    isOnProposals: boolean
-    isOnWorth: boolean
     stale: number
-    page: HomeCardPage | undefined
     tidy: number
+    today: Today | undefined
   }
 ): [string, string][] => {
-  // Needs you's and Can wait's panes hold Home's own cards: their keys are Home's.
-  if (state.page && state.page !== 'look' && state.page !== 'later') {
-    return pageHints(t, state.page, state.newsletters, state.board)
+  const bots: [string, string][] = [
+    ['[ / ]', t.keys.period],
+    ['/', t.keys.reply],
+  ]
+  if (state.board) {
+    return [...state.board, ...bots]
   }
   if (state.picked > 0) {
     return [
@@ -687,13 +564,6 @@ const homeHints = (
           ['⌫', t.keys.trash] as [string, string],
         ]
       : []),
-    ...(state.isOnProposals
-      ? [
-          ['J / K', t.keys.move] as [string, string],
-          ['⏎', t.today.tidy.run] as [string, string],
-          ['D', t.today.tidy.review] as [string, string],
-        ]
-      : []),
     ...(state.alike > 1
       ? [['⇧⏎', t.keys.approveAll(state.alike)] as [string, string]]
       : []),
@@ -705,12 +575,7 @@ const homeHints = (
         ]
       : []),
     ...(state.stale > 0 ? [['⇧S', t.queue.skipStale] as [string, string]] : []),
-    ...(state.tidy > 0
-      ? [
-          ['T', t.today.tidy.run] as [string, string],
-          ['D', t.today.tidy.review] as [string, string],
-        ]
-      : []),
+    ...(state.tidy > 0 ? [['T', t.today.tidy.run] as [string, string]] : []),
     ...(state.today?.newSenders.length
       ? [
           ['A', t.today.newSender.archive] as [string, string],
@@ -718,10 +583,10 @@ const homeHints = (
           ['I', t.today.newSender.keep] as [string, string],
         ]
       : []),
-    ...cardHints(t, state),
     ...(state.today?.codes.length
       ? [['Y', t.mail.oneTimeCode.copy] as [string, string]]
       : []),
+    ...bots,
   ]
 }
 
@@ -811,14 +676,10 @@ const DayStrip = () => {
   )
 }
 
-const headlineOf = (t: Messages, isFirstRead: boolean, decisions: number) => {
-  if (isFirstRead) {
-    return t.nav.syncing
-  }
-  return decisions === 0 ? t.today.allDone : t.today.headline(decisions)
-}
+const headlineOf = (t: Messages, isFirstRead: boolean, decisions: number) =>
+  isFirstRead ? t.nav.syncing : digestHeadline(t, decisions)
 
-/** What happened, in one sentence computed here from the counts (no model text), then what is ahead today. */
+/** What happened, in one sentence computed here from the counts (no model text), then what is ahead today: Fewmail's digest, live. */
 const HomeHeader = ({
   data,
   decisions,
@@ -831,7 +692,6 @@ const HomeHeader = ({
   updatedAt: number
 }) => {
   const t = useT()
-  const dates = useDates()
   const locale = useLocale()
   const { plan, usage } = useMe()
   // A spent allowance pauses the agent's writing, never its watch: Home says which, so nothing stops silently.
@@ -839,57 +699,53 @@ const HomeHeader = ({
     plan.kind !== 'free' &&
     usedPercent(plan.kind, usage.spent) >= 100 &&
     t.today.allowanceSpent(formatResetDay(locale, usage.resetsAt))
-  const lead = [
-    ...(decisions === 0
-      ? [t.today.allDoneLead]
-      : [
-          data &&
-            data.pulse.total > 0 &&
-            `${t.today.pulse.total(data.pulse.total, t.today.period(data.days))}.`,
-          data &&
-            data.pulse.people * 2 < data.pulse.total &&
-            t.today.mostlyNoise(data.pulse.people),
-          data && data.handled.total > 0 && t.today.byRules(data.handled.total),
-        ]),
-    paused,
-  ]
-    .filter(Boolean)
-    .join(' ')
-
-  return (
-    <header className="flex flex-col gap-3">
-      <div className="text-muted-foreground flex min-h-8 items-center gap-3 text-sm">
-        <p className="first-letter:uppercase">
-          {updatedAt > 0 && dates.format(updatedAt, 'EEEE, d MMMM')}
-        </p>
-        {!!data?.reading && !isFirstRead && (
-          <span className="flex items-center gap-1.5">
-            <Spinner />
-            {t.today.readingNow(data.reading)}
-          </span>
-        )}
-      </div>
-      {data ? (
-        <h1 className="text-display font-serif tracking-tight">
-          {headlineOf(t, isFirstRead, decisions)}
-        </h1>
-      ) : (
-        <Skeleton className="my-1 h-9 w-3/5" />
-      )}
-      {isFirstRead ? (
+  const lead = () => {
+    if (isFirstRead) {
+      return (
         <p className="text-muted-foreground flex items-center gap-2 text-sm">
           <Spinner />
           {t.today.firstRead}
         </p>
-      ) : (
-        data && (
-          <p className="text-brief text-foreground/80 font-serif text-balance">
-            {lead}
-          </p>
+      )
+    }
+    return (
+      data && (
+        <DigestLead>
+          {[
+            digestLead(t, {
+              days: data.days,
+              decisions,
+              handled: data.handled.total,
+              people: data.pulse.people,
+              total: data.pulse.total,
+            }),
+            paused,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        </DigestLead>
+      )
+    )
+  }
+
+  return (
+    <DigestHeader
+      at={updatedAt > 0 ? updatedAt : null}
+      headline={data ? headlineOf(t, isFirstRead, decisions) : null}
+      isLive
+      lead={lead()}
+      status={
+        !!data?.reading &&
+        !isFirstRead && (
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
+            <Spinner />
+            {t.today.readingNow(data.reading)}
+          </span>
         )
-      )}
+      }
+    >
       <DayStrip />
-    </header>
+    </DigestHeader>
   )
 }
 
@@ -936,75 +792,6 @@ const PickedActions = ({
         {t.queue.unpick}
       </Button>
     </>
-  )
-}
-
-/** Picked cards swap Needs you's title for what can be done to all of them at once. */
-const LookHeading = ({
-  onClose,
-  picked,
-  ...actions
-}: {
-  onApprove: () => void
-  onClear: () => void
-  onClose: () => void
-  onSkip: () => void
-  onTrash: () => void
-  picked: number
-}) => {
-  const t = useT()
-  return (
-    <PageHeading
-      title={picked > 0 ? t.queue.picked(picked) : t.today.needsLook}
-      onClose={onClose}
-      actions={picked > 0 && <PickedActions {...actions} />}
-    />
-  )
-}
-
-type Settled = ReturnType<typeof useSettled>
-
-/** Each card's share of the day's progress, in its own color: Needs you, Can wait and Quick. */
-const DecisionsHeader = ({
-  later,
-  look,
-  quick,
-}: Record<'later' | 'look' | 'quick', Settled>) => {
-  const t = useT()
-  const parts = [
-    { className: 'bg-primary', key: 'look', name: t.today.needsLook, ...look },
-    { className: 'bg-success', key: 'quick', name: t.today.quick, ...quick },
-    {
-      className: 'bg-foreground/30',
-      key: 'later',
-      name: t.today.canWait,
-      ...later,
-    },
-  ]
-  const settled = parts.reduce((sum, part) => sum + part.settled, 0)
-  const total = parts.reduce((sum, part) => sum + part.total, 0)
-
-  return (
-    settled < total && (
-      <div className="flex min-h-7 items-center gap-3">
-        <h2 className="text-muted-foreground text-xs font-medium">
-          {t.today.decisions}
-        </h2>
-        <ProgressSegments
-          className="flex-1"
-          max={total}
-          segments={parts.map(({ className, key, name, ...part }) => ({
-            className,
-            key,
-            label: `${name}: ${t.today.progress(part.settled, part.total)}`,
-            value: part.settled,
-          }))}
-        />
-        <span className="text-muted-foreground text-xs font-medium tabular-nums">
-          {t.today.progress(settled, total)}
-        </span>
-      </div>
-    )
   )
 }
 
@@ -1060,135 +847,17 @@ const kindsOf = (t: Messages, queue: QueueItem[]) =>
     }
   })
 
-/** A line breaks only between parts and never starts with the dot: "з / датою: 4" read as two facts. */
-const leadOf = (parts: string[]) =>
-  parts.map((part) => part.replaceAll(' ', '\u00A0')).join('\u00A0· ')
-
-/** Home's important cards as one card, opened over Home's column (`Q`, `?page=look`): what they ask and the first few. */
-const LookCard = ({ queue }: { queue: QueueItem[] }) => {
-  const t = useT()
-  if (queue.length === 0) {
-    return null
-  }
-  return (
-    <HomeCard
-      heading={t.today.needsLook}
-      lead={leadOf(
-        kindsOf(t, queue).map(({ count, label }) => `${label} ${count}`)
-      )}
-      page="look"
-      rows={queue.map(cardRowOf)}
-    />
-  )
-}
-
-const cardRowOf = (item: QueueItem): HomeCardRow => ({
-  id: item.action.id,
-  sender: whoOf(item) ?? { fromEmail: '', fromName: 'Fewmail' },
-  text: cardHeadlineOf(item),
-})
-
-const laterCountOf = (cards: QueueItem[], today: Today) =>
-  cards.length + worthRowsOf(today).length + today.newSenders.length
-
-const homeFlagsOf = (today: Today | undefined, laterCards: QueueItem[]) => ({
-  hasLater: Boolean(today && laterCountOf(laterCards, today) > 0),
-  isFirstRead: Boolean(today && isReadingFirstTime(today.mailboxes)),
-  isImproveEmpty: Boolean(today && improveCountOf(today) === 0),
-  isLaterEmpty: Boolean(today && laterCountOf(laterCards, today) === 0),
-})
-
-/** What can wait as one card (`W`, `?page=later`): the cards that only ask to read, Worth knowing's mail, new senders. */
-const LaterCard = ({
-  cards,
-  today,
-}: {
-  cards: QueueItem[]
-  today: Today | undefined
-}) => {
-  const t = useT()
-  if (!today || laterCountOf(cards, today) === 0) {
-    return null
-  }
-  const lead = leadOf(
-    [
-      ...kindsOf(t, cards).map(({ count, label }) => `${label} ${count}`),
-      today.recent.length > 0 &&
-        `${t.today.worthKnowing} ${today.recent.length}`,
-      today.dates.length > 0 && t.today.worth.dated(today.dates.length),
-      today.awaiting.length > 0 &&
-        t.today.worth.awaiting(today.awaiting.length),
-      today.newSenders.length > 0 &&
-        `${t.today.newSender.label} ${today.newSenders.length}`,
-    ].filter((part) => typeof part === 'string')
-  )
-  const rows: HomeCardRow[] = [
-    ...cards.map(cardRowOf),
-    ...[...today.recent, ...today.dates].map(({ analysis, message }) => ({
-      id: message.id,
-      sender: message,
-      text: analysis.summary,
-    })),
-    ...today.awaiting.map((sent) => ({
-      id: sent.threadId,
-      sender: { fromEmail: sent.to[0] ?? '', fromName: sent.toName },
-      text: `${t.today.awaiting} · ${sent.subject}`,
-    })),
-  ]
-  return (
-    <HomeCard
-      heading={t.today.canWait}
-      lead={`${lead.charAt(0).toUpperCase()}${lead.slice(1)}`}
-      page="later"
-      rows={rows}
-    />
-  )
-}
-
-/** What the agent offers to take over (`R`, `?page=improve`): rules for a sender it keeps judging quiet, starter rules. */
-const ImproveCard = ({ today }: { today: Today | undefined }) => {
-  const t = useT()
-  const total = improveCountOf(today)
-  if (!today || total === 0) {
-    return null
-  }
-  const rows: HomeCardRow[] = [
-    ...today.ruleSuggestions.map((suggestion) => ({
-      id: suggestion.fromEmail,
-      sender: suggestion,
-      text: t.today.ruleSuggestion.yes[suggestion.effect],
-    })),
-    ...today.ruleOffers.map((rule) => ({
-      icon: RepeatIcon,
-      id: rule.id,
-      name: rule.instruction,
-      text: t.rules.effect[rule.effect],
-    })),
-  ]
-  return (
-    <HomeCard
-      heading={t.today.improve.title}
-      lead={t.today.improve.lead(total)}
-      page="improve"
-      rows={rows}
-    />
-  )
-}
-
-const improveCountOf = (today: Today | undefined) =>
-  (today?.ruleSuggestions.length ?? 0) + (today?.ruleOffers.length ?? 0)
-
 /**
  * The cursor holds a card, not a position: a card arriving above it live must never take ⏎ from the one being read.
  * A card that leaves hands the cursor to whichever card takes its place.
  * There is none until J / K or a click: a lit card nobody picked reads as ⏎'s target.
  */
-const useCursor = (stops: string[], page: HomeCardPage | undefined) => {
+const useCursor = (stops: string[], page: string) => {
   // Each pane has its own: carried into the next one, it lit the card at its old place there, which scrolled itself into
   // view while the pane was still growing out of its card, and the pane opened scrolled and jumped.
   const [selected, setSelected] = useState<{
     id: string
-    page?: HomeCardPage
+    page: string
   } | null>(null)
   const selectedId = selected && selected.page === page ? selected.id : null
   const setSelectedId = (id: string) => setSelected({ id, page })
@@ -1240,89 +909,6 @@ const StaleCards = ({
   )
 }
 
-/** A card's key opens its pane over Home's column; the same key or esc brings Home back. */
-const useHomeSubpage = (
-  page: HomeCardPage | undefined,
-  canSwitch: boolean,
-  {
-    hasAgent,
-    hasImprove,
-    hasLater,
-    hasLook,
-    hasNewsletters,
-    hasProposals,
-  }: {
-    hasAgent: boolean
-    hasImprove: boolean
-    hasLater: boolean
-    hasLook: boolean
-    hasNewsletters: boolean
-    hasProposals: boolean
-  }
-) => {
-  const navigate = useNavigate()
-  const show = (next: HomeCardPage | undefined) =>
-    navigate({ search: (prev) => ({ ...prev, page: next }), to: '/home' })
-  const toggle = (next: HomeCardPage) => show(page === next ? undefined : next)
-  useHotkey('Escape', () => show(undefined), { enabled: canSwitch && !!page })
-  useHotkey('N', () => toggle('newsletters'), {
-    enabled: canSwitch && hasNewsletters,
-  })
-  useHotkey('D', () => toggle('tidy'), {
-    enabled: canSwitch && hasProposals && page !== 'board',
-  })
-  useHotkey('B', () => toggle('board'), { enabled: canSwitch && hasAgent })
-  useHotkey('Q', () => toggle('look'), { enabled: canSwitch && hasLook })
-  useHotkey('W', () => toggle('later'), { enabled: canSwitch && hasLater })
-  // The Board's pane takes R for reopening a promise.
-  useHotkey('R', () => toggle('improve'), {
-    enabled: canSwitch && hasImprove && page !== 'board',
-  })
-}
-
-/** Home's keys rest while an expanded email lies over Home, its proposal taking them. */
-const useHomeFocus = (page: HomeCardPage | undefined) => {
-  const isFocused = !useIsThreadExpanded()
-  const isInList = page === 'look' || page === 'later'
-  // Needs you's and Can wait's panes hold Home's own cards and rows, so Home's cursor walks them there, and only them.
-  return {
-    isFocused,
-    isInQueue: isFocused && isInList,
-    isStepping: isFocused && (!page || isInList),
-    isWalking: isFocused && !page,
-  }
-}
-
-/** Where Home's cursor goes: on Home the agent's proposals; in a card's pane its cards, then (Can wait) its mail. */
-const stopsOf = (
-  page: HomeCardPage | undefined,
-  {
-    hasProposals,
-    queue,
-    worth,
-  }: { hasProposals: boolean; queue: QueueItem[]; worth: WorthRow[] }
-) => {
-  if (page === 'look' || page === 'later') {
-    return [
-      ...queue.map(({ action }) => action.id),
-      ...(page === 'later' ? worth.map(({ id }) => worthStop(id)) : []),
-    ]
-  }
-  return hasProposals ? [PROPOSALS_ID] : []
-}
-
-/** What left a card since the page opened, however it left (here, the sidebar, another tab); an Undo brings one back. */
-const useSettled = (current: string[]) => {
-  const [seen, setSeen] = useState<ReadonlySet<string>>(new Set())
-  const ids = new Set(current)
-  const fresh = [...ids].filter((id) => !seen.has(id))
-  if (fresh.length > 0) {
-    setSeen(new Set([...seen, ...fresh]))
-  }
-  const settled = [...seen].filter((id) => !ids.has(id)).length
-  return { settled, total: settled + ids.size }
-}
-
 const openCardEmail = ({ action, message }: QueueItem) =>
   message && expandRow(action.id, { from: 'home', threadId: message.threadId })
 
@@ -1351,57 +937,303 @@ const useNextInSidebar = (queue: QueueItem[], onNext: (id: string) => void) => {
   }, [isSettled, onNext, queue, shown])
 }
 
-/** Needs you holds the important cards; Can wait the rest but the agent's proposals, which Tidy's card holds. */
-const useHomeLists = (cards: QueueItem[]) => {
-  const importantCards = cards.filter(isImportantCard)
-  return {
-    groups: useKindGroups(importantCards),
-    importantCards,
-    laterCards: cards.filter(
-      (card) => !isProposal(card) && !isImportantCard(card)
-    ),
+/** Fewmail's record of every change in the mail, with its yes or its bot and an undo where one exists. */
+const DoneInMail = ({
+  isShown,
+  journal,
+}: {
+  isShown: boolean
+  journal: ReturnType<typeof useJournal>
+}) => {
+  const [cursorId, setCursorId] = useState<string>()
+  return (
+    isShown && (
+      <Journal cursorId={cursorId} journal={journal} onSelect={setCursorId} />
+    )
+  )
+}
+
+/** The Board's chat: its lists, or on Free what Pro adds. */
+const BoardNow = ({ isActive }: { isActive: boolean }) => {
+  const t = useT()
+  const hasAgent = useHasAgent()
+  return hasAgent ? (
+    <BoardPane isActive={isActive} />
+  ) : (
+    <Button
+      size="sm"
+      className="self-start"
+      onClick={() => upgradeStore.set('board')}
+    >
+      {t.bots.subscribe}
+    </Button>
+  )
+}
+
+type KindGroups = ReturnType<typeof useKindGroups>
+
+/** The open bot's cards by what they ask, every kind but the last folded to its first few. */
+const CardGroups = ({
+  cardOf,
+  groups,
+  listKey,
+  onToggle,
+  openIds,
+}: {
+  cardOf: (item: QueueItem, place: RowPlace) => ReactNode
+  groups: KindGroups
+  listKey: string
+  onToggle: (ids: string[]) => void
+  openIds: string[]
+}) => {
+  const t = useT()
+  return groups.groups.map((group) => (
+    <NowMessage key={group.kind}>
+      <section className="flex flex-col gap-2">
+        <SettingsGroupTitle
+          action={
+            (group.shown.length < group.count || group.isUnfolded) && (
+              <Button
+                size="xs"
+                variant="link-muted"
+                onClick={() => groups.toggle(group.kind)}
+              >
+                {group.isUnfolded
+                  ? t.mail.showFewer
+                  : t.mail.showAll(group.count)}
+              </Button>
+            )
+          }
+        >
+          {group.label}
+          <span className="tabular-nums opacity-60">{group.count}</span>
+        </SettingsGroupTitle>
+        <Accordion variant="list" value={openIds} onValueChange={onToggle}>
+          <PaneRows
+            listKey={`${listKey}:${group.kind}:${group.isUnfolded}`}
+            rowKey={({ action }) => action.id}
+            rows={group.shown}
+          >
+            {cardOf}
+          </PaneRows>
+        </Accordion>
+      </section>
+    </NowMessage>
+  ))
+}
+
+/** The bots as a row of faces over the chat, where the sidebar is a sheet. */
+const BotStrip = ({
+  bots,
+  onOpen,
+  openId,
+}: {
+  bots: HomeBot[]
+  onOpen: (bot: string) => void
+  openId: string
+}) => (
+  <div className="flex gap-1 overflow-x-auto md:hidden">
+    {bots.map((bot) => (
+      <button
+        key={bot.bot}
+        type="button"
+        aria-label={bot.name}
+        aria-current={bot.bot === openId || undefined}
+        className="aria-current:bg-secondary hover:bg-accent cursor-pointer rounded-full p-1"
+        onClick={() => onOpen(bot.bot)}
+      >
+        <BotAvatar bot={bot} size="md" />
+      </button>
+    ))}
+  </div>
+)
+
+/** The open bot: its name, its chat with what it waits on now under it, and where to write to it, floating over the chat's end. Fewmail's latest message is the day's brief. */
+const BotPane = ({
+  ask,
+  asking,
+  bot,
+  bots,
+  children,
+  head,
+  isFocused,
+  isWaiting,
+  onEdit,
+  onOpen,
+  today,
+}: {
+  ask: ReturnType<typeof useAskBot>['ask']
+  asking: ReturnType<typeof useAskBot>['asking']
+  bot: HomeBot
+  bots: HomeBot[]
+  children: ReactNode
+  head: ReactNode
+  isFocused: boolean
+  isWaiting: boolean
+  onEdit: () => void
+  onOpen: (bot: string) => void
+  today: Today | undefined
+}) => {
+  const t = useT()
+  return (
+    <div className="under-notice flex min-w-0 flex-1 flex-col">
+      <BotHeader bot={bot} onEdit={onEdit} />
+      {/* Keyed: a bot opens at its newest message, not where the last one was scrolled to. */}
+      <MessageScrollerProvider key={bot.bot} autoScroll>
+        <ChatScroller>
+          <MessageScroller className="flex-1">
+            <MessageScrollerViewport aria-label={bot.name}>
+              <MessageScrollerContent
+                // oxlint-disable shadcn/require-static-classes -- the guard goes on the content itself: a wrapper inside it would hide the messages from the scroller
+                className={cn(
+                  'mx-auto w-full max-w-3xl gap-3 px-10 pt-6 pb-6 max-md:px-4',
+                  STILL_POINTER_GUARD
+                )}
+                // oxlint-enable shadcn/require-static-classes
+              >
+                <BotStrip bots={bots} openId={bot.bot} onOpen={onOpen} />
+                {bot.bot === 'fewmail' && (
+                  <>
+                    <ConnectHint />
+                    <FreshCodes today={today} canUseKeys={isFocused} />
+                  </>
+                )}
+                <BotTimeline
+                  bot={bot}
+                  asking={asking}
+                  isWaiting={isWaiting || bot.bot === 'fewmail'}
+                >
+                  {bot.bot === 'fewmail' ? (
+                    <BotNow>
+                      <NowMessage isWide={false}>{head}</NowMessage>
+                      {isWaiting && children}
+                    </BotNow>
+                  ) : (
+                    isWaiting && <BotNow>{children}</BotNow>
+                  )}
+                </BotTimeline>
+              </MessageScrollerContent>
+            </MessageScrollerViewport>
+            <MessageScrollerButton
+              aria-label={t.bots.toLatest}
+              className="data-[direction=end]:bottom-2"
+            />
+          </MessageScroller>
+        </ChatScroller>
+        <div className="mx-auto w-full max-w-3xl px-10 pb-4 max-md:px-4">
+          <BotComposer
+            bot={bot}
+            isActive={isFocused}
+            isSending={ask.isPending}
+            onSend={(message) => ask.mutate({ ...message, bot: bot.bot })}
+          />
+        </div>
+      </MessageScrollerProvider>
+    </div>
+  )
+}
+
+/** Whether the open bot waits on anything now: with nothing, its chat ends on its last message, never an empty one. */
+const waitsOnAnything = ({
+  botId,
+  data,
+  journal,
+  proposals,
+  queue,
+  worth,
+}: {
+  botId: string
+  data: Today | undefined
+  journal: number
+  proposals: number
+  queue: number
+  worth: number
+}) =>
+  botId === 'board' ||
+  queue + proposals + worth > 0 ||
+  (data?.newSenders.length ?? 0) + (data?.botSuggestions.length ?? 0) > 0 ||
+  (botId === 'fewmail' && journal > 0)
+
+/** The open bot's own part of Today: Fewmail keeps what no bot of the user's takes, and what is not anyone's mail. */
+const todayOf = (today: Today | undefined, bot: string): Today | undefined => {
+  if (!today) {
+    return undefined
   }
+  const isMine = ({ analysis }: { analysis: { botId: string | null } }) =>
+    (analysis.botId ?? 'fewmail') === bot
+  const isFewmail = bot === 'fewmail'
+  return {
+    ...today,
+    awaiting: isFewmail ? today.awaiting : [],
+    botSuggestions: isFewmail ? today.botSuggestions : [],
+    codes: isFewmail ? today.codes : [],
+    dates: today.dates.filter(isMine),
+    newSenders: isFewmail ? today.newSenders : [],
+    recent: today.recent.filter(isMine),
+  }
+}
+
+const useOpenBot = (bots: HomeBot[]) => {
+  const navigate = useNavigate()
+  const { bot: picked } = Route.useSearch()
+  const id = openBotIdOf(bots, picked)
+  const bot = bots.find((each) => each.bot === id) ?? bots[0]
+  const open = (next: string) => {
+    void navigate({ search: { bot: next }, to: '/home' })
+  }
+  const step = (by: number) => {
+    const index = bots.findIndex((each) => each.bot === bot?.bot)
+    const next = bots[Math.max(0, Math.min(bots.length - 1, index + by))]
+    if (next) {
+      open(next.bot)
+    }
+  }
+  return { bot, open, step }
+}
+
+/** What the open bot waits on now, under its chat: its cards by kind, its emails to tidy, its mail worth knowing. */
+const useBotCards = (cards: QueueItem[], bot: string | undefined) => {
+  const own = cards.filter(
+    (card) => botOfCard(card) === bot && !isProposal(card)
+  )
+  return { groups: useKindGroups(own), own }
 }
 
 const HomePage = () => {
   const t = useT()
-  const navigate = useNavigate()
-  const closePage = () =>
-    navigate({ search: (prev) => ({ ...prev, page: undefined }), to: '/home' })
-  const hasAgent = useHasAgent()
   const queryClient = useQueryClient()
-  const search = Route.useSearch()
-  const { page } = search
-  const { rows: newsletters } = useFreshNewsletters()
-  const hasNewsletters = newsletters.length > 0
-  const { data, dataUpdatedAt } = useToday()
+  const { data: today, dataUpdatedAt } = useToday()
+  const bots = useBots()
+  const { bot, open: openBot, step: stepBot } = useOpenBot(bots)
+  const botId = bot?.bot ?? 'fewmail'
+  useReadBot(bot)
+  const { ask, asking } = useAskBot()
+  const [editing, setEditing] = useState<{
+    bot: OwnBot | null
+    isOpen: boolean
+  } | null>(null)
 
   const { data: cards } = useLiveQuery((query) =>
     query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
   )
-  const { groups, importantCards, laterCards } = useHomeLists(cards)
-  const { hasLater, isFirstRead, isImproveEmpty, isLaterEmpty } = homeFlagsOf(
-    data,
-    laterCards
-  )
-  const decisions = importantCards.length
-  const proposals = useProposals(data, cards, holdClicksUntilMove)
-  const hasProposals = proposals.proposals.length > 0
-  const worth = worthRowsOf(data)
-  const settled = {
-    later: useSettled([
-      ...laterCards.map(({ action }) => action.id),
-      ...worth.map(({ id }) => id),
-      ...(data?.newSenders ?? []).map(({ fromEmail }) => fromEmail),
-    ]),
-    look: useSettled(importantCards.map(({ action }) => action.id)),
-    quick: useSettled(proposals.proposals.map(({ id }) => id)),
+  const decisions = cards.filter(isImportantCard).length
+  const isFirstRead = Boolean(today && isReadingFirstTime(today.mailboxes))
+  const { groups } = useBotCards(cards, botId)
+  const allProposals = useProposals(today, cards, holdClicksUntilMove)
+  const proposals = {
+    ...allProposals,
+    proposals: allProposals.proposals.filter(
+      (proposal) => proposal.bot === botId
+    ),
   }
-  const hasImprove = improveCountOf(data) > 0
-  const queue = page === 'later' ? laterCards : groups.shown
-  const stops = stopsOf(page, { hasProposals, queue, worth })
-  const { cursorId, cursorIndex, setSelectedId } = useCursor(stops, page)
-  const isOnProposals = cursorId === PROPOSALS_ID
+  const data = todayOf(today, botId)
+  const worth = worthRowsOf(data)
+  const queue = groups.shown
+  const stops = [
+    ...queue.map(({ action }) => action.id),
+    ...worth.map(({ id }) => worthStop(id)),
+  ]
+  const { cursorId, cursorIndex, setSelectedId } = useCursor(stops, botId)
   // Only a card without an email unfolds in place; one with an email opens it in the sidebar.
   const [isOpen, setIsOpen] = useState(false)
   const openIds = isOpen && cursorId ? [cursorId] : []
@@ -1428,9 +1260,7 @@ const HomePage = () => {
   const targets =
     picked.length > 0 ? picked : queue.filter((item) => item === selected)
   const staleBefore = subDays(dataUpdatedAt, STALE_DAYS)
-  const stale = importantCards.filter(
-    ({ action }) => action.createdAt < staleBefore
-  )
+  const stale = queue.filter(({ action }) => action.createdAt < staleBefore)
 
   const { approve, approveMany, refresh, skip } = useCardActions()
   const seenAt = useVisits(() =>
@@ -1483,15 +1313,13 @@ const HomePage = () => {
   const approveAlike = () =>
     alike.length > 1 &&
     approveMany.mutate({ ids: alike.map(({ action }) => action.id) })
-
-  const move = (step: number) => {
+  const move = (by: number) => {
     const next =
-      stops[Math.min(stops.length - 1, Math.max(0, cursorIndex + step))]
+      stops[Math.min(stops.length - 1, Math.max(0, cursorIndex + by))]
     if (next) {
       setSelectedId(next)
     }
   }
-
   const togglePick = (actionId: string) =>
     setPickedIds((current) =>
       current.includes(actionId)
@@ -1505,8 +1333,6 @@ const HomePage = () => {
       approveMany.mutate({ ids: picked.map(({ action }) => action.id) })
     } else if (worthRow) {
       openWorthRow(worthRow)
-    } else if (isOnProposals) {
-      proposals.approve(proposals.proposals)
     } else if (selected?.message) {
       openCardEmail(selected)
     } else if (selected) {
@@ -1515,18 +1341,13 @@ const HomePage = () => {
   }
   const skipTargets = () => skipCards(targets.map(({ action }) => action.id))
 
-  const { isFocused, isInQueue, isStepping, isWalking } = useHomeFocus(page)
-  useHomeSubpage(page, isFocused, {
-    hasAgent,
-    hasImprove,
-    hasLater,
-    hasLook: importantCards.length > 0,
-    hasNewsletters,
-    hasProposals,
-  })
-  const boardHints = useBoardHints()
+  const isFocused = !useIsThreadExpanded()
+  const isBoard = botId === 'board'
+  const isStepping = isFocused && !isBoard
   const walkKeys = { enabled: isStepping && stops.length > 0 }
-  const listKeys = { enabled: isInQueue && !!selected }
+  const listKeys = { enabled: isStepping && !!selected }
+  useHotkey('[', () => stepBot(-1), { enabled: isFocused })
+  useHotkey(']', () => stepBot(1), { enabled: isFocused })
   useHotkey('J', () => move(1), walkKeys)
   useHotkey('ArrowDown', () => move(1), walkKeys)
   useHotkey('K', () => move(-1), walkKeys)
@@ -1544,13 +1365,24 @@ const HomePage = () => {
           ? []
           : queue.map(({ action }) => action.id)
       ),
-    { enabled: isInQueue && queue.length > 0 }
+    { enabled: isStepping && queue.length > 0 }
   )
   useHotkey('Escape', () => setPickedIds([]), {
-    enabled: isInQueue && picked.length > 0,
+    enabled: isStepping && picked.length > 0,
   })
   useHotkey('Space', () => selected && openCard(selected), listKeys)
   useOpenKey(worthRow, selected, isStepping)
+  const boardHints = useBoardHints()
+  const journal = useJournal()
+  const isWaiting = waitsOnAnything({
+    botId,
+    data,
+    journal: journal.rows.length,
+    proposals: proposals.proposals.length,
+    queue: queue.length,
+    worth: worth.length,
+  })
+
   const cardOf = (item: QueueItem, place: RowPlace) => (
     <QueueCard
       item={item}
@@ -1564,217 +1396,129 @@ const HomePage = () => {
       onSkip={() => skipCards([item.action.id])}
     />
   )
-  const cardList = (items: QueueItem[], key?: string) => (
-    <Accordion
-      variant="list"
-      hidden={items.length === 0}
-      value={openIds}
-      onValueChange={toggleCard}
-    >
-      <PaneRows listKey={key} rowKey={({ action }) => action.id} rows={items}>
-        {cardOf}
-      </PaneRows>
-    </Accordion>
+  const now = isBoard ? (
+    <NowMessage>
+      <BoardNow isActive={isFocused} />
+    </NowMessage>
+  ) : (
+    <>
+      {picked.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mr-auto text-sm font-medium">
+            {t.queue.picked(picked.length)}
+          </span>
+          <PickedActions
+            onApprove={approveTargets}
+            onClear={() => setPickedIds([])}
+            onSkip={skipTargets}
+            onTrash={() => trashMany.mutate(picked)}
+          />
+        </div>
+      )}
+      <CardGroups
+        cardOf={cardOf}
+        groups={groups}
+        listKey={botId}
+        openIds={openIds}
+        onToggle={toggleCard}
+      />
+      <NowMessage>
+        <StaleCards
+          canUseKeys={isStepping}
+          count={stale.length}
+          onSkip={() => skipCards(stale.map(({ action }) => action.id))}
+        />
+      </NowMessage>
+      {proposals.proposals.length > 0 && (
+        <NowMessage>
+          <ProposalsReview
+            canUseKeys={isFocused && stops.length === 0}
+            proposals={proposals}
+          />
+        </NowMessage>
+      )}
+      <NowMessage>
+        <WorthKnowing
+          cursorId={cursorId}
+          isWalking={isStepping}
+          today={data}
+          onSelect={setSelectedId}
+        />
+      </NowMessage>
+      <NowMessage>
+        <div
+          className={cn(
+            'flex flex-col gap-2.5 empty:hidden',
+            cardsBleedClassName
+          )}
+        >
+          <BotSuggestions today={data} />
+          <NewSenders
+            senders={data?.newSenders ?? []}
+            canUseKeys={isStepping}
+            onSettle={holdClicksUntilMove}
+          />
+        </div>
+      </NowMessage>
+      <NowMessage>
+        <DoneInMail isShown={botId === 'fewmail'} journal={journal} />
+      </NowMessage>
+    </>
   )
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <main className="flex min-h-0 flex-1 flex-col">
-        <div className="relative min-h-0 flex-1">
-          <div className="under-notice h-full overflow-y-auto">
-            <div
-              className={cn(
-                'mx-auto flex max-w-3xl flex-col gap-8 px-10 pt-12 pb-16 max-md:px-4 max-md:pt-6',
-                STILL_POINTER_GUARD
-              )}
-            >
+      <main className="flex min-h-0 flex-1">
+        {bot && (
+          <BotPane
+            ask={ask}
+            asking={asking}
+            bot={bot}
+            bots={bots}
+            head={
               <HomeHeader
-                data={data}
+                data={today}
                 decisions={decisions}
                 isFirstRead={isFirstRead}
                 updatedAt={dataUpdatedAt}
               />
-              <ConnectHint />
-              <FreshCodes today={data} canUseKeys={isWalking} />
-
-              <section
-                aria-label={t.today.decisions}
-                className="flex flex-col gap-2.5"
-              >
-                <DecisionsHeader {...settled} />
-                <div
-                  className={cn(
-                    'flex flex-col gap-3 empty:hidden',
-                    cardsBleedClassName
-                  )}
-                >
-                  <LookCard queue={importantCards} />
-                  <div className="grid gap-3 empty:hidden md:grid-cols-2 md:[&>:last-child:nth-child(odd)]:col-span-2">
-                    <LaterCard cards={laterCards} today={data} />
-                    <ImproveCard today={data} />
-                    <ProposalsGroup
-                      canUseKeys={isWalking}
-                      isSelected={isOnProposals}
-                      proposals={proposals}
-                    />
-                    {hasAgent && <BoardCard />}
-                  </div>
-                </div>
-              </section>
-              <div className={cn('empty:hidden', cardsBleedClassName)}>
-                <NewslettersCard isActive={isWalking} />
-              </div>
-            </div>
-          </div>
-          {/* A closing pane stays mounted while it shrinks back into its card; one open on load is simply there. */}
-          <AnimatePresence initial={false}>
-            {page === 'look' && (
-              <HomeCardPane key="look" page="look">
-                <LookHeading
-                  picked={picked.length}
-                  onApprove={approveTargets}
-                  onClear={() => setPickedIds([])}
-                  onClose={closePage}
-                  onSkip={skipTargets}
-                  onTrash={() => trashMany.mutate(picked)}
-                />
-                <PaneEmpty
-                  isShown={importantCards.length === 0}
-                  lead={t.today.allDoneLead}
-                  title={t.today.allDone}
-                />
-                {groups.groups.map((group) => (
-                  <section key={group.kind} className="flex flex-col gap-2">
-                    <SettingsGroupTitle
-                      isSticky
-                      action={
-                        (group.shown.length < group.count ||
-                          group.isUnfolded) && (
-                          <Button
-                            size="xs"
-                            variant="link-muted"
-                            onClick={() => groups.toggle(group.kind)}
-                          >
-                            {group.isUnfolded
-                              ? t.mail.showFewer
-                              : t.mail.showAll(group.count)}
-                          </Button>
-                        )
-                      }
-                    >
-                      {group.label}
-                      <span className="tabular-nums opacity-60">
-                        {group.count}
-                      </span>
-                    </SettingsGroupTitle>
-                    {cardList(group.shown, `${group.kind}:${group.isUnfolded}`)}
-                  </section>
-                ))}
-                <StaleCards
-                  canUseKeys={isInQueue}
-                  count={stale.length}
-                  onSkip={() => skipCards(stale.map(({ action }) => action.id))}
-                />
-              </HomeCardPane>
-            )}
-            {page === 'later' && (
-              <HomeCardPane key="later" page="later">
-                <PageHeading title={t.today.canWait} onClose={closePage} />
-                <PaneEmpty isShown={isLaterEmpty} {...t.today.canWaitEmpty} />
-                {cardList(laterCards)}
-                <WorthKnowing
-                  cursorId={cursorId}
-                  isWalking={isStepping}
-                  today={data}
-                  onSelect={setSelectedId}
-                />
-                <div
-                  className={cn(
-                    'flex flex-col gap-2.5 empty:hidden',
-                    cardsBleedClassName
-                  )}
-                >
-                  <NewSenders
-                    senders={data?.newSenders ?? []}
-                    canUseKeys={isStepping}
-                    onSettle={holdClicksUntilMove}
-                  />
-                </div>
-              </HomeCardPane>
-            )}
-            {page === 'improve' && (
-              <HomeCardPane key="improve" page="improve">
-                <PageHeading
-                  title={t.today.improve.title}
-                  onClose={closePage}
-                />
-                <PaneEmpty
-                  isShown={isImproveEmpty}
-                  {...t.today.improve.empty}
-                />
-                <div
-                  className={cn('flex flex-col gap-2.5', cardsBleedClassName)}
-                >
-                  <RuleSuggestions today={data} />
-                  <RuleOffers today={data} onSettle={holdClicksUntilMove} />
-                </div>
-              </HomeCardPane>
-            )}
-            {page === 'board' && (
-              <HomeCardPane key="board" page="board">
-                <BoardPane isActive={isFocused} onClose={closePage} />
-              </HomeCardPane>
-            )}
-            {page === 'newsletters' && (
-              <HomeCardPane key="newsletters" page="newsletters">
-                <NewslettersPane isActive={isFocused} onClose={closePage} />
-              </HomeCardPane>
-            )}
-            {page === 'tidy' && (
-              <HomeCardPane key="tidy" page="tidy">
-                <ProposalsReview
-                  canUseKeys={isFocused}
-                  proposals={proposals}
-                  onClose={closePage}
-                />
-              </HomeCardPane>
-            )}
-          </AnimatePresence>
-        </div>
-        <KeyHints
-          hints={homeHints(t, {
-            alike: alike.length,
-            board: boardHints,
-            hasBoard: hasAgent,
-            hasImprove,
-            hasLater,
-            hasLook: importantCards.length > 0,
-            hasNewsletters,
-            newsletters,
-            page,
-            selected,
-            isOnProposals,
-            isOnWorth: !!worthRow,
-            picked: picked.length,
-            stale: stale.length,
-            tidy: proposals.proposals.length,
-            today: data,
-          })}
-        />
+            }
+            isFocused={isFocused}
+            isWaiting={isWaiting}
+            onEdit={() => setEditing({ bot: bot.own, isOpen: true })}
+            onOpen={openBot}
+            today={today}
+          >
+            {now}
+          </BotPane>
+        )}
       </main>
+      <KeyHints
+        hints={homeHints(t, {
+          alike: alike.length,
+          board: isBoard ? boardHints : null,
+          isOnWorth: !!worthRow,
+          picked: picked.length,
+          selected,
+          stale: stale.length,
+          tidy: proposals.proposals.length,
+          today: data,
+        })}
+      />
+      <BotSettingsDialog
+        editing={editing}
+        onClose={() =>
+          setEditing((current) => current && { ...current, isOpen: false })
+        }
+        onClosed={() => setEditing(null)}
+        onCreated={openBot}
+      />
     </div>
   )
 }
 
 export const Route = createFileRoute('/_app/home')({
-  beforeLoad: ({ context: { me }, preload, search }) => {
-    // The Board is what the agent writes down: Free gets the upgrade dialog instead (`domain.md` → Free).
-    if (search.page === 'board' && me.plan.kind === 'free') {
-      if (!preload) {
-        upgradeStore.set('board')
-      }
-      throw redirect({ search: {}, to: '/home' })
-    }
+  beforeLoad: ({ search }) => {
     // Digests and notifications already sent still open an issue on Home.
     if (search.day) {
       throw redirect({ search: { day: search.day }, to: '/reading' })
@@ -1789,28 +1533,17 @@ export const Route = createFileRoute('/_app/home')({
   },
   component: HomePage,
   validateSearch: z.object({
+    bot: z.optional(z.string()),
     day: z.optional(z.string().check(z.regex(/^\d{4}-\d{2}-\d{2}$/u))),
-    page: z.optional(
-      z.enum(['board', 'improve', 'later', 'look', 'newsletters', 'tidy'])
-    ),
     thread: z.optional(z.string()),
   }),
-  // Everything Home draws on its first frame: loaded after it, the newsletters' card came in under cards already
-  // there and the connect hint pushed the page down as it came in.
-  loader: async ({ context: { me } }) => {
-    const hasAgent = me.plan.kind !== 'free'
+  // Everything Home draws on its first frame: the list of bots and the open bot's chat come with the page.
+  loader: async () => {
     await Promise.all([
       warmQuery(orpc.today.get.queryOptions()),
-      warmQuery(orpc.reading.issues.queryOptions()).then((issues) =>
-        issues?.[0]?.isFresh
-          ? warmQuery(
-              orpc.reading.day.queryOptions({ input: { day: issues[0].day } })
-            )
-          : null
-      ),
+      botChats.preload(),
+      ownBots.preload(),
       connectedApps.preload(),
-      hasAgent && warmQuery(orpc.integrations.telegram.get.queryOptions()),
-      hasAgent && warmQuery(orpc.integrations.whatsapp.get.queryOptions()),
       queueCards.preload(),
       ...Object.values(todayLists).map((list) => list.preload()),
     ])

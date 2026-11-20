@@ -18,24 +18,24 @@ import { useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 import { pendingToast } from '~/lib/undo'
 
-const RULE_SUGGESTION_TOAST = 'rule-suggestion'
+const BOT_SUGGESTION_TOAST = 'bot-suggestion'
 
-export interface RuleSuggestion {
+export interface BotSuggestion {
   count: number
   effect: 'archive' | 'mark_read'
   fromEmail: string
   fromName: string | null
 }
 
-const refetch = () => refetchChanged(['today', 'mail', 'rules'])
+const refetch = () => refetchChanged(['today', 'mail', 'bots'])
 
 /** A sender whose every email of the month the agent would archive or mark read: asked once, on Home and in their mail alike. */
-export const RuleSuggestionCard = ({
+export const BotSuggestionCard = ({
   onAnswer,
   suggestion,
 }: {
   onAnswer?: () => void
-  suggestion: RuleSuggestion
+  suggestion: BotSuggestion
 }) => {
   const t = useT()
   const [isAnswered, setIsAnswered] = useState(false)
@@ -44,17 +44,17 @@ export const RuleSuggestionCard = ({
     onAnswer?.()
   }
   const accept = useMutation(
-    orpc.rules.createSimple.mutationOptions({
-      ...pendingToast(RULE_SUGGESTION_TOAST),
+    orpc.bots.createSimple.mutationOptions({
+      ...pendingToast(BOT_SUGGESTION_TOAST),
       onSettled: refetch,
       onSuccess: () =>
-        toast.success(t.today.ruleSuggestion.done[suggestion.effect], {
-          id: RULE_SUGGESTION_TOAST,
+        toast.success(t.today.botSuggestion.done[suggestion.effect], {
+          id: BOT_SUGGESTION_TOAST,
         }),
     })
   )
   const decline = useMutation(
-    orpc.rules.declineSuggestion.mutationOptions({ onSettled: refetch })
+    orpc.bots.declineSuggestion.mutationOptions({ onSettled: refetch })
   )
 
   return (
@@ -71,11 +71,11 @@ export const RuleSuggestionCard = ({
                   {suggestion.fromName ?? suggestion.fromEmail}
                 </span>
                 <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
-                  {t.today.ruleSuggestion.label}
+                  {t.today.botSuggestion.label}
                 </span>
               </ItemTitle>
               <ItemDescription>
-                {t.today.ruleSuggestion.lead(
+                {t.today.botSuggestion.lead(
                   suggestion.count,
                   suggestion.effect
                 )}
@@ -90,7 +90,7 @@ export const RuleSuggestionCard = ({
                   decline.mutate({ fromEmail: suggestion.fromEmail })
                 }}
               >
-                {t.today.ruleSuggestion.no}
+                {t.today.botSuggestion.no}
               </Button>
               <Button
                 size="sm"
@@ -99,10 +99,11 @@ export const RuleSuggestionCard = ({
                   accept.mutate({
                     effect: suggestion.effect,
                     match: { field: 'from', value: suggestion.fromEmail },
+                    name: suggestion.fromName ?? suggestion.fromEmail,
                   })
                 }}
               >
-                {t.today.ruleSuggestion.yes[suggestion.effect]}
+                {t.today.botSuggestion.yes[suggestion.effect]}
               </Button>
             </ItemActions>
           </Item>

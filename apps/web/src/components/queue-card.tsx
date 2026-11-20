@@ -477,13 +477,13 @@ const ReplyBody = ({
   )
 }
 
-/** Why the card is here: the agent's reason, and the user's rule when one made it. */
-const Why = ({ item: { action, analysis, rule } }: { item: QueueItem }) => {
+/** Why the card is here: the agent's reason, and the user's bot when one made it. */
+const Why = ({ item: { action, analysis, bot } }: { item: QueueItem }) => {
   const t = useT()
   const why = [
     // A promise's `reason` is whom it was made to, already the card's name (`whoOf`).
     (action.kind === 'commitment' ? null : action.reason) || analysis?.reason,
-    rule && t.today.journal.byRule(rule),
+    bot && t.today.journal.byBot(bot),
   ].filter(Boolean)
   return (
     why.length > 0 && (
@@ -503,7 +503,7 @@ const Why = ({ item: { action, analysis, rule } }: { item: QueueItem }) => {
 }
 
 /** Over the draft: who the reply goes to and why it was drafted. Only the addresses shorten, so the rest never cuts mid-word. */
-const ReplyMeta = ({ item: { message, rule } }: { item: QueueItem }) => {
+const ReplyMeta = ({ item: { message, bot } }: { item: QueueItem }) => {
   const t = useT()
   return (
     message && (
@@ -512,9 +512,9 @@ const ReplyMeta = ({ item: { message, rule } }: { item: QueueItem }) => {
           {t.agent.to(replyRecipients(message).join(', '))}
         </span>
         <span>· {t.queue.draftedInVoice}</span>
-        {rule && (
+        {bot && (
           <span data-mask className="truncate">
-            · {t.today.journal.byRule(rule)}
+            · {t.today.journal.byBot(bot)}
           </span>
         )}
       </p>

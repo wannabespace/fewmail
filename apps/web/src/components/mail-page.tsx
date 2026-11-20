@@ -240,20 +240,19 @@ const MailListEmpty = ({
   if (hasOlder && !isSearch) {
     return null
   }
-  if (isSearch && isPending) {
+  if (isPending) {
     return (
       <Empty size="sm">
         <EmptyHeader>
           <EmptyMedia variant="muted">
             <Spinner />
           </EmptyMedia>
-          <EmptyTitle>{t.mail.find.searching}</EmptyTitle>
+          <EmptyTitle>
+            {isSearch ? t.mail.find.searching : t.nav.loading}
+          </EmptyTitle>
         </EmptyHeader>
       </Empty>
     )
-  }
-  if (isPending) {
-    return <Empty />
   }
   if (isSearch) {
     return (
@@ -903,7 +902,13 @@ const ROW_SIZE = {
 
 // Only the content fades (`--row-fade`, see `ListRow`): a row's piece of its card stays solid, or a card's corners fade out with the row taking them along.
 const ROW_FOLDED = { '--row-fade': 0, height: 0 }
-const ROW_FOLD = { ...ROW_FOLDED, borderBottomWidth: 0 }
+// A header's padding is most of its height: `height: 0` stops at it, and the rest snaps away once the fold ends.
+const ROW_FOLD = {
+  ...ROW_FOLDED,
+  borderBottomWidth: 0,
+  paddingBottom: 0,
+  paddingTop: 0,
+}
 const ROW_UNFOLD = { '--row-fade': 1, height: 'auto' }
 
 interface CardEdge {
@@ -3021,7 +3026,8 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
         {shownThread && (
           <div
             className={cn('bg-background flex min-w-0 flex-1 flex-col', {
-              'mt-2 rounded-tl-xl border-t border-l': isReaderUnderNotice,
+              'mt-2 overflow-clip rounded-tl-xl border-t border-l':
+                isReaderUnderNotice,
             })}
           >
             <ThreadView

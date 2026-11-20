@@ -3,7 +3,7 @@ import { snippets } from '@fewmail/db/schema'
 import { and, eq } from 'drizzle-orm'
 
 import { expectRow } from '../lib/rows'
-import { sameText } from './rules'
+import { sameText } from './bots'
 
 export const listSnippets = async (userId: string) => {
   const rows = await db

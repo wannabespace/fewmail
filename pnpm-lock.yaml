@@ -221,6 +221,9 @@ catalogs:
     '@shadcn/lint':
       specifier: 0.2.5
       version: 0.2.5
+    '@shadcn/react':
+      specifier: 0.3.1
+      version: 0.3.1
     '@streamdown/code':
       specifier: ^2.0.0
       version: 2.0.0
@@ -772,6 +775,9 @@ importers:
       '@hugeicons/react':
         specifier: 'catalog:'
         version: 1.1.10(react@19.3.1)
+      '@shadcn/react':
+        specifier: 'catalog:'
+        version: 0.3.1(@types/react@19.3.0)(react@19.3.1)
       '@streamdown/code':
         specifier: 'catalog:'
         version: 2.0.0(react@19.3.1)
@@ -2297,6 +2303,17 @@ packages:
       '@typescript-eslint/parser':
         optional: true
       eslint:
+        optional: true
+
+  '@shadcn/react@0.3.1':
+    resolution: {integrity: sha512-2gOR0HDMtWeRsCZfNDaU0YDFdgH3zsDQ6lz67Fv/y/qjY9y+R8kJqAn6q56phqv7/zHi0wqURjntrNO9zL7vnQ==}
+    peerDependencies:
+      '@types/react': '>=19'
+      react: '>=19'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
         optional: true
 
   '@shadcn/registry@0.2.1':
@@ -6756,6 +6773,11 @@ snapshots:
       cn: 0.4.0
     optionalDependencies:
       oxc-parser: 0.148.0
+
+  '@shadcn/react@0.3.1(@types/react@19.3.0)(react@19.3.1)':
+    optionalDependencies:
+      '@types/react': 19.3.0
+      react: 19.3.1
 
   '@shadcn/registry@0.2.1(supports-color@7.2.0)':
     dependencies:

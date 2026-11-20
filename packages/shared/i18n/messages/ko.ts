@@ -46,7 +46,7 @@ export const ko: Messages = {
     failed: '실패',
     pending: '홈에서 대기 중',
   },
-  byRule: '규칙에 따라',
+  byBot: '봇에 따라',
   agent: {
     decideOnHome: '홈에서 결정하기',
     fromAgent: '에이전트가 요청함',
@@ -62,7 +62,7 @@ export const ko: Messages = {
       archive_thread: '이 스레드를 보관할까요?',
       clear_out: '받은편지함에서 이 메일들을 정리할까요?',
       undo_clear_out: '정리한 메일을 모두 받은편지함으로 되돌릴까요?',
-      create_rule: '이 규칙을 추가할까요?',
+      create_bot: '이 봇을 만들까요?',
       reply: '이 답장을 보낼까요?',
       send_email: '이 이메일을 보낼까요?',
       snooze_thread: '이 스레드를 다시 알림으로 미룰까요?',
@@ -87,7 +87,7 @@ export const ko: Messages = {
       clear_out: '받은편지함 정리 중',
       preview_clear_out: '받은편지함 전체를 읽는 중',
       undo_clear_out: '정리한 메일을 되돌리는 중',
-      create_rule: '규칙 추가하는 중',
+      create_bot: '봇 만드는 중',
       dismiss_action: '건너뛰는 중',
       draft_reply: '답장 작성하는 중',
       create_draft: '초안 저장하는 중',
@@ -96,10 +96,12 @@ export const ko: Messages = {
       get_today: '오늘 확인하는 중',
       list_handled: '처리한 항목 확인 중',
       list_mail: '메일 검색하는 중',
-      list_rules: '규칙 읽는 중',
+      get_bot_chat: '채팅 읽는 중',
+      list_bots: '내 봇 읽는 중',
       read_thread: '스레드 읽는 중',
       redraft_action: '초안 다시 쓰는 중',
       refresh: '새 메일 확인하는 중',
+      remind_later: '리마인더 설정하는 중',
       send_email: '보내는 중',
       snooze_thread: '미루는 중',
       unsubscribe: '구독 취소하는 중',
@@ -122,7 +124,7 @@ export const ko: Messages = {
       archive_thread: '보관',
       clear_out: '정리',
       undo_clear_out: '되돌리기',
-      create_rule: '추가',
+      create_bot: '봇 만들기',
       reply: '보내기',
       send_email: '보내기',
       snooze_thread: '미루기',
@@ -430,7 +432,7 @@ export const ko: Messages = {
     block: '발신자 차단',
     ignoresUnsubscribe: (name: string) => `${name} 님은 수신 거부를 무시합니다`,
     ignoresUnsubscribeHint:
-      'Fewmail이 수신 거부를 요청했지만 이 발신자는 그래도 계속 보내는 것으로 알려져 있습니다. 앞으로 이 발신자의 메일을 휴지통으로 보낼까요? 규칙에서 되돌릴 수 있습니다.',
+      'Fewmail이 수신 거부를 요청했지만 이 발신자는 그래도 계속 보내는 것으로 알려져 있어요. 앞으로 이 발신자의 메일을 휴지통으로 보낼까요? 봇이 맡아서 하고, 그 봇은 홈에서 삭제할 수 있어요.',
     blocked: '차단했어요. 이제 이 발신자의 메일은 휴지통으로 가요.',
     forward: '전달',
     more: '더 보기',
@@ -545,7 +547,6 @@ export const ko: Messages = {
     clearSearch: '검색 지우기',
     mail: '메일',
     reading: '읽을거리',
-    rules: '규칙',
     settings: '설정',
     syncFailed: 'Gmail 동기화 실패, 다시 시도 중',
     syncing: '받은편지함을 읽는 중…',
@@ -615,48 +616,101 @@ export const ko: Messages = {
     followUp: '후속 연락',
     noReply: '아직 답장 없음',
   },
-  rules: {
-    deleted: '규칙을 삭제했어요',
-    add: '규칙 추가',
-    count: (n: number) => `규칙 ${n}개`,
-    delete: '삭제',
-    describe: {
-      alwaysShow: '항상 홈에 남고 숨겨지지 않음',
-      autonomous: '자동으로 처리하고 처리됨에 표시',
-      draft: '초안이 홈에서 기다려요',
+  bots: {
+    chatMenu: '채팅 작업',
+    clear: '기록 지우기',
+    clearConfirm: (name: string) => `${name}와의 채팅을 지울까요?`,
+    clearHint:
+      '메시지는 완전히 사라져요. 메일에서 한 일과 설정한 알림은 남아요.',
+    cleared: '기록을 지웠어요',
+    deleteFolder: '폴더 삭제',
+    deleteFolderConfirm: (name: string) => `${name} 폴더를 삭제할까요?`,
+    deleteFolderHint: '폴더 안의 봇은 폴더 밖으로 나와 목록에 남아요.',
+    moveTo: '폴더로 이동',
+    newFolder: '새 폴더',
+    noFolder: '폴더 없음',
+    pin: '고정',
+    rename: '이름 바꾸기',
+    renameFolder: '폴더 이름 바꾸기',
+    unpin: '고정 해제',
+    add: '새 봇',
+    answering: '쓰는 중…',
+    cancelReply: '답장 취소',
+    cards: {
+      autoDone: (n: number) => `${n}통은 제가 알아서 처리했어요.`,
+      dismissed: (n: number) => `${n}통은 건너뛰었어요.`,
+      done: (n: number) => `${n}통은 승인 후 처리됐어요.`,
+      failed: (n: number) => `${n}통은 Gmail이 거부했어요.`,
+      pending: (n: number) => `${n}통이 기다리고 있어요.`,
     },
+    composer: (name: string) => `${name}에게 맡긴 메일에 대해 써 보세요`,
+    copied: '복사했어요',
+    copy: '복사',
+    created: '봇을 만들었어요. 이제부터 새 메일을 읽어요.',
+    delete: '봇 삭제',
+    deleteConfirm: (name: string) => `${name}을(를) 삭제할까요?`,
+    deleteHint:
+      '채팅도 함께 사라져요. 메일은 그대로 남고, 비슷한 새 메일은 Fewmail로 가요.',
+    deleted: '봇을 삭제했어요',
+    earlier: '이전 항목 보기',
+    edit: '봇 설정',
     effect: {
-      trash: '휴지통으로 이동',
-      always_show: '놓치지 않기',
+      always_show: '홈에 두기',
       archive: '보관하기',
+      collect: '모아 두기만',
       draft_reply: '답장 초안 쓰기',
       mark_read: '읽음으로 표시',
+      tidy: '정리하기',
+      trash: '휴지통으로 이동',
       unsubscribe: '구독 취소',
     },
-    enabled: '규칙 사용',
-    lead: '특정 메일을 어떻게 처리할지 에이전트에게 평소 말로 알려주세요. 에이전트는 모든 메일을 이 규칙들과 대조해요.',
-    newTitle: '새 규칙 가르치기',
-    leadFree:
-      '보관, 읽음 표시, 구독 취소를 자동으로 해요. 규칙은 새 메일이 도착하는 즉시 적용돼요.',
+    empty: '아직 아무것도 없어요. 제 메일이 오면 여기에 쓸게요.',
+    enabled: '알아서 처리',
+    enabledHint: {
+      off: '끄면 메일마다 먼저 승인을 받아요.',
+      on: '켜면 묻지 않고 처리해요. 한 일은 모두 채팅에 보여요.',
+    },
+    instruction: '맡을 메일과 처리 방법',
+    instructionPlaceholder:
+      '예: Hetzner 청구서는 읽음 처리, LinkedIn 알림은 보관',
+    mute: '알림 끄기',
+    muted: '알림 꺼짐: 이 봇의 알림이 오지 않아요',
+    name: '이름',
+    namePlaceholder: '예: 청구서',
+    noPlan:
+      '답할 수 없어요. 무료 요금제에서는 대화에 쓸 토큰이 없거든요. 구독하면 언제든 이야기할 수 있어요.',
+    now: '지금 기다리는 중',
+    nudge: {
+      noReply: '그 스레드에는 아직 답장이 없어요.',
+      replied: '그 뒤로 그 스레드에 답장이 왔어요.',
+    },
+    promises: (n: number) => `약속 ${n}개를 적어 뒀어요.`,
+    react: '반응 남기기',
+    reaction: '반응',
+    reply: '답장',
+    save: '저장',
+    saved: '저장했어요',
     simple: {
-      appliedAutomatically: '새 메일에 자동으로 적용돼요',
-      field: {
-        from: '보낸 사람',
-        mailingList: '모든 메일링 리스트',
-        subject: '제목에 포함',
-      },
       title: {
         from: (value: string) => `보낸 사람 “${value}”`,
         mailingList: () => '모든 메일링 리스트',
         subject: (value: string) => `제목에 “${value}” 포함`,
       },
-      valuePlaceholder: 'anna@example.com, 이름 또는 단어',
-      whichField: '기준',
     },
-    placeholder: '예: Hetzner 청구서, LinkedIn 알림',
-    title: '규칙',
-    whatAgentDoes: '에이전트가 할 일',
-    whichEmails: '대상 메일',
+    spent: (date: string) =>
+      `${date}까지는 답할 수 없어요. 이번 달 사용량을 모두 썼어요.`,
+    steps: (n: number) => `${n}단계`,
+    subscribe: '구독하기',
+    system: { board: '보드', fewmail: 'Fewmail Bot' },
+    systemJob: {
+      board: '제가 챙기는 약속과 마감일',
+      fewmail: '봇을 만들고, 메일을 찾고, 질문에 답해요',
+    },
+    title: '봇',
+    toLatest: '최신 메시지로',
+    unmute: '알림 켜기',
+    whatItDoes: '메일을 어떻게 할지',
+    you: '나',
   },
   settings: {
     disconnectConfirm: (name: string) => `${name} 연결을 해제할까요?`,
@@ -693,7 +747,7 @@ export const ko: Messages = {
     deleteAccount: '계정 삭제',
     deleteConfirm: '모두 삭제',
     deleteDescription:
-      '계정, 동기화된 메일, 초안, 규칙을 Fewmail에서 즉시 삭제해요. Gmail 자체는 건드리지 않아요. 유료 요금제는 즉시 해지돼요.',
+      '계정, 동기화된 메일, 초안, 봇을 Fewmail에서 즉시 삭제해요. Gmail 자체는 건드리지 않아요. 유료 요금제는 즉시 해지돼요.',
     deleteFailed: '계정이 삭제되지 않았어요. 잠시 후 다시 시도하세요.',
     deleteSignIn:
       '본인 확인을 위해 Google로 다시 로그인한 뒤 계정을 삭제하세요.',
@@ -859,7 +913,7 @@ export const ko: Messages = {
             '하루 치 뉴스레터를 주제별 요약 하나로 묶고, 문장마다 출처 메일로 연결해요.',
           title: '뉴스레터는 요약 하나로',
         },
-        rules: {
+        bots: {
           description:
             '어떤 메일을 어떻게 할지 한 문장으로 말하면 규칙이 돼요. 스스로 작동하는 건 내가 켠 규칙뿐이에요.',
           title: '평소 말로 쓰는 규칙',
@@ -929,7 +983,7 @@ export const ko: Messages = {
         outlook: 'Outlook과 Microsoft 365',
         phishing: '피싱과 결제 정보 변경 경고',
         phone: '휴대폰에서',
-        rules: '평소 말로 쓰는 규칙',
+        bots: '평소 말로 쓰는 규칙',
         snooze: '다시 알림',
         spamShield: '커뮤니티 스팸 방패',
         summaries: '메일 요약',
@@ -950,7 +1004,7 @@ export const ko: Messages = {
         mcp: 'Pro에서',
         memory: 'Pro에서',
         phone: 'Telegram과 WhatsApp, 음성까지, Pro에서',
-        rules: '보관, 읽음 표시, 구독 취소, 무료',
+        bots: '보관, 읽음 표시, 구독 취소, 무료',
         summaries: 'Pro에서',
         unsubscribe: '무시하는 발신자는 스팸으로',
       },
@@ -980,7 +1034,7 @@ export const ko: Messages = {
           keepApp: '폴더로 작동',
           otherProviders: '모든 IMAP 또는 Exchange 서버',
           phone: '메일 앱을 통해',
-          rules: '메일을 폴더 사이로 옮겨 학습',
+          bots: '메일을 폴더 사이로 옮겨 학습',
           snooze: 'Lunch부터',
           summaries: 'SaneSummary, Dinner에서',
           unsubscribe: 'SaneBlackHole 폴더',
@@ -1007,7 +1061,7 @@ export const ko: Messages = {
           otherProviders: 'Gmail로 전달해서',
           outlook: 'Microsoft 365 미지원',
           phone: 'iOS와 Android 앱',
-          rules: 'AI 필터, 요금제별 3~50개',
+          bots: 'AI 필터, 요금제별 3~50개',
           summaries: '모든 메일 상단에',
           teams: '공유 스레드와 댓글',
           unsubscribe: '원클릭 차단 포함',
@@ -1031,7 +1085,7 @@ export const ko: Messages = {
           keepApp: '메일 앱을 대체',
           mcp: 'Business에서',
           phone: 'iOS와 Android 앱',
-          rules: 'Custom Auto Labels, Business에서',
+          bots: 'Custom Auto Labels, Business에서',
           spamShield: '메일 서비스 제공자의 필터',
           summaries: 'Auto Summarize',
           teams: '공유 초안과 댓글',
@@ -1346,13 +1400,22 @@ export const ko: Messages = {
     },
     showImages: '이미지 보기',
   },
-  starterRules: {
-    alwaysShow:
-      '보안 알림, 납부 기한이 있는 청구서, 은행이나 정부 기관에서 온 모든 메일',
-    newsletters: '뉴스레터와 다이제스트',
-    notifications: '도구와 서비스에서 보낸 자동 알림',
-    promotions: '프로모션, 마케팅, 콜드 세일즈 메일',
-    receipts: '영수증, 주문 및 배송 확인 메일',
+  starterBots: {
+    important: {
+      instruction:
+        '내가 직접 움직여야 하는 것: 내 답장을 기다리는 사람, 납부할 청구서, 보안 알림, 은행이나 정부 기관에서 온 모든 것. 홈에 두기',
+      name: '중요',
+    },
+    later: {
+      instruction:
+        '알아 두면 좋지만 결정할 필요는 없는 것: 쓰고 있는 서비스의 소식, 배송, 일정과 날짜',
+      name: '나중에',
+    },
+    quick: {
+      instruction:
+        '읽지 않고 치워 버릴 소음: 알림, 영수증, 뉴스레터, 프로모션, 모르는 곳의 영업 메일. 정리하기: 보관, 읽음 표시, 구독 취소 중 맞는 것으로',
+      name: '빠르게',
+    },
   },
   telegram: {
     approveAlike: '같은 종류의 카드를 한 번에 승인:',
@@ -1393,14 +1456,12 @@ export const ko: Messages = {
   },
   today: {
     working: '처리 중…',
-    ruleSuggestion: {
+    botSuggestion: {
       done: {
-        archive:
-          '이 보낸 사람의 새 메일은 보관됩니다. 규칙에서 바꿀 수 있어요.',
-        mark_read:
-          '이 보낸 사람의 새 메일은 읽음으로 표시됩니다. 규칙에서 바꿀 수 있어요.',
+        archive: '이제부터 새 봇이 이 보낸 사람의 메일을 보관해요.',
+        mark_read: '이제부터 새 봇이 이 보낸 사람의 메일을 읽음으로 표시해요.',
       },
-      label: '추천 규칙',
+      label: '추천 봇',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
           ? `이번 달 ${count}통, 에이전트라면 모두 보관합니다`
@@ -1411,16 +1472,9 @@ export const ko: Messages = {
         mark_read: '항상 읽음으로 표시',
       },
     },
-    ruleOffer: {
-      lead: '에이전트가 조건에 맞는 메일에 이 작업을 자동으로 할 수 있어요. 승인하기 전까지는 꺼져 있어요.',
-      no: '끈 채로 두기',
-      turnedOn: '켰어요. 규칙에서 바꿀 수 있어요.',
-      yes: '켜기',
-    },
     newSender: {
       archive: '항상 보관',
-      archived:
-        '이 보낸 사람의 새 메일은 보관 처리돼요. 규칙에서 바꿀 수 있어요.',
+      archived: '이제부터 새 봇이 이 보낸 사람의 메일을 보관해요.',
       keep: '평소대로 두기',
       label: '새 보낸 사람',
       lead: (count: number, opened: number) =>
@@ -1433,13 +1487,13 @@ export const ko: Messages = {
       '새 메일을 계속 읽고 있어요. 확인할 게 생기면 여기에 나타나요.',
     allowanceSpent: (date: string) =>
       `이번 달 에이전트 사용량을 모두 썼어요. 요약과 초안은 ${date}에 다시 돌아와요. 그때까지도 약속과 마감일은 계속 적어 둘게요.`,
-    byRules: (n: number) => `${n}개는 규칙이 처리했어요.`,
+    byBots: (n: number) => `${n}개는 봇이 처리했어요.`,
     decisions: '결정할 일',
     journal: {
       approved: '승인함',
-      byRule: (rule: string) => `내 규칙: ${rule}`,
+      byBot: (bot: string) => `내 봇: ${bot}`,
       failed: '실패함',
-      lead: '최근 7일. 메일과 캘린더의 모든 변경은 승인을 받았거나 직접 켠 규칙에 따른 거예요.',
+      lead: '최근 7일. 메일과 캘린더의 모든 변경은 승인을 받았거나 알아서 처리하도록 맡긴 봇에 따른 거예요.',
       title: '메일에서 처리된 일',
     },
     progress: (done: number, total: number) => `${done}/${total}`,
@@ -1467,11 +1521,11 @@ export const ko: Messages = {
     },
     improve: {
       empty: {
-        lead: '같은 발신자의 메일을 매번 같은 방식으로 처리하면 에이전트가 여기에서 규칙을 제안해요.',
+        lead: '같은 발신자의 메일을 매번 같은 방식으로 처리하면 에이전트가 여기에서 봇을 제안해요.',
         title: '지금은 제안이 없어요.',
       },
       lead: (total: number) =>
-        `에이전트가 대신 따를 수 있는 규칙이 ${total}개 있어요.`,
+        `에이전트가 만들어 줄 수 있는 봇이 ${total}개 있어요.`,
       title: '에이전트의 제안',
     },
     quick: '빠르게',
@@ -1633,7 +1687,7 @@ export const ko: Messages = {
     empty: '아직 이야기할 만큼 메일이 없어요. 며칠 뒤에 다시 와 주세요.',
     handled: '통의 메일을 Fewmail이 처리',
     handledHint:
-      'Fewmail은 승인 없이 Gmail에서 아무것도 바꾸지 않아요. 규칙을 켜면 이런 메일을 알아서 처리해요.',
+      'Fewmail은 승인 없이 Gmail에서 아무것도 바꾸지 않아요. 봇이 알아서 처리하도록 맡기면 이런 메일을 대신 처리해요.',
     people: '가장 많이 보낸 사람',
     period: { month: '이번 달', year: '올해' },
     replies: 'Fewmail이 쓰고 보낸 답장',
@@ -1697,6 +1751,7 @@ export const ko: Messages = {
     hints: {
       board:
         'Fewmail Pro에 포함돼요. 에이전트가 메일에서 받은 약속, 한 약속, 마감일을 적어 두고 끝날 때까지 챙겨요.',
+      chat: 'Fewmail Pro 기능이에요. 봇과 맡은 메일에 대해 이야기하면, 봇은 말한 때에 다시 찾아와요.',
       drafts:
         'Fewmail Pro 기능이에요. 에이전트가 내 말투로 답장을 쓰고, 나는 고쳐서 보내기만 하면 돼요.',
     },

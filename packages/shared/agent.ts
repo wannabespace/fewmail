@@ -136,20 +136,22 @@ export const ACTION_STATUSES = [
 ] as const
 export type ActionStatus = (typeof ACTION_STATUSES)[number]
 
-export const RULE_EFFECTS = [
+export const BOT_EFFECTS = [
   'archive',
   'mark_read',
   'unsubscribe',
   'trash',
   'draft_reply',
   'always_show',
+  'collect',
+  'tidy',
 ] as const
-export type RuleEffect = (typeof RULE_EFFECTS)[number]
+export type BotEffect = (typeof BOT_EFFECTS)[number]
 
 export const SIMPLE_MATCH_FIELDS = ['from', 'subject', 'mailingList'] as const
 export type SimpleMatchField = (typeof SIMPLE_MATCH_FIELDS)[number]
 
-/** Effects that change Gmail; a simple rule may only use these and always acts on its own. */
+/** Effects that change Gmail; a simple bot may only use these and always acts on its own. */
 export const GMAIL_EFFECTS = [
   'archive',
   'mark_read',
@@ -168,15 +170,15 @@ export const PROPOSAL_KINDS = [
 ] as const
 export type ProposalKind = (typeof PROPOSAL_KINDS)[number]
 
-/** What Home's Tidy offers to do with quiet mail no rule covers. */
+/** What Home's Tidy offers to do with quiet mail no bot covers. */
 export const TIDY_KINDS = ['archive', 'mark_read', 'unsubscribe'] as const
 
 /** Which occurrences of a recurring event a change reaches. */
 export const EVENT_SCOPES = ['this', 'following', 'all'] as const
 export type EventScope = (typeof EVENT_SCOPES)[number]
 
-export const isGmailEffect = (effect: RuleEffect): effect is GmailEffect =>
-  (GMAIL_EFFECTS as readonly RuleEffect[]).includes(effect)
+export const isGmailEffect = (effect: BotEffect): effect is GmailEffect =>
+  (GMAIL_EFFECTS as readonly BotEffect[]).includes(effect)
 
 export const PLANS = ['free', 'trial', 'lite', 'pro', 'max'] as const
 export type Plan = (typeof PLANS)[number]
@@ -214,7 +216,7 @@ export const PLAN_ALLOWANCE_USD = {
 } satisfies Record<Exclude<Plan, 'free'>, number>
 
 /** What one email the agent writes for and one message to it cost on typical use, to tell an allowance in both. */
-export const TYPICAL_COST_USD = { email: 0.0044, message: 0.041 }
+export const TYPICAL_COST_USD = { email: 0.0044, message: 0.044 }
 
 type AgentPlan = keyof typeof PLAN_ALLOWANCE_USD
 
@@ -284,11 +286,12 @@ export const AGENT_TOOLS = {
   clear_out: 'consent',
   create_draft: 'write',
   create_event: 'consent',
-  create_rule: 'consent',
+  create_bot: 'consent',
   delete_event: 'consent',
   dismiss_action: 'consent',
   draft_reply: 'write',
   find_people: 'read',
+  get_bot_chat: 'read',
   get_person: 'read',
   get_reading: 'read',
   get_today: 'read',
@@ -297,7 +300,7 @@ export const AGENT_TOOLS = {
   list_handled: 'read',
   list_mail: 'read',
   list_promises: 'read',
-  list_rules: 'read',
+  list_bots: 'read',
   list_subscriptions: 'read',
   mark_not_spam: 'consent',
   move_to_inbox: 'consent',
@@ -305,6 +308,7 @@ export const AGENT_TOOLS = {
   read_thread: 'read',
   redraft_action: 'write',
   refresh: 'write',
+  remind_later: 'write',
   report_spam: 'consent',
   send_email: 'consent',
   set_promise_status: 'write',
@@ -368,6 +372,64 @@ export const isImportant = (
   (!(LATER_KINDS as readonly string[]).includes(kind) ||
     !!analysis?.needsReply ||
     (analysis?.importance ?? 0) >= IMPORTANCE.critical)
+
+/**
+ * Home's bots that are not the user's: `fewmail` holds what no bot of theirs takes (and the messengers' chat), `board`
+ * the promises. Every other bot is one of the user's bots (a `bots` row) by its id; the starter ones are only a prefill.
+ */
+export const SYSTEM_BOTS = ['fewmail', 'board'] as const
+export type SystemBot = (typeof SYSTEM_BOTS)[number]
+
+export const isSystemBot = (bot: string): bot is SystemBot =>
+  (SYSTEM_BOTS as readonly string[]).includes(bot)
+
+/** Whose chat a card is in: the bot that made it, else the bot its email matched, else Fewmail's. */
+export const botOfCard = (card: {
+  action: { botId: string | null }
+  analysis: { botId: string | null } | null
+}) => card.action.botId ?? card.analysis?.botId ?? 'fewmail'
+
+/** `message` / `answer`: the chat; `nudge`: what the bot said it would come back with (`remind_later`); `no_plan` / `spent`: why it could not answer; `digest`: the bot's report of the day. */
+export const BOT_POST_KINDS = [
+  'message',
+  'answer',
+  'nudge',
+  'no_plan',
+  'spent',
+  'digest',
+] as const
+export type BotPostKind = (typeof BOT_POST_KINDS)[number]
+
+/** What Fewmail's digest counted when it was written: the headline and its sentence, kept as they were that morning. */
+export interface DigestCounts {
+  days: number
+  decisions: number
+  handled: number
+  people: number
+  total: number
+}
+
+/** One on a message, from the other side of the chat: the user's on the bot's words, the bot's on the user's (`react`, a whole reply for a fraction of its tokens). */
+export const BOT_REACTIONS = ['👍', '👀', '❤️', '🔥', '😂', '🙏'] as const
+
+/** A folder of bots in the sidebar: its name is the user's, so it is stored encrypted with the list. */
+export interface BotFolder {
+  bots: string[]
+  id: string
+  name: string
+}
+
+export const BOT_FOLDER_NAME_CHARS = 40
+export const BOT_FOLDERS_MAX = 20
+export type BotReaction = (typeof BOT_REACTIONS)[number]
+
+/** What a reply reads back of its bot's chat: the last messages, up to this much text. Raising either raises what every message costs. */
+export const BOT_HISTORY = { chars: 12_000, messages: 12 } as const
+
+/** Most a message to a bot may say. */
+export const BOT_MESSAGE_CHARS = 4000
+/** How much of the message a reply quotes goes to the bot with it. Raising it raises what a reply costs. */
+export const BOT_REPLY_QUOTE_CHARS = 500
 
 export const OUTBOX_MODES = ['reply', 'forward', 'new'] as const
 export type OutboxMode = (typeof OUTBOX_MODES)[number]

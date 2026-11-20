@@ -18,7 +18,7 @@ import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
-import { HomeCard, PageHeading, PaneEmpty } from '~/components/home-card'
+import { PaneEmpty } from '~/components/pane-empty'
 import { PaneRows } from '~/components/pane-rows'
 import type { RowPlace } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
@@ -176,43 +176,8 @@ const useBoard = () => {
   }
 }
 
-/**
- * The Board on Home: one card saying what is open, the sentence of the Board itself; it opens the Board over Home's column
- * (`B`, `?page=board`). Nothing open, no row: Home never shows an empty promise.
- */
-export const BoardCard = () => {
-  const t = useT()
-  const dates = useDates()
-  const locale = useLocale()
-  const { sections, today } = useBoard()
-  const open = SECTIONS.filter((section) => section !== 'settled').flatMap(
-    (section) => sections[section]
-  )
-  if (open.length === 0) {
-    return null
-  }
-  return (
-    <HomeCard
-      heading={t.nav.board}
-      lead={leadOf(t, locale, sections)}
-      page="board"
-      rows={open.map((row) => ({
-        id: row.id,
-        sender: senderOf(row) ?? { fromEmail: '', fromName: t.nav.board },
-        text: `${row.promise} · ${descriptionOf(t, dates, row, today)}`,
-      }))}
-    />
-  )
-}
-
-/** The Board over Home's column: the sentence, then the lists; `esc` (Home's) closes it. */
-export const BoardPane = ({
-  isActive,
-  onClose,
-}: {
-  isActive: boolean
-  onClose: () => void
-}) => {
+/** The Board's chat on Home: the sentence, then the lists. */
+export const BoardPane = ({ isActive }: { isActive: boolean }) => {
   const t = useT()
   const dates = useDates()
   const locale = useLocale()
@@ -340,13 +305,11 @@ export const BoardPane = ({
 
   return (
     <>
-      <PageHeading title={t.nav.board} onClose={onClose}>
-        {!isPending && ordered.length > 0 && (
-          <p className="text-brief text-foreground/85 font-serif text-balance">
-            {leadOf(t, locale, sections)}
-          </p>
-        )}
-      </PageHeading>
+      {!isPending && ordered.length > 0 && (
+        <p className="text-brief text-foreground/85 font-serif text-balance">
+          {leadOf(t, locale, sections)}
+        </p>
+      )}
       <PaneEmpty
         isShown={!isPending && ordered.length === 0}
         {...t.board.empty}

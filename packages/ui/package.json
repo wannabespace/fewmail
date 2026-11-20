@@ -25,6 +25,7 @@
     "@fontsource-variable/lora": "catalog:",
     "@hugeicons/core-free-icons": "catalog:",
     "@hugeicons/react": "catalog:",
+    "@shadcn/react": "catalog:",
     "@streamdown/code": "catalog:",
     "@tailwindcss/typography": "catalog:",
     "@tanstack/react-hotkeys": "catalog:",

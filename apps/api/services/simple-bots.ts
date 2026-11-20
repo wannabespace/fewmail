@@ -1,10 +1,10 @@
 import { db } from '@fewmail/db'
 import type { SimpleMatch, messages } from '@fewmail/db/schema'
-import { actions, rules } from '@fewmail/db/schema'
+import { actions, bots } from '@fewmail/db/schema'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { and, eq, isNotNull } from 'drizzle-orm'
 
-import { RULE_ORDER } from './rules'
+import { BOT_ORDER } from './bots'
 import { getSettings } from './settings'
 import { applyThreadEffect } from './thread-effects'
 
@@ -31,23 +31,23 @@ const matchesSimple = (match: SimpleMatch, message: Message) => {
   }
 }
 
-/** Runs on every plan without a model: the first matching simple rule acts on its own. */
-export const applySimpleRules = async (userId: string, incoming: Message[]) => {
+/** Runs on every plan without a model: the first matching simple bot acts on its own. */
+export const applySimpleBots = async (userId: string, incoming: Message[]) => {
   const candidates = incoming.filter((message) => !message.isFromMe)
   if (candidates.length === 0) {
     return
   }
   const simple = await db
     .select()
-    .from(rules)
+    .from(bots)
     .where(
       and(
-        eq(rules.userId, userId),
-        eq(rules.enabled, true),
-        isNotNull(rules.match)
+        eq(bots.userId, userId),
+        eq(bots.enabled, true),
+        isNotNull(bots.match)
       )
     )
-    .orderBy(...RULE_ORDER)
+    .orderBy(...BOT_ORDER)
   if (simple.length === 0) {
     return
   }
@@ -56,32 +56,32 @@ export const applySimpleRules = async (userId: string, incoming: Message[]) => {
 
   await Promise.all(
     candidates.map(async (message) => {
-      const rule = simple.find(
+      const bot = simple.find(
         (candidate) =>
           candidate.match && matchesSimple(candidate.match, message)
       )
       if (
-        !rule ||
-        (rule.effect !== 'archive' &&
-          rule.effect !== 'mark_read' &&
-          rule.effect !== 'trash' &&
-          rule.effect !== 'unsubscribe')
+        !bot ||
+        (bot.effect !== 'archive' &&
+          bot.effect !== 'mark_read' &&
+          bot.effect !== 'trash' &&
+          bot.effect !== 'unsubscribe')
       ) {
         return
       }
-      const done = await applyThreadEffect(userId, message, rule.effect)
+      const done = await applyThreadEffect(userId, message, bot.effect)
         .then(() => true)
         .catch(() => false)
       await db.insert(actions).values({
         autonomous: true,
-        kind: rule.effect,
+        kind: bot.effect,
         messageId: message.id,
         reason: '',
         resolvedAt: done ? new Date() : null,
-        ruleId: rule.id,
+        botId: bot.id,
         status: done ? 'auto_done' : 'failed',
         threadId: message.threadId,
-        title: t.rules.effect[rule.effect],
+        title: t.bots.effect[bot.effect],
         userId,
       })
     })

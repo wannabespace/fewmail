@@ -1,11 +1,11 @@
-import type { rules } from '@fewmail/db/schema'
+import type { bots } from '@fewmail/db/schema'
 import { PEOPLE_CATEGORIES } from '@fewmail/shared/agent'
 import type { ActionKind, MailCategory } from '@fewmail/shared/agent'
 import { choice, noul, score } from '@typesafe-ai/sdk'
 
 import { jev } from '../lib/jev'
 
-type Rule = typeof rules.$inferSelect
+type Bot = typeof bots.$inferSelect
 
 export const CATEGORY_CRITERIA = {
   calendar: 'Meeting invitations, scheduling, calendar updates',
@@ -59,7 +59,7 @@ export const COLD_OUTREACH =
 export const HAS_LATER =
   'The sender promises to do something for the recipient later (send, refund, call back, deliver, fix), or the email implies a last day: a return window, a free trial turning paid, a warranty end'
 
-const NO_RULE = 'none'
+const NO_BOT = 'none'
 const LATER_SIGNAL = 0.7
 const COLD_SIGNAL = 0.7
 
@@ -75,14 +75,14 @@ const NOISE_ACTIONS: ReadonlySet<string> = new Set([
 export const decideWithJev = async (input: {
   asksLater: boolean
   prompt: string
-  rules: Rule[]
+  bots: Bot[]
   userEmail: string
 }) => {
-  const ruleIds = new Map(
-    input.rules.map((rule, index) => [`rule_${index}`, rule.id])
+  const botIds = new Map(
+    input.bots.map((bot, index) => [`bot_${index}`, bot.id])
   )
-  const ruleCriteria = Object.fromEntries(
-    input.rules.map((rule, index) => [`rule_${index}`, rule.instruction ?? ''])
+  const botCriteria = Object.fromEntries(
+    input.bots.map((bot, index) => [`bot_${index}`, bot.instruction ?? ''])
   )
 
   const { answers } = await jev.systemOne({
@@ -99,13 +99,10 @@ export const decideWithJev = async (input: {
       ),
       ...(input.asksLater && { hasLater: noul(HAS_LATER) }),
       needsReply: noul(NEEDS_REPLY),
-      rule: choice(
-        "Which of the recipient's rules this email clearly matches",
-        {
-          [NO_RULE]: 'No rule clearly matches',
-          ...ruleCriteria,
-        }
-      ),
+      bot: choice("Which of the recipient's bots this email clearly matches", {
+        [NO_BOT]: 'No bot clearly matches',
+        ...botCriteria,
+      }),
     },
     state: `Recipient: ${input.userEmail}\n\n${input.prompt}`,
   })
@@ -134,7 +131,7 @@ export const decideWithJev = async (input: {
     ) as 0 | 1 | 2 | 3,
     impersonalCategory,
     needsReply: answers.needsReply.noul >= 0.5,
-    ruleId: ruleIds.get(answers.rule.choice) ?? null,
+    botId: botIds.get(answers.bot.choice) ?? null,
     suggestedAction:
       NOISE_ACTIONS.has(action.choice) && noiseOdds < NOISE_CONFIDENCE
         ? 'none'

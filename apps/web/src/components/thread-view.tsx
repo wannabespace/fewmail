@@ -88,6 +88,7 @@ import {
   hideThread,
   showThreadPinned,
   showThreadRead,
+  findMessage,
   threadOfMessage,
   threads,
 } from '~/lib/mail-db'
@@ -100,6 +101,7 @@ import { showUntilSettled } from '~/lib/query-client'
 import { runUndo, UNDO_TOAST_MS } from '~/lib/undo'
 
 import { cidSource, listedAttachments, MessageAttachments } from './attachments'
+import { BotSuggestionCard } from './bot-suggestion'
 import type { Draft } from './compose/compose-context'
 import { EMPTY_DRAFT } from './compose/compose-context'
 import { ComposeForm } from './compose/compose-form'
@@ -107,10 +109,9 @@ import { presetTimes, SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
 import { PickTime } from './compose/send-later'
 import { confirm } from './confirm-dialog'
-import { ExtractedChips, ImportanceDot } from './mail-meta'
+import { ExtractedChips } from './mail-meta'
 import { CardProposal } from './queue-card'
 import type { QueueItem } from './queue-card'
-import { RuleSuggestionCard } from './rule-suggestion'
 import {
   ParticipantAvatars,
   participantNamesOf,
@@ -228,7 +229,7 @@ const ActionNote = ({ actions }: { actions: ThreadAction[] }) => {
       {actions
         .map(
           (action) =>
-            `${action.title} · ${action.autonomous ? t.byRule : t.actionStatus[action.status]}`
+            `${action.title} · ${action.autonomous ? t.byBot : t.actionStatus[action.status]}`
         )
         .join(', ')}
     </span>
@@ -588,12 +589,6 @@ const MessageSection = ({
       )}
       <header className="flex flex-col items-start gap-0.5">
         <div className="flex w-full flex-wrap items-center gap-2 text-sm">
-          {hasAgent && analysis && (
-            <ImportanceDot
-              importance={analysis.importance}
-              reason={analysis.reason}
-            />
-          )}
           <SenderAvatar sender={message} />
           <strong data-mask className="font-semibold">
             {message.isFromMe
@@ -755,8 +750,8 @@ const ThreadNotices = ({
           {t.zombie.badge(data.zombieShare)}
         </p>
       )}
-      {data.ruleSuggestion && (
-        <RuleSuggestionCard suggestion={data.ruleSuggestion} />
+      {data.botSuggestion && (
+        <BotSuggestionCard suggestion={data.botSuggestion} />
       )}
     </>
   )
@@ -768,6 +763,7 @@ const refresh = () => refetchChanged(['mail', 'reading', 'today'])
 interface Shown {
   burst: string
   settle: (refetched: Promise<unknown>) => void
+  subject?: string
 }
 
 /** The read each thread's opening sent: an unread from anywhere waits for it, or that read lands last and the email stays read. */
@@ -812,10 +808,15 @@ const useThreadOpen = (
 }
 
 const LEAVE_YOURSELF_MS = 15_000
+interface Finished {
+  subject?: string
+  undo?: () => Promise<unknown>
+}
 /** Emails acted on under one toast, so its Undo brings back every one of them. */
-const bursts = new Map<string, string[]>()
+const bursts = new Map<string, Finished[]>()
 let burstCount = 0
 let openBurst: string | undefined
+const frontBurst = () => `burst-${burstCount}`
 /**
  * A burst is what one click or key acts on (a stack, the picks): all its emails start in the same task. Never the
  * toast's text as its id: a later action would update an earlier toast that is closing, or that sits behind a newer
@@ -823,8 +824,10 @@ let openBurst: string | undefined
  */
 const joinBurst = () => {
   if (!openBurst) {
+    // Only the newest burst keeps its toast. `toast.dismiss` without an id closes every toast, so the id is never empty.
+    toast.dismiss(frontBurst())
     burstCount += 1
-    openBurst = `burst-${burstCount}`
+    openBurst = frontBurst()
     setTimeout(() => {
       openBurst = undefined
     }, 0)
@@ -858,8 +861,8 @@ export const useMailActions = (
   const leave = {
     onError: settleFailed,
     onMutate: ({ messageId }: { messageId: string }): Shown => {
-      const threadId = threadOfMessage(messageId)
-      const settleThread = threadId ? hideThread(threadId) : () => null
+      const found = findMessage(messageId)
+      const settleThread = found ? hideThread(found.threadId) : () => null
       const settleHidden = hide
         ? showUntilSettled(() => hide(messageId))
         : () => null
@@ -870,38 +873,47 @@ export const useMailActions = (
           settleThread(refetched)
           settleHidden(refetched)
         },
+        subject: found?.subject,
       }
     },
   }
   // The burst's id folds its per-email answers into one toast, and its Undo takes back the whole burst.
   const finish = (
     message: string,
-    { burst: id, settle }: Shown,
+    { burst: id, settle, subject }: Shown,
     done?: {
       messageId: string
       undo: (messageId: string) => Promise<unknown>
     }
   ) => {
     settle(refresh())
-    if (!done) {
-      toast.success(message, { id })
+    if (id !== frontBurst()) {
       return
     }
-    const { messageId, undo } = done
-    const burst = [...(bursts.get(id) ?? []), messageId]
+    const burst = [
+      ...(bursts.get(id) ?? []),
+      { subject, undo: done && (() => done.undo(done.messageId)) },
+    ]
     bursts.set(id, burst)
+    const named = burst.find((finished) => finished.subject)?.subject
+    const forget = () => bursts.delete(id)
     toast.success(message, {
-      action: {
+      action: done && {
         label: t.compose.undo,
         onClick: () => {
-          bursts.delete(id)
-          void runUndo(() => Promise.all(burst.map(undo))).finally(refresh)
+          forget()
+          void runUndo(() =>
+            Promise.all(burst.map(({ undo }) => undo?.()))
+          ).finally(refresh)
         },
       },
-      duration: UNDO_TOAST_MS,
+      classNames: { description: 'truncate' },
+      description:
+        named && (burst.length > 1 ? `${named} +${burst.length - 1}` : named),
+      duration: done && UNDO_TOAST_MS,
       id,
-      onAutoClose: () => bursts.delete(id),
-      onDismiss: () => bursts.delete(id),
+      onAutoClose: forget,
+      onDismiss: forget,
     })
   }
   const leaveYourself = (link: string, id: string) => {
@@ -946,15 +958,15 @@ export const useMailActions = (
     block: useMutation(
       orpc.mail.block.mutationOptions({
         ...leave,
-        onSuccess: ({ ruleId }, { messageId }, shown) => {
-          void queryClient.invalidateQueries({ queryKey: orpc.rules.key() })
+        onSuccess: ({ botId }, { messageId }, shown) => {
+          void queryClient.invalidateQueries({ queryKey: orpc.bots.key() })
           finish(t.mail.blocked, shown, {
             messageId,
             undo: async () => {
-              await client.rules.delete({ id: ruleId })
+              await client.bots.delete({ id: botId })
               await toInbox(messageId)
               void queryClient.invalidateQueries({
-                queryKey: orpc.rules.key(),
+                queryKey: orpc.bots.key(),
               })
             },
           })
@@ -1427,9 +1439,6 @@ const useThreadCard = (threadId: string) => {
   return cards.find(({ message }) => message?.threadId === threadId)
 }
 
-const REPLY_BOX =
-  'bg-popover ring-foreground/6 flex flex-col gap-3 rounded-2xl p-4 shadow-sm ring'
-
 /** Under the last email: the reply being written, what the agent proposes for it, or a field to start one. */
 const ReplyArea = ({
   card,
@@ -1449,7 +1458,7 @@ const ReplyArea = ({
   const t = useT()
   if (composing) {
     return (
-      <section ref={revealComposer} className={REPLY_BOX}>
+      <section ref={revealComposer}>
         <ComposeForm draft={composing} onDone={onComposed} />
       </section>
     )

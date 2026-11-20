@@ -87,9 +87,8 @@ const useMakeRoom = (panes: HTMLElement | null, isCrowded: boolean) => {
         return
       }
       lastRoom = room
-      // A Home card's pane lies over the page area, so it makes room too.
       for (const area of document.querySelectorAll<HTMLElement>(
-        '[data-slot=thread-pane-area], [data-slot=home-card-pane]'
+        '[data-slot=thread-pane-area]'
       )) {
         area.style.paddingRight = `${room}px`
       }
@@ -147,7 +146,8 @@ export const ReaderSidebar = ({
         <div
           className={cn(
             'bg-background border-foreground/6 flex min-w-0 flex-1 flex-col border-l',
-            box.isUnderNotice && 'rounded-tl-xl border-t',
+            // Clipped: the email's filled header bar would cover the corner and the top border.
+            box.isUnderNotice && 'overflow-clip rounded-tl-xl border-t',
             className
           )}
         >

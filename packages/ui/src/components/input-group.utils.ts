@@ -16,6 +16,8 @@ export const inputGroupVariants = cva(
         flat: `has-[[data-slot=input-group-control]:focus-visible]:focus-ring has-[[data-slot][aria-invalid=true]]:invalid-ring bg-transparent first:rounded-t-xl last:rounded-b-xl`,
         floating: `${inputGroupSurface} shadow-md`,
         inset: `has-[[data-slot=input-group-control]:focus-visible]:focus-ring has-[[data-slot][aria-invalid=true]]:invalid-ring rounded-xl bg-transparent`,
+        // A letter's header line (To, Subject): text flush with the body under it, so the control loses its inline padding.
+        line: `border-foreground/8 has-[[data-slot=input-group-control]:focus-visible]:border-foreground/20 has-[[data-slot][aria-invalid=true]]:border-destructive/50 rounded-none border-b bg-transparent transition-colors [--input-group-h:--spacing(10)] *:data-[slot=input-group-control]:px-0`,
       },
     },
   }

@@ -176,7 +176,11 @@ export const awaitingReplies = async (userId: string) => {
   })
 }
 
-const hasReplySince = async (userId: string, threadId: string, since: Date) => {
+export const hasReplySince = async (
+  userId: string,
+  threadId: string,
+  since: Date
+) => {
   const [reply] = await db
     .select({ id: messages.id })
     .from(messages)

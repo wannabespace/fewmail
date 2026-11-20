@@ -31,7 +31,6 @@ import {
   expandRow,
   useIsThreadExpanded,
 } from '~/components/expand-row'
-import { HomeCard, PageHeading } from '~/components/home-card'
 import { KeyHints } from '~/components/key-hints'
 import { ListenButton } from '~/components/listen-button'
 import { SleepingLogoMark } from '~/components/logo'
@@ -503,87 +502,5 @@ export const ReadingPage = ({ day: pickedDay }: { day?: string }) => {
         ]}
       />
     </main>
-  )
-}
-
-/** The newsletters of the fresh issue: Home's own category of mail, while it is fresh. */
-export const useFreshNewsletters = () => {
-  const { fresh } = useReadingIssues()
-  const { rows, summary } = useReadingDay(fresh?.day)
-  return { day: fresh?.day, rows, summary }
-}
-
-/** Home's card for the fresh issue's newsletters (`N`, `?page=newsletters`): how many, the first few, Mark all read. */
-export const NewslettersCard = ({ isActive }: { isActive: boolean }) => {
-  const t = useT()
-  const titleOf = useIssueTitle()
-  const { day, rows } = useFreshNewsletters()
-  if (!day || rows.length === 0) {
-    return null
-  }
-  return (
-    <HomeCard
-      heading={t.mail.group.newsletters}
-      lead={`${t.reading.digest(rows.length)} · ${titleOf(day)}`}
-      page="newsletters"
-      rows={rows.map((row) => ({ id: row.id, sender: row, text: row.subject }))}
-      actions={
-        <MarkAllRead
-          day={day}
-          isActive={isActive}
-          rows={rows}
-          variant="secondary"
-        />
-      }
-    />
-  )
-}
-
-/** What Home's newsletters card opens: every one of them as Mail's rows, with Reading's summary a page away. */
-export const NewslettersPane = ({
-  isActive,
-  onClose,
-}: {
-  isActive: boolean
-  onClose: () => void
-}) => {
-  const t = useT()
-  const { day, rows, summary } = useFreshNewsletters()
-  return (
-    <>
-      <PageHeading
-        title={t.mail.group.newsletters}
-        onClose={onClose}
-        actions={
-          summary && (
-            <Button
-              size="sm"
-              variant="ghost-muted"
-              render={<Link to="/reading" />}
-            >
-              <HugeiconsIcon
-                icon={News01Icon}
-                strokeWidth={2}
-                data-icon="inline-start"
-              />
-              {t.reading.summary}
-            </Button>
-          )
-        }
-      />
-      {day && rows.length > 0 ? (
-        <>
-          <MarkAllRead
-            day={day}
-            isActive={isActive}
-            rows={rows}
-            variant="secondary"
-          />
-          <NewsletterList isActive={isActive} rows={rows} summary={summary} />
-        </>
-      ) : (
-        <ReadingEmpty />
-      )}
-    </>
   )
 }

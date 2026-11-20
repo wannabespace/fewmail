@@ -3,7 +3,7 @@ import {
   COMMITMENT_STATUSES,
   EVENT_SCOPES,
   MAIL_CATEGORIES,
-  RULE_EFFECTS,
+  BOT_EFFECTS,
   CLEAR_OUT_GROUPS,
   WRAPPED_PERIODS,
 } from '@fewmail/shared/agent'
@@ -12,6 +12,8 @@ import { textToHtml } from '@fewmail/shared/email'
 import { z } from 'zod'
 
 import { announceChange } from '../lib/live'
+import { botChat, remindLater } from './bot-chat'
+import { createBot, listBots } from './bots'
 import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
 import {
   listSubscriptions,
@@ -39,7 +41,6 @@ import {
 import { scheduleMail } from './outbox'
 import { findContacts, getPerson } from './people'
 import { getReadingDay } from './reading'
-import { createRule, listRules } from './rules'
 import { markNotSpam, reportSpam } from './spam'
 import { syncMailboxes } from './sync'
 import { unsubscribeMessage } from './thread-effects'
@@ -72,7 +73,7 @@ interface AgentTool {
 const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   get_today: define({
     description:
-      "What the user's Home screen shows, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe, commitment: a promise the user made that is due, heads_up: a last day coming up or a promise to the user that has not come, said in its detail), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other unread mail worth knowing from those days (recent), mail naming a due date or meeting time, soonest first and none already passed (dates), sent mail still waiting for an answer (awaiting) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts) and quiet inbox mail no rule covers that the agent would archive, mark read or unsubscribe from (tidy: each email with its suggestedAction; carry them out with tidy_mail) and sign-in or verification codes from the last 15 minutes still in the inbox (codes) and senders whose every email of the last month the agent would archive or mark read (ruleSuggestions: count, effect and fromEmail; the user can say yes on Home, or you can offer a rule with create_rule, never make one unasked).",
+      "What needs the user across their bot chats, live. The queue of things that need them (queue): each pending action has an id, a kind (reply, pay, schedule, follow_up, read, archive, mark_read, unsubscribe, commitment: a promise the user made that is due, heads_up: a last day coming up or a promise to the user that has not come, said in its detail), the email it is about and, for replies, a draft in the user's voice. Also counts what the agent handled on its own and how much mail came in (pulse) since the user's last day on Home (days: at least 1, at most 7), the other unread mail worth knowing from those days (recent), mail naming a due date or meeting time, soonest first and none already passed (dates), sent mail still waiting for an answer (awaiting) and the time the agent saved the user in the last 7 days (saved: minutes, from emails handled on its own and replies sent from its drafts) and quiet inbox mail no bot covers that the agent would archive, mark read or unsubscribe from (tidy: each email with its suggestedAction; carry them out with tidy_mail) and sign-in or verification codes from the last 15 minutes still in the inbox (codes) and senders whose every email of the last month the agent would archive or mark read (botSuggestions: count, effect and fromEmail; the user can say yes in the app, or you can offer a bot with create_bot, never make one unasked).",
     run: () => getToday(userId),
   }),
   list_mail: define({
@@ -228,7 +229,7 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   unsubscribe: define({
     description:
-      'Unsubscribe from the mailing list an email came from (through its own one-click unsubscribe link, when it has one) and archive everything that list sent (a sender like notifications@github.com sends a list per repository). unsubscribed says whether the list was actually left. ignoresUnsubscribe means the sender is known to keep writing after an unsubscribe: tell the user and offer a trash rule for that sender (create_rule), never make one unasked.',
+      'Unsubscribe from the mailing list an email came from (through its own one-click unsubscribe link, when it has one) and archive everything that list sent (a sender like notifications@github.com sends a list per repository). unsubscribed says whether the list was actually left. ignoresUnsubscribe means the sender is known to keep writing after an unsubscribe: tell the user and offer a trash bot for that sender (create_bot), never make one unasked.',
     input: { messageId: z.uuid() },
     run: ({ messageId }) => unsubscribeMessage(userId, messageId, 'list'),
   }),
@@ -267,13 +268,13 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
   }),
   get_wrapped: define({
     description:
-      "The user's mail so far this year or this month, Wrapped style: emails in (from people, from lists), handled (by rules on their own plus the archive, mark read, unsubscribe, trash and spam the user said yes to), replies sent from its drafts, minutes saved, lists left, spam stopped, the busiest ISO weekday and hour in their time zone, and the three people who wrote most. shareToken makes the public link /w/<shareToken>, which shows the counts only.",
+      "The user's mail so far this year or this month, Wrapped style: emails in (from people, from lists), handled (by bots on their own plus the archive, mark read, unsubscribe, trash and spam the user said yes to), replies sent from its drafts, minutes saved, lists left, spam stopped, the busiest ISO weekday and hour in their time zone, and the three people who wrote most. shareToken makes the public link /w/<shareToken>, which shows the counts only.",
     input: { period: z.enum(WRAPPED_PERIODS) },
     run: ({ period }) => getWrapped(userId, period),
   }),
   list_handled: define({
     description:
-      'What the agent did, newest first, with the email each was about: status done (after the user said yes), auto_done (by a rule the user turned on, named in rule) or failed. since is ISO 8601, the last 24 hours by default.',
+      'What the agent did, newest first, with the email each was about: status done (after the user said yes), auto_done (by a bot the user turned on, named in bot) or failed. since is ISO 8601, the last 24 hours by default.',
     input: { since: z.iso.datetime({ offset: true }).optional() },
     run: ({ since }) =>
       listHandled(userId, since ? new Date(since) : undefined),
@@ -294,6 +295,24 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       "What the user's mail knows about one person: since when they write, conversation count, open items, promises the user made to them (promised), promises they made to the user that are still open (owed) and a short note.",
     input: { email: z.email() },
     run: ({ email }) => getPerson(userId, email),
+  }),
+  get_bot_chat: define({
+    description:
+      "One Home bot's chat over the last two weeks, oldest first: the cards it reported (each with its email and status), the promises (the Board), each day's digest (counts: what Fewmail's headline said that morning; cards: what waited then, with its status now), and what was said: the user's messages, the answers, and nudges (what the bot came back with when it said it would; replied tells whether the thread got an answer since). bot is fewmail, board or the id of one of the user's bots (list_bots).",
+    input: { bot: z.string().min(1) },
+    run: ({ bot }) => botChat(userId, bot),
+  }),
+  remind_later: define({
+    description:
+      "Come back to the user later in one bot's chat: at that moment the note appears there and the user gets a notification (never at night, then in the morning), unless they muted the bot. Use it when the user asks to be reminded or to check later whether something came (a payment, an answer). at: ISO 8601 with the user's UTC offset, within 90 days. bot: the chat it belongs to (fewmail, board or one of the user's bots). threadId: the email thread it is about, so the bot can say whether an answer came since. note: what the bot will say, in the user's language.",
+    input: {
+      at: z.string(),
+      bot: z.string().min(1),
+      note: z.string().min(1).max(500),
+      threadId: z.string().optional(),
+    },
+    run: ({ at, ...nudge }) =>
+      remindLater(userId, { ...nudge, at: new Date(at) }),
   }),
   list_promises: define({
     description:
@@ -351,19 +370,21 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       return { deleted: true }
     },
   }),
-  list_rules: define({
+  list_bots: define({
     description:
-      'The rules the agent follows. Each has a plain-language instruction matched against incoming mail, and an effect: archive, mark_read, unsubscribe and trash are applied on their own, draft_reply leaves a draft on Home, always_show puts the email on Home.',
-    run: () => listRules(userId),
+      "The user's bots, the chats on Home: each takes the incoming mail its plain-language instruction (or a simple match on sender, subject or mailing list) describes, and has a name and an effect: archive, mark_read, unsubscribe and trash move each email; tidy does what you would suggest for each email (archive, mark read or unsubscribe); draft_reply leaves a draft in the bot's chat; always_show puts each email in the bot's chat as one that needs the user; collect only gathers the mail there. enabled: the bot moves mail on its own; off, it asks the user for a yes on each email. Mail no bot takes is Fewmail's, the Board holds the promises.",
+    run: () => listBots(userId),
   }),
-  create_rule: define({
+  create_bot: define({
     description:
-      'Teach the agent a rule, e.g. instruction "Invoices from Hetzner", effect mark_read. archive, mark_read, unsubscribe and trash are then applied to matching mail without asking.',
+      'Make the user a bot that looks after some of their mail, e.g. name "Hetzner", instruction "Invoices from Hetzner: mark them read", effect mark_read. The instruction is all the user sees, so it says both which mail and what the effect does with it. archive, mark_read, unsubscribe and trash move each email; tidy does what you would suggest for each email (archive, mark read or unsubscribe); draft_reply leaves a draft in the bot\'s chat; always_show puts each email in the bot\'s chat as one that needs the user; collect only gathers the mail there. enabled: the bot moves mail on its own; off, it asks the user for a yes on each email.',
     input: {
-      effect: z.enum(RULE_EFFECTS),
+      effect: z.enum(BOT_EFFECTS),
+      enabled: z.boolean().default(false),
       instruction: z.string().min(3),
+      name: z.string().min(1).max(60),
     },
-    run: (input) => createRule(userId, input),
+    run: (input) => createBot(userId, input),
   }),
   refresh: define({
     description:

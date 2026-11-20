@@ -61,7 +61,7 @@ export const nl: Messages = {
       archive_thread: 'Dit gesprek archiveren?',
       clear_out: 'Deze groepen mail uit je inbox opruimen?',
       undo_clear_out: 'Alle opgeruimde mail terug naar de inbox?',
-      create_rule: 'Deze regel toevoegen?',
+      create_bot: 'Deze bot maken?',
       reply: 'Dit antwoord versturen?',
       send_email: 'Deze e-mail versturen?',
       snooze_thread: 'Dit gesprek uitstellen?',
@@ -86,7 +86,7 @@ export const nl: Messages = {
       clear_out: 'Inbox opruimen',
       preview_clear_out: 'Hele inbox lezen',
       undo_clear_out: 'Opgeruimde mail terugzetten',
-      create_rule: 'Regel toevoegen',
+      create_bot: 'Bot maken',
       dismiss_action: 'Overslaan',
       draft_reply: 'Antwoord opstellen',
       create_draft: 'Concept wordt opgeslagen',
@@ -95,10 +95,12 @@ export const nl: Messages = {
       get_today: 'Vandaag bekijken',
       list_handled: 'Afgehandelde mail bekijken',
       list_mail: 'Mail doorzoeken',
-      list_rules: 'Regels lezen',
+      get_bot_chat: 'De chat lezen',
+      list_bots: 'Je bots lezen',
       read_thread: 'Gesprek lezen',
       redraft_action: 'Concept herschrijven',
       refresh: 'Nieuwe mail ophalen',
+      remind_later: 'Herinnering instellen',
       send_email: 'Versturen',
       snooze_thread: 'Uitstellen',
       unsubscribe: 'Afmelden',
@@ -121,7 +123,7 @@ export const nl: Messages = {
       archive_thread: 'Archiveren',
       clear_out: 'Opruimen',
       undo_clear_out: 'Terugzetten',
-      create_rule: 'Toevoegen',
+      create_bot: 'Bot maken',
       reply: 'Versturen',
       send_email: 'Versturen',
       snooze_thread: 'Uitstellen',
@@ -133,7 +135,7 @@ export const nl: Messages = {
       move_to_inbox: 'Terugzetten',
     },
   },
-  byRule: 'door een regel',
+  byBot: 'door een bot',
   bulk: {
     badge: (n: number) => `Verstuurd naar ${n}+ Fewmail-gebruikers`,
     reason: (n: number) =>
@@ -290,7 +292,7 @@ export const nl: Messages = {
       'Nog te weinig mail voor een verhaal. Kom over een paar dagen terug.',
     handled: 'e-mails afgehandeld door Fewmail',
     handledHint:
-      'Fewmail verandert niets in Gmail zonder jouw ja. Zet een regel aan, dan handelt het zulke mail zelf af.',
+      'Fewmail verandert niets in Gmail zonder jouw ja. Laat een bot zelf handelen, dan handelt hij zulke mail voor je af.',
     people: 'Wie het meest schreef',
     period: { month: 'Deze maand', year: 'Dit jaar' },
     replies: 'antwoorden door Fewmail geschreven en verstuurd',
@@ -578,7 +580,7 @@ export const nl: Messages = {
     block: 'Afzender blokkeren',
     ignoresUnsubscribe: (name: string) => `${name} negeert afmeldingen`,
     ignoresUnsubscribeHint:
-      'Fewmail heeft om afmelding gevraagd, maar deze afzender blijft bekend genoeg toch mailen. Zijn mail voortaan naar de prullenbak? Terugdraaien kan in Regels.',
+      'Fewmail heeft om afmelding gevraagd, maar deze afzender blijft bekend genoeg toch mailen. Zijn mail voortaan naar de prullenbak? Een bot doet het, en je kunt hem verwijderen op Home.',
     blocked: 'Geblokkeerd. Hun mail gaat nu naar de prullenbak.',
     forward: 'Doorsturen',
     more: 'Meer',
@@ -693,7 +695,6 @@ export const nl: Messages = {
     clearSearch: 'Zoekopdracht wissen',
     mail: 'Mail',
     reading: 'Lezen',
-    rules: 'Regels',
     settings: 'Instellingen',
     syncFailed: 'Gmail-synchronisatie mislukt, opnieuw proberen',
     syncing: 'Je inbox wordt gelezen…',
@@ -796,52 +797,129 @@ export const nl: Messages = {
       `Nieuwe betaalgegevens van ${domain}. Bevestig telefonisch voordat je betaalt.`,
     title: 'Controleer voordat je iets doet',
   },
-  rules: {
-    deleted: 'Regel verwijderd',
-    add: 'Regel toevoegen',
-    count: (total: number) =>
-      plural('nl', total, {
-        one: () => '1 regel',
-        other: (n) => `${n} regels`,
-      }),
-    delete: 'Verwijderen',
-    describe: {
-      alwaysShow: 'Blijft altijd op Home, wordt nooit verborgen',
-      autonomous: 'Wordt zelf gedaan, staat bij afgehandeld',
-      draft: 'Een concept wacht op je op Home',
+  bots: {
+    chatMenu: 'Chatacties',
+    clear: 'Geschiedenis wissen',
+    clearConfirm: (name: string) => `Chat met ${name} wissen?`,
+    clearHint:
+      'Zijn berichten zijn dan voorgoed weg. Wat hij in je mail deed blijft, net als zijn herinneringen.',
+    cleared: 'Geschiedenis gewist',
+    deleteFolder: 'Map verwijderen',
+    deleteFolderConfirm: (name: string) => `Map ${name} verwijderen?`,
+    deleteFolderHint: 'De bots erin blijven in de lijst, buiten elke map.',
+    moveTo: 'Naar map verplaatsen',
+    newFolder: 'Nieuwe map',
+    noFolder: 'Geen map',
+    pin: 'Vastzetten',
+    rename: 'Hernoemen',
+    renameFolder: 'Map hernoemen',
+    unpin: 'Losmaken',
+    add: 'Nieuwe bot',
+    answering: 'Ik schrijf…',
+    cancelReply: 'Antwoord annuleren',
+    cards: {
+      autoDone: (n: number) =>
+        plural('nl', n, {
+          one: () => 'Eén heb ik zelf gedaan.',
+          other: (count) => `${count} heb ik zelf gedaan.`,
+        }),
+      dismissed: (n: number) =>
+        plural('nl', n, {
+          one: () => 'Eén heb je overgeslagen.',
+          other: (count) => `${count} heb je overgeslagen.`,
+        }),
+      done: (n: number) =>
+        plural('nl', n, {
+          one: () => 'Eén is gedaan na je ja.',
+          other: (count) => `${count} zijn gedaan na je ja.`,
+        }),
+      failed: (n: number) =>
+        plural('nl', n, {
+          one: () => 'Gmail weigerde er één.',
+          other: (count) => `Gmail weigerde er ${count}.`,
+        }),
+      pending: (n: number) =>
+        plural('nl', n, {
+          one: () => 'Eén wacht op je.',
+          other: (count) => `${count} wachten op je.`,
+        }),
     },
+    composer: (name: string) => `Schrijf ${name} over zijn mail`,
+    copied: 'Gekopieerd',
+    copy: 'Kopiëren',
+    created: 'Bot gemaakt. Hij leest vanaf nu nieuwe mail.',
+    delete: 'Bot verwijderen',
+    deleteConfirm: (name: string) => `${name} verwijderen?`,
+    deleteHint:
+      'Zijn chat gaat mee. Zijn mail blijft waar die is, en nieuwe mail zoals deze gaat naar Fewmail.',
+    deleted: 'Bot verwijderd',
+    earlier: 'Eerdere tonen',
+    edit: 'Botinstellingen',
     effect: {
-      always_show: 'Niet missen',
+      always_show: 'Op Home houden',
       archive: 'Archiveren',
+      collect: 'Alleen verzamelen',
       draft_reply: 'Antwoord opstellen',
       mark_read: 'Markeren als gelezen',
+      tidy: 'Opruimen',
       trash: 'Naar prullenbak',
       unsubscribe: 'Afmelden',
     },
-    enabled: 'Regel ingeschakeld',
-    lead: 'Vertel de agent in gewone woorden wat hij met bepaalde mail moet doen. Hij toetst elke e-mail aan deze regels.',
-    newTitle: 'Nieuwe regel aanleren',
-    leadFree:
-      'Archiveer, markeer als gelezen of meld je automatisch af. Regels werken op nieuwe mail zodra die binnenkomt.',
-    placeholder: 'bijv. Facturen van Hetzner, of meldingen van LinkedIn',
+    empty: 'Nog niets hier. Als er mail voor mij komt, schrijf ik hier.',
+    enabled: 'Handelt zelf',
+    enabledHint: {
+      off: 'Staat dit uit, dan vraagt hij eerst je ja voor elke e-mail.',
+      on: 'Staat dit aan, dan handelt hij zonder te vragen; alles wat hij doet staat in zijn chat.',
+    },
+    instruction: 'Welke e-mails en wat hij ermee doet',
+    instructionPlaceholder:
+      'bijv. Facturen van Hetzner als gelezen markeren, of meldingen van LinkedIn archiveren',
+    mute: 'Dempen',
+    muted: 'Gedempt: geen meldingen van deze bot',
+    name: 'Naam',
+    namePlaceholder: 'bijv. Facturen',
+    noPlan:
+      'Ik kan je niet antwoorden: met het gratis abonnement heb ik geen tokens voor een gesprek. Neem een abonnement en ik ben helemaal van jou.',
+    now: 'Wacht nu',
+    nudge: {
+      noReply: 'Nog geen antwoord in dat gesprek.',
+      replied: 'Sindsdien kwam er een antwoord in dat gesprek.',
+    },
+    promises: (n: number) =>
+      plural('nl', n, {
+        one: () => 'Ik heb een belofte genoteerd.',
+        other: (count) => `Ik heb ${count} beloftes genoteerd.`,
+      }),
+    react: 'Reageren',
+    reaction: 'Reactie',
+    reply: 'Beantwoorden',
+    save: 'Opslaan',
+    saved: 'Opgeslagen',
     simple: {
-      appliedAutomatically: 'Automatisch toegepast op nieuwe mail',
-      field: {
-        from: 'Van',
-        mailingList: 'Elke mailinglijst',
-        subject: 'Onderwerp bevat',
-      },
       title: {
         from: (value: string) => `Van “${value}”`,
         mailingList: () => 'Elke mailinglijst',
         subject: (value: string) => `Onderwerp bevat “${value}”`,
       },
-      valuePlaceholder: 'anna@example.com, een naam of een woord',
-      whichField: 'Overeenkomst op',
     },
-    title: 'Regels',
-    whatAgentDoes: 'Wat de agent doet',
-    whichEmails: 'Welke e-mails',
+    spent: (date: string) =>
+      `Ik kan tot ${date} niet antwoorden: het tegoed van deze maand is op.`,
+    steps: (n: number) =>
+      plural('nl', n, {
+        one: () => 'Eén stap',
+        other: (count) => `${count} stappen`,
+      }),
+    subscribe: 'Abonneren',
+    system: { board: 'Bord', fewmail: 'Fewmail Bot' },
+    systemJob: {
+      board: 'De beloftes en deadlines die ik bijhoud',
+      fewmail: 'Maakt je bots, vindt e-mails en beantwoordt vragen',
+    },
+    title: 'Bots',
+    toLatest: 'Naar het nieuwste',
+    unmute: 'Dempen opheffen',
+    whatItDoes: 'Wat hij ermee doet',
+    you: 'Jij',
   },
   settings: {
     disconnectConfirm: (name: string) => `${name} ontkoppelen?`,
@@ -857,7 +935,7 @@ export const nl: Messages = {
     deleteAccount: 'Account verwijderen',
     deleteConfirm: 'Alles verwijderen',
     deleteDescription:
-      'Verwijdert direct je account, gesynchroniseerde mail, concepten en regels uit Fewmail. Je Gmail zelf blijft onaangeroerd. Een betaald abonnement wordt direct opgezegd.',
+      'Verwijdert direct je account, gesynchroniseerde mail, concepten en bots uit Fewmail. Je Gmail zelf blijft onaangeroerd. Een betaald abonnement wordt direct opgezegd.',
     deleteFailed:
       'Het account is niet verwijderd. Probeer het over een minuut opnieuw.',
     deleteSignIn:
@@ -1050,7 +1128,7 @@ export const nl: Messages = {
             'De nieuwsbrieven van de dag worden één samenvatting per onderwerp, met elke zin gekoppeld aan de mail waar hij vandaan komt.',
           title: 'Nieuwsbrieven in één samenvatting',
         },
-        rules: {
+        bots: {
           description:
             'Beschrijf in één zin wat er met bepaalde mail moet gebeuren en het wordt een regel. Alleen de regels die jij aanzet, doen zelf iets.',
           title: 'Regels in gewone woorden',
@@ -1120,7 +1198,7 @@ export const nl: Messages = {
         outlook: 'Outlook en Microsoft 365',
         phishing: 'Waarschuwingen voor phishing en gewijzigde betaalgegevens',
         phone: 'Op je telefoon',
-        rules: 'Regels in gewone woorden',
+        bots: 'Regels in gewone woorden',
         snooze: 'Snoozen',
         spamShield: 'Spamschild van de community',
         summaries: 'Samenvattingen van e-mails',
@@ -1141,7 +1219,7 @@ export const nl: Messages = {
         mcp: 'In Pro',
         memory: 'In Pro',
         phone: 'Telegram en WhatsApp, met spraak, in Pro',
-        rules: 'Archiveren, als gelezen markeren of afmelden, gratis',
+        bots: 'Archiveren, als gelezen markeren of afmelden, gratis',
         summaries: 'In Pro',
         unsubscribe: 'Afzenders die het negeren gaan naar spam',
       },
@@ -1171,7 +1249,7 @@ export const nl: Messages = {
           keepApp: 'Werkt via mappen',
           otherProviders: 'Elke IMAP- of Exchange-server',
           phone: 'Via je mailapp',
-          rules: 'Trainen door mail tussen mappen te verplaatsen',
+          bots: 'Trainen door mail tussen mappen te verplaatsen',
           snooze: 'Vanaf Lunch',
           summaries: 'SaneSummary, in Dinner',
           unsubscribe: 'Map SaneBlackHole',
@@ -1198,7 +1276,7 @@ export const nl: Messages = {
           otherProviders: 'Doorgestuurd naar Gmail',
           outlook: 'Microsoft 365 niet ondersteund',
           phone: 'Apps voor iOS en Android',
-          rules: 'AI-filters, 3 tot 50 per abonnement',
+          bots: 'AI-filters, 3 tot 50 per abonnement',
           summaries: 'Boven elke e-mail',
           teams: 'Gedeelde gesprekken en opmerkingen',
           unsubscribe: 'Met blokkeren in één klik',
@@ -1223,7 +1301,7 @@ export const nl: Messages = {
           keepApp: 'Vervangt je mailapp',
           mcp: 'In Business',
           phone: 'Apps voor iOS en Android',
-          rules: 'Custom Auto Labels, in Business',
+          bots: 'Custom Auto Labels, in Business',
           spamShield: 'Het filter van je provider',
           summaries: 'Auto Summarize',
           teams: 'Gedeelde concepten en opmerkingen',
@@ -1541,13 +1619,22 @@ export const nl: Messages = {
     },
     showImages: 'Afbeeldingen tonen',
   },
-  starterRules: {
-    alwaysShow:
-      'Beveiligingsmeldingen, rekeningen die betaald moeten worden, alles van mijn bank of de overheid',
-    newsletters: 'Nieuwsbrieven en digests',
-    notifications: 'Automatische meldingen van tools en diensten',
-    promotions: 'Aanbiedingen, marketing en ongevraagde verkoopmails',
-    receipts: 'Bonnen, bestel- en verzendbevestigingen',
+  starterBots: {
+    important: {
+      instruction:
+        'Wat een stap van mij vraagt: mensen die op mijn antwoord wachten, rekeningen die betaald moeten worden, beveiligingsmeldingen, alles van mijn bank of de overheid. Op Home houden',
+      name: 'Belangrijk',
+    },
+    later: {
+      instruction:
+        'Goed om te weten, maar zonder beslissing: updates van diensten die ik gebruik, bezorgingen, evenementen en datums',
+      name: 'Kan wachten',
+    },
+    quick: {
+      instruction:
+        'Ruis die ik ongelezen zou opruimen: meldingen, bonnetjes, nieuwsbrieven, aanbiedingen en koude verkoopmails. Opruimen: archiveren, markeren als gelezen of afmelden, wat het beste past',
+      name: 'Snel',
+    },
   },
   telegram: {
     approveAlike: 'Alle kaarten van één soort tegelijk goedkeuren:',
@@ -1588,14 +1675,14 @@ export const nl: Messages = {
   },
   today: {
     working: 'Bezig…',
-    ruleSuggestion: {
+    botSuggestion: {
       done: {
         archive:
-          'Nieuwe e-mail van deze afzender wordt gearchiveerd. Wijzig het bij Regels.',
+          'Een nieuwe bot archiveert vanaf nu de mail van deze afzender.',
         mark_read:
-          'Nieuwe e-mail van deze afzender wordt als gelezen gemarkeerd. Wijzig het bij Regels.',
+          'Een nieuwe bot markeert de mail van deze afzender vanaf nu als gelezen.',
       },
-      label: 'Voorgestelde regel',
+      label: 'Voorgestelde bot',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
           ? `${count} e-mails deze maand, en de agent zou ze allemaal archiveren`
@@ -1606,16 +1693,9 @@ export const nl: Messages = {
         mark_read: 'Altijd als gelezen markeren',
       },
     },
-    ruleOffer: {
-      lead: 'De agent kan dit zelf doen voor passende mail. De regel blijft uit tot je ja zegt.',
-      no: 'Uit laten',
-      turnedOn: 'Aangezet. Wijzig het in Regels.',
-      yes: 'Aanzetten',
-    },
     newSender: {
       archive: 'Altijd archiveren',
-      archived:
-        'Nieuwe mail van deze afzender wordt gearchiveerd. Wijzig dit bij Regels.',
+      archived: 'Een nieuwe bot archiveert vanaf nu de mail van deze afzender.',
       keep: 'Gewoon houden',
       label: 'Nieuwe afzender',
       lead: (count: number, opened: number) =>
@@ -1631,13 +1711,13 @@ export const nl: Messages = {
       'Ik blijf nieuwe mail lezen. Alles wat je aandacht vraagt, verschijnt hier.',
     allowanceSpent: (date: string) =>
       `Het tegoed van de agent is op voor deze maand: samenvattingen en concepten komen terug op ${date}. Tot dan noteer ik nog steeds beloftes en deadlines.`,
-    byRules: (n: number) => `Je regels hebben er ${n} afgehandeld.`,
+    byBots: (n: number) => `Je bots hebben er ${n} afgehandeld.`,
     decisions: 'Beslissingen',
     journal: {
       approved: 'Je zei ja',
-      byRule: (rule: string) => `Je regel: ${rule}`,
+      byBot: (bot: string) => `Je bot: ${bot}`,
       failed: 'Mislukt',
-      lead: 'De afgelopen 7 dagen. Elke wijziging in je mail of agenda had je ja of een regel die je aanzette.',
+      lead: 'De afgelopen 7 dagen. Elke wijziging in je mail of agenda had je ja of een bot die je zelf liet handelen.',
       title: 'Gedaan in je mail',
     },
     progress: (done: number, total: number) => `${done} van ${total}`,
@@ -1665,13 +1745,13 @@ export const nl: Messages = {
     },
     improve: {
       empty: {
-        lead: 'Als de agent ziet dat je een afzender steeds op dezelfde manier behandelt, stelt hij hier een regel voor.',
+        lead: 'Als de agent ziet dat je een afzender steeds op dezelfde manier behandelt, stelt hij hier een bot voor.',
         title: 'Nu geen voorstellen.',
       },
       lead: (total: number) =>
         plural('nl', total, {
-          one: () => 'Eén regel die de agent voor je zou kunnen volgen.',
-          other: (n) => `${n} regels die de agent voor je zou kunnen volgen.`,
+          one: () => 'Eén bot die de agent voor je zou kunnen maken.',
+          other: (n) => `${n} bots die de agent voor je zou kunnen maken.`,
         }),
       title: 'De agent stelt voor',
     },
@@ -1752,6 +1832,7 @@ export const nl: Messages = {
     hints: {
       board:
         'Onderdeel van Fewmail Pro: de agent noteert wat jou is beloofd, wat jij hebt beloofd en de deadlines uit je mail, en houdt elk bij tot het klaar is.',
+      chat: 'Onderdeel van Fewmail Pro: praat met je bots over hun mail, en ze komen bij je terug wanneer ze dat zeiden.',
       drafts:
         'Onderdeel van Fewmail Pro: de agent schrijft het antwoord in jouw stijl, jij past het aan en verstuurt het.',
     },

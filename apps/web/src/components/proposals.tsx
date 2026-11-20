@@ -1,7 +1,6 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { PROPOSAL_KINDS } from '@fewmail/shared/agent'
+import { botOfCard, PROPOSAL_KINDS } from '@fewmail/shared/agent'
 import type { ProposalKind } from '@fewmail/shared/agent'
-import type { Messages } from '@fewmail/shared/i18n'
 import { Button } from '@fewmail/ui/components/button'
 import {
   SettingsGroup,
@@ -10,13 +9,11 @@ import {
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { confirm } from '~/components/confirm-dialog'
 import { ExpandTrigger, expandRow } from '~/components/expand-row'
-import { HomeCard, PageHeading } from '~/components/home-card'
 import { PaneRows } from '~/components/pane-rows'
 import type { QueueItem } from '~/components/queue-card'
 import { SenderAvatar } from '~/components/sender-avatar'
@@ -32,6 +29,8 @@ export const isProposal = ({ action }: QueueItem) =>
   (PROPOSAL_KINDS as readonly string[]).includes(action.kind)
 
 interface Proposal {
+  /** Whose chat it is in. */
+  bot: string
   /** The card's action id, or the email's id for quiet mail to tidy. */
   id: string
   isCard: boolean
@@ -43,15 +42,20 @@ interface Proposal {
   why: string
 }
 
-const fromCard = ({ action, analysis, message }: QueueItem): Proposal => ({
-  id: action.id,
-  isCard: true,
-  kind: action.kind as ProposalKind,
-  message,
-  why: action.reason || analysis?.summary || '',
-})
+const fromCard = (card: QueueItem): Proposal => {
+  const { action, analysis, message } = card
+  return {
+    bot: botOfCard(card),
+    id: action.id,
+    isCard: true,
+    kind: action.kind as ProposalKind,
+    message,
+    why: action.reason || analysis?.summary || '',
+  }
+}
 
 const fromTidy = ({ analysis, message }: Today['tidy'][number]): Proposal => ({
+  bot: analysis.botId ?? 'fewmail',
   id: message.id,
   isCard: false,
   kind: analysis.suggestedAction,
@@ -190,7 +194,7 @@ export const useProposals = (
     settleIfLast(1)
     keepThem.mutate([item])
   }
-  return { approve, isLoaded: !!today, keep, proposals }
+  return { approve, keep, proposals }
 }
 
 type Proposals = ReturnType<typeof useProposals>
@@ -201,87 +205,21 @@ const byKind = (proposals: Proposal[]) =>
     rows: proposals.filter((proposal) => proposal.kind === kind),
   })).filter(({ rows }) => rows.length > 0)
 
-const kindsLine = (t: Messages, proposals: Proposal[]) => {
-  const line = byKind(proposals)
-    .map(({ kind, rows }) => t.today.tidy[kind](rows.length))
-    .join(' · ')
-  return `${line.charAt(0).toUpperCase()}${line.slice(1)}.`
-}
-
-export const PROPOSALS_ID = 'proposals'
-
-/**
- * Heads Home's decisions: every email the agent proposes to move as one card, approved in one yes (T, or ⏎ on it) or
- * looked at one by one in the review it opens (a click, D); it folds away once settled.
- */
-export const ProposalsGroup = ({
-  canUseKeys,
-  isSelected,
-  proposals,
-}: {
-  canUseKeys: boolean
-  isSelected: boolean
-  proposals: Proposals
-}) => {
-  const t = useT()
-  const rows = proposals.proposals
-  useHotkey('T', () => proposals.approve(rows), {
-    enabled: canUseKeys && rows.length > 0,
-  })
-
-  return (
-    rows.length > 0 && (
-      <HomeCard
-        heading={t.today.quick}
-        isActive={isSelected}
-        lead={kindsLine(t, rows)}
-        page="tidy"
-        rows={rows.flatMap(({ id, message }) =>
-          message ? [{ id, sender: message, text: message.subject }] : []
-        )}
-        actions={
-          <Button
-            size="sm"
-            onClick={() => proposals.approve(rows)}
-            shortcut={<Kbd>{isSelected ? '⏎' : 'T'}</Kbd>}
-          >
-            {t.today.tidy.run}
-            <span className="tabular-nums">{rows.length}</span>
-          </Button>
-        }
-      />
-    )
-  )
-}
-
 /** Every proposal by what it would do: ⏎ approves the cursor's, S keeps the email as it is. */
 export const ProposalsReview = ({
   canUseKeys,
-  onClose,
   proposals,
 }: {
   canUseKeys: boolean
-  onClose: () => void
   proposals: Proposals
 }) => {
   const t = useT()
-  const navigate = useNavigate()
   const [cursor, setCursor] = useState<number | null>(null)
   const groups = byKind(proposals.proposals)
   const rows = groups.flatMap(({ rows: group }) => group)
   // The cursor keeps its place as rows leave: the next one slides under it.
   const current = cursor === null ? -1 : Math.min(cursor, rows.length - 1)
   const selected = rows[current]
-
-  const isDone = proposals.isLoaded && rows.length === 0
-  useEffect(() => {
-    if (isDone) {
-      void navigate({
-        search: (prev) => ({ ...prev, page: undefined }),
-        to: '/home',
-      })
-    }
-  }, [isDone, navigate])
 
   const move = (step: number) =>
     setCursor(Math.max(0, Math.min(rows.length - 1, current + step)))
@@ -307,25 +245,19 @@ export const ProposalsReview = ({
 
   return (
     <>
-      <PageHeading
-        title={t.today.tidy.reviewTitle}
-        onClose={onClose}
-        actions={
-          <Button
-            size="sm"
-            disabled={rows.length === 0}
-            onClick={() => proposals.approve(rows)}
-            shortcut={<Kbd>T</Kbd>}
-          >
-            {t.today.tidy.run}
-            <span className="tabular-nums">{rows.length}</span>
-          </Button>
-        }
-      >
-        <p className="text-brief text-foreground/80 font-serif text-balance">
+      <div className="flex items-center gap-3">
+        <p className="text-brief text-foreground/80 flex-1 font-serif text-balance">
           {t.today.tidy.reviewLead}
         </p>
-      </PageHeading>
+        <Button
+          size="sm"
+          onClick={() => proposals.approve(rows)}
+          shortcut={<Kbd>T</Kbd>}
+        >
+          {t.today.tidy.run}
+          <span className="tabular-nums">{rows.length}</span>
+        </Button>
+      </div>
       <div className="flex flex-col gap-8">
         {groups.map(({ kind, rows: group }) => (
           <SettingsGroup

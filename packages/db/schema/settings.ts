@@ -1,4 +1,5 @@
 import type {
+  BotFolder,
   DeliveryChannel,
   DeliveryNotice,
   DeliveryStatus,
@@ -15,12 +16,26 @@ import { users } from './auth'
 import { actions } from './mail'
 
 export const userSettings = d.snakeCase.table('user_settings', {
+  /** When the user cleared each bot's chat (ISO), by bot: nothing before it shows again, its cards included. */
+  botsClearedAt: d
+    .jsonb()
+    .$type<Record<string, string>>()
+    .default({})
+    .notNull(),
+  /** The sidebar's folders of bots, in order, each bot in one at most; null is none. */
+  botFolders: encryptedJson<BotFolder[]>(),
+  /** When the user last looked at each bot's chat (ISO), by bot: what came after is new. */
+  botsReadAt: d.jsonb().$type<Record<string, string>>().default({}).notNull(),
   /** Named for the old daily brief: the hour of the morning messages (newsletter digest, Monday's report). */
   briefHour: d.smallint().default(8).notNull(),
   cleanupCheckedAt: d.timestamp({ withTimezone: true }),
   gmailLabels: d.boolean().default(false).notNull(),
   knowledge: encryptedText(),
   morningSentAt: d.timestamp({ withTimezone: true }),
+  /** Bots that never notify; their chat still fills. */
+  mutedBots: d.text().array().default([]).notNull(),
+  /** Bots kept at the top of the sidebar, in the order they were pinned. */
+  pinnedBots: d.text().array().default([]).notNull(),
   /** The day's newsletters sent to Telegram and WhatsApp at `briefHour`. */
   readingDigest: d.boolean().default(true).notNull(),
   language: d.text().$type<Locale>().notNull(),
@@ -152,6 +167,7 @@ export type AiFeature =
   | 'chat'
   | 'digest'
   | 'draft'
+  | 'intro'
   | 'person_note'
   | 'promises'
   | 'reading_summary'

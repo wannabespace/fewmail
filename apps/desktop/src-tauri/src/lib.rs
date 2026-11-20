@@ -340,7 +340,7 @@ pub fn run() {
                 .get_current()?
                 .and_then(|urls| urls.into_iter().find(|url| url.scheme() == "mailto"));
             let first_path =
-                launch_link.map_or_else(|| "/home".to_owned(), |link| compose_path(&link));
+                launch_link.map_or_else(|| "/mail".to_owned(), |link| compose_path(&link));
             app.deep_link().on_open_url({
                 let handle = handle.clone();
                 move |event| {

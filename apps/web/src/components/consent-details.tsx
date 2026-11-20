@@ -20,7 +20,7 @@ export const DraftText = ({ text }: { text: string }) => (
 
 interface Known {
   allDay?: boolean
-  analysis?: { suggestedAction?: keyof Messages['rules']['effect'] | null }
+  analysis?: { suggestedAction?: keyof Messages['bots']['effect'] | null }
   detail?: string | null
   email?: string
   end?: string
@@ -43,7 +43,7 @@ interface ToolInput {
   allDay?: boolean
   cc?: string[]
   description?: string
-  effect?: keyof Messages['rules']['effect']
+  effect?: keyof Messages['bots']['effect']
   end?: string
   groups?: ClearOutGroup[]
   id?: string
@@ -226,13 +226,13 @@ const CONSENT_DETAILS: Record<
   create_event: ({ calendar, input }) => (
     <EventDetails calendar={calendar} event={input} />
   ),
-  create_rule: ({ input, t }) => (
+  create_bot: ({ input, t }) => (
     <p className="text-sm">
       <span data-mask>{input.instruction}</span>
       {input.effect && (
         <span className="text-muted-foreground">
           {' · '}
-          {t.rules.effect[input.effect]}
+          {t.bots.effect[input.effect]}
         </span>
       )}
     </p>
@@ -285,7 +285,7 @@ const CONSENT_DETAILS: Record<
   tidy_mail: ({ t, tidy }) =>
     tidy?.map(({ analysis, message }) => (
       <p key={message?.id} className="truncate text-sm">
-        {analysis?.suggestedAction && t.rules.effect[analysis.suggestedAction]}
+        {analysis?.suggestedAction && t.bots.effect[analysis.suggestedAction]}
         <span data-mask className="text-muted-foreground">
           {' · '}
           {message?.fromName ?? message?.fromEmail} · {message?.subject}

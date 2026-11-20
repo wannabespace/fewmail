@@ -11,7 +11,7 @@ import { approveAction } from './mail'
 import { NotFoundError } from './mail-errors'
 import { getSettings } from './settings'
 
-/** A Gmail move asked through consent is journaled as that move, so it reads like a rule's and gets the same undo. */
+/** A Gmail move asked through consent is journaled as that move, so it reads like a bot's and gets the same undo. */
 const CONSENT_KINDS: Partial<Record<ConsentToolName, ActionKind>> = {
   archive_thread: 'archive',
   report_spam: 'spam',

@@ -8,6 +8,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@fewmail/ui/components/alert-dialog'
+import { Button } from '@fewmail/ui/components/button'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@fewmail/ui/components/dialog'
+import { Input } from '@fewmail/ui/components/input'
 import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createStore } from 'seitu'
@@ -67,5 +77,73 @@ export const ConfirmDialog = () => {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  )
+}
+
+interface NameRequest {
+  title: ReactNode
+  /** The name it starts with: empty for something new. */
+  value: string
+  maxLength: number
+  onSave: (name: string) => void
+}
+
+const nameStore = createStore<NameRequest | null>(null)
+
+/** A name to type: a new folder, a bot or folder renamed. */
+export const askName = (request: NameRequest) => nameStore.set(request)
+
+export const NameDialog = () => {
+  const t = useT()
+  const asked = useSubscription(nameStore)
+  const [shown, setShown] = useState(asked)
+  const [name, setName] = useState('')
+  if (asked && asked !== shown) {
+    setShown(asked)
+    setName(asked.value)
+  }
+  const save = () => {
+    if (name.trim()) {
+      nameStore.set(null)
+      shown?.onSave(name.trim())
+    }
+  }
+
+  return (
+    <Dialog
+      open={Boolean(asked)}
+      onOpenChange={(open) => !open && nameStore.set(null)}
+      onOpenChangeComplete={(open) => !open && setShown(null)}
+    >
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle data-mask>{shown?.title}</DialogTitle>
+        </DialogHeader>
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={(event) => {
+            event.preventDefault()
+            save()
+          }}
+        >
+          <Input
+            autoFocus
+            aria-label={typeof shown?.title === 'string' ? shown.title : ''}
+            data-mask
+            maxLength={shown?.maxLength}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+          <DialogFooter>
+            <DialogClose render={<Button variant="ghost-muted" />}>
+              {t.settings.cancel}
+            </DialogClose>
+            <Button type="submit" disabled={!name.trim()}>
+              {t.bots.save}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }

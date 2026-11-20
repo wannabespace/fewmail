@@ -1,5 +1,6 @@
 import { Button } from '@fewmail/ui/components/button'
 import { Calendar } from '@fewmail/ui/components/calendar'
+import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,7 @@ import {
 } from '@fewmail/ui/components/dropdown-menu'
 import { Input } from '@fewmail/ui/components/input'
 import { Popover, PopoverContent } from '@fewmail/ui/components/popover'
-import { Calendar03Icon } from '@hugeicons/core-free-icons'
+import { ArrowDown01Icon, Calendar03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { addDays, isAfter, parse, startOfToday } from 'date-fns'
 import { useRef, useState } from 'react'
@@ -93,10 +94,14 @@ export const SendLater = ({
       <DropdownMenu>
         <DropdownMenuTrigger
           ref={trigger}
-          render={<Button size="sm" variant="secondary" />}
-        >
-          {t.compose.sendLater}
-        </DropdownMenuTrigger>
+          render={
+            <IconButton
+              icon={ArrowDown01Icon}
+              label={t.compose.sendLater}
+              size="icon-sm"
+            />
+          }
+        />
         <DropdownMenuContent>
           {presetTimes(LATER_PRESETS, LATER_OPTIONS).map(
             ({ preset, until }) => (

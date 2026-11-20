@@ -61,7 +61,7 @@ export const id: Messages = {
       archive_thread: 'Arsipkan percakapan ini?',
       clear_out: 'Bersihkan grup email ini dari kotak masuk?',
       undo_clear_out: 'Kembalikan semua yang dibersihkan ke kotak masuk?',
-      create_rule: 'Tambahkan aturan ini?',
+      create_bot: 'Buat bot ini?',
       reply: 'Kirim balasan ini?',
       send_email: 'Kirim email ini?',
       snooze_thread: 'Tunda percakapan ini?',
@@ -86,7 +86,7 @@ export const id: Messages = {
       clear_out: 'Membersihkan kotak masuk',
       preview_clear_out: 'Membaca seluruh kotak masuk',
       undo_clear_out: 'Mengembalikan email yang dibersihkan',
-      create_rule: 'Menambahkan aturan',
+      create_bot: 'Membuat bot',
       dismiss_action: 'Melewati',
       draft_reply: 'Menulis balasan',
       create_draft: 'Menyimpan draf',
@@ -95,10 +95,12 @@ export const id: Messages = {
       get_today: 'Memeriksa hari ini',
       list_handled: 'Memeriksa yang sudah ditangani',
       list_mail: 'Mencari di email',
-      list_rules: 'Membaca aturan',
+      get_bot_chat: 'Membaca obrolan',
+      list_bots: 'Membaca bot-botmu',
       read_thread: 'Membaca percakapan',
       redraft_action: 'Menulis ulang draf',
       refresh: 'Memeriksa email baru',
+      remind_later: 'Memasang pengingat',
       send_email: 'Mengirim',
       snooze_thread: 'Menunda',
       unsubscribe: 'Berhenti berlangganan',
@@ -121,7 +123,7 @@ export const id: Messages = {
       archive_thread: 'Arsipkan',
       clear_out: 'Bersihkan',
       undo_clear_out: 'Kembalikan',
-      create_rule: 'Tambahkan',
+      create_bot: 'Buat bot',
       reply: 'Kirim',
       send_email: 'Kirim',
       snooze_thread: 'Tunda',
@@ -133,7 +135,7 @@ export const id: Messages = {
       move_to_inbox: 'Kembalikan',
     },
   },
-  byRule: 'oleh aturan',
+  byBot: 'oleh bot',
   bulk: {
     badge: (n: number) => `Dikirim ke ${n}+ pengguna Fewmail`,
     reason: (n: number) =>
@@ -289,7 +291,7 @@ export const id: Messages = {
     empty: 'Belum cukup email untuk bercerita. Kembali beberapa hari lagi.',
     handled: 'email ditangani Fewmail',
     handledHint:
-      'Fewmail tidak mengubah apa pun di Gmail tanpa persetujuanmu. Nyalakan aturan, dan ia akan menangani email seperti ini sendiri.',
+      'Fewmail tidak mengubah apa pun di Gmail tanpa persetujuanmu. Biarkan bot bertindak sendiri, dan ia akan menangani email seperti ini untukmu.',
     people: 'Siapa yang paling sering menulis',
     period: { month: 'Bulan ini', year: 'Tahun ini' },
     replies: 'balasan ditulis Fewmail dan terkirim',
@@ -577,7 +579,7 @@ export const id: Messages = {
     ignoresUnsubscribe: (name: string) =>
       `${name} mengabaikan berhenti berlangganan`,
     ignoresUnsubscribeHint:
-      'Fewmail sudah meminta berhenti berlangganan, tetapi pengirim ini dikenal tetap mengirim email. Kirim emailnya ke sampah mulai sekarang? Kamu bisa membatalkannya di Aturan.',
+      'Fewmail sudah meminta berhenti berlangganan, tetapi pengirim ini dikenal tetap mengirim email. Kirim emailnya ke sampah mulai sekarang? Sebuah bot akan melakukannya, dan kamu bisa menghapusnya di Beranda.',
     blocked: 'Diblokir. Email mereka kini masuk ke sampah.',
     forward: 'Teruskan',
     more: 'Lainnya',
@@ -694,7 +696,6 @@ export const id: Messages = {
     clearSearch: 'Hapus pencarian',
     mail: 'Email',
     reading: 'Bacaan',
-    rules: 'Aturan',
     settings: 'Pengaturan',
     syncFailed: 'Sinkronisasi Gmail gagal, mencoba lagi',
     syncing: 'Membaca kotak masukmu…',
@@ -793,49 +794,123 @@ export const id: Messages = {
       `Detail pembayaran baru dari ${domain}. Konfirmasi lewat telepon sebelum membayar.`,
     title: 'Cek dulu sebelum bertindak',
   },
-  rules: {
-    deleted: 'Aturan dihapus',
-    add: 'Tambah aturan',
-    count: (total: number) =>
-      plural('id', total, { other: (n) => `${n} aturan` }),
-    delete: 'Hapus',
-    describe: {
-      alwaysShow: 'Selalu tetap di Beranda, tidak pernah disembunyikan',
-      autonomous: 'Dikerjakan sendiri, tercatat di yang sudah ditangani',
-      draft: 'Draf menunggumu di Beranda',
+  bots: {
+    chatMenu: 'Tindakan obrolan',
+    clear: 'Hapus riwayat',
+    clearConfirm: (name: string) => `Hapus obrolan dengan ${name}?`,
+    clearHint:
+      'Pesannya hilang selamanya. Yang dilakukannya di emailmu tetap ada, begitu juga pengingat yang dipasangnya.',
+    cleared: 'Riwayat dihapus',
+    deleteFolder: 'Hapus folder',
+    deleteFolderConfirm: (name: string) => `Hapus folder ${name}?`,
+    deleteFolderHint: 'Bot-botnya tetap di daftar, di luar folder mana pun.',
+    moveTo: 'Pindahkan ke folder',
+    newFolder: 'Folder baru',
+    noFolder: 'Tanpa folder',
+    pin: 'Sematkan',
+    rename: 'Ganti nama',
+    renameFolder: 'Ganti nama folder',
+    unpin: 'Lepas sematan',
+    add: 'Bot baru',
+    answering: 'Menulis…',
+    cancelReply: 'Batalkan balasan',
+    cards: {
+      autoDone: (n: number) =>
+        plural('id', n, {
+          other: (count) => `Aku mengerjakan ${count} sendiri.`,
+        }),
+      dismissed: (n: number) =>
+        plural('id', n, {
+          other: (count) => `Kamu melewati ${count}.`,
+        }),
+      done: (n: number) =>
+        plural('id', n, {
+          other: (count) => `${count} selesai setelah persetujuanmu.`,
+        }),
+      failed: (n: number) =>
+        plural('id', n, {
+          other: (count) => `Gmail menolak ${count}.`,
+        }),
+      pending: (n: number) =>
+        plural('id', n, {
+          other: (count) => `${count} menunggumu.`,
+        }),
     },
+    composer: (name: string) => `Tulis ke ${name} tentang emailnya`,
+    copied: 'Disalin',
+    copy: 'Salin',
+    created: 'Bot dibuat. Mulai sekarang ia membaca email baru.',
+    delete: 'Hapus bot',
+    deleteConfirm: (name: string) => `Hapus ${name}?`,
+    deleteHint:
+      'Obrolannya ikut terhapus. Emailnya tetap di tempatnya, dan email baru yang serupa masuk ke Fewmail.',
+    deleted: 'Bot dihapus',
+    earlier: 'Tampilkan yang sebelumnya',
+    edit: 'Pengaturan bot',
     effect: {
-      always_show: 'Jangan lewatkan',
+      always_show: 'Tetap di Beranda',
       archive: 'Arsipkan',
+      collect: 'Kumpulkan saja',
       draft_reply: 'Buat draf balasan',
       mark_read: 'Tandai sudah dibaca',
+      tidy: 'Rapikan',
       trash: 'Pindahkan ke sampah',
       unsubscribe: 'Berhenti langganan',
     },
-    enabled: 'Aturan aktif',
-    lead: 'Beri tahu agen dengan kata-kata biasa apa yang harus dilakukan pada email tertentu. Agen mencocokkan setiap email dengan aturan ini.',
-    newTitle: 'Ajarkan aturan baru',
-    leadFree:
-      'Arsipkan, tandai sudah dibaca, atau berhenti berlangganan secara otomatis. Aturan berjalan pada email baru begitu email itu tiba.',
-    placeholder: 'mis. Tagihan dari Hetzner, atau notifikasi LinkedIn',
+    empty: 'Belum ada apa-apa. Saat email untukku datang, aku menulis di sini.',
+    enabled: 'Bertindak sendiri',
+    enabledHint: {
+      off: 'Jika nonaktif, ia meminta persetujuanmu dulu untuk setiap email.',
+      on: 'Jika aktif, ia bertindak tanpa bertanya; semua yang dilakukannya tampil di obrolannya.',
+    },
+    instruction: 'Email mana dan apa yang dilakukan dengannya',
+    instructionPlaceholder:
+      'mis. Tandai tagihan dari Hetzner sudah dibaca, atau arsipkan notifikasi LinkedIn',
+    mute: 'Bisukan',
+    muted: 'Dibisukan: tidak ada notifikasi dari bot ini',
+    name: 'Nama',
+    namePlaceholder: 'mis. Tagihan',
+    noPlan:
+      'Aku tidak bisa menjawabmu: di paket gratis aku tidak punya token untuk percakapan. Berlanggananlah, dan aku sepenuhnya untukmu.',
+    now: 'Menunggu sekarang',
+    nudge: {
+      noReply: 'Belum ada balasan di percakapan itu.',
+      replied: 'Sejak itu sudah ada balasan di percakapan itu.',
+    },
+    promises: (n: number) =>
+      plural('id', n, {
+        other: (count) => `Aku mencatat ${count} janji.`,
+      }),
+    react: 'Beri reaksi',
+    reaction: 'Reaksi',
+    reply: 'Balas',
+    save: 'Simpan',
+    saved: 'Tersimpan',
     simple: {
-      appliedAutomatically: 'Diterapkan otomatis pada email baru',
-      field: {
-        from: 'Dari',
-        mailingList: 'Milis apa pun',
-        subject: 'Subjek berisi',
-      },
       title: {
         from: (value: string) => `Dari “${value}”`,
         mailingList: () => 'Milis apa pun',
         subject: (value: string) => `Subjek berisi “${value}”`,
       },
-      valuePlaceholder: 'anna@example.com, nama, atau kata',
-      whichField: 'Cocokkan berdasarkan',
     },
-    title: 'Aturan',
-    whatAgentDoes: 'Yang dilakukan agen',
-    whichEmails: 'Email yang mana',
+    spent: (date: string) =>
+      `Aku tidak bisa menjawab sampai ${date}: jatah bulan ini sudah habis.`,
+    steps: (n: number) =>
+      plural('id', n, {
+        one: () => 'Satu langkah',
+        other: (count) => `${count} langkah`,
+      }),
+    subscribe: 'Berlangganan',
+    system: { board: 'Papan', fewmail: 'Fewmail Bot' },
+    systemJob: {
+      board: 'Janji dan tenggat yang kupantau',
+      fewmail: 'Membuat bot-botmu, mencari email, dan menjawab pertanyaan',
+    },
+    title: 'Bot',
+    toLatest: 'Ke yang terbaru',
+    unmute: 'Bunyikan lagi',
+    whatItDoes: 'Apa yang dilakukannya dengan email itu',
+    you: 'Kamu',
   },
   settings: {
     disconnectConfirm: (name: string) => `Putuskan ${name}?`,
@@ -854,7 +929,7 @@ export const id: Messages = {
     deleteAccount: 'Hapus akun',
     deleteConfirm: 'Hapus semuanya',
     deleteDescription:
-      'Langsung menghapus akun, email yang disinkronkan, draf, dan aturanmu dari Fewmail. Gmail-mu sendiri tidak disentuh. Paket berbayar langsung dibatalkan.',
+      'Langsung menghapus akun, email yang disinkronkan, draf, dan botmu dari Fewmail. Gmail-mu sendiri tidak disentuh. Paket berbayar langsung dibatalkan.',
     deleteFailed: 'Akun tidak terhapus. Coba lagi sebentar lagi.',
     deleteSignIn:
       'Untuk memastikan ini kamu, masuk lagi dengan Google, lalu hapus akunnya.',
@@ -1042,7 +1117,7 @@ export const id: Messages = {
             'Newsletter hari ini menjadi satu ringkasan per topik, tiap kalimat tertaut ke email asalnya.',
           title: 'Newsletter dalam satu ringkasan',
         },
-        rules: {
+        bots: {
           description:
             'Jelaskan dalam satu kalimat apa yang harus terjadi pada email tertentu, dan itu menjadi aturan. Hanya aturan yang kamu nyalakan yang bertindak sendiri.',
           title: 'Aturan dengan kata-kata biasa',
@@ -1112,7 +1187,7 @@ export const id: Messages = {
         outlook: 'Outlook dan Microsoft 365',
         phishing: 'Peringatan phishing dan perubahan pembayaran',
         phone: 'Di ponselmu',
-        rules: 'Aturan dengan kata-kata biasa',
+        bots: 'Aturan dengan kata-kata biasa',
         snooze: 'Tunda',
         spamShield: 'Perisai spam komunitas',
         summaries: 'Ringkasan email',
@@ -1133,7 +1208,7 @@ export const id: Messages = {
         mcp: 'Di Pro',
         memory: 'Di Pro',
         phone: 'Telegram dan WhatsApp, dengan suara, di Pro',
-        rules: 'Arsipkan, tandai dibaca, atau berhenti langganan, gratis',
+        bots: 'Arsipkan, tandai dibaca, atau berhenti langganan, gratis',
         summaries: 'Di Pro',
         unsubscribe: 'Pengirim yang mengabaikannya masuk spam',
       },
@@ -1163,7 +1238,7 @@ export const id: Messages = {
           keepApp: 'Bekerja lewat folder',
           otherProviders: 'Server IMAP atau Exchange apa pun',
           phone: 'Lewat aplikasi emailmu',
-          rules: 'Dilatih dengan memindahkan email antarfolder',
+          bots: 'Dilatih dengan memindahkan email antarfolder',
           snooze: 'Mulai Lunch',
           summaries: 'SaneSummary, di Dinner',
           unsubscribe: 'Folder SaneBlackHole',
@@ -1190,7 +1265,7 @@ export const id: Messages = {
           otherProviders: 'Diteruskan ke Gmail',
           outlook: 'Microsoft 365 tidak didukung',
           phone: 'Aplikasi iOS dan Android',
-          rules: 'Filter AI, 3 sampai 50 sesuai paket',
+          bots: 'Filter AI, 3 sampai 50 sesuai paket',
           summaries: 'Di atas setiap email',
           teams: 'Percakapan dan komentar bersama',
           unsubscribe: 'Dengan blokir sekali klik',
@@ -1215,7 +1290,7 @@ export const id: Messages = {
           keepApp: 'Menggantikan aplikasi emailmu',
           mcp: 'Di Business',
           phone: 'Aplikasi iOS dan Android',
-          rules: 'Custom Auto Labels, di Business',
+          bots: 'Custom Auto Labels, di Business',
           spamShield: 'Filter penyedia emailmu',
           summaries: 'Auto Summarize',
           teams: 'Draf dan komentar bersama',
@@ -1538,13 +1613,22 @@ export const id: Messages = {
     },
     showImages: 'Tampilkan gambar',
   },
-  starterRules: {
-    alwaysShow:
-      'Peringatan keamanan, tagihan yang jatuh tempo, apa pun dari bank atau pemerintah',
-    newsletters: 'Buletin dan rangkuman berkala',
-    notifications: 'Notifikasi otomatis dari alat dan layanan',
-    promotions: 'Promosi, pemasaran, dan email penjualan yang tidak diminta',
-    receipts: 'Tanda terima, konfirmasi pesanan dan pengiriman',
+  starterBots: {
+    important: {
+      instruction:
+        'Yang butuh tindakan dariku: orang yang menunggu balasanku, tagihan yang jatuh tempo, peringatan keamanan, apa pun dari bank atau pemerintah. Simpan di Beranda',
+      name: 'Penting',
+    },
+    later: {
+      instruction:
+        'Perlu diketahui tapi tidak butuh keputusan: kabar dari layanan yang kupakai, pengiriman, acara dan tanggal',
+      name: 'Bisa menunggu',
+    },
+    quick: {
+      instruction:
+        'Gangguan yang akan kubersihkan tanpa membaca: notifikasi, struk, buletin, promosi, dan tawaran penjualan dari orang asing. Rapikan: arsipkan, tandai sudah dibaca, atau berhenti langganan, mana yang cocok',
+      name: 'Cepat',
+    },
   },
   telegram: {
     approveAlike: 'Setujui sekaligus semua kartu sejenis:',
@@ -1586,14 +1670,14 @@ export const id: Messages = {
   },
   today: {
     working: 'Sedang dikerjakan…',
-    ruleSuggestion: {
+    botSuggestion: {
       done: {
         archive:
-          'Email baru dari pengirim ini akan diarsipkan. Ubah di Aturan.',
+          'Mulai sekarang, bot baru mengarsipkan email dari pengirim ini.',
         mark_read:
-          'Email baru dari pengirim ini akan ditandai sudah dibaca. Ubah di Aturan.',
+          'Mulai sekarang, bot baru menandai email dari pengirim ini sudah dibaca.',
       },
-      label: 'Aturan yang disarankan',
+      label: 'Bot yang disarankan',
       lead: (count: number, effect: 'archive' | 'mark_read') =>
         effect === 'archive'
           ? `${count} email bulan ini, dan agen akan mengarsipkan semuanya`
@@ -1604,15 +1688,10 @@ export const id: Messages = {
         mark_read: 'Selalu tandai dibaca',
       },
     },
-    ruleOffer: {
-      lead: 'Agen bisa melakukan ini sendiri untuk email yang cocok. Aturan tetap nonaktif sampai kamu menyetujuinya.',
-      no: 'Biarkan nonaktif',
-      turnedOn: 'Diaktifkan. Ubah di Aturan.',
-      yes: 'Aktifkan',
-    },
     newSender: {
       archive: 'Selalu arsipkan',
-      archived: 'Email baru dari pengirim ini akan diarsipkan. Ubah di Aturan.',
+      archived:
+        'Mulai sekarang, bot baru mengarsipkan email dari pengirim ini.',
       keep: 'Biarkan seperti biasa',
       label: 'Pengirim baru',
       lead: (count: number, opened: number) =>
@@ -1627,13 +1706,13 @@ export const id: Messages = {
       'Aku terus membaca email baru, dan yang perlu perhatianmu akan muncul di sini.',
     allowanceSpent: (date: string) =>
       `Jatah agen untuk bulan ini sudah habis: ringkasan dan draf tersedia lagi pada ${date}. Sampai saat itu aku tetap mencatat janji dan tenggat.`,
-    byRules: (n: number) => `Aturanmu sudah mengurus ${n}.`,
+    byBots: (n: number) => `Bot-botmu sudah mengurus ${n}.`,
     decisions: 'Keputusan',
     journal: {
       approved: 'Kamu bilang ya',
-      byRule: (rule: string) => `Aturanmu: ${rule}`,
+      byBot: (bot: string) => `Botmu: ${bot}`,
       failed: 'Tidak berhasil',
-      lead: '7 hari terakhir. Setiap perubahan di email atau kalendermu terjadi dengan persetujuanmu atau aturan yang kamu aktifkan.',
+      lead: '7 hari terakhir. Setiap perubahan di email atau kalendermu terjadi dengan persetujuanmu atau oleh bot yang kamu biarkan bertindak sendiri.',
       title: 'Yang sudah dilakukan di email kamu',
     },
     progress: (done: number, total: number) => `${done} dari ${total}`,
@@ -1661,12 +1740,12 @@ export const id: Messages = {
     },
     improve: {
       empty: {
-        lead: 'Saat agen melihat kamu memperlakukan pengirim yang sama dengan cara yang sama berulang kali, agen akan menawarkan aturan di sini.',
+        lead: 'Saat agen melihat kamu memperlakukan pengirim yang sama dengan cara yang sama berulang kali, agen akan menawarkan bot di sini.',
         title: 'Belum ada saran.',
       },
       lead: (total: number) =>
         plural('id', total, {
-          other: (n) => `${n} aturan yang bisa dijalankan agen untukmu.`,
+          other: (n) => `${n} bot yang bisa dibuat agen untukmu.`,
         }),
       title: 'Saran dari agen',
     },
@@ -1741,6 +1820,7 @@ export const id: Messages = {
     hints: {
       board:
         'Bagian dari Fewmail Pro: agen mencatat apa yang dijanjikan kepadamu, apa yang kamu janjikan, dan tenggat dari emailmu, lalu memantau masing-masing sampai selesai.',
+      chat: 'Bagian dari Fewmail Pro: bicara dengan bot-botmu tentang email mereka, dan mereka kembali padamu saat yang mereka janjikan.',
       drafts:
         'Bagian dari Fewmail Pro: agen menulis balasan dengan gayamu, lalu kamu edit dan kirim.',
     },

@@ -289,18 +289,24 @@ export const showThreadPinned = (threadId: string, pinned: boolean) =>
     }
   })
 
-export const threadOfMessage = (messageId: string) => {
+export const findMessage = (messageId: string) => {
   for (const rows of mailRowsByMailbox.values()) {
-    for (const row of rows.values()) {
-      if (row.message.id === messageId) {
-        return row.message.threadId
+    for (const { message } of rows.values()) {
+      if (message.id === messageId) {
+        return { subject: message.subject, threadId: message.threadId }
       }
     }
   }
   for (const thread of threads.values()) {
-    if (thread.messages.some(({ message }) => message.id === messageId)) {
-      return thread.threadId
+    const found = thread.messages.find(
+      ({ message }) => message.id === messageId
+    )
+    if (found) {
+      return { subject: found.message.subject, threadId: thread.threadId }
     }
   }
   return null
 }
+
+export const threadOfMessage = (messageId: string) =>
+  findMessage(messageId)?.threadId ?? null

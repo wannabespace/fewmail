@@ -27,10 +27,11 @@ import {
 import { dispatchDeliveries } from './delivery'
 import { localClock, previousDay } from './lib/clock'
 import { logError } from './lib/log'
+import { deliverDueNudges, pruneBotPosts } from './services/bot-chat'
 import { pruneBulkPrints } from './services/bulk'
 import { offerCleanup } from './services/cleanup'
 import { mailboxesToWatch, watchMailbox } from './services/gmail-push'
-import { savedThisWeek } from './services/home'
+import { savedThisWeek, writeDigests } from './services/home'
 import { chatIdForUser, whatsappForUser } from './services/integrations'
 import { refreshKnownDomains } from './services/known-domains'
 import { listQueue } from './services/mail'
@@ -212,6 +213,7 @@ const sendMorningIfDue = async (settings: typeof userSettings.$inferSelect) => {
     .update(userSettings)
     .set({ morningSentAt: new Date() })
     .where(eq(userSettings.userId, userId))
+  await writeDigests(userId)
   const messengers = await messengersOf(userId)
   await sendReadingIssue(settings, messengers)
   const { date } = localClock(settings.timezone)
@@ -351,6 +353,10 @@ const tick = async () => {
       once('outbox', dispatchDueOutbox),
       once('reminders', processDueReminders),
       once('commitments', processDueCommitments),
+      once('nudges', async () => {
+        await deliverDueNudges()
+        await pruneBotPosts()
+      }),
       once('known-domains', refreshKnownDomains),
       once('search-index', indexStoredMail),
       once('bulk-prints', pruneBulkPrints),

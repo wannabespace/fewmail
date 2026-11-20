@@ -1,5 +1,7 @@
 import {
   BILLING_INTERVALS,
+  BOT_FOLDER_NAME_CHARS,
+  BOT_MESSAGE_CHARS,
   CLEAR_OUT_GROUPS,
   COMMITMENT_STATUSES,
   EVENT_SCOPES,
@@ -8,7 +10,8 @@ import {
   MAIL_CATEGORIES,
   OUTBOX_MODES,
   PAID_PLANS,
-  RULE_EFFECTS,
+  BOT_EFFECTS,
+  BOT_REACTIONS,
   SIMPLE_MATCH_FIELDS,
   WRAPPED_PERIODS,
 } from '@fewmail/shared/agent'
@@ -21,9 +24,32 @@ import { agent, authed, visitor } from '.'
 import { GMAIL_SCOPE, hasSignInScope } from '../lib/auth'
 import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
+import { logErrorAs } from '../lib/log'
+import { answerReaction, askBot } from '../services/agent-run'
 import { approveCard, approveCards } from '../services/approve'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
+import {
+  botChat,
+  clearBotChat,
+  createBotFolder,
+  deleteBotFolder,
+  listBotChats,
+  listBotFolders,
+  markBotRead,
+  moveBotToFolder,
+  reactToPost,
+  renameBotFolder,
+  setBotMuted,
+  setBotPinned,
+} from '../services/bot-chat'
+import {
+  createBot,
+  deleteBot,
+  listBots,
+  readBotEffect,
+  updateBot,
+} from '../services/bots'
 import {
   createEvent,
   deleteEvent,
@@ -33,7 +59,7 @@ import {
 } from '../services/calendar'
 import {
   CLEAR_OUT_RUN,
-  declineRuleSuggestion,
+  declineBotSuggestion,
   keepSender,
   pageSubscriptions,
   runClearOut,
@@ -112,12 +138,6 @@ import {
   listReadingIssues,
   markReadingRead,
 } from '../services/reading'
-import {
-  createRule,
-  deleteRule,
-  listRules,
-  updateRule,
-} from '../services/rules'
 import { saveSettings } from '../services/save-settings'
 import { getSettings } from '../services/settings'
 import { deleteSnippet, listSnippets, saveSnippet } from '../services/snippets'
@@ -169,13 +189,23 @@ const sendInput = draftInput.and({
   to: 'string.email[] >= 1',
 })
 
-const ruleInput = type({
-  effect: type.enumerated(...RULE_EFFECTS),
+const botInput = type({
+  effect: type.enumerated(...BOT_EFFECTS),
+  'enabled?': 'boolean',
   instruction: 'string > 2',
+  name: '0 < string <= 60',
 })
 
-const simpleRuleInput = type({
+/** `fewmail`, `board` or one of the user's bots. */
+const botRef = type({ bot: '0 < string <= 64' })
+
+const folderName = type('string.trim').to(
+  `0 < string <= ${BOT_FOLDER_NAME_CHARS}`
+)
+
+const simpleBotInput = type({
   effect: type.enumerated(...GMAIL_EFFECTS),
+  name: '0 < string <= 60',
   match: {
     field: type.enumerated(...SIMPLE_MATCH_FIELDS),
     value: 'string',
@@ -491,26 +521,96 @@ export const router = {
       user: context.user,
     }
   }),
-  rules: {
+  bots: {
     create: authed
-      .input(ruleInput)
-      .handler(({ context, input }) => createRule(context.user.id, input)),
+      .input(botInput)
+      .handler(({ context, input }) => createBot(context.user.id, input)),
     createSimple: authed
-      .input(simpleRuleInput)
-      .handler(({ context, input }) => createRule(context.user.id, input)),
+      .input(simpleBotInput)
+      .handler(({ context, input }) => createBot(context.user.id, input)),
     declineSuggestion: authed
       .input(type({ fromEmail: 'string > 0' }))
       .handler(({ context, input }) =>
-        declineRuleSuggestion(context.user.id, input.fromEmail)
+        declineBotSuggestion(context.user.id, input.fromEmail)
       ),
     delete: authed.input(id).handler(async ({ context, input }) => {
-      await deleteRule(context.user.id, input.id)
+      await deleteBot(context.user.id, input.id)
     }),
-    list: authed.handler(({ context }) => listRules(context.user.id)),
+    list: authed.handler(({ context }) => listBots(context.user.id)),
+    readEffect: authed
+      .input(type({ simple: 'boolean', text: '2 < string <= 2000' }))
+      .handler(({ input }) => readBotEffect(input.text, input.simple)),
+    chats: authed.handler(({ context }) => listBotChats(context.user.id)),
+    chat: authed
+      .input(botRef.and({ 'before?': 'Date' }))
+      .handler(({ context, input }) =>
+        botChat(context.user.id, input.bot, input.before)
+      ),
+    read: authed
+      .input(botRef)
+      .handler(({ context, input }) => markBotRead(context.user.id, input.bot)),
+    mute: authed
+      .input(botRef.and({ muted: 'boolean' }))
+      .handler(({ context, input }) =>
+        setBotMuted(context.user.id, input.bot, input.muted)
+      ),
+    pin: authed
+      .input(botRef.and({ pinned: 'boolean' }))
+      .handler(({ context, input }) =>
+        setBotPinned(context.user.id, input.bot, input.pinned)
+      ),
+    clear: authed
+      .input(botRef)
+      .handler(({ context, input }) =>
+        clearBotChat(context.user.id, input.bot)
+      ),
+    folders: authed.handler(({ context }) => listBotFolders(context.user.id)),
+    createFolder: authed
+      .input(type({ 'bot?': '0 < string <= 64', name: folderName }))
+      .handler(({ context, input }) => createBotFolder(context.user.id, input)),
+    renameFolder: authed
+      .input(id.and({ name: folderName }))
+      .handler(({ context, input }) => renameBotFolder(context.user.id, input)),
+    deleteFolder: authed
+      .input(id)
+      .handler(({ context, input }) =>
+        deleteBotFolder(context.user.id, input.id)
+      ),
+    moveToFolder: authed
+      .input(botRef.and({ folder: 'string.uuid | null' }))
+      .handler(({ context, input }) => moveBotToFolder(context.user.id, input)),
+    react: authed
+      .input(id.and({ reaction: type.enumerated(...BOT_REACTIONS).or('null') }))
+      .handler(async ({ context, input }) => {
+        const post = await reactToPost(context.user.id, {
+          id: input.id,
+          reaction: input.reaction,
+        })
+        // Not awaited: the agent's turn takes seconds and the reaction must land at once; its answer reaches the chat live.
+        void answerReaction(context.user.id, {
+          ...post,
+          reaction: input.reaction,
+        }).catch(logErrorAs('reaction answer'))
+      }),
+    ask: authed
+      .input(
+        botRef.and({
+          'replyTo?': 'string.uuid',
+          text: `0 < string <= ${BOT_MESSAGE_CHARS}`,
+        })
+      )
+      .handler(async function* ask({ context, input }) {
+        yield* askBot(
+          context.user.id,
+          input.bot,
+          input.text.trim(),
+          input.replyTo
+        )
+      }),
     update: authed
-      .input(id.and(ruleInput.partial()).and({ 'enabled?': 'boolean' }))
-      .handler(({ context, input: { id: ruleId, ...change } }) =>
-        updateRule(context.user.id, ruleId, change)
+      .input(id.and(botInput.partial()))
+      .handler(({ context, input: { id: botId, ...change } }) =>
+        updateBot(context.user.id, botId, change)
       ),
   },
   subscriptions: {

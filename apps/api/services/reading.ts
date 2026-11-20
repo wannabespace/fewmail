@@ -86,7 +86,7 @@ const clockOf = async (userId: string) => {
   }
 }
 
-// A newsletter trashed from its row leaves the issue; archived ones stay, the starter rule archives them all.
+// A newsletter trashed from its row leaves the issue; archived ones stay, since a bot of the user's may archive them all.
 const notTrashed = not(arrayContains(messages.labelIds, ['TRASH']))
 
 const isReading = (userId: string, day: string, timezone: string) =>
@@ -120,7 +120,7 @@ const readingColumns = {
 }
 
 /**
- * A day's newsletters as they stand, out of the inbox (the starter rule archives them).
+ * A day's newsletters as they stand, out of the inbox (a bot of the user's may archive them).
  * With the agent each gets a real summary; on Free the summary stays the snippet.
  */
 const readDay = async (userId: string, day: string, timezone: string) => {

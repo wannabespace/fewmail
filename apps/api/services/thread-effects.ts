@@ -39,7 +39,7 @@ const listThreadIds = async (userId: string, message: Message) => {
 const LINKS = /<(?<link>[^>]+)>/gu
 const ONE_ADDRESS = /^[^\s@,;<>]+@[^\s@,;<>]+$/u
 
-/** An unsubscribe request by email is part of leaving the list, so it goes out with the unsubscribe the user or their rule chose. The sender wrote the link: one address, and its subject and body only as plain text. */
+/** An unsubscribe request by email is part of leaving the list, so it goes out with the unsubscribe the user or their bot chose. The sender wrote the link: one address, and its subject and body only as plain text. */
 const unsubscribeByMail = async (message: Message, mailto: string) => {
   const url = new URL(mailto)
   const to = decodeURIComponent(url.pathname)
@@ -97,8 +97,8 @@ const leaveList = async (message: Message) => {
  * Leaves the list `message` came from (RFC 8058 one-click, its page or its mailto) and archives its thread or everything the
  * list sent. Only an unsubscribe that went out is remembered: later mail then makes the list a
  * zombie, so a failed one must not. A list the network already knows ignores unsubscribes comes back as `ignoresUnsubscribe`
- * (unless it has a List-Id: such a sender may send other lists too, and a `from` rule would take them with it), so the user can
- * say yes to a trash rule for the sender; never one made for them.
+ * (unless it has a List-Id: such a sender may send other lists too, and a `from` bot would take them with it), so the user can
+ * say yes to a trash bot for the sender; never one made for them.
  */
 export const unsubscribe = async (
   userId: string,
@@ -145,7 +145,7 @@ export const unsubscribeMessage = async (
   return unsubscribe(userId, message, scope)
 }
 
-/** The one way an approved action, a rule or a click changes a thread in Gmail. */
+/** The one way an approved action, a bot or a click changes a thread in Gmail. */
 export const applyThreadEffect = async (
   userId: string,
   message: Message,

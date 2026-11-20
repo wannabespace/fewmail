@@ -15,12 +15,12 @@ export {
 export {
   actions,
   analyses,
-  declinedRuleSuggestions,
+  declinedBotSuggestions,
   mailboxes,
   messages,
   outbox,
   reminders,
-  rules,
+  bots,
   senderReports,
   snippets,
 } from './mail'
@@ -39,6 +39,7 @@ export {
   whatsappLinks,
 } from './settings'
 export {
+  botPosts,
   bulkPrints,
   commitmentEvents,
   commitments,

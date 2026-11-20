@@ -68,7 +68,7 @@ const contactsOf = async (userId: string) => {
 const isListed = (listed: Set<string>, domain: string) =>
   [...listed].some((entry) => domain === entry || domain.endsWith(`.${entry}`))
 
-/** Runs before simple rules and the agent, on every plan; returns the messages it moved to spam. */
+/** Runs before simple bots and the agent, on every plan; returns the messages it moved to spam. */
 export const applySpamShield = async (userId: string, incoming: Message[]) => {
   const inbound = incoming.filter((message) => !message.isFromMe)
   if (inbound.length === 0) {

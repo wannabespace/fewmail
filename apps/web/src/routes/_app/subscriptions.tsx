@@ -251,7 +251,7 @@ const SubscriptionsPage = () => {
           { id: messageId }
         )
       },
-      onSettled: () => refetchChanged(['subscriptions', 'mail', 'rules']),
+      onSettled: () => refetchChanged(['subscriptions', 'mail', 'bots']),
     })
   )
   const leaving = new Set(

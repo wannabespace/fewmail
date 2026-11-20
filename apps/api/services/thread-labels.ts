@@ -75,7 +75,7 @@ export const ARCHIVE = { remove: ['INBOX', 'UNREAD'] }
 export const MARK_READ = { remove: ['UNREAD'] }
 export const SPAM = { add: ['SPAM'], remove: ['INBOX', 'UNREAD'] }
 
-/** Opened by the user. Never just `not isUnread`: `ARCHIVE` (`readByArchive`) and a rule's mark-read clear UNREAD too, and every list Fewmail moved would read as opened and never be offered for cleanup. */
+/** Opened by the user. Never just `not isUnread`: `ARCHIVE` (`readByArchive`) and a bot's mark-read clear UNREAD too, and every list Fewmail moved would read as opened and never be offered for cleanup. */
 export const isOpened = (message: {
   id: AnyColumn
   isUnread: AnyColumn

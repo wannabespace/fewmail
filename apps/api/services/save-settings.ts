@@ -1,7 +1,6 @@
 import { db } from '@fewmail/db'
-import { rules, userSettings } from '@fewmail/db/schema'
-import { isGmailEffect } from '@fewmail/shared/agent'
-import type { RuleEffect } from '@fewmail/shared/agent'
+import { bots, userSettings } from '@fewmail/db/schema'
+import type { BotEffect } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { messages } from '@fewmail/shared/i18n'
 import type { Locale } from '@fewmail/shared/i18n/locales'
@@ -15,18 +14,17 @@ import { syncMailboxes } from './sync'
 
 // Apart from `settings.ts` because sync and labels import `getSettings`: saving starts both.
 
-const STARTER_RULES: {
-  effect: RuleEffect
-  instruction: keyof Messages['starterRules']
+/** Only a prefill: the user renames, rewrites or deletes them like any bot of their own. Home lists the last first. */
+const STARTER_BOTS: {
+  effect: BotEffect
+  key: keyof Messages['starterBots']
 }[] = [
-  { effect: 'archive', instruction: 'promotions' },
-  { effect: 'mark_read', instruction: 'newsletters' },
-  { effect: 'mark_read', instruction: 'receipts' },
-  { effect: 'mark_read', instruction: 'notifications' },
-  { effect: 'always_show', instruction: 'alwaysShow' },
+  { effect: 'tidy', key: 'quick' },
+  { effect: 'collect', key: 'later' },
+  { effect: 'always_show', key: 'important' },
 ]
 
-/** The first save (the first sign-in) seeds the starter rules and reads the inbox at once; turning Gmail labels on labels recent mail. */
+/** The first save (the first sign-in) seeds the starter bots and reads the inbox at once; turning Gmail labels on labels recent mail. */
 export const saveSettings = async (
   userId: string,
   input: {
@@ -47,12 +45,12 @@ export const saveSettings = async (
     .returning()
 
   if (inserted) {
-    await db.insert(rules).values(
-      STARTER_RULES.map((rule) => ({
-        ...rule,
-        // Nobody said yes to a starter rule yet: one that changes Gmail waits switched off until the user turns it on.
-        enabled: !isGmailEffect(rule.effect),
-        instruction: messages[input.language].starterRules[rule.instruction],
+    await db.insert(bots).values(
+      STARTER_BOTS.map(({ effect, key }) => ({
+        effect,
+        // Nobody said yes to moving their mail yet: the tidying bot asks until the user lets it act on its own.
+        enabled: effect !== 'tidy',
+        ...messages[input.language].starterBots[key],
         userId,
       }))
     )

@@ -7,7 +7,7 @@ const INSTRUCTIONS: Record<Skill, string> = {
   cancel:
     'The user wants to stop paying for a service: the one in their details, else ask which. Search their mail for its latest receipts and account emails and say the plan, the price and the next renewal date where the mail states them. Give the cancel or manage-subscription link found in those emails. When the mail names a support address that takes cancellations, draft a short cancellation request from the address the receipts went to and send it with send_email, which the user confirms. Never sign in anywhere, never pay, never invent a link or an address.',
   cleanup:
-    'Find the newsletters, promotions and notifications that pile up unread: list_mail with filter quiet, and searches for mailing lists over the last 30 days. Name the senders that send most and are never opened, with how many emails each sent, and offer to unsubscribe from them or add a rule that archives them, through the tools, so the user confirms each.',
+    'Find the newsletters, promotions and notifications that pile up unread: list_mail with filter quiet, and searches for mailing lists over the last 30 days. Name the senders that send most and are never opened, with how many emails each sent, and offer to unsubscribe from them or add a bot that archives them, through the tools, so the user confirms each.',
   followups:
     'Find threads where the user wrote last and nobody has answered for more than 3 days (search their sent mail from the last 30 days and read the threads). List who owes them an answer and about what, oldest first, and offer to draft a short nudge for each.',
   reading:

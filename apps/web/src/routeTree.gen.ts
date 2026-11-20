@@ -22,7 +22,6 @@ import { Route as AppComposeRouteImport } from './routes/_app/compose'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppMailRouteImport } from './routes/_app/mail'
 import { Route as AppReadingRouteImport } from './routes/_app/reading'
-import { Route as AppRulesRouteImport } from './routes/_app/rules'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppSubscriptionsRouteImport } from './routes/_app/subscriptions'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
@@ -103,11 +102,6 @@ const AppMailRoute = AppMailRouteImport.update({
 const AppReadingRoute = AppReadingRouteImport.update({
   id: '/reading',
   path: '/reading',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRulesRoute = AppRulesRouteImport.update({
-  id: '/rules',
-  path: '/rules',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
@@ -214,7 +208,6 @@ export interface FileRoutesByFullPath {
   '/home': typeof AppHomeRoute
   '/mail': typeof AppMailRoute
   '/reading': typeof AppReadingRoute
-  '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/subscriptions': typeof AppSubscriptionsRoute
   '/today': typeof AppTodayRoute
@@ -246,7 +239,6 @@ export interface FileRoutesByTo {
   '/home': typeof AppHomeRoute
   '/mail': typeof AppMailRoute
   '/reading': typeof AppReadingRoute
-  '/rules': typeof AppRulesRoute
   '/settings': typeof AppSettingsRoute
   '/subscriptions': typeof AppSubscriptionsRoute
   '/today': typeof AppTodayRoute
@@ -280,7 +272,6 @@ export interface FileRoutesById {
   '/_app/home': typeof AppHomeRoute
   '/_app/mail': typeof AppMailRoute
   '/_app/reading': typeof AppReadingRoute
-  '/_app/rules': typeof AppRulesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/subscriptions': typeof AppSubscriptionsRoute
   '/_app/today': typeof AppTodayRoute
@@ -315,7 +306,6 @@ export interface FileRouteTypes {
     | '/home'
     | '/mail'
     | '/reading'
-    | '/rules'
     | '/settings'
     | '/subscriptions'
     | '/today'
@@ -347,7 +337,6 @@ export interface FileRouteTypes {
     | '/home'
     | '/mail'
     | '/reading'
-    | '/rules'
     | '/settings'
     | '/subscriptions'
     | '/today'
@@ -380,7 +369,6 @@ export interface FileRouteTypes {
     | '/_app/home'
     | '/_app/mail'
     | '/_app/reading'
-    | '/_app/rules'
     | '/_app/settings'
     | '/_app/subscriptions'
     | '/_app/today'
@@ -503,13 +491,6 @@ declare module '@tanstack/react-router' {
       path: '/reading'
       fullPath: '/reading'
       preLoaderRoute: typeof AppReadingRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/rules': {
-      id: '/_app/rules'
-      path: '/rules'
-      fullPath: '/rules'
-      preLoaderRoute: typeof AppRulesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/settings': {
@@ -648,7 +629,6 @@ interface AppRouteChildren {
   AppHomeRoute: typeof AppHomeRoute
   AppMailRoute: typeof AppMailRoute
   AppReadingRoute: typeof AppReadingRoute
-  AppRulesRoute: typeof AppRulesRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSubscriptionsRoute: typeof AppSubscriptionsRoute
   AppTodayRoute: typeof AppTodayRoute
@@ -669,7 +649,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppHomeRoute: AppHomeRoute,
   AppMailRoute: AppMailRoute,
   AppReadingRoute: AppReadingRoute,
-  AppRulesRoute: AppRulesRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSubscriptionsRoute: AppSubscriptionsRoute,
   AppTodayRoute: AppTodayRoute,

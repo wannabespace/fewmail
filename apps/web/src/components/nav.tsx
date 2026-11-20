@@ -30,18 +30,17 @@ import {
 } from '@fewmail/ui/components/dropdown-menu'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import { Sheet, SheetContent } from '@fewmail/ui/components/sheet'
-import { Spinner } from '@fewmail/ui/components/spinner'
 import { useModifierHold } from '@fewmail/ui/hooks/use-shortcut-reveal'
 import { cn } from '@fewmail/ui/lib/utils'
 import type { Theme } from '@fewmail/ui/theme-store'
 import { themeStore, useTheme } from '@fewmail/ui/theme-store'
 import {
+  Add01Icon,
   Archive02Icon,
   ArrowDown01Icon,
   ArrowRight01Icon,
   ArrowUp01Icon,
   Calendar03Icon,
-  CleanIcon,
   Clock01Icon,
   ComputerIcon,
   CrownIcon,
@@ -63,16 +62,10 @@ import {
   Tag01Icon,
   UnfoldMoreIcon,
   UserRemove01Icon,
-  ZapIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import {
-  useIsFetching,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Link,
   useNavigate,
@@ -80,7 +73,7 @@ import {
   useSearch,
 } from '@tanstack/react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, lazy, Suspense, useEffect, useState } from 'react'
 
 import { signOut } from '~/lib/auth'
 import { useT } from '~/lib/i18n'
@@ -92,7 +85,8 @@ import type { Settle } from '~/lib/query-client'
 import { SITE_NAME } from '~/lib/seo'
 import { toastDeferred } from '~/lib/undo'
 
-import { openClearOut } from './clear-out-dialog'
+import { BotFolderRow, BotListRow, openBotIdOf, useBots } from './bot-list'
+import type { HomeBot } from './bot-list'
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
 import { SenderAvatar } from './sender-avatar'
@@ -134,13 +128,6 @@ export const NAV_ITEMS = [
     place: 'top',
     sequence: ['G', 'L'],
     to: '/calendar',
-  },
-  {
-    icon: ZapIcon,
-    key: 'rules',
-    place: 'top',
-    sequence: ['G', 'R'],
-    to: '/rules',
   },
   {
     icon: MailRemove01Icon,
@@ -490,6 +477,82 @@ const MailFolders = () => {
   )
 }
 
+// The bot chat and its form stay in Home's chunk; the sidebar only borrows the dialog once a bot is being made.
+const BotSettingsDialog = lazy(() =>
+  import('./bot-chat').then((module) => ({
+    default: module.BotSettingsDialog,
+  }))
+)
+
+/** The bots under the places, one nav row each: Home has no row of its own, Fewmail's chat is where it opens. */
+const SidebarBots = () => {
+  const t = useT()
+  const navigate = useNavigate()
+  const bots = useBots()
+  const isOnHome = useRouterState({
+    select: ({ location }) => location.pathname === '/home',
+  })
+  const { bot: picked } = useSearch({ strict: false })
+  const [adding, setAdding] = useState<{ bot: null; isOpen: boolean } | null>(
+    null
+  )
+  const openId = isOnHome ? openBotIdOf(bots, picked) : undefined
+  const open = (bot: string) => navigate({ search: { bot }, to: '/home' })
+  const { data: folders = [] } = useQuery(orpc.bots.folders.queryOptions())
+  const pinned = bots.filter(({ pinned: isPinned }) => isPinned)
+  const loose = bots.filter((bot) => !pinned.includes(bot))
+  const rowOf = (bot: HomeBot) => (
+    <BotListRow
+      key={bot.bot}
+      bot={bot}
+      isOpen={bot.bot === openId}
+      onOpen={() => open(bot.bot)}
+    />
+  )
+
+  return (
+    <section aria-label={t.bots.title} className="flex flex-col gap-0.5 pt-4">
+      <div className="flex items-center justify-between ps-2.5 pb-0.5">
+        <h2 className="text-muted-foreground text-xs font-medium">
+          {t.bots.title}
+        </h2>
+        <IconButton
+          icon={Add01Icon}
+          label={t.bots.add}
+          size="icon-xs"
+          variant="ghost-muted"
+          onClick={() => setAdding({ bot: null, isOpen: true })}
+        />
+      </div>
+      {[...pinned, ...loose.filter(({ folder }) => !folder)].map(rowOf)}
+      {folders.map((folder) => {
+        const inside = loose.filter((bot) => bot.folder === folder.id)
+        return (
+          <BotFolderRow
+            key={folder.id}
+            folder={folder}
+            unread={inside.reduce((sum, { unread }) => sum + unread, 0)}
+          >
+            {inside.map(rowOf)}
+          </BotFolderRow>
+        )
+      })}
+      {adding && (
+        <Suspense>
+          <BotSettingsDialog
+            editing={adding}
+            onClose={() =>
+              setAdding((current) => current && { ...current, isOpen: false })
+            }
+            onClosed={() => setAdding(null)}
+            onCreated={open}
+          />
+        </Suspense>
+      )}
+    </section>
+  )
+}
+
 const NavLink = ({
   className,
   item,
@@ -516,26 +579,6 @@ const NavLink = ({
         </span>
       )}
     </Link>
-  )
-}
-
-const ClearOutRow = () => {
-  const t = useT()
-  const isScanning =
-    useIsFetching({ queryKey: orpc.subscriptions.scanClearOut.queryKey() }) > 0
-
-  return (
-    <button
-      type="button"
-      className={NAV_ROW}
-      onClick={() => {
-        void openClearOut()
-      }}
-    >
-      <HugeiconsIcon icon={CleanIcon} strokeWidth={2} />
-      <span className="flex-1 text-left">{t.clearOut.title}</span>
-      {isScanning && <Spinner />}
-    </button>
   )
 }
 
@@ -713,8 +756,9 @@ export const Sidebar = ({ email }: { email: string }) => {
   const navigate = useNavigate()
   const { openCompose } = useCompose()
   useHotkey('C', () => openCompose())
+  useHotkey(['G', 'H'], () => navigate({ to: '/home' }))
   useHotkey(['G', 'B'], () =>
-    navigate({ search: { page: 'board' }, to: '/home' })
+    navigate({ search: { bot: 'board' }, to: '/home' })
   )
   const pathname = useRouterState({
     select: ({ location }) => location.pathname,
@@ -733,7 +777,6 @@ export const Sidebar = ({ email }: { email: string }) => {
     orpc.mail.unread.queryOptions({ input: {} })
   )
   const counts: Partial<Record<(typeof NAV_ITEMS)[number]['to'], number>> = {
-    '/home': queued,
     '/mail': unread?.inbox,
   }
   useDocumentTitle({
@@ -752,7 +795,7 @@ export const Sidebar = ({ email }: { email: string }) => {
         data-tauri-drag-region
       />
       <div className="flex items-center justify-between ps-2.5 pb-3">
-        <Logo to="/home" />
+        <Logo to="/mail" />
         <IconButton
           icon={PencilEdit02Icon}
           label={t.command.compose}
@@ -764,7 +807,7 @@ export const Sidebar = ({ email }: { email: string }) => {
       </div>
       <div className="scroll-fade -mx-1 -mt-1 flex min-h-0 flex-1 scrollbar-none flex-col gap-1 overflow-y-auto px-1 pt-1 pb-3">
         {navItems
-          .filter(({ place }) => place === 'top')
+          .filter(({ key, place }) => place === 'top' && key !== 'home')
           .map((item) => (
             <Fragment key={item.to}>
               <NavLink
@@ -786,9 +829,9 @@ export const Sidebar = ({ email }: { email: string }) => {
               )}
             </Fragment>
           ))}
+        <SidebarBots />
         <People />
       </div>
-      <ClearOutRow />
       <AccountMenu email={email} mailboxes={mailboxes} />
     </nav>
   )
@@ -814,7 +857,7 @@ export const MobileBar = ({ email }: { email: string }) => {
         variant="ghost-muted"
         onClick={() => setIsOpen(true)}
       />
-      <Logo to="/home" />
+      <Logo to="/mail" />
       <IconButton
         icon={PencilEdit02Icon}
         label={t.command.compose}

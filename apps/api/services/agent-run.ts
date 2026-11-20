@@ -1,9 +1,15 @@
 import { db } from '@fewmail/db'
 import { actions, analyses, messages } from '@fewmail/db/schema'
-import type { ConsentToolName } from '@fewmail/shared/agent'
+import type { bots } from '@fewmail/db/schema'
+import {
+  BOT_REACTIONS,
+  BOT_REPLY_QUOTE_CHARS,
+  isSystemBot,
+} from '@fewmail/shared/agent'
+import type { BotReaction, ConsentToolName } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
-import { generateText, stepCountIs, tool } from 'ai'
+import { generateText, hasToolCall, stepCountIs, streamText, tool } from 'ai'
 import { addDays, subDays } from 'date-fns'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
@@ -12,13 +18,36 @@ import { INFORMAL_ADDRESS, models, NO_EM_DASH, trackUsage } from '../lib/ai'
 import { keyedHash } from '../lib/keyed-hash'
 import { announceChange } from '../lib/live'
 import { agentTools, toolAccess } from './agent-tools'
+import {
+  addBotPost,
+  botHistory,
+  isLastPost,
+  quotesOf,
+  reactToPost,
+} from './bot-chat'
+import { listBots } from './bots'
 import { listEvents } from './calendar'
 import { ConsentChangedError } from './consent-error'
+import { NotFoundError } from './mail-errors'
 import type { Transaction } from './patterns'
-import { requireBudget } from './plan'
+import { getPlanInfo, hasAgent, hasBudget, requireBudget } from './plan'
 import { getSettings } from './settings'
 import { skillPrompt } from './skills'
 import { ownMessage } from './stored-mail'
+
+type Bot = typeof bots.$inferSelect
+
+/** What an answer streams: the agent calling a tool (`AGENT_TOOLS`), or a piece of its text. */
+export type BotStep =
+  | { reaction: BotReaction; type: 'reaction' }
+  | { text: string; type: 'text' }
+  | { tool: string; type: 'tool' }
+
+/** A bot chat's own tool, beside the agent's: the chat ends with it, so a reaction costs one short call instead of an answer. */
+export const BOT_REACT_TOOL = {
+  description: `Put a reaction on the user's last message instead of answering, when it needs no words: thanks, ok, got it, a joke (👍 agreed or done, 👀 looking into it, ❤️ thanks, 🔥 great news, 😂 funny, 🙏 sorry or please). The chat ends with it, so react last, and only after any tool the message asked for. Write nothing else then.`,
+  input: { reaction: z.enum(BOT_REACTIONS) },
+}
 
 export const MAX_STEPS = 12
 /** Every step resends the tools and instructions: Anthropic reads the prefix the previous step wrote at a tenth of the price. */
@@ -49,10 +78,11 @@ export const agentInstructions = (settings: AgentSettings) =>
     'Use the tools for anything about their mail and never invent emails, people, amounts or dates; search before saying something is not there.',
     UNTRUSTED_MAIL,
     'Speak like a person, not a program: never name your tools, fields, ids, categories or action kinds (no get_today, finance, pay). Say what you looked at in plain words, like "your queue" or "money mail".',
-    'The queue lives on the app\'s Home screen; in another language call it by that language\'s word for a home page, never the English "Home". You are the agent: say "I", never "the agent". Where the language gives "I" a gender, yours is masculine (Ukrainian "я підготував", never "підготувала").',
+    'There is no home page: every bot is a chat (Fewmail Bot\'s holds the mail no bot takes, the Board the promises), and mail that needs the user waits as a card in the chat of the bot that took it. Say which chat, never "Home" or a home page. You are the agent: say "I", never "the agent". Where the language gives "I" a gender, yours is masculine (Ukrainian "я підготував", never "підготувала").',
     'Be brief: a few sentences or a short list.',
+    'End every answer with one concrete offer that makes their mail take less of them, fitting what you just saw: a bot for mail like this, a reminder, a follow-up, unsubscribing, a cleanup. Never repeat an offer they declined. Stop offering once the user asks you to, in this chat or in what they told you to know.',
     'Format with this Markdown only: **bold**, _italic_, "- " lists, and "> " before every line of a draft or a quote you show. No headings, tables, code or [label](url) links: write a link as its bare address.',
-    'To send a reply: draft_reply, then approve_action with that action id. Sending, archiving, snoozing, unsubscribing, rules and calendar changes never happen on your word: the tool puts a card on Home and the user decides there. Call the tool instead of asking in text, and say it waits for their yes on Home.',
+    'To send a reply: draft_reply, then approve_action with that action id. Sending, archiving, snoozing, unsubscribing, bots and calendar changes never happen on your word: the tool puts a card with your answer and the user decides there. Call the tool instead of asking in text, and say it waits for their yes.',
   ]
     .filter(Boolean)
     .join('\n')
@@ -106,7 +136,7 @@ const consentReads = async (
 /**
  * What a yes covers beyond the call's own input, read when it was asked: the draft an approval sends, the thread a
  * move touches, what Tidy would do to each email, and the event a change rewrites. Null when
- * the input says it all (a new email, a rule).
+ * the input says it all (a new email, a bot).
  */
 const consentState = async (
   userId: string,
@@ -215,29 +245,32 @@ export const proposeConsent = async (
   const { context, state } = await consentSnapshot(userId, name, input)
   const asked = JSON.stringify(input)
   // Two identical calls at the same moment (a client retrying in parallel) must queue here, or both see no card and add one each.
-  const isNew = await db.transaction(async (tx) => {
+  const id = await db.transaction(async (tx) => {
     await tx.execute(
       sql`select pg_advisory_xact_lock(hashtextextended(${keyedHash(`consent:${userId}:${name}:${asked}`)}, 0))`
     )
     if (await isWaiting(tx, userId, name, asked)) {
-      return false
+      return null
     }
-    await tx.insert(actions).values({
-      autonomous: false,
-      kind: 'consent',
-      messageId: typeof input.messageId === 'string' ? input.messageId : null,
-      payload: { context, input, state, tool: name },
-      reason: from,
-      status: 'pending',
-      title: t.agent.confirm[name],
-      userId,
-    })
-    return true
+    const [card] = await tx
+      .insert(actions)
+      .values({
+        autonomous: false,
+        kind: 'consent',
+        messageId: typeof input.messageId === 'string' ? input.messageId : null,
+        payload: { context, input, state, tool: name },
+        reason: from,
+        status: 'pending',
+        title: t.agent.confirm[name],
+        userId,
+      })
+      .returning({ id: actions.id })
+    return card?.id ?? null
   })
-  if (isNew) {
+  if (id) {
     await announceChange(userId, ['actions', 'today'])
   }
-  return { isNew, question: t.agent.confirm[name] }
+  return { id, isNew: !!id, question: t.agent.confirm[name] }
 }
 
 /**
@@ -269,13 +302,9 @@ export const runConsent = async (
 
 const THREAD_LINK = /\[(?<label>[^\]]+)\]\(\?thread=[^)]*\)/gu
 
-/** One request to the agent from a messenger: plain text back, every consent left as a card on Home. */
-export const askAgent = async (userId: string, text: string) => {
-  await requireBudget(userId)
-  const settings = await getSettings(userId)
-  const t = dictionaries[settings?.language ?? 'en']
-  let waiting = 0
-  const tools = Object.fromEntries(
+/** The agent's tools for one request: what reads and writes runs, every consent becomes a card waiting on Home (`asked` collects them). */
+const toolsFor = (userId: string, from: string, asked: string[]) =>
+  Object.fromEntries(
     Object.entries(agentTools(userId)).map(([name, agentTool]) => [
       name,
       tool({
@@ -284,14 +313,16 @@ export const askAgent = async (userId: string, text: string) => {
           if (toolAccess(name) !== 'consent') {
             return agentTool.run(input as never)
           }
-          waiting += 1
-          await proposeConsent(userId, {
-            from: t.agent.fromAgent,
+          const { id } = await proposeConsent(userId, {
+            from,
             input: input as ToolInput,
             name: name as ConsentToolName,
           })
+          if (id) {
+            asked.push(id)
+          }
           return {
-            note: 'Nothing happened yet: a card waits for the user on Home. Tell them so, and do not call it again.',
+            note: 'Nothing happened yet: a card with your answer waits for the user. Tell them so, and do not call it again.',
             status: 'waiting_for_approval',
           }
         },
@@ -299,24 +330,246 @@ export const askAgent = async (userId: string, text: string) => {
       }),
     ])
   )
+
+const instructionsFor = (settings: AgentSettings, scope?: string) => [
+  {
+    content: agentInstructions(settings),
+    providerOptions: CACHE_PREFIX,
+    role: 'system' as const,
+  },
+  ...(scope
+    ? [
+        {
+          content: scope,
+          providerOptions: CACHE_PREFIX,
+          role: 'system' as const,
+        },
+      ]
+    : []),
+  { content: clock(settings), role: 'system' as const },
+]
+
+/** One request to the agent from a messenger: plain text back, every consent left as a card on Home. */
+export const askAgent = async (userId: string, text: string) => {
+  await requireBudget(userId)
+  const settings = await getSettings(userId)
+  const t = dictionaries[settings?.language ?? 'en']
+  const asked: string[] = []
   const result = await generateText({
-    instructions: [
-      {
-        content: agentInstructions(settings),
-        providerOptions: CACHE_PREFIX,
-        role: 'system',
-      },
-      { content: clock(settings), role: 'system' },
-    ],
+    instructions: instructionsFor(settings),
     model: models.writer,
     prompt: skillPrompt(text) ?? text,
     providerOptions: CACHE_PREFIX,
     stopWhen: stepCountIs(MAX_STEPS),
     telemetry: trackUsage(userId, 'chat'),
-    tools,
+    tools: toolsFor(userId, t.agent.fromAgent, asked),
   })
   return {
     text: result.text.replaceAll(THREAD_LINK, '$<label>'),
-    waiting,
+    waiting: asked.length,
   }
+}
+
+/** Never changes between messages to one bot, so it is cached with the instructions before it. */
+export const botScope = (
+  bot: string,
+  own: Pick<Bot, 'effect' | 'instruction' | 'match' | 'name'> | undefined
+) => {
+  const remind = `To come back to the user later (to check a promise, a payment or an answer), call remind_later with bot "${bot}".`
+  if (bot === 'board') {
+    return `You are the Board in this chat: the promises and last days the agent tracks (list_promises, set_promise_status). ${remind}`
+  }
+  if (!own) {
+    return `You are Fewmail Bot in this chat, the user's main bot: you make their other bots when they ask for one (create_bot), find emails, answer any question about their mail, and keep everything in it that none of their bots looks after. ${remind}`
+  }
+  const takes = own.instruction ?? `mail matching ${JSON.stringify(own.match)}`
+  return `You are the user's bot "${own.name ?? takes}" in this chat. It looks after: ${takes}. What it does with that mail: ${own.effect}. Stay on its mail unless the user asks about something else. ${remind}`
+}
+
+const quoteFor = (quote: { from: 'bot' | 'user'; text: string }) =>
+  `The user replies to ${quote.from === 'bot' ? 'your' : 'their own'} message: "${quote.text.slice(0, BOT_REPLY_QUOTE_CHARS)}"\n\n`
+
+/** Keeps the user's message; what the bot reads is its chat so far, then the message with what it replies to. */
+const keepMessage = async (
+  userId: string,
+  message: { bot: string; replyTo?: string; text: string }
+) => {
+  const [history, quotes] = await Promise.all([
+    botHistory(userId, message.bot),
+    quotesOf(userId, message.replyTo ? [message.replyTo] : []),
+  ])
+  const quote = quotes.get(message.replyTo ?? '')
+  if (message.replyTo && !quote) {
+    throw new NotFoundError('Message not found')
+  }
+  const messageId = await addBotPost(userId, { ...message, kind: 'message' })
+  const asked = skillPrompt(message.text) ?? message.text
+  return {
+    chat: [
+      ...history,
+      {
+        content: `${quote ? quoteFor(quote) : ''}${asked}`,
+        role: 'user' as const,
+      },
+    ],
+    messageId,
+  }
+}
+
+/**
+ * A message to one of Home's bots: kept in its chat with the answer, which streams as it is written. Without the agent
+ * or past the allowance the bot says why instead of answering, and nothing is spent.
+ * @yields {BotStep} Each tool the agent calls and each piece of the answer, as they happen.
+ */
+export const askBot = async function* askBot(
+  userId: string,
+  bot: string,
+  text: string,
+  replyTo?: string
+) {
+  const [settings, plan, own] = await Promise.all([
+    getSettings(userId),
+    getPlanInfo(userId),
+    isSystemBot(bot) ? undefined : listBots(userId),
+  ])
+  const ownBot = own?.find(({ id }) => id === bot)
+  if (own && !ownBot) {
+    throw new NotFoundError('Bot not found')
+  }
+  const { chat, messageId } = await keepMessage(userId, {
+    bot,
+    replyTo,
+    text,
+  })
+  if (!hasAgent(plan) || !(await hasBudget(userId))) {
+    await addBotPost(userId, {
+      bot,
+      kind: hasAgent(plan) ? 'spent' : 'no_plan',
+    })
+    return
+  }
+  const t = dictionaries[settings?.language ?? 'en']
+  const asked: string[] = []
+  const result = streamText({
+    instructions: instructionsFor(settings, botScope(bot, ownBot)),
+    messages: chat,
+    model: models.writer,
+    providerOptions: CACHE_PREFIX,
+    stopWhen: [stepCountIs(MAX_STEPS), hasToolCall('react')],
+    telemetry: trackUsage(userId, 'chat'),
+    tools: {
+      ...toolsFor(userId, t.agent.fromAgent, asked),
+      react: tool({
+        description: BOT_REACT_TOOL.description,
+        execute: async ({ reaction }) => {
+          if (messageId) {
+            await reactToPost(userId, { byBot: true, id: messageId, reaction })
+          }
+          return { status: 'done' }
+        },
+        inputSchema: z.object(BOT_REACT_TOOL.input),
+      }),
+    },
+  })
+  let answer = ''
+  let hasReacted = false
+  const used: string[] = []
+  for await (const part of result.fullStream) {
+    if (part.type === 'tool-call' && part.toolName === 'react') {
+      hasReacted = true
+      yield {
+        reaction: (part.input as { reaction: BotReaction }).reaction,
+        type: 'reaction',
+      } satisfies BotStep
+    } else if (part.type === 'tool-call') {
+      used.push(part.toolName)
+      yield { tool: part.toolName, type: 'tool' } satisfies BotStep
+    }
+    if (part.type === 'text-delta') {
+      answer += part.text
+      yield { text: part.text, type: 'text' } satisfies BotStep
+    }
+  }
+  if (hasReacted && !answer.trim() && asked.length === 0 && used.length === 0) {
+    return
+  }
+  await addBotPost(userId, {
+    actionIds: asked,
+    bot,
+    kind: 'answer',
+    text: answer.replaceAll(THREAD_LINK, '$<label>'),
+    tools: used,
+  })
+}
+
+/** What the user's reaction on the bot's last words tells it: 👍 is their yes, 👀 that they will look themselves. */
+const REACTION_MEANS: Record<BotReaction, string> = {
+  '❤️': 'thanks',
+  '👀': 'that they will look at it themselves: change nothing, and only for something they must not miss (a payment, an answer someone waits for) call remind_later for a fitting moment',
+  '👍': 'yes to what it offered or asked: do it now, as if they had written yes',
+  '😂': 'that it is funny',
+  '🔥': 'that it is great news',
+  '🙏': 'thanks',
+}
+
+const NOTHING_TO_DO = 'NOTHING'
+
+/** The user's reaction on the bot's last message, read as their answer: acted on in one quiet turn, said in the chat only when the bot did something. */
+export const answerReaction = async (
+  userId: string,
+  post: {
+    bot: string
+    id: string
+    kind: string
+    reaction: BotReaction | null
+  }
+) => {
+  if (
+    !post.reaction ||
+    post.kind === 'message' ||
+    !(await isLastPost(userId, post.bot, post.id))
+  ) {
+    return
+  }
+  const [settings, plan, own, history] = await Promise.all([
+    getSettings(userId),
+    getPlanInfo(userId),
+    isSystemBot(post.bot) ? undefined : listBots(userId),
+    botHistory(userId, post.bot),
+  ])
+  const ownBot = own?.find(({ id }) => id === post.bot)
+  if ((own && !ownBot) || !hasAgent(plan) || !(await hasBudget(userId))) {
+    return
+  }
+  const t = dictionaries[settings?.language ?? 'en']
+  const asked: string[] = []
+  const result = await generateText({
+    instructions: instructionsFor(settings, botScope(post.bot, ownBot)),
+    messages: [
+      ...history,
+      {
+        content: `The user put ${post.reaction} on your last message, which means ${REACTION_MEANS[post.reaction]}. A change to their mail still goes through its tool, which waits for their yes on Home. When you do something, say what in one short line; when there is nothing to do, write only ${NOTHING_TO_DO}.`,
+        role: 'user' as const,
+      },
+    ],
+    model: models.writer,
+    providerOptions: CACHE_PREFIX,
+    stopWhen: stepCountIs(MAX_STEPS),
+    telemetry: trackUsage(userId, 'chat'),
+    tools: toolsFor(userId, t.agent.fromAgent, asked),
+  })
+  const used = result.steps.flatMap(({ toolCalls }) =>
+    toolCalls.map(({ toolName }) => toolName)
+  )
+  const text = result.text.trim() === NOTHING_TO_DO ? '' : result.text.trim()
+  if (!text && used.length === 0) {
+    return
+  }
+  await addBotPost(userId, {
+    actionIds: asked,
+    bot: post.bot,
+    kind: 'answer',
+    text: text.replaceAll(THREAD_LINK, '$<label>'),
+    tools: used,
+  })
 }
