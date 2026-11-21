@@ -72,7 +72,7 @@ import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { isToday } from 'date-fns'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
@@ -244,8 +244,8 @@ const FRAME_HEAD =
 const NOTHING_REMOTE = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">`
 
 const OPENABLE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tel:'])
-// A plain `#id` resolves against our page (srcdoc borrows the parent's base) and loads Fewmail inside the frame.
-const IN_MAIL = 'about:srcdoc#'
+// A plain `#id` resolves against the sender's `<base>` and loads their site inside the frame.
+const IN_MAIL = 'about:blank#'
 
 const inMailTarget = (mail: Document, id: string) =>
   mail.querySelector(`[id="${CSS.escape(id)}"], a[name="${CSS.escape(id)}"]`)
@@ -312,7 +312,10 @@ const frameMail = ({
       link.removeAttribute('href')
     }
   }
-  return { isPlain: plain, srcDoc: mail.documentElement.outerHTML }
+  const doctype = mail.doctype
+    ? new XMLSerializer().serializeToString(mail.doctype)
+    : ''
+  return { isPlain: plain, page: doctype + mail.documentElement.outerHTML }
 }
 
 const jumpWithinMail = (event: MouseEvent) => {
@@ -396,7 +399,17 @@ const HtmlBody = ({
   const [height, setHeight] = useState(frameHeights.get(id) ?? 0)
   const [cited, setCited] = useState<HTMLElement>()
   const theme = useResolvedTheme()
-  const { isPlain, srcDoc } = frameMail({ blockImages, cidImage, html, theme })
+  const { isPlain, page } = frameMail({ blockImages, cidImage, html, theme })
+  // Not `srcDoc`: a srcdoc page is never in quirks mode, and mail written without a doctype lays out as every other client shows it only in quirks mode.
+  // The charset beats a `<meta charset>` the mail still carries from before it was decoded.
+  const src = useMemo(
+    () =>
+      URL.createObjectURL(
+        new Blob([page], { type: 'text/html;charset=utf-8' })
+      ),
+    [page]
+  )
+  useEffect(() => () => URL.revokeObjectURL(src), [src])
   useEffect(() => {
     // Images load after the first centring and push the passage down; it follows them while it is lit.
     if (height > 0 && cited?.getAnimations().length) {
@@ -439,7 +452,7 @@ const HtmlBody = ({
         ref={watch}
         data-mask
         title="email"
-        srcDoc={srcDoc}
+        src={src}
         sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         style={{ '--frame-height': `${height}px` } as CSSProperties}
         className={cn(
