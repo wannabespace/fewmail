@@ -715,8 +715,8 @@ export const id: Messages = {
   },
   plan: {
     used: (percent: number) => `${percent}% terpakai`,
-    about: (emails: string, messages: string) =>
-      `Sekitar ${emails} email dibaca atau ${messages} pesan ke agen sebulan, dalam campuran apa pun.`,
+    base: 'Batas bulanan dasar agen.',
+    times: (times: number) => `Batas bulanan ${times}× lebih besar.`,
     free: 'Gratis',
     freeDescription:
       'Email yang cepat dan tenang dengan aturan sederhana. Gratis selama kamu mau.',
@@ -1568,9 +1568,8 @@ export const id: Messages = {
     plans: {
       agent: 'Agen',
       details: 'Lihat semua paket secara rinci',
-      emails: 'Email yang dibaca agen per bulan',
+      usage: 'Batas agen per bulan',
       everyPlan: 'Di setiap paket',
-      messages: 'atau pesan ke agen',
       oneAllowance:
         'Satu jatah untuk semua yang dikerjakan agen: bayar sesuai pemakaian, dan email tak penting tidak pernah dihitung',
       forever: 'selamanya',

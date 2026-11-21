@@ -573,8 +573,8 @@ export const hi: Messages = {
   },
   plan: {
     used: (percent: number) => `${percent}% इस्तेमाल हुआ`,
-    about: (emails: string, messages: string) =>
-      `महीने में लगभग ${emails} पढ़े गए ईमेल या एजेंट को ${messages} संदेश, किसी भी मेल में।`,
+    base: 'एजेंट की बुनियादी मासिक सीमा।',
+    times: (times: number) => `${times}× बड़ी मासिक सीमा।`,
     free: 'Free',
     freeDescription: 'आसान नियमों के साथ तेज़ और शांत मेल। जब तक चाहें, मुफ़्त।',
     includes:
@@ -1396,9 +1396,8 @@ export const hi: Messages = {
     plans: {
       agent: 'एजेंट',
       details: 'सभी प्लान विस्तार से देखें',
-      emails: 'एजेंट हर महीने जितने ईमेल पढ़ता है',
+      usage: 'एजेंट की मासिक सीमा',
       everyPlan: 'हर प्लान में',
-      messages: 'या एजेंट को संदेश',
       oneAllowance:
         'एजेंट के हर काम के लिए एक ही कोटा: जितना इस्तेमाल, उतना भुगतान, और फालतू मेल कभी नहीं गिना जाता',
       forever: 'हमेशा के लिए',

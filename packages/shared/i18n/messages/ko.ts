@@ -566,8 +566,8 @@ export const ko: Messages = {
   },
   plan: {
     used: (percent: number) => `${percent}% 사용`,
-    about: (emails: string, messages: string) =>
-      `한 달에 메일 약 ${emails}통 읽기 또는 에이전트 메시지 ${messages}개, 원하는 대로 섞어서.`,
+    base: '에이전트의 기본 월간 한도.',
+    times: (times: number) => `월간 한도 ${times}배.`,
     free: 'Free',
     freeDescription:
       '간단한 규칙으로 빠르고 차분한 메일을. 원하는 만큼 무료로 쓸 수 있어요.',
@@ -1354,9 +1354,8 @@ export const ko: Messages = {
     plans: {
       agent: '에이전트',
       details: '모든 플랜 자세히 보기',
-      emails: '에이전트가 한 달에 읽는 이메일',
+      usage: '에이전트 월간 한도',
       everyPlan: '모든 플랜에 포함',
-      messages: '또는 에이전트에게 보내는 메시지',
       oneAllowance:
         '에이전트가 하는 모든 일에 하나의 사용량: 쓴 만큼만, 잡음은 세지 않아요',
       forever: '평생',

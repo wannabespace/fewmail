@@ -227,18 +227,14 @@ export const PLAN_ALLOWANCE_USD = {
   trial: 2.5,
 } satisfies Record<Exclude<Plan, 'free'>, number>
 
-/** What one email the agent writes for and one message to it cost on typical use, to tell an allowance in both. */
+/** What one email the agent writes for and one message to it cost on typical use (`economics.test.ts` holds it to the real price). */
 export const TYPICAL_COST_USD = { email: 0.0044, message: 0.044 }
 
 type AgentPlan = keyof typeof PLAN_ALLOWANCE_USD
 
-/** An allowance told in round numbers: about this many emails, or this many messages, at typical use. */
-export const allowanceIn = (plan: AgentPlan) => ({
-  emails:
-    Math.round(PLAN_ALLOWANCE_USD[plan] / TYPICAL_COST_USD.email / 10) * 10,
-  messages:
-    Math.round(PLAN_ALLOWANCE_USD[plan] / TYPICAL_COST_USD.message / 10) * 10,
-})
+/** An allowance told as a multiple of Lite's, rounded down so a plan never promises more than it holds. */
+export const timesLite = (plan: AgentPlan) =>
+  Math.floor(PLAN_ALLOWANCE_USD[plan] / PLAN_ALLOWANCE_USD.lite)
 
 /** How much of the month's allowance is spent, 0 to 100. */
 export const usedPercent = (plan: AgentPlan, spent: number) =>

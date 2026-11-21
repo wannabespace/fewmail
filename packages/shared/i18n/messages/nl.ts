@@ -718,8 +718,8 @@ export const nl: Messages = {
   },
   plan: {
     used: (percent: number) => `${percent}% gebruikt`,
-    about: (emails: string, messages: string) =>
-      `Ongeveer ${emails} gelezen e-mails of ${messages} berichten aan de agent per maand, in elke verhouding.`,
+    base: 'De basislimiet van de agent per maand.',
+    times: (times: number) => `${times}× hogere maandlimiet.`,
     free: 'Gratis',
     freeDescription:
       'Snelle, rustige mail met eenvoudige regels. Gratis zo lang je wilt.',
@@ -1579,9 +1579,8 @@ export const nl: Messages = {
     plans: {
       agent: 'De agent',
       details: 'Bekijk alle abonnementen in detail',
-      emails: 'E-mails die de agent per maand leest',
+      usage: 'Limiet van de agent per maand',
       everyPlan: 'In elk abonnement',
-      messages: 'of berichten aan de agent',
       oneAllowance:
         'Eén tegoed voor alles wat de agent doet: je betaalt voor wat je gebruikt, en ruis telt nooit mee',
       forever: 'voor altijd',

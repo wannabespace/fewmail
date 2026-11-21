@@ -554,8 +554,8 @@ export const zh: Messages = {
   },
   plan: {
     used: (percent: number) => `已用 ${percent}%`,
-    about: (emails: string, messages: string) =>
-      `每月约可读取 ${emails} 封邮件或向助手发送 ${messages} 条消息，可任意组合。`,
+    base: '助手的基础月度额度。',
+    times: (times: number) => `月度额度提高到 ${times} 倍。`,
     free: 'Free',
     freeDescription: '快速、安静的邮件，配合简单规则。想用多久就免费用多久。',
     includes:
@@ -1328,9 +1328,8 @@ export const zh: Messages = {
     plans: {
       agent: '助手',
       details: '查看所有方案详情',
-      emails: '助手每月阅读的邮件',
+      usage: '助手每月额度',
       everyPlan: '所有方案都包含',
-      messages: '或发给助手的消息',
       oneAllowance:
         '助手所做的一切共用一份额度：用多少付多少，无关邮件从不计入',
       forever: '永久',

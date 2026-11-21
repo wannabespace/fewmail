@@ -707,8 +707,8 @@ export const tr: Messages = {
   },
   plan: {
     used: (percent: number) => `%${percent} kullanıldı`,
-    about: (emails: string, messages: string) =>
-      `Ayda yaklaşık ${emails} okunan e-posta ya da ajana ${messages} mesaj, istediğin karışımla.`,
+    base: 'Ajanın temel aylık limiti.',
+    times: (times: number) => `${times} kat daha yüksek aylık limit.`,
     free: 'Ücretsiz',
     freeDescription:
       'Basit kurallarla hızlı ve sakin e-posta. İstediğin kadar ücretsiz.',
@@ -1561,9 +1561,8 @@ export const tr: Messages = {
     plans: {
       agent: 'Ajan',
       details: 'Tüm planları ayrıntılı gör',
-      emails: 'Ajanın ayda okuduğu e-posta',
+      usage: 'Ajanın aylık limiti',
       everyPlan: 'Her planda',
-      messages: 'ya da ajana mesaj',
       oneAllowance:
         'Ajanın yaptığı her şey için tek bir kullanım hakkı: kullandığın kadar ödersin, gereksiz e-postalar hiç sayılmaz',
       forever: 'sonsuza dek',

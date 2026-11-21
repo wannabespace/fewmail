@@ -1,5 +1,5 @@
 import type { BillingInterval } from '@fewmail/shared/agent'
-import { allowanceIn, PAID_PLANS } from '@fewmail/shared/agent'
+import { PAID_PLANS, timesLite } from '@fewmail/shared/agent'
 import {
   Accordion,
   AccordionContent,
@@ -400,29 +400,10 @@ export const PlanCards = () => {
 /** The plans differ only in what the agent may do a month, so the table shows only that and what Free lacks. */
 export const PlanTable = () => {
   const t = useT()
-  const locale = useLocale()
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('month')
   const { comparison, plans } = t.site
   const paidName = PAID_PLANS.map((plan) => t.plan[plan]).join(', ')
-  const allowanceRow = (label: string, unit: 'emails' | 'messages') => (
-    <div className={PLAN_ROW}>
-      <span className="text-muted-foreground col-span-4 text-sm xl:col-span-1">
-        {label}
-      </span>
-      {PLANS.map((plan) => (
-        <PlanCell key={plan.id} name={t.plan[plan.id]}>
-          {plan.id === 'free' ? (
-            <Lacks />
-          ) : (
-            <span className="font-medium tabular-nums">
-              {allowanceIn(plan.id)[unit].toLocaleString(locale)}
-            </span>
-          )}
-        </PlanCell>
-      ))}
-    </div>
-  )
   return (
     <div className="mt-12 flex flex-col items-center gap-6">
       <Tabs
@@ -446,8 +427,22 @@ export const PlanTable = () => {
             </div>
           ))}
         </div>
-        {allowanceRow(plans.emails, 'emails')}
-        {allowanceRow(plans.messages, 'messages')}
+        <div className={PLAN_ROW}>
+          <span className="text-muted-foreground col-span-4 text-sm xl:col-span-1">
+            {plans.usage}
+          </span>
+          {PLANS.map((plan) => (
+            <PlanCell key={plan.id} name={t.plan[plan.id]}>
+              {plan.id === 'free' ? (
+                <Lacks />
+              ) : (
+                <span className="font-medium tabular-nums">
+                  {timesLite(plan.id)}×
+                </span>
+              )}
+            </PlanCell>
+          ))}
+        </div>
         <div className="flex flex-col gap-8 border-t px-6 py-6 text-sm xl:col-span-5">
           <FeatureList
             title={plans.agent}

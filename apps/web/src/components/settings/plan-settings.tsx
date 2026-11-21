@@ -1,9 +1,9 @@
 import type { BillingInterval, PaidPlan, Plan } from '@fewmail/shared/agent'
 import {
-  allowanceIn,
   isPaidPlan,
   PAID_PLANS,
   PRICE_USD,
+  timesLite,
   usedPercent,
 } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
@@ -65,13 +65,8 @@ export const PlanSettings = () => {
   const choices = isPaidPlan(plan.kind)
     ? PAID_PLANS.slice(PAID_PLANS.indexOf(plan.kind) + 1)
     : PAID_PLANS
-  const allowanceText = (choice: PaidPlan) => {
-    const { emails, messages } = allowanceIn(choice)
-    return t.plan.about(
-      emails.toLocaleString(locale),
-      messages.toLocaleString(locale)
-    )
-  }
+  const allowanceText = (choice: PaidPlan) =>
+    choice === 'lite' ? t.plan.base : t.plan.times(timesLite(choice))
 
   return (
     <>

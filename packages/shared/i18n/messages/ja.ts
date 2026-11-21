@@ -565,8 +565,8 @@ export const ja: Messages = {
   },
   plan: {
     used: (percent: number) => `${percent}% 使用`,
-    about: (emails: string, messages: string) =>
-      `月に約 ${emails} 通のメール読み取り、またはエージェントへの ${messages} 件のメッセージ（組み合わせ自由）。`,
+    base: 'エージェントの基本の月間上限。',
+    times: (times: number) => `月間上限が ${times} 倍。`,
     free: 'Free',
     freeDescription:
       'シンプルなルールで、速く落ち着いたメールを。好きなだけ無料で使えます。',
@@ -1369,9 +1369,8 @@ export const ja: Messages = {
     plans: {
       agent: 'エージェント',
       details: 'すべてのプランを詳しく見る',
-      emails: 'エージェントが 1 か月に読むメール',
+      usage: 'エージェントの月間上限',
       everyPlan: 'すべてのプランに',
-      messages: 'またはエージェントへのメッセージ',
       oneAllowance:
         'エージェントのすべての作業に共通の利用枠: 使った分だけ、ノイズは数えません',
       forever: 'ずっと',

@@ -644,9 +644,8 @@ export const fr: Messages = {
     plans: {
       agent: 'L’agent',
       details: 'Voir toutes les formules en détail',
-      emails: 'E-mails lus par l’agent chaque mois',
+      usage: 'Limite de l’agent par mois',
       everyPlan: 'Dans chaque formule',
-      messages: 'ou messages à l’agent',
       oneAllowance:
         'Une seule enveloppe pour tout ce que fait l’agent : vous payez ce que vous utilisez, et le bruit ne compte jamais',
       forever: 'pour toujours',
@@ -1157,8 +1156,8 @@ export const fr: Messages = {
   },
   plan: {
     used: (percent: number) => `${percent} % utilisé`,
-    about: (emails: string, messages: string) =>
-      `Environ ${emails} e-mails lus ou ${messages} messages à l’agent par mois, dans n’importe quelle proportion.`,
+    base: 'La limite mensuelle de base de l’agent.',
+    times: (times: number) => `Limite mensuelle ${times}× plus élevée.`,
     free: 'Gratuit',
     freeDescription:
       'Des e-mails rapides et sereins avec des règles simples. Gratuit aussi longtemps que vous le souhaitez.',
