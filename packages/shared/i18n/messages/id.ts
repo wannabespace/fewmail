@@ -62,6 +62,7 @@ export const id: Messages = {
       clear_out: 'Bersihkan grup email ini dari kotak masuk?',
       undo_clear_out: 'Kembalikan semua yang dibersihkan ke kotak masuk?',
       create_bot: 'Buat bot ini?',
+      update_bot: 'Ubah bot ini?',
       reply: 'Kirim balasan ini?',
       send_email: 'Kirim email ini?',
       snooze_thread: 'Tunda percakapan ini?',
@@ -87,6 +88,7 @@ export const id: Messages = {
       preview_clear_out: 'Membaca seluruh kotak masuk',
       undo_clear_out: 'Mengembalikan email yang dibersihkan',
       create_bot: 'Membuat bot',
+      update_bot: 'Mengubah bot',
       dismiss_action: 'Melewati',
       draft_reply: 'Menulis balasan',
       create_draft: 'Menyimpan draf',
@@ -124,6 +126,7 @@ export const id: Messages = {
       clear_out: 'Bersihkan',
       undo_clear_out: 'Kembalikan',
       create_bot: 'Buat bot',
+      update_bot: 'Simpan',
       reply: 'Kirim',
       send_email: 'Kirim',
       snooze_thread: 'Tunda',
@@ -791,6 +794,71 @@ export const id: Messages = {
     title: 'Cek dulu sebelum bertindak',
   },
   bots: {
+    profile: 'Yang kulakukan',
+    closeProfile: 'Tutup',
+    change: 'Ubah',
+    since: (date: string) => `Bekerja sejak ${date}`,
+    status: {
+      acts: 'Bertindak sendiri',
+      asks: 'Bertanya sebelum tiap email',
+      last: (time: string) => `terakhir ${time}`,
+      paused: (date: string) => `Dijeda sampai ${date}`,
+      reading: (n: number) =>
+        plural('id', n, {
+          other: (count) => `membaca ${count} email baru`,
+        }),
+      waiting: (n: number) =>
+        plural('id', n, {
+          other: (count) => `${count} hal menunggumu`,
+        }),
+      watching: 'Memantau emailmu',
+    },
+    intro: {
+      acts: 'Aku bertindak sendiri: semua yang kulakukan tampil di sini, dan kamu bisa membatalkannya.',
+      asks: 'Sebelum menyentuh email, aku bertanya dulu di sini.',
+      board:
+        'Hai! Aku mencatat janji dan tenggat dari emailmu: apa yang jadi hakmu, apa yang kamu janjikan, dan apa yang segera jatuh tempo. Tanya aku siapa berutang apa padamu.',
+      change: 'Untuk mengubah yang kulakukan, tulis saja padaku.',
+      fewmail:
+        'Hai, aku Fewmail Bot. Aku membaca semua email yang tidak diambil bot-botmu dan hanya menunjukkan yang perlu kamu urus. Tidak ada yang berubah di Gmail tanpa persetujuanmu. Tanyakan apa saja soal emailmu, atau minta aku membuat bot.',
+      own: (name: string) => `Hai, aku ${name}. Ini yang kujaga:`,
+    },
+    suggest: {
+      actAlone: 'Bertindak sendiri saja, tak perlu tanya',
+      askFirst: 'Tanya aku sebelum tiap email',
+      important: 'Apa yang perlu kuurus hari ini?',
+      newBot: 'Buatkan bot untuk tagihan',
+      owed: 'Siapa berutang apa padaku?',
+      pauseWeek: 'Jeda seminggu',
+      promised: 'Apa yang kujanjikan minggu ini?',
+      waiting: 'Siapa yang menunggu balasanku?',
+      week: 'Apa yang kamu lakukan minggu ini?',
+    },
+    pause: {
+      day: 'Sampai besok',
+      hint: 'Saat dijeda, bot ini tidak mengambil email; Fewmail Bot yang memegangnya.',
+      month: 'Sebulan',
+      resume: 'Lanjutkan',
+      title: 'Jeda',
+      week: 'Seminggu',
+    },
+    week: {
+      approved: 'dengan persetujuanmu',
+      auto: 'sendiri',
+      title: '7 hari terakhir',
+      waiting: 'menunggumu',
+    },
+    lately: 'Terakhir',
+    notifications: 'Notifikasi',
+    quiet: {
+      hide: 'Sembunyikan',
+      show: 'Tampilkan',
+      week: (n: number) =>
+        plural('id', n, {
+          other: (count) =>
+            `${count} perubahan di emailmu dalam 7 hari terakhir`,
+        }),
+    },
     chatMenu: 'Tindakan obrolan',
     clear: 'Hapus riwayat',
     clearConfirm: (name: string) => `Hapus obrolan dengan ${name}?`,

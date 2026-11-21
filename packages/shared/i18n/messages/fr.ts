@@ -20,6 +20,7 @@ export const fr: Messages = {
       undo_clear_out:
         'Remettre dans la boîte de réception tout ce qui a été rangé ?',
       create_bot: 'Créer ce bot ?',
+      update_bot: 'Modifier ce bot ?',
       reply: 'Envoyer cette réponse ?',
       send_email: 'Envoyer cet e-mail ?',
       snooze_thread: 'Reporter cette conversation ?',
@@ -45,6 +46,7 @@ export const fr: Messages = {
       preview_clear_out: 'Lecture de toute la boîte de réception',
       undo_clear_out: 'Retour des e-mails rangés',
       create_bot: 'Création d’un bot',
+      update_bot: 'Modification d’un bot',
       dismiss_action: 'Ignorer',
       draft_reply: 'Rédaction d’une réponse',
       create_draft: 'Enregistrement du brouillon',
@@ -82,6 +84,7 @@ export const fr: Messages = {
       clear_out: 'Faire le ménage',
       undo_clear_out: 'Remettre',
       create_bot: 'Créer le bot',
+      update_bot: 'Enregistrer',
       reply: 'Envoyer',
       send_email: 'Envoyer',
       snooze_thread: 'Reporter',
@@ -1204,6 +1207,80 @@ export const fr: Messages = {
     skip: 'Passer',
   },
   bots: {
+    profile: 'Ce que je fais',
+    closeProfile: 'Fermer',
+    change: 'Modifier',
+    since: (date: string) => `Actif depuis le ${date}`,
+    status: {
+      acts: 'Agit seul',
+      asks: 'Demande avant chaque e-mail',
+      last: (time: string) => `dernier à ${time}`,
+      paused: (date: string) => `En pause jusqu’au ${date}`,
+      reading: (n: number) =>
+        plural('fr', n, {
+          one: () => `lit un nouvel e-mail`,
+          many: (count) => `lit ${count} nouveaux e-mails`,
+          other: (count) => `lit ${count} nouveaux e-mails`,
+        }),
+      waiting: (n: number) =>
+        plural('fr', n, {
+          one: () => `Une chose vous attend`,
+          many: (count) => `${count} choses vous attendent`,
+          other: (count) => `${count} choses vous attendent`,
+        }),
+      watching: 'Surveille votre courrier',
+    },
+    intro: {
+      acts: 'J’agis seul : tout ce que je fais s’affiche ici, et vous pouvez l’annuler.',
+      asks: 'Avant de toucher à un e-mail, je vous le demande ici.',
+      board:
+        'Bonjour ! Je suis les promesses et les échéances de votre courrier : ce qu’on vous doit, ce que vous avez promis et ce qui arrive bientôt. Demandez-moi qui vous doit quoi.',
+      change: 'Pour changer ce que je fais, écrivez-moi simplement.',
+      fewmail:
+        'Bonjour, je suis Fewmail Bot. Je lis tout le courrier qu’aucun de vos bots ne prend et je ne vous montre que ce qui demande votre attention. Rien ne change dans Gmail sans votre accord. Posez-moi vos questions sur votre courrier, ou demandez-moi de créer un bot.',
+      own: (name: string) =>
+        `Bonjour, je suis ${name}. Voici ce dont je m’occupe :`,
+    },
+    suggest: {
+      actAlone: 'Agissez seul, sans demander',
+      askFirst: 'Demandez-moi avant chaque e-mail',
+      important: 'Qu’est-ce qui m’attend aujourd’hui ?',
+      newBot: 'Créez-moi un bot pour les factures',
+      owed: 'Qui me doit quoi ?',
+      pauseWeek: 'Pause d’une semaine',
+      promised: 'Qu’ai-je promis cette semaine ?',
+      waiting: 'Qui attend ma réponse ?',
+      week: 'Qu’avez-vous fait cette semaine ?',
+    },
+    pause: {
+      day: 'Jusqu’à demain',
+      hint: 'En pause, il ne prend aucun e-mail ; Fewmail Bot s’en charge.',
+      month: 'Un mois',
+      resume: 'Reprendre',
+      title: 'Mettre en pause',
+      week: 'Une semaine',
+    },
+    week: {
+      approved: 'avec votre accord',
+      auto: 'seul',
+      title: '7 derniers jours',
+      waiting: 'vous attendent',
+    },
+    lately: 'Récemment',
+    notifications: 'Notifications',
+    quiet: {
+      hide: 'Masquer',
+      show: 'Afficher',
+      week: (n: number) =>
+        plural('fr', n, {
+          one: () =>
+            `Une modification dans votre courrier ces 7 derniers jours`,
+          many: (count) =>
+            `${count} modifications dans votre courrier ces 7 derniers jours`,
+          other: (count) =>
+            `${count} modifications dans votre courrier ces 7 derniers jours`,
+        }),
+    },
     chatMenu: 'Actions du chat',
     clear: 'Effacer l’historique',
     clearConfirm: (name: string) => `Effacer le chat avec ${name} ?`,

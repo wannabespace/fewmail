@@ -1,0 +1,1 @@
+ALTER TABLE "bots" ADD COLUMN "paused_until" timestamp with time zone;

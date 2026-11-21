@@ -4,6 +4,7 @@ import {
   BOT_FOLDER_NAME_CHARS,
   BOT_FOLDERS_MAX,
 } from '@fewmail/shared/agent'
+import type { Messages } from '@fewmail/shared/i18n'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
   ContextMenu,
@@ -53,6 +54,52 @@ import { queryClient, showUntilSettled, useRanked } from '~/lib/query-client'
 
 export type OwnBot = RouterOutputs['bots']['list'][number]
 type Chat = RouterOutputs['bots']['chats'][number]
+type Entry = NonNullable<Chat['last']>
+type Card = Extract<Entry, { type: 'cards' }>['cards'][number]
+
+/** What a card burst says in its bot's words: what waits, what was done, by whom. */
+export const cardsLine = (t: Messages, cards: Card[]) => {
+  const count = (status: Card['action']['status']) =>
+    cards.filter(({ action }) => action.status === status).length
+  return [
+    count('pending') > 0 && t.bots.cards.pending(count('pending')),
+    count('auto_done') > 0 && t.bots.cards.autoDone(count('auto_done')),
+    count('done') > 0 && t.bots.cards.done(count('done')),
+    count('dismissed') > 0 && t.bots.cards.dismissed(count('dismissed')),
+    count('failed') > 0 && t.bots.cards.failed(count('failed')),
+  ]
+    .filter(Boolean)
+    .join(' ')
+}
+
+export const digestHeadline = (t: Messages, decisions: number) =>
+  decisions === 0 ? t.today.allDone : t.today.headline(decisions)
+
+/** A bot's latest message in one line, as a messenger's list shows it under the chat's name. */
+const lastLineOf = (t: Messages, entry: Entry) => {
+  if (entry.type === 'cards') {
+    return cardsLine(t, entry.cards)
+  }
+  if (entry.type === 'promises') {
+    return t.bots.promises(entry.promises.length)
+  }
+  if (entry.type === 'digest') {
+    return entry.counts
+      ? digestHeadline(t, entry.counts.decisions)
+      : cardsLine(t, entry.cards)
+  }
+  if (entry.kind === 'no_plan') {
+    return t.bots.noPlan
+  }
+  const text = (entry.text ?? '').replaceAll('**', '')
+  return entry.kind === 'message' ? `${t.bots.you}: ${text}` : text
+}
+
+/** Until when a bot of the user's takes no mail; null while it works. */
+export const pausedUntilOf = (bot: Pick<HomeBot, 'own'>) =>
+  bot.own?.pausedUntil && bot.own.pausedUntil > new Date()
+    ? bot.own.pausedUntil
+    : null
 
 export interface HomeBot extends Chat {
   job: string
@@ -97,13 +144,14 @@ export const BotAvatar = ({
   size = 'sm',
 }: {
   bot: Pick<HomeBot, 'bot' | 'name'>
-  size?: 'xs' | 'sm' | 'md'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
 }) => (
   <span
     aria-hidden
     className={cn(
       'bg-popover ring-foreground/8 text-foreground/80 grid shrink-0 place-items-center rounded-full font-medium ring',
       {
+        lg: 'size-14 text-xl [&>svg]:size-7',
         md: 'size-8 text-sm [&>svg]:size-4',
         sm: 'size-6 text-xs [&>svg]:size-4',
         xs: 'size-5 text-[10px] [&>svg]:size-3.5',
@@ -347,7 +395,7 @@ export const RowWithMenu = ({
   </ContextMenu>
 )
 
-/** One bot in the sidebar, as one nav row: its face, its name, how much is new and when it last wrote. */
+/** One bot in the sidebar, as a messenger lists its chats: its face, its name and when it last wrote, its latest message and how much is new under them. */
 export const BotListRow = ({
   bot,
   isOpen,
@@ -359,6 +407,10 @@ export const BotListRow = ({
 }) => {
   const t = useT()
   const dates = useDates()
+  const pausedUntil = pausedUntilOf(bot)
+  const line = pausedUntil
+    ? t.bots.status.paused(dates.format(pausedUntil, 'd MMM'))
+    : bot.last && lastLineOf(t, bot.last)
   return (
     <RowWithMenu
       label={t.bots.chatMenu}
@@ -368,36 +420,56 @@ export const BotListRow = ({
         type="button"
         aria-current={isOpen || undefined}
         onClick={onOpen}
-        className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring flex h-8 w-full shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2 text-left text-sm outline-none aria-current:font-medium"
+        className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring flex w-full shrink-0 cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm outline-none"
       >
-        <BotAvatar bot={bot} size="xs" />
-        <span data-mask={!!bot.own} className="min-w-0 flex-1 truncate">
-          {bot.name}
+        <span className={cn('flex', pausedUntil && 'opacity-60')}>
+          <BotAvatar bot={bot} size="md" />
         </span>
-        {bot.pinned && bot.bot !== 'fewmail' && (
-          <HugeiconsIcon
-            icon={PinIcon}
-            strokeWidth={2}
-            className="text-muted-foreground size-3 shrink-0"
-          />
-        )}
-        {bot.unread > 0 && (
-          <span
-            className={cn(
-              'shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums',
-              bot.muted
-                ? 'bg-secondary text-muted-foreground'
-                : 'bg-primary text-primary-foreground'
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="flex items-center gap-1.5">
+            <span
+              data-mask={!!bot.own}
+              className="text-foreground min-w-0 flex-1 truncate font-medium"
+            >
+              {bot.name}
+            </span>
+            {bot.pinned && bot.bot !== 'fewmail' && (
+              <HugeiconsIcon
+                icon={PinIcon}
+                strokeWidth={2}
+                className="text-muted-foreground size-3 shrink-0"
+              />
             )}
-          >
-            {bot.unread}
+            {bot.last && (
+              <span className="text-muted-foreground shrink-0 text-xs tabular-nums group-hover/row:invisible group-has-data-popup-open/row:invisible">
+                {dates.format(
+                  bot.last.at,
+                  isToday(bot.last.at) ? 'p' : 'd MMM'
+                )}
+              </span>
+            )}
           </span>
-        )}
-        {bot.last && (
-          <span className="text-muted-foreground shrink-0 text-xs tabular-nums group-hover/row:invisible group-has-data-popup-open/row:invisible">
-            {dates.format(bot.last.at, isToday(bot.last.at) ? 'p' : 'd MMM')}
+          <span className="flex items-center gap-1.5">
+            <span
+              data-mask
+              className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
+            >
+              {line ?? bot.job}
+            </span>
+            {bot.unread > 0 && (
+              <span
+                className={cn(
+                  'shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums',
+                  bot.muted
+                    ? 'bg-secondary text-muted-foreground'
+                    : 'bg-primary text-primary-foreground'
+                )}
+              >
+                {bot.unread}
+              </span>
+            )}
           </span>
-        )}
+        </span>
       </button>
     </RowWithMenu>
   )

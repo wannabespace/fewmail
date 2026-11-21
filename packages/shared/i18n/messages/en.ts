@@ -62,6 +62,7 @@ export const en = {
       clear_out: 'Clear out these groups of inbox mail?',
       undo_clear_out: 'Bring every cleared email back to the inbox?',
       create_bot: 'Make this bot?',
+      update_bot: 'Change this bot?',
       reply: 'Send this reply?',
       send_email: 'Send this email?',
       snooze_thread: 'Snooze this thread?',
@@ -87,6 +88,7 @@ export const en = {
       preview_clear_out: 'Reading the whole inbox',
       undo_clear_out: 'Bringing cleared mail back',
       create_bot: 'Making a bot',
+      update_bot: 'Changing a bot',
       dismiss_action: 'Skipping',
       draft_reply: 'Drafting a reply',
       create_draft: 'Saving a draft',
@@ -124,6 +126,7 @@ export const en = {
       clear_out: 'Clear out',
       undo_clear_out: 'Bring back',
       create_bot: 'Make bot',
+      update_bot: 'Save',
       reply: 'Send',
       send_email: 'Send',
       snooze_thread: 'Snooze',
@@ -789,6 +792,73 @@ export const en = {
     title: 'Check before you act',
   },
   bots: {
+    profile: 'What I do',
+    closeProfile: 'Close',
+    change: 'Change',
+    since: (date: string) => `Working since ${date}`,
+    status: {
+      acts: 'Acts on its own',
+      asks: 'Asks before each email',
+      last: (time: string) => `last at ${time}`,
+      paused: (date: string) => `Paused until ${date}`,
+      reading: (n: number) =>
+        plural('en', n, {
+          one: () => `reading a new email`,
+          other: (count) => `reading ${count} new emails`,
+        }),
+      waiting: (n: number) =>
+        plural('en', n, {
+          one: () => `One thing waits for you`,
+          other: (count) => `${count} things wait for you`,
+        }),
+      watching: 'Watching your mail',
+    },
+    intro: {
+      acts: 'I act on my own: everything I do shows here, and you can undo it.',
+      asks: 'Before I touch an email, I ask you here.',
+      board:
+        'Hi! I keep the promises and last days from your mail: what you are owed, what you promised and what is due soon. Ask me who owes you what.',
+      change: 'To change what I do, just write to me.',
+      fewmail:
+        'Hi, I’m Fewmail Bot. I read all the mail none of your bots takes and show you only what needs you. Nothing changes in Gmail without your approval. Ask me anything about your mail, or ask me to make a bot.',
+      own: (name: string) => `Hi, I’m ${name}. Here is what I look after:`,
+    },
+    suggest: {
+      actAlone: 'Act on your own, no need to ask',
+      askFirst: 'Ask me before each email',
+      important: 'What needs me today?',
+      newBot: 'Make me a bot for invoices',
+      owed: 'Who owes me what?',
+      pauseWeek: 'Pause for a week',
+      promised: 'What did I promise this week?',
+      waiting: 'Who is waiting for my reply?',
+      week: 'What did you do this week?',
+    },
+    pause: {
+      day: 'Until tomorrow',
+      hint: 'While paused it takes no mail, and Fewmail Bot keeps it.',
+      month: 'For a month',
+      resume: 'Resume',
+      title: 'Pause',
+      week: 'For a week',
+    },
+    week: {
+      approved: 'with your approval',
+      auto: 'on its own',
+      title: 'Last 7 days',
+      waiting: 'waiting for you',
+    },
+    lately: 'Lately',
+    notifications: 'Notifications',
+    quiet: {
+      hide: 'Hide',
+      show: 'Show',
+      week: (n: number) =>
+        plural('en', n, {
+          one: () => `One change in your mail in the last 7 days`,
+          other: (count) => `${count} changes in your mail in the last 7 days`,
+        }),
+    },
     chatMenu: 'Chat actions',
     clear: 'Clear history',
     clearConfirm: (name: string) => `Clear the chat with ${name}?`,

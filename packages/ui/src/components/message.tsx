@@ -9,8 +9,8 @@ const MessageContext = createContext<{
 
 /**
  * One turn of a chat, as a messenger draws it: the assistant's bubble at the left, the user's at the right. `isWide`
- * is a message that is lists of its own cards: a bubble across the whole column, padded past the cards' bleed so
- * they never meet its edges.
+ * is a message that carries lists of its own cards: a bubble across the whole column, as tight around them as a
+ * messenger's attachment, so the lists read as part of what it says and not as a page inside the chat.
  */
 const Message = ({
   children,
@@ -58,9 +58,7 @@ const MessageContent = ({ className, ...props }: ComponentProps<'div'>) => {
         'flex max-w-full min-w-0 flex-col text-sm/relaxed',
         'relative rounded-2xl',
         BUBBLES[from],
-        isWide
-          ? 'w-full gap-6 px-4 py-4 md:px-7 md:py-5'
-          : 'w-fit gap-2.5 px-3.5 py-2.5',
+        isWide ? 'w-full gap-3 p-2.5' : 'w-fit gap-2.5 px-3.5 py-2.5',
         className
       )}
       {...props}

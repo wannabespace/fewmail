@@ -328,6 +328,7 @@ export const AGENT_TOOLS = {
   tidy_mail: 'consent',
   trash_thread: 'consent',
   undo_clear_out: 'consent',
+  update_bot: 'consent',
   unsubscribe: 'consent',
   update_event: 'consent',
 } as const satisfies Record<string, 'read' | 'write' | 'consent'>

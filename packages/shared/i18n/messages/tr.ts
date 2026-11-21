@@ -62,6 +62,7 @@ export const tr: Messages = {
       clear_out: 'Bu e-posta grupları gelen kutusundan temizlensin mi?',
       undo_clear_out: 'Temizlenen her şey gelen kutusuna geri dönsün mü?',
       create_bot: 'Bu bot oluşturulsun mu?',
+      update_bot: 'Bu bot değiştirilsin mi?',
       reply: 'Bu yanıt gönderilsin mi?',
       send_email: 'Bu e-posta gönderilsin mi?',
       snooze_thread: 'Bu yazışma ertelensin mi?',
@@ -87,6 +88,7 @@ export const tr: Messages = {
       preview_clear_out: 'Tüm gelen kutusu okunuyor',
       undo_clear_out: 'Temizlenen e-postalar geri getiriliyor',
       create_bot: 'Bot oluşturuluyor',
+      update_bot: 'Bot değiştiriliyor',
       dismiss_action: 'Atlanıyor',
       draft_reply: 'Yanıt yazılıyor',
       create_draft: 'Taslak kaydediliyor',
@@ -124,6 +126,7 @@ export const tr: Messages = {
       clear_out: 'Temizle',
       undo_clear_out: 'Geri getir',
       create_bot: 'Bot oluştur',
+      update_bot: 'Kaydet',
       reply: 'Gönder',
       send_email: 'Gönder',
       snooze_thread: 'Ertele',
@@ -783,6 +786,70 @@ export const tr: Messages = {
     title: 'Harekete geçmeden önce kontrol et',
   },
   bots: {
+    profile: 'Ne yapıyorum',
+    closeProfile: 'Kapat',
+    change: 'Değiştir',
+    since: (date: string) => `${date} tarihinden beri çalışıyor`,
+    status: {
+      acts: 'Kendi başına yapıyor',
+      asks: 'Her e-postadan önce soruyor',
+      last: (time: string) => `son: ${time}`,
+      paused: (date: string) => `${date} tarihine kadar duraklatıldı`,
+      reading: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `${count} yeni e-posta okuyor`,
+        }),
+      waiting: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `${count} iş seni bekliyor`,
+        }),
+      watching: 'Postanı izliyor',
+    },
+    intro: {
+      acts: 'Kendi başıma yapıyorum: yaptığım her şey burada görünür ve geri alabilirsin.',
+      asks: 'Bir e-postaya dokunmadan önce sana burada soruyorum.',
+      board:
+        'Merhaba! Postandaki sözleri ve son tarihleri takip ediyorum: sana borçlu olunanı, senin söz verdiklerini ve yaklaşanları. Kimin sana ne borçlu olduğunu sor.',
+      change: 'Yaptığımı değiştirmek için bana yazman yeterli.',
+      fewmail:
+        'Merhaba, ben Fewmail Bot. Botlarından hiçbirinin almadığı tüm postaları okur ve sana yalnızca seninle ilgili olanları gösteririm. Onayın olmadan Gmail’de hiçbir şey değişmez. Postanla ilgili her şeyi sorabilir ya da benden bir bot yapmamı isteyebilirsin.',
+      own: (name: string) => `Merhaba, ben ${name}. Şununla ilgileniyorum:`,
+    },
+    suggest: {
+      actAlone: 'Sormadan kendin yap',
+      askFirst: 'Her e-postadan önce bana sor',
+      important: 'Bugün beni ne bekliyor?',
+      newBot: 'Faturalar için bir bot yap',
+      owed: 'Kim bana ne borçlu?',
+      pauseWeek: 'Bir hafta duraklat',
+      promised: 'Bu hafta ne söz verdim?',
+      waiting: 'Kim cevabımı bekliyor?',
+      week: 'Bu hafta ne yaptın?',
+    },
+    pause: {
+      day: 'Yarına kadar',
+      hint: 'Duraklatılmışken e-posta almaz; onları Fewmail Bot alır.',
+      month: 'Bir ay',
+      resume: 'Devam ettir',
+      title: 'Duraklat',
+      week: 'Bir hafta',
+    },
+    week: {
+      approved: 'senin onayınla',
+      auto: 'kendi başına',
+      title: 'Son 7 gün',
+      waiting: 'seni bekliyor',
+    },
+    lately: 'Son yapılanlar',
+    notifications: 'Bildirimler',
+    quiet: {
+      hide: 'Gizle',
+      show: 'Göster',
+      week: (n: number) =>
+        plural('tr', n, {
+          other: (count) => `Son 7 günde postanda ${count} değişiklik`,
+        }),
+    },
     chatMenu: 'Sohbet işlemleri',
     clear: 'Geçmişi temizle',
     clearConfirm: (name: string) => `${name} ile sohbet temizlensin mi?`,

@@ -53,7 +53,7 @@ import { JEV_MODEL_ID } from '../lib/jev'
 import { logError } from '../lib/log'
 import { oneTimeCode } from '../lib/one-time-code'
 import { attachmentText, worthReading } from './attachments'
-import { keepsPromises } from './bots'
+import { isWorking, keepsPromises } from './bots'
 import { BULK_THRESHOLD } from './bulk'
 import { hasMailboxCalendar } from './calendar'
 import {
@@ -927,7 +927,13 @@ export const analyzeMessage = async (
     db
       .select()
       .from(bots)
-      .where(and(eq(bots.userId, message.userId), isNotNull(bots.instruction))),
+      .where(
+        and(
+          eq(bots.userId, message.userId),
+          isNotNull(bots.instruction),
+          isWorking
+        )
+      ),
   ])
   if (!settings) {
     return

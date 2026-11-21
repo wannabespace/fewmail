@@ -1,5 +1,6 @@
 import {
   AGENT_TOOLS,
+  BOARD_EFFECT,
   COMMITMENT_STATUSES,
   EVENT_SCOPES,
   MAIL_CATEGORIES,
@@ -13,7 +14,7 @@ import { z } from 'zod'
 
 import { announceChange } from '../lib/live'
 import { botChat, remindLater } from './bot-chat'
-import { createBot, listBots } from './bots'
+import { createBot, listBots, updateBot } from './bots'
 import { createEvent, deleteEvent, listEvents, updateEvent } from './calendar'
 import {
   listSubscriptions,
@@ -38,6 +39,7 @@ import {
   snoozeMessage,
   trashMessage,
 } from './mail'
+import { NotFoundError } from './mail-errors'
 import { scheduleMail } from './outbox'
 import { findContacts, getPerson } from './people'
 import { getReadingDay } from './reading'
@@ -385,6 +387,34 @@ const toolsOf = (userId: string): Record<AgentToolName, AgentTool> => ({
       name: z.string().min(1).max(60),
     },
     run: (input) => createBot(userId, input),
+  }),
+  update_bot: define({
+    description:
+      "Change one of the user's bots when they ask in its chat (or in Fewmail Bot's): its name, which mail it takes and what it does with it (instruction, written as create_bot's: both which mail and what it does), its effect, whether it acts on its own (enabled: off, it asks the user for a yes on each email) or a pause (pausedUntil: ISO 8601 with the user's UTC offset; it takes no mail until then and its mail is Fewmail Bot's; null ends the pause). Send only what changes. id: the bot's id (list_bots). The Board takes only a new name.",
+    input: {
+      effect: z.enum(BOT_EFFECTS).optional(),
+      enabled: z.boolean().optional(),
+      id: z.uuid(),
+      instruction: z.string().min(3).optional(),
+      name: z.string().min(1).max(60).optional(),
+      pausedUntil: z.iso.datetime({ offset: true }).nullable().optional(),
+    },
+    run: async ({ id, pausedUntil, ...change }) => {
+      const own = await listBots(userId)
+      const bot = own.find((each) => each.id === id)
+      if (!bot) {
+        throw new NotFoundError('Bot not found')
+      }
+      if (bot.effect === BOARD_EFFECT) {
+        return updateBot(userId, id, { name: change.name })
+      }
+      return updateBot(userId, id, {
+        ...change,
+        ...(pausedUntil === undefined
+          ? {}
+          : { pausedUntil: pausedUntil ? new Date(pausedUntil) : null }),
+      })
+    },
   }),
   refresh: define({
     description:

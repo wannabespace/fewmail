@@ -20,6 +20,7 @@ export const it: Messages = {
       undo_clear_out:
         'Riportare nella posta in arrivo tutto ciò che è stato tolto?',
       create_bot: 'Creare questo bot?',
+      update_bot: 'Modificare questo bot?',
       reply: 'Inviare questa risposta?',
       send_email: 'Inviare questa email?',
       snooze_thread: 'Posticipare questa conversazione?',
@@ -45,6 +46,7 @@ export const it: Messages = {
       preview_clear_out: 'Lettura di tutta la posta in arrivo',
       undo_clear_out: 'Le email tolte tornano indietro',
       create_bot: 'Creo un bot',
+      update_bot: 'Modifica di un bot',
       dismiss_action: 'Salto',
       draft_reply: 'Scrivo una risposta',
       create_draft: 'Salvo una bozza',
@@ -82,6 +84,7 @@ export const it: Messages = {
       clear_out: 'Fai pulizia',
       undo_clear_out: 'Riporta',
       create_bot: 'Crea bot',
+      update_bot: 'Salva',
       reply: 'Invia',
       send_email: 'Invia',
       snooze_thread: 'Posticipa',
@@ -1196,6 +1199,78 @@ export const it: Messages = {
     skip: 'Salta',
   },
   bots: {
+    profile: 'Cosa faccio',
+    closeProfile: 'Chiudi',
+    change: 'Modifica',
+    since: (date: string) => `Attivo dal ${date}`,
+    status: {
+      acts: 'Agisce da solo',
+      asks: 'Chiede prima di ogni email',
+      last: (time: string) => `ultimo alle ${time}`,
+      paused: (date: string) => `In pausa fino al ${date}`,
+      reading: (n: number) =>
+        plural('it', n, {
+          one: () => `sta leggendo una nuova email`,
+          many: (count) => `sta leggendo ${count} nuove email`,
+          other: (count) => `sta leggendo ${count} nuove email`,
+        }),
+      waiting: (n: number) =>
+        plural('it', n, {
+          one: () => `Una cosa ti aspetta`,
+          many: (count) => `${count} cose ti aspettano`,
+          other: (count) => `${count} cose ti aspettano`,
+        }),
+      watching: 'Tiene d’occhio la tua posta',
+    },
+    intro: {
+      acts: 'Agisco da solo: tutto ciò che faccio compare qui e puoi annullarlo.',
+      asks: 'Prima di toccare un’email, te lo chiedo qui.',
+      board:
+        'Ciao! Tengo traccia delle promesse e delle scadenze della tua posta: cosa ti devono, cosa hai promesso e cosa scade presto. Chiedimi chi ti deve cosa.',
+      change: 'Per cambiare quello che faccio, scrivimi e basta.',
+      fewmail:
+        'Ciao, sono Fewmail Bot. Leggo tutta la posta che nessuno dei tuoi bot prende e ti mostro solo ciò che richiede te. In Gmail non cambia nulla senza la tua approvazione. Chiedimi qualsiasi cosa sulla tua posta, o chiedimi di creare un bot.',
+      own: (name: string) => `Ciao, sono ${name}. Ecco di cosa mi occupo:`,
+    },
+    suggest: {
+      actAlone: 'Agisci da solo, senza chiedere',
+      askFirst: 'Chiedimi prima di ogni email',
+      important: 'Cosa richiede me oggi?',
+      newBot: 'Creami un bot per le fatture',
+      owed: 'Chi mi deve cosa?',
+      pauseWeek: 'Pausa di una settimana',
+      promised: 'Cosa ho promesso questa settimana?',
+      waiting: 'Chi aspetta una mia risposta?',
+      week: 'Cosa hai fatto questa settimana?',
+    },
+    pause: {
+      day: 'Fino a domani',
+      hint: 'In pausa non prende email; le tiene Fewmail Bot.',
+      month: 'Un mese',
+      resume: 'Riprendi',
+      title: 'Metti in pausa',
+      week: 'Una settimana',
+    },
+    week: {
+      approved: 'con la tua approvazione',
+      auto: 'da solo',
+      title: 'Ultimi 7 giorni',
+      waiting: 'ti aspettano',
+    },
+    lately: 'Di recente',
+    notifications: 'Notifiche',
+    quiet: {
+      hide: 'Nascondi',
+      show: 'Mostra',
+      week: (n: number) =>
+        plural('it', n, {
+          one: () => `Una modifica nella tua posta negli ultimi 7 giorni`,
+          many: (count) =>
+            `${count} modifiche nella tua posta negli ultimi 7 giorni`,
+          other: (count) =>
+            `${count} modifiche nella tua posta negli ultimi 7 giorni`,
+        }),
+    },
     chatMenu: 'Azioni della chat',
     clear: 'Cancella cronologia',
     clearConfirm: (name: string) => `Cancellare la chat con ${name}?`,

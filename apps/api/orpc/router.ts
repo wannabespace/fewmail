@@ -617,7 +617,7 @@ export const router = {
         )
       }),
     update: authed
-      .input(id.and(botInput.partial()))
+      .input(id.and(botInput.partial()).and({ 'pausedUntil?': 'Date | null' }))
       .handler(({ context, input: { id: botId, ...change } }) =>
         updateBot(context.user.id, botId, change)
       ),

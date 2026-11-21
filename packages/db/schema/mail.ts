@@ -177,6 +177,8 @@ export const bots = d.snakeCase.table('bots', {
   match: encryptedJson<SimpleMatch>(),
   /** What its chat is called. Required since bots replaced rules; one made before gets it on the first read (`listBots`), and its effect is written into its instruction then. */
   name: encryptedText(),
+  /** Until then it takes no mail: Jev and the simple bots skip it and its mail is Fewmail's; null, it works. */
+  pausedUntil: d.timestamp({ withTimezone: true }),
   userId: userId(),
 })
 

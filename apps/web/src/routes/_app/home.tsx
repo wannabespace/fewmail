@@ -3,10 +3,7 @@ import { botOfCard, isImportant, usedPercent } from '@fewmail/shared/agent'
 import type { ActionKind } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
 import { formatResetDay } from '@fewmail/shared/i18n/locales'
-import {
-  Accordion,
-  cardsBleedClassName,
-} from '@fewmail/ui/components/accordion'
+import { Accordion } from '@fewmail/ui/components/accordion'
 import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
 import {
@@ -37,6 +34,7 @@ import {
   BookOpen01Icon,
   Calendar03Icon,
   Mail01Icon,
+  Tick02Icon,
   ZapIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -71,22 +69,22 @@ import {
   BotHeader,
   BotNow,
   NowMessage,
-  BotSettingsDialog,
   BotTimeline,
   DigestHeader,
   DigestLead,
-  digestHeadline,
   digestLead,
   useAskBot,
   useReadBot,
 } from '~/components/bot-chat'
 import {
   BotAvatar,
+  digestHeadline,
   isBoardBot,
   openBotIdOf,
   useBots,
 } from '~/components/bot-list'
-import type { HomeBot, OwnBot } from '~/components/bot-list'
+import type { HomeBot } from '~/components/bot-list'
+import { BotProfile } from '~/components/bot-profile'
 import { BotSuggestionCard } from '~/components/bot-suggestion'
 import { confirm } from '~/components/confirm-dialog'
 import { EmailRow } from '~/components/email-row'
@@ -126,6 +124,7 @@ import { isReadingFirstTime } from '~/lib/mail-db'
 import { useHasAgent, useMe } from '~/lib/me'
 import { offerBlock } from '~/lib/offer-block'
 import { client, orpc } from '~/lib/orpc'
+import { posthog } from '~/lib/posthog'
 import { showUntilSettled, warmQuery } from '~/lib/query-client'
 import { holdClicksUntilMove, STILL_POINTER_GUARD } from '~/lib/still-pointer'
 import { pendingToast, toastUndo } from '~/lib/undo'
@@ -559,6 +558,7 @@ const homeHints = (
   const bots: [string, string][] = [
     ['[ / ]', t.keys.period],
     ['/', t.keys.reply],
+    ['P', t.bots.profile],
   ]
   if (state.board) {
     return [...state.board, ...bots]
@@ -961,19 +961,51 @@ const useNextInSidebar = (queue: QueueItem[], onNext: (id: string) => void) => {
   }, [isSettled, onNext, queue, shown])
 }
 
-/** Fewmail's record of every change in the mail, with its yes or its bot and an undo where one exists. */
-const DoneInMail = ({
+/** Fewmail's record of every change in the mail, folded to one quiet line in its chat; opened, each change with its yes or its bot and an undo where one exists. */
+const QuietWork = ({
   isShown,
   journal,
 }: {
   isShown: boolean
   journal: ReturnType<typeof useJournal>
 }) => {
+  const t = useT()
+  const [isOpen, setIsOpen] = useState(false)
   const [cursorId, setCursorId] = useState<string>()
+  const count =
+    journal.failed.length +
+    journal.days.reduce((sum, { rows }) => sum + rows.length, 0)
+  if (!isShown || count === 0) {
+    return null
+  }
   return (
-    isShown && (
-      <Journal cursorId={cursorId} journal={journal} onSelect={setCursorId} />
-    )
+    <>
+      <div className="text-muted-foreground flex items-center gap-2 self-center rounded-full border border-dashed py-0.5 ps-3 pe-1 text-xs">
+        <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="size-3.5" />
+        {t.bots.quiet.week(count)}
+        <Button
+          size="xs"
+          variant="link-muted"
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? t.bots.quiet.hide : t.bots.quiet.show}
+        </Button>
+      </div>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <MotionCollapse key="journal">
+            <NowMessage>
+              <Journal
+                cursorId={cursorId}
+                journal={journal}
+                onSelect={setCursorId}
+              />
+            </NowMessage>
+          </MotionCollapse>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
 
@@ -1090,9 +1122,10 @@ const BotPane = ({
   children,
   head,
   isFocused,
+  isProfileOpen,
   isWaiting,
-  onEdit,
   onOpen,
+  onProfile,
   today,
 }: {
   ask: ReturnType<typeof useAskBot>['ask']
@@ -1102,63 +1135,67 @@ const BotPane = ({
   children: ReactNode
   head: ReactNode
   isFocused: boolean
+  isProfileOpen: boolean
   isWaiting: boolean
-  onEdit: () => void
   onOpen: (bot: string) => void
+  onProfile: () => void
   today: Today | undefined
 }) => {
   const t = useT()
   return (
-    <div className="under-notice flex min-w-0 flex-1 flex-col">
-      <BotHeader bot={bot} onEdit={onEdit} />
-      {/* Keyed: a bot opens at its newest message, not where the last one was scrolled to. */}
-      <MessageScrollerProvider key={bot.bot} autoScroll>
-        <ChatScroller>
-          <MessageScroller className="flex-1">
-            <MessageScrollerViewport aria-label={bot.name}>
-              <MessageScrollerContent
-                // oxlint-disable shadcn/require-static-classes -- the guard goes on the content itself: a wrapper inside it would hide the messages from the scroller
-                className={cn(
-                  'mx-auto w-full max-w-3xl gap-3 px-10 pt-6 pb-6 max-md:px-4',
-                  STILL_POINTER_GUARD
-                )}
-                // oxlint-enable shadcn/require-static-classes
-              >
-                <BotStrip bots={bots} openId={bot.bot} onOpen={onOpen} />
-                {bot.bot === 'fewmail' && (
-                  <FreshCodes today={today} canUseKeys={isFocused} />
-                )}
-                <BotTimeline
-                  bot={bot}
-                  asking={asking}
-                  isWaiting={isWaiting || bot.bot === 'fewmail'}
-                >
-                  {bot.bot === 'fewmail' ? (
-                    <BotNow>
-                      <NowMessage isWide={false}>{head}</NowMessage>
-                      {isWaiting && children}
-                    </BotNow>
-                  ) : (
-                    isWaiting && <BotNow>{children}</BotNow>
+    <div className="under-notice relative flex min-w-0 flex-1">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <BotHeader
+          bot={bot}
+          isProfileOpen={isProfileOpen}
+          onProfile={onProfile}
+        />
+        {/* Keyed: a bot opens at its newest message, not where the last one was scrolled to. */}
+        <MessageScrollerProvider key={bot.bot} autoScroll>
+          <ChatScroller>
+            <MessageScroller className="flex-1">
+              <MessageScrollerViewport aria-label={bot.name}>
+                <MessageScrollerContent
+                  // oxlint-disable shadcn/require-static-classes -- the guard goes on the content itself: a wrapper inside it would hide the messages from the scroller
+                  className={cn(
+                    'mx-auto w-full max-w-3xl gap-3 px-10 pt-6 pb-6 max-md:px-4',
+                    STILL_POINTER_GUARD
                   )}
-                </BotTimeline>
-              </MessageScrollerContent>
-            </MessageScrollerViewport>
-            <MessageScrollerButton
-              aria-label={t.bots.toLatest}
-              className="data-[direction=end]:bottom-2"
+                  // oxlint-enable shadcn/require-static-classes
+                >
+                  <BotStrip bots={bots} openId={bot.bot} onOpen={onOpen} />
+                  {bot.bot === 'fewmail' && (
+                    <FreshCodes today={today} canUseKeys={isFocused} />
+                  )}
+                  <BotTimeline bot={bot} asking={asking}>
+                    {bot.bot === 'fewmail' ? (
+                      <BotNow>
+                        <NowMessage isWide={false}>{head}</NowMessage>
+                        {isWaiting && children}
+                      </BotNow>
+                    ) : (
+                      isWaiting && <BotNow>{children}</BotNow>
+                    )}
+                  </BotTimeline>
+                </MessageScrollerContent>
+              </MessageScrollerViewport>
+              <MessageScrollerButton
+                aria-label={t.bots.toLatest}
+                className="data-[direction=end]:bottom-2"
+              />
+            </MessageScroller>
+          </ChatScroller>
+          <div className="mx-auto w-full max-w-3xl px-10 pb-4 max-md:px-4">
+            <BotComposer
+              bot={bot}
+              isActive={isFocused}
+              isSending={ask.isPending}
+              onSend={(message) => ask.mutate({ ...message, bot: bot.bot })}
             />
-          </MessageScroller>
-        </ChatScroller>
-        <div className="mx-auto w-full max-w-3xl px-10 pb-4 max-md:px-4">
-          <BotComposer
-            bot={bot}
-            isActive={isFocused}
-            isSending={ask.isPending}
-            onSend={(message) => ask.mutate({ ...message, bot: bot.bot })}
-          />
-        </div>
-      </MessageScrollerProvider>
+          </div>
+        </MessageScrollerProvider>
+      </div>
+      {isProfileOpen && <BotProfile bot={bot} onClose={onProfile} />}
     </div>
   )
 }
@@ -1226,6 +1263,23 @@ const useOpenBot = (bots: HomeBot[]) => {
   return { bot, open, step }
 }
 
+/** The open bot's profile beside its chat, kept open from bot to bot: `P` opens and closes it, esc closes it. */
+const useProfile = (bot: string, isFocused: boolean, picked: number) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const canUseKeys = isFocused && picked === 0
+  const handleToggle = () => {
+    if (!isOpen) {
+      posthog.capture('bot_profile_opened', { system: bot === 'fewmail' })
+    }
+    setIsOpen(!isOpen)
+  }
+  useHotkey('P', handleToggle, { enabled: canUseKeys })
+  useHotkey('Escape', () => setIsOpen(false), {
+    enabled: canUseKeys && isOpen,
+  })
+  return { handleToggle, isOpen }
+}
+
 /** What the open bot waits on now, under its chat: its cards by kind, its emails to tidy, its mail worth knowing. */
 const useBotCards = (cards: QueueItem[], bot: string | undefined) => {
   const own = cards.filter(
@@ -1243,10 +1297,6 @@ const HomePage = () => {
   const botId = bot?.bot ?? 'fewmail'
   useReadBot(bot)
   const { ask, asking } = useAskBot()
-  const [editing, setEditing] = useState<{
-    bot: OwnBot | null
-    isOpen: boolean
-  } | null>(null)
 
   const { data: cards } = useLiveQuery((query) =>
     query.from({ card: queueCards }).orderBy(({ card }) => card.rank)
@@ -1405,6 +1455,7 @@ const HomePage = () => {
   useHotkey('Escape', () => setPickedIds([]), {
     enabled: isStepping && picked.length > 0,
   })
+  const profile = useProfile(botId, isFocused, picked.length)
   useHotkey('Space', () => selected && openCard(selected), listKeys)
   useOpenKey(worthRow, selected, isStepping)
   const boardHints = useBoardHints()
@@ -1484,12 +1535,7 @@ const HomePage = () => {
         </NowMessage>
       )}
       <NowMessage>
-        <div
-          className={cn(
-            'flex flex-col gap-2.5 empty:hidden',
-            cardsBleedClassName
-          )}
-        >
+        <div className="flex flex-col gap-2.5 empty:hidden">
           <BotSuggestions today={data} />
           <NewSenders
             senders={data?.newSenders ?? []}
@@ -1498,9 +1544,7 @@ const HomePage = () => {
           />
         </div>
       </NowMessage>
-      <NowMessage>
-        <DoneInMail isShown={botId === 'fewmail'} journal={journal} />
-      </NowMessage>
+      <QuietWork isShown={botId === 'fewmail'} journal={journal} />
     </>
   )
 
@@ -1522,9 +1566,10 @@ const HomePage = () => {
               />
             }
             isFocused={isFocused}
+            isProfileOpen={profile.isOpen}
             isWaiting={isWaiting}
-            onEdit={() => setEditing({ bot: bot.own, isOpen: true })}
             onOpen={openBot}
+            onProfile={profile.handleToggle}
             today={today}
           >
             {now}
@@ -1542,14 +1587,6 @@ const HomePage = () => {
           tidy: proposals.proposals.length,
           today: data,
         })}
-      />
-      <BotSettingsDialog
-        editing={editing}
-        onClose={() =>
-          setEditing((current) => current && { ...current, isOpen: false })
-        }
-        onClosed={() => setEditing(null)}
-        onCreated={openBot}
       />
     </div>
   )

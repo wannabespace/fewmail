@@ -19,6 +19,7 @@ export const es: Messages = {
       clear_out: '¿Limpiar estos grupos de correo de la bandeja?',
       undo_clear_out: '¿Devolver a la bandeja todo lo limpiado?',
       create_bot: '¿Crear este bot?',
+      update_bot: '¿Cambiar este bot?',
       reply: '¿Enviar esta respuesta?',
       send_email: '¿Enviar este correo?',
       snooze_thread: '¿Posponer esta conversación?',
@@ -44,6 +45,7 @@ export const es: Messages = {
       preview_clear_out: 'Leyendo toda la bandeja',
       undo_clear_out: 'Devolviendo el correo limpiado',
       create_bot: 'Creando un bot',
+      update_bot: 'Cambiando un bot',
       dismiss_action: 'Omitiendo',
       draft_reply: 'Redactando una respuesta',
       create_draft: 'Guardando un borrador',
@@ -81,6 +83,7 @@ export const es: Messages = {
       clear_out: 'Limpiar',
       undo_clear_out: 'Devolver',
       create_bot: 'Crear bot',
+      update_bot: 'Guardar',
       reply: 'Enviar',
       send_email: 'Enviar',
       snooze_thread: 'Posponer',
@@ -1200,6 +1203,78 @@ export const es: Messages = {
     skip: 'Omitir',
   },
   bots: {
+    profile: 'Lo que hago',
+    closeProfile: 'Cerrar',
+    change: 'Cambiar',
+    since: (date: string) => `Trabajando desde el ${date}`,
+    status: {
+      acts: 'Actúa por su cuenta',
+      asks: 'Pregunta antes de cada correo',
+      last: (time: string) => `último a las ${time}`,
+      paused: (date: string) => `En pausa hasta el ${date}`,
+      reading: (n: number) =>
+        plural('es', n, {
+          one: () => `leyendo un correo nuevo`,
+          many: (count) => `leyendo ${count} correos nuevos`,
+          other: (count) => `leyendo ${count} correos nuevos`,
+        }),
+      waiting: (n: number) =>
+        plural('es', n, {
+          one: () => `Una cosa te espera`,
+          many: (count) => `${count} cosas te esperan`,
+          other: (count) => `${count} cosas te esperan`,
+        }),
+      watching: 'Vigila tu correo',
+    },
+    intro: {
+      acts: 'Actúo por mi cuenta: todo lo que hago aparece aquí y puedes deshacerlo.',
+      asks: 'Antes de tocar un correo, te pregunto aquí.',
+      board:
+        '¡Hola! Llevo las promesas y fechas límite de tu correo: lo que te deben, lo que prometiste y lo que vence pronto. Pregúntame quién te debe qué.',
+      change: 'Para cambiar lo que hago, solo escríbeme.',
+      fewmail:
+        'Hola, soy Fewmail Bot. Leo todo el correo que no toma ninguno de tus bots y te muestro solo lo que te necesita. Nada cambia en Gmail sin tu aprobación. Pregúntame lo que quieras sobre tu correo o pídeme que cree un bot.',
+      own: (name: string) => `Hola, soy ${name}. Esto es lo que cuido:`,
+    },
+    suggest: {
+      actAlone: 'Actúa por tu cuenta, sin preguntar',
+      askFirst: 'Pregúntame antes de cada correo',
+      important: '¿Qué me necesita hoy?',
+      newBot: 'Créame un bot para facturas',
+      owed: '¿Quién me debe qué?',
+      pauseWeek: 'Pausa de una semana',
+      promised: '¿Qué prometí esta semana?',
+      waiting: '¿Quién espera mi respuesta?',
+      week: '¿Qué hiciste esta semana?',
+    },
+    pause: {
+      day: 'Hasta mañana',
+      hint: 'En pausa no toma correos; se los queda Fewmail Bot.',
+      month: 'Un mes',
+      resume: 'Reanudar',
+      title: 'Pausar',
+      week: 'Una semana',
+    },
+    week: {
+      approved: 'con tu aprobación',
+      auto: 'por su cuenta',
+      title: 'Últimos 7 días',
+      waiting: 'te esperan',
+    },
+    lately: 'Lo último',
+    notifications: 'Notificaciones',
+    quiet: {
+      hide: 'Ocultar',
+      show: 'Mostrar',
+      week: (n: number) =>
+        plural('es', n, {
+          one: () => `Un cambio en tu correo en los últimos 7 días`,
+          many: (count) =>
+            `${count} cambios en tu correo en los últimos 7 días`,
+          other: (count) =>
+            `${count} cambios en tu correo en los últimos 7 días`,
+        }),
+    },
     chatMenu: 'Acciones del chat',
     clear: 'Borrar historial',
     clearConfirm: (name: string) => `¿Borrar el chat con ${name}?`,

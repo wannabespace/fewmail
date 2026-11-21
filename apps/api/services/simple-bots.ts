@@ -4,7 +4,7 @@ import { actions, bots } from '@fewmail/db/schema'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { and, eq, isNotNull } from 'drizzle-orm'
 
-import { BOT_ORDER } from './bots'
+import { BOT_ORDER, isWorking } from './bots'
 import { getSettings } from './settings'
 import { applyThreadEffect } from './thread-effects'
 
@@ -44,7 +44,8 @@ export const applySimpleBots = async (userId: string, incoming: Message[]) => {
       and(
         eq(bots.userId, userId),
         eq(bots.enabled, true),
-        isNotNull(bots.match)
+        isNotNull(bots.match),
+        isWorking
       )
     )
     .orderBy(...BOT_ORDER)

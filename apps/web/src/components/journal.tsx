@@ -72,7 +72,7 @@ const whoAllowed = (t: Messages, { action, bot }: JournalEntry) => {
   return bot ? t.today.journal.byBot(bot) : t.today.journal.approved
 }
 
-/** Everything done in the mail, each with who allowed it: a bot the user turned on or their yes. Lives at the end of Fewmail's chat on Home. */
+/** Everything done in the mail, each with who allowed it: a bot the user turned on or their yes. Opens from the quiet line at the end of Fewmail's chat on Home. */
 export const Journal = ({
   cursorId,
   journal: { days, failed, rows, toggleDay },
@@ -204,11 +204,10 @@ export const Journal = ({
     return null
   }
   return (
-    <section className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <h2 className="text-brief font-serif">{t.today.journal.title}</h2>
-        <p className="text-muted-foreground text-sm">{t.today.journal.lead}</p>
-      </header>
+    <section aria-label={t.today.journal.title} className="flex flex-col gap-4">
+      <p className="text-muted-foreground px-1 text-sm">
+        {t.today.journal.lead}
+      </p>
       {failed.length > 0 && (
         <SettingsGroup title={t.today.journal.failed}>
           {failed.map(row)}

@@ -19,6 +19,7 @@ export const de: Messages = {
       clear_out: 'Diese Gruppen aus dem Posteingang aufräumen?',
       undo_clear_out: 'Alle aufgeräumten E-Mails zurück in den Posteingang?',
       create_bot: 'Diesen Bot erstellen?',
+      update_bot: 'Diesen Bot ändern?',
       reply: 'Diese Antwort senden?',
       send_email: 'Diese E-Mail senden?',
       snooze_thread: 'Diese Unterhaltung zurückstellen?',
@@ -44,6 +45,7 @@ export const de: Messages = {
       preview_clear_out: 'Ganzer Posteingang wird gelesen',
       undo_clear_out: 'Aufgeräumte E-Mails kommen zurück',
       create_bot: 'Bot wird erstellt',
+      update_bot: 'Bot wird geändert',
       dismiss_action: 'Wird übersprungen',
       draft_reply: 'Antwort wird entworfen',
       create_draft: 'Entwurf wird gespeichert',
@@ -81,6 +83,7 @@ export const de: Messages = {
       clear_out: 'Aufräumen',
       undo_clear_out: 'Zurückholen',
       create_bot: 'Bot erstellen',
+      update_bot: 'Speichern',
       reply: 'Senden',
       send_email: 'Senden',
       snooze_thread: 'Zurückstellen',
@@ -1195,6 +1198,74 @@ export const de: Messages = {
     skip: 'Überspringen',
   },
   bots: {
+    profile: 'Was ich tue',
+    closeProfile: 'Schließen',
+    change: 'Ändern',
+    since: (date: string) => `Arbeitet seit ${date}`,
+    status: {
+      acts: 'Handelt selbst',
+      asks: 'Fragt vor jeder E-Mail',
+      last: (time: string) => `zuletzt um ${time}`,
+      paused: (date: string) => `Pausiert bis ${date}`,
+      reading: (n: number) =>
+        plural('de', n, {
+          one: () => `liest eine neue E-Mail`,
+          other: (count) => `liest ${count} neue E-Mails`,
+        }),
+      waiting: (n: number) =>
+        plural('de', n, {
+          one: () => `Eine Sache wartet auf dich`,
+          other: (count) => `${count} Dinge warten auf dich`,
+        }),
+      watching: 'Behält deine Mail im Blick',
+    },
+    intro: {
+      acts: 'Ich handle selbst: Alles, was ich tue, steht hier, und du kannst es rückgängig machen.',
+      asks: 'Bevor ich eine E-Mail anfasse, frage ich dich hier.',
+      board:
+        'Hallo! Ich behalte die Versprechen und Fristen aus deiner Mail im Blick: was man dir schuldet, was du versprochen hast und was bald fällig ist. Frag mich, wer dir was schuldet.',
+      change: 'Wenn ich etwas anders machen soll, schreib mir einfach.',
+      fewmail:
+        'Hallo, ich bin Fewmail Bot. Ich lese alle Mails, die keiner deiner Bots übernimmt, und zeige dir nur, was dich braucht. In Gmail ändert sich nichts ohne deine Zustimmung. Frag mich alles zu deiner Mail oder bitte mich, einen Bot zu erstellen.',
+      own: (name: string) => `Hallo, ich bin ${name}. Darum kümmere ich mich:`,
+    },
+    suggest: {
+      actAlone: 'Handle selbst, ohne zu fragen',
+      askFirst: 'Frag mich vor jeder E-Mail',
+      important: 'Was braucht mich heute?',
+      newBot: 'Erstell mir einen Bot für Rechnungen',
+      owed: 'Wer schuldet mir was?',
+      pauseWeek: 'Eine Woche Pause',
+      promised: 'Was habe ich diese Woche versprochen?',
+      waiting: 'Wer wartet auf meine Antwort?',
+      week: 'Was hast du diese Woche gemacht?',
+    },
+    pause: {
+      day: 'Bis morgen',
+      hint: 'Pausiert nimmt er keine Mails; die übernimmt Fewmail Bot.',
+      month: 'Einen Monat',
+      resume: 'Fortsetzen',
+      title: 'Pausieren',
+      week: 'Eine Woche',
+    },
+    week: {
+      approved: 'mit deiner Zustimmung',
+      auto: 'selbst',
+      title: 'Letzte 7 Tage',
+      waiting: 'warten auf dich',
+    },
+    lately: 'Zuletzt',
+    notifications: 'Benachrichtigungen',
+    quiet: {
+      hide: 'Ausblenden',
+      show: 'Anzeigen',
+      week: (n: number) =>
+        plural('de', n, {
+          one: () => `Eine Änderung in deiner Mail in den letzten 7 Tagen`,
+          other: (count) =>
+            `${count} Änderungen in deiner Mail in den letzten 7 Tagen`,
+        }),
+    },
     chatMenu: 'Chat-Aktionen',
     clear: 'Verlauf leeren',
     clearConfirm: (name: string) => `Chat mit ${name} leeren?`,

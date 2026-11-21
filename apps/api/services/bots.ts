@@ -11,7 +11,7 @@ import type { BotEffect, BotPreset, MailBotEffect } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import type { Messages } from '@fewmail/shared/i18n'
 import { choice } from '@typesafe-ai/sdk'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, isNull, lte, or, sql } from 'drizzle-orm'
 
 import { jev } from '../lib/jev'
 import { expectRow } from '../lib/rows'
@@ -28,6 +28,12 @@ const requireAgentFor = async (userId: string, effect?: BotEffect) => {
 
 /** Newest first; starter bots share one `createdAt`, so the id keeps their order from shuffling between reads. */
 export const BOT_ORDER = [desc(bots.createdAt), desc(bots.id)] as const
+
+/** A paused bot takes no mail until its pause ends: its mail is Fewmail's meanwhile. */
+export const isWorking = or(
+  isNull(bots.pausedUntil),
+  lte(bots.pausedUntil, sql`now()`)
+)
 
 const NAME_WORDS = 3
 const SHORT_WORD = 3
@@ -161,6 +167,7 @@ export const updateBot = async (
     enabled: boolean
     instruction: string
     name: string
+    pausedUntil: Date | null
   }>
 ) => {
   await requireAgentFor(userId, input.effect)

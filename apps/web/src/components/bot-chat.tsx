@@ -4,6 +4,7 @@ import {
   BOT_MESSAGE_CHARS,
   BOT_PRESETS,
   BOT_REACTIONS,
+  botOfCard,
   cardPayload,
 } from '@fewmail/shared/agent'
 import type {
@@ -36,12 +37,6 @@ import {
   DialogTitle,
 } from '@fewmail/ui/components/dialog'
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-} from '@fewmail/ui/components/empty'
-import {
   Field,
   FieldDescription,
   FieldGroup,
@@ -70,6 +65,7 @@ import {
   PopoverTrigger,
 } from '@fewmail/ui/components/popover'
 import { Skeleton } from '@fewmail/ui/components/skeleton'
+import { Spinner } from '@fewmail/ui/components/spinner'
 import { Switch } from '@fewmail/ui/components/switch'
 import { Textarea } from '@fewmail/ui/components/textarea'
 import { Tool, ToolContent, ToolHeader } from '@fewmail/ui/components/tool'
@@ -91,8 +87,9 @@ import {
   NextIcon,
   Notification01Icon,
   NotificationOff01Icon,
+  PinIcon,
   ReplyIcon,
-  Settings01Icon,
+  SidebarRight01Icon,
   SmilePlusIcon,
   Tick02Icon,
   Wrench01Icon,
@@ -100,6 +97,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import type { IconSvgElement } from '@hugeicons/react'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import {
   skipToken,
@@ -123,7 +121,14 @@ import { createDebouncedFn, createStore } from 'seitu'
 import { useSubscription } from 'seitu/react'
 import { toast } from 'sonner'
 
-import { BotAvatar, ownName } from '~/components/bot-list'
+import {
+  BotAvatar,
+  cardsLine,
+  digestHeadline,
+  isBoardBot,
+  ownName,
+  pausedUntilOf,
+} from '~/components/bot-list'
 import type { HomeBot, OwnBot } from '~/components/bot-list'
 import { confirm } from '~/components/confirm-dialog'
 import { ConsentDetails } from '~/components/consent-details'
@@ -135,7 +140,7 @@ import {
   whoOf,
 } from '~/components/queue-card'
 import { upgradeStore } from '~/components/upgrade-dialog'
-import { botChats, ownBots } from '~/lib/home-db'
+import { botChats, ownBots, queueCards, useToday } from '~/lib/home-db'
 import { useDates, useLocale, useT } from '~/lib/i18n'
 import { useMe } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
@@ -182,21 +187,6 @@ const ReplyQuote = ({ botName, quote }: { botName: string; quote: Quote }) => {
       </span>
     </button>
   )
-}
-
-/** What a card burst says in its bot's words: what waits, what was done, by whom. */
-const cardsLine = (t: Messages, cards: Card[]) => {
-  const count = (status: Card['action']['status']) =>
-    cards.filter(({ action }) => action.status === status).length
-  return [
-    count('pending') > 0 && t.bots.cards.pending(count('pending')),
-    count('auto_done') > 0 && t.bots.cards.autoDone(count('auto_done')),
-    count('done') > 0 && t.bots.cards.done(count('done')),
-    count('dismissed') > 0 && t.bots.cards.dismissed(count('dismissed')),
-    count('failed') > 0 && t.bots.cards.failed(count('failed')),
-  ]
-    .filter(Boolean)
-    .join(' ')
 }
 
 const inlineOf = (line: string) =>
@@ -259,9 +249,6 @@ const STATUS_ICONS: Record<Card['action']['status'], IconSvgElement> = {
 }
 
 const Speech = ({ children }: { children: ReactNode }) => <p>{children}</p>
-
-export const digestHeadline = (t: Messages, decisions: number) =>
-  decisions === 0 ? t.today.allDone : t.today.headline(decisions)
 
 /** The digest's one sentence, computed from its counts (no model text). */
 export const digestLead = (t: Messages, counts: DigestCounts) =>
@@ -507,7 +494,7 @@ const openCard = (card: Card) =>
   expandRow(card.action.id, { from: 'home', threadId: card.message.threadId })
 
 /** What was done with the emails, one muted line each, the email a click away; what still waits lives once, in Waiting now. */
-const CardsTrace = ({ cards }: { cards: Card[] }) => {
+export const CardsTrace = ({ cards }: { cards: Card[] }) => {
   const t = useT()
   const settled = cards.filter(({ action }) => action.status !== 'pending')
   return (
@@ -932,6 +919,64 @@ const useSentAnchor = (asking: Asking | null, said: Entry[]) => {
   }
 }
 
+/** One bot's chat, oldest first; older days come on `fetchNextPage`. */
+export const useBotChat = (bot: string) => {
+  const chat = useInfiniteQuery(
+    orpc.bots.chat.infiniteOptions({
+      getNextPageParam: ({ earlier }) => earlier ?? undefined,
+      initialPageParam: undefined as Date | undefined,
+      input: (before) => ({ before, bot }),
+    })
+  )
+  return {
+    ...chat,
+    entries: (chat.data?.pages ?? [])
+      .toReversed()
+      .flatMap(({ entries: page }) => page),
+  }
+}
+
+/** How a bot's chat begins: it says what it looks after and how, in words computed here, so even an empty chat says what the bot is for. */
+const BotIntro = ({ bot }: { bot: HomeBot }) => {
+  const t = useT()
+  if (!bot.own) {
+    return (
+      <BotMessage>
+        <Speech>{t.bots.intro.fewmail}</Speech>
+      </BotMessage>
+    )
+  }
+  if (isBoardBot(bot)) {
+    return (
+      <BotMessage>
+        <Speech>{t.bots.intro.board}</Speech>
+      </BotMessage>
+    )
+  }
+  return (
+    <BotMessage>
+      <Speech>
+        <span data-mask>{t.bots.intro.own(bot.name)}</span>
+      </Speech>
+      <BotJob bot={bot} />
+      <Speech>
+        {bot.own.enabled ? t.bots.intro.acts : t.bots.intro.asks}{' '}
+        {t.bots.intro.change}
+      </Speech>
+    </BotMessage>
+  )
+}
+
+/** Which mail is the bot's and what it does with it, in its own words. */
+export const BotJob = ({ bot }: { bot: HomeBot }) => (
+  <p
+    data-mask
+    className="bg-background ring-foreground/6 rounded-xl px-3.5 py-2.5 font-serif text-base/relaxed ring"
+  >
+    {bot.job}
+  </p>
+)
+
 /**
  * The chat with one bot, oldest first, older days on demand; `children` is what it waits on now, after its latest report.
  * Its parts are the page's `MessageScrollerContent` children, so it renders no box of its own; the message being sent anchors at the top while its answer streams in.
@@ -940,26 +985,14 @@ export const BotTimeline = ({
   asking,
   bot,
   children,
-  isWaiting,
 }: {
   asking: Asking | null
   bot: HomeBot
   children?: ReactNode
-  /** The bot waits on something now (`children`): then the chat is never empty. */
-  isWaiting: boolean
 }) => {
   const t = useT()
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery(
-      orpc.bots.chat.infiniteOptions({
-        getNextPageParam: ({ earlier }) => earlier ?? undefined,
-        initialPageParam: undefined as Date | undefined,
-        input: (before) => ({ before, bot: bot.bot }),
-      })
-    )
-  const entries = (data?.pages ?? [])
-    .toReversed()
-    .flatMap(({ entries: page }) => page)
+  const { data, entries, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useBotChat(bot.bot)
   // What it waits on now follows its latest report, and the talk since comes under it, so a new answer lands at the end.
   const lastReport = entries.findLastIndex(({ type }) => type !== 'post')
   // Fewmail's latest digest, while no report came after it, is drawn live as the head of what it waits on now, never twice.
@@ -988,16 +1021,7 @@ export const BotTimeline = ({
           {t.bots.earlier}
         </Button>
       )}
-      {data && entries.length === 0 && !isMine && !isWaiting && (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia>
-              <BotAvatar bot={bot} size="md" />
-            </EmptyMedia>
-            <EmptyDescription>{t.bots.empty}</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      )}
+      {data && !hasNextPage && <BotIntro bot={bot} />}
       {reported.map((entry) => (
         <Fragment key={entry.id}>
           <DayOf entries={entries} entry={entry} />
@@ -1093,6 +1117,22 @@ export const useAskBot = () => {
   return { ask, asking }
 }
 
+/** What the user may ask the open bot in a click: Fewmail about the day, the Board about promises, a bot of theirs about itself. */
+const suggestionsOf = (t: Messages, bot: HomeBot) => {
+  const said = t.bots.suggest
+  if (!bot.own) {
+    return [said.important, said.waiting, said.newBot]
+  }
+  if (isBoardBot(bot)) {
+    return [said.owed, said.promised]
+  }
+  return [
+    said.week,
+    bot.own.enabled ? said.askFirst : said.actAlone,
+    said.pauseWeek,
+  ]
+}
+
 /** Where the user writes to the open bot: ⏎ sends, ⇧⏎ breaks the line, `/` comes here and esc drops the reply, then leaves. */
 export const BotComposer = ({
   bot,
@@ -1127,11 +1167,31 @@ export const BotComposer = ({
   }
   return (
     <form
+      className="flex flex-col gap-2"
       onSubmit={(event) => {
         event.preventDefault()
         send()
       }}
     >
+      {!text && !replyTo && !isSending && (
+        <div className="flex flex-wrap gap-1.5">
+          {suggestionsOf(t, bot).map((suggestion) => (
+            <Button
+              key={suggestion}
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                posthog.capture('bot_suggestion_asked', {
+                  system: bot.bot === 'fewmail',
+                })
+                onSend({ text: suggestion })
+              }}
+            >
+              {suggestion}
+            </Button>
+          ))}
+        </div>
+      )}
       <InputGroup variant="composer">
         {replyTo && (
           <InputGroupAddon align="block-start">
@@ -1189,16 +1249,125 @@ export const BotComposer = ({
   )
 }
 
-/** The chat's bar, as a messenger's: the open bot's face and name, what it looks after, its mute and settings. */
+/** What the bot is doing now, in the chat's bar and its profile: reading, paused, waiting on the user, or how it works and when it last wrote. */
+export const BotStatus = ({ bot }: { bot: HomeBot }) => {
+  const t = useT()
+  const dates = useDates()
+  const { data: today } = useToday()
+  const { data: cards } = useLiveQuery((query) =>
+    query.from({ card: queueCards })
+  )
+  const pending = cards.filter((card) => botOfCard(card) === bot.bot).length
+  const reading = bot.bot === 'fewmail' ? (today?.reading ?? 0) : 0
+  const pausedUntil = pausedUntilOf(bot)
+  if (reading > 0) {
+    return (
+      <span className="text-primary flex items-center gap-1.5">
+        <Spinner />
+        {t.bots.status.reading(reading)}
+      </span>
+    )
+  }
+  if (pausedUntil) {
+    return t.bots.status.paused(dates.format(pausedUntil, 'd MMM p'))
+  }
+  if (pending > 0) {
+    return (
+      <span className="text-primary font-medium">
+        {t.bots.status.waiting(pending)}
+      </span>
+    )
+  }
+  const how =
+    bot.own && !isBoardBot(bot)
+      ? t.bots.status[bot.own.enabled ? 'acts' : 'asks']
+      : t.bots.status.watching
+  return [
+    how,
+    bot.last &&
+      t.bots.status.last(
+        dates.format(bot.last.at, isToday(bot.last.at) ? 'p' : 'd MMM')
+      ),
+  ]
+    .filter(Boolean)
+    .join(' · ')
+}
+
+/** The chat's bar, as a messenger's: the open bot's face, its name and what it is doing now, its mute and its profile; under it, pinned, what it looks after. */
 export const BotHeader = ({
   bot,
-  onEdit,
+  isProfileOpen,
+  onProfile,
 }: {
   bot: HomeBot
-  onEdit: () => void
+  isProfileOpen: boolean
+  onProfile: () => void
 }) => {
   const t = useT()
-  const mute = useMutation(
+  const mute = useMute(bot)
+  return (
+    <>
+      <header className="flex h-14 shrink-0 border-b">
+        <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-10 max-md:px-4">
+          <BotAvatar bot={bot} size="md" />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <h1 data-mask={!!bot.own} className="truncate text-sm font-medium">
+              {bot.name}
+            </h1>
+            <div className="text-muted-foreground truncate text-xs">
+              <BotStatus bot={bot} />
+            </div>
+          </div>
+          <IconButton
+            icon={bot.muted ? NotificationOff01Icon : Notification01Icon}
+            label={bot.muted ? t.bots.unmute : t.bots.mute}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={mute}
+          />
+          <Button
+            size="sm"
+            variant={isProfileOpen ? 'secondary' : 'ghost-muted'}
+            aria-pressed={isProfileOpen}
+            shortcut={<Kbd>P</Kbd>}
+            onClick={onProfile}
+          >
+            <HugeiconsIcon
+              icon={SidebarRight01Icon}
+              strokeWidth={2}
+              data-icon="inline-start"
+            />
+            {t.bots.profile}
+          </Button>
+        </div>
+      </header>
+      <div className="bg-body flex h-9 shrink-0 border-b">
+        <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-10 max-md:px-4">
+          <HugeiconsIcon
+            icon={PinIcon}
+            strokeWidth={2}
+            className="text-muted-foreground size-3.5 shrink-0"
+          />
+          <p
+            data-mask={!!bot.own}
+            className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
+          >
+            {bot.job}
+          </p>
+          {!isProfileOpen && (
+            <Button size="xs" variant="link-muted" onClick={onProfile}>
+              {t.bots.change}
+            </Button>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/** Mutes the bot or lets it notify again, shown at once. */
+export const useMute = (bot: HomeBot) => {
+  const { mutate } = useMutation(
     orpc.bots.mute.mutationOptions({
       onMutate: ({ bot: id, muted }) =>
         showUntilSettled(() => {
@@ -1211,40 +1380,7 @@ export const BotHeader = ({
       onSettled: (_, __, ___, settle) => settle?.(refreshBots()),
     })
   )
-  return (
-    <header className="flex h-14 shrink-0 border-b">
-      <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-10 max-md:px-4">
-        <BotAvatar bot={bot} size="md" />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <h1 data-mask={!!bot.own} className="truncate text-sm font-medium">
-            {bot.name}
-          </h1>
-          <p
-            data-mask={!!bot.own}
-            className="text-muted-foreground truncate text-xs"
-          >
-            {bot.muted ? t.bots.muted : bot.job}
-          </p>
-        </div>
-        <IconButton
-          icon={bot.muted ? NotificationOff01Icon : Notification01Icon}
-          label={bot.muted ? t.bots.unmute : t.bots.mute}
-          size="icon-sm"
-          variant="ghost-muted"
-          onClick={() => mute.mutate({ bot: bot.bot, muted: !bot.muted })}
-        />
-        {bot.own && (
-          <IconButton
-            icon={Settings01Icon}
-            label={t.bots.edit}
-            size="icon-sm"
-            variant="ghost-muted"
-            onClick={onEdit}
-          />
-        )}
-      </div>
-    </header>
-  )
+  return () => mutate({ bot: bot.bot, muted: !bot.muted })
 }
 
 interface BotDraft {
@@ -1413,27 +1549,28 @@ const BotPresets = ({ onCreated }: { onCreated: (id: string) => void }) => {
 }
 
 /** The form of a new bot (`bot` null) or one of the user's; mounted afresh each time the dialog opens. */
-const BotForm = ({
+export const BotForm = ({
   bot,
   onClose,
   onCreated,
 }: {
   bot: OwnBot | null
-  onClose: () => void
-  onCreated: (id: string) => void
+  /** None in the bot's profile, which stays open after a save and never makes a bot. */
+  onClose?: () => void
+  onCreated?: (id: string) => void
 }) => {
   const t = useT()
   const [draft, setDraft] = useState(() => draftOf(bot, t))
   const readEffect = useReadEffect(draft.text, bot, t)
   const done = (message: string) => {
     toast.success(message)
-    onClose()
+    onClose?.()
   }
   const create = useMutation(
     orpc.bots.create.mutationOptions({
       onSettled: refreshBots,
       onSuccess: ({ id }) => {
-        onCreated(id)
+        onCreated?.(id)
         done(t.bots.created)
       },
     })
@@ -1511,7 +1648,7 @@ const BotForm = ({
       {!bot && (
         <BotPresets
           onCreated={(id) => {
-            onCreated(id)
+            onCreated?.(id)
             done(t.bots.created)
           }}
         />

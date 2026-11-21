@@ -62,6 +62,7 @@ export const nl: Messages = {
       clear_out: 'Deze groepen mail uit je inbox opruimen?',
       undo_clear_out: 'Alle opgeruimde mail terug naar de inbox?',
       create_bot: 'Deze bot maken?',
+      update_bot: 'Deze bot wijzigen?',
       reply: 'Dit antwoord versturen?',
       send_email: 'Deze e-mail versturen?',
       snooze_thread: 'Dit gesprek uitstellen?',
@@ -87,6 +88,7 @@ export const nl: Messages = {
       preview_clear_out: 'Hele inbox lezen',
       undo_clear_out: 'Opgeruimde mail terugzetten',
       create_bot: 'Bot maken',
+      update_bot: 'Bot wijzigen',
       dismiss_action: 'Overslaan',
       draft_reply: 'Antwoord opstellen',
       create_draft: 'Concept wordt opgeslagen',
@@ -124,6 +126,7 @@ export const nl: Messages = {
       clear_out: 'Opruimen',
       undo_clear_out: 'Terugzetten',
       create_bot: 'Bot maken',
+      update_bot: 'Opslaan',
       reply: 'Versturen',
       send_email: 'Versturen',
       snooze_thread: 'Uitstellen',
@@ -794,6 +797,74 @@ export const nl: Messages = {
     title: 'Controleer voordat je iets doet',
   },
   bots: {
+    profile: 'Wat ik doe',
+    closeProfile: 'Sluiten',
+    change: 'Wijzigen',
+    since: (date: string) => `Actief sinds ${date}`,
+    status: {
+      acts: 'Handelt zelf',
+      asks: 'Vraagt vóór elke e-mail',
+      last: (time: string) => `laatst om ${time}`,
+      paused: (date: string) => `Gepauzeerd tot ${date}`,
+      reading: (n: number) =>
+        plural('nl', n, {
+          one: () => `leest een nieuwe e-mail`,
+          other: (count) => `leest ${count} nieuwe e-mails`,
+        }),
+      waiting: (n: number) =>
+        plural('nl', n, {
+          one: () => `Eén ding wacht op je`,
+          other: (count) => `${count} dingen wachten op je`,
+        }),
+      watching: 'Houdt je mail in de gaten',
+    },
+    intro: {
+      acts: 'Ik handel zelf: alles wat ik doe staat hier, en je kunt het ongedaan maken.',
+      asks: 'Voordat ik een e-mail aanraak, vraag ik het je hier.',
+      board:
+        'Hoi! Ik houd de beloftes en deadlines uit je mail bij: wat je nog krijgt, wat je hebt beloofd en wat binnenkort moet. Vraag me wie je wat schuldig is.',
+      change: 'Wil je dat ik iets anders doe? Schrijf me gewoon.',
+      fewmail:
+        'Hoi, ik ben Fewmail Bot. Ik lees alle mail die geen van je bots oppakt en laat je alleen zien wat jou nodig heeft. In Gmail verandert niets zonder je goedkeuring. Vraag me alles over je mail, of vraag me een bot te maken.',
+      own: (name: string) => `Hoi, ik ben ${name}. Hier let ik op:`,
+    },
+    suggest: {
+      actAlone: 'Handel zelf, zonder te vragen',
+      askFirst: 'Vraag het me vóór elke e-mail',
+      important: 'Wat heeft mij vandaag nodig?',
+      newBot: 'Maak een bot voor facturen',
+      owed: 'Wie is me wat schuldig?',
+      pauseWeek: 'Een week pauze',
+      promised: 'Wat heb ik deze week beloofd?',
+      waiting: 'Wie wacht op mijn antwoord?',
+      week: 'Wat heb je deze week gedaan?',
+    },
+    pause: {
+      day: 'Tot morgen',
+      hint: 'Gepauzeerd neemt hij geen mail; Fewmail Bot houdt die.',
+      month: 'Een maand',
+      resume: 'Hervatten',
+      title: 'Pauzeren',
+      week: 'Een week',
+    },
+    week: {
+      approved: 'met je goedkeuring',
+      auto: 'zelf',
+      title: 'Laatste 7 dagen',
+      waiting: 'wachten op je',
+    },
+    lately: 'Laatst',
+    notifications: 'Meldingen',
+    quiet: {
+      hide: 'Verbergen',
+      show: 'Tonen',
+      week: (n: number) =>
+        plural('nl', n, {
+          one: () => `Eén wijziging in je mail in de laatste 7 dagen`,
+          other: (count) =>
+            `${count} wijzigingen in je mail in de laatste 7 dagen`,
+        }),
+    },
     chatMenu: 'Chatacties',
     clear: 'Geschiedenis wissen',
     clearConfirm: (name: string) => `Chat met ${name} wissen?`,

@@ -63,6 +63,7 @@ export const pt: Messages = {
       undo_clear_out:
         'Trazer de volta para a caixa de entrada tudo o que foi limpo?',
       create_bot: 'Criar este bot?',
+      update_bot: 'Alterar este bot?',
       reply: 'Enviar esta resposta?',
       send_email: 'Enviar este e-mail?',
       snooze_thread: 'Adiar esta conversa?',
@@ -88,6 +89,7 @@ export const pt: Messages = {
       preview_clear_out: 'Lendo toda a caixa de entrada',
       undo_clear_out: 'Trazendo de volta os e-mails limpos',
       create_bot: 'Criando um bot',
+      update_bot: 'Alterando um bot',
       dismiss_action: 'Pulando',
       draft_reply: 'Escrevendo uma resposta',
       create_draft: 'Salvando um rascunho',
@@ -125,6 +127,7 @@ export const pt: Messages = {
       clear_out: 'Limpar',
       undo_clear_out: 'Trazer de volta',
       create_bot: 'Criar bot',
+      update_bot: 'Salvar',
       reply: 'Enviar',
       send_email: 'Enviar',
       snooze_thread: 'Adiar',
@@ -805,6 +808,77 @@ export const pt: Messages = {
     title: 'Verifique antes de agir',
   },
   bots: {
+    profile: 'O que eu faço',
+    closeProfile: 'Fechar',
+    change: 'Alterar',
+    since: (date: string) => `Trabalhando desde ${date}`,
+    status: {
+      acts: 'Age sozinho',
+      asks: 'Pergunta antes de cada e-mail',
+      last: (time: string) => `último às ${time}`,
+      paused: (date: string) => `Pausado até ${date}`,
+      reading: (n: number) =>
+        plural('pt', n, {
+          one: () => `lendo um e-mail novo`,
+          many: (count) => `lendo ${count} e-mails novos`,
+          other: (count) => `lendo ${count} e-mails novos`,
+        }),
+      waiting: (n: number) =>
+        plural('pt', n, {
+          one: () => `Uma coisa espera por você`,
+          many: (count) => `${count} coisas esperam por você`,
+          other: (count) => `${count} coisas esperam por você`,
+        }),
+      watching: 'De olho no seu e-mail',
+    },
+    intro: {
+      acts: 'Eu ajo sozinho: tudo o que faço aparece aqui, e você pode desfazer.',
+      asks: 'Antes de mexer em um e-mail, eu pergunto aqui.',
+      board:
+        'Oi! Acompanho as promessas e os prazos do seu e-mail: o que te devem, o que você prometeu e o que vence logo. Pergunte quem te deve o quê.',
+      change: 'Para mudar o que eu faço, é só me escrever.',
+      fewmail:
+        'Oi, eu sou o Fewmail Bot. Leio todo o e-mail que nenhum dos seus bots pega e mostro só o que precisa de você. Nada muda no Gmail sem a sua aprovação. Pergunte qualquer coisa sobre seu e-mail ou peça para eu criar um bot.',
+      own: (name: string) => `Oi, eu sou ${name}. É disto que eu cuido:`,
+    },
+    suggest: {
+      actAlone: 'Aja sozinho, sem perguntar',
+      askFirst: 'Me pergunte antes de cada e-mail',
+      important: 'O que precisa de mim hoje?',
+      newBot: 'Crie um bot para faturas',
+      owed: 'Quem me deve o quê?',
+      pauseWeek: 'Pausar por uma semana',
+      promised: 'O que eu prometi esta semana?',
+      waiting: 'Quem está esperando minha resposta?',
+      week: 'O que você fez esta semana?',
+    },
+    pause: {
+      day: 'Até amanhã',
+      hint: 'Pausado, ele não pega e-mails; o Fewmail Bot fica com eles.',
+      month: 'Por um mês',
+      resume: 'Retomar',
+      title: 'Pausar',
+      week: 'Por uma semana',
+    },
+    week: {
+      approved: 'com sua aprovação',
+      auto: 'sozinho',
+      title: 'Últimos 7 dias',
+      waiting: 'esperam por você',
+    },
+    lately: 'Recentes',
+    notifications: 'Notificações',
+    quiet: {
+      hide: 'Ocultar',
+      show: 'Mostrar',
+      week: (n: number) =>
+        plural('pt', n, {
+          one: () => `Uma mudança no seu e-mail nos últimos 7 dias`,
+          many: (count) => `${count} mudanças no seu e-mail nos últimos 7 dias`,
+          other: (count) =>
+            `${count} mudanças no seu e-mail nos últimos 7 dias`,
+        }),
+    },
     chatMenu: 'Ações do chat',
     clear: 'Limpar histórico',
     clearConfirm: (name: string) => `Limpar o chat com ${name}?`,

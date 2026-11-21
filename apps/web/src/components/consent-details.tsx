@@ -44,6 +44,7 @@ interface ToolInput {
   cc?: string[]
   description?: string
   effect?: keyof Messages['bots']['effect']
+  enabled?: boolean
   end?: string
   groups?: ClearOutGroup[]
   id?: string
@@ -53,6 +54,8 @@ interface ToolInput {
   mailboxId?: string
   messageId?: string
   messageIds?: string[]
+  name?: string
+  pausedUntil?: string | null
   scope?: EventScope
   search?: string
   start?: string
@@ -294,6 +297,43 @@ const CONSENT_DETAILS: Record<
     )),
   undo_clear_out: () => null,
   unsubscribe: ({ email }) => <EmailLine email={email} />,
+  update_bot: ({ dates, input, t, target }) => (
+    <>
+      <p data-mask className="text-sm font-medium">
+        {input.name && target?.name && (
+          <span className="text-muted-foreground font-normal line-through">
+            {target.name}
+          </span>
+        )}{' '}
+        {input.name ?? target?.name}
+      </p>
+      {input.instruction && (
+        <>
+          {target?.instruction && (
+            <p data-mask className="text-muted-foreground text-sm line-through">
+              {target.instruction}
+            </p>
+          )}
+          <DraftText text={input.instruction} />
+        </>
+      )}
+      {input.effect && <p className="text-sm">{t.bots.effect[input.effect]}</p>}
+      {input.enabled !== undefined && (
+        <p className="text-sm">
+          {t.bots.status[input.enabled ? 'acts' : 'asks']}
+        </p>
+      )}
+      {input.pausedUntil !== undefined && (
+        <p className="text-sm">
+          {input.pausedUntil
+            ? t.bots.status.paused(
+                dates.format(new Date(input.pausedUntil), 'EEE PP p')
+              )
+            : t.bots.pause.resume}
+        </p>
+      )}
+    </>
+  ),
   update_event: ({ calendar, input, t, target }) => (
     <>
       <EventDetails calendar={calendar} event={input} previous={target} />

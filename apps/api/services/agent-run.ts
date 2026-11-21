@@ -130,6 +130,9 @@ const consentReads = async (
   ) {
     return [{ input: EVENTS_AROUND(new Date()), name: 'list_events' }]
   }
+  if (name === 'update_bot') {
+    return [{ input: {}, name: 'list_bots' }]
+  }
   return []
 }
 
@@ -377,13 +380,13 @@ export const botScope = (
 ) => {
   const remind = `To come back to the user later (to check a promise, a payment or an answer), call remind_later with bot "${bot}".`
   if (!own) {
-    return `You are Fewmail Bot in this chat, the user's main bot: you make their other bots when they ask for one (create_bot), find emails, answer any question about their mail, and keep everything in it that none of their bots looks after. ${remind}`
+    return `You are Fewmail Bot in this chat, the user's main bot: you make their other bots when they ask for one (create_bot) and change them (update_bot), find emails, answer any question about their mail, and keep everything in it that none of their bots looks after. ${remind}`
   }
   if (own.effect === BOARD_EFFECT) {
     return `You are the user's bot "${own.name}" in this chat, their Board: the promises and last days the agent tracks (list_promises, set_promise_status). ${remind}`
   }
   const takes = own.instruction ?? `mail matching ${JSON.stringify(own.match)}`
-  return `You are the user's bot "${own.name ?? takes}" in this chat. It looks after: ${takes}. What it does with that mail: ${own.effect}. Stay on its mail unless the user asks about something else. ${remind}`
+  return `You are the user's bot "${own.name ?? takes}" in this chat. It looks after: ${takes}. What it does with that mail: ${own.effect}. Stay on its mail unless the user asks about something else. When the user asks you to take other mail, act differently, ask before acting, act on your own or pause, change yourself with update_bot, id "${bot}". ${remind}`
 }
 
 const quoteFor = (quote: { from: 'bot' | 'user'; text: string }) =>
