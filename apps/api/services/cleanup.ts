@@ -201,19 +201,94 @@ export const newSenders = async (userId: string) => {
   const fromBots = ownBots.flatMap(({ match }) =>
     match?.field === 'from' ? [match.value.toLowerCase()] : []
   )
-  const shown = namedLists(lists)
-    .filter(
-      (list) =>
-        !unsubscribed.has(listHashOf(list)) &&
-        !fromBots.some((value) => list.fromEmail.toLowerCase().includes(value))
-    )
+  const isOpen = (list: { fromEmail: string; listId: string | null }) =>
+    !unsubscribed.has(listHashOf(list)) &&
+    !fromBots.some((value) => list.fromEmail.toLowerCase().includes(value))
+  const fresh = namedLists(lists)
+    .filter(isOpen)
     .toSorted((left, right) => right.count - left.count)
     .slice(0, NEW_SENDERS_SHOWN)
+  const shown = [...(await stillAsked(userId, fresh, isOpen)), ...fresh]
   const shares = await leftShares(shown)
   return shown.map((list) => ({
     ...list,
     leftShare: shares.get(listHashOf(list)) ?? null,
   }))
+}
+
+/**
+ * The senders Home already asked about stay until the user answers (a kept answer is an action on the email it was
+ * asked on; archiving makes a bot; unsubscribing is recorded), whatever was read since; the newly asked are remembered.
+ */
+const stillAsked = async (
+  userId: string,
+  fresh: {
+    count: number
+    fromEmail: string
+    listId: string | null
+    messageId: string
+    opened: number
+  }[],
+  isOpen: (list: { fromEmail: string; listId: string | null }) => boolean
+) => {
+  const settings = await getSettings(userId)
+  const since = subDays(new Date(), NEW_SENDER_DAYS).toISOString()
+  const freshHashes = new Set(fresh.map(listHashOf))
+  const asked = (settings?.askedSenders ?? []).filter(
+    ({ askedAt, senderHash }) =>
+      askedAt >= since && !freshHashes.has(senderHash)
+  )
+  const ids = asked.map(({ messageId }) => messageId)
+  const rows =
+    ids.length > 0
+      ? await db
+          .select({
+            answered: sql<boolean>`exists (select 1 from ${actions} where ${actions.messageId} = ${messages.id})`,
+            fromEmail: messages.fromEmail,
+            fromName: messages.fromName,
+            listId: messages.listId,
+            messageId: messages.id,
+          })
+          .from(messages)
+          .where(and(eq(messages.userId, userId), inArray(messages.id, ids)))
+      : []
+  const kept = asked.flatMap((each) => {
+    const row = rows.find(({ messageId }) => messageId === each.messageId)
+    return row && !row.answered && isOpen(row)
+      ? [{ ...row, count: each.count, opened: each.opened }]
+      : []
+  })
+  const now = new Date().toISOString()
+  const remembered = [
+    ...kept.map((list) => ({
+      askedAt:
+        asked.find(({ messageId }) => messageId === list.messageId)?.askedAt ??
+        now,
+      count: list.count,
+      messageId: list.messageId,
+      opened: list.opened,
+      senderHash: listHashOf(list),
+    })),
+    ...fresh.map((list) => ({
+      askedAt:
+        settings?.askedSenders.find(
+          ({ senderHash }) => senderHash === listHashOf(list)
+        )?.askedAt ?? now,
+      count: list.count,
+      messageId: list.messageId,
+      opened: list.opened,
+      senderHash: listHashOf(list),
+    })),
+  ]
+  if (
+    JSON.stringify(remembered) !== JSON.stringify(settings?.askedSenders ?? [])
+  ) {
+    await db
+      .update(userSettings)
+      .set({ askedSenders: remembered })
+      .where(eq(userSettings.userId, userId))
+  }
+  return namedLists(kept).map(({ answered: _, ...list }) => list)
 }
 
 /** "Keep as usual": a dismissed action on its latest email is the answer, so the sender is never asked about again. */

@@ -446,7 +446,7 @@ export const BotListRow = ({
                 />
               )}
               {bot.last && (
-                <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+                <span className="text-muted-foreground text-2xs shrink-0 tabular-nums">
                   {dates.format(
                     bot.last.at,
                     isToday(bot.last.at) ? 'p' : 'd MMM'

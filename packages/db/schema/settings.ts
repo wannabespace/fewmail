@@ -16,6 +16,23 @@ import { users } from './auth'
 import { actions } from './mail'
 
 export const userSettings = d.snakeCase.table('user_settings', {
+  /**
+   * New senders Home asked about, by list hash, with the counts it asked with: the question stays in the chat until
+   * answered, though opening the emails (in its stack) makes the sender fail the "opened at most once" test.
+   */
+  askedSenders: d
+    .jsonb()
+    .$type<
+      {
+        askedAt: string
+        count: number
+        messageId: string
+        opened: number
+        senderHash: string
+      }[]
+    >()
+    .default([])
+    .notNull(),
   /** When the user cleared each bot's chat (ISO), by bot: nothing before it shows again, its cards included. */
   botsClearedAt: d
     .jsonb()
