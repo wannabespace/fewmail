@@ -201,10 +201,15 @@ export const ThreadPane = () => {
     if (!isOpen || !area) {
       return
     }
-    // A row's own trigger opens its email in the sidebar instead.
+    // A row's own trigger opens its email in the sidebar instead; its buttons (Done, Approve) act on the row and leave the sidebar be.
     const onPointerDown = ({ target }: PointerEvent) => {
       if (
-        !(target instanceof Element && target.closest('[data-expand-trigger]'))
+        !(
+          target instanceof Element &&
+          target.closest(
+            '[data-expand-trigger], [data-slot=item]:has(> [data-expand-trigger])'
+          )
+        )
       ) {
         collapseExpanded()
       }
