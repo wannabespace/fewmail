@@ -76,6 +76,14 @@ const useMakeRoom = (panes: HTMLElement | null, isCrowded: boolean) => {
       return
     }
     let lastRoom = 0
+    const makeRoom = (room: number) => {
+      lastRoom = room
+      for (const area of document.querySelectorAll<HTMLElement>(
+        '[data-slot=thread-pane-area]'
+      )) {
+        area.style.paddingRight = `${room}px`
+      }
+    }
     const observer = new ResizeObserver(() => {
       // With no room beside the page (a phone, a narrow window) the email covers it.
       const room = isCrowded
@@ -83,18 +91,18 @@ const useMakeRoom = (panes: HTMLElement | null, isCrowded: boolean) => {
         : panes.getBoundingClientRect().width -
           fill.getBoundingClientRect().width
       // Every page has a shut sidebar of its own: one that stays shut never takes another's room away.
-      if (room === lastRoom) {
-        return
-      }
-      lastRoom = room
-      for (const area of document.querySelectorAll<HTMLElement>(
-        '[data-slot=thread-pane-area]'
-      )) {
-        area.style.paddingRight = `${room}px`
+      if (room !== lastRoom) {
+        makeRoom(room)
       }
     })
     observer.observe(fill)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      // Leaving a page with the email open unmounts its sidebar mid-room; the next page's shut one would never give it back.
+      if (lastRoom !== 0) {
+        makeRoom(0)
+      }
+    }
   }, [isCrowded, panes])
 }
 
