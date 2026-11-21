@@ -376,6 +376,13 @@ export const IMPORTANCE = {
 /** Cards that only ask to read or notice something: Home leaves them for Later unless the email is urgent. */
 export const LATER_KINDS = ['read', 'heads_up'] as const
 
+/** A promise, a nudge and an agent's request outlive their email: archiving it skips the thread's other cards (`archiveMessage`), never these. */
+export const OUTLIVE_ARCHIVE_KINDS = [
+  'commitment',
+  'consent',
+  'follow_up',
+] as const
+
 /** What Home lists first and counts (`countImportant` counts the same in SQL): a card that asks for a step, urgent mail, or a person waiting for an answer the agent could not draft. */
 export const isImportant = (
   kind: ActionKind,

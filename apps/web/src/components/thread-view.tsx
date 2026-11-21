@@ -1,4 +1,8 @@
-import { isBulk, sendsDraft } from '@fewmail/shared/agent'
+import {
+  isBulk,
+  OUTLIVE_ARCHIVE_KINDS,
+  sendsDraft,
+} from '@fewmail/shared/agent'
 import {
   FORWARDED_PREFIX,
   participantsOf,
@@ -849,6 +853,26 @@ const joinBurst = () => {
 }
 const toInbox = (messageId: string) => client.mail.moveToInbox({ messageId })
 
+/** The cards `archiveMessage` skips with the email, gone from Home before the server answers. */
+const hideArchivedCards = (messageId: string) => {
+  const threadId =
+    findMessage(messageId)?.threadId ??
+    queueCards.toArray.find(({ message }) => message?.id === messageId)?.message
+      ?.threadId
+  const ids = queueCards.toArray
+    .filter(
+      ({ action, message }) =>
+        message?.threadId === threadId &&
+        !(OUTLIVE_ARCHIVE_KINDS as readonly string[]).includes(action.kind)
+    )
+    .map(({ action }) => action.id)
+  return showUntilSettled(() => {
+    if (ids.length > 0) {
+      queueCards.delete(ids)
+    }
+  })
+}
+
 const settleFailed = (_error: unknown, _input: unknown, shown?: Shown) => {
   if (shown && !bursts.has(shown.burst)) {
     toast.dismiss(shown.burst)
@@ -963,9 +987,27 @@ export const useMailActions = (
   return {
     archive: useMutation(
       orpc.mail.archive.mutationOptions({
-        ...leave,
-        onSuccess: (_, { messageId }, shown) =>
-          finish(t.mail.archived, shown, { messageId, undo: toInbox }),
+        onError: settleFailed,
+        onMutate: ({ messageId }): Shown => {
+          const shown = leave.onMutate({ messageId })
+          const settleCards = hideArchivedCards(messageId)
+          return {
+            ...shown,
+            settle: (refetched) => {
+              shown.settle(refetched)
+              settleCards(refetched)
+            },
+          }
+        },
+        onSuccess: ({ skipped }, { messageId }, shown) =>
+          finish(t.mail.archived, shown, {
+            messageId,
+            undo: (id) =>
+              Promise.all([
+                toInbox(id),
+                ...skipped.map((card) => client.actions.restore({ id: card })),
+              ]),
+          }),
       })
     ),
     block: useMutation(

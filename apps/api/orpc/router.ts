@@ -370,9 +370,11 @@ export const router = {
     }),
   },
   mail: {
-    archive: authed.input(messageId).handler(async ({ context, input }) => {
-      await archiveMessage(context.user.id, input.messageId)
-    }),
+    archive: authed
+      .input(messageId)
+      .handler(({ context, input }) =>
+        archiveMessage(context.user.id, input.messageId)
+      ),
     block: authed
       .input(messageId)
       .handler(({ context, input }) =>

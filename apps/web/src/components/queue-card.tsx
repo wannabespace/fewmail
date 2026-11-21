@@ -724,7 +724,7 @@ const PROPOSAL_BOX =
   'bg-popover ring-foreground/6 flex flex-col gap-3 rounded-2xl p-4 shadow-sm ring'
 
 /**
- * What the agent proposes for an email, under it in the sidebar: the draft or the step, the yes, Skip, and Home's keys
+ * What the agent proposes for an email, under it in the sidebar: the draft or the step, the yes, and Home's keys
  * for them. `R` (the thread's reply key) edits the draft through `isEditing`.
  */
 export const CardProposal = ({
@@ -830,14 +830,6 @@ export const CardProposal = ({
             {t.queue.rewrite}
           </Button>
         )}
-        <Button
-          size="sm"
-          variant="ghost-muted"
-          onClick={() => skip.mutate([action.id])}
-          shortcut={<Kbd>S</Kbd>}
-        >
-          {t.queue.skip}
-        </Button>
         {isReply && cardPayload(action).event && (
           <Button
             size="sm"

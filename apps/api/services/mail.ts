@@ -14,6 +14,7 @@ import {
   isMassMail,
   LATER_KINDS,
   LIST_CATEGORIES,
+  OUTLIVE_ARCHIVE_KINDS,
   PEOPLE_CATEGORIES,
   PROPOSAL_KINDS,
   SECONDS_SAVED,
@@ -1385,8 +1386,30 @@ export const settleTidy = async (
   return { failed, settled }
 }
 
-export const archiveMessage = async (userId: string, messageId: string) =>
-  applyThreadEffect(userId, await ownMessage(userId, messageId), 'archive')
+/** Archiving an email is the user's answer to its cards too: they are skipped, and Undo restores them by id (`restoreAction`). */
+export const archiveMessage = async (userId: string, messageId: string) => {
+  const message = await ownMessage(userId, messageId)
+  await applyThreadEffect(userId, message, 'archive')
+  const skipped = await db
+    .update(actions)
+    .set({ resolvedAt: new Date(), status: 'dismissed' })
+    .where(
+      and(
+        eq(actions.userId, userId),
+        eq(actions.threadId, message.threadId),
+        eq(actions.status, 'pending'),
+        notInArray(actions.kind, [...OUTLIVE_ARCHIVE_KINDS])
+      )
+    )
+    .returning({ id: actions.id, kind: actions.kind })
+  if (skipped.length > 0) {
+    await announceChange(userId, ACTION_TOPICS)
+  }
+  for (const { kind } of skipped) {
+    capture(userId, 'card_skipped', { kind, via: 'archive' })
+  }
+  return { skipped: skipped.map(({ id }) => id) }
+}
 
 export const trashMessage = async (userId: string, messageId: string) =>
   applyThreadEffect(userId, await ownMessage(userId, messageId), 'trash')
