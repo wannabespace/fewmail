@@ -220,7 +220,6 @@ export const nl: Messages = {
       coming: 'Komt eraan',
       owed: 'Jij krijgt nog',
       promised: 'Jij beloofde',
-      settled: 'Onlangs afgerond',
     },
     state: {
       acknowledged: 'ze antwoordden, nog niet gedaan',

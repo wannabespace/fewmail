@@ -226,7 +226,6 @@ export const pl: Messages = {
       coming: 'Zbliża się',
       owed: 'Należy ci się',
       promised: 'Twoje zobowiązania',
-      settled: 'Ostatnio zamknięte',
     },
     state: {
       acknowledged: 'odpowiedzieli, jeszcze nie zrobione',

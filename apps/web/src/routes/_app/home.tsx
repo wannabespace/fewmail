@@ -1141,7 +1141,8 @@ const BotPane = ({
   const t = useT()
   return (
     <div className="under-notice relative flex min-w-0 flex-1">
-      <div className="flex min-w-0 flex-1 flex-col">
+      {/* A container: an email open beside the page narrows the chat as a phone would, and it takes a phone's gutter. */}
+      <div className="@container flex min-w-0 flex-1 flex-col">
         <BotHeader
           bot={bot}
           isProfileOpen={isProfileOpen}
@@ -1155,7 +1156,7 @@ const BotPane = ({
                 <MessageScrollerContent
                   // oxlint-disable shadcn/require-static-classes -- the guard goes on the content itself: a wrapper inside it would hide the messages from the scroller
                   className={cn(
-                    'mx-auto w-full max-w-3xl gap-3 px-10 pt-6 pb-6 max-md:px-4',
+                    'mx-auto w-full max-w-3xl gap-3 px-10 pt-6 pb-6 max-md:px-4 @max-xl:px-4',
                     STILL_POINTER_GUARD
                   )}
                   // oxlint-enable shadcn/require-static-classes
@@ -1182,7 +1183,7 @@ const BotPane = ({
               />
             </MessageScroller>
           </ChatScroller>
-          <div className="mx-auto w-full max-w-3xl px-10 pb-4 max-md:px-4">
+          <div className="mx-auto w-full max-w-3xl px-10 pb-4 max-md:px-4 @max-xl:px-4">
             <BotComposer
               bot={bot}
               isActive={isFocused}

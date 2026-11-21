@@ -2,13 +2,12 @@ import type { RouterOutputs } from '@fewmail/api/router'
 import { ACTIVE_COMMITMENT_STATUSES } from '@fewmail/shared/agent'
 import type { CommitmentStatus } from '@fewmail/shared/agent'
 import type { Messages } from '@fewmail/shared/i18n'
-import { Button } from '@fewmail/ui/components/button'
 import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   SettingsGroup,
   SettingsRow,
 } from '@fewmail/ui/components/custom/settings-group'
-import { Kbd } from '@fewmail/ui/components/kbd'
+import { cn } from '@fewmail/ui/lib/utils'
 import { Cancel01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation } from '@tanstack/react-query'
@@ -41,10 +40,10 @@ const commitments = listCollection({
   queryFn: () => client.commitments.list(),
   queryKey: orpc.commitments.list.key(),
 })
-type Section = 'owed' | 'promised' | 'coming' | 'settled'
+type Section = 'owed' | 'promised' | 'coming'
 
-const SECTIONS: Section[] = ['owed', 'promised', 'coming', 'settled']
-/** What was settled stays in sight this long, so a promise the agent closed on its own never vanishes unseen. */
+const SECTIONS: Section[] = ['owed', 'promised', 'coming']
+/** What was settled stays in its list this long, marked so: a promise the agent closed on its own never vanishes unseen. */
 const SETTLED_DAYS = 14
 
 const isOpenStatus = (status: CommitmentStatus) =>
@@ -52,16 +51,26 @@ const isOpenStatus = (status: CommitmentStatus) =>
 
 const changedAt = ({ history }: Commitment) => history.at(-1)?.at ?? null
 
-const sectionOf = (commitment: Commitment, today: Date): Section | null => {
+const isShown = (commitment: Commitment, today: Date) => {
   if (!isOpenStatus(commitment.status)) {
     const at = changedAt(commitment)
-    return at && at > subDays(today, SETTLED_DAYS) ? 'settled' : null
+    return !!at && at > subDays(today, SETTLED_DAYS)
   }
-  if (commitment.kind === 'deadline') {
-    return commitment.dueAt >= today ? 'coming' : null
-  }
-  return commitment.kind === 'theirs' ? 'owed' : 'promised'
+  return commitment.kind !== 'deadline' || commitment.dueAt >= today
 }
+
+const SECTION_OF: Record<Commitment['kind'], Section> = {
+  deadline: 'coming',
+  mine: 'promised',
+  theirs: 'owed',
+}
+
+// By date, never by status (the server's order): a row ticked done stays where it was.
+const byDue = (a: Commitment, b: Commitment) =>
+  a.dueAt.getTime() - b.dueAt.getTime() || a.id.localeCompare(b.id)
+
+const waiting = (rows: Commitment[]) =>
+  rows.filter(({ status }) => isOpenStatus(status))
 
 const moneyText = (locale: string, cents: number, currency: string) =>
   new Intl.NumberFormat(locale, { currency, style: 'currency' }).format(
@@ -74,10 +83,11 @@ const leadOf = (
   locale: string,
   sections: Record<Section, Commitment[]>
 ) => {
+  const owed = waiting(sections.owed)
+  const promised = waiting(sections.promised).length
+  const coming = waiting(sections.coming).length
   const owedByCurrency = Map.groupBy(
-    sections.owed.filter(
-      ({ amountCents, currency }) => amountCents && currency
-    ),
+    owed.filter(({ amountCents, currency }) => amountCents && currency),
     ({ currency }) => currency ?? ''
   )
   const amounts = [...owedByCurrency].map(([currency, rows]) =>
@@ -90,11 +100,10 @@ const leadOf = (
   const parts = [
     amounts.length > 0 && t.board.lead.owed(amounts.join(', ')),
     amounts.length === 0 &&
-      sections.owed.length > 0 &&
-      t.board.lead.waiting(sections.owed.length),
-    sections.promised.length > 0 &&
-      t.board.lead.promised(sections.promised.length),
-    sections.coming.length > 0 && t.board.lead.coming(sections.coming.length),
+      owed.length > 0 &&
+      t.board.lead.waiting(owed.length),
+    promised > 0 && t.board.lead.promised(promised),
+    coming > 0 && t.board.lead.coming(coming),
   ].filter(Boolean)
   return parts.join(' ')
 }
@@ -144,12 +153,8 @@ const hintsOf = (t: Messages, row: Commitment | undefined) => {
   return [
     ['J / K', t.keys.move],
     ['⏎', t.keys.open],
-    ...(isOpenStatus(row.status)
-      ? [
-          ['D', t.keys.done],
-          ['⌫', t.keys.forget],
-        ]
-      : [['R', t.keys.reopen]]),
+    ['D', row.status === 'fulfilled' ? t.keys.reopen : t.keys.done],
+    ['⌫', row.status === 'cancelled' ? t.keys.reopen : t.keys.forget],
     close,
   ] as [string, string][]
 }
@@ -163,7 +168,11 @@ export const useBoard = (isOpen = true) => {
   const sections = Object.fromEntries(
     SECTIONS.map((section) => [
       section,
-      rows.filter((row) => sectionOf(row, today) === section),
+      rows
+        .filter(
+          (row) => isShown(row, today) && SECTION_OF[row.kind] === section
+        )
+        .toSorted(byDue),
     ])
   ) as Record<Section, Commitment[]>
   return {
@@ -219,9 +228,18 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
     setStatus.mutate({ id: row.id, status })
     toastUndo(message, () => setStatus.mutate({ id: row.id, status: previous }))
   }
-  const done = (row?: Commitment) => move(row, 'fulfilled', t.board.markedDone)
-  const forget = (row?: Commitment) => move(row, 'cancelled', t.board.forgotten)
-  const reopen = (row?: Commitment) => move(row, 'open', t.board.reopened)
+  const toggle = (
+    row: Commitment | undefined,
+    status: CommitmentStatus,
+    message: string
+  ) =>
+    row?.status === status
+      ? move(row, 'open', t.board.reopened)
+      : move(row, status, message)
+  const done = (row?: Commitment) =>
+    toggle(row, 'fulfilled', t.board.markedDone)
+  const forget = (row?: Commitment) =>
+    toggle(row, 'cancelled', t.board.forgotten)
 
   const step = (by: number) => {
     const index = ordered.findIndex(({ id }) => id === cursorId)
@@ -229,7 +247,6 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
     setCursorId(next?.id ?? null)
   }
   const listKeys = { enabled: isActive && ordered.length > 0 }
-  const isOpenRow = isActive && !!active && isOpenStatus(active.status)
   useHotkey('J', () => step(1), listKeys)
   useHotkey('ArrowDown', () => step(1), listKeys)
   useHotkey('K', () => step(-1), listKeys)
@@ -237,14 +254,13 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
   const rowKeys = { enabled: isActive && !!active }
   useHotkey('Enter', () => openRow(active), rowKeys)
   useHotkey('O', () => openRow(active), rowKeys)
-  useHotkey('D', () => done(active), { enabled: isOpenRow })
-  useHotkey('Backspace', () => forget(active), { enabled: isOpenRow })
-  useHotkey('R', () => reopen(active), {
-    enabled: isActive && !!active && !isOpenStatus(active.status),
-  })
+  useHotkey('D', () => done(active), rowKeys)
+  useHotkey('Backspace', () => forget(active), rowKeys)
 
   const rowOf = (row: Commitment, place: RowPlace) => {
     const isCursor = row === active
+    const isDone = row.status === 'fulfilled'
+    const isForgotten = row.status === 'cancelled'
     const sender = senderOf(row)
     return (
       <SettingsRow
@@ -260,7 +276,14 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
         }
         iconVariant="avatar"
         icon={sender && <SenderAvatar sender={sender} size="sm" />}
-        title={<span data-mask>{row.promise}</span>}
+        title={
+          <span
+            data-mask
+            className={cn(!isOpenStatus(row.status) && 'text-muted-foreground')}
+          >
+            {row.promise}
+          </span>
+        }
         description={descriptionOf(t, dates, row, today)}
       >
         {row.amountCents !== null && row.currency && (
@@ -268,35 +291,24 @@ export const BoardPane = ({ isActive }: { isActive: boolean }) => {
             {moneyText(locale, row.amountCents, row.currency)}
           </span>
         )}
-        {isOpenStatus(row.status) ? (
-          <>
-            <IconButton
-              icon={Tick02Icon}
-              label={t.board.done}
-              size="icon-sm"
-              variant="ghost-tint-muted"
-              shortcut={isCursor ? 'D' : undefined}
-              onClick={() => done(row)}
-            />
-            <IconButton
-              icon={Cancel01Icon}
-              label={t.board.forget}
-              size="icon-sm"
-              variant="ghost-tint-muted"
-              shortcut={isCursor ? '⌫' : undefined}
-              onClick={() => forget(row)}
-            />
-          </>
-        ) : (
-          <Button
-            size="sm"
-            variant="ghost"
-            shortcut={isCursor && <Kbd>R</Kbd>}
-            onClick={() => reopen(row)}
-          >
-            {t.board.reopen}
-          </Button>
-        )}
+        <IconButton
+          icon={Tick02Icon}
+          label={isDone ? t.board.reopen : t.board.done}
+          aria-pressed={isDone}
+          size="icon-sm"
+          variant="ghost-tint-muted"
+          shortcut={isCursor ? 'D' : undefined}
+          onClick={() => done(row)}
+        />
+        <IconButton
+          icon={Cancel01Icon}
+          label={isForgotten ? t.board.reopen : t.board.forget}
+          aria-pressed={isForgotten}
+          size="icon-sm"
+          variant="ghost-tint-muted"
+          shortcut={isCursor ? '⌫' : undefined}
+          onClick={() => forget(row)}
+        />
       </SettingsRow>
     )
   }

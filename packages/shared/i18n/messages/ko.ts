@@ -1706,7 +1706,6 @@ export const ko: Messages = {
       coming: '다가오는 일',
       owed: '받을 것',
       promised: '내가 한 약속',
-      settled: '최근 끝난 일',
     },
     state: {
       acknowledged: '답은 왔지만 아직 안 됨',

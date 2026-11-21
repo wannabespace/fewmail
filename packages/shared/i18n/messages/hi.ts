@@ -1759,7 +1759,6 @@ export const hi: Messages = {
       coming: 'आने वाला',
       owed: 'आपको मिलना है',
       promised: 'आपने वादा किया',
-      settled: 'हाल में पूरे हुए',
     },
     state: {
       acknowledged: 'जवाब आया, अभी हुआ नहीं',

@@ -1315,7 +1315,7 @@ export const BotHeader = ({
   return (
     <>
       <header className="flex h-14 shrink-0 border-b">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-10 max-md:px-4">
+        <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-10 max-md:px-4 @max-xl:px-4">
           <BotAvatar bot={bot} size="md" />
           <div className="flex min-w-0 flex-1 flex-col">
             <h1 data-mask={!!bot.own} className="truncate text-sm font-medium">
@@ -1364,7 +1364,7 @@ export const BotHeader = ({
         </div>
       </header>
       <div className="bg-body flex h-9 shrink-0 border-b">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-10 max-md:px-4">
+        <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-10 max-md:px-4 @max-xl:px-4">
           <HugeiconsIcon
             icon={PinIcon}
             strokeWidth={2}

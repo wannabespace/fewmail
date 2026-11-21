@@ -1845,7 +1845,6 @@ export const fr: Messages = {
       coming: 'À venir',
       owed: 'On vous doit',
       promised: 'Vous avez promis',
-      settled: 'Réglé récemment',
     },
     state: {
       acknowledged: 'ils ont répondu, pas encore fait',

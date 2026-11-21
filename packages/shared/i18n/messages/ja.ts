@@ -1727,7 +1727,6 @@ export const ja: Messages = {
       coming: '近づく期限',
       owed: '受け取る予定',
       promised: 'あなたの約束',
-      settled: '最近完了',
     },
     state: {
       acknowledged: '返事あり、未完了',

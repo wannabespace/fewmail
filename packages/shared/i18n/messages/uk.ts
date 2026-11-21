@@ -1835,7 +1835,6 @@ export const uk: Messages = {
       coming: 'Наближається',
       owed: 'Тобі винні',
       promised: 'Твої обіцянки',
-      settled: 'Нещодавно закрито',
     },
     state: {
       acknowledged: 'відповіли, ще не зроблено',

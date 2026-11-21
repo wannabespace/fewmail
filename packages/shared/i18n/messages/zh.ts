@@ -1670,7 +1670,6 @@ export const zh: Messages = {
       coming: '即将到来',
       owed: '你应收',
       promised: '你的承诺',
-      settled: '最近完成',
     },
     state: {
       acknowledged: '已回复，尚未完成',

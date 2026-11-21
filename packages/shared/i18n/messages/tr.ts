@@ -220,7 +220,6 @@ export const tr: Messages = {
       coming: 'Yaklaşan',
       owed: 'Alacakların',
       promised: 'Verdiğin sözler',
-      settled: 'Yakın zamanda tamamlananlar',
     },
     state: {
       acknowledged: 'yanıt verdiler, henüz yapılmadı',

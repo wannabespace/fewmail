@@ -1822,7 +1822,6 @@ export const it: Messages = {
       coming: 'In arrivo',
       owed: 'Ti devono',
       promised: 'Hai promesso',
-      settled: 'Chiuso di recente',
     },
     state: {
       acknowledged: 'hanno risposto, non ancora fatto',

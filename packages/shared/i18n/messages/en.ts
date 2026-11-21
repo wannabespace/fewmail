@@ -268,7 +268,6 @@ export const en = {
       coming: 'Coming up',
       owed: 'Owed to you',
       promised: 'You promised',
-      settled: 'Settled lately',
     },
     state: {
       acknowledged: 'they answered, not done yet',

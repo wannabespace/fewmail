@@ -1817,7 +1817,6 @@ export const de: Messages = {
       coming: 'Steht bevor',
       owed: 'Dir geschuldet',
       promised: 'Du hast versprochen',
-      settled: 'Kürzlich erledigt',
     },
     state: {
       acknowledged: 'sie haben geantwortet, noch nicht erledigt',

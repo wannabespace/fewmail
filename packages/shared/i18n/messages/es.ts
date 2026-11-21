@@ -1834,7 +1834,6 @@ export const es: Messages = {
       coming: 'Se acerca',
       owed: 'Te deben',
       promised: 'Prometiste',
-      settled: 'Cerrado hace poco',
     },
     state: {
       acknowledged: 'respondieron, aún sin hacer',

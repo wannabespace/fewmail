@@ -220,7 +220,6 @@ export const id: Messages = {
       coming: 'Segera',
       owed: 'Hakmu',
       promised: 'Janjimu',
-      settled: 'Baru selesai',
     },
     state: {
       acknowledged: 'sudah dibalas, belum dikerjakan',
