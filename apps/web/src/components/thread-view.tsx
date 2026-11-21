@@ -1658,6 +1658,7 @@ const ReaderHeader = ({
   title: ReactNode
 }) => {
   const t = useT()
+  const hasOpenInNewTab = Boolean(threadId) && !isFullPage
   return (
     <header className="reader-header">
       <div data-slot="reader-pin" className="-mb-6">
@@ -1670,7 +1671,7 @@ const ReaderHeader = ({
           >
             {title}
           </p>
-          {threadId && !isFullPage && (
+          {threadId && hasOpenInNewTab && (
             <IconButton
               icon={LinkSquare02Icon}
               label={t.mail.openInNewTab}
@@ -1696,7 +1697,12 @@ const ReaderHeader = ({
           />
         </div>
       </div>
-      <div className="flex flex-col gap-1 pt-8 pr-9">
+      <div
+        className={cn(
+          'flex flex-col gap-1 pt-8',
+          hasOpenInNewTab ? 'pr-18' : 'pr-9',
+        )}
+      >
         {title === null ? (
           <Skeleton className="my-1 h-6 w-3/4" />
         ) : (
