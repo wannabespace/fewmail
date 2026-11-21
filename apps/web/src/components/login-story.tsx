@@ -235,10 +235,11 @@ export const LoginStory = () => {
     quick: t.starterBots.quick.name,
   }
 
+  // The padding is the room the rings and shadows draw in: without it `overflow-hidden` cuts the cards' edges.
   return (
     <div
       inert
-      className="flex h-[30rem] w-full max-w-sm flex-col justify-end overflow-hidden mask-t-from-85%"
+      className="flex h-[30rem] w-full max-w-sm flex-col justify-end overflow-hidden mask-t-from-85% px-1 pb-1"
     >
       <AnimatePresence initial={!isReduced}>
         {ROWS.filter(
@@ -257,7 +258,7 @@ export const LoginStory = () => {
             }}
             className={cn(
               'shrink-0 pt-3',
-              row.bot !== 'important' && 'overflow-hidden'
+              row.bot !== 'important' && 'overflow-hidden px-px pb-px'
             )}
           >
             <MailRow
