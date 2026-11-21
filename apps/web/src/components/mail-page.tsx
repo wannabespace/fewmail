@@ -895,6 +895,39 @@ const ROW_LEAVE = { duration: 0.2, ease: [0.32, 0.72, 0, 1] } as const
 
 const HIDDEN_CURSOR = -1
 
+interface CursorAt {
+  id?: string
+  index: number
+  isShown: boolean
+  listKey?: string
+}
+const NO_CURSOR: CursorAt = { index: HIDDEN_CURSOR, isShown: false }
+
+/**
+ * Kept by thread: an index alone lands on mail nobody touched once rows move around it (a read thread leaving its group, mail arriving above).
+ * A clicked row stays hidden until a key moves the cursor, so E and ⏎ never act on a row nobody sees.
+ */
+const useCursor = (ids: string[], listKey: string) => {
+  const [cursorAt, setCursorAt] = useState(NO_CURSOR)
+  const at = cursorAt.listKey === listKey ? cursorAt : NO_CURSOR
+  const followed = at.id === undefined ? -1 : ids.indexOf(at.id)
+  const cursor = followed === -1 ? Math.min(at.index, ids.length - 1) : followed
+  if (followed !== -1 && followed !== at.index) {
+    setCursorAt({ ...at, index: followed })
+  }
+  return {
+    cursor,
+    moveCursorTo: (index: number, isShown?: boolean) =>
+      setCursorAt({
+        id: ids[index],
+        index,
+        isShown: isShown ?? at.isShown,
+        listKey,
+      }),
+    shownCursor: at.isShown ? cursor : HIDDEN_CURSOR,
+  }
+}
+
 /** First guesses, until a row is measured; near them, the scrollbar barely jumps. */
 const ROW_SIZE = {
   draft: 82,
@@ -2650,7 +2683,6 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
     folder ?? picked ?? inboxView
   )
   const query = isSearching ? (q ?? '') : undefined
-  const [cursor, setCursor] = useState(HIDDEN_CURSOR)
   const [keptUnread, setKeptUnread] = useState<KeptUnread>(new Set())
   const [unfolded, setUnfolded] = useState<ReadonlySet<GroupKey>>(new Set())
   const [relatedOf, setRelatedOf] = useState<string | null>(null)
@@ -2658,7 +2690,6 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const [cursorListKey, setCursorListKey] = useState(listKey)
   if (cursorListKey !== listKey) {
     setCursorListKey(listKey)
-    setCursor(HIDDEN_CURSOR)
     setKeptUnread(new Set())
     setUnfolded(new Set())
     setRelatedOf(null)
@@ -2679,7 +2710,6 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
     isSearchPending,
     pinned,
     rows: listedRows,
-    total: listedTotal,
   } = useListRows({
     filter,
     mailbox,
@@ -2716,10 +2746,14 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
     rows: pinnedRows.rows,
   })
   const { rows } = related
-  const total = isDrafts ? listedTotal : rows.length
-  useCursorOnOpenThread({ rows, setCursor, thread })
+  const cursorIds = isDrafts
+    ? drafts.rows.map(({ id }) => id)
+    : rows.map(({ message }) => message.threadId)
+  const total = cursorIds.length
+  const { cursor, moveCursorTo, shownCursor } = useCursor(cursorIds, listKey)
+  useCursorOnOpenThread({ rows, setCursor: moveCursorTo, thread })
   const picks = usePicks({
-    cursorRow: rows[cursor],
+    cursorRow: rows[shownCursor],
     isEnabled: !thread,
     picks: [pickedIds, setPickedIds],
     rows,
@@ -2734,7 +2768,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
       ) && closeThread(),
     onUnpick: picks.onUnpick,
     picked: picks.picked,
-    row: rows[cursor],
+    row: rows[shownCursor],
   })
   const {
     actions,
@@ -2756,16 +2790,16 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
     }
   }, [rows, cursor])
 
-  const open = (index: number) => {
+  const open = (index: number, isShown = false) => {
     if (isDrafts) {
-      setCursor(index)
+      moveCursorTo(index, isShown)
       drafts.open(index)
       return
     }
     const row = rows[index]
     if (row) {
       const { message } = row
-      setCursor(index)
+      moveCursorTo(index, isShown)
       if (!('isRelated' in row) && message.threadId !== relatedOf) {
         setRelatedOf(null)
       }
@@ -2785,29 +2819,29 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const moveCursor = (step: number) => {
     // A focused tab or button owns Enter, so the list's Enter would never fire.
     ;(document.activeElement as HTMLElement | null)?.blur()
-    setCursor((index) => Math.min(total - 1, Math.max(0, index + step)))
+    moveCursorTo(Math.min(total - 1, Math.max(0, cursor + step)), true)
   }
   useHotkey('J', () => moveCursor(1))
   useHotkey('ArrowDown', () => moveCursor(1))
   useHotkey('K', () => moveCursor(-1))
   useHotkey('ArrowUp', () => moveCursor(-1))
-  useHotkey('Enter', () => open(cursor))
-  useHotkey('O', () => open(cursor))
+  useHotkey('Enter', () => open(shownCursor, true))
+  useHotkey('O', () => open(shownCursor, true))
   useHotkey('ArrowDown', () => moveCursor(1), {
     enabled: total > 0,
     ignoreInputs: false,
     target: searchRef,
   })
-  const canShowRelated = related.canShowFor(rows[cursor])
+  const canShowRelated = related.canShowFor(rows[shownCursor])
   useHotkey(
     'ArrowRight',
-    () => setRelatedOf(rows[cursor]?.message.threadId ?? null),
+    () => setRelatedOf(rows[shownCursor]?.message.threadId ?? null),
     { enabled: canShowRelated }
   )
   useHotkey(
     'ArrowLeft',
     () => {
-      setCursor(related.anchorIndex)
+      moveCursorTo(related.anchorIndex, true)
       setRelatedOf(null)
     },
     { enabled: related.anchorIndex !== -1 }
@@ -2842,7 +2876,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
   const cards = cardsOf(rows, groupStarts, pinnedRows.shown)
   const listItems: ListWindowItem[] = [
     ...headItemsOf({
-      cursor,
+      cursor: shownCursor,
       drafts,
       open,
       pinnedCount: pinned.length,
@@ -2860,7 +2894,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
               <RelatedRow
                 key={item.key}
                 row={row}
-                isCursor={index === cursor}
+                isCursor={index === shownCursor}
                 isFirst={isFirst}
                 isLast={!('isRelated' in (rows[index + 1] ?? {}))}
                 isOpen={row.message.threadId === thread}
@@ -2884,7 +2918,7 @@ export const MailPage = ({ folder }: { folder?: Folder }) => {
             actions={actions}
             canSnooze={canSnooze}
             hidesCategory={grouping === 'categories'}
-            isCursor={index === cursor}
+            isCursor={index === shownCursor}
             isOpen={row.message.threadId === thread}
             isPicked={picks.pickedIds.has(row.message.id)}
             isPicking={isPicking}
