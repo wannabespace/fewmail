@@ -240,8 +240,14 @@ const useChatActions = (bot: HomeBot, isOpen: boolean) => {
   return { clear, createFolder, move, pin, remove, rename }
 }
 
-/** What a bot's ⋯ and its right click offer: one set of items, since a context menu's items are a menu's. */
-const BotMenuItems = ({ bot, isOpen }: { bot: HomeBot; isOpen: boolean }) => {
+/** What a bot's right click in the sidebar and the ⋯ in its chat's bar offer: one set of items, since a context menu's items are a menu's. */
+export const BotMenuItems = ({
+  bot,
+  isOpen,
+}: {
+  bot: HomeBot
+  isOpen: boolean
+}) => {
   const t = useT()
   const { data: folders = [] } = useQuery(orpc.bots.folders.queryOptions())
   const { clear, createFolder, move, pin, remove, rename } = useChatActions(
@@ -361,7 +367,7 @@ const BotMenuItems = ({ bot, isOpen }: { bot: HomeBot; isOpen: boolean }) => {
   )
 }
 
-/** A sidebar row with its menu: ⋯ on hover at the row's end, centred, over its time and count, and the same items on a right click. */
+/** A folder's sidebar row with its menu: ⋯ on hover at the row's end over its count, and the same items on a right click. */
 export const RowWithMenu = ({
   children,
   items,
@@ -412,66 +418,69 @@ export const BotListRow = ({
     ? t.bots.status.paused(dates.format(pausedUntil, 'd MMM'))
     : bot.last && lastLineOf(t, bot.last)
   return (
-    <RowWithMenu
-      label={t.bots.chatMenu}
-      items={<BotMenuItems bot={bot} isOpen={isOpen} />}
-    >
-      <button
-        type="button"
-        aria-current={isOpen || undefined}
-        onClick={onOpen}
-        className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring flex w-full shrink-0 cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm outline-none"
-      >
-        <span className={cn('flex', pausedUntil && 'opacity-60')}>
-          <BotAvatar bot={bot} size="md" />
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="flex items-center gap-1.5">
-            <span
-              data-mask={!!bot.own}
-              className="text-foreground min-w-0 flex-1 truncate font-medium"
-            >
-              {bot.name}
-            </span>
-            {bot.pinned && bot.bot !== 'fewmail' && (
-              <HugeiconsIcon
-                icon={PinIcon}
-                strokeWidth={2}
-                className="text-muted-foreground size-3 shrink-0"
-              />
-            )}
-            {bot.last && (
-              <span className="text-muted-foreground shrink-0 text-xs tabular-nums group-hover/row:invisible group-has-data-popup-open/row:invisible">
-                {dates.format(
-                  bot.last.at,
-                  isToday(bot.last.at) ? 'p' : 'd MMM'
-                )}
-              </span>
-            )}
+    // No ⋯ on a chat row, as in a messenger: over every row it read as one more ellipsis beside the cut preview. Its menu is the right click here and the ⋯ in the chat's bar.
+    <ContextMenu>
+      <ContextMenuTrigger render={<div />}>
+        <button
+          type="button"
+          aria-current={isOpen || undefined}
+          onClick={onOpen}
+          className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring flex w-full shrink-0 cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm outline-none"
+        >
+          <span className={cn('flex', pausedUntil && 'opacity-60')}>
+            <BotAvatar bot={bot} size="md" />
           </span>
-          <span className="flex items-center gap-1.5">
-            <span
-              data-mask
-              className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
-            >
-              {line ?? bot.job}
-            </span>
-            {bot.unread > 0 && (
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="flex items-center gap-1.5">
               <span
-                className={cn(
-                  'shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums group-hover/row:invisible group-has-data-popup-open/row:invisible',
-                  bot.muted
-                    ? 'bg-secondary text-muted-foreground'
-                    : 'bg-primary text-primary-foreground'
-                )}
+                data-mask={!!bot.own}
+                className="text-foreground min-w-0 flex-1 truncate font-medium"
               >
-                {bot.unread}
+                {bot.name}
               </span>
-            )}
+              {bot.pinned && bot.bot !== 'fewmail' && (
+                <HugeiconsIcon
+                  icon={PinIcon}
+                  strokeWidth={2}
+                  className="text-muted-foreground size-3 shrink-0"
+                />
+              )}
+              {bot.last && (
+                <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+                  {dates.format(
+                    bot.last.at,
+                    isToday(bot.last.at) ? 'p' : 'd MMM'
+                  )}
+                </span>
+              )}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span
+                data-mask
+                className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
+              >
+                {line ?? bot.job}
+              </span>
+              {bot.unread > 0 && (
+                <span
+                  className={cn(
+                    'shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums',
+                    bot.muted
+                      ? 'bg-secondary text-muted-foreground'
+                      : 'bg-primary text-primary-foreground'
+                  )}
+                >
+                  {bot.unread}
+                </span>
+              )}
+            </span>
           </span>
-        </span>
-      </button>
-    </RowWithMenu>
+        </button>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <BotMenuItems bot={bot} isOpen={isOpen} />
+      </ContextMenuContent>
+    </ContextMenu>
   )
 }
 

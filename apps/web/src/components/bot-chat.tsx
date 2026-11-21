@@ -37,6 +37,11 @@ import {
   DialogTitle,
 } from '@fewmail/ui/components/dialog'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@fewmail/ui/components/dropdown-menu'
+import {
   Field,
   FieldDescription,
   FieldGroup,
@@ -84,6 +89,7 @@ import {
   Copy01Icon,
   DashboardSquare01Icon,
   Mail01Icon,
+  MoreHorizontalIcon,
   NextIcon,
   Notification01Icon,
   NotificationOff01Icon,
@@ -123,6 +129,7 @@ import { toast } from 'sonner'
 
 import {
   BotAvatar,
+  BotMenuItems,
   cardsLine,
   digestHeadline,
   isBoardBot,
@@ -1325,6 +1332,21 @@ export const BotHeader = ({
             variant="ghost-muted"
             onClick={mute}
           />
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <IconButton
+                  icon={MoreHorizontalIcon}
+                  label={t.bots.chatMenu}
+                  size="icon-sm"
+                  variant="ghost-muted"
+                />
+              }
+            />
+            <DropdownMenuContent align="end">
+              <BotMenuItems bot={bot} isOpen />
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             size="sm"
             variant={isProfileOpen ? 'secondary' : 'ghost-muted'}
