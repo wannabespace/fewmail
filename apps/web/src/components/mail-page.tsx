@@ -919,10 +919,11 @@ interface CardEdge {
 
 // A group's rows are one `SettingsGroup` card drawn row by row, since the window renders rows, never their group: no margins here, the window measures borders but not margins.
 // Its edge is real borders, never offset shadows: those taper to nothing around the rounded corners and the sides never meet the top and bottom.
+// The fill stops inside them: the borders are translucent, so a hovered row's fill under them drew a darker edge than its neighbours'.
 const cardPieceOf = (edge: CardEdge | null) =>
   edge &&
   cn(
-    'bg-popover border-foreground/6 border-x',
+    'bg-popover border-foreground/6 border-x bg-clip-padding',
     edge.isFirst && 'rounded-t-xl border-t',
     edge.isLast && 'rounded-b-xl border-b shadow-xs'
   )
