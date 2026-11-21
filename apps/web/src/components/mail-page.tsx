@@ -538,6 +538,9 @@ const cardsOf = (
 const LIST_HEADER =
   'bg-body text-muted-foreground flex h-13 items-center gap-2 border-x border-transparent pt-5 pr-3 pb-2 pl-8 text-xs font-medium'
 
+// `GROUP_HEADER` sticks this far above the list's top; keep the two in step.
+const HEADER_STUCK_ABOVE = 12
+
 const GROUP_HEADER = cn(
   LIST_HEADER,
   'sticky top-[min(--spacing(-3),var(--pushed-at,infinity*1px)-var(--scroll,0px))] z-10'
@@ -1049,6 +1052,19 @@ interface ListWindowItem {
   size: number
 }
 
+/** How much of a sticky header is stuck over a row: moving to the row scrolls it out from under the header. */
+const stuckHeaderOver = (
+  items: ListWindowItem[],
+  stickyIndexes: number[],
+  index: number
+) => {
+  const header = items[stickyIndexes.findLast((sticky) => sticky < index) ?? -1]
+  return header &&
+    (header.heads === undefined || header.heads === items[index]?.card)
+    ? header.size - HEADER_STUCK_ABOVE
+    : 0
+}
+
 const useScrollToCursor = (
   items: ListWindowItem[],
   virtualizer: { scrollToIndex: (index: number) => void }
@@ -1135,6 +1151,11 @@ const ListWindow = ({
     getItemKey: (index) => items[index]?.key ?? index,
     getScrollElement: () => scroller.current,
     overscan: 10,
+    scrollPaddingStart: stuckHeaderOver(
+      items,
+      stickyIndexes,
+      items.findIndex(({ isCursor }) => isCursor)
+    ),
     // A sticky header out of the DOM no longer sticks, so the one over the rows in view stays rendered.
     rangeExtractor: (range) => {
       const indexes = defaultRangeExtractor(range)
