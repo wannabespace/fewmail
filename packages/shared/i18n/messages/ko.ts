@@ -894,13 +894,13 @@ export const ko: Messages = {
       mcp: 'Fewmail을 MCP 서버로 Claude, ChatGPT, Claude Code, Cursor에 연결하세요. 이미 쓰는 AI에서 Gmail을 읽고 정리할 수 있어요.',
       motto: '받은편지함에서 중요한 것만',
       pricing: (trialDays: number) =>
-        `Fewmail의 홈, 분류, 규칙, 스팸 보호는 계속 무료예요. 에이전트 전체를 쓰는 Pro는 카드 없이 ${trialDays}일 무료로 시작해요.`,
+        `Fewmail의 봇, 분류, 스팸 보호는 계속 무료예요. 에이전트 전체를 쓰는 Pro는 카드 없이 ${trialDays}일 무료로 시작해요.`,
       tagline: 'Gmail을 위한 AI 이메일 에이전트',
     },
     chapters: {
       pricing: {
         description:
-          '홈, 분류, 규칙, 보호 기능은 평생 무료예요. Lite, Pro, Max에는 대신 읽고 써 주는 모든 기능이 더해져요. 큰 요금제일수록 그걸 더 많이 할 뿐이에요.',
+          '봇, 분류, 보호 기능은 평생 무료예요. Lite, Pro, Max에는 대신 읽고 써 주는 모든 기능이 더해져요. 큰 요금제일수록 그걸 더 많이 할 뿐이에요.',
         label: '요금',
         title: (usd: number) => `분류는 무료. 에이전트는 $${usd}부터.`,
       },
@@ -916,7 +916,7 @@ export const ko: Messages = {
     },
     mcp: {
       answer:
-        '금요일 킥오프 전에 서명한 계약서가 필요해요. 답장 초안은 이미 써 두었고 Fewmail 대기열에서 기다리고 있어요.',
+        '금요일 킥오프 전에 서명한 계약서가 필요해요. 답장 초안은 이미 써 두었고 Fewmail에서 내 승인을 기다리고 있어요.',
       clients: '지원하는 앱',
       emphasis: 'Claude와 ChatGPT',
       free: '메일 읽기와 에이전트의 분류는 무료예요.',
@@ -928,7 +928,7 @@ export const ko: Messages = {
     },
     mcpPage: {
       copy: 'URL 복사',
-      lead: 'Fewmail을 MCP 서버로 연결하고, 이미 쓰는 AI에서 메일에 대해 물어보세요. 메일 읽기와 에이전트의 분류는 무료이고, 초안·발송·규칙은 Pro에 있어요.',
+      lead: 'Fewmail을 MCP 서버로 연결하고, 이미 쓰는 AI에서 메일에 대해 물어보세요. 메일 읽기와 에이전트의 분류는 무료이고, 초안·발송·답장을 쓰는 봇은 Pro에 있어요.',
       safety:
         '메일을 보내거나 Gmail을 바꾸는 일은 모두 먼저 동의를 구해요. 어시스턴트에게 명령하려는 이메일은 읽히기 전에 표시돼요. 메일은 절대 모델 학습에 쓰이지 않고, 어떤 앱이든 설정에서 연결을 끊을 수 있어요.',
       steps: {
@@ -951,7 +951,7 @@ export const ko: Messages = {
         },
         drafts: {
           description:
-            '답장은 미리 써 둬요. 내 어조로, 보낸 사람의 언어로 쓰고, 내가 승인할 때까지 대기열에서 기다려요.',
+            '답장은 미리 써 둬요. 내 어조로, 보낸 사람의 언어로 쓰고, 내가 승인할 때까지 담당 봇의 채팅에서 기다려요.',
           title: '내 말투로 쓰는 답장 초안',
         },
         protection: {
@@ -966,8 +966,8 @@ export const ko: Messages = {
         },
         bots: {
           description:
-            '어떤 메일을 어떻게 할지 한 문장으로 말하면 규칙이 돼요. 스스로 작동하는 건 내가 켠 규칙뿐이에요.',
-          title: '평소 말로 쓰는 규칙',
+            '어떤 메일을 어떻게 할지 한 문장으로 말하면 자기 채팅이 있는 봇이 돼요. 스스로 움직이는 건 내가 맡긴 봇뿐이에요.',
+          title: '평소 말로 만드는 봇',
         },
         sorting: {
           description:
@@ -993,11 +993,11 @@ export const ko: Messages = {
         },
         {
           answer:
-            '답장 초안은 대신 써 주지만, 혼자 보내는 일은 절대 없어요. 초안은 하나하나 대기열에서 내 승인을 기다리고, 비슷한 초안은 한 번에 승인할 수 있어요.',
+            '답장 초안은 대신 써 주지만, 혼자 보내는 일은 절대 없어요. 초안은 하나하나 담당 봇의 채팅에서 내 승인을 기다리고, 비슷한 초안은 한 번에 승인할 수 있어요.',
           question: '메일에 자동으로 답장할 수 있나요?',
         },
         {
-          answer: `네. Free 요금제는 모든 메일을 분류하고, 나에게 필요한 것을 한 페이지에 모으고, 내 규칙을 실행하고, 스팸과 피싱을 막아 줘요. 평생 무료예요. 초안, 요약, 나머지 에이전트 기능은 유료 요금제에 있고, 모든 계정은 카드 없이 Pro ${trialDays}일로 시작해요.`,
+          answer: `네. Free 요금제는 모든 메일을 분류하고, 나에게 필요한 것을 봇의 채팅에 모으고, 내 봇을 실행하고, 스팸과 피싱을 막아 줘요. 평생 무료예요. 초안, 요약, 나머지 에이전트 기능은 유료 요금제에 있고, 모든 계정은 카드 없이 Pro ${trialDays}일로 시작해요.`,
           question: 'Gmail용 무료 AI 이메일 비서가 있나요?',
         },
       ],
@@ -1020,7 +1020,7 @@ export const ko: Messages = {
       },
       labels: {
         ask: '메일에 무엇이든 질문',
-        home: '나를 기다리는 일을 한 페이지에',
+        home: '나를 기다리는 일을 한곳에',
         calendar: '캘린더',
         drafts: '대신 써 주는 답장 초안',
         followUps: '후속 알림',
@@ -1034,7 +1034,7 @@ export const ko: Messages = {
         outlook: 'Outlook과 Microsoft 365',
         phishing: '피싱과 결제 정보 변경 경고',
         phone: '휴대폰에서',
-        bots: '평소 말로 쓰는 규칙',
+        bots: '평소 말로 만드는 봇',
         snooze: '다시 알림',
         spamShield: '커뮤니티 스팸 방패',
         summaries: '메일 요약',
@@ -1158,7 +1158,7 @@ export const ko: Messages = {
       },
       {
         answer:
-          '내 허락 없이는 절대 안 해요. 답장은 승인할 때까지 대기열에서 기다리고, 보관, 읽음 처리, 구독 취소를 스스로 할 수 있는 건 내가 만들었거나 남겨 둔 규칙뿐이에요. 한 일은 모두 처리됨에 표시돼요.',
+          '내 허락 없이는 절대 안 해요. 답장은 승인할 때까지 담당 봇의 채팅에서 기다리고, 봇이 보관, 읽음 처리, 구독 취소를 스스로 하는 건 내가 맡긴 뒤부터예요. 한 일은 모두 이유와 함께 그 채팅에 남아요.',
         question: '메일을 알아서 보내거나 지우기도 하나요?',
       },
       {
@@ -1177,7 +1177,7 @@ export const ko: Messages = {
       },
       {
         answer:
-          '지금은 Gmail과 Google Workspace 계정이에요. 여러 메일함을 하나의 Fewmail에 추가하면 모든 메일이 같은 홈과 받은편지함으로 모여요.',
+          '지금은 Gmail과 Google Workspace 계정이에요. 여러 메일함을 하나의 Fewmail에 추가하면 모든 메일이 같은 봇과 받은편지함으로 모여요.',
         question: '어떤 메일 계정을 쓸 수 있나요?',
       },
     ],
@@ -1185,35 +1185,35 @@ export const ko: Messages = {
       description:
         '예전엔 오후 내내 걸리던 메일 일을 뒤에서 처리하고, 확인할 수 있는 곳에 정리해 둬요.',
       items: {
-        codes: {
-          description:
-            '새 코드는 홈 맨 위와 해당 이메일 옆에 있어 아무것도 열지 않고 복사할 수 있습니다. 무료.',
-          title: '로그인 코드',
-        },
-        subscriptions: {
-          description:
-            '이번 달 메일을 보낸 모든 메일링 리스트와 실제로 연 메일 수. 어떤 것이든 키 하나로 해지. 무료.',
-          title: '메일링 리스트',
-        },
-        ask: {
-          description:
-            '평소 말로 무엇이든 물어보면, 내 메일에서 찾은 답을 근거가 된 메일과 함께 보여줘요.',
-          title: '메일에 묻기',
-        },
         calendar: {
           description:
             '모든 메일함의 캘린더를 한 화면에. 메일로 제안된 회의는 내가 승인하면 일정이 돼요.',
           title: '캘린더',
         },
-        clearOut: {
+        codes: {
           description:
-            '쌓인 메일을 한 번에 정리해요. 메일함마다 최대 50,000통, 모두 라벨 하나로 묶어 두니 되돌리기 한 번이면 전부 돌아와요. 무료.',
-          title: '받은편지함 정리',
+            '새 코드는 채팅 맨 위와 해당 메일 옆에 있어 아무것도 열지 않고 복사할 수 있어요. 무료.',
+          title: '로그인 코드',
+        },
+        messengers: {
+          description:
+            '급한 메일은 바로 Telegram이나 WhatsApp으로 와요. 거기서 메일에 대해 묻고 초안을 승인할 수 있어요. 글로도, 목소리로도요.',
+          title: 'Telegram과 WhatsApp',
         },
         reading: {
           description:
-            '오늘의 뉴스레터를 하나의 요약으로: 주제별 소식, 문장마다 출처 링크, 끝까지 읽을 만한 것까지.',
+            '매일 아침 어제의 뉴스레터를 한 호로: 주제별 소식, 문장마다 출처 링크, 끝까지 읽을 만한 것까지.',
           title: '읽을거리',
+        },
+        shield: {
+          description:
+            '스패머를 한 번 신고하면 모든 Fewmail 사용자가 더 안전해져요. 방패가 잡아낸 메일은 내 승인을 기다린 뒤에 옮겨져요. 무료.',
+          title: '스팸 방패',
+        },
+        subscriptions: {
+          description:
+            '이번 달 메일을 보낸 모든 메일링 리스트와 실제로 연 메일 수. 어떤 것이든 키 하나로 해지. 무료.',
+          title: '메일링 리스트',
         },
         voice: {
           description:
@@ -1240,7 +1240,7 @@ export const ko: Messages = {
       label: '사라지는 것',
       rows: [
         {
-          fix: '받은편지함 정리가 쌓인 메일을 한 번에 치워요. 오래된 광고, 읽은 알림, 열지 않는 뉴스레터까지. 되돌리기 한 번이면 모든 메일이 돌아와요.',
+          fix: 'Fewmail Bot에게 쌓인 메일을 정리해 달라고 하세요. 오래된 광고, 읽은 알림, 열지 않는 뉴스레터까지 한 번에 치워요. 되돌리기 한 번이면 모든 메일이 돌아와요.',
           problem: '아무도 읽지 않을 수천 통의 메일.',
         },
         {
@@ -1252,7 +1252,7 @@ export const ko: Messages = {
           problem: '구독한 적도 없는 뉴스레터.',
         },
         {
-          fix: '오늘의 뉴스레터가 주제별 요약 하나가 되고, 끝까지 읽을 만한 것도 알려 줍니다.',
+          fix: '매일 아침 읽을거리가 어제의 뉴스레터를 주제별로 한 호에 담고, 끝까지 읽을 만한 것도 알려 줘요.',
           problem: '읽으려고 했던 뉴스레터.',
         },
         {
@@ -1260,11 +1260,11 @@ export const ko: Messages = {
           problem: '계좌 정보가 바뀐 청구서.',
         },
         {
-          fix: '보낸 메일에서 한 약속은 기한이 되면 다시 알려 주고, 아무도 답하지 않은 스레드에는 후속 연락이 붙어요.',
+          fix: '보드가 내가 약속한 것과 받을 것을 적어 두고, 그날이 되면 하나씩 다시 알려 줘요. 아무도 답하지 않은 스레드에는 후속 연락이 붙어요.',
           problem: '약속해 놓고 잊어버린 일.',
         },
         {
-          fix: 'Telegram이나 WhatsApp으로는 급한 메일만 와요. 나머지는 이미 정리된 채로 홈에서 기다리니, 원할 때 보면 돼요.',
+          fix: 'Telegram이나 WhatsApp으로는 급한 메일만 와요. 나머지는 이미 정리된 채로 봇의 채팅에서 기다리니, 원할 때 보면 돼요.',
           problem: '혹시 몰라 저녁 먹다가도 메일 확인하기.',
         },
       ],
@@ -1273,9 +1273,9 @@ export const ko: Messages = {
     hero: {
       needs: {
         emphasis: '나를 기다려요.',
-        lead: (handled: string) =>
-          `Anna는 계약서를 기다리고 있고, Northwind 청구서는 다음 주가 기한이며, Marco는 목요일에 시간을 잡고 싶어 해요. 뉴스레터와 알림 ${handled}통은 처리했고, 새 메일이 오면 홈이 알아서 업데이트돼요.`,
-        tag: '홈 · 목요일 08:12',
+        lead: (handled: string, bot: string) =>
+          `Anna는 계약서를 기다리고 있고, Northwind 청구서는 다음 주가 기한이며, Marco는 목요일에 시간을 잡고 싶어 해요. 뉴스레터와 알림 ${handled}통은 봇들이 처리했고, 이 세 가지는 「${bot}」에서 기다리고 있어요.`,
+        tag: (bot: string) => `${bot} · 목요일 08:12`,
         title: '세 가지가 나를 기다려요.',
       },
       fates: {
@@ -1317,8 +1317,7 @@ export const ko: Messages = {
       remindPlan: '청구서 목록에 추가하고 11월 19일에 알려 줘요.',
       start: 'Google로 무료로 시작하기',
       title: '메일은 당신의 일이 아니에요.',
-      home: '홈',
-      tryQueue: '대기열 써 보기',
+      seeBots: '봇 만나 보기',
       unread: ((slots) => ['안 읽음 ', slots.count, '개']) as Rich<'count'>,
       unreadInbox: ((slots) => [
         '받은편지함에 안 읽은 메일 ',
@@ -1335,22 +1334,56 @@ export const ko: Messages = {
       pricing: '요금',
       signIn: '로그인',
     },
-    play: {
-      again: '다시 정리하기',
-      doneLead: (handled: string) =>
-        `결정은 세 번만 했어요. 나머지 ${handled}통은 Fewmail이 처리하고 이유를 적어 뒀어요.`,
-      doneTitle: '오늘은 여기까지예요.',
-      emphasis: '2분이면 끝.',
-      handled: [
-        'Lumen Weekly: 최근 30호를 하나도 열지 않았어요',
-        'paypa1-billing.com이 paypal.com처럼 보여요',
-        'Parcelhub: 배송 알림, “영수증과 배송” 규칙으로',
+    bots: {
+      again: '처음부터 다시',
+      board: {
+        coming: { state: '11월 28일 유료 전환', text: 'Coursely 체험' },
+        owed: {
+          state: '기다리는 중 · 11월 22일까지',
+          text: 'Northwind: 이중 결제된 $120 환불',
+        },
+        promised: {
+          state: '목요일까지',
+          text: '리뷰 전에 Marco에게 슬라이드 보내기',
+        },
+      },
+      emphasis: '메일 종류마다',
+      fewmail: {
+        approve: '승인',
+        ask: 'Hetzner 청구서는 읽음 처리해 줘',
+        botName: 'Hetzner 청구서',
+        digest: (total: number, people: number) =>
+          `지난 하루 동안 메일 ${total}통. 대부분 뉴스레터와 알림이고, 사람이 보낸 건 ${people}통뿐이에요.`,
+        proposal: '봇을 만들었어요. 승인하면 새 메일부터 일을 시작해요.',
+      },
+      label: '봇',
+      later: '알아 두면 좋은 것 네 가지, 결정할 건 없어요.',
+      lead: '봇마다 맡은 종류의 메일을 도착하는 대로 읽고, 무엇을 했는지와 무엇이 나를 기다리는지 채팅으로 알려 줘요. 하나씩 눌러 보거나 [ 와 ] 를 눌러 보세요.',
+      points: [
+        {
+          description:
+            '모든 메일은 맡은 봇에게 가요. 중요, 나중에, 빠르게, 또는 내가 만든 봇. 어떤 봇도 맡지 않은 메일은 Fewmail Bot에게 남아요.',
+          title: '메일이 오는 대로 분류해요.',
+        },
+        {
+          description:
+            '봇은 내가 알아서 하라고 맡기기 전까지 메일마다 손대기 전에 먼저 물어봐요. 한 일은 모두 이유와 함께 그 채팅에 남아요.',
+          title: '믿을 수 있을 때까지 물어봐요.',
+        },
+        {
+          description:
+            'Fewmail Bot에게 “Hetzner 청구서는 읽음 처리해 줘”라고 말하고, 만들어 준 봇을 승인하세요. 일시 중지, 수정, 삭제도 같은 방법으로 해요.',
+          title: '한 문장으로 하나 만들어요.',
+        },
       ],
-      handledTitle: '자는 동안 처리한 것',
-      label: '직접 해 보기',
-      lead: '이제 아침은 이렇게 시작돼요. 초안은 써 있고, 이유도 적혀 있고, 결정은 내가 해요. 자, 한번 정리해 보세요.',
-      left: (count: number) => `결정할 것 ${count}개`,
-      title: '받은편지함 전체, 2분이면 끝.',
+      quick:
+        'Growthly의 Mira는 콜드 메일이에요. 모르는 사람의 영업이고, 내가 먼저 연락한 적은 없어요.',
+      settled: {
+        remind: '알림 설정됨',
+        send: '답장 보냄',
+        skip: '건너뜀',
+      },
+      title: '메일 종류마다 채팅 하나씩.',
     },
     plans: {
       agent: '에이전트',
@@ -1361,7 +1394,7 @@ export const ko: Messages = {
         '에이전트가 하는 모든 일에 하나의 사용량: 쓴 만큼만, 잡음은 세지 않아요',
       forever: '평생',
       free: {
-        description: '홈, 분류, 규칙, 보호. 평생 무료.',
+        description: '봇, 분류, 보호. 평생 무료.',
       },
       max: {
         description: '바쁜 받은편지함을 위한, 같은 에이전트.',
@@ -1379,7 +1412,7 @@ export const ko: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `홈, 분류, 평소 말로 쓰는 규칙, 보호 기능은 평생 무료예요. Pro는 대신 읽고, 쓰고, 기억하는 에이전트이고, Max는 바쁜 받은편지함을 위해 여유를 더한 같은 에이전트예요. 모든 계정은 Pro ${trialDays}일로 시작하고, 끝나면 그냥 Free로 남아요.`,
+        `평소 말로 만드는 봇, 분류, 보호 기능은 평생 무료예요. Pro는 대신 읽고, 쓰고, 기억하는 에이전트이고, Max는 바쁜 받은편지함을 위해 여유를 더한 같은 에이전트예요. 모든 계정은 Pro ${trialDays}일로 시작하고, 끝나면 그냥 Free로 남아요.`,
       otherTool: '다른 도구를 고민 중인가요?',
       title: '받은편지함이 아니라 에이전트에 돈을 내세요.',
     },
@@ -1394,7 +1427,7 @@ export const ko: Messages = {
       vows: [
         {
           description:
-            '초안은 나를 기다려요. 보관, 읽음 처리, 구독 취소를 스스로 할 수 있는 건 내가 만들었거나 남겨 둔 규칙뿐이고, 규칙이 한 일은 모두 처리됨에 표시돼요.',
+            '초안은 나를 기다려요. 봇이 스스로 메일을 옮기는 건 내가 맡긴 뒤부터이고, 한 일은 모두 이유와 함께 그 채팅에 남아요.',
           title: '내 승인 없이는 아무것도 보내지 않아요.',
         },
         {

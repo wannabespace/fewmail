@@ -1107,13 +1107,13 @@ export const en = {
       mcp: 'Connect Fewmail to Claude, ChatGPT, Claude Code or Cursor as an MCP server: read and triage your Gmail from the AI you already use.',
       motto: 'only what matters in your inbox',
       pricing: (trialDays: number) =>
-        `Fewmail is free forever for Home, sorting, rules and spam protection. Pro, the whole agent, starts with ${trialDays} free days and no card.`,
+        `Fewmail is free forever for the bots, sorting and spam protection. Pro, the whole agent, starts with ${trialDays} free days and no card.`,
       tagline: 'the AI email agent for Gmail',
     },
     chapters: {
       pricing: {
         description:
-          'Home, the sorting, rules and protection are free forever. Lite, Pro and Max add everything that reads and writes for you; the bigger plans simply do more of it.',
+          'The bots, the sorting and the protection are free forever. Lite, Pro and Max add everything that reads and writes for you; the bigger plans simply do more of it.',
         label: 'Pricing',
         title: (usd: number) =>
           `Free for the sorting. From $${usd} for the agent.`,
@@ -1131,7 +1131,7 @@ export const en = {
     },
     mcp: {
       answer:
-        'The signed contract, before Friday’s kickoff. A reply is already drafted and waiting in your Fewmail queue.',
+        'The signed contract, before Friday’s kickoff. A reply is already drafted and waits for your approval in Fewmail.',
       clients: 'Works with',
       emphasis: 'Claude and ChatGPT.',
       free: 'Reading your mail and the agent’s sorting is free.',
@@ -1143,7 +1143,7 @@ export const en = {
     },
     mcpPage: {
       copy: 'Copy URL',
-      lead: 'Connect Fewmail as an MCP server and ask about your mail from the AI you already use. Reading your mail and the agent’s sorting is free; drafting, sending and rules come with Pro.',
+      lead: 'Connect Fewmail as an MCP server and ask about your mail from the AI you already use. Reading your mail and the agent’s sorting is free; drafting, sending and bots that write come with Pro.',
       safety:
         'Anything that sends an email or changes Gmail asks for your approval first. An email that tries to give the assistant orders is flagged before the assistant reads it. Your mail is never used to train models, and you can disconnect any app in Settings.',
       steps: {
@@ -1166,7 +1166,7 @@ export const en = {
         },
         drafts: {
           description:
-            'Replies are written ahead of time, in your tone and in the sender’s language, and wait in your queue until you approve them.',
+            'Replies are written ahead of time, in your tone and in the sender’s language, and wait in their bot’s chat until you approve them.',
           title: 'Drafts replies in your voice',
         },
         protection: {
@@ -1181,8 +1181,8 @@ export const en = {
         },
         bots: {
           description:
-            'Describe in one sentence what should happen to some mail and it becomes a rule. Only the rules you turn on act on their own.',
-          title: 'Rules in plain words',
+            'Describe in one sentence what should happen to some mail and it becomes a bot with its own chat. Only the bots you let act do so on their own.',
+          title: 'Bots in plain words',
         },
         sorting: {
           description:
@@ -1208,11 +1208,11 @@ export const en = {
         },
         {
           answer:
-            'It drafts them for you, but never sends one on its own. Each draft waits in your queue for your approval, and similar ones can be approved together.',
+            'It drafts them for you, but never sends one on its own. Each draft waits in its bot’s chat for your approval, and similar ones can be approved together.',
           question: 'Can it answer emails automatically?',
         },
         {
-          answer: `Yes. The Free plan sorts every email, keeps what needs you on one page, runs your rules and protects you from spam and phishing, forever. Drafts, summaries and the rest of the agent come with the paid plans, and every account starts with ${trialDays} days of Pro, no card.`,
+          answer: `Yes. The Free plan sorts every email, keeps what needs you in your bots’ chats, runs your bots and protects you from spam and phishing, forever. Drafts, summaries and the rest of the agent come with the paid plans, and every account starts with ${trialDays} days of Pro, no card.`,
           question: 'Is there a free AI email assistant for Gmail?',
         },
       ],
@@ -1235,7 +1235,7 @@ export const en = {
       },
       labels: {
         ask: 'Ask your mail anything',
-        home: 'What needs you, on one page',
+        home: 'What needs you, in one place',
         calendar: 'Calendar',
         drafts: 'Replies drafted for you',
         followUps: 'Follow-up reminders',
@@ -1249,7 +1249,7 @@ export const en = {
         outlook: 'Outlook and Microsoft 365',
         phishing: 'Phishing and payment-change warnings',
         phone: 'On your phone',
-        bots: 'Rules in plain words',
+        bots: 'Bots in plain words',
         snooze: 'Snooze',
         spamShield: 'Community spam shield',
         summaries: 'Email summaries',
@@ -1374,7 +1374,7 @@ export const en = {
       },
       {
         answer:
-          'Never without you. Replies wait in your queue until you approve them, and only rules you created or kept can archive, mark read or unsubscribe on their own. Everything it did is listed under Handled.',
+          'Never without you. Replies wait in their bot’s chat until you approve them, and a bot archives, marks read or unsubscribes on its own only once you let it. Everything it did stays in its chat, with the reason.',
         question: 'Can it send or delete mail on its own?',
       },
       {
@@ -1393,7 +1393,7 @@ export const en = {
       },
       {
         answer:
-          'Gmail and Google Workspace accounts today. Add several mailboxes to one Fewmail and their mail joins the same Home and inbox.',
+          'Gmail and Google Workspace accounts today. Add several mailboxes to one Fewmail and their mail joins the same bots and inbox.',
         question: 'Which email accounts work?',
       },
     ],
@@ -1401,35 +1401,35 @@ export const en = {
       description:
         'The parts of email that used to take an afternoon, done in the background and listed where you can check them.',
       items: {
-        codes: {
-          description:
-            'A fresh code waits at the top of Home and beside its email, ready to copy without opening anything. Free.',
-          title: 'Sign-in codes',
-        },
-        subscriptions: {
-          description:
-            'Every mailing list that wrote this month, with how many of its emails you actually opened. Leave any of them with one key. Free.',
-          title: 'Mailing lists',
-        },
-        ask: {
-          description:
-            'Ask anything in plain words and get the answer from your own mail, with the emails it came from.',
-          title: 'Ask your mail',
-        },
         calendar: {
           description:
             'The calendar of every mailbox in one view. A meeting proposed in an email becomes an event once you approve it.',
           title: 'Calendar',
         },
-        clearOut: {
+        codes: {
           description:
-            'The whole backlog out in one go, up to 50,000 emails per mailbox, all under one label so Undo brings every one back. Free.',
-          title: 'Clear-out',
+            'A fresh code waits at the top of your chats and beside its email, ready to copy without opening anything. Free.',
+          title: 'Sign-in codes',
+        },
+        messengers: {
+          description:
+            'Urgent mail reaches you in Telegram or WhatsApp at once. Ask about your mail and approve drafts there, in words or by voice.',
+          title: 'Telegram and WhatsApp',
         },
         reading: {
           description:
-            'One summary of the day’s newsletters: the news by topic, each sentence linked to where it came from, and the ones worth reading in full.',
+            'One issue of yesterday’s newsletters each morning: the news by topic, each sentence linked to where it came from, and the ones worth reading in full.',
           title: 'Reading',
+        },
+        shield: {
+          description:
+            'Report a spammer once and every Fewmail user is safer. Whatever the shield catches waits for your approval before it moves. Free.',
+          title: 'Spam shield',
+        },
+        subscriptions: {
+          description:
+            'Every mailing list that wrote this month, with how many of its emails you actually opened. Leave any of them with one key. Free.',
+          title: 'Mailing lists',
         },
         voice: {
           description:
@@ -1457,7 +1457,7 @@ export const en = {
       label: 'What goes away',
       rows: [
         {
-          fix: 'Clear-out moves the whole backlog out in one go: old ads, read notifications, lists you never open. One Undo brings every email back.',
+          fix: 'Ask Fewmail Bot to clear out the backlog: old ads, read notifications, lists you never open, all moved in one go. One Undo brings every email back.',
           problem: 'Thousands of emails nobody will ever read.',
         },
         {
@@ -1469,7 +1469,7 @@ export const en = {
           problem: 'Newsletters you never signed up for.',
         },
         {
-          fix: 'The day’s newsletters become one summary by topic, with the ones worth reading in full pointed out.',
+          fix: 'Each morning Reading turns yesterday’s newsletters into one issue by topic, with the ones worth reading in full pointed out.',
           problem: 'Newsletters you meant to read.',
         },
         {
@@ -1477,11 +1477,11 @@ export const en = {
           problem: 'An invoice with new bank details.',
         },
         {
-          fix: 'Promises you make in sent mail come back when they are due, and threads nobody answered get a follow-up.',
+          fix: 'The Board writes down what you promised and what you are owed, and brings each back on its day. Threads nobody answered get a follow-up.',
           problem: 'The thing you promised and forgot.',
         },
         {
-          fix: 'Only urgent mail reaches you in Telegram or WhatsApp. The rest waits on Home, already sorted, for whenever you look.',
+          fix: 'Only urgent mail reaches you in Telegram or WhatsApp. The rest waits in your bots’ chats, already sorted, for whenever you look.',
           problem: 'Checking mail at dinner, just in case.',
         },
       ],
@@ -1490,9 +1490,9 @@ export const en = {
     hero: {
       needs: {
         emphasis: 'need you.',
-        lead: (handled: string) =>
-          `Anna is waiting on the contract, Northwind’s invoice is due next week and Marco wants Thursday. ${handled} newsletters and notifications were handled, and Home keeps up as new mail arrives.`,
-        tag: 'Home · Thursday, 08:12',
+        lead: (handled: string, bot: string) =>
+          `Anna is waiting on the contract, Northwind’s invoice is due next week and Marco wants Thursday. Your bots took care of ${handled} newsletters and notifications, and these three wait in ${bot}.`,
+        tag: (bot: string) => `${bot} · Thursday, 08:12`,
         title: 'Three things need you.',
       },
       fates: {
@@ -1534,8 +1534,7 @@ export const en = {
       remindPlan: 'Adds it to your bills and reminds you on Nov 19.',
       start: 'Start free with Google',
       title: 'Email is not your job.',
-      home: 'Home',
-      tryQueue: 'Try the queue',
+      seeBots: 'Meet the bots',
       unread: ((slots) => [slots.count, ' unread']) as Rich<'count'>,
       unreadInbox: ((slots) => [
         slots.count,
@@ -1551,22 +1550,56 @@ export const en = {
       pricing: 'Pricing',
       signIn: 'Sign in',
     },
-    play: {
-      again: 'Clear it again',
-      doneLead: (handled: string) =>
-        `You made three decisions. Fewmail took care of the other ${handled} and wrote down why.`,
-      doneTitle: 'That’s it for today.',
-      emphasis: 'in two minutes.',
-      handled: [
-        'Lumen Weekly: you opened none of the last 30 issues',
-        'paypa1-billing.com looks like paypal.com',
-        'Parcelhub: delivery notices, by the rule “Receipts and shipping”',
+    bots: {
+      again: 'Start over',
+      board: {
+        coming: { state: 'turns paid · Nov 28', text: 'Coursely trial' },
+        owed: {
+          state: 'waiting · by Nov 22',
+          text: 'Northwind: refund of $120 for the double charge',
+        },
+        promised: {
+          state: 'due Thursday',
+          text: 'Send Marco the slides before the review',
+        },
+      },
+      emphasis: 'each kind of mail.',
+      fewmail: {
+        approve: 'Approve',
+        ask: 'Invoices from Hetzner: mark them read',
+        botName: 'Hetzner invoices',
+        digest: (total: number, people: number) =>
+          `${total} emails in the last day. Mostly newsletters and notifications, and just ${people} from people.`,
+        proposal: 'Here is the bot. Approve it and it starts with new mail.',
+      },
+      label: 'Bots',
+      later: 'Four worth knowing, nothing to decide.',
+      lead: 'Each bot reads its own kind of mail as it arrives and tells you in its chat what it did and what waits for you. Click through them, or press [ and ].',
+      points: [
+        {
+          description:
+            'Every email goes to the bot whose job it is: Important, Can wait, Quick, or one you made. What no bot takes stays with Fewmail Bot.',
+          title: 'They sort as mail arrives.',
+        },
+        {
+          description:
+            'A bot asks before it touches each email until you let it act on its own. Whatever it did stays in its chat, with the reason.',
+          title: 'They ask until you trust them.',
+        },
+        {
+          description:
+            'Tell Fewmail Bot “invoices from Hetzner: mark them read” and approve the bot it makes. Pause, change or delete one the same way.',
+          title: 'Make one in a sentence.',
+        },
       ],
-      handledTitle: 'Handled while you slept',
-      label: 'Try it',
-      lead: 'This is what a morning looks like now. The drafts are written, the reasons are given, you decide. Go ahead, clear it.',
-      left: (count: number) => `${count} to decide`,
-      title: 'Your whole inbox, in two minutes.',
+      quick:
+        'Mira at Growthly is cold outreach: a stranger pitching, and you never wrote to them.',
+      settled: {
+        remind: 'reminder set',
+        send: 'reply sent',
+        skip: 'skipped',
+      },
+      title: 'A chat for each kind of mail.',
     },
     plans: {
       agent: 'The agent',
@@ -1577,8 +1610,7 @@ export const en = {
         'One allowance for everything the agent does: you pay for what you use, and noise never counts',
       forever: 'forever',
       free: {
-        description:
-          'Home, the sorting, the rules and the protection. Forever.',
+        description: 'The bots, the sorting and the protection. Forever.',
       },
       max: {
         description: 'The same agent for a busy inbox.',
@@ -1596,7 +1628,7 @@ export const en = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Home, sorting, plain-language rules and protection are free forever. Pro is the agent that reads, writes and remembers for you; Max is the same agent with room for a busy inbox. Every account starts with ${trialDays} days of Pro, and when they end you simply stay on Free.`,
+        `Bots in plain words, sorting and protection are free forever. Pro is the agent that reads, writes and remembers for you; Max is the same agent with room for a busy inbox. Every account starts with ${trialDays} days of Pro, and when they end you simply stay on Free.`,
       otherTool: 'Thinking about another tool?',
       title: 'Pay for the agent, not the inbox.',
     },
@@ -1611,7 +1643,7 @@ export const en = {
       vows: [
         {
           description:
-            'Drafts wait for you. Only rules you created or kept may archive, mark read or unsubscribe on their own, and everything they did is listed under Handled.',
+            'Drafts wait for you. A bot moves mail on its own only once you let it, and everything it did stays in its chat with the reason.',
           title: 'Nothing is sent without your approval.',
         },
         {

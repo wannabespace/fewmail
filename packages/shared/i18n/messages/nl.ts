@@ -1115,13 +1115,13 @@ export const nl: Messages = {
       mcp: 'Koppel Fewmail als MCP-server aan Claude, ChatGPT, Claude Code of Cursor: lees en sorteer je Gmail vanuit de AI die je al gebruikt.',
       motto: 'alleen wat telt in je inbox',
       pricing: (trialDays: number) =>
-        `Fewmail is voor altijd gratis voor Home, sorteren, regels en spambescherming. Pro, de hele agent, begint met ${trialDays} gratis dagen en zonder kaart.`,
+        `Fewmail is voor altijd gratis voor de bots, sorteren en spambescherming. Pro, de hele agent, begint met ${trialDays} gratis dagen en zonder kaart.`,
       tagline: 'de AI-e-mailagent voor Gmail',
     },
     chapters: {
       pricing: {
         description:
-          'Home, sorteren, regels en bescherming zijn voor altijd gratis. Lite, Pro en Max voegen alles toe wat voor je leest en schrijft; de grotere abonnementen doen er gewoon meer van.',
+          'De bots, het sorteren en de bescherming zijn voor altijd gratis. Lite, Pro en Max voegen alles toe wat voor je leest en schrijft; de grotere abonnementen doen er gewoon meer van.',
         label: 'Prijzen',
         title: (usd: number) =>
           `Gratis voor het sorteren. Vanaf $${usd} voor de agent.`,
@@ -1139,7 +1139,7 @@ export const nl: Messages = {
     },
     mcp: {
       answer:
-        'Het getekende contract, vóór de kick-off van vrijdag. Er staat al een antwoord klaar in je wachtrij in Fewmail.',
+        'Het getekende contract, vóór de kick-off van vrijdag. Er staat al een antwoord klaar dat in Fewmail op je goedkeuring wacht.',
       clients: 'Werkt met',
       emphasis: 'Claude en ChatGPT.',
       free: 'Je mail lezen en het sorteren door de agent zijn gratis.',
@@ -1151,7 +1151,7 @@ export const nl: Messages = {
     },
     mcpPage: {
       copy: 'URL kopiëren',
-      lead: 'Koppel Fewmail als MCP-server en vraag naar je mail vanuit de AI die je al gebruikt. Je mail lezen en het sorteren door de agent zijn gratis; concepten, versturen en regels komen met Pro.',
+      lead: 'Koppel Fewmail als MCP-server en vraag naar je mail vanuit de AI die je al gebruikt. Je mail lezen en het sorteren door de agent zijn gratis; concepten, versturen en bots die schrijven komen met Pro.',
       safety:
         'Alles wat een e-mail verstuurt of Gmail wijzigt, vraagt eerst om je goedkeuring. Een e-mail die de assistent opdrachten probeert te geven, wordt gemarkeerd voordat die hem leest. Je mail traint nooit modellen en je kunt elke app ontkoppelen in de instellingen.',
       steps: {
@@ -1174,7 +1174,7 @@ export const nl: Messages = {
         },
         drafts: {
           description:
-            'Antwoorden worden van tevoren geschreven, in jouw toon en in de taal van de afzender, en wachten in je wachtrij tot je ze goedkeurt.',
+            'Antwoorden worden van tevoren geschreven, in jouw toon en in de taal van de afzender, en wachten in de chat van hun bot tot je ze goedkeurt.',
           title: 'Schrijft antwoorden in jouw stijl',
         },
         protection: {
@@ -1189,8 +1189,8 @@ export const nl: Messages = {
         },
         bots: {
           description:
-            'Beschrijf in één zin wat er met bepaalde mail moet gebeuren en het wordt een regel. Alleen de regels die jij aanzet, doen zelf iets.',
-          title: 'Regels in gewone woorden',
+            'Beschrijf in één zin wat er met bepaalde mail moet gebeuren en het wordt een bot met een eigen chat. Alleen de bots die jij laat handelen, doen zelf iets.',
+          title: 'Bots in gewone woorden',
         },
         sorting: {
           description:
@@ -1216,11 +1216,11 @@ export const nl: Messages = {
         },
         {
           answer:
-            'Het schrijft concepten voor je, maar verstuurt er nooit zelf een. Elk concept wacht in je wachtrij op je goedkeuring, en vergelijkbare kun je in één keer goedkeuren.',
+            'Het schrijft concepten voor je, maar verstuurt er nooit zelf een. Elk concept wacht in de chat van zijn bot op je goedkeuring, en vergelijkbare kun je in één keer goedkeuren.',
           question: 'Kan het automatisch e-mails beantwoorden?',
         },
         {
-          answer: `Ja. Het gratis abonnement sorteert elke mail, zet wat je aandacht vraagt op één pagina, voert je regels uit en beschermt je tegen spam en phishing, voor altijd. Concepten, samenvattingen en de rest van de agent komen met de betaalde abonnementen, en elk account begint met ${trialDays} dagen Pro, zonder kaart.`,
+          answer: `Ja. Het gratis abonnement sorteert elke mail, zet wat je aandacht vraagt in de chats van je bots, laat je bots hun werk doen en beschermt je tegen spam en phishing, voor altijd. Concepten, samenvattingen en de rest van de agent komen met de betaalde abonnementen, en elk account begint met ${trialDays} dagen Pro, zonder kaart.`,
           question: 'Bestaat er een gratis AI-e-mailassistent voor Gmail?',
         },
       ],
@@ -1243,7 +1243,7 @@ export const nl: Messages = {
       },
       labels: {
         ask: 'Vraag je mail wat je wilt',
-        home: 'Alles wat je aandacht vraagt, op één pagina',
+        home: 'Alles wat je aandacht vraagt, op één plek',
         calendar: 'Agenda',
         drafts: 'Antwoorden voor je opgesteld',
         followUps: 'Herinneringen om op te volgen',
@@ -1257,7 +1257,7 @@ export const nl: Messages = {
         outlook: 'Outlook en Microsoft 365',
         phishing: 'Waarschuwingen voor phishing en gewijzigde betaalgegevens',
         phone: 'Op je telefoon',
-        bots: 'Regels in gewone woorden',
+        bots: 'Bots in gewone woorden',
         snooze: 'Snoozen',
         spamShield: 'Spamschild van de community',
         summaries: 'Samenvattingen van e-mails',
@@ -1382,7 +1382,7 @@ export const nl: Messages = {
       },
       {
         answer:
-          'Nooit zonder jou. Antwoorden wachten in je wachtrij tot je ze goedkeurt, en alleen regels die jij hebt gemaakt of behouden mogen zelf archiveren, als gelezen markeren of afmelden. Alles wat het deed, staat onder Afgehandeld.',
+          'Nooit zonder jou. Antwoorden wachten in de chat van hun bot tot je ze goedkeurt, en een bot archiveert, markeert als gelezen of meldt af pas zelf als jij hem dat toestaat. Alles wat hij deed, blijft in zijn chat, met de reden erbij.',
         question: 'Kan het zelf mail versturen of verwijderen?',
       },
       {
@@ -1401,7 +1401,7 @@ export const nl: Messages = {
       },
       {
         answer:
-          'Voorlopig accounts van Gmail en Google Workspace. Voeg meerdere mailboxen toe aan één Fewmail en hun mail komt op Home en in dezelfde inbox terecht.',
+          'Voorlopig accounts van Gmail en Google Workspace. Voeg meerdere mailboxen toe aan één Fewmail en hun mail komt bij dezelfde bots en in dezelfde inbox terecht.',
         question: 'Welke e-mailaccounts werken?',
       },
     ],
@@ -1409,35 +1409,35 @@ export const nl: Messages = {
       description:
         'De stukken e-mail die vroeger een middag kostten, gedaan op de achtergrond en op een rij gezet waar je ze kunt nakijken.',
       items: {
-        codes: {
-          description:
-            'Een verse code staat bovenaan Home en naast de e-mail, klaar om te kopiëren zonder iets te openen. Gratis.',
-          title: 'Inlogcodes',
-        },
-        subscriptions: {
-          description:
-            'Elke mailinglijst die deze maand schreef, met hoeveel van haar e-mails je echt hebt geopend. Meld je met één toets af. Gratis.',
-          title: 'Mailinglijsten',
-        },
-        ask: {
-          description:
-            'Vraag wat je wilt in gewone woorden en krijg het antwoord uit je eigen mail, met de e-mails waar het vandaan komt.',
-          title: 'Vraag het je mail',
-        },
         calendar: {
           description:
             'De agenda van elke mailbox in één overzicht. Een afspraak die in een e-mail wordt voorgesteld, komt in je agenda zodra je die goedkeurt.',
           title: 'Agenda',
         },
-        clearOut: {
+        codes: {
           description:
-            'De hele achterstand in één keer weg, tot 50.000 e-mails per mailbox, allemaal onder één label, zodat Ongedaan maken ze stuk voor stuk terugzet. Gratis.',
-          title: 'Opruimen',
+            'Een verse code staat bovenaan je chats en naast de e-mail, klaar om te kopiëren zonder iets te openen. Gratis.',
+          title: 'Inlogcodes',
+        },
+        messengers: {
+          description:
+            'Dringende mail bereikt je meteen in Telegram of WhatsApp. Vraag daar naar je mail en keur concepten goed, getypt of met je stem.',
+          title: 'Telegram en WhatsApp',
         },
         reading: {
           description:
-            'Eén samenvatting van de nieuwsbrieven van vandaag: het nieuws per onderwerp, elke zin gekoppeld aan de bron, en welke het lezen waard zijn.',
+            'Elke ochtend één editie van de nieuwsbrieven van gisteren: het nieuws per onderwerp, elke zin gekoppeld aan de bron, en welke het lezen waard zijn.',
           title: 'Lezen',
+        },
+        shield: {
+          description:
+            'Meld een spammer één keer en elke Fewmail-gebruiker is veiliger. Wat het schild vangt, wacht op je goedkeuring voordat het verplaatst wordt. Gratis.',
+          title: 'Spamschild',
+        },
+        subscriptions: {
+          description:
+            'Elke mailinglijst die deze maand schreef, met hoeveel van haar e-mails je echt hebt geopend. Meld je met één toets af. Gratis.',
+          title: 'Mailinglijsten',
         },
         voice: {
           description:
@@ -1465,7 +1465,7 @@ export const nl: Messages = {
       label: 'Wat verdwijnt',
       rows: [
         {
-          fix: 'Opruimen haalt de hele achterstand in één keer weg: oude reclame, gelezen meldingen, lijsten die je nooit opent. Eén keer Ongedaan maken zet elke e-mail terug.',
+          fix: 'Vraag Fewmail Bot de achterstand op te ruimen: oude reclame, gelezen meldingen, lijsten die je nooit opent, alles in één keer weg. Eén keer Ongedaan maken zet elke e-mail terug.',
           problem: 'Duizenden e-mails die niemand ooit gaat lezen.',
         },
         {
@@ -1477,7 +1477,7 @@ export const nl: Messages = {
           problem: 'Nieuwsbrieven waarvoor je je nooit hebt aangemeld.',
         },
         {
-          fix: 'De nieuwsbrieven van vandaag worden één samenvatting per onderwerp, met de exemplaren die het lezen waard zijn erbij.',
+          fix: 'Elke ochtend maakt “Lezen” van de nieuwsbrieven van gisteren één editie per onderwerp, met de exemplaren die het lezen waard zijn erbij.',
           problem: 'Nieuwsbrieven die je nog wilde lezen.',
         },
         {
@@ -1485,11 +1485,11 @@ export const nl: Messages = {
           problem: 'Een factuur met een nieuw rekeningnummer.',
         },
         {
-          fix: 'Beloftes die je in verstuurde mail doet, komen terug als ze aan de beurt zijn, en threads waar niemand op reageerde, worden opgevolgd.',
+          fix: 'Het Bord noteert wat je beloofde en wat je nog tegoed hebt, en brengt elk ding terug op zijn dag. Threads waar niemand op reageerde, worden opgevolgd.',
           problem: 'Dat ene wat je beloofde en vergat.',
         },
         {
-          fix: 'Alleen dringende mail bereikt je in Telegram of WhatsApp. De rest wacht al gesorteerd op Home, tot je kijkt.',
+          fix: 'Alleen dringende mail bereikt je in Telegram of WhatsApp. De rest wacht al gesorteerd in de chats van je bots, tot je kijkt.',
           problem: 'Tijdens het eten je mail checken, voor de zekerheid.',
         },
       ],
@@ -1498,9 +1498,9 @@ export const nl: Messages = {
     hero: {
       needs: {
         emphasis: 'hebben jou nodig.',
-        lead: (handled: string) =>
-          `Anna wacht op het contract, de factuur van Northwind moet volgende week betaald zijn en Marco wil donderdag. ${handled} nieuwsbrieven en meldingen zijn afgehandeld, en Home werkt zichzelf bij zodra er nieuwe mail binnenkomt.`,
-        tag: 'Home · donderdag, 08:12',
+        lead: (handled: string, bot: string) =>
+          `Anna wacht op het contract, de factuur van Northwind moet volgende week betaald zijn en Marco wil donderdag. Je bots hebben ${handled} nieuwsbrieven en meldingen afgehandeld, en deze drie wachten in de chat “${bot}”.`,
+        tag: (bot: string) => `${bot} · donderdag, 08:12`,
         title: 'Drie dingen hebben jou nodig.',
       },
       fates: {
@@ -1543,8 +1543,7 @@ export const nl: Messages = {
       remindPlan: 'Zet hem bij je rekeningen en herinnert je op 19 nov.',
       start: 'Gratis starten met Google',
       title: 'E-mail is niet jouw werk.',
-      home: 'Home',
-      tryQueue: 'Probeer de wachtrij',
+      seeBots: 'Maak kennis met de bots',
       unread: ((slots) => [slots.count, ' ongelezen']) as Rich<'count'>,
       unreadInbox: ((slots) => [
         slots.count,
@@ -1560,22 +1559,63 @@ export const nl: Messages = {
       pricing: 'Prijzen',
       signIn: 'Inloggen',
     },
-    play: {
-      again: 'Nog een keer',
-      doneLead: (handled: string) =>
-        `Je nam drie beslissingen. Fewmail regelde de andere ${handled} en schreef op waarom.`,
-      doneTitle: 'Dat was het voor vandaag.',
-      emphasis: 'in twee minuten.',
-      handled: [
-        'Lumen Weekly: je opende geen van de laatste 30 nummers',
-        'paypa1-billing.com lijkt op paypal.com',
-        'Parcelhub: bezorgberichten, via de regel “Bonnetjes en verzending”',
+    bots: {
+      again: 'Opnieuw beginnen',
+      board: {
+        coming: {
+          state: 'wordt betaald · 28 nov.',
+          text: 'Proefperiode Coursely',
+        },
+        owed: {
+          state: 'wacht · uiterlijk 22 nov.',
+          text: 'Northwind: terugbetaling van $120 voor de dubbele afschrijving',
+        },
+        promised: {
+          state: 'uiterlijk donderdag',
+          text: 'Marco de slides sturen vóór de review',
+        },
+      },
+      emphasis: 'voor elk soort mail.',
+      fewmail: {
+        approve: 'Goedkeuren',
+        ask: 'Facturen van Hetzner: markeer ze als gelezen',
+        botName: 'Hetzner-facturen',
+        digest: (total: number, people: number) =>
+          `${plural('nl', total, {
+            one: (n) => `${n} e-mail`,
+            other: (n) => `${n} e-mails`,
+          })} in de afgelopen 24 uur. Vooral nieuwsbrieven en meldingen, en maar ${people} van mensen.`,
+        proposal:
+          'Hier is de bot. Keur hem goed en hij begint met nieuwe mail.',
+      },
+      label: 'Bots',
+      later: 'Vier om te weten, niets om te beslissen.',
+      lead: 'Elke bot leest zijn eigen soort mail zodra die binnenkomt en vertelt je in zijn chat wat hij deed en wat op je wacht. Klik ze door, of druk op [ en ].',
+      points: [
+        {
+          description:
+            'Elke e-mail gaat naar de bot wiens taak het is: “Belangrijk”, “Kan wachten”, “Snel” of een die jij maakte. Wat geen bot oppakt, blijft bij Fewmail Bot.',
+          title: 'Ze sorteren zodra mail binnenkomt.',
+        },
+        {
+          description:
+            'Een bot vraagt het vóór elke e-mail, tot je hem zelf laat handelen. Wat hij deed, blijft in zijn chat, met de reden erbij.',
+          title: 'Ze vragen het tot je ze vertrouwt.',
+        },
+        {
+          description:
+            'Zeg tegen Fewmail Bot “facturen van Hetzner: markeer ze als gelezen” en keur de bot goed die hij maakt. Pauzeren, aanpassen of verwijderen gaat op dezelfde manier.',
+          title: 'Maak er een in één zin.',
+        },
       ],
-      handledTitle: 'Afgehandeld terwijl je sliep',
-      label: 'Probeer het',
-      lead: 'Zo ziet een ochtend er nu uit. De concepten zijn geschreven, de redenen staan erbij, jij beslist. Ga je gang, werk hem weg.',
-      left: (count: number) => `Nog ${count} te beslissen`,
-      title: 'Je hele inbox, in twee minuten.',
+      quick:
+        'Mira van Growthly is koude acquisitie: een onbekende die iets wil verkopen, en jij hebt haar nooit gemaild.',
+      settled: {
+        remind: 'herinnering ingesteld',
+        send: 'antwoord verstuurd',
+        skip: 'overgeslagen',
+      },
+      title: 'Een chat voor elk soort mail.',
     },
     plans: {
       agent: 'De agent',
@@ -1586,7 +1626,7 @@ export const nl: Messages = {
         'Eén tegoed voor alles wat de agent doet: je betaalt voor wat je gebruikt, en ruis telt nooit mee',
       forever: 'voor altijd',
       free: {
-        description: 'Home, sorteren, regels en bescherming. Voor altijd.',
+        description: 'De bots, het sorteren en de bescherming. Voor altijd.',
       },
       max: {
         description: 'Dezelfde agent voor een drukke inbox.',
@@ -1604,7 +1644,7 @@ export const nl: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Home, sorteren, regels in gewone woorden en bescherming zijn voor altijd gratis. Pro is de agent die voor je leest, schrijft en onthoudt; Max is dezelfde agent met ruimte voor een drukke inbox. Elk account begint met ${trialDays} dagen Pro, en daarna blijf je gewoon op Gratis.`,
+        `Bots in gewone woorden, sorteren en bescherming zijn voor altijd gratis. Pro is de agent die voor je leest, schrijft en onthoudt; Max is dezelfde agent met ruimte voor een drukke inbox. Elk account begint met ${trialDays} dagen Pro, en daarna blijf je gewoon op Gratis.`,
       otherTool: 'Denk je aan een andere tool?',
       title: 'Betaal voor de agent, niet voor de inbox.',
     },
@@ -1619,7 +1659,7 @@ export const nl: Messages = {
       vows: [
         {
           description:
-            'Concepten wachten op jou. Alleen regels die jij hebt gemaakt of behouden mogen zelf archiveren, als gelezen markeren of afmelden, en alles wat ze deden, staat onder Afgehandeld.',
+            'Concepten wachten op jou. Een bot verplaatst mail pas zelf als jij hem dat toestaat, en alles wat hij deed, blijft in zijn chat, met de reden erbij.',
           title: 'Niets wordt verstuurd zonder jouw goedkeuring.',
         },
         {

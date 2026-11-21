@@ -1,55 +1,62 @@
 import { PRICE_USD } from '@fewmail/shared/agent'
-import { cn } from '@fewmail/ui/lib/utils'
 import {
-  CleanIcon,
   Calendar03Icon,
   GiftIcon,
   MailRemove01Icon,
+  Message01Icon,
   Mic01Icon,
   News01Icon,
   PasswordValidationIcon,
-  Search01Icon,
+  Shield01Icon,
 } from '@hugeicons/core-free-icons'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
 import {
+  BotDesk,
+  BotPoints,
   Emphasized,
   InboxStory,
   Ledger,
   McpShowcase,
-  PlayQueue,
   TrustBand,
 } from '~/components/landing-demos'
 import {
   Chapter,
   Closing,
-  CONTAINER,
   Faq,
   FeatureGrid,
   PlanCards,
-  Reveal,
 } from '~/components/site'
 import { signedInStore } from '~/lib/auth'
 import { useT } from '~/lib/i18n'
 import { TRIAL_DAYS } from '~/lib/marketing'
 
 const FEATURE_ICONS = {
-  clearOut: CleanIcon,
   reading: News01Icon,
-  voice: Mic01Icon,
+  messengers: Message01Icon,
   calendar: Calendar03Icon,
-  ask: Search01Icon,
   subscriptions: MailRemove01Icon,
   codes: PasswordValidationIcon,
+  shield: Shield01Icon,
+  voice: Mic01Icon,
   wrapped: GiftIcon,
 }
 
 const LandingPage = () => {
   const t = useT().site
-  const { chapters, features, gone, mcp, play } = t
+  const { bots, chapters, features, gone, mcp } = t
   return (
     <>
       <InboxStory />
+      <Chapter
+        id="bots"
+        label={bots.label}
+        title={<Emphasized {...bots} text={bots.title} />}
+        description={bots.lead}
+      >
+        <BotDesk />
+        <BotPoints />
+      </Chapter>
       <Chapter
         id="gone"
         label={gone.label}
@@ -57,24 +64,6 @@ const LandingPage = () => {
       >
         <Ledger />
       </Chapter>
-      <section
-        id="try"
-        className={cn(
-          CONTAINER,
-          'grid scroll-mt-20 gap-10 py-14 sm:py-20 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:items-start'
-        )}
-      >
-        <Reveal className="flex flex-col gap-6 md:sticky md:top-28">
-          <p className="text-sm font-medium">{play.label}</p>
-          <h2 className="text-display font-serif tracking-tight text-balance">
-            <Emphasized {...play} text={play.title} />
-          </h2>
-          <p className="text-muted-foreground text-brief font-serif text-pretty">
-            {play.lead}
-          </p>
-        </Reveal>
-        <PlayQueue />
-      </section>
       <Chapter
         id="features"
         label={features.label}

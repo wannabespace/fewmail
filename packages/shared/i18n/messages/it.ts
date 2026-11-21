@@ -172,13 +172,13 @@ export const it: Messages = {
       mcp: 'Collega Fewmail a Claude, ChatGPT, Claude Code o Cursor come server MCP: leggi e smista Gmail dall’IA che usi già.',
       motto: 'solo ciò che conta nella tua casella',
       pricing: (trialDays: number) =>
-        `Fewmail è gratis per sempre per Home, smistamento, regole e protezione dallo spam. Pro, l’agente completo, parte con ${trialDays} giorni gratis e senza carta.`,
+        `Fewmail è gratis per sempre per i bot, lo smistamento e la protezione dallo spam. Pro, l’agente completo, parte con ${trialDays} giorni gratis e senza carta.`,
       tagline: "l'agente email con IA per Gmail",
     },
     chapters: {
       pricing: {
         description:
-          'Home, smistamento, regole e protezione sono gratis per sempre. Lite, Pro e Max aggiungono tutto ciò che legge e scrive per te; i piani più grandi semplicemente ne fanno di più.',
+          'I bot, lo smistamento e la protezione sono gratis per sempre. Lite, Pro e Max aggiungono tutto ciò che legge e scrive per te; i piani più grandi semplicemente ne fanno di più.',
         label: 'Prezzi',
         title: (usd: number) =>
           `Lo smistamento è gratis. L’agente, da $${usd}.`,
@@ -196,7 +196,7 @@ export const it: Messages = {
     },
     mcp: {
       answer:
-        'Il contratto firmato, prima del kickoff di venerdì. Una risposta è già pronta e ti aspetta nella tua coda di Fewmail.',
+        'Il contratto firmato, prima del kickoff di venerdì. Una risposta è già pronta e aspetta la tua approvazione in Fewmail.',
       clients: 'Funziona con',
       emphasis: 'Claude e ChatGPT.',
       free: 'Leggere la posta e lo smistamento dell’agente sono gratis.',
@@ -208,7 +208,7 @@ export const it: Messages = {
     },
     mcpPage: {
       copy: 'Copia URL',
-      lead: 'Collega Fewmail come server MCP e chiedi della tua posta dall’IA che usi già. Leggere la posta e lo smistamento dell’agente sono gratis; bozze, invii e regole arrivano con Pro.',
+      lead: 'Collega Fewmail come server MCP e chiedi della tua posta dall’IA che usi già. Leggere la posta e lo smistamento dell’agente sono gratis; bozze, invii e bot che scrivono arrivano con Pro.',
       safety:
         'Tutto ciò che invia un’email o cambia Gmail chiede prima la tua approvazione. Un’email che prova a dare ordini all’assistente viene segnalata prima che la legga. La tua posta non addestra mai modelli e puoi scollegare qualsiasi app nelle impostazioni.',
       steps: {
@@ -231,7 +231,7 @@ export const it: Messages = {
         },
         drafts: {
           description:
-            'Le risposte vengono scritte in anticipo, con il tuo tono e nella lingua del mittente, e aspettano nella tua coda finché non le approvi.',
+            'Le risposte vengono scritte in anticipo, con il tuo tono e nella lingua del mittente, e aspettano nella chat del loro bot finché non le approvi.',
           title: 'Scrive le risposte con la tua voce',
         },
         protection: {
@@ -246,8 +246,8 @@ export const it: Messages = {
         },
         bots: {
           description:
-            'Descrivi in una frase cosa deve succedere a certa posta e diventa una regola. Agiscono da sole solo le regole che attivi tu.',
-          title: 'Regole a parole semplici',
+            'Descrivi in una frase cosa deve succedere a certa posta e diventa un bot con la sua chat. Agiscono da soli solo i bot che lasci agire tu.',
+          title: 'Bot a parole semplici',
         },
         sorting: {
           description:
@@ -273,11 +273,11 @@ export const it: Messages = {
         },
         {
           answer:
-            'Scrive le bozze per te, ma non ne invia mai una da solo. Ogni bozza aspetta la tua approvazione nella coda, e quelle simili si possono approvare insieme.',
+            'Scrive le bozze per te, ma non ne invia mai una da solo. Ogni bozza aspetta la tua approvazione nella chat del suo bot, e quelle simili si possono approvare insieme.',
           question: 'Può rispondere alle email in automatico?',
         },
         {
-          answer: `Sì. Il piano Gratis smista ogni email, tiene in una sola pagina ciò che richiede la tua attenzione, applica le tue regole e ti protegge da spam e phishing, per sempre. Bozze, riassunti e il resto dell’agente arrivano con i piani a pagamento, e ogni account parte con ${trialDays} giorni di Pro, senza carta.`,
+          answer: `Sì. Il piano Gratis smista ogni email, tiene nelle chat dei tuoi bot ciò che richiede la tua attenzione, fa lavorare i tuoi bot e ti protegge da spam e phishing, per sempre. Bozze, riassunti e il resto dell’agente arrivano con i piani a pagamento, e ogni account parte con ${trialDays} giorni di Pro, senza carta.`,
           question: 'Esiste un assistente email con IA gratis per Gmail?',
         },
       ],
@@ -300,7 +300,7 @@ export const it: Messages = {
       },
       labels: {
         ask: 'Chiedi qualsiasi cosa alla tua posta',
-        home: 'Ciò che richiede la tua attenzione, in una sola pagina',
+        home: 'Ciò che richiede la tua attenzione, in un solo posto',
         calendar: 'Calendario',
         drafts: 'Risposte scritte per te',
         followUps: 'Promemoria per i solleciti',
@@ -314,7 +314,7 @@ export const it: Messages = {
         outlook: 'Outlook e Microsoft 365',
         phishing: 'Avvisi di phishing e di cambio coordinate di pagamento',
         phone: 'Sul telefono',
-        bots: 'Regole a parole semplici',
+        bots: 'Bot a parole semplici',
         snooze: 'Posticipa',
         spamShield: 'Scudo antispam della community',
         summaries: 'Riassunti delle email',
@@ -440,7 +440,7 @@ export const it: Messages = {
       },
       {
         answer:
-          'Mai senza di te. Le risposte aspettano nella tua coda finché non le approvi, e solo le regole che hai creato o tenuto possono archiviare, segnare come letto o disiscriverti da sole. Tutto ciò che ha fatto è elencato in Gestite.',
+          'Mai senza di te. Le risposte aspettano nella chat del loro bot finché non le approvi, e un bot archivia, segna come letto o ti disiscrive da solo solo dopo che glielo permetti. Tutto ciò che ha fatto resta nella sua chat, con il motivo.',
         question: 'Può inviare o eliminare email da solo?',
       },
       {
@@ -459,7 +459,7 @@ export const it: Messages = {
       },
       {
         answer:
-          'Per ora account Gmail e Google Workspace. Aggiungi più caselle a un solo Fewmail e la loro posta arriva nella stessa Home e nella stessa casella.',
+          'Per ora account Gmail e Google Workspace. Aggiungi più caselle a un solo Fewmail e la loro posta arriva agli stessi bot e nella stessa casella.',
         question: 'Quali account email funzionano?',
       },
     ],
@@ -467,35 +467,35 @@ export const it: Messages = {
       description:
         'Le parti della posta che prima ti rubavano un pomeriggio, fatte in background ed elencate dove puoi controllarle.',
       items: {
-        codes: {
-          description:
-            'Un codice recente ti aspetta in cima alla Home e accanto alla sua email, pronto da copiare senza aprire nulla. Gratis.',
-          title: 'Codici di accesso',
-        },
-        subscriptions: {
-          description:
-            'Ogni mailing list che ti ha scritto questo mese, con quante delle sue email hai davvero aperto. Disiscriviti da qualsiasi con un tasto. Gratis.',
-          title: 'Mailing list',
-        },
-        ask: {
-          description:
-            'Chiedi qualsiasi cosa a parole tue e ottieni la risposta dalla tua posta, con le email da cui proviene.',
-          title: 'Chiedi alla tua posta',
-        },
         calendar: {
           description:
             'Il calendario di ogni casella in un’unica vista. Una riunione proposta in un’email diventa un evento appena la approvi.',
           title: 'Calendario',
         },
-        clearOut: {
+        codes: {
           description:
-            'Tutto l’arretrato via in un colpo, fino a 50.000 email per casella, tutte sotto un’unica etichetta, così con «Riporta tutto» tornano tutte indietro. Gratis.',
-          title: 'Fai pulizia',
+            'Un codice recente ti aspetta in cima alle tue chat e accanto alla sua email, pronto da copiare senza aprire nulla. Gratis.',
+          title: 'Codici di accesso',
+        },
+        messengers: {
+          description:
+            'La posta urgente ti raggiunge subito su Telegram o WhatsApp. Lì puoi chiedere della tua posta e approvare le bozze, scrivendo o a voce.',
+          title: 'Telegram e WhatsApp',
         },
         reading: {
           description:
-            'Un riassunto delle newsletter del giorno: le notizie per tema, ogni frase collegata alla sua fonte, e quelle da leggere per intero.',
+            'Ogni mattina un numero con le newsletter di ieri: le notizie per tema, ogni frase collegata alla sua fonte, e quelle da leggere per intero.',
           title: 'Lettura',
+        },
+        shield: {
+          description:
+            'Segnala uno spammer una volta e ogni utente di Fewmail è più al sicuro. Ciò che lo scudo intercetta aspetta la tua approvazione prima di essere spostato. Gratis.',
+          title: 'Scudo antispam',
+        },
+        subscriptions: {
+          description:
+            'Ogni mailing list che ti ha scritto questo mese, con quante delle sue email hai davvero aperto. Disiscriviti da qualsiasi con un tasto. Gratis.',
+          title: 'Mailing list',
         },
         voice: {
           description:
@@ -523,7 +523,7 @@ export const it: Messages = {
       label: 'Cosa sparisce',
       rows: [
         {
-          fix: 'Fai pulizia toglie tutto l’arretrato in un colpo: vecchie pubblicità, notifiche lette, liste che non apri mai. Con un solo «Riporta tutto» ogni email torna indietro.',
+          fix: 'Chiedi a Fewmail Bot di eliminare l’arretrato: vecchie pubblicità, notifiche lette, liste che non apri mai, tutto spostato in un colpo. Con un solo «Riporta tutto» ogni email torna indietro.',
           problem: 'Migliaia di email che nessuno leggerà mai.',
         },
         {
@@ -535,7 +535,7 @@ export const it: Messages = {
           problem: 'Newsletter a cui non ti sei mai iscritto.',
         },
         {
-          fix: 'Le newsletter del giorno diventano un riassunto per tema, con quelle da leggere per intero segnalate.',
+          fix: 'Ogni mattina Lettura trasforma le newsletter di ieri in un unico numero per tema, con quelle da leggere per intero segnalate.',
           problem: 'Newsletter che volevi leggere.',
         },
         {
@@ -543,11 +543,11 @@ export const it: Messages = {
           problem: 'Una fattura con nuove coordinate bancarie.',
         },
         {
-          fix: 'Le promesse che fai nella posta inviata tornano da te quando scadono, e i thread senza risposta ricevono un sollecito.',
+          fix: 'La Bacheca annota ciò che hai promesso e ciò che ti devono, e te lo riporta il giorno giusto. I thread senza risposta ricevono un sollecito.',
           problem: 'Quella cosa che avevi promesso e poi dimenticato.',
         },
         {
-          fix: 'Solo la posta urgente ti raggiunge su Telegram o WhatsApp. Il resto ti aspetta in Home, già in ordine, per quando vuoi guardarlo.',
+          fix: 'Solo la posta urgente ti raggiunge su Telegram o WhatsApp. Il resto ti aspetta nelle chat dei tuoi bot, già in ordine, per quando vuoi guardarlo.',
           problem: 'Controllare la posta a cena, per sicurezza.',
         },
       ],
@@ -556,9 +556,9 @@ export const it: Messages = {
     hero: {
       needs: {
         emphasis: 'richiedono la tua attenzione.',
-        lead: (handled: string) =>
-          `Anna aspetta il contratto, la fattura di Northwind scade la settimana prossima e Marco vuole giovedì. ${handled} newsletter e notifiche sono state gestite, e Home si aggiorna da sola appena arriva nuova posta.`,
-        tag: 'Home · giovedì, 08:12',
+        lead: (handled: string, bot: string) =>
+          `Anna aspetta il contratto, la fattura di Northwind scade la settimana prossima e Marco vuole giovedì. I tuoi bot si sono occupati di ${handled} newsletter e notifiche, e queste tre ti aspettano in ${bot}.`,
+        tag: (bot: string) => `${bot} · giovedì, 08:12`,
         title: 'Tre cose richiedono la tua attenzione.',
       },
       fates: {
@@ -603,8 +603,7 @@ export const it: Messages = {
       remindPlan: 'La aggiunge alle tue bollette e te la ricorda il 19 nov.',
       start: 'Inizia gratis con Google',
       title: 'La posta non è il tuo lavoro.',
-      home: 'Home',
-      tryQueue: 'Prova la coda',
+      seeBots: 'Scopri i bot',
       unread: ((slots) => [slots.count, ' non lette']) as Rich<'count'>,
       unreadInbox: ((slots) => [
         slots.count,
@@ -620,22 +619,69 @@ export const it: Messages = {
       pricing: 'Prezzi',
       signIn: 'Accedi',
     },
-    play: {
-      again: 'Svuotala di nuovo',
-      doneLead: (handled: string) =>
-        `Hai preso tre decisioni. Fewmail si è occupato delle altre ${handled} e ha annotato il perché.`,
-      doneTitle: 'Per oggi è tutto.',
-      emphasis: 'in due minuti.',
-      handled: [
-        'Lumen Weekly: non hai aperto nessuno degli ultimi 30 numeri',
-        'paypa1-billing.com imita paypal.com',
-        'Parcelhub: avvisi di consegna, con la regola «Ricevute e spedizioni»',
+    bots: {
+      again: 'Ricomincia',
+      board: {
+        coming: {
+          state: 'diventa a pagamento · 28 nov',
+          text: 'Prova di Coursely',
+        },
+        owed: {
+          state: 'in attesa · entro il 22 nov',
+          text: 'Northwind: rimborso di $120 per il doppio addebito',
+        },
+        promised: {
+          state: 'entro giovedì',
+          text: 'Mandare a Marco le slide prima della revisione',
+        },
+      },
+      emphasis: 'ogni tipo di posta.',
+      fewmail: {
+        approve: 'Approva',
+        ask: 'Fatture di Hetzner: segnale come lette',
+        botName: 'Fatture Hetzner',
+        digest: (total: number, people: number) =>
+          `${plural('it', total, {
+            one: () => 'Un’email',
+            other: (n) => `${n} email`,
+          })} nell’ultimo giorno. Soprattutto newsletter e notifiche, e ${plural(
+            'it',
+            people,
+            {
+              one: () => 'solo una da una persona',
+              other: (n) => `solo ${n} da persone`,
+            }
+          )}.`,
+        proposal: 'Ecco il bot. Approvalo e partirà con la posta nuova.',
+      },
+      label: 'Bot',
+      later: 'Quattro cose utili da sapere, niente da decidere.',
+      lead: 'Ogni bot legge il suo tipo di posta appena arriva e ti dice nella sua chat cosa ha fatto e cosa ti aspetta. Passa dall’uno all’altro, o premi [ e ].',
+      points: [
+        {
+          description:
+            'Ogni email va al bot che se ne occupa: Importanti, Possono aspettare, Veloci o uno che hai creato tu. Ciò che nessun bot prende resta a Fewmail Bot.',
+          title: 'Smistano la posta appena arriva.',
+        },
+        {
+          description:
+            'Un bot chiede prima di toccare ogni email, finché non lo lasci agire da solo. Tutto ciò che ha fatto resta nella sua chat, con il motivo.',
+          title: 'Chiedono finché non ti fidi.',
+        },
+        {
+          description:
+            'Di’ a Fewmail Bot «fatture di Hetzner: segnale come lette» e approva il bot che crea. Metti in pausa, modifica o elimina un bot allo stesso modo.',
+          title: 'Creane uno con una frase.',
+        },
       ],
-      handledTitle: 'Gestite mentre dormivi',
-      label: 'Provalo',
-      lead: 'Ecco com’è una mattina adesso. Le bozze sono scritte, i motivi sono spiegati, decidi tu. Dai, svuotala.',
-      left: (count: number) => `${count} da decidere`,
-      title: 'Tutta la tua posta, in due minuti.',
+      quick:
+        'Mira di Growthly è un contatto a freddo: una sconosciuta che ti propone qualcosa, e tu non le hai mai scritto.',
+      settled: {
+        remind: 'promemoria impostato',
+        send: 'risposta inviata',
+        skip: 'saltata',
+      },
+      title: 'Una chat per ogni tipo di posta.',
     },
     plans: {
       agent: 'L’agente',
@@ -646,7 +692,7 @@ export const it: Messages = {
         'Una sola quota per tutto ciò che fa l’agente: paghi quello che usi e il rumore non conta mai',
       forever: 'per sempre',
       free: {
-        description: 'Home, smistamento, regole e protezione. Per sempre.',
+        description: 'I bot, lo smistamento e la protezione. Per sempre.',
       },
       max: {
         description: 'Lo stesso agente per una casella piena.',
@@ -664,7 +710,7 @@ export const it: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Home, smistamento, regole a parole semplici e protezione sono gratis per sempre. Pro è l’agente che legge, scrive e ricorda per te; Max è lo stesso agente con spazio per una casella piena. Ogni account parte con ${trialDays} giorni di Pro, e alla fine resti semplicemente su Gratis.`,
+        `Bot a parole semplici, smistamento e protezione sono gratis per sempre. Pro è l’agente che legge, scrive e ricorda per te; Max è lo stesso agente con spazio per una casella piena. Ogni account parte con ${trialDays} giorni di Pro, e alla fine resti semplicemente su Gratis.`,
       otherTool: 'Stai valutando un altro strumento?',
       title: 'Paghi l’agente, non la casella.',
     },
@@ -679,7 +725,7 @@ export const it: Messages = {
       vows: [
         {
           description:
-            'Le bozze ti aspettano. Solo le regole che hai creato o tenuto possono archiviare, segnare come letto o disiscriverti da sole, e tutto ciò che hanno fatto è elencato in Gestite.',
+            'Le bozze ti aspettano. Un bot sposta la posta da solo solo dopo che glielo permetti, e tutto ciò che ha fatto resta nella sua chat con il motivo.',
           title: 'Non parte nulla senza la tua approvazione.',
         },
         {

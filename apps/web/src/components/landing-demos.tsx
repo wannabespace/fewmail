@@ -1,10 +1,25 @@
 import { Badge } from '@fewmail/ui/components/badge'
 import { Button } from '@fewmail/ui/components/button'
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
+import {
+  Message,
+  MessageContent,
+  MessageTime,
+} from '@fewmail/ui/components/message'
 import { cn } from '@fewmail/ui/lib/utils'
 import {
   ArrowRight01Icon,
+  ArrowUp02Icon,
   McpServerIcon,
+  MinusSignIcon,
+  PinIcon,
   Tick02Icon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -23,10 +38,11 @@ import {
 import type { ReactNode } from 'react'
 import { Fragment, useRef, useState } from 'react'
 
+import { LogoMark } from '~/components/logo'
 import { useLocale, useT } from '~/lib/i18n'
 
 import { ImportanceDot } from './mail-meta'
-import { CONTAINER, StartButton, TrialNote } from './site'
+import { CONTAINER, Reveal, StartButton, TrialNote } from './site'
 
 const HOUSE = cubicBezier(0.32, 0.72, 0, 1)
 
@@ -196,6 +212,31 @@ export const Emphasized = ({
     </>
   )
 }
+
+const DESK = ['fewmail', 'important', 'later', 'quick', 'board'] as const
+type DeskChat = (typeof DESK)[number] | 'made'
+type Choice = 'send' | 'skip'
+
+// Not `BotAvatar`: bot-list loads Home's collections, which a public page must not.
+const DeskAvatar = ({
+  chat,
+  name,
+  size = 'sm',
+}: {
+  chat: DeskChat
+  name: string
+  size?: 'md' | 'sm'
+}) => (
+  <span
+    aria-hidden
+    className={cn(
+      'bg-popover ring-foreground/8 text-foreground/80 grid shrink-0 place-items-center rounded-full font-medium ring [&>svg]:size-4',
+      size === 'md' ? 'size-8 text-sm' : 'size-6 text-xs'
+    )}
+  >
+    {chat === 'fewmail' ? <LogoMark /> : name.charAt(0).toUpperCase()}
+  </span>
+)
 
 const Count = ({ value }: { value: MotionValue<number> }) => {
   const locale = useLocale()
@@ -396,7 +437,9 @@ const Phase = ({
 
 /** The hero: scrolling lets the agent read the inbox until three emails are left. */
 export const InboxStory = () => {
-  const t = useT().site.hero
+  const strings = useT()
+  const t = strings.site.hero
+  const important = strings.starterBots.important.name
   const locale = useLocale()
   const story = useRef<HTMLElement>(null)
   const { scrollYProgress: progress } = useScroll({
@@ -483,21 +526,23 @@ export const InboxStory = () => {
               </p>
             </Phase>
             <Phase isActive={phase === 2} opacity={phases[2]} rise={12}>
-              <p className="text-primary text-sm font-medium">{t.needs.tag}</p>
+              <p className="text-primary text-sm font-medium">
+                {t.needs.tag(important)}
+              </p>
               <h2 className="text-display sm:text-hero font-serif tracking-tight text-balance">
                 <Emphasized {...t.needs} text={t.needs.title} />
               </h2>
               <p className="text-brief text-foreground/75 max-w-lg font-serif text-pretty">
-                {t.needs.lead(HANDLED_TODAY.toLocaleString(locale))}
+                {t.needs.lead(HANDLED_TODAY.toLocaleString(locale), important)}
               </p>
               <div className="flex flex-wrap gap-2">
                 <StartButton>{t.start}</StartButton>
                 <Button
                   size="lg"
                   variant="secondary"
-                  render={<Link to="/" hash="try" />}
+                  render={<Link to="/" hash="bots" />}
                 >
-                  {t.tryQueue}
+                  {t.seeBots}
                 </Button>
               </div>
             </Phase>
@@ -509,9 +554,14 @@ export const InboxStory = () => {
           >
             <div className="bg-background ring-foreground/6 flex h-full max-h-160 w-full max-w-xl flex-col overflow-hidden rounded-3xl shadow-sm ring [--row:--spacing(12)] sm:[--row:--spacing(13)] md:h-[calc(100%-3rem)]">
               <div className="flex h-13 shrink-0 items-center justify-between gap-4 border-b px-4 text-sm sm:px-5">
-                <span className="font-medium">
-                  {phase === 2 ? t.home : t.inbox}
-                </span>
+                {phase === 2 ? (
+                  <span className="flex items-center gap-2 font-medium">
+                    <DeskAvatar chat="important" name={important} />
+                    {important}
+                  </span>
+                ) : (
+                  <span className="font-medium">{t.inbox}</span>
+                )}
                 <span className="text-muted-foreground">
                   <Parts
                     parts={
@@ -596,180 +646,568 @@ export const Ledger = () => (
   </div>
 )
 
-const QUEUE_LAYER = ['z-30', 'z-20', 'z-10']
-const QUEUE_POSE = [
-  { opacity: 1, scale: 1, y: 0 },
-  { opacity: 0.6, scale: 0.96, y: 14 },
-  { opacity: 0.3, scale: 0.92, y: 28 },
+/** Mail on the desk keeps the language it was written in, like the hero's. */
+const COLLECTED = [
+  { at: '07:52', from: 'Skyline Air', subject: 'Check-in is open: LIS → BER' },
+  {
+    at: '07:20',
+    from: 'Taskboard',
+    subject: 'Ivan mentioned you in 3 comments',
+  },
+  { at: '06:48', from: 'Cityparking', subject: 'Your permit renews on Dec 1' },
+  { at: '06:05', from: 'Bookshelf', subject: 'Your hold is ready to pick up' },
 ]
+const TIDIED: { fate: Fate; from: string; subject: string }[] = [
+  {
+    fate: 'unsubscribed',
+    from: 'Lumen Weekly',
+    subject: '10 tools you will never use',
+  },
+  {
+    fate: 'archived',
+    from: 'Mira at Growthly',
+    subject: 'Quick question about your team',
+  },
+  {
+    fate: 'unsubscribed',
+    from: 'Coursely',
+    subject: 'Last chance: 70% off ends tonight',
+  },
+  {
+    fate: 'markedRead',
+    from: 'Linkwork',
+    subject: 'You appeared in 14 searches',
+  },
+]
+const TIDIED_TODAY = 38
+const NEW_SINCE = 48
+const FROM_PEOPLE = 5
 
-/** The same three emails the hero ends on, cleared with the real keys. */
-export const PlayQueue = () => {
+const DESK_UNREAD: Record<DeskChat, number> = {
+  board: 2,
+  fewmail: 1,
+  important: IMPORTANT.length,
+  later: COLLECTED.length,
+  made: 0,
+  quick: 1,
+}
+const LAST_AT: Record<DeskChat, string> = {
+  board: '07:31',
+  fewmail: '08:14',
+  important: '08:12',
+  later: '07:52',
+  made: '08:15',
+  quick: '08:02',
+}
+
+const Said = ({
+  children,
+  from = 'assistant',
+  time,
+}: {
+  children: ReactNode
+  from?: 'assistant' | 'user'
+  time: string
+}) => (
+  <Message from={from}>
+    <MessageContent>
+      {children}
+      <MessageTime>{time}</MessageTime>
+    </MessageContent>
+  </Message>
+)
+
+const DeskList = ({ children }: { children: ReactNode }) => (
+  <div className="bg-popover ring-foreground/6 overflow-hidden rounded-2xl ring">
+    {children}
+  </div>
+)
+
+const DeskRow = ({
+  end,
+  from,
+  subject,
+}: {
+  end: ReactNode
+  from: string
+  subject: string
+}) => (
+  <Item variant="grouped" size="sm">
+    <ItemContent>
+      <ItemTitle>{from}</ItemTitle>
+      <ItemDescription>{subject}</ItemDescription>
+    </ItemContent>
+    <ItemActions>{end}</ItemActions>
+  </Item>
+)
+
+const settledAs = (choice: Choice, mail: (typeof IMPORTANT)[number]) => {
+  if (choice === 'skip') {
+    return 'skip'
+  }
+  return mail.draft ? 'send' : 'remind'
+}
+
+const ImportantChat = ({
+  decided,
+  onAgain,
+  onDecide,
+}: {
+  decided: Choice[]
+  onAgain: () => void
+  onDecide: (choice: Choice) => void
+}) => {
   const t = useT()
-  const { hero, play } = t.site
-  const locale = useLocale()
+  const { bots, hero } = t.site
+  const left = IMPORTANT.length - decided.length
+  const active = IMPORTANT[decided.length]
+  const card = hero.queue[decided.length]
+  return (
+    <>
+      <Said time={LAST_AT.important}>
+        {t.bots.cards.pending(IMPORTANT.length)}
+      </Said>
+      {decided.map((choice, index) => {
+        const mail = IMPORTANT[index]
+        return (
+          mail && (
+            <p
+              key={mail.from}
+              className="text-muted-foreground flex items-center gap-1.5 text-sm"
+            >
+              <HugeiconsIcon
+                icon={choice === 'skip' ? MinusSignIcon : Tick02Icon}
+                strokeWidth={2}
+                className={cn('size-4', choice === 'send' && 'text-primary')}
+              />
+              <span className="text-foreground font-medium">{mail.from}</span>
+              {bots.settled[settledAs(choice, mail)]}
+            </p>
+          )
+        )
+      })}
+      {active ? (
+        <motion.article
+          key={active.from}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: HOUSE }}
+          className="bg-popover ring-foreground/10 flex flex-col gap-3 rounded-2xl p-4 shadow-sm ring"
+        >
+          <div className="flex min-w-0 items-center gap-2.5 text-sm">
+            <ImportanceDot
+              importance={active.importance}
+              reason={card?.reason}
+            />
+            <span className="shrink-0 font-medium">{active.from}</span>
+            <span className="text-muted-foreground truncate">
+              {active.subject}
+            </span>
+          </div>
+          <p className="font-serif text-base/relaxed">{card?.summary}</p>
+          <p
+            className={cn(
+              'text-xs font-medium',
+              active.importance === 3 ? 'text-destructive' : 'text-primary'
+            )}
+          >
+            {card?.reason}
+          </p>
+          <div className="bg-secondary/60 rounded-xl px-3.5 py-2.5">
+            <p className="text-muted-foreground mb-1 text-xs">
+              {active.draft ? t.queue.draftedInVoice : hero.willDo}
+            </p>
+            <p className="text-foreground/80 font-serif text-base/relaxed">
+              {active.draft ?? hero.remindPlan}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              onClick={() => onDecide('send')}
+              shortcut={<Kbd>⏎</Kbd>}
+            >
+              {active.draft ? t.queue.send : hero.remind}
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => onDecide('skip')}
+              shortcut={<Kbd>S</Kbd>}
+            >
+              {t.queue.skip}
+            </Button>
+          </div>
+        </motion.article>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: HOUSE }}
+          className="flex flex-col items-start gap-3"
+        >
+          <Said time="08:16">{t.today.allDone}</Said>
+          <Button size="sm" variant="secondary" onClick={onAgain}>
+            {bots.again}
+          </Button>
+        </motion.div>
+      )}
+      {left > 1 && (
+        <DeskList>
+          {IMPORTANT.slice(decided.length + 1).map((mail, index) => (
+            <DeskRow
+              key={mail.from}
+              from={mail.from}
+              subject={mail.subject}
+              end={
+                <span className="text-primary text-xs font-medium whitespace-nowrap">
+                  {hero.queue[decided.length + 1 + index]?.reason}
+                </span>
+              }
+            />
+          ))}
+        </DeskList>
+      )}
+    </>
+  )
+}
+
+const FewmailChat = ({
+  isMade,
+  onMake,
+}: {
+  isMade: boolean
+  onMake: () => void
+}) => {
+  const t = useT()
+  const { fewmail } = t.site.bots
+  return (
+    <>
+      <Said time="08:00">
+        <span className="font-medium">
+          {t.today.headline(IMPORTANT.length)}
+        </span>
+        <span>
+          {fewmail.digest(NEW_SINCE, FROM_PEOPLE)}{' '}
+          {t.today.byBots(NEW_SINCE - FROM_PEOPLE - 2)}
+        </span>
+      </Said>
+      <Said from="user" time="08:14">
+        {fewmail.ask}
+      </Said>
+      {isMade ? (
+        <Said time={LAST_AT.made}>{t.bots.created}</Said>
+      ) : (
+        <Said time={LAST_AT.fewmail}>
+          <span>{fewmail.proposal}</span>
+          <Item variant="muted" size="xs">
+            <DeskAvatar chat="made" name={fewmail.botName} />
+            <ItemContent>
+              <ItemTitle>{fewmail.botName}</ItemTitle>
+              <ItemDescription>
+                {t.bots.effect.mark_read} · {t.bots.status.asks}
+              </ItemDescription>
+            </ItemContent>
+          </Item>
+          <div>
+            <Button size="sm" onClick={onMake}>
+              {fewmail.approve}
+            </Button>
+          </div>
+        </Said>
+      )}
+    </>
+  )
+}
+
+const BoardChat = () => {
+  const t = useT()
+  const { board } = t.site.bots
+  return (
+    <>
+      <Said time={LAST_AT.board}>{t.bots.promises(2)}</Said>
+      {(['owed', 'promised', 'coming'] as const).map((section) => (
+        <div key={section} className="flex flex-col gap-1.5">
+          <p className="text-muted-foreground text-xs font-medium">
+            {t.board.section[section]}
+          </p>
+          <DeskList>
+            <DeskRow
+              from={board[section].text}
+              subject={board[section].state}
+              end={
+                <HugeiconsIcon
+                  icon={Tick02Icon}
+                  strokeWidth={2}
+                  className="text-muted-foreground size-4"
+                />
+              }
+            />
+          </DeskList>
+        </div>
+      ))}
+    </>
+  )
+}
+
+const DeskChatBody = ({
+  chat,
+  decided,
+  isMade,
+  onAgain,
+  onDecide,
+  onMake,
+}: {
+  chat: DeskChat
+  decided: Choice[]
+  isMade: boolean
+  onAgain: () => void
+  onDecide: (choice: Choice) => void
+  onMake: () => void
+}) => {
+  const t = useT()
+  const { bots, hero } = t.site
+  if (chat === 'important') {
+    return (
+      <ImportantChat decided={decided} onAgain={onAgain} onDecide={onDecide} />
+    )
+  }
+  if (chat === 'fewmail') {
+    return <FewmailChat isMade={isMade} onMake={onMake} />
+  }
+  if (chat === 'board') {
+    return <BoardChat />
+  }
+  if (chat === 'later') {
+    return (
+      <>
+        <Said time={LAST_AT.later}>{bots.later}</Said>
+        <DeskList>
+          {COLLECTED.map((mail) => (
+            <DeskRow
+              key={mail.from}
+              {...mail}
+              end={
+                <time className="text-muted-foreground text-xs tabular-nums">
+                  {mail.at}
+                </time>
+              }
+            />
+          ))}
+        </DeskList>
+      </>
+    )
+  }
+  if (chat === 'quick') {
+    return (
+      <>
+        <Said time="07:40">{t.bots.cards.autoDone(TIDIED_TODAY)}</Said>
+        <DeskList>
+          {TIDIED.map((mail) => (
+            <DeskRow
+              key={mail.from}
+              {...mail}
+              end={<Badge variant="secondary">{hero.fates[mail.fate]}</Badge>}
+            />
+          ))}
+        </DeskList>
+        <Said time={LAST_AT.quick}>{bots.quick}</Said>
+      </>
+    )
+  }
+  return (
+    <Said time={LAST_AT.made}>
+      <span>{t.bots.intro.own(bots.fewmail.botName)}</span>
+      <span className="font-serif text-base/relaxed italic">
+        {bots.fewmail.ask}
+      </span>
+      <span>{t.bots.intro.asks}</span>
+    </Said>
+  )
+}
+
+/** Home as it is: the bots down the side, the open one's chat beside them, `[` / `]` and ⏎ / S as in the app. */
+export const BotDesk = () => {
+  const t = useT()
+  const { bots } = t.site
   const desk = useRef<HTMLDivElement>(null)
   const isInView = useInView(desk, { amount: 0.4 })
-  const [decided, setDecided] = useState<('send' | 'skip')[]>([])
+  const [open, setOpen] = useState<DeskChat>('important')
+  const [seen, setSeen] = useState<DeskChat[]>(['important'])
+  const [decided, setDecided] = useState<Choice[]>([])
+  const [isMade, setIsMade] = useState(false)
+  const chats: DeskChat[] = isMade ? [...DESK, 'made'] : [...DESK]
   const left = IMPORTANT.length - decided.length
-  const decide = (choice: 'send' | 'skip') =>
+  const names: Record<DeskChat, string> = {
+    board: t.starterBots.board.name,
+    fewmail: t.bots.fewmail,
+    important: t.starterBots.important.name,
+    later: t.starterBots.later.name,
+    made: bots.fewmail.botName,
+    quick: t.starterBots.quick.name,
+  }
+  const jobs: Record<DeskChat, string> = {
+    board: t.bots.effect.promises,
+    fewmail: t.bots.fewmailJob,
+    important: t.starterBots.important.instruction,
+    later: t.starterBots.later.instruction,
+    made: bots.fewmail.ask,
+    quick: t.starterBots.quick.instruction,
+  }
+  const lines: Record<DeskChat, string> = {
+    board: t.bots.promises(2),
+    fewmail: isMade ? t.bots.created : bots.fewmail.proposal,
+    important: left > 0 ? t.bots.cards.pending(left) : t.today.allDone,
+    later: bots.later,
+    made: t.bots.intro.asks,
+    quick: bots.quick,
+  }
+  const show = (chat: DeskChat) => {
+    setOpen(chat)
+    setSeen((done) => (done.includes(chat) ? done : [...done, chat]))
+  }
+  const step = (by: number) =>
+    show(
+      chats[(chats.indexOf(open) + by + chats.length) % chats.length] ?? open
+    )
+  const decide = (choice: Choice) =>
     setDecided((done) =>
       done.length < IMPORTANT.length ? [...done, choice] : done
     )
-  const keys = { enabled: isInView && left > 0 }
-  useHotkey('Enter', () => decide('send'), keys)
-  useHotkey('S', () => decide('skip'), keys)
+  const make = () => {
+    setIsMade(true)
+    setSeen((done) => done.filter((chat) => chat !== 'made'))
+  }
+  const deciding = { enabled: isInView && open === 'important' && left > 0 }
+  useHotkey('[', () => step(-1), { enabled: isInView })
+  useHotkey(']', () => step(1), { enabled: isInView })
+  useHotkey('Enter', () => decide('send'), deciding)
+  useHotkey('S', () => decide('skip'), deciding)
+  const waiting = open === 'important' && left > 0
 
   return (
-    <div
-      ref={desk}
-      className="bg-background ring-foreground/6 isolate flex min-h-140 min-w-0 flex-col gap-4 rounded-3xl p-4 ring sm:p-8"
-    >
-      <div className="text-muted-foreground flex items-center justify-between gap-4 text-sm">
-        <span>
-          <b className="text-foreground font-medium">{hero.home}</b> ·{' '}
-          {play.left(left)}
-        </span>
-        <span className="flex gap-1">
-          {IMPORTANT.map((mail, index) => (
-            <span
-              key={mail.from}
-              className={cn(
-                'h-1 w-5 rounded-full transition-colors',
-                index < decided.length ? 'bg-primary' : 'bg-secondary'
-              )}
-            />
-          ))}
-        </span>
-      </div>
-      <div className="grid min-w-0">
-        {IMPORTANT.map((mail, index) => {
-          const choice = decided[index]
-          const position = index - decided.length
-          const card = hero.queue[index]
-          return (
-            <motion.article
-              key={mail.from}
-              inert={position !== 0}
-              initial={false}
-              animate={
-                choice
-                  ? {
-                      opacity: 0,
-                      rotate: choice === 'send' ? 6 : -5,
-                      x: choice === 'send' ? '40%' : '-40%',
-                      y: choice === 'send' ? -40 : 20,
-                    }
-                  : { rotate: 0, x: 0, ...QUEUE_POSE[Math.min(position, 2)] }
-              }
-              transition={{ duration: 0.45, ease: HOUSE }}
-              className={cn(
-                'bg-popover ring-foreground/6 col-start-1 row-start-1 flex min-w-0 flex-col gap-4 rounded-2xl p-5 shadow-sm ring',
-                choice ? 'z-40' : QUEUE_LAYER[position]
-              )}
-            >
-              <div
+    <Reveal className="mt-12">
+      <div
+        ref={desk}
+        className="bg-background ring-foreground/6 grid h-160 overflow-hidden rounded-3xl shadow-sm ring sm:grid-cols-[15rem_minmax(0,1fr)] lg:grid-cols-[17rem_minmax(0,1fr)]"
+      >
+        <nav
+          aria-label={t.bots.title}
+          className="flex gap-1 overflow-x-auto border-b p-2 sm:flex-col sm:overflow-visible sm:border-e sm:border-b-0"
+        >
+          <p className="text-muted-foreground hidden px-2 pt-1 pb-2 text-xs font-medium sm:block">
+            {t.bots.title}
+          </p>
+          {chats.map((chat) => {
+            const unread = seen.includes(chat) ? 0 : DESK_UNREAD[chat]
+            return (
+              <button
+                key={chat}
+                type="button"
+                aria-current={open === chat || undefined}
+                aria-label={names[chat]}
+                onClick={() => show(chat)}
+                className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring flex shrink-0 cursor-pointer items-center gap-2.5 rounded-lg p-1.5 text-left text-sm outline-none sm:w-full sm:px-2"
+              >
+                <DeskAvatar chat={chat} name={names[chat]} />
+                <span className="hidden min-w-0 flex-1 flex-col sm:flex">
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-foreground min-w-0 flex-1 truncate font-medium">
+                      {names[chat]}
+                    </span>
+                    <span className="text-muted-foreground text-2xs shrink-0 tabular-nums">
+                      {LAST_AT[chat]}
+                    </span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground min-w-0 flex-1 truncate text-xs">
+                      {lines[chat]}
+                    </span>
+                    {unread > 0 && (
+                      <span className="bg-primary text-primary-foreground shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums">
+                        {unread}
+                      </span>
+                    )}
+                  </span>
+                </span>
+              </button>
+            )
+          })}
+        </nav>
+        <section className="flex min-h-0 min-w-0 flex-col">
+          <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
+            <DeskAvatar chat={open} name={names[open]} size="md" />
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-sm font-medium">
+                {names[open]}
+              </span>
+              <span
                 className={cn(
-                  'flex flex-col gap-4',
-                  position > 0 && 'invisible'
+                  'truncate text-xs',
+                  waiting ? 'text-primary' : 'text-muted-foreground'
                 )}
               >
-                <div className="flex items-center gap-2.5">
-                  <ImportanceDot
-                    importance={mail.importance}
-                    reason={card?.reason}
-                  />
-                  <span className="text-sm font-medium">{mail.from}</span>
-                  <span className="text-muted-foreground truncate text-sm">
-                    {mail.subject}
-                  </span>
-                </div>
-                <p className="font-serif text-base/relaxed">{card?.summary}</p>
-                <p
-                  className={cn(
-                    'text-xs font-medium',
-                    mail.importance === 3 ? 'text-destructive' : 'text-primary'
-                  )}
-                >
-                  {card?.reason}
-                </p>
-                <div className="bg-secondary/60 rounded-xl px-4 py-3">
-                  <p className="text-muted-foreground mb-1 text-xs">
-                    {mail.draft ? t.queue.draftedInVoice : hero.willDo}
-                  </p>
-                  <p className="text-foreground/80 font-serif text-base/relaxed">
-                    {mail.draft ?? hero.remindPlan}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    onClick={() => decide('send')}
-                    shortcut={<Kbd>⏎</Kbd>}
-                  >
-                    {mail.draft ? t.queue.send : hero.remind}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => decide('skip')}
-                    shortcut={<Kbd>S</Kbd>}
-                  >
-                    {t.queue.skip}
-                  </Button>
-                </div>
-              </div>
-            </motion.article>
-          )
-        })}
-        <motion.div
-          inert={left > 0}
-          initial={false}
-          animate={left > 0 ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
-          transition={{
-            delay: left > 0 ? 0 : 0.15,
-            duration: 0.4,
-            ease: HOUSE,
-          }}
-          className="col-start-1 row-start-1 flex flex-col items-start gap-4 py-6"
-        >
-          <h3 className="text-display font-serif tracking-tight">
-            {play.doneTitle}
-          </h3>
-          <p className="text-brief text-foreground/75 max-w-md font-serif">
-            {play.doneLead(HANDLED_TODAY.toLocaleString(locale))}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <StartButton>{hero.start}</StartButton>
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() => setDecided([])}
-            >
-              {play.again}
-            </Button>
-          </div>
-        </motion.div>
-      </div>
-      <div className="text-muted-foreground mt-auto flex flex-col gap-2 rounded-2xl border border-dashed p-4 text-xs">
-        <p className="text-foreground flex justify-between font-medium">
-          <span>{play.handledTitle}</span>
-          <span className="tabular-nums">
-            {HANDLED_TODAY.toLocaleString(locale)}
-          </span>
-        </p>
-        {(['unsubscribed', 'spam', 'archived'] as const).map((fate, index) => (
-          <p key={fate} className="flex min-w-0 gap-2">
-            <span className="text-foreground/75 shrink-0 font-medium">
-              {hero.fates[fate]}
+                {waiting ? t.bots.status.waiting(left) : t.bots.status.watching}
+              </span>
             </span>
-            <span className="truncate">{play.handled[index]}</span>
+          </div>
+          <p className="text-muted-foreground flex h-9 shrink-0 items-center gap-2 border-b px-4 text-xs">
+            <HugeiconsIcon
+              icon={PinIcon}
+              strokeWidth={2}
+              className="size-3.5 shrink-0"
+            />
+            <span className="truncate">{jobs[open]}</span>
           </p>
-        ))}
+          <motion.div
+            key={open}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: HOUSE }}
+            className="flex min-h-0 flex-1 flex-col justify-end gap-3 overflow-hidden mask-t-from-90% p-4 *:shrink-0 sm:px-6"
+          >
+            <DeskChatBody
+              chat={open}
+              decided={decided}
+              isMade={isMade}
+              onAgain={() => setDecided([])}
+              onDecide={decide}
+              onMake={make}
+            />
+          </motion.div>
+          <div inert className="shrink-0 px-4 pb-4 sm:px-6">
+            <div className="bg-popover ring-foreground/8 text-muted-foreground flex h-11 items-center gap-2 rounded-2xl ps-4 pe-1.5 text-sm shadow-xs ring">
+              <span className="min-w-0 flex-1 truncate">
+                {t.bots.composer(names[open])}
+              </span>
+              <span className="bg-primary/50 text-primary-foreground grid size-8 place-items-center rounded-xl">
+                <HugeiconsIcon
+                  icon={ArrowUp02Icon}
+                  strokeWidth={2}
+                  className="size-4"
+                />
+              </span>
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
+    </Reveal>
   )
 }
+
+/** The three things a bot is, under the desk. */
+export const BotPoints = () => (
+  <Reveal className="mt-12 grid gap-8 md:grid-cols-3">
+    {useT().site.bots.points.map(({ description, title }) => (
+      <div key={title} className="flex flex-col gap-3 border-t pt-6">
+        <h3 className="font-serif text-xl tracking-tight">{title}</h3>
+        <p className="text-muted-foreground text-sm/relaxed text-pretty">
+          {description}
+        </p>
+      </div>
+    ))}
+  </Reveal>
+)
 
 const MCP_CLIENTS = ['Claude', 'ChatGPT', 'Claude Code', 'Cursor']
 

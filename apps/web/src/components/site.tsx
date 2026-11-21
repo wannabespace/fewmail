@@ -255,10 +255,18 @@ export const FeatureGrid = ({
 }: {
   features: { description: string; icon: IconSvgElement; title: string }[]
 }) => (
-  <Reveal className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+  <Reveal
+    className={cn(
+      'mt-12 grid gap-4 sm:grid-cols-2',
+      features.length % 4 === 0 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
+    )}
+  >
     {features.map(({ description, icon, title }) => (
-      <div key={title} className="flex flex-col gap-3">
-        <span className="bg-secondary text-foreground flex size-9 items-center justify-center rounded-xl">
+      <div
+        key={title}
+        className="bg-background ring-foreground/6 flex flex-col gap-3 rounded-3xl p-6 ring"
+      >
+        <span className="bg-secondary text-primary flex size-9 items-center justify-center rounded-xl">
           <HugeiconsIcon icon={icon} strokeWidth={2} className="size-4.5" />
         </span>
         <h3 className="font-medium">{title}</h3>
@@ -308,6 +316,7 @@ const EVERY_PLAN = featureList(
     .filter((feature) => !AGENT_FEATURES.includes(feature))
 )
 
+/** A row of the table: its name in the label column like the allowance's, its list across the plans. */
 const FeatureList = ({
   labels,
   note,
@@ -317,12 +326,12 @@ const FeatureList = ({
   note?: string
   title: string
 }) => (
-  <div className="flex flex-col gap-3">
-    <p className="text-muted-foreground text-xs font-medium">
-      {title}
-      {note && <span className="font-normal"> · {note}</span>}
+  <div className="grid gap-x-6 gap-y-4 border-t px-6 py-6 text-sm xl:col-span-5 xl:grid-cols-subgrid xl:gap-0 xl:p-0 xl:*:px-6 xl:*:py-6">
+    <p className="flex flex-col gap-1">
+      <span className="font-medium">{title}</span>
+      {note && <span className="text-muted-foreground">{note}</span>}
     </p>
-    <ul className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2 xl:col-span-4 xl:gap-x-12">
       {labels.map((label) => (
         <li key={label} className="flex gap-2">
           <HugeiconsIcon
@@ -428,8 +437,11 @@ export const PlanTable = () => {
           ))}
         </div>
         <div className={PLAN_ROW}>
-          <span className="text-muted-foreground col-span-4 text-sm xl:col-span-1">
-            {plans.usage}
+          <span className="col-span-4 flex flex-col gap-1 text-sm xl:col-span-1">
+            <span className="text-muted-foreground">{plans.usage}</span>
+            <span className="text-muted-foreground text-xs text-pretty">
+              {plans.oneAllowance}
+            </span>
           </span>
           {PLANS.map((plan) => (
             <PlanCell key={plan.id} name={t.plan[plan.id]}>
@@ -443,23 +455,18 @@ export const PlanTable = () => {
             </PlanCell>
           ))}
         </div>
-        <div className="flex flex-col gap-8 border-t px-6 py-6 text-sm xl:col-span-5">
-          <FeatureList
-            title={plans.agent}
-            note={paidName}
-            labels={featureList(AGENT_FEATURES).map(
-              (feature) => comparison.labels[feature]
-            )}
-          />
-          <FeatureList
-            title={plans.everyPlan}
-            labels={EVERY_PLAN.map((feature) => comparison.labels[feature])}
-          />
-        </div>
+        <FeatureList
+          title={plans.agent}
+          note={paidName}
+          labels={featureList(AGENT_FEATURES).map(
+            (feature) => comparison.labels[feature]
+          )}
+        />
+        <FeatureList
+          title={plans.everyPlan}
+          labels={EVERY_PLAN.map((feature) => comparison.labels[feature])}
+        />
       </Reveal>
-      <p className="text-muted-foreground self-start text-xs">
-        {plans.oneAllowance}
-      </p>
     </div>
   )
 }

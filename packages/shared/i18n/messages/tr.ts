@@ -1095,13 +1095,13 @@ export const tr: Messages = {
       mcp: 'Fewmail’i MCP sunucusu olarak Claude, ChatGPT, Claude Code veya Cursor’a bağla: Gmail’ini zaten kullandığın yapay zekâdan oku ve düzenle.',
       motto: 'gelen kutunda yalnızca önemli olan',
       pricing: (trialDays: number) =>
-        `Fewmail Ana Sayfa, sıralama, kurallar ve spam koruması için sonsuza dek ücretsiz. Pro, ajanın tamamı, ${trialDays} ücretsiz günle ve kart olmadan başlar.`,
+        `Fewmail botlar, sıralama ve spam koruması için sonsuza dek ücretsiz. Pro, ajanın tamamı, ${trialDays} ücretsiz günle ve kart olmadan başlar.`,
       tagline: 'Gmail için yapay zekâ e-posta ajanı',
     },
     chapters: {
       pricing: {
         description:
-          'Ana Sayfa, sıralama, kurallar ve koruma sonsuza dek ücretsiz. Lite, Pro ve Max, senin için okuyan ve yazan her şeyi ekler; büyük planlar sadece bunu daha çok yapar.',
+          'Botlar, sıralama ve koruma sonsuza dek ücretsiz. Lite, Pro ve Max, senin için okuyan ve yazan her şeyi ekler; büyük planlar sadece bunu daha çok yapar.',
         label: 'Fiyatlar',
         title: (usd: number) =>
           `Sıralama ücretsiz. Ajan için başlangıç fiyatı $${usd}.`,
@@ -1118,7 +1118,7 @@ export const tr: Messages = {
     },
     mcp: {
       answer:
-        'Cuma günkü başlangıç toplantısından önce imzalı sözleşme. Yanıtı çoktan hazırlandı, Fewmail kuyruğunda seni bekliyor.',
+        'Cuma günkü başlangıç toplantısından önce imzalı sözleşme. Yanıtı çoktan hazırlandı, Fewmail’de onayını bekliyor.',
       clients: 'Şunlarla çalışır',
       emphasis: 'Claude ve ChatGPT’nin içinde.',
       free: 'Postanı okumak ve ajanın sıralaması ücretsiz.',
@@ -1130,7 +1130,7 @@ export const tr: Messages = {
     },
     mcpPage: {
       copy: 'URL’yi kopyala',
-      lead: 'Fewmail’i MCP sunucusu olarak bağla ve zaten kullandığın yapay zekâdan postanı sor. Postanı okumak ve ajanın sıralaması ücretsiz; taslak, gönderme ve kurallar Pro ile gelir.',
+      lead: 'Fewmail’i MCP sunucusu olarak bağla ve zaten kullandığın yapay zekâdan postanı sor. Postanı okumak ve ajanın sıralaması ücretsiz; taslak, gönderme ve yazan botlar Pro ile gelir.',
       safety:
         'E-posta gönderen ya da Gmail’i değiştiren her şey önce onayını ister. Asistana emir vermeye çalışan bir e-posta, asistan onu okumadan önce işaretlenir. Postan hiçbir zaman model eğitmek için kullanılmaz ve her uygulamanın bağlantısını ayarlardan kesebilirsin.',
       steps: {
@@ -1153,7 +1153,7 @@ export const tr: Messages = {
         },
         drafts: {
           description:
-            'Yanıtlar önceden, senin tonunla ve gönderenin dilinde yazılır; sen onaylayana kadar kuyruğunda bekler.',
+            'Yanıtlar önceden, senin tonunla ve gönderenin dilinde yazılır; sen onaylayana kadar botunun sohbetinde bekler.',
           title: 'Yanıtları senin üslubunla yazar',
         },
         protection: {
@@ -1168,8 +1168,8 @@ export const tr: Messages = {
         },
         bots: {
           description:
-            'Bazı postalara ne olması gerektiğini tek cümleyle anlat, bir kurala dönüşsün. Yalnızca senin açtığın kurallar kendi başına çalışır.',
-          title: 'Sade sözlerle kurallar',
+            'Bazı postalara ne olması gerektiğini tek cümleyle anlat, kendi sohbeti olan bir bota dönüşsün. Yalnızca izin verdiğin botlar kendi başına iş görür.',
+          title: 'Sade sözlerle botlar',
         },
         sorting: {
           description:
@@ -1195,11 +1195,11 @@ export const tr: Messages = {
         },
         {
           answer:
-            'Yanıt taslaklarını senin için yazar ama asla kendi başına göndermez. Her taslak onayın için kuyruğunda bekler, benzer olanları birlikte onaylayabilirsin.',
+            'Yanıt taslaklarını senin için yazar ama asla kendi başına göndermez. Her taslak onayın için botunun sohbetinde bekler, benzer olanları birlikte onaylayabilirsin.',
           question: 'E-postaları otomatik olarak yanıtlayabilir mi?',
         },
         {
-          answer: `Evet. Ücretsiz plan her e-postayı sıralar, seni bekleyenleri tek bir sayfada toplar, kurallarını çalıştırır ve seni spamdan ve oltalamadan korur, hem de sonsuza dek. Taslaklar, özetler ve ajanın geri kalanı ücretli planlarla gelir; her hesap kart gerekmeden ${trialDays} gün Pro ile başlar.`,
+          answer: `Evet. Ücretsiz plan her e-postayı sıralar, seni bekleyenleri botlarının sohbetlerinde toplar, botlarını çalıştırır ve seni spamdan ve oltalamadan korur, hem de sonsuza dek. Taslaklar, özetler ve ajanın geri kalanı ücretli planlarla gelir; her hesap kart gerekmeden ${trialDays} gün Pro ile başlar.`,
           question:
             'Gmail için ücretsiz bir yapay zekâ e-posta asistanı var mı?',
         },
@@ -1223,7 +1223,7 @@ export const tr: Messages = {
       },
       labels: {
         ask: 'Postana her şeyi sor',
-        home: 'Seni bekleyen her şey tek sayfada',
+        home: 'Seni bekleyen her şey tek yerde',
         calendar: 'Takvim',
         drafts: 'Senin için hazırlanan yanıtlar',
         followUps: 'Takip hatırlatmaları',
@@ -1237,7 +1237,7 @@ export const tr: Messages = {
         outlook: 'Outlook ve Microsoft 365',
         phishing: 'Oltalama ve ödeme değişikliği uyarıları',
         phone: 'Telefonunda',
-        bots: 'Sade dille kurallar',
+        bots: 'Sade dille botlar',
         snooze: 'Erteleme',
         spamShield: 'Topluluk spam kalkanı',
         summaries: 'E-posta özetleri',
@@ -1363,7 +1363,7 @@ export const tr: Messages = {
       },
       {
         answer:
-          'Sen olmadan asla. Yanıtlar sen onaylayana kadar kuyruğunda bekler ve yalnızca senin oluşturduğun ya da tuttuğun kurallar kendi başına arşivleyebilir, okundu yapabilir veya abonelikten çıkabilir. Yaptığı her şey Halledilenler’de listelenir.',
+          'Sen olmadan asla. Yanıtlar sen onaylayana kadar botunun sohbetinde bekler ve bir bot ancak sen izin verince kendi başına arşivler, okundu yapar veya abonelikten çıkar. Yaptığı her şey nedeniyle birlikte sohbetinde kalır.',
         question: 'Kendi başına e-posta gönderebilir ya da silebilir mi?',
       },
       {
@@ -1382,7 +1382,7 @@ export const tr: Messages = {
       },
       {
         answer:
-          'Şimdilik Gmail ve Google Workspace hesapları. Tek bir Fewmail’e birden fazla posta kutusu ekle; hepsinin postaları aynı Ana Sayfa’ya ve gelen kutusuna düşer.',
+          'Şimdilik Gmail ve Google Workspace hesapları. Tek bir Fewmail’e birden fazla posta kutusu ekle; hepsinin postaları aynı botlara ve gelen kutusuna düşer.',
         question: 'Hangi e-posta hesaplarıyla çalışır?',
       },
     ],
@@ -1390,35 +1390,35 @@ export const tr: Messages = {
       description:
         'E-postanın eskiden bir öğleden sonranı alan işleri arka planda yapılır ve kontrol edebileceğin bir yerde listelenir.',
       items: {
-        codes: {
-          description:
-            'Yeni bir kod Ana Sayfa’nın en üstünde ve e-postasının yanında, hiçbir şey açmadan kopyalanmaya hazır bekler. Ücretsiz.',
-          title: 'Giriş kodları',
-        },
-        subscriptions: {
-          description:
-            'Bu ay yazan her e-posta listesi ve gerçekten kaç e-postasını açtığın. Herhangi birinden tek tuşla çık. Ücretsiz.',
-          title: 'E-posta listeleri',
-        },
-        ask: {
-          description:
-            'Sade bir dille her şeyi sor, yanıtı kendi postalarından, dayandığı e-postalarla birlikte al.',
-          title: 'Postalarına sor',
-        },
         calendar: {
           description:
             'Tüm posta kutularının takvimi tek bir görünümde. Bir e-postada önerilen toplantı, sen onaylayınca etkinliğe dönüşür.',
           title: 'Takvim',
         },
-        clearOut: {
+        codes: {
           description:
-            'Biriken her şey tek seferde gider: posta kutusu başına 50.000 e-postaya kadar, hepsi tek bir etiket altında, böylece tek tıkla hepsi geri gelir. Ücretsiz.',
-          title: 'Gelen kutusunu temizle',
+            'Yeni bir kod sohbetlerinin en üstünde ve e-postasının yanında, hiçbir şey açmadan kopyalanmaya hazır bekler. Ücretsiz.',
+          title: 'Giriş kodları',
+        },
+        messengers: {
+          description:
+            'Acil postalar sana hemen Telegram’da ya da WhatsApp’ta ulaşır. Postanı orada sor, taslakları orada onayla, yazarak ya da sesle.',
+          title: 'Telegram ve WhatsApp',
         },
         reading: {
           description:
-            'Günün bültenlerinden tek bir özet: konulara göre haberler, her cümle kaynağına bağlı ve baştan sona okumaya değenler.',
+            'Her sabah dünün bültenlerinden tek bir sayı: konulara göre haberler, her cümle kaynağına bağlı ve baştan sona okumaya değenler.',
           title: 'Okuma',
+        },
+        shield: {
+          description:
+            'Bir spamcıyı bir kez bildir, her Fewmail kullanıcısı daha güvende olsun. Kalkanın yakaladığı her şey taşınmadan önce onayını bekler. Ücretsiz.',
+          title: 'Spam kalkanı',
+        },
+        subscriptions: {
+          description:
+            'Bu ay yazan her e-posta listesi ve gerçekten kaç e-postasını açtığın. Herhangi birinden tek tuşla çık. Ücretsiz.',
+          title: 'E-posta listeleri',
         },
         voice: {
           description:
@@ -1446,7 +1446,7 @@ export const tr: Messages = {
       label: 'Geride kalanlar',
       rows: [
         {
-          fix: 'Temizlik, biriken her şeyi tek seferde kaldırır: eski reklamlar, okunmuş bildirimler, hiç açmadığın listeler. Tek tıkla her e-posta geri gelir.',
+          fix: 'Fewmail Bot’tan birikenleri temizlemesini iste: eski reklamlar, okunmuş bildirimler, hiç açmadığın listeler, hepsi tek seferde taşınır. Tek tıkla her e-posta geri gelir.',
           problem: 'Kimsenin asla okumayacağı binlerce e-posta.',
         },
         {
@@ -1458,7 +1458,7 @@ export const tr: Messages = {
           problem: 'Hiç abone olmadığın bültenler.',
         },
         {
-          fix: 'Günün bültenleri konulara göre tek bir özete dönüşür, okumaya değenler de belirtilir.',
+          fix: 'Okuma her sabah dünün bültenlerini konulara göre tek bir sayıya dönüştürür, okumaya değenler de belirtilir.',
           problem: 'Okumayı düşündüğün bültenler.',
         },
         {
@@ -1466,11 +1466,11 @@ export const tr: Messages = {
           problem: 'Yeni banka bilgileriyle gelen bir fatura.',
         },
         {
-          fix: 'Gönderdiğin postalarda verdiğin sözler zamanı gelince sana geri döner, kimsenin yanıtlamadığı yazışmalar da takip edilir.',
+          fix: 'Pano, söz verdiklerini ve sana borçlu olunanları not eder, her birini günü gelince geri getirir. Kimsenin yanıtlamadığı yazışmalar da takip edilir.',
           problem: 'Söz verip unuttuğun o şey.',
         },
         {
-          fix: 'Telegram’a ya da WhatsApp’a yalnızca acil postalar gelir. Gerisi önceden ayıklanmış halde Ana Sayfa’da, ne zaman bakarsan seni bekler.',
+          fix: 'Telegram’a ya da WhatsApp’a yalnızca acil postalar gelir. Gerisi önceden ayıklanmış halde botlarının sohbetlerinde, ne zaman bakarsan seni bekler.',
           problem: 'Akşam yemeğinde, ne olur ne olmaz diye postalara bakmak.',
         },
       ],
@@ -1479,9 +1479,9 @@ export const tr: Messages = {
     hero: {
       needs: {
         emphasis: 'seni bekliyor.',
-        lead: (handled: string) =>
-          `Anna sözleşmeyi bekliyor, Northwind’in faturasının son günü gelecek hafta ve Marco perşembeyi istiyor. ${handled} bülten ve bildirim halledildi; yeni posta geldikçe Ana Sayfa kendini günceller.`,
-        tag: 'Ana Sayfa · Perşembe, 08:12',
+        lead: (handled: string, bot: string) =>
+          `Anna sözleşmeyi bekliyor, Northwind’in faturasının son günü gelecek hafta ve Marco perşembeyi istiyor. Botların ${handled} bülten ve bildirimi halletti, bu üçü de ${bot} sohbetinde bekliyor.`,
+        tag: (bot: string) => `${bot} · Perşembe, 08:12`,
         title: 'Üç şey seni bekliyor.',
       },
       fates: {
@@ -1524,8 +1524,7 @@ export const tr: Messages = {
       remindPlan: 'Faturalarına ekler ve 19 Kasım’da sana hatırlatır.',
       start: 'Google ile ücretsiz başla',
       title: 'E-posta senin işin değil.',
-      home: 'Ana Sayfa',
-      tryQueue: 'Kuyruğu dene',
+      seeBots: 'Botlarla tanış',
       unread: ((slots) => [slots.count, ' okunmamış']) as Rich<'count'>,
       unreadInbox: ((slots) => [
         'Gelen kutunda ',
@@ -1542,22 +1541,59 @@ export const tr: Messages = {
       pricing: 'Fiyatlar',
       signIn: 'Giriş yap',
     },
-    play: {
-      again: 'Yeniden temizle',
-      doneLead: (handled: string) =>
-        `Üç karar verdin. Fewmail geri kalan ${handled} tanesini halletti ve nedenini yazdı.`,
-      doneTitle: 'Bugünlük bu kadar.',
-      emphasis: 'iki dakikada.',
-      handled: [
-        'Lumen Weekly: son 30 sayının hiçbirini açmadın',
-        'paypa1-billing.com, paypal.com gibi görünüyor',
-        'Parcelhub: teslimat bildirimleri, “Makbuzlar ve kargo” kuralıyla',
+    bots: {
+      again: 'Baştan başla',
+      board: {
+        coming: {
+          state: 'ücretliye geçer · 28 Kasım',
+          text: 'Coursely denemesi',
+        },
+        owed: {
+          state: 'bekleniyor · 22 Kasım’a kadar',
+          text: 'Northwind: çift çekim için $120 iade',
+        },
+        promised: {
+          state: 'perşembeye kadar',
+          text: 'İncelemeden önce slaytları Marco’ya gönder',
+        },
+      },
+      emphasis: 'Her tür posta için',
+      fewmail: {
+        approve: 'Onayla',
+        ask: 'Hetzner faturaları: okundu olarak işaretle',
+        botName: 'Hetzner faturaları',
+        digest: (total: number, people: number) =>
+          `Son bir günde ${total} e-posta. Çoğu bülten ve bildirim, insanlardan yalnızca ${people} tane.`,
+        proposal: 'İşte bot. Onayla, yeni postalarla işe başlasın.',
+      },
+      label: 'Botlar',
+      later: 'Bilmeye değer dört şey, karar verilecek bir şey yok.',
+      lead: 'Her bot kendi türündeki postayı geldiği anda okur ve sohbetinde ne yaptığını, neyin seni beklediğini anlatır. Aralarında gezin ya da [ ve ] tuşlarına bas.',
+      points: [
+        {
+          description:
+            'Her e-posta, işi o olan bota gider: Önemli, Bekleyebilir, Hızlı ya da senin yaptığın bir bot. Hiçbir botun almadığı postalar Fewmail Bot’ta kalır.',
+          title: 'Posta geldikçe ayırırlar.',
+        },
+        {
+          description:
+            'Bir bot, sen kendi başına iş görmesine izin verene kadar her e-postaya dokunmadan önce sorar. Yaptığı her şey nedeniyle birlikte sohbetinde kalır.',
+          title: 'Güvenene kadar sorarlar.',
+        },
+        {
+          description:
+            'Fewmail Bot’a “Hetzner faturaları: okundu olarak işaretle” de ve yaptığı botu onayla. Bir botu duraklatmak, değiştirmek ya da silmek de aynı şekilde olur.',
+          title: 'Tek cümleyle bot yap.',
+        },
       ],
-      handledTitle: 'Sen uyurken halledilenler',
-      label: 'Dene',
-      lead: 'Artık sabahlar böyle görünüyor. Taslaklar yazıldı, nedenler ortada, kararı sen verirsin. Hadi, temizle.',
-      left: (count: number) => `${count} karar bekliyor`,
-      title: 'Tüm gelen kutun, iki dakikada.',
+      quick:
+        'Growthly’den Mira soğuk satış e-postası: bir şey satmaya çalışan bir yabancı ve sen ona hiç yazmadın.',
+      settled: {
+        remind: 'hatırlatma kuruldu',
+        send: 'yanıt gönderildi',
+        skip: 'geçildi',
+      },
+      title: 'Her tür posta için bir sohbet.',
     },
     plans: {
       agent: 'Ajan',
@@ -1568,7 +1604,7 @@ export const tr: Messages = {
         'Ajanın yaptığı her şey için tek bir kullanım hakkı: kullandığın kadar ödersin, gereksiz e-postalar hiç sayılmaz',
       forever: 'sonsuza dek',
       free: {
-        description: 'Ana Sayfa, sıralama, kurallar ve koruma. Sonsuza dek.',
+        description: 'Botlar, sıralama ve koruma. Sonsuza dek.',
       },
       max: {
         description: 'Yoğun bir gelen kutusu için aynı ajan.',
@@ -1586,7 +1622,7 @@ export const tr: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Ana Sayfa, sıralama, sade dille kurallar ve koruma sonsuza dek ücretsiz. Pro, senin için okuyan, yazan ve hatırlayan ajan; Max ise yoğun bir gelen kutusuna yetecek kapasiteye sahip aynı ajan. Her hesap ${trialDays} gün Pro ile başlar, süre bitince de Ücretsiz planda kalırsın.`,
+        `Sade dille botlar, sıralama ve koruma sonsuza dek ücretsiz. Pro, senin için okuyan, yazan ve hatırlayan ajan; Max ise yoğun bir gelen kutusuna yetecek kapasiteye sahip aynı ajan. Her hesap ${trialDays} gün Pro ile başlar, süre bitince de Ücretsiz planda kalırsın.`,
       otherTool: 'Başka bir araç mı düşünüyorsun?',
       title: 'Gelen kutusuna değil, ajana öde.',
     },
@@ -1602,7 +1638,7 @@ export const tr: Messages = {
       vows: [
         {
           description:
-            'Taslaklar seni bekler. Yalnızca senin oluşturduğun ya da tuttuğun kurallar kendi başına arşivleyebilir, okundu yapabilir veya abonelikten çıkabilir; yaptıkları her şey Halledilenler’de listelenir.',
+            'Taslaklar seni bekler. Bir bot postaları ancak sen izin verince kendi başına taşır ve yaptığı her şey nedeniyle birlikte sohbetinde kalır.',
           title: 'Onayın olmadan hiçbir şey gönderilmez.',
         },
         {

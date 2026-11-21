@@ -1156,13 +1156,13 @@ export const pl: Messages = {
       mcp: 'Połącz Fewmail z Claude, ChatGPT, Claude Code lub Cursorem jako serwer MCP: czytaj i porządkuj Gmaila z AI, której już używasz.',
       motto: 'tylko to, co ważne w twojej skrzynce',
       pricing: (trialDays: number) =>
-        `Fewmail jest na zawsze darmowy do strony głównej, sortowania, reguł i ochrony przed spamem. Pro, cały agent, zaczyna się od ${trialDays} darmowych dni bez karty.`,
+        `Fewmail jest na zawsze darmowy do botów, sortowania i ochrony przed spamem. Pro, cały agent, zaczyna się od ${trialDays} darmowych dni bez karty.`,
       tagline: 'agent poczty AI dla Gmaila',
     },
     chapters: {
       pricing: {
         description:
-          'Strona główna, sortowanie, reguły i ochrona są za darmo na zawsze. Lite, Pro i Max dodają wszystko, co czyta i pisze za ciebie; większe plany po prostu robią tego więcej.',
+          'Boty, sortowanie i ochrona są za darmo na zawsze. Lite, Pro i Max dodają wszystko, co czyta i pisze za ciebie; większe plany po prostu robią tego więcej.',
         label: 'Cennik',
         title: (usd: number) => `Sortowanie za darmo. Agent od $${usd}.`,
       },
@@ -1179,7 +1179,7 @@ export const pl: Messages = {
     },
     mcp: {
       answer:
-        'Podpisanej umowy przed piątkowym startem projektu. Odpowiedź jest już napisana i czeka w twojej kolejce w Fewmail.',
+        'Podpisanej umowy przed piątkowym startem projektu. Odpowiedź jest już napisana i czeka na twoją zgodę w Fewmail.',
       clients: 'Działa z',
       emphasis: 'Claude i ChatGPT.',
       free: 'Czytanie poczty i sortowanie przez agenta są za darmo.',
@@ -1191,7 +1191,7 @@ export const pl: Messages = {
     },
     mcpPage: {
       copy: 'Kopiuj URL',
-      lead: 'Podłącz Fewmail jako serwer MCP i pytaj o pocztę z AI, której już używasz. Czytanie poczty i sortowanie przez agenta są darmowe; szkice, wysyłka i reguły są w Pro.',
+      lead: 'Podłącz Fewmail jako serwer MCP i pytaj o pocztę z AI, której już używasz. Czytanie poczty i sortowanie przez agenta są darmowe; szkice, wysyłka i boty, które piszą maile, są w Pro.',
       safety:
         'Wszystko, co wysyła maila lub zmienia Gmaila, najpierw prosi o twoją zgodę. E-mail, który próbuje wydawać polecenia asystentowi, zostaje oznaczony, zanim ten go przeczyta. Twoja poczta nigdy nie trenuje modeli, a każdą aplikację odłączysz w ustawieniach.',
       steps: {
@@ -1214,7 +1214,7 @@ export const pl: Messages = {
         },
         drafts: {
           description:
-            'Odpowiedzi powstają z wyprzedzeniem, twoim tonem i w języku nadawcy, i czekają w kolejce, aż je zatwierdzisz.',
+            'Odpowiedzi powstają z wyprzedzeniem, twoim tonem i w języku nadawcy, i czekają w czacie swojego bota, aż je zatwierdzisz.',
           title: 'Pisze odpowiedzi twoim głosem',
         },
         protection: {
@@ -1229,8 +1229,8 @@ export const pl: Messages = {
         },
         bots: {
           description:
-            'Opisz jednym zdaniem, co ma się dziać z częścią poczty, a stanie się to regułą. Same działają tylko reguły, które włączysz.',
-          title: 'Reguły zwykłymi słowami',
+            'Opisz jednym zdaniem, co ma się dziać z częścią poczty, a powstanie z tego bot z własnym czatem. Same działają tylko boty, którym na to pozwolisz.',
+          title: 'Boty zwykłymi słowami',
         },
         sorting: {
           description:
@@ -1256,11 +1256,11 @@ export const pl: Messages = {
         },
         {
           answer:
-            'Pisze dla ciebie szkice, ale nigdy nie wysyła ich sam. Każdy szkic czeka w kolejce na twoją zgodę, a podobne możesz zatwierdzić razem.',
+            'Pisze dla ciebie szkice, ale nigdy nie wysyła ich sam. Każdy szkic czeka na twoją zgodę w czacie swojego bota, a podobne możesz zatwierdzić razem.',
           question: 'Czy może odpowiadać na maile automatycznie?',
         },
         {
-          answer: `Tak. Plan Free sortuje każdy e-mail, zbiera na jednej stronie to, co wymaga ciebie, wykonuje twoje reguły i chroni przed spamem i phishingiem, na zawsze. Szkice, streszczenia i reszta agenta są w płatnych planach, a każde konto zaczyna od ${trialDays} dni Pro, bez karty.`,
+          answer: `Tak. Plan Free sortuje każdy e-mail, zbiera w czatach twoich botów to, co wymaga ciebie, uruchamia twoje boty i chroni przed spamem i phishingiem, na zawsze. Szkice, streszczenia i reszta agenta są w płatnych planach, a każde konto zaczyna od ${trialDays} dni Pro, bez karty.`,
           question: 'Czy istnieje darmowy asystent poczty AI dla Gmaila?',
         },
       ],
@@ -1283,7 +1283,7 @@ export const pl: Messages = {
       },
       labels: {
         ask: 'Zapytaj pocztę o cokolwiek',
-        home: 'Wszystko, co czeka na ciebie, na jednej stronie',
+        home: 'Wszystko, co czeka na ciebie, w jednym miejscu',
         calendar: 'Kalendarz',
         drafts: 'Odpowiedzi pisane za ciebie',
         followUps: 'Przypomnienia o odpowiedziach',
@@ -1297,7 +1297,7 @@ export const pl: Messages = {
         outlook: 'Outlook i Microsoft 365',
         phishing: 'Ostrzeżenia o phishingu i zmianie danych do płatności',
         phone: 'Na telefonie',
-        bots: 'Reguły zwykłymi słowami',
+        bots: 'Boty zwykłymi słowami',
         snooze: 'Odkładanie na później',
         spamShield: 'Społecznościowa tarcza antyspamowa',
         summaries: 'Streszczenia maili',
@@ -1422,7 +1422,7 @@ export const pl: Messages = {
       },
       {
         answer:
-          'Nigdy bez ciebie. Odpowiedzi czekają w kolejce, aż je zatwierdzisz, a archiwizować, oznaczać jako przeczytane czy wypisywać się mogą same tylko reguły, które utworzyłeś lub zostawiłeś. Wszystko, co zrobił, znajdziesz w Załatwionych.',
+          'Nigdy bez ciebie. Odpowiedzi czekają w czacie swojego bota, aż je zatwierdzisz, a bot sam archiwizuje, oznacza jako przeczytane czy wypisuje się dopiero wtedy, gdy mu na to pozwolisz. Wszystko, co zrobił, zostaje w jego czacie razem z powodem.',
         question: 'Czy może sam wysyłać lub usuwać maile?',
       },
       {
@@ -1441,7 +1441,7 @@ export const pl: Messages = {
       },
       {
         answer:
-          'Na razie konta Gmail i Google Workspace. Dodaj kilka skrzynek do jednego Fewmail, a ich poczta trafi na tę samą stronę główną i do tej samej skrzynki.',
+          'Na razie konta Gmail i Google Workspace. Dodaj kilka skrzynek do jednego Fewmail, a ich poczta trafi do tych samych botów i do tej samej skrzynki.',
         question: 'Jakie konta e-mail działają?',
       },
     ],
@@ -1449,35 +1449,35 @@ export const pl: Messages = {
       description:
         'Te części poczty, które kiedyś zajmowały całe popołudnie, dzieją się w tle i są zapisane tam, gdzie możesz je sprawdzić.',
       items: {
-        codes: {
-          description:
-            'Świeży kod czeka na górze strony głównej i obok swojego e-maila, gotowy do skopiowania bez otwierania. Za darmo.',
-          title: 'Kody logowania',
-        },
-        subscriptions: {
-          description:
-            'Każda lista mailingowa, która pisała w tym miesiącu, i ile jej e-maili naprawdę otworzyłeś. Wypisz się z dowolnej jednym klawiszem. Za darmo.',
-          title: 'Listy mailingowe',
-        },
-        ask: {
-          description:
-            'Pytaj zwykłymi słowami i dostawaj odpowiedź z własnej poczty, razem z mailami, z których pochodzi.',
-          title: 'Zapytaj swoją pocztę',
-        },
         calendar: {
           description:
             'Kalendarze wszystkich skrzynek w jednym widoku. Spotkanie zaproponowane w mailu staje się wydarzeniem, gdy je zatwierdzisz.',
           title: 'Kalendarz',
         },
-        clearOut: {
+        codes: {
           description:
-            'Cały zaległy bałagan za jednym razem, do 50 000 maili na skrzynkę, wszystko pod jedną etykietą, więc „Przywróć wszystko” przywraca każdy z nich. Za darmo.',
-          title: 'Sprzątanie skrzynki',
+            'Świeży kod czeka na górze twoich czatów i obok swojego e-maila, gotowy do skopiowania bez otwierania. Za darmo.',
+          title: 'Kody logowania',
+        },
+        messengers: {
+          description:
+            'Pilna poczta od razu trafia do ciebie na Telegramie lub WhatsAppie. Tam też pytaj o pocztę i zatwierdzaj szkice, pisząc albo głosem.',
+          title: 'Telegram i WhatsApp',
         },
         reading: {
           description:
-            'Jedno podsumowanie dzisiejszych newsletterów: wiadomości według tematów, każde zdanie z linkiem do źródła i te, które warto przeczytać w całości.',
+            'Co rano jedno wydanie wczorajszych newsletterów: wiadomości według tematów, każde zdanie z linkiem do źródła i te, które warto przeczytać w całości.',
           title: 'Czytanie',
+        },
+        shield: {
+          description:
+            'Zgłoś spamera raz, a każdy użytkownik Fewmail jest bezpieczniejszy. Wszystko, co wyłapie tarcza, czeka na twoją zgodę, zanim zostanie przeniesione. Za darmo.',
+          title: 'Tarcza antyspamowa',
+        },
+        subscriptions: {
+          description:
+            'Każda lista mailingowa, która pisała w tym miesiącu, i ile jej e-maili naprawdę otworzyłeś. Wypisz się z dowolnej jednym klawiszem. Za darmo.',
+          title: 'Listy mailingowe',
         },
         voice: {
           description:
@@ -1505,7 +1505,7 @@ export const pl: Messages = {
       label: 'Co znika',
       rows: [
         {
-          fix: 'Sprzątanie skrzynki za jednym razem wynosi do archiwum cały zaległy bałagan: stare reklamy, przeczytane powiadomienia, newslettery, których nie otwierasz. Jedno „Przywróć wszystko” przywraca każdy mail.',
+          fix: 'Poproś Fewmail Bot o sprzątnięcie zaległości: stare reklamy, przeczytane powiadomienia, newslettery, których nie otwierasz, wszystko za jednym razem. Jedno „Przywróć wszystko” przywraca każdy mail.',
           problem: 'Tysiące maili, których nikt nigdy nie przeczyta.',
         },
         {
@@ -1517,7 +1517,7 @@ export const pl: Messages = {
           problem: 'Newslettery, na które nigdy się nie zapisałeś.',
         },
         {
-          fix: 'Dzisiejsze newslettery stają się jednym podsumowaniem według tematów, a te warte przeczytania w całości są wskazane.',
+          fix: 'Co rano „Czytanie” składa wczorajsze newslettery w jedno wydanie według tematów, a te warte przeczytania w całości są wskazane.',
           problem: 'Newslettery, które chciałeś przeczytać.',
         },
         {
@@ -1525,11 +1525,11 @@ export const pl: Messages = {
           problem: 'Faktura z nowym numerem konta.',
         },
         {
-          fix: 'Obietnice z wysłanych maili wracają w terminie, a wątki, na które nikt nie odpowiedział, dostają przypomnienie.',
+          fix: '„Tablica” zapisuje, co obiecałeś i co należy się tobie, i przypomina o każdej sprawie w jej dniu. Wątki, na które nikt nie odpowiedział, dostają przypomnienie.',
           problem: 'To, co obiecałeś i o czym zapomniałeś.',
         },
         {
-          fix: 'Do Telegrama czy WhatsAppa trafia tylko to, co pilne. Reszta, już posortowana, czeka na stronie głównej, aż zajrzysz.',
+          fix: 'Do Telegrama czy WhatsAppa trafia tylko to, co pilne. Reszta, już posortowana, czeka w czatach twoich botów, aż zajrzysz.',
           problem: 'Sprawdzanie poczty przy kolacji, tak na wszelki wypadek.',
         },
       ],
@@ -1538,9 +1538,9 @@ export const pl: Messages = {
     hero: {
       needs: {
         emphasis: 'czekają na ciebie.',
-        lead: (handled: string) =>
-          `Anna czeka na umowę, faktura Northwind jest do zapłaty w przyszłym tygodniu, a Marco chce czwartek. Załatwione newslettery i powiadomienia: ${handled}. Strona główna odświeża się sama, gdy przychodzi nowa poczta.`,
-        tag: 'Strona główna · czwartek, 08:12',
+        lead: (handled: string, bot: string) =>
+          `Anna czeka na umowę, faktura Northwind jest do zapłaty w przyszłym tygodniu, a Marco chce czwartek. Twoje boty zajęły się newsletterami i powiadomieniami (${handled}), a te trzy sprawy czekają w czacie „${bot}”.`,
+        tag: (bot: string) => `${bot} · czwartek, 08:12`,
         title: 'Trzy sprawy czekają na ciebie.',
       },
       fates: {
@@ -1584,8 +1584,7 @@ export const pl: Messages = {
       remindPlan: 'Doda ją do rachunków i przypomni ci 19 listopada.',
       start: 'Zacznij za darmo z Google',
       title: 'Poczta to nie twoja praca.',
-      home: 'Strona główna',
-      tryQueue: 'Wypróbuj kolejkę',
+      seeBots: 'Poznaj boty',
       unread: ((slots) => ['Nieprzeczytane: ', slots.count]) as Rich<'count'>,
       unreadInbox: ((slots) => [
         'Nieprzeczytane w skrzynce: ',
@@ -1601,22 +1600,64 @@ export const pl: Messages = {
       pricing: 'Cennik',
       signIn: 'Zaloguj się',
     },
-    play: {
-      again: 'Wyczyść jeszcze raz',
-      doneLead: (handled: string) =>
-        `Podjąłeś trzy decyzje. Fewmail zajął się resztą (${handled}) i zapisał, dlaczego.`,
-      doneTitle: 'Na dziś to wszystko.',
-      emphasis: 'w dwie minuty.',
-      handled: [
-        'Lumen Weekly: nie otworzyłeś żadnego z ostatnich 30 wydań',
-        'paypa1-billing.com udaje paypal.com',
-        'Parcelhub: powiadomienia o dostawie, według reguły „Paragony i przesyłki”',
+    bots: {
+      again: 'Zacznij od nowa',
+      board: {
+        coming: {
+          state: 'stanie się płatny · 28 listopada',
+          text: 'Okres próbny Coursely',
+        },
+        owed: {
+          state: 'czeka · do 22 listopada',
+          text: 'Northwind: zwrot $120 za podwójne obciążenie',
+        },
+        promised: {
+          state: 'do czwartku',
+          text: 'Wysłać Marcowi slajdy przed przeglądem',
+        },
+      },
+      emphasis: 'dla każdego rodzaju poczty.',
+      fewmail: {
+        approve: 'Zatwierdź',
+        ask: 'Faktury od Hetznera: oznaczaj jako przeczytane',
+        botName: 'Faktury Hetzner',
+        digest: (total: number, people: number) =>
+          `${plural('pl', total, {
+            one: (n) => `${n} mail`,
+            few: (n) => `${n} maile`,
+            many: (n) => `${n} maili`,
+            other: (n) => `${n} maila`,
+          })} z ostatniej doby. Głównie newslettery i powiadomienia, a od ludzi tylko ${people}.`,
+        proposal: 'Oto bot. Zatwierdź go, a zacznie od nowej poczty.',
+      },
+      label: 'Boty',
+      later: 'Cztery warte uwagi, nic do decyzji.',
+      lead: 'Każdy bot czyta swój rodzaj poczty, gdy tylko przychodzi, i w swoim czacie mówi, co zrobił i co czeka na ciebie. Przeklikaj je albo naciskaj [ i ].',
+      points: [
+        {
+          description:
+            'Każdy mail trafia do bota, którego to zadanie: „Ważne”, „Może poczekać”, „Szybkie” albo tego, którego sam zrobiłeś. Czego nie weźmie żaden bot, zostaje u Fewmail Bot.',
+          title: 'Sortują, gdy przychodzi poczta.',
+        },
+        {
+          description:
+            'Bot pyta przed każdym mailem, dopóki nie pozwolisz mu działać samemu. Wszystko, co zrobił, zostaje w jego czacie razem z powodem.',
+          title: 'Pytają, dopóki im nie zaufasz.',
+        },
+        {
+          description:
+            'Napisz do Fewmail Bot „faktury od Hetznera: oznaczaj jako przeczytane” i zatwierdź bota, którego zrobi. Tak samo wstrzymasz, zmienisz albo usuniesz każdego z nich.',
+          title: 'Zrób bota jednym zdaniem.',
+        },
       ],
-      handledTitle: 'Załatwione, gdy spałeś',
-      label: 'Wypróbuj',
-      lead: 'Tak teraz wygląda poranek. Szkice są napisane, powody podane, ty decydujesz. Śmiało, wyczyść ją.',
-      left: (count: number) => `Do decyzji: ${count}`,
-      title: 'Cała skrzynka w dwie minuty.',
+      quick:
+        'Mira z Growthly to zimna oferta: obca osoba coś sprzedaje, a ty nigdy do niej nie pisałeś.',
+      settled: {
+        remind: 'przypomnienie ustawione',
+        send: 'odpowiedź wysłana',
+        skip: 'pominięte',
+      },
+      title: 'Osobny czat dla każdego rodzaju poczty.',
     },
     plans: {
       agent: 'Agent',
@@ -1627,7 +1668,7 @@ export const pl: Messages = {
         'Jeden limit na wszystko, co robi agent: płacisz za to, czego używasz, a szum nigdy się nie liczy',
       forever: 'na zawsze',
       free: {
-        description: 'Strona główna, sortowanie, reguły i ochrona. Na zawsze.',
+        description: 'Boty, sortowanie i ochrona. Na zawsze.',
       },
       max: {
         description: 'Ten sam agent dla zapchanej skrzynki.',
@@ -1645,7 +1686,7 @@ export const pl: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Strona główna, sortowanie, reguły zwykłymi słowami i ochrona są za darmo na zawsze. Pro to agent, który czyta, pisze i pamięta za ciebie; Max to ten sam agent z zapasem na zapchaną skrzynkę. Każde konto zaczyna od ${trialDays} dni Pro, a gdy się skończą, po prostu zostajesz na planie Free.`,
+        `Boty zwykłymi słowami, sortowanie i ochrona są za darmo na zawsze. Pro to agent, który czyta, pisze i pamięta za ciebie; Max to ten sam agent z zapasem na zapchaną skrzynkę. Każde konto zaczyna od ${trialDays} dni Pro, a gdy się skończą, po prostu zostajesz na planie Free.`,
       otherTool: 'Rozważasz inne narzędzie?',
       title: 'Płać za agenta, nie za skrzynkę.',
     },
@@ -1661,7 +1702,7 @@ export const pl: Messages = {
       vows: [
         {
           description:
-            'Szkice czekają na ciebie. Archiwizować, oznaczać jako przeczytane czy wypisywać się mogą same tylko reguły, które utworzyłeś lub zostawiłeś, a wszystko, co zrobiły, znajdziesz w Załatwionych.',
+            'Szkice czekają na ciebie. Bot sam przenosi pocztę dopiero wtedy, gdy mu na to pozwolisz, a wszystko, co zrobił, zostaje w jego czacie razem z powodem.',
           title: 'Nic nie wychodzi bez twojej zgody.',
         },
         {

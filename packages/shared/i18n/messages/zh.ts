@@ -870,13 +870,13 @@ export const zh: Messages = {
       mcp: '把 Fewmail 作为 MCP 服务器连接到 Claude、ChatGPT、Claude Code 或 Cursor：在你已经在用的 AI 里读和整理 Gmail。',
       motto: '收件箱里只留重要的',
       pricing: (trialDays: number) =>
-        `Fewmail 的首页、分拣、规则和垃圾邮件防护永久免费。完整助手 Pro 可免费试用 ${trialDays} 天，无需绑卡。`,
+        `Fewmail 的机器人、分拣和垃圾邮件防护永久免费。完整助手 Pro 可免费试用 ${trialDays} 天，无需绑卡。`,
       tagline: 'Gmail 的 AI 邮件助手',
     },
     chapters: {
       pricing: {
         description:
-          '首页、分类、规则和防护永久免费。Lite、Pro 和 Max 加上所有替你阅读和撰写的功能；更高的套餐只是能做得更多。',
+          '机器人、分类和防护永久免费。Lite、Pro 和 Max 加上所有替你阅读和撰写的功能；更高的套餐只是能做得更多。',
         label: '价格',
         title: (usd: number) => `分类免费。助手 $${usd} 起。`,
       },
@@ -892,7 +892,7 @@ export const zh: Messages = {
     },
     mcp: {
       answer:
-        '周五启动会之前要拿到签好的合同。回复已经起草好，正在你的 Fewmail 队列里等你。',
+        '周五启动会之前要拿到签好的合同。回复已经起草好，正在 Fewmail 里等你批准。',
       clients: '支持',
       emphasis: 'Claude 和 ChatGPT 里。',
       free: '读取邮件和助手的分类免费。',
@@ -904,7 +904,7 @@ export const zh: Messages = {
     },
     mcpPage: {
       copy: '复制 URL',
-      lead: '把 Fewmail 作为 MCP 服务器连接，就能在你常用的 AI 里询问自己的邮件。读取邮件和助手的分类免费；草稿、发送和规则属于 Pro。',
+      lead: '把 Fewmail 作为 MCP 服务器连接，就能在你常用的 AI 里询问自己的邮件。读取邮件和助手的分类免费；草稿、发送和会写回复的机器人属于 Pro。',
       safety:
         '任何发送邮件或更改 Gmail 的操作都会先征得你的同意。试图给助手下命令的邮件，会在助手读到之前被标记。你的邮件绝不会用于训练模型，任何应用都可以在设置中断开。',
       steps: {
@@ -926,7 +926,7 @@ export const zh: Messages = {
         },
         drafts: {
           description:
-            '回复提前写好，用你的语气和发件人的语言，在队列里等你批准。',
+            '回复提前写好，用你的语气和发件人的语言，在负责它的机器人的聊天里等你批准。',
           title: '用你的口吻起草回复',
         },
         protection: {
@@ -941,8 +941,8 @@ export const zh: Messages = {
         },
         bots: {
           description:
-            '用一句话说清某类邮件该怎么处理，它就成了一条规则。只有你开启的规则才会自动执行。',
-          title: '用大白话写规则',
+            '用一句话说清某类邮件该怎么处理，它就成了一个有自己聊天的机器人。只有你放手让它做的机器人才会自己动手。',
+          title: '用大白话创建机器人',
         },
         sorting: {
           description:
@@ -968,11 +968,11 @@ export const zh: Messages = {
         },
         {
           answer:
-            '它会替你起草回复，但绝不会自己发送。每份草稿都在队列里等你批准，相似的可以一起批准。',
+            '它会替你起草回复，但绝不会自己发送。每份草稿都在负责它的机器人的聊天里等你批准，相似的可以一起批准。',
           question: '它能自动回复邮件吗？',
         },
         {
-          answer: `有。Free 方案会分拣每封邮件，把需要你处理的事集中在一页，执行你的规则，并帮你挡住垃圾邮件和钓鱼邮件，永久免费。草稿、摘要和助手的其他功能属于付费方案，每个账户都从 ${trialDays} 天 Pro 开始，无需绑卡。`,
+          answer: `有。Free 方案会分拣每封邮件，把需要你处理的事放进机器人的聊天，运行你的机器人，并帮你挡住垃圾邮件和钓鱼邮件，永久免费。草稿、摘要和助手的其他功能属于付费方案，每个账户都从 ${trialDays} 天 Pro 开始，无需绑卡。`,
           question: '有免费的 Gmail AI 邮件助手吗？',
         },
       ],
@@ -995,7 +995,7 @@ export const zh: Messages = {
       },
       labels: {
         ask: '向你的邮件提任何问题',
-        home: '需要你处理的事，集中在一页',
+        home: '需要你处理的事，集中在一处',
         calendar: '日历',
         drafts: '替你起草回复',
         followUps: '跟进提醒',
@@ -1009,7 +1009,7 @@ export const zh: Messages = {
         outlook: 'Outlook 和 Microsoft 365',
         phishing: '钓鱼和付款信息变更警告',
         phone: '在手机上',
-        bots: '用平常的话写规则',
+        bots: '用平常的话创建机器人',
         snooze: '稍后提醒',
         spamShield: '社区垃圾邮件防护盾',
         summaries: '邮件摘要',
@@ -1133,7 +1133,7 @@ export const zh: Messages = {
       },
       {
         answer:
-          '没有你绝不会。回复会在队列里等你批准，只有你创建或保留的规则才能自动归档、标为已读或退订。它做过的一切都列在“已处理”中。',
+          '没有你绝不会。回复会在负责它的机器人的聊天里等你批准，机器人只有在你放手之后才会自己归档、标为已读或退订。它做过的一切都留在它的聊天里，并附上原因。',
         question: '它会自己发送或删除邮件吗？',
       },
       {
@@ -1152,7 +1152,7 @@ export const zh: Messages = {
       },
       {
         answer:
-          '目前支持 Gmail 和 Google Workspace 账户。把多个邮箱添加到同一个 Fewmail，它们的邮件会汇入同一个“首页”和收件箱。',
+          '目前支持 Gmail 和 Google Workspace 账户。把多个邮箱添加到同一个 Fewmail，它们的邮件会汇入同一批机器人和收件箱。',
         question: '支持哪些邮箱账户？',
       },
     ],
@@ -1160,35 +1160,35 @@ export const zh: Messages = {
       description:
         '邮件里那些过去要花一下午的事，如今都在后台完成，并列在你随时能查看的地方。',
       items: {
-        codes: {
-          description:
-            '新验证码会出现在首页顶部和对应邮件旁，无需打开任何内容即可复制。免费。',
-          title: '登录验证码',
-        },
-        subscriptions: {
-          description:
-            '本月给你发过信的每个邮件列表，以及你真正打开了其中多少封。任何一个都能一键退订。免费。',
-          title: '邮件列表',
-        },
-        ask: {
-          description:
-            '用平常的话随便问，答案来自你自己的邮件，并附上出处邮件。',
-          title: '问问你的邮件',
-        },
         calendar: {
           description:
             '所有邮箱的日历汇在一处。邮件里提议的会议，经你同意后就变成日程。',
           title: '日历',
         },
-        clearOut: {
+        codes: {
           description:
-            '一次清掉全部积压，每个邮箱最多 50,000 封，全都带着同一个标签，一键撤销就能全部放回。免费。',
-          title: '清理收件箱',
+            '新验证码会出现在聊天顶部和对应邮件旁，无需打开任何内容即可复制。免费。',
+          title: '登录验证码',
+        },
+        messengers: {
+          description:
+            '紧急邮件会立即在 Telegram 或 WhatsApp 里找到你。在那里询问邮件、批准草稿，打字或语音都行。',
+          title: 'Telegram 和 WhatsApp',
         },
         reading: {
           description:
-            '当天订阅邮件的一份摘要：按主题整理的新闻，每句话都链接到出处，还有值得完整阅读的那几封。',
+            '每天早上把昨天的订阅邮件编成一期：按主题整理的新闻，每句话都链接到出处，还有值得完整阅读的那几封。',
           title: '阅读',
+        },
+        shield: {
+          description:
+            '举报一次垃圾邮件发件人，每位 Fewmail 用户都更安全。防护盾拦下的邮件会先等你批准再移走。免费。',
+          title: '垃圾邮件防护盾',
+        },
+        subscriptions: {
+          description:
+            '本月给你发过信的每个邮件列表，以及你真正打开了其中多少封。任何一个都能一键退订。免费。',
+          title: '邮件列表',
         },
         voice: {
           description:
@@ -1215,7 +1215,7 @@ export const zh: Messages = {
       label: '告别这些',
       rows: [
         {
-          fix: '清理收件箱一次就把全部积压移走：旧广告、已读通知、你从不打开的邮件列表。一键撤销，每封邮件都能放回。',
+          fix: '让 Fewmail Bot 清理积压：旧广告、已读通知、你从不打开的邮件列表，一次全部移走。一键撤销，每封邮件都能放回。',
           problem: '成千上万封没人会读的邮件。',
         },
         {
@@ -1227,7 +1227,7 @@ export const zh: Messages = {
           problem: '从没订阅过的订阅邮件。',
         },
         {
-          fix: '当天的订阅邮件变成一份按主题整理的摘要，并标出值得完整阅读的那几封。',
+          fix: '每天早上，阅读把昨天的订阅邮件编成按主题整理的一期，并标出值得完整阅读的那几封。',
           problem: '本想读却没读的订阅邮件。',
         },
         {
@@ -1235,11 +1235,11 @@ export const zh: Messages = {
           problem: '一张换了银行账户的发票。',
         },
         {
-          fix: '你在发出的邮件里许下的承诺，到期时会回到你面前；没人回复的对话会自动跟进。',
+          fix: '看板记下你答应的事和别人欠你的事，到了那天逐一提醒你。没人回复的对话会自动跟进。',
           problem: '答应了却忘了的事。',
         },
         {
-          fix: '只有紧急邮件才会在 Telegram 或 WhatsApp 里找你。其余的已经整理好，在“首页”等你随时查看。',
+          fix: '只有紧急邮件才会在 Telegram 或 WhatsApp 里找你。其余的已经整理好，在机器人的聊天里等你随时查看。',
           problem: '吃晚饭时还要看一眼邮件，以防万一。',
         },
       ],
@@ -1248,9 +1248,9 @@ export const zh: Messages = {
     hero: {
       needs: {
         emphasis: '需要你处理。',
-        lead: (handled: string) =>
-          `Anna 在等合同，Northwind 的发票下周到期，Marco 想约周四。${handled} 封订阅邮件和通知已处理，新邮件一到，“首页”就会自动更新。`,
-        tag: '首页 · 周四 08:12',
+        lead: (handled: string, bot: string) =>
+          `Anna 在等合同，Northwind 的发票下周到期，Marco 想约周四。你的机器人处理了 ${handled} 封订阅邮件和通知，这三件在「${bot}」里等你。`,
+        tag: (bot: string) => `${bot} · 周四 08:12`,
         title: '有三件事需要你处理。',
       },
       fates: {
@@ -1291,8 +1291,7 @@ export const zh: Messages = {
       remindPlan: '加入你的账单，并在 11月19日提醒你。',
       start: '用 Google 免费开始',
       title: '邮件不该是你的工作。',
-      home: '首页',
-      tryQueue: '试试队列',
+      seeBots: '认识这些机器人',
       unread: ((slots) => [slots.count, ' 封未读']) as Rich<'count'>,
       unreadInbox: ((slots) => [
         '收件箱里有 ',
@@ -1309,22 +1308,56 @@ export const zh: Messages = {
       pricing: '价格',
       signIn: '登录',
     },
-    play: {
-      again: '再清一次',
-      doneLead: (handled: string) =>
-        `你做了三个决定。其余 ${handled} 封由 Fewmail 处理，并写明了原因。`,
-      doneTitle: '今天就这些。',
-      emphasis: '两分钟搞定。',
-      handled: [
-        'Lumen Weekly：最近 30 期你一期都没打开',
-        'paypa1-billing.com 看起来像 paypal.com',
-        'Parcelhub：物流通知，按规则“收据和物流”',
+    bots: {
+      again: '重新开始',
+      board: {
+        coming: { state: '11月28日转为付费', text: 'Coursely 试用' },
+        owed: {
+          state: '等待中 · 11月22日前',
+          text: 'Northwind：重复扣款的 $120 退款',
+        },
+        promised: {
+          state: '周四到期',
+          text: '评审前把幻灯片发给 Marco',
+        },
+      },
+      emphasis: '每类邮件',
+      fewmail: {
+        approve: '批准',
+        ask: '来自 Hetzner 的发票标为已读',
+        botName: 'Hetzner 发票',
+        digest: (total: number, people: number) =>
+          `过去一天收到 ${total} 封邮件。大多是订阅邮件和通知，来自真人的只有 ${people} 封。`,
+        proposal: '机器人在这里。批准后，它会从新邮件开始工作。',
+      },
+      label: '机器人',
+      later: '四件值得知道的事，不需要你决定。',
+      lead: '每个机器人在邮件到达时读它负责的那类邮件，并在聊天里告诉你它做了什么、什么在等你。逐个点开看看，或按 [ 和 ]。',
+      points: [
+        {
+          description:
+            '每封邮件都交给负责它的机器人：重要、可以等等、快速处理，或者你创建的机器人。没有机器人接手的邮件留给 Fewmail Bot。',
+          title: '邮件一到就分好。',
+        },
+        {
+          description:
+            '在你放手让它自己处理之前，机器人每动一封邮件都会先问你。它做过的一切都留在它的聊天里，并附上原因。',
+          title: '直到你信任它，它都会先问。',
+        },
+        {
+          description:
+            '告诉 Fewmail Bot“来自 Hetzner 的发票标为已读”，再批准它创建的机器人就行。暂停、修改或删除也一样。',
+          title: '一句话就能创建一个。',
+        },
       ],
-      handledTitle: '在你睡觉时已处理',
-      label: '试一试',
-      lead: '现在的早晨就是这样。草稿写好了，原因写明了，由你来决定。来吧，把它清空。',
-      left: (count: number) => `还有 ${count} 件待决定`,
-      title: '整个收件箱，两分钟搞定。',
+      quick:
+        'Growthly 的 Mira 发的是陌生开发信：素不相识的人来推销，你也从没给对方写过信。',
+      settled: {
+        remind: '已设提醒',
+        send: '回复已发送',
+        skip: '已跳过',
+      },
+      title: '每类邮件，一个聊天。',
     },
     plans: {
       agent: '助手',
@@ -1335,7 +1368,7 @@ export const zh: Messages = {
         '助手所做的一切共用一份额度：用多少付多少，无关邮件从不计入',
       forever: '永久',
       free: {
-        description: '首页、分类、规则和防护。永久免费。',
+        description: '机器人、分类和防护。永久免费。',
       },
       max: {
         description: '同一个助手，为繁忙的收件箱准备。',
@@ -1353,7 +1386,7 @@ export const zh: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `首页、分类、用平常的话写的规则和防护永久免费。Pro 是替你阅读、撰写和记忆的助手；Max 是同一个助手，为繁忙的收件箱留出更多空间。每个账户都从 ${trialDays} 天 Pro 开始，结束后自动留在 Free。`,
+        `用平常的话创建的机器人、分类和防护永久免费。Pro 是替你阅读、撰写和记忆的助手；Max 是同一个助手，为繁忙的收件箱留出更多空间。每个账户都从 ${trialDays} 天 Pro 开始，结束后自动留在 Free。`,
       otherTool: '还在考虑其他工具？',
       title: '为助手付费，而不是为收件箱。',
     },
@@ -1368,7 +1401,7 @@ export const zh: Messages = {
       vows: [
         {
           description:
-            '草稿会等你。只有你创建或保留的规则才能自动归档、标为已读或退订，它们做过的一切都列在“已处理”中。',
+            '草稿会等你。机器人只有在你放手之后才会自己移动邮件，它做过的一切都留在它的聊天里，并附上原因。',
           title: '未经你同意，什么都不会发出。',
         },
         {

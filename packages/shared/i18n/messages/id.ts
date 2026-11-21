@@ -1101,13 +1101,13 @@ export const id: Messages = {
       mcp: 'Hubungkan Fewmail ke Claude, ChatGPT, Claude Code, atau Cursor sebagai server MCP: baca dan pilah Gmail dari AI yang sudah kamu pakai.',
       motto: 'hanya yang penting di kotak masukmu',
       pricing: (trialDays: number) =>
-        `Fewmail gratis selamanya untuk Beranda, memilah, aturan, dan perlindungan spam. Pro, agen lengkapnya, dimulai dengan ${trialDays} hari gratis tanpa kartu.`,
+        `Fewmail gratis selamanya untuk bot, memilah, dan perlindungan spam. Pro, agen lengkapnya, dimulai dengan ${trialDays} hari gratis tanpa kartu.`,
       tagline: 'agen email AI untuk Gmail',
     },
     chapters: {
       pricing: {
         description:
-          'Beranda, penyortiran, aturan, dan perlindungan gratis selamanya. Lite, Pro, dan Max menambahkan semua yang membaca dan menulis untukmu; paket yang lebih besar hanya melakukannya lebih banyak.',
+          'Bot, penyortiran, dan perlindungan gratis selamanya. Lite, Pro, dan Max menambahkan semua yang membaca dan menulis untukmu; paket yang lebih besar hanya melakukannya lebih banyak.',
         label: 'Harga',
         title: (usd: number) =>
           `Gratis untuk penyortiran. Mulai $${usd} untuk agennya.`,
@@ -1125,7 +1125,7 @@ export const id: Messages = {
     },
     mcp: {
       answer:
-        'Kontrak yang sudah ditandatangani, sebelum kickoff hari Jumat. Balasannya sudah disusun dan menunggu di antrean Fewmail-mu.',
+        'Kontrak yang sudah ditandatangani, sebelum kickoff hari Jumat. Balasannya sudah disusun dan menunggu persetujuanmu di Fewmail.',
       clients: 'Bekerja dengan',
       emphasis: 'Claude dan ChatGPT.',
       free: 'Membaca emailmu dan penyortiran oleh agen gratis.',
@@ -1137,7 +1137,7 @@ export const id: Messages = {
     },
     mcpPage: {
       copy: 'Salin URL',
-      lead: 'Hubungkan Fewmail sebagai server MCP dan tanyakan emailmu dari AI yang sudah kamu pakai. Membaca email dan penyortiran oleh agen gratis; draf, pengiriman, dan aturan ada di Pro.',
+      lead: 'Hubungkan Fewmail sebagai server MCP dan tanyakan emailmu dari AI yang sudah kamu pakai. Membaca email dan penyortiran oleh agen gratis; draf, pengiriman, dan bot yang menulis ada di Pro.',
       safety:
         'Apa pun yang mengirim email atau mengubah Gmail meminta persetujuanmu dulu. Email yang mencoba memerintah asisten ditandai sebelum asisten membacanya. Emailmu tidak pernah dipakai melatih model, dan aplikasi apa pun bisa diputus di Pengaturan.',
       steps: {
@@ -1160,7 +1160,7 @@ export const id: Messages = {
         },
         drafts: {
           description:
-            'Balasan ditulis lebih dulu, dengan gayamu dan dalam bahasa pengirim, lalu menunggu di antreanmu sampai kamu menyetujuinya.',
+            'Balasan ditulis lebih dulu, dengan gayamu dan dalam bahasa pengirim, lalu menunggu di obrolan bot-nya sampai kamu menyetujuinya.',
           title: 'Menulis draf balasan dengan gayamu',
         },
         protection: {
@@ -1175,8 +1175,8 @@ export const id: Messages = {
         },
         bots: {
           description:
-            'Jelaskan dalam satu kalimat apa yang harus terjadi pada email tertentu, dan itu menjadi aturan. Hanya aturan yang kamu nyalakan yang bertindak sendiri.',
-          title: 'Aturan dengan kata-kata biasa',
+            'Jelaskan dalam satu kalimat apa yang harus terjadi pada email tertentu, dan itu menjadi bot dengan obrolannya sendiri. Hanya bot yang kamu izinkan yang bertindak sendiri.',
+          title: 'Bot dengan kata-kata biasa',
         },
         sorting: {
           description:
@@ -1202,11 +1202,11 @@ export const id: Messages = {
         },
         {
           answer:
-            'Ia menuliskan drafnya untukmu, tetapi tidak pernah mengirim satu pun sendiri. Setiap draf menunggu persetujuanmu di antrean, dan draf yang mirip bisa disetujui sekaligus.',
+            'Ia menuliskan drafnya untukmu, tetapi tidak pernah mengirim satu pun sendiri. Setiap draf menunggu persetujuanmu di obrolan bot-nya, dan draf yang mirip bisa disetujui sekaligus.',
           question: 'Bisakah ia membalas email secara otomatis?',
         },
         {
-          answer: `Ada. Paket Gratis memilah setiap email, mengumpulkan yang perlu perhatianmu di satu halaman, menjalankan aturanmu, dan melindungimu dari spam dan phishing, selamanya. Draf, ringkasan, dan bagian agen lainnya ada di paket berbayar, dan setiap akun dimulai dengan ${trialDays} hari Pro, tanpa kartu.`,
+          answer: `Ada. Paket Gratis memilah setiap email, mengumpulkan yang perlu perhatianmu di obrolan bot-botmu, menjalankan bot-botmu, dan melindungimu dari spam dan phishing, selamanya. Draf, ringkasan, dan bagian agen lainnya ada di paket berbayar, dan setiap akun dimulai dengan ${trialDays} hari Pro, tanpa kartu.`,
           question: 'Adakah asisten email AI gratis untuk Gmail?',
         },
       ],
@@ -1229,7 +1229,7 @@ export const id: Messages = {
       },
       labels: {
         ask: 'Tanyakan apa saja ke emailmu',
-        home: 'Yang perlu perhatianmu, dalam satu halaman',
+        home: 'Yang perlu perhatianmu, di satu tempat',
         calendar: 'Kalender',
         drafts: 'Balasan yang disusunkan untukmu',
         followUps: 'Pengingat tindak lanjut',
@@ -1243,7 +1243,7 @@ export const id: Messages = {
         outlook: 'Outlook dan Microsoft 365',
         phishing: 'Peringatan phishing dan perubahan pembayaran',
         phone: 'Di ponselmu',
-        bots: 'Aturan dengan kata-kata biasa',
+        bots: 'Bot dengan kata-kata biasa',
         snooze: 'Tunda',
         spamShield: 'Perisai spam komunitas',
         summaries: 'Ringkasan email',
@@ -1368,7 +1368,7 @@ export const id: Messages = {
       },
       {
         answer:
-          'Tidak pernah tanpa kamu. Balasan menunggu di antreanmu sampai kamu menyetujuinya, dan hanya aturan yang kamu buat atau pertahankan yang boleh mengarsipkan, menandai dibaca, atau berhenti langganan sendiri. Semua yang dilakukannya tercatat di Sudah ditangani.',
+          'Tidak pernah tanpa kamu. Balasan menunggu di obrolan bot-nya sampai kamu menyetujuinya, dan bot baru mengarsipkan, menandai dibaca, atau berhenti langganan sendiri setelah kamu mengizinkannya. Semua yang dilakukannya tetap ada di obrolannya, beserta alasannya.',
         question: 'Bisakah ia mengirim atau menghapus email sendiri?',
       },
       {
@@ -1387,7 +1387,7 @@ export const id: Messages = {
       },
       {
         answer:
-          'Saat ini akun Gmail dan Google Workspace. Tambahkan beberapa kotak surat ke satu Fewmail, dan emailnya masuk ke Beranda dan kotak masuk yang sama.',
+          'Saat ini akun Gmail dan Google Workspace. Tambahkan beberapa kotak surat ke satu Fewmail, dan emailnya masuk ke bot dan kotak masuk yang sama.',
         question: 'Akun email apa saja yang bisa dipakai?',
       },
     ],
@@ -1395,35 +1395,35 @@ export const id: Messages = {
       description:
         'Urusan email yang dulu menghabiskan satu sore, kini dikerjakan di latar belakang dan dicatat di tempat yang bisa kamu periksa.',
       items: {
-        codes: {
-          description:
-            'Kode terbaru menunggu di atas Beranda dan di samping emailnya, siap disalin tanpa membuka apa pun. Gratis.',
-          title: 'Kode masuk',
-        },
-        subscriptions: {
-          description:
-            'Setiap milis yang menulis bulan ini, dengan berapa emailnya yang benar-benar kamu buka. Berhenti langganan dari mana saja dengan satu tombol. Gratis.',
-          title: 'Milis',
-        },
-        ask: {
-          description:
-            'Tanyakan apa saja dengan kata-kata biasa dan dapatkan jawaban dari emailmu sendiri, lengkap dengan email sumbernya.',
-          title: 'Tanya emailmu',
-        },
         calendar: {
           description:
             'Kalender semua kotak suratmu dalam satu tampilan. Rapat yang diusulkan lewat email menjadi acara begitu kamu setuju.',
           title: 'Kalender',
         },
-        clearOut: {
+        codes: {
           description:
-            'Semua tumpukan lama keluar sekaligus, hingga 50.000 email per kotak surat, semuanya di bawah satu label sehingga satu klik mengembalikan semuanya. Gratis.',
-          title: 'Bersihkan kotak masuk',
+            'Kode terbaru menunggu di atas obrolanmu dan di samping emailnya, siap disalin tanpa membuka apa pun. Gratis.',
+          title: 'Kode masuk',
+        },
+        messengers: {
+          description:
+            'Email mendesak langsung sampai ke Telegram atau WhatsApp. Tanyakan soal emailmu dan setujui draf di sana, dengan tulisan atau suara.',
+          title: 'Telegram dan WhatsApp',
         },
         reading: {
           description:
-            'Satu ringkasan newsletter hari ini: berita per topik, tiap kalimat tertaut ke sumbernya, dan yang layak dibaca utuh.',
+            'Satu edisi dari newsletter kemarin setiap pagi: berita per topik, tiap kalimat tertaut ke sumbernya, dan yang layak dibaca utuh.',
           title: 'Bacaan',
+        },
+        shield: {
+          description:
+            'Laporkan pengirim spam sekali, dan setiap pengguna Fewmail jadi lebih aman. Apa pun yang ditangkap perisai menunggu persetujuanmu sebelum dipindahkan. Gratis.',
+          title: 'Perisai spam',
+        },
+        subscriptions: {
+          description:
+            'Setiap milis yang menulis bulan ini, dengan berapa emailnya yang benar-benar kamu buka. Berhenti langganan dari mana saja dengan satu tombol. Gratis.',
+          title: 'Milis',
         },
         voice: {
           description:
@@ -1451,7 +1451,7 @@ export const id: Messages = {
       label: 'Yang hilang',
       rows: [
         {
-          fix: 'Bersihkan kotak masuk menyingkirkan semua tumpukan lama sekaligus: iklan lama, notifikasi yang sudah dibaca, milis yang tak pernah kamu buka. Satu klik mengembalikan semuanya.',
+          fix: 'Minta Fewmail Bot membersihkan tumpukan lama: iklan lama, notifikasi yang sudah dibaca, milis yang tak pernah kamu buka, semuanya dipindahkan sekaligus. Satu klik mengembalikan semuanya.',
           problem: 'Ribuan email yang tak akan pernah dibaca siapa pun.',
         },
         {
@@ -1463,7 +1463,7 @@ export const id: Messages = {
           problem: 'Newsletter yang tak pernah kamu daftari.',
         },
         {
-          fix: 'Newsletter hari ini jadi satu ringkasan per topik, dengan yang layak dibaca utuh ditandai.',
+          fix: 'Setiap pagi Bacaan mengubah newsletter kemarin menjadi satu edisi per topik, dengan yang layak dibaca utuh ditandai.',
           problem: 'Newsletter yang ingin kamu baca.',
         },
         {
@@ -1471,11 +1471,11 @@ export const id: Messages = {
           problem: 'Tagihan dengan detail rekening baru.',
         },
         {
-          fix: 'Janji yang kamu buat di email terkirim kembali padamu saat waktunya tiba, dan percakapan yang tak dibalas siapa pun akan ditindaklanjuti.',
+          fix: 'Papan mencatat apa yang kamu janjikan dan apa yang jadi hakmu, lalu membawa masing-masing kembali pada harinya. Percakapan yang tak dibalas siapa pun akan ditindaklanjuti.',
           problem: 'Hal yang kamu janjikan lalu terlupa.',
         },
         {
-          fix: 'Hanya email mendesak yang sampai ke Telegram atau WhatsApp. Sisanya menunggu di Beranda, sudah tersortir, kapan pun kamu sempat melihat.',
+          fix: 'Hanya email mendesak yang sampai ke Telegram atau WhatsApp. Sisanya menunggu di obrolan bot-botmu, sudah tersortir, kapan pun kamu sempat melihat.',
           problem: 'Mengecek email saat makan malam, jaga-jaga.',
         },
       ],
@@ -1484,9 +1484,9 @@ export const id: Messages = {
     hero: {
       needs: {
         emphasis: 'perlu perhatianmu.',
-        lead: (handled: string) =>
-          `Anna menunggu kontraknya, tagihan Northwind jatuh tempo minggu depan, dan Marco minta hari Kamis. ${handled} newsletter dan notifikasi sudah ditangani, dan Beranda memperbarui diri begitu email baru masuk.`,
-        tag: 'Beranda · Kamis, 08:12',
+        lead: (handled: string, bot: string) =>
+          `Anna menunggu kontraknya, tagihan Northwind jatuh tempo minggu depan, dan Marco minta hari Kamis. Bot-botmu sudah mengurus ${handled} newsletter dan notifikasi, dan tiga hal ini menunggu di ${bot}.`,
+        tag: (bot: string) => `${bot} · Kamis, 08:12`,
         title: 'Tiga hal perlu perhatianmu.',
       },
       fates: {
@@ -1532,8 +1532,7 @@ export const id: Messages = {
       remindPlan: 'Menambahkannya ke tagihanmu dan mengingatkanmu pada 19 Nov.',
       start: 'Mulai gratis dengan Google',
       title: 'Email bukan pekerjaanmu.',
-      home: 'Beranda',
-      tryQueue: 'Coba antreannya',
+      seeBots: 'Kenali bot-botnya',
       unread: ((slots) => [slots.count, ' belum dibaca']) as Rich<'count'>,
       unreadInbox: ((slots) => [
         slots.count,
@@ -1549,22 +1548,57 @@ export const id: Messages = {
       pricing: 'Harga',
       signIn: 'Masuk',
     },
-    play: {
-      again: 'Bersihkan lagi',
-      doneLead: (handled: string) =>
-        `Kamu membuat tiga keputusan. Fewmail mengurus ${handled} sisanya dan mencatat alasannya.`,
-      doneTitle: 'Selesai untuk hari ini.',
-      emphasis: 'dalam dua menit.',
-      handled: [
-        'Lumen Weekly: kamu tidak membuka satu pun dari 30 edisi terakhir',
-        'paypa1-billing.com mirip paypal.com',
-        'Parcelhub: pemberitahuan pengiriman, lewat aturan “Struk dan pengiriman”',
+    bots: {
+      again: 'Mulai lagi',
+      board: {
+        coming: { state: 'mulai berbayar · 28 Nov', text: 'Uji coba Coursely' },
+        owed: {
+          state: 'menunggu · paling lambat 22 Nov',
+          text: 'Northwind: pengembalian $120 untuk tagihan ganda',
+        },
+        promised: {
+          state: 'jatuh tempo Kamis',
+          text: 'Kirim slide ke Marco sebelum review',
+        },
+      },
+      emphasis: 'setiap jenis email.',
+      fewmail: {
+        approve: 'Setujui',
+        ask: 'Tagihan dari Hetzner: tandai sudah dibaca',
+        botName: 'Tagihan Hetzner',
+        digest: (total: number, people: number) =>
+          `${total} email dalam sehari terakhir. Kebanyakan newsletter dan notifikasi, dan hanya ${people} dari orang.`,
+        proposal:
+          'Ini bot-nya. Setujui, dan ia mulai bekerja dengan email baru.',
+      },
+      label: 'Bot',
+      later: 'Empat hal yang perlu diketahui, tidak ada yang perlu diputuskan.',
+      lead: 'Setiap bot membaca jenis emailnya sendiri begitu tiba dan memberitahumu di obrolannya apa yang sudah ia lakukan dan apa yang menunggumu. Klik satu per satu, atau tekan [ dan ].',
+      points: [
+        {
+          description:
+            'Setiap email masuk ke bot yang bertugas menanganinya: Penting, Bisa menunggu, Cepat, atau bot buatanmu. Yang tidak diambil bot mana pun tetap di Fewmail Bot.',
+          title: 'Mereka memilah begitu email tiba.',
+        },
+        {
+          description:
+            'Bot bertanya sebelum menyentuh setiap email sampai kamu mengizinkannya bertindak sendiri. Semua yang dilakukannya tetap ada di obrolannya, beserta alasannya.',
+          title: 'Mereka bertanya sampai kamu percaya.',
+        },
+        {
+          description:
+            'Bilang ke Fewmail Bot “tagihan dari Hetzner: tandai sudah dibaca” lalu setujui bot yang dibuatnya. Jeda, ubah, atau hapus bot dengan cara yang sama.',
+          title: 'Buat bot dalam satu kalimat.',
+        },
       ],
-      handledTitle: 'Ditangani selagi kamu tidur',
-      label: 'Coba',
-      lead: 'Beginilah pagi sekarang. Drafnya sudah ditulis, alasannya sudah ada, kamu yang memutuskan. Ayo, bereskan.',
-      left: (count: number) => `${count} perlu diputuskan`,
-      title: 'Seluruh kotak masukmu, dalam dua menit.',
+      quick:
+        'Mira dari Growthly adalah cold outreach: orang asing yang menawarkan sesuatu, dan kamu tak pernah menulis padanya.',
+      settled: {
+        remind: 'pengingat dipasang',
+        send: 'balasan terkirim',
+        skip: 'dilewati',
+      },
+      title: 'Satu obrolan untuk setiap jenis email.',
     },
     plans: {
       agent: 'Agen',
@@ -1575,8 +1609,7 @@ export const id: Messages = {
         'Satu jatah untuk semua yang dikerjakan agen: bayar sesuai pemakaian, dan email tak penting tidak pernah dihitung',
       forever: 'selamanya',
       free: {
-        description:
-          'Beranda, penyortiran, aturan, dan perlindungan. Selamanya.',
+        description: 'Bot, penyortiran, dan perlindungan. Selamanya.',
       },
       max: {
         description: 'Agen yang sama untuk kotak masuk yang sibuk.',
@@ -1594,7 +1627,7 @@ export const id: Messages = {
     },
     pricingPage: {
       lead: (trialDays: number) =>
-        `Beranda, penyortiran, aturan dengan kata-kata biasa, dan perlindungan gratis selamanya. Pro adalah agen yang membaca, menulis, dan mengingat untukmu; Max adalah agen yang sama dengan ruang lebih untuk kotak masuk yang sibuk. Setiap akun dimulai dengan ${trialDays} hari Pro, dan setelah selesai kamu cukup tetap di paket Gratis.`,
+        `Bot dengan kata-kata biasa, penyortiran, dan perlindungan gratis selamanya. Pro adalah agen yang membaca, menulis, dan mengingat untukmu; Max adalah agen yang sama dengan ruang lebih untuk kotak masuk yang sibuk. Setiap akun dimulai dengan ${trialDays} hari Pro, dan setelah selesai kamu cukup tetap di paket Gratis.`,
       otherTool: 'Sedang mempertimbangkan aplikasi lain?',
       title: 'Bayar untuk agennya, bukan kotak masuknya.',
     },
@@ -1610,7 +1643,7 @@ export const id: Messages = {
       vows: [
         {
           description:
-            'Draf menunggumu. Hanya aturan yang kamu buat atau pertahankan yang boleh mengarsipkan, menandai dibaca, atau berhenti langganan sendiri, dan semua yang dilakukannya tercatat di Sudah ditangani.',
+            'Draf menunggumu. Bot baru memindahkan email sendiri setelah kamu mengizinkannya, dan semua yang dilakukannya tetap ada di obrolannya beserta alasannya.',
           title: 'Tidak ada yang terkirim tanpa persetujuanmu.',
         },
         {
