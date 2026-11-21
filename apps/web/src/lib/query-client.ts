@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-db'
 import type { Collection, UtilsRecord } from '@tanstack/react-db'
 import type { EnsureQueryDataOptions, QueryKey } from '@tanstack/react-query'
-import { MutationCache, QueryClient } from '@tanstack/react-query'
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 
 import { posthog } from './posthog'
 
@@ -23,6 +23,9 @@ const eventOf = (key: QueryKey | undefined, meta?: { event?: string }) => {
   const [path] = key ?? []
   return meta?.event ?? (Array.isArray(path) ? path.join('.') : null)
 }
+
+/** Errors the queries got: a read that fails keeps what the page already shows. */
+export const readErrors = new WeakSet<Error>()
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +46,7 @@ export const queryClient = new QueryClient({
       }
     },
   }),
+  queryCache: new QueryCache({ onError: (error) => readErrors.add(error) }),
 })
 
 /** For route loaders: only data never loaded holds the navigation; cached data renders at once and refreshes behind it. A failure is left to the page's own query. */

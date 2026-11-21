@@ -15,7 +15,7 @@ import {
   notifyDesktop,
 } from './desktop'
 import { getT, localeStore } from './i18n'
-import { queryClient } from './query-client'
+import { queryClient, readErrors } from './query-client'
 
 /** The spent allowance the server refused with, in the user's language; `null` for any other error. */
 const limitText = (error: unknown) => {
@@ -37,9 +37,6 @@ const ERROR_TEXT_BY_CODE = {
 /** The server's own messages are English and meant for logs; the user reads what went wrong in their language. */
 const errorText = (error: unknown) => {
   const t = getT().errors
-  if (error instanceof TypeError) {
-    return t.offline
-  }
   if (
     error instanceof ORPCError &&
     (error.data as { consentChanged?: boolean } | undefined)?.consentChanged
@@ -83,7 +80,16 @@ export const client: RouterClient<Router> = createORPCClient(
           !isSignedOut &&
           path[0] !== 'live'
         ) {
-          toast.error(errorText(error))
+          if (!(error instanceof TypeError)) {
+            toast.error(errorText(error))
+            return
+          }
+          // Waits a task for the query cache to claim the error; a read on waking, before the network is back, stays quiet.
+          setTimeout(() => {
+            if (!readErrors.has(error)) {
+              toast.error(getT().errors.offline, { id: 'offline' })
+            }
+          }, 0)
         }
       }),
     ],
