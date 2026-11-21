@@ -1403,11 +1403,6 @@ export const uk: Messages = {
     disconnectConfirm: (name: string) => `Відключити ${name}?`,
     messengerDisconnectHint:
       'Бот перестане тобі писати. Щоб підключити його знову, знадобиться нове посилання з цієї сторінки.',
-    readingDigest: {
-      description:
-        'Щоранку вчорашні розсилки приходять одним повідомленням у Telegram і WhatsApp, а якщо жоден не підключено, то сповіщенням.',
-      title: 'Дайджест розсилок',
-    },
     knowledge: {
       description:
         'Ціни, адреси, коли ти доступний, як любиш відповідати. Агент використовує це в чернетках і автодоповненні.',
@@ -1480,9 +1475,6 @@ export const uk: Messages = {
       request: (app: string) => `${app} хоче працювати з твоїм Fewmail`,
       title: 'Підключи Claude, Cursor або будь-який MCP-клієнт',
     },
-    morningDescription: (timezone: string) =>
-      `Дайджест розсилок і тижневий звіт у понеділок, у твоєму часовому поясі, ${timezone}`,
-    morningTitle: 'Ранкові повідомлення',
     signedInWithGoogle: 'Вхід через Google',
     signOut: 'Вийти',
     notifications: {

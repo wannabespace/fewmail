@@ -1031,11 +1031,6 @@ export const pl: Messages = {
     disconnectConfirm: (name: string) => `Odłączyć ${name}?`,
     messengerDisconnectHint:
       'Bot przestanie do ciebie pisać. Ponowne połączenie wymaga nowego linku z tej strony.',
-    readingDigest: {
-      description:
-        'Co rano wczorajsze newslettery przychodzą do Telegrama i WhatsAppa jedną wiadomością, a gdy żaden nie jest połączony, powiadomieniem.',
-      title: 'Podsumowanie newsletterów',
-    },
     account: 'Konto',
     agent: 'Agent',
     deleteAccount: 'Usuń konto',
@@ -1101,9 +1096,6 @@ export const pl: Messages = {
       request: (app: string) => `${app} chce korzystać z twojego Fewmail`,
       title: 'Połącz Claude, Cursor lub dowolnego klienta MCP',
     },
-    morningDescription: (timezone: string) =>
-      `Podsumowanie newsletterów i poniedziałkowy raport tygodniowy, w twojej strefie czasowej, ${timezone}`,
-    morningTitle: 'Poranne wiadomości',
     signedInWithGoogle: 'Zalogowano przez Google',
     signOut: 'Wyloguj się',
     snippets: {

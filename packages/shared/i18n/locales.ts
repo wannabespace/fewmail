@@ -1,19 +1,20 @@
+// Pickers list these as they stand: a new language goes where its `label` sorts.
 export const LOCALES = [
-  { code: 'en', english: 'English', label: 'English' },
-  { code: 'uk', english: 'Ukrainian', label: 'Українська' },
-  { code: 'es', english: 'Spanish', label: 'Español' },
+  { code: 'id', english: 'Indonesian', label: 'Bahasa Indonesia' },
   { code: 'de', english: 'German', label: 'Deutsch' },
+  { code: 'en', english: 'English', label: 'English' },
+  { code: 'es', english: 'Spanish', label: 'Español' },
   { code: 'fr', english: 'French', label: 'Français' },
   { code: 'it', english: 'Italian', label: 'Italiano' },
-  { code: 'pt', english: 'Portuguese', label: 'Português' },
-  { code: 'pl', english: 'Polish', label: 'Polski' },
   { code: 'nl', english: 'Dutch', label: 'Nederlands' },
+  { code: 'pl', english: 'Polish', label: 'Polski' },
+  { code: 'pt', english: 'Portuguese', label: 'Português' },
   { code: 'tr', english: 'Turkish', label: 'Türkçe' },
-  { code: 'ja', english: 'Japanese', label: '日本語' },
-  { code: 'ko', english: 'Korean', label: '한국어' },
-  { code: 'zh', english: 'Chinese (Simplified)', label: '简体中文' },
+  { code: 'uk', english: 'Ukrainian', label: 'Українська' },
   { code: 'hi', english: 'Hindi', label: 'हिन्दी' },
-  { code: 'id', english: 'Indonesian', label: 'Bahasa Indonesia' },
+  { code: 'ko', english: 'Korean', label: '한국어' },
+  { code: 'ja', english: 'Japanese', label: '日本語' },
+  { code: 'zh', english: 'Chinese (Simplified)', label: '简体中文' },
 ] as const
 
 export type Locale = (typeof LOCALES)[number]['code']

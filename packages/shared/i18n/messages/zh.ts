@@ -757,11 +757,6 @@ export const zh: Messages = {
     disconnectConfirm: (name: string) => `断开 ${name}？`,
     messengerDisconnectHint:
       '机器人将不再给你发消息。重新连接需要从此页面获取新链接。',
-    readingDigest: {
-      description:
-        '每天早上，昨天的订阅邮件会合成一条消息发到 Telegram 和 WhatsApp；两者都未连接时，以通知发送。',
-      title: '订阅邮件摘要',
-    },
     knowledge: {
       description:
         '价格、地址、空闲时间、你喜欢的回复方式。助手会在草稿和自动补全中使用。',
@@ -828,9 +823,6 @@ export const zh: Messages = {
       request: (app: string) => `${app} 想使用你的 Fewmail`,
       title: '连接 Claude、Cursor 或任意 MCP 客户端',
     },
-    morningDescription: (timezone: string) =>
-      `订阅邮件摘要和周一的每周报告，按你的时区发送：${timezone}`,
-    morningTitle: '早间消息',
     signedInWithGoogle: '已通过 Google 登录',
     signOut: '退出登录',
     notifications: {

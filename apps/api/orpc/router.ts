@@ -150,11 +150,9 @@ import { getWrapped, readSharedWrapped } from '../services/wrapped'
 const id = type({ id: 'string.uuid' })
 
 const settingsInput = type({
-  'briefHour?': '0 <= number.integer <= 23',
   language: type.enumerated(...LOCALES.map(({ code }) => code)),
   'gmailLabels?': 'boolean',
   'knowledge?': 'string | null',
-  'readingDigest?': 'boolean',
   timezone: type('string').narrow(
     (zone, ctx) => isTimeZone(zone) || ctx.mustBe('an IANA time zone')
   ),

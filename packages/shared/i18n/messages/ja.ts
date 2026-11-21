@@ -774,11 +774,6 @@ export const ja: Messages = {
     disconnectConfirm: (name: string) => `${name}の接続を解除しますか？`,
     messengerDisconnectHint:
       'ボットからのメッセージが届かなくなります。再接続にはこのページの新しいリンクが必要です。',
-    readingDigest: {
-      description:
-        '毎朝、前日のメルマガを Telegram と WhatsApp にひとつのメッセージで、どちらも未接続なら通知で届けます。',
-      title: 'メルマガのダイジェスト',
-    },
     knowledge: {
       description:
         '料金、住所、対応可能な日時、返信のスタイルなど。エージェントが下書きや自動補完に使います。',
@@ -856,9 +851,6 @@ export const ja: Messages = {
       request: (app: string) => `${app}がFewmailへのアクセスを求めています`,
       title: 'Claude、Cursor、その他の MCP クライアントを接続',
     },
-    morningDescription: (timezone: string) =>
-      `メルマガのダイジェストと月曜の週次レポートを、あなたのタイムゾーン（${timezone}）で届けます`,
-    morningTitle: '朝のメッセージ',
     signedInWithGoogle: 'Google でログイン中',
     signOut: 'ログアウト',
     notifications: {

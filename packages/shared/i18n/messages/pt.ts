@@ -1011,16 +1011,8 @@ export const pt: Messages = {
     disconnectConfirm: (name: string) => `Desconectar ${name}?`,
     messengerDisconnectHint:
       'O bot vai parar de escrever para você. Para conectar de novo, será preciso um novo link desta página.',
-    readingDigest: {
-      description:
-        'Toda manhã, as newsletters de ontem chegam ao Telegram e WhatsApp numa só mensagem, ou como notificação se nenhum estiver conectado.',
-      title: 'Resumo de newsletters',
-    },
     account: 'Conta',
     agent: 'Agente',
-    morningDescription: (timezone: string) =>
-      `Resumo de newsletters e relatório semanal de segunda-feira, no seu fuso horário, ${timezone}`,
-    morningTitle: 'Mensagens da manhã',
     deleteAccount: 'Excluir conta',
     deleteConfirm: 'Excluir tudo',
     deleteDescription:

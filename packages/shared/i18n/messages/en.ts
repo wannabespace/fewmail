@@ -985,11 +985,6 @@ export const en = {
     disconnectConfirm: (name: string) => `Disconnect ${name}?`,
     messengerDisconnectHint:
       'The bot stops writing to you. Connecting again takes a new link from this page.',
-    readingDigest: {
-      description:
-        'Each morning, yesterday’s newsletters arrive as one message in Telegram and WhatsApp, or as a notification when neither is connected.',
-      title: 'Newsletter digest',
-    },
     account: 'Account',
     agent: 'Agent',
     deleteAccount: 'Delete account',
@@ -1053,9 +1048,6 @@ export const en = {
       request: (app: string) => `${app} wants to use your Fewmail`,
       title: 'Connect Claude, Cursor or any MCP client',
     },
-    morningDescription: (timezone: string) =>
-      `Newsletter digest and Monday’s weekly report, in your time zone, ${timezone}`,
-    morningTitle: 'Morning messages',
     signedInWithGoogle: 'Signed in with Google',
     signOut: 'Sign out',
     snippets: {

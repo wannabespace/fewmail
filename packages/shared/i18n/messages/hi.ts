@@ -816,11 +816,6 @@ export const hi: Messages = {
     disconnectConfirm: (name: string) => `${name} डिस्कनेक्ट करें?`,
     messengerDisconnectHint:
       'बॉट आपको लिखना बंद कर देगा। फिर से जोड़ने के लिए इस पेज से नया लिंक चाहिए होगा।',
-    readingDigest: {
-      description:
-        'हर सुबह, कल के न्यूज़लेटर Telegram और WhatsApp में एक संदेश में आते हैं, और अगर दोनों में से कोई जुड़ा नहीं है तो सूचना के रूप में।',
-      title: 'न्यूज़लेटर सारांश',
-    },
     knowledge: {
       description:
         'कीमतें, पते, उपलब्धता, आप कैसे जवाब देना पसंद करते हैं। एजेंट इसे ड्राफ़्ट और ऑटोकम्प्लीट में इस्तेमाल करता है।',
@@ -889,9 +884,6 @@ export const hi: Messages = {
       request: (app: string) => `${app} आपका Fewmail इस्तेमाल करना चाहता है`,
       title: 'Claude, Cursor या कोई भी MCP क्लाइंट जोड़ें',
     },
-    morningDescription: (timezone: string) =>
-      `न्यूज़लेटर सारांश और सोमवार की साप्ताहिक रिपोर्ट, आपके टाइम ज़ोन में, ${timezone}`,
-    morningTitle: 'सुबह के संदेश',
     signedInWithGoogle: 'Google से साइन इन',
     signOut: 'साइन आउट',
     notifications: {

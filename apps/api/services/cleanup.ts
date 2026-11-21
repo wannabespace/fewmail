@@ -24,7 +24,7 @@ import { and, eq, gte, inArray, isNotNull, lt, sql } from 'drizzle-orm'
 import type { AnyColumn } from 'drizzle-orm'
 
 import { inBatches } from '../lib/batches'
-import { localClock } from '../lib/clock'
+import { localClock, MORNING_HOUR } from '../lib/clock'
 import {
   GmailError,
   deleteLabel,
@@ -391,7 +391,7 @@ export const declineBotSuggestion = async (
 
 const CLEANUP_EVERY_DAYS = 6
 
-/** Once a week, on Sunday after the morning hour (`briefHour`), one card offers to unsubscribe from everything unopened. `cleanupCheckedAt` is set before looking, so a week with nothing to offer is not looked at again every minute. */
+/** Once a week, on Sunday after the morning hour (`MORNING_HOUR`), one card offers to unsubscribe from everything unopened. `cleanupCheckedAt` is set before looking, so a week with nothing to offer is not looked at again every minute. */
 export const offerCleanup = async (
   settings: typeof userSettings.$inferSelect
 ) => {
@@ -400,7 +400,7 @@ export const offerCleanup = async (
   const weekday = new Date(`${clock.date}T12:00:00Z`).getUTCDay()
   if (
     weekday !== WEEKDAY_SUNDAY ||
-    clock.hour < settings.briefHour ||
+    clock.hour < MORNING_HOUR ||
     (settings.cleanupCheckedAt &&
       settings.cleanupCheckedAt > subDays(new Date(), CLEANUP_EVERY_DAYS))
   ) {

@@ -1393,11 +1393,6 @@ export const de: Messages = {
     disconnectConfirm: (name: string) => `${name} trennen?`,
     messengerDisconnectHint:
       'Der Bot schreibt dir dann nicht mehr. Zum erneuten Verbinden brauchst du einen neuen Link von dieser Seite.',
-    readingDigest: {
-      description:
-        'Jeden Morgen kommen die Newsletter von gestern als eine Nachricht in Telegram und WhatsApp, oder als Mitteilung, wenn keins verbunden ist.',
-      title: 'Newsletter-Digest',
-    },
     knowledge: {
       description:
         'Preise, Adressen, Verfügbarkeit, wie du gern antwortest. Der Agent nutzt das in Entwürfen und der Autovervollständigung.',
@@ -1475,9 +1470,6 @@ export const de: Messages = {
       request: (app: string) => `${app} möchte dein Fewmail nutzen`,
       title: 'Claude, Cursor oder einen beliebigen MCP-Client verbinden',
     },
-    morningDescription: (timezone: string) =>
-      `Newsletter-Digest und der Wochenbericht am Montag, in deiner Zeitzone, ${timezone}`,
-    morningTitle: 'Morgennachrichten',
     signedInWithGoogle: 'Mit Google angemeldet',
     signOut: 'Abmelden',
     notifications: {

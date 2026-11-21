@@ -979,16 +979,8 @@ export const id: Messages = {
     disconnectConfirm: (name: string) => `Putuskan ${name}?`,
     messengerDisconnectHint:
       'Bot berhenti mengirimimu pesan. Untuk menghubungkan lagi, perlu tautan baru dari halaman ini.',
-    readingDigest: {
-      description:
-        'Setiap pagi, newsletter kemarin datang ke Telegram dan WhatsApp dalam satu pesan, atau sebagai notifikasi jika keduanya belum terhubung.',
-      title: 'Ringkasan newsletter',
-    },
     account: 'Akun',
     agent: 'Agen',
-    morningDescription: (timezone: string) =>
-      `Ringkasan newsletter dan laporan mingguan hari Senin, di zona waktumu, ${timezone}`,
-    morningTitle: 'Pesan pagi',
     deleteAccount: 'Hapus akun',
     deleteConfirm: 'Hapus semuanya',
     deleteDescription:

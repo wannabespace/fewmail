@@ -991,11 +991,6 @@ export const nl: Messages = {
     disconnectConfirm: (name: string) => `${name} ontkoppelen?`,
     messengerDisconnectHint:
       'De bot stuurt je dan geen berichten meer. Opnieuw koppelen kan met een nieuwe link van deze pagina.',
-    readingDigest: {
-      description:
-        'Elke ochtend komen de nieuwsbrieven van gisteren als één bericht in Telegram en WhatsApp, of als melding als geen van beide is gekoppeld.',
-      title: 'Nieuwsbriefoverzicht',
-    },
     account: 'Account',
     agent: 'Agent',
     deleteAccount: 'Account verwijderen',
@@ -1061,9 +1056,6 @@ export const nl: Messages = {
       request: (app: string) => `${app} wil je Fewmail gebruiken`,
       title: 'Koppel Claude, Cursor of een andere MCP-client',
     },
-    morningDescription: (timezone: string) =>
-      `Nieuwsbriefoverzicht en het weekrapport op maandag, in jouw tijdzone, ${timezone}`,
-    morningTitle: 'Ochtendberichten',
     signedInWithGoogle: 'Ingelogd met Google',
     signOut: 'Uitloggen',
     snippets: {

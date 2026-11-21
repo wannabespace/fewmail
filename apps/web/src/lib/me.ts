@@ -35,11 +35,9 @@ export const useSaveSettings = () => {
       (me) => me && { ...me, settings: latest }
     )
     save.mutate({
-      briefHour: latest.briefHour,
       gmailLabels: latest.gmailLabels,
       knowledge: latest.knowledge,
       language: latest.language,
-      readingDigest: latest.readingDigest,
       timezone: latest.timezone,
     })
   }

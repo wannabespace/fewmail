@@ -2,6 +2,9 @@ import { db } from '@fewmail/db'
 import { Result } from 'better-result'
 import { sql } from 'drizzle-orm'
 
+/** The worker's morning in the user's time zone: the day's digests, yesterday's Reading issue, Monday's report, Sunday's cleanup. */
+export const MORNING_HOUR = 8
+
 /** Local date (YYYY-MM-DD) and hour in a time zone, via Intl only. */
 export const localClock = (timezone: string, date = new Date()) => {
   const parts = Object.fromEntries(

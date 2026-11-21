@@ -774,11 +774,6 @@ export const ko: Messages = {
     disconnectConfirm: (name: string) => `${name} 연결을 해제할까요?`,
     messengerDisconnectHint:
       '봇이 더 이상 메시지를 보내지 않아요. 다시 연결하려면 이 페이지의 새 링크가 필요해요.',
-    readingDigest: {
-      description:
-        '매일 아침, 어제의 뉴스레터를 Telegram과 WhatsApp으로 한 메시지에 모아 보내요. 둘 다 연결되지 않았다면 알림으로 보내요.',
-      title: '뉴스레터 다이제스트',
-    },
     knowledge: {
       description:
         '가격, 주소, 가능한 일정, 선호하는 답장 방식 등. 에이전트가 초안과 자동 완성에 사용해요.',
@@ -849,9 +844,6 @@ export const ko: Messages = {
       request: (app: string) => `${app}에서 Fewmail을 사용하려고 해요`,
       title: 'Claude, Cursor 또는 MCP 클라이언트 연결',
     },
-    morningDescription: (timezone: string) =>
-      `뉴스레터 다이제스트와 월요일 주간 리포트를 내 시간대(${timezone}) 기준으로 보내요`,
-    morningTitle: '아침 메시지',
     signedInWithGoogle: 'Google로 로그인됨',
     signOut: '로그아웃',
     notifications: {

@@ -17,7 +17,6 @@ import { LimitReachedError } from './services/limit-error'
 import type { listQueue } from './services/mail'
 import type { Button, Channel, Chat, Reply, Run } from './services/messenger'
 import {
-  readingReply,
   failureText,
   follow,
   hear,
@@ -361,20 +360,6 @@ export const sendWhatsappWeek = async (userId: string, minutes: number) => {
   const t = await messagesFor(userId)
   await push(userId, t.today.saved(minutes), 'week', (chat, chatT) =>
     weekReply(chat, chatT, minutes)
-  )
-}
-
-/** Outside the 24-hour window the template's button fetches the digest (`reading`). */
-export const sendWhatsappReading = async (
-  userId: string,
-  reading: Parameters<typeof readingReply>[2]
-) => {
-  const locale = await localeFor(userId)
-  await push(
-    userId,
-    messages[locale].reading.digest(reading.rows.length),
-    'reading',
-    (chat) => readingReply(chat, locale, reading)
   )
 }
 

@@ -38,36 +38,3 @@ export const LanguageSelect = ({
     </Select>
   )
 }
-
-const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
-
-const formatHour = (hour: number) => `${String(hour).padStart(2, '0')}:00`
-
-export const MorningHourSelect = ({
-  onChange,
-  value,
-}: {
-  onChange: (hour: number) => void
-  value: number
-}) => {
-  const t = useT()
-
-  return (
-    <Select
-      items={HOURS.map((hour) => ({ label: formatHour(hour), value: hour }))}
-      value={value}
-      onValueChange={(next) => next !== null && onChange(next)}
-    >
-      <SelectTrigger aria-label={t.settings.morningTitle} className="w-28">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {HOURS.map((hour) => (
-          <SelectItem key={hour} value={hour}>
-            {formatHour(hour)}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
-}

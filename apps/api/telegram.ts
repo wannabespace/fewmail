@@ -14,7 +14,6 @@ import { LimitReachedError } from './services/limit-error'
 import type { listQueue } from './services/mail'
 import type { Button, Channel, Reply, Run } from './services/messenger'
 import {
-  readingReply,
   failureText,
   follow,
   hear,
@@ -353,20 +352,6 @@ export const sendWeek = async (
   if (bot) {
     const t = await messagesFor(userId)
     await send(bot.api, chatId, weekReply(chatOf(chatId), t, minutes))
-  }
-}
-
-export const sendReading = async (
-  chatId: string,
-  userId: string,
-  reading: Parameters<typeof readingReply>[2]
-) => {
-  if (bot) {
-    await send(
-      bot.api,
-      chatId,
-      readingReply(chatOf(chatId), await localeFor(userId), reading)
-    )
   }
 }
 

@@ -18,11 +18,9 @@ import { syncMailboxes } from './sync'
 export const saveSettings = async (
   userId: string,
   input: {
-    briefHour?: number
     language: Locale
     gmailLabels?: boolean
     knowledge?: string | null
-    readingDigest?: boolean
     timezone: string
     voice?: string | null
   }

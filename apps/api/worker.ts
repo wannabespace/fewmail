@@ -25,7 +25,7 @@ import {
 } from 'drizzle-orm'
 
 import { dispatchDeliveries } from './delivery'
-import { localClock, previousDay } from './lib/clock'
+import { localClock, MORNING_HOUR, previousDay } from './lib/clock'
 import { logError } from './lib/log'
 import { deliverDueNudges, pruneBotPosts } from './services/bot-chat'
 import { pruneBulkPrints } from './services/bulk'
@@ -38,8 +38,6 @@ import { listQueue } from './services/mail'
 import {
   availableChannels,
   enqueueDelivery,
-  notify,
-  readingNotification,
   urgentNotification,
 } from './services/notifications'
 import { dispatchDueOutbox } from './services/outbox'
@@ -57,8 +55,8 @@ import {
   holdEarlierMail,
   syncMailbox,
 } from './services/sync'
-import { sendReading, sendWeek } from './telegram'
-import { sendWhatsappReading, sendWhatsappWeek } from './whatsapp'
+import { sendWeek } from './telegram'
+import { sendWhatsappWeek } from './whatsapp'
 
 const TICK_MS = 60_000
 const SYNC_EVERY_MINUTES = 2
@@ -148,37 +146,14 @@ const isMorningDue = (settings: typeof userSettings.$inferSelect) => {
     settings.morningSentAt &&
     localClock(settings.timezone, settings.morningSentAt)
   return (
-    now.hour >= settings.briefHour &&
-    (!sent || sent.date !== now.date || sent.hour < settings.briefHour)
+    now.hour >= MORNING_HOUR &&
+    (!sent || sent.date !== now.date || sent.hour < MORNING_HOUR)
   )
 }
 
 interface Messengers {
   chatId: string | null
   hasWhatsapp: boolean
-}
-
-/** Yesterday's issue is written for everyone, then goes to the messengers, or as a notification where there are none. */
-const sendReadingIssue = async (
-  settings: typeof userSettings.$inferSelect,
-  { chatId, hasWhatsapp }: Messengers
-) => {
-  const { userId } = settings
-  const issue = await writeReadingIssue(
-    userId,
-    previousDay(localClock(settings.timezone).date)
-  )
-  if (!(issue && settings.readingDigest)) {
-    return
-  }
-  if (chatId || hasWhatsapp) {
-    await Promise.all([
-      chatId && sendReading(chatId, userId, issue),
-      hasWhatsapp && sendWhatsappReading(userId, issue),
-    ])
-    return
-  }
-  await notify(userId, readingNotification(settings.language, issue))
 }
 
 const sendWeeklyReport = async (userId: string, chatId: string | null) => {
@@ -214,9 +189,9 @@ const sendMorningIfDue = async (settings: typeof userSettings.$inferSelect) => {
     .set({ morningSentAt: new Date() })
     .where(eq(userSettings.userId, userId))
   await writeDigests(userId)
-  const messengers = await messengersOf(userId)
-  await sendReadingIssue(settings, messengers)
   const { date } = localClock(settings.timezone)
+  await writeReadingIssue(userId, previousDay(date))
+  const messengers = await messengersOf(userId)
   const hasMessenger = !!messengers.chatId || messengers.hasWhatsapp
   if (hasMessenger && new Date(`${date}T12:00:00Z`).getUTCDay() === MONDAY) {
     await sendWeeklyReport(userId, messengers.chatId)

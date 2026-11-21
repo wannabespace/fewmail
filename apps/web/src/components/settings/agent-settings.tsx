@@ -6,13 +6,9 @@ import { Switch } from '@fewmail/ui/components/switch'
 import { Textarea } from '@fewmail/ui/components/textarea'
 import { useState } from 'react'
 
-import { LanguageSelect, MorningHourSelect } from '~/components/agent-fields'
+import { LanguageSelect } from '~/components/agent-fields'
 import { localeStore, useT } from '~/lib/i18n'
 import { useHasAgent, useMe, useSaveSettings } from '~/lib/me'
-
-/** Browsers still report Kyiv by its old IANA alias. */
-const timezoneLabel = (timezone: string) =>
-  timezone.replace('Europe/Kiev', 'Europe/Kyiv').replaceAll('_', ' ')
 
 export const AgentSettings = () => {
   const t = useT()
@@ -44,28 +40,6 @@ export const AgentSettings = () => {
           id="gmail-labels"
           checked={settings.gmailLabels}
           onCheckedChange={(gmailLabels) => update({ gmailLabels })}
-        />
-      </SettingsRow>
-      <SettingsRow
-        title={t.settings.readingDigest.title}
-        description={t.settings.readingDigest.description}
-        htmlFor="reading-digest"
-      >
-        <Switch
-          id="reading-digest"
-          checked={settings.readingDigest}
-          onCheckedChange={(readingDigest) => update({ readingDigest })}
-        />
-      </SettingsRow>
-      <SettingsRow
-        title={t.settings.morningTitle}
-        description={t.settings.morningDescription(
-          timezoneLabel(settings.timezone)
-        )}
-      >
-        <MorningHourSelect
-          value={settings.briefHour}
-          onChange={(briefHour) => update({ briefHour })}
         />
       </SettingsRow>
       {hasAgent && (

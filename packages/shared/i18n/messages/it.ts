@@ -1404,11 +1404,6 @@ export const it: Messages = {
     disconnectConfirm: (name: string) => `Scollegare ${name}?`,
     messengerDisconnectHint:
       'Il bot smetterà di scriverti. Per ricollegarlo servirà un nuovo link da questa pagina.',
-    readingDigest: {
-      description:
-        'Ogni mattina, le newsletter di ieri arrivano su Telegram e WhatsApp in un solo messaggio, o come notifica se nessuno dei due è collegato.',
-      title: 'Riepilogo newsletter',
-    },
     knowledge: {
       description:
         'Prezzi, indirizzi, disponibilità, come ti piace rispondere. L’agente lo usa nelle bozze e nel completamento automatico.',
@@ -1432,9 +1427,6 @@ export const it: Messages = {
     },
     account: 'Account',
     agent: 'Agente',
-    morningDescription: (timezone: string) =>
-      `Riepilogo delle newsletter e report settimanale del lunedì, nel tuo fuso orario, ${timezone}`,
-    morningTitle: 'Messaggi del mattino',
     deleteAccount: 'Elimina account',
     deleteConfirm: 'Elimina tutto',
     deleteDescription:

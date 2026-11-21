@@ -1409,11 +1409,6 @@ export const es: Messages = {
     disconnectConfirm: (name: string) => `¿Desconectar ${name}?`,
     messengerDisconnectHint:
       'El bot dejará de escribirte. Para volver a conectarlo hará falta un enlace nuevo de esta página.',
-    readingDigest: {
-      description:
-        'Cada mañana, los boletines de ayer llegan a Telegram y WhatsApp en un solo mensaje, o como notificación si no tienes ninguno conectado.',
-      title: 'Resumen de boletines',
-    },
     knowledge: {
       description:
         'Precios, direcciones, disponibilidad, cómo te gusta responder. El agente lo usa en borradores y autocompletado.',
@@ -1438,9 +1433,6 @@ export const es: Messages = {
     },
     account: 'Cuenta',
     agent: 'Agente',
-    morningDescription: (timezone: string) =>
-      `Resumen de boletines e informe semanal del lunes, en tu zona horaria, ${timezone}`,
-    morningTitle: 'Mensajes de la mañana',
     deleteAccount: 'Eliminar cuenta',
     deleteConfirm: 'Eliminar todo',
     deleteDescription:

@@ -971,16 +971,8 @@ export const tr: Messages = {
     disconnectConfirm: (name: string) => `${name} bağlantısı kesilsin mi?`,
     messengerDisconnectHint:
       'Bot sana yazmayı bırakır. Yeniden bağlamak için bu sayfadan yeni bir bağlantı gerekir.',
-    readingDigest: {
-      description:
-        'Her sabah dünün bültenleri Telegram ve WhatsApp’a tek mesaj olarak, ikisi de bağlı değilse bildirim olarak gelir.',
-      title: 'Bülten özeti',
-    },
     account: 'Hesap',
     agent: 'Ajan',
-    morningDescription: (timezone: string) =>
-      `Bülten özeti ve pazartesi haftalık rapor, senin saat diliminde, ${timezone}`,
-    morningTitle: 'Sabah mesajları',
     deleteAccount: 'Hesabı sil',
     deleteConfirm: 'Her şeyi sil',
     deleteDescription:

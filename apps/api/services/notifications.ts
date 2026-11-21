@@ -7,8 +7,6 @@ import type {
   DeviceKind,
 } from '@fewmail/shared/agent'
 import { messages } from '@fewmail/shared/i18n'
-import type { Locale } from '@fewmail/shared/i18n/locales'
-import { formatIssueDay } from '@fewmail/shared/i18n/locales'
 import { Result } from 'better-result'
 import { addMilliseconds, addMinutes, subDays, subMinutes } from 'date-fns'
 import { and, eq, inArray, lt, lte, min } from 'drizzle-orm'
@@ -25,7 +23,6 @@ import {
 import type { listQueue } from './mail'
 import type { Transaction } from './patterns'
 import { getPlanInfo, hasAgent } from './plan'
-import type { getReadingDay } from './reading'
 import { getSettings } from './settings'
 
 type Device = typeof devices.$inferSelect
@@ -443,22 +440,6 @@ export const urgentNotification = ({
     .slice(0, BODY_LIMIT),
   title: message?.fromName ?? message?.fromEmail ?? 'Fewmail',
   url: '/home',
-})
-
-/** The morning's issue where no messenger carries it: the day and its count, then the summary's opening. */
-export const readingNotification = (
-  locale: Locale,
-  { day, rows, summary }: Awaited<ReturnType<typeof getReadingDay>>
-): Notification => ({
-  body: [
-    `${formatIssueDay(locale, day)} · ${messages[locale].reading.digest(rows.length)}`,
-    summary?.intro,
-  ]
-    .filter(Boolean)
-    .join('\n')
-    .slice(0, BODY_LIMIT),
-  title: messages[locale].reading.summary,
-  url: `/reading?day=${day}`,
 })
 
 export const homeNotification = (
