@@ -10,14 +10,6 @@ import {
   SettingsGroup,
   SettingsRows,
 } from '@fewmail/ui/components/custom/settings-group'
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from '@fewmail/ui/components/item'
 import { Kbd } from '@fewmail/ui/components/kbd'
 import {
   MessageScroller,
@@ -107,7 +99,13 @@ import {
 } from '~/components/proposals'
 import { foldedVerb, QueueCard, useCardActions } from '~/components/queue-card'
 import type { QueueItem } from '~/components/queue-card'
-import { SenderAvatar } from '~/components/sender-avatar'
+import {
+  closeSender,
+  SenderCard,
+  showSender,
+  useIsSenderShown,
+} from '~/components/sender-card'
+import { SenderSidebar } from '~/components/sender-stack'
 import { CodeActions, sweepOf, useMailActions } from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
@@ -159,6 +157,7 @@ const NewSenders = ({
   const queryClient = useQueryClient()
   const answered = (messageId: string | undefined) => {
     onSettle()
+    closeSender()
     return showUntilSettled(() => {
       if (messageId && todayLists.newSenders.has(messageId)) {
         todayLists.newSenders.delete(messageId)
@@ -261,6 +260,7 @@ const NewSenders = ({
   useHotkey('A', () => first?.handleArchive(), keys)
   useHotkey('U', () => first?.handleUnsubscribe(), keys)
   useHotkey('I', () => first?.handleKeep(), keys)
+  useHotkey('V', () => senders[0] && showSender(senders[0]), keys)
 
   return (
     <AnimatePresence initial={false}>
@@ -269,49 +269,41 @@ const NewSenders = ({
         const key = (letter: string) => index === 0 && <Kbd>{letter}</Kbd>
         return (
           <MotionCollapse key={sender.messageId} initial={false}>
-            <Item variant="card" size="sm">
-              <ItemMedia variant="avatar">
-                <SenderAvatar sender={sender} size="sm" />
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle className="flex-wrap gap-y-0.5">
-                  <span data-mask>{sender.fromName ?? sender.fromEmail}</span>
-                  <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
-                    {t.today.newSender.label}
-                  </span>
-                </ItemTitle>
-                <ItemDescription>
+            <SenderCard
+              sender={sender}
+              label={t.today.newSender.label}
+              lead={
+                <>
                   {t.today.newSender.lead(sender.count, sender.opened)}
                   {sender.leftShare !== null &&
                     ` · ${t.subscriptions.leftBy(Math.round(sender.leftShare * 100))}`}
-                </ItemDescription>
-              </ItemContent>
-              <ItemActions>
-                <Button
-                  size="sm"
-                  variant="ghost-muted"
-                  onClick={answer.handleKeep}
-                  shortcut={key('I')}
-                >
-                  {t.today.newSender.keep}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={answer.handleUnsubscribe}
-                  shortcut={key('U')}
-                >
-                  {t.actionKind.unsubscribe}
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={answer.handleArchive}
-                  shortcut={key('A')}
-                >
-                  {t.today.newSender.archive}
-                </Button>
-              </ItemActions>
-            </Item>
+                </>
+              }
+            >
+              <Button
+                size="sm"
+                variant="ghost-tint-muted"
+                onClick={answer.handleKeep}
+                shortcut={key('I')}
+              >
+                {t.today.newSender.keep}
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={answer.handleUnsubscribe}
+                shortcut={key('U')}
+              >
+                {t.actionKind.unsubscribe}
+              </Button>
+              <Button
+                size="sm"
+                onClick={answer.handleArchive}
+                shortcut={key('A')}
+              >
+                {t.today.newSender.archive}
+              </Button>
+            </SenderCard>
           </MotionCollapse>
         )
       })}
@@ -324,8 +316,12 @@ const BotSuggestions = ({ today }: { today: Today | undefined }) =>
   today?.botSuggestions.map((suggestion) => (
     <BotSuggestionCard
       key={suggestion.fromEmail}
+      isShowable
       suggestion={suggestion}
-      onAnswer={holdClicksUntilMove}
+      onAnswer={() => {
+        closeSender()
+        holdClicksUntilMove()
+      }}
     />
   ))
 
@@ -602,6 +598,7 @@ const homeHints = (
     ...(state.tidy > 0 ? [['T', t.today.tidy.run] as [string, string]] : []),
     ...(state.today?.newSenders.length
       ? [
+          ['V', t.nav.personMail] as [string, string],
           ['A', t.today.newSender.archive] as [string, string],
           ['U', t.actionKind.unsubscribe] as [string, string],
           ['I', t.today.newSender.keep] as [string, string],
@@ -1263,6 +1260,13 @@ const useOpenBot = (bots: HomeBot[]) => {
   return { bot, open, step }
 }
 
+/** Home's keys work while nothing lies beside it: an email or a sender's emails take them. */
+const useIsHomeFocused = () => {
+  const isThreadOpen = useIsThreadExpanded()
+  const isSenderOpen = useIsSenderShown()
+  return !isThreadOpen && !isSenderOpen
+}
+
 /** The open bot's profile beside its chat, kept open from bot to bot: `P` opens and closes it, esc closes it. */
 const useProfile = (bot: string, isFocused: boolean, picked: number) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -1426,7 +1430,7 @@ const HomePage = () => {
   }
   const skipTargets = () => skipCards(targets.map(({ action }) => action.id))
 
-  const isFocused = !useIsThreadExpanded()
+  const isFocused = useIsHomeFocused()
   const isBoard = isBoardBot(bot)
   const isStepping = isFocused && !isBoard
   const walkKeys = { enabled: isStepping && stops.length > 0 }
@@ -1576,6 +1580,7 @@ const HomePage = () => {
           </BotPane>
         )}
       </main>
+      <SenderSidebar />
       <KeyHints
         hints={homeHints(t, {
           alike: alike.length,

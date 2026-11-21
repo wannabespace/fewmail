@@ -1,19 +1,11 @@
 import { Button } from '@fewmail/ui/components/button'
 import { MotionCollapse } from '@fewmail/ui/components/collapse.motion'
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from '@fewmail/ui/components/item'
 import { useMutation } from '@tanstack/react-query'
 import { AnimatePresence } from 'motion/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { SenderAvatar } from '~/components/sender-avatar'
+import { SenderCard } from '~/components/sender-card'
 import { useT } from '~/lib/i18n'
 import { orpc, refetchChanged } from '~/lib/orpc'
 import { pendingToast } from '~/lib/undo'
@@ -31,9 +23,12 @@ const refetch = () => refetchChanged(['today', 'mail', 'bots'])
 
 /** A sender whose every email of the month the agent would archive or mark read: asked once, on Home and in their mail alike. */
 export const BotSuggestionCard = ({
+  isShowable = false,
   onAnswer,
   suggestion,
 }: {
+  /** On Home the card opens the sender's emails beside the chat; in their email it is already open. */
+  isShowable?: boolean
   onAnswer?: () => void
   suggestion: BotSuggestion
 }) => {
@@ -61,52 +56,39 @@ export const BotSuggestionCard = ({
     <AnimatePresence initial={false}>
       {!isAnswered && (
         <MotionCollapse initial={false}>
-          <Item variant="card" size="sm">
-            <ItemMedia variant="avatar">
-              <SenderAvatar sender={suggestion} size="sm" />
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle className="flex-wrap gap-y-0.5">
-                <span data-mask>
-                  {suggestion.fromName ?? suggestion.fromEmail}
-                </span>
-                <span className="text-muted-foreground text-xs font-normal whitespace-nowrap">
-                  {t.today.botSuggestion.label}
-                </span>
-              </ItemTitle>
-              <ItemDescription>
-                {t.today.botSuggestion.lead(
-                  suggestion.count,
-                  suggestion.effect
-                )}
-              </ItemDescription>
-            </ItemContent>
-            <ItemActions>
-              <Button
-                size="sm"
-                variant="ghost-muted"
-                onClick={() => {
-                  answered()
-                  decline.mutate({ fromEmail: suggestion.fromEmail })
-                }}
-              >
-                {t.today.botSuggestion.no}
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => {
-                  answered()
-                  accept.mutate({
-                    effect: suggestion.effect,
-                    match: { field: 'from', value: suggestion.fromEmail },
-                    name: suggestion.fromName ?? suggestion.fromEmail,
-                  })
-                }}
-              >
-                {t.today.botSuggestion.yes[suggestion.effect]}
-              </Button>
-            </ItemActions>
-          </Item>
+          <SenderCard
+            isShowable={isShowable}
+            label={t.today.botSuggestion.label}
+            lead={t.today.botSuggestion.lead(
+              suggestion.count,
+              suggestion.effect
+            )}
+            sender={suggestion}
+          >
+            <Button
+              size="sm"
+              variant="ghost-tint-muted"
+              onClick={() => {
+                answered()
+                decline.mutate({ fromEmail: suggestion.fromEmail })
+              }}
+            >
+              {t.today.botSuggestion.no}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                answered()
+                accept.mutate({
+                  effect: suggestion.effect,
+                  match: { field: 'from', value: suggestion.fromEmail },
+                  name: suggestion.fromName ?? suggestion.fromEmail,
+                })
+              }}
+            >
+              {t.today.botSuggestion.yes[suggestion.effect]}
+            </Button>
+          </SenderCard>
         </MotionCollapse>
       )}
     </AnimatePresence>

@@ -1,5 +1,4 @@
 import type { RouterOutputs } from '@fewmail/api/router'
-import { listSearch } from '@fewmail/shared/agent'
 import { Button } from '@fewmail/ui/components/button'
 import { LoadingContent } from '@fewmail/ui/components/custom/loading-content'
 import {
@@ -22,7 +21,6 @@ import {
   useInfiniteQuery,
   useMutation,
   useMutationState,
-  useQuery,
 } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useVirtualizer } from '@tanstack/react-virtual'
@@ -33,8 +31,8 @@ import { toast } from 'sonner'
 import { confirm } from '~/components/confirm-dialog'
 import { KeyHints } from '~/components/key-hints'
 import { SenderAvatar } from '~/components/sender-avatar'
+import { SenderStack } from '~/components/sender-stack'
 import { ReaderSidebar } from '~/components/thread-link'
-import { StackView } from '~/components/thread-view'
 import { useT } from '~/lib/i18n'
 import { offerBlock } from '~/lib/offer-block'
 import { orpc, refetchChanged } from '~/lib/orpc'
@@ -105,26 +103,9 @@ const SubscriptionStack = ({
   row: Subscription
 }) => {
   const t = useT()
-  const { data } = useQuery(
-    orpc.mail.list.queryOptions({
-      input: { filter: 'inbox', search: listSearch(row) },
-    })
-  )
-  if (!data) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Spinner label={t.nav.loading} />
-      </div>
-    )
-  }
   return (
-    <StackView
-      emails={data.map(({ analysis, message }) => ({
-        ...message,
-        extracted: analysis?.extracted,
-      }))}
-      isSnoozed={false}
-      place="inbox"
+    <SenderStack
+      sender={row}
       onClose={onClose}
       onDone={() => {
         onClose()
@@ -142,7 +123,7 @@ const SubscriptionStack = ({
           {t.subscriptions.unsubscribe}
         </LoadingContent>
       </Button>
-    </StackView>
+    </SenderStack>
   )
 }
 
