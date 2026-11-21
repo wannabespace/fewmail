@@ -827,17 +827,6 @@ export const nl: Messages = {
         'Hoi, ik ben Fewmail Bot. Ik lees alle mail die geen van je bots oppakt en laat je alleen zien wat jou nodig heeft. In Gmail verandert niets zonder je goedkeuring. Vraag me alles over je mail, of vraag me een bot te maken.',
       own: (name: string) => `Hoi, ik ben ${name}. Hier let ik op:`,
     },
-    suggest: {
-      actAlone: 'Handel zelf, zonder te vragen',
-      askFirst: 'Vraag het me vóór elke e-mail',
-      important: 'Wat heeft mij vandaag nodig?',
-      newBot: 'Maak een bot voor facturen',
-      owed: 'Wie is me wat schuldig?',
-      pauseWeek: 'Een week pauze',
-      promised: 'Wat heb ik deze week beloofd?',
-      waiting: 'Wie wacht op mijn antwoord?',
-      week: 'Wat heb je deze week gedaan?',
-    },
     pause: {
       day: 'Tot morgen',
       hint: 'Gepauzeerd neemt hij geen mail; Fewmail Bot houdt die.',

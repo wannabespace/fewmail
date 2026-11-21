@@ -822,17 +822,6 @@ export const en = {
         'Hi, I’m Fewmail Bot. I read all the mail none of your bots takes and show you only what needs you. Nothing changes in Gmail without your approval. Ask me anything about your mail, or ask me to make a bot.',
       own: (name: string) => `Hi, I’m ${name}. Here is what I look after:`,
     },
-    suggest: {
-      actAlone: 'Act on your own, no need to ask',
-      askFirst: 'Ask me before each email',
-      important: 'What needs me today?',
-      newBot: 'Make me a bot for invoices',
-      owed: 'Who owes me what?',
-      pauseWeek: 'Pause for a week',
-      promised: 'What did I promise this week?',
-      waiting: 'Who is waiting for my reply?',
-      week: 'What did you do this week?',
-    },
     pause: {
       day: 'Until tomorrow',
       hint: 'While paused it takes no mail, and Fewmail Bot keeps it.',

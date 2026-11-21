@@ -9,7 +9,14 @@ import {
 import type { BotReaction, ConsentToolName } from '@fewmail/shared/agent'
 import { messages as dictionaries } from '@fewmail/shared/i18n'
 import { englishName } from '@fewmail/shared/i18n/locales'
-import { generateText, hasToolCall, stepCountIs, streamText, tool } from 'ai'
+import {
+  generateText,
+  hasToolCall,
+  Output,
+  stepCountIs,
+  streamText,
+  tool,
+} from 'ai'
 import { addDays, subDays } from 'date-fns'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
@@ -20,11 +27,13 @@ import { announceChange } from '../lib/live'
 import { agentTools, toolAccess } from './agent-tools'
 import {
   addBotPost,
+  botChat,
   botHistory,
   isLastPost,
   quotesOf,
   reactToPost,
 } from './bot-chat'
+import type { BotEntry } from './bot-chat'
 import { listBots } from './bots'
 import { listEvents } from './calendar'
 import { ConsentChangedError } from './consent-error'
@@ -503,6 +512,93 @@ export const askBot = async function* askBot(
     text: answer.replaceAll(THREAD_LINK, '$<label>'),
     tools: used,
   })
+}
+
+export const SUGGESTIONS = 3
+export const SUGGEST_LINES = 15
+export const SUGGEST_LINE_CHARS = 300
+const SUGGESTION_CHARS = 60
+const SUGGESTED_KEPT = 10_000
+export const SUGGEST_INSTRUCTIONS = [
+  `Suggest up to ${SUGGESTIONS} things the user could send this bot next with one tap: short questions or requests, at most 6 words each, in the user's own voice, addressing the bot informally where the language distinguishes.`,
+  'Ground them in the chat below (its mail, its promises, what was just said) and in what the bot can do: answer about the mail, change itself, act on its mail. Never repeat what the user just asked; on an empty chat, suggest what this bot is best at.',
+  NO_EM_DASH,
+].join('\n')
+
+/** The chat as the suggestions read it: its mail, promises and words, newest last. */
+const suggestLines = (entry: BotEntry) => {
+  if (entry.type === 'cards' || entry.type === 'digest') {
+    return entry.cards.map(
+      ({ message }) =>
+        `Mail from ${message?.fromName ?? message?.fromEmail}: ${message?.subject ?? ''}`
+    )
+  }
+  if (entry.type === 'promises') {
+    return entry.promises.map(({ kind, promise }) => `${kind}: ${promise}`)
+  }
+  return entry.text
+    ? [
+        `${entry.kind === 'message' ? 'User' : 'Bot'}: ${entry.text.slice(0, SUGGEST_LINE_CHARS)}`,
+      ]
+    : []
+}
+
+const suggested = new Map<string, { key: string; questions: string[] }>()
+
+/**
+ * What the user may send the open bot in a tap, written for its chat as it stands and charged like any call. Kept
+ * until the bot or the user's language changes or someone says something there, so mail arriving costs nothing
+ * and opening a chat again neither. Nothing past the allowance.
+ */
+export const suggestQuestions = async (userId: string, bot: string) => {
+  const [settings, own, { entries }] = await Promise.all([
+    getSettings(userId),
+    bot === 'fewmail' ? undefined : listBots(userId),
+    botChat(userId, bot),
+  ])
+  const scope = botScope(
+    bot,
+    own?.find(({ id }) => id === bot)
+  )
+  const language = settings?.language ?? 'en'
+  const said = entries.findLast(
+    ({ type }) => type === 'post' || type === 'digest'
+  )
+  const key = [language, scope, said?.id, said?.at.getTime()].join('|')
+  const chat = `${userId}:${bot}`
+  const kept = suggested.get(chat)
+  if (kept?.key === key) {
+    return kept.questions
+  }
+  if (!(await hasBudget(userId))) {
+    return []
+  }
+  const { output } = await generateText({
+    instructions: [
+      scope,
+      SUGGEST_INSTRUCTIONS,
+      `Write in ${englishName(language)}.`,
+    ].join('\n\n'),
+    model: models.fast,
+    output: Output.object({
+      schema: z.object({ questions: z.array(z.string()) }),
+    }),
+    prompt:
+      entries.flatMap(suggestLines).slice(-SUGGEST_LINES).join('\n') ||
+      'The chat is empty.',
+    telemetry: trackUsage(userId, 'suggest'),
+  })
+  const questions = output.questions
+    .map((question) => question.trim())
+    .filter((question) => question && question.length <= SUGGESTION_CHARS)
+    .slice(0, SUGGESTIONS)
+  suggested.delete(chat)
+  suggested.set(chat, { key, questions })
+  const oldest = suggested.keys().next().value
+  if (suggested.size > SUGGESTED_KEPT && oldest) {
+    suggested.delete(oldest)
+  }
+  return questions
 }
 
 /** What the user's reaction on the bot's last words tells it: 👍 is their yes, 👀 that they will look themselves. */

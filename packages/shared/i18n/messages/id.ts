@@ -822,17 +822,6 @@ export const id: Messages = {
         'Hai, aku Fewmail Bot. Aku membaca semua email yang tidak diambil bot-botmu dan hanya menunjukkan yang perlu kamu urus. Tidak ada yang berubah di Gmail tanpa persetujuanmu. Tanyakan apa saja soal emailmu, atau minta aku membuat bot.',
       own: (name: string) => `Hai, aku ${name}. Ini yang kujaga:`,
     },
-    suggest: {
-      actAlone: 'Bertindak sendiri saja, tak perlu tanya',
-      askFirst: 'Tanya aku sebelum tiap email',
-      important: 'Apa yang perlu kuurus hari ini?',
-      newBot: 'Buatkan bot untuk tagihan',
-      owed: 'Siapa berutang apa padaku?',
-      pauseWeek: 'Jeda seminggu',
-      promised: 'Apa yang kujanjikan minggu ini?',
-      waiting: 'Siapa yang menunggu balasanku?',
-      week: 'Apa yang kamu lakukan minggu ini?',
-    },
     pause: {
       day: 'Sampai besok',
       hint: 'Saat dijeda, bot ini tidak mengambil email; Fewmail Bot yang memegangnya.',

@@ -36,6 +36,10 @@ import {
   BOT_REACT_TOOL,
   botScope,
   MAX_STEPS,
+  SUGGEST_INSTRUCTIONS,
+  SUGGEST_LINE_CHARS,
+  SUGGEST_LINES,
+  SUGGESTIONS,
 } from '../services/agent-run'
 import { agentTools } from '../services/agent-tools'
 import { BODY_LIMIT as ASK_BODY_LIMIT, SOURCE_LIMIT } from '../services/ask'
@@ -167,6 +171,7 @@ const VOICE_OUTPUT_TOKENS = 250
 /** Subject and summary of one email from a person in Fewmail's first words. */
 const INTRO_CHARS_EACH = 450
 const INTRO_OUTPUT_TOKENS = 200
+const SUGGESTION_OUTPUT_TOKENS_EACH = 20
 const COMPLETION_PREFIX_CHARS = 1000
 const DAYS = 30
 
@@ -418,9 +423,20 @@ const askCost = () =>
     ASK_ANSWER_OUTPUT_TOKENS
   )
 
-/** One message counted against the plan, the dearer of a chat turn and Ask, spoken to it or typed. */
+/** What the user may send next, written again once the bot has answered: the chat's last lines at their cap. */
+const suggestCost = () =>
+  llm(
+    FAST_MODEL_ID,
+    instructionTokens(SUGGEST_INSTRUCTIONS.length) +
+      STRUCTURED_OUTPUT_TOKENS +
+      mailTokens(SUGGEST_LINES * SUGGEST_LINE_CHARS),
+    SUGGESTIONS * SUGGESTION_OUTPUT_TOKENS_EACH
+  )
+
+/** One message counted against the plan, the dearer of a chat turn and Ask, spoken to it or typed, and the suggestions after it. */
 export const messageCost = (use: Use) =>
   Math.max(chatCost(use), askCost()) +
+  suggestCost() +
   use.voiceShare *
     use.voiceSeconds *
     priceOf(TRANSCRIBE_MODEL, 'input_cost_per_second')
@@ -640,7 +656,7 @@ const printUnits = (lines: string[], name: string, use: Use) => {
     `${name}`,
     `  incoming email, Jev (every plan): ${usd(inboundJevCost(use))}`,
     `  counted email: ${usd(email.total)} (text ${usd(email.text)}, attachments ${usd(email.ocr)}, draft ${usd(email.draft)}, link ${usd(email.link)})`,
-    `  counted message: ${usd(messageCost(use))} (chat ${usd(chatCost(use))}, Ask ${usd(askCost())})`
+    `  counted message: ${usd(messageCost(use))} (chat ${usd(chatCost(use))}, Ask ${usd(askCost())}, suggestions ${usd(suggestCost())})`
   )
   for (const [what, cost] of Object.entries(backgroundCost(use, true))) {
     lines.push(`  a month of ${what}: ${usd(cost)}`)

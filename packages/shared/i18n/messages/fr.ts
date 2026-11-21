@@ -1283,17 +1283,6 @@ export const fr: Messages = {
       own: (name: string) =>
         `Bonjour, je suis ${name}. Voici ce dont je m’occupe :`,
     },
-    suggest: {
-      actAlone: 'Agissez seul, sans demander',
-      askFirst: 'Demandez-moi avant chaque e-mail',
-      important: 'Qu’est-ce qui m’attend aujourd’hui ?',
-      newBot: 'Créez-moi un bot pour les factures',
-      owed: 'Qui me doit quoi ?',
-      pauseWeek: 'Pause d’une semaine',
-      promised: 'Qu’ai-je promis cette semaine ?',
-      waiting: 'Qui attend ma réponse ?',
-      week: 'Qu’avez-vous fait cette semaine ?',
-    },
     pause: {
       day: 'Jusqu’à demain',
       hint: 'En pause, il ne prend aucun e-mail ; Fewmail Bot s’en charge.',

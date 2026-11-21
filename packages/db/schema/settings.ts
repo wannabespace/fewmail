@@ -184,6 +184,7 @@ export type AiFeature =
   | 'person_note'
   | 'promises'
   | 'reading_summary'
+  | 'suggest'
   | 'understand'
   | 'voice'
 

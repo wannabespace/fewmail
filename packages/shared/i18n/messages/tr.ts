@@ -814,17 +814,6 @@ export const tr: Messages = {
         'Merhaba, ben Fewmail Bot. Botlarından hiçbirinin almadığı tüm postaları okur ve sana yalnızca seninle ilgili olanları gösteririm. Onayın olmadan Gmail’de hiçbir şey değişmez. Postanla ilgili her şeyi sorabilir ya da benden bir bot yapmamı isteyebilirsin.',
       own: (name: string) => `Merhaba, ben ${name}. Şununla ilgileniyorum:`,
     },
-    suggest: {
-      actAlone: 'Sormadan kendin yap',
-      askFirst: 'Her e-postadan önce bana sor',
-      important: 'Bugün beni ne bekliyor?',
-      newBot: 'Faturalar için bir bot yap',
-      owed: 'Kim bana ne borçlu?',
-      pauseWeek: 'Bir hafta duraklat',
-      promised: 'Bu hafta ne söz verdim?',
-      waiting: 'Kim cevabımı bekliyor?',
-      week: 'Bu hafta ne yaptın?',
-    },
     pause: {
       day: 'Yarına kadar',
       hint: 'Duraklatılmışken e-posta almaz; onları Fewmail Bot alır.',

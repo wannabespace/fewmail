@@ -852,17 +852,6 @@ export const pl: Messages = {
         'Cześć, jestem Fewmail Bot. Czytam całą pocztę, której nie bierze żaden z twoich botów, i pokazuję tylko to, co wymaga ciebie. W Gmailu nic się nie zmienia bez twojej zgody. Pytaj mnie o pocztę albo poproś o nowego bota.',
       own: (name: string) => `Cześć, jestem ${name}. Pilnuję tego:`,
     },
-    suggest: {
-      actAlone: 'Działaj sam, nie pytaj',
-      askFirst: 'Pytaj mnie przed każdym mailem',
-      important: 'Co dziś wymaga mojej uwagi?',
-      newBot: 'Zrób mi bota do faktur',
-      owed: 'Kto mi co jest winien?',
-      pauseWeek: 'Pauza na tydzień',
-      promised: 'Co obiecałem w tym tygodniu?',
-      waiting: 'Kto czeka na moją odpowiedź?',
-      week: 'Co zrobiłeś w tym tygodniu?',
-    },
     pause: {
       day: 'Do jutra',
       hint: 'Wstrzymany nie bierze maili; zajmuje się nimi Fewmail Bot.',

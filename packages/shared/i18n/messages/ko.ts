@@ -644,17 +644,6 @@ export const ko: Messages = {
       own: (name: string) =>
         `안녕하세요! 저는 「${name}」 봇이에요. 맡은 일은 이거예요:`,
     },
-    suggest: {
-      actAlone: '묻지 말고 알아서 해 줘',
-      askFirst: '메일마다 먼저 물어봐 줘',
-      important: '오늘 내가 챙길 건?',
-      newBot: '청구서용 봇 만들어 줘',
-      owed: '누가 나한테 뭘 줘야 해?',
-      pauseWeek: '일주일 쉬어',
-      promised: '이번 주에 뭘 약속했지?',
-      waiting: '누가 내 답장을 기다려?',
-      week: '이번 주에 뭐 했어?',
-    },
     pause: {
       day: '내일까지',
       hint: '일시 중지 중에는 메일을 맡지 않고, Fewmail Bot이 대신 맡아요.',

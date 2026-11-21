@@ -643,17 +643,6 @@ export const ja: Messages = {
       own: (name: string) =>
         `こんにちは、「${name}」です。担当しているのはこちらです：`,
     },
-    suggest: {
-      actAlone: '確認せずに自分で処理して',
-      askFirst: 'メールごとに確認して',
-      important: '今日対応が必要なのは？',
-      newBot: '請求書用のボットを作って',
-      owed: '誰から何を受け取る予定？',
-      pauseWeek: '1週間止めて',
-      promised: '今週何を約束した？',
-      waiting: '誰が私の返信を待っている？',
-      week: '今週は何をした？',
-    },
     pause: {
       day: '明日まで',
       hint: '停止中はメールを受け取りません。Fewmail Bot が引き受けます。',

@@ -149,7 +149,7 @@ import {
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { botChats, ownBots, queueCards, useToday } from '~/lib/home-db'
 import { useDates, useLocale, useT } from '~/lib/i18n'
-import { useMe } from '~/lib/me'
+import { useHasAgent, useMe } from '~/lib/me'
 import { client, orpc } from '~/lib/orpc'
 import { posthog } from '~/lib/posthog'
 import { queryClient, showUntilSettled, useRanked } from '~/lib/query-client'
@@ -1124,20 +1124,15 @@ export const useAskBot = () => {
   return { ask, asking }
 }
 
-/** What the user may ask the open bot in a click: Fewmail about the day, the Board about promises, a bot of theirs about itself. */
-const suggestionsOf = (t: Messages, bot: HomeBot) => {
-  const said = t.bots.suggest
-  if (!bot.own) {
-    return [said.important, said.waiting, said.newBot]
-  }
-  if (isBoardBot(bot)) {
-    return [said.owed, said.promised]
-  }
-  return [
-    said.week,
-    bot.own.enabled ? said.askFirst : said.actAlone,
-    said.pauseWeek,
-  ]
+/** What the user may send the open bot in a tap, written by the agent for its chat as it stands; none without the agent or past the allowance, none while it answers. */
+const useSuggestions = (bot: string, isSending: boolean) => {
+  const hasAgent = useHasAgent()
+  const { data } = useQuery(
+    orpc.bots.suggestions.queryOptions({
+      input: hasAgent && !isSending ? { bot } : skipToken,
+    })
+  )
+  return data ?? []
 }
 
 /** Where the user writes to the open bot: ⏎ sends, ⇧⏎ breaks the line, `/` comes here and esc drops the reply, then leaves. */
@@ -1157,6 +1152,7 @@ export const BotComposer = ({
   const [text, setText] = useState('')
   const reply = useSubscription(replyStore)
   const replyTo = reply?.bot === bot.bot ? reply.quote : undefined
+  const suggestions = useSuggestions(bot.bot, isSending)
   useHotkey('/', () => ref.current?.focus(), { enabled: isActive })
   useEffect(() => {
     if (replyTo) {
@@ -1180,9 +1176,9 @@ export const BotComposer = ({
         send()
       }}
     >
-      {!text && !replyTo && !isSending && (
-        <div className="flex flex-wrap gap-1.5">
-          {suggestionsOf(t, bot).map((suggestion) => (
+      {!text && !replyTo && !isSending && suggestions.length > 0 && (
+        <div className="flex flex-wrap gap-1.5" data-mask>
+          {suggestions.map((suggestion) => (
             <Button
               key={suggestion}
               size="sm"

@@ -629,17 +629,6 @@ export const zh: Messages = {
         '你好，我是 Fewmail Bot。我会读你的机器人都没接手的所有邮件，只给你看需要你处理的。没有你的批准，Gmail 里什么都不会变。关于邮件的问题尽管问我，也可以让我帮你创建机器人。',
       own: (name: string) => `你好，我是「${name}」。我负责这些：`,
     },
-    suggest: {
-      actAlone: '你自己处理，不用问我',
-      askFirst: '每封邮件先问我',
-      important: '今天有什么需要我处理？',
-      newBot: '帮我建一个发票机器人',
-      owed: '谁欠我什么？',
-      pauseWeek: '暂停一周',
-      promised: '我这周答应了什么？',
-      waiting: '谁在等我回复？',
-      week: '你这周做了什么？',
-    },
     pause: {
       day: '到明天',
       hint: '暂停期间它不接收邮件，由 Fewmail Bot 接手。',

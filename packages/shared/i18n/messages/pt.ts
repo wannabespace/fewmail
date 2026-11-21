@@ -840,17 +840,6 @@ export const pt: Messages = {
         'Oi, eu sou o Fewmail Bot. Leio todo o e-mail que nenhum dos seus bots pega e mostro só o que precisa de você. Nada muda no Gmail sem a sua aprovação. Pergunte qualquer coisa sobre seu e-mail ou peça para eu criar um bot.',
       own: (name: string) => `Oi, eu sou ${name}. É disto que eu cuido:`,
     },
-    suggest: {
-      actAlone: 'Aja sozinho, sem perguntar',
-      askFirst: 'Me pergunte antes de cada e-mail',
-      important: 'O que precisa de mim hoje?',
-      newBot: 'Crie um bot para faturas',
-      owed: 'Quem me deve o quê?',
-      pauseWeek: 'Pausar por uma semana',
-      promised: 'O que eu prometi esta semana?',
-      waiting: 'Quem está esperando minha resposta?',
-      week: 'O que você fez esta semana?',
-    },
     pause: {
       day: 'Até amanhã',
       hint: 'Pausado, ele não pega e-mails; o Fewmail Bot fica com eles.',

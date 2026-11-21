@@ -26,7 +26,7 @@ import { GMAIL_SCOPE, hasSignInScope } from '../lib/auth'
 import { isTimeZone } from '../lib/clock'
 import { watchChanges } from '../lib/live'
 import { logErrorAs } from '../lib/log'
-import { answerReaction, askBot } from '../services/agent-run'
+import { answerReaction, askBot, suggestQuestions } from '../services/agent-run'
 import { approveCard, approveCards } from '../services/approve'
 import { completeEmail } from '../services/autocomplete'
 import { createBillingPortal, createCheckout } from '../services/billing'
@@ -558,6 +558,11 @@ export const router = {
     read: authed
       .input(botRef)
       .handler(({ context, input }) => markBotRead(context.user.id, input.bot)),
+    suggestions: agent
+      .input(botRef)
+      .handler(({ context, input }) =>
+        suggestQuestions(context.user.id, input.bot)
+      ),
     mute: authed
       .input(botRef.and({ muted: 'boolean' }))
       .handler(({ context, input }) =>
