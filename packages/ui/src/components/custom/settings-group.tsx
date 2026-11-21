@@ -189,7 +189,7 @@ export const SettingsRow = ({
         dense && 'py-2',
         isLeaving && 'pointer-events-none overflow-hidden',
         trigger &&
-          'has-data-popup-open:bg-accent hover:bg-accent has-[[data-slot=row-trigger][aria-expanded=true]]:bg-secondary has-[[data-slot=row-trigger]:focus-visible]:after:focus-ring cursor-pointer'
+          'has-data-popup-open:bg-accent not-data-active:hover:bg-accent/50 has-[[data-slot=row-trigger][aria-expanded=true]]:bg-secondary has-[[data-slot=row-trigger]:focus-visible]:after:focus-ring cursor-pointer'
       )}
       data-active={active || undefined}
       // A leaving row's index is stale, so the virtualizer stops measuring it (-1 is out of range).

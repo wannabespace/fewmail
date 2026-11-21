@@ -94,7 +94,8 @@ const AccordionTrigger = ({
       className={cn(
         'flex',
         variant === 'list' &&
-          `${groupedRowRingClassName} group-data-active/accordion-item:bg-accent hover:bg-accent has-[[data-slot=accordion-trigger]:focus-visible]:after:focus-ring`
+          // The pointer's row is half the cursor's fill: at the same fill, the row under the pointer and the J / K row read as two cursors.
+          `${groupedRowRingClassName} group-data-active/accordion-item:bg-accent! hover:bg-accent/50 has-[[data-slot=accordion-trigger]:focus-visible]:after:focus-ring`
       )}
     >
       <AccordionPrimitive.Trigger

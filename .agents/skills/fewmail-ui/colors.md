@@ -30,4 +30,6 @@ Shadows are tinted warm brown (`rgb(60 40 20 / …)`), never black, in light mod
 
 ## Selection & secondary fills
 
+In a card's rows (a list `Accordion`, a `SettingsRow trigger`) **the pointer's row is half the cursor's fill** (`hover:bg-accent/50`, the J / K row `bg-accent`, kept on hover): at the same fill, the row under the pointer and the cursor's read as two cursors.
+
 `bg-secondary` (`#E6DDCE`-ish) is the warm chip/fill: secondary buttons, the active nav item, draft blocks (`bg-secondary/60`), agent analysis blocks (`bg-secondary/50`). On the canvas, hover/cursor (`bg-accent`, `#ECE4D8`) sits halfway between the canvas and `bg-secondary`, so the active item never reads as merely hovered — keep both steps visible when retuning.
