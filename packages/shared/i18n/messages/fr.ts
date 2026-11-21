@@ -1449,6 +1449,7 @@ export const fr: Messages = {
     cancel: 'Annuler',
     integrations: 'Intégrations',
     language: 'Langue',
+    languageSearch: 'Rechercher une langue',
     languageDescription: 'App, bot et résumés. Les réponses suivent l’e-mail.',
     legal: 'Mentions légales',
     mailboxes: {

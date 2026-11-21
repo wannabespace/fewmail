@@ -849,6 +849,7 @@ export const hi: Messages = {
     cancel: 'रद्द करें',
     integrations: 'इंटीग्रेशन',
     language: 'भाषा',
+    languageSearch: 'भाषा खोजें',
     languageDescription: 'ऐप, बॉट और सारांश। जवाब ईमेल की भाषा में होते हैं।',
     legal: 'कानूनी',
     mailboxes: {

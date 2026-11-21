@@ -1437,6 +1437,7 @@ export const it: Messages = {
     cancel: 'Annulla',
     integrations: 'Integrazioni',
     language: 'Lingua',
+    languageSearch: 'Cerca una lingua',
     languageDescription: 'App, bot e riepiloghi. Le risposte seguono l’email.',
     legal: 'Note legali',
     mailboxes: {

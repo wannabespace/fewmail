@@ -1428,6 +1428,7 @@ export const de: Messages = {
     cancel: 'Abbrechen',
     integrations: 'Integrationen',
     language: 'Sprache',
+    languageSearch: 'Sprache suchen',
     languageDescription:
       'App, Bot und Zusammenfassungen. Antworten folgen der Mail.',
     legal: 'Rechtliches',

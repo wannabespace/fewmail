@@ -996,6 +996,7 @@ export const tr: Messages = {
       title: "Gmail'de agent etiketleri",
     },
     language: 'Dil',
+    languageSearch: 'Dil ara',
     languageDescription:
       'Uygulama, bot ve özetler. Yanıtlar e-postanın dilini izler.',
     legal: 'Yasal',

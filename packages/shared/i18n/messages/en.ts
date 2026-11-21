@@ -1010,6 +1010,7 @@ export const en = {
       title: 'Agent labels in Gmail',
     },
     language: 'Language',
+    languageSearch: 'Search languages',
     languageDescription: 'App, bot and summaries. Replies follow the email.',
     legal: 'Legal',
     mailboxes: {

@@ -1056,6 +1056,7 @@ export const pl: Messages = {
       title: 'Etykiety agenta w Gmailu',
     },
     language: 'Język',
+    languageSearch: 'Szukaj języka',
     languageDescription:
       'Aplikacja, bot i streszczenia. Odpowiedzi w języku maila.',
     legal: 'Informacje prawne',

@@ -810,6 +810,7 @@ export const ja: Messages = {
     cancel: 'キャンセル',
     integrations: '連携',
     language: '言語',
+    languageSearch: '言語を検索',
     languageDescription:
       'アプリ、ボット、要約に使います。返信はメールの言語に合わせます。',
     legal: '法的情報',

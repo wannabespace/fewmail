@@ -1036,6 +1036,7 @@ export const pt: Messages = {
       title: 'Marcadores do agente no Gmail',
     },
     language: 'Idioma',
+    languageSearch: 'Buscar idioma',
     languageDescription: 'App, bot e resumos. As respostas seguem o e-mail.',
     legal: 'Jurídico',
     mailboxes: {

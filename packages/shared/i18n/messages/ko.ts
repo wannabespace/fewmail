@@ -808,6 +808,7 @@ export const ko: Messages = {
     cancel: '취소',
     integrations: '연동',
     language: '언어',
+    languageSearch: '언어 검색',
     languageDescription: '앱, 봇, 요약에 사용해요. 답장은 메일 언어를 따라요.',
     legal: '법적 고지',
     mailboxes: {

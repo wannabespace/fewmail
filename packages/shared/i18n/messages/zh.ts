@@ -789,6 +789,7 @@ export const zh: Messages = {
     cancel: '取消',
     integrations: '集成',
     language: '语言',
+    languageSearch: '搜索语言',
     languageDescription: '用于应用、机器人和摘要。回复跟随邮件的语言。',
     legal: '法律信息',
     mailboxes: {

@@ -1017,6 +1017,7 @@ export const nl: Messages = {
       title: 'Agentlabels in Gmail',
     },
     language: 'Taal',
+    languageSearch: 'Taal zoeken',
     languageDescription:
       'App, bot en samenvattingen. Antwoorden volgen de e-mail.',
     legal: 'Juridisch',

@@ -1443,6 +1443,7 @@ export const es: Messages = {
     cancel: 'Cancelar',
     integrations: 'Integraciones',
     language: 'Idioma',
+    languageSearch: 'Buscar idioma',
     languageDescription:
       'App, bot y resúmenes. Las respuestas siguen al correo.',
     legal: 'Legal',

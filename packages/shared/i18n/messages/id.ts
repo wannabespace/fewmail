@@ -1004,6 +1004,7 @@ export const id: Messages = {
       title: 'Label agen di Gmail',
     },
     language: 'Bahasa',
+    languageSearch: 'Cari bahasa',
     languageDescription:
       'Aplikasi, bot, dan ikhtisar. Balasan mengikuti email.',
     legal: 'Legal',

@@ -1436,6 +1436,7 @@ export const uk: Messages = {
     cancel: 'Скасувати',
     integrations: 'Інтеграції',
     language: 'Мова',
+    languageSearch: 'Шукати мову',
     languageDescription: 'Застосунок, бот і підсумки. Відповіді мовою листа.',
     legal: 'Правова інформація',
     mailboxes: {
