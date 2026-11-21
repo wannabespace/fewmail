@@ -1855,6 +1855,7 @@ export const ThreadView = ({
                   disabled={sweep.action.isPending}
                   onClick={() => sweep.action.mutate(target)}
                   shortcut={<Kbd>E</Kbd>}
+                  side="bottom"
                 >
                   {sweep.label}
                 </Button>
@@ -1877,6 +1878,7 @@ export const ThreadView = ({
                           size="sm"
                           variant="secondary"
                           shortcut={<Kbd>H</Kbd>}
+                          side="bottom"
                         />
                       }
                     >
@@ -2090,6 +2092,7 @@ export const StackView = ({
                 disabled={sweep.action.isPending}
                 onClick={archiveAll}
                 shortcut={<Kbd>E</Kbd>}
+                side="bottom"
               >
                 {sweep.label}
               </Button>
@@ -2112,6 +2115,7 @@ export const StackView = ({
                         size="sm"
                         variant="secondary"
                         shortcut={<Kbd>H</Kbd>}
+                        side="bottom"
                       />
                     }
                   >
@@ -2133,6 +2137,7 @@ export const StackView = ({
                 variant="ghost-muted"
                 onClick={trashAll}
                 shortcut={<Kbd>⌫</Kbd>}
+                side="bottom"
               >
                 {t.mail.trash}
               </Button>
