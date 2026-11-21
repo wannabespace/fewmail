@@ -219,13 +219,13 @@ const writeReadingSummary = async (
 }
 
 const SOURCE_MARKERS =
-  /\s*(?:\[\d+(?:\s*,\s*\d+)*\]|\(n\d+(?:\s*,\s*n\d+)*\))/gu
+  /\s*(?:\[\d+(?:\s*,\s*\d+)*\]|\(n\d+(?:\s*,\s*n\d+)*\)|\([\p{L}\s]+:\s*\d+(?:\s*,\s*\d+)*\))/gu
 const withoutMarkers = (text: string) => text.replaceAll(SOURCE_MARKERS, '')
 
 const saysSomething = (text: string) => /[\p{L}\p{N}]/u.test(text)
 
 /**
- * The model also numbers its sources in the text ("[2]", "(n2)") and opens a topic with its title, though the sources
+ * The model also numbers its sources in the text ("[2]", "(n2)", "(Sources: 3, 2)" in the user's language) and opens a topic with its title, though the sources
  * show as chips and the title as a heading; on a day with nothing new it writes "…" as the intro.
  */
 const withoutEchoes = ({ intro, sections, worth }: ReadingSummary) => ({
