@@ -29,9 +29,10 @@ const ItemSeparator = ({
   />
 )
 
-// Keep these two in step: the bleed pulls a card out by exactly its rows' inset. A phone has no margin to bleed into.
+// Keep these two in step: the bleed pulls a card out by exactly its rows' inset. A phone has no margin to bleed into,
+// and a chat's message (`data-flush`) none either: there the column's edge is the bubbles', and a card past it read as broken.
 const smallItemInsetClassName = 'px-3.5'
-const smallItemBleedClassName = 'md:-mx-3.5'
+const smallItemBleedClassName = 'md:-mx-3.5 md:[[data-flush]_&]:mx-0'
 
 // A card clips its rows at its rounded corners, which cut an outer ring and the corners of an inset one: a row in a card rings on this layer instead, as round as the card.
 const groupedRowRingClassName = `relative after:pointer-events-none after:absolute after:inset-0 after:rounded-2xl after:ring-inset`

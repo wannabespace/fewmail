@@ -54,6 +54,7 @@ const MessageContent = ({ className, ...props }: ComponentProps<'div'>) => {
   return (
     <div
       data-slot="message-content"
+      data-flush={isWide || undefined}
       className={cn(
         'flex max-w-full min-w-0 flex-col text-sm/relaxed',
         'relative rounded-2xl',
