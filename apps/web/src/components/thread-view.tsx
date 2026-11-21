@@ -1700,7 +1700,7 @@ const ReaderHeader = ({
       <div
         className={cn(
           'flex flex-col gap-1 pt-8',
-          hasOpenInNewTab ? 'pr-18' : 'pr-9',
+          hasOpenInNewTab ? 'pr-18' : 'pr-9'
         )}
       >
         {title === null ? (
