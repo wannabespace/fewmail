@@ -361,7 +361,7 @@ const BotMenuItems = ({ bot, isOpen }: { bot: HomeBot; isOpen: boolean }) => {
   )
 }
 
-/** A sidebar row with its menu: ⋯ on hover in the time's place, and the same items on a right click. */
+/** A sidebar row with its menu: ⋯ on hover at the row's end, centred, over its time and count, and the same items on a right click. */
 export const RowWithMenu = ({
   children,
   items,
@@ -382,7 +382,7 @@ export const RowWithMenu = ({
               label={label}
               size="icon-xs"
               variant="ghost-tint-muted"
-              className="absolute inset-e-1 top-1 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
+              className="absolute inset-e-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
             />
           }
         />
@@ -459,7 +459,7 @@ export const BotListRow = ({
             {bot.unread > 0 && (
               <span
                 className={cn(
-                  'shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums',
+                  'shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums group-hover/row:invisible group-has-data-popup-open/row:invisible',
                   bot.muted
                     ? 'bg-secondary text-muted-foreground'
                     : 'bg-primary text-primary-foreground'
