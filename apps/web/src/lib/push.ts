@@ -32,7 +32,9 @@ export const enablePush = async (publicKey: string) => {
     reopenLiveStream()
     return
   }
-  const registration = await navigator.serviceWorker.register(WORKER_URL)
+  await navigator.serviceWorker.register(WORKER_URL)
+  // `register` resolves while the worker still installs, and Chrome refuses to subscribe without an active one.
+  const registration = await navigator.serviceWorker.ready
   const subscription = await registration.pushManager.subscribe({
     applicationServerKey: publicKey,
     userVisibleOnly: true,
