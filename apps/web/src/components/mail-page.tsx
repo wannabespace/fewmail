@@ -82,7 +82,7 @@ import {
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { defaultRangeExtractor, useVirtualizer } from '@tanstack/react-virtual'
 import type { VirtualItem } from '@tanstack/react-virtual'
-import { isToday, subDays } from 'date-fns'
+import { subDays } from 'date-fns'
 import {
   AnimatePresence,
   MotionConfig,
@@ -111,7 +111,7 @@ import { ConnectHint } from '~/components/connect-hint'
 import { readIconOf, senderTextOf } from '~/components/email-row'
 import { KeyHints } from '~/components/key-hints'
 import { SleepingLogoMark } from '~/components/logo'
-import { ExtractedChips } from '~/components/mail-meta'
+import { ExtractedChips, RowTime } from '~/components/mail-meta'
 import { MailSearchField, rememberSearch } from '~/components/mail-search'
 import {
   ParticipantAvatars,
@@ -1488,7 +1488,6 @@ const MailRow = ({
   sweep: Sweep
 }) => {
   const t = useT()
-  const dates = useDates()
   const codeRoom = message.code ? 'pr-28' : undefined
 
   return (
@@ -1549,10 +1548,7 @@ const MailRow = ({
                   : 'text-muted-foreground'
               )}
             >
-              {dates.format(
-                message.receivedAt,
-                isToday(message.receivedAt) ? 'HH:mm' : 'd MMM'
-              )}
+              <RowTime date={message.receivedAt} />
             </span>
           </span>
           <span
@@ -1647,7 +1643,6 @@ const DraftRow = ({
   onOpen: () => void
 }) => {
   const t = useT()
-  const dates = useDates()
   return (
     <ListRow
       item={item}
@@ -1670,10 +1665,7 @@ const DraftRow = ({
             {draft.to.join(', ') || t.mail.noRecipients}
           </span>
           <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
-            {dates.format(
-              draft.savedAt,
-              isToday(draft.savedAt) ? 'HH:mm' : 'd MMM'
-            )}
+            <RowTime date={draft.savedAt} />
           </span>
         </span>
         <span data-mask className="text-foreground/60 truncate pl-5 text-sm">

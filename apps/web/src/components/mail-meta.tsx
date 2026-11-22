@@ -5,14 +5,44 @@ import {
   TooltipTrigger,
 } from '@fewmail/ui/components/tooltip'
 import { cn } from '@fewmail/ui/lib/utils'
-import { parseISO } from 'date-fns'
+import { isToday, parseISO } from 'date-fns'
+import { useEffect, useState } from 'react'
 
-import { useDates, useMoneyFormat, useT } from '~/lib/i18n'
+import { useDates, useLocale, useMoneyFormat, useT } from '~/lib/i18n'
 
 // The meta and the actions share one cell, so the cell is always as wide as the actions and hovering never shifts the row.
 // The actions must stay last and `relative`: the faded meta (opacity < 1) paints above unpositioned siblings and would swallow their clicks.
 export const ROW_SWAP =
   'grid items-center justify-items-end *:[grid-area:1/1] *:transition-opacity *:duration-150 *:ease-house *:last:relative'
+
+const HOUR = 3_600_000
+
+/** Mail's time: "15 min ago" within the hour, the hour today, the day before. */
+export const RowTime = ({ date }: { date: Date }) => {
+  const t = useT()
+  const locale = useLocale()
+  const dates = useDates()
+  const [now, setNow] = useState(Date.now)
+  const age = now - date.getTime()
+  const isRecent = age < HOUR
+  useEffect(() => {
+    if (!isRecent) {
+      return
+    }
+    const timer = setInterval(() => setNow(Date.now()), 60_000)
+    return () => clearInterval(timer)
+  }, [isRecent])
+  if (age < 60_000) {
+    return t.justNow
+  }
+  if (isRecent) {
+    return new Intl.RelativeTimeFormat(locale, { style: 'short' }).format(
+      -Math.floor(age / 60_000),
+      'minute'
+    )
+  }
+  return dates.format(date, isToday(date) ? 'HH:mm' : 'd MMM')
+}
 
 export const ImportanceDot = ({
   importance,

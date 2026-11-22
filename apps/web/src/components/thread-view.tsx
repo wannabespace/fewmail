@@ -75,7 +75,6 @@ import { eq, useLiveQuery } from '@tanstack/react-db'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { isToday } from 'date-fns'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createStore } from 'seitu'
@@ -113,7 +112,7 @@ import { presetTimes, SNOOZE_PRESETS } from './compose/schedule'
 import type { SnoozePreset } from './compose/schedule'
 import { PickTime } from './compose/send-later'
 import { confirm } from './confirm-dialog'
-import { ExtractedChips } from './mail-meta'
+import { ExtractedChips, RowTime } from './mail-meta'
 import { CardProposal } from './queue-card'
 import type { QueueItem } from './queue-card'
 import {
@@ -2062,7 +2061,6 @@ export const StackView = ({
   place: Place
 }) => {
   const t = useT()
-  const dates = useDates()
   const actions = useMailActions(onDone)
   const [openId, setOpenId] = useState(emails[0]?.id)
   const stepEmail = (by: number) => {
@@ -2182,10 +2180,7 @@ export const StackView = ({
                     <ExtractedChips extracted={email.extracted} size="sm" />
                   )}
                   <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
-                    {dates.format(
-                      email.receivedAt,
-                      isToday(email.receivedAt) ? 'HH:mm' : 'd MMM'
-                    )}
+                    <RowTime date={email.receivedAt} />
                   </span>
                 </AccordionTrigger>
                 <AccordionContent>

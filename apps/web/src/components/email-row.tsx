@@ -1,28 +1,21 @@
 import { SettingsRow } from '@fewmail/ui/components/custom/settings-group'
 import { cn } from '@fewmail/ui/lib/utils'
-import { isToday } from 'date-fns'
 import type { ReactNode } from 'react'
 
 import { ExpandTrigger } from '~/components/expand-row'
 import type { Expanded } from '~/components/expand-row'
-import { ROW_SWAP } from '~/components/mail-meta'
+import { ROW_SWAP, RowTime } from '~/components/mail-meta'
 import type { RowPlace } from '~/components/pane-rows'
 import { SenderAvatar } from '~/components/sender-avatar'
 import { MailRowActions, sweepOf } from '~/components/thread-view'
 import type { useMailActions } from '~/components/thread-view'
-import { useDates, useT } from '~/lib/i18n'
+import { useT } from '~/lib/i18n'
 
 export const readIconOf = (isUnread: boolean) =>
   cn('flex shrink-0', !isUnread && 'opacity-50')
 
 export const senderTextOf = (isUnread: boolean) =>
   isUnread ? 'font-semibold' : 'text-muted-foreground'
-
-/** Mail's time: the hour today, the day before. */
-export const useRowTime = () => {
-  const dates = useDates()
-  return (date: Date) => dates.format(date, isToday(date) ? 'HH:mm' : 'd MMM')
-}
 
 interface Sender {
   fromEmail: string
@@ -68,7 +61,6 @@ export const EmailRow = ({
   sender?: Sender
 }) => {
   const t = useT()
-  const timeOf = useRowTime()
   const { isUnread = false } = message
   const time = (
     <span
@@ -77,7 +69,7 @@ export const EmailRow = ({
         isUnread ? 'text-foreground font-medium' : 'text-muted-foreground'
       )}
     >
-      {timeOf(message.receivedAt)}
+      <RowTime date={message.receivedAt} />
     </span>
   )
   return (

@@ -39,7 +39,6 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { isToday } from 'date-fns'
 import { AnimatePresence } from 'motion/react'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
@@ -47,6 +46,7 @@ import { toast } from 'sonner'
 
 import { askName, confirm } from '~/components/confirm-dialog'
 import { LogoMark } from '~/components/logo'
+import { RowTime } from '~/components/mail-meta'
 import { botChats, ownBots } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
@@ -447,10 +447,7 @@ export const BotListRow = ({
               )}
               {bot.last && (
                 <span className="text-muted-foreground text-2xs shrink-0 tabular-nums">
-                  {dates.format(
-                    bot.last.at,
-                    isToday(bot.last.at) ? 'p' : 'd MMM'
-                  )}
+                  <RowTime date={bot.last.at} />
                 </span>
               )}
             </span>
