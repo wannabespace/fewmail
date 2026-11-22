@@ -184,7 +184,7 @@ const Pause = ({ own }: { own: OwnBot }) => {
 
 /**
  * What the open bot is and does, beside its chat: its face and what it is doing now, what it did in the last 7 days,
- * its words and whether it acts alone, its pause and its notifications. Over the chat where the pane is narrow.
+ * its words and whether it acts alone, its pause and its notifications. In the reader's sidebar, one at a time with an email.
  */
 export const BotProfile = ({
   bot,
@@ -200,7 +200,7 @@ export const BotProfile = ({
   return (
     <aside
       aria-label={t.bots.profile}
-      className="bg-background flex w-80 shrink-0 flex-col gap-6 overflow-y-auto border-s px-5 pt-3 pb-6 max-xl:absolute max-xl:inset-y-0 max-xl:inset-e-0 max-xl:z-30 max-xl:shadow-xl"
+      className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-5 pt-3 pb-6"
     >
       <IconButton
         icon={Cancel01Icon}

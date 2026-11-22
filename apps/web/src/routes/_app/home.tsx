@@ -106,6 +106,7 @@ import {
   useIsSenderShown,
 } from '~/components/sender-card'
 import { SenderSidebar } from '~/components/sender-stack'
+import { ReaderSidebar } from '~/components/thread-link'
 import { CodeActions, sweepOf, useMailActions } from '~/components/thread-view'
 import { upgradeStore } from '~/components/upgrade-dialog'
 import { eventTimes } from '~/lib/calendar'
@@ -1193,7 +1194,9 @@ const BotPane = ({
           </div>
         </MessageScrollerProvider>
       </div>
-      {isProfileOpen && <BotProfile bot={bot} onClose={onProfile} />}
+      <ReaderSidebar isOpen={isProfileOpen}>
+        <BotProfile bot={bot} onClose={onProfile} />
+      </ReaderSidebar>
     </div>
   )
 }
@@ -1268,12 +1271,20 @@ const useIsHomeFocused = () => {
   return !isThreadOpen && !isSenderOpen
 }
 
-/** The open bot's profile beside its chat, kept open from bot to bot: `P` opens and closes it, esc closes it. */
+/**
+ * The open bot's profile in the reader's sidebar, kept open from bot to bot: `P` opens and closes it, esc closes it. It
+ * takes the sidebar from an open email or sender, and gives it back to the next one opened.
+ */
 const useProfile = (bot: string, isFocused: boolean, picked: number) => {
   const [isOpen, setIsOpen] = useState(false)
+  if (isOpen && !isFocused) {
+    setIsOpen(false)
+  }
   const canUseKeys = isFocused && picked === 0
   const handleToggle = () => {
     if (!isOpen) {
+      collapseExpanded()
+      closeSender()
       posthog.capture('bot_profile_opened', { system: bot === 'fewmail' })
     }
     setIsOpen(!isOpen)

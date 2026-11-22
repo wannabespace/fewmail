@@ -28,7 +28,6 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@fewmail/ui/components/context-menu'
-import { IconButton } from '@fewmail/ui/components/custom/icon-button'
 import {
   Dialog,
   DialogContent,
@@ -39,6 +38,9 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@fewmail/ui/components/dropdown-menu'
 import {
@@ -89,7 +91,6 @@ import {
   Copy01Icon,
   DashboardSquare01Icon,
   Mail01Icon,
-  MoreHorizontalIcon,
   NextIcon,
   Notification01Icon,
   NotificationOff01Icon,
@@ -1296,7 +1297,7 @@ export const BotStatus = ({ bot }: { bot: HomeBot }) => {
     .join(' · ')
 }
 
-/** The chat's bar, as a messenger's: the open bot's face, its name and what it is doing now, its mute and its profile; under it, pinned, what it looks after. */
+/** The chat's bar, as a messenger's: the open bot's face, its name and what it is doing now, the whole of it one button opening its profile, mute and chat actions; under it, pinned, what it looks after. */
 export const BotHeader = ({
   bot,
   isProfileOpen,
@@ -1311,52 +1312,39 @@ export const BotHeader = ({
   return (
     <>
       <header className="flex h-14 shrink-0 border-b">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-10 max-md:px-4 @max-xl:px-4">
-          <BotAvatar bot={bot} size="md" />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <h1 data-mask={!!bot.own} className="truncate text-sm font-medium">
-              {bot.name}
-            </h1>
-            <div className="text-muted-foreground truncate text-xs">
-              <BotStatus bot={bot} />
-            </div>
-          </div>
-          <IconButton
-            icon={bot.muted ? NotificationOff01Icon : Notification01Icon}
-            label={bot.muted ? t.bots.unmute : t.bots.mute}
-            size="icon-sm"
-            variant="ghost-muted"
-            onClick={mute}
-          />
+        <div className="mx-auto flex w-full max-w-3xl items-center px-8 max-md:px-2 @max-xl:px-2">
           <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <IconButton
-                  icon={MoreHorizontalIcon}
-                  label={t.bots.chatMenu}
-                  size="icon-sm"
-                  variant="ghost-muted"
+            <DropdownMenuTrigger className="hover:bg-accent data-popup-open:bg-accent focus-visible:focus-ring flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-xl px-2 py-1 text-left outline-none">
+              <BotAvatar bot={bot} size="md" />
+              <span className="flex min-w-0 flex-1 flex-col">
+                <h1
+                  data-mask={!!bot.own}
+                  className="truncate text-sm font-medium"
+                >
+                  {bot.name}
+                </h1>
+                <span className="text-muted-foreground truncate text-xs">
+                  <BotStatus bot={bot} />
+                </span>
+              </span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={onProfile}>
+                <HugeiconsIcon icon={SidebarRight01Icon} strokeWidth={2} />
+                {t.bots.profile}
+                <DropdownMenuShortcut>P</DropdownMenuShortcut>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={mute}>
+                <HugeiconsIcon
+                  icon={bot.muted ? Notification01Icon : NotificationOff01Icon}
+                  strokeWidth={2}
                 />
-              }
-            />
-            <DropdownMenuContent align="end">
+                {bot.muted ? t.bots.unmute : t.bots.mute}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <BotMenuItems bot={bot} isOpen />
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            size="sm"
-            variant={isProfileOpen ? 'secondary' : 'ghost-muted'}
-            aria-pressed={isProfileOpen}
-            shortcut={<Kbd>P</Kbd>}
-            onClick={onProfile}
-          >
-            <HugeiconsIcon
-              icon={SidebarRight01Icon}
-              strokeWidth={2}
-              data-icon="inline-start"
-            />
-            {t.bots.profile}
-          </Button>
         </div>
       </header>
       <div className="bg-body flex h-9 shrink-0 border-b">
