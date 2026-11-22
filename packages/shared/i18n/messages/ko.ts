@@ -537,6 +537,8 @@ export const ko: Messages = {
   nav: {
     board: '보드',
     menu: '메뉴',
+    collapseSidebar: '사이드바 접기',
+    expandSidebar: '사이드바 펼치기',
     labels: '라벨',
     folders: '폴더',
     calendar: '캘린더',

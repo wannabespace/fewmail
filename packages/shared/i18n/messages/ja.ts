@@ -536,6 +536,8 @@ export const ja: Messages = {
   nav: {
     board: 'ボード',
     menu: 'メニュー',
+    collapseSidebar: 'サイドバーを折りたたむ',
+    expandSidebar: 'サイドバーを展開',
     labels: 'ラベル',
     folders: 'フォルダ',
     calendar: 'カレンダー',

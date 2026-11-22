@@ -680,6 +680,8 @@ export const nl: Messages = {
   nav: {
     board: 'Bord',
     menu: 'Menu',
+    collapseSidebar: 'Zijbalk inklappen',
+    expandSidebar: 'Zijbalk uitklappen',
     labels: 'Labels',
     folders: 'Mappen',
     calendar: 'Agenda',

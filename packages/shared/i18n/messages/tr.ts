@@ -673,6 +673,8 @@ export const tr: Messages = {
   nav: {
     board: 'Pano',
     menu: 'Menü',
+    collapseSidebar: 'Kenar çubuğunu daralt',
+    expandSidebar: 'Kenar çubuğunu genişlet',
     labels: 'Etiketler',
     folders: 'Klasörler',
     calendar: 'Takvim',

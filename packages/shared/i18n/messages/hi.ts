@@ -537,6 +537,8 @@ export const hi: Messages = {
   nav: {
     board: 'बोर्ड',
     menu: 'मेनू',
+    collapseSidebar: 'साइडबार छोटा करें',
+    expandSidebar: 'साइडबार बड़ा करें',
     labels: 'लेबल',
     folders: 'फ़ोल्डर',
     calendar: 'कैलेंडर',

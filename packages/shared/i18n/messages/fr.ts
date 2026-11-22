@@ -1161,6 +1161,8 @@ export const fr: Messages = {
   nav: {
     board: 'Tableau',
     menu: 'Menu',
+    collapseSidebar: 'Réduire la barre latérale',
+    expandSidebar: 'Développer la barre latérale',
     labels: 'Libellés',
     folders: 'Dossiers',
     calendar: 'Calendrier',

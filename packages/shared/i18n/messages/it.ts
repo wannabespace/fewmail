@@ -1156,6 +1156,8 @@ export const it: Messages = {
   nav: {
     board: 'Bacheca',
     menu: 'Menu',
+    collapseSidebar: 'Comprimi la barra laterale',
+    expandSidebar: 'Espandi la barra laterale',
     labels: 'Etichette',
     folders: 'Cartelle',
     calendar: 'Calendario',

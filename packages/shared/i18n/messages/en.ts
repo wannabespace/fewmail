@@ -677,6 +677,8 @@ export const en = {
   nav: {
     board: 'Board',
     menu: 'Menu',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
     labels: 'Labels',
     folders: 'Folders',
     calendar: 'Calendar',

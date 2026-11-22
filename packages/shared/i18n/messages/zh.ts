@@ -525,6 +525,8 @@ export const zh: Messages = {
   nav: {
     board: '看板',
     menu: '菜单',
+    collapseSidebar: '收起侧边栏',
+    expandSidebar: '展开侧边栏',
     labels: '标签',
     folders: '文件夹',
     calendar: '日历',

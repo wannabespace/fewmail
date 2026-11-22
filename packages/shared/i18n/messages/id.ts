@@ -681,6 +681,8 @@ export const id: Messages = {
   nav: {
     board: 'Papan',
     menu: 'Menu',
+    collapseSidebar: 'Ciutkan bilah samping',
+    expandSidebar: 'Luaskan bilah samping',
     labels: 'Label',
     folders: 'Folder',
     calendar: 'Kalender',

@@ -345,8 +345,8 @@ catalogs:
       specifier: ^14.14.0
       version: 14.14.0
     motion-panels:
-      specifier: ^0.7.0
-      version: 0.7.0
+      specifier: ^0.7.1
+      version: 0.7.1
     nanoid:
       specifier: ^6.0.2
       version: 6.0.2
@@ -813,7 +813,7 @@ importers:
         version: 14.14.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       motion-panels:
         specifier: 'catalog:'
-        version: 0.7.0(motion@14.14.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 0.7.1(motion@14.14.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       react:
         specifier: 'catalog:'
         version: 19.3.1
@@ -4548,8 +4548,8 @@ packages:
   motion-dom@14.14.0:
     resolution: {integrity: sha512-IAxcKhYkuQA2W0Tlx1AvVgImfqEoF3/t3IovbPQJlYkefmGsmrXjn967lMII5VmFmLpQEab4+ZkHo/ijJ4Esig==}
 
-  motion-panels@0.7.0:
-    resolution: {integrity: sha512-GNYmVQm/c7wbgjHvKbPmNqMDS/N4/7e4i6BZ0oNWprtofCjKMoX0eJaAYTkClHEtfGnYrxQ1hCi7/EgPG6MM6A==}
+  motion-panels@0.7.1:
+    resolution: {integrity: sha512-NankirsQWZoRRBfrQxkPaJ4AgJM0InSwBHjKBEi48OruWhTnLFOxKIA44LcLiH/3drczCiRdW76v3F5Kuu931A==}
     engines: {node: '>=20'}
     peerDependencies:
       motion: '>=12'
@@ -8983,7 +8983,7 @@ snapshots:
     dependencies:
       motion-utils: 14.7.0
 
-  motion-panels@0.7.0(motion@14.14.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1):
+  motion-panels@0.7.1(motion@14.14.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1):
     dependencies:
       motion: 14.14.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
     optionalDependencies:

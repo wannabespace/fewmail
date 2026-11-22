@@ -691,6 +691,8 @@ export const pt: Messages = {
   nav: {
     board: 'Quadro',
     menu: 'Menu',
+    collapseSidebar: 'Recolher a barra lateral',
+    expandSidebar: 'Expandir a barra lateral',
     labels: 'Marcadores',
     folders: 'Pastas',
     calendar: 'Calendário',

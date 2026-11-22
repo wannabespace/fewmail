@@ -37,7 +37,7 @@ import { posthog } from '~/lib/posthog'
 import { clearSnapshot, restoreSnapshot } from '~/lib/snapshot'
 import { undoLatest } from '~/lib/undo'
 
-const SIDEBAR_WIDTH = { default: 272, max: 360, min: 232 }
+const SIDEBAR_WIDTH = { default: 272, max: 360, min: 232, rail: 64 }
 
 const sidebarWidthStore = createWebStorageValue({
   defaultValue: SIDEBAR_WIDTH.default,
@@ -45,6 +45,26 @@ const sidebarWidthStore = createWebStorageValue({
   schema: z.number(),
   type: 'localStorage',
 })
+
+const sidebarCollapsedStore = createWebStorageValue({
+  defaultValue: false,
+  key: 'fewmail.sidebar-collapsed',
+  schema: z.boolean(),
+  type: 'localStorage',
+})
+
+const useSidebarRail = (isEnabled: boolean) => {
+  const isCollapsed = useSubscription(sidebarCollapsedStore)
+  const collapse = (collapsed: boolean, key: 'button' | 'drag' | 'mod_b') => {
+    posthog.capture('sidebar_toggled', { collapsed, key })
+    sidebarCollapsedStore.set(collapsed)
+  }
+  useHotkey('Mod+B', () => collapse(!isCollapsed, 'mod_b'), {
+    enabled: isEnabled,
+    ignoreInputs: true,
+  })
+  return { collapse, isCollapsed }
+}
 
 const BUILT_COMMIT = import.meta.env.RAILWAY_GIT_COMMIT_SHA
 const VERSION_CHECK_MS = 60_000
@@ -130,6 +150,7 @@ const AppLayout = () => {
   const sidebarWidth = useSubscription(sidebarWidthStore)
   const router = useRouter()
   const isMobile = useIsMobile()
+  const rail = useSidebarRail(!isMobile)
 
   useEffect(() => {
     // Charts and the AI SDK would otherwise compete with the first page's own requests.
@@ -172,9 +193,18 @@ const AppLayout = () => {
               size={sidebarWidth}
               minSize={SIDEBAR_WIDTH.min}
               maxSize={SIDEBAR_WIDTH.max}
+              collapsed={rail.isCollapsed}
+              collapsedSize={SIDEBAR_WIDTH.rail}
+              onCollapsedChange={(collapsed) =>
+                rail.collapse(collapsed, 'drag')
+              }
               onSizeChange={(width) => sidebarWidthStore.set(width)}
             >
-              <Sidebar email={me.user.email} />
+              <Sidebar
+                email={me.user.email}
+                isCollapsed={rail.isCollapsed}
+                onToggleRail={() => rail.collapse(!rail.isCollapsed, 'button')}
+              />
             </ResizablePanel>
             <ResizableSeparator />
             <ResizablePanel className="flex min-w-0 flex-col">

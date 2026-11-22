@@ -119,7 +119,13 @@ export const SleepingLogoMark = ({ className }: { className?: string }) => {
   )
 }
 
-export const Logo = ({ to = '/' }: { to?: LinkProps['to'] }) => {
+export const Logo = ({
+  isMarkOnly = false,
+  to = '/',
+}: {
+  isMarkOnly?: boolean
+  to?: LinkProps['to']
+}) => {
   const [isHovered, setIsHovered] = useState(false)
   return (
     <Link
@@ -133,7 +139,10 @@ export const Logo = ({ to = '/' }: { to?: LinkProps['to'] }) => {
       <svg
         viewBox="4.4 -72.1 349.4 74.7"
         aria-hidden="true"
-        className="h-3.75 w-auto"
+        className={cn(
+          'ease-house h-3.75 w-auto shrink-0 transition-opacity duration-200',
+          isMarkOnly && 'opacity-0'
+        )}
       >
         <path d={WORDMARK} fill="currentColor" />
       </svg>

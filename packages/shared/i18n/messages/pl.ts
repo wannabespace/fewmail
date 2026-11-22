@@ -699,6 +699,8 @@ export const pl: Messages = {
   nav: {
     board: 'Tablica',
     menu: 'Menu',
+    collapseSidebar: 'Zwiń pasek boczny',
+    expandSidebar: 'Rozwiń pasek boczny',
     labels: 'Etykiety',
     folders: 'Foldery',
     calendar: 'Kalendarz',

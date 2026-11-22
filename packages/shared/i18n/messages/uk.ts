@@ -1140,6 +1140,8 @@ export const uk: Messages = {
   nav: {
     board: 'Дошка',
     menu: 'Меню',
+    collapseSidebar: 'Згорнути бічну панель',
+    expandSidebar: 'Розгорнути бічну панель',
     labels: 'Ярлики',
     folders: 'Папки',
     calendar: 'Календар',

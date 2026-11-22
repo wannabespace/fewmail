@@ -1160,6 +1160,8 @@ export const es: Messages = {
   nav: {
     board: 'Tablero',
     menu: 'Menú',
+    collapseSidebar: 'Contraer la barra lateral',
+    expandSidebar: 'Expandir la barra lateral',
     labels: 'Etiquetas',
     folders: 'Carpetas',
     calendar: 'Calendario',

@@ -1150,6 +1150,8 @@ export const de: Messages = {
   nav: {
     board: 'Pinnwand',
     menu: 'Menü',
+    collapseSidebar: 'Seitenleiste einklappen',
+    expandSidebar: 'Seitenleiste ausklappen',
     labels: 'Labels',
     folders: 'Ordner',
     calendar: 'Kalender',

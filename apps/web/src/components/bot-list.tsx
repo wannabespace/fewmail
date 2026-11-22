@@ -47,6 +47,11 @@ import { toast } from 'sonner'
 import { askName, confirm } from '~/components/confirm-dialog'
 import { LogoMark } from '~/components/logo'
 import { RowTime } from '~/components/mail-meta'
+import {
+  FADES_IN_RAIL,
+  GUIDE_IN_RAIL,
+  RailTip,
+} from '~/components/sidebar-rail'
 import { botChats, ownBots } from '~/lib/home-db'
 import { useDates, useT } from '~/lib/i18n'
 import { orpc } from '~/lib/orpc'
@@ -388,7 +393,7 @@ export const RowWithMenu = ({
               label={label}
               size="icon-xs"
               variant="ghost-tint-muted"
-              className="absolute inset-e-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
+              className="absolute inset-e-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/row:opacity-100 group-data-collapsed/sidebar:hidden focus-visible:opacity-100 data-popup-open:opacity-100"
             />
           }
         />
@@ -404,10 +409,12 @@ export const RowWithMenu = ({
 /** One bot in the sidebar, as a messenger lists its chats: its face, its name and when it last wrote, its latest message and how much is new under them. */
 export const BotListRow = ({
   bot,
+  isCollapsed,
   isOpen,
   onOpen,
 }: {
   bot: HomeBot
+  isCollapsed: boolean
   isOpen: boolean
   onOpen: () => void
 }) => {
@@ -421,58 +428,84 @@ export const BotListRow = ({
     // No ⋯ on a chat row, as in a messenger: over every row it read as one more ellipsis beside the cut preview. Its menu is the right click here and the ⋯ in the chat's bar.
     <ContextMenu>
       <ContextMenuTrigger render={<div />}>
-        <button
-          type="button"
-          aria-current={isOpen || undefined}
-          onClick={onOpen}
-          className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring flex w-full shrink-0 cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm outline-none"
+        <RailTip
+          isCollapsed={isCollapsed}
+          label={
+            <>
+              <span data-mask={!!bot.own}>{bot.name}</span>
+              {bot.unread > 0 && (
+                <span className="tabular-nums opacity-60">{bot.unread}</span>
+              )}
+            </>
+          }
         >
-          <span className={cn('flex', pausedUntil && 'opacity-60')}>
-            <BotAvatar bot={bot} size="md" />
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="flex items-center gap-1.5">
-              <span
-                data-mask={!!bot.own}
-                className="text-foreground min-w-0 flex-1 truncate font-medium"
-              >
-                {bot.name}
-              </span>
-              {bot.pinned && bot.bot !== 'fewmail' && (
-                <HugeiconsIcon
-                  icon={PinIcon}
-                  strokeWidth={2}
-                  className="text-muted-foreground size-3 shrink-0"
-                />
+          <button
+            type="button"
+            aria-current={isOpen || undefined}
+            aria-label={isCollapsed ? bot.name : undefined}
+            onClick={onOpen}
+            className="text-foreground/75 hover:bg-accent aria-current:bg-secondary aria-current:text-foreground focus-visible:focus-ring ease-house flex w-full shrink-0 cursor-pointer items-center gap-2.5 overflow-hidden rounded-lg px-2 py-1.5 text-left text-sm transition-[padding] duration-250 outline-none group-data-collapsed/sidebar:px-0.5"
+          >
+            <span
+              className={cn(
+                'relative flex shrink-0',
+                pausedUntil && 'opacity-60'
               )}
-              {bot.last && (
-                <span className="text-muted-foreground text-2xs shrink-0 tabular-nums">
-                  <RowTime date={bot.last.at} />
-                </span>
-              )}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                data-mask
-                className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
-              >
-                {line ?? bot.job}
-              </span>
+            >
+              <BotAvatar bot={bot} size="md" />
               {bot.unread > 0 && (
                 <span
                   className={cn(
-                    'shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums',
-                    bot.muted
-                      ? 'bg-secondary text-muted-foreground'
-                      : 'bg-primary text-primary-foreground'
+                    'ring-body absolute inset-e-0 top-0 size-2.5 rounded-full opacity-0 ring-2 transition-opacity duration-200 group-data-collapsed/sidebar:opacity-100',
+                    bot.muted ? 'bg-muted-foreground' : 'bg-primary'
                   )}
-                >
-                  {bot.unread}
-                </span>
+                />
               )}
             </span>
-          </span>
-        </button>
+            <span className={cn('flex min-w-0 flex-1 flex-col', FADES_IN_RAIL)}>
+              <span className="flex items-center gap-1.5">
+                <span
+                  data-mask={!!bot.own}
+                  className="text-foreground min-w-0 flex-1 truncate font-medium"
+                >
+                  {bot.name}
+                </span>
+                {bot.pinned && bot.bot !== 'fewmail' && (
+                  <HugeiconsIcon
+                    icon={PinIcon}
+                    strokeWidth={2}
+                    className="text-muted-foreground size-3 shrink-0"
+                  />
+                )}
+                {bot.last && (
+                  <span className="text-muted-foreground text-2xs shrink-0 tabular-nums">
+                    <RowTime date={bot.last.at} />
+                  </span>
+                )}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span
+                  data-mask
+                  className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
+                >
+                  {line ?? bot.job}
+                </span>
+                {bot.unread > 0 && (
+                  <span
+                    className={cn(
+                      'shrink-0 rounded-full px-1.5 text-xs/4 font-medium tabular-nums',
+                      bot.muted
+                        ? 'bg-secondary text-muted-foreground'
+                        : 'bg-primary text-primary-foreground'
+                    )}
+                  >
+                    {bot.unread}
+                  </span>
+                )}
+              </span>
+            </span>
+          </button>
+        </RailTip>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <BotMenuItems bot={bot} isOpen={isOpen} />
@@ -485,10 +518,12 @@ export const BotListRow = ({
 export const BotFolderRow = ({
   children,
   folder,
+  isCollapsed,
   unread,
 }: {
   children: ReactNode
   folder: { id: string; name: string }
+  isCollapsed: boolean
   unread: number
 }) => {
   const t = useT()
@@ -536,30 +571,43 @@ export const BotFolderRow = ({
           </>
         }
       >
-        <button
-          type="button"
-          aria-expanded={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
-          className="text-foreground/75 hover:bg-accent focus-visible:focus-ring flex h-8 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 text-left text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70"
+        <RailTip
+          isCollapsed={isCollapsed}
+          label={<span data-mask>{folder.name}</span>}
         >
-          <HugeiconsIcon
-            icon={isOpen ? FolderOpenIcon : Folder01Icon}
-            strokeWidth={2}
-          />
-          <span data-mask className="min-w-0 flex-1 truncate">
-            {folder.name}
-          </span>
-          {!isOpen && unread > 0 && (
-            <span className="text-muted-foreground text-xs tabular-nums group-hover/row:invisible">
-              {unread}
+          <button
+            type="button"
+            aria-expanded={isOpen}
+            onClick={() => setIsOpen(!isOpen)}
+            className="text-foreground/75 hover:bg-accent focus-visible:focus-ring flex h-8 w-full cursor-pointer items-center gap-2 overflow-hidden rounded-lg px-2.5 text-left text-sm whitespace-nowrap outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70"
+          >
+            <HugeiconsIcon
+              icon={isOpen ? FolderOpenIcon : Folder01Icon}
+              strokeWidth={2}
+            />
+            <span
+              data-mask
+              className={cn('min-w-0 flex-1 truncate', FADES_IN_RAIL)}
+            >
+              {folder.name}
             </span>
-          )}
-        </button>
+            {!isOpen && unread > 0 && (
+              <span
+                className={cn(
+                  'text-muted-foreground text-xs tabular-nums group-hover/row:invisible',
+                  FADES_IN_RAIL
+                )}
+              >
+                {unread}
+              </span>
+            )}
+          </button>
+        </RailTip>
       </RowWithMenu>
       <AnimatePresence initial={false}>
         {isOpen && (
           <MotionCollapse key="bots">
-            <div className="ms-4.5 flex flex-col gap-0.5 border-s ps-1.5">
+            <div className={cn('flex flex-col gap-0.5', GUIDE_IN_RAIL)}>
               {children}
             </div>
           </MotionCollapse>

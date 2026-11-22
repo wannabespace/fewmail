@@ -1,7 +1,7 @@
 catalogMode: prefer
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  - motion-panels@0.7.0
+  - motion-panels@0.7.1
 packages:
   - packages/*
   - apps/*
@@ -63,7 +63,7 @@ catalog:
   drizzle-orm: ^1.0.0-rc.5
   grammy: ^1.46.0
   hono: ^4.13.18
-  motion-panels: ^0.7.0
+  motion-panels: ^0.7.1
   motion: ^14.14.0
   nanoid: ^6.0.2
   oxfmt: '^0.78.0'

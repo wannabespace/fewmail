@@ -54,6 +54,8 @@ import {
   News01Icon,
   Menu01Icon,
   Moon02Icon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
   PencilEdit02Icon,
   SentIcon,
   Settings01Icon,
@@ -90,6 +92,7 @@ import type { HomeBot } from './bot-list'
 import { useCompose } from './compose/compose-context'
 import { Logo } from './logo'
 import { SenderAvatar } from './sender-avatar'
+import { FADES_IN_RAIL, GUIDE_IN_RAIL, RailTip } from './sidebar-rail'
 
 const SETTINGS_ITEM = {
   icon: Settings01Icon,
@@ -160,8 +163,9 @@ const useGoTo = () => {
 /** Quiet until the month is nearly spent: never push. */
 const USAGE_SHOWN_FROM = 90
 
+// Collapsed, the row is as wide as the rail's 36px: every icon keeps its place, so the rows narrow under it while the sidebar folds.
 const NAV_ROW =
-  'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 shrink-0 cursor-pointer items-center gap-2 rounded-lg px-2.5 text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70 data-[status=active]:font-medium'
+  'text-foreground/75 hover:bg-accent data-[status=active]:bg-secondary data-[status=active]:text-foreground focus-visible:focus-ring flex h-8 shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-lg px-2.5 text-sm whitespace-nowrap outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:opacity-70 data-[status=active]:font-medium'
 
 const NAV_SUBROW = cn(NAV_ROW, 'h-7')
 
@@ -427,7 +431,7 @@ const LabelRow = ({ label }: { label: LabelNode }) => {
 }
 
 /** Gmail's folders, then the user's own labels, each opening the Mail search for it: a branch of Mail, open while Mail is or a saved draft is being edited. */
-const MailFolders = () => {
+const MailFolders = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const t = useT()
   const [isShowingAll, setIsShowingAll] = useState(false)
   const { data: labels = [] } = useQuery(orpc.mail.labels.queryOptions())
@@ -437,42 +441,67 @@ const MailFolders = () => {
   return (
     <section
       aria-label={t.nav.folders}
-      className="my-0.5 ms-4.5 flex flex-col gap-0.5 border-s ps-1.5"
+      className={cn('my-0.5 flex flex-col gap-0.5', GUIDE_IN_RAIL)}
     >
       {FOLDER_ITEMS.map(({ folder, icon }) => (
-        <Link key={folder} to={`/mail/${folder}`} className={NAV_SUBROW}>
-          <HugeiconsIcon icon={icon} strokeWidth={2} />
-          <span className="flex-1">{t.mail.filter[folder]}</span>
-          {folder === 'drafts' && Boolean(draftCount) && (
-            <span className="text-muted-foreground text-xs tabular-nums">
-              <RollingCount value={draftCount ?? 0} />
-            </span>
-          )}
-        </Link>
-      ))}
-      {labels.length > 0 && (
-        <h2 className="text-muted-foreground px-2.5 pt-2 pb-0.5 text-xs font-medium">
-          {t.nav.labels}
-        </h2>
-      )}
-      {(isShowingAll ? tree : tree.slice(0, LABELS_SHOWN)).map((label) => (
-        <LabelRow key={label.name} label={label} />
-      ))}
-      {tree.length > LABELS_SHOWN && (
-        <button
-          type="button"
-          className={NAV_SUBROW}
-          onClick={() => setIsShowingAll(!isShowingAll)}
+        <RailTip
+          key={folder}
+          isCollapsed={isCollapsed}
+          label={t.mail.filter[folder]}
         >
-          <HugeiconsIcon
-            icon={isShowingAll ? ArrowUp01Icon : ArrowDown01Icon}
-            strokeWidth={2}
-          />
-          <span className="text-muted-foreground">
-            {isShowingAll ? t.mail.showFewer : t.mail.showAll(tree.length)}
-          </span>
-        </button>
-      )}
+          <Link to={`/mail/${folder}`} className={NAV_SUBROW}>
+            <HugeiconsIcon icon={icon} strokeWidth={2} />
+            <span className={cn('flex-1', FADES_IN_RAIL)}>
+              {t.mail.filter[folder]}
+            </span>
+            {folder === 'drafts' && Boolean(draftCount) && (
+              <span
+                className={cn(
+                  'text-muted-foreground text-xs tabular-nums',
+                  FADES_IN_RAIL
+                )}
+              >
+                <RollingCount value={draftCount ?? 0} />
+              </span>
+            )}
+          </Link>
+        </RailTip>
+      ))}
+      <AnimatePresence initial={false}>
+        {!isCollapsed && (
+          <MotionCollapse key="labels">
+            <div className="flex flex-col gap-0.5">
+              {labels.length > 0 && (
+                <h2 className="text-muted-foreground px-2.5 pt-2 pb-0.5 text-xs font-medium">
+                  {t.nav.labels}
+                </h2>
+              )}
+              {(isShowingAll ? tree : tree.slice(0, LABELS_SHOWN)).map(
+                (label) => (
+                  <LabelRow key={label.name} label={label} />
+                )
+              )}
+              {tree.length > LABELS_SHOWN && (
+                <button
+                  type="button"
+                  className={NAV_SUBROW}
+                  onClick={() => setIsShowingAll(!isShowingAll)}
+                >
+                  <HugeiconsIcon
+                    icon={isShowingAll ? ArrowUp01Icon : ArrowDown01Icon}
+                    strokeWidth={2}
+                  />
+                  <span className="text-muted-foreground">
+                    {isShowingAll
+                      ? t.mail.showFewer
+                      : t.mail.showAll(tree.length)}
+                  </span>
+                </button>
+              )}
+            </div>
+          </MotionCollapse>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
@@ -485,7 +514,7 @@ const BotSettingsDialog = lazy(() =>
 )
 
 /** The bots under the places, one nav row each: Home has no row of its own, Fewmail's chat is where it opens. */
-const SidebarBots = () => {
+const SidebarBots = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const t = useT()
   const navigate = useNavigate()
   const bots = useBots()
@@ -505,6 +534,7 @@ const SidebarBots = () => {
     <BotListRow
       key={bot.bot}
       bot={bot}
+      isCollapsed={isCollapsed}
       isOpen={bot.bot === openId}
       onOpen={() => open(bot.bot)}
     />
@@ -512,7 +542,13 @@ const SidebarBots = () => {
 
   return (
     <section aria-label={t.bots.title} className="flex flex-col gap-0.5 pt-4">
-      <div className="flex items-center justify-between ps-2.5 pb-0.5">
+      <div
+        inert={isCollapsed}
+        className={cn(
+          'flex items-center justify-between ps-2.5 pb-0.5 whitespace-nowrap',
+          FADES_IN_RAIL
+        )}
+      >
         <h2 className="text-muted-foreground text-xs font-medium">
           {t.bots.title}
         </h2>
@@ -531,6 +567,7 @@ const SidebarBots = () => {
           <BotFolderRow
             key={folder.id}
             folder={folder}
+            isCollapsed={isCollapsed}
             unread={inside.reduce((sum, { unread }) => sum + unread, 0)}
           >
             {inside.map(rowOf)}
@@ -557,10 +594,12 @@ const NavLink = ({
   className,
   item,
   count,
+  isCollapsed,
   showKeys,
 }: {
   className?: string
   count?: number
+  isCollapsed: boolean
   item: (typeof NAV_ITEMS)[number]
   showKeys: boolean
 }) => {
@@ -569,16 +608,38 @@ const NavLink = ({
   useHotkey(item.sequence, () => goTo(item))
 
   return (
-    <Link to={item.to} className={cn(NAV_ROW, className)}>
-      <HugeiconsIcon icon={item.icon} strokeWidth={2} />
-      <span className="flex-1">{t.nav[item.key]}</span>
-      {showKeys && <Kbd>{item.sequence.join(' ')}</Kbd>}
-      {!showKeys && Boolean(count) && (
-        <span className="text-muted-foreground text-xs tabular-nums">
-          <RollingCount flash value={count ?? 0} />
-        </span>
-      )}
-    </Link>
+    <RailTip
+      isCollapsed={isCollapsed}
+      shortcut={<Kbd>{item.sequence.join(' ')}</Kbd>}
+      label={
+        <>
+          {t.nav[item.key]}
+          {Boolean(count) && (
+            <span className="tabular-nums opacity-60">{count}</span>
+          )}
+        </>
+      }
+    >
+      <Link to={item.to} className={cn(NAV_ROW, className)}>
+        <HugeiconsIcon icon={item.icon} strokeWidth={2} />
+        <span className={cn('flex-1', FADES_IN_RAIL)}>{t.nav[item.key]}</span>
+        {showKeys && (
+          <span className={cn('flex', FADES_IN_RAIL)}>
+            <Kbd>{item.sequence.join(' ')}</Kbd>
+          </span>
+        )}
+        {!showKeys && Boolean(count) && (
+          <span
+            className={cn(
+              'text-muted-foreground text-xs tabular-nums',
+              FADES_IN_RAIL
+            )}
+          >
+            <RollingCount flash value={count ?? 0} />
+          </span>
+        )}
+      </Link>
+    </RailTip>
   )
 }
 
@@ -668,9 +729,11 @@ const useDocumentTitle = ({
 
 const AccountMenu = ({
   email,
+  isCollapsed,
   mailboxes,
 }: {
   email: string
+  isCollapsed: boolean
   mailboxes?: MailboxSync[]
 }) => {
   const t = useT()
@@ -683,17 +746,27 @@ const AccountMenu = ({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={`${NAV_ROW} ps-1`}>
+      <DropdownMenuTrigger className={`${NAV_ROW} ps-1.5`}>
         <Avatar size="sm">
           <AvatarFallback data-mask>{email[0]?.toUpperCase()}</AvatarFallback>
           {status?.isAlert && <AvatarBadge />}
         </Avatar>
-        <span className="flex-1 truncate text-left" data-mask>
+        <span
+          className={cn('flex-1 truncate text-left', FADES_IN_RAIL)}
+          data-mask
+        >
           {email.split('@')[0]}
         </span>
-        <HugeiconsIcon icon={UnfoldMoreIcon} strokeWidth={2} />
+        <HugeiconsIcon
+          icon={UnfoldMoreIcon}
+          strokeWidth={2}
+          className={FADES_IN_RAIL}
+        />
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="top">
+      <DropdownMenuContent
+        side={isCollapsed ? 'right' : 'top'}
+        align={isCollapsed ? 'end' : undefined}
+      >
         <DropdownMenuGroup>
           <DropdownMenuLabel>
             <span className="text-foreground block truncate" data-mask>
@@ -748,7 +821,16 @@ const AccountMenu = ({
   )
 }
 
-export const Sidebar = ({ email }: { email: string }) => {
+/** `onToggleRail` is absent in the phone's sheet, which has no rail. */
+export const Sidebar = ({
+  email,
+  isCollapsed = false,
+  onToggleRail,
+}: {
+  email: string
+  isCollapsed?: boolean
+  onToggleRail?: () => void
+}) => {
   const t = useT()
   const hasAgent = useHasAgent()
   const navItems = useNavItems()
@@ -787,24 +869,81 @@ export const Sidebar = ({ email }: { email: string }) => {
   return (
     <nav
       aria-label="Main"
-      className="flex w-full flex-col gap-1 border-r px-3.5 py-5"
+      data-collapsed={isCollapsed || undefined}
+      className="group/sidebar flex w-full min-w-0 flex-col gap-1 overflow-clip border-r px-3.5 py-5"
     >
       {/* The Mac app's traffic lights sit here, and the window is dragged by it. */}
       <div
         className="traffic-lights:block hidden h-6 shrink-0"
         data-tauri-drag-region
       />
-      <div className="flex items-center justify-between ps-2.5 pb-3">
-        <Logo to="/mail" />
-        <IconButton
-          icon={PencilEdit02Icon}
-          label={t.command.compose}
-          shortcut={<Kbd>C</Kbd>}
-          size="icon-sm"
-          variant="ghost-muted"
-          onClick={() => openCompose()}
-        />
+      {/* The bird sits centred over the rail, so the logo's start padding narrows with it. */}
+      <div className="ease-house relative flex items-center gap-0.5 ps-2.5 pb-3 transition-[padding] duration-250 group-data-collapsed/sidebar:ps-1.75">
+        <Logo to="/mail" isMarkOnly={isCollapsed} />
+        <div
+          inert={isCollapsed}
+          className={cn('ms-auto flex shrink-0 gap-0.5', FADES_IN_RAIL)}
+        >
+          {onToggleRail && (
+            <IconButton
+              icon={PanelLeftCloseIcon}
+              label={t.nav.collapseSidebar}
+              shortcut={<Kbd>⌘B</Kbd>}
+              size="icon-sm"
+              variant="ghost-muted"
+              onClick={onToggleRail}
+            />
+          )}
+          <IconButton
+            icon={PencilEdit02Icon}
+            label={t.command.compose}
+            shortcut={<Kbd>C</Kbd>}
+            size="icon-sm"
+            variant="ghost-muted"
+            onClick={() => openCompose()}
+          />
+        </div>
+        {isCollapsed && (
+          <RailTip
+            isCollapsed
+            label={t.nav.expandSidebar}
+            shortcut={<Kbd>⌘B</Kbd>}
+          >
+            <button
+              type="button"
+              aria-label={t.nav.expandSidebar}
+              className="bg-body hover:bg-accent text-foreground/75 focus-visible:focus-ring absolute inset-s-0 top-0 grid size-8 cursor-pointer place-items-center rounded-lg opacity-0 outline-none hover:opacity-100 focus-visible:opacity-100"
+              onClick={onToggleRail}
+            >
+              <HugeiconsIcon
+                icon={PanelLeftOpenIcon}
+                strokeWidth={2}
+                className="size-4"
+              />
+            </button>
+          </RailTip>
+        )}
       </div>
+      <AnimatePresence initial={false}>
+        {isCollapsed && (
+          <MotionCollapse key="compose">
+            <RailTip
+              isCollapsed
+              label={t.command.compose}
+              shortcut={<Kbd>C</Kbd>}
+            >
+              <button
+                type="button"
+                aria-label={t.command.compose}
+                className={cn(NAV_ROW, 'mb-3 w-full')}
+                onClick={() => openCompose()}
+              >
+                <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={2} />
+              </button>
+            </RailTip>
+          </MotionCollapse>
+        )}
+      </AnimatePresence>
       <div className="scroll-fade -mx-1 -mt-1 flex min-h-0 flex-1 scrollbar-none flex-col gap-1 overflow-y-auto px-1 pt-1 pb-3">
         {navItems
           .filter(({ key, place }) => place === 'top' && key !== 'home')
@@ -812,6 +951,7 @@ export const Sidebar = ({ email }: { email: string }) => {
             <Fragment key={item.to}>
               <NavLink
                 item={item}
+                isCollapsed={isCollapsed}
                 showKeys={isModifierHeld}
                 count={counts[item.to]}
                 className={
@@ -822,17 +962,27 @@ export const Sidebar = ({ email }: { email: string }) => {
                 <AnimatePresence initial={false}>
                   {isOnMail && (
                     <MotionCollapse key="folders">
-                      <MailFolders />
+                      <MailFolders isCollapsed={isCollapsed} />
                     </MotionCollapse>
                   )}
                 </AnimatePresence>
               )}
             </Fragment>
           ))}
-        <SidebarBots />
-        <People />
+        <SidebarBots isCollapsed={isCollapsed} />
+        <AnimatePresence initial={false}>
+          {!isCollapsed && (
+            <MotionCollapse key="people">
+              <People />
+            </MotionCollapse>
+          )}
+        </AnimatePresence>
       </div>
-      <AccountMenu email={email} mailboxes={mailboxes} />
+      <AccountMenu
+        email={email}
+        isCollapsed={isCollapsed}
+        mailboxes={mailboxes}
+      />
     </nav>
   )
 }
