@@ -2,8 +2,9 @@ import { cn } from '@fewmail/ui/lib/utils'
 import { motion } from 'motion/react'
 import type { ComponentProps, ReactNode } from 'react'
 
-const collapsed = { height: 0, opacity: 0 }
-const expanded = { height: 'auto' as const, opacity: 1 }
+// Clipped while it folds: the clip-path hides the overflow but a scroller still counts it, so a tall block folding at the end of a chat kept the scroll area its full height and the chat jumped into the blank. Unclipped once shown (motion's `transitionEnd` never lets go of the clip), or the rings inside are cut.
+const collapsed = { height: 0, opacity: 0, overflow: 'clip' }
+const expanded = { height: 'auto', opacity: 1, overflow: 'visible' }
 
 const absorbStackGap = (node: HTMLDivElement | null) => {
   const parent = node?.previousElementSibling?.parentElement
