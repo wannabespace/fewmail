@@ -51,7 +51,7 @@ export const PickTime = ({
         weekStartsOn={weekStartsOn}
       />
       <form
-        className="flex gap-2"
+        className="flex gap-2 contain-inline-size"
         onSubmit={(event) => {
           event.preventDefault()
           const at = parse(time, 'HH:mm', day)
@@ -121,7 +121,7 @@ export const SendLater = ({
         </DropdownMenuContent>
       </DropdownMenu>
       <Popover open={isPicking} onOpenChange={setIsPicking}>
-        <PopoverContent anchor={trigger} align="start">
+        <PopoverContent anchor={trigger} align="start" className="w-auto">
           <PickTime
             action={t.compose.later.schedule}
             onPick={(sendAt) => {

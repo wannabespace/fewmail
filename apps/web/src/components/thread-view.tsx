@@ -1228,6 +1228,7 @@ export const SnoozePicker = () => {
       <PopoverContent
         anchor={shown && { getBoundingClientRect: () => shown.anchor }}
         align="end"
+        className="w-auto"
       >
         {shown && (
           <PickTime

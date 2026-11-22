@@ -4,7 +4,7 @@ Upstream traps and the house answer to each. Read before debugging a kit compone
 
 ## base-ui / registry components
 
-- `PopoverContent` defaults to a padded `w-72` form box — menu-like popovers need the `padding` prop and usually `w-auto`.
+- `PopoverContent` defaults to a padded `w-72` form box — menu-like popovers need the `padding` prop and usually `w-auto`. A date picker (`PickTime`) is `w-auto` too, so the popover hugs the calendar; the row under it takes `contain-inline-size`, or a long button label (uk “Відкласти”) widens the popover past the grid.
 - `DropdownMenuLabel` requires a `DropdownMenuGroup` parent (base-ui throws).
 - base-ui `Menu.Item` closes the menu on click — in-menu toggles need `closeOnClick={false}`.
 - base-ui `Menu.RadioItem` does the opposite and stays open on click, and a menu is modal, so the next click anywhere only closes it (Compose's Send was swallowed after picking Remind me). The kit `DropdownMenuRadioItem` defaults `closeOnClick` to true; a radio list that should stay open passes `closeOnClick={false}`.
